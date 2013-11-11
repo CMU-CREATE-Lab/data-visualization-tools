@@ -1,0 +1,632 @@
+<!doctype html>
+<html>
+  <head>
+    <title>0.html</title>
+    <style>
+      html, body, #map-div {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+      }
+      #date-widget {
+        width: 200px;
+        font-size: large;
+        background: whitesmoke;
+        color: #999;
+        position: absolute;
+        right: 0;
+        bottom: 75px;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        border-radius: 5px;
+        border: 1px solid black;
+      }
+      #animate-button {
+        float: left;
+        width: 50px;
+        margin-right: 50px;
+      }
+    </style>
+    <script src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
+    <script src="../js/CanvasLayer.js"></script>
+    <script type="text/javascript" src="../js/base.js"></script>
+    <script type="text/javascript" src="../js/io.js"></script>
+    <script type="text/javascript" src="../js/utils.js"></script>
+    <script type="text/javascript" src="../js/stats.min.js"></script>
+    <script id="pointVertexShader" type="x-shader/x-vertex">
+      attribute vec4 worldCoord;
+
+      attribute float aPointSize;
+
+      uniform mat4 mapMatrix;
+
+      void main() {
+        // transform world coordinate by matrix uniform variable
+        gl_Position = mapMatrix * worldCoord;
+
+        // a constant size for points, regardless of zoom level
+        gl_PointSize = aPointSize;
+      }      
+    </script>
+    <script id="pointFragmentShader" type="x-shader/x-fragment">
+     precision mediump float;
+
+      void main() {
+        float dist = length(gl_PointCoord.xy - vec2(.5, .5));
+        dist = 1. - (dist * 2.);
+        dist = max(0., dist);
+        gl_FragColor = vec4(.82, .22, .07, 1.) * dist;
+      }
+    </script>
+    <script type="text/javascript">
+      /* bgein stats */
+      var stats = new Stats();
+      stats.setMode(0); // 0: fps, 1: ms
+      // Align top-left
+      stats.domElement.style.position = 'absolute';
+      stats.domElement.style.left = '0px';
+      stats.domElement.style.top = '0px';
+      /* end stats */
+
+      var dataLoaded = false;
+      var map;
+      var canvasLayer;
+      var gl;
+      
+      var pointProgram;
+      var pointArrayBuffer;
+      var POINT_COUNT;
+
+      var pixelsToWebGLMatrix = new Float32Array(16);
+      var mapMatrix = new Float32Array(16);
+
+      var days = [
+        {'date': '20130206', 'length':4087},
+        {'date': '20130207', 'length':3842},
+        {'date': '20130208', 'length':3676},
+        {'date': '20130209', 'length':3618},
+        {'date': '20130210', 'length':3905},
+        {'date': '20130211', 'length':4142},
+        {'date': '20130212', 'length':2804},
+        {'date': '20130213', 'length':3295},
+        {'date': '20130214', 'length':3873},
+        {'date': '20130215', 'length':3723},
+        {'date': '20130216', 'length':4006},
+        {'date': '20130217', 'length':3311},
+        {'date': '20130218', 'length':3328},
+        {'date': '20130219', 'length':3471},
+        {'date': '20130220', 'length':3866},
+        {'date': '20130221', 'length':4266},
+        {'date': '20130222', 'length':3723},
+        {'date': '20130223', 'length':3791},
+        {'date': '20130224', 'length':4395},
+        {'date': '20130225', 'length':3962},
+        {'date': '20130226', 'length':4391},
+        {'date': '20130227', 'length':4291},
+        {'date': '20130228', 'length':3898},
+        {'date': '20130301', 'length':3953},
+        {'date': '20130302', 'length':3996},
+        {'date': '20130303', 'length':4516},
+        {'date': '20130304', 'length':4585},
+        {'date': '20130305', 'length':4274},
+        {'date': '20130306', 'length':4030},
+        {'date': '20130307', 'length':4124},
+        {'date': '20130308', 'length':4706},
+        {'date': '20130309', 'length':4610},
+        {'date': '20130310', 'length':3853},
+        {'date': '20130311', 'length':3413},
+        {'date': '20130312', 'length':3539},
+        {'date': '20130313', 'length':3570},
+        {'date': '20130314', 'length':4162},
+        {'date': '20130315', 'length':3260},
+        {'date': '20130316', 'length':4545},
+        {'date': '20130317', 'length':3806},
+        {'date': '20130318', 'length':4668},
+        {'date': '20130319', 'length':3768},
+        {'date': '20130320', 'length':4801},
+        {'date': '20130321', 'length':5620},
+        {'date': '20130322', 'length':4986},
+        {'date': '20130323', 'length':4668},
+        {'date': '20130324', 'length':4336},
+        {'date': '20130325', 'length':4713},
+        {'date': '20130326', 'length':6284},
+        {'date': '20130327', 'length':5291},
+        {'date': '20130328', 'length':5514},
+        {'date': '20130329', 'length':5335},
+        {'date': '20130330', 'length':5577},
+        {'date': '20130331', 'length':5711},
+        {'date': '20130401', 'length':5982},
+        {'date': '20130402', 'length':5373},
+        {'date': '20130403', 'length':3999},
+        {'date': '20130404', 'length':3866},
+        {'date': '20130405', 'length':5204},
+        {'date': '20130406', 'length':4705},
+        {'date': '20130407', 'length':7118},
+        {'date': '20130408', 'length':7852},
+        {'date': '20130409', 'length':9304},
+        {'date': '20130410', 'length':8768},
+        {'date': '20130411', 'length':10622},
+        {'date': '20130412', 'length':10280},
+        {'date': '20130413', 'length':5086},
+        {'date': '20130414', 'length':4987},
+        {'date': '20130415', 'length':4198},
+        {'date': '20130416', 'length':4146},
+        {'date': '20130417', 'length':4224},
+        {'date': '20130418', 'length':4142},
+        {'date': '20130419', 'length':4375},
+        {'date': '20130420', 'length':4518},
+        {'date': '20130421', 'length':4338},
+        {'date': '20130422', 'length':4924},
+        {'date': '20130423', 'length':1552},
+        {'date': '20130424', 'length':3822},
+        {'date': '20130425', 'length':4561},
+        {'date': '20130426', 'length':5250},
+        {'date': '20130427', 'length':4724},
+        {'date': '20130428', 'length':4498},
+        {'date': '20130429', 'length':4402},
+        {'date': '20130430', 'length':8692},
+        {'date': '20130501', 'length':9354},
+        {'date': '20130502', 'length':10542},
+        {'date': '20130503', 'length':9816},
+        {'date': '20130504', 'length':4123},
+        {'date': '20130505', 'length':4339},
+        {'date': '20130506', 'length':7516},
+        {'date': '20130507', 'length':8566},
+        {'date': '20130508', 'length':9548},
+        {'date': '20130509', 'length':8608},
+        {'date': '20130510', 'length':8030},
+        {'date': '20130511', 'length':6862},
+        {'date': '20130512', 'length':7040},
+        {'date': '20130513', 'length':6456},
+        {'date': '20130514', 'length':7482},
+        {'date': '20130515', 'length':6492},
+        {'date': '20130516', 'length':6794},
+        {'date': '20130517', 'length':3465},
+        {'date': '20130518', 'length':7472},
+        {'date': '20130519', 'length':6806},
+        {'date': '20130520', 'length':3455},
+        {'date': '20130521', 'length':2249},
+        {'date': '20130522', 'length':3177},
+        {'date': '20130523', 'length':3892},
+        {'date': '20130524', 'length':3738},
+        {'date': '20130525', 'length':3764},
+        {'date': '20130526', 'length':2869},
+        {'date': '20130527', 'length':2412},
+        {'date': '20130528', 'length':3254},
+        {'date': '20130529', 'length':3595},
+        {'date': '20130530', 'length':2986},
+        {'date': '20130531', 'length':2499},
+        {'date': '20130601', 'length':2710},
+        {'date': '20130602', 'length':2793},
+        {'date': '20130603', 'length':4045},
+        {'date': '20130604', 'length':3616},
+        {'date': '20130605', 'length':3458},
+        {'date': '20130606', 'length':3691},
+        {'date': '20130607', 'length':3238},
+        {'date': '20130608', 'length':4448},
+        {'date': '20130609', 'length':3758},
+        {'date': '20130610', 'length':2234},
+        {'date': '20130611', 'length':3066},
+        {'date': '20130612', 'length':2780},
+        {'date': '20130613', 'length':3318},
+        {'date': '20130614', 'length':3427},
+        {'date': '20130615', 'length':3261},
+        {'date': '20130616', 'length':3580},
+        {'date': '20130617', 'length':3181},
+        {'date': '20130618', 'length':3473},
+        {'date': '20130619', 'length':4693},
+        {'date': '20130620', 'length':3406},
+        {'date': '20130621', 'length':3545},
+        {'date': '20130622', 'length':3329},
+        {'date': '20130623', 'length':3299},
+        {'date': '20130624', 'length':4447},
+        {'date': '20130625', 'length':3438},
+        {'date': '20130626', 'length':3354},
+        {'date': '20130627', 'length':2910},
+        {'date': '20130628', 'length':2999},
+        {'date': '20130629', 'length':3435},
+        {'date': '20130630', 'length':4051},
+        {'date': '20130701', 'length':3558},
+        {'date': '20130702', 'length':3645},
+        {'date': '20130703', 'length':2913},
+        {'date': '20130704', 'length':3406},
+        {'date': '20130705', 'length':3646},
+        {'date': '20130706', 'length':3044},
+        {'date': '20130707', 'length':3478},
+        {'date': '20130708', 'length':2879},
+        {'date': '20130709', 'length':3364},
+        {'date': '20130710', 'length':4686},
+        {'date': '20130711', 'length':4621},
+        {'date': '20130712', 'length':3595},
+        {'date': '20130713', 'length':3399},
+        {'date': '20130714', 'length':2913},
+        {'date': '20130715', 'length':3565},
+        {'date': '20130716', 'length':3823},
+        {'date': '20130717', 'length':3303},
+        {'date': '20130718', 'length':3462},
+        {'date': '20130719', 'length':3331},
+        {'date': '20130720', 'length':3695},
+        {'date': '20130721', 'length':4473},
+        {'date': '20130722', 'length':4104},
+        {'date': '20130723', 'length':4517},
+        {'date': '20130724', 'length':3765},
+        {'date': '20130725', 'length':4089},
+        {'date': '20130726', 'length':5260},
+        {'date': '20130727', 'length':4608},
+        {'date': '20130728', 'length':4351},
+        {'date': '20130729', 'length':4339},
+        {'date': '20130730', 'length':4050},
+        {'date': '20130731', 'length':4375},
+        {'date': '20130801', 'length':5153},
+        {'date': '20130802', 'length':4198},
+        {'date': '20130803', 'length':3871},
+        {'date': '20130804', 'length':3691},
+        {'date': '20130805', 'length':4327},
+        {'date': '20130806', 'length':5098},
+        {'date': '20130807', 'length':4491},
+        {'date': '20130808', 'length':4561},
+        {'date': '20130809', 'length':4587},
+        {'date': '20130810', 'length':4291},
+        {'date': '20130812', 'length':4877},
+        {'date': '20130813', 'length':5284},
+        {'date': '20130814', 'length':5414},
+        {'date': '20130815', 'length':5368},
+        {'date': '20130816', 'length':5196},
+        {'date': '20130817', 'length':6839},
+        {'date': '20130818', 'length':5457},
+        {'date': '20130819', 'length':5691},
+        {'date': '20130820', 'length':4702},
+        {'date': '20130821', 'length':5086},
+        {'date': '20130822', 'length':5742},
+        {'date': '20130823', 'length':5535},
+        {'date': '20130824', 'length':4899},
+        {'date': '20130825', 'length':4693},
+        {'date': '20130826', 'length':4807},
+        {'date': '20130827', 'length':11503},
+        {'date': '20130828', 'length':11773},
+        {'date': '20130829', 'length':10859},
+        {'date': '20130830', 'length':10340},
+        {'date': '20130831', 'length':10964},
+        {'date': '20130901', 'length':8881},
+        {'date': '20130902', 'length':11610},
+        {'date': '20130903', 'length':8296},
+        {'date': '20130904', 'length':8088},
+        {'date': '20130905', 'length':8497},
+        {'date': '20130906', 'length':8699},
+        {'date': '20130907', 'length':12426},
+        {'date': '20130908', 'length':9484},
+        {'date': '20130909', 'length':7428},
+        {'date': '20130910', 'length':12293},
+        {'date': '20130911', 'length':9558},
+        {'date': '20130912', 'length':10253},
+        {'date': '20130913', 'length':10580},
+        {'date': '20130914', 'length':7394},
+        {'date': '20130915', 'length':9260},
+        {'date': '20130916', 'length':8568},
+        {'date': '20130917', 'length':7433},
+        {'date': '20130918', 'length':9562},
+        {'date': '20130919', 'length':8683},
+        {'date': '20130920', 'length':10760},
+        {'date': '20130921', 'length':9635},
+        {'date': '20130922', 'length':7971},
+        {'date': '20130923', 'length':7790},
+        {'date': '20130924', 'length':8970},
+        {'date': '20130925', 'length':10488},
+        {'date': '20130927', 'length':7875},
+        {'date': '20130928', 'length':11742},
+        {'date': '20131018', 'length':9229},
+        {'date': '20131019', 'length':7665},
+        {'date': '20131020', 'length':7284},
+        {'date': '20131021', 'length':7706},
+        {'date': '20131022', 'length':2976},
+        {'date': '20131025', 'length':5900},
+        {'date': '20131026', 'length':8315},
+        {'date': '20131027', 'length':785}];
+
+      function init() {
+        // initialize the map
+        var mapOptions = {
+          zoom: 4,
+          center: new google.maps.LatLng(39.3, -95.8),
+          mapTypeId: google.maps.MapTypeId.ROADMAP,
+          styles: [
+            {
+              featureType: 'all',
+              stylers: [
+                {hue: '#0000b0'},
+                {invert_lightness: 'true'},
+                {saturation: -30}
+              ]
+            },
+            {
+              featureType: 'poi',
+              stylers: [{visibility: 'off'}]
+            }
+          ]
+        };
+        var mapDiv = document.getElementById('map-div');
+        map = new google.maps.Map(mapDiv, mapOptions);
+
+        // initialize the canvasLayer
+        var canvasLayerOptions = {
+          map: map,
+          resizeHandler: resize,
+          animate: true,
+          updateHandler: update
+        };
+        canvasLayer = new CanvasLayer(canvasLayerOptions);
+
+        window.addEventListener('resize', function () {  google.maps.event.trigger(map, 'resize') }, false);
+
+
+        // initialize WebGL
+        gl = canvasLayer.canvas.getContext('experimental-webgl');
+      
+        gl.enable(gl.BLEND);
+        gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
+
+        createShaderProgram();        
+
+
+        var total = 0;
+        for (var i = 0; i < days.length; i++) {
+	  days[i].index = total;  
+	  total += days[i].length;
+	}
+
+        var animateButton = document.getElementById('animate-button');
+        animateButton.addEventListener("click", function(event) {
+          if (this.textContent == "Pause") {
+            this.textContent = "Play";
+            animate = false;
+          } else {
+            this.textContent = "Pause";
+            animate = true;
+          }
+      
+        }, false);
+
+        var daySlider = document.getElementById('day-slider');
+        daySlider.addEventListener("change", function(event) {
+          current_day_index = this.valueAsNumber;
+	  current_day = days[current_day_index];
+	  first_day = days[Math.max(0, current_day_index - currentOffset)];
+          var el = document.getElementById('current-date');
+          el.innerHTML = days[current_day_index].date;
+        }, false);
+      
+        daySlider.addEventListener("mousedown", function(event) {
+          animate = false;
+        }, false);
+
+        daySlider.addEventListener("mouseup", function(event) {
+          var animateButton = document.getElementById('animate-button');
+          if (animateButton.textContent == "Pause") {
+            animate = true;
+          }
+        }, false);
+
+        var offsetSlider = document.getElementById('offset-slider');
+        offsetSlider.addEventListener("change", function(event) {
+          var el = document.getElementById('current-offset');
+          el.innerHTML = (this.valueAsNumber + 1)+ " days";
+	  currentOffset = this.valueAsNumber;
+          first_day = days[Math.max(0, current_day_index - currentOffset)];
+        }, false);
+      
+        offsetSlider.addEventListener("mousedown", function(event) {
+          animate = false;
+        }, false);
+
+        offsetSlider.addEventListener("mouseup", function(event) {
+          var animateButton = document.getElementById('animate-button');
+          if (animateButton.textContent == "Pause") {
+            animate = true;
+          }
+        }, false);
+
+
+        var speedSlider = document.getElementById('speed-slider');
+        speedSlider.addEventListener("change", function(event) {
+          var el = document.getElementById('current-speed');
+          el.innerHTML = (this.valueAsNumber)+ " ms";
+	  speed = this.valueAsNumber;
+        }, false);
+      
+        speedSlider.addEventListener("mousedown", function(event) {
+          animate = false;
+        }, false);
+
+        speedSlider.addEventListener("mouseup", function(event) {
+          var animateButton = document.getElementById('animate-button');
+          if (animateButton.textContent == "Pause") {
+            animate = true;
+          }
+        }, false);
+
+
+        tdl.io.loadArrayBuffer('bin/viirs-2013-11-04_latlon.bin', loadData);
+        document.body.appendChild( stats.domElement );
+
+      }
+      
+
+     function createShaderProgram() {
+        // create vertex shader
+        var vertexSrc = document.getElementById('pointVertexShader').text;
+        var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+        gl.shaderSource(vertexShader, vertexSrc);
+        gl.compileShader(vertexShader);
+
+        // create fragment shader
+        var fragmentSrc = document.getElementById('pointFragmentShader').text;
+        var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+        gl.shaderSource(fragmentShader, fragmentSrc);
+        gl.compileShader(fragmentShader);
+
+        // link shaders to create our program
+        pointProgram = gl.createProgram();
+        gl.attachShader(pointProgram, vertexShader);
+        gl.attachShader(pointProgram, fragmentShader);
+        gl.linkProgram(pointProgram);
+
+        gl.useProgram(pointProgram);
+
+        gl.aPointSize = gl.getAttribLocation(pointProgram, "aPointSize");
+
+      }
+
+      function resize() {
+        var width = canvasLayer.canvas.width;
+        var height = canvasLayer.canvas.height;
+        gl.viewport(0, 0, width, height);
+
+        // matrix which maps pixel coordinates to WebGL coordinates
+        pixelsToWebGLMatrix.set([2/width, 0, 0, 0, 0, -2/height, 0, 0,
+            0, 0, 0, 0, -1, 1, 0, 1]);
+
+      }
+
+
+      var current_day_index = 0;
+      var current_day = days[current_day_index];
+      var first_day = days[current_day_index];
+      var lastTime = 0;
+      var totalElapsedTime = 0;
+      var currentOffset = 0;
+      var animate = true;
+      var speed = 100;
+      function update() {
+        stats.begin();
+
+        if (animate) {
+          var timeNow = new Date().getTime();
+          if (lastTime != 0 ) {
+            var elapsed = timeNow - lastTime;
+            totalElapsedTime += elapsed;
+          }
+          lastTime = timeNow;
+      
+          if (totalElapsedTime > speed) {
+            if (current_day_index == days.length) {
+              current_day_index = 0;
+            }
+            totalElapsedTime = 0;
+  	    current_day = days[current_day_index];
+            first_day = days[Math.max(0, current_day_index - currentOffset)];
+            var el = document.getElementById('current-date');
+            el.innerHTML = days[current_day_index].date;
+            var el = document.getElementById('day-slider');
+            el.value = current_day_index;
+            current_day_index++;
+          }
+        }
+
+        if (dataLoaded) {
+          gl.clear(gl.COLOR_BUFFER_BIT);
+
+          // pointSize range [5,20]
+  	  var pointSize = Math.floor( ((20-5) * (map.zoom - 0) / (21 - 0)) + 5 );
+//	  console.log(pointSize);
+  	  gl.vertexAttrib1f(gl.aPointSize, pointSize*1.0);
+
+          var mapProjection = map.getProjection();
+
+        /**
+         * We need to create a transformation that takes world coordinate
+         * points in the pointArrayBuffer to the coodinates WebGL expects.
+         * 1. Start with second half in pixelsToWebGLMatrix, which takes pixel
+         *     coordinates to WebGL coordinates.
+         * 2. Scale and translate to take world coordinates to pixel coords
+         * see https://developers.google.com/maps/documentation/javascript/maptypes#MapCoordinate
+         */
+        
+          // copy pixel->webgl matrix
+          mapMatrix.set(pixelsToWebGLMatrix);
+
+          // Scale to current zoom (worldCoords * 2^zoom)
+          var scale = Math.pow(2, map.zoom);
+          scaleMatrix(mapMatrix, scale, scale);
+
+          // translate to current view (vector from topLeft to 0,0)
+          var offset = mapProjection.fromLatLngToPoint(canvasLayer.getTopLeft());
+          translateMatrix(mapMatrix, -offset.x, -offset.y);
+
+          // attach matrix value to 'mapMatrix' uniform in shader
+          var matrixLoc = gl.getUniformLocation(pointProgram, 'mapMatrix');
+          gl.uniformMatrix4fv(matrixLoc, false, mapMatrix);
+
+          // draw!
+          gl.drawArrays(gl.POINTS, first_day.index, current_day.index + current_day.length - first_day.index);
+        }
+        stats.end();
+      }
+
+      function loadData(arrayBuffer, exception) {
+        data = new DataView(arrayBuffer);
+
+        POINT_COUNT = (data.byteLength / Float32Array.BYTES_PER_ELEMENT) / 2;
+	var rawData = new Float32Array(
+          data.byteLength / Float32Array.BYTES_PER_ELEMENT);
+        var len = rawData.length;
+        // Incoming data is raw floating point values
+        // with little-endian byte ordering.
+        for (var i = 0; i < len; i += 2) {
+          lat = data.getFloat32(i * Float32Array.BYTES_PER_ELEMENT, true);
+          lon = data.getFloat32((i +1 ) * Float32Array.BYTES_PER_ELEMENT, true);
+          var pixel = LatLongToPixelXY(lat, lon);
+          rawData[i] = pixel.x;
+          rawData[i+1] = pixel.y;
+	}
+	// create webgl buffer, bind it, and load rawData into it
+        pointArrayBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, pointArrayBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, rawData, gl.STATIC_DRAW);
+
+        // enable the 'worldCoord' attribute in the shader to receive buffer
+        var attributeLoc = gl.getAttribLocation(pointProgram, 'worldCoord');
+        gl.enableVertexAttribArray(attributeLoc);
+
+        // tell webgl how buffer is laid out (pairs of x,y coords)
+        gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 0, 0);
+
+        dataLoaded = true;
+
+      }
+
+      function scaleMatrix(matrix, scaleX, scaleY) {
+        // scaling x and y, which is just scaling first two columns of matrix
+        matrix[0] *= scaleX;
+        matrix[1] *= scaleX;
+        matrix[2] *= scaleX;
+        matrix[3] *= scaleX;
+
+        matrix[4] *= scaleY;
+        matrix[5] *= scaleY;
+        matrix[6] *= scaleY;
+        matrix[7] *= scaleY;
+      }
+
+      function translateMatrix(matrix, tx, ty) {
+        // translation is in last column of matrix
+        matrix[12] += matrix[0]*tx + matrix[4]*ty;
+        matrix[13] += matrix[1]*tx + matrix[5]*ty;
+        matrix[14] += matrix[2]*tx + matrix[6]*ty;
+        matrix[15] += matrix[3]*tx + matrix[7]*ty;
+      }
+
+      document.addEventListener('DOMContentLoaded', init, false);
+    </script>
+  </head>
+  <body>
+    <div id="map-div"></div>
+    <div id="date-widget">
+      <input type="range" value="0" min="0" max="240" list="number" id="day-slider"/><br/>
+      <button name="animate-button" id="animate-button">Pause</button><div id="current-date"></div>
+      <input type="range" value="0" min="0" max="240" list="number" id="offset-slider"/><br/>
+      <div id="current-offset">1 days</div>
+      <input type="range" value="100" min="10" max="200" step="10" list="number" id="speed-slider"/><br/>
+      <div id="current-speed">100 ms</div>
+    </div>
+  </body>
+</html>
