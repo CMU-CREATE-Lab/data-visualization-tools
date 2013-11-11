@@ -356,6 +356,9 @@
         };
         canvasLayer = new CanvasLayer(canvasLayerOptions);
 
+        window.addEventListener('resize', function () {  google.maps.event.trigger(map, 'resize') }, false);
+
+
         // initialize WebGL
         gl = canvasLayer.canvas.getContext('experimental-webgl');
       
@@ -457,13 +460,14 @@
       function resize() {
         var width = canvasLayer.canvas.width;
         var height = canvasLayer.canvas.height;
-
         gl.viewport(0, 0, width, height);
 
         // matrix which maps pixel coordinates to WebGL coordinates
         pixelsToWebGLMatrix.set([2/width, 0, 0, 0, 0, -2/height, 0, 0,
             0, 0, 0, 0, -1, 1, 0, 1]);
+
       }
+
 
       var current_day_index = 0;
       var current_day = days[current_day_index];
