@@ -60,6 +60,8 @@
         };
         canvasLayer = new CanvasLayer(canvasLayerOptions);
 
+        window.addEventListener('resize', function () {  google.maps.event.trigger(map, 'resize') }, false);
+
         // initialize WebGL
         gl = canvasLayer.canvas.getContext('experimental-webgl');
 
