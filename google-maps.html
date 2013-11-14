@@ -9,13 +9,41 @@
         padding: 0;
         height: 100%;
       }
+      #date-widget {
+        width: 200px;
+        font-size: large;
+        background: whitesmoke;
+        color: #999;
+        position: absolute;
+        right: 0;
+        bottom: 75px;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        border-radius: 5px;
+        border: 1px solid black;
+      }
+      #animate-button {
+        float: left;
+        width: 50px;
+        margin-right: 50px;
+      }
     </style>
     <script src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
     <script src="js/CanvasLayer.js"></script>
     <script type="text/javascript" src="js/base.js"></script>
     <script type="text/javascript" src="js/io.js"></script>
     <script type="text/javascript" src="js/utils.js"></script>
+    <script type="text/javascript" src="js/stats.min.js"></script>
     <script>
+      /* begin stats */
+      var stats = new Stats();
+      stats.setMode(0); // 0: fps, 1: ms
+      // Align top-left
+      stats.domElement.style.position = 'absolute';
+      stats.domElement.style.left = '0px';
+      stats.domElement.style.top = '0px';
+      /* end stats */
+
       var map;
       var canvasLayer;
       var gl;
@@ -26,6 +54,126 @@
 
       var pixelsToWebGLMatrix = new Float32Array(16);
       var mapMatrix = new Float32Array(16);
+
+      var years = [
+        {'date': '1902', 'length': 7},
+        {'date': '1903', 'length': 10},
+        {'date': '1904', 'length': 22},
+        {'date': '1905', 'length': 28},
+        {'date': '1906', 'length': 9},
+        {'date': '1907', 'length': 13},
+        {'date': '1908', 'length': 19},
+        {'date': '1909', 'length': 14},
+        {'date': '1910', 'length': 12},
+        {'date': '1911', 'length': 204},
+        {'date': '1912', 'length': 19},
+        {'date': '1913', 'length': 19},
+        {'date': '1914', 'length': 35},
+        {'date': '1915', 'length': 128},
+        {'date': '1916', 'length': 198},
+        {'date': '1917', 'length': 258},
+        {'date': '1918', 'length': 213},
+        {'date': '1919', 'length': 189},
+        {'date': '1920', 'length': 384},
+        {'date': '1921', 'length': 507},
+        {'date': '1922', 'length': 987},
+        {'date': '1923', 'length': 997},
+        {'date': '1924', 'length': 937},
+        {'date': '1925', 'length': 1509},
+        {'date': '1926', 'length': 1547},
+        {'date': '1927', 'length': 1361},
+        {'date': '1928', 'length': 1469},
+        {'date': '1929', 'length': 1701},
+        {'date': '1930', 'length': 1397},
+        {'date': '1931', 'length': 656},
+        {'date': '1932', 'length': 781},
+        {'date': '1933', 'length': 874},
+        {'date': '1934', 'length': 1376},
+        {'date': '1935', 'length': 1812},
+        {'date': '1936', 'length': 2734},
+        {'date': '1937', 'length': 3660},
+        {'date': '1938', 'length': 2595},
+        {'date': '1939', 'length': 2744},
+        {'date': '1940', 'length': 3270},
+        {'date': '1941', 'length': 3758},
+        {'date': '1942', 'length': 2597},
+        {'date': '1943', 'length': 2822},
+        {'date': '1944', 'length': 3170},
+        {'date': '1945', 'length': 3342},
+        {'date': '1946', 'length': 3699},
+        {'date': '1947', 'length': 4538},
+        {'date': '1948', 'length': 5216},
+        {'date': '1949', 'length': 5463},
+        {'date': '1950', 'length': 6306},
+        {'date': '1951', 'length': 6720},
+        {'date': '1952', 'length': 7386},
+        {'date': '1953', 'length': 8387},
+        {'date': '1954', 'length': 9297},
+        {'date': '1955', 'length': 10778},
+        {'date': '1956', 'length': 11437},
+        {'date': '1957', 'length': 11083},
+        {'date': '1958', 'length': 10710},
+        {'date': '1959', 'length': 10954},
+        {'date': '1960', 'length': 9739},
+        {'date': '1961', 'length': 10026},
+        {'date': '1962', 'length': 10649},
+        {'date': '1963', 'length': 10985},
+        {'date': '1964', 'length': 11257},
+        {'date': '1965', 'length': 11471},
+        {'date': '1966', 'length': 9811},
+        {'date': '1967', 'length': 9512},
+        {'date': '1968', 'length': 10357},
+        {'date': '1969', 'length': 10839},
+        {'date': '1970', 'length': 9481},
+        {'date': '1971', 'length': 9573},
+        {'date': '1972', 'length': 10912},
+        {'date': '1973', 'length': 10786},
+        {'date': '1974', 'length': 11708},
+        {'date': '1975', 'length': 13283},
+        {'date': '1976', 'length': 14706},
+        {'date': '1977', 'length': 15827},
+        {'date': '1978', 'length': 18554},
+        {'date': '1979', 'length': 19204},
+        {'date': '1980', 'length': 26511},
+        {'date': '1981', 'length': 34310},
+        {'date': '1982', 'length': 33029},
+        {'date': '1983', 'length': 30041},
+        {'date': '1984', 'length': 38827},
+        {'date': '1985', 'length': 27190},
+        {'date': '1986', 'length': 12683},
+        {'date': '1987', 'length': 11808},
+        {'date': '1988', 'length': 10907},
+        {'date': '1989', 'length': 9326},
+        {'date': '1990', 'length': 12911},
+        {'date': '1991', 'length': 11970},
+        {'date': '1992', 'length': 10101},
+        {'date': '1993', 'length': 8563},
+        {'date': '1994', 'length': 9158},
+        {'date': '1995', 'length': 8261},
+        {'date': '1996', 'length': 8468},
+        {'date': '1997', 'length': 9483},
+        {'date': '1998', 'length': 7449},
+        {'date': '1999', 'length': 7330},
+        {'date': '2000', 'length': 10389},
+        {'date': '2001', 'length': 12928},
+        {'date': '2002', 'length': 11735},
+        {'date': '2003', 'length': 15665},
+        {'date': '2004', 'length': 18939},
+        {'date': '2005', 'length': 23862},
+        {'date': '2006', 'length': 30290},
+        {'date': '2007', 'length': 33854},
+        {'date': '2008', 'length': 41724},
+        {'date': '2009', 'length': 26181},
+        {'date': '2010', 'length': 33059},
+        {'date': '2011', 'length': 36593},
+        {'date': '2012', 'length': 35059},
+        {'date': '2013', 'length': 16911},
+        {'date': '2016', 'length': 1},
+        {'date': '2019', 'length': 1},
+        {'date': '2020', 'length': 2},
+        {'date': '2021', 'length': 4},
+        {'date': '2023', 'length': 1}
+      ]
 
       var dataLoaded = false;
 
@@ -70,7 +218,67 @@
         gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
 
         createShaderProgram();
+
+        var total = 0;
+        for (var i = 0; i < years.length; i++) {
+	  years[i].index = total;  
+	  total += years[i].length;
+	}
+
+        var animateButton = document.getElementById('animate-button');
+        animateButton.addEventListener("click", function(event) {
+          if (this.textContent == "Pause") {
+            this.textContent = "Play";
+            animate = false;
+          } else {
+            this.textContent = "Pause";
+            animate = true;
+          }
+      
+        }, false);
+
+        var yearSlider = document.getElementById('year-slider');
+        yearSlider.addEventListener("change", function(event) {
+          current_year_index = this.valueAsNumber;
+	  current_year = years[current_year_index];
+	  first_year = years[Math.max(0, current_year_index - currentOffset)];
+          var el = document.getElementById('current-date');
+          el.innerHTML = years[current_year_index].date;
+        }, false);
+      
+        yearSlider.addEventListener("mousedown", function(event) {
+          animate = false;
+        }, false);
+
+        yearSlider.addEventListener("mouseup", function(event) {
+          var animateButton = document.getElementById('animate-button');
+          if (animateButton.textContent == "Pause") {
+            animate = true;
+          }
+        }, false);
+
+       var speedSlider = document.getElementById('speed-slider');
+        speedSlider.addEventListener("change", function(event) {
+          var el = document.getElementById('current-speed');
+          el.innerHTML = (this.valueAsNumber)+ " ms";
+	  speed = this.valueAsNumber;
+        }, false);
+      
+        speedSlider.addEventListener("mousedown", function(event) {
+          animate = false;
+        }, false);
+
+        speedSlider.addEventListener("mouseup", function(event) {
+          var animateButton = document.getElementById('animate-button');
+          if (animateButton.textContent == "Pause") {
+            animate = true;
+          }
+        }, false);
+
         tdl.io.loadArrayBuffer('wells_latlon.bin', loadData);
+
+        document.body.appendChild( stats.domElement );
+
       }
 
       function createShaderProgram() {
@@ -160,14 +368,39 @@
         matrix[15] += matrix[3]*tx + matrix[7]*ty;
       }
 
-      var seq = 0;
-
+      var current_year_index = 0;
+      var current_year = years[current_year_index];
+      var first_year = years[current_year_index];
+      var lastTime = 0;
+      var totalElapsedTime = 0;
+      var currentOffset = 117;
+      var animate = true;
+      var speed = 70;
       function update() {
-        seq = seq + 0.5;
-        if (seq > 150) seq = 0;
-        var pct = seq / 100;
-        if (pct < 0) pct = 0;
-        if (pct > 1) pct = 1;
+	stats.begin();
+    
+        if (animate) {
+          var timeNow = new Date().getTime();
+          if (lastTime != 0 ) {
+            var elapsed = timeNow - lastTime;
+            totalElapsedTime += elapsed;
+          }
+          lastTime = timeNow;
+      
+          if (totalElapsedTime > speed) {
+            if (current_year_index == years.length) {
+              current_year_index = 0;
+            }
+            totalElapsedTime = 0;
+  	    current_year = years[current_year_index];
+            first_year = years[Math.max(0, current_year_index - currentOffset)];
+            var el = document.getElementById('current-date');
+            el.innerHTML = "Year " + years[current_year_index].date;
+            var el = document.getElementById('year-slider');
+            el.value = current_year_index;
+            current_year_index++;
+          }
+        }
 
 	if (dataLoaded) {
           gl.clear(gl.COLOR_BUFFER_BIT);
@@ -204,8 +437,9 @@
           gl.uniformMatrix4fv(matrixLoc, false, mapMatrix);
 
           // draw!
-          gl.drawArrays(gl.POINTS, 0, Math.floor(POINT_COUNT * pct));
+          gl.drawArrays(gl.POINTS, first_year.index, current_year.index + current_year.length - first_year.index);
         }
+	stats.end();
       }
 
       document.addEventListener('DOMContentLoaded', init, false);
@@ -241,6 +475,12 @@
   </head>
   <body>
     <div id="map-div"></div>
+    <div id="date-widget">
+      <input type="range" value="0" min="0" max="116" list="number" id="year-slider"/><br/>
+      <button name="animate-button" id="animate-button">Pause</button><div id="current-date"></div>
+      <input type="range" value="50" min="10" max="200" step="10" list="number" id="speed-slider"/><br/>
+      <div id="current-speed">50 ms</div>
+    </div>
   </body>
 </html>
 
