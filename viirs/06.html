@@ -484,7 +484,6 @@
         // matrix which maps pixel coordinates to WebGL coordinates
         pixelsToWebGLMatrix.set([2/width, 0, 0, 0, 0, -2/height, 0, 0,
             0, 0, 0, 0, -1, 1, 0, 1]);
-
       }
 
 
@@ -493,9 +492,9 @@
       var first_day = days[current_day_index];
       var lastTime = 0;
       var totalElapsedTime = 0;
-      var currentOffset = 0;
+      var currentOffset = 30;
       var animate = true;
-      var speed = 100;
+      var speed = 10;
       function update() {
         stats.begin();
 
@@ -544,12 +543,14 @@
           // copy pixel->webgl matrix
           mapMatrix.set(pixelsToWebGLMatrix);
 
+
           // Scale to current zoom (worldCoords * 2^zoom)
           var scale = Math.pow(2, map.zoom);
           scaleMatrix(mapMatrix, scale, scale);
 
-          // translate to current view (vector from topLeft to 0,0)
           var offset = mapProjection.fromLatLngToPoint(canvasLayer.getTopLeft());
+
+
           translateMatrix(mapMatrix, -offset.x, -offset.y);
 
           // attach matrix value to 'mapMatrix' uniform in shader
@@ -623,10 +624,10 @@
     <div id="date-widget">
       <input type="range" value="0" min="0" max="240" list="number" id="day-slider"/><br/>
       <button name="animate-button" id="animate-button">Pause</button><div id="current-date"></div>
-      <input type="range" value="0" min="0" max="240" list="number" id="offset-slider"/><br/>
-      <div id="current-offset">1 days</div>
-      <input type="range" value="100" min="10" max="200" step="10" list="number" id="speed-slider"/><br/>
-      <div id="current-speed">100 ms</div>
+      <input type="range" value="30" min="0" max="240" list="number" id="offset-slider"/><br/>
+      <div id="current-offset">31 days</div>
+      <input type="range" value="10" min="10" max="200" step="10" list="number" id="speed-slider"/><br/>
+      <div id="current-speed">10 ms</div>
     </div>
   </body>
 </html>
