@@ -430,16 +430,30 @@ CanvasLayer.prototype.repositionCanvas_ = function() {
   //     this causes noticeable hitches in map and overlay relative
   //     positioning.
 
-  var bounds = this.getMap().getBounds();
-  this.topLeft_ = new google.maps.LatLng(bounds.getNorthEast().lat(),
-      bounds.getSouthWest().lng());
-
   // canvas position relative to draggable map's conatainer depends on
   // overlayView's projection, not the map's
   var projection = this.getProjection();
+  this.topLeft_ = projection.fromContainerPixelToLatLng(new google.maps.Point(0,0));
   var divTopLeft = projection.fromLatLngToDivPixel(this.topLeft_);
+  var containerTopLeft = projection.fromLatLngToContainerPixel(this.topLeft_);
+  
   this.canvas.style[CanvasLayer.CSS_TRANSFORM_] = 'translate(' +
-      Math.round(divTopLeft.x) + 'px,' + Math.round(divTopLeft.y) + 'px)';
+      Math.round(divTopLeft.x - containerTopLeft.x) + 'px,' + Math.round(divTopLeft.y - containerTopLeft.y) + 'px)';
+
+  // Where is northwest corner of earth compared to northwest corner of canvas?  If there's more than one
+  // projection displaying (i.e. the international date line is visible one or more times), select 
+  // projection which covers the center pixel of the container
+  this.mapScale_ = Math.pow(2, map.zoom);
+  var projectionWidth = projection.getWorldWidth() / this.mapScale_;
+
+  this.mapTranslation_ = map.getProjection().fromLatLngToPoint(this.getTopLeft());
+  this.mapTranslation_.x = -this.mapTranslation_.x;
+  this.mapTranslation_.y = -this.mapTranslation_.y;
+
+  // Calculate how many projectionWidths we can move to the right before the origin crosses the center pixel of the container    
+  var advance = Math.floor(((0.5 * this.canvas.width / this.mapScale_) - this.mapTranslation_.x) / projectionWidth);
+
+  this.mapTranslation_.x += advance * projectionWidth;
 
   this.scheduleUpdate();
 };
@@ -479,6 +493,14 @@ CanvasLayer.prototype.update_ = function() {
 CanvasLayer.prototype.getTopLeft = function() {
   return this.topLeft_;
 };
+
+CanvasLayer.prototype.getMapTranslation = function() {
+  return this.mapTranslation_;
+}
+
+CanvasLayer.prototype.getMapScale = function() {
+  return this.mapScale_;
+}
 
 /**
  * Schedule a requestAnimationFrame callback to updateHandler. If one is
