@@ -10,11 +10,15 @@ Being a description of the contents of the directory viirs/ contaimned within so
 
 
 # Sample pipeline
-Take a CSV file, produce a JSON file.
+Take a CSV file, produce a JSON file and then convert into binary format:
 
     $ cd drilling-data-tools/visualize/viirs
     $ ./ruby/csv-to-json.rb -f csv/viirs-csv-2013-08-05-to-2013-09-03.csv 
     $ mv viirs-csv-2013-08-05-to-2013-09-03.json json/
+    $ cd bin
+    $ ../ruby/json-to-bin.rb --file=../json/viirs-csv-2013-08-05-to-2013-09-03.json
+
+Note that this binary format is valid for 0{1-4}.html, but not for 0{5,6}.html...
 
 Take a JSON FILE, create a binary file.
 
