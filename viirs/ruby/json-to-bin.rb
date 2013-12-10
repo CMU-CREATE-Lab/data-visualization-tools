@@ -1,6 +1,6 @@
-#!/usr/bin/env ruby2.0
+#!/usr/bin/env ruby1.9.1
 
-load File.dirname(__FILE__) + "/../../../capture/libs/utils.rb"
+load File.dirname(__FILE__) + "/utils.rb"
 
 require 'json'
 require 'optparse'

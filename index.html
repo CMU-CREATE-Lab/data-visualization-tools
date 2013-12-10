@@ -112,6 +112,13 @@
         {'date': '20130902', 'length': 6726},
         {'date': '20130903', 'length': 5013}];
 
+      function getParameterByName(name) {
+        name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+          results = regex.exec(location.search);
+        return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+      }
+
       function init() {
         // initialize the map
         var mapOptions = {
@@ -215,7 +222,7 @@
         }, false);
 
 
-        tdl.io.loadArrayBuffer('bin/viirs-csv-2013-08-05-to-2013-09-03.bin', loadData);
+        tdl.io.loadArrayBuffer(getParameterByName("source"), loadData);
         document.body.appendChild( stats.domElement );
 
       }
