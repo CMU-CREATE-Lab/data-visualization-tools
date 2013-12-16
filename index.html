@@ -156,8 +156,6 @@
         var daySlider = document.getElementById('day-slider');
         daySlider.addEventListener("change", function(event) {
           current_day_index = this.valueAsNumber;
-	  current_day = days[current_day_index];
-	  first_day = days[Math.max(0, current_day_index - currentOffset)];
           var el = document.getElementById('current-date');
           el.innerHTML = days[current_day_index].date;
         }, false);
@@ -171,7 +169,6 @@
           if (animateButton.textContent == "Pause") {
             animate = true;
           }
-//	  current_day_index++;
         }, false);
 
         var offsetSlider = document.getElementById('offset-slider');
@@ -179,18 +176,6 @@
           var el = document.getElementById('current-offset');
           el.innerHTML = this.value + " days";
 	  currentOffset = this.valueAsNumber;
-          first_day = days[Math.max(0, current_day_index - currentOffset)];
-        }, false);
-      
-        offsetSlider.addEventListener("mousedown", function(event) {
-          animate = false;
-        }, false);
-
-        offsetSlider.addEventListener("mouseup", function(event) {
-          var animateButton = document.getElementById('animate-button');
-          if (animateButton.textContent == "Pause") {
-            animate = true;
-          }
         }, false);
      }
 
@@ -231,18 +216,17 @@
       }
 
       var current_day_index = 0;
+      var currentOffset = 0;
+
+      var animate = true;
+
       var lastTime = 0;
       var elapsedTimeFromChange = 0;
       var totalElapsedTime = 0;
-      var currentOffset = 0;
-      var animate = true;
       function update() {
         if (!dataLoaded) return;
 
         stats.begin();
-
-        var first_day = days[0];
-        var current_day = days[current_day_index];
 
         if (animate) {
           var timeNow = new Date().getTime();
@@ -253,15 +237,11 @@
           }
           lastTime = timeNow;
       
-          if (elapsedTimeFromChange < 100) { stats.end(); return; }
-
           if (elapsedTimeFromChange > 100) {
             elapsedTimeFromChange = 0;
             var fraction = (totalElapsedTime / totalTime) % 1;
             current_day_index = Math.floor(days.length  * fraction);
 
-            current_day = days[current_day_index];
-            first_day = days[Math.max(0, current_day_index - currentOffset)];
             var el = document.getElementById('current-date');
             el.innerHTML = days[current_day_index].date;
             var el = document.getElementById('day-slider');
@@ -269,11 +249,13 @@
           }
         }
 
+       var current_day = days[current_day_index];
+       var first_day = days[Math.max(0, current_day_index - currentOffset)];
+
         gl.clear(gl.COLOR_BUFFER_BIT);
 
         // pointSize range [5,20]
         var pointSize = Math.floor( ((20-5) * (map.zoom - 0) / (21 - 0)) + 5 );
-//	  console.log(pointSize);
         gl.vertexAttrib1f(gl.aPointSize, pointSize*1.0);
 
         var mapProjection = map.getProjection();
