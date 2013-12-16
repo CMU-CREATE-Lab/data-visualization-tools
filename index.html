@@ -234,7 +234,7 @@
       var lastTime = 0;
       var elapsedTimeFromChange = 0;
       var totalElapsedTime = 0;
-      var currentOffset = days.length - 1;
+      var currentOffset = 0;
       var animate = true;
       function update() {
         if (!dataLoaded) return;
@@ -305,7 +305,6 @@
         // draw!
 
         gl.drawArrays(gl.POINTS, first_day.index, current_day.index + current_day.length - first_day.index);
-console.log("X");
         stats.end();
       }
 
@@ -349,7 +348,7 @@ console.log("X");
           rawFootprintData[o] = dataView.getFloat32((i+4) * Float32Array.BYTES_PER_ELEMENT, true);
           rawTemperatureData[o] = dataView.getInt32((i+5) * Int32Array.BYTES_PER_ELEMENT, true);
           rawTimeData[o] = dataView.getInt32((i+6) * Int32Array.BYTES_PER_ELEMENT, true);
-          var rowday = rawTimeData[o] % (24 * 60 * 60);
+          var rowday = Math.floor(rawTimeData[o] / (24 * 60 * 60));
           if (day != rowday) {
             day = rowday;
             daydata = {'date': formatDate(new Date(rawTimeData[o]*1000)), 'length': 0};
@@ -364,6 +363,7 @@ console.log("X");
 	  days[i].index = total;  
 	  total += days[i].length;
 	}
+        currentOffset = days.length - 1;
 
 	// create webgl buffer, bind it, and load rawData into it
         pointArrayBuffer = gl.createBuffer();
