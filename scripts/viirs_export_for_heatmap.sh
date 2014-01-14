@@ -14,6 +14,8 @@ ex() {
   run "$1" > /dev/null
 }
 
+ex 'drop table viirs_tmp1 cascade' > /dev/null 2>&1
+ex 'drop table viirs_tmp2 cascade' > /dev/null 2>&1
 ex 'create table viirs_tmp1 as select * from appomatic_mapdata_viirs where src = '\''VIIRS_CORRECTED'\'' and "Temperature" > 1773 and "Temperature" != 1810 and latitude > -65'
 ex 'create index "viirs_tmp1_RadiantOutput" ON viirs_tmp1 USING btree ("RadiantOutput")'
 ex 'create index "viirs_tmp1_RadiativeHeat" ON viirs_tmp1 USING btree ("RadiativeHeat")'
