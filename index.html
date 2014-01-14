@@ -59,6 +59,7 @@
       }
     </script>
     <script type="text/javascript">
+      var totalTime = 10000; // in ms
       /* bgein stats */
       var stats = new Stats();
       stats.setMode(0); // 0: fps, 1: ms
@@ -80,37 +81,14 @@
       var pixelsToWebGLMatrix = new Float32Array(16);
       var mapMatrix = new Float32Array(16);
 
-      var days = [
-        {'date': '20130805', 'length': 2926},
-        {'date': '20130806', 'length': 6105},
-        {'date': '20130807', 'length': 5560},
-        {'date': '20130808', 'length': 5679},
-        {'date': '20130809', 'length': 5628},
-        {'date': '20130810', 'length': 5319},
-        {'date': '20130811', 'length': 6620},
-        {'date': '20130812', 'length': 6161},
-        {'date': '20130813', 'length': 6484},
-        {'date': '20130814', 'length': 6658},
-        {'date': '20130815', 'length': 6478},
-        {'date': '20130816', 'length': 6672},
-        {'date': '20130817', 'length': 8165},
-        {'date': '20130818', 'length': 6757},
-        {'date': '20130819', 'length': 6972},
-        {'date': '20130820', 'length': 5973},
-        {'date': '20130821', 'length': 6509},
-        {'date': '20130822', 'length': 7170},
-        {'date': '20130823', 'length': 6745},
-        {'date': '20130824', 'length': 6085},
-        {'date': '20130825', 'length': 5601},
-        {'date': '20130826', 'length': 5758},
-        {'date': '20130827', 'length': 7041},
-        {'date': '20130828', 'length': 6726},
-        {'date': '20130829', 'length': 6205},
-        {'date': '20130830', 'length': 6112},
-        {'date': '20130831', 'length': 6388},
-        {'date': '20130901', 'length': 5239},
-        {'date': '20130902', 'length': 6726},
-        {'date': '20130903', 'length': 5013}];
+      var days = [];
+
+      function getParameterByName(name) {
+        name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+          results = regex.exec(location.search);
+        return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+      }
 
       function init() {
         // initialize the map
@@ -153,14 +131,15 @@
         gl.enable(gl.BLEND);
         gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
 
-        createShaderProgram();        
+        createShaderProgram();
 
+        tdl.io.loadArrayBuffer(getParameterByName("source"), loadData);
+        document.body.appendChild( stats.domElement );
 
-        var total = 0;
-        for (var i = 0; i < days.length; i++) {
-	  days[i].index = total;  
-	  total += days[i].length;
-	}
+      }
+      
+     function initSlider() {
+        document.getElementById('day-slider').max = days.length - 1;
 
         var animateButton = document.getElementById('animate-button');
         animateButton.addEventListener("click", function(event) {
@@ -177,8 +156,6 @@
         var daySlider = document.getElementById('day-slider');
         daySlider.addEventListener("change", function(event) {
           current_day_index = this.valueAsNumber;
-	  current_day = days[current_day_index];
-	  first_day = days[Math.max(0, current_day_index - currentOffset)];
           var el = document.getElementById('current-date');
           el.innerHTML = days[current_day_index].date;
         }, false);
@@ -192,7 +169,6 @@
           if (animateButton.textContent == "Pause") {
             animate = true;
           }
-//	  current_day_index++;
         }, false);
 
         var offsetSlider = document.getElementById('offset-slider');
@@ -200,26 +176,8 @@
           var el = document.getElementById('current-offset');
           el.innerHTML = this.value + " days";
 	  currentOffset = this.valueAsNumber;
-          first_day = days[Math.max(0, current_day_index - currentOffset)];
         }, false);
-      
-        offsetSlider.addEventListener("mousedown", function(event) {
-          animate = false;
-        }, false);
-
-        offsetSlider.addEventListener("mouseup", function(event) {
-          var animateButton = document.getElementById('animate-button');
-          if (animateButton.textContent == "Pause") {
-            animate = true;
-          }
-        }, false);
-
-
-        tdl.io.loadArrayBuffer('bin/viirs-csv-2013-08-05-to-2013-09-03.bin', loadData);
-        document.body.appendChild( stats.domElement );
-
-      }
-      
+     }
 
      function createShaderProgram() {
         // create vertex shader
@@ -258,13 +216,16 @@
       }
 
       var current_day_index = 0;
-      var current_day = days[current_day_index];
-      var first_day = days[current_day_index];
-      var lastTime = 0;
-      var totalElapsedTime = 0;
-      var currentOffset = days.length - 1;
+      var currentOffset = 0;
+
       var animate = true;
+
+      var lastTime = 0;
+      var elapsedTimeFromChange = 0;
+      var totalElapsedTime = 0;
       function update() {
+        if (!dataLoaded) return;
+
         stats.begin();
 
         if (animate) {
@@ -272,33 +233,32 @@
           if (lastTime != 0 ) {
             var elapsed = timeNow - lastTime;
             totalElapsedTime += elapsed;
+            elapsedTimeFromChange += elapsed;
           }
           lastTime = timeNow;
       
-          if (totalElapsedTime > 100) {
-            if (current_day_index == days.length) {
-              current_day_index = 0;
-            }
-            totalElapsedTime = 0;
-  	    current_day = days[current_day_index];
-            first_day = days[Math.max(0, current_day_index - currentOffset)];
+          if (elapsedTimeFromChange > 100) {
+            elapsedTimeFromChange = 0;
+            var fraction = (totalElapsedTime / totalTime) % 1;
+            current_day_index = Math.floor(days.length  * fraction);
+
             var el = document.getElementById('current-date');
             el.innerHTML = days[current_day_index].date;
             var el = document.getElementById('day-slider');
             el.value = current_day_index;
-            current_day_index++;
           }
         }
 
-        if (dataLoaded) {
-          gl.clear(gl.COLOR_BUFFER_BIT);
+       var current_day = days[current_day_index];
+       var first_day = days[Math.max(0, current_day_index - currentOffset)];
 
-          // pointSize range [5,20]
-  	  var pointSize = Math.floor( ((20-5) * (map.zoom - 0) / (21 - 0)) + 5 );
-//	  console.log(pointSize);
-  	  gl.vertexAttrib1f(gl.aPointSize, pointSize*1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
 
-          var mapProjection = map.getProjection();
+        // pointSize range [5,20]
+        var pointSize = Math.floor( ((20-5) * (map.zoom - 0) / (21 - 0)) + 5 );
+        gl.vertexAttrib1f(gl.aPointSize, pointSize*1.0);
+
+        var mapProjection = map.getProjection();
 
         /**
          * We need to create a transformation that takes world coordinate
@@ -308,25 +268,25 @@
          * 2. Scale and translate to take world coordinates to pixel coords
          * see https://developers.google.com/maps/documentation/javascript/maptypes#MapCoordinate
          */
-        
-          // copy pixel->webgl matrix
-          mapMatrix.set(pixelsToWebGLMatrix);
 
-          // Scale to current zoom (worldCoords * 2^zoom)
-          var scale = Math.pow(2, map.zoom);
-          scaleMatrix(mapMatrix, scale, scale);
+        // copy pixel->webgl matrix
+        mapMatrix.set(pixelsToWebGLMatrix);
 
-          // translate to current view (vector from topLeft to 0,0)
-          var offset = mapProjection.fromLatLngToPoint(canvasLayer.getTopLeft());
-          translateMatrix(mapMatrix, -offset.x, -offset.y);
+        // Scale to current zoom (worldCoords * 2^zoom)
+        var scale = Math.pow(2, map.zoom);
+        scaleMatrix(mapMatrix, scale, scale);
 
-          // attach matrix value to 'mapMatrix' uniform in shader
-          var matrixLoc = gl.getUniformLocation(pointProgram, 'mapMatrix');
-          gl.uniformMatrix4fv(matrixLoc, false, mapMatrix);
+        // translate to current view (vector from topLeft to 0,0)
+        var offset = mapProjection.fromLatLngToPoint(canvasLayer.getTopLeft());
+        translateMatrix(mapMatrix, -offset.x, -offset.y);
 
-          // draw!
-          gl.drawArrays(gl.POINTS, first_day.index, current_day.index + current_day.length - first_day.index);
-        }
+        // attach matrix value to 'mapMatrix' uniform in shader
+        var matrixLoc = gl.getUniformLocation(pointProgram, 'mapMatrix');
+        gl.uniformMatrix4fv(matrixLoc, false, mapMatrix);
+
+        // draw!
+
+        gl.drawArrays(gl.POINTS, first_day.index, current_day.index + current_day.length - first_day.index);
         stats.end();
       }
 
@@ -342,6 +302,22 @@
         var rawTemperatureData = new Int32Array(POINT_COUNT);
         var rawTimeData = new Int32Array(POINT_COUNT);
         var len = dataView.byteLength / Float32Array.BYTES_PER_ELEMENT;
+
+        days = [];
+        var daydata = undefined;
+        var day = undefined;
+
+        function pad(number, length) {
+          var str = '' + number;
+          while (str.length < length) {
+            str = '0' + str;
+          }
+          return str;
+        }
+        function formatDate(dt) {
+          return dt.getFullYear() + pad(dt.getMonth() + 1, 2) + pad(dt.getDate(), 2);
+        }
+
         for (var i = 0; i < len; i+=7) {
 	  var o = i / 7;
           lat = dataView.getFloat32(i * Float32Array.BYTES_PER_ELEMENT, true);
@@ -354,7 +330,23 @@
           rawFootprintData[o] = dataView.getFloat32((i+4) * Float32Array.BYTES_PER_ELEMENT, true);
           rawTemperatureData[o] = dataView.getInt32((i+5) * Int32Array.BYTES_PER_ELEMENT, true);
           rawTimeData[o] = dataView.getInt32((i+6) * Int32Array.BYTES_PER_ELEMENT, true);
+          var rowday = Math.floor(rawTimeData[o] / (24 * 60 * 60));
+          if (day != rowday) {
+            day = rowday;
+            daydata = {'date': formatDate(new Date(rawTimeData[o]*1000)), 'length': 0};
+            // console.log(formatDate(new Date(rawTimeData[o])));
+            days.push(daydata);
+          }
+          daydata.length++;
         }
+
+        var total = 0;
+        for (var i = 0; i < days.length; i++) {
+	  days[i].index = total;  
+	  total += days[i].length;
+	}
+        currentOffset = days.length - 1;
+
 	// create webgl buffer, bind it, and load rawData into it
         pointArrayBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, pointArrayBuffer);
@@ -367,8 +359,8 @@
         // tell webgl how buffer is laid out (pairs of x,y coords)
         gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 0, 0);
 
+        initSlider();
         dataLoaded = true;
-
       }
 
       function scaleMatrix(matrix, scaleX, scaleY) {

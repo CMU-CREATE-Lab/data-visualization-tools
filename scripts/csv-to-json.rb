@@ -1,10 +1,10 @@
-#!/usr/bin/env ruby2.0
+#!/usr/bin/env ruby1.9.1
 require 'csv'
 require 'json'
 require 'optparse'
 require 'ostruct'
 
-load File.dirname(__FILE__) + "/../../../capture/libs/utils.rb"
+load File.dirname(__FILE__) + "/utils.rb"
 
 class CustomFormatOptparse
   def self.parse(args)
