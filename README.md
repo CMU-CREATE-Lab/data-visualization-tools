@@ -35,11 +35,14 @@ Take a JSON FILE, create a binary file.
 * radiativeheat float 
 * footprint float
 
-// little endian
+All data must be little endian
 
-["31.459555".to_f].pack("e")
+    ["31.459555".to_f].pack("e")
+    [DateTime.strptime("2013-08-28 00:05:01+00:00", '%Y-%m-%d %H:%M:%S%z').to_time.to_i].pack("l<")
 
 
+# Tools and data
 
-[DateTime.strptime("2013-08-28 00:05:01+00:00", '%Y-%m-%d %H:%M:%S%z').to_time.to_i].pack("l<")
+Tools for converting between csv, json and geojson are available in the [swissarmykitchensink](https://github.com/redhog/swissarmykitchensink/blob/master/README.md) pip package.
 
+Example data is available in the data branch of this repo. NOTE: Do not merge between the data branch and the master branch - they are entierly separate.
