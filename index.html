@@ -216,7 +216,7 @@
       }
 
       var current_day_index = 0;
-      var currentOffset = 0;
+      var currentOffset = 15;
 
       var animate = true;
 
@@ -345,7 +345,6 @@
 	  days[i].index = total;  
 	  total += days[i].length;
 	}
-        currentOffset = days.length - 1;
 
 	// create webgl buffer, bind it, and load rawData into it
         pointArrayBuffer = gl.createBuffer();
@@ -392,8 +391,8 @@
     <div id="date-widget">
       <input type="range" value="0" min="0" max="29" list="number" id="day-slider"/><br/>
       <button name="animate-button" id="animate-button">Pause</button><div id="current-date"></div>
-      <input type="range" value="29" min="0" max="29" list="number" id="offset-slider"/><br/>
-      <div id="current-offset">29 days</div>
+      <input type="range" value="15" min="0" max="29" list="number" id="offset-slider"/><br/>
+      <div id="current-offset">15 days</div>
     </div>
   </body>
 </html>
