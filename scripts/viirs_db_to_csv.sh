@@ -1,14 +1,15 @@
 #! /bin/bash
 
-# This query does not work!!!
-# select (t2.y).* from (select 1 as x, (select t from (values (1, 2, 3)) t (a, b, c)) as y) as t2;
+BINDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 radius="$1"      # "0.0134989"
 timewindow="$2"  # "30 days"
 clustersize="$3" # "1"
 
+source "$BINDIR/config.sh"
+
 run() {
-  db_export.py conn=psycopg2 host=localhost user=test database=test password=test expr="$1"
+  db_export.py conn=psycopg2 host="$DBHOST" user="$DBUSER" database="$DBNAME" password="$DBPASSWORD" expr="$1"
 }
 ex() {
   run "$1" > /dev/null
