@@ -47,12 +47,10 @@
         width: 100%;
         text-align: center;
       }
-      #loading.done {
-        display: none;
-      }
     </style>
     <script src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
     <script src="js/CanvasLayer.js"></script>
+    <script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
     <script type="text/javascript" src="js/base.js"></script>
     <script type="text/javascript" src="js/io.js"></script>
     <script type="text/javascript" src="js/utils.js"></script>
@@ -161,8 +159,12 @@
 
       }
       
+     var sliderInitialized = false;
      function initSlider() {
         document.getElementById('day-slider').max = days.length - 1;
+
+        if (sliderInitialized) return;
+        sliderInitialized = true;
 
         var animateButton = document.getElementById('animate-button');
         animateButton.addEventListener("click", function(event) {
@@ -330,7 +332,6 @@
         var daydata;
         var day;
         var rawLatLonData;
-        var rowidx = 0;
 
         pointArrayBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, pointArrayBuffer);
@@ -338,8 +339,7 @@
         loadTypedMatrix({
           url: source,
           header: function (data) {
-console.log("HEADER");
-            POINT_COUNT = data.length;
+            POINT_COUNT = 0;
             rawLatLonData = new Float32Array(data.length*2);
           },
           row: function (data) {
@@ -354,13 +354,12 @@ console.log("HEADER");
             daydata.length++;
 
             var pixel = LatLongToPixelXY(data.latitude, data.longitude);
-            rawLatLonData[2*rowidx] = pixel.x;
-            rawLatLonData[2*rowidx+1] = pixel.y;
+            rawLatLonData[2*POINT_COUNT] = pixel.x;
+            rawLatLonData[2*POINT_COUNT+1] = pixel.y;
 
-            rowidx++;
+            POINT_COUNT++;
           },
           batch: function () {
-console.log("BATCH");
             //  load rawData into the webgl buffer
             gl.bufferData(gl.ARRAY_BUFFER, rawLatLonData, gl.STATIC_DRAW);
 
@@ -370,15 +369,25 @@ console.log("BATCH");
 
             // tell webgl how buffer is laid out (pairs of x,y coords)
             gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 0, 0);
+
+            dataLoaded = true;
+            $("#loading .message").hide();
+            $("#loading").css({
+              top: "auto",
+              right: "auto"
+            });
+            $("#loading").animate({
+              width: "200px",
+              left: "0",
+              bottom: "75px"
+            }, 500);
+            document.getElementById('loading').className = "done";
+            initSlider();
           },
           done: function () {
-console.log("DONE");
-            initSlider();
-            dataLoaded = true;
-            document.getElementById('loading').className = "done";
+            $("#loading").hide();
           },
           error: function (exception) {
-console.log("ERROR");
             throw exception;
           },
         });
@@ -409,7 +418,7 @@ console.log("ERROR");
     </script>
   </head>
   <body>
-    <div id="loading"><table><tr><td>Loading data. Please wait...<br><br><img src="img/Ajax-loader.gif"></td></tr></table></div>
+    <div id="loading"><table><tr><td><div class='message'>Loading data. Please wait...<br></div><img src="img/Ajax-loader.gif"></td></tr></table></div>
     <div id="map-div"></div>
     <div id="date-widget">
       <input type="range" value="0" min="0" max="29" list="number" id="day-slider"/><br/>

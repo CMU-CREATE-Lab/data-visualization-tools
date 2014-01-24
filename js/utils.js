@@ -144,7 +144,6 @@ function loadTypedMatrix(opts) {
     }
     writeStringToArrayBuffer(text, offset, undefined, responseData);
 
-    console.log([responseData.buffer.byteLength, length, 4 + headerLen + (rowLen * header.length)]);
     var dataView = new DataView(responseData.buffer);
 
     for (; offset + rowLen <= length; rowidx++) {
