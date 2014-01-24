@@ -63,11 +63,12 @@ cols.sort(lambda a, b: cmp(a['name'], b['name']))
 header = {'cols': cols, 'length': len(data)}
 
 print "Header: ", header
+headerstr = json.dumps(header)
+print "Header length: ", len(headerstr)
 
 print "Writing data..."
 
 with open(sys.argv[2], "w") as f:
-    headerstr = json.dumps(header)
     f.write(struct.pack("<i", len(headerstr)))
     f.write(headerstr)
 
