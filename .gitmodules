@@ -1,0 +1,3 @@
+[submodule "timemachine"]
+	path = timemachine
+	url = ssh://git@create.repositoryhosting.com/create/time-machine-explorer.git
