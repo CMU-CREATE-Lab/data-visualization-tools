@@ -10,6 +10,20 @@ function LatLongToPixelXY(latitude, longitude) {
   return pixel;
 }
 
+Date.prototype.yyyymmdd = function() {         
+  var yyyy = this.getUTCFullYear().toString();                                    
+  var mm = (this.getUTCMonth()+1).toString();
+  var dd  = this.getUTCDate().toString();             
+  return yyyy + '-' + (mm[1]?mm:"0"+mm[0]) + '-' + (dd[1]?dd:"0"+dd[0]);
+};  
+
+Date.prototype.hhmmss = function() {         
+  var hh = this.getUTCHours().toString();                                    
+  var mm = this.getUTCMinutes().toString();
+  var ss  = this.getUTCSeconds().toString();             
+  return (hh[1]?hh:"0"+hh[0]) + ':' + (mm[1]?mm:"0"+mm[0]) + ":" + (ss[1]?ss:"0"+ss[0]);
+}; 
+
 function loadTypedMatrix(opts) {
   /* Loads a matrix of rows/cols of typed data from a binary file.
      The data format is (all values little endian):
