@@ -2,3 +2,10 @@ wells.js
 bin
 *~
 data
+json
+
+# Vagrant
+.vagrant
+bootstrap.sh
+Vagrantfile
+
