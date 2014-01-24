@@ -9,3 +9,5 @@ json
 bootstrap.sh
 Vagrantfile
 
+# Mac OS
+.DS_Store
