@@ -58,11 +58,18 @@
       var pointDataLoaded = false;
       var dateDataLoaded = false;
 
+      /**
+        * Latitude-longitude data is a series of 32-bit floats little-endian encoded sorted by date.
+        * Each lat-lng pair represents a well.
+        * Date-index data is a series of 32-bit integers little-endian encoded that contain three things:
+        * date in unix epoch time, current index of data that begins at that date, total count of data at that
+        * date.
+        */
+
       var pointDataURL = "http://data.cmucreatelab.org/wells/wells-2013-10-02_latlon.bin";
       var dateDataURL = "http://data.cmucreatelab.org/wells/wells-2013-10-02_dateIndex.bin";
 
       var dates = [];
-      var datesLookup = {};
       var currentYearIndex = 0;
 
       var animate = false;
@@ -247,7 +254,6 @@
             var dateVal = new Date(date*1000).getFullYear();
 
             dates.push({'date': dateVal, 'count': count, 'index0': index0});
-            datesLookup[dateVal] = i/3;
           }          
         }
         dateDataLoaded = true;
@@ -255,14 +261,16 @@
       }
 
       function resize() {
-        var width = canvasLayer.canvas.width;
-        var height = canvasLayer.canvas.height;
+        var w = canvasLayer.canvas.width;
+        var h = canvasLayer.canvas.height;
 
-        gl.viewport(0, 0, width, height);
+        gl.viewport(0, 0, w, h);
 
         // matrix which maps pixel coordinates to WebGL coordinates
-        pixelsToWebGLMatrix.set([2/width, 0, 0, 0, 0, -2/height, 0, 0,
-            0, 0, 0, 0, -1, 1, 0, 1]);
+        pixelsToWebGLMatrix.set([2/w, 0,   0, 0, 
+                                 0,  -2/h, 0, 0,
+                                 0,   0,   0, 0, 
+                                -1,   1,   0, 1]);
       }
 
       function scaleMatrix(matrix, scaleX, scaleY) {
