@@ -94,8 +94,8 @@
       var dateDataLoaded = false;
 
       var projection = new org.gigapan.timelapse.MercatorProjection(-180, 85.05112877980659, 180, -85.05112877980659, 1335834, 1335834);
-      var topLeft = projection.latlngToPoint({lat: 60., lng: -160.});
-      var bottomRight = projection.latlngToPoint({lat: 10., lng: -40.});
+      var topLeft = projection.latlngToPoint({lat: 60.0, lng: -160.0});
+      var bottomRight = projection.latlngToPoint({lat: 10.0, lng: -40.0});
 
       var pixelsToWebGLMatrix = new Float32Array(16);
       var mapMatrix = new Float32Array(16);
@@ -105,8 +105,6 @@
       //var url = "http://earthengine.google.org/timelapse/data";
       var url = "https://earthengine.google.org/timelapse/data/20130507/";
       var timelapse;
-      var frackingLayer;
-
 
       function onTimeMachinePlayerReady() {
         // initialize the canvasLayer
@@ -132,9 +130,8 @@
 
       function init() {
         console.log('init');
-        var myView = null;
         var myTime = 0;
-        myHomeView = { center: {"lat":39.3, "lng":-95.8}, "zoom": 2 };
+        var myHomeView = { center: {"lat":39.3, "lng":-95.8}, "zoom": 2 };
         var viewerOptions = {
           url: url, //can be absolute or relative
           initialTime: myTime, //default to 0; in video time
@@ -172,7 +169,7 @@
               offsetX: 20, //defaults to 0
               offsetY: 20 //defaults to 0
             }
-          } /*, //display small google map; display nothing if param left out
+          }/*,
           newHomeView: myHomeView //override the home view */
         };
 
@@ -218,49 +215,48 @@
       }
 
       function loadPointData(arrayBuffer, exception) {
-        var data = new DataView(arrayBuffer);
+        if (arrayBuffer) {
+          var data = new DataView(arrayBuffer);
+ 
+          POINT_COUNT = (data.byteLength / Float32Array.BYTES_PER_ELEMENT) / 2;
+          var rawData = new Float32Array(
+            data.byteLength / Float32Array.BYTES_PER_ELEMENT);
+          var len = rawData.length;
+          // Incoming data is raw floating point values
+          // with little-endian byte ordering.
+          for (var i = 0; i < len; i += 2) {
+            var lat = data.getFloat32(i * Float32Array.BYTES_PER_ELEMENT, true);
+            var lon = data.getFloat32((i +1 ) * Float32Array.BYTES_PER_ELEMENT, true);
+  	        var pixel = projection.latlngToPoint({lat: lat, lng: lon});
+            rawData[i] = pixel.x;
+            rawData[i+1] = pixel.y;
+          }
+          // create webgl buffer, bind it, and load rawData into it
+          pointArrayBuffer = gl.createBuffer();
+          gl.bindBuffer(gl.ARRAY_BUFFER, pointArrayBuffer);
+          gl.bufferData(gl.ARRAY_BUFFER, rawData, gl.STATIC_DRAW);
 
-        POINT_COUNT = (data.byteLength / Float32Array.BYTES_PER_ELEMENT) / 2;
-        var rawData = new Float32Array(
-          data.byteLength / Float32Array.BYTES_PER_ELEMENT);
-        var len = rawData.length;
-        // Incoming data is raw floating point values
-        // with little-endian byte ordering.
-        for (var i = 0; i < len; i += 2) {
-          lat = data.getFloat32(i * Float32Array.BYTES_PER_ELEMENT, true);
-          lon = data.getFloat32((i +1 ) * Float32Array.BYTES_PER_ELEMENT, true);
-          //var pixel = LatLongToPixelXY(lat, lon);
-  	      //var pixel = mapProjection.fromLatLngToPoint({'lat': lat, 'lng': lon});
-	        var pixel = projection.latlngToPoint({lat: lat, lng: lon});
-          rawData[i] = pixel.x;
-          rawData[i+1] = pixel.y;
+          // enable the 'worldCoord' attribute in the shader to receive buffer
+          var attributeLoc = gl.getAttribLocation(pointProgram, 'worldCoord');
+          gl.enableVertexAttribArray(attributeLoc);
+
+          // tell webgl how buffer is laid out (pairs of x,y coords)
+          gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 0, 0);
         }
-        // create webgl buffer, bind it, and load rawData into it
-        pointArrayBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, pointArrayBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, rawData, gl.STATIC_DRAW);
-
-        // enable the 'worldCoord' attribute in the shader to receive buffer
-        var attributeLoc = gl.getAttribLocation(pointProgram, 'worldCoord');
-        gl.enableVertexAttribArray(attributeLoc);
-
-        // tell webgl how buffer is laid out (pairs of x,y coords)
-        gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 0, 0);
-
 	      pointDataLoaded = true;
         onDataLoaded();
       }
 
       function loadDateData(arrayBuffer, execption) {
         if (arrayBuffer) {
-          data = new DataView(arrayBuffer);
+          var data = new DataView(arrayBuffer);
           var rawData = new Int32Array(
             data.byteLength / Int32Array.BYTES_PER_ELEMENT);
           var len = rawData.length;
           for (var i = 0; i < len; i += 3) {
-            date = data.getInt32(i * Int32Array.BYTES_PER_ELEMENT, true);
-            count = data.getInt32((i + 1) * Int32Array.BYTES_PER_ELEMENT, true);
-            index0 = data.getInt32((i + 2) * Int32Array.BYTES_PER_ELEMENT, true);
+            var date = data.getInt32(i * Int32Array.BYTES_PER_ELEMENT, true);
+            var count = data.getInt32((i + 1) * Int32Array.BYTES_PER_ELEMENT, true);
+            var index0 = data.getInt32((i + 2) * Int32Array.BYTES_PER_ELEMENT, true);
             var dateVal = new Date(date*1000).getFullYear();
 
             dates.push({'date': dateVal, 'count': count, 'index0': index0});
@@ -304,6 +300,8 @@
             0, 0, 0, 0, -1, 1, 0, 1]);
       }
 
+      // Draws to canvas. 
+      // Called by TimeMachineCanavasLayer during animation and/or view changes
       function update() {
 	      stats.begin();
         if (pointDataLoaded && dateDataLoaded) {
@@ -316,14 +314,14 @@
           }
           gl.clear(gl.COLOR_BUFFER_BIT);
 
-	        var pointSize = Math.floor((timelapse.getCurrentZoom() + 2.) / (13. - 2.) * (12. - 1) + 1);
+	        var pointSize = Math.floor((timelapse.getCurrentZoom() + 2.0) / (13.0 - 2.0) * (12.0 - 1) + 1);
 
 	        gl.vertexAttrib1f(gl.aPointSize, pointSize*1.0);
 
           var currentView = timelapse.getView();
 
           var canvasWidth = canvasLayer.canvas.width;
-          var canvasHeight = canvasLayer.canvas.height
+          var canvasHeight = canvasLayer.canvas.height;
 
           /**
            * We need to create a transformation that takes world coordinate
@@ -337,7 +335,7 @@
           // copy pixel->webgl matrix
           mapMatrix.set(pixelsToWebGLMatrix);
 
-          translateMatrix(mapMatrix, canvasWidth*.5, canvasHeight*.5);
+          translateMatrix(mapMatrix, canvasWidth*0.5, canvasHeight*0.5);
 
           // Scale to current zoom (worldCoords * 2^zoom)
           //var scale = Math.pow(2, map.zoom);
@@ -378,11 +376,11 @@
       precision mediump float;
 
       void main() {
-        float dist = length(gl_PointCoord.xy - vec2(.5, .5));
-        dist = 1. - (dist * 2.);
+        float dist = length(gl_PointCoord.xy - vec2(0.5, 0.5));
+        dist = 1.0 - (dist * 2.0);
         dist = max(0., dist);
         // set pixels in points to green
-        gl_FragColor = vec4(.82, .22, 0.07, 1.) * dist;
+        gl_FragColor = vec4(0.82, 0.22, 0.07, 1.0) * dist;
       }
     </script>
   </head>
