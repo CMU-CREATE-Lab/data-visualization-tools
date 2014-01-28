@@ -77,10 +77,8 @@
       var dateDataURL = "http://data.cmucreatelab.org/wells/wells-2013-10-02_dateIndex.bin";
 
       var dates = [];
-      var datesLookup = {};
       var firstYear;
-      var currentYear;
- 
+      var totalTime;
 
       // BEGIN WebGL vars
       var canvasLayer;
@@ -123,6 +121,8 @@
         gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
 
         createShaderProgram();
+
+        totalTime =  timelapse.getNumFrames() / timelapse.getFps();
 
         tdl.io.loadArrayBuffer(pointDataURL, loadPointData);
         tdl.io.loadArrayBuffer(dateDataURL, loadDateData);
@@ -210,7 +210,6 @@
       function onDataLoaded() {
         if (pointDataLoaded && dateDataLoaded) {
           firstYear = dates[0];
-          currentYear = dates[0];
         }
       }
 
@@ -260,7 +259,6 @@
             var dateVal = new Date(date*1000).getFullYear();
 
             dates.push({'date': dateVal, 'count': count, 'index0': index0});
-            datesLookup[dateVal] = i/3;
           }          
         }
         dateDataLoaded = true;
@@ -305,13 +303,9 @@
       function update() {
 	      stats.begin();
         if (pointDataLoaded && dateDataLoaded) {
-  	      var currentCaptureTime = timelapse.getCurrentCaptureTime();
-          for (var i = 0; i < dates.length; i++) {
-            if (dates[i].date == currentCaptureTime) {
-              currentYear = dates[i];
-              break;
-            }
-          }
+          var currentTime = timelapse.getCurrentTime();
+          var currentRatio = currentTime / totalTime;
+
           gl.clear(gl.COLOR_BUFFER_BIT);
 
 	        var pointSize = Math.floor((timelapse.getCurrentZoom() + 2.0) / (13.0 - 2.0) * (12.0 - 1) + 1);
@@ -351,7 +345,7 @@
           gl.uniformMatrix4fv(matrixLoc, false, mapMatrix);
 
           // draw!
-          gl.drawArrays(gl.POINTS, firstYear.index0, currentYear.index0 + currentYear.count - firstYear.index0);
+          gl.drawArrays(gl.POINTS, firstYear.index0, POINT_COUNT * currentRatio);
         }
 	      stats.end();
       }
