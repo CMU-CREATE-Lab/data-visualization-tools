@@ -10,6 +10,18 @@ function LatLongToPixelXY(latitude, longitude) {
   return pixel;
 }
 
+function circumferenceOfEarthAtLatitude(latitude) {
+  return Math.cos(latitude * Math.PI/180).toFixed(8) * 40075017;
+}
+      
+function getMetersPerPixelAtLatitude(latitude, zoom) {
+  return circumferenceOfEarthAtLatitude(latitude) / (256 * Math.pow(2,zoom)) ;
+}
+      
+function getPixelDiameterAtLatitude(diameterInMeters, latitude, zoom) {
+  return diameterInMeters / getMetersPerPixelAtLatitude(latitude, zoom);
+}
+
 Date.prototype.yyyymmdd = function() {         
   var yyyy = this.getUTCFullYear().toString();                                    
   var mm = (this.getUTCMonth()+1).toString();
