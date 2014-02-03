@@ -146,10 +146,10 @@
         canvasLayer = new CanvasLayer(canvasLayerOptions);
 
         window.addEventListener('resize', function () {  google.maps.event.trigger(map, 'resize') }, false);
-
+      
         // initialize WebGL
         gl = canvasLayer.canvas.getContext('experimental-webgl');
-      
+        if (!gl) { window.location = getParameterByName('failover'); return; }
         gl.enable(gl.BLEND);
         gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
 
