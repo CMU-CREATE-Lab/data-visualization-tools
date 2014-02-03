@@ -49,12 +49,12 @@
       }
     </style>
     <script src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
-    <script src="js/CanvasLayer.js"></script>
-    <script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
-    <script type="text/javascript" src="js/base.js"></script>
-    <script type="text/javascript" src="js/io.js"></script>
-    <script type="text/javascript" src="js/utils.js"></script>
-    <script type="text/javascript" src="js/stats.min.js"></script>
+    <script src="../../js/CanvasLayer.js"></script>
+    <script type="text/javascript" src="../../js/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript" src="../../js/base.js"></script>
+    <script type="text/javascript" src="../../js/io.js"></script>
+    <script type="text/javascript" src="../../js/utils.js"></script>
+    <script type="text/javascript" src="../../js/stats.min.js"></script>
     <script id="pointVertexShader" type="x-shader/x-vertex">
       attribute vec4 worldCoord;
 
@@ -248,6 +248,7 @@
       var lastTime = 0;
       var elapsedTimeFromChange = 0;
       var totalElapsedTime = 0;
+
       function update() {
         if (!dataLoaded) return;
 
@@ -418,7 +419,7 @@
     </script>
   </head>
   <body>
-    <div id="loading"><table><tr><td><div class='message'>Loading data. Please wait...<br></div><img src="img/Ajax-loader.gif"></td></tr></table></div>
+    <div id="loading"><table><tr><td><div class='message'>Loading data. Please wait...<br></div><img src="../../img/Ajax-loader.gif"></td></tr></table></div>
     <div id="map-div"></div>
     <div id="date-widget">
       <input type="range" value="0" min="0" max="29" list="number" id="day-slider"/><br/>
