@@ -146,10 +146,10 @@
         canvasLayer = new CanvasLayer(canvasLayerOptions);
 
         window.addEventListener('resize', function () {  google.maps.event.trigger(map, 'resize') }, false);
-
+      
         // initialize WebGL
         gl = canvasLayer.canvas.getContext('experimental-webgl');
-      
+        if (!gl) { window.location = getParameterByName('failover'); return; }
         gl.enable(gl.BLEND);
         gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
 
@@ -248,6 +248,16 @@
       var lastTime = 0;
       var elapsedTimeFromChange = 0;
       var totalElapsedTime = 0;
+
+      /**
+       * The zoom level at which points should be rendered at a specified diameter.
+       */
+      var mapZoomClamp = 10;
+      /**
+       * The diameter in meters that a point should be rendered.
+       */
+      var pointSizeClamp = 1000;
+
       function update() {
         if (!dataLoaded) return;
 
@@ -281,7 +291,7 @@
 
         // pointSize range [5,20]
         var pointSize = Math.floor( ((20-5) * (map.zoom - 0) / (21 - 0)) + 5 );
-        if (map.zoom > 10) {
+        if (map.zoom > mapZoomClamp) {
           pointSize = getPixelDiameterAtLatitude(pointSizeClamp, map.getCenter().lat(), map.zoom);
         }
         gl.vertexAttrib1f(gl.aPointSize, pointSize*1.0);
