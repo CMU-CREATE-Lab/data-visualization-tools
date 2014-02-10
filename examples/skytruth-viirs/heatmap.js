@@ -1,0 +1,345 @@
+var totalTime = 10000; // in ms
+/* bgein stats */
+var stats = new Stats();
+stats.setMode(0); // 0: fps, 1: ms
+// Align top-left
+stats.domElement.style.position = 'absolute';
+stats.domElement.style.left = '0px';
+stats.domElement.style.top = '0px';
+/* end stats */
+
+var dataLoaded = false;
+var map;
+var canvasLayer;
+var gl;
+
+var pointProgram;
+var pointArrayBuffer;
+var POINT_COUNT;
+
+var pixelsToWebGLMatrix = new Float32Array(16);
+var mapMatrix = new Float32Array(16);
+
+var days = [];
+
+function getParameterByName(name) {
+  name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+  var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+    results = regex.exec(location.search);
+  return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+
+function init() {
+  // initialize the map
+  var mapOptions = {
+    zoom: 4,
+    center: new google.maps.LatLng(39.3, -95.8),
+    mapTypeId: google.maps.MapTypeId.ROADMAP,
+    styles: [
+      {
+        featureType: 'all',
+        stylers: [
+          {hue: '#0000b0'},
+          {invert_lightness: 'true'},
+          {saturation: -30}
+        ]
+      },
+      {
+        featureType: 'poi',
+        stylers: [{visibility: 'off'}]
+      }
+    ]
+  };
+  var mapDiv = document.getElementById('map-div');
+  map = new google.maps.Map(mapDiv, mapOptions);
+
+  // initialize the canvasLayer
+  var canvasLayerOptions = {
+    map: map,
+    resizeHandler: resize,
+    animate: true,
+    updateHandler: update
+  };
+  canvasLayer = new CanvasLayer(canvasLayerOptions);
+
+  window.addEventListener('resize', function () {  google.maps.event.trigger(map, 'resize') }, false);
+
+  // initialize WebGL
+  gl = canvasLayer.canvas.getContext('experimental-webgl');
+  if (!gl) { window.location = getParameterByName('failover'); return; }
+  gl.enable(gl.BLEND);
+  gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
+
+  createShaderProgram();
+  loadData(getParameterByName("source"));
+  document.body.appendChild( stats.domElement );
+
+}
+
+var sliderInitialized = false;
+function initSlider() {
+  document.getElementById('day-slider').max = days.length - 1;
+
+  if (sliderInitialized) return;
+  sliderInitialized = true;
+
+  $("#animate-button").click(function () {
+    if (animate) {
+      $(this).find("i").removeClass("glyphicon-pause").addClass("glyphicon-play");
+      animate = false;
+    } else {
+      $(this).find("i").removeClass("glyphicon-play").addClass("glyphicon-pause");
+      animate = true;
+    }
+  });
+
+  var daySlider = document.getElementById('day-slider');
+  daySlider.addEventListener("change", function(event) {
+    current_day_index = this.valueAsNumber;
+    var el = document.getElementById('current-date');
+    el.innerHTML = days[current_day_index].date;
+  }, false);
+
+  daySlider.addEventListener("mousedown", function(event) {
+    animate = false;
+  }, false);
+
+  daySlider.addEventListener("mouseup", function(event) {
+    var animateButton = document.getElementById('animate-button');
+    if (animateButton.textContent == "Pause") {
+      animate = true;
+    }
+  }, false);
+
+  var offsetSlider = document.getElementById('offset-slider');
+  offsetSlider.addEventListener("change", function(event) {
+    var el = document.getElementById('current-offset');
+    el.innerHTML = this.value + " days";
+    currentOffset = this.valueAsNumber;
+  }, false);
+}
+
+function createShaderProgram() {
+  // create vertex shader
+  var vertexSrc = document.getElementById('pointVertexShader').text;
+  var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+  gl.shaderSource(vertexShader, vertexSrc);
+  gl.compileShader(vertexShader);
+
+  // create fragment shader
+  var fragmentSrc = document.getElementById('pointFragmentShader').text;
+  var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+  gl.shaderSource(fragmentShader, fragmentSrc);
+  gl.compileShader(fragmentShader);
+
+  // link shaders to create our program
+  pointProgram = gl.createProgram();
+  gl.attachShader(pointProgram, vertexShader);
+  gl.attachShader(pointProgram, fragmentShader);
+  gl.linkProgram(pointProgram);
+
+  gl.useProgram(pointProgram);
+
+  gl.aPointSize = gl.getAttribLocation(pointProgram, "aPointSize");
+
+}
+
+function resize() {
+  var width = canvasLayer.canvas.width;
+  var height = canvasLayer.canvas.height;
+
+  gl.viewport(0, 0, width, height);
+
+  // matrix which maps pixel coordinates to WebGL coordinates
+  pixelsToWebGLMatrix.set([2/width, 0, 0, 0, 0, -2/height, 0, 0,
+      0, 0, 0, 0, -1, 1, 0, 1]);
+}
+
+var current_day_index = 0;
+var currentOffset = 15;
+
+var animate = true;
+
+var lastTime = 0;
+var elapsedTimeFromChange = 0;
+var totalElapsedTime = 0;
+
+/**
+ * The zoom level at which points should be rendered at a specified diameter.
+ */
+var mapZoomClamp = 10;
+/**
+ * The diameter in meters that a point should be rendered.
+ */
+var pointSizeClamp = 1000;
+
+function update() {
+  if (!dataLoaded) return;
+
+  stats.begin();
+
+  if (animate) {
+    var timeNow = new Date().getTime();
+    if (lastTime != 0 ) {
+      var elapsed = timeNow - lastTime;
+      totalElapsedTime += elapsed;
+      elapsedTimeFromChange += elapsed;
+    }
+    lastTime = timeNow;
+
+    if (elapsedTimeFromChange > 100) {
+      elapsedTimeFromChange = 0;
+      var fraction = (totalElapsedTime / totalTime) % 1;
+      current_day_index = Math.floor(days.length  * fraction);
+
+      var el = document.getElementById('current-date');
+      el.innerHTML = days[current_day_index].date;
+      var el = document.getElementById('day-slider');
+      el.value = current_day_index;
+    }
+  }
+
+ var current_day = days[current_day_index];
+ var first_day = days[Math.max(0, current_day_index - currentOffset)];
+
+  gl.clear(gl.COLOR_BUFFER_BIT);
+
+  // pointSize range [5,20]
+  var pointSize = Math.floor( ((20-5) * (map.zoom - 0) / (21 - 0)) + 5 );
+  if (map.zoom > mapZoomClamp) {
+    pointSize = getPixelDiameterAtLatitude(pointSizeClamp, map.getCenter().lat(), map.zoom);
+  }
+  gl.vertexAttrib1f(gl.aPointSize, pointSize*1.0);
+
+  var mapProjection = map.getProjection();
+
+  /**
+   * We need to create a transformation that takes world coordinate
+   * points in the pointArrayBuffer to the coodinates WebGL expects.
+   * 1. Start with second half in pixelsToWebGLMatrix, which takes pixel
+   *     coordinates to WebGL coordinates.
+   * 2. Scale and translate to take world coordinates to pixel coords
+   * see https://developers.google.com/maps/documentation/javascript/maptypes#MapCoordinate
+   */
+
+  // copy pixel->webgl matrix
+  mapMatrix.set(pixelsToWebGLMatrix);
+
+  // Scale to current zoom (worldCoords * 2^zoom)
+  var scale = Math.pow(2, map.zoom);
+  scaleMatrix(mapMatrix, scale, scale);
+
+  // translate to current view (vector from topLeft to 0,0)
+  var offset = mapProjection.fromLatLngToPoint(canvasLayer.getTopLeft());
+  translateMatrix(mapMatrix, -offset.x, -offset.y);
+
+  // attach matrix value to 'mapMatrix' uniform in shader
+  var matrixLoc = gl.getUniformLocation(pointProgram, 'mapMatrix');
+  gl.uniformMatrix4fv(matrixLoc, false, mapMatrix);
+
+  // draw!
+
+  gl.drawArrays(gl.POINTS, first_day.index, current_day.index + current_day.length - first_day.index);
+  stats.end();
+}
+
+function loadData(source) {
+  function pad(number, length) {
+    var str = '' + number;
+    while (str.length < length) {
+      str = '0' + str;
+    }
+    return str;
+  }
+
+  function formatDate(dt) {
+    return dt.getFullYear() + '-' + pad(dt.getMonth() + 1, 2) + '-' + pad(dt.getDate(), 2);
+  }
+
+  days = [];
+  var daydata;
+  var day;
+  var rawLatLonData;
+
+  pointArrayBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, pointArrayBuffer);
+
+  loadTypedMatrix({
+    url: source,
+    header: function (data) {
+      POINT_COUNT = 0;
+      rawLatLonData = new Float32Array(data.length*2);
+    },
+    row: function (data) {
+      var rowday = Math.floor(data.datetime / (24 * 60 * 60));
+      if (day != rowday) {
+        day = rowday;
+        var index = 0;
+        if (daydata) index = daydata.index + daydata.length;
+        daydata = {date: formatDate(new Date(data.datetime*1000)), length: 0, index: index};
+        days.push(daydata);
+      }
+      daydata.length++;
+
+      var pixel = LatLongToPixelXY(data.latitude, data.longitude);
+      rawLatLonData[2*POINT_COUNT] = pixel.x;
+      rawLatLonData[2*POINT_COUNT+1] = pixel.y;
+
+      POINT_COUNT++;
+    },
+    batch: function () {
+      //  load rawData into the webgl buffer
+      gl.bufferData(gl.ARRAY_BUFFER, rawLatLonData, gl.STATIC_DRAW);
+
+      // enable the 'worldCoord' attribute in the shader to receive buffer
+      var attributeLoc = gl.getAttribLocation(pointProgram, 'worldCoord');
+      gl.enableVertexAttribArray(attributeLoc);
+
+      // tell webgl how buffer is laid out (pairs of x,y coords)
+      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 0, 0);
+
+      dataLoaded = true;
+      $("#loading .message").hide();
+      $("#loading").css({
+        bottom: "auto",
+        left: "auto"
+      });
+      $("#loading").animate({
+        width: "80px",
+        right: "5px",
+        top: "30px"
+      }, 500);
+      document.getElementById('loading').className = "done";
+      initSlider();
+    },
+    done: function () {
+      $("#loading").hide();
+    },
+    error: function (exception) {
+      throw exception;
+    },
+  });
+}
+
+function scaleMatrix(matrix, scaleX, scaleY) {
+  // scaling x and y, which is just scaling first two columns of matrix
+  matrix[0] *= scaleX;
+  matrix[1] *= scaleX;
+  matrix[2] *= scaleX;
+  matrix[3] *= scaleX;
+
+  matrix[4] *= scaleY;
+  matrix[5] *= scaleY;
+  matrix[6] *= scaleY;
+  matrix[7] *= scaleY;
+}
+
+function translateMatrix(matrix, tx, ty) {
+  // translation is in last column of matrix
+  matrix[12] += matrix[0]*tx + matrix[4]*ty;
+  matrix[13] += matrix[1]*tx + matrix[5]*ty;
+  matrix[14] += matrix[2]*tx + matrix[6]*ty;
+  matrix[15] += matrix[3]*tx + matrix[7]*ty;
+}
+
+document.addEventListener('DOMContentLoaded', init, false);
