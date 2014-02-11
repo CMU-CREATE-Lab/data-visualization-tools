@@ -22,6 +22,16 @@ var mapMatrix = new Float32Array(16);
 
 var days = [];
 
+var current_day_index = 0;
+var currentOffset = 15;
+
+var animate = true;
+
+var lastTime = 0;
+var elapsedTimeFromChange = 0;
+var totalElapsedTime = 0;
+var header;
+
 function getParameterByName(name) {
   name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
   var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
@@ -155,24 +165,6 @@ function resize() {
       0, 0, 0, 0, -1, 1, 0, 1]);
 }
 
-var current_day_index = 0;
-var currentOffset = 15;
-
-var animate = true;
-
-var lastTime = 0;
-var elapsedTimeFromChange = 0;
-var totalElapsedTime = 0;
-
-/**
- * The zoom level at which points should be rendered at a specified diameter.
- */
-var mapZoomClamp = 10;
-/**
- * The diameter in meters that a point should be rendered.
- */
-var pointSizeClamp = 1000;
-
 function update() {
   if (!dataLoaded) return;
 
@@ -204,11 +196,10 @@ function update() {
 
   gl.clear(gl.COLOR_BUFFER_BIT);
 
-  // pointSize range [5,20]
-  var pointSize = Math.floor( ((20-5) * (map.zoom - 0) / (21 - 0)) + 5 );
-  if (map.zoom > mapZoomClamp) {
-    pointSize = getPixelDiameterAtLatitude(pointSizeClamp, map.getCenter().lat(), map.zoom);
-  }
+  // pointSize range [5,20], 21 zoom levels
+  var pointSize = Math.max(
+    Math.floor( ((20-5) * (map.zoom - 0) / (21 - 0)) + 5 ),
+    getPixelDiameterAtLatitude(header.resolution || 1000, map.getCenter().lat(), map.zoom));
   gl.vertexAttrib1f(gl.aPointSize, pointSize*1.0);
 
   var mapProjection = map.getProjection();
@@ -267,8 +258,9 @@ function loadData(source) {
   loadTypedMatrix({
     url: source,
     header: function (data) {
+      header = data;
       POINT_COUNT = 0;
-      rawLatLonData = new Float32Array(data.length*2);
+      rawLatLonData = new Float32Array(header.length*2);
     },
     row: function (data) {
       var rowday = Math.floor(data.datetime / (24 * 60 * 60));
