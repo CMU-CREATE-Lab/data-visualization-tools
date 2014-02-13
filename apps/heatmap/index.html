@@ -3,15 +3,21 @@
   <head>
     <title>04.html</title>
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
-    <link type="text/css" rel="stylesheet" href="style.css">
+
+    <link type="text/css" rel="stylesheet/less" href="style.less" />
+
+    <script type="text/javascript" src="../../js/less-1.6.2.min.js"></script>
+    <script type="text/javascript" src="../../js/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript" src="../../js/bootstrap.min.js"></script>
+
     <script src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
     <script src="../../js/CanvasLayer.js"></script>
-    <script type="text/javascript" src="../../js/jquery-1.10.2.min.js"></script>
-    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../../js/base.js"></script>
     <script type="text/javascript" src="../../js/io.js"></script>
-    <script type="text/javascript" src="../../js/utils.js"></script>
     <script type="text/javascript" src="../../js/stats.min.js"></script>
+
+    <script type="text/javascript" src="../../js/utils.js"></script>
+
     <script id="pointVertexShader" type="x-shader/x-vertex">
       attribute vec4 worldCoord;
 
@@ -42,12 +48,44 @@
   <body>
     <div id="loading"><table><tr><td><div class='message'>Loading data. Please wait...<br></div><img src="../../img/Ajax-loader.gif"></td></tr></table></div>
     <div id="map-div"></div>
-    <div id="date-widget">
-      <button name="animate-button" id="animate-button" class="btn btn-primary btn-xs"><i class="glyphicon glyphicon-pause"></i></button>
-      <input type="range" value="0" min="0" max="29" list="number" id="day-slider"/>
-      <span id="current-date"></span>
-      <input type="range" value="15" min="0" max="29" list="number" id="offset-slider"/>
-      <span id="current-offset">15 days</span>
+
+    <div class="control vertical" style="right: 27px; top: 130px;">
+      <div title="Add days" class="plus">
+        <img src="mapcontrols.png" draggable="false">
+      </div>
+      <div title="Click to change days" class="bar">
+        <img src="mapcontrols.png" draggable="false">
+      </div>
+      <div title="Subtract days" class="minus">
+        <img src="mapcontrols.png" draggable="false">
+      </div>
+      <div title="Drag to change days" class="handle">
+        <img src="mapcontrols.png" draggable="false">
+      </div>
+      <input type="hidden" value="15" data-min="0" data-max="29" id="offset-slider">
     </div>
+
+    <div class="control horizontal" style="left: 100px; bottom: 3px;">
+      <div title="Subtract days" class="minus">
+        <img src="mapcontrols.png" draggable="false">
+      </div>
+      <div title="Click to change days" class="bar">
+        <img src="mapcontrols.png" draggable="false">
+      </div>
+      <div title="Add days" class="plus">
+        <img src="mapcontrols.png" draggable="false">
+      </div>
+      <div title="Drag to change days" class="handle">
+        <img src="mapcontrols.png" draggable="false">
+      </div>
+      <input type="hidden" value="0" data-min="0" data-max="29" id="day-slider">
+    </div>
+
+    <div id="current-date" style="position: absolute; left: 420px; bottom: 7px; color: white;"></div>
+
+    <div id="current-offset" style="position: absolute; right: 18px; top: 106px; color: white;">15 days</div>
+
+    <button name="animate-button" id="animate-button" class="btn btn-xs" style="position: absolute; left: 73px; bottom: 6px; background: white;"><i class="glyphicon glyphicon-pause"></i></button>
+
   </body>
 </html>

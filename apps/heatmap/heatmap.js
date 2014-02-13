@@ -26,6 +26,7 @@ var current_day_index = 0;
 var currentOffset = 15;
 
 var animate = true;
+var paused = false;
 
 var lastTime = 0;
 var elapsedTimeFromChange = 0;
@@ -88,45 +89,42 @@ function init() {
 
 var sliderInitialized = false;
 function initSlider() {
-  document.getElementById('day-slider').max = days.length - 1;
+  var daySlider = $('#day-slider');
+
+  daySlider.attr({"data-max": days.length - 1});
 
   if (sliderInitialized) return;
   sliderInitialized = true;
 
   $("#animate-button").click(function () {
-    if (animate) {
-      $(this).find("i").removeClass("glyphicon-pause").addClass("glyphicon-play");
-      animate = false;
-    } else {
+    if (paused) {
       $(this).find("i").removeClass("glyphicon-play").addClass("glyphicon-pause");
-      animate = true;
+      paused = false;
+    } else {
+      $(this).find("i").removeClass("glyphicon-pause").addClass("glyphicon-play");
+      paused = true;
     }
   });
 
-  var daySlider = document.getElementById('day-slider');
-  daySlider.addEventListener("change", function(event) {
-    current_day_index = this.valueAsNumber;
-    var el = document.getElementById('current-date');
-    el.innerHTML = days[current_day_index].date;
-  }, false);
+  daySlider.change(function(event) {
+    current_day_index = parseInt(this.value);
+    $('#current-date').html(days[current_day_index].date);
+  });
 
-  daySlider.addEventListener("mousedown", function(event) {
+  var handle = daySlider.parent(".control").find(".handle");
+  handle.mousedown(function(event) {
     animate = false;
-  }, false);
+  });
 
-  daySlider.addEventListener("mouseup", function(event) {
-    var animateButton = document.getElementById('animate-button');
-    if (animateButton.textContent == "Pause") {
-      animate = true;
-    }
-  }, false);
+  handle.mouseup(function(event) {
+    animate = true;
+  });
 
-  var offsetSlider = document.getElementById('offset-slider');
-  offsetSlider.addEventListener("change", function(event) {
-    var el = document.getElementById('current-offset');
-    el.innerHTML = this.value + " days";
-    currentOffset = this.valueAsNumber;
-  }, false);
+  var offsetSlider = $('#offset-slider');
+  offsetSlider.change(function(event) {
+    currentOffset = parseInt(this.value);
+    $('#current-offset').html(currentOffset.toString() + " days");
+  });
 }
 
 function createShaderProgram() {
@@ -170,7 +168,7 @@ function update() {
 
   stats.begin();
 
-  if (animate) {
+  if (animate && !paused) {
     var timeNow = new Date().getTime();
     if (lastTime != 0 ) {
       var elapsed = timeNow - lastTime;
@@ -184,10 +182,9 @@ function update() {
       var fraction = (totalElapsedTime / totalTime) % 1;
       current_day_index = Math.floor(days.length  * fraction);
 
-      var el = document.getElementById('current-date');
-      el.innerHTML = days[current_day_index].date;
-      var el = document.getElementById('day-slider');
-      el.value = current_day_index;
+      $('current-date').html(days[current_day_index].date);
+      $('#day-slider').val(current_day_index);
+      $('#day-slider').trigger("change");
     }
   }
 
@@ -334,3 +331,84 @@ function translateMatrix(matrix, tx, ty) {
 }
 
 document.addEventListener('DOMContentLoaded', init, false);
+
+$(document).ready(function () {
+  $(".control").each(function () {
+    (function (control) {
+      var bar = control.find(".bar");
+      var handle = control.find(".handle");
+      var minus = control.find(".minus");
+      var plus = control.find(".plus");
+      var input = control.find("input");
+
+      var horizontal = control.hasClass("horizontal");
+
+      var getSize = function () {
+        var res = {};
+        res.minpos = horizontal ? 21 : 20;
+        res.maxpos = horizontal ? bar.width() + 11 : bar.height() + 10;
+
+        res.min = parseFloat(input.attr("data-min"));
+        res.max = parseFloat(input.attr("data-max"));
+
+        res.pixelspervalue = (res.max - res.min) / (res.maxpos - res.minpos);
+        return res;
+      };
+
+      input.change(function () {
+        var size = getSize();
+        var fraction = (parseFloat(input.val()) - size.min) / (size.max - size.min);
+        if (horizontal) {
+          var pos = size.minpos + (size.maxpos - size.minpos) * fraction;
+          handle.css({left: pos.toString() + "px"});          
+        } else {
+          var pos = size.maxpos - (size.maxpos - size.minpos) * fraction;
+          handle.css({top: pos.toString() + "px"});
+        }
+      });
+
+      minus.click(function (e) {
+        var size = getSize();
+        var val = parseFloat(input.val()) - 1;
+        if (val < size.min) val = size.min;
+        input.val(val.toString())
+        input.trigger("change");
+      });
+      plus.click(function (e) {
+        var size = getSize();
+        var val = parseFloat(input.val()) + 1;
+        if (val > size.max) val = size.max;
+        input.val(val.toString())
+        input.trigger("change");
+      });
+
+      var mousepos = undefined;
+
+      control.mousedown(function (e) {
+        mousepos = {x: e.pageX, y: e.pageY};
+      });
+      control.mouseup(function (e) {
+        mousepos = undefined;
+      });
+      control.mousemove(function (e) {
+        if (!mousepos) return;
+        var newmousepos = {x: e.pageX, y: e.pageY};
+        var diff;
+        if (horizontal) {
+          diff = newmousepos.x - mousepos.x;
+        } else {
+          diff = mousepos.y - newmousepos.y;
+        }
+        mousepos = newmousepos;
+        var size = getSize();
+        var val = parseFloat(input.val()) + size.pixelspervalue * diff;
+        if (val < size.min) val = size.min;
+        if (val > size.max) val = size.max;
+        input.val(val.toString())
+        input.trigger("change");
+      });
+
+      input.trigger("change");
+    })($(this));
+  });
+});
