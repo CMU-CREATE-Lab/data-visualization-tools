@@ -225,13 +225,12 @@ function update() {
   // copy pixel->webgl matrix
   mapMatrix.set(pixelsToWebGLMatrix);
 
-  // Scale to current zoom (worldCoords * 2^zoom)
-  var scale = Math.pow(2, map.zoom);
+  var scale = canvasLayer.getMapScale();
   scaleMatrix(mapMatrix, scale, scale);
 
-  // translate to current view (vector from topLeft to 0,0)
-  var offset = mapProjection.fromLatLngToPoint(canvasLayer.getTopLeft());
-  translateMatrix(mapMatrix, -offset.x, -offset.y);
+  var translation = canvasLayer.getMapTranslation();
+  translateMatrix(mapMatrix, translation.x, translation.y);
+
 
   // attach matrix value to 'mapMatrix' uniform in shader
   var matrixLoc = gl.getUniformLocation(pointProgram, 'mapMatrix');
