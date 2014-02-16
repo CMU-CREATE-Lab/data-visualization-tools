@@ -1,14 +1,16 @@
-var pi_180 = Math.PI / 180.0;
-var pi_4 = Math.PI * 4;
-
+// Use google maps Mercator projection to convert from lat, lng to
+// x, y coords in the range x:0-256, y:0-256
 function LatLongToPixelXY(latitude, longitude) {
-  var sinLatitude = Math.sin(latitude * pi_180);
-  var pixelY = (0.5 - Math.log((1 + sinLatitude) / (1 - sinLatitude)) /(pi_4)) * 256;
-  var pixelX = ((longitude + 180) / 360) * 256;
-  var pixel =  { x: pixelX, y: pixelY };
-
-  return pixel;
+  var x = (longitude + 180) * 256 / 360;
+  var y = 128 - Math.log(Math.tan((latitude + 90) * Math.PI / 360)) * 128 / Math.PI;
+  return {x: x, y: y};
 }
+
+function PixelXYToLatLong(xy) {
+  var lat = Math.atan(Math.exp((128 - xy.y) * Math.PI / 128)) * 360 / Math.PI - 90;
+  var lng = xy.x * 360 / 256 - 180;
+  return {lat: lat, lng: lng};
+};
 
 function circumferenceOfEarthAtLatitude(latitude) {
   return Math.cos(latitude * Math.PI/180).toFixed(8) * 40075017;
