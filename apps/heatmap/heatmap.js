@@ -77,7 +77,15 @@ function init() {
 
   // initialize WebGL
   gl = canvasLayer.canvas.getContext('experimental-webgl');
-  if (!gl) { window.location = getParameterByName('failover'); return; }
+  if (!gl) {
+    var failover = getParameterByName('failover');
+    if (failover) {
+      window.location = getParameterByName('failover');
+    } else {
+      $("#loading td").html("<div style='color: red;'><div>Loading failed:</div><div>Your browser does not support WebGL.</div></div>");
+    }
+    return;
+  }
   gl.enable(gl.BLEND);
   gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
 
