@@ -79,3 +79,66 @@ function findIndex(index, series) {
   // If failed to find, return "closest" (last index tried)
   return test;
 }
+
+function findClosestElement(gl, transform, series, pixelXY, maxDistInPixels) {
+  var glXY = divToGl(gl, transform, pixelXY);
+
+  var closest_distsq = 1e30;
+  var closest = null;
+  for (var i = 0; i < series.xy.length / 2; i++) {
+    var distsq = Math.pow(series.xy[i * 2] - glXY.x, 2) + Math.pow(series.xy[i * 2 + 1] - glXY.y, 2);
+    if (distsq < closest_distsq) {
+      closest_distsq = distsq;
+      closest = i;
+    }
+  }
+
+  var selectedGL = {x: series.xy[closest * 2], y: series.xy[closest * 2 + 1]};
+  var selectedPixel = glToDiv(gl, transform, selectedGL);
+
+  var dist = Math.sqrt(Math.pow(pixelXY.x - selectedPixel.x, 2) + Math.pow(pixelXY.y - selectedPixel.y, 2));
+  if (dist <= maxDistInPixels) {
+    var elt = glToLatLng(selectedGL);
+    elt.i = closest;
+    return elt;
+  } else {
+    return null;
+  }
+}
+
+// Convert from lat, lng to GL x, y coords in the range x:0-256, y:0-256
+// TODO(rsargent): move this to CanvasLayer 
+function latLngToGl(latlng) {
+  var x = (latlng.lng + 180) * 256 / 360;
+  var y = 128 - Math.log(Math.tan((latlng.lat + 90) * Math.PI / 360)) * 128 / Math.PI;
+  return {x: x, y: y};
+}
+      
+// Convert from GL x, y coords to lat, lng
+// TODO(rsargent): move this to CanvasLayer 
+function glToLatLng(xy) {
+  var lat = Math.atan(Math.exp((128 - xy.y) * Math.PI / 128)) * 360 / Math.PI - 90;
+  var lng = xy.x * 360 / 256 - 180;
+  return {lat: lat, lng: lng};
+};
+
+// Transform point from map div pixel space to GL space
+// TODO(rsargent: move this to CanvasLayer
+function divToGl(gl, transform, pixelXY) {
+  var viewportXY = {x: pixelXY.x * 2 / gl.canvas.width - 1, 
+                    y: 1 - pixelXY.y * 2 / gl.canvas.height};
+     
+  var transformInv = new Float32Array(16);
+  invert4(transformInv, transform);
+
+  return transformM4V2(transformInv, viewportXY);
+}
+
+// Transform point from GL space to XY screen space
+// TODO(rsargent): move this to CanvasLayer
+function glToDiv(gl, transform, glXY) {
+  var viewportXY = transformM4V2(transform, glXY);
+  return {x: (viewportXY.x + 1) * gl.canvas.width / 2, 
+          y: (1 - viewportXY.y) * gl.canvas.height / 2};
+}
+
