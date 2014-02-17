@@ -78,9 +78,9 @@ function init() {
   // initialize WebGL
   gl = canvasLayer.canvas.getContext('experimental-webgl');
   if (!gl) {
-    var failover = getParameterByName('failover');
+    var failover = getParameterByName('nowebgl');
     if (failover) {
-      window.location = getParameterByName('failover');
+      window.location = failover;
     } else {
       $("#loading td").html("<div style='color: red;'><div>Loading failed:</div><div>Your browser does not support WebGL.</div></div>");
     }
