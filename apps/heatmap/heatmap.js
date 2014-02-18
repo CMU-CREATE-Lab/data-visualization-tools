@@ -98,41 +98,50 @@ function init() {
 var sliderInitialized = false;
 function initSlider() {
   var daySlider = $('#day-slider');
+  var offsetSlider = $('#offset-slider');
 
   daySlider.attr({"data-max": days.length - 1});
 
-  if (sliderInitialized) return;
-  sliderInitialized = true;
+  if (!sliderInitialized) {
+    sliderInitialized = true;
 
-  $("#animate-button").click(function () {
-    if (paused) {
-      $(this).find("i").removeClass("glyphicon-play").addClass("glyphicon-pause");
-      paused = false;
-    } else {
-      $(this).find("i").removeClass("glyphicon-pause").addClass("glyphicon-play");
-      paused = true;
-    }
-  });
+    $("#animate-button").click(function () {
+      if (paused) {
+        $(this).find("i").removeClass("glyphicon-play").addClass("glyphicon-pause");
+        paused = false;
+      } else {
+        $(this).find("i").removeClass("glyphicon-pause").addClass("glyphicon-play");
+        paused = true;
+      }
+    });
 
-  daySlider.change(function(event) {
-    current_day_index = parseInt(this.value);
-    $('#current-date').html(days[current_day_index].date);
-  });
+    daySlider.change(function(event) {
+      current_day_index = parseInt(this.value);
+      $('#current-date').html(days[current_day_index].date);
+    });
 
-  var handle = daySlider.parent(".control").find(".handle");
-  handle.mousedown(function(event) {
-    animate = false;
-  });
+    var handle = daySlider.parent(".control").find(".handle");
+    handle.mousedown(function(event) {
+      animate = false;
+    });
 
-  handle.mouseup(function(event) {
-    animate = true;
-  });
+    handle.mouseup(function(event) {
+      animate = true;
+    });
 
-  var offsetSlider = $('#offset-slider');
-  offsetSlider.change(function(event) {
-    currentOffset = parseInt(this.value);
-    $('#current-offset').html(currentOffset.toString() + " days");
-  });
+    offsetSlider.change(function(event) {
+      currentOffset = parseInt(this.value);
+      $('#current-offset').html(currentOffset.toString() + " days");
+      var limitedOffset = Math.min(currentOffset, days.length - 1);
+      daySlider.attr({"data-min": limitedOffset});
+      if (current_day_index < limitedOffset) {
+        current_day_index = limitedOffset;
+        daySlider.val(current_day_index.toString());
+      }
+      daySlider.trigger("change");
+    });
+  }
+  offsetSlider.trigger("change");
 }
 
 function createShaderProgram() {
@@ -187,12 +196,14 @@ function update() {
 
     if (elapsedTimeFromChange > 100) {
       elapsedTimeFromChange = 0;
+      var daySlider = $('#day-slider')
       var fraction = (totalElapsedTime / totalTime) % 1;
-      current_day_index = Math.floor(days.length  * fraction);
+      var min = parseFloat(daySlider.attr("data-min"));
+      current_day_index = Math.floor(min + (days.length - min)  * fraction);
 
       $('current-date').html(days[current_day_index].date);
-      $('#day-slider').val(current_day_index);
-      $('#day-slider').trigger("change");
+      daySlider.val(current_day_index);
+      daySlider.trigger("change");
     }
   }
 
