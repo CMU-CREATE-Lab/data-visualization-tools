@@ -20,10 +20,11 @@
 
     <script id="pointVertexShader" type="x-shader/x-vertex">
       attribute vec4 worldCoord;
-
+      attribute vec4 color;
       attribute float aPointSize;
 
       uniform mat4 mapMatrix;
+      varying vec4 baseColor;
 
       void main() {
         // transform world coordinate by matrix uniform variable
@@ -31,16 +32,21 @@
 
         // a constant size for points, regardless of zoom level
         gl_PointSize = aPointSize;
+
+        baseColor = color;
       }      
     </script>
     <script id="pointFragmentShader" type="x-shader/x-fragment">
-     precision mediump float;
+      precision mediump float;
+
+      varying vec4 baseColor;
 
       void main() {
         float dist = length(gl_PointCoord.xy - vec2(.5, .5));
         dist = 1. - (dist * 2.);
         dist = max(0., dist);
-        gl_FragColor = vec4(.82, .22, .07, 1.) * dist;
+
+        gl_FragColor = baseColor * dist;
       }
     </script>
     <script type="text/javascript" src="heatmap.js"></script>

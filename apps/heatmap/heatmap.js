@@ -266,9 +266,10 @@ function loadData(source) {
   var daydata;
   var day;
   var rawLatLonData;
+  var rawColorData;
 
   pointArrayBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, pointArrayBuffer);
+  colorArrayBuffer = gl.createBuffer();
 
   loadTypedMatrix({
     url: source,
@@ -276,6 +277,7 @@ function loadData(source) {
       header = data;
       POINT_COUNT = 0;
       rawLatLonData = new Float32Array(header.length*2);
+      rawColorData = new Float32Array(header.length*4);
     },
     row: function (data) {
       var rowday = Math.floor(data.datetime / (24 * 60 * 60));
@@ -292,18 +294,40 @@ function loadData(source) {
       rawLatLonData[2*POINT_COUNT] = pixel.x;
       rawLatLonData[2*POINT_COUNT+1] = pixel.y;
 
+      if (   data.red != undefined
+          && data.green != undefined
+          && data.blue != undefined
+          && data.alpha != undefined) {
+        rawColorData[4*POINT_COUNT + 0] = data.red / 256;
+        rawColorData[4*POINT_COUNT + 1] = data.green / 256;
+        rawColorData[4*POINT_COUNT + 2] = data.blue / 256;
+      } else {
+        rawColorData[4*POINT_COUNT + 0] = 0.82
+        rawColorData[4*POINT_COUNT + 1] = 0.22;
+        rawColorData[4*POINT_COUNT + 2] = 0.07;
+      }
+      if (data.alpha != undefined) {
+        rawColorData[4*POINT_COUNT + 3] = data.alpha / 256;
+      } else {
+        rawColorData[4*POINT_COUNT + 3] = 1;
+      }
+
       POINT_COUNT++;
     },
     batch: function () {
-      //  load rawData into the webgl buffer
+      //  Load lat/lons into worldCoord shader attribute
+      var worldCoordLoc = gl.getAttribLocation(pointProgram, 'worldCoord');
+      gl.bindBuffer(gl.ARRAY_BUFFER, pointArrayBuffer);
       gl.bufferData(gl.ARRAY_BUFFER, rawLatLonData, gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(worldCoordLoc);
+      gl.vertexAttribPointer(worldCoordLoc, 2, gl.FLOAT, false, 0, 0);
 
-      // enable the 'worldCoord' attribute in the shader to receive buffer
-      var attributeLoc = gl.getAttribLocation(pointProgram, 'worldCoord');
-      gl.enableVertexAttribArray(attributeLoc);
-
-      // tell webgl how buffer is laid out (pairs of x,y coords)
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 0, 0);
+      // Load colors into color shader attribute
+      var colorLoc = gl.getAttribLocation(pointProgram, 'color');
+      gl.bindBuffer(gl.ARRAY_BUFFER, colorArrayBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, rawColorData, gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(colorLoc);
+      gl.vertexAttribPointer(colorLoc, 4, gl.FLOAT, false, 0, 0);
 
       dataLoaded = true;
       $("#loading .message").hide();
