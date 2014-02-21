@@ -43,10 +43,14 @@ function getParameterByName(name) {
 }
 
 function init() {
+  var zoom = parseInt(getParameterByName("zoom") || "4");
+  var lat = parseFloat(getParameterByName("lat") || "39.3");
+  var lon = parseFloat(getParameterByName("lon") || "-95.8");
+
   // initialize the map
   var mapOptions = {
-    zoom: 4,
-    center: new google.maps.LatLng(39.3, -95.8),
+    zoom: zoom,
+    center: new google.maps.LatLng(lat, lon),
     mapTypeId: google.maps.MapTypeId.ROADMAP,
     styles: [
       {
