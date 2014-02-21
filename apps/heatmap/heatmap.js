@@ -1,4 +1,6 @@
 var totalTime = 10000; // in ms
+var magnitudeScale = 8;
+
 /* bgein stats */
 var stats = new Stats();
 stats.setMode(0); // 0: fps, 1: ms
@@ -267,9 +269,11 @@ function loadData(source) {
   var day;
   var rawLatLonData;
   var rawColorData;
+  var rawMagnitudeData;
 
   pointArrayBuffer = gl.createBuffer();
   colorArrayBuffer = gl.createBuffer();
+  magnitudeArrayBuffer = gl.createBuffer();
 
   loadTypedMatrix({
     url: source,
@@ -278,6 +282,7 @@ function loadData(source) {
       POINT_COUNT = 0;
       rawLatLonData = new Float32Array(header.length*2);
       rawColorData = new Float32Array(header.length*4);
+      rawMagnitudeData = new Float32Array(header.length);
     },
     row: function (data) {
       var rowday = Math.floor(data.datetime / (24 * 60 * 60));
@@ -296,8 +301,7 @@ function loadData(source) {
 
       if (   data.red != undefined
           && data.green != undefined
-          && data.blue != undefined
-          && data.alpha != undefined) {
+          && data.blue != undefined) {
         rawColorData[4*POINT_COUNT + 0] = data.red / 256;
         rawColorData[4*POINT_COUNT + 1] = data.green / 256;
         rawColorData[4*POINT_COUNT + 2] = data.blue / 256;
@@ -310,6 +314,12 @@ function loadData(source) {
         rawColorData[4*POINT_COUNT + 3] = data.alpha / 256;
       } else {
         rawColorData[4*POINT_COUNT + 3] = 1;
+      }
+
+      if (data.magnitude != undefined) {
+          rawMagnitudeData[POINT_COUNT] = 1 + magnitudeScale * data.magnitude / 256;
+      } else {
+        rawMagnitudeData[POINT_COUNT] = 1;
       }
 
       POINT_COUNT++;
@@ -328,6 +338,13 @@ function loadData(source) {
       gl.bufferData(gl.ARRAY_BUFFER, rawColorData, gl.STATIC_DRAW);
       gl.enableVertexAttribArray(colorLoc);
       gl.vertexAttribPointer(colorLoc, 4, gl.FLOAT, false, 0, 0);
+
+      // Load magnitudes into magnitude shader attribute
+      var magnitudeLoc = gl.getAttribLocation(pointProgram, 'magnitude');
+      gl.bindBuffer(gl.ARRAY_BUFFER, magnitudeArrayBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, rawMagnitudeData, gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(magnitudeLoc);
+      gl.vertexAttribPointer(magnitudeLoc, 1, gl.FLOAT, false, 0, 0);
 
       dataLoaded = true;
       $("#loading .message").hide();

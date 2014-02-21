@@ -21,6 +21,7 @@
     <script id="pointVertexShader" type="x-shader/x-vertex">
       attribute vec4 worldCoord;
       attribute vec4 color;
+      attribute float magnitude;
       attribute float aPointSize;
 
       uniform mat4 mapMatrix;
@@ -31,7 +32,7 @@
         gl_Position = mapMatrix * worldCoord;
 
         // a constant size for points, regardless of zoom level
-        gl_PointSize = aPointSize;
+        gl_PointSize = aPointSize * magnitude;
 
         baseColor = color;
       }      
