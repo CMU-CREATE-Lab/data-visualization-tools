@@ -70,6 +70,11 @@ function init() {
   var mapDiv = document.getElementById('map-div');
   map = new google.maps.Map(mapDiv, mapOptions);
 
+  if (getParameterByName("overlay")) {
+    var kmlLayer = new google.maps.KmlLayer({url: getParameterByName("overlay")});
+    kmlLayer.setMap(map);
+  }
+
   // initialize the canvasLayer
   var canvasLayerOptions = {
     map: map,
