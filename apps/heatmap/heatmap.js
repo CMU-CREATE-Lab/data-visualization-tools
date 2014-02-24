@@ -24,7 +24,7 @@ var mapMatrix = new Float32Array(16);
 var days = [];
 
 var current_day_index = 0;
-var currentOffset = 15;
+var currentOffset;
 
 var animate = true;
 var paused = false;
@@ -49,6 +49,8 @@ function init() {
   var lon = parseFloat(getParameterByName("lon") || "-95.8");
 
   totalTime = parseFloat(getParameterByName("time") || "10000");
+  $("#offset-slider").val(parseFloat(getParameterByName("offset") || "15"));
+  $("#offset-slider").attr({"data-max": parseFloat(getParameterByName("maxoffset") || "29")});
 
   // initialize the map
   var mapOptions = {
