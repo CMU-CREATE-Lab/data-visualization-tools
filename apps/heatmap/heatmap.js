@@ -1,4 +1,3 @@
-var totalTime = 10000; // in ms
 var magnitudeScale = 8;
 
 /* bgein stats */
@@ -30,6 +29,8 @@ var currentOffset = 15;
 var animate = true;
 var paused = false;
 
+var totalTime; // In ms
+
 var lastTime = 0;
 var elapsedTimeFromChange = 0;
 var totalElapsedTime = 0;
@@ -46,6 +47,8 @@ function init() {
   var zoom = parseInt(getParameterByName("zoom") || "4");
   var lat = parseFloat(getParameterByName("lat") || "39.3");
   var lon = parseFloat(getParameterByName("lon") || "-95.8");
+
+  totalTime = parseFloat(getParameterByName("time") || "10000");
 
   // initialize the map
   var mapOptions = {
