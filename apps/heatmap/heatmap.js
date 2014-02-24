@@ -76,7 +76,7 @@ function init() {
   map = new google.maps.Map(mapDiv, mapOptions);
 
   if (getParameterByName("overlay")) {
-    var kmlLayer = new google.maps.KmlLayer({url: getParameterByName("overlay")});
+    var kmlLayer = new google.maps.KmlLayer({url: getParameterByName("overlay"), preserveViewport: true});
     kmlLayer.setMap(map);
   }
 
