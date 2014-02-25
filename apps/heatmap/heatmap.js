@@ -36,21 +36,17 @@ var elapsedTimeFromChange = 0;
 var totalElapsedTime = 0;
 var header;
 
-function getParameterByName(name) {
-  name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
-  var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-    results = regex.exec(location.search);
-  return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-}
-
 function init() {
-  var zoom = parseInt(getParameterByName("zoom") || "4");
-  var lat = parseFloat(getParameterByName("lat") || "39.3");
-  var lon = parseFloat(getParameterByName("lon") || "-95.8");
+  $("#animate-button input").val( getParameter("paused") == "true" ? "false" : "true");
+  $("#animate-button input").trigger("change");
 
-  totalTime = parseFloat(getParameterByName("time") || "10000");
-  $("#offset-slider").val(parseFloat(getParameterByName("offset") || "15"));
-  $("#offset-slider").attr({"data-max": parseFloat(getParameterByName("maxoffset") || "29")});
+  var zoom = parseInt(getParameter("zoom") || "4");
+  var lat = parseFloat(getParameter("lat") || "39.3");
+  var lon = parseFloat(getParameter("lon") || "-95.8");
+
+  totalTime = parseFloat(getParameter("length") || "10000");
+  $("#offset-slider").val(parseFloat(getParameter("offset") || "15"));
+  $("#offset-slider").attr({"data-max": parseFloat(getParameter("maxoffset") || "29")});
 
   // initialize the map
   var mapOptions = {
@@ -75,8 +71,8 @@ function init() {
   var mapDiv = document.getElementById('map-div');
   map = new google.maps.Map(mapDiv, mapOptions);
 
-  if (getParameterByName("overlay")) {
-    var kmlLayer = new google.maps.KmlLayer({url: getParameterByName("overlay"), preserveViewport: true});
+  if (getParameter("overlay")) {
+    var kmlLayer = new google.maps.KmlLayer({url: getParameter("overlay"), preserveViewport: true});
     kmlLayer.setMap(map);
   }
 
@@ -91,10 +87,18 @@ function init() {
 
   window.addEventListener('resize', function () {  google.maps.event.trigger(map, 'resize') }, false);
 
+  google.maps.event.addListener(map, 'center_changed', function() {
+    setParameter("lat", map.getCenter().lat().toString());
+    setParameter("lon", map.getCenter().lng().toString());
+  });
+  google.maps.event.addListener(map, 'zoom_changed', function() {
+    setParameter("zoom", map.getZoom().toString());
+  });
+
   // initialize WebGL
   gl = canvasLayer.canvas.getContext('experimental-webgl');
   if (!gl) {
-    var failover = getParameterByName('nowebgl');
+    var failover = getParameter('nowebgl');
     if (failover) {
       window.location = failover;
     } else {
@@ -106,7 +110,7 @@ function init() {
   gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
 
   createShaderProgram();
-  loadData(getParameterByName("source"));
+  loadData(getParameter("source"));
   document.body.appendChild( stats.domElement );
 
 }
@@ -121,19 +125,20 @@ function initSlider() {
   if (!sliderInitialized) {
     sliderInitialized = true;
 
-    $("#animate-button").click(function () {
+    $("#animate-button input").change(function () {
+      paused = $("#animate-button input").val() == "true";
       if (paused) {
-        $(this).find("i").removeClass("glyphicon-play").addClass("glyphicon-pause");
-        paused = false;
+        setParameter("paused", "true");
       } else {
-        $(this).find("i").removeClass("glyphicon-pause").addClass("glyphicon-play");
-        paused = true;
+        setParameter("paused");
       }
     });
 
     daySlider.change(function(event) {
       current_day_index = parseInt(this.value);
-      $('#current-date').html(days[current_day_index].date);
+      var date = days[current_day_index].date;
+      setParameter("time", date);
+      $('#current-date').html(date);
     });
 
     var handle = daySlider.parent(".control").find(".handle");
@@ -147,6 +152,7 @@ function initSlider() {
 
     offsetSlider.change(function(event) {
       currentOffset = parseInt(this.value);
+      setParameter("offset", currentOffset.toString());
       $('#current-offset').html(currentOffset.toString() + " days");
       var limitedOffset = Math.min(currentOffset, days.length - 1);
       daySlider.attr({"data-min": limitedOffset});
@@ -407,6 +413,19 @@ function translateMatrix(matrix, tx, ty) {
 document.addEventListener('DOMContentLoaded', init, false);
 
 $(document).ready(function () {
+  $("#animate-button").click(function () {
+    val = $("#animate-button input").val() == "true";
+    $("#animate-button input").val(val ? "false" : "true");
+    $("#animate-button input").trigger("change");
+  });
+  $("#animate-button input").change(function () {
+    if ($("#animate-button input").val() == "true") {
+      $("#animate-button").find("i").removeClass("glyphicon-pause").addClass("glyphicon-play");
+    } else {
+      $("#animate-button").find("i").removeClass("glyphicon-play").addClass("glyphicon-pause");
+    }
+  });
+
   $(".control").each(function () {
     (function (control) {
       var bar = control.find(".bar");

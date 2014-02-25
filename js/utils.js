@@ -275,3 +275,32 @@ function loadTypedMatrix(opts) {
   }
   setTimeout(handleDataCallback, 500);
 }
+
+/* These two functions uses the location hash to store "bookmarkable"
+ * data, using the same format as an URL query.
+ *
+ * Examples:
+ * http://example.com/index.html#name=value&someothername=foo%20bar
+ */
+
+function getParameter(name) {
+  name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+  var regex = new RegExp("[#&]" + name + "=([^&]*)"),
+  results = regex.exec(location.hash);
+  return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+
+function setParameter(name, value) {
+  var rname = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+  var regex = new RegExp("[#&]" + rname + "=([^&]*)");
+  var replacement = "";
+  if (value != null && value != undefined) {
+    replacement = "&" + name + "=" + encodeURIComponent(value);
+  }
+  if (regex.exec(location.hash) == null) {
+    location.hash = "#" + (location.hash + replacement).substr(1);    
+  } else {
+    results = location.hash.replace(regex, replacement);
+    location.hash = "#" + results.substr(1);
+  }
+}
