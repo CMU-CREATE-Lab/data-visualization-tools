@@ -27,7 +27,7 @@ var current_day_index = 0;
 var currentOffset;
 
 var animate = true;
-var paused = false;
+var paused = true;
 
 var totalTime; // In ms
 
@@ -35,136 +35,6 @@ var lastTime = 0;
 var elapsedTimeFromChange = 0;
 var totalElapsedTime = 0;
 var header;
-
-function init() {
-  $("#animate-button input").val( getParameter("paused") == "true" ? "false" : "true");
-  $("#animate-button input").trigger("change");
-
-  var zoom = parseInt(getParameter("zoom") || "4");
-  var lat = parseFloat(getParameter("lat") || "39.3");
-  var lon = parseFloat(getParameter("lon") || "-95.8");
-
-  totalTime = parseFloat(getParameter("length") || "10000");
-  $("#offset-slider").val(parseFloat(getParameter("offset") || "15"));
-  $("#offset-slider").attr({"data-max": parseFloat(getParameter("maxoffset") || "29")});
-
-  // initialize the map
-  var mapOptions = {
-    zoom: zoom,
-    center: new google.maps.LatLng(lat, lon),
-    mapTypeId: google.maps.MapTypeId.ROADMAP,
-    styles: [
-      {
-        featureType: 'all',
-        stylers: [
-          {hue: '#0000b0'},
-          {invert_lightness: 'true'},
-          {saturation: -30}
-        ]
-      },
-      {
-        featureType: 'poi',
-        stylers: [{visibility: 'off'}]
-      }
-    ]
-  };
-  var mapDiv = document.getElementById('map-div');
-  map = new google.maps.Map(mapDiv, mapOptions);
-
-  if (getParameter("overlay")) {
-    var kmlLayer = new google.maps.KmlLayer({url: getParameter("overlay"), preserveViewport: true});
-    kmlLayer.setMap(map);
-  }
-
-  // initialize the canvasLayer
-  var canvasLayerOptions = {
-    map: map,
-    resizeHandler: resize,
-    animate: true,
-    updateHandler: update
-  };
-  canvasLayer = new CanvasLayer(canvasLayerOptions);
-
-  window.addEventListener('resize', function () {  google.maps.event.trigger(map, 'resize') }, false);
-
-  google.maps.event.addListener(map, 'center_changed', function() {
-    setParameter("lat", map.getCenter().lat().toString());
-    setParameter("lon", map.getCenter().lng().toString());
-  });
-  google.maps.event.addListener(map, 'zoom_changed', function() {
-    setParameter("zoom", map.getZoom().toString());
-  });
-
-  // initialize WebGL
-  gl = canvasLayer.canvas.getContext('experimental-webgl');
-  if (!gl) {
-    var failover = getParameter('nowebgl');
-    if (failover) {
-      window.location = failover;
-    } else {
-      $("#loading td").html("<div style='color: red;'><div>Loading failed:</div><div>Your browser does not support WebGL.</div></div>");
-    }
-    return;
-  }
-  gl.enable(gl.BLEND);
-  gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
-
-  createShaderProgram();
-  loadData(getParameter("source"));
-  document.body.appendChild( stats.domElement );
-
-}
-
-var sliderInitialized = false;
-function initSlider() {
-  var daySlider = $('#day-slider');
-  var offsetSlider = $('#offset-slider');
-
-  daySlider.attr({"data-max": days.length - 1});
-
-  if (!sliderInitialized) {
-    sliderInitialized = true;
-
-    $("#animate-button input").change(function () {
-      paused = $("#animate-button input").val() == "true";
-      if (paused) {
-        setParameter("paused", "true");
-      } else {
-        setParameter("paused");
-      }
-    });
-
-    daySlider.change(function(event) {
-      current_day_index = parseInt(this.value);
-      var date = days[current_day_index].date;
-      setParameter("time", date);
-      $('#current-date').html(date);
-    });
-
-    var handle = daySlider.parent(".control").find(".handle");
-    handle.mousedown(function(event) {
-      animate = false;
-    });
-
-    handle.mouseup(function(event) {
-      animate = true;
-    });
-
-    offsetSlider.change(function(event) {
-      currentOffset = parseInt(this.value);
-      setParameter("offset", currentOffset.toString());
-      $('#current-offset').html(currentOffset.toString() + " days");
-      var limitedOffset = Math.min(currentOffset, days.length - 1);
-      daySlider.attr({"data-min": limitedOffset});
-      if (current_day_index < limitedOffset) {
-        current_day_index = limitedOffset;
-        daySlider.val(current_day_index.toString());
-      }
-      daySlider.trigger("change");
-    });
-  }
-  offsetSlider.trigger("change");
-}
 
 function createShaderProgram() {
   // create vertex shader
@@ -271,6 +141,27 @@ function update() {
   stats.end();
 }
 
+function scaleMatrix(matrix, scaleX, scaleY) {
+  // scaling x and y, which is just scaling first two columns of matrix
+  matrix[0] *= scaleX;
+  matrix[1] *= scaleX;
+  matrix[2] *= scaleX;
+  matrix[3] *= scaleX;
+
+  matrix[4] *= scaleY;
+  matrix[5] *= scaleY;
+  matrix[6] *= scaleY;
+  matrix[7] *= scaleY;
+}
+
+function translateMatrix(matrix, tx, ty) {
+  // translation is in last column of matrix
+  matrix[12] += matrix[0]*tx + matrix[4]*ty;
+  matrix[13] += matrix[1]*tx + matrix[5]*ty;
+  matrix[14] += matrix[2]*tx + matrix[6]*ty;
+  matrix[15] += matrix[3]*tx + matrix[7]*ty;
+}
+
 function loadData(source) {
   function pad(number, length) {
     var str = '' + number;
@@ -294,6 +185,11 @@ function loadData(source) {
   pointArrayBuffer = gl.createBuffer();
   colorArrayBuffer = gl.createBuffer();
   magnitudeArrayBuffer = gl.createBuffer();
+
+  var timeToSet = getParameter("time") || undefined;
+  if (timeToSet) {
+    timeToSet = new Date(timeToSet); animate = false;
+  }
 
   loadTypedMatrix({
     url: source,
@@ -378,7 +274,14 @@ function loadData(source) {
         top: "30px"
       }, 500);
       document.getElementById('loading').className = "done";
-      initSlider();
+      $('#day-slider').attr({"data-max": days.length - 1});
+      if (timeToSet && new Date(days[days.length-1].date) > timeToSet) {
+        var idx;
+        for (idx = 0; idx < days.length && new Date(days[idx].date) < timeToSet ; idx++);
+        $("#day-slider").val(idx.toString());
+        animate = true;
+      }
+      $('#day-slider').trigger("change");
     },
     done: function () {
       $("#loading").hide();
@@ -389,30 +292,131 @@ function loadData(source) {
   });
 }
 
-function scaleMatrix(matrix, scaleX, scaleY) {
-  // scaling x and y, which is just scaling first two columns of matrix
-  matrix[0] *= scaleX;
-  matrix[1] *= scaleX;
-  matrix[2] *= scaleX;
-  matrix[3] *= scaleX;
+function initAnimationSliders() {
+  var daySlider = $('#day-slider');
+  var offsetSlider = $('#offset-slider');
 
-  matrix[4] *= scaleY;
-  matrix[5] *= scaleY;
-  matrix[6] *= scaleY;
-  matrix[7] *= scaleY;
+  $("#animate-button input").change(function () {
+    paused = $("#animate-button input").val() == "true";
+    if (paused) {
+      setParameter("paused", "true");
+    } else {
+      setParameter("paused");
+    }
+  });
+
+  daySlider.change(function(event) {
+    current_day_index = parseInt(this.value);
+    if (current_day_index < days.length) {
+      var date = days[current_day_index].date;
+      setParameter("time", date);
+      $('#current-date').html(date);
+    }
+  });
+
+  var handle = daySlider.parent(".control").find(".handle");
+  handle.mousedown(function(event) {
+    animate = false;
+  });
+
+  handle.mouseup(function(event) {
+    animate = true;
+  });
+
+  offsetSlider.change(function(event) {
+    currentOffset = parseInt(this.value);
+    setParameter("offset", currentOffset.toString());
+    $('#current-offset').html(currentOffset.toString() + " days");
+    var limitedOffset = Math.min(currentOffset, days.length - 1);
+    daySlider.attr({"data-min": limitedOffset});
+    if (current_day_index < limitedOffset) {
+      current_day_index = limitedOffset;
+      daySlider.val(current_day_index.toString());
+    }
+    daySlider.trigger("change");
+  });
 }
 
-function translateMatrix(matrix, tx, ty) {
-  // translation is in last column of matrix
-  matrix[12] += matrix[0]*tx + matrix[4]*ty;
-  matrix[13] += matrix[1]*tx + matrix[5]*ty;
-  matrix[14] += matrix[2]*tx + matrix[6]*ty;
-  matrix[15] += matrix[3]*tx + matrix[7]*ty;
+function initAnimation() {
+  $("#animate-button input").val(getParameter("paused") == "true" ? "true" : "false");
+  $("#animate-button input").trigger("change");
+
+  var zoom = parseInt(getParameter("zoom") || "4");
+  var lat = parseFloat(getParameter("lat") || "39.3");
+  var lon = parseFloat(getParameter("lon") || "-95.8");
+
+  totalTime = parseFloat(getParameter("length") || "10000");
+  $("#offset-slider").val(parseFloat(getParameter("offset") || "15"));
+  $("#offset-slider").attr({"data-max": parseFloat(getParameter("maxoffset") || "29")});
+  $("#offset-slider").trigger("change");
+
+  // initialize the map
+  var mapOptions = {
+    zoom: zoom,
+    center: new google.maps.LatLng(lat, lon),
+    mapTypeId: google.maps.MapTypeId.ROADMAP,
+    styles: [
+      {
+        featureType: 'all',
+        stylers: [
+          {hue: '#0000b0'},
+          {invert_lightness: 'true'},
+          {saturation: -30}
+        ]
+      },
+      {
+        featureType: 'poi',
+        stylers: [{visibility: 'off'}]
+      }
+    ]
+  };
+  var mapDiv = document.getElementById('map-div');
+  map = new google.maps.Map(mapDiv, mapOptions);
+
+  if (getParameter("overlay")) {
+    var kmlLayer = new google.maps.KmlLayer({url: getParameter("overlay"), preserveViewport: true});
+    kmlLayer.setMap(map);
+  }
+
+  // initialize the canvasLayer
+  var canvasLayerOptions = {
+    map: map,
+    resizeHandler: resize,
+    animate: true,
+    updateHandler: update
+  };
+  canvasLayer = new CanvasLayer(canvasLayerOptions);
+
+  window.addEventListener('resize', function () {  google.maps.event.trigger(map, 'resize') }, false);
+
+  google.maps.event.addListener(map, 'center_changed', function() {
+    setParameter("lat", map.getCenter().lat().toString());
+    setParameter("lon", map.getCenter().lng().toString());
+  });
+  google.maps.event.addListener(map, 'zoom_changed', function() {
+    setParameter("zoom", map.getZoom().toString());
+  });
+
+  // initialize WebGL
+  gl = canvasLayer.canvas.getContext('experimental-webgl');
+  if (!gl) {
+    var failover = getParameter('nowebgl');
+    if (failover) {
+      window.location = failover;
+    } else {
+      $("#loading td").html("<div style='color: red;'><div>Loading failed:</div><div>Your browser does not support WebGL.</div></div>");
+    }
+    return;
+  }
+  gl.enable(gl.BLEND);
+  gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
+
+  createShaderProgram();
+  loadData(getParameter("source"));
+  document.body.appendChild(stats.domElement);
 }
 
-document.addEventListener('DOMContentLoaded', init, false);
-
-$(document).ready(function () {
+function initToggleButtons() {
   $("#animate-button").click(function () {
     val = $("#animate-button input").val() == "true";
     $("#animate-button input").val(val ? "false" : "true");
@@ -425,7 +429,9 @@ $(document).ready(function () {
       $("#animate-button").find("i").removeClass("glyphicon-play").addClass("glyphicon-pause");
     }
   });
+}
 
+function initSliders() {
   $(".control").each(function () {
     (function (control) {
       var bar = control.find(".bar");
@@ -504,4 +510,11 @@ $(document).ready(function () {
       input.trigger("change");
     })($(this));
   });
+}
+
+$(document).ready(function () {
+  initToggleButtons();
+  initSliders();
+  initAnimationSliders();
+  initAnimation();
 });
