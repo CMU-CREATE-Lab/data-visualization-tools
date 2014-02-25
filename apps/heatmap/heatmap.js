@@ -73,13 +73,24 @@ function resize() {
 }
 
 function update() {
+  var daySlider = $('#day-slider')
+  var min = parseFloat(daySlider.attr("data-min"));
+  var max = parseFloat(daySlider.attr("data-max"));
+
   if (!dataLoaded) return;
 
   stats.begin();
 
-  if (animate && !paused) {
+  if (!animate || paused) {
+    totalElapsedTime = undefined;
+  } else if (animate && !paused) {
     var timeNow = new Date().getTime();
-    if (lastTime != 0 ) {
+    if (totalElapsedTime == undefined) {
+      current_day_index = daySlider.val();
+      fraction = (current_day_index - min) / (max - min);
+      totalElapsedTime = fraction * totalTime;
+      elapsedTimeFromChange = 0;
+    } else if (lastTime != 0) {
       var elapsed = timeNow - lastTime;
       totalElapsedTime += elapsed;
       elapsedTimeFromChange += elapsed;
@@ -88,10 +99,8 @@ function update() {
 
     if (elapsedTimeFromChange > 100) {
       elapsedTimeFromChange = 0;
-      var daySlider = $('#day-slider')
       var fraction = (totalElapsedTime / totalTime) % 1;
-      var min = parseFloat(daySlider.attr("data-min"));
-      current_day_index = Math.floor(min + (days.length - min)  * fraction);
+      current_day_index = Math.floor(min + (max - min)  * fraction);
 
       $('current-date').html(days[current_day_index].date);
       daySlider.val(current_day_index);
