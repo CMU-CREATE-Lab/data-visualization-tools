@@ -36,31 +36,6 @@ var elapsedTimeFromChange = 0;
 var totalElapsedTime = 0;
 var header;
 
-function createShaderProgram() {
-  // create vertex shader
-  var vertexSrc = document.getElementById('pointVertexShader').text;
-  var vertexShader = gl.createShader(gl.VERTEX_SHADER);
-  gl.shaderSource(vertexShader, vertexSrc);
-  gl.compileShader(vertexShader);
-
-  // create fragment shader
-  var fragmentSrc = document.getElementById('pointFragmentShader').text;
-  var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-  gl.shaderSource(fragmentShader, fragmentSrc);
-  gl.compileShader(fragmentShader);
-
-  // link shaders to create our program
-  pointProgram = gl.createProgram();
-  gl.attachShader(pointProgram, vertexShader);
-  gl.attachShader(pointProgram, fragmentShader);
-  gl.linkProgram(pointProgram);
-
-  gl.useProgram(pointProgram);
-
-  gl.aPointSize = gl.getAttribLocation(pointProgram, "aPointSize");
-
-}
-
 function resize() {
   var width = canvasLayer.canvas.width;
   var height = canvasLayer.canvas.height;
@@ -117,7 +92,7 @@ function update() {
   var pointSize = Math.max(
     Math.floor( ((20-5) * (map.zoom - 0) / (21 - 0)) + 5 ),
     getPixelDiameterAtLatitude(header.resolution || 1000, map.getCenter().lat(), map.zoom));
-  gl.vertexAttrib1f(gl.aPointSize, pointSize*1.0);
+  gl.vertexAttrib1f(pointProgram.attributes.aPointSize, pointSize*1.0);
 
   var mapProjection = map.getProjection();
 
@@ -420,7 +395,8 @@ function initAnimation() {
   gl.enable(gl.BLEND);
   gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
 
-  createShaderProgram();
+  pointProgram = createShaderProgram(gl, "#pointVertexShader", "#pointFragmentShader");
+
   loadData(getParameter("source"));
   document.body.appendChild(stats.domElement);
 }

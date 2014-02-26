@@ -304,3 +304,34 @@ function setParameter(name, value) {
     location.hash = "#" + results.substr(1);
   }
 }
+
+function createShaderProgram(gl, vertexShader, fragmentShader) {
+  // create vertex shader
+  var vertexSrc = $(vertexShader).text();
+  var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+  gl.shaderSource(vertexShader, vertexSrc);
+  gl.compileShader(vertexShader);
+
+  // create fragment shader
+  var fragmentSrc = $(fragmentShader).text();
+  var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+  gl.shaderSource(fragmentShader, fragmentSrc);
+  gl.compileShader(fragmentShader);
+
+  // link shaders to create our program
+  var program = gl.createProgram();
+  gl.attachShader(program, vertexShader);
+  gl.attachShader(program, fragmentShader);
+  gl.linkProgram(program);
+
+  gl.useProgram(program);
+
+  // Collect attribute locations to make binding easier in the code using this program
+  program.attributes = {};
+  for (var i = 0; i < gl.getProgramParameter(program, gl.ACTIVE_ATTRIBUTES); i++) {
+    name = gl.getActiveAttrib(program, i).name;
+    program.attributes[name] = gl.getAttribLocation(program, name);
+  }
+
+  return program;
+}
