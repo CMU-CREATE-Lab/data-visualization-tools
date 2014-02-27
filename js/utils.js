@@ -338,5 +338,11 @@ function createShaderProgram(gl, vertexShader, fragmentShader) {
     program.attributes[name] = gl.getAttribLocation(program, name);
   }
 
+  program.uniforms = {};
+  for (var i = 0; i < gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS); i++) {
+    name = gl.getActiveUniform(program, i).name;
+    program.uniforms[name] = gl.getUniformLocation(program, name);
+  }
+
   return program;
 }
