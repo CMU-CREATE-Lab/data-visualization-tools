@@ -24,12 +24,21 @@
       attribute float magnitude;
       attribute float aPointSize;
 
+      attribute float time;
+      uniform float startTime;
+      uniform float endTime;
+
       uniform mat4 mapMatrix;
       varying vec4 baseColor;
 
       void main() {
+        if (time < startTime || time > endTime) {
+gl_Position = vec4(-100, -100, -100, -100);
+        } else {
+
         // transform world coordinate by matrix uniform variable
         gl_Position = mapMatrix * worldCoord;
+}
 
         // a constant size for points, regardless of zoom level
         gl_PointSize = aPointSize * magnitude;

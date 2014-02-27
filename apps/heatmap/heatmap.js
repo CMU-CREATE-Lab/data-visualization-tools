@@ -21,9 +21,6 @@ var POINT_COUNT;
 var pixelsToWebGLMatrix = new Float32Array(16);
 var mapMatrix = new Float32Array(16);
 
-var days = [];
-
-var current_day_index = 0;
 var currentOffset;
 
 var animate = true;
@@ -61,8 +58,8 @@ function update() {
   } else if (animate && !paused) {
     var timeNow = new Date().getTime();
     if (totalElapsedTime == undefined) {
-      current_day_index = daySlider.val();
-      fraction = (current_day_index - min) / (max - min);
+      current_time = daySlider.val();
+      fraction = (current_time - min) / (max - min);
       totalElapsedTime = fraction * totalTime;
       elapsedTimeFromChange = 0;
     } else if (lastTime != 0) {
@@ -75,16 +72,12 @@ function update() {
     if (elapsedTimeFromChange > 100) {
       elapsedTimeFromChange = 0;
       var fraction = (totalElapsedTime / totalTime) % 1;
-      current_day_index = Math.floor(min + (max - min)  * fraction);
+      current_time = Math.floor(min + (max - min)  * fraction);
 
-      $('current-date').html(days[current_day_index].date);
-      daySlider.val(current_day_index);
+      daySlider.val(current_time);
       daySlider.trigger("change");
     }
   }
-
- var current_day = days[current_day_index];
- var first_day = days[Math.max(0, current_day_index - currentOffset)];
 
   gl.clear(gl.COLOR_BUFFER_BIT);
 
@@ -121,7 +114,14 @@ function update() {
 
   // draw!
 
-  gl.drawArrays(gl.POINTS, first_day.index, current_day.index + current_day.length - first_day.index);
+//  gl.drawArrays(gl.POINTS, first_day.index, current_day.index + current_day.length - first_day.index);
+
+  var startLoc = gl.getUniformLocation(pointProgram, 'startTime');
+  var endLoc = gl.getUniformLocation(pointProgram, 'endTime');
+  gl.uniform1f(startLoc, current_time - (currentOffset * 24 * 60 * 60));
+  gl.uniform1f(endLoc, current_time);
+
+  gl.drawArrays(gl.POINTS, 0, POINT_COUNT);
   stats.end();
 }
 
@@ -139,15 +139,20 @@ function loadData(source) {
   }
 
   days = [];
-  var daydata;
-  var day;
+  // var daydata;
+  // var day;
+  daydata = undefined;
+  day = undefined;
   var rawLatLonData;
   var rawColorData;
   var rawMagnitudeData;
+  // var rawTimeData;
+  rawTimeData = undefined;
 
   pointArrayBuffer = gl.createBuffer();
   colorArrayBuffer = gl.createBuffer();
   magnitudeArrayBuffer = gl.createBuffer();
+  timeArrayBuffer = gl.createBuffer();
 
   var timeToSet = getParameter("time") || undefined;
   if (timeToSet) {
@@ -162,6 +167,7 @@ function loadData(source) {
       rawLatLonData = new Float32Array(header.length*2);
       rawColorData = new Float32Array(header.length*4);
       rawMagnitudeData = new Float32Array(header.length);
+      rawTimeData = new Float32Array(header.length);
     },
     row: function (data) {
       var rowday = Math.floor(data.datetime / (24 * 60 * 60));
@@ -201,6 +207,8 @@ function loadData(source) {
         rawMagnitudeData[POINT_COUNT] = 1;
       }
 
+      rawTimeData[POINT_COUNT] = data.datetime;
+
       POINT_COUNT++;
     },
     batch: function () {
@@ -225,6 +233,13 @@ function loadData(source) {
       gl.enableVertexAttribArray(magnitudeLoc);
       gl.vertexAttribPointer(magnitudeLoc, 1, gl.FLOAT, false, 0, 0);
 
+      // Load times into time shader attribute
+      var timeLoc = gl.getAttribLocation(pointProgram, 'time');
+      gl.bindBuffer(gl.ARRAY_BUFFER, timeArrayBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, rawTimeData, gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(timeLoc);
+      gl.vertexAttribPointer(timeLoc, 1, gl.FLOAT, false, 0, 0);
+
       dataLoaded = true;
       $("#loading .message").hide();
       $("#loading").css({
@@ -237,11 +252,9 @@ function loadData(source) {
         top: "30px"
       }, 500);
       document.getElementById('loading').className = "done";
-      $('#day-slider').attr({"data-max": days.length - 1});
-      if (timeToSet && new Date(days[days.length-1].date) > timeToSet) {
-        var idx;
-        for (idx = 0; idx < days.length && new Date(days[idx].date) < timeToSet ; idx++);
-        $("#day-slider").val(idx.toString());
+      $('#day-slider').attr({"data-min": rawTimeData[0], "data-max": rawTimeData[POINT_COUNT - 1]});
+      if (timeToSet && new Date(rawTimeData[POINT_COUNT - 1] * 1000) > timeToSet) {
+        $("#day-slider").val(rawTimeData[POINT_COUNT - 1].toString());
         animate = true;
       }
       $('#day-slider').trigger("change");
@@ -269,12 +282,10 @@ function initAnimationSliders() {
   });
 
   daySlider.change(function(event) {
-    current_day_index = parseInt(this.value);
-    if (current_day_index < days.length) {
-      var date = days[current_day_index].date;
-      setParameter("time", date);
-      $('#current-date').html(date);
-    }
+    current_time = parseInt(this.value);
+    var date = new Date(current_time * 1000);
+    setParameter("time", date);
+    $('#current-date').html(date);
   });
 
   var handle = daySlider.parent(".control").find(".handle");
@@ -290,11 +301,13 @@ function initAnimationSliders() {
     currentOffset = parseInt(this.value);
     setParameter("offset", currentOffset.toString());
     $('#current-offset').html(currentOffset.toString() + " days");
-    var limitedOffset = Math.min(currentOffset, days.length - 1);
-    daySlider.attr({"data-min": limitedOffset});
-    if (current_day_index < limitedOffset) {
-      current_day_index = limitedOffset;
-      daySlider.val(current_day_index.toString());
+
+      if (typeof(rawTimeData) == "undefined") return; 
+    var limitedOffset = Math.min(currentOffset, (rawTimeData[POINT_COUNT - 1] - rawTimeData[0]) / (24 * 60 * 60));
+    daySlider.attr({"data-min": rawTimeData[0] + limitedOffset * 24 * 60 * 60});
+    if (current_time < rawTimeData[0] + limitedOffset * 24 * 60 * 60) {
+      current_time = limitedOffset;
+      daySlider.val(current_time.toString());
     }
     daySlider.trigger("change");
   });
