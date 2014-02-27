@@ -113,6 +113,11 @@ Date.prototype.hhmmss = function() {
   return (hh[1]?hh:"0"+hh[0]) + ':' + (mm[1]?mm:"0"+mm[0]) + ":" + (ss[1]?ss:"0"+ss[0]);
 }; 
 
+Date.prototype.rfcstring = function(sep) {
+  if (sep == undefined) sep = "T";
+  return this.yyyymmdd() + sep + this.hhmmss() + (this.getUTCMilliseconds() / 1000).toString().substr(1);
+};
+
 function loadTypedMatrix(opts) {
   /* Loads a matrix of rows/cols of typed data from a binary file.
      The data format is (all values little endian):

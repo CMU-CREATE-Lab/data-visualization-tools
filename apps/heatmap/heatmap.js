@@ -254,7 +254,7 @@ function loadData(source) {
       document.getElementById('loading').className = "done";
       $('#day-slider').attr({"data-min": rawTimeData[0], "data-max": rawTimeData[POINT_COUNT - 1]});
       if (timeToSet && new Date(rawTimeData[POINT_COUNT - 1] * 1000) > timeToSet) {
-        $("#day-slider").val(rawTimeData[POINT_COUNT - 1].toString());
+        $("#day-slider").val((timeToSet.getTime() / 1000).toString());
         animate = true;
       }
       $('#day-slider').trigger("change");
@@ -284,8 +284,8 @@ function initAnimationSliders() {
   daySlider.change(function(event) {
     current_time = parseInt(this.value);
     var date = new Date(current_time * 1000);
-    setParameter("time", date);
-    $('#current-date').html(date);
+    setParameter("time", date.rfcstring());
+    $('#current-date').html(date.rfcstring(" "));
   });
 
   var handle = daySlider.parent(".control").find(".handle");
