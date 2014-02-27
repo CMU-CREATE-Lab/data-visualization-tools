@@ -109,17 +109,14 @@ function update() {
 
 
   // attach matrix value to 'mapMatrix' uniform in shader
-  var matrixLoc = gl.getUniformLocation(pointProgram, 'mapMatrix');
-  gl.uniformMatrix4fv(matrixLoc, false, mapMatrix);
+  gl.uniformMatrix4fv(pointProgram.uniforms.mapMatrix, false, mapMatrix);
 
   // draw!
 
 //  gl.drawArrays(gl.POINTS, first_day.index, current_day.index + current_day.length - first_day.index);
 
-  var startLoc = gl.getUniformLocation(pointProgram, 'startTime');
-  var endLoc = gl.getUniformLocation(pointProgram, 'endTime');
-  gl.uniform1f(startLoc, current_time - (currentOffset * 24 * 60 * 60));
-  gl.uniform1f(endLoc, current_time);
+  gl.uniform1f(pointProgram.uniforms.startTime, current_time - (currentOffset * 24 * 60 * 60));
+  gl.uniform1f(pointProgram.uniforms.endTime, current_time);
 
   gl.drawArrays(gl.POINTS, 0, POINT_COUNT);
   stats.end();
@@ -213,32 +210,28 @@ function loadData(source) {
     },
     batch: function () {
       //  Load lat/lons into worldCoord shader attribute
-      var worldCoordLoc = gl.getAttribLocation(pointProgram, 'worldCoord');
       gl.bindBuffer(gl.ARRAY_BUFFER, pointArrayBuffer);
       gl.bufferData(gl.ARRAY_BUFFER, rawLatLonData, gl.STATIC_DRAW);
-      gl.enableVertexAttribArray(worldCoordLoc);
-      gl.vertexAttribPointer(worldCoordLoc, 2, gl.FLOAT, false, 0, 0);
+      gl.enableVertexAttribArray(pointProgram.attributes.worldCoord);
+      gl.vertexAttribPointer(pointProgram.attributes.worldCoord, 2, gl.FLOAT, false, 0, 0);
 
       // Load colors into color shader attribute
-      var colorLoc = gl.getAttribLocation(pointProgram, 'color');
       gl.bindBuffer(gl.ARRAY_BUFFER, colorArrayBuffer);
       gl.bufferData(gl.ARRAY_BUFFER, rawColorData, gl.STATIC_DRAW);
-      gl.enableVertexAttribArray(colorLoc);
-      gl.vertexAttribPointer(colorLoc, 4, gl.FLOAT, false, 0, 0);
+      gl.enableVertexAttribArray(pointProgram.attributes.color);
+      gl.vertexAttribPointer(pointProgram.attributes.color, 4, gl.FLOAT, false, 0, 0);
 
       // Load magnitudes into magnitude shader attribute
-      var magnitudeLoc = gl.getAttribLocation(pointProgram, 'magnitude');
       gl.bindBuffer(gl.ARRAY_BUFFER, magnitudeArrayBuffer);
       gl.bufferData(gl.ARRAY_BUFFER, rawMagnitudeData, gl.STATIC_DRAW);
-      gl.enableVertexAttribArray(magnitudeLoc);
-      gl.vertexAttribPointer(magnitudeLoc, 1, gl.FLOAT, false, 0, 0);
+      gl.enableVertexAttribArray(pointProgram.attributes.magnitude);
+      gl.vertexAttribPointer(pointProgram.attributes.magnitude, 1, gl.FLOAT, false, 0, 0);
 
       // Load times into time shader attribute
-      var timeLoc = gl.getAttribLocation(pointProgram, 'time');
       gl.bindBuffer(gl.ARRAY_BUFFER, timeArrayBuffer);
       gl.bufferData(gl.ARRAY_BUFFER, rawTimeData, gl.STATIC_DRAW);
-      gl.enableVertexAttribArray(timeLoc);
-      gl.vertexAttribPointer(timeLoc, 1, gl.FLOAT, false, 0, 0);
+      gl.enableVertexAttribArray(pointProgram.attributes.time);
+      gl.vertexAttribPointer(pointProgram.attributes.time, 1, gl.FLOAT, false, 0, 0);
 
       dataLoaded = true;
       $("#loading .message").hide();
