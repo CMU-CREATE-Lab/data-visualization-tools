@@ -29,6 +29,7 @@
       uniform float endTime;
 
       uniform mat4 mapMatrix;
+
       varying vec4 baseColor;
 
       void main() {
@@ -41,21 +42,24 @@
           gl_PointSize = aPointSize * magnitude;
           baseColor = color;
         }
-      }      
+      }
     </script>
     <script id="pointFragmentShader" type="x-shader/x-fragment">
       precision mediump float;
 
+      uniform int doShade;
+
       varying vec4 baseColor;
 
       void main() {
-        float dist = length(gl_PointCoord.xy - vec2(.5, .5));
-        dist = 1. - (dist * 2.);
-        dist = max(0., dist);
-
-
-        gl_FragColor = baseColor;
-//        gl_FragColor = baseColor * dist;
+        if (doShade == 1) {
+          float dist = length(gl_PointCoord.xy - vec2(.5, .5));
+          dist = 1. - (dist * 2.);
+          dist = max(0., dist);
+          gl_FragColor = baseColor * dist;
+        } else {
+          gl_FragColor = baseColor;
+        }        
       }
     </script>
     <script type="text/javascript" src="sliders.js"></script>

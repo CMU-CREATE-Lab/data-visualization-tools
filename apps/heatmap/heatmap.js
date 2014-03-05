@@ -115,9 +115,16 @@ function update() {
   gl.uniform1f(pointProgram.uniforms.startTime, current_time - (currentOffset * 24 * 60 * 60));
   gl.uniform1f(pointProgram.uniforms.endTime, current_time);
 
+  var mode;
+  if (getParameter("lines") == 'true') {
+    mode = gl.LINE_STRIP;
+    gl.uniform1i(pointProgram.uniforms.doShade, 0);
+  } else {
+    mode = gl.POINTS;
+    gl.uniform1i(pointProgram.uniforms.doShade, 1);
+  }
   for (var i = 0; i < SERIES_COUNT; i++) {
-//gl.POINTS gl.LINE_STRIP
-    gl.drawArrays(gl.LINE_STRIP, rawSeries[i], rawSeries[i+1]-rawSeries[i]);
+    gl.drawArrays(mode, rawSeries[i], rawSeries[i+1]-rawSeries[i]);
   }
   stats.end();
 }
