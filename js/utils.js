@@ -236,8 +236,11 @@ function loadTypedMatrix(opts) {
       header = JSON.parse(text.substr(offset, headerLen));
 
       rowLen = 0;
+      header.colsByName = {};
       for (var colidx = 0; colidx < header.cols.length; colidx++) {
         var col = header.cols[colidx];
+        col.idx = colidx;
+        header.colsByName[col.name] = col;
         col.typespec = typemap[col.type];
         rowLen += col.typespec.size;
       };
