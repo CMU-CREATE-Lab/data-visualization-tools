@@ -38,7 +38,12 @@ print "Calculating header values..."
 datalen = len(data)
 cols = {}
 coltypes = {}
+nrseries = 0;
+series = lambda : 1 # Not equal to anything that you can find in a json
 for i, d in enumerate(data):
+    if d.get('series', None) != series:
+        nrseries += 1;
+        series = d.get('series', None)
     for key, value in d.iteritems():
         if value == '__None__': continue
         t = type(value)
@@ -60,7 +65,7 @@ for i, d in enumerate(data):
 
 cols = cols.values()
 cols.sort(lambda a, b: cmp(a['name'], b['name']))
-header = {'cols': cols, 'length': len(data)}
+header = {'cols': cols, 'length': len(data), 'series': nrseries}
 
 print "Header: ", header
 headerstr = json.dumps(header)
