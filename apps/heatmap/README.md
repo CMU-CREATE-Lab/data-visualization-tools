@@ -24,12 +24,13 @@ loadTypedMatrix in js/utils.js.
 
 ## Required columns
 
-    datetime = Time of sample in seconds since epoch. Data must be ordered by this column!
+    datetime = Time of sample in seconds since epoch.
     latitude = Latitude of sample
     longitude = Longitude of sample
 
 ## Optional columns
 
+    series = Grouping of samples used for drawing lines. Each value in this column will create a new line. Data must be sorted by this column if it is present.
     red, green, blue = Point color, all three must be present, or none of them. Range: ]0,255[
     alpha = Transparency. Only if red/green/blue are present. Range: ]0,255[
     magnitude = Point size. Range: ]0,255[
