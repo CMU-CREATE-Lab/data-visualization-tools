@@ -16,7 +16,8 @@ var gl;
 
 var pointProgram;
 var pointArrayBuffer;
-var POINT_COUNT;
+var SERIES_COUNT;
+var rawSeries;
 
 var pixelsToWebGLMatrix = new Float32Array(16);
 var mapMatrix = new Float32Array(16);
@@ -111,14 +112,13 @@ function update() {
   // attach matrix value to 'mapMatrix' uniform in shader
   gl.uniformMatrix4fv(pointProgram.uniforms.mapMatrix, false, mapMatrix);
 
-  // draw!
-
-//  gl.drawArrays(gl.POINTS, first_day.index, current_day.index + current_day.length - first_day.index);
-
   gl.uniform1f(pointProgram.uniforms.startTime, current_time - (currentOffset * 24 * 60 * 60));
   gl.uniform1f(pointProgram.uniforms.endTime, current_time);
 
-  gl.drawArrays(gl.POINTS, 0, POINT_COUNT);
+  for (var i = 0; i < SERIES_COUNT; i++) {
+//gl.POINTS gl.LINE_STRIP
+    gl.drawArrays(gl.LINE_STRIP, rawSeries[i], rawSeries[i+1]-rawSeries[i]);
+  }
   stats.end();
 }
 
@@ -143,8 +143,9 @@ function loadData(source) {
   var rawLatLonData;
   var rawColorData;
   var rawMagnitudeData;
-  // var rawTimeData;
-  rawTimeData = undefined;
+  var rawTimeData;
+  var lastSeries = function () {}; // Value we will never find in the data
+  var POINT_COUNT;
 
   pointArrayBuffer = gl.createBuffer();
   colorArrayBuffer = gl.createBuffer();
@@ -161,12 +162,23 @@ function loadData(source) {
     header: function (data) {
       header = data;
       POINT_COUNT = 0;
+      SERIES_COUNT = 0;
+      // For convenience we store POINT_COUNT in an element at the end
+      // of the array, so that the length of each series is
+      // rawSeries[i+1]-rawSeries[i].      
+      rawSeries = new Int32Array((header.series || 1) + 1);
+      rawSeries[0] = 0;
       rawLatLonData = new Float32Array(header.length*2);
       rawColorData = new Float32Array(header.length*4);
       rawMagnitudeData = new Float32Array(header.length);
       rawTimeData = new Float32Array(header.length);
     },
     row: function (data) {
+      if (lastSeries != data.series) {
+        SERIES_COUNT++;
+        lastSeries = data.series;
+      }
+
       var rowday = Math.floor(data.datetime / (24 * 60 * 60));
       if (day != rowday) {
         day = rowday;
@@ -207,6 +219,7 @@ function loadData(source) {
       rawTimeData[POINT_COUNT] = data.datetime;
 
       POINT_COUNT++;
+      rawSeries[SERIES_COUNT] = POINT_COUNT;
     },
     batch: function () {
       //  Load lat/lons into worldCoord shader attribute
@@ -245,8 +258,8 @@ function loadData(source) {
         top: "30px"
       }, 500);
       document.getElementById('loading').className = "done";
-      $('#day-slider').attr({"data-min": rawTimeData[0], "data-max": rawTimeData[POINT_COUNT - 1]});
-      if (timeToSet && new Date(rawTimeData[POINT_COUNT - 1] * 1000) > timeToSet) {
+      $('#day-slider').attr({"data-min": header.colsByName.datetime.min, "data-max": header.colsByName.datetime.max});
+      if (timeToSet && new Date(header.colsByName.datetime.max * 1000) > timeToSet) {
         $("#day-slider").val((timeToSet.getTime() / 1000).toString());
         animate = true;
       }
@@ -296,9 +309,9 @@ function initAnimationSliders() {
     $('#current-offset').html(currentOffset.toString() + " days");
 
       if (typeof(rawTimeData) == "undefined") return; 
-    var limitedOffset = Math.min(currentOffset, (rawTimeData[POINT_COUNT - 1] - rawTimeData[0]) / (24 * 60 * 60));
-    daySlider.attr({"data-min": rawTimeData[0] + limitedOffset * 24 * 60 * 60});
-    if (current_time < rawTimeData[0] + limitedOffset * 24 * 60 * 60) {
+    var limitedOffset = Math.min(currentOffset, (header.colsByName.datetime.max - header.colsByName.datetime.min) / (24 * 60 * 60));
+    daySlider.attr({"data-min": header.colsByName.datetime.min + limitedOffset * 24 * 60 * 60});
+    if (current_time < header.colsByName.datetime.min + limitedOffset * 24 * 60 * 60) {
       current_time = limitedOffset;
       daySlider.val(current_time.toString());
     }

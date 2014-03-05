@@ -32,18 +32,15 @@
       varying vec4 baseColor;
 
       void main() {
+        gl_Position = mapMatrix * worldCoord;
+
         if (time < startTime || time > endTime) {
-          // Somewhere off screen, who cares :)
-          gl_Position = vec4(-100, -100, -100, -100);
+          baseColor = vec4(0, 0, 0, 0);
+          gl_PointSize = 0.0;
         } else {
-          // transform world coordinate by matrix uniform variable
-          gl_Position = mapMatrix * worldCoord;
+          gl_PointSize = aPointSize * magnitude;
+          baseColor = color;
         }
-
-        // a constant size for points, regardless of zoom level
-        gl_PointSize = aPointSize * magnitude;
-
-        baseColor = color;
       }      
     </script>
     <script id="pointFragmentShader" type="x-shader/x-fragment">
@@ -56,7 +53,9 @@
         dist = 1. - (dist * 2.);
         dist = max(0., dist);
 
-        gl_FragColor = baseColor * dist;
+
+        gl_FragColor = baseColor;
+//        gl_FragColor = baseColor * dist;
       }
     </script>
     <script type="text/javascript" src="sliders.js"></script>
