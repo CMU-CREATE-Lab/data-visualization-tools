@@ -11,6 +11,7 @@ The URL parameters have the same syntax as normal URL query parameters, but are 
     length = Animation loop time in ms. Default: 10000
     offset = Time windows size in days. Default: 15
     maxoffset = Max time window size in days (max position for the time window slider). Default: 29
+    lines = Wether to draw lines or pointes. Default: false
     stats = Show rendering stats. Default: false
 
 All of them apart from source are optional. Example:
@@ -24,12 +25,13 @@ loadTypedMatrix in js/utils.js.
 
 ## Required columns
 
-    datetime = Time of sample in seconds since epoch. Data must be ordered by this column!
+    datetime = Time of sample in seconds since epoch.
     latitude = Latitude of sample
     longitude = Longitude of sample
 
 ## Optional columns
 
+    series = Grouping of samples used for drawing lines. Each value in this column will create a new line. Data must be sorted by this column if it is present.
     red, green, blue = Point color, all three must be present, or none of them. Range: ]0,255[
     alpha = Transparency. Only if red/green/blue are present. Range: ]0,255[
     magnitude = Point size. Range: ]0,255[
