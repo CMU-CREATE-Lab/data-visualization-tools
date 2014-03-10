@@ -11,6 +11,7 @@ The URL parameters have the same syntax as normal URL query parameters, but are 
     length = Animation loop time in ms. Default: 10000
     offset = Time windows size in days. Default: 15
     maxoffset = Max time window size in days (max position for the time window slider). Default: 29
+    stats = Show rendering stats. Default: false
 
 All of them apart from source are optional. Example:
 
