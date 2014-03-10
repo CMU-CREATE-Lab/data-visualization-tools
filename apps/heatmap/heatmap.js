@@ -403,7 +403,9 @@ function initAnimation() {
   pointProgram = createShaderProgram(gl, "#pointVertexShader", "#pointFragmentShader");
 
   loadData(getParameter("source"));
-  document.body.appendChild(stats.domElement);
+  if (getParameter("stats") == 'true') {
+    document.body.appendChild(stats.domElement);
+  }
 }
 
 function initToggleButtons() {
