@@ -36,5 +36,12 @@ loadTypedMatrix in js/utils.js.
     alpha = Transparency. Only if red/green/blue are present. Range: ]0,255[
     magnitude = Point size. Range: ]0,255[
 
+In addion to the column data, and the header values that goes with
+them (see the binary format spec), there are some extra optional
+header values available:
+
+    timeresolution = The step value for the timeslider when the user clicks + / -, in seconds.
+    options = a dictionary of default values for the URL parameters.
+
 The default values will produce a nice orange visualization with
 uniformly sized points.
