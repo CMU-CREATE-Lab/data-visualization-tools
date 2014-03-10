@@ -308,6 +308,7 @@ function initAnimationSliders(cb) {
   $("#animate-button input").change(function () {
     paused = $("#animate-button input").val() == "true";
     if (paused) {
+        setParameter("time", new Date(parseInt(daySlider.val()) * 1000).rfcstring());
       setParameter("paused", "true");
     } else {
       setParameter("paused");
@@ -317,7 +318,7 @@ function initAnimationSliders(cb) {
   daySlider.change(function(event) {
     current_time = parseInt(this.value);
     var date = new Date(current_time * 1000);
-    setParameter("time", date.rfcstring());
+    // setParameter("time", date.rfcstring());
     $('#current-date').html(date.rfcstring(" "));
   });
 
