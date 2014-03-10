@@ -35,14 +35,14 @@ $.fn.slider = function () {
 
       minus.click(function (e) {
         var size = getSize();
-        var val = parseFloat(input.val()) - 1;
+        var val = parseFloat(input.val()) - parseFloat(input.attr("data-step"));
         if (val < size.min) val = size.min;
         input.val(val.toString())
         input.trigger("change");
       });
       plus.click(function (e) {
         var size = getSize();
-        var val = parseFloat(input.val()) + 1;
+        var val = parseFloat(input.val()) + parseFloat(input.attr("data-step"));
         if (val > size.max) val = size.max;
         input.val(val.toString())
         input.trigger("change");

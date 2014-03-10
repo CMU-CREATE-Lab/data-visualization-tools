@@ -129,19 +129,7 @@ function update() {
   stats.end();
 }
 
-function loadData(source) {
-  function pad(number, length) {
-    var str = '' + number;
-    while (str.length < length) {
-      str = '0' + str;
-    }
-    return str;
-  }
-
-  function formatDate(dt) {
-    return dt.getFullYear() + '-' + pad(dt.getMonth() + 1, 2) + '-' + pad(dt.getDate(), 2);
-  }
-
+function loadData(source, headerloaded) {
   days = [];
   // var daydata;
   // var day;
@@ -153,16 +141,7 @@ function loadData(source) {
   var rawTimeData;
   var lastSeries = function () {}; // Value we will never find in the data
   var POINT_COUNT;
-
-  pointArrayBuffer = gl.createBuffer();
-  colorArrayBuffer = gl.createBuffer();
-  magnitudeArrayBuffer = gl.createBuffer();
-  timeArrayBuffer = gl.createBuffer();
-
-  var timeToSet = getParameter("time") || undefined;
-  if (timeToSet) {
-    timeToSet = new Date(timeToSet); animate = false;
-  }
+  var timeToSet;
 
   loadTypedMatrix({
     url: source,
@@ -179,6 +158,25 @@ function loadData(source) {
       rawColorData = new Float32Array(header.length*4);
       rawMagnitudeData = new Float32Array(header.length);
       rawTimeData = new Float32Array(header.length);
+
+      // Set default values for parameters from file header config
+      if (header.options) {
+        for (var key in header.options) {
+          var val = header.options[key];
+          if (getParameter(key) == "") {
+            setParameter(key, val.toString());
+          }
+        }
+      }
+
+      timeToSet = getParameter("time") || undefined;
+      if (timeToSet) {
+        timeToSet = new Date(timeToSet);
+      } else {
+        animate = true;
+      }
+
+      headerloaded && headerloaded();
     },
     row: function (data) {
       if (lastSeries != data.series) {
@@ -191,7 +189,7 @@ function loadData(source) {
         day = rowday;
         var index = 0;
         if (daydata) index = daydata.index + daydata.length;
-        daydata = {date: formatDate(new Date(data.datetime*1000)), length: 0, index: index};
+        daydata = {date: new Date(data.datetime*1000).yyyymmdd(), length: 0, index: index};
         days.push(daydata);
       }
       daydata.length++;
@@ -281,9 +279,31 @@ function loadData(source) {
   });
 }
 
-function initAnimationSliders() {
+function initData(cb) {
+  // Start loading data, and continue initializing as soon as we have loaded the header...
+  loadData(getParameter("source"), cb);
+}
+
+function initLogo(cb) {
+  var logo_img = getParameter("logoimg");
+  var logo_url = getParameter("logourl");
+
+  if (logo_img) {
+    var logo = $("<a class='logo'><img></a>");
+    logo.find("img").attr({src:logo_img});
+    logo.attr({href:logo_url});
+    $("body").append(logo);
+  }
+  cb();
+}
+
+function initAnimationSliders(cb) {
+  $(".control").slider();
+
   var daySlider = $('#day-slider');
   var offsetSlider = $('#offset-slider');
+
+  daySlider.attr({"data-step": (header.timeresolution || 1).toString()});
 
   $("#animate-button input").change(function () {
     paused = $("#animate-button input").val() == "true";
@@ -315,7 +335,7 @@ function initAnimationSliders() {
     setParameter("offset", currentOffset.toString());
     $('#current-offset').html(currentOffset.toString() + " days");
 
-      if (typeof(rawTimeData) == "undefined") return; 
+    if (typeof(rawTimeData) == "undefined") return; 
     var limitedOffset = Math.min(currentOffset, (header.colsByName.datetime.max - header.colsByName.datetime.min) / (24 * 60 * 60));
     daySlider.attr({"data-min": header.colsByName.datetime.min + limitedOffset * 24 * 60 * 60});
     if (current_time < header.colsByName.datetime.min + limitedOffset * 24 * 60 * 60) {
@@ -324,9 +344,10 @@ function initAnimationSliders() {
     }
     daySlider.trigger("change");
   });
+  cb();
 }
 
-function initAnimation() {
+function initAnimation(cb) {
   $("#animate-button input").val(getParameter("paused") == "true" ? "true" : "false");
   $("#animate-button input").trigger("change");
 
@@ -402,13 +423,19 @@ function initAnimation() {
 
   pointProgram = createShaderProgram(gl, "#pointVertexShader", "#pointFragmentShader");
 
-  loadData(getParameter("source"));
   if (getParameter("stats") == 'true') {
     document.body.appendChild(stats.domElement);
   }
+
+  pointArrayBuffer = gl.createBuffer();
+  colorArrayBuffer = gl.createBuffer();
+  magnitudeArrayBuffer = gl.createBuffer();
+  timeArrayBuffer = gl.createBuffer();
+
+  cb();
 }
 
-function initToggleButtons() {
+function initToggleButtons(cb) {
   $("#animate-button").click(function () {
     val = $("#animate-button input").val() == "true";
     $("#animate-button input").val(val ? "false" : "true");
@@ -421,11 +448,15 @@ function initToggleButtons() {
       $("#animate-button").find("i").removeClass("glyphicon-play").addClass("glyphicon-pause");
     }
   });
+  cb();
 }
 
 $(document).ready(function () {
-  initToggleButtons();
-  $(".control").slider();
-  initAnimationSliders();
-  initAnimation();
+  async.series([
+    initData,
+    initLogo,
+    initToggleButtons,
+    initAnimationSliders,
+    initAnimation
+  ]);
 });

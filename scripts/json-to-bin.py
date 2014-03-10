@@ -5,8 +5,30 @@ import struct
 import datetime
 import dateutil.parser
 
+if len(sys.argv) < 3:
+    print """Usage:
+json-to-bin.py data.json data.bin
+json-to-bin.py data.json header.json data.bin
+
+Data must contain a top-level array of objects.
+Header must contain a top-level object.
+"""
+    sys.exit(1)
+
+datafile = sys.argv[1]
+headerfile = None
+if len(sys.argv) > 3:
+    headerfile = sys.argv[2]
+outfile = sys.argv[-1]
+
+header = {}
+if headerfile:
+    print "Reading header..."
+    with open(headerfile) as f:
+        header = json.load(f)
+
 print "Reading data..."
-with open(sys.argv[1]) as f:
+with open(datafile) as f:
     data = json.load(f)
 
 def timestamp(data):
@@ -65,7 +87,7 @@ for i, d in enumerate(data):
 
 cols = cols.values()
 cols.sort(lambda a, b: cmp(a['name'], b['name']))
-header = {'cols': cols, 'length': len(data), 'series': nrseries}
+header.update({'cols': cols, 'length': len(data), 'series': nrseries})
 
 print "Header: ", header
 headerstr = json.dumps(header)
@@ -73,7 +95,7 @@ print "Header length: ", len(headerstr)
 
 print "Writing data..."
 
-with open(sys.argv[2], "w") as f:
+with open(outfile, "w") as f:
     f.write(struct.pack("<i", len(headerstr)))
     f.write(headerstr)
 
