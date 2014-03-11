@@ -10,6 +10,7 @@ stats.domElement.style.top = '0px';
 /* end stats */
 
 var dataLoaded = false;
+var dataLoadedUntilTimeToSet = false;
 var map;
 var canvasLayer;
 var gl;
@@ -24,7 +25,7 @@ var mapMatrix = new Float32Array(16);
 
 var currentOffset;
 
-var animate = true;
+var manualTimeslide = false;
 var paused = true;
 
 var totalTime; // In ms
@@ -54,9 +55,9 @@ function update() {
 
   stats.begin();
 
-  if (!animate || paused) {
+  if (!dataLoadedUntilTimeToSet || manualTimeslide || paused) {
     totalElapsedTime = undefined;
-  } else if (animate && !paused) {
+  } else if (!manualTimeslide && !paused) {
     var timeNow = new Date().getTime();
     if (totalElapsedTime == undefined) {
       current_time = daySlider.val();
@@ -173,7 +174,7 @@ function loadData(source, headerloaded) {
       if (timeToSet) {
         timeToSet = new Date(timeToSet);
       } else {
-        animate = true;
+        dataLoadedUntilTimeToSet = true;
       }
 
       headerloaded && headerloaded();
@@ -265,8 +266,8 @@ function loadData(source, headerloaded) {
       document.getElementById('loading').className = "done";
       $('#day-slider').attr({"data-min": header.colsByName.datetime.min, "data-max": header.colsByName.datetime.max});
       if (timeToSet && new Date(header.colsByName.datetime.max * 1000) > timeToSet) {
+        dataLoadedUntilTimeToSet = true;
         $("#day-slider").val((timeToSet.getTime() / 1000).toString());
-        animate = true;
       }
       $('#day-slider').trigger("change");
     },
@@ -308,7 +309,9 @@ function initAnimationSliders(cb) {
   $("#animate-button input").change(function () {
     paused = $("#animate-button input").val() == "true";
     if (paused) {
+      if (dataLoadedUntilTimeToSet) {
         setParameter("time", new Date(parseInt(daySlider.val()) * 1000).rfcstring());
+      }
       setParameter("paused", "true");
     } else {
       setParameter("paused");
@@ -324,11 +327,11 @@ function initAnimationSliders(cb) {
 
   var handle = daySlider.parent(".control").find(".handle");
   handle.mousedown(function(event) {
-    animate = false;
+    manualTimeslide = true;
   });
 
   handle.mouseup(function(event) {
-    animate = true;
+    manualTimeslide = false;
   });
 
   offsetSlider.change(function(event) {
