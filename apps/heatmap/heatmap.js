@@ -443,9 +443,9 @@ function initAnimation(cb) {
   createShaderProgramFromUrl(gl, "vertexshader.shader", "fragmentshader.shader", function (program) {
     pointProgram = program;
 
-  if (getParameter("stats") == 'true') {
-    document.body.appendChild(stats.domElement);
-  }
+    if (getParameter("stats") == 'true') {
+      document.body.appendChild(stats.domElement);
+    }
 
     pointArrayBuffer = gl.createBuffer();
     colorArrayBuffer = gl.createBuffer();
