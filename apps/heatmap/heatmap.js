@@ -273,18 +273,6 @@ function loadData(source, headerloaded) {
         }
         $('#day-slider').trigger("change");
       });
-      $("#loading").animate({
-        width: "80px",
-        right: "5px",
-        top: "30px"
-      }, 500);
-      document.getElementById('loading').className = "done";
-      $('#day-slider').attr({"data-min": header.colsByName.datetime.min, "data-max": header.colsByName.datetime.max});
-      if (timeToSet && new Date(header.colsByName.datetime.max * 1000) > timeToSet) {
-        dataLoadedUntilTimeToSet = true;
-        $("#day-slider").val((timeToSet.getTime() / 1000).toString());
-      }
-      $('#day-slider').trigger("change");
     },
     done: function () {
       $("#loading").hide();
