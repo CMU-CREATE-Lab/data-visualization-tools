@@ -334,6 +334,15 @@ function setParameter(name, value) {
   }
 }
 
+/* Load array data into gl buffers and bind that buffer to a shader
+ * program attribute */
+function programLoadArray(gl, glbuffer, arraydata, program, attrname, size, type, stride, offset) {
+  gl.bindBuffer(gl.ARRAY_BUFFER, glbuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, arraydata, gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(program.attributes[attrname]);
+  gl.vertexAttribPointer(program.attributes[attrname], size, type, false, stride || 0, offset || 0);
+}
+
 function createShaderProgram(gl, vertexShaderNode, fragmentShaderNode) {
   return createShaderProgramFromSource(gl, $(vertexShaderNode).text(), $(fragmentShaderNode).text());
 }

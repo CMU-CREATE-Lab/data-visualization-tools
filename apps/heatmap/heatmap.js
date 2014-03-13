@@ -230,29 +230,10 @@ function loadData(source, headerloaded) {
     },
     batch: function () {
       glInitialized.wait(function (cb) {
-        //  Load lat/lons into worldCoord shader attribute
-        gl.bindBuffer(gl.ARRAY_BUFFER, pointArrayBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, rawLatLonData, gl.STATIC_DRAW);
-        gl.enableVertexAttribArray(pointProgram.attributes.worldCoord);
-        gl.vertexAttribPointer(pointProgram.attributes.worldCoord, 2, gl.FLOAT, false, 0, 0);
-
-        // Load colors into color shader attribute
-        gl.bindBuffer(gl.ARRAY_BUFFER, colorArrayBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, rawColorData, gl.STATIC_DRAW);
-        gl.enableVertexAttribArray(pointProgram.attributes.color);
-        gl.vertexAttribPointer(pointProgram.attributes.color, 4, gl.FLOAT, false, 0, 0);
-
-        // Load magnitudes into magnitude shader attribute
-        gl.bindBuffer(gl.ARRAY_BUFFER, magnitudeArrayBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, rawMagnitudeData, gl.STATIC_DRAW);
-        gl.enableVertexAttribArray(pointProgram.attributes.magnitude);
-        gl.vertexAttribPointer(pointProgram.attributes.magnitude, 1, gl.FLOAT, false, 0, 0);
-
-        // Load times into time shader attribute
-        gl.bindBuffer(gl.ARRAY_BUFFER, timeArrayBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, rawTimeData, gl.STATIC_DRAW);
-        gl.enableVertexAttribArray(pointProgram.attributes.time);
-        gl.vertexAttribPointer(pointProgram.attributes.time, 1, gl.FLOAT, false, 0, 0);
+        programLoadArray(gl, pointArrayBuffer, rawLatLonData, pointProgram, "worldCoord", 2, gl.FLOAT);
+        programLoadArray(gl, colorArrayBuffer, rawColorData, pointProgram, "color", 4, gl.FLOAT);
+        programLoadArray(gl, magnitudeArrayBuffer, rawMagnitudeData, pointProgram, "magnitude", 1, gl.FLOAT);
+        programLoadArray(gl, timeArrayBuffer, rawTimeData, pointProgram, "time", 1, gl.FLOAT);
 
         dataLoaded = true;
         $("#loading .message").hide();
