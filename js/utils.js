@@ -1,3 +1,24 @@
+/* Async mechanism to wait for a condition to be true.
+   Callbacks can wait to be executed once the condition is set to true.
+   Once the condition is set it will always remain set, and any
+   callbacks set to wait for it will be executed immediately.
+*/
+function Condition() {
+  this.is_true = false;
+  this.waiting = [];
+}
+Condition.prototype.set = function (cb) {
+  this.is_true = true;
+  async.series(this.waiting, cb);
+}
+Condition.prototype.wait = function (cb) {
+  if (this.is_true) {
+    cb(function () {});
+  } else {
+    this.waiting.push(cb);
+  }
+}
+
 // Use google maps Mercator projection to convert from lat, lng to
 // x, y coords in the range x:0-256, y:0-256
 function LatLongToPixelXY(latitude, longitude) {
@@ -313,15 +334,27 @@ function setParameter(name, value) {
   }
 }
 
-function createShaderProgram(gl, vertexShader, fragmentShader) {
+function createShaderProgram(gl, vertexShaderNode, fragmentShaderNode) {
+  return createShaderProgramFromSource(gl, $(vertexShaderNode).text(), $(fragmentShaderNode).text());
+}
+
+function createShaderProgramFromUrl(gl, vertexShaderUrl, fragmentShaderUrl, cb) {
+  var vertexSrc;
+  var fragmentSrc;
+  async.series([
+    function (cb) { $.get(vertexShaderUrl, function (data) { vertexSrc = data; cb(); }, "text"); },
+    function (cb) { $.get(fragmentShaderUrl, function (data) { fragmentSrc = data; cb(); }, "text"); },
+    function (dummy) { cb(createShaderProgramFromSource(gl, vertexSrc, fragmentSrc)); }
+  ]);
+}
+
+function createShaderProgramFromSource(gl, vertexSrc, fragmentSrc) {
   // create vertex shader
-  var vertexSrc = $(vertexShader).text();
   var vertexShader = gl.createShader(gl.VERTEX_SHADER);
   gl.shaderSource(vertexShader, vertexSrc);
   gl.compileShader(vertexShader);
 
   // create fragment shader
-  var fragmentSrc = $(fragmentShader).text();
   var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
   gl.shaderSource(fragmentShader, fragmentSrc);
   gl.compileShader(fragmentShader);

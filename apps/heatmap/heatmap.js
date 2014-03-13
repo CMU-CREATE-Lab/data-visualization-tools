@@ -11,6 +11,7 @@ stats.domElement.style.top = '0px';
 
 var dataLoaded = false;
 var dataLoadedUntilTimeToSet = false;
+var glInitialized = new Condition();
 var map;
 var canvasLayer;
 var gl;
@@ -228,35 +229,49 @@ function loadData(source, headerloaded) {
       rawSeries[SERIES_COUNT] = POINT_COUNT;
     },
     batch: function () {
-      //  Load lat/lons into worldCoord shader attribute
-      gl.bindBuffer(gl.ARRAY_BUFFER, pointArrayBuffer);
-      gl.bufferData(gl.ARRAY_BUFFER, rawLatLonData, gl.STATIC_DRAW);
-      gl.enableVertexAttribArray(pointProgram.attributes.worldCoord);
-      gl.vertexAttribPointer(pointProgram.attributes.worldCoord, 2, gl.FLOAT, false, 0, 0);
+      glInitialized.wait(function (cb) {
+        //  Load lat/lons into worldCoord shader attribute
+        gl.bindBuffer(gl.ARRAY_BUFFER, pointArrayBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, rawLatLonData, gl.STATIC_DRAW);
+        gl.enableVertexAttribArray(pointProgram.attributes.worldCoord);
+        gl.vertexAttribPointer(pointProgram.attributes.worldCoord, 2, gl.FLOAT, false, 0, 0);
 
-      // Load colors into color shader attribute
-      gl.bindBuffer(gl.ARRAY_BUFFER, colorArrayBuffer);
-      gl.bufferData(gl.ARRAY_BUFFER, rawColorData, gl.STATIC_DRAW);
-      gl.enableVertexAttribArray(pointProgram.attributes.color);
-      gl.vertexAttribPointer(pointProgram.attributes.color, 4, gl.FLOAT, false, 0, 0);
+        // Load colors into color shader attribute
+        gl.bindBuffer(gl.ARRAY_BUFFER, colorArrayBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, rawColorData, gl.STATIC_DRAW);
+        gl.enableVertexAttribArray(pointProgram.attributes.color);
+        gl.vertexAttribPointer(pointProgram.attributes.color, 4, gl.FLOAT, false, 0, 0);
 
-      // Load magnitudes into magnitude shader attribute
-      gl.bindBuffer(gl.ARRAY_BUFFER, magnitudeArrayBuffer);
-      gl.bufferData(gl.ARRAY_BUFFER, rawMagnitudeData, gl.STATIC_DRAW);
-      gl.enableVertexAttribArray(pointProgram.attributes.magnitude);
-      gl.vertexAttribPointer(pointProgram.attributes.magnitude, 1, gl.FLOAT, false, 0, 0);
+        // Load magnitudes into magnitude shader attribute
+        gl.bindBuffer(gl.ARRAY_BUFFER, magnitudeArrayBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, rawMagnitudeData, gl.STATIC_DRAW);
+        gl.enableVertexAttribArray(pointProgram.attributes.magnitude);
+        gl.vertexAttribPointer(pointProgram.attributes.magnitude, 1, gl.FLOAT, false, 0, 0);
 
-      // Load times into time shader attribute
-      gl.bindBuffer(gl.ARRAY_BUFFER, timeArrayBuffer);
-      gl.bufferData(gl.ARRAY_BUFFER, rawTimeData, gl.STATIC_DRAW);
-      gl.enableVertexAttribArray(pointProgram.attributes.time);
-      gl.vertexAttribPointer(pointProgram.attributes.time, 1, gl.FLOAT, false, 0, 0);
+        // Load times into time shader attribute
+        gl.bindBuffer(gl.ARRAY_BUFFER, timeArrayBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, rawTimeData, gl.STATIC_DRAW);
+        gl.enableVertexAttribArray(pointProgram.attributes.time);
+        gl.vertexAttribPointer(pointProgram.attributes.time, 1, gl.FLOAT, false, 0, 0);
 
-      dataLoaded = true;
-      $("#loading .message").hide();
-      $("#loading").css({
-        bottom: "auto",
-        left: "auto"
+        dataLoaded = true;
+        $("#loading .message").hide();
+        $("#loading").css({
+          bottom: "auto",
+          left: "auto"
+        });
+        $("#loading").animate({
+          width: "80px",
+          right: "5px",
+          top: "30px"
+        }, 500);
+        document.getElementById('loading').className = "done";
+        $('#day-slider').attr({"data-min": header.colsByName.datetime.min, "data-max": header.colsByName.datetime.max});
+        if (timeToSet && new Date(header.colsByName.datetime.max * 1000) > timeToSet) {
+          dataLoadedUntilTimeToSet = true;
+          $("#day-slider").val((timeToSet.getTime() / 1000).toString());
+        }
+        $('#day-slider').trigger("change");
       });
       $("#loading").animate({
         width: "80px",
@@ -425,18 +440,23 @@ function initAnimation(cb) {
   gl.enable(gl.BLEND);
   gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
 
-  pointProgram = createShaderProgram(gl, "#pointVertexShader", "#pointFragmentShader");
+  createShaderProgramFromUrl(gl, "vertexshader.shader", "fragmentshader.shader", function (program) {
+    pointProgram = program;
 
   if (getParameter("stats") == 'true') {
     document.body.appendChild(stats.domElement);
   }
 
-  pointArrayBuffer = gl.createBuffer();
-  colorArrayBuffer = gl.createBuffer();
-  magnitudeArrayBuffer = gl.createBuffer();
-  timeArrayBuffer = gl.createBuffer();
+    pointArrayBuffer = gl.createBuffer();
+    colorArrayBuffer = gl.createBuffer();
+    magnitudeArrayBuffer = gl.createBuffer();
+    timeArrayBuffer = gl.createBuffer();
 
-  cb();
+      console.log("SET");
+    glInitialized.set();
+
+    cb();
+  });
 }
 
 function initToggleButtons(cb) {
