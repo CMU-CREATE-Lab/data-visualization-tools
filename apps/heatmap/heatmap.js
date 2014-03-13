@@ -16,11 +16,6 @@ var map;
 var canvasLayer;
 var gl;
 
-var pointProgram;
-var pointArrayBuffer;
-var SERIES_COUNT;
-var rawSeries;
-
 var pixelsToWebGLMatrix = new Float32Array(16);
 var mapMatrix = new Float32Array(16);
 
@@ -35,6 +30,135 @@ var lastTime = 0;
 var elapsedTimeFromChange = 0;
 var totalElapsedTime = 0;
 var header;
+
+function Animation () {
+}
+Animation.prototype.initGl = function(gl, cb) {
+  var animation = this;
+  animation.gl = gl;
+  createShaderProgramFromUrl(animation.gl, "vertexshader.shader", "fragmentshader.shader", function (program) {
+    animation.program = program;
+
+    animation.pointArrayBuffer = animation.gl.createBuffer();
+    animation.colorArrayBuffer = animation.gl.createBuffer();
+    animation.magnitudeArrayBuffer = animation.gl.createBuffer();
+    animation.timeArrayBuffer = animation.gl.createBuffer();
+
+    cb();
+  });
+}
+Animation.prototype.header = function(header) {
+  var animation = this;
+  animation.series_count = 0;
+  // For convenience we store POINT_COUNT in an element at the end
+  // of the array, so that the length of each series is
+  // rawSeries[i+1]-rawSeries[i].      
+  animation.rawSeries = new Int32Array((header.series || 1) + 1);
+  animation.rawSeries[0] = 0;
+  animation.rawLatLonData = new Float32Array(header.length*2);
+  animation.rawColorData = new Float32Array(header.length*4);
+  animation.rawMagnitudeData = new Float32Array(header.length);
+  animation.rawTimeData = new Float32Array(header.length);
+  animation.lastSeries = function () {}; // Value we will never find in the data
+}
+Animation.prototype.row = function(rowidx, data) {
+  var animation = this;
+  if (animation.lastSeries != data.series) {
+    animation.series_count++;
+    animation.lastSeries = data.series;
+  }
+
+  var pixel = LatLongToPixelXY(data.latitude, data.longitude);
+  animation.rawLatLonData[2*rowidx] = pixel.x;
+  animation.rawLatLonData[2*rowidx+1] = pixel.y;
+
+  if (   data.red != undefined
+      && data.green != undefined
+      && data.blue != undefined) {
+    animation.rawColorData[4*rowidx + 0] = data.red / 256;
+    animation.rawColorData[4*rowidx + 1] = data.green / 256;
+    animation.rawColorData[4*rowidx + 2] = data.blue / 256;
+  } else {
+    animation.rawColorData[4*rowidx + 0] = 0.82
+    animation.rawColorData[4*rowidx + 1] = 0.22;
+    animation.rawColorData[4*rowidx + 2] = 0.07;
+  }
+  if (data.alpha != undefined) {
+    animation.rawColorData[4*rowidx + 3] = data.alpha / 256;
+  } else {
+    animation.rawColorData[4*rowidx + 3] = 1;
+  }
+
+  if (data.magnitude != undefined) {
+      animation.rawMagnitudeData[rowidx] = 1 + magnitudeScale * data.magnitude / 256;
+  } else {
+    animation.rawMagnitudeData[rowidx] = 1;
+  }
+
+  animation.rawTimeData[rowidx] = data.datetime;
+
+  animation.rawSeries[animation.series_count] = rowidx + 1;
+}
+Animation.prototype.batch = function() {
+  var animation = this;
+  programLoadArray(animation.gl, animation.pointArrayBuffer, animation.rawLatLonData, animation.program, "worldCoord", 2, animation.gl.FLOAT);
+  programLoadArray(animation.gl, animation.colorArrayBuffer, animation.rawColorData, animation.program, "color", 4, animation.gl.FLOAT);
+  programLoadArray(animation.gl, animation.magnitudeArrayBuffer, animation.rawMagnitudeData, animation.program, "magnitude", 1, animation.gl.FLOAT);
+  programLoadArray(animation.gl, animation.timeArrayBuffer, animation.rawTimeData, animation.program, "time", 1, animation.gl.FLOAT);
+}
+Animation.prototype.draw = function () {
+  var animation = this;
+
+  // pointSize range [5,20], 21 zoom levels
+  var pointSize = Math.max(
+    Math.floor( ((20-5) * (map.zoom - 0) / (21 - 0)) + 5 ),
+    getPixelDiameterAtLatitude(header.resolution || 1000, map.getCenter().lat(), map.zoom));
+  animation.gl.vertexAttrib1f(animation.program.attributes.aPointSize, pointSize*1.0);
+
+  var mapProjection = map.getProjection();
+
+  /**
+   * We need to create a transformation that takes world coordinate
+   * points in the pointArrayBuffer to the coodinates WebGL expects.
+   * 1. Start with second half in pixelsToWebGLMatrix, which takes pixel
+   *     coordinates to WebGL coordinates.
+   * 2. Scale and translate to take world coordinates to pixel coords
+   * see https://developers.google.com/maps/documentation/javascript/maptypes#MapCoordinate
+   */
+
+  // copy pixel->webgl matrix
+  mapMatrix.set(pixelsToWebGLMatrix);
+
+  var scale = canvasLayer.getMapScale();
+  scaleMatrix(mapMatrix, scale, scale);
+
+  var translation = canvasLayer.getMapTranslation();
+  translateMatrix(mapMatrix, translation.x, translation.y);
+
+
+  // attach matrix value to 'mapMatrix' uniform in shader
+  animation.gl.uniformMatrix4fv(animation.program.uniforms.mapMatrix, false, mapMatrix);
+
+  animation.gl.uniform1f(animation.program.uniforms.startTime, current_time - (currentOffset * 24 * 60 * 60));
+  animation.gl.uniform1f(animation.program.uniforms.endTime, current_time);
+
+  var mode;
+  if (getParameter("lines") == 'true') {
+    mode = animation.gl.LINE_STRIP;
+    animation.gl.uniform1i(animation.program.uniforms.doShade, 0);
+  } else {
+    mode = animation.gl.POINTS;
+    animation.gl.uniform1i(animation.program.uniforms.doShade, 1);
+  }
+  for (var i = 0; i < animation.series_count; i++) {
+    animation.gl.drawArrays(mode, animation.rawSeries[i], animation.rawSeries[i+1]-animation.rawSeries[i]);
+  }
+}
+
+
+
+
+animation = new Animation();
 
 function resize() {
   var width = canvasLayer.canvas.width;
@@ -83,83 +207,23 @@ function update() {
   }
 
   gl.clear(gl.COLOR_BUFFER_BIT);
+  animation.draw();
 
-  // pointSize range [5,20], 21 zoom levels
-  var pointSize = Math.max(
-    Math.floor( ((20-5) * (map.zoom - 0) / (21 - 0)) + 5 ),
-    getPixelDiameterAtLatitude(header.resolution || 1000, map.getCenter().lat(), map.zoom));
-  gl.vertexAttrib1f(pointProgram.attributes.aPointSize, pointSize*1.0);
-
-  var mapProjection = map.getProjection();
-
-  /**
-   * We need to create a transformation that takes world coordinate
-   * points in the pointArrayBuffer to the coodinates WebGL expects.
-   * 1. Start with second half in pixelsToWebGLMatrix, which takes pixel
-   *     coordinates to WebGL coordinates.
-   * 2. Scale and translate to take world coordinates to pixel coords
-   * see https://developers.google.com/maps/documentation/javascript/maptypes#MapCoordinate
-   */
-
-  // copy pixel->webgl matrix
-  mapMatrix.set(pixelsToWebGLMatrix);
-
-  var scale = canvasLayer.getMapScale();
-  scaleMatrix(mapMatrix, scale, scale);
-
-  var translation = canvasLayer.getMapTranslation();
-  translateMatrix(mapMatrix, translation.x, translation.y);
-
-
-  // attach matrix value to 'mapMatrix' uniform in shader
-  gl.uniformMatrix4fv(pointProgram.uniforms.mapMatrix, false, mapMatrix);
-
-  gl.uniform1f(pointProgram.uniforms.startTime, current_time - (currentOffset * 24 * 60 * 60));
-  gl.uniform1f(pointProgram.uniforms.endTime, current_time);
-
-  var mode;
-  if (getParameter("lines") == 'true') {
-    mode = gl.LINE_STRIP;
-    gl.uniform1i(pointProgram.uniforms.doShade, 0);
-  } else {
-    mode = gl.POINTS;
-    gl.uniform1i(pointProgram.uniforms.doShade, 1);
-  }
-  for (var i = 0; i < SERIES_COUNT; i++) {
-    gl.drawArrays(mode, rawSeries[i], rawSeries[i+1]-rawSeries[i]);
-  }
   stats.end();
 }
 
 function loadData(source, headerloaded) {
-  days = [];
-  // var daydata;
-  // var day;
-  daydata = undefined;
   day = undefined;
-  var rawLatLonData;
-  var rawColorData;
-  var rawMagnitudeData;
-  var rawTimeData;
-  var lastSeries = function () {}; // Value we will never find in the data
-  var POINT_COUNT;
+  var row_count;
   var timeToSet;
 
   loadTypedMatrix({
     url: source,
     header: function (data) {
       header = data;
-      POINT_COUNT = 0;
-      SERIES_COUNT = 0;
-      // For convenience we store POINT_COUNT in an element at the end
-      // of the array, so that the length of each series is
-      // rawSeries[i+1]-rawSeries[i].      
-      rawSeries = new Int32Array((header.series || 1) + 1);
-      rawSeries[0] = 0;
-      rawLatLonData = new Float32Array(header.length*2);
-      rawColorData = new Float32Array(header.length*4);
-      rawMagnitudeData = new Float32Array(header.length);
-      rawTimeData = new Float32Array(header.length);
+      row_count = 0;
+      
+      animation.header(header);
 
       // Set default values for parameters from file header config
       if (header.options) {
@@ -181,59 +245,12 @@ function loadData(source, headerloaded) {
       headerloaded && headerloaded();
     },
     row: function (data) {
-      if (lastSeries != data.series) {
-        SERIES_COUNT++;
-        lastSeries = data.series;
-      }
-
-      var rowday = Math.floor(data.datetime / (24 * 60 * 60));
-      if (day != rowday) {
-        day = rowday;
-        var index = 0;
-        if (daydata) index = daydata.index + daydata.length;
-        daydata = {date: new Date(data.datetime*1000).yyyymmdd(), length: 0, index: index};
-        days.push(daydata);
-      }
-      daydata.length++;
-
-      var pixel = LatLongToPixelXY(data.latitude, data.longitude);
-      rawLatLonData[2*POINT_COUNT] = pixel.x;
-      rawLatLonData[2*POINT_COUNT+1] = pixel.y;
-
-      if (   data.red != undefined
-          && data.green != undefined
-          && data.blue != undefined) {
-        rawColorData[4*POINT_COUNT + 0] = data.red / 256;
-        rawColorData[4*POINT_COUNT + 1] = data.green / 256;
-        rawColorData[4*POINT_COUNT + 2] = data.blue / 256;
-      } else {
-        rawColorData[4*POINT_COUNT + 0] = 0.82
-        rawColorData[4*POINT_COUNT + 1] = 0.22;
-        rawColorData[4*POINT_COUNT + 2] = 0.07;
-      }
-      if (data.alpha != undefined) {
-        rawColorData[4*POINT_COUNT + 3] = data.alpha / 256;
-      } else {
-        rawColorData[4*POINT_COUNT + 3] = 1;
-      }
-
-      if (data.magnitude != undefined) {
-          rawMagnitudeData[POINT_COUNT] = 1 + magnitudeScale * data.magnitude / 256;
-      } else {
-        rawMagnitudeData[POINT_COUNT] = 1;
-      }
-
-      rawTimeData[POINT_COUNT] = data.datetime;
-
-      POINT_COUNT++;
-      rawSeries[SERIES_COUNT] = POINT_COUNT;
+      animation.row(row_count, data);
+      row_count++;
     },
     batch: function () {
       glInitialized.wait(function (cb) {
-        programLoadArray(gl, pointArrayBuffer, rawLatLonData, pointProgram, "worldCoord", 2, gl.FLOAT);
-        programLoadArray(gl, colorArrayBuffer, rawColorData, pointProgram, "color", 4, gl.FLOAT);
-        programLoadArray(gl, magnitudeArrayBuffer, rawMagnitudeData, pointProgram, "magnitude", 1, gl.FLOAT);
-        programLoadArray(gl, timeArrayBuffer, rawTimeData, pointProgram, "time", 1, gl.FLOAT);
+        animation.batch();
 
         dataLoaded = true;
         $("#loading .message").hide();
@@ -407,23 +424,13 @@ function initAnimation(cb) {
     return;
   }
   gl.enable(gl.BLEND);
-  gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
 
-  createShaderProgramFromUrl(gl, "vertexshader.shader", "fragmentshader.shader", function (program) {
-    pointProgram = program;
-
+  animation.initGl(gl, function () {
     if (getParameter("stats") == 'true') {
       document.body.appendChild(stats.domElement);
     }
-
-    pointArrayBuffer = gl.createBuffer();
-    colorArrayBuffer = gl.createBuffer();
-    magnitudeArrayBuffer = gl.createBuffer();
-    timeArrayBuffer = gl.createBuffer();
-
-      console.log("SET");
     glInitialized.set();
-
     cb();
   });
 }
