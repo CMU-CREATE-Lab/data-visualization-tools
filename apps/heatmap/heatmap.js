@@ -1,37 +1,10 @@
 var magnitudeScale = 8;
 
-/* bgein stats */
-var stats = new Stats();
-stats.setMode(0); // 0: fps, 1: ms
-// Align top-left
-stats.domElement.style.position = 'absolute';
-stats.domElement.style.left = '0px';
-stats.domElement.style.top = '0px';
-/* end stats */
-
-var dataLoaded = false;
-var dataLoadedUntilTimeToSet = false;
-var glInitialized = new Condition();
-var map;
-var canvasLayer;
-var gl;
-
-var pixelsToWebGLMatrix = new Float32Array(16);
-var mapMatrix = new Float32Array(16);
-
-var currentOffset;
-
-var manualTimeslide = false;
-var paused = true;
-
-var totalTime; // In ms
-
-var lastTime = 0;
-var elapsedTimeFromChange = 0;
-var totalElapsedTime = 0;
-var header;
-
 function Animation () {
+}
+Animation.prototype.init = function(visualization) {
+  var animation = this;
+  animation.visualization = visualization;
 }
 Animation.prototype.initGl = function(gl, cb) {
   var animation = this;
@@ -111,11 +84,11 @@ Animation.prototype.draw = function () {
 
   // pointSize range [5,20], 21 zoom levels
   var pointSize = Math.max(
-    Math.floor( ((20-5) * (map.zoom - 0) / (21 - 0)) + 5 ),
-    getPixelDiameterAtLatitude(header.resolution || 1000, map.getCenter().lat(), map.zoom));
+    Math.floor( ((20-5) * (animation.visualization.map.zoom - 0) / (21 - 0)) + 5 ),
+    getPixelDiameterAtLatitude(animation.visualization.header.resolution || 1000, animation.visualization.map.getCenter().lat(), animation.visualization.map.zoom));
   animation.gl.vertexAttrib1f(animation.program.attributes.aPointSize, pointSize*1.0);
 
-  var mapProjection = map.getProjection();
+  var mapProjection = animation.visualization.map.getProjection();
 
   /**
    * We need to create a transformation that takes world coordinate
@@ -127,20 +100,20 @@ Animation.prototype.draw = function () {
    */
 
   // copy pixel->webgl matrix
-  mapMatrix.set(pixelsToWebGLMatrix);
+  animation.visualization.mapMatrix.set(animation.visualization.pixelsToWebGLMatrix);
 
-  var scale = canvasLayer.getMapScale();
-  scaleMatrix(mapMatrix, scale, scale);
+  var scale = animation.visualization.canvasLayer.getMapScale();
+  scaleMatrix(animation.visualization.mapMatrix, scale, scale);
 
-  var translation = canvasLayer.getMapTranslation();
-  translateMatrix(mapMatrix, translation.x, translation.y);
+  var translation = animation.visualization.canvasLayer.getMapTranslation();
+  translateMatrix(animation.visualization.mapMatrix, translation.x, translation.y);
 
 
   // attach matrix value to 'mapMatrix' uniform in shader
-  animation.gl.uniformMatrix4fv(animation.program.uniforms.mapMatrix, false, mapMatrix);
+  animation.gl.uniformMatrix4fv(animation.program.uniforms.mapMatrix, false, animation.visualization.mapMatrix);
 
-  animation.gl.uniform1f(animation.program.uniforms.startTime, current_time - (currentOffset * 24 * 60 * 60));
-  animation.gl.uniform1f(animation.program.uniforms.endTime, current_time);
+  animation.gl.uniform1f(animation.program.uniforms.startTime, animation.visualization.current_time - (animation.visualization.currentOffset * 24 * 60 * 60));
+  animation.gl.uniform1f(animation.program.uniforms.endTime, animation.visualization.current_time);
 
   var mode;
   if (getParameter("lines") == 'true') {
@@ -157,78 +130,81 @@ Animation.prototype.draw = function () {
 
 
 
+function Visualization() {
+}
+Visualization.prototype.resize = function() {
+  var visualization = this;
 
-animation = new Animation();
+  var width = visualization.canvasLayer.canvas.width;
+  var height = visualization.canvasLayer.canvas.height;
 
-function resize() {
-  var width = canvasLayer.canvas.width;
-  var height = canvasLayer.canvas.height;
-
-  gl.viewport(0, 0, width, height);
+  visualization.gl.viewport(0, 0, width, height);
 
   // matrix which maps pixel coordinates to WebGL coordinates
-  pixelsToWebGLMatrix.set([2/width, 0, 0, 0, 0, -2/height, 0, 0,
+  visualization.pixelsToWebGLMatrix.set([2/width, 0, 0, 0, 0, -2/height, 0, 0,
       0, 0, 0, 0, -1, 1, 0, 1]);
 }
+Visualization.prototype.update = function() {
+  var visualization = this;
 
-function update() {
   var daySlider = $('#day-slider')
   var min = parseFloat(daySlider.attr("data-min"));
   var max = parseFloat(daySlider.attr("data-max"));
+  var fraction;
 
-  if (!dataLoaded) return;
+  if (!visualization.dataLoaded) return;
 
-  stats.begin();
+  visualization.stats.begin();
 
-  if (!dataLoadedUntilTimeToSet || manualTimeslide || paused) {
-    totalElapsedTime = undefined;
-  } else if (!manualTimeslide && !paused) {
+  if (!visualization.dataLoadedUntilTimeToSet || visualization.manualTimeslide || visualization.paused) {
+    visualization.totalElapsedTime = undefined;
+  } else if (!visualization.manualTimeslide && !visualization.paused) {
     var timeNow = new Date().getTime();
-    if (totalElapsedTime == undefined) {
-      current_time = daySlider.val();
+    if (visualization.totalElapsedTime == undefined) {
+      visualization.current_time = daySlider.val();
       fraction = (current_time - min) / (max - min);
-      totalElapsedTime = fraction * totalTime;
-      elapsedTimeFromChange = 0;
-    } else if (lastTime != 0) {
-      var elapsed = timeNow - lastTime;
-      totalElapsedTime += elapsed;
-      elapsedTimeFromChange += elapsed;
+      visualization.totalElapsedTime = fraction * visualization.totalTime;
+      visualization.elapsedTimeFromChange = 0;
+    } else if (visualization.lastTime != 0) {
+      var elapsed = timeNow - visualization.lastTime;
+      visualization.totalElapsedTime += elapsed;
+      visualization.elapsedTimeFromChange += elapsed;
     }
-    lastTime = timeNow;
+    visualization.lastTime = timeNow;
 
-    if (elapsedTimeFromChange > 100) {
-      elapsedTimeFromChange = 0;
-      var fraction = (totalElapsedTime / totalTime) % 1;
-      current_time = Math.floor(min + (max - min)  * fraction);
+    if (visualization.elapsedTimeFromChange > 100) {
+      visualization.elapsedTimeFromChange = 0;
+      fraction = (visualization.totalElapsedTime / visualization.totalTime) % 1;
+      visualization.current_time = Math.floor(min + (max - min)  * fraction);
 
-      daySlider.val(current_time);
+      daySlider.val(visualization.current_time);
       daySlider.trigger("change");
     }
   }
 
-  gl.clear(gl.COLOR_BUFFER_BIT);
-  animation.draw();
+  visualization.gl.clear(visualization.gl.COLOR_BUFFER_BIT);
+  visualization.animation.draw();
 
-  stats.end();
+  visualization.stats.end();
 }
+Visualization.prototype.loadData = function(source, headerloaded) {
+  var visualization = this;
 
-function loadData(source, headerloaded) {
-  day = undefined;
   var row_count;
   var timeToSet;
 
   loadTypedMatrix({
     url: source,
     header: function (data) {
-      header = data;
+      visualization.header = data;
       row_count = 0;
       
-      animation.header(header);
+      visualization.animation.header(visualization.header);
 
       // Set default values for parameters from file header config
-      if (header.options) {
-        for (var key in header.options) {
-          var val = header.options[key];
+      if (visualization.header.options) {
+        for (var key in visualization.header.options) {
+          var val = visualization.header.options[key];
           if (getParameter(key) == "") {
             setParameter(key, val.toString());
           }
@@ -239,20 +215,20 @@ function loadData(source, headerloaded) {
       if (timeToSet) {
         timeToSet = new Date(timeToSet);
       } else {
-        dataLoadedUntilTimeToSet = true;
+        visualization.dataLoadedUntilTimeToSet = true;
       }
 
       headerloaded && headerloaded();
     },
     row: function (data) {
-      animation.row(row_count, data);
+      visualization.animation.row(row_count, data);
       row_count++;
     },
     batch: function () {
-      glInitialized.wait(function (cb) {
-        animation.batch();
+      visualization.glInitialized.wait(function (cb) {
+        visualization.animation.batch();
 
-        dataLoaded = true;
+        visualization.dataLoaded = true;
         $("#loading .message").hide();
         $("#loading").css({
           bottom: "auto",
@@ -264,9 +240,9 @@ function loadData(source, headerloaded) {
           top: "30px"
         }, 500);
         document.getElementById('loading').className = "done";
-        $('#day-slider').attr({"data-min": header.colsByName.datetime.min, "data-max": header.colsByName.datetime.max});
-        if (timeToSet && new Date(header.colsByName.datetime.max * 1000) > timeToSet) {
-          dataLoadedUntilTimeToSet = true;
+        $('#day-slider').attr({"data-min": visualization.header.colsByName.datetime.min, "data-max": visualization.header.colsByName.datetime.max});
+        if (timeToSet && new Date(visualization.header.colsByName.datetime.max * 1000) > timeToSet) {
+          visualization.dataLoadedUntilTimeToSet = true;
           $("#day-slider").val((timeToSet.getTime() / 1000).toString());
         }
         $('#day-slider').trigger("change");
@@ -280,13 +256,15 @@ function loadData(source, headerloaded) {
     },
   });
 }
+Visualization.prototype.initData = function(cb) {
+  var visualization = this;
 
-function initData(cb) {
   // Start loading data, and continue initializing as soon as we have loaded the header...
-  loadData(getParameter("source"), cb);
+  visualization.loadData(getParameter("source"), cb);
 }
+Visualization.prototype.initLogo = function(cb) {
+  var visualization = this;
 
-function initLogo(cb) {
   var logo_img = getParameter("logoimg");
   var logo_url = getParameter("logourl");
 
@@ -298,19 +276,20 @@ function initLogo(cb) {
   }
   cb();
 }
+Visualization.prototype.initAnimationSliders = function(cb) {
+  var visualization = this;
 
-function initAnimationSliders(cb) {
   $(".control").slider();
 
   var daySlider = $('#day-slider');
   var offsetSlider = $('#offset-slider');
 
-  daySlider.attr({"data-step": (header.timeresolution || 1).toString()});
+  daySlider.attr({"data-step": (visualization.header.timeresolution || 1).toString()});
 
   $("#animate-button input").change(function () {
-    paused = $("#animate-button input").val() == "true";
-    if (paused) {
-      if (dataLoadedUntilTimeToSet) {
+    visualization.paused = $("#animate-button input").val() == "true";
+    if (visualization.paused) {
+      if (visualization.dataLoadedUntilTimeToSet) {
         setParameter("time", new Date(parseInt(daySlider.val()) * 1000).rfcstring());
       }
       setParameter("paused", "true");
@@ -328,31 +307,31 @@ function initAnimationSliders(cb) {
 
   var handle = daySlider.parent(".control").find(".handle");
   handle.mousedown(function(event) {
-    manualTimeslide = true;
+    visualization.manualTimeslide = true;
   });
 
   handle.mouseup(function(event) {
-    manualTimeslide = false;
+    visualization.manualTimeslide = false;
   });
 
   offsetSlider.change(function(event) {
-    currentOffset = parseInt(this.value);
-    setParameter("offset", currentOffset.toString());
-    $('#current-offset').html(currentOffset.toString() + " days");
+    visualization.currentOffset = parseInt(this.value);
+    setParameter("offset", visualization.currentOffset.toString());
+    $('#current-offset').html(visualization.currentOffset.toString() + " days");
 
-    if (typeof(rawTimeData) == "undefined") return; 
-    var limitedOffset = Math.min(currentOffset, (header.colsByName.datetime.max - header.colsByName.datetime.min) / (24 * 60 * 60));
-    daySlider.attr({"data-min": header.colsByName.datetime.min + limitedOffset * 24 * 60 * 60});
-    if (current_time < header.colsByName.datetime.min + limitedOffset * 24 * 60 * 60) {
-      current_time = limitedOffset;
-      daySlider.val(current_time.toString());
+    var limitedOffset = Math.min(visualization.currentOffset, (visualization.header.colsByName.datetime.max - visualization.header.colsByName.datetime.min) / (24 * 60 * 60));
+    daySlider.attr({"data-min": visualization.header.colsByName.datetime.min + limitedOffset * 24 * 60 * 60});
+    if (visualization.current_time < visualization.header.colsByName.datetime.min + limitedOffset * 24 * 60 * 60) {
+      visualization.current_time = limitedOffset;
+      daySlider.val(visualization.current_time.toString());
     }
     daySlider.trigger("change");
   });
   cb();
 }
+Visualization.prototype.initAnimation = function (cb) {
+  var visualization = this;
 
-function initAnimation(cb) {
   $("#animate-button input").val(getParameter("paused") == "true" ? "true" : "false");
   $("#animate-button input").trigger("change");
 
@@ -360,7 +339,7 @@ function initAnimation(cb) {
   var lat = parseFloat(getParameter("lat") || "39.3");
   var lon = parseFloat(getParameter("lon") || "-95.8");
 
-  totalTime = parseFloat(getParameter("length") || "10000");
+  visualization.totalTime = parseFloat(getParameter("length") || "10000");
   $("#offset-slider").val(parseFloat(getParameter("offset") || "15"));
   $("#offset-slider").attr({"data-max": parseFloat(getParameter("maxoffset") || "29")});
   $("#offset-slider").trigger("change");
@@ -386,35 +365,35 @@ function initAnimation(cb) {
     ]
   };
   var mapDiv = document.getElementById('map-div');
-  map = new google.maps.Map(mapDiv, mapOptions);
+  visualization.map = new google.maps.Map(mapDiv, mapOptions);
 
   if (getParameter("overlay")) {
     var kmlLayer = new google.maps.KmlLayer({url: getParameter("overlay"), preserveViewport: true});
-    kmlLayer.setMap(map);
+    kmlLayer.setMap(visualization.map);
   }
 
   // initialize the canvasLayer
   var canvasLayerOptions = {
-    map: map,
-    resizeHandler: resize,
+    map: visualization.map,
+    resizeHandler: function () { visualization.resize() },
     animate: true,
-    updateHandler: update
+    updateHandler: function () { visualization.update(); }
   };
-  canvasLayer = new CanvasLayer(canvasLayerOptions);
+  visualization.canvasLayer = new CanvasLayer(canvasLayerOptions);
 
-  window.addEventListener('resize', function () {  google.maps.event.trigger(map, 'resize') }, false);
+  window.addEventListener('resize', function () {  google.maps.event.trigger(visualization.map, 'resize') }, false);
 
-  google.maps.event.addListener(map, 'center_changed', function() {
-    setParameter("lat", map.getCenter().lat().toString());
-    setParameter("lon", map.getCenter().lng().toString());
+  google.maps.event.addListener(visualization.map, 'center_changed', function() {
+    setParameter("lat", visualization.map.getCenter().lat().toString());
+    setParameter("lon", visualization.map.getCenter().lng().toString());
   });
-  google.maps.event.addListener(map, 'zoom_changed', function() {
-    setParameter("zoom", map.getZoom().toString());
+  google.maps.event.addListener(visualization.map, 'zoom_changed', function() {
+    setParameter("zoom", visualization.map.getZoom().toString());
   });
 
   // initialize WebGL
-  gl = canvasLayer.canvas.getContext('experimental-webgl');
-  if (!gl) {
+  visualization.gl = visualization.canvasLayer.canvas.getContext('experimental-webgl');
+  if (!visualization.gl) {
     var failover = getParameter('nowebgl');
     if (failover) {
       window.location = failover;
@@ -423,19 +402,20 @@ function initAnimation(cb) {
     }
     return;
   }
-  gl.enable(gl.BLEND);
-  gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+  visualization.gl.enable(visualization.gl.BLEND);
+  visualization.gl.blendFunc(visualization.gl.SRC_ALPHA, visualization.gl.ONE);
 
-  animation.initGl(gl, function () {
+  visualization.animation.initGl(visualization.gl, function () {
     if (getParameter("stats") == 'true') {
       document.body.appendChild(stats.domElement);
     }
-    glInitialized.set();
+    visualization.glInitialized.set();
     cb();
   });
 }
+Visualization.prototype.initToggleButtons = function(cb) {
+  var visualization = this;
 
-function initToggleButtons(cb) {
   $("#animate-button").click(function () {
     val = $("#animate-button input").val() == "true";
     $("#animate-button input").val(val ? "false" : "true");
@@ -450,13 +430,53 @@ function initToggleButtons(cb) {
   });
   cb();
 }
+Visualization.prototype.init = function () {
+  var visualization = this;
+
+  /* bgein stats */
+  visualization.stats = new Stats();
+  visualization.stats.setMode(0); // 0: fps, 1: ms
+  // Align top-left
+  visualization.stats.domElement.style.position = 'absolute';
+  visualization.stats.domElement.style.left = '0px';
+  visualization.stats.domElement.style.top = '0px';
+  /* end stats */
+
+  visualization.dataLoaded = false;
+  visualization.dataLoadedUntilTimeToSet = false;
+  visualization.glInitialized = new Condition();
+  visualization.map = undefined;
+  visualization.canvasLayer = undefined;
+  visualization.gl = undefined;
+
+  visualization.pixelsToWebGLMatrix = new Float32Array(16);
+  visualization.mapMatrix = new Float32Array(16);
+
+  visualization.currentOffset = undefined;
+
+  visualization.manualTimeslide = false;
+  visualization.paused = true;
+
+  visualization.totalTime = undefined; // In ms
+
+  visualization.lastTime = 0;
+  visualization.elapsedTimeFromChange = 0;
+  visualization.totalElapsedTime = 0;
+  visualization.header = undefined;
+
+  visualization.animation = new Animation();
+  visualization.animation.init(visualization);
+
+  async.series([
+    function (cb) { visualization.initData(cb); },
+    function (cb) { visualization.initLogo(cb); },
+    function (cb) { visualization.initToggleButtons(cb); },
+    function (cb) { visualization.initAnimationSliders(cb); },
+    function (cb) { visualization.initAnimation(cb); }
+  ]);
+}
 
 $(document).ready(function () {
-  async.series([
-    initData,
-    initLogo,
-    initToggleButtons,
-    initAnimationSliders,
-    initAnimation
-  ]);
+  visualization = new Visualization();
+  visualization.init();
 });
