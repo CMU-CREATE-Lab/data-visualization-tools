@@ -1,5 +1,15 @@
 function Visualization() {
 }
+Visualization.prototype.defaults = {
+  zoom: "4",
+  lat: "39.3",
+  lon: "-95.8",
+  length: "80000",
+  offset: "15",
+  maxoffset: "29",
+  animations: "point",
+  timeresolution: 60*60*24
+}
 Visualization.prototype.resize = function() {
   var visualization = this;
 
@@ -152,7 +162,7 @@ Visualization.prototype.initAnimationSliders = function(cb) {
   var daySlider = $('#day-slider');
   var offsetSlider = $('#offset-slider');
 
-  daySlider.attr({"data-step": (visualization.header.timeresolution || 1).toString()});
+  daySlider.attr({"data-step": (visualization.header.timeresolution || visualization.defaults.timeresolution).toString()});
 
   $("#animate-button input").change(function () {
     visualization.paused = $("#animate-button input").val() == "true";
@@ -203,13 +213,13 @@ Visualization.prototype.initAnimation = function (cb) {
   $("#animate-button input").val(getParameter("paused") == "true" ? "true" : "false");
   $("#animate-button input").trigger("change");
 
-  var zoom = parseInt(getParameter("zoom") || "4");
-  var lat = parseFloat(getParameter("lat") || "39.3");
-  var lon = parseFloat(getParameter("lon") || "-95.8");
+  var zoom = parseInt(getParameter("zoom") || visualization.defaults.zoom);
+  var lat = parseFloat(getParameter("lat") || visualization.defaults.lat);
+  var lon = parseFloat(getParameter("lon") || visualization.defaults.lon);
 
-  visualization.totalTime = parseFloat(getParameter("length") || "10000");
-  $("#offset-slider").val(parseFloat(getParameter("offset") || "15"));
-  $("#offset-slider").attr({"data-max": parseFloat(getParameter("maxoffset") || "29")});
+  visualization.totalTime = parseFloat(getParameter("length") || visualization.defaults.length);
+  $("#offset-slider").val(parseFloat(getParameter("offset") || visualization.defaults.offset));
+  $("#offset-slider").attr({"data-max": parseFloat(getParameter("maxoffset") || visualization.defaults.maxoffset)});
   $("#offset-slider").trigger("change");
 
   // initialize the map
@@ -336,12 +346,10 @@ Visualization.prototype.init = function () {
   visualization.totalElapsedTime = 0;
   visualization.header = undefined;
 
-  var animationClasses = [Animation.animationClasses.point];
-  if (getParameter("animations")) {
-    animationClasses = getParameter("animations").split(",").map(
-      function (name) { return Animation.animationClasses[name]; }
-    );
-  };
+  var animationClasses = getParameter("animations") || visualization.defaults.animations;
+  animationClasses = animationClasses.split(",").map(
+    function (name) { return Animation.animationClasses[name]; }
+  );
 
   visualization.animations = animationClasses.map(function (cls) {
     var animation = new cls();
