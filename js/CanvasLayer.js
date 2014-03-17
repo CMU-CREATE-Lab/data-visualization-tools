@@ -432,6 +432,7 @@ CanvasLayer.prototype.repositionCanvas_ = function() {
 
   // canvas position relative to draggable map's conatainer depends on
   // overlayView's projection, not the map's
+  var map = this.getMap();
   var projection = this.getProjection();
   this.topLeft_ = projection.fromContainerPixelToLatLng(new google.maps.Point(0,0));
   var divTopLeft = projection.fromLatLngToDivPixel(this.topLeft_);
