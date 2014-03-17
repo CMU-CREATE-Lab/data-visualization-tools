@@ -1,17 +1,18 @@
-var magnitudeScale = 8;
+var magnitudeScale = 0.05;
 
-function PointAnimation () {
+function ArrowAnimation () {
   Animation();
 }
-PointAnimation.prototype = new Animation();
-animationClasses.push(PointAnimation);
-PointAnimation.prototype.initGl = function(gl, cb) {
+ArrowAnimation.prototype = new Animation();
+animationClasses.push(ArrowAnimation);
+ArrowAnimation.prototype.initGl = function(gl, cb) {
   var animation = this;
   animation.gl = gl;
-  createShaderProgramFromUrl(animation.gl, "PointAnimation-vertex.glsl", "PointAnimation-fragment.glsl", function (program) {
+  createShaderProgramFromUrl(animation.gl, "ArrowAnimation-vertex.glsl", "ArrowAnimation-fragment.glsl", function (program) {
     animation.program = program;
 
     animation.pointArrayBuffer = animation.gl.createBuffer();
+    animation.headingArrayBuffer = animation.gl.createBuffer();
     animation.colorArrayBuffer = animation.gl.createBuffer();
     animation.magnitudeArrayBuffer = animation.gl.createBuffer();
     animation.timeArrayBuffer = animation.gl.createBuffer();
@@ -19,7 +20,7 @@ PointAnimation.prototype.initGl = function(gl, cb) {
     cb();
   });
 }
-PointAnimation.prototype.header = function(header) {
+ArrowAnimation.prototype.header = function(header) {
   var animation = this;
   animation.series_count = 0;
   // For convenience we store POINT_COUNT in an element at the end
@@ -27,13 +28,14 @@ PointAnimation.prototype.header = function(header) {
   // rawSeries[i+1]-rawSeries[i].      
   animation.rawSeries = new Int32Array((header.series || 1) + 1);
   animation.rawSeries[0] = 0;
-  animation.rawLatLonData = new Float32Array(header.length*2);
-  animation.rawColorData = new Float32Array(header.length*4);
-  animation.rawMagnitudeData = new Float32Array(header.length);
-  animation.rawTimeData = new Float32Array(header.length);
+  animation.rawLatLonData = new Float32Array(header.length*4);
+  animation.rawHeadingData = new Float32Array(header.length*2);
+  animation.rawColorData = new Float32Array(header.length*8);
+  animation.rawMagnitudeData = new Float32Array(header.length*2);
+  animation.rawTimeData = new Float32Array(header.length*2);
   animation.lastSeries = function () {}; // Value we will never find in the data
 }
-PointAnimation.prototype.row = function(rowidx, data) {
+ArrowAnimation.prototype.row = function(rowidx, data) {
   var animation = this;
   if (animation.lastSeries != data.series) {
     animation.series_count++;
@@ -41,45 +43,58 @@ PointAnimation.prototype.row = function(rowidx, data) {
   }
 
   var pixel = LatLongToPixelXY(data.latitude, data.longitude);
-  animation.rawLatLonData[2*rowidx] = pixel.x;
-  animation.rawLatLonData[2*rowidx+1] = pixel.y;
+  animation.rawLatLonData[4*rowidx] = pixel.x;
+  animation.rawLatLonData[4*rowidx+1] = pixel.y;
+  animation.rawLatLonData[4*rowidx+2] = pixel.x;
+  animation.rawLatLonData[4*rowidx+3] = pixel.y;
 
   if (   data.red != undefined
       && data.green != undefined
       && data.blue != undefined) {
-    animation.rawColorData[4*rowidx + 0] = data.red / 256;
-    animation.rawColorData[4*rowidx + 1] = data.green / 256;
-    animation.rawColorData[4*rowidx + 2] = data.blue / 256;
+    animation.rawColorData[8*rowidx + 0] = data.red / 256;
+    animation.rawColorData[8*rowidx + 1] = data.green / 256;
+    animation.rawColorData[8*rowidx + 2] = data.blue / 256;
   } else {
-    animation.rawColorData[4*rowidx + 0] = 0.82
-    animation.rawColorData[4*rowidx + 1] = 0.22;
-    animation.rawColorData[4*rowidx + 2] = 0.07;
+    animation.rawColorData[8*rowidx + 0] = 0.82
+    animation.rawColorData[8*rowidx + 1] = 0.22;
+    animation.rawColorData[8*rowidx + 2] = 0.07;
   }
   if (data.alpha != undefined) {
-    animation.rawColorData[4*rowidx + 3] = data.alpha / 256;
+    animation.rawColorData[8*rowidx + 3] = data.alpha / 256;
   } else {
-    animation.rawColorData[4*rowidx + 3] = 1;
+    animation.rawColorData[8*rowidx + 3] = 1;
   }
+  animation.rawColorData[8*rowidx + 4] = animation.rawColorData[8*rowidx + 0];
+  animation.rawColorData[8*rowidx + 5] = animation.rawColorData[8*rowidx + 1];
+  animation.rawColorData[8*rowidx + 6] = animation.rawColorData[8*rowidx + 2];
+  animation.rawColorData[8*rowidx + 7] = animation.rawColorData[8*rowidx + 3];
+
+  // -1 signifies that this is the first point in a linesegment making up an arrow, so not an actual heading
+  animation.rawHeadingData[2*rowidx] = -1;
+  animation.rawHeadingData[2*rowidx+1] = data.heading || 0;
 
   if (data.magnitude != undefined) {
-      animation.rawMagnitudeData[rowidx] = 1 + magnitudeScale * data.magnitude / 256;
+      animation.rawMagnitudeData[2* rowidx] = magnitudeScale * data.magnitude / 256;
   } else {
-    animation.rawMagnitudeData[rowidx] = 1;
+    animation.rawMagnitudeData[2 * rowidx] = magnitudeScale;
   }
+  animation.rawMagnitudeData[2 * rowidx + 1] = animation.rawMagnitudeData[2 * rowidx];
 
-  animation.rawTimeData[rowidx] = data.datetime;
+  animation.rawTimeData[2*rowidx] = data.datetime;
+  animation.rawTimeData[2*rowidx+1] = data.datetime;
 
   animation.rawSeries[animation.series_count] = rowidx + 1;
 }
-PointAnimation.prototype.batch = function() {
+ArrowAnimation.prototype.batch = function() {
   var animation = this;
   animation.gl.useProgram(animation.program);
   programLoadArray(animation.gl, animation.pointArrayBuffer, animation.rawLatLonData, animation.program, "worldCoord", 2, animation.gl.FLOAT);
   programLoadArray(animation.gl, animation.colorArrayBuffer, animation.rawColorData, animation.program, "color", 4, animation.gl.FLOAT);
+  programLoadArray(animation.gl, animation.headingArrayBuffer, animation.rawHeadingData, animation.program, "heading", 1, animation.gl.FLOAT);
   programLoadArray(animation.gl, animation.magnitudeArrayBuffer, animation.rawMagnitudeData, animation.program, "magnitude", 1, animation.gl.FLOAT);
   programLoadArray(animation.gl, animation.timeArrayBuffer, animation.rawTimeData, animation.program, "time", 1, animation.gl.FLOAT);
 }
-PointAnimation.prototype.draw = function () {
+ArrowAnimation.prototype.draw = function () {
   var animation = this;
 
   animation.gl.useProgram(animation.program);
@@ -117,15 +132,7 @@ PointAnimation.prototype.draw = function () {
   animation.gl.uniform1f(animation.program.uniforms.startTime, animation.visualization.current_time - (animation.visualization.currentOffset * 24 * 60 * 60));
   animation.gl.uniform1f(animation.program.uniforms.endTime, animation.visualization.current_time);
 
-  var mode;
-  if (getParameter("lines") == 'true') {
-    mode = animation.gl.LINE_STRIP;
-    animation.gl.uniform1i(animation.program.uniforms.doShade, 0);
-  } else {
-    mode = animation.gl.POINTS;
-    animation.gl.uniform1i(animation.program.uniforms.doShade, 1);
-  }
   for (var i = 0; i < animation.series_count; i++) {
-    animation.gl.drawArrays(mode, animation.rawSeries[i], animation.rawSeries[i+1]-animation.rawSeries[i]);
+    animation.gl.drawArrays(animation.gl.LINES, animation.rawSeries[i]*2, animation.rawSeries[i+1]*2-animation.rawSeries[i]*2);
   }
 }
