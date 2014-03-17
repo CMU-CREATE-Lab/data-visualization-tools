@@ -162,7 +162,7 @@ Visualization.prototype.update = function() {
     var timeNow = new Date().getTime();
     if (visualization.totalElapsedTime == undefined) {
       visualization.current_time = daySlider.val();
-      fraction = (current_time - min) / (max - min);
+      fraction = (visualization.current_time - min) / (max - min);
       visualization.totalElapsedTime = fraction * visualization.totalTime;
       visualization.elapsedTimeFromChange = 0;
     } else if (visualization.lastTime != 0) {
@@ -299,8 +299,8 @@ Visualization.prototype.initAnimationSliders = function(cb) {
   });
 
   daySlider.change(function(event) {
-    current_time = parseInt(this.value);
-    var date = new Date(current_time * 1000);
+    visualization.current_time = parseInt(this.value);
+    var date = new Date(visualization.current_time * 1000);
     // setParameter("time", date.rfcstring());
     $('#current-date').html(date.rfcstring(" "));
   });
