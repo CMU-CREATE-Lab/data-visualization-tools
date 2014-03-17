@@ -8,7 +8,7 @@ animationClasses.push(PointAnimation);
 PointAnimation.prototype.initGl = function(gl, cb) {
   var animation = this;
   animation.gl = gl;
-  createShaderProgramFromUrl(animation.gl, "vertexshader.shader", "fragmentshader.shader", function (program) {
+  createShaderProgramFromUrl(animation.gl, "PointAnimation-vertex.glsl", "PointAnimation-fragment.glsl", function (program) {
     animation.program = program;
 
     animation.pointArrayBuffer = animation.gl.createBuffer();
