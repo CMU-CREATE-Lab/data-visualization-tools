@@ -2,7 +2,7 @@ function ArrowAnimation () {
   Animation();
 }
 ArrowAnimation.prototype = new Animation();
-animationClasses.push(ArrowAnimation);
+Animation.animationClasses.arrow = ArrowAnimation;
 
 ArrowAnimation.prototype.magnitudeScale = 0.05;
 

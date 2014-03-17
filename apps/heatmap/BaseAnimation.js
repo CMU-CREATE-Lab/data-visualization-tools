@@ -1,5 +1,3 @@
-animationClasses = [];
-
 function Animation () {
 }
 Animation.prototype.init = function(visualization) {
@@ -15,3 +13,5 @@ Animation.prototype.header = function(header) {}
 Animation.prototype.row = function(rowidx, data) {}
 Animation.prototype.batch = function() {}
 Animation.prototype.draw = function () {}
+
+Animation.animationClasses = {};

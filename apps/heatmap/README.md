@@ -11,8 +11,8 @@ The URL parameters have the same syntax as normal URL query parameters, but are 
     length = Animation loop time in ms. Default: 10000
     offset = Time windows size in days. Default: 15
     maxoffset = Max time window size in days (max position for the time window slider). Default: 29
-    lines = Wether to draw lines or pointes. Default: false
     stats = Show rendering stats. Default: false
+    animations = Coma separated list of animations to draw. Available: point,line,arrow Default: point
 
 All of them apart from source are optional. Example:
 

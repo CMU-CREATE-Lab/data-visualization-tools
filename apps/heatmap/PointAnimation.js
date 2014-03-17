@@ -1,9 +1,8 @@
-
 function PointAnimation () {
   Animation();
 }
 PointAnimation.prototype = new Animation();
-animationClasses.push(PointAnimation);
+Animation.animationClasses.point = PointAnimation;
 
 PointAnimation.prototype.magnitudeScale = 8;
 
@@ -119,15 +118,28 @@ PointAnimation.prototype.draw = function () {
   animation.gl.uniform1f(animation.program.uniforms.startTime, animation.visualization.current_time - (animation.visualization.currentOffset * 24 * 60 * 60));
   animation.gl.uniform1f(animation.program.uniforms.endTime, animation.visualization.current_time);
 
-  var mode;
-  if (getParameter("lines") == 'true') {
-    mode = animation.gl.LINE_STRIP;
-    animation.gl.uniform1i(animation.program.uniforms.doShade, 0);
-  } else {
-    mode = animation.gl.POINTS;
-    animation.gl.uniform1i(animation.program.uniforms.doShade, 1);
-  }
+  var mode = animation.getDrawMode();
   for (var i = 0; i < animation.series_count; i++) {
     animation.gl.drawArrays(mode, animation.rawSeries[i], animation.rawSeries[i+1]-animation.rawSeries[i]);
   }
+}
+PointAnimation.prototype.getDrawMode = function () {
+  var animation = this;
+
+  animation.gl.uniform1i(animation.program.uniforms.doShade, 1);
+  return animation.gl.POINTS;
+}
+
+
+function LineAnimation () {
+  PointAnimation();
+}
+LineAnimation.prototype = new PointAnimation();
+Animation.animationClasses.line = LineAnimation;
+
+LineAnimation.prototype.getDrawMode = function () {
+  var animation = this;
+
+  animation.gl.uniform1i(animation.program.uniforms.doShade, 0);
+  return animation.gl.LINE_STRIP;
 }

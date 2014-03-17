@@ -336,6 +336,13 @@ Visualization.prototype.init = function () {
   visualization.totalElapsedTime = 0;
   visualization.header = undefined;
 
+  var animationClasses = [Animation.animationClasses.point];
+  if (getParameter("animations")) {
+    animationClasses = getParameter("animations").split(",").map(
+      function (name) { return Animation.animationClasses[name]; }
+    );
+  };
+
   visualization.animations = animationClasses.map(function (cls) {
     var animation = new cls();
     animation.init(visualization);
