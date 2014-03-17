@@ -1,10 +1,11 @@
-var magnitudeScale = 0.05;
-
 function ArrowAnimation () {
   Animation();
 }
 ArrowAnimation.prototype = new Animation();
 animationClasses.push(ArrowAnimation);
+
+ArrowAnimation.prototype.magnitudeScale = 0.05;
+
 ArrowAnimation.prototype.initGl = function(gl, cb) {
   var animation = this;
   animation.gl = gl;
@@ -74,9 +75,9 @@ ArrowAnimation.prototype.row = function(rowidx, data) {
   animation.rawHeadingData[2*rowidx+1] = data.heading || 0;
 
   if (data.magnitude != undefined) {
-      animation.rawMagnitudeData[2* rowidx] = magnitudeScale * data.magnitude / 256;
+      animation.rawMagnitudeData[2* rowidx] = animation.magnitudeScale * data.magnitude / 256;
   } else {
-    animation.rawMagnitudeData[2 * rowidx] = magnitudeScale;
+    animation.rawMagnitudeData[2 * rowidx] = animation.magnitudeScale;
   }
   animation.rawMagnitudeData[2 * rowidx + 1] = animation.rawMagnitudeData[2 * rowidx];
 

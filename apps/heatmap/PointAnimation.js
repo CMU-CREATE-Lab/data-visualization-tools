@@ -1,10 +1,12 @@
-var magnitudeScale = 8;
 
 function PointAnimation () {
   Animation();
 }
 PointAnimation.prototype = new Animation();
 animationClasses.push(PointAnimation);
+
+PointAnimation.prototype.magnitudeScale = 8;
+
 PointAnimation.prototype.initGl = function(gl, cb) {
   var animation = this;
   animation.gl = gl;
@@ -62,7 +64,7 @@ PointAnimation.prototype.row = function(rowidx, data) {
   }
 
   if (data.magnitude != undefined) {
-      animation.rawMagnitudeData[rowidx] = 1 + magnitudeScale * data.magnitude / 256;
+      animation.rawMagnitudeData[rowidx] = 1 + animation.magnitudeScale * data.magnitude / 256;
   } else {
     animation.rawMagnitudeData[rowidx] = 1;
   }
