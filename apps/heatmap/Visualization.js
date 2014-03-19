@@ -60,6 +60,27 @@ Visualization.prototype.update = function() {
     }
   }
 
+  /**
+   * We need to create a transformation that takes world coordinate
+   * points in the pointArrayBuffer to the coodinates WebGL expects.
+   * 1. Start with second half in pixelsToWebGLMatrix, which takes pixel
+   *     coordinates to WebGL coordinates.
+   * 2. Scale and translate to take world coordinates to pixel coords
+   * see https://developers.google.com/maps/documentation/javascript/maptypes#MapCoordinate
+   */
+
+  var mapProjection = visualization.map.getProjection();
+
+  // copy pixel->webgl matrix
+  visualization.mapMatrix.set(visualization.pixelsToWebGLMatrix);
+
+  var scale = visualization.canvasLayer.getMapScale();
+  scaleMatrix(visualization.mapMatrix, scale, scale);
+
+  var translation = visualization.canvasLayer.getMapTranslation();
+  translateMatrix(visualization.mapMatrix, translation.x, translation.y);
+
+
   visualization.gl.clear(visualization.gl.COLOR_BUFFER_BIT);
   visualization.animations.map(function (animation) { animation.draw(); });
 

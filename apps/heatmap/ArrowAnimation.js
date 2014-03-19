@@ -111,30 +111,7 @@ ArrowAnimation.prototype.draw = function () {
     getPixelDiameterAtLatitude(animation.visualization.header.resolution || 1000, animation.visualization.map.getCenter().lat(), animation.visualization.map.zoom));
   animation.gl.vertexAttrib1f(animation.program.attributes.aPointSize, pointSize*1.0);
 
-  var mapProjection = animation.visualization.map.getProjection();
-
-  /**
-   * We need to create a transformation that takes world coordinate
-   * points in the pointArrayBuffer to the coodinates WebGL expects.
-   * 1. Start with second half in pixelsToWebGLMatrix, which takes pixel
-   *     coordinates to WebGL coordinates.
-   * 2. Scale and translate to take world coordinates to pixel coords
-   * see https://developers.google.com/maps/documentation/javascript/maptypes#MapCoordinate
-   */
-
-  // copy pixel->webgl matrix
-  animation.visualization.mapMatrix.set(animation.visualization.pixelsToWebGLMatrix);
-
-  var scale = animation.visualization.canvasLayer.getMapScale();
-  scaleMatrix(animation.visualization.mapMatrix, scale, scale);
-
-  var translation = animation.visualization.canvasLayer.getMapTranslation();
-  translateMatrix(animation.visualization.mapMatrix, translation.x, translation.y);
-
-
-  // attach matrix value to 'mapMatrix' uniform in shader
   animation.gl.uniformMatrix4fv(animation.program.uniforms.mapMatrix, false, animation.visualization.mapMatrix);
-
   animation.gl.uniform1f(animation.program.uniforms.startTime, animation.visualization.current_time - (animation.visualization.currentOffset * 24 * 60 * 60));
   animation.gl.uniform1f(animation.program.uniforms.endTime, animation.visualization.current_time);
 
