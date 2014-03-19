@@ -4,7 +4,7 @@ function PointAnimation () {
 PointAnimation.prototype = new Animation();
 Animation.animationClasses.point = PointAnimation;
 
-PointAnimation.prototype.magnitudeScale = 8;
+PointAnimation.prototype.magnitudeScale = 0.1;
 
 PointAnimation.prototype.initGl = function(gl, cb) {
   var animation = this;
@@ -63,7 +63,7 @@ PointAnimation.prototype.row = function(rowidx, data) {
   }
 
   if (data.magnitude != undefined) {
-      animation.rawMagnitudeData[rowidx] = 1 + animation.magnitudeScale * data.magnitude / 256;
+    animation.rawMagnitudeData[rowidx] = 1 + animation.magnitudeScale * data.magnitude / 256;
   } else {
     animation.rawMagnitudeData[rowidx] = 1;
   }
@@ -75,21 +75,26 @@ PointAnimation.prototype.row = function(rowidx, data) {
 PointAnimation.prototype.batch = function() {
   var animation = this;
   animation.gl.useProgram(animation.program);
-  programLoadArray(animation.gl, animation.pointArrayBuffer, animation.rawLatLonData, animation.program, "worldCoord", 2, animation.gl.FLOAT);
-  programLoadArray(animation.gl, animation.colorArrayBuffer, animation.rawColorData, animation.program, "color", 4, animation.gl.FLOAT);
-  programLoadArray(animation.gl, animation.magnitudeArrayBuffer, animation.rawMagnitudeData, animation.program, "magnitude", 1, animation.gl.FLOAT);
-  programLoadArray(animation.gl, animation.timeArrayBuffer, animation.rawTimeData, animation.program, "time", 1, animation.gl.FLOAT);
+  programLoadArray(animation.gl, animation.pointArrayBuffer, animation.rawLatLonData, animation.program);
+  programLoadArray(animation.gl, animation.colorArrayBuffer, animation.rawColorData, animation.program);
+  programLoadArray(animation.gl, animation.magnitudeArrayBuffer, animation.rawMagnitudeData, animation.program);
+  programLoadArray(animation.gl, animation.timeArrayBuffer, animation.rawTimeData, animation.program);
 }
 PointAnimation.prototype.draw = function () {
   var animation = this;
 
   animation.gl.useProgram(animation.program);
 
+  programBindArray(animation.gl, animation.pointArrayBuffer, animation.program, "worldCoord", 2, animation.gl.FLOAT);
+  programBindArray(animation.gl, animation.colorArrayBuffer, animation.program, "color", 4, animation.gl.FLOAT);
+  programBindArray(animation.gl, animation.magnitudeArrayBuffer, animation.program, "magnitude", 1, animation.gl.FLOAT);
+  programBindArray(animation.gl, animation.timeArrayBuffer, animation.program, "time", 1, animation.gl.FLOAT);
+
   // pointSize range [5,20], 21 zoom levels
   var pointSize = Math.max(
     Math.floor( ((20-5) * (animation.visualization.map.zoom - 0) / (21 - 0)) + 5 ),
     getPixelDiameterAtLatitude(animation.visualization.header.resolution || 1000, animation.visualization.map.getCenter().lat(), animation.visualization.map.zoom));
-  animation.gl.vertexAttrib1f(animation.program.attributes.aPointSize, pointSize*1.0);
+  animation.gl.uniform1f(animation.program.uniforms.pointSize, pointSize*1.0);
 
   var mapProjection = animation.visualization.map.getProjection();
 

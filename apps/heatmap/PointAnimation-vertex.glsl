@@ -1,11 +1,11 @@
 attribute vec4 worldCoord;
 attribute vec4 color;
 attribute float magnitude;
-attribute float aPointSize;
 
 attribute float time;
 uniform float startTime;
 uniform float endTime;
+uniform float pointSize;
 
 uniform mat4 mapMatrix;
 
@@ -18,7 +18,7 @@ void main() {
     baseColor = vec4(0, 0, 0, 0);
     gl_PointSize = 0.0;
   } else {
-    gl_PointSize = aPointSize * magnitude;
+    gl_PointSize = pointSize * magnitude;
     baseColor = color;
   }
 }

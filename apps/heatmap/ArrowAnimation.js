@@ -89,16 +89,21 @@ ArrowAnimation.prototype.row = function(rowidx, data) {
 ArrowAnimation.prototype.batch = function() {
   var animation = this;
   animation.gl.useProgram(animation.program);
-  programLoadArray(animation.gl, animation.pointArrayBuffer, animation.rawLatLonData, animation.program, "worldCoord", 2, animation.gl.FLOAT);
-  programLoadArray(animation.gl, animation.colorArrayBuffer, animation.rawColorData, animation.program, "color", 4, animation.gl.FLOAT);
-  programLoadArray(animation.gl, animation.headingArrayBuffer, animation.rawHeadingData, animation.program, "heading", 1, animation.gl.FLOAT);
-  programLoadArray(animation.gl, animation.magnitudeArrayBuffer, animation.rawMagnitudeData, animation.program, "magnitude", 1, animation.gl.FLOAT);
-  programLoadArray(animation.gl, animation.timeArrayBuffer, animation.rawTimeData, animation.program, "time", 1, animation.gl.FLOAT);
+  programLoadArray(animation.gl, animation.pointArrayBuffer, animation.rawLatLonData, animation.program);
+  programLoadArray(animation.gl, animation.colorArrayBuffer, animation.rawColorData, animation.program);
+  programLoadArray(animation.gl, animation.headingArrayBuffer, animation.rawHeadingData, animation.program);
+  programLoadArray(animation.gl, animation.magnitudeArrayBuffer, animation.rawMagnitudeData, animation.program);
+  programLoadArray(animation.gl, animation.timeArrayBuffer, animation.rawTimeData, animation.program);
 }
 ArrowAnimation.prototype.draw = function () {
   var animation = this;
 
   animation.gl.useProgram(animation.program);
+  programBindArray(animation.gl, animation.pointArrayBuffer, animation.program, "worldCoord", 2, animation.gl.FLOAT);
+  programBindArray(animation.gl, animation.colorArrayBuffer, animation.program, "color", 4, animation.gl.FLOAT);
+  programBindArray(animation.gl, animation.headingArrayBuffer, animation.program, "heading", 1, animation.gl.FLOAT);
+  programBindArray(animation.gl, animation.magnitudeArrayBuffer, animation.program, "magnitude", 1, animation.gl.FLOAT);
+  programBindArray(animation.gl, animation.timeArrayBuffer, animation.program, "time", 1, animation.gl.FLOAT);
 
   // pointSize range [5,20], 21 zoom levels
   var pointSize = Math.max(
