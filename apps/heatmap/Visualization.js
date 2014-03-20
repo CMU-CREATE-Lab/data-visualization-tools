@@ -21,9 +21,16 @@ Visualization.prototype.resize = function() {
   // matrix which maps pixel coordinates to WebGL coordinates
   visualization.pixelsToWebGLMatrix.set([2/width, 0, 0, 0, 0, -2/height, 0, 0,
       0, 0, 0, 0, -1, 1, 0, 1]);
+
+  visualization.triggerUpdate = true;
 }
 Visualization.prototype.update = function() {
   var visualization = this;
+
+  if (!visualization.triggerUpdate && (!visualization.dataLoadedUntilTimeToSet || visualization.manualTimeslide || visualization.paused)) {
+    return;
+  }
+  visualization.triggerUpdate = false;
 
   var daySlider = $('#day-slider')
   var min = parseFloat(daySlider.attr("data-min"));
@@ -202,6 +209,7 @@ Visualization.prototype.initAnimationSliders = function(cb) {
     var date = new Date(visualization.current_time * 1000);
     // setParameter("time", date.rfcstring());
     $('#current-date').html(date.rfcstring(" "));
+    visualization.triggerUpdate = true;
   });
 
   var handle = daySlider.parent(".control").find(".handle");
@@ -285,9 +293,11 @@ Visualization.prototype.initAnimation = function (cb) {
   google.maps.event.addListener(visualization.map, 'center_changed', function() {
     setParameter("lat", visualization.map.getCenter().lat().toString());
     setParameter("lon", visualization.map.getCenter().lng().toString());
+    visualization.triggerUpdate = true;
   });
   google.maps.event.addListener(visualization.map, 'zoom_changed', function() {
     setParameter("zoom", visualization.map.getZoom().toString());
+    visualization.triggerUpdate = true;
   });
 
   // initialize WebGL
