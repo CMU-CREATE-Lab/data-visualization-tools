@@ -4,7 +4,7 @@ function ArrowAnimation () {
 ArrowAnimation.prototype = new Animation();
 Animation.animationClasses.arrow = ArrowAnimation;
 
-ArrowAnimation.prototype.magnitudeScale = 0.05;
+ArrowAnimation.prototype.magnitudeScale = 0.2;
 
 ArrowAnimation.prototype.initGl = function(gl, cb) {
   var animation = this;
