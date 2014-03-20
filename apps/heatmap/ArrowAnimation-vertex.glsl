@@ -13,7 +13,7 @@ varying vec4 baseColor;
 void main() {
   gl_Position = mapMatrix * worldCoord;
   if (heading >= 0.0) {
-    gl_Position = gl_Position + vec4(magnitude * cos(radians(heading)), magnitude * sin(radians(heading)), 0, 0);
+    gl_Position = gl_Position + vec4(magnitude * sin(radians(heading)), magnitude * cos(radians(heading)), 0, 0);
   }
 
   if (time < startTime || time > endTime) {
