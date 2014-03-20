@@ -1,5 +1,6 @@
 function Visualization() {
 }
+Visualization.prototype.latlonprecision = 100000;
 Visualization.prototype.defaults = {
   zoom: "4",
   lat: "39.3",
@@ -291,8 +292,8 @@ Visualization.prototype.initAnimation = function (cb) {
   window.addEventListener('resize', function () {  google.maps.event.trigger(visualization.map, 'resize') }, false);
 
   google.maps.event.addListener(visualization.map, 'center_changed', function() {
-    setParameter("lat", visualization.map.getCenter().lat().toString());
-    setParameter("lon", visualization.map.getCenter().lng().toString());
+      setParameter("lat", (Math.round(visualization.map.getCenter().lat() * visualization.latlonprecision)/visualization.latlonprecision).toString());
+      setParameter("lon", (Math.round(visualization.map.getCenter().lng() * visualization.latlonprecision)/visualization.latlonprecision).toString());
     visualization.triggerUpdate = true;
   });
   google.maps.event.addListener(visualization.map, 'zoom_changed', function() {
