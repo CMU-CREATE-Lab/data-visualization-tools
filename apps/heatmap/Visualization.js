@@ -208,8 +208,7 @@ Visualization.prototype.initAnimationSliders = function(cb) {
   daySlider.change(function(event) {
     visualization.current_time = parseInt(this.value);
     var date = new Date(visualization.current_time * 1000);
-    // setParameter("time", date.rfcstring());
-    $('#current-date').html(date.rfcstring(" "));
+    $('#current-date').html(date.rfcstring(" ", visualization.header.timeresolution || visualization.defaults.timeresolution));
     visualization.triggerUpdate = true;
   });
 
