@@ -252,7 +252,7 @@ function loadTypedMatrix(opts) {
          code (they start at 100).
          https://developer.mozilla.org/En/Using_XMLHttpRequest */
       if (request.status != 200 && request.status != 0) {
-        opts.error && opts.error('could not load: ' + url);
+        opts.error && opts.error('could not load: ' + opts.url);
         return true;
       }
     }

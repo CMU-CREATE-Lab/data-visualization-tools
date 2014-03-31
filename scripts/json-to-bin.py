@@ -67,7 +67,7 @@ for i, d in enumerate(data):
         nrseries += 1;
         series = d.get('series', None)
     for key, value in d.iteritems():
-        if value == '__None__': continue
+        if value == '__None__' or value is None: continue
         t = type(value)
         if t is str or t is unicode:
             # If it's clearly not a date, avoid the time to throw and exception...
