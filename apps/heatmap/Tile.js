@@ -377,6 +377,8 @@ TileManager = Class({
       return res;
     }
 
+    var start = new Date();
+
     var tiles = manager.getTiles().map(function (tile) {
       tile.merged_rowcount = 0;
       return tile;
@@ -408,6 +410,10 @@ TileManager = Class({
       }
       manager.rowcount++;
     }
+
+    var end = new Date();
+      console.log("Merge: " + ((end - start) / 1000.0).toString());
+
   }
 });
 
