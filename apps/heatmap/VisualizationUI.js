@@ -46,9 +46,21 @@ VisualizationUI = Class({
       self.visualization.state.setValue("time", time);
     });
 
-    self.visualization.state.on({set: function (e) {
-      daySlider.val(e.new.toString());
-      // Don't trigger a change event as that would lead to a loop!
+    self.visualization.state.on({
+      time: function (e) {
+        daySlider.val(e.new.toString());
+      },
+      offset: function (e) {
+        var min = self.visualization.tiles.header.colsByName.datetime.min;
+        var max = self.visualization.tiles.header.colsByName.datetime.max;
+        var offset = Math.min(e.new, (max - min) / (24 * 60 * 60));
+
+        daySlider.attr({"data-min": min + offset * 24 * 60 * 60});
+
+        if (self.visualization.state.getValue("time") < min + offset * 24 * 60 * 60) {
+          self.visualization.state.setValue("time", offset);
+        }
+      }
     });
 
     var handle = daySlider.parent(".control").find(".handle");
@@ -69,20 +81,19 @@ VisualizationUI = Class({
       var offset = parseInt(this.value);
       $('#current-offset').html(offset.toString() + " days");
       self.visualization.state.setValue("offset", offset);
+    });
 
-      var min = self.visualization.tiles.header.colsByName.datetime.min;
-      var max = self.visualization.tiles.header.colsByName.datetime.max;
-      var limitedOffset = Math.min(offset, (max - min) / (24 * 60 * 60));
-
-      daySlider.attr({"data-min": min + limitedOffset * 24 * 60 * 60});
-
-      if (self.visualization.state.getValue("time") < min + limitedOffset * 24 * 60 * 60) {
-        self.visualization.state.setValue("time", limitedOffset);
+    self.visualization.params.on({
+      offset: function (e) {
+        offsetSlider.val(e.new.toString());
+      },
+      maxoffset: function (e) {
+        $("#offset-slider").attr({"data-max": e.new});
       }
     });
 
-    $("#offset-slider").val(self.params.getValue("offset"));
-    $("#offset-slider").attr({"data-max": self.params.getValue("maxoffset")});
+    $("#offset-slider").val(self.visualization.state.getValue("offset"));
+    $("#offset-slider").attr({"data-max": self.visualization.state.getValue("maxoffset")});
     $("#offset-slider").trigger("change");
 
     cb();
@@ -103,7 +114,7 @@ VisualizationUI = Class({
       } else {
         $("#animate-button").find("i").removeClass("glyphicon-play").addClass("glyphicon-pause");
       }
-      self.visualization.params.setValue("paused", paused);
+      self.visualization.state.setValue("paused", paused);
     });
 
 

@@ -417,6 +417,7 @@ TileManager = Class({
   }
 });
 
+/*
 tm = new TileManager("http://localhost/viirs/tiles");
 tm.events.on({
     "tile-error": function (data) { console.log("tile-error: " + data.exception + " @ " + data.tile.bounds.toBBOX()); },
@@ -426,3 +427,4 @@ tm.events.on({
 });
 //tm.zoomTo(new Bounds(0, 0, 11.25, 11.25));
 tm.zoomTo(new Bounds(-6, 0, 6, 11.25));
+*/

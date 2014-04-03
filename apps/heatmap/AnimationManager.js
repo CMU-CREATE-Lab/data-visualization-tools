@@ -30,9 +30,9 @@ AnimationManager = Class({
  
       if (self.lastUpdate == undefined) {
         var fraction (time - min) / (max - min);
-        self.lastUpdate = timeNow - fraction * self.visualization.params.getValue("length");
+        self.lastUpdate = timeNow - fraction * self.visualization.state.getValue("length");
       } else {
-        var fraction = (timeNow - self.lastUpdate) / self.visualization.params.getValue("length");
+        var fraction = (timeNow - self.lastUpdate) / self.visualization.state.getValue("length");
         var time = (max - min) * fraction + min;
         self.visualization.state.setValue("time", time);
       }
@@ -66,7 +66,7 @@ AnimationManager = Class({
   update: function() {
     var self = this;
 
-    var paused = self.visualization.params.getValue("paused") || time < min || time > max;
+    var paused = self.visualization.state.getValue("paused") || time < min || time > max;
     if (!self.updateNeeded && paused) {
       return;
     }
@@ -82,7 +82,7 @@ AnimationManager = Class({
   },
 
   initAnimations: function () {
-    var animationClasses = self.visualization.params.getValue("animations");
+    var animationClasses = self.visualization.state.getValue("animations");
     animationClasses = animationClasses.split(",").map(
       function (name) { return Animation.animationClasses[name]; }
     );
@@ -117,7 +117,7 @@ AnimationManager = Class({
     self.stats.domElement.style.top = '0px';
     /* end stats */
 
-    if (self.visualization.params.getValue("stats") == 'true') {
+    if (self.visualization.state.getValue("stats") == 'true') {
       document.body.appendChild(self.stats.domElement);
     }
   },
@@ -126,10 +126,10 @@ AnimationManager = Class({
     var self = this;
 
     var mapOptions = {
-      zoom: self.visualization.params.getValue("zoom"),
+      zoom: self.visualization.state.getValue("zoom"),
       center: new google.maps.LatLng(
-        self.visualization.params.getValue("lat"),
-        self.visualization.params.getValue("lon")),
+        self.visualization.state.getValue("lat"),
+        self.visualization.state.getValue("lon")),
       mapTypeId: google.maps.MapTypeId.ROADMAP,
       styles: [
         {
@@ -152,12 +152,12 @@ AnimationManager = Class({
     window.addEventListener('resize', function () {  google.maps.event.trigger(self.map, 'resize') }, false);
 
     google.maps.event.addListener(self.map, 'center_changed', function() {
-      self.visualization.params.setValue("lat", (Math.round(self.map.getCenter().lat() * self.latlonprecision)/self.latlonprecision).toString());
-      self.visualization.params.setValue("lon", (Math.round(self.map.getCenter().lng() * self.latlonprecision)/self.latlonprecision).toString());
+      self.visualization.state.setValue("lat", (Math.round(self.map.getCenter().lat() * self.latlonprecision)/self.latlonprecision).toString());
+      self.visualization.state.setValue("lon", (Math.round(self.map.getCenter().lng() * self.latlonprecision)/self.latlonprecision).toString());
       self.triggerUpdate();
     });
     google.maps.event.addListener(self.map, 'zoom_changed', function() {
-      self.visualization.params.setValue("zoom", self.map.getZoom().toString());
+      self.visualization.state.setValue("zoom", self.map.getZoom().toString());
       self.triggerUpdate();
     });
   },
@@ -165,7 +165,7 @@ AnimationManager = Class({
   initOverlay: function () {
     var self = this;
 
-    var overlay = self.visualization.params.getValue("overlay")
+    var overlay = self.visualization.state.getValue("overlay")
     if (overlay) {
       var kmlLayer = new google.maps.KmlLayer({url: overlay, preserveViewport: true});
       kmlLayer.setMap(self.map);
@@ -185,7 +185,7 @@ AnimationManager = Class({
 
     self.gl = self.canvasLayer.canvas.getContext('experimental-webgl');
     if (!self.gl) {
-      var failover = self.visualization.params.getValue('nowebgl');
+      var failover = self.visualization.state.getValue('nowebgl');
       if (failover) {
         window.location = failover;
       } else {

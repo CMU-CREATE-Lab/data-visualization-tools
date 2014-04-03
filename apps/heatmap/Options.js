@@ -1,8 +1,14 @@
 Values = Class({
-  initialize: function (defaults) {
+  /*
+    spec = {
+      zoom: {default: 3},
+      latitude: {default: 10.47}
+    }
+  */
+  initialize: function (spec) {
     var values = this;
 
-    values.defaults = defaults;
+    values.spec = spec;
     values.values = {};
     values.events = new Events();
   },
@@ -11,7 +17,9 @@ Values = Class({
     var values = this;
     var old = values.values[name];
     values.values[name] = value;
-    values.events.triggerEvent("set", {"name": name, "new": value, "old": old});
+    var event = {"name": name, "new": value, "old": old};
+    values.events.triggerEvent(name, event);
+    values.events.triggerEvent("set", event);
   },
 
   getValue: function(name) {
@@ -19,7 +27,7 @@ Values = Class({
     if (values.values[name] != undefined) {
       return values.values[name];
     } else {
-      return values.defaults[name];
+      return values.spec[name] && values.spec[name].default;
     }
   },
 
@@ -33,30 +41,83 @@ Values = Class({
 });
 
 Parameters = Class(Values, {
-  initialize: function (defaults, precisions) {
-    var parameters = this;
-    parameters.precisions = precisions;
-    Values.prototype.initialize.call(parameters, defaults);    
+  /*
+    spec = {
+      latitude: {fromurl: Parameters.floatFromUrl, precision: 1000, tourl: Parameters.floatToUrl, urlname: "lat"},
+      paused: {fromurl: Parameters.boolFromUrl, tourl: Parameters.boolToUrl, urlname: "paused", trueval: "yes", falseval: "no"},
+      source: {urlname: "source"}, // String value, no tourl/fromurl needed
+      other: {default: 4711} // Ignored as there is no urlname
+    }
+  */
+  initialize: function (values, spec) {
+    var self = this;
+    self.values = values;
+    self.spec = spec;
+    self.values.events.on({set: self.updateUrl, scope: self});
+
+    self.updateValues();
   },
 
-  setValue: function(name, value) {
-    var parameters = this;
-    var param = value;
+  updateUrl: function (e) {
+    var self = this;
+    var spec = self.spec[e.name];
 
-    if (parameters.precision[name] != undefined) {
-      param = Math.round(param * parameters.precision[name])/parameters.precision[name];
-    }
-    setParameter(name, param.toString());
-    Values.prototype.setValue.call(this, name, value);
+    if (spec == undefined || spec.urlname == undefined) return;
+
+    var val = e.new;
+    if (spec.tourl) val = spec.tourl.call(spec, val);
+    if (val != undefined) val = val.toString();
+    setParameter(spec.urlname, val);
   },
 
-  getValue: function(name) {
-    var values = this;
+  updateValues: function () {
+    var self = this;
 
-    if (values.values[name] == undefined) {
-      var param = getParameter(name);
-      if (param != undefined) return param;
-    }
-    return Values.prototype.getValue.call(this, name);
+    Object.items(self.spec).map(function (spec) {
+      var paramname = spec.key; spec = spec.value;
+      if (spec.urlname == undefined) return;
+      var value = getParameter(spec.urlname);
+      if (value == undefined) {
+        value = spec.default;
+      } else if (spec.fromurl) {
+        value = spec.fromurl.call(spec, value);
+      }
+      self.values.setValue(paramname, value);
+    });
   }
 });
+
+Parameters.intFromUrl = parseInt;
+Parameters.intToUrl = function (value) { return value.toString(); };
+Parameters.floatFromUrl = parseFloat;
+Parameters.floatToUrl = function (value) {
+  var spec = this;
+  if (spec.precision != undefined) {
+    value = Math.round(value * spec.precision)/spec.precision;
+  }
+  return value.toString();
+}
+Parameters.boolFromUrl = function (value) {
+  var spec = this;
+  var trueval = spec.trueval || 'true';
+  if (value == trueval) return true;
+  return false;
+}
+Parameters.boolToUrl = function (value) {
+  var spec = this;
+  if (value) {
+    return spec.trueval || 'true';
+  } else {
+    return spec.falseval || 'false';
+  }
+}
+Parameters.stringArrayFromUrl = function (value) {
+  var spec = this;
+  var sep = spec.sep || ",";
+  return value.split(sep);
+}
+Parameters.stringArrayToUrl = function (value) {
+  var spec = this;
+  var sep = spec.sep || ",";
+  return value.join(sep);
+}
