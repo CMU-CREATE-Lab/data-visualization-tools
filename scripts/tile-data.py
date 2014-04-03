@@ -15,7 +15,7 @@ args = dict([arg.split('=', 1) for arg in sys.argv[1:]])
 
 expr = args.pop("expr")
 
-limit = 10000
+limit = 1000
 if 'limit' in args:
     limit = args.pop('limit')
 
