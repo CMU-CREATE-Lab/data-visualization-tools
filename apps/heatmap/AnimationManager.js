@@ -29,7 +29,7 @@ AnimationManager = Class({
       var timeNow = new Date().getTime();
  
       if (self.lastUpdate == undefined) {
-        var fraction (time - min) / (max - min);
+        var fraction = (time - min) / (max - min);
         self.lastUpdate = timeNow - fraction * self.visualization.state.getValue("length");
       } else {
         var fraction = (timeNow - self.lastUpdate) / self.visualization.state.getValue("length");
@@ -224,5 +224,8 @@ AnimationManager = Class({
     if (!self.initCanvas()) return;
     self.initStats();
     self.initAnimationsGL();
-  }
-}
+  },
+
+  initialize: function () {}
+});
+

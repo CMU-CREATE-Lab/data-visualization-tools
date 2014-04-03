@@ -19,6 +19,26 @@ Condition.prototype.wait = function (cb) {
   }
 }
 
+// Object.keys is part of the standard
+Object.values = function (obj) {
+  var res = [];
+  for (var key in obj) {
+    res.push(obj[key]);
+  }
+  return res;
+}
+Object.items = function (obj) {
+  var res = [];
+  for (var key in obj) {
+      res.push({key:key, value:obj[key]});
+  }
+  return res;
+}
+
+function log(x,base) {
+  return Math.log(x)/Math.log(base);
+}
+
 // Use google maps Mercator projection to convert from lat, lng to
 // x, y coords in the range x:0-256, y:0-256
 function LatLongToPixelXY(latitude, longitude) {

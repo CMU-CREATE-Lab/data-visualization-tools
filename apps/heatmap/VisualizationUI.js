@@ -37,7 +37,7 @@ VisualizationUI = Class({
 
     var daySlider = $('#day-slider');
 
-    daySlider.attr({"data-step": (self.visualization.state.getValue("timeresolution").toString()});
+    daySlider.attr({"data-step": self.visualization.state.getValue("timeresolution").toString()});
 
     daySlider.change(function(event) {
       var time = parseInt(this.value);
@@ -116,7 +116,8 @@ VisualizationUI = Class({
       }
       self.visualization.state.setValue("paused", paused);
     });
+  },
 
+  initialize: function () {}
+});
 
-  }
-}
