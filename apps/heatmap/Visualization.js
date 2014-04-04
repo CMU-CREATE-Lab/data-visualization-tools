@@ -14,19 +14,19 @@ Visualization = Class({
   },
 
   initialize: function () {
-    var visualization = this;
+    var self = this;
 
-    visualization.state = new Values(visualization.paramspec);
-    visualization.params = new Parameters(visualization.state, visualization.paramspec);
+    self.state = new Values(self.paramspec);
+    self.params = new Parameters(self.state, self.paramspec);
 
-    visualization.tiles = new TileManager(getParameter("source"));
-    visualization.animations = new AnimationManager();
-    visualization.ui = new VisualizationUI();
+    self.tiles = new TileManager(getParameter("source"));
+    self.animations = new AnimationManager(self);
+    self.ui = new VisualizationUI(self);
 
     async.series([
-      // function (cb) { visualization.tiles.init(cb); },
-      function (cb) { visualization.ui.init(visualization, cb); },
-      function (cb) { visualization.animations.init(visualization, cb); },
+      // self.tiles.init.bind(self.tiles),
+      self.ui.init.bind(self.ui),
+      self.animations.init.bind(self.animations)
     ]);
   }
 });

@@ -1,11 +1,13 @@
 TileManager = Class({
   initialize: function(source) {
-    var manager = this;
-    manager.source = source;
+    var self = this;
+    self.source = source;
 
-    manager.tiles = {};
+    self.tiles = {};
+    self.header = {length: 0, colsByName: {}};
+    self.data = {};
 
-    manager.events = new Events();
+    self.events = new Events();
   },
 
   tilesPerScreenX: 2,
@@ -19,14 +21,14 @@ TileManager = Class({
   tileBoundsForRegion: function(bounds) {
     /* Returns a list of tile bounds covering a region. */
 
-    var manager = this;
+    var self = this;
 
     var width = bounds.getWidth();
     var height = bounds.getHeight();
-    var worldwidth = manager.world.getWidth();
-    var worldheight = manager.world.getHeight();
+    var worldwidth = self.world.getWidth();
+    var worldheight = self.world.getHeight();
 
-    var level = Math.ceil(Math.max(log(worldwidth / (width/manager.tilesPerScreenX), 2), log(worldheight / (height/manager.tilesPerScreenY), 2)));
+    var level = Math.ceil(Math.max(log(worldwidth / (width/self.tilesPerScreenX), 2), log(worldheight / (height/self.tilesPerScreenY), 2)));
 
     var tilewidth = worldwidth / Math.pow(2, level);
     var tileheight = worldheight / Math.pow(2, level);
@@ -75,7 +77,7 @@ TileManager = Class({
     * by a previous call to tileBoundsForRegion or
     * extendTileBounds. */
 
-    var manager = this;
+    var self = this;
 
     var tilewidth = bounds.getWidth() * 2;
     var tileheight = bounds.getHeight() * 2;
@@ -87,86 +89,86 @@ TileManager = Class({
   },
 
   zoomTo: function (bounds) {
-    manager = this;
-    manager.bounds = bounds;
+    self = this;
+    self.bounds = bounds;
 
     var tiles = {};
-    manager.tileBoundsForRegion(bounds).map(function (tilebounds) {
-      if (manager.tiles[tilebounds.toBBOX()] != undefined) {
-        tiles[tilebounds.toBBOX()] = manager.tiles[tilebounds.toBBOX()];
+    self.tileBoundsForRegion(bounds).map(function (tilebounds) {
+      if (self.tiles[tilebounds.toBBOX()] != undefined) {
+        tiles[tilebounds.toBBOX()] = self.tiles[tilebounds.toBBOX()];
       } else {
-        tiles[tilebounds.toBBOX()] = manager.setUpTile(tilebounds);
+        tiles[tilebounds.toBBOX()] = self.setUpTile(tilebounds);
       }
     });
-    manager.tiles = tiles;
+    self.tiles = tiles;
 
     // Merge any already loaded tiles
-    manager.mergeTiles();
+    self.mergeTiles();
 
-    manager.tileBoundsForRegion(bounds).map(function (tilebounds) {
+    self.tileBoundsForRegion(bounds).map(function (tilebounds) {
       tiles[tilebounds.toBBOX()].load();
     });
   },
 
   setUpTile: function (tilebounds) {
-    var manager = this;
-    var tile = new Tile(manager, tilebounds);
+    var self = this;
+    var tile = new Tile(self, tilebounds);
     tile.events.on({
-      "batch": function () { manager.handleBatch(tile); },
-      "all": function () { manager.handleFullTile(tile); },
-      "error": function (data) { manager.handleTileError(data, tile); },
-      scope: manager
+      "batch": function () { self.handleBatch(tile); },
+      "all": function () { self.handleFullTile(tile); },
+      "error": function (data) { self.handleTileError(data, tile); },
+      scope: self
     });
     return tile;
   },
 
   handleBatch: function (tile) {
-    var manager = this;
+    var self = this;
 
-    manager.mergeTiles();
-    manager.events.triggerEvent("batch", {"tile": tile});
+    self.mergeTiles();
+    self.events.triggerEvent("batch", {"tile": tile});
   },
 
   handleFullTile: function (tile) {
-    var manager = this;
+    var self = this;
 
-    manager.mergeTiles();
+    self.mergeTiles();
 
-    var all_done = manager.getTiles(
+    var all_done = self.getTiles(
       ).map(function (tile) { return tile.value.header.length == tile.value.rowcount }
       ).reduce(function (a, b) { return a && b; });
 
     if (all_done) {
-      manager.events.triggerEvent("all");
+      self.events.triggerEvent("all");
     } else {
-      manager.events.triggerEvent("full-tile", {"tile": tile});
+      self.events.triggerEvent("full-tile", {"tile": tile});
     }
   },
 
   handleTileError: function (data, tile) {
-    var manager = this;
+    var self = this;
 
-    tile.replacement = manager.setUpTile(manager.extendTileBounds(tile.bounds));
+    tile.replacement = self.setUpTile(self.extendTileBounds(tile.bounds));
     tile.replacement.load();
 
     data.tile = tile;
-    manager.events.triggerEvent("tile-error", data);
+    self.events.triggerEvent("tile-error", data);
   },
 
   getTiles: function () {
-    return Object.items(manager.tiles).map(function (tile) {
+    return Object.items(self.tiles).map(function (tile) {
       while (tile.value.replacement != undefined) tile.value = tile.value.replacement;
       return tile;
     });
   },
 
   mergeTiles: function () {
-    var manager = this;
+    var self = this;
 
     function compareTiles(a, b) {
       function compareTilesByCol(a, b, colidx) {
-        if (colidx > manager.sortcols.length) return a;
-        var col = manager.sortcols[colidx];
+        if (colidx > self.sortcols.length) return a;
+        var col = self.sortcols[colidx];
         if (a.value.data[col] == undefined || b.value.data[col] == undefined) {
           // Ignore any sort columns we don't have...
           return compareTilesByCol(a, b, colidx + 1);
@@ -195,40 +197,40 @@ TileManager = Class({
 
     var start = new Date();
 
-    var tiles = manager.getTiles().map(function (tile) {
+    var tiles = self.getTiles().map(function (tile) {
       tile.merged_rowcount = 0;
       return tile;
     });
 
-    manager.header = {length: 0, colsByName: {}};
+    self.header = {length: 0, colsByName: {}};
     tiles.map(function (tile) {
       if (!tile.value.header) return;
 
-      manager.header.length += tile.value.header.length;
-      manager.header.colsByName = $.extend(manager.header.colsByName, tile.value.header.colsByName);
+      self.header.length += tile.value.header.length;
+      self.header.colsByName = $.extend(self.header.colsByName, tile.value.header.colsByName);
     });
 
-    manager.data = {};
-    for (var name in manager.header.colsByName) {
-      var col = manager.header.colsByName[name];
-      manager.data[name] = new col.typespec.array(manager.header.length);
+    self.data = {};
+    for (var name in self.header.colsByName) {
+      var col = self.header.colsByName[name];
+      self.data[name] = new col.typespec.array(self.header.length);
     }
 
-    manager.rowcount = 0;
+    self.rowcount = 0;
     var tile;
     while (tile = nextTile(tiles)) {
-      for (var name in manager.data) {
+      for (var name in self.data) {
         if (tile.value.data[name] == undefined) {
-          manager.data[name][manager.rowcount] = NaN;
+          self.data[name][self.rowcount] = NaN;
         } else {
-          manager.data[name][manager.rowcount] = tile.value.data[name][tile.merged_rowcount-1];
+          self.data[name][self.rowcount] = tile.value.data[name][tile.merged_rowcount-1];
         }
       }
-      manager.rowcount++;
+      self.rowcount++;
     }
 
     var end = new Date();
-      console.log("Merge: " + ((end - start) / 1000.0).toString());
+    console.log("Merge: " + ((end - start) / 1000.0).toString());
 
   }
 });

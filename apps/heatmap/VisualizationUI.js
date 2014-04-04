@@ -1,15 +1,18 @@
 VisualizationUI = Class({
-  init: function (visualization, cb) {
+  initialize: function (visualization) {
+    var self = this;
+    self.visualization = visualization;
+  },
+
+  init: function (cb) {
     var self = this;
 
-    self.visualization = visualization;
-
     async.series([
-      function (cb) { self.initLogo(cb); },
-      function (cb) { self.initSliders(cb); },
-      function (cb) { self.initDaySlider(cb); },
-      function (cb) { self.initOffsetSlider(cb); },
-      function (cb) { self.initToggleButtons(cb); },
+      self.initLogo.bind(self),
+      self.initSliders.bind(self),
+      self.initDaySlider.bind(self),
+      self.initOffsetSlider.bind(self),
+      self.initToggleButtons.bind(self),
     ], function () { cb(); });
   },
 
@@ -30,6 +33,7 @@ VisualizationUI = Class({
 
   initSliders: function(cb) {
     $(".control").slider();
+    cb();
   },
 
   initDaySlider: function(cb) {
@@ -46,11 +50,12 @@ VisualizationUI = Class({
       self.visualization.state.setValue("time", time);
     });
 
-    self.visualization.state.on({
+    self.visualization.state.events.on({
       time: function (e) {
         daySlider.val(e.new.toString());
       },
       offset: function (e) {
+        if (!self.visualization.tiles.header.colsByName.datetime) return;
         var min = self.visualization.tiles.header.colsByName.datetime.min;
         var max = self.visualization.tiles.header.colsByName.datetime.max;
         var offset = Math.min(e.new, (max - min) / (24 * 60 * 60));
@@ -76,6 +81,8 @@ VisualizationUI = Class({
   },
 
   initOffsetSlider: function (cb) {
+    var self = this;
+
     var offsetSlider = $('#offset-slider');
     offsetSlider.change(function(event) {
       var offset = parseInt(this.value);
@@ -83,7 +90,7 @@ VisualizationUI = Class({
       self.visualization.state.setValue("offset", offset);
     });
 
-    self.visualization.params.on({
+    self.visualization.state.events.on({
       offset: function (e) {
         offsetSlider.val(e.new.toString());
       },
@@ -116,8 +123,8 @@ VisualizationUI = Class({
       }
       self.visualization.state.setValue("paused", paused);
     });
-  },
 
-  initialize: function () {}
+    cb();
+  }
 });
 
