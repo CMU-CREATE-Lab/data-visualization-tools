@@ -36,9 +36,7 @@ AnimationManager = Class({
     );
 
     self.animations = animationClasses.map(function (cls) {
-      var animation = new cls();
-      animation.init(self);
-      return animation;
+      return new cls(self);
     });
 
     cb();
