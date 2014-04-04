@@ -1,8 +1,8 @@
-Parameters = Class(Values, {
+UrlValues = Class(Values, {
   /*
     spec = {
-      latitude: {fromurl: Parameters.floatFromUrl, precision: 1000, tourl: Parameters.floatToUrl, urlname: "lat"},
-      paused: {fromurl: Parameters.boolFromUrl, tourl: Parameters.boolToUrl, urlname: "paused", trueval: "yes", falseval: "no"},
+      latitude: {fromurl: UrlValues.floatFromUrl, precision: 1000, tourl: UrlValues.floatToUrl, urlname: "lat"},
+      paused: {fromurl: UrlValues.boolFromUrl, tourl: UrlValues.boolToUrl, urlname: "paused", trueval: "yes", falseval: "no"},
       source: {urlname: "source"}, // String value, no tourl/fromurl needed
       other: {default: 4711} // Ignored as there is no urlname
     }
@@ -45,23 +45,23 @@ Parameters = Class(Values, {
   }
 });
 
-Parameters.intFromUrl = parseInt;
-Parameters.intToUrl = function (value) { return value.toString(); };
-Parameters.floatFromUrl = parseFloat;
-Parameters.floatToUrl = function (value) {
+UrlValues.intFromUrl = parseInt;
+UrlValues.intToUrl = function (value) { return value.toString(); };
+UrlValues.floatFromUrl = parseFloat;
+UrlValues.floatToUrl = function (value) {
   var spec = this;
   if (spec.precision != undefined) {
     value = Math.round(value * spec.precision)/spec.precision;
   }
   return value.toString();
 }
-Parameters.boolFromUrl = function (value) {
+UrlValues.boolFromUrl = function (value) {
   var spec = this;
   var trueval = spec.trueval || 'true';
   if (value == trueval) return true;
   return false;
 }
-Parameters.boolToUrl = function (value) {
+UrlValues.boolToUrl = function (value) {
   var spec = this;
   if (value) {
     return spec.trueval || 'true';
@@ -69,12 +69,12 @@ Parameters.boolToUrl = function (value) {
     return spec.falseval || 'false';
   }
 }
-Parameters.stringArrayFromUrl = function (value) {
+UrlValues.stringArrayFromUrl = function (value) {
   var spec = this;
   var sep = spec.sep || ",";
   return value.split(sep);
 }
-Parameters.stringArrayToUrl = function (value) {
+UrlValues.stringArrayToUrl = function (value) {
   var spec = this;
   var sep = spec.sep || ",";
   return value.join(sep);

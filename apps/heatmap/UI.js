@@ -1,4 +1,4 @@
-VisualizationUI = Class({
+UI = Class({
   initialize: function (visualization) {
     var self = this;
     self.visualization = visualization;
