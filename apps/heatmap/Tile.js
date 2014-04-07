@@ -18,7 +18,7 @@ Tile = Class({
     tile.loading_started = true;
 
     loadTypedMatrix({
-      url: tile.manager.source + "/" + tile.bounds.toBBOX() + ".bin",
+      url: tile.manager.source + "/" + tile.bounds.toBBOX(),
       header: function (data) { tile.headerLoaded(data); },
       row: function (data) { tile.rowLoaded(data); },
       batch: function () { tile.batchLoaded(); },

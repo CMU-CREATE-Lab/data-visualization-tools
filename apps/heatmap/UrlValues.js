@@ -71,6 +71,7 @@ UrlValues.boolToUrl = function (value) {
 }
 UrlValues.stringArrayFromUrl = function (value) {
   var spec = this;
+  if (value == "") return [];
   var sep = spec.sep || ",";
   return value.split(sep);
 }

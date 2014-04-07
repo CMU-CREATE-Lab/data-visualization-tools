@@ -115,14 +115,18 @@ UI = Class({
       $("#animate-button input").trigger("change");
     });
     $("#animate-button input").change(function () {
-      var paused = $("#animate-button input").val() == "true";
-      if (paused) {
+      self.visualization.state.setValue("paused", $("#animate-button input").val() == "true");
+    });
+    function setValue(e) {
+      $("#animate-button input").val(e.new ? "true" : "false");
+      if (e.new) {
         $("#animate-button").find("i").removeClass("glyphicon-pause").addClass("glyphicon-play");
       } else {
         $("#animate-button").find("i").removeClass("glyphicon-play").addClass("glyphicon-pause");
       }
-      self.visualization.state.setValue("paused", paused);
-    });
+    }
+    self.visualization.state.events.on({paused: function (e) { setValue(e.new); }});
+    setValue(self.visualization.state.getValue("paused"));
 
     cb();
   }

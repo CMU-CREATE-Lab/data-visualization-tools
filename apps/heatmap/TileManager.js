@@ -236,7 +236,8 @@ TileManager = Class({
 });
 
 /*
-tm = new TileManager("http://localhost/viirs/tiles");
+tm = new TileManager("http://127.0.0.1:8000/tiles");
+
 tm.events.on({
     "tile-error": function (data) { console.log("tile-error: " + data.exception + " @ " + data.tile.bounds.toBBOX()); },
     "batch": function (data) { console.log("batch: " + data.tile.bounds.toBBOX()); },

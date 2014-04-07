@@ -100,17 +100,10 @@ AnimationManager = Class({
     var mapDiv = document.getElementById('map-div');
     self.map = new google.maps.Map(mapDiv, mapOptions);
 
-    window.addEventListener('resize', function () {  google.maps.event.trigger(self.map, 'resize') }, false);
-
-    google.maps.event.addListener(self.map, 'center_changed', function() {
-      self.visualization.state.setValue("lat", (Math.round(self.map.getCenter().lat() * self.latlonprecision)/self.latlonprecision).toString());
-      self.visualization.state.setValue("lon", (Math.round(self.map.getCenter().lng() * self.latlonprecision)/self.latlonprecision).toString());
-      self.triggerUpdate();
-    });
-    google.maps.event.addListener(self.map, 'zoom_changed', function() {
-      self.visualization.state.setValue("zoom", self.map.getZoom().toString());
-      self.triggerUpdate();
-    });
+    window.addEventListener('resize', self.windowSizeChanged.bind(self), false);
+    google.maps.event.addListener(self.map, 'center_changed', self.centerChanged.bind(self));
+    google.maps.event.addListener(self.map, 'zoom_changed', self.zoomChanged.bind(self));
+    google.maps.event.addListener(self.map, 'bounds_changed', self.boundsChanged.bind(self));
 
     cb();
   },
@@ -131,7 +124,7 @@ AnimationManager = Class({
 
     var canvasLayerOptions = {
       map: self.map,
-      resizeHandler: function () { self.resize() },
+      resizeHandler: function () { self.canvasResize() },
       updateHandler: function () { self.update(); },
       animate: true
     };
@@ -153,7 +146,38 @@ AnimationManager = Class({
     }
   },
 
-  resize: function() {
+
+  windowSizeChanged: function () {
+    var self = this;
+    google.maps.event.trigger(self.map, 'resize');
+  },
+
+  centerChanged: function() {
+    var self = this;
+    self.visualization.state.setValue("lat", self.map.getCenter().lat());
+    self.visualization.state.setValue("lon", self.map.getCenter().lng());
+    self.triggerUpdate();
+  },
+
+  zoomChanged: function() {
+    var self = this;
+    self.visualization.state.setValue("zoom", self.map.getZoom());
+    self.triggerUpdate();
+  },
+
+  boundsChanged: function() {
+    var self = this;
+    var bounds = self.map.getBounds();
+    var ne = bounds.getNorthEast();
+    var sw = bounds.getSouthWest();
+    var latmin = sw.lat();
+    var lonmin = sw.lng();
+    var latmax = ne.lat();
+    var lonmax = ne.lng();
+    self.visualization.tiles.zoomTo(new Bounds(lonmin, latmin, lonmax, latmax));
+  },
+
+  canvasResize: function() {
     var self = this;
 
     var width = self.canvasLayer.canvas.width;
@@ -231,6 +255,7 @@ AnimationManager = Class({
     if (!self.updateNeeded && paused) {
       return;
     }
+      console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
     self.updateNeeded = false;
 
     self.updateTime(paused);
