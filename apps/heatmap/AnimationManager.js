@@ -255,7 +255,6 @@ AnimationManager = Class({
     if (!self.updateNeeded && paused) {
       return;
     }
-      console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
     self.updateNeeded = false;
 
     self.updateTime(paused);
