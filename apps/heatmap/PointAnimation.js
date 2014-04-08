@@ -84,16 +84,6 @@ PointAnimation = Class(Animation, {
   draw: function () {
     var self = this;
 
-
-    console.log({
-        length:self.manager.visualization.tiles.header.length,
-        series_count:self.series_count,
-        time: self.manager.visualization.state.getValue("time"),
-        offset: self.manager.visualization.state.getValue("offset"),
-        resolution: self.manager.visualization.state.getValue("resolution")
-    });
-
-
     self.gl.useProgram(self.program);
 
     programBindArray(self.gl, self.pointArrayBuffer, self.program, "worldCoord", 2, self.gl.FLOAT);

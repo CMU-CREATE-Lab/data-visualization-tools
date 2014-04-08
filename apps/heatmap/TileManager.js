@@ -125,10 +125,7 @@ TileManager = Class({
   handleBatch: function (tile) {
     var self = this;
 
-    self.mergeTiles();
-    var e = {update: "batch", tile: tile};
-    self.events.triggerEvent(e.update, e);
-    self.events.triggerEvent("update", e);
+    return;
   },
 
   handleFullTile: function (tile) {
