@@ -18,26 +18,28 @@ PointAnimation = Class(Animation, {
 
   updateData: function() {
     var self = this;
-    var header = self.manager.visualization.tiles.header;
-    var data = self.manager.visualization.tiles.data;
+    var tiles = self.manager.visualization.tiles;
+    var header = tiles.header;
+    var data = tiles.data;
 
-    self.series_count = 0;
+
     // For convenience we store POINT_COUNT in an element at the end
     // of the array, so that the length of each series is
     // rawSeries[i+1]-rawSeries[i].      
-    self.rawSeries = new Int32Array((header.series || 1) + 1);
+    self.rawSeries = new Int32Array(tiles.seriescount + 1);
     self.rawSeries[0] = 0;
     self.rawLatLonData = new Float32Array(header.length*2);
     self.rawColorData = new Float32Array(header.length*4);
     self.rawMagnitudeData = new Float32Array(header.length);
     self.rawTimeData = new Float32Array(header.length);
     self.lastSeries = function () {}; // Value we will never find in the data
-
+    
+    self.series_count = 0;
     for (var rowidx = 0; rowidx < header.length; rowidx++) {
-
-      if (data.series && self.lastSeries != data.series[rowidx]) {
+      var series = data.series && data.series[rowidx];
+      if (self.lastSeries != series) {
         self.series_count++;
-        self.lastSeries = data.series[rowidx];
+        self.lastSeries = series;
       }
 
       var pixel = LatLongToPixelXY(data.latitude[rowidx], data.longitude[rowidx]);
@@ -71,15 +73,6 @@ PointAnimation = Class(Animation, {
 
       self.rawSeries[self.series_count] = rowidx + 1;
     }
-
-
-    console.log({
-        length:header.length,
-        series_count:self.series_count,
-        time: self.manager.visualization.state.getValue("time"),
-        offset: self.manager.visualization.state.getValue("offset"),
-        resolution: self.manager.visualization.state.getValue("resolution")
-    });
 
     self.gl.useProgram(self.program);
     programLoadArray(self.gl, self.pointArrayBuffer, self.rawLatLonData, self.program);

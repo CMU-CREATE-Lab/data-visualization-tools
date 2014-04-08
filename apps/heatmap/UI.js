@@ -36,7 +36,7 @@ UI = Class({
     cb();
   },
 
-    daySliderUpdateMinMax: function() {
+  daySliderUpdateMinMax: function() {
     var self = this;
     var daySlider = $('#day-slider');
 

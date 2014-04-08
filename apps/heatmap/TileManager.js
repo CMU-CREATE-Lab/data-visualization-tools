@@ -2,11 +2,11 @@ TileManager = Class({
   initialize: function(source) {
     var self = this;
     self.source = source;
-
     self.tiles = {};
     self.header = {length: 0, colsByName: {}};
     self.data = {};
-
+    self.rowcount = 0;
+    self.seriescount = 0;
     self.events = new Events();
   },
 
@@ -209,6 +209,7 @@ TileManager = Class({
     });
 
     self.header = {length: 0, colsByName: {}};
+    // FIXME: Handle min/max values correctly here!!!!
     tiles.map(function (tile) {
       if (!tile.value.header) return;
 
@@ -223,6 +224,8 @@ TileManager = Class({
     }
 
     self.rowcount = 0;
+    self.seriescount = 0;
+    var lastSeries = function () {}; // Magic unique value
     var tile;
     while (tile = nextTile(tiles)) {
       for (var name in self.data) {
@@ -233,6 +236,10 @@ TileManager = Class({
         }
       }
       self.rowcount++;
+      if (tile.value.data.series != lastSeries) {
+        self.seriescount++;
+        lastSeries = tile.value.data.series;
+      }
     }
 
     var end = new Date();
