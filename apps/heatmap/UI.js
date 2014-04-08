@@ -36,6 +36,25 @@ UI = Class({
     cb();
   },
 
+    daySliderUpdateMinMax: function() {
+    var self = this;
+    var daySlider = $('#day-slider');
+
+    if (!self.visualization.tiles.header.colsByName.datetime) return;
+    var min = self.visualization.tiles.header.colsByName.datetime.min;
+    var max = self.visualization.tiles.header.colsByName.datetime.max;
+    var offset = self.visualization.state.getValue("offset");
+
+    offset = Math.min(offset, (max - min) / (24 * 60 * 60));
+
+    daySlider.attr({"data-min": min + offset * 24 * 60 * 60});
+    daySlider.attr({"data-max": max});
+
+    if (self.visualization.state.getValue("time") < min + offset * 24 * 60 * 60) {
+      self.visualization.state.setValue("time", offset);
+    }
+  },
+
   initDaySlider: function(cb) {
     var self = this;
 
@@ -50,23 +69,15 @@ UI = Class({
       self.visualization.state.setValue("time", time);
     });
 
+
     self.visualization.state.events.on({
       time: function (e) {
         daySlider.val(e.new.toString());
       },
-      offset: function (e) {
-        if (!self.visualization.tiles.header.colsByName.datetime) return;
-        var min = self.visualization.tiles.header.colsByName.datetime.min;
-        var max = self.visualization.tiles.header.colsByName.datetime.max;
-        var offset = Math.min(e.new, (max - min) / (24 * 60 * 60));
-
-        daySlider.attr({"data-min": min + offset * 24 * 60 * 60});
-
-        if (self.visualization.state.getValue("time") < min + offset * 24 * 60 * 60) {
-          self.visualization.state.setValue("time", offset);
-        }
-      }
+      offset: self.daySliderUpdateMinMax.bind(self)
     });
+    self.visualization.tiles.events.on({update: self.daySliderUpdateMinMax.bind(self)});
+
 
     var handle = daySlider.parent(".control").find(".handle");
     handle.mousedown(function(event) {

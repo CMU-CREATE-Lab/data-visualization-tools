@@ -126,7 +126,9 @@ TileManager = Class({
     var self = this;
 
     self.mergeTiles();
-    self.events.triggerEvent("batch", {"tile": tile});
+    var e = {update: "batch", tile: tile};
+    self.events.triggerEvent(e.update, e);
+    self.events.triggerEvent("update", e);
   },
 
   handleFullTile: function (tile) {
@@ -135,14 +137,17 @@ TileManager = Class({
     self.mergeTiles();
 
     var all_done = self.getTiles(
-      ).map(function (tile) { return tile.value.header.length == tile.value.rowcount }
+      ).map(function (tile) { return tile.value.header && tile.value.header.length == tile.value.rowcount }
       ).reduce(function (a, b) { return a && b; });
 
+    var e;
     if (all_done) {
-      self.events.triggerEvent("all");
+      e = {update: "all"};
     } else {
-      self.events.triggerEvent("full-tile", {"tile": tile});
+      e = {update: "full-tile", tile: tile};
     }
+    self.events.triggerEvent(e.update, e);
+    self.events.triggerEvent("update", e);
   },
 
   handleTileError: function (data, tile) {
@@ -185,6 +190,7 @@ TileManager = Class({
     }
 
     function nextTile(tiles) {
+      if (!tiles.length) return undefined;
       res = tiles.reduce(function (a, b) {
         if (a.value.data == undefined || b.merged_rowcount >= b.value.rowcount) return a;
         if (b.value.data == undefined || a.merged_rowcount >= a.value.rowcount) return b;

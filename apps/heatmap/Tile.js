@@ -3,7 +3,6 @@ Tile = Class({
     var tile = this;
     tile.manager = manager;
     tile.bounds = bounds;
-    tile.header = {};
     tile.data = {};
     tile.rowcount = 0;
     tile.loaded = {};

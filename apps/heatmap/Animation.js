@@ -2,6 +2,11 @@ Animation = Class({
   initialize: function(manager) {
     var self = this;
     self.manager = manager;
+    self.manager.visualization.tiles.events.on({
+      "batch": self.updateData.bind(self),
+      "full-tile": self.updateData.bind(self),
+      "all": self.updateData.bind(self)
+    });
   },
 
   initGl: function(gl, cb) {
@@ -10,9 +15,8 @@ Animation = Class({
     cb();
   },
 
-  header: function(header) {},
-  row: function(rowidx, data) {},
-  batch: function() {},
+  updateData: function () {},
+
   draw: function () {}
 });
 
