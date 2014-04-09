@@ -1,20 +1,26 @@
-Bounds = Class({
-  initialize: function (left, bottom, right, top) {
-    this.left = left;
-    this.bottom = bottom;
-    this.right = right;
-    this.top = top;
-  },
+define(["Class"], function(Class) {
+  return Class({
+    initialize: function (left, bottom, right, top) {
+      var self = this;
+      self.left = left;
+      self.bottom = bottom;
+      self.right = right;
+      self.top = top;
+    },
 
-  getWidth: function () {
-    return this.right - this.left;
-  },
+    getWidth: function () {
+      var self = this;
+      return self.right - self.left;
+    },
 
-  getHeight: function () {
-    return this.top - this.bottom;
-  },
+    getHeight: function () {
+      var self = this;
+      return self.top - self.bottom;
+    },
 
-  toBBOX: function () {
-    return this.left + "," + this.bottom + "," + this.right + "," + this.top;
-  }
+    toBBOX: function () {
+      var self = this;
+      return self.left + "," + self.bottom + "," + self.right + "," + self.top;
+    }
+  });
 });

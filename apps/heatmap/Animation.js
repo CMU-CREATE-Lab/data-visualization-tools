@@ -1,23 +1,27 @@
-Animation = Class({
-  initialize: function(manager) {
-    var self = this;
-    self.manager = manager;
-    self.manager.visualization.tiles.events.on({
-      "batch": self.updateData.bind(self),
-      "full-tile": self.updateData.bind(self),
-      "all": self.updateData.bind(self)
-    });
-  },
+define(["Class"], function(Class) {
+  var Animation = Class({
+    initialize: function(manager) {
+      var self = this;
+      self.manager = manager;
+      self.manager.visualization.tiles.events.on({
+        "batch": self.updateData.bind(self),
+        "full-tile": self.updateData.bind(self),
+        "all": self.updateData.bind(self)
+      });
+    },
 
-  initGl: function(gl, cb) {
-    var self = this;
-    self.gl = gl;
-    cb();
-  },
+    initGl: function(gl, cb) {
+      var self = this;
+      self.gl = gl;
+      cb();
+    },
 
-  updateData: function () {},
+    updateData: function () {},
 
-  draw: function () {}
+    draw: function () {}
+  });
+
+  Animation.animationClasses = {};
+
+  return Animation;
 });
-
-Animation.animationClasses = {};
