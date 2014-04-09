@@ -1,4 +1,4 @@
-define(["Class", "Visualization/Animation", "Visualization/PointAnimation"], function(Class, Animation, PointAnimation) {
+define(["Class", "Visualization/Animation/Animation", "Visualization/Animation/PointAnimation"], function(Class, Animation, PointAnimation) {
   var LineAnimation = Class(PointAnimation, {
     getDrawMode: function () {
       var self = this;

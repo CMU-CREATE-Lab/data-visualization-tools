@@ -1,11 +1,11 @@
-define(["Class", "GeoProjection", "Shader", "Visualization/Animation"], function(Class, GeoProjection, Shader, Animation) {
+define(["Class", "GeoProjection", "Shader", "Visualization/Animation/Animation"], function(Class, GeoProjection, Shader, Animation) {
   var PointAnimation = Class(Animation, {
     magnitudeScale: 0.1,
 
     initGl: function(gl, cb) {
       var self = this;
       self.gl = gl;
-      Shader.createShaderProgramFromUrl(self.gl, "Visualization/PointAnimation-vertex.glsl", "Visualization/PointAnimation-fragment.glsl", function (program) {
+      Shader.createShaderProgramFromUrl(self.gl, "Visualization/Animation/PointAnimation-vertex.glsl", "Visualization/Animation/PointAnimation-fragment.glsl", function (program) {
         self.program = program;
 
         self.pointArrayBuffer = self.gl.createBuffer();
