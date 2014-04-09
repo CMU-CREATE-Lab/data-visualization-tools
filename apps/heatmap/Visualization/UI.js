@@ -20,8 +20,8 @@ define(["Class", "Visualization/sliders"], function(Class) {
     initLogo: function(cb) {
       var self = this;
 
-      var logo_img = getParameter("logoimg");
-      var logo_url = getParameter("logourl");
+      var logo_img = self.visualization.state.getValue("logoimg");
+      var logo_url = self.visualization.state.getValue("logourl");
 
       if (logo_img) {
         var logo = $("<a class='logo'><img></a>");

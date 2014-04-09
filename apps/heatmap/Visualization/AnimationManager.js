@@ -1,4 +1,4 @@
-define(["Class", "Bounds", "Visualization/Animation", "Visualization/PointAnimation", "Visualization/LineAnimation" /* , "Visualization/ArrowAnimation" */], function(Class, Bounds, Animation) {
+define(["Class", "Bounds", "Matrix", "Visualization/Animation", "Visualization/PointAnimation", "Visualization/LineAnimation" /* , "Visualization/ArrowAnimation" */], function(Class, Bounds, Matrix, Animation) {
   return Class({
     initialize: function (visualization) {
       var self = this;
@@ -235,10 +235,10 @@ define(["Class", "Bounds", "Visualization/Animation", "Visualization/PointAnimat
       self.mapMatrix.set(self.pixelsToWebGLMatrix);
 
       var scale = self.canvasLayer.getMapScale();
-      scaleMatrix(self.mapMatrix, scale, scale);
+      Matrix.scaleMatrix(self.mapMatrix, scale, scale);
 
       var translation = self.canvasLayer.getMapTranslation();
-      translateMatrix(self.mapMatrix, translation.x, translation.y);
+      Matrix.translateMatrix(self.mapMatrix, translation.x, translation.y);
     },
 
     update: function() {

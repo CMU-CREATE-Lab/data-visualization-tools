@@ -11,6 +11,8 @@ define(["Class", "Values", "UrlValues", "Data/TileManager", "Visualization/Anima
       paused: {default: true, fromurl: UrlValues.boolFromUrl, tourl: UrlValues.boolToUrl, urlname: "paused"},
       source: {urlname: "source"},
       nowebgl: {urlname: "nowebgl"},
+      logoimg: {urlname: "logoimg"},
+      logourl: {urlname: "logourl"},
 
       timeresolution: {default: 60*60*24}
     },
@@ -21,7 +23,7 @@ define(["Class", "Values", "UrlValues", "Data/TileManager", "Visualization/Anima
       self.state = new Values(self.paramspec);
       self.urlhandler = new UrlValues(self.state, self.paramspec);
 
-      self.tiles = new TileManager(getParameter("source"));
+      self.tiles = new TileManager(self.state.getValue("source"));
       self.animations = new AnimationManager(self);
       self.ui = new UI(self);
 

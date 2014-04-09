@@ -1,3 +1,10 @@
+/* This class uses the location hash to store "bookmarkable" data from
+ * a Values class, using the same format as an URL query.
+ *
+ * Examples:
+ * http://example.com/index.html#name=value&someothername=foo%20bar
+ */
+
 define(["Class"], function(Class) {
   var UrlValues = Class({
     /*
@@ -26,7 +33,7 @@ define(["Class"], function(Class) {
       var val = e.new;
       if (spec.tourl) val = spec.tourl.call(spec, val);
       if (val != undefined) val = val.toString();
-      setParameter(spec.urlname, val);
+      UrlValues.setParameter(spec.urlname, val);
     },
 
     updateValues: function () {
@@ -35,7 +42,7 @@ define(["Class"], function(Class) {
       Object.items(self.spec).map(function (spec) {
         var paramname = spec.key; spec = spec.value;
         if (spec.urlname == undefined) return;
-        var value = getParameter(spec.urlname);
+        var value = UrlValues.getParameter(spec.urlname);
         if (value == undefined) {
           value = spec.default;
         } else if (spec.fromurl) {
@@ -45,6 +52,28 @@ define(["Class"], function(Class) {
       });
     }
   });
+
+  UrlValues.getParameter = function(name) {
+    name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+    var regex = new RegExp("[#&]" + name + "=([^&]*)"),
+    results = regex.exec(location.hash);
+    return results == null ? undefined : decodeURIComponent(results[1].replace(/\+/g, " "));
+  };
+
+  UrlValues.setParameter = function(name, value) {
+    var rname = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+    var regex = new RegExp("[#&]" + rname + "=([^&]*)");
+    var replacement = "";
+    if (value != null && value != undefined) {
+      replacement = "&" + name + "=" + encodeURIComponent(value);
+    }
+    if (regex.exec(location.hash) == null) {
+      location.hash = "#" + (location.hash + replacement).substr(1);    
+    } else {
+      results = location.hash.replace(regex, replacement);
+      location.hash = "#" + results.substr(1);
+    }
+  }
 
   UrlValues.intFromUrl = parseInt;
   UrlValues.intToUrl = function (value) { return value.toString(); };

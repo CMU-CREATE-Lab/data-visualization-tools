@@ -1,4 +1,4 @@
-define(["Class", "Events"], function(Class, Events) {
+define(["Class", "Events", "Data/TypedMatrixFormat"], function(Class, Events, TypedMatrixFormat) {
   return Class({
     initialize: function(manager, bounds) {
       var tile = this;
@@ -17,7 +17,7 @@ define(["Class", "Events"], function(Class, Events) {
       if (tile.loading_started) return;
       tile.loading_started = true;
 
-      loadTypedMatrix({
+      TypedMatrixFormat({
         url: tile.manager.source + "/" + tile.bounds.toBBOX(),
         header: function (data) { tile.headerLoaded(data); },
         row: function (data) { tile.rowLoaded(data); },
