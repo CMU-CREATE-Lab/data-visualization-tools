@@ -7,7 +7,7 @@ where /data/bin/viirs-flaring-2013-12-10.bin is an URL to the binary file to vis
 
 # Libraries
 
-External libraries are placed under 'js/libs'. All visualization and data loading code is packaged as RequireJS modules and are located under 'js/app'.
+External libraries are placed under `js/libs`. All visualization and data loading code is packaged as RequireJS modules and are located under `js/app`.
 
 # Example data
 
