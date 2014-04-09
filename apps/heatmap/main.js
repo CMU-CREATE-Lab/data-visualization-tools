@@ -9,7 +9,7 @@ $(document).ready(function () {
 */
 
   require.config({
-    baseUrl: window.location.pathname.split("/").slice(0, -1).join("/"),
+    baseUrl: window.location.pathname.split("/").slice(0, -3).concat(["js", "app"]).join("/")
   });
 
   require(["Visualization/Visualization"], function (Visualization) {
