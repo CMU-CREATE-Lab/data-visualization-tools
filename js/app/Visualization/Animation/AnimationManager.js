@@ -4,6 +4,8 @@ define(["Class", "Bounds", "Visualization/Matrix", "Visualization/Animation/Anim
       var self = this;
 
       self.visualization = visualization;
+
+      self.glInitialized = false;
     },
 
     init: function (cb) {
@@ -17,15 +19,14 @@ define(["Class", "Bounds", "Visualization/Matrix", "Visualization/Animation/Anim
       self.pixelsToWebGLMatrix = new Float32Array(16);
       self.mapMatrix = new Float32Array(16);
 
-      self.visualization.state.events.on({set: self.triggerUpdate, scope: self});
-
       async.series([
         self.initAnimations.bind(self),
         self.initMap.bind(self),
         self.initOverlay.bind(self),
         self.initCanvas.bind(self),
         self.initStats.bind(self),
-        self.initAnimationsGL.bind(self)
+        self.initAnimationsGL.bind(self),
+        self.initUpdates.bind(self)
       ], cb);
     },
 
@@ -41,18 +42,6 @@ define(["Class", "Bounds", "Visualization/Matrix", "Visualization/Animation/Anim
       });
 
       cb();
-    },
-
-    initAnimationsGL: function (cb) {
-      var self = this;
-
-      async.map(
-        self.animations,
-        function (animation, cb) { animation.initGl(self.gl, cb); },
-        function(err, results){
-          cb();
-        }
-      );
     },
 
     initStats: function (cb) {
@@ -147,6 +136,31 @@ define(["Class", "Bounds", "Visualization/Matrix", "Visualization/Animation/Anim
       }
     },
 
+
+    initAnimationsGL: function (cb) {
+      var self = this;
+      async.map(
+        self.animations,
+        function (animation, cb) { animation.initGl(self.gl, cb); },
+        function(err, results){
+          self.glInitialized = true;
+          cb();
+        }
+      );
+    },
+
+    initUpdates: function (cb) {
+      var self = this;
+
+      async.map(
+        self.animations,
+        function (animation, cb) { animation.initUpdates(cb); },
+        function(err, results){
+          self.visualization.state.events.on({set: self.triggerUpdate, scope: self});
+          cb();
+        }
+      );
+    },
 
     windowSizeChanged: function () {
       var self = this;
@@ -243,6 +257,8 @@ define(["Class", "Bounds", "Visualization/Matrix", "Visualization/Animation/Anim
 
     update: function() {
       var self = this;
+
+      if (!self.glInitialized) return;
 
       var paused = self.visualization.state.getValue("paused");
       if (!self.visualization.tiles.header.colsByName.datetime) paused = true;
