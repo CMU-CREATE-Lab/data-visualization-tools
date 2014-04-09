@@ -1,11 +1,11 @@
-define(["Class", "Animation"], function(Class, Animation) {
+define(["Class", "Visualization/Animation"], function(Class, Animation) {
   var PointAnimation = Class(Animation, {
     magnitudeScale: 0.1,
 
     initGl: function(gl, cb) {
       var self = this;
       self.gl = gl;
-      createShaderProgramFromUrl(self.gl, "PointAnimation-vertex.glsl", "PointAnimation-fragment.glsl", function (program) {
+      createShaderProgramFromUrl(self.gl, "Visualization/PointAnimation-vertex.glsl", "Visualization/PointAnimation-fragment.glsl", function (program) {
         self.program = program;
 
         self.pointArrayBuffer = self.gl.createBuffer();

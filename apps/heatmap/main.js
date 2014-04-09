@@ -12,7 +12,7 @@ $(document).ready(function () {
     baseUrl: window.location.pathname.split("/").slice(0, -1).join("/"),
   });
 
-  require(["Visualization"], function (Visualization) {
+  require(["Visualization/Visualization"], function (Visualization) {
     visualization = new Visualization();
   });
 });

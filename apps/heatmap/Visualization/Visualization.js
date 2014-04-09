@@ -1,4 +1,4 @@
-define(["Class", "Values", "UrlValues", "TileManager", "AnimationManager", "UI"], function(Class, Values, UrlValues, TileManager, AnimationManager, UI) {
+define(["Class", "Values", "UrlValues", "Data/TileManager", "Visualization/AnimationManager", "Visualization/UI"], function(Class, Values, UrlValues, TileManager, AnimationManager, UI) {
   return Class({
     paramspec: {
       zoom: {default: 4, fromurl: UrlValues.intFromUrl, tourl: UrlValues.intToUrl, urlname: "zoom"},

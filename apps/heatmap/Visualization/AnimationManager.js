@@ -1,4 +1,4 @@
-define(["Class", "Bounds", "Animation", "PointAnimation", "LineAnimation" /* , "ArrowAnimation" */], function(Class, Bounds, Animation) {
+define(["Class", "Bounds", "Visualization/Animation", "Visualization/PointAnimation", "Visualization/LineAnimation" /* , "Visualization/ArrowAnimation" */], function(Class, Bounds, Animation) {
   return Class({
     initialize: function (visualization) {
       var self = this;

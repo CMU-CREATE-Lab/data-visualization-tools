@@ -1,4 +1,4 @@
-define(["Class", "sliders"], function(Class) {
+define(["Class", "Visualization/sliders"], function(Class) {
   return Class({
     initialize: function (visualization) {
       var self = this;
