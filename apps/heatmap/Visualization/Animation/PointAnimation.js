@@ -1,4 +1,4 @@
-define(["Class", "GeoProjection", "Shader", "Visualization/Animation/Animation"], function(Class, GeoProjection, Shader, Animation) {
+define(["Class", "Visualization/GeoProjection", "Visualization/Shader", "Visualization/Animation/Animation"], function(Class, GeoProjection, Shader, Animation) {
   var PointAnimation = Class(Animation, {
     magnitudeScale: 0.1,
 
