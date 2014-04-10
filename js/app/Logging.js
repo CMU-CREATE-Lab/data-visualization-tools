@@ -1,4 +1,4 @@
-define(["Class", "UrlValues"], function(Class, UrlValues) {
+define(["Class", "UrlValues", "stacktrace"], function(Class, UrlValues, stacktrace) {
   print = function () {};
   if (typeof(console) != "undefined" && typeof(console.log) != "undefined") {
     print = console.log.bind(console);
@@ -54,7 +54,7 @@ define(["Class", "UrlValues"], function(Class, UrlValues) {
       arg.category = category;
 
       if (self.store_time) arg.time = new Date();
-      if (self.store_stack) arg.stack = printStackTrace().slice(4);
+      if (self.store_stack) arg.stack = stacktrace().slice(4);
       if (self._filter[category]) return self._filter[category](arg);
 
       category = category.split(".");

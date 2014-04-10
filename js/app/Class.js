@@ -1,6 +1,6 @@
 /* Class code adapted from OpenLayers; Published under the 2-clause BSD license. See license.txt in the OpenLayers distribution. */
 
-define([], function() {
+define(['jQuery'], function($) {
   var inherit = function(cls, parent) {
     var F = function() {};
     F.prototype = parent.prototype;

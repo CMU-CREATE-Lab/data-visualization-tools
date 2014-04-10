@@ -1,4 +1,4 @@
-define(["Class", "Bounds", "Visualization/Matrix", "Visualization/Animation/Animation", "Visualization/Animation/PointAnimation", "Visualization/Animation/LineAnimation" /* , "Visualization/Animation/ArrowAnimation" */], function(Class, Bounds, Matrix, Animation) {
+define(["Class", "Bounds", "async", "jQuery", "Visualization/Matrix", "CanvasLayer", "Stats", "Visualization/Animation/Animation", "Visualization/Animation/PointAnimation", "Visualization/Animation/LineAnimation" /* , "Visualization/Animation/ArrowAnimation" */], function(Class, Bounds, async, $, Matrix, CanvasLayer, Stats, Animation) {
   return Class({
     initialize: function (visualization) {
       var self = this;

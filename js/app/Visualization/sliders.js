@@ -1,4 +1,4 @@
-define([], function() {
+define(["jQuery"], function($) {
   $.fn.slider = function () {
     this.each(function () {
       (function (control) {

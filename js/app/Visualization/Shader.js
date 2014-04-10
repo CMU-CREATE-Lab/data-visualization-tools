@@ -1,4 +1,4 @@
-define(["Class"], function(Class) {
+define(["Class", "async", "jQuery"], function(Class, async, $) {
   var Shader = {};
 
   /* Load array data into gl buffers and bind that buffer to a shader

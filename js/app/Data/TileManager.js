@@ -10,7 +10,7 @@
   tm.zoomTo(new Bounds(0, 0, 11.25, 11.25));
 */
 
-define(["Class", "Events", "Bounds", "Data/Tile"], function(Class, Events, Bounds, Tile) {
+define(["Class", "Events", "Bounds", "Data/Tile", "jQuery", "LangExtensions"], function(Class, Events, Bounds, Tile, $) {
   return Class({
     initialize: function(source) {
       var self = this;
