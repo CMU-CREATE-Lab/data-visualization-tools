@@ -42,126 +42,171 @@
    decoding.
 */
 
-define([], function () {
-  return function(opts) {
-    typemap = {
-      'Int32': {'size': Int32Array.BYTES_PER_ELEMENT, 'array': Float32Array, 'method': 'getInt32'},
-      'Float32': {'size': Float32Array.BYTES_PER_ELEMENT, 'array': Float32Array, 'method': 'getFloat32'},
-    }
+define(["Class", "Events"], function (Class, Events) {
+  TypedMatrixFormat = Class({
+    initialize: function(url) {
+      var self = this;
+      self.url = url;
+      self.events = new Events();
+    },
 
-    var header = null;
-    var headerLen = null;
-    var offset = 0;
-    var rowidx = 0;
-    var rowLen = null;
-    var request = null;
-    var responseData = null;
+    load: function () {
+      var self = this;
 
-    if (window.XMLHttpRequest) {
-      request = new XMLHttpRequest();
-    } else {
-      throw 'XMLHttpRequest is disabled';
-    }
-  /*
-    if (request.responseType === undefined) {
-      throw 'no support for binary files';
-    }
-  */
+      self.header = null;
+      self.headerLen = null;
+      self.offset = 0;
+      self.rowidx = 0;
+      self.rowLen = null;
+      self.request = null;
+      self.responseData = null;
 
-    function writeStringToArrayBuffer(str, start, end, buf, bufstart) {
+      if (window.XMLHttpRequest) {
+        self.request = new XMLHttpRequest();
+      } else {
+        throw 'XMLHttpRequest is disabled';
+      }
+      /*
+        if (request.responseType === undefined) {
+          throw 'no support for binary files';
+        }
+      */
+
+      self.request.open('GET', self.url, true);
+      self.request.overrideMimeType('text\/plain; charset=x-user-defined');
+      self.request.send(null);
+      var handleDataCallback = function () {
+        if (!self.handleData()) {
+          setTimeout(handleDataCallback, 500);
+        }
+      }
+      setTimeout(handleDataCallback, 500);
+
+    },
+
+    writeStringToArrayBuffer: function(str, start, end, buf, bufstart) {
       if (end == undefined) end = str.length;
       if (start == undefined) start = 0;
       if (bufstart == undefined) bufstart = start;
       for (var i = start; i < end; i++) buf[i - start + bufstart] = str.charCodeAt(i) & 0xff;
-    }
+    },
 
-    function stringToArrayBuffer(str, start, end) {
+    stringToArrayBuffer: function(str, start, end) {
+      var self = this;
+
       if (end == undefined) end = str.length;
       if (start == undefined) start = 0;
       var res = new Uint8ClampedArray(end - start);
-      writeStringToArrayBuffer(str, start, end, res, 0);
+      self.writeStringToArrayBuffer(str, start, end, res, 0);
       return res.buffer;
-    }
+    },
 
-    function arrayBuffer2String(buf) {
+    arrayBuffer2String: function(buf) {
       return String.fromCharCode.apply(null, new Uint8Array(buf));
-    }
+    },
 
+    headerLoaded: function (data) {
+      var self = this;
+      self.events.triggerEvent("header", data);
+    },
 
-    var handleData = function () {
-      if (!request) return;
+    rowLoaded: function(data) {
+      var self = this;
+      self.events.triggerEvent("row", data);
+    },
 
-      if (request.readyState == 4) {
+    batchLoaded: function () {
+      var self = this;
+
+      self.events.triggerEvent("batch");
+    },
+
+    allLoaded: function () {
+      var self = this;
+      self.events.triggerEvent("all");
+    },
+
+    errorLoading: function (exception) {
+      var self = this;
+
+      self.error = exception;
+      self.events.triggerEvent("error", {"exception": exception});
+    },
+
+    handleData: function() {
+      var self = this;
+
+      if (!self.request) return;
+
+      if (self.request.readyState == 4) {
         /* HTTP reports success with a 200 status. The file protocol
            reports success with zero. HTTP does not use zero as a status
            code (they start at 100).
            https://developer.mozilla.org/En/Using_XMLHttpRequest */
-        if (request.status != 200 && request.status != 0) {
-          opts.error && opts.error('could not load: ' + opts.url);
+        if (self.request.status != 200 && self.request.status != 0) {
+          self.errorLoading({msg: 'could not load: ' + self.url, status: self.request.status});
           return true;
         }
       }
 
-      if (!request.responseText) return;
+      if (!self.request.responseText) return;
 
-      var length = request.responseText.length;
-      var text = request.responseText;
+      var length = self.request.responseText.length;
+      var text = self.request.responseText;
 
       if (length < 4) return;
-      if (headerLen == null) {
-        headerLen = new DataView(stringToArrayBuffer(text, 0, 4)).getInt32(0, true);
-        offset = 4;
+      if (self.headerLen == null) {
+        self.headerLen = new DataView(self.stringToArrayBuffer(text, 0, 4)).getInt32(0, true);
+        self.offset = 4;
       }
-      if (length < offset + headerLen) return;
-      if (header == null) {
-        header = JSON.parse(text.substr(offset, headerLen));
+      if (length < self.offset + self.headerLen) return;
+      if (self.header == null) {
+        self.header = JSON.parse(text.substr(self.offset, self.headerLen));
 
-        rowLen = 0;
-        header.colsByName = {};
-        for (var colidx = 0; colidx < header.cols.length; colidx++) {
-          var col = header.cols[colidx];
+        self.rowLen = 0;
+        self.header.colsByName = {};
+        for (var colidx = 0; colidx < self.header.cols.length; colidx++) {
+          var col = self.header.cols[colidx];
           col.idx = colidx;
-          header.colsByName[col.name] = col;
-          col.typespec = typemap[col.type];
-          rowLen += col.typespec.size;
+          self.header.colsByName[col.name] = col;
+          col.typespec = TypedMatrixFormat.typemap[col.type];
+          self.rowLen += col.typespec.size;
         };
 
-        offset = 4 + headerLen;
-        opts.header && opts.header(header);
+        self.offset = 4 + self.headerLen;
+        self.headerLoaded(self.header);
       }
-      if (responseData == null) {
+      if (self.responseData == null) {
         // Yes, I'm lazy and allocate space for the header to, but we
-        // never write it, just to not have to bother about two offsets
-        responseData = new Uint8ClampedArray(offset + (rowLen * header.length));
+        // never write it, just to not have to bother about two self.offsets
+        self.responseData = new Uint8ClampedArray(self.offset + (self.rowLen * self.header.length));
       }
-      writeStringToArrayBuffer(text, offset, undefined, responseData);
+      self.writeStringToArrayBuffer(text, self.offset, undefined, self.responseData);
 
-      var dataView = new DataView(responseData.buffer);
+      var dataView = new DataView(self.responseData.buffer);
 
-      for (; offset + rowLen <= length; rowidx++) {
+      for (; self.offset + self.rowLen <= length; self.rowidx++) {
         var row = {};
-        for (var colidx = 0; colidx < header.cols.length; colidx++) {
-          var col = header.cols[colidx];
-          row[col.name] = dataView[col.typespec.method](offset, true);
-          offset += col.typespec.size;
+        for (var colidx = 0; colidx < self.header.cols.length; colidx++) {
+          var col = self.header.cols[colidx];
+          row[col.name] = dataView[col.typespec.method](self.offset, true);
+          self.offset += col.typespec.size;
         }
-        opts.row && opts.row(row);
+        self.rowLoaded(row);
       }
-      opts.batch && opts.batch();
-      if (rowidx == header.length) {
-        opts.done && opts.done();
+      if (self.rowidx == self.header.length) {
+        self.allLoaded();
         return true;
-      }
-    };
-
-    request.open('GET', opts.url, true);
-    request.overrideMimeType('text\/plain; charset=x-user-defined');
-    request.send(null);
-    var handleDataCallback = function () {
-      if (!handleData()) {
-        setTimeout(handleDataCallback, 500);
+      } else {
+        self.batchLoaded();
       }
     }
-    setTimeout(handleDataCallback, 500);
-  }
+  });
+
+  TypedMatrixFormat.typemap = {
+    'Int32': {'size': Int32Array.BYTES_PER_ELEMENT, 'array': Float32Array, 'method': 'getInt32'},
+    'Float32': {'size': Float32Array.BYTES_PER_ELEMENT, 'array': Float32Array, 'method': 'getFloat32'},
+  };
+
+  return TypedMatrixFormat;
 });
