@@ -1,15 +1,14 @@
 define(["Class", "Events", "Data/TypedMatrixParser", "Data/Format"], function(Class, Events, TypedMatrixParser, Format) {
   var BinFormat = Class(TypedMatrixParser, {
-    initialize: function(manager, bounds) {
+    initialize: function(source) {
       var self = this;
-      self.manager = manager;
-      self.bounds = bounds;
+      self.source = source;
       self.data = {};
       self.rowcount = 0;
       self.loaded = {};
       self.loading_started = false;
      
-      TypedMatrixParser.prototype.initialize.call(self, self.manager.source + "/" + self.bounds.toBBOX());
+      TypedMatrixParser.prototype.initialize.call(self, self.source);
     },
 
     load: function() {
