@@ -36,13 +36,39 @@
 
    f = new TypedMatrixFormat(source_url);
    f.events.on({
-     header: function (headerData) {}, // headerData is also available in f.header during and after this event fires.
+     header: function (headerData) {},
      row: function (rowData) {},
      batch: function () {},
      all: function () {},
      error: function (error) { console.log(error.exception); },
    });
    f.load();
+
+   The header data is available in f.header during and after the
+   header event fires, in addition to being sent as a parameter to
+   that event. The header data is the same as the header data found in
+   the binary, with one extra member added, colsByName, which contains
+   a json object with column names as keys and the column specs from
+   cols as values.
+
+   In addition, the COL column specifications are updated as
+   following:
+
+   Any min and max entries are updated using offset and
+   multiplier, if they exist.
+
+   A typespec member is added, which contains the type from
+   TypedMatrixFormat.typemap corresponding to the type
+   specified for the column.
+
+   Type specifications in TypedMatrixFormat.typemap have the following
+   format:
+
+   {
+     size: BYTES_PER_ELEMENT,
+     array: ArrayClass,
+     method: 'dataViewAccessorMethodName'
+   }
 
 
    Implementation details/explanation for this ugly code:
@@ -57,12 +83,6 @@ define(["Class", "Events"], function (Class, Events) {
   TypedMatrixFormat = Class({
     initialize: function(url) {
       var self = this;
-      self.url = url;
-      self.events = new Events();
-    },
-
-    load: function () {
-      var self = this;
 
       self.header = {length: 0, colsByName: {}};
       self._headerLoaded = false;
@@ -72,6 +92,13 @@ define(["Class", "Events"], function (Class, Events) {
       self.rowLen = null;
       self.request = null;
       self.responseData = null;
+
+      self.url = url;
+      self.events = new Events();
+    },
+
+    load: function () {
+      var self = this;
 
       if (window.XMLHttpRequest) {
         self.request = new XMLHttpRequest();
@@ -129,13 +156,16 @@ define(["Class", "Events"], function (Class, Events) {
 
     batchLoaded: function () {
       var self = this;
-
-      self.events.triggerEvent("batch");
+      var e = {update: "batch"};
+      self.events.triggerEvent("batch", e);
+      self.events.triggerEvent("update", e);
     },
 
     allLoaded: function () {
       var self = this;
-      self.events.triggerEvent("all");
+      var e = {update: "all"};
+      self.events.triggerEvent("all", e);
+      self.events.triggerEvent("update", e);
     },
 
     errorLoading: function (exception) {
@@ -174,7 +204,6 @@ define(["Class", "Events"], function (Class, Events) {
       if (length < self.offset + self.headerLen) return;
       if (!self._headerLoaded) {
         self.header = JSON.parse(text.substr(self.offset, self.headerLen));
-          console.log(self.header);
         self.rowLen = 0;
         self.header.colsByName = {};
         for (var colidx = 0; colidx < self.header.cols.length; colidx++) {
@@ -182,6 +211,12 @@ define(["Class", "Events"], function (Class, Events) {
           col.idx = colidx;
           self.header.colsByName[col.name] = col;
           col.typespec = TypedMatrixFormat.typemap[col.type];
+
+          if (col.multiplier != undefined && col.min != undefined) col.min = col.min * col.multiplier;
+          if (col.offset != undefined && col.min != undefined) col.min = col.min + col.offset;
+          if (col.multiplier != undefined && col.max != undefined) col.max = col.max * col.multiplier;
+          if (col.offset != undefined && col.max != undefined) col.max = col.max + col.offset;
+
           self.rowLen += col.typespec.size;
         };
 

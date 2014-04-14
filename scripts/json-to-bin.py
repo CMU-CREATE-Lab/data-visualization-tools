@@ -85,6 +85,12 @@ for i, d in enumerate(data):
     if i % 1000 == 0:
         print "%.2f%%" % (100 * float(i) / datalen)
 
+if 'colsByName' in header:
+    colsByName = header.pop("colsByName")
+    for key in cols:
+        if key in colsByName:
+            cols[key].update(colsByName[key])
+
 cols = cols.values()
 cols.sort(lambda a, b: cmp(a['name'], b['name']))
 header.update({'cols': cols, 'length': len(data), 'series': nrseries})

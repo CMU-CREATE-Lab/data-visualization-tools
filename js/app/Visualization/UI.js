@@ -46,12 +46,26 @@ define(["Class", "async", "jQuery", "Visualization/sliders"], function(Class, as
       var max = self.visualization.data.format.header.colsByName.datetime.max;
       var offset = self.visualization.state.getValue("offset");
 
-      offset = Math.min(offset, (max - min) / (24 * 60 * 60));
+        console.log({
+            min: min,
+            max: max,
+            offset: offset
+        });
 
-      daySlider.attr({"data-min": min + offset * 24 * 60 * 60});
+      offset = Math.min(offset, (max - min) / (24 * 60 * 60));
+      min = min + offset * 24 * 60 * 60;
+
+
+        console.log({
+            min: min,
+            max: max,
+            offset: offset
+        });
+
+      daySlider.attr({"data-min": min});
       daySlider.attr({"data-max": max});
 
-      if (self.visualization.state.getValue("time") < min + offset * 24 * 60 * 60) {
+      if (self.visualization.state.getValue("time") < min) {
         self.visualization.state.setValue("time", offset);
       }
     },
@@ -65,7 +79,7 @@ define(["Class", "async", "jQuery", "Visualization/sliders"], function(Class, as
 
       daySlider.change(function(event) {
         var time = parseInt(this.value);
-        var date = new Date(time * 1000);
+        var date = new Date(time);
         $('#current-date').html(date.rfcstring(" ", self.visualization.state.getValue("timeresolution")));
         self.visualization.state.setValue("time", time);
       });

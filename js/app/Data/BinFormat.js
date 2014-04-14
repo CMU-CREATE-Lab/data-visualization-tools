@@ -3,7 +3,6 @@ define(["Class", "Events", "Data/TypedMatrixParser", "Data/Format"], function(Cl
     initialize: function(source) {
       var self = this;
       self.source = source;
-      self.header = {length: 0, colsByName: {}};
       self.data = {};
       self.rowcount = 0;
       self.seriescount = 0;
@@ -31,6 +30,7 @@ define(["Class", "Events", "Data/TypedMatrixParser", "Data/Format"], function(Cl
     headerLoaded: function (data) {
       var self = this;
       self.header = data;
+      self.seriescount = self.header.series;
       for (var name in self.header.colsByName) {
         var col = self.header.colsByName[name];
         self.data[name] = new col.typespec.array(self.header.length);
