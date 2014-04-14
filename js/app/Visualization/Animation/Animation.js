@@ -13,7 +13,7 @@ define(["Class"], function(Class) {
 
     initUpdates: function(cb) {
       var self = this;
-      self.manager.visualization.tiles.events.on({
+      self.manager.visualization.data.format.events.on({
         "batch": self.updateData.bind(self),
         "full-tile": self.updateData.bind(self),
         "all": self.updateData.bind(self)

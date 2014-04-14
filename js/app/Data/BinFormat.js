@@ -1,5 +1,5 @@
-define(["Class", "Events", "Data/TypedMatrixFormat"], function(Class, Events, TypedMatrixFormat) {
-  return Class(TypedMatrixFormat, {
+define(["Class", "Events", "Data/TypedMatrixParser", "Data/Format"], function(Class, Events, TypedMatrixParser, Format) {
+  var BinFormat = Class(TypedMatrixParser, {
     initialize: function(manager, bounds) {
       var self = this;
       self.manager = manager;
@@ -9,7 +9,7 @@ define(["Class", "Events", "Data/TypedMatrixFormat"], function(Class, Events, Ty
       self.loaded = {};
       self.loading_started = false;
      
-      TypedMatrixFormat.prototype.initialize.call(self, self.manager.source + "/" + self.bounds.toBBOX());
+      TypedMatrixParser.prototype.initialize.call(self, self.manager.source + "/" + self.bounds.toBBOX());
     },
 
     load: function() {
@@ -18,7 +18,7 @@ define(["Class", "Events", "Data/TypedMatrixFormat"], function(Class, Events, Ty
       if (self.loading_started) return;
       self.loading_started = true;
   
-      TypedMatrixFormat.prototype.load.call(self);
+      TypedMatrixParser.prototype.load.call(self);
     },
 
     headerLoaded: function (data) {
@@ -31,7 +31,7 @@ define(["Class", "Events", "Data/TypedMatrixFormat"], function(Class, Events, Ty
         self.loaded[name] = {min: undefined, max: undefined};
       }
 
-      TypedMatrixFormat.prototype.headerLoaded.call(self, data);
+      TypedMatrixParser.prototype.headerLoaded.call(self, data);
     },
 
     rowLoaded: function(data) {
@@ -44,7 +44,7 @@ define(["Class", "Events", "Data/TypedMatrixFormat"], function(Class, Events, Ty
       }
 
       self.rowcount++;
-      TypedMatrixFormat.prototype.rowLoaded.call(self, data);
+      TypedMatrixParser.prototype.rowLoaded.call(self, data);
     },
 
     allLoaded: function () {
@@ -53,7 +53,9 @@ define(["Class", "Events", "Data/TypedMatrixFormat"], function(Class, Events, Ty
       // We aren't getting any more, so if anyone's waiting they'd be
       // waiting forever if we didn't tell them...
       self.header.length = self.rowcount;
-      TypedMatrixFormat.prototype.allLoaded.call(self);
+      TypedMatrixParser.prototype.allLoaded.call(self);
     }
   });
+  Format.formatClasses.bin = BinFormat;
+  return BinFormat;
 });

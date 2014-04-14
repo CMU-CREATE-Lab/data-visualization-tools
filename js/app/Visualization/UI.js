@@ -41,9 +41,9 @@ define(["Class", "async", "jQuery", "Visualization/sliders"], function(Class, as
       var self = this;
       var daySlider = $('#day-slider');
 
-      if (!self.visualization.tiles.header.colsByName.datetime) return;
-      var min = self.visualization.tiles.header.colsByName.datetime.min;
-      var max = self.visualization.tiles.header.colsByName.datetime.max;
+      if (!self.visualization.data.format.header.colsByName.datetime) return;
+      var min = self.visualization.data.format.header.colsByName.datetime.min;
+      var max = self.visualization.data.format.header.colsByName.datetime.max;
       var offset = self.visualization.state.getValue("offset");
 
       offset = Math.min(offset, (max - min) / (24 * 60 * 60));
@@ -77,7 +77,7 @@ define(["Class", "async", "jQuery", "Visualization/sliders"], function(Class, as
         },
         offset: self.daySliderUpdateMinMax.bind(self)
       });
-      self.visualization.tiles.events.on({update: self.daySliderUpdateMinMax.bind(self)});
+      self.visualization.data.format.events.on({update: self.daySliderUpdateMinMax.bind(self)});
 
 
       var handle = daySlider.parent(".control").find(".handle");

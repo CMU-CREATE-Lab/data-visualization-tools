@@ -1,4 +1,4 @@
-define(["Class", "Values", "UrlValues", "Data/TileManager", "Visualization/Animation/AnimationManager", "Visualization/UI", "async"], function(Class, Values, UrlValues, TileManager, AnimationManager, UI, async) {
+define(["Class", "Values", "UrlValues", "Data/DataManager", "Visualization/Animation/AnimationManager", "Visualization/UI", "async"], function(Class, Values, UrlValues, DataManager, AnimationManager, UI, async) {
   return Class({
     paramspec: {
       zoom: {default: 4, fromurl: UrlValues.intFromUrl, tourl: UrlValues.intToUrl, urlname: "zoom"},
@@ -9,6 +9,7 @@ define(["Class", "Values", "UrlValues", "Data/TileManager", "Visualization/Anima
       maxoffset: {default: 29, fromurl: UrlValues.floatFromUrl, tourl: UrlValues.floatToUrl, precision: 1000, urlname: "offset"},
       animations: {default: ["point"], fromurl: UrlValues.stringArrayFromUrl, tourl: UrlValues.stringArrayToUrl, urlname: "animations"},
       paused: {default: true, fromurl: UrlValues.boolFromUrl, tourl: UrlValues.boolToUrl, urlname: "paused"},
+      format: {urlname: "format", default: "tiledbin"},
       source: {urlname: "source"},
       nowebgl: {urlname: "nowebgl"},
       logoimg: {urlname: "logoimg"},
@@ -23,12 +24,14 @@ define(["Class", "Values", "UrlValues", "Data/TileManager", "Visualization/Anima
       self.state = new Values(self.paramspec);
       self.urlhandler = new UrlValues(self.state, self.paramspec);
 
-      self.tiles = new TileManager(self.state.getValue("source"));
+      self.state.getValue("format")
+
+      self.data = new DataManager(self);
       self.animations = new AnimationManager(self);
       self.ui = new UI(self);
 
       async.series([
-        // self.tiles.init.bind(self.tiles),
+        self.data.init.bind(self.data),
         self.ui.init.bind(self.ui),
         self.animations.init.bind(self.animations)
       ]);

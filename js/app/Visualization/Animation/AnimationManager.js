@@ -189,7 +189,7 @@ define(["Class", "Bounds", "async", "jQuery", "Visualization/Matrix", "CanvasLay
       var lonmin = sw.lng();
       var latmax = ne.lat();
       var lonmax = ne.lng();
-      self.visualization.tiles.zoomTo(new Bounds(lonmin, latmin, lonmax, latmax));
+      self.visualization.data.format.zoomTo(new Bounds(lonmin, latmin, lonmax, latmax));
     },
 
     canvasResize: function() {
@@ -216,8 +216,8 @@ define(["Class", "Bounds", "async", "jQuery", "Visualization/Matrix", "CanvasLay
         self.lastUpdate = undefined;
       } else {
         var time = self.visualization.state.getValue("time");
-        var min = self.visualization.tiles.header.colsByName.datetime.min;
-        var max = self.visualization.tiles.header.colsByName.datetime.max;
+        var min = self.visualization.data.format.header.colsByName.datetime.min;
+        var max = self.visualization.data.format.header.colsByName.datetime.max;
         var timeNow = new Date().getTime();
 
         if (self.lastUpdate == undefined) {
@@ -261,11 +261,11 @@ define(["Class", "Bounds", "async", "jQuery", "Visualization/Matrix", "CanvasLay
       if (!self.glInitialized) return;
 
       var paused = self.visualization.state.getValue("paused");
-      if (!self.visualization.tiles.header.colsByName.datetime) paused = true;
+      if (!self.visualization.data.format.header.colsByName.datetime) paused = true;
       if (!paused) {
         var time = self.visualization.state.getValue("time");
-        var min = self.visualization.tiles.header.colsByName.datetime.min;
-        var max = self.visualization.tiles.header.colsByName.datetime.max;
+        var min = self.visualization.data.format.header.colsByName.datetime.min;
+        var max = self.visualization.data.format.header.colsByName.datetime.max;
         if (time < min || time > max) paused = true;
       }
 

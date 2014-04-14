@@ -24,15 +24,14 @@ define(["require", "Class", "Visualization/GeoProjection", "Visualization/Shader
 
     updateData: function() {
       var self = this;
-      var tiles = self.manager.visualization.tiles;
-      var header = tiles.header;
-      var data = tiles.data;
-
+      var format = self.manager.visualization.data.format;
+      var header = format.header;
+      var data = format.data;
 
       // For convenience we store POINT_COUNT in an element at the end
       // of the array, so that the length of each series is
       // rawSeries[i+1]-rawSeries[i].      
-      self.rawSeries = new Int32Array(tiles.seriescount + 1);
+      self.rawSeries = new Int32Array(format.seriescount + 1);
       self.rawSeries[0] = 0;
       self.rawLatLonData = new Float32Array(header.length*2);
       self.rawColorData = new Float32Array(header.length*4);

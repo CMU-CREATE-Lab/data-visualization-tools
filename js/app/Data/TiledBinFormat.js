@@ -10,8 +10,8 @@
   tm.zoomTo(new Bounds(0, 0, 11.25, 11.25));
 */
 
-define(["Class", "Events", "Bounds", "Data/Tile", "jQuery", "LangExtensions"], function(Class, Events, Bounds, Tile, $) {
-  return Class({
+define(["Class", "Events", "Bounds", "Data/Format", "Data/BinFormat", "jQuery", "LangExtensions"], function(Class, Events, Bounds, Format, BinFormat, $) {
+  var TiledBinFormat = Class({
     initialize: function(source) {
       var self = this;
       self.source = source;
@@ -125,7 +125,7 @@ define(["Class", "Events", "Bounds", "Data/Tile", "jQuery", "LangExtensions"], f
 
     setUpTile: function (tilebounds) {
       var self = this;
-      var tile = new Tile(self, tilebounds);
+      var tile = new BinFormat(self, tilebounds);
       tile.events.on({
         "batch": function () { self.handleBatch(tile); },
         "all": function () { self.handleFullTile(tile); },
@@ -257,4 +257,7 @@ define(["Class", "Events", "Bounds", "Data/Tile", "jQuery", "LangExtensions"], f
 
     }
   });
+  Format.formatClasses.tiledbin = TiledBinFormat;
+
+    return TiledBinFormat;
 });
