@@ -103,7 +103,7 @@ define(["require", "Class", "Visualization/GeoProjection", "Visualization/Shader
       self.gl.uniform1f(self.program.uniforms.pointSize, pointSize*1.0);
 
       self.gl.uniformMatrix4fv(self.program.uniforms.mapMatrix, false, self.manager.mapMatrix);
-      self.gl.uniform1f(self.program.uniforms.startTime, self.manager.visualization.state.getValue("time") - (self.manager.visualization.state.getValue("offset") * 24 * 60 * 60));
+      self.gl.uniform1f(self.program.uniforms.startTime, self.manager.visualization.state.getValue("time") - (self.manager.visualization.state.getValue("offset") * 24 * 60 * 60 * 1000));
       self.gl.uniform1f(self.program.uniforms.endTime, self.manager.visualization.state.getValue("time"));
 
       var mode = self.getDrawMode();

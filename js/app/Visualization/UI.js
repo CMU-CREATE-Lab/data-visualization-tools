@@ -46,21 +46,8 @@ define(["Class", "async", "jQuery", "Visualization/sliders"], function(Class, as
       var max = self.visualization.data.format.header.colsByName.datetime.max;
       var offset = self.visualization.state.getValue("offset");
 
-        console.log({
-            min: min,
-            max: max,
-            offset: offset
-        });
-
-      offset = Math.min(offset, (max - min) / (24 * 60 * 60));
-      min = min + offset * 24 * 60 * 60;
-
-
-        console.log({
-            min: min,
-            max: max,
-            offset: offset
-        });
+      offset = Math.min(offset, (max - min) / (24 * 60 * 60 * 1000));
+      min = min + offset * 24 * 60 * 60 * 1000;
 
       daySlider.attr({"data-min": min});
       daySlider.attr({"data-max": max});
