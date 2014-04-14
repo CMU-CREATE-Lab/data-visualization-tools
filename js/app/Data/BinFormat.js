@@ -3,12 +3,20 @@ define(["Class", "Events", "Data/TypedMatrixParser", "Data/Format"], function(Cl
     initialize: function(source) {
       var self = this;
       self.source = source;
+      self.header = {length: 0, colsByName: {}};
       self.data = {};
       self.rowcount = 0;
+      self.seriescount = 0;
       self.loaded = {};
       self.loading_started = false;
      
       TypedMatrixParser.prototype.initialize.call(self, self.source);
+    },
+
+    zoomTo: function () {
+      var self = this;
+
+      self.load();
     },
 
     load: function() {
@@ -22,7 +30,6 @@ define(["Class", "Events", "Data/TypedMatrixParser", "Data/Format"], function(Cl
 
     headerLoaded: function (data) {
       var self = this;
-
       self.header = data;
       for (var name in self.header.colsByName) {
         var col = self.header.colsByName[name];

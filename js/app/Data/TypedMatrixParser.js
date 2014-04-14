@@ -1,5 +1,10 @@
 /* Loads a matrix of rows/cols of typed data from a binary file.
-   The data format is (all values little endian):
+
+
+   Data format:
+
+   All values in the data format are in little endian. The following
+   describes the main data layout:
 
    [4 byte header length in bytes]
    [header data]
@@ -14,25 +19,31 @@
    COL should contain {name: NAME, type: TYPE}
 
    where NAME is any string and TYPE is one of the type names found
-   in typemap below.
+   in TypedMatrixFormat.typemap.
+
+   COL can optionally contain 'multiplier' and/or 'offset'. If defined
+   for a column, the values in that column will be scaled and offset
+   by those values:
+
+   value = offset + (multiplier * value)
 
    Each row consists of data encoded as per the column
    specifications (in that same order). The byte length of each
    column is defined by its type.
 
-   Parameters:
-   {
-     header: function (header) {},
-     row: function (row) {},
-     batch: function () {},
-     done: function () {},
-     error: function (exception) {},
-   }
 
-   where done is a boolean. Note that this callback is called
-   multiple times first for the header (row is null), and then
-   once for each row, and finally with done set to true to signal
-   the end of the data.
+   API:
+
+   f = new TypedMatrixFormat(source_url);
+   f.events.on({
+     header: function (headerData) {}, // headerData is also available in f.header during and after this event fires.
+     row: function (rowData) {},
+     batch: function () {},
+     all: function () {},
+     error: function (error) { console.log(error.exception); },
+   });
+   f.load();
+
 
    Implementation details/explanation for this ugly code:
 
@@ -53,7 +64,8 @@ define(["Class", "Events"], function (Class, Events) {
     load: function () {
       var self = this;
 
-      self.header = null;
+      self.header = {length: 0, colsByName: {}};
+      self._headerLoaded = false;
       self.headerLen = null;
       self.offset = 0;
       self.rowidx = 0;
@@ -160,9 +172,9 @@ define(["Class", "Events"], function (Class, Events) {
         self.offset = 4;
       }
       if (length < self.offset + self.headerLen) return;
-      if (self.header == null) {
+      if (!self._headerLoaded) {
         self.header = JSON.parse(text.substr(self.offset, self.headerLen));
-
+          console.log(self.header);
         self.rowLen = 0;
         self.header.colsByName = {};
         for (var colidx = 0; colidx < self.header.cols.length; colidx++) {
@@ -174,6 +186,7 @@ define(["Class", "Events"], function (Class, Events) {
         };
 
         self.offset = 4 + self.headerLen;
+        self._headerLoaded = true;
         self.headerLoaded(self.header);
       }
       if (self.responseData == null) {
@@ -189,7 +202,10 @@ define(["Class", "Events"], function (Class, Events) {
         var row = {};
         for (var colidx = 0; colidx < self.header.cols.length; colidx++) {
           var col = self.header.cols[colidx];
-          row[col.name] = dataView[col.typespec.method](self.offset, true);
+          var val = dataView[col.typespec.method](self.offset, true);
+          if (col.multiplier != undefined) val = val * col.multiplier;
+          if (col.offset != undefined) val = val + col.offset;
+          row[col.name] = val;
           self.offset += col.typespec.size;
         }
         self.rowLoaded(row);
