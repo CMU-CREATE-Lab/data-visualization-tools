@@ -1,4 +1,4 @@
-define(["Class", "Events"], function(Class, Events) {
+define(["Class", "Events", "Logging"], function(Class, Events, Logging) {
   return Class({
     /*
       spec = {
@@ -18,7 +18,17 @@ define(["Class", "Events"], function(Class, Events) {
       var values = this;
       var old = values.values[name];
       values.values[name] = value;
-      var event = {"name": name, "new": value, "old": old};
+      var event = {
+        "name": name,
+        "new": value,
+        "old": old,
+        toString: function () {
+          var o = this.old != undefined ? this.old.toString() : "undefined";
+          var n = this.new != undefined ? this.new.toString() : "undefined";
+          return this.name + " = " + o + " -> " + n;
+        }
+      };
+      Logging.default.log("Values.setValue", event);
       values.events.triggerEvent(name, event);
       values.events.triggerEvent("set", event);
     },
