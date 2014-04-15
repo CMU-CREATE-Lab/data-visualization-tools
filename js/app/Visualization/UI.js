@@ -71,6 +71,7 @@ define(["Class", "async", "jQuery", "Visualization/sliders"], function(Class, as
         if (self.visualization.state.getValue("time") == undefined || self.visualization.state.getValue("time").getTime() < min) {
           self.visualization.state.setValue("time", new Date(min));
         }
+        daySlider.trigger("change");
       };
 
       var daySliderUpdateValue = function (e) {
