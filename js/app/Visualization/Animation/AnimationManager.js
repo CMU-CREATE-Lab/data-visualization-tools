@@ -4,7 +4,7 @@ define(["Class", "Bounds", "async", "Logging", "jQuery", "Visualization/Matrix",
       var self = this;
 
       self.visualization = visualization;
-
+      self.indrag = false;
       self.glInitialized = false;
     },
 
@@ -94,6 +94,8 @@ define(["Class", "Bounds", "async", "Logging", "jQuery", "Visualization/Matrix",
       google.maps.event.addListener(self.map, 'center_changed', self.centerChanged.bind(self));
       google.maps.event.addListener(self.map, 'zoom_changed', self.zoomChanged.bind(self));
       google.maps.event.addListener(self.map, 'bounds_changed', self.boundsChanged.bind(self));
+      google.maps.event.addListener(self.map, 'dragstart', function () { self.indrag = true; });
+      google.maps.event.addListener(self.map, 'dragend', function () { self.indrag = false; });
 
       cb();
     },
@@ -182,6 +184,7 @@ define(["Class", "Bounds", "async", "Logging", "jQuery", "Visualization/Matrix",
 
     boundsChanged: function() {
       var self = this;
+      if (self.indrag) return;
       var bounds = self.map.getBounds();
       var ne = bounds.getNorthEast();
       var sw = bounds.getSouthWest();
