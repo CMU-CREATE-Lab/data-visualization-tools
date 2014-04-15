@@ -93,22 +93,8 @@ define(["require", "Class", "Visualization/GeoProjection", "Visualization/Shader
       var time = self.manager.visualization.state.getValue("time");
       var offset = self.manager.visualization.state.getValue("offset");
 
-      console.log({
-           action: 'draw',
-          time: time,
-          offset: offset
-      });
       if (time == undefined) return;
       time = time.getTime();
-
-      console.log({
-        action: 'draw',
-        series_count: self.series_count,
-        lastSeriesEnd: self.rawSeries[self.series_count],
-        offset: offset,
-        startTime: time - offset * 24 * 60 * 60 * 1000,
-        endTime: time
-      });
 
       self.gl.useProgram(self.program);
 

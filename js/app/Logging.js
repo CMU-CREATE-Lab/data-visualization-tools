@@ -34,7 +34,11 @@ define(["Class", "UrlValues", "stacktrace"], function(Class, UrlValues, stacktra
       var res = "";
       if (arg.time) res += arg.time.rfcstring() + ": ";
       res += arg.category + ": ";
-      res += arg.msg;
+      if (arg.msg) {
+        res += arg.msg;
+      } else {
+        res += arg.toString.call(arg);
+      }
       if (arg.stack) res += " (" + arg.stack[0] + ")";
       return res;
     },

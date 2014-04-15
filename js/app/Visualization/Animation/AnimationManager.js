@@ -1,4 +1,4 @@
-define(["Class", "Bounds", "async", "jQuery", "Visualization/Matrix", "CanvasLayer", "Stats", "Visualization/Animation/Animation", "Visualization/Animation/PointAnimation", "Visualization/Animation/LineAnimation" /* , "Visualization/Animation/ArrowAnimation" */], function(Class, Bounds, async, $, Matrix, CanvasLayer, Stats, Animation) {
+define(["Class", "Bounds", "async", "Logging", "jQuery", "Visualization/Matrix", "CanvasLayer", "Stats", "Visualization/Animation/Animation", "Visualization/Animation/PointAnimation", "Visualization/Animation/LineAnimation" /* , "Visualization/Animation/ArrowAnimation" */], function(Class, Bounds, async, Logging, $, Matrix, CanvasLayer, Stats, Animation) {
   return Class({
     initialize: function (visualization) {
       var self = this;
@@ -278,6 +278,16 @@ define(["Class", "Bounds", "async", "jQuery", "Visualization/Matrix", "CanvasLay
       self.updateProjection();
 
       self.gl.clear(self.gl.COLOR_BUFFER_BIT);
+
+      Logging.default.log("Visualization.Animation.AnimationManager.update", {
+        toString: function () {
+          return (this.time != undefined ? this.time.rfcstring(" ") : "undefined")
+            + " [" + (this.offset != undefined ? this.offset.toString() : "undefined") + "]";
+        },
+        offset: self.visualization.state.getValue("offset"),
+        time: self.visualization.state.getValue("time")
+      });
+
       self.animations.map(function (animation) { animation.draw(); });
 
       self.stats.end();
@@ -285,6 +295,9 @@ define(["Class", "Bounds", "async", "jQuery", "Visualization/Matrix", "CanvasLay
 
     triggerUpdate: function (e) {
       var self = this;
+
+      Logging.default.log("Visualization.Animation.AnimationManager.triggerUpdate", {msg: "Trigger update"});
+
       self.updateNeeded = true;
     }
   });
