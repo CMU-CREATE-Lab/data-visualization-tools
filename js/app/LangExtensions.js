@@ -26,7 +26,7 @@ define([], function() {
     var mm = (this.getUTCMonth()+1).toString();
     var dd  = this.getUTCDate().toString();             
     var res = yyyy;
-    if (stepsize < 365*24*60*60) res += '-' + (mm[1]?mm:"0"+mm[0]) + '-' + (dd[1]?dd:"0"+dd[0]);
+    if (stepsize < 365*24*60*60*1000) res += '-' + (mm[1]?mm:"0"+mm[0]) + '-' + (dd[1]?dd:"0"+dd[0]);
     return res;
   };  
 
@@ -37,8 +37,8 @@ define([], function() {
     var mm = this.getUTCMinutes().toString();
     var ss  = this.getUTCSeconds().toString();
     var res = hh[1]?hh:"0"+hh[0];
-    if (stepsize < 60*60) res += ':' + (mm[1]?mm:"0"+mm[0]);
-    if (stepsize < 60) res += ':' + (ss[1]?ss:"0"+ss[0]);
+    if (stepsize < 60*60*1000) res += ':' + (mm[1]?mm:"0"+mm[0]);
+    if (stepsize < 60*1000) res += ':' + (ss[1]?ss:"0"+ss[0]);
     return res;
   }; 
 
@@ -48,8 +48,8 @@ define([], function() {
 
     var res = '';
     res = this.yyyymmdd(stepsize);
-    if (stepsize < 24*60*60) res += sep + this.hhmmss(stepsize);
-    if (stepsize < 1) res += (this.getUTCMilliseconds() / 1000).toString().substr(1);
+    if (stepsize < 24*60*60*1000) res += sep + this.hhmmss(stepsize);
+    if (stepsize < 1000) res += (this.getUTCMilliseconds() / 1000).toString().substr(1);
     return res;
   };
 });

@@ -16,7 +16,7 @@ define(["Class", "Values", "UrlValues", "Data/DataManager", "Visualization/Anima
       logoimg: {urlname: "logoimg"},
       logourl: {urlname: "logourl"},
 
-      timeresolution: {default: 60*60*24}
+      timeresolution: {default: 60*60*24*1000}
     },
 
     initialize: function () {
