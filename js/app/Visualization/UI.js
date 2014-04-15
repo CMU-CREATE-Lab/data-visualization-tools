@@ -37,28 +37,9 @@ define(["Class", "async", "jQuery", "Visualization/sliders"], function(Class, as
       cb();
     },
 
-    daySliderUpdateMinMax: function() {
-      var self = this;
-      var daySlider = $('#day-slider');
-
-      if (!self.visualization.data.format.header.colsByName.datetime) return;
-      var min = self.visualization.data.format.header.colsByName.datetime.min;
-      var max = self.visualization.data.format.header.colsByName.datetime.max;
-      var offset = self.visualization.state.getValue("offset");
-
-      offset = Math.min(offset, (max - min) / (24 * 60 * 60 * 1000));
-      min = min + offset * 24 * 60 * 60 * 1000;
-
-      daySlider.attr({"data-min": min});
-      daySlider.attr({"data-max": max});
-
-      if (self.visualization.state.getValue("time") == undefined || self.visualization.state.getValue("time").getTime() < min) {
-        self.visualization.state.setValue("time", new Date(min));
-      }
-    },
-
     initDaySlider: function(cb) {
       var self = this;
+      var updating = false;
 
       var daySlider = $('#day-slider');
 
@@ -67,24 +48,50 @@ define(["Class", "async", "jQuery", "Visualization/sliders"], function(Class, as
       daySlider.change(function(event) {
         var time = new Date(parseInt(this.value));
         $('#current-date').html(time.rfcstring(" ", self.visualization.state.getValue("timeresolution")));
+        updating = true;
         self.visualization.state.setValue("time", time);
+        updating = false;
       });
 
+
+      var daySliderUpdateMinMax = function() {
+        var daySlider = $('#day-slider');
+
+        if (!self.visualization.data.format.header.colsByName.datetime) return;
+        var min = self.visualization.data.format.header.colsByName.datetime.min;
+        var max = self.visualization.data.format.header.colsByName.datetime.max;
+        var offset = self.visualization.state.getValue("offset");
+
+        offset = Math.min(offset, (max - min) / (24 * 60 * 60 * 1000));
+        min = min + offset * 24 * 60 * 60 * 1000;
+
+        daySlider.attr({"data-min": min});
+        daySlider.attr({"data-max": max});
+
+        if (self.visualization.state.getValue("time") == undefined || self.visualization.state.getValue("time").getTime() < min) {
+          self.visualization.state.setValue("time", new Date(min));
+        }
+      };
+
+      var daySliderUpdateValue = function (e) {
+        if (updating) return;
+        if (self.visualization.state.getValue("time") == undefined) return;
+        daySlider.val(self.visualization.state.getValue("time").getTime().toString());
+        daySlider.trigger("change");
+      };
 
       self.visualization.state.events.on({
-        time: function (e) {
-          daySlider.val(e.new.getTime().toString());
-        },
-        offset: self.daySliderUpdateMinMax.bind(self)
+        time: daySliderUpdateValue,
+        offset: daySliderUpdateMinMax
       });
-      self.visualization.data.format.events.on({update: self.daySliderUpdateMinMax.bind(self)});
+      self.visualization.data.format.events.on({update: daySliderUpdateMinMax});
+      daySliderUpdateValue();
 
 
       var handle = daySlider.parent(".control").find(".handle");
       handle.mousedown(function(event) {
         self.visualization.state.incValue("paused");
       });
-
       handle.mouseup(function(event) {
         self.visualization.state.decValue("paused");
       });
@@ -94,26 +101,42 @@ define(["Class", "async", "jQuery", "Visualization/sliders"], function(Class, as
 
     initOffsetSlider: function (cb) {
       var self = this;
+      var updating = false;
 
       var offsetSlider = $('#offset-slider');
       offsetSlider.change(function(event) {
         var offset = parseInt(this.value);
         $('#current-offset').html(offset.toString() + " days");
+        updating = true;
         self.visualization.state.setValue("offset", offset);
+        updating = false;
       });
 
       self.visualization.state.events.on({
         offset: function (e) {
+          if (updating) return;
           offsetSlider.val(e.new.toString());
+          offsetSlider.trigger("change");
         },
         maxoffset: function (e) {
-          $("#offset-slider").attr({"data-max": e.new});
+          if (updating) return;
+          offsetSlider.attr({"data-max": e.new});
         }
       });
 
-      $("#offset-slider").val(self.visualization.state.getValue("offset"));
-      $("#offset-slider").attr({"data-max": self.visualization.state.getValue("maxoffset")});
-      $("#offset-slider").trigger("change");
+      offsetSlider.val(self.visualization.state.getValue("offset"));
+      offsetSlider.attr({"data-max": self.visualization.state.getValue("maxoffset")});
+      updating = true;
+      offsetSlider.trigger("change");
+      updating = false;
+
+      var handle = offsetSlider.parent(".control").find(".handle");
+      handle.mousedown(function(event) {
+        self.visualization.state.incValue("paused");
+      });
+      handle.mouseup(function(event) {
+        self.visualization.state.decValue("paused");
+      });
 
       cb();
     },
