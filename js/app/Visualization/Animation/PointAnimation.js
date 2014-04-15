@@ -84,10 +84,31 @@ define(["require", "Class", "Visualization/GeoProjection", "Visualization/Shader
       Shader.programLoadArray(self.gl, self.colorArrayBuffer, self.rawColorData, self.program);
       Shader.programLoadArray(self.gl, self.magnitudeArrayBuffer, self.rawMagnitudeData, self.program);
       Shader.programLoadArray(self.gl, self.timeArrayBuffer, self.rawTimeData, self.program);
+
+      Animation.prototype.updateData.call(self);
     },
 
     draw: function () {
       var self = this;
+      var time = self.manager.visualization.state.getValue("time");
+      var offset = self.manager.visualization.state.getValue("offset");
+
+      console.log({
+           action: 'draw',
+          time: time,
+          offset: offset
+      });
+      if (time == undefined) return;
+      time = time.getTime();
+
+      console.log({
+        action: 'draw',
+        series_count: self.series_count,
+        lastSeriesEnd: self.rawSeries[self.series_count],
+        offset: offset,
+        startTime: time - offset * 24 * 60 * 60 * 1000,
+        endTime: time
+      });
 
       self.gl.useProgram(self.program);
 
@@ -103,13 +124,15 @@ define(["require", "Class", "Visualization/GeoProjection", "Visualization/Shader
       self.gl.uniform1f(self.program.uniforms.pointSize, pointSize*1.0);
 
       self.gl.uniformMatrix4fv(self.program.uniforms.mapMatrix, false, self.manager.mapMatrix);
-      self.gl.uniform1f(self.program.uniforms.startTime, self.manager.visualization.state.getValue("time") - (self.manager.visualization.state.getValue("offset") * 24 * 60 * 60 * 1000));
-      self.gl.uniform1f(self.program.uniforms.endTime, self.manager.visualization.state.getValue("time"));
+      self.gl.uniform1f(self.program.uniforms.startTime, time - offset * 24 * 60 * 60 * 1000);
+      self.gl.uniform1f(self.program.uniforms.endTime, time);
 
       var mode = self.getDrawMode();
       for (var i = 0; i < self.series_count; i++) {
         self.gl.drawArrays(mode, self.rawSeries[i], self.rawSeries[i+1]-self.rawSeries[i]);
       }
+
+      Animation.prototype.draw.call(self);
     },
 
     getDrawMode: function () {

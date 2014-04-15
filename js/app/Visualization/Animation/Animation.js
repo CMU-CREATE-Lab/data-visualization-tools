@@ -22,7 +22,10 @@ define(["Class"], function(Class) {
       cb();
     },
 
-    updateData: function () {},
+    updateData: function () {
+      var self = this;
+      self.manager.triggerUpdate();
+    },
 
     draw: function () {}
   });

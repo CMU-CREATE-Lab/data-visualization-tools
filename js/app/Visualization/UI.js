@@ -52,8 +52,8 @@ define(["Class", "async", "jQuery", "Visualization/sliders"], function(Class, as
       daySlider.attr({"data-min": min});
       daySlider.attr({"data-max": max});
 
-      if (self.visualization.state.getValue("time") < min) {
-        self.visualization.state.setValue("time", offset);
+      if (self.visualization.state.getValue("time") == undefined || self.visualization.state.getValue("time").getTime() < min) {
+        self.visualization.state.setValue("time", new Date(min));
       }
     },
 
@@ -65,16 +65,15 @@ define(["Class", "async", "jQuery", "Visualization/sliders"], function(Class, as
       daySlider.attr({"data-step": self.visualization.state.getValue("timeresolution").toString()});
 
       daySlider.change(function(event) {
-        var time = parseInt(this.value);
-        var date = new Date(time);
-        $('#current-date').html(date.rfcstring(" ", self.visualization.state.getValue("timeresolution")));
+        var time = new Date(parseInt(this.value));
+        $('#current-date').html(time.rfcstring(" ", self.visualization.state.getValue("timeresolution")));
         self.visualization.state.setValue("time", time);
       });
 
 
       self.visualization.state.events.on({
         time: function (e) {
-          daySlider.val(e.new.toString());
+          daySlider.val(e.new.getTime().toString());
         },
         offset: self.daySliderUpdateMinMax.bind(self)
       });

@@ -5,7 +5,7 @@
  * http://example.com/index.html#name=value&someothername=foo%20bar
  */
 
-define(["Class"], function(Class) {
+define(["Class", "LangExtensions"], function(Class) {
   var UrlValues = Class({
     /*
       spec = {
@@ -73,43 +73,58 @@ define(["Class"], function(Class) {
       results = location.hash.replace(regex, replacement);
       location.hash = "#" + results.substr(1);
     }
-  }
+  };
 
   UrlValues.intFromUrl = parseInt;
-  UrlValues.intToUrl = function (value) { return value.toString(); };
+  UrlValues.intToUrl = function (value) {
+    if (value == undefined) return;
+    return value.toString();
+  };
   UrlValues.floatFromUrl = parseFloat;
   UrlValues.floatToUrl = function (value) {
     var spec = this;
+    if (value == undefined) return;
     if (spec.precision != undefined) {
       value = Math.round(value * spec.precision)/spec.precision;
     }
     return value.toString();
-  }
+  };
   UrlValues.boolFromUrl = function (value) {
     var spec = this;
     var trueval = spec.trueval || 'true';
     if (value == trueval) return true;
     return false;
-  }
+  };
   UrlValues.boolToUrl = function (value) {
     var spec = this;
+    if (value == undefined) return;
     if (value) {
       return spec.trueval || 'true';
     } else {
       return spec.falseval || 'false';
     }
-  }
+  };
   UrlValues.stringArrayFromUrl = function (value) {
     var spec = this;
     if (value == "") return [];
     var sep = spec.sep || ",";
     return value.split(sep);
-  }
+  };
   UrlValues.stringArrayToUrl = function (value) {
     var spec = this;
+    if (value == undefined) return;
     var sep = spec.sep || ",";
     return value.join(sep);
-  }
+  };
+  UrlValues.dateFromUrl = function (value) {
+    var spec = this;
+    return new Date(value);
+  };
+  UrlValues.dateToUrl = function (value) {
+    var spec = this;
+    if (value == undefined) return;
+    return value.rfcstring();
+  };
 
   return UrlValues;
 });
