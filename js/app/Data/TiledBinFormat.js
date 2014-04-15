@@ -10,7 +10,7 @@
   tm.zoomTo(new Bounds(0, 0, 11.25, 11.25));
 */
 
-define(["Class", "Events", "Bounds", "Data/Format", "Data/Tile", "jQuery", "LangExtensions"], function(Class, Events, Bounds, Format, Tile, $) {
+define(["Class", "Events", "Bounds", "Data/Format", "Data/Tile", "Logging", "jQuery", "LangExtensions"], function(Class, Events, Bounds, Format, Tile, Logging, $) {
   var TiledBinFormat = Class({
     initialize: function(source) {
       var self = this;
@@ -54,25 +54,35 @@ define(["Class", "Events", "Bounds", "Data/Format", "Data/Tile", "jQuery", "Lang
       var tilesx = (tileright - tileleft) / tilewidth;
       var tilesy = (tiletop - tilebottom) / tileheight;
 
-      console.log({
-        width: width,
-        height: height,
-        worldwidth: worldwidth,
-        worldheight: worldheight,
+      Logging.default.log(
+        "Data.TiledBinFormat.tileBoundsForRegion",
+        {
+          width: width,
+          height: height,
+          worldwidth: worldwidth,
+          worldheight: worldheight,
 
-        level: level,
+          level: level,
 
-        tilewidth: tilewidth,
-        tileheight: tileheight,
+          tilewidth: tilewidth,
+          tileheight: tileheight,
 
-        tileleft: tileleft,
-        tileright: tileright,
-        tilebottom: tilebottom,
-        tiletop: tiletop,
+          tileleft: tileleft,
+          tileright: tileright,
+          tilebottom: tilebottom,
+          tiletop: tiletop,
 
-        tilesx: tilesx,
-        tilesy: tilesy
-      });
+          tilesx: tilesx,
+          tilesy: tilesy,
+
+          toString: function () {
+            return "\n" + Object.items(this
+              ).filter(function (item) { return item.key != "toString" && item.key != "stack"; }
+              ).map(function (item) { return "  " + item.key + "=" + item.value.toString(); }
+              ).join("\n") + "\n";
+          }
+        }
+      );
 
       res = [];
       for (var x = 0; x < tilesx; x++) {
@@ -255,8 +265,7 @@ define(["Class", "Events", "Bounds", "Data/Format", "Data/Tile", "jQuery", "Lang
       }
 
       var end = new Date();
-      console.log("Merge: " + ((end - start) / 1000.0).toString());
-
+      Logging.default.log("Data.TiledBinFormat.mergeTiles", {start: start, end: end, toString: function () { return ((this.end - this.start) / 1000.0).toString(); }});
     }
   });
   Format.formatClasses.tiledbin = TiledBinFormat;
