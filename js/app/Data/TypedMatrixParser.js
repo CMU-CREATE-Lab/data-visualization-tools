@@ -36,10 +36,12 @@
 
    f = new TypedMatrixFormat(source_url);
    f.events.on({
+     load: function () {}, // Called before loading begins
      header: function (headerData) {},
      row: function (rowData) {},
      batch: function () {},
      all: function () {},
+     update: function () {}, // Called after both batch and all
      error: function (error) { console.log(error.exception); },
    });
    f.load();
@@ -99,6 +101,8 @@ define(["Class", "Events"], function (Class, Events) {
 
     load: function () {
       var self = this;
+
+      self.events.triggerEvent("load");
 
       if (window.XMLHttpRequest) {
         self.request = new XMLHttpRequest();

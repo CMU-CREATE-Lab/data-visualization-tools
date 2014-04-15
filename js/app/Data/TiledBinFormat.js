@@ -105,6 +105,8 @@ define(["Class", "Events", "Bounds", "Data/Format", "Data/Tile", "jQuery", "Lang
       self = this;
       self.bounds = bounds;
 
+      self.events.triggerEvent("load");
+
       var tiles = {};
       self.tileBoundsForRegion(bounds).map(function (tilebounds) {
         if (self.tiles[tilebounds.toBBOX()] != undefined) {

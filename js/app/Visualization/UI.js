@@ -9,12 +9,27 @@ define(["Class", "async", "jQuery", "Visualization/sliders"], function(Class, as
       var self = this;
 
       async.series([
+        self.initLoadSpinner.bind(self),
         self.initLogo.bind(self),
         self.initSliders.bind(self),
         self.initDaySlider.bind(self),
         self.initOffsetSlider.bind(self),
         self.initToggleButtons.bind(self),
       ], function () { cb(); });
+    },
+
+    initLoadSpinner: function(cb) {
+      var self = this;
+      self.visualization.data.format.events.on({
+        load: function () {
+          $("#loading").fadeIn();
+        },
+        all: function () {
+          $("#loading").fadeOut();
+        }
+        // update: function () {}
+      });
+      cb();
     },
 
     initLogo: function(cb) {
