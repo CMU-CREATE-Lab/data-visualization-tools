@@ -36,30 +36,17 @@ define(["Class", "UrlValues", "stacktrace"], function(Class, UrlValues, stacktra
       }
     },
 
-    _format: function (arg) {
-      var res = "";
-      if (arg.time) res += arg.time.rfcstring() + ": ";
-      res += arg.category + ": ";
-      if (arg.msg) {
-        res += arg.msg;
-      } else {
-        res += arg.toString.call(arg);
-      }
-      if (arg.stack) res += " (" + arg.stack[0] + ")";
-      return res;
-    },
-
-    _store: function(category, arg) {
+    _store: function(category, data) {
       var self = this;
 
-      arg = arg || {};
-      arg.category = category;
+      var entry = new Logging.Entry();
+      entry.category = category;
+      entry.data = data;
+      if (self.store_time) entry.time = new Date();
+      if (self.store_stack) entry.stack = stacktrace().slice(6);
 
-      if (self.store_time) arg.time = new Date();
-      if (self.store_stack) arg.stack = stacktrace().slice(6);
-
-      if (self.print) print(self._format(arg));
-      self._storage.push(arg);
+      if (self.print) print(entry.toString());
+      self._storage.push(entry);
     },
 
     _ignore: function() {},
@@ -94,7 +81,31 @@ define(["Class", "UrlValues", "stacktrace"], function(Class, UrlValues, stacktra
 
     format: function (start, end) {
       var self = this;
-      return self._storage.slice(start, end).map(self._format.bind(self)).join("\n");
+      return self._storage.slice(start, end).join("\n");
+    }
+  });
+
+  Logging.Entry = Class({
+      name: "Logging__Entry",
+    initialize: function () {},
+
+    toString: function () {
+      var self = this;
+
+      var res = "";
+      if (self.time) res += self.time.rfcstring() + ": ";
+      res += self.category + ": ";
+      if (self.data) {
+        if (self.data.msg) {
+          res += self.data.msg;
+        } else if (!self.data.hasOwnProperty("toString") && self.data.constructor === Object) {
+          res += JSON.stringify(self.data);
+        } else {
+          res += self.data.toString.call(self.data);
+        }
+      }
+      if (self.stack) res += " (" + self.stack[0] + ")";
+      return res;
     }
   });
 
