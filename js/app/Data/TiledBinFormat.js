@@ -184,7 +184,7 @@ define(["Class", "Events", "Bounds", "Data/Format", "Data/Tile", "Logging", "jQu
     handleFullTile: function (tile) {
       var self = this;
 
-      self.mergeTiles();
+      self.mergeTile(tile);
 
       var all_done = self.getTiles(
         ).map(function (tile) { return tile.header && tile.header.length == tile.rowcount }
@@ -215,6 +215,14 @@ define(["Class", "Events", "Bounds", "Data/Format", "Data/Tile", "Logging", "jQu
         while (tile.replacement != undefined) tile = tile.replacement;
         return tile;
       });
+    },
+
+    mergeTile: function (tile) {
+      var self = this;
+      // A TiledBinFormat instance can be treated as a tile itself, as
+      // it's a subclass of Format. This way, we can merge one more
+      // tile without revisiting all the other already loaded tiles.
+      self.mergeTiles([self, tile]);
     },
 
     mergeTiles: function (tiles) {
@@ -256,10 +264,12 @@ define(["Class", "Events", "Bounds", "Data/Format", "Data/Tile", "Logging", "jQu
       dst = new TiledBinFormat.DataContainer();
 
       if (tiles == undefined) {
-        tiles = self.getTiles().map(function (tile) {
-          return {value: tile, merged_rowcount: 0};
-        });
+        tiles = self.getTiles();
       }
+
+      tiles = tiles.map(function (tile) {
+        return {value: tile, merged_rowcount: 0};
+      });
 
       // FIXME: Handle min/max values correctly here!!!!
       tiles.map(function (tile) {
