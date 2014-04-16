@@ -1,4 +1,4 @@
-define(["Class", "Values", "UrlValues", "Data/DataManager", "Visualization/Animation/AnimationManager", "Visualization/UI", "async"], function(Class, Values, UrlValues, DataManager, AnimationManager, UI, async) {
+define(["Class", "SubscribableDict", "UrlValues", "Data/DataManager", "Visualization/Animation/AnimationManager", "Visualization/UI", "async"], function(Class, SubscribableDict, UrlValues, DataManager, AnimationManager, UI, async) {
   return Class({
     paramspec: {
       zoom: {default: 4, fromurl: UrlValues.intFromUrl, tourl: UrlValues.intToUrl, urlname: "zoom"},
@@ -22,7 +22,7 @@ define(["Class", "Values", "UrlValues", "Data/DataManager", "Visualization/Anima
     initialize: function () {
       var self = this;
 
-      self.state = new Values(self.paramspec);
+      self.state = new SubscribableDict(self.paramspec);
       self.urlhandler = new UrlValues(self.state, self.paramspec);
 
       self.state.getValue("format")
