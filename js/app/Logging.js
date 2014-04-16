@@ -86,7 +86,7 @@ define(["Class", "UrlValues", "stacktrace"], function(Class, UrlValues, stacktra
   });
 
   var filter = UrlValues.getParameter("log");
-  if (filter) {
+  if (filter != undefined) {
     filter = filter.split(",");
   } else {
     filter = [];
