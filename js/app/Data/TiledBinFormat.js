@@ -128,6 +128,24 @@ define(["Class", "Events", "Bounds", "Data/Format", "Data/Tile", "Logging", "jQu
       });
       self.tiles = tiles;
 
+      Logging.default.log("Data.TiledBinFormat.zoomTo", {
+        new_tiles: Object.keys(tiles),
+        old_tiles: Object.keys(old_tiles),
+        toString: function () {
+          var self = this;
+          var new_tiles = this.new_tiles.filter(function (bbox) {
+              return self.old_tiles.indexOf(bbox) == -1
+          }).join(", ");
+          var old_tiles = this.old_tiles.filter(function (bbox) {
+              return self.new_tiles.indexOf(bbox) == -1
+          }).join(", ");
+          var existing_tiles = this.new_tiles.filter(function (bbox) {
+              return self.old_tiles.indexOf(bbox) != -1
+          }).join(", ");
+          return "Added: " + new_tiles + "; Removed: " + old_tiles + "; Kept: " + existing_tiles;
+        }
+      });
+
       // Cancel the loading of any tiles we aren't gonna use any more that are still loading...
       Object.items(old_tiles).map(function (item) {
         if (tiles[item.key] == undefined) {
