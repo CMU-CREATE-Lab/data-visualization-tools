@@ -95,7 +95,7 @@ define(["Class", "Bounds", "async", "Logging", "jQuery", "Visualization/Matrix",
       google.maps.event.addListener(self.map, 'zoom_changed', self.zoomChanged.bind(self));
       google.maps.event.addListener(self.map, 'bounds_changed', self.boundsChanged.bind(self));
       google.maps.event.addListener(self.map, 'dragstart', function () { self.indrag = true; });
-      google.maps.event.addListener(self.map, 'dragend', function () { self.indrag = false; });
+        google.maps.event.addListener(self.map, 'dragend', function () { self.indrag = false; self.boundsChanged(); });
 
       cb();
     },
