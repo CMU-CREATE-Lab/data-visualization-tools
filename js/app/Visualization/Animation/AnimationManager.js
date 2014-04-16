@@ -264,10 +264,10 @@ define(["Class", "Bounds", "async", "Logging", "jQuery", "Visualization/Matrix",
 
       if (!self.glInitialized) return;
 
+      var time = self.visualization.state.getValue("time");
       var paused = self.visualization.state.getValue("paused");
       if (!self.visualization.data.format.header.colsByName.datetime) paused = true;
       if (!paused) {
-        var time = self.visualization.state.getValue("time");
         var min = self.visualization.data.format.header.colsByName.datetime.min;
         var max = self.visualization.data.format.header.colsByName.datetime.max;
         if (time < min || time > max) paused = true;
@@ -289,7 +289,7 @@ define(["Class", "Bounds", "async", "Logging", "jQuery", "Visualization/Matrix",
             + " [" + (this.offset != undefined ? this.offset.toString() : "undefined") + "]";
         },
         offset: self.visualization.state.getValue("offset"),
-        time: self.visualization.state.getValue("time")
+        time: time
       });
 
       self.animations.map(function (animation) { animation.draw(); });

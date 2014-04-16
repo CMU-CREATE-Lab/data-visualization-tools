@@ -1,9 +1,10 @@
-define(["Class"], function(Class) {
+define(["Class", "Logging"], function(Class, Logging) {
   return Class({
     name: "Events",
-    initialize: function () {
+    initialize: function (category) {
       var self = this;
       self.handlers = {};
+      self.category = category || "AnonymousEvents";
     },
     on: function(args) {
       var self = this;
@@ -16,6 +17,7 @@ define(["Class"], function(Class) {
     },
     triggerEvent: function (event, data) {
       var self = this;
+      Logging.default.log(self.category + "." + event, data);
       if (self.handlers[event]) {
         self.handlers[event].map(function (handler) {
           handler.handler.call(handler.scope, data);

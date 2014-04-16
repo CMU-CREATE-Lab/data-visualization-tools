@@ -7,7 +7,7 @@ define(["Class", "Events"], function(Class, Events) {
       self.data = {};
       self.rowcount = 0;
       self.seriescount = 0;
-      self.events = new Events();
+      self.events = new Events("Data.Format");
     }
   });
 

@@ -12,7 +12,7 @@ define(["Class", "Events", "Logging"], function(Class, Events, Logging) {
 
       values.spec = spec;
       values.values = {};
-      values.events = new Events();
+      values.events = new Events("SubscribableDict");
     },
 
     setValue: function(name, value) {
@@ -29,7 +29,6 @@ define(["Class", "Events", "Logging"], function(Class, Events, Logging) {
           return this.name + " = " + o + " -> " + n;
         }
       };
-      Logging.default.log("Values.setValue", event);
       values.events.triggerEvent(name, event);
       values.events.triggerEvent("set", event);
     },

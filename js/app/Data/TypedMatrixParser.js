@@ -85,7 +85,7 @@
 
 define(["Class", "Events"], function (Class, Events) {
   TypedMatrixFormat = Class({
-    name: "TypedMatrixFormat",
+    name: "TypedMatrixParser",
     initialize: function(url) {
       var self = this;
 
@@ -99,7 +99,7 @@ define(["Class", "Events"], function (Class, Events) {
       self.responseData = null;
 
       self.url = url;
-      self.events = new Events();
+      self.events = new Events("Data.TypedMatrixParser");
     },
 
     load: function () {
