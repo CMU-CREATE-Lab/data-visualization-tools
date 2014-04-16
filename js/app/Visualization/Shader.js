@@ -1,5 +1,5 @@
 define(["Class", "async", "jQuery"], function(Class, async, $) {
-  var Shader = {};
+  var Shader = Class({name: "Shader"});
 
   /* Load array data into gl buffers and bind that buffer to a shader
    * program attribute */

@@ -1,5 +1,6 @@
 define(["Class", "Data/Format", "Data/BinFormat", "Data/TiledBinFormat"], function(Class, Format) {
   return Class({
+    name: "DataManager",
     initialize: function (visualization) {
       var self = this;
 

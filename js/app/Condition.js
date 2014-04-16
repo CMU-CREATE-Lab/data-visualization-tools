@@ -5,6 +5,7 @@
 */
 defined(["Class", "async"], function (Class, async) {
   return Class({
+    name: "Condition",
     initialize: function() {
       this.is_true = false;
       this.waiting = [];

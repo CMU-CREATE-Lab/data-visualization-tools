@@ -1,5 +1,6 @@
 define(["Class"], function(Class) {
   var Animation = Class({
+    name: "Animation",
     initialize: function(manager) {
       var self = this;
       self.manager = manager;

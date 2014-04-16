@@ -1,5 +1,6 @@
 define(["Class", "async", "jQuery", "Visualization/sliders"], function(Class, async, $) {
   return Class({
+    name: "UI",
     initialize: function (visualization) {
       var self = this;
       self.visualization = visualization;

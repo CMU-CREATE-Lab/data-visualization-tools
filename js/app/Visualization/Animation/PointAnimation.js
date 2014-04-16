@@ -1,5 +1,7 @@
 define(["require", "Class", "Visualization/GeoProjection", "Visualization/Shader", "Visualization/Animation/Animation"], function(require, Class, GeoProjection, Shader, Animation) {
   var PointAnimation = Class(Animation, {
+    name: "PointAnimation",
+
     magnitudeScale: 0.1,
 
     initGl: function(gl, cb) {

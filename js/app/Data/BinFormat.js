@@ -1,5 +1,6 @@
 define(["Class", "Events", "Data/TypedMatrixParser", "Data/Format"], function(Class, Events, TypedMatrixParser, Format) {
   var BinFormat = Class(TypedMatrixParser, {
+    name: "BinFormat",
     initialize: function(source) {
       var self = this;
       self.source = source;

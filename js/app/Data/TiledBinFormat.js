@@ -12,6 +12,7 @@
 
 define(["Class", "Events", "Bounds", "Data/Format", "Data/Tile", "Logging", "jQuery", "LangExtensions"], function(Class, Events, Bounds, Format, Tile, Logging, $) {
   var TiledBinFormat = Class({
+    name: "TiledBinFormat",
     initialize: function(source) {
       var self = this;
       self.source = source;

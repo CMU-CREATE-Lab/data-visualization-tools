@@ -1,5 +1,6 @@
 define(["Class"], function(Class) {
   return Class({
+    name: "Events",
     initialize: function () {
       var self = this;
       self.handlers = {};

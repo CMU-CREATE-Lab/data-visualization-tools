@@ -5,6 +5,7 @@ define(["Class", "UrlValues", "stacktrace"], function(Class, UrlValues, stacktra
   }
 
   Logging = Class({
+    name: "Logging",
     store_time: true,
     store_stack: true,
     print: true,

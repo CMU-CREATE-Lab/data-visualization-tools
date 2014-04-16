@@ -1,5 +1,6 @@
 define(["Class", "Events", "Logging"], function(Class, Events, Logging) {
   return Class({
+    name: "SubscribableDict",
     /*
       spec = {
         zoom: {default: 3},

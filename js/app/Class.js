@@ -19,11 +19,11 @@ define(['jQuery'], function($) {
     var first_parent = arguments[0];
     var proto = arguments[len-1];
 
-    var cls;
+    var initialize;
     if (typeof proto.initialize == "function") {
-      cls = proto.initialize;
+      initialize = proto.initialize;
     } else {
-      cls = function () {
+      initialize = function () {
         first_parent.prototype.initialize.apply(this, arguments);
       };
     }
@@ -31,12 +31,16 @@ define(['jQuery'], function($) {
     if (len > 1) {
       inherit.apply(
         null,
-        [cls, first_parent].concat(
+        [initialize, first_parent].concat(
           Array.prototype.slice.call(arguments).slice(1, len-1),
           proto));
     } else {
-      cls.prototype = proto;
+      initialize.prototype = proto;
     }
+
+    var cls = eval("(function " + (proto.name || "AnonymousClass") + "() { return initialize.apply(this, arguments); })");
+    cls.prototype = initialize.prototype;
+
     return cls;
   };
 });

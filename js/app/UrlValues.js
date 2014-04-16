@@ -7,6 +7,7 @@
 
 define(["Class", "LangExtensions"], function(Class) {
   var UrlValues = Class({
+    name: "UrlValues",
     /*
       spec = {
         latitude: {fromurl: UrlValues.floatFromUrl, precision: 1000, tourl: UrlValues.floatToUrl, urlname: "lat"},

@@ -1,5 +1,6 @@
 define(["Class", "SubscribableDict", "UrlValues", "Data/DataManager", "Visualization/Animation/AnimationManager", "Visualization/UI", "async"], function(Class, SubscribableDict, UrlValues, DataManager, AnimationManager, UI, async) {
   return Class({
+    name: "Visualization",
     paramspec: {
       zoom: {default: 4, fromurl: UrlValues.intFromUrl, tourl: UrlValues.intToUrl, urlname: "zoom"},
       lat: {default: 39.3, fromurl: UrlValues.floatFromUrl, tourl: UrlValues.floatToUrl, precision: 100000, urlname: "lat"},
