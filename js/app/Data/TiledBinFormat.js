@@ -118,14 +118,22 @@ define(["Class", "Events", "Bounds", "Data/Format", "Data/Tile", "Logging", "jQu
       self.events.triggerEvent("load");
 
       var tiles = {};
+      var old_tiles = self.tiles;
       self.tileBoundsForRegion(bounds).map(function (tilebounds) {
-        if (self.tiles[tilebounds.toBBOX()] != undefined) {
-          tiles[tilebounds.toBBOX()] = self.tiles[tilebounds.toBBOX()];
+        if (old_tiles[tilebounds.toBBOX()] != undefined) {
+          tiles[tilebounds.toBBOX()] = old_tiles[tilebounds.toBBOX()];
         } else {
           tiles[tilebounds.toBBOX()] = self.setUpTile(tilebounds);
         }
       });
       self.tiles = tiles;
+
+      // Cancel the loading of any tiles we aren't gonna use any more that are still loading...
+      Object.items(old_tiles).map(function (item) {
+        if (tiles[item.key] == undefined) {
+          item.value.cancel();
+        }
+      });
 
       // Merge any already loaded tiles
       self.mergeTiles();

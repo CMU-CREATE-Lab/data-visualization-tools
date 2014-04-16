@@ -46,6 +46,8 @@
    });
    f.load();
 
+   f.cancel(); // To cancel the loading at any time.
+
    The header data is available in f.header during and after the
    header event fires, in addition to being sent as a parameter to
    that event. The header data is the same as the header data found in
@@ -125,6 +127,12 @@ define(["Class", "Events"], function (Class, Events) {
       }
       setTimeout(handleDataCallback, 500);
 
+    },
+
+    cancel: function () {
+      var self = this;
+
+      self.request.abort();
     },
 
     writeStringToArrayBuffer: function(str, start, end, buf, bufstart) {
