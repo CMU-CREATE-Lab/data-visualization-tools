@@ -86,7 +86,7 @@ define(["Class", "UrlValues", "stacktrace"], function(Class, UrlValues, stacktra
   });
 
   Logging.Entry = Class({
-      name: "Logging__Entry",
+    name: "Logging__Entry",
     initialize: function () {},
 
     toString: function () {
