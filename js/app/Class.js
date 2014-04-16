@@ -1,4 +1,14 @@
-/* Class code adapted from OpenLayers; Published under the 2-clause BSD license. See license.txt in the OpenLayers distribution. */
+/* Class code adapted from OpenLayers; Published under the 2-clause
+ * BSD license. See license.txt in the OpenLayers distribution.
+ *
+ * The API is the same as for OpenLayers, with the added feature that
+ * the class can be named using e.g.
+ *
+ * cls = Class({name: "SomeClassName"});
+ *
+ * This will be visible in cls.toString(), cls.name and in most
+ * debuggers when looking at both the class itself and instances.
+ */
 
 define(['jQuery'], function($) {
   var inherit = function(cls, parent) {
