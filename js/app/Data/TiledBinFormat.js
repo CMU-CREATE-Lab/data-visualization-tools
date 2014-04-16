@@ -187,7 +187,7 @@ define(["Class", "Events", "Bounds", "Data/Format", "Data/Tile", "Logging", "jQu
       self.mergeTiles();
 
       var all_done = self.getTiles(
-        ).map(function (tile) { return tile.value.header && tile.value.header.length == tile.value.rowcount }
+        ).map(function (tile) { return tile.header && tile.header.length == tile.rowcount }
         ).reduce(function (a, b) { return a && b; });
 
       var e;
@@ -211,13 +211,13 @@ define(["Class", "Events", "Bounds", "Data/Format", "Data/Tile", "Logging", "jQu
     },
 
     getTiles: function () {
-      return Object.items(self.tiles).map(function (tile) {
-        while (tile.value.replacement != undefined) tile.value = tile.value.replacement;
+      return Object.values(self.tiles).map(function (tile) {
+        while (tile.replacement != undefined) tile = tile.replacement;
         return tile;
       });
     },
 
-    mergeTiles: function () {
+    mergeTiles: function (tiles) {
       var self = this;
 
       function compareTiles(a, b) {
@@ -255,10 +255,11 @@ define(["Class", "Events", "Bounds", "Data/Format", "Data/Tile", "Logging", "jQu
 
       dst = new TiledBinFormat.DataContainer();
 
-      var tiles = self.getTiles().map(function (tile) {
-        tile.merged_rowcount = 0;
-        return tile;
-      });
+      if (tiles == undefined) {
+        tiles = self.getTiles().map(function (tile) {
+          return {value: tile, merged_rowcount: 0};
+        });
+      }
 
       // FIXME: Handle min/max values correctly here!!!!
       tiles.map(function (tile) {
