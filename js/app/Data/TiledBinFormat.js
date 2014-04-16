@@ -113,6 +113,7 @@ define(["Class", "Events", "Bounds", "Data/Format", "Data/Tile", "Logging", "jQu
 
     zoomTo: function (bounds) {
       self = this;
+      var old_bounds = self.bounds;
       self.bounds = bounds;
 
       self.events.triggerEvent("load");
@@ -129,6 +130,8 @@ define(["Class", "Events", "Bounds", "Data/Format", "Data/Tile", "Logging", "jQu
       self.tiles = tiles;
 
       Logging.default.log("Data.TiledBinFormat.zoomTo", {
+        old_bounds: old_bounds,
+        new_bounds: bounds,
         new_tiles: Object.keys(tiles),
         old_tiles: Object.keys(old_tiles),
         toString: function () {
@@ -142,7 +145,9 @@ define(["Class", "Events", "Bounds", "Data/Format", "Data/Tile", "Logging", "jQu
           var existing_tiles = this.new_tiles.filter(function (bbox) {
               return self.old_tiles.indexOf(bbox) != -1
           }).join(", ");
-          return "Added: " + new_tiles + "; Removed: " + old_tiles + "; Kept: " + existing_tiles;
+          var old_bounds = self.old_bounds != undefined ? self.old_bounds.toBBOX() : "undefined";
+          var new_bounds = self.new_bounds != undefined ? self.new_bounds.toBBOX() : "undefined";
+          return old_bounds + " -> " + new_bounds + ":\n  Added: " + new_tiles + "\n  Removed: " + old_tiles + "\n  Kept: " + existing_tiles + "\n";
         }
       });
 
