@@ -28,6 +28,7 @@ define(['jQuery'], function($) {
     var len = arguments.length;
     var first_parent = arguments[0];
     var proto = arguments[len-1];
+    var name = proto.name || "AnonymousClass";
 
     var initialize;
     if (typeof proto.initialize == "function") {
@@ -45,10 +46,15 @@ define(['jQuery'], function($) {
           Array.prototype.slice.call(arguments).slice(1, len-1),
           proto));
     } else {
+      if (!proto.hasOwnProperty("toString")) {
+        proto.toString = function () {
+          return "[object " + name + "]";
+        }
+      }
       initialize.prototype = proto;
     }
 
-    var cls = eval("(function " + (proto.name || "AnonymousClass") + "() { return initialize.apply(this, arguments); })");
+    var cls = eval("(function " + name + "() { return initialize.apply(this, arguments); })");
     cls.prototype = initialize.prototype;
 
     return cls;
