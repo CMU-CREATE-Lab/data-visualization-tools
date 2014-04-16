@@ -16,7 +16,7 @@ define(["Class", "UrlValues", "stacktrace"], function(Class, UrlValues, stacktra
       var store = self._store.bind(self);
 
       for (var key in args) {
-        if (key == "filter") continue;
+        if (key == "include" || key == "exclude") continue;
         self[key] = args[key];
       }
 
@@ -24,9 +24,14 @@ define(["Class", "UrlValues", "stacktrace"], function(Class, UrlValues, stacktra
       self._storage = [];
 
       self._filter[""] = ignore;
-      if (filter) {
-        args.filter.map(function (item) {
+      if (args.include) {
+        args.include.map(function (item) {
           self._filter[item] = store;
+        });
+      }
+      if (args.exclude) {
+        args.exclude.map(function (item) {
+          self._filter[item] = ignore;
         });
       }
     },
@@ -44,39 +49,47 @@ define(["Class", "UrlValues", "stacktrace"], function(Class, UrlValues, stacktra
       return res;
     },
 
-    _store: function(arg) {
+    _store: function(category, arg) {
       var self = this;
+
+      arg = arg || {};
+      arg.category = category;
+
+      if (self.store_time) arg.time = new Date();
+      if (self.store_stack) arg.stack = stacktrace().slice(6);
 
       if (self.print) print(self._format(arg));
       self._storage.push(arg);
     },
 
-    _ignore: function(arg) {},
+    _ignore: function() {},
 
     log: function(category, arg) {
       var self = this;
 
-      arg.category = category;
+      /* Important: Keep the amount of work needed here to a bare
+       * minimum, especially for the case when the filter is set to
+       * ignore for the current category.
+       */
 
-      if (self.store_time) arg.time = new Date();
-      if (self.store_stack) arg.stack = stacktrace().slice(4);
-      if (self._filter[category]) return self._filter[category](arg);
+      var filter = self._filter[category];
+      if (!filter) {
+        var categorylist = category.split(".");
+        var i;
+        var c;
+        var filter;
 
-      category = category.split(".");
-      var i;
-      var c;
-      var filter;
-
-      for (i = category.length - 1; i >= 0; i--) {
-        filter = self._filter[category.slice(0, i).join(".")];
-        if (filter) {
-          for (i++; i <= category.length; i++) {
-            self._filter[category.slice(0, i).join(".")] = filter;
+        for (i = categorylist.length - 1; i >= 0; i--) {
+          filter = self._filter[categorylist.slice(0, i).join(".")];
+          if (filter) {
+            for (i++; i <= categorylist.length; i++) {
+              self._filter[categorylist.slice(0, i).join(".")] = filter;
+            }
+            break;
           }
-          break;
         }
       }
-      filter(arg);
+      filter(category, arg);
     },
 
     format: function (start, end) {
@@ -85,14 +98,16 @@ define(["Class", "UrlValues", "stacktrace"], function(Class, UrlValues, stacktra
     }
   });
 
-  var filter = UrlValues.getParameter("log");
-  if (filter != undefined) {
-    filter = filter.split(",");
+  var log = UrlValues.getParameter("log");
+  if (log != undefined) {
+    log = log.split(",");
   } else {
-    filter = [];
+    log = [];
   }
-
-  Logging.default = new Logging({filter:filter});
+  Logging.default = new Logging({
+    include:log.filter(function (item) { return item.indexOf("-") != 0; }),
+    exclude: log.filter(function (item) { return item.indexOf("-") == 0; }).map(function (item) { return item.substr(1); })
+  });
 
   return Logging;
 });
