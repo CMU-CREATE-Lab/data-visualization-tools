@@ -1,16 +1,15 @@
 define(["Class", "Events", "Data/TypedMatrixParser", "Data/Format"], function(Class, Events, TypedMatrixParser, Format) {
-  var BinFormat = Class(TypedMatrixParser, {
+  var BinFormat = Class(TypedMatrixParser, Format, {
     name: "BinFormat",
     initialize: function(source) {
       var self = this;
       self.source = source;
-      self.data = {};
-      self.rowcount = 0;
-      self.seriescount = 0;
       self.loaded = {};
       self.loading_started = false;
      
-      TypedMatrixParser.prototype.initialize.call(self, self.source);
+      Format.prototype.initialize.apply(self, arguments);
+      // Header and events will be overwritten, with the same values...
+      TypedMatrixParser.prototype.initialize.apply(self, arguments);
     },
 
     zoomTo: function () {

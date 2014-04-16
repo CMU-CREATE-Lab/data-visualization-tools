@@ -11,17 +11,13 @@
 */
 
 define(["Class", "Events", "Bounds", "Data/Format", "Data/Tile", "Logging", "jQuery", "LangExtensions"], function(Class, Events, Bounds, Format, Tile, Logging, $) {
-  var TiledBinFormat = Class({
+  var TiledBinFormat = Class(Format, {
     name: "TiledBinFormat",
     initialize: function(source) {
       var self = this;
       self.source = source;
       self.tiles = {};
-      self.header = {length: 0, colsByName: {}};
-      self.data = {};
-      self.rowcount = 0;
-      self.seriescount = 0;
-      self.events = new Events();
+      Format.prototype.initialize.apply(self, arguments);
     },
 
     tilesPerScreenX: 2,
@@ -257,49 +253,53 @@ define(["Class", "Events", "Bounds", "Data/Format", "Data/Tile", "Logging", "jQu
 
       var start = new Date();
 
+      dst = new TiledBinFormat.DataContainer();
+
       var tiles = self.getTiles().map(function (tile) {
         tile.merged_rowcount = 0;
         return tile;
       });
 
-      self.header = {length: 0, colsByName: {}};
       // FIXME: Handle min/max values correctly here!!!!
       tiles.map(function (tile) {
         if (!tile.value.header) return;
 
-        self.header.length += tile.value.header.length;
-        self.header.colsByName = $.extend(self.header.colsByName, tile.value.header.colsByName);
+        dst.header.length += tile.value.header.length;
+        dst.header.colsByName = $.extend(dst.header.colsByName, tile.value.header.colsByName);
       });
 
-      self.data = {};
-      for (var name in self.header.colsByName) {
-        var col = self.header.colsByName[name];
-        self.data[name] = new col.typespec.array(self.header.length);
+      for (var name in dst.header.colsByName) {
+        var col = dst.header.colsByName[name];
+        dst.data[name] = new col.typespec.array(dst.header.length);
       }
 
-      self.rowcount = 0;
-      self.seriescount = 0;
       var lastSeries = function () {}; // Magic unique value
       var tile;
       while (tile = nextTile(tiles)) {
-        for (var name in self.data) {
+        for (var name in dst.data) {
           if (tile.value.data[name] == undefined) {
-            self.data[name][self.rowcount] = NaN;
+            dst.data[name][dst.rowcount] = NaN;
           } else {
-            self.data[name][self.rowcount] = tile.value.data[name][tile.merged_rowcount-1];
+            dst.data[name][dst.rowcount] = tile.value.data[name][tile.merged_rowcount-1];
           }
         }
-        self.rowcount++;
+        dst.rowcount++;
         if (tile.value.data.series != lastSeries) {
-          self.seriescount++;
+          dst.seriescount++;
           lastSeries = tile.value.data.series;
         }
       }
+
+      self.header = dst.header;
+      self.data = dst.data;
+      self.rowcount = dst.rowcount;
+      self.seriescount = dst.seriescount;
 
       var end = new Date();
       Logging.default.log("Data.TiledBinFormat.mergeTiles", {start: start, end: end, toString: function () { return ((this.end - this.start) / 1000.0).toString(); }});
     }
   });
+  TiledBinFormat.DataContainer = Class(Format, {});
   Format.formatClasses.tiledbin = TiledBinFormat;
 
   return TiledBinFormat;
