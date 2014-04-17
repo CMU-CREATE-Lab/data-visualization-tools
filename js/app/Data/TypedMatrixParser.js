@@ -246,17 +246,19 @@ define(["Class", "Events"], function (Class, Events) {
 
       var dataView = new DataView(self.responseData.buffer);
 
-      for (; self.offset + self.rowLen <= length; self.rowidx++) {
-        var row = {};
-        for (var colidx = 0; colidx < self.header.cols.length; colidx++) {
-          var col = self.header.cols[colidx];
-          var val = dataView[col.typespec.method](self.offset, true);
-          if (col.multiplier != undefined) val = val * col.multiplier;
-          if (col.offset != undefined) val = val + col.offset;
-          row[col.name] = val;
-          self.offset += col.typespec.size;
+      if (self.rowLen) {
+        for (; self.offset + self.rowLen <= length; self.rowidx++) {
+          var row = {};
+          for (var colidx = 0; colidx < self.header.cols.length; colidx++) {
+            var col = self.header.cols[colidx];
+            var val = dataView[col.typespec.method](self.offset, true);
+            if (col.multiplier != undefined) val = val * col.multiplier;
+            if (col.offset != undefined) val = val + col.offset;
+            row[col.name] = val;
+            self.offset += col.typespec.size;
+          }
+          self.rowLoaded(row);
         }
-        self.rowLoaded(row);
       }
       if (self.rowidx == self.header.length) {
         self.allLoaded();
