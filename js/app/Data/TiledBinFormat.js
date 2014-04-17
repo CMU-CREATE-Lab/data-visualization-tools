@@ -38,7 +38,9 @@ define(["Class", "Events", "Bounds", "Data/Format", "Data/Tile", "Logging", "jQu
       var worldwidth = self.world.getWidth();
       var worldheight = self.world.getHeight();
 
-      var level = Math.ceil(Math.max(log(worldwidth / (width/self.tilesPerScreenX), 2), log(worldheight / (height/self.tilesPerScreenY), 2)));
+      var level = Math.ceil(Math.max(
+        Math.log(worldwidth / (width/self.tilesPerScreenX), 2),
+        Math.log(worldheight / (height/self.tilesPerScreenY), 2)));
 
       var tilewidth = worldwidth / Math.pow(2, level);
       var tileheight = worldheight / Math.pow(2, level);
@@ -58,6 +60,9 @@ define(["Class", "Events", "Bounds", "Data/Format", "Data/Tile", "Logging", "jQu
           height: height,
           worldwidth: worldwidth,
           worldheight: worldheight,
+
+          tilesPerScreenX: self.tilesPerScreenX,
+          tilesPerScreenY: self.tilesPerScreenY,
 
           level: level,
 

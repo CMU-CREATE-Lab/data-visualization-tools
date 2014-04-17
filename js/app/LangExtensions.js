@@ -15,8 +15,13 @@ define([], function() {
     return res;
   }
 
-  log = function(x,base) {
-    return Math.log(x)/Math.log(base);
+  var old_log = Math.log;
+  Math.log = function(x,base) {
+    if (base == undefined) {
+      return old_log(x);
+    } else {
+      return old_log(x)/old_log(base);
+    }
   }
 
   Date.prototype.yyyymmdd = function(stepsize) {

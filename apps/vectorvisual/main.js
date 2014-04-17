@@ -18,6 +18,7 @@ require.config({
     'CanvasLayer': jsdir.concat(['libs', 'CanvasLayer']).join('/'),
     'Stats': jsdir.concat(['libs', 'stats.min']).join('/'),
     'async': jsdir.concat(['libs', 'async']).join('/'),
+    'QUnit': jsdir.concat(['libs', 'qunit-1.14.0']).join('/'),
 
     // AMD modules
     'stacktrace': jsdir.concat(['libs', 'stacktrace']).join('/'),
@@ -29,12 +30,21 @@ require.config({
     'less': {exports: 'less'},
     'CanvasLayer': {exports: 'CanvasLayer'},
     'Stats': {exports: 'Stats'},
-    'async': {exports: 'async'}
+    'async': {exports: 'async'},
+    'QUnit': {exports: 'QUnit'}
   }
 });
 
-require(['Visualization/Visualization', 'jQuery', "bootstrap", "less", "LangExtensions"], function (Visualization, $) {
+require(['UrlValues', 'Visualization/Visualization', 'Test', 'jQuery', "bootstrap", "less", "LangExtensions"], function (UrlValues, Visualization, Test, $) {
   $(document).ready(function () {
-    visualization = new Visualization();
+    if (UrlValues.getParameter('test') != undefined) {
+      $("#test").show();
+      $("#visualization").hide();
+      apptest = new Test();
+    } else {
+      $("#test").hide();
+      $("#visualization").show();
+      visualization = new Visualization();
+    }
   });
 });
