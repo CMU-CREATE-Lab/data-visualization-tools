@@ -10,8 +10,8 @@ define(["Class", "QUnit", "LangExtensions"], function(Class, QUnit) {
 
       QUnit.module("Events");
 
-      QUnit.asyncTest("Scope and argument passing", function() {
-        require(["Events"], function (Events) {
+      require(["Events"], function (Events) {
+        QUnit.asyncTest("Scope and argument passing", function() {
           QUnit.expect(3);
 
           var e = new Events("Test.Events");
@@ -29,10 +29,8 @@ define(["Class", "QUnit", "LangExtensions"], function(Class, QUnit) {
           });
           e.triggerEvent("someEvent", myarg);
         });
-      });
 
-      QUnit.asyncTest("Recursive events", function() {
-        require(["Events"], function (Events) {
+        QUnit.asyncTest("Recursive events", function() {
           QUnit.expect(1);
 
           var e = new Events("Test.Events");
