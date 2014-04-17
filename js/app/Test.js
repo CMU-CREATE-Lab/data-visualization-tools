@@ -12,7 +12,7 @@ define(["Class", "QUnit", "LangExtensions"], function(Class, QUnit) {
 
       require(["Events"], function (Events) {
         QUnit.asyncTest("Scope and argument passing", function() {
-          QUnit.expect(3);
+          QUnit.expect(2);
 
           var e = new Events("Test.Events");
           var myscope = {};
@@ -20,9 +20,8 @@ define(["Class", "QUnit", "LangExtensions"], function(Class, QUnit) {
 
           e.on({
             someEvent: function (arg) {
-              QUnit.equal(this, myscope, "Scope isn't set to the provided scope");
-              QUnit.equal(arg, myarg, "Argument isn't set to the provided argument");
-              QUnit.ok(true, "Events triggered as they should");
+              QUnit.equal(this, myscope, "Scope is set to the provided scope");
+              QUnit.equal(arg, myarg, "Argument is set to the provided argument");
               start();
             },
             scope: myscope
@@ -31,16 +30,17 @@ define(["Class", "QUnit", "LangExtensions"], function(Class, QUnit) {
         });
 
         QUnit.asyncTest("Recursive events", function() {
-          QUnit.expect(1);
+          QUnit.expect(2);
 
           var e = new Events("Test.Events");
 
           e.on({
             firstEvent: function (arg) {
+              QUnit.ok(true, "First event triggered");
               e.triggerEvent("secondEvent");
             },
             secondEvent: function (arg) {
-              QUnit.ok(true, "Events triggered as they should");
+              QUnit.ok(true, "Second event triggered");
               start();
             }
           });
