@@ -90,7 +90,7 @@ Visualization.prototype.update = function() {
 
 
   visualization.gl.clear(visualization.gl.COLOR_BUFFER_BIT);
-  visualization.animations.map(function (animation) { animation.draw(); });
+  visualization.animations.map(function (animation) { if (!animation.disabled) { animation.draw(); } });
 
   visualization.stats.end();
 }
@@ -279,6 +279,35 @@ Visualization.prototype.initAnimation = function (cb) {
     kmlLayer.setMap(visualization.map);
   }
 
+  var layers = {
+    'Jack Mackerel Native Range': {id: '06136759344167181854-04426545704594433859'},
+    'World EEZ boundaries': {id: '06136759344167181854-09935479668386854128'},
+    'SPRFMO': {id: '06136759344167181854-00735421306922726696'},
+    'FFA': {id: '06136759344167181854-08139650148618417522'},
+    'WCPFC': {id: '06136759344167181854-13150767059647267587'},
+    'IATTC': {id: '06136759344167181854-03783127902647715013'},
+    'MEOW': {id: '06136759344167181854-05107003759935105948'}
+  }
+
+  for (var key in layers) {
+    (function (key, layer) {
+      layer.layer = new google.maps.visualization.DynamicMapsEngineLayer({
+        layerId: layer.id,
+        map: visualization.map
+      });
+
+      sel = $("<div><input type='checkbox' id='layer-" + layer.id + "' checked='true'><label for='layer-" + layer.id + "'>" + key + "</label></div>");
+      sel.find("input").change(function () {
+        if ($(this).is(":checked")) {
+          layer.layer.setMap(visualization.map);
+        } else {
+          layer.layer.setMap(null);
+        }
+      });
+      $(".layerselector").append(sel);
+    })(key, layers[key]);
+  }
+
   // initialize the canvasLayer
   var canvasLayerOptions = {
     map: visualization.map,
@@ -385,6 +414,18 @@ Visualization.prototype.init = function () {
   visualization.animations = animationClasses.map(function (cls) {
     var animation = new cls();
     animation.init(visualization);
+
+    sel = $("<div><input type='checkbox' id='animation-" + cls.name + "' checked='true'><label for='animation-" + cls.name + "'>" + cls.label + "</label></div>");
+    sel.find("input").change(function () {
+      if ($(this).is(":checked")) {
+        animation.disabled = false;
+      } else {
+        animation.disabled = true;        
+      }
+      visualization.triggerUpdate = true;
+    });
+    $(".layerselector").append(sel);
+
     return animation;
   });
 

@@ -1,10 +1,11 @@
 function PointAnimation () {
   Animation();
 }
+PointAnimation.label = 'Point animation';
 PointAnimation.prototype = new Animation();
 Animation.animationClasses.point = PointAnimation;
 
-PointAnimation.prototype.magnitudeScale = 0.1;
+PointAnimation.prototype.magnitudeScale = 8.0;
 
 PointAnimation.prototype.initGl = function(gl, cb) {
   var animation = this;
@@ -64,6 +65,17 @@ PointAnimation.prototype.row = function(rowidx, data) {
 
   if (data.magnitude != undefined) {
     animation.rawMagnitudeData[rowidx] = 1 + animation.magnitudeScale * data.magnitude / 256;
+
+   if (animation.rawMagnitudeData[rowidx] > 200) {
+     console.log([
+       animation.rawMagnitudeData[rowidx],
+       1 + animation.magnitudeScale * data.magnitude / 256,
+       animation.magnitudeScale,
+       data.magnitude,
+       data.magnitude / 256,
+       animation.magnitudeScale * data.magnitude / 256
+     ]);
+   }
   } else {
     animation.rawMagnitudeData[rowidx] = 1;
   }
@@ -116,6 +128,7 @@ PointAnimation.prototype.getDrawMode = function () {
 function LineAnimation () {
   PointAnimation();
 }
+LineAnimation.label = 'Line animation';
 LineAnimation.prototype = new PointAnimation();
 Animation.animationClasses.line = LineAnimation;
 

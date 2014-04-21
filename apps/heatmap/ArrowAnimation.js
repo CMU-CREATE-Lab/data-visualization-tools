@@ -1,6 +1,7 @@
 function ArrowAnimation () {
   Animation();
 }
+ArrowAnimation.label = 'Arrow animation';
 ArrowAnimation.prototype = new Animation();
 Animation.animationClasses.arrow = ArrowAnimation;
 
