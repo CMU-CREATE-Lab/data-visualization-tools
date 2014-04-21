@@ -1,7 +1,7 @@
 function PointAnimation () {
   Animation();
 }
-PointAnimation.label = 'Point animation';
+PointAnimation.label = 'Fishing heatmap';
 PointAnimation.prototype = new Animation();
 Animation.animationClasses.point = PointAnimation;
 
@@ -128,7 +128,7 @@ PointAnimation.prototype.getDrawMode = function () {
 function LineAnimation () {
   PointAnimation();
 }
-LineAnimation.label = 'Line animation';
+LineAnimation.label = 'Vessel tracks';
 LineAnimation.prototype = new PointAnimation();
 Animation.animationClasses.line = LineAnimation;
 
