@@ -4,10 +4,6 @@ define(["Class", "QUnit", "LangExtensions"], function(Class, QUnit) {
     initialize: function () {
       QUnit.config.testTimeout = 10000;
 
-      QUnit.init();
-      QUnit.start();
-
-
       QUnit.module("Events");
 
       require(["Events"], function (Events) {
@@ -47,7 +43,6 @@ define(["Class", "QUnit", "LangExtensions"], function(Class, QUnit) {
           e.triggerEvent("firstEvent");
         });
       });
-
     }
   });
 });
