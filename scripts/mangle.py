@@ -16,7 +16,7 @@ with open(sys.argv[2], "w") as of:
             if magnitude <= 0.5:
                 row['magnitude'] = '0'
             else:
-                row['magnitude'] = str(min(255, int(128 + (float(row['magnitude'])-0.5) * 128.0 / 2.0)))
+                row['magnitude'] = str(min(255, int(64 + (float(row['magnitude'])-0.5) * (256-64.0) / 2.0)))
             if row['mmsi'] != lastMmsi:
                 lastMmsi = row['mmsi']
                 series += 1
