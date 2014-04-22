@@ -282,7 +282,6 @@ Visualization.prototype.initAnimation = function (cb) {
   var layers = {
     'World EEZ boundaries': {id: '06136759344167181854-09935479668386854128'},
     'Jack Mackerel Native Range': {id: '06136759344167181854-04426545704594433859'},
-    'Jack Mackerel Catch Data': {id:'06136759344167181854-08538715991645711504'},
     'SPRFMO': {id: '06136759344167181854-00735421306922726696'},
     'MEOW': {id: '06136759344167181854-05107003759935105948'}
   }
