@@ -15,14 +15,17 @@ with open(sys.argv[2], "w") as of:
             magnitude = float(row['magnitude'])
             if magnitude <= 0.5:
                 row['magnitude'] = '0'
+                row['red'] = '255'
+                row['green'] = '0'
+                row['blue'] = '255'
             else:
-                row['magnitude'] = str(min(255, int(64 + (float(row['magnitude'])-0.5) * (256-64.0) / 2.0)))
+                row['magnitude'] = str(min(255, int(128 + (magnitude-0.5) * (256-128.0) / 2.0)))
+                row['red'] = str(min(255, int((magnitude-0.5) * 256 / 2.0)))
+                row['green'] = str(255 - int(row['red']))
+                row['blue'] = '0'
             if row['mmsi'] != lastMmsi:
                 lastMmsi = row['mmsi']
                 series += 1
             row['series'] = str(series)
-            row['datetime'] = row.pop('timestamp')
-            row['red'] = str(int((magnitude + 3) / 5.5 * 255))
-            row['green'] = str(255 - int(row['red']))
-            row['blue'] = '0'
+            row['datetime'] = row.pop('timestamp')            
             w.writerow(row)
