@@ -22,7 +22,7 @@ with open(sys.argv[2], "w") as of:
                 series += 1
             row['series'] = str(series)
             row['datetime'] = row.pop('timestamp')
-            row['red'] = row['magnitude']
+            row['red'] = str(int((magnitude + 3) / 5.5 * 255))
             row['green'] = str(255 - int(row['red']))
             row['blue'] = '0'
             w.writerow(row)
