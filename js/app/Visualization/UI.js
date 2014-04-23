@@ -106,11 +106,13 @@ define(["Class", "async", "jQuery", "Visualization/sliders"], function(Class, as
 
 
       var handle = daySlider.parent(".control").find(".handle");
+      var old_paused;
       handle.mousedown(function(event) {
-        self.visualization.state.incValue("paused");
+        old_paused = self.visualization.state.getValue("paused")
+        self.visualization.state.setValue("paused", true);
       });
       handle.mouseup(function(event) {
-        self.visualization.state.decValue("paused");
+        self.visualization.state.setValue("paused", old_paused);
       });
 
       cb();
@@ -148,11 +150,13 @@ define(["Class", "async", "jQuery", "Visualization/sliders"], function(Class, as
       updating = false;
 
       var handle = offsetSlider.parent(".control").find(".handle");
+      var old_paused;
       handle.mousedown(function(event) {
-        self.visualization.state.incValue("paused");
+        old_paused = self.visualization.state.getValue("paused")
+        self.visualization.state.setValue("paused", true);
       });
       handle.mouseup(function(event) {
-        self.visualization.state.decValue("paused");
+        self.visualization.state.setValue("paused", old_paused);
       });
 
       cb();
