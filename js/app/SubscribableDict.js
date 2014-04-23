@@ -7,18 +7,38 @@ define(["Class", "Events", "Logging"], function(Class, Events, Logging) {
         latitude: {default: 10.47}
       }
     */
-    initialize: function (spec) {
-      var values = this;
+    initialize: function(spec) {
+      var self = this;
 
-      values.spec = spec;
-      values.values = {};
-      values.events = new Events("SubscribableDict");
+      self.spec = spec;
+      self.values = {};
+      self.events = new Events("SubscribableDict");
+    },
+
+    validateValue: function(name, spec, value) {
+      var self = this;
+      if (!spec) return;
+      if (spec.type) {
+        if (typeof spec.type == "string") {
+          if (typeof value != spec.type) {
+            throw "Value " + value.toString() + " for " + name + " is not of type " + spec.type;
+          }
+        } else {
+          if (!(typeof value == "object" && value instanceof spec.type)) {
+            throw "Value " + value.toString() + " for " + name + " is not an instance of " + spec.type.name;
+          }
+        }
+      }
+      if (spec.validate) {
+        spec.validate(value)
+      }
     },
 
     setValue: function(name, value) {
-      var values = this;
-      var old = values.values[name];
-      values.values[name] = value;
+      var self = this;
+      self.spec && self.validateValue(name, self.spec[name], value);
+      var old = self.values[name];
+      self.values[name] = value;
       var event = {
         "name": name,
         "new": value,
@@ -29,16 +49,16 @@ define(["Class", "Events", "Logging"], function(Class, Events, Logging) {
           return this.name + " = " + o + " -> " + n;
         }
       };
-      values.events.triggerEvent(name, event);
-      values.events.triggerEvent("set", event);
+      self.events.triggerEvent(name, event);
+      self.events.triggerEvent("set", event);
     },
 
     getValue: function(name) {
-      var values = this;
-      if (values.values[name] != undefined) {
-        return values.values[name];
+      var self = this;
+      if (self.values[name] != undefined) {
+        return self.values[name];
       } else {
-        return values.spec[name] && values.spec[name].default;
+        return self.spec[name] && self.spec[name].default;
       }
     },
 
