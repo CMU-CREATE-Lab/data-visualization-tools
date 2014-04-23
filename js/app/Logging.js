@@ -79,9 +79,14 @@ define(["Class", "UrlValues", "stacktrace"], function(Class, UrlValues, stacktra
       filter(category, arg);
     },
 
-    format: function (start, end) {
+    get: function (start, end) {
       var self = this;
-      return self._storage.slice(start, end).join("\n");
+      return self._storage.slice(start, end);
+    },
+
+    format: function () {
+      var self = this;
+      return self.get.apply(self, arguments).join("\n");
     }
   });
 
@@ -116,7 +121,7 @@ define(["Class", "UrlValues", "stacktrace"], function(Class, UrlValues, stacktra
     log = [];
   }
   Logging.default = new Logging({
-    include:log.filter(function (item) { return item.indexOf("-") != 0; }),
+    include: log.filter(function (item) { return item.indexOf("-") != 0; }),
     exclude: log.filter(function (item) { return item.indexOf("-") == 0; }).map(function (item) { return item.substr(1); })
   });
 
