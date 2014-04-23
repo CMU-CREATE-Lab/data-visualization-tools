@@ -7,6 +7,9 @@
  * http://jquery.org/license
  *
  * Date: 2014-01-31T16:40Z
+ *
+ * Hack added to allow loading as a require.js shim, see comment below
+ *
  */
 
 (function( window ) {
@@ -773,7 +776,14 @@ QUnit.load = function() {
 };
 
 if ( defined.document ) {
-	addEvent( window, "load", QUnit.load );
+
+        // Added check if onload has already fired to work around a
+        // problem with loading QUnit as a shim in Chrome
+        if ( document.readyState === 'complete' ) {
+                QUnit.load();
+        } else {
+                addEvent( window, "load", QUnit.load );
+        }
 }
 
 // `onErrorFnPrev` initialized at top of scope
