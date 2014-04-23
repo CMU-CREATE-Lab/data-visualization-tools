@@ -60,7 +60,7 @@ define(["Class", "QUnit", "Test/BaseTest", "SubscribableDict"], function(Class, 
       var d = new SubscribableDict({
         anumber: {type: "number"},
         astring: {type: "string"},
-        atesttype: {type: TestType}
+        atesttype: {type: TestType},
         restrictednumber: {type: "number", lower: 3, validate: function (value) {
           if (value < this.lower) {
             throw "Value too low";
@@ -72,6 +72,7 @@ define(["Class", "QUnit", "Test/BaseTest", "SubscribableDict"], function(Class, 
       d.setValue("astring", "Some text");
       d.setValue("atesttype", new TestType());
       d.setValue("restrictednumber", 4);
+      d.setValue("anumber", undefined);
 
       try {
         d.setValue("anumber", "this is not a number");

@@ -17,7 +17,7 @@ define(["Class", "Events", "Logging"], function(Class, Events, Logging) {
 
     validateValue: function(name, spec, value) {
       var self = this;
-      if (!spec) return;
+      if (!spec || value == undefined) return;
       if (spec.type) {
         if (typeof spec.type == "string") {
           if (typeof value != spec.type) {
