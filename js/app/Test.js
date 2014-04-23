@@ -1,4 +1,4 @@
-define(["Class", "QUnit", "Test/Events", "Test/SubscribableDict"], function(Class, QUnit, Events, SubscribableDict) {
+define(["Class", "QUnit", "Test/Events", "Test/SubscribableDict", "Test/Logging"], function(Class, QUnit, Events, SubscribableDict, Logging) {
   return Class({
     name: "Test",
     initialize: function () {
@@ -6,6 +6,7 @@ define(["Class", "QUnit", "Test/Events", "Test/SubscribableDict"], function(Clas
 
       new Events();
       new SubscribableDict();
+      new Logging();
     }
   });
 });
