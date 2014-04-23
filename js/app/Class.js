@@ -35,7 +35,7 @@ define(['jQuery'], function($) {
       initialize = proto.initialize;
     } else {
       initialize = function () {
-        first_parent.prototype.initialize.apply(this, arguments);
+        first_parent.prototype && first_parent.prototype.initialize.apply(this, arguments);
       };
     }
 
@@ -54,7 +54,7 @@ define(['jQuery'], function($) {
       initialize.prototype = proto;
     }
 
-    var cls = eval("(function " + name + "() { return initialize.apply(this, arguments); })");
+    var cls = eval("(function " + name + "() { this.constructor = cls; return initialize.apply(this, arguments); })");
     cls.prototype = initialize.prototype;
 
     return cls;
