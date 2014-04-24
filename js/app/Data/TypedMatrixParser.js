@@ -19,7 +19,7 @@
    COL should contain {name: NAME, type: TYPE}
 
    where NAME is any string and TYPE is one of the type names found
-   in TypedMatrixFormat.typemap.
+   in Pack.typemap.
 
    COL can optionally contain 'multiplier' and/or 'offset'. If defined
    for a column, the values in that column will be scaled and offset
@@ -61,12 +61,10 @@
    Any min and max entries are updated using offset and
    multiplier, if they exist.
 
-   A typespec member is added, which contains the type from
-   TypedMatrixFormat.typemap corresponding to the type
-   specified for the column.
+   A typespec member is added, which contains the type from TypMap
+   corresponding to the type specified for the column.
 
-   Type specifications in TypedMatrixFormat.typemap have the following
-   format:
+   Type specifications in Pack.typemap have the following format:
 
    {
      size: BYTES_PER_ELEMENT,
@@ -83,8 +81,8 @@
    decoding.
 */
 
-define(["Class", "Events"], function (Class, Events) {
-  TypedMatrixFormat = Class({
+define(["Class", "Events", "Data/Pack"], function (Class, Events, Pack) {
+  return Class({
     name: "TypedMatrixParser",
     initialize: function(url) {
       var self = this;
@@ -134,27 +132,6 @@ define(["Class", "Events"], function (Class, Events) {
       var self = this;
 
       self.request.abort();
-    },
-
-    writeStringToArrayBuffer: function(str, start, end, buf, bufstart) {
-      if (end == undefined) end = str.length;
-      if (start == undefined) start = 0;
-      if (bufstart == undefined) bufstart = start;
-      for (var i = start; i < end; i++) buf[i - start + bufstart] = str.charCodeAt(i) & 0xff;
-    },
-
-    stringToArrayBuffer: function(str, start, end) {
-      var self = this;
-
-      if (end == undefined) end = str.length;
-      if (start == undefined) start = 0;
-      var res = new Uint8ClampedArray(end - start);
-      self.writeStringToArrayBuffer(str, start, end, res, 0);
-      return res.buffer;
-    },
-
-    arrayBuffer2String: function(buf) {
-      return String.fromCharCode.apply(null, new Uint8Array(buf));
     },
 
     headerLoaded: function (data) {
@@ -211,7 +188,7 @@ define(["Class", "Events"], function (Class, Events) {
 
       if (length < 4) return;
       if (self.headerLen == null) {
-        self.headerLen = new DataView(self.stringToArrayBuffer(text, 0, 4)).getInt32(0, true);
+        self.headerLen = new DataView(Pack.stringToArrayBuffer(text, 0, 4)).getInt32(0, true);
         self.offset = 4;
       }
       if (length < self.offset + self.headerLen) return;
@@ -223,7 +200,7 @@ define(["Class", "Events"], function (Class, Events) {
           var col = self.header.cols[colidx];
           col.idx = colidx;
           self.header.colsByName[col.name] = col;
-          col.typespec = TypedMatrixFormat.typemap[col.type];
+          col.typespec = Pack.typemap.byname[col.type];
 
           if (col.multiplier != undefined && col.min != undefined) col.min = col.min * col.multiplier;
           if (col.offset != undefined && col.min != undefined) col.min = col.min + col.offset;
@@ -242,7 +219,7 @@ define(["Class", "Events"], function (Class, Events) {
         // never write it, just to not have to bother about two self.offsets
         self.responseData = new Uint8ClampedArray(self.offset + (self.rowLen * self.header.length));
       }
-      self.writeStringToArrayBuffer(text, self.offset, undefined, self.responseData);
+      Pack.writeStringToArrayBuffer(text, self.offset, undefined, self.responseData);
 
       var dataView = new DataView(self.responseData.buffer);
 
@@ -251,7 +228,7 @@ define(["Class", "Events"], function (Class, Events) {
           var row = {};
           for (var colidx = 0; colidx < self.header.cols.length; colidx++) {
             var col = self.header.cols[colidx];
-            var val = dataView[col.typespec.method](self.offset, true);
+            var val = dataView[col.typespec.getter](self.offset, true);
             if (col.multiplier != undefined) val = val * col.multiplier;
             if (col.offset != undefined) val = val + col.offset;
             row[col.name] = val;
@@ -268,11 +245,4 @@ define(["Class", "Events"], function (Class, Events) {
       }
     }
   });
-
-  TypedMatrixFormat.typemap = {
-    'Int32': {'size': Int32Array.BYTES_PER_ELEMENT, 'array': Float32Array, 'method': 'getInt32'},
-    'Float32': {'size': Float32Array.BYTES_PER_ELEMENT, 'array': Float32Array, 'method': 'getFloat32'},
-  };
-
-  return TypedMatrixFormat;
 });
