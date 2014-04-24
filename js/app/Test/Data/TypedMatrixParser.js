@@ -2,6 +2,9 @@ define(["Class", "QUnit", "Test/BaseTest", "Data/TypedMatrixParser", "Data/Typed
   return Class(BaseTest, {
     name: "TypedMatrixParser",
 
+/*
+    This does not work, as property ordering in the json header is non-deterministic :(
+
     "Generate data": function (cb) {
       QUnit.expect(1);
 
@@ -20,6 +23,7 @@ define(["Class", "QUnit", "Test/BaseTest", "Data/TypedMatrixParser", "Data/Typed
         cb();
       });
     },
+*/
 
     "Parse generated data": function (cb) {
       QUnit.expect(6);
