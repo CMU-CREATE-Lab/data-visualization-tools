@@ -1,14 +1,22 @@
-define(["Class"], function (Class) {
-  var help =
-    "This class provides utility functions to pack/unpack data into binary " +
-    "strings. We use strings as ArrayBuffer support in Ajax calls is still " +
-    "patchy, especially for streaming. The class provides a set of type " +
-    "descriptors, indexed by name and by array type, and functions that use " +
-    "these type descriptors to parse/generate binary data. The type " +
-    "descriptors contain the size of the binary representation, the array " +
-    "class, and the name of the getter and setter methods for the type on a " +
-    "DataView instance.";
+/* This class provides utility functions to pack/unpack data into
+ * binary ordinary javascript strings. We use strings as ArrayBuffer
+ * support in Ajax calls is still patchy, especially for streaming.
+ *
+ * writeStringToArrayBuffer / stringToArrayBuffer and
+ * arrayBufferToString does this mangling, and their implementation
+ * should be considered "a hack".
+ *
+ * The class also provides a set of type descriptors, indexed by name
+ * and by array type, and functions that use these type descriptors to
+ * parse/generate binary data. The type descriptors contain the size
+ * of the binary representation, the array class, and the name of the
+ * getter and setter methods for the type on a DataView instance.
+ *
+ * The pack() method can be used to encode data into a string using a
+ * typespec.
+ */
 
+define(["Class"], function (Class) {
   var byname = {
     Int32: {
       size: Int32Array.BYTES_PER_ELEMENT,
@@ -24,7 +32,7 @@ define(["Class"], function (Class) {
     }
   };
 
-  var Pack = Class({help: help});
+  var Pack = Class({});
 
   Pack.writeStringToArrayBuffer = function(str, start, end, buf, bufstart) {
     if (end == undefined) end = str.length;
