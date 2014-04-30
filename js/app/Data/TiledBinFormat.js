@@ -300,7 +300,7 @@ define(["Class", "Events", "Bounds", "Data/Format", "Data/Tile", "Logging", "jQu
           }
         }
         dst.rowcount++;
-        if (tile.value.data.series != lastSeries) {
+        if (tile.value.data.series[tile.merged_rowcount-1] != lastSeries) {
           dst.seriescount++;
           lastSeries = tile.value.data.series;
         }

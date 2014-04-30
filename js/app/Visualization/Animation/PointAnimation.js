@@ -41,11 +41,11 @@ define(["require", "Class", "Visualization/GeoProjection", "Visualization/Shader
       self.rawTimeData = new Float32Array(header.length);
       self.lastSeries = function () {}; // Value we will never find in the data
 
-      self.series_count = 0;
+      self.seriescount = 0;
       for (var rowidx = 0; rowidx < header.length; rowidx++) {
         var series = data.series && data.series[rowidx];
         if (self.lastSeries != series) {
-          self.series_count++;
+          self.seriescount++;
           self.lastSeries = series;
         }
 
@@ -78,7 +78,7 @@ define(["require", "Class", "Visualization/GeoProjection", "Visualization/Shader
 
         self.rawTimeData[rowidx] = data.datetime[rowidx];
 
-        self.rawSeries[self.series_count] = rowidx + 1;
+        self.rawSeries[self.seriescount] = rowidx + 1;
       }
 
       self.gl.useProgram(self.program);
@@ -116,7 +116,8 @@ define(["require", "Class", "Visualization/GeoProjection", "Visualization/Shader
       self.gl.uniform1f(self.program.uniforms.endTime, time);
 
       var mode = self.getDrawMode();
-      for (var i = 0; i < self.series_count; i++) {
+      for (var i = 0; i < self.seriescount; i++) {
+        // console.log([i, self.rawSeries[i], self.rawSeries[i+1]-self.rawSeries[i], self.manager.visualization.data.format.header.length]);
         self.gl.drawArrays(mode, self.rawSeries[i], self.rawSeries[i+1]-self.rawSeries[i]);
       }
 
