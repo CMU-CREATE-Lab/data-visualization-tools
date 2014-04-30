@@ -1,4 +1,4 @@
-define(["Class", "Bounds", "async", "Logging", "jQuery", "Visualization/Matrix", "CanvasLayer", "Stats", "Visualization/Animation/Animation", "Visualization/Animation/PointAnimation", "Visualization/Animation/LineAnimation" /* , "Visualization/Animation/ArrowAnimation" */], function(Class, Bounds, async, Logging, $, Matrix, CanvasLayer, Stats, Animation) {
+define(["Class", "Bounds", "async", "Logging", "jQuery", "Visualization/Matrix", "CanvasLayer", "Stats", "Visualization/Animation/Animation", "Visualization/Animation/PointAnimation", "Visualization/Animation/LineAnimation", "Visualization/Animation/TileAnimation" /* , "Visualization/Animation/ArrowAnimation" */], function(Class, Bounds, async, Logging, $, Matrix, CanvasLayer, Stats, Animation) {
   return Class({
     name: "AnimationManager",
     initialize: function (visualization) {
