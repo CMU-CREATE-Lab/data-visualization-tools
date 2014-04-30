@@ -233,23 +233,30 @@ define(["Class", "Events", "Bounds", "Data/Format", "Data/Tile", "Logging", "jQu
     mergeTiles: function (tiles) {
       var self = this;
 
-      function compareTiles(a, b) {
-        function compareTilesByCol(a, b, colidx) {
-          if (colidx > self.sortcols.length) return a;
+      function compareTileData(a, aidx, b, bidx) {
+        function compareTilesByCol(colidx) {
+          if (colidx > self.sortcols.length) return 0;
           var col = self.sortcols[colidx];
           if (a.value.data[col] == undefined || b.value.data[col] == undefined) {
             // Ignore any sort columns we don't have...
-            return compareTilesByCol(a, b, colidx + 1);
-          } else if (a.value.data[col][a.merged_rowcount] < b.value.data[col][a.merged_rowcount]) {
-            return a;
-          } else if (a.value.data[col][a.merged_rowcount] > b.value.data[col][a.merged_rowcount]) {
-            return b;
+            return compareTilesByCol(colidx + 1);
+          } else if (a.value.data[col][aidx] < b.value.data[col][bidx]) {
+            return -1;
+          } else if (a.value.data[col][aidx] > b.value.data[col][bidx]) {
+            return 1;
           } else {
-            return compareTilesByCol(a, b, colidx + 1);
+            return compareTilesByCol(colidx + 1);
           }
         }
+        return compareTilesByCol(0);
+      }
 
-        return compareTilesByCol(a, b, 0);
+      function compareTiles(a, b) {
+        if (compareTileData(a, a.merged_rowcount, b, b.merged_rowcount) > 0) {
+          return b;
+        } else {
+          return a;
+        }
       }
 
       function nextTile(tiles) {
