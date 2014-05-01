@@ -10,7 +10,7 @@
   tm.zoomTo(new Bounds(0, 0, 11.25, 11.25));
 */
 
-define(["Class", "Events", "Bounds", "Data/Format", "Data/Tile", "Logging", "jQuery", "LangExtensions"], function(Class, Events, Bounds, Format, Tile, Logging, $) {
+define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Tile", "app/Logging", "jQuery", "app/LangExtensions"], function(Class, Events, Bounds, Format, Tile, Logging, $) {
   var TiledBinFormat = Class(Format, {
     name: "TiledBinFormat",
     initialize: function(source) {

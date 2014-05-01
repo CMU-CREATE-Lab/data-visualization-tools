@@ -1,4 +1,4 @@
-define(["require", "Class", "Visualization/GeoProjection", "Visualization/Shader", "Visualization/Animation/Animation"], function(require, Class, GeoProjection, Shader, Animation) {
+define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualization/Shader", "app/Visualization/Animation/Animation"], function(require, Class, GeoProjection, Shader, Animation) {
   var DebugAnimation = Class(Animation, {
     name: "DebugAnimation",
 
@@ -7,8 +7,8 @@ define(["require", "Class", "Visualization/GeoProjection", "Visualization/Shader
       self.gl = gl;
       Shader.createShaderProgramFromUrl(
         self.gl,
-        require.toUrl("Visualization/Animation/DebugAnimation-vertex.glsl"),
-        require.toUrl("Visualization/Animation/DebugAnimation-fragment.glsl"),
+        require.toUrl("app/Visualization/Animation/DebugAnimation-vertex.glsl"),
+        require.toUrl("app/Visualization/Animation/DebugAnimation-fragment.glsl"),
         function (program) {
           self.program = program;
 

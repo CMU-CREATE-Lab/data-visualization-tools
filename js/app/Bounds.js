@@ -2,7 +2,7 @@
  * BSD license. See license.txt in the OpenLayers distribution.
  *
  * This is a minimalistic subset of the Openlayers.Bounds API. */
-define(["Class"], function(Class) {
+define(["app/Class"], function(Class) {
   return Class({
     name: "Bounds",
     initialize: function (left, bottom, right, top) {

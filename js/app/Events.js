@@ -1,4 +1,4 @@
-define(["Class", "Logging"], function(Class, Logging) {
+define(["app/Class", "app/Logging"], function(Class, Logging) {
   return Class({
     name: "Events",
     initialize: function (category) {

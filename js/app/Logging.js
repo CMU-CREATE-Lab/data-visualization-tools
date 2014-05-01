@@ -1,4 +1,4 @@
-define(["Class", "UrlValues", "stacktrace"], function(Class, UrlValues, stacktrace) {
+define(["app/Class", "app/UrlValues", "stacktrace"], function(Class, UrlValues, stacktrace) {
   print = function () {};
   if (typeof(console) != "undefined" && typeof(console.log) != "undefined") {
     print = console.log.bind(console);

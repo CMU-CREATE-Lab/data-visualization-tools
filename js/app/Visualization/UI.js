@@ -1,4 +1,4 @@
-define(["Class", "async", "jQuery", "Visualization/sliders"], function(Class, async, $) {
+define(["app/Class", "async", "jQuery", "app/Visualization/sliders"], function(Class, async, $) {
   return Class({
     name: "UI",
     initialize: function (visualization) {

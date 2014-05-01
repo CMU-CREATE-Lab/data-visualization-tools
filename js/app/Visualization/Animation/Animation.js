@@ -1,4 +1,4 @@
-define(["Class"], function(Class) {
+define(["app/Class"], function(Class) {
   var Animation = Class({
     name: "Animation",
     initialize: function(manager) {

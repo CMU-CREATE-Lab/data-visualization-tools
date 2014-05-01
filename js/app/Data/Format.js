@@ -1,4 +1,4 @@
-define(["Class", "Events"], function(Class, Events) {
+define(["app/Class", "app/Events"], function(Class, Events) {
   var Format = Class({
     name: "Format",
     initialize: function() {

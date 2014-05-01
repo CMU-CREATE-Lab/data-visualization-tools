@@ -1,4 +1,4 @@
-define(["Class", "SubscribableDict", "UrlValues", "Data/DataManager", "Visualization/Animation/AnimationManager", "Visualization/UI", "async"], function(Class, SubscribableDict, UrlValues, DataManager, AnimationManager, UI, async) {
+define(["app/Class", "app/SubscribableDict", "app/UrlValues", "app/Data/DataManager", "app/Visualization/Animation/AnimationManager", "app/Visualization/UI", "async"], function(Class, SubscribableDict, UrlValues, DataManager, AnimationManager, UI, async) {
   return Class({
     name: "Visualization",
     paramspec: {

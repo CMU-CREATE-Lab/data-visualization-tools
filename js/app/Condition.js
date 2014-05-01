@@ -3,7 +3,7 @@
    Once the condition is set it will always remain set, and any
    callbacks set to wait for it will be executed immediately.
 */
-defined(["Class", "async"], function (Class, async) {
+defined(["app/Class", "async"], function (Class, async) {
   return Class({
     name: "Condition",
     initialize: function() {

@@ -1,4 +1,4 @@
-define(["Class", "QUnit", "Test/Events", "Test/SubscribableDict", "Test/Logging", "Test/Data/TypedMatrixParser"], function(Class, QUnit, Events, SubscribableDict, Logging, TypedMatrixParser) {
+define(["app/Class", "QUnit", "app/Test/Events", "app/Test/SubscribableDict", "app/Test/Logging", "app/Test/Data/TypedMatrixParser"], function(Class, QUnit, Events, SubscribableDict, Logging, TypedMatrixParser) {
   return Class({
     name: "Test",
     initialize: function () {

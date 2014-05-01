@@ -1,4 +1,4 @@
-define(["Class", "Data/Format", "Data/BinFormat", "Data/TiledBinFormat"], function(Class, Format) {
+define(["app/Class", "app/Data/Format", "app/Data/BinFormat", "app/Data/TiledBinFormat"], function(Class, Format) {
   return Class({
     name: "DataManager",
     initialize: function (visualization) {

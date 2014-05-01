@@ -1,4 +1,4 @@
-define(["require", "Class", "Visualization/GeoProjection", "Visualization/Shader", "Visualization/Animation/Animation"], function(require, Class, GeoProjection, Shader, Animation) {
+define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualization/Shader", "app/Visualization/Animation/Animation"], function(require, Class, GeoProjection, Shader, Animation) {
   var TileAnimation = Class(Animation, {
     name: "PointAnimation",
 
@@ -9,8 +9,8 @@ define(["require", "Class", "Visualization/GeoProjection", "Visualization/Shader
       self.gl = gl;
       Shader.createShaderProgramFromUrl(
         self.gl,
-        require.toUrl("Visualization/Animation/TileAnimation-vertex.glsl"),
-        require.toUrl("Visualization/Animation/TileAnimation-fragment.glsl"),
+        require.toUrl("app/Visualization/Animation/TileAnimation-vertex.glsl"),
+        require.toUrl("app/Visualization/Animation/TileAnimation-fragment.glsl"),
         function (program) {
           self.program = program;
 

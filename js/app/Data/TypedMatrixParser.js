@@ -81,7 +81,7 @@
    decoding.
 */
 
-define(["Class", "Events", "Data/Pack"], function (Class, Events, Pack) {
+define(["app/Class", "app/Events", "app/Data/Pack"], function (Class, Events, Pack) {
   return Class({
     name: "TypedMatrixParser",
     initialize: function(url) {

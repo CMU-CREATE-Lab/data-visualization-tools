@@ -2,7 +2,7 @@
   Use google maps Mercator projection to convert from lat, lng to
   x, y coords in the range x:0-256, y:0-256
 */
-define(["Class"], function (Class) {
+define(["app/Class"], function (Class) {
   var GeoProjection = Class({name: "GeoProjection"});
 
   GeoProjection.LatLongToPixelXY = function(latitude, longitude) {

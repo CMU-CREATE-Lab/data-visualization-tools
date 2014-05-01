@@ -1,4 +1,4 @@
-define(["Class", "Data/BinFormat"], function(Class, BinFormat) {
+define(["app/Class", "app/Data/BinFormat"], function(Class, BinFormat) {
   return Class(BinFormat, {
     name: "Tile",
     initialize: function(manager, bounds) {

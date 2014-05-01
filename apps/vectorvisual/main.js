@@ -9,7 +9,7 @@
 
 var jsdir = window.location.pathname.split("/").slice(0, -3).concat(["js"]);
 require.config({
-  baseUrl: jsdir.concat(["app"]).join("/"),
+  baseUrl: jsdir.join("/"),
 
   paths: {
     'less': jsdir.concat(['libs', 'less-1.6.2.min']).join('/'),
@@ -22,6 +22,8 @@ require.config({
 
     // AMD modules
     'stacktrace': jsdir.concat(['libs', 'stacktrace']).join('/'),
+
+    'app': jsdir.concat(['app']).join('/'),
   },
 
   shim: {
@@ -35,7 +37,7 @@ require.config({
   }
 });
 
-require(['UrlValues', 'Visualization/Visualization', 'Test', 'jQuery', "bootstrap", "less", "LangExtensions"], function (UrlValues, Visualization, Test, $) {
+require(['app/UrlValues', 'app/Visualization/Visualization', 'app/Test', 'jQuery', "bootstrap", "less", "app/LangExtensions"], function (UrlValues, Visualization, Test, $) {
   $(document).ready(function () {
     if (UrlValues.getParameter('test') != undefined) {
       $("#test").show();

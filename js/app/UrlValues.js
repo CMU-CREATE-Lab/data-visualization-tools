@@ -5,7 +5,7 @@
  * http://example.com/index.html#name=value&someothername=foo%20bar
  */
 
-define(["Class", "LangExtensions"], function(Class) {
+define(["app/Class", "app/LangExtensions"], function(Class) {
   var UrlValues = Class({
     name: "UrlValues",
     /*

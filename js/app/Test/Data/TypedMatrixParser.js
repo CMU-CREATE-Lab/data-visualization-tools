@@ -1,4 +1,4 @@
-define(["Class", "QUnit", "Test/BaseTest", "Data/TypedMatrixParser", "Data/TypedMatrixGenerator"], function(Class, QUnit, BaseTest, TypedMatrixParser, TypedMatrixGenerator) {
+define(["app/Class", "QUnit", "app/Test/BaseTest", "app/Data/TypedMatrixParser", "app/Data/TypedMatrixGenerator"], function(Class, QUnit, BaseTest, TypedMatrixParser, TypedMatrixGenerator) {
   return Class(BaseTest, {
     name: "TypedMatrixParser",
 

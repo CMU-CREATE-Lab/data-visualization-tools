@@ -16,7 +16,7 @@
  * typespec.
  */
 
-define(["Class"], function (Class) {
+define(["app/Class"], function (Class) {
   var byname = {
     Int32: {
       size: Int32Array.BYTES_PER_ELEMENT,

@@ -1,4 +1,4 @@
-define(["Class", "QUnit", "Test/BaseTest", "Events"], function(Class, QUnit, BaseTest, Events) {
+define(["app/Class", "QUnit", "app/Test/BaseTest", "app/Events"], function(Class, QUnit, BaseTest, Events) {
   return Class(BaseTest, {
     name: "Events",
 

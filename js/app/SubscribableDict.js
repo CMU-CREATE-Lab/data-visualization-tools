@@ -1,4 +1,4 @@
-define(["Class", "Events", "Logging"], function(Class, Events, Logging) {
+define(["app/Class", "app/Events", "app/Logging"], function(Class, Events, Logging) {
   return Class({
     name: "SubscribableDict",
     /*

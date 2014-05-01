@@ -1,4 +1,4 @@
-define(["Class", "Data/Pack"], function (Class, Pack) {
+define(["app/Class", "app/Data/Pack"], function (Class, Pack) {
   return Class({
     initialize: function (header, columns) {
       var self = this;

@@ -1,5 +1,5 @@
 // WebGL matrix utils for 2D
-define(["Class"], function (Class) {
+define(["app/Class"], function (Class) {
   var Matrix = Class({name: "Matrix"});
 
   Matrix.scaleMatrix = function(matrix, scaleX, scaleY) {
