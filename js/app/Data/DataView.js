@@ -1,5 +1,6 @@
-define(["app/Class", "app/Data/Format", "app/Data/Pack", "jQuery"], function(Class, Format, Pack, $){
+define(["app/Class", "app/Data/Format", "app/Data/Pack", "jQuery"], function(Class, Format, Pack, $) {
   return Class(Format, {
+    name: "DataView",
     colsByName: {
       points: {type: "Int32", items: [
         {name: "latitude", source: {latitude: 1.0}},
@@ -24,13 +25,14 @@ define(["app/Class", "app/Data/Format", "app/Data/Pack", "jQuery"], function(Cla
         scope: self
       });
 
-      Objec.items(colsByName || self.colsByName).map(function (item) {
+      Object.items(colsByName || self.colsByName).map(function (item) {
         item.value.name = item.key;
         self.addCol(item.value);
       });
     },
 
     handleUpdate: function (update) {
+      var self = this;
       self.header.length = source.header.length;
       self.seriescount = source.seriescount;
 
@@ -41,14 +43,16 @@ define(["app/Class", "app/Data/Format", "app/Data/Pack", "jQuery"], function(Cla
     },
 
     handleError: function (error) {
+      var self = this;
       self.events.triggerEvent("error", error);
     },
 
     updateCol: function (colname) {
+      var self = this;
       var spec = self.header.colsByName[colname];
       if (   !self.data[colname]
           || self.data[colname].length != self.source.length * spec.items.length) {
-        self.data[colname] = new spec.array(self.source.length * spec.items.length);
+        self.data[colname] = new spec.typespec.array(self.source.length * spec.items.length);
       }
 
       for (var row = 0; row < self.source.length; row++) {
