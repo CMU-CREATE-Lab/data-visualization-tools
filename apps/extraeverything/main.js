@@ -1,4 +1,4 @@
-require(['app/UrlValues', 'app/Visualization/Visualization', 'jQuery', "bootstrap", "less", "app/LangExtensions"], function (UrlValues, Visualization, $) {
+require(['app/UrlValues', 'app/Visualization/Visualization', 'app/Test', 'jQuery', "bootstrap", "less", "app/LangExtensions"], function (UrlValues, Visualization, Test, $) {
   $(document).ready(function () {
     if (UrlValues.getParameter('test') != undefined) {
       $("#test").show();
