@@ -1,0 +1,100 @@
+<!doctype html>
+<html>
+  <head>
+    <title>VectorVisual</title>
+    <link rel="stylesheet" href="../../js/libs/bootstrap.min.css">
+    <link rel="stylesheet" href="../../js/libs/qunit-1.14.0.css">
+    <link rel="stylesheet/less" type="text/css" href="style.less" />
+
+    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
+
+    <script src="../../js/libs/jquery-1.10.2.min.js"></script>
+    <script src="../../js/libs/less-1.6.2.min.js"></script>
+    <script src="../../js/libs/bootstrap.min.js"></script>
+    <script src="../../js/libs/CanvasLayer.js"></script>
+    <script src="../../js/libs/stats.min.js"></script>
+    <script src="../../js/libs/qunit-1.14.0.js"></script>
+    <script src="../../js/libs/async.js"></script>
+    <script src="../../js/libs/stacktrace.js"></script>
+
+    <script>
+      var appdir = window.location.pathname.split('/').slice(0, -1);
+      var appdirstr = appdir.join('/');
+      var jsdir = appdir.slice(0, -2).concat(['js']);
+      var libdir = jsdir.concat(['libs']).join('/');
+      var dojoConfig = {
+        async: true,
+        baseUrl: jsdir.concat(['libs', 'dojo-release-1.9.3', 'dojo', '']).join('/'),
+        packages: [
+          {name: 'libs', location: libdir},
+          {name: 'bootstrap', location: appdirstr, main: 'bootstrap'},
+          {name: 'CanvasLayer', location: appdirstr, main: 'CanvasLayer'},
+          {name: 'Stats', location: appdirstr, main: 'Stats'},
+          {name: 'QUnit', location: appdirstr, main: 'QUnit'},
+          {name: 'jQuery', location: appdirstr, main: 'jQuery'},
+          {name: 'less', location: appdirstr, main: 'less'},
+          {name: 'async', location: appdirstr, main: 'async'},
+          {name: 'stacktrace', location: appdirstr, main: 'stacktrace'},
+
+          // AMD modules
+
+          {name: 'app', location:jsdir.concat(['app']).join('/'), main: 'app'}
+        ]
+      };
+    </script>
+
+    <script type="text/javascript" src="../../js/libs/dojo-release-1.9.3/dojo/dojo.js" data-dojo-config="isDebug:true, async: true"></script>
+
+    <script type="text/javascript" src="main.js"></script>
+  </head>
+  <body>
+    <div id="test">
+      <div id="qunit"></div>
+      <div id="qunit-fixture"></div>
+    </div>
+    <div id="visualization">
+      <div id="map-div"></div>
+
+      <div id="loading"><img src="../../img/Ajax-loader.gif"></div>
+
+      <div class="control vertical" style="right: 27px; top: 130px;">
+        <div title="Increase time window" class="plus">
+          <img src="mapcontrols.png" draggable="false">
+        </div>
+        <div class="bar">
+          <img src="mapcontrols.png" draggable="false">
+        </div>
+        <div title="Decrease time window" class="minus">
+          <img src="mapcontrols.png" draggable="false">
+        </div>
+        <div title="Drag to change time window size" class="handle">
+          <img src="mapcontrols.png" draggable="false">
+        </div>
+        <input type="hidden" value="15" data-min="0" data-max="29" data-step="1" id="offset-slider">
+      </div>
+
+      <div class="control horizontal" style="left: 100px; bottom: 3px;">
+        <div title="Earlier" class="minus">
+          <img src="mapcontrols.png" draggable="false">
+        </div>
+        <div class="bar">
+          <img src="mapcontrols.png" draggable="false">
+        </div>
+        <div title="Later" class="plus">
+          <img src="mapcontrols.png" draggable="false">
+        </div>
+        <div title="Drag to change date" class="handle">
+          <img src="mapcontrols.png" draggable="false">
+        </div>
+        <input type="hidden" value="0" data-min="0" data-max="0" id="day-slider">
+      </div>
+
+      <div id="current-date" style="position: absolute; left: 420px; bottom: 7px; color: white;"></div>
+
+      <div id="current-offset" style="position: absolute; right: 18px; top: 106px; color: white;"></div>
+
+      <button name="animate-button" id="animate-button" class="btn btn-xs" style="position: absolute; left: 73px; bottom: 6px; background: white;"><input type="hidden"><i class="glyphicon glyphicon-pause"></i></button>
+
+    </div>
+  </body>
+</html>
