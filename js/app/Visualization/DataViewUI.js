@@ -1,13 +1,15 @@
 define([
     "app/Class",
+    "app/Logging",
     "jQuery",
     "dijit/Fieldset",
     "dijit/form/HorizontalSlider",
-    "dijit/Dialog",
+    "dojox/layout/FloatingPane",
+    "dijit/layout/ContentPane",
     "dojo/dom",
     "dojo/parser",
     "dojo/domReady!"
-], function(Class, $, Fieldset, HorizontalSlider, Dialog){
+], function(Class, Logging, $, Fieldset, HorizontalSlider, FloatingPane, ContentPane){
   return Class({
     name: "dataViewUI",
     initialize: function (dataview) {
@@ -19,48 +21,59 @@ define([
         scope: self
       });
 
-      var dialog = new Dialog({
+      self.dialog = new FloatingPane({
         title: "DataViewUI",
-        style: "width: 300px"
+        resizable: true,
+        dockable: true,
+        style: "position: absolute"
       });
+      self.dialog.placeAt($("body")[0]);
+      self.dialog.resize({x:10, y:10, w:300, h:400});
 
-      dialog.addChild(self.generateUI());
-
-      dialog.show();
+      self.dialog.addChild(self.generateUI());
+      self.dialog.startup();
+      self.dialog.show();
     },
 
     generateUI: function () {
       var self = this;
 
-      var fieldset = new Fieldset({title: "DataView"});
+      var ui = new ContentPane();
 
       Object.values(self.dataview.header.colsByName).map(function (spec) {
-        var col_fieldset = new Fieldset({title: spec.name});
-        fieldset.addChild(col_fieldset);
-
         spec.items.map(function (item) {
-          var item_fieldset = new Fieldset({title: item.name});
-          col_fieldset.addChild(item_fieldset);
-
           Object.items(item.source).map(function (source) {
-            item_fieldset.addChild(new HorizontalSlider({
+            var content_pane = new ContentPane({content: spec.name + "." + item.name + " <- " + source.key});
+            content_pane.addChild(new HorizontalSlider({
               name: source.key,
               value: source.value,
               minimum: -1.0,
               maximum: 1.0,
               intermediateChanges: true,
-              style: "width:100px;",
+              style: "width:200px;",
               onChange: function (value) {
-                console.log([item.name, source.key, value]);
+                Logging.default.log(
+                  "DataViewUI." + spec.name + "." + item.name + "." + source.key,
+                  {
+                    toString: function () {
+                      return this.column + "." + this.item + " = " + this.value + " * " + this.source;
+                    },
+                    column: spec.name,
+                    item: item.name,
+                    value: value,
+                    source: source.key
+                  }
+                );                    
                 item.source[source.key] = value;
                 self.dataview.changeCol(spec);
               }
             }));
+            ui.addChild(content_pane);
           });
         });
       });
 
-      return fieldset;
+      return ui;
     }
   });
 });
