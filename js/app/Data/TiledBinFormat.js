@@ -114,7 +114,7 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
     },
 
     zoomTo: function (bounds) {
-      self = this;
+      var self = this;
       var old_bounds = self.bounds;
       self.bounds = bounds;
 
@@ -216,6 +216,8 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
     },
 
     getTiles: function () {
+      var self = this;
+
       return Object.values(self.tiles).map(function (tile) {
         while (tile.replacement != undefined) tile = tile.replacement;
         return tile;
