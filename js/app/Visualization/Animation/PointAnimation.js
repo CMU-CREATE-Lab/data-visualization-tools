@@ -2,6 +2,35 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
   var PointAnimation = Class(Animation, {
     name: "PointAnimation",
 
+    columns: {
+      points: {
+        type: "Float32",
+        items: [
+          {name: "longitude", source: {longitude: 1.0}},
+          {name: "latitude", source: {latitude: 1.0}}
+        ],
+        transform: function (col, offset) {
+          var spec = this;
+          var longitude = col[offset + spec.itemsByName.longitude.index];
+          var latitude = col[offset + spec.itemsByName.latitude.index];
+
+          var pixel = GeoProjection.LatLongToPixelXY(latitude, longitude);
+
+          col[offset + spec.itemsByName.latitude.index] = pixel.y;
+          col[offset + spec.itemsByName.longitude.index] = pixel.x;
+        }
+      },
+      color: {type: "Float32", items: [
+        {name: "red", source: {red: 1.0/256.0}},
+        {name: "green", source: {green: 1.0/256.0}},
+        {name: "blue", source: {blue: 0.0/256.0}},
+        {name: "alpha", source: {_: 1.0}}]},
+      magnitude: {type: "Float32", items: [
+        {name: "magnitude", source: {magnitude: 8.0/256.0}}]},
+      datetime: {type: "Float32", items: [
+        {name: "datetime", source: {datetime: 1.0}}]}
+    },
+
     magnitudeScale: 0.1,
 
     initGl: function(gl, cb) {
@@ -35,10 +64,6 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
       // rawSeries[i+1]-rawSeries[i].      
       self.rawSeries = new Int32Array(format.seriescount + 1);
       self.rawSeries[0] = 0;
-      self.rawLatLonData = new Float32Array(header.length*2);
-      self.rawColorData = new Float32Array(header.length*4);
-      self.rawMagnitudeData = new Float32Array(header.length);
-      self.rawTimeData = new Float32Array(header.length);
       self.lastSeries = function () {}; // Value we will never find in the data
 
       self.seriescount = 0;
@@ -48,44 +73,14 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
           self.seriescount++;
           self.lastSeries = series;
         }
-
-        var pixel = GeoProjection.LatLongToPixelXY(data.latitude[rowidx], data.longitude[rowidx]);
-        self.rawLatLonData[2*rowidx] = pixel.x;
-        self.rawLatLonData[2*rowidx+1] = pixel.y;
-
-        if (   data.red != undefined
-            && data.green != undefined
-            && data.blue != undefined) {
-          self.rawColorData[4*rowidx + 0] = data.red[rowidx] / 256;
-          self.rawColorData[4*rowidx + 1] = data.green[rowidx] / 256;
-          self.rawColorData[4*rowidx + 2] = data.blue[rowidx] / 256;
-        } else {
-          self.rawColorData[4*rowidx + 0] = 0.82
-          self.rawColorData[4*rowidx + 1] = 0.22;
-          self.rawColorData[4*rowidx + 2] = 0.07;
-        }
-        if (data.alpha != undefined) {
-          self.rawColorData[4*rowidx + 3] = data.alpha[rowidx] / 256;
-        } else {
-          self.rawColorData[4*rowidx + 3] = 1;
-        }
-
-        if (data.magnitude != undefined) {
-          self.rawMagnitudeData[rowidx] = 1 + self.magnitudeScale * data.magnitude[rowidx] / 256;
-        } else {
-          self.rawMagnitudeData[rowidx] = 1;
-        }
-
-        self.rawTimeData[rowidx] = data.datetime[rowidx];
-
         self.rawSeries[self.seriescount] = rowidx + 1;
       }
 
       self.gl.useProgram(self.program);
-      Shader.programLoadArray(self.gl, self.pointArrayBuffer, self.rawLatLonData, self.program);
-      Shader.programLoadArray(self.gl, self.colorArrayBuffer, self.rawColorData, self.program);
-      Shader.programLoadArray(self.gl, self.magnitudeArrayBuffer, self.rawMagnitudeData, self.program);
-      Shader.programLoadArray(self.gl, self.timeArrayBuffer, self.rawTimeData, self.program);
+      Shader.programLoadArray(self.gl, self.pointArrayBuffer, self.data_view.data.points, self.program);
+      Shader.programLoadArray(self.gl, self.colorArrayBuffer, self.data_view.data.color, self.program);
+      Shader.programLoadArray(self.gl, self.magnitudeArrayBuffer, self.data_view.data.magnitude, self.program);
+      Shader.programLoadArray(self.gl, self.timeArrayBuffer, self.data_view.data.datetime, self.program);
 
       Animation.prototype.updateData.call(self);
     },
@@ -100,10 +95,10 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
 
       self.gl.useProgram(self.program);
 
-      Shader.programBindArray(self.gl, self.pointArrayBuffer, self.program, "worldCoord", 2, self.gl.FLOAT);
-      Shader.programBindArray(self.gl, self.colorArrayBuffer, self.program, "color", 4, self.gl.FLOAT);
-      Shader.programBindArray(self.gl, self.magnitudeArrayBuffer, self.program, "magnitude", 1, self.gl.FLOAT);
-      Shader.programBindArray(self.gl, self.timeArrayBuffer, self.program, "time", 1, self.gl.FLOAT);
+      Shader.programBindArray(self.gl, self.pointArrayBuffer, self.program, "worldCoord", self.data_view.header.colsByName.points.items.length, self.gl.FLOAT);
+      Shader.programBindArray(self.gl, self.colorArrayBuffer, self.program, "color", self.data_view.header.colsByName.color.items.length, self.gl.FLOAT);
+      Shader.programBindArray(self.gl, self.magnitudeArrayBuffer, self.program, "magnitude", self.data_view.header.colsByName.magnitude.items.length, self.gl.FLOAT);
+      Shader.programBindArray(self.gl, self.timeArrayBuffer, self.program, "time", self.data_view.header.colsByName.datetime.items.length, self.gl.FLOAT);
 
       // pointSize range [5,20], 21 zoom levels
       var pointSize = Math.max(
