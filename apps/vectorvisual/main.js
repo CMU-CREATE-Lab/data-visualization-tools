@@ -1,4 +1,4 @@
-useDojo = true;
+useDojo = false;
 
 function appmain() {
   require(['app/UrlValues', 'app/Visualization/Visualization', 'app/Test', 'jQuery'], function (UrlValues, Visualization, Test, $) {

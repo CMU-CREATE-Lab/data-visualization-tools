@@ -1,36 +1,60 @@
-scriptRoot = document.querySelector('script[src$="deps.js"]').getAttribute('src').split("/").slice(0, -1).join("/");
+pagePath = window.location.pathname.split("/").slice(0, -1);
+pageDir = pagePath.join("/");
+scriptPath = document.querySelector('script[src$="deps.js"]').getAttribute('src').split("/").slice(0, -1);
+if (scriptPath[0] != "") {
+  scriptPath = pagePath.concat(scriptPath);
+}
+scriptDir = scriptPath.join("/");
+shimPath = scriptPath.concat("shims");
+shimDir = shimPath.join('/');
+libPath = scriptPath.concat(['libs']);
+libDir = libPath.join('/');
+appPath = scriptPath.concat(['app']);
+appDir = appPath.join('/');
 
 dependencies = {
   stylesheets: [
-    scriptRoot + "/libs/bootstrap.min.css",
-    scriptRoot + "/libs/font-awesome-4.0.3/css/font-awesome.min.css",
-    scriptRoot + "/libs/qunit-1.14.0.css",
-    scriptRoot + "/libs/dojo-release-1.9.3/dijit/themes/claro/claro.css",
+    libDir + "/bootstrap.min.css",
+    libDir + "/font-awesome-4.0.3/css/font-awesome.min.css",
+    libDir + "/qunit-1.14.0.css",
+    libDir + "/dojo-release-1.9.3/dijit/themes/claro/claro.css",
 
-    scriptRoot + "/libs/dojo-release-1.9.3/dojox/layout/resources/FloatingPane.css",
-    scriptRoot + "/libs/dojo-release-1.9.3/dojox/layout/resources/ResizeHandle.css",
+    libDir + "/dojo-release-1.9.3/dojox/layout/resources/FloatingPane.css",
+    libDir + "/dojo-release-1.9.3/dojox/layout/resources/ResizeHandle.css",
 
-    {url: scriptRoot + "/../style.less", rel:"stylesheet/less"}
+    {url: scriptDir + "/../style.less", rel:"stylesheet/less"}
   ],
   scripts: [
     {url: "http://maps.googleapis.com/maps/api/js?sensor=false&callback=googleMapsLoaded", handleCb: function (tag, cb) { googleMapsLoaded = cb; }},
-    scriptRoot + "/libs/jquery-1.10.2.min.js",
-    scriptRoot + "/libs/less-1.6.2.min.js",
-    scriptRoot + "/libs/bootstrap.min.js",
-    scriptRoot + "/libs/CanvasLayer.js",
-    scriptRoot + "/libs/stats.min.js",
-    scriptRoot + "/libs/qunit-1.14.0.js",
-    scriptRoot + "/libs/async.js",
-    scriptRoot + "/libs/stacktrace.js",
+    libDir + "/jquery-1.10.2.min.js",
+    libDir + "/less-1.6.2.min.js",
+    libDir + "/bootstrap.min.js",
+    libDir + "/CanvasLayer.js",
+    libDir + "/stats.min.js",
+    libDir + "/qunit-1.14.0.js",
+    libDir + "/async.js",
+    libDir + "/stacktrace.js",
   ]
 };
 
+packages = [
+  {name: 'bootstrap', location: shimDir, main: 'bootstrap'},
+  {name: 'CanvasLayer', location: shimDir, main: 'CanvasLayer'},
+  {name: 'Stats', location: shimDir, main: 'Stats'},
+  {name: 'QUnit', location: shimDir, main: 'QUnit'},
+  {name: 'jQuery', location: shimDir, main: 'jQuery'},
+  {name: 'less', location: shimDir, main: 'less'},
+  {name: 'async', location: shimDir, main: 'async'},
+  {name: 'stacktrace', location: shimDir, main: 'stacktrace'},
+  {name: 'app', location:appDir, main: 'app'}
+]
+
 if (useDojo) {
-  dependencies.scripts.push(scriptRoot + "/dojoconfig.js");
-  dependencies.scripts.push(scriptRoot + "/libs/dojo-release-1.9.3/dojo/dojo.js");
+  dependencies.scripts.push(scriptDir + "/dojoconfig.js");
+  dependencies.scripts.push(libDir + "/dojo-release-1.9.3/dojo/dojo.js");
 } else {
-  dependencies.scripts.push(scriptRoot + "/libs/require.js");
-  dependencies.scripts.push(scriptRoot + "/requirejsconfig.js");
+  dependencies.scripts.push(libDir + "/require.js");
+  dependencies.scripts.push(scriptDir + "/requirejsconfig.js");
 }
 
 
