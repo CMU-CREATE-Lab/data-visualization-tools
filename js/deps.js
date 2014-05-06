@@ -1,60 +1,64 @@
-pagePath = window.location.pathname.split("/").slice(0, -1);
-pageDir = pagePath.join("/");
-scriptPath = document.querySelector('script[src$="deps.js"]').getAttribute('src').split("/").slice(0, -1);
-if (scriptPath[0] != "") {
-  scriptPath = pagePath.concat(scriptPath);
+app.paths = app.paths || {};
+app.paths.page = window.location.pathname.split("/").slice(0, -1);
+app.paths.script = document.querySelector('script[src$="deps.js"]').getAttribute('src').split("/").slice(0, -1);
+if (app.paths.script[0] != "") {
+  app.paths.script = app.paths.page.concat(app.paths.script);
 }
-scriptDir = scriptPath.join("/");
-shimPath = scriptPath.concat("shims");
-shimDir = shimPath.join('/');
-libPath = scriptPath.concat(['libs']);
-libDir = libPath.join('/');
-appPath = scriptPath.concat(['app']);
-appDir = appPath.join('/');
 
-dependencies = {
-  stylesheets: [
-    libDir + "/bootstrap.min.css",
-    libDir + "/font-awesome-4.0.3/css/font-awesome.min.css",
-    libDir + "/qunit-1.14.0.css",
-    libDir + "/dojo-release-1.9.3/dijit/themes/claro/claro.css",
+app.paths.shim = app.paths.script.concat("shims");
+app.paths.lib = app.paths.script.concat(['libs']);
+app.paths.app = app.paths.script.concat(['app']);
 
-    libDir + "/dojo-release-1.9.3/dojox/layout/resources/FloatingPane.css",
-    libDir + "/dojo-release-1.9.3/dojox/layout/resources/ResizeHandle.css",
+app.dirs = app.dirs || {};
+for (var name in app.paths) {
+  app.dirs[name] = app.paths[name].join("/");
+}
 
-    {url: scriptDir + "/../style.less", rel:"stylesheet/less"}
-  ],
-  scripts: [
-    {url: "http://maps.googleapis.com/maps/api/js?sensor=false&callback=googleMapsLoaded", handleCb: function (tag, cb) { googleMapsLoaded = cb; }},
-    libDir + "/jquery-1.10.2.min.js",
-    libDir + "/less-1.6.2.min.js",
-    libDir + "/bootstrap.min.js",
-    libDir + "/CanvasLayer.js",
-    libDir + "/stats.min.js",
-    libDir + "/qunit-1.14.0.js",
-    libDir + "/async.js",
-    libDir + "/stacktrace.js",
-  ]
-};
+app.dependencies = app.dependencies || {};
+app.dependencies.stylesheets = app.dependencies.stylesheets || [];
+app.dependencies.stylesheets = app.dependencies.stylesheets.concat([
+  app.dirs.lib + "/bootstrap.min.css",
+  app.dirs.lib + "/font-awesome-4.0.3/css/font-awesome.min.css",
+  app.dirs.lib + "/qunit-1.14.0.css",
+  app.dirs.lib + "/dojo-release-1.9.3/dijit/themes/claro/claro.css",
 
-packages = [
-  {name: 'bootstrap', location: shimDir, main: 'bootstrap'},
-  {name: 'CanvasLayer', location: shimDir, main: 'CanvasLayer'},
-  {name: 'Stats', location: shimDir, main: 'Stats'},
-  {name: 'QUnit', location: shimDir, main: 'QUnit'},
-  {name: 'jQuery', location: shimDir, main: 'jQuery'},
-  {name: 'less', location: shimDir, main: 'less'},
-  {name: 'async', location: shimDir, main: 'async'},
-  {name: 'stacktrace', location: shimDir, main: 'stacktrace'},
-  {name: 'app', location:appDir, main: 'app'}
-]
+  app.dirs.lib + "/dojo-release-1.9.3/dojox/layout/resources/FloatingPane.css",
+  app.dirs.lib + "/dojo-release-1.9.3/dojox/layout/resources/ResizeHandle.css",
 
-if (useDojo) {
-  dependencies.scripts.push(scriptDir + "/dojoconfig.js");
-  dependencies.scripts.push(libDir + "/dojo-release-1.9.3/dojo/dojo.js");
+  {url: app.dirs.script + "/../style.less", rel:"stylesheet/less"}
+]);
+app.dependencies.scripts = app.dependencies.scripts || [];
+app.dependencies.scripts = app.dependencies.scripts.concat([
+  {url: "http://maps.googleapis.com/maps/api/js?sensor=false&callback=googleMapsLoaded", handleCb: function (tag, cb) { googleMapsLoaded = cb; }},
+  app.dirs.lib + "/jquery-1.10.2.min.js",
+  app.dirs.lib + "/less-1.6.2.min.js",
+  app.dirs.lib + "/bootstrap.min.js",
+  app.dirs.lib + "/CanvasLayer.js",
+  app.dirs.lib + "/stats.min.js",
+  app.dirs.lib + "/qunit-1.14.0.js",
+  app.dirs.lib + "/async.js",
+  app.dirs.lib + "/stacktrace.js",
+]);
+
+app.packages = app.packages || [];
+app.packages = app.packages.concat([
+  {name: 'bootstrap', location: app.dirs.shim, main: 'bootstrap'},
+  {name: 'CanvasLayer', location: app.dirs.shim, main: 'CanvasLayer'},
+  {name: 'Stats', location: app.dirs.shim, main: 'Stats'},
+  {name: 'QUnit', location: app.dirs.shim, main: 'QUnit'},
+  {name: 'jQuery', location: app.dirs.shim, main: 'jQuery'},
+  {name: 'less', location: app.dirs.shim, main: 'less'},
+  {name: 'async', location: app.dirs.shim, main: 'async'},
+  {name: 'stacktrace', location: app.dirs.shim, main: 'stacktrace'},
+  {name: 'app', location:app.dirs.app, main: 'app'}
+]);
+
+if (app.useDojo) {
+  app.dependencies.scripts.push(app.dirs.script + "/dojoconfig.js");
+  app.dependencies.scripts.push(app.dirs.lib + "/dojo-release-1.9.3/dojo/dojo.js");
 } else {
-  dependencies.scripts.push(libDir + "/require.js");
-  dependencies.scripts.push(scriptDir + "/requirejsconfig.js");
+  app.dependencies.scripts.push(app.dirs.lib + "/require.js");
+  app.dependencies.scripts.push(app.dirs.script + "/requirejsconfig.js");
 }
 
 
@@ -103,5 +107,5 @@ function addHeadStylesheet(stylesheet) {
   head.appendChild(link);
 }
 
-dependencies.stylesheets.map(addHeadStylesheet);
-asyncmap(dependencies.scripts, addHeadScript, appmain);
+app.dependencies.stylesheets.map(addHeadStylesheet);
+asyncmap(app.dependencies.scripts, addHeadScript, app.main);

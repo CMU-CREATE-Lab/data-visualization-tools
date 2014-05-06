@@ -1,4 +1,4 @@
-if (!useDojo) {
+if (!app.useDojo) {
   define(["app/Class"], function (Class) {
     return Class({name: "DataViewUI"});
   });

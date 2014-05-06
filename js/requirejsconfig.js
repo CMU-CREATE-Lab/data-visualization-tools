@@ -1,4 +1,4 @@
 require.config({
-  baseUrl: scriptDir,
-  packages: packages
+  baseUrl: app.dirs.script,
+  packages: app.packages
 });

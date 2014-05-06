@@ -1,6 +1,6 @@
-var dojoConfig = {
+dojoConfig = {
   isDebug: true,
   async: true,
-  baseUrl: libPath.concat(['dojo-release-1.9.3', 'dojo', '']).join('/'),
-  packages: packages
+  baseUrl: app.paths.lib.concat(['dojo-release-1.9.3', 'dojo', '']).join('/'),
+  packages: app.packages
 };
