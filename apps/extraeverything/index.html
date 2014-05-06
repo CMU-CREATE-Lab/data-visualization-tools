@@ -2,56 +2,9 @@
 <html>
   <head>
     <title>VectorVisual</title>
-    <link rel="stylesheet" href="../../js/libs/bootstrap.min.css">
-    <link rel="stylesheet" href="../../js/libs/font-awesome-4.0.3/css/font-awesome.min.css">
-    <link rel="stylesheet" href="../../js/libs/qunit-1.14.0.css">
-    <link rel="stylesheet" href="../../js/libs/dojo-release-1.9.3/dijit/themes/claro/claro.css">
-
-    <link rel="stylesheet" href="../../js/libs/dojo-release-1.9.3/dojox/layout/resources/FloatingPane.css">
-    <link rel="stylesheet" href="../../js/libs/dojo-release-1.9.3/dojox/layout/resources/ResizeHandle.css">
-
     <link rel="stylesheet/less" type="text/css" href="style.less" />
-
-    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
-
-    <script src="../../js/libs/jquery-1.10.2.min.js"></script>
-    <script src="../../js/libs/less-1.6.2.min.js"></script>
-    <script src="../../js/libs/bootstrap.min.js"></script>
-    <script src="../../js/libs/CanvasLayer.js"></script>
-    <script src="../../js/libs/stats.min.js"></script>
-    <script src="../../js/libs/qunit-1.14.0.js"></script>
-    <script src="../../js/libs/async.js"></script>
-    <script src="../../js/libs/stacktrace.js"></script>
-
-    <script>
-      var appdir = window.location.pathname.split('/').slice(0, -1);
-      var appdirstr = appdir.join('/');
-      var jsdir = appdir.slice(0, -2).concat(['js']);
-      var libdir = jsdir.concat(['libs']).join('/');
-      var dojoConfig = {
-        async: true,
-        baseUrl: jsdir.concat(['libs', 'dojo-release-1.9.3', 'dojo', '']).join('/'),
-        packages: [
-          {name: 'libs', location: libdir},
-          {name: 'bootstrap', location: appdirstr, main: 'bootstrap'},
-          {name: 'CanvasLayer', location: appdirstr, main: 'CanvasLayer'},
-          {name: 'Stats', location: appdirstr, main: 'Stats'},
-          {name: 'QUnit', location: appdirstr, main: 'QUnit'},
-          {name: 'jQuery', location: appdirstr, main: 'jQuery'},
-          {name: 'less', location: appdirstr, main: 'less'},
-          {name: 'async', location: appdirstr, main: 'async'},
-          {name: 'stacktrace', location: appdirstr, main: 'stacktrace'},
-
-          // AMD modules
-
-          {name: 'app', location:jsdir.concat(['app']).join('/'), main: 'app'}
-        ]
-      };
-    </script>
-
-    <script type="text/javascript" src="../../js/libs/dojo-release-1.9.3/dojo/dojo.js" data-dojo-config="isDebug:true, async: true"></script>
-
     <script type="text/javascript" src="main.js"></script>
+    <script type="text/javascript" src="../../js/deps.js"></script>
   </head>
   <body class="claro">
     <div id="test">
