@@ -1,3 +1,5 @@
+useDojo = true;
+
 function appmain() {
   require(['app/UrlValues', 'app/Visualization/Visualization', 'app/Test', 'jQuery'], function (UrlValues, Visualization, Test, $) {
     $(document).ready(function () {

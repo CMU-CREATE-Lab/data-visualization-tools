@@ -22,12 +22,17 @@ dependencies = {
     scriptRoot + "/libs/qunit-1.14.0.js",
     scriptRoot + "/libs/async.js",
     scriptRoot + "/libs/stacktrace.js",
-
-    scriptRoot + "/dojoconfig.js",
-
-    scriptRoot + "/libs/dojo-release-1.9.3/dojo/dojo.js"
   ]
 };
+
+if (useDojo) {
+  dependencies.scripts.push(scriptRoot + "/dojoconfig.js");
+  dependencies.scripts.push(scriptRoot + "/libs/dojo-release-1.9.3/dojo/dojo.js");
+} else {
+  dependencies.scripts.push(scriptRoot + "/libs/require.js");
+  dependencies.scripts.push(scriptRoot + "/requirejsconfig.js");
+}
+
 
 /* Code to load the above dependencies */
 
