@@ -46,6 +46,18 @@ if (!app.useDojo) {
       generateSourceUI: function (itemwidget, spec, item, source) {
         var self = this;
 
+        var sourcespec = self.dataview.source.header.colsByName[source.key];
+        var min = -1.0;
+        var max = 1.0;
+        if (item.min != undefined && item.max != undefined) {
+          if (sourcespec != undefined && sourcespec.min != undefined && sourcespec.max != undefined) {
+            max = item.max / sourcespec.max;
+            min = -item.max / sourcespec.max;
+          } else {
+            min = -item.max;
+            max = item.max;
+          }
+        }
         var label = "[Constant value]";
         if (source.key != "_") label = source.key;
 
@@ -57,16 +69,30 @@ if (!app.useDojo) {
           delete item.source[source.key];
           sourcewidget.destroy();
         })
+        Logging.default.log(
+          "DataViewUI.source." + spec.name + "." + item.name + "." + source.key,
+          {
+            toString: function () {
+              return this.column + "." + this.item + " [" + this.min + ", " + this.max + "] = " + this.value + " * " + this.source;
+            },
+            column: spec.name,
+            item: item.name,
+            min: min,
+            max: max,
+            value: source.value,
+            source: source.key
+          }
+        );
         sourcewidget.addChild(new HorizontalSlider({
           name: source.key,
           value: source.value,
-          minimum: -1.0,
-          maximum: 1.0,
+          minimum: min,
+          maximum: max,
           intermediateChanges: true,
           style: "width:200px;",
           onChange: function (value) {
             Logging.default.log(
-              "DataViewUI." + spec.name + "." + item.name + "." + source.key,
+              "DataViewUI.set." + spec.name + "." + item.name + "." + source.key,
               {
                 toString: function () {
                   return this.column + "." + this.item + " = " + this.value + " * " + this.source;
