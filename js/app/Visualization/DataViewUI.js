@@ -127,7 +127,7 @@ if (!app.useDojo) {
                   popup.close(sourceselect);
                 }
               });
-              Object.keys(self.dataview.source.header.colsByName).map(function (colname) {
+              self.dataview.getAvailableColumns().map(function (colname) {
                 sourceselect.addChild(new MenuItem({
                   label: colname,
                   onClick: function(evt) {
