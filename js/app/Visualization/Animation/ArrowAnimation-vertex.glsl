@@ -21,10 +21,6 @@ void main() {
     gl_PointSize = 0.0;
   } else {
     gl_PointSize = 1.0;
-    if (heading >= 0.0) {
-      baseColor = color;
-    } else {
-      baseColor = vec4(0, 0, 0, 0);
-    }
+    baseColor = color;
   }
 }
