@@ -45,6 +45,7 @@ define(["app/Class", "async", "jQuery"], function(Class, async, $) {
 
     // link shaders to create our program
     var program = gl.createProgram();
+    program.gl = gl;
     gl.attachShader(program, vertexShader);
     gl.attachShader(program, fragmentShader);
     gl.linkProgram(program);

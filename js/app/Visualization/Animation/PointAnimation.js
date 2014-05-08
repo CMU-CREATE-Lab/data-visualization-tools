@@ -3,7 +3,7 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
     name: "PointAnimation",
 
     columns: {
-      points: {
+      point: {
         type: "Float32",
         items: [
           {name: "longitude", source: {longitude: 1.0}},
@@ -27,7 +27,7 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
         {name: "alpha", source: {_: 1.0}, min: 0.0, max: 1.0}]},
       magnitude: {type: "Float32", items: [
         {name: "magnitude", source: {score: 5, _:2}, min: 0.0, max: 10.0}]},
-      datetime: {type: "Float32", items: [
+      time: {type: "Float32", items: [
         {name: "datetime", source: {datetime: 1.0}}]}
     },
 
@@ -43,10 +43,9 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
         function (program) {
           self.program = program;
 
-          self.pointArrayBuffer = self.gl.createBuffer();
-          self.colorArrayBuffer = self.gl.createBuffer();
-          self.magnitudeArrayBuffer = self.gl.createBuffer();
-          self.timeArrayBuffer = self.gl.createBuffer();
+          self.createDataViewArrayBuffers(self.program, [
+            "point", "color", "magnitude", "time"
+          ]);
 
           cb();
         }
@@ -76,11 +75,7 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
         self.rawSeries[self.seriescount] = rowidx + 1;
       }
 
-      self.gl.useProgram(self.program);
-      Shader.programLoadArray(self.gl, self.pointArrayBuffer, self.data_view.data.points, self.program);
-      Shader.programLoadArray(self.gl, self.colorArrayBuffer, self.data_view.data.color, self.program);
-      Shader.programLoadArray(self.gl, self.magnitudeArrayBuffer, self.data_view.data.magnitude, self.program);
-      Shader.programLoadArray(self.gl, self.timeArrayBuffer, self.data_view.data.datetime, self.program);
+      self.loadDataViewArrayBuffers(self.program);
 
       Animation.prototype.updateData.call(self);
     },
@@ -93,12 +88,7 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
       if (time == undefined) return;
       time = time.getTime();
 
-      self.gl.useProgram(self.program);
-
-      Shader.programBindArray(self.gl, self.pointArrayBuffer, self.program, "worldCoord", self.data_view.header.colsByName.points.items.length, self.gl.FLOAT);
-      Shader.programBindArray(self.gl, self.colorArrayBuffer, self.program, "color", self.data_view.header.colsByName.color.items.length, self.gl.FLOAT);
-      Shader.programBindArray(self.gl, self.magnitudeArrayBuffer, self.program, "magnitude", self.data_view.header.colsByName.magnitude.items.length, self.gl.FLOAT);
-      Shader.programBindArray(self.gl, self.timeArrayBuffer, self.program, "time", self.data_view.header.colsByName.datetime.items.length, self.gl.FLOAT);
+      self.bindDataViewArrayBuffers(self.program);
 
       // pointSize range [5,20], 21 zoom levels
       var pointSize = Math.max(

@@ -1,8 +1,8 @@
-define(["app/Class", "app/Data/DataView", "app/Visualization/DataViewUI"], function(Class, DataView, DataViewUI) {
+define(["app/Class", "app/Visualization/Shader", "app/Data/DataView", "app/Visualization/DataViewUI"], function(Class, Shader, DataView, DataViewUI) {
   var Animation = Class({
     name: "Animation",
     columns: {
-      points: {type: "Float32", items: [
+      point: {type: "Float32", items: [
         {name: "latitude", source: {latitude: 1.0}},
         {name: "longitude", source: {longitude: 1.0}}]},
       color: {type: "Float32", items: [
@@ -40,7 +40,33 @@ define(["app/Class", "app/Data/DataView", "app/Visualization/DataViewUI"], funct
       self.manager.triggerUpdate();
     },
 
-    draw: function () {}
+    draw: function () {},
+
+    createDataViewArrayBuffers: function (program, columns) {
+      var self = this;
+      program.dataViewArrayBuffers = {};
+      columns.map(function (name) {
+        program.dataViewArrayBuffers[name] = program.gl.createBuffer();
+      });
+    },
+
+    loadDataViewArrayBuffers: function(program) {
+      var self = this;
+      program.gl.useProgram(program);
+
+      for (var name in program.dataViewArrayBuffers) {
+        Shader.programLoadArray(program.gl, program.dataViewArrayBuffers[name], self.data_view.data[name], program);
+      };
+    },
+
+    bindDataViewArrayBuffers: function(program) {
+      var self = this;
+      program.gl.useProgram(program);
+      for (var name in program.dataViewArrayBuffers) {
+        Shader.programBindArray(program.gl, program.dataViewArrayBuffers[name], program, name, self.data_view.header.colsByName[name].items.length, self.gl.FLOAT);
+      };
+    }
+
   });
 
   Animation.animationClasses = {};
