@@ -1,4 +1,4 @@
-define(["app/Class", "app/Data/Format", "app/Data/Pack", "jQuery"], function(Class, Format, Pack, $) {
+define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "jQuery"], function(Class, Format, Selection, Pack, $) {
   return Class(Format, {
     name: "DataView",
 
@@ -43,6 +43,11 @@ define(["app/Class", "app/Data/Format", "app/Data/Pack", "jQuery"], function(Cla
         item.value.name = item.key;
         self.addCol(item.value);
       });
+
+      self.selections = {
+        selected: new Selection(self.source.sortcols),
+        hover: new Selection(self.source.sortcols)
+      };
     },
 
     handleUpdate: function (update) {
@@ -69,19 +74,23 @@ define(["app/Class", "app/Data/Format", "app/Data/Pack", "jQuery"], function(Cla
         self.data[colname] = new spec.typespec.array(self.source.header.length * spec.items.length);
       }
 
-      for (var row = 0; row < self.source.header.length; row++) {
+      for (var rowidx = 0; rowidx < self.source.header.length; rowidx++) {
         for (var item = 0; item < spec.items.length; item++) {
           var source = spec.items[item].source;
           var res = source._ || 0; 
           for (var key in source) {
             if (key != '_') {
-              res += source[key] * self.source.data[key][row];
+              if (self.selections[key]) {
+                res += source[key] * (self.selections[key].checkRow(self.source, rowidx) ? 1.0 : 0.0);
+              } else {
+                res += source[key] * self.source.data[key][rowidx];
+              }
             }
           }
-          self.data[colname][row * spec.items.length + item] = res;
+          self.data[colname][rowidx * spec.items.length + item] = res;
         }
         if (spec.transform) {
-          spec.transform.call(spec, self.data[colname], row * spec.items.length)
+          spec.transform.call(spec, self.data[colname], rowidx * spec.items.length)
         }
       }
     },
@@ -122,6 +131,14 @@ define(["app/Class", "app/Data/Format", "app/Data/Pack", "jQuery"], function(Cla
       var e = {update: 'remove-col', name: spec.name};
       self.events.triggerEvent(e.update, e);
       self.events.triggerEvent('update', e);
+    },
+
+    getAvailableColumns: function () {
+      var self = this;
+
+      return Object.keys(self.source.header.colsByName).concat(
+        Object.keys(self.selections));
     }
+
   });
 });

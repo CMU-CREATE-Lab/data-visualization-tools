@@ -8,6 +8,28 @@ define(["app/Class", "app/Events"], function(Class, Events) {
       self.rowcount = 0;
       self.seriescount = 0;
       self.events = new Events("Data.Format");
+    },
+
+    sortcols: ['series', 'datetime'],
+
+    compareRows: function(rowdix, other, otheridx) {
+      var self = this;
+
+      function compareTilesByCol(colidx) {
+        if (colidx > self.sortcols.length) return 0;
+        var col = self.sortcols[colidx];
+        if (self.data[col] == undefined || other.data[col] == undefined) {
+          // Ignore any sort columns we don't have...
+          return compareTilesByCol(colidx + 1);
+        } else if (self.data[col][rowdix] < other.data[col][otheridx]) {
+          return -1;
+        } else if (self.data[col][rowdix] > other.data[col][otheridx]) {
+          return 1;
+        } else {
+          return compareTilesByCol(colidx + 1);
+        }
+      }
+      return compareTilesByCol(0);
     }
   });
 

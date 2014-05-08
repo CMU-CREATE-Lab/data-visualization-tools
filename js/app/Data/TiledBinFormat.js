@@ -22,7 +22,6 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
 
     tilesPerScreenX: 2,
     tilesPerScreenY: 2,
-    sortcols: ['series', 'datetime'],
 
     world: new Bounds(-180, -90, 180, 90),
 
@@ -235,26 +234,8 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
     mergeTiles: function (tiles) {
       var self = this;
 
-      function compareTileData(a, aidx, b, bidx) {
-        function compareTilesByCol(colidx) {
-          if (colidx > self.sortcols.length) return 0;
-          var col = self.sortcols[colidx];
-          if (a.value.data[col] == undefined || b.value.data[col] == undefined) {
-            // Ignore any sort columns we don't have...
-            return compareTilesByCol(colidx + 1);
-          } else if (a.value.data[col][aidx] < b.value.data[col][bidx]) {
-            return -1;
-          } else if (a.value.data[col][aidx] > b.value.data[col][bidx]) {
-            return 1;
-          } else {
-            return compareTilesByCol(colidx + 1);
-          }
-        }
-        return compareTilesByCol(0);
-      }
-
       function compareTiles(a, b) {
-        if (compareTileData(a, a.merged_rowcount, b, b.merged_rowcount) > 0) {
+        if (a.value.compareRows(a.merged_rowcount, b.value, b.merged_rowcount) > 0) {
           return b;
         } else {
           return a;
