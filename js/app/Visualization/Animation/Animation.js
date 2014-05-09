@@ -20,7 +20,8 @@ define(["app/Class", "app/Visualization/Shader", "app/Visualization/GeoProjectio
       self.data_view_ui = new DataViewUI(self.data_view);
 
       $('#map-div').mousemove(function (e) {
-        self.select(e.offsetX, e.offsetY, 'hover', true);
+        var offset = $('#map-div').offset();
+        self.select(e.pageX - offset.left, e.pageY - offset.top, 'hover', true);
       });
     },
 
@@ -28,13 +29,10 @@ define(["app/Class", "app/Visualization/Shader", "app/Visualization/GeoProjectio
       var self = this;
       self.gl = gl;
       self.rowidxCanvas = document.createElement('canvas');
-      var rowidxCanvas = $(self.rowidxCanvas);
-      rowidxCanvas.css({position: "absolute", left:0, top: 0, width: "100%", height: "100%", "z-index": 1000, background: "black"});
-      $("body").append(rowidxCanvas);
-
-      self.rowidxGl = self.rowidxCanvas.getContext('experimental-webgl');
+      self.rowidxGl = self.rowidxCanvas.getContext('experimental-webgl', {preserveDrawingBuffer: true});
       self.rowidxGl.enable(self.rowidxGl.BLEND);
-      self.rowidxGl.blendFunc(self.rowidxGl.ONE, self.gl.ONE);
+      self.rowidxGl.blendFunc(self.rowidxGl.ONE, self.rowidxGl.ONE);
+
       cb();
     },
 
@@ -56,6 +54,9 @@ define(["app/Class", "app/Visualization/Shader", "app/Visualization/GeoProjectio
       var self = this;
       var width = self.manager.canvasLayer.canvas.width;
       var height = self.manager.canvasLayer.canvas.height;
+      self.rowidxCanvas.width = width;
+      self.rowidxCanvas.height = height;
+
       self.rowidxGl.viewport(0, 0, width, height);
     },
 
@@ -80,7 +81,7 @@ define(["app/Class", "app/Visualization/Shader", "app/Visualization/GeoProjectio
       var self = this;
       program.gl.useProgram(program);
       for (var name in program.dataViewArrayBuffers) {
-        Shader.programBindArray(program.gl, program.dataViewArrayBuffers[name], program, name, self.data_view.header.colsByName[name].items.length, self.gl.FLOAT);
+        Shader.programBindArray(program.gl, program.dataViewArrayBuffers[name], program, name, self.data_view.header.colsByName[name].items.length, program.gl.FLOAT);
       };
     },
 
@@ -112,8 +113,9 @@ define(["app/Class", "app/Visualization/Shader", "app/Visualization/GeoProjectio
 
       var data = new Uint8Array(4);
       self.rowidxGl.readPixels(x, y, 1, 1, self.rowidxGl.RGBA, self.rowidxGl.UNSIGNED_BYTE, data);
+        console.log(data);
 
-      var res = (data[0] << 16 | data[1] << 8 | data[2]) - 1;
+      var res = ((data[0] << 16) | (data[1] << 8) | data[2]) - 1;
       if (res == -1) res = undefined;
       return res;
     },

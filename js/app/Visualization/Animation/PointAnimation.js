@@ -39,11 +39,11 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
         ],
         transform: function (col, offset) {
           var spec = this;
-          var rowidx = offset / spec.items.length;
+          var rowidx = (offset / spec.items.length) + 1;
 
-          col[offset + spec.itemsByName.r.index] = (rowidx >> 16) & 0xff;
-          col[offset + spec.itemsByName.g.index] = (rowidx >> 8) & 0xff;
-          col[offset + spec.itemsByName.b.index] = rowidx & 0xff;
+          col[offset + spec.itemsByName.r.index] = ((rowidx >> 16) & 0xff) / 255;
+          col[offset + spec.itemsByName.g.index] = ((rowidx >> 8) & 0xff) / 255;
+          col[offset + spec.itemsByName.b.index] = (rowidx & 0xff) / 255;
           col[offset + spec.itemsByName.a.index] = 1.0;
         }
       }
@@ -134,8 +134,8 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
     getDrawMode: function (program) {
       var self = this;
 
-      self.gl.uniform1i(program.uniforms.doShade, 1);
-      return self.gl.POINTS;
+      program.gl.uniform1i(program.uniforms.doShade, 1);
+      return program.gl.POINTS;
     }
   });
   Animation.animationClasses.point = PointAnimation;
