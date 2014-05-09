@@ -130,8 +130,9 @@ define(["app/Class", "app/Visualization/Shader", "app/Visualization/GeoProjectio
         self.data_view.selections[type].clearRanges();
       }
       if (rowidx != undefined) {
-        self.data_view.selections[type].addRange(self.data_view.source, rowidx);
+        self.data_view.selections[type].addRange(self.data_view.source, rowidx, rowidx);
       }
+      self.manager.triggerUpdate();
     }
   });
 
