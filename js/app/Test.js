@@ -1,4 +1,23 @@
-define(["app/Class", "QUnit", "app/Test/Events", "app/Test/SubscribableDict", "app/Test/Logging", "app/Test/Data/TypedMatrixParser"], function(Class, QUnit, Events, SubscribableDict, Logging, TypedMatrixParser) {
+define(
+  [
+    "app/Class",
+    "QUnit",
+    "app/Test/Events",
+    "app/Test/SubscribableDict",
+    "app/Test/Logging",
+    "app/Test/Data/TypedMatrixParser",
+    "app/Test/Data/BinFormat",
+    "app/Test/Data/DataView"
+  ], function(
+    Class,
+    QUnit,
+    Events,
+    SubscribableDict,
+    Logging,
+    TypedMatrixParser,
+    BinFormat,
+    DataView
+  ) {
   return Class({
     name: "Test",
     initialize: function () {
@@ -8,6 +27,8 @@ define(["app/Class", "QUnit", "app/Test/Events", "app/Test/SubscribableDict", "a
       new SubscribableDict();
       new Logging();
       new TypedMatrixParser();
+      new BinFormat();
+      new DataView();
     }
   });
 });
