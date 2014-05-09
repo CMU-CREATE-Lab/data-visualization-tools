@@ -28,7 +28,7 @@ define(["app/Class", "QUnit", "app/Test/BaseTest", "app/Data/TypedMatrixParser",
     "Parse generated data": function (cb) {
       QUnit.expect(6);
 
-      var p = new TypedMatrixParser(require.toUrl("Test/Data/foo.bin"));
+      var p = new TypedMatrixParser(require.toUrl("app/Test/Data/foo.bin"));
       var rowidx = 0;
       p.events.on({
         header: function (data) {
