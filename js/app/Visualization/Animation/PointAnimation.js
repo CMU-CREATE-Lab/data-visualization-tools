@@ -22,34 +22,65 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
       },
       color: {type: "Float32", items: [
         {name: "red", source: {score: 0.85, _:-0.1}, min: 0.0, max: 1.0},
-        {name: "green", source: {_: 0.1}, min: 0.0, max: 1.0},
+        {name: "green", source: {_: 0.3}, min: 0.0, max: 1.0},
         {name: "blue", source: {_: 0.0}, min: 0.0, max: 1.0},
         {name: "alpha", source: {_: 1.0}, min: 0.0, max: 1.0}]},
       magnitude: {type: "Float32", items: [
         {name: "magnitude", source: {score: 5, _:2}, min: 0.0, max: 10.0}]},
       time: {type: "Float32", items: [
-        {name: "datetime", source: {datetime: 1.0}}]}
+        {name: "datetime", source: {datetime: 1.0}}]},
+      rowidx: {
+        type: "Float32",
+        items: [
+          {name: "r", source: {}},
+          {name: "g", source: {}},
+          {name: "b", source: {}},
+          {name: "a", source: {}}
+        ],
+        transform: function (col, offset) {
+          var spec = this;
+          var rowidx = offset / spec.items.length;
+
+          col[offset + spec.itemsByName.r.index] = (rowidx >> 16) & 0xff;
+          col[offset + spec.itemsByName.g.index] = (rowidx >> 8) & 0xff;
+          col[offset + spec.itemsByName.b.index] = rowidx & 0xff;
+          col[offset + spec.itemsByName.a.index] = 1.0;
+        }
+      }
     },
 
     magnitudeScale: 0.1,
 
     initGl: function(gl, cb) {
       var self = this;
-      self.gl = gl;
-      Shader.createShaderProgramFromUrl(
-        self.gl,
-        require.toUrl("app/Visualization/Animation/PointAnimation-vertex.glsl"),
-        require.toUrl("app/Visualization/Animation/PointAnimation-fragment.glsl"),
-        function (program) {
-          self.program = program;
+      Animation.prototype.initGl(gl, function () {
+        Shader.createShaderProgramFromUrl(
+          self.gl,
+          require.toUrl("app/Visualization/Animation/PointAnimation-vertex.glsl"),
+          require.toUrl("app/Visualization/Animation/PointAnimation-fragment.glsl"),
+          function (program) {
+            self.program = program;
+            self.createDataViewArrayBuffers(self.program, [
+              "point", "color", "magnitude", "time"
+            ]);
 
-          self.createDataViewArrayBuffers(self.program, [
-            "point", "color", "magnitude", "time"
-          ]);
+            Shader.createShaderProgramFromUrl(
+              self.rowidxGl,
+              require.toUrl("app/Visualization/Animation/PointAnimation-rowidx-vertex.glsl"),
+              require.toUrl("app/Visualization/Animation/PointAnimation-rowidx-fragment.glsl"),
+              function (program) {
+                self.rowidxProgram = program;
 
-          cb();
-        }
-      );
+                self.createDataViewArrayBuffers(self.rowidxProgram, [
+                  "point", "rowidx", "magnitude", "time"
+                ]);
+
+                cb();
+              }
+            );
+          }
+        );
+      });
     },
 
     updateData: function() {
@@ -76,43 +107,34 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
       }
 
       self.loadDataViewArrayBuffers(self.program);
+      self.loadDataViewArrayBuffers(self.rowidxProgram);
 
       Animation.prototype.updateData.call(self);
     },
 
     draw: function () {
       var self = this;
-      var time = self.manager.visualization.state.getValue("time");
-      var offset = self.manager.visualization.state.getValue("offset");
-
-      if (time == undefined) return;
-      time = time.getTime();
-
-      self.bindDataViewArrayBuffers(self.program);
-
-      // pointSize range [5,20], 21 zoom levels
-      var pointSize = Math.max(
-        Math.floor( ((20-5) * (self.manager.map.zoom - 0) / (21 - 0)) + 5 ),
-        GeoProjection.getPixelDiameterAtLatitude(self.manager.visualization.state.getValue("resolution") || 1000, self.manager.map.getCenter().lat(), self.manager.map.zoom));
-      self.gl.uniform1f(self.program.uniforms.pointSize, pointSize*1.0);
-
-      self.gl.uniformMatrix4fv(self.program.uniforms.mapMatrix, false, self.manager.mapMatrix);
-      self.gl.uniform1f(self.program.uniforms.startTime, time - offset * 24 * 60 * 60 * 1000);
-      self.gl.uniform1f(self.program.uniforms.endTime, time);
-
-      var mode = self.getDrawMode();
-      for (var i = 0; i < self.seriescount; i++) {
-        // console.log([i, self.rawSeries[i], self.rawSeries[i+1]-self.rawSeries[i], self.manager.visualization.data.format.header.length]);
-        self.gl.drawArrays(mode, self.rawSeries[i], self.rawSeries[i+1]-self.rawSeries[i]);
-      }
-
       Animation.prototype.draw.call(self);
+
+      self.rowidxGl.clear(self.rowidxGl.COLOR_BUFFER_BIT);
+
+
+      [self.program, self.rowidxProgram].map(function (program) { 
+
+        self.bindDataViewArrayBuffers(program);
+        self.setGeneralUniforms(program);
+
+        var mode = self.getDrawMode(program);
+        for (var i = 0; i < self.seriescount; i++) {
+          program.gl.drawArrays(mode, self.rawSeries[i], self.rawSeries[i+1]-self.rawSeries[i]);
+        }
+      });
     },
 
-    getDrawMode: function () {
+    getDrawMode: function (program) {
       var self = this;
 
-      self.gl.uniform1i(self.program.uniforms.doShade, 1);
+      self.gl.uniform1i(program.uniforms.doShade, 1);
       return self.gl.POINTS;
     }
   });

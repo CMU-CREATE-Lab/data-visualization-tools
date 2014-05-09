@@ -49,23 +49,24 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
 
     initGl: function(gl, cb) {
       var self = this;
-      self.gl = gl;
-      Shader.createShaderProgramFromUrl(
-        self.gl,
-        require.toUrl("app/Visualization/Animation/ArrowAnimation-vertex.glsl"),
-        require.toUrl("app/Visualization/Animation/ArrowAnimation-fragment.glsl"),
-        function (program) {
-          self.program = program;
+      Animation.prototype.initGl(gl, function () {
+        Shader.createShaderProgramFromUrl(
+          self.gl,
+          require.toUrl("app/Visualization/Animation/ArrowAnimation-vertex.glsl"),
+          require.toUrl("app/Visualization/Animation/ArrowAnimation-fragment.glsl"),
+          function (program) {
+            self.program = program;
 
-          self.pointArrayBuffer = self.gl.createBuffer();
-          self.headingArrayBuffer = self.gl.createBuffer();
-          self.colorArrayBuffer = self.gl.createBuffer();
-          self.magnitudeArrayBuffer = self.gl.createBuffer();
-          self.timeArrayBuffer = self.gl.createBuffer();
+            self.pointArrayBuffer = self.gl.createBuffer();
+            self.headingArrayBuffer = self.gl.createBuffer();
+            self.colorArrayBuffer = self.gl.createBuffer();
+            self.magnitudeArrayBuffer = self.gl.createBuffer();
+            self.timeArrayBuffer = self.gl.createBuffer();
 
-          cb();
-        }
-      );
+            cb();
+          }
+        );
+      });
     },
 
     updateData: function() {

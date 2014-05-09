@@ -4,21 +4,22 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
 
     magnitudeScale: 0.1,
 
-    initGl: function(gl, cb) {
+    initGl: function(gl, mouseoverGl, cb) {
       var self = this;
-      self.gl = gl;
-      Shader.createShaderProgramFromUrl(
-        self.gl,
-        require.toUrl("app/Visualization/Animation/TileAnimation-vertex.glsl"),
-        require.toUrl("app/Visualization/Animation/TileAnimation-fragment.glsl"),
-        function (program) {
-          self.program = program;
+      Animation.prototype.initGl(gl, function () {
+        Shader.createShaderProgramFromUrl(
+          self.gl,
+          require.toUrl("app/Visualization/Animation/TileAnimation-vertex.glsl"),
+          require.toUrl("app/Visualization/Animation/TileAnimation-fragment.glsl"),
+          function (program) {
+            self.program = program;
 
-          self.pointArrayBuffer = self.gl.createBuffer();
+            self.pointArrayBuffer = self.gl.createBuffer();
 
-          cb();
-        }
-      );
+            cb();
+          }
+        );
+      });
     },
 
     updateData: function() {

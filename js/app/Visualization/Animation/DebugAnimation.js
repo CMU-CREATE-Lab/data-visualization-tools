@@ -4,19 +4,20 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
 
     initGl: function(gl, cb) {
       var self = this;
-      self.gl = gl;
-      Shader.createShaderProgramFromUrl(
-        self.gl,
-        require.toUrl("app/Visualization/Animation/DebugAnimation-vertex.glsl"),
-        require.toUrl("app/Visualization/Animation/DebugAnimation-fragment.glsl"),
-        function (program) {
-          self.program = program;
+      Animation.prototype.initGl(gl, function () {
+        Shader.createShaderProgramFromUrl(
+          self.gl,
+          require.toUrl("app/Visualization/Animation/DebugAnimation-vertex.glsl"),
+          require.toUrl("app/Visualization/Animation/DebugAnimation-fragment.glsl"),
+          function (program) {
+            self.program = program;
 
-          self.pointArrayBuffer = self.gl.createBuffer();
+            self.pointArrayBuffer = self.gl.createBuffer();
 
-          cb();
-        }
-      );
+            cb();
+          }
+        );
+      });
     },
 
     updateData: function() {
