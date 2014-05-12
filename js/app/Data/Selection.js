@@ -1,10 +1,11 @@
-define(["app/Class"], function(Class) {
+define(["app/Class", "app/Events"], function(Class, Events) {
   return Class({
     name: "Selection",
 
     initialize: function (sortcols) {
       var self = this;
       self.sortcols = sortcols;
+      self.events = new Events("Selection");
       self.clearRanges();
     },
 
@@ -20,6 +21,7 @@ define(["app/Class"], function(Class) {
         }
       });
       self.header.length++;
+      self.events.triggerEvent("add", {source:source, startidx:startidx, endidx:endidx});
     },
 
     clearRanges: function () {
@@ -29,6 +31,7 @@ define(["app/Class"], function(Class) {
       self.sortcols.map(function (col) {
         self.data[col] = [];
       });
+      self.events.triggerEvent("clear", {});
     },
 
     checkRow: function (source, rowidx) {

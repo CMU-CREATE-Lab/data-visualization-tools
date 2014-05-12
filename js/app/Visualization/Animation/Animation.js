@@ -132,7 +132,6 @@ define(["app/Class", "app/Visualization/Shader", "app/Visualization/GeoProjectio
       if (rowidx != undefined) {
         self.data_view.selections[type].addRange(self.data_view.source, rowidx, rowidx);
       }
-      self.manager.triggerUpdate();
     }
   });
 

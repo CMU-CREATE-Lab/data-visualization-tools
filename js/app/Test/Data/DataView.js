@@ -23,6 +23,35 @@ define(["app/Class", "QUnit", "app/Test/BaseTest", "app/Data/BinFormat", "app/Da
       });
 
       p.load();
+    },
+
+    "Select rows": function (cb) {
+      QUnit.expect(6);
+
+      p = new BinFormat(require.toUrl("app/Test/Data/foo.bin"));
+      p.sortcols = ['foo'];
+      dv = new DataView(p, {
+        foo: {type: "Int32", items: [{name: "foo", source: {foo: 1}}]},
+        bar: {type: "Int32", items: [{name: "bar", source: {bar: 1}}]},
+        selected: {type: "Int32", items: [{name: "selected", source: {selected: 1}}]}
+      });
+      dv.events.on({
+        all: function () {
+          dv.selections.selected.addRange(p, 1, 1);
+          dv.handleUpdate({update: "selection"});
+          QUnit.equal(dv.selections.selected.checkRow(p, 0), false, "Unselected row 0 is not selected according to checkRow()");
+          QUnit.equal(dv.selections.selected.checkRow(p, 1), true, "Selected row 1 is selected according to checkRow()");
+          QUnit.equal(dv.selections.selected.checkRow(p, 2), false, "Unselected row 2 is not selected according to checkRow()");
+
+          QUnit.equal(dv.data.selected[dv.header.colsByName.selected.items.length * 0], 0, "Unselected row 0 is not selected in DataView");
+          QUnit.equal(dv.data.selected[dv.header.colsByName.selected.items.length * 1], 1, "Selected row 1 is selected in DataView");
+          QUnit.equal(dv.data.selected[dv.header.colsByName.selected.items.length * 2], 0, "Unselected row 1 is not selected in DataView");
+
+          cb();
+        }
+      });
+
+      p.load();
     }
   });
 });
