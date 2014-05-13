@@ -4,7 +4,7 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
 
     columns: {
       point: {
-        type: "Float32",
+        type: "Float32", hidden: true,
         items: [
           {name: "longitude", source: {longitude: 1.0}},
           {name: "latitude", source: {latitude: 1.0}}
@@ -27,10 +27,10 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
         {name: "alpha", source: {_: 1.0}, min: 0.0, max: 1.0}]},
       magnitude: {type: "Float32", items: [
         {name: "magnitude", source: {score: 5, _:2}, min: 0.0, max: 10.0}]},
-      time: {type: "Float32", items: [
+      time: {type: "Float32", hidden: true, items: [
         {name: "datetime", source: {datetime: 1.0}}]},
       rowidx: {
-        type: "Float32",
+        type: "Float32", hidden: true,
         items: [
           {name: "r", source: {}},
           {name: "g", source: {}},

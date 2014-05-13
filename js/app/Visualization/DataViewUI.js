@@ -116,6 +116,7 @@ if (!app.useDojo) {
         var ui = new ContentPane();
 
         Object.values(self.dataview.header.colsByName).map(function (spec) {
+          if (spec.hidden) return;
           spec.items.map(function (item) {
             var itemwidget = new ContentPane({
               content: spec.name + "." + item.name + " <a href='javascript:void(0);' class='add'><i class='fa fa-plus-square'></i></a>",
