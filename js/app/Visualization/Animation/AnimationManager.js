@@ -27,7 +27,8 @@ define(["app/Class", "app/Bounds", "async", "app/Logging", "jQuery", "app/Visual
         self.initCanvas.bind(self),
         self.initStats.bind(self),
         self.initAnimationsGL.bind(self),
-        self.initUpdates.bind(self)
+        self.initUpdates.bind(self),
+        self.initMouse.bind(self)
       ], cb);
     },
 
@@ -139,6 +140,23 @@ define(["app/Class", "app/Bounds", "async", "app/Logging", "jQuery", "app/Visual
       }
     },
 
+    initMouse: function(cb) {
+      var self = this;
+
+      var handleMouse = function (e, type) {
+        var offset = $('#map-div').offset();
+
+        for (var key in self.animations) {
+          var animation = self.animations[key];
+          if (animation.select(e.pageX - offset.left, e.pageY - offset.top, type, true)) {
+            return;
+          }
+        }
+      };
+
+      $('#map-div').mousemove(function (e) { handleMouse(e, 'hover'); });
+      $('#map-div').click(function (e) { handleMouse(e, 'selected'); });
+    },
 
     initAnimationsGL: function (cb) {
       var self = this;

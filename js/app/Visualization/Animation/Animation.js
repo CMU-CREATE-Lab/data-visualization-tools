@@ -29,15 +29,6 @@ function rgbToHex(r, g, b) {
       self.manager = manager;
       self.data_view = new DataView(self.manager.visualization.data.format, self.columns);
       self.data_view_ui = new DataViewUI(self.data_view);
-
-      $('#map-div').mousemove(function (e) {
-        var offset = $('#map-div').offset();
-        self.select(e.pageX - offset.left, e.pageY - offset.top, 'hover', true);
-      });
-      $('#map-div').click(function (e) {
-        var offset = $('#map-div').offset();
-        self.select(e.pageX - offset.left, e.pageY - offset.top, 'selected', true);
-      });
     },
 
     initGl: function(gl, cb) {
@@ -169,6 +160,7 @@ function rgbToHex(r, g, b) {
       var self = this;
       var rowidx = self.getRowidxAtPos(x, y);
       self.data_view.selections[type].addRange(self.data_view.source, rowidx, rowidx, replace);
+      return rowidx;
     }
   });
 
