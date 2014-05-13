@@ -21,9 +21,9 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
         }
       },
       color: {type: "Float32", items: [
-        {name: "red", source: {score: 0.85, _:-0.1, hover:1.0}, min: 0.0, max: 1.0},
-        {name: "green", source: {_: 0.3, hover:1.0}, min: 0.0, max: 1.0},
-        {name: "blue", source: {_: 0.0, hover:1.0}, min: 0.0, max: 1.0},
+        {name: "red", source: {score: 0.85, _:-0.1, hover:1.0, selected:1.0}, min: 0.0, max: 1.0},
+        {name: "green", source: {_: 0.3, hover:1.0, selected:1.0}, min: 0.0, max: 1.0},
+        {name: "blue", source: {_: 0.0, hover:1.0, selected:1.0}, min: 0.0, max: 1.0},
         {name: "alpha", source: {_: 1.0}, min: 0.0, max: 1.0}]},
       magnitude: {type: "Float32", items: [
         {name: "magnitude", source: {score: 5, _:2}, min: 0.0, max: 10.0}]},

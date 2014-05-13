@@ -54,13 +54,7 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
       var self = this;
       self.selections[name] = new Selection(self.source.sortcols);
       self.selections[name].events.on({
-        add: function (e) {
-          e.update = "select";
-          e.category = name;
-          self.handleUpdate(e);
-        },
-        clear: function (e) {
-          e.update = "unselect";
+        update: function (e) {
           e.category = name;
           self.handleUpdate(e);
         }
@@ -91,7 +85,6 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
         self.data[colname] = new spec.typespec.array(self.source.header.length * spec.items.length);
       }
 
-        selectedRows = 0;
       for (var rowidx = 0; rowidx < self.source.header.length; rowidx++) {
         for (var item = 0; item < spec.items.length; item++) {
           var source = spec.items[item].source;
@@ -99,7 +92,6 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
           for (var key in source) {
             if (key != '_') {
               if (self.selections[key]) {
-                  if (self.selections[key].checkRow(self.source, rowidx)) selectedRows++;
                 res += source[key] * (self.selections[key].checkRow(self.source, rowidx) ? 1.0 : 0.0);
               } else {
                 res += source[key] * self.source.data[key][rowidx];
@@ -112,7 +104,6 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
           spec.transform.call(spec, self.data[colname], rowidx * spec.items.length)
         }
       }
-        console.log({selectedRows:selectedRows});
     },
 
     _changeCol: function(update, spec) {

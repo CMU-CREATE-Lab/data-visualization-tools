@@ -6,32 +6,48 @@ define(["app/Class", "app/Events"], function(Class, Events) {
       var self = this;
       self.sortcols = sortcols;
       self.events = new Events("Selection");
-      self.clearRanges();
+      self._clearRanges();
     },
 
-    addRange: function(source, startidx, endidx) {
-      var self = this;
-      self.sortcols.map(function (col) {
-        if (source.data[col] != undefined) {
-          self.data[col].push(source.data[col][startidx]);
-          self.data[col].push(source.data[col][endidx]);
-        } else {
-          self.data[col].push(undefined);
-          self.data[col].push(undefined);
-        }
-      });
-      self.header.length++;
-      self.events.triggerEvent("add", {source:source, startidx:startidx, endidx:endidx});
-    },
-
-    clearRanges: function () {
+    _clearRanges: function () {
       var self = this;
       self.header = {length: 0};
       self.data = {};
       self.sortcols.map(function (col) {
         self.data[col] = [];
       });
-      self.events.triggerEvent("clear", {});
+    },
+
+    addRange: function(source, startidx, endidx, replace) {
+      var self = this;
+      var updated = false;
+      if (replace && self.header.length != 0) {
+        updated = true;
+        self._clearRanges();
+      }
+      if (startidx != undefined && endidx != undefined) {
+        updated = true;
+        self.sortcols.map(function (col) {
+          if (source.data[col] != undefined) {
+            self.data[col].push(source.data[col][startidx]);
+            self.data[col].push(source.data[col][endidx]);
+          } else {
+            self.data[col].push(undefined);
+            self.data[col].push(undefined);
+          }
+        });
+        self.header.length++;
+      }
+      if (updated) {
+        self.events.triggerEvent("update", {update: "add", source:source, startidx:startidx, endidx:endidx});
+      }
+    },
+
+    clearRanges: function () {
+      var self = this;
+      if (self.header.length == 0) return;
+      self._clearRanges();
+      self.events.triggerEvent("update", {update:"clear"});
     },
 
     checkRow: function (source, rowidx) {

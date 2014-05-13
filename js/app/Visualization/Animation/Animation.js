@@ -1,4 +1,15 @@
 define(["app/Class", "app/Visualization/Shader", "app/Visualization/GeoProjection", "app/Data/DataView", "app/Visualization/DataViewUI"], function(Class, Shader, GeoProjection, DataView, DataViewUI) {
+
+
+function componentToHex(c) {
+    var hex = c.toString(16);
+    return hex.length == 1 ? "0" + hex : hex;
+}
+
+function rgbToHex(r, g, b) {
+    return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+}
+
   var Animation = Class({
     name: "Animation",
     columns: {
@@ -23,15 +34,22 @@ define(["app/Class", "app/Visualization/Shader", "app/Visualization/GeoProjectio
         var offset = $('#map-div').offset();
         self.select(e.pageX - offset.left, e.pageY - offset.top, 'hover', true);
       });
+      $('#map-div').click(function (e) {
+        var offset = $('#map-div').offset();
+        self.select(e.pageX - offset.left, e.pageY - offset.top, 'selected', true);
+      });
     },
 
     initGl: function(gl, cb) {
       var self = this;
       self.gl = gl;
       self.rowidxCanvas = document.createElement('canvas');
+
+      rowidxCanvas = $(self.rowidxCanvas);
       self.rowidxGl = self.rowidxCanvas.getContext('experimental-webgl', {preserveDrawingBuffer: true});
       self.rowidxGl.enable(self.rowidxGl.BLEND);
-      self.rowidxGl.blendFunc(self.rowidxGl.ONE, self.rowidxGl.ONE);
+      self.rowidxGl.blendFunc(self.rowidxGl.SRC_ALPHA, self.rowidxGl.ONE_MINUS_SRC_ALPHA);
+      self.rowidxGl.lineWidth(1.0);
 
       cb();
     },
@@ -108,30 +126,49 @@ define(["app/Class", "app/Visualization/Shader", "app/Visualization/GeoProjectio
      * pixel x/y position. Rowidx is encoded into RGB (in that order),
      * with 1 added to the rowidx. 0 encodes no row drawn on that
      * pixel. */
-    getRowidxAtPos: function (x, y) {
+    getRowidxAtPos: function (x, y, radius) {
       var self = this;
 
-      var data = new Uint8Array(4);
-      self.rowidxGl.readPixels(x, y, 1, 1, self.rowidxGl.RGBA, self.rowidxGl.UNSIGNED_BYTE, data);
-        console.log(data);
+      /* Canvas coordinates are upside down for some reason... */
+      y = self.manager.canvasLayer.canvas.height - y;
 
-      var res = ((data[0] << 16) | (data[1] << 8) | data[2]) - 1;
-      if (res == -1) res = undefined;
-      return res;
+      if (radius == undefined) radius = 4;
+
+      var size = radius * 2 + 1;
+
+      var data = new Uint8Array(4*size*size);
+      self.rowidxGl.readPixels(x-radius, y-radius, size, size, self.rowidxGl.RGBA, self.rowidxGl.UNSIGNED_BYTE, data);
+
+      var pixelToId = function (offset) {
+        var res = ((data[offset] << 16) | (data[offset+1] << 8) | data[offset+2]) - 1;
+        if (res == -1) res = undefined;
+        return res;
+      }
+
+      var rowIdx = [];
+      for (var i = 0; i < size*size; i++) {
+        rowIdx.push(pixelToId(i * 4));
+      }
+
+      var last = undefined;
+      var lastradius = 0;
+      for (var oy = 0; oy < size; oy++) {
+        for (var ox = 0; ox < size; ox++) {
+          var r = Math.sqrt(Math.pow(Math.abs(ox - size + 0.5), 2) + Math.pow(Math.abs(oy - size + 0.5), 2))
+          if (rowIdx[oy*size+ox] != undefined && (r <= lastradius || last == undefined)) {
+            last = rowIdx[oy*size+ox];
+            lastradius = r;
+          }
+        }
+      }
+
+      return last;
     },
 
     select: function (x, y, type, replace) {
       var self = this;
       var rowidx = self.getRowidxAtPos(x, y);
-
-      console.log(["select", rowidx, x, y, type]);
-
-      if (replace) {
-        self.data_view.selections[type].clearRanges();
-      }
-      if (rowidx != undefined) {
-        self.data_view.selections[type].addRange(self.data_view.source, rowidx, rowidx);
-      }
+      self.data_view.selections[type].addRange(self.data_view.source, rowidx, rowidx, replace);
     }
   });
 
