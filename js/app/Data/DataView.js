@@ -94,7 +94,9 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
               if (self.selections[key]) {
                 res += source[key] * (self.selections[key].checkRow(self.source, rowidx) ? 1.0 : 0.0);
               } else {
-                res += source[key] * self.source.data[key][rowidx];
+                if (self.source.data[key]) {
+                  res += source[key] * self.source.data[key][rowidx];
+                }
               }
             }
           }
