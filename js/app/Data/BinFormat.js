@@ -4,7 +4,6 @@ define(["app/Class", "app/Events", "app/Data/TypedMatrixParser", "app/Data/Forma
     initialize: function(source) {
       var self = this;
       self.source = source;
-      self.loaded = {};
       self.loading_started = false;
      
       Format.prototype.initialize.apply(self, arguments);
@@ -34,7 +33,6 @@ define(["app/Class", "app/Events", "app/Data/TypedMatrixParser", "app/Data/Forma
       for (var name in self.header.colsByName) {
         var col = self.header.colsByName[name];
         self.data[name] = new col.typespec.array(self.header.length);
-        self.loaded[name] = {min: undefined, max: undefined};
       }
 
       TypedMatrixParser.prototype.headerLoaded.call(self, data);
@@ -45,8 +43,8 @@ define(["app/Class", "app/Events", "app/Data/TypedMatrixParser", "app/Data/Forma
 
       for (var name in self.header.colsByName) {
         self.data[name][self.rowcount] = data[name];
-        self.loaded[name].min = self.loaded[name].min == undefined ? data[name] : Math.min(self.loaded[name].min, data[name]);
-        self.loaded[name].max = self.loaded[name].max == undefined ? data[name] : Math.max(self.loaded[name].max, data[name]);
+        self.header.colsByName[name].min = self.header.colsByName[name].min == undefined ? data[name] : Math.min(self.header.colsByName[name].min, data[name]);
+        self.header.colsByName[name].max = self.header.colsByName[name].max == undefined ? data[name] : Math.max(self.header.colsByName[name].max, data[name]);
       }
 
       self.rowcount++;
