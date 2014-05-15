@@ -29,11 +29,11 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
       },
       color: {type: "Float32", items: [
         {name: "red_start", source: {_:1.0}, min: 0.0, max: 1.0},
-        {name: "green_start", source: {_: 0.0}, min: 0.0, max: 1.0},
-        {name: "blue_start", source: {_: 0.0}, min: 0.0, max: 1.0},
+        {name: "green_start", source: {_: 0.0, selected:1.0, hover:1.0}, min: 0.0, max: 1.0},
+        {name: "blue_start", source: {_: 0.0, selected:1.0, hover:1.0}, min: 0.0, max: 1.0},
         {name: "alpha_start", source: {_: 1.0}, min: 0.0, max: 1.0},
-        {name: "red_end", source: {_: 0.0}, min: 0.0, max: 1.0},
-        {name: "green_end", source: {_: 0.0}, min: 0.0, max: 1.0},
+        {name: "red_end", source: {_: 0.0, selected:1.0, hover:1.0}, min: 0.0, max: 1.0},
+        {name: "green_end", source: {_: 0.0, selected:1.0, hover:1.0}, min: 0.0, max: 1.0},
         {name: "blue_end", source: {_: 1.0}, min: 0.0, max: 1.0},
         {name: "alpha_end", source: {_: 1.0}, min: 0.0, max: 1.0}]},
       heading: {type: "Float32", items: [
@@ -44,27 +44,50 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
         {name: "magnitude", source: {score: 0.2}, min: 0.0, max: 2.0}]},
       time: {type: "Float32", hidden: true, items: [
         {name: "start", source: {datetime: 1.0}},
-        {name: "end", source: {datetime: 1.0}}]}
+        {name: "end", source: {datetime: 1.0}}]},
+      rowidx: {
+        type: "Float32", hidden: true,
+        items: [
+          {name: "sr", source: {}},
+          {name: "sg", source: {}},
+          {name: "sb", source: {}},
+          {name: "sa", source: {}},
+          {name: "er", source: {}},
+          {name: "eg", source: {}},
+          {name: "eb", source: {}},
+          {name: "ea", source: {}}
+        ],
+        transform: function (col, offset) {
+          var spec = this;
+          var rowidx = (offset / spec.items.length) + 1;
+
+          col[offset + spec.itemsByName.sr.index] = ((rowidx >> 16) & 0xff) / 255;
+          col[offset + spec.itemsByName.sg.index] = ((rowidx >> 8) & 0xff) / 255;
+          col[offset + spec.itemsByName.sb.index] = (rowidx & 0xff) / 255;
+          col[offset + spec.itemsByName.sa.index] = 1.0;
+          col[offset + spec.itemsByName.er.index] = ((rowidx >> 16) & 0xff) / 255;
+          col[offset + spec.itemsByName.eg.index] = ((rowidx >> 8) & 0xff) / 255;
+          col[offset + spec.itemsByName.eb.index] = (rowidx & 0xff) / 255;
+          col[offset + spec.itemsByName.ea.index] = 1.0;
+        }
+      }
     },
 
-    initGl: function(gl, cb) {
-      var self = this;
-      Animation.prototype.initGl(gl, function () {
-        Shader.createShaderProgramFromUrl(
-          self.gl,
-          require.toUrl("app/Visualization/Animation/ArrowAnimation-vertex.glsl"),
-          require.toUrl("app/Visualization/Animation/ArrowAnimation-fragment.glsl"),
-          function (program) {
-            self.program = program;
-
-            self.createDataViewArrayBuffers(self.program, [
-                "point", "color", "heading", "magnitude", "time"
-            ], 2);
-
-            cb();
-          }
-        );
-      });
+    programs: {
+      program: {
+        context: "gl",
+        vertex: "app/Visualization/Animation/ArrowAnimation-vertex.glsl",
+        fragment: "app/Visualization/Animation/ArrowAnimation-fragment.glsl",
+        columns: ["point", "color", "heading", "magnitude", "time"],
+        items_per_source_item: 2
+      },
+      rowidxProgram: {
+        context: "rowidxGl",
+        vertex: "app/Visualization/Animation/ArrowAnimation-rowidx-vertex.glsl",
+        fragment: "app/Visualization/Animation/ArrowAnimation-rowidx-fragment.glsl",
+        columns: ["point", "rowidx", "heading", "magnitude", "time"],
+        items_per_source_item: 2
+      }
     },
 
     updateData: function() {
@@ -91,24 +114,27 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
       }
 
       self.loadDataViewArrayBuffers(self.program);
+      self.loadDataViewArrayBuffers(self.rowidxProgram);
 
       Animation.prototype.updateData.call(self);
     },
 
     draw: function () {
       var self = this;
-      var time = self.manager.visualization.state.getValue("time");
-      var offset = self.manager.visualization.state.getValue("offset");
 
-      if (time == undefined) return;
-      time = time.getTime();
+      Animation.prototype.draw.call(self);
 
-      self.bindDataViewArrayBuffers(self.program);
-      self.setGeneralUniforms(self.program);
+      self.rowidxGl.clear(self.rowidxGl.COLOR_BUFFER_BIT);
 
-      for (var i = 0; i < self.seriescount; i++) {
-        self.gl.drawArrays(self.gl.LINES, self.rawSeries[i]*2, self.rawSeries[i+1]*2-self.rawSeries[i]*2);
-      }
+      [self.program, self.rowidxProgram].map(function (program) { 
+
+        self.bindDataViewArrayBuffers(program);
+        self.setGeneralUniforms(program);
+
+        for (var i = 0; i < self.seriescount; i++) {
+          program.gl.drawArrays(program.gl.LINES, self.rawSeries[i]*2, self.rawSeries[i+1]*2-self.rawSeries[i]*2);
+        }
+      });
     }
   });
   Animation.animationClasses.arrow = ArrowAnimation;

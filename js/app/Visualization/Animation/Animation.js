@@ -1,4 +1,4 @@
-define(["app/Class", "app/Visualization/Shader", "app/Visualization/GeoProjection", "app/Data/DataView", "app/Visualization/DataViewUI"], function(Class, Shader, GeoProjection, DataView, DataViewUI) {
+define(["app/Class", "async", "app/Visualization/Shader", "app/Visualization/GeoProjection", "app/Data/DataView", "app/Visualization/DataViewUI"], function(Class, async, Shader, GeoProjection, DataView, DataViewUI) {
 
 
 function componentToHex(c) {
@@ -42,7 +42,26 @@ function rgbToHex(r, g, b) {
       self.rowidxGl.blendFunc(self.rowidxGl.SRC_ALPHA, self.rowidxGl.ONE_MINUS_SRC_ALPHA);
       self.rowidxGl.lineWidth(1.0);
 
-      cb();
+      self.initGlPrograms(cb);
+    },
+
+    initGlPrograms: function(cb) {
+      var self = this;
+
+      async.map(Object.items(self.programs), function (item, cb) {
+        Animation.prototype.initGl(self[item.value.context], function () {
+          Shader.createShaderProgramFromUrl(
+            self[item.value.context],
+            require.toUrl(item.value.vertex),
+            require.toUrl(item.value.fragment),
+            function (program) {
+              self[item.key] = program;
+              self.createDataViewArrayBuffers(program, item.value.columns, item.value.items_per_source_item);
+              cb();
+            }
+          );
+        });
+      }, cb);
     },
 
     initUpdates: function(cb) {

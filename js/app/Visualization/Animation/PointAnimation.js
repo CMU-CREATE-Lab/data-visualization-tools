@@ -49,38 +49,19 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
       }
     },
 
-    magnitudeScale: 0.1,
-
-    initGl: function(gl, cb) {
-      var self = this;
-      Animation.prototype.initGl(gl, function () {
-        Shader.createShaderProgramFromUrl(
-          self.gl,
-          require.toUrl("app/Visualization/Animation/PointAnimation-vertex.glsl"),
-          require.toUrl("app/Visualization/Animation/PointAnimation-fragment.glsl"),
-          function (program) {
-            self.program = program;
-            self.createDataViewArrayBuffers(self.program, [
-              "point", "color", "magnitude", "time"
-            ]);
-
-            Shader.createShaderProgramFromUrl(
-              self.rowidxGl,
-              require.toUrl("app/Visualization/Animation/PointAnimation-rowidx-vertex.glsl"),
-              require.toUrl("app/Visualization/Animation/PointAnimation-rowidx-fragment.glsl"),
-              function (program) {
-                self.rowidxProgram = program;
-
-                self.createDataViewArrayBuffers(self.rowidxProgram, [
-                  "point", "rowidx", "magnitude", "time"
-                ]);
-
-                cb();
-              }
-            );
-          }
-        );
-      });
+    programs: {
+      program: {
+        context: "gl",
+        vertex: "app/Visualization/Animation/PointAnimation-vertex.glsl",
+        fragment: "app/Visualization/Animation/PointAnimation-fragment.glsl",
+        columns: ["point", "color", "magnitude", "time"]
+      },
+      rowidxProgram: {
+        context: "rowidxGl",
+        vertex: "app/Visualization/Animation/PointAnimation-rowidx-vertex.glsl",
+        fragment: "app/Visualization/Animation/PointAnimation-rowidx-fragment.glsl",
+        columns: ["point", "rowidx", "magnitude", "time"]
+      }
     },
 
     updateData: function() {
