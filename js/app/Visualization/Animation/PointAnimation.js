@@ -118,7 +118,6 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
 
       self.rowidxGl.clear(self.rowidxGl.COLOR_BUFFER_BIT);
 
-
       [self.program, self.rowidxProgram].map(function (program) { 
 
         self.bindDataViewArrayBuffers(program);

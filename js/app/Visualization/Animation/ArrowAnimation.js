@@ -3,8 +3,8 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
     name: "ArrowAnimation",
 
     columns: {
-      points: {
-        type: "Float32",
+      point: {
+        type: "Float32", hidden: true,
         items: [
           {name: "longitude_start", source: {longitude: 1.0}},
           {name: "latitude_start", source: {latitude: 1.0}},
@@ -37,15 +37,15 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
         {name: "blue_end", source: {_: 1.0}, min: 0.0, max: 1.0},
         {name: "alpha_end", source: {_: 1.0}, min: 0.0, max: 1.0}]},
       heading: {type: "Float32", items: [
-        {name: "dummy", source: {_:-1}, min: -1, max: -1},
+        {name: "dummy", hidden: true, source: {_:-1}, min: -1, max: -1},
         {name: "heading", source: {score: 1.0}, min: 0.0, max: 10.0}]},
       magnitude: {type: "Float32", items: [
-        {name: "magnitude", source: {score: 0.06}, min: 0.0, max: 2.0}]},
-      datetime: {type: "Float32", items: [
-        {name: "datetime", source: {datetime: 1.0}}]}
+        {name: "dummy", hidden: true, source: {_: -1}, min: -1, max: -1},
+        {name: "magnitude", source: {score: 0.2}, min: 0.0, max: 2.0}]},
+      time: {type: "Float32", hidden: true, items: [
+        {name: "start", source: {datetime: 1.0}},
+        {name: "end", source: {datetime: 1.0}}]}
     },
-
-    magnitudeScale: 0.2,
 
     initGl: function(gl, cb) {
       var self = this;
@@ -57,11 +57,9 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
           function (program) {
             self.program = program;
 
-            self.pointArrayBuffer = self.gl.createBuffer();
-            self.headingArrayBuffer = self.gl.createBuffer();
-            self.colorArrayBuffer = self.gl.createBuffer();
-            self.magnitudeArrayBuffer = self.gl.createBuffer();
-            self.timeArrayBuffer = self.gl.createBuffer();
+            self.createDataViewArrayBuffers(self.program, [
+                "point", "color", "heading", "magnitude", "time"
+            ], 2);
 
             cb();
           }
@@ -92,12 +90,7 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
         self.rawSeries[self.seriescount] = rowidx + 1;
       }
 
-      self.gl.useProgram(self.program);
-      Shader.programLoadArray(self.gl, self.pointArrayBuffer, self.data_view.data.points, self.program);
-      Shader.programLoadArray(self.gl, self.headingArrayBuffer, self.data_view.data.heading, self.program);
-      Shader.programLoadArray(self.gl, self.colorArrayBuffer, self.data_view.data.color, self.program);
-      Shader.programLoadArray(self.gl, self.magnitudeArrayBuffer, self.data_view.data.magnitude, self.program);
-      Shader.programLoadArray(self.gl, self.timeArrayBuffer, self.data_view.data.datetime, self.program);
+      self.loadDataViewArrayBuffers(self.program);
 
       Animation.prototype.updateData.call(self);
     },
@@ -110,22 +103,8 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
       if (time == undefined) return;
       time = time.getTime();
 
-      self.gl.useProgram(self.program);
-      Shader.programBindArray(self.gl, self.pointArrayBuffer, self.program, "worldCoord", 2, self.gl.FLOAT);
-      Shader.programBindArray(self.gl, self.colorArrayBuffer, self.program, "color", 4, self.gl.FLOAT);
-      Shader.programBindArray(self.gl, self.headingArrayBuffer, self.program, "heading", 1, self.gl.FLOAT);
-      Shader.programBindArray(self.gl, self.magnitudeArrayBuffer, self.program, "magnitude", 1, self.gl.FLOAT);
-      Shader.programBindArray(self.gl, self.timeArrayBuffer, self.program, "time", 1, self.gl.FLOAT);
-
-      // pointSize range [5,20], 21 zoom levels
-      var pointSize = Math.max(
-        Math.floor( ((20-5) * (self.manager.map.zoom - 0) / (21 - 0)) + 5 ),
-        GeoProjection.getPixelDiameterAtLatitude(self.manager.visualization.state.getValue("resolution") || 1000, self.manager.map.getCenter().lat(), self.manager.map.zoom));
-      self.gl.uniform1f(self.program.uniforms.pointSize, pointSize*1.0);
-
-      self.gl.uniformMatrix4fv(self.program.uniforms.mapMatrix, false, self.manager.mapMatrix);
-      self.gl.uniform1f(self.program.uniforms.startTime, time - offset * 24 * 60 * 60 * 1000);
-      self.gl.uniform1f(self.program.uniforms.endTime, time);
+      self.bindDataViewArrayBuffers(self.program);
+      self.setGeneralUniforms(self.program);
 
       for (var i = 0; i < self.seriescount; i++) {
         self.gl.drawArrays(self.gl.LINES, self.rawSeries[i]*2, self.rawSeries[i+1]*2-self.rawSeries[i]*2);

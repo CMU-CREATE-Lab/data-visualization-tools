@@ -1,4 +1,4 @@
-attribute vec4 worldCoord;
+attribute vec4 point;
 attribute vec4 color;
 attribute float magnitude;
 attribute float heading;
@@ -11,7 +11,7 @@ uniform mat4 mapMatrix;
 varying vec4 baseColor;
 
 void main() {
-  gl_Position = mapMatrix * worldCoord;
+  gl_Position = mapMatrix * point;
   if (heading >= 0.0) {
     gl_Position = gl_Position + vec4(magnitude * sin(radians(heading)), magnitude * cos(radians(heading)), 0, 0);
   }

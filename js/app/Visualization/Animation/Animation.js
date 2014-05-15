@@ -69,9 +69,10 @@ function rgbToHex(r, g, b) {
       self.rowidxGl.viewport(0, 0, width, height);
     },
 
-    createDataViewArrayBuffers: function (program, columns) {
+      createDataViewArrayBuffers: function (program, columns, items_per_source_item) {
       var self = this;
       program.dataViewArrayBuffers = {};
+      program.items_per_source_item = items_per_source_item || 1;
       columns.map(function (name) {
         program.dataViewArrayBuffers[name] = program.gl.createBuffer();
       });
@@ -90,7 +91,8 @@ function rgbToHex(r, g, b) {
       var self = this;
       program.gl.useProgram(program);
       for (var name in program.dataViewArrayBuffers) {
-        Shader.programBindArray(program.gl, program.dataViewArrayBuffers[name], program, name, self.data_view.header.colsByName[name].items.length, program.gl.FLOAT);
+        var col = self.data_view.header.colsByName[name];
+        Shader.programBindArray(program.gl, program.dataViewArrayBuffers[name], program, name, col.items.length / program.items_per_source_item, program.gl.FLOAT);
       };
     },
 
