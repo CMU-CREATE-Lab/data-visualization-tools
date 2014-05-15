@@ -1,15 +1,4 @@
 define(["app/Class", "async", "app/Visualization/Shader", "app/Visualization/GeoProjection", "app/Data/DataView", "app/Visualization/DataViewUI"], function(Class, async, Shader, GeoProjection, DataView, DataViewUI) {
-
-
-function componentToHex(c) {
-    var hex = c.toString(16);
-    return hex.length == 1 ? "0" + hex : hex;
-}
-
-function rgbToHex(r, g, b) {
-    return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
-}
-
   var Animation = Class({
     name: "Animation",
     columns: {
@@ -23,6 +12,8 @@ function rgbToHex(r, g, b) {
       magnitude: {type: "Float32", items: [
         {name: "magnitude", source: {_: 1.0}}]}
     },
+
+    programSpecs: {},
 
     initialize: function(manager) {
       var self = this;
@@ -48,14 +39,16 @@ function rgbToHex(r, g, b) {
     initGlPrograms: function(cb) {
       var self = this;
 
-      async.map(Object.items(self.programs), function (item, cb) {
+      self.programs = {};
+      async.map(Object.items(self.programSpecs), function (item, cb) {
         Animation.prototype.initGl(self[item.value.context], function () {
           Shader.createShaderProgramFromUrl(
             self[item.value.context],
             require.toUrl(item.value.vertex),
             require.toUrl(item.value.fragment),
             function (program) {
-              self[item.key] = program;
+              program.name = item.key;
+              self.programs[item.key] = program;
               self.createDataViewArrayBuffers(program, item.value.columns, item.value.items_per_source_item);
               cb();
             }
@@ -73,9 +66,37 @@ function rgbToHex(r, g, b) {
       cb();
     },
 
-    updateData: function () {
+    updateData: function() {
       var self = this;
+      var format = self.manager.visualization.data.format;
+      var header = format.header;
+      var data = format.data;
+
+      // For convenience we store POINT_COUNT in an element at the end
+      // of the array, so that the length of each series is
+      // rawSeries[i+1]-rawSeries[i].      
+      self.rawSeries = new Int32Array(format.seriescount + 1);
+      self.rawSeries[0] = 0;
+      self.lastSeries = function () {}; // Value we will never find in the data
+
+      self.seriescount = 0;
+      for (var rowidx = 0; rowidx < header.length; rowidx++) {
+        var series = data.series && data.series[rowidx];
+        if (self.lastSeries != series) {
+          self.seriescount++;
+          self.lastSeries = series;
+        }
+        self.rawSeries[self.seriescount] = rowidx + 1;
+      }
+
+      Object.values(self.programs).map(self.updateDataProgram.bind(self));
+
       self.manager.triggerUpdate();
+    },
+
+    updateDataProgram: function (program) {
+      var self = this;
+      self.loadDataViewArrayBuffers(program);
     },
 
     draw: function () {
@@ -86,9 +107,28 @@ function rgbToHex(r, g, b) {
       self.rowidxCanvas.height = height;
 
       self.rowidxGl.viewport(0, 0, width, height);
+      self.rowidxGl.clear(self.rowidxGl.COLOR_BUFFER_BIT);
+
+      Object.values(self.programs).map(self.drawProgram.bind(self));
     },
 
-      createDataViewArrayBuffers: function (program, columns, items_per_source_item) {
+    drawProgram: function (program) {
+      var self = this;
+
+      self.bindDataViewArrayBuffers(program);
+      self.setGeneralUniforms(program);
+
+      var mode = self.getDrawMode(program);
+      for (var i = 0; i < self.seriescount; i++) {
+        program.gl.drawArrays(
+          mode,
+          self.rawSeries[i]*program.items_per_source_item,
+          (self.rawSeries[i+1]-self.rawSeries[i])*program.items_per_source_item
+        );
+      }
+    },
+
+    createDataViewArrayBuffers: function (program, columns, items_per_source_item) {
       var self = this;
       program.dataViewArrayBuffers = {};
       program.items_per_source_item = items_per_source_item || 1;

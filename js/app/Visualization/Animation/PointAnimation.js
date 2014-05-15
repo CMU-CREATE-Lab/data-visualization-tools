@@ -49,7 +49,7 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
       }
     },
 
-    programs: {
+    programSpecs: {
       program: {
         context: "gl",
         vertex: "app/Visualization/Animation/PointAnimation-vertex.glsl",
@@ -64,57 +64,18 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
       }
     },
 
-    updateData: function() {
+    drawProgram: function (program) {
       var self = this;
-      var format = self.manager.visualization.data.format;
-      var header = format.header;
-      var data = format.data;
 
-      // For convenience we store POINT_COUNT in an element at the end
-      // of the array, so that the length of each series is
-      // rawSeries[i+1]-rawSeries[i].      
-      self.rawSeries = new Int32Array(format.seriescount + 1);
-      self.rawSeries[0] = 0;
-      self.lastSeries = function () {}; // Value we will never find in the data
-
-      self.seriescount = 0;
-      for (var rowidx = 0; rowidx < header.length; rowidx++) {
-        var series = data.series && data.series[rowidx];
-        if (self.lastSeries != series) {
-          self.seriescount++;
-          self.lastSeries = series;
-        }
-        self.rawSeries[self.seriescount] = rowidx + 1;
+      program.gl.useProgram(program);
+      if (program.uniforms.doShade) {
+        program.gl.uniform1i(program.uniforms.doShade, 1);
       }
-
-      self.loadDataViewArrayBuffers(self.program);
-      self.loadDataViewArrayBuffers(self.rowidxProgram);
-
-      Animation.prototype.updateData.call(self);
-    },
-
-    draw: function () {
-      var self = this;
-      Animation.prototype.draw.call(self);
-
-      self.rowidxGl.clear(self.rowidxGl.COLOR_BUFFER_BIT);
-
-      [self.program, self.rowidxProgram].map(function (program) { 
-
-        self.bindDataViewArrayBuffers(program);
-        self.setGeneralUniforms(program);
-
-        var mode = self.getDrawMode(program);
-        for (var i = 0; i < self.seriescount; i++) {
-          program.gl.drawArrays(mode, self.rawSeries[i], self.rawSeries[i+1]-self.rawSeries[i]);
-        }
-      });
+      Animation.prototype.drawProgram.apply(self, arguments);
     },
 
     getDrawMode: function (program) {
       var self = this;
-
-      program.gl.uniform1i(program.uniforms.doShade, 1);
       return program.gl.POINTS;
     }
   });
