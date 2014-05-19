@@ -116,6 +116,17 @@ define(["app/Class", "app/UrlValues", "stacktrace", "jQuery", "LogglyTracker"], 
         }
       }
       rule(category, arg);
+    },
+
+    logTiming: function (category, arg, cb) {
+      var self = this;
+
+      var start = new Date();
+      cb(function () {
+        var end = new Date();
+        arg.timing = end - start;
+        self.log(category, arg);
+      });
     }
   });
 

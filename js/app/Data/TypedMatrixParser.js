@@ -81,7 +81,7 @@
    decoding.
 */
 
-define(["app/Class", "app/Events", "app/Data/Pack"], function (Class, Events, Pack) {
+define(["app/Class", "app/Events", "app/Data/Pack", "app/Logging"], function (Class, Events, Pack, Logging) {
   return Class({
     name: "TypedMatrixParser",
     initialize: function(url) {
@@ -103,6 +103,7 @@ define(["app/Class", "app/Events", "app/Data/Pack"], function (Class, Events, Pa
     load: function () {
       var self = this;
 
+      self.loadStartTime = new Date();
       self.events.triggerEvent("load");
 
       if (window.XMLHttpRequest) {
@@ -153,7 +154,8 @@ define(["app/Class", "app/Events", "app/Data/Pack"], function (Class, Events, Pa
 
     allLoaded: function () {
       var self = this;
-      var e = {update: "all"};
+      self.loadEndTime = new Date();
+      var e = {update: "all", timing: self.loadEndTime - self.loadStartTime};
       self.events.triggerEvent("all", e);
       self.events.triggerEvent("update", e);
     },
