@@ -5,41 +5,41 @@ define(["app/Class", "QUnit", "app/Test/BaseTest", "app/Logging"], function(Clas
     "Ignored log messages": function (cb) {
       QUnit.expect(1);
 
-      var l = new Logging({});
+      var l = new Logging({rules: {store: {rules: []}}});
       l.log("Some.Category", {foo: 47.11});
-      QUnit.equal(l.get().length, 0, "No messages logged");
+      QUnit.equal(l.destinations.store.get().length, 0, "No messages logged");
       cb();
     },
 
     "Logged messages": function (cb) {
       QUnit.expect(4);
 
-      var l = new Logging({include: ["foo.bar"]});
+      var l = new Logging({rules: {store: {rules: ["foo.bar"]}}});
       l.log("foo.bar.fie.naja", {msg: "hello"});
-      QUnit.equal(l.get().length, 1, "One message logged");
-      QUnit.equal(l.get()[0].category, "foo.bar.fie.naja", "Full category logged");
-      QUnit.ok(l.get()[0].time instanceof Date, "Current time logged");
-      QUnit.equal(l.get()[0].data.msg, "hello", "Data is logged");
+      QUnit.equal(l.destinations.store.get().length, 1, "One message logged");
+      QUnit.equal(l.destinations.store.get()[0].category, "foo.bar.fie.naja", "Full category logged");
+      QUnit.ok(l.destinations.store.get()[0].time instanceof Date, "Current time logged");
+      QUnit.equal(l.destinations.store.get()[0].data.msg, "hello", "Data is logged");
       cb();
     },
 
     "Ignored subcategories": function (cb) {
       QUnit.expect(1);
 
-      var l = new Logging({include: ["foo.bar"], exclude: ["foo.bar.fie"]});
+      var l = new Logging({rules: {store: {rules: ["foo.bar", "-foo.bar.fie"]}}});
       l.log("foo.bar.fie.naja", {msg: "hello"});
-      QUnit.equal(l.get().length, 0, "No messages logged");
+      QUnit.equal(l.destinations.store.get().length, 0, "No messages logged");
       cb();
     },
 
     "Log message formatting": function (cb) {
       QUnit.expect(2);
 
-      var l = new Logging({include: ["foo"], store_time: false, store_stack: false});
+      var l = new Logging({rules: {store: {rules: ["foo"]}}, store_time: false, store_stack: false});
       l.log("foo.1", {msg: "hello"});
       l.log("foo.2", {value: "something", toString: function () { return this.value + " else"; }});
-      QUnit.equal(l.get()[0].toString(), "foo.1: hello", "Data with msg member formatted correctly");
-      QUnit.equal(l.get()[1].toString(), "foo.2: something else", "Data with toString() formatted correctly");
+      QUnit.equal(l.destinations.store.get()[0].toString(), "foo.1: hello", "Data with msg member formatted correctly");
+      QUnit.equal(l.destinations.store.get()[1].toString(), "foo.2: something else", "Data with toString() formatted correctly");
       cb();
     }
   });
