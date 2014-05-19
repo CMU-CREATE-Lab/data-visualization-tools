@@ -1,8 +1,4 @@
-define(["app/Class", "app/UrlValues", "stacktrace", "jQuery", "LogglyTracker"], function(Class, UrlValues, stacktrace, $, LogglyTracker) {
-  print = function () {};
-  if (typeof(console) != "undefined" && typeof(console.log) != "undefined") {
-    print = console.log.bind(console);
-  }
+define(["app/Class", "app/UrlValues", "stacktrace", "jQuery", "app/Logging/Destination", "app/Logging/ScreenDestination", "app/Logging/StoreDestination", "app/Logging/LogglyDestination"], function(Class, UrlValues, stacktrace, $, Destination) {
   Logging = Class({
     name: "Logging",
     store_time: true,
@@ -12,68 +8,63 @@ define(["app/Class", "app/UrlValues", "stacktrace", "jQuery", "LogglyTracker"], 
       var self = this;
 
       $.extend(self, args);
-      self.rules = self.compileRules(self.destinations);
+      self.setRules(self.rules);
     },
 
-    flattenRules: function (rules) {
+    parseDestinationRuleList: function (destinationRuleList) {
+      if (destinationRuleList == undefined) {
+        return [];
+      }
+      destinationRuleList = destinationRuleList.split(",");
+      return destinationRuleList.map(function (item) {
+        var exclude = item.indexOf("-") == 0;
+        if (exclude) {
+          item = item.substr(1);
+        }
+        if (item == "all") {
+          item = "";
+        }
+        return {path:item, include:!exclude};
+      });
+    },
+
+    completeRuleTree: function (ruleTree) {
       var self = this;
-      Object.items(rules).map(function (item) {
+      Object.items(ruleTree).map(function (item) {
         var path = item.key.split(".");
         var rule = {};
         for (i = 0; i < path.length - 1; i++) {
           var parentpath = path.slice(0, i).join(".");
-          if (rules[parentpath] != undefined) {
-            rules[parentpath] = $.extend({}, rule, rules[parentpath]);
+          if (ruleTree[parentpath] != undefined) {
+            ruleTree[parentpath] = $.extend({}, rule, ruleTree[parentpath]);
           } else {
-            rules[parentpath] = $.extend({}, rule);
+            ruleTree[parentpath] = $.extend({}, rule);
           }
         }
       });
-      return rules;
+      return ruleTree;
     },
 
-    destinationsToRules: function(destinations) {
+    rulesToRuleTree: function(rules) {
       var self = this;
-      /* destinations[dstname].rules = [{path:..., include:true/false},...]
-       * destinations[dstname].instance = new LogDestination();
+      /* rules[dstname].rules = [{path:..., include:true/false},...]
+       * rules[dstname].instance = new LogDestination();
        * rules[path][destination] = true/false
        */
-      var rules = {};
-      Object.items(destinations).map(function (item) {
-        item.value.rules.map(function (rule) {
-          if (rules[rule.path] == undefined) {
-            rules[rule.path] = {};
-          }
-          rules[rule.path][item.key] = rule.include;
-        });
-      });
-      return rules;
-    },
-
-    compileRules: function(destinations) {
-      var self = this;
-
-      rules = self.flattenRules(self.destinationsToRules(destinations));
-
-      var ignore = self.ignore.bind(self);
-      var rulefns = {"":ignore};
-      Object.items(rules).map(function (ruleitem) {
-        var path = ruleitem.key;
-        var storefns = Object.items(
-          ruleitem.value
-        ).filter(function (dstitem) {
-          return dstitem.value;
-        }).map(function (dstitem) {
-          return destinations[dstitem.key].instance.store.bind(destinations[dstitem.key].instance);
-        });
-        if (storefns.length > 0) {
-          rulefns[path] = function (category, data) { self.store(storefns, category, data); }
-        } else {
-          rulefns[path] = ignore;
+      var ruleTree = {};
+      Object.items(rules).map(function (item) {
+        var rules = item.value.rules;
+        if (typeof(rules) == 'string') {
+          rules = self.parseDestinationRuleList(rules);
         }
+        rules.map(function (rule) {
+          if (ruleTree[rule.path] == undefined) {
+            ruleTree[rule.path] = {};
+          }
+          ruleTree[rule.path][item.key] = rule.include;
+        });
       });
-
-      return rulefns;
+      return ruleTree;
     },
 
     store: function(storefns, category, data) {
@@ -90,6 +81,37 @@ define(["app/Class", "app/UrlValues", "stacktrace", "jQuery", "LogglyTracker"], 
 
     ignore: function() {},
 
+    setRules: function(rules) {
+      var self = this;
+
+      self.rules = rules;
+
+      self.destinations = {};
+      for (var destination in rules) {
+        self.destinations[destination] = new Destination.destinationClasses[destination](rules[destination].args);
+      }
+
+      var ruleTree = self.completeRuleTree(self.rulesToRuleTree(rules));
+      var ignore = self.ignore.bind(self);
+
+      self.compiledRules = {"":ignore};
+      Object.items(ruleTree).map(function (ruleitem) {
+        var path = ruleitem.key;
+        var storefns = Object.items(
+          ruleitem.value
+        ).filter(function (dstitem) {
+          return dstitem.value;
+        }).map(function (dstitem) {
+          return self.destinations[dstitem.key].store.bind(self.destinations[dstitem.key]);
+        });
+        if (storefns.length > 0) {
+          self.compiledRules[path] = function (category, data) { self.store(storefns, category, data); }
+        } else {
+          self.compiledRules[path] = ignore;
+        }
+      });
+    },
+
     log: function(category, arg) {
       var self = this;
 
@@ -98,7 +120,7 @@ define(["app/Class", "app/UrlValues", "stacktrace", "jQuery", "LogglyTracker"], 
        * ignore for the current category.
        */
 
-      var rule = self.rules[category];
+      var rule = self.compiledRules[category];
       if (!rule) {
         var categorylist = category.split(".");
         var i;
@@ -106,10 +128,10 @@ define(["app/Class", "app/UrlValues", "stacktrace", "jQuery", "LogglyTracker"], 
         var filter;
 
         for (i = categorylist.length - 1; i >= 0; i--) {
-          rule = self.rules[categorylist.slice(0, i).join(".")];
+          rule = self.compiledRules[categorylist.slice(0, i).join(".")];
           if (rule) {
             for (i++; i <= categorylist.length; i++) {
-              self.rules[categorylist.slice(0, i).join(".")] = rule;
+              self.compiledRules[categorylist.slice(0, i).join(".")] = rule;
             }
             break;
           }
@@ -129,23 +151,6 @@ define(["app/Class", "app/UrlValues", "stacktrace", "jQuery", "LogglyTracker"], 
       });
     }
   });
-
-  Logging.parseRules = function (rules) {
-    if (rules == undefined) {
-      return [];
-    }
-    rules = rules.split(",");
-    return rules.map(function (item) {
-      var exclude = item.indexOf("-") == 0;
-      if (exclude) {
-        item = item.substr(1);
-      }
-      if (item == "all") {
-        item = "";
-      }
-      return {path:item, include:!exclude};
-    });
-  }
 
   Logging.Entry = Class({
     name: "Logging__Entry",
@@ -171,75 +176,18 @@ define(["app/Class", "app/UrlValues", "stacktrace", "jQuery", "LogglyTracker"], 
     }
   });
 
-
-  Logging.LogDestination = Class({
-    name: "LogDestination",
-    initialize: function () {
-    }
-  });
-
-  Logging.LogDestinationScreen = Class(Logging.LogDestination, {
-    name: "LogDestinationScreen",
-
-    store: function(entry) {
-      print(entry.toString());
-    }
-  });
-
-  Logging.LogDestinationStore = Class(Logging.LogDestination, {
-    name: "LogDestinationStore",
-
-    initialize: function () {
-      var self = this;
-      self.storage = [];
-    },
-
-    store: function(entry) {
-      var self = this;
-      self.storage.push(entry);
-    },
-
-    get: function (start, end) {
-      var self = this;
-      return self.storage.slice(start, end);
-    },
-
-    format: function () {
-      var self = this;
-      return self.get.apply(self, arguments).join("\n");
-    }
-  });
-
-  Logging.LogDestinationLoggly = Class(Logging.LogDestination, {
-    name: "LogDestinationLoggly",
-
-    initialize: function (key) {
-      var self = this;
-      self.key = key;
-      self.loggly = new LogglyTracker();
-      self.loggly.push({'logglyKey': key});
-    },
-
-    store: function(entry) {
-      var self = this;
-
-      self.loggly.push(entry);
-    }
-  });
-
-  var rules = Logging.parseRules(UrlValues.getParameter("log"));
-  var destinations = {
-    screen: {instance: new Logging.LogDestinationScreen(), rules:rules},
-    store: {instance: new Logging.LogDestinationStore(), rules:rules}
+  var dstrules = UrlValues.getParameter("log");
+  var rules = {
+    screen: {rules:dstrules},
+    store: {rules:dstrules}
   };
 
   var logglykey = UrlValues.getParameter("loggly-key")
   if (logglykey) {
-    var logglyrules = Logging.parseRules(UrlValues.getParameter("loggly-rules"));
-    destinations.loggly =  {instance: new Logging.LogDestinationLoggly(logglykey), rules:logglyrules};
+    rules.loggly =  {rules:UrlValues.getParameter("loggly-rules")};
   }
 
-  Logging.default = new Logging({destinations: destinations});
+  Logging.default = new Logging({rules: rules});
 
   return Logging;
 });
