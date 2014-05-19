@@ -6,26 +6,9 @@ define(["app/Class", "app/UrlValues", "stacktrace", "jQuery", "app/Logging/Desti
 
     initialize: function (args) {
       var self = this;
-
+      self.rules = {};
       $.extend(self, args);
       self.setRules(self.rules);
-    },
-
-    parseDestinationRuleList: function (destinationRuleList) {
-      if (destinationRuleList == undefined) {
-        return [];
-      }
-      destinationRuleList = destinationRuleList.split(",");
-      return destinationRuleList.map(function (item) {
-        var exclude = item.indexOf("-") == 0;
-        if (exclude) {
-          item = item.substr(1);
-        }
-        if (item == "all") {
-          item = "";
-        }
-        return {path:item, include:!exclude};
-      });
     },
 
     completeRuleTree: function (ruleTree) {
@@ -48,16 +31,26 @@ define(["app/Class", "app/UrlValues", "stacktrace", "jQuery", "app/Logging/Desti
     rulesToRuleTree: function(rules) {
       var self = this;
       /* rules[dstname].rules = [{path:..., include:true/false},...]
-       * rules[dstname].instance = new LogDestination();
        * rules[path][destination] = true/false
        */
       var ruleTree = {};
       Object.items(rules).map(function (item) {
         var rules = item.value.rules;
         if (typeof(rules) == 'string') {
-          rules = self.parseDestinationRuleList(rules);
+          rules = rules.split(",");
         }
         rules.map(function (rule) {
+          if (typeof(rule) == 'string') {
+            var exclude = rule.indexOf("-") == 0;
+            if (exclude) {
+              rule = rule.substr(1);
+            }
+            if (rule == "all") {
+              rule = "";
+            }
+            rule = {path:rule, include:!exclude};
+          }
+
           if (ruleTree[rule.path] == undefined) {
             ruleTree[rule.path] = {};
           }
@@ -176,18 +169,11 @@ define(["app/Class", "app/UrlValues", "stacktrace", "jQuery", "app/Logging/Desti
     }
   });
 
-  var dstrules = UrlValues.getParameter("log");
-  var rules = {
-    screen: {rules:dstrules},
-    store: {rules:dstrules}
-  };
-
-  var logglykey = UrlValues.getParameter("loggly-key")
-  if (logglykey) {
-    rules.loggly =  {rules:UrlValues.getParameter("loggly-rules")};
-  }
-
-  Logging.default = new Logging({rules: rules});
+  Logging.default = new Logging({
+    rules: {
+      "screen": {"rules": ["Data.TypedMatrixParser.error", "Data.Format.error"]},
+    }
+  });
 
   return Logging;
 });

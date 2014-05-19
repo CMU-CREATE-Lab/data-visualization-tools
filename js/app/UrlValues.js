@@ -126,6 +126,15 @@ define(["app/Class", "app/LangExtensions"], function(Class) {
     if (value == undefined) return;
     return value.rfcstring();
   };
+  UrlValues.jsonFromUrl = function (value) {
+    var spec = this;
+    return JSON.parse(value);
+  };
+  UrlValues.jsonToUrl = function (value) {
+    var spec = this;
+    if (value == undefined) return;
+    return JSON.stringify(value);
+  };
 
   return UrlValues;
 });

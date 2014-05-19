@@ -18,18 +18,6 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       self.source = source;
       self.tiles = {};
       Format.prototype.initialize.apply(self, arguments);
-
-      $.ajax({
-        url: self.source + "/header",
-        dataType: 'json',
-        success: function(data, textStatus, jqXHR) {
-          self.header = data;
-          self.events.triggerEvent("header", data);
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-          self.events.triggerEvent("error", {"exception": {msg: 'could not load: ' + self.source, status: jqXHR.status}});
-        }
-      });
     },
 
     tilesPerScreenX: 2,
@@ -37,7 +25,21 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
 
     world: new Bounds(-180, -90, 180, 90),
 
-
+    load: function () {
+      var self = this;
+      $.ajax({
+        url: self.source + "/header",
+        dataType: 'json',
+        success: function(data, textStatus, jqXHR) {
+          $.extend(self.header, data);
+          self.events.triggerEvent("header", data);
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          self.events.triggerEvent("error", {"exception": {msg: 'could not load: ' + self.source, status: jqXHR.status}});
+        }
+      });
+      self.events.triggerEvent("load");
+    },
 
     tileBoundsForRegion: function(bounds) {
       /* Returns a list of tile bounds covering a region. */

@@ -17,6 +17,8 @@ define(["app/Class", "app/Logging", "app/SubscribableDict", "app/UrlValues", "ap
       logoimg: {urlname: "logoimg", type: "string"},
       logourl: {urlname: "logourl", type: "string"},
 
+      logging: {default: {}, fromurl: UrlValues.jsonFromUrl, tourl: UrlValues.jsonToUrl, urlname: "logging", type: "object"},
+
       timeresolution: {default: 60*60*24*1000}
     },
 
@@ -26,7 +28,12 @@ define(["app/Class", "app/Logging", "app/SubscribableDict", "app/UrlValues", "ap
       self.state = new SubscribableDict(self.paramspec);
       self.urlhandler = new UrlValues(self.state, self.paramspec);
 
-      self.state.getValue("format")
+      self.state.events.on({
+        logging: function () {
+          Logging.default.setRules(self.state.getValue("logging"));
+        }
+      });
+      Logging.default.setRules(self.state.getValue("logging"));
 
       self.data = new DataManager(self);
       self.animations = new AnimationManager(self);

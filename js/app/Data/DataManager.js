@@ -14,6 +14,14 @@ define(["app/Class", "app/Data/Format", "app/Data/BinFormat", "app/Data/TiledBin
         self.visualization.state.getValue("format")];
 
       self.format = new self.formatClass(self.visualization.state.getValue("source"));
+      self.format.events.on({
+        header: function () {
+          for (var key in self.format.header.options) {
+            self.visualization.state.setValue(key, self.format.header.options[key]);
+          }
+        }
+      });
+      self.format.load();
 
       cb();
     }
