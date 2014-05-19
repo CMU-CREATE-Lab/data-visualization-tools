@@ -18,6 +18,18 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       self.source = source;
       self.tiles = {};
       Format.prototype.initialize.apply(self, arguments);
+
+      $.ajax({
+        url: self.source + "/header",
+        dataType: 'json',
+        success: function(data, textStatus, jqXHR) {
+          self.header = data;
+          self.events.triggerEvent("header", data);
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          self.events.triggerEvent("error", {"exception": {msg: 'could not load: ' + self.source, status: jqXHR.status}});
+        }
+      });
     },
 
     tilesPerScreenX: 2,
@@ -296,7 +308,8 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
         }
       }
 
-      self.header = dst.header;
+      self.header.length = dst.header.length;
+      self.header.colsByName = dst.header.colsByName;
       self.data = dst.data;
       self.rowcount = dst.rowcount;
       self.seriescount = dst.seriescount;
