@@ -40,8 +40,9 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
       });
 
       Object.items(columns || self.columns).map(function (item) {
-        item.value.name = item.key;
-        self.addCol(item.value);
+        var value = $.extend(true, {}, item.value);
+        value.name = item.key;
+        self.addCol(value);
       });
 
       self.selections = {};
