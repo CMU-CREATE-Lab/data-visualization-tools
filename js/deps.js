@@ -38,6 +38,7 @@ app.dependencies.scripts = app.dependencies.scripts.concat([
   app.dirs.lib + "/qunit-1.14.0.js",
   app.dirs.lib + "/async.js",
   app.dirs.lib + "/stacktrace.js",
+  app.dirs.lib + "/loggly.tracker.js"
 ]);
 
 app.packages = app.packages || [];
@@ -50,6 +51,7 @@ app.packages = app.packages.concat([
   {name: 'less', location: app.dirs.shim, main: 'less'},
   {name: 'async', location: app.dirs.shim, main: 'async'},
   {name: 'stacktrace', location: app.dirs.shim, main: 'stacktrace'},
+  {name: 'LogglyTracker', location: app.dirs.shim, main: 'LogglyTracker'},
   {name: 'app', location:app.dirs.app, main: 'app'}
 ]);
 
