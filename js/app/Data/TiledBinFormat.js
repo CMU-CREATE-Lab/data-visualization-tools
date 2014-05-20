@@ -25,6 +25,11 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
 
     world: new Bounds(-180, -90, 180, 90),
 
+    setHeaders: function (headers) {
+      var self = this;
+      self.headers = headers || {};
+    },
+
     load: function () {
       var self = this;
       $.ajax({

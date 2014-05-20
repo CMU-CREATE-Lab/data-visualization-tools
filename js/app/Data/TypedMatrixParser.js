@@ -100,6 +100,11 @@ define(["app/Class", "app/Events", "app/Data/Pack", "app/Logging"], function (Cl
       self.events = new Events("Data.TypedMatrixParser");
     },
 
+    setHeaders: function (headers) {
+      var self = this;
+      self.headers = headers || {};
+    },
+
     load: function () {
       var self = this;
 
@@ -119,6 +124,13 @@ define(["app/Class", "app/Events", "app/Data/Pack", "app/Logging"], function (Cl
 
       self.request.open('GET', self.url, true);
       self.request.overrideMimeType('text\/plain; charset=x-user-defined');
+      for (var key in self.headers) {
+        var values = self.headers[key]
+        if (typeof(values) == "string") values = [values];
+        for (var i = 0; i < values.length; i++) {
+          self.request.setRequestHeader(key, values[i]);
+        }
+      }
       self.request.send(null);
       var handleDataCallback = function () {
         if (!self.handleData()) {

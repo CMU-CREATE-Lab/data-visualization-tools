@@ -21,6 +21,12 @@ define(["app/Class", "app/Data/Format", "app/Data/BinFormat", "app/Data/TiledBin
           }
         }
       });
+      self.visualization.state.events.on({
+        httpHeaders: function () {
+          self.format.setHeaders(self.visualization.state.getValue("httpHeaders"));
+        }
+      });
+      self.format.setHeaders(self.visualization.state.getValue("httpHeaders"));
       self.format.load();
 
       cb();
