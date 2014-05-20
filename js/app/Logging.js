@@ -39,6 +39,7 @@ define(["app/Class", "app/UrlValues", "stacktrace", "jQuery", "app/Logging/Desti
         if (typeof(rules) == 'string') {
           rules = rules.split(",");
         }
+        rules = rules || [];
         rules.map(function (rule) {
           if (typeof(rule) == 'string') {
             var exclude = rule.indexOf("-") == 0;
