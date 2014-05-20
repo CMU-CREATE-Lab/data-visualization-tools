@@ -35,6 +35,16 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       $.ajax({
         url: self.source + "/header",
         dataType: 'json',
+        beforeSend: function(jqXHR, settings) {
+          for (var key in self.headers) {
+            var values = self.headers[key]
+            if (typeof(values) == "string") values = [values];
+            for (var i = 0; i < values.length; i++) {
+              jqXHR.setRequestHeader(key, values[i]);
+            }
+          }
+          return true;
+        },
         success: function(data, textStatus, jqXHR) {
           $.extend(self.header, data);
           self.events.triggerEvent("header", data);

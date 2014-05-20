@@ -19,7 +19,9 @@ define(["app/Class", "app/Logging", "app/SubscribableDict", "app/UrlValues", "ap
 
       logging: {default: {}, fromurl: UrlValues.jsonFromUrl, tourl: UrlValues.jsonToUrl, urlname: "logging", type: "object"},
 
-      timeresolution: {default: 60*60*24*1000}
+      timeresolution: {default: 60*60*24*1000},
+
+      // httpHeaders: {default: {"X-Client-Cache": "true"}}
     },
 
     initialize: function () {
