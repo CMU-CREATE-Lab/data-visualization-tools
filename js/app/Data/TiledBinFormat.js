@@ -32,6 +32,13 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
 
     load: function () {
       var self = this;
+      if (self.error) {
+        /* Retrow error, to not confuse code that expects either an
+         * error or a load event... */
+        self.events.triggerEvent("error", self.error);
+        return;
+      }
+
       $.ajax({
         url: self.source + "/header",
         dataType: 'json',
@@ -50,7 +57,13 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
           self.events.triggerEvent("header", data);
         },
         error: function(jqXHR, textStatus, errorThrown) {
-          self.events.triggerEvent("error", {"exception": {msg: 'could not load: ' + self.source, status: jqXHR.status}});
+          self.handleError({
+            textStatus: textStatus,
+            status: jqXHR.status,
+            toString: function () {
+              return "HTTP status for header: " + this.textStatus + "(" + this.status.toString() + ")";
+            }
+          });
         }
       });
       self.events.triggerEvent("load");
@@ -135,6 +148,10 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       var tilewidth = bounds.getWidth() * 2;
       var tileheight = bounds.getHeight() * 2;
 
+      if (tilewidth > self.world.getWidth() || tileheight > self.world.getHeight()) {
+        return undefined;
+      } 
+
       var tileleft = tilewidth * Math.floor(bounds.left / tilewidth);
       var tilebottom = tileheight * Math.floor(bounds.bottom / tileheight);
 
@@ -143,6 +160,13 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
 
     zoomTo: function (bounds) {
       var self = this;
+      if (self.error) {
+        /* Retrow error, to not confuse code that expects either an
+         * error or a load event... */
+        self.events.triggerEvent("error", self.error);
+        return;
+      }
+
       var old_bounds = self.bounds;
       self.bounds = bounds;
 
@@ -235,12 +259,31 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
 
     handleTileError: function (data, tile) {
       var self = this;
-
-      tile.replacement = self.setUpTile(self.extendTileBounds(tile.bounds));
-      tile.replacement.load();
-
       data.tile = tile;
-      self.events.triggerEvent("tile-error", data);
+      var bounds = self.extendTileBounds(tile.bounds);
+
+          console.log(["tile-error", data, bounds]);
+      if (bounds) {
+        tile.replacement = self.setUpTile(bounds);
+        tile.replacement.load();
+
+        self.events.triggerEvent("tile-error", data);
+      } else {
+        self.handleError(data);
+      }
+    },
+
+    handleError: function (originalEvent) {
+      var self = this;
+      self.error = {
+        original: originalEvent,
+        source: self.source,
+        toString: function () {
+          var self = this;
+          return 'Could not load tileset ' + self.source + ' due to the following error: ' + self.original.toString();
+        }
+      };
+      self.events.triggerEvent("error", self.error);
     },
 
     getTiles: function () {

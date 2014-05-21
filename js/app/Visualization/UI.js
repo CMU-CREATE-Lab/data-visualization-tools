@@ -27,8 +27,22 @@ define(["app/Class", "async", "jQuery", "app/Visualization/sliders"], function(C
         },
         all: function () {
           $("#loading").fadeOut();
+        },
+        // "tile-error": function () {},
+        // update: function () {},
+        error: function (data) {
+          $("#loading").html(data.toString());
+          $("#loading").css({color: "#ff0000", "word-wrap": "break-word", "line-height": "1em", "font-size": "20px"});
+          $("#loading").animate({
+            right: "50%",
+            width: "500px",
+            "margin-right": "-250px",
+            bottom: "50%",
+            height: "200px",
+            "margin-bottom": "-100px",
+            padding: "40px"
+          }, 1000);
         }
-        // update: function () {}
       });
       cb();
     },

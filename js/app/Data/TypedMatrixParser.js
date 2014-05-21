@@ -97,6 +97,7 @@ define(["app/Class", "app/Events", "app/Data/Pack", "app/Logging"], function (Cl
       self.responseData = null;
 
       self.url = url;
+      self.isFileUri = url.indexOf("file://") == 0;
       self.events = new Events("Data.TypedMatrixParser");
     },
 
@@ -176,7 +177,7 @@ define(["app/Class", "app/Events", "app/Data/Pack", "app/Logging"], function (Cl
       var self = this;
 
       self.error = exception;
-      self.events.triggerEvent("error", {"exception": exception});
+      self.events.triggerEvent("error", exception);
     },
 
     handleData: function() {
@@ -186,11 +187,18 @@ define(["app/Class", "app/Events", "app/Data/Pack", "app/Logging"], function (Cl
 
       if (self.request.readyState == 4) {
         /* HTTP reports success with a 200 status. The file protocol
-           reports success with zero. HTTP does not use zero as a status
-           code (they start at 100).
+           reports success with zero. HTTP returns zero as a status
+           code for forbidden cross domain requests.
            https://developer.mozilla.org/En/Using_XMLHttpRequest */
-        if (self.request.status != 200 && self.request.status != 0) {
-          self.errorLoading({msg: 'could not load: ' + self.url, status: self.request.status});
+        var success = self.request.status == 200 || (self.isFileUri && self.request.status == 0);
+        if (!success) {
+          self.errorLoading({
+            url: self.url,
+            status: self.request.status,
+            toString: function () {
+              return 'Could not load ' + this.url + ' due to HTTP status ' + this.status;
+            }
+          });
           return true;
         }
       }
