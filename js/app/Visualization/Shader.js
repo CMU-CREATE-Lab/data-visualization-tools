@@ -55,13 +55,13 @@ define(["app/Class", "async", "jQuery"], function(Class, async, $) {
     // Collect attribute locations to make binding easier in the code using this program
     program.attributes = {};
     for (var i = 0; i < gl.getProgramParameter(program, gl.ACTIVE_ATTRIBUTES); i++) {
-      name = gl.getActiveAttrib(program, i).name;
+      var name = gl.getActiveAttrib(program, i).name;
       program.attributes[name] = gl.getAttribLocation(program, name);
     }
 
     program.uniforms = {};
     for (var i = 0; i < gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS); i++) {
-      name = gl.getActiveUniform(program, i).name;
+      var name = gl.getActiveUniform(program, i).name;
       program.uniforms[name] = gl.getUniformLocation(program, name);
     }
 
