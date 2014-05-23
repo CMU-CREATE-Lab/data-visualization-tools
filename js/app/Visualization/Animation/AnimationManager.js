@@ -6,12 +6,12 @@ define(["app/Class", "app/Bounds", "async", "app/Logging", "jQuery", "app/Visual
 
       self.visualization = visualization;
       self.indrag = false;
-      self.glInitialized = false;
     },
 
     init: function (cb) {
       var self = this;
 
+      self.animations = [];
       self.updateNeeded = false;
       self.lastUpdate = undefined;
       self.map = undefined;
@@ -21,29 +21,15 @@ define(["app/Class", "app/Bounds", "async", "app/Logging", "jQuery", "app/Visual
       self.mapMatrix = new Float32Array(16);
 
       async.series([
-        self.initAnimations.bind(self),
         self.initMap.bind(self),
         self.initOverlay.bind(self),
         self.initCanvas.bind(self),
         self.initStats.bind(self),
-        self.initAnimationsGL.bind(self),
+        self.initMouse.bind(self),
         self.initUpdates.bind(self),
-        self.initMouse.bind(self)
+
+        self.initAnimations.bind(self)
       ], cb);
-    },
-
-    initAnimations: function (cb) {
-      var self = this;
-
-      var animationClasses = self.visualization.state.getValue("animations").map(
-        function (name) { return Animation.animationClasses[name]; }
-      );
-
-      self.animations = animationClasses.map(function (cls) {
-        return new cls(self);
-      });
-
-      cb();
     },
 
     initStats: function (cb) {
@@ -156,30 +142,36 @@ define(["app/Class", "app/Bounds", "async", "app/Logging", "jQuery", "app/Visual
 
       $('#map-div').mousemove(function (e) { handleMouse(e, 'hover'); });
       $('#map-div').click(function (e) { handleMouse(e, 'selected'); });
-    },
-
-    initAnimationsGL: function (cb) {
-      var self = this;
-      async.map(
-        self.animations,
-        function (animation, cb) { animation.initGl(self.gl, cb); },
-        function(err, results){
-          self.glInitialized = true;
-          cb();
-        }
-      );
+      cb();
     },
 
     initUpdates: function (cb) {
       var self = this;
 
-      async.map(
-        self.animations,
-        function (animation, cb) { animation.initUpdates(cb); },
-        function(err, results){
-          self.visualization.state.events.on({set: self.triggerUpdate, scope: self});
+      self.visualization.state.events.on({set: self.triggerUpdate, scope: self});
+      cb();
+    },
+
+    addAnimation: function (animation, cb) {
+      var self = this;
+
+      animation.initGl(self.gl, function () { 
+        animation.initUpdates(function () {
+          self.animations.push(animation);
           cb();
-        }
+        });
+      });
+    },
+
+    initAnimations: function (cb) {
+      var self = this;
+
+      async.map(
+        self.visualization.state.getValue("animations"),
+        function (name, cb) {
+          self.addAnimation(new Animation.animationClasses[name](self), cb);
+        },
+        cb
       );
     },
 
@@ -279,8 +271,6 @@ define(["app/Class", "app/Bounds", "async", "app/Logging", "jQuery", "app/Visual
 
     update: function() {
       var self = this;
-
-      if (!self.glInitialized) return;
 
       var time = self.visualization.state.getValue("time");
       var paused = self.visualization.state.getValue("paused");
