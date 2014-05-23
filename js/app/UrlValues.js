@@ -56,7 +56,7 @@ define(["app/Class", "app/LangExtensions"], function(Class) {
 
   UrlValues.getParameter = function(name) {
     var name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
-    var regex = new RegExp("[#&]" + name + "=([^&]*)"),
+    var regex = new RegExp("[#&]" + name + "=([^&]*)");
     var results = regex.exec(location.hash);
     return results == null ? undefined : decodeURIComponent(results[1].replace(/\+/g, " "));
   };
