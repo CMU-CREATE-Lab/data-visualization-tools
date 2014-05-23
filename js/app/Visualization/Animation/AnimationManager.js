@@ -152,27 +152,43 @@ define(["app/Class", "app/Bounds", "async", "app/Logging", "jQuery", "app/Visual
       cb();
     },
 
-    addAnimation: function (animation, cb) {
+    addAnimationInstance: function (animationInstance, cb) {
       var self = this;
 
-      animation.initGl(self.gl, function () { 
-        animation.initUpdates(function () {
-          self.animations.push(animation);
-          cb();
+      animationInstance.initGl(self.gl, function () { 
+        animationInstance.initUpdates(function () {
+          self.animations.push(animationInstance);
+          self.triggerUpdate();
+          cb(null, animationInstance);
         });
       });
+    },
+
+    addAnimation: function (animation, cb) {
+      var self = this;
+      self.addAnimationInstance(
+        new Animation.animationClasses[animation.type](
+          self, animation.args
+        ),
+        cb
+      );
+    },
+
+    removeAnimation: function (animation) {
+      var self = this;
+      self.animations = self.animations.filter(function (a) { return a !== animation; });
+      animation.destroy();
+      self.triggerUpdate();
     },
 
     initAnimations: function (cb) {
       var self = this;
 
-      async.map(
-        self.visualization.state.getValue("animations"),
-        function (name, cb) {
-          self.addAnimation(new Animation.animationClasses[name](self), cb);
-        },
-        cb
-      );
+      var animations = self.visualization.state.getValue("animations").map(function (name) {
+        return {type:name, args:{}};
+      });
+
+      async.map(animations, self.addAnimation.bind(self), cb);
     },
 
     windowSizeChanged: function () {

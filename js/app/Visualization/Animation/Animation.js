@@ -1,4 +1,4 @@
-define(["app/Class", "async", "app/Visualization/Shader", "app/Visualization/GeoProjection", "app/Data/DataView", "app/Visualization/DataViewUI"], function(Class, async, Shader, GeoProjection, DataView, DataViewUI) {
+define(["app/Class", "async", "app/Visualization/Shader", "app/Visualization/GeoProjection", "app/Data/DataView", "app/Visualization/DataViewUI", "jQuery"], function(Class, async, Shader, GeoProjection, DataView, DataViewUI, $) {
   var Animation = Class({
     name: "Animation",
     columns: {
@@ -15,11 +15,16 @@ define(["app/Class", "async", "app/Visualization/Shader", "app/Visualization/Geo
 
     programSpecs: {},
 
-    initialize: function(manager) {
+    initialize: function(manager, args) {
       var self = this;
+
+      if (args) $.extend(self, args);
       self.manager = manager;
       self.data_view = new DataView(self.manager.visualization.data.format, self.columns);
       self.data_view_ui = new DataViewUI(self.data_view);
+    },
+
+    destroy: function () {
     },
 
     initGl: function(gl, cb) {
