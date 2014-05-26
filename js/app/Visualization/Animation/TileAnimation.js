@@ -1,24 +1,24 @@
 define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualization/Shader", "app/Visualization/Animation/Animation"], function(require, Class, GeoProjection, Shader, Animation) {
   var TileAnimation = Class(Animation, {
-    name: "PointAnimation",
+    name: "TileAnimation",
 
-    magnitudeScale: 0.1,
+    columns: {},
 
-    initGl: function(gl, mouseoverGl, cb) {
+    programSpecs: {
+      program: {
+        context: "gl",
+        vertex: "app/Visualization/Animation/TileAnimation-vertex.glsl",
+        fragment: "app/Visualization/Animation/TileAnimation-fragment.glsl",
+        columns: []
+      }
+    },
+
+    initGl: function(gl, cb) {
       var self = this;
-      Animation.prototype.initGl(gl, function () {
-        Shader.createShaderProgramFromUrl(
-          self.gl,
-          require.toUrl("app/Visualization/Animation/TileAnimation-vertex.glsl"),
-          require.toUrl("app/Visualization/Animation/TileAnimation-fragment.glsl"),
-          function (program) {
-            self.program = program;
+      Animation.prototype.initGl.call(self, gl, function () {
+        self.pointArrayBuffer = self.gl.createBuffer();
 
-            self.pointArrayBuffer = self.gl.createBuffer();
-
-            cb();
-          }
-        );
+        cb();
       });
     },
 
@@ -44,25 +44,23 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
         });
       });
 
-      self.gl.useProgram(self.program);
-      Shader.programLoadArray(self.gl, self.pointArrayBuffer, self.rawLatLonData, self.program);
+      self.gl.useProgram(self.programs.program);
+      Shader.programLoadArray(self.gl, self.pointArrayBuffer, self.rawLatLonData, self.programs.program);
       Animation.prototype.updateData.call(self);
     },
 
     draw: function () {
       var self = this;
 
-      self.gl.useProgram(self.program);
+      self.gl.useProgram(self.programs.program);
 
-      Shader.programBindArray(self.gl, self.pointArrayBuffer, self.program, "worldCoord", 2, self.gl.FLOAT);
+      Shader.programBindArray(self.gl, self.pointArrayBuffer, self.programs.program, "worldCoord", 2, self.gl.FLOAT);
 
-      self.gl.uniformMatrix4fv(self.program.uniforms.mapMatrix, false, self.manager.mapMatrix);
+      self.gl.uniformMatrix4fv(self.programs.program.uniforms.mapMatrix, false, self.manager.mapMatrix);
 
       for (var i = 0; i < self.tilecount; i++) {
         self.gl.drawArrays(self.gl.LINE_STRIP, i*5, 5);
       }
-
-      Animation.prototype.draw.call(self);
     }
   });
   Animation.animationClasses.tile = TileAnimation;

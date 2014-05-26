@@ -2,56 +2,38 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
   var DebugAnimation = Class(Animation, {
     name: "DebugAnimation",
 
-    initGl: function(gl, cb) {
-      var self = this;
-      Animation.prototype.initGl(gl, function () {
-        Shader.createShaderProgramFromUrl(
-          self.gl,
-          require.toUrl("app/Visualization/Animation/DebugAnimation-vertex.glsl"),
-          require.toUrl("app/Visualization/Animation/DebugAnimation-fragment.glsl"),
-          function (program) {
-            self.program = program;
+    columns: {
+      point: {
+        type: "Float32", hidden: true,
+        items: [
+          {name: "longitude", source: {longitude: 1.0}},
+          {name: "latitude", source: {latitude: 1.0}}
+        ],
+        transform: function (col, offset) {
+          var spec = this;
+          var longitude = col[offset + spec.itemsByName.longitude.index];
+          var latitude = col[offset + spec.itemsByName.latitude.index];
 
-            self.pointArrayBuffer = self.gl.createBuffer();
+          var pixel = GeoProjection.LatLongToPixelXY(latitude, longitude);
 
-            cb();
-          }
-        );
-      });
-    },
-
-    updateData: function() {
-      var self = this;
-      var format = self.manager.visualization.data.format;
-      var header = format.header;
-      var data = format.data;
-      self.pointcount = header.length;
-
-      self.rawLatLonData = new Float32Array(self.pointcount*2);
-
-      for (var rowidx = 0; rowidx < self.pointcount; rowidx++) {
-        var pixel = GeoProjection.LatLongToPixelXY(data.latitude[rowidx], data.longitude[rowidx]);
-        self.rawLatLonData[2*rowidx] = pixel.x;
-        self.rawLatLonData[2*rowidx+1] = pixel.y;
+          col[offset + spec.itemsByName.latitude.index] = pixel.y;
+          col[offset + spec.itemsByName.longitude.index] = pixel.x;
+        }
       }
-
-      self.gl.useProgram(self.program);
-      Shader.programLoadArray(self.gl, self.pointArrayBuffer, self.rawLatLonData, self.program);
-
-      Animation.prototype.updateData.call(self);
     },
 
-    draw: function () {
+    programSpecs: {
+      program: {
+        context: "gl",
+        vertex: "app/Visualization/Animation/DebugAnimation-vertex.glsl",
+        fragment: "app/Visualization/Animation/DebugAnimation-fragment.glsl",
+        columns: ["point"]
+      }
+    },
+
+    getDrawMode: function (program) {
       var self = this;
-
-      self.gl.useProgram(self.program);
-
-      Shader.programBindArray(self.gl, self.pointArrayBuffer, self.program, "worldCoord", 2, self.gl.FLOAT);
-      self.gl.uniformMatrix4fv(self.program.uniforms.mapMatrix, false, self.manager.mapMatrix);
-
-      self.gl.drawArrays(self.gl.POINTS, 0, self.pointcount);
-
-      Animation.prototype.draw.call(self);
+      return program.gl.POINTS;
     }
   });
   Animation.animationClasses.debug = DebugAnimation;
