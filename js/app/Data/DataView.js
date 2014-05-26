@@ -27,11 +27,12 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
         {name: "magnitude", source: {_: 1.0}}]}
     },
 
-    initialize: function (source, columns) {
+      initialize: function (source, columns, name) {
       var self = this;
 
       Format.prototype.initialize.call(self)
       self.source = source;
+      if (name) self.name = name;
 
       self.source.events.on({
         update: self.handleUpdate,

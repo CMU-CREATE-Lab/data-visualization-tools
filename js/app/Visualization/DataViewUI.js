@@ -99,7 +99,7 @@ if (!app.useDojo) {
       generateUI: function () {
         var self = this;
 
-        var ui = new Fieldset({title:"DataViewUI", content: ""});
+        var ui = new Fieldset({title:self.dataview.name, content: ""});
 
         Object.values(self.dataview.header.colsByName).map(function (spec) {
           if (spec.hidden) return;
