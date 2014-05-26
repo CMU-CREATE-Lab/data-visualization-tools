@@ -7,6 +7,7 @@ if (!app.useDojo) {
     "app/Class",
     "app/Logging",
     "app/Visualization/DataViewUI",
+    "app/Visualization/Animation/Animation",
     "jQuery",
     "dijit/Fieldset",
     "dojox/layout/FloatingPane",
@@ -17,7 +18,7 @@ if (!app.useDojo) {
     "dojo/dom",
     "dojo/parser",
     "dojo/domReady!"
-  ], function(Class, Logging, DataViewUI, $, Fieldset, FloatingPane, ContentPane, Menu, MenuItem, popup){
+  ], function(Class, Logging, DataViewUI, Animation, $, Fieldset, FloatingPane, ContentPane, Menu, MenuItem, popup){
     return Class({
       name: "VisualizationUI",
       initialize: function (animationManager) {
@@ -32,9 +33,10 @@ if (!app.useDojo) {
           style: "position: absolute"
         });
         self.dialog.placeAt($("body")[0]);
-        self.dialog.resize({x:10, y:10, w:300, h:400});
+        self.dialog.resize({x:10, y:10, w:400, h:500});
 
-        self.dialog.addChild(self.generateUI());
+        self.generateUI();
+
         self.dialog.startup();
         self.dialog.show();
       },
@@ -42,14 +44,62 @@ if (!app.useDojo) {
       generateUI: function () {
         var self = this;
 
-        var ui = new ContentPane();
+        self.ui = new ContentPane({content:"", doLayout: false});
 
-        self.animationManager.animations.map(function (animation) {
-          var dataView = new DataViewUI(animation.data_view);
-          ui.addChild(dataView.ui);
+        var title = new ContentPane({
+          content: "Animations <a href='javascript:void(0);' class='add'><i class='fa fa-plus-square'></i></a>",
+          style: "padding-top: 0; padding-bottom: 0;"
         });
+        $(title.domNode).find("a.add").click(function () {
+          var typeselect = new Menu({
+            onMouseLeave: function () {
+              popup.close(typeselect);
+            }
+          });
+          Object.items(Animation.animationClasses).map(function (item) {
+            typeselect.addChild(new MenuItem({
+              label: item.key,
+              onClick: function(evt) {
+                self.animationManager.addAnimation({type:item.key}, function (err, animation) {
+                  self.generateAnimationUI(animation);
+                });
+              }
+            }));
+          });
+          popup.open({
+            popup: typeselect,
+            onExecute : function() { 
+              popup.close(typeselect);
+            }, 
+            onCancel : function() { 
+              popup.close(typeselect);
+            }, 
+            around: $(title.domNode).find("a.add")[0]
+          });
+        });
+        self.ui.addChild(title);
 
-        return ui;
+        self.animationManager.animations.map(self.generateAnimationUI.bind(self));
+
+        self.dialog.addChild(self.ui);
+      },
+
+      generateAnimationUI: function (animation) {
+        var self = this;
+
+        var title = new ContentPane({
+          content: "<a href='javascript:void(0);' class='remove' style='float:left;'><i class='fa fa-minus-square'></i> " + animation.name + "</a>",
+          style: "padding-top: 0; padding-bottom: 8px;"
+        });
+        $(title.domNode).find("a.remove").click(function () {
+          self.animationManager.removeAnimation(animation);
+          widget.destroy();
+        })
+
+        var widget = new ContentPane({});
+        widget.addChild(title);
+        widget.addChild(new DataViewUI(animation.data_view).ui);
+        self.ui.addChild(widget);
       }
     });
   });

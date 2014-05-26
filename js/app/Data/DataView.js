@@ -27,12 +27,12 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
         {name: "magnitude", source: {_: 1.0}}]}
     },
 
-      initialize: function (source, columns, name) {
+    initialize: function (source, columns) {
       var self = this;
 
       Format.prototype.initialize.call(self)
       self.source = source;
-      if (name) self.name = name;
+      self.selections = {};
 
       self.source.events.on({
         update: self.handleUpdate,
@@ -46,7 +46,6 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
         self.addCol(value);
       });
 
-      self.selections = {};
 
       self.addSelectionCategory("selected");
       self.addSelectionCategory("hover");
