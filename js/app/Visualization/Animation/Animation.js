@@ -24,6 +24,7 @@ define(["app/Class", "async", "app/Visualization/Shader", "app/Visualization/Geo
     },
 
     destroy: function () {
+      $(self.rowidxCanvas).remove();
     },
 
     initGl: function(gl, cb) {
