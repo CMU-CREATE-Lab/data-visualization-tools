@@ -1,10 +1,11 @@
 define(["app/Class", "app/Bounds", "async", "app/Logging", "jQuery", "app/Visualization/Matrix", "CanvasLayer", "Stats", "app/Visualization/Animation/Animation", "app/Visualization/Animation/PointAnimation", "app/Visualization/Animation/LineAnimation", "app/Visualization/Animation/TileAnimation", "app/Visualization/Animation/DebugAnimation", "app/Visualization/Animation/ArrowAnimation"], function(Class, Bounds, async, Logging, $, Matrix, CanvasLayer, Stats, Animation) {
   return Class({
     name: "AnimationManager",
-    initialize: function (visualization) {
+      initialize: function (visualization, animations) {
       var self = this;
 
       self.visualization = visualization;
+      self.animationSpecs = animations;
       self.indrag = false;
     },
 
@@ -183,12 +184,7 @@ define(["app/Class", "app/Bounds", "async", "app/Logging", "jQuery", "app/Visual
 
     initAnimations: function (cb) {
       var self = this;
-
-      var animations = self.visualization.state.getValue("animations").map(function (name) {
-        return {type:name, args:{}};
-      });
-
-      async.map(animations, self.addAnimation.bind(self), cb);
+      async.map(self.animationSpecs, self.addAnimation.bind(self), cb);
     },
 
     windowSizeChanged: function () {

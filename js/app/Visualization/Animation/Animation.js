@@ -21,7 +21,6 @@ define(["app/Class", "async", "app/Visualization/Shader", "app/Visualization/Geo
       if (args) $.extend(self, args);
       self.manager = manager;
       self.data_view = new DataView(self.manager.visualization.data.format, self.columns);
-      self.data_view_ui = new DataViewUI(self.data_view);
     },
 
     destroy: function () {

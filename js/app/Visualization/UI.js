@@ -1,4 +1,4 @@
-define(["app/Class", "async", "jQuery", "app/Visualization/sliders"], function(Class, async, $) {
+define(["app/Class", "app/Visualization/AnimationManagerUI", "async", "jQuery", "app/Visualization/sliders"], function(Class, AnimationManagerUI, async, $) {
   return Class({
     name: "UI",
     initialize: function (visualization) {
@@ -16,6 +16,7 @@ define(["app/Class", "async", "jQuery", "app/Visualization/sliders"], function(C
         self.initDaySlider.bind(self),
         self.initOffsetSlider.bind(self),
         self.initToggleButtons.bind(self),
+        self.initAnimationManagerUI.bind(self)
       ], function () { cb(); });
     },
 
@@ -199,6 +200,12 @@ define(["app/Class", "async", "jQuery", "app/Visualization/sliders"], function(C
       setValue(self.visualization.state.getValue("paused"));
 
       cb();
+    },
+
+    initAnimationManagerUI: function (cb) {
+      var self = this;
+
+      self.animations = new AnimationManagerUI(self.visualization.animations);
     }
   });
 });

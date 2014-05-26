@@ -11,13 +11,14 @@ if (!app.useDojo) {
     "dijit/form/HorizontalSlider",
     "dojox/layout/FloatingPane",
     "dijit/layout/ContentPane",
+    "dijit/Fieldset",
     "dijit/Menu",
     "dijit/MenuItem",
     "dijit/popup",
     "dojo/dom",
     "dojo/parser",
     "dojo/domReady!"
-  ], function(Class, Logging, $, Fieldset, HorizontalSlider, FloatingPane, ContentPane, Menu, MenuItem, popup){
+  ], function(Class, Logging, $, Fieldset, HorizontalSlider, FloatingPane, ContentPane, Fieldset, Menu, MenuItem, popup){
     return Class({
       name: "DataViewUI",
       initialize: function (dataview) {
@@ -25,22 +26,7 @@ if (!app.useDojo) {
 
         self.dataview = dataview;
 
-        dataview.events.on({
-          scope: self
-        });
-
-        self.dialog = new FloatingPane({
-          title: "DataViewUI",
-          resizable: true,
-          dockable: true,
-          style: "position: absolute"
-        });
-        self.dialog.placeAt($("body")[0]);
-        self.dialog.resize({x:10, y:10, w:300, h:400});
-
-        self.dialog.addChild(self.generateUI());
-        self.dialog.startup();
-        self.dialog.show();
+        self.ui = self.generateUI();
       },
 
       generateSourceUI: function (itemwidget, spec, item, source) {
@@ -113,7 +99,7 @@ if (!app.useDojo) {
       generateUI: function () {
         var self = this;
 
-        var ui = new ContentPane();
+        var ui = new Fieldset({title:"DataViewUI", content: ""});
 
         Object.values(self.dataview.header.colsByName).map(function (spec) {
           if (spec.hidden) return;

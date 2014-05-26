@@ -38,13 +38,18 @@ define(["app/Class", "app/Logging", "app/SubscribableDict", "app/UrlValues", "ap
       Logging.default.setRules(self.state.getValue("logging"));
 
       self.data = new DataManager(self);
-      self.animations = new AnimationManager(self);
+
+      var animations = self.state.getValue("animations").map(function (name) {
+        return {type:name, args:{}};
+      });
+
+      self.animations = new AnimationManager(self, animations);
       self.ui = new UI(self);
 
       async.series([
         self.data.init.bind(self.data),
-        self.ui.init.bind(self.ui),
-        self.animations.init.bind(self.animations)
+        self.animations.init.bind(self.animations),
+        self.ui.init.bind(self.ui)
       ]);
     }
   });
