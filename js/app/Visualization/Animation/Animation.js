@@ -20,7 +20,7 @@ define(["app/Class", "async", "app/Visualization/Shader", "app/Visualization/Geo
 
       if (args) $.extend(self, args);
       self.manager = manager;
-      self.data_view = new DataView(self.manager.visualization.data.format, self.columns);
+      self.data_view = new DataView(self.manager.visualization.data.format, {columns: self.columns});
     },
 
     destroy: function () {
@@ -227,6 +227,12 @@ define(["app/Class", "async", "app/Visualization/Shader", "app/Visualization/Geo
       var rowidx = self.getRowidxAtPos(x, y);
       self.data_view.selections[type].addRange(self.data_view.source, rowidx, rowidx, replace);
       return rowidx;
+    },
+
+
+    serialize: function () {
+      var self = this;
+      return self.data_view.serialize();
     }
   });
 

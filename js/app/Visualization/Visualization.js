@@ -43,7 +43,7 @@ define(["app/Class", "app/Logging", "app/SubscribableDict", "app/UrlValues", "ap
         return {type:name, args:{}};
       });
 
-      self.animations = new AnimationManager(self, animations);
+      self.animations = new AnimationManager(self, {animationSpecs:animations});
       self.ui = new UI(self);
 
       async.series([
@@ -51,6 +51,14 @@ define(["app/Class", "app/Logging", "app/SubscribableDict", "app/UrlValues", "ap
         self.animations.init.bind(self.animations),
         self.ui.init.bind(self.ui)
       ]);
+    },
+
+    serialize: function () {
+      var self = this;
+      return {
+        state: self.state.values,
+        animationSpecs: self.animations.serialize()
+      };
     }
   });
 });

@@ -323,6 +323,14 @@ define(["app/Class", "app/Bounds", "async", "app/Logging", "jQuery", "app/Visual
       Logging.default.log("Visualization.Animation.AnimationManager.triggerUpdate", {msg: "Trigger update"});
 
       self.updateNeeded = true;
+    },
+
+    serialize: function () {
+      var self = this;
+
+      return self.animations.map(function (animation) {
+        return animation.serialize();
+      });
     }
   });
 });

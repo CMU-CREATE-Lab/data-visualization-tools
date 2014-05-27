@@ -27,12 +27,14 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
         {name: "magnitude", source: {_: 1.0}}]}
     },
 
-    initialize: function (source, columns) {
+    initialize: function (source, args) {
       var self = this;
 
       Format.prototype.initialize.call(self)
       self.source = source;
       self.selections = {};
+
+      if (args) $.extend(self, args);
 
       self.source.events.on({
         update: self.handleUpdate,
@@ -40,7 +42,7 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
         scope: self
       });
 
-      Object.items(columns || self.columns).map(function (item) {
+      Object.items(self.columns).map(function (item) {
         var value = $.extend(true, {}, item.value);
         value.name = item.key;
         self.addCol(value);
@@ -152,7 +154,11 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
 
       return Object.keys(self.source.header.colsByName).concat(
         Object.keys(self.selections));
-    }
+    },
 
+    serialize: function () {
+      var self = this;
+      return {columns: self.header.colsByName};
+    }
   });
 });
