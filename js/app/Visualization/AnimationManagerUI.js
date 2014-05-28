@@ -74,9 +74,7 @@ if (!app.useDojo) {
             typeselect.addChild(new MenuItem({
               label: item.key,
               onClick: function(evt) {
-                self.animationManager.addAnimation({type:item.key}, function (err, animation) {
-                  self.generateAnimationUI(animation);
-                });
+                self.animationManager.addAnimation({type:item.key}, function (err, animation) {});
               }
             }));
           });

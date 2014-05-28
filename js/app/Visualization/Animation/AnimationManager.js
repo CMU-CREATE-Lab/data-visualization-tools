@@ -329,12 +329,10 @@ define(["app/Class", "app/Events", "app/Bounds", "async", "app/Logging", "jQuery
       async.map(animations, self.addAnimation.bind(self), cb || function () {});
     },
 
-    serialize: function () {
+    toJSON: function () {
       var self = this;
 
-      return self.animations.map(function (animation) {
-        return animation.serialize();
-      });
+      return self.animations;
     }
   });
 });

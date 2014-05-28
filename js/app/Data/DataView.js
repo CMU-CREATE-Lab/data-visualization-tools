@@ -156,9 +156,18 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
         Object.keys(self.selections));
     },
 
-    serialize: function () {
+    toJSON: function () {
       var self = this;
-      return {columns: self.header.colsByName};
+      var cols = $.extend(true, {}, self.header.colsByName);
+      for (var name in cols) {
+        delete cols[name].itemsByName;
+        delete cols[name].typespec;
+        delete cols[name].transform;
+        cols[name].items.map(function (item) {
+          delete item.index;
+        });
+      }
+      return {columns: cols};
     }
   });
 });

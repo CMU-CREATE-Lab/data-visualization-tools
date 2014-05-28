@@ -229,12 +229,12 @@ define(["app/Class", "async", "app/Visualization/Shader", "app/Visualization/Geo
       return rowidx;
     },
 
-
-    serialize: function () {
+    toJSON: function () {
       var self = this;
-      var res = self.data_view.serialize();
-      res.type = self.name;
-      return res;
+      return {
+        args: self.data_view,
+        type: self.name
+      };
     }
   });
 

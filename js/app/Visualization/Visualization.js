@@ -56,15 +56,15 @@ define(["app/Class", "app/Logging", "app/SubscribableDict", "app/UrlValues", "ap
       ]);
     },
 
-    serialize: function () {
+    toJSON: function () {
       var self = this;
       return {
         state: self.state.values,
-        animations: self.animations.serialize()
+        animations: self.animations
       };
     },
 
-      load: function (url, cb) {
+    load: function (url, cb) {
       var self = this;
 
       $.get(url, function (data) {
@@ -79,7 +79,7 @@ define(["app/Class", "app/Logging", "app/SubscribableDict", "app/UrlValues", "ap
     save: function (url) {
       var self = this;
 
-      $.post(url, Json.encode(self.serialize()), function (data) {
+      $.post(url, Json.encode(self), function (data) {
         data = Json.decode(data);
         console.log(data);
       }, 'text');
