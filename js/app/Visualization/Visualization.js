@@ -67,6 +67,7 @@ define(["app/Class", "app/Logging", "app/SubscribableDict", "app/UrlValues", "ap
     load: function (url, cb) {
       var self = this;
 
+      self.workspaceUrl = url.split("?")[0];
       $.get(url, function (data) {
         data = Json.decode(data);
         for (var name in data.state) {
@@ -76,12 +77,12 @@ define(["app/Class", "app/Logging", "app/SubscribableDict", "app/UrlValues", "ap
       }, 'text');
     },
 
-    save: function (url) {
+    save: function (cb) {
       var self = this;
 
-      $.post(url, Json.encode(self), function (data) {
+      $.post(self.workspaceUrl, Json.encode(self, "  "), function (data) {
         data = Json.decode(data);
-        console.log(data);
+        cb(self.workspaceUrl + "?id=" + data.id);
       }, 'text');
     }
   });

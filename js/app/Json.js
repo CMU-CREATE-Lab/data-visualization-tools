@@ -1,12 +1,12 @@
 define(["app/Class", "jQuery"], function(Class, $) {
   var Json = Class({name: "Json"});
 
-  Json.encode = function (data) {
-    return JSON.stringify(data);
+  Json.encode = function (data, indent) {
+    return JSON.stringify(data, undefined, indent);
   };
 
-  Json.decode = function (data) {
-    return JSON.parse(data, Json.reviver);
+    Json.decode = function (data, indent) {
+        return JSON.parse(data, Json.reviver, indent);
   };
 
   Json.reviver = function (key, value) {
