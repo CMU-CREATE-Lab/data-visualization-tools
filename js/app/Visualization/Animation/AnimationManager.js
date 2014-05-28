@@ -211,7 +211,7 @@ define(["app/Class", "app/Events", "app/Bounds", "async", "app/Logging", "jQuery
       var lonmin = sw.lng();
       var latmax = ne.lat();
       var lonmax = ne.lng();
-      self.visualization.data.format.zoomTo(new Bounds(lonmin, latmin, lonmax, latmax));
+      self.visualization.data.zoomTo(new Bounds(lonmin, latmin, lonmax, latmax));
     },
 
     canvasResize: function() {

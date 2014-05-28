@@ -30,6 +30,11 @@ define(["app/Class", "app/Data/Format", "app/Data/BinFormat", "app/Data/TiledBin
       self.format.load();
 
       cb();
+    },
+
+    zoomTo: function (bounds) {
+      var self = this;
+      self.format.zoomTo(bounds);
     }
   });
 });
