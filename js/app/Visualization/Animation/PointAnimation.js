@@ -9,16 +9,7 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
           {name: "longitude", source: {longitude: 1.0}},
           {name: "latitude", source: {latitude: 1.0}}
         ],
-        transform: function (col, offset) {
-          var spec = this;
-          var longitude = col[offset + spec.itemsByName.longitude.index];
-          var latitude = col[offset + spec.itemsByName.latitude.index];
-
-          var pixel = GeoProjection.LatLongToPixelXY(latitude, longitude);
-
-          col[offset + spec.itemsByName.latitude.index] = pixel.y;
-          col[offset + spec.itemsByName.longitude.index] = pixel.x;
-        }
+        transform: "coordinate"
       },
       color: {type: "Float32", items: [
         {name: "red", source: {score: 0.85, _:-0.1, hover:1.0, selected:1.0}, min: 0.0, max: 1.0},
@@ -37,15 +28,7 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
           {name: "b", source: {}},
           {name: "a", source: {}}
         ],
-        transform: function (col, offset) {
-          var spec = this;
-          var rowidx = (offset / spec.items.length) + 1;
-
-          col[offset + spec.itemsByName.r.index] = ((rowidx >> 16) & 0xff) / 255;
-          col[offset + spec.itemsByName.g.index] = ((rowidx >> 8) & 0xff) / 255;
-          col[offset + spec.itemsByName.b.index] = (rowidx & 0xff) / 255;
-          col[offset + spec.itemsByName.a.index] = 1.0;
-        }
+        transform: "rowidx"
       }
     },
 

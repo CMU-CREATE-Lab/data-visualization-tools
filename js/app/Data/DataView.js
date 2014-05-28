@@ -27,6 +27,9 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
         {name: "magnitude", source: {_: 1.0}}]}
     },
 
+    transforms: {
+    },
+
     initialize: function (source, args) {
       var self = this;
 
@@ -106,7 +109,7 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
           self.data[colname][rowidx * spec.items.length + item] = res;
         }
         if (spec.transform) {
-          spec.transform.call(spec, self.data[colname], rowidx * spec.items.length)
+          self.transforms[spec.transform].call(spec, self.data[colname], rowidx * spec.items.length);
         }
       }
     },
@@ -162,7 +165,6 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
       for (var name in cols) {
         delete cols[name].itemsByName;
         delete cols[name].typespec;
-        delete cols[name].transform;
         cols[name].items.map(function (item) {
           delete item.index;
         });

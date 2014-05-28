@@ -324,8 +324,10 @@ define(["app/Class", "app/Events", "app/Bounds", "async", "app/Logging", "jQuery
     load: function (animations, cb) {
       var self = this;
       self.animations.map(function (animation) {
+        self.events.triggerEvent("remove", {animation: animation});
         animation.destroy();
       });
+      self.animations = [];
       async.map(animations, self.addAnimation.bind(self), cb || function () {});
     },
 

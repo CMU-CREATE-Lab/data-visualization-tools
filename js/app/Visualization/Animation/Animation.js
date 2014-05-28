@@ -2,7 +2,7 @@ define(["app/Class", "async", "app/Visualization/Shader", "app/Visualization/Geo
   var Animation = Class({
     name: "Animation",
     columns: {
-      point: {type: "Float32", items: [
+      point: {type: "Float32", transform: "coordinate", items: [
         {name: "latitude", source: {latitude: 1.0}},
         {name: "longitude", source: {longitude: 1.0}}]},
       color: {type: "Float32", items: [
@@ -13,6 +13,28 @@ define(["app/Class", "async", "app/Visualization/Shader", "app/Visualization/Geo
         {name: "magnitude", source: {_: 1.0}}]}
     },
 
+    transforms: {
+      coordinate: function (col, offset) {
+        var spec = this;
+        var longitude = col[offset + spec.itemsByName.longitude.index];
+        var latitude = col[offset + spec.itemsByName.latitude.index];
+
+        var pixel = GeoProjection.LatLongToPixelXY(latitude, longitude);
+
+        col[offset + spec.itemsByName.latitude.index] = pixel.y;
+        col[offset + spec.itemsByName.longitude.index] = pixel.x;
+      },
+      rowidx: function (col, offset) {
+        var spec = this;
+        var rowidx = (offset / spec.items.length) + 1;
+
+        col[offset + spec.itemsByName.r.index] = ((rowidx >> 16) & 0xff) / 255;
+        col[offset + spec.itemsByName.g.index] = ((rowidx >> 8) & 0xff) / 255;
+        col[offset + spec.itemsByName.b.index] = (rowidx & 0xff) / 255;
+        col[offset + spec.itemsByName.a.index] = 1.0;
+      }
+    },
+
     programSpecs: {},
 
     initialize: function(manager, args) {
@@ -20,7 +42,13 @@ define(["app/Class", "async", "app/Visualization/Shader", "app/Visualization/Geo
 
       if (args) $.extend(self, args);
       self.manager = manager;
-      self.data_view = new DataView(self.manager.visualization.data.format, {columns: self.columns});
+      self.data_view = new DataView(
+        self.manager.visualization.data.format,
+        {
+          columns: self.columns,
+          transforms: self.transforms
+        }
+      );
     },
 
     destroy: function () {
