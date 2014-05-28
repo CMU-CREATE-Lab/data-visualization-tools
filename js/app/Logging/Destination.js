@@ -1,7 +1,8 @@
 define(["app/Class", "jQuery"], function(Class, $) {
   var Destination = Class({
-    name: "LogDestination",
+    name: "Destination",
     initialize: function (args) {
+      var self = this;
       $.extend(self, args);
     }
   });
