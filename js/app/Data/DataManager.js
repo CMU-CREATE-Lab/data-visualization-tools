@@ -5,6 +5,7 @@ define(["app/Class", "app/Data/Format", "app/Data/BinFormat", "app/Data/TiledBin
       var self = this;
 
       self.visualization = visualization;
+      self.sources = {};
     },
 
     init: function (cb) {
