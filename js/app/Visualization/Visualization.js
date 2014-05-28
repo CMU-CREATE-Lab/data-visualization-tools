@@ -1,4 +1,4 @@
-define(["app/Class", "app/Logging", "app/SubscribableDict", "app/UrlValues", "app/Data/DataManager", "app/Visualization/Animation/AnimationManager", "app/Visualization/UI", "async"], function(Class, Logging, SubscribableDict, UrlValues, DataManager, AnimationManager, UI, async) {
+define(["app/Class", "app/Logging", "app/SubscribableDict", "app/UrlValues", "app/Data/DataManager", "app/Visualization/Animation/AnimationManager", "app/Visualization/UI", "async", "jQuery", "app/Json"], function(Class, Logging, SubscribableDict, UrlValues, DataManager, AnimationManager, UI, async, $, Json) {
   return Class({
     name: "Visualization",
     paramspec: {
@@ -43,13 +43,16 @@ define(["app/Class", "app/Logging", "app/SubscribableDict", "app/UrlValues", "ap
         return {type:name, args:{}};
       });
 
-      self.animations = new AnimationManager(self, {animationSpecs:animations});
+      self.animations = new AnimationManager(self);
       self.ui = new UI(self);
 
       async.series([
         self.data.init.bind(self.data),
         self.animations.init.bind(self.animations),
-        self.ui.init.bind(self.ui)
+          self.ui.init.bind(self.ui),
+          function (cb) {
+            self.animations.load({animationSpecs:animations}, cb);
+          }
       ]);
     },
 
@@ -57,8 +60,29 @@ define(["app/Class", "app/Logging", "app/SubscribableDict", "app/UrlValues", "ap
       var self = this;
       return {
         state: self.state.values,
-        animationSpecs: self.animations.serialize()
+        animations: self.animations.serialize()
       };
+    },
+
+      load: function (url, cb) {
+      var self = this;
+
+      $.get(url, function (data) {
+        data = Json.decode(data);
+        for (var name in data.state) {
+          self.state.setValue(name, data.state[name]);
+        }
+        self.animations.load(data.animations, cb);
+      }, 'text');
+    },
+
+    save: function (url) {
+      var self = this;
+
+      $.post(url, Json.encode(self.serialize()), function (data) {
+        data = Json.decode(data);
+        console.log(data);
+      }, 'text');
     }
   });
 });

@@ -95,7 +95,7 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
       return program.gl.LINES;
     }
   });
-  Animation.animationClasses.arrow = ArrowAnimation;
+  Animation.animationClasses.ArrowAnimation = ArrowAnimation;
 
   return ArrowAnimation;
 });

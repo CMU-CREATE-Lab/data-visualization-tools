@@ -232,7 +232,9 @@ define(["app/Class", "async", "app/Visualization/Shader", "app/Visualization/Geo
 
     serialize: function () {
       var self = this;
-      return self.data_view.serialize();
+      var res = self.data_view.serialize();
+      res.type = self.name;
+      return res;
     }
   });
 

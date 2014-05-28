@@ -57,5 +57,10 @@ define([], function() {
     if (stepsize < 1000) res += (this.getUTCMilliseconds() / 1000).toString().substr(1);
     return res;
   };
+
+  Date.prototype.oldToJSON = Date.prototype.toJSON;
+  Date.prototype.toJSON = function () {
+    return {__jsonclass__: ["Date", this.toISOString()]};
+  }
 });
 

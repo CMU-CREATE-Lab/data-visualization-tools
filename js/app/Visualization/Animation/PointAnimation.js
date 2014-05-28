@@ -79,7 +79,7 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
       return program.gl.POINTS;
     }
   });
-  Animation.animationClasses.point = PointAnimation;
+  Animation.animationClasses.PointAnimation = PointAnimation;
 
   return PointAnimation;
 });

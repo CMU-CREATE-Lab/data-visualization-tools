@@ -1,11 +1,12 @@
-define(["app/Class", "app/Bounds", "async", "app/Logging", "jQuery", "app/Visualization/Matrix", "CanvasLayer", "Stats", "app/Visualization/Animation/Animation", "app/Visualization/Animation/PointAnimation", "app/Visualization/Animation/LineAnimation", "app/Visualization/Animation/TileAnimation", "app/Visualization/Animation/DebugAnimation", "app/Visualization/Animation/ArrowAnimation"], function(Class, Bounds, async, Logging, $, Matrix, CanvasLayer, Stats, Animation) {
+define(["app/Class", "app/Events", "app/Bounds", "async", "app/Logging", "jQuery", "app/Visualization/Matrix", "CanvasLayer", "Stats", "app/Visualization/Animation/Animation", "app/Visualization/Animation/PointAnimation", "app/Visualization/Animation/LineAnimation", "app/Visualization/Animation/TileAnimation", "app/Visualization/Animation/DebugAnimation", "app/Visualization/Animation/ArrowAnimation"], function(Class, Events, Bounds, async, Logging, $, Matrix, CanvasLayer, Stats, Animation) {
   return Class({
     name: "AnimationManager",
-      initialize: function (visualization, animations) {
+      initialize: function (visualization) {
       var self = this;
 
+      self.events = new Events("AnimationManager");
+
       self.visualization = visualization;
-      self.animationSpecs = animations;
       self.indrag = false;
     },
 
@@ -27,9 +28,7 @@ define(["app/Class", "app/Bounds", "async", "app/Logging", "jQuery", "app/Visual
         self.initCanvas.bind(self),
         self.initStats.bind(self),
         self.initMouse.bind(self),
-        self.initUpdates.bind(self),
-
-        self.initAnimations.bind(self)
+        self.initUpdates.bind(self)
       ], cb);
     },
 
@@ -160,6 +159,7 @@ define(["app/Class", "app/Bounds", "async", "app/Logging", "jQuery", "app/Visual
         animationInstance.initUpdates(function () {
           self.animations.push(animationInstance);
           self.triggerUpdate();
+          self.events.triggerEvent("add", {animation: animationInstance});
           cb(null, animationInstance);
         });
       });
@@ -178,13 +178,9 @@ define(["app/Class", "app/Bounds", "async", "app/Logging", "jQuery", "app/Visual
     removeAnimation: function (animation) {
       var self = this;
       self.animations = self.animations.filter(function (a) { return a !== animation; });
+      self.events.triggerEvent("remove", {animation: animation});
       animation.destroy();
       self.triggerUpdate();
-    },
-
-    initAnimations: function (cb) {
-      var self = this;
-      async.map(self.animationSpecs, self.addAnimation.bind(self), cb);
     },
 
     windowSizeChanged: function () {
@@ -323,6 +319,14 @@ define(["app/Class", "app/Bounds", "async", "app/Logging", "jQuery", "app/Visual
       Logging.default.log("Visualization.Animation.AnimationManager.triggerUpdate", {msg: "Trigger update"});
 
       self.updateNeeded = true;
+    },
+
+    load: function (animations, cb) {
+      var self = this;
+      self.animations.map(function (animation) {
+        animation.destroy();
+      });
+      async.map(animations, self.addAnimation.bind(self), cb || function () {});
     },
 
     serialize: function () {

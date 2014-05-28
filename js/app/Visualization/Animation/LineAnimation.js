@@ -18,7 +18,7 @@ define(["app/Class", "app/Visualization/Animation/Animation", "app/Visualization
       return program.gl.LINE_STRIP;
     }
   });
-  Animation.animationClasses.line = LineAnimation;
+  Animation.animationClasses.LineAnimation = LineAnimation;
 
   return LineAnimation;
 });

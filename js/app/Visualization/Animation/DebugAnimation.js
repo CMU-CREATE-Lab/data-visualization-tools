@@ -36,7 +36,7 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
       return program.gl.POINTS;
     }
   });
-  Animation.animationClasses.debug = DebugAnimation;
+  Animation.animationClasses.DebugAnimation = DebugAnimation;
 
   return DebugAnimation;
 });

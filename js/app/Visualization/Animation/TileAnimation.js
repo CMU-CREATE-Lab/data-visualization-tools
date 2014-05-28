@@ -63,7 +63,7 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
       }
     }
   });
-  Animation.animationClasses.tile = TileAnimation;
+  Animation.animationClasses.TileAnimation = TileAnimation;
 
   return TileAnimation;
 });

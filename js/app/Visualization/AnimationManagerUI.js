@@ -25,6 +25,10 @@ if (!app.useDojo) {
         var self = this;
 
         self.animationManager = animationManager;
+        self.animationManager.events.on({
+          add: self.addHandler.bind(self),
+          remove: self.removeHandler.bind(self),
+        });
 
         self.dialog = new FloatingPane({
           title: "VisualizationUI",
@@ -39,6 +43,16 @@ if (!app.useDojo) {
 
         self.dialog.startup();
         self.dialog.show();
+      },
+
+      addHandler: function (event) {
+        var self = this;
+        self.generateAnimationUI(event.animation);
+      },
+
+      removeHandler: function (event) {
+        var self = this;
+        event.animation.animationManagerWidget.destroy();
       },
 
       generateUI: function () {
@@ -93,12 +107,13 @@ if (!app.useDojo) {
         });
         $(title.domNode).find("a.remove").click(function () {
           self.animationManager.removeAnimation(animation);
-          widget.destroy();
         })
 
         var widget = new ContentPane({});
         widget.addChild(title);
         widget.addChild(new DataViewUI(animation.data_view).ui);
+        animation.animationManagerWidget = widget;
+
         self.ui.addChild(widget);
       }
     });
