@@ -188,9 +188,9 @@ define(["app/Class", "app/Visualization/AnimationManagerUI", "async", "jQuery", 
       $("#animate-button input").change(function () {
         self.visualization.state.setValue("paused", $("#animate-button input").val() == "true");
       });
-      function setValue(e) {
-        $("#animate-button input").val(e.new ? "true" : "false");
-        if (e.new) {
+      function setValue(value) {
+        $("#animate-button input").val(value ? "true" : "false");
+        if (value) {
           $("#animate-button").find("i").removeClass("glyphicon-pause").addClass("glyphicon-play");
         } else {
           $("#animate-button").find("i").removeClass("glyphicon-play").addClass("glyphicon-pause");

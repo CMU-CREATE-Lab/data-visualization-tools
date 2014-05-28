@@ -237,7 +237,7 @@ define(["app/Class", "app/Events", "app/Bounds", "async", "app/Logging", "jQuery
       if (paused) {
         self.lastUpdate = undefined;
       } else {
-        var time = self.visualization.state.getValue("time");
+        var time = self.visualization.state.getValue("time").getTime();
         var min = self.visualization.data.format.header.colsByName.datetime.min;
         var max = self.visualization.data.format.header.colsByName.datetime.max;
         var timeNow = new Date().getTime();
@@ -248,7 +248,7 @@ define(["app/Class", "app/Events", "app/Bounds", "async", "app/Logging", "jQuery
         } else {
           var fraction = (timeNow - self.lastUpdate) / self.visualization.state.getValue("length");
           var time = (max - min) * fraction + min;
-          self.visualization.state.setValue("time", time);
+          self.visualization.state.setValue("time", new Date(time));
         }
       }
     },
