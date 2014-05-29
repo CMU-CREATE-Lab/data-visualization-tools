@@ -16,6 +16,7 @@ define(["app/Class", "app/Visualization/AnimationManagerUI", "async", "jQuery", 
         self.initDaySlider.bind(self),
         self.initOffsetSlider.bind(self),
         self.initToggleButtons.bind(self),
+        self.initSaveButton.bind(self),
         self.initAnimationManagerUI.bind(self)
       ], function () { cb(); });
     },
@@ -204,6 +205,19 @@ define(["app/Class", "app/Visualization/AnimationManagerUI", "async", "jQuery", 
       }
       self.visualization.state.events.on({paused: function (e) { setValue(e.new); }});
       setValue(self.visualization.state.getValue("paused"));
+
+      cb();
+    },
+
+    initSaveButton: function(cb) {
+      var self = this;
+
+      $("#save-button").click(function () {
+        self.visualization.save(function (url) {
+          url = window.location.toString().split("#")[0] + "#workspace=" + escape(url);
+          alert("Share this link: " + url);
+        });
+      });
 
       cb();
     },
