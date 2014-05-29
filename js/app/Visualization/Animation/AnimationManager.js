@@ -3,6 +3,8 @@ define(["app/Class", "app/Events", "app/Bounds", "async", "app/Logging", "jQuery
     name: "AnimationManager",
 
     mapOptions: {
+      zoom: 1,
+      center: {lat: 0, lng: 0},
       mapTypeId: google.maps.MapTypeId.ROADMAP,
       styles: [
         {
@@ -75,7 +77,6 @@ define(["app/Class", "app/Events", "app/Bounds", "async", "app/Logging", "jQuery
       google.maps.event.addListener(self.map, 'bounds_changed', self.boundsChanged.bind(self));
       google.maps.event.addListener(self.map, 'dragstart', function () { self.indrag = true; });
       google.maps.event.addListener(self.map, 'dragend', function () { self.indrag = false; self.boundsChanged(); });
-
       cb();
     },
 

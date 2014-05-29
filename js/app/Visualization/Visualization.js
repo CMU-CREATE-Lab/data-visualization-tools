@@ -60,14 +60,19 @@ define(["app/Class", "app/Logging", "app/SubscribableDict", "app/UrlValues", "ap
     load: function (url, cb) {
       var self = this;
 
-      self.workspaceUrl = url.split("?")[0];
-      $.get(url, function (data) {
-        data = Json.decode(data);
-        for (var name in data.state) {
-          self.state.setValue(name, data.state[name]);
-        }
-        self.animations.load(data.map, cb);
-      }, 'text');
+      if (url && url.indexOf("?") >= 0) {
+        self.workspaceUrl = url.split("?")[0];
+        $.get(url, function (data) {
+          data = Json.decode(data);
+          for (var name in data.state) {
+            self.state.setValue(name, data.state[name]);
+          }
+          self.animations.load(data.map, cb);
+        }, 'text');
+      } else {
+        self.workspaceUrl = url;
+        cb();
+      }
     },
 
     save: function (cb) {
