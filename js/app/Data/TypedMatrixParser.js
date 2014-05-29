@@ -98,7 +98,12 @@ define(["app/Class", "app/Events", "app/Data/Pack", "app/Logging"], function (Cl
 
       self.url = url;
       self.isFileUri = url.indexOf("file://") == 0;
-      self.events = new Events("Data.TypedMatrixParser");
+      if (!self.events) {
+        // There is an if around this so we don't overwrite an events
+        // structure from another constructor if someone uses multiple
+        // inheritance...
+        self.events = new Events("Data.TypedMatrixParser");
+      }
     },
 
     setHeaders: function (headers) {
