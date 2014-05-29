@@ -53,7 +53,7 @@ define(["app/Class", "app/Logging", "app/SubscribableDict", "app/UrlValues", "ap
       var self = this;
       return {
         state: self.state.values,
-        animations: self.animations
+        map: self.animations
       };
     },
 
@@ -66,7 +66,7 @@ define(["app/Class", "app/Logging", "app/SubscribableDict", "app/UrlValues", "ap
         for (var name in data.state) {
           self.state.setValue(name, data.state[name]);
         }
-        self.animations.load(data.animations, cb);
+        self.animations.load(data.map, cb);
       }, 'text');
     },
 

@@ -1,7 +1,18 @@
 define(["app/Class", "app/Events", "app/Bounds", "async", "app/Logging", "jQuery", "app/Visualization/Matrix", "CanvasLayer", "Stats", "app/Visualization/Animation/Animation", "app/Visualization/Animation/PointAnimation", "app/Visualization/Animation/LineAnimation", "app/Visualization/Animation/TileAnimation", "app/Visualization/Animation/DebugAnimation", "app/Visualization/Animation/ArrowAnimation"], function(Class, Events, Bounds, async, Logging, $, Matrix, CanvasLayer, Stats, Animation) {
   return Class({
     name: "AnimationManager",
-      initialize: function (visualization) {
+
+    mapOptions: {
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
+      styles: [
+        {
+          featureType: 'poi',
+          stylers: [{visibility: 'off'}]
+        }
+      ]
+    },
+
+    initialize: function (visualization) {
       var self = this;
 
       self.events = new Events("AnimationManager");
@@ -55,29 +66,8 @@ define(["app/Class", "app/Events", "app/Bounds", "async", "app/Logging", "jQuery
     initMap: function (cb) {
       var self = this;
 
-      var mapOptions = {
-        zoom: self.visualization.state.getValue("zoom"),
-        center: new google.maps.LatLng(
-          self.visualization.state.getValue("lat"),
-          self.visualization.state.getValue("lon")),
-        mapTypeId: google.maps.MapTypeId.ROADMAP,
-        styles: [
-          {
-            featureType: 'all',
-            stylers: [
-              {hue: '#0000b0'},
-              {invert_lightness: 'true'},
-              {saturation: -30}
-            ]
-          },
-          {
-            featureType: 'poi',
-            stylers: [{visibility: 'off'}]
-          }
-        ]
-      };
       var mapDiv = document.getElementById('map-div');
-      self.map = new google.maps.Map(mapDiv, mapOptions);
+      self.map = new google.maps.Map(mapDiv, self.mapOptions);
 
       window.addEventListener('resize', self.windowSizeChanged.bind(self), false);
       google.maps.event.addListener(self.map, 'center_changed', self.centerChanged.bind(self));
@@ -344,6 +334,13 @@ define(["app/Class", "app/Events", "app/Bounds", "async", "app/Logging", "jQuery
       self.updateNeeded = true;
     },
 
+    setMapOptions: function (options) {
+      var self = this;
+
+      self.mapOptions = options;
+      self.map.setOptions(options);
+    },
+
     load: function (animations, cb) {
       var self = this;
       self.animations.map(function (animation) {
@@ -351,13 +348,18 @@ define(["app/Class", "app/Events", "app/Bounds", "async", "app/Logging", "jQuery
         animation.destroy();
       });
       self.animations = [];
-      async.map(animations, self.addAnimation.bind(self), cb || function () {});
+
+      if (animations.options) {
+        self.setMapOptions(animations.options);
+      }
+
+      async.map(animations.animations, self.addAnimation.bind(self), cb || function () {});
     },
 
     toJSON: function () {
       var self = this;
 
-      return self.animations;
+      return {animations:self.animations, options:self.mapOptions};
     }
   });
 });
