@@ -13,9 +13,8 @@
 define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Tile", "app/Logging", "jQuery", "app/LangExtensions"], function(Class, Events, Bounds, Format, Tile, Logging, $) {
   var TiledBinFormat = Class(Format, {
     name: "TiledBinFormat",
-    initialize: function(source) {
+    initialize: function() {
       var self = this;
-      self.source = source;
       self.tiles = {};
       Format.prototype.initialize.apply(self, arguments);
     },
@@ -40,7 +39,7 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       }
 
       $.ajax({
-        url: self.source + "/header",
+        url: self.url + "/header",
         dataType: 'json',
         beforeSend: function(jqXHR, settings) {
           for (var key in self.headers) {
@@ -277,10 +276,10 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       var self = this;
       self.error = {
         original: originalEvent,
-        source: self.source,
+        source: self.url,
         toString: function () {
           var self = this;
-          return 'Could not load tileset ' + self.source + ' due to the following error: ' + self.original.toString();
+          return 'Could not load tileset ' + self.url + ' due to the following error: ' + self.original.toString();
         }
       };
       self.events.triggerEvent("error", self.error);
@@ -376,10 +375,19 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
 
       var end = new Date();
       Logging.default.log("Data.TiledBinFormat.mergeTiles", {start: start, end: end, toString: function () { return ((this.end - this.start) / 1000.0).toString(); }});
+    },
+
+    toJSON: function () {
+      return {
+        type: self.name,
+        args: {
+          url: self.url
+        }
+      }
     }
   });
   TiledBinFormat.DataContainer = Class(Format, {});
-  Format.formatClasses.tiledbin = TiledBinFormat;
+  Format.formatClasses.TiledBinFormat = TiledBinFormat;
 
   return TiledBinFormat;
 });

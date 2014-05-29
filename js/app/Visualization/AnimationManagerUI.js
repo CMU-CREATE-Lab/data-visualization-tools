@@ -14,11 +14,15 @@ if (!app.useDojo) {
     "dijit/layout/ContentPane",
     "dijit/Menu",
     "dijit/MenuItem",
+    "dijit/TooltipDialog",
+    "dijit/form/Select",
+    "dijit/form/TextBox",
+    "dijit/form/Button",
     "dijit/popup",
     "dojo/dom",
     "dojo/parser",
     "dojo/domReady!"
-  ], function(Class, Logging, DataViewUI, Animation, $, Fieldset, FloatingPane, ContentPane, Menu, MenuItem, popup){
+  ], function(Class, Logging, DataViewUI, Animation, $, Fieldset, FloatingPane, ContentPane, Menu, MenuItem, TooltipDialog, Select, TextBox, Button, popup){
     return Class({
       name: "VisualizationUI",
       initialize: function (animationManager) {
@@ -55,6 +59,83 @@ if (!app.useDojo) {
         event.animation.animationManagerWidget.destroy();
       },
 
+      addAnimationDialog: function (domNode) {
+        var self = this;
+        var dialog = new TooltipDialog({title: "Add animation:"});
+
+        var typeselect = new Select({
+          name: "typeselect",
+          options: Object.items(Animation.animationClasses).map(function (item) {
+            return {label:item.key, value:item.key};
+          })
+        });
+        dialog.addChild(typeselect);
+
+        var sourceselect = new Select({
+          name: "sourceselect",
+          options: [{label:"New", value:null}].concat(
+            self.animationManager.visualization.data.listSources().map(function (source) {
+              return {label:source.type + ": " + source.args.url, value:source};
+            })
+          )
+        });
+        dialog.addChild(sourceselect);
+
+        var sourcetypeselect = new Select({
+          name: "sourcetypeselect",
+          options: self.animationManager.visualization.data.listSourceTypes().map(function (type) {
+            return {label:type, value:type};
+          })
+        });
+        dialog.addChild(sourcetypeselect);
+
+        var urlbox = new dijit.form.TextBox({
+          name: "url",
+          value: "",
+          placeHolder: "Data source URL"
+        });
+        dialog.addChild(urlbox);
+
+        var addbutton = new Button({
+          label: "Add",
+          onClick: function(){
+            var type = typeselect.get('value');
+            var source = sourceselect.get('value');
+            if (!source) {
+              source = {type:sourcetypeselect.get('value'), args: {url:urlbox.get('value')}};
+            }
+            self.animationManager.addAnimation({type:type, args: {source: source}}, function (err, animation) {});
+            dialog.onExecute();
+          }
+        });
+        dialog.addChild(addbutton);
+
+        var cancelbutton = new Button({
+          label: "Cancel",
+          onClick: function(){
+            dialog.onCancel();
+          }
+        });
+        dialog.addChild(cancelbutton);
+
+        popup.open({
+          popup: dialog,
+          onExecute : function() { 
+            popup.close(dialog);
+            dialog.destroy();
+          }, 
+          onCancel : function() { 
+            popup.close(dialog);
+            dialog.destroy();
+          }, 
+          onClose : function() { 
+            popup.close(dialog);
+            dialog.destroy();
+          }, 
+          around: domNode
+        });
+      },
+
       generateUI: function () {
         var self = this;
 
@@ -65,29 +146,7 @@ if (!app.useDojo) {
           style: "padding-top: 0; padding-bottom: 0;"
         });
         $(title.domNode).find("a.add").click(function () {
-          var typeselect = new Menu({
-            onMouseLeave: function () {
-              popup.close(typeselect);
-            }
-          });
-          Object.items(Animation.animationClasses).map(function (item) {
-            typeselect.addChild(new MenuItem({
-              label: item.key,
-              onClick: function(evt) {
-                self.animationManager.addAnimation({type:item.key}, function (err, animation) {});
-              }
-            }));
-          });
-          popup.open({
-            popup: typeselect,
-            onExecute : function() { 
-              popup.close(typeselect);
-            }, 
-            onCancel : function() { 
-              popup.close(typeselect);
-            }, 
-            around: $(title.domNode).find("a.add")[0]
-          });
+          self.addAnimationDialog($(title.domNode).find("a.add")[0]);
         });
         self.ui.addChild(title);
 

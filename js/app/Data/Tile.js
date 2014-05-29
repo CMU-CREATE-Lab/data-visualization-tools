@@ -6,7 +6,7 @@ define(["app/Class", "app/Data/BinFormat"], function(Class, BinFormat) {
       self.manager = manager;
       self.bounds = bounds;
 
-      BinFormat.prototype.initialize.call(self, self.manager.source + "/" + self.bounds.toBBOX());
+      BinFormat.prototype.initialize.call(self, {url:self.manager.url + "/" + self.bounds.toBBOX()});
       self.setHeaders(self.manager.headers);
     },
     verify: function () {

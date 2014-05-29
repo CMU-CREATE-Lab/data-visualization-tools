@@ -1,4 +1,4 @@
-define(["app/Class", "app/Data/Format", "app/Data/BinFormat", "app/Data/TiledBinFormat"], function(Class, Format) {
+define(["app/Class", "jQuery", "app/Data/Format", "app/Data/BinFormat", "app/Data/TiledBinFormat"], function(Class, $, Format) {
   return Class({
     name: "DataManager",
     initialize: function (visualization) {
@@ -11,26 +11,67 @@ define(["app/Class", "app/Data/Format", "app/Data/BinFormat", "app/Data/TiledBin
     init: function (cb) {
       var self = this;
 
-      self.formatClass = Format.formatClasses[
-        self.visualization.state.getValue("format")];
-
-      self.format = new self.formatClass(self.visualization.state.getValue("source"));
-      self.format.events.on({
-        header: function () {
-          for (var key in self.format.header.options) {
-            self.visualization.state.setValue(key, self.format.header.options[key]);
-          }
+      self.format = self.addSource({
+        type: self.visualization.state.getValue("format"),
+        args: {
+          url: self.visualization.state.getValue("source")
         }
       });
-      self.visualization.state.events.on({
-        httpHeaders: function () {
-          self.format.setHeaders(self.visualization.state.getValue("httpHeaders"));
-        }
-      });
-      self.format.setHeaders(self.visualization.state.getValue("httpHeaders"));
-      self.format.load();
 
       cb();
+    },
+
+    addSource: function (source) {
+      var self = this;
+
+      var key = source.type + "|" + source.args.url;
+      if (!self.sources[key]) {
+        source = {spec:source};
+        self.sources[key] = source;
+        source.usage = 0;
+
+        var formatClass = Format.formatClasses[source.spec.type];
+
+        source.source = new formatClass(source.spec.args);
+        source.source.events.on({
+          header: function () {
+            for (var key in source.source.header.options) {
+              self.visualization.state.setValue(key, source.source.header.options[key]);
+            }
+          }
+        });
+        self.visualization.state.events.on({
+          httpHeaders: function () {
+            source.source.setHeaders(self.visualization.state.getValue("httpHeaders"));
+          }
+        });
+        source.source.setHeaders(self.visualization.state.getValue("httpHeaders"));
+        source.source.load();
+      }
+      self.sources[key].usage++;
+      return self.sources[key].source;
+    },
+
+    removeSource: function (source) {
+      var self = this;
+      var key = source.type + "|" + source.args.url;
+
+      self.sources[key].usage--;
+      if (self.sources[key].usage == 0) {
+        var source = self.sources[key];
+        delete self.sources[key];
+        source.destroy();
+      }
+    },
+
+    listSources: function () {
+      var self = this;
+      return Object.values(self.sources).map(function (source) { return source.spec; });
+    },
+
+    listSourceTypes: function () {
+      var self = this;
+      return Object.keys(Format.formatClasses);
     },
 
     zoomTo: function (bounds) {

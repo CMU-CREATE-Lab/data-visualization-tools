@@ -1,14 +1,13 @@
 define(["app/Class", "app/Events", "app/Data/TypedMatrixParser", "app/Data/Format"], function(Class, Events, TypedMatrixParser, Format) {
   var BinFormat = Class(TypedMatrixParser, Format, {
     name: "BinFormat",
-    initialize: function(source) {
+    initialize: function() {
       var self = this;
-      self.source = source;
       self.loading_started = false;
      
       Format.prototype.initialize.apply(self, arguments);
       // Header and events will be overwritten, with the same values...
-      TypedMatrixParser.prototype.initialize.apply(self, arguments);
+      TypedMatrixParser.prototype.initialize.call(self, self.url);
     },
 
     zoomTo: function () {
@@ -58,8 +57,17 @@ define(["app/Class", "app/Events", "app/Data/TypedMatrixParser", "app/Data/Forma
       // waiting forever if we didn't tell them...
       self.header.length = self.rowcount;
       TypedMatrixParser.prototype.allLoaded.call(self);
+    },
+
+    toJSON: function () {
+      return {
+        type: self.name,
+        args: {
+          url: self.url
+        }
+      }
     }
   });
-  Format.formatClasses.bin = BinFormat;
+  Format.formatClasses.BinFormat = BinFormat;
   return BinFormat;
 });

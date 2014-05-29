@@ -1,13 +1,14 @@
-define(["app/Class", "app/Events"], function(Class, Events) {
+define(["app/Class", "app/Events", "jQuery"], function(Class, Events, $) {
   var Format = Class({
     name: "Format",
-    initialize: function() {
+    initialize: function(args) {
       var self = this;
       self.header = {length: 0, colsByName: {}};
       self.data = {};
       self.rowcount = 0;
       self.seriescount = 0;
       self.events = new Events("Data.Format");
+      if (args) $.extend(self, args);
     },
 
     sortcols: ['series', 'datetime'],
