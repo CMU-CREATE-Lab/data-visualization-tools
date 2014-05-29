@@ -28,7 +28,6 @@ define(["app/Class", "app/Logging", "app/SubscribableDict", "app/UrlValues", "ap
       var self = this;
 
       self.state = new SubscribableDict(self.paramspec);
-      // self.urlhandler = new UrlValues(self.state, self.paramspec);
 
       self.state.events.on({
         logging: function () {
