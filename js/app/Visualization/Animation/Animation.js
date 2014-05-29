@@ -101,7 +101,7 @@ define(["app/Class", "async", "app/Visualization/Shader", "app/Visualization/Geo
 
     updateData: function() {
       var self = this;
-      var format = self.manager.visualization.data.format;
+      var format = self.data_view.source;
       var header = format.header;
       var data = format.data;
 

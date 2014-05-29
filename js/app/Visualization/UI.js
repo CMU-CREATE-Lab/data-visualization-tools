@@ -22,27 +22,33 @@ define(["app/Class", "app/Visualization/AnimationManagerUI", "async", "jQuery", 
 
     initLoadSpinner: function(cb) {
       var self = this;
-      self.visualization.data.format.events.on({
-        load: function () {
-          $("#loading").fadeIn();
-        },
-        all: function () {
-          $("#loading").fadeOut();
-        },
-        // "tile-error": function () {},
-        // update: function () {},
-        error: function (data) {
-          $("#loading").html(data.toString());
-          $("#loading").css({color: "#ff0000", "word-wrap": "break-word", "line-height": "1em", "font-size": "20px"});
-          $("#loading").animate({
-            right: "50%",
-            width: "500px",
-            "margin-right": "-250px",
-            bottom: "50%",
-            height: "200px",
-            "margin-bottom": "-100px",
-            padding: "40px"
-          }, 1000);
+      return cb();
+
+      self.visualization.data.events.on({
+        add: function (source) {
+          source.source.events.on({
+            load: function () {
+              $("#loading").fadeIn();
+            },
+            all: function () {
+              $("#loading").fadeOut();
+            },
+            // "tile-error": function () {},
+            // update: function () {},
+            error: function (data) {
+              $("#loading").html(data.toString());
+              $("#loading").css({color: "#ff0000", "word-wrap": "break-word", "line-height": "1em", "font-size": "20px"});
+              $("#loading").animate({
+                right: "50%",
+                width: "500px",
+                "margin-right": "-250px",
+                bottom: "50%",
+                height: "200px",
+                "margin-bottom": "-100px",
+                padding: "40px"
+              }, 1000);
+            }
+          });
         }
       });
       cb();
@@ -88,9 +94,9 @@ define(["app/Class", "app/Visualization/AnimationManagerUI", "async", "jQuery", 
       var daySliderUpdateMinMax = function() {
         var daySlider = $('#day-slider');
 
-        if (!self.visualization.data.format.header.colsByName.datetime) return;
-        var min = self.visualization.data.format.header.colsByName.datetime.min;
-        var max = self.visualization.data.format.header.colsByName.datetime.max;
+        if (!self.visualization.data.header.colsByName.datetime) return;
+        var min = self.visualization.data.header.colsByName.datetime.min;
+        var max = self.visualization.data.header.colsByName.datetime.max;
         var offset = self.visualization.state.getValue("offset");
 
         offset = Math.min(offset, (max - min) / (24 * 60 * 60 * 1000));
@@ -116,7 +122,7 @@ define(["app/Class", "app/Visualization/AnimationManagerUI", "async", "jQuery", 
         time: daySliderUpdateValue,
         offset: daySliderUpdateMinMax
       });
-      self.visualization.data.format.events.on({update: daySliderUpdateMinMax});
+      self.visualization.data.events.on({update: daySliderUpdateMinMax});
       daySliderUpdateValue();
 
 
@@ -206,6 +212,7 @@ define(["app/Class", "app/Visualization/AnimationManagerUI", "async", "jQuery", 
       var self = this;
 
       self.animations = new AnimationManagerUI(self.visualization.animations);
+      cb();
     }
   });
 });

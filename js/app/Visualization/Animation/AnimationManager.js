@@ -238,8 +238,8 @@ define(["app/Class", "app/Events", "app/Bounds", "async", "app/Logging", "jQuery
         self.lastUpdate = undefined;
       } else {
         var time = self.visualization.state.getValue("time").getTime();
-        var min = self.visualization.data.format.header.colsByName.datetime.min;
-        var max = self.visualization.data.format.header.colsByName.datetime.max;
+        var min = self.visualization.data.header.colsByName.datetime.min;
+        var max = self.visualization.data.header.colsByName.datetime.max;
         var timeNow = new Date().getTime();
 
         if (self.lastUpdate == undefined) {
@@ -282,10 +282,10 @@ define(["app/Class", "app/Events", "app/Bounds", "async", "app/Logging", "jQuery
 
       var time = self.visualization.state.getValue("time");
       var paused = self.visualization.state.getValue("paused");
-      if (!self.visualization.data.format.header.colsByName.datetime) paused = true;
+      if (!self.visualization.data.header.colsByName.datetime) paused = true;
       if (!paused) {
-        var min = self.visualization.data.format.header.colsByName.datetime.min;
-        var max = self.visualization.data.format.header.colsByName.datetime.max;
+        var min = self.visualization.data.header.colsByName.datetime.min;
+        var max = self.visualization.data.header.colsByName.datetime.max;
         if (time < min || time > max) paused = true;
       }
 

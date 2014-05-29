@@ -28,31 +28,25 @@ define(["app/Class", "app/Logging", "app/SubscribableDict", "app/UrlValues", "ap
       var self = this;
 
       self.state = new SubscribableDict(self.paramspec);
-      self.urlhandler = new UrlValues(self.state, self.paramspec);
+      // self.urlhandler = new UrlValues(self.state, self.paramspec);
 
       self.state.events.on({
         logging: function () {
           Logging.default.setRules(self.state.getValue("logging"));
         }
       });
-      Logging.default.setRules(self.state.getValue("logging"));
 
       self.data = new DataManager(self);
-
-      var animations = self.state.getValue("animations").map(function (name) {
-        return {type:name, args:{}};
-      });
-
       self.animations = new AnimationManager(self);
       self.ui = new UI(self);
 
       async.series([
         self.data.init.bind(self.data),
         self.animations.init.bind(self.animations),
-          self.ui.init.bind(self.ui),
-          function (cb) {
-            self.animations.load({animationSpecs:animations}, cb);
-          }
+        self.ui.init.bind(self.ui),
+        function (cb) {
+          self.load(UrlValues.getParameter("workspace"), cb);
+        }
       ]);
     },
 
