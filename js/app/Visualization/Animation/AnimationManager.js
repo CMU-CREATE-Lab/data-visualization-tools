@@ -8,6 +8,7 @@ define(["app/Class", "app/Events", "app/Bounds", "async", "app/Logging", "jQuery
 
       self.visualization = visualization;
       self.indrag = false;
+      self.inPanZoom = false;
     },
 
     init: function (cb) {
@@ -148,7 +149,13 @@ define(["app/Class", "app/Events", "app/Bounds", "async", "app/Logging", "jQuery
     initUpdates: function (cb) {
       var self = this;
 
-      self.visualization.state.events.on({set: self.triggerUpdate, scope: self});
+      self.visualization.state.events.on({
+        set: self.triggerUpdate,
+        lat: self.panZoom,
+        lon: self.panZoom,
+        zoom: self.panZoom,
+        scope: self
+      });
       cb();
     },
 
@@ -188,16 +195,32 @@ define(["app/Class", "app/Events", "app/Bounds", "async", "app/Logging", "jQuery
       google.maps.event.trigger(self.map, 'resize');
     },
 
+    panZoom: function () {
+      var self = this;
+
+      if (!self.inPanZoom) {
+        self.map.setCenter({
+          lat: self.visualization.state.getValue("lat"),
+          lng: self.visualization.state.getValue("lon")
+        });
+        self.map.setZoom(self.visualization.state.getValue("zoom"));
+      }
+    },
+
     centerChanged: function() {
       var self = this;
+      self.inPanZoom = true;
       self.visualization.state.setValue("lat", self.map.getCenter().lat());
       self.visualization.state.setValue("lon", self.map.getCenter().lng());
+      self.inPanZoom = false;
       self.triggerUpdate();
     },
 
     zoomChanged: function() {
       var self = this;
+      self.inPanZoom = true;
       self.visualization.state.setValue("zoom", self.map.getZoom());
+      self.inPanZoom = false;
       self.triggerUpdate();
     },
 
