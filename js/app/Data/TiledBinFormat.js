@@ -254,17 +254,20 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
 
       self.mergeTile(tile);
 
-      var all_done = self.getTiles(
-        ).map(function (tile) { return tile.header && tile.header.length == tile.rowcount }
+      var e;
+      e = {update: "full-tile", tile: tile};
+      self.events.triggerEvent(e.update, e);
+
+      var allDone = self.getTiles(
+        ).map(function (tile) { return tile.allIsLoaded; }
         ).reduce(function (a, b) { return a && b; });
 
-      var e;
-      if (all_done) {
-        e = {update: "all"};
-      } else {
-        e = {update: "full-tile", tile: tile};
+      if (allDone) {
+        e = {update: "all", tile: tile};
+        self.events.triggerEvent(e.update, e);
+        self.events.triggerEvent("update", e);
       }
-      self.events.triggerEvent(e.update, e);
+
       self.events.triggerEvent("update", e);
     },
 
