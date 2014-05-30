@@ -5,13 +5,13 @@ define(["app/Class", "QUnit", "app/Test/BaseTest", "app/Data/BinFormat", "app/Da
     "Transform data": function (cb) {
       QUnit.expect(3);
 
-      var p = new BinFormat(require.toUrl("app/Test/Data/foo.bin"));
-      dv = new DataView(p, {
+      var p = new BinFormat({url:require.toUrl("app/Test/Data/foo.bin")});
+      dv = new DataView(p, {columns: {
         fie: {type: "Float32", items: [
           {name: "fooitem", source: {foo: 1.0}},
           {name: "baritem", source: {bar: 1.0}},
           {name: "avg", source: {foo: 0.5, bar: 0.5}}]},
-      });
+      }});
       dv.events.on({
         all: function () {
           QUnit.equal(dv.data.fie[dv.header.colsByName.fie.items.length * 2 + 0], 6, "First value matches");
@@ -28,13 +28,13 @@ define(["app/Class", "QUnit", "app/Test/BaseTest", "app/Data/BinFormat", "app/Da
     "Select rows": function (cb) {
       QUnit.expect(6);
 
-      p = new BinFormat(require.toUrl("app/Test/Data/foo.bin"));
+      p = new BinFormat({url:require.toUrl("app/Test/Data/foo.bin")});
       p.sortcols = ['foo'];
-      dv = new DataView(p, {
+      dv = new DataView(p, {columns: {
         foo: {type: "Int32", items: [{name: "foo", source: {foo: 1}}]},
         bar: {type: "Int32", items: [{name: "bar", source: {bar: 1}}]},
         selected: {type: "Int32", items: [{name: "selected", source: {selected: 1}}]}
-      });
+        }});
       dv.events.on({
         all: function () {
           dv.selections.selected.addRange(p, 1, 1);

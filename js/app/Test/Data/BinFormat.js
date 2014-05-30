@@ -5,7 +5,7 @@ define(["app/Class", "QUnit", "app/Test/BaseTest", "app/Data/BinFormat"], functi
     "Load data": function (cb) {
       QUnit.expect(5);
 
-      var p = new BinFormat(require.toUrl("app/Test/Data/foo.bin"));
+      var p = new BinFormat({url:require.toUrl("app/Test/Data/foo.bin")});
       p.events.on({
         all: function () {
           QUnit.equal(p.header.test, 4711, "Support for extra header values");
