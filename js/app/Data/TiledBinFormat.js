@@ -15,6 +15,7 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
     name: "TiledBinFormat",
     initialize: function() {
       var self = this;
+      self.tileCache = {};
       self.tiles = {};
       Format.prototype.initialize.apply(self, arguments);
     },
@@ -174,11 +175,13 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       var tiles = {};
       var old_tiles = self.tiles;
       self.tileBoundsForRegion(bounds).map(function (tilebounds) {
-        if (old_tiles[tilebounds.toBBOX()] != undefined) {
-          tiles[tilebounds.toBBOX()] = old_tiles[tilebounds.toBBOX()];
+        var key = tilebounds.toBBOX();
+        if (old_tiles[key] != undefined) {
+          tiles[key] = old_tiles[tilebounds.toBBOX()];
         } else {
-          tiles[tilebounds.toBBOX()] = self.setUpTile(tilebounds);
+          tiles[key] = self.setUpTile(tilebounds);
         }
+        tiles[key].reference();
       });
       self.tiles = tiles;
 
@@ -204,11 +207,8 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
         }
       });
 
-      // Cancel the loading of any tiles we aren't gonna use any more that are still loading...
       Object.items(old_tiles).map(function (item) {
-        if (tiles[item.key] == undefined) {
-          item.value.cancel();
-        }
+        item.value.dereference();
       });
 
       // Merge any already loaded tiles
@@ -221,14 +221,26 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
 
     setUpTile: function (tilebounds) {
       var self = this;
-      var tile = new Tile(self, tilebounds);
-      tile.events.on({
-        "batch": function () { self.handleBatch(tile); },
-        "all": function () { self.handleFullTile(tile); },
-        "error": function (data) { self.handleTileError(data, tile); },
-        scope: self
-      });
-      return tile;
+      var key = tilebounds.toBBOX();
+
+      if (!self.tileCache[key]) {
+        var tile = new Tile(self, tilebounds);
+        tile.events.on({
+          "batch": self.handleBatch.bind(self, tile),
+          "all": self.handleFullTile.bind(self, tile),
+          "error": self.handleTileError.bind(self, tile),
+          "destroy": self.handleTileRemoval.bind(self, tile),
+          scope: self
+        });
+        self.tileCache[key] = tile;
+      }
+
+      return self.tileCache[key];
+    },
+
+    handleTileRemoval: function (tile) {
+      var self = this;
+      delete self.tileCache[tile.bounds.toBBOX()];
     },
 
     handleBatch: function (tile) {
@@ -256,15 +268,15 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       self.events.triggerEvent("update", e);
     },
 
-    handleTileError: function (data, tile) {
+    handleTileError: function (tile, data) {
       var self = this;
       data.tile = tile;
       var bounds = self.extendTileBounds(tile.bounds);
 
-          console.log(["tile-error", data, bounds]);
       if (bounds) {
-        tile.replacement = self.setUpTile(bounds);
-        tile.replacement.load();
+        var replacement = self.setUpTile(bounds);
+        tile.replace(replacement);
+        replacement.load();
 
         self.events.triggerEvent("tile-error", data);
       } else {
@@ -279,7 +291,7 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
         source: self.url,
         toString: function () {
           var self = this;
-          return 'Could not load tileset ' + self.url + ' due to the following error: ' + self.original.toString();
+          return 'Could not load tileset ' + self.source + ' due to the following error: ' + self.original.toString();
         }
       };
       self.events.triggerEvent("error", self.error);

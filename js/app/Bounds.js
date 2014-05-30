@@ -40,6 +40,17 @@ define(["app/Class"], function(Class) {
         return ((x > this.left) && (x < this.right) && 
                 (y > this.bottom) && (y < this.top));
       }
+    },
+
+    /* Extensions on top of what OpenLayers support */
+    toString: function () {
+      var self = this;
+      return self.toBBOX();
+    },
+
+    toJSON: function () {
+      var self = this;
+      return {left:self.left, right:self.right, top:self.top, bottom:self.bottom}
     }
   });
 });

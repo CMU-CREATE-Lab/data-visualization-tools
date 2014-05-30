@@ -3,8 +3,6 @@ define(["app/Class", "app/Events", "app/Bounds", "async", "app/Logging", "jQuery
     name: "AnimationManager",
 
     mapOptions: {
-      zoom: 1,
-      center: {lat: 0, lng: 0},
       mapTypeId: google.maps.MapTypeId.ROADMAP,
       styles: [
         {
@@ -69,7 +67,16 @@ define(["app/Class", "app/Events", "app/Bounds", "async", "app/Logging", "jQuery
       var self = this;
 
       var mapDiv = document.getElementById('map-div');
-      self.map = new google.maps.Map(mapDiv, self.mapOptions);
+      self.map = new google.maps.Map(
+        mapDiv,
+        $.extend(
+          {
+            zoom: 1,
+            center: {lat: 0, lng: 0}
+          },
+          self.mapOptions
+        )
+      );
 
       window.addEventListener('resize', self.windowSizeChanged.bind(self), false);
       google.maps.event.addListener(self.map, 'center_changed', self.centerChanged.bind(self));
@@ -337,6 +344,10 @@ define(["app/Class", "app/Events", "app/Bounds", "async", "app/Logging", "jQuery
 
     setMapOptions: function (options) {
       var self = this;
+
+      options = $.extend({}, options);
+      delete options.zoom;
+      delete options.center;
 
       self.mapOptions = options;
       self.map.setOptions(options);

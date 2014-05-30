@@ -6,9 +6,13 @@ define(["app/Class", "app/Data/BinFormat"], function(Class, BinFormat) {
       self.manager = manager;
       self.bounds = bounds;
 
+      self.replacement = undefined;
+      self.usage = 0;
+
       BinFormat.prototype.initialize.call(self, {url:self.manager.url + "/" + self.bounds.toBBOX()});
       self.setHeaders(self.manager.headers);
     },
+
     verify: function () {
       var self = this;
       var res = {
@@ -32,6 +36,44 @@ define(["app/Class", "app/Data/BinFormat"], function(Class, BinFormat) {
         res[virtname][inoutname]++;
       }
       return res;
+    },
+
+    replace: function (replacement) {
+      if (replacement) {
+        replacement.reference();
+      }
+      if (self.replacement) {
+        self.replacement.dereference();
+      }
+      self.replacement = replacement;
+    },
+
+    reference: function () {
+      self.usage++;
+    },
+
+    dereference: function () {
+      self.usage--;
+      if (self.usage <= 0) {
+        self.destroy();
+      }
+    },
+
+    destroy: function () {
+      item.value.cancel();
+      if (self.replacement) {
+        self.replacement.dereference()
+      }
+      self.events.triggerEvent("destroy");
+    },
+
+    toString: function () {
+      return self.bounds.toString();
+    },
+
+    toJSON: function () {
+      return self.bounds;
     }
+
   });
 });
