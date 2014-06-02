@@ -60,7 +60,11 @@ define([], function() {
 
   Date.prototype.oldToJSON = Date.prototype.toJSON;
   Date.prototype.toJSON = function () {
-    return {__jsonclass__: ["Date", this.toISOString()]};
+    var value = undefined;
+    try {
+      value = this.toISOString();
+    } catch (e) {};
+    return {__jsonclass__: ["Date", value]};
   }
 });
 

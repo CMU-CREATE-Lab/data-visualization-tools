@@ -10,7 +10,7 @@ define(["app/Class", "jQuery"], function(Class, $) {
   };
 
   Json.reviver = function (key, value) {
-    if (value.__jsonclass__ && value.__jsonclass__.length > 0) {
+    if (value && value.__jsonclass__ && value.__jsonclass__.length > 0) {
       var args = value.__jsonclass__;
 
       var constr = window;

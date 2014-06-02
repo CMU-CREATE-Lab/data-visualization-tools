@@ -352,12 +352,30 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
         return {value: tile, merged_rowcount: 0};
       });
 
+      var coalesce = function(fn, val1, val2) {
+        if (val1 == undefined) return val2;
+        if (val2 == undefined) return val1;
+        return fn(val1, val2);
+      }
+
       // FIXME: Handle min/max values correctly here!!!!
       tiles.map(function (tile) {
         if (!tile.value.header) return;
 
         dst.header.length += tile.value.header.length;
-        dst.header.colsByName = $.extend(dst.header.colsByName, tile.value.header.colsByName);
+
+        Object.items(tile.value.header.colsByName).map(function (item) {
+          var dstval = dst.header.colsByName[item.key] || {};
+          var srcval = item.value || {};
+
+          var min = coalesce(Math.min, dstval.min, srcval.min);
+          var max = coalesce(Math.max, dstval.max, srcval.max);
+          $.extend(dstval || {}, srcval);
+          dstval.min = min;
+          dstval.max = max;
+
+          dst.header.colsByName[item.key] = dstval;
+        });
       });
 
       for (var name in dst.header.colsByName) {
@@ -401,7 +419,7 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       }
     }
   });
-  TiledBinFormat.DataContainer = Class(Format, {});
+  TiledBinFormat.DataContainer = Class(Format, {name: "DataContainer"});
   Format.formatClasses.TiledBinFormat = TiledBinFormat;
 
   return TiledBinFormat;
