@@ -10,11 +10,12 @@
   tm.zoomTo(new Bounds(0, 0, 11.25, 11.25));
 */
 
-define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Tile", "app/Logging", "jQuery", "app/LangExtensions"], function(Class, Events, Bounds, Format, Tile, Logging, $) {
+define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Tile", "app/Data/Pack", "app/Logging", "jQuery", "app/LangExtensions"], function(Class, Events, Bounds, Format, Tile, Pack, Logging, $) {
   var TiledBinFormat = Class(Format, {
     name: "TiledBinFormat",
     initialize: function() {
       var self = this;
+      self.tilesetHeader = {};
       self.tileCache = {};
       self.tiles = {};
       Format.prototype.initialize.apply(self, arguments);
@@ -33,7 +34,7 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
     load: function () {
       var self = this;
       if (self.error) {
-        /* Retrow error, to not confuse code that expects either an
+        /* Rethrow error, to not confuse code that expects either an
          * error or a load event... */
         self.events.triggerEvent("error", self.error);
         return;
@@ -53,8 +54,15 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
           return true;
         },
         success: function(data, textStatus, jqXHR) {
-          $.extend(self.header, data);
-          self.events.triggerEvent("header", data);
+          self.tilesetHeader = data;
+
+          if (data.colsByName) {
+            Object.values(data.colsByName).map(function (col) {
+              col.typespec = Pack.typemap.byname[col.type];
+            });
+          }
+
+          self.mergeTile(self);
         },
         error: function(jqXHR, textStatus, errorThrown) {
           self.handleError({
@@ -343,6 +351,7 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       var start = new Date();
 
       dst = new TiledBinFormat.DataContainer();
+      $.extend(true, dst.header, self.tilesetHeader);
 
       if (tiles == undefined) {
         tiles = self.getTiles();
