@@ -63,6 +63,7 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
           }
 
           self.mergeTile(self);
+          self.events.triggerEvent("header", data);
         },
         error: function(jqXHR, textStatus, errorThrown) {
           self.handleError({
