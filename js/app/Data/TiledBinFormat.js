@@ -16,8 +16,12 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
     initialize: function() {
       var self = this;
       self.tilesetHeader = {};
+      /* Any tiles we have loaded that we still need (maybe because
+       * they are wanted, or no wanted tile for that area has loaded
+       * fully yet */
       self.tileCache = {};
-      self.tiles = {};
+      /* The tiles we really want to display. Might not all be loaded yet, or might have replacements... */
+      self.wantedTiles = {};
       Format.prototype.initialize.apply(self, arguments);
     },
 
@@ -176,55 +180,56 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
         return;
       }
 
-      var old_bounds = self.bounds;
+      var oldBounds = self.bounds;
       self.bounds = bounds;
 
       self.events.triggerEvent("load");
 
-      var tiles = {};
-      var old_tiles = self.tiles;
-      self.tileBoundsForRegion(bounds).map(function (tilebounds) {
+      var wantedTileBounds = self.tileBoundsForRegion(bounds);
+      var wantedTiles = {};
+      var oldWantedTiles = self.wantedTiles;
+      wantedTileBounds.map(function (tilebounds) {
         var key = tilebounds.toBBOX();
-        if (old_tiles[key] != undefined) {
-          tiles[key] = old_tiles[tilebounds.toBBOX()];
+        if (oldWantedTiles[key] != undefined) {
+          wantedTiles[key] = oldWantedTiles[tilebounds.toBBOX()];
         } else {
-          tiles[key] = self.setUpTile(tilebounds);
+          wantedTiles[key] = self.setUpTile(tilebounds);
         }
-        tiles[key].reference();
+        wantedTiles[key].reference();
       });
-      self.tiles = tiles;
+      self.wantedTiles = wantedTiles;
 
       Logging.default.log("Data.TiledBinFormat.zoomTo", {
-        old_bounds: old_bounds,
-        new_bounds: bounds,
-        new_tiles: Object.keys(tiles),
-        old_tiles: Object.keys(old_tiles),
+        oldBounds: oldBounds,
+        newBounds: bounds,
+        newWantedTiles: Object.keys(wantedTiles),
+        oldWantedTiles: Object.keys(oldWantedTiles),
         toString: function () {
           var self = this;
-          var new_tiles = this.new_tiles.filter(function (bbox) {
-              return self.old_tiles.indexOf(bbox) == -1
+          var newWantedTiles = this.newWantedTiles.filter(function (bbox) {
+              return self.oldWantedTiles.indexOf(bbox) == -1
           }).join(", ");
-          var old_tiles = this.old_tiles.filter(function (bbox) {
-              return self.new_tiles.indexOf(bbox) == -1
+          var oldWantedTiles = this.oldWantedTiles.filter(function (bbox) {
+              return self.newWantedTiles.indexOf(bbox) == -1
           }).join(", ");
-          var existing_tiles = this.new_tiles.filter(function (bbox) {
-              return self.old_tiles.indexOf(bbox) != -1
+          var existing_wantedTiles = this.newWantedTiles.filter(function (bbox) {
+              return self.oldWantedTiles.indexOf(bbox) != -1
           }).join(", ");
-          var old_bounds = self.old_bounds != undefined ? self.old_bounds.toBBOX() : "undefined";
-          var new_bounds = self.new_bounds != undefined ? self.new_bounds.toBBOX() : "undefined";
-          return old_bounds + " -> " + new_bounds + ":\n  Added: " + new_tiles + "\n  Removed: " + old_tiles + "\n  Kept: " + existing_tiles + "\n";
+          var oldBounds = self.oldBounds != undefined ? self.oldBounds.toBBOX() : "undefined";
+          var newBounds = self.newBounds != undefined ? self.newBounds.toBBOX() : "undefined";
+          return oldBounds + " -> " + newBounds + ":\n  Added: " + newWantedTiles + "\n  Removed: " + oldWantedTiles + "\n  Kept: " + existing_wantedTiles + "\n";
         }
       });
 
-      Object.items(old_tiles).map(function (item) {
+      Object.items(oldWantedTiles).map(function (item) {
         item.value.dereference();
       });
 
       // Merge any already loaded tiles
       self.mergeTiles();
 
-      self.tileBoundsForRegion(bounds).map(function (tilebounds) {
-        tiles[tilebounds.toBBOX()].load();
+      wantedTileBounds.map(function (tilebounds) {
+        self.wantedTiles[tilebounds.toBBOX()].load();
       });
     },
 
@@ -267,7 +272,7 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       e = {update: "full-tile", tile: tile};
       self.events.triggerEvent(e.update, e);
 
-      var allDone = self.getTiles(
+      var allDone = Object.values(self.tileCache
         ).map(function (tile) { return tile.allIsLoaded; }
         ).reduce(function (a, b) { return a && b; });
 
@@ -309,15 +314,6 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       self.events.triggerEvent("error", self.error);
     },
 
-    getTiles: function () {
-      var self = this;
-
-      return Object.values(self.tiles).map(function (tile) {
-        while (tile.replacement != undefined) tile = tile.replacement;
-        return tile;
-      });
-    },
-
     mergeTile: function (tile) {
       var self = this;
       // A TiledBinFormat instance can be treated as a tile itself, as
@@ -355,7 +351,7 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       $.extend(true, dst.header, self.tilesetHeader);
 
       if (tiles == undefined) {
-        tiles = self.getTiles();
+        tiles = Object.values(self.tileCache)
       }
 
       tiles = tiles.map(function (tile) {

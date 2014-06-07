@@ -6,11 +6,14 @@ define(["app/Class", "app/Data/BinFormat"], function(Class, BinFormat) {
       self.manager = manager;
       self.bounds = bounds;
 
+      self.overlaps = [];
       self.replacement = undefined;
       self.usage = 0;
 
       BinFormat.prototype.initialize.call(self, {url:self.manager.url + "/" + self.bounds.toBBOX()});
       self.setHeaders(self.manager.headers);
+
+      self.findOverlaps();
     },
 
     verify: function () {
@@ -38,7 +41,32 @@ define(["app/Class", "app/Data/BinFormat"], function(Class, BinFormat) {
       return res;
     },
 
+    findOverlaps: function () {
+      var self = this;
+      self.overlaps = Object.values(self.manager.tileCache).filter(function (tile) {
+        return tile.bounds.intersectsBounds(self.bounds);
+      });
+      self.overlaps.map(function (tile) {
+        tile.reference();
+      });
+    },
+
+    removeOverlaps: function () {
+      var self = this;
+      self.overlaps.map(function (tile) {
+        tile.dereference();
+      });
+      self.overlaps = [];
+    },
+
+    allLoaded: function () {
+      var self = this;
+      self.removeOverlaps();
+      BinFormat.prototype.allLoaded.apply(self, arguments);
+    },
+
     replace: function (replacement) {
+      var self = this;
       if (replacement) {
         replacement.reference();
       }
@@ -49,10 +77,12 @@ define(["app/Class", "app/Data/BinFormat"], function(Class, BinFormat) {
     },
 
     reference: function () {
+      var self = this;
       self.usage++;
     },
 
     dereference: function () {
+      var self = this;
       self.usage--;
       if (self.usage <= 0) {
         self.destroy();
@@ -60,18 +90,22 @@ define(["app/Class", "app/Data/BinFormat"], function(Class, BinFormat) {
     },
 
     destroy: function () {
-      item.value.cancel();
+      var self = this;
+      self.cancel();
+      self.removeOverlaps();
       if (self.replacement) {
-        self.replacement.dereference()
+        self.replacement.dereference();
       }
       self.events.triggerEvent("destroy");
     },
 
     toString: function () {
+      var self = this;
       return self.bounds.toString();
     },
 
     toJSON: function () {
+      var self = this;
       return self.bounds;
     }
 
