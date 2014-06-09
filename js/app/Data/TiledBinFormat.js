@@ -10,7 +10,7 @@
   tm.zoomTo(new Bounds(0, 0, 11.25, 11.25));
 */
 
-define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Tile", "app/Data/Pack", "app/Logging", "jQuery", "app/LangExtensions"], function(Class, Events, Bounds, Format, Tile, Pack, Logging, $) {
+define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Tile", "app/Data/Pack", "app/Data/BinFormat", "app/Logging", "jQuery", "app/LangExtensions"], function(Class, Events, Bounds, Format, Tile, Pack, BinFormat, Logging, $) {
   var TiledBinFormat = Class(Format, {
     name: "TiledBinFormat",
     initialize: function() {
@@ -233,12 +233,23 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       });
     },
 
+    addContentToTile: function (tile) {
+      var self = this;
+      tile.content = new BinFormat({url:self.url + "/" + tile.bounds.toBBOX()});
+      tile.content.setHeaders(self.headers);
+    },
+
     setUpTile: function (tilebounds) {
       var self = this;
       var key = tilebounds.toBBOX();
 
       if (!self.tileCache[key]) {
         var tile = new Tile(self, tilebounds);
+
+        self.addContentToTile(tile);
+
+        tile.findOverlaps();
+
         tile.content.events.on({
           "batch": self.handleBatch.bind(self, tile),
           "all": self.handleFullTile.bind(self, tile),

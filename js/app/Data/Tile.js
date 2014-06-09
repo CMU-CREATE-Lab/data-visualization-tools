@@ -1,4 +1,4 @@
-define(["app/Class", "app/Data/BinFormat", "app/Events"], function(Class, BinFormat, Events) {
+define(["app/Class", "app/Events"], function(Class, Events) {
   return Class({
     name: "Tile",
     initialize: function(manager, bounds) {
@@ -9,12 +9,9 @@ define(["app/Class", "app/Data/BinFormat", "app/Events"], function(Class, BinFor
       self.overlaps = [];
       self.replacement = undefined;
       self.usage = 0;
+      self.content = undefined; // An instance of Format
 
       self.events = new Events("Data.Tile");
-      self.content = new BinFormat({url:self.manager.url + "/" + self.bounds.toBBOX()});
-      self.content.setHeaders(self.manager.headers);
-
-      self.findOverlaps();
     },
 
     verify: function () {
