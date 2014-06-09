@@ -34,6 +34,7 @@ define(["app/Class", "app/Logging", "app/SubscribableDict", "app/UrlValues", "ap
           Logging.default.setRules(self.state.getValue("logging"));
         }
       });
+      Logging.default.setRules(self.state.getValue("logging"));
 
       self.data = new DataManager(self);
       self.animations = new AnimationManager(self);
