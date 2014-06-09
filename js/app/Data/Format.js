@@ -18,6 +18,8 @@ define(["app/Class", "app/Events", "jQuery"], function(Class, Events, $) {
       self.headers = headers || {};
     },
 
+    cancel: function () {},
+
     sortcols: ['series', 'datetime'],
 
     compareRows: function(rowdix, other, otheridx) {

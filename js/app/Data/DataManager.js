@@ -1,4 +1,4 @@
-define(["app/Class", "jQuery", "app/Events", "app/Data/Format", "app/Data/EmptyFormat", "app/Data/BinFormat", "app/Data/TiledBinFormat"], function(Class, $, Events, Format) {
+define(["app/Class", "jQuery", "app/Events", "app/Data/Format", "app/Data/TiledBinFormat", "app/Data/BinFormat", "app/Data/EmptyFormat", "app/Data/TiledEmptyFormat"], function(Class, $, Events, Format) {
   return Class({
     name: "DataManager",
     initialize: function (visualization) {
