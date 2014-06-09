@@ -13,6 +13,11 @@ define(["app/Class", "app/Events", "jQuery"], function(Class, Events, $) {
       if (args) $.extend(self, args);
     },
 
+    setHeaders: function (headers) {
+      var self = this;
+      self.headers = headers || {};
+    },
+
     sortcols: ['series', 'datetime'],
 
     compareRows: function(rowdix, other, otheridx) {
