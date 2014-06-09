@@ -212,12 +212,12 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
           var oldWantedTiles = this.oldWantedTiles.filter(function (bbox) {
               return self.newWantedTiles.indexOf(bbox) == -1
           }).join(", ");
-          var existing_wantedTiles = this.newWantedTiles.filter(function (bbox) {
+          var existingWantedTiles = this.newWantedTiles.filter(function (bbox) {
               return self.oldWantedTiles.indexOf(bbox) != -1
           }).join(", ");
           var oldBounds = self.oldBounds != undefined ? self.oldBounds.toBBOX() : "undefined";
           var newBounds = self.newBounds != undefined ? self.newBounds.toBBOX() : "undefined";
-          return oldBounds + " -> " + newBounds + ":\n  Added: " + newWantedTiles + "\n  Removed: " + oldWantedTiles + "\n  Kept: " + existing_wantedTiles + "\n";
+          return oldBounds + " -> " + newBounds + ":\n  Added: " + newWantedTiles + "\n  Removed: " + oldWantedTiles + "\n  Kept: " + existingWantedTiles + "\n";
         }
       });
 
@@ -329,7 +329,7 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       var self = this;
 
       function compareTiles(a, b) {
-        if (a.value.compareRows(a.merged_rowcount, b.value, b.merged_rowcount) > 0) {
+        if (a.value.content.compareRows(a.merged_rowcount, b.value.content, b.merged_rowcount) > 0) {
           return b;
         } else {
           return a;
@@ -339,11 +339,11 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       function nextTile(tiles) {
         if (!tiles.length) return undefined;
         res = tiles.reduce(function (a, b) {
-          if (a.value.data == undefined || b.merged_rowcount >= b.value.rowcount) return a;
-          if (b.value.data == undefined || a.merged_rowcount >= a.value.rowcount) return b;
+          if (a.value.content.data == undefined || b.merged_rowcount >= b.value.content.rowcount) return a;
+          if (b.value.content.data == undefined || a.merged_rowcount >= a.value.content.rowcount) return b;
           return compareTiles(a, b);
         });
-        if (res.merged_rowcount >= res.value.rowcount) return undefined;
+        if (res.merged_rowcount >= res.value.content.rowcount) return undefined;
         res.merged_rowcount++;
         return res;
       }
