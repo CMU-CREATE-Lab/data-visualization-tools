@@ -351,7 +351,9 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       $.extend(true, dst.header, self.tilesetHeader);
 
       if (tiles == undefined) {
-        tiles = Object.values(self.tileCache)
+        tiles = Object.values(self.tileCache).filter(function (tile) {
+          return tile.allIsLoaded;
+        });
       }
 
       tiles = tiles.map(function (tile) {
