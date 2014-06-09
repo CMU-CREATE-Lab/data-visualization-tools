@@ -229,7 +229,7 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       self.mergeTiles();
 
       wantedTileBounds.map(function (tilebounds) {
-        self.wantedTiles[tilebounds.toBBOX()].load();
+        self.wantedTiles[tilebounds.toBBOX()].content.load();
       });
     },
 
@@ -239,10 +239,13 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
 
       if (!self.tileCache[key]) {
         var tile = new Tile(self, tilebounds);
-        tile.events.on({
+        tile.content.events.on({
           "batch": self.handleBatch.bind(self, tile),
           "all": self.handleFullTile.bind(self, tile),
           "error": self.handleTileError.bind(self, tile),
+          scope: self
+        });
+        tile.events.on({
           "destroy": self.handleTileRemoval.bind(self, tile),
           scope: self
         });
@@ -273,7 +276,7 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       self.events.triggerEvent(e.update, e);
 
       var allDone = Object.values(self.tileCache
-        ).map(function (tile) { return tile.allIsLoaded; }
+        ).map(function (tile) { return tile.content.allIsLoaded; }
         ).reduce(function (a, b) { return a && b; });
 
       if (allDone) {
@@ -293,7 +296,7 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       if (bounds) {
         var replacement = self.setUpTile(bounds);
         tile.replace(replacement);
-        replacement.load();
+        replacement.content.load();
 
         self.events.triggerEvent("tile-error", data);
       } else {
@@ -319,7 +322,7 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       // A TiledBinFormat instance can be treated as a tile itself, as
       // it's a subclass of Format. This way, we can merge one more
       // tile without revisiting all the other already loaded tiles.
-      self.mergeTiles([self, tile]);
+      self.mergeTiles([{content:self}, tile]);
     },
 
     mergeTiles: function (tiles) {
@@ -352,7 +355,7 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
 
       if (tiles == undefined) {
         tiles = Object.values(self.tileCache).filter(function (tile) {
-          return tile.allIsLoaded;
+          return tile.content.allIsLoaded;
         });
       }
 
@@ -366,13 +369,12 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
         return fn(val1, val2);
       }
 
-      // FIXME: Handle min/max values correctly here!!!!
       tiles.map(function (tile) {
-        if (!tile.value.header) return;
+        if (!tile.value.content.header) return;
 
-        dst.header.length += tile.value.header.length;
+        dst.header.length += tile.value.content.header.length;
 
-        Object.items(tile.value.header.colsByName).map(function (item) {
+        Object.items(tile.value.content.header.colsByName).map(function (item) {
           var dstval = dst.header.colsByName[item.key] || {};
           var srcval = item.value || {};
 
@@ -395,16 +397,16 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       var tile;
       while (tile = nextTile(tiles)) {
         for (var name in dst.data) {
-          if (tile.value.data[name] == undefined) {
+          if (tile.value.content.data[name] == undefined) {
             dst.data[name][dst.rowcount] = NaN;
           } else {
-            dst.data[name][dst.rowcount] = tile.value.data[name][tile.merged_rowcount-1];
+            dst.data[name][dst.rowcount] = tile.value.content.data[name][tile.merged_rowcount-1];
           }
         }
         dst.rowcount++;
-        if (tile.value.data.series[tile.merged_rowcount-1] != lastSeries) {
+        if (tile.value.content.data.series && tile.value.content.data.series[tile.merged_rowcount-1] != lastSeries) {
           dst.seriescount++;
-          lastSeries = tile.value.data.series;
+          lastSeries = tile.value.content.data.series;
         }
       }
 

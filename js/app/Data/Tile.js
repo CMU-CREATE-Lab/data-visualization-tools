@@ -1,5 +1,5 @@
-define(["app/Class", "app/Data/BinFormat"], function(Class, BinFormat) {
-  return Class(BinFormat, {
+define(["app/Class", "app/Data/BinFormat", "app/Events"], function(Class, BinFormat, Events) {
+  return Class({
     name: "Tile",
     initialize: function(manager, bounds) {
       var self = this;
@@ -10,14 +10,17 @@ define(["app/Class", "app/Data/BinFormat"], function(Class, BinFormat) {
       self.replacement = undefined;
       self.usage = 0;
 
-      BinFormat.prototype.initialize.call(self, {url:self.manager.url + "/" + self.bounds.toBBOX()});
-      self.setHeaders(self.manager.headers);
+      self.events = new Events("Data.Tile");
+      self.content = new BinFormat({url:self.manager.url + "/" + self.bounds.toBBOX()});
+      self.content.setHeaders(self.manager.headers);
 
       self.findOverlaps();
     },
 
     verify: function () {
       var self = this;
+      var content = self.content;
+
       var res = {
         real: {
           outside: 0,
@@ -27,15 +30,15 @@ define(["app/Class", "app/Data/BinFormat"], function(Class, BinFormat) {
           outside: 0,
           inside: 0
         },
-        total: self.rowcount
+        total: content.rowcount
       };
 
       var namebyvirt = {false: 'real', true: 'virtual'};
       var namebyinout = {false: 'outside', true: 'inside'};
 
-      for (var i = 0; i < self.rowcount; i++) {
-        var virtname = namebyvirt[self.data.virtual && !!self.data.virtual[i]];
-        var inoutname = namebyinout[self.bounds.contains(self.data.longitude[i], self.data.latitude[i])];
+      for (var i = 0; i < content.rowcount; i++) {
+        var virtname = namebyvirt[content.data.virtual && !!content.data.virtual[i]];
+        var inoutname = namebyinout[self.bounds.contains(content.data.longitude[i], content.data.latitude[i])];
         res[virtname][inoutname]++;
       }
       return res;
