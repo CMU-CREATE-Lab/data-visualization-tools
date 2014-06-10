@@ -61,7 +61,9 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
       self.selections[name] = new Selection(self.source.sortcols);
       self.selections[name].events.on({
         update: function (e) {
+          e = $.extend({}, e);
           e.category = name;
+          e.update = "selection-" + e.update;
           self.handleUpdate(e);
         }
       });
