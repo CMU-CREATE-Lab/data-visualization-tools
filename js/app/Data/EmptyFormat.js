@@ -24,13 +24,25 @@ define(["app/Class", "app/Events", "app/Data/Format"], function(Class, Events, F
       if (self.loading_started) return;
       self.loading_started = true;
 
-      setTimeout(self.headerLoaded.bind(self), self.headerTime);
+      if (self.headerTime !== false) {
+        if (self.headerTime) {
+          setTimeout(self.headerLoaded.bind(self), self.headerTime);
+        } else {
+          self.headerLoaded();
+        }
+      }
     },
 
     headerLoaded: function () {
       var self = this;
       self.events.triggerEvent("header", self.header);
-      setTimeout(self.allLoaded.bind(self), self.headerTime);
+      if (self.contentTime !== false) {
+        if (self.contentTime) {
+          setTimeout(self.allLoaded.bind(self), self.contentTime);
+        } else {
+          self.allLoaded();
+        }
+      }
     },
 
     allLoaded: function () {

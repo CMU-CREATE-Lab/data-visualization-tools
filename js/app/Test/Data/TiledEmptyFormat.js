@@ -59,6 +59,32 @@ define(["app/Class", "QUnit", "app/Test/BaseTest", "app/Bounds", "app/Data/Tiled
 
       p.load();
       p.zoomTo(new Bounds(0, 0, 10, 10));
-    }
+    },
+
+    "Keeping loaded tiles until new ones are loaded": function (cb) {
+      QUnit.expect(2);
+
+      var p = new TiledEmptyFormat({url:"http://example.com/TiledEmptyFormat"});
+      p.events.on({
+        all: function () {
+          var wantedTiles = Object.keys(p.wantedTiles);
+          wantedTiles.sort();
+
+          var tileCache = Object.keys(p.tileCache);
+          tileCache.sort();
+
+          QUnit.deepEqual(wantedTiles, expectedWantedTiles, "Wrong tiles requested");
+          QUnit.deepEqual(tileCache, expectedTileCache, "Wrong tiles loaded");
+
+          cb();
+        }
+      });
+
+      p.load();
+      p.zoomTo(new Bounds(0, 0, 10, 10));
+    },
+
+
+
   });
 });

@@ -2,6 +2,9 @@ define(["app/Class", "app/Data/Format", "app/Data/BaseTiledFormat", "app/Data/Em
   var TiledEmptyFormat = Class(BaseTiledFormat, {
     name: "TiledEmptyFormat",
 
+    headerTime: 1000,
+    contentTime: 1000,
+
     load: function () {
       var self = this;
       if (self.error) {
@@ -19,7 +22,11 @@ define(["app/Class", "app/Data/Format", "app/Data/BaseTiledFormat", "app/Data/Em
 
     addContentToTile: function (tile) {
       var self = this;
-      tile.content = new EmptyFormat({url:self.url + "/" + tile.bounds.toBBOX()});
+        tile.content = new EmptyFormat({
+          url:self.url + "/" + tile.bounds.toBBOX(),
+          headerTime: self.headerTime,
+          contentTime: self.contentTime
+        });
       tile.content.setHeaders(self.headers);
     },
 
