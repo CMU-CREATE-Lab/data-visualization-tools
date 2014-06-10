@@ -82,68 +82,59 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       self.events.triggerEvent("load");
     },
 
+    tileParamsForRegion: function(bounds) {
+      var self = this;
+
+      var res = {
+        width: bounds.getWidth(),
+        height: bounds.getHeight(),
+        worldwidth: self.world.getWidth(),
+        worldheight: self.world.getHeight(),
+
+        toString: function () {
+          return "\n" + Object.items(this
+            ).filter(function (item) { return item.key != "toString" && item.key != "stack"; }
+            ).map(function (item) { return "  " + item.key + "=" + item.value.toString(); }
+            ).join("\n") + "\n";
+        }
+      };
+
+      res.level = Math.ceil(Math.max(
+        Math.log(res.worldwidth / (res.width/self.tilesPerScreenX), 2),
+        Math.log(res.worldheight / (res.height/self.tilesPerScreenY), 2)));
+
+      res.tilewidth = res.worldwidth / Math.pow(2, res.level);
+      res.tileheight = res.worldheight / Math.pow(2, res.level);
+
+      res.tileleft = res.tilewidth * Math.floor(bounds.left / res.tilewidth);
+      res.tileright = res.tilewidth * Math.ceil(bounds.right / res.tilewidth);
+      res.tilebottom = res.tileheight * Math.floor(bounds.bottom / res.tileheight);
+      res.tiletop = res.tileheight * Math.ceil(bounds.top / res.tileheight);
+
+      res.tilesx = (res.tileright - res.tileleft) / res.tilewidth;
+      res.tilesy = (res.tiletop - res.tilebottom) / res.tileheight;
+
+      return res;
+    },
+
     tileBoundsForRegion: function(bounds) {
       /* Returns a list of tile bounds covering a region. */
 
       var self = this;
 
-      var width = bounds.getWidth();
-      var height = bounds.getHeight();
-      var worldwidth = self.world.getWidth();
-      var worldheight = self.world.getHeight();
-
-      var level = Math.ceil(Math.max(
-        Math.log(worldwidth / (width/self.tilesPerScreenX), 2),
-        Math.log(worldheight / (height/self.tilesPerScreenY), 2)));
-
-      var tilewidth = worldwidth / Math.pow(2, level);
-      var tileheight = worldheight / Math.pow(2, level);
-
-      var tileleft = tilewidth * Math.floor(bounds.left / tilewidth);
-      var tileright = tilewidth * Math.ceil(bounds.right / tilewidth);
-      var tilebottom = tileheight * Math.floor(bounds.bottom / tileheight);
-      var tiletop = tileheight * Math.ceil(bounds.top / tileheight);
-
-      var tilesx = (tileright - tileleft) / tilewidth;
-      var tilesy = (tiletop - tilebottom) / tileheight;
-
-      Logging.default.log(
-        "Data.BaseTiledFormat.tileBoundsForRegion",
-        {
-          width: width,
-          height: height,
-          worldwidth: worldwidth,
-          worldheight: worldheight,
-
-          tilesPerScreenX: self.tilesPerScreenX,
-          tilesPerScreenY: self.tilesPerScreenY,
-
-          level: level,
-
-          tilewidth: tilewidth,
-          tileheight: tileheight,
-
-          tileleft: tileleft,
-          tileright: tileright,
-          tilebottom: tilebottom,
-          tiletop: tiletop,
-
-          tilesx: tilesx,
-          tilesy: tilesy,
-
-          toString: function () {
-            return "\n" + Object.items(this
-              ).filter(function (item) { return item.key != "toString" && item.key != "stack"; }
-              ).map(function (item) { return "  " + item.key + "=" + item.value.toString(); }
-              ).join("\n") + "\n";
-          }
-        }
-      );
+      var params = self.tileParamsForRegion(bounds);
+      Logging.default.log("Data.BaseTiledFormat.tileBoundsForRegion", params);
+        console.log(params);
 
       res = [];
-      for (var x = 0; x < tilesx; x++) {
-        for (var y = 0; y < tilesy; y++) {
-          res.push(new Bounds(tileleft + x * tilewidth, tilebottom + y * tileheight, tileleft + (x+1) * tilewidth, tilebottom + (y+1) * tileheight));
+      for (var x = 0; x < params.tilesx; x++) {
+        for (var y = 0; y < params.tilesy; y++) {
+          res.push(new Bounds(
+            params.tileleft + x * params.tilewidth,
+            params.tilebottom + y * params.tileheight,
+            params.tileleft + (x+1) * params.tilewidth,
+            params.tilebottom + (y+1) * params.tileheight
+          ));
         }
       }
 

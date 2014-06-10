@@ -7,6 +7,7 @@ define(
     "app/Test/Logging",
     "app/Test/Data/TypedMatrixParser",
     "app/Test/Data/BinFormat",
+    "app/Test/Data/TiledEmptyFormat",
     "app/Test/Data/DataView"
   ], function(
     Class,
@@ -16,6 +17,7 @@ define(
     Logging,
     TypedMatrixParser,
     BinFormat,
+    TiledEmptyFormat,
     DataView
   ) {
   return Class({
@@ -28,6 +30,7 @@ define(
       new Logging();
       new TypedMatrixParser();
       new BinFormat();
+      new TiledEmptyFormat();
       new DataView();
     }
   });
