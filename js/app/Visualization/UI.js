@@ -23,33 +23,26 @@ define(["app/Class", "app/Visualization/AnimationManagerUI", "async", "jQuery", 
 
     initLoadSpinner: function(cb) {
       var self = this;
-      return cb();
 
       self.visualization.data.events.on({
-        add: function (source) {
-          source.source.events.on({
-            load: function () {
-              $("#loading").fadeIn();
-            },
-            all: function () {
-              $("#loading").fadeOut();
-            },
-            // "tile-error": function () {},
-            // update: function () {},
-            error: function (data) {
-              $("#loading").html(data.toString());
-              $("#loading").css({color: "#ff0000", "word-wrap": "break-word", "line-height": "1em", "font-size": "20px"});
-              $("#loading").animate({
-                right: "50%",
-                width: "500px",
-                "margin-right": "-250px",
-                bottom: "50%",
-                height: "200px",
-                "margin-bottom": "-100px",
-                padding: "40px"
-              }, 1000);
-            }
-          });
+        load: function () {
+          $("#loading").fadeIn();
+        },
+        all: function () {
+          $("#loading").fadeOut();
+        },
+        error: function (data) {
+          $("#loading").html(data.toString());
+          $("#loading").css({color: "#ff0000", "word-wrap": "break-word", "line-height": "1em", "font-size": "20px"});
+          $("#loading").animate({
+            right: "50%",
+            width: "500px",
+            "margin-right": "-250px",
+            bottom: "50%",
+            height: "200px",
+            "margin-bottom": "-100px",
+            padding: "40px"
+          }, 1000);
         }
       });
       cb();

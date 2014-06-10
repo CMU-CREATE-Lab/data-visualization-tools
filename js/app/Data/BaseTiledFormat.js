@@ -174,17 +174,17 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       var oldBounds = self.bounds;
       self.bounds = bounds;
 
-      self.events.triggerEvent("load");
-
       var wantedTileBounds = self.tileBoundsForRegion(bounds);
       var wantedTiles = {};
       var oldWantedTiles = self.wantedTiles;
+      var anyNewTiles = false;
       wantedTileBounds.map(function (tilebounds) {
         var key = tilebounds.toBBOX();
         if (oldWantedTiles[key] != undefined) {
           wantedTiles[key] = oldWantedTiles[tilebounds.toBBOX()];
         } else {
           wantedTiles[key] = self.setUpTile(tilebounds);
+          anyNewTiles = true;
         }
         wantedTiles[key].reference();
       });
@@ -211,6 +211,10 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
           return oldBounds + " -> " + newBounds + ":\n  Added: " + newWantedTiles + "\n  Removed: " + oldWantedTiles + "\n  Kept: " + existingWantedTiles + "\n";
         }
       });
+
+      if (anyNewTiles) {
+        self.events.triggerEvent("load");
+      }
 
       Object.items(oldWantedTiles).map(function (item) {
         item.value.dereference();
@@ -268,6 +272,33 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       return;
     },
 
+    getLoadingTiles: function () {
+      var self = this;
+      return Object.values(
+        self.tileCache
+      ).filter(function (tile) {
+        return !tile.content.allIsLoaded && !tile.content.error;
+      });
+    },
+
+    getErrorTiles: function () {
+      var self = this;
+      return Object.values(
+        self.tileCache
+      ).filter(function (tile) {
+        return tile.content.error;
+      });
+    },
+
+    getDoneTiles: function () {
+      var self = this;
+      return Object.values(
+        self.tileCache
+      ).filter(function (tile) {
+        return tile.content.allIsLoaded;
+      });
+    },
+
     handleFullTile: function (tile) {
       var self = this;
 
@@ -278,7 +309,7 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       self.events.triggerEvent(e.update, e);
 
       var allDone = Object.values(self.tileCache
-        ).map(function (tile) { return tile.content.allIsLoaded; }
+        ).map(function (tile) { return tile.content.allIsLoaded || tile.content.error; }
         ).reduce(function (a, b) { return a && b; });
 
       if (allDone) {

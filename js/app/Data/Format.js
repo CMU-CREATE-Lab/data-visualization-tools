@@ -9,7 +9,10 @@ define(["app/Class", "app/Events", "jQuery"], function(Class, Events, $) {
       self.seriescount = 0;
       self.allIsLoaded = false;
       self.events = new Events("Data.Format");
-      self.events.on({all: function () { self.allIsLoaded = true; }});
+      self.events.on({
+        all: function () { self.allIsLoaded = true; },
+        load: function () { self.allIsLoaded = false; },
+      });
       if (args) $.extend(self, args);
     },
 

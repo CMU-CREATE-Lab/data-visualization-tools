@@ -118,15 +118,24 @@ define(["app/Class", "jQuery", "app/Events", "app/Data/Format", "app/Data/TiledB
 
     handleLoad: function (source) {
       var self = this;
-      self.events.triggerEvent("header", {source: source});
+      self.events.triggerEvent("load", {source: source});
     },
 
     handleUpdate: function (source, update) {
       var self = this;
+      update = $.extend({}, update);
       update.source = source;
       self.updateHeader();
+      if (update.update == "all") {
+        var allDone = Object.values(self.sources
+          ).map(function (source) { return source.source.allIsLoaded || source.source.error; }
+          ).reduce(function (a, b) { return a && b; });
+        if (!allDone) {
+          update.update = 'all-source';
+        }
+      }
       self.events.triggerEvent(update.update, update);
       self.events.triggerEvent("update", update);
-    },
+    }
   });
 });
