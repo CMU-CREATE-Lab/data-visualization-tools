@@ -71,7 +71,6 @@ define(["app/Class", "QUnit", "app/Test/BaseTest", "app/Bounds", "app/Data/Tiled
   return Class(BaseTest, {
 
     name: "TiledEmptyFormat",
-/*
     "Loading tiles": function (cb) {
       QUnit.expect(2);
 
@@ -94,7 +93,7 @@ define(["app/Class", "QUnit", "app/Test/BaseTest", "app/Bounds", "app/Data/Tiled
       p.load();
       p.zoomTo(new Bounds(0, 0, 10, 5));
     },
-*/
+
     "Keeping loaded tiles until new ones are loaded": function (cb) {
       QUnit.expect(4);
 
