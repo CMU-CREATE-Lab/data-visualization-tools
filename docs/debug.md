@@ -16,3 +16,7 @@ From the javascript console:
 Zoomto event:
 
     Logging.default.setRules({"screen": {"rules": ["Data.BaseTiledFormat.zoomTo"]}});
+
+To debug tile loading:
+
+    visualization.data.sources["TiledBinFormat|http://localhost:8000/tiles/tiledata3"].source.printTree()
