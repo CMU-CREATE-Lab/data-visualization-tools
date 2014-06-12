@@ -14,6 +14,14 @@ define(["app/Class", "app/Events"], function(Class, Events) {
       self.events = new Events("Data.Tile");
     },
 
+    setContent: function (content) {
+      var self = this;
+      self.content = content;
+      content.events.on({
+        all: self.allLoaded.bind(self)
+      });
+    },
+
     verify: function () {
       var self = this;
       var content = self.content;
@@ -61,8 +69,8 @@ define(["app/Class", "app/Events"], function(Class, Events) {
 
     allLoaded: function () {
       var self = this;
+        console.log(["REMOVE OVERLAPS", self.bounds.toBBOX()]);
       self.removeOverlaps();
-      BinFormat.prototype.allLoaded.apply(self, arguments);
     },
 
     replace: function (replacement) {

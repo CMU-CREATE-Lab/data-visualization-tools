@@ -20,14 +20,13 @@ define(["app/Class", "app/Data/Format", "app/Data/BaseTiledFormat", "app/Data/Em
       self.events.triggerEvent("header", self.tilesetHeader);
     },
 
-    addContentToTile: function (tile) {
+    getTileContent: function (tile) {
       var self = this;
-        tile.content = new EmptyFormat({
-          url:self.url + "/" + tile.bounds.toBBOX(),
-          headerTime: self.headerTime,
-          contentTime: self.contentTime
-        });
-      tile.content.setHeaders(self.headers);
+      return new EmptyFormat({
+        url:self.url + "/" + tile.bounds.toBBOX(),
+        headerTime: self.headerTime,
+        contentTime: self.contentTime
+      });
     },
 
     toJSON: function () {

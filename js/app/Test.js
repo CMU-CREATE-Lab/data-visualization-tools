@@ -25,13 +25,15 @@ define(
     initialize: function () {
       QUnit.config.testTimeout = 10000;
 
+/*
       new Events();
       new SubscribableDict();
       new Logging();
       new TypedMatrixParser();
       new BinFormat();
+*/
       new TiledEmptyFormat();
-      new DataView();
+//      new DataView();
     }
   });
 });

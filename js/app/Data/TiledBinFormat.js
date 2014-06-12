@@ -14,10 +14,11 @@ define(["app/Class", "app/Data/Format", "app/Data/BaseTiledFormat", "app/Data/Bi
   var TiledBinFormat = Class(BaseTiledFormat, {
     name: "TiledBinFormat",
 
-    addContentToTile: function (tile) {
+    getTileContent: function (tile) {
       var self = this;
-      tile.content = new BinFormat({url:self.url + "/" + tile.bounds.toBBOX()});
-      tile.content.setHeaders(self.headers);
+      var content = new BinFormat({url:self.url + "/" + tile.bounds.toBBOX()});
+      content.setHeaders(self.headers);
+      return content;
     },
 
     toJSON: function () {

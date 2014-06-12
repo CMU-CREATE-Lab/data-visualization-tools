@@ -228,11 +228,12 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       });
     },
 
-    addContentToTile: function (tile) {
+/*
+    getTileContent: function (tile) {
       var self = this;
-      tile.content = new BinFormat({url:self.url + "/" + tile.bounds.toBBOX()});
-      tile.content.setHeaders(self.headers);
+      return undefined;
     },
+*/
 
     setUpTile: function (tilebounds) {
       var self = this;
@@ -241,7 +242,7 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       if (!self.tileCache[key]) {
         var tile = new Tile(self, tilebounds);
 
-        self.addContentToTile(tile);
+        tile.setContent(self.getTileContent(tile));
 
         tile.findOverlaps();
 
@@ -297,6 +298,49 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       ).filter(function (tile) {
         return tile.content.allIsLoaded;
       });
+    },
+
+    printTree: function () {
+      var self = this;
+
+      var printed = {};
+
+      var printTree = function (indent, tile) {
+        var key = tile.bounds.toBBOX();
+
+        var again = printed[key] || false;
+        printed[key] = true;
+        var loaded = tile.content.allIsLoaded;
+        var wanted = !!self.wantedTiles[key];
+        var res = indent + key + "(Usage: " + tile.usage.toString() + ", Loaded: " + loaded.toString() + ", Wanted: " + wanted.toString() + ")\n";
+
+        if (tile.replacement) {
+          res += indent + "  Replaced by:\n";
+          res += printTree(indent + "    ", tile.replacement);
+        }
+
+        if (tile.overlaps.length) {
+          res += indent + "  Overlaps:\n";
+          tile.overlaps.map(function (overlap) {
+            res += printTree(indent + "    ", overlap);
+          });
+        }
+
+        return res;
+      }
+
+      var res = "";
+      res += 'Wanted tiles:\n'
+      res += Object.values(self.wantedTiles).map(printTree.bind(self, "  ")).join("\n");
+      res += 'Forgotten tiles:\n'
+
+      res += Object.values(self.tileCache).filter(function (tile) {
+        return !printed[tile.bounds.toBBOX()];
+      }).map(
+        printTree.bind(self, "  ")
+      ).join("\n");
+
+      return res;
     },
 
     handleFullTile: function (tile) {
