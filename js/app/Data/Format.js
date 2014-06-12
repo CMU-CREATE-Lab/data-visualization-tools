@@ -12,6 +12,7 @@ define(["app/Class", "app/Events", "jQuery"], function(Class, Events, $) {
       self.events.on({
         all: function () { self.allIsLoaded = true; },
         load: function () { self.allIsLoaded = false; },
+        error: function (exception) { self.error = exception; }
       });
       if (args) $.extend(self, args);
     },

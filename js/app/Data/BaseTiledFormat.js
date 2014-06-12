@@ -300,30 +300,38 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       });
     },
 
-    printTree: function () {
+    printTree: function (maxdepth) {
       var self = this;
 
       var printed = {};
 
-      var printTree = function (indent, tile) {
+      var printTree = function (indent, depth, tile) {
+        depth = depth || 0;
+
         var key = tile.bounds.toBBOX();
 
         var again = printed[key] || false;
         printed[key] = true;
-        var loaded = tile.content.allIsLoaded;
-        var wanted = !!self.wantedTiles[key];
-        var res = indent + key + "(Usage: " + tile.usage.toString() + ", Loaded: " + loaded.toString() + ", Wanted: " + wanted.toString() + ")\n";
+        var loaded = tile.content.allIsLoaded ? ", loaded" : "";
+        var wanted = self.wantedTiles[key] ? ", wanted" : "";
+        var error = tile.content.error ? ", error" : "";
+        var res = indent + key + "(Usage: " + tile.usage.toString() + loaded + error + wanted + ")";
+        if (maxdepth != undefined && depth > maxdepth) {
+          res += " ...\n";
+        } else {
+          res += "\n";
 
-        if (tile.replacement) {
-          res += indent + "  Replaced by:\n";
-          res += printTree(indent + "    ", tile.replacement);
-        }
+          if (tile.replacement) {
+            res += indent + "  Replaced by:\n";
+            res += printTree(indent + "    ", depth+1, tile.replacement);
+          }
 
-        if (tile.overlaps.length) {
-          res += indent + "  Overlaps:\n";
-          tile.overlaps.map(function (overlap) {
-            res += printTree(indent + "    ", overlap);
-          });
+          if (tile.overlaps.length) {
+            res += indent + "  Overlaps:\n";
+            tile.overlaps.map(function (overlap) {
+              res += printTree(indent + "    ", depth+1, overlap);
+            });
+          }
         }
 
         return res;
@@ -331,13 +339,13 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
 
       var res = "";
       res += 'Wanted tiles:\n'
-      res += Object.values(self.wantedTiles).map(printTree.bind(self, "  ")).join("\n");
+        res += Object.values(self.wantedTiles).map(printTree.bind(self, "  ", 0)).join("\n");
       res += 'Forgotten tiles:\n'
 
       res += Object.values(self.tileCache).filter(function (tile) {
         return !printed[tile.bounds.toBBOX()];
       }).map(
-        printTree.bind(self, "  ")
+        printTree.bind(self, "  ", 0)
       ).join("\n");
 
       return res;
