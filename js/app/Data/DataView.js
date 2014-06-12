@@ -58,7 +58,7 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
 
     addSelectionCategory: function (name) {
       var self = this;
-      self.selections[name] = new Selection(self.source.sortcols);
+      self.selections[name] = new Selection(self.source.sortcols.slice(0, 1));
       self.selections[name].events.on({
         update: function (e) {
           e = $.extend({}, e);

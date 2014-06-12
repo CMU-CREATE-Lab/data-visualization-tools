@@ -2,9 +2,11 @@ define(["app/Class", "app/Events"], function(Class, Events) {
   return Class({
     name: "Selection",
 
+    sortcols: ["series"],
+
     initialize: function (sortcols) {
       var self = this;
-      self.sortcols = sortcols;
+      if (sortcols) self.sortcols = sortcols;
       self.events = new Events("Selection");
       self._clearRanges();
     },
