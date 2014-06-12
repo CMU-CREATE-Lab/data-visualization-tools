@@ -45,7 +45,6 @@ define(["app/Class", "QUnit", "app/Test/BaseTest", "app/Bounds", "app/Data/Tiled
     "0,1.40625,2.8125,2.8125",
     "0,2.109375,1.40625,2.8125",
     "0,2.8125,2.8125,4.21875",
-    "0,4.21875,2.8125,5.625",
     "1.40625,0,2.8125,0.703125",
     "1.40625,0.703125,2.8125,1.40625",
     "1.40625,1.40625,2.8125,2.109375",
@@ -57,7 +56,6 @@ define(["app/Class", "QUnit", "app/Test/BaseTest", "app/Bounds", "app/Data/Tiled
     "2.8125,1.40625,5.625,2.8125",
     "2.8125,2.109375,4.21875,2.8125",
     "2.8125,2.8125,5.625,4.21875",
-    "2.8125,4.21875,5.625,5.625",
     "4.21875,0,5.625,0.703125",
     "4.21875,0.703125,5.625,1.40625",
     "4.21875,1.40625,5.625,2.109375",
@@ -95,9 +93,9 @@ define(["app/Class", "QUnit", "app/Test/BaseTest", "app/Bounds", "app/Data/Tiled
     },
 
     "Keeping loaded tiles until new ones are loaded": function (cb) {
-      QUnit.expect(4);
+      QUnit.expect(5);
 
-      p = new TiledEmptyFormat({url:"http://example.com/TiledEmptyFormat"});
+      var p = new TiledEmptyFormat({url:"http://example.com/TiledEmptyFormat"});
 
       loadStage = 0;
 
