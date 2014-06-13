@@ -35,9 +35,10 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
 
       Format.prototype.initialize.call(self)
       self.source = source;
-      self.selections = {};
 
       if (args) $.extend(self, args);
+
+      self.selections = {};
 
       self.source.events.on({
         update: self.handleUpdate,
@@ -51,14 +52,21 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
         self.addCol(value);
       });
 
-
-      self.addSelectionCategory("selected");
-      self.addSelectionCategory("hover");
+      if (args.selections) {
+        Object.items(args.selections).map(function (item) {
+          self.addSelectionCategory(item.key, item.value);
+        });
+      } else {
+        self.addSelectionCategory("selected");
+        self.addSelectionCategory("hover");
+      }
     },
 
-    addSelectionCategory: function (name) {
+    addSelectionCategory: function (name, args) {
       var self = this;
-      self.selections[name] = new Selection(self.source.sortcols.slice(0, 1));
+      args = $.extend({}, args || {});
+      if (!args.sortcols) args.sortcols = self.source.sortcols.slice(0, 1);
+      self.selections[name] = new Selection(args);
       self.selections[name].events.on({
         update: function (e) {
           e = $.extend({}, e);
@@ -171,7 +179,10 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
           delete item.index;
         });
       }
-      return {columns: cols};
+      return {
+        columns: cols,
+        selections: self.selections
+      };
     }
   });
 });

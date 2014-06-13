@@ -46,6 +46,7 @@ define(["app/Class", "async", "app/Visualization/Shader", "app/Visualization/Geo
         self.manager.visualization.data.addSource(self.source),
         {
           columns: self.columns,
+          selections: self.selections,
           transforms: self.transforms
         }
       );

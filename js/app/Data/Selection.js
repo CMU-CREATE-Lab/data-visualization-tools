@@ -1,14 +1,17 @@
-define(["app/Class", "app/Events"], function(Class, Events) {
+define(["app/Class", "app/Events", "jQuery"], function(Class, Events, $) {
   return Class({
     name: "Selection",
 
     sortcols: ["series"],
 
-    initialize: function (sortcols) {
+    initialize: function (args) {
       var self = this;
-      if (sortcols) self.sortcols = sortcols;
       self.events = new Events("Selection");
+      // Yes, first set sortcols (if specified) then clear everything,
+      // then set all data (if there is some)
+      $.extend(self, args);
       self._clearRanges();
+      $.extend(self, args);
     },
 
     _clearRanges: function () {
@@ -63,6 +66,15 @@ define(["app/Class", "app/Events"], function(Class, Events) {
         }
       }
       return false;
+    },
+
+    toJSON: function () {
+      var self = this;
+      return {
+        header: self.header,
+        data: self.data,
+        sortcols: self.sortcols
+      };
     }
   });
 });
