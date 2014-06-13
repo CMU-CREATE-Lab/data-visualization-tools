@@ -77,6 +77,9 @@ define(["app/Class", "app/Events"], function(Class, Events) {
       var self = this;
       if (replacement) {
         replacement.reference();
+        self.removeOverlaps();
+      } else {
+        self.findOverlaps();
       }
       if (self.replacement) {
         self.replacement.dereference();
