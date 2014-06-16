@@ -13,6 +13,11 @@ define(["app/Class"], function(Class) {
       self.top = top;
     },
 
+    clone: function() {
+      var self = this;
+      return new self.constructor(self.left, self.bottom, self.right, self.top);
+    },
+
     getWidth: function () {
       var self = this;
       return self.right - self.left;
@@ -121,6 +126,44 @@ define(["app/Class"], function(Class) {
     },
 
     /* Extensions on top of what OpenLayers support */
+    /* Move right and left edges whole revolutions around the globe so
+     * that they are within world bounds. */
+    rewrapDateLine: function(world) {
+      var self = this;
+      if (self.left >= world.left && self.right <= world.right) {
+        return self;
+      }
+      var worldWidth =  world.getWidth();
+      var res = self.clone();
+      while (res.left < world.left) {
+        res.left += worldWidth;
+      }
+      while (res.left > world.right) {
+        res.left -= worldWidth;
+      }
+      while (res.right < world.left) {
+        res.right += worldWidth;
+      }
+      while (res.right > world.right) {
+        res.right -= worldWidth;
+      }
+      return res;
+    },
+
+    /* Move the right edge whole revolutions around the globe until
+     * right > left (numerically). */
+    unwrapDateLine: function(world) {
+      var self = this;
+      if (self.left <= self.right) {
+        return self;
+      }
+      var res = self.clone();
+      while (res.left > res.right) {
+        res.right += world.getWidth();
+      }
+      return res;
+    },
+
     toString: function () {
       var self = this;
       return self.toBBOX();

@@ -144,8 +144,26 @@ define(["app/Class", "QUnit", "app/Test/BaseTest", "app/Bounds", "app/Data/Tiled
       p.load();
       p.zoomTo(new Bounds(0, 0, 10, 5));
     },
+    "View bounds crossing international dateline ": function (cb) {
+        QUnit.expect(3);
 
+        var p = new TiledEmptyFormat({url:"http://example.com/TiledEmptyFormat"});
+        p.events.on({
+          header: function () {
+              console.log("HEADER");
+            p.zoomTo(new Bounds(180 - 5.625, 0, -180 + 5.625, 5.625));
+          },
+          all: function () {
+              console.log("ALL");
+            QUnit.equal(p.bounds.left, 180 - 5.625, "Correct bounds")
+            QUnit.equal(p.bounds.right, -180 + 5.625, "Correct bounds")
+            QUnit.ok(p.tileCache["174.375,0,180,2.8125"], "Tile Present")
 
+            cb();
+          }
+        });
+        p.load()
+    },
 
   });
 });

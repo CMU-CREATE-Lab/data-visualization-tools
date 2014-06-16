@@ -84,8 +84,12 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
 
     tileParamsForRegion: function(bounds) {
       var self = this;
+      var origBounds = bounds;
+      bounds = bounds.unwrapDateLine(self.world);
 
       var res = {
+        bounds: origBounds,
+        unwrappedBounds: bounds,
         width: bounds.getWidth(),
         height: bounds.getHeight(),
         worldwidth: self.world.getWidth(),
@@ -124,7 +128,6 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
 
       var params = self.tileParamsForRegion(bounds);
       Logging.default.log("Data.BaseTiledFormat.tileBoundsForRegion", params);
-        console.log(params);
 
       res = [];
       for (var x = 0; x < params.tilesx; x++) {
@@ -134,7 +137,7 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
             params.tilebottom + y * params.tileheight,
             params.tileleft + (x+1) * params.tilewidth,
             params.tilebottom + (y+1) * params.tileheight
-          ));
+          ).rewrapDateLine(self.world));
         }
       }
 
