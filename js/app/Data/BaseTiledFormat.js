@@ -354,6 +354,19 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       return res;
     },
 
+    handleAllDone: function (tile) {
+      var self = this;
+      var allDone = Object.values(self.tileCache
+        ).map(function (tile) { return tile.content.allIsLoaded || tile.content.error; }
+        ).reduce(function (a, b) { return a && b; });
+
+      if (allDone) {
+        var e = {update: "all", tile: tile};
+        self.events.triggerEvent(e.update, e);
+        self.events.triggerEvent("update", e);
+      }
+    },
+
     handleFullTile: function (tile) {
       var self = this;
 
@@ -363,16 +376,7 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       e = {update: "full-tile", tile: tile};
       self.events.triggerEvent(e.update, e);
       self.events.triggerEvent("update", e);
-
-      var allDone = Object.values(self.tileCache
-        ).map(function (tile) { return tile.content.allIsLoaded || tile.content.error; }
-        ).reduce(function (a, b) { return a && b; });
-
-      if (allDone) {
-        e = {update: "all", tile: tile};
-        self.events.triggerEvent(e.update, e);
-        self.events.triggerEvent("update", e);
-      }
+      self.handleAllDone(tile);
     },
 
     handleTileError: function (tile, data) {
@@ -389,6 +393,8 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       } else {
         self.handleError(data);
       }
+
+      self.handleAllDone();
     },
 
     handleError: function (originalEvent) {
