@@ -160,11 +160,15 @@ define(["app/Class", "app/Events", "app/Bounds", "async", "app/Logging", "jQuery
     addAnimationInstance: function (animationInstance, cb) {
       var self = this;
 
+      animationInstance.addingToManager = true;
       animationInstance.initGl(self.gl, function () { 
         animationInstance.initUpdates(function () {
-          self.animations.push(animationInstance);
-          self.triggerUpdate();
-          self.events.triggerEvent("add", {animation: animationInstance});
+          if (animationInstance.addingToManager) {
+            animationInstance.addingToManager = false;
+            self.animations.push(animationInstance);
+            self.triggerUpdate();
+            self.events.triggerEvent("add", {animation: animationInstance});
+          }
           cb(null, animationInstance);
         });
       });
@@ -182,10 +186,14 @@ define(["app/Class", "app/Events", "app/Bounds", "async", "app/Logging", "jQuery
 
     removeAnimation: function (animation) {
       var self = this;
-      self.animations = self.animations.filter(function (a) { return a !== animation; });
-      self.events.triggerEvent("remove", {animation: animation});
-      animation.destroy();
-      self.triggerUpdate();
+      if (animation.addingToManager) {
+        animation.addingToManager = false;
+      } else {
+        self.animations = self.animations.filter(function (a) { return a !== animation; });
+        self.events.triggerEvent("remove", {animation: animation});
+        animation.destroy();
+        self.triggerUpdate();
+      }
     },
 
     windowSizeChanged: function () {

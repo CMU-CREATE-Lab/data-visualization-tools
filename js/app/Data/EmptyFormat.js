@@ -7,7 +7,6 @@ define(["app/Class", "app/Events", "app/Data/Format"], function(Class, Events, F
 
     initialize: function() {
       var self = this;
-      self.loading_started = false;
      
       Format.prototype.initialize.apply(self, arguments);
     },
@@ -18,11 +17,8 @@ define(["app/Class", "app/Events", "app/Data/Format"], function(Class, Events, F
       self.load();
     },
 
-    load: function() {
+    _load: function() {
       var self = this;
-
-      if (self.loading_started) return;
-      self.loading_started = true;
 
       if (self.headerTime !== false) {
         if (self.headerTime) {

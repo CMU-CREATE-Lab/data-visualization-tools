@@ -88,7 +88,8 @@ define(["app/Class", "app/Events", "app/Data/Pack", "app/Logging"], function (Cl
       var self = this;
 
       self.header = {length: 0, colsByName: {}};
-      self._headerLoaded = false;
+      self.loadingStarted = false;
+      self.headerIsLoaded = false;
       self.headerLen = null;
       self.offset = 0;
       self.rowidx = 0;
@@ -111,7 +112,14 @@ define(["app/Class", "app/Events", "app/Data/Pack", "app/Logging"], function (Cl
       self.headers = headers || {};
     },
 
-    load: function () {
+    _load: function () {
+      var self = this;
+      if (self.loadingStarted) return;
+      self.loadingStarted = true;
+      self._load();
+    },
+
+    _load: function () {
       var self = this;
 
       self.loadStartTime = new Date();
@@ -219,7 +227,7 @@ define(["app/Class", "app/Events", "app/Data/Pack", "app/Logging"], function (Cl
         self.offset = 4;
       }
       if (length < self.offset + self.headerLen) return;
-      if (!self._headerLoaded) {
+      if (!self.headerIsLoaded) {
         self.header = JSON.parse(text.substr(self.offset, self.headerLen));
         self.rowLen = 0;
         self.header.colsByName = {};
@@ -238,7 +246,7 @@ define(["app/Class", "app/Events", "app/Data/Pack", "app/Logging"], function (Cl
         };
 
         self.offset = 4 + self.headerLen;
-        self._headerLoaded = true;
+        self.headerIsLoaded = true;
         self.headerLoaded(self.header);
       }
       if (self.responseData == null) {

@@ -42,17 +42,28 @@ define(["app/Class", "async", "app/Visualization/Shader", "app/Visualization/Geo
 
       if (args) $.extend(self, args);
       self.manager = manager;
+      var source = self.manager.visualization.data.addSource(self.source);
+      source.events.on({
+        error: self.handleError.bind(self)
+      });
       self.data_view = new DataView(
-        self.manager.visualization.data.addSource(self.source),
+        source,
         {
           columns: self.columns,
           selections: self.selections,
           transforms: self.transforms
         }
       );
+      source.load();
+    },
+
+    handleError: function (error) {
+      var self = this;
+      self.manager.removeAnimation(self);
     },
 
     destroy: function () {
+      var self = this;
       $(self.rowidxCanvas).remove();
     },
 

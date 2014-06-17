@@ -3,7 +3,6 @@ define(["app/Class", "app/Events", "app/Data/TypedMatrixParser", "app/Data/Forma
     name: "BinFormat",
     initialize: function() {
       var self = this;
-      self.loading_started = false;
      
       Format.prototype.initialize.apply(self, arguments);
       // Header and events will be overwritten, with the same values...
@@ -14,15 +13,6 @@ define(["app/Class", "app/Events", "app/Data/TypedMatrixParser", "app/Data/Forma
       var self = this;
 
       self.load();
-    },
-
-    load: function() {
-      var self = this;
-
-      if (self.loading_started) return;
-      self.loading_started = true;
-  
-      TypedMatrixParser.prototype.load.call(self);
     },
 
     headerLoaded: function (data) {
@@ -57,6 +47,11 @@ define(["app/Class", "app/Events", "app/Data/TypedMatrixParser", "app/Data/Forma
       // waiting forever if we didn't tell them...
       self.header.length = self.rowcount;
       TypedMatrixParser.prototype.allLoaded.call(self);
+    },
+
+    destroy: function () {
+      var self = this;
+      this.cancel();
     },
 
     toJSON: function () {

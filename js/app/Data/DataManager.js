@@ -29,8 +29,8 @@ define(["app/Class", "jQuery", "app/Events", "app/Data/Format", "app/Data/TiledB
 
         source.source = new formatClass(source.spec.args);
         source.source.events.on({
-          error: self.handleError.bind(self, source.source),
-          "tile-error": self.handleTileError.bind(self, source.source),
+          error: self.handleError.bind(self, source),
+          "tile-error": self.handleTileError.bind(self, source),
           header: self.handleHeader.bind(self, source.source),
           load: self.handleLoad.bind(self, source.source),
           update: self.handleUpdate.bind(self, source.source),
@@ -41,7 +41,6 @@ define(["app/Class", "jQuery", "app/Events", "app/Data/Format", "app/Data/TiledB
           }
         });
         source.source.setHeaders(self.visualization.state.getValue("httpHeaders"));
-        source.source.load();
       }
       self.sources[key].usage++;
       self.events.triggerEvent("add", self.sources[key]);
@@ -51,7 +50,7 @@ define(["app/Class", "jQuery", "app/Events", "app/Data/Format", "app/Data/TiledB
     removeSource: function (source) {
       var self = this;
       var key = source.type + "|" + source.args.url;
-      var source = self.sources[key];
+      source = self.sources[key];
 
       source.usage--;
       if (source.usage == 0) {
@@ -99,8 +98,9 @@ define(["app/Class", "jQuery", "app/Events", "app/Data/Format", "app/Data/TiledB
 
     handleError: function (source, error) {
       var self = this;
-      error.source = source;
+      error.source = source.source;
       self.events.triggerEvent("error", error);
+      self.removeSource(source.spec);
     },
 
     handleTileError: function (source, error) {

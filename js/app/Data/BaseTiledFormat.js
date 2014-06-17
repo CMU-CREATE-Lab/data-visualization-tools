@@ -35,7 +35,7 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       self.headers = headers || {};
     },
 
-    load: function () {
+    _load: function () {
       var self = this;
       if (self.error) {
         /* Rethrow error, to not confuse code that expects either an
