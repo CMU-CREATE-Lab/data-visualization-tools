@@ -21,6 +21,11 @@ define(["app/Class", "app/Data/Format", "app/Data/BaseTiledFormat", "app/Data/Bi
       return content;
     },
 
+    toString: function () {
+      var self = this;
+      return self.name + ": " + self.url;
+    },
+
     toJSON: function () {
       var self = this;
       return {

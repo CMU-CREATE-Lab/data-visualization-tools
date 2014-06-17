@@ -401,7 +401,7 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       var self = this;
       self.error = {
         original: originalEvent,
-        source: self.url,
+        source: self,
         toString: function () {
           var self = this;
           return 'Could not load tileset ' + self.source + ' due to the following error: ' + self.original.toString();
@@ -511,6 +511,11 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
 
       var end = new Date();
       Logging.default.log("Data.BaseTiledFormat.mergeTiles", {start: start, end: end, toString: function () { return ((this.end - this.start) / 1000.0).toString(); }});
+    },
+
+    toString: function () {
+      var self = this;
+      return self.name;
     },
 
     toJSON: function () {
