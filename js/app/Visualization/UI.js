@@ -32,17 +32,13 @@ define(["app/Class", "app/Visualization/AnimationManagerUI", "async", "jQuery", 
           $("#loading").fadeOut();
         },
         error: function (data) {
-          $("#loading").html(data.toString());
-          $("#loading").css({color: "#ff0000", "word-wrap": "break-word", "line-height": "1em", "font-size": "20px"});
-          $("#loading").animate({
-            right: "50%",
-            width: "500px",
-            "margin-right": "-250px",
-            bottom: "50%",
-            height: "200px",
-            "margin-bottom": "-100px",
-            padding: "40px"
-          }, 1000);
+          var dialog = $('<div class="modal fade" id="error" tabindex="-1" role="dialog" aria-labelledby="errorLabel" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-danger text-danger"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="errorLabel">Error</h4></div><div class="modal-body alert"></div><div class="modal-footer"><button type="button" class="btn btn-default" data-dismiss="modal">Close</button></div></div></div></div>');
+          dialog.find('.modal-body').html(data.toString());
+          $('body').append(dialog);
+          dialog.modal();
+          dialog.on('hidden.bs.modal', function (e) {
+            dialog.detach();
+          });
         }
       });
       cb();
