@@ -54,10 +54,10 @@ define(["jQuery"], function($) {
         control.mousedown(function (e) {
           mousepos = {x: e.pageX, y: e.pageY};
         });
-        control.mouseup(function (e) {
+        $(document).mouseup(function (e) {
           mousepos = undefined;
         });
-        control.mousemove(function (e) {
+        $(document).mousemove(function (e) {
           if (!mousepos) return;
           var newmousepos = {x: e.pageX, y: e.pageY};
           var diff;
