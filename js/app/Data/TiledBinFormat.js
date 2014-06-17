@@ -22,6 +22,7 @@ define(["app/Class", "app/Data/Format", "app/Data/BaseTiledFormat", "app/Data/Bi
     },
 
     toJSON: function () {
+      var self = this;
       return {
         type: self.name,
         args: {

@@ -362,6 +362,7 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       var e;
       e = {update: "full-tile", tile: tile};
       self.events.triggerEvent(e.update, e);
+      self.events.triggerEvent("update", e);
 
       var allDone = Object.values(self.tileCache
         ).map(function (tile) { return tile.content.allIsLoaded || tile.content.error; }
@@ -372,8 +373,6 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
         self.events.triggerEvent(e.update, e);
         self.events.triggerEvent("update", e);
       }
-
-      self.events.triggerEvent("update", e);
     },
 
     handleTileError: function (tile, data) {
