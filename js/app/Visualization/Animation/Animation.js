@@ -40,6 +40,7 @@ define(["app/Class", "async", "app/Visualization/Shader", "app/Visualization/Geo
     initialize: function(manager, args) {
       var self = this;
 
+      self.visible = true;
       if (args) $.extend(self, args);
       self.manager = manager;
       var source = self.manager.visualization.data.addSource(self.source);
@@ -55,6 +56,12 @@ define(["app/Class", "async", "app/Visualization/Shader", "app/Visualization/Geo
         }
       );
       source.load();
+    },
+
+    setVisible: function (visible) {
+      var self = this;
+      self.visible = visible;
+      self.manager.triggerUpdate();
     },
 
     handleError: function (error) {
@@ -146,6 +153,8 @@ define(["app/Class", "async", "app/Visualization/Shader", "app/Visualization/Geo
 
     draw: function () {
       var self = this;
+      if (!self.visible) return;
+
       var width = self.manager.canvasLayer.canvas.width;
       var height = self.manager.canvasLayer.canvas.height;
       self.rowidxCanvas.width = width;
@@ -271,12 +280,13 @@ define(["app/Class", "async", "app/Visualization/Shader", "app/Visualization/Geo
 
     toString: function () {
       var self = this;
-      return self.name + ": " + self.url;
+      return self.name + ": " + self.data_view.source;
     },
 
     toJSON: function () {
       var self = this;
       var args = self.data_view.toJSON();
+      args.visible = self.visible;
       args.source = self.source;
       return {
         args: args,

@@ -158,14 +158,25 @@ if (!app.useDojo) {
       generateAnimationUI: function (animation) {
         var self = this;
 
-        var tooltip = animation.toString();
+        var name = animation.toString();
         var title = new ContentPane({
-          content: "<a href='javascript:void(0);' class='remove' style='float:left;' title='" + tooltip + "'><i class='fa fa-minus-square'></i> " + animation.name + "</a>",
+          content: "<a href='javascript:void(0);' class='remove' style='float:left;'><i class='fa fa-minus-square'></i></a>&nbsp; <input class='visible' type='checkbox'></input> " + name,
           style: "padding-top: 0; padding-bottom: 8px;"
         });
-        $(title.domNode).find("a.remove").click(function () {
+        var visible = $(title.domNode).find(".visible");
+        var remove = $(title.domNode).find(".remove");
+        visible.change(function () {
+          animation.setVisible(visible.is(':checked'));
+        });
+        remove.click(function () {
           self.animationManager.removeAnimation(animation);
-        })
+        });
+
+        if (animation.visible) {
+          visible.attr('checked','checked');
+        } else {
+          visible.removeAttr('checked');
+        }
 
         var widget = new ContentPane({});
         widget.addChild(title);

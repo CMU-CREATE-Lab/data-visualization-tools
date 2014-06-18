@@ -9,6 +9,7 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
     initialize: function(manager, args) {
       var self = this;
 
+      self.visible = true;
       if (args) $.extend(self, args);
       self.manager = manager;
     },
@@ -22,25 +23,34 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
     initGl: function(gl, cb) {
       var self = this;
 
-      self.layer = new google.maps.visualization.DynamicMapsEngineLayer({
-        layerId: self.source.args.url,
-        map: self.manager.map
-      });
+      self.layer = new google.maps.visualization.DynamicMapsEngineLayer({layerId: self.source.args.url});
+      self.layer.setMap(self.visible ? self.manager.map : null);
 
       cb();
     },
 
+
+    setVisible: function (visible) {
+      var self = this;
+      Animation.prototype.setVisible.call(self, visible);
+      self.layer.setMap(self.visible ? self.manager.map : null);
+    },
+
     initUpdates: function(cb) { cb(); },
 
-      draw: function () {},
-
+    draw: function () {},
 
     select: function (x, y, type, replace) {},
+
+    toString: function () {
+      var self = this;
+      return self.name + ": " + self.source.args.url;
+    },
 
     toJSON: function () {
       var self = this;
       return {
-        args: {source: self.source},
+        args: {source: self.source, visible: self.visible},
         type: self.name
       };
     }
