@@ -269,6 +269,11 @@ define(["app/Class", "async", "app/Visualization/Shader", "app/Visualization/Geo
       return rowidx;
     },
 
+    toString: function () {
+      var self = this;
+      return self.name + ": " + self.url;
+    },
+
     toJSON: function () {
       var self = this;
       var args = self.data_view.toJSON();

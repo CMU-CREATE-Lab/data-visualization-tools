@@ -158,7 +158,7 @@ if (!app.useDojo) {
       generateAnimationUI: function (animation) {
         var self = this;
 
-        var tooltip = animation.data_view.source.name + ": " + animation.data_view.source.url;
+        var tooltip = animation.toString();
         var title = new ContentPane({
           content: "<a href='javascript:void(0);' class='remove' style='float:left;' title='" + tooltip + "'><i class='fa fa-minus-square'></i> " + animation.name + "</a>",
           style: "padding-top: 0; padding-bottom: 8px;"
@@ -169,7 +169,9 @@ if (!app.useDojo) {
 
         var widget = new ContentPane({});
         widget.addChild(title);
-        widget.addChild(new DataViewUI(animation.data_view).ui);
+        if (animation.data_view) {
+          widget.addChild(new DataViewUI(animation.data_view).ui);
+        }
         animation.animationManagerWidget = widget;
 
         self.ui.addChild(widget);
