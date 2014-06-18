@@ -49,7 +49,7 @@ define(["app/Class", "QUnit", "app/Test/BaseTest", "app/Data/TypedMatrixParser",
         }
       });
 
-      p.load();
+      p._load();
     }
   });
 });

@@ -48,7 +48,7 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
     },
 
     transforms: {
-      coordinates: function (col, offset) {
+      coordinate: function (col, offset) {
         var spec = this;
         var longitude_start = col[offset + spec.itemsByName.longitude_start.index];
         var latitude_start = col[offset + spec.itemsByName.latitude_start.index];

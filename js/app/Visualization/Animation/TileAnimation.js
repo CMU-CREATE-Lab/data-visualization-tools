@@ -24,7 +24,7 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
 
     updateData: function() {
       var self = this;
-      var tiles = Object.values(self.manager.visualization.data.format.tiles);
+      var tiles = Object.values(self.data_view.source.tiles);
 
       self.rawLatLonData = new Float32Array(tiles.length*5*2);
       self.tilecount = tiles.length;
