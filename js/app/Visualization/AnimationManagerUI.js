@@ -141,14 +141,45 @@ if (!app.useDojo) {
 
         self.ui = new ContentPane({content:"", doLayout: false});
 
-        var title = new ContentPane({
-          content: "Animations <a href='javascript:void(0);' class='add'><i class='fa fa-plus-square'></i></a>",
+        var state = self.animationManager.visualization.state;
+        if (!state.getValue('title')) {
+          state.setValue('title', "VectorVisual");
+        }
+
+        var header = new ContentPane({
+          content: "<span class='title'><input type='text' style='display: none' class='input'></input><span class='text'>" + state.getValue('title') + "</span></span> <a href='javascript:void(0);' class='add'><i class='fa fa-plus-square'></i></a>",
           style: "padding-top: 0; padding-bottom: 0;"
         });
-        $(title.domNode).find("a.add").click(function () {
-          self.addAnimationDialog($(title.domNode).find("a.add")[0]);
+        var add = $(header.domNode).find("a.add");
+        var title = $(header.domNode).find(".title");
+        state.events.on({
+          title: function () {
+            var val = state.getValue('title');
+            title.find('.input').val(val);
+            title.find('.text').html(val);
+          }
         });
-        self.ui.addChild(title);
+        title.click(function () {
+          title.find('.input').show();
+          title.find('.input').focus();
+          title.find('.text').hide();
+        });
+        var editEnd = function () {
+          state.setValue('title', title.find('.input').val());
+          title.find('.input').hide();
+          title.find('.text').show();
+        };
+        title.find('.input').keypress(function (e) {
+          if (event.which == 13) {
+            editEnd();
+            event.preventDefault();
+          }
+        });
+        title.find('.input').blur(editEnd);
+        add.click(function () {
+          self.addAnimationDialog(add[0]);
+        });
+        self.ui.addChild(header);
 
         self.animationManager.animations.map(self.generateAnimationUI.bind(self));
 

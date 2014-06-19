@@ -36,6 +36,12 @@ define(["app/Class", "app/Logging", "app/SubscribableDict", "app/UrlValues", "ap
       });
       Logging.default.setRules(self.state.getValue("logging"));
 
+      self.state.events.on({
+        title: function () {
+          document.title = self.state.getValue('title');
+        }
+      });
+
       self.data = new DataManager(self);
       self.animations = new AnimationManager(self);
       self.ui = new UI(self);
