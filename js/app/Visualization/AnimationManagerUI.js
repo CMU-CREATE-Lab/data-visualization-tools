@@ -175,17 +175,22 @@ if (!app.useDojo) {
         title.click(function () {
           title.find('.input').show();
           title.find('.input').val(animation.title);
+          title.find('.input').focus();
           title.find('.text').hide();
         });
+        var editEnd = function () {
+          animation.title = title.find('.input').val();
+          title.find('.text').html(animation.title);
+          title.find('.input').hide();
+          title.find('.text').show();
+        };
         title.find('.input').keypress(function (e) {
           if (event.which == 13) {
-            animation.title = title.find('.input').val();
-            title.find('.text').html(animation.title);
-            title.find('.input').hide();
-            title.find('.text').show();
+            editEnd();
             event.preventDefault();
           }
         });
+        title.find('.input').blur(editEnd);
 
         if (animation.visible) {
           visible.attr('checked','checked');
