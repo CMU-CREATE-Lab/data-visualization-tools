@@ -158,18 +158,33 @@ if (!app.useDojo) {
       generateAnimationUI: function (animation) {
         var self = this;
 
-        var name = animation.toString();
-        var title = new ContentPane({
-          content: "<a href='javascript:void(0);' class='remove' style='float:left;'><i class='fa fa-minus-square'></i></a>&nbsp; <input class='visible' type='checkbox'></input> " + name,
+        if (!animation.title) animation.title = animation.toString();
+        var header = new ContentPane({
+          content: "<input class='visible' type='checkbox'></input> <span class='title'><input type='text' style='display: none' class='input'></input><span class='text'>" + animation.title + "</span></span> <a href='javascript:void(0);' class='remove'><i class='fa fa-minus-square'></i></a>",
           style: "padding-top: 0; padding-bottom: 8px;"
         });
-        var visible = $(title.domNode).find(".visible");
-        var remove = $(title.domNode).find(".remove");
+        var visible = $(header.domNode).find(".visible");
+        var remove = $(header.domNode).find(".remove");
+        var title = $(header.domNode).find(".title");
         visible.change(function () {
           animation.setVisible(visible.is(':checked'));
         });
         remove.click(function () {
           self.animationManager.removeAnimation(animation);
+        });
+        title.click(function () {
+          title.find('.input').show();
+          title.find('.input').val(animation.title);
+          title.find('.text').hide();
+        });
+        title.find('.input').keypress(function (e) {
+          if (event.which == 13) {
+            animation.title = title.find('.input').val();
+            title.find('.text').html(animation.title);
+            title.find('.input').hide();
+            title.find('.text').show();
+            event.preventDefault();
+          }
         });
 
         if (animation.visible) {
@@ -179,7 +194,7 @@ if (!app.useDojo) {
         }
 
         var widget = new ContentPane({});
-        widget.addChild(title);
+        widget.addChild(header);
         if (animation.data_view) {
           widget.addChild(new DataViewUI(animation.data_view).ui);
         }

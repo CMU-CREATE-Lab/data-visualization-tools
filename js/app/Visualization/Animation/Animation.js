@@ -286,6 +286,7 @@ define(["app/Class", "async", "app/Visualization/Shader", "app/Visualization/Geo
     toJSON: function () {
       var self = this;
       var args = self.data_view.toJSON();
+      args.title = self.title;
       args.visible = self.visible;
       args.source = self.source;
       return {

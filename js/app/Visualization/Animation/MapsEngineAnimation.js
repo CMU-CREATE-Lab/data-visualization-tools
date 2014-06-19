@@ -50,7 +50,7 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
     toJSON: function () {
       var self = this;
       return {
-        args: {source: self.source, visible: self.visible},
+        args: {source: self.source, title: self.title, visible: self.visible},
         type: self.name
       };
     }
