@@ -32,6 +32,15 @@ define(["app/Class", "QUnit", "app/Test/BaseTest", "app/Logging"], function(Clas
       cb();
     },
 
+    "Ignored subcategories of all": function (cb) {
+      QUnit.expect(1);
+
+      var l = new Logging({rules: {store: {rules: ["all", "-Data.Format.row"]}}});
+      l.log("Data.Format.header", {msg: "hello"});
+      QUnit.equal(l.destinations.store.get().length, 1, "Messages outside ignored subset are logged");
+      cb();
+    },
+
     "Log message formatting": function (cb) {
       QUnit.expect(2);
 

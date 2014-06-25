@@ -11,23 +11,6 @@ define(["app/Class", "app/UrlValues", "stacktrace", "jQuery", "app/Logging/Desti
       self.setRules(self.rules);
     },
 
-    completeRuleTree: function (ruleTree) {
-      var self = this;
-      Object.items(ruleTree).map(function (item) {
-        var path = item.key.split(".");
-        var rule = {};
-        for (i = 0; i < path.length - 1; i++) {
-          var parentpath = path.slice(0, i).join(".");
-          if (ruleTree[parentpath] != undefined) {
-            ruleTree[parentpath] = $.extend({}, rule, ruleTree[parentpath]);
-          } else {
-            ruleTree[parentpath] = $.extend({}, rule);
-          }
-        }
-      });
-      return ruleTree;
-    },
-
     rulesToRuleTree: function(rules) {
       var self = this;
       /* rules[dstname].rules = [{path:..., include:true/false},...]
@@ -85,7 +68,8 @@ define(["app/Class", "app/UrlValues", "stacktrace", "jQuery", "app/Logging/Desti
         self.destinations[destination] = new Destination.destinationClasses[destination](rules[destination].args);
       }
 
-      var ruleTree = self.completeRuleTree(self.rulesToRuleTree(rules));
+      var ruleTree = self.rulesToRuleTree(rules);
+
       var ignore = self.ignore.bind(self);
 
       self.compiledRules = {"":ignore};
