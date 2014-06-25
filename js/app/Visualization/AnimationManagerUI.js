@@ -190,16 +190,42 @@ if (!app.useDojo) {
         var self = this;
 
         if (!animation.title) animation.title = animation.toString();
+
+        var content = new ContentPane({content: animation.toString()});
+        if (animation.data_view) {
+          content.addChild(new DataViewUI(animation.data_view).ui);
+        }
+
         var header = new ContentPane({
-          content: "<input class='visible' type='checkbox'></input> <span class='title'><input type='text' style='display: none' class='input'></input><span class='text'>" + animation.title + "</span></span> <a href='javascript:void(0);' class='remove'><i class='fa fa-minus-square'></i></a>",
+          content: "<a class='expander'><i class='fa fa-chevron-right'></i></a> <input class='visible' type='checkbox'></input> <span class='title'><input type='text' style='display: none' class='input'></input><span class='text'>" + animation.title + "</span></span> <a href='javascript:void(0);' class='remove'><i class='fa fa-minus-square'></i></a>",
           style: "padding-top: 0; padding-bottom: 8px;"
         });
+        var expander = $(header.domNode).find(".expander");
         var visible = $(header.domNode).find(".visible");
         var remove = $(header.domNode).find(".remove");
         var title = $(header.domNode).find(".title");
+
+        expander.click(function () {
+          var expand = !expander.find('i').hasClass('fa-chevron-down');
+          if (expand) {
+            expander.find('i').addClass('fa-chevron-down');
+            expander.find('i').removeClass('fa-chevron-right');
+          } else {
+            expander.find('i').addClass('fa-chevron-right');
+            expander.find('i').removeClass('fa-chevron-down');
+          }
+          $(content.domNode).toggle(expand);
+        });
+        $(content.domNode).hide();
+
         visible.change(function () {
           animation.setVisible(visible.is(':checked'));
         });
+        if (animation.visible) {
+          visible.attr('checked','checked');
+        } else {
+          visible.removeAttr('checked');
+        }
         remove.click(function () {
           self.animationManager.removeAnimation(animation);
         });
@@ -223,17 +249,9 @@ if (!app.useDojo) {
         });
         title.find('.input').blur(editEnd);
 
-        if (animation.visible) {
-          visible.attr('checked','checked');
-        } else {
-          visible.removeAttr('checked');
-        }
-
         var widget = new ContentPane({});
         widget.addChild(header);
-        if (animation.data_view) {
-          widget.addChild(new DataViewUI(animation.data_view).ui);
-        }
+        widget.addChild(content);
         animation.animationManagerWidget = widget;
 
         self.ui.addChild(widget);
