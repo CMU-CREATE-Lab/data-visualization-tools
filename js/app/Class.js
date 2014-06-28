@@ -10,7 +10,7 @@
  * debuggers when looking at both the class itself and instances.
  */
 
-define(['jQuery'], function($) {
+define(['_'], function(_) {
   var inherit = function(cls, parent) {
     var F = function() {};
     F.prototype = parent.prototype;
@@ -20,7 +20,7 @@ define(['jQuery'], function($) {
       if (typeof o === "function") {
         o = o.prototype;
       }
-      $.extend(cls.prototype, o);
+      _.extend(cls.prototype, o);
     }
   };
 

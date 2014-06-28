@@ -1,19 +1,26 @@
 (function () {
+  app.webworker = typeof importScripts != "undefined";
+
   app.paths = app.paths || {};
-  app.paths.page = window.location.pathname.split("/").slice(0, -1);
-  app.paths.script = document.querySelector('script[src$="deps.js"]').getAttribute('src').split("/").slice(0, -1);
-  if (app.paths.script[0] != "") {
-    app.paths.script = app.paths.page.concat(app.paths.script);
+
+  if (app.webworker) {
+    app.paths.script = location.toString().split("/").slice(0, -1);
+  } else {
+    app.paths.page = window.location.pathname.split("/").slice(0, -1);
+    app.paths.script = document.querySelector('script[src$="deps.js"]').getAttribute('src').split("/").slice(0, -1);
+    if (app.paths.script[0] != "") {
+      app.paths.script = app.paths.page.concat(app.paths.script);
+    }
   }
 
   app.paths.shim = app.paths.script.concat("shims");
   app.paths.lib = app.paths.script.concat(['libs']);
   app.paths.app = app.paths.script.concat(['app']);
 
-    app.dirs = app.dirs || {};
-    for (var name in app.paths) {
-      app.dirs[name] = app.paths[name].join("/");
-    }
+  app.dirs = app.dirs || {};
+  for (var name in app.paths) {
+    app.dirs[name] = app.paths[name].join("/");
+  }
 
   app.dependencies = app.dependencies || {};
   app.dependencies.stylesheets = app.dependencies.stylesheets || [];
@@ -30,17 +37,22 @@
   ]);
   app.dependencies.scripts = app.dependencies.scripts || [];
   app.dependencies.scripts = app.dependencies.scripts.concat([
+    app.dirs.lib + "/underscore-min.js",
+    app.dirs.lib + "/qunit-1.14.0.js",
+    app.dirs.lib + "/async.js",
+    app.dirs.lib + "/stacktrace.js",
+  ]);
+  if (!app.webworker) {
+  app.dependencies.scripts = app.dependencies.scripts.concat([
     {url: "http://maps.googleapis.com/maps/api/js?libraries=visualization&sensor=false&callback=googleMapsLoaded", handleCb: function (tag, cb) { googleMapsLoaded = cb; }},
     app.dirs.lib + "/jquery-1.10.2.min.js",
     app.dirs.lib + "/less-1.6.2.min.js",
     app.dirs.lib + "/bootstrap.min.js",
     app.dirs.lib + "/CanvasLayer.js",
     app.dirs.lib + "/stats.min.js",
-    app.dirs.lib + "/qunit-1.14.0.js",
-    app.dirs.lib + "/async.js",
-    app.dirs.lib + "/stacktrace.js",
     app.dirs.lib + "/loggly.tracker.js"
   ]);
+  }
 
   app.packages = app.packages || [];
   app.packages = app.packages.concat([
@@ -48,6 +60,7 @@
     {name: 'CanvasLayer', location: app.dirs.shim, main: 'CanvasLayer'},
     {name: 'Stats', location: app.dirs.shim, main: 'Stats'},
     {name: 'QUnit', location: app.dirs.shim, main: 'QUnit'},
+    {name: '_', location: app.dirs.shim, main: '_'},
     {name: 'jQuery', location: app.dirs.shim, main: 'jQuery'},
     {name: 'less', location: app.dirs.shim, main: 'less'},
     {name: 'async', location: app.dirs.shim, main: 'async'},
@@ -100,6 +113,18 @@
     head.appendChild(tag);
   }
 
+  function addImportScript(script, cb) {
+    if (typeof(script) == "string") script = {url: script};
+    self.importScripts(script.url);
+    if (script.handleCb) {
+      var tag = {onload: cb};
+      script.handleCb(tag, cb);
+      tag.onload();
+    } else {
+      cb();
+    }
+  }
+
   function addHeadStylesheet(stylesheet) {
     if (typeof(stylesheet) == "string") stylesheet = {url: stylesheet};
     var head = document.getElementsByTagName('head')[0];
@@ -110,6 +135,10 @@
     head.appendChild(link);
   }
 
-  app.dependencies.stylesheets.map(addHeadStylesheet);
-  asyncmap(app.dependencies.scripts, addHeadScript, app.main);
+  if (app.webworker) {
+    asyncmap(app.dependencies.scripts, addImportScript, app.main);
+  } else {
+    app.dependencies.stylesheets.map(addHeadStylesheet);
+    asyncmap(app.dependencies.scripts, addHeadScript, app.main);
+  }
 })();
