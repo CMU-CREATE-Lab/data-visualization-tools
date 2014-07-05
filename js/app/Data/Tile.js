@@ -69,7 +69,7 @@ define(["app/Class", "app/Events"], function(Class, Events) {
 
     allLoaded: function () {
       var self = this;
-        console.log(["REMOVE OVERLAPS", self.bounds.toBBOX()]);
+      Logging.default.log("Data.BaseTiledFormat.Tile.allLOaded", {tile:self.bounds.toBBOX(), toString: function () { return this.tile; }});
       self.removeOverlaps();
     },
 

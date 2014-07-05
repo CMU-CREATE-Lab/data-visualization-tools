@@ -22,6 +22,7 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       self.tileCache = {};
       /* The tiles we really want to display. Might not all be loaded yet, or might have replacements... */
       self.wantedTiles = {};
+      self.tileIdxCounter = 0;
       Format.prototype.initialize.apply(self, arguments);
     },
 
@@ -223,9 +224,6 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
         item.value.dereference();
       });
 
-      // Merge any already loaded tiles
-      self.mergeTiles();
-
       wantedTileBounds.map(function (tilebounds) {
         self.wantedTiles[tilebounds.toBBOX()].content.load();
       });
@@ -245,8 +243,8 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       if (!self.tileCache[key]) {
         var tile = new Tile(self, tilebounds);
 
+        tile.idx = self.tileIdxCounter++;
         tile.setContent(self.getTileContent(tile));
-
         tile.findOverlaps();
 
         tile.content.events.on({
@@ -267,7 +265,21 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
 
     handleTileRemoval: function (tile) {
       var self = this;
+      var idx = tile.idx;
+      for (var src = 0, dst = 0; src < self.header.length; src++) {
+        if (self.data.tile[src] != idx) {
+          for (var key in self.data) {
+            self.data[key][dst] = self.data[key][src];
+          }
+          self.data.tile[dst] = self.data.tile[src];
+          dst++;
+        }
+      }
+      self.header.length = dst;
       delete self.tileCache[tile.bounds.toBBOX()];
+      e = {update: "tile-removal", tile: tile};
+      self.events.triggerEvent(e.update, e);
+      self.events.triggerEvent("update", e);
     },
 
     handleBatch: function (tile) {
@@ -318,7 +330,7 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
         var loaded = tile.content.allIsLoaded ? ", loaded" : "";
         var wanted = self.wantedTiles[key] ? ", wanted" : "";
         var error = tile.content.error ? ", error" : "";
-        var res = indent + key + "(Usage: " + tile.usage.toString() + loaded + error + wanted + ")";
+        var res = indent + key + "(Idx: " + tile.idx.toString() + ", Usage: " + tile.usage.toString() + loaded + error + wanted + ")";
         if (maxdepth != undefined && depth > maxdepth) {
           res += " ...\n";
         } else {
@@ -485,6 +497,7 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
         var col = dst.header.colsByName[name];
         dst.data[name] = new col.typespec.array(dst.header.length);
       }
+      dst.data.tile = new Int32Array(dst.header.length);
 
       var lastSeries = function () {}; // Magic unique value
       var tile;
@@ -495,6 +508,11 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
           } else {
             dst.data[name][dst.rowcount] = tile.value.content.data[name][tile.merged_rowcount-1];
           }
+        }
+        if (tile.value.idx != undefined) {
+          dst.data.tile[dst.rowcount] = tile.value.idx;
+        } else {
+          dst.data.tile[dst.rowcount] = tile.value.content.data.tile[tile.merged_rowcount-1];
         }
         dst.rowcount++;
         if (tile.value.content.data.series && tile.value.content.data.series[tile.merged_rowcount-1] != lastSeries) {
