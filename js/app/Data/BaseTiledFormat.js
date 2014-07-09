@@ -83,6 +83,37 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       self.events.triggerEvent("load");
     },
 
+    getSelectionInfo: function(selection, cb) {
+      var self = this;
+
+      $.ajax({
+        url: self.url + "/series/" + selection.data.series[0].toString(),
+        dataType: 'json',
+        beforeSend: function(jqXHR, settings) {
+          for (var key in self.headers) {
+            var values = self.headers[key]
+            if (typeof(values) == "string") values = [values];
+            for (var i = 0; i < values.length; i++) {
+              jqXHR.setRequestHeader(key, values[i]);
+            }
+          }
+          return true;
+        },
+        success: function(data, textStatus, jqXHR) {
+          cb(null, data);
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          cb({
+            textStatus: textStatus,
+            status: jqXHR.status,
+            toString: function () {
+              return "HTTP status for header: " + this.textStatus + "(" + this.status.toString() + ")";
+            }
+          });
+        }
+      });
+    },
+
     tileParamsForRegion: function(bounds) {
       var self = this;
       var origBounds = bounds;

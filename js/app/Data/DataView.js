@@ -58,6 +58,7 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
         });
       } else {
         self.addSelectionCategory("selected");
+        self.addSelectionCategory("info");
         self.addSelectionCategory("hover");
       }
     },
@@ -75,6 +76,11 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
           self.handleUpdate(e);
         }
       });
+    },
+
+    getSelectionInfo: function (name, cb) {
+      var self = this;
+      self.source.getSelectionInfo(self.selections[name], cb);
     },
 
     handleUpdate: function (update) {
