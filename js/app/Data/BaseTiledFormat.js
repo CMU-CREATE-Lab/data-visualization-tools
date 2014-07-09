@@ -266,16 +266,25 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
     handleTileRemoval: function (tile) {
       var self = this;
       var idx = tile.idx;
-      for (var src = 0, dst = 0; src < self.header.length; src++) {
+      self.rowcount = 0;
+      self.seriescount = 0;
+      var lastSeries = function () {}; // Magic unique value
+      for (var src = 0; src < self.header.length; src++) {
         if (self.data.tile[src] != idx) {
           for (var key in self.data) {
-            self.data[key][dst] = self.data[key][src];
+            self.data[key][self.rowcount] = self.data[key][src];
           }
-          self.data.tile[dst] = self.data.tile[src];
-          dst++;
+          self.data.tile[self.rowcount] = self.data.tile[src];
+          if (!self.data.series) {
+            self.seriescount++;
+          } else if (self.data.series[self.rowcount] != lastSeries) {
+            self.seriescount++;
+            lastSeries = self.data.series[self.rowcount];
+          }
+          self.rowcount++;
         }
       }
-      self.header.length = dst;
+      self.header.length = self.rowcount;
       delete self.tileCache[tile.bounds.toBBOX()];
       e = {update: "tile-removal", tile: tile};
       self.events.triggerEvent(e.update, e);
@@ -514,11 +523,13 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
         } else {
           dst.data.tile[dst.rowcount] = tile.value.content.data.tile[tile.merged_rowcount-1];
         }
-        dst.rowcount++;
-        if (tile.value.content.data.series && tile.value.content.data.series[tile.merged_rowcount-1] != lastSeries) {
+        if (!dst.data.series) {
           dst.seriescount++;
-          lastSeries = tile.value.content.data.series;
+        } else if (dst.data.series[dst.rowcount] != lastSeries) {
+          dst.seriescount++;
+          lastSeries = dst.data.series[dst.rowcount];
         }
+        dst.rowcount++;
       }
 
       self.header.length = dst.header.length;
