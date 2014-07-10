@@ -112,7 +112,7 @@ define(["app/Class", "app/Events", "app/Data/Pack", "app/Logging"], function (Cl
       self.headers = headers || {};
     },
 
-    _load: function () {
+    load: function () {
       var self = this;
       if (self.loadingStarted) return;
       self.loadingStarted = true;
