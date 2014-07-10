@@ -258,7 +258,9 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       });
 
       wantedTileBounds.map(function (tilebounds) {
-        self.wantedTiles[tilebounds.toBBOX()].content.load();
+        setTimeout(function () {
+          self.wantedTiles[tilebounds.toBBOX()].content.load();
+        }, 0);
       });
     },
 
