@@ -8,6 +8,7 @@ define(["app/Class", "app/Events", "jQuery"], function(Class, Events, $) {
       self.rowcount = 0;
       self.seriescount = 0;
       self.loadingStarted = false;
+      self.loadingCanceled = false;
       self.allIsLoaded = false;
       self.events = new Events("Data.Format");
       self.events.on({
@@ -20,7 +21,7 @@ define(["app/Class", "app/Events", "jQuery"], function(Class, Events, $) {
 
     load: function () {
       var self = this;
-      if (self.loadingStarted) return;
+      if (self.loadingStarted || self.loadingCanceled) return;
       self.loadingStarted = true;
       self._load();
     },
@@ -30,7 +31,10 @@ define(["app/Class", "app/Events", "jQuery"], function(Class, Events, $) {
       self.headers = headers || {};
     },
 
-    destroy: function () {},
+    destroy: function () {
+      var self = this;
+      self.loadingCanceled = true;
+    },
 
     sortcols: ['series', 'datetime'],
 

@@ -100,6 +100,11 @@ define(["app/Class", "app/Events"], function(Class, Events) {
       }
     },
 
+    load: function () {
+      var self = this;
+      self.content.load();
+    },
+
     destroy: function () {
       var self = this;
       self.content.destroy();
