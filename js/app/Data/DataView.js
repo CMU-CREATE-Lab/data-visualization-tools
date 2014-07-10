@@ -61,6 +61,9 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
         self.addSelectionCategory("info");
         self.addSelectionCategory("hover");
       }
+
+      self.lastUpdate = undefined;
+      self.updateInterval = setInterval(self.performUpdate.bind(self), 500);
     },
 
     addSelectionCategory: function (name, args) {
@@ -85,13 +88,23 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
 
     handleUpdate: function (update) {
       var self = this;
+
+      self.lastUpdate = update;
+    },
+
+    performUpdate: function (update) {
+      var self = this;
+
+      if (!self.lastUpdate) return;
+
       self.header.length = self.source.header.length;
       self.seriescount = self.source.seriescount;
 
       Object.keys(self.header.colsByName).map(self.updateCol.bind(self));
 
-      self.events.triggerEvent(update.update, update);
-      self.events.triggerEvent("update", update);
+      self.events.triggerEvent(self.lastUpdate.update, self.lastUpdate);
+      self.events.triggerEvent("update", self.lastUpdate);
+      self.lastUpdate = undefined;
     },
 
     handleError: function (error) {
