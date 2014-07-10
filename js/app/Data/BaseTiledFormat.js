@@ -36,6 +36,19 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       self.headers = headers || {};
     },
 
+    setHeaders: function(jqXHR, settings) {
+      var self = this;
+
+      for (var key in self.headers) {
+        var values = self.headers[key]
+        if (typeof(values) == "string") values = [values];
+        for (var i = 0; i < values.length; i++) {
+          jqXHR.setRequestHeader(key, values[i]);
+        }
+      }
+      return true;
+    },
+
     _load: function () {
       var self = this;
       if (self.error) {
@@ -48,16 +61,7 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       $.ajax({
         url: self.url + "/header",
         dataType: 'json',
-        beforeSend: function(jqXHR, settings) {
-          for (var key in self.headers) {
-            var values = self.headers[key]
-            if (typeof(values) == "string") values = [values];
-            for (var i = 0; i < values.length; i++) {
-              jqXHR.setRequestHeader(key, values[i]);
-            }
-          }
-          return true;
-        },
+        beforeSend: self.setHeaders.bind(self),
         success: function(data, textStatus, jqXHR) {
           self.tilesetHeader = data;
 
@@ -86,19 +90,17 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
     getSelectionInfo: function(selection, cb) {
       var self = this;
 
+      var data = {};
+      for (var key in selection.data) {
+        data[key] = selection.data[key][0];
+      }
+
       $.ajax({
-        url: self.url + "/series/" + selection.data.series[0].toString(),
+        url: self.url + "/series",
+        type: 'POST',
+        data: JSON.stringify(data),
         dataType: 'json',
-        beforeSend: function(jqXHR, settings) {
-          for (var key in self.headers) {
-            var values = self.headers[key]
-            if (typeof(values) == "string") values = [values];
-            for (var i = 0; i < values.length; i++) {
-              jqXHR.setRequestHeader(key, values[i]);
-            }
-          }
-          return true;
-        },
+        beforeSend: self.setHeaders.bind(self),
         success: function(data, textStatus, jqXHR) {
           cb(null, data);
         },
