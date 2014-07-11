@@ -10,7 +10,7 @@
   tm.zoomTo(new Bounds(0, 0, 11.25, 11.25));
 */
 
-define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Tile", "app/Data/Pack", "app/Logging", "jQuery", "app/LangExtensions"], function(Class, Events, Bounds, Format, Tile, Pack, Logging, $) {
+define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Tile", "app/Data/Pack", "app/Logging", "app/Data/Ajax", "jQuery", "app/LangExtensions"], function(Class, Events, Bounds, Format, Tile, Pack, Logging, Ajax, $) {
   var BaseTiledFormat = Class(Format, {
     name: "BaseTiledFormat",
     initialize: function() {
@@ -36,18 +36,6 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       self.headers = headers || {};
     },
 
-    useHeaders: function(request) {
-      var self = this;
-
-      for (var key in self.headers) {
-        var values = self.headers[key]
-        if (typeof(values) == "string") values = [values];
-        for (var i = 0; i < values.length; i++) {
-          request.setRequestHeader(key, values[i]);
-        }
-      }
-   },
-
     _load: function () {
       var self = this;
       if (self.error) {
@@ -61,16 +49,10 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
         var url = self.url + "/header";
         var request = new XMLHttpRequest();
         request.open('GET', url, true);
-        self.useHeaders(request);
+        Ajax.setHeaders(request, self.headers);
         request.onreadystatechange = function() {
-          if (request.readyState === 4){
-            /* HTTP reports success with a 200 status. The file protocol
-               reports success with zero. HTTP returns zero as a status
-               code for forbidden cross domain requests.
-               https://developer.mozilla.org/En/Using_XMLHttpRequest */
-            var isFileUri = url.indexOf("file://") == 0;
-            var success = request.status == 200 || (isFileUri && request.status == 0);
-            if (success) {
+          if (request.readyState === 4) {
+            if (Ajax.isSuccess(request, url)) {
               var data = JSON.parse(request.responseText);
 
               self.tilesetHeader = data;
@@ -84,13 +66,7 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
               self.mergeTiles();
               self.events.triggerEvent("header", data);
             } else {
-              self.handleError({
-                url: url,
-                status: request.status,
-                toString: function () {
-                  return 'Could not load header ' + this.url + ' due to HTTP status ' + this.status;
-                }
-              });
+              self.handleError(Ajax.makeError(request, url, "header"));
             }
           }
         };
@@ -116,26 +92,14 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       var url = self.url + "/series";
       var request = new XMLHttpRequest();
       request.open('POST', url, true);
-      self.useHeaders(request);
+      Ajax.setHeaders(request, self.headers);
       request.onreadystatechange = function() {
-        if (request.readyState === 4){
-          /* HTTP reports success with a 200 status. The file protocol
-             reports success with zero. HTTP returns zero as a status
-             code for forbidden cross domain requests.
-             https://developer.mozilla.org/En/Using_XMLHttpRequest */
-          var isFileUri = url.indexOf("file://") == 0;
-          var success = request.status == 200 || (isFileUri && request.status == 0);
-          if (success) {
+        if (request.readyState === 4) {
+          if (Ajax.isSuccess(request, url)) {
             var data = JSON.parse(request.responseText);
             cb(null, data);
           } else {
-            self.handleError({
-              url: url,
-              status: request.status,
-              toString: function () {
-                return 'Could not load selection information from ' + this.url + ' due to HTTP status ' + this.status;
-              }
-            });
+            self.handleError(Ajax.makeError(request, url, "selection information from "));
           }
         }
       };
