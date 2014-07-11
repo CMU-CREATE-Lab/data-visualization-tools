@@ -1,4 +1,4 @@
-define(["app/Class", "app/Logging/Destination", "app/Json", "jQuery"], function(Class, Destination, Json, $) {
+define(["app/Class", "app/Logging/Destination", "app/Json"], function(Class, Destination, Json) {
   var ServerDestination = Class(Destination, {
     name: "ServerDestination",
 
@@ -9,7 +9,10 @@ define(["app/Class", "app/Logging/Destination", "app/Json", "jQuery"], function(
 
     store: function(entry) {
       var self = this;
-      $.post(self.url, Json.encode(entry, "  "), function (data) {}, 'text');
+
+      var request = new XMLHttpRequest();
+      request.open('POST', url, true);
+      request.send(son.encode(entry, "  "));
     }
   });
   Destination.destinationClasses.server = ServerDestination;

@@ -10,7 +10,7 @@
   tm.zoomTo(new Bounds(0, 0, 11.25, 11.25));
 */
 
-define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Tile", "app/Data/Pack", "app/Logging", "app/Data/Ajax", "jQuery", "app/LangExtensions"], function(Class, Events, Bounds, Format, Tile, Pack, Logging, Ajax, $) {
+define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Tile", "app/Data/Pack", "app/Logging", "app/Data/Ajax", "lodash", "app/LangExtensions"], function(Class, Events, Bounds, Format, Tile, Pack, Logging, Ajax, _) {
   var BaseTiledFormat = Class(Format, {
     name: "BaseTiledFormat",
     initialize: function() {
@@ -490,7 +490,7 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       var start = new Date();
 
       dst = new BaseTiledFormat.DataContainer();
-      $.extend(true, dst.header, self.tilesetHeader);
+      _.merge(dst.header, self.tilesetHeader);
 
       if (tiles == undefined) {
         tiles = Object.values(self.tileCache).filter(function (tile) {
@@ -519,7 +519,7 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
 
           var min = coalesce(Math.min, dstval.min, srcval.min);
           var max = coalesce(Math.max, dstval.max, srcval.max);
-          $.extend(dstval || {}, srcval);
+          _.extend(dstval, srcval);
           dstval.min = min;
           dstval.max = max;
 
