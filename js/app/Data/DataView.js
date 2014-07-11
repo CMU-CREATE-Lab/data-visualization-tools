@@ -1,4 +1,4 @@
-define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "jQuery"], function(Class, Format, Selection, Pack, $) {
+define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "lodash"], function(Class, Format, Selection, Pack, _) {
   return Class(Format, {
     name: "DataView",
 
@@ -36,7 +36,7 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
       Format.prototype.initialize.call(self)
       self.source = source;
 
-      if (args) $.extend(self, args);
+      if (args) _.extend(self, args);
 
       self.selections = {};
 
@@ -47,7 +47,7 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
       });
 
       Object.items(self.columns).map(function (item) {
-        var value = $.extend(true, {}, item.value);
+        var value = _.cloneDeep(item.value);
         value.name = item.key;
         self.addCol(value);
       });
@@ -68,12 +68,12 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
 
     addSelectionCategory: function (name, args) {
       var self = this;
-      args = $.extend({}, args || {});
+      args = _.clone(args || {});
       if (!args.sortcols) args.sortcols = self.source.sortcols.slice(0, 1);
       self.selections[name] = new Selection(args);
       self.selections[name].events.on({
         update: function (e) {
-          e = $.extend({}, e);
+          e = _.clone(e);
           e.category = name;
           e.update = "selection-" + e.update;
           self.handleUpdate(e);
@@ -145,7 +145,7 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
 
     _changeCol: function(update, spec) {
       var self = this;
-      spec = $.extend({}, spec);
+      spec = _.clone(spec);
       spec.itemsByName = {};
       for (var i = 0; i < spec.items.length; i++) {
         spec.items[i].index = i;
@@ -190,7 +190,7 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
 
     toJSON: function () {
       var self = this;
-      var cols = $.extend(true, {}, self.header.colsByName);
+      var cols = _.cloneDeep(self.header.colsByName);
       for (var name in cols) {
         delete cols[name].itemsByName;
         delete cols[name].typespec;

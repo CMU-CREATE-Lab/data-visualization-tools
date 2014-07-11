@@ -10,7 +10,7 @@
  * debuggers when looking at both the class itself and instances.
  */
 
-define(['_'], function(_) {
+define(['lodash'], function(_) {
   var inherit = function(cls, parent) {
     var F = function() {};
     F.prototype = parent.prototype;

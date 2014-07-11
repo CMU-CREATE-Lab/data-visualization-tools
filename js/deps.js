@@ -37,7 +37,6 @@
   ]);
   app.dependencies.scripts = app.dependencies.scripts || [];
   app.dependencies.scripts = app.dependencies.scripts.concat([
-    app.dirs.lib + "/underscore-min.js",
     app.dirs.lib + "/qunit-1.14.0.js",
     app.dirs.lib + "/async.js",
     app.dirs.lib + "/stacktrace.js",
@@ -60,12 +59,12 @@
     {name: 'CanvasLayer', location: app.dirs.shim, main: 'CanvasLayer'},
     {name: 'Stats', location: app.dirs.shim, main: 'Stats'},
     {name: 'QUnit', location: app.dirs.shim, main: 'QUnit'},
-    {name: '_', location: app.dirs.shim, main: '_'},
     {name: 'jQuery', location: app.dirs.shim, main: 'jQuery'},
     {name: 'less', location: app.dirs.shim, main: 'less'},
     {name: 'async', location: app.dirs.shim, main: 'async'},
     {name: 'stacktrace', location: app.dirs.shim, main: 'stacktrace'},
     {name: 'LogglyTracker', location: app.dirs.shim, main: 'LogglyTracker'},
+    {name: 'lodash', location:app.dirs.lib, main:'lodash'},
     {name: 'app', location:app.dirs.app, main: 'app'}
   ]);
 
