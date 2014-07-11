@@ -31,6 +31,7 @@ define(["app/Class", "lodash", "app/Events", "app/Data/Format", "app/Data/TiledB
         source.source.events.on({
           error: self.handleError.bind(self, source),
           "tile-error": self.handleTileError.bind(self, source),
+          "info-error": self.handleInfoError.bind(self, source),
           header: self.handleHeader.bind(self, source.source),
           load: self.handleLoad.bind(self, source.source),
           update: self.handleUpdate.bind(self, source.source),
@@ -107,6 +108,12 @@ define(["app/Class", "lodash", "app/Events", "app/Data/Format", "app/Data/TiledB
       var self = this;
       error.source = source;
       self.events.triggerEvent("tile-error", error);
+    },
+
+    handleInfoError: function (source, error) {
+      var self = this;
+      error.source = source;
+      self.events.triggerEvent("error", error);
     },
 
     handleHeader: function (source, header) {

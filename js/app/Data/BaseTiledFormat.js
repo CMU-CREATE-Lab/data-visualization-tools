@@ -99,7 +99,9 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
             var data = JSON.parse(request.responseText);
             cb(null, data);
           } else {
-            self.handleError(Ajax.makeError(request, url, "selection information from "));
+            var e = Ajax.makeError(request, url, "selection information from ");
+            e.source = self;
+            self.events.triggerEvent("info-error", e);
           }
         }
       };
