@@ -1,4 +1,4 @@
-define(["app/Class", "jQuery", "app/Events", "app/Data/Format", "app/Data/TiledBinFormat", "app/Data/BinFormat", "app/Data/EmptyFormat", "app/Data/TiledEmptyFormat"], function(Class, $, Events, Format) {
+define(["app/Class", "lodash", "app/Events", "app/Data/Format", "app/Data/TiledBinFormat", "app/Data/BinFormat", "app/Data/EmptyFormat", "app/Data/TiledEmptyFormat"], function(Class, _, Events, Format) {
   return Class({
     name: "DataManager",
     initialize: function (visualization) {
@@ -85,7 +85,7 @@ define(["app/Class", "jQuery", "app/Events", "app/Data/Format", "app/Data/TiledB
       Object.values(self.sources).map(function (source) {
         Object.items(source.source.header.colsByName).map(function (item) {
           if (!self.header.colsByName[item.key]) {
-            self.header.colsByName[item.key] = $.extend({}, item.value);
+            self.header.colsByName[item.key] = _.clone(item.value);
           } else {
             self.header.colsByName[item.key].min = Math.min(
               self.header.colsByName[item.key].min, item.value.min);
@@ -123,7 +123,7 @@ define(["app/Class", "jQuery", "app/Events", "app/Data/Format", "app/Data/TiledB
 
     handleUpdate: function (source, update) {
       var self = this;
-      update = $.extend({}, update);
+      update = _.clone(update);
       update.source = source;
       self.updateHeader();
       if (update.update == "all") {

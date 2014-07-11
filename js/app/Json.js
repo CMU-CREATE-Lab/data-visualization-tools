@@ -1,4 +1,4 @@
-define(["app/Class", "jQuery"], function(Class, $) {
+define(["app/Class", "lodash"], function(Class, _) {
   var Json = Class({name: "Json"});
 
   Json.encode = function (data, indent) {
@@ -29,7 +29,7 @@ define(["app/Class", "jQuery"], function(Class, $) {
       arglist = arglist.join(", ");
 
       var res = eval("new constr(" + arglist + ")")
-      $.extend(res, value);
+      _.extend(res, value);
 
       return res;
     } else {

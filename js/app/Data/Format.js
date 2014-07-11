@@ -1,4 +1,4 @@
-define(["app/Class", "app/Events", "jQuery"], function(Class, Events, $) {
+define(["app/Class", "app/Events", "lodash"], function(Class, Events, _) {
   var Format = Class({
     name: "Format",
     initialize: function(args) {
@@ -16,7 +16,7 @@ define(["app/Class", "app/Events", "jQuery"], function(Class, Events, $) {
         load: function () { self.allIsLoaded = false; },
         error: function (exception) { self.error = exception; }
       });
-      if (args) $.extend(self, args);
+      if (args) _.extend(self, args);
     },
 
     load: function () {

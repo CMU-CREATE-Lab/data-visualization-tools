@@ -1,4 +1,4 @@
-define(["app/Class", "app/Events", "jQuery"], function(Class, Events, $) {
+define(["app/Class", "app/Events", "lodash"], function(Class, Events, _) {
   return Class({
     name: "Selection",
 
@@ -9,9 +9,9 @@ define(["app/Class", "app/Events", "jQuery"], function(Class, Events, $) {
       self.events = new Events("Selection");
       // Yes, first set sortcols (if specified) then clear everything,
       // then set all data (if there is some)
-      $.extend(self, args);
+      _.extend(self, args);
       self._clearRanges();
-      $.extend(self, args);
+      _.extend(self, args);
     },
 
     _clearRanges: function () {

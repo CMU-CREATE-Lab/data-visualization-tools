@@ -1,4 +1,4 @@
-define(["app/Class", "app/UrlValues", "stacktrace", "jQuery", "app/Logging/Destination", "app/Logging/ScreenDestination", "app/Logging/StoreDestination", "app/Logging/LogglyDestination", "app/Logging/ServerDestination"], function(Class, UrlValues, stacktrace, $, Destination) {
+define(["app/Class", "app/UrlValues", "stacktrace", "lodash", "app/Logging/Destination", "app/Logging/ScreenDestination", "app/Logging/StoreDestination", "app/Logging/LogglyDestination", "app/Logging/ServerDestination"], function(Class, UrlValues, stacktrace, _, Destination) {
   Logging = Class({
     name: "Logging",
     store_time: true,
@@ -7,7 +7,7 @@ define(["app/Class", "app/UrlValues", "stacktrace", "jQuery", "app/Logging/Desti
     initialize: function (args) {
       var self = this;
       self.rules = {};
-      $.extend(self, args);
+      _.extend(self, args);
       self.setRules(self.rules);
     },
 
@@ -156,7 +156,7 @@ define(["app/Class", "app/UrlValues", "stacktrace", "jQuery", "app/Logging/Desti
     toJSON: function () {
       var self = this;
 
-      var res = $.extend({}, self);
+      var res = _.clone(self);
       res.msg = self.toString();
       return res;
     }
