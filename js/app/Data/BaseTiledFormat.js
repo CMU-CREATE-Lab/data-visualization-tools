@@ -36,18 +36,17 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
       self.headers = headers || {};
     },
 
-    setHeaders: function(jqXHR, settings) {
+    useHeaders: function(request) {
       var self = this;
 
       for (var key in self.headers) {
         var values = self.headers[key]
         if (typeof(values) == "string") values = [values];
         for (var i = 0; i < values.length; i++) {
-          jqXHR.setRequestHeader(key, values[i]);
+          request.setRequestHeader(key, values[i]);
         }
       }
-      return true;
-    },
+   },
 
     _load: function () {
       var self = this;
@@ -58,32 +57,51 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
         return;
       }
 
-      $.ajax({
-        url: self.url + "/header",
-        dataType: 'json',
-        beforeSend: self.setHeaders.bind(self),
-        success: function(data, textStatus, jqXHR) {
-          self.tilesetHeader = data;
+      if (typeof XMLHttpRequest != "undefined") {
+        var url = self.url + "/header";
+        var request = new XMLHttpRequest();
+        request.open('GET', url, true);
+        self.useHeaders(request);
+        request.onreadystatechange = function() {
+          if (request.readyState === 4){
+            /* HTTP reports success with a 200 status. The file protocol
+               reports success with zero. HTTP returns zero as a status
+               code for forbidden cross domain requests.
+               https://developer.mozilla.org/En/Using_XMLHttpRequest */
+            var isFileUri = url.indexOf("file://") == 0;
+            var success = request.status == 200 || (isFileUri && request.status == 0);
+            if (success) {
+              var data = JSON.parse(request.responseText);
 
-          if (data.colsByName) {
-            Object.values(data.colsByName).map(function (col) {
-              col.typespec = Pack.typemap.byname[col.type];
-            });
-          }
+              self.tilesetHeader = data;
 
-          self.mergeTiles();
-          self.events.triggerEvent("header", data);
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-          self.handleError({
-            textStatus: textStatus,
-            status: jqXHR.status,
-            toString: function () {
-              return "HTTP status for header: " + this.textStatus + "(" + this.status.toString() + ")";
+              if (data.colsByName) {
+                Object.values(data.colsByName).map(function (col) {
+                  col.typespec = Pack.typemap.byname[col.type];
+                });
+              }
+
+              self.mergeTiles();
+              self.events.triggerEvent("header", data);
+            } else {
+              self.handleError({
+                url: url,
+                status: request.status,
+                toString: function () {
+                  return 'Could not load header ' + this.url + ' due to HTTP status ' + this.status;
+                }
+              });
             }
-          });
-        }
-      });
+          }
+        };
+        request.send(null);
+      } else {
+        self.handleError({
+          toString: function () {
+            return "XMLHttpRequest not supported";
+          }
+        });
+      }
       self.events.triggerEvent("load");
     },
 
@@ -95,25 +113,33 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
         data[key] = selection.data[key][0];
       }
 
-      $.ajax({
-        url: self.url + "/series",
-        type: 'POST',
-        data: JSON.stringify(data),
-        dataType: 'json',
-        beforeSend: self.setHeaders.bind(self),
-        success: function(data, textStatus, jqXHR) {
-          cb(null, data);
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-          cb({
-            textStatus: textStatus,
-            status: jqXHR.status,
-            toString: function () {
-              return "HTTP status for header: " + this.textStatus + "(" + this.status.toString() + ")";
-            }
-          });
+      var url = self.url + "/series";
+      var request = new XMLHttpRequest();
+      request.open('POST', url, true);
+      self.useHeaders(request);
+      request.onreadystatechange = function() {
+        if (request.readyState === 4){
+          /* HTTP reports success with a 200 status. The file protocol
+             reports success with zero. HTTP returns zero as a status
+             code for forbidden cross domain requests.
+             https://developer.mozilla.org/En/Using_XMLHttpRequest */
+          var isFileUri = url.indexOf("file://") == 0;
+          var success = request.status == 200 || (isFileUri && request.status == 0);
+          if (success) {
+            var data = JSON.parse(request.responseText);
+            cb(null, data);
+          } else {
+            self.handleError({
+              url: url,
+              status: request.status,
+              toString: function () {
+                return 'Could not load selection information from ' + this.url + ' due to HTTP status ' + this.status;
+              }
+            });
+          }
         }
-      });
+      };
+      request.send(JSON.stringify(data));
     },
 
     tileParamsForRegion: function(bounds) {
