@@ -157,7 +157,7 @@ define(["app/Class", "app/Events", "app/Bounds", "async", "app/Logging", "jQuery
               dialog = $('<div class="modal fade" id="info" tabindex="-1" role="dialog" aria-labelledby="infoLabel" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-success text-success"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="infoLabel">Feature information</h4></div><div class="modal-body"></div><div class="modal-footer"><button type="button" class="btn btn-default" data-dismiss="modal">Close</button></div></div></div></div>');
               var table = $("<table>");
               for (var key in data) {
-                if (data[key].indexOf("://") != -1) {
+                if (typeof(data[key])=="string" && data[key].indexOf("://") != -1) {
                   table.append("<tr><td colsan='2'><a href='" + data[key] +  "'>" + key + "</a></td></tr>");
                 } else {
                   table.append("<tr><td>" + key + "</td><td>" + data[key] + "</td></tr>");
