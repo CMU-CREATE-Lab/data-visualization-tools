@@ -43,19 +43,16 @@ define(["app/Class", "async", "app/Visualization/Shader", "app/Visualization/Geo
       self.visible = true;
       if (args) $.extend(self, args);
       self.manager = manager;
-      var source = self.manager.visualization.data.addSource(self.source);
-      source.events.on({
+      self.data_view = self.manager.visualization.data.createView({
+        source:self.source,
+        columns: self.columns,
+        selections: self.selections,
+        transforms: self.transforms
+      });
+      self.data_view.source.events.on({
         error: self.handleError.bind(self)
       });
-      self.data_view = new DataView(
-        source,
-        {
-          columns: self.columns,
-          selections: self.selections,
-          transforms: self.transforms
-        }
-      );
-      source.load();
+      self.data_view.source.load();
     },
 
     setVisible: function (visible) {
@@ -120,26 +117,6 @@ define(["app/Class", "async", "app/Visualization/Shader", "app/Visualization/Geo
 
     updateData: function() {
       var self = this;
-      var format = self.data_view.source;
-      var header = format.header;
-      var data = format.data;
-
-      // For convenience we store POINT_COUNT in an element at the end
-      // of the array, so that the length of each series is
-      // rawSeries[i+1]-rawSeries[i].      
-      self.rawSeries = new Int32Array(format.seriescount + 1);
-      self.rawSeries[0] = 0;
-      self.lastSeries = function () {}; // Value we will never find in the data
-
-      self.seriescount = 0;
-      for (var rowidx = 0; rowidx < header.length; rowidx++) {
-        var series = data.series && data.series[rowidx];
-        if (self.lastSeries != series) {
-          self.seriescount++;
-          self.lastSeries = series;
-        }
-        self.rawSeries[self.seriescount] = rowidx + 1;
-      }
 
       Object.values(self.programs).map(self.updateDataProgram.bind(self));
 
@@ -173,11 +150,11 @@ define(["app/Class", "async", "app/Visualization/Shader", "app/Visualization/Geo
       self.setGeneralUniforms(program);
 
       var mode = self.getDrawMode(program);
-      for (var i = 0; i < self.seriescount; i++) {
+      for (var i = 0; i < self.data_view.seriescount; i++) {
         program.gl.drawArrays(
           mode,
-          self.rawSeries[i]*program.items_per_source_item,
-          (self.rawSeries[i+1]-self.rawSeries[i])*program.items_per_source_item
+          self.data_view.series[i]*program.items_per_source_item,
+          (self.data_view.series[i+1]-self.data_view.series[i])*program.items_per_source_item
         );
       }
     },
@@ -274,13 +251,13 @@ define(["app/Class", "async", "app/Visualization/Shader", "app/Visualization/Geo
     select: function (x, y, type, replace) {
       var self = this;
       var rowidx = self.getRowidxAtPos(x, y);
-      self.data_view.selections[type].addRange(self.data_view.source, rowidx, rowidx, replace);
+      self.data_view.addSelectionRange(type, rowidx, rowidx, replace);
       return rowidx;
     },
 
     toString: function () {
       var self = this;
-      return self.name + ": " + self.data_view.source;
+      return self.name + ": " + self.data_view;
     },
 
     toJSON: function () {

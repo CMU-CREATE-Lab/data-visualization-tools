@@ -1,4 +1,4 @@
-define(["app/Class", "lodash", "app/Events", "app/Data/Format", "app/Data/TiledBinFormat", "app/Data/BinFormat", "app/Data/EmptyFormat", "app/Data/TiledEmptyFormat"], function(Class, _, Events, Format) {
+define(["app/Class", "lodash", "app/Events", "app/Data/Format", "app/Data/DataView", "app/Data/TiledBinFormat", "app/Data/BinFormat", "app/Data/EmptyFormat", "app/Data/TiledEmptyFormat"], function(Class, _, Events, Format, DataView) {
   return Class({
     name: "DataManager",
     initialize: function (visualization) {
@@ -70,6 +70,18 @@ define(["app/Class", "lodash", "app/Events", "app/Data/Format", "app/Data/TiledB
     listSourceTypes: function () {
       var self = this;
       return Object.keys(Format.formatClasses);
+    },
+
+    createView: function(view) {
+      var self = this;
+      return new DataView(
+        self.addSource(view.source),
+        {
+          columns: view.columns,
+          selections: view.selections,
+          transforms: view.transforms
+        }
+      );
     },
 
     zoomTo: function (bounds) {
