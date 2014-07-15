@@ -83,7 +83,7 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
 
     addSelectionRange: function (type, startidx, endidx, replace) {
       var self = this;
-      self.selections[type].addRange(self.source, startidx, endidx, replace);
+      if (self.selections[type]) self.selections[type].addRange(self.source, startidx, endidx, replace);
     },
 
     getSelectionInfo: function (name, cb) {
