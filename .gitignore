@@ -11,3 +11,5 @@ Vagrantfile
 
 # Mac OS
 .DS_Store
+
+capture
