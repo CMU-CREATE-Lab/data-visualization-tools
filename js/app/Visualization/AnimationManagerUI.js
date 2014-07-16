@@ -196,9 +196,11 @@ if (!app.useDojo) {
           content.addChild(new DataViewUI(animation.data_view).ui);
         }
 
+        var remove_btn_html = " <a href='javascript:void(0);' class='remove'><i class='fa fa-minus-square'></i></a>";
+        if (animation.hideremovebtn) remove_btn_html = "";
         var header = new ContentPane({
-          content: "<a class='expander'><i class='fa fa-chevron-right'></i></a> <input class='visible' type='checkbox'></input> <span class='title'><input type='text' style='display: none' class='input'></input><span class='text'>" + animation.title + "</span></span> <a href='javascript:void(0);' class='remove'><i class='fa fa-minus-square'></i></a>",
-          style: "padding-top: 0; padding-bottom: 8px;"
+          content: "<a class='expander'><i class='fa fa-chevron-right'></i></a> <input class='visible' type='checkbox'></input> <span class='title'><input type='text' style='display: none' class='input'></input><span class='text'>" + animation.title + "</span></span>" + remove_btn_html,
+          style: "padding-top: 0; padding-bottom: 0px; padding-left: 2px;"
         });
         var expander = $(header.domNode).find(".expander");
         var visible = $(header.domNode).find(".visible");
@@ -249,7 +251,7 @@ if (!app.useDojo) {
         });
         title.find('.input').blur(editEnd);
 
-        var widget = new ContentPane({});
+        var widget = new ContentPane({style: "padding-top: 0; padding-bottom: 0px; padding-left: 2px;"});
         widget.addChild(header);
         widget.addChild(content);
         animation.animationManagerWidget = widget;
