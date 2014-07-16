@@ -8,7 +8,8 @@ define(
     "app/Test/Data/TypedMatrixParser",
     "app/Test/Data/BinFormat",
     "app/Test/Data/TiledEmptyFormat",
-    "app/Test/Data/DataView"
+    "app/Test/Data/DataView",
+    "app/Test/Webworker"
   ], function(
     Class,
     QUnit,
@@ -18,13 +19,16 @@ define(
     TypedMatrixParser,
     BinFormat,
     TiledEmptyFormat,
-    DataView
+    DataView,
+    Webworker
   ) {
   return Class({
     name: "Test",
     initialize: function () {
-      QUnit.config.testTimeout = 10000;
+        QUnit.config.testTimeout = 1000000000;
 
+        new Webworker();
+/*
       new Events();
       new SubscribableDict();
       new Logging();
@@ -32,6 +36,7 @@ define(
       new BinFormat();
       new TiledEmptyFormat();
       new DataView();
+*/
     }
   });
 });

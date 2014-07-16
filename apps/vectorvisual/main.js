@@ -1,5 +1,5 @@
 app = {
-  useDojo: true,
+  useDojo: false,
 
   main: function() {
     require(['app/UrlValues', 'app/Visualization/Visualization', 'app/Test', 'jQuery'], function (UrlValues, Visualization, Test, $) {

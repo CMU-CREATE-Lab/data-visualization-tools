@@ -1,3 +1,7 @@
 define([], function () {
-  return LogglyTracker;
+  if (typeof LogglyTracker == "undefined") {
+    return undefined;
+  } else {
+    return LogglyTracker;
+  }
 });

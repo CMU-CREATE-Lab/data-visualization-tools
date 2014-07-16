@@ -20,7 +20,12 @@ define(["app/Class", "app/Logging"], function(Class, Logging) {
       Logging.default.log(self.category + "." + event, data);
       if (self.handlers[event]) {
         self.handlers[event].map(function (handler) {
-          handler.handler.call(handler.scope, data);
+          handler.handler.call(handler.scope, data, event);
+        });
+      }
+      if (self.handlers.__all__) {
+        self.handlers.__all__.map(function (handler) {
+          handler.handler.call(handler.scope, data, event);
         });
       }
     }

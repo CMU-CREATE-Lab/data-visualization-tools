@@ -1,6 +1,14 @@
 (function () {
   app.webworker = typeof importScripts != "undefined";
 
+  if (!app.name) {
+    if (app.webworker) {
+      app.name = 'Webworker';
+    } else {
+      app.name = 'Main';
+    }
+  }
+
   app.paths = app.paths || {};
 
   if (app.webworker) {
@@ -134,10 +142,19 @@
     head.appendChild(link);
   }
 
+  var main = app.main;
+  if (app.mainModule) {
+    main = function () {
+     require([app.mainModule], function (mainModule) {
+       new mainModule();
+     });
+    }
+  }
+
   if (app.webworker) {
-    asyncmap(app.dependencies.scripts, addImportScript, app.main);
+    asyncmap(app.dependencies.scripts, addImportScript, main);
   } else {
     app.dependencies.stylesheets.map(addHeadStylesheet);
-    asyncmap(app.dependencies.scripts, addHeadScript, app.main);
+    asyncmap(app.dependencies.scripts, addHeadScript, main);
   }
 })();
