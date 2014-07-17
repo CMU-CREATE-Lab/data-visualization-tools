@@ -14,6 +14,12 @@ define(["app/Class", "app/Events"], function(Class, Events) {
       var inWebworker = !worker;
       var isApp = worker && worker.constructor !== Worker;
 
+      self.proxiedObjects = {};
+      self.proxiedObjectsCounter = 0;
+      self.proxies = {};
+      self.calls = {};
+      self.callCounter = 0;
+
       if (inWebworker) {
         worker = app.worker;
         app.worker = self;
@@ -42,7 +48,10 @@ define(["app/Class", "app/Events"], function(Class, Events) {
       self.events.on({
         __all__: self.sendMessage.bind(self),
        'send-dataset': self.handleSendDataset.bind(self),
-       'request-dataset': self.handleRequestDataset.bind(self)
+        'request-dataset': self.handleRequestDataset.bind(self),
+        'object-method-call': self.handleObjectMethodCall.bind(self),
+        'object-dereference': self.handleObjectDereference.bind(self),
+        'object-method-return': self.handleObjectMethodReturn.bind(self)
       });
       self.data = {};
       self.worker.addEventListener('message', self.handleMessage.bind(self), false);
@@ -65,7 +74,7 @@ define(["app/Class", "app/Events"], function(Class, Events) {
 
     handleMessage: function (e) {
       var self = this;
-      var msg = e.data;
+      var msg = self.proxyDeserialize(e.data);
       //  console.log(app.name + ":handleMessage(" + JSON.stringify(msg) + ")");
       console.log(app.name + ":handleMessage(" + msg.type + ")");
       msg.received = true;
@@ -78,7 +87,59 @@ define(["app/Class", "app/Events"], function(Class, Events) {
       var self = this;
       if (!e.received) {
         console.log(app.name + ": sendMessage(" + e.type + ")");
-        self.postMessage(e);
+        self.postMessage(self.proxySerialize(e));
+      }
+    },
+
+
+    proxySerialize: function (obj) {
+      var self = this;
+
+      if (typeof obj == 'object') {
+        if (obj.map != undefined) {
+          return obj.map(function (item) {
+            return self.proxySerialize(item);
+          });
+        } else if (obj.constructor === Object) {
+          var res = {};
+          for (var key in obj) {
+            res[key] = self.proxySerialize(obj[key]);
+          }
+          return res;
+        } else {
+          if (obj.__proxyObjectId__ == undefined) {
+            obj.__proxyObjectId__ = self.proxiedObjectsCounter++
+          }
+          self.proxiedObjects[obj.__proxyObjectId__] = obj;
+          return {__class___: ['WebworkerProxy'], object: obj.__proxyObjectId__};
+        }
+      } else {
+        return obj;
+      }
+    },
+
+    proxyDeserialize: function (obj) {
+      var self = this;
+
+      if (typeof obj == 'object') {
+        if (obj.map != undefined) {
+          return obj.map(function (item) {
+            return self.proxyDerialize(item);
+          });
+        } else if (obj.__class__ == undefined || obj.__class__[0] != 'WebworkerProxy') {
+          var res = {};
+          for (var key in obj) {
+            res[key] = self.proxyDeserialize(obj[key]);
+          }
+          return res;
+        } else {
+          if (!self.proxies[obj.object]) {
+            self.proxies[obj.object]  = new Webworker.ObjectProxy(self, obj.object);
+          }
+          return self.proxies[obj.object];
+        }
+      } else {
+        return obj;
       }
     },
 
@@ -195,7 +256,6 @@ define(["app/Class", "app/Events"], function(Class, Events) {
       }
     },
 
-
     withDataset: function (dataset, fn, cb) {
       var self = this;
 
@@ -205,6 +265,75 @@ define(["app/Class", "app/Events"], function(Class, Events) {
           if (cb) cb();
         });
       });
+    },
+
+
+    objectMethodCall: function (cb, objectId, name, args) {
+      var self = this;
+      var id = self.callCounter++;
+      self.calls[id] = cb;
+      self.worker.events.triggerEvent("object-method-call", {
+        object: objectId.id,
+        id: id,
+        name: name,
+        arguments: args
+      });
+    },
+
+    handleObjectMethodCall: function (e) {
+      var self = this;
+      if (!e.received) return;
+      self.events.triggerEvent('object-method-return', {
+        id: e.id,
+        value: self.proxiedObjects[e.object][e.name].apply(
+          self.proxiedObjects[e.object],
+          e.arguments
+        )
+      });
+    },
+
+    handleObjectMethodReturn: function (e) {
+      var self = this;
+      if (!e.received) return;
+      cb = self.calls[e.id];
+      delete self.calls[e.id];
+      cb(e.value);
+    },
+
+    handleObjectDereference: function (e) {
+      if (!e.received) return;
+      delete self.proxiedObjects[e.object];
+    }
+  });
+
+  Webworker.ObjectProxy = Class({
+    name: "WebworkerObjectProxy",
+
+    initialize: function (worker, id) {
+      self.worker = worker;
+      self.id = id;
+      self.usage = 1;
+    },
+
+    call: function (cb, name) {
+      var self = this;
+
+      self.worker.objectMethodCall(
+        self.worker, cb, self.id, name, arguments.slice(2)
+      );
+    },
+
+    dereference: function () {
+      var self = this;
+      self.usage--;
+      if (self.usage < 1) {
+        self.worker.events.triggerEvent("object-dereference", {object: self.id});
+      }
+    },
+
+    reference: function () {
+      var self = this;
+      self.usage++;
     }
   });
 
