@@ -30,11 +30,14 @@ define(["app/Class", "QUnit", "app/Test/BaseTest", "app/Webworker"], function(Cl
       var w = new Webworker({mainModule: "app/Test/WebworkerDatasetTest"});
 
       w.addDataset("mydata");
+      /* Request twice just to make sure the counter works... */
       w.withDataset("mydata", function (dataset, cb) {
-        var intarr = new Int32Array(4711);
-        dataset.intarr = intarr.buffer;
-        for (var i = 0; i < 4711; i++) intarr[i] = i + 5;
-        cb();
+        w.withDataset("mydata", function (dataset, cb) {
+          var intarr = new Int32Array(4711);
+          dataset.intarr = intarr.buffer;
+          for (var i = 0; i < 4711; i++) intarr[i] = i + 5;
+          cb();
+        }, cb);
       });
 
       w.events.on({
