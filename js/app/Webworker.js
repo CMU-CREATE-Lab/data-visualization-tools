@@ -31,6 +31,13 @@ define(["app/Class", "app/Events"], function(Class, Events) {
       }
 
       self.worker = worker;
+
+      if (self.worker.webkitPostMessage) {
+        self.postMessage = self.worker.webkitPostMessage.bind(self.worker);
+      } else {
+        self.postMessage = self.worker.postMessage.bind(self.worker);
+      }
+
       self.events = new Events("Webworker");
       self.events.on({
         __all__: self.sendMessage.bind(self),
@@ -52,7 +59,7 @@ define(["app/Class", "app/Events"], function(Class, Events) {
         }
         main();
       } else if (isApp) {
-        worker.postMessage(self.app);
+        self.postMessage(self.app);
       }
     },
 
@@ -60,6 +67,7 @@ define(["app/Class", "app/Events"], function(Class, Events) {
       var self = this;
       var msg = e.data;
       //  console.log(app.name + ":handleMessage(" + JSON.stringify(msg) + ")");
+      console.log(app.name + ":handleMessage(" + msg.type + ")");
       msg.received = true;
       self.events.triggerEvent(msg.type, msg);
     },
@@ -69,14 +77,15 @@ define(["app/Class", "app/Events"], function(Class, Events) {
       // console.log(app.name + ": sendMessage(" + JSON.stringify(e) + ")");
       var self = this;
       if (!e.received) {
-        self.worker.postMessage(e);
+        console.log(app.name + ": sendMessage(" + e.type + ")");
+        self.postMessage(e);
       }
     },
 
 
-    addDataset: function (name) {
+    addDataset: function (dataset) {
       var self = this;
-      self.data[name] = {
+      self.data[dataset] = {
         usage: 0,
         ours: true,
         requested: false,
@@ -95,7 +104,7 @@ define(["app/Class", "app/Events"], function(Class, Events) {
           }
         };
       }
-      self.worker.postMessage(
+      self.postMessage(
         {type: 'send-dataset', dataset: dataset, data: self.data[dataset].data},
         Object.values(self.data[dataset].data)
       );
@@ -104,13 +113,15 @@ define(["app/Class", "app/Events"], function(Class, Events) {
 
     requestDataset: function (dataset) {
       var self = this;
-      self.worker.postMessage({type: 'request-dataset', dataset: dataset});
+      self.postMessage({type: 'request-dataset', dataset: dataset});
     },
 
     handleSendDataset: function (e, type) {
       var self = this;
       if (!e.received) return;
-      if (self.data[dataset].ours || self.data[e.dataset].usage > 0) {
+      if (!self.data[e.dataset]) {
+        self.addDataset(e.dataset);
+      } else if (self.data[e.dataset].ours || self.data[e.dataset].usage > 0) {
         throw {
           dataset: dataset,
           toString: function () {
@@ -123,7 +134,7 @@ define(["app/Class", "app/Events"], function(Class, Events) {
       self.data[e.dataset].ours = true;
       self.data[e.dataset].requested = false;
       self.data[e.dataset].queue.map(function (f) {
-        self.data[dataset].usage++;
+        self.data[e.dataset].usage++;
         f();
       });
       self.data[e.dataset].queue = [];
@@ -153,12 +164,18 @@ define(["app/Class", "app/Events"], function(Class, Events) {
 
     useDataset: function (dataset, cb) {
       var self = this;
+      /* If it doesn't exist, assume it's owned by the other
+       * thread. */
+      if (!self.data[dataset]) {
+        self.addDataset(dataset);
+        self.data[dataset].ours = false;
+      }
       if (self.data[dataset].ours) {
         self.data[dataset].usage++;
         cb();
       } else {
         self.data[dataset].queue.push(cb);
-        self.events.triggerEvent('request-datasetset', {name: dataset});
+        self.events.triggerEvent('request-dataset', {dataset: dataset});
       }
     },
 
@@ -179,11 +196,14 @@ define(["app/Class", "app/Events"], function(Class, Events) {
     },
 
 
-    withDataset: function (dataset, cb) {
+    withDataset: function (dataset, fn, cb) {
       var self = this;
 
       self.useDataset(dataset, function () {
-        cb(self.releaseDataset.bind(self, dataset));
+        fn(self.data[dataset].data, function () {
+          self.releaseDataset(dataset)
+          if (cb) cb();
+        });
       });
     }
   });
