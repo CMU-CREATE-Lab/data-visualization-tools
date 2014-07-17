@@ -25,10 +25,8 @@ define(
   return Class({
     name: "Test",
     initialize: function () {
-        QUnit.config.testTimeout = 1000000000;
+      QUnit.config.testTimeout = 10000;
 
-        new Webworker();
-/*
       new Events();
       new SubscribableDict();
       new Logging();
@@ -36,7 +34,7 @@ define(
       new BinFormat();
       new TiledEmptyFormat();
       new DataView();
-*/
+      new Webworker();
     }
   });
 });
