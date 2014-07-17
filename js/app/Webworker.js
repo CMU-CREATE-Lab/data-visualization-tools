@@ -201,7 +201,7 @@ define(["app/Class", "app/Events"], function(Class, Events) {
 
       self.useDataset(dataset, function () {
         fn(self.data[dataset].data, function () {
-          self.releaseDataset(dataset)
+          self.releaseDataset(dataset);
           if (cb) cb();
         });
       });
