@@ -124,6 +124,8 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
       var self = this;
 
       if (!self.lastUpdate) return;
+      var lastUpdate = self.lastUpdate;
+      self.lastUpdate = undefined;
 
       self.header.length = self.source.header.length;
       self.seriescount = self.source.seriescount;
@@ -131,9 +133,8 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
       Object.keys(self.header.colsByName).map(self.updateCol.bind(self));
       self.updateSeries();
 
-      self.events.triggerEvent(self.lastUpdate.update, self.lastUpdate);
-      self.events.triggerEvent("update", self.lastUpdate);
-      self.lastUpdate = undefined;
+      self.events.triggerEvent(lastUpdate.update, lastUpdate);
+      self.events.triggerEvent("update", lastUpdate);
     },
 
     handleError: function (error) {
