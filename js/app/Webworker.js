@@ -47,7 +47,7 @@ define(["app/Class", "app/Events"], function(Class, Events) {
       self.events = new Events("Webworker");
       self.events.on({
         __all__: self.sendMessage.bind(self),
-       'send-dataset': self.handleSendDataset.bind(self),
+        'send-dataset': self.handleSendDataset.bind(self),
         'request-dataset': self.handleRequestDataset.bind(self),
         'object-method-call': self.handleObjectMethodCall.bind(self),
         'object-dereference': self.handleObjectDereference.bind(self),
@@ -126,17 +126,19 @@ define(["app/Class", "app/Events"], function(Class, Events) {
           return obj.map(function (item) {
             return self.proxyDerialize(item);
           });
-        } else if (obj.__class__ == undefined || obj.__class__[0] != 'WebworkerProxy') {
+        } else if (obj.__class__ != undefined && obj.__class__[0] == 'WebworkerProxy') {
+          if (!self.proxies[obj.object]) {
+            self.proxies[obj.object]  = new Webworker.ObjectProxy(self, obj.object);
+          }
+          return self.proxies[obj.object];
+        } else if (obj.constructor === Object) {
           var res = {};
           for (var key in obj) {
             res[key] = self.proxyDeserialize(obj[key]);
           }
           return res;
         } else {
-          if (!self.proxies[obj.object]) {
-            self.proxies[obj.object]  = new Webworker.ObjectProxy(self, obj.object);
-          }
-          return self.proxies[obj.object];
+          return obj;
         }
       } else {
         return obj;
