@@ -62,7 +62,9 @@ define(["app/Class", "app/Events"], function(Class, Events) {
         if (app.workerMainModule) {
           main = function () {
            require([app.workerMainModule], function (mainModule) {
-             new mainModule();
+             self.events.triggerEvent('main-loaded', {
+               main: new mainModule()
+             });
            });
           }
         }

@@ -1,6 +1,7 @@
 define(["app/Class", "QUnit", "app/Test/BaseTest", "app/Webworker"], function(Class, QUnit, BaseTest, Webworker) {
   return Class(BaseTest, {
     name: "Webworker",
+
     "Send events to/from worker": function (cb) {
       QUnit.expect(2);
 
@@ -62,15 +63,22 @@ define(["app/Class", "QUnit", "app/Test/BaseTest", "app/Webworker"], function(Cl
       var w = new Webworker({mainModule: "app/Test/WebworkerProxyObjectTest"});
 
       w.events.on({
-        boot: function (e) {
+        'main-loaded': function (e) {
 
-          e.value.call(
-            function (a) {
-              QUnit.equal(a, 4713, "Value got passed around properly");
-              cb();
+          e.main.call(
+            function (obj) {
+
+              obj.call(
+                function (a) {
+                  QUnit.equal(a, 4713, "Value got passed around properly");
+                  cb();
+                },
+                'bar',
+                4711
+              );
+
             },
-            'foo',
-            4711
+            'foo'
           );
         }
       });

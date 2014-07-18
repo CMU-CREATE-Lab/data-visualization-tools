@@ -2,7 +2,7 @@ define(["app/Class"], function(Class) {
   var WorkerObj = Class({
     name: "WorkerObj",
 
-    foo: function (a) {
+    bar: function (a) {
       return a + 2;
     }
   });
@@ -10,8 +10,8 @@ define(["app/Class"], function(Class) {
   return Class({
     name: "WebworkerProxyObjectTest",
 
-    initialize: function () {
-      app.worker.events.triggerEvent('boot', {value: new WorkerObj()});
-    }
+    foo: function () {
+      return new WorkerObj();
+    },
   });
 });
