@@ -2,7 +2,6 @@ define(["app/Class", "QUnit", "app/Test/BaseTest", "app/Webworker"], function(Cl
   return Class(BaseTest, {
     name: "Webworker",
 
-/*
     "Send events to/from worker": function (cb) {
       QUnit.expect(2);
 
@@ -23,7 +22,7 @@ define(["app/Class", "QUnit", "app/Test/BaseTest", "app/Webworker"], function(Cl
         }
       });
     },
-*/
+
     "Transfer datasets": function (cb) {
       QUnit.expect(2);
 
