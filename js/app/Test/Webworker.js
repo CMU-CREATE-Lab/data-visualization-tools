@@ -1,7 +1,6 @@
 define(["app/Class", "QUnit", "app/Test/BaseTest", "app/Webworker"], function(Class, QUnit, BaseTest, Webworker) {
   return Class(BaseTest, {
     name: "Webworker",
-
     "Send events to/from worker": function (cb) {
       QUnit.expect(2);
 
@@ -55,6 +54,27 @@ define(["app/Class", "QUnit", "app/Test/BaseTest", "app/Webworker"], function(Cl
           }
         }
       });
+    },
+
+    "Proxy objects": function (cb) {
+      QUnit.expect(1);
+
+      var w = new Webworker({mainModule: "app/Test/WebworkerProxyObjectTest"});
+
+      w.events.on({
+        boot: function (e) {
+
+          e.value.call(
+            function (a) {
+              QUnit.equal(a, 4713, "Value got passed around properly");
+              cb();
+            },
+            'foo',
+            4711
+          );
+        }
+      });
     }
+
   });
 });
