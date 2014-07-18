@@ -111,7 +111,7 @@ define(["app/Class", "app/Events"], function(Class, Events) {
             obj.__proxyObjectId__ = self.proxiedObjectsCounter++
           }
           self.proxiedObjects[obj.__proxyObjectId__] = obj;
-          return {__class___: ['WebworkerProxy'], object: obj.__proxyObjectId__};
+          return {__class__: ['WebworkerProxy'], object: obj.__proxyObjectId__};
         }
       } else {
         return obj;
@@ -124,7 +124,7 @@ define(["app/Class", "app/Events"], function(Class, Events) {
       if (typeof obj == 'object') {
         if (obj.map != undefined) {
           return obj.map(function (item) {
-            return self.proxyDerialize(item);
+            return self.proxyDeserialize(item);
           });
         } else if (obj.__class__ != undefined && obj.__class__[0] == 'WebworkerProxy') {
           if (!self.proxies[obj.object]) {
@@ -274,8 +274,8 @@ define(["app/Class", "app/Events"], function(Class, Events) {
       var self = this;
       var id = self.callCounter++;
       self.calls[id] = cb;
-      self.worker.events.triggerEvent("object-method-call", {
-        object: objectId.id,
+      self.events.triggerEvent("object-method-call", {
+        object: objectId,
         id: id,
         name: name,
         arguments: args
@@ -312,6 +312,8 @@ define(["app/Class", "app/Events"], function(Class, Events) {
     name: "WebworkerObjectProxy",
 
     initialize: function (worker, id) {
+      var self = this;
+
       self.worker = worker;
       self.id = id;
       self.usage = 1;
@@ -321,7 +323,7 @@ define(["app/Class", "app/Events"], function(Class, Events) {
       var self = this;
 
       self.worker.objectMethodCall(
-        self.worker, cb, self.id, name, arguments.slice(2)
+        cb, self.id, name, Array.prototype.slice.call(arguments, 2)
       );
     },
 
