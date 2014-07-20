@@ -43,16 +43,6 @@ define(["app/Class", "async", "app/Visualization/Shader", "app/Visualization/Geo
       self.visible = true;
       if (args) $.extend(self, args);
       self.manager = manager;
-      self.data_view = self.manager.visualization.data.createView({
-        source:self.source,
-        columns: self.columns,
-        selections: self.selections,
-        transforms: self.transforms
-      });
-      self.data_view.source.events.on({
-        error: self.handleError.bind(self)
-      });
-      self.data_view.source.load();
     },
 
     setVisible: function (visible) {
@@ -73,16 +63,32 @@ define(["app/Class", "async", "app/Visualization/Shader", "app/Visualization/Geo
 
     initGl: function(gl, cb) {
       var self = this;
-      self.gl = gl;
-      self.rowidxCanvas = document.createElement('canvas');
 
-      rowidxCanvas = $(self.rowidxCanvas);
-      self.rowidxGl = self.rowidxCanvas.getContext('experimental-webgl', {preserveDrawingBuffer: true});
-      self.rowidxGl.enable(self.rowidxGl.BLEND);
-      self.rowidxGl.blendFunc(self.rowidxGl.SRC_ALPHA, self.rowidxGl.ONE_MINUS_SRC_ALPHA);
-      self.rowidxGl.lineWidth(1.0);
+      self.manager.visualization.data.createView({
+        source:self.source,
+        columns: self.columns,
+        selections: self.selections,
+        transforms: self.transforms
+      }, function (err, data_view) {
+        if (err) throw err; // FIXME: Make cb handle cb(err);
+        self.data_view = data_view;
 
-      self.initGlPrograms(cb);
+        self.data_view.source.events.on({
+          error: self.handleError.bind(self)
+        });
+        self.data_view.source.load();
+
+        self.gl = gl;
+        self.rowidxCanvas = document.createElement('canvas');
+
+        rowidxCanvas = $(self.rowidxCanvas);
+        self.rowidxGl = self.rowidxCanvas.getContext('experimental-webgl', {preserveDrawingBuffer: true});
+        self.rowidxGl.enable(self.rowidxGl.BLEND);
+        self.rowidxGl.blendFunc(self.rowidxGl.SRC_ALPHA, self.rowidxGl.ONE_MINUS_SRC_ALPHA);
+        self.rowidxGl.lineWidth(1.0);
+
+        self.initGlPrograms(cb);
+      });
     },
 
     initGlPrograms: function(cb) {
@@ -90,19 +96,17 @@ define(["app/Class", "async", "app/Visualization/Shader", "app/Visualization/Geo
 
       self.programs = {};
       async.map(Object.items(self.programSpecs), function (item, cb) {
-        Animation.prototype.initGl(self[item.value.context], function () {
-          Shader.createShaderProgramFromUrl(
-            self[item.value.context],
-            require.toUrl(item.value.vertex),
-            require.toUrl(item.value.fragment),
-            function (program) {
-              program.name = item.key;
-              self.programs[item.key] = program;
-              self.createDataViewArrayBuffers(program, item.value.columns, item.value.items_per_source_item);
-              cb();
-            }
-          );
-        });
+        Shader.createShaderProgramFromUrl(
+          self[item.value.context],
+          require.toUrl(item.value.vertex),
+          require.toUrl(item.value.fragment),
+          function (program) {
+            program.name = item.key;
+            self.programs[item.key] = program;
+            self.createDataViewArrayBuffers(program, item.value.columns, item.value.items_per_source_item);
+            cb();
+          }
+        );
       }, cb);
     },
 

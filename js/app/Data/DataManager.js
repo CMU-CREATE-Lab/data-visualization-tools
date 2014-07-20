@@ -62,26 +62,26 @@ define(["app/Class", "lodash", "app/Events", "app/Data/Format", "app/Data/DataVi
       self.events.triggerEvent("remove", source);
     },
 
-    listSources: function () {
+    listSources: function (cb) {
       var self = this;
-      return Object.values(self.sources).map(function (source) { return source.spec; });
+      cb(Object.values(self.sources).map(function (source) { return source.spec; }));
     },
 
-    listSourceTypes: function () {
+    listSourceTypes: function (cb) {
       var self = this;
-      return Object.keys(Format.formatClasses);
+      cb(Object.keys(Format.formatClasses));
     },
 
-    createView: function(view) {
+    createView: function(view, cb) {
       var self = this;
-      return new DataView(
+      cb(null, new DataView(
         self.addSource(view.source),
         {
           columns: view.columns,
           selections: view.selections,
           transforms: view.transforms
         }
-      );
+      ));
     },
 
     zoomTo: function (bounds) {

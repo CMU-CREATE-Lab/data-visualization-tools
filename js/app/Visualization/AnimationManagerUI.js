@@ -61,78 +61,84 @@ if (!app.useDojo) {
 
       addAnimationDialog: function (domNode) {
         var self = this;
-        var dialog = new TooltipDialog({title: "Add animation:"});
 
-        var typeselect = new Select({
-          name: "typeselect",
-          options: Object.items(Animation.animationClasses).map(function (item) {
-            return {label:item.key, value:item.key};
-          })
-        });
-        dialog.addChild(typeselect);
+        self.animationManager.visualization.data.listSources(function (sources) {
+          self.animationManager.visualization.data.listSourceTypes(function (sourceTypes) {
 
-        var sourceselect = new Select({
-          name: "sourceselect",
-          options: [{label:"New", value:null}].concat(
-            self.animationManager.visualization.data.listSources().map(function (source) {
-              return {label:source.type + ": " + source.args.url, value:source};
-            })
-          )
-        });
-        dialog.addChild(sourceselect);
+            var dialog = new TooltipDialog({title: "Add animation:"});
 
-        var sourcetypeselect = new Select({
-          name: "sourcetypeselect",
-          options: self.animationManager.visualization.data.listSourceTypes().map(function (type) {
-            return {label:type, value:type};
-          })
-        });
-        dialog.addChild(sourcetypeselect);
+            var typeselect = new Select({
+              name: "typeselect",
+              options: Object.items(Animation.animationClasses).map(function (item) {
+                return {label:item.key, value:item.key};
+              })
+            });
+            dialog.addChild(typeselect);
 
-        var urlbox = new dijit.form.TextBox({
-          name: "url",
-          value: "",
-          placeHolder: "Data source URL"
-        });
-        dialog.addChild(urlbox);
+            var sourceselect = new Select({
+              name: "sourceselect",
+              options: [{label:"New", value:null}].concat(
+                sources.map(function (source) {
+                  return {label:source.type + ": " + source.args.url, value:source};
+                })
+              )
+            });
+            dialog.addChild(sourceselect);
 
-        var addbutton = new Button({
-          label: "Add",
-          onClick: function(){
-            var type = typeselect.get('value');
-            var source = sourceselect.get('value');
-            if (!source) {
-              source = {type:sourcetypeselect.get('value'), args: {url:urlbox.get('value')}};
-            }
-            self.animationManager.addAnimation({type:type, args: {source: source}}, function (err, animation) {});
-            dialog.onExecute();
-          }
-        });
-        dialog.addChild(addbutton);
+            var sourcetypeselect = new Select({
+              name: "sourcetypeselect",
+              options: sourceTypes.map(function (type) {
+                return {label:type, value:type};
+              })
+            });
+            dialog.addChild(sourcetypeselect);
 
-        var cancelbutton = new Button({
-          label: "Cancel",
-          onClick: function(){
-            dialog.onCancel();
-          }
-        });
-        dialog.addChild(cancelbutton);
+            var urlbox = new dijit.form.TextBox({
+              name: "url",
+              value: "",
+              placeHolder: "Data source URL"
+            });
+            dialog.addChild(urlbox);
 
-        popup.open({
-          popup: dialog,
-          onExecute : function() { 
-            popup.close(dialog);
-            dialog.destroy();
-          }, 
-          onCancel : function() { 
-            popup.close(dialog);
-            dialog.destroy();
-          }, 
-          onClose : function() { 
-            popup.close(dialog);
-            dialog.destroy();
-          }, 
-          around: domNode
+            var addbutton = new Button({
+              label: "Add",
+              onClick: function(){
+                var type = typeselect.get('value');
+                var source = sourceselect.get('value');
+                if (!source) {
+                  source = {type:sourcetypeselect.get('value'), args: {url:urlbox.get('value')}};
+                }
+                self.animationManager.addAnimation({type:type, args: {source: source}}, function (err, animation) {});
+                dialog.onExecute();
+              }
+            });
+            dialog.addChild(addbutton);
+
+            var cancelbutton = new Button({
+              label: "Cancel",
+              onClick: function(){
+                dialog.onCancel();
+              }
+            });
+            dialog.addChild(cancelbutton);
+
+            popup.open({
+              popup: dialog,
+              onExecute : function() { 
+                popup.close(dialog);
+                dialog.destroy();
+              }, 
+              onCancel : function() { 
+                popup.close(dialog);
+                dialog.destroy();
+              }, 
+              onClose : function() { 
+                popup.close(dialog);
+                dialog.destroy();
+              }, 
+              around: domNode
+            });
+          });
         });
       },
 
