@@ -211,11 +211,33 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
       self.events.triggerEvent('update', e);
     },
 
-    getAvailableColumns: function () {
+    useData: function (fn) {
+      var self = this;
+      fn(self.data, function () {});
+    },
+
+    useSeries: function (fn) {
+      var self = this;
+      fn(self.series || [], function () {});
+    },
+
+    useHeader: function (fn) {
+      var self = this;
+      fn(self.header, function () {});
+    },
+
+    getAvailableColumns: function (cb) {
       var self = this;
 
-      return Object.keys(self.source.header.colsByName).concat(
-        Object.keys(self.selections));
+      cb(
+        null,
+        Object.keys(self.source.header.colsByName).concat(
+          Object.keys(self.selections)));
+    },
+
+    load: function () {
+      var self = this;
+      self.source.load();
     },
 
     toJSON: function () {

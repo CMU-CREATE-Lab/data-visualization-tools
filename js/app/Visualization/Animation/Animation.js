@@ -73,10 +73,10 @@ define(["app/Class", "async", "app/Visualization/Shader", "app/Visualization/Geo
         if (err) throw err; // FIXME: Make cb handle cb(err);
         self.data_view = data_view;
 
-        self.data_view.source.events.on({
+        self.data_view.events.on({
           error: self.handleError.bind(self)
         });
-        self.data_view.source.load();
+        self.data_view.load();
 
         self.gl = gl;
         self.rowidxCanvas = document.createElement('canvas');
@@ -154,13 +154,16 @@ define(["app/Class", "async", "app/Visualization/Shader", "app/Visualization/Geo
       self.setGeneralUniforms(program);
 
       var mode = self.getDrawMode(program);
-      for (var i = 0; i < self.data_view.seriescount; i++) {
-        program.gl.drawArrays(
-          mode,
-          self.data_view.series[i]*program.items_per_source_item,
-          (self.data_view.series[i+1]-self.data_view.series[i])*program.items_per_source_item
-        );
-      }
+      self.data_view.useSeries(function (series, cb) {
+        // -1 since series contains POINT_COUNT in the last item
+        for (var i = 0; i < series.length - 1; i++) {
+          program.gl.drawArrays(
+            mode,
+            series[i]*program.items_per_source_item,
+            (series[i+1]-series[i])*program.items_per_source_item
+          );
+        }
+      });
     },
 
     createDataViewArrayBuffers: function (program, columns, items_per_source_item) {
@@ -176,18 +179,24 @@ define(["app/Class", "async", "app/Visualization/Shader", "app/Visualization/Geo
       var self = this;
       program.gl.useProgram(program);
 
-      for (var name in program.dataViewArrayBuffers) {
-        Shader.programLoadArray(program.gl, program.dataViewArrayBuffers[name], self.data_view.data[name], program);
-      };
+      self.data_view.useData(function (data, cb) {
+        for (var name in program.dataViewArrayBuffers) {
+          Shader.programLoadArray(program.gl, program.dataViewArrayBuffers[name], data[name], program);
+        };
+        cb();
+      });
     },
 
     bindDataViewArrayBuffers: function(program) {
       var self = this;
       program.gl.useProgram(program);
-      for (var name in program.dataViewArrayBuffers) {
-        var col = self.data_view.header.colsByName[name];
-        Shader.programBindArray(program.gl, program.dataViewArrayBuffers[name], program, name, col.items.length / program.items_per_source_item, program.gl.FLOAT);
-      };
+      self.data_view.useHeader(function (header, cb) {
+        for (var name in program.dataViewArrayBuffers) {
+          var col = header.colsByName[name];
+          Shader.programBindArray(program.gl, program.dataViewArrayBuffers[name], program, name, col.items.length / program.items_per_source_item, program.gl.FLOAT);
+        };
+        cb();
+      });
     },
 
     setGeneralUniforms: function (program) {

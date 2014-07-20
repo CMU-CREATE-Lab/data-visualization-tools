@@ -110,36 +110,38 @@ if (!app.useDojo) {
               style: "padding-top: 0; padding-bottom: 0;"
             });
             $(itemwidget.domNode).find("a.add").click(function () {
-              var sourceselect = new Menu({
-                onMouseLeave: function () {
-                  popup.close(sourceselect);
-                }
-              });
-              self.dataview.getAvailableColumns().map(function (colname) {
+              self.dataview.getAvailableColumns(function (err, availableColumns) {
+                var sourceselect = new Menu({
+                  onMouseLeave: function () {
+                    popup.close(sourceselect);
+                  }
+                });
+                availableColumns.map(function (colname) {
+                  sourceselect.addChild(new MenuItem({
+                    label: colname,
+                    onClick: function(evt) {
+                      item.source[colname] = 0.0;
+                      self.generateSourceUI(itemwidget, spec, item, {key:colname, value: 0.0});
+                    }
+                  }));
+                });
                 sourceselect.addChild(new MenuItem({
-                  label: colname,
+                  label: "[Constant value]",
                   onClick: function(evt) {
-                    item.source[colname] = 0.0;
-                    self.generateSourceUI(itemwidget, spec, item, {key:colname, value: 0.0});
+                    item.source["_"] = 0.0;
+                    self.generateSourceUI(itemwidget, spec, item, {key:"_", value: 0.0});
                   }
                 }));
-              });
-              sourceselect.addChild(new MenuItem({
-                label: "[Constant value]",
-                onClick: function(evt) {
-                  item.source["_"] = 0.0;
-                  self.generateSourceUI(itemwidget, spec, item, {key:"_", value: 0.0});
-                }
-              }));
-              popup.open({
-                popup: sourceselect,
-                onExecute : function() { 
-                  popup.close(sourceselect);
-                }, 
-                onCancel : function() { 
-                  popup.close(sourceselect);
-                }, 
-                around: $(itemwidget.domNode).find("a.add")[0]
+                popup.open({
+                  popup: sourceselect,
+                  onExecute : function() { 
+                    popup.close(sourceselect);
+                  }, 
+                  onCancel : function() { 
+                    popup.close(sourceselect);
+                  }, 
+                  around: $(itemwidget.domNode).find("a.add")[0]
+                });
               });
             });
             Object.items(item.source).map(function (source) { self.generateSourceUI(itemwidget, spec, item, source); });
