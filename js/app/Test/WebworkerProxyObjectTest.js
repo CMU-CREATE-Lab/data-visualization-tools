@@ -2,16 +2,16 @@ define(["app/Class"], function(Class) {
   var WorkerObj = Class({
     name: "WorkerObj",
 
-    bar: function (a) {
-      return a + 2;
+    bar: function (a, cb) {
+      cb(null, a + 2);
     }
   });
 
   return Class({
     name: "WebworkerProxyObjectTest",
 
-    foo: function () {
-      return new WorkerObj();
+    foo: function (cb) {
+      cb(null, new WorkerObj());
     },
   });
 });

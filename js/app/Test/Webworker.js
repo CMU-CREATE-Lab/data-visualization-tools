@@ -1,7 +1,6 @@
 define(["app/Class", "QUnit", "app/Test/BaseTest", "app/Webworker"], function(Class, QUnit, BaseTest, Webworker) {
   return Class(BaseTest, {
     name: "Webworker",
-
     "Send events to/from worker": function (cb) {
       QUnit.expect(2);
 
@@ -29,7 +28,7 @@ define(["app/Class", "QUnit", "app/Test/BaseTest", "app/Webworker"], function(Cl
       var w = new Webworker({mainModule: "app/Test/WebworkerDatasetTest"});
 
       w.addDataset("mydata");
-      /* Request twice just to make sure the counter works... */
+      // Request twice just to make sure the counter works...
       w.withDataset("mydata", function (dataset, cb) {
         w.withDataset("mydata", function (dataset, cb) {
           var intarr = new Int32Array(4711);
@@ -64,25 +63,22 @@ define(["app/Class", "QUnit", "app/Test/BaseTest", "app/Webworker"], function(Cl
 
       w.events.on({
         'main-loaded': function (e) {
-
           e.main.call(
-            function (obj) {
+            'foo',
+            function (err, obj) {
 
               obj.call(
-                function (a) {
+                'bar',
+                4711,
+                function (err, a) {
                   QUnit.equal(a, 4713, "Value got passed around properly");
                   cb();
-                },
-                'bar',
-                4711
+                }
               );
-
-            },
-            'foo'
+            }
           );
         }
       });
     }
-
   });
 });

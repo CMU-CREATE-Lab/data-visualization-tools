@@ -97,7 +97,7 @@ define(["app/Class", "app/Events"], function(Class, Events) {
     proxySerialize: function (obj) {
       var self = this;
 
-      if (typeof obj == 'object') {
+      if (obj !== undefined && obj !== null && typeof obj == 'object') {
         if (obj.map != undefined) {
           return obj.map(function (item) {
             return self.proxySerialize(item);
@@ -123,7 +123,7 @@ define(["app/Class", "app/Events"], function(Class, Events) {
     proxyDeserialize: function (obj) {
       var self = this;
 
-      if (typeof obj == 'object') {
+      if (obj !== undefined && obj !== null && typeof obj == 'object') {
         if (obj.map != undefined) {
           return obj.map(function (item) {
             return self.proxyDeserialize(item);
@@ -272,7 +272,7 @@ define(["app/Class", "app/Events"], function(Class, Events) {
     },
 
 
-    objectMethodCall: function (cb, objectId, name, args) {
+    objectMethodCall: function (objectId, name, args, cb) {
       var self = this;
       var id = self.callCounter++;
       self.calls[id] = cb;
@@ -287,13 +287,16 @@ define(["app/Class", "app/Events"], function(Class, Events) {
     handleObjectMethodCall: function (e) {
       var self = this;
       if (!e.received) return;
-      self.events.triggerEvent('object-method-return', {
-        id: e.id,
-        value: self.proxiedObjects[e.object][e.name].apply(
-          self.proxiedObjects[e.object],
-          e.arguments
-        )
-      });
+
+      self.proxiedObjects[e.object][e.name].apply(
+        self.proxiedObjects[e.object],
+        e.arguments.concat([function () {
+          self.events.triggerEvent('object-method-return', {
+            id: e.id,
+            arguments: Array.prototype.slice.call(arguments)
+          });
+        }])
+      );
     },
 
     handleObjectMethodReturn: function (e) {
@@ -301,7 +304,7 @@ define(["app/Class", "app/Events"], function(Class, Events) {
       if (!e.received) return;
       cb = self.calls[e.id];
       delete self.calls[e.id];
-      cb(e.value);
+      cb.apply(null, e.arguments);
     },
 
     handleObjectDereference: function (e) {
@@ -321,11 +324,14 @@ define(["app/Class", "app/Events"], function(Class, Events) {
       self.usage = 1;
     },
 
-    call: function (cb, name) {
+    /* call(name, arguments.., function (err, retval) { ... }) */
+    call: function (name) {
       var self = this;
+      var args = Array.prototype.slice.call(arguments, 1, arguments.length-1);
+      var cb = arguments[arguments.length-1];
 
       self.worker.objectMethodCall(
-        cb, self.id, name, Array.prototype.slice.call(arguments, 2)
+          self.id, name, args, cb
       );
     },
 
