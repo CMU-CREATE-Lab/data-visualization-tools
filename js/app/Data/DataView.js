@@ -83,7 +83,9 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
 
     addSelectionRange: function (type, startidx, endidx, replace) {
       var self = this;
-      if (self.selections[type]) self.selections[type].addRange(self.source, startidx, endidx, replace);
+      if (!self.selections[type]) return;
+      self.selections[type].addRange(self.source, startidx, endidx, replace);
+      self.events.triggerEvent('spec-update', {json: self.toJSON, string: self.toString()});
     },
 
     getSelectionInfo: function (name, cb) {
@@ -132,6 +134,9 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
 
       Object.keys(self.header.colsByName).map(self.updateCol.bind(self));
       self.updateSeries();
+
+      lastUpdate.json = self.toJSON();
+      lastUpdate.string = self.toString();
 
       self.events.triggerEvent(lastUpdate.update, lastUpdate);
       self.events.triggerEvent("update", lastUpdate);
@@ -187,7 +192,12 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
 
       self.updateCol(spec.name);
 
-      var e = {update: update, name: spec.name};
+      var e = {
+        update: update,
+        name: spec.name,
+        json: self.toJSON,
+        string: self.toString()
+      };
       self.events.triggerEvent(e.update, e);
       self.events.triggerEvent('update', e);
     },
@@ -206,7 +216,12 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
       delete self.header.colsByName[name];
       delete self.data[name];
 
-      var e = {update: 'remove-col', name: spec.name};
+      var e = {
+        update: 'remove-col',
+        name: spec.name,
+        json: self.toJSON,
+        string: self.toString()
+      };
       self.events.triggerEvent(e.update, e);
       self.events.triggerEvent('update', e);
     },
