@@ -79,7 +79,6 @@ define(["app/Class", "lodash", "app/Events", "app/Data/Format", "app/Data/DataVi
         {
           columns: view.columns,
           selections: view.selections,
-          transforms: view.transforms
         }
       ));
     },

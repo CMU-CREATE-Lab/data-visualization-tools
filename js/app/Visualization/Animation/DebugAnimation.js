@@ -1,4 +1,4 @@
-define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualization/Shader", "app/Visualization/Animation/Animation"], function(require, Class, GeoProjection, Shader, Animation) {
+define(["require", "app/Class", "app/Visualization/Shader", "app/Visualization/Animation/Animation"], function(require, Class, Shader, Animation) {
   var DebugAnimation = Class(Animation, {
     name: "DebugAnimation",
 
@@ -9,16 +9,7 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
           {name: "longitude", source: {longitude: 1.0}},
           {name: "latitude", source: {latitude: 1.0}}
         ],
-        transform: function (col, offset) {
-          var spec = this;
-          var longitude = col[offset + spec.itemsByName.longitude.index];
-          var latitude = col[offset + spec.itemsByName.latitude.index];
-
-          var pixel = GeoProjection.LatLongToPixelXY(latitude, longitude);
-
-          col[offset + spec.itemsByName.latitude.index] = pixel.y;
-          col[offset + spec.itemsByName.longitude.index] = pixel.x;
-        }
+        transform: 'coordinate'
       }
     },
 

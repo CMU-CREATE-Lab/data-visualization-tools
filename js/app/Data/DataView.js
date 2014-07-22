@@ -1,4 +1,4 @@
-define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "lodash"], function(Class, Format, Selection, Pack, _) {
+define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "app/Data/GeoProjection", "lodash"], function(Class, Format, Selection, Pack, GeoProjection, _) {
   return Class(Format, {
     name: "DataView",
 
@@ -28,6 +28,55 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
     },
 
     transforms: {
+      coordinate: function (col, offset) {
+        var spec = this;
+        var longitude = col[offset + spec.itemsByName.longitude.index];
+        var latitude = col[offset + spec.itemsByName.latitude.index];
+
+        var pixel = GeoProjection.LatLongToPixelXY(latitude, longitude);
+
+        col[offset + spec.itemsByName.latitude.index] = pixel.y;
+        col[offset + spec.itemsByName.longitude.index] = pixel.x;
+      },
+      rowidx: function (col, offset) {
+        var spec = this;
+        var rowidx = (offset / spec.items.length) + 1;
+
+        col[offset + spec.itemsByName.r.index] = ((rowidx >> 16) & 0xff) / 255;
+        col[offset + spec.itemsByName.g.index] = ((rowidx >> 8) & 0xff) / 255;
+        col[offset + spec.itemsByName.b.index] = (rowidx & 0xff) / 255;
+        col[offset + spec.itemsByName.a.index] = 1.0;
+      },
+
+      coordinate2: function (col, offset) {
+        var spec = this;
+        var longitude_start = col[offset + spec.itemsByName.longitude_start.index];
+        var latitude_start = col[offset + spec.itemsByName.latitude_start.index];
+        var longitude_end = col[offset + spec.itemsByName.longitude_end.index];
+        var latitude_end = col[offset + spec.itemsByName.latitude_end.index];
+
+        var pixel_start = GeoProjection.LatLongToPixelXY(latitude_start, longitude_start);
+        var pixel_end = GeoProjection.LatLongToPixelXY(latitude_end, longitude_end);
+
+        col[offset + spec.itemsByName.latitude_start.index] = pixel_start.y;
+        col[offset + spec.itemsByName.longitude_start.index] = pixel_start.x;
+        col[offset + spec.itemsByName.latitude_end.index] = pixel_end.y;
+        col[offset + spec.itemsByName.longitude_end.index] = pixel_end.x;
+      },
+      rowidx2: function (col, offset) {
+        var spec = this;
+        var rowidx = (offset / spec.items.length) + 1;
+
+        col[offset + spec.itemsByName.sr.index] = ((rowidx >> 16) & 0xff) / 255;
+        col[offset + spec.itemsByName.sg.index] = ((rowidx >> 8) & 0xff) / 255;
+        col[offset + spec.itemsByName.sb.index] = (rowidx & 0xff) / 255;
+        col[offset + spec.itemsByName.sa.index] = 1.0;
+        col[offset + spec.itemsByName.er.index] = ((rowidx >> 16) & 0xff) / 255;
+        col[offset + spec.itemsByName.eg.index] = ((rowidx >> 8) & 0xff) / 255;
+        col[offset + spec.itemsByName.eb.index] = (rowidx & 0xff) / 255;
+        col[offset + spec.itemsByName.ea.index] = 1.0;
+      }
+
     },
 
     initialize: function (source, args) {

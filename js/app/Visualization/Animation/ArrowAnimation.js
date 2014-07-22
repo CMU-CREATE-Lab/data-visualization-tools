@@ -1,4 +1,4 @@
-define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualization/Shader", "app/Visualization/Animation/Animation"], function(require, Class, GeoProjection, Shader, Animation) {
+define(["require", "app/Class", "app/Visualization/Shader", "app/Visualization/Animation/Animation"], function(require, Class, Shader, Animation) {
   var ArrowAnimation = Class(Animation, {
     name: "ArrowAnimation",
 
@@ -11,7 +11,7 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
           {name: "longitude_end", source: {longitude: 1.0}},
           {name: "latitude_end", source: {latitude: 1.0}}
         ],
-        transform: "coordinate"
+        transform: "coordinate2"
       },
       color: {type: "Float32", items: [
         {name: "red_start", source: {_:1.0}, min: 0.0, max: 1.0},
@@ -43,38 +43,7 @@ define(["require", "app/Class", "app/Visualization/GeoProjection", "app/Visualiz
           {name: "eb", source: {}},
           {name: "ea", source: {}}
         ],
-        transform: "rowidx"
-      }
-    },
-
-    transforms: {
-      coordinate: function (col, offset) {
-        var spec = this;
-        var longitude_start = col[offset + spec.itemsByName.longitude_start.index];
-        var latitude_start = col[offset + spec.itemsByName.latitude_start.index];
-        var longitude_end = col[offset + spec.itemsByName.longitude_end.index];
-        var latitude_end = col[offset + spec.itemsByName.latitude_end.index];
-
-        var pixel_start = GeoProjection.LatLongToPixelXY(latitude_start, longitude_start);
-        var pixel_end = GeoProjection.LatLongToPixelXY(latitude_end, longitude_end);
-
-        col[offset + spec.itemsByName.latitude_start.index] = pixel_start.y;
-        col[offset + spec.itemsByName.longitude_start.index] = pixel_start.x;
-        col[offset + spec.itemsByName.latitude_end.index] = pixel_end.y;
-        col[offset + spec.itemsByName.longitude_end.index] = pixel_end.x;
-      },
-      rowidx: function (col, offset) {
-        var spec = this;
-        var rowidx = (offset / spec.items.length) + 1;
-
-        col[offset + spec.itemsByName.sr.index] = ((rowidx >> 16) & 0xff) / 255;
-        col[offset + spec.itemsByName.sg.index] = ((rowidx >> 8) & 0xff) / 255;
-        col[offset + spec.itemsByName.sb.index] = (rowidx & 0xff) / 255;
-        col[offset + spec.itemsByName.sa.index] = 1.0;
-        col[offset + spec.itemsByName.er.index] = ((rowidx >> 16) & 0xff) / 255;
-        col[offset + spec.itemsByName.eg.index] = ((rowidx >> 8) & 0xff) / 255;
-        col[offset + spec.itemsByName.eb.index] = (rowidx & 0xff) / 255;
-        col[offset + spec.itemsByName.ea.index] = 1.0;
+        transform: "rowidx2"
       }
     },
 

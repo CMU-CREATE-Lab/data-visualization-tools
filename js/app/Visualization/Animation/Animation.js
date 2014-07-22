@@ -1,4 +1,4 @@
-define(["app/Class", "async", "app/Visualization/Shader", "app/Visualization/GeoProjection", "app/Data/DataView", "app/Visualization/DataViewUI", "jQuery"], function(Class, async, Shader, GeoProjection, DataView, DataViewUI, $) {
+define(["app/Class", "async", "app/Visualization/Shader", "app/Data/GeoProjection", "app/Data/DataView", "app/Visualization/DataViewUI", "jQuery"], function(Class, async, Shader, GeoProjection, DataView, DataViewUI, $) {
   var Animation = Class({
     name: "Animation",
     columns: {
@@ -11,28 +11,6 @@ define(["app/Class", "async", "app/Visualization/Shader", "app/Visualization/Geo
         {name: "blue", source: {_: 0.0}}]},
       magnitude: {type: "Float32", items: [
         {name: "magnitude", source: {_: 1.0}}]}
-    },
-
-    transforms: {
-      coordinate: function (col, offset) {
-        var spec = this;
-        var longitude = col[offset + spec.itemsByName.longitude.index];
-        var latitude = col[offset + spec.itemsByName.latitude.index];
-
-        var pixel = GeoProjection.LatLongToPixelXY(latitude, longitude);
-
-        col[offset + spec.itemsByName.latitude.index] = pixel.y;
-        col[offset + spec.itemsByName.longitude.index] = pixel.x;
-      },
-      rowidx: function (col, offset) {
-        var spec = this;
-        var rowidx = (offset / spec.items.length) + 1;
-
-        col[offset + spec.itemsByName.r.index] = ((rowidx >> 16) & 0xff) / 255;
-        col[offset + spec.itemsByName.g.index] = ((rowidx >> 8) & 0xff) / 255;
-        col[offset + spec.itemsByName.b.index] = (rowidx & 0xff) / 255;
-        col[offset + spec.itemsByName.a.index] = 1.0;
-      }
     },
 
     programSpecs: {},
@@ -67,8 +45,7 @@ define(["app/Class", "async", "app/Visualization/Shader", "app/Visualization/Geo
       self.manager.visualization.data.createView({
         source:self.source,
         columns: self.columns,
-        selections: self.selections,
-        transforms: self.transforms
+        selections: self.selections
       }, function (err, data_view) {
         if (err) throw err; // FIXME: Make cb handle cb(err);
         self.data_view = data_view;
