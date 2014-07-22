@@ -79,6 +79,24 @@ define(["app/Class", "QUnit", "app/Test/BaseTest", "app/Webworker"], function(Cl
           );
         }
       });
+    },
+
+    "Proxy object events": function (cb) {
+      QUnit.expect(1);
+
+      var w = new Webworker({mainModule: "app/Test/WebworkerProxyObjectEventsTest"});
+
+      w.events.on({
+        'main-loaded': function (e) {
+          e.main.events.on({
+            foo: function (e) {
+               QUnit.equal(e.value, 4711, "Value got passed around properly");
+               cb();
+            }
+          });
+          e.main.call('foo', function () {});
+        }
+      });
     }
   });
 });

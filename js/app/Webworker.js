@@ -77,22 +77,19 @@ define(["app/Class", "app/Events"], function(Class, Events) {
     handleMessage: function (e) {
       var self = this;
       var msg = self.proxyDeserialize(e.data);
-      //  console.log(app.name + ":handleMessage(" + JSON.stringify(msg) + ")");
-      console.log(app.name + ":handleMessage(" + msg.type + ")");
-      msg.received = true;
-      self.events.triggerEvent(msg.type, msg);
+      // console.log(app.name + ":handleMessage(" + JSON.stringify(e.data) + ")");
+      msg.data.received = true;
+      self.events.triggerEvent(msg.type, msg.data);
     },
 
     sendMessage: function (e, type) {
-      e.type = type;
-      // console.log(app.name + ": sendMessage(" + JSON.stringify(e) + ")");
       var self = this;
       if (!e.received) {
-        console.log(app.name + ": sendMessage(" + e.type + ")");
-        self.postMessage(self.proxySerialize(e));
+        var data = self.proxySerialize({type:type, data:e});
+        // console.log(app.name + ": sendMessage(" + JSON.stringify(data) + ")");
+        self.postMessage(data);
       }
     },
-
 
     proxySerialize: function (obj) {
       var self = this;
@@ -112,7 +109,21 @@ define(["app/Class", "app/Events"], function(Class, Events) {
           if (obj.__proxyObjectId__ == undefined) {
             obj.__proxyObjectId__ = self.proxiedObjectsCounter++
           }
-          self.proxiedObjects[obj.__proxyObjectId__] = obj;
+          if (obj.events && obj.__proxyEventHandler__ == undefined) {
+            obj.__proxyEventHandler__ = function (e, type) {
+              self.events.triggerEvent('object-event', {
+                object: obj.__proxyObjectId__,
+                type: type,
+                data: e
+              });
+            }
+          }
+          if (!self.proxiedObjects[obj.__proxyObjectId__]) {
+            self.proxiedObjects[obj.__proxyObjectId__] = obj;
+            if (obj.events) {
+              obj.events.on({'__all__': obj.__proxyEventHandler__});
+            }
+          }
           return {__class__: ['WebworkerProxy'], object: obj.__proxyObjectId__};
         }
       } else {
@@ -170,7 +181,7 @@ define(["app/Class", "app/Events"], function(Class, Events) {
         };
       }
       self.postMessage(
-        {type: 'send-dataset', dataset: dataset, data: self.data[dataset].data},
+        {type: 'send-dataset', data: {dataset: dataset, data: self.data[dataset].data}},
         Object.values(self.data[dataset].data)
       );
       self.data[dataset].ours = false;
@@ -309,6 +320,9 @@ define(["app/Class", "app/Events"], function(Class, Events) {
 
     handleObjectDereference: function (e) {
       if (!e.received) return;
+      if (self.proxiedObjects[e.object].events) {
+        obj.events.un('__all__', obj.__proxyEventHandler__);
+      }
       delete self.proxiedObjects[e.object];
     }
   });
@@ -322,6 +336,11 @@ define(["app/Class", "app/Events"], function(Class, Events) {
       self.worker = worker;
       self.id = id;
       self.usage = 1;
+      self.events = new Events('WebworkerObjectProxyEvents');
+      self.handleEvent = function (e) {
+        self.events.triggerEvent(e.type, e.data);
+      }
+      self.worker.events.on({'object-event': self.handleEvent});
     },
 
     /* call(name, arguments.., function (err, retval) { ... }) */
