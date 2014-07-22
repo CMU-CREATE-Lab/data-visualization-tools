@@ -293,7 +293,7 @@ define(["app/Class", "app/Events", "app/Bounds", "async", "app/Logging", "jQuery
       self.updateNeeded = true;
     },
 
-    updateTime: function (paused) {
+    updateTime: function (header, paused) {
       var self = this;
 
       self.stats.begin();
@@ -302,8 +302,8 @@ define(["app/Class", "app/Events", "app/Bounds", "async", "app/Logging", "jQuery
         self.lastUpdate = undefined;
       } else {
         var time = self.visualization.state.getValue("time").getTime();
-        var min = self.visualization.data.header.colsByName.datetime.min;
-        var max = self.visualization.data.header.colsByName.datetime.max;
+        var min = header.colsByName.datetime.min;
+        var max = header.colsByName.datetime.max;
         var timeNow = new Date().getTime();
 
         if (self.lastUpdate == undefined) {
@@ -344,37 +344,39 @@ define(["app/Class", "app/Events", "app/Bounds", "async", "app/Logging", "jQuery
     update: function() {
       var self = this;
 
-      var time = self.visualization.state.getValue("time");
-      var paused = self.visualization.state.getValue("paused");
-      if (!self.visualization.data.header.colsByName.datetime) paused = true;
-      if (!paused) {
-        var min = self.visualization.data.header.colsByName.datetime.min;
-        var max = self.visualization.data.header.colsByName.datetime.max;
-        if (time < min || time > max) paused = true;
-      }
+      self.visualization.data.useHeader(function (header, cb) {
+        var time = self.visualization.state.getValue("time");
+        var paused = self.visualization.state.getValue("paused");
+        if (!header.colsByName.datetime) paused = true;
+        if (!paused) {
+          var min = header.colsByName.datetime.min;
+          var max = header.colsByName.datetime.max;
+          if (time < min || time > max) paused = true;
+        }
 
-      if (!self.updateNeeded && paused) {
-        return;
-      }
-      self.updateNeeded = false;
+        if (!self.updateNeeded && paused) {
+          return;
+        }
+        self.updateNeeded = false;
 
-      self.updateTime(paused);
-      self.updateProjection();
+        self.updateTime(header, paused);
+        self.updateProjection();
 
-      self.gl.clear(self.gl.COLOR_BUFFER_BIT);
+        self.gl.clear(self.gl.COLOR_BUFFER_BIT);
 
-      Logging.default.log("Visualization.Animation.AnimationManager.update", {
-        toString: function () {
-          return (this.time != undefined ? this.time.rfcstring(" ") : "undefined")
-            + " [" + (this.offset != undefined ? this.offset.toString() : "undefined") + "]";
-        },
-        offset: self.visualization.state.getValue("offset"),
-        time: time
+        Logging.default.log("Visualization.Animation.AnimationManager.update", {
+          toString: function () {
+            return (this.time != undefined ? this.time.rfcstring(" ") : "undefined")
+              + " [" + (this.offset != undefined ? this.offset.toString() : "undefined") + "]";
+          },
+          offset: self.visualization.state.getValue("offset"),
+          time: time
+        });
+
+        self.animations.map(function (animation) { animation.draw(); });
+
+        self.stats.end();
       });
-
-      self.animations.map(function (animation) { animation.draw(); });
-
-      self.stats.end();
     },
 
     triggerUpdate: function (e) {

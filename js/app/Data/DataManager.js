@@ -155,6 +155,11 @@ define(["app/Class", "lodash", "app/Events", "app/Data/Format", "app/Data/DataVi
       }
       self.events.triggerEvent(update.update, update);
       self.events.triggerEvent("update", update);
+    },
+
+    useHeader: function (fn) {
+      var self = this;
+      fn(self.header, function () {});
     }
   });
 });

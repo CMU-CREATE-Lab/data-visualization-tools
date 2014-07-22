@@ -84,21 +84,23 @@ define(["app/Class", "app/Visualization/AnimationManagerUI", "async", "jQuery", 
       var daySliderUpdateMinMax = function() {
         var daySlider = $('#day-slider');
 
-        if (!self.visualization.data.header.colsByName.datetime) return;
-        var min = self.visualization.data.header.colsByName.datetime.min;
-        var max = self.visualization.data.header.colsByName.datetime.max;
-        var offset = self.visualization.state.getValue("offset");
+        self.visualization.data.useHeader(function (header) {
+          if (!header.colsByName.datetime) return;
+          var min = header.colsByName.datetime.min;
+          var max = header.colsByName.datetime.max;
+          var offset = self.visualization.state.getValue("offset");
 
-        offset = Math.min(offset, (max - min) / (24 * 60 * 60 * 1000));
-        min = min + offset * 24 * 60 * 60 * 1000;
+          offset = Math.min(offset, (max - min) / (24 * 60 * 60 * 1000));
+          min = min + offset * 24 * 60 * 60 * 1000;
 
-        daySlider.attr({"data-min": min});
-        daySlider.attr({"data-max": max});
+          daySlider.attr({"data-min": min});
+          daySlider.attr({"data-max": max});
 
-        if (self.visualization.state.getValue("time") == undefined || self.visualization.state.getValue("time").getTime() < min) {
-          self.visualization.state.setValue("time", new Date(min));
-        }
-        daySlider.trigger("change");
+          if (self.visualization.state.getValue("time") == undefined || self.visualization.state.getValue("time").getTime() < min) {
+            self.visualization.state.setValue("time", new Date(min));
+          }
+          daySlider.trigger("change");
+        });
       };
 
       var daySliderUpdateValue = function (e) {
