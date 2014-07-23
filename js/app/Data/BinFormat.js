@@ -21,7 +21,7 @@ define(["app/Class", "app/Events", "app/Data/TypedMatrixParser", "app/Data/Forma
       self.seriescount = self.header.series;
       for (var name in self.header.colsByName) {
         var col = self.header.colsByName[name];
-        self.data[name] = new col.typespec.array(self.header.length);
+        self.data[name] = new (eval(col.typespec.array))(self.header.length);
       }
 
       TypedMatrixParser.prototype.headerLoaded.call(self, data);

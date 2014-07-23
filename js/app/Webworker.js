@@ -102,7 +102,12 @@ define(["app/Class", "app/Events"], function(Class, Events) {
         } else if (obj.constructor === Object) {
           var res = {};
           for (var key in obj) {
-            res[key] = self.proxySerialize(obj[key]);
+            if (key == 'toString') {
+              res['__class__'] = ['WebworkerPrintable'];
+              res['__toString__'] = obj.toString();
+            } else {
+              res[key] = self.proxySerialize(obj[key]);
+            }
           }
           return res;
         } else {
@@ -146,8 +151,13 @@ define(["app/Class", "app/Events"], function(Class, Events) {
           return self.proxies[obj.object];
         } else if (obj.constructor === Object) {
           var res = {};
+          if (obj.__class__ != undefined && obj.__class__[0] == 'WebworkerPrintable') {
+            res.toString = function () { return this.__toString__; }
+          }
           for (var key in obj) {
-            res[key] = self.proxyDeserialize(obj[key]);
+            if (key != '__class__') {
+              res[key] = self.proxyDeserialize(obj[key]);
+            }
           }
           return res;
         } else {
@@ -161,10 +171,12 @@ define(["app/Class", "app/Events"], function(Class, Events) {
 
     addDataset: function (dataset) {
       var self = this;
+      console.log(app.name + ": creating dataset " + dataset);
       self.data[dataset] = {
         usage: 0,
         ours: true,
-        requested: false,
+        requestedByUs: false,
+        requestedByPeer: false,
         queue: [],
         data: {}
       };
@@ -172,6 +184,7 @@ define(["app/Class", "app/Events"], function(Class, Events) {
 
     sendDataset: function (dataset) {
       var self = this;
+      console.log(app.name + ": sending dataset " + dataset);
       if (!self.data[dataset].ours || self.data[dataset].ours.usage > 0) {
         throw {
           dataset: dataset,
@@ -189,12 +202,16 @@ define(["app/Class", "app/Events"], function(Class, Events) {
 
     requestDataset: function (dataset) {
       var self = this;
-      self.postMessage({type: 'request-dataset', dataset: dataset});
+      if (self.data[dataset].requestedByUs) return;
+      console.log(app.name + ": requesting dataset " + dataset);
+      self.data[dataset].requestedByUs = true;
+      self.postMessage({type: 'request-dataset', data: {dataset: dataset}});
     },
 
     handleSendDataset: function (e, type) {
       var self = this;
       if (!e.received) return;
+      console.log(app.name + ": received dataset " + e.dataset);
       if (!self.data[e.dataset]) {
         self.addDataset(e.dataset);
       } else if (self.data[e.dataset].ours || self.data[e.dataset].usage > 0) {
@@ -208,7 +225,8 @@ define(["app/Class", "app/Events"], function(Class, Events) {
 
       self.data[e.dataset].data = e.data;
       self.data[e.dataset].ours = true;
-      self.data[e.dataset].requested = false;
+      self.data[e.dataset].requestedByUs = false;
+      self.data[e.dataset].requestedByPeer = false;
       self.data[e.dataset].queue.map(function (f) {
         self.data[e.dataset].usage++;
         f();
@@ -219,6 +237,7 @@ define(["app/Class", "app/Events"], function(Class, Events) {
     handleRequestDataset: function (e, type) {
       var self = this;
       if (!e.received) return;
+      console.log(app.name + ": received request for dataset " + e.dataset);
       var dataset = e.dataset;
       if (!self.data[dataset]) {
         self.addDataset(dataset);
@@ -234,7 +253,7 @@ define(["app/Class", "app/Events"], function(Class, Events) {
       if (self.data[dataset].usage == 0) {
         self.sendDataset(dataset);
       } else {
-        self.data[dataset].requested = true;
+        self.data[dataset].requestedByPeer = true;
       }
     },
 
@@ -251,7 +270,7 @@ define(["app/Class", "app/Events"], function(Class, Events) {
         cb();
       } else {
         self.data[dataset].queue.push(cb);
-        self.events.triggerEvent('request-dataset', {dataset: dataset});
+        self.requestDataset(dataset);
       }
     },
 
@@ -266,7 +285,7 @@ define(["app/Class", "app/Events"], function(Class, Events) {
         };
       }
       self.data[dataset].usage--;
-      if (self.data[dataset].usage == 0 && self.data[dataset].requested) {
+      if (self.data[dataset].usage == 0 && self.data[dataset].requestedByPeer) {
         self.sendDataset(dataset);
       }
     },

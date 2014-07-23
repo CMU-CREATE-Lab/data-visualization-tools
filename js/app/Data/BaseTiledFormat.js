@@ -531,7 +531,7 @@ define(["app/Class", "app/Events", "app/Bounds", "app/Data/Format", "app/Data/Ti
 
       for (var name in dst.header.colsByName) {
         var col = dst.header.colsByName[name];
-        dst.data[name] = new col.typespec.array(dst.header.length);
+        dst.data[name] = new (eval(col.typespec.array))(dst.header.length);
       }
       dst.data.tile = new Int32Array(dst.header.length);
 
