@@ -82,6 +82,11 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
     initialize: function (source, args) {
       var self = this;
 
+      if (app.worker) {
+        app.worker.addDataset('data');
+        app.worker.addDataset('series');
+      }
+
       Format.prototype.initialize.call(self)
       self.source = source;
 
@@ -198,33 +203,35 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
 
     updateCol: function (colname) {
       var self = this;
-      var spec = self.header.colsByName[colname];
-      if (   !self.data[colname]
-          || self.data[colname].length != self.source.header.length * spec.items.length) {
-        self.data[colname] = new spec.typespec.array(self.source.header.length * spec.items.length);
-      }
+      self.useData(function (data, cb) {
+        var spec = self.header.colsByName[colname];
+        if (   !data[colname]
+            || data[colname].length != self.source.header.length * spec.items.length) {
+          data[colname] = new (eval(spec.typespec.array))(self.source.header.length * spec.items.length);
+        }
 
-      for (var rowidx = 0; rowidx < self.source.header.length; rowidx++) {
-        for (var item = 0; item < spec.items.length; item++) {
-          var source = spec.items[item].source;
-          var res = source._ || 0; 
-          for (var key in source) {
-            if (key != '_') {
-              if (self.selections[key]) {
-                res += source[key] * (self.selections[key].checkRow(self.source, rowidx) ? 1.0 : 0.0);
-              } else {
-                if (self.source.data[key]) {
-                  res += source[key] * self.source.data[key][rowidx];
+        for (var rowidx = 0; rowidx < self.source.header.length; rowidx++) {
+          for (var item = 0; item < spec.items.length; item++) {
+            var source = spec.items[item].source;
+            var res = source._ || 0; 
+            for (var key in source) {
+              if (key != '_') {
+                if (self.selections[key]) {
+                  res += source[key] * (self.selections[key].checkRow(self.source, rowidx) ? 1.0 : 0.0);
+                } else {
+                  if (self.source.data[key]) {
+                    res += source[key] * self.source.data[key][rowidx];
+                  }
                 }
               }
             }
+            data[colname][rowidx * spec.items.length + item] = res;
           }
-          self.data[colname][rowidx * spec.items.length + item] = res;
+          if (spec.transform) {
+            self.transforms[spec.transform].call(spec, data[colname], rowidx * spec.items.length);
+          }
         }
-        if (spec.transform) {
-          self.transforms[spec.transform].call(spec, self.data[colname], rowidx * spec.items.length);
-        }
-      }
+      });
     },
 
     _changeCol: function(update, spec) {
@@ -262,32 +269,50 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
     },
 
     removeCol: function(name) {
-      delete self.header.colsByName[name];
-      delete self.data[name];
+      var self = this;
 
-      var e = {
-        update: 'remove-col',
-        name: spec.name,
-        json: self.toJSON,
-        string: self.toString()
-      };
-      self.events.triggerEvent(e.update, e);
-      self.events.triggerEvent('update', e);
+      self.useData(function (data, cb) {
+        delete self.header.colsByName[name];
+        delete data[name];
+
+        var e = {
+          update: 'remove-col',
+          name: spec.name,
+          json: self.toJSON,
+          string: self.toString()
+        };
+        self.events.triggerEvent(e.update, e);
+        self.events.triggerEvent('update', e);
+      });
     },
 
     useData: function (fn) {
       var self = this;
-      fn(self.data, function () {});
+      if (app.worker) {
+        app.worker.withDataset('data', fn);
+      } else {
+        fn(self.data, function () {});
+      }
     },
 
     useSeries: function (fn) {
       var self = this;
-      fn(self.series || [], function () {});
+      if (app.worker) {
+        app.worker.withDataset('series', fn);
+      } else {
+        fn(self.series || [], function () {});
+      }
     },
 
     useHeader: function (fn) {
       var self = this;
       fn(self.header, function () {});
+    },
+
+    // Used by ThreadDataManager
+    getHeader: function (cb) {
+      var self = this;
+      cb(self.header);
     },
 
     getAvailableColumns: function (cb) {

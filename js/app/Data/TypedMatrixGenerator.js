@@ -32,10 +32,11 @@ define(["app/Class", "app/Data/Pack"], function (Class, Pack) {
         var key = item.key;
         var col = item.value;
         var t = col.constructor;
+        var spec = Pack.typemap.byarray[t.name];
 
-        cols[key] = {'name': key, 'type': Pack.typemap.byarray[t].name};
+        cols[key] = {'name': key, 'type': spec.name};
         coltypes[key] = t;
-        rowLen += Pack.typemap.byarray[t].size;
+        rowLen += spec.size;
 
         for (var i = 0; i < col.length; i++) {
           var value = col[i];

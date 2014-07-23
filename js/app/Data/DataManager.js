@@ -160,6 +160,12 @@ define(["app/Class", "app/Bounds", "lodash", "app/Events", "app/Data/Format", "a
     useHeader: function (fn) {
       var self = this;
       fn(self.header, function () {});
+    },
+
+    // Used by ThreadDataManager
+    getHeader: function (cb) {
+      var self = this;
+      cb(self.header);
     }
   });
 });
