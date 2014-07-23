@@ -182,22 +182,30 @@ define(["app/Class", "app/Events"], function(Class, Events) {
       };
     },
 
-    sendDataset: function (dataset) {
+    sendDataset: function (datasetname) {
       var self = this;
-      console.log(app.name + ": sending dataset " + dataset);
-      if (!self.data[dataset].ours || self.data[dataset].ours.usage > 0) {
+      var dataset = self.data[datasetname];
+
+      console.log(app.name + ": sending dataset " + datasetname);
+      if (!dataset.ours || dataset.ours.usage > 0) {
         throw {
-          dataset: dataset,
+          dataset: datasetname,
           toString: function () {
             return "Attempt to send dataset that is in use, or isn't ours: " + this.dataset;
           }
         };
       }
+      var arrays = {};
+      for (var name in dataset.data) {
+        var values = dataset.data[name];
+        arrays[name] = {type: values.constructor.name, buffer: values.buffer};
+      }
+
       self.postMessage(
-        {type: 'send-dataset', data: {dataset: dataset, data: self.data[dataset].data}},
-        Object.values(self.data[dataset].data)
+        {type: 'send-dataset', data: {dataset: datasetname, data: arrays}},
+        Object.values(arrays).map(function (array) { return array.buffer; })
       );
-      self.data[dataset].ours = false;
+      dataset.ours = false;
     },
 
     requestDataset: function (dataset) {
@@ -222,8 +230,11 @@ define(["app/Class", "app/Events"], function(Class, Events) {
           }
         };
       }
-
-      self.data[e.dataset].data = e.data;
+      self.data[e.dataset].data = {};
+      for (var name in e.data) {
+        var data = e.data[name];
+        self.data[e.dataset].data[name] = new (eval(data.type))(data.buffer);
+      }
       self.data[e.dataset].ours = true;
       self.data[e.dataset].requestedByUs = false;
       self.data[e.dataset].requestedByPeer = false;
@@ -253,6 +264,7 @@ define(["app/Class", "app/Events"], function(Class, Events) {
       if (self.data[dataset].usage == 0) {
         self.sendDataset(dataset);
       } else {
+          console.log(app.name + ": dataset still used " + e.dataset);
         self.data[dataset].requestedByPeer = true;
       }
     },

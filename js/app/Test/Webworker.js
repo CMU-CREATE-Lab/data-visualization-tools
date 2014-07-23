@@ -31,9 +31,8 @@ define(["app/Class", "QUnit", "app/Test/BaseTest", "app/Webworker"], function(Cl
       // Request twice just to make sure the counter works...
       w.withDataset("mydata", function (dataset, cb) {
         w.withDataset("mydata", function (dataset, cb) {
-          var intarr = new Int32Array(4711);
-          dataset.intarr = intarr.buffer;
-          for (var i = 0; i < 4711; i++) intarr[i] = i + 5;
+          dataset.intarr = new Int32Array(4711);
+          for (var i = 0; i < 4711; i++) dataset.intarr[i] = i + 5;
           cb();
         }, cb);
       });
@@ -48,7 +47,7 @@ define(["app/Class", "QUnit", "app/Test/BaseTest", "app/Webworker"], function(Cl
             return;
           } else {
             w.withDataset("mydata", function (dataset, cb) {
-              QUnit.equal(new Int32Array(dataset.intarr)[0], 7, "Value got passed around properly");
+              QUnit.equal(dataset.intarr[0], 7, "Value got passed around properly");
               cb();
             }, cb);
           }
