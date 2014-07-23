@@ -7,10 +7,17 @@ define(["app/Class"], function(Class) {
     name: "Bounds",
     initialize: function (left, bottom, right, top) {
       var self = this;
-      self.left = left;
-      self.bottom = bottom;
-      self.right = right;
-      self.top = top;
+      if (left.length) {
+        self.left = left[0];
+        self.bottom = left[1];
+        self.right = left[2];
+        self.top = left[3];
+      } else {
+        self.left = left;
+        self.bottom = bottom;
+        self.right = right;
+        self.top = top;
+      }
     },
 
     clone: function() {
@@ -26,6 +33,10 @@ define(["app/Class"], function(Class) {
     getHeight: function () {
       var self = this;
       return self.top - self.bottom;
+    },
+
+    toArray: function() {
+      return [this.left, this.bottom, this.right, this.top];
     },
 
     toBBOX: function () {

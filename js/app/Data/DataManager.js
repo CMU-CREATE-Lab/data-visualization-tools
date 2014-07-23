@@ -85,6 +85,7 @@ define(["app/Class", "lodash", "app/Events", "app/Data/Format", "app/Data/DataVi
 
     zoomTo: function (bounds) {
       var self = this;
+      if (bounds.length > 0) bounds = new Bounds(bounds);
       Object.values(self.sources).map (function (source) {
         source.source.zoomTo(bounds);
       });
