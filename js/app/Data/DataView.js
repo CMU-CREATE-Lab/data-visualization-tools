@@ -139,7 +139,7 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
       var self = this;
       if (!self.selections[type]) return;
       self.selections[type].addRange(self.source, startidx, endidx, replace);
-      self.events.triggerEvent('spec-update', {json: self.toJSON, string: self.toString()});
+      self.events.triggerEvent('spec-update', {json: self.toJSON(), string: self.toString()});
     },
 
     getSelectionInfo: function (name, cb) {
@@ -251,7 +251,7 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
       var e = {
         update: update,
         name: spec.name,
-        json: self.toJSON,
+        json: self.toJSON(),
         string: self.toString()
       };
       self.events.triggerEvent(e.update, e);
