@@ -231,6 +231,7 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
             self.transforms[spec.transform].call(spec, data[colname], rowidx * spec.items.length);
           }
         }
+        cb();
       });
     },
 
@@ -283,6 +284,7 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
         };
         self.events.triggerEvent(e.update, e);
         self.events.triggerEvent('update', e);
+        cb();
       });
     },
 
