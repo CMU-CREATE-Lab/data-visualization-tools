@@ -1,10 +1,9 @@
-define(["app/Class", "lodash", "app/Events", "app/Data/Format", "app/Data/DataView", "app/Data/TiledBinFormat", "app/Data/BinFormat", "app/Data/EmptyFormat", "app/Data/TiledEmptyFormat"], function(Class, _, Events, Format, DataView) {
+define(["app/Class", "app/Bounds", "lodash", "app/Events", "app/Data/Format", "app/Data/DataView", "app/Data/TiledBinFormat", "app/Data/BinFormat", "app/Data/EmptyFormat", "app/Data/TiledEmptyFormat"], function(Class, Bounds, _, Events, Format, DataView) {
   return Class({
     name: "DataManager",
-    initialize: function (visualization) {
+    initialize: function () {
       var self = this;
 
-      self.visualization = visualization;
       self.sources = {};
       self.events = new Events("Data.DataManager");
       self.header = {colsByName: {}};
@@ -36,16 +35,17 @@ define(["app/Class", "lodash", "app/Events", "app/Data/Format", "app/Data/DataVi
           load: self.handleLoad.bind(self, source.source),
           update: self.handleUpdate.bind(self, source.source),
         });
-        self.visualization.state.events.on({
-          httpHeaders: function () {
-            source.source.setHeaders(self.visualization.state.getValue("httpHeaders"));
-          }
-        });
-        source.source.setHeaders(self.visualization.state.getValue("httpHeaders"));
       }
       self.sources[key].usage++;
       self.events.triggerEvent("add", self.sources[key]);
       return self.sources[key].source;
+    },
+
+    setHeaders: function (headers, cb) {
+      var self = this;
+      for (var key in self.sources) {
+        self.sources[key].source.setHeaders(headers);
+      }
     },
 
     removeSource: function (source) {
