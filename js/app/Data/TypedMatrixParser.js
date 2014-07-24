@@ -126,7 +126,7 @@ define(["app/Class", "app/Events", "app/Data/Pack", "app/Logging"], function (Cl
       self.loadStartTime = new Date();
       self.events.triggerEvent("load");
 
-      if (window.XMLHttpRequest) {
+      if (typeof XMLHttpRequest != 'undefined') {
         self.request = new XMLHttpRequest();
       } else {
         throw 'XMLHttpRequest is disabled';
