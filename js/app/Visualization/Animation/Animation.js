@@ -170,7 +170,9 @@ define(["app/Class", "async", "app/Visualization/Shader", "app/Data/GeoProjectio
       self.data_view.useHeader(function (header, cb) {
         for (var name in program.dataViewArrayBuffers) {
           var col = header.colsByName[name];
-          Shader.programBindArray(program.gl, program.dataViewArrayBuffers[name], program, name, col.items.length / program.items_per_source_item, program.gl.FLOAT);
+          if (col) {
+            Shader.programBindArray(program.gl, program.dataViewArrayBuffers[name], program, name, col.items.length / program.items_per_source_item, program.gl.FLOAT);
+          }
         };
         cb();
       });
