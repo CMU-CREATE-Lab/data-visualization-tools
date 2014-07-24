@@ -191,6 +191,7 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
 
       lastUpdate.json = self.toJSON();
       lastUpdate.string = self.toString();
+      lastUpdate.header = self.header;
 
       self.events.triggerEvent(lastUpdate.update, lastUpdate);
       self.events.triggerEvent("update", lastUpdate);
@@ -253,6 +254,7 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
         update: update,
         name: spec.name,
         json: self.toJSON(),
+        header: self.header,
         string: self.toString()
       };
       self.events.triggerEvent(e.update, e);
@@ -280,6 +282,7 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
           update: 'remove-col',
           name: spec.name,
           json: self.toJSON,
+          header: self.header,
           string: self.toString()
         };
         self.events.triggerEvent(e.update, e);
@@ -309,12 +312,6 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
     useHeader: function (fn) {
       var self = this;
       fn(self.header, function () {});
-    },
-
-    // Used by ThreadDataManager
-    getHeader: function (cb) {
-      var self = this;
-      cb(self.header);
     },
 
     getAvailableColumns: function (cb) {

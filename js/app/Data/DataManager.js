@@ -86,6 +86,7 @@ define(["app/Class", "app/Bounds", "lodash", "app/Events", "app/Data/Format", "a
     zoomTo: function (bounds) {
       var self = this;
       if (bounds.length > 0) bounds = new Bounds(bounds);
+        console.log("zoomTo(" + bounds.toBBOX() + ") for " + Object.keys(self.sources).join(", "));
       Object.values(self.sources).map (function (source) {
         source.source.zoomTo(bounds);
       });
@@ -107,6 +108,7 @@ define(["app/Class", "app/Bounds", "lodash", "app/Events", "app/Data/Format", "a
           }
         });
       });
+      self.events.triggerEvent("header", self.header);
     },
 
     handleError: function (source, error) {
@@ -132,7 +134,6 @@ define(["app/Class", "app/Bounds", "lodash", "app/Events", "app/Data/Format", "a
       var self = this;
       header.source = source;
       self.updateHeader();
-      self.events.triggerEvent("header", header);
     },
 
     handleLoad: function (source) {
@@ -160,12 +161,6 @@ define(["app/Class", "app/Bounds", "lodash", "app/Events", "app/Data/Format", "a
     useHeader: function (fn) {
       var self = this;
       fn(self.header, function () {});
-    },
-
-    // Used by ThreadDataManager
-    getHeader: function (cb) {
-      var self = this;
-      cb(self.header);
     }
   });
 });
