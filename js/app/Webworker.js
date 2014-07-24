@@ -62,8 +62,9 @@ define(["app/Class", "app/Events"], function(Class, Events) {
         if (app.workerMainModule) {
           main = function () {
            require([app.workerMainModule], function (mainModule) {
+             app.mainInstance = new mainModule();
              self.events.triggerEvent('main-loaded', {
-               main: new mainModule()
+               main: app.mainInstance
              });
            });
           }
@@ -77,7 +78,7 @@ define(["app/Class", "app/Events"], function(Class, Events) {
     handleMessage: function (e) {
       var self = this;
       var msg = self.proxyDeserialize(e.data);
-      // console.log(app.name + ":handleMessage(" + JSON.stringify(e.data) + ")");
+      console.log(app.name + ":handleMessage(" + JSON.stringify(e.data) + ")");
       msg.data.received = true;
       self.events.triggerEvent(msg.type, msg.data);
     },
@@ -86,7 +87,7 @@ define(["app/Class", "app/Events"], function(Class, Events) {
       var self = this;
       if (!e.received) {
         var data = self.proxySerialize({type:type, data:e});
-        // console.log(app.name + ": sendMessage(" + JSON.stringify(data) + ")");
+        console.log(app.name + ": sendMessage(" + JSON.stringify(data) + ")");
         self.postMessage(data);
       }
     },
@@ -369,7 +370,9 @@ define(["app/Class", "app/Events"], function(Class, Events) {
       self.usage = 1;
       self.events = new Events('WebworkerObjectProxyEvents');
       self.handleEvent = function (e) {
-        self.events.triggerEvent(e.type, e.data);
+        if (e.object == self.id) {
+          self.events.triggerEvent(e.type, e.data);
+        }
       }
       self.worker.events.on({'object-event': self.handleEvent});
     },
