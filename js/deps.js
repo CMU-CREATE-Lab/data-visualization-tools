@@ -53,6 +53,7 @@
   app.dependencies.scripts = app.dependencies.scripts.concat([
     {url: "http://maps.googleapis.com/maps/api/js?libraries=visualization&sensor=false&callback=googleMapsLoaded", handleCb: function (tag, cb) { googleMapsLoaded = cb; }},
     app.dirs.lib + "/jquery-1.10.2.min.js",
+    app.dirs.lib + "/jquery.mousewheel.js",
     app.dirs.lib + "/less-1.6.2.min.js",
     app.dirs.lib + "/bootstrap.min.js",
     app.dirs.lib + "/CanvasLayer.js",

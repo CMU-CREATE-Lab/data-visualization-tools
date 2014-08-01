@@ -45,10 +45,10 @@ define(['app/Class', 'app/Events', 'jQuery', 'less', 'app/LangExtensions'], func
       self.lineNode = $("<div class='line'>");
       self.lineVisibilityNode.append(self.lineNode);
 
-      self.zoomInNode = $("<a class='zoomIn'><i class='fa fa-minus-square'></i></div>");
+      self.zoomInNode = $("<a class='zoomIn'><i class='fa fa-plus-square'></i></div>");
       self.zoomInNode.click(self.zoomIn.bind(self));
       self.node.append(self.zoomInNode);
-      self.zoomOutNode = $("<a class='zoomOut'><i class='fa fa-plus-square'></i></div>");
+      self.zoomOutNode = $("<a class='zoomOut'><i class='fa fa-minus-square'></i></div>");
       self.zoomOutNode.click(self.zoomOut.bind(self));
       self.node.append(self.zoomOutNode);
 
@@ -64,6 +64,14 @@ define(['app/Class', 'app/Events', 'jQuery', 'less', 'app/LangExtensions'], func
       self.node.mousedown(self.dragStart.bind(self));
       $(document).mousemove(self.drag.bind(self));
       $(document).mouseup(self.dragEnd.bind(self));
+
+      self.node.mousewheel(function(event, delta, deltaX, deltaY) {
+        if (deltaY > 0) {
+          self.zoomIn();
+        } else if (deltaY < 0) {
+          self.zoomOut();
+        }
+      });
 
       self.setRange(windowStart, windowEnd);
     },
