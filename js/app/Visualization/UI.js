@@ -83,7 +83,7 @@ define(["app/Class", "app/Timeline", "app/Visualization/AnimationManagerUI", "as
           var max = new Date(header.colsByName.datetime.max);
 
           if (self.timeline.windowStart < min || self.timeline.windowEnd > max) {
-            self.timeline.setRange(Math.max(self.timeline.windowStart, min), Math.min(self.timeline.windowEnd, max));
+            self.timeline.setRange(new Date(Math.max(self.timeline.windowStart, min)), new Date(Math.min(self.timeline.windowEnd, max)));
           }
         });
       };
