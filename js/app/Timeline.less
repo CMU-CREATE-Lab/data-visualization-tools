@@ -1,0 +1,110 @@
+.rotate(@angle) {
+  /* Safari */
+  -webkit-transform: rotate(@angle);
+  /* Firefox */
+  -moz-transform: rotate(@angle);
+  /* IE */
+  -ms-transform: rotate(@angle);
+  /* Opera */
+  -o-transform: rotate(@angle);
+}
+
+.timeline {
+  background: white;
+
+  .zoomIn {
+    position: relative;
+    top: -200%;
+    display: block;
+    padding: 0;
+    margin-top: 5pt;
+    left: 100%;
+    width: 20pt;
+    height: 20pt;
+    margin-left: -15pt;
+  }
+
+  .zoomOut {
+    position: relative;
+    top: -100%;
+    display: block;
+    padding: 0;
+    margin-top: 5pt;
+    left: 100%;
+    width: 20pt;
+    height: 20pt;
+    margin-top: -40pt;
+    margin-left: -15pt;
+  }
+
+  .window {
+    position: relative;
+    height: 100%;
+    border: 2px solid black;
+
+    .startLabel {
+      position: absolute;
+      top: 100%;
+      right: 100%;
+      white-space: nowrap;
+      margin-top: 2pt;
+      margin-right: -70pt;
+    }
+    .endLabel {
+      position: absolute;
+      top: 100%;
+      left: 100%;
+      white-space: nowrap;
+      margin-top: 2pt;
+      margin-left: -70pt;
+    }
+  }
+
+  .line-visibility {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    top: -100%;
+
+
+    .line {
+      position: relative;
+      white-space: nowrap;
+      top: 100%;
+      margin-top: -30pt;
+      border-top: 2px solid black;
+      font-size: 0;
+
+      .quanta {
+        position: relative;
+        display: inline-block;
+        border-left: 2px solid green;
+        margin-left: -2px;
+        bottom: 20pt;
+        height: 40pt;
+        width: 0px;
+
+        &.small {
+          bottom: 30pt;
+          height: 20pt;
+        }
+
+        .label {
+          display: block;
+          position: absolute;
+          top: -8pt;
+          left: -2pt;
+          color: black;
+          width: 0;
+          height: 0;
+          font-size: 0;
+         .rotate(-45deg);
+          span {
+            font-size: 10pt;
+          }
+        } 
+      }
+    }
+  }
+}

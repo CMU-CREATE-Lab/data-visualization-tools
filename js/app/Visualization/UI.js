@@ -1,4 +1,4 @@
-define(["app/Class", "app/Visualization/AnimationManagerUI", "async", "jQuery", "app/Visualization/sliders"], function(Class, AnimationManagerUI, async, $) {
+define(["app/Class", "app/Timeline", "app/Visualization/AnimationManagerUI", "async", "jQuery", "app/Visualization/sliders"], function(Class, Timeline, AnimationManagerUI, async, $) {
   return Class({
     name: "UI",
     initialize: function (visualization) {
@@ -12,9 +12,7 @@ define(["app/Class", "app/Visualization/AnimationManagerUI", "async", "jQuery", 
       async.series([
         self.initLoadSpinner.bind(self),
         self.initLogo.bind(self),
-        self.initSliders.bind(self),
-        self.initDaySlider.bind(self),
-        self.initOffsetSlider.bind(self),
+        self.initTimeline.bind(self),
         self.initToggleButtons.bind(self),
         self.initSaveButton.bind(self),
         self.initAnimationManagerUI.bind(self)
@@ -59,55 +57,49 @@ define(["app/Class", "app/Visualization/AnimationManagerUI", "async", "jQuery", 
       cb();
     },
 
-    initSliders: function(cb) {
-      $(".control").slider();
-      cb();
-    },
-
-    initDaySlider: function(cb) {
+    initTimeline: function (cb) {
       var self = this;
       var updating = false;
 
-      var daySlider = $('#day-slider');
+      self.timelineNode = $('<div class="main-timeline">');
+      $("body").append(self.timelineNode);
 
-      daySlider.attr({"data-step": self.visualization.state.getValue("timeresolution").toString()});
 
-      daySlider.change(function(event) {
-        var time = new Date(parseInt(this.value));
-        $('#current-date').html(time.rfcstring(" ", self.visualization.state.getValue("timeresolution")));
-        updating = true;
-        self.visualization.state.setValue("time", time);
-        updating = false;
+      self.timeline = new Timeline(self.timelineNode, new Date('1970-01-01'), new Date('1970-01-2'), 10);
+      self.timeline.events.on({
+        'set-range': function (e) {
+          updating = true;
+          self.visualization.state.setValue("time", e.end);
+          self.visualization.state.setValue("offset", (e.end - e.start) / (24 * 60 * 60 * 1000));
+          updating = false;
+        }
       });
 
 
       var daySliderUpdateMinMax = function() {
-        var daySlider = $('#day-slider');
-
         self.visualization.data.useHeader(function (header) {
           if (!header.colsByName.datetime) return;
-          var min = header.colsByName.datetime.min;
-          var max = header.colsByName.datetime.max;
-          var offset = self.visualization.state.getValue("offset");
+          var min = new Date(header.colsByName.datetime.min);
+          var max = new Date(header.colsByName.datetime.max);
 
-          offset = Math.min(offset, (max - min) / (24 * 60 * 60 * 1000));
-          min = min + offset * 24 * 60 * 60 * 1000;
-
-          daySlider.attr({"data-min": min});
-          daySlider.attr({"data-max": max});
-
-          if (self.visualization.state.getValue("time") == undefined || self.visualization.state.getValue("time").getTime() < min) {
-            self.visualization.state.setValue("time", new Date(min));
+          if (self.timeline.windowStart < min || self.timeline.windowEnd > max) {
+            self.timeline.setRange(Math.max(self.timeline.windowStart, min), Math.min(self.timeline.windowEnd, max));
           }
-          daySlider.trigger("change");
         });
       };
 
       var daySliderUpdateValue = function (e) {
         if (updating) return;
-        if (self.visualization.state.getValue("time") == undefined) return;
-        daySlider.val(self.visualization.state.getValue("time").getTime().toString());
-        daySlider.trigger("change");
+
+        var time = self.visualization.state.getValue("time");
+        var offset = self.visualization.state.getValue("offset");
+
+        if (time == undefined) return;
+        if (offset == undefined) return;
+
+        offset *= 24 * 60 * 60 * 1000;
+
+        self.timeline.setRange(new Date(time.getTime() - offset), time);
       };
 
       self.visualization.state.events.on({
@@ -116,62 +108,6 @@ define(["app/Class", "app/Visualization/AnimationManagerUI", "async", "jQuery", 
       });
       self.visualization.data.events.on({update: daySliderUpdateMinMax});
       daySliderUpdateValue();
-
-
-      var handle = daySlider.parent(".control").find(".handle");
-      var old_paused;
-      handle.mousedown(function(event) {
-        old_paused = self.visualization.state.getValue("paused")
-        self.visualization.state.setValue("paused", true);
-      });
-      handle.mouseup(function(event) {
-        self.visualization.state.setValue("paused", old_paused);
-      });
-
-      cb();
-    },
-
-    initOffsetSlider: function (cb) {
-      var self = this;
-      var updating = false;
-
-      var offsetSlider = $('#offset-slider');
-      offsetSlider.change(function(event) {
-        var offset = parseInt(this.value);
-        $('#current-offset').html(offset.toString() + " days");
-        updating = true;
-        self.visualization.state.setValue("offset", offset);
-        updating = false;
-      });
-
-      self.visualization.state.events.on({
-        offset: function (e) {
-          if (updating) return;
-          offsetSlider.val(e.new.toString());
-          offsetSlider.trigger("change");
-        },
-        maxoffset: function (e) {
-          if (updating) return;
-          offsetSlider.attr({"data-max": e.new});
-        }
-      });
-
-      offsetSlider.val(self.visualization.state.getValue("offset"));
-      offsetSlider.attr({"data-max": self.visualization.state.getValue("maxoffset")});
-      updating = true;
-      offsetSlider.trigger("change");
-      updating = false;
-
-      var handle = offsetSlider.parent(".control").find(".handle");
-      var old_paused;
-      handle.mousedown(function(event) {
-        old_paused = self.visualization.state.getValue("paused")
-        self.visualization.state.setValue("paused", true);
-      });
-      handle.mouseup(function(event) {
-        self.visualization.state.setValue("paused", old_paused);
-      });
-
       cb();
     },
 

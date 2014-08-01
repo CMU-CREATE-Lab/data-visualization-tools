@@ -16,45 +16,9 @@
 
       <div id="loading"><img src="../../img/Ajax-loader.gif"></div>
 
-      <div class="control vertical" style="right: 27px; top: 130px;">
-        <div title="Increase time window" class="plus">
-          <img src="mapcontrols.png" draggable="false">
-        </div>
-        <div class="bar">
-          <img src="mapcontrols.png" draggable="false">
-        </div>
-        <div title="Decrease time window" class="minus">
-          <img src="mapcontrols.png" draggable="false">
-        </div>
-        <div title="Drag to change time window size" class="handle">
-          <img src="mapcontrols.png" draggable="false">
-        </div>
-        <input type="hidden" value="15" data-min="0" data-max="29" data-step="1" id="offset-slider">
-      </div>
+      <button name="animate-button" id="animate-button" class="btn btn-xs"><input type="hidden"><i class="fa fa-pause"></i></button>
 
-      <div class="control horizontal" style="left: 100px; bottom: 3px;">
-        <div title="Earlier" class="minus">
-          <img src="mapcontrols.png" draggable="false">
-        </div>
-        <div class="bar">
-          <img src="mapcontrols.png" draggable="false">
-        </div>
-        <div title="Later" class="plus">
-          <img src="mapcontrols.png" draggable="false">
-        </div>
-        <div title="Drag to change date" class="handle">
-          <img src="mapcontrols.png" draggable="false">
-        </div>
-        <input type="hidden" value="0" data-min="0" data-max="0" id="day-slider">
-      </div>
-
-      <div id="current-date" style="position: absolute; left: 420px; bottom: 7px; color: white;"></div>
-
-      <div id="current-offset" style="position: absolute; right: 18px; top: 106px; color: white;"></div>
-
-      <button name="animate-button" id="animate-button" class="btn btn-xs" style="position: absolute; left: 73px; bottom: 6px; background: white;"><input type="hidden"><i class="fa fa-pause"></i></button>
-
-      <button name="save-button" id="save-button" class="btn btn-xs" style="position: absolute; right: 7px; top: 30px; background: white;"><input type="hidden"><i class="fa fa-save"></i></button>
+      <button name="save-button" id="save-button" class="btn btn-xs"><input type="hidden"><i class="fa fa-save"></i></button>
 
     </div>
   </body>
