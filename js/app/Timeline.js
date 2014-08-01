@@ -256,6 +256,9 @@ define(['app/Class', 'app/Events', 'jQuery', 'less', 'app/LangExtensions'], func
       self.visibleEnd = new Date(self.windowEnd.getTime() + self.windowSize * self.context);
 
       self.visibleContextSize = self.visibleEnd - self.visibleStart;
+      if (self.start != undefined) {
+        self.offset = self.visibleStart - self.start;
+      }
     },
 
     setRange: function (windowStart, windowEnd, type) {
