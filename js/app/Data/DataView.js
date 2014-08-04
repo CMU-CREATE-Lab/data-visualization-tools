@@ -161,19 +161,23 @@ define(["app/Class", "app/Data/Format", "app/Data/Selection", "app/Data/Pack", "
       // For convenience we store POINT_COUNT in an element at the end
       // of the array, so that the length of each series is
       // series[i+1]-series[i].
-      self.series = new Int32Array(self.source.seriescount + 1);
+      self.series = new Int32Array(Math.max(2, self.source.seriescount + 1));
       self.series[0] = 0;
-      self.lastSeries = function () {}; // Value we will never find in the data
+      self.series[self.series.length - 1] = header.length;
 
+      self.lastSeries = function () {}; // Value we will never find in the data
       self.seriescount = 0;
-      for (var rowidx = 0; rowidx < header.length; rowidx++) {
-        var series = data.series && data.series[rowidx];
-        if (self.lastSeries != series) {
-          self.seriescount++;
-          self.lastSeries = series;
+      if (data.series) {
+        for (var rowidx = 0; rowidx < header.length; rowidx++) {
+          var series = data.series[rowidx];
+          if (self.lastSeries != series) {
+            self.seriescount++;
+            self.lastSeries = series;
+          }
+          self.series[self.seriescount] = rowidx + 1;
         }
-        self.series[self.seriescount] = rowidx + 1;
       }
+      self.seriescount = Math.max(self.seriescount, 1);
     },
 
     performUpdate: function (update) {
