@@ -185,21 +185,25 @@ define(['app/Class', 'app/Events', 'jQuery', 'less', 'app/LangExtensions'], func
 
     zoomOut: function () {
       var self = this;
-
-      self.start = undefined;
-      self.end = undefined;
-      self.setRange(self.windowStart, new Date(self.windowStart.getTime() + Math.ceil(self.windowSize * self.zoomSize)));
+      self.zoom(self.zoomSize);
     },
 
     zoomIn: function () {
       var self = this;
+      self.zoom(1 / self.zoomSize);
+    },
 
-      var windowSize = Math.max(1, Math.floor(self.windowSize / self.zoomSize));
+    zoom: function (factor) {
+      var self = this;
+
+      var middle = self.windowStart.getTime() + self.windowSize / 2;
+      var windowSize = Math.max(1, Math.floor(self.windowSize * factor));
 
       self.start = undefined;
       self.end = undefined;
-      self.setRange(self.windowStart, new Date(self.windowStart.getTime() + windowSize));
+      self.setRange(new Date(middle - windowSize / 2), new Date(middle + windowSize / 2));
     },
+
 
     setRangeFromOffset: function (offset, type) {
       var self = this;
