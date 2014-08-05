@@ -77,34 +77,60 @@ define(["app/Class", "app/Timeline", "app/Visualization/AnimationManagerUI", "as
 
 
       var daySliderUpdateMinMax = function() {
+        if (updating) return;
+
         self.visualization.data.useHeader(function (header) {
           if (!header.colsByName.datetime) return;
-          var min = new Date(header.colsByName.datetime.min);
-          var max = new Date(header.colsByName.datetime.max);
+          self.timeline.min = new Date(header.colsByName.datetime.min);
+          self.timeline.max = new Date(header.colsByName.datetime.max);
 
-          if (self.timeline.windowStart < min || self.timeline.windowEnd > max) {
-            self.timeline.setRange(new Date(Math.max(self.timeline.windowStart, min)), new Date(Math.min(self.timeline.windowEnd, max)));
-          }
+          daySliderUpdateValue();
         });
       };
 
-      var daySliderUpdateValue = function (e) {
-        if (updating) return;
-
-        var time = self.visualization.state.getValue("time");
+      var daySliderUpdateValue = function () {
+        var end = self.visualization.state.getValue("time");
         var offset = self.visualization.state.getValue("offset");
 
-        if (time == undefined) return;
+        if (end == undefined) return;
         if (offset == undefined) return;
 
         offset *= 24 * 60 * 60 * 1000;
 
-        self.timeline.setRange(new Date(time.getTime() - offset), time);
+        var start = new Date(end.getTime() - offset);
+
+        var adjusted = false;
+
+        if (self.timeline.max != undefined && self.timeline.min != undefined) {
+          if (end > self.timeline.max) {
+            end = self.timeline.max;
+            start = new Date(end.getTime() - offset);
+            adjusted = true;
+          }
+          if (start < self.timeline.min) {
+            start = self.timeline.min;
+            end = new Date(start.getTime() + offset);
+            adjusted = true;
+          }
+          if (end > self.timeline.max) {
+            end = self.timeline.max;
+            adjusted = true;
+          }
+        }
+
+        if (adjusted) {
+          updating = false;
+          self.visualization.state.setValue("time", end);
+          self.visualization.state.setValue("offset", (end - start) / (24 * 60 * 60 * 1000));
+        } else {
+          if (updating) return;
+          self.timeline.setRange(start, end);
+        }
       };
 
       self.visualization.state.events.on({
         time: daySliderUpdateValue,
-        offset: daySliderUpdateMinMax
+        offset: daySliderUpdateValue
       });
       self.visualization.data.events.on({update: daySliderUpdateMinMax});
       daySliderUpdateValue();
