@@ -367,9 +367,9 @@ define(["app/Class", "app/Events", "app/Bounds", "async", "app/Logging", "jQuery
         Logging.default.log("Visualization.Animation.AnimationManager.update", {
           toString: function () {
             return (this.time != undefined ? this.time.rfcstring(" ") : "undefined")
-              + " [" + (this.offset != undefined ? this.offset.toString() : "undefined") + "]";
+              + " [" + (this.timeExtent != undefined ? this.timeExtent.toString() : "undefined") + "]";
           },
-          offset: self.visualization.state.getValue("offset"),
+          timeExtent: self.visualization.state.getValue("timeExtent"),
           time: time
         });
 
