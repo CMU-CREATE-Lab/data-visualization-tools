@@ -36,9 +36,10 @@ define(['app/Class', 'app/Events', 'jQuery', 'less', 'app/LangExtensions'], func
       self.events = new Events('Timeline');
 
       self.node.addClass('timeline');
-      self.windowNode = $("<div class='window'><div class='startLabel'></div><div class='endLabel'></div></div>");
+      self.windowNode = $("<div class='window'><div class='startLabel'></div><div class='lengthLabel'></div><div class='endLabel'></div></div>");
       self.node.append(self.windowNode);
       self.startLabel = self.node.find('.startLabel');
+      self.lengthLabel = self.node.find('.lengthLabel');
       self.endLabel = self.node.find('.endLabel');
       self.lineVisibilityNode = $("<div class='line-visibility'>");
       self.node.append(self.lineVisibilityNode);
@@ -80,6 +81,33 @@ define(['app/Class', 'app/Events', 'jQuery', 'less', 'app/LangExtensions'], func
       z = z || '0';
       n = n + '';
       return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+    },
+
+    intervalToLabel: function (i) {
+      var self = this;
+      var unitNames = ['year', 'week', 'day', 'hour', 'minute'];
+
+      res = [];
+
+      unitNames.map(function (unitName) {
+        var unit = self.steplengths[unitName];
+        var value = Math.floor(i / unit);
+        if (value != 0) {
+          var s = value.toString() + " " + unitName;
+          if (value > 1) s += 's';
+          res.push(s);
+        }
+        i = i % unit;
+      });
+
+      if (i > 0) {
+        i = i / 1000.0;
+        var s = i.toString() + " second";
+        if (i > 1) s += 's';
+        res.push(s);
+      }
+
+      return res.join(", ");
     },
 
     dateToSteplengthLabel: function (d) {
@@ -303,6 +331,7 @@ define(['app/Class', 'app/Events', 'jQuery', 'less', 'app/LangExtensions'], func
       self.percentOffset = 100.0 * self.hiddenContext * self.offset / self.contextSize;
       self.lineNode.css({'left': -(self.percentOffset) + '%'});
       self.startLabel.html(self.windowStart.toISOString().replace("T", " ").replace("Z", ""));
+      self.lengthLabel.html(self.intervalToLabel(self.windowEnd - self.windowStart));
       self.endLabel.html(self.windowEnd.toISOString().replace("T", " ").replace("Z", ""));
     },
 
