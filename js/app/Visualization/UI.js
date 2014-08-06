@@ -70,7 +70,7 @@ define(["app/Class", "app/Timeline", "app/Visualization/AnimationManagerUI", "as
         'set-range': function (e) {
           updating = true;
           self.visualization.state.setValue("time", e.end);
-          self.visualization.state.setValue("offset", (e.end - e.start) / (24 * 60 * 60 * 1000));
+          self.visualization.state.setValue("offset", e.end - e.start);
           updating = false;
         }
       });
@@ -89,39 +89,46 @@ define(["app/Class", "app/Timeline", "app/Visualization/AnimationManagerUI", "as
       };
 
       var daySliderUpdateValue = function () {
+        var start;
         var end = self.visualization.state.getValue("time");
         var offset = self.visualization.state.getValue("offset");
 
-        if (end == undefined) return;
-        if (offset == undefined) return;
-
-        offset *= 24 * 60 * 60 * 1000;
-
-        var start = new Date(end.getTime() - offset);
-
         var adjusted = false;
+        if (end == undefined || offset == undefined) {
+          if (self.timeline.max == undefined || self.timeline.min == undefined) return;
 
-        if (self.timeline.max != undefined && self.timeline.min != undefined) {
-          if (end > self.timeline.max) {
+          start = self.timeline.min;
+          if (offset == undefined) {
             end = self.timeline.max;
-            start = new Date(end.getTime() - offset);
-            adjusted = true;
-          }
-          if (start < self.timeline.min) {
-            start = self.timeline.min;
+          } else {
             end = new Date(start.getTime() + offset);
-            adjusted = true;
           }
-          if (end > self.timeline.max) {
-            end = self.timeline.max;
-            adjusted = true;
+          adjusted = true;
+        } else {
+          start = new Date(end.getTime() - offset);
+
+          if (self.timeline.max != undefined && self.timeline.min != undefined) {
+            if (end > self.timeline.max) {
+              end = self.timeline.max;
+              start = new Date(end.getTime() - offset);
+              adjusted = true;
+            }
+            if (start < self.timeline.min) {
+              start = self.timeline.min;
+              end = new Date(start.getTime() + offset);
+              adjusted = true;
+            }
+            if (end > self.timeline.max) {
+              end = self.timeline.max;
+              adjusted = true;
+            }
           }
         }
 
         if (adjusted) {
           updating = false;
           self.visualization.state.setValue("time", end);
-          self.visualization.state.setValue("offset", (end - start) / (24 * 60 * 60 * 1000));
+          self.visualization.state.setValue("offset", end - start);
         } else {
           if (updating) return;
           self.timeline.setRange(start, end);
