@@ -68,10 +68,9 @@ define(["app/Class", "app/Timeline", "app/Visualization/AnimationManagerUI", "as
       self.timeline = new Timeline(self.timelineNode, new Date('1970-01-01'), new Date('1970-01-2'), 10);
       self.timeline.events.on({
         'set-range': function (e) {
-          updating = true;
+          if (updating) return;
           self.visualization.state.setValue("time", e.end);
           self.visualization.state.setValue("offset", e.end - e.start);
-          updating = false;
         }
       });
 
@@ -89,6 +88,8 @@ define(["app/Class", "app/Timeline", "app/Visualization/AnimationManagerUI", "as
       };
 
       var daySliderUpdateValue = function () {
+        if (updating) return;
+
         var start;
         var end = self.visualization.state.getValue("time");
         var offset = self.visualization.state.getValue("offset");
@@ -125,14 +126,13 @@ define(["app/Class", "app/Timeline", "app/Visualization/AnimationManagerUI", "as
           }
         }
 
+        updating = true;
         if (adjusted) {
-          updating = false;
           self.visualization.state.setValue("time", end);
           self.visualization.state.setValue("offset", end - start);
-        } else {
-          if (updating) return;
-          self.timeline.setRange(start, end);
         }
+        self.timeline.setRange(start, end);
+        updating = false;
       };
 
       self.visualization.state.events.on({
