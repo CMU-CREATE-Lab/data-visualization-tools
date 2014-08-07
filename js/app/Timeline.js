@@ -11,6 +11,7 @@ define(['app/Class', 'app/Events', 'jQuery', 'less', 'app/LangExtensions'], func
     zoomSize: 1.2,
     hiddenContext: 2, // total space, as a multiple of visible size
     context: 1, // visible space on each side of the window (multiples of window size)
+    stepLabelStyle: "fullDate",
 
     steplengths: {
       second: 1000,
@@ -113,6 +114,34 @@ define(['app/Class', 'app/Events', 'jQuery', 'less', 'app/LangExtensions'], func
     dateToSteplengthLabel: function (d) {
       var self = this;
 
+      return self["dateToSteplengthLabel_" + self.stepLabelStyle](d);
+    },
+
+    dateToSteplengthLabel_fullDate: function (d) {
+      var self = this;
+
+      var iso = d.toISOString().split('Z')[0].replace('T', ' ');
+
+      if (self.steplength >= self.steplengths.month) {
+        return iso.split(' ')[0].split('-').slize(0, -1).join('-')
+      } else if (self.steplength >= self.steplengths.day) {
+        return iso.split(' ')[0]
+      } else if (self.steplength >= self.steplengths.second) {
+        var res = iso.split(' ')[1].split('.')[0];
+        if (res != '00:00:00') return res;
+        return iso.split('.')[0];
+      } else {
+        var res = iso.split(' ')[1]
+        if (res != '000') return res;
+        var res = iso.split(' ')[1]
+        if (res != '00:00:00.000') return res;
+          return iso;
+      }
+    },
+
+    dateToSteplengthLabel_fluid: function (d) {
+      var self = this;
+
       var t = [
         d.getUTCFullYear(),
         d.getUTCMonth(),
@@ -122,7 +151,7 @@ define(['app/Class', 'app/Events', 'jQuery', 'less', 'app/LangExtensions'], func
         d.getUTCSeconds(),
         d.getUTCMilliseconds()
       ];
-      var s = ["", "-", "-", " ", ":", ":", "."];
+      var s = ['', '-', '-', ' ', ':', ':', '.'];
       var l = [4, 2, 2, 2, 2, 2, 3];
 
       var start = 0;
@@ -152,25 +181,7 @@ define(['app/Class', 'app/Events', 'jQuery', 'less', 'app/LangExtensions'], func
         t[i] = self.pad(t[i], l[i]);
       }
 
-      return _.flatten(_.zip(s.slice(start, end), t.slice(start, end))).join("");
-
-/*
-      if (self.steplength >= self.steplengths.month) {
-        return d.getUTCFullYear() + "-" + d.getUTCMonth();
-      } else if (self.steplength >= self.steplengths.day) {
-        return d.toISOString().split("T")[0]
-      } else if (self.steplength >= self.steplengths.second) {
-        var res = d.toISOString().split("T")[1].split('.')[0];
-        if (res != '00:00:00') return res;
-        return d.toISOString().split('.')[0];
-      } else {
-        var res = d.toISOString().split("T")[1].slice(0, -1);
-        if (res != '000') return res;
-        var res = d.toISOString().split("T")[1].slice(0, -1);
-        if (res != '00:00:00.000') return res;
-        return d.toISOString();
-      }
-*/
+      return _.flatten(_.zip(s.slice(start, end), t.slice(start, end))).join('');
    },
 
     roundTimeToSteplength: function (d) {
