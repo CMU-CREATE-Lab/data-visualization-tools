@@ -41,11 +41,11 @@ define(['app/Class', 'app/Events', 'jQuery', 'less', 'app/LangExtensions'], func
       self.events = new Events('Timeline');
 
       self.node.addClass('timeline');
-      self.windowNode = $("<div class='window'><div class='startLabel'></div><div class='lengthLabel'></div><div class='endLabel'></div></div>");
+      self.windowNode = $("<div class='window'><div class='startLabel'><span></span></div><div class='lengthLabel'><span></span></div><div class='endLabel'><span></span></div></div>");
       self.node.append(self.windowNode);
-      self.startLabel = self.node.find('.startLabel');
-      self.lengthLabel = self.node.find('.lengthLabel');
-      self.endLabel = self.node.find('.endLabel');
+      self.startLabel = self.node.find('.startLabel span');
+      self.lengthLabel = self.node.find('.lengthLabel span');
+      self.endLabel = self.node.find('.endLabel span');
       self.lineVisibilityNode = $("<div class='line-visibility'>");
       self.node.append(self.lineVisibilityNode);
       self.lineNode = $("<div class='line'>");

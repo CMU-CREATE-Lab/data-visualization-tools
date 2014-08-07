@@ -10,6 +10,7 @@
 }
 
 .timeline {
+  z-index: 0;
   background: white;
 
   .zoomIn {
@@ -38,33 +39,36 @@
   }
 
   .window {
+    z-index: 1;
     position: relative;
     height: 100%;
     border: 2px solid black;
 
     .startLabel {
+      background: white;
       position: absolute;
-      top: 100%;
       right: 100%;
       white-space: nowrap;
-      margin-top: 2pt;
       margin-right: -70pt;
     }
     .lengthLabel {
       position: absolute;
-      top: inherit;
+      top: 100%;
+      margin-top: -10pt;
       left: 0;
       right: 0;
       white-space: nowrap;
-      margin-top: -20pt;
       text-align: center;
+      span {
+        background: white;
+        padding: 2pt;
+      }
     }
     .endLabel {
+      background: white;
       position: absolute;
-      top: 100%;
       left: 100%;
       white-space: nowrap;
-      margin-top: 2pt;
       margin-left: -70pt;
     }
   }
