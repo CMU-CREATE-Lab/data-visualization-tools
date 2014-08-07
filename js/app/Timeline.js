@@ -126,6 +126,10 @@ define(['app/Class', 'app/Events', 'jQuery', 'less', 'app/LangExtensions'], func
         return iso.split(' ')[0].split('-').slize(0, -1).join('-')
       } else if (self.steplength >= self.steplengths.day) {
         return iso.split(' ')[0]
+      } else if (self.steplength >= self.steplengths.minute) {
+        var res = iso.split(' ')[1].split(':').slice(0, -1).join(':');
+        if (res != '00:00') return res;
+        return iso.split(':').slice(0, -1).join(':');
       } else if (self.steplength >= self.steplengths.second) {
         var res = iso.split(' ')[1].split('.')[0];
         if (res != '00:00:00') return res;
