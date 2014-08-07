@@ -64,8 +64,7 @@ define(["app/Class", "app/Timeline", "app/Visualization/AnimationManagerUI", "as
       self.timelineNode = $('<div class="main-timeline">');
       $("body").append(self.timelineNode);
 
-
-      self.timeline = new Timeline(self.timelineNode, new Date('1970-01-01'), new Date('1970-01-2'), 10);
+      self.timeline = new Timeline({node: self.timelineNode});
       self.timeline.events.on({
         'set-range': function (e) {
           if (updating) return;

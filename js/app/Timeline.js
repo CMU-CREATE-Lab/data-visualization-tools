@@ -12,6 +12,9 @@ define(['app/Class', 'app/Events', 'jQuery', 'less', 'app/LangExtensions'], func
     hiddenContext: 2, // total space, as a multiple of visible size
     context: 1, // visible space on each side of the window (multiples of window size)
     stepLabelStyle: "fullDate",
+    windowStart: new Date('1970-01-01'),
+    windowEnd: new Date('1970-01-02'),
+    steps: 10,
 
     steplengths: {
       second: 1000,
@@ -28,11 +31,12 @@ define(['app/Class', 'app/Events', 'jQuery', 'less', 'app/LangExtensions'], func
       year: 1000*60*60*24*365
     },
 
-    initialize: function (node, windowStart, windowEnd, steps) {
+    initialize: function (args) {
       var self = this;
 
-      self.node = $(node);
-      self.steps = steps;
+      $.extend(self, args);
+
+      self.node = $(self.node);
 
       self.events = new Events('Timeline');
 
@@ -75,7 +79,7 @@ define(['app/Class', 'app/Events', 'jQuery', 'less', 'app/LangExtensions'], func
         }
       });
 
-      self.setRange(windowStart, windowEnd);
+      self.setRange(self.windowStart, self.windowEnd);
     },
 
     pad: function (n, width, z) {
@@ -123,7 +127,7 @@ define(['app/Class', 'app/Events', 'jQuery', 'less', 'app/LangExtensions'], func
       var iso = d.toISOString().split('Z')[0].replace('T', ' ');
 
       if (self.steplength >= self.steplengths.month) {
-        return iso.split(' ')[0].split('-').slize(0, -1).join('-')
+        return iso.split(' ')[0].split('-').slice(0, -1).join('-')
       } else if (self.steplength >= self.steplengths.day) {
         return iso.split(' ')[0]
       } else if (self.steplength >= self.steplengths.minute) {
