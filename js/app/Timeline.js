@@ -10,7 +10,7 @@ define(['app/Class', 'app/Events', 'jQuery', 'less', 'app/LangExtensions'], func
 
     zoomSize: 1.2,
     hiddenContext: 2, // total space, as a multiple of visible size
-    context: 1, // visible space on each side of the window (multiples of window size)
+    context: 0.5, // visible space on each side of the window (multiples of window size)
     stepLabelStyle: "fullDate",
     windowStart: new Date('1970-01-01'),
     windowEnd: new Date('1970-01-02'),
