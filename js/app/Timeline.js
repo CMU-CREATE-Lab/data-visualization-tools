@@ -41,23 +41,34 @@ define(['app/Class', 'app/Events', 'jQuery', 'less', 'app/LangExtensions'], func
       self.events = new Events('Timeline');
 
       self.node.addClass('timeline');
-      self.windowNode = $("<div class='window'><div class='startLabel'><span></span></div><div class='lengthLabel'><span></span></div><div class='endLabel'><span></span></div></div>");
-      self.node.append(self.windowNode);
+
+      self.node.append(
+        "<div class='overlay'>" +
+        "  <div class='window'>" +
+        "    <div class='startLabel'><span></span></div>" +
+        "    <div class='lengthLabel'><span></span></div>" +
+        "    <div class='endLabel'><span></span></div>" +
+        "  </div>" +
+        "</div>" +
+        "<div class='line-visibility'>" +
+        "  <div class='line'></div>" +
+        "</div>" +
+        "<a class='zoomIn'><i class='fa fa-plus-square'></i></a>" +
+        "<a class='zoomOut'><i class='fa fa-minus-square'></i></a>"
+      );
+
+      self.overlayNode = self.node.find('.overlay');
+      self.lineVisibilityNode = self.node.find('.line-visibility');
+      self.zoomInNode = self.node.find('.zoomIn');
+      self.zoomOutNode = self.node.find('.zoomOut');
+      self.windowNode = self.node.find('.window');
       self.startLabel = self.node.find('.startLabel span');
       self.lengthLabel = self.node.find('.lengthLabel span');
       self.endLabel = self.node.find('.endLabel span');
-      self.lineVisibilityNode = $("<div class='line-visibility'>");
-      self.node.append(self.lineVisibilityNode);
-      self.lineNode = $("<div class='line'>");
-      self.lineVisibilityNode.append(self.lineNode);
+      self.lineNode = self.node.find('.line');
 
-      self.zoomInNode = $("<a class='zoomIn'><i class='fa fa-plus-square'></i></div>");
       self.zoomInNode.click(self.zoomIn.bind(self));
-      self.node.append(self.zoomInNode);
-      self.zoomOutNode = $("<a class='zoomOut'><i class='fa fa-minus-square'></i></div>");
       self.zoomOutNode.click(self.zoomOut.bind(self));
-      self.node.append(self.zoomOutNode);
-
       self.zoomInNode.mousedown(function (e) { e.stopPropagation(); });
       self.zoomOutNode.mousedown(function (e) { e.stopPropagation(); });
 
@@ -78,6 +89,8 @@ define(['app/Class', 'app/Events', 'jQuery', 'less', 'app/LangExtensions'], func
           self.zoomOut();
         }
       });
+
+      self.node.attr('unselectable', 'on').css('user-select', 'none').on('selectstart', false);
 
       self.setRange(self.windowStart, self.windowEnd);
     },
@@ -230,14 +243,22 @@ define(['app/Class', 'app/Events', 'jQuery', 'less', 'app/LangExtensions'], func
       );
     },
 
-    zoomOut: function () {
-      var self = this;
-      self.zoom(self.zoomSize);
+    eatEvent: function (e) {
+      if (e == undefined) return;
+      if (e.preventDefault) e.preventDefault();
+      if (e.stopPropagation) e.stopPropagation();
     },
 
-    zoomIn: function () {
+    zoomOut: function (e) {
+      var self = this;
+      self.zoom(self.zoomSize);
+      self.eatEvent(e);
+    },
+
+    zoomIn: function (e) {
       var self = this;
       self.zoom(1 / self.zoomSize);
+      self.eatEvent(e);
     },
 
     zoom: function (factor) {
@@ -358,7 +379,7 @@ define(['app/Class', 'app/Events', 'jQuery', 'less', 'app/LangExtensions'], func
       var self = this;
       self.dragStartX = e.pageX;
       self.dragStartOffset = self.offset;
-      e.preventDefault();
+      self.eatEvent(e);
     },
 
     drag: function (e) {
@@ -375,7 +396,7 @@ define(['app/Class', 'app/Events', 'jQuery', 'less', 'app/LangExtensions'], func
 
       self.setRangeFromOffset(self.dragStartOffset + offset, 'temporary-range');
 
-      e.preventDefault();
+      self.eatEvent(e);
     },
 
     dragEnd: function (e) {
@@ -385,6 +406,7 @@ define(['app/Class', 'app/Events', 'jQuery', 'less', 'app/LangExtensions'], func
 
       self.dragStartX = undefined;
       self.events.triggerEvent('set-range', {start: self.windowStart, end: self.windowEnd});
+      self.eatEvent(e);
     }
   });
 });

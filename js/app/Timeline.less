@@ -13,63 +13,66 @@
   z-index: 0;
   background: white;
 
-  .zoomIn {
+  .zoomIn, .zoomOut {
+    z-index: 2;
     position: relative;
-    top: -200%;
     display: block;
     padding: 0;
-    margin-top: 5pt;
     left: 100%;
     width: 20pt;
     height: 20pt;
     margin-left: -15pt;
+
+  }
+
+  .zoomIn {
+    top: -200%;
+    margin-top: 5pt;
   }
 
   .zoomOut {
-    position: relative;
     top: -100%;
-    display: block;
-    padding: 0;
-    margin-top: 5pt;
-    left: 100%;
-    width: 20pt;
-    height: 20pt;
     margin-top: -40pt;
-    margin-left: -15pt;
   }
 
-  .window {
+  .overlay {
     z-index: 1;
     position: relative;
     height: 100%;
-    border: 2px solid black;
+    width: 100%;
+    .window {
+      z-index: 1;
+      position: relative;
+      height: 100%;
+      border: 2px solid black;
 
-    .startLabel {
-      background: white;
-      position: absolute;
-      right: 100%;
-      white-space: nowrap;
-      margin-right: -70pt;
-    }
-    .lengthLabel {
-      position: absolute;
-      top: 100%;
-      margin-top: -10pt;
-      left: 0;
-      right: 0;
-      white-space: nowrap;
-      text-align: center;
-      span {
+      .startLabel {
         background: white;
-        padding: 2pt;
+        position: absolute;
+        right: 100%;
+        white-space: nowrap;
+        margin-right: -70pt;
       }
-    }
-    .endLabel {
-      background: white;
-      position: absolute;
-      left: 100%;
-      white-space: nowrap;
-      margin-left: -70pt;
+      .lengthLabel {
+        position: absolute;
+        top: 100%;
+        margin-top: -10pt;
+        left: 0;
+        right: 0;
+        white-space: nowrap;
+        text-align: center;
+        span {
+          background: white;
+          padding: 2pt;
+        }
+      }
+      .endLabel {
+        background: white;
+        position: absolute;
+        left: 100%;
+        white-space: nowrap;
+        margin-left: -70pt;
+      }
     }
   }
 
