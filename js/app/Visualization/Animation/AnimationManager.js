@@ -121,6 +121,7 @@ define(["app/Class", "app/Events", "app/Bounds", "async", "app/Logging", "jQuery
       } else {
         self.gl.enable(self.gl.BLEND);
         self.gl.blendFunc(self.gl.SRC_ALPHA, self.gl.ONE);
+        self.canvasResize();
         cb();
       }
     },
@@ -281,6 +282,8 @@ define(["app/Class", "app/Events", "app/Bounds", "async", "app/Logging", "jQuery
     canvasResize: function() {
       var self = this;
 
+      if (!self.gl) return;
+
       var width = self.canvasLayer.canvas.width;
       var height = self.canvasLayer.canvas.height;
 
@@ -344,6 +347,8 @@ define(["app/Class", "app/Events", "app/Bounds", "async", "app/Logging", "jQuery
 
     update: function() {
       var self = this;
+
+      if (!self.gl) return;
 
       self.visualization.data.useHeader(function (header, cb) {
         var time = self.visualization.state.getValue("time");
