@@ -301,19 +301,20 @@ define(["app/Class", "app/Events", "app/Bounds", "async", "app/Logging", "jQuery
       if (paused) {
         self.lastUpdate = undefined;
       } else {
+        var timeExtent = self.visualization.state.getValue("timeExtent");
         var time = self.visualization.state.getValue("time").getTime();
         var min = header.colsByName.datetime.min;
         var max = header.colsByName.datetime.max;
         var timeNow = new Date().getTime();
+        var timePerTimeExtent = self.visualization.state.getValue("length");
 
-        if (self.lastUpdate == undefined) {
-          var fraction = (time - min) / (max - min);
-          self.lastUpdate = timeNow - fraction * self.visualization.state.getValue("length");
-        } else {
-          var fraction = (timeNow - self.lastUpdate) / self.visualization.state.getValue("length");
-          var time = (max - min) * fraction + min;
+        var timePerAnimationTime = timePerTimeExtent / timeExtent;
+
+        if (self.lastUpdate != undefined) {
+          var time = (timeNow - self.lastUpdate) / timePerAnimationTime + time;
           self.visualization.state.setValue("time", new Date(time));
         }
+        self.lastUpdate = timeNow;
       }
     },
 
