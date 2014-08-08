@@ -44,11 +44,13 @@ define(['app/Class', 'app/Events', 'jQuery', 'less', 'app/LangExtensions'], func
 
       self.node.append(
         "<div class='overlay'>" +
+        "  <div class='leftFrame'></div>" +
         "  <div class='window'>" +
         "    <div class='startLabel'><span></span></div>" +
         "    <div class='lengthLabel'><span></span></div>" +
         "    <div class='endLabel'><span></span></div>" +
         "  </div>" +
+        "  <div class='rightFrame'></div>" +
         "</div>" +
         "<div class='line-visibility'>" +
         "  <div class='line'></div>" +
@@ -61,7 +63,9 @@ define(['app/Class', 'app/Events', 'jQuery', 'less', 'app/LangExtensions'], func
       self.lineVisibilityNode = self.node.find('.line-visibility');
       self.zoomInNode = self.node.find('.zoomIn');
       self.zoomOutNode = self.node.find('.zoomOut');
+      self.leftFrameNode = self.node.find('.leftFrame');
       self.windowNode = self.node.find('.window');
+      self.rightFrameNode = self.node.find('.rightFrame');
       self.startLabel = self.node.find('.startLabel span');
       self.lengthLabel = self.node.find('.lengthLabel span');
       self.endLabel = self.node.find('.endLabel span');
@@ -73,9 +77,15 @@ define(['app/Class', 'app/Events', 'jQuery', 'less', 'app/LangExtensions'], func
       self.zoomOutNode.mousedown(function (e) { e.stopPropagation(); });
 
       self.lineNode.css({'width': self.hiddenContext * 100.0 + '%'});
+
+      self.leftFrameNode.css({
+        'width': 100.0 * self.context / (self.context * 2 + 1) + '%',
+      });
       self.windowNode.css({
         'width': 100.0 * 1 / (self.context * 2 + 1) + '%',
-        'left': 100.0 * self.context / (self.context * 2 + 1) + '%'
+      });
+      self.rightFrameNode.css({
+        'width': 100.0 * self.context / (self.context * 2 + 1) + '%',
       });
 
       self.node.mousedown(self.dragStart.bind(self));

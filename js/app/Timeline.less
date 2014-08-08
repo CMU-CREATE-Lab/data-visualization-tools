@@ -40,11 +40,24 @@
     position: relative;
     height: 100%;
     width: 100%;
-    .window {
-      z-index: 1;
+    font-size: 0; // Hide spaced between inline blocks
+
+    .leftFrame, .rightFrame, .window {
       position: relative;
       height: 100%;
+      display: inline-block;
+    }
+
+    .leftFrame, .rightFrame {
+      background: black;
+      opacity: 0.1;
+      z-index: 1;
+    }
+
+    .window {
       border: 2px solid black;
+      font-size: 10pt;
+      z-index: 2;
 
       .startLabel {
         background: white;
