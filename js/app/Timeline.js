@@ -15,6 +15,7 @@ define(['app/Class', 'app/Events', 'jQuery', 'less', 'app/LangExtensions'], func
     windowStart: new Date('1970-01-01'),
     windowEnd: new Date('1970-01-02'),
     steps: 10,
+    snapZoomToTickmarks: true,
 
     steplengths: {
       second: 1000,
@@ -276,6 +277,18 @@ define(['app/Class', 'app/Events', 'jQuery', 'less', 'app/LangExtensions'], func
 
       var middle = self.windowStart.getTime() + self.windowSize / 2;
       var windowSize = Math.max(1, Math.floor(self.windowSize * factor));
+
+      if (self.snapZoomToTickmarks) {
+        var stepLength = self.roundSteplength(windowSize / self.steps);
+        var steps = windowSize / stepLength;
+
+        if (factor > 1) {
+          steps = Math.ceil(steps);
+        } else {
+          steps = Math.floor(steps);
+        }
+        windowSize = stepLength * steps;
+      }
 
       self.start = undefined;
       self.end = undefined;
