@@ -16,6 +16,8 @@ define(['app/Class', 'app/Events', 'jQuery', 'less', 'app/LangExtensions'], func
     windowEnd: new Date('1970-01-02'),
     steps: 10,
     snapZoomToTickmarks: true,
+    minWindowSize: 1000*60*60,
+    maxWindowSize: 1000*60*60*24*365,
 
     steplengths: {
       second: 1000,
@@ -278,10 +280,20 @@ define(['app/Class', 'app/Events', 'jQuery', 'less', 'app/LangExtensions'], func
       var middle = self.windowStart.getTime() + self.windowSize / 2;
       var windowSize = Math.max(1, Math.floor(self.windowSize * factor));
 
+      if (self.maxWindowSize != undefined && self.maxWindowSize < windowSize) {
+        windowSize = self.maxWindowSize;
+      }
+      if (self.minWindowSize != undefined && self.minWindowSize > windowSize) {
+        windowSize = self.minWindowSize;
+      }
+
       if (self.snapZoomToTickmarks) {
         var stepLength = self.roundSteplength(windowSize / self.steps);
+        if (stepLength >= windowSize) {
+          stepLength = stepLength / self.stepToSubsteps(stepLength);
+        }
         var steps = windowSize / stepLength;
-
+        
         if (factor > 1) {
           steps = Math.ceil(steps);
         } else {
@@ -294,7 +306,6 @@ define(['app/Class', 'app/Events', 'jQuery', 'less', 'app/LangExtensions'], func
       self.end = undefined;
       self.setRange(new Date(middle - windowSize / 2), new Date(middle + windowSize / 2));
     },
-
 
     setRangeFromOffset: function (offset, type) {
       var self = this;
