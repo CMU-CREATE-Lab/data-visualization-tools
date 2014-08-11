@@ -426,7 +426,7 @@ define(['app/Class', 'app/Events', 'jQuery', 'less', 'app/LangExtensions'], func
       var pixelOffset = self.dragStartX - self.dragX;
       var pixelWidth = self.lineVisibilityNode.innerWidth();
       var percentOffset = 100.0 * pixelOffset / pixelWidth;
-      var offset = percentOffset * self.contextSize / 100.0; // Divide by hiddenContextSize?
+      var offset = percentOffset * self.visibleContextSize / 100.0;
 
       self.setRangeFromOffset(self.dragStartOffset + offset, 'temporary-range');
 
