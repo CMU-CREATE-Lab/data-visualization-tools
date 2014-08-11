@@ -76,8 +76,8 @@ define(['app/Class', 'app/Events', 'jQuery', 'less', 'app/LangExtensions'], func
 
       self.zoomInNode.click(self.zoomIn.bind(self));
       self.zoomOutNode.click(self.zoomOut.bind(self));
-      self.zoomInNode.mousedown(function (e) { e.stopPropagation(); });
-      self.zoomOutNode.mousedown(function (e) { e.stopPropagation(); });
+      self.zoomInNode.mousedown(function (e) { self.eatEvent(e); });
+      self.zoomOutNode.mousedown(function (e) { self.eatEvent(e); });
 
       self.lineNode.css({'width': self.hiddenContext * 100.0 + '%'});
 
@@ -97,10 +97,12 @@ define(['app/Class', 'app/Events', 'jQuery', 'less', 'app/LangExtensions'], func
 
       self.node.mousewheel(function(event, delta, deltaX, deltaY) {
         if (deltaY > 0) {
-          self.zoomIn();
+          self.zoomIn(event);
         } else if (deltaY < 0) {
-          self.zoomOut();
+          self.zoomOut(event);
         }
+        else
+          self.eatEvent(event);
       });
 
       self.node.attr('unselectable', 'on').css('user-select', 'none').on('selectstart', false);
