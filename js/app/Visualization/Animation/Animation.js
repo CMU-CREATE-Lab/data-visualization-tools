@@ -181,7 +181,7 @@ define(["app/Class", "async", "app/Visualization/Shader", "app/Data/GeoProjectio
     setGeneralUniforms: function (program) {
       var self = this;
       var time = self.manager.visualization.state.getValue("time");
-      var offset = self.manager.visualization.state.getValue("offset");
+      var timeExtent = self.manager.visualization.state.getValue("timeExtent");
 
       if (time == undefined) return;
       time = time.getTime();
@@ -193,7 +193,7 @@ define(["app/Class", "async", "app/Visualization/Shader", "app/Data/GeoProjectio
 
       program.gl.uniform1f(program.uniforms.pointSize, pointSize*1.0);
       program.gl.uniformMatrix4fv(program.uniforms.mapMatrix, false, self.manager.mapMatrix);
-      program.gl.uniform1f(program.uniforms.startTime, time - offset * 24 * 60 * 60 * 1000);
+      program.gl.uniform1f(program.uniforms.startTime, time - timeExtent);
       program.gl.uniform1f(program.uniforms.endTime, time);
     },
 

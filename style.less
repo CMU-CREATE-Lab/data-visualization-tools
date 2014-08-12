@@ -1,10 +1,11 @@
 #loading {
-  position: fixed;
-  bottom: 21pt;
+  position: absolute;
+  bottom: 15pt;
   right: 10pt;
-  padding: 10pt;
+  width: 40pt;
+  height: 40pt;
   z-index: 100;
-  background: whitesmoke;
+  background: white;
   color: #999;
   font-size: 24pt;
   -webkit-border-radius: 5px;
@@ -12,124 +13,37 @@
   border-radius: 5px;
   border: 1px solid black;
   line-height: 0;
-}
-.control {
-  position: absolute;
-
-  .plus, .bar, .handle, .minus {
-    overflow: hidden;
-    img {
-      position: relative;
-      border: 0px;
-      padding: 0px;
-      margin: 0px;
-      -webkit-user-select: none;
-    }
-  }
-  .plus, .bar, .minus {
-    position: relative;
-    cursor: pointer;
-  }
-
-  .plus {
-    width: 23px;
-    height: 24px;
-    z-index: 1;
-    img {
-      left: -17px;
-      top: -400px;
-      width: 492px;
-      height: 492px;
-    }
-  }
-  .handle {
-    position: absolute;
-    -webkit-transition: top 0.25s ease;
-    transition: top 0.25s ease;
-    z-index: 2;
-    cursor: url(http://maps.gstatic.com/mapfiles/openhand_8_8.cur) 8 8, default;
-  }
-  .minus {
-    width: 23px;
-    height: 23px;
-    z-index: 3;
-    img {
-      left: -17px;
-      top: -361px;
-      width: 492px;
-      height: 492px;
-    }
-  }
-
-  &.vertical {
-    .bar {
-      width: 25px;
-      height: 178px;
-      top: -4px;
-      img {
-        left: -17px;
-        top: -87px;
-        width: 492px;
-        height: 492px;
-      }
-    }
-    .handle {
-      width: 21px;
-      height: 14px;
-      left: 2px;
-      top: 156px;
-      img {
-        left: 0px;
-        top: -384px;
-        width: 492px;
-        height: 492px;
-      }
-    }
-    .minus {
-      top: -4px;
-    }
-  }
-
-  &.horizontal {
-    .plus, .bar, .minus {
-      float: left;
-      display: block;
-    }
-
-    .minus {
-      margin-top: 2px;
-    }
-    .bar {
-      width: 273px;
-      height: 25px;
-      margin-left: -2px;
-      img {
-        left: -87px;
-        top: -17px;
-        width: 492px;
-        height: 492px;
-      }
-    }
-    .handle {
-      width: 14px;
-      height: 21px;
-      top: 1px;
-      left: 156px;
-      img {
-        left: -384px;
-        top: 0px;
-        width: 492px;
-        height: 492px;
-      }
-    }
-    .plus {
-      margin-left: -3px;
-    }
-  }
+  padding: 7pt;
 }
 
 .logo {
   position: absolute;
   right: 10pt;
   bottom: 23pt;
+}
+
+.main-timeline {
+  position: absolute;
+  left: 60pt;
+  right: 60pt;
+  bottom: 15pt;
+  height: 90pt;
+}
+
+#animate-button {
+  position: absolute;
+  background: white;
+  left: 10pt;
+  bottom: 15pt;
+  width: 40pt;
+  height: 40pt;
+}
+
+#save-button {
+  background: white;
+  position: absolute;
+  left: 10pt;
+  bottom: 65pt;
+  width: 40pt;
+  height: 40pt;
 }

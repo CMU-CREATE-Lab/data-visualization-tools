@@ -121,6 +121,7 @@ define(["app/Class", "app/Events", "app/Bounds", "async", "app/Logging", "jQuery
       } else {
         self.gl.enable(self.gl.BLEND);
         self.gl.blendFunc(self.gl.SRC_ALPHA, self.gl.ONE);
+        self.canvasResize();
         cb();
       }
     },
@@ -281,6 +282,8 @@ define(["app/Class", "app/Events", "app/Bounds", "async", "app/Logging", "jQuery
     canvasResize: function() {
       var self = this;
 
+      if (!self.gl) return;
+
       var width = self.canvasLayer.canvas.width;
       var height = self.canvasLayer.canvas.height;
 
@@ -301,19 +304,20 @@ define(["app/Class", "app/Events", "app/Bounds", "async", "app/Logging", "jQuery
       if (paused) {
         self.lastUpdate = undefined;
       } else {
+        var timeExtent = self.visualization.state.getValue("timeExtent");
         var time = self.visualization.state.getValue("time").getTime();
         var min = header.colsByName.datetime.min;
         var max = header.colsByName.datetime.max;
         var timeNow = new Date().getTime();
+        var timePerTimeExtent = self.visualization.state.getValue("length");
 
-        if (self.lastUpdate == undefined) {
-          var fraction = (time - min) / (max - min);
-          self.lastUpdate = timeNow - fraction * self.visualization.state.getValue("length");
-        } else {
-          var fraction = (timeNow - self.lastUpdate) / self.visualization.state.getValue("length");
-          var time = (max - min) * fraction + min;
+        var timePerAnimationTime = timePerTimeExtent / timeExtent;
+
+        if (self.lastUpdate != undefined) {
+          var time = (timeNow - self.lastUpdate) / timePerAnimationTime + time;
           self.visualization.state.setValue("time", new Date(time));
         }
+        self.lastUpdate = timeNow;
       }
     },
 
@@ -344,6 +348,8 @@ define(["app/Class", "app/Events", "app/Bounds", "async", "app/Logging", "jQuery
     update: function() {
       var self = this;
 
+      if (!self.gl) return;
+
       self.visualization.data.useHeader(function (header, cb) {
         var time = self.visualization.state.getValue("time");
         var paused = self.visualization.state.getValue("paused");
@@ -367,9 +373,9 @@ define(["app/Class", "app/Events", "app/Bounds", "async", "app/Logging", "jQuery
         Logging.default.log("Visualization.Animation.AnimationManager.update", {
           toString: function () {
             return (this.time != undefined ? this.time.rfcstring(" ") : "undefined")
-              + " [" + (this.offset != undefined ? this.offset.toString() : "undefined") + "]";
+              + " [" + (this.timeExtent != undefined ? this.timeExtent.toString() : "undefined") + "]";
           },
-          offset: self.visualization.state.getValue("offset"),
+          timeExtent: self.visualization.state.getValue("timeExtent"),
           time: time
         });
 
