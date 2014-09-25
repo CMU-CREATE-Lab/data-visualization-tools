@@ -365,6 +365,8 @@ TimeMachineCanvasLayer.prototype.onAdd = function() {
 */
 
   var timelapse = this.getTimelapse();
+  this.resizeListener_ = window.addEventListener("resize", this.resizeFunction_);
+
   this.centerListener_ = timelapse.addViewChangeListener(this.repositionFunction_);
 
   this.resize_();
