@@ -1,0 +1,18 @@
+<html>
+<head>
+<script src="TileIdx.js"></script>
+<script src="WebglVideoTile.js"></script>
+<script>
+console.log('---');
+
+var t = new WebglVideoTile(new TileIdx(0,0,0));
+console.log(t.toString());
+
+while (!t.isReady()) {}
+console.log(t.toString());
+
+</script>
+</head>
+<body>
+</body>
+</html>

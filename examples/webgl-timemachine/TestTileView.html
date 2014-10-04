@@ -1,0 +1,82 @@
+<html>
+<head>
+<script>
+console.log('---');
+</script>
+<script src="TileIdx.js"></script>
+<script src="TileView.js"></script>
+<script>
+
+function createTile(ti) {
+  var readyAfter = performance.now() + Math.random() * 500;
+  return {
+    ti: ti,
+    isReady: function() { return performance.now() >= readyAfter; }
+  }
+}
+
+var w = new TileView({
+    panoWidth: 200,
+    panoHeight: 200,
+    tileWidth: 100,
+    tileHeight: 100,
+    createTile: createTile,
+    deleteTile: function(tile) {}
+  });
+
+console.log(w._scale2level(1));
+
+w._viewportWidth = 100;
+w._viewportHeight = 100;
+
+console.log(JSON.stringify(w._computeBoundingBox({scale: 1, x: 100, y: 100})));
+
+console.log(w._tileidxAt(0,0,0).toString());
+console.log(w._tileidxAt(1,0,0).toString());
+console.log(w._tileidxAt(0,100,100).toString());
+console.log(w._tileidxAt(1,100,100).toString());
+
+console.log(JSON.stringify(w._tileidxCenter(new TileIdx(0,0,0))));
+console.log(JSON.stringify(w._tileidxCenter(new TileIdx(1,0,0))));
+console.log(JSON.stringify(w._tileidxCenter(new TileIdx(1,1,0))));
+console.log(JSON.stringify(w._tileidxCenter(new TileIdx(1,0,1))));
+
+function tileRangeToString(tr) {
+  return '{min:' + tr.min.toString() + ', max:' + tr.max.toString() + '}';
+}
+
+console.log(tileRangeToString(w._computeVisibleTileRange({scale: 0, x: 100, y: 100}, 0)));
+console.log(tileRangeToString(w._computeVisibleTileRange({scale: 0, x: 100, y: 100}, 1)));
+
+// Start zoomed out
+w.setView({scale: 0, x: 0, y: 0}, 100, 100);
+
+// Wait for tiles to finish loading
+while(w.isWaitingForTiles()) {
+  w.setView({scale: 0, x: 0, y: 0}, 100, 100);
+}
+w.setView({scale: 0, x: 0, y: 0}, 100, 100);
+
+// Zoom in
+w.setView({scale: 1, x: 0, y: 0}, 100, 100);
+
+// Wait for tiles to finish loading
+while (w.isWaitingForTiles()) {
+  w.setView({scale: 1, x: 0, y: 0}, 100, 100);
+}
+w.setView({scale: 1, x: 0, y: 0}, 100, 100);
+
+// Zoom out
+w.setView({scale: 0, x: 0, y: 0}, 100, 100);
+
+// Wait for tiles to finish loading
+while (w.isWaitingForTiles()) {
+  w.setView({scale: 0, x: 0, y: 0}, 100, 100);
+}
+w.setView({scale: 0, x: 0, y: 0}, 100, 100);
+
+</script>
+</head>
+<body>
+</body>
+</html>
