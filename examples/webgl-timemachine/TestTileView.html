@@ -24,6 +24,11 @@ var w = new TileView({
     deleteTile: function(tile) {}
   });
 
+console.log(JSON.stringify(w._tileGeometry(new TileIdx(0,0,0))));
+console.log(JSON.stringify(w._tileGeometry(new TileIdx(1,0,0))));
+console.log(JSON.stringify(w._tileGeometry(new TileIdx(1,0,1))));
+console.log(JSON.stringify(w._tileGeometry(new TileIdx(1,1,0))));
+
 console.log(w._scale2level(1));
 
 w._viewportWidth = 100;

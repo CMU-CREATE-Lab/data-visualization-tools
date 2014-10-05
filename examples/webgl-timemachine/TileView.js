@@ -7,7 +7,7 @@
 // This connects to your own tile class.  You'll need to provide these two functions
 // to create and delete your tiles:
 //
-// createTile(TileIdx ti)
+// createTile(TileIdx ti, bounds) where bounds = {min:{x:,y:},max:{x:,y:}}
 // deleteTile(tile)
 //
 // layer = new TileView({panoWidth:, panoHeight:, tileWidth:, tileHeight:, createTile:, deleteTile:});
@@ -57,6 +57,19 @@ toString = function() {
   msg += 'nlevels: ' + (this._maxLevel + 1);
   return msg;
 }
+
+TileView.prototype.
+_tileGeometry = function(tileidx) {
+  var levelScale = Math.pow(2, this._maxLevel - tileidx.l);
+  
+  var left = tileidx.c * this._tileWidth * levelScale;
+  var right = left + this._tileWidth * levelScale;
+
+  var top = tileidx.r * this._tileHeight * levelScale;
+  var bottom = top + this._tileHeight * levelScale;
+
+  return { min: {x: left, y: top}, max: {x: right, y: bottom} };
+};
 
 TileView.prototype.
 _scale2level = function(scale)
@@ -119,7 +132,8 @@ _isTileVisible = function(view, tileidx) {
 TileView.prototype.
 _addTileidx = function(tileidx) {
   if (!this._tiles[tileidx.key]) {
-    this._tiles[tileidx.key] = this._createTile(tileidx);
+    this._tiles[tileidx.key] = 
+      this._createTile(tileidx, this._tileGeometry(tileidx));
     this._tiles[tileidx.key].index = tileidx;
   }
   return this._tiles[tileidx.key];

@@ -40,7 +40,8 @@
     <script src="TileIdx.js"></script>
     <script src="WebglVideoTile.js"></script>
     <script src="TileView.js"></script>
-    <script src="tmlayer.js"></script>
+    <script src="Glb.js"></script>
+    <script src="WebglTimeMachineLayer.js"></script>
 
     <script type="text/javascript">
       org.gigapan.timelapse.Timelapse.prototype.getDiv = function() {
@@ -131,6 +132,9 @@
 
         tdl.io.loadArrayBuffer(pointDataURL, loadPointData);
         tdl.io.loadArrayBuffer(dateDataURL, loadDateData);
+
+        glb = new Glb(gl);
+        tmlayer = new WebglTimeMachineLayer(glb, canvasLayer);
       }
 
       function init() {
@@ -180,7 +184,6 @@
 
         timelapse = new org.gigapan.timelapse.Timelapse("player1", viewerOptions);
         document.body.appendChild( stats.domElement );
-        createTmLayer();
       }
 
       function createShaderProgram() {
@@ -303,15 +306,20 @@
             0, 0, 0, 0, -1, 1, 0, 1]);
       }
 
+      var lastDrawTime = performance.now();
+
       // Draws to canvas. 
       // Called by TimeMachineCanavasLayer during animation and/or view changes
       function update() {
+        if (performance.now() - this._lastDrawTime < 500) return;
+        lastDrawTime = performance.now();
         stats.begin();
         if (pointDataLoaded && dateDataLoaded) {
-          drawTmLayer();
           var currentTime = timelapse.getCurrentTime();
           var currentRatio = currentTime / totalTime;
 
+          gl.useProgram(pointProgram);
+          gl.bindBuffer(gl.ARRAY_BUFFER, pointArrayBuffer);
           gl.clear(gl.COLOR_BUFFER_BIT);
 
 	        var pointSize = Math.floor((timelapse.getCurrentZoom() + 2.0) / (13.0 - 2.0) * (12.0 - 1) + 1);
@@ -352,6 +360,7 @@
 
           // draw!
           gl.drawArrays(gl.POINTS, firstYear.index0, POINT_COUNT * currentRatio * 0.05);
+          tmlayer.draw(timelapse.getView());
         }
 	      stats.end();
       }
