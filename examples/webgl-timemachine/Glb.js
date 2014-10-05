@@ -57,6 +57,9 @@ programFromSources = function(vertexSource, fragmentSource) {
 
 Glb.prototype.
 _addAttribsAndUniformsToProgram = function(program) {
+  if (this.gl.getProgramParameter(program, this.gl.ACTIVE_ATTRIBUTES) == 0) {
+    throw new Error('Program has no active attributes');
+  }
   for (var i = this.gl.getProgramParameter(program, this.gl.ACTIVE_ATTRIBUTES) - 1; 
        i >= 0;
        i--) {

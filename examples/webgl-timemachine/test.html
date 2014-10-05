@@ -13,6 +13,9 @@
     <link href="../../timemachine/css/annotator.css" rel="stylesheet" type="text/css"/>
     <link href="../../timemachine/css/customUI.css" rel="stylesheet" type="text/css"/>
 
+    <script>
+console.log('---');
+    </script>
     <script src="../../timemachine/js/jquery/jquery.min.js" type="text/javascript"></script>
     <script src="../../timemachine/js/jquery/jquery-ui.custom.min.js" type="text/javascript"></script>
     <script src="../../timemachine/js/jquery/plugins/mouse/jquery.mousewheel.min.js" type="text/javascript"></script>
@@ -184,6 +187,7 @@
 
         timelapse = new org.gigapan.timelapse.Timelapse("player1", viewerOptions);
         document.body.appendChild( stats.domElement );
+        $(stats.domElement).css('z-index', 1000);
       }
 
       function createShaderProgram() {
