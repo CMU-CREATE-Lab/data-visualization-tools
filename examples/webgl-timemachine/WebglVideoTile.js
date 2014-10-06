@@ -20,18 +20,40 @@ function WebglVideoTile(glb, tileidx, bounds, url) {
                                                        0, 1,
                                                        1, 1]));
 
-  this._video = $('<video>').attr('src', url)[0];
+  this._video = document.createElement('video');
+  this._video.src = url;
   this._currentTexture = this.gl.createTexture(),
   this._nextTexture = this.gl.createTexture(),
   this._frameGrabbed = false;
   this._width = 1424;
   this._height = 800;
   this._bounds = bounds;
+  this._frameOffsetIndex = WebglVideoTile.getUnusedFrameOffsetIndex();
+  this._frameOffset = WebglVideoTile._frameOffsets[this._frameOffsetIndex];
+}
+
+WebglVideoTile.prototype.
+recycle = function() {
+  this._video = null;
+  WebglVideoTile._frameOffsetUsed[this._frameOffsetIndex] = false;
+  this._frameOffsetIndex = null;
+}
+
+WebglVideoTile.getUnusedFrameOffsetIndex = function() {
+  for (var i = 0; i < WebglVideoTile._frameOffsets.length; i++) {
+    if (!WebglVideoTile._frameOffsetUsed[i]) {
+      WebglVideoTile._frameOffsetUsed[i] = true;
+      return i;
+    }
+  }
+  throw new Error('Out of offsets');
 }
 
 WebglVideoTile.prototype.
 toString = function() {
-  return 'Tile ' + this._tileidx.toString() + ', ready: ' + this.isReady();
+  return 'Tile ' + this._tileidx.toString() +   
+         ', ready: ' + this.isReady() +
+         ', seq: ' + this._frameOffsetIndex + ' (' + this._frameOffset + ')'
 };
 
 WebglVideoTile.prototype.
@@ -88,6 +110,32 @@ draw = function(transform) {
   }
 };
 
+// Phases = 60 / videoFPS
+// Subbits is log2 of the max number of videos per phase
+
+WebglVideoTile.computeFrameOffsets = function(phases, subbits) {
+  WebglVideoTile._frameOffsets = [];
+  var subphases = 1 << subbits;
+  for (var s = 0; s < subphases; s++) {
+    // Arrange suphases across [0, 1) such that locations for any length contiguous subset starting at the first subphase 
+    // will be sparse.
+    // E.g. for 3 subbits, [0, 0.5, 0.25, 0.75, 0.125, 0.625, 0.375, 0.875]
+    var sfrac = 0;
+    for (var b = 0; b < subbits; b++) {
+      sfrac += ((s >> b) & 1) << (subbits - b - 1);
+    }
+    for (var p = 0; p < phases; p++) {
+      WebglVideoTile._frameOffsets.push((p + sfrac / subphases) / phases);
+    }
+  }
+  WebglVideoTile._frameOffsetUsed = []
+  for (var i = 0; i < WebglVideoTile._frameOffsets; i++) {
+    WebglVideoTile._frameOffsetUsed.push(false);
+  }
+}
+
+WebglVideoTile.computeFrameOffsets(6, 4);
+
 WebglVideoTile.textureVertexShader =
   'attribute vec2 aTextureCoord;\n' +
   'uniform mat4 uTransform;\n' +
@@ -96,7 +144,6 @@ WebglVideoTile.textureVertexShader =
   'void main(void) {\n' +
   '  vTextureCoord = vec2(aTextureCoord.x, aTextureCoord.y);\n' +
   '  gl_Position = uTransform * vec4(aTextureCoord.x, aTextureCoord.y, 0., 1.);\n' +
-//  '  gl_Position = vec4(aTextureCoord.x, aTextureCoord.y, 0, 1);\n' +
   '}\n';
 
 
@@ -108,3 +155,4 @@ WebglVideoTile.textureFragmentShader =
   '  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));\n' +
   '  gl_FragColor = vec4(textureColor.rgb, 1);\n' +
   '}\n';
+
