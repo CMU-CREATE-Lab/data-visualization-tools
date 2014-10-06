@@ -1,18 +1,39 @@
 <html>
 <head>
-<script src="TileIdx.js"></script>
-<script src="WebglVideoTile.js"></script>
 <script>
 console.log('---');
-
-var t = new WebglVideoTile(new TileIdx(0,0,0));
-console.log(t.toString());
-
-while (!t.isReady()) {}
-console.log(t.toString());
-
 </script>
+<script src="TileIdx.js"></script>
+<script src='Glb.js'></script>
+<script src="WebglVideoTile.js"></script>
 </head>
 <body>
-</body>
+<canvas id='webgl' width=200 height=200></canvas>
+<script>
+var canvas = document.getElementById('webgl');
+var gl = canvas.getContext('experimental-webgl');
+var glb = new Glb(gl);
+var t = new WebglVideoTile(glb, new TileIdx(0,0,0), {min:{x:0,y:0}, max:{x:1,y:1}}, '1068x600/0/0/0.mp4');
+console.log(t.toString());
+var t2 = new WebglVideoTile(glb, new TileIdx(0,0,0), {min:{x:0,y:0}, max:{x:1,y:1}}, '1068x600/0/0/0.mp4');
+console.log(t2.toString());
+t.recycle();
+var t3 = new WebglVideoTile(glb, new TileIdx(0,0,0), {min:{x:0,y:0}, max:{x:1,y:1}}, '1068x600/0/0/0.mp4');
+console.log(t3.toString());
+
+console.log(WebglVideoTile._frameOffsets);
+
+WebglVideoTile.computeFrameOffsets(1, 1);
+console.log(WebglVideoTile._frameOffsets);
+
+WebglVideoTile.computeFrameOffsets(1, 2);
+console.log(WebglVideoTile._frameOffsets);
+
+WebglVideoTile.computeFrameOffsets(1, 3);
+console.log(WebglVideoTile._frameOffsets);
+
+WebglVideoTile.computeFrameOffsets(3, 2);
+console.log(WebglVideoTile._frameOffsets);
+
+</script>
 </html>
