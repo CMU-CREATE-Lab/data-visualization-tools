@@ -144,11 +144,12 @@ console.log('---');
         console.log('init');
         var myTime = 0;
         var myHomeView = { center: {"lat":39.3, "lng":-95.8}, "zoom": 2 };
+        var dfwView = { center: {x:310732, y:538337}, zoom: 8};
         var viewerOptions = {
           url: url, //can be absolute or relative
           initialTime: myTime, //default to 0; in video time
           loopPlayback: true, //defaults to false
-          initialView: myHomeView, //see above for possible views to use
+          initialView: dfwView, //see above for possible views to use
           playOnLoad: false, //defaults to false
           playbackSpeed: 1, //[-1,-.5,-.25,.25,.5,1] available, defaults to 1
           showMainControls: false, //defaults to true
@@ -181,13 +182,19 @@ console.log('---');
               offsetX: 20, //defaults to 0
               offsetY: 20 //defaults to 0
             }
-          }/*,
-          newHomeView: myHomeView //override the home view */
+          }
         };
 
         timelapse = new org.gigapan.timelapse.Timelapse("player1", viewerOptions);
         document.body.appendChild( stats.domElement );
         $(stats.domElement).css('z-index', 1000);
+
+
+        $(document).keypress(function(e) {
+          if (e.keyCode == 118) {
+            WebglVideoTile.verbose = !WebglVideoTile.verbose;
+          }
+        });
       }
 
       function createShaderProgram() {
@@ -319,13 +326,19 @@ console.log('---');
         if (pointDataLoaded && dateDataLoaded) {
           if (!firstDrawTime) {
             firstDrawTime = performance.now();
-            timelapse.seek(0.1);
+            var dfwView = { center: {x:308100, y:538800}, zoom: 8};
+            timelapse.setNewView(dfwView, true);
             timelapse.play();
           }
-          if (performance.now() - firstDrawTime > 1 * 5000) {
-            timelapse.pause();
-            return;
-          }
+          //if (performance.now() - firstDrawTime < 1 * 5000) {
+          //  WebglVideoTile.verbose = true;
+          //} else {
+          //  if (WebglVideoTile.verbose) {                              
+          //    WebglVideoTile.verbose = false;
+          //    console.log(WebglVideoTile.stats());
+          //  }
+          //}
+                              
           var currentTime = timelapse.getCurrentTime();
           var currentRatio = currentTime / totalTime;
 
