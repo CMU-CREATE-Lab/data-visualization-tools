@@ -42,5 +42,7 @@ draw = function(view) {
   for (var i = 0; i < toDraw.length; i++) {
     toDraw[i].draw(transform);
   }
+
+  this._tileView.update();
 }
 

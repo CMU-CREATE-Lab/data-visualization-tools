@@ -8,9 +8,9 @@
 // to create and delete your tiles:
 //
 // createTile(TileIdx ti, bounds) where bounds = {min:{x:,y:},max:{x:,y:}}
-// deleteTile(tile)
+// tile.delete()
 //
-// layer = new TileView({panoWidth:, panoHeight:, tileWidth:, tileHeight:, createTile:, deleteTile:});
+// layer = new TileView({panoWidth:, panoHeight:, tileWidth:, tileHeight:, createTile:});
 //
 // When drawing a frame where the view has changed
 //
@@ -25,8 +25,8 @@ function TileView(settings) {
   this._panoHeight = settings.panoHeight;
   this._tileWidth = settings.tileWidth;
   this._tileHeight = settings.tileHeight;
-  this._createTile = settings.createTile;
-  this._deleteTile = settings.deleteTile;
+  this._createTileCallback = settings.createTile;
+  this._deleteTileCallback = settings.deleteTile;
   this._tiles = {};
 
   // levelThreshold sets the quality of display by deciding what level of tile to show for a given level of zoom:
@@ -133,7 +133,7 @@ TileView.prototype.
 _addTileidx = function(tileidx) {
   if (!this._tiles[tileidx.key]) {
     this._tiles[tileidx.key] = 
-      this._createTile(tileidx, this._tileGeometry(tileidx));
+      this._createTileCallback(tileidx, this._tileGeometry(tileidx));
     this._tiles[tileidx.key].index = tileidx;
   }
   return this._tiles[tileidx.key];
@@ -142,7 +142,7 @@ _addTileidx = function(tileidx) {
 TileView.prototype.
 _deleteTile = function(tile) {
   if (this._tiles[tile.index.key]) {
-    this._deleteTile(tile);
+    tile.delete();
     delete this._tiles[tile.index.key];
   }
 }
@@ -294,6 +294,19 @@ getTilesToDraw = function() {
     if (tile.isReady()) {
       ret.push(tile);
     }
+  }
+  return ret;
+}
+
+// Return ordered list of tiles to draw, from low-res to high res.  Draw in that order
+// so that high-res can cover low-res, for opaque tiles.
+TileView.prototype.
+update = function() {
+  var keys = Object.keys(this._tiles).sort();
+  var ret = [];
+  for (var i = 0; i < keys.length; i++) {
+    var tile = this._tiles[keys[i]];
+    tile.update();
   }
   return ret;
 }
