@@ -23,13 +23,18 @@ function WebglVideoTile(glb, tileidx, bounds, url) {
   this._video = document.createElement('video');
   this._video.src = url;
   this._currentTexture = this.gl.createTexture(),
+  this._currentTextureFrameno = null,
   this._nextTexture = this.gl.createTexture(),
+  this._nextTextureFrameno = null,
   this._frameGrabbed = false;
   this._width = 1424;
   this._height = 800;
   this._bounds = bounds;
   this._frameOffsetIndex = WebglVideoTile.getUnusedFrameOffsetIndex();
   this._frameOffset = WebglVideoTile._frameOffsets[this._frameOffsetIndex];
+  // TODO(rsargent): don't hardcode FPS and nframes
+  this._fps = 10;
+  this._nframes = 29;
 }
 
 WebglVideoTile.prototype.
@@ -61,8 +66,57 @@ isReady = function() {
   return this._video.readyState == 4;
 };
 
+var stopit = false;
+
 WebglVideoTile.prototype.
 updateFrame = function() {
+  if (stopit) return;
+  function r2(x) {
+    return Math.round(x * 100) / 100;
+  }
+
+  var webglFps = 60;
+  // TODO(rsargent): don't hardcode access to global timelapse object
+
+  if (this._video.seeking) {
+    console.log('seeking');
+  } else {
+    
+    // Frame being displayed on screen
+    var displayFrame = timelapse.getVideoset().getCurrentTime() * this._fps;
+    var displayFps = timelapse.getPlaybackRate() * this._fps;
+    
+    // Desired video tile time leads display by frameOffset+1
+    var targetVideoFrame = (displayFrame + this._frameOffset + 1) % this._nframes;
+    
+    var actualVideoFrame = this._video.currentTime * this._fps;
+    
+    // Set speed so that in one webgl frame, we'll be exactly at the right time
+    var futureTargetVideoFrame = ((displayFps / webglFps) + targetVideoFrame) % this._nframes;
+    var speed = (futureTargetVideoFrame - actualVideoFrame) / (this._fps / webglFps);
+    if (speed < 0) speed = 0;
+    if (speed > 5) speed = 5;
+    if (speed > 0 && this._video.paused) {
+      this._video.play();
+    } else if (speed == 0 && !this._video.paused) {
+      this._video.pause();
+    }
+    
+    var futureFrameError = futureTargetVideoFrame - (actualVideoFrame + speed * (this._fps / webglFps));
+
+    if (futureFrameError < -0.25 || futureFrameError > 3) {
+      // If we need to go back any or forward a lot, seek instead of changing speed
+      this._video.currentTime = futureTargetVideoFrame / this._fps;
+      console.log('display=' + r2(displayFrame) + ', desired=' + r2(targetVideoFrame) + 
+                  ', actual=' + r2(actualVideoFrame) + ', seeking to=' + futureTargetVideoFrame);
+    } else {
+      this._video.playbackRate = speed;
+      console.log('display=' + r2(displayFrame) + ', desired=' + r2(targetVideoFrame) + 
+                  ', actual=' + r2(actualVideoFrame) + ', setting speed=' + r2(speed) +
+                  ', future error=' + r2(futureFrameError));
+    }
+  }
+
   if (!this._frameGrabbed && this._video.readyState == 4) {
     this._frameGrabbed = true;
     var gl = this.gl;
@@ -117,7 +171,7 @@ WebglVideoTile.computeFrameOffsets = function(phases, subbits) {
   WebglVideoTile._frameOffsets = [];
   var subphases = 1 << subbits;
   for (var s = 0; s < subphases; s++) {
-    // Arrange suphases across [0, 1) such that locations for any length contiguous subset starting at the first subphase 
+    // Arrange subphases across [0, 1) such that locations for any length contiguous subset starting at the first subphase 
     // will be sparse.
     // E.g. for 3 subbits, [0, 0.5, 0.25, 0.75, 0.125, 0.625, 0.375, 0.875]
     var sfrac = 0;
