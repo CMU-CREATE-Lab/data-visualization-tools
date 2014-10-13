@@ -150,7 +150,7 @@ console.log('---');
           loopPlayback: true, //defaults to false
           initialView: myHomeView, //see above for possible views to use
           playOnLoad: false, //defaults to false
-          playbackSpeed: 0.25, //[-1,-.5,-.25,.25,.5,1] available, defaults to 1
+          playbackSpeed: 1, //[-1,-.5,-.25,.25,.5,1] available, defaults to 1
           showMainControls: false, //defaults to true
           enableCustomUI: true, //defaults to false
           loopDwell: {
@@ -310,15 +310,22 @@ console.log('---');
             0, 0, 0, 0, -1, 1, 0, 1]);
       }
 
-      var lastDrawTime = performance.now();
+      var firstDrawTime = null;
 
       // Draws to canvas. 
       // Called by TimeMachineCanavasLayer during animation and/or view changes
       function update() {
-        if (performance.now() - this._lastDrawTime < 500) return;
-        lastDrawTime = performance.now();
         stats.begin();
         if (pointDataLoaded && dateDataLoaded) {
+          if (!firstDrawTime) {
+            firstDrawTime = performance.now();
+            timelapse.seek(0.1);
+            timelapse.play();
+          }
+          if (performance.now() - firstDrawTime > 1 * 5000) {
+            timelapse.pause();
+            return;
+          }
           var currentTime = timelapse.getCurrentTime();
           var currentRatio = currentTime / totalTime;
 
@@ -363,7 +370,7 @@ console.log('---');
           gl.uniformMatrix4fv(matrixLoc, false, mapMatrix);
 
           // draw!
-          gl.drawArrays(gl.POINTS, firstYear.index0, POINT_COUNT * currentRatio * 0.05);
+          //gl.drawArrays(gl.POINTS, firstYear.index0, POINT_COUNT * currentRatio * 0.05);
           tmlayer.draw(timelapse.getView());
         }
 	      stats.end();
