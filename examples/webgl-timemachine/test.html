@@ -318,12 +318,27 @@ console.log('---');
       }
 
       var firstDrawTime = null;
+      var lastFrameTime = null
+      var stopit = false;
 
       // Draws to canvas. 
       // Called by TimeMachineCanavasLayer during animation and/or view changes
       function update() {
+        if (stopit) return;
+        var frameTime = performance.now();
+        if (lastFrameTime != null) {
+          var duration = frameTime - lastFrameTime;
+          console.log('Duration = ' + duration);
+        }
+        lastFrameTime = frameTime;
         stats.begin();
         if (pointDataLoaded && dateDataLoaded) {
+          if (WebglVideoTile.verbose) {
+            function r2(x) {
+              return Math.round(x * 100) / 100;
+            }
+            console.log(r2(performance.now()) + ' update start --------------------------------------------------');
+          }
           if (!firstDrawTime) {
             firstDrawTime = performance.now();
             var dfwView = { center: {x:308100, y:538800}, zoom: 8};
