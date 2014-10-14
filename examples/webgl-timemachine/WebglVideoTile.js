@@ -1,5 +1,11 @@
 "use strict";
 
+//
+// Want to triple-buffer
+// From time 1 to 1.999, display 1
+//                       already have 2 in the hopper, ideally
+//                       be capturing 3
+
 function WebglVideoTile(glb, tileidx, bounds, url) {
   this._tileidx = tileidx;
   this.glb = glb;
@@ -21,9 +27,9 @@ function WebglVideoTile(glb, tileidx, bounds, url) {
 
   this._video = document.createElement('video');
   this._video.src = url;
-  this._currentTexture = this.gl.createTexture(),
+  this._currentTexture = this._createTexture(),
   this._currentTextureFrameno = null,
-  this._nextTexture = this.gl.createTexture(),
+  this._nextTexture = this._createTexture(),
   this._nextTextureFrameno = null,
   this._ready = false;
   this._width = 1424;
@@ -37,6 +43,25 @@ function WebglVideoTile(glb, tileidx, bounds, url) {
   this._id = WebglVideoTile.videoId++;
   this._seekingFrameCount = 0;
   WebglVideoTile.activeTileCount++;
+
+  
+  var readyState = this._video.readyState;
+  var before = performance.now();
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, this._video);
+  gl.bindTexture(gl.TEXTURE_2D, null);
+
+}
+
+WebglVideoTile.prototype.
+_createTexture = function() {
+  var texture = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.bindTexture(gl.TEXTURE_2D, null);
+  return texture;
 }
 
 WebglVideoTile.videoId = 0;
@@ -209,17 +234,19 @@ WebglVideoTile.prototype.
 _captureFrame = function(captureFrameno) {
   this._nextTextureFrameno = captureFrameno;
   var gl = this.gl;
-  gl.bindTexture(gl.TEXTURE_2D, this._nextTexture);
+  var readyState = this._video.readyState;
+  var currentTime = this._video.currentTime;
   var before = performance.now();
+  gl.bindTexture(gl.TEXTURE_2D, this._nextTexture);
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, this._video);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
   gl.bindTexture(gl.TEXTURE_2D, null);
   var elapsed = performance.now() - before;
   if (WebglVideoTile.verbose) {
     console.log(this._id + ': captured frame ' + captureFrameno + ' in ' + Math.round(elapsed) + ' ms');
+  }
+  if (elapsed > 10) {
+    console.log(this._id + ': long capture time ' + Math.round(elapsed) + ' ms.  readyState was ' + readyState +
+	       ', time was ' + currentTime);
   }
 
   if (this._currentTextureFrameno != null) {
@@ -259,6 +286,7 @@ draw = function(transform) {
 
     gl.bindTexture(gl.TEXTURE_2D, this._currentTexture);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    gl.bindTexture(gl.TEXTURE_2D, null);
   }
 };
 
