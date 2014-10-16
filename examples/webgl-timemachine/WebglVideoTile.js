@@ -347,7 +347,7 @@ updatePhase2 = function(displayFrame) {
   var future = (timelapse.getPlaybackRate() * this._fps / webglFps) * 3;
   
   // Desired video tile time leads display by frameOffset+1.3
-  var targetVideoFrame = (displayFrame + this._frameOffset + 1.3) % this._nframes;
+  var targetVideoFrame = (displayFrame + this._frameOffset + 1.2) % this._nframes;
 
   var futureTargetVideoFrame = (targetVideoFrame + future) % this._nframes;
 
