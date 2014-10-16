@@ -1,10 +1,11 @@
 "use strict";
 
 //
-// Want to triple-buffer
+// Want to quadruple-buffer
 // From time 1 to 1.999, display 1
 //                       already have 2 in the hopper, ideally
 //                       be capturing 3
+//                       have a fourth fallow buffer
 
 function WebglVideoTile(glb, tileidx, bounds, url) {
   this._tileidx = tileidx;
@@ -43,17 +44,11 @@ function WebglVideoTile(glb, tileidx, bounds, url) {
   this._id = WebglVideoTile.videoId++;
   this._seekingFrameCount = 0;
   WebglVideoTile.activeTileCount++;
-
-  
-  var readyState = this._video.readyState;
-  var before = performance.now();
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, this._video);
-  gl.bindTexture(gl.TEXTURE_2D, null);
-
 }
 
 WebglVideoTile.prototype.
 _createTexture = function() {
+  var gl = this.gl;
   var texture = gl.createTexture();
   gl.bindTexture(gl.TEXTURE_2D, texture);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -241,6 +236,7 @@ _captureFrame = function(captureFrameno) {
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, this._video);
   gl.bindTexture(gl.TEXTURE_2D, null);
   var elapsed = performance.now() - before;
+  WebglTimemachinePerf.instance.recordVideoFrameCapture(elapsed);
   if (WebglVideoTile.verbose) {
     console.log(this._id + ': captured frame ' + captureFrameno + ' in ' + Math.round(elapsed) + ' ms');
   }
@@ -255,6 +251,7 @@ _captureFrame = function(captureFrameno) {
     if (advance != 1) {
       console.log(this._id + ': skipped ' + (advance - 1) + ' frames');
       WebglVideoTile.missedFrameCount += (advance - 1);
+      WebglTimemachinePerf.instance.recordMissedFrames(advance - 1);
     }
   }
 }

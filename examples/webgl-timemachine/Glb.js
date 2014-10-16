@@ -77,9 +77,9 @@ _addAttribsAndUniformsToProgram = function(program) {
 
 Glb.prototype.
 createBuffer = function(array) {
-  var buffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-  gl.bufferData(gl.ARRAY_BUFFER, array, gl.STATIC_DRAW);
+  var buffer = this.gl.createBuffer();
+  this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer);
+  this.gl.bufferData(this.gl.ARRAY_BUFFER, array, this.gl.STATIC_DRAW);
   return buffer;
 }
 
