@@ -3,7 +3,6 @@ function WebglTimemachinePerf(canvas, timelapse) {
   this._context = this._canvas.getContext('2d');
   this._context.font = '10px Arial';
   this._timelapse = timelapse;
-  console.log(this._height);
   this._traceCount = 3;
   this._trace = this._traceCount - 1;
   this._lastFrameStartTime = 1e10;

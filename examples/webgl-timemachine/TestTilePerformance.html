@@ -18,7 +18,7 @@ function init() {
   var gl = canvas.getContext('experimental-webgl');
   var glb = new Glb(gl);
 
-  var ntiles = 10;
+  var ntiles = 8;
   for (var i = 0; i < ntiles; i++) {
     tiles.push(new WebglVideoTile(
                       glb, 
@@ -28,6 +28,7 @@ function init() {
   }
   $('#status').text(ntiles + ' tiles');
   perf = new WebglTimemachinePerf(document.getElementById('stats'), timelapse);
+  WebglVideoTile.verbose = true;
   update();
 }
 
@@ -58,6 +59,7 @@ var timelapse = {
 var si=false;
 
 function update() {
+  if (performance.now() - startTime > 10000) return;
   if (si) return;
   perf.startFrame();
   window.requestAnimationFrame(update);
