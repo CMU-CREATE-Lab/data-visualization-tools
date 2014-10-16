@@ -18,7 +18,7 @@ function init() {
   var gl = canvas.getContext('experimental-webgl');
   var glb = new Glb(gl);
 
-  var ntiles = 8;
+  var ntiles = 10;
   for (var i = 0; i < ntiles; i++) {
     tiles.push(new WebglVideoTile(
                       glb, 
@@ -28,7 +28,7 @@ function init() {
   }
   $('#status').text(ntiles + ' tiles');
   perf = new WebglTimemachinePerf(document.getElementById('stats'), timelapse);
-  WebglVideoTile.verbose = true;
+  WebglVideoTile.verbose = false;
   update();
 }
 
@@ -66,8 +66,16 @@ function update() {
   transform = new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]);
   translateMatrix(transform, -1, -1);
   scaleMatrix(transform, 0.15, 2);
+  // TODO(rsargent): don't hardcode this here
+  var fps = 10;
+  var displayFrame = timelapse.getVideoset().getCurrentTime() * fps;
+
   for (var i = 0; i < tiles.length; i++) {
-    tiles[i].update();
+    tiles[i].updatePhase1(displayFrame);  // Frame being displayed on screen
+  }
+
+  for (var i = 0; i < tiles.length; i++) {
+    tiles[i].updatePhase2(displayFrame);  // Frame being displayed on screen
     tiles[i].draw(transform);
     translateMatrix(transform, 1.01, 0);
   }

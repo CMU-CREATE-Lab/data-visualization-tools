@@ -260,7 +260,18 @@ _computeNextNeededFrame = function(displayFrameDiscrete) {
 }
 
 WebglVideoTile.prototype.
-update = function() {
+  _computeCapturePriority = function(displayFrameDiscrete, actualVideoFrame, 
+                                     actualVideoFrameDiscrete) {
+  return 1;
+}
+// First phase of update
+// Cleans up and advances pipelines
+// Computes priority of capture
+WebglVideoTile.prototype.
+updatePhase1 = function(displayFrame) {
+  this._capturePriority = 0;
+  var displayFrameDiscrete = Math.min(Math.floor(displayFrame), this._nframes - 1);
+
   var r2 = WebglVideoTile.r2;
   // Output stats every 5 seconds
   if (!WebglVideoTile.lastStatsTime) {
@@ -272,7 +283,6 @@ update = function() {
 
   // Synchronize video playback
 
-  var webglFps = 60;
   // TODO(rsargent): don't hardcode access to global timelapse object
 
   var readyState = this._video.readyState;
@@ -281,23 +291,36 @@ update = function() {
     if (WebglVideoTile.verbose) {
       console.log(this._id + ': loading');
     }
-    return false;
+    return;
   }
 
-  // Frame being displayed on screen
-  var displayFrame = timelapse.getVideoset().getCurrentTime() * this._fps;
-  var displayFrameDiscrete = Math.min(Math.floor(displayFrame), this._nframes - 1);
-
-  var displayFps = timelapse.getPlaybackRate() * this._fps;
-  
-  // Desired video tile time leads display by frameOffset+1
-  var targetVideoFrame = (displayFrame + this._frameOffset + 1.3) % this._nframes;
   
   var actualVideoFrame = this._video.currentTime * this._fps;
   var actualVideoFrameDicrete = Math.min(Math.floor(actualVideoFrame), this._nframes - 1);
 
   this._flushUnneededFrames(displayFrameDiscrete);
   this._tryAdvancePipeline(displayFrameDiscrete);
+  if (readyState > 1) {
+    this._capturePriority = this._computeCapturePriority(displayFrameDiscrete, actualVideoFrame, actualVideoFrameDicrete);
+  }
+}
+
+// Second phase of update
+// Captures frame, if desirable and time still left
+// Adjusts time or requests seek to maintain video time sync
+WebglVideoTile.prototype.
+updatePhase2 = function(displayFrame) {
+  var r2 = WebglVideoTile.r2;
+  var displayFrameDiscrete = Math.min(Math.floor(displayFrame), this._nframes - 1);
+  var readyState = this._video.readyState;
+
+  if (readyState == 0) {
+    return;
+  }
+
+  var actualVideoFrame = this._video.currentTime * this._fps;
+  var actualVideoFrameDicrete = Math.min(Math.floor(actualVideoFrame), this._nframes - 1);
+
   if (readyState > 1) {
     this._tryCaptureFrame(displayFrameDiscrete, actualVideoFrame, actualVideoFrameDicrete);
   }
@@ -319,9 +342,13 @@ update = function() {
 
   var nextNeededFrame = this._computeNextNeededFrame(displayFrameDiscrete);
 
+  var webglFps = 60;
   // Imagine we're going to drop a frame.  Aim to be at the right place in 3 frames
-  var future = (displayFps / webglFps) * 3;
+  var future = (timelapse.getPlaybackRate() * this._fps / webglFps) * 3;
   
+  // Desired video tile time leads display by frameOffset+1.3
+  var targetVideoFrame = (displayFrame + this._frameOffset + 1.3) % this._nframes;
+
   var futureTargetVideoFrame = (targetVideoFrame + future) % this._nframes;
 
   // Slow down by up to half a frame to make sure to get the next requested frame
