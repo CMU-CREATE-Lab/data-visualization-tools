@@ -468,6 +468,49 @@ draw = function(transform) {
   }
 };
 
+// Update and draw tiles
+WebglVideoTile.update = function(tiles) {
+  if (si) return;
+  WebglTimemachinePerf.instance.startFrame();
+
+  var canvas = document.getElementById('webgl');
+
+    
+  var transform = new Float32Array([2/canvas.width,0,0,0, 0,-2/canvas.height,0,0, 0,0,0,0, -1,1,0,1]);
+        
+  translateMatrix(transform, canvas.width*0.5, canvas.height*0.5);
+  
+  // Scale to current zoom (worldCoords * 2^zoom)
+  var scale = 1;                    
+  scaleMatrix(transform, scale, scale);
+
+  // translate to current view (vector from topLeft to 0,0)
+  var x = 0, y = 0;
+  translateMatrix(transform, -x, -y);
+
+
+  transform = new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]);
+  translateMatrix(transform, -1, -1);
+  scaleMatrix(transform, 0.15, 2);
+
+  // TODO(rsargent): don't hardcode this here
+  var fps = 10;
+  var displayFrame = timelapse.getVideoset().getCurrentTime() * fps;
+
+  for (var i = 0; i < tiles.length; i++) {
+    tiles[i].updatePhase1(displayFrame);  // Frame being displayed on screen
+  }
+
+  // TODO(rsargent): draw tiles low to high-res, or clip and don't draw the overlapping portions
+  // of the low-res tiles
+  for (var i = 0; i < tiles.length; i++) {
+    tiles[i].updatePhase2(displayFrame);  // Frame being displayed on screen
+    tiles[i].draw(transform);
+  }
+  WebglTimemachinePerf.instance.endFrame();
+}
+
+
 // Phases = 60 / videoFPS
 // Subbits is log2 of the max number of videos per phase
 

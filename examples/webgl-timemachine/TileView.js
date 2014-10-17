@@ -282,32 +282,13 @@ setView = function(view, viewportWidth, viewportHeight) {
 
 // Return ordered list of tiles to draw, from low-res to high res.  Draw in that order
 // so that high-res can cover low-res, for opaque tiles.
-// TODO(rsargent): handle case where tiles aren't opaque, and the choice must
-// be made between a parent and its four children.
-
-TileView.prototype.
-getTilesToDraw = function() {
-  var keys = Object.keys(this._tiles).sort();
-  var ret = [];
-  for (var i = 0; i < keys.length; i++) {
-    var tile = this._tiles[keys[i]];
-    if (tile.isReady()) {
-      ret.push(tile);
-    }
-  }
-  return ret;
-}
-
-// Return ordered list of tiles to draw, from low-res to high res.  Draw in that order
-// so that high-res can cover low-res, for opaque tiles.
 TileView.prototype.
 update = function() {
   var keys = Object.keys(this._tiles).sort();
-  var ret = [];
+  var tiles = [];
   for (var i = 0; i < keys.length; i++) {
-    var tile = this._tiles[keys[i]];
-    tile.update();
+    tiles.push(this._tiles[keys[i]]);
   }
-  return ret;
+  
 }
 
