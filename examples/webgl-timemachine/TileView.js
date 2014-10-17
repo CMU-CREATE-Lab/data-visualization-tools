@@ -311,11 +311,3 @@ update = function() {
   return ret;
 }
 
-TileView.prototype.
-isWaitingForTiles = function() {
-  for (var key in this._tiles) {
-    if (!this._tiles[key].isReady()) return true;
-  }
-  return false;
-}
-

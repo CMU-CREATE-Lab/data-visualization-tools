@@ -2,6 +2,14 @@ function WebglTimemachinePerf(canvas, timelapse) {
   this._canvas = canvas;
   this._context = this._canvas.getContext('2d');
   this._context.font = '10px Arial';
+  this._context2 = {
+    beginPath: function(){},
+    moveTo: function(){},
+    lineTo: function(){},
+    stroke: function(){},
+    clearRect: function(){},
+    fillText: function(){},
+  };
   this._timelapse = timelapse;
   this._traceCount = 3;
   this._trace = this._traceCount - 1;
@@ -43,19 +51,23 @@ endFrame = function() {
     this._context.stroke();
   }
 
-    this._context.beginPath();
+  this._context.beginPath();
   this._context.strokeStyle='black';
   this._context.moveTo(x, y);
   this._context.lineTo(x, this._baseline - duration);
   this._context.stroke();
   
-  this._maxX = x;
+  this._lastX = x;
 }
 
 WebglTimemachinePerf.prototype.
 recordVideoFrameCapture = function(duration) {
   this._videoFrameCaptureDurations[this._videoFrameCaptureDurations.length - 1]
     .push(duration);
+
+  var bucket = Math.min(25, Math.round(duration));
+  
+  this._captureDurationHist[bucket] = 1 + (this._captureDurationHist[bucket] || 0);
 }
 
 WebglTimemachinePerf.prototype.
@@ -71,6 +83,7 @@ _startTrace = function() {
                           this._canvas.width, this._traceHeight);
   this._videoFrameCaptureDurations = [];
   this._missedFrameCount = 0;
+  this._captureDurationHist = [];
 }
 
 WebglTimemachinePerf.prototype.
@@ -80,6 +93,47 @@ _endTrace = function() {
   }
 
   if (this._baseline != null) {
+    
+    ////////////////////////////////
+    // Capture duration histogram
+    var totalWeighted = 0;
+    var maxWeighted = 0;
+    
+    this._lastX = Math.round(this._lastX + 6);
+
+    this._context.fillStyle = '#eeeeee';
+
+    this._context.fillRect(this._lastX, this._baseline - this._traceHeight, 
+                           10, this._traceHeight);
+
+    this._context.fillStyle = '#ffdddd';
+
+    this._context.fillRect(this._lastX + 20, this._baseline - this._traceHeight, 
+                           10, this._traceHeight);
+    this._context.fillRect(this._lastX + 40, this._baseline - this._traceHeight, 
+                           10, this._traceHeight);
+
+    for (var i = 0; i < this._captureDurationHist.length; i++) {
+      if (this._captureDurationHist[i]) {
+        var weighted = this._captureDurationHist[i] * i;
+        totalWeighted += weighted;
+        maxWeighted = Math.max(maxWeighted, weighted);
+      }
+    }
+    
+    for (var i = 0; i < this._captureDurationHist.length; i++) {
+      if (this._captureDurationHist[i]) {
+        this._context.beginPath();
+        this._context.moveTo(this._lastX + i * 2 + 0.5, this._baseline);
+        this._context.lineTo(this._lastX + i * 2 + 0.5, this._baseline - 40 * (this._captureDurationHist[i] * i) / maxWeighted);
+        this._context.stroke();
+      }
+    }
+
+    this._lastX += 50;
+
+    ///////////////////////////
+    // Text stats
     var sum = 0;
     var sumsq = 0;
     var max = 0;
@@ -96,7 +150,11 @@ _endTrace = function() {
     ', stddev ' + r2(stddev) + 
     ', max ' + max + ')';
     console.log(msg);
-    this._context.fillText(msg, this._maxX + 6, this._baseline);
+    this._context.fillStyle = '#000000';
+    this._context.fillText(msg, this._lastX + 6, this._baseline);
+
+    this._context.strokeStyle = '#000080';
+
   }
 }
 
