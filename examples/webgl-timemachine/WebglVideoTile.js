@@ -34,7 +34,7 @@ function WebglVideoTile(glb, tileidx, bounds, url) {
                                                        1, 0,
                                                        0, 1,
                                                        1, 1]));
-
+  
   this._video = document.createElement('video');
   this._video.src = url;
   this._pipeline = [];
@@ -407,8 +407,11 @@ _captureFrame = function(captureFrameno, destIndex) {
   var readyState = this._video.readyState;
   var currentTime = this._video.currentTime;
   var before = performance.now();
+
   gl.bindTexture(gl.TEXTURE_2D, this._pipeline[destIndex].texture);
+  //console.time("gl.texImage2D");
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, this._video);
+  //console.timeEnd("gl.texImage2D");
   gl.bindTexture(gl.TEXTURE_2D, null);
   var elapsed = performance.now() - before;
   WebglTimemachinePerf.instance.recordVideoFrameCapture(elapsed);

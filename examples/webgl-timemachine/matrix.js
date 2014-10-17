@@ -19,3 +19,8 @@ function scaleMatrix(matrix, scaleX, scaleY) {
   matrix[7] *= scaleY;
 }
 
+function copyMatrix(to, from) {
+  for (var i = 0; i < 16; i++) {
+    to[i] = from[i];
+  }
+}
