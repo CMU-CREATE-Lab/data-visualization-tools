@@ -42,6 +42,7 @@ console.log('---');
     <script src="TileView.js"></script>
     <script src="Glb.js"></script>
     <script src="WebglTimeMachineLayer.js"></script>
+    <script src="WebglTimeMachinePerf.js"></script>
 
     <script type="text/javascript">
       org.gigapan.timelapse.Timelapse.prototype.getDiv = function() {
@@ -123,8 +124,9 @@ console.log('---');
         // initialize WebGL
         gl = canvasLayer.canvas.getContext('experimental-webgl');
 
-        gl.enable(gl.BLEND);
-        gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
+        // Enable additive blending
+        //gl.enable(gl.BLEND);
+        //gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
 
         createShaderProgram();
 
@@ -136,6 +138,8 @@ console.log('---');
         glb = new Glb(gl);
         tmlayer = new WebglTimeMachineLayer(glb, canvasLayer);
       }
+
+var perf;
 
       function init() {
         console.log('init');
@@ -193,6 +197,8 @@ console.log('---');
             WebglVideoTile.verbose = !WebglVideoTile.verbose;
           }
         });
+        perf = new WebglTimeMachinePerf(document.getElementById('stats'), timelapse);
+        console.log(perf);
       }
 
       function createShaderProgram() {
@@ -431,8 +437,9 @@ console.log('---');
     </script>
   </head>
   <body>
-    <div id="player1" style="position: absolute; top:10px; left:10px;"></div>
+    <div id="player1" style="width: 100%; height: 100%"></div>
     <div id="annotator1"></div>
     <div id="composer1"></div>
+    <canvas id="stats" style="position:absolute; top:0px; right:0px; z-index:100" width=1000 height=150></canvas>
   </body>
 </html>

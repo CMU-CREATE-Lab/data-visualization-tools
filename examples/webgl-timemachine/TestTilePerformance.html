@@ -5,7 +5,7 @@
 <script src="Glb.js"></script>
 <script src="WebglVideoTile.js"></script>
 <script src="matrix.js"></script>
-<script src="WebglTimemachinePerf.js"></script>
+<script src="WebglTimeMachinePerf.js"></script>
 <script>
 
 var tiles = [];
@@ -27,7 +27,7 @@ function init() {
                       '1068x600/11/2620/' + (832 + i * 4) + '.mp4'));
   }
   $('#status').text(ntiles + ' tiles');
-  perf = new WebglTimemachinePerf(document.getElementById('stats'), timelapse);
+  perf = new WebglTimeMachinePerf(document.getElementById('stats'), timelapse);
   WebglVideoTile.verbose = true;
   update();
 }
@@ -35,7 +35,12 @@ function init() {
 function update() {
   if (performance.now() - startTime > 10000) return;
   window.requestAnimationFrame(update);
-  WebglVideoTile.update(tiles);
+
+  transform = new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]);
+  translateMatrix(transform, -1, -1);
+  scaleMatrix(transform, 0.15, 2);
+
+  WebglVideoTile.update(tiles, transform);
 }
 
 /////////////////////
@@ -72,9 +77,9 @@ $(init);
 </script>
 </head>
 <body>
-<canvas id='webgl' width=1000 height=40></canvas>
-<div id='status'></div>
-<canvas id='stats' width=1000 height=150></canvas>
+<canvas id="webgl" width=1000 height=40></canvas>
+<div id="status"></div>
+<canvas id="stats" width=1000 height=150></canvas>
 <script>
 </script>
 </body>

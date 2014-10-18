@@ -38,11 +38,6 @@ draw = function(view) {
   // translate to current view (vector from topLeft to 0,0)
   translateMatrix(transform, -view.x, -view.y);
 
-  var toDraw = this._tileView.getTilesToDraw();
-  for (var i = 0; i < toDraw.length; i++) {
-    toDraw[i].draw(transform);
-  }
-
-  this._tileView.update();
+  this._tileView.update(transform);
 }
 
