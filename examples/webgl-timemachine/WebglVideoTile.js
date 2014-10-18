@@ -238,7 +238,7 @@ _checkForMissedFrame = function(displayFrameDiscrete) {
       displayFrameDiscrete != this._lastDisplayFrame &&
       displayFrameDiscrete != this._pipeline[0].frameno) {
     console.log(this._id + ': missed frame');
-    WebglTimemachinePerf.instance.recordMissedFrames(1);
+    WebglTimeMachinePerf.instance.recordMissedFrames(1);
     this._missedFrameCount++;
   }
   this._lastDisplayFrame = displayFrameDiscrete;
@@ -414,7 +414,7 @@ _captureFrame = function(captureFrameno, destIndex) {
   //console.timeEnd("gl.texImage2D");
   gl.bindTexture(gl.TEXTURE_2D, null);
   var elapsed = performance.now() - before;
-  WebglTimemachinePerf.instance.recordVideoFrameCapture(elapsed);
+  WebglTimeMachinePerf.instance.recordVideoFrameCapture(elapsed);
   if (WebglVideoTile.verbose) {
     console.log(this._id + ': captured frame ' + captureFrameno + 
                 ' to pipeline[' + destIndex + '] in ' 
@@ -432,7 +432,7 @@ _captureFrame = function(captureFrameno, destIndex) {
   //  if (advance != 1) {
   //    console.log(this._id + ': skipped ' + (advance - 1) + ' frames');
   //    WebglVideoTile.missedFrameCount += (advance - 1);
-  //    WebglTimemachinePerf.instance.recordMissedFrames(advance - 1);
+  //    WebglTimeMachinePerf.instance.recordMissedFrames(advance - 1);
   //  }
   //}
 }
@@ -446,13 +446,17 @@ draw = function(transform) {
               this._bounds.max.x - this._bounds.min.x,
               this._bounds.max.y - this._bounds.min.y);
               
-  // Draw rectangle
-  gl.useProgram(this._lineProgram);
-  gl.uniformMatrix4fv(this._lineProgram.uTransform, false, tileTransform);
-  gl.bindBuffer(gl.ARRAY_BUFFER, this._insetRectangle);
-  gl.vertexAttribPointer(this._lineProgram.aWorldCoord, 2, gl.FLOAT, false, 0, 0);
-  gl.enableVertexAttribArray(this._lineProgram.aWorldCoord);
-  gl.drawArrays(gl.LINE_LOOP, 0, 4);
+  var drawRectangle = false;
+
+  if (drawRectangle) {
+    // Draw rectangle
+    gl.useProgram(this._lineProgram);
+    gl.uniformMatrix4fv(this._lineProgram.uTransform, false, tileTransform);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._insetRectangle);
+    gl.vertexAttribPointer(this._lineProgram.aWorldCoord, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(this._lineProgram.aWorldCoord);
+    gl.drawArrays(gl.LINE_LOOP, 0, 4);
+  }
 
   // Draw video
   if (this._ready) {
@@ -469,29 +473,11 @@ draw = function(transform) {
 };
 
 // Update and draw tiles
-WebglVideoTile.update = function(tiles) {
+WebglVideoTile.update = function(tiles, transform) {
   if (si) return;
-  WebglTimemachinePerf.instance.startFrame();
+  WebglTimeMachinePerf.instance.startFrame();
 
   var canvas = document.getElementById('webgl');
-
-    
-  var transform = new Float32Array([2/canvas.width,0,0,0, 0,-2/canvas.height,0,0, 0,0,0,0, -1,1,0,1]);
-        
-  translateMatrix(transform, canvas.width*0.5, canvas.height*0.5);
-  
-  // Scale to current zoom (worldCoords * 2^zoom)
-  var scale = 1;                    
-  scaleMatrix(transform, scale, scale);
-
-  // translate to current view (vector from topLeft to 0,0)
-  var x = 0, y = 0;
-  translateMatrix(transform, -x, -y);
-
-
-  transform = new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]);
-  translateMatrix(transform, -1, -1);
-  scaleMatrix(transform, 0.15, 2);
 
   // TODO(rsargent): don't hardcode this here
   var fps = 10;
@@ -507,7 +493,7 @@ WebglVideoTile.update = function(tiles) {
     tiles[i].updatePhase2(displayFrame);  // Frame being displayed on screen
     tiles[i].draw(transform);
   }
-  WebglTimemachinePerf.instance.endFrame();
+  WebglTimeMachinePerf.instance.endFrame();
 }
 
 
@@ -558,3 +544,5 @@ WebglVideoTile.textureFragmentShader =
   '  gl_FragColor = vec4(textureColor.rgb, 1);\n' +
   '}\n';
 
+// stopit:  set to true to disable update()
+var si = false;

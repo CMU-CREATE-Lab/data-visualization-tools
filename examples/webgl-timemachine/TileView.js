@@ -283,12 +283,11 @@ setView = function(view, viewportWidth, viewportHeight) {
 // Return ordered list of tiles to draw, from low-res to high res.  Draw in that order
 // so that high-res can cover low-res, for opaque tiles.
 TileView.prototype.
-update = function() {
+update = function(transform) {
   var keys = Object.keys(this._tiles).sort();
   var tiles = [];
   for (var i = 0; i < keys.length; i++) {
     tiles.push(this._tiles[keys[i]]);
   }
-  
+  WebglVideoTile.update(tiles, transform);
 }
-
