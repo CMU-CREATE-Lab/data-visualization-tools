@@ -62,8 +62,10 @@ WebglVideoTile._init = function() {
   WebglVideoTile._initted = true;
 
   $(document).keypress(function(e) {
-      if (e.keyCode == 118) {
+      // ctrl-v toggles verbosity
+      if (e.keyCode == 22) { 
         WebglVideoTile.verbose = !WebglVideoTile.verbose;
+        console.log('WebglVideoTile verbose: ' + WebglVideoTile.verbose);
       }
     });
 }

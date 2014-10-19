@@ -3,13 +3,9 @@ bin
 *~
 data
 json
-
-# Vagrant
 .vagrant
 bootstrap.sh
 Vagrantfile
-
-# Mac OS
 .DS_Store
-
 capture
+examples/webgl-timemachine/1068x600
