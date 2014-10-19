@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+
+    <link href="../../timemachine/css/snaplapse.css" rel="stylesheet" type="text/css"/>
+    <link href="../../timemachine/css/jquery-ui/smoothness/jquery-ui.custom.css" rel="stylesheet" type="text/css"/>
+    <link href="../../timemachine/css/defaultUI.css" rel="stylesheet" type="text/css"/>
+    <link href="../../timemachine/css/smallGoogleMap.css" rel="stylesheet" type="text/css"/>
+    <link href="../../timemachine/css/scaleBar.css" rel="stylesheet" type="text/css"/>
+    <link href="../../timemachine/css/customUI.css" rel="stylesheet" type="text/css"/>
+
+    <script src="../../timemachine/js/jquery/jquery.min.js" type="text/javascript"></script>
+    <script src="../../timemachine/js/jquery/jquery-ui.custom.min.js" type="text/javascript"></script>
+    <script src="../../timemachine/js/jquery/plugins/mouse/jquery.mousewheel.min.js" type="text/javascript"></script>
+    <script src="../../timemachine/js/org/gigapan/util.js" type="text/javascript"></script>
+    <script src="../../timemachine/js/org/gigapan/timelapse/videoset.js" type="text/javascript"></script>
+    <script src="../../timemachine/js/org/gigapan/timelapse/parabolicMotion.js" type="text/javascript"></script>
+    <script src="../../timemachine/js/org/gigapan/timelapse/timelapse.js" type="text/javascript"></script>
+    <script src="../../timemachine/js/Math.uuid.js" type="text/javascript"></script>
+    <script src="../../timemachine/js/org/gigapan/timelapse/snaplapse.js" type="text/javascript"></script>
+    <script src="../../timemachine/js/org/gigapan/timelapse/snaplapseViewer.js" type="text/javascript"></script>
+    <script src="../../timemachine/js/org/gigapan/timelapse/mercator.js" type="text/javascript"></script>
+    <script src="../../timemachine/js/org/gigapan/timelapse/scaleBar.js" type="text/javascript"></script>
+    <script src="../../timemachine/js/org/gigapan/timelapse/smallGoogleMap.js" type="text/javascript"></script>
+    <script src="../../timemachine/js/org/gigapan/timelapse/customUI.js" type="text/javascript"></script>
+    <script src="../../timemachine/js/org/gigapan/timelapse/defaultUI.js" type="text/javascript"></script>
+    <script src="../../timemachine/js/org/gigapan/timelapse/urlEncoder.js" type="text/javascript"></script>
+
+    <script src="../../timemachine/js/org/gigapan/postmessage.js" type="text/javascript"></script>
+    <script src="../../timemachine/js/org/gigapan/timelapse/crossdomain_api.js" type="text/javascript"></script>
+
+    <script src="../../timemachine/template_includes.js" type="text/javascript"></script>
+    <script src="http://earthengine.google.org/timelapse/data/20130507/ajax_includes.js" type="text/javascript"></script>
+    <script src="https://maps.google.com/maps/api/js?sensor=false&libraries=places" type="text/javascript" ></script>
+
+    <script src="TileIdx.js"></script>
+    <script src="WebglVideoTile.js"></script>
+    <script src="TileView.js"></script>
+    <script src="Glb.js"></script>
+    <script src="WebglTimeMachineLayer.js"></script>
+    <script src="WebglTimeMachinePerf.js"></script>
+
+    <style>
+      #timeMachine {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+
+    <script type="text/javascript">
+      jQuery.support.cors = true;
+
+      // Landsat ("https" will casue the thumbnail loading from the server to fail)
+      var url = "http://earthengine.google.org/timelapse/data/20130507/"
+
+      function init() {
+        myHomeView = {
+          x: 677982.255550633,
+          y: 521801.7016044302,
+          scale: 0.0005840897249061237
+        };
+        var settings = {
+          url: url,
+          enablePresentationSlider: true,
+          datasetType: "landsat",
+          playOnLoad: true,
+          onTimeMachinePlayerReady: function(viewerDivId) {
+            onTimeMachinePlayerReady();
+            setupPostMessageHandlers();
+            timelapse.getSnaplapseForPresentationSlider().getSnaplapseViewer().addEventListener("slide-changed", function(slideTitle) {
+              post("from-timemachine-slide-changed", slideTitle);
+            });
+          },
+          scaleBarOptions: {
+            scaleBarDiv: "scaleBar1"
+          },
+          smallGoogleMapOptions: {
+            smallGoogleMapDiv: "smallGoogleMap1"
+          },
+          newHomeView: myHomeView,
+          showHomeBtn: false
+        };
+        timelapse = new org.gigapan.timelapse.Timelapse("timeMachine", settings);
+
+        //document.body.appendChild( stats.domElement );
+        //$(stats.domElement).css('z-index', 1000);
+
+
+        $(document).keypress(function(e) {
+          if (e.keyCode == 118) {
+            WebglVideoTile.verbose = !WebglVideoTile.verbose;
+          }
+        });
+        console.log('about to perf');
+        perf = new WebglTimeMachinePerf(document.getElementById('stats'), timelapse);
+        console.log(perf);
+      }
+
+      $(init);
+
+      org.gigapan.timelapse.OverlayView = function() {
+        
+      }
+
+      org.gigapan.timelapse.OverlayView.prototype.setTimelapse = function(timelapse) {
+        this.timelapse = timelapse;
+        this.onAdd();
+      }
+
+      org.gigapan.timelapse.OverlayView.prototype.getTimelapse = function() {
+        return this.timelapse;
+      }
+    </script>
+
+    <script src="../../js/TimeMachineCanvasLayer.js" type="text/javascript"></script>
+
+    <script type="text/javascript" src="../../js/base.js"></script>
+    <script type="text/javascript" src="../../js/io.js"></script>
+    <script type="text/javascript" src="../../js/utils.js"></script>
+
+    <script type="text/javascript">
+      /* begin stats */
+//      var stats = new Stats();
+//      stats.setMode(0); // 0: fps, 1: ms
+//      // Align top-left
+//      stats.domElement.style.position = 'absolute';
+//      stats.domElement.style.left = '0px';
+//      stats.domElement.style.top = '0px';
+      /* end stats */
+
+      var pointDataURL = "http://data.cmucreatelab.org/wells/wells-2013-10-02_latlon.bin";
+      var dateDataURL = "http://data.cmucreatelab.org/wells/wells-2013-10-02_dateIndex.bin";
+
+      var dates = [];
+      var firstYear;
+      var totalTime;
+
+      // BEGIN WebGL vars
+      var canvasLayer;
+      var gl;
+
+      var pointProgram;
+      var pointArrayBuffer;
+      var POINT_COUNT;
+
+      var pointDataLoaded = false;
+      var dateDataLoaded = false;
+
+      var projection = new org.gigapan.timelapse.MercatorProjection(-180, 85.05112877980659, 180, -85.05112877980659, 1335834, 1335834);
+      var topLeft = projection.latlngToPoint({lat: 60.0, lng: -160.0});
+      var bottomRight = projection.latlngToPoint({lat: 10.0, lng: -40.0});
+
+      var pixelsToWebGLMatrix = new Float32Array(16);
+      var mapMatrix = new Float32Array(16);
+
+      jQuery.support.cors = true;
+      // Landsat
+      //var url = "http://earthengine.google.org/timelapse/data";
+      var url = "https://earthengine.google.org/timelapse/data/20130507/";
+      var timelapse;
+
+      function onTimeMachinePlayerReady() {
+        console.log('otmpr1');
+        // initialize the canvasLayer
+        var timeMachineCanvasLayerOptions = {
+          timelapse: timelapse,
+          resizeHandler: resize,
+          animate: true,
+          updateHandler: update
+        };
+        console.log('otmpr1a');
+        canvasLayer = new TimeMachineCanvasLayer(timeMachineCanvasLayerOptions);
+        console.log('otmpr2');
+        // initialize WebGL
+        gl = canvasLayer.canvas.getContext('experimental-webgl');
+
+        // Enable additive blending
+        //gl.enable(gl.BLEND);
+        //gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
+
+        createShaderProgram();
+
+        totalTime =  timelapse.getNumFrames() / timelapse.getFps();
+
+        console.log('otmpr3');
+        tdl.io.loadArrayBuffer(pointDataURL, loadPointData);
+        tdl.io.loadArrayBuffer(dateDataURL, loadDateData);
+
+        glb = new Glb(gl);
+        tmlayer = new WebglTimeMachineLayer(glb, canvasLayer);
+        console.log('GOT TMCL');
+      }
+
+var perf;
+
+      function init2() {
+        console.log('init');
+        var myTime = 0;
+        var myHomeView = { center: {"lat":39.3, "lng":-95.8}, "zoom": 2 };
+        var dfwView = { center: {x:310732, y:538337}, zoom: 8};
+        var viewerOptions = {
+          url: url, //can be absolute or relative
+          initialTime: myTime, //default to 0; in video time
+          loopPlayback: true, //defaults to false
+          initialView: dfwView, //see above for possible views to use
+          playOnLoad: false, //defaults to false
+          playbackSpeed: 1, //[-1,-.5,-.25,.25,.5,1] available, defaults to 1
+          showMainControls: false, //defaults to true
+          enableCustomUI: true, //defaults to false
+          loopDwell: {
+            startDwell: 0.5, //defaults to 0
+            endDwell: 0.5 //defaults to 0
+          },
+          skippedFramesAtStart: 0,
+          skippedFramesAtEnd: 0,
+          visualizerScale: 1, //defaults to 1
+          viewportGeometry: {
+            width: 1068, //defaults to the size in tm.json, the default min value is 816, 1068
+            height: 600, //defaults to the size in tm.json, the default min value is 468, 600
+            max: true
+          }, //use the size in tm.json if both width and height params left out
+          scaleBarOptions: {
+            scaleBarDiv: "scaleBar1",
+            geometry: {
+              barLength: 113, //defaults to 113, min value = 113
+              offsetX: 0, //defaults to 0
+              offsetY: 67 //defaults to 0
+            }
+          }, //display scale bar; display nothing if param left out
+          smallGoogleMapOptions: {
+            smallGoogleMapDiv: "smallGoogleMap1",
+            geometry: {
+              width: 160, //defaults to 160, (min ,max) value = (160, 330)
+              height: 120, //defaults to 120, (min ,max) value = (120, 220)
+              offsetX: 20, //defaults to 0
+              offsetY: 20 //defaults to 0
+            }
+          }
+        };
+
+        console.log('about to perf');
+        timelapse = new org.gigapan.timelapse.Timelapse("player1", viewerOptions);
+        document.body.appendChild( stats.domElement );
+        $(stats.domElement).css('z-index', 1000);
+
+
+        $(document).keypress(function(e) {
+          if (e.keyCode == 118) {
+            WebglVideoTile.verbose = !WebglVideoTile.verbose;
+          }
+        });
+        console.log('about to perf');
+        perf = new WebglTimeMachinePerf(document.getElementById('stats'), timelapse);
+        console.log(perf);
+      }
+
+      function createShaderProgram() {
+        // create vertex shader
+        var vertexSrc = document.getElementById('pointVertexShader').text;
+        var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+        gl.shaderSource(vertexShader, vertexSrc);
+        gl.compileShader(vertexShader);
+
+        // create fragment shader
+        var fragmentSrc = document.getElementById('pointFragmentShader').text;
+        var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+        gl.shaderSource(fragmentShader, fragmentSrc);
+        gl.compileShader(fragmentShader);
+
+        // link shaders to create our program
+        pointProgram = gl.createProgram();
+        gl.attachShader(pointProgram, vertexShader);
+        gl.attachShader(pointProgram, fragmentShader);
+        gl.linkProgram(pointProgram);
+
+        gl.useProgram(pointProgram);
+
+        gl.aPointSize = gl.getAttribLocation(pointProgram, "aPointSize");
+      }
+
+      // linear interpolate between a and b
+      function lerp(a, b, t) {
+        return a + t * (b - a);
+      }
+
+      function onDataLoaded() {
+        if (pointDataLoaded && dateDataLoaded) {
+          firstYear = dates[0];
+        }
+      }
+
+      function loadPointData(arrayBuffer, exception) {
+        if (arrayBuffer) {
+          var data = new DataView(arrayBuffer);
+ 
+          POINT_COUNT = (data.byteLength / Float32Array.BYTES_PER_ELEMENT) / 2;
+          var rawData = new Float32Array(
+            data.byteLength / Float32Array.BYTES_PER_ELEMENT);
+          var len = rawData.length;
+          // Incoming data is raw floating point values
+          // with little-endian byte ordering.
+          for (var i = 0; i < len; i += 2) {
+            var lat = data.getFloat32(i * Float32Array.BYTES_PER_ELEMENT, true);
+            var lon = data.getFloat32((i +1 ) * Float32Array.BYTES_PER_ELEMENT, true);
+  	        var pixel = projection.latlngToPoint({lat: lat, lng: lon});
+            rawData[i] = pixel.x;
+            rawData[i+1] = pixel.y;
+          }
+          // create webgl buffer, bind it, and load rawData into it
+          pointArrayBuffer = gl.createBuffer();
+          gl.bindBuffer(gl.ARRAY_BUFFER, pointArrayBuffer);
+          gl.bufferData(gl.ARRAY_BUFFER, rawData, gl.STATIC_DRAW);
+
+          // enable the 'worldCoord' attribute in the shader to receive buffer
+          var attributeLoc = gl.getAttribLocation(pointProgram, 'worldCoord');
+          gl.enableVertexAttribArray(attributeLoc);
+
+          // tell webgl how buffer is laid out (pairs of x,y coords)
+          gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 0, 0);
+        }
+	      pointDataLoaded = true;
+        onDataLoaded();
+      }
+
+      function loadDateData(arrayBuffer, execption) {
+        if (arrayBuffer) {
+          var data = new DataView(arrayBuffer);
+          var rawData = new Int32Array(
+            data.byteLength / Int32Array.BYTES_PER_ELEMENT);
+          var len = rawData.length;
+          for (var i = 0; i < len; i += 3) {
+            var date = data.getInt32(i * Int32Array.BYTES_PER_ELEMENT, true);
+            var count = data.getInt32((i + 1) * Int32Array.BYTES_PER_ELEMENT, true);
+            var index0 = data.getInt32((i + 2) * Int32Array.BYTES_PER_ELEMENT, true);
+            var dateVal = new Date(date*1000).getFullYear();
+
+            dates.push({'date': dateVal, 'count': count, 'index0': index0});
+          }          
+        }
+        dateDataLoaded = true;
+        onDataLoaded();
+      }
+
+      function scaleMatrix(matrix, scaleX, scaleY) {
+        // scaling x and y, which is just scaling first two columns of matrix
+        matrix[0] *= scaleX;
+        matrix[1] *= scaleX;
+        matrix[2] *= scaleX;
+        matrix[3] *= scaleX;
+
+        matrix[4] *= scaleY;
+        matrix[5] *= scaleY;
+        matrix[6] *= scaleY;
+        matrix[7] *= scaleY;
+      }
+
+      function translateMatrix(matrix, tx, ty) {
+        // translation is in last column of matrix
+        matrix[12] += matrix[0]*tx + matrix[4]*ty;
+        matrix[13] += matrix[1]*tx + matrix[5]*ty;
+        matrix[14] += matrix[2]*tx + matrix[6]*ty;
+        matrix[15] += matrix[3]*tx + matrix[7]*ty;
+      }
+
+      function resize() {
+        console.log('resize');
+        var width = canvasLayer.canvas.width;
+        var height = canvasLayer.canvas.height;
+
+        gl.viewport(0, 0, width, height);
+
+        // matrix which maps pixel coordinates to WebGL coordinates
+        pixelsToWebGLMatrix.set([2/width, 0, 0, 0, 0, -2/height, 0, 0,
+            0, 0, 0, 0, -1, 1, 0, 1]);
+      }
+      var firstDrawTime = null;
+      var lastFrameTime = null
+      var stopit = false;
+
+      // Draws to canvas. 
+      // Called by TimeMachineCanavasLayer during animation and/or view changes
+      function update() {
+        if (stopit) return;
+        var frameTime = performance.now();
+        if (lastFrameTime != null) {
+          var duration = frameTime - lastFrameTime;
+        }
+        lastFrameTime = frameTime;
+        //stats.begin();
+        if (pointDataLoaded && dateDataLoaded) {
+          if (WebglVideoTile.verbose) {
+            function r2(x) {
+              return Math.round(x * 100) / 100;
+            }
+            console.log(r2(performance.now()) + ' update start --------------------------------------------------');
+          }
+          if (!firstDrawTime) {
+            firstDrawTime = performance.now();
+            var dfwView = { center: {x:308100, y:538800}, zoom: 8};
+            timelapse.setNewView(dfwView, true);
+            timelapse.play();
+          }
+          //if (performance.now() - firstDrawTime < 1 * 5000) {
+          //  WebglVideoTile.verbose = true;
+          //} else {
+          //  if (WebglVideoTile.verbose) {                              
+          //    WebglVideoTile.verbose = false;
+          //    console.log(WebglVideoTile.stats());
+          //  }
+          //}
+                              
+          var currentTime = timelapse.getCurrentTime();
+          var currentRatio = currentTime / totalTime;
+
+          gl.useProgram(pointProgram);
+          gl.bindBuffer(gl.ARRAY_BUFFER, pointArrayBuffer);
+          gl.clear(gl.COLOR_BUFFER_BIT);
+
+	        var pointSize = Math.floor((timelapse.getCurrentZoom() + 2.0) / (13.0 - 2.0) * (12.0 - 1) + 1);
+
+	        gl.vertexAttrib1f(gl.aPointSize, pointSize*1.0);
+
+          var currentView = timelapse.getView();
+
+          var canvasWidth = canvasLayer.canvas.width;
+          var canvasHeight = canvasLayer.canvas.height;
+
+          /**
+           * We need to create a transformation that takes world coordinate
+           * points in the pointArrayBuffer to the coodinates WebGL expects.
+           * 1. Start with second half in pixelsToWebGLMatrix, which takes pixel
+           *     coordinates to WebGL coordinates.
+           * 2. Scale and translate to take world coordinates to pixel coords
+           * see https://developers.google.com/maps/documentation/javascript/maptypes#MapCoordinate
+           */
+        
+          // copy pixel->webgl matrix
+          mapMatrix.set(pixelsToWebGLMatrix);
+
+          translateMatrix(mapMatrix, canvasWidth*0.5, canvasHeight*0.5);
+
+          // Scale to current zoom (worldCoords * 2^zoom)
+          //var scale = Math.pow(2, map.zoom);
+          scaleMatrix(mapMatrix, currentView.scale, currentView.scale);
+
+          // translate to current view (vector from topLeft to 0,0)
+          //var offset = mapProjection.fromLatLngToPoint(canvasLayer.getTopLeft());
+
+          translateMatrix(mapMatrix, -currentView.x, -currentView.y);
+
+          // attach matrix value to 'mapMatrix' uniform in shader
+          var matrixLoc = gl.getUniformLocation(pointProgram, 'mapMatrix');
+          gl.uniformMatrix4fv(matrixLoc, false, mapMatrix);
+
+          // draw!
+          //gl.drawArrays(gl.POINTS, firstYear.index0, POINT_COUNT * currentRatio * 0.05);
+          tmlayer.draw(timelapse.getView());
+        }
+	//stats.end();
+      }
+      //$(init2);
+
+    </script>
+   <script id="pointVertexShader" type="x-shader/x-vertex">
+      attribute vec4 worldCoord;
+
+      attribute float aPointSize;
+
+      uniform mat4 mapMatrix;
+
+      void main() {
+        // transform world coordinate by matrix uniform variable
+        gl_Position = mapMatrix * worldCoord;
+
+        // a constant size for points, regardless of zoom level
+        gl_PointSize = aPointSize;
+      }
+    </script>
+    <script id="pointFragmentShader" type="x-shader/x-fragment">
+      precision mediump float;
+
+      void main() {
+        float dist = length(gl_PointCoord.xy - vec2(0.5, 0.5));
+        dist = 1.0 - (dist * 2.0);
+        dist = max(0., dist);
+        // set pixels in points to green
+        gl_FragColor = vec4(0.82, 0.22, 0.07, 1.0) * dist;
+      }
+    </script>
+
+
+
+
+  </head>
+  <body>
+    <div id="timeMachine"></div>
+    <canvas id="stats" style="position:absolute; top:0px; right:0px; z-index:100" width=1000 height=150></canvas>
+  </body>
+</html>
