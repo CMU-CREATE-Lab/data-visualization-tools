@@ -375,7 +375,6 @@ var perf;
       // Draws to canvas. 
       // Called by TimeMachineCanavasLayer during animation and/or view changes
       function update() {
-        console.log('UPDATE');
         if (stopit) return;
         var frameTime = performance.now();
         if (lastFrameTime != null) {
