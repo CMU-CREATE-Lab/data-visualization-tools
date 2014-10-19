@@ -1,3 +1,27 @@
+org.gigapan.timelapse.Timelapse.prototype.getDiv = function() {
+  var el = document.getElementById(this.getTimeMachineDivId());
+  return el;
+}
+
+org.gigapan.timelapse.Timelapse.prototype.getScale = function() {
+  var view = this.getView();
+  return view.scale;
+}
+
+org.gigapan.timelapse.OverlayView = function() {
+  console.log('org.gigapan.timelapse.OverlayView');
+}
+
+org.gigapan.timelapse.OverlayView.prototype.setTimelapse = function(timelapse) {
+  this.timelapse = timelapse;
+  this.onAdd();
+}
+
+org.gigapan.timelapse.OverlayView.prototype.getTimelapse = function() {
+  return this.timelapse;
+}
+
+
 /**
  * Copyright 2012 Google Inc. All Rights Reserved.
  *
@@ -349,7 +373,6 @@ TimeMachineCanvasLayer.prototype.setUpdateHandler = function(opt_updateHandler) 
  * @inheritDoc
  */
 TimeMachineCanvasLayer.prototype.onAdd = function() {
-  console.log('onAdd');
   if (this.isAdded_) {
     return;
   }
@@ -365,8 +388,8 @@ TimeMachineCanvasLayer.prototype.onAdd = function() {
 */
 
   var timelapse = this.getTimelapse();
+  // TODO(gabrielo): we should subscribe to the timelapse resize event listener 
   this.resizeListener_ = window.addEventListener("resize", this.resizeFunction_);
-
   this.centerListener_ = timelapse.addViewChangeListener(this.repositionFunction_);
 
   this.resize_();
