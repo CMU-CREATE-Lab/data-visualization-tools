@@ -14,7 +14,7 @@ function WebglTimeMachinePerf(canvas, timelapse) {
   this._traceCount = 3;
   this._trace = this._traceCount - 1;
   this._lastFrameStartTime = 1e10;
-  this._traceHeight = Math.floor(this._canvas.height / this._traceCount);
+  this._traceHeight = Math.floor((this._canvas.height - 3) / this._traceCount);
   WebglTimeMachinePerf.instance = this;
   this._context.fillStyle = '#ffffff';
   this._context.fillRect(0, 0, this._canvas.width, this._canvas.height);
