@@ -321,7 +321,7 @@ TimeMachineCanvasLayer.prototype.setPane_ = function() {
     div.appendChild(this.canvas);
 
     var timelapse = this.getTimelapse();
-    var parent = timelapse.getDiv();
+    var parent = timelapse.getViewerDiv();
     parent.insertBefore(div, parent.children[0]);
 };
 
