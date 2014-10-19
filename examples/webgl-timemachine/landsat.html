@@ -84,15 +84,11 @@
         };
         timelapse = new org.gigapan.timelapse.Timelapse("timeMachine", settings);
         onTimeMachinePlayerReady();
-        console.log('timelapse is');
-        console.log(timelapse);
 
         //document.body.appendChild( stats.domElement );
         //$(stats.domElement).css('z-index', 1000);
 
-        console.log('about to perf');
         perf = new WebglTimeMachinePerf(document.getElementById('stats'), timelapse);
-        console.log(perf);
       }
 
       $(init);
@@ -126,7 +122,6 @@
       var timelapse;
 
       function onTimeMachinePlayerReady() {
-        console.log('otmpr1');
         // initialize the canvasLayer
         var timeMachineCanvasLayerOptions = {
           timelapse: timelapse,
@@ -134,9 +129,7 @@
           animate: true,
           updateHandler: update
         };
-        console.log('otmpr1a');
         canvasLayer = new TimeMachineCanvasLayer(timeMachineCanvasLayerOptions);
-        console.log('otmpr2');
         // initialize WebGL
         gl = canvasLayer.canvas.getContext('experimental-webgl');
 
@@ -144,13 +137,11 @@
 
         glb = new Glb(gl);
         tmlayer = new WebglTimeMachineLayer(glb, canvasLayer);
-        console.log('GOT TMCL');
       }
 
 var perf;
 
       function resize() {
-        console.log('resize');
         var width = canvasLayer.canvas.width;
         var height = canvasLayer.canvas.height;
 
@@ -204,6 +195,6 @@ var perf;
   </head>
   <body>
     <div id="timeMachine"></div>
-    <canvas id="stats" style="position:absolute; top:0px; right:0px; z-index:100" width=1000 height=150></canvas>
+    <canvas id="stats" style="position:absolute; top:0px; right:0px; z-index:100" width=1000 height=153></canvas>
   </body>
 </html>

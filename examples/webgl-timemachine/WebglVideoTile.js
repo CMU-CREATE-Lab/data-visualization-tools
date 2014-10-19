@@ -179,7 +179,7 @@ _flushUnneededFrames = function(displayFrameDiscrete) {
   }
 
   if (changed && WebglVideoTile.verbose) {
-    console.log(this._id + ': flushed frames, now ' + this._pipelineToString() + ' ' + this._computeNextNeededFrame(displayFrameDiscrete));
+    console.log(this._id + ': flushed frames, now ' + this._pipelineToString() + ' ' + this._computeNextCaptureFrame(displayFrameDiscrete));
   }
 }
 
@@ -195,7 +195,7 @@ _tryAdvancePipeline = function(displayFrameDiscrete) {
     this._pipeline[WebglVideoTile.PIPELINE_SIZE - 1] = tmp;
     this._ready = true;
     if (WebglVideoTile.verbose) {
-      console.log(this._id + ': Advancing pipeline, now ' + this._pipelineToString() + ' ' + this._computeNextNeededFrame(displayFrameDiscrete));
+      console.log(this._id + ': Advancing pipeline, now ' + this._pipelineToString() + ' ' + this._computeNextCaptureFrame(displayFrameDiscrete));
     }
   }
 }
@@ -239,31 +239,39 @@ _checkForMissedFrame = function(displayFrameDiscrete) {
   if (this._ready && 
       displayFrameDiscrete != this._lastDisplayFrame &&
       displayFrameDiscrete != this._pipeline[0].frameno) {
-    console.log(this._id + ': missed frame');
+    console.log(this._id + ': missed frame ' + displayFrameDiscrete +
+                ', pipeline: ' + this._pipelineToString());
     WebglTimeMachinePerf.instance.recordMissedFrames(1);
     this._missedFrameCount++;
   }
   this._lastDisplayFrame = displayFrameDiscrete;
 }
 
+// This should always return one of
+// displayFrameDiscrete + 1, +2, +3
 WebglVideoTile.prototype.
-_computeNextNeededFrame = function(displayFrameDiscrete) {
+_computeNextCaptureFrame = function(displayFrameDiscrete) {
   var lastFrame = null;
   for (var i = 0; i < WebglVideoTile.PIPELINE_SIZE - 1; i++) {
     if (this._pipeline[i].frameno != null) {
       lastFrame = this._pipeline[i].frameno;
     }
   }
-  if (lastFrame != null) {
-    return (lastFrame + 1) % this._nframes;
+  var future;
+  if (lastFrame == null) {
+    future = 2;
   } else {
-    return (displayFrameDiscrete + 2) % this._nframes;
+    future = (lastFrame - displayFrameDiscrete + this._nframes) % this._nframes + 1;
+    if (future < 1 || future > 3) {
+      future = 2;
+    }
   }
+  return (displayFrameDiscrete + future) % this._nframes;
 }
 
 WebglVideoTile.prototype.
-  _computeCapturePriority = function(displayFrameDiscrete, actualVideoFrame, 
-                                     actualVideoFrameDiscrete) {
+_computeCapturePriority = function(displayFrameDiscrete, actualVideoFrame, 
+                                   actualVideoFrameDiscrete) {
   return 1;
 }
 // First phase of update
@@ -342,7 +350,7 @@ updatePhase2 = function(displayFrame) {
     this._seekingFrameCount = 0;
   }
 
-  var nextNeededFrame = this._computeNextNeededFrame(displayFrameDiscrete);
+  var nextNeededFrame = this._computeNextCaptureFrame(displayFrameDiscrete);
 
   var webglFps = 60;
   // Imagine we're going to drop a frame.  Aim to be at the right place in 3 frames
@@ -356,7 +364,7 @@ updatePhase2 = function(displayFrame) {
   // Slow down by up to half a frame to make sure to get the next requested frame
   futureTargetVideoFrame = Math.min(futureTargetVideoFrame, 
                                     nextNeededFrame + 0.5);
-  
+
   // Set speed so that in one webgl frame, we'll be exactly at the right time
   var speed = (futureTargetVideoFrame - actualVideoFrame) / future;
   if (speed < 0) speed = 0;
