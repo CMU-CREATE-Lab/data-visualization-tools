@@ -322,6 +322,7 @@ TimeMachineCanvasLayer.prototype.setPane_ = function() {
 
     var timelapse = this.getTimelapse();
     var parent = timelapse.getViewerDiv();
+  debugger;
     parent.insertBefore(div, parent.children[0]);
 };
 
@@ -417,8 +418,8 @@ TimeMachineCanvasLayer.prototype.resize_ = function() {
   }
 
   var timelapse = this.getTimelapse();
-  var width = timelapse.getDiv().offsetWidth;
-  var height = timelapse.getDiv().offsetHeight;
+  var width = timelapse.getViewerDiv().offsetWidth;
+  var height = timelapse.getViewerDiv().offsetHeight;
   var oldWidth = this.canvas.width;
   var oldHeight = this.canvas.height;
 
