@@ -155,7 +155,7 @@ function TimeMachineCanvasLayer(opt_options) {
   }
 }
 
-TimeMachineCanvasLayer.prototype = new org.gigapan.timelapse.OverlayView();
+
 
 /**
  * The default MapPane to contain the canvas.
@@ -232,6 +232,8 @@ TimeMachineCanvasLayer.prototype.cancelAnimFrame_ =
  * @param {CanvasLayerOptions} options The options to set.
  */
 TimeMachineCanvasLayer.prototype.setOptions = function(options) {
+  this.setTimelapse(options.timelapse);
+
   if (options.animate !== undefined) {
     this.setAnimate(options.animate);
   }
@@ -246,10 +248,6 @@ TimeMachineCanvasLayer.prototype.setOptions = function(options) {
 
   if (options.resizeHandler !== undefined) {
     this.setResizeHandler(options.resizeHandler);
-  }
-
-  if (options.timelapse !== undefined) {
-    this.setTimelapse(options.timelapse);
   }
 };
 
@@ -320,9 +318,8 @@ TimeMachineCanvasLayer.prototype.setPane_ = function() {
     div.style.width = "100%";
     div.appendChild(this.canvas);
 
-    var timelapse = this.getTimelapse();
+    var timelapse = this.timelapse;
     var parent = timelapse.getViewerDiv();
-  debugger;
     parent.insertBefore(div, parent.children[0]);
 };
 
@@ -349,12 +346,10 @@ TimeMachineCanvasLayer.prototype.setUpdateHandler = function(opt_updateHandler) 
 /**
  * @inheritDoc
  */
-TimeMachineCanvasLayer.prototype.onAdd = function() {
-  if (this.isAdded_) {
-    return;
-  }
-
+TimeMachineCanvasLayer.prototype.setTimelapse = function(timelapse) {
+  this.timelapse = timelapse;
   this.isAdded_ = true;
+
   this.setPane_();
 
 /*
@@ -364,7 +359,7 @@ TimeMachineCanvasLayer.prototype.onAdd = function() {
       'center_changed', this.repositionFunction_);
 */
 
-  var timelapse = this.getTimelapse();
+  var timelapse = this.timelapse;
   this.resizeListener_ = window.addEventListener("resize", this.resizeFunction_);
 
   this.centerListener_ = timelapse.addViewChangeListener(this.repositionFunction_);
@@ -416,7 +411,7 @@ TimeMachineCanvasLayer.prototype.resize_ = function() {
     return;
   }
 
-  var timelapse = this.getTimelapse();
+  var timelapse = this.timelapse;
   var width = timelapse.getViewerDiv().offsetWidth;
   var height = timelapse.getViewerDiv().offsetHeight;
   var oldWidth = this.canvas.width;
