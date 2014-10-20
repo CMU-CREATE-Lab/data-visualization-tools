@@ -36,7 +36,7 @@ WebglTimeMachinePerf.prototype.
 endFrame = function() {
   var duration = performance.now() - this._frameStartPerf;
   this._context.beginPath();
-  var x = Math.round(this._frameStartTime * 60 * 3) + 0.5;
+  var x = Math.round((this._frameStartPerf - this._traceStartPerf) / 1000 * 60 * 3) + 0.5;
 
   var captureDurations = 
     this._videoFrameCaptureDurations[this._videoFrameCaptureDurations.length - 1];
@@ -79,6 +79,7 @@ recordMissedFrames = function(count) {
 
 WebglTimeMachinePerf.prototype.
 _startTrace = function() {
+  this._traceStartPerf = performance.now();
   this._trace = (this._trace + 1) % this._traceCount;
   this._baseline = this._traceHeight * (this._trace + 1);
 
@@ -155,7 +156,7 @@ _endTrace = function() {
     ', max ' + max + ')';
     console.log(msg);
     this._context.fillStyle = '#000000';
-    this._context.fillText(msg, this._lastX + 6, this._baseline);
+    this._context.fillText(msg, this._lastX + 6, this._baseline - 5);
 
     this._context.strokeStyle = '#000080';
 
