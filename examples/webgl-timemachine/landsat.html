@@ -50,6 +50,10 @@
     </style>
 
     <script type="text/javascript">
+
+    window.location.hash = 'presentation=ENDkDPWPyXs9wR6gBAmazon%20Deforestation%20in%20Rondonia_Rondonia_DkDT37Hawc4T8VA%20large-scale%20hydroelectric%20project%20in%20the%20Brazilian%20Amazon%20rainforest_Tucurui%20Dam_BkDTiTRWWTmR6gBRiver%20meandering%20in%20the%20Amazon_Meander_DkDK9ySWib2R2dThe%20abandonment%20of%20a%20river%20channel%20and%20the%20formation%20of%20a%20new%20river%20channel_Bolivia%20Avulsion_DkDU28jbt4xTkcErosion%20in%20the%20Amazon%27s%20mouth_Mouth%20of%20Amazon_DkDcOeLoWayQ6gBThe%20Cape%20and%20islands%20are%20subject%20to%20massive%20coastal%20erosion_South%20Cape%20Cod_BkDPt3KmUZ3P6gBThe%20Outer%20Banks%20often%20suffers%20significant%20beach%20erosion%20during%20storms_Outer%20Banks%20NC_DkDFGq9mKcYi8VThe%20shrinking%20and%20drying%20up%20of%20the%20Lake%20Urmia_Lake%20Urmia_DkDOcGQprwpkmRThe%20shrinking%20of%20the%20Aral%20Sea%20destroys%20fishing%20industry%20and%20brings%20unemployment%20and%20public%20health%20problems_Aral%20Sea_DkDSq1joU5sk6gBThe%20expansion%20of%20irrigation%20systems%20near%20the%20Aral%20Sea_Aral%20Expansion_BkDcM7nkdxUhgZCenter-pivot%20irrigation%20irrigates%20crops%20with%20sprinklers%20centered%20on%20the%20pivot%2C%20creating%20a%20green%20circular%20pattern_Saudi%20Irrigation_CkDWmblQtbBxuXBushfires%20in%20Australia%20are%20frequent%20during%20the%20hotter%20months%20of%20the%20year_Australia%20Bushfire_DkDWZuFgTJ1tycThe%20eruption%20of%20Mount%20Pinatubo%20on%20June%2015%2C%201991_Pinatubo_Untitled_B'
+
+
       jQuery.support.cors = true;
 
       // Landsat ("https" will casue the thumbnail loading from the server to fail)
@@ -84,6 +88,7 @@
         };
         timelapse = new org.gigapan.timelapse.Timelapse("timeMachine", settings);
         onTimeMachinePlayerReady();
+        setUpIcons();
 
         //document.body.appendChild( stats.domElement );
         //$(stats.domElement).css('z-index', 1000);
@@ -92,6 +97,12 @@
       }
 
       $(init);
+    function setUpIcons() {
+      setupPostMessageHandlers();
+      timelapse.getSnaplapseForPresentationSlider().getSnaplapseViewer().addEventListener("slide-changed", function(slideTitle) {
+        post("from-timemachine-slide-changed", slideTitle);
+      });
+    }
 
     </script>
 
@@ -118,7 +129,6 @@
       jQuery.support.cors = true;
       // Landsat
       //var url = "http://earthengine.google.org/timelapse/data";
-      var url = "https://earthengine.google.org/timelapse/data/20130507/";
       var timelapse;
 
       function onTimeMachinePlayerReady() {
@@ -137,6 +147,15 @@
 
         glb = new Glb(gl);
         tmlayer = new WebglTimeMachineLayer(glb, canvasLayer);
+
+        $(document).keypress(function(e) {
+          // ctrl-v toggles verbosity
+          if (e.keyCode == 22) { 
+            WebglVideoTile.verbose = !WebglVideoTile.verbose;
+            console.log('WebglVideoTile verbose: ' + WebglVideoTile.verbose);
+      }
+    });
+
       }
 
 var perf;
