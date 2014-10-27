@@ -83,6 +83,7 @@ _scale2level = function(scale)
   return selectedLevel;
 };
 
+// Compute bounding box from current view
 TileView.prototype.
 _computeBoundingBox = function(view) {
   var halfWidth = .5 * this._viewportWidth / view.scale;
@@ -198,15 +199,16 @@ _findFirstAncestorIn = function(tileidx, map) {
 // Removed;  not ready -(x)  ready (x)
 
 TileView.prototype.
-setView = function(view, viewportWidth, viewportHeight) {
+setView = function(view, viewportWidth, viewportHeight, scale) {
   this._viewportWidth = viewportWidth;
   this._viewportHeight = viewportHeight;
+  this._scale = scale; // canvas scale (1 for normal, 2 for retina, typically)
 
   var required = {};
   var added = {};
 
   // Require tiles in view from optimal level of detail
-  var level = this._scale2level(view.scale);
+  var level = this._scale2level(view.scale * this._scale);
   var visibleRange = this._computeVisibleTileRange(view, level);
 
   for (var r = visibleRange.min.r; r <= visibleRange.max.r; r++) {

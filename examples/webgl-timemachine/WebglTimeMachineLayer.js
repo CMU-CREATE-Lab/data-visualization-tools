@@ -24,16 +24,18 @@ function WebglTimeMachineLayer(glb, canvasLayer) {
 
 WebglTimeMachineLayer.prototype.
 draw = function(view) {
-  var width = this._canvasLayer.canvas.width;
-  var height = this._canvasLayer.canvas.height;
-  this._tileView.setView(view, width, height);
+  var width = this._canvasLayer.canvas.width / this._canvasLayer.scale;
+  var height = this._canvasLayer.canvas.height / this._canvasLayer.scale;
+  this._tileView.setView(view, width, height, this._canvasLayer.scale);
 
   var transform = new Float32Array([2/width,0,0,0, 0,-2/height,0,0, 0,0,0,0, -1,1,0,1]);
         
   translateMatrix(transform, width*0.5, height*0.5);
   
   // Scale to current zoom (worldCoords * 2^zoom)
-  scaleMatrix(transform, view.scale, view.scale);
+  scaleMatrix(transform, 
+              view.scale/* * this._canvasLayer.scale*/, 
+              view.scale/* * this._canvasLayer.scale*/);
 
   // translate to current view (vector from topLeft to 0,0)
   translateMatrix(transform, -view.x, -view.y);

@@ -413,8 +413,14 @@ TimeMachineCanvasLayer.prototype.resize_ = function() {
   }
 
   var timelapse = this.timelapse;
-  var width = timelapse.getViewerDiv().offsetWidth;
-  var height = timelapse.getViewerDiv().offsetHeight;
+
+  // TODO(rsargent): this is hacked to follow devicePixelRatio on hyperwall.
+  // But we should check backingStorePixelRatio, and consider not doing this anyway
+  // on a laptop with retina
+  this.scale = window.devicePixelRatio;
+
+  var width = timelapse.getViewerDiv().offsetWidth * this.scale;
+  var height = timelapse.getViewerDiv().offsetHeight * this.scale;
   var oldWidth = this.canvas.width;
   var oldHeight = this.canvas.height;
 
@@ -422,8 +428,8 @@ TimeMachineCanvasLayer.prototype.resize_ = function() {
   if (oldWidth !== width || oldHeight !== height) {
     this.canvas.width = width;
     this.canvas.height = height;
-    this.canvas.style.width = width + 'px';
-    this.canvas.style.height = height + 'px';
+    this.canvas.style.width = (width / this.scale) + 'px';
+    this.canvas.style.height = (height / this.scale) + 'px';
 
     this.needsResize_ = true;
     this.scheduleUpdate();

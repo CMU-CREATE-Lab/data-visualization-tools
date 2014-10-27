@@ -151,6 +151,7 @@ _endTrace = function() {
     }
     var stddev = Math.sqrt((sumsq / n) - (sum / n) * (sum / n));
     msg = sum + ' frames ' +
+    + r2(sum / 29) + ' videos ' +
     ' (missed ' + r2(this._missedFrameCount * 100 / (sum + this._missedFrameCount)) + '%' +
     ', stddev ' + r2(stddev) + 
     ', max ' + max + ')';
