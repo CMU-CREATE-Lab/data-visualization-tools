@@ -62,8 +62,8 @@ WebglVideoTile._init = function() {
   WebglVideoTile._initted = true;
 
   $(document).keypress(function(e) {
-      // ctrl-v toggles verbosity
-      if (e.keyCode == 22) { 
+      // ctrl-b toggles verbosity
+      if (e.keyCode == 2) { 
         WebglVideoTile.verbose = !WebglVideoTile.verbose;
         console.log('WebglVideoTile verbose: ' + WebglVideoTile.verbose);
       }
