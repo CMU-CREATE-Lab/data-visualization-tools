@@ -96,6 +96,14 @@
         //$(stats.domElement).css('z-index', 1000);
 
         perf = new WebglTimeMachinePerf(document.getElementById('stats'), timelapse);
+        $('#stats').hide();
+        $(document).keypress(function(e) {
+        // ctrl-a toggles perf
+          if (e.keyCode == 1) { 
+            $('#stats').toggle();
+          }
+        });
+
       }
 
       $(init);
