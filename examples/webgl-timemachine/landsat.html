@@ -149,15 +149,6 @@
 
         glb = new Glb(gl);
         tmlayer = new WebglTimeMachineLayer(glb, canvasLayer);
-
-        $(document).keypress(function(e) {
-          // ctrl-v toggles verbosity
-          if (e.keyCode == 22) { 
-            WebglVideoTile.verbose = !WebglVideoTile.verbose;
-            console.log('WebglVideoTile verbose: ' + WebglVideoTile.verbose);
-      }
-    });
-
       }
 
 var perf;
