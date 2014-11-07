@@ -416,7 +416,10 @@ TimeMachineCanvasLayer.prototype.resize_ = function() {
   // TODO(rsargent): this is hacked to follow devicePixelRatio on hyperwall.
   // But we should check backingStorePixelRatio, and consider not doing this anyway
   // on a laptop with retina
-  this.scale = window.devicePixelRatio;
+  // NOTE(pdille): This seems to cause Chrome to run out of memory after a short
+  // amount of time on the hyperwall.
+  //this.scale = window.devicePixelRatio;
+  this.scale = 1;
 
   var width = timelapse.getViewerDiv().offsetWidth * this.scale;
   var height = timelapse.getViewerDiv().offsetHeight * this.scale;
