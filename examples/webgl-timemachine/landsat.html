@@ -37,7 +37,7 @@
     <script src="Glb.js"></script>
     <script src="WebglTimeMachineLayer.js"></script>
     <script src="WebglTimeMachinePerf.js"></script>
-
+    <script src="WebGLVectorTile.js"></script>
     <style>
       #timeMachine {
         position: absolute;
@@ -79,6 +79,23 @@
         line-height: 29px;
         color: rgb(60, 60, 60);
       }
+
+      #vector-layers {
+        width: 100px;
+        background: white;
+        position: absolute;
+        right: 10px;
+        bottom: 150px;
+        border: 1px solid #656565;
+        -webkit-border-radius: 3px;
+        -moz-border-radius: 3px;
+        border-radius: 3px !important;
+        box-shadow: 2px 2px 3px rgba(0,0,0,0.3);
+        z-index: 30;
+        outline: none;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 11px;
+      }
     </style>
 
     <script type="text/javascript">
@@ -87,6 +104,7 @@
 
       //window.location.hash = 'presentation=ENDkDPWPyXs9wR6gBAmazon%20Deforestation%20in%20Rondonia_Rondonia_DkDT37Hawc4T8VA%20large-scale%20hydroelectric%20project%20in%20the%20Brazilian%20Amazon%20rainforest_Tucurui%20Dam_BkDTiTRWWTmR6gBRiver%20meandering%20in%20the%20Amazon_Meander_DkDK9ySWib2R2dThe%20abandonment%20of%20a%20river%20channel%20and%20the%20formation%20of%20a%20new%20river%20channel_Bolivia%20Avulsion_DkDU28jbt4xTkcErosion%20in%20the%20Amazon%27s%20mouth_Mouth%20of%20Amazon_DkDcOeLoWayQ6gBThe%20Cape%20and%20islands%20are%20subject%20to%20massive%20coastal%20erosion_South%20Cape%20Cod_BkDPt3KmUZ3P6gBThe%20Outer%20Banks%20often%20suffers%20significant%20beach%20erosion%20during%20storms_Outer%20Banks%20NC_DkDFGq9mKcYi8VThe%20shrinking%20and%20drying%20up%20of%20the%20Lake%20Urmia_Lake%20Urmia_DkDOcGQprwpkmRThe%20shrinking%20of%20the%20Aral%20Sea%20destroys%20fishing%20industry%20and%20brings%20unemployment%20and%20public%20health%20problems_Aral%20Sea_DkDSq1joU5sk6gBThe%20expansion%20of%20irrigation%20systems%20near%20the%20Aral%20Sea_Aral%20Expansion_BkDcM7nkdxUhgZCenter-pivot%20irrigation%20irrigates%20crops%20with%20sprinklers%20centered%20on%20the%20pivot%2C%20creating%20a%20green%20circular%20pattern_Saudi%20Irrigation_CkDWmblQtbBxuXBushfires%20in%20Australia%20are%20frequent%20during%20the%20hotter%20months%20of%20the%20year_Australia%20Bushfire_DkDWZuFgTJ1tycThe%20eruption%20of%20Mount%20Pinatubo%20on%20June%2015%2C%201991_Pinatubo_Untitled_B';
 
+      // gabrielo: Commented this out during wdpa layer testing
       window.location.hash = 'presentation=EODkDPWPyXs9wR6gBAmazon%20Deforestation%20in%20Rondonia_Rondonia_DkDT37Hawc4T8VA%20large-scale%20hydroelectric%20project%20in%20the%20Brazilian%20Amazon%20rainforest_Tucurui%20Dam_BkDTiTRWWTmR6gBRiver%20meandering%20in%20the%20Amazon_Meander_DkDK9ySWib2R2dThe%20abandonment%20of%20a%20river%20channel%20and%20the%20formation%20of%20a%20new%20river%20channel_Bolivia%20Avulsion_DkDU28jbt4xTkcErosion%20in%20the%20Amazon%27s%20mouth_Mouth%20of%20Amazon_DkDcOeLoWayQ6gBThe%20Cape%20and%20islands%20are%20subject%20to%20massive%20coastal%20erosion_South%20Cape%20Cod_BkDPt3KmUZ3P6gBThe%20Outer%20Banks%20often%20suffers%20significant%20beach%20erosion%20during%20storms_Outer%20Banks%20NC_DkDFGq9mKcYi8VThe%20shrinking%20and%20drying%20up%20of%20the%20Lake%20Urmia_Lake%20Urmia_DkDOcGQprwpkmRThe%20shrinking%20of%20the%20Aral%20Sea%20destroys%20fishing%20industry%20and%20brings%20unemployment%20and%20public%20health%20problems_Aral%20Sea_DkDSq1joU5sk6gBThe%20expansion%20of%20irrigation%20systems%20near%20the%20Aral%20Sea_Aral%20Expansion_BkDcM7nkdxUhgZCenter-pivot%20irrigation%20irrigates%20crops%20with%20sprinklers%20centered%20on%20the%20pivot%2C%20creating%20a%20green%20circular%20pattern_Saudi%20Irrigation_CkDWmblQtbBxuXBushfires%20in%20Australia%20are%20frequent%20during%20the%20hotter%20months%20of%20the%20year_Australia%20Bushfire_DkDWZuFgTJ1tycThe%20eruption%20of%20Mount%20Pinatubo%20on%20June%2015%2C%201991_Pinatubo_BkDVUU_kfEAu_cUrban%20expansion%20in%20Shanghai%2C%20China%2E_Shanghai_Untitled_B';
 
       jQuery.support.cors = true;
@@ -94,8 +112,10 @@
       var timelapse;
 
       // Landsat ("https" will casue the thumbnail loading from the server to fail)
+      // gabrielo: Served from localhost (../1068x600) during wdpa layer testing
       var url = "http://earthengine.google.org/timelapse/data/20130507";
       //var url = "../1068x600";
+
 
       function init() {
         myHomeView = {
@@ -111,7 +131,7 @@
             onLoadAnimation: "warp",
             playAfterAnimation: false,
             initialWaypointIndex: 0,
-            doAutoMode: true,
+            doAutoMode: true, // gabrielo: set to false during wdpa testing
             screenIdleTime: 10000,
             waypointDelayTime: 20000
           },
@@ -143,7 +163,7 @@
         $('#stats').hide();
         $(document).keypress(function(e) {
         // ctrl-a toggles perf
-          if (e.keyCode == 1) { 
+          if (e.keyCode == 1) {
             $('#stats').toggle();
           }
         });
@@ -187,8 +207,21 @@
         totalTime =  29 /*timelapse.getNumFrames()*/ / /*timelapse.getFps()*/ 10;
 
         glb = new Glb(gl);
+        // gabrielo: used localhost 1068x600 during wdpa layer testing
         //tmlayer = new WebglTimeMachineLayer(glb, canvasLayer, '1068x600');
         tmlayer = new WebglTimeMachineLayer(glb, canvasLayer, "http://earthengine.google.org/timelapse/data/20130507/1068x600");
+
+        // Vector Tiles
+        initVectorLayersCheckBoxes();
+        var vectorTileViewSettings = {
+          panoWidth: timelapse.getPanoWidth(),
+          panoHeight: timelapse.getPanoHeight(),
+          tileWidth: 256,
+          tileHeight: 256,
+	        glb: glb
+        }
+        vectorTileView = new VectorTileView(vectorTileViewSettings);
+
       }
 
       var perf;
@@ -204,7 +237,7 @@
       var lastFrameTime = null
       var stopit = false;
 
-      // Draws to canvas. 
+      // Draws to canvas.
       // Called by TimeMachineCanavasLayer during animation and/or view changes
       function update() {
         if (stopit) return;
@@ -231,15 +264,19 @@
         //if (performance.now() - firstDrawTime < 1 * 5000) {
         //  WebglVideoTile.verbose = true;
         //} else {
-        //  if (WebglVideoTile.verbose) {                              
+        //  if (WebglVideoTile.verbose) {
         //    WebglVideoTile.verbose = false;
         //    console.log(WebglVideoTile.stats());
         //  }
         //}
-                            
+
         gl.clear(gl.COLOR_BUFFER_BIT);
 
         tmlayer.draw(timelapse.getView());
+        if (showWdpa) {
+          vectorTileView.setView(timelapse.getView(), timelapse.getViewportWidth(), timelapse.getViewportHeight(), 1)
+          vectorTileView.draw(timelapse.getView(), canvasLayer);
+        }
 	//stats.end();
       }
 
@@ -247,6 +284,10 @@
   </head>
   <body>
     <div id="timeMachine" style="overflow: hidden"></div>
+    <div id="vector-layers">
+      <input type="checkbox" id="show-wdpa"><label for="show-wdpa">Show WDPA</label>
+      <input type="checkbox" id="animate-wdpa"><label for="animate-wdpa">Animate</label>
+    </div>
     <canvas id="stats" style="position:absolute; top:0px; right:0px; z-index:100" width=1000 height=153></canvas>
   </body>
 </html>
