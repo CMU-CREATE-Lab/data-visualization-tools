@@ -94,8 +94,8 @@
       var timelapse;
 
       // Landsat ("https" will casue the thumbnail loading from the server to fail)
-      //var url = "http://earthengine.google.org/timelapse/data/20130507/"
-      var url = "../1068x600";
+      var url = "http://earthengine.google.org/timelapse/data/20130507";
+      //var url = "../1068x600";
 
       function init() {
         myHomeView = {
@@ -106,7 +106,7 @@
         var settings = {
           url: url,
           enablePresentationSlider: true,
-          thumbnailServerRootTileUrl: "http://earthengine.google.org/timelapse/data/20130507/",
+          thumbnailServerRootTileUrl: "http://earthengine.google.org/timelapse/data/20130507",
           presentationSliderSettings: {
             onLoadAnimation: "warp",
             playAfterAnimation: false,
@@ -187,7 +187,8 @@
         totalTime =  29 /*timelapse.getNumFrames()*/ / /*timelapse.getFps()*/ 10;
 
         glb = new Glb(gl);
-        tmlayer = new WebglTimeMachineLayer(glb, canvasLayer);
+        //tmlayer = new WebglTimeMachineLayer(glb, canvasLayer, '1068x600');
+        tmlayer = new WebglTimeMachineLayer(glb, canvasLayer, "http://earthengine.google.org/timelapse/data/20130507/1068x600");
       }
 
       var perf;
