@@ -40,9 +40,9 @@ programFromSources = function(vertexSource, fragmentSource) {
   if (!program) {
     console.log('Creating shader program');
     program = cache[fragmentSource] = this.gl.createProgram();
-    this.gl.attachShader(program, 
+    this.gl.attachShader(program,
                          this._shaderFromSource(this.gl.VERTEX_SHADER, vertexSource));
-    this.gl.attachShader(program, 
+    this.gl.attachShader(program,
                          this._shaderFromSource(this.gl.FRAGMENT_SHADER, fragmentSource));
     this.gl.linkProgram(program);
     if (!this.gl.getProgramParameter(program, this.gl.LINK_STATUS)) {
@@ -60,14 +60,14 @@ _addAttribsAndUniformsToProgram = function(program) {
   if (this.gl.getProgramParameter(program, this.gl.ACTIVE_ATTRIBUTES) == 0) {
     throw new Error('Program has no active attributes');
   }
-  for (var i = this.gl.getProgramParameter(program, this.gl.ACTIVE_ATTRIBUTES) - 1; 
+  for (var i = this.gl.getProgramParameter(program, this.gl.ACTIVE_ATTRIBUTES) - 1;
        i >= 0;
        i--) {
     var name = this.gl.getActiveAttrib(program, i).name;
     program[name] = this.gl.getAttribLocation(program, name);
   }
 
-  for (var i = this.gl.getProgramParameter(program, this.gl.ACTIVE_UNIFORMS) - 1; 
+  for (var i = this.gl.getProgramParameter(program, this.gl.ACTIVE_UNIFORMS) - 1;
        i >= 0;
        i--) {
     var name = this.gl.getActiveUniform(program, i).name;
@@ -97,3 +97,23 @@ Glb.solidColorFragmentShader =
 '  gl_FragColor = vec4(1.0, 0.25, 0.25, 1.0);\n' +
 '}';
 
+Glb.vectorTileVertexShader =
+'attribute vec4 worldCoord;\n' +
+'attribute float time;\n' +
+
+'uniform mat4 mapMatrix;\n' +
+'uniform float maxTime;\n' +
+'uniform float minTime;\n' +
+
+'void main() {\n' +
+'  if (time < minTime || time > maxTime) {\n' +
+'    gl_Position = vec4(-1,-1,-1,-1);\n' +
+'  } else {\n' +
+'    gl_Position = mapMatrix * worldCoord;\n' +
+'  }\n' +
+'}';
+
+Glb.vectorTileFragmentShader =
+'void main() {\n' +
+'  gl_FragColor = vec4(1.0, 0.25, 0.25, 1.0);\n' +
+'}\n';
