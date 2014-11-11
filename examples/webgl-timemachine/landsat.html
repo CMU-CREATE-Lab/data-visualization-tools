@@ -226,9 +226,9 @@
 
       var perf;
       var maximumUpdateTime = 20; // milliseconds
-
+      var startOfRedraw;
       function redrawTakingTooLong() {
-        return performance.now() - frameTime > maximumUpdateTime;
+        return performance.now() - startOfRedraw > maximumUpdateTime;
       }
 
       function resize() {
@@ -248,6 +248,8 @@
         if (stopit) return;
 
         var frameTime = performance.now();
+        startOfRedraw = frameTime;
+        
         if (lastFrameTime != null) {
           var duration = frameTime - lastFrameTime;
         }
