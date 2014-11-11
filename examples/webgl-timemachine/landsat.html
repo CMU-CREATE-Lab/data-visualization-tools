@@ -110,8 +110,8 @@
 
       // Landsat ("https" will casue the thumbnail loading from the server to fail)
       // gabrielo: Served from localhost (../1068x600) during wdpa layer testing
-      var url = "http://earthengine.google.org/timelapse/data/20130507";
-      //var url = "../1068x600";
+      //var url = "http://earthengine.google.org/timelapse/data/20130507";
+      var url = "../1068x600";
 
 
       function init() {
@@ -205,8 +205,8 @@
 
         glb = new Glb(gl);
         // gabrielo: used localhost 1068x600 during wdpa layer testing
-        //tmlayer = new WebglTimeMachineLayer(glb, canvasLayer, '1068x600');
-        tmlayer = new WebglTimeMachineLayer(glb, canvasLayer, "http://earthengine.google.org/timelapse/data/20130507/1068x600");
+        tmlayer = new WebglTimeMachineLayer(glb, canvasLayer, '1068x600');
+        //tmlayer = new WebglTimeMachineLayer(glb, canvasLayer, "http://earthengine.google.org/timelapse/data/20130507/1068x600");
 
         // Vector Tiles
         initVectorLayersCheckBoxes();
