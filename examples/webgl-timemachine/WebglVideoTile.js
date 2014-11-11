@@ -342,7 +342,7 @@ updatePhase2 = function(displayFrame) {
   var actualVideoFrame = this._video.currentTime * this._fps;
   var actualVideoFrameDicrete = Math.min(Math.floor(actualVideoFrame), this._nframes - 1);
 
-  if (readyState > 1) {
+  if (readyState > 1 && !redrawTakingTooLong()) {
     this._tryCaptureFrame(displayFrameDiscrete, actualVideoFrame, actualVideoFrameDicrete, timelapse.isPaused());
   }
   this._checkForMissedFrame(displayFrameDiscrete);
