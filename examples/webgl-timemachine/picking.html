@@ -1,0 +1,89 @@
+<html>
+<head>
+<script>
+
+// 100K segments: 7ms in Chrome
+// 100K segments: 3ms in Firefox
+// 100K segments: ~10ms in Safari (unless you have the dev console open, then maybe 200ms??)
+
+// Calculate approximate distance from (x,y) to segment (ax,ay) - (bx,by)
+
+function approx_distance(x, y, ax, ay, bx, by) {
+  // Translate so that ax,ay becomes the origin
+  bx -= ax;
+  by -= ay;
+  x -= ax;
+  y -= ay;
+  var len = Math.sqrt(bx * bx + by * by);
+  if (len < 1e-10) {
+    // If teeny segment, use approximate distance to point a instead of dividing by zero
+    return Math.max(x, y);
+  } else {
+    // Chrome takes twice as long if we invoke the 3-arg Math.max here
+    return Math.max(
+            Math.abs(x * by - y * bx) / len, // distance to infinite line
+            Math.max(-(x * bx + y * by) / len, // distance past a
+                     (x * bx + y * by) / len - len) // distance past b
+            );
+  }
+}
+
+//approx_distance(0,0, 1,0, 3,0);
+//approx_distance(1,0, 1,0, 3,0);
+//approx_distance(2,0, 1,0, 3,0);
+//approx_distance(3,0, 1,0, 3,0);
+//approx_distance(4,0, 1,0, 3,0);
+//
+//approx_distance(0,0.5, 1,0, 3,0);
+//approx_distance(1,0.5, 1,0, 3,0);
+//approx_distance(2,0.5, 1,0, 3,0);
+//approx_distance(3,0.5, 1,0, 3,0);
+//approx_distance(4,0.5, 1,0, 3,0);
+//
+//approx_distance(0,1.5, 1,0, 3,0);
+//approx_distance(1,1.5, 1,0, 3,0);
+//approx_distance(2,1.5, 1,0, 3,0);
+//approx_distance(3,1.5, 1,0, 3,0);
+//approx_distance(4,1.5, 1,0, 3,0);
+
+function construct_random_segments(n) {
+  var segments = new Float32Array(n * 4);
+  for (var i = 0; i < n * 4; i++) {
+    segments[i] = Math.random();
+  }
+  return segments;
+}
+
+function find_closest_segment(x, y, segments) {
+  var closest = {segment: null, dist: 1e100};
+  for (var i = 0; i < segments.length / 4; i++) {
+    var dist = approx_distance(x, y, 
+                      segments[i * 4 + 0], segments[i * 4 + 1],
+                      segments[i * 4 + 2], segments[i * 4 + 3]);
+    if (dist < closest.dist) {
+      closest.dist = dist;
+      closest.segment = i;
+    }
+  }
+  return closest;
+}
+
+function test_performance(n) {
+  var segments = construct_random_segments(n);
+  var before = performance.now();
+  for (var i = 0; i < 10; i++) {
+    find_closest_segment(Math.random(), Math.random(), segments);
+  }
+  console.log('Searched ' + n + ' segments in ' + ((performance.now() - before) / 10) + ' ms');
+}
+
+test_performance(100);
+test_performance(1000);
+test_performance(10000);
+test_performance(100000);
+
+</script>
+</head>
+<body>
+</body>
+</html>
