@@ -81,11 +81,11 @@
       }
 
       #vector-layers {
-        width: 100px;
+        width: 200px;
         background: white;
         position: absolute;
         right: 10px;
-        bottom: 150px;
+        bottom: 300px;
         border: 1px solid #656565;
         -webkit-border-radius: 3px;
         -moz-border-radius: 3px;
@@ -94,7 +94,7 @@
         z-index: 30;
         outline: none;
         font-family: Arial, Helvetica, sans-serif;
-        font-size: 11px;
+        font-size: 18px;
       }
     </style>
 
@@ -203,6 +203,8 @@
 
         totalTime =  29 /*timelapse.getNumFrames()*/ / /*timelapse.getFps()*/ 10;
 
+        $('<div id="vector-layers"><input type="checkbox" id="show-wdpa"><label for="show-wdpa">Show WDPA</label><br><input type="checkbox" id="animate-wdpa"><label for="animate-wdpa">Animate</label></div>').appendTo("#timeMachine");
+
         glb = new Glb(gl);
         // gabrielo: used localhost 1068x600 during wdpa layer testing
         tmlayer = new WebglTimeMachineLayer(glb, canvasLayer, '1068x600');
@@ -281,11 +283,7 @@
     </script>
   </head>
   <body>
-    <div id="timeMachine" style="overflow: hidden"></div>
-    <div id="vector-layers">
-      <input type="checkbox" id="show-wdpa"><label for="show-wdpa">Show WDPA</label>
-      <input type="checkbox" id="animate-wdpa"><label for="animate-wdpa">Animate</label>
-    </div>
+    <div id="timeMachine" style="overflow: hidden"> </div>
     <canvas id="stats" style="position:absolute; top:0px; right:0px; z-index:100" width=1000 height=153></canvas>
   </body>
 </html>
