@@ -288,7 +288,7 @@ var tilecache = {};
 var currenttiles = [];
 
 var zoomlock = 8;
-var tilebase = 'http://127.0.0.1:8080/wdpaline-year/';
+var tilebase = 'wdpaline-year/';
 
 var vectorTileView;
 
