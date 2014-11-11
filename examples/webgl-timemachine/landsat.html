@@ -225,6 +225,11 @@
       }
 
       var perf;
+      var maximumUpdateTime = 20; // milliseconds
+
+      function redrawTakingTooLong() {
+        return performance.now() - frameTime > maximumUpdateTime;
+      }
 
       function resize() {
         var width = canvasLayer.canvas.width;
