@@ -25,6 +25,15 @@ function WebglTimeMachineLayer(glb, canvasLayer, rootUrl) {
 
 WebglTimeMachineLayer.prototype.
 draw = function(view) {
+  // TODO: don't hardcode global access to timelapse
+  // TODO: this needs further tweaking...
+  if (timelapse.isMovingToWaypoint()) {
+    // Moving to waypoint;  reduce level of detail
+    this._tileView.levelThreshold = -1.5;
+  } else {
+    // Not moving to waypoint;  increase level of detail
+    this._tileView.levelThreshold = -0.5;   // maybe try -0.25 or 0
+  }
   var width = this._canvasLayer.canvas.width / this._canvasLayer.scale;
   var height = this._canvasLayer.canvas.height / this._canvasLayer.scale;
   this._tileView.setView(view, width, height, this._canvasLayer.scale);
