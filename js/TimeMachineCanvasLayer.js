@@ -349,7 +349,6 @@ TimeMachineCanvasLayer.prototype.setUpdateHandler = function(opt_updateHandler) 
  * @inheritDoc
  */
 TimeMachineCanvasLayer.prototype.onAdd = function() {
-  console.log('onAdd');
   if (this.isAdded_) {
     return;
   }
