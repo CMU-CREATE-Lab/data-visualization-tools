@@ -81,7 +81,7 @@
       }
 
       #vector-layers {
-        width: 180px;
+        width: 275px;
         background: white;
         position: absolute;
         right: 19px;
@@ -153,7 +153,7 @@
             doAutoMode: true, // gabrielo: set to false during wdpa testing
             showAnnotations: false,
             screenIdleTime: 90000,
-            waypointDelayTime: 30000
+            waypointDelayTime: 15000
           },
           useTouchFriendlyUI: true,
           datasetType: "landsat",
@@ -227,7 +227,7 @@
         totalTime =  29 /*timelapse.getNumFrames()*/ / /*timelapse.getFps()*/ 10;
 
         //$('<div id="vector-layers"><input type="checkbox" id="show-wdpa"><label for="show-wdpa">WDPA</label><br><input type="checkbox" id="animate-wdpa"><label for="animate-wdpa">Animate</label></div>').appendTo("#timeMachine");
-        $('<div id="vector-layers"><input type="checkbox" id="show-wdpa"><label for="show-wdpa" id="wdpa-label">WDPA</label></div>').appendTo("#timeMachine");
+        $('<div id="vector-layers"><input type="checkbox" id="show-wdpa"><label for="show-wdpa" id="wdpa-label">Protected Areas</label></div>').appendTo("#timeMachine");
 
         glb = new Glb(gl);
         // gabrielo: used localhost 1068x600 during wdpa layer testing
