@@ -81,11 +81,11 @@
       }
 
       #vector-layers {
-        width: 200px;
+        width: 180px;
         background: white;
         position: absolute;
         right: 10px;
-        bottom: 300px;
+        bottom: 250px;
         border: 1px solid #656565;
         -webkit-border-radius: 3px;
         -moz-border-radius: 3px;
@@ -94,7 +94,29 @@
         z-index: 30;
         outline: none;
         font-family: Arial, Helvetica, sans-serif;
-        font-size: 18px;
+        font-size: 30px;
+      }
+
+      input[type='checkbox'] {
+        width: 28px;
+        height: 28px;
+        border-radius: 5px;
+        border: 2px solid #555;
+        margin-top: 7px;
+        margin-left: 10px;
+        cursor: pointer;
+      }
+
+      #wdpa-label {
+        margin-top: 5px;
+        margin-left: 10px;
+        position: absolute;
+        cursor: pointer;
+      }
+
+      #smallGoogleMap1_smallMapContainer {
+        right: 71px !important;
+        top: 71px !important;
       }
     </style>
 
@@ -129,8 +151,8 @@
             playAfterAnimation: false,
             initialWaypointIndex: 0,
             doAutoMode: true, // gabrielo: set to false during wdpa testing
-            screenIdleTime: 10000,
-            waypointDelayTime: 20000
+            screenIdleTime: 60000,
+            waypointDelayTime: 30000
           },
           useTouchFriendlyUI: true,
           datasetType: "landsat",
@@ -203,7 +225,8 @@
 
         totalTime =  29 /*timelapse.getNumFrames()*/ / /*timelapse.getFps()*/ 10;
 
-        $('<div id="vector-layers"><input type="checkbox" id="show-wdpa"><label for="show-wdpa">Show WDPA</label><br><input type="checkbox" id="animate-wdpa"><label for="animate-wdpa">Animate</label></div>').appendTo("#timeMachine");
+        //$('<div id="vector-layers"><input type="checkbox" id="show-wdpa"><label for="show-wdpa">WDPA</label><br><input type="checkbox" id="animate-wdpa"><label for="animate-wdpa">Animate</label></div>').appendTo("#timeMachine");
+        $('<div id="vector-layers"><input type="checkbox" id="show-wdpa"><label for="show-wdpa" id="wdpa-label">WDPA</label></div>').appendTo("#timeMachine");
 
         glb = new Glb(gl);
         // gabrielo: used localhost 1068x600 during wdpa layer testing
