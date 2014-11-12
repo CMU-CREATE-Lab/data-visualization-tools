@@ -130,12 +130,29 @@
           cursor: pointer;
         }
 
-    </style>
-    <!--<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />-->
-    <link href="css/jquery-ui/smoothness/jquery-ui.custom.css" media="screen" rel="stylesheet" type="text/css" />
-    <link rel="stylesheet" href="css/rrssb.css" />
+        #opener {
+          font-size: medium;
+          color: #ffffff;
+          cursor: pointer;
+          text-decoration: underline;
+        }
 
-    <link type="text/css" href="css/defaultUI.css" rel="stylesheet"></link>
+        #loading {
+          background: url(images/loading.gif) no-repeat center;
+          pointer-events: none;
+          position: absolute;
+          height: 50px;
+          width: 50px;
+          z-index: 100;
+          top: 50%;
+          left: 50%;
+
+        }
+    </style>
+    <link href="../../css/jquery-ui/smoothness/jquery-ui.custom.css" media="screen" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="../../css/rrssb.css" />
+
+    <link type="text/css" href="../../css/defaultUI.css" rel="stylesheet"></link>
     <style>
     .timelineSliderFiller {
       right: 350px;
@@ -145,18 +162,14 @@
     }
     </style>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-
-    <!--<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>-->
-    <script src="js/jquery/jquery-ui.custom.min.js" type="text/javascript"></script>
-
-
+    <script src="../../js/jquery/jquery-ui.custom.min.js" type="text/javascript"></script>
     <script src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
     <script src="../../js/CanvasLayer.js"></script>
     <script type="text/javascript" src="../../js/base.js"></script>
     <script type="text/javascript" src="../../js/io.js"></script>
     <script type="text/javascript" src="../../js/utils.js"></script>
     <script type="text/javascript" src="../../js/stats.min.js"></script>
-    <script type="text/javascript" src="js/defaultUI.js"></script>
+    <script type="text/javascript" src="../../js/TimeSlider.js"></script>
 
     <script id="pointVertexShader" type="x-shader/x-vertex">
 
@@ -221,7 +234,6 @@
         dist = 1. - (dist * 2.);
         dist = max(0., dist);
 
-//        gl_FragColor = vec4(.82, .22, .07, 1.) * dist;
         gl_FragColor = vec4(color, 1.) * dist;
 
       }
@@ -250,18 +262,8 @@
       var minTemp = 400.;
       var maxTemp = 3000.;
 
-      var timeBounds = {
-        r: { f: 10, m: 50, s: 90 },          // rate 20-60-100
-        s: new Date('2013-02-06').getTime(), // start
-        e: new Date('2014-03-09').getTime(), // end 2014-04-09
-        o: 24*60*60*30*1000,                 // offset
-        i: (24*60*60*1000)                   // increment
-      };
-      var lastTime = 0;
-      var totalElapsedTime = 0;
+      var timeSlider;
       var animate = false;
-      var currentDate = timeBounds.s + timeBounds.o;
-      var defaultRate = 'f';
 
       function loadData(arrayBuffer, exception) {
         var dataView = new DataView(arrayBuffer);
@@ -295,6 +297,8 @@
         if (err) {
           console.log(err);
         } else {
+          var el = document.getElementById("loading");
+          el.style['display'] = 'none';
           createWebGLBuffers();
         }
       }
@@ -327,7 +331,7 @@
         gl.vertexAttribPointer(tempLocation, 1, gl.FLOAT, false, 0, 0);
 
         dataLoaded = true;
-        play();
+        timeSlider.play();
       }
 
       function createWebGLShaderProgram() {
@@ -354,23 +358,11 @@
         gl.aPointSize = gl.getAttribLocation(pointProgram, "pointSize");
       }
 
-      function play() {
-        var $playbackButton = $(".playbackButton");
-          if ($playbackButton.attr("title") == "Play") {
-            $playbackButton.removeClass("play").addClass("pause").attr("title", "Pause");
-            $playbackButton.button({icons: {secondary: "ui-icon-custom-pause"}});
-            animate = true;
-          } else {
-            $playbackButton.removeClass("pause").addClass("play").attr("title", "Play");
-            $playbackButton.button({icons: {secondary: "ui-icon-custom-play"}});
-            animate = false;
-          }
-      }
-
       function init() {
         // initialize the map
         var mapOptions = {
           zoom: 2,
+          backgroundColor: "black",
           center: new google.maps.LatLng(41.4, -27.5),
           mapTypeId: google.maps.MapTypeId.ROADMAP,
 	        styles: [
@@ -411,133 +403,29 @@
 
         tdl.io.loadArrayBuffer(dataURL, loadData);
 
+        timeSlider = new TimeSlider({
+          startTime: new Date('2013-02-06').getTime(),
+          endTime: new Date('2014-03-09').getTime(),
+          increment: 60*60*24*1000,
+          span: 24*60*60*30*1000,
+          formatCurrentTime: function(date) {
+            return date.yyyymmdd();
+          },
+          animationRate: {
+            fast: 20,
+            medium: 40,
+            slow: 80
+          }
+        });
+
+
         toggle();
+
+
         var sharingLink = document.getElementById('sharing-link');
         sharingLink.addEventListener("click", function() {
           toggle();
         });
-
-        var daySlider = document.getElementById('day-slider');
-        daySlider.max = (timeBounds.e - (timeBounds.s + timeBounds.o)) / timeBounds.i;
-
-        daySlider.addEventListener("change", function(event) {
-          currentDate = (this.valueAsNumber*timeBounds.i) + (timeBounds.s + timeBounds.o);
-          var el = document.getElementById('current-date');
-          el.innerHTML = new Date(currentDate).yyyymmdd();
-
-        }, false);
-        daySlider.addEventListener("mousedown", function(event) {
-          animate = false;
-        }, false);
-
-        daySlider.addEventListener("mouseup", function(event) {
-          var animateButton = document.getElementById('animate-button');
-          if (animateButton.textContent == "Pause") {
-            animate = true;
-          }
-        }, false);
-
-        $("#day-slider").on("input change", function() {
-          currentDate = (this.valueAsNumber*timeBounds.i) + (timeBounds.s + timeBounds.o);
-          var el = document.getElementById('current-date');
-          el.innerHTML = new Date(currentDate).yyyymmdd();
-        });
-
-        var animateButton = document.getElementById('animate-button');
-        animateButton.addEventListener("click", function(event) {
-          if (this.textContent == "Pause") {
-            this.textContent = "Play";
-            animate = false;
-          } else {
-            this.textContent = "Pause";
-            animate = true;
-          }
-
-        }, false);
-
-        var el = document.getElementById('current-date');
-        el.innerHTML = new Date(currentDate).yyyymmdd();
-
-        var $playbackButton = $(".playbackButton");
-        $playbackButton.button({
-          icons: {
-            secondary: "ui-icon-custom-play"
-          },
-          text: false
-        }).on("click", function() {
-          if ($playbackButton.attr("title") == "Play") {
-            $playbackButton.removeClass("play").addClass("pause").attr("title", "Pause");
-            $playbackButton.button({icons: {secondary: "ui-icon-custom-pause"}});
-            animate = true;
-          } else {
-            $playbackButton.removeClass("pause").addClass("play").attr("title", "Play");
-            $playbackButton.button({icons: {secondary: "ui-icon-custom-play"}});
-            animate = false;
-          }
-        });
-
-
-        var $controls = $(".controls");
-        var $fastSpeedButton = $("#fastSpeed");
-        var $mediumSpeedButton = $("#mediumSpeed");
-        var $slowSpeedButton = $("#slowSpeed");
-
-        $fastSpeedButton.button({
-          text: true
-        }).click(function() {
-          $controls.prepend($mediumSpeedButton);
-          $mediumSpeedButton.stop(true, true).show();
-          $fastSpeedButton.slideUp(300);
-          defaultRate = 'm';
-        });
-
-        $mediumSpeedButton.button({
-          text: true
-        }).click(function() {
-          $controls.prepend($slowSpeedButton);
-          $slowSpeedButton.stop(true, true).show();
-          $mediumSpeedButton.slideUp(300);
-          defaultRate = 's';
-        });
-
-        $slowSpeedButton.button({
-          text: true
-        }).click(function() {
-          $controls.prepend($fastSpeedButton);
-          $fastSpeedButton.stop(true, true).show();
-          $slowSpeedButton.slideUp(300);
-          defaultRate = 'f';
-
-        });
-
-        var $timelineSlider = $(".timelineSlider");
-        $timelineSlider.slider({
-          min: 0,
-          max: (timeBounds.e - (timeBounds.s + timeBounds.o)) / timeBounds.i, // this way the time scrubber goes exactly to the end of timeline
-          range: "min",
-          step: 1,
-          slide: function(e, ui) {
-            // $(this).slider('value')  --> previous value
-            // ui.value                 --> current value
-            // If we are manually using the slider and we are pulling it back to the start
-            // we wont actually get to time 0 because of how we are snapping.
-            // Manually seek to position 0 when this happens.
-            /*
-            if (($(this).slider('value') > ui.value) && ui.value == 0) {
-              console.log($(this).slider('value') + " : " + ui.value);
-            }
-            else {
-              console.log($(this).slider('value') + " : " + ui.value);
-            }
-            */
-            currentDate = (ui.value*timeBounds.i) + (timeBounds.s + timeBounds.o);
-            var el = document.getElementById('current-date');
-            el.innerHTML = new Date(currentDate).yyyymmdd();
-
-          }
-        }).removeClass("ui-corner-all").children().removeClass("ui-corner-all");
-        $(".timelineSlider .ui-slider-handle").attr("title", "Drag to go to a different point in time");
-
 
 
         var $showTemperatures = $("#show-temperatures");
@@ -565,7 +453,7 @@
         });
         $( "#temperature-range" ).val($( "#temperature-slider-range" ).slider( "values", 0 ) +
         "K - " + $( "#temperature-slider-range" ).slider( "values", 1 ) + "K");
-          //document.body.appendChild( stats.domElement );
+        document.body.appendChild( stats.domElement );
         }
 
       function resize() {
@@ -617,10 +505,10 @@
           gl.uniformMatrix4fv(matrixLoc, false, mapMatrix);
 
           var timeLoc = gl.getUniformLocation(pointProgram, 'maxTime');
-          gl.uniform1f(timeLoc, currentDate*1.0);
+          gl.uniform1f(timeLoc, timeSlider.getCurrentTime()*1.0);
 
           var timeLoc = gl.getUniformLocation(pointProgram, 'minTime');
-          gl.uniform1f(timeLoc, (currentDate-timeBounds.o)*1.0);
+          gl.uniform1f(timeLoc, (timeSlider.getCurrentTime()-timeSlider.span_)*1.0);
 
           var showTempLoc = gl.getUniformLocation(pointProgram, 'showTemp');
           gl.uniform1f(showTempLoc, showTemp);
@@ -632,31 +520,8 @@
           gl.uniform1f(tempLoc, maxTemp*1.0);
 
           // draw!
-          var first = 0;
-          var count = pointCount;
-          gl.drawArrays(gl.POINTS, first, count);
-          if (animate) {
-            var timeNow = new Date().getTime();
-            if (lastTime != 0) {
-              var elapsed = timeNow - lastTime;
-              totalElapsedTime += elapsed;
-            }
-            lastTime = timeNow;
-            if (totalElapsedTime > timeBounds.r[defaultRate]) {
-              totalElapsedTime = 0;
-              if (currentDate < timeBounds.e) {
-                currentDate += timeBounds.i;
-              } else {
-                currentDate = timeBounds.s + timeBounds.o;
-              }
-            }
-            var el = document.getElementById('current-date');
-            el.innerHTML = new Date(currentDate).yyyymmdd();
-            var el = document.getElementById('day-slider');
-  	        el.value = Math.floor((currentDate - (timeBounds.s + timeBounds.o)) / timeBounds.i);
-            $(" .timelineSlider").slider("value",  Math.floor((currentDate - (timeBounds.s + timeBounds.o)) / timeBounds.i));
-
-          }
+          gl.drawArrays(gl.POINTS, 0, pointCount);
+          timeSlider.animate();
         }
         stats.end();
       }
@@ -674,39 +539,31 @@
           el.style["pointerEvents"] = "none";
         }
       }
+
+      $(function() {
+        $( "#dialog" ).dialog({
+          autoOpen: false,
+          width: 510
+        });
+
+        $( "#opener" ).click(function() {
+          $( "#dialog" ).dialog( "open" );
+        });
+      });
+
       document.addEventListener('DOMContentLoaded', init, false);
+
 
     </script>
   </head>
   <body>
     <div id="title">
-      <span>VIIRS Nightfires: 1 year visualization of combustion sources</span>
+      <div style="font-size: 20px">Fires at night, from space</div>
+      <div style="font-size: 12px">March 2013 to March 2014</div>
+      <div style="font-size: 12px" id="opener">More info</div>
     </div>
     <div id="map-div"></div>
-    <div id="date-widget">
-      <input type="range" value="0" min="0" max="127" list="number" id="day-slider"/><br/>
-      <button name="animate-button" id="animate-button">Play</button>
-    </div>
-
-    <div class="captureTime" title="Capture time">
-      <div class="currentCaptureTime"><div class="captureTimeMain"><div id="current-date"></div></div></div>
-    </div>
-
-    <div class="controls">
-      <div class="timelineSliderFiller">
-        <div id="Tslider1" class="timelineSlider ui-slider ui-slider-horizontal ui-widget ui-widget-content" aria-disabled="false"></div>
-      </div>
-      <div title="Play" class="playbackButton ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only" role="button" aria-disabled="false">
-        <span class="ui-button-text"></span>
-      </div>
-      <div class="videoTime" title="Video time">
-        <span class="currentTime">00:00.00</span>/<span class="totalTime">00:00.00</span>
-      </div>
-      <a href="http://explorables.cmucreatelab.org" target="_blank"><div class="logo explorablesLogo"></div></a>
-      <button class="toggleSpeed ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" id="fastSpeed" title="Toggle playback speed" role="button" aria-disabled="false" style="display: block;"><span class="ui-button-text">Fast</span></button>
-      <button class="toggleSpeed ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" id="mediumSpeed" title="Toggle playback speed" role="button" aria-disabled="false" style="display: none;"><span class="ui-button-text">Medium</span></button>
-      <button class="toggleSpeed ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" id="slowSpeed" title="Toggle playback speed" role="button" aria-disabled="false" style="display: none;"><span class="ui-button-text">Slow</span></button>
-    </div>
+    <div id="time-slider-controls"></div>
     <div id="temperature-view" class="temperatureView" title="Filter temperatures">
       <label for="temperature-range">Temperatures:</label>
       <input type="text" id="temperature-range" style="border:0; color:#f6931f; font-weight:bold;">
@@ -804,8 +661,16 @@
         </ul>
         <!-- Buttons end here -->
       </div>
-      <script src="js/rrssb.min.js"></script>
+      <script src="../../js/rrssb.min.js"></script>
 
     </div>
+    <div id="dialog" title="Fires at night from space: March 2013 to March 2014">
+      <p> The <a href="http://npp.gsfc.nasa.gov/viirs.html" target="_blank">VIIRS scanning radiometer</a> aboard the <a href="http://npp.gsfc.nasa.gov/suomi.html" target="_blank">Suomi-NPP satelite</a> measures fires from space daily.</p>
+      <p>Each animated frame represents 30 days of fires up to the displayed date.  VIIRS detects a wide variety of fires, including wildfires, volcanoes, refineries, flares from oil and gas extraction, and <a href="http://www.cfc.umt.edu/rattan/pdfs/Swidden%20agriculture.pdf" target="_blank">swidden agriculture</a>.</p>
+      <p><a href="http://ngdc.noaa.gov/eog/viirs/download_viirs_fire.html" target="_blank">Original data @ NOAA</a>
+      <p>
+      <iframe src="//player.vimeo.com/video/105912724" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+    </div>
+    <div id="loading"></div>
   </body>
 </html>
