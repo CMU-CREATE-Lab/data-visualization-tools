@@ -1,0 +1,479 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>NHTSA: Fatality Analysis Reporting System</title>
+    <style>
+      html, body, #map-div {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+      }
+     #layers {
+        width: 200px;
+        background: white;
+        position: absolute;
+        right: 10px;
+        bottom: 100px;
+        border: 1px solid #656565;
+        -webkit-border-radius: 3px;
+        -moz-border-radius: 3px;
+        border-radius: 3px !important;
+        box-shadow: 2px 2px 3px rgba(0,0,0,0.3);
+        z-index: 30;
+        outline: none;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 14px;
+      }
+    </style>
+    <link href="../../css/jquery-ui/smoothness/jquery-ui.custom.css" media="screen" rel="stylesheet" type="text/css" />
+    <link href="../../css/defaultUI.css" media="screen" rel="stylesheet" type="text/css"></link>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="../../js/jquery/jquery-ui.custom.min.js" type="text/javascript"></script>
+    <script src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
+    <script type="text/javascript" src="../../js/CanvasLayer.js"></script>
+    <script type="text/javascript" src="../../js/utils.js"></script>
+    <script type="text/javascript" src="../../js/stats.min.js"></script>
+    <script type="text/javascript" src="../../js/TimeSlider.js"></script>
+    <script id="point-vertex-shader" type="x-shader/x-vertex">
+      attribute vec4 worldCoord;
+      attribute float time;
+      attribute float drunkDr;
+      attribute float peds;
+
+      uniform mat4 mapMatrix;
+      uniform float minTime;
+      uniform float maxTime;
+      uniform float pointSize;
+      uniform bool showDrunkDr;
+      uniform bool showPeds;
+
+      varying float vDrunkDr;
+      varying float vPeds;
+
+      varying float vPointSize;
+
+      void main() {
+        // transform world coordinate by matrix uniform variable
+        if (time < minTime || time > maxTime) {
+          gl_Position =  vec4(-1,-1,-1,-1);
+        } else {
+          gl_Position = mapMatrix * worldCoord;
+        }
+        gl_PointSize = pointSize;
+        vDrunkDr = drunkDr;
+        vPeds = peds;
+
+        if (showDrunkDr && drunkDr > 1.) {
+          gl_PointSize = pointSize*2.;
+        }
+        if (showPeds && peds > 1.) {
+          gl_PointSize = pointSize*clamp(peds, 2., 6.);
+          //gl_PointSize = pointSize*peds;
+        }
+
+      }
+    </script>
+    <script id="point-fragment-shader" type="x-shader/x-fragment">
+      precision mediump float;
+
+      uniform bool showDrunkDr;
+      uniform bool showPeds;
+
+      varying float vDrunkDr;
+      varying float vPeds;
+
+      void main() {
+        vec3 color;
+        vec3 drunkDrColor = vec3(.65, .22, .65);
+        vec3 nDrunkDrColor = vec3(.99, .89, .02);
+        vec3 pedsColor = vec3(.22, .85, .05);
+
+        vec4 fragColor;
+
+        float dist = length(gl_PointCoord.xy - vec2(.5, .5));
+        dist = 1. - (dist * 2.);
+        dist = max(0., dist);
+        dist = 1.;
+
+        if (showDrunkDr) {
+          if (vDrunkDr > 1.) {
+            color = drunkDrColor;
+            fragColor = vec4(color, .9);
+          } else {
+            color = nDrunkDrColor;
+            fragColor = vec4(color, .0);
+          }
+        } else if (showPeds) {
+          if (vPeds > 1.) {
+            color = pedsColor;
+            fragColor = vec4(color, .9);
+          } else {
+            color = nDrunkDrColor;
+            fragColor = vec4(color, .0);
+          }
+        }
+
+         else {
+          color = vec3(.82, .22, .07);
+          fragColor = vec4(color, 1.);
+        }
+        gl_FragColor = vec4(color, 1.);
+        gl_FragColor = fragColor;
+      }
+    </script>
+
+    <script>
+      /* begin stats */
+      var stats = new Stats();
+      stats.setMode(0); // 0: fps, 1: ms
+      // Align top-left
+      stats.domElement.style.position = 'absolute';
+      stats.domElement.style.left = '0px';
+      stats.domElement.style.top = '0px';
+      /* end stats */
+
+      var map;
+      var canvasLayer;
+      var gl;
+
+      /**
+        * Latitude-longitude-date data is a series of 2 32-bit floats and 1 32-bit integer little-endian encoded.
+        * Each lat-lng-date grouping represents a well.
+        */
+
+      var dataURL = "http://data.cmucreatelab.org/fars/fars-w-dd-and-peds.bin";
+      var pointCount;
+      var pointData;
+      var pointArrayBuffer;
+      var timeData;
+      var timeArrayBuffer;
+      var drunkDrData;
+      var drunkDrArrayBuffer;
+      var pedsData;
+      var pedsArrayBuffer;
+      var showDrunkDr = false;
+      var showPeds = false;
+
+      var dataLoaded = false;
+      var pixelsToWebGLMatrix = new Float32Array(16);
+      var mapMatrix = new Float32Array(16);
+
+      var timeSlider;
+
+
+      function initCheckBoxes() {
+        var $showDrunkDr = $("#show-drunk-dr");
+        var $showPeds = $("#show-peds");
+
+        $showDrunkDr.on("click", function() {
+          var $this = $(this);
+          if ($this.is(':checked')) {
+            showDrunkDr = true;
+            if ($showPeds.is(':checked')) {
+              $showPeds.trigger("click");
+            }
+          } else {
+            showDrunkDr = false;
+          }
+        });
+
+        $showPeds.on("click", function() {
+          var $this = $(this);
+          if ($this.is(':checked')) {
+            showPeds = true;
+            if ($showDrunkDr.is(':checked')) {
+              $showDrunkDr.trigger("click");
+            }
+          } else {
+            showPeds = false;
+          }
+        });
+
+      }
+
+      function resize() {
+        var w = gl.canvas.width;
+        var h = gl.canvas.height;
+        gl.viewport(0, 0, w, h);
+
+        // matrix which maps pixel coordinates to WebGL coordinates
+        pixelsToWebGLMatrix.set([2/w, 0,   0, 0,
+                                 0,  -2/h, 0, 0,
+                                 0,   0,   0, 0,
+                                -1,   1,   0, 1]);
+      }
+
+      function update() {
+        stats.begin();
+
+        if (dataLoaded) {
+          gl.clear(gl.COLOR_BUFFER_BIT);
+
+          var countryPointSizePixels = 1;
+          var blockPointSizePixels = 10;
+          var pointSize = countryPointSizePixels * Math.pow(blockPointSizePixels / countryPointSizePixels, (map.zoom - 4) / (13 - 4));
+
+          var mapProjection = map.getProjection();
+
+          /**
+           * We need to create a transformation that takes world coordinate
+           * points in the pointArrayBuffer to the coodinates WebGL expects.
+           * 1. Start with second half in pixelsToWebGLMatrix, which takes pixel
+           *     coordinates to WebGL coordinates.
+           * 2. Scale and translate to take world coordinates to pixel coords
+           * see https://developers.google.com/maps/documentation/javascript/maptypes#MapCoordinate
+           */
+
+          // copy pixel->webgl matrix
+          mapMatrix.set(pixelsToWebGLMatrix);
+
+          // Scale to current zoom (worldCoords * 2^zoom)
+          var scale = canvasLayer.getMapScale();
+          scaleMatrix(mapMatrix, scale, scale);
+
+          var translation = canvasLayer.getMapTranslation();
+          translateMatrix(mapMatrix, translation.x, translation.y);
+
+          // attach matrix value to 'mapMatrix' uniform in shader
+          var matrixLoc = gl.getUniformLocation(pointProgram, 'mapMatrix');
+          gl.uniformMatrix4fv(matrixLoc, false, mapMatrix);
+
+          // attach matrix value to 'mapMatrix' uniform in shader
+          var maxTimeLoc = gl.getUniformLocation(pointProgram, 'maxTime');
+          gl.uniform1f(maxTimeLoc, timeSlider.getCurrentTime());
+
+          var minTimeLoc = gl.getUniformLocation(pointProgram, 'minTime');
+          gl.uniform1f(minTimeLoc, timeSlider.getStartTime());
+
+          var showDrunkDrLoc = gl.getUniformLocation(pointProgram, 'showDrunkDr');
+          gl.uniform1i(showDrunkDrLoc, showDrunkDr);
+
+          var showPedsLoc = gl.getUniformLocation(pointProgram, 'showPeds');
+          gl.uniform1i(showPedsLoc, showPeds);
+
+          var pointSizeLoc = gl.getUniformLocation(pointProgram, 'pointSize');
+          gl.uniform1f(pointSizeLoc, pointSize);
+
+
+          // draw!
+          var first = 0;
+          var count = pointCount;
+          gl.drawArrays(gl.POINTS, first, count);
+
+          timeSlider.animate();
+
+        }
+        stats.end();
+      }
+
+      function createBuffers() {
+        console.log('createBuffers');
+        pointArrayBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, pointArrayBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, pointData, gl.STATIC_DRAW);
+
+        var attributeLoc = gl.getAttribLocation(pointProgram, 'worldCoord');
+        gl.enableVertexAttribArray(attributeLoc);
+        gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 0, 0);
+
+        timeArrayBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, timeArrayBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, timeData, gl.STATIC_DRAW);
+
+        var timeAttributeLoc = gl.getAttribLocation(pointProgram, 'time');
+        gl.enableVertexAttribArray(timeAttributeLoc);
+        gl.vertexAttribPointer(timeAttributeLoc, 1, gl.FLOAT, false, 0, 0);
+
+        drunkDrArrayBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, drunkDrArrayBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, drunkDrData, gl.STATIC_DRAW);
+
+        var drunkDrAttributeLoc = gl.getAttribLocation(pointProgram, 'drunkDr');
+        gl.enableVertexAttribArray(drunkDrAttributeLoc);
+        gl.vertexAttribPointer(drunkDrAttributeLoc, 1, gl.FLOAT, false, 0, 0);
+
+        pedsArrayBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, pedsArrayBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, pedsData, gl.STATIC_DRAW);
+
+        var pedsAttributeLoc = gl.getAttribLocation(pointProgram, 'peds');
+        gl.enableVertexAttribArray(pedsAttributeLoc);
+        gl.vertexAttribPointer(pedsAttributeLoc, 1, gl.FLOAT, false, 0, 0);
+
+      }
+
+      function createShaderProgram() {
+        console.log('createShaderProgram');
+        // create vertex shader
+        var vertexSrc = document.getElementById('point-vertex-shader').text;
+        var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+        gl.shaderSource(vertexShader, vertexSrc);
+        gl.compileShader(vertexShader);
+
+        // create fragment shader
+        var fragmentSrc = document.getElementById('point-fragment-shader').text;
+        var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+        gl.shaderSource(fragmentShader, fragmentSrc);
+        gl.compileShader(fragmentShader);
+
+        // link shaders to create our program
+        pointProgram = gl.createProgram();
+        gl.attachShader(pointProgram, vertexShader);
+        gl.attachShader(pointProgram, fragmentShader);
+        gl.linkProgram(pointProgram);
+
+        gl.useProgram(pointProgram);
+      }
+
+
+      function initWebGL(canvas) {
+        try {
+          gl = canvas.getContext("experimental-webgl");
+          gl.enable(gl.BLEND);
+          gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
+          console.log("initWebGL")
+        } catch (e) {
+        }
+        if (!gl) {
+          console.log("Could not initialise WebGL");
+        }
+      }
+
+
+      function main() {
+        createShaderProgram();
+        createBuffers();
+        initCheckBoxes();
+        dataLoaded = true;
+        timeSlider.play();
+      }
+
+      function loadData(arrayBuffer, callback) {
+        var numElements = 5;
+        var dataView = new DataView(arrayBuffer);
+        var len = dataView.byteLength / Float32Array.BYTES_PER_ELEMENT;
+
+        pointCount = dataView.byteLength / (Float32Array.BYTES_PER_ELEMENT * numElements);
+        pointData = new Float32Array(pointCount*2);
+        timeData = new Float32Array(pointCount);
+        drunkDrData = new Float32Array(pointCount);
+        pedsData = new Float32Array(pointCount);
+
+        for (var i = 0; i < len; i += numElements) {
+          var lat = dataView.getFloat32(i * Float32Array.BYTES_PER_ELEMENT, true);
+          var lng = dataView.getFloat32((i + 1) * Float32Array.BYTES_PER_ELEMENT, true);
+          var date = dataView.getFloat32((i + 2) * Float32Array.BYTES_PER_ELEMENT, true);
+          var drunkDr = dataView.getFloat32((i + 3) * Float32Array.BYTES_PER_ELEMENT, true);
+          var peds = dataView.getFloat32((i + 4) * Float32Array.BYTES_PER_ELEMENT, true);
+          var pixel = LatLongToPixelXY(lat, lng);
+          var index = i/numElements;
+          pointData[2*index] = pixel.x;
+          pointData[2*index + 1] = pixel.y;
+          timeData[index] = date*1000.0;
+          drunkDrData[index] = drunkDr;
+          pedsData[index] = peds;
+
+          if (i == 0) {
+            console.log("First point {\n\tlat: " + lat + " \n\tlng: " + lng + "\n\tdate:" + date + "\n\tdrunkDr:" + drunkDr + "\n\tpeds:" + peds + "\n}");
+          }
+        }
+        callback();
+      }
+
+      function loadArrayBuffer(url, callback) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url);
+        xhr.onload = function() {
+          if (xhr.readyState == 4) {
+            // HTTP reports success with a 200 status. The file protocol reports
+            // success with zero. HTTP does not use zero as a status code (they
+            // start at 100).
+            // https://developer.mozilla.org/En/Using_XMLHttpRequest
+            var success = xhr.status == 200 || xhr.status == 0;
+            if (success) {
+              var arrayBuffer = xhr.response;
+            }
+            callback(arrayBuffer, success ? null : 'could not load: ' + url);
+          }
+        }
+        xhr.responseType = "arraybuffer";
+        xhr.send(null);
+      }
+
+      function initMap() {
+        // initialize the map
+        var mapOptions = {
+          zoom: 4,
+          maxZoom: 16,
+          minZoom: 4,
+          center: new google.maps.LatLng(39.3, -95.8),
+          mapTypeId: google.maps.MapTypeId.ROADMAP,
+            styles: [
+            {
+              featureType: 'all',
+              stylers: [
+                {hue: '#0000b0'},
+                {invert_lightness: 'true'},
+                {saturation: -30}
+              ]
+            },
+            {
+              featureType: 'poi',
+              stylers: [{visibility: 'off'}]
+            }
+          ]
+        };
+        var mapDiv = document.getElementById('map-div');
+        map = new google.maps.Map(mapDiv, mapOptions);
+
+        // initialize the canvasLayer
+        var canvasLayerOptions = {
+          map: map,
+          resizeHandler: resize,
+          animate: true,
+          updateHandler: update
+        };
+        canvasLayer = new CanvasLayer(canvasLayerOptions);
+        window.addEventListener('resize', function () {  google.maps.event.trigger(map, 'resize') }, false);
+        initWebGL(canvasLayer.canvas);
+        timeSlider = new TimeSlider({
+          animationRate: {
+            fast: 20,
+            medium: 40,
+            slow: 80
+          },
+          startTime: new Date('2001-01-01').getTime(),
+          endTime: new Date('2012-12-31').getTime(),
+          increment: 60*60*24*1000,
+          formatCurrentTime: function(date) {
+            return date.yyyymmdd();
+          }
+        });
+      }
+
+      function init() {
+        initMap();
+        loadArrayBuffer(dataURL, function(arrayBuffer, exception) {
+          if (exception) {
+            console.log(exception);
+          } else {
+            loadData(arrayBuffer, main);
+          }
+        });
+        document.body.appendChild( stats.domElement );
+      }
+
+      document.addEventListener('DOMContentLoaded', init, false);
+    </script>
+
+  </head>
+  <body>
+    <div id="map-div"></div>
+    <div id="time-slider-controls"></div>
+    <div id="layers">
+      <input type="checkbox" id="show-drunk-dr"><label for="show-drunk-dr">Drunk Drivers</label><br/>
+      <input type="checkbox" id="show-peds"><label for="show-peds">Pedestrians and Cyclists</label>
+    </div>
+  </body>
+</html>
