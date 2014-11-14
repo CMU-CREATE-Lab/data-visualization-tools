@@ -149,6 +149,17 @@ _deleteTile = function(tile) {
 }
 
 TileView.prototype.
+_destroy = function() {
+  var keys = Object.keys(this._tiles);
+  for (var i = 0; i < keys.length; i++) {
+    var key = keys[i];
+    var tile = this._tiles[key];
+    this._deleteTile(this._tiles[key]);
+    delete this._tiles[key];
+  }
+}
+
+TileView.prototype.
 tileInfo = function() {
   var ret = [];
   var tileidxs = Object.keys(this._tiles).sort();
