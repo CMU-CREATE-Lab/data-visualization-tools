@@ -553,7 +553,9 @@ WebglVideoTile.computeFrameOffsets = function(phases, subbits) {
   }
 }
 
-WebglVideoTile.computeFrameOffsets(3, 4);
+// 3x2^4 = 48 available offsets
+// 3x2^5 = 96 available offsets
+WebglVideoTile.computeFrameOffsets(3, 5);
 
 WebglVideoTile.textureVertexShader =
   'attribute vec2 aTextureCoord;\n' +

@@ -103,6 +103,7 @@ WebGLVectorTile.prototype.setData = function() {
 
 WebGLVectorTile.prototype.draw = function(transform, maxTime, minTime) {
   if (this.ready) {
+    gl.lineWidth(2);
     gl.useProgram(this.program);
 
     var matrixLoc = gl.getUniformLocation(this.program, 'mapMatrix');

@@ -115,5 +115,5 @@ Glb.vectorTileVertexShader =
 
 Glb.vectorTileFragmentShader =
 'void main() {\n' +
-'  gl_FragColor = vec4(1.0, 0.25, 0.25, 1.0);\n' +
+'  gl_FragColor = vec4(.0, 1., .15, 1.0);\n' +
 '}\n';

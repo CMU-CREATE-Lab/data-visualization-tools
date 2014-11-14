@@ -81,7 +81,7 @@
       }
 
       #vector-layers {
-        width: 275px;
+        width: 375px;
         background: white;
         position: absolute;
         right: 19px;
@@ -95,6 +95,29 @@
         outline: none;
         font-family: Arial, Helvetica, sans-serif;
         font-size: 30px;
+        padding-bottom: 11px;
+        padding-top: 13px;
+        padding-left: 13px;
+        padding-right: 6px;
+      }
+
+      #legend {
+        font-size: 30px;
+        margin-left: 6px;
+        border-bottom: 1px solid #656565;
+        padding-bottom: 6px;
+      }
+
+      .legendColor {
+        width: 26px;
+        height: 26px;
+        margin-bottom: 4px;
+      }
+
+      .legendTitle {
+        margin-left: 7px;
+        margin-bottom: 4px;
+        color: #656565;
       }
 
       input[type='checkbox'] {
@@ -102,21 +125,34 @@
         height: 28px;
         border-radius: 5px;
         border: 2px solid #555;
-        margin-top: 7px;
-        margin-left: 10px;
+        margin-top: 15px;
+        margin-left: 9px;
         cursor: pointer;
       }
 
-      #wdpa-label {
-        margin-top: 5px;
-        margin-left: 10px;
+      #wdpa-label, #forest-label {
+        margin-top: 13px;
+        margin-left: 7px;
         position: absolute;
         cursor: pointer;
+        color: #656565;
       }
 
       #smallGoogleMap1_smallMapContainer {
         right: 19px !important;
         top: 101px !important;
+      }
+
+      #logoUrl {
+        position: absolute;
+        font-size: 40px;
+        text-shadow: -1px 0 #000, 0 1px #000, 1px 0 #000, 0 -1px #000, 2px 2px 3px rgba(0,0,0,0.3);
+        font-family: Arial, Helvetica, sans-serif;
+        color: white;
+        font-weight: normal;
+        z-index: 50;
+        left: 92px;
+        top: 18px;
       }
     </style>
 
@@ -133,8 +169,8 @@
       // Landsat ("https" will casue the thumbnail loading from the server to fail)
       // gabrielo: Served from localhost (../1068x600) during wdpa layer testing
       //var url = "http://earthengine.google.org/timelapse/data/20130507";
-      var url = "../1068x600";
-
+      var landsatUrl = "1068x600";
+      var forestUrl = "forest/1068x600";
 
       function init() {
         myHomeView = {
@@ -143,7 +179,7 @@
           scale: 0.0010172804041788702
         };
         var settings = {
-          url: url,
+          url: landsatUrl,
           enablePresentationSlider: true,
           thumbnailServerRootTileUrl: "http://earthengine.google.org/timelapse/data/20130507",
           presentationSliderSettings: {
@@ -227,11 +263,44 @@
         totalTime =  29 /*timelapse.getNumFrames()*/ / /*timelapse.getFps()*/ 10;
 
         //$('<div id="vector-layers"><input type="checkbox" id="show-wdpa"><label for="show-wdpa">WDPA</label><br><input type="checkbox" id="animate-wdpa"><label for="animate-wdpa">Animate</label></div>').appendTo("#timeMachine");
-        $('<div id="vector-layers"><input type="checkbox" id="show-wdpa"><label for="show-wdpa" id="wdpa-label">Protected Areas</label></div>').appendTo("#timeMachine");
+        //$('<div id="vector-layers"><input type="checkbox" id="show-wdpa"><label for="show-wdpa" id="wdpa-label">Protected Areas</label></div>').appendTo("#timeMachine");
+        var layer_html = '<div id="vector-layers">';
+        layer_html +=      '<table id="legend">';
+        layer_html +=        '<tr>';
+        layer_html +=          '<td><div class="legendColor" style="background: rgb(0,255,38);"></div></td><td><div class="legendTitle" style="color: rgb(0,229,34)">Protected Areas</div></td>';
+        layer_html +=        '</tr>';
+        layer_html +=        '<tr>';
+        layer_html +=          '<td><div class="legendColor" style="background: rgb(255,0,0);"></div></td><td><div class="legendTitle" style="color: rgb(244,0,0);">Forest Loss 2000-2012</div></td>';
+        layer_html +=        '</tr>';
+        layer_html +=        '<tr>';
+        layer_html +=          '<td><div class="legendColor" style="background: rgb(0,0,255);"></div></td><td><div class="legendTitle" style="color: rgb(0,0,244);">Forest Gain 2000-2012</div></td>';
+        layer_html +=        '</tr>';
+        layer_html +=        '<tr>';
+        layer_html +=          '<td><div class="legendColor" style="background: rgb(255,0,255);"></div></td><td><div class="legendTitle" style="color: rgb(226,2,226);">Both Loss and Gain</div></td>';
+        layer_html +=        '</tr>';
+        layer_html +=      '</table>';
+        layer_html +=      '<input type="checkbox" id="show-wdpa">';
+        layer_html +=      '<label for="show-wdpa" id="wdpa-label">Protected Areas</label>';
+        layer_html +=      '<br><input type="checkbox" id="show-forest-change">';
+        layer_html +=      '<label for="show-forest-change" id="forest-label">Global Forest Change</label>';
+        layer_html +=    '</div>';
+        $(layer_html).appendTo("#timeMachine");
+        $("#timeMachine").append('<div id="logoUrl">earthengine.google.org</div>');
+
+        $("#show-forest-change").on("click", function() {
+          if ($(this).prop('checked')) {
+            tmlayer.destroy();
+            tmlayer = new WebglTimeMachineLayer(glb, canvasLayer, forestUrl);
+          } else {
+            tmlayer.destroy();
+            tmlayer = new WebglTimeMachineLayer(glb, canvasLayer, landsatUrl);
+          }
+        });
 
         glb = new Glb(gl);
         // gabrielo: used localhost 1068x600 during wdpa layer testing
-        tmlayer = new WebglTimeMachineLayer(glb, canvasLayer, '1068x600');
+        tmlayer = new WebglTimeMachineLayer(glb, canvasLayer, landsatUrl);
+        //tmlayer = new WebglTimeMachineLayer(glb, canvasLayer, '1068x600');
         //tmlayer = new WebglTimeMachineLayer(glb, canvasLayer, "http://earthengine.google.org/timelapse/data/20130507/1068x600");
 
         // Vector Tiles
