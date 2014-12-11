@@ -3,6 +3,7 @@
 <script>
 console.log('---');
 </script>
+<script src="../../timemachine/js/jquery/jquery.min.js" type="text/javascript"></script>
 <script src="TileIdx.js"></script>
 <script src='Glb.js'></script>
 <script src="WebglVideoTile.js"></script>
@@ -17,7 +18,7 @@ var t = new WebglVideoTile(glb, new TileIdx(0,0,0), {min:{x:0,y:0}, max:{x:1,y:1
 console.log(t.toString());
 var t2 = new WebglVideoTile(glb, new TileIdx(0,0,0), {min:{x:0,y:0}, max:{x:1,y:1}}, '1068x600/0/0/0.mp4');
 console.log(t2.toString());
-t.recycle();
+//t.recycle();
 var t3 = new WebglVideoTile(glb, new TileIdx(0,0,0), {min:{x:0,y:0}, max:{x:1,y:1}}, '1068x600/0/0/0.mp4');
 console.log(t3.toString());
 
