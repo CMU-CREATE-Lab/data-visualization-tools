@@ -11,6 +11,11 @@
 var tiles = [];
 
 var perf;
+var maximumUpdateTime = 20; // milliseconds
+var startOfRedraw;
+function redrawTakingTooLong() {
+  return performance.now() - startOfRedraw > maximumUpdateTime;
+}
 
 function init() {
   console.log('init');
@@ -21,9 +26,9 @@ function init() {
   var ntiles = 12;
   for (var i = 0; i < ntiles; i++) {
     tiles.push(new WebglVideoTile(
-                      glb, 
-                      new TileIdx(0,i,0), 
-                      {min:{x:i,y:0}, max:{x:i+0.99,y:1}}, 
+                      glb,
+                      new TileIdx(0,i,0),
+                      {min:{x:i,y:0}, max:{x:i+0.99,y:1}},
                       '1068x600/11/2620/' + (832 + i * 4) + '.mp4'));
   }
   $('#status').text(ntiles + ' tiles');
@@ -62,8 +67,11 @@ var timelapse = {
   getVideoset: function() { return videoset; },
   getPlaybackRate: function() { return 1; },
   getVideoTime: function() { return getVideoset().getCurrentTime(); },
-  getTimeIncludingDwells: function() { 
+  getTimeIncludingDwells: function() {
     return ((performance.now() - startTime) / 1000) % 3.9;
+  },
+  isPaused: function() {
+    return false;
   }
 };
 
@@ -84,4 +92,3 @@ $(init);
 </script>
 </body>
 </html>
-
