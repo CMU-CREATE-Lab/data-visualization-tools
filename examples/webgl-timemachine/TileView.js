@@ -28,6 +28,10 @@ function TileView(settings) {
   this._createTileCallback = settings.createTile;
   this._deleteTileCallback = settings.deleteTile;
   this._tiles = {};
+  this._updateTileCallback = settings.updateTile;
+  this._zoomlock = settings.zoomlock;
+  this._cache = settings.cache || false;
+  this._tilecache = {};
 
   // levelThreshold sets the quality of display by deciding what level of tile to show for a given level of zoom:
   //
@@ -40,7 +44,7 @@ function TileView(settings) {
 
   // Compute max level #
   for (this._maxLevel = 1;
-       (this._tileWidth << this._maxLevel) < this._panoWidth || 
+       (this._tileWidth << this._maxLevel) < this._panoWidth ||
        (this._tileHeight << this._maxLevel) < this._panoHeight;
        this._maxLevel++) {
   }
@@ -61,7 +65,7 @@ toString = function() {
 TileView.prototype.
 _tileGeometry = function(tileidx) {
   var levelScale = Math.pow(2, this._maxLevel - tileidx.l);
-  
+
   var left = tileidx.c * this._tileWidth * levelScale;
   var right = left + this._tileWidth * levelScale;
 
@@ -89,8 +93,8 @@ _computeBoundingBox = function(view) {
   var halfWidth = .5 * this._viewportWidth / view.scale;
   var halfHeight = .5 * this._viewportHeight / view.scale;
   return {
-    xmin: view.x - halfWidth, 
-    xmax: view.x + halfWidth, 
+    xmin: view.x - halfWidth,
+    xmax: view.x + halfWidth,
     ymin: view.y - halfHeight,
     ymax: view.y + halfHeight
   };
@@ -118,9 +122,9 @@ TileView.prototype.
 _computeVisibleTileRange = function(view, level) {
   var bbox = this._computeBoundingBox(view);
   var tilemin = this._tileidxAt(level, Math.max(0, bbox.xmin), Math.max(0, bbox.ymin));
-  var tilemax = this._tileidxAt(level, Math.min(this._panoWidth - 1, bbox.xmax), 
+  var tilemax = this._tileidxAt(level, Math.min(this._panoWidth - 1, bbox.xmax),
                                 Math.min(this._panoHeight - 1, bbox.ymax));
-  return {min: tilemin, max: tilemax}  
+  return {min: tilemin, max: tilemax}
 }
 
 TileView.prototype.
@@ -133,7 +137,7 @@ _isTileVisible = function(view, tileidx) {
 TileView.prototype.
 _addTileidx = function(tileidx) {
   if (!this._tiles[tileidx.key]) {
-    this._tiles[tileidx.key] = 
+    this._tiles[tileidx.key] =
       this._createTileCallback(tileidx, this._tileGeometry(tileidx));
     this._tiles[tileidx.key].index = tileidx;
   }
@@ -202,7 +206,7 @@ _findFirstAncestorIn = function(tileidx, map) {
 // Need prev drawable videos, all videos
 // Need new drawable videos, all videos
 // Video status:
-// 
+//
 // Added +(x)
 // Not ready (x)
 // Newly ready ^x
@@ -239,7 +243,107 @@ setView = function(view, viewportWidth, viewportHeight, scale) {
       }
     }
   }
-  
+
+
+  // Hold onto higher-resolution tiles that are visible, and don't overlap ready tiles
+
+  // Sort ready, higher-level tiles according to level
+  var highLevelTileidxs = [];
+  var currentLevel = this._scale2level(view.scale);
+  for (var key in this._tiles) {
+    var tileidx = this._tiles[key].index;
+    if (tileidx.l > currentLevel) {
+      if (this._isTileVisible(view, tileidx)) {
+        if (this._tiles[tileidx.key].isReady()) {
+          highLevelTileidxs.push(tileidx);
+        }
+      }
+    }
+  }
+  highLevelTileidxs = highLevelTileidxs.sort();
+
+  for (var i = 0; i < highLevelTileidxs.length; i++) {
+    var tileidx = highLevelTileidxs[i];
+    var ancestoridx = this._findFirstAncestorIn(tileidx, required);
+    if (ancestoridx != null && !this._tiles[ancestoridx.key].isReady()) {
+      required[tileidx.key] = true;
+    }
+  }
+
+  // Compute status, and delete unnecessary tiles
+
+  var keys = Object.keys(this._tiles).sort();
+
+  var status = [];
+  for (var i = 0; i < keys.length; i++) {
+    var key = keys[i];
+    var tile = this._tiles[key];
+    if (!required[key]) {
+      this._deleteTile(this._tiles[key]);
+      delete this._tiles[key];
+    } else {
+      var stat = '';
+      if (added[key]) stat += '+';
+      if (!tile.isReady()) stat += '(';
+      stat += tile.index.toString();
+      if (!tile.isReady()) stat += ')';
+      status.push(stat);
+    }
+  }
+  status = status.join(' ');
+  if (!this._lastStatus || status.replace(/[\-\+]/g,'') != this._lastStatus.replace(/[\-\+]/g,'')) {
+    console.log('setView: ' + status);
+    this._lastStatus = status;
+  }
+};
+
+TileView.prototype.
+setViewFromLatLng = function(view, bounds, viewportWidth, viewportHeight, scale) {
+  this._viewportWidth = viewportWidth;
+  this._viewportHeight = viewportHeight;
+  this._scale = scale; // canvas scale (1 for normal, 2 for retina, typically)
+
+  function loc2Tiles (loc, zoom){
+    var min = Math.floor((loc.lng+180)/360*Math.pow(2,zoom));
+    var max = Math.floor((1-Math.log(Math.tan(loc.lat*Math.PI/180) + 1/Math.cos(loc.lat*Math.PI/180))/Math.PI)/2 *Math.pow(2,zoom));
+    return [Math.min(Math.pow(2,zoom), Math.max(0, min)), Math.min(Math.pow(2,zoom), Math.max(0, max))];
+  }
+
+  var required = {};
+  var added = {};
+
+  // Require tiles in view from optimal level of detail
+  var level = this._scale2level(view.scale * this._scale);
+
+  var zoom = level;
+  if (zoom > this._zoomlock) {
+    zoom = this._zoomlock;
+  }
+
+  var bottomLeft = loc2Tiles(bounds.ne, zoom);
+  var topRight = loc2Tiles(bounds.sw, zoom);
+
+  for(var row = bottomLeft[0]; row <= topRight[0]; row++){
+    for(var col = topRight[1]; col <= bottomLeft[1]; col++){
+      var ti = new TileIdx(zoom, col, row);
+      if (!(ti.key in this._tilecache)) {
+        this._tilecache[ti.key] = this._addTileidx(ti);
+      }
+      if (!(ti.key in this._tiles)) {
+        this._tiles[ti.key] = this._tilecache[ti.key];
+        added[ti.key] = true;
+      }
+      required[ti.key] = true;
+      // If tile isn't ready, hold onto its first ready ancestor
+      if (!this._tiles[ti.key].isReady()) {
+        var ancestor = this._findReadyAncestor(ti);
+        if (ancestor != null) {
+          required[ancestor.key] = true;
+        }
+      }
+    }
+  }
+
 
   // Hold onto higher-resolution tiles that are visible, and don't overlap ready tiles
 
@@ -302,5 +406,5 @@ update = function(transform) {
   for (var i = 0; i < keys.length; i++) {
     tiles.push(this._tiles[keys[i]]);
   }
-  WebglVideoTile.update(tiles, transform);
+  this._updateTileCallback(tiles, transform);
 }

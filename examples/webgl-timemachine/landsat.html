@@ -171,6 +171,7 @@
       //var url = "http://earthengine.google.org/timelapse/data/20130507";
       var landsatUrl = "1068x600";
       var forestUrl = "forest/1068x600";
+      var vectorUrl = "wdpaline-year";
 
       function init() {
         myHomeView = {
@@ -226,6 +227,28 @@
 
       }
       $(init);
+
+      function initVectorLayersCheckBoxes() {
+        var $showWdpa = $("#show-wdpa");
+        $showWdpa.on("click", function() {
+          var $this = $(this);
+          if ($this.is(':checked')) {
+            showWdpa = true;
+          } else {
+            showWdpa = false;
+          }
+        });
+        var $animateWdpa = $("#animate-wdpa");
+        $animateWdpa.on("click", function() {
+          var $this = $(this);
+          if ($this.is(':checked')) {
+            animateWdpa = true;
+          } else {
+            animateWdpa = false;
+          }
+        });
+      }
+
     </script>
 
     <script src="../../js/TimeMachineCanvasLayer.js" type="text/javascript"></script>
@@ -247,6 +270,8 @@
       // BEGIN WebGL vars
       var canvasLayer;
       var gl;
+
+      var showWdpa = false;
 
       function onTimeMachinePlayerReady() {
         // initialize the canvasLayer
@@ -290,17 +315,16 @@
         $("#show-forest-change").on("click", function() {
           if ($(this).prop('checked')) {
             tmlayer.destroy();
-            tmlayer = new WebglTimeMachineLayer(glb, canvasLayer, forestUrl);
+            tmlayer = new WebglTimeMachineLayer(glb, canvasLayer, forestUrl, vectorUrl);
           } else {
             tmlayer.destroy();
-            tmlayer = new WebglTimeMachineLayer(glb, canvasLayer, landsatUrl);
+            tmlayer = new WebglTimeMachineLayer(glb, canvasLayer, landsatUrl, vectorUrl);
           }
         });
 
         glb = new Glb(gl);
         // gabrielo: used localhost 1068x600 during wdpa layer testing
-        tmlayer = new WebglTimeMachineLayer(glb, canvasLayer, landsatUrl);
-        //tmlayer = new WebglTimeMachineLayer(glb, canvasLayer, '1068x600');
+        tmlayer = new WebglTimeMachineLayer(glb, canvasLayer, '1068x600', vectorUrl);
         //tmlayer = new WebglTimeMachineLayer(glb, canvasLayer, "http://earthengine.google.org/timelapse/data/20130507/1068x600");
 
         // Vector Tiles
@@ -312,7 +336,6 @@
           tileHeight: 256,
           glb: glb
         }
-        vectorTileView = new VectorTileView(vectorTileViewSettings);
         // Load waypoints
         timelapse.loadSharedDataFromUnsafeURL("#presentation=EODkDPWPyXs9wR6gBAmazon%20Deforestation%20in%20Rondonia_Rondonia_DkDT37Hawc4T8VA%20large-scale%20hydroelectric%20project%20in%20the%20Brazilian%20Amazon%20rainforest_Tucurui%20Dam_BkDTiTRWWTmR6gBRiver%20meandering%20in%20the%20Amazon_Meander_DkDK9ySWib2R2dThe%20abandonment%20of%20a%20river%20channel%20and%20the%20formation%20of%20a%20new%20river%20channel_Bolivia%20Avulsion_DkDU28jbt4xTkcErosion%20in%20the%20Amazon%27s%20mouth_Mouth%20of%20Amazon_DkDcOeLoWayQ6gBThe%20Cape%20and%20islands%20are%20subject%20to%20massive%20coastal%20erosion_South%20Cape%20Cod_BkDPt3KmUZ3P6gBThe%20Outer%20Banks%20often%20suffers%20significant%20beach%20erosion%20during%20storms_Outer%20Banks%20NC_DkDFGq9mKcYi8VThe%20shrinking%20and%20drying%20up%20of%20the%20Lake%20Urmia_Lake%20Urmia_DkDOcGQprwpkmRThe%20shrinking%20of%20the%20Aral%20Sea%20destroys%20fishing%20industry%20and%20brings%20unemployment%20and%20public%20health%20problems_Aral%20Sea_DkDSq1joU5sk6gBThe%20expansion%20of%20irrigation%20systems%20near%20the%20Aral%20Sea_Aral%20Expansion_BkDcM7nkdxUhgZCenter-pivot%20irrigation%20irrigates%20crops%20with%20sprinklers%20centered%20on%20the%20pivot%2C%20creating%20a%20green%20circular%20pattern_Saudi%20Irrigation_CkDWmblQtbBxuXBushfires%20in%20Australia%20are%20frequent%20during%20the%20hotter%20months%20of%20the%20year_Australia%20Bushfire_DkDWZuFgTJ1tycThe%20eruption%20of%20Mount%20Pinatubo%20on%20June%2015%2C%201991_Pinatubo_BkDVUU_kfEAu_cUrban%20expansion%20in%20Shanghai%2C%20China%2E_Shanghai_Untitled_B");
 
@@ -386,11 +409,8 @@
 
         gl.clear(gl.COLOR_BUFFER_BIT);
 
-        tmlayer.draw(timelapse.getView());
-        if (showWdpa) {
-          vectorTileView.setView(timelapse.getView(), timelapse.getViewportWidth(), timelapse.getViewportHeight(), 1)
-          vectorTileView.draw(timelapse.getView(), canvasLayer);
-        }
+        var tileViewVisibility = { vectorTile: showWdpa };
+        tmlayer.draw(timelapse.getView(), tileViewVisibility);
         //stats.end();
       }
 
