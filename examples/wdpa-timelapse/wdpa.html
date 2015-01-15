@@ -83,6 +83,8 @@
       var pixelsToWebGLMatrix = new Float32Array(16);
       var mapMatrix = new Float32Array(16);
 
+      var resolutionScale = window.devicePixelRatio || 1;
+
       jQuery.support.cors = true;
       // Landsat
       //var url = "http://earthengine.google.org/timelapse/data";
@@ -99,7 +101,8 @@
           timelapse: timelapse,
           resizeHandler: resize,
           animate: true,
-          updateHandler: update
+          updateHandler: update,
+          resolutionScale: resolutionScale
         };
         canvasLayer = new TimeMachineCanvasLayer(timeMachineCanvasLayerOptions);
 
@@ -223,8 +226,12 @@
         gl.viewport(0, 0, width, height);
 
         // matrix which maps pixel coordinates to WebGL coordinates
-        pixelsToWebGLMatrix.set([2/width, 0, 0, 0, 0, -2/height, 0, 0,
-            0, 0, 0, 0, -1, 1, 0, 1]);
+        pixelsToWebGLMatrix.set([//
+          2*resolutionScale/width, 0, 0, 0,
+          0, -2*resolutionScale/height, 0, 0,
+          0, 0, 0, 0,
+          -1, 1, 0, 1
+        ]);
       }
 
       // Draws to canvas.
@@ -258,7 +265,7 @@
           // copy pixel->webgl matrix
           mapMatrix.set(pixelsToWebGLMatrix);
 
-          translateMatrix(mapMatrix, canvasWidth*0.5, canvasHeight*0.5);
+          translateMatrix(mapMatrix, canvasWidth/(2*resolutionScale), canvasHeight/(2*resolutionScale));
 
           // Scale to current zoom (worldCoords * 2^zoom)
           //var scale = Math.pow(2, map.zoom);
