@@ -120,6 +120,13 @@ function TimeMachineCanvasLayer(opt_options) {
   this.canvas = canvas;
 
   /**
+  * A value for scaling the CanvasLayer resolution relative to the CanvasLayer
+  * display size.
+  * @private {number}
+  */
+  this.resolutionScale_ = 1;
+
+  /**
    * Simple bind for functions with no args for bind-less browsers (Safari).
    * @param {Object} thisArg The this value used for the target function.
    * @param {function} func The function to be bound.
@@ -249,6 +256,11 @@ TimeMachineCanvasLayer.prototype.setOptions = function(options) {
   if (options.resizeHandler !== undefined) {
     this.setResizeHandler(options.resizeHandler);
   }
+
+  if (options.resolutionScale !== undefined) {
+    this.setResolutionScale(options.resolutionScale);
+  }
+
 };
 
 /**
@@ -333,6 +345,21 @@ TimeMachineCanvasLayer.prototype.setResizeHandler = function(opt_resizeHandler) 
   this.resizeHandler_ = opt_resizeHandler;
 };
 
+
+/**
+* Sets a value for scaling the canvas resolution relative to the canvas
+* display size. This can be used to save computation by scaling the backing
+* buffer down, or to support high DPI devices by scaling it up (by e.g.
+* window.devicePixelRatio).
+* @param {number} scale
+*/
+TimeMachineCanvasLayer.prototype.setResolutionScale = function(scale) {
+  if (typeof scale === 'number') {
+    this.resolutionScale_ = scale;
+    this.resize_();
+  }
+};
+
 /**
  * Set a function that will be called when a repaint of the canvas is required.
  * If opt_updateHandler is null or unspecified, any existing callback is
@@ -413,25 +440,20 @@ TimeMachineCanvasLayer.prototype.resize_ = function() {
 
   var timelapse = this.timelapse;
 
-  // TODO(rsargent): this is hacked to follow devicePixelRatio on hyperwall.
-  // But we should check backingStorePixelRatio, and consider not doing this anyway
-  // on a laptop with retina
-  // NOTE(pdille): This seems to cause Chrome to run out of memory after a short
-  // amount of time on the hyperwall.
-  this.scale = window.devicePixelRatio;
-  //this.scale = 1;
+  var timelapseWidth = timelapse.getViewerDiv().offsetWidth;
+  var timelapseHeight = timelapse.getViewerDiv().offsetHeight;
 
-  var width = timelapse.getViewerDiv().offsetWidth * this.scale;
-  var height = timelapse.getViewerDiv().offsetHeight * this.scale;
+  var newWidth = timelapseWidth * this.resolutionScale_;
+  var newHeight = timelapseHeight * this.resolutionScale_;
   var oldWidth = this.canvas.width;
   var oldHeight = this.canvas.height;
 
   // resizing may allocate a new back buffer, so do so conservatively
-  if (oldWidth !== width || oldHeight !== height) {
-    this.canvas.width = width;
-    this.canvas.height = height;
-    this.canvas.style.width = (width / this.scale) + 'px';
-    this.canvas.style.height = (height / this.scale) + 'px';
+  if (oldWidth !== newWidth || oldHeight !== newHeight) {
+    this.canvas.width = newWidth;
+    this.canvas.height = newHeight;
+    this.canvas.style.width = timelapseWidth + 'px';
+    this.canvas.style.height = timelapseHeight + 'px';
 
     this.needsResize_ = true;
     this.scheduleUpdate();
