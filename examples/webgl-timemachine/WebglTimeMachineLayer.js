@@ -61,9 +61,9 @@ draw = function(view, tileViewVisibility) {
     this._tileView.levelThreshold = -0.5;   // maybe try -0.25 or 0//
 
   }
-  var width = this._canvasLayer.canvas.width / this._canvasLayer.scale;
-  var height = this._canvasLayer.canvas.height / this._canvasLayer.scale;
-  this._tileView.setView(view, width, height, this._canvasLayer.scale);
+  var width = this._canvasLayer.canvas.width / this._canvasLayer.resolutionScale_;
+  var height = this._canvasLayer.canvas.height / this._canvasLayer.resolutionScale_;
+  this._tileView.setView(view, width, height, this._canvasLayer.resolutionScale_);
 
   var transform = new Float32Array([2/width,0,0,0, 0,-2/height,0,0, 0,0,0,0, -1,1,0,1]);
 
@@ -86,7 +86,7 @@ draw = function(view, tileViewVisibility) {
     var latLngBbox = timelapse.pixelBoundingBoxToLatLngBoundingBoxView(bBox).bbox;
     var ne = {lat: latLngBbox.sw.lat, lng: latLngBbox.ne.lng};
     var sw = {lat: latLngBbox.ne.lat, lng: latLngBbox.sw.lng};
-    this._vectorTileView.setViewFromLatLng(view, {ne: ne, sw: sw}, width, height, this._canvasLayer.scale);
+    this._vectorTileView.setViewFromLatLng(view, {ne: ne, sw: sw}, width, height, this._canvasLayer.resolutionScale_);
     this._vectorTileView.update(transform);
   }
 }

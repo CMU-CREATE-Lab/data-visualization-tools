@@ -280,7 +280,8 @@
           timelapse: timelapse,
           resizeHandler: resize,
           animate: true,
-          updateHandler: update
+          updateHandler: update,
+          resolutionScale: window.devicePixelRatio || 1
         };
         canvasLayer = new TimeMachineCanvasLayer(timeMachineCanvasLayerOptions);
         // initialize WebGL
