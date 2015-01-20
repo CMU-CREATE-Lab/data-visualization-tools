@@ -15,8 +15,6 @@ function WebglTimeMachineLayer(glb, canvasLayer, rootUrl, vectorUrl) {
   }
 
   function createVectorTile(ti, bounds) {
-    console.log('Creating tile ' + ti);
-    console.log('Has bounds ' + bounds);
     var url = vectorUrl + '/' + ti.l + '/' + (ti.r) + '/' + (ti.c) + '.json';
     return new WebGLVectorTile(glb, ti, bounds, url);
   }
@@ -50,37 +48,28 @@ function WebglTimeMachineLayer(glb, canvasLayer, rootUrl, vectorUrl) {
 WebglTimeMachineLayer.prototype.
 draw = function(view, tileViewVisibility) {
   var timelapse = this._canvasLayer.timelapse;
-
-  // TODO: don't hardcode global access to timelapse
-  // TODO: this needs further tweaking...
-  if (timelapse.isMovingToWaypoint()) {
-    // Moving to waypoint;  reduce level of detail
-    this._tileView.levelThreshold = -1.5;
-  } else {
-    // Not moving to waypoint;  increase level of detail
-    this._tileView.levelThreshold = -0.5;   // maybe try -0.25 or 0//
-
-  }
   var width = this._canvasLayer.canvas.width / this._canvasLayer.resolutionScale_;
   var height = this._canvasLayer.canvas.height / this._canvasLayer.resolutionScale_;
-  this._tileView.setView(view, width, height, this._canvasLayer.resolutionScale_);
 
   var transform = new Float32Array([2/width,0,0,0, 0,-2/height,0,0, 0,0,0,0, -1,1,0,1]);
 
   translateMatrix(transform, width*0.5, height*0.5);
-
-  // Scale to current zoom (worldCoords * 2^zoom)
-  scaleMatrix(transform,
-              view.scale/* * this._canvasLayer.scale*/,
-              view.scale/* * this._canvasLayer.scale*/);
-
-  // translate to current view (vector from topLeft to 0,0)
+  scaleMatrix(transform, view.scale, view.scale);
   translateMatrix(transform, -view.x, -view.y);
 
-  // video tiles always on
-  this._tileView.update(transform);
-
-  // vector tiles can be toggled
+  // TODO: Refactor how tile views are initialized and drawn
+  if (tileViewVisibility.videoTile) {
+    // TODO: this needs further tweaking...
+    if (timelapse.isMovingToWaypoint()) {
+      // Moving to waypoint;  reduce level of detail
+      this._tileView.levelThreshold = -1.5;
+    } else {
+      // Not moving to waypoint;  increase level of detail
+      this._tileView.levelThreshold = -0.5;   // maybe try -0.25 or 0//
+    }
+    this._tileView.setView(view, width, height, this._canvasLayer.resolutionScale_);
+    this._tileView.update(transform);
+  }
   if (tileViewVisibility.vectorTile) {
     var bBox = timelapse.getBoundingBoxForCurrentView();
     var latLngBbox = timelapse.pixelBoundingBoxToLatLngBoundingBoxView(bBox).bbox;
