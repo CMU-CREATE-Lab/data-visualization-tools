@@ -15,6 +15,38 @@
         width: 100%;
         height: 100%;
       }
+      .controls {
+        margin-top: 16px;
+        border: 1px solid transparent;
+        border-radius: 2px 0 0 2px;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        height: 32px;
+        outline: none;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        z-index: 10;
+      }
+      #pac-input {
+        position: absolute;
+        top: 0px;
+        left: 135px;
+        background-color: #fff;
+        padding: 0 11px 0 13px;
+        width: 400px;
+        font-family: Roboto;
+        font-size: 15px;
+        font-weight: 300;
+        text-overflow: ellipsis;
+      }
+      #pac-input:focus {
+        border-color: #4d90fe;
+        margin-left: -1px;
+        padding-left: 14px; 
+        width: 401px;
+      }
+      .pac-container {
+        font-family: Roboto;
+      }
     </style>
     <script src="timemachine/js/jquery/jquery.min.js" type="text/javascript"></script>
     <script src="timemachine/js/jquery/jquery-ui.custom.min.js" type="text/javascript"></script>
@@ -84,6 +116,8 @@
         // Display the share button
         $(viewerDivId).css("bottom", "110px").insertBefore("#player1 .controls");
 
+        initSearchBox();
+
         // initialize the canvasLayer
         var timeMachineCanvasLayerOptions = {
           timelapse: timelapse,
@@ -141,10 +175,60 @@
         tmlayer.draw(timelapse.getView(), tileViewVisibility);
         stats.end();
       }
+
+      function initSearchBox() {
+        // Create the search box and link it to the UI element.
+        var input = (document.getElementById('pac-input'));
+
+        var searchBox = new google.maps.places.SearchBox((input));
+
+        // Listen for the event fired when the user selects an item from the
+        // pick list. Retrieve the matching places for that item.
+        google.maps.event.addListener(searchBox, 'places_changed', function() {
+          var places = searchBox.getPlaces();
+
+          if (places.length == 0) {
+            return;
+          }
+
+          // For each place, get the icon, place name, and location.
+          var bounds = new google.maps.LatLngBounds();
+          for (var i = 0, place; place = places[i]; i++) {
+            if (typeof place.geometry.viewport != "undefined") {
+              var sw = place.geometry.viewport.getSouthWest();
+              var ne = place.geometry.viewport.getNorthEast();
+              bounds = new google.maps.LatLngBounds(sw, ne);
+            } else {
+              bounds.extend(place.geometry.location);
+            }
+          }
+
+          var bb = {
+            ne:{
+              lat: bounds.getNorthEast().lat(),
+              lng: bounds.getNorthEast().lng()
+            },
+            sw:{
+              lat: bounds.getSouthWest().lat(),
+              lng: bounds.getSouthWest().lng()
+            }
+          };
+
+          if (bb.ne.lat == bb.sw.lat && bb.ne.lng == bb.sw.lng) {
+            bb.sw.lat += 1.;
+            bb.sw.lng += 1.;
+          }
+
+          var view = timelapse.latLngBoundingBoxToPixelCenter(bb);
+          timelapse.setNewView(view);
+        });
+      }
+
       $(init);
     </script>
   </head>
   <body>
     <div id="timelapse"></div>
+    <input id="pac-input" class="controls" type="text" placeholder="Search Box">
   </body>
 </html>
