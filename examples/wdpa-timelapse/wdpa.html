@@ -41,11 +41,27 @@
       #pac-input:focus {
         border-color: #4d90fe;
         margin-left: -1px;
-        padding-left: 14px; 
+        padding-left: 14px;
         width: 401px;
       }
       .pac-container {
         font-family: Roboto;
+      }
+      #layers {
+        width: 100px;
+        background: white;
+        position: absolute;
+        right: 10px;
+        bottom: 150px;
+        border: 1px solid #656565;
+        -webkit-border-radius: 3px;
+        -moz-border-radius: 3px;
+        border-radius: 3px !important;
+        box-shadow: 2px 2px 3px rgba(0,0,0,0.3);
+        z-index: 30;
+        outline: none;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 11px;
       }
     </style>
     <script src="timemachine/js/jquery/jquery.min.js" type="text/javascript"></script>
@@ -109,13 +125,14 @@
       var tmlayer;
       var resolutionScale = window.devicePixelRatio || 1;
 
+      var showWdpa = true;
+
       jQuery.support.cors = true;
 
       function onTimeMachinePlayerReady(viewerDivId) {
         document.body.appendChild( stats.domElement );
-        // Display the share button
-        $(viewerDivId).css("bottom", "110px").insertBefore("#player1 .controls");
-
+        
+        initCheckBoxes() ;
         initSearchBox();
 
         // initialize the canvasLayer
@@ -171,9 +188,21 @@
         stats.begin();
         gl.clear(gl.COLOR_BUFFER_BIT);
 
-        var tileViewVisibility = { videoTile: false, vectorTile: true };
+        var tileViewVisibility = { videoTile: false, vectorTile: showWdpa };
         tmlayer.draw(timelapse.getView(), tileViewVisibility);
         stats.end();
+      }
+
+      function initCheckBoxes() {
+        var $showWdpa = $("#show-wdpa");
+        $showWdpa.on("click", function() {
+          var $this = $(this);
+          if ($this.is(':checked')) {
+            showWdpa = true;
+          } else {
+            showWdpa = false;
+          }
+        });
       }
 
       function initSearchBox() {
@@ -229,6 +258,9 @@
   </head>
   <body>
     <div id="timelapse"></div>
+    <div id="layers">
+      <input type="checkbox" id="show-wdpa" checked><label for="show-wdpa">Show WDPA</label>
+    </div>
     <input id="pac-input" class="controls" type="text" placeholder="Search Box">
   </body>
 </html>
