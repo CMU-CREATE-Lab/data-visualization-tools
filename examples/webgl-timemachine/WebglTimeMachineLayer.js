@@ -15,7 +15,7 @@ function WebglTimeMachineLayer(glb, canvasLayer, rootUrl, vectorUrl) {
   }
 
   function createVectorTile(ti, bounds) {
-    var url = vectorUrl + '/' + ti.l + '/' + (ti.r) + '/' + (ti.c) + '.json';
+    var url = vectorUrl + '/' + ti.l + '/' + (ti.r) + '/' + (ti.c) + '.bin';
     return new WebGLVectorTile(glb, ti, bounds, url);
   }
 
