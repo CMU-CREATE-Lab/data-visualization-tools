@@ -125,15 +125,34 @@
       var tmlayer;
       var resolutionScale = window.devicePixelRatio || 1;
 
-      var showWdpa = true;
+      var showWdpa = false;
 
       jQuery.support.cors = true;
 
+
+      function unpackVars(str) {
+        var queryString = {};
+        var re = new RegExp("([^?=&]+)(=([^&]*))?", "g");
+        str.replace(re, function($0, $1, $2, $3) {
+          queryString[$1] = $3;
+        });
+        return queryString;
+      }
+
+      function initPlaybackRate() {
+        var hash = window.location.hash.slice(1);
+        var vars = unpackVars(hash);
+        if (vars && vars.playbackRate) {
+          timelapse.setPlaybackRate(vars.playbackRate);
+        }
+      }
+
       function onTimeMachinePlayerReady(viewerDivId) {
         document.body.appendChild( stats.domElement );
-        
+
         initCheckBoxes() ;
         initSearchBox();
+        initPlaybackRate();
 
         // initialize the canvasLayer
         var timeMachineCanvasLayerOptions = {
@@ -163,6 +182,7 @@
           url: landsatUrl,
           datasetType: "landsat",
           playOnLoad: true,
+          showShareBtn: true,
           onTimeMachinePlayerReady: onTimeMachinePlayerReady,
           scaleBarOptions: {
             scaleBarDiv: "scaleBar1"
@@ -174,6 +194,24 @@
           showHomeBtn: false
         };
         timelapse = new org.gigapan.timelapse.Timelapse("timelapse", settings);
+
+        if (window.location.hash.indexOf("showWdpa") > -1) {
+          showWdpa = true;
+          $('#show-wdpa').prop("checked", true);
+        }
+
+        var oGetShareView = timelapse.getShareView;
+        timelapse.getShareView = function() {
+          var shareStr = oGetShareView();
+          if (showWdpa) {
+            shareStr += '&showWdpa';
+          }
+          if (timelapse.getPlaybackRate() != 1.0) {
+            shareStr += '&playbackRate=' + timelapse.getPlaybackRate();
+          }
+          return shareStr;
+        }
+
       }
 
       function resize() {
@@ -259,7 +297,7 @@
   <body>
     <div id="timelapse"></div>
     <div id="layers">
-      <input type="checkbox" id="show-wdpa" checked><label for="show-wdpa">Show WDPA</label>
+      <input type="checkbox" id="show-wdpa"><label for="show-wdpa">Show WDPA</label>
     </div>
     <input id="pac-input" class="controls" type="text" placeholder="Search Box">
   </body>
