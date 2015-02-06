@@ -41,7 +41,7 @@ function WebglTimeMachineLayer(glb, canvasLayer, rootUrl, vectorUrl) {
     createTile: createVectorTile,
     deleteTile: function(tile) {},
     updateTile: WebGLVectorTile.update,
-    zoomlock: 9
+    zoomlock: 10
   });
 }
 
