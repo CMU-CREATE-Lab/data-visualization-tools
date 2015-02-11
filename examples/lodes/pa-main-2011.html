@@ -1,0 +1,294 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>PA Main 2011</title>
+  <style>
+  html, body, #map-div {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
+  </style>
+  <link href="../../css/jquery-ui/smoothness/jquery-ui.custom.css" media="screen" rel="stylesheet" type="text/css" />
+  <link href="../../css/defaultUI.css" media="screen" rel="stylesheet" type="text/css"></link>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <script src="../../js/jquery/jquery-ui.custom.min.js" type="text/javascript"></script>
+  <script src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
+  <script type="text/javascript" src="../../js/CanvasLayer.js"></script>
+  <script type="text/javascript" src="../../js/utils.js"></script>
+  <script type="text/javascript" src="../../js/stats.min.js"></script>
+  <script type="text/javascript" src="../webgl-timemachine/Glb.js"></script>
+  <script id="point-vertex-shader" type="x-shader/x-vertex">
+    attribute vec2 h_point;
+    attribute vec2 w_point;
+
+    attribute float aTime;
+    attribute float weight;
+
+    uniform mat4 mapMatrix;
+
+    float f_x(float x, float delta_x, float t) {
+      return x + delta_x * t;
+    }
+
+    float f_y(float y, float delta_y, float t) {
+      return y + delta_y * t;
+    }
+
+    void main() {
+      float fx = f_x(h_point.x, w_point.x - h_point.x, aTime);
+      float fy = f_y(h_point.y, w_point.y - h_point.y, aTime);
+
+      gl_Position = mapMatrix * vec4(fx, fy, 0, 1);
+      //gl_PointSize = weight;
+      gl_PointSize = min(10.,weight);
+    }
+  </script>
+  <script id="point-fragment-shader" type="x-shader/x-fragment">
+    precision mediump float;
+
+    void main() {
+      gl_FragColor = vec4(1.0,0.,0.,1.);
+    }
+  </script>
+
+  <script>
+    /* begin stats */
+    var stats = new Stats();
+    stats.setMode(0); // 0: fps, 1: ms
+    // Align top-left
+    stats.domElement.style.position = 'absolute';
+    stats.domElement.style.left = '0px';
+    stats.domElement.style.top = '0px';
+    /* end stats */
+
+    var map;
+    var canvasLayer;
+    var gl;
+    var pointCount;
+    var data;
+    var arrayBuffer;
+    var ready;
+    var program;
+    var glb;
+    var pixelsToWebGLMatrix = new Float32Array(16);
+    var mapMatrix = new Float32Array(16);
+
+
+    /**
+    * Latitude-longitude-date data is a series of 2 32-bit floats and 1 32-bit integer little-endian encoded.
+    * Each lat-lng-date grouping represents a well.
+    */
+
+    var dataURL = "pa_od_main_jt00_2011.bin";
+
+    function load(url) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', url);
+      xhr.responseType = 'arraybuffer';
+      xhr.onload = function() {
+        var float32Array = new Float32Array(this.response);
+        setData(float32Array);
+      }
+      xhr.send();
+    }
+
+    function setData(buffer) {
+      pointCount = buffer.length / 5;
+
+      data = buffer;
+      arrayBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, arrayBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+
+      var attributeLoc = gl.getAttribLocation(program, 'w_point');
+      gl.enableVertexAttribArray(attributeLoc);
+      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 20, 0);
+
+      var attributeLoc = gl.getAttribLocation(program, 'h_point');
+      gl.enableVertexAttribArray(attributeLoc);
+      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 20, 8);
+
+      var attributeLoc = gl.getAttribLocation(program, 'weight');
+      gl.enableVertexAttribArray(attributeLoc);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 20, 16);
+
+      ready = true;
+    }
+
+    var totalTime = 30 * 1000;
+    var startDwell = 2 * 1000;
+    var endDwell = 2 * 1000;
+    var then = new Date();
+    var inMainLoop = false;
+    var inStartDwell = true;
+    var inEndDwell = false;
+
+    function draw(transform) {
+      if (ready) {
+        gl.lineWidth(2);
+        gl.useProgram(program);
+
+        // Get the current time
+        var now = new Date();
+        // Subtract the previous time from the current time
+        var deltaTime = now.getTime() - then.getTime();//
+
+        if (inMainLoop) {
+          if (deltaTime < totalTime) {
+            var step = deltaTime/totalTime;
+          } else {
+            deltaTime = 0;
+            then = new Date();
+            inMainLoop = false;
+            inEndDwell = true;
+          }
+        }
+
+        if (inStartDwell){
+          if (deltaTime < startDwell) {
+            var step = 0.;
+          } else {
+            deltaTime = 0;
+            then = new Date();
+            inMainLoop = true;
+            inStartDwell = false;
+          }
+        }
+
+        if (inEndDwell){
+          if (deltaTime < endDwell) {
+            var step = 1.;
+          } else {
+            deltaTime = 0;
+            then = new Date();
+            var step = 0;
+            inStartDwell = true;
+            inEndDwell = false;
+
+          }
+        }
+
+
+        var aTime = gl.getAttribLocation(program, "aTime");
+        gl.vertexAttrib1f(aTime, step);
+
+        var matrixLoc = gl.getUniformLocation(program, 'mapMatrix');
+        gl.uniformMatrix4fv(matrixLoc, false, transform);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, arrayBuffer);
+
+        var attributeLoc = gl.getAttribLocation(program, 'w_point');
+        gl.enableVertexAttribArray(attributeLoc);
+        gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 20, 0);
+
+        var attributeLoc = gl.getAttribLocation(program, 'h_point');
+        gl.enableVertexAttribArray(attributeLoc);
+        gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 20, 8);
+
+        var attributeLoc = gl.getAttribLocation(program, 'weight');
+        gl.enableVertexAttribArray(attributeLoc);
+        gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 20, 16);
+
+        gl.drawArrays(gl.POINTS, 0, pointCount);
+      }
+    }
+
+    function update() {
+      stats.begin();
+      if (ready) {
+
+        gl.clear(gl.COLOR_BUFFER_BIT);
+
+        var mapProjection = map.getProjection();
+
+        /**
+        * We need to create a transformation that takes world coordinate
+        * points in the pointArrayBuffer to the coodinates WebGL expects.
+        * 1. Start with second half in pixelsToWebGLMatrix, which takes pixel
+        *     coordinates to WebGL coordinates.
+        * 2. Scale and translate to take world coordinates to pixel coords
+        * see https://developers.google.com/maps/documentation/javascript/maptypes#MapCoordinate
+        */
+
+        // copy pixel->webgl matrix
+        mapMatrix.set(pixelsToWebGLMatrix);
+
+        // Scale to current zoom (worldCoords * 2^zoom)
+        var scale = canvasLayer.getMapScale();
+        scaleMatrix(mapMatrix, scale, scale);
+
+        var translation = canvasLayer.getMapTranslation();
+        translateMatrix(mapMatrix, translation.x, translation.y);
+        draw(mapMatrix);
+      }
+      stats.end();
+    }
+
+    function resize() {
+      var w = gl.canvas.width;
+      var h = gl.canvas.height;
+      gl.viewport(0, 0, w, h);
+
+      // matrix which maps pixel coordinates to WebGL coordinates
+      pixelsToWebGLMatrix.set([2/w, 0,   0, 0,
+        0,  -2/h, 0, 0,
+        0,   0,   0, 0,
+        -1,   1,   0, 1]);
+    }
+
+    function initMap() {
+      // initialize the map
+      var mapOptions = {
+        zoom: 7,
+        center: new google.maps.LatLng(41.17, -77.21),
+        mapTypeId: google.maps.MapTypeId.ROADMAP,
+        styles: [
+        {
+          featureType: 'all',
+          stylers: [
+          {hue: '#0000b0'},
+          {invert_lightness: 'true'},
+          {saturation: -30}
+          ]
+        },
+        {
+          featureType: 'poi',
+          stylers: [{visibility: 'off'}]
+        }
+        ]
+      };
+      var mapDiv = document.getElementById('map-div');
+      map = new google.maps.Map(mapDiv, mapOptions);
+
+      // initialize the canvasLayer
+      var canvasLayerOptions = {
+        map: map,
+        resizeHandler: resize,
+        animate: true,
+        updateHandler: update
+      };
+      canvasLayer = new CanvasLayer(canvasLayerOptions);
+      gl = canvasLayer.canvas.getContext('experimental-webgl');
+      glb = new Glb(gl);
+      program = glb.programFromSources(document.getElementById('point-vertex-shader').text,
+        document.getElementById('point-fragment-shader').text);
+      load(dataURL);
+      window.addEventListener('resize', function () {  google.maps.event.trigger(map, 'resize') }, false);
+
+    }
+
+    function init() {
+      initMap();
+      document.body.appendChild(stats.domElement);
+    }
+
+    document.addEventListener('DOMContentLoaded', init, false);
+  </script>
+
+  </head>
+  <body>
+    <div id="map-div"></div>
+  </body>
+</html>
