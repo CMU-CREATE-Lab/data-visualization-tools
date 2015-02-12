@@ -49,7 +49,10 @@
     precision mediump float;
 
     void main() {
-      gl_FragColor = vec4(1.0,0.,0.,1.);
+      float dist = length(gl_PointCoord.xy - vec2(.5,.5));
+      dist = .75 - (dist * .5);
+      dist = max(0., dist);
+      gl_FragColor = vec4(.83,.24,.12,1.) * dist;
     }
   </script>
 
@@ -271,9 +274,12 @@
       };
       canvasLayer = new CanvasLayer(canvasLayerOptions);
       gl = canvasLayer.canvas.getContext('experimental-webgl');
+      gl.enable(gl.BLEND);
+      gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
+
       glb = new Glb(gl);
       program = glb.programFromSources(document.getElementById('point-vertex-shader').text,
-        document.getElementById('point-fragment-shader').text);
+      document.getElementById('point-fragment-shader').text);
       load(dataURL);
       window.addEventListener('resize', function () {  google.maps.event.trigger(map, 'resize') }, false);
 
