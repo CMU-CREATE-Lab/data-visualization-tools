@@ -50,9 +50,8 @@
 
     void main() {
       float dist = length(gl_PointCoord.xy - vec2(.5,.5));
-      dist = .75 - (dist * .5);
-      dist = max(0., dist);
-      gl_FragColor = vec4(.83,.24,.12,1.) * dist;
+      dist = (dist > .5) ? .0 : 1.;
+      gl_FragColor = vec4(.12,.24,.83,1.) * dist;
     }
   </script>
 
@@ -248,18 +247,30 @@
         center: new google.maps.LatLng(41.17, -77.21),
         mapTypeId: google.maps.MapTypeId.ROADMAP,
         styles: [
-        {
-          featureType: 'all',
-          stylers: [
-          {hue: '#0000b0'},
-          {invert_lightness: 'true'},
-          {saturation: -30}
-          ]
-        },
-        {
-          featureType: 'poi',
-          stylers: [{visibility: 'off'}]
-        }
+          {
+            "featureType": "road",
+            "elementType": "labels",
+            "stylers": [
+              { "visibility": "off" }
+            ]
+          },{
+            "featureType": "road",
+            "stylers": [
+              { "color": "#808080" },
+              { "weight": 0.2 }
+            ]
+          },{
+            "featureType": "poi",
+            "stylers": [
+              { "visibility": "off" }
+            ]
+          },{
+            "featureType": "landscape",
+            "stylers": [
+              { "visibility": "on" },
+              { "lightness": 91 }
+            ]
+          }
         ]
       };
       var mapDiv = document.getElementById('map-div');
