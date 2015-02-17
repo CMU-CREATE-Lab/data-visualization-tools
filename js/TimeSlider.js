@@ -20,6 +20,8 @@ var TimeSlider = function (config) {
    */
   this.animate_ = false;
 
+  this.onChange_ = config.onChange;
+
   this.dwell_ = false;
   /**
    * Playback animationRates per increment for animation
@@ -203,6 +205,9 @@ var TimeSlider = function (config) {
    */
   TimeSlider.prototype.setCurrentTime_ = function(val) {
     this.currentTime_ = val * this.increment_ + this.startTime_ + this.span_;
+    if (this.onChange_) {
+      this.onChange_(this, this.currentTime_);
+    }
   }
 
 
