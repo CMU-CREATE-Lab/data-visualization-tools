@@ -383,6 +383,12 @@ var TimeSlider = function (config) {
   /**
    * Handle animation requests
    */
+
+  TimeSlider.prototype.redraw_ = function() {
+    $('.timelineSlider').slider("value",  Math.floor((this.currentTime_ - (this.startTime_ + this.span_)) / this.increment_));
+    this.renderCurrentTime_();
+  }
+
   TimeSlider.prototype.animate = function() {
     if (this.animate_) {
       this.elapsedAnimationTime_ = this.now_() - this.startAnimationTime_;
@@ -407,8 +413,7 @@ var TimeSlider = function (config) {
           }
         }
       }
-      $(" .timelineSlider").slider("value",  Math.floor((this.currentTime_ - (this.startTime_ + this.span_)) / this.increment_));
-      this.renderCurrentTime_();
+      this.redraw_();
     }
   }
 
