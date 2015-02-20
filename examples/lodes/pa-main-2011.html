@@ -26,6 +26,9 @@
     attribute float aTime;
     attribute float weight;
 
+
+    uniform float uSize;
+    uniform float uZoom;
     uniform mat4 mapMatrix;
 
     float f_x(float x, float delta_x, float t) {
@@ -36,23 +39,37 @@
       return y + delta_y * t;
     }
 
+    float scale_weight(float weight) {
+      float min_radius = 1.;
+      float max_radius = 10.;
+
+      float min_weight = 1.;
+      float max_weight = 160.;
+
+      return min(10.,weight);
+      //return min_radius * pow(max_radius/min_radius, (weight - min_weight) / (max_weight - min_weight));
+    }
+
     void main() {
       float fx = f_x(h_point.x, w_point.x - h_point.x, aTime);
       float fy = f_y(h_point.y, w_point.y - h_point.y, aTime);
 
       gl_Position = mapMatrix * vec4(fx, fy, 0, 1);
       //gl_PointSize = weight;
-      gl_PointSize = min(10.,weight);
+      //gl_PointSize = min(10.,weight);//
+      gl_PointSize = uSize * scale_weight(weight);
     }
   </script>
   <script id="point-fragment-shader" type="x-shader/x-fragment">
     precision mediump float;
 
+    vec4 setColor(vec4 color, float dist, float hardFraction) {
+      return color * clamp((0.5 - dist) / (0.5 - 0.5 * hardFraction), 0., 1.);
+    }
     void main() {
+      vec4 color = vec4(.08,.55,.08,1.);
       float dist = length(gl_PointCoord.xy - vec2(.5,.5));
-      dist = .75 - (dist * .5);
-      dist = max(0., dist);
-      gl_FragColor = vec4(.83,.24,.12,1.) * dist;
+      gl_FragColor = setColor(color, dist, .4);
     }
   </script>
 
@@ -127,6 +144,9 @@
     var inMainLoop = false;
     var inStartDwell = true;
     var inEndDwell = false;
+    var countryPointSizePixels = 1;
+    var blockPointSizePixels = 25;
+    var pointSize;
 
     function draw(transform) {
       if (ready) {
@@ -173,9 +193,17 @@
           }
         }
 
+        pointSize = countryPointSizePixels * Math.pow(blockPointSizePixels / countryPointSizePixels, (map.zoom - 7) / (21 - 7));
+
 
         var aTime = gl.getAttribLocation(program, "aTime");
         gl.vertexAttrib1f(aTime, step);
+
+        var sizeLoc = gl.getUniformLocation(program, 'uSize');
+        gl.uniform1f(sizeLoc, pointSize);
+
+        var zoomLoc = gl.getUniformLocation(program, 'uZoom');
+        gl.uniform1f(zoomLoc, map.zoom);
 
         var matrixLoc = gl.getUniformLocation(program, 'mapMatrix');
         gl.uniformMatrix4fv(matrixLoc, false, transform);
@@ -248,18 +276,30 @@
         center: new google.maps.LatLng(41.17, -77.21),
         mapTypeId: google.maps.MapTypeId.ROADMAP,
         styles: [
-        {
-          featureType: 'all',
-          stylers: [
-          {hue: '#0000b0'},
-          {invert_lightness: 'true'},
-          {saturation: -30}
-          ]
-        },
-        {
-          featureType: 'poi',
-          stylers: [{visibility: 'off'}]
-        }
+          {
+            "featureType": "road",
+            "elementType": "labels",
+            "stylers": [
+              { "visibility": "off" }
+            ]
+          },{
+            "featureType": "road",
+            "stylers": [
+              { "color": "#808080" },
+              { "weight": 0.2 }
+            ]
+          },{
+            "featureType": "poi",
+            "stylers": [
+              { "visibility": "off" }
+            ]
+          },{
+            "featureType": "landscape",
+            "stylers": [
+              { "visibility": "on" },
+              { "lightness": 91 }
+            ]
+          }
         ]
       };
       var mapDiv = document.getElementById('map-div');

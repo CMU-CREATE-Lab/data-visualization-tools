@@ -119,6 +119,13 @@ function CanvasLayer(opt_options) {
   this.canvas = canvas;
 
   /**
+   * A value for scaling the CanvasLayer resolution relative to the CanvasLayer
+   * display size.
+   * @private {number}
+   */
+  this.resolutionScale_ = 1;
+
+  /**
    * Simple bind for functions with no args for bind-less browsers (Safari).
    * @param {Object} thisArg The this value used for the target function.
    * @param {function} func The function to be bound.
@@ -247,6 +254,10 @@ CanvasLayer.prototype.setOptions = function(options) {
     this.setResizeHandler(options.resizeHandler);
   }
 
+  if (options.resolutionScale !== undefined) {
+      this.setResolutionScale(options.resolutionScale);
+  }
+
   if (options.map !== undefined) {
     this.setMap(options.map);
   }
@@ -322,6 +333,20 @@ CanvasLayer.prototype.setResizeHandler = function(opt_resizeHandler) {
 };
 
 /**
+ * Sets a value for scaling the canvas resolution relative to the canvas
+ * display size. This can be used to save computation by scaling the backing
+ * buffer down, or to support high DPI devices by scaling it up (by e.g.
+ * window.devicePixelRatio).
+ * @param {number} scale
+ */
+CanvasLayer.prototype.setResolutionScale = function(scale) {
+    if (typeof scale === 'number') {
+	this.resolutionScale_ = scale;
+	this.resize_();
+    }
+};
+
+/**
  * Set a function that will be called when a repaint of the canvas is required.
  * If opt_updateHandler is null or unspecified, any existing callback is
  * removed.
@@ -386,26 +411,26 @@ CanvasLayer.prototype.onRemove = function() {
  * @private
  */
 CanvasLayer.prototype.resize_ = function() {
-  // TODO(bckenny): it's common to use a smaller canvas but use CSS to scale
-  // what is drawn by the browser to save on fill rate. Add an option to do
-  // this.
-
   if (!this.isAdded_) {
     return;
   }
 
   var map = this.getMap();
-  var width = map.getDiv().offsetWidth;
-  var height = map.getDiv().offsetHeight;
+  var mapWidth = map.getDiv().offsetWidth;
+  var mapHeight = map.getDiv().offsetHeight;
+
+
+  var newWidth = mapWidth * this.resolutionScale_;
+  var newHeight = mapHeight * this.resolutionScale_;
   var oldWidth = this.canvas.width;
   var oldHeight = this.canvas.height;
 
   // resizing may allocate a new back buffer, so do so conservatively
-  if (oldWidth !== width || oldHeight !== height) {
-    this.canvas.width = width;
-    this.canvas.height = height;
-    this.canvas.style.width = width + 'px';
-    this.canvas.style.height = height + 'px';
+  if (oldWidth !== newWidth || oldHeight !== newHeight) {
+    this.canvas.width = newWidth;
+    this.canvas.height = newHeight;
+    this.canvas.style.width = mapWidth + 'px';
+    this.canvas.style.height = mapHeight + 'px';
 
     this.needsResize_ = true;
     this.scheduleUpdate();
