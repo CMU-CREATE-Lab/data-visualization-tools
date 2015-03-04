@@ -20,48 +20,74 @@
   <script type="text/javascript" src="../../js/stats.min.js"></script>
   <script type="text/javascript" src="../webgl-timemachine/Glb.js"></script>
   <script id="point-vertex-shader" type="x-shader/x-vertex">
-    attribute vec2 h_point;
-    attribute vec2 w_point;
+    attribute vec2 hCentroid; // Centroid of the residence census block
+    attribute vec2 wCentroid; // Centroid of the workplace census block
 
     attribute float aTime;
-    attribute float weight;
+    attribute float aS000; // Total number of jobs
+    attribute float aDist; // Distance in meters between workplace and residence centroids
+    attribute float aSe01; // Number of jobs with earnings $1250/month or less
+    attribute float aSe02; // Number of jobs with earnings $1251/month to $3333/month
+    attribute float aSe03; // Number of jobs with earnings greater than $3333/month
 
+    uniform bool filterDist;
 
+    uniform float uDist;
     uniform float uSize;
     uniform float uZoom;
     uniform mat4 mapMatrix;
 
-    float f_x(float x, float delta_x, float t) {
-      return x + delta_x * t;
+    varying float vSe01;
+    varying float vSe02;
+    varying float vSe03;
+
+    float fX(float x, float deltaX, float t) {
+      return x + deltaX * t;
     }
 
-    float f_y(float y, float delta_y, float t) {
-      return y + delta_y * t;
+    float fY(float y, float deltaY, float t) {
+      return y + deltaY * t;
     }
 
-    float scale_weight(float weight) {
-      float min_radius = 1.;
-      float max_radius = 10.;
+    float scaleWeight(float weight) {
+      float minRadius = 1.;
+      float maxRadius = 10.;
 
-      float min_weight = 1.;
-      float max_weight = 160.;
+      float minReight = 1.;
+      float maxReight = 160.;
 
       return min(10.,weight);
-      //return min_radius * pow(max_radius/min_radius, (weight - min_weight) / (max_weight - min_weight));
     }
 
     void main() {
-      float fx = f_x(h_point.x, w_point.x - h_point.x, aTime);
-      float fy = f_y(h_point.y, w_point.y - h_point.y, aTime);
+      float fx = fX(hCentroid.x, wCentroid.x - hCentroid.x, aTime);
+      float fy = fY(hCentroid.y, wCentroid.y - hCentroid.y, aTime);
 
-      gl_Position = mapMatrix * vec4(fx, fy, 0, 1);
-      //gl_PointSize = weight;
-      //gl_PointSize = min(10.,weight);//
-      gl_PointSize = uSize * scale_weight(weight);
+      if (filterDist) {
+        if (aDist > uDist) {
+          gl_Position = vec4(-1.,-1.,-1.,-1.);
+        } else {
+          gl_Position = mapMatrix * vec4(fx, fy, 0, 1);
+
+        }
+      } else {
+        gl_Position = mapMatrix * vec4(fx, fy, 0, 1);
+      }
+      gl_PointSize = uSize * scaleWeight(aS000);
+
+      vSe01 = aSe01;
+      vSe02 = aSe02;
+      vSe03 = aSe03;
     }
   </script>
   <script id="point-fragment-shader" type="x-shader/x-fragment">
     precision mediump float;
+
+    uniform bool showEarnings;
+
+    varying float vSe01;
+    varying float vSe02;
+    varying float vSe03;
 
     vec4 setColor(vec4 color, float dist, float hardFraction) {
       return color * clamp((0.5 - dist) / (0.5 - 0.5 * hardFraction), 0., 1.);
@@ -95,13 +121,16 @@
     var pixelsToWebGLMatrix = new Float32Array(16);
     var mapMatrix = new Float32Array(16);
 
+    var uDist = 10000.;
+    var filterDist = false;
+    var showEarnings = false;
 
     /**
     * Latitude-longitude-date data is a series of 2 32-bit floats and 1 32-bit integer little-endian encoded.
     * Each lat-lng-date grouping represents a well.
     */
 
-    var dataURL = "pa_od_main_jt00_2011.bin";
+    var dataURL = "pa_od_main_jt00_2011-dist-and-earnings.bin";
 
     function load(url) {
       var xhr = new XMLHttpRequest();
@@ -115,29 +144,45 @@
     }
 
     function setData(buffer) {
-      pointCount = buffer.length / 5;
+      pointCount = buffer.length / 9;
 
       data = buffer;
       arrayBuffer = gl.createBuffer();
       gl.bindBuffer(gl.ARRAY_BUFFER, arrayBuffer);
       gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
 
-      var attributeLoc = gl.getAttribLocation(program, 'w_point');
+      var attributeLoc = gl.getAttribLocation(program, 'wCentroid');
       gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 20, 0);
+      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 36, 0);
 
-      var attributeLoc = gl.getAttribLocation(program, 'h_point');
+      var attributeLoc = gl.getAttribLocation(program, 'hCentroid');
       gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 20, 8);
+      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 36, 8);
 
-      var attributeLoc = gl.getAttribLocation(program, 'weight');
+      var attributeLoc = gl.getAttribLocation(program, 'aDist');
       gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 20, 16);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 36, 16);
+
+      var attributeLoc = gl.getAttribLocation(program, 'aS000');
+      gl.enableVertexAttribArray(attributeLoc);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 36, 20);
+
+      var attributeLoc = gl.getAttribLocation(program, 'aSe01');
+      gl.enableVertexAttribArray(attributeLoc);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 36, 24);
+
+      var attributeLoc = gl.getAttribLocation(program, 'aSe02');
+      gl.enableVertexAttribArray(attributeLoc);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 36, 28);
+
+      var attributeLoc = gl.getAttribLocation(program, 'aSe03');
+      gl.enableVertexAttribArray(attributeLoc);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 36, 32);
 
       ready = true;
     }
 
-    var totalTime = 30 * 1000;
+    var totalTime = 2 * 1000;
     var startDwell = 2 * 1000;
     var endDwell = 2 * 1000;
     var then = new Date();
@@ -145,8 +190,11 @@
     var inStartDwell = true;
     var inEndDwell = false;
     var countryPointSizePixels = 1;
-    var blockPointSizePixels = 25;
+    var blockPointSizePixels = 15;
     var pointSize;
+    var doPulse = false;
+    var pulse  = false;
+
 
     function draw(transform) {
       if (ready) {
@@ -157,44 +205,27 @@
         var now = new Date();
         // Subtract the previous time from the current time
         var deltaTime = now.getTime() - then.getTime();//
-
-        if (inMainLoop) {
-          if (deltaTime < totalTime) {
-            var step = deltaTime/totalTime;
-          } else {
-            deltaTime = 0;
-            then = new Date();
-            inMainLoop = false;
-            inEndDwell = true;
+        if (deltaTime < totalTime) {
+          var step = deltaTime/totalTime;
+        } else {
+          deltaTime = 0;
+          then = new Date();
+          if (doPulse) {
+            pulse = !pulse;
           }
         }
 
-        if (inStartDwell){
-          if (deltaTime < startDwell) {
-            var step = 0.;
-          } else {
-            deltaTime = 0;
-            then = new Date();
-            inMainLoop = true;
-            inStartDwell = false;
+        if (doPulse) {
+          if (pulse) {
+            step = 1. - step;
           }
+        } else {
+          pulse = false;
         }
 
-        if (inEndDwell){
-          if (deltaTime < endDwell) {
-            var step = 1.;
-          } else {
-            deltaTime = 0;
-            then = new Date();
-            var step = 0;
-            inStartDwell = true;
-            inEndDwell = false;
-
-          }
-        }
+        step = Math.min(Math.max(step, 0.),1.);
 
         pointSize = countryPointSizePixels * Math.pow(blockPointSizePixels / countryPointSizePixels, (map.zoom - 7) / (21 - 7));
-
 
         var aTime = gl.getAttribLocation(program, "aTime");
         gl.vertexAttrib1f(aTime, step);
@@ -205,22 +236,48 @@
         var zoomLoc = gl.getUniformLocation(program, 'uZoom');
         gl.uniform1f(zoomLoc, map.zoom);
 
+        var filterDistLoc = gl.getUniformLocation(program, 'filterDist');
+        gl.uniform1i(filterDistLoc, filterDist);
+
+        var showEarningsLoc = gl.getUniformLocation(program, 'showEarnings');
+        gl.uniform1i(showEarningsLoc, showEarnings);
+
         var matrixLoc = gl.getUniformLocation(program, 'mapMatrix');
         gl.uniformMatrix4fv(matrixLoc, false, transform);
 
+        var uDistLoc = gl.getUniformLocation(program, 'uDist');
+        gl.uniform1f(uDistLoc, uDist);
+
+
         gl.bindBuffer(gl.ARRAY_BUFFER, arrayBuffer);
 
-        var attributeLoc = gl.getAttribLocation(program, 'w_point');
+        var attributeLoc = gl.getAttribLocation(program, 'wCentroid');
         gl.enableVertexAttribArray(attributeLoc);
-        gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 20, 0);
+        gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 36, 0);
 
-        var attributeLoc = gl.getAttribLocation(program, 'h_point');
+        var attributeLoc = gl.getAttribLocation(program, 'hCentroid');
         gl.enableVertexAttribArray(attributeLoc);
-        gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 20, 8);
+        gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 36, 8);
 
-        var attributeLoc = gl.getAttribLocation(program, 'weight');
+        var attributeLoc = gl.getAttribLocation(program, 'aDist');
         gl.enableVertexAttribArray(attributeLoc);
-        gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 20, 16);
+        gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 36, 16);
+
+        var attributeLoc = gl.getAttribLocation(program, 'aS000');
+        gl.enableVertexAttribArray(attributeLoc);
+        gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 36, 20);
+
+        var attributeLoc = gl.getAttribLocation(program, 'aSe01');
+        gl.enableVertexAttribArray(attributeLoc);
+        gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 36, 24);
+
+        var attributeLoc = gl.getAttribLocation(program, 'aSe02');
+        gl.enableVertexAttribArray(attributeLoc);
+        gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 36, 28);
+
+        var attributeLoc = gl.getAttribLocation(program, 'aSe03');
+        gl.enableVertexAttribArray(attributeLoc);
+        gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 36, 32);
 
         gl.drawArrays(gl.POINTS, 0, pointCount);
       }
