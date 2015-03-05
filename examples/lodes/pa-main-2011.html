@@ -19,6 +19,7 @@
   <script type="text/javascript" src="../../js/utils.js"></script>
   <script type="text/javascript" src="../../js/stats.min.js"></script>
   <script type="text/javascript" src="../webgl-timemachine/Glb.js"></script>
+  <script src="dat.gui.min.js"></script>
   <script id="point-vertex-shader" type="x-shader/x-vertex">
     attribute vec2 hCentroid; // Centroid of the residence census block
     attribute vec2 wCentroid; // Centroid of the workplace census block
@@ -64,7 +65,7 @@
       float fy = fY(hCentroid.y, wCentroid.y - hCentroid.y, aTime);
 
       if (filterDist) {
-        if (aDist > uDist) {
+        if (aDist >= uDist) {
           gl_Position = vec4(-1.,-1.,-1.,-1.);
         } else {
           gl_Position = mapMatrix * vec4(fx, fy, 0, 1);
@@ -125,6 +126,27 @@
     var filterDist = false;
     var showEarnings = false;
 
+    var gui;
+    var lodesOptions;
+
+    var LodesOptions = function() {
+      this.doPulse = false;
+      this.totalTime = 5000;
+      this.filterDist = false;
+      this.uDist = 10000.;
+    };
+    function initGui() {
+      lodesOptions = new LodesOptions();
+      var gui = new dat.GUI();
+      gui.add(lodesOptions,'doPulse');
+      gui.add(lodesOptions, 'totalTime', 1000, 30000).step(1000);
+      var f2 = gui.addFolder('Distance');
+      f2.add(lodesOptions, 'filterDist');
+      f2.add(lodesOptions, 'uDist',0,500000);
+    }
+
+
+
     /**
     * Latitude-longitude-date data is a series of 2 32-bit floats and 1 32-bit integer little-endian encoded.
     * Each lat-lng-date grouping represents a well.
@@ -182,7 +204,7 @@
       ready = true;
     }
 
-    var totalTime = 2 * 1000;
+    //var totalTime = 2 * 1000;
     var startDwell = 2 * 1000;
     var endDwell = 2 * 1000;
     var then = new Date();
@@ -192,7 +214,7 @@
     var countryPointSizePixels = 1;
     var blockPointSizePixels = 15;
     var pointSize;
-    var doPulse = false;
+    //var doPulse = false;
     var pulse  = false;
 
 
@@ -205,17 +227,17 @@
         var now = new Date();
         // Subtract the previous time from the current time
         var deltaTime = now.getTime() - then.getTime();//
-        if (deltaTime < totalTime) {
-          var step = deltaTime/totalTime;
+        if (deltaTime < lodesOptions.totalTime) {
+          var step = deltaTime/lodesOptions.totalTime;
         } else {
           deltaTime = 0;
           then = new Date();
-          if (doPulse) {
+          if (lodesOptions.doPulse) {
             pulse = !pulse;
           }
         }
 
-        if (doPulse) {
+        if (lodesOptions.doPulse) {
           if (pulse) {
             step = 1. - step;
           }
@@ -237,7 +259,7 @@
         gl.uniform1f(zoomLoc, map.zoom);
 
         var filterDistLoc = gl.getUniformLocation(program, 'filterDist');
-        gl.uniform1i(filterDistLoc, filterDist);
+        gl.uniform1i(filterDistLoc, lodesOptions.filterDist);
 
         var showEarningsLoc = gl.getUniformLocation(program, 'showEarnings');
         gl.uniform1i(showEarningsLoc, showEarnings);
@@ -246,7 +268,7 @@
         gl.uniformMatrix4fv(matrixLoc, false, transform);
 
         var uDistLoc = gl.getUniformLocation(program, 'uDist');
-        gl.uniform1f(uDistLoc, uDist);
+        gl.uniform1f(uDistLoc, lodesOptions.uDist);
 
 
         gl.bindBuffer(gl.ARRAY_BUFFER, arrayBuffer);
@@ -384,6 +406,7 @@
 
     function init() {
       initMap();
+      initGui();
       document.body.appendChild(stats.domElement);
     }
 
