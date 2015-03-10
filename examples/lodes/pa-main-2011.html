@@ -146,7 +146,7 @@
 
     var LodesOptions = function() {
       this.doPulse = false;
-      this.totalTime = 5000;
+      this.totalTime = 1000;
       this.dwellTime = 1000;
       this.filterDist = false;
       this.uDist = 10000.;
@@ -163,7 +163,7 @@
       var f1 = gui.addFolder('Animation');
       f1.add(lodesOptions, 'animate', { animate: 'animate', home: 'home', work: 'work' } );
       f1.add(lodesOptions,'doPulse');
-      f1.add(lodesOptions, 'totalTime', 1000, 30000).step(1000);
+      f1.add(lodesOptions, 'totalTime', 1000, 30000).step(500);
       f1.add(lodesOptions, 'dwellTime', 0, 2000).step(100);
       var f2 = gui.addFolder('Distance');
       f2.add(lodesOptions, 'filterDist');
