@@ -9,6 +9,16 @@
     padding: 0;
     height: 100%;
   }
+  #loading {
+    background: url(../../images/loading.gif) no-repeat center;
+    pointer-events: none;
+    position: absolute;
+    height: 50px;
+    width: 50px;
+    z-index: 100;
+    top: 50%;
+    left: 50%;
+  }
   </style>
   <link href="../../css/jquery-ui/smoothness/jquery-ui.custom.css" media="screen" rel="stylesheet" type="text/css" />
   <link href="../../css/defaultUI.css" media="screen" rel="stylesheet" type="text/css"></link>
@@ -188,12 +198,15 @@
     var dataURL = "pa_od_main_jt00_2011-all-points-randomized.bin";
 
     function load(url) {
+      //console.log("Loading...");
       var xhr = new XMLHttpRequest();
       xhr.open('GET', url);
       xhr.responseType = 'arraybuffer';
       xhr.onload = function() {
         var float32Array = new Float32Array(this.response);
         setData(float32Array);
+        var el = document.getElementById("loading");
+        el.style['display'] = 'none';
       }
       xhr.send();
     }
@@ -489,5 +502,6 @@
   </head>
   <body>
     <div id="map-div"></div>
+    <div id="loading"></div>
   </body>
 </html>
