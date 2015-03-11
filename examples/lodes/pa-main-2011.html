@@ -145,12 +145,12 @@
     var lodesOptions;
 
     var LodesOptions = function() {
-      this.doPulse = false;
+      this.doPulse = true;
       this.totalTime = 1000;
       this.dwellTime = 1000;
-      this.filterDist = false;
-      this.uDist = 10000.;
-      this.animate = 'home';
+      this.filterDist = true;
+      this.uDist = 5000.;
+      this.animate = 'animate';
       this.se01 = true;
       this.se02 = true;
       this.se03 = true;
@@ -165,15 +165,17 @@
       f1.add(lodesOptions,'doPulse');
       f1.add(lodesOptions, 'totalTime', 1000, 30000).step(500);
       f1.add(lodesOptions, 'dwellTime', 0, 2000).step(100);
+      f1.open();
       var f2 = gui.addFolder('Distance');
       f2.add(lodesOptions, 'filterDist');
       f2.add(lodesOptions, 'uDist',0,500000);
-      var f2 = gui.addFolder('Earnings');
-      f2.add(lodesOptions, 'se01');
-      f2.add(lodesOptions, 'se02');
-      f2.add(lodesOptions, 'se03');
-      f2.add(lodesOptions, 'showEarnings');
-
+      f2.open();
+      var f3 = gui.addFolder('Earnings');
+      f3.add(lodesOptions, 'se01');
+      f3.add(lodesOptions, 'se02');
+      f3.add(lodesOptions, 'se03');
+      f3.add(lodesOptions, 'showEarnings');
+      f3.open();
     }
 
 
