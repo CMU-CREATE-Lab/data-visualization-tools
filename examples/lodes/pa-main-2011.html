@@ -92,8 +92,6 @@
   <script id="point-fragment-shader" type="x-shader/x-fragment">
     precision mediump float;
 
-    uniform bool showEarnings;
-
     varying float vSe01;
     varying float vSe02;
     varying float vSe03;
@@ -110,16 +108,14 @@
       //float dist = length(gl_PointCoord.xy - vec2(.5,.5));
       //gl_FragColor = setColor(color, dist, .4);
 
-      if (showEarnings) {
-        if (vSe01 > 0.) {
-          color = se01Color;
-        }
-        if (vSe02 > 0.) {
-          color = se02Color;
-        }
-        if (vSe03 > 0.) {
-          color = se03Color;
-        }
+      if (vSe01 > 0.) {
+        color = se01Color;
+      }
+      if (vSe02 > 0.) {
+        color = se02Color;
+      }
+      if (vSe03 > 0.) {
+        color = se03Color;
       }
       gl_FragColor = color;
     }
@@ -149,7 +145,6 @@
 
     var uDist = 10000.;
     var filterDist = false;
-    var showEarnings = false;
 
     var gui;
     var lodesOptions;
@@ -164,8 +159,6 @@
       this.se01 = true;
       this.se02 = true;
       this.se03 = true;
-      this.showEarnings = true;
-
     };
     function initGui() {
       lodesOptions = new LodesOptions();
@@ -184,7 +177,6 @@
       f3.add(lodesOptions, 'se01');
       f3.add(lodesOptions, 'se02');
       f3.add(lodesOptions, 'se03');
-      f3.add(lodesOptions, 'showEarnings');
       f3.open();
     }
 
@@ -335,9 +327,6 @@
         var filterDistLoc = gl.getUniformLocation(program, 'filterDist');
         gl.uniform1i(filterDistLoc, lodesOptions.filterDist);
 
-        var showEarningsLoc = gl.getUniformLocation(program, 'showEarnings');
-        gl.uniform1i(showEarningsLoc, lodesOptions.showEarnings);
-
         var showSe01Loc = gl.getUniformLocation(program, 'showSe01');
         gl.uniform1i(showSe01Loc, lodesOptions.se01);
 
@@ -453,7 +442,7 @@
           },{
             "featureType": "poi",
             "stylers": [
-              { "visibility": "off" }
+              { "visibility": "on" }
             ]
           },{
             "featureType": "landscape",
