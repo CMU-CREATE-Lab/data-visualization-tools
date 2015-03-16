@@ -31,15 +31,11 @@
   <script type="text/javascript" src="../webgl-timemachine/Glb.js"></script>
   <script src="dat.gui.min.js"></script>
   <script id="point-vertex-shader" type="x-shader/x-vertex">
-    attribute vec2 hCentroid; // Centroid of the residence census block
-    attribute vec2 wCentroid; // Centroid of the workplace census block
+    attribute vec4 centroid; // vector of the centroids of the work and residence census block
 
     attribute float aTime;
-    //attribute float aS000; // Total number of jobs
     attribute float aDist; // Distance in meters between workplace and residence centroids
-    attribute float aSe01; // Number of jobs with earnings $1250/month or less
-    attribute float aSe02; // Number of jobs with earnings $1251/month to $3333/month
-    attribute float aSe03; // Number of jobs with earnings greater than $3333/month
+    attribute float aColor;
 
     uniform bool filterDist;
     uniform bool showSe01;
@@ -51,9 +47,7 @@
     uniform float uZoom;
     uniform mat4 mapMatrix;
 
-    varying float vSe01;
-    varying float vSe02;
-    varying float vSe03;
+    varying float vColor;
 
     float fX(float x, float deltaX, float t) {
       return x + deltaX * t;
@@ -64,60 +58,48 @@
     }
 
     void main() {
-      float fx = fX(hCentroid.x, wCentroid.x - hCentroid.x, aTime);
-      float fy = fY(hCentroid.y, wCentroid.y - hCentroid.y, aTime);
+      float fx = fX(centroid.z, centroid.x - centroid.z, aTime);
+      float fy = fY(centroid.w, centroid.y - centroid.w, aTime);
 
       vec4 position = mapMatrix * vec4(fx, fy, 0, 1);
 
       if (filterDist && aDist >= uDist) {
           position = vec4(-1.,-1.,-1.,-1.);
       }
-      if (!showSe01 && aSe01 > 0.) {
+      if (!showSe01 && aColor == 7662612.) {
         position = vec4(-1.,-1.,-1.,-1.);
       }
-      if (!showSe02 && aSe02 > 0.) {
+      if (!showSe02 && aColor == 14767430.) {
         position = vec4(-1.,-1.,-1.,-1.);
       }
-      if (!showSe03 && aSe03 > 0.) {
+      if (!showSe03 && aColor == 1981923.) {
         position = vec4(-1.,-1.,-1.,-1.);
       }
       gl_Position = position;
       gl_PointSize = uSize;
 
-      vSe01 = aSe01;
-      vSe02 = aSe02;
-      vSe03 = aSe03;
+      vColor = aColor;
     }
   </script>
   <script id="point-fragment-shader" type="x-shader/x-fragment">
-    precision mediump float;
+    precision lowp float;
 
-    varying float vSe01;
-    varying float vSe02;
-    varying float vSe03;
+    varying float vColor;
 
     vec4 setColor(vec4 color, float dist, float hardFraction) {
       return color * clamp((0.5 - dist) / (0.5 - 0.5 * hardFraction), 0., 1.);
     }
 
-    void main() {
-      vec4 se01Color = vec4(.08,.45,.92,.45);
-      vec4 se02Color = vec4(.14,.75,.18,.45);
-      vec4 se03Color = vec4(.89,.12,.24,.45);
-      vec4 color = vec4(.08,.55,.08,1.);
-      //float dist = length(gl_PointCoord.xy - vec2(.5,.5));
-      //gl_FragColor = setColor(color, dist, .4);
+    vec3 unpackColor(float f) {
+      vec3 color;
+      color.b = floor(f / 256.0 / 256.0);
+      color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);
+      color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);
+      return color / 256.0;
+    }
 
-      if (vSe01 > 0.) {
-        color = se01Color;
-      }
-      if (vSe02 > 0.) {
-        color = se02Color;
-      }
-      if (vSe03 > 0.) {
-        color = se03Color;
-      }
-      gl_FragColor = color;
+    void main() {
+      gl_FragColor = vec4(unpackColor(vColor),.45);
     }
   </script>
 
@@ -143,9 +125,6 @@
     var pixelsToWebGLMatrix = new Float32Array(16);
     var mapMatrix = new Float32Array(16);
 
-    var uDist = 10000.;
-    var filterDist = false;
-
     var gui;
     var lodesOptions;
 
@@ -154,7 +133,7 @@
       this.totalTime = 1000;
       this.dwellTime = 1000;
       this.filterDist = true;
-      this.uDist = 5000.;
+      this.uDist = 10000.;
       this.animate = 'animate';
       this.se01 = true;
       this.se02 = true;
@@ -187,7 +166,7 @@
     * Each lat-lng-date grouping represents a well.
     */
 
-    var dataURL = "pa_od_main_jt00_2011-all-points-randomized.bin";
+    var dataURL = "pa_od_main_jt00_2011-all-points-randomized-01.bin";
 
     function load(url) {
       //console.log("Loading...");
@@ -204,40 +183,24 @@
     }
 
     function setData(buffer) {
-      pointCount = buffer.length / 9;
+      pointCount = buffer.length / 6;
 
       data = buffer;
       arrayBuffer = gl.createBuffer();
       gl.bindBuffer(gl.ARRAY_BUFFER, arrayBuffer);
       gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
 
-      var attributeLoc = gl.getAttribLocation(program, 'wCentroid');
+      var attributeLoc = gl.getAttribLocation(program, 'centroid');
       gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 36, 0);
-
-      var attributeLoc = gl.getAttribLocation(program, 'hCentroid');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 36, 8);
+      gl.vertexAttribPointer(attributeLoc, 4, gl.FLOAT, false, 24, 0);
 
       var attributeLoc = gl.getAttribLocation(program, 'aDist');
       gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 36, 16);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 16);
 
-      //var attributeLoc = gl.getAttribLocation(program, 'aS000');
-      //gl.enableVertexAttribArray(attributeLoc);
-      //gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 36, 20);
-
-      var attributeLoc = gl.getAttribLocation(program, 'aSe01');
+      var attributeLoc = gl.getAttribLocation(program, 'aColor');
       gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 36, 24);
-
-      var attributeLoc = gl.getAttribLocation(program, 'aSe02');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 36, 28);
-
-      var attributeLoc = gl.getAttribLocation(program, 'aSe03');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 36, 32);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 20);
 
       ready = true;
     }
@@ -345,33 +308,17 @@
 
         gl.bindBuffer(gl.ARRAY_BUFFER, arrayBuffer);
 
-        var attributeLoc = gl.getAttribLocation(program, 'wCentroid');
+        var attributeLoc = gl.getAttribLocation(program, 'centroid');
         gl.enableVertexAttribArray(attributeLoc);
-        gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 36, 0);
-
-        var attributeLoc = gl.getAttribLocation(program, 'hCentroid');
-        gl.enableVertexAttribArray(attributeLoc);
-        gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 36, 8);
+        gl.vertexAttribPointer(attributeLoc, 4, gl.FLOAT, false, 24, 0);
 
         var attributeLoc = gl.getAttribLocation(program, 'aDist');
         gl.enableVertexAttribArray(attributeLoc);
-        gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 36, 16);
+        gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 16);
 
-        //var attributeLoc = gl.getAttribLocation(program, 'aS000');
-        //gl.enableVertexAttribArray(attributeLoc);
-        //gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 36, 20);
-
-        var attributeLoc = gl.getAttribLocation(program, 'aSe01');
+        var attributeLoc = gl.getAttribLocation(program, 'aColor');
         gl.enableVertexAttribArray(attributeLoc);
-        gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 36, 24);
-
-        var attributeLoc = gl.getAttribLocation(program, 'aSe02');
-        gl.enableVertexAttribArray(attributeLoc);
-        gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 36, 28);
-
-        var attributeLoc = gl.getAttribLocation(program, 'aSe03');
-        gl.enableVertexAttribArray(attributeLoc);
-        gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 36, 32);
+        gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 20);
 
         gl.drawArrays(gl.POINTS, 0, pointCount);
       }
