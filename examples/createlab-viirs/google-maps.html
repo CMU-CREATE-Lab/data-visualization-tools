@@ -250,9 +250,7 @@
 
       var dataURL = 'createlab-viirs-uncorrected-02.bin';
       var pointCount;
-      var pointData;
-      var timeData;
-      var tempData;
+      var data;
       var dataLoaded = false;
       var pixelsToWebGLMatrix = new Float32Array(16);
       var mapMatrix = new Float32Array(16);
@@ -265,69 +263,35 @@
       var timeSlider;
       var animate = false;
 
+
       function loadData(arrayBuffer, exception) {
-        var dataView = new DataView(arrayBuffer);
-        var len = dataView.byteLength / Float32Array.BYTES_PER_ELEMENT;
+        data = new Float32Array(arrayBuffer);
 
-        pointCount = dataView.byteLength / (Float32Array.BYTES_PER_ELEMENT * 4);
-        pointData = new Float32Array(pointCount*2);
-        timeData = new Float32Array(pointCount);
-        tempData = new Float32Array(pointCount);
+        pointCount = data.length/4;
 
-        // Incoming data is raw floating point values
-        // with little-endian byte ordering.
-        for (var i = 0; i < len; i += 4) {
-          var x = dataView.getFloat32(i * Float32Array.BYTES_PER_ELEMENT, true);
-          var y = dataView.getFloat32((i + 1) * Float32Array.BYTES_PER_ELEMENT, true);
-          var date = dataView.getFloat32((i + 2) * Float32Array.BYTES_PER_ELEMENT, true);
-          var temp = dataView.getFloat32((i + 3) * Float32Array.BYTES_PER_ELEMENT, true);
-          var offset = i/4;
-          pointData[2*offset] = x;
-          pointData[2*offset + 1] = y;
-
-          timeData[offset] = date;
-          tempData[offset] = temp;
-        }
-        // TODO: refactor loadArrayBuffer to take a callback
-        loadDataCallback(null);
-      }
-
-      function loadDataCallback(err) {
-        if (err) {
-          console.log(err);
-        } else {
-          var el = document.getElementById("loading");
-          el.style['display'] = 'none';
-          createWebGLBuffers();
-        }
+        var el = document.getElementById("loading");
+        el.style['display'] = 'none';
+        createWebGLBuffers();
       }
 
       function createWebGLBuffers() {
-        pointArrayBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, pointArrayBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, pointData, gl.STATIC_DRAW);
+        arrayBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, arrayBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
 
         // enable the 'worldCoord' attribute in the shader to receive buffer
         var attributeLoc = gl.getAttribLocation(pointProgram, 'worldCoord');
         gl.enableVertexAttribArray(attributeLoc);
         // tell webgl how buffer is laid out (pairs of x,y coords)
-        gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 0, 0);
-
-        timeArrayBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, timeArrayBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, timeData, gl.STATIC_DRAW);
+        gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 16, 0);
 
         var timeLocation = gl.getAttribLocation(pointProgram, "time");
         gl.enableVertexAttribArray(timeLocation);
-        gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 0, 0);
-
-        tempArrayBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, tempArrayBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, tempData, gl.STATIC_DRAW);
+        gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 16, 8);
 
         var tempLocation = gl.getAttribLocation(pointProgram, "temp");
         gl.enableVertexAttribArray(tempLocation);
-        gl.vertexAttribPointer(tempLocation, 1, gl.FLOAT, false, 0, 0);
+        gl.vertexAttribPointer(tempLocation, 1, gl.FLOAT, false, 16, 12);
 
         dataLoaded = true;
         timeSlider.play();
