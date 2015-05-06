@@ -248,7 +248,7 @@
       stats.domElement.style.top = '0px';
       /* end stats */
 
-      var dataURL = 'https://data.cmucreatelab.org/createlab-viirs/createlab-viirs-w-temp.bin';
+      var dataURL = 'createlab-viirs-uncorrected-02.bin';
       var pointCount;
       var pointData;
       var timeData;
@@ -277,14 +277,13 @@
         // Incoming data is raw floating point values
         // with little-endian byte ordering.
         for (var i = 0; i < len; i += 4) {
-          var lat = dataView.getFloat32(i * Float32Array.BYTES_PER_ELEMENT, true);
-          var lng = dataView.getFloat32((i + 1) * Float32Array.BYTES_PER_ELEMENT, true);
+          var x = dataView.getFloat32(i * Float32Array.BYTES_PER_ELEMENT, true);
+          var y = dataView.getFloat32((i + 1) * Float32Array.BYTES_PER_ELEMENT, true);
           var date = dataView.getFloat32((i + 2) * Float32Array.BYTES_PER_ELEMENT, true);
           var temp = dataView.getFloat32((i + 3) * Float32Array.BYTES_PER_ELEMENT, true);
           var offset = i/4;
-          var pixel = LatLongToPixelXY(lat, lng);
-          pointData[2*offset] = pixel.x;
-          pointData[2*offset + 1] = pixel.y;
+          pointData[2*offset] = x;
+          pointData[2*offset + 1] = y;
 
           timeData[offset] = date;
           tempData[offset] = temp;
@@ -404,8 +403,8 @@
         tdl.io.loadArrayBuffer(dataURL, loadData);
 
         timeSlider = new TimeSlider({
-          startTime: new Date('2013-02-06').getTime(),
-          endTime: new Date('2014-03-09').getTime(),
+          startTime: new Date('2014-03-14').getTime(),
+          endTime: new Date('2015-04-03').getTime(),
           increment: 60*60*24*1000,
           span: 24*60*60*30*1000,
           formatCurrentTime: function(date) {
@@ -559,7 +558,7 @@
   <body>
     <div id="title">
       <div style="font-size: 20px">Fires at night, from space</div>
-      <div style="font-size: 12px">March 2013 to March 2014</div>
+      <div style="font-size: 12px">April 2014 to April 2015</div>
       <div style="font-size: 12px" id="opener">More info</div>
     </div>
     <div id="map-div"></div>
@@ -664,7 +663,7 @@
       <script src="../../js/rrssb.min.js"></script>
 
     </div>
-    <div id="dialog" title="Fires at night from space: March 2013 to March 2014">
+    <div id="dialog" title="Fires at night from space: April 2014 to April 2015">
       <p> The <a href="http://npp.gsfc.nasa.gov/viirs.html" target="_blank">VIIRS scanning radiometer</a> aboard the <a href="http://npp.gsfc.nasa.gov/suomi.html" target="_blank">Suomi-NPP satelite</a> measures fires from space daily.</p>
       <p>Each animated frame represents 30 days of fires up to the displayed date.  VIIRS detects a wide variety of fires, including wildfires, volcanoes, refineries, flares from oil and gas extraction, and <a href="http://www.cfc.umt.edu/rattan/pdfs/Swidden%20agriculture.pdf" target="_blank">swidden agriculture</a>.</p>
       <p><a href="http://ngdc.noaa.gov/eog/viirs/download_viirs_fire.html" target="_blank">Original data @ NOAA</a>
