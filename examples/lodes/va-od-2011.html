@@ -1,0 +1,508 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>PA Main 2011</title>
+  <style>
+  html, body, #map-div {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
+  #loading {
+    background: url(../../images/loading.gif) no-repeat center;
+    pointer-events: none;
+    position: absolute;
+    height: 50px;
+    width: 50px;
+    z-index: 100;
+    top: 50%;
+    left: 50%;
+  }
+  #se01-color {
+      position: absolute;
+      width: 24px;
+      height: 12px;
+      top: 205px;
+      right: 112px;
+      background-color: #194BFF;
+      z-index: 100;
+  }
+  #se02-color {
+      position: absolute;
+      width: 24px;
+      height: 12px;
+      top: 233px;
+      right: 112px;
+      background-color: #148A09;
+      z-index: 100;
+  }
+  #se03-color {
+      position: absolute;
+      width: 24px;
+      height: 12px;
+      top: 261px;
+      right: 112px;
+      background-color: #E31E1E;
+      z-index: 100;
+  }
+
+  </style>
+  <link href="../../css/jquery-ui/smoothness/jquery-ui.custom.css" media="screen" rel="stylesheet" type="text/css" />
+  <link href="../../css/defaultUI.css" media="screen" rel="stylesheet" type="text/css"></link>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <script src="../../js/jquery/jquery-ui.custom.min.js" type="text/javascript"></script>
+  <script src="http://maps.googleapis.com/maps/api/js?sensor=false&v=3.20"></script>
+  <script type="text/javascript" src="../../js/CanvasLayer.js"></script>
+  <script type="text/javascript" src="../../js/utils.js"></script>
+  <script type="text/javascript" src="../../js/stats.min.js"></script>
+  <script type="text/javascript" src="../webgl-timemachine/Glb.js"></script>
+  <script src="dat.gui.min.js"></script>
+  <script id="point-vertex-shader" type="x-shader/x-vertex">
+    attribute vec4 centroid; // vector of the centroids of the work and residence census block
+
+    attribute float aTime;
+    attribute float aDist; // Distance in meters between workplace and residence centroids
+    attribute float aColor;
+
+    uniform bool filterDist;
+    uniform bool showSe01;
+    uniform bool showSe02;
+    uniform bool showSe03;
+
+    uniform float uDist;
+    uniform float uSize;
+    uniform float uZoom;
+    uniform mat4 mapMatrix;
+
+    varying float vColor;
+
+    float fX(float x, float deltaX, float t) {
+      return x + deltaX * t;
+    }
+
+    float fY(float y, float deltaY, float t) {
+      return y + deltaY * t;
+    }
+
+    void main() {
+      float fx = fX(centroid.z, centroid.x - centroid.z, aTime);
+      float fy = fY(centroid.w, centroid.y - centroid.w, aTime);
+
+      vec4 position = mapMatrix * vec4(fx, fy, 0, 1);
+
+      if (filterDist && aDist >= uDist) {
+          position = vec4(-1.,-1.,-1.,-1.);
+      }
+      if (!showSe01 && aColor == 16730905.) {
+        position = vec4(-1.,-1.,-1.,-1.);
+      }
+      if (!showSe02 && aColor == 625172.) {
+        position = vec4(-1.,-1.,-1.,-1.);
+      }
+      if (!showSe03 && aColor == 1973987.) {
+        position = vec4(-1.,-1.,-1.,-1.);
+      }
+      gl_Position = position;
+      gl_PointSize = uSize;
+
+      vColor = aColor;
+    }
+  </script>
+  <script id="point-fragment-shader" type="x-shader/x-fragment">
+    precision lowp float;
+
+    varying float vColor;
+
+    vec4 setColor(vec4 color, float dist, float hardFraction) {
+      return color * clamp((0.5 - dist) / (0.5 - 0.5 * hardFraction), 0., 1.);
+    }
+
+    vec3 unpackColor(float f) {
+      vec3 color;
+      color.b = floor(f / 256.0 / 256.0);
+      color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);
+      color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);
+      return color / 256.0;
+    }
+
+    void main() {
+      gl_FragColor = vec4(unpackColor(vColor),.45);
+    }
+  </script>
+
+  <script>
+    /* begin stats */
+    var stats = new Stats();
+    stats.setMode(0); // 0: fps, 1: ms
+    // Align top-left
+    stats.domElement.style.position = 'absolute';
+    stats.domElement.style.left = '0px';
+    stats.domElement.style.top = '0px';
+    /* end stats */
+
+    var map;
+    var canvasLayer;
+    var gl;
+    var pointCount;
+    var data;
+    var arrayBuffer;
+    var ready;
+    var program;
+    var glb;
+    var pixelsToWebGLMatrix = new Float32Array(16);
+    var mapMatrix = new Float32Array(16);
+
+    var gui;
+    var lodesOptions;
+
+    var LodesOptions = function() {
+      this.doPulse = true;
+      this.totalTime = 1000;
+      this.dwellTime = 1000;
+      this.filter = true;
+      this.distance = 10.;
+      this.animate = 'animate';
+      this.speed = 1;
+      this.se01 = true;
+      this.se02 = true;
+      this.se03 = true;
+    };
+    function initGui() {
+      lodesOptions = new LodesOptions();
+      var gui = new dat.GUI();
+      var f1 = gui.addFolder('Animation');
+      f1.add(lodesOptions, 'animate', { animate: 'animate', home: 'home', work: 'work' } );
+      f1.add(lodesOptions, 'speed', { fast: 1, medium: 3, slow: 5});
+      f1.open();
+      var f2 = gui.addFolder('Distance in KM');
+      f2.add(lodesOptions, 'filter');
+      f2.add(lodesOptions, 'distance',10,500);
+      f2.open();
+      var f3 = gui.addFolder('Earnings per Month');
+      f3.add(lodesOptions, 'se01').name('< $1251');
+      f3.add(lodesOptions, 'se02').name('$1251 - $3333');
+      f3.add(lodesOptions, 'se03').name('> $3333');
+      f3.open();
+      f3.onResize = function() {
+          var el1 = document.getElementById("se01-color");
+          var el2 = document.getElementById("se02-color");
+          var el3 = document.getElementById("se03-color");
+
+          if (f3.closed) {
+              el1.style['display'] = 'none';
+              el2.style['display'] = 'none';
+              el3.style['display'] = 'none';
+          } else {
+              el1.style['display'] = 'block';
+              el2.style['display'] = 'block';
+              el3.style['display'] = 'block';
+          }
+      }
+      gui.onResize = function() {
+          if (gui.closed) {
+              var el1 = document.getElementById("se01-color");
+              var el2 = document.getElementById("se02-color");
+              var el3 = document.getElementById("se03-color");
+
+              el1.style['display'] = 'none';
+              el2.style['display'] = 'none';
+              el3.style['display'] = 'none';
+
+          }
+      }
+    }
+
+    /**
+    * Latitude-longitude-date data is a series of 2 32-bit floats and 1 32-bit integer little-endian encoded.
+    * Each lat-lng-date grouping represents a well.
+    */
+
+    var dataURL = "va-od-jt00-2011.bin";
+
+    function load(url) {
+      //console.log("Loading...");
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', url);
+      xhr.responseType = 'arraybuffer';
+      xhr.onload = function() {
+        var float32Array = new Float32Array(this.response);
+        setData(float32Array);
+        var el = document.getElementById("loading");
+        el.style['display'] = 'none';
+      }
+      xhr.send();
+    }
+
+    function setData(buffer) {
+      pointCount = buffer.length / 6;
+
+      data = buffer;
+      arrayBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, arrayBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+
+      var attributeLoc = gl.getAttribLocation(program, 'centroid');
+      gl.enableVertexAttribArray(attributeLoc);
+      gl.vertexAttribPointer(attributeLoc, 4, gl.FLOAT, false, 24, 0);
+
+      var attributeLoc = gl.getAttribLocation(program, 'aDist');
+      gl.enableVertexAttribArray(attributeLoc);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 16);
+
+      var attributeLoc = gl.getAttribLocation(program, 'aColor');
+      gl.enableVertexAttribArray(attributeLoc);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 20);
+
+      ready = true;
+    }
+
+    var then = new Date();
+    var inMainLoop = false;
+    var inStartDwell = true;
+    var inEndDwell = false;
+    var countryPointSizePixels = 1;
+    var blockPointSizePixels = 10;
+    var pointSize;
+    //var doPulse = false;
+    var pulse  = false;
+
+
+    function draw(transform) {
+      if (ready) {
+        gl.lineWidth(2);
+        gl.useProgram(program);
+
+        if (lodesOptions.animate == 'animate') {
+          var now = new Date();
+          var deltaTime = now.getTime() - then.getTime();
+          var step = deltaTime/(lodesOptions.totalTime*lodesOptions.speed);
+          if (inMainLoop) {
+            if (lodesOptions.doPulse) {
+              if (pulse) {
+                step = 1. - step;
+              }
+            } else if (pulse) {
+              pulse = false;
+            }
+
+            if (deltaTime >= lodesOptions.totalTime*lodesOptions.speed) {
+              then = new Date();
+              inMainLoop = false;
+              if (lodesOptions.doPulse && pulse) {
+                inStartDwell = true;
+              } else {
+                inEndDwell = true;
+              }
+            }
+          }
+          else if (inStartDwell) {
+            step = 0.;
+            if (deltaTime >= lodesOptions.dwellTime) {
+              inStartDwell = false;
+              inMainLoop = true;
+              then = new Date();
+              if (lodesOptions.doPulse) {
+                pulse = false;
+              }
+            }
+          }
+          else {
+            step = 1.;
+            if (deltaTime >= lodesOptions.dwellTime) {
+              inEndDwell = false;
+              then = new Date();
+              if (lodesOptions.doPulse) {
+                inMainLoop = true;
+                pulse = true;
+              } else {
+                inStartDwell = true;
+              }
+            }
+          }
+          step = Math.min(Math.max(step, 0.),1.);
+
+        } else if (lodesOptions.animate == 'home'){
+            step = 0.;
+        } else {
+          step = 1.;
+        }
+
+        pointSize = countryPointSizePixels * Math.pow(blockPointSizePixels / countryPointSizePixels, (map.zoom - 7) / (21 - 7));
+
+        var aTime = gl.getAttribLocation(program, "aTime");
+        gl.vertexAttrib1f(aTime, step);
+
+        var sizeLoc = gl.getUniformLocation(program, 'uSize');
+        gl.uniform1f(sizeLoc, pointSize);
+
+        var zoomLoc = gl.getUniformLocation(program, 'uZoom');
+        gl.uniform1f(zoomLoc, map.zoom);
+
+        var filterDistLoc = gl.getUniformLocation(program, 'filterDist');
+        gl.uniform1i(filterDistLoc, lodesOptions.filter);
+
+        var showSe01Loc = gl.getUniformLocation(program, 'showSe01');
+        gl.uniform1i(showSe01Loc, lodesOptions.se01);
+
+        var showSe02Loc = gl.getUniformLocation(program, 'showSe02');
+        gl.uniform1i(showSe02Loc, lodesOptions.se02);
+
+        var showSe03Loc = gl.getUniformLocation(program, 'showSe03');
+        gl.uniform1i(showSe03Loc, lodesOptions.se03);
+
+        var matrixLoc = gl.getUniformLocation(program, 'mapMatrix');
+        gl.uniformMatrix4fv(matrixLoc, false, transform);
+
+        var uDistLoc = gl.getUniformLocation(program, 'uDist');
+        gl.uniform1f(uDistLoc, lodesOptions.distance*1000);
+
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, arrayBuffer);
+
+        var attributeLoc = gl.getAttribLocation(program, 'centroid');
+        gl.enableVertexAttribArray(attributeLoc);
+        gl.vertexAttribPointer(attributeLoc, 4, gl.FLOAT, false, 24, 0);
+
+        var attributeLoc = gl.getAttribLocation(program, 'aDist');
+        gl.enableVertexAttribArray(attributeLoc);
+        gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 16);
+
+        var attributeLoc = gl.getAttribLocation(program, 'aColor');
+        gl.enableVertexAttribArray(attributeLoc);
+        gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 20);
+
+        gl.drawArrays(gl.POINTS, 0, pointCount);
+      }
+    }
+
+    function update() {
+      stats.begin();
+      if (ready) {
+
+        gl.clear(gl.COLOR_BUFFER_BIT);
+
+        var mapProjection = map.getProjection();
+
+        /**
+        * We need to create a transformation that takes world coordinate
+        * points in the pointArrayBuffer to the coodinates WebGL expects.
+        * 1. Start with second half in pixelsToWebGLMatrix, which takes pixel
+        *     coordinates to WebGL coordinates.
+        * 2. Scale and translate to take world coordinates to pixel coords
+        * see https://developers.google.com/maps/documentation/javascript/maptypes#MapCoordinate
+        */
+
+        // copy pixel->webgl matrix
+        mapMatrix.set(pixelsToWebGLMatrix);
+
+        // Scale to current zoom (worldCoords * 2^zoom)
+        var scale = canvasLayer.getMapScale();
+        scaleMatrix(mapMatrix, scale, scale);
+
+        var translation = canvasLayer.getMapTranslation();
+        translateMatrix(mapMatrix, translation.x, translation.y);
+        draw(mapMatrix);
+      }
+      stats.end();
+    }
+
+    function resize() {
+      var w = gl.canvas.width;
+      var h = gl.canvas.height;
+      gl.viewport(0, 0, w, h);
+
+      // matrix which maps pixel coordinates to WebGL coordinates
+      pixelsToWebGLMatrix.set([2/w, 0,   0, 0,
+        0,  -2/h, 0, 0,
+        0,   0,   0, 0,
+        -1,   1,   0, 1]);
+    }
+
+    function initMap() {
+      // initialize the map
+      var mapOptions = {
+        zoom: 7,
+        center: new google.maps.LatLng(37.77, -78.21),
+        mapTypeId: google.maps.MapTypeId.ROADMAP,
+        styles: [
+          {
+            "featureType": "road",
+            "elementType": "labels",
+            "stylers": [
+              { "visibility": "off" }
+            ]
+          },{
+            "featureType": "road",
+            "stylers": [
+              { "color": "#808080" },
+              { "weight": 0.2 }
+            ]
+          },{
+            "featureType": "poi",
+            "stylers": [
+              { "visibility": "on" }
+            ]
+          },{
+            "featureType": "landscape",
+            "stylers": [
+              { "visibility": "on" },
+              { "lightness": 91 }
+            ]
+        },{
+            "featureType": "water",
+            "stylers": [
+                { "lightness": 78 }
+            ]
+        },{
+            "featureType": "poi",
+            "stylers": [
+                { "lightness": 78 }
+            ]
+        }
+        ]
+      };
+      var mapDiv = document.getElementById('map-div');
+      map = new google.maps.Map(mapDiv, mapOptions);
+
+      // initialize the canvasLayer
+      var canvasLayerOptions = {
+        map: map,
+        resizeHandler: resize,
+        animate: true,
+        updateHandler: update
+      };
+      canvasLayer = new CanvasLayer(canvasLayerOptions);
+      gl = canvasLayer.canvas.getContext('experimental-webgl');
+      //gl.enable(gl.BLEND);
+      //gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
+      gl.enable( gl.BLEND );
+      gl.blendEquationSeparate( gl.FUNC_ADD, gl.FUNC_ADD );
+      gl.blendFuncSeparate( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA );
+
+      glb = new Glb(gl);
+      program = glb.programFromSources(document.getElementById('point-vertex-shader').text,
+      document.getElementById('point-fragment-shader').text);
+      load(dataURL);
+      window.addEventListener('resize', function () {  google.maps.event.trigger(map, 'resize') }, false);
+
+    }
+
+    function init() {
+      initMap();
+      initGui();
+      document.body.appendChild(stats.domElement);
+    }
+
+    document.addEventListener('DOMContentLoaded', init, false);
+  </script>
+
+  </head>
+  <body>
+    <div id="map-div"></div>
+    <div id="loading"></div>
+    <div id="se01-color"></div>
+    <div id="se02-color"></div>
+    <div id="se03-color"></div>
+  </body>
+</html>
