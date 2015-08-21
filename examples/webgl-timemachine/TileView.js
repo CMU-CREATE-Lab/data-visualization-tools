@@ -54,6 +54,16 @@ function TileView(settings) {
 }
 
 TileView.prototype.
+getWidth = function () {
+  return this._panoWidth;
+}
+
+TileView.prototype.
+getHeight = function () {
+  return this._panoHeight;
+}
+
+TileView.prototype.
 toString = function() {
   var msg = 'TileView: ';
   msg += 'Size: ' + this._panoWidth + 'x' + this._panoHeight + ',  ';
@@ -212,6 +222,9 @@ _findFirstAncestorIn = function(tileidx, map) {
 // Newly ready ^x
 // Ready x
 // Removed;  not ready -(x)  ready (x)
+
+// view is {x: xCenterInPanoCoords, y: yCenterInPanoCoords, scale: panoCoordOverPixelCoord}
+// viewportWidth and viewportHeight are in pixels
 
 TileView.prototype.
 setView = function(view, viewportWidth, viewportHeight, scale) {

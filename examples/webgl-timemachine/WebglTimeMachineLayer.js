@@ -43,10 +43,18 @@ function WebglTimeMachineLayer(glb, canvasLayer, rootUrl, vectorUrl) {
     updateTile: WebGLVectorTile.update,
     zoomlock: 11
   });
+
 }
 
-WebglTimeMachineLayer.prototype.
-draw = function(view, tileViewVisibility) {
+WebglTimeMachineLayer.prototype.getWidth = function() {
+    return this._tileView.getWidth();
+}
+
+WebglTimeMachineLayer.prototype.getHeight = function() {
+    return this._tileView.getHeight();
+}
+
+WebglTimeMachineLayer.prototype.draw = function(view, tileViewVisibility) {
   var timelapse = this._canvasLayer.timelapse;
   var width = this._canvasLayer.canvas.width / this._canvasLayer.resolutionScale_;
   var height = this._canvasLayer.canvas.height / this._canvasLayer.resolutionScale_;
@@ -70,6 +78,7 @@ draw = function(view, tileViewVisibility) {
     this._tileView.setView(view, width, height, this._canvasLayer.resolutionScale_);
     this._tileView.update(transform);
   }
+
   if (tileViewVisibility.vectorTile) {
     var bBox = timelapse.getBoundingBoxForCurrentView();
     var latLngBbox = timelapse.pixelBoundingBoxToLatLngBoundingBoxView(bBox).bbox;
@@ -78,4 +87,5 @@ draw = function(view, tileViewVisibility) {
     this._vectorTileView.setViewFromLatLng(view, {ne: ne, sw: sw}, width, height, this._canvasLayer.resolutionScale_);
     this._vectorTileView.update(transform);
   }
+
 }

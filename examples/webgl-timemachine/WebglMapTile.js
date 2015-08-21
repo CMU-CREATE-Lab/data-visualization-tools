@@ -1,29 +1,17 @@
 "use strict";
 
-//
-// Want to quadruple-buffer
-// From time 1 to 1.999, display 1
-//                       already have 2 in the hopper, nominally
-//                       be capturing 3
-//                       have a fourth fallow buffer to let pipelined chrome keep drawing
-
-// Be capturing 3 means that at t=1, the first video just crossed 3.1,
-//                   and that at t=1.999, the last video just crossed 3.1
-// So we're aiming to run the videos at current display time plus 1.1 to 2.1
-// Or maybe compress the range and go with say 1.6 to 2.1?  That lets us better use
-// the flexibility of being able to capture the video across a range of times
-
-function WebglVideoTile(glb, tileidx, bounds, url) {
-  if (!WebglVideoTile._initted) {
-    WebglVideoTile._init();
+function WebglMapTile(glb, tileidx, bounds, url) {
+  if (!WebglMapTile._initted) {
+    WebglMapTile._init();
   }
   this._tileidx = tileidx;
   this.glb = glb;
   this.gl = glb.gl;
   this._lineProgram = glb.programFromSources(Glb.fixedSizePointVertexShader,
                                              Glb.solidColorFragmentShader);
-  this._textureProgram = glb.programFromSources(WebglVideoTile.textureVertexShader,
-                                                WebglVideoTile.textureFragmentShader);
+  this._textureProgram = glb.programFromSources(WebglMapTile.textureVertexShader,
+                                                WebglMapTile.textureFragmentShader);
+  this._texture = this._createTexture();
 
   var inset = (bounds.max.x - bounds.min.x) * 0.005;
   this._insetRectangle = glb.createBuffer(new Float32Array([0.01, 0.01,
@@ -35,43 +23,35 @@ function WebglVideoTile(glb, tileidx, bounds, url) {
                                                        0, 1,
                                                        1, 1]));
 
-  this._video = document.createElement('video');
-  this._video.src = url;
-  this._pipeline = [];
-  for (var i = 0; i < WebglVideoTile.PIPELINE_SIZE; i++) {
-    this._pipeline.push({
-      texture: this._createTexture(),
-      frameno: null,
-    });
+  this._image = new Image();
+  var that = this;
+  this._image.onload = function() {
+    that._handleLoadedTexture();
   }
+
+  this._image.src = url;
+  console.log(this._image);
   this._ready = false;
-  this._width = 1424;
-  this._height = 800;
+  this._width = 256;
+  this._height = 256;
   this._bounds = bounds;
-  this._frameOffsetIndex = WebglVideoTile.getUnusedFrameOffsetIndex();
-  this._frameOffset = WebglVideoTile._frameOffsets[this._frameOffsetIndex];
-  // TODO(rsargent): don't hardcode FPS and nframes
-  this._fps = 10;
-  this._nframes = 29;
-  this._id = WebglVideoTile.videoId++;
-  this._seekingFrameCount = 0;
-  WebglVideoTile.activeTileCount++;
+  this._id = WebglMapTile.videoId++;
+  WebglMapTile.activeTileCount++;
 }
 
-WebglVideoTile._init = function() {
-  WebglVideoTile._initted = true;
+WebglMapTile._init = function() {
+  WebglMapTile._initted = true;
 
   $(document).keypress(function(e) {
       // ctrl-b toggles verbosity
       if (e.keyCode == 2) {
-        WebglVideoTile.verbose = !WebglVideoTile.verbose;
-        console.log('WebglVideoTile verbose: ' + WebglVideoTile.verbose);
+        WebglMapTile.verbose = !WebglMapTile.verbose;
+        console.log('WebglMapTile verbose: ' + WebglMapTile.verbose);
       }
     });
 }
 
-WebglVideoTile.prototype.
-_createTexture = function() {
+WebglMapTile.prototype._createTexture = function() {
   var gl = this.gl;
   var texture = gl.createTexture();
   gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -83,141 +63,62 @@ _createTexture = function() {
   return texture;
 }
 
-// Texture pipeline is 4 deep
-// 0: currently being drawn
-// 1: captured, waiting for drawn.  (Might still be captured if we're a little behind.)
-// 2: currently being captured
-// 3: might still be used by chrome from last frame
+WebglMapTile.prototype._handleLoadedTexture = function() {
+    var before = performance.now();
 
-WebglVideoTile.PIPELINE_SIZE = 4;
-
-WebglVideoTile.videoId = 0;
-WebglVideoTile.totalSeekingFrameCount = 0;
-WebglVideoTile.totalSeekCount = 0;
-WebglVideoTile.verbose = false;
-WebglVideoTile.frameCount = 0;
-WebglVideoTile.missedFrameCount = 0;
-WebglVideoTile.activeTileCount = 0;
-WebglVideoTile._initted = false;
-
-WebglVideoTile.stats = function() {
-  var r2 = WebglVideoTile.r2;
-  return ('WebglVideoTile stats. Active tiles: ' + WebglVideoTile.activeTileCount +
-          ', Number of seeks: ' + WebglVideoTile.totalSeekCount +
-          ', Average seek duration: ' + r2(WebglVideoTile.averageSeekFrameCount()) + ' frames' +
-          ', Missed frames: ' + r2(WebglVideoTile.missedFrameCount * 100 / WebglVideoTile.frameCount) + '%');
+    gl.bindTexture(gl.TEXTURE_2D, this._texture);
+    //console.time("gl.texImage2D");
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, this._image);
+    //console.timeEnd("gl.texImage2D");
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    var elapsed = performance.now() - before;
+    console.log(this.toString() + ': copied the texture in ' + elapsed + ' ms');
+    this._ready = true;
 }
 
-WebglVideoTile.averageSeekFrameCount = function() {
-  return WebglVideoTile.totalSeekingFrameCount / WebglVideoTile.totalSeekCount;
+WebglMapTile.videoId = 0;
+WebglMapTile.verbose = false;
+WebglMapTile.activeTileCount = 0;
+WebglMapTile._initted = false;
+
+WebglMapTile.stats = function() {
+  return ('WebglMapTile stats. Active tiles: ' + WebglMapTile.activeTileCount);
 }
 
-WebglVideoTile.prototype.
+WebglMapTile.prototype.
 delete = function() {
   // TODO: recycle texture
-  this._video.pause();
-  this._video.src = '';
-  this._video = null;
-  WebglVideoTile._frameOffsetUsed[this._frameOffsetIndex] = false;
-  this._frameOffsetIndex = null;
-  WebglVideoTile.activeTileCount--;
+  this._image.src = '';
+  this._image = null;
+  WebglMapTile.activeTileCount--;
 }
 
-WebglVideoTile.getUnusedFrameOffsetIndex = function() {
-  for (var i = 0; i < WebglVideoTile._frameOffsets.length; i++) {
-    if (!WebglVideoTile._frameOffsetUsed[i]) {
-      WebglVideoTile._frameOffsetUsed[i] = true;
+WebglMapTile.getUnusedFrameOffsetIndex = function() {
+  for (var i = 0; i < WebglMapTile._frameOffsets.length; i++) {
+    if (!WebglMapTile._frameOffsetUsed[i]) {
+      WebglMapTile._frameOffsetUsed[i] = true;
       return i;
     }
   }
-  throw new Error('Out of offsets because we have ' + WebglVideoTile._frameOffsets.length + ' videos');
+  throw new Error('Out of offsets because we have ' + WebglMapTile._frameOffsets.length + ' videos');
 }
 
-WebglVideoTile.prototype.
+WebglMapTile.prototype.
 toString = function() {
   return 'Tile ' + this._tileidx.toString() +
-         ', ready: ' + this.isReady() +
-         ', seq: ' + this._frameOffsetIndex + ' (' + this._frameOffset + ')'
+         ', ready: ' + this.isReady();
 };
 
-WebglVideoTile.prototype.
+WebglMapTile.prototype.
 isReady = function() {
   return this._ready;
 };
 
-WebglVideoTile.r2 = function(x) {
+WebglMapTile.r2 = function(x) {
   return Math.round(x * 100) / 100;
 };
 
-// We need the current frame, plus the next two future frames
-WebglVideoTile.prototype.
-_frameIsNeeded = function(frameno, displayFrameDiscrete) {
-  var future = (frameno - displayFrameDiscrete + this._nframes) % this._nframes;
-  return future <= 2;
-}
-
-// Flush any frames in the pipeline which aren't about to be used
-WebglVideoTile.prototype.
-_flushUnneededFrames = function(displayFrameDiscrete) {
-  var changed = false;
-
-  // Erase element 2 of the pipeline, if unneeded
-  if (this._pipeline[2].frameno != null &&
-      !this._frameIsNeeded(this._pipeline[2].frameno, displayFrameDiscrete)) {
-    this._pipeline[2].frameno = null;
-    changed = true;
-  }
-
-  // Erase element 1 and swap 1 and 2, if 1 is unneeded
-  if (this._pipeline[1].frameno != null &&
-      !this._frameIsNeeded(this._pipeline[1].frameno, displayFrameDiscrete)) {
-    this._pipeline[1].frameno = null;
-    var tmp = this._pipeline[1];
-    this._pipeline[1] = this._pipeline[2];
-    this._pipeline[2] = tmp;
-    changed = true;
-  }
-
-  if (changed && WebglVideoTile.verbose) {
-    console.log(this._id + ': flushed frames, now ' + this._pipelineToString() + ' ' + this._computeNextCaptureFrame(displayFrameDiscrete, timelapse.isPaused()));
-  }
-}
-
-// Advance the pipeline if we're now display a frame that's at element 1
-WebglVideoTile.prototype.
-_tryAdvancePipeline = function(displayFrameDiscrete) {
-  var advance = 0;
-  for (var i = 1; i < 3; i++) {
-    if (displayFrameDiscrete == this._pipeline[i].frameno) {
-      advance = i;
-      break;
-    }
-  }
-  for (var n = 0; n < advance; n++) {
-    var tmp = this._pipeline[0];
-    tmp.frameno = null;
-    for (var i = 0; i < WebglVideoTile.PIPELINE_SIZE - 1; i++) {
-      this._pipeline[i] = this._pipeline[i + 1];
-    }
-    this._pipeline[WebglVideoTile.PIPELINE_SIZE - 1] = tmp;
-    this._ready = true;
-    if (WebglVideoTile.verbose) {
-      console.log(this._id + ': Advancing pipeline, now ' + this._pipelineToString() + ' ' + this._computeNextCaptureFrame(displayFrameDiscrete, timelapse.isPaused()));
-    }
-  }
-}
-
-WebglVideoTile.prototype.
-_frameIsInPipeline = function(frameno) {
-  for (var i = 0; i < WebglVideoTile.PIPELINE_SIZE - 1; i++) {
-    if (this._pipeline[i].frameno == frameno) {
-      return true;
-    }
-  }
-  return false;
-}
-
-WebglVideoTile.prototype.
+WebglMapTile.prototype.
 _tryCaptureFrame = function(displayFrameDiscrete, actualVideoFrame, actualVideoFrameDiscrete, isPaused) {
   // Only try to capture if it's needed, if we're not currently showing (too late),
   // and if in the safe range of times to capture
@@ -231,7 +132,7 @@ _tryCaptureFrame = function(displayFrameDiscrete, actualVideoFrame, actualVideoF
       this._captureFrame(actualVideoFrameDiscrete, 0);
       this._ready = true;
     } else {
-      for (var i = 1; i < WebglVideoTile.PIPELINE_SIZE - 1; i++) {
+      for (var i = 1; i < WebglMapTile.PIPELINE_SIZE - 1; i++) {
         if (this._pipeline[i].frameno == null) {
           this._captureFrame(actualVideoFrameDiscrete, i);
           break;
@@ -241,46 +142,7 @@ _tryCaptureFrame = function(displayFrameDiscrete, actualVideoFrame, actualVideoF
   }
 }
 
-WebglVideoTile.prototype.
-_checkForMissedFrame = function(displayFrameDiscrete) {
-  if (this._ready &&
-      displayFrameDiscrete != this._lastDisplayFrame &&
-      displayFrameDiscrete != this._pipeline[0].frameno) {
-    console.log(this._id + ': missed frame ' + displayFrameDiscrete +
-                ', pipeline: ' + this._pipelineToString());
-    WebglTimeMachinePerf.instance.recordMissedFrames(1);
-    this._missedFrameCount++;
-  }
-  this._lastDisplayFrame = displayFrameDiscrete;
-}
-
-// This should always return one of
-// displayFrameDiscrete +1, +2, +3
-WebglVideoTile.prototype.
-_computeNextCaptureFrame = function(displayFrameDiscrete, isPaused) {
-  // If paused and we don't have the current frame, that's the one we need
-  if (isPaused && this._pipeline[0].frameno != displayFrameDiscrete) {
-    return displayFrameDiscrete;
-  }
-  var lastFrame = null;
-  for (var i = 0; i < WebglVideoTile.PIPELINE_SIZE - 1; i++) {
-    if (this._pipeline[i].frameno != null) {
-      lastFrame = this._pipeline[i].frameno;
-    }
-  }
-  var future;
-  if (lastFrame == null) {
-    future = 2;
-  } else {
-    future = (lastFrame - displayFrameDiscrete + this._nframes) % this._nframes + 1;
-    if (future < 1 || future > 3) {
-      future = 2;
-    }
-  }
-  return (displayFrameDiscrete + future) % this._nframes;
-}
-
-WebglVideoTile.prototype.
+WebglMapTile.prototype.
 _computeCapturePriority = function(displayFrameDiscrete, actualVideoFrame,
                                    actualVideoFrameDiscrete) {
   return 1;
@@ -288,18 +150,18 @@ _computeCapturePriority = function(displayFrameDiscrete, actualVideoFrame,
 // First phase of update
 // Cleans up and advances pipelines
 // Computes priority of capture
-WebglVideoTile.prototype.
+WebglMapTile.prototype.
 updatePhase1 = function(displayFrame) {
   this._capturePriority = 0;
   var displayFrameDiscrete = Math.min(Math.floor(displayFrame), this._nframes - 1);
 
-  var r2 = WebglVideoTile.r2;
+  var r2 = WebglMapTile.r2;
   // Output stats every 5 seconds
-  if (!WebglVideoTile.lastStatsTime) {
-    WebglVideoTile.lastStatsTime = performance.now();
-  } else if (performance.now() - WebglVideoTile.lastStatsTime > 5000) {
-    console.log(WebglVideoTile.stats());
-    WebglVideoTile.lastStatsTime = performance.now();
+  if (!WebglMapTile.lastStatsTime) {
+    WebglMapTile.lastStatsTime = performance.now();
+  } else if (performance.now() - WebglMapTile.lastStatsTime > 5000) {
+    console.log(WebglMapTile.stats());
+    WebglMapTile.lastStatsTime = performance.now();
   }
 
   // Synchronize video playback
@@ -309,7 +171,7 @@ updatePhase1 = function(displayFrame) {
   var readyState = this._video.readyState;
 
   if (readyState == 0) {
-    if (WebglVideoTile.verbose) {
+    if (WebglMapTile.verbose) {
       console.log(this._id + ': loading');
     }
     return;
@@ -328,9 +190,9 @@ updatePhase1 = function(displayFrame) {
 // Second phase of update
 // Captures frame, if desirable and time still left
 // Adjusts time or requests seek to maintain video time sync
-WebglVideoTile.prototype.
+WebglMapTile.prototype.
 updatePhase2 = function(displayFrame) {
-  var r2 = WebglVideoTile.r2;
+  var r2 = WebglMapTile.r2;
   var displayFrameDiscrete = Math.min(Math.floor(displayFrame), this._nframes - 1);
   var readyState = this._video.readyState;
   var isPaused = timelapse.isPaused();
@@ -349,15 +211,15 @@ updatePhase2 = function(displayFrame) {
 
   if (this._video.seeking) {
     this._seekingFrameCount++;
-    if (WebglVideoTile.verbose) {
+    if (WebglMapTile.verbose) {
       console.log(this._id + ': seeking for ' + this._seekingFrameCount + ' frames');
     }
     return false;
   }
 
   if (this._seekingFrameCount != 0) {
-    WebglVideoTile.totalSeekingFrameCount += this._seekingFrameCount;
-    WebglVideoTile.totalSeekCount++;
+    WebglMapTile.totalSeekingFrameCount += this._seekingFrameCount;
+    WebglMapTile.totalSeekCount++;
     this._seekingFrameCount = 0;
   }
 
@@ -394,7 +256,7 @@ updatePhase2 = function(displayFrame) {
     // If we need to go back any or forward a lot, seek instead of changing speed
     var seekTime = nextNeededFrame + 0.5;
     this._video.currentTime = (nextNeededFrame + 0.5) / this._fps;
-    if (WebglVideoTile.verbose) {
+    if (WebglMapTile.verbose) {
       console.log(this._id + ': onscreen=' + this._pipeline[0].frameno +
                   ', display=' + r2(displayFrame) +
                   ', nextNeededFrame=' + nextNeededFrame +
@@ -405,7 +267,7 @@ updatePhase2 = function(displayFrame) {
     }
   } else {
     this._video.playbackRate = speed;
-    if (WebglVideoTile.verbose) {
+    if (WebglMapTile.verbose) {
       console.log(this._id + ': onscreen=' + this._pipeline[0].frameno +
                   ', display=' + r2(displayFrame) +
                   ', nextNeededFrame=' + nextNeededFrame +
@@ -419,18 +281,7 @@ updatePhase2 = function(displayFrame) {
   }
 }
 
-WebglVideoTile.prototype.
-_pipelineToString = function() {
-  var str = '[';
-  for (var i = 0; i < WebglVideoTile.PIPELINE_SIZE; i++) {
-    if (i) str += ', ';
-    str += this._pipeline[i].frameno;
-  }
-  str += ']'
-  return str;
-}
-
-WebglVideoTile.prototype.
+WebglMapTile.prototype.
 _captureFrame = function(captureFrameno, destIndex) {
   this.frameCount++;
   this._pipeline[destIndex].frameno = captureFrameno;
@@ -446,7 +297,7 @@ _captureFrame = function(captureFrameno, destIndex) {
   gl.bindTexture(gl.TEXTURE_2D, null);
   var elapsed = performance.now() - before;
   WebglTimeMachinePerf.instance.recordVideoFrameCapture(elapsed);
-  if (WebglVideoTile.verbose) {
+  if (WebglMapTile.verbose) {
     console.log(this._id + ': captured frame ' + captureFrameno +
                 ' to pipeline[' + destIndex + '] in '
                 + Math.round(elapsed) + ' ms ' +
@@ -459,16 +310,16 @@ _captureFrame = function(captureFrameno, destIndex) {
 
   //if (this._ready) {
   //  var advance = (this._pipeline[destIndex].frameno - this._pipeline[destIndex - 1].frameno + this._nframes) % this._nframes;
-  //  WebglVideoTile.frameCount += advance;
+  //  WebglMapTile.frameCount += advance;
   //  if (advance != 1) {
   //    console.log(this._id + ': skipped ' + (advance - 1) + ' frames');
-  //    WebglVideoTile.missedFrameCount += (advance - 1);
+  //    WebglMapTile.missedFrameCount += (advance - 1);
   //    WebglTimeMachinePerf.instance.recordMissedFrames(advance - 1);
   //  }
   //}
 }
 
-WebglVideoTile.prototype.
+WebglMapTile.prototype.
 draw = function(transform) {
   var gl = this.gl;
   var tileTransform = new Float32Array(transform);
@@ -497,67 +348,29 @@ draw = function(transform) {
     gl.vertexAttribPointer(this._textureProgram.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(this._lineProgram.aTextureCoord);
 
-    gl.bindTexture(gl.TEXTURE_2D, this._pipeline[0].texture);
+    gl.bindTexture(gl.TEXTURE_2D, this._texture);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     gl.bindTexture(gl.TEXTURE_2D, null);
   }
 };
 
 // Update and draw tiles
-WebglVideoTile.update = function(tiles, transform) {
+// Assumes tiles is sorted low res to high res (by TileView)
+WebglMapTile.update = function(tiles, transform) {
   if (si) return;
   WebglTimeMachinePerf.instance.startFrame();
 
   var canvas = document.getElementById('webgl');
 
-  // TODO(rsargent): don't hardcode this here
-  var fps = 10;
-  var displayFrame = timelapse.getVideoset().getCurrentTime() * fps;
-
   for (var i = 0; i < tiles.length; i++) {
-    tiles[i].updatePhase1(displayFrame);  // Frame being displayed on screen
-  }
-
-  // TODO(rsargent): draw tiles low to high-res, or clip and don't draw the overlapping portions
-  // of the low-res tiles
-  for (var i = 0; i < tiles.length; i++) {
-    tiles[i].updatePhase2(displayFrame);  // Frame being displayed on screen
     tiles[i].draw(transform);
   }
+
   WebglTimeMachinePerf.instance.endFrame();
 }
 
 
-// Phases = 60 / videoFPS
-// Subbits is log2 of the max number of videos per phase
-
-WebglVideoTile.computeFrameOffsets = function(phases, subbits) {
-  WebglVideoTile._frameOffsets = [];
-  var subphases = 1 << subbits;
-  for (var s = 0; s < subphases; s++) {
-    // Arrange subphases across [0, 1) such that locations for any length contiguous subset starting at the first subphase
-    // will be sparse.
-    // E.g. for 3 subbits, [0, 0.5, 0.25, 0.75, 0.125, 0.625, 0.375, 0.875]
-    var sfrac = 0;
-    for (var b = 0; b < subbits; b++) {
-      sfrac += ((s >> b) & 1) << (subbits - b - 1);
-    }
-    for (var p = 0; p < phases; p++) {
-      // Compress phases into 0.5 - 1 range
-      WebglVideoTile._frameOffsets.push(0.5 + 0.5 * (p + sfrac / subphases) / phases);
-    }
-  }
-  WebglVideoTile._frameOffsetUsed = []
-  for (var i = 0; i < WebglVideoTile._frameOffsets; i++) {
-    WebglVideoTile._frameOffsetUsed.push(false);
-  }
-}
-
-// 3x2^4 = 48 available offsets
-// 3x2^5 = 96 available offsets
-WebglVideoTile.computeFrameOffsets(3, 5);
-
-WebglVideoTile.textureVertexShader =
+WebglMapTile.textureVertexShader =
   'attribute vec2 aTextureCoord;\n' +
   'uniform mat4 uTransform;\n' +
   'varying vec2 vTextureCoord;\n' +
@@ -568,7 +381,7 @@ WebglVideoTile.textureVertexShader =
   '}\n';
 
 
-WebglVideoTile.textureFragmentShader =
+WebglMapTile.textureFragmentShader =
   'precision mediump float;\n' +
   'varying vec2 vTextureCoord;\n' +
   'uniform sampler2D uSampler;\n' +
