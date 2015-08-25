@@ -41,6 +41,7 @@
     <script src="WebglTimeMachinePerf.js"></script>
     <script src="WebGLVectorTile.js"></script>
     <script src="WebglMapTile.js"></script>
+    <script src="WebglViirsTile.js"></script>
 
     <style>
       #timeMachine {
@@ -335,6 +336,10 @@
         mapLayer = new WebglMapLayer(glb, canvasLayer, 'osm', mapLevels);
         vectorLayer = new WebglVectorLayer(glb, canvasLayer, 'wdpaline-year', mapLevels);
 
+        // VIIRS demo is just a single tile
+        var viirsUrl = 'createlab-viirs-uncorrected-20140314-20150403.bin';
+        viirsTile = new WebglViirsTile(glb, viirsUrl);
+
         //tmlayer = new WebglTimeMachineLayer(glb, canvasLayer, "http://earthengine.google.org/timelapse/data/20130507/1068x600");
 
         // Vector Tiles
@@ -431,6 +436,10 @@
         mapLayer.draw(mapView);
         vectorLayer.draw(timelapse.getView());
 
+	// VIIRS demo
+	var viirsView = timelapse.getView();
+        viirsView.zoom = timelapse.getCurrentZoom();
+	viirsTile.draw(viirsView);
         //stats.end();
       }
 
