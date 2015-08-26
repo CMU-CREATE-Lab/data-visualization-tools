@@ -334,6 +334,7 @@
         tmlayer = new WebglTimeMachineLayer(glb, canvasLayer, '1068x600', vectorUrl);
         var mapLevels = 12;
         mapLayer = new WebglMapLayer(glb, canvasLayer, 'osm', mapLevels);
+        gfcLayer = new WebglMapLayer(glb, canvasLayer, 'gfc/loss_year_transparent', mapLevels);
         vectorLayer = new WebglVectorLayer(glb, canvasLayer, 'wdpaline-year', mapLevels);
 
         // VIIRS demo is just a single tile
@@ -434,13 +435,19 @@
         mapView.y *= timelapse2map;
         mapView.scale /= timelapse2map;
         mapLayer.draw(mapView);
+
+        gfcLayer.draw(mapView);
+
         vectorLayer.draw(timelapse.getView());
 
 	// VIIRS demo
-	var viirsView = timelapse.getView();
-        viirsView.zoom = timelapse.getCurrentZoom();
-	viirsTile.draw(viirsView);
+	//var viirsView = timelapse.getView();
+        //viirsView.zoom = timelapse.getCurrentZoom();
+	//viirsTile.draw(viirsView);
         //stats.end();
+
+
+
       }
 
     </script>
