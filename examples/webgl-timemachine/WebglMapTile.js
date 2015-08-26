@@ -68,7 +68,7 @@ WebglMapTile.prototype._handleLoadedTexture = function() {
 
     gl.bindTexture(gl.TEXTURE_2D, this._texture);
     //console.time("gl.texImage2D");
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, this._image);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._image);
     //console.timeEnd("gl.texImage2D");
     gl.bindTexture(gl.TEXTURE_2D, null);
     var elapsed = performance.now() - before;
@@ -292,7 +292,7 @@ _captureFrame = function(captureFrameno, destIndex) {
 
   gl.bindTexture(gl.TEXTURE_2D, this._pipeline[destIndex].texture);
   //console.time("gl.texImage2D");
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, this._video);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._video);
   //console.timeEnd("gl.texImage2D");
   gl.bindTexture(gl.TEXTURE_2D, null);
   var elapsed = performance.now() - before;
@@ -343,6 +343,8 @@ draw = function(transform) {
   // Draw video
   if (this._ready) {
     gl.useProgram(this._textureProgram);
+    gl.enable(gl.BLEND);
+    gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
     gl.uniformMatrix4fv(this._textureProgram.uTransform, false, tileTransform);
     gl.bindBuffer(gl.ARRAY_BUFFER, this._triangles);
     gl.vertexAttribPointer(this._textureProgram.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
@@ -351,6 +353,7 @@ draw = function(transform) {
     gl.bindTexture(gl.TEXTURE_2D, this._texture);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     gl.bindTexture(gl.TEXTURE_2D, null);
+    gl.disable(gl.BLEND);
   }
 };
 
@@ -387,7 +390,7 @@ WebglMapTile.textureFragmentShader =
   'uniform sampler2D uSampler;\n' +
   'void main(void) {\n' +
   '  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));\n' +
-  '  gl_FragColor = vec4(textureColor.rgb, 1);\n' +
+  '  gl_FragColor = vec4(textureColor.rgb, textureColor.a);\n' +
   '}\n';
 
 // stopit:  set to true to disable update()
