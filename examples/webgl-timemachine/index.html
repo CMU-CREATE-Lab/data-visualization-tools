@@ -273,8 +273,11 @@
         $("#show-viirs").on("click", function() {
           if ($(this).prop('checked')) {
             showViirsLayer = true;
+            timelapse.loadNewTimeline("../createlab-viirs/viirs-times.json","defaultUI");
+
           } else {
             showViirsLayer = false;
+            timelapse.loadNewTimeline("landsat-times.json","customUI");
           }
         }).prop('checked', showViirsLayer);
 
@@ -496,6 +499,11 @@
         if (showViirsLayer) {
           var viirsView = timelapse.getView();
           viirsView.zoom = timelapse.getCurrentZoom();
+	  var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames()/timelapse.getFps());
+          var times = timelapse.getCaptureTimes();
+          var range = new Date(times[times.length - 1]).getTime() - new Date(times[0]).getTime();
+          var currentDate = ratio*range + new Date(times[0]).getTime();
+          viirsView.currentDate = currentDate;
           viirsTile.draw(viirsView);
         }
 

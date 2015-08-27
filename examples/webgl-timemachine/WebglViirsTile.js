@@ -72,6 +72,10 @@ WebglViirsTile.prototype.draw = function(transform, opts) {
   var maxTemp = opts.maxTemp || this._maxTemp;
   var pointSize = opts.pointSize || 4.;
 
+  if (transform.currentDate) {
+    maxTime = transform.currentDate;
+    minTime = maxTime - 30*24*60*60*1000;
+  }
   if (this._ready) {
     gl.useProgram(this._program);
     gl.enable(gl.BLEND);
@@ -96,7 +100,7 @@ WebglViirsTile.prototype.draw = function(transform, opts) {
     scaleMatrix(mapMatrix, scale, scale);
 
     var pointSize = Math.floor((transform.zoom + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1);
-
+    
 
     gl.vertexAttrib1f(gl.aPointSize, pointSize*1.0);
 
@@ -121,7 +125,7 @@ WebglViirsTile.prototype.draw = function(transform, opts) {
     gl.uniform1f(timeLoc, maxTime*1.);
 
     var timeLoc = gl.getUniformLocation(this._program, 'minTime');
-    gl.uniform1f(timeLoc, minTime*.1);
+    gl.uniform1f(timeLoc, minTime*1.);
 
     var showTempLoc = gl.getUniformLocation(this._program, 'showTemp');
     gl.uniform1f(showTempLoc, showTemp);
