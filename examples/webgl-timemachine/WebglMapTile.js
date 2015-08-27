@@ -30,7 +30,6 @@ function WebglMapTile(glb, tileidx, bounds, url) {
   }
 
   this._image.src = url;
-  console.log(this._image);
   this._ready = false;
   this._width = 256;
   this._height = 256;
