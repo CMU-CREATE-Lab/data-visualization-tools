@@ -368,12 +368,16 @@
         // Time Machine layer
         landsatBaseMapLayer = new WebglTimeMachineLayer(glb, canvasLayer, landsatUrl, wdpaUrl);
 
-        // Vector map layers
-        var mapLevels = 12;
-        lightBaseMapLayer = new WebglMapLayer(glb, canvasLayer, osmDefaultUrl, mapLevels);
-        darkBaseMapLayer = new WebglMapLayer(glb, canvasLayer, osmDarkUrl, mapLevels);
-        hansonMapLayer = new WebglMapLayer(glb, canvasLayer, gfcTransUrl, mapLevels);
-        wdpaVectorLayer = new WebglVectorLayer(glb, canvasLayer, wdpaUrl, mapLevels);
+        // Raster map layers
+        var mapLayerOptions = {
+          nlevels: 12,
+          tileWidth: 256,
+          tileHeight: 256
+        }
+        lightBaseMapLayer = new WebglMapLayer(glb, canvasLayer, osmDefaultUrl, mapLayerOptions);
+        darkBaseMapLayer = new WebglMapLayer(glb, canvasLayer, osmDarkUrl, mapLayerOptions);
+        hansonMapLayer = new WebglMapLayer(glb, canvasLayer, gfcTransUrl, mapLayerOptions);
+        wdpaVectorLayer = new WebglVectorLayer(glb, canvasLayer, wdpaUrl, mapLayerOptions);
 
         // VIIRS is just a single tile
         viirsTile = new WebglViirsTile(glb, viirsUrl);

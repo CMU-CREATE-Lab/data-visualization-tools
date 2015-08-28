@@ -1,18 +1,26 @@
 "use strict";
 
-function WebglMapLayer(glb, canvasLayer, tileUrl, nLevels) {
+function WebglMapLayer(glb, canvasLayer, tileUrl, opt_options) {
   this.glb = glb;
   this.gl = glb.gl;
   this._canvasLayer = canvasLayer;
   this._tileUrl = tileUrl;
+  this._nLevels = 21;
+  this._tileWidth = 256;
+  this._tileHeight = 256;
+
+ if (opt_options) {
+    this.setOptions(opt_options);
+  }
+
 
   var that = this;
 
   this._tileView = new TileView({
-      panoWidth: 256 * Math.pow(2, nLevels),
-      panoHeight: 256 * Math.pow(2, nLevels),
-      tileWidth: 256,
-      tileHeight: 256,
+      panoWidth: 256 * Math.pow(2, this._nLevels),
+      panoHeight: 256 * Math.pow(2, this._nLevels),
+      tileWidth: this._tileWidth,
+      tileHeight: this._tileHeight,
       createTile: function(ti, bounds) { return that._createTile(ti, bounds); },
       deleteTile: function(tile) {},
       updateTile: WebglMapTile.update
@@ -20,6 +28,33 @@ function WebglMapLayer(glb, canvasLayer, tileUrl, nLevels) {
 
   // TODO: experiment with this
   this._tileView.levelThreshold = 0;
+}
+
+
+WebglMapLayer.prototype.setOptions = function(options) {
+  if (options.nLevels !== undefined) {
+    this.setNLevels(options.animate);
+  }
+
+  if (options.tileWidth !== undefined) {
+    this.setTileWidth(options.tileWidth);
+  }
+
+  if (options.tileHeight !== undefined) {
+    this.setTileHeight(options.tileHeight);
+  }
+}
+
+WebglMapLayer.prototype.setNLevels = function(nLevels) {
+  this._nLevels = nLevels;
+}
+
+WebglMapLayer.prototype.setTileWidth = function(width) {
+  this._tileWidth = width;
+}
+
+WebglMapLayer.prototype.setTileHeight = function(height) {
+  this._tileHeight = height;
 }
 
 WebglMapLayer.prototype.
