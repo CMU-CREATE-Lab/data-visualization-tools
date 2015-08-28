@@ -8,7 +8,7 @@ function WebglViirsTile(glb, url) {
   this._program = glb.programFromSources(WebglViirsTile.vertexShader,
     WebglViirsTile.fragmentShader);
   this._minTime = new Date('2014-03-14').getTime();
-  this._maxTime = this._minTime + (30 * 24 * 60 * 60 * 1000);
+  this._maxTime = new Date('2014-04-13').getTime();
   this._showTemp = false;
   this._minTemp = 400.;
   this._maxTemp = 3000.;
@@ -99,7 +99,7 @@ WebglViirsTile.prototype.draw = function(transform, opts) {
     translateMatrix(mapMatrix, -transform.x, -transform.y);
     scaleMatrix(mapMatrix, scale, scale);
 
-    var pointSize = Math.floor((transform.zoom + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1);
+    var pointSize = Math.floor((transform.zoom + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 4.;
     
 
     gl.vertexAttrib1f(gl.aPointSize, pointSize*1.0);
