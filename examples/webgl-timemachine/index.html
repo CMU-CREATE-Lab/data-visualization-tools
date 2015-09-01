@@ -184,7 +184,7 @@
 
       jQuery.support.cors = true;
 
-      var landsatBaseMapLayer, timelapse, darkBaseMapLayer, lightBaseMapLayer, wdpaVectorLayer, hansonMapLayer, viirsTile;
+      var landsatBaseMapLayer, timelapse, darkBaseMapLayer, lightBaseMapLayer, wdpaVectorLayer, hansonMapLayer, hansonMapLayer2, viirsTile;
 
       // Using "https" will casue the thumbnail loading from the server to fail
       //var url = "http://earthengine.google.org/timelapse/data/20130507";
@@ -201,6 +201,7 @@
       var viirsUrl = '../../../viirs/createlab-viirs-uncorrected-20140314-20150403.bin';
       var gfcDarkUrl = "../../../global-forest-change/loss_year_new";
       var gfcTransUrl = "../../../global-forest-change/loss_year_transparent";
+      var gfcLossGainUrl = "../../../global-forest-change/loss_tree_gain"
 
       var visibleBaseMapLayer = "landsat";
 
@@ -279,6 +280,14 @@
           }
         }).prop('checked', showHansonLayer);
 
+        $("#show-forest-loss-gain").on("click", function() {
+          if ($(this).prop('checked')) {
+            showHansonLayer2 = true;
+          } else {
+            showHansonLayer2 = false;
+          }
+        }).prop('checked', showHansonLayer2);
+
         $("#show-viirs").on("click", function() {
           if ($(this).prop('checked')) {
             showViirsLayer = true;
@@ -325,6 +334,7 @@
 
       var showWdpaLayer = true;
       var showHansonLayer = true;
+      var showHansonLayer2 = false;
       var showViirsLayer = false;
 
       var tileViewVisibility = {
@@ -360,6 +370,8 @@
         layer_html += '<label for="show-wdpa" id="wdpa-label">Protected Areas</label>';
         layer_html += '<br><input type="checkbox" id="show-forest-change">';
         layer_html += '<label for="show-forest-change" id="forest-label">Global Forest Change</label>';
+        layer_html += '<br><input type="checkbox" id="show-forest-loss-gain">';
+        layer_html += '<label for="show-forest-loss-gain" id="forest-label">Global Forest Loss/Gain</label>';
         layer_html += '<br><input type="checkbox" id="show-viirs">';
         layer_html += '<label for="show-viirs" id="viirs-label">Fires at Night</label>';
         layer_html += '</div>';
@@ -384,6 +396,7 @@
         lightBaseMapLayer = new WebglMapLayer(glb, canvasLayer, osmLightRetinaUrl, retinaMapLayerOptions);
         darkBaseMapLayer = new WebglMapLayer(glb, canvasLayer, osmDarkRetinaUrl, retinaMapLayerOptions);
         hansonMapLayer = new WebglMapLayer(glb, canvasLayer, gfcTransUrl, defaultMapLayerOptions);
+        hansonMapLayer2 = new WebglMapLayer(glb, canvasLayer, gfcLossGainUrl, defaultMapLayerOptions);
         wdpaVectorLayer = new WebglVectorLayer(glb, canvasLayer, wdpaUrl, defaultMapLayerOptions);
 
         // VIIRS is just a single tile
@@ -523,7 +536,7 @@
 
         // Layers to draw above the base layer
 
-        // Draw hansonMapLayer
+        // Draw hansonMapLayer (Forest change transparent)
         if (showHansonLayer) {
           // Construct view for hansonMapLayer
           var hansonMapLayerView = timelapse.getView();
@@ -533,6 +546,18 @@
           hansonMapLayerView.scale /= timelapse2map;
 
           hansonMapLayer.draw(hansonMapLayerView);
+        }
+
+        // Draw hansonMapLayer2 (Forest Loss/Gain)
+        if (showHansonLayer2) {
+          // Construct view for hansonMapLayer2
+          var hansonMapLayerView2 = timelapse.getView();
+          var timelapse2map = hansonMapLayer2.getWidth() / landsatBaseMapLayer.getWidth();
+          hansonMapLayerView2.x *= timelapse2map;
+          hansonMapLayerView2.y *= timelapse2map;
+          hansonMapLayerView2.scale /= timelapse2map;
+
+          hansonMapLayer2.draw(hansonMapLayerView2);
         }
 
         // Draw wdpaLayer
