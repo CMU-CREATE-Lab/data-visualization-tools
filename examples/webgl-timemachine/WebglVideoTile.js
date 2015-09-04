@@ -371,10 +371,15 @@ updatePhase2 = function(displayFrame) {
   var targetVideoFrame = (displayFrame + this._frameOffset + 1.2) % this._nframes;
 
   var futureTargetVideoFrame = (targetVideoFrame + future) % this._nframes;
-
-  // Slow down by up to half a frame to make sure to get the next requested frame
-  futureTargetVideoFrame = Math.min(futureTargetVideoFrame,
-                                    nextNeededFrame + 0.5);
+    
+  if (isPaused && nextNeededFrame == displayFrameDiscrete) {
+    // Paused and we need the current frame        
+    futureTargetVideoFrame = displayFrameDiscrete + 0.5;
+  } else {
+    // Slow down by up to half a frame to make sure to get the next requested frame
+    futureTargetVideoFrame = Math.min(futureTargetVideoFrame,
+                                      nextNeededFrame + 0.5);
+  }
 
   // Set speed so that in one webgl frame, we'll be exactly at the right time
   var speed = (futureTargetVideoFrame - actualVideoFrame) / future;
