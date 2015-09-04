@@ -334,6 +334,10 @@ updatePhase2 = function(displayFrame) {
   var displayFrameDiscrete = Math.min(Math.floor(displayFrame), this._nframes - 1);
   var readyState = this._video.readyState;
   var isPaused = timelapse.isPaused();
+  // TODO(rsargent+pdille): This hacks timelapse to show frame 28 (2012) if VIIRS is showing
+  if (showViirsLayer) {
+    isPaused = true;
+  }
 
   if (readyState == 0) {
     return;
@@ -343,7 +347,7 @@ updatePhase2 = function(displayFrame) {
   var actualVideoFrameDicrete = Math.min(Math.floor(actualVideoFrame), this._nframes - 1);
 
   if (readyState > 1 && !redrawTakingTooLong()) {
-    this._tryCaptureFrame(displayFrameDiscrete, actualVideoFrame, actualVideoFrameDicrete, timelapse.isPaused());
+    this._tryCaptureFrame(displayFrameDiscrete, actualVideoFrame, actualVideoFrameDicrete, isPaused);
   }
   this._checkForMissedFrame(displayFrameDiscrete);
 
@@ -518,6 +522,10 @@ WebglVideoTile.update = function(tiles, transform) {
   // TODO(rsargent): don't hardcode this here
   var fps = 10;
   var displayFrame = timelapse.getVideoset().getCurrentTime() * fps;
+  // TODO(rsargent+pdille): This hacks timelapse to show frame 28 (2012) if VIIRS is showing
+  if (showViirsLayer) {
+    displayFrame = 28.5;
+  }
 
   for (var i = 0; i < tiles.length; i++) {
     tiles[i].updatePhase1(displayFrame);  // Frame being displayed on screen
