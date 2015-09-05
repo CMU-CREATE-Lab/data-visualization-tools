@@ -337,12 +337,13 @@
             timelapse.setPlaybackRate(8);
             timelapse.loadNewTimeline("../createlab-viirs/viirs-times.json","defaultUI");
             timelapse.setDoDwell(false);
-
+            $("#show-additional-landsat").prop("disabled", true);
           } else {
             showViirsLayer = false;
             timelapse.setPlaybackRate(1);
             timelapse.loadNewTimeline("landsat-times.json","customUI");
             timelapse.setDoDwell(true);
+            $("#show-additional-landsat").prop("disabled", false);
           }
         }).prop('checked', showViirsLayer);
 
