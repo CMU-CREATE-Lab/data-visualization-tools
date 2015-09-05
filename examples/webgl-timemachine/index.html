@@ -10,6 +10,7 @@
     <link href="../../timemachine/css/scaleBar.css" rel="stylesheet" type="text/css" />
     <link href="../../timemachine/css/customUI.css" rel="stylesheet" type="text/css" />
     <link href="../../timemachine/css/leaflet/leaflet.css" rel="stylesheet" type="text/css"/>
+    <link href="../../js/customVideoTagControls/customVideoTagControls.css" rel="stylesheet" type="text/css"/>
 
     <script src="../../timemachine/js/jquery/jquery.min.js" type="text/javascript"></script>
     <script src="../../timemachine/js/jquery/jquery-ui.custom.min.js" type="text/javascript"></script>
@@ -29,6 +30,7 @@
     <script src="../../timemachine/js/org/gigapan/timelapse/urlEncoder.js" type="text/javascript"></script>
     <script src="../../timemachine/template_includes.js" type="text/javascript"></script>
     <script src="../../timemachine/js/leaflet/leaflet.min.js" type="text/javascript" ></script>
+    <script src="../../js/customVideoTagControls/customVideoTagControls.js" type="text/javascript"></script>
     <script src="landsat_ajax_includes2.js" type="text/javascript"></script>
 
     <script src="TileIdx.js"></script>
@@ -223,7 +225,7 @@
 
       var landsatBaseMapLayer, timelapse, darkBaseMapLayer, lightBaseMapLayer, wdpaVectorLayer, hansonMapLayer, hansonMapLayer2, viirsTile;
 
-      var presentationSliderContent = "#presentation=EUDkDPWPyXs9wR6gBAmazon%20Deforestation%20in%20Rondonia_Rondonia_DkDT37Hawc4T8VA%20large-scale%20hydroelectric%20project%20in%20the%20Brazilian%20Amazon%20rainforest_Tucurui%20Dam_BkDTiTRWWTmR6gBRiver%20meandering%20in%20the%20Amazon_Meander_DkDK9ySWib2R2dThe%20abandonment%20of%20a%20river%20channel%20and%20the%20formation%20of%20a%20new%20river%20channel_Bolivia%20Avulsion_DkDU28jbt4xTkcErosion%20in%20the%20Amazon%27s%20mouth_Mouth%20of%20Amazon_DkDcOeLoWayQ6gBThe%20Cape%20and%20islands%20are%20subject%20to%20massive%20coastal%20erosion_South%20Cape%20Cod_BkDPt3KmUZ3P6gBThe%20Outer%20Banks%20often%20suffers%20significant%20beach%20erosion%20during%20storms_Outer%20Banks%20NC_DkDFGq9mKcYi8VThe%20shrinking%20and%20drying%20up%20of%20the%20Lake%20Urmia_Lake%20Urmia_DkDOcGQprwpkmRThe%20shrinking%20of%20the%20Aral%20Sea%20destroys%20fishing%20industry%20and%20brings%20unemployment%20and%20public%20health%20problems_Aral%20Sea_DkDSq1joU5sk6gBThe%20expansion%20of%20irrigation%20systems%20near%20the%20Aral%20Sea_Aral%20Expansion_BkDcM7nkdxUhgZCenter-pivot%20irrigation%20irrigates%20crops%20with%20sprinklers%20centered%20on%20the%20pivot%2C%20creating%20a%20green%20circular%20pattern_Saudi%20Irrigation_CkDWmblQtbBxuXBushfires%20in%20Australia%20are%20frequent%20during%20the%20hotter%20months%20of%20the%20year_Australia%20Bushfire_DkDWZuFgTJ1tycThe%20eruption%20of%20Mount%20Pinatubo%20on%20June%2015%2C%201991_Pinatubo_DkDVUU_kfEAu_cUrban%20expansion%20in%20Shanghai%2C%20China%2E_Shanghai_DkDX2whibLvsof3rd%20largest%20city%20in%20China%2E%20Population%20doubled%20since%202001%2E_Guangzhou_DkDQ5wYitp3subShenzhen%20bay%2C%20growth%20of%20land%20use%20into%20bay%2E_Shenzhen_DkDcABUmLtywojBHaneda%20Airport%3A%20Now%20second%20busiest%20airport%20in%20Asia%2E_Tokyo-Yokohama_DkDP4t6mgw0u7c_Seoul_DkDFkV8lWccJ9X_Los%20Angeles_BkDFWDcc0I-q_a_Kuala%20Lumpur_Untitled_B"
+      var presentationSliderContent = "#presentation=EUDkDPWPyXs9wR6gBAmazon%20Deforestation%20in%20Rondonia_Rondonia_DkDT37Hawc4T8VA%20large-scale%20hydroelectric%20project%20in%20the%20Brazilian%20Amazon%20rainforest_Tucurui%20Dam_BkDTiTRWWTmR6gBRiver%20meandering%20in%20the%20Amazon_Meander_DkDK9ySWib2R2dThe%20abandonment%20of%20a%20river%20channel%20and%20the%20formation%20of%20a%20new%20river%20channel_Bolivia%20Avulsion_DkDU28jbt4xTkcErosion%20in%20the%20Amazon%27s%20mouth_Mouth%20of%20Amazon_DkDcOeLoWayQ6gBThe%20Cape%20and%20islands%20are%20subject%20to%20massive%20coastal%20erosion_South%20Cape%20Cod_BkDPt3KmUZ3P6gBThe%20Outer%20Banks%20often%20suffers%20significant%20beach%20erosion%20during%20storms_Outer%20Banks%20NC_DkDFGq9mKcYi8VThe%20shrinking%20and%20drying%20up%20of%20the%20Lake%20Urmia_Lake%20Urmia_DkDOcGQprwpkmRThe%20shrinking%20of%20the%20Aral%20Sea%20destroys%20fishing%20industry%20and%20brings%20unemployment%20and%20public%20health%20problems_Aral%20Sea_DkDSq1joU5sk6gBThe%20expansion%20of%20irrigation%20systems%20near%20the%20Aral%20Sea_Aral%20Expansion_BkDcM7nkdxUhgZCenter-pivot%20irrigation%20irrigates%20crops%20with%20sprinklers%20centered%20on%20the%20pivot%2C%20creating%20a%20green%20circular%20pattern_Saudi%20Irrigation_CkDWmblQtbBxuXBushfires%20in%20Australia%20are%20frequent%20during%20the%20hotter%20months%20of%20the%20year_Australia%20Bushfire_DkDWZuFgTJ1tycThe%20eruption%20of%20Mount%20Pinatubo%20on%20June%2015%2C%201991_Pinatubo_DkDVUU_kfEAu_cUrban%20expansion%20in%20Shanghai%2C%20China%2E_Shanghai_DkDX2whibLvsof3rd%20largest%20city%20in%20China%2E%20Population%20doubled%20since%202001%2E_Guangzhou_DkDQ5wYitp3subShenzhen%20bay%2C%20growth%20of%20land%20use%20into%20bay%2E_Shenzhen_DkDcABUmLtywojBHaneda%20Airport%3A%20Now%20second%20busiest%20airport%20in%20Asia%2E_Tokyo-Yokohama_DkDP4t6mgw0u7c_Seoul_DkDFkV8lWccJ9X_Los%20Angeles_BkDFWDcc0I-q_a_Kuala%20Lumpur_Untitled_B";
 
       // Using "https" will casue the thumbnail loading from the server to fail
       //var url = "http://earthengine.google.org/timelapse/data/20130507";
@@ -233,7 +235,7 @@
       // Open Street Map paths
       var osmDefaultUrl = "../../../data/openstreetmap/default";
       var osmLightRetinaUrl = "../../../data/openstreetmap/mapbox_streets_basic_retina";
-      var osmDarkUrl = "../../../data/openstreetmap/dark_all";
+      //var osmDarkUrl = "../../../data/openstreetmap/dark_all";
       var osmDarkRetinaUrl = "../../../data/openstreetmap/dark_all_retina";
 
       // Other vector layer paths
@@ -347,7 +349,7 @@
           } else {
             timelapse.loadNewTimeline("landsat-times.json","customUI");
           }
-        })
+        });
 
         // Set the starting base layer
         $("input:radio[name=base-layers]").on("click", function() {
@@ -389,6 +391,9 @@
               $extrasHtml = '<video id="extras-video" src="../../../extras/' + fileName + '" width="100%" height="100%" controls autoplay></video>';
               $("#extras-content").html($extrasHtml).dialog("open");
               $("#extras-video")[0].playbackRate = $(e.currentTarget).data("fileplaybackrate");
+              $("#extras-video").gVideo({
+                childtheme:'smalldark'
+              });
             } else if (fileType == "link") {
               window.location.href = $(e.currentTarget).data("linkpath");
             }
