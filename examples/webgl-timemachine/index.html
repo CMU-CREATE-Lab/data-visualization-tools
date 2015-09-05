@@ -341,7 +341,11 @@
           } else {
             showViirsLayer = false;
             timelapse.setPlaybackRate(1);
-            timelapse.loadNewTimeline("landsat-times.json","customUI");
+            if ($("#show-additional-landsat").prop('checked')) {
+              timelapse.loadNewTimeline("landsat-times-long.json","customUI");
+            } else {
+              timelapse.loadNewTimeline("landsat-times.json","customUI");
+            }
             timelapse.setDoDwell(true);
             $("#show-additional-landsat").prop("disabled", false);
           }
