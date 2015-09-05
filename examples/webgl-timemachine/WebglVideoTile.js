@@ -334,7 +334,7 @@ updatePhase2 = function(displayFrame) {
   var displayFrameDiscrete = Math.min(Math.floor(displayFrame), this._nframes - 1);
   var readyState = this._video.readyState;
   var isPaused = timelapse.isPaused();
-  // TODO(rsargent+pdille): This hacks timelapse to show frame 28 (2012) if VIIRS is showing
+  // TODO(rsargent+pdille): This hacks timelapse to show frame 27 (2011) if VIIRS is showing
   if (showViirsLayer) {
     isPaused = true;
   }
@@ -522,9 +522,9 @@ WebglVideoTile.update = function(tiles, transform) {
   // TODO(rsargent): don't hardcode this here
   var fps = 10;
   var displayFrame = timelapse.getVideoset().getCurrentTime() * fps;
-  // TODO(rsargent+pdille): This hacks timelapse to show frame 28 (2012) if VIIRS is showing
+  // TODO(rsargent+pdille): This hacks timelapse to show frame 27 (2011) if VIIRS is showing
   if (showViirsLayer) {
-    displayFrame = 28.5;
+    displayFrame = 27;
   }
 
   for (var i = 0; i < tiles.length; i++) {
