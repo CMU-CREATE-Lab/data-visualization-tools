@@ -33,7 +33,7 @@ function WebglMapLayer(glb, canvasLayer, tileUrl, opt_options) {
 
 WebglMapLayer.prototype.setOptions = function(options) {
   if (options.nLevels !== undefined) {
-    this.setNLevels(options.animate);
+    this.setNLevels(options.nLevels);
   }
 
   if (options.tileWidth !== undefined) {

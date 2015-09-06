@@ -334,13 +334,15 @@
         $("#show-viirs").on("click", function() {
           if ($(this).prop('checked')) {
             showViirsLayer = true;
-            timelapse.setPlaybackRate(4);
+            timelapse.setPlaybackRate(8);
             timelapse.loadNewTimeline("../createlab-viirs/viirs-times.json","defaultUI");
+            timelapse.setDoDwell(false);
 
           } else {
             showViirsLayer = false;
             timelapse.setPlaybackRate(1);
             timelapse.loadNewTimeline("landsat-times.json","customUI");
+            timelapse.setDoDwell(true);
           }
         }).prop('checked', showViirsLayer);
 
@@ -515,12 +517,12 @@
 
         // Raster map layers
         var defaultMapLayerOptions = {
-          nlevels: 12,
+          nLevels: 12,
           tileWidth: 256,
           tileHeight: 256
         };
         var retinaMapLayerOptions = {
-          nlevels: 12,
+          nLevels: 11,
           tileWidth: 512,
           tileHeight: 512
         };
