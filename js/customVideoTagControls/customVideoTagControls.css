@@ -14,8 +14,9 @@
   display: block !important;
   bottom:1px !important;
   height:12px !important;
-  right: calc(50% - 170px) !important;
-  left: initial !important;
+  /*right: calc(50% - 170px) !important;*/
+  left: 0px !important;
+  /*left: initial !important;*/
 }
 
 .ghinda-video-timer {
