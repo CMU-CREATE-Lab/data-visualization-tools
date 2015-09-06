@@ -29,7 +29,7 @@
     <script src="../../timemachine/js/org/gigapan/timelapse/urlEncoder.js" type="text/javascript"></script>
     <script src="../../timemachine/template_includes.js" type="text/javascript"></script>
     <script src="../../timemachine/js/leaflet/leaflet.min.js" type="text/javascript" ></script>
-    <script src="landsat_ajax_includes.js" type="text/javascript"></script>
+    <script src="landsat_ajax_includes2.js" type="text/javascript"></script>
 
     <script src="TileIdx.js"></script>
     <script src="WebglVideoTile.js"></script>
@@ -85,11 +85,11 @@
         color: rgb(60, 60, 60);
       }
       #vector-layers {
-        width: 270px;
+        width: 337px;
         background: white;
         position: absolute;
         right: 19px;
-        bottom: 250px;
+        bottom: 208px;
         border: 1px solid #656565;
         -webkit-border-radius: 3px;
         -moz-border-radius: 3px;
@@ -99,8 +99,8 @@
         outline: none;
         font-family: Arial, Helvetica, sans-serif;
         font-size: 20px;
-        padding-bottom: 11px;
-        padding-top: 13px;
+        padding-bottom: 20px;
+        padding-top: 5px;
         padding-left: 13px;
         padding-right: 6px;
         color: #262525;
@@ -135,7 +135,7 @@
         height: 17px;
         border-radius: 5px;
         border: 2px solid #555;
-        margin-top: 8px;
+        margin-top: 15px;
         margin-left: 9px;
         cursor: pointer;
       }
@@ -178,6 +178,43 @@
         -moz-box-shadow: 0 0 5px 1px #969696;
         box-shadow: 0 0 5px 1px #969696;
       }
+
+      #vector-layers .ui-selectmenu-button {
+        margin-left: 8px;
+        top: 10px !important;
+        width: 310px !important;
+        font-size: 14px !important;
+        background: #EFEFEF !important;
+      }
+
+      #extras-selector-menu .ui-state-focus {
+        background: #EFEFEF !important;
+      }
+
+      .ui-widget-header {
+        height: 20px;
+      }
+
+      .ui-menu-item {
+        font-size: 17px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+      }
+
+      .ui-dialog-titlebar-close {
+        width: 25px !important;
+        height: 25px !important;
+        top: 12px !important;
+        background: #EFEFEF !important;
+      }
+
+      .googleLogo {
+        display: none;
+      }
+
+      .customHelpLabel {
+        top: -25px;
+      }
     </style>
     <script type="text/javascript">
       "use strict";
@@ -186,22 +223,25 @@
 
       var landsatBaseMapLayer, timelapse, darkBaseMapLayer, lightBaseMapLayer, wdpaVectorLayer, hansonMapLayer, hansonMapLayer2, viirsTile;
 
+      var presentationSliderContent = "#presentation=EUDkDPWPyXs9wR6gBAmazon%20Deforestation%20in%20Rondonia_Rondonia_DkDT37Hawc4T8VA%20large-scale%20hydroelectric%20project%20in%20the%20Brazilian%20Amazon%20rainforest_Tucurui%20Dam_BkDTiTRWWTmR6gBRiver%20meandering%20in%20the%20Amazon_Meander_DkDK9ySWib2R2dThe%20abandonment%20of%20a%20river%20channel%20and%20the%20formation%20of%20a%20new%20river%20channel_Bolivia%20Avulsion_DkDU28jbt4xTkcErosion%20in%20the%20Amazon%27s%20mouth_Mouth%20of%20Amazon_DkDcOeLoWayQ6gBThe%20Cape%20and%20islands%20are%20subject%20to%20massive%20coastal%20erosion_South%20Cape%20Cod_BkDPt3KmUZ3P6gBThe%20Outer%20Banks%20often%20suffers%20significant%20beach%20erosion%20during%20storms_Outer%20Banks%20NC_DkDFGq9mKcYi8VThe%20shrinking%20and%20drying%20up%20of%20the%20Lake%20Urmia_Lake%20Urmia_DkDOcGQprwpkmRThe%20shrinking%20of%20the%20Aral%20Sea%20destroys%20fishing%20industry%20and%20brings%20unemployment%20and%20public%20health%20problems_Aral%20Sea_DkDSq1joU5sk6gBThe%20expansion%20of%20irrigation%20systems%20near%20the%20Aral%20Sea_Aral%20Expansion_BkDcM7nkdxUhgZCenter-pivot%20irrigation%20irrigates%20crops%20with%20sprinklers%20centered%20on%20the%20pivot%2C%20creating%20a%20green%20circular%20pattern_Saudi%20Irrigation_CkDWmblQtbBxuXBushfires%20in%20Australia%20are%20frequent%20during%20the%20hotter%20months%20of%20the%20year_Australia%20Bushfire_DkDWZuFgTJ1tycThe%20eruption%20of%20Mount%20Pinatubo%20on%20June%2015%2C%201991_Pinatubo_DkDVUU_kfEAu_cUrban%20expansion%20in%20Shanghai%2C%20China%2E_Shanghai_DkDX2whibLvsof3rd%20largest%20city%20in%20China%2E%20Population%20doubled%20since%202001%2E_Guangzhou_DkDQ5wYitp3subShenzhen%20bay%2C%20growth%20of%20land%20use%20into%20bay%2E_Shenzhen_DkDcABUmLtywojBHaneda%20Airport%3A%20Now%20second%20busiest%20airport%20in%20Asia%2E_Tokyo-Yokohama_DkDP4t6mgw0u7c_Seoul_DkDFkV8lWccJ9X_Los%20Angeles_BkDFWDcc0I-q_a_Kuala%20Lumpur_Untitled_B"
+
       // Using "https" will casue the thumbnail loading from the server to fail
       //var url = "http://earthengine.google.org/timelapse/data/20130507";
-      var landsatUrl = "../../../landsat-annual/1068x600";
+      //var landsatUrl = "../../../data/landsat-annual/1068x600";
+      var landsatUrl = "../../../data/landsat-annual-new-v1/1068x600";
 
       // Open Street Map paths
-      var osmDefaultUrl = "../../../openstreetmap/default";
-      var osmLightRetinaUrl = "../../../openstreetmap/mapbox_streets_basic_retina";
-      var osmDarkUrl = "../../../openstreetmap/dark_all";
-      var osmDarkRetinaUrl = "../../../openstreetmap/dark_all_retina";
+      var osmDefaultUrl = "../../../data/openstreetmap/default";
+      var osmLightRetinaUrl = "../../../data/openstreetmap/mapbox_streets_basic_retina";
+      var osmDarkUrl = "../../../data/openstreetmap/dark_all";
+      var osmDarkRetinaUrl = "../../../data/openstreetmap/dark_all_retina";
 
       // Other vector layer paths
-      var wdpaUrl = "../../../wdpaline-year";
-      var viirsUrl = '../../../viirs/createlab-viirs-uncorrected-20140314-20150403.bin';
-      var gfcDarkUrl = "../../../global-forest-change/loss_year_new";
-      var gfcTransUrl = "../../../global-forest-change/loss_year_transparent";
-      var gfcLossGainUrl = "../../../global-forest-change/loss_tree_gain"
+      var wdpaUrl = "../../../data/wdpaline-year";
+      var viirsUrl = '../../../data/viirs/createlab-viirs-uncorrected-20140314-20150403.bin';
+      var gfcDarkUrl = "../../../data/global-forest-change/loss_year_new";
+      var gfcTransUrl = "../../../data/global-forest-change/loss_year_transparent";
+      var gfcLossGainUrl = "../../../data/global-forest-change/loss_tree_gain";
 
       var visibleBaseMapLayer = "landsat";
 
@@ -223,7 +263,7 @@
             initialWaypointIndex: 0,
             doAutoMode: false,
             showAnnotations: false,
-            screenIdleTime: 60000,
+            screenIdleTime: 180 * 1000,
             waypointDelayTime: 15000
           },
           useTouchFriendlyUI: true,
@@ -301,11 +341,84 @@
           }
         }).prop('checked', showViirsLayer);
 
+        $("#show-additional-landsat").on("click", function() {
+          if ($(this).prop('checked')) {
+            timelapse.loadNewTimeline("landsat-times-long.json","customUI");
+          } else {
+            timelapse.loadNewTimeline("landsat-times.json","customUI");
+          }
+        })
+
+        // Set the starting base layer
         $("input:radio[name=base-layers]").on("click", function() {
           visibleBaseMapLayer = $(this).val();
         });
-
         $('input:radio[name=base-layers][id=' + visibleBaseMapLayer + '-base]').prop('checked', true);
+
+        // Copy over data attributes to selectmenu
+        $.widget("ui.selectmenu", $.ui.selectmenu, {
+          _renderItem: function( ul, item ) {
+            var elementdata = item.element.context.dataset;
+            var attributesObj = {};
+            Object.keys(elementdata).forEach(function(x){
+            attributesObj["data-" + x] = elementdata[x];
+          });
+          return $( '<li>' )
+            .attr(attributesObj)
+            .append(item.label)
+            .appendTo( ul );
+          }
+        });
+
+        $("#extras-selector").selectmenu({
+          appendTo: "#timeMachine",
+          change: function(event, ui) {
+            // use click event below since this event is not registered on the touch screen.
+          }
+        });
+
+        $(".ui-selectmenu-menu").on("click", "li", function(e) {
+            var fileName = $(e.currentTarget).data("filename");
+            var fileType = $(e.currentTarget).data("type");
+            $("#extras-content").dialog('option', 'title', $(e.currentTarget).text());
+            var $extrasHtml = "";
+            if (fileType == "image") {
+              $extrasHtml = '<img src="../../../extras/' + fileName + '">';
+              $("#extras-content").html($extrasHtml).dialog("open");
+            } else if (fileType == "video") {
+              $extrasHtml = '<video id="extras-video" src="../../../extras/' + fileName + '" width="100%" height="100%" controls autoplay></video>';
+              $("#extras-content").html($extrasHtml).dialog("open");
+              $("#extras-video")[0].playbackRate = $(e.currentTarget).data("fileplaybackrate");
+            } else if (fileType == "link") {
+              window.location.href = $(e.currentTarget).data("linkpath");
+            }
+        });
+
+        $("#extras-content").dialog({
+          appendTo: "#timeMachine",
+          modal: true,
+          autoOpen: false,
+          draggable: false,
+          resizable: false,
+          width: $(window).width() - 5,
+          height: $(window).height(),
+          beforeClose: function(event, ui) {
+            var $extrasVideo  = $("#extras-video");
+            if ($extrasVideo) {
+              $extrasVideo[0].pause();
+              $extrasVideo[0].src = "";
+            }
+            $("#extras-selector").val("Select...").selectmenu('refresh');
+          }
+        }).css({
+          'z-index': '2000',
+          'left': '0px',
+          'top':'0px'
+        });
+
+        $(window).resize(function () {
+          $("#extras-content").dialog("option", {"width" : ($(window).width() - 5), "height" : $(window).height()});
+        });
 
       }
     </script>
@@ -360,20 +473,32 @@
         //totalTime =  29 /*timelapse.getNumFrames()*/ / /*timelapse.getFps()*/ 10;
 
         var layer_html = '<div id="vector-layers">';
-        layer_html += '<input type="radio" id="light-base" name="base-layers" value="light" />';
-        layer_html += '<label for="light-base" class="base-layers-label">Light</label>';
-        layer_html += '<input type="radio" id="dark-base" name="base-layers" value="dark" />';
-        layer_html += '<label for="dark-base" class="base-layers-label">Dark</label>';
+
         layer_html += '<input type="radio" id="landsat-base" name="base-layers" value="landsat" />';
-        layer_html += '<label for="landsat-base" class="base-layers-label">Landsat</label><br>';
+        layer_html += '<label for="landsat-base" class="base-layers-label">Google Earth Time-Lapse</label>';
+        layer_html += '<input type="checkbox" id="show-additional-landsat">';
+        layer_html += '<label for="show-additional-landsat" id="additional-landsat-label">+3Y</label><br>';
+        layer_html += '<input type="radio" id="light-base" name="base-layers" value="light" />';
+        layer_html += '<label for="light-base" class="base-layers-label">Light Map</label>';
+        layer_html += '<input type="radio" id="dark-base" name="base-layers" value="dark" />';
+        layer_html += '<label for="dark-base" class="base-layers-label">Dark Map</label><br>';
         layer_html += '<input type="checkbox" id="show-wdpa">';
         layer_html += '<label for="show-wdpa" id="wdpa-label">Protected Areas</label>';
         layer_html += '<br><input type="checkbox" id="show-forest-change">';
-        layer_html += '<label for="show-forest-change" id="forest-label">Global Forest Change</label>';
+        layer_html += '<label for="show-forest-change" id="forest-label">Forest Loss by Year</label>';
         layer_html += '<br><input type="checkbox" id="show-forest-loss-gain">';
-        layer_html += '<label for="show-forest-loss-gain" id="forest-label">Global Forest Loss/Gain</label>';
+        layer_html += '<label for="show-forest-loss-gain" id="forest-label">Forest Loss/Gain</label>';
         layer_html += '<br><input type="checkbox" id="show-viirs">';
         layer_html += '<label for="show-viirs" id="viirs-label">Fires at Night</label>';
+        layer_html += '<select name="extras-selector" id="extras-selector">';
+        layer_html += '<option selected="selected">Select...</option>';
+        layer_html += '<option data-file-playback-rate="2" data-type="video" data-file-name="Arctic Sea Ice, September 1979 to September 2014.mp4">Annual Sea Ice Concentration 1979-2014</option>';
+        layer_html += '<option data-file-playback-rate="2" data-type="video" data-file-name="Arctic ice age, 1987-2014.mp4">Ice Thinning 1987-2014</option>';
+        layer_html += '<option data-file-playback-rate="2" data-type="video" data-file-name="Carbon Dioxide 2006 GEOS-5 model.mp4">CO2 2006 GEOS-5 Model</option>';
+        layer_html += '<option data-file-playback-rate="2" data-type="video" data-file-name="Land + Ocean Average Temperature Annual Anomaly.mp4">Temperature Anomaly 1850-2013</option>';
+        layer_html += '<option data-file-playback-rate="2" data-type="video" data-file-name="pumphandle_2014.mp4">Measured CO2 Over Time</option>';
+        layer_html += '<option data-type="link" data-link-path="http://localhost:8080/?uid=history-1436384863961-Vyxt6PIO">EVA - Explorable Visual Analytics</option>';
+        layer_html += '</select>';
         layer_html += '</div>';
 
         $(layer_html).appendTo("#timeMachine");
@@ -387,12 +512,12 @@
           nlevels: 12,
           tileWidth: 256,
           tileHeight: 256
-        }
+        };
         var retinaMapLayerOptions = {
           nlevels: 12,
           tileWidth: 512,
           tileHeight: 512
-        }
+        };
         lightBaseMapLayer = new WebglMapLayer(glb, canvasLayer, osmLightRetinaUrl, retinaMapLayerOptions);
         darkBaseMapLayer = new WebglMapLayer(glb, canvasLayer, osmDarkRetinaUrl, retinaMapLayerOptions);
         hansonMapLayer = new WebglMapLayer(glb, canvasLayer, gfcTransUrl, defaultMapLayerOptions);
@@ -406,26 +531,38 @@
         initLayerToggleUI();
 
         // Load waypoints
-        timelapse.loadSharedDataFromUnsafeURL("#presentation=EODkDPWPyXs9wR6gBAmazon%20Deforestation%20in%20Rondonia_Rondonia_DkDT37Hawc4T8VA%20large-scale%20hydroelectric%20project%20in%20the%20Brazilian%20Amazon%20rainforest_Tucurui%20Dam_BkDTiTRWWTmR6gBRiver%20meandering%20in%20the%20Amazon_Meander_DkDK9ySWib2R2dThe%20abandonment%20of%20a%20river%20channel%20and%20the%20formation%20of%20a%20new%20river%20channel_Bolivia%20Avulsion_DkDU28jbt4xTkcErosion%20in%20the%20Amazon%27s%20mouth_Mouth%20of%20Amazon_DkDcOeLoWayQ6gBThe%20Cape%20and%20islands%20are%20subject%20to%20massive%20coastal%20erosion_South%20Cape%20Cod_BkDPt3KmUZ3P6gBThe%20Outer%20Banks%20often%20suffers%20significant%20beach%20erosion%20during%20storms_Outer%20Banks%20NC_DkDFGq9mKcYi8VThe%20shrinking%20and%20drying%20up%20of%20the%20Lake%20Urmia_Lake%20Urmia_DkDOcGQprwpkmRThe%20shrinking%20of%20the%20Aral%20Sea%20destroys%20fishing%20industry%20and%20brings%20unemployment%20and%20public%20health%20problems_Aral%20Sea_DkDSq1joU5sk6gBThe%20expansion%20of%20irrigation%20systems%20near%20the%20Aral%20Sea_Aral%20Expansion_BkDcM7nkdxUhgZCenter-pivot%20irrigation%20irrigates%20crops%20with%20sprinklers%20centered%20on%20the%20pivot%2C%20creating%20a%20green%20circular%20pattern_Saudi%20Irrigation_CkDWmblQtbBxuXBushfires%20in%20Australia%20are%20frequent%20during%20the%20hotter%20months%20of%20the%20year_Australia%20Bushfire_DkDWZuFgTJ1tycThe%20eruption%20of%20Mount%20Pinatubo%20on%20June%2015%2C%201991_Pinatubo_BkDVUU_kfEAu_cUrban%20expansion%20in%20Shanghai%2C%20China%2E_Shanghai_Untitled_B");
+        timelapse.loadSharedDataFromUnsafeURL(presentationSliderContent);
 
         // Toggle layers off when auto mode begins
-        // TODO: Handle newly added layers
-        /*var snaplapse = timelapse.getSnaplapseForPresentationSlider();
+        var snaplapse = timelapse.getSnaplapseForPresentationSlider();
         var snaplapseViewer = snaplapse.getSnaplapseViewer();
         snaplapseViewer.addEventListener('automode-start', function() {
           var $globalForestLayerToggle = $("#show-forest-change");
           var $wdpaLayerToggle = $("#show-wdpa");
+          var $globalForestLossLayerToggle = $("#show-forest-loss-gain");
+          var $viirsLayerToggle = $("#show-viirs");
+          var $showAdditionalLandsatYearsToggle = $("#show-additional-landsat");
+
           if ($globalForestLayerToggle.prop('checked')) {
             $globalForestLayerToggle.click();
           }
           if ($wdpaLayerToggle.prop('checked')) {
             $wdpaLayerToggle.click();
           }
-        });*/
+          if ($globalForestLossLayerToggle.prop('checked')) {
+            $globalForestLossLayerToggle.click();
+          }
+          if ($viirsLayerToggle.prop('checked')) {
+            $viirsLayerToggle.click();
+          }
+          if ($showAdditionalLandsatYearsToggle.prop('checked')) {
+            $showAdditionalLandsatYearsToggle.click();
+          }
+        });
 
         // Location search box, with autocomplete.
         // Note: Google's service gives much better results, but for the purpose of Dalian demo, we use a non-Google service.
-        $('<div style="z-index: 999; top: 5px; position: absolute; left: 50%; width: 200px; margin: auto -100px;"><input id="location_search" type="text" placeholder="Search for a location..." style="height: 24px">').appendTo($("#timeMachine"))
+        $('<div style="z-index: 100; top: 5px; position: absolute; left: 50%; width: 200px; margin: auto -100px;"><input id="location_search" type="text" placeholder="Search for a location..." style="height: 24px">').appendTo($("#timeMachine"));
 
         var locationList = [];
         $( "#location_search" ).autocomplete({
@@ -585,5 +722,6 @@
   <body>
     <div id="timeMachine" style="overflow: hidden"> </div>
     <canvas id="stats" style="position:absolute; top:0px; right:0px; z-index:100" width=1000 height=153></canvas>
+    <div id="extras-content" title="" style="display: none; padding: 0; margin: 0; overflow: hidden;"></div>
   </body>
 </html>
