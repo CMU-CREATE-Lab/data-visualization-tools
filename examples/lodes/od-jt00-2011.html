@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+  <head>
+    <title>od jt00 2011</title>
+    <style>
+      html, body, #map-div {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+      }
+    </style>
+    <script src="http://maps.googleapis.com/maps/api/js?sensor=false&v=3.20"></script>
+    <script>
+      var map;
+      function initMap(mapDiv) {
+        // initialize the map
+        var mapOptions = {
+          zoom: 4,
+          center: new google.maps.LatLng(39.005, -104.663),
+          mapTypeId: google.maps.MapTypeId.ROADMAP,
+          styles: [
+            {
+              "featureType": "road",
+              "elementType": "labels",
+              "stylers": [
+                { "visibility": "off" }
+              ]
+            },{
+              "featureType": "road",
+              "stylers": [
+                { "color": "#808080" },
+                { "weight": 0.2 }
+              ]
+            },{
+              "featureType": "poi",
+              "stylers": [
+                { "visibility": "on" }
+              ]
+            },{
+              "featureType": "landscape",
+              "stylers": [
+                { "visibility": "on" },
+                { "lightness": 91 }
+              ]
+          },{
+              "featureType": "water",
+              "stylers": [
+                  { "lightness": 78 }
+              ]
+          },{
+              "featureType": "poi",
+              "stylers": [
+                  { "lightness": 78 }
+              ]
+          }
+          ]
+        };
+        return new google.maps.Map(mapDiv, mapOptions);
+      }
+
+      function init() {
+        var mapDiv = document.getElementById('map-div');
+        map = initMap(mapDiv);
+      }
+      document.addEventListener('DOMContentLoaded', init, false);
+
+    </script>
+  </head>
+  <body>
+    <div id="map-div"></div>
+  </body>
+</html>
