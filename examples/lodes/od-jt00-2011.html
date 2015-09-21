@@ -10,8 +10,10 @@
       }
     </style>
     <script src="http://maps.googleapis.com/maps/api/js?sensor=false&v=3.20"></script>
+    <script src="../../js/CanvasLayer.js"></script>
     <script>
       var map;
+      var canvasLayer;
       function initMap(mapDiv) {
         // initialize the map
         var mapOptions = {
@@ -58,9 +60,28 @@
         return new google.maps.Map(mapDiv, mapOptions);
       }
 
+      function initCanvasLayer(map, resizeHandler, updateHandler) {
+        var canvasLayerOptions = {
+          map: map,
+          resizeHandler: resizeHandler,
+          animate: true,
+          updateHandler: updateHandler
+        };
+        return new CanvasLayer(canvasLayerOptions);        
+      }
+
       function init() {
         var mapDiv = document.getElementById('map-div');
         map = initMap(mapDiv);
+        canvasLayer = initCanvasLayer(map, resize, update);
+      }
+
+      function resize() {
+
+      }
+
+      function update() {
+
       }
       document.addEventListener('DOMContentLoaded', init, false);
 
