@@ -88,7 +88,7 @@
       }
       #vector-layers {
         width: 337px;
-        background: white;
+        background: rgba(255,255,255,0.7);
         position: absolute;
         right: 19px;
         bottom: 220px;
@@ -168,7 +168,11 @@
         left: 92px;
         top: 18px;
       }
+      ::-webkit-input-placeholder {
+        color: rgba(50,50,50,1.0);
+      }
       #location_search {
+        background: rgba(255,255,255,0.7);
         padding: 10px;
         border: solid 1px gainsboro;
         -webkit-transition: box-shadow 0.3s, border 0.3s;
@@ -255,6 +259,7 @@
           scale: 0.0010172804041788702
         };
         var settings = {
+          playbackSpeed: 0.5,
           viewerType: "webgl",
           url: landsatUrl,
           enablePresentationSlider: true,
@@ -264,9 +269,9 @@
             onLoadAnimation: "none",
             playAfterAnimation: false,
             initialWaypointIndex: 0,
-            doAutoMode: false,
+            doAutoMode: true,
             showAnnotations: false,
-            screenIdleTime: 180 * 1000,
+            screenIdleTime: 8 * 60 * 1000, // 8 minutes
             waypointDelayTime: 15000
           },
           useTouchFriendlyUI: true,
@@ -340,7 +345,7 @@
             $("#show-additional-landsat").prop("disabled", true);
           } else {
             showViirsLayer = false;
-            timelapse.setPlaybackRate(1);
+            timelapse.setPlaybackRate(0.5);
             if ($("#show-additional-landsat").prop('checked')) {
               timelapse.loadNewTimeline("landsat-times-long.json","customUI");
             } else {
@@ -505,13 +510,13 @@
         layer_html += '<label for="show-viirs" id="viirs-label">Fires at Night</label>';
         layer_html += '<select name="extras-selector" id="extras-selector">';
         layer_html += '<option selected="selected">Select...</option>';
-        layer_html += '<option data-file-playback-rate="2" data-type="video" data-file-name="Arctic Sea Ice, September 1979 to September 2014.mp4">Annual Sea Ice Concentration 1979-2014</option>';
-        layer_html += '<option data-file-playback-rate="2" data-type="video" data-file-name="Arctic ice age, 1987-2014.mp4">Ice Thinning 1987-2014</option>';
+        layer_html += '<option data-file-playback-rate="2" data-type="video" data-file-name="pumphandle_2014.mp4">Measured CO2 Over Time</option>';
         layer_html += '<option data-file-playback-rate="2" data-type="video" data-file-name="Carbon Dioxide 2006 GEOS-5 model.mp4">CO2 2006 GEOS-5 Model</option>';
         layer_html += '<option data-file-playback-rate="2" data-type="video" data-file-name="Land + Ocean Average Temperature Annual Anomaly.mp4">Temperature Anomaly 1850-2013</option>';
-        layer_html += '<option data-file-playback-rate="2" data-type="video" data-file-name="pumphandle_2014.mp4">Measured CO2 Over Time</option>';
+        layer_html += '<option data-file-playback-rate="2" data-type="video" data-file-name="Arctic ice age, 1987-2014.mp4">Ice Thinning 1987-2014</option>';
         layer_html += '<option data-file-playback-rate="2" data-type="video" data-file-name="Larsen-B-Collapse.mp4">Larsen-B Collapse</option>';
         layer_html += '<option data-file-playback-rate="4" data-type="video" data-file-name="Orbiting Carbon Observatory.mp4">Orbiting Carbon Observatory</option>';
+        layer_html += '<option data-file-playback-rate="2" data-type="video" data-file-name="Arctic Sea Ice, September 1979 to September 2014.mp4">Annual Sea Ice Concentration 1979-2014</option>';
         layer_html += '<option data-type="link" data-link-path="http://localhost:8080/?uid=history-1436384863961-Vyxt6PIO">EVA - Explorable Visual Analytics</option>';
         layer_html += '</select>';
         layer_html += '</div>';
