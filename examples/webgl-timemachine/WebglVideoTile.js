@@ -13,7 +13,7 @@
 // Or maybe compress the range and go with say 1.6 to 2.1?  That lets us better use
 // the flexibility of being able to capture the video across a range of times
 
-function WebglVideoTile(glb, tileidx, bounds, url) {
+function WebglVideoTile(glb, tileidx, bounds, url, defaultUrl) {
   if (!WebglVideoTile._initted) {
     WebglVideoTile._init();
   }
@@ -36,6 +36,21 @@ function WebglVideoTile(glb, tileidx, bounds, url) {
                                                        1, 1]));
 
   this._video = document.createElement('video');
+
+
+  var self = this;
+
+  // If tile 404's, replace with defaultUrl.  This lets us remove e.g. all the
+  // sea tiles and replace with a single default tile.
+  this._video.addEventListener('error', function(event) {
+    if (self._video) {
+      if (self._video.networkState == HTMLVideoElement.NETWORK_NO_SOURCE &&
+          self._video.src != defaultUrl) {
+        self._video.src = defaultUrl;
+      }
+    }
+  });
+    
   this._video.src = url;
   this._pipeline = [];
   for (var i = 0; i < WebglVideoTile.PIPELINE_SIZE; i++) {
@@ -292,6 +307,7 @@ _computeCapturePriority = function(displayFrameDiscrete, actualVideoFrame,
                                    actualVideoFrameDiscrete) {
   return 1;
 }
+
 // First phase of update
 // Cleans up and advances pipelines
 // Computes priority of capture

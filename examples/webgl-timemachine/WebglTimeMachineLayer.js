@@ -11,7 +11,7 @@ function WebglTimeMachineLayer(glb, canvasLayer, rootUrl, vectorUrl) {
 
   function createTile(ti, bounds) {
     var url = rootUrl + '/' + ti.l + '/' + (ti.r * 4) + '/' + (ti.c * 4) + '.mp4';
-    return new WebglVideoTile(glb, ti, bounds, url);
+    return new WebglVideoTile(glb, ti, bounds, url, rootUrl + '/default.mp4');
   }
 
   function createVectorTile(ti, bounds) {
