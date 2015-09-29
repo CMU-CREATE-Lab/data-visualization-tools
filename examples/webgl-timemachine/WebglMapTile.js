@@ -1,6 +1,6 @@
 "use strict";
 
-function WebglMapTile(glb, tileidx, bounds, url) {
+function WebglMapTile(glb, tileidx, bounds, url, defaultUrl) {
   if (!WebglMapTile._initted) {
     WebglMapTile._init();
   }
@@ -28,6 +28,16 @@ function WebglMapTile(glb, tileidx, bounds, url) {
   this._image.onload = function() {
     that._handleLoadedTexture();
   }
+
+  // If tile 404's, replace with defaultUrl.  This lets us remove e.g. all the
+  // sea tiles and replace with a single default tile.
+  this._image.addEventListener('error', function(event) {
+    if (that._image) {
+      if (that._image.src != defaultUrl) {
+        that._image.src = defaultUrl;
+      }
+    }
+  });
 
   this._image.src = url;
   this._ready = false;

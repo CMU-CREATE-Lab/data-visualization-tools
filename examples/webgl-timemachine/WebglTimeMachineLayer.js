@@ -6,12 +6,15 @@ function WebglTimeMachineLayer(glb, canvasLayer, rootUrl, vectorUrl) {
   this._canvasLayer = canvasLayer;
   this._rootUrl = rootUrl;
   this._vectorUrl = vectorUrl;
+  this._defaultUrl = rootUrl + '/default.mp4';
 
   var r = canvasLayer.timelapse.getMetadata();
 
+  var that = this;
+
   function createTile(ti, bounds) {
     var url = rootUrl + '/' + ti.l + '/' + (ti.r * 4) + '/' + (ti.c * 4) + '.mp4';
-    return new WebglVideoTile(glb, ti, bounds, url, rootUrl + '/default.mp4');
+    return new WebglVideoTile(glb, ti, bounds, url, that._defaultUrl);
   }
 
   function createVectorTile(ti, bounds) {
@@ -48,11 +51,11 @@ function WebglTimeMachineLayer(glb, canvasLayer, rootUrl, vectorUrl) {
 
 WebglTimeMachineLayer.prototype.getWidth = function() {
     return this._tileView.getWidth();
-}
+};
 
 WebglTimeMachineLayer.prototype.getHeight = function() {
     return this._tileView.getHeight();
-}
+};
 
 WebglTimeMachineLayer.prototype.draw = function(view, tileViewVisibility) {
   var timelapse = this._canvasLayer.timelapse;
@@ -88,4 +91,4 @@ WebglTimeMachineLayer.prototype.draw = function(view, tileViewVisibility) {
     this._vectorTileView.update(transform);
   }
 
-}
+};

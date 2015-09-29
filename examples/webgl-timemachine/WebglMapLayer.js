@@ -8,6 +8,8 @@ function WebglMapLayer(glb, canvasLayer, tileUrl, opt_options) {
   this._nLevels = 21;
   this._tileWidth = 256;
   this._tileHeight = 256;
+  this._tileExtension = 'png';
+  this._defaultUrl = tileUrl + '/default.png';
 
  if (opt_options) {
     this.setOptions(opt_options);
@@ -69,8 +71,8 @@ getHeight = function() {
 
 WebglMapLayer.prototype.
 _createTile = function(ti, bounds) {
-  var url = this._tileUrl + '/' + ti.l + '/' + (ti.c) + '/' + (ti.r) + '.png';
-  return new WebglMapTile(glb, ti, bounds, url);
+  var url = this._tileUrl + '/' + ti.l + '/' + (ti.c) + '/' + (ti.r) + this.tileExtension;
+  return new WebglMapTile(glb, ti, bounds, url, this._defaultUrl);
 }
 
 WebglMapLayer.prototype.
