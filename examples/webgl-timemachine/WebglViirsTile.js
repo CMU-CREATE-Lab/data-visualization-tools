@@ -70,7 +70,7 @@ WebglViirsTile.prototype.draw = function(transform, opts) {
   var showTemp = opts.showTemp || this._showTemp;
   var minTemp = opts.minTemp || this._minTemp;
   var maxTemp = opts.maxTemp || this._maxTemp;
-  var pointSize = opts.pointSize || 4.;
+  var pointSize = opts.pointSize || 4.0;
 
   if (transform.currentDate) {
     maxTime = transform.currentDate;
@@ -99,7 +99,7 @@ WebglViirsTile.prototype.draw = function(transform, opts) {
     translateMatrix(mapMatrix, -transform.x, -transform.y);
     scaleMatrix(mapMatrix, scale, scale);
 
-    var pointSize = Math.floor((transform.zoom + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 4.;
+    pointSize *= Math.floor((transform.zoom + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1);
     
 
     gl.vertexAttrib1f(gl.aPointSize, pointSize*1.0);

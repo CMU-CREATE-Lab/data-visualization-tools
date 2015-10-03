@@ -732,7 +732,7 @@
           var range = new Date(times[times.length - 1]).getTime() - new Date(times[0]).getTime();
           var currentDate = ratio*range + new Date(times[0]).getTime();
           viirsView.currentDate = currentDate;
-          viirsTile.draw(viirsView);
+          viirsTile.draw(viirsView, {pointSize: 2.0});
         }
 
         //stats.end();
