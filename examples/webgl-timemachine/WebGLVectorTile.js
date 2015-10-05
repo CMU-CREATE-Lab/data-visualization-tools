@@ -23,7 +23,6 @@ function WebGLVectorTile(glb, tileidx, bounds, url) {
   this.program = glb.programFromSources(Glb.vectorTileVertexShader,
     Glb.vectorTileFragmentShader);
   this._load();
-
 }
 
 WebGLVectorTile.prototype
@@ -33,9 +32,13 @@ WebGLVectorTile.prototype
   xhr.open('GET', that._url);
   xhr.responseType = 'arraybuffer';
   xhr.onload = function() {
-    //var json = JSON.parse(this.responseText);
     var float32Array = new Float32Array(this.response);
     that._setData(float32Array);
+  }
+  // If tile 404's, replace with defaultUrl.  This lets us remove e.g. all the
+  // sea tiles and replace with a single default tile.
+  xhr.onerror = function() {
+    that._setData(new Float32Array([]));
   }
   xhr.send();
 }
@@ -60,7 +63,6 @@ _setData = function(arrayBuffer) {
 
   this._ready = true;
 }
-
 
 WebGLVectorTile.prototype.
 isReady = function() {
