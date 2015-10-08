@@ -55,36 +55,50 @@
         left: -1px !important;
         right: -1px !important;
         top: -1px !important;
+        z-index: 0;
       }
-      .presentationSlider {
-        height: 120px;
+      .snaplapse_keyframe_list {
+        height: 84px !important;
+      }
+      .snaplapse_keyframe_list_item_thumbnail_overlay_presentation {
+        height: 77px !important;
       }
       .snaplapse_keyframe_container {
+        top: -7px !important;
+        left: 0px !important;
+        width: 100% !important;
+      }
+      .snaplapse_keyframe_list_item_presentation {
+        height: 82px !important;
+      }
+      .presentationSlider.hyperwall {
+        height: 120px !important;
+      }
+      .snaplapse_keyframe_container.hyperwall {
+	    top: 0px !important;
         left: -1px !important;
         right: -1px !important;
       }
-      .keyframeSubtitleBoxForHovering {
+      .keyframeSubtitleBoxForHovering.hyperwall {
         bottom: 131px !important;
+        font-size: 20px;
+        line-height: 29px;
+        color: rgb(60, 60, 60);
       }
-      .snaplapse_keyframe_list_item_presentation {
-        width: 147px;
-        height: 101px;
+      .snaplapse_keyframe_list_item_presentation.hyperwall {
+        width: 147px !important;
+        height: 101px !important;
       }
-      .snaplapse_keyframe_list_item_thumbnail_overlay_presentation {
-        width: 140px;
-        height: 95px;
+      .snaplapse_keyframe_list_item_thumbnail_overlay_presentation.hyperwall {
+        width: 140px !important;
+        height: 95px !important;
       }
-      .keyframeSubtitleBoxForHovering p {
+      .keyframeSubtitleBoxForHovering.hyperwall p {
         max-width: 550px;
         padding-top: 18px;
         padding-bottom: 26px;
         padding-left: 27px;
         padding-right: 27px;
-      }
-      .keyframeSubtitleBoxForHovering {
-        font-size: 20px;
-        line-height: 29px;
-        color: rgb(60, 60, 60);
       }
       #vector-layers {
         width: 337px;
@@ -231,6 +245,7 @@
 
       var presentationSliderContent = "http://timemachine.cmucreatelab.org/wiki/EarthEngineTourEditor#presentation=EsBDkDV0jvjsXrchC_Climate%20Change_DkDPWPyXs9wR6gBAmazon%20Deforestation%20in%20Rondonia_Rondonia_DkDNnM4bRHuqojB_N%20Sumatra_DkDQhV1kUKXaiD_Fires%20at%20night_DkDFWaNbFlEeqJ_Agricultural%20fires_DkDASzGiNIcpvK_Agricultural%20fires_DkDIAHUl1q2eqJ_Drilling%20fires_DkDSx-Tmy5yMmK_Shale%20oil%20extraction_DkDRFMpUtEFyje_Eagle%20Downs%20Coal_DkDOHcDnYDBPjgB_Mountaintop%20Removal_DkDWlMmn4Acs_iB_Hei%20Dai%20Gao%20coal_DkDcYs5sY3cKrZ_Alberta%20Tar%20Sands_DkDA8sGufoBFqe_Columbia%20Glacier_DkDNROTtit7GojB_Mendenhall%20Glacier_DkDFGq9mKcYi8VThe%20shrinking%20and%20drying%20up%20of%20the%20Lake%20Urmia_Lake%20Urmia_DkDOcGQprwpkmRThe%20shrinking%20of%20the%20Aral%20Sea%20destroys%20fishing%20industry%20and%20brings%20unemployment%20and%20public%20health%20problems_Aral%20Sea_DkDSq1joU5sk6gBThe%20expansion%20of%20irrigation%20systems%20near%20the%20Aral%20Sea_Aral%20Expansion_CkDWmblQtbBxuXBushfires%20in%20Australia%20are%20frequent%20during%20the%20hotter%20months%20of%20the%20year_Australia%20Bushfire_DkDblXvnAWJL2V_Bark%20Beetles_DkDV0jvjsXrchC_Asia%20Growth_DkDX2whibLvsof3rd%20largest%20city%20in%20China%2E%20Population%20doubled%20since%202001%2E_Guangzhou_DkDQ5wYitp3subShenzhen%20bay%2C%20growth%20of%20land%20use%20into%20bay%2E_Shenzhen_DkDcABUmLtywojBHaneda%20Airport%3A%20Now%20second%20busiest%20airport%20in%20Asia%2E_Tokyo-Yokohama_DkDP4t6mgw0u7c_Seoul_DkDFkV8lWccJ9X_Los%20Angeles_DkDFWDcc0I-q_a_Kuala%20Lumpur_DkDWhO8nm0KbkD_Resources%20and%20Forest_DkDE2DoXNG6QofPeru%20artisanal%20gold%20mining%2E_Peru_DkDXJ22s_hcKuYTar%20sands%20in%20Alberta%2E_Alberta%2C%20Canada_DkDVPdDamRWw7cGrasberg%20mine%20tailings%2E_Papua%2C%20Indonesia_DkDQmpkWZR9RsbChaco%20clearing%20for%20agriculture%2E_Bolivia_DkDXjdRU4GNy9fCoal%20mining%2E_Queensland%20_DkDWscKjT05j_f_Dubai_DkDbiakl-OnMkgBGas%20pads%2E_Dallas%E2%80%93Fort%20Worth_DkDUmY_oLtXLkgBPowder%20River%20Basin%20coal%20mining%2E_Wyoming_DkDWOO2mpaxOoeMountaintop%20removal%20mining%2E_Kentucky_DkDV0jvjsXrchC_Other%20changes_DkDVUU_kfEAu_cUrban%20expansion%20in%20Shanghai%2C%20China%2E_Shanghai_BkDTiTRWWTmR6gBRiver%20meandering%20in%20the%20Amazon_Meander_DkDK9ySWib2R2dThe%20abandonment%20of%20a%20river%20channel%20and%20the%20formation%20of%20a%20new%20river%20channel_Bolivia%20Avulsion_DkDcOeLoWayQ6gBThe%20Cape%20and%20islands%20are%20subject%20to%20massive%20coastal%20erosion_South%20Cape%20Cod_BkDPt3KmUZ3P6gBThe%20Outer%20Banks%20often%20suffers%20significant%20beach%20erosion%20during%20storms_Outer%20Banks%20NC_BkDcM7nkdxUhgZCenter-pivot%20irrigation%20irrigates%20crops%20with%20sprinklers%20centered%20on%20the%20pivot%2C%20creating%20a%20green%20circular%20pattern_Saudi%20Irrigation_DkDWZuFgTJ1tycThe%20eruption%20of%20Mount%20Pinatubo%20on%20June%2015%2C%201991_Pinatubo_Untitled_B";
 
+      var isHyperwall = false;
 
       // Using "https" will casue the thumbnail loading from the server to fail
       //var url = "http://earthengine.google.org/timelapse/data/20130507";
@@ -269,12 +284,12 @@
             onLoadAnimation: "none",
             playAfterAnimation: false,
             initialWaypointIndex: 0,
-            doAutoMode: true,
+            doAutoMode: isHyperwall,
             showAnnotations: false,
             screenIdleTime: 8 * 60 * 1000, // 8 minutes
             waypointDelayTime: 15000
           },
-          useTouchFriendlyUI: true,
+          useTouchFriendlyUI: isHyperwall,
           datasetType: "landsat",
           playOnLoad: true,
           onTimeMachinePlayerReady: function(viewerDivId) {},
@@ -517,7 +532,8 @@
         layer_html += '<option data-file-playback-rate="2" data-type="video" data-file-name="Larsen-B-Collapse.mp4">Larsen-B Collapse</option>';
         layer_html += '<option data-file-playback-rate="4" data-type="video" data-file-name="Orbiting Carbon Observatory.mp4">Orbiting Carbon Observatory</option>';
         layer_html += '<option data-file-playback-rate="2" data-type="video" data-file-name="Arctic Sea Ice, September 1979 to September 2014.mp4">Annual Sea Ice Concentration 1979-2014</option>';
-        layer_html += '<option data-type="link" data-link-path="http://localhost:8080/?uid=history-1436384863961-Vyxt6PIO">EVA - Explorable Visual Analytics</option>';
+        if (isHyperwall)
+          layer_html += '<option data-type="link" data-link-path="http://localhost:8080/?uid=history-1436384863961-Vyxt6PIO">EVA - Explorable Visual Analytics</option>';
         layer_html += '</select>';
         layer_html += '</div>';
 
@@ -556,6 +572,13 @@
         // Toggle layers off when auto mode begins
         var snaplapse = timelapse.getSnaplapseForPresentationSlider();
         var snaplapseViewer = snaplapse.getSnaplapseViewer();
+
+        // Change UI based on whether setup is a hyperwall or not
+        snaplapseViewer.addEventListener('snaplapse-loaded', function() {
+          if (isHyperwall)
+            $('.presentationSlider, .snaplapse_keyframe_container, .keyframeSubtitleBoxForHovering, .snaplapse_keyframe_list_item_presentation, .snaplapse_keyframe_list_item_thumbnail_overlay_presentation').addClass('hyperwall');
+        })
+
         snaplapseViewer.addEventListener('automode-start', function() {
           var $globalForestLayerToggle = $("#show-forest-change");
           var $wdpaLayerToggle = $("#show-wdpa");
