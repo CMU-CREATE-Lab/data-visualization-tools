@@ -4,29 +4,28 @@ function WebglMapLayer(glb, canvasLayer, tileUrl, opt_options) {
   this.glb = glb;
   this.gl = glb.gl;
   this._canvasLayer = canvasLayer;
-  this._tileUrl = tileUrl;
+  this._fileExtension = opt_options.fileExtension || "png";
+  this._defaultUrl = tileUrl.split("{default}")[0] + "default." + this._fileExtension;
+  this._tileUrl = tileUrl.replace("{default}/", "");
   this._nLevels = 21;
   this._tileWidth = 256;
   this._tileHeight = 256;
-  this._tileExtension = '.png';
-  this._defaultUrl = tileUrl + '/default' + this._tileExtension;
 
- if (opt_options) {
+  if (opt_options) {
     this.setOptions(opt_options);
   }
-
 
   var that = this;
 
   this._tileView = new TileView({
-      panoWidth: 256 * Math.pow(2, this._nLevels),
-      panoHeight: 256 * Math.pow(2, this._nLevels),
-      tileWidth: this._tileWidth,
-      tileHeight: this._tileHeight,
-      createTile: function(ti, bounds) { return that._createTile(ti, bounds); },
-      deleteTile: function(tile) {},
-      updateTile: WebglMapTile.update
-    });
+    panoWidth: 256 * Math.pow(2, this._nLevels),
+    panoHeight: 256 * Math.pow(2, this._nLevels),
+    tileWidth: this._tileWidth,
+    tileHeight: this._tileHeight,
+    createTile: function(ti, bounds) { return that._createTile(ti, bounds); },
+    deleteTile: function(tile) {},
+    updateTile: WebglMapTile.update
+  });
 
   // TODO: experiment with this
   this._tileView.levelThreshold = 0;
@@ -45,6 +44,7 @@ WebglMapLayer.prototype.setOptions = function(options) {
   if (options.tileHeight !== undefined) {
     this.setTileHeight(options.tileHeight);
   }
+
 }
 
 WebglMapLayer.prototype.setNLevels = function(nLevels) {
@@ -71,7 +71,7 @@ getHeight = function() {
 
 WebglMapLayer.prototype.
 _createTile = function(ti, bounds) {
-  var url = this._tileUrl + '/' + ti.l + '/' + (ti.c) + '/' + (ti.r) + this._tileExtension;
+  var url = this._tileUrl.replace("{z}", ti.l).replace("{x}", ti.c).replace("{y}", ti.r);
   return new WebglMapTile(glb, ti, bounds, url, this._defaultUrl);
 }
 

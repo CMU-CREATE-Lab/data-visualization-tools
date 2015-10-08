@@ -247,23 +247,31 @@
 
       var isHyperwall = false;
 
-      // Using "https" will casue the thumbnail loading from the server to fail
-      //var url = "http://earthengine.google.org/timelapse/data/20130507";
-      //var landsatUrl = "../../../data/landsat-annual/1068x600";
+      //// Context Map Tiles ////
+      var osmDefaultUrl = "../../../data/openstreetmap/default/";
+
+      //// Video Tiles
       var landsatUrl = "../../../data/landsat-annual-2015-v1/1068x600";
+      // Using "https" will casue the thumbnail loading from the server to fail
+      //var landsatUrl = "http://earthengine.google.org/timelapse/data/20130507";
 
-      // Open Street Map paths
-      var osmDefaultUrl = "../../../data/openstreetmap/default";
-      var osmLightRetinaUrl = "../../../data/openstreetmap/light_all_retina";
-      //var osmDarkUrl = "../../../data/openstreetmap/dark_all";
-      var osmDarkRetinaUrl = "../../../data/openstreetmap/dark_all_retina";
+      //// Map Tiles ////
+      // OpenStreetMap/CartoDB
+      var osmLightRetinaUrl = "../../../data/openstreetmap/light_all_retina/{default}/{z}/{x}/{y}.png";
+      var osmDarkRetinaUrl = "../../../data/openstreetmap/dark_all_retina/{default}/{z}/{x}/{y}.png";
+      // Matt Hansen
+      var gfcTransUrl = "../../../data/global-forest-change/loss_year_transparent/{default}/{z}/{x}/{y}.png";
+      var gfcLossGainUrl = "../../../data/global-forest-change/loss_tree_gain/{default}/{z}/{x}/{y}.png";
+      // Google Maps non-retina
+      var googleMapsDefaultUrl = "https://mts0.googleapis.com/vt?pb=!1m5!1m4!1i{z}!2i{x}!3i{y}!4i256!2m3!1e0!2sm!3i323305239!3m9!2sen-US!3sUS!5e18!12m1!1e47!12m3!1e37!2m1!1ssmartmaps!4e0";
+      var googleMapsDarkStyleUrl = "https://mts0.googleapis.com/vt?pb=!1m4!1m3!1i{z}!2i{x}!3i{y}!2m3!1e0!2sm!3i323305239!3m14!2sen-US!3sUS!5e18!12m1!1e47!12m3!1e37!2m1!1ssmartmaps!12m4!1e26!2m2!1sstyles!2zcC5oOiMwMDAwYjB8cC5pbDp0cnVlfHAuczotMzAscy50OjJ8cC52Om9mZg!4e0";
+      // Google Maps retina
+      var googleMapsDefaultRetinaUrl = "https://mts1.googleapis.com/vt?pb=!1m5!1m4!1i{z}!2i{x}!3i{y}!4i256!2m3!1e0!2sm!3i323305239!3m9!2sen-US!3sUS!5e18!12m1!1e47!12m3!1e37!2m1!1ssmartmaps!4e0!5m1!5f2";
+      var googleMapsDarkStyleRetinaUrl = "https://mts0.googleapis.com/vt?pb=!1m4!1m3!1i{z}!2i{x}!3i{y}!2m3!1e0!2sm!3i323305239!3m14!2sen-US!3sUS!5e18!12m1!1e47!12m3!1e37!2m1!1ssmartmaps!12m4!1e26!2m2!1sstyles!2zcC5oOiMwMDAwYjB8cC5pbDp0cnVlfHAuczotMzAscy50OjJ8cC52Om9mZg!4e0!5m1!5f2";
 
-      // Other vector layer paths
+      //// Vector Tiles ////
       var wdpaUrl = "../../../data/wdpaline-year";
       var viirsUrl = '../../../data/viirs/createlab-viirs-uncorrected-20140314-20150403.bin';
-      //var gfcDarkUrl = "../../../data/global-forest-change/loss_year_new";
-      var gfcTransUrl = "../../../data/global-forest-change/loss_year_transparent";
-      var gfcLossGainUrl = "../../../data/global-forest-change/loss_tree_gain";
 
       var visibleBaseMapLayer = "landsat";
 
@@ -296,6 +304,29 @@
           scaleBarOptions: {
             scaleBarDiv: "scaleBar1"
           },
+          thumbnailUrlList: ["thumbnails/climate-change.jpg", "thumbnails/rondonia.jpg",
+                             "thumbnails/n-sumatra.jpg", "thumbnails/fires-at-night.jpg",
+                             "thumbnails/agricultural-fires.jpg", "thumbnails/agricultural-fires2.jpg",
+                             "thumbnails/drilling-fires.jpg", "thumbnails/shale-oil-extraction.jpg",
+                             "thumbnails/eagle-downs-coal.jpg", "thumbnails/mountaintop-removal.jpg",
+                             "thumbnails/hei-dai-gao-coal.jpg", "thumbnails/alberta-tar-sands.jpg",
+                             "thumbnails/columbia-glacier.jpg", "thumbnails/mendenhall-glacier.jpg",
+                             "thumbnails/lake-urmia.jpg", "thumbnails/aral-sea.jpg",
+                             "thumbnails/aral-expansion.jpg", "thumbnails/australia-bushfire.jpg",
+                             "thumbnails/bark-beetles.jpg", "thumbnails/asia-growth.jpg",
+                             "thumbnails/guangzhou.jpg", "thumbnails/shenzhen.jpg",
+                             "thumbnails/tokyo-yokohama.jpg", "thumbnails/seoul.jpg",
+                             "thumbnails/los-angeles.jpg", "thumbnails/kuala-lumpur.jpg",
+                             "thumbnails/resources-and-forest.jpg", "thumbnails/peru.jpg",
+                             "thumbnails/alberta-canada.jpg", "thumbnails/papua-indonesia.jpg",
+                             "thumbnails/bolivia.jpg", "thumbnails/queensland.jpg",
+                             "thumbnails/dubai.jpg", "thumbnails/dallas-fort-worth.jpg",
+                             "thumbnails/wyoming.jpg", "thumbnails/kentucky.jpg",
+                             "thumbnails/other-changes.jpg", "thumbnails/shanghai.jpg",
+                             "thumbnails/meander.jpg", "thumbnails/bolivia-avulsion.jpg",
+                             "thumbnails/south-cape-cod.jpg", "thumbnails/outer-banks-nc.jpg",
+                             "thumbnails/saudi-irrigation.jpg", "thumbnails/pinatubo.jpg"
+		  ],
           contextMapOptions: {
             contextMapDiv: "contextMap1",
             tileType: "OpenStreetMap",
