@@ -70,7 +70,7 @@ WebglViirsTile.prototype.draw = function(transform, opts) {
   var showTemp = opts.showTemp || this._showTemp;
   var minTemp = opts.minTemp || this._minTemp;
   var maxTemp = opts.maxTemp || this._maxTemp;
-  var pointSize = opts.pointSize || 4.0;
+  var pointSize = opts.pointSize || (2.0 * window.devicePixelRatio);
 
   if (transform.currentDate) {
     maxTime = transform.currentDate;
