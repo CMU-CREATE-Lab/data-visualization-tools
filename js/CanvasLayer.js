@@ -522,11 +522,11 @@ CanvasLayer.prototype.getTopLeft = function() {
 
 CanvasLayer.prototype.getMapTranslation = function() {
   return this.mapTranslation_;
-}
+};
 
 CanvasLayer.prototype.getMapScale = function() {
   return this.mapScale_;
-}
+};
 
 /**
  * Schedule a requestAnimationFrame callback to updateHandler. If one is
