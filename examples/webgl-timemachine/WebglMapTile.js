@@ -24,6 +24,7 @@ function WebglMapTile(glb, tileidx, bounds, url, defaultUrl) {
                                                        1, 1]));
 
   this._image = new Image();
+  this._image.crossOrigin = "anonymous";
   var that = this;
   this._image.onload = function() {
     that._handleLoadedTexture();

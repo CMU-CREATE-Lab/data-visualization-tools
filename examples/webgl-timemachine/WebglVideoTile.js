@@ -36,7 +36,7 @@ function WebglVideoTile(glb, tileidx, bounds, url, defaultUrl) {
                                                        1, 1]));
 
   this._video = document.createElement('video');
-
+  this._video.crossOrigin = "anonymous";
 
   var self = this;
 
@@ -50,7 +50,7 @@ function WebglVideoTile(glb, tileidx, bounds, url, defaultUrl) {
       }
     }
   });
-    
+
   this._video.src = url;
   this._pipeline = [];
   for (var i = 0; i < WebglVideoTile.PIPELINE_SIZE; i++) {
@@ -270,7 +270,7 @@ _checkForMissedFrame = function(displayFrameDiscrete) {
       displayFrameDiscrete != this._pipeline[0].frameno) {
     console.log(this._id + ': missed frame ' + displayFrameDiscrete +
                 ', pipeline: ' + this._pipelineToString());
-    WebglTimeMachinePerf.instance.recordMissedFrames(1);
+    //WebglTimeMachinePerf.instance.recordMissedFrames(1);
     this._missedFrameCount++;
   }
   this._lastDisplayFrame = displayFrameDiscrete;
@@ -398,9 +398,9 @@ updatePhase2 = function(displayFrame) {
   var targetVideoFrame = (displayFrame + this._frameOffset + 1.2) % this._nframes();
 
   var futureTargetVideoFrame = (targetVideoFrame + future) % this._nframes();
-    
+
   if (isPaused && nextNeededFrame == displayFrameDiscrete) {
-    // Paused and we need the current frame        
+    // Paused and we need the current frame
     futureTargetVideoFrame = displayFrameDiscrete + 0.5;
   } else {
     // Slow down by up to half a frame to make sure to get the next requested frame
@@ -477,7 +477,7 @@ _captureFrame = function(captureFrameno, destIndex) {
   //console.timeEnd("gl.texImage2D");
   gl.bindTexture(gl.TEXTURE_2D, null);
   var elapsed = performance.now() - before;
-  WebglTimeMachinePerf.instance.recordVideoFrameCapture(elapsed);
+  //WebglTimeMachinePerf.instance.recordVideoFrameCapture(elapsed);
   if (WebglVideoTile.verbose) {
     console.log(this._id + ': captured frame ' + captureFrameno +
                 ' to pipeline[' + destIndex + '] in '
@@ -538,7 +538,7 @@ draw = function(transform) {
 // Update and draw tiles
 WebglVideoTile.update = function(tiles, transform) {
   if (si) return;
-  WebglTimeMachinePerf.instance.startFrame();
+  //WebglTimeMachinePerf.instance.startFrame();
 
   var canvas = document.getElementById('webgl');
 
@@ -560,7 +560,7 @@ WebglVideoTile.update = function(tiles, transform) {
     tiles[i].updatePhase2(displayFrame);  // Frame being displayed on screen
     tiles[i].draw(transform);
   }
-  WebglTimeMachinePerf.instance.endFrame();
+  //WebglTimeMachinePerf.instance.endFrame();
 }
 
 

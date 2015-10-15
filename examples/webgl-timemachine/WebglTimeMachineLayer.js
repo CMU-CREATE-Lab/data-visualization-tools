@@ -6,14 +6,14 @@ function WebglTimeMachineLayer(glb, canvasLayer, rootUrl, vectorUrl) {
   this._canvasLayer = canvasLayer;
   this._rootUrl = rootUrl;
   this._vectorUrl = vectorUrl;
-  this._defaultUrl = rootUrl + '/default.mp4';
+  this._defaultUrl = rootUrl + '/default' + timelapse.getMediaType();
 
   var r = canvasLayer.timelapse.getMetadata();
 
   var that = this;
 
   function createTile(ti, bounds) {
-    var url = rootUrl + '/' + ti.l + '/' + (ti.r * 4) + '/' + (ti.c * 4) + '.mp4';
+    var url = rootUrl + '/' + ti.l + '/' + (ti.r * 4) + '/' + (ti.c * 4) + timelapse.getMediaType();
     return new WebglVideoTile(glb, ti, bounds, url, that._defaultUrl);
   }
 

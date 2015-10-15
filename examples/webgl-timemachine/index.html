@@ -245,7 +245,12 @@
 
       var presentationSliderContent = "http://timemachine.cmucreatelab.org/wiki/EarthEngineTourEditor#presentation=EsBDkDV0jvjsXrchC_Climate%20Change_DkDPWPyXs9wR6gBAmazon%20Deforestation%20in%20Rondonia_Rondonia_DkDNnM4bRHuqojB_N%20Sumatra_DkDQhV1kUKXaiD_Fires%20at%20night_DkDFWaNbFlEeqJ_Agricultural%20fires_DkDASzGiNIcpvK_Agricultural%20fires_DkDIAHUl1q2eqJ_Drilling%20fires_DkDSx-Tmy5yMmK_Shale%20oil%20extraction_DkDRFMpUtEFyje_Eagle%20Downs%20Coal_DkDOHcDnYDBPjgB_Mountaintop%20Removal_DkDWlMmn4Acs_iB_Hei%20Dai%20Gao%20coal_DkDcYs5sY3cKrZ_Alberta%20Tar%20Sands_DkDA8sGufoBFqe_Columbia%20Glacier_DkDNROTtit7GojB_Mendenhall%20Glacier_DkDFGq9mKcYi8VThe%20shrinking%20and%20drying%20up%20of%20the%20Lake%20Urmia_Lake%20Urmia_DkDOcGQprwpkmRThe%20shrinking%20of%20the%20Aral%20Sea%20destroys%20fishing%20industry%20and%20brings%20unemployment%20and%20public%20health%20problems_Aral%20Sea_DkDSq1joU5sk6gBThe%20expansion%20of%20irrigation%20systems%20near%20the%20Aral%20Sea_Aral%20Expansion_CkDWmblQtbBxuXBushfires%20in%20Australia%20are%20frequent%20during%20the%20hotter%20months%20of%20the%20year_Australia%20Bushfire_DkDblXvnAWJL2V_Bark%20Beetles_DkDV0jvjsXrchC_Asia%20Growth_DkDX2whibLvsof3rd%20largest%20city%20in%20China%2E%20Population%20doubled%20since%202001%2E_Guangzhou_DkDQ5wYitp3subShenzhen%20bay%2C%20growth%20of%20land%20use%20into%20bay%2E_Shenzhen_DkDcABUmLtywojBHaneda%20Airport%3A%20Now%20second%20busiest%20airport%20in%20Asia%2E_Tokyo-Yokohama_DkDP4t6mgw0u7c_Seoul_DkDFkV8lWccJ9X_Los%20Angeles_DkDFWDcc0I-q_a_Kuala%20Lumpur_DkDWhO8nm0KbkD_Resources%20and%20Forest_DkDE2DoXNG6QofPeru%20artisanal%20gold%20mining%2E_Peru_DkDXJ22s_hcKuYTar%20sands%20in%20Alberta%2E_Alberta%2C%20Canada_DkDVPdDamRWw7cGrasberg%20mine%20tailings%2E_Papua%2C%20Indonesia_DkDQmpkWZR9RsbChaco%20clearing%20for%20agriculture%2E_Bolivia_DkDXjdRU4GNy9fCoal%20mining%2E_Queensland%20_DkDWscKjT05j_f_Dubai_DkDbiakl-OnMkgBGas%20pads%2E_Dallas%E2%80%93Fort%20Worth_DkDUmY_oLtXLkgBPowder%20River%20Basin%20coal%20mining%2E_Wyoming_DkDWOO2mpaxOoeMountaintop%20removal%20mining%2E_Kentucky_DkDV0jvjsXrchC_Other%20changes_DkDVUU_kfEAu_cUrban%20expansion%20in%20Shanghai%2C%20China%2E_Shanghai_BkDTiTRWWTmR6gBRiver%20meandering%20in%20the%20Amazon_Meander_DkDK9ySWib2R2dThe%20abandonment%20of%20a%20river%20channel%20and%20the%20formation%20of%20a%20new%20river%20channel_Bolivia%20Avulsion_DkDcOeLoWayQ6gBThe%20Cape%20and%20islands%20are%20subject%20to%20massive%20coastal%20erosion_South%20Cape%20Cod_BkDPt3KmUZ3P6gBThe%20Outer%20Banks%20often%20suffers%20significant%20beach%20erosion%20during%20storms_Outer%20Banks%20NC_BkDcM7nkdxUhgZCenter-pivot%20irrigation%20irrigates%20crops%20with%20sprinklers%20centered%20on%20the%20pivot%2C%20creating%20a%20green%20circular%20pattern_Saudi%20Irrigation_DkDWZuFgTJ1tycThe%20eruption%20of%20Mount%20Pinatubo%20on%20June%2015%2C%201991_Pinatubo_Untitled_B";
 
-      var isHyperwall = false;
+      //// Query params ////
+      var queryParams = org.gigapan.Util.unpackVars(window.location.search.slice(1)) || {};
+
+      var useEVA = queryParams.useEVA === "true";
+      var isHyperwall = queryParams.isHyperwall === "true";
+      var useGoogleMaps = queryParams.useGoogleMaps === "true";
 
       //// Context Map Tiles ////
       var osmDefaultUrl = "../../../data/openstreetmap/default/";
@@ -259,7 +264,7 @@
       // OpenStreetMap/CartoDB
       var osmLightRetinaUrl = "../../../data/openstreetmap/light_all_retina/{default}/{z}/{x}/{y}.png";
       var osmDarkRetinaUrl = "../../../data/openstreetmap/dark_all_retina/{default}/{z}/{x}/{y}.png";
-      // Matt Hansen
+      // Global Forest Change (Matt Hansen)
       var gfcTransUrl = "../../../data/global-forest-change/loss_year_transparent/{default}/{z}/{x}/{y}.png";
       var gfcLossGainUrl = "../../../data/global-forest-change/loss_tree_gain/{default}/{z}/{x}/{y}.png";
       // Google Maps non-retina
@@ -329,7 +334,7 @@
       ],
           contextMapOptions: {
             contextMapDiv: "contextMap1",
-            tileType: "OpenStreetMap",
+            tileType: useGoogleMaps ? "Google" : "OpenStreetMap",
             tileUrl: osmDefaultUrl,
             geometry: {
               width: 270,
@@ -355,6 +360,47 @@
       }
 
       $(init);
+
+      function googleMapsLoadedCallback() {
+        if (useGoogleMaps) {
+          var autocomplete = new google.maps.places.Autocomplete($("#location_search").get(0));
+          var geocoder = new google.maps.Geocoder();
+
+          google.maps.event.addListener(autocomplete, 'place_changed', function() {
+            var place = autocomplete.getPlace();
+            if (!place.geometry) {
+              var address = $("#location_search").val();
+              geocoder.geocode({
+                'address': address
+              }, function(results, status) {
+                if (status == google.maps.GeocoderStatus.OK) {
+                  var lat = results[0].geometry.location.lat();
+                  var lng = results[0].geometry.location.lng();
+                  newView = {
+                    center: {
+                      "lat": lat,
+                      "lng": lng
+                    },
+                    "zoom": 10
+                  };
+                  timelapse.setNewView(newView, false, false);
+                } else {
+                  console.log("Geocode failed: " + status);
+                }
+              });
+            } else {
+              var newView = {
+                center: {
+                  "lat": place.geometry.location.lat(),
+                  "lng": place.geometry.location.lng()
+                },
+                "zoom": 10
+              };
+              timelapse.setNewView(newView, false, false);
+            }
+          });
+        }
+      }
 
       function initLayerToggleUI() {
         $("#show-wdpa").on("click", function() {
@@ -563,7 +609,7 @@
         layer_html += '<option data-file-playback-rate="2" data-type="video" data-file-name="Larsen-B-Collapse.mp4">Larsen-B Collapse</option>';
         layer_html += '<option data-file-playback-rate="4" data-type="video" data-file-name="Orbiting Carbon Observatory.mp4">Orbiting Carbon Observatory</option>';
         layer_html += '<option data-file-playback-rate="2" data-type="video" data-file-name="Arctic Sea Ice, September 1979 to September 2014.mp4">Annual Sea Ice Concentration 1979-2014</option>';
-        if (isHyperwall)
+        if (useEVA)
           layer_html += '<option data-type="link" data-link-path="http://localhost:8080/?uid=history-1436384863961-Vyxt6PIO">EVA - Explorable Visual Analytics</option>';
         layer_html += '</select>';
         layer_html += '</div>';
@@ -585,8 +631,14 @@
           tileWidth: 512,
           tileHeight: 512
         };
-        lightBaseMapLayer = new WebglMapLayer(glb, canvasLayer, osmLightRetinaUrl, retinaMapLayerOptions);
-        darkBaseMapLayer = new WebglMapLayer(glb, canvasLayer, osmDarkRetinaUrl, retinaMapLayerOptions);
+
+        var lightTileUrl = useGoogleMaps ? googleMapsDefaultRetinaUrl : osmLightRetinaUrl;
+        var darkTileUrl = useGoogleMaps ? googleMapsDarkStyleRetinaUrl : osmDarkRetinaUrl;
+
+        var mapBaseLayerOptions = isHyperwall ? retinaMapLayerOptions : defaultMapLayerOptions;
+
+        lightBaseMapLayer = new WebglMapLayer(glb, canvasLayer, lightTileUrl, mapBaseLayerOptions);
+        darkBaseMapLayer = new WebglMapLayer(glb, canvasLayer, darkTileUrl, mapBaseLayerOptions);
         hansonMapLayer = new WebglMapLayer(glb, canvasLayer, gfcTransUrl, defaultMapLayerOptions);
         hansonMapLayer2 = new WebglMapLayer(glb, canvasLayer, gfcLossGainUrl, defaultMapLayerOptions);
         wdpaVectorLayer = new WebglVectorLayer(glb, canvasLayer, wdpaUrl, defaultMapLayerOptions);
@@ -608,7 +660,7 @@
         snaplapseViewer.addEventListener('snaplapse-loaded', function() {
           if (isHyperwall)
             $('.presentationSlider, .snaplapse_keyframe_container, .keyframeSubtitleBoxForHovering, .snaplapse_keyframe_list_item_presentation, .snaplapse_keyframe_list_item_thumbnail_overlay_presentation').addClass('hyperwall');
-        })
+        });
 
         snaplapseViewer.addEventListener('automode-start', function() {
           var $globalForestLayerToggle = $("#show-forest-change");
@@ -635,35 +687,37 @@
         });
 
         // Location search box, with autocomplete.
-        // Note: Google's service gives much better results, but for the purpose of Dalian demo, we use a non-Google service.
         $('<div style="z-index: 100; top: 5px; position: absolute; left: 50%; width: 200px; margin: auto -100px;"><input id="location_search" type="text" placeholder="Search for a location..." style="height: 24px">').appendTo($("#timeMachine"));
 
-        var locationList = [];
-        $( "#location_search" ).autocomplete({
-          minLength: 5,
-          appendTo: "#timeMachine",
-          source: function( request, response ) {
-            locationList = [];
-            //http://nominatim.openstreetmap.org/search?format=json&limit=5&addressdetails=1
-            $.getJSON( "http://photon.komoot.de/api/?limit=5", { q: request.term }, function( data, status, xhr ) {
-              response( data.features );
-            });
-          },
-          select: function(event, ui) {
-            var view;
-            //if (ui.item.properties.extent) {
-              //  view = {bbox: {"ne": {"lat": ui.item.properties.extent[1], "lng": ui.item.properties.extent[2]}, "sw": {"lat" : ui.item.properties.extent[3], "lng": ui.item.properties.extent[0]}}};
-            //} else {
-              view = {center: {"lat": ui.item.geometry.coordinates[1], "lng": ui.item.geometry.coordinates[0]}, "zoom": 12};
-            //}
-            timelapse.setNewView(view);
-          }
-        }).autocomplete( "instance" )._renderItem = function( ul, item ) {
-          var tmpLocationString = (item.properties.name || "")  + ", " + (item.properties.state || "") + item.properties.country;
-          if (item.properties.osm_value == "hamlet" || !item.properties.country || locationList.indexOf(tmpLocationString) >= 0) return $("<li>");
-            locationList.push(tmpLocationString);
-           return $("<li style='z-index:9999'>").append("<a>" + (item.properties.name || "")  + ", " + (item.properties.state || "") + "<br>" + item.properties.country + "</a>").appendTo(ul);
-        };
+        // Note: Google's service gives much better results, but for sites where Google APIs cannot be used, we fallback to this.
+        if (!useGoogleMaps) {
+          var locationList = [];
+          $( "#location_search" ).autocomplete({
+            minLength: 5,
+            appendTo: "#timeMachine",
+            source: function( request, response ) {
+              locationList = [];
+              //http://nominatim.openstreetmap.org/search?format=json&limit=5&addressdetails=1
+              $.getJSON( "http://photon.komoot.de/api/?limit=5", { q: request.term }, function( data, status, xhr ) {
+                response( data.features );
+              });
+            },
+            select: function(event, ui) {
+              var view;
+              //if (ui.item.properties.extent) {
+                //  view = {bbox: {"ne": {"lat": ui.item.properties.extent[1], "lng": ui.item.properties.extent[2]}, "sw": {"lat" : ui.item.properties.extent[3], "lng": ui.item.properties.extent[0]}}};
+              //} else {
+                view = {center: {"lat": ui.item.geometry.coordinates[1], "lng": ui.item.geometry.coordinates[0]}, "zoom": 12};
+              //}
+              timelapse.setNewView(view);
+            }
+          }).autocomplete( "instance" )._renderItem = function( ul, item ) {
+            var tmpLocationString = (item.properties.name || "")  + ", " + (item.properties.state || "") + item.properties.country;
+            if (item.properties.osm_value == "hamlet" || !item.properties.country || locationList.indexOf(tmpLocationString) >= 0) return $("<li>");
+              locationList.push(tmpLocationString);
+             return $("<li style='z-index:9999'>").append("<a>" + (item.properties.name || "")  + ", " + (item.properties.state || "") + "<br>" + item.properties.country + "</a>").appendTo(ul);
+          };
+        }
       }
 
       var perf;
