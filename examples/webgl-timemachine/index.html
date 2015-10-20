@@ -632,6 +632,11 @@
           tileWidth: 256,
           tileHeight: 256
         };
+        var defaultBaseMapLayerOptions = {
+          nLevels: 11,
+          tileWidth: 256,
+          tileHeight: 256
+        };
         var retinaMapLayerOptions = {
           nLevels: 11,
           tileWidth: 512,
@@ -641,7 +646,7 @@
         var lightTileUrl = useGoogleMaps ? googleMapsDefaultRetinaUrl : osmLightRetinaUrl;
         var darkTileUrl = useGoogleMaps ? googleMapsDarkStyleRetinaUrl : osmDarkRetinaUrl;
 
-        var mapBaseLayerOptions = isHyperwall ? retinaMapLayerOptions : defaultMapLayerOptions;
+        var mapBaseLayerOptions = isHyperwall ? retinaMapLayerOptions : defaultBaseMapLayerOptions;
 
         lightBaseMapLayer = new WebglMapLayer(glb, canvasLayer, lightTileUrl, mapBaseLayerOptions);
         darkBaseMapLayer = new WebglMapLayer(glb, canvasLayer, darkTileUrl, mapBaseLayerOptions);
