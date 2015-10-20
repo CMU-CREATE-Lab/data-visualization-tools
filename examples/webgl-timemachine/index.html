@@ -252,6 +252,10 @@
       var showEVA = !!EARTH_TIMELAPSE_CONFIG.showEVA;
       var isHyperwall = !!EARTH_TIMELAPSE_CONFIG.isHyperwall;
       var useGoogleMaps = !!EARTH_TIMELAPSE_CONFIG.useGoogleMaps;
+      var enableAutoMode = !!EARTH_TIMELAPSE_CONFIG.enableAutoMode;
+      var screenTimeoutInMilliseconds = parseInt(EARTH_TIMELAPSE_CONFIG.screenTimeoutInMilliseconds) || 8 * 60 * 1000;
+      var waypointDelayInMilliseconds = parseInt(EARTH_TIMELAPSE_CONFIG.waypointDelayInMilliseconds) || 1 * 15 * 1000;
+      var defaultPlaybackSpeed = parseFloat(EARTH_TIMELAPSE_CONFIG.defaultPlaybackSpeed) || 0.5;
 
       //// Context Map Tiles ////
       var osmDefaultUrl = "../../../data/openstreetmap/default/";
@@ -288,7 +292,7 @@
           scale: 0.0010172804041788702
         };
         var settings = {
-          playbackSpeed: 0.5,
+          playbackSpeed: defaultPlaybackSpeed,
           viewerType: "webgl",
           url: landsatUrl,
           enablePresentationSlider: true,
@@ -298,10 +302,10 @@
             onLoadAnimation: "none",
             playAfterAnimation: false,
             initialWaypointIndex: 0,
-            doAutoMode: isHyperwall,
+            doAutoMode: enableAutoMode,
             showAnnotations: false,
-            screenIdleTime: 8 * 60 * 1000, // 8 minutes
-            waypointDelayTime: 15000
+            screenIdleTime: screenTimeoutInMilliseconds,
+            waypointDelayTime: waypointDelayInMilliseconds
           },
           useTouchFriendlyUI: isHyperwall,
           datasetType: "landsat",
@@ -439,7 +443,7 @@
             $("#show-additional-landsat").prop("disabled", true);
           } else {
             showViirsLayer = false;
-            timelapse.setPlaybackRate(0.5);
+            timelapse.setPlaybackRate(defaultPlaybackSpeed);
             if ($("#show-additional-landsat").prop('checked')) {
               timelapse.loadNewTimeline("landsat-times-long.json","customUI");
             } else {
