@@ -321,7 +321,7 @@ updatePhase1 = function(displayFrame) {
   if (!WebglVideoTile.lastStatsTime) {
     WebglVideoTile.lastStatsTime = performance.now();
   } else if (performance.now() - WebglVideoTile.lastStatsTime > 5000) {
-    console.log(WebglVideoTile.stats());
+    //console.log(WebglVideoTile.stats());
     WebglVideoTile.lastStatsTime = performance.now();
   }
 
