@@ -1,14 +1,14 @@
 #!/bin/sh
 
-BROWSER_SCALE_FACTOR=`sed -n 's/"browserScaleFactor" : //p' config.js | sed "s/,.*//"`
-BROWSER_SCALE_FACTOR=$((BROWSER_SCALE_FACTOR+0))
 NUMBER_OF_PROCESSORS=$(sysctl -n hw.ncpu)
-CHROME_PROCESSES=$(ps aux | grep "Google Chrome" | wc -l)
+CHROME_PROCESSES=$(ps aux | grep "Google Chrome" | grep -v "Crashpad" | wc -l)
 ROOT_PATH=$(dirname "$0")
 if [ $ROOT_PATH = '.' ]
 then
   ROOT_PATH=$(pwd)
 fi
+BROWSER_SCALE_FACTOR=`sed -n 's/"browserScaleFactor" : //p' $ROOT_PATH/config.js | sed "s/,.*//"`
+BROWSER_SCALE_FACTOR=$((BROWSER_SCALE_FACTOR+0))
 LAUNCH_PATH="$ROOT_PATH/app/data-visualization-tools/examples/webgl-timemachine/index.html"
 PORTABLE_CHROME_PATH="$ROOT_PATH/libs/chrome-mac/Chromium.app"
 ARGS="--video-threads=$NUMBER_OF_PROCESSORS --allow-file-access-from-files --start-maximized --device-scale-factor=$BROWSER_SCALE_FACTOR"
