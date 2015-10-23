@@ -13,9 +13,9 @@ LAUNCH_PATH="$ROOT_PATH/app/data-visualization-tools/examples/webgl-timemachine/
 PORTABLE_CHROME_PATH="$ROOT_PATH/libs/chrome-mac/Chromium.app"
 ARGS="--video-threads=$NUMBER_OF_PROCESSORS --allow-file-access-from-files --start-maximized --device-scale-factor=$BROWSER_SCALE_FACTOR"
 
-launch_portable_chrome() {
-  open -a "$PORTABLE_CHROME_PATH" --args $ARGS
-}
+#launch_portable_chrome() {
+#  open -a "$PORTABLE_CHROME_PATH" --args $ARGS
+#}
 
 if [ $((CHROME_PROCESSES - 1)) -gt 0 ]
 then
