@@ -105,7 +105,7 @@
         width: 337px;
         background: rgba(255,255,255,0.7);
         position: absolute;
-        right: 19px;
+        right: 22px;
         bottom: 220px;
         border: 1px solid #656565;
         -webkit-border-radius: 3px;
@@ -533,8 +533,15 @@
         });
 
         $(window).resize(function () {
+          var width = $(window).width() * 1.8;
+          var height = $(window).height() * 1.28;
+          var scale = Math.min(1, Math.min(width / 1920, height / 1200));
+          $('#vector-layers').css({ 'transform-origin': 'bottom right' });
+          $('#vector-layers').css({ 'transform': 'scale(' + scale + ')' });
+
           $("#extras-content").dialog("option", {"width" : ($(window).width() - 5), "height" : $(window).height()});
         });
+        $(window).trigger("resize");
 
       }
     </script>
