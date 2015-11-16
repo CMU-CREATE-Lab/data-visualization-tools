@@ -158,10 +158,17 @@
       }
       label {
         cursor: pointer;
-        color: #656565;
+        color: #333333;
         padding-right: 6px;
         position: relative;
         top: -1px;
+      }
+      label .credit {
+        color: #555555;
+        font-size: 14px;
+        float:right;
+        position: relative;
+        top: 15px;
       }
       .base-layers-label {
         position: relative;
@@ -598,21 +605,22 @@
         var layer_html = '<div id="vector-layers">';
 
         layer_html += '<input type="radio" id="landsat-base" name="base-layers" value="landsat" />';
-        layer_html += '<label for="landsat-base" class="base-layers-label">Google Earth Time-Lapse</label>';
-        layer_html += '<input type="checkbox" id="show-additional-landsat">';
-        layer_html += '<label for="show-additional-landsat" id="additional-landsat-label">+3Y</label><br>';
+        layer_html += '<label for="landsat-base" class="base-layers-label">Earth Engine Timelapse <span class="credit">Google</span></label>';
+        //layer_html += '<input type="checkbox" id="show-additional-landsat">';
+        //layer_html += '<label for="show-additional-landsat" id="additional-landsat-label">+3Y</label>';
+        layer_html += '<br>';
         layer_html += '<input type="radio" id="light-base" name="base-layers" value="light" />';
         layer_html += '<label for="light-base" class="base-layers-label">Light Map</label>';
         layer_html += '<input type="radio" id="dark-base" name="base-layers" value="dark" />';
         layer_html += '<label for="dark-base" class="base-layers-label">Dark Map</label><br>';
         layer_html += '<input type="checkbox" id="show-wdpa">';
-        layer_html += '<label for="show-wdpa" id="wdpa-label">Protected Areas</label>';
+        layer_html += '<label for="show-wdpa" id="wdpa-label">Protected Areas <span class="credit">UNEP-WCMC</span></label>';
         layer_html += '<br><input type="checkbox" id="show-forest-change">';
-        layer_html += '<label for="show-forest-change" id="forest-label">Forest Loss by Year</label>';
+        layer_html += '<label for="show-forest-change" id="forest-label">Forest Loss by Year <span class="credit">Hansen et al</span></label>';
         layer_html += '<br><input type="checkbox" id="show-forest-loss-gain">';
-        layer_html += '<label for="show-forest-loss-gain" id="forest-label">Forest Loss/Gain</label>';
+        layer_html += '<label for="show-forest-loss-gain" id="forest-label">Forest Loss/Gain <span class="credit">Hansen et al</span></label>';
         layer_html += '<br><input type="checkbox" id="show-viirs">';
-        layer_html += '<label for="show-viirs" id="viirs-label">Fires at Night</label>';
+        layer_html += '<label for="show-viirs" id="viirs-label">Fires at Night <span class="credit">NOAA</span></label>';
         layer_html += '<select name="extras-selector" id="extras-selector">';
         layer_html += '<option selected="selected">Select...</option>';
         layer_html += '<option data-file-playback-rate="2" data-type="video" data-file-name="pumphandle_2014.mp4">Measured CO2 Over Time</option>';
