@@ -11,9 +11,20 @@
     </style>
     <script src="http://maps.googleapis.com/maps/api/js?sensor=false&v=3.20"></script>
     <script src="../../js/CanvasLayer.js"></script>
+    <script src="../../examples/webgl-timemachine/Glb.js"></script>
+    <script src="../../examples/webgl-timemachine/TileIdx.js"></script>
+    <script src="../../examples/webgl-timemachine/TileView.js"></script>
+    <script src="../../js/utils.js"></script>
+    <script src="WebglLodesLayer.js"></script>
+    <script src="WebglLodesTile.js"></script>
     <script>
       var map;
       var canvasLayer;
+      var gl;
+      var glb;
+      var lodesLayer;
+      var lodesUrl = '../../examples/webgl-timemachine/d';
+
       function initMap(mapDiv) {
         // initialize the map
         var mapOptions = {
@@ -64,24 +75,95 @@
         var canvasLayerOptions = {
           map: map,
           resizeHandler: resizeHandler,
-          animate: true,
+          animate: false,
           updateHandler: updateHandler
         };
         return new CanvasLayer(canvasLayerOptions);        
+      }
+
+      function initWebgl(canvasLayer) {
+        var gl = canvasLayer.canvas.getContext('experimental-webgl');
+        return gl;
+      }
+
+      function initGlb(gl) {
+        return new Glb(gl);
+      }
+
+      function initLodesLayer(glb, canvasLayer, lodesUrl) {
+        return new WebglLodesLayer(glb, canvasLayer, lodesUrl);
       }
 
       function init() {
         var mapDiv = document.getElementById('map-div');
         map = initMap(mapDiv);
         canvasLayer = initCanvasLayer(map, resize, update);
+        gl = initWebgl(canvasLayer);
+        glb = initGlb(gl);
+        lodesLayer = initLodesLayer(glb, canvasLayer, lodesUrl);
       }
 
       function resize() {
-
+        console.log("resize");
       }
 
       function update() {
+        console.log("update");
+        /*
+        var translation = canvasLayer.getMapTranslation();
+        var lodesLayerView = {
+          zoom: map.zoom,
+          x: translation.x,
+          y: translation.y
+        }
+        */
+        // view is {x: xCenterInPanoCoords, y: yCenterInPanoCoords, scale: panoCoordOverPixelCoord}
 
+        var scale = 1 << 21;
+        var center = map.getCenter();
+        var worldCoordinate = project(center);
+
+        var pixelCoordinate = new google.maps.Point(
+          Math.floor(worldCoordinate.x * scale),
+          Math.floor(worldCoordinate.y * scale));
+
+        var mapBounds = map.getBounds();
+        var northEast = project(mapBounds.getNorthEast());
+        var southWest = project(mapBounds.getSouthWest()); 
+
+
+        var pixelCoordinateNE = new google.maps.Point(
+          Math.floor(northEast.x * scale),
+          Math.floor(northEast.y * scale));
+
+        var pixelCoordinateSW = new google.maps.Point(
+          Math.floor(southWest.x * scale),
+          Math.floor(southWest.y * scale));
+
+        var viewportWidth = canvasLayer.canvas.width;
+        var viewportHeight = canvasLayer.canvas.height;
+        
+        //var levelScale = Math.min(viewportWidth / (pixelCoordinateNE.x - pixelCoordinateSW.x), viewportHeight / (pixelCoordinateSW.y - pixelCoordinateNE.y));
+        var levelScale = (1 << map.zoom) / (1 << 21);
+        var lodesLayerView = {
+          scale: levelScale,
+          x: pixelCoordinate.x,
+          y: pixelCoordinate.y
+        }
+        console.log(lodesLayerView);
+        lodesLayer.draw(lodesLayerView);
+      }
+
+      function project(latLng) {
+        var siny = Math.sin(latLng.lat() * Math.PI / 180);
+
+        // Truncating to 0.9999 effectively limits latitude to 89.189. This is
+        // about a third of a tile past the edge of the world tile.
+        siny = Math.min(Math.max(siny, -0.9999), 0.9999);
+
+        return new google.maps.Point(
+            256. * (0.5 + latLng.lng() / 360),
+            256. * (0.5 - Math.log((1 + siny) / (1 - siny)) / (4 * Math.PI)));
       }
       document.addEventListener('DOMContentLoaded', init, false);
 
