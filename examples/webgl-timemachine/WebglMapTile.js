@@ -82,7 +82,7 @@ WebglMapTile.prototype._handleLoadedTexture = function() {
     //console.timeEnd("gl.texImage2D");
     gl.bindTexture(gl.TEXTURE_2D, null);
     var elapsed = performance.now() - before;
-    console.log(this.toString() + ': copied the texture in ' + elapsed + ' ms');
+    //console.log(this.toString() + ': copied the texture in ' + elapsed + ' ms');
     this._ready = true;
 }
 

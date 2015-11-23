@@ -268,8 +268,8 @@ _checkForMissedFrame = function(displayFrameDiscrete) {
   if (this._ready &&
       displayFrameDiscrete != this._lastDisplayFrame &&
       displayFrameDiscrete != this._pipeline[0].frameno) {
-    console.log(this._id + ': missed frame ' + displayFrameDiscrete +
-                ', pipeline: ' + this._pipelineToString());
+    //console.log(this._id + ': missed frame ' + displayFrameDiscrete +
+    //            ', pipeline: ' + this._pipelineToString());
     //WebglTimeMachinePerf.instance.recordMissedFrames(1);
     this._missedFrameCount++;
   }
@@ -485,8 +485,8 @@ _captureFrame = function(captureFrameno, destIndex) {
                 this._pipelineToString());
   }
   if (elapsed > 10) {
-    console.log(this._id + ': long capture time ' + Math.round(elapsed) + ' ms.  readyState was ' + readyState +
-	       ', time was ' + currentTime);
+    //console.log(this._id + ': long capture time ' + Math.round(elapsed) + ' ms.  readyState was ' + readyState +
+	  //     ', time was ' + currentTime);
   }
 
   //if (this._ready) {
