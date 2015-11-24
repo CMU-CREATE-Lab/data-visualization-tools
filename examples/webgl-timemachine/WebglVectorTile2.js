@@ -85,7 +85,7 @@ draw = function(transform) {
   translateMatrix(tileTransform, (this._bounds.max.x - this._bounds.min.x)/256., (this._bounds.max.y - this._bounds.min.y)/256.);
   scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-    this.transform = tileTransform;
+  
     var matrixLoc = gl.getUniformLocation(this.program, 'mapMatrix');
     gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
 
@@ -118,5 +118,5 @@ WebGLVectorTile2.vectorTileVertexShader =
 
 WebGLVectorTile2.vectorTileFragmentShader =
 'void main() {\n' +
-'  gl_FragColor = vec4(.0, 1., .15, 1.0);\n' +
+'  gl_FragColor = vec4(1., .0, .65, 1.0);\n' +
 '}\n';
