@@ -41,10 +41,13 @@
     <script src="WebglTimeMachineLayer.js"></script>
     <script src="WebglMapLayer.js"></script>
     <script src="WebglVectorLayer.js"></script>
+    <script src="WebglVectorLayer2.js"></script>
     <script src="WebglTimeMachinePerf.js"></script>
     <script src="WebGLVectorTile.js"></script>
+    <script src="WebGLVectorTile2.js"></script>
     <script src="WebglMapTile.js"></script>
     <script src="WebglViirsTile.js"></script>
+    <script src="WebglCoralTile.js"></script>
 
     <style>
       #timeMachine {
@@ -242,7 +245,7 @@
 
       jQuery.support.cors = true;
 
-      var landsatBaseMapLayer, timelapse, darkBaseMapLayer, lightBaseMapLayer, wdpaVectorLayer, hansonMapLayer, hansonMapLayer2, viirsTile;
+      var landsatBaseMapLayer, timelapse, darkBaseMapLayer, lightBaseMapLayer, wdpaVectorLayer, mcrmVectorLayer, hansonMapLayer, hansonMapLayer2, viirsTile, coralBleachingTile;
 
 
       //// Config ////
@@ -281,7 +284,9 @@
 
       //// Vector Tiles ////
       var wdpaUrl = "../../../data/wdpaline-year";
+      var mcrmUrl = "mcrm-lines-wrapdateline";
       var viirsUrl = '../../../data/viirs/createlab-viirs-uncorrected-20140314-20150403.bin';
+      var coralBleachingUrl = "bleaching_reports_4km_81-10.bin";
 
       var visibleBaseMapLayer = "landsat";
 
@@ -418,6 +423,15 @@
           }
         }).prop('checked', showWdpaLayer);
 
+        $("#show-mcrm").on("click", function() {
+          var $this = $(this);
+          if ($this.is(':checked')) {
+            showMcrmLayer = true;
+          } else {
+            showMcrmLayer = false;
+          }
+        }).prop('checked', showMcrmLayer);
+
         $("#show-forest-change").on("click", function() {
           if ($(this).prop('checked')) {
             showHansonLayer = true;
@@ -453,6 +467,15 @@
             $("#show-additional-landsat").prop("disabled", false);
           }
         }).prop('checked', showViirsLayer);
+
+        $("#show-coral").on("click", function() {
+          if ($(this).prop('checked')) {
+            showCoralBleachingLayer = true;
+          } else {
+            showCoralBleachingLayer = false;
+          }
+        }).prop('checked', showCoralBleachingLayer);
+
 
         $("#show-additional-landsat").on("click", function() {
           if ($(this).prop('checked')) {
@@ -569,9 +592,12 @@
       var gl, glb;
 
       var showWdpaLayer = false;
+      var showMcrmLayer = false;
       var showHansonLayer = false;
       var showHansonLayer2 = false;
       var showViirsLayer = false;
+      var showCoralBleachingLayer = false;
+
 
       var tileViewVisibility = {
         videoTile: true,
@@ -608,12 +634,16 @@
         layer_html += '<label for="dark-base" class="base-layers-label">Dark Map</label><br>';
         layer_html += '<input type="checkbox" id="show-wdpa">';
         layer_html += '<label for="show-wdpa" id="wdpa-label">Protected Areas <span class="credit">UNEP-WCMC</span></label>';
+        layer_html += '<br><input type="checkbox" id="show-mcrm">';
+        layer_html += '<label for="show-mcrm" id="mcrm-label">Coral Reef Map <span class="credit">UNEP-WCMC</span></label>';
         layer_html += '<br><input type="checkbox" id="show-forest-change">';
         layer_html += '<label for="show-forest-change" id="forest-label">Forest Loss by Year <span class="credit">Hansen et al</span></label>';
         layer_html += '<br><input type="checkbox" id="show-forest-loss-gain">';
         layer_html += '<label for="show-forest-loss-gain" id="forest-label">Forest Loss/Gain <span class="credit">Hansen et al</span></label>';
         layer_html += '<br><input type="checkbox" id="show-viirs">';
         layer_html += '<label for="show-viirs" id="viirs-label">Fires at Night <span class="credit">NOAA</span></label>';
+        layer_html += '<br><input type="checkbox" id="show-coral">';
+        layer_html += '<label for="show-coral" id="coral-label">Coral Bleaching<span class="credit">NOAA Coral Reef Watch</span></label>';
         layer_html += '<select name="extras-selector" id="extras-selector">';
         layer_html += '<option selected="selected">Select...</option>';
         layer_html += '<option data-file-playback-rate="2" data-type="video" data-file-name="pumphandle_2014.mp4">Measured CO2 Over Time</option>';
@@ -661,9 +691,13 @@
         hansonMapLayer = new WebglMapLayer(glb, canvasLayer, gfcTransUrl, defaultMapLayerOptions);
         hansonMapLayer2 = new WebglMapLayer(glb, canvasLayer, gfcLossGainUrl, defaultMapLayerOptions);
         wdpaVectorLayer = new WebglVectorLayer(glb, canvasLayer, wdpaUrl, defaultMapLayerOptions);
+        mcrmVectorLayer = new WebglVectorLayer2(glb, canvasLayer, mcrmUrl, defaultMapLayerOptions);
+
 
         // VIIRS is just a single tile
         viirsTile = new WebglViirsTile(glb, viirsUrl);
+        coralBleachingTile = new WebglCoralTile(glb, coralBleachingUrl);
+
 
         // Layer Toggle UI
         initLayerToggleUI();
@@ -686,6 +720,8 @@
           var $wdpaLayerToggle = $("#show-wdpa");
           var $globalForestLossLayerToggle = $("#show-forest-loss-gain");
           var $viirsLayerToggle = $("#show-viirs");
+          var $coralLayerToggle = $("#show-coral");
+
           var $showAdditionalLandsatYearsToggle = $("#show-additional-landsat");
 
           if ($globalForestLayerToggle.prop('checked')) {
@@ -700,6 +736,10 @@
           if ($viirsLayerToggle.prop('checked')) {
             $viirsLayerToggle.click();
           }
+          if ($coralLayerToggle.prop('checked')) {
+            $coralLayerToggle.click();
+          }
+
           if ($showAdditionalLandsatYearsToggle.prop('checked')) {
             $showAdditionalLandsatYearsToggle.click();
           }
@@ -848,6 +888,17 @@
         if (showWdpaLayer)
           wdpaVectorLayer.draw(timelapse.getView());
 
+        if (showMcrmLayer) {
+          var mcrmLayerView = timelapse.getView();
+          var timelapse2map = mcrmVectorLayer.getWidth() / landsatBaseMapLayer.getWidth();
+          mcrmLayerView.x *= timelapse2map;
+          mcrmLayerView.y *= timelapse2map;
+          mcrmLayerView.scale /= timelapse2map;
+
+          mcrmVectorLayer.draw(mcrmLayerView);
+        }
+
+
         // VIIRS layer
         if (showViirsLayer) {
           //var v = timelapse.getVideoset();
@@ -860,6 +911,19 @@
           var currentDate = ratio*range + new Date(times[0]).getTime();
           viirsView.currentDate = currentDate;
           viirsTile.draw(viirsView);
+        }
+
+        if (showCoralBleachingLayer) {
+          //var v = timelapse.getVideoset();
+          //v.seek(0);
+          var viirsView = timelapse.getView();
+          viirsView.zoom = timelapse.getCurrentZoom();
+          var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
+          var times = timelapse.getCaptureTimes();
+          var range = new Date(times[times.length - 1]).getTime() - new Date(times[0]).getTime();
+          var currentDate = ratio*range + new Date(times[0]).getTime();
+          viirsView.currentDate = currentDate;
+          coralBleachingTile.draw(viirsView);
         }
 
         //stats.end();
