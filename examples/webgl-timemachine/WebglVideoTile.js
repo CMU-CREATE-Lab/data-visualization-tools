@@ -87,7 +87,7 @@ WebglVideoTile._init = function() {
       // ctrl-b toggles verbosity
       if (e.keyCode == 2) {
         WebglVideoTile.verbose = !WebglVideoTile.verbose;
-        console.log('WebglVideoTile verbose: ' + WebglVideoTile.verbose);
+        //console.log('WebglVideoTile verbose: ' + WebglVideoTile.verbose);
       }
     });
 }

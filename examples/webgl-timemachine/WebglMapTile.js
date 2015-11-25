@@ -56,7 +56,7 @@ WebglMapTile._init = function() {
       // ctrl-b toggles verbosity
       if (e.keyCode == 2) {
         WebglMapTile.verbose = !WebglMapTile.verbose;
-        console.log('WebglMapTile verbose: ' + WebglMapTile.verbose);
+        //console.log('WebglMapTile verbose: ' + WebglMapTile.verbose);
       }
     });
 }
@@ -170,7 +170,7 @@ updatePhase1 = function(displayFrame) {
   if (!WebglMapTile.lastStatsTime) {
     WebglMapTile.lastStatsTime = performance.now();
   } else if (performance.now() - WebglMapTile.lastStatsTime > 5000) {
-    console.log(WebglMapTile.stats());
+    //console.log(WebglMapTile.stats());
     WebglMapTile.lastStatsTime = performance.now();
   }
 
@@ -314,7 +314,7 @@ _captureFrame = function(captureFrameno, destIndex) {
                 this._pipelineToString());
   }
   if (elapsed > 10) {
-    console.log(this._id + ': long capture time ' + Math.round(elapsed) + ' ms.  readyState was ' + readyState +
+    //console.log(this._id + ': long capture time ' + Math.round(elapsed) + ' ms.  readyState was ' + readyState +
 	       ', time was ' + currentTime);
   }
 

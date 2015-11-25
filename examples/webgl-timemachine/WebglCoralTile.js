@@ -14,7 +14,7 @@ function WebglCoralTile(glb, url) {
 }
 
 WebglCoralTile.prototype._load = function() {
-  console.log('_load');
+  //console.log('_load');
   var that = this;
   var xhr = new XMLHttpRequest();
   xhr.open('GET', that._url);
@@ -52,7 +52,7 @@ WebglCoralTile.prototype.isReady = function() {
 }
 
 WebglCoralTile.prototype.delete = function() {
-  console.log('delete');
+  //console.log('delete');
 }
 
 WebglCoralTile.prototype.draw = function(transform, opts) {

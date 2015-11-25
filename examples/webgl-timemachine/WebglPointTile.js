@@ -73,7 +73,7 @@ WebglPointTile.prototype.isReady = function() {
 }
 
 WebglPointTile.prototype.delete = function() {
-  console.log('delete');
+  //console.log('delete');
 }
 
 WebglPointTile.prototype.draw = function(transform, opts) {

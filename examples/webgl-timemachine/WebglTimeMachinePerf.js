@@ -155,7 +155,7 @@ _endTrace = function() {
     ' (missed ' + r2(this._missedFrameCount * 100 / (sum + this._missedFrameCount)) + '%' +
     ', stddev ' + r2(stddev) + 
     ', max ' + max + ')';
-    console.log(msg);
+    //console.log(msg);
     this._context.fillStyle = '#000000';
     this._context.fillText(msg, this._lastX + 6, this._baseline - 5);
 

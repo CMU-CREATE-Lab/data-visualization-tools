@@ -50,7 +50,7 @@ function TileView(settings) {
   }
   this._readyList = [];
 
-  console.log(this.toString());
+  //console.log(this.toString());
 }
 
 TileView.prototype.
@@ -405,7 +405,7 @@ setViewFromLatLng = function(view, bounds, viewportWidth, viewportHeight, scale)
   }
   status = status.join(' ');
   if (!this._lastStatus || status.replace(/[\-\+]/g,'') != this._lastStatus.replace(/[\-\+]/g,'')) {
-    console.log('setView: ' + status);
+    //console.log('setView: ' + status);
     this._lastStatus = status;
   }
 };

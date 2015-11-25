@@ -71,7 +71,7 @@ isReady = function() {
 
 WebGLVectorTile.prototype.
 delete = function() {
-  console.log('delete');
+  //console.log('delete');
 }
 
 WebGLVectorTile.prototype.

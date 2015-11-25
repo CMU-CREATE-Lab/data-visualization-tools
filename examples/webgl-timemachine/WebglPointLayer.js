@@ -30,8 +30,8 @@ function WebglPointLayer(glb, canvasLayer, tileUrl, opt_options) {
 }
 
 WebglPointLayer.prototype.setOptions = function(options) {
-  console.log("Set Options");
-  console.log(options);
+  //console.log("Set Options");
+  //console.log(options);
   if (options.nLevels !== undefined) {
     this.setNLevels(options.animate);
   }

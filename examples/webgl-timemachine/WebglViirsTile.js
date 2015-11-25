@@ -17,7 +17,7 @@ function WebglViirsTile(glb, url) {
 }
 
 WebglViirsTile.prototype._load = function() {
-  console.log('_load');
+  //console.log('_load');
   var that = this;
   var xhr = new XMLHttpRequest();
   xhr.open('GET', that._url);
@@ -59,7 +59,7 @@ WebglViirsTile.prototype.isReady = function() {
 }
 
 WebglViirsTile.prototype.delete = function() {
-  console.log('delete');
+  //console.log('delete');
 }
 
 WebglViirsTile.prototype.draw = function(transform, opts) {
