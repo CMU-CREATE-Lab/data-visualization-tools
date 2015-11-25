@@ -315,7 +315,7 @@ _captureFrame = function(captureFrameno, destIndex) {
   }
   if (elapsed > 10) {
     //console.log(this._id + ': long capture time ' + Math.round(elapsed) + ' ms.  readyState was ' + readyState +
-	       ', time was ' + currentTime);
+	//       ', time was ' + currentTime);
   }
 
   //if (this._ready) {
