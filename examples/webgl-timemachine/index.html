@@ -755,9 +755,6 @@
           if ($globalForestLossLayerToggle.prop('checked')) {
             $globalForestLossLayerToggle.click();
           }
-          if ($viirsLayerToggle.prop('checked')) {
-            $viirsLayerToggle.click();
-          }
           if ($coralLayerToggle.prop('checked')) {
             $coralLayerToggle.click();
           }
@@ -766,18 +763,12 @@
           }
 
           // Set layers based on waypoint
-          if (waypointTitle == "Rondonia") {
-            if (!$wdpaLayerToggle.prop('checked')) {
-              $wdpaLayerToggle.click();
-            }
-          } else if (waypointTitle == "N Sumatra") {
-            if (!$wdpaLayerToggle.prop('checked')) {
-              $wdpaLayerToggle.click();
-            }
-          } else if (waypointTitle == "Fires at night") {
+
+          // VIIRS specific waypoints
+          if (waypointTitle == "Fires at night") {
             if (!$viirsLayerToggle.prop('checked')) {
               $viirsLayerToggle.click();
-              timelapse.play();
+              //timelapse.play();
             }
             if (!$darkMapToggle.prop('checked')) {
               $darkMapToggle.click();
@@ -785,7 +776,7 @@
           } else if (waypointTitle == "Agricultural fires") {
             if (!$viirsLayerToggle.prop('checked')) {
               $viirsLayerToggle.click();
-              timelapse.play();
+              //timelapse.play();
             }
             if (!$darkMapToggle.prop('checked')) {
               $darkMapToggle.click();
@@ -793,7 +784,7 @@
           } else if (waypointTitle == "Drilling fires") {
             if (!$viirsLayerToggle.prop('checked')) {
               $viirsLayerToggle.click();
-              timelapse.play();
+              //timelapse.play();
             }
             if (!$darkMapToggle.prop('checked')) {
               $darkMapToggle.click();
@@ -801,10 +792,24 @@
           } else if (waypointTitle == "Shale oil extraction") {
             if (!$viirsLayerToggle.prop('checked')) {
               $viirsLayerToggle.click();
-              timelapse.play();
+              //timelapse.play();
             }
             if (!$darkMapToggle.prop('checked')) {
               $darkMapToggle.click();
+            }
+          } else {
+            if ($viirsLayerToggle.prop('checked'))
+              $viirsLayerToggle.click();
+          }
+
+          // Non-VIIRS waypoints
+          if (waypointTitle == "Rondonia") {
+            if (!$wdpaLayerToggle.prop('checked')) {
+              $wdpaLayerToggle.click();
+            }
+          } else if (waypointTitle == "N Sumatra") {
+            if (!$wdpaLayerToggle.prop('checked')) {
+              $wdpaLayerToggle.click();
             }
           } else if (waypointTitle == "Asia Growth") {
             if (!$lightsAtNightToggle.prop('checked')) {
