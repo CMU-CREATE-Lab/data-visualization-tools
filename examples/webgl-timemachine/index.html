@@ -227,7 +227,7 @@
       }
 
       .ui-menu-item {
-        font-size: 17px;
+        font-size: 16px;
         padding-top: 10px;
         padding-bottom: 10px;
       }
@@ -245,7 +245,7 @@
 
       jQuery.support.cors = true;
 
-      var landsatBaseMapLayer, timelapse, darkBaseMapLayer, lightBaseMapLayer, wdpaVectorLayer, mcrmVectorLayer, hansonMapLayer, hansonMapLayer2, viirsTile, coralBleachingTile;
+      var landsatBaseMapLayer, timelapse, darkBaseMapLayer, lightBaseMapLayer, wdpaVectorLayer, mcrmVectorLayer, hansonMapLayer, hansonMapLayer2, viirsTile, coralBleachingTile, lightsAtNightMapLayer;
 
 
       //// Config ////
@@ -281,12 +281,14 @@
       // Google Maps retina
       var googleMapsDefaultRetinaUrl = "https://mts1.googleapis.com/vt?pb=!1m5!1m4!1i{z}!2i{x}!3i{y}!4i256!2m3!1e0!2sm!3i323305239!3m9!2sen-US!3sUS!5e18!12m1!1e47!12m3!1e37!2m1!1ssmartmaps!4e0!5m1!5f2";
       var googleMapsDarkStyleRetinaUrl = "https://mts0.googleapis.com/vt?pb=!1m4!1m3!1i{z}!2i{x}!3i{y}!2m3!1e0!2sm!3i323305239!3m14!2sen-US!3sUS!5e18!12m1!1e47!12m3!1e37!2m1!1ssmartmaps!12m4!1e26!2m2!1sstyles!2zcC5oOiMwMDAwYjB8cC5pbDp0cnVlfHAuczotMzAscy50OjJ8cC52Om9mZg!4e0!5m1!5f2";
+      // Lights At Night
+      var lightsAtNightUrl = "../../../data/lights-at-night/{default}/{z}/{x}/{y}.png";
 
       //// Vector Tiles ////
       var wdpaUrl = "../../../data/wdpaline-year";
-      var mcrmUrl = "mcrm-lines-wrapdateline";
+      var mcrmUrl = "../../../data/coral/mcrm-lines-wrapdateline";
       var viirsUrl = '../../../data/viirs/createlab-viirs-uncorrected-20140314-20150403.bin';
-      var coralBleachingUrl = "bleaching_reports_4km_81-10.bin";
+      var coralBleachingUrl = "../../../data/coral/bleaching_reports_4km_81-10.bin";
 
       var visibleBaseMapLayer = "landsat";
 
@@ -423,15 +425,6 @@
           }
         }).prop('checked', showWdpaLayer);
 
-        $("#show-mcrm").on("click", function() {
-          var $this = $(this);
-          if ($this.is(':checked')) {
-            showMcrmLayer = true;
-          } else {
-            showMcrmLayer = false;
-          }
-        }).prop('checked', showMcrmLayer);
-
         $("#show-forest-change").on("click", function() {
           if ($(this).prop('checked')) {
             showHansonLayer = true;
@@ -471,11 +464,20 @@
         $("#show-coral").on("click", function() {
           if ($(this).prop('checked')) {
             showCoralBleachingLayer = true;
+            showMcrmLayer = true;
           } else {
             showCoralBleachingLayer = false;
+            showMcrmLayer = false;
           }
         }).prop('checked', showCoralBleachingLayer);
 
+        $("#show-lights-at-night").on("click", function() {
+          if ($(this).prop('checked')) {
+            showLightsAtNightLayer = true;
+          } else {
+            showLightsAtNightLayer = false;
+          }
+        }).prop('checked', showCoralBleachingLayer);
 
         $("#show-additional-landsat").on("click", function() {
           if ($(this).prop('checked')) {
@@ -597,7 +599,7 @@
       var showHansonLayer2 = false;
       var showViirsLayer = false;
       var showCoralBleachingLayer = false;
-
+      var showLightsAtNightLayer = false;
 
       var tileViewVisibility = {
         videoTile: true,
@@ -634,16 +636,16 @@
         layer_html += '<label for="dark-base" class="base-layers-label">Dark Map</label><br>';
         layer_html += '<input type="checkbox" id="show-wdpa">';
         layer_html += '<label for="show-wdpa" id="wdpa-label">Protected Areas <span class="credit">UNEP-WCMC</span></label>';
-        layer_html += '<br><input type="checkbox" id="show-mcrm">';
-        layer_html += '<label for="show-mcrm" id="mcrm-label">Coral Reef Map <span class="credit">UNEP-WCMC</span></label>';
         layer_html += '<br><input type="checkbox" id="show-forest-change">';
         layer_html += '<label for="show-forest-change" id="forest-label">Forest Loss by Year <span class="credit">Hansen et al</span></label>';
         layer_html += '<br><input type="checkbox" id="show-forest-loss-gain">';
         layer_html += '<label for="show-forest-loss-gain" id="forest-label">Forest Loss/Gain <span class="credit">Hansen et al</span></label>';
         layer_html += '<br><input type="checkbox" id="show-viirs">';
         layer_html += '<label for="show-viirs" id="viirs-label">Fires at Night <span class="credit">NOAA</span></label>';
+        layer_html += '<br><input type="checkbox" id="show-lights-at-night">';
+        layer_html += '<label for="show-lights-at-night" id="lights-at-night-label">Lights at Night <span class="credit">NOAA, Google</span></label>';
         layer_html += '<br><input type="checkbox" id="show-coral">';
-        layer_html += '<label for="show-coral" id="coral-label">Coral Bleaching<span class="credit">NOAA Coral Reef Watch</span></label>';
+        layer_html += '<label for="show-coral" id="coral-label">Coral<span class="credit">NOAA, UNEP-WCMC</span></label>';
         layer_html += '<select name="extras-selector" id="extras-selector">';
         layer_html += '<option selected="selected">Select...</option>';
         layer_html += '<option data-file-playback-rate="2" data-type="video" data-file-name="pumphandle_2014.mp4">Measured CO2 Over Time</option>';
@@ -653,6 +655,7 @@
         layer_html += '<option data-file-playback-rate="2" data-type="video" data-file-name="Larsen-B-Collapse.mp4">Larsen-B Collapse</option>';
         layer_html += '<option data-file-playback-rate="4" data-type="video" data-file-name="Orbiting Carbon Observatory.mp4">Orbiting Carbon Observatory</option>';
         layer_html += '<option data-file-playback-rate="2" data-type="video" data-file-name="Arctic Sea Ice, September 1979 to September 2014.mp4">Annual Sea Ice Concentration 1979-2014</option>';
+        layer_html += '<option data-file-playback-rate="1" data-type="video" data-file-name="coral-reef-watch-daily-7day-max.mp4">Coral Reef Watch 2013-2015</option>';
         if (showEVA)
           layer_html += '<option data-type="link" data-link-path="http://localhost:8080/?uid=history-1436384863961-Vyxt6PIO">EVA - Explorable Visual Analytics</option>';
         layer_html += '</select>';
@@ -680,6 +683,11 @@
           tileWidth: 512,
           tileHeight: 512
         };
+         var lightsAtNightMapLayerOptions = {
+          nLevels: 8,
+          tileWidth: 256,
+          tileHeight: 256
+        };
 
         var lightTileUrl = useGoogleMaps ? googleMapsDefaultRetinaUrl : osmLightRetinaUrl;
         var darkTileUrl = useGoogleMaps ? googleMapsDarkStyleRetinaUrl : osmDarkRetinaUrl;
@@ -691,13 +699,12 @@
         hansonMapLayer = new WebglMapLayer(glb, canvasLayer, gfcTransUrl, defaultMapLayerOptions);
         hansonMapLayer2 = new WebglMapLayer(glb, canvasLayer, gfcLossGainUrl, defaultMapLayerOptions);
         wdpaVectorLayer = new WebglVectorLayer(glb, canvasLayer, wdpaUrl, defaultMapLayerOptions);
-        mcrmVectorLayer = new WebglVectorLayer2(glb, canvasLayer, mcrmUrl, defaultMapLayerOptions);
-
+        mcrmVectorLayer = new WebglVectorLayer2(glb, canvasLayer, mcrmUrl, defaultBaseMapLayerOptions);
+        lightsAtNightMapLayer = new WebglMapLayer(glb, canvasLayer, lightsAtNightUrl, lightsAtNightMapLayerOptions);
 
         // VIIRS is just a single tile
         viirsTile = new WebglViirsTile(glb, viirsUrl);
         coralBleachingTile = new WebglCoralTile(glb, coralBleachingUrl);
-
 
         // Layer Toggle UI
         initLayerToggleUI();
@@ -725,16 +732,16 @@
           var $darkMapToggle = $("#dark-base");
           // Protected Areas
           var $wdpaLayerToggle = $("#show-wdpa");
-          // Coral Reef Map
-          var $coralReefLayerToggle = $("#show-mcrm");
           // Forest Loss By Year
           var $globalForestLayerToggle = $("#show-forest-change");
           // Forest Loss/Gain
           var $globalForestLossLayerToggle = $("#show-forest-loss-gain");
           // Fires at Night
           var $viirsLayerToggle = $("#show-viirs");
-          // Coral Bleaching
+          // Coral
           var $coralLayerToggle = $("#show-coral");
+          // Coral
+          var $lightsAtNightToggle = $("#show-lights-at-night");
 
           // Clear out layers if they were already checked
           // Default to Landsat
@@ -753,6 +760,9 @@
           }
           if ($coralLayerToggle.prop('checked')) {
             $coralLayerToggle.click();
+          }
+          if ($lightsAtNightToggle.prop('checked')) {
+            $lightsAtNightToggle.click();
           }
 
           // Set layers based on waypoint
@@ -796,6 +806,10 @@
             if (!$darkMapToggle.prop('checked')) {
               $darkMapToggle.click();
             }
+          } else if (waypointTitle == "Asia Growth") {
+            if (!$lightsAtNightToggle.prop('checked')) {
+              $lightsAtNightToggle.click();
+            }
           } else if (waypointTitle == "Resources and Forest") {
             if (!$globalForestLossLayerToggle.prop('checked')) {
               $globalForestLossLayerToggle.click();
@@ -837,6 +851,7 @@
           var $globalForestLossLayerToggle = $("#show-forest-loss-gain");
           var $viirsLayerToggle = $("#show-viirs");
           var $coralLayerToggle = $("#show-coral");
+          var $lightsAtNightToggle = $("#show-lights-at-night");
 
           var $showAdditionalLandsatYearsToggle = $("#show-additional-landsat");
 
@@ -855,7 +870,9 @@
           if ($coralLayerToggle.prop('checked')) {
             $coralLayerToggle.click();
           }
-
+          if ($lightsAtNightToggle.prop('checked')) {
+            $lightsAtNightToggle.click();
+          }
           if ($showAdditionalLandsatYearsToggle.prop('checked')) {
             $showAdditionalLandsatYearsToggle.click();
           }
@@ -951,8 +968,20 @@
 
         gl.clear(gl.COLOR_BUFFER_BIT);
 
+        // Draw lightsAtNightMapLayer
+        if (showLightsAtNightLayer) {
+          // Construct view for lightsAtNightMapLayer
+          var lightsAtNightLayerView = timelapse.getView();
+          var timelapse2map = lightsAtNightMapLayer.getWidth() / landsatBaseMapLayer.getWidth();
+          lightsAtNightLayerView.x *= timelapse2map;
+          lightsAtNightLayerView.y *= timelapse2map;
+          lightsAtNightLayerView.scale /= timelapse2map;
+
+          lightsAtNightMapLayer.draw(lightsAtNightLayerView);
+        }
+
         // Draw base layer
-        if (visibleBaseMapLayer == "landsat") {
+        else if (visibleBaseMapLayer == "landsat") {
           landsatBaseMapLayer.draw(timelapse.getView(), tileViewVisibility);
         } else if (visibleBaseMapLayer == "light") {
           // Construct view for lightBaseMapLayer
