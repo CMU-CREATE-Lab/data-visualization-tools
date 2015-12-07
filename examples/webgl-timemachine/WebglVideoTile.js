@@ -13,7 +13,7 @@
 // Or maybe compress the range and go with say 1.6 to 2.1?  That lets us better use
 // the flexibility of being able to capture the video across a range of times
 
-function WebglVideoTile(glb, tileidx, bounds, url, defaultUrl) {
+function WebglVideoTile(glb, tileidx, bounds, url, defaultUrl, numFrames, fps) {
   if (!WebglVideoTile._initted) {
     WebglVideoTile._init();
   }
@@ -65,16 +65,8 @@ function WebglVideoTile(glb, tileidx, bounds, url, defaultUrl) {
   this._bounds = bounds;
   this._frameOffsetIndex = WebglVideoTile.getUnusedFrameOffsetIndex();
   this._frameOffset = WebglVideoTile._frameOffsets[this._frameOffsetIndex];
-  // TODO(rsargent): don't hardcode FPS and nframes
-  this._fps = 10;
-  // TODO(pdille0): Hackity hack... Oh deadlines...
-  this._nframes = function() {
-    if ($("#show-additional-landsat").prop("checked")) {
-        return 32;
-    } else {
-        return 29;
-    }
-  };
+  this._fps = fps;
+  this._nframes = numFrames;
   this._id = WebglVideoTile.videoId++;
   this._seekingFrameCount = 0;
   WebglVideoTile.activeTileCount++;
@@ -174,7 +166,7 @@ WebglVideoTile.r2 = function(x) {
 // We need the current frame, plus the next two future frames
 WebglVideoTile.prototype.
 _frameIsNeeded = function(frameno, displayFrameDiscrete) {
-  var future = (frameno - displayFrameDiscrete + this._nframes()) % this._nframes();
+  var future = (frameno - displayFrameDiscrete + this._nframes) % this._nframes;
   return future <= 2;
 }
 
@@ -294,12 +286,12 @@ _computeNextCaptureFrame = function(displayFrameDiscrete, isPaused) {
   if (lastFrame == null) {
     future = 2;
   } else {
-    future = (lastFrame - displayFrameDiscrete + this._nframes()) % this._nframes() + 1;
+    future = (lastFrame - displayFrameDiscrete + this._nframes) % this._nframes + 1;
     if (future < 1 || future > 3) {
       future = 2;
     }
   }
-  return (displayFrameDiscrete + future) % this._nframes();
+  return (displayFrameDiscrete + future) % this._nframes;
 }
 
 WebglVideoTile.prototype.
@@ -314,7 +306,7 @@ _computeCapturePriority = function(displayFrameDiscrete, actualVideoFrame,
 WebglVideoTile.prototype.
 updatePhase1 = function(displayFrame) {
   this._capturePriority = 0;
-  var displayFrameDiscrete = Math.min(Math.floor(displayFrame), this._nframes() - 1);
+  var displayFrameDiscrete = Math.min(Math.floor(displayFrame), this._nframes - 1);
 
   var r2 = WebglVideoTile.r2;
   // Output stats every 5 seconds
@@ -339,7 +331,7 @@ updatePhase1 = function(displayFrame) {
   }
 
   var actualVideoFrame = this._video.currentTime * this._fps;
-  var actualVideoFrameDicrete = Math.min(Math.floor(actualVideoFrame), this._nframes() - 1);
+  var actualVideoFrameDicrete = Math.min(Math.floor(actualVideoFrame), this._nframes - 1);
 
   this._flushUnneededFrames(displayFrameDiscrete);
   this._tryAdvancePipeline(displayFrameDiscrete);
@@ -354,7 +346,7 @@ updatePhase1 = function(displayFrame) {
 WebglVideoTile.prototype.
 updatePhase2 = function(displayFrame) {
   var r2 = WebglVideoTile.r2;
-  var displayFrameDiscrete = Math.min(Math.floor(displayFrame), this._nframes() - 1);
+  var displayFrameDiscrete = Math.min(Math.floor(displayFrame), this._nframes - 1);
   var readyState = this._video.readyState;
   var isPaused = timelapse.isPaused();
   // TODO(rsargent+pdille): This hacks timelapse to show frame 27 (2011) if VIIRS is showing
@@ -367,7 +359,7 @@ updatePhase2 = function(displayFrame) {
   }
 
   var actualVideoFrame = this._video.currentTime * this._fps;
-  var actualVideoFrameDicrete = Math.min(Math.floor(actualVideoFrame), this._nframes() - 1);
+  var actualVideoFrameDicrete = Math.min(Math.floor(actualVideoFrame), this._nframes - 1);
 
   if (readyState > 1 && !redrawTakingTooLong()) {
     this._tryCaptureFrame(displayFrameDiscrete, actualVideoFrame, actualVideoFrameDicrete, isPaused);
@@ -395,9 +387,9 @@ updatePhase2 = function(displayFrame) {
   var future = (timelapse.getPlaybackRate() * this._fps / webglFps) * 3;
 
   // Desired video tile time leads display by frameOffset+1.3
-  var targetVideoFrame = (displayFrame + this._frameOffset + 1.2) % this._nframes();
+  var targetVideoFrame = (displayFrame + this._frameOffset + 1.2) % this._nframes;
 
-  var futureTargetVideoFrame = (targetVideoFrame + future) % this._nframes();
+  var futureTargetVideoFrame = (targetVideoFrame + future) % this._nframes;
 
   if (isPaused && nextNeededFrame == displayFrameDiscrete) {
     // Paused and we need the current frame
@@ -490,7 +482,7 @@ _captureFrame = function(captureFrameno, destIndex) {
   }
 
   //if (this._ready) {
-  //  var advance = (this._pipeline[destIndex].frameno - this._pipeline[destIndex - 1].frameno + this._nframes()) % this._nframes();
+  //  var advance = (this._pipeline[destIndex].frameno - this._pipeline[destIndex - 1].frameno + this._nframes) % this._nframes;
   //  WebglVideoTile.frameCount += advance;
   //  if (advance != 1) {
   //    console.log(this._id + ': skipped ' + (advance - 1) + ' frames');
@@ -542,8 +534,8 @@ WebglVideoTile.update = function(tiles, transform) {
 
   var canvas = document.getElementById('webgl');
 
-  // TODO(rsargent): don't hardcode this here
-  var fps = 10;
+  var fps = tiles[0]._fps
+
   var displayFrame = timelapse.getVideoset().getCurrentTime() * fps;
   // TODO(rsargent+pdille): This hacks timelapse to show frame 27 (2011) if VIIRS is showing
   if (showViirsLayer) {

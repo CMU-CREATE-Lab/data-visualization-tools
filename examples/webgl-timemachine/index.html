@@ -694,7 +694,13 @@
         //$("#timeMachine").append('<div id="logoUrl">earthengine.google.org</div>');
 
         // Time Machine layer
-        landsatBaseMapLayer = new WebglTimeMachineLayer(glb, canvasLayer, landsatUrl, wdpaUrl);
+        var defaultTimeMachineLayerOptions = {
+          mediaType: ".mp4",
+          numFrames: 32,
+          fps: 10
+        };
+
+        landsatBaseMapLayer = new WebglTimeMachineLayer(glb, canvasLayer, landsatUrl, defaultTimeMachineLayerOptions);
 
         // Raster map layers
         var defaultMapLayerOptions = {

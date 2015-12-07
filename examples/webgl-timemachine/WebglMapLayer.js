@@ -28,7 +28,7 @@ function WebglMapLayer(glb, canvasLayer, tileUrl, opt_options) {
   });
 
   // TODO: experiment with this
-  this._tileView.levelThreshold = 0;
+  this._tileView.levelThreshold = opt_options.levelThreshold || 0;
 }
 
 

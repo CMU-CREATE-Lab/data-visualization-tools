@@ -1,25 +1,22 @@
 "use strict";
 
-function WebglTimeMachineLayer(glb, canvasLayer, rootUrl, vectorUrl) {
+function WebglTimeMachineLayer(glb, canvasLayer, rootUrl, opt_options) {
   this.glb = glb;
   this.gl = glb.gl;
   this._canvasLayer = canvasLayer;
   this._rootUrl = rootUrl;
-  this._vectorUrl = vectorUrl;
-  this._defaultUrl = rootUrl + '/default' + timelapse.getMediaType();
+  this._mediaType = opt_options.mediaType || ".mp4";
+  this._defaultUrl = opt_options.defaultUrl || rootUrl + '/default' + this._mediaType;
+  this._numFrames = opt_options.numFrames || 32;
+  this._fps = opt_options.fps || 10;
 
   var r = canvasLayer.timelapse.getMetadata();
 
   var that = this;
 
   function createTile(ti, bounds) {
-    var url = rootUrl + '/' + ti.l + '/' + (ti.r * 4) + '/' + (ti.c * 4) + timelapse.getMediaType();
-    return new WebglVideoTile(glb, ti, bounds, url, that._defaultUrl);
-  }
-
-  function createVectorTile(ti, bounds) {
-    var url = vectorUrl + '/' + ti.l + '/' + (ti.r) + '/' + (ti.c) + '.bin';
-    return new WebGLVectorTile(glb, ti, bounds, url);
+    var url = rootUrl + '/' + ti.l + '/' + (ti.r * 4) + '/' + (ti.c * 4) + that._mediaType;
+    return new WebglVideoTile(glb, ti, bounds, url, that._defaultUrl, that._numFrames, that._fps);
   }
 
   this._tileView = new TileView({
@@ -35,18 +32,6 @@ function WebglTimeMachineLayer(glb, canvasLayer, rootUrl, vectorUrl) {
   this.destroy = function() {
     this._tileView._destroy();
   };
-
-  this._vectorTileView = new TileView({
-    panoWidth: r.width,
-    panoHeight: r.height,
-    tileWidth: 256,
-    tileHeight: 256,
-    createTile: createVectorTile,
-    deleteTile: function(tile) {},
-    updateTile: WebGLVectorTile.update,
-    zoomlock: 11
-  });
-
 }
 
 WebglTimeMachineLayer.prototype.getWidth = function() {
@@ -81,14 +66,4 @@ WebglTimeMachineLayer.prototype.draw = function(view, tileViewVisibility) {
     this._tileView.setView(view, width, height, this._canvasLayer.resolutionScale_);
     this._tileView.update(transform);
   }
-
-  if (tileViewVisibility.vectorTile) {
-    var bBox = timelapse.getBoundingBoxForCurrentView();
-    var latLngBbox = timelapse.pixelBoundingBoxToLatLngBoundingBoxView(bBox).bbox;
-    var ne = {lat: latLngBbox.sw.lat, lng: latLngBbox.ne.lng};
-    var sw = {lat: latLngBbox.ne.lat, lng: latLngBbox.sw.lng};
-    this._vectorTileView.setViewFromLatLng(view, {ne: ne, sw: sw}, width, height, this._canvasLayer.resolutionScale_);
-    this._vectorTileView.update(transform);
-  }
-
 };
