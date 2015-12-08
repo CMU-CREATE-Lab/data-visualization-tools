@@ -105,12 +105,15 @@
         padding-left: 27px;
         padding-right: 27px;
       }
+      #vector-layers.hyperwall {
+        bottom: 235px !important;
+      }
       #vector-layers {
         width: 337px;
         background: rgba(255,255,255,0.7);
         position: absolute;
         right: 22px;
-        bottom: 235px;
+        bottom: 206px;
         border: 1px solid #656565;
         -webkit-border-radius: 3px;
         -moz-border-radius: 3px;
@@ -523,6 +526,7 @@
         });
 
         $("#extras-selector").selectmenu({
+          position: { at : "left top" },
           appendTo: "#timeMachine",
           change: function(event, ui) {
             // use click event below since this event is not registered on the touch screen.
@@ -758,10 +762,12 @@
         var snaplapseViewer = snaplapse.getSnaplapseViewer();
 
         // Change UI based on whether setup is a hyperwall or not
-        snaplapseViewer.addEventListener('snaplapse-loaded', function() {
-          if (isHyperwall)
+        if (isHyperwall) {
+          $("#vector-layers").addClass("hyperwall");
+          snaplapseViewer.addEventListener('snaplapse-loaded', function() {
             $('.presentationSlider, .snaplapse_keyframe_container, .keyframeSubtitleBoxForHovering, .snaplapse_keyframe_list_item_presentation, .snaplapse_keyframe_list_item_thumbnail_overlay_presentation').addClass('hyperwall');
-        });
+          });
+        }
 
         // TODO: Refactor how this is handled and how layers turn on/off in general
         snaplapseViewer.addEventListener('slide-changed', function(waypointTitle) {
