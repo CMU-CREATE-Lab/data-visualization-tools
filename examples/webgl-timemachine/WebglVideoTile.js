@@ -331,12 +331,12 @@ updatePhase1 = function(displayFrame) {
   }
 
   var actualVideoFrame = this._video.currentTime * this._fps;
-  var actualVideoFrameDicrete = Math.min(Math.floor(actualVideoFrame), this._nframes - 1);
+  var actualVideoFrameDiscrete = Math.min(Math.floor(actualVideoFrame), this._nframes - 1);
 
   this._flushUnneededFrames(displayFrameDiscrete);
   this._tryAdvancePipeline(displayFrameDiscrete);
   if (readyState > 1) {
-    this._capturePriority = this._computeCapturePriority(displayFrameDiscrete, actualVideoFrame, actualVideoFrameDicrete);
+    this._capturePriority = this._computeCapturePriority(displayFrameDiscrete, actualVideoFrame, actualVideoFrameDiscrete);
   }
 }
 
@@ -359,10 +359,10 @@ updatePhase2 = function(displayFrame) {
   }
 
   var actualVideoFrame = this._video.currentTime * this._fps;
-  var actualVideoFrameDicrete = Math.min(Math.floor(actualVideoFrame), this._nframes - 1);
+  var actualVideoFrameDiscrete = Math.min(Math.floor(actualVideoFrame), this._nframes - 1);
 
   if (readyState > 1 && !redrawTakingTooLong()) {
-    this._tryCaptureFrame(displayFrameDiscrete, actualVideoFrame, actualVideoFrameDicrete, isPaused);
+    this._tryCaptureFrame(displayFrameDiscrete, actualVideoFrame, actualVideoFrameDiscrete, isPaused);
   }
   this._checkForMissedFrame(displayFrameDiscrete);
 
