@@ -56,18 +56,16 @@
         width: 100%;
         height: 100%;
       }*/
-	  
       #timeMachine {
         overflow: hidden;
         position: relative;
         width: 1920px;
         height: 768px;
       }
-
       .player {
-        left: -1px !important;
-        right: -1px !important;
-        top: -1px !important;
+        left: -2px !important;
+        right: -2px !important;
+        top: -2px !important;
         z-index: 0;
       }
       .snaplapse_keyframe_list {
@@ -112,33 +110,6 @@
         padding-bottom: 26px;
         padding-left: 27px;
         padding-right: 27px;
-      }
-      #vector-layers {
-        width: 337px;
-        background: rgba(255,255,255,0.7);
-        position: absolute;
-        right: 22px;
-        bottom: 235px;
-        border: 1px solid #656565;
-        -webkit-border-radius: 3px;
-        -moz-border-radius: 3px;
-        border-radius: 3px !important;
-        box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
-        z-index: 30;
-        outline: none;
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: 20px;
-        padding-bottom: 20px;
-        padding-top: 5px;
-        padding-left: 13px;
-        padding-right: 6px;
-        color: #262525;
-        -webkit-touch-callout: none;
-        -webkit-user-select: none;
-        -khtml-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
       }
       #legend {
         font-size: 30px;
@@ -186,8 +157,8 @@
         padding-right: 6px;
         position: relative;
         top: -1px;
-        padding-top: 7px;
-        padding-bottom: 7px;
+        padding-top: 0px;
+        padding-bottom: 0px;
       }
       label .credit {
         color: #555555;
@@ -210,56 +181,188 @@
       ::-webkit-input-placeholder {
         color: rgba(50,50,50,1.0);
       }
-      #location_search {
-        background: rgba(255,255,255,0.7);
-        padding: 10px;
-        border: solid 1px gainsboro;
-        -webkit-transition: box-shadow 0.3s, border 0.3s;
-        -moz-transition: box-shadow 0.3s, border 0.3s;
-        -o-transition: box-shadow 0.3s, border 0.3s;
-        transition: box-shadow 0.3s, border 0.3s;
-        border: solid 1px #707070;
-        -webkit-box-shadow: 0 0 5px 1px #969696;
-        -moz-box-shadow: 0 0 5px 1px #969696;
-        box-shadow: 0 0 5px 1px #969696;
-      }
-
-      #vector-layers .ui-selectmenu-button {
-        margin-left: 8px;
-        top: 10px !important;
-        width: 310px !important;
-        font-size: 14px !important;
-        background: #EFEFEF !important;
-        height: 35px !important;
-      }
-
-      #extras-selector-menu .ui-state-focus {
-        background: #EFEFEF !important;
-      }
-
       .ui-widget-header {
         height: 20px;
       }
-
       .ui-menu-item {
-        font-size: 16px;
-        padding-top: 10px;
-        padding-bottom: 10px;
+        font-size: 14px;
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+        background-image: none !important;
       }
-
       .ui-dialog-titlebar-close {
         width: 25px !important;
         height: 25px !important;
         top: 12px !important;
         background: #EFEFEF !important;
       }
-
-      .ui-selectmenu-button span.ui-selectmenu-text {
-        padding: 0.55em 2.1em 0.4em 1em !important;
+      .ui-selectmenu-button {
+        margin-left: 5px;
+        font-size: 14px !important;
+        background: #EFEFEF !important;
+        height: 29px !important;
+        border-radius: 2px;
       }
-
+      .ui-selectmenu-button span.ui-selectmenu-text {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+      }
       .customHelpLabel-touchFriendly.ui-button {
         top: -26px;
+      }
+      .presentationSlider {
+        top: auto !important;
+        bottom: 15px;
+        -ms-transform: scale(1.5,1.5);
+        -webkit-transform: scale(1.5,1.5);
+        transform: scale(1.5,1.5);
+      }
+      .snaplapse_keyframe_list_item_thumbnail {
+        height: 82px !important;
+      }
+      .extras-content-video {
+        position: absolute !important;
+        top: 0px !important;
+        left: 0px !important;
+        bottom: 0px !important;
+        right: 0px !important;
+        height: auto !important;
+        width: auto !important;
+      }
+      #extras-content {
+        display: none;
+        padding: 0;
+        margin: 0;
+        overflow: hidden;
+        position: absolute !important;
+        top: 35px !important;
+        left: 0px !important;
+        right: 0px !important;
+        bottom: 0px !important;
+        width: auto !important;
+        height: auto !important;
+      }
+      .ghinda-video-player {
+        width: 100% !important;
+        height: 100% !important;
+      }
+      #extras-video {
+        width: 100% !important;
+        height: 100% !important;
+      }
+      .ui-selectmenu-menu {
+        border-bottom-right-radius: 2px;
+        border-bottom-left-radius: 2px;
+      }
+      .top-panel {
+        background: white;
+        border: 0px solid #656565;
+        border-radius: 0px;
+        /*box-shadow: 2px 2px 3px rgba(0,0,0,0.3);*/
+        outline: none;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 19px;
+        padding: 0;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        white-space: nowrap;
+      }
+      .top-panel label input[type='radio'], .top-panel label input[type='checkbox'] {
+        position: relative;
+        top: 1px;
+        margin-right: 6px;
+        margin-top: 0;
+        margin-left: 0;
+        margin-bottom: 0;
+        padding: 0;
+      }
+      .top-panel label {
+        display: block;
+        margin-right: 0;
+        margin-top: -3px;
+        margin-left: -3px;
+        margin-bottom: 0;
+        padding-top: 15px;
+        padding-bottom: 10px;
+        padding-left: 15px;
+        padding-right: 15px;
+        border: 1px solid white;
+      }
+      .base-map-div {
+        width: 341px;
+        height: 152px;
+        position: absolute;
+        left: 0px;
+        bottom: auto;
+        top: 0px;
+      }
+      .base-map-radio {
+        position: relative;
+        top: 7px;
+        left: 4px;
+      }
+      .map-layer-div {
+        width: 746px;
+        height: 152px;
+        position: absolute;
+        right: 0px;
+        bottom: auto;
+        top: 0px;
+      }
+      .map-layer-checkbox {
+        position: relative;
+        top: 7px;
+        left: 4px;
+      }
+      .extras-selector-div {
+        width: 342px;
+        position: absolute;
+        left: 344px;
+        bottom: auto;
+        top: 0px;
+        height: 74px;
+      }
+      .extras-selector-div .ui-selectmenu-button {
+        position: relative;
+        top: 23px;
+        left: 15px;
+        width: 300px !important;
+        outline: none;
+      }
+      .location_search_div {
+        position: absolute;
+        left: 344px;
+        top: 78px;
+        width: 342px;
+        height: 74px;
+        /*margin: auto -100px;*/
+      }
+      #location_search {
+        position: relative;
+        top: 23px;
+        left: 20px;
+        width: 280px;
+        padding-bottom: 7px;
+        padding-top: 7px;
+        padding-left: 10px;
+        padding-right: 10px;
+        background: rgba(255,255,255,1);
+        margin: 0;
+        border: 1px solid #656565;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 16px;
+        height: 13px;
+        outline: none;
+        border-radius: 2px;
+        /*box-shadow: 2px 2px 3px rgba(0,0,0,0.3);*/
       }
     </style>
     <script type="text/javascript">
@@ -365,9 +468,8 @@
                              "thumbnails/other-changes.jpg", "thumbnails/shanghai.jpg",
                              "thumbnails/meander.jpg", "thumbnails/bolivia-avulsion.jpg",
                              "thumbnails/south-cape-cod.jpg", "thumbnails/outer-banks-nc.jpg",
-                             "thumbnails/saudi-irrigation.jpg", "thumbnails/pinatubo.jpg"
-      ],
-          contextMapOptions: {
+                             "thumbnails/saudi-irrigation.jpg", "thumbnails/pinatubo.jpg"],
+          /*contextMapOptions: {
             contextMapDiv: "contextMap1",
             tileType: useGoogleMaps ? "Google" : "OpenStreetMap",
             tileUrl: osmDefaultUrl,
@@ -375,7 +477,7 @@
               width: 270,
               height: 200
             }
-          }/*,
+          },
           newHomeView: myHomeView*/
         };
         timelapse = new org.gigapan.timelapse.Timelapse("timeMachine", settings);
@@ -531,7 +633,7 @@
         });
 
         $("#extras-selector").selectmenu({
-          appendTo: "#timeMachine",
+          appendTo: "#content",
           change: function(event, ui) {
             // use click event below since this event is not registered on the touch screen.
           }
@@ -546,7 +648,7 @@
               $extrasHtml = '<img src="../../../extras/' + fileName + '">';
               $("#extras-content").html($extrasHtml).dialog("open");
             } else if (fileType == "video") {
-              $extrasHtml = '<video id="extras-video" src="../../../extras/' + fileName + '" width="100%" height="100%" controls autoplay></video>';
+              $extrasHtml = '<video id="extras-video" src="../../../extras/' + fileName + '" controls autoplay></video>';
               $("#extras-content").html($extrasHtml).dialog("open");
               $("#extras-video")[0].playbackRate = $(e.currentTarget).data("fileplaybackrate");
               $("#extras-video").gVideo({
@@ -563,15 +665,14 @@
           autoOpen: false,
           draggable: false,
           resizable: false,
-          width: $(window).width() - 5,
-          height: $(window).height(),
+          dialogClass: "extras-content-video",
           beforeClose: function(event, ui) {
             var $extrasVideo  = $("#extras-video");
             if ($extrasVideo) {
               $extrasVideo[0].pause();
               $extrasVideo[0].src = "";
             }
-            $("#extras-selector").val("Select...").selectmenu('refresh');
+            $("#extras-selector").val("select").selectmenu('refresh');
           }
         }).css({
           'z-index': '2000',
@@ -583,10 +684,8 @@
           var width = $(window).width() * 1.8;
           var height = $(window).height() * 1.28;
           var scale = Math.min(1, Math.min(width / 1920, height / 1200));
-          $('#vector-layers').css({ 'transform-origin': 'bottom right' });
-          $('#vector-layers').css({ 'transform': 'scale(' + scale + ')' });
-
-          $("#extras-content").dialog("option", {"width" : ($(window).width() - 5), "height" : $(window).height()});
+          //$('#vector-layers').css({ 'transform-origin': 'bottom right' });
+          //$('#vector-layers').css({ 'transform': 'scale(' + scale + ')' });
         });
         $(window).trigger("resize");
 
@@ -643,69 +742,96 @@
         gl = canvasLayer.canvas.getContext('experimental-webgl');
         glb = new Glb(gl);
 
-        //totalTime =  29 /*timelapse.getNumFrames()*/ / /*timelapse.getFps()*/ 10;
+        var layer_html = '';
 
-        var layer_html = '<div id="vector-layers">';
-
-        layer_html += '<label for="landsat-base"><input type="radio" id="landsat-base" name="base-layers" value="landsat" />';
-        layer_html += '<span>Earth Engine Timelapse</span><span class="credit">Google</span>';
-        layer_html += '</label>';
-
-        //layer_html += '<input type="checkbox" id="show-additional-landsat">';
-        //layer_html += '<label for="show-additional-landsat" id="additional-landsat-label">+3Y</label>';
-
-        layer_html += '<br>';
-        layer_html += '<label for="light-base"><input type="radio" id="light-base" name="base-layers" value="light" />';
-        layer_html += '<span>Light Map</span>';
-        layer_html += '</label>';
-
-        layer_html += '<label for="dark-base"><input type="radio" id="dark-base" name="base-layers" value="dark" />';
-        layer_html += '<span>Dark Map</span>';
-        layer_html += '</label><br>';
-
-        layer_html += '<label for="show-wdpa" id="wdpa-label" class="layers-label"><input type="checkbox" id="show-wdpa">';
-        layer_html += '<span>Protected Areas</span><span class="credit">UNEP-WCMC</span>';
-        layer_html += '</label><br>';
-
-        layer_html += '<label for="show-forest-change" id="forest-label" class="layers-label"><input type="checkbox" id="show-forest-change">';
-        layer_html += '<span>Forest Loss by Year</span><span class="credit">Hansen et al</span>';
-        layer_html += '</label><br>';
-
-        layer_html += '<label for="show-forest-loss-gain" id="forest-label" class="layers-label"><input type="checkbox" id="show-forest-loss-gain">';
-        layer_html += '<span>Forest Loss/Gain</span><span class="credit">Hansen et al</span>';
-        layer_html += '</label><br>';
-
-        layer_html += '<label for="show-viirs" id="viirs-label" class="layers-label"><input type="checkbox" id="show-viirs">';
-        layer_html += '<span>Fires at Night</span><span class="credit">NOAA</span>';
-        layer_html += '</label><br>';
-
-        layer_html += '<label for="show-lights-at-night" id="lights-at-night-label" class="layers-label"><input type="checkbox" id="show-lights-at-night">';
-        layer_html += '<span>Lights at Night</span><span class="credit">NOAA, Google</span>';
-        layer_html += '</label><br>';
-
-        layer_html += '<label for="show-coral" id="coral-label" class="layers-label"><input type="checkbox" id="show-coral">';
-        layer_html += '<span>Coral Bleaching</span><span class="credit">NOAA, UNEP-WCMC</span>';
-        layer_html += '</label>';
-
-        layer_html += '<select name="extras-selector" id="extras-selector">';
-        layer_html += '<option selected="selected">Select...</option>';
-        layer_html += '<option data-file-playback-rate="2" data-type="video" data-file-name="pumphandle_2014.mp4">Measured CO2 Over Time</option>';
-        layer_html += '<option data-file-playback-rate="2" data-type="video" data-file-name="Carbon Dioxide 2006 GEOS-5 model.mp4">CO2 2006 GEOS-5 Model</option>';
-        layer_html += '<option data-file-playback-rate="2" data-type="video" data-file-name="Land + Ocean Average Temperature Annual Anomaly.mp4">Temperature Anomaly 1850-2013</option>';
-        layer_html += '<option data-file-playback-rate="2" data-type="video" data-file-name="Arctic ice age, 1987-2014.mp4">Ice Thinning 1987-2014</option>';
-        layer_html += '<option data-file-playback-rate="2" data-type="video" data-file-name="Larsen-B-Collapse.mp4">Larsen-B Collapse</option>';
-        layer_html += '<option data-file-playback-rate="4" data-type="video" data-file-name="Orbiting Carbon Observatory.mp4">Orbiting Carbon Observatory</option>';
-        layer_html += '<option data-file-playback-rate="2" data-type="video" data-file-name="Arctic Sea Ice, September 1979 to September 2014.mp4">Annual Sea Ice Concentration 1979-2014</option>';
-        layer_html += '<option data-file-playback-rate="1" data-type="video" data-file-name="coral-reef-watch-daily-7day-max.mp4">Coral Reef Watch 2013-2015</option>';
-        layer_html += '<option data-file-playback-rate="0.5" data-type="video" data-file-name="merra-spi.mp4">Standardized Precipitation Index 1980-2015</option>';
-
-        if (showEVA)
-          layer_html += '<option data-type="link" data-link-path="http://localhost:8080/?uid=history-1436384863961-Vyxt6PIO">EVA - Explorable Visual Analytics</option>';
-        layer_html += '</select>';
+        layer_html += '<div class="base-map-div top-panel">';
+        //layer_html += ' <span>Select a Base Map</span>';
+        layer_html += ' <table class="base-map-radio" cellspacing="0">';
+        layer_html += '   <tr>';
+        layer_html += '     <td><label for="landsat-base"><input type="radio" id="landsat-base" value="landsat"/><span>Earth Engine Timelapse (Google)</span></label></td>';
+        layer_html += '   </tr>';
+        layer_html += '   <tr>';
+        layer_html += '     <td><label for="light-base"><input type="radio" id="light-base" value="light"/><span>Light Map</span></label></td>';
+        layer_html += '   </tr>';
+        layer_html += '   <tr>';
+        layer_html += '     <td><label for="dark-base"><input type="radio" id="dark-base" value="dark"/><span>Dark Map</span></label></td>';
+        layer_html += '   </tr>';
+        layer_html += ' </table>';
         layer_html += '</div>';
 
-        $(layer_html).appendTo("#timeMachine");
-        //$("#timeMachine").append('<div id="logoUrl">earthengine.google.org</div>');
+        layer_html += '<div class="map-layer-div top-panel">';
+        //layer_html += ' <span>Select a Vector Layer</span>';
+        layer_html += ' <table class="map-layer-checkbox" cellspacing="0">';
+        layer_html += '   <tr>';
+        layer_html += '     <td><label for="show-wdpa"><input type="checkbox" id="show-wdpa" value="1"/><span>Protected Areas (UNEP-WCMC)</span></label></td>';
+        layer_html += '     <td><label for="show-viirs"><input type="checkbox" id="show-viirs" value="4"/><span>Fires at Night (NOAA)</span></label></td>';
+        layer_html += '   </tr>';
+        layer_html += '   <tr>';
+        layer_html += '     <td><label for="show-forest-change"><input type="checkbox" id="show-forest-change" value="2"/><span>Forest Loss by Year (Hansen et al)</span></label></td>';
+        layer_html += '     <td><label for="show-lights-at-night"><input type="checkbox" id="show-lights-at-night" value="5"/><span>Lights at Night (NOAA, Google)</span></label></td>';
+        layer_html += '   </tr>';
+        layer_html += '   <tr>';
+        layer_html += '     <td><label for="show-forest-loss-gain"><input type="checkbox" id="show-forest-loss-gain" value="3"/><span>Forest Loss/Gain (Hansen et al)</span></label></td>';
+        layer_html += '     <td><label for="show-coral"><input type="checkbox" id="show-coral" value="6"/><span>Coral Bleaching (NOAA, UNEP-WCMC)</span></label></td>';
+        layer_html += '   </tr>';
+        layer_html += ' </table>';
+        layer_html += '</div>';
+
+        //layer_html += ' <br><label for="landsat-base"><input type="radio" id="landsat-base" name="base-layers" value="landsat" />';
+        //layer_html += ' <span>Earth Engine Timelapse</span><span class="credit">Google</span>';
+        //layer_html += ' </label>';
+
+        //layer_html += ' <br>';
+        //layer_html += ' <label for="light-base"><input type="radio" id="light-base" name="base-layers" value="light" />';
+        //layer_html += ' <span>Light Map</span>';
+        //layer_html += ' </label>';
+
+        //layer_html += ' <label for="dark-base"><input type="radio" id="dark-base" name="base-layers" value="dark" />';
+        //layer_html += ' <span>Dark Map</span>';
+        //layer_html += ' </label><br>';
+
+        //layer_html += '<label for="show-wdpa" id="wdpa-label" class="layers-label"><input type="checkbox" id="show-wdpa">';
+        //layer_html += '<span>Protected Areas</span><span class="credit">UNEP-WCMC</span>';
+        //layer_html += '</label><br>';
+
+        //layer_html += '<label for="show-forest-change" id="forest-label" class="layers-label"><input type="checkbox" id="show-forest-change">';
+        //layer_html += '<span>Forest Loss by Year</span><span class="credit">Hansen et al</span>';
+        //layer_html += '</label><br>';
+
+        //layer_html += '<label for="show-forest-loss-gain" id="forest-label" class="layers-label"><input type="checkbox" id="show-forest-loss-gain">';
+        //layer_html += '<span>Forest Loss/Gain</span><span class="credit">Hansen et al</span>';
+        //layer_html += '</label><br>';
+
+        //layer_html += '<label for="show-viirs" id="viirs-label" class="layers-label"><input type="checkbox" id="show-viirs">';
+        //layer_html += '<span>Fires at Night</span><span class="credit">NOAA</span>';
+        //layer_html += '</label><br>';
+
+        //layer_html += '<label for="show-lights-at-night" id="lights-at-night-label" class="layers-label"><input type="checkbox" id="show-lights-at-night">';
+        //layer_html += '<span>Lights at Night</span><span class="credit">NOAA, Google</span>';
+        //layer_html += '</label><br>';
+
+        //layer_html += '<label for="show-coral" id="coral-label" class="layers-label"><input type="checkbox" id="show-coral">';
+        //layer_html += '<span>Coral Bleaching</span><span class="credit">NOAA, UNEP-WCMC</span>';
+        //layer_html += '</label>';
+
+        layer_html += '<div class="extras-selector-div top-panel">';
+        layer_html += ' <select name="extras-selector" id="extras-selector">';
+        layer_html += '   <option selected="selected" value="select">Select and show an extra content...</option>';
+        layer_html += '   <option data-file-playback-rate="2" data-type="video" data-file-name="pumphandle_2014.mp4">Measured CO2 Over Time</option>';
+        layer_html += '   <option data-file-playback-rate="2" data-type="video" data-file-name="Carbon Dioxide 2006 GEOS-5 model.mp4">CO2 2006 GEOS-5 Model</option>';
+        layer_html += '   <option data-file-playback-rate="2" data-type="video" data-file-name="Land + Ocean Average Temperature Annual Anomaly.mp4">Temperature Anomaly 1850-2013</option>';
+        layer_html += '   <option data-file-playback-rate="2" data-type="video" data-file-name="Arctic ice age, 1987-2014.mp4">Ice Thinning 1987-2014</option>';
+        layer_html += '   <option data-file-playback-rate="2" data-type="video" data-file-name="Larsen-B-Collapse.mp4">Larsen-B Collapse</option>';
+        layer_html += '   <option data-file-playback-rate="4" data-type="video" data-file-name="Orbiting Carbon Observatory.mp4">Orbiting Carbon Observatory</option>';
+        layer_html += '   <option data-file-playback-rate="2" data-type="video" data-file-name="Arctic Sea Ice, September 1979 to September 2014.mp4">Annual Sea Ice Concentration 1979-2014</option>';
+        layer_html += '   <option data-file-playback-rate="1" data-type="video" data-file-name="coral-reef-watch-daily-7day-max.mp4">Coral Reef Watch 2013-2015</option>';
+        layer_html += '   <option data-file-playback-rate="0.5" data-type="video" data-file-name="merra-spi.mp4">Standardized Precipitation Index 1980-2015</option>';
+        if (showEVA)
+          layer_html += '   <option data-type="link" data-link-path="http://localhost:8080/?uid=history-1436384863961-Vyxt6PIO">EVA - Explorable Visual Analytics</option>';
+        layer_html += ' </select>';
+        layer_html += '</div>';
+
+        $(layer_html).appendTo("#content");
 
         // Time Machine layer
         var defaultTimeMachineLayerOptions = {
@@ -933,14 +1059,14 @@
         });
 
         // Location search box, with autocomplete.
-        $('<div style="z-index: 100; top: 5px; position: absolute; left: 50%; width: 200px; margin: auto -100px;"><input id="location_search" type="text" placeholder="Search for a location..." style="height: 24px">').appendTo($("#timeMachine"));
+        $('<div class="location_search_div top-panel"><input id="location_search" type="text" placeholder="Search for a location...">').appendTo($("#content"));
 
         // Note: Google's service gives much better results, but for sites where Google APIs cannot be used, we fallback to this.
         if (!useGoogleMaps) {
           var locationList = [];
           $( "#location_search" ).autocomplete({
             minLength: 5,
-            appendTo: "#timeMachine",
+            appendTo: "#content",
             source: function( request, response ) {
               locationList = [];
               //http://nominatim.openstreetmap.org/search?format=json&limit=5&addressdetails=1
@@ -964,6 +1090,13 @@
              return $("<li style='z-index:9999'>").append("<a>" + (item.properties.name || "")  + ", " + (item.properties.state || "") + "<br>" + item.properties.country + "</a>").appendTo(ul);
           };
         }
+
+        // Resize the viewer
+        timelapse.addViewerBottomMargin(-2);
+
+        // Move the presentation slider out
+        var $presentationSlider = $("#" + timelapse.getTimeMachineDivId() + " .presentationSlider");
+        $presentationSlider.appendTo("#content");
       }
 
       var perf;
@@ -1130,12 +1263,12 @@
     </script>
   </head>
   <body>
-    <div style="position: relative; width: 1920px; height: 1080px; overflow: hidden;">
+    <div id="content" style="position: relative; width: 1920px; height: 1080px; overflow: hidden;">
       <div style="height: 156px; background: #000"></div>
       <div id="timeMachine"></div>
       <div style="height: 156px; background: #000"></div>
     </div>
     <canvas id="stats" style="position:absolute; top:0px; right:0px; z-index:100" width=1000 height=153></canvas>
-    <div id="extras-content" title="" style="display: none; padding: 0; margin: 0; overflow: hidden;"></div>
+    <div id="extras-content" title=""></div>
   </body>
 </html>
