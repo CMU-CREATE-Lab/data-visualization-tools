@@ -162,9 +162,9 @@
       label .credit {
         color: #555555;
         font-size: 14px;
-        float:right;
         position: relative;
-        top: 17px;
+        top: -1px;
+        right: -4px;
       }
       #logoUrl {
         position: absolute;
@@ -751,13 +751,13 @@
         //layer_html += ' <span>Select a Base Map</span>';
         layer_html += ' <table class="base-map-radio" cellspacing="0">';
         layer_html += '   <tr>';
-        layer_html += '     <td><label for="landsat-base"><input type="radio" id="landsat-base" value="landsat"/><span>Earth Engine Timelapse (Google)</span></label></td>';
+        layer_html += '     <td><label for="landsat-base"><input type="radio" id="landsat-base" name="base-layers" value="landsat"/>Earth Engine Timelapse<span class="credit"> (Google)</span></label></td>';
         layer_html += '   </tr>';
         layer_html += '   <tr>';
-        layer_html += '     <td><label for="light-base"><input type="radio" id="light-base" value="light"/><span>Light Map</span></label></td>';
+        layer_html += '     <td><label for="light-base"><input type="radio" id="light-base" name="base-layers" value="light"/><span>Light Map</span></label></td>';
         layer_html += '   </tr>';
         layer_html += '   <tr>';
-        layer_html += '     <td><label for="dark-base"><input type="radio" id="dark-base" value="dark"/><span>Dark Map</span></label></td>';
+        layer_html += '     <td><label for="dark-base"><input type="radio" id="dark-base" name="base-layers" value="dark"/><span>Dark Map</span></label></td>';
         layer_html += '   </tr>';
         layer_html += ' </table>';
         layer_html += '</div>';
@@ -766,16 +766,16 @@
         //layer_html += ' <span>Select a Vector Layer</span>';
         layer_html += ' <table class="map-layer-checkbox" cellspacing="0">';
         layer_html += '   <tr>';
-        layer_html += '     <td><label for="show-wdpa"><input type="checkbox" id="show-wdpa" value="1"/><span>Protected Areas (UNEP-WCMC)</span></label></td>';
-        layer_html += '     <td><label for="show-viirs"><input type="checkbox" id="show-viirs" value="4"/><span>Fires at Night (NOAA)</span></label></td>';
+        layer_html += '     <td><label for="show-wdpa"><input type="checkbox" id="show-wdpa" value="1"/>Protected Areas<span class="credit"> (UNEP-WCMC)</span></label></td>';
+        layer_html += '     <td><label for="show-viirs"><input type="checkbox" id="show-viirs" value="4"/>Fires at Night<span class="credit"> (NOAA)</span></label></td>';
         layer_html += '   </tr>';
         layer_html += '   <tr>';
-        layer_html += '     <td><label for="show-forest-change"><input type="checkbox" id="show-forest-change" value="2"/><span>Forest Loss by Year (Hansen et al)</span></label></td>';
-        layer_html += '     <td><label for="show-lights-at-night"><input type="checkbox" id="show-lights-at-night" value="5"/><span>Lights at Night (NOAA, Google)</span></label></td>';
+        layer_html += '     <td><label for="show-forest-change"><input type="checkbox" id="show-forest-change" value="2"/>Forest Loss by Year<span class="credit"> (Hansen et al)</span></label></td>';
+        layer_html += '     <td><label for="show-lights-at-night"><input type="checkbox" id="show-lights-at-night" value="5"/>Lights at Night<span class="credit"> (NOAA, Google)</span></label></td>';
         layer_html += '   </tr>';
         layer_html += '   <tr>';
-        layer_html += '     <td><label for="show-forest-loss-gain"><input type="checkbox" id="show-forest-loss-gain" value="3"/><span>Forest Loss/Gain (Hansen et al)</span></label></td>';
-        layer_html += '     <td><label for="show-coral"><input type="checkbox" id="show-coral" value="6"/><span>Coral Bleaching (NOAA, UNEP-WCMC)</span></label></td>';
+        layer_html += '     <td><label for="show-forest-loss-gain"><input type="checkbox" id="show-forest-loss-gain" value="3"/>Forest Loss/Gain<span class="credit"> (Hansen et al)</span></label></td>';
+        layer_html += '     <td><label for="show-coral"><input type="checkbox" id="show-coral" value="6"/>Coral Bleaching<span class="credit"> (NOAA, UNEP-WCMC)</span></label></td>';
         layer_html += '   </tr>';
         layer_html += ' </table>';
         layer_html += '</div>';
@@ -819,7 +819,7 @@
 
         layer_html += '<div class="extras-selector-div top-panel">';
         layer_html += ' <select name="extras-selector" id="extras-selector">';
-        layer_html += '   <option selected="selected" value="select">Select and show an extra content...</option>';
+        layer_html += '   <option selected="selected" value="select">Select extra content...</option>';
         layer_html += '   <option data-file-playback-rate="2" data-type="video" data-file-name="pumphandle_2014.mp4">Measured CO2 Over Time</option>';
         layer_html += '   <option data-file-playback-rate="2" data-type="video" data-file-name="Carbon Dioxide 2006 GEOS-5 model.mp4">CO2 2006 GEOS-5 Model</option>';
         layer_html += '   <option data-file-playback-rate="2" data-type="video" data-file-name="Land + Ocean Average Temperature Annual Anomaly.mp4">Temperature Anomaly 1850-2013</option>';
