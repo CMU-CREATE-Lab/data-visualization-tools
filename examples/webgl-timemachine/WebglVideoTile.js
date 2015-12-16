@@ -25,6 +25,9 @@ function WebglVideoTile(glb, tileidx, bounds, url, defaultUrl, numFrames, fps) {
   this._textureProgram = glb.programFromSources(WebglVideoTile.textureVertexShader,
                                                 WebglVideoTile.textureFragmentShader);
 
+  this._textureFaderProgram = glb.programFromSources(WebglVideoTile.textureVertexShader,
+                                                WebglVideoTile.textureFragmentFaderShader);
+
   var inset = (bounds.max.x - bounds.min.x) * 0.005;
   this._insetRectangle = glb.createBuffer(new Float32Array([0.01, 0.01,
                                                             0.99, 0.01,
@@ -113,6 +116,8 @@ WebglVideoTile.frameCount = 0;
 WebglVideoTile.missedFrameCount = 0;
 WebglVideoTile.activeTileCount = 0;
 WebglVideoTile._initted = false;
+
+WebglVideoTile.useFaderShader = false;
 
 WebglVideoTile.stats = function() {
   var r2 = WebglVideoTile.r2;
@@ -308,6 +313,8 @@ updatePhase1 = function(displayFrame) {
   this._capturePriority = 0;
   var displayFrameDiscrete = Math.min(Math.floor(displayFrame), this._nframes - 1);
 
+  this._uAlpha = displayFrame - displayFrameDiscrete;
+
   var r2 = WebglVideoTile.r2;
   // Output stats every 5 seconds
   if (!WebglVideoTile.lastStatsTime) {
@@ -464,8 +471,9 @@ _captureFrame = function(captureFrameno, destIndex) {
   var before = performance.now();
 
   gl.bindTexture(gl.TEXTURE_2D, this._pipeline[destIndex].texture);
+
   //console.time("gl.texImage2D");
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, this._video);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._video);
   //console.timeEnd("gl.texImage2D");
   gl.bindTexture(gl.TEXTURE_2D, null);
   var elapsed = performance.now() - before;
@@ -515,15 +523,49 @@ draw = function(transform) {
 
   // Draw video
   if (this._ready) {
-    gl.useProgram(this._textureProgram);
-    gl.uniformMatrix4fv(this._textureProgram.uTransform, false, tileTransform);
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._triangles);
-    gl.vertexAttribPointer(this._textureProgram.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(this._lineProgram.aTextureCoord);
 
-    gl.bindTexture(gl.TEXTURE_2D, this._pipeline[0].texture);
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-    gl.bindTexture(gl.TEXTURE_2D, null);
+    if (WebglVideoTile.useFaderShader) {
+      gl.useProgram(this._textureFaderProgram);
+      gl.enable(gl.BLEND);
+      gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
+
+      var alphaLocation = gl.getUniformLocation(this._textureFaderProgram, "uAlpha");
+      gl.uniform1f(alphaLocation, this._uAlpha);
+
+      var u_image0Location = gl.getUniformLocation(this._textureFaderProgram, "uSampler");
+      var u_image1Location = gl.getUniformLocation(this._textureFaderProgram, "uSampler2");
+
+      gl.uniform1i(u_image0Location, 0);  // texture unit 0
+      gl.uniform1i(u_image1Location, 1);  // texture unit 1
+
+      gl.uniformMatrix4fv(this._textureFaderProgram.uTransform, false, tileTransform);
+      gl.bindBuffer(gl.ARRAY_BUFFER, this._triangles);
+      gl.vertexAttribPointer(this._textureFaderProgram.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
+
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, this._pipeline[0].texture);
+
+      gl.activeTexture(gl.TEXTURE1);
+      if (this._pipeline[1].texture && this._pipeline[1].frameno <= timelapse.getNumFrames()) {
+        gl.bindTexture(gl.TEXTURE_2D, this._pipeline[1].texture);
+      } else {
+        gl.bindTexture(gl.TEXTURE_2D, this._pipeline[0].texture);
+      }
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      gl.bindTexture(gl.TEXTURE_2D, null);
+      gl.disable(gl.BLEND);
+    } else {
+      gl.useProgram(this._textureProgram);
+      gl.uniformMatrix4fv(this._textureProgram.uTransform, false, tileTransform);
+      gl.bindBuffer(gl.ARRAY_BUFFER, this._triangles);
+      gl.vertexAttribPointer(this._textureProgram.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
+      gl.enableVertexAttribArray(this._lineProgram.aTextureCoord);
+
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, this._pipeline[0].texture);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      gl.bindTexture(gl.TEXTURE_2D, null);      
+    }
   }
 };
 
@@ -537,6 +579,7 @@ WebglVideoTile.update = function(tiles, transform) {
   var fps = tiles[0]._fps
 
   var displayFrame = timelapse.getVideoset().getCurrentTime() * fps;
+
   // TODO(rsargent+pdille): This hacks timelapse to show frame 27 (2011) if VIIRS is showing
   if (showViirsLayer) {
     displayFrame = 27;
@@ -595,7 +638,6 @@ WebglVideoTile.textureVertexShader =
   '  gl_Position = uTransform * vec4(aTextureCoord.x, aTextureCoord.y, 0., 1.);\n' +
   '}\n';
 
-
 WebglVideoTile.textureFragmentShader =
   'precision mediump float;\n' +
   'varying vec2 vTextureCoord;\n' +
@@ -603,6 +645,18 @@ WebglVideoTile.textureFragmentShader =
   'void main(void) {\n' +
   '  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));\n' +
   '  gl_FragColor = vec4(textureColor.rgb, 1);\n' +
+  '}\n';
+
+WebglVideoTile.textureFragmentFaderShader =
+  'precision mediump float;\n' +
+  'varying vec2 vTextureCoord;\n' +
+  'uniform sampler2D uSampler;\n' +
+  'uniform sampler2D uSampler2;\n' +
+  'uniform float uAlpha;\n' + 
+  'void main(void) {\n' +
+  '  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t)); \n' + 
+  '  vec4 textureColor2 = texture2D(uSampler2, vec2(vTextureCoord.s, vTextureCoord.t));\n' + 
+  '  gl_FragColor = textureColor * (1.0 - uAlpha) + textureColor2 * uAlpha;\n' + 
   '}\n';
 
 // stopit:  set to true to disable update()
