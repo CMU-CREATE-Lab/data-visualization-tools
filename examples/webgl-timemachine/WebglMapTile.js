@@ -359,7 +359,7 @@ draw = function(transform) {
     gl.bindBuffer(gl.ARRAY_BUFFER, this._triangles);
     gl.vertexAttribPointer(this._textureProgram.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(this._lineProgram.aTextureCoord);
-
+    gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, this._texture);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     gl.bindTexture(gl.TEXTURE_2D, null);
