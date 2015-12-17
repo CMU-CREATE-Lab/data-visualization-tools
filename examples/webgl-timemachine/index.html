@@ -791,17 +791,34 @@
 
         layer_html += '<div class="vector-layers">';
 
+        var landsat_base_str = '<label for="landsat-base"><input type="radio" id="landsat-base" name="base-layers" value="landsat"/>Earth Engine Timelapse<span class="credit"> (Google)</span></label>';
+        var landsat_base_letterbox = '<td>' + landsat_base_str + '</td>';
+        var landsat_base = '<td colspan="2">' + landsat_base_str + '</td>';
+        var light_base = '<td><label for="light-base"><input type="radio" id="light-base" name="base-layers" value="light"/><span>Light Map</span></label></td>';
+        var dark_base = '<td><label for="dark-base"><input type="radio" id="dark-base" name="base-layers" value="dark"/><span>Dark Map</span></label></td>';
+
         layer_html += '<div class="base-map-div">';
         layer_html += ' <table class="base-map-radio" cellspacing="0">';
         layer_html += '   <tr>';
-        layer_html += '     <td><label for="landsat-base"><input type="radio" id="landsat-base" name="base-layers" value="landsat"/>Earth Engine Timelapse<span class="credit"> (Google)</span></label></td>';
+        if(enableLetterboxMode) {
+          layer_html += landsat_base_letterbox;
+        } else {
+          layer_html += landsat_base;
+        }
         layer_html += '   </tr>';
-        layer_html += '   <tr>';
-        layer_html += '     <td><label for="light-base"><input type="radio" id="light-base" name="base-layers" value="light"/><span>Light Map</span></label></td>';
-        layer_html += '   </tr>';
-        layer_html += '   <tr>';
-        layer_html += '     <td><label for="dark-base"><input type="radio" id="dark-base" name="base-layers" value="dark"/><span>Dark Map</span></label></td>';
-        layer_html += '   </tr>';
+        if(enableLetterboxMode) {
+          layer_html += '   <tr>';
+          layer_html += light_base;
+          layer_html += '   </tr>';
+          layer_html += '   <tr>';
+          layer_html += dark_base;
+          layer_html += '   </tr>';
+        } else {
+          layer_html += '   <tr>';
+          layer_html += light_base;
+          layer_html += dark_base;
+          layer_html += '   </tr>';
+        }
         layer_html += ' </table>';
         layer_html += '</div>';
 
@@ -1148,10 +1165,10 @@
           // Move the presentation slider out
           var $presentationSlider = $("#" + timelapse.getTimeMachineDivId() + " .presentationSlider");
           $presentationSlider.appendTo("#content");
-          // Toggle the context map and hide it
-          $(".toggleContextMapBtn").click();
-          $(".contextMapContainer").hide();
         }
+        // Toggle the context map and hide it
+        $(".toggleContextMapBtn").click();
+        $(".contextMapContainer").hide();
       }
 
       var perf;
