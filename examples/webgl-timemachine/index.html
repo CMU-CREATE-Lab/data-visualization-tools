@@ -422,6 +422,10 @@
       var waypointDelayInMilliseconds = parseInt(EARTH_TIMELAPSE_CONFIG.waypointDelayInMilliseconds) || 1 * 15 * 1000;
       var defaultPlaybackSpeed = parseFloat(EARTH_TIMELAPSE_CONFIG.defaultPlaybackSpeed) || 0.5;
       var enableLetterboxMode = !!EARTH_TIMELAPSE_CONFIG.enableLetterboxMode || false;
+      var useFaderShader = !!EARTH_TIMELAPSE_CONFIG.useFaderShader || false;
+
+      // Set shader
+      WebglVideoTile.useFaderShader = useFaderShader;
 
       //// Context Map Tiles ////
       var osmDefaultUrl = "../../../data/openstreetmap/default/";
