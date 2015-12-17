@@ -34,6 +34,7 @@
     <script src="../../js/customVideoTagControls/customVideoTagControls.js" type="text/javascript"></script>
     <script src="landsat_ajax_includes2.js" type="text/javascript"></script>
     <script src="../../../../config.js" type="text/javascript"></script>
+    <script src="waypoint-text.js" type="text/javascript"></script>
 
     <script src="TileIdx.js"></script>
     <script src="WebglVideoTile.js"></script>
@@ -406,6 +407,48 @@
         height: 33px;
         width: 71px;
         left: 99px;
+      }
+
+      .current-location-text .close {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        cursor: pointer;
+        z-index: 9999;
+      }
+
+      .current-location-text {
+        display: none;
+        background: rgba(255, 255, 255, 1);
+        padding: 23px;
+        position: absolute;
+        bottom: 260px;
+        left: 20px;
+        z-index: 10;
+        max-width: 266px;
+        border: 1px solid #656565;
+        -webkit-border-radius: 3px;
+        -moz-border-radius: 3px;
+        border-radius: 2px !important;
+        box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
+      }
+
+      .current-location-text h3 {
+        text-transform: uppercase;
+        margin-bottom: 0.35em;
+        font-family: 'franklin-gothic-urw-comp', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        font-size: 20px;
+        font-weight: 400;
+        -webkit-font-smoothing: antialiased;
+        margin-top: 0px;
+        text-align:
+      }
+
+      .current-location-text p {
+        margin: 0;
+        font-size: 12px;
+        text-align: justify;
+        line-height: 16px;
       }
     </style>
     <script type="text/javascript">
@@ -969,8 +1012,19 @@
             $('.presentationSlider, .snaplapse_keyframe_container, .keyframeSubtitleBoxForHovering, .snaplapse_keyframe_list_item_presentation, .snaplapse_keyframe_list_item_thumbnail_overlay_presentation').addClass('letterbox');
         });
 
+        $('.current-location-text .close').click(function() {
+          $('.current-location-text').hide();
+        });
+
         // TODO: Refactor how this is handled and how layers turn on/off in general
         snaplapseViewer.addEventListener('slide-changed', function(waypointTitle) {
+
+          // Display info box for the waypoints
+          //var waypointIndex = $(".snaplapse_keyframe_list").children().children().index($("#" + waypointTitle.replace(/ /g, '_')));
+          //$(".current-location-text").show();
+          //$(".current-location-text").find("h3").text(WAYPOINT_TEXT[waypointIndex].title);
+          //$(".current-location-text").find("p").text(WAYPOINT_TEXT[waypointIndex].text);
+
           // Earth Engine Timelapse
           var $landsatToggle = $("#landsat-base");
           // Light Map
@@ -1351,6 +1405,11 @@
       <div id="letterbox-bottom"></div>
     </div>
     <div id="timeMachine"></div>
+    <div class="current-location-text">
+      <div class="close ui-icon ui-icon-closethick" title="Close">close</div>
+      <h3></h3>
+      <p></p>
+    </div>
     <canvas id="stats" style="position:absolute; top:0px; right:0px; z-index:100" width=1000 height=153></canvas>
     <div id="extras-content" title=""></div>
   </body>
