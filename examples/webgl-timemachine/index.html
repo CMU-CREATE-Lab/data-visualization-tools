@@ -672,15 +672,16 @@
           }
         });
 
+        var appendTarget = "#timeMachine";
+        if(enableLetterboxMode) {
+          appendTarget = "#content";
+        }
         $("#extras-selector").selectmenu({
-          appendTo: "#timeMachine",
+          appendTo: appendTarget,
           change: function(event, ui) {
             // use click event below since this event is not registered on the touch screen.
           }
         });
-        if(enableLetterboxMode) {
-          $("#extras-selector").appendTo($("#content"));
-        }
 
         $(".ui-selectmenu-menu").on("click", "li", function(e) {
             var fileName = $(e.currentTarget).data("filename");
