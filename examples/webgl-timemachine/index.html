@@ -362,7 +362,7 @@
         padding-right: 10px;
         box-shadow: 0px 0px 0px rgba(0,0,0,0);
       }
-      .vector-layers.hyperwall {
+      .vector-layers.right-panel.hyperwall {
         bottom: 250px !important;
       }
       .vector-layers.right-panel {
@@ -421,7 +421,7 @@
       var screenTimeoutInMilliseconds = parseInt(EARTH_TIMELAPSE_CONFIG.screenTimeoutInMilliseconds) || 8 * 60 * 1000;
       var waypointDelayInMilliseconds = parseInt(EARTH_TIMELAPSE_CONFIG.waypointDelayInMilliseconds) || 1 * 15 * 1000;
       var defaultPlaybackSpeed = parseFloat(EARTH_TIMELAPSE_CONFIG.defaultPlaybackSpeed) || 0.5;
-      var enableLetterboxMode = false;
+      var enableLetterboxMode = !!EARTH_TIMELAPSE_CONFIG.enableLetterboxMode || false;
 
       //// Context Map Tiles ////
       var osmDefaultUrl = "../../../data/openstreetmap/default/";
@@ -727,8 +727,10 @@
           var width = $(window).width() * 1.8;
           var height = $(window).height() * 1.28;
           var scale = Math.min(1, Math.min(width / 1920, height / 1200));
-          $('.vector-layers').css({'transform-origin': 'bottom right'});
-          $('.vector-layers').css({'transform': 'scale(' + scale + ')'});
+          if(!enableLetterboxMode) {
+            $('.vector-layers').css({'transform-origin': 'bottom right'});
+            $('.vector-layers').css({'transform': 'scale(' + scale + ')'});
+          }
         });
         $(window).trigger("resize");
 
