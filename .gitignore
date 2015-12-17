@@ -9,3 +9,4 @@ Vagrantfile
 .DS_Store
 capture
 examples/webgl-timemachine/1068x600
+.idea/

@@ -408,7 +408,6 @@
         width: 71px;
         left: 99px;
       }
-
       .current-location-text .close {
         position: absolute;
         top: 10px;
@@ -416,7 +415,6 @@
         cursor: pointer;
         z-index: 9999;
       }
-
       .current-location-text {
         display: none;
         background: rgba(255, 255, 255, 1);
@@ -432,7 +430,6 @@
         border-radius: 2px !important;
         box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
       }
-
       .current-location-text h3 {
         text-transform: uppercase;
         margin-bottom: 0.35em;
@@ -441,14 +438,34 @@
         font-weight: 400;
         -webkit-font-smoothing: antialiased;
         margin-top: 0px;
-        text-align:
       }
-
       .current-location-text p {
         margin: 0;
         font-size: 12px;
         text-align: justify;
         line-height: 16px;
+      }
+      #content {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+      }
+      #timeMachine.recording {
+        height: 1080px;
+      }
+      #content.recording {
+        height: 1472px;
+      }
+      #letterbox-bottom.recording {
+        height: 236px;
+      }
+      .presentationSlider.recording {
+        bottom: -7px;
+        top: auto !important;
+      }
+      .customControl.recording {
+        bottom: 118px;
       }
     </style>
     <script type="text/javascript">
@@ -471,6 +488,7 @@
       var defaultPlaybackSpeed = parseFloat(EARTH_TIMELAPSE_CONFIG.defaultPlaybackSpeed) || 0.5;
       var enableLetterboxMode = !!EARTH_TIMELAPSE_CONFIG.enableLetterboxMode || false;
       var useFaderShader = !!EARTH_TIMELAPSE_CONFIG.useFaderShader || false;
+      var enableRecordingMode = !!EARTH_TIMELAPSE_CONFIG.enableRecordingMode || false;
 
       // Set shader
       WebglVideoTile.useFaderShader = useFaderShader;
@@ -570,6 +588,10 @@
           $("#timeMachine").addClass("letterbox");
         } else {
           $("#content").remove();
+        }
+
+        if(enableRecordingMode) {
+          $("#timeMachine, #content, #letterbox-bottom").addClass("recording");
         }
 
         timelapse = new org.gigapan.timelapse.Timelapse("timeMachine", settings);
@@ -1006,10 +1028,13 @@
 
         // Change UI based on whether setup is a hyperwall or not
         snaplapseViewer.addEventListener('snaplapse-loaded', function() {
+          var $elements = $('.presentationSlider, .snaplapse_keyframe_container, .keyframeSubtitleBoxForHovering, .snaplapse_keyframe_list_item_presentation, .snaplapse_keyframe_list_item_thumbnail_overlay_presentation');
           if (isHyperwall)
-            $('.presentationSlider, .snaplapse_keyframe_container, .keyframeSubtitleBoxForHovering, .snaplapse_keyframe_list_item_presentation, .snaplapse_keyframe_list_item_thumbnail_overlay_presentation').addClass('hyperwall');
+            $elements.addClass('hyperwall');
           if (enableLetterboxMode)
-            $('.presentationSlider, .snaplapse_keyframe_container, .keyframeSubtitleBoxForHovering, .snaplapse_keyframe_list_item_presentation, .snaplapse_keyframe_list_item_thumbnail_overlay_presentation').addClass('letterbox');
+            $elements.addClass('letterbox');
+          if(enableRecordingMode)
+            $elements.addClass('recording');
         });
 
         $('.current-location-text .close').click(function() {
@@ -1230,9 +1255,15 @@
           var $presentationSlider = $("#" + timelapse.getTimeMachineDivId() + " .presentationSlider");
           $presentationSlider.appendTo("#content");
         }
+
         // Toggle the context map and hide it
         $(".toggleContextMapBtn").click();
         $(".contextMapContainer").hide();
+
+        if(enableRecordingMode) {
+          $(".customControl").addClass("recording").appendTo("#content");
+          $(".scaleBarContainer, .sideToolBar").hide();
+        }
       }
 
       var perf;
@@ -1399,7 +1430,7 @@
     </script>
   </head>
   <body>
-    <div id="content" style="position: relative; width: 1920px; height: 1080px; overflow: hidden;">
+    <div id="content">
       <div id="letterbox-top"></div>
       <div id="letterbox-middle"></div>
       <div id="letterbox-bottom"></div>
