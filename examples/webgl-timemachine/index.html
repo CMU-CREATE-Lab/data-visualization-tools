@@ -175,6 +175,10 @@
       .customHelpLabel-touchFriendly.ui-button {
         top: -26px;
       }
+      .presentationSlider.letterbox {
+        top: auto !important;
+        bottom: -7px;
+      }
       .presentationSlider.hyperwall {
         top: auto !important;
         bottom: -17px;
@@ -370,7 +374,7 @@
         position: absolute;
         bottom: 215px;
         right: 20px;
-        width: 315px;
+        width: 335px;
         padding: 10px;
         background: white;
         border-radius: 2px;
@@ -420,7 +424,7 @@
         background: rgba(255, 255, 255, 1);
         padding: 23px;
         position: absolute;
-        bottom: 260px;
+        bottom: 145px;
         left: 20px;
         z-index: 10;
         max-width: 266px;
@@ -445,6 +449,23 @@
         text-align: justify;
         line-height: 16px;
       }
+      .current-location-text.recording {
+        background: transparent;
+        border: 0px solid #656565;
+        color: white;
+        box-shadow: 0px 0px 0px rgba(0, 0, 0, 0);
+        text-shadow: -1px 0 1px black, 0 1px 1px black, 1px 0 1px black, 0 -1px 1px black, 2px 2px 4px #3A3A3A;
+        white-space: nowrap;
+        bottom: 0px;
+        left: auto;
+        right: 23px;
+        max-width: 98%;
+        padding: 14px;
+      }
+      .current-location-text.recording p {
+        font-size: 80px;
+        line-height: 85px;
+      }
       #content {
         position: relative;
         width: 1920px;
@@ -452,9 +473,11 @@
         overflow: hidden;
       }
       #timeMachine.recording {
+        /* For recording in different heights, change the height of #timeMachine.recording and #content.recording */
         height: 1080px;
       }
       #content.recording {
+        /* For recording in different heights, change the height of #timeMachine.recording and #content.recording */
         height: 1472px;
       }
       #letterbox-bottom.recording {
@@ -488,6 +511,7 @@
       var defaultPlaybackSpeed = parseFloat(EARTH_TIMELAPSE_CONFIG.defaultPlaybackSpeed) || 0.5;
       var enableLetterboxMode = !!EARTH_TIMELAPSE_CONFIG.enableLetterboxMode || false;
       var useFaderShader = !!EARTH_TIMELAPSE_CONFIG.useFaderShader || false;
+      var enableWaypointText = !!EARTH_TIMELAPSE_CONFIG.enableWaypointText || false;
       var enableRecordingMode = !!EARTH_TIMELAPSE_CONFIG.enableRecordingMode || false;
 
       // Set shader
@@ -930,7 +954,7 @@
           layer_html += show_lights_at_night;
           layer_html += '   <tr>';
           layer_html += '   <tr>';
-          layer_html += show_forest_loss_gain;
+          layer_html += show_coral;
           layer_html += '   <tr>';
         }
         layer_html += ' </table>';
@@ -1045,10 +1069,13 @@
         snaplapseViewer.addEventListener('slide-changed', function(waypointTitle) {
 
           // Display info box for the waypoints
-          //var waypointIndex = $(".snaplapse_keyframe_list").children().children().index($("#" + waypointTitle.replace(/ /g, '_')));
-          //$(".current-location-text").show();
-          //$(".current-location-text").find("h3").text(WAYPOINT_TEXT[waypointIndex].title);
-          //$(".current-location-text").find("p").text(WAYPOINT_TEXT[waypointIndex].text);
+          if(enableWaypointText) {
+            var waypointIndex = $(".snaplapse_keyframe_list").children().children().index($("#" + waypointTitle.replace(/ /g, '_')));
+            var $current_location_text = $(".current-location-text");
+            $current_location_text.show();
+            $current_location_text.find("h3").text(WAYPOINT_TEXT[waypointIndex].title);
+            $current_location_text.find("p").text(WAYPOINT_TEXT[waypointIndex].text);
+          }
 
           // Earth Engine Timelapse
           var $landsatToggle = $("#landsat-base");
@@ -1263,6 +1290,16 @@
         if(enableRecordingMode) {
           $(".customControl").addClass("recording").appendTo("#content");
           $(".scaleBarContainer, .sideToolBar").hide();
+        }
+
+        // Display info box for the waypoints
+        if(enableWaypointText) {
+          var $current_location_text = $(".current-location-text");
+          $current_location_text.appendTo($("#timeMachine"));
+          if (enableRecordingMode) {
+            $current_location_text.find(".close").remove();
+            $current_location_text.addClass("recording");
+          }
         }
       }
 

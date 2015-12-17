@@ -1,6 +1,6 @@
 WAYPOINT_TEXT = [
   {
     "title" : "",
-    "text" : ""
+    "text" : "The video has one frame per year"
   }
 ];
