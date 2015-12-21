@@ -53,57 +53,34 @@
 
     <style>
       #timeMachine {
+        background-color: black !important;
         position: absolute;
         overflow: hidden;
         width: 100%;
         height: 100%;
       }
       #timeMachine.letterbox {
+        background-color: black !important;
         overflow: hidden;
         position: relative;
         width: 1920px;
         height: 768px;
       }
       .player {
-        left: -2px !important;
-        right: -2px !important;
-        top: -2px !important;
+        border: 0px !important;
         z-index: 0;
       }
-      .snaplapse_keyframe_list {
-        height: 84px !important;
-      }
-      .snaplapse_keyframe_list_item_thumbnail_overlay_presentation {
-        height: 77px !important;
+      .snaplapse_keyframe_list_item.letterbox .snaplapse_keyframe_list_item_title {
+        font-size: 21px
       }
       .snaplapse_keyframe_container {
-        top: -7px !important;
-        left: 0px !important;
-        width: 100% !important;
-      }
-      .snaplapse_keyframe_list_item_presentation {
-        height: 82px !important;
-      }
-      .snaplapse_keyframe_container.hyperwall {
-        top: 0px !important;
-        left: -1px !important;
-        right: -1px !important;
-        overflow-x: hidden !important;
+        border: 0px !important;
         background-color: black !important;
       }
       .keyframeSubtitleBoxForHovering.hyperwall {
-        bottom: 131px !important;
         font-size: 20px;
         line-height: 29px;
         color: rgb(60, 60, 60);
-      }
-      .snaplapse_keyframe_list_item_presentation.hyperwall {
-        width: 147px !important;
-        height: 101px !important;
-      }
-      .snaplapse_keyframe_list_item_thumbnail_overlay_presentation.hyperwall {
-        width: 140px !important;
-        height: 95px !important;
       }
       .keyframeSubtitleBoxForHovering.hyperwall p {
         max-width: 550px;
@@ -174,25 +151,6 @@
       }
       .customHelpLabel-touchFriendly.ui-button {
         top: -26px;
-      }
-      .presentationSlider.letterbox {
-        top: auto !important;
-        bottom: -7px;
-      }
-      .presentationSlider.hyperwall {
-        top: auto !important;
-        bottom: -17px;
-        height: 120px !important;
-      }
-      .presentationSlider.hyperwall.letterbox {
-        top: auto !important;
-        -ms-transform: scale(1.5,1.5);
-        -webkit-transform: scale(1.5,1.5);
-        transform: scale(1.5,1.5);
-        bottom: 5px !important;
-      }
-      .snaplapse_keyframe_list_item_thumbnail {
-        height: 82px !important;
       }
       .extras-content-video {
         position: absolute !important;
@@ -564,7 +522,8 @@
             doAutoMode: enableAutoMode,
             showAnnotations: false,
             screenIdleTime: screenTimeoutInMilliseconds,
-            waypointDelayTime: waypointDelayInMilliseconds
+            waypointDelayTime: waypointDelayInMilliseconds,
+            height: enableLetterboxMode ? 156 : 94
           },
           useTouchFriendlyUI: isHyperwall,
           datasetType: "landsat",
