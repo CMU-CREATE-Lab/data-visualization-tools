@@ -70,7 +70,7 @@
         border: 0px !important;
         z-index: 0;
       }
-      .snaplapse_keyframe_list_item.letterbox .snaplapse_keyframe_list_item_title {
+      .snaplapse_keyframe_list_item.letterbox:not(.recording) .snaplapse_keyframe_list_item_title {
         font-size: 21px
       }
       .snaplapse_keyframe_container {
@@ -441,10 +441,6 @@
       #letterbox-bottom.recording {
         height: 236px;
       }
-      .presentationSlider.recording {
-        bottom: -7px;
-        top: auto !important;
-      }
       .customControl.recording {
         bottom: 118px;
       }
@@ -523,7 +519,7 @@
             showAnnotations: false,
             screenIdleTime: screenTimeoutInMilliseconds,
             waypointDelayTime: waypointDelayInMilliseconds,
-            height: enableLetterboxMode ? 156 : 94
+            height: (enableLetterboxMode && !enableRecordingMode) ? 156 : 94
           },
           useTouchFriendlyUI: isHyperwall,
           datasetType: "landsat",
