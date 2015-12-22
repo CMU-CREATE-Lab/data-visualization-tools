@@ -59,13 +59,6 @@
         width: 100%;
         height: 100%;
       }
-      #timeMachine.letterbox {
-        background-color: black !important;
-        overflow: hidden;
-        position: relative;
-        width: 1920px;
-        height: 768px;
-      }
       .player {
         border: 0px !important;
         z-index: 0;
@@ -204,14 +197,14 @@
         user-select: none;
         white-space: nowrap;
       }
-      label .credit {
+      .vector-layers label .credit {
         color: #555555;
         font-size: 14px;
         position: relative;
         top: -1px;
         right: -4px;
       }
-      label input[type='radio'], label input[type='checkbox'] {
+      .vector-layers label input[type='radio'], .vector-layers label input[type='checkbox'] {
         position: relative;
         width: 17px;
         height: 17px;
@@ -223,7 +216,7 @@
         padding: 0;
         cursor: pointer;
       }
-      label {
+      .vector-layers label {
         cursor: pointer;
         color: black;
         display: block;
@@ -327,12 +320,15 @@
         padding-right: 10px;
         box-shadow: 0px 0px 0px rgba(0,0,0,0);
       }
+      .vector-layers {
+        z-index: 99;
+      }
       .vector-layers.right-panel.hyperwall {
-        bottom: 250px !important;
+        bottom: 160px !important;
       }
       .vector-layers.right-panel {
         position: absolute;
-        bottom: 215px;
+        bottom: 120px;
         right: 20px;
         width: 335px;
         padding: 10px;
@@ -358,6 +354,13 @@
         left: 0px;
         height: 156px;
         background: black;
+      }
+      #timeMachine.letterbox {
+        background-color: black !important;
+        overflow: hidden;
+        position: relative;
+        width: 1920px;
+        height: 768px;
       }
       #letterbox-bottom {
         position: relative;
@@ -434,11 +437,13 @@
       }
       #timeMachine.recording {
         /* For recording in different heights, change the height of #timeMachine.recording and #content.recording */
-        height: 1080px;
+        height: 1292px;
+        /*height: 924px;*/
       }
       #content.recording {
         /* For recording in different heights, change the height of #timeMachine.recording and #content.recording */
-        height: 1472px;
+        height: 1448px;
+        /*height: 1080px;*/
       }
       #letterbox-bottom.recording {
         height: 236px;
@@ -510,12 +515,12 @@
           playbackSpeed: defaultPlaybackSpeed,
           viewerType: "webgl",
           url: landsatUrl,
-          enablePresentationSlider: true,
-          //enableEditor: true,
-          //showEditorOnLoad: true,
+          enablePresentationSlider: enableRecordingMode ? false : true,
+          enableEditor: enableRecordingMode ? true : false,
+          showEditorOnLoad: enableRecordingMode ? true : false,
           thumbnailServerRootTileUrl: "http://earthengine.google.org/timelapse/data/20130507",
           showFullScreenBtn: false,
-          presentationSliderSettings: {
+          presentationSliderSettings: enableRecordingMode ? {} : {
             onLoadAnimation: "none",
             playAfterAnimation: false,
             initialWaypointIndex: 0,
@@ -527,13 +532,13 @@
           },
           useTouchFriendlyUI: isHyperwall,
           datasetType: "landsat",
-          playOnLoad: true,
+          playOnLoad: enableRecordingMode ? false : true,
           mediaType: ".mp4",
           onTimeMachinePlayerReady: function(viewerDivId) {},
           scaleBarOptions: {
             scaleBarDiv: "scaleBar1"
           },
-          thumbnailUrlList: ["thumbnails/climate-change.jpg", "thumbnails/rondonia.jpg",
+          thumbnailUrlList: enableRecordingMode ? [] :　["thumbnails/climate-change.jpg", "thumbnails/rondonia.jpg",
                              "thumbnails/n-sumatra.jpg", "thumbnails/fires-at-night.jpg",
                              "thumbnails/agricultural-fires.jpg", "thumbnails/agricultural-fires2.jpg",
                              "thumbnails/drilling-fires.jpg", "thumbnails/shale-oil-extraction.jpg",
@@ -567,14 +572,15 @@
         };
 
         if(enableLetterboxMode) {
-          $("#timeMachine").appendTo($("#letterbox-middle"));
           $("#timeMachine").addClass("letterbox");
+          $("#letterbox-middle").replaceWith($("#timeMachine"));
         } else {
           $("#content").remove();
         }
 
         if(enableRecordingMode) {
-          $("#timeMachine, #content, #letterbox-bottom").addClass("recording");
+          $("#timeMachine, #content").addClass("recording");
+          $("#letterbox-bottom").remove();
         }
 
         timelapse = new org.gigapan.timelapse.Timelapse("timeMachine", settings);
@@ -943,7 +949,7 @@
           $(".base-map-div, .map-layer-div, .extras-selector-div").addClass("top-panel").addClass("letterbox");
           $(".base-map-radio, .map-layer-checkbox, .extras-selector").addClass("letterbox");
         } else {
-          $(layer_html).appendTo($("#timeMachine"));
+          $(layer_html).appendTo($("#timeMachine .player"));
           $(".vector-layers").addClass("right-panel");
         }
 
@@ -1005,195 +1011,208 @@
         // Load waypoints
         timelapse.loadSharedDataFromUnsafeURL(presentationSliderContent);
 
-        // Toggle layers off when auto mode begins
-        var snaplapse = timelapse.getSnaplapseForPresentationSlider();
-        var snaplapseViewer = snaplapse.getSnaplapseViewer();
+        if(enableRecordingMode) {
+          var snaplapse = timelapse.getSnaplapse();
+          if(snaplapse) {
+            snaplapse.getSnaplapseViewer().setHideAllUIWhenPlay();
+          }
+        }
 
-        // Change UI based on whether setup is a hyperwall or not
-        snaplapseViewer.addEventListener('snaplapse-loaded', function() {
-          var $elements = $('.presentationSlider, .snaplapse_keyframe_container, .keyframeSubtitleBoxForHovering, .snaplapse_keyframe_list_item_presentation, .snaplapse_keyframe_list_item_thumbnail_overlay_presentation');
-          if (isHyperwall)
-            $elements.addClass('hyperwall');
-          if (enableLetterboxMode)
-            $elements.addClass('letterbox');
-          if(enableRecordingMode)
-            $elements.addClass('recording');
-        });
+        // Toggle layers off when auto mode begins
+        var snaplapseForPresentationSlider = timelapse.getSnaplapseForPresentationSlider();
+        var snaplapseViewerForPresentationSlider;
+        if(snaplapseForPresentationSlider) {
+          snaplapseViewerForPresentationSlider = snaplapseForPresentationSlider.getSnaplapseViewer();
+        }
+
+        if(snaplapseViewerForPresentationSlider) {
+          // Change UI based on whether setup is a hyperwall or not
+          snaplapseViewerForPresentationSlider.addEventListener('snaplapse-loaded', function() {
+            var $elements = $('.presentationSlider, .snaplapse_keyframe_container, .keyframeSubtitleBoxForHovering, .snaplapse_keyframe_list_item_presentation, .snaplapse_keyframe_list_item_thumbnail_overlay_presentation');
+            if (isHyperwall)
+              $elements.addClass('hyperwall');
+            if (enableLetterboxMode)
+              $elements.addClass('letterbox');
+            if(enableRecordingMode)
+              $elements.addClass('recording');
+          });
+        }
 
         $('.current-location-text .close').click(function() {
           $('.current-location-text').hide();
         });
 
         // TODO: Refactor how this is handled and how layers turn on/off in general
-        snaplapseViewer.addEventListener('slide-changed', function(waypointTitle) {
+        if(snaplapseViewerForPresentationSlider) {
+          snaplapseViewerForPresentationSlider.addEventListener('slide-changed', function(waypointTitle) {
+            // Display info box for the waypoints
+            if (enableWaypointText) {
+              var waypointIndex = $(".snaplapse_keyframe_list").children().children().index($("#" + waypointTitle.replace(/ /g, '_')));
+              var $current_location_text = $(".current-location-text");
+              $current_location_text.show();
+              $current_location_text.find("h3").text(WAYPOINT_TEXT[waypointIndex].title);
+              $current_location_text.find("p").text(WAYPOINT_TEXT[waypointIndex].text);
+            }
 
-          // Display info box for the waypoints
-          if(enableWaypointText) {
-            var waypointIndex = $(".snaplapse_keyframe_list").children().children().index($("#" + waypointTitle.replace(/ /g, '_')));
-            var $current_location_text = $(".current-location-text");
-            $current_location_text.show();
-            $current_location_text.find("h3").text(WAYPOINT_TEXT[waypointIndex].title);
-            $current_location_text.find("p").text(WAYPOINT_TEXT[waypointIndex].text);
-          }
+            // Earth Engine Timelapse
+            var $landsatToggle = $("#landsat-base");
+            // Light Map
+            var $lightMapToggle = $("#light-base");
+            // Dark Map
+            var $darkMapToggle = $("#dark-base");
+            // Protected Areas
+            var $wdpaLayerToggle = $("#show-wdpa");
+            // Forest Loss By Year
+            var $globalForestLayerToggle = $("#show-forest-change");
+            // Forest Loss/Gain
+            var $globalForestLossLayerToggle = $("#show-forest-loss-gain");
+            // Fires at Night
+            var $viirsLayerToggle = $("#show-viirs");
+            // Coral
+            var $coralLayerToggle = $("#show-coral");
+            // Coral
+            var $lightsAtNightToggle = $("#show-lights-at-night");
 
-          // Earth Engine Timelapse
-          var $landsatToggle = $("#landsat-base");
-          // Light Map
-          var $lightMapToggle = $("#light-base");
-          // Dark Map
-          var $darkMapToggle = $("#dark-base");
-          // Protected Areas
-          var $wdpaLayerToggle = $("#show-wdpa");
-          // Forest Loss By Year
-          var $globalForestLayerToggle = $("#show-forest-change");
-          // Forest Loss/Gain
-          var $globalForestLossLayerToggle = $("#show-forest-loss-gain");
-          // Fires at Night
-          var $viirsLayerToggle = $("#show-viirs");
-          // Coral
-          var $coralLayerToggle = $("#show-coral");
-          // Coral
-          var $lightsAtNightToggle = $("#show-lights-at-night");
-
-          // Clear out layers if they were already checked
-          // Default to Landsat
-          $landsatToggle.click();
-          if ($globalForestLayerToggle.prop('checked')) {
-            $globalForestLayerToggle.click();
-          }
-          if ($wdpaLayerToggle.prop('checked')) {
-            $wdpaLayerToggle.click();
-          }
-          if ($globalForestLossLayerToggle.prop('checked')) {
-            $globalForestLossLayerToggle.click();
-          }
-          if ($coralLayerToggle.prop('checked')) {
-            $coralLayerToggle.click();
-          }
-          if ($lightsAtNightToggle.prop('checked')) {
-            $lightsAtNightToggle.click();
-          }
-
-          // Set layers based on waypoint
-
-          // VIIRS specific waypoints
-          if (waypointTitle == "Fires at night") {
-            if (!$viirsLayerToggle.prop('checked')) {
-              $viirsLayerToggle.click();
-              //timelapse.play();
+            // Clear out layers if they were already checked
+            // Default to Landsat
+            $landsatToggle.click();
+            if ($globalForestLayerToggle.prop('checked')) {
+              $globalForestLayerToggle.click();
             }
-            if (!$darkMapToggle.prop('checked')) {
-              $darkMapToggle.click();
-            }
-          } else if (waypointTitle == "Agricultural fires") {
-            if (!$viirsLayerToggle.prop('checked')) {
-              $viirsLayerToggle.click();
-              //timelapse.play();
-            }
-            if (!$darkMapToggle.prop('checked')) {
-              $darkMapToggle.click();
-            }
-          } else if (waypointTitle == "Drilling fires") {
-            if (!$viirsLayerToggle.prop('checked')) {
-              $viirsLayerToggle.click();
-              //timelapse.play();
-            }
-            if (!$darkMapToggle.prop('checked')) {
-              $darkMapToggle.click();
-            }
-          } else if (waypointTitle == "Shale oil extraction") {
-            if (!$viirsLayerToggle.prop('checked')) {
-              $viirsLayerToggle.click();
-              //timelapse.play();
-            }
-            if (!$darkMapToggle.prop('checked')) {
-              $darkMapToggle.click();
-            }
-          } else {
-            if ($viirsLayerToggle.prop('checked'))
-              $viirsLayerToggle.click();
-          }
-
-          // Non-VIIRS waypoints
-          if (waypointTitle == "Rondonia") {
-            if (!$wdpaLayerToggle.prop('checked')) {
+            if ($wdpaLayerToggle.prop('checked')) {
               $wdpaLayerToggle.click();
             }
-          } else if (waypointTitle == "N Sumatra") {
-            if (!$wdpaLayerToggle.prop('checked')) {
-              $wdpaLayerToggle.click();
-            }
-          } else if (waypointTitle == "Asia Growth") {
-            if (!$lightsAtNightToggle.prop('checked')) {
-              $lightsAtNightToggle.click();
-            }
-          } else if (waypointTitle == "Resources and Forest") {
-            if (!$globalForestLossLayerToggle.prop('checked')) {
+            if ($globalForestLossLayerToggle.prop('checked')) {
               $globalForestLossLayerToggle.click();
             }
-          } else if (waypointTitle == "Peru") {
-            if (!$globalForestLayerToggle.prop('checked')) {
-              $globalForestLayerToggle.click();
+            if ($coralLayerToggle.prop('checked')) {
+              $coralLayerToggle.click();
             }
-            if (!$darkMapToggle.prop('checked')) {
-              $darkMapToggle.click();
+            if ($lightsAtNightToggle.prop('checked')) {
+              $lightsAtNightToggle.click();
             }
-          } else if (waypointTitle == "Alberta, Canada") {
-            if (!$globalForestLayerToggle.prop('checked')) {
-              $globalForestLayerToggle.click();
-            }
-            if (!$darkMapToggle.prop('checked')) {
-              $darkMapToggle.click();
-            }
-          } else if (waypointTitle == "Papua, Indonesia") {
-            if (!$globalForestLayerToggle.prop('checked')) {
-              $globalForestLayerToggle.click();
-            }
-            if (!$darkMapToggle.prop('checked')) {
-              $darkMapToggle.click();
-            }
-          } else if (waypointTitle == "Bolivia") {
-            if (!$globalForestLayerToggle.prop('checked')) {
-              $globalForestLayerToggle.click();
-            }
-            if (!$darkMapToggle.prop('checked')) {
-              $darkMapToggle.click();
-            }
-          }
-        });
 
-        snaplapseViewer.addEventListener('automode-start', function() {
-          var $globalForestLayerToggle = $("#show-forest-change");
-          var $wdpaLayerToggle = $("#show-wdpa");
-          var $globalForestLossLayerToggle = $("#show-forest-loss-gain");
-          var $viirsLayerToggle = $("#show-viirs");
-          var $coralLayerToggle = $("#show-coral");
-          var $lightsAtNightToggle = $("#show-lights-at-night");
+            // Set layers based on waypoint
 
-          var $showAdditionalLandsatYearsToggle = $("#show-additional-landsat");
+            // VIIRS specific waypoints
+            if (waypointTitle == "Fires at night") {
+              if (!$viirsLayerToggle.prop('checked')) {
+                $viirsLayerToggle.click();
+                //timelapse.play();
+              }
+              if (!$darkMapToggle.prop('checked')) {
+                $darkMapToggle.click();
+              }
+            } else if (waypointTitle == "Agricultural fires") {
+              if (!$viirsLayerToggle.prop('checked')) {
+                $viirsLayerToggle.click();
+                //timelapse.play();
+              }
+              if (!$darkMapToggle.prop('checked')) {
+                $darkMapToggle.click();
+              }
+            } else if (waypointTitle == "Drilling fires") {
+              if (!$viirsLayerToggle.prop('checked')) {
+                $viirsLayerToggle.click();
+                //timelapse.play();
+              }
+              if (!$darkMapToggle.prop('checked')) {
+                $darkMapToggle.click();
+              }
+            } else if (waypointTitle == "Shale oil extraction") {
+              if (!$viirsLayerToggle.prop('checked')) {
+                $viirsLayerToggle.click();
+                //timelapse.play();
+              }
+              if (!$darkMapToggle.prop('checked')) {
+                $darkMapToggle.click();
+              }
+            } else {
+              if ($viirsLayerToggle.prop('checked'))
+                $viirsLayerToggle.click();
+            }
 
-          if ($globalForestLayerToggle.prop('checked')) {
-            $globalForestLayerToggle.click();
-          }
-          if ($wdpaLayerToggle.prop('checked')) {
-            $wdpaLayerToggle.click();
-          }
-          if ($globalForestLossLayerToggle.prop('checked')) {
-            $globalForestLossLayerToggle.click();
-          }
-          if ($viirsLayerToggle.prop('checked')) {
-            $viirsLayerToggle.click();
-          }
-          if ($coralLayerToggle.prop('checked')) {
-            $coralLayerToggle.click();
-          }
-          if ($lightsAtNightToggle.prop('checked')) {
-            $lightsAtNightToggle.click();
-          }
-          if ($showAdditionalLandsatYearsToggle.prop('checked')) {
-            $showAdditionalLandsatYearsToggle.click();
-          }
-        });
+            // Non-VIIRS waypoints
+            if (waypointTitle == "Rondonia") {
+              if (!$wdpaLayerToggle.prop('checked')) {
+                $wdpaLayerToggle.click();
+              }
+            } else if (waypointTitle == "N Sumatra") {
+              if (!$wdpaLayerToggle.prop('checked')) {
+                $wdpaLayerToggle.click();
+              }
+            } else if (waypointTitle == "Asia Growth") {
+              if (!$lightsAtNightToggle.prop('checked')) {
+                $lightsAtNightToggle.click();
+              }
+            } else if (waypointTitle == "Resources and Forest") {
+              if (!$globalForestLossLayerToggle.prop('checked')) {
+                $globalForestLossLayerToggle.click();
+              }
+            } else if (waypointTitle == "Peru") {
+              if (!$globalForestLayerToggle.prop('checked')) {
+                $globalForestLayerToggle.click();
+              }
+              if (!$darkMapToggle.prop('checked')) {
+                $darkMapToggle.click();
+              }
+            } else if (waypointTitle == "Alberta, Canada") {
+              if (!$globalForestLayerToggle.prop('checked')) {
+                $globalForestLayerToggle.click();
+              }
+              if (!$darkMapToggle.prop('checked')) {
+                $darkMapToggle.click();
+              }
+            } else if (waypointTitle == "Papua, Indonesia") {
+              if (!$globalForestLayerToggle.prop('checked')) {
+                $globalForestLayerToggle.click();
+              }
+              if (!$darkMapToggle.prop('checked')) {
+                $darkMapToggle.click();
+              }
+            } else if (waypointTitle == "Bolivia") {
+              if (!$globalForestLayerToggle.prop('checked')) {
+                $globalForestLayerToggle.click();
+              }
+              if (!$darkMapToggle.prop('checked')) {
+                $darkMapToggle.click();
+              }
+            }
+          });
+
+          snaplapseViewerForPresentationSlider.addEventListener('automode-start', function() {
+            var $globalForestLayerToggle = $("#show-forest-change");
+            var $wdpaLayerToggle = $("#show-wdpa");
+            var $globalForestLossLayerToggle = $("#show-forest-loss-gain");
+            var $viirsLayerToggle = $("#show-viirs");
+            var $coralLayerToggle = $("#show-coral");
+            var $lightsAtNightToggle = $("#show-lights-at-night");
+
+            var $showAdditionalLandsatYearsToggle = $("#show-additional-landsat");
+
+            if ($globalForestLayerToggle.prop('checked')) {
+              $globalForestLayerToggle.click();
+            }
+            if ($wdpaLayerToggle.prop('checked')) {
+              $wdpaLayerToggle.click();
+            }
+            if ($globalForestLossLayerToggle.prop('checked')) {
+              $globalForestLossLayerToggle.click();
+            }
+            if ($viirsLayerToggle.prop('checked')) {
+              $viirsLayerToggle.click();
+            }
+            if ($coralLayerToggle.prop('checked')) {
+              $coralLayerToggle.click();
+            }
+            if ($lightsAtNightToggle.prop('checked')) {
+              $lightsAtNightToggle.click();
+            }
+            if ($showAdditionalLandsatYearsToggle.prop('checked')) {
+              $showAdditionalLandsatYearsToggle.click();
+            }
+          });
+        }
 
         // Location search box, with autocomplete.
         var $locationSearchDiv = $('<div class="location_search_div"><input id="location_search" type="text" placeholder="Search for a location...">');
@@ -1234,7 +1253,7 @@
         }
 
         // Set the letterbox mode
-        if(enableLetterboxMode) {
+        if(enableLetterboxMode && !enableRecordingMode) {
           // Resize the viewer
           timelapse.addViewerBottomMargin(-2);
           // Move the presentation slider out
@@ -1245,11 +1264,6 @@
         // Toggle the context map and hide it
         $(".toggleContextMapBtn").click();
         $(".contextMapContainer").hide();
-
-        if(enableRecordingMode) {
-          $(".customControl").addClass("recording").appendTo("#content");
-          $(".scaleBarContainer, .sideToolBar").hide();
-        }
 
         // Display info box for the waypoints
         if(enableWaypointText) {
