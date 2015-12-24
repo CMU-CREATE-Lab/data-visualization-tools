@@ -64,13 +64,11 @@
         z-index: 0;
       }
       .snaplapse_keyframe_list_item.letterbox:not(.recording) .snaplapse_keyframe_list_item_title {
-        font-size: 21px
-      }
-      .snaplapse_keyframe_container {
-        border: 0px !important;
+        font-size: 21px;
       }
       .presentationSlider .snaplapse_keyframe_container {
         background-color: black !important;
+        border: 0px !important;
       }
       .keyframeSubtitleBoxForHovering.hyperwall {
         font-size: 20px;
@@ -437,19 +435,24 @@
       }
       #timeMachine.recording {
         /* For recording in different heights, change the height of #timeMachine.recording and #content.recording */
-        height: 1292px;
-        /*height: 924px;*/
+        width: 1330px;
+        height: 1076px;
       }
       #content.recording {
         /* For recording in different heights, change the height of #timeMachine.recording and #content.recording */
-        height: 1448px;
-        /*height: 1080px;*/
+        width: 1330px;
+        height: 1284px;
       }
       #letterbox-bottom.recording {
         height: 236px;
       }
       .customControl.recording {
         bottom: 118px;
+      }
+      .snaplapse-annotation-description .recording {
+        font-size: 60px !important;
+        padding-bottom: 70px !important;
+        padding-right: 45px !important;
       }
     </style>
     <script type="text/javascript">
@@ -512,6 +515,7 @@
 
       function init() {
         var settings = {
+          loopDwell: { startDwell:0.5, endDwell:0.5 },
           playbackSpeed: defaultPlaybackSpeed,
           viewerType: "webgl",
           url: landsatUrl,
