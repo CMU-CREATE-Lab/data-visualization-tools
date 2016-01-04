@@ -548,7 +548,10 @@ draw = function(transform) {
       gl.activeTexture(gl.TEXTURE1);
 
       // TODO -- why is there a texture still in pipeline[1] that isn't usable when the timelapse is paused?
-      if (this._pipeline[1].texture && this._pipeline[1].frameno <= timelapse.getNumFrames() && !timelapse.isPaused()) {
+      if (this._pipeline[1].texture && 
+          this._pipeline[1].frameno < timelapse.getNumFrames() && 
+          this._pipeline[1].frameno > this._pipeline[0].frameno &&
+          !timelapse.isPaused()) {
         gl.bindTexture(gl.TEXTURE_2D, this._pipeline[1].texture);
       } else {
         gl.bindTexture(gl.TEXTURE_2D, this._pipeline[0].texture);
