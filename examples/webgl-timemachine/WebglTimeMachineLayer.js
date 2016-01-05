@@ -12,6 +12,14 @@ function WebglTimeMachineLayer(glb, canvasLayer, rootUrl, opt_options) {
 
   var r = canvasLayer.timelapse.getMetadata();
 
+  // Use time machine specs from options, or from root time machine
+  // Should we instead grab this from tm.json?
+  var width = opt_options.width || r.width;
+  var height = opt_options.height || r.height;
+  var video_width = opt_options.video_width || r.video_width;
+  var video_height = opt_options.video_height || r.video_height;
+
+
   var that = this;
 
   function createTile(ti, bounds) {
@@ -20,10 +28,10 @@ function WebglTimeMachineLayer(glb, canvasLayer, rootUrl, opt_options) {
   }
 
   this._tileView = new TileView({
-      panoWidth: r.width,
-      panoHeight: r.height,
-      tileWidth: r.video_width,
-      tileHeight: r.video_height,
+      panoWidth: width,
+      panoHeight: height,
+      tileWidth: video_width,
+      tileHeight: video_height,
       createTile: createTile,
       deleteTile: function(tile) {},
       updateTile: WebglVideoTile.update
