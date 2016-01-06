@@ -9,6 +9,7 @@ function WebglTimeMachineLayer(glb, canvasLayer, rootUrl, opt_options) {
   this._defaultUrl = opt_options.defaultUrl || rootUrl + '/default' + this._mediaType;
   this._numFrames = opt_options.numFrames || 32;
   this._fps = opt_options.fps || 10;
+  this._greenScreen = opt_options.greenScreen || false;
 
   var r = canvasLayer.timelapse.getMetadata();
 
@@ -24,7 +25,7 @@ function WebglTimeMachineLayer(glb, canvasLayer, rootUrl, opt_options) {
 
   function createTile(ti, bounds) {
     var url = rootUrl + '/' + ti.l + '/' + (ti.r * 4) + '/' + (ti.c * 4) + that._mediaType;
-    return new WebglVideoTile(glb, ti, bounds, url, that._defaultUrl, that._numFrames, that._fps);
+    return new WebglVideoTile(glb, ti, bounds, url, that._defaultUrl, that._numFrames, that._fps, that._greenScreen);
   }
 
   this._tileView = new TileView({
