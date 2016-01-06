@@ -460,7 +460,7 @@
 
       jQuery.support.cors = true;
 
-      var landsatBaseMapLayer, timelapse, darkBaseMapLayer, lightBaseMapLayer, wdpaVectorLayer, mcrmVectorLayer, hansonMapLayer, hansonMapLayer2, viirsTile, coralBleachingTile, lightsAtNightMapLayer;
+      var landsatBaseMapLayer, timelapse, darkBaseMapLayer, lightBaseMapLayer, wdpaVectorLayer, mcrmVectorLayer, hansonMapLayer, hansonMapLayer2, viirsTile, coralBleachingTile, lightsAtNightMapLayer, crwTimemachineLayer;
 
       //// Config ////
       var EARTH_TIMELAPSE_CONFIG = EARTH_TIMELAPSE_CONFIG || {};
@@ -488,6 +488,8 @@
       var landsatUrl = "../../../data/landsat-annual-2015-v1/1068x600";
       // Using "https" will casue the thumbnail loading from the server to fail
       //var landsatUrl = "http://earthengine.google.org/timelapse/data/20130507";
+
+      var crwTimemachineUrl = "coralreefwatch-2.timemachine/crf20-22fps-1424x800";
 
       //// Map Tiles ////
       // OpenStreetMap/CartoDB
@@ -702,6 +704,28 @@
           }
         }).prop('checked', showCoralBleachingLayer);
 
+        $("#show-coral-bleaching-alerts").on("click", function() {
+          if ($(this).prop('checked')) {
+            showCrwTimemachineLayer = true;
+            showMcrmLayer = true;
+            timelapse.loadNewTimeline("crw-times.json","defaultUI");
+            var v = timelapse.getVideoset()
+            v.setFps(22);
+            timelapse.setDoDwell(false);
+
+          } else {
+            showCrwTimemachineLayer = false;
+            showMcrmLayer = false;
+            if ($("#show-additional-landsat").prop('checked')) {
+              timelapse.loadNewTimeline("landsat-times-long.json","customUI");
+            } else {
+              timelapse.loadNewTimeline("landsat-times.json","customUI");
+            }
+            timelapse.setDoDwell(true);
+
+          }
+        }).prop('checked', showCrwTimemachineLayer);
+
         $("#show-lights-at-night").on("click", function() {
           if ($(this).prop('checked')) {
             showLightsAtNightLayer = true;
@@ -834,6 +858,7 @@
       var showViirsLayer = false;
       var showCoralBleachingLayer = false;
       var showLightsAtNightLayer = false;
+      var showCrwTimemachineLayer = false;
 
       var tileViewVisibility = {
         videoTile: true,
@@ -896,6 +921,8 @@
         var show_forest_loss_gain = '<td><label for="show-forest-loss-gain"><input type="checkbox" id="show-forest-loss-gain" value="3"/>Forest Loss/Gain<span class="credit"> (Hansen et al)</span></label></td>';
         var show_lights_at_night = '<td><label for="show-lights-at-night"><input type="checkbox" id="show-lights-at-night" value="5"/>Lights at Night<span class="credit"> (NOAA, Google)</span></label></td>';
         var show_coral = '<td><label for="show-coral"><input type="checkbox" id="show-coral" value="6"/>Coral Bleaching<span class="credit"> (NOAA, UNEP-WCMC)</span></label></td>';
+        var show_coral_bleaching_alerts = '<td><label for="show-coral-bleaching-alerts"><input type="checkbox" id="show-coral-bleaching-alerts" value="8"/>Bleaching Alerts<span class="credit"> (NOAA, UNEP-WCMC)</span></label></td>';
+
         //var show_additional_landsat = '<td><label for="show-additional-landsat"><input type="checkbox" id="show-additional-landsat" value="7"/>+3Y</label></td>';
 
         layer_html += '<div class="map-layer-div">';
@@ -925,6 +952,10 @@
           layer_html += '   <tr>';
           layer_html += show_coral;
           layer_html += '   <tr>';
+          layer_html += '   <tr>';
+          layer_html += show_coral_bleaching_alerts;
+          layer_html += '   <tr>';
+
         }
         layer_html += ' </table>';
         layer_html += '</div>';
@@ -969,6 +1000,20 @@
         };
 
         landsatBaseMapLayer = new WebglTimeMachineLayer(glb, canvasLayer, landsatUrl, defaultTimeMachineLayerOptions);
+
+        var crwTimemacineLayerOptions = {
+          mediaType: ".mp4",
+          numFrames: 904,
+          fps: 22,
+          video_width: 1424,
+          video_height: 800,
+          width: 7200,
+          height: 7200
+        };
+
+        crwTimemachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, crwTimemachineUrl, crwTimemacineLayerOptions);
+
+
 
         // Raster map layers
         var defaultMapLayerOptions = {
@@ -1076,6 +1121,9 @@
             var $coralLayerToggle = $("#show-coral");
             // Coral
             var $lightsAtNightToggle = $("#show-lights-at-night");
+            // Coral Bleaching Alerts
+            var $coralBleachingAlertsLayerToggle = $("#show-coral-bleaching-alerts");
+
 
             // Clear out layers if they were already checked
             // Default to Landsat
@@ -1094,6 +1142,9 @@
             }
             if ($lightsAtNightToggle.prop('checked')) {
               $lightsAtNightToggle.click();
+            }
+            if ($coralBleachingAlertsLayerToggle.prop('checked')) {
+              $coralBleachingAlertsLayerToggle.click();
             }
 
             // Set layers based on waypoint
@@ -1208,6 +1259,9 @@
             }
             if ($coralLayerToggle.prop('checked')) {
               $coralLayerToggle.click();
+            }
+            if ($coralBleachingAlertsLayerToggle.prop('checked')) {
+              $coralBleachingAlertsLayerToggle.click();
             }
             if ($lightsAtNightToggle.prop('checked')) {
               $lightsAtNightToggle.click();
@@ -1372,6 +1426,15 @@
         }
 
         // Layers to draw above the base layer
+
+        if (showCrwTimemachineLayer) {
+          var crwView = timelapse.getView();
+          var timelapse2map = crwTimemachineLayer.getWidth() / landsatBaseMapLayer.getWidth();
+          crwView.x *= timelapse2map;
+          crwView.y *= timelapse2map;
+          crwView.scale /= timelapse2map;
+          crwTimemachineLayer.draw(crwView, tileViewVisibility);
+         }
 
         // Draw hansonMapLayer (Forest change transparent)
         if (showHansonLayer) {
