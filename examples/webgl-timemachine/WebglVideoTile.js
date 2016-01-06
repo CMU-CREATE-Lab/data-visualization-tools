@@ -13,7 +13,7 @@
 // Or maybe compress the range and go with say 1.6 to 2.1?  That lets us better use
 // the flexibility of being able to capture the video across a range of times
 
-function WebglVideoTile(glb, tileidx, bounds, url, defaultUrl, numFrames, fps) {
+function WebglVideoTile(glb, tileidx, bounds, url, defaultUrl, numFrames, fps, greenScreen) {
   if (!WebglVideoTile._initted) {
     WebglVideoTile._init();
   }
@@ -43,6 +43,8 @@ function WebglVideoTile(glb, tileidx, bounds, url, defaultUrl, numFrames, fps) {
 
   this._video = document.createElement('video');
   this._video.crossOrigin = "anonymous";
+
+  this._useGreenScreen = greenScreen;
 
   var self = this;
 
@@ -121,8 +123,6 @@ WebglVideoTile.activeTileCount = 0;
 WebglVideoTile._initted = false;
 
 WebglVideoTile.useFaderShader = false;
-WebglVideoTile.useGreenScreen = false;
-
 
 WebglVideoTile.stats = function() {
   var r2 = WebglVideoTile.r2;
@@ -566,7 +566,7 @@ draw = function(transform) {
       gl.disable(gl.BLEND);
     } else {
       var activeProgram;
-      if (WebglVideoTile.useGreenScreen) {
+      if (this._useGreenScreen) {
         activeProgram = this._textureGreenScreenProgram;
       } else {
         activeProgram = this._textureProgram;
