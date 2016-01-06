@@ -706,12 +706,14 @@
 
         $("#show-coral-bleaching-alerts").on("click", function() {
           if ($(this).prop('checked')) {
+            timelapse.loadNewTimeline("crw-times.json","defaultUI");
             showCrwTimemachineLayer = true;
             showMcrmLayer = true;
-            timelapse.loadNewTimeline("crw-times.json","defaultUI");
+
             var v = timelapse.getVideoset()
             v.setFps(22);
             timelapse.setDoDwell(false);
+            WebglVideoTile.useGreenScreen = true;
 
           } else {
             showCrwTimemachineLayer = false;
@@ -722,6 +724,7 @@
               timelapse.loadNewTimeline("landsat-times.json","customUI");
             }
             timelapse.setDoDwell(true);
+            WebglVideoTile.useGreenScreen = false;
 
           }
         }).prop('checked', showCrwTimemachineLayer);
