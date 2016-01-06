@@ -31,6 +31,9 @@ function WebglVideoTile(glb, tileidx, bounds, url, defaultUrl, numFrames, fps, g
   this._textureGreenScreenProgram = glb.programFromSources(WebglVideoTile.textureVertexShader,
                                                 WebglVideoTile.textureGreenScreenFragmentShader);
 
+  this._textureGreenScreenFaderProgram = glb.programFromSources(WebglVideoTile.textureVertexShader,
+                                                WebglVideoTile.textureGreenScreenFragmentFaderShader);
+
   var inset = (bounds.max.x - bounds.min.x) * 0.005;
   this._insetRectangle = glb.createBuffer(new Float32Array([0.01, 0.01,
                                                             0.99, 0.01,
@@ -528,24 +531,31 @@ draw = function(transform) {
 
   // Draw video
   if (this._ready) {
+    var activeProgram;
 
     if (WebglVideoTile.useFaderShader) {
-      gl.useProgram(this._textureFaderProgram);
+      if (this._useGreenScreen) {
+        activeProgram = this._textureGreenScreenFaderProgram;
+      } else {
+        activeProgram = this._textureFaderProgram;
+      }
+
+      gl.useProgram(activeProgram);
       gl.enable(gl.BLEND);
       gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
 
-      var alphaLocation = gl.getUniformLocation(this._textureFaderProgram, "uAlpha");
+      var alphaLocation = gl.getUniformLocation(activeProgram, "uAlpha");
       gl.uniform1f(alphaLocation, this._uAlpha);
 
-      var u_image0Location = gl.getUniformLocation(this._textureFaderProgram, "uSampler");
-      var u_image1Location = gl.getUniformLocation(this._textureFaderProgram, "uSampler2");
+      var u_image0Location = gl.getUniformLocation(activeProgram, "uSampler");
+      var u_image1Location = gl.getUniformLocation(activeProgram, "uSampler2");
 
       gl.uniform1i(u_image0Location, 0);  // texture unit 0
       gl.uniform1i(u_image1Location, 1);  // texture unit 1
 
-      gl.uniformMatrix4fv(this._textureFaderProgram.uTransform, false, tileTransform);
+      gl.uniformMatrix4fv(activeProgram.uTransform, false, tileTransform);
       gl.bindBuffer(gl.ARRAY_BUFFER, this._triangles);
-      gl.vertexAttribPointer(this._textureFaderProgram.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
+      gl.vertexAttribPointer(activeProgram.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
 
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, this._pipeline[0].texture);
@@ -565,7 +575,6 @@ draw = function(transform) {
       gl.bindTexture(gl.TEXTURE_2D, null);
       gl.disable(gl.BLEND);
     } else {
-      var activeProgram;
       if (this._useGreenScreen) {
         activeProgram = this._textureGreenScreenProgram;
       } else {
@@ -701,7 +710,13 @@ WebglVideoTile.textureGreenScreenFragmentFaderShader =
   'void main(void) {\n' +
   '  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t)); \n' + 
   '  vec4 textureColor2 = texture2D(uSampler2, vec2(vTextureCoord.s, vTextureCoord.t));\n' + 
-  '  gl_FragColor = textureColor * (1.0 - uAlpha) + textureColor2 * uAlpha;\n' + 
+  '  vec4 fragColor = textureColor * (1.0 - uAlpha) + textureColor2 * uAlpha;\n' + 
+  '  if (fragColor.r < .5) { \n' +
+  '    gl_FragColor = vec4(fragColor.rgb, fragColor.r);\n' +
+  '  } else { \n' +
+  '    gl_FragColor = fragColor;\n' +
+  '  }\n' +
+
   '}\n';
 
 
