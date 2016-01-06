@@ -28,6 +28,9 @@ function WebglVideoTile(glb, tileidx, bounds, url, defaultUrl, numFrames, fps) {
   this._textureFaderProgram = glb.programFromSources(WebglVideoTile.textureVertexShader,
                                                 WebglVideoTile.textureFragmentFaderShader);
 
+  this._textureGreenScreenProgram = glb.programFromSources(WebglVideoTile.textureVertexShader,
+                                                WebglVideoTile.textureGreenScreenFragmentShader);
+
   var inset = (bounds.max.x - bounds.min.x) * 0.005;
   this._insetRectangle = glb.createBuffer(new Float32Array([0.01, 0.01,
                                                             0.99, 0.01,
@@ -118,6 +121,8 @@ WebglVideoTile.activeTileCount = 0;
 WebglVideoTile._initted = false;
 
 WebglVideoTile.useFaderShader = false;
+WebglVideoTile.useGreenScreen = false;
+
 
 WebglVideoTile.stats = function() {
   var r2 = WebglVideoTile.r2;
@@ -560,13 +565,19 @@ draw = function(transform) {
       gl.bindTexture(gl.TEXTURE_2D, null);
       gl.disable(gl.BLEND);
     } else {
-      gl.useProgram(this._textureProgram);
+      var activeProgram;
+      if (WebglVideoTile.useGreenScreen) {
+        activeProgram = this._textureGreenScreenProgram;
+      } else {
+        activeProgram = this._textureProgram;
+      }
+      gl.useProgram(activeProgram);
       gl.enable(gl.BLEND);
       gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
 
-      gl.uniformMatrix4fv(this._textureProgram.uTransform, false, tileTransform);
+      gl.uniformMatrix4fv(activeProgram.uTransform, false, tileTransform);
       gl.bindBuffer(gl.ARRAY_BUFFER, this._triangles);
-      gl.vertexAttribPointer(this._textureProgram.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
+      gl.vertexAttribPointer(activeProgram.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
       gl.enableVertexAttribArray(this._lineProgram.aTextureCoord);
 
       gl.activeTexture(gl.TEXTURE0);
@@ -667,6 +678,32 @@ WebglVideoTile.textureFragmentFaderShader =
   '  vec4 textureColor2 = texture2D(uSampler2, vec2(vTextureCoord.s, vTextureCoord.t));\n' + 
   '  gl_FragColor = textureColor * (1.0 - uAlpha) + textureColor2 * uAlpha;\n' + 
   '}\n';
+
+WebglVideoTile.textureGreenScreenFragmentShader =
+  'precision mediump float;\n' +
+  'varying vec2 vTextureCoord;\n' +
+  'uniform sampler2D uSampler;\n' +
+  'void main(void) {\n' +
+  '  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));\n' +
+  '  if (textureColor.r < .5) { \n' +
+  '    gl_FragColor = vec4(textureColor.rgb, textureColor.r);\n' +
+  '  } else { \n' +
+  '    gl_FragColor = vec4(textureColor.rgb, 1.);\n' +
+  '  }\n' +
+  '}\n';
+
+WebglVideoTile.textureGreenScreenFragmentFaderShader =
+  'precision mediump float;\n' +
+  'varying vec2 vTextureCoord;\n' +
+  'uniform sampler2D uSampler;\n' +
+  'uniform sampler2D uSampler2;\n' +
+  'uniform float uAlpha;\n' + 
+  'void main(void) {\n' +
+  '  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t)); \n' + 
+  '  vec4 textureColor2 = texture2D(uSampler2, vec2(vTextureCoord.s, vTextureCoord.t));\n' + 
+  '  gl_FragColor = textureColor * (1.0 - uAlpha) + textureColor2 * uAlpha;\n' + 
+  '}\n';
+
 
 // stopit:  set to true to disable update()
 var si = false;
