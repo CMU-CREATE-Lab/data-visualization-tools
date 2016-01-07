@@ -5,7 +5,7 @@ function WebglMapLayer(glb, canvasLayer, tileUrl, opt_options) {
   this.gl = glb.gl;
   this._canvasLayer = canvasLayer;
   this._fileExtension = opt_options.fileExtension || "png";
-  this._defaultUrl = opt_options.defaultUrl || tileUrl.split("{default}")[0] + "default." + this._fileExtension;
+  this._defaultUrl = relUrlToAbsUrl(opt_options.defaultUrl || tileUrl.split("{default}")[0] + "default." + this._fileExtension);
   this._tileUrl = tileUrl.replace("{default}/", "");
   this._nLevels = 21;
   this._tileWidth = 256;

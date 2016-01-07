@@ -6,7 +6,7 @@ function WebglTimeMachineLayer(glb, canvasLayer, rootUrl, opt_options) {
   this._canvasLayer = canvasLayer;
   this._rootUrl = rootUrl;
   this._mediaType = opt_options.mediaType || ".mp4";
-  this._defaultUrl = opt_options.defaultUrl || rootUrl + '/default' + this._mediaType;
+  this._defaultUrl = relUrlToAbsUrl(opt_options.defaultUrl || rootUrl + '/default' + this._mediaType);
   this._numFrames = opt_options.numFrames || 32;
   this._fps = opt_options.fps || 10;
   this._greenScreen = opt_options.greenScreen || false;
