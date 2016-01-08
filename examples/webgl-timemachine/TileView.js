@@ -413,11 +413,11 @@ setViewFromLatLng = function(view, bounds, viewportWidth, viewportHeight, scale)
 // Return ordered list of tiles to draw, from low-res to high res.  Draw in that order
 // so that high-res can cover low-res, for opaque tiles.
 TileView.prototype.
-update = function(transform) {
+update = function(transform, options) {
   var keys = Object.keys(this._tiles).sort();
   var tiles = [];
   for (var i = 0; i < keys.length; i++) {
     tiles.push(this._tiles[keys[i]]);
   }
-  this._updateTileCallback(tiles, transform);
+  this._updateTileCallback(tiles, transform, options);
 }
