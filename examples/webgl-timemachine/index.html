@@ -50,6 +50,8 @@
     <script src="WebglMapTile.js"></script>
     <script src="WebglViirsTile.js"></script>
     <script src="WebglCoralTile.js"></script>
+    <script src="WebglMapTile2.js"></script>
+    <script src="WebglMapLayer2.js"></script>
 
     <style>
       #timeMachine {
@@ -460,7 +462,7 @@
 
       jQuery.support.cors = true;
 
-      var landsatBaseMapLayer, timelapse, darkBaseMapLayer, lightBaseMapLayer, wdpaVectorLayer, mcrmVectorLayer, hansonMapLayer, hansonMapLayer2, viirsTile, coralBleachingTile, lightsAtNightMapLayer, crwTimemachineLayer;
+      var landsatBaseMapLayer, timelapse, darkBaseMapLayer, lightBaseMapLayer, wdpaVectorLayer, mcrmVectorLayer, hansonMapLayer, hansonMapLayer2, viirsTile, coralBleachingTile, lightsAtNightMapLayer, crwTimemachineLayer, animatedHansenLayer;
 
       //// Config ////
       var EARTH_TIMELAPSE_CONFIG = EARTH_TIMELAPSE_CONFIG || {};
@@ -511,6 +513,8 @@
       var mcrmUrl = "../../../data/coral/mcrm-lines-wrapdateline";
       var viirsUrl = '../../../data/viirs/createlab-viirs-uncorrected-20140314-20150403.bin';
       var coralBleachingUrl = "../../../data/coral/bleaching_reports_4km_81-10.bin";
+
+      var animatedHansenUrls = [gfcTransUrl, gfcLossGainUrl];
 
       var visibleBaseMapLayer = "landsat";
 
@@ -673,6 +677,21 @@
           }
         }).prop('checked', showHansonLayer2);
 
+        $("#show-animated-forest-loss-gain").on("click", function() {
+          if ($(this).prop('checked')) {
+            //timelapse.loadNewTimeline("hansen-times.json","customUI");
+            //timelapse.setDoDwell(true);
+            showAnimatedHansenLayer = true;
+
+          } else {
+            showAnimatedHansenLayer = false;
+            //timelapse.setPlaybackRate(defaultPlaybackSpeed);
+            //timelapse.loadNewTimeline("landsat-times.json","customUI");
+            //timelapse.setDoDwell(true);
+          }
+        }).prop('checked', showViirsLayer);
+
+
         $("#show-viirs").on("click", function() {
           if ($(this).prop('checked')) {
             showViirsLayer = true;
@@ -724,6 +743,8 @@
             }
             timelapse.setDoDwell(true);
             WebglVideoTile.useGreenScreen = false;
+            var v = timelapse.getVideoset()
+            v.setFps(10);
 
           }
         }).prop('checked', showCrwTimemachineLayer);
@@ -861,6 +882,7 @@
       var showCoralBleachingLayer = false;
       var showLightsAtNightLayer = false;
       var showCrwTimemachineLayer = false;
+      var showAnimatedHansenLayer = false;
 
       var tileViewVisibility = {
         videoTile: true,
@@ -917,10 +939,13 @@
         layer_html += ' </table>';
         layer_html += '</div>';
 
+
+        // TODO -- What's up with the magic numbers in the input values?
         var show_wdpa = '<td><label for="show-wdpa"><input type="checkbox" id="show-wdpa" value="1"/>Protected Areas<span class="credit"> (UNEP-WCMC)</span></label></td>';
         var show_forest_change = '<td><label for="show-forest-change"><input type="checkbox" id="show-forest-change" value="2"/>Forest Loss by Year<span class="credit"> (Hansen et al)</span></label></td>';
         var show_viirs = '<td><label for="show-viirs"><input type="checkbox" id="show-viirs" value="4"/>Fires at Night<span class="credit"> (NOAA)</span></label></td>';
         var show_forest_loss_gain = '<td><label for="show-forest-loss-gain"><input type="checkbox" id="show-forest-loss-gain" value="3"/>Forest Loss/Gain<span class="credit"> (Hansen et al)</span></label></td>';
+        var show_animated_forest_loss_gain = '<td><label for="show-animated-forest-loss-gain"><input type="checkbox" id="show-animated-forest-loss-gain" value="9"/>Animated Loss/Gain<span class="credit"> (Hansen et al)</span></label></td>';
         var show_lights_at_night = '<td><label for="show-lights-at-night"><input type="checkbox" id="show-lights-at-night" value="5"/>Lights at Night<span class="credit"> (NOAA, Google)</span></label></td>';
         var show_coral = '<td><label for="show-coral"><input type="checkbox" id="show-coral" value="6"/>Coral Bleaching<span class="credit"> (NOAA, UNEP-WCMC)</span></label></td>';
         var show_coral_bleaching_alerts = '<td><label for="show-coral-bleaching-alerts"><input type="checkbox" id="show-coral-bleaching-alerts" value="8"/>Bleaching Alerts<span class="credit"> (NOAA, UNEP-WCMC)</span></label></td>';
@@ -941,6 +966,9 @@
         layer_html += '   </tr>';
         layer_html += '   <tr>';
         layer_html += show_forest_loss_gain;
+        layer_html += '   </tr>';
+        layer_html += '   <tr>';
+        layer_html += show_animated_forest_loss_gain;
         if(enableLetterboxMode)
           layer_html += show_coral;
         layer_html += '   </tr>';
@@ -1057,6 +1085,13 @@
         viirsTile = new WebglViirsTile(glb, viirsUrl);
         coralBleachingTile = new WebglCoralTile(glb, coralBleachingUrl);
 
+        var animatedHansenLayerOptions = {
+          nLevels: 12,
+          tileWidth: 256,
+          tileHeight: 256
+        };
+        animatedHansenLayer = new WebglMapLayer2(glb, canvasLayer, animatedHansenUrls, animatedHansenLayerOptions);
+
         // Layer Toggle UI
         initLayerToggleUI();
 
@@ -1118,6 +1153,8 @@
             var $globalForestLayerToggle = $("#show-forest-change");
             // Forest Loss/Gain
             var $globalForestLossLayerToggle = $("#show-forest-loss-gain");
+            // Animated Fotest Loss/Gain
+            var $animatedHansenLayerToggle = $("#show-animated-forest-loss-gain");
             // Fires at Night
             var $viirsLayerToggle = $("#show-viirs");
             // Coral
@@ -1462,6 +1499,32 @@
 
           hansonMapLayer2.draw(hansonMapLayerView2);
         }
+
+        // Draw Animated Hansen Layer
+        if (showAnimatedHansenLayer) {
+          // Construct view for hansonMapLayer
+          var animatedHansenLayerView = timelapse.getView();
+          var timelapse2map = animatedHansenLayer.getWidth() / landsatBaseMapLayer.getWidth();
+          animatedHansenLayerView.x *= timelapse2map;
+          animatedHansenLayerView.y *= timelapse2map;
+          animatedHansenLayerView.scale /= timelapse2map;
+
+
+          var ratio = 0;
+
+          var captureTimes = timelapse.getCaptureTimes();
+          var offset = captureTimes.indexOf("2000");
+          var fps = timelapse.getFps();
+          if (offset > -1) {
+            var currentTime = Math.max(0,timelapse.getCurrentTime() - offset/fps);
+            ratio = currentTime / ((captureTimes.length - offset - 1)/fps);
+            ratio = Math.min(1, currentTime);
+          }
+          animatedHansenLayerView.alpha = ratio;
+
+          animatedHansenLayer.draw(animatedHansenLayerView);
+        }
+
 
         // Draw wdpaLayer
         if (showWdpaLayer)
