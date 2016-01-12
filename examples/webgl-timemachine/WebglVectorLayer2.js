@@ -10,6 +10,7 @@ function WebglVectorLayer2(glb, canvasLayer, tileUrl, opt_options) {
   this._tileHeight = 256;
 
 
+
   if (opt_options) {
     this.setOptions(opt_options);
   }
@@ -45,6 +46,22 @@ WebglVectorLayer2.prototype.setOptions = function(options) {
     this.setTileHeight(options.tileHeight);
   }
 
+  if (options.setDataFunction != undefined) {
+    this._setDataFunction = options.setDataFunction;
+  }
+
+  if (options.drawFunction != undefined) {
+    this._drawFunction = options.drawFunction;
+  }
+
+  if (options.fragmentShader != undefined) {
+    this._fragmentShader = options.fragmentShader;
+  }
+
+  if (options.vertexShader != undefined) {
+    this._vertexShader = options.vertexShader;
+  }
+
 }
 
 
@@ -70,7 +87,21 @@ WebglVectorLayer2.prototype.getHeight = function() {
 
 WebglVectorLayer2.prototype._createTile = function(ti, bounds) {
   var url = this._tileUrl + '/' + ti.l + '/' + (ti.c) + '/' + (ti.r) + '.bin';
-  return new WebGLVectorTile2(glb, ti, bounds, url);
+  var opt_options = {}
+  if (this._setDataFunction) {
+    opt_options.setDataFunction = this._setDataFunction;
+  }
+  if (this._drawFunction) {
+    opt_options.drawFunction = this._drawFunction;
+  }
+  if (this._fragmentShader) {
+    opt_options.fragmentShader = this._fragmentShader;
+  }
+  if (this._vertexShader) {
+    opt_options.vertexShader = this._vertexShader;
+  }
+
+  return new WebGLVectorTile2(glb, ti, bounds, url, opt_options);
 }
 
 WebglVectorLayer2.prototype.destroy = function() {
@@ -83,7 +114,13 @@ WebglVectorLayer2.prototype.draw = function(view) {
   var timelapse = this._canvasLayer.timelapse;
   var width = this._canvasLayer.canvas.width / this._canvasLayer.resolutionScale_;
   var height = this._canvasLayer.canvas.height / this._canvasLayer.resolutionScale_;
-
+  var options = {};
+  if (view.zoom) {
+    options.zoom = view.zoom;
+  }
+  if (view.currentTime) {
+    options.currentTime = view.currentTime;
+  }
   var transform = new Float32Array([2/width,0,0,0, 0,-2/height,0,0, 0,0,0,0, -1,1,0,1]);
   translateMatrix(transform, width*0.5, height*0.5);
   scaleMatrix(transform, view.scale, view.scale);
@@ -91,5 +128,5 @@ WebglVectorLayer2.prototype.draw = function(view) {
 
   // TODO: Refactor how tile views are initialized and drawn
   this._tileView.setView(view, width, height, this._canvasLayer.resolutionScale_);
-  this._tileView.update(transform);
+  this._tileView.update(transform, options);
 }
