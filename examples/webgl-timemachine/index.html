@@ -32,7 +32,7 @@
     <script src="../../timemachine/template_includes.js" type="text/javascript"></script>
     <script src="../../timemachine/js/leaflet/leaflet.min.js" type="text/javascript" ></script>
     <script src="../../js/customVideoTagControls/customVideoTagControls.js" type="text/javascript"></script>
-    <script src="landsat_ajax_includes2.js" type="text/javascript"></script>
+    <script src="../../../data/earthtime-annual-2015-v2/ajax_includes.js" type="text/javascript"></script>
     <script src="../../../../config.js" type="text/javascript"></script>
     <script src="waypoint-text.js" type="text/javascript"></script>
 
@@ -516,8 +516,8 @@
       var viirsUrl = '../../../data/viirs/createlab-viirs-uncorrected-20140314-20150403.bin';
       var coralBleachingUrl = "../../../data/coral/bleaching_reports_4km_81-10.bin";
 
-      var usgsWindTurbineUrl = "usgs-windturbine";
-      var solarInstallsUrl = "solar-installs";
+      var usgsWindTurbineUrl = "../../../data/energy/wind-installs-usgs";
+      var solarInstallsUrl = "../../../data/energy/solar-installs";
 
       var animatedHansenUrls = [gfcTransUrl, gfcLossGainUrl];
 
@@ -707,11 +707,11 @@
           } else {
             showViirsLayer = false;
             timelapse.setPlaybackRate(defaultPlaybackSpeed);
-            if ($("#show-additional-landsat").prop('checked')) {
+            //if ($("#show-additional-landsat").prop('checked')) {
               timelapse.loadNewTimeline("landsat-times-long.json","customUI");
-            } else {
-              timelapse.loadNewTimeline("landsat-times.json","customUI");
-            }
+            //} else {
+            //  timelapse.loadNewTimeline("landsat-times.json","customUI");
+            //}
             timelapse.setDoDwell(true);
             $("#show-additional-landsat").prop("disabled", false);
           }
@@ -741,11 +741,11 @@
           } else {
             showCrwTimemachineLayer = false;
             showMcrmLayer = false;
-            if ($("#show-additional-landsat").prop('checked')) {
+            //if ($("#show-additional-landsat").prop('checked')) {
               timelapse.loadNewTimeline("landsat-times-long.json","customUI");
-            } else {
-              timelapse.loadNewTimeline("landsat-times.json","customUI");
-            }
+            //} else {
+            //  timelapse.loadNewTimeline("landsat-times.json","customUI");
+            //}
             timelapse.setDoDwell(true);
             WebglVideoTile.useGreenScreen = false;
             var v = timelapse.getVideoset()
@@ -780,11 +780,11 @@
         }).prop('checked', showCoralBleachingLayer);
 
         $("#show-additional-landsat").on("click", function() {
-          if ($(this).prop('checked')) {
+          //if ($(this).prop('checked')) {
             timelapse.loadNewTimeline("landsat-times-long.json","customUI");
-          } else {
-            timelapse.loadNewTimeline("landsat-times.json","customUI");
-          }
+          //} else {
+          //  timelapse.loadNewTimeline("landsat-times.json","customUI");
+          //}
         });
 
         // Set the starting base layer
@@ -1060,7 +1060,7 @@
         // Time Machine layer
         var defaultTimeMachineLayerOptions = {
           mediaType: ".mp4",
-          numFrames: 29,
+          numFrames: 32,
           fps: 10
         };
 
