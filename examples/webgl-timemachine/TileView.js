@@ -43,7 +43,7 @@ function TileView(settings) {
   this.levelThreshold = -0.5;
 
   // Compute max level #
-  for (this._maxLevel = 1;
+  for (this._maxLevel = 0;
        (this._tileWidth << this._maxLevel) < this._panoWidth ||
        (this._tileHeight << this._maxLevel) < this._panoHeight;
        this._maxLevel++) {
@@ -414,6 +414,7 @@ setViewFromLatLng = function(view, bounds, viewportWidth, viewportHeight, scale)
 // so that high-res can cover low-res, for opaque tiles.
 TileView.prototype.
 update = function(transform, options) {
+
   var keys = Object.keys(this._tiles).sort();
   var tiles = [];
   for (var i = 0; i < keys.length; i++) {
