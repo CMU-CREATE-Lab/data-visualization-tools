@@ -464,7 +464,7 @@
 
       var landsatBaseMapLayer, timelapse, darkBaseMapLayer, lightBaseMapLayer, wdpaVectorLayer, mcrmVectorLayer, hansonMapLayer, hansonMapLayer2, viirsTile, coralBleachingTile, lightsAtNightMapLayer, crwTimemachineLayer, animatedHansenLayer;
 
-      var usgsWindTurbineLayer;
+      var usgsWindTurbineLayer, solarInstallsLayer;
 
       //// Config ////
       var EARTH_TIMELAPSE_CONFIG = EARTH_TIMELAPSE_CONFIG || {};
@@ -517,6 +517,7 @@
       var coralBleachingUrl = "../../../data/coral/bleaching_reports_4km_81-10.bin";
 
       var usgsWindTurbineUrl = "usgs-windturbine";
+      var solarInstallsUrl = "solar-installs";
 
       var animatedHansenUrls = [gfcTransUrl, gfcLossGainUrl];
 
@@ -761,6 +762,14 @@
           }
         }).prop('checked', showUsgsWindTurbineLayer);
 
+        $("#show-solar-installs").on("click", function() {
+          if ($(this).prop('checked')) {
+            showSolarInstallsLayer = true;
+          } else {
+            showSolarInstallsLayer = false;
+          }
+        }).prop('checked', showSolarInstallsLayer);
+
 
         $("#show-lights-at-night").on("click", function() {
           if ($(this).prop('checked')) {
@@ -898,6 +907,7 @@
       var showAnimatedHansenLayer = false;
 
       var showUsgsWindTurbineLayer = false;
+      var showSolarInstallsLayer = false;
 
       var tileViewVisibility = {
         videoTile: true,
@@ -967,6 +977,7 @@
 
         var show_usgs_windturbine = '<td><label for="show-usgs-windturbine"><input type="checkbox" id="show-usgs-windturbine" value="8"/>Wind Power<span class="credit"> (USGS)</span></label></td>';
 
+        var show_solar_installs = '<td><label for="show-solar-installs"><input type="checkbox" id="show-solar-installs" value="8"/>Solar PV Installs<span class="credit"> (NREL)</span></label></td>';
 
         //var show_additional_landsat = '<td><label for="show-additional-landsat"><input type="checkbox" id="show-additional-landsat" value="7"/>+3Y</label></td>';
 
@@ -1005,6 +1016,9 @@
           layer_html += '   <tr>';
           layer_html += '   <tr>';
           layer_html += show_usgs_windturbine;
+          layer_html += '   <tr>';
+          layer_html += '   <tr>';
+          layer_html += show_solar_installs;
           layer_html += '   <tr>';
 
         }
@@ -1124,6 +1138,17 @@
         };
         usgsWindTurbineLayer  = new WebglVectorLayer2(glb, canvasLayer, usgsWindTurbineUrl, usgsWindturbineLayerOptions);
 
+        var solarInstallsLayerOptions = {
+          tileWidth: 256,
+          tileHeight: 256,
+          nLevels: 0,
+          setDataFunction: WebGLVectorTile2.prototype._setUsgsWindTurbineData,
+          drawFunction: WebGLVectorTile2.prototype._drawPoints,
+          fragmentShader: WebGLVectorTile2.vectorPointTileFragmentShader,
+          vertexShader: WebGLVectorTile2.vectorPointTileVertexShader
+        };
+        solarInstallsLayer  = new WebglVectorLayer2(glb, canvasLayer, solarInstallsUrl, solarInstallsLayerOptions);
+
         // Layer Toggle UI
         initLayerToggleUI();
 
@@ -1197,6 +1222,7 @@
             var $coralBleachingAlertsLayerToggle = $("#show-coral-bleaching-alerts");
 
             var $usgsWindTurbineLayerToggle = $("#show-usgs-windturbine");
+            var $solarInstallsLayerToggle = $("#show-solar-installs");
 
 
             // Clear out layers if they were already checked
@@ -1615,6 +1641,22 @@
           var currentDate = ratio*range + new Date(times[0]).getTime();
           usgsWindTurbineLayerView.currentTime = currentDate;
           usgsWindTurbineLayer.draw(usgsWindTurbineLayerView);
+
+        }
+
+        if (showSolarInstallsLayer) {
+          var solarInstallsLayerView = timelapse.getView();
+          var timelapse2map = usgsWindTurbineLayer.getWidth() / landsatBaseMapLayer.getWidth();
+          solarInstallsLayerView.x *= timelapse2map;
+          solarInstallsLayerView.y *= timelapse2map;
+          solarInstallsLayerView.scale /= timelapse2map;
+          solarInstallsLayerView.zoom = timelapse.getCurrentZoom();
+          var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
+          var times = timelapse.getCaptureTimes();
+          var range = new Date(times[times.length - 1]).getTime() - new Date(times[0]).getTime();
+          var currentDate = ratio*range + new Date(times[0]).getTime();
+          solarInstallsLayerView.currentTime = currentDate;
+          solarInstallsLayer.draw(solarInstallsLayerView);
 
         }
 
