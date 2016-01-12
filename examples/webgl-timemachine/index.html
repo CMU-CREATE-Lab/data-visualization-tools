@@ -464,6 +464,8 @@
 
       var landsatBaseMapLayer, timelapse, darkBaseMapLayer, lightBaseMapLayer, wdpaVectorLayer, mcrmVectorLayer, hansonMapLayer, hansonMapLayer2, viirsTile, coralBleachingTile, lightsAtNightMapLayer, crwTimemachineLayer, animatedHansenLayer;
 
+      var usgsWindTurbineLayer;
+
       //// Config ////
       var EARTH_TIMELAPSE_CONFIG = EARTH_TIMELAPSE_CONFIG || {};
 
@@ -513,6 +515,8 @@
       var mcrmUrl = "../../../data/coral/mcrm-lines-wrapdateline";
       var viirsUrl = '../../../data/viirs/createlab-viirs-uncorrected-20140314-20150403.bin';
       var coralBleachingUrl = "../../../data/coral/bleaching_reports_4km_81-10.bin";
+
+      var usgsWindTurbineUrl = "usgs-windturbine";
 
       var animatedHansenUrls = [gfcTransUrl, gfcLossGainUrl];
 
@@ -749,6 +753,15 @@
           }
         }).prop('checked', showCrwTimemachineLayer);
 
+        $("#show-usgs-windturbine").on("click", function() {
+          if ($(this).prop('checked')) {
+            showUsgsWindTurbineLayer = true;
+          } else {
+            showUsgsWindTurbineLayer = false;
+          }
+        }).prop('checked', showUsgsWindTurbineLayer);
+
+
         $("#show-lights-at-night").on("click", function() {
           if ($(this).prop('checked')) {
             showLightsAtNightLayer = true;
@@ -884,6 +897,8 @@
       var showCrwTimemachineLayer = false;
       var showAnimatedHansenLayer = false;
 
+      var showUsgsWindTurbineLayer = false;
+
       var tileViewVisibility = {
         videoTile: true,
         vectorTile: false
@@ -950,6 +965,9 @@
         var show_coral = '<td><label for="show-coral"><input type="checkbox" id="show-coral" value="6"/>Coral Bleaching<span class="credit"> (NOAA, UNEP-WCMC)</span></label></td>';
         var show_coral_bleaching_alerts = '<td><label for="show-coral-bleaching-alerts"><input type="checkbox" id="show-coral-bleaching-alerts" value="8"/>Bleaching Alerts<span class="credit"> (NOAA, UNEP-WCMC)</span></label></td>';
 
+        var show_usgs_windturbine = '<td><label for="show-usgs-windturbine"><input type="checkbox" id="show-usgs-windturbine" value="8"/>Wind Power<span class="credit"> (USGS)</span></label></td>';
+
+
         //var show_additional_landsat = '<td><label for="show-additional-landsat"><input type="checkbox" id="show-additional-landsat" value="7"/>+3Y</label></td>';
 
         layer_html += '<div class="map-layer-div">';
@@ -984,6 +1002,9 @@
           layer_html += '   <tr>';
           layer_html += '   <tr>';
           layer_html += show_coral_bleaching_alerts;
+          layer_html += '   <tr>';
+          layer_html += '   <tr>';
+          layer_html += show_usgs_windturbine;
           layer_html += '   <tr>';
 
         }
@@ -1092,6 +1113,17 @@
         };
         animatedHansenLayer = new WebglMapLayer2(glb, canvasLayer, animatedHansenUrls, animatedHansenLayerOptions);
 
+        var usgsWindturbineLayerOptions = {
+          tileWidth: 256,
+          tileHeight: 256,
+          nLevels: 0,
+          setDataFunction: WebGLVectorTile2.prototype._setUsgsWindTurbineData,
+          drawFunction: WebGLVectorTile2.prototype._drawPoints,
+          fragmentShader: WebGLVectorTile2.vectorPointTileFragmentShader,
+          vertexShader: WebGLVectorTile2.vectorPointTileVertexShader
+        };
+        usgsWindTurbineLayer  = new WebglVectorLayer2(glb, canvasLayer, usgsWindTurbineUrl, usgsWindturbineLayerOptions);
+
         // Layer Toggle UI
         initLayerToggleUI();
 
@@ -1163,6 +1195,8 @@
             var $lightsAtNightToggle = $("#show-lights-at-night");
             // Coral Bleaching Alerts
             var $coralBleachingAlertsLayerToggle = $("#show-coral-bleaching-alerts");
+
+            var $usgsWindTurbineLayerToggle = $("#show-usgs-windturbine");
 
 
             // Clear out layers if they were already checked
@@ -1566,6 +1600,22 @@
           var currentDate = ratio*range + new Date(times[0]).getTime();
           viirsView.currentDate = currentDate;
           coralBleachingTile.draw(viirsView);
+        }
+
+        if (showUsgsWindTurbineLayer) {
+          var usgsWindTurbineLayerView = timelapse.getView();
+          var timelapse2map = usgsWindTurbineLayer.getWidth() / landsatBaseMapLayer.getWidth();
+          usgsWindTurbineLayerView.x *= timelapse2map;
+          usgsWindTurbineLayerView.y *= timelapse2map;
+          usgsWindTurbineLayerView.scale /= timelapse2map;
+          usgsWindTurbineLayerView.zoom = timelapse.getCurrentZoom();
+          var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
+          var times = timelapse.getCaptureTimes();
+          var range = new Date(times[times.length - 1]).getTime() - new Date(times[0]).getTime();
+          var currentDate = ratio*range + new Date(times[0]).getTime();
+          usgsWindTurbineLayerView.currentTime = currentDate;
+          usgsWindTurbineLayer.draw(usgsWindTurbineLayerView);
+
         }
 
         //stats.end();
