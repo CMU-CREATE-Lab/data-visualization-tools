@@ -163,6 +163,10 @@ WebGLVectorTile2.prototype._drawPoints = function(transform, options) {
     var timeLoc = gl.getUniformLocation(this.program, 'uMaxTime');
     gl.uniform1f(timeLoc, maxTime*1.);
 
+    var uColor =  [.1, .1, .5, 1.0]; 
+    var colorLoc = gl.getUniformLocation(this.program, 'uColor');
+    gl.uniform4fv(colorLoc, uColor);
+
 
     gl.drawArrays(gl.POINTS, 0, this._pointCount);
     gl.disable(gl.BLEND);
@@ -211,11 +215,10 @@ WebGLVectorTile2.vectorTileFragmentShader =
 
 WebGLVectorTile2.vectorPointTileFragmentShader =
 'precision mediump float;\n' +
-
+'uniform vec4 uColor;\n' + 
 'void main() {\n' +
-'  vec4 color = vec4(.1, .1, .5, 1.0);\n' + 
-  '  float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' + 
-  '  dist = 1. - (dist * 2.);\n' + 
-  '  dist = max(0., dist);\n' + 
-  '  gl_FragColor = color * dist;\n' + 
+'  float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' + 
+'  dist = 1. - (dist * 2.);\n' + 
+'  dist = max(0., dist);\n' + 
+'  gl_FragColor = uColor * dist;\n' + 
 '}\n';
