@@ -121,6 +121,10 @@ WebglVectorLayer2.prototype.draw = function(view) {
   if (view.currentTime) {
     options.currentTime = view.currentTime;
   }
+  if (view.color) {
+    options.color = view.color;
+  }
+
   var transform = new Float32Array([2/width,0,0,0, 0,-2/height,0,0, 0,0,0,0, -1,1,0,1]);
   translateMatrix(transform, width*0.5, height*0.5);
   scaleMatrix(transform, view.scale, view.scale);

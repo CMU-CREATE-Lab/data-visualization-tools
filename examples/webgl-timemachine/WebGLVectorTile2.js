@@ -136,6 +136,7 @@ WebGLVectorTile2.prototype._drawPoints = function(transform, options) {
     var zoom = options.zoom;
     var maxTime = options.currentTime/1000.;
     var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
+    var color = options.color || [.1, .1, .5, 1.0]; 
 
     scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
 
@@ -163,7 +164,7 @@ WebGLVectorTile2.prototype._drawPoints = function(transform, options) {
     var timeLoc = gl.getUniformLocation(this.program, 'uMaxTime');
     gl.uniform1f(timeLoc, maxTime*1.);
 
-    var uColor =  [.1, .1, .5, 1.0]; 
+    var uColor =  color;
     var colorLoc = gl.getUniformLocation(this.program, 'uColor');
     gl.uniform4fv(colorLoc, uColor);
 
