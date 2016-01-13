@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
   <head>
     <title>Earth Timelapse</title>
@@ -813,6 +813,7 @@
           appendTarget = "#content";
         }
         $("#extras-selector").selectmenu({
+          position: { at : "left top" },
           appendTo: appendTarget,
           change: function(event, ui) {
             // use click event below since this event is not registered on the touch screen.
@@ -1034,7 +1035,7 @@
         layer_html += '   <option data-file-playback-rate="2" data-type="video" data-file-name="Arctic ice age, 1987-2014.mp4">Ice Thinning 1987-2014</option>';
         layer_html += '   <option data-file-playback-rate="2" data-type="video" data-file-name="Larsen-B-Collapse.mp4">Larsen-B Collapse</option>';
         layer_html += '   <option data-file-playback-rate="4" data-type="video" data-file-name="Orbiting Carbon Observatory.mp4">Orbiting Carbon Observatory</option>';
-        layer_html += '   <option data-file-playback-rate="2" data-type="video" data-file-name="Arctic Sea Ice, September 1979 to September 2014.mp4">Annual Sea Ice Concentration 1979-2014</option>';
+        layer_html += '   <option data-file-playback-rate="2" data-type="video" data-file-name="Arctic Sea Ice, September 1979 to September 2014.mp4">Sea Ice Concentration 1979-2014</option>';
         layer_html += '   <option data-file-playback-rate="1" data-type="video" data-file-name="coral-reef-watch-daily-7day-max.mp4">Coral Reef Watch 2013-2015</option>';
         layer_html += '   <option data-file-playback-rate="0.5" data-type="video" data-file-name="merra-spi.mp4">Standardized Precipitation Index 1980-2015</option>';
         if (showEVA)
