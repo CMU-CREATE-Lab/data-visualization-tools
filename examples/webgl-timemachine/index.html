@@ -464,7 +464,7 @@
 
       var landsatBaseMapLayer, timelapse, darkBaseMapLayer, lightBaseMapLayer, wdpaVectorLayer, mcrmVectorLayer, hansonMapLayer, hansonMapLayer2, viirsTile, coralBleachingTile, lightsAtNightMapLayer, crwTimemachineLayer, animatedHansenLayer;
 
-      var usgsWindTurbineLayer, solarInstallsLayer;
+      var usgsWindTurbineLayer, solarInstallsLayer, drillingLayer;
 
       //// Config ////
       var EARTH_TIMELAPSE_CONFIG = EARTH_TIMELAPSE_CONFIG || {};
@@ -516,8 +516,10 @@
       var viirsUrl = '../../../data/viirs/createlab-viirs-uncorrected-20140314-20150403.bin';
       var coralBleachingUrl = "../../../data/coral/bleaching_reports_4km_81-10.bin";
 
-      var usgsWindTurbineUrl = "../../../data/energy/wind-installs-usgs";
-      var solarInstallsUrl = "../../../data/energy/solar-installs";
+      var usgsWindTurbineUrl = "usgs-windturbine";
+      var solarInstallsUrl = "solar-installs";
+
+      var drillingUrl = "drilling-1984";
 
       var animatedHansenUrls = [gfcTransUrl, gfcLossGainUrl];
 
@@ -770,6 +772,13 @@
           }
         }).prop('checked', showSolarInstallsLayer);
 
+        $("#show-drilling").on("click", function() {
+          if ($(this).prop('checked')) {
+            showDrillingLayer = true;
+          } else {
+            showDrillingLayer = false;
+          }
+        }).prop('checked', showDrillingLayer);
 
         $("#show-lights-at-night").on("click", function() {
           if ($(this).prop('checked')) {
@@ -909,6 +918,7 @@
 
       var showUsgsWindTurbineLayer = false;
       var showSolarInstallsLayer = false;
+      var showDrillingLayer = false;
 
       var tileViewVisibility = {
         videoTile: true,
@@ -980,6 +990,8 @@
 
         var show_solar_installs = '<td><label for="show-solar-installs"><input type="checkbox" id="show-solar-installs" value="8"/>Solar PV Installs<span class="credit"> (NREL)</span></label></td>';
 
+        var show_drilling = '<td><label for="show-drilling"><input type="checkbox" id="show-drilling" value="8"/>Drilling Permits<span class="credit"> (CREATE Lab)</span></label></td>';
+
         //var show_additional_landsat = '<td><label for="show-additional-landsat"><input type="checkbox" id="show-additional-landsat" value="7"/>+3Y</label></td>';
 
         layer_html += '<div class="map-layer-div">';
@@ -1020,6 +1032,9 @@
           layer_html += '   <tr>';
           layer_html += '   <tr>';
           layer_html += show_solar_installs;
+          layer_html += '   <tr>';
+          layer_html += '   <tr>';
+          layer_html += show_drilling;
           layer_html += '   <tr>';
 
         }
@@ -1150,6 +1165,17 @@
         };
         solarInstallsLayer  = new WebglVectorLayer2(glb, canvasLayer, solarInstallsUrl, solarInstallsLayerOptions);
 
+        var drillingLayerOptions = {
+          tileWidth: 256,
+          tileHeight: 256,
+          nLevels: 0,
+          setDataFunction: WebGLVectorTile2.prototype._setUsgsWindTurbineData,
+          drawFunction: WebGLVectorTile2.prototype._drawPoints,
+          fragmentShader: WebGLVectorTile2.vectorPointTileFragmentShader,
+          vertexShader: WebGLVectorTile2.vectorPointTileVertexShader
+        };
+        drillingLayer  = new WebglVectorLayer2(glb, canvasLayer, drillingUrl, drillingLayerOptions);
+
         // Layer Toggle UI
         initLayerToggleUI();
 
@@ -1224,6 +1250,7 @@
 
             var $usgsWindTurbineLayerToggle = $("#show-usgs-windturbine");
             var $solarInstallsLayerToggle = $("#show-solar-installs");
+            var $drillingLayerToggle = $("#show-drilling");
 
 
             // Clear out layers if they were already checked
@@ -1662,6 +1689,24 @@
           solarInstallsLayer.draw(solarInstallsLayerView);
 
         }
+
+        if (showDrillingLayer) {
+          var drillingLayerView = timelapse.getView();
+          var timelapse2map = drillingLayer.getWidth() / landsatBaseMapLayer.getWidth();
+          drillingLayerView.x *= timelapse2map;
+          drillingLayerView.y *= timelapse2map;
+          drillingLayerView.scale /= timelapse2map;
+          drillingLayerView.zoom = timelapse.getCurrentZoom();
+          var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
+          var times = timelapse.getCaptureTimes();
+          var range = new Date(times[times.length - 1]).getTime() - new Date(times[0]).getTime();
+          var currentDate = ratio*range + new Date(times[0]).getTime();
+          drillingLayerView.currentTime = currentDate;
+          drillingLayerView.color = [.82, .22, .07, 1.];
+          drillingLayer.draw(drillingLayerView);
+
+        }
+
 
         //stats.end();
       }
