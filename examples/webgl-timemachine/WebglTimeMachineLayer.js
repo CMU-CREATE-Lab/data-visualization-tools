@@ -72,6 +72,9 @@ WebglTimeMachineLayer.prototype.draw = function(view, tileViewVisibility) {
       // Not moving to waypoint;  increase level of detail
       this._tileView.levelThreshold = 0;   // maybe try -0.25 or 0//
     }
+    if (EARTH_TIMELAPSE_CONFIG.davosScreen) {
+      this._tileView.levelThreshold += 0.75;
+    }
     this._tileView.setView(view, width, height, this._canvasLayer.resolutionScale_);
     this._tileView.update(transform);
   }
