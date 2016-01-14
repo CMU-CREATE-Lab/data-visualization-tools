@@ -115,7 +115,7 @@ WebglVectorLayer2.prototype.draw = function(view) {
   var width = this._canvasLayer.canvas.width / this._canvasLayer.resolutionScale_;
   var height = this._canvasLayer.canvas.height / this._canvasLayer.resolutionScale_;
   var options = {};
-  if (view.zoom) {
+  if (typeof(view.zoom) != "undefined" ) {
     options.zoom = view.zoom;
   }
   if (view.currentTime) {
