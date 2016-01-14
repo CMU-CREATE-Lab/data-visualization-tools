@@ -173,7 +173,6 @@ WebGLVectorTile2.prototype._drawPoints = function(transform, options) {
 
 
     gl.drawArrays(gl.POINTS, 0, this._pointCount);
-q
     gl.disable(gl.BLEND);
   }
 }
