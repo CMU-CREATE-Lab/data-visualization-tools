@@ -144,8 +144,11 @@ WebGLVectorTile2.prototype._drawPoints = function(transform, options) {
     scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
     pointSize *= Math.floor((zoom + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+    // Passing a NaN value to the shader with a large number of points is very bad
+    if (isNaN(pointSize)) {
+      pointSize = 1.0;
+    }
 
-  
     var matrixLoc = gl.getUniformLocation(this.program, 'mapMatrix');
     gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
 
@@ -170,6 +173,7 @@ WebGLVectorTile2.prototype._drawPoints = function(transform, options) {
 
 
     gl.drawArrays(gl.POINTS, 0, this._pointCount);
+q
     gl.disable(gl.BLEND);
   }
 }
