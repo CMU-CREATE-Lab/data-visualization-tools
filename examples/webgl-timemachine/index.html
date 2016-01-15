@@ -208,7 +208,7 @@
         position: relative;
         width: 17px;
         height: 17px;
-        top: 1px;
+        top: 4px;
         margin-right: 6px;
         margin-left: 0;
         margin-top: 0;
@@ -221,7 +221,7 @@
         color: black;
         display: block;
         margin-right: 0;
-        margin-top: -3px;
+        margin-top: -10px;
         margin-left: -3px;
         margin-bottom: 0;
         padding-top: 15px;
@@ -237,10 +237,9 @@
         color: #A1A1A1;
       }
       .map-layer-div.letterbox {
-        width: 670px;
         height: 152px;
         position: absolute;
-        right: 0px;
+        right: 103px;
         bottom: auto;
         top: 0px;
       }
@@ -253,23 +252,23 @@
         width: 342px;
         height: 152px;
         position: absolute;
-        left: 345px;
+        left: 272px;
         bottom: auto;
         top: 0px;
       }
       .base-map-radio.letterbox {
         position: relative;
         top: 7px;
-        left: 4px;
+        left: -11px;
       }
       .extras-selector-div {
         padding: 10px;
       }
       .extras-selector-div.letterbox {
         position: absolute;
-        left: 0px;
+        left: -2px;
         top: 78px;
-        width: 342px;
+        width: 220px;
         height: 74px;
         padding: 0;
       }
@@ -277,7 +276,7 @@
         position: relative;
         top: 14px;
         left: 20px;
-        width: 300px !important;
+        width: 220px !important;
         outline: none;
       }
       #location_search {
@@ -301,9 +300,9 @@
         z-index: 100;
       }
       .location_search_div.letterbox {
-        width: 342px;
+        width: 200px;
         position: absolute;
-        left: 0px;
+        left: -2px;
         bottom: auto;
         top: 0px;
         height: 74px;
@@ -312,7 +311,7 @@
         position: relative;
         top: 32px;
         left: 23px;
-        width: 280px;
+        width: 200px;
         margin: 0;
         padding-bottom: 7px;
         padding-top: 7px;
@@ -461,8 +460,9 @@
         position: absolute;
         top: 82px;
         left: 91px;
-        width: 260px;
+        width: auto;
         padding: 4px;
+        padding-right: 14px;
         background: white;
         border-radius: 2px;
         border: 1px solid #656565;
@@ -478,9 +478,109 @@
         user-select: none;
         white-space: nowrap;
       }
+      .vector-legend.letterbox {
+        top: 176px;
+      }
       .legend-entry-title {
         font-size: 17px;
       }
+      .waterLegendGradient {
+        height: 10px;
+        background-image: -webkit-linear-gradient(left, blue, #bf7fbf 50%, #ffffff 100%);
+        background-image: -o-linear-gradient(left, blue, #bf7fbf 50%, #ffffff 100%);
+        background-image: -moz-linear-gradient(left, blue, #bf7fbf 50%, #ffffff 100%);
+        background-image: -ms-linear-gradient(left, blue, #bf7fbf 50%, #ffffff 100%);
+        background-image: linear-gradient(left, blue, #bf7fbf 50%, #ffffff 100%);
+      }
+      .waterChangeLegendGradient {
+        height: 10px;
+        background-image: -webkit-linear-gradient(left, #ff0000 0%, #000000 50%, #00ff00 100%);
+        background-image: -o-linear-gradient(left, #ff0000 0%, #000000 50%, #00ff00 100%);
+        background-image: -moz-linear-gradient(left, #ff0000 0%, #000000 50%, #00ff00 100%);
+        background-image: -ms-linear-gradient(left, #ff0000 0%, #000000 50%, #00ff00 100%);
+        background-image: linear-gradient(left, #ff0000 0%, #000000 50%, #00ff00 100%);
+      }
+      .landsat-select.letterbox .credit {
+        position: absolute !important;
+        left: 40px;
+        margin-top: 29px;
+      }
+      .wdpa-select.letterbox .credit {
+        position: absolute;
+        left:269px;
+        margin-top: 73px;
+      }
+      .forest-change-select.letterbox .credit {
+        position: absolute;
+        left: 40px;
+        margin-top: 29px;
+      }
+      .viirs-select.letterbox .credit {
+        position: absolute;
+        left: 480px;
+        margin-top: 29px;
+      }
+      .forest-loss-gain-select.letterbox .credit {
+        position: absolute;
+        left: 40px;
+        margin-top: 73px;
+      }
+      .animated-forest-loss-select.letterbox .credit {
+        position: absolute;
+        left:40px;
+        margin-top: 117px;
+      }
+      .forest-alerts-select.letterbox .credit {
+        position: absolute;
+        left: 269px;
+        margin-top: 29px;
+      }
+      .lights-at-night-select.letterbox .credit {
+        position: absolute;
+        left: 269px;
+        margin-top: 117px;
+      }
+      .coral-select.letterbox .credit {
+        position: absolute;
+        left: 691px;
+        margin-top: 29px;
+      }
+      .coral-bleaching-select.letterbox .credit {
+        position: absolute;
+        left: 691px;
+        margin-top: 73px;
+      }
+      .wind-select.letterbox .credit {
+        position: absolute;
+        left: 936px;
+        margin-top: 29px;
+      }
+      .solar-select.letterbox .credit {
+        position: absolute;
+        left: 691px;
+        margin-top: 117px;
+      }
+      .drilling-select.letterbox .credit {
+        position: absolute;
+        left: 936px;
+        margin-top: 73px;
+      }
+      .himawari-select.letterbox .credit {
+        position: absolute;
+        left: 936px;
+        margin-top: 117px;
+      }
+      .water-occurrence-select.letterbox .credit {
+        position: absolute;
+        left: 480px;
+        margin-top: 73px;
+      }
+      .water-change-select.letterbox .credit {
+        position: absolute;
+        left: 480px;
+        margin-top: 117px;
+      }
+
     </style>
     <script type="text/javascript">
       "use strict";
@@ -592,7 +692,7 @@
           }
         };
 
-        if(enableLetterboxMode) {
+        if (enableLetterboxMode) {
           $("#timeMachine").addClass("letterbox");
           $("#letterbox-middle").replaceWith($("#timeMachine"));
         } else {
@@ -680,6 +780,28 @@
       }
 
       function initLayerToggleUI() {
+        $("#show-water-occurrence").on("click", function() {
+          var $this = $(this);
+          if ($this.is(':checked')) {
+            showWaterOccurrenceLayer = true;
+            $("#water-occurrence-legend").show();
+          } else {
+            showWaterOccurrenceLayer = false;
+            $("#water-occurrence-legend").hide();
+          }
+        }).prop('checked', showWaterOccurrenceLayer);
+
+        $("#show-water-change").on("click", function() {
+          var $this = $(this);
+          if ($this.is(':checked')) {
+            showWaterChangeLayer = true;
+            $("#water-change-legend").show();
+          } else {
+            showWaterChangeLayer = false;
+            $("#water-change-legend").hide();
+          }
+        }).prop('checked', showWaterChangeLayer);
+
         $("#show-wdpa").on("click", function() {
           var $this = $(this);
           if ($this.is(':checked')) {
@@ -1017,6 +1139,8 @@
       var showAnimatedHansenLayer = false;
       var showHimawariTimeMachineLayer = false;
       var showForestAlarmsMachineLayer = false;
+      var showWaterOccurrenceLayer = false;
+      var showWaterChangeLayer = false;
 
       var showUsgsWindTurbineLayer = false;
       var showSolarInstallsLayer = false;
@@ -1046,104 +1170,126 @@
 
         layer_html += '<div class="vector-layers">';
 
-        var landsat_base_str = '<label for="landsat-base"><input type="radio" id="landsat-base" name="base-layers" value="landsat"/>Earth Engine Timelapse<span class="credit"> (Google)</span></label>';
+        var landsat_base_str = '<label class="landsat-select" for="landsat-base"><input type="radio" id="landsat-base" name="base-layers" value="landsat"/>Earth Engine Timelapse<span class="credit"> (Google)</span></label>';
         var landsat_base_letterbox = '<td>' + landsat_base_str + '</td>';
         var landsat_base = '<td colspan="2">' + landsat_base_str + '</td>';
         var light_base = '<td><label for="light-base"><input type="radio" id="light-base" name="base-layers" value="light"/><span>Light Map</span></label></td>';
         var dark_base = '<td><label for="dark-base"><input type="radio" id="dark-base" name="base-layers" value="dark"/><span>Dark Map</span></label></td>';
 
-        layer_html += '<div class="base-map-div">';
-        layer_html += ' <table class="base-map-radio" cellspacing="0">';
-        layer_html += '   <tr>';
-        if(enableLetterboxMode) {
-          layer_html += landsat_base_letterbox;
-        } else {
-          layer_html += landsat_base;
-        }
-        layer_html += '   </tr>';
-        if(enableLetterboxMode) {
-          layer_html += '   <tr>';
-          layer_html += light_base;
-          layer_html += '   </tr>';
-          layer_html += '   <tr>';
-          layer_html += dark_base;
-          layer_html += '   </tr>';
-        } else {
-          layer_html += '   <tr>';
-          layer_html += light_base;
-          layer_html += dark_base;
-          layer_html += '   </tr>';
-        }
-        layer_html += ' </table>';
-        layer_html += '</div>';
 
 
         // TODO -- What's up with the magic numbers in the input values?
-        var show_wdpa = '<td><label for="show-wdpa"><input type="checkbox" id="show-wdpa" value="1"/>Protected Areas<span class="credit"> (UNEP-WCMC)</span></label></td>';
-        var show_forest_change = '<td><label for="show-forest-change"><input type="checkbox" id="show-forest-change" value="2"/>Forest Loss by Year<span class="credit"> (Hansen et al)</span></label></td>';
-        var show_viirs = '<td><label for="show-viirs"><input type="checkbox" id="show-viirs" value="3"/>Fires at Night<span class="credit"> (NOAA)</span></label></td>';
-        var show_forest_loss_gain = '<td><label for="show-forest-loss-gain"><input type="checkbox" id="show-forest-loss-gain" value="4"/>Forest Loss/Gain<span class="credit"> (Hansen et al)</span></label></td>';
-        var show_animated_forest_loss_gain = '<td><label for="show-animated-forest-loss-gain"><input type="checkbox" id="show-animated-forest-loss-gain" value="5"/>Animated Loss/Gain<span class="credit"> (Hansen et al)</span></label></td>';
-        var show_lights_at_night = '<td><label for="show-lights-at-night"><input type="checkbox" id="show-lights-at-night" value="6"/>Lights at Night<span class="credit"> (NOAA, Google)</span></label></td>';
-        var show_coral = '<td><label for="show-coral"><input type="checkbox" id="show-coral" value="7"/>Coral Bleaching<span class="credit"> (NOAA, UNEP-WCMC)</span></label></td>';
-        var show_coral_bleaching_alerts = '<td><label for="show-coral-bleaching-alerts"><input type="checkbox" id="show-coral-bleaching-alerts" value="8"/>Coral Bleaching Alerts<span class="credit"> (NOAA, UNEP-WCMC)</span></label></td>';
-        var show_usgs_windturbine = '<td><label for="show-usgs-windturbine"><input type="checkbox" id="show-usgs-windturbine" value="8"/>Wind Power<span class="credit"> (USGS)</span></label></td>';
-        var show_solar_installs = '<td><label for="show-solar-installs"><input type="checkbox" id="show-solar-installs" value="8"/>Solar PV Installs<span class="credit"> (NREL)</span></label></td>';
-        var show_drilling = '<td><label for="show-drilling"><input type="checkbox" id="show-drilling" value="8"/>Oil/Gas Drilling<span class="credit"> (CREATE Lab)</span></label></td>';
-        var show_himawari = '<td><label for="show-himawari"><input type="checkbox" id="show-himawari" value="11"/>Himawari-8<span class="credit"> (JMA)</span></label></td>';
-        var show_forest_alerts = '<td><label for="show-forest-alarms"><input type="checkbox" id="show-forest-alarms" value="12"/>Forest Loss Alerts<span class="credit"> (Hansen et al)</span></label></td>';
+        var show_wdpa = '<td class="wdpa-select"><label for="show-wdpa"><input type="checkbox" id="show-wdpa" value="1"/>Protected Areas<span class="credit"> (UNEP-WCMC)</span></label></td>';
+        var show_forest_change = '<td class="forest-change-select"><label for="show-forest-change"><input type="checkbox" id="show-forest-change" value="2"/>Forest Loss by Year<span class="credit"> (Hansen et al)</span></label></td>';
+        var show_viirs = '<td class="viirs-select"><label for="show-viirs"><input type="checkbox" id="show-viirs" value="3"/>Fires at Night<span class="credit"> (NOAA)</span></label></td>';
+        var show_forest_loss_gain = '<td class="forest-loss-gain-select"><label for="show-forest-loss-gain"><input type="checkbox" id="show-forest-loss-gain" value="4"/>Forest Loss/Gain<span class="credit"> (Hansen et al)</span></label></td>';
+        var show_animated_forest_loss_gain = '<td class="animated-forest-loss-select"><label for="show-animated-forest-loss-gain"><input type="checkbox" id="show-animated-forest-loss-gain" value="5" />Animated Loss/Gain<span class="credit"> (Hansen et al)</span></label></td>';
+        var show_forest_alerts = '<td class="forest-alerts-select"><label for="show-forest-alarms"><input type="checkbox" id="show-forest-alarms" value="13"/>Forest Loss Alerts<span class="credit"> (Hansen et al)</span></label></td>';
+        var show_lights_at_night = '<td class="lights-at-night-select"><label for="show-lights-at-night"><input type="checkbox" id="show-lights-at-night" value="6"/>Lights at Night<span class="credit"> (NOAA, Google)</span></label></td>';
+        var show_coral = '<td class="coral-select"><label for="show-coral"><input type="checkbox" id="show-coral" value="7"/>Coral Bleaching<span class="credit"> (NOAA, UNEP-WCMC)</span></label></td>';
+        var show_coral_bleaching_alerts = '<td class="coral-bleaching-select"><label for="show-coral-bleaching-alerts"><input type="checkbox" id="show-coral-bleaching-alerts" value="8"/>Coral Bleaching Alerts<span class="credit"> (NOAA, UNEP-WCMC)</span></label></td>';
+        var show_usgs_windturbine = '<td class="wind-select"><label for="show-usgs-windturbine"><input type="checkbox" id="show-usgs-windturbine" value="9"/>Wind Power<span class="credit" style=""> (USGS)</span></label></td>';
+        var show_solar_installs = '<td class="solar-select"> <label for="show-solar-installs"><input type="checkbox" id="show-solar-installs" value="10"/>Solar PV Installs<span class="credit"> (NREL)</span></label></td>';
+        var show_drilling = '<td class="drilling-select"><label for="show-drilling"><input type="checkbox" id="show-drilling" value="11"/>Oil/Gas Drilling<span class="credit"> (CREATE Lab)</span></label></td>';
+        var show_himawari = '<td class="himawari-select"><label for="show-himawari"><input type="checkbox" id="show-himawari" value="12"/>Himawari-8<span class="credit"> (JMA)</span></label></td>';
+        var show_water_occurrence = '<td class="water-occurrence-select"><label for="show-water-occurrence"><input type="checkbox" id="show-water-occurrence" value="14"/>Water Occurrence<span class="credit"> (JRC)</span></label></td>';
+        var show_water_change = '<td class="water-change-select"><label for="show-water-change"><input type="checkbox" id="show-water-change" value="15"/>Water Change<span class="credit"> (JRC)</span></label></td>';
 
-        layer_html += '<div class="map-layer-div">';
-        layer_html += ' <table class="map-layer-checkbox" cellspacing="0">';
-        layer_html += '   <tr>';
-        layer_html += show_wdpa;
-        if(enableLetterboxMode)
+        if (enableLetterboxMode) {
+          layer_html += '<div class="base-map-div">';
+          layer_html += ' <table class="base-map-radio" cellspacing="3">';
+          layer_html += '   <tr>';
+          layer_html += landsat_base;
+          layer_html += '   </tr>';
+          layer_html += '   <tr>';
+          layer_html += light_base;
+          layer_html += '   </tr>';
+          layer_html += '   <tr>';
+          layer_html += dark_base;
+          layer_html += '   </tr>';
+          layer_html += ' </table>';
+          layer_html += '</div>';
+          layer_html += '<div class="map-layer-div">';
+          layer_html += ' <table class="map-layer-checkbox" cellspacing="3">';
+          layer_html += '   <tr>';
+          layer_html += show_forest_change;
+          layer_html += show_forest_alerts;
           layer_html += show_viirs;
-        layer_html += '   </tr>';
-        layer_html += '   <tr>';
-        layer_html += show_forest_change;
-        if(enableLetterboxMode)
-          layer_html += show_lights_at_night;
-        layer_html += '   </tr>';
-        layer_html += '   <tr>';
-        layer_html += show_forest_loss_gain;
-        layer_html += '   </tr>';
-        layer_html += '   <tr>';
-        layer_html += show_animated_forest_loss_gain;
-        layer_html += '   </tr>';
-        layer_html += '   <tr>';
-        layer_html += show_forest_alerts;
-        layer_html += '   </tr>';
-        if(enableLetterboxMode)
           layer_html += show_coral;
-        layer_html += '   </tr>';
-        if(!enableLetterboxMode) {
+          layer_html += show_usgs_windturbine;
+          layer_html += '   </tr>';
+          layer_html += '   <tr>';
+          layer_html += show_forest_loss_gain;
+          layer_html += show_wdpa;
+          layer_html += show_water_occurrence;
+          layer_html += show_coral_bleaching_alerts;
+          layer_html += show_drilling;
+
+          layer_html += '   </tr>';
+          layer_html += '   <tr>';
+          layer_html += show_animated_forest_loss_gain;
+          layer_html += show_lights_at_night;
+          layer_html += show_water_change;
+          layer_html += show_solar_installs;
+          layer_html += show_himawari;
+
+          layer_html += '   </tr>';
+          layer_html += ' </table>';
+          layer_html += '</div>';
+        } else {
+          layer_html += '<div class="base-map-div">';
+          layer_html += ' <table class="base-map-radio" cellspacing="0">';
+          layer_html += '   <tr>';
+          layer_html += landsat_base;
+          layer_html += '   </tr>';
+          layer_html += '   <tr>';
+          layer_html += light_base;
+          layer_html += dark_base;
+          layer_html += '   </tr>';
+          layer_html += ' </table>';
+          layer_html += '</div>';
+          layer_html += '<div class="map-layer-div">';
+          layer_html += ' <table class="map-layer-checkbox" cellspacing="0">';
+          layer_html += '   <tr>';
+          layer_html += show_wdpa;
+          layer_html += '   </tr>';
+          layer_html += '   <tr>';
+          layer_html += show_forest_change;
+          layer_html += '   </tr>';
+          layer_html += '   <tr>';
+          layer_html += show_forest_loss_gain;
+          layer_html += '   </tr>';
+          layer_html += '   <tr>';
+          layer_html += show_animated_forest_loss_gain;
+          layer_html += '   </tr>';
+          /*layer_html += '   <tr>';
+          layer_html += show_forest_alerts;
+          layer_html += '   </tr>';*/
           layer_html += '   <tr>';
           layer_html += show_viirs;
-          layer_html += '   <tr>';
-          layer_html += '   <tr>';
+          layer_html += '   </tr>';
           layer_html += show_lights_at_night;
           layer_html += '   <tr>';
-          layer_html += '   <tr>';
           layer_html += show_coral;
-          layer_html += '   <tr>';
+          layer_html += '   </tr>';
           layer_html += '   <tr>';
           layer_html += show_coral_bleaching_alerts;
-          layer_html += '   <tr>';
+          layer_html += '   </tr>';
           layer_html += '   <tr>';
           layer_html += show_usgs_windturbine;
-          layer_html += '   <tr>';
+          layer_html += '   </tr>';
           layer_html += '   <tr>';
           layer_html += show_solar_installs;
-          layer_html += '   <tr>';
-          layer_html += '   <tr>';
+          layer_html += '   </tr>';
+          /*layer_html += '   <tr>';
           layer_html += show_drilling;
-          layer_html += '   <tr>';
+          layer_html += '   </tr>';*/
           layer_html += '   <tr>';
           layer_html += show_himawari;
+          layer_html += '   </tr>';
+          layer_html += ' </table>';
+          layer_html += '</div>';
         }
-        layer_html += ' </table>';
-        layer_html += '</div>';
 
         layer_html += '<div class="extras-selector-div">';
         layer_html += ' <select name="extras-selector" id="extras-selector">';
@@ -1167,16 +1313,21 @@
         var legend_html = '<div class="vector-legend" style="z-index:9999">';
         legend_html += '<div id="legend-content">';
         legend_html += '<table cellpadding=5>'
-        legend_html += '<tr id="wdpa-legend" style="display: none"><td><div style="background-color:#33da4f; width:17px; height: 5px;"></div><div style="position: absolute; left: 40px; margin-top: -11px; font-size: 17px">Protected Areas</div></td></tr>';
+        legend_html += '<tr id="wdpa-legend" style="display: none"><td><div style="background-color:#33da4f; width:17px; height: 5px;"></div><div style="margin-left: 29px; margin-top: -11px; font-size: 17px">Protected Areas</div></td></tr>';
         legend_html += '<tr id="forest-loss-year-legend" style="display: none"><td><div style="font-size: 17px">Forest Loss By Year</div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">2000</div><div style="margin-top: 3px; float: left; background-image: -webkit-linear-gradient(left, yellow, orange 65%, red 100%);background-image: linear-gradient(left, yellow, orange 65%, red 100%); width: 45px; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">2014</div></div></td></tr>';
         legend_html += '<tr id="forest-loss-gain-legend" style="display: none; font-size: 14px;"><td><div style="font-size: 17px">Forest Loss/Gain 2000-2014</div><div style="float: left; padding-right:8px"><div style="background-color:#00e000; width: 12px; height: 12px; float: left; margin-top: 2px; margin-left: 8px;"></div>&nbsp;Extent</div><div style="float: left; padding-right:8px"><div style="background-color:#ff0000; width: 12px; height: 12px; float: left; margin-top: 2px"></div>&nbsp;Loss</div><div style="float: left; padding-right:8px"><div style="background-color:#0000ff; width: 12px; height: 12px; float: left; margin-top: 2px"></div>&nbsp;Gain</div><div><div style="background-color:#ff00ff; width: 12px; height: 12px; float: left; margin-top: 2px"></div>&nbsp;Both</div></td></tr>';
-        legend_html += '<tr id="fires-at-night-legend" style="display: none"><td><div style="background-color:#eda46a; border-radius: 50%; width:13px; height: 13px;"></div><div style="position: absolute; left: 40px; margin-top: -15px; font-size: 17px">Fires At Night</div></td></tr>';
+        legend_html += '<tr id="fires-at-night-legend" style="display: none"><td><div style="background-color:#eda46a; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Fires At Night</div></td></tr>';
         legend_html += '<tr id="lights-at-night-legend" style="display: none"><td><div style="font-size: 17px">Lights at Night over 25 Years</div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">Decrease</div><div style="margin-top: 4px; float: left; background-image: -webkit-linear-gradient(left, #4848FD, green 50%, red 100%);background-image: linear-gradient(left, #4848FD, green 50%, red 100%); width: 45px; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">Increase</div></td></tr>';
-        legend_html += '<tr id="coral-bleaching-legend" style="display: none"><td><div style="float:left; background-color:#fa13ab; width:17px; height: 5px;"></div><div style="position: absolute; left: 40px; margin-top: -5px; font-size: 17px">Coral Reefs</div></td></tr>';
+        legend_html += '<tr id="coral-bleaching-legend" style="display: none"><td><div style="float:left; background-color:#fa13ab; width:17px; height: 5px;"></div><div style="margin-left: 29px; margin-top: -5px; font-size: 17px">Coral Reefs</div></td></tr>';
         legend_html += '<tr id="coral-bleaching-alerts-legend" style="display: none"><td><div style="font-size: 17px">Coral Bleaching Alerts</div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">Watch</div><div style="margin-top: 4px; float: left; background-image: -webkit-linear-gradient(left, #ffff00, #fbb404 65%, #a00200 100%);background-image: linear-gradient(left, #ffff00, #fbb404 65%, #a00200 100%); width: 45px; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">Alert</div></td></tr>';
-        legend_html += '<tr id="wind-installs-legend" style="display: none"><td><div style="background-color:#a0fe8f; border-radius: 50%; width:13px; height: 13px;"><div style="position: absolute; left: 40px; margin-top: -3px; font-size: 17px">Wind Power (USA)</div></div></td></tr>';
-        legend_html += '<tr id="solar-installs-legend" style="display: none"><td><div style="background-color:#7376b2; border-radius: 50%; width:13px; height: 13px;"><div style="position: absolute; left: 40px; margin-top: -3px; font-size: 17px">Solar Photovoltaic (USA)</div></div></td></tr>';
-        legend_html += '<tr id="drilling-legend" style="display: none"><td><div style="background-color:#eda46a; border-radius: 50%; width:13px; height: 13px;"></div><div style="position: absolute; left: 40px; margin-top: -15px; font-size: 17px">Oil/Gass Drilling (USA)</div></td></tr>';
+        legend_html += '<tr id="wind-installs-legend" style="display: none"><td><div style="background-color:#a0fe8f; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -16px; font-size: 17px">Wind Power (USA)</div></div></td></tr>';
+        legend_html += '<tr id="solar-installs-legend" style="display: none"><td><div style="background-color:#7376b2; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -16px; font-size: 17px">Solar Photovoltaic (USA)</div></td></tr>';
+        legend_html += '<tr id="drilling-legend" style="display: none"><td><div style="background-color:#eda46a; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Oil/Gass Drilling (USA)</div></td></tr>';
+
+        legend_html += '<tr id="water-occurrence-legend" style="display: none"><td><div style="font-size: 17px">Water Occurrence 1984-2015</div><div style="margin-left: 8px"><div style="font-size: 13px; float: left">100%</div><div style="font-size: 13px; float: right;">0%</div><div class="waterLegendGradient" style="clear: both;"></div><div style="font-size: 13px; float: left">Always water</div><div style="font-size: 13px; float: right">Never water</div></div></td></tr>';
+        legend_html += '<tr id="water-change-legend" style="display: none"><td><div style="font-size: 17px">Water Change 1984-1999 to 2000-2015</div><div style="margin-left: 8px"><div class="waterChangeLegendGradient" style="clear: both;"></div><div style="font-size: 13px; float: left">Water Loss</div><div style="font-size: 13px; float: right">Water Gain</div></div></td></tr>';
+
+
         legend_html += '</table>';
         legend_html += '</div>';
         legend_html += '</div>';
@@ -1184,8 +1335,10 @@
         if(enableLetterboxMode) {
           $(layer_html).appendTo($("#content"));
           $(legend_html).appendTo($("#content"));
+          $(".vector-legend").addClass("letterbox");
           $(".base-map-div, .map-layer-div, .extras-selector-div").addClass("top-panel").addClass("letterbox");
           $(".base-map-radio, .map-layer-checkbox, .extras-selector").addClass("letterbox");
+          $(".landsat-select, .wdpa-select, .forest-change-select, .viirs-select, .forest-loss-gain-select, .animated-forest-loss-select, .forest-alerts-select, .lights-at-night-select, .coral-select, .coral-bleaching-select, .wind-select, .solar-select, .drilling-select, .himawari-select, .water-occurrence-select, .water-change-select").addClass("letterbox");
         } else {
           $(layer_html).appendTo($("#timeMachine .player"));
           $(legend_html).appendTo($("#timeMachine .player"));
