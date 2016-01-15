@@ -396,6 +396,9 @@
         border-radius: 2px !important;
         box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
       }
+      .current-location-text.letterbox {
+        bottom: 160px !important;
+      }
       .current-location-text h3 {
         text-transform: uppercase;
         margin-bottom: 0.35em;
@@ -587,7 +590,7 @@
 
       jQuery.support.cors = true;
 
-      var forestAlarmsTimemachineLayer, landsatBaseMapLayer, timelapse, darkBaseMapLayer, lightBaseMapLayer, wdpaVectorLayer, mcrmVectorLayer, hansonMapLayer, hansonMapLayer2, viirsTile, coralBleachingTile, lightsAtNightMapLayer, crwTimemachineLayer, animatedHansenLayer, himawariTimemachineLayer;
+      var forestAlarmsTimemachineLayer, landsatBaseMapLayer, timelapse, darkBaseMapLayer, lightBaseMapLayer, wdpaVectorLayer, mcrmVectorLayer, hansonMapLayer, hansonMapLayer2, viirsTile, coralBleachingTile, lightsAtNightMapLayer, crwTimemachineLayer, animatedHansenLayer, himawariTimemachineLayer, waterOccurrenceLayer, waterChangeLayer;
 
       var usgsWindTurbineLayer, solarInstallsLayer, drillingLayer;
 
@@ -636,6 +639,10 @@
       var googleMapsDarkStyleRetinaUrl = "https://mts0.googleapis.com/vt?pb=!1m4!1m3!1i{z}!2i{x}!3i{y}!2m3!1e0!2sm!3i323305239!3m14!2sen-US!3sUS!5e18!12m1!1e47!12m3!1e37!2m1!1ssmartmaps!12m4!1e26!2m2!1sstyles!2zcC5oOiMwMDAwYjB8cC5pbDp0cnVlfHAuczotMzAscy50OjJ8cC52Om9mZg!4e0!5m1!5f2";
       // Lights At Night
       var lightsAtNightUrl = "../../../data/lights-at-night/{default}/{z}/{x}/{y}.png";
+      // Water Occurrence
+      var waterOccurrenceUrl = "../../../data/water/occurrence-2015/{default}/{z}/{x}/{y}.png";
+      // Water Change
+      var waterChangeUrl = "../../../data/water/change-2015/{default}/{z}/{x}/{y}.png";
 
       //// Vector Tiles ////
       var wdpaUrl = "../../../data/wdpaline-year";
@@ -1338,7 +1345,7 @@
           $(".vector-legend").addClass("letterbox");
           $(".base-map-div, .map-layer-div, .extras-selector-div").addClass("top-panel").addClass("letterbox");
           $(".base-map-radio, .map-layer-checkbox, .extras-selector").addClass("letterbox");
-          $(".landsat-select, .wdpa-select, .forest-change-select, .viirs-select, .forest-loss-gain-select, .animated-forest-loss-select, .forest-alerts-select, .lights-at-night-select, .coral-select, .coral-bleaching-select, .wind-select, .solar-select, .drilling-select, .himawari-select, .water-occurrence-select, .water-change-select").addClass("letterbox");
+          $(".current-location-text, .landsat-select, .wdpa-select, .forest-change-select, .viirs-select, .forest-loss-gain-select, .animated-forest-loss-select, .forest-alerts-select, .lights-at-night-select, .coral-select, .coral-bleaching-select, .wind-select, .solar-select, .drilling-select, .himawari-select, .water-occurrence-select, .water-change-select").addClass("letterbox");
         } else {
           $(layer_html).appendTo($("#timeMachine .player"));
           $(legend_html).appendTo($("#timeMachine .player"));
@@ -1434,6 +1441,8 @@
         wdpaVectorLayer = new WebglVectorLayer(glb, canvasLayer, wdpaUrl, defaultMapLayerOptions);
         mcrmVectorLayer = new WebglVectorLayer2(glb, canvasLayer, mcrmUrl, defaultBaseMapLayerOptions);
         lightsAtNightMapLayer = new WebglMapLayer(glb, canvasLayer, lightsAtNightUrl, lightsAtNightMapLayerOptions);
+        waterOccurrenceLayer = new WebglMapLayer(glb, canvasLayer, waterOccurrenceUrl, defaultBaseMapLayerOptions);
+        waterChangeLayer = new WebglMapLayer(glb, canvasLayer, waterChangeUrl, defaultBaseMapLayerOptions);
 
         // VIIRS is just a single tile
         viirsTile = new WebglViirsTile(glb, viirsUrl);
@@ -1509,6 +1518,7 @@
               $elements.addClass('letterbox');
             if (enableRecordingMode)
               $elements.addClass('recording');
+            $(".snaplapse_keyframe_container").scrollLeft(0);
           });
         }
 
@@ -1520,6 +1530,7 @@
         if (snaplapseViewerForPresentationSlider) {
           snaplapseViewerForPresentationSlider.addEventListener('slide-changed', function(waypointTitle, waypointIndex) {
             // Display info box for the waypoints
+            console.log('heya', waypointIndex)
             if (enableWaypointText && WAYPOINT_TEXT) {
               var $current_location_text = $(".current-location-text");
               if (WAYPOINT_TEXT && WAYPOINT_TEXT[waypointIndex].title) {
@@ -2044,6 +2055,30 @@
           hansonMapLayerView2.scale /= timelapse2map;
 
           hansonMapLayer2.draw(hansonMapLayerView2);
+        }
+
+        // Draw water occurrence
+        if (showWaterOccurrenceLayer) {
+          // Construct view for waterOccurrenceLayer
+          var waterOccurrenceView = timelapse.getView();
+          var timelapse2map = waterOccurrenceLayer.getWidth() / landsatBaseMapLayer.getWidth();
+          waterOccurrenceView.x *= timelapse2map;
+          waterOccurrenceView.y *= timelapse2map;
+          waterOccurrenceView.scale /= timelapse2map;
+
+          waterOccurrenceLayer.draw(waterOccurrenceView);
+        }
+
+       // Draw water change
+        if (showWaterChangeLayer) {
+          // Construct view for waterChangeLayer
+          var waterChangeView = timelapse.getView();
+          var timelapse2map = waterChangeLayer.getWidth() / landsatBaseMapLayer.getWidth();
+          waterChangeView.x *= timelapse2map;
+          waterChangeView.y *= timelapse2map;
+          waterChangeView.scale /= timelapse2map;
+
+          waterChangeLayer.draw(waterChangeView);
         }
 
         // Draw Animated Hansen Layer
