@@ -622,7 +622,7 @@
       //var landsatUrl = "http://earthengine.google.org/timelapse/data/20130507";
       var crwTimemachineUrl = "../../../data/coral/coralreefwatch-2.timemachine/crf20-22fps-1424x800";
       var himawariTimemachineUrl = "../../../data/himawari8/himawari8-nov-2015.timemachine/crf26-12fps-1424x800";
-      var forestAlarmsTimemachineUrl = "http://storage.googleapis.com/earthengine-timelapse/ForestAlarms2015v5/1068x600";
+      var forestAlarmsTimemachineUrl = "../../../data/global-forest-alerts/ForestAlarms2015v5/1068x600";
 
       //// Map Tiles ////
       // OpenStreetMap/CartoDB
@@ -945,7 +945,7 @@
 
         $("#show-forest-alarms").on("click", function() {
           if ($(this).prop('checked')) {
-            timelapse.loadNewTimeline("himawari-times.json","defaultUI");
+            timelapse.loadNewTimeline("forest-alerts-times.json","defaultUI");
             showForestAlarmsMachineLayer = true;
             var v = timelapse.getVideoset()
             v.setFps(10);
@@ -1395,7 +1395,7 @@
         // Forest Alarms
         var forestAlarmsTimemachineLayerOptions = {
           mediaType: ".mp4",
-          numFrames: 182,
+          numFrames: 183,
           fps: 10,
           nLevels: 11,
           video_width: 1424,
