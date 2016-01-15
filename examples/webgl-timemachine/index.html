@@ -2014,230 +2014,6 @@
 
         gl.clear(gl.COLOR_BUFFER_BIT);
 
-        // Draw lightsAtNightMapLayer
-        if (showLightsAtNightLayer) {
-          // Construct view for lightsAtNightMapLayer
-          var lightsAtNightLayerView = timelapse.getView();
-          var timelapse2map = lightsAtNightMapLayer.getWidth() / landsatBaseMapLayer.getWidth();
-          lightsAtNightLayerView.x *= timelapse2map;
-          lightsAtNightLayerView.y *= timelapse2map;
-          lightsAtNightLayerView.scale /= timelapse2map;
-
-          lightsAtNightMapLayer.draw(lightsAtNightLayerView);
-        }
-
-        // Draw base layer
-        else if (visibleBaseMapLayer == "landsat") {
-          landsatBaseMapLayer.draw(timelapse.getView(), tileViewVisibility);
-        } else if (visibleBaseMapLayer == "light") {
-          // Construct view for lightBaseMapLayer
-          var lightBaseMapView = timelapse.getView();
-          var timelapse2map = lightBaseMapLayer.getWidth() / landsatBaseMapLayer.getWidth();
-          lightBaseMapView.x *= timelapse2map;
-          lightBaseMapView.y *= timelapse2map;
-          lightBaseMapView.scale /= timelapse2map;
-
-          lightBaseMapLayer.draw(lightBaseMapView);
-        } else if (visibleBaseMapLayer == "dark") {
-          // Construct view for darkBaseMapLayer
-          var darkBaseMapView = timelapse.getView();
-          var timelapse2map = darkBaseMapLayer.getWidth() / landsatBaseMapLayer.getWidth();
-          darkBaseMapView.x *= timelapse2map;
-          darkBaseMapView.y *= timelapse2map;
-          darkBaseMapView.scale /= timelapse2map;
-
-          darkBaseMapLayer.draw(darkBaseMapView);
-        }
-
-        // Layers to draw above the base layer
-
-        if (showCrwTimemachineLayer) {
-          var crwView = timelapse.getView();
-          var timelapse2map = crwTimemachineLayer.getWidth() / landsatBaseMapLayer.getWidth();
-          crwView.x *= timelapse2map;
-          crwView.y *= timelapse2map;
-          crwView.scale /= timelapse2map;
-          crwTimemachineLayer.draw(crwView, tileViewVisibility);
-         }
-
-        // Draw hansonMapLayer (Forest change transparent)
-        if (showHansonLayer) {
-          // Construct view for hansonMapLayer
-          var hansonMapLayerView = timelapse.getView();
-          var timelapse2map = hansonMapLayer.getWidth() / landsatBaseMapLayer.getWidth();
-          hansonMapLayerView.x *= timelapse2map;
-          hansonMapLayerView.y *= timelapse2map;
-          hansonMapLayerView.scale /= timelapse2map;
-
-          hansonMapLayer.draw(hansonMapLayerView);
-        }
-
-        // Draw hansonMapLayer2 (Forest Loss/Gain)
-        if (showHansonLayer2) {
-          // Construct view for hansonMapLayer2
-          var hansonMapLayerView2 = timelapse.getView();
-          var timelapse2map = hansonMapLayer2.getWidth() / landsatBaseMapLayer.getWidth();
-          hansonMapLayerView2.x *= timelapse2map;
-          hansonMapLayerView2.y *= timelapse2map;
-          hansonMapLayerView2.scale /= timelapse2map;
-
-          hansonMapLayer2.draw(hansonMapLayerView2);
-        }
-
-        // Draw water occurrence
-        if (showWaterOccurrenceLayer) {
-          // Construct view for waterOccurrenceLayer
-          var waterOccurrenceView = timelapse.getView();
-          var timelapse2map = waterOccurrenceLayer.getWidth() / landsatBaseMapLayer.getWidth();
-          waterOccurrenceView.x *= timelapse2map;
-          waterOccurrenceView.y *= timelapse2map;
-          waterOccurrenceView.scale /= timelapse2map;
-
-          waterOccurrenceLayer.draw(waterOccurrenceView);
-        }
-
-       // Draw water change
-        if (showWaterChangeLayer) {
-          // Construct view for waterChangeLayer
-          var waterChangeView = timelapse.getView();
-          var timelapse2map = waterChangeLayer.getWidth() / landsatBaseMapLayer.getWidth();
-          waterChangeView.x *= timelapse2map;
-          waterChangeView.y *= timelapse2map;
-          waterChangeView.scale /= timelapse2map;
-
-          waterChangeLayer.draw(waterChangeView);
-        }
-
-        // Draw Animated Hansen Layer
-        if (showAnimatedHansenLayer) {
-          // Construct view for hansonMapLayer
-          var animatedHansenLayerView = timelapse.getView();
-          var timelapse2map = animatedHansenLayer.getWidth() / landsatBaseMapLayer.getWidth();
-          animatedHansenLayerView.x *= timelapse2map;
-          animatedHansenLayerView.y *= timelapse2map;
-          animatedHansenLayerView.scale /= timelapse2map;
-
-
-          var ratio = 0;
-
-          var captureTimes = timelapse.getCaptureTimes();
-          var offset = captureTimes.indexOf("2000");
-          var fps = timelapse.getFps();
-          if (offset > -1) {
-            var currentTime = Math.max(0,timelapse.getCurrentTime() - offset/fps);
-            ratio = currentTime / ((captureTimes.length - offset - 1)/fps);
-            ratio = Math.min(1, currentTime);
-          }
-          animatedHansenLayerView.alpha = ratio;
-
-          animatedHansenLayer.draw(animatedHansenLayerView);
-        }
-
-
-        // Draw wdpaLayer
-        if (showWdpaLayer)
-          wdpaVectorLayer.draw(timelapse.getView());
-
-        if (showMcrmLayer) {
-          var mcrmLayerView = timelapse.getView();
-          var timelapse2map = mcrmVectorLayer.getWidth() / landsatBaseMapLayer.getWidth();
-          mcrmLayerView.x *= timelapse2map;
-          mcrmLayerView.y *= timelapse2map;
-          mcrmLayerView.scale /= timelapse2map;
-
-          mcrmVectorLayer.draw(mcrmLayerView);
-        }
-
-
-        // VIIRS layer
-        if (showViirsLayer) {
-          //var v = timelapse.getVideoset();
-          //v.seek(0);
-          var viirsView = timelapse.getView();
-          viirsView.zoom = timelapse.getCurrentZoom();
-          var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
-          var times = timelapse.getCaptureTimes();
-          var range = new Date(times[times.length - 1]).getTime() - new Date(times[0]).getTime();
-          var currentDate = ratio*range + new Date(times[0]).getTime();
-          viirsView.currentDate = currentDate;
-          viirsTile.draw(viirsView);
-        }
-
-        if (showCoralBleachingLayer) {
-          //var v = timelapse.getVideoset();
-          //v.seek(0);
-          var viirsView = timelapse.getView();
-          viirsView.zoom = timelapse.getCurrentZoom();
-          var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
-          var times = timelapse.getCaptureTimes();
-          var range = new Date(times[times.length - 1]).getTime() - new Date(times[0]).getTime();
-          var currentDate = ratio*range + new Date(times[0]).getTime();
-          viirsView.currentDate = currentDate;
-          coralBleachingTile.draw(viirsView);
-        }
-
-        if (showUsgsWindTurbineLayer) {
-          var usgsWindTurbineLayerView = timelapse.getView();
-          var timelapse2map = usgsWindTurbineLayer.getWidth() / landsatBaseMapLayer.getWidth();
-          usgsWindTurbineLayerView.x *= timelapse2map;
-          usgsWindTurbineLayerView.y *= timelapse2map;
-          usgsWindTurbineLayerView.scale /= timelapse2map;
-          usgsWindTurbineLayerView.zoom = timelapse.getCurrentZoom();
-          var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
-          var times = timelapse.getCaptureTimes();
-          var range = new Date(times[times.length - 1]).getTime() - new Date(times[0]).getTime();
-          var currentDate = ratio*range + new Date(times[0]).getTime();
-          usgsWindTurbineLayerView.currentTime = currentDate;
-          usgsWindTurbineLayerView.color = [.1, .5, .1, 1.];
-
-          usgsWindTurbineLayer.draw(usgsWindTurbineLayerView);
-
-        }
-
-        if (showSolarInstallsLayer) {
-          var solarInstallsLayerView = timelapse.getView();
-          var timelapse2map = usgsWindTurbineLayer.getWidth() / landsatBaseMapLayer.getWidth();
-          solarInstallsLayerView.x *= timelapse2map;
-          solarInstallsLayerView.y *= timelapse2map;
-          solarInstallsLayerView.scale /= timelapse2map;
-          solarInstallsLayerView.zoom = timelapse.getCurrentZoom();
-          var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
-          var times = timelapse.getCaptureTimes();
-          var range = new Date(times[times.length - 1]).getTime() - new Date(times[0]).getTime();
-          var currentDate = ratio*range + new Date(times[0]).getTime();
-          solarInstallsLayerView.currentTime = currentDate;
-          solarInstallsLayer.draw(solarInstallsLayerView);
-        }
-
-        if (showDrillingLayer) {
-          var drillingLayerView = timelapse.getView();
-          var timelapse2map = drillingLayer.getWidth() / landsatBaseMapLayer.getWidth();
-          drillingLayerView.x *= timelapse2map;
-          drillingLayerView.y *= timelapse2map;
-          drillingLayerView.scale /= timelapse2map;
-          drillingLayerView.zoom = timelapse.getCurrentZoom();
-          var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
-          var times = timelapse.getCaptureTimes();
-          var range = new Date(times[times.length - 1]).getTime() - new Date(times[0]).getTime();
-          var currentDate = ratio*range + new Date(times[0]).getTime();
-          drillingLayerView.currentTime = currentDate;
-          drillingLayerView.color = [.82, .22, .07, 1.];
-          drillingLayer.draw(drillingLayerView);
-        }
-
-        // Draw forest alars
-        if (showForestAlarmsMachineLayer) {
-          var forestAlarmsView = timelapse.getView();
-          var timelapse2map = forestAlarmsTimemachineLayer.getWidth() / landsatBaseMapLayer.getWidth();
-
-          var p = timelapse.getProjection();
-          var offest = p.latlngToPoint({"lat":5.506709319555738,"lng":-82.5513118548623})
-
-          forestAlarmsView.x -= offest.x;
-          forestAlarmsView.y -= offest.y;
-          forestAlarmsTimemachineLayer.draw(forestAlarmsView, tileViewVisibility);
-        }
-
         // Draw himawari
         if (showHimawariTimeMachineLayer) {
           var himawariView = timelapse.getView();
@@ -2246,6 +2022,231 @@
           himawariView.y *= timelapse2map;
           himawariView.scale /= timelapse2map;
           himawariTimemachineLayer.draw(himawariView, tileViewVisibility);
+        } else {
+
+          // Draw lightsAtNightMapLayer
+          if (showLightsAtNightLayer) {
+            // Construct view for lightsAtNightMapLayer
+            var lightsAtNightLayerView = timelapse.getView();
+            var timelapse2map = lightsAtNightMapLayer.getWidth() / landsatBaseMapLayer.getWidth();
+            lightsAtNightLayerView.x *= timelapse2map;
+            lightsAtNightLayerView.y *= timelapse2map;
+            lightsAtNightLayerView.scale /= timelapse2map;
+
+            lightsAtNightMapLayer.draw(lightsAtNightLayerView);
+          }
+
+          // Draw base layer
+          else if (visibleBaseMapLayer == "landsat") {
+            landsatBaseMapLayer.draw(timelapse.getView(), tileViewVisibility);
+          } else if (visibleBaseMapLayer == "light") {
+            // Construct view for lightBaseMapLayer
+            var lightBaseMapView = timelapse.getView();
+            var timelapse2map = lightBaseMapLayer.getWidth() / landsatBaseMapLayer.getWidth();
+            lightBaseMapView.x *= timelapse2map;
+            lightBaseMapView.y *= timelapse2map;
+            lightBaseMapView.scale /= timelapse2map;
+
+            lightBaseMapLayer.draw(lightBaseMapView);
+          } else if (visibleBaseMapLayer == "dark") {
+            // Construct view for darkBaseMapLayer
+            var darkBaseMapView = timelapse.getView();
+            var timelapse2map = darkBaseMapLayer.getWidth() / landsatBaseMapLayer.getWidth();
+            darkBaseMapView.x *= timelapse2map;
+            darkBaseMapView.y *= timelapse2map;
+            darkBaseMapView.scale /= timelapse2map;
+
+            darkBaseMapLayer.draw(darkBaseMapView);
+          }
+
+          // Layers to draw above the base layer
+
+          if (showCrwTimemachineLayer) {
+            var crwView = timelapse.getView();
+            var timelapse2map = crwTimemachineLayer.getWidth() / landsatBaseMapLayer.getWidth();
+            crwView.x *= timelapse2map;
+            crwView.y *= timelapse2map;
+            crwView.scale /= timelapse2map;
+            crwTimemachineLayer.draw(crwView, tileViewVisibility);
+           }
+
+          // Draw hansonMapLayer (Forest change transparent)
+          if (showHansonLayer) {
+            // Construct view for hansonMapLayer
+            var hansonMapLayerView = timelapse.getView();
+            var timelapse2map = hansonMapLayer.getWidth() / landsatBaseMapLayer.getWidth();
+            hansonMapLayerView.x *= timelapse2map;
+            hansonMapLayerView.y *= timelapse2map;
+            hansonMapLayerView.scale /= timelapse2map;
+
+            hansonMapLayer.draw(hansonMapLayerView);
+          }
+
+          // Draw hansonMapLayer2 (Forest Loss/Gain)
+          if (showHansonLayer2) {
+            // Construct view for hansonMapLayer2
+            var hansonMapLayerView2 = timelapse.getView();
+            var timelapse2map = hansonMapLayer2.getWidth() / landsatBaseMapLayer.getWidth();
+            hansonMapLayerView2.x *= timelapse2map;
+            hansonMapLayerView2.y *= timelapse2map;
+            hansonMapLayerView2.scale /= timelapse2map;
+
+            hansonMapLayer2.draw(hansonMapLayerView2);
+          }
+
+          // Draw water occurrence
+          if (showWaterOccurrenceLayer) {
+            // Construct view for waterOccurrenceLayer
+            var waterOccurrenceView = timelapse.getView();
+            var timelapse2map = waterOccurrenceLayer.getWidth() / landsatBaseMapLayer.getWidth();
+            waterOccurrenceView.x *= timelapse2map;
+            waterOccurrenceView.y *= timelapse2map;
+            waterOccurrenceView.scale /= timelapse2map;
+
+            waterOccurrenceLayer.draw(waterOccurrenceView);
+          }
+
+         // Draw water change
+          if (showWaterChangeLayer) {
+            // Construct view for waterChangeLayer
+            var waterChangeView = timelapse.getView();
+            var timelapse2map = waterChangeLayer.getWidth() / landsatBaseMapLayer.getWidth();
+            waterChangeView.x *= timelapse2map;
+            waterChangeView.y *= timelapse2map;
+            waterChangeView.scale /= timelapse2map;
+
+            waterChangeLayer.draw(waterChangeView);
+          }
+
+          // Draw Animated Hansen Layer
+          if (showAnimatedHansenLayer) {
+            // Construct view for hansonMapLayer
+            var animatedHansenLayerView = timelapse.getView();
+            var timelapse2map = animatedHansenLayer.getWidth() / landsatBaseMapLayer.getWidth();
+            animatedHansenLayerView.x *= timelapse2map;
+            animatedHansenLayerView.y *= timelapse2map;
+            animatedHansenLayerView.scale /= timelapse2map;
+
+
+            var ratio = 0;
+
+            var captureTimes = timelapse.getCaptureTimes();
+            var offset = captureTimes.indexOf("2000");
+            var fps = timelapse.getFps();
+            if (offset > -1) {
+              var currentTime = Math.max(0,timelapse.getCurrentTime() - offset/fps);
+              ratio = currentTime / ((captureTimes.length - offset - 1)/fps);
+              ratio = Math.min(1, currentTime);
+            }
+            animatedHansenLayerView.alpha = ratio;
+
+            animatedHansenLayer.draw(animatedHansenLayerView);
+          }
+
+
+          // Draw wdpaLayer
+          if (showWdpaLayer)
+            wdpaVectorLayer.draw(timelapse.getView());
+
+          if (showMcrmLayer) {
+            var mcrmLayerView = timelapse.getView();
+            var timelapse2map = mcrmVectorLayer.getWidth() / landsatBaseMapLayer.getWidth();
+            mcrmLayerView.x *= timelapse2map;
+            mcrmLayerView.y *= timelapse2map;
+            mcrmLayerView.scale /= timelapse2map;
+
+            mcrmVectorLayer.draw(mcrmLayerView);
+          }
+
+
+          // VIIRS layer
+          if (showViirsLayer) {
+            //var v = timelapse.getVideoset();
+            //v.seek(0);
+            var viirsView = timelapse.getView();
+            viirsView.zoom = timelapse.getCurrentZoom();
+            var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
+            var times = timelapse.getCaptureTimes();
+            var range = new Date(times[times.length - 1]).getTime() - new Date(times[0]).getTime();
+            var currentDate = ratio*range + new Date(times[0]).getTime();
+            viirsView.currentDate = currentDate;
+            viirsTile.draw(viirsView);
+          }
+
+          if (showCoralBleachingLayer) {
+            //var v = timelapse.getVideoset();
+            //v.seek(0);
+            var viirsView = timelapse.getView();
+            viirsView.zoom = timelapse.getCurrentZoom();
+            var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
+            var times = timelapse.getCaptureTimes();
+            var range = new Date(times[times.length - 1]).getTime() - new Date(times[0]).getTime();
+            var currentDate = ratio*range + new Date(times[0]).getTime();
+            viirsView.currentDate = currentDate;
+            coralBleachingTile.draw(viirsView);
+          }
+
+          if (showUsgsWindTurbineLayer) {
+            var usgsWindTurbineLayerView = timelapse.getView();
+            var timelapse2map = usgsWindTurbineLayer.getWidth() / landsatBaseMapLayer.getWidth();
+            usgsWindTurbineLayerView.x *= timelapse2map;
+            usgsWindTurbineLayerView.y *= timelapse2map;
+            usgsWindTurbineLayerView.scale /= timelapse2map;
+            usgsWindTurbineLayerView.zoom = timelapse.getCurrentZoom();
+            var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
+            var times = timelapse.getCaptureTimes();
+            var range = new Date(times[times.length - 1]).getTime() - new Date(times[0]).getTime();
+            var currentDate = ratio*range + new Date(times[0]).getTime();
+            usgsWindTurbineLayerView.currentTime = currentDate;
+            usgsWindTurbineLayerView.color = [.1, .5, .1, 1.];
+
+            usgsWindTurbineLayer.draw(usgsWindTurbineLayerView);
+
+          }
+
+          if (showSolarInstallsLayer) {
+            var solarInstallsLayerView = timelapse.getView();
+            var timelapse2map = usgsWindTurbineLayer.getWidth() / landsatBaseMapLayer.getWidth();
+            solarInstallsLayerView.x *= timelapse2map;
+            solarInstallsLayerView.y *= timelapse2map;
+            solarInstallsLayerView.scale /= timelapse2map;
+            solarInstallsLayerView.zoom = timelapse.getCurrentZoom();
+            var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
+            var times = timelapse.getCaptureTimes();
+            var range = new Date(times[times.length - 1]).getTime() - new Date(times[0]).getTime();
+            var currentDate = ratio*range + new Date(times[0]).getTime();
+            solarInstallsLayerView.currentTime = currentDate;
+            solarInstallsLayer.draw(solarInstallsLayerView);
+          }
+
+          if (showDrillingLayer) {
+            var drillingLayerView = timelapse.getView();
+            var timelapse2map = drillingLayer.getWidth() / landsatBaseMapLayer.getWidth();
+            drillingLayerView.x *= timelapse2map;
+            drillingLayerView.y *= timelapse2map;
+            drillingLayerView.scale /= timelapse2map;
+            drillingLayerView.zoom = timelapse.getCurrentZoom();
+            var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
+            var times = timelapse.getCaptureTimes();
+            var range = new Date(times[times.length - 1]).getTime() - new Date(times[0]).getTime();
+            var currentDate = ratio*range + new Date(times[0]).getTime();
+            drillingLayerView.currentTime = currentDate;
+            drillingLayerView.color = [.82, .22, .07, 1.];
+            drillingLayer.draw(drillingLayerView);
+          }
+
+          // Draw forest alars
+          if (showForestAlarmsMachineLayer) {
+            var forestAlarmsView = timelapse.getView();
+            var timelapse2map = forestAlarmsTimemachineLayer.getWidth() / landsatBaseMapLayer.getWidth();
+
+            var p = timelapse.getProjection();
+            var offest = p.latlngToPoint({"lat":5.506709319555738,"lng":-82.5513118548623})
+
+            forestAlarmsView.x -= offest.x;
+            forestAlarmsView.y -= offest.y;
+            forestAlarmsTimemachineLayer.draw(forestAlarmsView, tileViewVisibility);
+          }
         }
 
         //stats.end();
