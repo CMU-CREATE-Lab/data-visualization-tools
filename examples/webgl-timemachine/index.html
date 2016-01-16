@@ -116,6 +116,7 @@
         font-size: 40px;
         width: 382px;
         background-image: none;
+        text-shadow: -1px 0 #656565, 0 1px #656565, 1px 0 #656565, 0 -1px #656565;
       }
       ::-webkit-input-placeholder {
         color: rgba(50,50,50,1.0);
@@ -245,7 +246,7 @@
       .map-layer-div.letterbox {
         height: 152px;
         position: absolute;
-        right: 103px;
+        right: 20px;
         bottom: auto;
         top: 0px;
       }
@@ -517,82 +518,87 @@
       .landsat-select.letterbox .credit {
         position: absolute !important;
         left: 40px;
-        margin-top: 29px;
+        margin-top: 30px;
       }
       .wdpa-select.letterbox .credit {
         position: absolute;
-        left:269px;
-        margin-top: 73px;
+        left: 908px;
+        margin-top: 118px;
       }
       .forest-change-select.letterbox .credit {
         position: absolute;
-        left: 40px;
-        margin-top: 29px;
+        left: 678px;
+        margin-top: 30px;
       }
       .viirs-select.letterbox .credit {
         position: absolute;
-        left: 480px;
-        margin-top: 29px;
+        left: 40px;
+        margin-top: 30px;
       }
       .forest-loss-gain-select.letterbox .credit {
         position: absolute;
-        left: 40px;
-        margin-top: 73px;
+        left: 678px;
+        margin-top: 74px;
       }
       .animated-forest-loss-select.letterbox .credit {
         position: absolute;
-        left:40px;
-        margin-top: 117px;
-      }
-      .forest-alerts-select.letterbox .credit {
-        position: absolute;
-        left: 269px;
-        margin-top: 29px;
+        left: 678px;
+        margin-top: 118px;
       }
       .lights-at-night-select.letterbox .credit {
         position: absolute;
-        left: 269px;
-        margin-top: 117px;
+        left: 40px;
+        margin-top: 74px;
       }
       .coral-select.letterbox .credit {
         position: absolute;
-        left: 691px;
-        margin-top: 29px;
+        left: 469px;
+        margin-top: 30px;
       }
       .coral-bleaching-select.letterbox .credit {
         position: absolute;
-        left: 691px;
-        margin-top: 73px;
+        left: 223px;
+        margin-top: 118px;
       }
       .wind-select.letterbox .credit {
         position: absolute;
-        left: 936px;
-        margin-top: 29px;
+        left: 223px;
+        margin-top: 74px;
       }
       .solar-select.letterbox .credit {
         position: absolute;
-        left: 691px;
-        margin-top: 117px;
+        left: 223px;
+        margin-top: 30px;
       }
       .drilling-select.letterbox .credit {
         position: absolute;
-        left: 936px;
-        margin-top: 73px;
+        left: 40px;
+        margin-top: 118px;
       }
       .himawari-select.letterbox .credit {
         position: absolute;
-        left: 936px;
-        margin-top: 117px;
+        left: 1205px;
+        margin-top: 30px;
       }
       .water-occurrence-select.letterbox .credit {
         position: absolute;
-        left: 480px;
-        margin-top: 73px;
+        left: 469px;
+        margin-top: 74px;
       }
       .water-change-select.letterbox .credit {
         position: absolute;
-        left: 480px;
-        margin-top: 117px;
+        left: 469px;
+        margin-top: 118px;
+      }
+      .forest-alerts-select.letterbox .credit {
+        position: absolute;
+        left: 908px;
+        margin-top: 30px;
+      }
+      .forest-alerts-no-overlay-select.letterbox .credit {
+        position: absolute;
+        left: 908px;
+        margin-top: 74px;
       }
       .sideToolBar.hyperwall {
         display: none;
@@ -623,7 +629,7 @@
 
       jQuery.support.cors = true;
 
-      var forestAlarmsTimemachineLayer, landsatBaseMapLayer, timelapse, darkBaseMapLayer, lightBaseMapLayer, wdpaVectorLayer, mcrmVectorLayer, hansonMapLayer, hansonMapLayer2, viirsTile, coralBleachingTile, lightsAtNightMapLayer, crwTimemachineLayer, animatedHansenLayer, himawariTimemachineLayer, waterOccurrenceLayer, waterChangeLayer;
+      var forestAlertsTimeMachineLayer, forestAlertsNoOverlayTimeMachineLayer, landsatBaseMapLayer, timelapse, darkBaseMapLayer, lightBaseMapLayer, wdpaVectorLayer, mcrmVectorLayer, hansonMapLayer, hansonMapLayer2, viirsTile, coralBleachingTile, lightsAtNightMapLayer, crwTimemachineLayer, animatedHansenLayer, himawariTimemachineLayer, waterOccurrenceLayer, waterChangeLayer;
 
       var usgsWindTurbineLayer, solarInstallsLayer, drillingLayer;
 
@@ -655,7 +661,8 @@
       //var landsatUrl = "http://earthengine.google.org/timelapse/data/20130507";
       var crwTimemachineUrl = "../../../data/coral/coralreefwatch-2.timemachine/crf20-22fps-1424x800";
       var himawariTimemachineUrl = "../../../data/himawari8/himawari8-nov-2015.timemachine/crf26-12fps-1424x800";
-      var forestAlarmsTimemachineUrl = "../../../data/global-forest-alerts/ForestAlarms2015v5/1068x600";
+      var forestAlertsTimeMachineUrl = "../../../data/global-forest-alerts/ForestAlarms2015v5/1068x600";
+      var forestAlertsNoOverlayTimeMachineUrl = "../../../data/global-forest-alerts/ForestAlarmsNoOverlay2015v5/1068x600";
 
       //// Map Tiles ////
       // OpenStreetMap/CartoDB
@@ -824,6 +831,9 @@
           var $this = $(this);
           if ($this.is(':checked')) {
             showWaterOccurrenceLayer = true;
+            if ($("#show-water-change").prop('checked')) {
+              $("#show-water-change").click();
+            }
             $("#water-occurrence-legend").show();
           } else {
             showWaterOccurrenceLayer = false;
@@ -835,6 +845,9 @@
           var $this = $(this);
           if ($this.is(':checked')) {
             showWaterChangeLayer = true;
+            if ($("#show-water-occurrence").prop('checked')) {
+              $("#show-water-occurrence").click();
+            }
             $("#water-change-legend").show();
           } else {
             showWaterChangeLayer = false;
@@ -856,6 +869,18 @@
         $("#show-forest-change").on("click", function() {
           if ($(this).prop('checked')) {
             showHansonLayer = true;
+            if ($("#show-forest-loss-gain").prop('checked')) {
+              $("#show-forest-loss-gain").click();
+            }
+            if ($("#show-animated-forest-loss-gain").prop('checked')) {
+              $("#show-animated-forest-loss-gain").click();
+            }
+            if ($("#show-forest-alerts").prop('checked')) {
+              $("#show-forest-alerts").click();
+            }
+            if ($("#show-forest-alerts-no-overlay").prop('checked')) {
+              $("#show-forest-alerts-no-overlay").click();
+            }
             $("#forest-loss-year-legend").show();
           } else {
             showHansonLayer = false;
@@ -866,8 +891,17 @@
         $("#show-forest-loss-gain").on("click", function() {
           if ($(this).prop('checked')) {
             showHansonLayer2 = true;
+            if ($("#show-forest-change").prop('checked')) {
+              $("#show-forest-change").click();
+            }
             if ($("#show-animated-forest-loss-gain").prop('checked')) {
               $("#show-animated-forest-loss-gain").click();
+            }
+            if ($("#show-forest-alerts").prop('checked')) {
+              $("#show-forest-alerts").click();
+            }
+            if ($("#show-forest-alerts-no-overlay").prop('checked')) {
+              $("#show-forest-alerts-no-overlay").click();
             }
             $("#forest-loss-gain-legend").show();
           } else {
@@ -881,8 +915,17 @@
             //timelapse.loadNewTimeline("hansen-times.json","customUI");
             //timelapse.setDoDwell(true);
             showAnimatedHansenLayer = true;
+            if ($("#show-forest-change").prop('checked')) {
+              $("#show-forest-change").click();
+            }
             if ($("#show-forest-loss-gain").prop('checked')) {
               $("#show-forest-loss-gain").click();
+            }
+            if ($("#show-forest-alerts").prop('checked')) {
+              $("#show-forest-alerts").click();
+            }
+            if ($("#show-forest-alerts-no-overlay").prop('checked')) {
+              $("#show-forest-alerts-no-overlay").click();
             }
             $("#forest-loss-gain-legend").show();
           } else {
@@ -893,6 +936,76 @@
             $("#forest-loss-gain-legend").hide();
           }
         }).prop('checked', showViirsLayer);
+
+        $("#show-forest-alerts").on("click", function() {
+          if ($(this).prop('checked')) {
+            timelapse.loadNewTimeline("forest-alerts-times.json","defaultUI");
+            showForestAlertsTimeMachineLayer = true;
+            if ($("#show-forest-change").prop('checked')) {
+              $("#show-forest-change").click();
+            }
+            if ($("#show-forest-loss-gain").prop('checked')) {
+              $("#show-forest-loss-gain").click();
+            }
+            if ($("#show-animated-forest-loss-gain").prop('checked')) {
+              $("#show-animated-forest-loss-gain").click();
+            }
+            if ($("#show-forest-alerts-no-overlay").prop('checked')) {
+              $("#show-forest-alerts-no-overlay").click();
+            }
+            var v = timelapse.getVideoset()
+            v.setFps(10);
+            timelapse.setMaxScale(1.25);
+            timelapse.setDoDwell(false);
+            timelapse.setPlaybackRate(1);
+            previousVisibleBaseMapLayer = visibleBaseMapLayer;
+            visibleBaseMapLayer = "forest-alarms";
+          } else {
+            showForestAlertsTimeMachineLayer = false;
+            timelapse.loadNewTimeline("landsat-times-long.json","customUI");
+            visibleBaseMapLayer = previousVisibleBaseMapLayer;
+            timelapse.setMaxScale(1.25);
+            var v = timelapse.getVideoset()
+            v.setFps(10);
+            timelapse.setDoDwell(true);
+            timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          }
+        }).prop('checked', showForestAlertsTimeMachineLayer);
+
+        $("#show-forest-alerts-no-overlay").on("click", function() {
+          if ($(this).prop('checked')) {
+            timelapse.loadNewTimeline("forest-alerts-times.json","defaultUI");
+            showForestAlertsNoOverlayTimeMachineLayer = true;
+            if ($("#show-forest-change").prop('checked')) {
+              $("#show-forest-change").click();
+            }
+            if ($("#show-forest-loss-gain").prop('checked')) {
+              $("#show-forest-loss-gain").click();
+            }
+            if ($("#show-animated-forest-loss-gain").prop('checked')) {
+              $("#show-animated-forest-loss-gain").click();
+            }
+            if ($("#show-forest-alerts").prop('checked')) {
+              $("#show-forest-alerts").click();
+            }
+            var v = timelapse.getVideoset()
+            v.setFps(10);
+            timelapse.setMaxScale(1.25);
+            timelapse.setDoDwell(false);
+            timelapse.setPlaybackRate(1);
+            previousVisibleBaseMapLayer = visibleBaseMapLayer;
+            visibleBaseMapLayer = "forest-alarms-no-overlay";
+          } else {
+            showForestAlertsNoOverlayTimeMachineLayer = false;
+            timelapse.loadNewTimeline("landsat-times-long.json","customUI");
+            visibleBaseMapLayer = previousVisibleBaseMapLayer;
+            timelapse.setMaxScale(1.25);
+            var v = timelapse.getVideoset()
+            v.setFps(10);
+            timelapse.setDoDwell(true);
+            timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          }
+        }).prop('checked', showForestAlertsNoOverlayTimeMachineLayer);
 
         $("#show-viirs").on("click", function() {
           if ($(this).prop('checked')) {
@@ -973,31 +1086,8 @@
             timelapse.setPlaybackRate(defaultPlaybackSpeed);
             $(".vector-legend").hide();
           }
-          //timelapse.warpTo(timelapse.getHomeView());
+          timelapse.warpTo(timelapse.getHomeView());
         }).prop('checked', showHimawariTimeMachineLayer);
-
-        $("#show-forest-alarms").on("click", function() {
-          if ($(this).prop('checked')) {
-            timelapse.loadNewTimeline("forest-alerts-times.json","defaultUI");
-            showForestAlarmsMachineLayer = true;
-            var v = timelapse.getVideoset()
-            v.setFps(10);
-            timelapse.setMaxScale(1.25);
-            timelapse.setDoDwell(false);
-            timelapse.setPlaybackRate(1);
-            previousVisibleBaseMapLayer = visibleBaseMapLayer;
-            visibleBaseMapLayer = "forest-alarms";
-          } else {
-            showForestAlarmsMachineLayer = false;
-            timelapse.loadNewTimeline("landsat-times-long.json","customUI");
-            visibleBaseMapLayer = previousVisibleBaseMapLayer;
-            timelapse.setMaxScale(1.25);
-            var v = timelapse.getVideoset()
-            v.setFps(10);
-            timelapse.setDoDwell(true);
-            timelapse.setPlaybackRate(defaultPlaybackSpeed);
-          }
-        }).prop('checked', showForestAlarmsMachineLayer);
 
         $("#show-usgs-windturbine").on("click", function() {
           if ($(this).prop('checked')) {
@@ -1177,7 +1267,8 @@
       var showCrwTimemachineLayer = false;
       var showAnimatedHansenLayer = false;
       var showHimawariTimeMachineLayer = false;
-      var showForestAlarmsMachineLayer = false;
+      var showForestAlertsTimeMachineLayer = false;
+      var showForestAlertsNoOverlayTimeMachineLayer = false;
       var showWaterOccurrenceLayer = false;
       var showWaterChangeLayer = false;
 
@@ -1223,7 +1314,8 @@
         var show_viirs = '<td class="viirs-select"><label for="show-viirs"><input type="checkbox" id="show-viirs" value="3"/>Fires at Night<span class="credit"> (NOAA)</span></label></td>';
         var show_forest_loss_gain = '<td class="forest-loss-gain-select"><label for="show-forest-loss-gain"><input type="checkbox" id="show-forest-loss-gain" value="4"/>Forest Loss/Gain<span class="credit"> (Hansen et al)</span></label></td>';
         var show_animated_forest_loss_gain = '<td class="animated-forest-loss-select"><label for="show-animated-forest-loss-gain"><input type="checkbox" id="show-animated-forest-loss-gain" value="5" />Animated Loss/Gain<span class="credit"> (Hansen et al)</span></label></td>';
-        var show_forest_alerts = '<td class="forest-alerts-select"><label for="show-forest-alarms"><input type="checkbox" id="show-forest-alarms" value="13"/>Forest Loss Alerts<span class="credit"> (Hansen et al)</span></label></td>';
+        var show_forest_alerts = '<td class="forest-alerts-select"><label for="show-forest-alerts"><input type="checkbox" id="show-forest-alerts" value="13"/>Forest Loss Alerts<span class="credit"> (Hansen et al)</span></label></td>';
+        var show_forest_alert_no_overlay = '<td class="forest-alerts-no-overlay-select"><label for="show-forest-alerts-no-overlay"><input type="checkbox" id="show-forest-alerts-no-overlay" value="13"/>Forest Loss Alerts <span style="font-size: 14px">(No Overlay)</span><span class="credit"> (Hansen et al)</span></label></td>';
         var show_lights_at_night = '<td class="lights-at-night-select"><label for="show-lights-at-night"><input type="checkbox" id="show-lights-at-night" value="6"/>Lights at Night<span class="credit"> (NOAA, Google)</span></label></td>';
         var show_coral = '<td class="coral-select"><label for="show-coral"><input type="checkbox" id="show-coral" value="7"/>Coral Bleaching<span class="credit"> (NOAA, UNEP-WCMC)</span></label></td>';
         var show_coral_bleaching_alerts = '<td class="coral-bleaching-select"><label for="show-coral-bleaching-alerts"><input type="checkbox" id="show-coral-bleaching-alerts" value="8"/>Coral Bleaching Alerts<span class="credit"> (NOAA, UNEP-WCMC)</span></label></td>';
@@ -1251,27 +1343,26 @@
           layer_html += '<div class="map-layer-div">';
           layer_html += ' <table class="map-layer-checkbox" cellspacing="3">';
           layer_html += '   <tr>';
+          layer_html += show_viirs;
+          layer_html += show_solar_installs;
+          layer_html += show_coral;
           layer_html += show_forest_change;
           layer_html += show_forest_alerts;
-          layer_html += show_viirs;
-          layer_html += show_coral;
-          layer_html += show_usgs_windturbine;
-          layer_html += '   </tr>';
-          layer_html += '   <tr>';
-          layer_html += show_forest_loss_gain;
-          layer_html += show_wdpa;
-          layer_html += show_water_occurrence;
-          layer_html += show_coral_bleaching_alerts;
-          layer_html += show_drilling;
-
-          layer_html += '   </tr>';
-          layer_html += '   <tr>';
-          layer_html += show_animated_forest_loss_gain;
-          layer_html += show_lights_at_night;
-          layer_html += show_water_change;
-          layer_html += show_solar_installs;
           layer_html += show_himawari;
-
+          layer_html += '   </tr>';
+          layer_html += '   <tr>';
+          layer_html += show_lights_at_night;
+          layer_html += show_usgs_windturbine;
+          layer_html += show_water_occurrence;
+          layer_html += show_forest_loss_gain;
+          layer_html += show_forest_alert_no_overlay;
+          layer_html += '   </tr>';
+          layer_html += '   <tr>';
+          layer_html += show_drilling;
+          layer_html += show_coral_bleaching_alerts;
+          layer_html += show_water_change;
+          layer_html += show_animated_forest_loss_gain;
+          layer_html += show_wdpa;
           layer_html += '   </tr>';
           layer_html += ' </table>';
           layer_html += '</div>';
@@ -1376,7 +1467,7 @@
           $(legend_html).appendTo($("#content"));
           $("#presentation-slider-selection, .base-map-radio, .map-layer-checkbox, .extras-selector, .presentationSlider, .vector-legend").addClass("letterbox");
           $(".base-map-div, .map-layer-div, .extras-selector-div").addClass("top-panel").addClass("letterbox");
-          $(".current-location-text, .landsat-select, .wdpa-select, .forest-change-select, .viirs-select, .forest-loss-gain-select, .animated-forest-loss-select, .forest-alerts-select, .lights-at-night-select, .coral-select, .coral-bleaching-select, .wind-select, .solar-select, .drilling-select, .himawari-select, .water-occurrence-select, .water-change-select").addClass("letterbox");
+          $(".current-location-text, .landsat-select, .wdpa-select, .forest-change-select, .viirs-select, .forest-loss-gain-select, .animated-forest-loss-select, .forest-alerts-select, .forest-alerts-no-overlay-select, .lights-at-night-select, .coral-select, .coral-bleaching-select, .wind-select, .solar-select, .drilling-select, .himawari-select, .water-occurrence-select, .water-change-select").addClass("letterbox");
         } else {
           $(layer_html).appendTo($("#timeMachine .player"));
           $(legend_html).appendTo($("#timeMachine .player"));
@@ -1411,7 +1502,7 @@
         crwTimemachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, crwTimemachineUrl, crwTimemacineLayerOptions);
 
         // Himawari-8
-        var himawariTimemacineLayerOptions = {
+        var himawariTimeMachineLayerOptions = {
           mediaType: ".mp4",
           numFrames: 4249,
           fps: 12,
@@ -1421,10 +1512,10 @@
           width: 11000,
           height: 11000
         };
-        himawariTimemachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, himawariTimemachineUrl, himawariTimemacineLayerOptions);
+        himawariTimemachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, himawariTimemachineUrl, himawariTimeMachineLayerOptions);
 
-        // Forest Alarms
-        var forestAlarmsTimemachineLayerOptions = {
+        // Forest Alerts
+        var forestAlertsTimeMachineLayerOptions = {
           mediaType: ".mp4",
           numFrames: 183,
           fps: 10,
@@ -1434,7 +1525,9 @@
           width: 750836,
           height: 156136
         };
-        forestAlarmsTimemachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, forestAlarmsTimemachineUrl, forestAlarmsTimemachineLayerOptions);
+        forestAlertsTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, forestAlertsTimeMachineUrl, forestAlertsTimeMachineLayerOptions);
+        // Forest Alerts No Overlay
+        forestAlertsNoOverlayTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, forestAlertsNoOverlayTimeMachineUrl, forestAlertsTimeMachineLayerOptions);
 
 
         //// Raster map layers
@@ -1588,9 +1681,9 @@
             // Animated Fotest Loss/Gain
             var $animatedGlobalForestLossLayerToggle = $("#show-animated-forest-loss-gain");
             // Forest Loss Alerts
-            var $forestLossAlarmsLayerToggle = $("show-forest-alarms")
+            var $forestLossAlarmsLayerToggle = $("show-forest-alerts");
             // Forest Loss Alerts No Overlay
-            var $forestLossAlarmsNoOverlayLayerToggle = $("show-forest-alarms-no-overlay");
+            var $forestLossAlarmsNoOverlayLayerToggle = $("show-forest-alerts-no-overlay");
             // Fires at Night
             var $viirsLayerToggle = $("#show-viirs");
             // Lights at Night
@@ -2301,18 +2394,32 @@
             drillingLayer.draw(drillingLayerView);
           }
 
-          // Draw forest alars
-          if (showForestAlarmsMachineLayer) {
-            var forestAlarmsView = timelapse.getView();
-            var timelapse2map = forestAlarmsTimemachineLayer.getWidth() / landsatBaseMapLayer.getWidth();
+          // Draw forest alerts
+          if (showForestAlertsTimeMachineLayer) {
+            var forestAlertsView = timelapse.getView();
+            var timelapse2map = forestAlertsTimeMachineLayer.getWidth() / landsatBaseMapLayer.getWidth();
 
             var p = timelapse.getProjection();
-            var offest = p.latlngToPoint({"lat":5.506709319555738,"lng":-82.5513118548623})
+            var offest = p.latlngToPoint({"lat":5.506709319555738, "lng":-82.5513118548623})
 
-            forestAlarmsView.x -= offest.x;
-            forestAlarmsView.y -= offest.y;
-            forestAlarmsTimemachineLayer.draw(forestAlarmsView, tileViewVisibility);
+            forestAlertsView.x -= offest.x;
+            forestAlertsView.y -= offest.y;
+            forestAlertsTimeMachineLayer.draw(forestAlertsView, tileViewVisibility);
           }
+
+          // Draw forest alerts no overlay
+          if (showForestAlertsNoOverlayTimeMachineLayer) {
+            var forestAlertsNoOverlayView = timelapse.getView();
+            var timelapse2map = forestAlertsNoOverlayTimeMachineLayer.getWidth() / landsatBaseMapLayer.getWidth();
+
+            var p = timelapse.getProjection();
+            var offest = p.latlngToPoint({"lat":5.506709319555738, "lng":-82.5513118548623})
+
+            forestAlertsNoOverlayView.x -= offest.x;
+            forestAlertsNoOverlayView.y -= offest.y;
+            forestAlertsNoOverlayTimeMachineLayer.draw(forestAlertsNoOverlayView, tileViewVisibility);
+          }
+
         }
 
         //stats.end();
