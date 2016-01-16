@@ -299,6 +299,9 @@
         box-shadow: 2px 2px 3px rgba(0,0,0,0.3);
         z-index: 100;
       }
+      #location_search.hyperwall {
+        left: 162px !important;
+      }
       .location_search_div.letterbox {
         width: 200px;
         position: absolute;
@@ -400,18 +403,16 @@
         bottom: 160px !important;
       }
       .current-location-text h3 {
-        text-transform: uppercase;
         margin-bottom: 0.35em;
         font-family: 'franklin-gothic-urw-comp', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-        font-size: 20px;
+        font-size: 19px;
         font-weight: 400;
         -webkit-font-smoothing: antialiased;
         margin-top: 0px;
       }
       .current-location-text p {
         margin: 0;
-        font-size: 12px;
-        text-align: justify;
+        font-size: 14px;
         line-height: 16px;
       }
       .current-location-text.recording {
@@ -463,7 +464,7 @@
         display: none;
         position: absolute;
         top: 82px;
-        left: 21px;
+        left: 91px;
         width: auto;
         padding: 4px;
         padding-right: 14px;
@@ -484,6 +485,9 @@
       }
       .vector-legend.letterbox {
         top: 176px;
+      }
+      .vector-legend.hyperwall {
+        left: 21px !important;
       }
       .legend-entry-title {
         font-size: 17px;
@@ -1364,7 +1368,7 @@
         if (enableLetterboxMode) {
           $(layer_html).appendTo($("#content"));
           $(legend_html).appendTo($("#content"));
-          $("#presentation-slider-selection, .vector-legend, .base-map-radio, .map-layer-checkbox, .extras-selector, .presentationSlider").addClass("letterbox");
+          $("#presentation-slider-selection, .base-map-radio, .map-layer-checkbox, .extras-selector, .presentationSlider, .vector-legend").addClass("letterbox");
           $(".base-map-div, .map-layer-div, .extras-selector-div").addClass("top-panel").addClass("letterbox");
           $(".current-location-text, .landsat-select, .wdpa-select, .forest-change-select, .viirs-select, .forest-loss-gain-select, .animated-forest-loss-select, .forest-alerts-select, .lights-at-night-select, .coral-select, .coral-bleaching-select, .wind-select, .solar-select, .drilling-select, .himawari-select, .water-occurrence-select, .water-change-select").addClass("letterbox");
         } else {
@@ -1374,7 +1378,7 @@
         }
 
         if (isHyperwall) {
-          $(".vector-layers, .sideToolBar").addClass("hyperwall");
+          $(".vector-layers, .sideToolBar, .vector-legend").addClass("hyperwall");
         }
 
         //// Time Machine layers

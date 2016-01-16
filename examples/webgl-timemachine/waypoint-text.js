@@ -8,116 +8,116 @@ WAYPOINT_TEXT = [
     "text" : ""
   },
   {
-    "title" : "Agricultural fires",
-    "text" : "Seasonal fires in Africa include range burning to encourage tender grass growth for grazing, or in preparation for planting."
+    "title" : "Seasonal fires in Africa include range burning to encourage tender grass growth for grazing, or in preparation for planting.",
+    "text" : ""
   },
   {
-    "title" : "Agricultural fires",
-    "text" : "Fires in South East Asia move south to north annually in preparation for the growing season."
+    "title" : "Fires in South East Asia move south to north annually in preparation for the growing season.",
+    "text" : ""
   },
   {
-    "title" : "Drilling Flares",
-    "text" : "Methane and other light products flare at oil wells across Northern Africa and the Middle East."
+    "title" : "Methane and other light products flare at oil wells across Northern Africa and the Middle East.",
+    "text" : ""
   },
   {
-    "title" : "Shale oil extraction",
-    "text" : "Fracked oil wells in the US produce a large fraction of methane and other light gases. In North Dakota, approximately one third of the carbon extracted from the ground is converted directly into CO2 via flaring."
+    "title" : "Fracked oil wells in the US produce a large fraction of methane and other light gases. In North Dakota, approximately one third of the carbon extracted from the ground is converted directly into CO2 via flaring.",
+    "text" : ""
   },
   {
-    "title" : "Eagle Downs Coal Mine",
-    "text" : "30 years of excavation at the Eagle Downs open pit coal mine in Queensland, Australia. Most Australian coal is exported to China."
+    "title" : "30 years of excavation at the Eagle Downs open pit coal mine in Queensland, Australia. Most Australian coal is exported to China.",
+    "text" : ""
   },
   {
-    "title" : "Mountaintop Removal",
-    "text" : "Mountaintop Removal in West Virginia involves moving aside the tops of mountains to access coal seams. This practice often poisons water."
+    "title" : "Mountaintop Removal in West Virginia involves moving aside the tops of mountains to access coal seams. This practice often poisons water.",
+    "text" : ""
   },
   {
-    "title" : "Alberta Tar Sands",
-    "text" : "Tar Sands extraction in Alberta, Canada.  Half of the tar extracted is burned to process the other half."
+    "title" : "Tar Sands extraction in Alberta, Canada.  Half of the tar extracted is burned to process the other half.",
+    "text" : ""
   },
   {
-    "title" : "Shanghai",
-    "text" : "Shanghai merges into nearby cities, growing to become the 6th largest megacity, with 24 million people."
+    "title" : "Shanghai merges into nearby cities, growing to become the 6th largest megacity, with 24 million people.",
+    "text" : ""
   },
   {
-    "title" : "Dubai",
-    "text" : "Dubai Palm and World Islands."
+    "title" : "Dubai Palm and World Islands.",
+    "text" : ""
   },
   {
     "title" : "Dallas Fort-Worth",
     "text" : ""
   },
   {
-    "title" : "Dallas Fort-Worth",
-    "text" : "Dallas Fort-Worth growth over 25 years."
+    "title" : "Dallas Fort-Worth growth over 25 years.",
+    "text" : ""
   },
   {
-    "title" : "United States",
-    "text" : "Red rings reveal growing Atlanta, Dallas-Forth Worth, Phoenix."
+    "title" : "Red rings reveal growth in Atlanta, Dallas-Forth Worth, Phoenix.",
+    "text" : ""
   },
   {
-    "title" : "Lights at Night trends",
-    "text" : "Red shows strong growth in Asia."
+    "title" : "Red shows strong growth in Asia.",
+    "text" : ""
   },
   {
-    "title" : "East Asia",
-    "text" : "In contrast to Japan, China shows strong growth."
+    "title" : "In contrast to Japan, China shows strong growth.",
+    "text" : ""
   },
   {
-    "title" : "Rondonia",
-    "text" : "Conversion of forests to farmland in Rondonia, Brazil."
+    "title" : "Conversion of forests to farmland in Rondonia, Brazil.",
+    "text" : ""
   },
   {
-    "title" : "Rondonia",
-    "text" : "Conversion of forests to farmland in Rondonia, Brazil."
+    "title" : "Conversion of forests to farmland in Rondonia, Brazil.",
+    "text" : ""
   },
   {
-    "title" : "Amazon Rain Forest",
-    "text" : "Arc of deforestation, Amazon Rain Forest."
+    "title" : "Arc of deforestation, Amazon Rain Forest.",
+    "text" : ""
   },
   {
-    "title" : "Amazon Rain Forest",
-    "text" : "Yellower tones indicate slowing rate of deforestation, while redder tones indicate speeding rate."
+    "title" : "Yellower tones indicate slowing rate of deforestation, while redder tones indicate speeding rate.",
+    "text" : ""
   },
   {
-    "title" : "Columbia Glacier",
-    "text" : "Columbia Glacier has retreated more than 20 kilometers."
+    "title" : "Columbia Glacier has retreated more than 20 kilometers.",
+    "text" : ""
   },
   {
-    "title" : "Mendenhall Glacier",
-    "text" : "Mendenhall Glacier has retreated about 1 kilometer."
+    "title" : "Mendenhall Glacier has retreated about 1 kilometer.",
+    "text" : ""
   },
   {
-    "title" : "Lake Urmia (Iran)",
-    "text" : "Water previously terminating in Lake Urmia is diverted for agricultural."
+    "title" : "Water previously terminating in Lake Urmia is diverted for agricultural.",
+    "text" : ""
   },
   {
-    "title" : "Aral Sea (Asia)",
-    "text" : "Water previously terminating in Aral Sea is diverted for agricultural. The region is also experiencing drought."
+    "title" : "Water previously terminating in Aral Sea is diverted for agricultural. The region is also experiencing drought.",
+    "text" : ""
   },
   {
-    "title" : "Aral Expansion",
-    "text" : "Cropland in Uzbekistan south of Aral Sea expands and retreats."
+    "title" : "Cropland in Uzbekistan south of Aral Sea expands and retreats.",
+    "text" : ""
   },
   {
-    "title" : "Australia Bushfires",
-    "text" : "Climate change is increasing the frequency and severity of bushfires in Australia."
+    "title" : "Climate change is increasing the frequency and severity of bushfires in Australia.",
+    "text" : ""
   },
   {
-    "title" : "Bark Beetles",
-    "text" : "Bark beetle range is increases during warmer winters, leading to widespread tree death in Colorado."
+    "title" : "Bark beetle range is increases during warmer winters, leading to widespread tree death in Colorado.",
+    "text" : ""
   },
   {
-    "title" : "Rondonia",
-    "text" : "Indigenous areas and preserves can halt or slow deforestation in Brazil."
+    "title" : "Indigenous areas and preserves can halt or slow deforestation in Brazil.",
+    "text" : ""
   },
   {
-    "title" : "Gansu Wind Farm",
-    "text" : "Gansu Wind Farm, China: 8GW (20GW planned)"
+    "title" : "Gansu Wind Farm, China: 8GW (20GW planned)",
+    "text" : ""
   },
   {
-    "title" : "Solar Star",
-    "text" : "Solar Star, US: 579MW photovoltaic"
+    "title" : "Solar Star, US: 579MW photovoltaic",
+    "text" : ""
   },
   {
     "title" : "",
@@ -164,88 +164,88 @@ WAYPOINT_TEXT = [
     "text" : ""
   },
   {
-    "title" : "Las Vegas",
-    "text" : "Las Vegas grows while Lake Mead shrinks."
+    "title" : "Las Vegas grows while Lake Mead shrinks.",
+    "text" : ""
   },
   {
-    "title" : "Lake Urmia (Iran)",
-    "text" : "Water previously terminating in Lake Urmia is diverted for agricultural."
+    "title" : "Water previously terminating in Lake Urmia is diverted for agricultural.",
+    "text" : ""
   },
   {
-    "title" : "Aral Sea (Asia)",
-    "text" : "Water previously terminating in Aral Sea is diverted for agricultural.  Region is also experiencing drought."
+    "title" : "Water previously terminating in Aral Sea is diverted for agricultural.  Region is also experiencing drought.",
+    "text" : ""
   },
   {
-    "title" : "Aral Expansion",
-    "text" : "Cropland in Uzbekistan south of Aral Sea expands and retreats."
+    "title" : "Cropland in Uzbekistan south of Aral Sea expands and retreats.",
+    "text" : ""
   },
   {
-    "title" : "Saudi Irrigation",
-    "text" : "Cropland in Saudi Arabia is irrigated from ancient aquifer."
+    "title" : "Cropland in Saudi Arabia is irrigated from ancient aquifer.",
+    "text" : ""
   },
   {
-    "title" : "Central Valley",
-    "text" : "The productive California Central Valley relies on irrigation."
+    "title" : "The productive California Central Valley relies on irrigation.",
+    "text" : ""
   },
   {
-    "title" : "California Reservoirs",
-    "text" : "Pedro Reservoir and Lake McClure lose water during recent drought."
+    "title" : "Pedro Reservoir and Lake McClure lose water during recent drought.",
+    "text" : ""
   },
   {
-    "title" : "Bolivia Meander",
-    "text" : "Tributary of the Amazon fresh from the Andes meaders in Bolivia."
+    "title" : "Tributary of the Amazon fresh from the Andes meaders in Bolivia.",
+    "text" : ""
   },
   {
-    "title" : "Bolivia Avulsion",
-    "text" : "Tributary of the Amazon changes path, depositing soil across large area."
+    "title" : "Tributary of the Amazon changes path, depositing soil across large area.",
+    "text" : ""
   },
   {
-    "title" : "Brazil Reservoir",
-    "text" : "Lago de Serra da Mesa, Brazil."
+    "title" : "Lago de Serra da Mesa, Brazil.",
+    "text" : ""
   },
   {
-    "title" : "Amazon Deforestation",
-    "text" : "Amazon forest loss diminishes precipitation."
+    "title" : "Amazon forest loss diminishes precipitation.",
+    "text" : ""
   },
   {
-    "title" : "Bangladesh",
-    "text" : "Creation of fish ponds in Bangladesh."
+    "title" : "Creation of fish ponds in Bangladesh.",
+    "text" : ""
   },
   {
-    "title" : "Fish Ponds",
-    "text" : "Fish ponds, Bohai Sea, China"
+    "title" : "Fish ponds, Bohai Sea, China",
+    "text" : ""
   },
   {
-    "title" : "Coral Reef Watch",
-    "text" : "Ocean heating, El Nino, and acidification from CO2 have triggered a massive coral bleaching event."
+    "title" : "Ocean heating, El Nino, and acidification from CO2 have triggered a massive coral bleaching event.",
+    "text" : ""
   },
   {
     "title" : "",
     "text" : ""
   },
   {
-    "title" : "Shanghai",
-    "text" : "Shanghai merges into nearby cities, growing to become the 6th largest megacity, with 24 million people."
+    "title" : "Shanghai merges into nearby cities, growing to become the 6th largest megacity, with 24 million people.",
+    "text" : ""
   },
   {
     "title" : "Dallas Fort-Worth",
     "text" : ""
   },
   {
-    "title" : "Barnett Shale",
-    "text" : "Fracking the Barnett Shale for Natural Gas."
+    "title" : "Fracking the Barnett Shale for Natural Gas.",
+    "text" : ""
   },
   {
-    "title" : "DFW Growth",
-    "text" : "Dallas Fort-Worth growth over 25 years"
+    "title" : "Dallas Fort-Worth growth over 25 years",
+    "text" : ""
   },
   {
-    "title" : "United States",
-    "text" : "Red rings reveal growing Atlanta, Dallas-Forth Worth, Phoenix"
+    "title" : "Red rings reveal growth in Atlanta, Dallas-Forth Worth, Phoenix",
+    "text" : ""
   },
   {
-    "title" : "Lights at Night trends",
-    "text" : "Red shows strong growth in Asia"
+    "title" : "Red shows strong growth in Asia.",
+    "text" : ""
   },
   {
     "title" : "Pearl River Delta, China",
@@ -256,120 +256,120 @@ WAYPOINT_TEXT = [
     "text" : ""
   },
   {
-    "title" : "Drilling Flares",
-    "text" : "Methane and other light products flare at oil wells across Northern Africa and the Middle East."
+    "title" : "Methane and other light products flare at oil wells across Northern Africa and the Middle East.",
+    "text" : ""
   },
   {
-    "title" : "Shale oil extraction",
-    "text" : "Fracked oil wells in the US produce a large fraction of methane and other light gases. In North Dakota, approximately one third of the carbon extracted from the ground is converted directly into CO2 via flaring."
+    "title" : "Fracked oil wells in the US produce a large fraction of methane and other light gases. In North Dakota, approximately one third of the carbon extracted from the ground is converted directly into CO2 via flaring.",
+    "text" : ""
   },
   {
-    "title" : "Wyoming Coal Mining",
-    "text" : "Open pit coal mining in Wyoming, US."
+    "title" : "Open pit coal mining in Wyoming, US.",
+    "text" : ""
   },
   {
-    "title" : "Mountaintop Removal",
-    "text" : "Mountaintop Removal in West Virginia involves dumping tops of mountains into valleys to access coal seams, often polluting watersheds."
+    "title" : "Mountaintop Removal in West Virginia involves dumping tops of mountains into valleys to access coal seams, often polluting watersheds.",
+    "text" : ""
   },
   {
-    "title" : "Mountaintop Removal",
-    "text" : "Mountaintop Removal in West Virginia involves moving aside the tops of mountains to access coal seams. This practice often poisons water."
+    "title" : "Mountaintop Removal in West Virginia involves moving aside the tops of mountains to access coal seams. This practice often poisons water.",
+    "text" : ""
   },
   {
-    "title" : "Hei Dai Gao coal",
-    "text" : "Open pit coal mining in China."
+    "title" : "Open pit coal mining in China.",
+    "text" : ""
   },
   {
-    "title" : "Alberta Tar Sands",
-    "text" : "Tar Sands extraction in Alberta, Canada.  Half of the tar extracted is burned to process the other half."
+    "title" : "Tar Sands extraction in Alberta, Canada.  Half of the tar extracted is burned to process the other half.",
+    "text" : ""
   },
   {
-    "title" : "Peru Mining",
-    "text" : "Tailings from artisinal gold mining in Peru."
+    "title" : "Tailings from artisinal gold mining in Peru.",
+    "text" : ""
   },
   {
-    "title" : "Grasberg Mine",
-    "text" : "Grasberg Mine in Indonesia is the largest gold mine and third largest copper mine."
+    "title" : "Grasberg Mine in Indonesia is the largest gold mine and third largest copper mine.",
+    "text" : ""
   },
   {
-    "title" : "Grasberg Tailings",
-    "text" : "Tailings from Grasberg Mine."
+    "title" : "Tailings from Grasberg Mine.",
+    "text" : ""
   },
   {
-    "title" : "Aral Sea (Asia)",
-    "text" : "Water previously terminating in Aral Sea is diverted for agricultural.  Region is also experiencing drought."
+    "title" : "Water previously terminating in Aral Sea is diverted for agricultural.  Region is also experiencing drought.",
+    "text" : ""
   },
   {
-    "title" : "Saudi Irrigation",
-    "text" : "Cropland in Saudi Arabia is irrigated from ancient aquifer."
+    "title" : "Cropland in Saudi Arabia is irrigated from ancient aquifer.",
+    "text" : ""
   },
   {
-    "title" : "Rondonia",
-    "text" : "Conversion of forests to farmland in Rondonia, Brazil."
+    "title" : "Conversion of forests to farmland in Rondonia, Brazil.",
+    "text" : ""
   },
   {
-    "title" : "Rondonia",
-    "text" : "Conversion of forests to farmland in Rondonia, Brazil."
+    "title" : "Conversion of forests to farmland in Rondonia, Brazil.",
+    "text" : ""
   },
   {
-    "title" : "Amazon Rain Forest",
-    "text" : "Arc of deforestation, Amazon Rain Forest."
+    "title" : "Arc of deforestation, Amazon Rain Forest.",
+    "text" : ""
   },
   {
-    "title" : "Amazon Rain Forest",
-    "text" : "Yellower tones indicate slowing rate of deforestation, while redder tones indicate speeding rate."
+    "title" : "Yellower tones indicate slowing rate of deforestation, while redder tones indicate speeding rate.",
+    "text" : ""
   },
   {
-    "title" : "Indonesia Forests",
-    "text" : "Forest loss in Indonesia is accelerating."
+    "title" : "Forest loss in Indonesia is accelerating.",
+    "text" : ""
   },
   {
-    "title" : "Sumatra fires",
-    "text" : "Fires in Sumatra, Indonesia remove forest for agriculture."
+    "title" : "Fires in Sumatra, Indonesia remove forest for agriculture.",
+    "text" : ""
   },
   {
-    "title" : "Forestry, South East US",
-    "text" : "Forestry in Southeast United States supplies paper pulp and biomass for power generation."
+    "title" : "Forestry in Southeast United States supplies paper pulp and biomass for power generation.",
+    "text" : ""
   },
   {
-    "title" : "Longyangxia Solar",
-    "text" : "Longyangxia Dam Solar Park: 320MW photovoltaic"
+    "title" : "Longyangxia Dam Solar Park: 320MW photovoltaic",
+    "text" : ""
   },
   {
-    "title" : "Solar Star",
-    "text" : "Solar Star, US:  579MW photovoltaic"
+    "title" : "Solar Star, US:  579MW photovoltaic",
+    "text" : ""
   },
   {
-    "title" : "Topaz Solar Farm",
-    "text" : "Topaz Solar Farm, US: 550MW photovoltaic"
+    "title" : "Topaz Solar Farm, US: 550MW photovoltaic",
+    "text" : ""
   },
   {
-    "title" : "Charanka Solar Park",
-    "text" : "Charanka Solar Park, India: 600MW photovoltaic"
+    "title" : "Charanka Solar Park, India: 600MW photovoltaic",
+    "text" : ""
   },
   {
-    "title" : "Ivanpah Solar Power",
-    "text" : "Ivanpah Solar Power, US: Largest concentrated solar power, 392MW"
+    "title" : "Ivanpah Solar Power, US: Largest concentrated solar power, 392MW",
+    "text" : ""
   },
   {
-    "title" : "Valle Solar Power Station",
-    "text" : "Valle Solar, Spain: 100MW concentrated solar"
+    "title" : "Valle Solar, Spain: 100MW concentrated solar",
+    "text" : ""
   },
   {
-    "title" : "Gansu Wind Farm",
-    "text" : "Gansu Wind Farm, China: 8GW (20GW planned)"
+    "title" : "Gansu Wind Farm, China: 8GW (20GW planned)",
+    "text" : ""
   },
   {
-    "title" : "Alta Wind Farm",
-    "text" : "Alta Wind Farm, US: 1.5GW"
+    "title" : "Alta Wind Farm, US: 1.5GW",
+    "text" : ""
   },
   {
-    "title" : "US Wind",
-    "text" : "Wind turbine installation across the United States."
+    "title" : "Wind turbine installation across the United States.",
+    "text" : ""
   },
   {
-    "title" : "US Photovoltaic",
-    "text" : "Solar photovoltaic installations across the United States."
+    "title" : "Solar photovoltaic installations across the United States.",
+    "text" : ""
   },
   {
     "title" : "",
@@ -432,7 +432,7 @@ WAYPOINT_TEXT = [
     "text" : ""
   },
   {
-    "title" : "Lake Urmia (Iran)",
+    "title" : "Lake Urmia",
     "text" : "The gradual disappearance of Lake Urmia in Iran is a token of resource shifts toay, culmination from short-term human decisions combined with long-term global trends. These markers of change are near-time exemplars of long-term changes in watershed, arable land and climate dynamics that shift opportunities globally."
   },
   {
@@ -448,40 +448,40 @@ WAYPOINT_TEXT = [
     "text" : ""
   },
   {
-    "title" : "Sumatra fires",
-    "text" : "Fires in Sumatra, Indonesia remove forest for agriculture."
+    "title" : "Fires in Sumatra, Indonesia remove forest for agriculture.",
+    "text" : ""
   },
   {
-    "title" : "Sinabung volcano",
-    "text" : "Eruption of Sinabung volcano in Sumatra, Indonesia."
+    "title" : "Eruption of Sinabung volcano in Sumatra, Indonesia.",
+    "text" : ""
   },
   {
-    "title" : "Beijing",
-    "text" : "Relatively clear day for Beijing, China."
+    "title" : "Relatively clear day for Beijing, China.",
+    "text" : ""
   },
   {
-    "title" : "Beijing",
-    "text" : "Hazy day in Beijing, China."
+    "title" : "Hazy day in Beijing, China.",
+    "text" : ""
   },
   {
-    "title" : "Beijing",
-    "text" : "Very hazy day in Beijing, China."
+    "title" : "Very hazy day in Beijing, China.",
+    "text" : ""
   },
   {
-    "title" : "Melting Snow",
-    "text" : "Melting snow, Inner Mongolia, China."
+    "title" : "Melting snow, Inner Mongolia, China.",
+    "text" : ""
   },
   {
-    "title" : "Ice Floes",
-    "text" : "Ice floes off the coast of Antarctica."
+    "title" : "Ice floes off the coast of Antarctica.",
+    "text" : ""
   },
   {
-    "title" : "Iceberg calving",
-    "text" : "Large iceberg calving off the coast of Antarctica."
+    "title" : "Large iceberg calving off the coast of Antarctica.",
+    "text" : ""
   },
   {
-    "title" : "Typhoon In-Fa",
-    "text" : "Typhoon In-Fa was the 24th category 4+ typhoon for the 2015 season, shattering the previous record of 18 such typhoons in a season.  Luckily, it did not make landfall."
+    "title" : "Typhoon In-Fa was the 24th category 4+ typhoon for the 2015 season, shattering the previous record of 18 such typhoons in a season.  Luckily, it did not make landfall.",
+    "text" : ""
   }
 
 ];
