@@ -519,86 +519,103 @@
         position: absolute !important;
         left: 40px;
         margin-top: 30px;
+        width: 10px;
       }
       .wdpa-select.letterbox .credit {
         position: absolute;
         left: 908px;
         margin-top: 118px;
+        width: 10px;
       }
       .forest-change-select.letterbox .credit {
         position: absolute;
         left: 678px;
         margin-top: 30px;
+        width: 10px;
       }
       .viirs-select.letterbox .credit {
         position: absolute;
         left: 40px;
         margin-top: 30px;
+        width: 10px;
       }
       .forest-loss-gain-select.letterbox .credit {
         position: absolute;
         left: 678px;
         margin-top: 74px;
+        width: 10px;
       }
       .animated-forest-loss-select.letterbox .credit {
         position: absolute;
         left: 678px;
         margin-top: 118px;
+        width: 10px;
       }
       .lights-at-night-select.letterbox .credit {
         position: absolute;
         left: 40px;
         margin-top: 74px;
+        width: 10px;
       }
       .coral-select.letterbox .credit {
         position: absolute;
         left: 469px;
         margin-top: 30px;
+        width: 10px;
       }
       .coral-bleaching-select.letterbox .credit {
         position: absolute;
         left: 223px;
         margin-top: 118px;
+        width: 10px;
       }
       .wind-select.letterbox .credit {
         position: absolute;
         left: 223px;
         margin-top: 74px;
+        width: 10px;
       }
       .solar-select.letterbox .credit {
         position: absolute;
         left: 223px;
         margin-top: 30px;
+        width: 10px;
       }
       .drilling-select.letterbox .credit {
         position: absolute;
         left: 40px;
         margin-top: 118px;
+        width: 10px;
       }
       .himawari-select.letterbox .credit {
         position: absolute;
         left: 1205px;
         margin-top: 30px;
+        width: 10px;
       }
       .water-occurrence-select.letterbox .credit {
         position: absolute;
         left: 469px;
         margin-top: 74px;
+        width: 10px;
       }
       .water-change-select.letterbox .credit {
         position: absolute;
         left: 469px;
         margin-top: 118px;
+        width: 10px;
       }
       .forest-alerts-select.letterbox .credit {
         position: absolute;
         left: 908px;
         margin-top: 30px;
+        width: 10px;
       }
       .forest-alerts-no-overlay-select.letterbox .credit {
         position: absolute;
         left: 908px;
         margin-top: 74px;
+        width: 10px;
       }
       .sideToolBar.hyperwall {
         display: none;
@@ -1233,9 +1250,9 @@
           var numLayersOn = selectedLayers.size();
           var continueState = true;
           selectedLayers.each(function(){
-            if ((this.id.indexOf("himawari")) > 0) {
+            if (this.id.indexOf("himawari") > 0) {
               continueState = false;
-            }else if ((this.id.indexOf("forest-alarms")) > 0) {
+            } else if (this.id.indexOf("forest-alerts") > 0) {
               continueState = false;
             }
           });
