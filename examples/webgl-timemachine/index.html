@@ -938,6 +938,11 @@
         }).prop('checked', showViirsLayer);
 
         $("#show-forest-alerts").on("click", function() {
+          // Do not load if Himawari is up
+          if ($("#show-himawari").prop('checked')) {
+            $(this).prop('checked', false);
+            return;
+          }
           if ($(this).prop('checked')) {
             timelapse.loadNewTimeline("forest-alerts-times.json","defaultUI");
             showForestAlertsTimeMachineLayer = true;
@@ -962,17 +967,24 @@
             visibleBaseMapLayer = "forest-alarms";
           } else {
             showForestAlertsTimeMachineLayer = false;
-            timelapse.loadNewTimeline("landsat-times-long.json","customUI");
-            visibleBaseMapLayer = previousVisibleBaseMapLayer;
-            timelapse.setMaxScale(1.25);
-            var v = timelapse.getVideoset()
-            v.setFps(10);
-            timelapse.setDoDwell(true);
-            timelapse.setPlaybackRate(defaultPlaybackSpeed);
+            if (!showForestAlertsNoOverlayTimeMachineLayer && !showForestAlertsTimeMachineLayer) {
+              timelapse.loadNewTimeline("landsat-times-long.json","customUI");
+              visibleBaseMapLayer = $("input:radio[name=base-layers]:checked").val();
+              timelapse.setMaxScale(1.25);
+              var v = timelapse.getVideoset()
+              v.setFps(10);
+              timelapse.setDoDwell(true);
+              timelapse.setPlaybackRate(defaultPlaybackSpeed);
+            }
           }
         }).prop('checked', showForestAlertsTimeMachineLayer);
 
         $("#show-forest-alerts-no-overlay").on("click", function() {
+          // Do not load if Himawari is up
+          if ($("#show-himawari").prop('checked')) {
+            $(this).prop('checked', false);
+            return;
+          }
           if ($(this).prop('checked')) {
             timelapse.loadNewTimeline("forest-alerts-times.json","defaultUI");
             showForestAlertsNoOverlayTimeMachineLayer = true;
@@ -997,13 +1009,15 @@
             visibleBaseMapLayer = "forest-alarms-no-overlay";
           } else {
             showForestAlertsNoOverlayTimeMachineLayer = false;
-            timelapse.loadNewTimeline("landsat-times-long.json","customUI");
-            visibleBaseMapLayer = previousVisibleBaseMapLayer;
-            timelapse.setMaxScale(1.25);
-            var v = timelapse.getVideoset()
-            v.setFps(10);
-            timelapse.setDoDwell(true);
-            timelapse.setPlaybackRate(defaultPlaybackSpeed);
+            if (!showForestAlertsNoOverlayTimeMachineLayer && !showForestAlertsTimeMachineLayer) {
+              timelapse.loadNewTimeline("landsat-times-long.json","customUI");
+              visibleBaseMapLayer = $("input:radio[name=base-layers]:checked").val();
+              timelapse.setMaxScale(1.25);
+              var v = timelapse.getVideoset()
+              v.setFps(10);
+              timelapse.setDoDwell(true);
+              timelapse.setPlaybackRate(defaultPlaybackSpeed);
+            }
           }
         }).prop('checked', showForestAlertsNoOverlayTimeMachineLayer);
 
@@ -2394,19 +2408,6 @@
             drillingLayer.draw(drillingLayerView);
           }
 
-          // Draw forest alerts
-          if (showForestAlertsTimeMachineLayer) {
-            var forestAlertsView = timelapse.getView();
-            var timelapse2map = forestAlertsTimeMachineLayer.getWidth() / landsatBaseMapLayer.getWidth();
-
-            var p = timelapse.getProjection();
-            var offest = p.latlngToPoint({"lat":5.506709319555738, "lng":-82.5513118548623})
-
-            forestAlertsView.x -= offest.x;
-            forestAlertsView.y -= offest.y;
-            forestAlertsTimeMachineLayer.draw(forestAlertsView, tileViewVisibility);
-          }
-
           // Draw forest alerts no overlay
           if (showForestAlertsNoOverlayTimeMachineLayer) {
             var forestAlertsNoOverlayView = timelapse.getView();
@@ -2418,6 +2419,19 @@
             forestAlertsNoOverlayView.x -= offest.x;
             forestAlertsNoOverlayView.y -= offest.y;
             forestAlertsNoOverlayTimeMachineLayer.draw(forestAlertsNoOverlayView, tileViewVisibility);
+          }
+
+          // Draw forest alerts
+          if (showForestAlertsTimeMachineLayer) {
+            var forestAlertsView = timelapse.getView();
+            var timelapse2map = forestAlertsTimeMachineLayer.getWidth() / landsatBaseMapLayer.getWidth();
+
+            var p = timelapse.getProjection();
+            var offest = p.latlngToPoint({"lat":5.506709319555738, "lng":-82.5513118548623})
+
+            forestAlertsView.x -= offest.x;
+            forestAlertsView.y -= offest.y;
+            forestAlertsTimeMachineLayer.draw(forestAlertsView, tileViewVisibility);
           }
 
         }
