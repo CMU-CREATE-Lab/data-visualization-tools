@@ -66,7 +66,7 @@
         z-index: 0;
       }
       .snaplapse_keyframe_list_item.letterbox:not(.recording) .snaplapse_keyframe_list_item_title {
-        font-size: 21px;
+        font-size: 15px;
       }
       .presentationSlider .snaplapse_keyframe_container {
         background-color: black !important;
@@ -587,7 +587,26 @@
       .sideToolBar.hyperwall {
         display: none;
       }
-
+      .presentationSlider.letterbox {
+        bottom: 62px !important;
+      }
+      #presentation-slider-selection {
+        display: none;
+        position: absolute;
+        bottom: 0px;
+        left: 20px;
+      }
+      #presentation-slider-selection button {
+        font-size: 17px;
+        cursor: pointer;
+        padding: 5px;
+      }
+      #presentation-slider-selection td {
+        padding-right: 8px;
+      }
+      #presentation-slider-selection.letterbox {
+        display: block;
+      }
     </style>
     <script type="text/javascript">
       "use strict";
@@ -682,7 +701,7 @@
             showAnnotations: false,
             screenIdleTime: screenTimeoutInMilliseconds,
             waypointDelayTime: waypointDelayInMilliseconds,
-            height: (enableLetterboxMode && !enableRecordingMode) ? 156 : 94
+            height: 94
           },
           useTouchFriendlyUI: isHyperwall,
           datasetType: "landsat",
@@ -1342,12 +1361,11 @@
         legend_html += '</div>';
         legend_html += '</div>';
 
-        if(enableLetterboxMode) {
+        if (enableLetterboxMode) {
           $(layer_html).appendTo($("#content"));
           $(legend_html).appendTo($("#content"));
-          $(".vector-legend").addClass("letterbox");
+          $("#presentation-slider-selection, .vector-legend, .base-map-radio, .map-layer-checkbox, .extras-selector, .presentationSlider").addClass("letterbox");
           $(".base-map-div, .map-layer-div, .extras-selector-div").addClass("top-panel").addClass("letterbox");
-          $(".base-map-radio, .map-layer-checkbox, .extras-selector").addClass("letterbox");
           $(".current-location-text, .landsat-select, .wdpa-select, .forest-change-select, .viirs-select, .forest-loss-gain-select, .animated-forest-loss-select, .forest-alerts-select, .lights-at-night-select, .coral-select, .coral-bleaching-select, .wind-select, .solar-select, .drilling-select, .himawari-select, .water-occurrence-select, .water-change-select").addClass("letterbox");
         } else {
           $(layer_html).appendTo($("#timeMachine .player"));
@@ -1585,7 +1603,6 @@
 
             // Default to Landsat turned on
             $landsatToggle.click();
-            timelapse.setPlaybackRate(defaultPlaybackSpeed);
 
             //// Clear out layers if they were already checked
 
@@ -1701,6 +1718,7 @@
                 timelapse.stopParabolicMotion();
                 timelapse.setNewView(himawariView);
               }
+              timelapse.setPlaybackRate(0.5);
               setTimeout(function() {
                 timelapse.seek(12.50);
               }, 150);
@@ -1714,6 +1732,7 @@
                 timelapse.stopParabolicMotion();
                 timelapse.setNewView(himawariView);
               }
+              timelapse.setPlaybackRate(0.5);
               setTimeout(function() {
                 timelapse.seek(24.33);
               }, 150);
@@ -1727,6 +1746,7 @@
                 timelapse.stopParabolicMotion();
                 timelapse.setNewView(himawariView);
               }
+              timelapse.setPlaybackRate(0.5);
               setTimeout(function() {
                 timelapse.seek(342.83);
               }, 150);
@@ -1740,6 +1760,7 @@
                 timelapse.stopParabolicMotion();
                 timelapse.setNewView(himawariView);
               }
+              timelapse.setPlaybackRate(0.5);
               setTimeout(function() {
                 timelapse.seek(296.66);
               }, 150);
@@ -1753,6 +1774,7 @@
                 timelapse.stopParabolicMotion();
                 timelapse.setNewView(himawariView);
               }
+              timelapse.setPlaybackRate(0.5);
               setTimeout(function() {
                 timelapse.seek(9.5);
               }, 150);
@@ -1766,6 +1788,7 @@
                 timelapse.stopParabolicMotion();
                 timelapse.setNewView(himawariView);
               }
+              timelapse.setPlaybackRate(0.5);
               setTimeout(function() {
                 timelapse.seek(9.75);
               }, 150);
@@ -1779,6 +1802,7 @@
                 timelapse.stopParabolicMotion();
                 timelapse.setNewView(himawariView);
               }
+              timelapse.setPlaybackRate(0.5);
               setTimeout(function() {
                 timelapse.seek(223.084);
               }, 150);
@@ -1790,7 +1814,7 @@
 
             // VIIRS specific waypoints
             // Issues arise if these are not separated out...
-            if ((waypointIndex >= 1 && waypointIndex <= 4) || (waypointIndex >= 63 && waypointIndex <= 65)) {
+            if ((waypointIndex >= 1 && waypointIndex <= 5) || (waypointIndex >= 63 && waypointIndex <= 65)) {
               if (!$viirsLayerToggle.prop('checked')) {
                 $viirsLayerToggle.click();
                 //timelapse.play();
@@ -1799,8 +1823,10 @@
                 $darkMapToggle.click();
               }
             } else {
-              if ($viirsLayerToggle.prop('checked'))
+              if ($viirsLayerToggle.prop('checked')) {
                 $viirsLayerToggle.click();
+                timelapse.setPlaybackRate(defaultPlaybackSpeed);
+              }
             }
 
             // Non-VIIRS waypoints
@@ -1809,14 +1835,14 @@
                 $lightsAtNightToggle.click();
               }
             }
-            if (waypointIndex == 19 || waypointIndex == 26 || (waypointIndex >= 32 && waypointIndex <= 36) || waypointIndex == 39 || (waypointIndex >= 79 && waypointIndex <= 80)) {
+            if (waypointIndex == 19 || waypointIndex == 26 || (waypointIndex >= 32 && waypointIndex <= 38) || (waypointIndex >= 79 && waypointIndex <= 80)) {
               if (!$globalForestLayerToggle.prop('checked')) {
                 $globalForestLayerToggle.click();
               }
-              if ((waypointIndex >= 32 && waypointIndex <= 36) || waypointIndex == 39) {
-                if (!$darkMapToggle.prop('checked')) {
-                  $darkMapToggle.click();
-                }
+            }
+            if (waypointIndex >= 30 && waypointIndex <= 39) {
+              if (!$darkMapToggle.prop('checked')) {
+                $darkMapToggle.click();
               }
             }
             if (waypointIndex == 27 || waypointIndex == 98 || waypointIndex == 100 || waypointIndex == 102) {
@@ -1824,17 +1850,22 @@
                 $wdpaLayerToggle.click();
               }
             }
-            if (waypointIndex == 31 || (waypointIndex >= 37 && waypointIndex <= 38) || waypointIndex == 82 || waypointIndex == 97 || waypointIndex == 99) {
+            if ((waypointIndex >= 30 && waypointIndex <= 31) || waypointIndex == 39 || waypointIndex == 82 || waypointIndex == 97 || waypointIndex == 99) {
               if (!$globalForestLossLayerToggle.prop('checked')) {
                 $globalForestLossLayerToggle.click();
               }
             }
-            if (waypointIndex == 52) {
+            if (waypointIndex == 40 || waypointIndex == 52) {
               if (!$waterChangeToggle.prop('checked')) {
                 $waterChangeToggle.click();
               }
             }
-            if (waypointIndex == 54 || waypointIndex == 109) {
+            if (waypointIndex == 54) {
+              if (!$coralBleachingAlertsLayerToggle.prop('checked')) {
+                $coralBleachingAlertsLayerToggle.click();
+              }
+            }
+            if (waypointIndex == 109) {
               if (!$coralLayerToggle.prop('checked')) {
                 $coralLayerToggle.click();
               }
@@ -1956,6 +1987,30 @@
             $current_location_text.addClass("recording");
           }
         }
+
+        $("#presentation-slider-selection").on("click", "td", function() {
+          var sectionId = $(this).get(0).id;
+          var waypointContainer = $(".snaplapse_keyframe_container");
+          if (sectionId == "climate-1-section") {
+            var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(0));
+          } else if (sectionId == "climate-2-section") {
+            var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(14));
+          } else if (sectionId == "forest-section") {
+            var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(30));
+          } else if (sectionId == "water-section") {
+            var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(40));
+          } else if (sectionId == "resources-1-section") {
+            var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(55));
+          } else if (sectionId == "resources-2-section") {
+            var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(69))
+          } else if (sectionId == "industrialization-section") {
+            var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(93));
+          } else if (sectionId == "himawari-section") {
+            var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(110));
+          }
+          var scrollAmount = scrollTo.offset().left - waypointContainer.offset().left + waypointContainer.scrollLeft();
+          $(".snaplapse_keyframe_container").scrollLeft(scrollAmount);
+        });
       }
 
       var perf;
@@ -2266,5 +2321,6 @@
     </div>
     <canvas id="stats" style="position:absolute; top:0px; right:0px; z-index:100" width=1000 height=153></canvas>
     <div id="extras-content" title=""></div>
+    <div id="presentation-slider-selection"><table><tr><td style="color: white">Jump To: <td id="climate-1-section"><button type="button">Climate 1</button></td><td id="climate-2-section"><button type="button">Climate 2</button></td><td id="forest-section"><button type="button">Forest</button></td><td id="water-section"><button type="button">Water</button></td><td id="resources-1-section"><button type="button">Resources 1</button></td><td id="resources-2-section"><button type="button">Resources 2</button></td><td id="industrialization-section"><button type="button">Industrialization</button></td><td id="himawari-section"><button type="button">Himawari-8</button></td></div>
   </body>
 </html>

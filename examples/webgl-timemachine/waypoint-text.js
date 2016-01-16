@@ -65,11 +65,11 @@ WAYPOINT_TEXT = [
   },
   {
     "title" : "Rondonia",
-    "text" : "Conversion of forests to farms in Rondonia, Brazil."
+    "text" : "Conversion of forests to farmland in Rondonia, Brazil."
   },
   {
     "title" : "Rondonia",
-    "text" : "Conversion of forests to farms in Rondonia, Brazil."
+    "text" : "Conversion of forests to farmland in Rondonia, Brazil."
   },
   {
     "title" : "Amazon Rain Forest",
@@ -305,11 +305,11 @@ WAYPOINT_TEXT = [
   },
   {
     "title" : "Rondonia",
-    "text" : "Conversion of forests to farms in Rondonia, Brazil."
+    "text" : "Conversion of forests to farmland in Rondonia, Brazil."
   },
   {
     "title" : "Rondonia",
-    "text" : "Conversion of forests to farms in Rondonia, Brazil."
+    "text" : "Conversion of forests to farmland in Rondonia, Brazil."
   },
   {
     "title" : "Amazon Rain Forest",
@@ -408,7 +408,7 @@ WAYPOINT_TEXT = [
     "text" : "Brasilia, Brazil includes the largest national urban park in the world, protecting tropical savanna and forest in order to balance development with greening and preservation."
   },
   {
-    "title" : "Brasilia",
+    "title" : "Northwest Brasilia",
     "text" : "Brasilia, Brazil includes the largest national urban park in the world, protecting tropical savanna and forest in order to balance development with greening and preservation."
   },
   {
@@ -421,11 +421,11 @@ WAYPOINT_TEXT = [
   },
   {
     "title" : "Pretoria, South Afria",
-    "text" : ""
+    "text" : "Urbanization in the Jo'burg - Pretoria corridor has greatly increased urban land use throughout Gauteng Province, placing industrial and residential activities close together as in other industrial, growing locales around the world."
   },
   {
     "title" : "Nairobi",
-    "text" : "Urbanization in the Jo'burg - Pretoria corridor has greatly increased urban land use throughout Gauteng Province, placing industrial and residential activities close together as in other industrial, growing locales around the world."
+    "text" : ""
   },
   {
     "title" : "Addis Ababa",
