@@ -111,6 +111,12 @@
         left: 92px;
         top: 18px;
       }
+      .googleLogo {
+        color: white;
+        font-size: 40px;
+        width: 382px;
+        background-image: none;
+      }
       ::-webkit-input-placeholder {
         color: rgba(50,50,50,1.0);
       }
@@ -1515,6 +1521,7 @@
 
         // Layer Toggle UI
         initLayerToggleUI();
+        $(".googleLogo").html("Google Earth Engine");
 
         // Load waypoints
         timelapse.loadSharedDataFromUnsafeURL(presentationSliderContent);
