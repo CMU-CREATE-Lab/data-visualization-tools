@@ -1208,6 +1208,9 @@
               $("#extras-video").gVideo({
                 childtheme:'smalldark'
               });
+            } else if (fileType == "iframe") {
+              $extrasHtml = '<iframe style="border: 0px; scrolling: no; width: 100%; height: 100%" src="' + $(e.currentTarget).data("linkpath") + '"></iframe>';
+              $("#extras-content").html($extrasHtml).dialog("open");
             } else if (fileType == "link") {
               window.location.href = $(e.currentTarget).data("linkpath");
             }
@@ -1222,7 +1225,7 @@
           dialogClass: "extras-content-video",
           beforeClose: function(event, ui) {
             var $extrasVideo  = $("#extras-video");
-            if ($extrasVideo) {
+            if ($extrasVideo && $extrasVideo[0]) {
               $extrasVideo[0].pause();
               $extrasVideo[0].src = "";
             }
@@ -1464,6 +1467,7 @@
         layer_html += '   <option data-file-playback-rate="2" data-type="video" data-file-name="Arctic Sea Ice, September 1979 to September 2014.mp4">Sea Ice Concentration 1979-2014</option>';
         layer_html += '   <option data-file-playback-rate="1" data-type="video" data-file-name="coral-reef-watch-daily-7day-max.mp4">Coral Reef Watch 2013-2015</option>';
         layer_html += '   <option data-file-playback-rate="0.5" data-type="video" data-file-name="merra-spi.mp4">Standardized Precipitation Index 1980-2015</option>';
+        layer_html += '   <option data-type="iframe" data-link-path="http://choices.climatecentral.org/widget.html?utm_source=Davos&utm_medium=embed&utm_campaign=SSMC-Map#11/31.2301/121.4736?compare=temperatures&carbon-end-yr=2100&scenario-a=warming-4&scenario-b=warming-2&presentation=1">Shanghai Sea Level</option>';
         if (showEVA)
           layer_html += '   <option data-type="link" data-link-path="http://localhost:8080/?uid=history-1436384863961-Vyxt6PIO">EVA - Explorable Visual Analytics</option>';
         layer_html += ' </select>';
