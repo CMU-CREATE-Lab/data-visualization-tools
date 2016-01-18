@@ -88,11 +88,11 @@ WAYPOINT_TEXT = [
     "text" : ""
   },
   {
-    "title" : "Water previously terminating in Lake Urmia is diverted for agricultural.",
+    "title" : "Water previously terminating in Lake Urmia is diverted for agriculture.",
     "text" : ""
   },
   {
-    "title" : "Water previously terminating in Aral Sea is diverted for agricultural. The region is also experiencing drought.",
+    "title" : "Water previously terminating in Aral Sea is diverted for agriculture. Drought is further accelerating water loss.",
     "text" : ""
   },
   {
@@ -168,11 +168,11 @@ WAYPOINT_TEXT = [
     "text" : ""
   },
   {
-    "title" : "Water previously terminating in Lake Urmia is diverted for agricultural.",
+    "title" : "Water previously terminating in Lake Urmia is diverted for agriculture.",
     "text" : ""
   },
   {
-    "title" : "Water previously terminating in Aral Sea is diverted for agricultural.  Region is also experiencing drought.",
+    "title" : "Water previously terminating in Aral Sea is diverted for agriculture. Drought is further accelerating water loss.",
     "text" : ""
   },
   {
@@ -296,7 +296,7 @@ WAYPOINT_TEXT = [
     "text" : ""
   },
   {
-    "title" : "Water previously terminating in Aral Sea is diverted for agricultural.  Region is also experiencing drought.",
+    "title" : "Water previously terminating in Aral Sea is diverted for agriculture. Drought is further accelerating water loss.",
     "text" : ""
   },
   {
@@ -480,7 +480,7 @@ WAYPOINT_TEXT = [
     "text" : ""
   },
   {
-    "title" : "Typhoon In-Fa was the 24th category 4+ typhoon for the 2015 season, shattering the previous record of 18 such typhoons in a season.  Luckily, it did not make landfall.",
+    "title" : "Typhoon In-Fa was the 24th category 4+ typhoon for the 2015 season, shattering the previous record of 18 such typhoons in a season. Luckily, it did not make landfall.",
     "text" : ""
   }
 
