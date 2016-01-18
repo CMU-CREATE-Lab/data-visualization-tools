@@ -408,7 +408,7 @@ WAYPOINT_TEXT = [
     "text" : "Brasilia, Brazil includes the largest national urban park in the world, protecting tropical savanna and forest in order to balance development with greening and preservation."
   },
   {
-    "title" : "Northwest Brasilia",
+    "title" : "Northwest of Brasilia",
     "text" : "Brasilia, Brazil includes the largest national urban park in the world, protecting tropical savanna and forest in order to balance development with greening and preservation."
   },
   {
@@ -433,7 +433,7 @@ WAYPOINT_TEXT = [
   },
   {
     "title" : "Lake Urmia",
-    "text" : "The gradual disappearance of Lake Urmia in Iran is a token of resource shifts toay, culmination from short-term human decisions combined with long-term global trends. These markers of change are near-time exemplars of long-term changes in watershed, arable land and climate dynamics that shift opportunities globally."
+    "text" : "The gradual disappearance of Lake Urmia in Iran is a token of resource shifts today, culmination from short-term human decisions combined with long-term global trends. These markers of change are near-time exemplars of long-term changes in watershed, arable land and climate dynamics that shift opportunities globally."
   },
   {
     "title" : "Coral Reefs",
