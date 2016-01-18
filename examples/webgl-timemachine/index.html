@@ -2130,25 +2130,30 @@
         $("#presentation-slider-selection").on("click", "td", function() {
           var sectionId = $(this).get(0).id;
           var waypointContainer = $(".snaplapse_keyframe_container");
-          if (sectionId == "climate-1-section") {
-            var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(0));
-          } else if (sectionId == "climate-2-section") {
-            var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(14));
-          } else if (sectionId == "forest-section") {
-            var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(30));
-          } else if (sectionId == "water-section") {
-            var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(40));
-          } else if (sectionId == "resources-1-section") {
-            var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(55));
-          } else if (sectionId == "resources-2-section") {
-            var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(69))
-          } else if (sectionId == "industrialization-section") {
-            var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(93));
-          } else if (sectionId == "himawari-section") {
-            var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(110));
+          if (sectionId == "automode-section") {
+            var snaplapseForPresentationSlider = timelapse.getSnaplapseForPresentationSlider();
+            snaplapseForPresentationSlider.getSnaplapseViewer().initializeAndRunAutoMode();
+          } else {
+            if (sectionId == "climate-1-section") {
+              var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(0));
+            } else if (sectionId == "climate-2-section") {
+              var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(14));
+            } else if (sectionId == "forest-section") {
+              var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(30));
+            } else if (sectionId == "water-section") {
+              var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(40));
+            } else if (sectionId == "resources-1-section") {
+              var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(55));
+            } else if (sectionId == "resources-2-section") {
+              var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(69))
+            } else if (sectionId == "industrialization-section") {
+              var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(93));
+            } else if (sectionId == "himawari-section") {
+              var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(110));
+            }
+            var scrollAmount = scrollTo.offset().left - waypointContainer.offset().left + waypointContainer.scrollLeft();
+            $(".snaplapse_keyframe_container").scrollLeft(scrollAmount);
           }
-          var scrollAmount = scrollTo.offset().left - waypointContainer.offset().left + waypointContainer.scrollLeft();
-          $(".snaplapse_keyframe_container").scrollLeft(scrollAmount);
         });
       }
 
@@ -2474,6 +2479,6 @@
     </div>
     <canvas id="stats" style="position:absolute; top:0px; right:0px; z-index:100" width=1000 height=153></canvas>
     <div id="extras-content" title=""></div>
-    <div id="presentation-slider-selection"><table><tr><td style="color: white">Jump To: <td id="climate-1-section"><button type="button">Climate 1</button></td><td id="climate-2-section"><button type="button">Climate 2</button></td><td id="forest-section"><button type="button">Forest</button></td><td id="water-section"><button type="button">Water</button></td><td id="resources-1-section"><button type="button">Resources 1</button></td><td id="resources-2-section"><button type="button">Resources 2</button></td><td id="industrialization-section"><button type="button">Industrialization</button></td><td id="himawari-section"><button type="button">Himawari-8</button></td></div>
+    <div id="presentation-slider-selection"><table><tr><td style="color: white">Jump To: <td id="climate-1-section"><button type="button">Climate 1</button></td><td id="climate-2-section"><button type="button">Climate 2</button></td><td id="forest-section"><button type="button">Forest</button></td><td id="water-section"><button type="button">Water</button></td><td id="resources-1-section"><button type="button">Resources 1</button></td><td id="resources-2-section"><button type="button">Resources 2</button></td><td id="industrialization-section"><button type="button">Industrialization</button></td><td id="himawari-section"><button type="button">Himawari-8</button></td><td style="padding-left:250px" id="automode-section"><button type="button">Launch Automode</button></td></tr></table></div>
   </body>
 </html>
