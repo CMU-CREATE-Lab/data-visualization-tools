@@ -646,6 +646,8 @@
 
       jQuery.support.cors = true;
 
+      var previousWaypointScale, previousWaypointBounds;
+      var previousWaypoint = {};
       var forestAlertsTimeMachineLayer, forestAlertsNoOverlayTimeMachineLayer, landsatBaseMapLayer, timelapse, darkBaseMapLayer, lightBaseMapLayer, wdpaVectorLayer, mcrmVectorLayer, hansonMapLayer, hansonMapLayer2, viirsTile, coralBleachingTile, lightsAtNightMapLayer, crwTimemachineLayer, animatedHansenLayer, himawariTimemachineLayer, waterOccurrenceLayer, waterChangeLayer;
 
       var usgsWindTurbineLayer, solarInstallsLayer, drillingLayer;
@@ -1686,19 +1688,44 @@
           $('.current-location-text').hide();
         });
 
+
+
         // TODO: Refactor how this is handled and how layers turn on/off in general
         if (snaplapseViewerForPresentationSlider) {
-          snaplapseViewerForPresentationSlider.addEventListener('slide-changed', function(waypointTitle, waypointIndex) {
+          snaplapseViewerForPresentationSlider.addEventListener('slide-changed', function(waypointTitle, waypointIndex, waypointBounds) {
             // Display info box for the waypoints
             if (enableWaypointText && WAYPOINT_TEXT) {
+              var waypointScale = timelapse.pixelBoundingBoxToPixelCenter(waypointBounds).scale;
               var $current_location_text = $(".current-location-text");
-              if (WAYPOINT_TEXT && WAYPOINT_TEXT[waypointIndex].title) {
-                $current_location_text.show();
-                $current_location_text.find("h3").text(WAYPOINT_TEXT[waypointIndex].title);
-                $current_location_text.find("p").text(WAYPOINT_TEXT[waypointIndex].text);
-              } else {
-                $current_location_text.hide();
-              }
+
+              var waypointViewChangeListener = timelapse.addViewChangeListener(function() {
+                if (!timelapse.isMovingToWaypoint()) {
+                  timelapse.removeViewChangeListener(this);
+                }
+                var currentView = timelapse.getView();
+                if (currentView.scale * 2.5 > waypointScale && (currentView.x >= waypointBounds.xmin && currentView.x <= waypointBounds.xmax && currentView.y >= waypointBounds.ymin && currentView.y <= waypointBounds.ymax)) {
+                  if (WAYPOINT_TEXT && WAYPOINT_TEXT[waypointIndex].title) {
+                    $current_location_text.show();
+                    $current_location_text.find("h3").text(WAYPOINT_TEXT[waypointIndex].title);
+                    $current_location_text.find("p").text(WAYPOINT_TEXT[waypointIndex].text);
+                    previousWaypoint.scale = waypointScale;
+                    previousWaypoint.bounds = waypointBounds;
+                    timelapse.addViewChangeListener(function() {
+                      var currentView = timelapse.getView();
+                      var previousWaypointBounds = previousWaypoint.bounds;
+                      if ((previousWaypoint.scale / 2.5 > currentView.scale || !(currentView.x >= previousWaypointBounds.xmin && currentView.x <= previousWaypointBounds.xmax && currentView.y >= previousWaypointBounds.ymin && currentView.y <= previousWaypointBounds.ymax))) {
+                        $(".current-location-text").hide();
+                        timelapse.removeViewChangeListener(this);
+                      }
+                    });
+                  } else {
+                    $(".current-location-text").hide();
+                  }
+                  timelapse.removeViewChangeListener(this);
+                } else {
+                  $(".current-location-text").hide();
+                }
+              });
             }
 
             // Earth Engine Timelapse
