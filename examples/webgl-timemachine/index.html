@@ -1213,6 +1213,9 @@
             } else if (fileType == "iframe") {
               $extrasHtml = '<iframe style="border: 0px; scrolling: no; width: 100%; height: 100%" src="' + $(e.currentTarget).data("linkpath") + '"></iframe>';
               $("#extras-content").html($extrasHtml).dialog("open");
+            } else if (fileType == "img") {
+              $extrasHtml = '<img height="100%" style="display: block; margin: 0 auto;" src="../../../extras/' + $(e.currentTarget).data("linkpath") + '">';
+              $("#extras-content").html($extrasHtml).dialog("open");
             } else if (fileType == "link") {
               window.location.href = $(e.currentTarget).data("linkpath");
             }
@@ -1470,6 +1473,7 @@
         layer_html += '   <option data-file-playback-rate="1" data-type="video" data-file-name="coral-reef-watch-daily-7day-max.mp4">Coral Reef Watch 2013-2015</option>';
         layer_html += '   <option data-file-playback-rate="0.5" data-type="video" data-file-name="merra-spi.mp4">Standardized Precipitation Index 1980-2015</option>';
         layer_html += '   <option data-type="iframe" data-link-path="http://choices.climatecentral.org/widget.html?utm_source=Davos&utm_medium=embed&utm_campaign=SSMC-Map#11/31.2301/121.4736?compare=temperatures&carbon-end-yr=2100&scenario-a=warming-4&scenario-b=warming-2&presentation=1">Shanghai Sea Level</option>';
+        layer_html += '   <option data-type="img" data-link-path="land-and-ocean-temps.png">2015: Hottest Year on Record</option>';
         if (showEVA)
           layer_html += '   <option data-type="link" data-link-path="http://localhost:8080/?uid=history-1436384863961-Vyxt6PIO">EVA - Explorable Visual Analytics</option>';
         layer_html += ' </select>';
@@ -1689,7 +1693,6 @@
         });
 
 
-
         // TODO: Refactor how this is handled and how layers turn on/off in general
         if (snaplapseViewerForPresentationSlider) {
           snaplapseViewerForPresentationSlider.addEventListener('slide-changed', function(waypointTitle, waypointIndex, waypointBounds) {
@@ -1697,10 +1700,38 @@
             if (enableWaypointText && WAYPOINT_TEXT) {
               var waypointScale = timelapse.pixelBoundingBoxToPixelCenter(waypointBounds).scale;
               var $current_location_text = $(".current-location-text");
+              var himawariView;
+              if (waypointIndex == 81) {
+                himawariView = {x: 245106.46412122744, y: 727021.4061973379, scale: 0.019163055706363917};
+              } else if (waypointIndex == 111) {
+                himawariView = {x: 670030.661392405, y: 760918.1012658221, scale: 0.0004731126771739602};
+              } else if (waypointIndex == 112) {
+                himawariView = {x: 245106.46412122744, y: 727021.4061973379, scale: 0.019163055706363917};
+              } else if (waypointIndex == 113) {
+                himawariView = {x: 362126.4405055399, y: 782057.1066230518, scale: 0.022475101466500988};
+              } else if (waypointIndex == 114) {
+                himawariView = {x: 451074.23876657395, y: 212062.48697210365, scale: 0.017032941813388835};
+              } else if (waypointIndex == 115) {
+                himawariView = {x: 451074.23876657395, y: 212062.48697210365, scale: 0.017032941813388835};
+              } else if (waypointIndex == 116) {
+                himawariView = {x: 451074.23876657395, y: 212062.48697210365, scale: 0.017032941813388835};
+              } else if (waypointIndex == 117) {
+                himawariView = {x: 363341.95657876006, y: 205546.6268786163, scale: 0.02011577928416843};
+              } else if (waypointIndex == 118) {
+                himawariView = {x: 677150.2096313634, y: 1300560.2801491471, scale: 0.009919419703208456};
+              } else if (waypointIndex == 119) {
+                himawariView = {x: 646791.4364009488, y: 1299485.0077851338, scale: 0.031962724591951354};
+              } else if (waypointIndex == 120) {
+                himawariView = {x: 745253.433241357, y: 550139.9045414061, scale: 0.006365420067946737};
+              }
 
-              var waypointViewChangeListener = timelapse.addViewChangeListener(function() {
+              if (himawariView) {
+                waypointBounds = timelapse.pixelCenterToPixelBoundingBoxView(himawariView).bbox;
+              }
+
+              var waypointViewChangeListener = function() {
                 if (!timelapse.isMovingToWaypoint()) {
-                  timelapse.removeViewChangeListener(this);
+                  timelapse.removeViewChangeListener(waypointViewChangeListener);
                 }
                 var currentView = timelapse.getView();
                 if (currentView.scale * 2.5 > waypointScale && (currentView.x >= waypointBounds.xmin && currentView.x <= waypointBounds.xmax && currentView.y >= waypointBounds.ymin && currentView.y <= waypointBounds.ymax)) {
@@ -1715,17 +1746,18 @@
                       var previousWaypointBounds = previousWaypoint.bounds;
                       if ((previousWaypoint.scale / 2.5 > currentView.scale || !(currentView.x >= previousWaypointBounds.xmin && currentView.x <= previousWaypointBounds.xmax && currentView.y >= previousWaypointBounds.ymin && currentView.y <= previousWaypointBounds.ymax))) {
                         $(".current-location-text").hide();
-                        timelapse.removeViewChangeListener(this);
+                        timelapse.removeViewChangeListener(waypointViewChangeListener);
                       }
                     });
                   } else {
                     $(".current-location-text").hide();
                   }
-                  timelapse.removeViewChangeListener(this);
+                  timelapse.removeViewChangeListener(waypointViewChangeListener);
                 } else {
                   $(".current-location-text").hide();
                 }
-              });
+              }
+              timelapse.addViewChangeListener(waypointViewChangeListener);
             }
 
             // Earth Engine Timelapse
@@ -1817,167 +1849,6 @@
 
             //// Set layers based on waypoint
 
-            // Himawari
-            if (waypointIndex == 81) {
-              var himawariView = {x: 245106.46412122744, y: 727021.4061973379, scale: 0.019163055706363917};
-              if (!$himawariLayerToggle.prop('checked')) {
-                loadHimawari();
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView, true);
-              } else {
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView);
-              }
-              timelapse.setPlaybackRate(0.5);
-              setTimeout(function() {
-                timelapse.seek(47.67);
-              }, 150);
-            }else if (waypointIndex == 111) {
-              var himawariView = {x: 670030.661392405, y: 760918.1012658221, scale: 0.0004731126771739602};
-              if (!$himawariLayerToggle.prop('checked')) {
-                loadHimawari();
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView, true);
-              } else {
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView);
-              }
-              timelapse.setPlaybackRate(1);
-              setTimeout(function() {
-                timelapse.seek(0);
-              }, 150);
-            }else if (waypointIndex == 112) {
-              var himawariView = {x: 245106.46412122744, y: 727021.4061973379, scale: 0.019163055706363917};
-              if (!$himawariLayerToggle.prop('checked')) {
-                loadHimawari();
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView, true);
-              } else {
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView);
-              }
-              timelapse.setPlaybackRate(0.5);
-              setTimeout(function() {
-                timelapse.seek(47.67);
-              }, 150);
-            }else if (waypointIndex == 113) {
-              var himawariView = {x: 362126.4405055399, y: 782057.1066230518, scale: 0.022475101466500988};
-              if (!$himawariLayerToggle.prop('checked')) {
-                loadHimawari();
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView, true);
-              } else {
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView);
-              }
-              timelapse.setPlaybackRate(1);
-              setTimeout(function() {
-                timelapse.seek(34.75);
-              }, 150);
-            }else if (waypointIndex == 114) {
-              var himawariView = {x: 451074.23876657395, y: 212062.48697210365, scale: 0.017032941813388835};
-              if (!$himawariLayerToggle.prop('checked')) {
-                loadHimawari();
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView, true);
-              } else {
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView);
-              }
-              timelapse.setPlaybackRate(0.5);
-              setTimeout(function() {
-                timelapse.seek(12.50);
-              }, 150);
-            }else if (waypointIndex == 115) {
-              var himawariView = {x: 451074.23876657395, y: 212062.48697210365, scale: 0.017032941813388835};
-              if (!$himawariLayerToggle.prop('checked')) {
-                loadHimawari();
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView, true);
-              } else {
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView);
-              }
-              timelapse.setPlaybackRate(0.5);
-              setTimeout(function() {
-                timelapse.seek(24.33);
-              }, 150);
-            }else if (waypointIndex == 116) {
-              var himawariView = {x: 451074.23876657395, y: 212062.48697210365, scale: 0.017032941813388835};
-              if (!$himawariLayerToggle.prop('checked')) {
-                loadHimawari();
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView, true);
-              } else {
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView);
-              }
-              timelapse.setPlaybackRate(0.5);
-              setTimeout(function() {
-                timelapse.seek(342.83);
-              }, 150);
-            }else if (waypointIndex == 117) {
-              var himawariView = {x: 363341.95657876006, y: 205546.6268786163, scale: 0.02011577928416843};
-              if (!$himawariLayerToggle.prop('checked')) {
-                loadHimawari();
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView, true);
-              } else {
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView);
-              }
-              timelapse.setPlaybackRate(0.5);
-              setTimeout(function() {
-                timelapse.seek(296.66);
-              }, 150);
-            }else if (waypointIndex == 118) {
-              var himawariView = {x: 677150.2096313634, y: 1300560.2801491471, scale: 0.009919419703208456};
-              if (!$himawariLayerToggle.prop('checked')) {
-                loadHimawari();
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView, true);
-              } else {
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView);
-              }
-              timelapse.setPlaybackRate(0.5);
-              setTimeout(function() {
-                timelapse.seek(9.5);
-              }, 150);
-            }else if (waypointIndex == 119) {
-              var himawariView = {x: 646791.4364009488, y: 1299485.0077851338, scale: 0.031962724591951354};
-              if (!$himawariLayerToggle.prop('checked')) {
-                loadHimawari();
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView, true);
-              } else {
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView);
-              }
-              timelapse.setPlaybackRate(0.5);
-              setTimeout(function() {
-                timelapse.seek(9.75);
-              }, 150);
-            }else if (waypointIndex == 120) {
-              var himawariView = {x: 745253.433241357, y: 550139.9045414061, scale: 0.006365420067946737};
-              if (!$himawariLayerToggle.prop('checked')) {
-                loadHimawari();
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView, true);
-              } else {
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView);
-              }
-              timelapse.setPlaybackRate(0.5);
-              setTimeout(function() {
-                timelapse.seek(223.084);
-              }, 150);
-            }else {
-              if ($himawariLayerToggle.prop('checked'))
-                $himawariLayerToggle.click();
-            }
-            // End Himawari
-
             // VIIRS specific waypoints
             // Issues arise if these are not separated out...
             if ((waypointIndex >= 1 && waypointIndex <= 5) || (waypointIndex >= 63 && waypointIndex <= 65)) {
@@ -1994,6 +1865,167 @@
                 timelapse.setPlaybackRate(defaultPlaybackSpeed);
               }
             }
+
+            // Himawari
+            if (waypointIndex == 81) {
+              var himawariView = {x: 245106.46412122744, y: 727021.4061973379, scale: 0.019163055706363917};
+              if (!$himawariLayerToggle.prop('checked')) {
+                loadHimawari();
+                timelapse.stopParabolicMotion();
+                timelapse.setNewView(himawariView, true);
+              } else {
+                timelapse.stopParabolicMotion();
+                timelapse.setNewView(himawariView);
+              }
+              timelapse.setPlaybackRate(0.5);
+              setTimeout(function() {
+                timelapse.seek(47.67);
+              }, 150);
+            } else if (waypointIndex == 111) {
+              var himawariView = {x: 670030.661392405, y: 760918.1012658221, scale: 0.0004731126771739602};
+              if (!$himawariLayerToggle.prop('checked')) {
+                loadHimawari();
+                timelapse.stopParabolicMotion();
+                timelapse.setNewView(himawariView, true);
+              } else {
+                timelapse.stopParabolicMotion();
+                timelapse.setNewView(himawariView);
+              }
+              timelapse.setPlaybackRate(1);
+              setTimeout(function() {
+                timelapse.seek(0);
+              }, 150);
+            } else if (waypointIndex == 112) {
+              var himawariView = {x: 245106.46412122744, y: 727021.4061973379, scale: 0.019163055706363917};
+              if (!$himawariLayerToggle.prop('checked')) {
+                loadHimawari();
+                timelapse.stopParabolicMotion();
+                timelapse.setNewView(himawariView, true);
+              } else {
+                timelapse.stopParabolicMotion();
+                timelapse.setNewView(himawariView);
+              }
+              timelapse.setPlaybackRate(0.5);
+              setTimeout(function() {
+                timelapse.seek(47.67);
+              }, 150);
+            } else if (waypointIndex == 113) {
+              var himawariView = {x: 362126.4405055399, y: 782057.1066230518, scale: 0.022475101466500988};
+              if (!$himawariLayerToggle.prop('checked')) {
+                loadHimawari();
+                timelapse.stopParabolicMotion();
+                timelapse.setNewView(himawariView, true);
+              } else {
+                timelapse.stopParabolicMotion();
+                timelapse.setNewView(himawariView);
+              }
+              timelapse.setPlaybackRate(1);
+              setTimeout(function() {
+                timelapse.seek(34.75);
+              }, 150);
+            } else if (waypointIndex == 114) {
+              var himawariView = {x: 451074.23876657395, y: 212062.48697210365, scale: 0.017032941813388835};
+              if (!$himawariLayerToggle.prop('checked')) {
+                loadHimawari();
+                timelapse.stopParabolicMotion();
+                timelapse.setNewView(himawariView, true);
+              } else {
+                timelapse.stopParabolicMotion();
+                timelapse.setNewView(himawariView);
+              }
+              timelapse.setPlaybackRate(0.5);
+              setTimeout(function() {
+                timelapse.seek(12.50);
+              }, 150);
+            } else if (waypointIndex == 115) {
+              var himawariView = {x: 451074.23876657395, y: 212062.48697210365, scale: 0.017032941813388835};
+              if (!$himawariLayerToggle.prop('checked')) {
+                loadHimawari();
+                timelapse.stopParabolicMotion();
+                timelapse.setNewView(himawariView, true);
+              } else {
+                timelapse.stopParabolicMotion();
+                timelapse.setNewView(himawariView);
+              }
+              timelapse.setPlaybackRate(0.5);
+              setTimeout(function() {
+                timelapse.seek(24.33);
+              }, 150);
+            } else if (waypointIndex == 116) {
+              var himawariView = {x: 451074.23876657395, y: 212062.48697210365, scale: 0.017032941813388835};
+              if (!$himawariLayerToggle.prop('checked')) {
+                loadHimawari();
+                timelapse.stopParabolicMotion();
+                timelapse.setNewView(himawariView, true);
+              } else {
+                timelapse.stopParabolicMotion();
+                timelapse.setNewView(himawariView);
+              }
+              timelapse.setPlaybackRate(0.5);
+              setTimeout(function() {
+                timelapse.seek(342.83);
+              }, 150);
+            } else if (waypointIndex == 117) {
+              var himawariView = {x: 363341.95657876006, y: 205546.6268786163, scale: 0.02011577928416843};
+              if (!$himawariLayerToggle.prop('checked')) {
+                loadHimawari();
+                timelapse.stopParabolicMotion();
+                timelapse.setNewView(himawariView, true);
+              } else {
+                timelapse.stopParabolicMotion();
+                timelapse.setNewView(himawariView);
+              }
+              timelapse.setPlaybackRate(0.5);
+              setTimeout(function() {
+                timelapse.seek(296.66);
+              }, 150);
+            } else if (waypointIndex == 118) {
+              var himawariView = {x: 677150.2096313634, y: 1300560.2801491471, scale: 0.009919419703208456};
+              if (!$himawariLayerToggle.prop('checked')) {
+                loadHimawari();
+                timelapse.stopParabolicMotion();
+                timelapse.setNewView(himawariView, true);
+              } else {
+                timelapse.stopParabolicMotion();
+                timelapse.setNewView(himawariView);
+              }
+              timelapse.setPlaybackRate(0.5);
+              setTimeout(function() {
+                timelapse.seek(9.5);
+              }, 150);
+            } else if (waypointIndex == 119) {
+              var himawariView = {x: 646791.4364009488, y: 1299485.0077851338, scale: 0.031962724591951354};
+              if (!$himawariLayerToggle.prop('checked')) {
+                loadHimawari();
+                timelapse.stopParabolicMotion();
+                timelapse.setNewView(himawariView, true);
+              } else {
+                timelapse.stopParabolicMotion();
+                timelapse.setNewView(himawariView);
+              }
+              timelapse.setPlaybackRate(0.5);
+              setTimeout(function() {
+                timelapse.seek(9.75);
+              }, 150);
+            } else if (waypointIndex == 120) {
+              var himawariView = {x: 745253.433241357, y: 550139.9045414061, scale: 0.006365420067946737};
+              if (!$himawariLayerToggle.prop('checked')) {
+                loadHimawari();
+                timelapse.stopParabolicMotion();
+                timelapse.setNewView(himawariView, true);
+              } else {
+                timelapse.stopParabolicMotion();
+                timelapse.setNewView(himawariView);
+              }
+              timelapse.setPlaybackRate(0.5);
+              setTimeout(function() {
+                timelapse.seek(223.084);
+              }, 150);
+            } else {
+              if ($himawariLayerToggle.prop('checked'))
+                $himawariLayerToggle.click();
+            }
+            // End Himawari
 
             // Non-VIIRS waypoints
             if ((waypointIndex >= 12 && waypointIndex <= 15) || (waypointIndex >= 59 && waypointIndex <= 61) || waypointIndex == 95) {
@@ -2029,6 +2061,9 @@
             if (waypointIndex == 54) {
               if (!$coralBleachingAlertsLayerToggle.prop('checked')) {
                 $coralBleachingAlertsLayerToggle.click();
+              }
+              if (!$darkMapToggle.prop('checked')) {
+                $darkMapToggle.click();
               }
             }
             if (waypointIndex == 109) {
@@ -2369,11 +2404,6 @@
             animatedHansenLayer.draw(animatedHansenLayerView);
           }
 
-
-          // Draw wdpaLayer
-          if (showWdpaLayer)
-            wdpaVectorLayer.draw(timelapse.getView());
-
           if (showMcrmLayer) {
             var mcrmLayerView = timelapse.getView();
             var timelapse2map = mcrmVectorLayer.getWidth() / landsatBaseMapLayer.getWidth();
@@ -2486,6 +2516,10 @@
             forestAlertsView.y -= offest.y;
             forestAlertsTimeMachineLayer.draw(forestAlertsView, tileViewVisibility);
           }
+
+          // Draw wdpaLayer
+          if (showWdpaLayer)
+            wdpaVectorLayer.draw(timelapse.getView());
 
         }
 
