@@ -1867,12 +1867,16 @@
             }
 
             // Himawari
+            var initialViewChangeHack = function() {
+              $($(".snaplapse_keyframe_list").children().eq(waypointIndex).children()[0]).trigger("click", [{'forcedWayPointClickedByAutoMode' : true}]);
+            }
+
             if (waypointIndex == 81) {
               var himawariView = {x: 245106.46412122744, y: 727021.4061973379, scale: 0.019163055706363917};
               if (!$himawariLayerToggle.prop('checked')) {
                 loadHimawari();
                 timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView, true);
+                timelapse.setNewView(himawariView, true, null, initialViewChangeHack);
               } else {
                 timelapse.stopParabolicMotion();
                 timelapse.setNewView(himawariView);
@@ -1886,7 +1890,7 @@
               if (!$himawariLayerToggle.prop('checked')) {
                 loadHimawari();
                 timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView, true);
+                timelapse.setNewView(himawariView, true, null, initialViewChangeHack);
               } else {
                 timelapse.stopParabolicMotion();
                 timelapse.setNewView(himawariView);
@@ -1900,7 +1904,7 @@
               if (!$himawariLayerToggle.prop('checked')) {
                 loadHimawari();
                 timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView, true);
+                timelapse.setNewView(himawariView, true, null, initialViewChangeHack);
               } else {
                 timelapse.stopParabolicMotion();
                 timelapse.setNewView(himawariView);
@@ -1914,7 +1918,7 @@
               if (!$himawariLayerToggle.prop('checked')) {
                 loadHimawari();
                 timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView, true);
+                timelapse.setNewView(himawariView, true, null, initialViewChangeHack);
               } else {
                 timelapse.stopParabolicMotion();
                 timelapse.setNewView(himawariView);
@@ -1928,7 +1932,7 @@
               if (!$himawariLayerToggle.prop('checked')) {
                 loadHimawari();
                 timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView, true);
+                timelapse.setNewView(himawariView, true, null, initialViewChangeHack);
               } else {
                 timelapse.stopParabolicMotion();
                 timelapse.setNewView(himawariView);
@@ -1942,7 +1946,7 @@
               if (!$himawariLayerToggle.prop('checked')) {
                 loadHimawari();
                 timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView, true);
+                timelapse.setNewView(himawariView, true, null, initialViewChangeHack);
               } else {
                 timelapse.stopParabolicMotion();
                 timelapse.setNewView(himawariView);
@@ -1956,7 +1960,7 @@
               if (!$himawariLayerToggle.prop('checked')) {
                 loadHimawari();
                 timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView, true);
+                timelapse.setNewView(himawariView, true, null, initialViewChangeHack);
               } else {
                 timelapse.stopParabolicMotion();
                 timelapse.setNewView(himawariView);
@@ -1970,7 +1974,7 @@
               if (!$himawariLayerToggle.prop('checked')) {
                 loadHimawari();
                 timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView, true);
+                timelapse.setNewView(himawariView, true, null, initialViewChangeHack);
               } else {
                 timelapse.stopParabolicMotion();
                 timelapse.setNewView(himawariView);
@@ -1984,7 +1988,7 @@
               if (!$himawariLayerToggle.prop('checked')) {
                 loadHimawari();
                 timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView, true);
+                timelapse.setNewView(himawariView, true, null, initialViewChangeHack);
               } else {
                 timelapse.stopParabolicMotion();
                 timelapse.setNewView(himawariView);
@@ -1998,7 +2002,7 @@
               if (!$himawariLayerToggle.prop('checked')) {
                 loadHimawari();
                 timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView, true);
+                timelapse.setNewView(himawariView, true, null, initialViewChangeHack);
               } else {
                 timelapse.stopParabolicMotion();
                 timelapse.setNewView(himawariView);
@@ -2012,7 +2016,7 @@
               if (!$himawariLayerToggle.prop('checked')) {
                 loadHimawari();
                 timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView, true);
+                timelapse.setNewView(himawariView, true, null, initialViewChangeHack);
               } else {
                 timelapse.stopParabolicMotion();
                 timelapse.setNewView(himawariView);
@@ -2180,7 +2184,7 @@
         $(".contextMapContainer").hide();
 
         // Display info box for the waypoints
-        if(enableWaypointText) {
+        if (enableWaypointText) {
           var $current_location_text = $(".current-location-text");
           $current_location_text.appendTo($("#timeMachine"));
           if (enableRecordingMode) {
