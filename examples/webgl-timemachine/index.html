@@ -304,7 +304,7 @@
         outline: none;
         border-radius: 3px;
         box-shadow: 2px 2px 3px rgba(0,0,0,0.3);
-        z-index: 100;
+        z-index: 90;
       }
       #location_search.hyperwall {
         left: 162px !important;
@@ -467,7 +467,7 @@
         padding-right: 45px !important;
       }
       .vector-legend {
-        z-index: 100;
+        z-index: 90;
         display: none;
         position: absolute;
         top: 82px;
@@ -646,8 +646,7 @@
 
       jQuery.support.cors = true;
 
-      var previousWaypointScale, previousWaypointBounds;
-      var previousWaypoint = {};
+      var previousWaypoint = {}, previousHimawariIdx, waypointViewChangeListener, hideWaypointListener;
       var forestAlertsTimeMachineLayer, forestAlertsNoOverlayTimeMachineLayer, landsatBaseMapLayer, timelapse, darkBaseMapLayer, lightBaseMapLayer, wdpaVectorLayer, mcrmVectorLayer, hansonMapLayer, hansonMapLayer2, viirsTile, coralBleachingTile, lightsAtNightMapLayer, crwTimemachineLayer, animatedHansenLayer, himawariTimemachineLayer, waterOccurrenceLayer, waterChangeLayer;
 
       var usgsWindTurbineLayer, solarInstallsLayer, drillingLayer;
@@ -667,6 +666,10 @@
       var useFaderShader = !!EARTH_TIMELAPSE_CONFIG.useFaderShader || true;
       var enableWaypointText = !!EARTH_TIMELAPSE_CONFIG.enableWaypointText || true;
       var enableRecordingMode = !!EARTH_TIMELAPSE_CONFIG.enableRecordingMode || false;
+
+      var landsatMaxScale = 1.25;
+      var himawariMaxScale = 0.02;
+      var isAutoModeRunning = false;
 
       // Set shader
       WebglVideoTile.useFaderShader = useFaderShader;
@@ -795,7 +798,7 @@
           showHimawariTimeMachineLayer = true;
           var v = timelapse.getVideoset()
           v.setFps(12);
-          timelapse.setMaxScale(0.02);
+          timelapse.setMaxScale(himawariMaxScale);
           timelapse.setDoDwell(false);
           timelapse.setPlaybackRate(1);
           previousVisibleBaseMapLayer = visibleBaseMapLayer;
@@ -979,7 +982,7 @@
             }
             var v = timelapse.getVideoset()
             v.setFps(10);
-            timelapse.setMaxScale(1.25);
+            timelapse.setMaxScale(landsatMaxScale);
             timelapse.setDoDwell(false);
             timelapse.setPlaybackRate(1);
             previousVisibleBaseMapLayer = visibleBaseMapLayer;
@@ -989,7 +992,7 @@
             if (!showForestAlertsNoOverlayTimeMachineLayer && !showForestAlertsTimeMachineLayer) {
               timelapse.loadNewTimeline("landsat-times-long.json","customUI");
               visibleBaseMapLayer = $("input:radio[name=base-layers]:checked").val();
-              timelapse.setMaxScale(1.25);
+              timelapse.setMaxScale(landsatMaxScale);
               var v = timelapse.getVideoset()
               v.setFps(10);
               timelapse.setDoDwell(true);
@@ -1021,7 +1024,7 @@
             }
             var v = timelapse.getVideoset()
             v.setFps(10);
-            timelapse.setMaxScale(1.25);
+            timelapse.setMaxScale(landsatMaxScale);
             timelapse.setDoDwell(false);
             timelapse.setPlaybackRate(1);
             previousVisibleBaseMapLayer = visibleBaseMapLayer;
@@ -1031,7 +1034,7 @@
             if (!showForestAlertsNoOverlayTimeMachineLayer && !showForestAlertsTimeMachineLayer) {
               timelapse.loadNewTimeline("landsat-times-long.json","customUI");
               visibleBaseMapLayer = $("input:radio[name=base-layers]:checked").val();
-              timelapse.setMaxScale(1.25);
+              timelapse.setMaxScale(landsatMaxScale);
               var v = timelapse.getVideoset()
               v.setFps(10);
               timelapse.setDoDwell(true);
@@ -1102,7 +1105,7 @@
             showHimawariTimeMachineLayer = true;
             var v = timelapse.getVideoset()
             v.setFps(12);
-            timelapse.setMaxScale(0.02);
+            timelapse.setMaxScale(himawariMaxScale);
             timelapse.setDoDwell(false);
             timelapse.setPlaybackRate(1);
             previousVisibleBaseMapLayer = visibleBaseMapLayer;
@@ -1114,7 +1117,7 @@
             var v = timelapse.getVideoset()
             v.setFps(10);
             visibleBaseMapLayer = previousVisibleBaseMapLayer;
-            timelapse.setMaxScale(1.25);
+            timelapse.setMaxScale(landsatMaxScale);
             timelapse.setDoDwell(true);
             timelapse.setPlaybackRate(defaultPlaybackSpeed);
             $(".vector-legend").hide();
@@ -1695,6 +1698,13 @@
 
         // TODO: Refactor how this is handled and how layers turn on/off in general
         if (snaplapseViewerForPresentationSlider) {
+          snaplapseViewerForPresentationSlider.addEventListener('slide-before-changed', function(waypointTitle, waypointIndex, waypointBounds) {
+            isAutoModeRunning = snaplapseViewerForPresentationSlider.isAutoModeRunning();
+            var himawariWaypointIndicies = [81, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120];
+            if (himawariWaypointIndicies.indexOf(waypointIndex) > -1) timelapse.setMaxScale(himawariMaxScale);
+            else timelapse.setMaxScale(landsatMaxScale);
+          });
+
           snaplapseViewerForPresentationSlider.addEventListener('slide-changed', function(waypointTitle, waypointIndex, waypointBounds) {
             // Display info box for the waypoints
             if (enableWaypointText && WAYPOINT_TEXT) {
@@ -1729,10 +1739,9 @@
                 waypointBounds = timelapse.pixelCenterToPixelBoundingBoxView(himawariView).bbox;
               }
 
-              var waypointViewChangeListener = function() {
-                if (!timelapse.isMovingToWaypoint()) {
-                  timelapse.removeViewChangeListener(waypointViewChangeListener);
-                }
+              timelapse.removeViewChangeListener(waypointViewChangeListener);
+              timelapse.removeViewChangeListener(hideWaypointListener);
+              waypointViewChangeListener = function() {
                 var currentView = timelapse.getView();
                 if (currentView.scale * 2.5 > waypointScale && (currentView.x >= waypointBounds.xmin && currentView.x <= waypointBounds.xmax && currentView.y >= waypointBounds.ymin && currentView.y <= waypointBounds.ymax)) {
                   if (WAYPOINT_TEXT && WAYPOINT_TEXT[waypointIndex].title) {
@@ -1741,14 +1750,15 @@
                     $current_location_text.find("p").text(WAYPOINT_TEXT[waypointIndex].text);
                     previousWaypoint.scale = waypointScale;
                     previousWaypoint.bounds = waypointBounds;
-                    timelapse.addViewChangeListener(function() {
+                    hideWaypointListener = function() {
                       var currentView = timelapse.getView();
                       var previousWaypointBounds = previousWaypoint.bounds;
                       if ((previousWaypoint.scale / 2.5 > currentView.scale || !(currentView.x >= previousWaypointBounds.xmin && currentView.x <= previousWaypointBounds.xmax && currentView.y >= previousWaypointBounds.ymin && currentView.y <= previousWaypointBounds.ymax))) {
                         $(".current-location-text").hide();
-                        timelapse.removeViewChangeListener(waypointViewChangeListener);
+                        timelapse.removeViewChangeListener(hideWaypointListener);
                       }
-                    });
+                    };
+                    timelapse.addViewChangeListener(hideWaypointListener);
                   } else {
                     $(".current-location-text").hide();
                   }
@@ -1756,7 +1766,7 @@
                 } else {
                   $(".current-location-text").hide();
                 }
-              }
+              };
               timelapse.addViewChangeListener(waypointViewChangeListener);
             }
 
@@ -1867,8 +1877,13 @@
             }
 
             // Himawari
+
             var initialViewChangeHack = function() {
-              $($(".snaplapse_keyframe_list").children().eq(waypointIndex).children()[0]).trigger("click", [{'forcedWayPointClickedByAutoMode' : true}]);
+              if (isAutoModeRunning) {
+                snaplapseViewerForPresentationSlider.startAutoModeWaypointTimeout();
+              } else {
+                snaplapseViewerForPresentationSlider.startAutoModeIdleTimeout();
+              }
             }
 
             if (waypointIndex == 81) {
