@@ -1191,7 +1191,21 @@
           appendTarget = "#content";
         }
         $("#extras-selector").selectmenu({
-          position: { at : "left top" },
+          position: {
+            at : "left top",
+            collision: 'flip',
+            using: function(coords, feedback) {
+              // Using 'flip' above, we ensure that the menu either draws up or down, depending upon how much space we have.
+              // Then we place the default select option at either the begining or end based on this direction.
+              $("#extras-selector option[id='default-extras-select']").remove();
+              $(this).css({top: coords.top, left: coords.left});
+              if (feedback.vertical == "top")
+                $("#extras-selector").prepend('<option id="default-extras-select" selected="selected" value="select">Select extra content...</option>')
+              else
+                $("#extras-selector").append('<option id="default-extras-select" selected="selected" value="select">Select extra content...</option>')
+              $("#extras-selector").selectmenu("refresh");
+            }
+          },
           appendTo: appendTarget,
           change: function(event, ui) {
             // use click event below since this event is not registered on the touch screen.
@@ -1465,10 +1479,11 @@
 
         layer_html += '<div class="extras-selector-div">';
         layer_html += ' <select name="extras-selector" id="extras-selector">';
-        layer_html += '   <option selected="selected" value="select">Select extra content...</option>';
+        layer_html += '   <option id="default-extras-select" selected="selected" value="select">Select extra content...</option>';
         layer_html += '   <option data-file-playback-rate="2" data-type="video" data-file-name="pumphandle_2014.mp4">Measured CO2 Over Time</option>';
         layer_html += '   <option data-file-playback-rate="2" data-type="video" data-file-name="Carbon Dioxide 2006 GEOS-5 model.mp4">CO2 2006 GEOS-5 Model</option>';
         layer_html += '   <option data-file-playback-rate="2" data-type="video" data-file-name="Land + Ocean Average Temperature Annual Anomaly.mp4">Temperature Anomaly 1850-2013</option>';
+        layer_html += '   <option data-file-playback-rate="0.5" data-type="video" data-file-name="berkeley-earth.mp4">Temperature Anomaly 1850-2015</option>';
         layer_html += '   <option data-file-playback-rate="2" data-type="video" data-file-name="Arctic ice age, 1987-2014.mp4">Ice Thinning 1987-2014</option>';
         layer_html += '   <option data-file-playback-rate="2" data-type="video" data-file-name="Larsen-B-Collapse.mp4">Larsen-B Collapse</option>';
         layer_html += '   <option data-file-playback-rate="4" data-type="video" data-file-name="Orbiting Carbon Observatory.mp4">Orbiting Carbon Observatory</option>';
@@ -1477,7 +1492,6 @@
         layer_html += '   <option data-file-playback-rate="0.5" data-type="video" data-file-name="merra-spi.mp4">Standardized Precipitation Index 1980-2015</option>';
         layer_html += '   <option data-type="iframe" data-link-path="http://choices.climatecentral.org/widget.html?utm_source=Davos&utm_medium=embed&utm_campaign=SSMC-Map#11/31.2301/121.4736?compare=temperatures&carbon-end-yr=2100&scenario-a=warming-4&scenario-b=warming-2&presentation=1">Shanghai Sea Level</option>';
         layer_html += '   <option data-type="img" data-link-path="land-and-ocean-temps.png">2015: Hottest Year on Record</option>';
-        layer_html += '   <option data-file-playback-rate="0.5" data-type="video" data-file-name="berkeley-earth.mp4">Berkeley Earth Monthly Temperature Anomaly 1850-2015</option>';
         if (showEVA)
           layer_html += '   <option data-type="link" data-link-path="http://localhost:8080/?uid=history-1436384863961-Vyxt6PIO">EVA - Explorable Visual Analytics</option>';
         layer_html += ' </select>';
