@@ -54,6 +54,9 @@
     <script src="WebglMapLayer2.js"></script>
 
     <style>
+      html, body {
+        height: 100%;
+      }
       #timeMachine {
         background-color: black !important;
         position: absolute;
@@ -259,9 +262,12 @@
         width: 342px;
         height: 152px;
         position: absolute;
-        left: 272px;
+        left: 248px;
         bottom: auto;
         top: 0px;
+      }
+      .base-map-div.letterbox.hyperwall {
+        left: 272px;
       }
       .base-map-radio.letterbox {
         position: relative;
@@ -273,7 +279,6 @@
       }
       .extras-selector-div.letterbox {
         position: absolute;
-        left: -2px;
         top: 78px;
         width: 220px;
         height: 74px;
@@ -312,7 +317,6 @@
       .location_search_div.letterbox {
         width: 200px;
         position: absolute;
-        left: -2px;
         bottom: auto;
         top: 0px;
         height: 74px;
@@ -368,8 +372,8 @@
         background-color: black !important;
         overflow: hidden;
         position: relative;
-        width: 1920px;
-        height: 768px;
+        width: 100%;
+        height: calc(100% - 312px);
       }
       #letterbox-bottom {
         position: relative;
@@ -441,8 +445,8 @@
       }
       #content {
         position: relative;
-        width: 1920px;
-        height: 1080px;
+        width: 100%;
+        height: 100%;
         overflow: hidden;
       }
       #timeMachine.recording {
@@ -630,15 +634,22 @@
         left: 20px;
       }
       #presentation-slider-selection button {
-        font-size: 17px;
+        font-size: 15px;
         cursor: pointer;
         padding: 5px;
+      }
+      #presentation-slider-selection.hyperwall button {
+        font-size: 17px;
       }
       #presentation-slider-selection td {
         padding-right: 8px;
       }
       #presentation-slider-selection.letterbox {
         display: block;
+      }
+      #automode-section {
+        position: absolute;
+        right: -250px;
       }
     </style>
     <script type="text/javascript">
@@ -1260,15 +1271,20 @@
         });
 
         $(window).resize(function () {
-          var width = $(window).width() * 1.8;
-          var height = $(window).height() * 1.28;
-          var scale = Math.min(1, Math.min(width / 1920, height / 1200));
-          if(!enableLetterboxMode) {
+          var width = $(window).width();
+          var height = $(window).height();
+          var scale = Math.min(1, Math.min((width * 1.8) / 1920, (height * 1.28) / 1200));
+          if (!enableLetterboxMode) {
             $('.vector-layers').css({'transform-origin': 'bottom right'});
             $('.vector-layers').css({'transform': 'scale(' + scale + ')'});
           }
+          if (!isHyperwall && enableLetterboxMode) {
+            scale = Math.min(1, Math.min(width / 1920, height / 1080));
+            $('.map-layer-div').css({'transform-origin': 'center right', 'transform': 'scale(' + scale + ')'});
+            $('.base-map-div').css({'transform-origin': 'center left', 'transform': 'scale(' + scale + ')'});
+            $('.extras-selector-div, .location_search_div').css({'transform-origin': 'center left', 'transform': 'scale(' + '0.9' + ')'});
+          }
         });
-        $(window).trigger("resize");
 
         $('.map-layer-checkbox').on("click", function() {
           var selectedLayers = $('.map-layer-checkbox input:checked');
@@ -1534,7 +1550,7 @@
         }
 
         if (isHyperwall) {
-          $(".vector-layers, .sideToolBar, .vector-legend").addClass("hyperwall");
+          $(".vector-layers, .sideToolBar, .vector-legend, #presentation-slider-selection, .base-map-div").addClass("hyperwall");
         }
 
         //// Time Machine layers
@@ -2251,6 +2267,8 @@
             $(".snaplapse_keyframe_container").scrollLeft(scrollAmount);
           }
         });
+
+        $(window).trigger("resize");
       }
 
       var perf;
@@ -2574,6 +2592,6 @@
     </div>
     <canvas id="stats" style="position:absolute; top:0px; right:0px; z-index:100" width=1000 height=153></canvas>
     <div id="extras-content" title=""></div>
-    <div id="presentation-slider-selection"><table><tr><td style="color: white">Jump To: <td id="climate-1-section"><button type="button">Climate 1</button></td><td id="climate-2-section"><button type="button">Climate 2</button></td><td id="forest-section"><button type="button">Forest</button></td><td id="water-section"><button type="button">Water</button></td><td id="resources-1-section"><button type="button">Resources 1</button></td><td id="resources-2-section"><button type="button">Resources 2</button></td><td id="industrialization-section"><button type="button">Industrialization</button></td><td id="himawari-section"><button type="button">Himawari-8</button></td><td style="padding-left:250px" id="automode-section"><button type="button">Launch Automode</button></td></tr></table></div>
+    <div id="presentation-slider-selection"><table><tr><td style="color: white">Jump To: <td id="climate-1-section"><button type="button">Climate 1</button></td><td id="climate-2-section"><button type="button">Climate 2</button></td><td id="forest-section"><button type="button">Forest</button></td><td id="water-section"><button type="button">Water</button></td><td id="resources-1-section"><button type="button">Resources 1</button></td><td id="resources-2-section"><button type="button">Resources 2</button></td><td id="industrialization-section"><button type="button">Industrialization</button></td><td id="himawari-section"><button type="button">Himawari-8</button></td><td id="automode-section"><button type="button">Launch Automode</button></td></tr></table></div>
   </body>
 </html>
