@@ -669,14 +669,15 @@
       var showEVA = !!EARTH_TIMELAPSE_CONFIG.showEVA;
       var isHyperwall = !!EARTH_TIMELAPSE_CONFIG.isHyperwall;
       var useGoogleMaps = !!EARTH_TIMELAPSE_CONFIG.useGoogleMaps;
+      var useGoogleSearch = (typeof(EARTH_TIMELAPSE_CONFIG.useGoogleSearch) == "undefined") ? true : !!EARTH_TIMELAPSE_CONFIG.useGoogleSearch;
       var enableAutoMode = !!EARTH_TIMELAPSE_CONFIG.enableAutoMode;
       var screenTimeoutInMilliseconds = parseInt(EARTH_TIMELAPSE_CONFIG.screenTimeoutInMilliseconds) || 8 * 60 * 1000;
       var waypointDelayInMilliseconds = parseInt(EARTH_TIMELAPSE_CONFIG.waypointDelayInMilliseconds) || 1 * 15 * 1000;
       var defaultPlaybackSpeed = parseFloat(EARTH_TIMELAPSE_CONFIG.defaultPlaybackSpeed) || 0.5;
-      var enableLetterboxMode = !!EARTH_TIMELAPSE_CONFIG.enableLetterboxMode || false;
-      var useFaderShader = !!EARTH_TIMELAPSE_CONFIG.useFaderShader || true;
-      var enableWaypointText = !!EARTH_TIMELAPSE_CONFIG.enableWaypointText || true;
-      var enableRecordingMode = !!EARTH_TIMELAPSE_CONFIG.enableRecordingMode || false;
+      var enableLetterboxMode = (typeof(EARTH_TIMELAPSE_CONFIG.enableLetterboxMode) == "undefined") ? false : !!EARTH_TIMELAPSE_CONFIG.enableLetterboxMode;
+      var useFaderShader = (typeof(EARTH_TIMELAPSE_CONFIG.useFaderShader) == "undefined") ? true : !!EARTH_TIMELAPSE_CONFIG.useFaderShader;
+      var enableWaypointText = (typeof(EARTH_TIMELAPSE_CONFIG.enableWaypointText) == "undefined") ? true : !!EARTH_TIMELAPSE_CONFIG.enableWaypointText;
+      var enableRecordingMode = (typeof(EARTH_TIMELAPSE_CONFIG.enableRecordingMode) == "undefined") ? false : !!EARTH_TIMELAPSE_CONFIG.enableRecordingMode;
 
       var landsatMaxScale = 1.25;
       var himawariMaxScale = 0.02;
@@ -819,7 +820,7 @@
       }
 
       function googleMapsLoadedCallback() {
-        if (useGoogleMaps) {
+        if (useGoogleSearch) {
           var autocomplete = new google.maps.places.Autocomplete($("#location_search").get(0));
           var geocoder = new google.maps.Geocoder();
 
@@ -2188,7 +2189,7 @@
         }
 
         // Note: Google's service gives much better results, but for locations where Google APIs cannot be used, we fallback to this.
-        if (!useGoogleMaps) {
+        if (!useGoogleSearch) {
           var locationList = [];
           $("#location_search").autocomplete({
             minLength: 5,
@@ -2214,6 +2215,11 @@
               locationList.push(tmpLocationString);
              return $("<li style='z-index:9999'>").append("<a>" + (item.properties.name || "")  + ", " + (item.properties.state || "") + "<br>" + item.properties.country + "</a>").appendTo(ul);
           };
+        } else if (typeof(google) === "undefined" && !useGoogleMaps) {
+          var googleMapsScript = document.createElement('script');
+          googleMapsScript.setAttribute('src', 'https://maps.google.com/maps/api/js?libraries=places&callback=googleMapsLoadedCallback');
+          googleMapsScript.setAttribute('type', 'text/javascript');
+          document.getElementsByTagName('head')[0].appendChild(googleMapsScript);
         }
 
         // Set the letterbox mode
