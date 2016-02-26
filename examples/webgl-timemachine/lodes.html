@@ -888,7 +888,7 @@
         timelapse = new org.gigapan.timelapse.Timelapse("timeMachine", settings);
         onTimeMachinePlayerReady();
 
-        //document.body.appendChild( stats.domElement );
+        document.body.appendChild( stats.domElement );
         //$(stats.domElement).css('z-index', 1000);
 
         perf = new WebglTimeMachinePerf(document.getElementById('stats'), timelapse);
@@ -1423,17 +1423,18 @@
     <script type="text/javascript" src="../../js/base.js"></script>
     <script type="text/javascript" src="../../js/io.js"></script>
     <script type="text/javascript" src="../../js/utils.js"></script>
+    <script type="text/javascript" src="../../js/stats.min.js"></script>
 
     <script type="text/javascript">
       "use strict";
 
       /* begin stats */
-      /*var stats = new Stats();
+      var stats = new Stats();
       stats.setMode(0); // 0: fps, 1: ms
       // Align top-left
       stats.domElement.style.position = 'absolute';
       stats.domElement.style.left = '0px';
-      stats.domElement.style.top = '0px';*/
+      stats.domElement.style.top = '0px';
       /* end stats */
 
       // BEGIN WebGL vars
@@ -2439,7 +2440,7 @@
     var pulse = false;
 
       function update() {
-
+        stats.begin();
         gl.clear(gl.COLOR_BUFFER_BIT);
 
         // Draw himawari
@@ -2767,7 +2768,7 @@
 
         }
 
-        //stats.end();
+        stats.end();
       }
     </script>
   </head>
