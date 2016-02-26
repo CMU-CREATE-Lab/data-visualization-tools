@@ -125,6 +125,27 @@ WebglVectorLayer2.prototype.draw = function(view) {
     options.color = view.color;
   }
 
+  if (typeof view.se01 != "undefined") {
+    options.se01 = view.se01;
+  }
+  if (typeof view.se02 != "undefined") {
+    options.se02 = view.se02;
+  }
+  if (typeof view.se03 != "undefined") {
+    options.se03 = view.se03;
+  }
+
+  if (typeof view.filter != "undefined") {
+    options.filter = view.filter;
+  }
+  if (typeof view.distance != "undefined") {
+    options.distance = view.distance;
+  }
+  if (typeof view.step != "undefined") {
+    options.step = view.step;
+  }
+
+
   var transform = new Float32Array([2/width,0,0,0, 0,-2/height,0,0, 0,0,0,0, -1,1,0,1]);
   translateMatrix(transform, width*0.5, height*0.5);
   scaleMatrix(transform, view.scale, view.scale);
