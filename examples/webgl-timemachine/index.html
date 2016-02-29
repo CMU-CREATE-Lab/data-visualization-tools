@@ -808,7 +808,7 @@
           $('#show-himawari').prop('checked', true);
           timelapse.loadNewTimeline("himawari-times.json","defaultUI");
           showHimawariTimeMachineLayer = true;
-          var v = timelapse.getVideoset()
+          var v = timelapse.getVideoset();
           v.setFps(12);
           timelapse.setMaxScale(himawariMaxScale);
           timelapse.setDoDwell(false);
@@ -946,8 +946,6 @@
 
         $("#show-animated-forest-loss-gain").on("click", function() {
           if ($(this).prop('checked')) {
-            //timelapse.loadNewTimeline("hansen-times.json","customUI");
-            //timelapse.setDoDwell(true);
             showAnimatedHansenLayer = true;
             if ($("#show-forest-change").prop('checked')) {
               $("#show-forest-change").click();
@@ -964,9 +962,6 @@
             $("#forest-loss-gain-legend").show();
           } else {
             showAnimatedHansenLayer = false;
-            //timelapse.setPlaybackRate(defaultPlaybackSpeed);
-            //timelapse.loadNewTimeline("landsat-times.json","customUI");
-            //timelapse.setDoDwell(true);
             $("#forest-loss-gain-legend").hide();
           }
         }).prop('checked', showViirsLayer);
@@ -992,7 +987,7 @@
             if ($("#show-forest-alerts-no-overlay").prop('checked')) {
               $("#show-forest-alerts-no-overlay").click();
             }
-            var v = timelapse.getVideoset()
+            var v = timelapse.getVideoset();
             v.setFps(10);
             timelapse.setMaxScale(landsatMaxScale);
             timelapse.setDoDwell(false);
@@ -1005,7 +1000,7 @@
               timelapse.loadNewTimeline("landsat-times-long.json","customUI");
               visibleBaseMapLayer = $("input:radio[name=base-layers]:checked").val();
               timelapse.setMaxScale(landsatMaxScale);
-              var v = timelapse.getVideoset()
+              var v = timelapse.getVideoset();
               v.setFps(10);
               timelapse.setDoDwell(true);
               timelapse.setPlaybackRate(defaultPlaybackSpeed);
@@ -1034,7 +1029,7 @@
             if ($("#show-forest-alerts").prop('checked')) {
               $("#show-forest-alerts").click();
             }
-            var v = timelapse.getVideoset()
+            var v = timelapse.getVideoset();
             v.setFps(10);
             timelapse.setMaxScale(landsatMaxScale);
             timelapse.setDoDwell(false);
@@ -1047,7 +1042,7 @@
               timelapse.loadNewTimeline("landsat-times-long.json","customUI");
               visibleBaseMapLayer = $("input:radio[name=base-layers]:checked").val();
               timelapse.setMaxScale(landsatMaxScale);
-              var v = timelapse.getVideoset()
+              var v = timelapse.getVideoset();
               v.setFps(10);
               timelapse.setDoDwell(true);
               timelapse.setPlaybackRate(defaultPlaybackSpeed);
@@ -1091,7 +1086,7 @@
             timelapse.loadNewTimeline("crw-times.json","defaultUI");
             showCrwTimemachineLayer = true;
             showMcrmLayer = true;
-            var v = timelapse.getVideoset()
+            var v = timelapse.getVideoset();
             v.setFps(22);
             timelapse.setDoDwell(false);
             WebglVideoTile.useGreenScreen = true;
@@ -1103,7 +1098,7 @@
             timelapse.loadNewTimeline("landsat-times-long.json","customUI");
             timelapse.setDoDwell(true);
             WebglVideoTile.useGreenScreen = false;
-            var v = timelapse.getVideoset()
+            var v = timelapse.getVideoset();
             v.setFps(10);
             $("#coral-bleaching-alerts-legend").hide();
             if (!$("#show-coral").prop('checked'))
@@ -1115,7 +1110,7 @@
           if ($(this).prop('checked')) {
             timelapse.loadNewTimeline("himawari-times.json","defaultUI");
             showHimawariTimeMachineLayer = true;
-            var v = timelapse.getVideoset()
+            var v = timelapse.getVideoset();
             v.setFps(12);
             timelapse.setMaxScale(himawariMaxScale);
             timelapse.setDoDwell(false);
@@ -1126,7 +1121,7 @@
           } else {
             showHimawariTimeMachineLayer = false;
             timelapse.loadNewTimeline("landsat-times-long.json","customUI");
-            var v = timelapse.getVideoset()
+            var v = timelapse.getVideoset();
             v.setFps(10);
             visibleBaseMapLayer = previousVisibleBaseMapLayer;
             timelapse.setMaxScale(landsatMaxScale);
@@ -1212,18 +1207,16 @@
               $("#extras-selector option[id='default-extras-select']").remove();
               $(this).css({top: coords.top, left: coords.left});
               if (feedback.vertical == "top")
-                $("#extras-selector").prepend('<option id="default-extras-select" selected="selected" value="select">Select extra content...</option>')
+                $("#extras-selector").prepend('<option id="default-extras-select" selected="selected" value="select">Select extra content...</option>');
               else
-                $("#extras-selector").append('<option id="default-extras-select" selected="selected" value="select">Select extra content...</option>')
+                $("#extras-selector").append('<option id="default-extras-select" selected="selected" value="select">Select extra content...</option>');
               $("#extras-selector").selectmenu("refresh");
             }
           },
-          appendTo: appendTarget,
-          change: function(event, ui) {
-            // use click event below since this event is not registered on the touch screen.
-          }
+          appendTo: appendTarget
         });
 
+        // Use click event rather than selectmenu 'change' since that event is not registered on the touch screen.
         $(".ui-selectmenu-menu").on("click", "li", function(e) {
             var fileName = $(e.currentTarget).data("filename");
             var fileType = $(e.currentTarget).data("type");
@@ -1374,14 +1367,10 @@
         layer_html += '<div class="vector-layers">';
 
         var landsat_base_str = '<label class="landsat-select" for="landsat-base"><input type="radio" id="landsat-base" name="base-layers" value="landsat"/>Earth Engine Timelapse<span class="credit"> (Google)</span></label>';
-        var landsat_base_letterbox = '<td>' + landsat_base_str + '</td>';
         var landsat_base = '<td colspan="2">' + landsat_base_str + '</td>';
         var light_base = '<td><label for="light-base"><input type="radio" id="light-base" name="base-layers" value="light"/><span>Light Map</span></label></td>';
         var dark_base = '<td><label for="dark-base"><input type="radio" id="dark-base" name="base-layers" value="dark"/><span>Dark Map</span></label></td>';
 
-
-
-        // TODO -- What's up with the magic numbers in the input values?
         var show_wdpa = '<td class="wdpa-select"><label for="show-wdpa"><input type="checkbox" id="show-wdpa" value="1"/>Protected Areas<span class="credit"> (UNEP-WCMC)</span></label></td>';
         var show_forest_change = '<td class="forest-change-select"><label for="show-forest-change"><input type="checkbox" id="show-forest-change" value="2"/>Forest Loss by Year<span class="credit"> (Hansen et al)</span></label></td>';
         var show_viirs = '<td class="viirs-select"><label for="show-viirs"><input type="checkbox" id="show-viirs" value="3"/>Fires at Night<span class="credit"> (NOAA)</span></label></td>';
@@ -1467,6 +1456,9 @@
           layer_html += '   </tr>';
           /*layer_html += '   <tr>';
           layer_html += show_forest_alerts;
+          layer_html += '   </tr>';
+          layer_html += '   <tr>';
+          layer_html += show_forest_alert_no_overlay;
           layer_html += '   </tr>';*/
           layer_html += '   <tr>';
           layer_html += show_viirs;
@@ -1518,7 +1510,7 @@
 
         var legend_html = '<div class="vector-legend">';
         legend_html += '<div id="legend-content">';
-        legend_html += '<table cellpadding=5>'
+        legend_html += '<table cellpadding=5>';
         legend_html += '<tr id="wdpa-legend" style="display: none"><td><div style="background-color:#33da4f; width:17px; height: 5px;"></div><div style="margin-left: 29px; margin-top: -11px; font-size: 17px">Protected Areas</div></td></tr>';
         legend_html += '<tr id="forest-loss-year-legend" style="display: none"><td><div style="font-size: 17px">Forest Loss By Year</div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">2000</div><div style="margin-top: 3px; float: left; background-image: -webkit-linear-gradient(left, yellow, orange 65%, red 100%);background-image: linear-gradient(left, yellow, orange 65%, red 100%); width: 45px; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">2014</div></div></td></tr>';
         legend_html += '<tr id="forest-loss-gain-legend" style="display: none; font-size: 14px;"><td><div style="font-size: 17px">Forest Loss/Gain 2000-2014</div><div style="float: left; padding-right:8px"><div style="background-color:#00e000; width: 12px; height: 12px; float: left; margin-top: 2px; margin-left: 8px;"></div>&nbsp;Extent</div><div style="float: left; padding-right:8px"><div style="background-color:#ff0000; width: 12px; height: 12px; float: left; margin-top: 2px"></div>&nbsp;Loss</div><div style="float: left; padding-right:8px"><div style="background-color:#0000ff; width: 12px; height: 12px; float: left; margin-top: 2px"></div>&nbsp;Gain</div><div><div style="background-color:#ff00ff; width: 12px; height: 12px; float: left; margin-top: 2px"></div>&nbsp;Both</div></td></tr>';
@@ -1529,11 +1521,8 @@
         legend_html += '<tr id="wind-installs-legend" style="display: none"><td><div style="background-color:#a0fe8f; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -16px; font-size: 17px">Wind Power (USA)</div></div></td></tr>';
         legend_html += '<tr id="solar-installs-legend" style="display: none"><td><div style="background-color:#7376b2; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -16px; font-size: 17px">Solar Photovoltaic (USA)</div></td></tr>';
         legend_html += '<tr id="drilling-legend" style="display: none"><td><div style="background-color:#eda46a; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Oil/Gass Drilling (USA)</div></td></tr>';
-
         legend_html += '<tr id="water-occurrence-legend" style="display: none"><td><div style="font-size: 17px">Water Occurrence 1984-2015</div><div style="margin-left: 8px"><div style="font-size: 13px; float: left">100%</div><div style="font-size: 13px; float: right;">0%</div><div class="waterLegendGradient" style="clear: both;"></div><div style="font-size: 13px; float: left">Always water</div><div style="font-size: 13px; float: right">Never water</div></div></td></tr>';
         legend_html += '<tr id="water-change-legend" style="display: none"><td><div style="font-size: 17px">Water Change 1984-1999 to 2000-2015</div><div style="margin-left: 8px"><div class="waterChangeLegendGradient" style="clear: both;"></div><div style="font-size: 13px; float: left">Water Loss</div><div style="font-size: 13px; float: right">Water Gain</div></div></td></tr>';
-
-
         legend_html += '</table>';
         legend_html += '</div>';
         legend_html += '</div>';
@@ -1728,11 +1717,12 @@
         });
 
 
+        var himawariWaypointIndicies = [81, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120];
+
         // TODO: Refactor how this is handled and how layers turn on/off in general
         if (snaplapseViewerForPresentationSlider) {
           snaplapseViewerForPresentationSlider.addEventListener('slide-before-changed', function(waypointTitle, waypointIndex, waypointBounds) {
             isAutoModeRunning = snaplapseViewerForPresentationSlider.isAutoModeRunning();
-            var himawariWaypointIndicies = [81, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120];
             if (himawariWaypointIndicies.indexOf(waypointIndex) > -1) timelapse.setMaxScale(himawariMaxScale);
             else timelapse.setMaxScale(landsatMaxScale);
           });
@@ -1742,34 +1732,6 @@
             if (enableWaypointText && WAYPOINT_TEXT) {
               var waypointScale = timelapse.pixelBoundingBoxToPixelCenter(waypointBounds).scale;
               var $current_location_text = $(".current-location-text");
-              var himawariView;
-              if (waypointIndex == 81) {
-                himawariView = {x: 245106.46412122744, y: 727021.4061973379, scale: 0.019163055706363917};
-              } else if (waypointIndex == 111) {
-                himawariView = {x: 670030.661392405, y: 760918.1012658221, scale: 0.0004731126771739602};
-              } else if (waypointIndex == 112) {
-                himawariView = {x: 245106.46412122744, y: 727021.4061973379, scale: 0.019163055706363917};
-              } else if (waypointIndex == 113) {
-                himawariView = {x: 362126.4405055399, y: 782057.1066230518, scale: 0.022475101466500988};
-              } else if (waypointIndex == 114) {
-                himawariView = {x: 451074.23876657395, y: 212062.48697210365, scale: 0.017032941813388835};
-              } else if (waypointIndex == 115) {
-                himawariView = {x: 451074.23876657395, y: 212062.48697210365, scale: 0.017032941813388835};
-              } else if (waypointIndex == 116) {
-                himawariView = {x: 451074.23876657395, y: 212062.48697210365, scale: 0.017032941813388835};
-              } else if (waypointIndex == 117) {
-                himawariView = {x: 363341.95657876006, y: 205546.6268786163, scale: 0.02011577928416843};
-              } else if (waypointIndex == 118) {
-                himawariView = {x: 677150.2096313634, y: 1300560.2801491471, scale: 0.009919419703208456};
-              } else if (waypointIndex == 119) {
-                himawariView = {x: 646791.4364009488, y: 1299485.0077851338, scale: 0.031962724591951354};
-              } else if (waypointIndex == 120) {
-                himawariView = {x: 745253.433241357, y: 550139.9045414061, scale: 0.006365420067946737};
-              }
-
-              if (himawariView) {
-                waypointBounds = timelapse.pixelCenterToPixelBoundingBoxView(himawariView).bbox;
-              }
 
               timelapse.removeViewChangeListener(waypointViewChangeListener);
               timelapse.removeViewChangeListener(hideWaypointListener);
@@ -1889,14 +1851,13 @@
               $waterChangeToggle.click();
             }
 
-            //// Set layers based on waypoint
+            //// Set layers based on selected waypoint ////
 
             // VIIRS specific waypoints
-            // Issues arise if these are not separated out...
+            // Issues arise if VIIRS waypoints are not handled first
             if ((waypointIndex >= 1 && waypointIndex <= 5) || (waypointIndex >= 63 && waypointIndex <= 65)) {
               if (!$viirsLayerToggle.prop('checked')) {
                 $viirsLayerToggle.click();
-                //timelapse.play();
               }
               if (!$darkMapToggle.prop('checked')) {
                 $darkMapToggle.click();
@@ -1907,232 +1868,119 @@
                 timelapse.setPlaybackRate(defaultPlaybackSpeed);
               }
             }
+            // End VIIRS
 
             // Himawari
+            // Must be after VIIRS but before other waypoints
+            var isHimawariLayerOn = $himawariLayerToggle.prop('checked');
 
-            var initialViewChangeHack = function() {
+            var initialHimawariViewChangeHack = function() {
               if (isAutoModeRunning) {
                 snaplapseViewerForPresentationSlider.startAutoModeWaypointTimeout();
               } else {
                 snaplapseViewerForPresentationSlider.startAutoModeIdleTimeout();
               }
-            }
+            };
 
-            if (waypointIndex == 81) {
-              var himawariView = {x: 245106.46412122744, y: 727021.4061973379, scale: 0.019163055706363917};
-              if (!$himawariLayerToggle.prop('checked')) {
+            var setHimawariView = function(himawariView, himawariTime, himawariPlaybackSpeed) {
+              if (!isHimawariLayerOn) {
                 loadHimawari();
                 timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView, true, null, initialViewChangeHack);
+                timelapse.setNewView(himawariView, true, null, initialHimawariViewChangeHack);
               } else {
                 timelapse.stopParabolicMotion();
                 timelapse.setNewView(himawariView);
               }
-              timelapse.setPlaybackRate(0.5);
+              timelapse.setPlaybackRate(himawariPlaybackSpeed);
               setTimeout(function() {
-                timelapse.seek(47.67);
+                timelapse.seek(himawariTime);
               }, 150);
-            } else if (waypointIndex == 111) {
-              var himawariView = {x: 670030.661392405, y: 760918.1012658221, scale: 0.0004731126771739602};
-              if (!$himawariLayerToggle.prop('checked')) {
-                loadHimawari();
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView, true, null, initialViewChangeHack);
-              } else {
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView);
-              }
-              timelapse.setPlaybackRate(1);
-              setTimeout(function() {
-                timelapse.seek(0);
-              }, 150);
-            } else if (waypointIndex == 112) {
-              var himawariView = {x: 245106.46412122744, y: 727021.4061973379, scale: 0.019163055706363917};
-              if (!$himawariLayerToggle.prop('checked')) {
-                loadHimawari();
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView, true, null, initialViewChangeHack);
-              } else {
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView);
-              }
-              timelapse.setPlaybackRate(0.5);
-              setTimeout(function() {
-                timelapse.seek(47.67);
-              }, 150);
-            } else if (waypointIndex == 113) {
-              var himawariView = {x: 362126.4405055399, y: 782057.1066230518, scale: 0.022475101466500988};
-              if (!$himawariLayerToggle.prop('checked')) {
-                loadHimawari();
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView, true, null, initialViewChangeHack);
-              } else {
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView);
-              }
-              timelapse.setPlaybackRate(1);
-              setTimeout(function() {
-                timelapse.seek(34.75);
-              }, 150);
-            } else if (waypointIndex == 114) {
-              var himawariView = {x: 451074.23876657395, y: 212062.48697210365, scale: 0.017032941813388835};
-              if (!$himawariLayerToggle.prop('checked')) {
-                loadHimawari();
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView, true, null, initialViewChangeHack);
-              } else {
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView);
-              }
-              timelapse.setPlaybackRate(0.5);
-              setTimeout(function() {
-                timelapse.seek(12.50);
-              }, 150);
-            } else if (waypointIndex == 115) {
-              var himawariView = {x: 451074.23876657395, y: 212062.48697210365, scale: 0.017032941813388835};
-              if (!$himawariLayerToggle.prop('checked')) {
-                loadHimawari();
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView, true, null, initialViewChangeHack);
-              } else {
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView);
-              }
-              timelapse.setPlaybackRate(0.5);
-              setTimeout(function() {
-                timelapse.seek(24.33);
-              }, 150);
-            } else if (waypointIndex == 116) {
-              var himawariView = {x: 451074.23876657395, y: 212062.48697210365, scale: 0.017032941813388835};
-              if (!$himawariLayerToggle.prop('checked')) {
-                loadHimawari();
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView, true, null, initialViewChangeHack);
-              } else {
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView);
-              }
-              timelapse.setPlaybackRate(0.5);
-              setTimeout(function() {
-                timelapse.seek(342.83);
-              }, 150);
-            } else if (waypointIndex == 117) {
-              var himawariView = {x: 363341.95657876006, y: 205546.6268786163, scale: 0.02011577928416843};
-              if (!$himawariLayerToggle.prop('checked')) {
-                loadHimawari();
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView, true, null, initialViewChangeHack);
-              } else {
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView);
-              }
-              timelapse.setPlaybackRate(0.5);
-              setTimeout(function() {
-                timelapse.seek(296.66);
-              }, 150);
-            } else if (waypointIndex == 118) {
-              var himawariView = {x: 677150.2096313634, y: 1300560.2801491471, scale: 0.009919419703208456};
-              if (!$himawariLayerToggle.prop('checked')) {
-                loadHimawari();
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView, true, null, initialViewChangeHack);
-              } else {
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView);
-              }
-              timelapse.setPlaybackRate(0.5);
-              setTimeout(function() {
-                timelapse.seek(9.5);
-              }, 150);
-            } else if (waypointIndex == 119) {
-              var himawariView = {x: 646791.4364009488, y: 1299485.0077851338, scale: 0.031962724591951354};
-              if (!$himawariLayerToggle.prop('checked')) {
-                loadHimawari();
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView, true, null, initialViewChangeHack);
-              } else {
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView);
-              }
-              timelapse.setPlaybackRate(0.5);
-              setTimeout(function() {
-                timelapse.seek(9.75);
-              }, 150);
-            } else if (waypointIndex == 120) {
-              var himawariView = {x: 745253.433241357, y: 550139.9045414061, scale: 0.006365420067946737};
-              if (!$himawariLayerToggle.prop('checked')) {
-                loadHimawari();
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView, true, null, initialViewChangeHack);
-              } else {
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView);
-              }
-              timelapse.setPlaybackRate(0.5);
-              setTimeout(function() {
-                timelapse.seek(223.084);
-              }, 150);
+            };
+
+            if (waypointIndex == himawariWaypointIndicies[0]) {
+              waypointBounds = timelapse.pixelCenterToPixelBoundingBoxView({x: 245106.46412122744, y: 727021.4061973379, scale: 0.019163055706363917}).bbox;
+              setHimawariView(waypointBounds, 47.67, 0.5);
+            } else if (waypointIndex == himawariWaypointIndicies[1]) {
+              waypointBounds = timelapse.pixelCenterToPixelBoundingBoxView({x: 670030.661392405, y: 760918.1012658221, scale: 0.0004731126771739602}).bbox;
+              setHimawariView(waypointBounds, 0, 1);
+            } else if (waypointIndex == himawariWaypointIndicies[2]) {
+              waypointBounds = timelapse.pixelCenterToPixelBoundingBoxView({x: 245106.46412122744, y: 727021.4061973379, scale: 0.019163055706363917}).bbox;
+              setHimawariView(waypointBounds, 47.67, 0.5);
+            } else if (waypointIndex == himawariWaypointIndicies[3]) {
+              waypointBounds = timelapse.pixelCenterToPixelBoundingBoxView({x: 362126.4405055399, y: 782057.1066230518, scale: 0.022475101466500988}).bbox;
+              setHimawariView(waypointBounds, 34.75, 1);
+            } else if (waypointIndex == himawariWaypointIndicies[4]) {
+              waypointBounds = timelapse.pixelCenterToPixelBoundingBoxView({x: 451074.23876657395, y: 212062.48697210365, scale: 0.017032941813388835}).bbox;
+              setHimawariView(waypointBounds, 12.50, 0.5);
+            } else if (waypointIndex == himawariWaypointIndicies[5]) {
+              waypointBounds = timelapse.pixelCenterToPixelBoundingBoxView({x: 451074.23876657395, y: 212062.48697210365, scale: 0.017032941813388835}).bbox;
+              setHimawariView(waypointBounds, 24.33, 0.5);
+            } else if (waypointIndex == himawariWaypointIndicies[6]) {
+              waypointBounds = timelapse.pixelCenterToPixelBoundingBoxView({x: 451074.23876657395, y: 212062.48697210365, scale: 0.017032941813388835}).bbox;
+              setHimawariView(waypointBounds, 342.83, 0.5);
+            } else if (waypointIndex == himawariWaypointIndicies[7]) {
+              waypointBounds = timelapse.pixelCenterToPixelBoundingBoxView({x: 363341.95657876006, y: 205546.6268786163, scale: 0.02011577928416843}).bbox;
+              setHimawariView(waypointBounds, 296.66, 0.5);
+            } else if (waypointIndex == himawariWaypointIndicies[8]) {
+              waypointBounds = timelapse.pixelCenterToPixelBoundingBoxView({x: 677150.2096313634, y: 1300560.2801491471, scale: 0.009919419703208456}).bbox;
+              setHimawariView(waypointBounds, 9.5, 0.5);
+            } else if (waypointIndex == himawariWaypointIndicies[9]) {
+              waypointBounds = timelapse.pixelCenterToPixelBoundingBoxView({x: 646791.4364009488, y: 1299485.0077851338, scale: 0.031962724591951354}).bbox;
+              setHimawariView(waypointBounds, 9.75, 0.5);
+            } else if (waypointIndex == himawariWaypointIndicies[10]) {
+              waypointBounds = timelapse.pixelCenterToPixelBoundingBoxView({x: 745253.433241357, y: 550139.9045414061, scale: 0.006365420067946737}).bbox;
+              setHimawariView(waypointBounds, 223.084, 0.5);
             } else {
               if ($himawariLayerToggle.prop('checked'))
                 $himawariLayerToggle.click();
             }
             // End Himawari
 
-            // Non-VIIRS waypoints
+            // All other waypoints
             if ((waypointIndex >= 12 && waypointIndex <= 15) || (waypointIndex >= 59 && waypointIndex <= 61) || waypointIndex == 95) {
               if (!$lightsAtNightToggle.prop('checked')) {
                 $lightsAtNightToggle.click();
               }
-            }
-            if (waypointIndex == 19 || waypointIndex == 26 || (waypointIndex >= 32 && waypointIndex <= 38) || (waypointIndex >= 79 && waypointIndex <= 80)) {
+            } else if (waypointIndex == 19 || waypointIndex == 26 || (waypointIndex >= 32 && waypointIndex <= 38) || (waypointIndex >= 79 && waypointIndex <= 80)) {
               if (!$globalForestLayerToggle.prop('checked')) {
                 $globalForestLayerToggle.click();
               }
-            }
-            if (waypointIndex >= 30 && waypointIndex <= 39) {
+            } else if (waypointIndex >= 30 && waypointIndex <= 39) {
               if (!$darkMapToggle.prop('checked')) {
                 $darkMapToggle.click();
               }
-            }
-            if (waypointIndex == 27 || waypointIndex == 98 || waypointIndex == 100 || waypointIndex == 102) {
+            } else if (waypointIndex == 27 || waypointIndex == 98 || waypointIndex == 100 || waypointIndex == 102) {
               if (!$wdpaLayerToggle.prop('checked')) {
                 $wdpaLayerToggle.click();
               }
-            }
-            if ((waypointIndex >= 30 && waypointIndex <= 31) || waypointIndex == 39 || waypointIndex == 82 || waypointIndex == 97 || waypointIndex == 99) {
+            } else if ((waypointIndex >= 30 && waypointIndex <= 31) || waypointIndex == 39 || waypointIndex == 82 || waypointIndex == 97 || waypointIndex == 99) {
               if (!$globalForestLossLayerToggle.prop('checked')) {
                 $globalForestLossLayerToggle.click();
               }
-            }
-            if (waypointIndex == 40 || waypointIndex == 52) {
+            } else if (waypointIndex == 40 || waypointIndex == 52) {
               if (!$waterChangeToggle.prop('checked')) {
                 $waterChangeToggle.click();
               }
-            }
-            if (waypointIndex == 54) {
+            } else if (waypointIndex == 54) {
               if (!$coralBleachingAlertsLayerToggle.prop('checked')) {
                 $coralBleachingAlertsLayerToggle.click();
               }
               if (!$darkMapToggle.prop('checked')) {
                 $darkMapToggle.click();
               }
-            }
-            if (waypointIndex == 109) {
+            } else if (waypointIndex == 109) {
               if (!$coralLayerToggle.prop('checked')) {
                 $coralLayerToggle.click();
               }
-            }
-            if (waypointIndex == 91) {
+            } else if (waypointIndex == 91) {
               if (!$usgsWindTurbineLayerToggle.prop('checked')) {
                 $usgsWindTurbineLayerToggle.click();
               }
-            }
-            if (waypointIndex == 92) {
+            } else if (waypointIndex == 92) {
               if (!$solarInstallsLayerToggle.prop('checked')) {
                 $solarInstallsLayerToggle.click();
               }
-            }
-            if (waypointIndex == 101) {
+            } else if (waypointIndex == 101) {
               if (!$lightMapToggle.prop('checked')) {
                 $lightMapToggle.click();
               }
@@ -2140,43 +1988,8 @@
                 $wdpaLayerToggle.click();
               }
             }
+            // End other waypoints
           });
-
-          /*snaplapseViewerForPresentationSlider.addEventListener('automode-start', function() {
-            var $globalForestLayerToggle = $("#show-forest-change");
-            var $wdpaLayerToggle = $("#show-wdpa");
-            var $globalForestLossLayerToggle = $("#show-forest-loss-gain");
-            var $viirsLayerToggle = $("#show-viirs");
-            var $coralLayerToggle = $("#show-coral");
-            var $lightsAtNightToggle = $("#show-lights-at-night");
-
-            var $showAdditionalLandsatYearsToggle = $("#show-additional-landsat");
-
-            if ($globalForestLayerToggle.prop('checked')) {
-              $globalForestLayerToggle.click();
-            }
-            if ($wdpaLayerToggle.prop('checked')) {
-              $wdpaLayerToggle.click();
-            }
-            if ($globalForestLossLayerToggle.prop('checked')) {
-              $globalForestLossLayerToggle.click();
-            }
-            if ($viirsLayerToggle.prop('checked')) {
-              $viirsLayerToggle.click();
-            }
-            if ($coralLayerToggle.prop('checked')) {
-              $coralLayerToggle.click();
-            }
-            if ($coralBleachingAlertsLayerToggle.prop('checked')) {
-              $coralBleachingAlertsLayerToggle.click();
-            }
-            if ($lightsAtNightToggle.prop('checked')) {
-              $lightsAtNightToggle.click();
-            }
-            if ($showAdditionalLandsatYearsToggle.prop('checked')) {
-              $showAdditionalLandsatYearsToggle.click();
-            }
-          });*/
         }
 
         // Location search box, with autocomplete.
@@ -2267,7 +2080,7 @@
             } else if (sectionId == "resources-1-section") {
               var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(55));
             } else if (sectionId == "resources-2-section") {
-              var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(69))
+              var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(69));
             } else if (sectionId == "industrialization-section") {
               var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(93));
             } else if (sectionId == "himawari-section") {
@@ -2318,13 +2131,6 @@
           }
           console.log(r2(performance.now()) + ' update start --------------------------------------------------');
         }*/
-
-        //if (!firstDrawTime) {
-        //  firstDrawTime = performance.now();
-        //  var dfwView = { center: {x:308100, y:538800}, zoom: 8};
-        //  timelapse.setNewView(dfwView, true);
-        //  timelapse.play();
-        //}
 
         //if (performance.now() - firstDrawTime < 1 * 5000) {
         //  WebglVideoTile.verbose = true;
@@ -2479,8 +2285,6 @@
 
           // VIIRS layer
           if (showViirsLayer) {
-            //var v = timelapse.getVideoset();
-            //v.seek(0);
             var viirsView = timelapse.getView();
             viirsView.zoom = timelapse.getCurrentZoom();
             var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
@@ -2492,8 +2296,6 @@
           }
 
           if (showCoralBleachingLayer) {
-            //var v = timelapse.getVideoset();
-            //v.seek(0);
             var viirsView = timelapse.getView();
             viirsView.zoom = timelapse.getCurrentZoom();
             var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
@@ -2516,10 +2318,8 @@
             var range = new Date(times[times.length - 1]).getTime() - new Date(times[0]).getTime();
             var currentDate = ratio*range + new Date(times[0]).getTime();
             usgsWindTurbineLayerView.currentTime = currentDate;
-            usgsWindTurbineLayerView.color = [.1, .5, .1, 1.];
-
+            usgsWindTurbineLayerView.color = [0.1, 0.5, 0.1, 1.0];
             usgsWindTurbineLayer.draw(usgsWindTurbineLayerView);
-
           }
 
           if (showSolarInstallsLayer) {
@@ -2549,7 +2349,7 @@
             var range = new Date(times[times.length - 1]).getTime() - new Date(times[0]).getTime();
             var currentDate = ratio*range + new Date(times[0]).getTime();
             drillingLayerView.currentTime = currentDate;
-            drillingLayerView.color = [.82, .22, .07, 1.];
+            drillingLayerView.color = [0.82, 0.22, 0.07, 1.0];
             drillingLayer.draw(drillingLayerView);
           }
 
@@ -2559,7 +2359,7 @@
             var timelapse2map = forestAlertsNoOverlayTimeMachineLayer.getWidth() / landsatBaseMapLayer.getWidth();
 
             var p = timelapse.getProjection();
-            var offest = p.latlngToPoint({"lat":5.506709319555738, "lng":-82.5513118548623})
+            var offest = p.latlngToPoint({"lat":5.506709319555738, "lng":-82.5513118548623});
 
             forestAlertsNoOverlayView.x -= offest.x;
             forestAlertsNoOverlayView.y -= offest.y;
@@ -2572,7 +2372,7 @@
             var timelapse2map = forestAlertsTimeMachineLayer.getWidth() / landsatBaseMapLayer.getWidth();
 
             var p = timelapse.getProjection();
-            var offest = p.latlngToPoint({"lat":5.506709319555738, "lng":-82.5513118548623})
+            var offest = p.latlngToPoint({"lat":5.506709319555738, "lng":-82.5513118548623});
 
             forestAlertsView.x -= offest.x;
             forestAlertsView.y -= offest.y;
