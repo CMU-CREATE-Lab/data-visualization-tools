@@ -1882,7 +1882,8 @@
               }
             };
 
-            var setHimawariView = function(himawariView, himawariTime, himawariPlaybackSpeed) {
+            var setHimawariView = function(himawariBoundingBox, himawariTime, himawariPlaybackSpeed) {
+              var himawariView = {bbox : himawariBoundingBox};
               if (!isHimawariLayerOn) {
                 loadHimawari();
                 timelapse.stopParabolicMotion();
