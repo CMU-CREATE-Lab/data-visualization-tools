@@ -223,11 +223,22 @@
 
       function googleMapsLoadedCallback() {
         if (useGoogleSearch) {
+
           var autocomplete = new google.maps.places.Autocomplete($("#location_search").get(0));
           var geocoder = new google.maps.Geocoder();
 
-          google.maps.event.addListener(autocomplete, 'place_changed', function() {
-            var place = autocomplete.getPlace();
+          // Hack to enable places selection from dropdown on touch screens
+          $(document).on('touchstart', '.pac-item', function(e){
+            e.preventDefault();
+            var searchText = $(this).text();
+            $("#location_search").val(searchText);
+            google.maps.event.trigger(autocomplete, 'place_changed', {locationName: searchText});
+            $('.pac-container').hide();
+          });
+
+          google.maps.event.addListener(autocomplete, 'place_changed', function(options) {
+            var place = autocomplete.getPlace() || options.locationName;
+            if (!place) return;
             if (!place.geometry) {
               var address = $("#location_search").val();
               geocoder.geocode({
