@@ -684,6 +684,18 @@
       .customControl {
         display: none;
       }
+
+      #lodesLayerInfo {
+        position: absolute;
+        top: 300px;
+        left: 0px;
+        width: 150px;
+        height: 200px;
+        border: 2px solid #333;
+        border-radius: 3px;
+        z-index: 100;
+        background: #fff;
+      }
     </style>
     <script type="text/javascript">
       "use strict";
@@ -763,7 +775,7 @@
       var solarInstallsUrl = "../../../data/energy/solar-installs";
       var drillingUrl = "../../../data/energy/drilling";
 
-      var lodesUrl = "lodes-tiles-10";
+      var lodesUrl = "lodes-tiles";
 
 
       var animatedHansenUrls = [gfcTransUrl, gfcLossGainUrl];
@@ -1434,7 +1446,7 @@
       // Align top-left
       stats.domElement.style.position = 'absolute';
       stats.domElement.style.left = '0px';
-      stats.domElement.style.top = '0px';
+      stats.domElement.style.top = '250px';
       /* end stats */
 
       // BEGIN WebGL vars
@@ -2733,6 +2745,23 @@
             lodesLayerView.step = step;
 
 
+            var el = document.getElementById("lodesLayerInfo");
+            var info = lodesLayerInfo();
+
+            var str =  "<b>tileCount</b>: " + info.tileCount+ " <br>";
+            str += "<b>pointCount</b>: " + info.pointCount+ " <br>";
+            str += "<b>zoomLevel</b>: " + info.zoomLevel+ " <br>";
+            str += "<b>mapLevel</b>: " + info.mapLevel+ " <br>";
+
+            el.innerHTML = str;
+
+            var throttle = 0.1;
+            if (info.zoomLevel > 7 && info.mapLevel > 7 && info.mapLevel < 11) {
+
+            } else {
+
+            }
+            lodesLayerView.throttle = throttle;
             lodesLayer.draw(lodesLayerView);
           }
 
@@ -2779,6 +2808,16 @@
         var lodesLayerView = timelapse.getView();
         var timelapse2map = lodesLayer.getWidth() / landsatBaseMapLayer.getWidth();
         lodesLayerView.scale /= timelapse2map;
+
+        var zoomLevel = lodesLayer._tileView._scale2level(lodesLayerView.scale);
+
+        var lightBaseMapView = timelapse.getView();
+        var timelapse2map = lightBaseMapLayer.getWidth() / landsatBaseMapLayer.getWidth();
+        lightBaseMapView.x *= timelapse2map;
+        lightBaseMapView.y *= timelapse2map;
+        lightBaseMapView.scale /= timelapse2map;
+        var mapLevel = lightBaseMapLayer._tileView._scale2level(lightBaseMapView.scale);
+
         for (var i = 0; i < keys.length; i++) {
           var tile = lodesLayer._tileView._tiles[keys[i]];
           if (tile._ready) {
@@ -2790,7 +2829,8 @@
         return {
           'tileCount': tileCount,
           'pointCount': pointCount,
-          'zoomLevel': lodesLayer._tileView._scale2level(lodesLayerView.scale)
+          'zoomLevel': zoomLevel,
+          'mapLevel': mapLevel
         }
       }
 
@@ -2813,5 +2853,6 @@
     <div id="se01-color"></div>
     <div id="se02-color"></div>
     <div id="se03-color"></div>
+    <div id="lodesLayerInfo"></div>
   </body>
 </html>
