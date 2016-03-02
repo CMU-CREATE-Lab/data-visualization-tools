@@ -145,6 +145,9 @@ WebglVectorLayer2.prototype.draw = function(view) {
     options.step = view.step;
   }
 
+  if (typeof view.throttle != "undefined") {
+    options.throttle = view.throttle;
+  }
 
   var transform = new Float32Array([2/width,0,0,0, 0,-2/height,0,0, 0,0,0,0, -1,1,0,1]);
   translateMatrix(transform, width*0.5, height*0.5);

@@ -775,7 +775,7 @@
       var solarInstallsUrl = "../../../data/energy/solar-installs";
       var drillingUrl = "../../../data/energy/drilling";
 
-      var lodesUrl = "lodes-tiles";
+      var lodesUrl = "../../../data/lodes";
 
 
       var animatedHansenUrls = [gfcTransUrl, gfcLossGainUrl];
@@ -2755,11 +2755,9 @@
 
             el.innerHTML = str;
 
-            var throttle = 0.1;
-            if (info.zoomLevel > 7 && info.mapLevel > 7 && info.mapLevel < 11) {
-
-            } else {
-
+            var throttle = 1.0;
+            if (info.zoomLevel >= 7 && info.mapLevel >= 7 && info.mapLevel < 11) {
+              throttle = Math.min(2000000/info.pointCount, 1.0);
             }
             lodesLayerView.throttle = throttle;
             lodesLayer.draw(lodesLayerView);

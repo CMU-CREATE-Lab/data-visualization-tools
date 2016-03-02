@@ -220,8 +220,13 @@ WebGLVectorTile2.prototype._drawLodes = function(transform, options) {
     var se03;
     var uDist = options.distance || 50000.;
     var step = 0.;
+    var throttle = 1.0;
     if (typeof options.step != "undefined") {
         step = options.step
+    }
+
+    if (typeof options.throttle != "undefined") {
+        throttle = options.throttle
     }
 
     if (typeof options.se01 != "undefined") {
@@ -296,7 +301,7 @@ WebGLVectorTile2.prototype._drawLodes = function(transform, options) {
     gl.enableVertexAttribArray(attributeLoc);
     gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 20);
 
-    gl.drawArrays(gl.POINTS, 0, this._pointCount);
+    gl.drawArrays(gl.POINTS, 0, Math.floor(this._pointCount*throttle));
     gl.disable(gl.BLEND);
   }
 }
