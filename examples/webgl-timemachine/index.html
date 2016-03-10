@@ -84,6 +84,7 @@
       var landsatMaxScale = 1.25;
       var himawariMaxScale = 0.02;
       var isAutoModeRunning = false;
+      var UTIL = org.gigapan.Util;
 
       // Set shader
       WebglVideoTile.useFaderShader = useFaderShader;
@@ -172,7 +173,8 @@
               width: 270,
               height: 200
             }
-          }
+          },
+          isGoogleAnalyticEventTrackingEnabled: true
         };
 
         if (enableLetterboxMode) {
@@ -269,6 +271,8 @@
               };
               timelapse.setNewView(newView, false, false);
             }
+            if (place.formatted_address)
+              UTIL.addGoogleAnalyticEvent('textbox', 'search', 'go-to-searched-place=' + place.formatted_address.replace(/ /g, ''));
           });
         }
       }
@@ -711,6 +715,12 @@
             $(".vector-legend").show();
           }
         });
+
+        $('.vector-layers').on("click", "input", function(e) {
+          if (e.originalEvent && event.pageX != 0 && event.pageY != 0)
+            UTIL.addGoogleAnalyticEvent('button', 'click', 'layer=' + $(this).prop("id"));
+        });
+
       }
     </script>
 
@@ -1439,6 +1449,8 @@
                 view = {center: {"lat": ui.item.geometry.coordinates[1], "lng": ui.item.geometry.coordinates[0]}, "zoom": 12};
               //}
               timelapse.setNewView(view);
+              if (ui.item.properties)
+                UTIL.addGoogleAnalyticEvent('textbox', 'search', 'go-to-searched-place=' + ui.item.properties.name + "," + ui.item.properties.country);
             }
           }).autocomplete( "instance" )._renderItem = function( ul, item ) {
             var tmpLocationString = (item.properties.name || "")  + ", " + (item.properties.state || "") + item.properties.country;
@@ -1802,6 +1814,24 @@
         //stats.end();
       }
     </script>
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','http://www.google-analytics.com/analytics.js','ga');
+      var trackingID = EARTH_TIMELAPSE_CONFIG.trackingId || "UA-4157572-7";
+      // Write to local storage since cookies cannot be used on file://
+      // allowLinker is for crossdomain (the tracking domain is different from where we are sending from)
+      ga('create', trackingID, 'auto', {
+         'allowLinker': true,
+         'storage': 'none','clientId':localStorage.getItem('gaClientId')
+      });
+      ga(function(t){localStorage.setItem('gaClientId',t.get('clientId'));});
+      ga('set', 'checkProtocolTask', null); // Disable file protocol checking.
+      ga('send', 'pageview');
+    </script>
+
   </head>
   <body>
     <div id="content">
