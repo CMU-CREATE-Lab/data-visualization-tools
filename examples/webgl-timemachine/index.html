@@ -225,7 +225,6 @@
 
       function googleMapsLoadedCallback() {
         if (useGoogleSearch) {
-
           var autocomplete = new google.maps.places.Autocomplete($("#location_search").get(0));
           var geocoder = new google.maps.Geocoder();
 
@@ -239,7 +238,7 @@
           });
 
           google.maps.event.addListener(autocomplete, 'place_changed', function(options) {
-            var place = autocomplete.getPlace() || options.locationName;
+            var place = (options && options.locationName) || autocomplete.getPlace();
             if (!place) return;
             if (!place.geometry) {
               var address = $("#location_search").val();
@@ -271,8 +270,12 @@
               };
               timelapse.setNewView(newView, false, false);
             }
-            if (place.formatted_address)
-              UTIL.addGoogleAnalyticEvent('textbox', 'search', 'go-to-searched-place=' + place.formatted_address.replace(/ /g, ''));
+
+            var searchLocation = (options && options.locationName) || place.formatted_address;
+            if (searchLocation) {
+              searchLocation = searchLocation.replace(/ /g, '');
+              UTIL.addGoogleAnalyticEvent('textbox', 'search', 'go-to-searched-place=' + searchLocation);
+            }
           });
         }
       }
