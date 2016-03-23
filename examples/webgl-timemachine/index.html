@@ -242,6 +242,7 @@
             if (!place) return;
             if (!place.geometry) {
               var address = $("#location_search").val();
+              $("#location_search").val("");
               geocoder.geocode({
                 'address': address
               }, function(results, status) {
