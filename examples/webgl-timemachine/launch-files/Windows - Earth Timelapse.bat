@@ -3,6 +3,9 @@
 SETLOCAL EnableExtensions
 SETLOCAL EnableDelayedExpansion
 
+BROWSER_SCALE_FACTOR=1
+set LAUNCH_MODE=""
+
 for /f "tokens=2 delims=:, " %%a in (' find "browserScaleFactor" ^< "config.js" ') do (
   set BROWSER_SCALE_FACTOR=%%~a
 )
