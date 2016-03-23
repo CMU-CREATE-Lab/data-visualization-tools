@@ -1048,10 +1048,10 @@
         var lightTileUrl = useGoogleMaps ? googleMapsDefaultRetinaUrl : osmLightRetinaUrl;
         var darkTileUrl = useGoogleMaps ? googleMapsDarkStyleRetinaUrl : osmDarkRetinaUrl;
 
-        var mapBaseLayerOptions = isHyperwall ? retinaMapLayerOptions : defaultBaseMapLayerOptions;
+        var baseMapLayerOptions = isHyperwall ? retinaMapLayerOptions : defaultBaseMapLayerOptions;
 
-        lightBaseMapLayer = new WebglMapLayer(glb, canvasLayer, lightTileUrl, mapBaseLayerOptions);
-        darkBaseMapLayer = new WebglMapLayer(glb, canvasLayer, darkTileUrl, mapBaseLayerOptions);
+        lightBaseMapLayer = new WebglMapLayer(glb, canvasLayer, lightTileUrl, defaultBaseMapLayerOptions);
+        darkBaseMapLayer = new WebglMapLayer(glb, canvasLayer, darkTileUrl, defaultBaseMapLayerOptions);
         hansonMapLayer = new WebglMapLayer(glb, canvasLayer, gfcTransUrl, defaultMapLayerOptions);
         hansonMapLayer2 = new WebglMapLayer(glb, canvasLayer, gfcLossGainUrl, defaultMapLayerOptions);
         wdpaVectorLayer = new WebglVectorLayer(glb, canvasLayer, wdpaUrl, defaultMapLayerOptions);
