@@ -91,6 +91,7 @@ html, body {
   background: #EFEFEF !important;
   height: 29px !important;
   border-radius: 2px;
+  max-width: 310px !important;
 }
 .ui-selectmenu-button span.ui-selectmenu-text {
   padding-left: 10px !important;
