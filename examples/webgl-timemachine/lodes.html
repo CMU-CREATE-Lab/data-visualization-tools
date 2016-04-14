@@ -776,7 +776,7 @@
       var solarInstallsUrl = "../../../data/energy/solar-installs";
       var drillingUrl = "../../../data/energy/drilling";
 
-      var lodesUrl = "../../../data/lodes";
+      var lodesUrl = "../../../data/lodes-10";
 
 
       var animatedHansenUrls = [gfcTransUrl, gfcLossGainUrl];
@@ -1823,7 +1823,7 @@
         var lodesLayerOptions = {
           tileWidth: 256,
           tileHeight: 256,
-          nLevels: 8,
+          nLevels: 10,
           setDataFunction: WebGLVectorTile2.prototype._setLodesData,
           drawFunction: WebGLVectorTile2.prototype._drawLodes,
           fragmentShader: WebGLVectorTile2.lodesFragmentShader,
