@@ -33,6 +33,7 @@
     <script src="../../timemachine/js/leaflet/leaflet.min.js" type="text/javascript" ></script>
     <script src="../../js/customVideoTagControls/customVideoTagControls.js" type="text/javascript"></script>
     <script src="../../../data/earthtime-annual-2015-v2/ajax_includes.js" type="text/javascript"></script>
+
     <script src="../../../../config.js" type="text/javascript"></script>
     <script src="waypoint-text.js" type="text/javascript"></script>
 
@@ -690,7 +691,7 @@
         top: 300px;
         left: 0px;
         width: 150px;
-        height: 200px;
+        height: auto;
         border: 2px solid #333;
         border-radius: 3px;
         z-index: 100;
@@ -851,7 +852,7 @@
           playbackSpeed: defaultPlaybackSpeed,
           viewerType: "webgl",
           url: landsatUrl,
-          enablePresentationSlider: enableRecordingMode ? false : true,
+          enablePresentationSlider: false, //enableRecordingMode ? false : true,
           enableEditor: enableRecordingMode ? true : false,
           showEditorOnLoad: enableRecordingMode ? true : false,
           thumbnailServerRootTileUrl: "http://earthengine.google.org/timelapse/data/20130507",
@@ -900,7 +901,7 @@
         timelapse = new org.gigapan.timelapse.Timelapse("timeMachine", settings);
         onTimeMachinePlayerReady();
 
-        document.body.appendChild( stats.domElement );
+        //document.body.appendChild( stats.domElement );
         //$(stats.domElement).css('z-index', 1000);
 
         perf = new WebglTimeMachinePerf(document.getElementById('stats'), timelapse);
@@ -911,6 +912,7 @@
             $('#stats').toggle();
           }
         });*/
+
       }
 
       $(init);
@@ -1441,12 +1443,11 @@
       "use strict";
 
       /* begin stats */
-      var stats = new Stats();
-      stats.setMode(0); // 0: fps, 1: ms
-      // Align top-left
-      stats.domElement.style.position = 'absolute';
-      stats.domElement.style.left = '0px';
-      stats.domElement.style.top = '250px';
+ //     var stats = new Stats();
+//      stats.setMode(0); // 0: fps, 1: ms
+//      stats.domElement.style.position = 'absolute';
+//      stats.domElement.style.left = '0px';
+//      stats.domElement.style.top = '250px';
       /* end stats */
 
       // BEGIN WebGL vars
@@ -1740,17 +1741,17 @@
         //// Raster map layers
 
         var defaultMapLayerOptions = {
-          nLevels: 12,
+          nLevels: 2,
           tileWidth: 256,
           tileHeight: 256
         };
         var defaultBaseMapLayerOptions = {
-          nLevels: 11,
+          nLevels: 14,
           tileWidth: 256,
           tileHeight: 256
         };
         var retinaMapLayerOptions = {
-          nLevels: 11,
+          nLevels: 13,
           tileWidth: 512,
           tileHeight: 512
         };
@@ -2419,7 +2420,8 @@
             $(".snaplapse_keyframe_container").scrollLeft(scrollAmount);
           }
         });
-
+        //timelapse.setMaxScale(2.0);
+        timelapse.setNewView({x: 313517.928608862, y: 517203.43148978875, scale: 0.002265387377252067}, true);
         $(window).trigger("resize");
       }
 
@@ -2451,8 +2453,9 @@
     var inEndDwell = false;
     var pulse = false;
 
+
       function update() {
-        stats.begin();
+        //stats.begin();
         gl.clear(gl.COLOR_BUFFER_BIT);
 
         // Draw himawari
@@ -2745,21 +2748,24 @@
             lodesLayerView.step = step;
 
 
-            var el = document.getElementById("lodesLayerInfo");
             var info = lodesLayerInfo();
+            /*
+            var el = document.getElementById("lodesLayerInfo");
 
             var str =  "<b>readyTileCount</b>: " + info.readyTileCount+ " <br>";
             str +=  "<b>waitingTileCount</b>: " + info.waitingTileCount+ " <br>";
             str += "<b>pointCount</b>: " + info.pointCount+ " <br>";
             str += "<b>zoomLevel</b>: " + info.zoomLevel+ " <br>";
             str += "<b>mapLevel</b>: " + info.mapLevel+ " <br>";
-
-            el.innerHTML = str;
-
+            */
             var throttle = 1.0;
-            if (info.zoomLevel >= 7 && info.mapLevel >= 7 && info.mapLevel < 11) {
-              throttle = Math.min(2000000/info.pointCount, 1.0);
+            if (info.zoomLevel >= 5 && info.mapLevel >= 5 && info.mapLevel < 11) {
+              throttle = Math.min(1000000/info.pointCount, 1.0);
             }
+
+            //str += "<b>throttle</b>: " + throttle + " <br>";
+            //el.innerHTML = str;
+
             lodesLayerView.throttle = throttle;
             lodesLayer.draw(lodesLayerView);
           }
@@ -2796,7 +2802,7 @@
 
         }
 
-        stats.end();
+        //stats.end();
       }
 
       function lodesLayerInfo() {
@@ -2857,6 +2863,6 @@
     <div id="se01-color"></div>
     <div id="se02-color"></div>
     <div id="se03-color"></div>
-    <div id="lodesLayerInfo"></div>
+<!--    <div id="lodesLayerInfo"></div> -->
   </body>
 </html>
