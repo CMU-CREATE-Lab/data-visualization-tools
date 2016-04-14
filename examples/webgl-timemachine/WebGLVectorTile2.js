@@ -35,11 +35,11 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
 
 WebGLVectorTile2.prototype._load = function() {
   var that = this;
-  var xhr = new XMLHttpRequest();
-  xhr.open('GET', that._url);
-  xhr.responseType = 'arraybuffer';
+  this.xhr = new XMLHttpRequest();
+  this.xhr.open('GET', that._url);
+  this.xhr.responseType = 'arraybuffer';
   var float32Array;
-  xhr.onload = function() {
+  this.xhr.onload = function() {
     if (this.status == 404) {
       float32Array = new Float32Array([]);
     } else {
@@ -47,10 +47,10 @@ WebGLVectorTile2.prototype._load = function() {
     }
     that._setData(float32Array);
   }
-  xhr.onerror = function() {
+  this.xhr.onerror = function() {
     that._setData(new Float32Array([]));
   }
-  xhr.send();
+  this.xhr.send();  
 }
 
 
@@ -122,8 +122,12 @@ WebGLVectorTile2.prototype.isReady = function() {
 }
 
 WebGLVectorTile2.prototype.delete = function() {
-  //console.log('delete');
-}
+  if (!this.isReady()) {
+    if (this.xhr != null) {
+      this.xhr.abort();
+    }
+  }
+ }
 
 
 WebGLVectorTile2.prototype._drawLines = function(transform) {
