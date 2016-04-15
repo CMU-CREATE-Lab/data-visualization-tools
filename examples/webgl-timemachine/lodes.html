@@ -2422,6 +2422,8 @@
         });
         //timelapse.setMaxScale(2.0);
         timelapse.setNewView({x: 313517.928608862, y: 517203.43148978875, scale: 0.002265387377252067}, true);
+        if (window.location.hash.slice(1) == "earthTimeBackButton")
+          $("#earth-time-back").show();
         $(window).trigger("resize");
       }
 
@@ -2852,6 +2854,7 @@
       <div id="letterbox-middle"></div>
       <div id="letterbox-bottom"></div>
     </div>
+    <button type="button" id='earth-time-back' onClick="window.history.back();" style="position: absolute; top: 82px; left: 91px; z-index: 9000; display: none">Return to Earth Timelapse</button>
     <div id="timeMachine"></div>
     <div class="current-location-text">
       <h3></h3>
