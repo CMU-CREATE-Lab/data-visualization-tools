@@ -33,9 +33,12 @@
     <script src="../../timemachine/template_includes.js" type="text/javascript"></script>
     <script src="../../timemachine/js/leaflet/leaflet.min.js" type="text/javascript" ></script>
     <script src="../../js/customVideoTagControls/customVideoTagControls.js" type="text/javascript"></script>
-    <script src="../../../data/earthtime-annual-2015-v2/ajax_includes.js" type="text/javascript"></script>
+
+    <script src="config-local.js" type="text/javascript"></script>
     <script src="../../../../config.js" type="text/javascript"></script>
     <script src="waypoint-text.js" type="text/javascript"></script>
+    <script src="landsat_ajax_includes.js" type="text/javascript"></script>
+    <script src="timestamps_ajax_includes.js" type="text/javascript"></script>
 
     <script src="TileIdx.js"></script>
     <script src="WebglVideoTile.js"></script>
@@ -82,6 +85,7 @@
       var useFaderShader = (typeof(EARTH_TIMELAPSE_CONFIG.useFaderShader) == "undefined") ? true : !!EARTH_TIMELAPSE_CONFIG.useFaderShader;
       var enableWaypointText = (typeof(EARTH_TIMELAPSE_CONFIG.enableWaypointText) == "undefined") ? true : !!EARTH_TIMELAPSE_CONFIG.enableWaypointText;
       var enableRecordingMode = !!EARTH_TIMELAPSE_CONFIG.enableRecordingMode;
+      var rootTilePath = (typeof(EARTH_TIMELAPSE_CONFIG.rootTilePath) == "undefined") ? "../../../data/" : EARTH_TIMELAPSE_CONFIG.rootTilePath;
 
       var landsatMaxScale = 1.25;
       var himawariMaxScale = 0.02;
@@ -92,24 +96,24 @@
       WebglVideoTile.useFaderShader = useFaderShader;
 
       //// Context Map Tiles ////
-      var osmDefaultUrl = "../../../data/openstreetmap/default/";
+      var osmDefaultUrl = rootTilePath + "/openstreetmap/default/";
 
       //// Video Tiles
-      var landsatUrl = "../../../data/earthtime-annual-2015-v2/1068x600";
+      var landsatUrl = rootTilePath + "/earthtime-annual-2015-v2/1068x600";
       // Using "https" will casue the thumbnail loading from the server to fail
       //var landsatUrl = "http://earthengine.google.org/timelapse/data/20130507";
-      var crwTimemachineUrl = "../../../data/coral/coralreefwatch-2.timemachine/crf20-22fps-1424x800";
-      var himawariTimemachineUrl = "../../../data/himawari8/himawari8-nov-2015.timemachine/crf26-12fps-1424x800";
-      var forestAlertsTimeMachineUrl = "../../../data/global-forest-alerts/ForestAlarms2016v2/1068x600";
-      var forestAlertsNoOverlayTimeMachineUrl = "../../../data/global-forest-alerts/ForestAlarmsNoOverlay2016v1/1068x600";
+      var crwTimemachineUrl = rootTilePath + "/coral/coralreefwatch-2.timemachine/crf20-22fps-1424x800";
+      var himawariTimemachineUrl = rootTilePath + "/himawari8/himawari8-nov-2015.timemachine/crf26-12fps-1424x800";
+      var forestAlertsTimeMachineUrl = rootTilePath + "/global-forest-alerts/ForestAlarms2016v2/1068x600";
+      var forestAlertsNoOverlayTimeMachineUrl = rootTilePath + "/global-forest-alerts/ForestAlarmsNoOverlay2016v1/1068x600";
 
       //// Map Tiles ////
       // OpenStreetMap/CartoDB
-      var osmLightRetinaUrl = "../../../data/openstreetmap/light_all_retina/{default}/{z}/{x}/{y}.png";
-      var osmDarkRetinaUrl = "../../../data/openstreetmap/dark_all_retina/{default}/{z}/{x}/{y}.png";
+      var osmLightRetinaUrl = rootTilePath + "/openstreetmap/light_all_retina/{default}/{z}/{x}/{y}.png";
+      var osmDarkRetinaUrl = rootTilePath + "/openstreetmap/dark_all_retina/{default}/{z}/{x}/{y}.png";
       // Global Forest Change (Matt Hansen)
-      var gfcTransUrl = "../../../data/global-forest-change/loss_year_transparent/{default}/{z}/{x}/{y}.png";
-      var gfcLossGainUrl = "../../../data/global-forest-change/loss_tree_gain/{default}/{z}/{x}/{y}.png";
+      var gfcTransUrl = rootTilePath + "/global-forest-change/loss_year_transparent/{default}/{z}/{x}/{y}.png";
+      var gfcLossGainUrl = rootTilePath + "/global-forest-change/loss_tree_gain/{default}/{z}/{x}/{y}.png";
       // Google Maps non-retina
       var googleMapsDefaultUrl = "https://mts0.googleapis.com/vt?pb=!1m5!1m4!1i{z}!2i{x}!3i{y}!4i256!2m3!1e0!2sm!3i323305239!3m9!2sen-US!3sUS!5e18!12m1!1e47!12m3!1e37!2m1!1ssmartmaps!4e0";
       var googleMapsDarkStyleUrl = "https://mts0.googleapis.com/vt?pb=!1m4!1m3!1i{z}!2i{x}!3i{y}!2m3!1e0!2sm!3i323305239!3m14!2sen-US!3sUS!5e18!12m1!1e47!12m3!1e37!2m1!1ssmartmaps!12m4!1e26!2m2!1sstyles!2zcC5oOiMwMDAwYjB8cC5pbDp0cnVlfHAuczotMzAscy50OjJ8cC52Om9mZg!4e0";
@@ -117,21 +121,21 @@
       var googleMapsDefaultRetinaUrl = "https://mts1.googleapis.com/vt?pb=!1m5!1m4!1i{z}!2i{x}!3i{y}!4i256!2m3!1e0!2sm!3i323305239!3m9!2sen-US!3sUS!5e18!12m1!1e47!12m3!1e37!2m1!1ssmartmaps!4e0!5m1!5f2";
       var googleMapsDarkStyleRetinaUrl = "https://mts0.googleapis.com/vt?pb=!1m4!1m3!1i{z}!2i{x}!3i{y}!2m3!1e0!2sm!3i323305239!3m14!2sen-US!3sUS!5e18!12m1!1e47!12m3!1e37!2m1!1ssmartmaps!12m4!1e26!2m2!1sstyles!2zcC5oOiMwMDAwYjB8cC5pbDp0cnVlfHAuczotMzAscy50OjJ8cC52Om9mZg!4e0!5m1!5f2";
       // Lights At Night
-      var lightsAtNightUrl = "../../../data/lights-at-night/{default}/{z}/{x}/{y}.png";
+      var lightsAtNightUrl = rootTilePath + "/lights-at-night/{default}/{z}/{x}/{y}.png";
       // Water Occurrence
-      var waterOccurrenceUrl = "../../../data/water/occurrence-2015/{default}/{z}/{x}/{y}.png";
+      var waterOccurrenceUrl = rootTilePath + "/water/occurrence-2015/{default}/{z}/{x}/{y}.png";
       // Water Change
-      var waterChangeUrl = "../../../data/water/change-2015/{default}/{z}/{x}/{y}.png";
+      var waterChangeUrl = rootTilePath + "/water/change-2015/{default}/{z}/{x}/{y}.png";
 
       //// Vector Tiles ////
-      var wdpaUrl = "../../../data/wdpaline-year";
-      var mcrmUrl = "../../../data/coral/mcrm-lines-wrapdateline";
-      var viirsUrl = '../../../data/viirs/createlab-viirs-uncorrected-20140314-20150403.bin';
-      var coralBleachingUrl = "../../../data/coral/bleaching_reports_4km_81-10.bin";
+      var wdpaUrl = rootTilePath + "/wdpaline-year";
+      var mcrmUrl = rootTilePath + "/coral/mcrm-lines-wrapdateline";
+      var viirsUrl = rootTilePath + "/viirs/createlab-viirs-uncorrected-20140314-20150403.bin";
+      var coralBleachingUrl = rootTilePath + "/coral/bleaching_reports_4km_81-10.bin";
 
-      var usgsWindTurbineUrl = "../../../data/energy/wind-installs-usgs";
-      var solarInstallsUrl = "../../../data/energy/solar-installs";
-      var drillingUrl = "../../../data/energy/drilling";
+      var usgsWindTurbineUrl = rootTilePath + "/energy/wind-installs-usgs";
+      var solarInstallsUrl = rootTilePath + "/energy/solar-installs";
+      var drillingUrl = rootTilePath + "/energy/drilling";
 
       var animatedHansenUrls = [gfcTransUrl, gfcLossGainUrl];
 
@@ -420,7 +424,7 @@
           } else {
             showForestAlertsTimeMachineLayer = false;
             if (!showForestAlertsNoOverlayTimeMachineLayer && !showForestAlertsTimeMachineLayer) {
-              timelapse.loadNewTimeline("landsat-times-long.json","customUI");
+              timelapse.loadNewTimeline("landsat-times.json","customUI");
               visibleBaseMapLayer = $("input:radio[name=base-layers]:checked").val();
               timelapse.setMaxScale(landsatMaxScale);
               var v = timelapse.getVideoset();
@@ -462,7 +466,7 @@
           } else {
             showForestAlertsNoOverlayTimeMachineLayer = false;
             if (!showForestAlertsNoOverlayTimeMachineLayer && !showForestAlertsTimeMachineLayer) {
-              timelapse.loadNewTimeline("landsat-times-long.json","customUI");
+              timelapse.loadNewTimeline("landsat-times.json","customUI");
               visibleBaseMapLayer = $("input:radio[name=base-layers]:checked").val();
               timelapse.setMaxScale(landsatMaxScale);
               var v = timelapse.getVideoset();
@@ -477,14 +481,14 @@
           if ($(this).prop('checked')) {
             showViirsLayer = true;
             timelapse.setPlaybackRate(8);
-            timelapse.loadNewTimeline("../createlab-viirs/viirs-times.json","defaultUI");
+            timelapse.loadNewTimeline("viirs-times.json","defaultUI");
             timelapse.setDoDwell(false);
             $("#show-additional-landsat").prop("disabled", true);
             $("#fires-at-night-legend").show();
           } else {
             showViirsLayer = false;
             timelapse.setPlaybackRate(defaultPlaybackSpeed);
-            timelapse.loadNewTimeline("landsat-times-long.json","customUI");
+            timelapse.loadNewTimeline("landsat-times.json","customUI");
             timelapse.setDoDwell(true);
             $("#show-additional-landsat").prop("disabled", false);
             $("#fires-at-night-legend").hide();
@@ -518,7 +522,7 @@
           } else {
             showCrwTimemachineLayer = false;
             showMcrmLayer = false;
-            timelapse.loadNewTimeline("landsat-times-long.json","customUI");
+            timelapse.loadNewTimeline("landsat-times.json","customUI");
             timelapse.setDoDwell(true);
             WebglVideoTile.useGreenScreen = false;
             var v = timelapse.getVideoset();
@@ -543,7 +547,7 @@
             $(".vector-legend").hide();
           } else {
             showHimawariTimeMachineLayer = false;
-            timelapse.loadNewTimeline("landsat-times-long.json","customUI");
+            timelapse.loadNewTimeline("landsat-times.json","customUI");
             var v = timelapse.getVideoset();
             v.setFps(10);
             visibleBaseMapLayer = previousVisibleBaseMapLayer;
