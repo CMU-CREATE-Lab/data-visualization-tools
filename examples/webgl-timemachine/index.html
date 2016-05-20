@@ -216,7 +216,7 @@
       function loadHimawari() {
         if (!$("#show-himawari").prop('checked')) {
           $('#show-himawari').prop('checked', true);
-          timelapse.loadNewTimeline("himawari-times.json","defaultUI");
+          requestNewTimeline("himawari-times.json","defaultUI");
           showHimawariTimeMachineLayer = true;
           var v = timelapse.getVideoset();
           v.setFps(12);
@@ -285,6 +285,21 @@
             }
           });
         }
+      }
+
+      // Wait until currrent execution finishes so that we can skip loading the timeline in case it is not the last call.
+      // We do this because the timeline loads asynchronously; otherwise, the next waypoint might use the wrong timeline.
+      var finalizeNewTimelineTimeout = null;
+      function requestNewTimeline(url, newTimelineStyle) {
+       // The last timeline request takes precedence
+       if (finalizeNewTimelineTimeout !== null) {
+         clearTimeout(finalizeNewTimelineTimeout);
+         finalizeNewTimelineTimeout = null;
+       }
+       finalizeNewTimelineTimeout = setTimeout(function () {
+         timelapse.loadNewTimeline(url, newTimelineStyle);
+         finalizeNewTimelineTimeout = null;
+       }, 0);
       }
 
       function initLayerToggleUI() {
@@ -400,7 +415,7 @@
             return;
           }
           if ($(this).prop('checked')) {
-            timelapse.loadNewTimeline("forest-alerts-times.json","defaultUI");
+            requestNewTimeline("forest-alerts-times.json","defaultUI");
             showForestAlertsTimeMachineLayer = true;
             if ($("#show-forest-change").prop('checked')) {
               $("#show-forest-change").click();
@@ -424,7 +439,7 @@
           } else {
             showForestAlertsTimeMachineLayer = false;
             if (!showForestAlertsNoOverlayTimeMachineLayer && !showForestAlertsTimeMachineLayer) {
-              timelapse.loadNewTimeline("landsat-times.json","customUI");
+              requestNewTimeline("landsat-times.json","customUI");
               visibleBaseMapLayer = $("input:radio[name=base-layers]:checked").val();
               timelapse.setMaxScale(landsatMaxScale);
               var v = timelapse.getVideoset();
@@ -442,7 +457,7 @@
             return;
           }
           if ($(this).prop('checked')) {
-            timelapse.loadNewTimeline("forest-alerts-times.json","defaultUI");
+            requestNewTimeline("forest-alerts-times.json","defaultUI");
             showForestAlertsNoOverlayTimeMachineLayer = true;
             if ($("#show-forest-change").prop('checked')) {
               $("#show-forest-change").click();
@@ -466,7 +481,7 @@
           } else {
             showForestAlertsNoOverlayTimeMachineLayer = false;
             if (!showForestAlertsNoOverlayTimeMachineLayer && !showForestAlertsTimeMachineLayer) {
-              timelapse.loadNewTimeline("landsat-times.json","customUI");
+              requestNewTimeline("landsat-times.json","customUI");
               visibleBaseMapLayer = $("input:radio[name=base-layers]:checked").val();
               timelapse.setMaxScale(landsatMaxScale);
               var v = timelapse.getVideoset();
@@ -481,14 +496,14 @@
           if ($(this).prop('checked')) {
             showViirsLayer = true;
             timelapse.setPlaybackRate(8);
-            timelapse.loadNewTimeline("viirs-times.json","defaultUI");
+            requestNewTimeline("viirs-times.json","defaultUI");
             timelapse.setDoDwell(false);
             $("#show-additional-landsat").prop("disabled", true);
             $("#fires-at-night-legend").show();
           } else {
             showViirsLayer = false;
             timelapse.setPlaybackRate(defaultPlaybackSpeed);
-            timelapse.loadNewTimeline("landsat-times.json","customUI");
+            requestNewTimeline("landsat-times.json","customUI");
             timelapse.setDoDwell(true);
             $("#show-additional-landsat").prop("disabled", false);
             $("#fires-at-night-legend").hide();
@@ -510,7 +525,7 @@
 
         $("#show-coral-bleaching-alerts").on("click", function() {
           if ($(this).prop('checked')) {
-            timelapse.loadNewTimeline("crw-times.json","defaultUI");
+            requestNewTimeline("crw-times.json","defaultUI");
             showCrwTimemachineLayer = true;
             showMcrmLayer = true;
             var v = timelapse.getVideoset();
@@ -522,7 +537,7 @@
           } else {
             showCrwTimemachineLayer = false;
             showMcrmLayer = false;
-            timelapse.loadNewTimeline("landsat-times.json","customUI");
+            requestNewTimeline("landsat-times.json","customUI");
             timelapse.setDoDwell(true);
             WebglVideoTile.useGreenScreen = false;
             var v = timelapse.getVideoset();
@@ -535,7 +550,7 @@
 
         $("#show-himawari").on("click", function() {
           if ($(this).prop('checked')) {
-            timelapse.loadNewTimeline("himawari-times.json","defaultUI");
+            requestNewTimeline("himawari-times.json","defaultUI");
             showHimawariTimeMachineLayer = true;
             var v = timelapse.getVideoset();
             v.setFps(12);
@@ -547,7 +562,7 @@
             $(".vector-legend").hide();
           } else {
             showHimawariTimeMachineLayer = false;
-            timelapse.loadNewTimeline("landsat-times.json","customUI");
+            requestNewTimeline("landsat-times.json","customUI");
             var v = timelapse.getVideoset();
             v.setFps(10);
             visibleBaseMapLayer = previousVisibleBaseMapLayer;
@@ -1296,6 +1311,9 @@
             if ($waterChangeToggle.prop('checked')) {
               $waterChangeToggle.click();
             }
+            if ($himawariLayerToggle.prop('checked') && himawariWaypointIndicies.indexOf(waypointIndex) === -1) {
+              $himawariLayerToggle.click();
+            }
 
             //// Set layers based on selected waypoint ////
 
@@ -1377,9 +1395,6 @@
             } else if (waypointIndex == himawariWaypointIndicies[10]) {
               waypointBounds = timelapse.pixelCenterToPixelBoundingBoxView({x: 745253.433241357, y: 550139.9045414061, scale: 0.006365420067946737}).bbox;
               setHimawariView(waypointBounds, 223.084, 0.5);
-            } else {
-              if ($himawariLayerToggle.prop('checked'))
-                $himawariLayerToggle.click();
             }
             // End Himawari
 
