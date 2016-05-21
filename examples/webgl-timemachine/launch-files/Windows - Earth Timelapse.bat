@@ -15,7 +15,9 @@ for /f "tokens=2 delims=:, " %%a in (' find "launchMode" ^< "config.js" ') do (
 )
 
 for /f "tokens=2 delims=:, " %%a in (' find "clearProfile" ^< "config.js" ') do (
-  rmdir /Q /S "%tmp%/et"
+  if %%~a == true (
+    rmdir /Q /S "%tmp%/et"
+  )
 )
 
 if %LAUNCH_MODE% == kiosk (
