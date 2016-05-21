@@ -6,6 +6,8 @@ SETLOCAL EnableDelayedExpansion
 set BROWSER_SCALE_FACTOR=1
 set LAUNCH_MODE=""
 
+rmdir /Q /S "%tmp%/et"
+
 for /f "tokens=2 delims=:, " %%a in (' find "browserScaleFactor" ^< "config.js" ') do (
   set BROWSER_SCALE_FACTOR=%%~a
 )
@@ -23,7 +25,7 @@ if %LAUNCH_MODE% == kiosk (
 )
 
 set LAUNCH_PATH=%cd%app/data-visualization-tools/examples/webgl-timemachine/index.html
-set ARGS="--video-threads=%NUMBER_OF_PROCESSORS% --allow-file-access-from-files %LAUNCH_MODE% --device-scale-factor=%BROWSER_SCALE_FACTOR% --user-data-dir=%tmp% --no-first-run %EXTENSION_ARGS%"
+set ARGS="--video-threads=%NUMBER_OF_PROCESSORS% --allow-file-access-from-files %LAUNCH_MODE% --device-scale-factor=%BROWSER_SCALE_FACTOR% --user-data-dir=%tmp%/et --no-first-run %EXTENSION_ARGS%"
 
 echo Launching user installed Chrome.
 start "Chrome" chrome --app="%LAUNCH_PATH%" "%ARGS%" || goto :USER_DOES_NOT_HAVE_CHROME
