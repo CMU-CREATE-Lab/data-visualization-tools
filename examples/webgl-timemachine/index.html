@@ -61,13 +61,12 @@
       "use strict";
 
       jQuery.support.cors = true;
+      var UTIL = org.gigapan.Util;
 
-      var previousWaypoint = {}, previousHimawariIdx, waypointViewChangeListener, hideWaypointListener;
-      var forestAlertsTimeMachineLayer, forestAlertsNoOverlayTimeMachineLayer, landsatBaseMapLayer, timelapse, darkBaseMapLayer, lightBaseMapLayer, wdpaVectorLayer, mcrmVectorLayer, hansonMapLayer, hansonMapLayer2, viirsTile, coralBleachingTile, lightsAtNightMapLayer, crwTimemachineLayer, animatedHansenLayer, himawariTimemachineLayer, waterOccurrenceLayer, waterChangeLayer;
-
-      var usgsWindTurbineLayer, solarInstallsLayer, drillingLayer;
-
+      //
       //// Config ////
+      //
+
       var EARTH_TIMELAPSE_CONFIG = EARTH_TIMELAPSE_CONFIG || {};
 
       var presentationSliderContent = EARTH_TIMELAPSE_CONFIG.waypointCollection || "http://timemachine.cmucreatelab.org/wiki/EarthEngineTourEditor#presentation=E5DDkDV0jvjsXrchC_Climate_DkDQhV1kUKXaiD_Fires%20at%20Night_DkDFWaNbFlEeqJ_Agricultural%20Fires_DkDASzGiNIcpvK_Agricultural%20Fires_DkDIAHUl1q2eqJ_Drilling%20Flares_DkDSx-Tmy5yMmK_Shale%20Oil%20Extraction_DkDRFMpUtEFyje_Eagle%20Downs%20Coal_DkDOHcDnYDBPjgB_Mountaintop%20Removal_DkDcYs5sY3cKrZ_Alberta%20Tar%20Sands_DkDIl59k8-Aurb_Shanghai_DkDIHBIjdC4j7f_Dubai_DkDIumflQzrMib_Dallas%20Fort-Worth_DkDWVyelV9qMjW_Dallas%20Fort-Worth%20_DkDIYWEnHy5MoJ_United%20States_DkDI8H8f-Cuc3C_Lights%20at%20Night_DkDI9F8k2euuzJ_East%20Asia_DkDPWPyXs9wR6gB_Rondonia_DkDPZ85XKYIShT_Rondonia_DkDPidYYbN4SwM_Amazon%20Rain%20Forest_DkDPidYYbN4SwM_Amazon%20Rain%20Forest_DkDA8sGufoBFqe_Columbia%20Glacier_DkDNROTtit7GojB_Mendenhall%20Glacier_DkDFGq9mKcYi8VThe%20shrinking%20and%20drying%20up%20of%20the%20Lake%20Urmia_Lake%20Urmia_DkDOcGQprwpkmRThe%20shrinking%20of%20the%20Aral%20Sea%20destroys%20fishing%20industry%20and%20brings%20unemployment%20and%20public%20health%20problems_Aral%20Sea_DkDSq1joU5sk6gBThe%20expansion%20of%20irrigation%20systems%20near%20the%20Aral%20Sea_Aral%20Expansion_CkDWmblQtbBxuXBushfires%20in%20Australia%20are%20frequent%20during%20the%20hotter%20months%20of%20the%20year_Australia%20Bushfire_DkDblXvnAWJL2V_Bark%20Beetles_DkDPZ85XKYIShT_Rondonia_DkDPI2unYMQqrhB_Gansu%20Wind%20Farm_DkDPOxFm4qZJ2iB_Solar%20Star_DkDV0jvjsXrchC_Forest_DkDVWlolkXJOxe_Alabama_DkDVmSguE8quhS_Yakutsk_DkDVZNiW4_KhhS_Mozambique_DkDVdSqbMp9qlV_Indonesia_DkDVdhqUIJOShS_Paraguay_DkDV5NVdc5jalV_Cote%20D%E2%80%99Ivoire_DkDVzKwaoThslV_Kalimantan_DkDVjqJcYu9spY_Sarawak_DkDVxYQuwu2fhS_Russia%2FFinland_DkDV0jvjsXrchC_Water_DkDV9ofmUx7Jmd_Las%20Vegas_DkDFGq9mKcYi8VThe%20shrinking%20and%20drying%20up%20of%20the%20Lake%20Urmia_Lake%20Urmia_DkDOcGQprwpkmR_Aral%20Sea_DkDSq1joU5sk6gB_Aral%20Expansion_DkDSYrnkxOVh6c_Saudi%20Irrigation_DkDSVR-mLkAJ3c_Central%20Valley_DkDS4s-m9NHJ8gB_California%20Reservoir_BkDTiTRWWTmR6gBRiver%20meandering%20in%20the%20Amazon_Bolivia%20Meander_DkDK9ySWib2R2dThe%20abandonment%20of%20a%20river%20channel%20and%20the%20formation%20of%20a%20new%20river%20channel_Bolivia%20Avulsion_DkDTXCJXWOFUha_Brazil%20Reservoir_DkDT6ClYMn5SpN_Amazon%20Deforestation_DkDTypVi8CHpkd_Bangladesh_DkDT07enqs_t_gB_Fish%20Ponds%2C%20China_DkDV0jvjsXrchC_Coral%20Reef%20Watch_DkDV0jvjsXrchC_Resources_DkDVl59k8-Aurb_Shanghai_DkDVumflQzrMib_Dallas%20Fort-Worth_DkDVWWhlM5mMiiB_Barnett%20Shale_DkDWVyelV9qMjW_DFW%20Growth_DkDVYWEnHy5MoJ_United%20States_DkDV8H8f-Cuc3C_Lights%20at%20Night_DkDVsXXi870skf_Pearl%20River%20Delta_DkDQhV1kUKXaiD_Fires%20at%20Night_DkDIAHUl1q2eqJ_Drilling%20Flares_DkDSx-Tmy5yMmK_Shale%20Oil%20Extraction_DkDVbUxoD7ZLre_Wyoming%20Coal%20Mining_DkDOHcDnYDBPjgB_Mountaintop%20Removal_DkDV-99mHP-OgW_Mountaintop%20Removal_DkDVlMmn4Acs_iB_Hei%20Dai%20Gao%20Coal_DkDcYs5sY3cKrZ_Alberta%20Tar%20Sands_DkDVNViXQeyQjgB_Peru%20Mining_DkDVEuOaR5YwojB_Grasberg%20Mine_DkDVOnDa0YXw6d_Grasberg%20Tailings_DkDOcGQprwpkmR_Aral%20Sea_DkDOYrnkxOVh6c_Saudi%20Irrigation_DkDPWPyXs9wR6gB_Rondonia_DkDPZ85XKYIShT_Rondonia_DkDPidYYbN4SwM_Amazon%20Rain%20Forest_DkDPidYYbN4SwM_Amazon%20Rain%20Forest_DkDPNEabGoEs-N_Indonesia%20Forests_DkDWOpqWSEFK2Q_Sumatra%20Fires_DkDPRG9ln6qOtN_Forestry%20SE%20US_DkDWWnfme-zqiiB_Longyangxia%20Solar_DkDPOxFm4qZJ2iB_Solar%20Star_DkDPjqQmuXJJojB_Topaz%20Solar%20Farm_DkDPKtwiQVVmojB_Charanka%20Solar%20Park_DkDPGUUmWP2JojB_Ivanpah%20Solar%20Power_DkDP22pmX2kaojB_Valle%20Solar%20Power_DkDPI2unYMQqrhB_Gansu%20Wind%20Farm_DkDPEuJmc6aJojB_Alta%20Wind%20Farm_DkDPD7CnLTtMiK_US%20Wind_DkDPD7CnLTtMiK_US%20Photovoltaic_DkDV0jvjsXrchC_Industrialization_DkDVlsznvjQPkgB_Pittsburgh_DkDWksznwjQP_Z_Pittsburgh_DkDVLjfdNa_b5c_Lagos_DkDVLjfdNa_b5c_Lagos_DkDP4t6mgw0u7c_Seoul_DkDP4t6mgw0u7c_Seoul_DkDQ5wYitp3subShenzhen%20bay%2C%20growth%20of%20land%20use%20into%20bay%2E_Shenzhen_DkDQrnpWLjJUya_Brasilia_DkDQoLbXOXaTsV_Brasilia_DkDQ5YWph63cxf_Milano_DkDQSHLrsBhcigB_Duisburg_DkDQENjTEnwf2d_Pretoria_DkDAFpEbiqFhmjB_Nairobi_DkDAZdNelWYhojB_Addis%20Ababa_DkDAGq9mKcYi8V_Lake%20Urmia_DkDAGyOdZ5mcnC_Coral%20Reefs_DkDAHBYiAv1s9a_Shenzhen_DkDWFqgBAAAA1M_Himawari-8_DkDWOpqWSEFK2Q_Sumatra%20Fires_DkDWA-fScC5OtR_Sinabung%20Volcano_DkDWFqgBAAAA1M_Clear%20Beijing_DkDWFqgBAAAA1M_Hazy%20Beijing_DkDWFqgBAAAA1M_Hazier%20Beijing_DkDWFqgBAAAA1M_Melting%20Snow_DkDWtEyBMH2b3N_Ice%20Floes_DkDWqpyBvNmagT_Iceberg%20calving_BAWFqgBAAAA1M_Typhoon%20In-Fa_Untitled_B";
@@ -85,20 +84,32 @@
       var useFaderShader = (typeof(EARTH_TIMELAPSE_CONFIG.useFaderShader) == "undefined") ? true : !!EARTH_TIMELAPSE_CONFIG.useFaderShader;
       var enableWaypointText = (typeof(EARTH_TIMELAPSE_CONFIG.enableWaypointText) == "undefined") ? true : !!EARTH_TIMELAPSE_CONFIG.enableWaypointText;
       var enableRecordingMode = !!EARTH_TIMELAPSE_CONFIG.enableRecordingMode;
+      var trackingId = EARTH_TIMELAPSE_CONFIG.trackingId || "UA-4157572-7";
       var rootTilePath = (typeof(EARTH_TIMELAPSE_CONFIG.rootTilePath) == "undefined") ? "../../../data/" : EARTH_TIMELAPSE_CONFIG.rootTilePath;
 
       var landsatMaxScale = 1.25;
       var himawariMaxScale = 0.02;
       var isAutoModeRunning = false;
-      var UTIL = org.gigapan.Util;
-
-      // Set shader
+      var visibleBaseMapLayer = "landsat";
+      var previousVisibleBaseMapLayer = visibleBaseMapLayer;
       WebglVideoTile.useFaderShader = useFaderShader;
+      var timelapse, previousWaypoint = {}, previousHimawariIdx, waypointViewChangeListener, hideWaypointListener;
 
-      //// Context Map Tiles ////
-      var osmDefaultUrl = rootTilePath + "/openstreetmap/default/";
 
-      //// Video Tiles
+      // ## 1 ##
+      //
+      //// Layer variables ////
+      //
+
+      var forestAlertsTimeMachineLayer, forestAlertsNoOverlayTimeMachineLayer, landsatBaseMapLayer, darkBaseMapLayer, lightBaseMapLayer, wdpaVectorLayer, mcrmVectorLayer;
+      var hansonMapLayer, hansonMapLayer2, viirsTile, coralBleachingTile, lightsAtNightMapLayer, crwTimemachineLayer, animatedHansenLayer, himawariTimemachineLayer;
+      var waterOccurrenceLayer, waterChangeLayer, usgsWindTurbineLayer, solarInstallsLayer, drillingLayer;
+
+
+      // ## 2 ##
+      //// Layer tile paths
+      //
+
       var landsatUrl = rootTilePath + "/earthtime-annual-2015-v2/1068x600";
       // Using "https" will casue the thumbnail loading from the server to fail
       //var landsatUrl = "http://earthengine.google.org/timelapse/data/20130507";
@@ -107,40 +118,30 @@
       var forestAlertsTimeMachineUrl = rootTilePath + "/global-forest-alerts/ForestAlarms2016v2/1068x600";
       var forestAlertsNoOverlayTimeMachineUrl = rootTilePath + "/global-forest-alerts/ForestAlarmsNoOverlay2016v1/1068x600";
 
-      //// Map Tiles ////
-      // OpenStreetMap/CartoDB
+      var osmDefaultUrl = rootTilePath + "/openstreetmap/default/";
       var osmLightRetinaUrl = rootTilePath + "/openstreetmap/light_all_retina/{default}/{z}/{x}/{y}.png";
       var osmDarkRetinaUrl = rootTilePath + "/openstreetmap/dark_all_retina/{default}/{z}/{x}/{y}.png";
-      // Global Forest Change (Matt Hansen)
       var gfcTransUrl = rootTilePath + "/global-forest-change/loss_year_transparent/{default}/{z}/{x}/{y}.png";
       var gfcLossGainUrl = rootTilePath + "/global-forest-change/loss_tree_gain/{default}/{z}/{x}/{y}.png";
-      // Google Maps non-retina
       var googleMapsDefaultUrl = "https://mts0.googleapis.com/vt?pb=!1m5!1m4!1i{z}!2i{x}!3i{y}!4i256!2m3!1e0!2sm!3i323305239!3m9!2sen-US!3sUS!5e18!12m1!1e47!12m3!1e37!2m1!1ssmartmaps!4e0";
       var googleMapsDarkStyleUrl = "https://mts0.googleapis.com/vt?pb=!1m4!1m3!1i{z}!2i{x}!3i{y}!2m3!1e0!2sm!3i323305239!3m14!2sen-US!3sUS!5e18!12m1!1e47!12m3!1e37!2m1!1ssmartmaps!12m4!1e26!2m2!1sstyles!2zcC5oOiMwMDAwYjB8cC5pbDp0cnVlfHAuczotMzAscy50OjJ8cC52Om9mZg!4e0";
-      // Google Maps retina
       var googleMapsDefaultRetinaUrl = "https://mts1.googleapis.com/vt?pb=!1m5!1m4!1i{z}!2i{x}!3i{y}!4i256!2m3!1e0!2sm!3i323305239!3m9!2sen-US!3sUS!5e18!12m1!1e47!12m3!1e37!2m1!1ssmartmaps!4e0!5m1!5f2";
       var googleMapsDarkStyleRetinaUrl = "https://mts0.googleapis.com/vt?pb=!1m4!1m3!1i{z}!2i{x}!3i{y}!2m3!1e0!2sm!3i323305239!3m14!2sen-US!3sUS!5e18!12m1!1e47!12m3!1e37!2m1!1ssmartmaps!12m4!1e26!2m2!1sstyles!2zcC5oOiMwMDAwYjB8cC5pbDp0cnVlfHAuczotMzAscy50OjJ8cC52Om9mZg!4e0!5m1!5f2";
-      // Lights At Night
+      var lightMapUrl = useGoogleMaps ? googleMapsDefaultRetinaUrl : osmLightRetinaUrl;
+      var darkMapUrl = useGoogleMaps ? googleMapsDarkStyleRetinaUrl : osmDarkRetinaUrl;
       var lightsAtNightUrl = rootTilePath + "/lights-at-night/{default}/{z}/{x}/{y}.png";
-      // Water Occurrence
       var waterOccurrenceUrl = rootTilePath + "/water/occurrence-2015/{default}/{z}/{x}/{y}.png";
-      // Water Change
       var waterChangeUrl = rootTilePath + "/water/change-2015/{default}/{z}/{x}/{y}.png";
 
-      //// Vector Tiles ////
       var wdpaUrl = rootTilePath + "/wdpaline-year";
       var mcrmUrl = rootTilePath + "/coral/mcrm-lines-wrapdateline";
       var viirsUrl = rootTilePath + "/viirs/createlab-viirs-uncorrected-20140314-20150403.bin";
       var coralBleachingUrl = rootTilePath + "/coral/bleaching_reports_4km_81-10.bin";
-
       var usgsWindTurbineUrl = rootTilePath + "/energy/wind-installs-usgs";
       var solarInstallsUrl = rootTilePath + "/energy/solar-installs";
       var drillingUrl = rootTilePath + "/energy/drilling";
-
       var animatedHansenUrls = [gfcTransUrl, gfcLossGainUrl];
 
-      var visibleBaseMapLayer = "landsat";
-      var previousVisibleBaseMapLayer = visibleBaseMapLayer;
 
       function init() {
         var settings = {
@@ -303,6 +304,10 @@
       }
 
       function initLayerToggleUI() {
+        // ## 3 ##
+        //// Layer toggle event handlers ////
+        //
+
         $("#show-water-occurrence").on("click", function() {
           var $this = $(this);
           if ($this.is(':checked')) {
@@ -771,6 +776,11 @@
       var canvasLayer;
       var gl, glb;
 
+
+      // ## 4 ##
+      //// Layer visibility ////
+      //
+
       var showWdpaLayer = false;
       var showMcrmLayer = false;
       var showHansonLayer = false;
@@ -785,11 +795,11 @@
       var showForestAlertsNoOverlayTimeMachineLayer = false;
       var showWaterOccurrenceLayer = false;
       var showWaterChangeLayer = false;
-
       var showUsgsWindTurbineLayer = false;
       var showSolarInstallsLayer = false;
       var showDrillingLayer = false;
 
+      // Default Time Machine visibility
       var tileViewVisibility = {
         videoTile: true,
         vectorTile: false
@@ -934,6 +944,9 @@
           layer_html += '   </tr>';
           layer_html += ' </table>';
           layer_html += '</div>';
+          // ## 5 ##
+          //// Add layer to UI panel ////
+          //
         }
 
         layer_html += '<div class="extras-selector-div">';
@@ -1004,7 +1017,10 @@
           $(".vector-layers, .sideToolBar, .vector-legend, #presentation-slider-selection, .base-map-div").addClass("hyperwall");
         }
 
-        //// Time Machine layers
+
+        // ## 6 ##
+        //// Layer options and initialization ////
+        //
 
         // Landsat
         var defaultTimeMachineLayerOptions = {
@@ -1052,51 +1068,49 @@
           height: 156136
         };
         forestAlertsTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, forestAlertsTimeMachineUrl, forestAlertsTimeMachineLayerOptions);
-        // Forest Alerts No Overlay
         forestAlertsNoOverlayTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, forestAlertsNoOverlayTimeMachineUrl, forestAlertsTimeMachineLayerOptions);
 
-
-        //// Raster map layers
-
+        // For any raster map
         var defaultMapLayerOptions = {
           nLevels: 12,
           tileWidth: 256,
           tileHeight: 256
         };
-        var defaultBaseMapLayerOptions = {
-          nLevels: 11,
-          tileWidth: 256,
-          tileHeight: 256
-        };
+
+        // For any retina raster map
         var retinaMapLayerOptions = {
           nLevels: 11,
           tileWidth: 512,
           tileHeight: 512
         };
-         var lightsAtNightMapLayerOptions = {
-          nLevels: 8,
+
+        // For the light/dark base layers
+        var defaultBaseMapLayerOptions = {
+          nLevels: 11,
           tileWidth: 256,
           tileHeight: 256
         };
 
-        var lightTileUrl = useGoogleMaps ? googleMapsDefaultRetinaUrl : osmLightRetinaUrl;
-        var darkTileUrl = useGoogleMaps ? googleMapsDarkStyleRetinaUrl : osmDarkRetinaUrl;
-
         var baseMapLayerOptions = isHyperwall ? retinaMapLayerOptions : defaultBaseMapLayerOptions;
 
-        lightBaseMapLayer = new WebglMapLayer(glb, canvasLayer, lightTileUrl, defaultBaseMapLayerOptions);
-        darkBaseMapLayer = new WebglMapLayer(glb, canvasLayer, darkTileUrl, defaultBaseMapLayerOptions);
+        lightBaseMapLayer = new WebglMapLayer(glb, canvasLayer, lightMapUrl, defaultBaseMapLayerOptions);
+        darkBaseMapLayer = new WebglMapLayer(glb, canvasLayer, darkMapUrl, defaultBaseMapLayerOptions);
         hansonMapLayer = new WebglMapLayer(glb, canvasLayer, gfcTransUrl, defaultMapLayerOptions);
         hansonMapLayer2 = new WebglMapLayer(glb, canvasLayer, gfcLossGainUrl, defaultMapLayerOptions);
         wdpaVectorLayer = new WebglVectorLayer(glb, canvasLayer, wdpaUrl, defaultMapLayerOptions);
         mcrmVectorLayer = new WebglVectorLayer2(glb, canvasLayer, mcrmUrl, defaultBaseMapLayerOptions);
-        lightsAtNightMapLayer = new WebglMapLayer(glb, canvasLayer, lightsAtNightUrl, lightsAtNightMapLayerOptions);
         waterOccurrenceLayer = new WebglMapLayer(glb, canvasLayer, waterOccurrenceUrl, defaultBaseMapLayerOptions);
         waterChangeLayer = new WebglMapLayer(glb, canvasLayer, waterChangeUrl, defaultBaseMapLayerOptions);
-
         // VIIRS is just a single tile
         viirsTile = new WebglViirsTile(glb, viirsUrl);
         coralBleachingTile = new WebglCoralTile(glb, coralBleachingUrl);
+
+        var lightsAtNightMapLayerOptions = {
+          nLevels: 8,
+          tileWidth: 256,
+          tileHeight: 256
+        };
+        lightsAtNightMapLayer = new WebglMapLayer(glb, canvasLayer, lightsAtNightUrl, lightsAtNightMapLayerOptions);
 
         var animatedHansenLayerOptions = {
           nLevels: 12,
@@ -1137,6 +1151,7 @@
           vertexShader: WebGLVectorTile2.vectorPointTileVertexShader
         };
         drillingLayer  = new WebglVectorLayer2(glb, canvasLayer, drillingUrl, drillingLayerOptions);
+
 
         // Layer Toggle UI
         initLayerToggleUI();
@@ -1607,6 +1622,10 @@
 
         gl.clear(gl.COLOR_BUFFER_BIT);
 
+        //
+        //// Draw layers ////
+        //
+
         // Draw himawari
         if (showHimawariTimeMachineLayer) {
           var himawariView = timelapse.getView();
@@ -1736,6 +1755,7 @@
             animatedHansenLayer.draw(animatedHansenLayerView);
           }
 
+          // Draw protected
           if (showMcrmLayer) {
             var mcrmLayerView = timelapse.getView();
             var timelapse2map = mcrmVectorLayer.getWidth() / landsatBaseMapLayer.getWidth();
@@ -1746,8 +1766,7 @@
             mcrmVectorLayer.draw(mcrmLayerView);
           }
 
-
-          // VIIRS layer
+          // Draw VIIRS layer
           if (showViirsLayer) {
             var viirsView = timelapse.getView();
             viirsView.zoom = timelapse.getCurrentZoom();
@@ -1759,6 +1778,7 @@
             viirsTile.draw(viirsView);
           }
 
+          // Draw Coral Bleaching
           if (showCoralBleachingLayer) {
             var viirsView = timelapse.getView();
             viirsView.zoom = timelapse.getCurrentZoom();
@@ -1770,6 +1790,7 @@
             coralBleachingTile.draw(viirsView);
           }
 
+          // Draw wind layer
           if (showUsgsWindTurbineLayer) {
             var usgsWindTurbineLayerView = timelapse.getView();
             var timelapse2map = usgsWindTurbineLayer.getWidth() / landsatBaseMapLayer.getWidth();
@@ -1786,6 +1807,7 @@
             usgsWindTurbineLayer.draw(usgsWindTurbineLayerView);
           }
 
+          // Draw solar layer
           if (showSolarInstallsLayer) {
             var solarInstallsLayerView = timelapse.getView();
             var timelapse2map = usgsWindTurbineLayer.getWidth() / landsatBaseMapLayer.getWidth();
@@ -1801,6 +1823,7 @@
             solarInstallsLayer.draw(solarInstallsLayerView);
           }
 
+          // Draw drilling layer
           if (showDrillingLayer) {
             var drillingLayerView = timelapse.getView();
             var timelapse2map = drillingLayer.getWidth() / landsatBaseMapLayer.getWidth();
@@ -1847,6 +1870,10 @@
           if (showWdpaLayer)
             wdpaVectorLayer.draw(timelapse.getView());
 
+          // ## 7 ##
+          //// Layers to draw on top go here
+          //
+
         }
 
         //stats.end();
@@ -1858,10 +1885,9 @@
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
       m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
       })(window,document,'script','http://www.google-analytics.com/analytics.js','ga');
-      var trackingID = EARTH_TIMELAPSE_CONFIG.trackingId || "UA-4157572-7";
       // Write to local storage since cookies cannot be used on file://
       // allowLinker is for crossdomain (the tracking domain is different from where we are sending from)
-      ga('create', trackingID, 'auto', {
+      ga('create', trackingId, 'auto', {
          'allowLinker': true,
          'storage': 'none','clientId':localStorage.getItem('gaClientId')
       });
