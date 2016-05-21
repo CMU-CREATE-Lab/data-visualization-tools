@@ -358,6 +358,9 @@ html, body {
 .current-location-text.letterbox {
   bottom: 160px !important;
 }
+.current-location-text.hyperwall {
+  bottom: 160px !important;
+}
 .current-location-text h3 {
   margin-bottom: 0.35em;
   font-family: 'franklin-gothic-urw-comp', 'Helvetica Neue', Helvetica, Arial, sans-serif;
