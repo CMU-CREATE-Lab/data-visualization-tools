@@ -6,14 +6,16 @@ SETLOCAL EnableDelayedExpansion
 set BROWSER_SCALE_FACTOR=1
 set LAUNCH_MODE=""
 
-rmdir /Q /S "%tmp%/et"
-
 for /f "tokens=2 delims=:, " %%a in (' find "browserScaleFactor" ^< "config.js" ') do (
   set BROWSER_SCALE_FACTOR=%%~a
 )
 
 for /f "tokens=2 delims=:, " %%a in (' find "launchMode" ^< "config.js" ') do (
   set LAUNCH_MODE=%%~a
+)
+
+for /f "tokens=2 delims=:, " %%a in (' find "clearProfile" ^< "config.js" ') do (
+  rmdir /Q /S "%tmp%/et"
 )
 
 if %LAUNCH_MODE% == kiosk (
