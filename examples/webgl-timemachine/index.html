@@ -74,7 +74,8 @@
       var showEVA = !!EARTH_TIMELAPSE_CONFIG.showEVA;
       var showLODES = !!EARTH_TIMELAPSE_CONFIG.showLODES;
       var showForestAlerts = !!EARTH_TIMELAPSE_CONFIG.showForestAlerts;
-      var isHyperwall = !!EARTH_TIMELAPSE_CONFIG.isHyperwall;
+      var showShareButton = (window.location.hash.indexOf("showShareButton") >= 0);
+      var isHyperwall = showShareButton ? false : !!EARTH_TIMELAPSE_CONFIG.isHyperwall;
       var useGoogleMaps = !!EARTH_TIMELAPSE_CONFIG.useGoogleMaps;
       var useGoogleSearch = (typeof(EARTH_TIMELAPSE_CONFIG.useGoogleSearch) == "undefined") ? true : !!EARTH_TIMELAPSE_CONFIG.useGoogleSearch;
       var enableAutoMode = !!EARTH_TIMELAPSE_CONFIG.enableAutoMode;
@@ -87,7 +88,6 @@
       var enableRecordingMode = !!EARTH_TIMELAPSE_CONFIG.enableRecordingMode;
       var trackingId = EARTH_TIMELAPSE_CONFIG.trackingId || "UA-4157572-7";
       var rootTilePath = (typeof(EARTH_TIMELAPSE_CONFIG.rootTilePath) == "undefined") ? "../../../data/" : EARTH_TIMELAPSE_CONFIG.rootTilePath;
-      var showShareButton = (window.location.hash.indexOf("showShareButton") >= 0);
 
       var landsatMaxScale = 1.25;
       var himawariMaxScale = 0.02;
