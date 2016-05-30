@@ -599,3 +599,13 @@ html, body {
   position: absolute;
   right: -250px;
 }
+.share {
+  top: 80px !important;
+  left: 90px !important;
+}
+.share .customButton {
+  height: 21px !important;
+}
+.share .customButton .ui-button-text {
+  margin-top: 0px !important;
+}

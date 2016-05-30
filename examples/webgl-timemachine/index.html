@@ -70,6 +70,7 @@
       var EARTH_TIMELAPSE_CONFIG = EARTH_TIMELAPSE_CONFIG || {};
 
       var presentationSliderContent = EARTH_TIMELAPSE_CONFIG.waypointCollection || "http://timemachine.cmucreatelab.org/wiki/EarthEngineTourEditor#presentation=E5DDkDV0jvjsXrchC_Climate_DkDQhV1kUKXaiD_Fires%20at%20Night_DkDFWaNbFlEeqJ_Agricultural%20Fires_DkDASzGiNIcpvK_Agricultural%20Fires_DkDIAHUl1q2eqJ_Drilling%20Flares_DkDSx-Tmy5yMmK_Shale%20Oil%20Extraction_DkDRFMpUtEFyje_Eagle%20Downs%20Coal_DkDOHcDnYDBPjgB_Mountaintop%20Removal_DkDcYs5sY3cKrZ_Alberta%20Tar%20Sands_DkDIl59k8-Aurb_Shanghai_DkDIHBIjdC4j7f_Dubai_DkDIumflQzrMib_Dallas%20Fort-Worth_DkDWVyelV9qMjW_Dallas%20Fort-Worth%20_DkDIYWEnHy5MoJ_United%20States_DkDI8H8f-Cuc3C_Lights%20at%20Night_DkDI9F8k2euuzJ_East%20Asia_DkDPWPyXs9wR6gB_Rondonia_DkDPZ85XKYIShT_Rondonia_DkDPidYYbN4SwM_Amazon%20Rain%20Forest_DkDPidYYbN4SwM_Amazon%20Rain%20Forest_DkDA8sGufoBFqe_Columbia%20Glacier_DkDNROTtit7GojB_Mendenhall%20Glacier_DkDFGq9mKcYi8VThe%20shrinking%20and%20drying%20up%20of%20the%20Lake%20Urmia_Lake%20Urmia_DkDOcGQprwpkmRThe%20shrinking%20of%20the%20Aral%20Sea%20destroys%20fishing%20industry%20and%20brings%20unemployment%20and%20public%20health%20problems_Aral%20Sea_DkDSq1joU5sk6gBThe%20expansion%20of%20irrigation%20systems%20near%20the%20Aral%20Sea_Aral%20Expansion_CkDWmblQtbBxuXBushfires%20in%20Australia%20are%20frequent%20during%20the%20hotter%20months%20of%20the%20year_Australia%20Bushfire_DkDblXvnAWJL2V_Bark%20Beetles_DkDPZ85XKYIShT_Rondonia_DkDPI2unYMQqrhB_Gansu%20Wind%20Farm_DkDPOxFm4qZJ2iB_Solar%20Star_DkDV0jvjsXrchC_Forest_DkDVWlolkXJOxe_Alabama_DkDVmSguE8quhS_Yakutsk_DkDVZNiW4_KhhS_Mozambique_DkDVdSqbMp9qlV_Indonesia_DkDVdhqUIJOShS_Paraguay_DkDV5NVdc5jalV_Cote%20D%E2%80%99Ivoire_DkDVzKwaoThslV_Kalimantan_DkDVjqJcYu9spY_Sarawak_DkDVxYQuwu2fhS_Russia%2FFinland_DkDV0jvjsXrchC_Water_DkDV9ofmUx7Jmd_Las%20Vegas_DkDFGq9mKcYi8VThe%20shrinking%20and%20drying%20up%20of%20the%20Lake%20Urmia_Lake%20Urmia_DkDOcGQprwpkmR_Aral%20Sea_DkDSq1joU5sk6gB_Aral%20Expansion_DkDSYrnkxOVh6c_Saudi%20Irrigation_DkDSVR-mLkAJ3c_Central%20Valley_DkDS4s-m9NHJ8gB_California%20Reservoir_BkDTiTRWWTmR6gBRiver%20meandering%20in%20the%20Amazon_Bolivia%20Meander_DkDK9ySWib2R2dThe%20abandonment%20of%20a%20river%20channel%20and%20the%20formation%20of%20a%20new%20river%20channel_Bolivia%20Avulsion_DkDTXCJXWOFUha_Brazil%20Reservoir_DkDT6ClYMn5SpN_Amazon%20Deforestation_DkDTypVi8CHpkd_Bangladesh_DkDT07enqs_t_gB_Fish%20Ponds%2C%20China_DkDV0jvjsXrchC_Coral%20Reef%20Watch_DkDV0jvjsXrchC_Resources_DkDVl59k8-Aurb_Shanghai_DkDVumflQzrMib_Dallas%20Fort-Worth_DkDVWWhlM5mMiiB_Barnett%20Shale_DkDWVyelV9qMjW_DFW%20Growth_DkDVYWEnHy5MoJ_United%20States_DkDV8H8f-Cuc3C_Lights%20at%20Night_DkDVsXXi870skf_Pearl%20River%20Delta_DkDQhV1kUKXaiD_Fires%20at%20Night_DkDIAHUl1q2eqJ_Drilling%20Flares_DkDSx-Tmy5yMmK_Shale%20Oil%20Extraction_DkDVbUxoD7ZLre_Wyoming%20Coal%20Mining_DkDOHcDnYDBPjgB_Mountaintop%20Removal_DkDV-99mHP-OgW_Mountaintop%20Removal_DkDVlMmn4Acs_iB_Hei%20Dai%20Gao%20Coal_DkDcYs5sY3cKrZ_Alberta%20Tar%20Sands_DkDVNViXQeyQjgB_Peru%20Mining_DkDVEuOaR5YwojB_Grasberg%20Mine_DkDVOnDa0YXw6d_Grasberg%20Tailings_DkDOcGQprwpkmR_Aral%20Sea_DkDOYrnkxOVh6c_Saudi%20Irrigation_DkDPWPyXs9wR6gB_Rondonia_DkDPZ85XKYIShT_Rondonia_DkDPidYYbN4SwM_Amazon%20Rain%20Forest_DkDPidYYbN4SwM_Amazon%20Rain%20Forest_DkDPNEabGoEs-N_Indonesia%20Forests_DkDWOpqWSEFK2Q_Sumatra%20Fires_DkDPRG9ln6qOtN_Forestry%20SE%20US_DkDWWnfme-zqiiB_Longyangxia%20Solar_DkDPOxFm4qZJ2iB_Solar%20Star_DkDPjqQmuXJJojB_Topaz%20Solar%20Farm_DkDPKtwiQVVmojB_Charanka%20Solar%20Park_DkDPGUUmWP2JojB_Ivanpah%20Solar%20Power_DkDP22pmX2kaojB_Valle%20Solar%20Power_DkDPI2unYMQqrhB_Gansu%20Wind%20Farm_DkDPEuJmc6aJojB_Alta%20Wind%20Farm_DkDPD7CnLTtMiK_US%20Wind_DkDPD7CnLTtMiK_US%20Photovoltaic_DkDV0jvjsXrchC_Industrialization_DkDVlsznvjQPkgB_Pittsburgh_DkDWksznwjQP_Z_Pittsburgh_DkDVLjfdNa_b5c_Lagos_DkDVLjfdNa_b5c_Lagos_DkDP4t6mgw0u7c_Seoul_DkDP4t6mgw0u7c_Seoul_DkDQ5wYitp3subShenzhen%20bay%2C%20growth%20of%20land%20use%20into%20bay%2E_Shenzhen_DkDQrnpWLjJUya_Brasilia_DkDQoLbXOXaTsV_Brasilia_DkDQ5YWph63cxf_Milano_DkDQSHLrsBhcigB_Duisburg_DkDQENjTEnwf2d_Pretoria_DkDAFpEbiqFhmjB_Nairobi_DkDAZdNelWYhojB_Addis%20Ababa_DkDAGq9mKcYi8V_Lake%20Urmia_DkDAGyOdZ5mcnC_Coral%20Reefs_DkDAHBYiAv1s9a_Shenzhen_DkDWFqgBAAAA1M_Himawari-8_DkDWOpqWSEFK2Q_Sumatra%20Fires_DkDWA-fScC5OtR_Sinabung%20Volcano_DkDWFqgBAAAA1M_Clear%20Beijing_DkDWFqgBAAAA1M_Hazy%20Beijing_DkDWFqgBAAAA1M_Hazier%20Beijing_DkDWFqgBAAAA1M_Melting%20Snow_DkDWtEyBMH2b3N_Ice%20Floes_DkDWqpyBvNmagT_Iceberg%20calving_BAWFqgBAAAA1M_Typhoon%20In-Fa_Untitled_B";
+      var googleDocPresentationSliderLink = EARTH_TIMELAPSE_CONFIG.googleDocPresentationSliderLink;// || "https://docs.google.com/spreadsheets/d/1lWFdujSWrPdNM-NpyyeOL5ZirCkTpvFZMBR5spAQArY/edit?usp=sharing";
       var showEVA = !!EARTH_TIMELAPSE_CONFIG.showEVA;
       var showLODES = !!EARTH_TIMELAPSE_CONFIG.showLODES;
       var showForestAlerts = !!EARTH_TIMELAPSE_CONFIG.showForestAlerts;
@@ -86,6 +87,7 @@
       var enableRecordingMode = !!EARTH_TIMELAPSE_CONFIG.enableRecordingMode;
       var trackingId = EARTH_TIMELAPSE_CONFIG.trackingId || "UA-4157572-7";
       var rootTilePath = (typeof(EARTH_TIMELAPSE_CONFIG.rootTilePath) == "undefined") ? "../../../data/" : EARTH_TIMELAPSE_CONFIG.rootTilePath;
+      var showShareButton = (window.location.hash.indexOf("showShareButton") >= 0);
 
       var landsatMaxScale = 1.25;
       var himawariMaxScale = 0.02;
@@ -94,6 +96,10 @@
       var previousVisibleBaseMapLayer = visibleBaseMapLayer;
       WebglVideoTile.useFaderShader = useFaderShader;
       var timelapse, previousWaypoint = {}, previousHimawariIdx, waypointViewChangeListener, hideWaypointListener;
+      var himawariWaypoints = {};
+      // This is necessary because waypoint thumbnails are generated from the Landsat set and thus the best we can show is just a solid black thumbnail
+      // instead of some random location that a himawari bounds corresponds to in Landsat.
+      var himawariWaypointThumbnailBounds = {xmin: 985127.8724700746, xmax: 1080494.8905504318, ymin: 731492.6413176071, ymax: 752365.0475676071};
 
 
       // ## 1 ##
@@ -154,6 +160,7 @@
           showEditorOnLoad: enableRecordingMode ? true : false,
           thumbnailServerRootTileUrl: "http://earthengine.google.org/timelapse/data/20130507",
           showFullScreenBtn: false,
+          showShareBtn: showShareButton,
           presentationSliderSettings: enableRecordingMode ? {} : {
             onLoadAnimation: "none",
             playAfterAnimation: false,
@@ -181,7 +188,8 @@
               height: 200
             }
           },
-          isGoogleAnalyticEventTrackingEnabled: true
+          isGoogleAnalyticEventTrackingEnabled: true,
+          startEditorFromPresentationMode : true
         };
 
         if (enableLetterboxMode) {
@@ -554,6 +562,7 @@
         }).prop('checked', showCrwTimemachineLayer);
 
         $("#show-himawari").on("click", function() {
+          $(".map-layer-div input:checked").not("#show-himawari").trigger("click");
           if ($(this).prop('checked')) {
             requestNewTimeline("himawari-times.json","defaultUI");
             showHimawariTimeMachineLayer = true;
@@ -622,6 +631,7 @@
         // Set the starting base layer
         $("input:radio[name=base-layers]").on("click", function() {
           visibleBaseMapLayer = $(this).val();
+          previousVisibleBaseMapLayer = visibleBaseMapLayer;
         });
         $('input:radio[name=base-layers][id=' + visibleBaseMapLayer + '-base]').prop('checked', true);
 
@@ -822,29 +832,35 @@
 
         var layer_html = '';
 
-        layer_html += '<div class="vector-layers">';
+        layer_html += '<div id="layers-list" class="vector-layers">';
 
-        var landsat_base_str = '<label class="landsat-select" for="landsat-base"><input type="radio" id="landsat-base" name="base-layers" value="landsat"/>Earth Engine Timelapse<span class="credit"> (Google)</span></label>';
+        var landsat_base_str = '<label class="landsat-select" for="landsat-base" name="blsat"><input type="radio" id="landsat-base" name="base-layers" value="landsat"/>Earth Engine Timelapse<span class="credit"> (Google)</span></label>';
         var landsat_base = '<td colspan="2">' + landsat_base_str + '</td>';
-        var light_base = '<td><label for="light-base"><input type="radio" id="light-base" name="base-layers" value="light"/><span>Light Map</span></label></td>';
-        var dark_base = '<td><label for="dark-base"><input type="radio" id="dark-base" name="base-layers" value="dark"/><span>Dark Map</span></label></td>';
+        var light_base = '<td><label for="light-base" name="blte"><input type="radio" id="light-base" name="base-layers" value="light"/><span>Light Map</span></label></td>';
+        var dark_base = '<td><label for="dark-base" name="bdrk"><input type="radio" id="dark-base" name="base-layers" value="dark"/><span>Dark Map</span></label></td>';
 
-        var show_wdpa = '<td class="wdpa-select"><label for="show-wdpa"><input type="checkbox" id="show-wdpa" value="1"/>Protected Areas<span class="credit"> (UNEP-WCMC)</span></label></td>';
-        var show_forest_change = '<td class="forest-change-select"><label for="show-forest-change"><input type="checkbox" id="show-forest-change" value="2"/>Forest Loss by Year<span class="credit"> (Hansen et al)</span></label></td>';
-        var show_viirs = '<td class="viirs-select"><label for="show-viirs"><input type="checkbox" id="show-viirs" value="3"/>Fires at Night<span class="credit"> (NOAA)</span></label></td>';
-        var show_forest_loss_gain = '<td class="forest-loss-gain-select"><label for="show-forest-loss-gain"><input type="checkbox" id="show-forest-loss-gain" value="4"/>Forest Loss/Gain<span class="credit"> (Hansen et al)</span></label></td>';
-        var show_animated_forest_loss_gain = '<td class="animated-forest-loss-select"><label for="show-animated-forest-loss-gain"><input type="checkbox" id="show-animated-forest-loss-gain" value="5" />Animated Loss/Gain<span class="credit"> (Hansen et al)</span></label></td>';
-        var show_forest_alerts = '<td class="forest-alerts-select"><label for="show-forest-alerts"><input type="checkbox" id="show-forest-alerts" value="13"/>Forest Loss Alerts<span class="credit"> (Hansen et al)</span></label></td>';
-        var show_forest_alert_no_overlay = '<td class="forest-alerts-no-overlay-select"><label for="show-forest-alerts-no-overlay"><input type="checkbox" id="show-forest-alerts-no-overlay" value="13"/>Forest Loss Alerts <span style="font-size: 14px">(No Overlay)</span><span class="credit"> (Hansen et al)</span></label></td>';
-        var show_lights_at_night = '<td class="lights-at-night-select"><label for="show-lights-at-night"><input type="checkbox" id="show-lights-at-night" value="6"/>Lights at Night<span class="credit"> (NOAA, Google)</span></label></td>';
-        var show_coral = '<td class="coral-select"><label for="show-coral"><input type="checkbox" id="show-coral" value="7"/>Coral Bleaching<span class="credit"> (NOAA, UNEP-WCMC)</span></label></td>';
-        var show_coral_bleaching_alerts = '<td class="coral-bleaching-select"><label for="show-coral-bleaching-alerts"><input type="checkbox" id="show-coral-bleaching-alerts" value="8"/>Coral Reef Watch<span class="credit"> (NOAA, UNEP-WCMC)</span></label></td>';
-        var show_usgs_windturbine = '<td class="wind-select"><label for="show-usgs-windturbine"><input type="checkbox" id="show-usgs-windturbine" value="9"/>Wind Power (USA)<span class="credit" style=""> (USGS)</span></label></td>';
-        var show_solar_installs = '<td class="solar-select"> <label for="show-solar-installs"><input type="checkbox" id="show-solar-installs" value="10"/>Solar PV (USA)<span class="credit"> (NREL)</span></label></td>';
-        var show_drilling = '<td class="drilling-select"><label for="show-drilling"><input type="checkbox" id="show-drilling" value="11"/>Oil/Gas Drilling<span class="credit"> (CREATE Lab)</span></label></td>';
-        var show_himawari = '<td class="himawari-select"><label for="show-himawari"><input type="checkbox" id="show-himawari" value="12"/>Himawari-8<span class="credit"> (JMA)</span></label></td>';
-        var show_water_occurrence = '<td class="water-occurrence-select"><label for="show-water-occurrence"><input type="checkbox" id="show-water-occurrence" value="14"/>Water Occurrence<span class="credit"> (JRC)</span></label></td>';
-        var show_water_change = '<td class="water-change-select"><label for="show-water-change"><input type="checkbox" id="show-water-change" value="15"/>Water Change<span class="credit"> (JRC)</span></label></td>';
+        // NOTE NOTE NOTE
+        // What is set for the name in the label must never be changed and is forever connected to share links
+        // The schema for generating the label name is using the initials of the data product. If this ends up conflicting
+        // with one that already exisits, then it is up to you to come up with something. Perhaps the initials of the name you would
+        // give it when describing the layer to someone. Keep it as short as possible though.
+        // NOTE NOTE NOTE
+        var show_wdpa = '<td class="wdpa-select"><label for="show-wdpa" name="wdpa"><input type="checkbox" id="show-wdpa" />Protected Areas<span class="credit"> (UNEP-WCMC)</span></label></td>';
+        var show_forest_change = '<td class="forest-change-select"><label for="show-forest-change" name="fly"><input type="checkbox" id="show-forest-change" />Forest Loss by Year<span class="credit"> (Hansen et al)</span></label></td>';
+        var show_forest_loss_gain = '<td class="forest-loss-gain-select"><label for="show-forest-loss-gain" name="flg"><input type="checkbox" id="show-forest-loss-gain" />Forest Loss/Gain<span class="credit"> (Hansen et al)</span></label></td>';
+        var show_animated_forest_loss_gain = '<td class="animated-forest-loss-select"><label for="show-animated-forest-loss-gain" name="aflg"><input type="checkbox" id="show-animated-forest-loss-gain" />Animated Loss/Gain<span class="credit"> (Hansen et al)</span></label></td>';
+        var show_viirs = '<td class="viirs-select"><label for="show-viirs" name="viirs"><input type="checkbox" id="show-viirs" />Fires at Night<span class="credit"> (NOAA)</span></label></td>';
+        var show_forest_alerts = '<td class="forest-alerts-select"><label for="show-forest-alerts" name="fla"><input type="checkbox" id="show-forest-alerts" />Forest Loss Alerts<span class="credit"> (Hansen et al)</span></label></td>';
+        var show_forest_alert_no_overlay = '<td class="forest-alerts-no-overlay-select"><label for="show-forest-alerts-no-overlay" name="flano"><input type="checkbox" id="show-forest-alerts-no-overlay" />Forest Loss Alerts <span style="font-size: 14px">(No Overlay)</span><span class="credit"> (Hansen et al)</span></label></td>';
+        var show_lights_at_night = '<td class="lights-at-night-select"><label for="show-lights-at-night" name="lan"><input type="checkbox" id="show-lights-at-night" />Lights at Night<span class="credit"> (NOAA, Google)</span></label></td>';
+        var show_coral = '<td class="coral-select"><label for="show-coral" name="cb"><input type="checkbox" id="show-coral"/>Coral Bleaching<span class="credit"> (NOAA, UNEP-WCMC)</span></label></td>';
+        var show_coral_bleaching_alerts = '<td class="coral-bleaching-select"><label for="show-coral-bleaching-alerts" name="crw"><input type="checkbox" id="show-coral-bleaching-alerts" />Coral Reef Watch<span class="credit"> (NOAA, UNEP-WCMC)</span></label></td>';
+        var show_usgs_windturbine = '<td class="wind-select"><label for="show-usgs-windturbine" name="wp"><input type="checkbox" id="show-usgs-windturbine" />Wind Power (USA)<span class="credit" style=""> (USGS)</span></label></td>';
+        var show_solar_installs = '<td class="solar-select"> <label for="show-solar-installs" name="sp"><input type="checkbox" id="show-solar-installs" />Solar PV (USA)<span class="credit"> (NREL)</span></label></td>';
+        var show_drilling = '<td class="drilling-select"><label for="show-drilling" name="drl"><input type="checkbox" id="show-drilling" />Oil/Gas Drilling<span class="credit"> (CREATE Lab)</span></label></td>';
+        var show_himawari = '<td class="himawari-select"><label for="show-himawari" name="h8"><input type="checkbox" id="show-himawari" />Himawari-8<span class="credit"> (JMA)</span></label></td>';
+        var show_water_occurrence = '<td class="water-occurrence-select"><label for="show-water-occurrence" name="wo"><input type="checkbox" id="show-water-occurrence" />Water Occurrence<span class="credit"> (JRC)</span></label></td>';
+        var show_water_change = '<td class="water-change-select"><label for="show-water-change" name="wc"><input type="checkbox" id="show-water-change" />Water Change<span class="credit"> (JRC)</span></label></td>';
 
         if (enableLetterboxMode) {
           layer_html += '<div class="base-map-div">';
@@ -968,7 +984,7 @@
           layer_html += '   <option data-type="link" data-link-path="http://localhost:8080/?uid=history-1436384863961-Vyxt6PIO">EVA - Explorable Visual Analytics</option>';
         if (showLODES)
           layer_html += '   <option data-type="link" data-link-path="lodes.html#earthTimeBackButton">LODES - Origin-Destination Employment Statistics</option>';
-        layer_html += '   <optgroup label="World Economic Forum - Davos 2016">'
+        layer_html += '   <optgroup label="World Economic Forum - Davos 2016">';
         layer_html += '   <option data-file-playback-rate="1" data-type="video" data-file-name="WEF/The Climate Crisis with Naomi Oreskes and Achim Steiner.mp4">Climate Crisis with Naomi Oreskes and Achim Steiner</option>';
         layer_html += '   <option data-file-playback-rate="1" data-type="video" data-file-name="WEF/The Climate Crisis with Naomi Oreskes and Nicholas Stern.mp4">Climate Crisis with Naomi Oreskes and Nicholas Stern</option>';
         layer_html += '   <option data-file-playback-rate="1" data-type="video" data-file-name="WEF/The Future of Forests with Matthew Hansen and Andrew Steer.mp4">Future of Forests with Matthew Hansen and Andrew Steer</option>';
@@ -976,7 +992,7 @@
         layer_html += '   <option data-file-playback-rate="1" data-type="video" data-file-name="WEF/The Race for Resources with Ellen MacArthur and Randy Sargent.mp4">Race for Resources with Ellen MacArthur and Randy Sargent</option>';
         layer_html += '   <option data-file-playback-rate="1" data-type="video" data-file-name="WEF/The Race for Resources with William McDonough and Randy Sargent.mp4">Race for Resources with William McDonough and Randy Sargent</option>';
         layer_html += '   <option data-file-playback-rate="1" data-type="video" data-file-name="WEF/The War on Water with Johan Rockstrom and Randy Sargent.mp4">War on Water with Johan Rockstrom and Randy Sargent</option>';
-        layer_html += '   </optgroup>'
+        layer_html += '   </optgroup>';
         layer_html += ' </select>';
         layer_html += '</div>';
 
@@ -1157,9 +1173,6 @@
         initLayerToggleUI();
         $(".googleLogo").html("Google Earth Engine");
 
-        // Load waypoints
-        timelapse.loadSharedDataFromUnsafeURL(presentationSliderContent);
-
         if (enableRecordingMode) {
           var snaplapse = timelapse.getSnaplapse();
           if (snaplapse) {
@@ -1174,299 +1187,160 @@
           snaplapseViewerForPresentationSlider = snaplapseForPresentationSlider.getSnaplapseViewer();
         }
 
-        if (snaplapseViewerForPresentationSlider) {
-          // Change UI based on whether setup is a hyperwall or not
-          snaplapseViewerForPresentationSlider.addEventListener('snaplapse-loaded', function() {
-            var $elements = $('.presentationSlider, .snaplapse_keyframe_container, .keyframeSubtitleBoxForHovering, .snaplapse_keyframe_list_item_presentation, .snaplapse_keyframe_list_item_thumbnail_overlay_presentation');
-            if (isHyperwall)
-              $elements.addClass('hyperwall');
-            if (enableLetterboxMode)
-              $elements.addClass('letterbox');
-            if (enableRecordingMode)
-              $elements.addClass('recording');
-            $(".snaplapse_keyframe_container").scrollLeft(0);
+        // Load waypoints
+        if (googleDocPresentationSliderLink) {
+          snaplapseForPresentationSlider.gdocToJSON(googleDocPresentationSliderLink, function(csvdata) {
+            var waypointJSON = JSON.parse(snaplapseForPresentationSlider.CSVToJSON(csvdata));
+            for (var i = 0; i < waypointJSON.snaplapse.keyframes.length; i++) {
+              var keyframe = waypointJSON.snaplapse.keyframes[i];
+              // Himawari is a special case.
+              // We need to store the bounds and times and then replace them with a default view.
+              // The default view allows for a black thumbnail to be used on the waypoint slider instead of some random position in Landsat
+              // Then when we actually click the Himawari waypoint, we load up the original bounds and time and use them.
+              for (var j = 0; j < keyframe.layers.length; j++) {
+                if (keyframe.layers[j] == "h8") {
+                  himawariWaypoints[i] = {bounds: keyframe.bounds, time: keyframe.time};
+                  keyframe.bounds = himawariWaypointThumbnailBounds;
+                  keyframe.time = 0;
+                }
+              }
+            }
+            presentationSliderContent = "#presentation=" + snaplapseForPresentationSlider.getAsUrlString(waypointJSON.snaplapse.keyframes);
+            timelapse.loadSharedDataFromUnsafeURL(presentationSliderContent);
           });
+        } else {
+          timelapse.loadSharedDataFromUnsafeURL(presentationSliderContent);
         }
 
-        $('.current-location-text').click(function() {
-          $('.current-location-text').hide();
-        });
+        if (!googleDocPresentationSliderLink && snaplapseViewerForPresentationSlider) {
+          oldWaypointHandler(snaplapseViewerForPresentationSlider);
+        } else {
+          if (snaplapseViewerForPresentationSlider) {
+            // Change UI based on whether setup is a hyperwall or not
+            snaplapseViewerForPresentationSlider.addEventListener('snaplapse-loaded', function() {
+              var $elements = $('.presentationSlider, .snaplapse_keyframe_container, .keyframeSubtitleBoxForHovering, .snaplapse_keyframe_list_item_presentation, .snaplapse_keyframe_list_item_thumbnail_overlay_presentation');
+              if (isHyperwall)
+                $elements.addClass('hyperwall');
+              if (enableLetterboxMode)
+                $elements.addClass('letterbox');
+              if (enableRecordingMode)
+                $elements.addClass('recording');
+              $(".snaplapse_keyframe_container").scrollLeft(0);
+            });
+          }
 
-
-        var himawariWaypointIndicies = [81, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120];
-
-        // TODO: Refactor how this is handled and how layers turn on/off in general
-        if (snaplapseViewerForPresentationSlider) {
-          snaplapseViewerForPresentationSlider.addEventListener('slide-before-changed', function(waypointTitle, waypointIndex, waypointBounds) {
-            isAutoModeRunning = snaplapseViewerForPresentationSlider.isAutoModeRunning();
-            if (himawariWaypointIndicies.indexOf(waypointIndex) > -1) timelapse.setMaxScale(himawariMaxScale);
-            else timelapse.setMaxScale(landsatMaxScale);
+          $('.current-location-text').click(function() {
+            $('.current-location-text').hide();
           });
 
-          snaplapseViewerForPresentationSlider.addEventListener('slide-changed', function(waypointTitle, waypointIndex, waypointBounds) {
-            // Display info box for the waypoints
-            if (enableWaypointText && WAYPOINT_TEXT) {
-              var waypointScale = timelapse.pixelBoundingBoxToPixelCenter(waypointBounds).scale;
-              var $current_location_text = $(".current-location-text");
+          if (snaplapseViewerForPresentationSlider) {
+            snaplapseViewerForPresentationSlider.addEventListener('automode-start', function() {
+              if (timelapse.isPaused() && !timelapse.isDoingLoopingDwell()) {
+                timelapse.handlePlayPause();
+              }
+            });
 
-              timelapse.removeViewChangeListener(waypointViewChangeListener);
-              timelapse.removeViewChangeListener(hideWaypointListener);
-              waypointViewChangeListener = function() {
-                var currentView = timelapse.getView();
-                if (currentView.scale * 2.5 > waypointScale && (currentView.x >= waypointBounds.xmin && currentView.x <= waypointBounds.xmax && currentView.y >= waypointBounds.ymin && currentView.y <= waypointBounds.ymax)) {
-                  if (WAYPOINT_TEXT && WAYPOINT_TEXT[waypointIndex].title) {
-                    $current_location_text.show();
-                    $current_location_text.find("h3").text(WAYPOINT_TEXT[waypointIndex].title);
-                    $current_location_text.find("p").text(WAYPOINT_TEXT[waypointIndex].text);
-                    previousWaypoint.scale = waypointScale;
-                    previousWaypoint.bounds = waypointBounds;
-                    hideWaypointListener = function() {
-                      var currentView = timelapse.getView();
-                      var previousWaypointBounds = previousWaypoint.bounds;
-                      if ((previousWaypoint.scale / 2.5 > currentView.scale || !(currentView.x >= previousWaypointBounds.xmin && currentView.x <= previousWaypointBounds.xmax && currentView.y >= previousWaypointBounds.ymin && currentView.y <= previousWaypointBounds.ymax))) {
-                        $(".current-location-text").hide();
-                        timelapse.removeViewChangeListener(hideWaypointListener);
-                      }
-                    };
-                    timelapse.addViewChangeListener(hideWaypointListener);
+            snaplapseViewerForPresentationSlider.addEventListener('slide-before-changed', function(waypoint) {
+              var waypointTitle = waypoint.title;
+              var waypointIndex = waypoint.index;
+              var waypointBounds = waypoint.bounds;
+              isAutoModeRunning = snaplapseViewerForPresentationSlider.isAutoModeRunning();
+              if (himawariWaypoints[waypointIndex]) timelapse.setMaxScale(himawariMaxScale);
+              else timelapse.setMaxScale(landsatMaxScale);
+            });
+
+            snaplapseViewerForPresentationSlider.addEventListener('slide-changed', function(waypoint) {
+              var waypointTitle = waypoint.title;
+              var waypointIndex = waypoint.index;
+              var waypointBounds = waypoint.bounds;
+              var waypointLayers = waypoint.layers || [];
+
+              // Display info box for the waypoints
+              if (enableWaypointText) {
+                var waypointScale = timelapse.pixelBoundingBoxToPixelCenter(waypointBounds).scale;
+                var $current_location_text = $(".current-location-text");
+
+                timelapse.removeViewChangeListener(waypointViewChangeListener);
+                timelapse.removeViewChangeListener(hideWaypointListener);
+                waypointViewChangeListener = function() {
+                  var currentView = timelapse.getView();
+                  if (currentView.scale * 2.5 > waypointScale && (currentView.x >= waypointBounds.xmin && currentView.x <= waypointBounds.xmax && currentView.y >= waypointBounds.ymin && currentView.y <= waypointBounds.ymax)) {
+                    if (waypoint.annotationBoxTitle || waypoint.description) {
+                      $current_location_text.show();
+                      $current_location_text.find("h3").text(waypoint.annotationBoxTitle);
+                      $current_location_text.find("p").text(waypoint.description);
+                      previousWaypoint.scale = waypointScale;
+                      previousWaypoint.bounds = waypointBounds;
+                      hideWaypointListener = function() {
+                        var currentView = timelapse.getView();
+                        var previousWaypointBounds = previousWaypoint.bounds;
+                        if ((previousWaypoint.scale / 2.5 > currentView.scale || !(currentView.x >= previousWaypointBounds.xmin && currentView.x <= previousWaypointBounds.xmax && currentView.y >= previousWaypointBounds.ymin && currentView.y <= previousWaypointBounds.ymax))) {
+                          $(".current-location-text").hide();
+                          timelapse.removeViewChangeListener(hideWaypointListener);
+                        }
+                      };
+                      timelapse.addViewChangeListener(hideWaypointListener);
+                    } else {
+                      $(".current-location-text").hide();
+                    }
+                    timelapse.removeViewChangeListener(waypointViewChangeListener);
                   } else {
                     $(".current-location-text").hide();
                   }
-                  timelapse.removeViewChangeListener(waypointViewChangeListener);
-                } else {
-                  $(".current-location-text").hide();
-                }
-              };
-              timelapse.addViewChangeListener(waypointViewChangeListener);
-            }
+                };
+                timelapse.addViewChangeListener(waypointViewChangeListener);
+              }
 
-            // Earth Engine Timelapse
-            var $landsatToggle = $("#landsat-base");
-            // Light Map
-            var $lightMapToggle = $("#light-base");
-            // Dark Map
-            var $darkMapToggle = $("#dark-base");
-            // Protected Areas
-            var $wdpaLayerToggle = $("#show-wdpa");
-            // Forest Loss By Year
-            var $globalForestLayerToggle = $("#show-forest-change");
-            // Forest Loss/Gain
-            var $globalForestLossLayerToggle = $("#show-forest-loss-gain");
-            // Animated Fotest Loss/Gain
-            var $animatedGlobalForestLossLayerToggle = $("#show-animated-forest-loss-gain");
-            // Forest Loss Alerts
-            var $forestLossAlarmsLayerToggle = $("show-forest-alerts");
-            // Forest Loss Alerts No Overlay
-            var $forestLossAlarmsNoOverlayLayerToggle = $("show-forest-alerts-no-overlay");
-            // Fires at Night
-            var $viirsLayerToggle = $("#show-viirs");
-            // Lights at Night
-            var $lightsAtNightToggle = $("#show-lights-at-night");
-            // Coral Bleaching
-            var $coralLayerToggle = $("#show-coral");
-            // Coral Bleaching Alerts
-            var $coralBleachingAlertsLayerToggle = $("#show-coral-bleaching-alerts");
-            // Wind Power
-            var $usgsWindTurbineLayerToggle = $("#show-usgs-windturbine");
-            // Solar Power
-            var $solarInstallsLayerToggle = $("#show-solar-installs");
-            // Drilling
-            var $drillingLayerToggle = $("#show-drilling");
-            // Himawari-8
-            var $himawariLayerToggle = $("#show-himawari");
-            // Water Occurrence
-            var $waterOccurrenceToggle = $("#show-water-occurrence");
-            // Water Change
-            var $waterChangeToggle = $("#show-water-change");
+              // Remove himawari since we do special cases further below
+              var himawariIdx = waypointLayers.indexOf("h8");
+              if (himawariIdx > -1) waypointLayers.splice(himawariIdx, 1);
 
-            // Default to Landsat turned on
-            $landsatToggle.click();
+              // Clear out layers if they were already checked
+              // Special case if himawari waypoint
+              var himawariWaypoint = himawariWaypoints[waypointIndex];
 
-            //// Clear out layers if they were already checked
+              if (himawariWaypoint)
+                $(".map-layer-div input:checked").not("#show-himawari").trigger("click");
+              else
+                $(".map-layer-div input:checked").trigger("click");
 
-            if ($wdpaLayerToggle.prop('checked')) {
-              $wdpaLayerToggle.click();
-            }
-            if ($globalForestLayerToggle.prop('checked')) {
-              $globalForestLayerToggle.click();
-            }
-            if ($globalForestLossLayerToggle.prop('checked')) {
-              $globalForestLossLayerToggle.click();
-            }
-            if ($animatedGlobalForestLossLayerToggle.prop('checked')) {
-              $animatedGlobalForestLossLayerToggle.click();
-            }
-            if ($forestLossAlarmsLayerToggle.prop('checked')) {
-              $forestLossAlarmsLayerToggle.click();
-            }
-            if ($forestLossAlarmsNoOverlayLayerToggle.prop('checked')) {
-              $forestLossAlarmsNoOverlayLayerToggle.click();
-            }
-            if ($lightsAtNightToggle.prop('checked')) {
-              $lightsAtNightToggle.click();
-            }
-            if ($coralLayerToggle.prop('checked')) {
-              $coralLayerToggle.click();
-            }
-            if ($coralBleachingAlertsLayerToggle.prop('checked')) {
-              $coralBleachingAlertsLayerToggle.click();
-            }
-            if ($usgsWindTurbineLayerToggle.prop('checked')) {
-              $usgsWindTurbineLayerToggle.click();
-            }
-            if ($solarInstallsLayerToggle.prop('checked')) {
-              $solarInstallsLayerToggle.click();
-            }
-            if ($drillingLayerToggle.prop('checked')) {
-              $drillingLayerToggle.click();
-            }
-            if ($waterOccurrenceToggle.prop('checked')) {
-              $waterOccurrenceToggle.click();
-            }
-            if ($waterChangeToggle.prop('checked')) {
-              $waterChangeToggle.click();
-            }
-            if ($himawariLayerToggle.prop('checked') && himawariWaypointIndicies.indexOf(waypointIndex) === -1) {
-              $himawariLayerToggle.click();
-            }
+              // Handle layers
+              waypointLayers.forEach(function(layer) {
+                var $layerToggle = $("#layers-list label[name='" + layer + "'] input");
+                if (!$layerToggle.prop('checked')) $layerToggle.trigger("click");
+              });
 
-            //// Set layers based on selected waypoint ////
+              // Handle himawari
+              if (himawariWaypoint) {
+                var initialHimawariViewChangeHack = function() {
+                  if (isAutoModeRunning) {
+                    snaplapseViewerForPresentationSlider.startAutoModeWaypointTimeout();
+                  } else {
+                    snaplapseViewerForPresentationSlider.startAutoModeIdleTimeout();
+                  }
+                };
 
-            // VIIRS specific waypoints
-            // Issues arise if VIIRS waypoints are not handled first
-            if ((waypointIndex >= 1 && waypointIndex <= 5) || (waypointIndex >= 63 && waypointIndex <= 65)) {
-              if (!$viirsLayerToggle.prop('checked')) {
-                $viirsLayerToggle.click();
-              }
-              if (!$darkMapToggle.prop('checked')) {
-                $darkMapToggle.click();
-              }
-            } else {
-              if ($viirsLayerToggle.prop('checked')) {
-                $viirsLayerToggle.click();
-                timelapse.setPlaybackRate(defaultPlaybackSpeed);
-              }
-            }
-            // End VIIRS
+                var setHimawariView = function(himawariBoundingBox, himawariTime, himawariPlaybackSpeed) {
+                  var himawariView = {bbox : himawariBoundingBox};
+                  if (showHimawariTimeMachineLayer) {
+                    timelapse.stopParabolicMotion();
+                    timelapse.setNewView(himawariView);
+                  } else {
+                    loadHimawari();
+                    timelapse.stopParabolicMotion();
+                    timelapse.setNewView(himawariView, true, null, initialHimawariViewChangeHack);
+                  }
+                  timelapse.setPlaybackRate(himawariPlaybackSpeed);
+                  setTimeout(function() {
+                    timelapse.seek(himawariTime);
+                  }, 150);
+                };
 
-            // Himawari
-            // Must be after VIIRS but before other waypoints
-            var isHimawariLayerOn = $himawariLayerToggle.prop('checked');
-
-            var initialHimawariViewChangeHack = function() {
-              if (isAutoModeRunning) {
-                snaplapseViewerForPresentationSlider.startAutoModeWaypointTimeout();
-              } else {
-                snaplapseViewerForPresentationSlider.startAutoModeIdleTimeout();
+                setHimawariView(himawariWaypoint.bounds, himawariWaypoint.time, 0.5);
               }
-            };
-
-            var setHimawariView = function(himawariBoundingBox, himawariTime, himawariPlaybackSpeed) {
-              var himawariView = {bbox : himawariBoundingBox};
-              if (!isHimawariLayerOn) {
-                loadHimawari();
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView, true, null, initialHimawariViewChangeHack);
-              } else {
-                timelapse.stopParabolicMotion();
-                timelapse.setNewView(himawariView);
-              }
-              timelapse.setPlaybackRate(himawariPlaybackSpeed);
-              setTimeout(function() {
-                timelapse.seek(himawariTime);
-              }, 150);
-            };
-
-            if (waypointIndex == himawariWaypointIndicies[0]) {
-              waypointBounds = timelapse.pixelCenterToPixelBoundingBoxView({x: 245106.46412122744, y: 727021.4061973379, scale: 0.019163055706363917}).bbox;
-              setHimawariView(waypointBounds, 47.67, 0.5);
-            } else if (waypointIndex == himawariWaypointIndicies[1]) {
-              waypointBounds = timelapse.pixelCenterToPixelBoundingBoxView({x: 670030.661392405, y: 760918.1012658221, scale: 0.0004731126771739602}).bbox;
-              setHimawariView(waypointBounds, 0, 1);
-            } else if (waypointIndex == himawariWaypointIndicies[2]) {
-              waypointBounds = timelapse.pixelCenterToPixelBoundingBoxView({x: 245106.46412122744, y: 727021.4061973379, scale: 0.019163055706363917}).bbox;
-              setHimawariView(waypointBounds, 47.67, 0.5);
-            } else if (waypointIndex == himawariWaypointIndicies[3]) {
-              waypointBounds = timelapse.pixelCenterToPixelBoundingBoxView({x: 362126.4405055399, y: 782057.1066230518, scale: 0.022475101466500988}).bbox;
-              setHimawariView(waypointBounds, 34.75, 1);
-            } else if (waypointIndex == himawariWaypointIndicies[4]) {
-              waypointBounds = timelapse.pixelCenterToPixelBoundingBoxView({x: 451074.23876657395, y: 212062.48697210365, scale: 0.017032941813388835}).bbox;
-              setHimawariView(waypointBounds, 12.50, 0.5);
-            } else if (waypointIndex == himawariWaypointIndicies[5]) {
-              waypointBounds = timelapse.pixelCenterToPixelBoundingBoxView({x: 451074.23876657395, y: 212062.48697210365, scale: 0.017032941813388835}).bbox;
-              setHimawariView(waypointBounds, 24.33, 0.5);
-            } else if (waypointIndex == himawariWaypointIndicies[6]) {
-              waypointBounds = timelapse.pixelCenterToPixelBoundingBoxView({x: 451074.23876657395, y: 212062.48697210365, scale: 0.017032941813388835}).bbox;
-              setHimawariView(waypointBounds, 342.83, 0.5);
-            } else if (waypointIndex == himawariWaypointIndicies[7]) {
-              waypointBounds = timelapse.pixelCenterToPixelBoundingBoxView({x: 363341.95657876006, y: 205546.6268786163, scale: 0.02011577928416843}).bbox;
-              setHimawariView(waypointBounds, 296.66, 0.5);
-            } else if (waypointIndex == himawariWaypointIndicies[8]) {
-              waypointBounds = timelapse.pixelCenterToPixelBoundingBoxView({x: 677150.2096313634, y: 1300560.2801491471, scale: 0.009919419703208456}).bbox;
-              setHimawariView(waypointBounds, 9.5, 0.5);
-            } else if (waypointIndex == himawariWaypointIndicies[9]) {
-              waypointBounds = timelapse.pixelCenterToPixelBoundingBoxView({x: 646791.4364009488, y: 1299485.0077851338, scale: 0.031962724591951354}).bbox;
-              setHimawariView(waypointBounds, 9.75, 0.5);
-            } else if (waypointIndex == himawariWaypointIndicies[10]) {
-              waypointBounds = timelapse.pixelCenterToPixelBoundingBoxView({x: 745253.433241357, y: 550139.9045414061, scale: 0.006365420067946737}).bbox;
-              setHimawariView(waypointBounds, 223.084, 0.5);
-            }
-            // End Himawari
-
-            // All other waypoints
-            if ((waypointIndex >= 12 && waypointIndex <= 15) || (waypointIndex >= 59 && waypointIndex <= 61) || waypointIndex == 95) {
-              if (!$lightsAtNightToggle.prop('checked')) {
-                $lightsAtNightToggle.click();
-              }
-            } else if (waypointIndex == 19 || waypointIndex == 26 || (waypointIndex >= 32 && waypointIndex <= 38) || (waypointIndex >= 79 && waypointIndex <= 80)) {
-              if (!$globalForestLayerToggle.prop('checked')) {
-                $globalForestLayerToggle.click();
-              }
-            } else if (waypointIndex >= 30 && waypointIndex <= 39) {
-              if (!$darkMapToggle.prop('checked')) {
-                $darkMapToggle.click();
-              }
-            } else if (waypointIndex == 27 || waypointIndex == 98 || waypointIndex == 100 || waypointIndex == 102) {
-              if (!$wdpaLayerToggle.prop('checked')) {
-                $wdpaLayerToggle.click();
-              }
-            } else if ((waypointIndex >= 30 && waypointIndex <= 31) || waypointIndex == 39 || waypointIndex == 82 || waypointIndex == 97 || waypointIndex == 99) {
-              if (!$globalForestLossLayerToggle.prop('checked')) {
-                $globalForestLossLayerToggle.click();
-              }
-            } else if (waypointIndex == 40 || waypointIndex == 52) {
-              if (!$waterChangeToggle.prop('checked')) {
-                $waterChangeToggle.click();
-              }
-            } else if (waypointIndex == 54) {
-              if (!$coralBleachingAlertsLayerToggle.prop('checked')) {
-                $coralBleachingAlertsLayerToggle.click();
-              }
-              if (!$darkMapToggle.prop('checked')) {
-                $darkMapToggle.click();
-              }
-            } else if (waypointIndex == 109) {
-              if (!$coralLayerToggle.prop('checked')) {
-                $coralLayerToggle.click();
-              }
-            } else if (waypointIndex == 91) {
-              if (!$usgsWindTurbineLayerToggle.prop('checked')) {
-                $usgsWindTurbineLayerToggle.click();
-              }
-            } else if (waypointIndex == 92) {
-              if (!$solarInstallsLayerToggle.prop('checked')) {
-                $solarInstallsLayerToggle.click();
-              }
-            } else if (waypointIndex == 101) {
-              if (!$lightMapToggle.prop('checked')) {
-                $lightMapToggle.click();
-              }
-              if (!$wdpaLayerToggle.prop('checked')) {
-                $wdpaLayerToggle.click();
-              }
-            }
-            // End other waypoints
-          });
+              // End Himawari
+            });
+          }
         }
 
         // Location search box, with autocomplete.
@@ -1571,6 +1445,7 @@
         });
 
         $(window).trigger("resize");
+        $(".share").appendTo($(".location_search_div"));
       }
 
       var perf;
@@ -1894,6 +1769,331 @@
       ga(function(t){localStorage.setItem('gaClientId',t.get('clientId'));});
       ga('set', 'checkProtocolTask', null); // Disable file protocol checking.
       ga('send', 'pageview');
+    </script>
+
+    <script>
+      // TODO
+      // Legacy code
+      function oldWaypointHandler(snaplapseViewerForPresentationSlider) {
+        if (snaplapseViewerForPresentationSlider) {
+          snaplapseViewerForPresentationSlider.addEventListener('automode-start', function() {
+            if (timelapse.isPaused() && !timelapse.isDoingLoopingDwell()) {
+              timelapse.handlePlayPause();
+            }
+          });
+
+          // Change UI based on whether setup is a hyperwall or not
+          snaplapseViewerForPresentationSlider.addEventListener('snaplapse-loaded', function() {
+            var $elements = $('.presentationSlider, .snaplapse_keyframe_container, .keyframeSubtitleBoxForHovering, .snaplapse_keyframe_list_item_presentation, .snaplapse_keyframe_list_item_thumbnail_overlay_presentation');
+            if (isHyperwall)
+              $elements.addClass('hyperwall');
+            if (enableLetterboxMode)
+              $elements.addClass('letterbox');
+            if (enableRecordingMode)
+              $elements.addClass('recording');
+            $(".snaplapse_keyframe_container").scrollLeft(0);
+          });
+        }
+
+        $('.current-location-text').click(function() {
+          $('.current-location-text').hide();
+        });
+
+        var himawariWaypointIndicies = [81, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120];
+
+        // TODO: Refactor how this is handled and how layers turn on/off in general
+        if (snaplapseViewerForPresentationSlider) {
+          snaplapseViewerForPresentationSlider.addEventListener('slide-before-changed', function(waypoint) {
+            var waypointTitle = waypoint.title;
+            var waypointIndex = waypoint.index;
+            var waypointBounds = waypoint.bounds;
+            isAutoModeRunning = snaplapseViewerForPresentationSlider.isAutoModeRunning();
+            if (himawariWaypointIndicies.indexOf(waypointIndex) > -1) timelapse.setMaxScale(himawariMaxScale);
+            else timelapse.setMaxScale(landsatMaxScale);
+          });
+
+          snaplapseViewerForPresentationSlider.addEventListener('slide-changed', function(waypoint) {
+            var waypointTitle = waypoint.title;
+            var waypointIndex = waypoint.index;
+            var waypointBounds = waypoint.bounds;
+            // Display info box for the waypoints
+            if (enableWaypointText && WAYPOINT_TEXT) {
+              var waypointScale = timelapse.pixelBoundingBoxToPixelCenter(waypointBounds).scale;
+              var $current_location_text = $(".current-location-text");
+
+              timelapse.removeViewChangeListener(waypointViewChangeListener);
+              timelapse.removeViewChangeListener(hideWaypointListener);
+              waypointViewChangeListener = function() {
+                var currentView = timelapse.getView();
+                if (currentView.scale * 2.5 > waypointScale && (currentView.x >= waypointBounds.xmin && currentView.x <= waypointBounds.xmax && currentView.y >= waypointBounds.ymin && currentView.y <= waypointBounds.ymax)) {
+                  if (WAYPOINT_TEXT && WAYPOINT_TEXT[waypointIndex].title) {
+                    $current_location_text.show();
+                    $current_location_text.find("h3").text(WAYPOINT_TEXT[waypointIndex].title);
+                    $current_location_text.find("p").text(WAYPOINT_TEXT[waypointIndex].text);
+                    previousWaypoint.scale = waypointScale;
+                    previousWaypoint.bounds = waypointBounds;
+                    hideWaypointListener = function() {
+                      var currentView = timelapse.getView();
+                      var previousWaypointBounds = previousWaypoint.bounds;
+                      if ((previousWaypoint.scale / 2.5 > currentView.scale || !(currentView.x >= previousWaypointBounds.xmin && currentView.x <= previousWaypointBounds.xmax && currentView.y >= previousWaypointBounds.ymin && currentView.y <= previousWaypointBounds.ymax))) {
+                        $(".current-location-text").hide();
+                        timelapse.removeViewChangeListener(hideWaypointListener);
+                      }
+                    };
+                    timelapse.addViewChangeListener(hideWaypointListener);
+                  } else {
+                    $(".current-location-text").hide();
+                  }
+                  timelapse.removeViewChangeListener(waypointViewChangeListener);
+                } else {
+                  $(".current-location-text").hide();
+                }
+              };
+              timelapse.addViewChangeListener(waypointViewChangeListener);
+            }
+
+            // Earth Engine Timelapse
+            var $landsatToggle = $("#landsat-base");
+            // Light Map
+            var $lightMapToggle = $("#light-base");
+            // Dark Map
+            var $darkMapToggle = $("#dark-base");
+            // Protected Areas
+            var $wdpaLayerToggle = $("#show-wdpa");
+            // Forest Loss By Year
+            var $globalForestLayerToggle = $("#show-forest-change");
+            // Forest Loss/Gain
+            var $globalForestLossLayerToggle = $("#show-forest-loss-gain");
+            // Animated Fotest Loss/Gain
+            var $animatedGlobalForestLossLayerToggle = $("#show-animated-forest-loss-gain");
+            // Forest Loss Alerts
+            var $forestLossAlarmsLayerToggle = $("show-forest-alerts");
+            // Forest Loss Alerts No Overlay
+            var $forestLossAlarmsNoOverlayLayerToggle = $("show-forest-alerts-no-overlay");
+            // Fires at Night
+            var $viirsLayerToggle = $("#show-viirs");
+            // Lights at Night
+            var $lightsAtNightToggle = $("#show-lights-at-night");
+            // Coral Bleaching
+            var $coralLayerToggle = $("#show-coral");
+            // Coral Bleaching Alerts
+            var $coralBleachingAlertsLayerToggle = $("#show-coral-bleaching-alerts");
+            // Wind Power
+            var $usgsWindTurbineLayerToggle = $("#show-usgs-windturbine");
+            // Solar Power
+            var $solarInstallsLayerToggle = $("#show-solar-installs");
+            // Drilling
+            var $drillingLayerToggle = $("#show-drilling");
+            // Himawari-8
+            var $himawariLayerToggle = $("#show-himawari");
+            // Water Occurrence
+            var $waterOccurrenceToggle = $("#show-water-occurrence");
+            // Water Change
+            var $waterChangeToggle = $("#show-water-change");
+
+            // Default to Landsat turned on
+            $landsatToggle.click();
+
+            //// Clear out layers if they were already checked
+
+            if ($wdpaLayerToggle.prop('checked')) {
+              $wdpaLayerToggle.click();
+            }
+            if ($globalForestLayerToggle.prop('checked')) {
+              $globalForestLayerToggle.click();
+            }
+            if ($globalForestLossLayerToggle.prop('checked')) {
+              $globalForestLossLayerToggle.click();
+            }
+            if ($animatedGlobalForestLossLayerToggle.prop('checked')) {
+              $animatedGlobalForestLossLayerToggle.click();
+            }
+            if ($forestLossAlarmsLayerToggle.prop('checked')) {
+              $forestLossAlarmsLayerToggle.click();
+            }
+            if ($forestLossAlarmsNoOverlayLayerToggle.prop('checked')) {
+              $forestLossAlarmsNoOverlayLayerToggle.click();
+            }
+            if ($lightsAtNightToggle.prop('checked')) {
+              $lightsAtNightToggle.click();
+            }
+            if ($coralLayerToggle.prop('checked')) {
+              $coralLayerToggle.click();
+            }
+            if ($coralBleachingAlertsLayerToggle.prop('checked')) {
+              $coralBleachingAlertsLayerToggle.click();
+            }
+            if ($usgsWindTurbineLayerToggle.prop('checked')) {
+              $usgsWindTurbineLayerToggle.click();
+            }
+            if ($solarInstallsLayerToggle.prop('checked')) {
+              $solarInstallsLayerToggle.click();
+            }
+            if ($drillingLayerToggle.prop('checked')) {
+              $drillingLayerToggle.click();
+            }
+            if ($waterOccurrenceToggle.prop('checked')) {
+              $waterOccurrenceToggle.click();
+            }
+            if ($waterChangeToggle.prop('checked')) {
+              $waterChangeToggle.click();
+            }
+            if ($himawariLayerToggle.prop('checked') && himawariWaypointIndicies.indexOf(waypointIndex) === -1) {
+              $himawariLayerToggle.click();
+            }
+
+            //// Set layers based on selected waypoint ////
+
+            // VIIRS specific waypoints
+            // Issues arise if VIIRS waypoints are not handled first
+            if ((waypointIndex >= 1 && waypointIndex <= 5) || (waypointIndex >= 63 && waypointIndex <= 65)) {
+              if (!$viirsLayerToggle.prop('checked')) {
+                $viirsLayerToggle.click();
+              }
+              if (!$darkMapToggle.prop('checked')) {
+                $darkMapToggle.click();
+              }
+            } else {
+              if ($viirsLayerToggle.prop('checked')) {
+                $viirsLayerToggle.click();
+                timelapse.setPlaybackRate(defaultPlaybackSpeed);
+              }
+            }
+            // End VIIRS
+
+            // Himawari
+            // Must be after VIIRS but before other waypoints
+            var isHimawariLayerOn = $himawariLayerToggle.prop('checked');
+
+            var initialHimawariViewChangeHack = function() {
+              if (isAutoModeRunning) {
+                snaplapseViewerForPresentationSlider.startAutoModeWaypointTimeout();
+              } else {
+                snaplapseViewerForPresentationSlider.startAutoModeIdleTimeout();
+              }
+            };
+
+            var setHimawariView = function(himawariBoundingBox, himawariTime, himawariPlaybackSpeed) {
+              var himawariView = {bbox : himawariBoundingBox};
+              if (!isHimawariLayerOn) {
+                loadHimawari();
+                timelapse.stopParabolicMotion();
+                timelapse.setNewView(himawariView, true, null, initialHimawariViewChangeHack);
+              } else {
+                timelapse.stopParabolicMotion();
+                timelapse.setNewView(himawariView);
+              }
+              timelapse.setPlaybackRate(himawariPlaybackSpeed);
+              setTimeout(function() {
+                timelapse.seek(himawariTime);
+              }, 150);
+            };
+
+            if (waypointIndex == himawariWaypointIndicies[0]) {
+              waypointBounds = timelapse.pixelCenterToPixelBoundingBoxView({x: 245106.46412122744, y: 727021.4061973379, scale: 0.019163055706363917}).bbox;
+              setHimawariView(waypointBounds, 47.67, 0.5);
+            } else if (waypointIndex == himawariWaypointIndicies[1]) {
+              waypointBounds = timelapse.pixelCenterToPixelBoundingBoxView({x: 670030.661392405, y: 760918.1012658221, scale: 0.0004731126771739602}).bbox;
+              setHimawariView(waypointBounds, 0, 1);
+            } else if (waypointIndex == himawariWaypointIndicies[2]) {
+              waypointBounds = timelapse.pixelCenterToPixelBoundingBoxView({x: 245106.46412122744, y: 727021.4061973379, scale: 0.019163055706363917}).bbox;
+              setHimawariView(waypointBounds, 47.67, 0.5);
+            } else if (waypointIndex == himawariWaypointIndicies[3]) {
+              waypointBounds = timelapse.pixelCenterToPixelBoundingBoxView({x: 362126.4405055399, y: 782057.1066230518, scale: 0.022475101466500988}).bbox;
+              setHimawariView(waypointBounds, 34.75, 1);
+            } else if (waypointIndex == himawariWaypointIndicies[4]) {
+              waypointBounds = timelapse.pixelCenterToPixelBoundingBoxView({x: 451074.23876657395, y: 212062.48697210365, scale: 0.017032941813388835}).bbox;
+              setHimawariView(waypointBounds, 12.50, 0.5);
+            } else if (waypointIndex == himawariWaypointIndicies[5]) {
+              waypointBounds = timelapse.pixelCenterToPixelBoundingBoxView({x: 451074.23876657395, y: 212062.48697210365, scale: 0.017032941813388835}).bbox;
+              setHimawariView(waypointBounds, 24.33, 0.5);
+            } else if (waypointIndex == himawariWaypointIndicies[6]) {
+              waypointBounds = timelapse.pixelCenterToPixelBoundingBoxView({x: 451074.23876657395, y: 212062.48697210365, scale: 0.017032941813388835}).bbox;
+              setHimawariView(waypointBounds, 342.83, 0.5);
+            } else if (waypointIndex == himawariWaypointIndicies[7]) {
+              waypointBounds = timelapse.pixelCenterToPixelBoundingBoxView({x: 363341.95657876006, y: 205546.6268786163, scale: 0.02011577928416843}).bbox;
+              setHimawariView(waypointBounds, 296.66, 0.5);
+            } else if (waypointIndex == himawariWaypointIndicies[8]) {
+              waypointBounds = timelapse.pixelCenterToPixelBoundingBoxView({x: 677150.2096313634, y: 1300560.2801491471, scale: 0.009919419703208456}).bbox;
+              setHimawariView(waypointBounds, 9.5, 0.5);
+            } else if (waypointIndex == himawariWaypointIndicies[9]) {
+              waypointBounds = timelapse.pixelCenterToPixelBoundingBoxView({x: 646791.4364009488, y: 1299485.0077851338, scale: 0.031962724591951354}).bbox;
+              setHimawariView(waypointBounds, 9.75, 0.5);
+            } else if (waypointIndex == himawariWaypointIndicies[10]) {
+              waypointBounds = timelapse.pixelCenterToPixelBoundingBoxView({x: 745253.433241357, y: 550139.9045414061, scale: 0.006365420067946737}).bbox;
+              setHimawariView(waypointBounds, 223.084, 0.5);
+            }
+            // End Himawari
+
+            // All other waypoints
+            if ((waypointIndex >= 12 && waypointIndex <= 15) || (waypointIndex >= 59 && waypointIndex <= 61) || waypointIndex == 95) {
+              if (!$lightsAtNightToggle.prop('checked')) {
+                $lightsAtNightToggle.click();
+              }
+            }
+            if (waypointIndex == 19 || waypointIndex == 26 || (waypointIndex >= 32 && waypointIndex <= 38) || (waypointIndex >= 79 && waypointIndex <= 80)) {
+              if (!$globalForestLayerToggle.prop('checked')) {
+                $globalForestLayerToggle.click();
+              }
+            }
+            if (waypointIndex >= 30 && waypointIndex <= 39) {
+              if (!$darkMapToggle.prop('checked')) {
+                $darkMapToggle.click();
+              }
+            }
+            if (waypointIndex == 27 || waypointIndex == 98 || waypointIndex == 100 || waypointIndex == 102) {
+              if (!$wdpaLayerToggle.prop('checked')) {
+                $wdpaLayerToggle.click();
+              }
+            }
+            if ((waypointIndex >= 30 && waypointIndex <= 31) || waypointIndex == 39 || waypointIndex == 82 || waypointIndex == 97 || waypointIndex == 99) {
+              if (!$globalForestLossLayerToggle.prop('checked')) {
+                $globalForestLossLayerToggle.click();
+              }
+            }
+            if (waypointIndex == 40 || waypointIndex == 52) {
+              if (!$waterChangeToggle.prop('checked')) {
+                $waterChangeToggle.click();
+              }
+            }
+            if (waypointIndex == 54) {
+              if (!$coralBleachingAlertsLayerToggle.prop('checked')) {
+                $coralBleachingAlertsLayerToggle.click();
+              }
+              if (!$darkMapToggle.prop('checked')) {
+                $darkMapToggle.click();
+              }
+            }
+            if (waypointIndex == 109) {
+              if (!$coralLayerToggle.prop('checked')) {
+                $coralLayerToggle.click();
+              }
+            }
+            if (waypointIndex == 91) {
+              if (!$usgsWindTurbineLayerToggle.prop('checked')) {
+                $usgsWindTurbineLayerToggle.click();
+              }
+            }
+            if (waypointIndex == 92) {
+              if (!$solarInstallsLayerToggle.prop('checked')) {
+                $solarInstallsLayerToggle.click();
+              }
+            }
+            if (waypointIndex == 101) {
+              if (!$lightMapToggle.prop('checked')) {
+                $lightMapToggle.click();
+              }
+              if (!$wdpaLayerToggle.prop('checked')) {
+                $wdpaLayerToggle.click();
+              }
+            }
+            // End other waypoints
+          });
+        }
+
+
+      }
+
     </script>
 
   </head>

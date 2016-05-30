@@ -104,7 +104,7 @@ WAYPOINT_TEXT = [
     "text" : ""
   },
   {
-    "title" : "Bark beetle range is increases during warmer winters, leading to widespread tree death in Colorado.",
+    "title" : "Bark beetle range is increasing during warmer winters, leading to widespread tree death in Colorado.",
     "text" : ""
   },
   {
