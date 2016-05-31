@@ -97,6 +97,7 @@
       WebglVideoTile.useFaderShader = useFaderShader;
       var timelapse, previousWaypoint = {}, previousHimawariIdx, waypointViewChangeListener, hideWaypointListener;
       var himawariWaypoints = {};
+      var timelineType = "customUI";
       // This is necessary because waypoint thumbnails are generated from the Landsat set and thus the best we can show is just a solid black thumbnail
       // instead of some random location that a himawari bounds corresponds to in Landsat.
       var himawariWaypointThumbnailBounds = {xmin: 985127.8724700746, xmax: 1080494.8905504318, ymin: 731492.6413176071, ymax: 752365.0475676071};
@@ -225,7 +226,8 @@
       function loadHimawari() {
         if (!$("#show-himawari").prop('checked')) {
           $('#show-himawari').prop('checked', true);
-          requestNewTimeline("himawari-times.json","defaultUI");
+          timelineType = "defaultUI";
+          requestNewTimeline("himawari-times.json", timelineType);
           showHimawariTimeMachineLayer = true;
           var v = timelapse.getVideoset();
           v.setFps(12);
@@ -428,7 +430,8 @@
             return;
           }
           if ($(this).prop('checked')) {
-            requestNewTimeline("forest-alerts-times.json","defaultUI");
+            timelineType = "defaultUI";
+            requestNewTimeline("forest-alerts-times.json", timelineType);
             showForestAlertsTimeMachineLayer = true;
             if ($("#show-forest-change").prop('checked')) {
               $("#show-forest-change").click();
@@ -452,7 +455,8 @@
           } else {
             showForestAlertsTimeMachineLayer = false;
             if (!showForestAlertsNoOverlayTimeMachineLayer && !showForestAlertsTimeMachineLayer) {
-              requestNewTimeline("landsat-times.json","customUI");
+              timelineType = "customUI";
+              requestNewTimeline("landsat-times.json", timelineType);
               visibleBaseMapLayer = $("input:radio[name=base-layers]:checked").val();
               timelapse.setMaxScale(landsatMaxScale);
               var v = timelapse.getVideoset();
@@ -470,7 +474,8 @@
             return;
           }
           if ($(this).prop('checked')) {
-            requestNewTimeline("forest-alerts-times.json","defaultUI");
+            timelineType = "defaultUI";
+            requestNewTimeline("forest-alerts-times.json", timelineType);
             showForestAlertsNoOverlayTimeMachineLayer = true;
             if ($("#show-forest-change").prop('checked')) {
               $("#show-forest-change").click();
@@ -494,7 +499,8 @@
           } else {
             showForestAlertsNoOverlayTimeMachineLayer = false;
             if (!showForestAlertsNoOverlayTimeMachineLayer && !showForestAlertsTimeMachineLayer) {
-              requestNewTimeline("landsat-times.json","customUI");
+              timelineType = "customUI";
+              requestNewTimeline("landsat-times.json", timelineType);
               visibleBaseMapLayer = $("input:radio[name=base-layers]:checked").val();
               timelapse.setMaxScale(landsatMaxScale);
               var v = timelapse.getVideoset();
@@ -509,14 +515,16 @@
           if ($(this).prop('checked')) {
             showViirsLayer = true;
             timelapse.setPlaybackRate(8);
-            requestNewTimeline("viirs-times.json","defaultUI");
+            timelineType = "defaultUI";
+            requestNewTimeline("viirs-times.json", timelineType);
             timelapse.setDoDwell(false);
             $("#show-additional-landsat").prop("disabled", true);
             $("#fires-at-night-legend").show();
           } else {
             showViirsLayer = false;
             timelapse.setPlaybackRate(defaultPlaybackSpeed);
-            requestNewTimeline("landsat-times.json","customUI");
+            timelineType = "customUI";
+            requestNewTimeline("landsat-times.json", timelineType);
             timelapse.setDoDwell(true);
             $("#show-additional-landsat").prop("disabled", false);
             $("#fires-at-night-legend").hide();
@@ -538,7 +546,8 @@
 
         $("#show-coral-bleaching-alerts").on("click", function() {
           if ($(this).prop('checked')) {
-            requestNewTimeline("crw-times.json","defaultUI");
+            timelineType = "defaultUI";
+            requestNewTimeline("crw-times.json", timelineType);
             showCrwTimemachineLayer = true;
             showMcrmLayer = true;
             var v = timelapse.getVideoset();
@@ -550,7 +559,8 @@
           } else {
             showCrwTimemachineLayer = false;
             showMcrmLayer = false;
-            requestNewTimeline("landsat-times.json","customUI");
+            timelineType = "customUI";
+            requestNewTimeline("landsat-times.json", timelineType);
             timelapse.setDoDwell(true);
             WebglVideoTile.useGreenScreen = false;
             var v = timelapse.getVideoset();
@@ -564,7 +574,8 @@
         $("#show-himawari").on("click", function() {
           $(".map-layer-div input:checked").not("#show-himawari").trigger("click");
           if ($(this).prop('checked')) {
-            requestNewTimeline("himawari-times.json","defaultUI");
+            timelineType = "defaultUI";
+            requestNewTimeline("himawari-times.json", timelineType);
             showHimawariTimeMachineLayer = true;
             var v = timelapse.getVideoset();
             v.setFps(12);
@@ -576,7 +587,8 @@
             $(".vector-legend").hide();
           } else {
             showHimawariTimeMachineLayer = false;
-            requestNewTimeline("landsat-times.json","customUI");
+            timelineType = "customUI";
+            requestNewTimeline("landsat-times.json", timelineType);
             var v = timelapse.getVideoset();
             v.setFps(10);
             visibleBaseMapLayer = previousVisibleBaseMapLayer;
@@ -761,6 +773,20 @@
             UTIL.addGoogleAnalyticEvent('button', 'click', 'layer=' + $(this).prop("id"));
         });
 
+        var timelineUIHandler = function() {
+          if (showLightsAtNightLayer || showHansonLayer2) {
+            $(".customControl").hide();
+            if (timelineType == "defaultUI" && !$(".controls").is(':visible'))
+              $(".controls").show();
+          } else {
+            if (!$(".controls").is(':visible'))
+              $(".customControl").show();
+          }
+        }
+
+        $('#layers-list input').on("click", timelineUIHandler);
+
+        timelapse.addTimelineUIChangeListener(timelineUIHandler);
       }
     </script>
 
