@@ -152,14 +152,14 @@ html, body {
   user-select: none;
   white-space: nowrap;
 }
-.vector-layers label .credit {
+#layers-list label .credit {
   color: #555555;
   font-size: 14px;
   position: relative;
   top: -1px;
   right: -4px;
 }
-.vector-layers label input[type='radio'], .vector-layers label input[type='checkbox'] {
+#layers-list label input[type='radio'], #layers-list label input[type='checkbox'] {
   position: relative;
   width: 17px;
   height: 17px;
@@ -171,7 +171,7 @@ html, body {
   padding: 0;
   cursor: pointer;
 }
-.vector-layers label {
+#layers-list label {
   cursor: pointer;
   color: black;
   display: block;
@@ -278,13 +278,13 @@ html, body {
   padding-right: 10px;
   box-shadow: 0px 0px 0px rgba(0,0,0,0);
 }
-.vector-layers {
+#layers-list {
   z-index: 99;
 }
-.vector-layers.right-panel.hyperwall {
+#layers-list.right-panel.hyperwall {
   bottom: 160px !important;
 }
-.vector-layers.right-panel {
+#layers-list.right-panel {
   position: absolute;
   bottom: 120px;
   right: 20px;
@@ -418,7 +418,7 @@ html, body {
   padding-bottom: 70px !important;
   padding-right: 45px !important;
 }
-.vector-legend {
+#layers-legend {
   z-index: 90;
   display: none;
   position: absolute;
@@ -442,10 +442,10 @@ html, body {
   user-select: none;
   white-space: nowrap;
 }
-.vector-legend.letterbox {
+#layers-legend.letterbox {
   top: 176px;
 }
-.vector-legend.hyperwall {
+#layers-legend.hyperwall {
   left: 21px !important;
 }
 .legend-entry-title {

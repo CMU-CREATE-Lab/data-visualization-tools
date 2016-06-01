@@ -98,6 +98,7 @@
       var timelapse, previousWaypoint = {}, previousHimawariIdx, waypointViewChangeListener, hideWaypointListener;
       var himawariWaypoints = {};
       var timelineType = "customUI";
+      var activeLayersWithTimeline = 0;
       // This is necessary because waypoint thumbnails are generated from the Landsat set and thus the best we can show is just a solid black thumbnail
       // instead of some random location that a himawari bounds corresponds to in Landsat.
       var himawariWaypointThumbnailBounds = {xmin: 985127.8724700746, xmax: 1080494.8905504318, ymin: 731492.6413176071, ymax: 752365.0475676071};
@@ -236,7 +237,7 @@
           timelapse.setPlaybackRate(1);
           previousVisibleBaseMapLayer = visibleBaseMapLayer;
           visibleBaseMapLayer = "himawari";
-          $(".vector-legend").hide();
+          $("#layers-legend").hide();
         }
       }
 
@@ -404,6 +405,7 @@
         $("#show-animated-forest-loss-gain").on("click", function() {
           if ($(this).prop('checked')) {
             showAnimatedHansenLayer = true;
+            activeLayersWithTimeline += 1;
             if ($("#show-forest-change").prop('checked')) {
               $("#show-forest-change").click();
             }
@@ -419,6 +421,7 @@
             $("#forest-loss-gain-legend").show();
           } else {
             showAnimatedHansenLayer = false;
+            activeLayersWithTimeline -= 1;
             $("#forest-loss-gain-legend").hide();
           }
         }).prop('checked', showViirsLayer);
@@ -433,6 +436,7 @@
             timelineType = "defaultUI";
             requestNewTimeline("forest-alerts-times.json", timelineType);
             showForestAlertsTimeMachineLayer = true;
+            activeLayersWithTimeline += 1;
             if ($("#show-forest-change").prop('checked')) {
               $("#show-forest-change").click();
             }
@@ -454,6 +458,7 @@
             visibleBaseMapLayer = "forest-alarms";
           } else {
             showForestAlertsTimeMachineLayer = false;
+            activeLayersWithTimeline -= 1;
             if (!showForestAlertsNoOverlayTimeMachineLayer && !showForestAlertsTimeMachineLayer) {
               timelineType = "customUI";
               requestNewTimeline("landsat-times.json", timelineType);
@@ -477,6 +482,7 @@
             timelineType = "defaultUI";
             requestNewTimeline("forest-alerts-times.json", timelineType);
             showForestAlertsNoOverlayTimeMachineLayer = true;
+            activeLayersWithTimeline += 1;
             if ($("#show-forest-change").prop('checked')) {
               $("#show-forest-change").click();
             }
@@ -498,6 +504,7 @@
             visibleBaseMapLayer = "forest-alarms-no-overlay";
           } else {
             showForestAlertsNoOverlayTimeMachineLayer = false;
+            activeLayersWithTimeline -= 1;
             if (!showForestAlertsNoOverlayTimeMachineLayer && !showForestAlertsTimeMachineLayer) {
               timelineType = "customUI";
               requestNewTimeline("landsat-times.json", timelineType);
@@ -514,6 +521,7 @@
         $("#show-viirs").on("click", function() {
           if ($(this).prop('checked')) {
             showViirsLayer = true;
+            activeLayersWithTimeline += 1;
             timelapse.setPlaybackRate(8);
             timelineType = "defaultUI";
             requestNewTimeline("viirs-times.json", timelineType);
@@ -522,6 +530,7 @@
             $("#fires-at-night-legend").show();
           } else {
             showViirsLayer = false;
+            activeLayersWithTimeline -= 1;
             timelapse.setPlaybackRate(defaultPlaybackSpeed);
             timelineType = "customUI";
             requestNewTimeline("landsat-times.json", timelineType);
@@ -535,10 +544,12 @@
           if ($(this).prop('checked')) {
             showCoralBleachingLayer = true;
             showMcrmLayer = true;
+            activeLayersWithTimeline += 1;
             $("#coral-bleaching-legend").show();
           } else {
             showCoralBleachingLayer = false;
             showMcrmLayer = false;
+            activeLayersWithTimeline -= 1;
             if (!$("#show-coral-bleaching-alerts").prop('checked'))
             $("#coral-bleaching-legend").hide();
           }
@@ -550,6 +561,7 @@
             requestNewTimeline("crw-times.json", timelineType);
             showCrwTimemachineLayer = true;
             showMcrmLayer = true;
+            activeLayersWithTimeline += 1;
             var v = timelapse.getVideoset();
             v.setFps(22);
             timelapse.setDoDwell(false);
@@ -559,6 +571,7 @@
           } else {
             showCrwTimemachineLayer = false;
             showMcrmLayer = false;
+            activeLayersWithTimeline -= 1;
             timelineType = "customUI";
             requestNewTimeline("landsat-times.json", timelineType);
             timelapse.setDoDwell(true);
@@ -577,6 +590,7 @@
             timelineType = "defaultUI";
             requestNewTimeline("himawari-times.json", timelineType);
             showHimawariTimeMachineLayer = true;
+            activeLayersWithTimeline += 1;
             var v = timelapse.getVideoset();
             v.setFps(12);
             timelapse.setMaxScale(himawariMaxScale);
@@ -584,9 +598,10 @@
             timelapse.setPlaybackRate(1);
             previousVisibleBaseMapLayer = visibleBaseMapLayer;
             visibleBaseMapLayer = "himawari";
-            $(".vector-legend").hide();
+            $("#layers-legend").hide();
           } else {
             showHimawariTimeMachineLayer = false;
+            activeLayersWithTimeline -= 1;
             timelineType = "customUI";
             requestNewTimeline("landsat-times.json", timelineType);
             var v = timelapse.getVideoset();
@@ -595,7 +610,7 @@
             timelapse.setMaxScale(landsatMaxScale);
             timelapse.setDoDwell(true);
             timelapse.setPlaybackRate(defaultPlaybackSpeed);
-            $(".vector-legend").hide();
+            $("#layers-legend").hide();
           }
           timelapse.warpTo(timelapse.getHomeView());
         }).prop('checked', showHimawariTimeMachineLayer);
@@ -603,9 +618,11 @@
         $("#show-usgs-windturbine").on("click", function() {
           if ($(this).prop('checked')) {
             showUsgsWindTurbineLayer = true;
+            activeLayersWithTimeline += 1;
             $("#wind-installs-legend").show();
           } else {
             showUsgsWindTurbineLayer = false;
+            activeLayersWithTimeline -= 1;
             $("#wind-installs-legend").hide();
           }
         }).prop('checked', showUsgsWindTurbineLayer);
@@ -613,9 +630,11 @@
         $("#show-solar-installs").on("click", function() {
           if ($(this).prop('checked')) {
             showSolarInstallsLayer = true;
+            activeLayersWithTimeline += 1;
             $("#solar-installs-legend").show();
           } else {
             showSolarInstallsLayer = false;
+            activeLayersWithTimeline -= 1;
             $("#solar-installs-legend").hide();
           }
         }).prop('checked', showSolarInstallsLayer);
@@ -623,9 +642,11 @@
         $("#show-drilling").on("click", function() {
           if ($(this).prop('checked')) {
             showDrillingLayer = true;
+            activeLayersWithTimeline += 1;
             $("#drilling-legend").show();
           } else {
             showDrillingLayer = false;
+            activeLayersWithTimeline -= 1;
             $("#drilling-legend").hide();
           }
         }).prop('checked', showDrillingLayer);
@@ -633,9 +654,11 @@
         $("#show-lights-at-night").on("click", function() {
           if ($(this).prop('checked')) {
             showLightsAtNightLayer = true;
+            activeLayersWithTimeline += 1;
             $("#lights-at-night-legend").show();
           } else {
             showLightsAtNightLayer = false;
+            activeLayersWithTimeline -= 1;
             $("#lights-at-night-legend").hide();
           }
         }).prop('checked', showCoralBleachingLayer);
@@ -663,7 +686,7 @@
         });
 
         var appendTarget = "#timeMachine";
-        if(enableLetterboxMode) {
+        if (enableLetterboxMode) {
           appendTarget = "#content";
         }
         $("#extras-selector").selectmenu({
@@ -738,8 +761,7 @@
           var height = $(window).height();
           var scale = Math.min(1, Math.min((width * 1.8) / 1920, (height * 1.28) / 1200));
           if (!enableLetterboxMode) {
-            $('.vector-layers').css({'transform-origin': 'bottom right'});
-            $('.vector-layers').css({'transform': 'scale(' + scale + ')'});
+            $('#layers-list').css({'transform-origin': 'bottom right', 'transform': 'scale(' + scale + ')'});
           }
           if (!isHyperwall && enableLetterboxMode) {
             scale = Math.min(1, Math.min(width / 1920, height / 1080));
@@ -762,13 +784,13 @@
           });
           if (!continueState) return;
           if (numLayersOn == 0) {
-            $(".vector-legend").hide();
+            $("#layers-legend").hide();
           } else {
-            $(".vector-legend").show();
+            $("#layers-legend").show();
           }
         });
 
-        $('.vector-layers').on("click", "input", function(e) {
+        $('#layers-list').on("click", "input", function(e) {
           if (e.originalEvent && event.pageX != 0 && event.pageY != 0)
             UTIL.addGoogleAnalyticEvent('button', 'click', 'layer=' + $(this).prop("id"));
         });
@@ -779,10 +801,12 @@
             if (timelineType == "defaultUI" && !$(".controls").is(':visible'))
               $(".controls").show();
           } else {
-            if (!$(".controls").is(':visible'))
+            if (($(".map-layer-div input:checked").length == 0 || showHansenLayer || showWdpaLayer || showWaterOccurrenceLayer || showWaterChangeLayer) && activeLayersWithTimeline == 0 && (visibleBaseMapLayer == "light" || visibleBaseMapLayer == "dark"))
+              $(".customControl").hide();
+            else if (!$(".controls").is(':visible'))
               $(".customControl").show();
           }
-        }
+        };
 
         $('#layers-list input').on("click", timelineUIHandler);
 
@@ -858,7 +882,7 @@
 
         var layer_html = '';
 
-        layer_html += '<div id="layers-list" class="vector-layers">';
+        layer_html += '<div id="layers-list">';
 
         var landsat_base_str = '<label class="landsat-select" for="landsat-base" name="blsat"><input type="radio" id="landsat-base" name="base-layers" value="landsat"/>Earth Engine Timelapse<span class="credit"> (Google)</span></label>';
         var landsat_base = '<td colspan="2">' + landsat_base_str + '</td>';
@@ -1024,7 +1048,7 @@
 
         layer_html += '</div>';
 
-        var legend_html = '<div class="vector-legend">';
+        var legend_html = '<div id="layers-legend">';
         legend_html += '<div id="legend-content">';
         legend_html += '<table cellpadding=5>';
         legend_html += '<tr id="wdpa-legend" style="display: none"><td><div style="background-color:#33da4f; width:17px; height: 5px;"></div><div style="margin-left: 29px; margin-top: -11px; font-size: 17px">Protected Areas</div></td></tr>';
@@ -1046,17 +1070,17 @@
         if (enableLetterboxMode) {
           $(layer_html).appendTo($("#content"));
           $(legend_html).appendTo($("#content"));
-          $("#presentation-slider-selection, .base-map-radio, .map-layer-checkbox, .extras-selector, .presentationSlider, .vector-legend").addClass("letterbox");
+          $("#presentation-slider-selection, .base-map-radio, .map-layer-checkbox, .extras-selector, .presentationSlider, #layers-legend").addClass("letterbox");
           $(".base-map-div, .map-layer-div, .extras-selector-div").addClass("top-panel letterbox");
           $(".current-location-text, .landsat-select, .wdpa-select, .forest-change-select, .viirs-select, .forest-loss-gain-select, .animated-forest-loss-select, .forest-alerts-select, .forest-alerts-no-overlay-select, .lights-at-night-select, .coral-select, .coral-bleaching-select, .wind-select, .solar-select, .drilling-select, .himawari-select, .water-occurrence-select, .water-change-select").addClass("letterbox");
         } else {
           $(layer_html).appendTo($("#timeMachine .player"));
           $(legend_html).appendTo($("#timeMachine .player"));
-          $(".vector-layers").addClass("right-panel");
+          $("#layers-list").addClass("right-panel");
         }
 
         if (isHyperwall) {
-          $(".vector-layers, .sideToolBar, .vector-legend, #presentation-slider-selection, .base-map-div, .current-location-text").addClass("hyperwall");
+          $("#layers-list, .sideToolBar, #layers-legend, #presentation-slider-selection, .base-map-div, .current-location-text").addClass("hyperwall");
         }
 
 
@@ -1256,7 +1280,7 @@
           }
 
           $('.current-location-text').click(function() {
-            $('.current-location-text').hide();
+            $(this).hide();
           });
 
           if (snaplapseViewerForPresentationSlider) {
@@ -1324,7 +1348,6 @@
               // Clear out layers if they were already checked
               // Special case if himawari waypoint
               var himawariWaypoint = himawariWaypoints[waypointIndex];
-
               if (himawariWaypoint)
                 $(".map-layer-div input:checked").not("#show-himawari").trigger("click");
               else
@@ -1337,6 +1360,7 @@
               });
 
               // Handle himawari
+              // Note: Must be run after other layers
               if (himawariWaypoint) {
                 var initialHimawariViewChangeHack = function() {
                   if (isAutoModeRunning) {
@@ -1776,12 +1800,12 @@
           //
 
         }
-
         //stats.end();
       }
     </script>
 
     <script>
+      "use strict";
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
       m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
@@ -1798,8 +1822,10 @@
     </script>
 
     <script>
-      // TODO
+      // TODO: Remove
       // Legacy code
+      "use strict";
+
       function oldWaypointHandler(snaplapseViewerForPresentationSlider) {
         if (snaplapseViewerForPresentationSlider) {
           snaplapseViewerForPresentationSlider.addEventListener('automode-start', function() {
@@ -1822,7 +1848,7 @@
         }
 
         $('.current-location-text').click(function() {
-          $('.current-location-text').hide();
+          $(this).hide();
         });
 
         var himawariWaypointIndicies = [81, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120];
@@ -2116,12 +2142,8 @@
             // End other waypoints
           });
         }
-
-
       }
-
     </script>
-
   </head>
   <body>
     <div id="content">
