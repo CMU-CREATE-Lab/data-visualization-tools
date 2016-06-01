@@ -109,7 +109,7 @@
       //
 
       var forestAlertsTimeMachineLayer, forestAlertsNoOverlayTimeMachineLayer, landsatBaseMapLayer, darkBaseMapLayer, lightBaseMapLayer, wdpaVectorLayer, mcrmVectorLayer;
-      var hansonMapLayer, hansonMapLayer2, viirsTile, coralBleachingTile, lightsAtNightMapLayer, crwTimemachineLayer, animatedHansenLayer, himawariTimemachineLayer;
+      var hansenMapLayer, hansenMapLayer2, viirsTile, coralBleachingTile, lightsAtNightMapLayer, crwTimemachineLayer, animatedHansenLayer, himawariTimemachineLayer;
       var waterOccurrenceLayer, waterChangeLayer, usgsWindTurbineLayer, solarInstallsLayer, drillingLayer;
 
 
@@ -359,7 +359,7 @@
 
         $("#show-forest-change").on("click", function() {
           if ($(this).prop('checked')) {
-            showHansonLayer = true;
+            showHansenLayer = true;
             if ($("#show-forest-loss-gain").prop('checked')) {
               $("#show-forest-loss-gain").click();
             }
@@ -374,14 +374,14 @@
             }
             $("#forest-loss-year-legend").show();
           } else {
-            showHansonLayer = false;
+            showHansenLayer = false;
             $("#forest-loss-year-legend").hide();
           }
-        }).prop('checked', showHansonLayer);
+        }).prop('checked', showHansenLayer);
 
         $("#show-forest-loss-gain").on("click", function() {
           if ($(this).prop('checked')) {
-            showHansonLayer2 = true;
+            showHansenLayer2 = true;
             if ($("#show-forest-change").prop('checked')) {
               $("#show-forest-change").click();
             }
@@ -396,10 +396,10 @@
             }
             $("#forest-loss-gain-legend").show();
           } else {
-            showHansonLayer2 = false;
+            showHansenLayer2 = false;
             $("#forest-loss-gain-legend").hide();
           }
-        }).prop('checked', showHansonLayer2);
+        }).prop('checked', showHansenLayer2);
 
         $("#show-animated-forest-loss-gain").on("click", function() {
           if ($(this).prop('checked')) {
@@ -774,7 +774,7 @@
         });
 
         var timelineUIHandler = function() {
-          if (showLightsAtNightLayer || showHansonLayer2) {
+          if (showLightsAtNightLayer || showHansenLayer2) {
             $(".customControl").hide();
             if (timelineType == "defaultUI" && !$(".controls").is(':visible'))
               $(".controls").show();
@@ -819,8 +819,8 @@
 
       var showWdpaLayer = false;
       var showMcrmLayer = false;
-      var showHansonLayer = false;
-      var showHansonLayer2 = false;
+      var showHansenLayer = false;
+      var showHansenLayer2 = false;
       var showViirsLayer = false;
       var showCoralBleachingLayer = false;
       var showLightsAtNightLayer = false;
@@ -1137,8 +1137,8 @@
 
         lightBaseMapLayer = new WebglMapLayer(glb, canvasLayer, lightMapUrl, defaultBaseMapLayerOptions);
         darkBaseMapLayer = new WebglMapLayer(glb, canvasLayer, darkMapUrl, defaultBaseMapLayerOptions);
-        hansonMapLayer = new WebglMapLayer(glb, canvasLayer, gfcTransUrl, defaultMapLayerOptions);
-        hansonMapLayer2 = new WebglMapLayer(glb, canvasLayer, gfcLossGainUrl, defaultMapLayerOptions);
+        hansenMapLayer = new WebglMapLayer(glb, canvasLayer, gfcTransUrl, defaultMapLayerOptions);
+        hansenMapLayer2 = new WebglMapLayer(glb, canvasLayer, gfcLossGainUrl, defaultMapLayerOptions);
         wdpaVectorLayer = new WebglVectorLayer(glb, canvasLayer, wdpaUrl, defaultMapLayerOptions);
         mcrmVectorLayer = new WebglVectorLayer2(glb, canvasLayer, mcrmUrl, defaultBaseMapLayerOptions);
         waterOccurrenceLayer = new WebglMapLayer(glb, canvasLayer, waterOccurrenceUrl, defaultBaseMapLayerOptions);
@@ -1583,28 +1583,28 @@
             crwTimemachineLayer.draw(crwView, tileViewVisibility);
            }
 
-          // Draw hansonMapLayer (Forest change transparent)
-          if (showHansonLayer) {
-            // Construct view for hansonMapLayer
-            var hansonMapLayerView = timelapse.getView();
-            var timelapse2map = hansonMapLayer.getWidth() / landsatBaseMapLayer.getWidth();
-            hansonMapLayerView.x *= timelapse2map;
-            hansonMapLayerView.y *= timelapse2map;
-            hansonMapLayerView.scale /= timelapse2map;
+          // Draw hansenMapLayer (Forest change transparent)
+          if (showHansenLayer) {
+            // Construct view for hansenMapLayer
+            var hansenMapLayerView = timelapse.getView();
+            var timelapse2map = hansenMapLayer.getWidth() / landsatBaseMapLayer.getWidth();
+            hansenMapLayerView.x *= timelapse2map;
+            hansenMapLayerView.y *= timelapse2map;
+            hansenMapLayerView.scale /= timelapse2map;
 
-            hansonMapLayer.draw(hansonMapLayerView);
+            hansenMapLayer.draw(hansenMapLayerView);
           }
 
-          // Draw hansonMapLayer2 (Forest Loss/Gain)
-          if (showHansonLayer2) {
-            // Construct view for hansonMapLayer2
-            var hansonMapLayerView2 = timelapse.getView();
-            var timelapse2map = hansonMapLayer2.getWidth() / landsatBaseMapLayer.getWidth();
-            hansonMapLayerView2.x *= timelapse2map;
-            hansonMapLayerView2.y *= timelapse2map;
-            hansonMapLayerView2.scale /= timelapse2map;
+          // Draw hansenMapLayer2 (Forest Loss/Gain)
+          if (showHansenLayer2) {
+            // Construct view for hansenMapLayer2
+            var hansenMapLayerView2 = timelapse.getView();
+            var timelapse2map = hansenMapLayer2.getWidth() / landsatBaseMapLayer.getWidth();
+            hansenMapLayerView2.x *= timelapse2map;
+            hansenMapLayerView2.y *= timelapse2map;
+            hansenMapLayerView2.scale /= timelapse2map;
 
-            hansonMapLayer2.draw(hansonMapLayerView2);
+            hansenMapLayer2.draw(hansenMapLayerView2);
           }
 
           // Draw water occurrence
@@ -1633,7 +1633,7 @@
 
           // Draw Animated Hansen Layer
           if (showAnimatedHansenLayer) {
-            // Construct view for hansonMapLayer
+            // Construct view for hansenMapLayer
             var animatedHansenLayerView = timelapse.getView();
             var timelapse2map = animatedHansenLayer.getWidth() / landsatBaseMapLayer.getWidth();
             animatedHansenLayerView.x *= timelapse2map;
