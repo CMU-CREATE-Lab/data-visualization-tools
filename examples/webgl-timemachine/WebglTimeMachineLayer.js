@@ -73,8 +73,8 @@ WebglTimeMachineLayer.prototype.draw = function(view, tileViewVisibility) {
       this._tileView.levelThreshold = 0;   // maybe try -0.25 or 0//
     }
     // NOTE: Davos screen was +0.75
-    if (EARTH_TIMELAPSE_CONFIG.levelThresholdModifier) {
-      this._tileView.levelThreshold += EARTH_TIMELAPSE_CONFIG.levelThresholdModifier;
+    if (EARTH_TIMELAPSE_CONFIG.videoLevelThresholdModifier) {
+      this._tileView.levelThreshold += EARTH_TIMELAPSE_CONFIG.videoLevelThresholdModifier;
     }
     this._tileView.setView(view, width, height, this._canvasLayer.resolutionScale_);
     this._tileView.update(transform);
