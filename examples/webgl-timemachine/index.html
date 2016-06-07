@@ -808,7 +808,6 @@
             if (timelineType == "defaultUI" && !$(".controls").is(':visible'))
               $(".controls").show();
           } else {
-            console.log(activeLayersWithTimeline);
             if (($(".map-layer-div input:checked").length == 0 || showHansenLayer || showWdpaLayer || showWaterOccurrenceLayer || showWaterChangeLayer) && activeLayersWithTimeline == 0 && (visibleBaseMapLayer == "light" || visibleBaseMapLayer == "dark"))
               $(".customControl").hide();
             else if (!$(".controls").is(':visible'))
