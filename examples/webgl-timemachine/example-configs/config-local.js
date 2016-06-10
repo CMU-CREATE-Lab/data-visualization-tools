@@ -7,7 +7,7 @@ var EARTH_TIMELAPSE_CONFIG = {
   "defaultPlaybackSpeed" : 0.5,
   "enableAutoMode" : false,
   "screenTimeoutInMilliseconds" : 4 * 60 * 1000,
-  "waypointDelayInMilliseconds" : 1 * 15 * 1000,
+  "waypointDelayInMilliseconds" : 1 * 20 * 1000,
   "showEVA" : false,
   "showForestAlerts" : false,
   "showLODES" : false,
@@ -17,5 +17,6 @@ var EARTH_TIMELAPSE_CONFIG = {
   "enableRecordingMode" : false,
   "launchMode" : "maximized",
   "clearProfile" : true,
-  "rootTilePath" : "http://tiles.cmucreatelab.org/earthtimelapse/data/"
+  "rootTilePath" : "http://tiles.cmucreatelab.org/earthtimelapse/data/",
+  "waypointSliderContentPath" : ""
 };

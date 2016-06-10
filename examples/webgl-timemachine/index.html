@@ -69,8 +69,8 @@
 
       var EARTH_TIMELAPSE_CONFIG = EARTH_TIMELAPSE_CONFIG || {};
 
-      var presentationSliderContent = EARTH_TIMELAPSE_CONFIG.waypointCollection || "http://timemachine.cmucreatelab.org/wiki/EarthEngineTourEditor#presentation=E5DDkDV0jvjsXrchC_Climate_DkDQhV1kUKXaiD_Fires%20at%20Night_DkDFWaNbFlEeqJ_Agricultural%20Fires_DkDASzGiNIcpvK_Agricultural%20Fires_DkDIAHUl1q2eqJ_Drilling%20Flares_DkDSx-Tmy5yMmK_Shale%20Oil%20Extraction_DkDRFMpUtEFyje_Eagle%20Downs%20Coal_DkDOHcDnYDBPjgB_Mountaintop%20Removal_DkDcYs5sY3cKrZ_Alberta%20Tar%20Sands_DkDIl59k8-Aurb_Shanghai_DkDIHBIjdC4j7f_Dubai_DkDIumflQzrMib_Dallas%20Fort-Worth_DkDWVyelV9qMjW_Dallas%20Fort-Worth%20_DkDIYWEnHy5MoJ_United%20States_DkDI8H8f-Cuc3C_Lights%20at%20Night_DkDI9F8k2euuzJ_East%20Asia_DkDPWPyXs9wR6gB_Rondonia_DkDPZ85XKYIShT_Rondonia_DkDPidYYbN4SwM_Amazon%20Rain%20Forest_DkDPidYYbN4SwM_Amazon%20Rain%20Forest_DkDA8sGufoBFqe_Columbia%20Glacier_DkDNROTtit7GojB_Mendenhall%20Glacier_DkDFGq9mKcYi8VThe%20shrinking%20and%20drying%20up%20of%20the%20Lake%20Urmia_Lake%20Urmia_DkDOcGQprwpkmRThe%20shrinking%20of%20the%20Aral%20Sea%20destroys%20fishing%20industry%20and%20brings%20unemployment%20and%20public%20health%20problems_Aral%20Sea_DkDSq1joU5sk6gBThe%20expansion%20of%20irrigation%20systems%20near%20the%20Aral%20Sea_Aral%20Expansion_CkDWmblQtbBxuXBushfires%20in%20Australia%20are%20frequent%20during%20the%20hotter%20months%20of%20the%20year_Australia%20Bushfire_DkDblXvnAWJL2V_Bark%20Beetles_DkDPZ85XKYIShT_Rondonia_DkDPI2unYMQqrhB_Gansu%20Wind%20Farm_DkDPOxFm4qZJ2iB_Solar%20Star_DkDV0jvjsXrchC_Forest_DkDVWlolkXJOxe_Alabama_DkDVmSguE8quhS_Yakutsk_DkDVZNiW4_KhhS_Mozambique_DkDVdSqbMp9qlV_Indonesia_DkDVdhqUIJOShS_Paraguay_DkDV5NVdc5jalV_Cote%20D%E2%80%99Ivoire_DkDVzKwaoThslV_Kalimantan_DkDVjqJcYu9spY_Sarawak_DkDVxYQuwu2fhS_Russia%2FFinland_DkDV0jvjsXrchC_Water_DkDV9ofmUx7Jmd_Las%20Vegas_DkDFGq9mKcYi8VThe%20shrinking%20and%20drying%20up%20of%20the%20Lake%20Urmia_Lake%20Urmia_DkDOcGQprwpkmR_Aral%20Sea_DkDSq1joU5sk6gB_Aral%20Expansion_DkDSYrnkxOVh6c_Saudi%20Irrigation_DkDSVR-mLkAJ3c_Central%20Valley_DkDS4s-m9NHJ8gB_California%20Reservoir_BkDTiTRWWTmR6gBRiver%20meandering%20in%20the%20Amazon_Bolivia%20Meander_DkDK9ySWib2R2dThe%20abandonment%20of%20a%20river%20channel%20and%20the%20formation%20of%20a%20new%20river%20channel_Bolivia%20Avulsion_DkDTXCJXWOFUha_Brazil%20Reservoir_DkDT6ClYMn5SpN_Amazon%20Deforestation_DkDTypVi8CHpkd_Bangladesh_DkDT07enqs_t_gB_Fish%20Ponds%2C%20China_DkDV0jvjsXrchC_Coral%20Reef%20Watch_DkDV0jvjsXrchC_Resources_DkDVl59k8-Aurb_Shanghai_DkDVumflQzrMib_Dallas%20Fort-Worth_DkDVWWhlM5mMiiB_Barnett%20Shale_DkDWVyelV9qMjW_DFW%20Growth_DkDVYWEnHy5MoJ_United%20States_DkDV8H8f-Cuc3C_Lights%20at%20Night_DkDVsXXi870skf_Pearl%20River%20Delta_DkDQhV1kUKXaiD_Fires%20at%20Night_DkDIAHUl1q2eqJ_Drilling%20Flares_DkDSx-Tmy5yMmK_Shale%20Oil%20Extraction_DkDVbUxoD7ZLre_Wyoming%20Coal%20Mining_DkDOHcDnYDBPjgB_Mountaintop%20Removal_DkDV-99mHP-OgW_Mountaintop%20Removal_DkDVlMmn4Acs_iB_Hei%20Dai%20Gao%20Coal_DkDcYs5sY3cKrZ_Alberta%20Tar%20Sands_DkDVNViXQeyQjgB_Peru%20Mining_DkDVEuOaR5YwojB_Grasberg%20Mine_DkDVOnDa0YXw6d_Grasberg%20Tailings_DkDOcGQprwpkmR_Aral%20Sea_DkDOYrnkxOVh6c_Saudi%20Irrigation_DkDPWPyXs9wR6gB_Rondonia_DkDPZ85XKYIShT_Rondonia_DkDPidYYbN4SwM_Amazon%20Rain%20Forest_DkDPidYYbN4SwM_Amazon%20Rain%20Forest_DkDPNEabGoEs-N_Indonesia%20Forests_DkDWOpqWSEFK2Q_Sumatra%20Fires_DkDPRG9ln6qOtN_Forestry%20SE%20US_DkDWWnfme-zqiiB_Longyangxia%20Solar_DkDPOxFm4qZJ2iB_Solar%20Star_DkDPjqQmuXJJojB_Topaz%20Solar%20Farm_DkDPKtwiQVVmojB_Charanka%20Solar%20Park_DkDPGUUmWP2JojB_Ivanpah%20Solar%20Power_DkDP22pmX2kaojB_Valle%20Solar%20Power_DkDPI2unYMQqrhB_Gansu%20Wind%20Farm_DkDPEuJmc6aJojB_Alta%20Wind%20Farm_DkDPD7CnLTtMiK_US%20Wind_DkDPD7CnLTtMiK_US%20Photovoltaic_DkDV0jvjsXrchC_Industrialization_DkDVlsznvjQPkgB_Pittsburgh_DkDWksznwjQP_Z_Pittsburgh_DkDVLjfdNa_b5c_Lagos_DkDVLjfdNa_b5c_Lagos_DkDP4t6mgw0u7c_Seoul_DkDP4t6mgw0u7c_Seoul_DkDQ5wYitp3subShenzhen%20bay%2C%20growth%20of%20land%20use%20into%20bay%2E_Shenzhen_DkDQrnpWLjJUya_Brasilia_DkDQoLbXOXaTsV_Brasilia_DkDQ5YWph63cxf_Milano_DkDQSHLrsBhcigB_Duisburg_DkDQENjTEnwf2d_Pretoria_DkDAFpEbiqFhmjB_Nairobi_DkDAZdNelWYhojB_Addis%20Ababa_DkDAGq9mKcYi8V_Lake%20Urmia_DkDAGyOdZ5mcnC_Coral%20Reefs_DkDAHBYiAv1s9a_Shenzhen_DkDWFqgBAAAA1M_Himawari-8_DkDWOpqWSEFK2Q_Sumatra%20Fires_DkDWA-fScC5OtR_Sinabung%20Volcano_DkDWFqgBAAAA1M_Clear%20Beijing_DkDWFqgBAAAA1M_Hazy%20Beijing_DkDWFqgBAAAA1M_Hazier%20Beijing_DkDWFqgBAAAA1M_Melting%20Snow_DkDWtEyBMH2b3N_Ice%20Floes_DkDWqpyBvNmagT_Iceberg%20calving_BAWFqgBAAAA1M_Typhoon%20In-Fa_Untitled_B";
-      var googleDocPresentationSliderLink = EARTH_TIMELAPSE_CONFIG.googleDocPresentationSliderLink;// || "https://docs.google.com/spreadsheets/d/1lWFdujSWrPdNM-NpyyeOL5ZirCkTpvFZMBR5spAQArY/edit?usp=sharing";
+      var waypointSliderContent = EARTH_TIMELAPSE_CONFIG.waypointCollection || "http://timemachine.cmucreatelab.org/wiki/EarthEngineTourEditor#presentation=E5DDkDV0jvjsXrchC_Climate_DkDQhV1kUKXaiD_Fires%20at%20Night_DkDFWaNbFlEeqJ_Agricultural%20Fires_DkDASzGiNIcpvK_Agricultural%20Fires_DkDIAHUl1q2eqJ_Drilling%20Flares_DkDSx-Tmy5yMmK_Shale%20Oil%20Extraction_DkDRFMpUtEFyje_Eagle%20Downs%20Coal_DkDOHcDnYDBPjgB_Mountaintop%20Removal_DkDcYs5sY3cKrZ_Alberta%20Tar%20Sands_DkDIl59k8-Aurb_Shanghai_DkDIHBIjdC4j7f_Dubai_DkDIumflQzrMib_Dallas%20Fort-Worth_DkDWVyelV9qMjW_Dallas%20Fort-Worth%20_DkDIYWEnHy5MoJ_United%20States_DkDI8H8f-Cuc3C_Lights%20at%20Night_DkDI9F8k2euuzJ_East%20Asia_DkDPWPyXs9wR6gB_Rondonia_DkDPZ85XKYIShT_Rondonia_DkDPidYYbN4SwM_Amazon%20Rain%20Forest_DkDPidYYbN4SwM_Amazon%20Rain%20Forest_DkDA8sGufoBFqe_Columbia%20Glacier_DkDNROTtit7GojB_Mendenhall%20Glacier_DkDFGq9mKcYi8VThe%20shrinking%20and%20drying%20up%20of%20the%20Lake%20Urmia_Lake%20Urmia_DkDOcGQprwpkmRThe%20shrinking%20of%20the%20Aral%20Sea%20destroys%20fishing%20industry%20and%20brings%20unemployment%20and%20public%20health%20problems_Aral%20Sea_DkDSq1joU5sk6gBThe%20expansion%20of%20irrigation%20systems%20near%20the%20Aral%20Sea_Aral%20Expansion_CkDWmblQtbBxuXBushfires%20in%20Australia%20are%20frequent%20during%20the%20hotter%20months%20of%20the%20year_Australia%20Bushfire_DkDblXvnAWJL2V_Bark%20Beetles_DkDPZ85XKYIShT_Rondonia_DkDPI2unYMQqrhB_Gansu%20Wind%20Farm_DkDPOxFm4qZJ2iB_Solar%20Star_DkDV0jvjsXrchC_Forest_DkDVWlolkXJOxe_Alabama_DkDVmSguE8quhS_Yakutsk_DkDVZNiW4_KhhS_Mozambique_DkDVdSqbMp9qlV_Indonesia_DkDVdhqUIJOShS_Paraguay_DkDV5NVdc5jalV_Cote%20D%E2%80%99Ivoire_DkDVzKwaoThslV_Kalimantan_DkDVjqJcYu9spY_Sarawak_DkDVxYQuwu2fhS_Russia%2FFinland_DkDV0jvjsXrchC_Water_DkDV9ofmUx7Jmd_Las%20Vegas_DkDFGq9mKcYi8VThe%20shrinking%20and%20drying%20up%20of%20the%20Lake%20Urmia_Lake%20Urmia_DkDOcGQprwpkmR_Aral%20Sea_DkDSq1joU5sk6gB_Aral%20Expansion_DkDSYrnkxOVh6c_Saudi%20Irrigation_DkDSVR-mLkAJ3c_Central%20Valley_DkDS4s-m9NHJ8gB_California%20Reservoir_BkDTiTRWWTmR6gBRiver%20meandering%20in%20the%20Amazon_Bolivia%20Meander_DkDK9ySWib2R2dThe%20abandonment%20of%20a%20river%20channel%20and%20the%20formation%20of%20a%20new%20river%20channel_Bolivia%20Avulsion_DkDTXCJXWOFUha_Brazil%20Reservoir_DkDT6ClYMn5SpN_Amazon%20Deforestation_DkDTypVi8CHpkd_Bangladesh_DkDT07enqs_t_gB_Fish%20Ponds%2C%20China_DkDV0jvjsXrchC_Coral%20Reef%20Watch_DkDV0jvjsXrchC_Resources_DkDVl59k8-Aurb_Shanghai_DkDVumflQzrMib_Dallas%20Fort-Worth_DkDVWWhlM5mMiiB_Barnett%20Shale_DkDWVyelV9qMjW_DFW%20Growth_DkDVYWEnHy5MoJ_United%20States_DkDV8H8f-Cuc3C_Lights%20at%20Night_DkDVsXXi870skf_Pearl%20River%20Delta_DkDQhV1kUKXaiD_Fires%20at%20Night_DkDIAHUl1q2eqJ_Drilling%20Flares_DkDSx-Tmy5yMmK_Shale%20Oil%20Extraction_DkDVbUxoD7ZLre_Wyoming%20Coal%20Mining_DkDOHcDnYDBPjgB_Mountaintop%20Removal_DkDV-99mHP-OgW_Mountaintop%20Removal_DkDVlMmn4Acs_iB_Hei%20Dai%20Gao%20Coal_DkDcYs5sY3cKrZ_Alberta%20Tar%20Sands_DkDVNViXQeyQjgB_Peru%20Mining_DkDVEuOaR5YwojB_Grasberg%20Mine_DkDVOnDa0YXw6d_Grasberg%20Tailings_DkDOcGQprwpkmR_Aral%20Sea_DkDOYrnkxOVh6c_Saudi%20Irrigation_DkDPWPyXs9wR6gB_Rondonia_DkDPZ85XKYIShT_Rondonia_DkDPidYYbN4SwM_Amazon%20Rain%20Forest_DkDPidYYbN4SwM_Amazon%20Rain%20Forest_DkDPNEabGoEs-N_Indonesia%20Forests_DkDWOpqWSEFK2Q_Sumatra%20Fires_DkDPRG9ln6qOtN_Forestry%20SE%20US_DkDWWnfme-zqiiB_Longyangxia%20Solar_DkDPOxFm4qZJ2iB_Solar%20Star_DkDPjqQmuXJJojB_Topaz%20Solar%20Farm_DkDPKtwiQVVmojB_Charanka%20Solar%20Park_DkDPGUUmWP2JojB_Ivanpah%20Solar%20Power_DkDP22pmX2kaojB_Valle%20Solar%20Power_DkDPI2unYMQqrhB_Gansu%20Wind%20Farm_DkDPEuJmc6aJojB_Alta%20Wind%20Farm_DkDPD7CnLTtMiK_US%20Wind_DkDPD7CnLTtMiK_US%20Photovoltaic_DkDV0jvjsXrchC_Industrialization_DkDVlsznvjQPkgB_Pittsburgh_DkDWksznwjQP_Z_Pittsburgh_DkDVLjfdNa_b5c_Lagos_DkDVLjfdNa_b5c_Lagos_DkDP4t6mgw0u7c_Seoul_DkDP4t6mgw0u7c_Seoul_DkDQ5wYitp3subShenzhen%20bay%2C%20growth%20of%20land%20use%20into%20bay%2E_Shenzhen_DkDQrnpWLjJUya_Brasilia_DkDQoLbXOXaTsV_Brasilia_DkDQ5YWph63cxf_Milano_DkDQSHLrsBhcigB_Duisburg_DkDQENjTEnwf2d_Pretoria_DkDAFpEbiqFhmjB_Nairobi_DkDAZdNelWYhojB_Addis%20Ababa_DkDAGq9mKcYi8V_Lake%20Urmia_DkDAGyOdZ5mcnC_Coral%20Reefs_DkDAHBYiAv1s9a_Shenzhen_DkDWFqgBAAAA1M_Himawari-8_DkDWOpqWSEFK2Q_Sumatra%20Fires_DkDWA-fScC5OtR_Sinabung%20Volcano_DkDWFqgBAAAA1M_Clear%20Beijing_DkDWFqgBAAAA1M_Hazy%20Beijing_DkDWFqgBAAAA1M_Hazier%20Beijing_DkDWFqgBAAAA1M_Melting%20Snow_DkDWtEyBMH2b3N_Ice%20Floes_DkDWqpyBvNmagT_Iceberg%20calving_BAWFqgBAAAA1M_Typhoon%20In-Fa_Untitled_B";
+      var waypointSliderContentPath = EARTH_TIMELAPSE_CONFIG.waypointSliderContentPath;// || "https://docs.google.com/spreadsheets/d/1lWFdujSWrPdNM-NpyyeOL5ZirCkTpvFZMBR5spAQArY/edit?usp=sharing";
       var showEVA = !!EARTH_TIMELAPSE_CONFIG.showEVA;
       var showLODES = !!EARTH_TIMELAPSE_CONFIG.showLODES;
       var showForestAlerts = !!EARTH_TIMELAPSE_CONFIG.showForestAlerts;
@@ -99,6 +99,8 @@
       var himawariWaypoints = {};
       var timelineType = "customUI";
       var activeLayersWithTimeline = 0;
+      var keysDown = [];
+
       // This is necessary because waypoint thumbnails are generated from the Landsat set and thus the best we can show is just a solid black thumbnail
       // instead of some random location that a himawari bounds corresponds to in Landsat.
       var himawariWaypointThumbnailBounds = {xmin: 985127.8724700746, xmax: 1080494.8905504318, ymin: 731492.6413176071, ymax: 752365.0475676071};
@@ -778,6 +780,18 @@
           }
         });
 
+        $(document).keydown(function(e) {
+          if (keysDown.indexOf(e.keyCode) < 0){
+            keysDown.push(e.keyCode);
+            // SHIFT + S + V
+            if (keysDown[0] === 16 && keysDown[1] === 83 && keysDown[2] === 86) {
+              $(".share").trigger("click");
+            }
+          }
+        }).keyup(function(e) {
+          keysDown.length = 0;
+        });
+
         $('.map-layer-checkbox').on("click", function() {
           var selectedLayers = $('.map-layer-checkbox input:checked');
           var numLayersOn = selectedLayers.size();
@@ -1250,8 +1264,8 @@
         }
 
         // Load waypoints
-        if (googleDocPresentationSliderLink) {
-          snaplapseForPresentationSlider.gdocToJSON(googleDocPresentationSliderLink, function(csvdata) {
+        if (waypointSliderContentPath) {
+          snaplapseForPresentationSlider.gdocToJSON(waypointSliderContentPath, function(csvdata) {
             var waypointJSON = JSON.parse(snaplapseForPresentationSlider.CSVToJSON(csvdata));
             for (var i = 0; i < waypointJSON.snaplapse.keyframes.length; i++) {
               var keyframe = waypointJSON.snaplapse.keyframes[i];
@@ -1267,14 +1281,14 @@
                 }
               }
             }
-            presentationSliderContent = "#presentation=" + snaplapseForPresentationSlider.getAsUrlString(waypointJSON.snaplapse.keyframes);
-            timelapse.loadSharedDataFromUnsafeURL(presentationSliderContent);
+            waypointSliderContent = "#presentation=" + snaplapseForPresentationSlider.getAsUrlString(waypointJSON.snaplapse.keyframes);
+            timelapse.loadSharedDataFromUnsafeURL(waypointSliderContent);
           });
         } else {
-          timelapse.loadSharedDataFromUnsafeURL(presentationSliderContent);
+          timelapse.loadSharedDataFromUnsafeURL(waypointSliderContent);
         }
 
-        if (!googleDocPresentationSliderLink && snaplapseViewerForPresentationSlider) {
+        if (!waypointSliderContentPath && snaplapseViewerForPresentationSlider) {
           oldWaypointHandler(snaplapseViewerForPresentationSlider);
         } else {
           if (snaplapseViewerForPresentationSlider) {
