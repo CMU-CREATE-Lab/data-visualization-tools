@@ -77,6 +77,7 @@
       var showEVA = !!EARTH_TIMELAPSE_CONFIG.showEVA;
       var showLODES = !!EARTH_TIMELAPSE_CONFIG.showLODES;
       var showForestAlerts = !!EARTH_TIMELAPSE_CONFIG.showForestAlerts;
+      var showMonthlyRefugees = !!EARTH_TIMELAPSE_CONFIG.showMonthlyRefugees;
       var showShareButton = (window.location.hash.indexOf("showShareButton") >= 0);
       var isHyperwall = showShareButton ? false : !!EARTH_TIMELAPSE_CONFIG.isHyperwall;
       var useGoogleMaps = !!EARTH_TIMELAPSE_CONFIG.useGoogleMaps;
@@ -1002,7 +1003,6 @@
           layer_html += show_water_change;
           layer_html += show_animated_forest_loss_gain;
           layer_html += show_wdpa;
-          layer_html += show_monthly_refugees;
           layer_html += '   </tr>';
           layer_html += ' </table>';
           layer_html += '</div>';
@@ -1059,9 +1059,11 @@
           layer_html += '   <tr>';
           layer_html += show_drilling;
           layer_html += '   </tr>';
-          layer_html += '   <tr>';
-          layer_html += show_monthly_refugees;
-          layer_html += '   </tr>';
+          if (showMonthlyRefugees){
+              layer_html += '   <tr>';
+              layer_html += show_monthly_refugees;
+              layer_html += '   </tr>';
+          }
           layer_html += '   <tr>';
           layer_html += show_himawari;
           layer_html += '   </tr>';
