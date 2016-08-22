@@ -56,6 +56,7 @@
     <script src="WebglCoralTile.js"></script>
     <script src="WebglMapTile2.js"></script>
     <script src="WebglMapLayer2.js"></script>
+    <script src="MonthlyRefugeesTile.js"></script>
 
     <script type="text/javascript">
       "use strict";
@@ -115,7 +116,7 @@
 
       var forestAlertsTimeMachineLayer, forestAlertsNoOverlayTimeMachineLayer, landsatBaseMapLayer, darkBaseMapLayer, lightBaseMapLayer, wdpaVectorLayer, mcrmVectorLayer;
       var hansenMapLayer, hansenMapLayer2, viirsTile, coralBleachingTile, lightsAtNightMapLayer, crwTimemachineLayer, animatedHansenLayer, himawariTimemachineLayer;
-      var waterOccurrenceLayer, waterChangeLayer, usgsWindTurbineLayer, solarInstallsLayer, drillingLayer;
+      var waterOccurrenceLayer, waterChangeLayer, usgsWindTurbineLayer, solarInstallsLayer, drillingLayer, monthlyRefugeesTile;
 
 
       // ## 2 ##
@@ -153,7 +154,7 @@
       var solarInstallsUrl = rootTilePath + "/energy/solar-installs";
       var drillingUrl = rootTilePath + "/energy/drilling";
       var animatedHansenUrls = [gfcTransUrl, gfcLossGainUrl];
-
+      var monthlyRefugeesUrl = rootTilePath + '/monthly-mediterranean-refugees/monthly-mediterranean-refugees-20140101-20160701.bin';
 
       function init() {
         var settings = {
@@ -666,6 +667,27 @@
             $("#lights-at-night-legend").hide();
           }
         }).prop('checked', showCoralBleachingLayer);
+          
+        $("#show-monthly-refugees").on("click", function() {
+          if ($(this).prop('checked')) {
+            showMonthlyRefugeesLayer = true;
+            activeLayersWithTimeline += 1;
+            timelapse.setPlaybackRate(.85);
+            timelineType = "defaultUI";
+            requestNewTimeline("monthly-refugees-times.json", timelineType);
+            timelapse.setDoDwell(false);
+            $("#monthly-refugees-legend").show();
+          } else {
+            showMonthlyRefugeesLayer = false;
+            activeLayersWithTimeline -= 1;
+            timelapse.setPlaybackRate(defaultPlaybackSpeed);
+            timelineType = "customUI";
+            requestNewTimeline("landsat-times.json", timelineType);
+            timelapse.setDoDwell(true);
+            timelapse.setMaxScale(landsatMaxScale);
+            $("#monthly-refugees-legend").hide();
+          }
+        }).prop('checked', showMonthlyRefugeesLayer);
 
         // Set the starting base layer
         $("input:radio[name=base-layers]").on("click", function() {
@@ -886,6 +908,8 @@
       var showUsgsWindTurbineLayer = false;
       var showSolarInstallsLayer = false;
       var showDrillingLayer = false;
+      var showMonthlyRefugeesLayer = false;
+
 
       // Default Time Machine visibility
       var tileViewVisibility = {
@@ -939,6 +963,7 @@
         var show_himawari = '<td class="himawari-select"><label for="show-himawari" name="h8"><input type="checkbox" id="show-himawari" />Himawari-8<span class="credit"> (JMA)</span></label></td>';
         var show_water_occurrence = '<td class="water-occurrence-select"><label for="show-water-occurrence" name="wo"><input type="checkbox" id="show-water-occurrence" />Water Occurrence<span class="credit"> (JRC)</span></label></td>';
         var show_water_change = '<td class="water-change-select"><label for="show-water-change" name="wc"><input type="checkbox" id="show-water-change" />Water Change<span class="credit"> (JRC)</span></label></td>';
+        var show_monthly_refugees = '<td class="monthly-refugees-select"><label for="show-monthly-refugees" name="mmr"><input type="checkbox" id="show-monthly-refugees" />Monthly Mediterranean Refugees<span class="credit"> (UNHCR)</span></label></td>';
 
         if (enableLetterboxMode) {
           layer_html += '<div class="base-map-div">';
@@ -977,6 +1002,7 @@
           layer_html += show_water_change;
           layer_html += show_animated_forest_loss_gain;
           layer_html += show_wdpa;
+          layer_html += show_monthly_refugees;
           layer_html += '   </tr>';
           layer_html += ' </table>';
           layer_html += '</div>';
@@ -1032,6 +1058,9 @@
           layer_html += '   </tr>';
           layer_html += '   <tr>';
           layer_html += show_drilling;
+          layer_html += '   </tr>';
+          layer_html += '   <tr>';
+          layer_html += show_monthly_refugees;
           layer_html += '   </tr>';
           layer_html += '   <tr>';
           layer_html += show_himawari;
@@ -1091,6 +1120,7 @@
         legend_html += '<tr id="drilling-legend" style="display: none"><td><div style="background-color:#eda46a; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Oil/Gass Drilling (USA)</div></td></tr>';
         legend_html += '<tr id="water-occurrence-legend" style="display: none"><td><div style="font-size: 17px">Water Occurrence 1984-2015</div><div style="margin-left: 8px"><div style="font-size: 13px; float: left">100%</div><div style="font-size: 13px; float: right;">0%</div><div class="waterLegendGradient" style="clear: both;"></div><div style="font-size: 13px; float: left">Always water</div><div style="font-size: 13px; float: right">Never water</div></div></td></tr>';
         legend_html += '<tr id="water-change-legend" style="display: none"><td><div style="font-size: 17px">Water Change 1984-1999 to 2000-2015</div><div style="margin-left: 8px"><div class="waterChangeLegendGradient" style="clear: both;"></div><div style="font-size: 13px; float: left">Water Loss</div><div style="font-size: 13px; float: right">Water Gain</div></div></td></tr>';
+        legend_html += '<tr id="monthly-refugees-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(left, #ff0000 0%, #ffffff 100%);background: -webkit-linear-gradient(left, #ff0000 0%,#ffffff 100%); background: linear-gradient(to right, #ff0000 0%,#ffffff 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Mediterranean Refugees Jan 2014 - Jun 2016</div></td></tr>';
         legend_html += '</table>';
         legend_html += '</div>';
         legend_html += '</div>';
@@ -1100,7 +1130,7 @@
           $(legend_html).appendTo($("#content"));
           $("#presentation-slider-selection, .base-map-radio, .map-layer-checkbox, .extras-selector, .presentationSlider, #layers-legend").addClass("letterbox");
           $(".base-map-div, .map-layer-div, .extras-selector-div").addClass("top-panel letterbox");
-          $(".current-location-text, .landsat-select, .wdpa-select, .forest-change-select, .viirs-select, .forest-loss-gain-select, .animated-forest-loss-select, .forest-alerts-select, .forest-alerts-no-overlay-select, .lights-at-night-select, .coral-select, .coral-bleaching-select, .wind-select, .solar-select, .drilling-select, .himawari-select, .water-occurrence-select, .water-change-select").addClass("letterbox");
+          $(".current-location-text, .landsat-select, .wdpa-select, .forest-change-select, .viirs-select, .forest-loss-gain-select, .animated-forest-loss-select, .forest-alerts-select, .forest-alerts-no-overlay-select, .lights-at-night-select, .coral-select, .coral-bleaching-select, .wind-select, .solar-select, .drilling-select, .himawari-select, .water-occurrence-select, .water-change-select .monthly-refugees-select").addClass("letterbox");
         } else {
           $(layer_html).appendTo($("#timeMachine .player"));
           $(legend_html).appendTo($("#timeMachine .player"));
@@ -1198,6 +1228,7 @@
         // VIIRS is just a single tile
         viirsTile = new WebglViirsTile(glb, viirsUrl);
         coralBleachingTile = new WebglCoralTile(glb, coralBleachingUrl);
+        monthlyRefugeesTile = new MonthlyRefugeesTile(glb, monthlyRefugeesUrl);
 
         var lightsAtNightMapLayerOptions = {
           nLevels: 8,
@@ -1834,6 +1865,18 @@
           // Draw wdpaLayer
           if (showWdpaLayer)
             wdpaVectorLayer.draw(timelapse.getView());
+            
+          //Draw mediterranean monthly refugees
+          if (showMonthlyRefugeesLayer){
+            var monthlyRefugeesView = timelapse.getView();
+            monthlyRefugeesView.zoom = timelapse.getCurrentZoom();
+            var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
+            var times = timelapse.getCaptureTimes();
+            var range = new Date(times[times.length - 1]).getTime() - new Date(times[0]).getTime();
+            var currentDate = (ratio*range + new Date(times[0]).getTime())/1000.0;
+            monthlyRefugeesView.currentDate = currentDate;
+            monthlyRefugeesTile.draw(monthlyRefugeesView);
+          }
 
           // ## 7 ##
           //// Layers to draw on top go here
