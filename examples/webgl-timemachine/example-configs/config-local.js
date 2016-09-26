@@ -11,6 +11,7 @@ var EARTH_TIMELAPSE_CONFIG = {
   "showEVA" : false,
   "showForestAlerts" : false,
   "showLODES" : false,
+  "showGlobalWindPower": false,
   "enableLetterboxMode" : false,
   "useFaderShader" : true,
   "enableWaypointText" : true,
