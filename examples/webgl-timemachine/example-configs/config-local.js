@@ -19,5 +19,6 @@ var EARTH_TIMELAPSE_CONFIG = {
   "launchMode" : "maximized",
   "clearProfile" : true,
   "rootTilePath" : "http://tiles.cmucreatelab.org/earthtimelapse/data/",
-  "waypointSliderContentPath" : ""
+  "waypointSliderContentPath" : "",
+  "showAnnualRefugees": false
 };
