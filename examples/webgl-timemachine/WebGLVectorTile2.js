@@ -115,6 +115,35 @@ WebGLVectorTile2.prototype._setLodesData = function(arrayBuffer) {
   }
 }
 
+WebGLVectorTile2.prototype._setAnnualRefugeesData = function(arrayBuffer) {
+  var gl = this.gl;
+  this._pointCount = arrayBuffer.length / 7;
+  if (this._pointCount > 0) {
+    this._data = arrayBuffer;
+    this._arrayBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'aStartPoint');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 28, 0);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'aEndPoint');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 28, 8);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'aMidPoint');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 28, 16);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'aEpoch');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 28, 24);
+
+    this._ready = true;
+  }
+}
+
 
 
 WebGLVectorTile2.prototype.isReady = function() {
@@ -312,6 +341,60 @@ WebGLVectorTile2.prototype._drawLodes = function(transform, options) {
   }
 }
 
+WebGLVectorTile2.prototype._drawAnnualRefugees = function(transform, options) {
+  var gl = this.gl;
+  if (this._ready) {
+    gl.useProgram(this.program);
+    gl.enable( gl.BLEND );
+    gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+
+    var zoom = options.zoom || (2.0 * window.devicePixelRatio);
+    var pointSize = Math.floor( ((20-5) * (zoom - 0) / (21 - 0)) + 5 );
+    if (isNaN(pointSize)) {
+      pointSize = 1.0;
+    }
+    var sizeLoc = gl.getUniformLocation(this.program, 'uSize');
+    gl.uniform1f(sizeLoc, pointSize);
+
+    var tileTransform = new Float32Array(transform);
+    scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
+    scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+    var matrixLoc = gl.getUniformLocation(this.program, 'uMapMatrix');
+    gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+
+    var currentTime = options.currentTime;
+    var epochLoc = gl.getUniformLocation(this.program, 'uEpoch');
+    gl.uniform1f(epochLoc, currentTime/1000.);
+
+    var span = options.span;
+    var spanLoc = gl.getUniformLocation(this.program, 'uSpan');
+    gl.uniform1f(spanLoc, span/1000.);
+
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'aStartPoint');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 28, 0);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'aEndPoint');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 28, 8);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'aMidPoint');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 28, 16);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'aEpoch');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 28, 24);
+
+    gl.drawArrays(gl.POINTS, 0, this._pointCount);
+
+    gl.disable(gl.BLEND);
+  }
+}
+
 
 // Update and draw tiles
 WebGLVectorTile2.update = function(tiles, transform, options) {
@@ -420,3 +503,39 @@ WebGLVectorTile2.lodesFragmentShader =
   '  gl_FragColor = vec4(unpackColor(vColor),.75);\n' +
   '}\n';
 
+WebGLVectorTile2.annualRefugeesFragmentShader = 
+'      precision mediump float;\n' +
+'      void main() {\n' +
+'          float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
+'          dist = 1. - (dist * 2.);\n' +
+'          dist = max(0., dist);\n' +
+'          gl_FragColor = vec4(1., 0., 0., 1.) * dist;\n' +
+'      }\n';
+
+WebGLVectorTile2.annualRefugeesVertexShader = 
+'      attribute vec4 aStartPoint;\n' +
+'      attribute vec4 aEndPoint;\n' +
+'      attribute vec4 aMidPoint;\n' +
+'      attribute float aEpoch;\n' +
+'      uniform float uSize;\n' +
+'      uniform float uEpoch;\n' +
+'      uniform float uSpan;\n' +
+'      uniform mat4 uMapMatrix;\n' +
+'      vec4 bezierCurve(float t, vec4 P0, vec4 P1, vec4 P2) {\n' +
+'        return (1.0-t)*(1.0-t)*P0 + 2.0*(1.0-t)*t*P1 + t*t*P2;\n' +
+'      }\n' +
+'      void main() {\n' +
+'        vec4 position;\n' +
+'        if (aEpoch < uEpoch) {\n' +
+'          position = vec4(-1,-1,-1,-1);\n' +
+'        } else if (aEpoch > uEpoch + uSpan) {\n' +
+'          position = vec4(-1,-1,-1,-1);\n' +
+'        } else {\n' +
+'          float t = (uEpoch - aEpoch)/uSpan;\n' +
+'          vec4 pos = bezierCurve(1.0 + t, aStartPoint, aMidPoint, aEndPoint);\n' +
+'          position = uMapMatrix * vec4(pos.x, pos.y, 0, 1);\n' +
+'        }\n' +
+'        gl_Position = position;\n' +
+'        gl_PointSize = uSize;\n' +
+'        gl_PointSize = 2.0;\n' +
+'      }\n';
