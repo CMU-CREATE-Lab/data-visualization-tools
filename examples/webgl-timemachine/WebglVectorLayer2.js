@@ -110,43 +110,13 @@ WebglVectorLayer2.prototype.destroy = function() {
 
 // viewBounds:  xmin, xmax, ymin, ymax all in coords 0-256
 // TODO: Fix this for 900913 coords
-WebglVectorLayer2.prototype.draw = function(view) {
+WebglVectorLayer2.prototype.draw = function(view, opt_options) {
   var timelapse = this._canvasLayer.timelapse;
   var width = this._canvasLayer.canvas.width / this._canvasLayer.resolutionScale_;
   var height = this._canvasLayer.canvas.height / this._canvasLayer.resolutionScale_;
   var options = {};
-  if (typeof(view.zoom) != "undefined" ) {
-    options.zoom = view.zoom;
-  }
-  if (view.currentTime) {
-    options.currentTime = view.currentTime;
-  }
-  if (view.color) {
-    options.color = view.color;
-  }
-
-  if (typeof view.se01 != "undefined") {
-    options.se01 = view.se01;
-  }
-  if (typeof view.se02 != "undefined") {
-    options.se02 = view.se02;
-  }
-  if (typeof view.se03 != "undefined") {
-    options.se03 = view.se03;
-  }
-
-  if (typeof view.filter != "undefined") {
-    options.filter = view.filter;
-  }
-  if (typeof view.distance != "undefined") {
-    options.distance = view.distance;
-  }
-  if (typeof view.step != "undefined") {
-    options.step = view.step;
-  }
-
-  if (typeof view.throttle != "undefined") {
-    options.throttle = view.throttle;
+  if (typeof(opt_options) != "undefined") {
+    options = opt_options;
   }
 
   var transform = new Float32Array([2/width,0,0,0, 0,-2/height,0,0, 0,0,0,0, -1,1,0,1]);
