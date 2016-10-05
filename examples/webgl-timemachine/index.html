@@ -78,6 +78,7 @@
 	  var showLODES = !!EARTH_TIMELAPSE_CONFIG.showLODES;
 	  var showForestAlerts = !!EARTH_TIMELAPSE_CONFIG.showForestAlerts;
 	  var showMonthlyRefugees = !!EARTH_TIMELAPSE_CONFIG.showMonthlyRefugees;
+	  var showAnnualRefugees = !!EARTH_TIMELAPSE_CONFIG.showAnnualRefugees;
 	  var showGlobalWindPower = !!EARTH_TIMELAPSE_CONFIG.showGlobalWindPower;
 	  var showShareButton = (window.location.hash.indexOf("showShareButton") >= 0);
 	  var isHyperwall = showShareButton ? false : !!EARTH_TIMELAPSE_CONFIG.isHyperwall;
@@ -120,6 +121,7 @@
 	  var hansenMapLayer, hansenMapLayer2, viirsTile, coralBleachingTile, lightsAtNightMapLayer, crwTimemachineLayer, animatedHansenLayer, himawariTimemachineLayer;
 	  var waterOccurrenceLayer, waterChangeLayer, usgsWindTurbineLayer, solarInstallsLayer, drillingLayer, monthlyRefugeesTile;
 	  var globalWindPowerLayer;
+	  var annualRefugeesLayer;
 
 	  // ## 2 ##
 	  //// Layer tile paths
@@ -158,6 +160,8 @@
 	  var drillingUrl = rootTilePath + "/energy/drilling";
 	  var animatedHansenUrls = [gfcTransUrl, gfcLossGainUrl];
 	  var monthlyRefugeesUrl = rootTilePath + '/monthly-mediterranean-refugees/monthly-mediterranean-refugees-20140101-20160701.bin';
+	  var annualRefugeesUrl = rootTilePath + "/annual-refugees/subsampled";
+
 
 	  function init() {
 		var settings = {
@@ -704,6 +708,30 @@
 		  }
 		}).prop('checked', showMonthlyRefugeesLayer);
 
+
+		$("#show-annual-refugees").on("click", function() {
+		  if ($(this).prop('checked')) {
+			showAnnualRefugeesLayer = true;
+			setActiveLayersWithTimeline(1);
+			timelapse.setPlaybackRate(.05);
+			timelineType = "defaultUI"; // TODO: Setting this to customUI which is desired
+			                            //       causes the entire time slider to disappear 
+			                            //       if/when toggled.
+			requestNewTimeline("annual-refugees-times.json", timelineType);
+			timelapse.setDoDwell(false);
+			$("#annual-refugees-legend").show();
+		  } else {
+			showAnnualRefugeesLayer = false;
+			setActiveLayersWithTimeline(-1);
+			timelapse.setPlaybackRate(defaultPlaybackSpeed);
+			timelineType = "customUI";
+			requestNewTimeline("landsat-times.json", timelineType);
+			timelapse.setDoDwell(true);
+			timelapse.setMaxScale(landsatMaxScale);
+			$("#annual-refugees-legend").hide();
+		  }
+		}).prop('checked', showAnnualRefugeesLayer);
+
 		// Set the starting base layer
 		$("input:radio[name=base-layers]").on("click", function() {
 		  visibleBaseMapLayer = $(this).val();
@@ -925,6 +953,7 @@
 	  var showSolarInstallsLayer = false;
 	  var showDrillingLayer = false;
 	  var showMonthlyRefugeesLayer = false;
+	  var showAnnualRefugeesLayer = false;
 
 
 	  // Default Time Machine visibility
@@ -981,6 +1010,8 @@
 		var show_water_occurrence = '<td class="water-occurrence-select"><label for="show-water-occurrence" name="wo"><input type="checkbox" id="show-water-occurrence" />Water Occurrence<span class="credit"> (JRC)</span></label></td>';
 		var show_water_change = '<td class="water-change-select"><label for="show-water-change" name="wc"><input type="checkbox" id="show-water-change" />Water Change<span class="credit"> (JRC)</span></label></td>';
 		var show_monthly_refugees = '<td class="monthly-refugees-select"><label for="show-monthly-refugees" name="mmr"><input type="checkbox" id="show-monthly-refugees" />Monthly Mediterranean Refugees<span class="credit"> (UNHCR)</span></label></td>';
+		var show_annual_refugees = '<td class="annual-refugees-select"><label for="show-annual-refugees" name="ar"><input type="checkbox" id="show-annual-refugees" />Annual Refugees<span class="credit"> (UNHCR)</span></label></td>';
+
 
 		if (enableLetterboxMode) {
 		  layer_html += '<div class="base-map-div">';
@@ -1088,6 +1119,11 @@
 			  layer_html += show_monthly_refugees;
 			  layer_html += '   </tr>';
 		  }
+		  if (showAnnualRefugees){
+			  layer_html += '   <tr>';
+			  layer_html += show_annual_refugees;
+			  layer_html += '   </tr>';
+		  }
 		  layer_html += '   <tr>';
 		  layer_html += show_himawari;
 		  layer_html += '   </tr>';
@@ -1148,6 +1184,7 @@
 		legend_html += '<tr id="water-occurrence-legend" style="display: none"><td><div style="font-size: 17px">Water Occurrence 1984-2015</div><div style="margin-left: 8px"><div style="font-size: 13px; float: left">100%</div><div style="font-size: 13px; float: right;">0%</div><div class="waterLegendGradient" style="clear: both;"></div><div style="font-size: 13px; float: left">Always water</div><div style="font-size: 13px; float: right">Never water</div></div></td></tr>';
 		legend_html += '<tr id="water-change-legend" style="display: none"><td><div style="font-size: 17px">Water Change 1984-1999 to 2000-2015</div><div style="margin-left: 8px"><div class="waterChangeLegendGradient" style="clear: both;"></div><div style="font-size: 13px; float: left">Water Loss</div><div style="font-size: 13px; float: right">Water Gain</div></div></td></tr>';
 		legend_html += '<tr id="monthly-refugees-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(left, #ff0000 0%, #ffffff 100%);background: -webkit-linear-gradient(left, #ff0000 0%,#ffffff 100%); background: linear-gradient(to right, #ff0000 0%,#ffffff 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Mediterranean Refugees Jan 2014 - Jun 2016</div></td></tr>';
+		legend_html += '<tr id="annual-refugees-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(left, #ff0000 0%, #ffffff 100%);background: -webkit-linear-gradient(left, #ff0000 0%,#ffffff 100%); background: linear-gradient(to right, #ff0000 0%,#ffffff 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Annual Refugees 2000 - 2013</div></td></tr>';
 		legend_html += '</table>';
 		legend_html += '</div>';
 		legend_html += '</div>';
@@ -1252,6 +1289,7 @@
 		mcrmVectorLayer = new WebglVectorLayer2(glb, canvasLayer, mcrmUrl, defaultBaseMapLayerOptions);
 		waterOccurrenceLayer = new WebglMapLayer(glb, canvasLayer, waterOccurrenceUrl, defaultBaseMapLayerOptions);
 		waterChangeLayer = new WebglMapLayer(glb, canvasLayer, waterChangeUrl, defaultBaseMapLayerOptions);
+
 		// VIIRS is just a single tile
 		viirsTile = new WebglViirsTile(glb, viirsUrl);
 		coralBleachingTile = new WebglCoralTile(glb, coralBleachingUrl);
@@ -1314,6 +1352,18 @@
 		  vertexShader: WebGLVectorTile2.vectorPointTileVertexShader
 		};
 		drillingLayer  = new WebglVectorLayer2(glb, canvasLayer, drillingUrl, drillingLayerOptions);
+
+		var annualRefugeesLayerOptions = {
+		  tileWidth: 256,
+		  tileHeight: 256,
+		  nLevels: 0,
+		  setDataFunction: WebGLVectorTile2.prototype._setAnnualRefugeesData,
+		  drawFunction: WebGLVectorTile2.prototype._drawAnnualRefugees,
+		  fragmentShader: WebGLVectorTile2.annualRefugeesFragmentShader,
+		  vertexShader: WebGLVectorTile2.annualRefugeesVertexShader
+		};
+		annualRefugeesLayer  = new WebglVectorLayer2(glb, canvasLayer, annualRefugeesUrl, annualRefugeesLayerOptions);
+
 
 
 		// Layer Toggle UI
@@ -1827,68 +1877,72 @@
 		  // Draw wind layer
 		  if (showUsgsWindTurbineLayer) {
 			var usgsWindTurbineLayerView = timelapse.getView();
+		  	var options = {};			
 			var timelapse2map = usgsWindTurbineLayer.getWidth() / landsatBaseMapLayer.getWidth();
 			usgsWindTurbineLayerView.x *= timelapse2map;
 			usgsWindTurbineLayerView.y *= timelapse2map;
 			usgsWindTurbineLayerView.scale /= timelapse2map;
-			usgsWindTurbineLayerView.zoom = timelapse.getCurrentZoom();
+			options.zoom = timelapse.getCurrentZoom();
 			var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
 			var times = timelapse.getCaptureTimes();
 			var range = new Date(times[times.length - 1]).getTime() - new Date(times[0]).getTime();
 			var currentDate = ratio*range + new Date(times[0]).getTime();
-			usgsWindTurbineLayerView.currentTime = currentDate;
-			usgsWindTurbineLayerView.color = [0.1, 0.5, 0.1, 1.0];
-			usgsWindTurbineLayer.draw(usgsWindTurbineLayerView);
+			options.currentTime = currentDate;
+			options.color = [0.1, 0.5, 0.1, 1.0];
+			usgsWindTurbineLayer.draw(usgsWindTurbineLayerView, options);
 		  }
 
 		  // Draw global wind layer
 		  if (showGlobalWindPowerLayer) {
 			var globalWindPowerLayerView = timelapse.getView();
+		  	var options = {};
 			var timelapse2map = globalWindPowerLayer.getWidth() / landsatBaseMapLayer.getWidth();
 			globalWindPowerLayerView.x *= timelapse2map;
 			globalWindPowerLayerView.y *= timelapse2map;
 			globalWindPowerLayerView.scale /= timelapse2map;
-			globalWindPowerLayerView.zoom = timelapse.getCurrentZoom();
+			options.zoom = timelapse.getCurrentZoom();
 			var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
 			var times = timelapse.getCaptureTimes();
 			var range = new Date(times[times.length - 1]).getTime() - new Date(times[0]).getTime();
 			var currentDate = ratio*range + new Date(times[0]).getTime();
-			globalWindPowerLayerView.currentTime = currentDate;
-			globalWindPowerLayerView.color = [0.1, 0.5, 0.1, 1.0];
-			globalWindPowerLayer.draw(globalWindPowerLayerView);
+			options.currentTime = currentDate;
+			options.color = [0.1, 0.5, 0.1, 1.0];
+			globalWindPowerLayer.draw(globalWindPowerLayerView, options);
 		  }
 
 		  // Draw solar layer
 		  if (showSolarInstallsLayer) {
 			var solarInstallsLayerView = timelapse.getView();
+		  	var options = {};
 			var timelapse2map = usgsWindTurbineLayer.getWidth() / landsatBaseMapLayer.getWidth();
 			solarInstallsLayerView.x *= timelapse2map;
 			solarInstallsLayerView.y *= timelapse2map;
 			solarInstallsLayerView.scale /= timelapse2map;
-			solarInstallsLayerView.zoom = timelapse.getCurrentZoom();
+			options.zoom = timelapse.getCurrentZoom();
 			var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
 			var times = timelapse.getCaptureTimes();
 			var range = new Date(times[times.length - 1]).getTime() - new Date(times[0]).getTime();
 			var currentDate = ratio*range + new Date(times[0]).getTime();
-			solarInstallsLayerView.currentTime = currentDate;
-			solarInstallsLayer.draw(solarInstallsLayerView);
+			options.currentTime = currentDate;
+			solarInstallsLayer.draw(solarInstallsLayerView, options);
 		  }
 
 		  // Draw drilling layer
 		  if (showDrillingLayer) {
 			var drillingLayerView = timelapse.getView();
+		  	var options = {};
 			var timelapse2map = drillingLayer.getWidth() / landsatBaseMapLayer.getWidth();
 			drillingLayerView.x *= timelapse2map;
 			drillingLayerView.y *= timelapse2map;
 			drillingLayerView.scale /= timelapse2map;
-			drillingLayerView.zoom = timelapse.getCurrentZoom();
+			options.zoom = timelapse.getCurrentZoom();
 			var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
 			var times = timelapse.getCaptureTimes();
 			var range = new Date(times[times.length - 1]).getTime() - new Date(times[0]).getTime();
 			var currentDate = ratio*range + new Date(times[0]).getTime();
-			drillingLayerView.currentTime = currentDate;
-			drillingLayerView.color = [0.82, 0.22, 0.07, 1.0];
-			drillingLayer.draw(drillingLayerView);
+			options.currentTime = currentDate;
+			options.color = [0.82, 0.22, 0.07, 1.0];
+			drillingLayer.draw(drillingLayerView, options);
 		  }
 
 		  // Draw forest alerts no overlay
@@ -1931,6 +1985,23 @@
 			var currentDate = (ratio*range + new Date(times[0]).getTime())/1000.0;
 			monthlyRefugeesView.currentDate = currentDate;
 			monthlyRefugeesTile.draw(monthlyRefugeesView);
+		  }
+
+		  if (showAnnualRefugeesLayer){
+			var annualRefugeesLayerView = timelapse.getView();
+		  	var options = {};
+			var timelapse2map = annualRefugeesLayer.getWidth() / landsatBaseMapLayer.getWidth();
+			annualRefugeesLayerView.x *= timelapse2map;
+			annualRefugeesLayerView.y *= timelapse2map;
+			annualRefugeesLayerView.scale /= timelapse2map;
+			options.zoom = timelapse.getCurrentZoom();
+			var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
+			var times = timelapse.getCaptureTimes();
+			var range = new Date(times[times.length - 1]).getTime() - new Date(times[0]).getTime();
+			var currentDate = ratio*range + new Date(times[0]).getTime();
+			options.currentTime = currentDate;
+			options.span = 240*24*60*60*1000;
+			annualRefugeesLayer.draw(annualRefugeesLayerView, options);
 		  }
 
 		  // ## 7 ##
