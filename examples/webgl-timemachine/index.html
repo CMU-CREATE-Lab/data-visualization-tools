@@ -720,6 +720,9 @@
 			requestNewTimeline("annual-refugees-times.json", timelineType);
 			timelapse.setDoDwell(false);
 			$("#annual-refugees-legend").show();
+			previousVisibleBaseMapLayer = visibleBaseMapLayer;
+			visibleBaseMapLayer = "dark";
+
 		  } else {
 			showAnnualRefugeesLayer = false;
 			setActiveLayersWithTimeline(-1);
@@ -729,6 +732,8 @@
 			timelapse.setDoDwell(true);
 			timelapse.setMaxScale(landsatMaxScale);
 			$("#annual-refugees-legend").hide();
+			visibleBaseMapLayer = previousVisibleBaseMapLayer;
+
 		  }
 		}).prop('checked', showAnnualRefugeesLayer);
 
