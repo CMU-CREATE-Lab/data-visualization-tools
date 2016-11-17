@@ -80,6 +80,8 @@
 	  var showMonthlyRefugees = !!EARTH_TIMELAPSE_CONFIG.showMonthlyRefugees;
 	  var showAnnualRefugees = !!EARTH_TIMELAPSE_CONFIG.showAnnualRefugees;
 	  var showGlobalWindPower = !!EARTH_TIMELAPSE_CONFIG.showGlobalWindPower;
+	  var showVsi = !!EARTH_TIMELAPSE_CONFIG.showVsi;
+
 	  var showShareButton = (window.location.hash.indexOf("showShareButton") >= 0);
 	  var isHyperwall = showShareButton ? false : !!EARTH_TIMELAPSE_CONFIG.isHyperwall;
 	  var useGoogleMaps = !!EARTH_TIMELAPSE_CONFIG.useGoogleMaps;
@@ -122,6 +124,7 @@
 	  var waterOccurrenceLayer, waterChangeLayer, usgsWindTurbineLayer, solarInstallsLayer, drillingLayer, monthlyRefugeesTile;
 	  var globalWindPowerLayer;
 	  var annualRefugeesLayer;
+	  var vsiLayer;
 
 	  // ## 2 ##
 	  //// Layer tile paths
@@ -161,6 +164,7 @@
 	  var animatedHansenUrls = [gfcTransUrl, gfcLossGainUrl];
 	  var monthlyRefugeesUrl = rootTilePath + '/monthly-mediterranean-refugees/monthly-mediterranean-refugees-20140101-20160701.bin';
 	  var annualRefugeesUrl = rootTilePath + "/annual-refugees/subsampled";
+	  var vsiUrl = rootTilePath + "/vsi/tiles/{default}/{z}/{x}/{y}.png";
 
 
 	  function init() {
@@ -737,6 +741,19 @@
 		  }
 		}).prop('checked', showAnnualRefugeesLayer);
 
+		$("#show-vsi").on("click", function() {
+		  if ($(this).prop('checked')) {
+			showVsiLayer = true;
+			setActiveLayersWithTimeline(1);
+			$("#vsi-legend").show();
+		  } else {
+			showVsiLayer = false;
+			setActiveLayersWithTimeline(-1);
+			$("#vsi-legend").hide();
+		  }
+		}).prop('checked', showVsiLayer);
+
+
 		// Set the starting base layer
 		$("input:radio[name=base-layers]").on("click", function() {
 		  visibleBaseMapLayer = $(this).val();
@@ -889,7 +906,7 @@
 		});
 
 		var timelineUIHandler = function() {
-		  if (showLightsAtNightLayer || showHansenLayer2) {
+		  if (showLightsAtNightLayer || showHansenLayer2 || showVsiLayer) {
 			$(".customControl").hide();
 			if (timelineType == "defaultUI" && !$(".controls").is(':visible'))
 			  $(".controls").show();
@@ -959,6 +976,7 @@
 	  var showDrillingLayer = false;
 	  var showMonthlyRefugeesLayer = false;
 	  var showAnnualRefugeesLayer = false;
+	  var showVsiLayer = false;
 
 
 	  // Default Time Machine visibility
@@ -1016,6 +1034,8 @@
 		var show_water_change = '<td class="water-change-select"><label for="show-water-change" name="wc"><input type="checkbox" id="show-water-change" />Water Change<span class="credit"> (JRC)</span></label></td>';
 		var show_monthly_refugees = '<td class="monthly-refugees-select"><label for="show-monthly-refugees" name="mmr"><input type="checkbox" id="show-monthly-refugees" />Monthly Mediterranean Refugees<span class="credit"> (UNHCR)</span></label></td>';
 		var show_annual_refugees = '<td class="annual-refugees-select"><label for="show-annual-refugees" name="ar"><input type="checkbox" id="show-annual-refugees" />Annual Refugees<span class="credit"> (UNHCR)</span></label></td>';
+		var show_vsi = '<td class="vsi-select"><label for="show-vsi" name="lan"><input type="checkbox" id="show-vsi" />Vegetation Sensitivity Index<span class="credit"> (Oxford)</span></label></td>';
+
 
 
 		if (enableLetterboxMode) {
@@ -1129,6 +1149,11 @@
 			  layer_html += show_annual_refugees;
 			  layer_html += '   </tr>';
 		  }
+		  if (showVsi){
+			  layer_html += '   <tr>';
+			  layer_html += show_vsi;
+			  layer_html += '   </tr>';
+		  }
 		  layer_html += '   <tr>';
 		  layer_html += show_himawari;
 		  layer_html += '   </tr>';
@@ -1190,6 +1215,8 @@
 		legend_html += '<tr id="water-change-legend" style="display: none"><td><div style="font-size: 17px">Water Change 1984-1999 to 2000-2015</div><div style="margin-left: 8px"><div class="waterChangeLegendGradient" style="clear: both;"></div><div style="font-size: 13px; float: left">Water Loss</div><div style="font-size: 13px; float: right">Water Gain</div></div></td></tr>';
 		legend_html += '<tr id="monthly-refugees-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(left, #ff0000 0%, #ffffff 100%);background: -webkit-linear-gradient(left, #ff0000 0%,#ffffff 100%); background: linear-gradient(to right, #ff0000 0%,#ffffff 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Mediterranean Refugees Jan 2014 - Jun 2016</div></td></tr>';
 		legend_html += '<tr id="annual-refugees-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(left, #ff0000 0%, #ffffff 100%);background: -webkit-linear-gradient(left, #ff0000 0%,#ffffff 100%); background: linear-gradient(to right, #ff0000 0%,#ffffff 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Annual Refugees 2000 - 2013</div></td></tr>';
+		legend_html += '<tr id="vsi-legend" style="display: none"><td><div style="font-size: 17px">Vegetation Sensitivity Index 200-2013</div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">0</div><div style="margin-top: 4px; float: left; background-image: -webkit-linear-gradient(left, rgb(0, 139, 0), rgb(92, 182, 69) 17%, rgb(163, 221, 99) 33%, rgb(255, 255, 0) 50%, rgb(255, 205, 0) 67%, rgb(255, 144, 0) 83%, rgb(255, 4, 0) 100%);background-image: linear-gradient(left, rgb(0, 139, 0), rgb(92, 182, 69) 17%, rgb(163, 221, 99) 33%, rgb(255, 255, 0) 50%, rgb(255, 205, 0) 67%, rgb(255, 144, 0) 83%, rgb(255, 4, 0) 100%); width: 45px; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">100</div></td></tr>';
+
 		legend_html += '</table>';
 		legend_html += '</div>';
 		legend_html += '</div>';
@@ -1294,6 +1321,9 @@
 		mcrmVectorLayer = new WebglVectorLayer2(glb, canvasLayer, mcrmUrl, defaultBaseMapLayerOptions);
 		waterOccurrenceLayer = new WebglMapLayer(glb, canvasLayer, waterOccurrenceUrl, defaultBaseMapLayerOptions);
 		waterChangeLayer = new WebglMapLayer(glb, canvasLayer, waterChangeUrl, defaultBaseMapLayerOptions);
+
+		vsiLayer = new WebglMapLayer(glb, canvasLayer, vsiUrl, defaultMapLayerOptions);
+
 
 		// VIIRS is just a single tile
 		viirsTile = new WebglViirsTile(glb, viirsUrl);
@@ -1782,6 +1812,18 @@
 
 			hansenMapLayer.draw(hansenMapLayerView);
 		  }
+
+		  if (showVsiLayer) {
+			// Construct view for hansenMapLayer
+			var vsiLayerView = timelapse.getView();
+			var timelapse2map = vsiLayer.getWidth() / landsatBaseMapLayer.getWidth();
+			vsiLayerView.x *= timelapse2map;
+			vsiLayerView.y *= timelapse2map;
+			vsiLayerView.scale /= timelapse2map;
+
+			vsiLayer.draw(vsiLayerView);
+		  }
+
 
 		  // Draw hansenMapLayer2 (Forest Loss/Gain)
 		  if (showHansenLayer2) {
