@@ -325,12 +325,12 @@ updatePhase1 = function(displayFrame) {
 
   var r2 = WebglVideoTile.r2;
   // Output stats every 5 seconds
-  if (!WebglVideoTile.lastStatsTime) {
+  /*if (!WebglVideoTile.lastStatsTime) {
     WebglVideoTile.lastStatsTime = performance.now();
   } else if (performance.now() - WebglVideoTile.lastStatsTime > 5000) {
-    //console.log(WebglVideoTile.stats());
+    console.log(WebglVideoTile.stats());
     WebglVideoTile.lastStatsTime = performance.now();
-  }
+  }*/
 
   // Synchronize video playback
 
@@ -565,8 +565,8 @@ draw = function(transform) {
       gl.activeTexture(gl.TEXTURE1);
 
       // TODO -- why is there a texture still in pipeline[1] that isn't usable when the timelapse is paused?
-      if (this._pipeline[1].texture && 
-          this._pipeline[1].frameno < timelapse.getNumFrames() && 
+      if (this._pipeline[1].texture &&
+          this._pipeline[1].frameno < timelapse.getNumFrames() &&
           this._pipeline[1].frameno > this._pipeline[0].frameno &&
           !timelapse.isPaused()) {
         gl.bindTexture(gl.TEXTURE_2D, this._pipeline[1].texture);
@@ -594,7 +594,7 @@ draw = function(transform) {
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, this._pipeline[0].texture);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-      gl.bindTexture(gl.TEXTURE_2D, null);      
+      gl.bindTexture(gl.TEXTURE_2D, null);
       gl.disable(gl.BLEND);
     }
   }
@@ -684,11 +684,11 @@ WebglVideoTile.textureFragmentFaderShader =
   'varying vec2 vTextureCoord;\n' +
   'uniform sampler2D uSampler;\n' +
   'uniform sampler2D uSampler2;\n' +
-  'uniform float uAlpha;\n' + 
+  'uniform float uAlpha;\n' +
   'void main(void) {\n' +
-  '  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t)); \n' + 
-  '  vec4 textureColor2 = texture2D(uSampler2, vec2(vTextureCoord.s, vTextureCoord.t));\n' + 
-  '  gl_FragColor = textureColor * (1.0 - uAlpha) + textureColor2 * uAlpha;\n' + 
+  '  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t)); \n' +
+  '  vec4 textureColor2 = texture2D(uSampler2, vec2(vTextureCoord.s, vTextureCoord.t));\n' +
+  '  gl_FragColor = textureColor * (1.0 - uAlpha) + textureColor2 * uAlpha;\n' +
   '}\n';
 
 WebglVideoTile.textureGreenScreenFragmentShader =
@@ -709,11 +709,11 @@ WebglVideoTile.textureGreenScreenFragmentFaderShader =
   'varying vec2 vTextureCoord;\n' +
   'uniform sampler2D uSampler;\n' +
   'uniform sampler2D uSampler2;\n' +
-  'uniform float uAlpha;\n' + 
+  'uniform float uAlpha;\n' +
   'void main(void) {\n' +
-  '  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t)); \n' + 
-  '  vec4 textureColor2 = texture2D(uSampler2, vec2(vTextureCoord.s, vTextureCoord.t));\n' + 
-  '  vec4 fragColor = textureColor * (1.0 - uAlpha) + textureColor2 * uAlpha;\n' + 
+  '  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t)); \n' +
+  '  vec4 textureColor2 = texture2D(uSampler2, vec2(vTextureCoord.s, vTextureCoord.t));\n' +
+  '  vec4 fragColor = textureColor * (1.0 - uAlpha) + textureColor2 * uAlpha;\n' +
   '  if (fragColor.r < .5) { \n' +
   '    gl_FragColor = vec4(fragColor.rgb, fragColor.r);\n' +
   '  } else { \n' +
