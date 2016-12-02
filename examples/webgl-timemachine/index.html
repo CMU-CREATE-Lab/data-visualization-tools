@@ -81,6 +81,7 @@
     var showAnnualRefugees = !!EARTH_TIMELAPSE_CONFIG.showAnnualRefugees;
     var showGlobalWindPower = !!EARTH_TIMELAPSE_CONFIG.showGlobalWindPower;
     var showVsi = !!EARTH_TIMELAPSE_CONFIG.showVsi;
+    var showHealthImpact = !!EARTH_TIMELAPSE_CONFIG.showHealthImpact;
 
     var showShareButton = (window.location.hash.indexOf("showShareButton") >= 0);
     var isHyperwall = showShareButton ? false : !!EARTH_TIMELAPSE_CONFIG.isHyperwall;
@@ -125,6 +126,7 @@
     var globalWindPowerLayer;
     var annualRefugeesLayer;
     var vsiLayer;
+    var healthImpactLayer;
 
     // ## 2 ##
     //// Layer tile paths
@@ -165,6 +167,7 @@
     var monthlyRefugeesUrl = rootTilePath + '/monthly-mediterranean-refugees/monthly-mediterranean-refugees-20140101-20160701.bin';
     var annualRefugeesUrl = rootTilePath + "/annual-refugees/subsampled";
     var vsiUrl = rootTilePath + "/vsi/tiles/{default}/{z}/{x}/{y}.png";
+    var healthImpactUrl = rootTilePath + "/health-impact";
 
 
     function init() {
@@ -753,6 +756,153 @@
       }
     }).prop('checked', showVsiLayer);
 
+    $("#show-health-impact-rcp2p6").on("click", function() {
+      if ($(this).prop('checked')) {
+        if (!showHealthImpactLayer) {
+          showHealthImpactLayer = true;
+        setActiveLayersWithTimeline(1);
+        timelapse.setPlaybackRate(.05);
+        timelineType = "customUI"; // TODO: Setting this to customUI which is desired
+                                  //       causes the entire time slider to disappear 
+                                  //       if/when toggled.
+        requestNewTimeline("health-impact-times.json", timelineType);
+        timelapse.setDoDwell(false);
+        $("#health-impact-legend").show();
+        previousVisibleBaseMapLayer = visibleBaseMapLayer;
+        visibleBaseMapLayer = "dark";
+      }
+      $("#health-impact-rcp2p6-legend").show();
+      showHealthImpactRcp[0] = true;
+      } else {
+        if (showHealthImpactRcp[1] || showHealthImpactRcp[2] || showHealthImpactRcp[3]) {
+        $("#health-impact-rcp2p6-legend").hide();
+      } else {
+        showHealthImpactLayer = false;
+        setActiveLayersWithTimeline(-1);
+        timelapse.setPlaybackRate(defaultPlaybackSpeed);
+        timelineType = "customUI";
+        requestNewTimeline("landsat-times.json", timelineType);
+        timelapse.setDoDwell(true);
+        timelapse.setMaxScale(landsatMaxScale);
+        $("#health-impact-legend").hide();
+        visibleBaseMapLayer = previousVisibleBaseMapLayer;
+
+      }
+      $("#health-impact-rcp2p6-legend").hide();
+      showHealthImpactRcp[0] = false;
+      }
+    }).prop('checked', showHealthImpactLayer);
+
+    $("#show-health-impact-rcp4p5").on("click", function() {
+      if ($(this).prop('checked')) {
+        if (!showHealthImpactLayer) {
+          showHealthImpactLayer = true;
+        setActiveLayersWithTimeline(1);
+        timelapse.setPlaybackRate(.05);
+        timelineType = "customUI"; // TODO: Setting this to customUI which is desired
+                                  //       causes the entire time slider to disappear 
+                                  //       if/when toggled.
+        requestNewTimeline("health-impact-times.json", timelineType);
+        timelapse.setDoDwell(false);
+        $("#health-impact-legend").show();
+        previousVisibleBaseMapLayer = visibleBaseMapLayer;
+        visibleBaseMapLayer = "dark";
+      }
+      $("#health-impact-rcp4p5-legend").show();
+      showHealthImpactRcp[1] = true;
+      } else {
+        if (showHealthImpactRcp[0] || showHealthImpactRcp[2] || showHealthImpactRcp[3]) {
+        $("#health-impact-rcp4p5-legend").hide();
+      } else {
+        showHealthImpactLayer = false;
+        setActiveLayersWithTimeline(-1);
+        timelapse.setPlaybackRate(defaultPlaybackSpeed);
+        timelineType = "customUI";
+        requestNewTimeline("landsat-times.json", timelineType);
+        timelapse.setDoDwell(true);
+        timelapse.setMaxScale(landsatMaxScale);
+        $("#health-impact-legend").hide();
+        visibleBaseMapLayer = previousVisibleBaseMapLayer;
+
+      }
+      $("#health-impact-rcp4p5-legend").hide();
+      showHealthImpactRcp[1] = false;
+      }
+    }).prop('checked', showHealthImpactLayer);
+
+    $("#show-health-impact-rcp6p0").on("click", function() {
+      if ($(this).prop('checked')) {
+        if (!showHealthImpactLayer) {
+          showHealthImpactLayer = true;
+        setActiveLayersWithTimeline(1);
+        timelapse.setPlaybackRate(.05);
+        timelineType = "customUI"; // TODO: Setting this to customUI which is desired
+                                  //       causes the entire time slider to disappear 
+                                  //       if/when toggled.
+        requestNewTimeline("health-impact-times.json", timelineType);
+        timelapse.setDoDwell(false);
+        $("#health-impact-legend").show();
+        previousVisibleBaseMapLayer = visibleBaseMapLayer;
+        visibleBaseMapLayer = "dark";
+      }
+      $("#health-impact-rcp6p0-legend").show();
+      showHealthImpactRcp[2] = true;
+      } else {
+        if (showHealthImpactRcp[0] || showHealthImpactRcp[1] || showHealthImpactRcp[3]) {
+        $("#health-impact-rcp6p0-legend").hide();
+      } else {
+        showHealthImpactLayer = false;
+        setActiveLayersWithTimeline(-1);
+        timelapse.setPlaybackRate(defaultPlaybackSpeed);
+        timelineType = "customUI";
+        requestNewTimeline("landsat-times.json", timelineType);
+        timelapse.setDoDwell(true);
+        timelapse.setMaxScale(landsatMaxScale);
+        $("#health-impact-legend").hide();
+        visibleBaseMapLayer = previousVisibleBaseMapLayer;
+
+      }
+      $("#health-impact-rcp6p0-legend").hide();
+      showHealthImpactRcp[2] = false;
+      }
+    }).prop('checked', showHealthImpactLayer);
+
+    $("#show-health-impact-rcp8p5").on("click", function() {
+      if ($(this).prop('checked')) {
+        if (!showHealthImpactLayer) {
+          showHealthImpactLayer = true;
+        setActiveLayersWithTimeline(1);
+        timelapse.setPlaybackRate(.05);
+        timelineType = "customUI"; // TODO: Setting this to customUI which is desired
+                                  //       causes the entire time slider to disappear 
+                                  //       if/when toggled.
+        requestNewTimeline("health-impact-times.json", timelineType);
+        //timelapse.setDoDwell(false);
+        $("#health-impact-legend").show();
+        previousVisibleBaseMapLayer = visibleBaseMapLayer;
+        visibleBaseMapLayer = "dark";
+      }
+      $("#health-impact-rcp8p5-legend").show();
+      showHealthImpactRcp[3] = true;
+      } else {
+        if (showHealthImpactRcp[0] || showHealthImpactRcp[1] || showHealthImpactRcp[2]) {
+        $("#health-impact-rcp8p5-legend").hide();
+      } else {
+        showHealthImpactLayer = false;
+        setActiveLayersWithTimeline(-1);
+        timelapse.setPlaybackRate(defaultPlaybackSpeed);
+        timelineType = "customUI";
+        requestNewTimeline("landsat-times.json", timelineType);
+        timelapse.setDoDwell(true);
+        timelapse.setMaxScale(landsatMaxScale);
+        $("#health-impact-legend").hide();
+        visibleBaseMapLayer = previousVisibleBaseMapLayer;
+
+      }
+      $("#health-impact-rcp8p5-legend").hide();
+      showHealthImpactRcp[3] = false;
+      }
+    }).prop('checked', showHealthImpactLayer);
 
     // Set the starting base layer
     $("input:radio[name=base-layers]").on("click", function() {
@@ -978,6 +1128,8 @@
     var showMonthlyRefugeesLayer = false;
     var showAnnualRefugeesLayer = false;
     var showVsiLayer = false;
+    var showHealthImpactLayer = false;
+    var showHealthImpactRcp = [false, false, false, false]; // 2.6, 4.5, 6.0, 8.5
 
 
     // Default Time Machine visibility
@@ -1036,6 +1188,10 @@
     var show_monthly_refugees = '<td class="monthly-refugees-select"><label for="show-monthly-refugees" name="mmr"><input type="checkbox" id="show-monthly-refugees" />Monthly Mediterranean Refugees<span class="credit"> (UNHCR)</span></label></td>';
     var show_annual_refugees = '<td class="annual-refugees-select"><label for="show-annual-refugees" name="ar"><input type="checkbox" id="show-annual-refugees" />Annual Refugees<span class="credit"> (UNHCR)</span></label></td>';
     var show_vsi = '<td class="vsi-select"><label for="show-vsi" name="lan"><input type="checkbox" id="show-vsi" />Vegetation Sensitivity Index<span class="credit"> (Oxford Martin)</span></label></td>';
+    var show_health_impact_rcp2p6 = '<td class="health-impact-rcp2p6-select"><label for="show-health-impact-rcp2p6" name="hi-rcp2p6"><input type="checkbox" id="show-health-impact-rcp2p6" />Nutritional Deficiencies RCP2.6<span class="credit"> (Oxford Martin)</span></label></td>';
+    var show_health_impact_rcp4p5 = '<td class="health-impact-rcp4p5-select"><label for="show-health-impact-rcp4p5" name="hi-rcp4p5"><input type="checkbox" id="show-health-impact-rcp4p5" />Nutritional Deficiencies RCP4.5<span class="credit"> (Oxford Martin)</span></label></td>';
+    var show_health_impact_rcp6p0 = '<td class="health-impact-rcp6p0-select"><label for="show-health-impact-rcp6p0" name="hi-rcp6p0"><input type="checkbox" id="show-health-impact-rcp6p0" />Nutritional Deficiencies RCP6.0<span class="credit"> (Oxford Martin)</span></label></td>';
+    var show_health_impact_rcp8p5 = '<td class="health-impact-rcp8p5-select"><label for="show-health-impact-rcp8p5" name="hi-rcp8p5"><input type="checkbox" id="show-health-impact-rcp8p5" />Nutritional Deficiencies RCP8.5<span class="credit"> (Oxford Martin)</span></label></td>';
 
 
 
@@ -1155,6 +1311,20 @@
         layer_html += show_vsi;
         layer_html += '   </tr>';
       }
+      if (showHealthImpact){
+        layer_html += '   <tr>';
+        layer_html += show_health_impact_rcp2p6;
+        layer_html += '   </tr>';
+        layer_html += '   <tr>';
+        layer_html += show_health_impact_rcp4p5;
+        layer_html += '   </tr>';
+        layer_html += '   <tr>';
+        layer_html += show_health_impact_rcp6p0;
+        layer_html += '   </tr>';
+        layer_html += '   <tr>';
+        layer_html += show_health_impact_rcp8p5;
+        layer_html += '   </tr>';
+      }     
       layer_html += '   <tr>';
       layer_html += show_himawari;
       layer_html += '   </tr>';
@@ -1217,6 +1387,8 @@
     legend_html += '<tr id="monthly-refugees-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(left, #ff0000 0%, #ffffff 100%);background: -webkit-linear-gradient(left, #ff0000 0%,#ffffff 100%); background: linear-gradient(to right, #ff0000 0%,#ffffff 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Mediterranean Refugees Jan 2014 - Jun 2016</div></td></tr>';
     legend_html += '<tr id="annual-refugees-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(left, #ff0000 0%, #ffffff 100%);background: -webkit-linear-gradient(left, #ff0000 0%,#ffffff 100%); background: linear-gradient(to right, #ff0000 0%,#ffffff 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Annual Refugees 2000 - 2013</div></td></tr>';
     legend_html += '<tr id="vsi-legend" style="display: none"><td><div style="font-size: 17px">Vegetation Sensitivity Index 2000-2013</div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">0</div><div style="margin-top: 4px; float: left; background-image: -webkit-linear-gradient(left, rgb(0, 139, 0), rgb(92, 182, 69) 17%, rgb(163, 221, 99) 33%, rgb(255, 255, 0) 50%, rgb(255, 205, 0) 67%, rgb(255, 144, 0) 83%, rgb(255, 4, 0) 100%);background-image: linear-gradient(left, rgb(0, 139, 0), rgb(92, 182, 69) 17%, rgb(163, 221, 99) 33%, rgb(255, 255, 0) 50%, rgb(255, 205, 0) 67%, rgb(255, 144, 0) 83%, rgb(255, 4, 0) 100%); width: 45px; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">100</div></td></tr>';
+    legend_html += '<tr id="health-impact-legend" style="display: none"><td><div style="font-size: 17px">Nutritional Deficiencies</div><svg width="242" height="180"><rect width="240" height="160" fill="white" opacity="0"></rect> <g transform="translate(2,10)"> <circle class="gain" r="5" cx="5" cy="10" style="fill: #8b0000; stroke: #fff;"></circle> <circle class="loss" r="5" cx="5" cy="30" style="fill: #00008b; stroke: #fff;"></circle> <text x="15" y="13">Mean deaths per capita</text> <text x="15" y="33">Mean lives per capita</text> <circle r="10.0" cx="160.0" cy="160.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="152.0" dy="13" style="font-size: 10px; fill: #666">5K</text><circle r="30.0" cx="160.0" cy="140.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="130.0" dy="13" style="font-size: 10px; fill: #666">15K</text><circle r="60.0" cx="160.0" cy="110.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="80.0" dy="13" style="font-size: 10px; fill: #666">30K</text></g> </svg></td></tr>';
+
 
     legend_html += '</table>';
     legend_html += '</div>';
@@ -1400,6 +1572,16 @@
     };
     annualRefugeesLayer  = new WebglVectorLayer2(glb, canvasLayer, annualRefugeesUrl, annualRefugeesLayerOptions);
 
+    var healthImpactLayerOptions = {
+      tileWidth: 256,
+      tileHeight: 256,
+      nLevels: 0,
+      setDataFunction: WebGLVectorTile2.prototype._setHealthImpactData,
+      drawFunction: WebGLVectorTile2.prototype._drawHealthImpact,
+      fragmentShader: WebGLVectorTile2.healthImpactFragmentShader,
+      vertexShader: WebGLVectorTile2.healthImpactVertexShader
+    };
+    healthImpactLayer  = new WebglVectorLayer2(glb, canvasLayer, healthImpactUrl, healthImpactLayerOptions);
 
 
     // Layer Toggle UI
@@ -2052,6 +2234,41 @@
       annualRefugeesLayer.draw(annualRefugeesLayerView, options);
       }
 
+      if (showHealthImpactLayer){
+      var healthImpactLayerView = timelapse.getView();
+        var options = {};
+      var timelapse2map = healthImpactLayer.getWidth() / landsatBaseMapLayer.getWidth();
+      healthImpactLayerView.x *= timelapse2map;
+      healthImpactLayerView.y *= timelapse2map;
+      healthImpactLayerView.scale /= timelapse2map;
+      options.zoom = timelapse.getCurrentZoom();
+
+      var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
+      var times = timelapse.getCaptureTimes();
+      var endDate = new Date("2055");
+      var startDate = new Date("2015");
+      var range = endDate.getTime() - startDate.getTime();
+      var currentDate = new Date(ratio*range + startDate.getTime());
+            var year = currentDate.getUTCFullYear();
+
+            for (var i = 0; i < times.length - 1; i++) {
+              if (year == times[i] || year < times[i+1] && year > times[i]) {
+                year = parseInt(times[i]);
+              }
+            }
+            var currentYear = new Date(year, 0, 1);
+            var nextYear = new Date(year + 5, 0, 1);
+            if (year >= 2050) {
+              nextYear = currentYear;
+            }
+            var delta = (currentDate.getTime() - currentYear)/(nextYear - currentYear);
+
+            options.year = year;
+            options.delta = delta;
+            options.showRcp = showHealthImpactRcp;
+
+      healthImpactLayer.draw(healthImpactLayerView, options);
+      }
       // ## 7 ##
       //// Layers to draw on top go here
       //

@@ -21,5 +21,6 @@ var EARTH_TIMELAPSE_CONFIG = {
   "rootTilePath" : "http://tiles.cmucreatelab.org/earthtimelapse/data/",
   "waypointSliderContentPath" : "",
   "showAnnualRefugees": false,
-  "showVsi": false
+  "showVsi": false,
+  "showHealthImpact": false
 };

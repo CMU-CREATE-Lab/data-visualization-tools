@@ -28,6 +28,8 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
   this._fragmentShader = opt_options.fragmentShader || WebGLVectorTile2.vectorTileFragmentShader;
   this._vertexShader = opt_options.vertexShader || WebGLVectorTile2.vectorTileVertexShader;
 
+  this.gl.getExtension("OES_standard_derivatives");   
+
   this.program = glb.programFromSources(this._vertexShader, this._fragmentShader);
   this._load();
 
@@ -144,6 +146,38 @@ WebGLVectorTile2.prototype._setAnnualRefugeesData = function(arrayBuffer) {
   }
 }
 
+WebGLVectorTile2.prototype._setHealthImpactData = function(arrayBuffer) {
+  var gl = this.gl;
+  this._pointCount = arrayBuffer.length / 6;
+  if (this._pointCount > 0) {
+    this._data = arrayBuffer;
+    this._arrayBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Centroid');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 24, 0);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Year');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 8);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Val1');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 12);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Val2');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 16);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Rcp');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 20);
+
+    this._ready = true;
+  }
+}
 
 
 WebGLVectorTile2.prototype.isReady = function() {
@@ -396,6 +430,77 @@ WebGLVectorTile2.prototype._drawAnnualRefugees = function(transform, options) {
 }
 
 
+WebGLVectorTile2.prototype._drawHealthImpact = function(transform, options) {
+  var gl = this.gl;
+  if (this._ready) {
+    gl.useProgram(this.program);
+    gl.enable(gl.BLEND);
+    gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+
+    var zoom = options.zoom || (2.0 * window.devicePixelRatio);
+    var pointSize = Math.floor( ((20-5) * (zoom - 0) / (21 - 0)) + 5 );
+    if (isNaN(pointSize)) {
+      pointSize = 1.0;
+    }
+    var sizeLoc = gl.getUniformLocation(this.program, 'uSize');
+    gl.uniform1f(sizeLoc, pointSize);
+
+    var tileTransform = new Float32Array(transform);
+    scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
+    translateMatrix(tileTransform, (this._bounds.max.x - this._bounds.min.x)/256., (this._bounds.max.y - this._bounds.min.y)/256.);
+    scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+    var matrixLoc = gl.getUniformLocation(this.program, 'u_MapMatrix');
+    gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+
+    var year = options.year;
+    var delta = options.delta;
+    var showRcp = options.showRcp;
+
+    var deltaLoc = gl.getUniformLocation(this.program, 'u_Delta');
+    gl.uniform1f(deltaLoc, delta);
+
+    var epochLoc = gl.getUniformLocation(this.program, 'u_Year');
+    gl.uniform1f(epochLoc, year);
+
+    var rcpLoc = gl.getUniformLocation(this.program, 'u_ShowRcp2p6');
+    gl.uniform1f(rcpLoc, showRcp[0]);
+
+    var rcpLoc = gl.getUniformLocation(this.program, 'u_ShowRcp4p5');
+    gl.uniform1f(rcpLoc, showRcp[1]);
+
+    var rcpLoc = gl.getUniformLocation(this.program, 'u_ShowRcp6p0');
+    gl.uniform1f(rcpLoc, showRcp[2]);
+
+    var rcpLoc = gl.getUniformLocation(this.program, 'u_ShowRcp8p5');
+    gl.uniform1f(rcpLoc, showRcp[3]);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Centroid');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 24, 0);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Year');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 8);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Val1');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 12);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Val2');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 16);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Rcp');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 20);
+
+    gl.drawArrays(gl.POINTS, 0, this._pointCount);
+
+    gl.disable(gl.BLEND);
+  }
+}
+
 // Update and draw tiles
 WebGLVectorTile2.update = function(tiles, transform, options) {
   for (var i = 0; i < tiles.length; i++) {
@@ -539,3 +644,85 @@ WebGLVectorTile2.annualRefugeesVertexShader =
 '        gl_PointSize = uSize;\n' +
 '        gl_PointSize = 2.0;\n' +
 '      }\n';
+
+WebGLVectorTile2.healthImpactVertexShader = 
+'      attribute vec4 a_Centroid;\n' +
+'      attribute float a_Year;\n' +
+'      attribute float a_Val1;\n' +
+'      attribute float a_Val2;\n' +
+'      attribute float a_Rcp;\n' +
+'      uniform bool u_ShowRcp2p6;\n' +
+'      uniform bool u_ShowRcp4p5;\n' +
+'      uniform bool u_ShowRcp6p0;\n' +
+'      uniform bool u_ShowRcp8p5;\n' +             
+'      uniform float u_Delta;\n' +
+'      uniform float u_Size;\n' +
+'      uniform float u_Year;\n' +
+'      uniform mat4 u_MapMatrix;\n' +
+'      varying float v_Val;\n' +
+'      varying float v_Rcp;\n' +
+'      void main() {\n' +
+'        vec4 position;\n' +
+'        if (a_Year != u_Year) {\n' +
+'          position = vec4(-1,-1,-1,-1);\n' +
+'        } else {\n' +
+'          if (u_ShowRcp2p6 && a_Rcp == 0.0) {\n' +
+'            position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);\n' +
+'          } else if (u_ShowRcp4p5 && a_Rcp == 1.0) {\n' +
+'            position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);\n' +
+'          } else if (u_ShowRcp6p0 && a_Rcp == 2.0) {\n' +
+'            position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);\n' +
+'          }  else if (u_ShowRcp8p5 && a_Rcp == 3.0) {\n' +
+'            position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);\n' +
+'          }\n' +
+'          else {\n' +
+'            position = vec4(-1,-1,-1,-1);\n' +
+'          }\n' +
+'        }\n' +
+'        gl_Position = position;\n' +
+'        float size = (a_Val2 - a_Val1) * u_Delta + a_Val1;\n' +
+'        v_Val = size;\n' +
+'        v_Rcp = a_Rcp;\n' +
+'        gl_PointSize = u_Size * abs(size);\n' +
+'        gl_PointSize = 2.0 * abs(size);\n' +
+'      }\n'
+
+WebGLVectorTile2.healthImpactFragmentShader = 
+'      #extension GL_OES_standard_derivatives : enable\n' +
+'      precision mediump float;\n' +
+'      varying float v_Val;\n' +
+'      varying float v_Rcp;\n' +
+'      void main() {\n' +
+'          float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
+'          dist = 1. - (dist * 2.);\n' +
+'          dist = max(0., dist);\n' +
+'          float delta = fwidth(dist);\n' +
+'          float alpha = smoothstep(0.45-delta, 0.45, dist);\n' +
+'          vec4 circleColor = vec4(1.0,0.0,0.0,1.0);\n' +
+'          vec4 outlineColor = vec4(1.0,1.0,1.0,1.0);\n' +
+'          float outerEdgeCenter = 0.5 - .01;\n' +
+'          float stroke = smoothstep(outerEdgeCenter - delta, outerEdgeCenter + delta, dist);\n' +
+'          if (v_Val > 0.0) {\n' +
+'            if (v_Rcp == 0.0) {\n' +
+'              circleColor = vec4(0.0, 0.0, 1.0, .65) * alpha;\n' +
+'            } else if (v_Rcp == 1.0){\n' +
+'              circleColor = vec4(0.0078, 0.0, 0.8392, .65) * alpha;\n' +
+'            } else if (v_Rcp == 2.0) {\n' +
+'              circleColor = vec4(0.0078, 0.0, 0.6941, .65) * alpha;\n' +
+'            } else {\n' +
+'              circleColor = vec4(0., 0., .5451, .65) * alpha;\n' +
+'            }\n' +
+'          } else {\n' +
+'            if (v_Rcp == 0.0) {\n' +
+'              circleColor = vec4(1.0, 0.0, 0.0, .65) * alpha;\n' +
+'            } else if (v_Rcp == 1.0){\n' +
+'              circleColor = vec4(0.8392, 0.0, 0.0078, .65) * alpha;\n' +
+'            } else if (v_Rcp == 2.0) {\n' +
+'              circleColor = vec4(0.6941, 0.0, 0.0078, .65) * alpha;\n' +
+'            } else {\n' +
+'              circleColor = vec4(.5451, 0., 0., .65) * alpha;\n' +
+'            }\n' +
+'          }\n' +
+'          gl_FragColor = vec4( mix(outlineColor.rgb, circleColor.rgb, stroke), alpha*.75 );\n' +
+'      }'
+
