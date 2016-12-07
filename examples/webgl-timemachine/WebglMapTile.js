@@ -129,11 +129,12 @@ WebglMapTile.prototype.draw = function(transform) {
   if (this._ready) {
     gl.useProgram(this._textureProgram);
     gl.enable(gl.BLEND);
-    gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.uniformMatrix4fv(this._textureProgram.uTransform, false, tileTransform);
     gl.bindBuffer(gl.ARRAY_BUFFER, this._triangles);
     gl.vertexAttribPointer(this._textureProgram.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
     gl.activeTexture(gl.TEXTURE0);
+    gl.enableVertexAttribArray(this._textureProgram.aTextureCoord);
     gl.bindTexture(gl.TEXTURE_2D, this._texture);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     gl.bindTexture(gl.TEXTURE_2D, null);
