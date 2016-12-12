@@ -80,6 +80,7 @@
     var showForestAlerts = !!EARTH_TIMELAPSE_CONFIG.showForestAlerts;
     var showMonthlyRefugees = !!EARTH_TIMELAPSE_CONFIG.showMonthlyRefugees;
     var showAnnualRefugees = !!EARTH_TIMELAPSE_CONFIG.showAnnualRefugees;
+    var subsampleAnnualRefugees = !!EARTH_TIMELAPSE_CONFIG.subsampleAnnualRefugees;
     var showGlobalWindPower = !!EARTH_TIMELAPSE_CONFIG.showGlobalWindPower;
     var showVsi = !!EARTH_TIMELAPSE_CONFIG.showVsi;
     var showHealthImpact = !!EARTH_TIMELAPSE_CONFIG.showHealthImpact;
@@ -171,7 +172,11 @@
     var drillingUrl = rootTilePath + "/energy/drilling";
     var animatedHansenUrls = [gfcTransUrl, gfcLossGainUrl];
     var monthlyRefugeesUrl = rootTilePath + '/monthly-mediterranean-refugees/monthly-mediterranean-refugees-20140101-20160701.bin';
-    var annualRefugeesUrl = rootTilePath + "/annual-refugees/subsampled";
+
+    var annualRefugeesUrl = rootTilePath + "/annual-refugees";
+    if (subsampleAnnualRefugees) {
+      annualRefugeesUrl = rootTilePath + "/annual-refugees/subsampled";
+    }
     var vsiUrl = rootTilePath + "/vsi/tiles/{default}/{z}/{x}/{y}.png";
     var healthImpactUrl = rootTilePath + "/health-impact";
     var zikaUrl = rootTilePath + "/pandemics/zika";
@@ -727,29 +732,18 @@
 
     $("#show-annual-refugees").on("click", function() {
       if ($(this).prop('checked')) {
-      showAnnualRefugeesLayer = true;
-      setActiveLayersWithTimeline(1);
-      timelapse.setPlaybackRate(.05);
-      timelineType = "defaultUI"; // TODO: Setting this to customUI which is desired
-                                  //       causes the entire time slider to disappear
-                                  //       if/when toggled.
-      requestNewTimeline("annual-refugees-times.json", timelineType);
-      timelapse.setDoDwell(false);
-      $("#annual-refugees-legend").show();
-      previousVisibleBaseMapLayer = visibleBaseMapLayer;
-      visibleBaseMapLayer = "dark";
-
+        showAnnualRefugeesLayer = true;
+        setActiveLayersWithTimeline(1);
+        timelapse.setPlaybackRate(.045);
+        requestNewTimeline("annual-refugees-times.json", timelineType);
+        $("#annual-refugees-legend").show();
       } else {
-      showAnnualRefugeesLayer = false;
-      setActiveLayersWithTimeline(-1);
-      timelapse.setPlaybackRate(defaultPlaybackSpeed);
-      timelineType = "customUI";
-      requestNewTimeline("landsat-times.json", timelineType);
-      timelapse.setDoDwell(true);
-      timelapse.setMaxScale(landsatMaxScale);
-      $("#annual-refugees-legend").hide();
-      visibleBaseMapLayer = previousVisibleBaseMapLayer;
-
+        showAnnualRefugeesLayer = false;
+        setActiveLayersWithTimeline(-1);
+        timelapse.setPlaybackRate(defaultPlaybackSpeed);
+        requestNewTimeline("landsat-times.json", timelineType);
+        timelapse.setMaxScale(landsatMaxScale);
+        $("#annual-refugees-legend").hide();
       }
     }).prop('checked', showAnnualRefugeesLayer);
 
@@ -2262,10 +2256,30 @@
         options.zoom = timelapse.getCurrentZoom();
         var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
         var times = timelapse.getCaptureTimes();
-        var range = new Date(times[times.length - 1]).getTime() - new Date(times[0]).getTime();
-        var currentDate = ratio*range + new Date(times[0]).getTime();
+        var startDate = new Date(parseInt(times[0]), 0, 1);
+        var endDate = new Date(parseInt(times[times.length - 1]) + 1, 0, 1);
+        var range = endDate.getTime() - startDate.getTime();
+        var currentDate = new Date(ratio*range + startDate.getTime());
         options.currentTime = currentDate;
         options.span = 240*24*60*60*1000;
+        options.subsampleAnnualRefugees = subsampleAnnualRefugees;
+        options.pointIdx = {
+          2001: {'count': 798896, 'start': 0},
+          2002: {'count': 1377803, 'start': 798896},
+          2003: {'count': 402155, 'start': 2176699},
+          2004: {'count': 640155, 'start': 2578854},
+          2005: {'count': 375991, 'start': 3219009},
+          2006: {'count': 2073718, 'start': 3595000},
+          2007: {'count': 2766365, 'start': 5668718},
+          2008: {'count': 431865, 'start': 8435083},
+          2009: {'count': 900246, 'start': 8866948},
+          2010: {'count': 492341, 'start': 9767194},
+          2011: {'count': 742046, 'start': 10259535},
+          2012: {'count': 1356451, 'start': 11001581},
+          2013: {'count': 2260887, 'start': 12358032},
+          2014: {'count': 3107155, 'start': 14618919},
+          2015: {'count': 2331362, 'start': 17726074}
+        };
         annualRefugeesLayer.draw(annualRefugeesLayerView, options);
       }
 

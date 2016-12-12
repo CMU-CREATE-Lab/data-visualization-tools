@@ -30,7 +30,14 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
 
   this.gl.getExtension("OES_standard_derivatives");   
 
-  this.program = glb.programFromSources(this._vertexShader, this._fragmentShader);
+  this.program = glb.programFromSources(this._vertexShader, this._fragmentShader);  
+
+  this._image = new Image();
+  this._image.src = "annual-refugees-color-map.png";
+  this._image.onload = function() {
+    console.log("loaded");
+  }
+
   this._load();
 
 }
@@ -120,6 +127,7 @@ WebGLVectorTile2.prototype._setLodesData = function(arrayBuffer) {
 WebGLVectorTile2.prototype._setAnnualRefugeesData = function(arrayBuffer) {
   var gl = this.gl;
   this._pointCount = arrayBuffer.length / 7;
+
   if (this._pointCount > 0) {
     this._data = arrayBuffer;
     this._arrayBuffer = gl.createBuffer();
@@ -141,6 +149,20 @@ WebGLVectorTile2.prototype._setAnnualRefugeesData = function(arrayBuffer) {
     var attributeLoc = gl.getAttribLocation(this.program, 'aEpoch');
     gl.enableVertexAttribArray(attributeLoc);
     gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 28, 24);
+
+    this._texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, this._texture);
+
+    // Set the parameters so we can render any size image.
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+    // Upload the image into the texture.
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._image);
+
+    gl.bindTexture(gl.TEXTURE_2D, null);
 
     this._ready = true;
   }
@@ -377,13 +399,17 @@ WebGLVectorTile2.prototype._drawLodes = function(transform, options) {
 
 WebGLVectorTile2.prototype._drawAnnualRefugees = function(transform, options) {
   var gl = this.gl;
+
   if (this._ready) {
     gl.useProgram(this.program);
     gl.enable( gl.BLEND );
-    gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
+    //gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
+    gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
+    var subsampleAnnualRefugees = options.subsampleAnnualRefugees;
+    var pointIdx = options.pointIdx || {};
     var zoom = options.zoom || (2.0 * window.devicePixelRatio);
     var pointSize = Math.floor( ((20-5) * (zoom - 0) / (21 - 0)) + 5 );
     if (isNaN(pointSize)) {
@@ -423,8 +449,27 @@ WebGLVectorTile2.prototype._drawAnnualRefugees = function(transform, options) {
     gl.enableVertexAttribArray(attributeLoc);
     gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 28, 24);
 
-    gl.drawArrays(gl.POINTS, 0, this._pointCount);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, this._texture); 
+    gl.uniform1i(gl.getUniformLocation(this.program, "u_Image"), 0);
 
+    if (subsampleAnnualRefugees) {
+      gl.drawArrays(gl.POINTS, 0, this._pointCount);
+    } else {
+      var year = currentTime.getUTCFullYear();
+      year = Math.min(year,2015);
+      var count;
+      if (year < 2001) {
+        year = 2001;
+      }
+      if (year != 2015) {
+        count = pointIdx[year]['count'] + pointIdx[year+1]['count'] * 0.75;
+      } else {
+        count = pointIdx[year]['count'];
+      }
+      gl.drawArrays(gl.POINTS, pointIdx[year]['start'], count);
+    }
+    gl.bindTexture(gl.TEXTURE_2D, null);
     gl.disable(gl.BLEND);
   }
 }
@@ -610,11 +655,15 @@ WebGLVectorTile2.lodesFragmentShader =
 
 WebGLVectorTile2.annualRefugeesFragmentShader = 
 '      precision mediump float;\n' +
+'      uniform sampler2D u_Image;\n' + 
+'      varying float v_Delta;\n' + 
 '      void main() {\n' +
 '          float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
 '          dist = 1. - (dist * 2.);\n' +
 '          dist = max(0., dist);\n' +
 '          gl_FragColor = vec4(1., 0., 0., 1.) * dist;\n' +
+'          vec4 color = texture2D(u_Image, vec2(v_Delta,v_Delta));\n' +
+'          gl_FragColor = vec4(color.r, color.g, color.b, 1.) * dist;\n' + 
 '      }\n';
 
 WebGLVectorTile2.annualRefugeesVertexShader = 
@@ -626,6 +675,7 @@ WebGLVectorTile2.annualRefugeesVertexShader =
 '      uniform float uEpoch;\n' +
 '      uniform float uSpan;\n' +
 '      uniform mat4 uMapMatrix;\n' +
+'      varying float v_Delta;\n' + 
 '      vec4 bezierCurve(float t, vec4 P0, vec4 P1, vec4 P2) {\n' +
 '        return (1.0-t)*(1.0-t)*P0 + 2.0*(1.0-t)*t*P1 + t*t*P2;\n' +
 '      }\n' +
@@ -637,12 +687,13 @@ WebGLVectorTile2.annualRefugeesVertexShader =
 '          position = vec4(-1,-1,-1,-1);\n' +
 '        } else {\n' +
 '          float t = (uEpoch - aEpoch)/uSpan;\n' +
+'          v_Delta = 1.0 - (aEpoch - uEpoch)/uSpan;\n' + 
 '          vec4 pos = bezierCurve(1.0 + t, aStartPoint, aMidPoint, aEndPoint);\n' +
 '          position = uMapMatrix * vec4(pos.x, pos.y, 0, 1);\n' +
 '        }\n' +
 '        gl_Position = position;\n' +
-'        gl_PointSize = uSize;\n' +
-'        gl_PointSize = 2.0;\n' +
+'        gl_PointSize = uSize * 4.0;\n' +
+'        gl_PointSize = 4.0;\n' +
 '      }\n';
 
 WebGLVectorTile2.healthImpactVertexShader = 

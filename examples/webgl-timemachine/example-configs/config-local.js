@@ -25,6 +25,7 @@ var EARTH_TIMELAPSE_CONFIG = {
   "showHealthImpact": false,
   "showZika": false,
   "showDengue": false,
-  "showChiku": false
+  "showChiku": false,
+  "subsampleAnnualRefugees": false
 
 };
