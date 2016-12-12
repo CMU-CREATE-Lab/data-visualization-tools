@@ -38,6 +38,7 @@
   <script src="../../../../config.js" type="text/javascript"></script>
   <script src="waypoint-text.js" type="text/javascript"></script>
   <script src="landsat_ajax_includes.js" type="text/javascript"></script>
+
   <script src="timestamps_ajax_includes.js" type="text/javascript"></script>
 
   <script src="TileIdx.js"></script>
@@ -82,6 +83,9 @@
     var showGlobalWindPower = !!EARTH_TIMELAPSE_CONFIG.showGlobalWindPower;
     var showVsi = !!EARTH_TIMELAPSE_CONFIG.showVsi;
     var showHealthImpact = !!EARTH_TIMELAPSE_CONFIG.showHealthImpact;
+    var showZika = !!EARTH_TIMELAPSE_CONFIG.showZika;
+    var showDengue = !!EARTH_TIMELAPSE_CONFIG.showDengue;
+    var showChiku = !!EARTH_TIMELAPSE_CONFIG.showChiku;
 
     var showShareButton = (window.location.hash.indexOf("showShareButton") >= 0);
     var isHyperwall = showShareButton ? false : !!EARTH_TIMELAPSE_CONFIG.isHyperwall;
@@ -128,6 +132,7 @@
     var annualRefugeesLayer;
     var vsiLayer;
     var healthImpactLayer;
+    var zikaLayer, dengueLayer, chikuLayer;
 
     // ## 2 ##
     //// Layer tile paths
@@ -169,6 +174,9 @@
     var annualRefugeesUrl = rootTilePath + "/annual-refugees/subsampled";
     var vsiUrl = rootTilePath + "/vsi/tiles/{default}/{z}/{x}/{y}.png";
     var healthImpactUrl = rootTilePath + "/health-impact";
+    var zikaUrl = rootTilePath + "/pandemics/zika";
+    var dengueUrl = rootTilePath + "/pandemics/dengue";
+    var chikuUrl = rootTilePath + "/pandemics/chiku";
 
 
     function init() {
@@ -905,6 +913,42 @@
       }
     }).prop('checked', showHealthImpactLayer);
 
+    $("#show-zika").on("click", function() {
+      if ($(this).prop('checked')) {
+        showZikaLayer = true;
+        setActiveLayersWithTimeline(1);
+        $("#zika-legend").show();
+      } else {
+        showZikaLayer = false;
+        setActiveLayersWithTimeline(-1);
+        $("#zika-legend").hide();
+      }
+    }).prop('checked', showZikaLayer);
+
+    $("#show-dengue").on("click", function() {
+      if ($(this).prop('checked')) {
+        showDengueLayer = true;
+        setActiveLayersWithTimeline(1);
+        $("#dengue-legend").show();
+      } else {
+        showDengueLayer = false;
+        setActiveLayersWithTimeline(-1);
+        $("#dengue-legend").hide();
+      }
+    }).prop('checked', showDengueLayer);
+
+    $("#show-chiku").on("click", function() {
+      if ($(this).prop('checked')) {
+        showChikuLayer = true;
+        setActiveLayersWithTimeline(1);
+        $("#chiku-legend").show();
+      } else {
+        showChikuLayer = false;
+        setActiveLayersWithTimeline(-1);
+        $("#chiku-legend").hide();
+      }
+    }).prop('checked', showChikuLayer);
+
     // Set the starting base layer
     $("input:radio[name=base-layers]").on("click", function() {
       visibleBaseMapLayer = $(this).val();
@@ -1131,6 +1175,9 @@
     var showVsiLayer = false;
     var showHealthImpactLayer = false;
     var showHealthImpactRcp = [false, false, false, false]; // 2.6, 4.5, 6.0, 8.5
+    var showZikaLayer = false;
+    var showDengueLayer = false;
+    var showChikuLayer = false;
 
 
     // Default Time Machine visibility
@@ -1193,7 +1240,9 @@
     var show_health_impact_rcp4p5 = '<td class="health-impact-rcp4p5-select"><label for="show-health-impact-rcp4p5" name="hi-rcp4p5"><input type="checkbox" id="show-health-impact-rcp4p5" />Nutritional Deficiencies RCP4.5<span class="credit"> (Oxford Martin)</span></label></td>';
     var show_health_impact_rcp6p0 = '<td class="health-impact-rcp6p0-select"><label for="show-health-impact-rcp6p0" name="hi-rcp6p0"><input type="checkbox" id="show-health-impact-rcp6p0" />Nutritional Deficiencies RCP6.0<span class="credit"> (Oxford Martin)</span></label></td>';
     var show_health_impact_rcp8p5 = '<td class="health-impact-rcp8p5-select"><label for="show-health-impact-rcp8p5" name="hi-rcp8p5"><input type="checkbox" id="show-health-impact-rcp8p5" />Nutritional Deficiencies RCP8.5<span class="credit"> (Oxford Martin)</span></label></td>';
-
+    var show_zika = '<td class="zika-select"> <label for="show-zika" name="sp"><input type="checkbox" id="show-zika" />Zika<span class="credit"> (LSHTM)</span></label></td>';
+    var show_dengue = '<td class="dengue-select"> <label for="show-dengue" name="sp"><input type="checkbox" id="show-dengue" />Dengue<span class="credit"> (LSHTM)</span></label></td>';
+    var show_chiku = '<td class="chiku-select"> <label for="show-chiku" name="sp"><input type="checkbox" id="show-chiku" />Chikungunya<span class="credit"> (LSHTM)</span></label></td>';
 
 
     if (enableLetterboxMode) {
@@ -1326,6 +1375,21 @@
         layer_html += show_health_impact_rcp8p5;
         layer_html += '   </tr>';
       }     
+      if (showZika){
+        layer_html += '   <tr>';
+        layer_html += show_zika;
+        layer_html += '   </tr>';
+      }
+     if (showDengue){
+        layer_html += '   <tr>';
+        layer_html += show_dengue;
+        layer_html += '   </tr>';
+      }
+     if (showChiku){
+        layer_html += '   <tr>';
+        layer_html += show_chiku;
+        layer_html += '   </tr>';
+      }
       layer_html += '   <tr>';
       layer_html += show_himawari;
       layer_html += '   </tr>';
@@ -1584,6 +1648,39 @@
     };
     healthImpactLayer  = new WebglVectorLayer2(glb, canvasLayer, healthImpactUrl, healthImpactLayerOptions);
 
+
+    var zikaLayerOptions = {
+      tileWidth: 256,
+      tileHeight: 256,
+      nLevels: 0,
+      setDataFunction: WebGLVectorTile2.prototype._setUsgsWindTurbineData,
+      drawFunction: WebGLVectorTile2.prototype._drawPoints,
+      fragmentShader: WebGLVectorTile2.vectorPointTileFragmentShader,
+      vertexShader: WebGLVectorTile2.vectorPointTileVertexShader
+    };
+    zikaLayer = new WebglVectorLayer2(glb, canvasLayer, zikaUrl, zikaLayerOptions);
+
+    var dengueLayerOptions = {
+      tileWidth: 256,
+      tileHeight: 256,
+      nLevels: 0,
+      setDataFunction: WebGLVectorTile2.prototype._setUsgsWindTurbineData,
+      drawFunction: WebGLVectorTile2.prototype._drawPoints,
+      fragmentShader: WebGLVectorTile2.vectorPointTileFragmentShader,
+      vertexShader: WebGLVectorTile2.vectorPointTileVertexShader
+    };
+    dengueLayer  = new WebglVectorLayer2(glb, canvasLayer, dengueUrl, dengueLayerOptions);
+
+    var chikuLayerOptions = {
+      tileWidth: 256,
+      tileHeight: 256,
+      nLevels: 0,
+      setDataFunction: WebGLVectorTile2.prototype._setUsgsWindTurbineData,
+      drawFunction: WebGLVectorTile2.prototype._drawPoints,
+      fragmentShader: WebGLVectorTile2.vectorPointTileFragmentShader,
+      vertexShader: WebGLVectorTile2.vectorPointTileVertexShader
+    };
+    chikuLayer  = new WebglVectorLayer2(glb, canvasLayer, chikuUrl, chikuLayerOptions);
 
     // Layer Toggle UI
     initLayerToggleUI();
@@ -2203,6 +2300,55 @@
 
         healthImpactLayer.draw(healthImpactLayerView, options);
       }
+
+      if (showZikaLayer) {
+        var zikaLayerView = getLayerView(zikaLayer, landsatBaseMapLayer);
+        var options = {};
+        options.zoom = timelapse.getCurrentZoom();
+        var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
+        var times = timelapse.getCaptureTimes();
+        var startDate = new Date(parseInt(times[0]), 0, 1);
+        var endDate = new Date(parseInt(times[times.length - 1]) + 1, 0, 1);
+        var range = endDate.getTime() - startDate.getTime();
+        var currentDate = new Date(ratio*range + startDate.getTime());
+        options.currentTime = currentDate;
+        options.color = [1.0, 0.1, 0.1, 1.0];
+        options.pointSize = 20.0;
+        zikaLayer.draw(zikaLayerView, options);
+      }
+
+      if (showDengueLayer) {
+        var dengueLayerView = getLayerView(dengueLayer, landsatBaseMapLayer);
+        var options = {};
+        options.zoom = timelapse.getCurrentZoom();
+        var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
+        var times = timelapse.getCaptureTimes();
+        var startDate = new Date(parseInt(times[0]), 0, 1);
+        var endDate = new Date(parseInt(times[times.length - 1]) + 1, 0, 1);
+        var range = endDate.getTime() - startDate.getTime();
+        var currentDate = new Date(ratio*range + startDate.getTime());
+        options.currentTime = currentDate;
+        options.color = [0.2, 1.0, 0.1, 1.0];
+        options.pointSize = 20.0;
+        dengueLayer.draw(dengueLayerView, options);
+      }
+
+      if (showChikuLayer) {
+        var chikuLayerView = getLayerView(chikuLayer, landsatBaseMapLayer);
+        var options = {};
+        options.zoom = timelapse.getCurrentZoom();
+        var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
+        var times = timelapse.getCaptureTimes();
+        var startDate = new Date(parseInt(times[0]), 0, 1);
+        var endDate = new Date(parseInt(times[times.length - 1]) + 1, 0, 1);
+        var range = endDate.getTime() - startDate.getTime();
+        var currentDate = new Date(ratio*range + startDate.getTime());
+        options.currentTime = currentDate;
+        options.color = [0.1, 0.1, 1.0, 1.0];
+        options.pointSize = 20.0;
+        chikuLayer.draw(chikuLayerView, options);
+      }
+
       // ## 7 ##
       //// Layers to draw on top go here
       //

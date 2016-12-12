@@ -22,5 +22,9 @@ var EARTH_TIMELAPSE_CONFIG = {
   "waypointSliderContentPath" : "",
   "showAnnualRefugees": false,
   "showVsi": false,
-  "showHealthImpact": false
+  "showHealthImpact": false,
+  "showZika": false,
+  "showDengue": false,
+  "showChiku": false
+
 };
