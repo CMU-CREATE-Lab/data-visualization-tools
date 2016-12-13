@@ -140,6 +140,8 @@
     //
 
     var landsatUrl = rootTilePath + "/earthtime-annual-2015-v2/1068x600";
+    // Use landsat-times-2016.json for the latest set of times
+    var cachedLandsatTimeJson = "landsat-times.json";
     // Using "https" will casue the thumbnail loading from the server to fail
     //var landsatUrl = "http://earthengine.google.org/timelapse/data/20130507";
     var crwTimemachineUrl = rootTilePath + "/coral/coralreefwatch-2.timemachine/crf20-22fps-1424x800";
@@ -494,7 +496,7 @@
       setActiveLayersWithTimeline(-1);
       if (!showForestAlertsNoOverlayTimeMachineLayer && !showForestAlertsTimeMachineLayer) {
         timelineType = "customUI";
-        requestNewTimeline("landsat-times.json", timelineType);
+        requestNewTimeline(cachedLandsatTimeJson, timelineType);
         visibleBaseMapLayer = $("input:radio[name=base-layers]:checked").val();
         timelapse.setMaxScale(landsatMaxScale);
         var v = timelapse.getVideoset();
@@ -540,7 +542,7 @@
       setActiveLayersWithTimeline(-1);
       if (!showForestAlertsNoOverlayTimeMachineLayer && !showForestAlertsTimeMachineLayer) {
         timelineType = "customUI";
-        requestNewTimeline("landsat-times.json", timelineType);
+        requestNewTimeline(cachedLandsatTimeJson, timelineType);
         visibleBaseMapLayer = $("input:radio[name=base-layers]:checked").val();
         timelapse.setMaxScale(landsatMaxScale);
         var v = timelapse.getVideoset();
@@ -566,7 +568,7 @@
       setActiveLayersWithTimeline(-1);
       timelapse.setPlaybackRate(defaultPlaybackSpeed);
       timelineType = "customUI";
-      requestNewTimeline("landsat-times.json", timelineType);
+      requestNewTimeline(cachedLandsatTimeJson, timelineType);
       timelapse.setDoDwell(true);
       $("#show-additional-landsat").prop("disabled", false);
       $("#fires-at-night-legend").hide();
@@ -606,7 +608,7 @@
       showMcrmLayer = false;
       setActiveLayersWithTimeline(-1);
       timelineType = "customUI";
-      requestNewTimeline("landsat-times.json", timelineType);
+      requestNewTimeline(cachedLandsatTimeJson, timelineType);
       timelapse.setDoDwell(true);
       WebglVideoTile.useGreenScreen = false;
       var v = timelapse.getVideoset();
@@ -636,7 +638,7 @@
       showHimawariTimeMachineLayer = false;
       setActiveLayersWithTimeline(-1);
       timelineType = "customUI";
-      requestNewTimeline("landsat-times.json", timelineType);
+      requestNewTimeline(cachedLandsatTimeJson, timelineType);
       var v = timelapse.getVideoset();
       v.setFps(10);
       visibleBaseMapLayer = previousVisibleBaseMapLayer;
@@ -722,7 +724,7 @@
       activeLayersWithTimeline -= 1;
       timelapse.setPlaybackRate(defaultPlaybackSpeed);
       timelineType = "customUI";
-      requestNewTimeline("landsat-times.json", timelineType);
+      requestNewTimeline(cachedLandsatTimeJson, timelineType);
       timelapse.setDoDwell(true);
       timelapse.setMaxScale(landsatMaxScale);
       $("#monthly-refugees-legend").hide();
@@ -741,7 +743,7 @@
         showAnnualRefugeesLayer = false;
         setActiveLayersWithTimeline(-1);
         timelapse.setPlaybackRate(defaultPlaybackSpeed);
-        requestNewTimeline("landsat-times.json", timelineType);
+        requestNewTimeline(cachedLandsatTimeJson, timelineType);
         timelapse.setMaxScale(landsatMaxScale);
         $("#annual-refugees-legend").hide();
       }
@@ -766,7 +768,7 @@
         setActiveLayersWithTimeline(1);
         timelapse.setPlaybackRate(.05);
         timelineType = "customUI"; // TODO: Setting this to customUI which is desired
-                                  //       causes the entire time slider to disappear 
+                                  //       causes the entire time slider to disappear
                                   //       if/when toggled.
         requestNewTimeline("health-impact-times.json", timelineType);
         timelapse.setDoDwell(false);
@@ -784,7 +786,7 @@
         setActiveLayersWithTimeline(-1);
         timelapse.setPlaybackRate(defaultPlaybackSpeed);
         timelineType = "customUI";
-        requestNewTimeline("landsat-times.json", timelineType);
+        requestNewTimeline(cachedLandsatTimeJson, timelineType);
         timelapse.setDoDwell(true);
         timelapse.setMaxScale(landsatMaxScale);
         $("#health-impact-legend").hide();
@@ -803,7 +805,7 @@
         setActiveLayersWithTimeline(1);
         timelapse.setPlaybackRate(.05);
         timelineType = "customUI"; // TODO: Setting this to customUI which is desired
-                                  //       causes the entire time slider to disappear 
+                                  //       causes the entire time slider to disappear
                                   //       if/when toggled.
         requestNewTimeline("health-impact-times.json", timelineType);
         timelapse.setDoDwell(false);
@@ -821,7 +823,7 @@
         setActiveLayersWithTimeline(-1);
         timelapse.setPlaybackRate(defaultPlaybackSpeed);
         timelineType = "customUI";
-        requestNewTimeline("landsat-times.json", timelineType);
+        requestNewTimeline(cachedLandsatTimeJson, timelineType);
         timelapse.setDoDwell(true);
         timelapse.setMaxScale(landsatMaxScale);
         $("#health-impact-legend").hide();
@@ -840,7 +842,7 @@
         setActiveLayersWithTimeline(1);
         timelapse.setPlaybackRate(.05);
         timelineType = "customUI"; // TODO: Setting this to customUI which is desired
-                                  //       causes the entire time slider to disappear 
+                                  //       causes the entire time slider to disappear
                                   //       if/when toggled.
         requestNewTimeline("health-impact-times.json", timelineType);
         timelapse.setDoDwell(false);
@@ -858,7 +860,7 @@
         setActiveLayersWithTimeline(-1);
         timelapse.setPlaybackRate(defaultPlaybackSpeed);
         timelineType = "customUI";
-        requestNewTimeline("landsat-times.json", timelineType);
+        requestNewTimeline(cachedLandsatTimeJson, timelineType);
         timelapse.setDoDwell(true);
         timelapse.setMaxScale(landsatMaxScale);
         $("#health-impact-legend").hide();
@@ -877,7 +879,7 @@
         setActiveLayersWithTimeline(1);
         timelapse.setPlaybackRate(.05);
         timelineType = "customUI"; // TODO: Setting this to customUI which is desired
-                                  //       causes the entire time slider to disappear 
+                                  //       causes the entire time slider to disappear
                                   //       if/when toggled.
         requestNewTimeline("health-impact-times.json", timelineType);
         //timelapse.setDoDwell(false);
@@ -895,7 +897,7 @@
         setActiveLayersWithTimeline(-1);
         timelapse.setPlaybackRate(defaultPlaybackSpeed);
         timelineType = "customUI";
-        requestNewTimeline("landsat-times.json", timelineType);
+        requestNewTimeline(cachedLandsatTimeJson, timelineType);
         timelapse.setDoDwell(true);
         timelapse.setMaxScale(landsatMaxScale);
         $("#health-impact-legend").hide();
@@ -1368,7 +1370,7 @@
         layer_html += '   <tr>';
         layer_html += show_health_impact_rcp8p5;
         layer_html += '   </tr>';
-      }     
+      }
       if (showZika){
         layer_html += '   <tr>';
         layer_html += show_zika;
@@ -2055,7 +2057,7 @@
         landsatBaseMapLayer.draw(timelapse.getView(), tileViewVisibility);
       } else if (visibleBaseMapLayer == "light") {
         // Construct view for lightBaseMapLayer
-        var lightBaseMapView = getLayerView(lightBaseMapLayer, landsatBaseMapLayer);       
+        var lightBaseMapView = getLayerView(lightBaseMapLayer, landsatBaseMapLayer);
         lightBaseMapLayer.draw(lightBaseMapView);
       } else if (visibleBaseMapLayer == "dark") {
         // Construct view for darkBaseMapLayer
@@ -2079,7 +2081,7 @@
 
       if (showVsiLayer) {
         // Construct view for hansenMapLayer
-        var vsiLayerView = getLayerView(vsiLayer, landsatBaseMapLayer); 
+        var vsiLayerView = getLayerView(vsiLayer, landsatBaseMapLayer);
         vsiLayer.draw(vsiLayerView);
       }
 
@@ -2100,7 +2102,7 @@
      // Draw water change
       if (showWaterChangeLayer) {
         // Construct view for waterChangeLayer
-        var waterChangeView = getLayerView(waterChangeLayer, landsatBaseMapLayer); 
+        var waterChangeView = getLayerView(waterChangeLayer, landsatBaseMapLayer);
         waterChangeLayer.draw(waterChangeView);
       }
 
@@ -2251,7 +2253,7 @@
       }
 
       if (showAnnualRefugeesLayer) {
-        var annualRefugeesLayerView = getLayerView(annualRefugeesLayer, landsatBaseMapLayer); 
+        var annualRefugeesLayerView = getLayerView(annualRefugeesLayer, landsatBaseMapLayer);
         var options = {};
         options.zoom = timelapse.getCurrentZoom();
         var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
@@ -2284,7 +2286,7 @@
       }
 
       if (showHealthImpactLayer) {
-        var healthImpactLayerView = getLayerView(healthImpactLayer, landsatBaseMapLayer); 
+        var healthImpactLayerView = getLayerView(healthImpactLayer, landsatBaseMapLayer);
         var options = {};
         options.zoom = timelapse.getCurrentZoom();
 
