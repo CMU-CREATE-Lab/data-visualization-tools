@@ -63,6 +63,30 @@ WebGLVectorTile2.prototype._load = function() {
 }
 
 
+WebGLVectorTile2.prototype._setViirsData = function(arrayBuffer) {
+  var gl = this.gl;
+  this._pointCount = arrayBuffer.length / 4;
+
+  this._data = arrayBuffer;
+  this._arrayBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);
+
+  var attributeLoc = gl.getAttribLocation(this.program, 'worldCoord');
+  gl.enableVertexAttribArray(attributeLoc);
+  gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 16, 0);
+
+  var timeLoc = gl.getAttribLocation(this.program, 'time');
+  gl.enableVertexAttribArray(timeLoc);
+  gl.vertexAttribPointer(timeLoc, 1, gl.FLOAT, false, 16, 8);
+
+  var tempLocation = gl.getAttribLocation(this.program, "temp");
+  gl.enableVertexAttribArray(tempLocation);
+  gl.vertexAttribPointer(tempLocation, 1, gl.FLOAT, false, 16, 12);
+
+  this._ready = true;
+}
+
 WebGLVectorTile2.prototype._setCoralReefData = function(arrayBuffer) {
   var gl = this.gl;
   this._pointCount = arrayBuffer.length / 2;
@@ -546,6 +570,83 @@ WebGLVectorTile2.prototype._drawHealthImpact = function(transform, options) {
   }
 }
 
+WebGLVectorTile2.prototype._drawViirs = function(transform, options) {
+  var gl = this.gl;
+  var _minTime = new Date('2014-03-14').getTime();
+  var _maxTime = new Date('2014-04-13').getTime();
+  var _showTemp = false;
+  var _minTemp = 400.;
+  var _maxTemp = 3000.;
+
+  var opts = options || {};
+  var minTime = opts.minTime || _minTime;
+  var maxTime = opts.maxTime || _maxTime;
+  var showTemp = opts.showTemp || _showTemp;
+  var minTemp = opts.minTemp || _minTemp;
+  var maxTemp = opts.maxTemp || _maxTemp;
+  var pointSize = opts.pointSize || (2.0 * window.devicePixelRatio);
+  var zoom = options.zoom || (2.0 * window.devicePixelRatio);
+
+  if (options.currentTime) {
+    maxTime = options.currentTime;
+    minTime = maxTime - 30*24*60*60*1000;
+  }
+
+  if (this._ready) {
+    gl.useProgram(this.program);
+    gl.enable(gl.BLEND);
+    gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
+
+    var tileTransform = new Float32Array(transform);
+    scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
+    translateMatrix(tileTransform, (this._bounds.max.x - this._bounds.min.x)/256., (this._bounds.max.y - this._bounds.min.y)/256.);
+    scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+
+    pointSize *= Math.floor((zoom + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1);
+    if (isNaN(pointSize)) {
+      pointSize = 1.0;
+    }    
+
+    var matrixLoc = gl.getUniformLocation(this.program, 'mapMatrix');
+    gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'worldCoord');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 16, 0);
+
+    var timeLoc = gl.getAttribLocation(this.program, 'time');
+    gl.enableVertexAttribArray(timeLoc);
+    gl.vertexAttribPointer(timeLoc, 1, gl.FLOAT, false, 16, 8);
+
+    var tempLocation = gl.getAttribLocation(this.program, "temp");
+    gl.enableVertexAttribArray(tempLocation);
+    gl.vertexAttribPointer(tempLocation, 1, gl.FLOAT, false, 16, 12);
+
+    var timeLoc = gl.getUniformLocation(this.program, 'maxTime');
+    gl.uniform1f(timeLoc, maxTime*1.);
+
+    var timeLoc = gl.getUniformLocation(this.program, 'minTime');
+    gl.uniform1f(timeLoc, minTime*1.);
+
+    var showTempLoc = gl.getUniformLocation(this.program, 'showTemp');
+    gl.uniform1f(showTempLoc, showTemp);
+
+    var tempLoc = gl.getUniformLocation(this.program, 'minTemp');
+    gl.uniform1f(tempLoc, minTemp*1.0);
+
+    var tempLoc = gl.getUniformLocation(this.program, 'maxTemp');
+    gl.uniform1f(tempLoc, maxTemp*1.0);
+
+    var pointSizeLoc = gl.getUniformLocation(this.program, 'pointSize');
+    gl.uniform1f(pointSizeLoc, pointSize);
+
+    gl.drawArrays(gl.POINTS, 0, this._pointCount);
+    gl.disable(gl.BLEND);
+  }
+}
+
 // Update and draw tiles
 WebGLVectorTile2.update = function(tiles, transform, options) {
   for (var i = 0; i < tiles.length; i++) {
@@ -736,7 +837,7 @@ WebGLVectorTile2.healthImpactVertexShader =
 '        v_Rcp = a_Rcp;\n' +
 '        gl_PointSize = u_Size * abs(size);\n' +
 '        gl_PointSize = 2.0 * abs(size);\n' +
-'      }\n'
+'      }\n';
 
 WebGLVectorTile2.healthImpactFragmentShader = 
 '      #extension GL_OES_standard_derivatives : enable\n' +
@@ -775,5 +876,68 @@ WebGLVectorTile2.healthImpactFragmentShader =
 '            }\n' +
 '          }\n' +
 '          gl_FragColor = vec4( mix(outlineColor.rgb, circleColor.rgb, stroke), alpha*.75 );\n' +
-'      }'
+'      }';
+
+WebGLVectorTile2.viirsVertexShader =
+  'attribute vec4 worldCoord;\n' + 
+  'attribute float time;\n' + 
+  'attribute float temp;\n' + 
+
+  'uniform mat4 mapMatrix;\n' + 
+  'uniform float pointSize;\n' + 
+  'uniform float maxTime;\n' + 
+  'uniform float minTime;\n' + 
+  'uniform float minTemp;\n' + 
+  'uniform float maxTemp;\n' + 
+
+  'varying float vTemp;\n' + 
+
+  'void main() {\n' + 
+  '  if (time < minTime || time > maxTime || temp == 1810. || temp < minTemp || temp > maxTemp) {\n' + 
+  '    gl_Position = vec4(-1,-1,-1,-1);\n' + 
+  '  } else {\n' + 
+  '    gl_Position = mapMatrix * worldCoord;\n' + 
+  '  };\n' + 
+  '  gl_PointSize = pointSize;\n' + 
+  '  vTemp = temp;\n' + 
+  '}';
+
+WebGLVectorTile2.viirsFragmentShader =
+  'precision mediump float;\n' + 
+
+  'uniform bool showTemp;\n' + 
+
+  'varying float vTemp;\n' + 
+
+  'void main() {\n' + 
+  '  vec3 color;\n' + 
+  '  vec3 purple = vec3(.4,.0, .8);\n' + 
+  '  vec3 blue = vec3(.0, .0, .8);\n' + 
+  '  vec3 green = vec3(.0, .8, .0);\n' + 
+  '  vec3 yellow = vec3(1., 1., .0);\n' + 
+  '  vec3 red = vec3(.8, .0, .0);\n' + 
+
+  '  if (showTemp) {\n' + 
+  '    if (vTemp > 400. && vTemp < 1000.) {\n' + 
+  '      color = purple;\n' + 
+  '    } else if (vTemp > 1000. && vTemp < 1200.) {\n' + 
+  '      color = blue;\n' + 
+  '    } else if (vTemp > 1200. && vTemp < 1400.) {\n' + 
+  '      color = green;\n' + 
+  '    } else if (vTemp > 1400. && vTemp < 1600.) {\n' + 
+  '      color = yellow;\n' + 
+  '    } else {\n' + 
+  '      color = red;\n' + 
+  '    }\n' + 
+  '  } else {\n' + 
+  '    color = vec3(.82, .22, .07);\n' + 
+  '  }\n' + 
+
+  '  float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' + 
+  '  dist = 1. - (dist * 2.);\n' + 
+  '  dist = max(0., dist);\n' + 
+
+  '  gl_FragColor = vec4(color, 1.) * dist;\n' + 
+  '}';
+
 

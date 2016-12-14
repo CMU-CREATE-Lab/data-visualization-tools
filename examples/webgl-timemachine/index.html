@@ -127,13 +127,14 @@
     //
 
     var forestAlertsTimeMachineLayer, forestAlertsNoOverlayTimeMachineLayer, landsatBaseMapLayer, darkBaseMapLayer, lightBaseMapLayer, wdpaVectorLayer, mcrmVectorLayer;
-    var hansenMapLayer, hansenMapLayer2, viirsTile, coralBleachingTile, lightsAtNightMapLayer, crwTimemachineLayer, animatedHansenLayer, himawariTimemachineLayer;
+    var hansenMapLayer, hansenMapLayer2, coralBleachingTile, lightsAtNightMapLayer, crwTimemachineLayer, animatedHansenLayer, himawariTimemachineLayer;
     var waterOccurrenceLayer, waterChangeLayer, usgsWindTurbineLayer, solarInstallsLayer, drillingLayer, monthlyRefugeesTile;
     var globalWindPowerLayer;
     var annualRefugeesLayer;
     var vsiLayer;
     var healthImpactLayer;
     var zikaLayer, dengueLayer, chikuLayer;
+    var viirsLayer;
 
     // ## 2 ##
     //// Layer tile paths
@@ -166,7 +167,11 @@
 
     var wdpaUrl = rootTilePath + "/wdpaline-year";
     var mcrmUrl = rootTilePath + "/coral/mcrm-lines-wrapdateline";
+
+    // VIIRS fix
     var viirsUrl = rootTilePath + "/viirs/createlab-viirs-uncorrected-20140314-20150403.bin";
+    var viirsUrl = rootTilePath + "/viirs";
+
     var coralBleachingUrl = rootTilePath + "/coral/bleaching_reports_4km_81-10.bin";
     var usgsWindTurbineUrl = rootTilePath + "/energy/wind-installs-usgs";
     var solarInstallsUrl = rootTilePath + "/energy/solar-installs";
@@ -187,43 +192,43 @@
 
 
     function init() {
-    var settings = {
-      loopDwell: { startDwell:1.5, endDwell:1.5 },
-      playbackSpeed: defaultPlaybackSpeed,
-      viewerType: "webgl",
-      url: landsatUrl,
-      enablePresentationSlider: enableRecordingMode ? false : true,
-      enableEditor: enableRecordingMode ? true : false,
-      showEditorOnLoad: enableRecordingMode ? true : false,
-      thumbnailServerRootTileUrl: "http://earthengine.google.org/timelapse/data/20130507",
-      showFullScreenBtn: false,
-      showShareBtn: showShareButton,
-      presentationSliderSettings: enableRecordingMode ? {} : {
-      onLoadAnimation: "none",
-      playAfterAnimation: false,
-      initialWaypointIndex: 0,
-      doAutoMode: enableAutoMode,
-      showAnnotations: false,
-      screenIdleTime: screenTimeoutInMilliseconds,
-      waypointDelayTime: waypointDelayInMilliseconds,
-      height: 94
-      },
-      useTouchFriendlyUI: isHyperwall,
-      datasetType: "landsat",
-      playOnLoad: enableRecordingMode ? false : true,
-      mediaType: ".mp4",
-      onTimeMachinePlayerReady: function(viewerDivId) {},
-      scaleBarOptions: {
-      scaleBarDiv: "scaleBar1"
-      },
-      contextMapOptions: {
-      contextMapDiv: "contextMap1",
-      tileType: useGoogleMaps ? "Google" : "OpenStreetMap",
-      tileUrl: osmDefaultUrl,
-      geometry: {
-        width: 270,
-        height: 200
-      }
+      var settings = {
+        loopDwell: { startDwell:1.5, endDwell:1.5 },
+        playbackSpeed: defaultPlaybackSpeed,
+        viewerType: "webgl",
+        url: landsatUrl,
+        enablePresentationSlider: enableRecordingMode ? false : true,
+        enableEditor: enableRecordingMode ? true : false,
+        showEditorOnLoad: enableRecordingMode ? true : false,
+        thumbnailServerRootTileUrl: "http://earthengine.google.org/timelapse/data/20130507",
+        showFullScreenBtn: false,
+        showShareBtn: showShareButton,
+        presentationSliderSettings: enableRecordingMode ? {} : {
+          onLoadAnimation: "none",
+          playAfterAnimation: false,
+          initialWaypointIndex: 0,
+          doAutoMode: enableAutoMode,
+          showAnnotations: false,
+          screenIdleTime: screenTimeoutInMilliseconds,
+          waypointDelayTime: waypointDelayInMilliseconds,
+          height: 94
+        },
+        useTouchFriendlyUI: isHyperwall,
+        datasetType: "landsat",
+        playOnLoad: enableRecordingMode ? false : true,
+        mediaType: ".mp4",
+        onTimeMachinePlayerReady: function(viewerDivId) {},
+        scaleBarOptions: {
+          scaleBarDiv: "scaleBar1"
+        },
+        contextMapOptions: {
+        contextMapDiv: "contextMap1",
+        tileType: useGoogleMaps ? "Google" : "OpenStreetMap",
+        tileUrl: osmDefaultUrl,
+        geometry: {
+          width: 270,
+          height: 200
+        }
       },
       isGoogleAnalyticEventTrackingEnabled: true,
       startEditorFromPresentationMode : true
@@ -1559,8 +1564,7 @@
     vsiLayer = new WebglMapLayer(glb, canvasLayer, vsiUrl, defaultMapLayerOptions);
 
 
-    // VIIRS is just a single tile
-    viirsTile = new WebglViirsTile(glb, viirsUrl);
+    // Single tile
     coralBleachingTile = new WebglCoralTile(glb, coralBleachingUrl);
     monthlyRefugeesTile = new MonthlyRefugeesTile(glb, monthlyRefugeesUrl);
 
@@ -1577,6 +1581,17 @@
       tileHeight: 256
     };
     animatedHansenLayer = new WebglMapLayer2(glb, canvasLayer, animatedHansenUrls, animatedHansenLayerOptions);
+
+    var viirsLayerOptions = {
+      tileWidth: 256,
+      tileHeight: 256,
+      nLevels: 0,
+      setDataFunction: WebGLVectorTile2.prototype._setViirsData,
+      drawFunction: WebGLVectorTile2.prototype._drawViirs,
+      fragmentShader: WebGLVectorTile2.viirsFragmentShader,
+      vertexShader: WebGLVectorTile2.viirsVertexShader
+    };
+    viirsLayer  = new WebglVectorLayer2(glb, canvasLayer, viirsUrl, viirsLayerOptions);
 
     var usgsWindturbineLayerOptions = {
       tileWidth: 256,
@@ -2132,14 +2147,15 @@
 
       // Draw VIIRS layer
       if (showViirsLayer) {
-        var viirsView = timelapse.getView();
-        viirsView.zoom = timelapse.getCurrentZoom();
+        var viirsLayerView = getLayerView(viirsLayer, landsatBaseMapLayer);
+        var options = {};
+        options.zoom = timelapse.getCurrentZoom();
         var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
         var times = timelapse.getCaptureTimes();
         var range = new Date(times[times.length - 1]).getTime() - new Date(times[0]).getTime();
         var currentDate = ratio*range + new Date(times[0]).getTime();
-        viirsView.currentDate = currentDate;
-        viirsTile.draw(viirsView);
+        options.currentTime = currentDate;
+        viirsLayer.draw(viirsLayerView, options);
       }
 
       // Draw Coral Bleaching
