@@ -126,7 +126,7 @@
     //// Layer variables ////
     //
 
-    var forestAlertsTimeMachineLayer, forestAlertsNoOverlayTimeMachineLayer, landsatBaseMapLayer, darkBaseMapLayer, lightBaseMapLayer, wdpaVectorLayer, mcrmVectorLayer;
+    var forestAlertsTimeMachineLayer, forestAlertsNoOverlayTimeMachineLayer, landsatBaseMapLayer, darkBaseMapLayer, lightBaseMapLayer, mcrmVectorLayer;
     var hansenMapLayer, hansenMapLayer2, coralBleachingTile, lightsAtNightMapLayer, crwTimemachineLayer, animatedHansenLayer, himawariTimemachineLayer;
     var waterOccurrenceLayer, waterChangeLayer, usgsWindTurbineLayer, solarInstallsLayer, drillingLayer, monthlyRefugeesTile;
     var globalWindPowerLayer;
@@ -135,6 +135,7 @@
     var healthImpactLayer;
     var zikaLayer, dengueLayer, chikuLayer;
     var viirsLayer;
+    var wdpaLayer;
 
     // ## 2 ##
     //// Layer tile paths
@@ -165,7 +166,7 @@
     var waterOccurrenceUrl = rootTilePath + "/water/occurrence-2015/{default}/{z}/{x}/{y}.png";
     var waterChangeUrl = rootTilePath + "/water/change-2015/{default}/{z}/{x}/{y}.png";
 
-    var wdpaUrl = rootTilePath + "/wdpaline-year";
+    var wdpaUrl = rootTilePath + "/wdpaline-year/web-mercator";
     var mcrmUrl = rootTilePath + "/coral/mcrm-lines-wrapdateline";
 
     // VIIRS fix
@@ -1556,7 +1557,6 @@
     darkBaseMapLayer = new WebglMapLayer(glb, canvasLayer, darkMapUrl, defaultBaseMapLayerOptions);
     hansenMapLayer = new WebglMapLayer(glb, canvasLayer, gfcTransUrl, defaultMapLayerOptions);
     hansenMapLayer2 = new WebglMapLayer(glb, canvasLayer, gfcLossGainUrl, defaultMapLayerOptions);
-    wdpaVectorLayer = new WebglVectorLayer(glb, canvasLayer, wdpaUrl, defaultMapLayerOptions);
     mcrmVectorLayer = new WebglVectorLayer2(glb, canvasLayer, mcrmUrl, defaultBaseMapLayerOptions);
     waterOccurrenceLayer = new WebglMapLayer(glb, canvasLayer, waterOccurrenceUrl, defaultBaseMapLayerOptions);
     waterChangeLayer = new WebglMapLayer(glb, canvasLayer, waterChangeUrl, defaultBaseMapLayerOptions);
@@ -1592,6 +1592,17 @@
       vertexShader: WebGLVectorTile2.viirsVertexShader
     };
     viirsLayer  = new WebglVectorLayer2(glb, canvasLayer, viirsUrl, viirsLayerOptions);
+
+    var wdpaLayerOptions = {
+      tileWidth: 256,
+      tileHeight: 256,
+      nLevels: 11,
+      setDataFunction: WebGLVectorTile2.prototype._setWdpaData,
+      drawFunction: WebGLVectorTile2.prototype._drawWdpa,
+      fragmentShader: WebGLVectorTile2.wdpaFragmentShader,
+      vertexShader: WebGLVectorTile2.wdpaVertexShader
+    };
+    wdpaLayer  = new WebglVectorLayer2(glb, canvasLayer, wdpaUrl, wdpaLayerOptions);
 
     var usgsWindturbineLayerOptions = {
       tileWidth: 256,
@@ -2253,7 +2264,8 @@
 
       // Draw wdpaLayer
       if (showWdpaLayer) {
-        wdpaVectorLayer.draw(timelapse.getView());
+        var wdpaLayerView = getLayerView(wdpaLayer, landsatBaseMapLayer);
+        wdpaLayer.draw(wdpaLayerView, options);
       }
 
       //Draw mediterranean monthly refugees

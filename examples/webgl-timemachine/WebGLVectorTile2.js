@@ -62,6 +62,26 @@ WebGLVectorTile2.prototype._load = function() {
   this.xhr.send();  
 }
 
+WebGLVectorTile2.prototype._setWdpaData = function(arrayBuffer) {
+  var gl = this.gl;
+  this._pointCount = arrayBuffer.length / 3;
+  if (this._pointCount > 0) {
+    this._data = arrayBuffer;
+    this._arrayBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'worldCoord');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 12, 0);
+
+    var timeLoc = gl.getAttribLocation(this.program, 'time');
+    gl.enableVertexAttribArray(timeLoc);
+    gl.vertexAttribPointer(timeLoc, 1, gl.FLOAT, false, 12, 8);
+
+    this._ready = true;
+  }
+}
 
 WebGLVectorTile2.prototype._setViirsData = function(arrayBuffer) {
   var gl = this.gl;
@@ -238,6 +258,41 @@ WebGLVectorTile2.prototype.delete = function() {
   }
  }
 
+WebGLVectorTile2.prototype._drawWdpa = function(transform, options) {
+  var gl = this.gl;
+  var minTime = options.minTime || new Date('1800').getTime();
+  var maxTime = options.maxTime || new Date('2015').getTime();
+  if (this._ready) {
+    gl.lineWidth(2);
+    gl.useProgram(this.program);
+
+    var tileTransform = new Float32Array(transform);
+    scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
+    translateMatrix(tileTransform, (this._bounds.max.x - this._bounds.min.x)/256., (this._bounds.max.y - this._bounds.min.y)/256.);
+    scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+
+    var matrixLoc = gl.getUniformLocation(this.program, 'mapMatrix');
+    gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'worldCoord');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 12, 0);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'time');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 12, 8);
+
+    var timeLoc = gl.getUniformLocation(this.program, 'maxTime');
+    gl.uniform1f(timeLoc, maxTime);
+
+    var timeLoc = gl.getUniformLocation(this.program, 'minTime');
+    gl.uniform1f(timeLoc, minTime);
+
+    gl.drawArrays(gl.LINES, 0, this._pointCount);
+  }  
+}
 
 WebGLVectorTile2.prototype._drawLines = function(transform) {
   var gl = this.gl;
@@ -940,4 +995,24 @@ WebGLVectorTile2.viirsFragmentShader =
   '  gl_FragColor = vec4(color, 1.) * dist;\n' + 
   '}';
 
+WebGLVectorTile2.wdpaVertexShader =
+'attribute vec4 worldCoord;\n' +
+'attribute float time;\n' +
+
+'uniform mat4 mapMatrix;\n' +
+'uniform float maxTime;\n' +
+'uniform float minTime;\n' +
+
+'void main() {\n' +
+'  if (time < minTime || time > maxTime) {\n' +
+'    gl_Position = vec4(-1,-1,-1,-1);\n' +
+'  } else {\n' +
+'    gl_Position = mapMatrix * worldCoord;\n' +
+'  }\n' +
+'}';
+
+WebGLVectorTile2.wdpaFragmentShader =
+'void main() {\n' +
+'  gl_FragColor = vec4(.0, 1., .15, 1.0);\n' +
+'}\n';
 
