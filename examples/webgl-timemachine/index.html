@@ -2444,14 +2444,16 @@
         var end = parseFloat(times[times.length - 1]) + 0.5;
         var range = end - start;
         var current = ratio*range + start;
-        options.currentC = Math.min(current, 4.0);
+        options.currentC = Math.min(current, times[times.length - 1]);
         if (visibleBaseMapLayer == "landsat") {
           options.color = [0.1,0.1,0.1,1.0];
         } else if (visibleBaseMapLayer == "light") {
           options.color = [0.4921875, 0.7421875, 0.91015625, 1.0];
         } else if (visibleBaseMapLayer == "dark") {
           options.color = [0.203125, 0.203125, 0.203125, 1.0];
-        }        
+        } else if (showLightsAtNightLayer) {
+          options.color = [0.0, 0.0, 0.0, 1.0];
+        }       
         var currentIndex = 0;
         for (var i = 0; i < times.length; i++) {
           if (timelapse.getCurrentCaptureTime() == times[i]) {
