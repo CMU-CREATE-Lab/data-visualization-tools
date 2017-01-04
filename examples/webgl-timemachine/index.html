@@ -1481,7 +1481,7 @@
     legend_html += '<tr id="annual-refugees-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(left, #ff0000 0%, #ffffff 100%);background: -webkit-linear-gradient(left, #ff0000 0%,#ffffff 100%); background: linear-gradient(to right, #ff0000 0%,#ffffff 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Annual Refugees 2000 - 2013</div></td></tr>';
     legend_html += '<tr id="vsi-legend" style="display: none"><td><div style="font-size: 17px">Vegetation Sensitivity Index 2000-2013</div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">0</div><div style="margin-top: 4px; float: left; background-image: -webkit-linear-gradient(left, rgb(0, 139, 0), rgb(92, 182, 69) 17%, rgb(163, 221, 99) 33%, rgb(255, 255, 0) 50%, rgb(255, 205, 0) 67%, rgb(255, 144, 0) 83%, rgb(255, 4, 0) 100%);background-image: linear-gradient(left, rgb(0, 139, 0), rgb(92, 182, 69) 17%, rgb(163, 221, 99) 33%, rgb(255, 255, 0) 50%, rgb(255, 205, 0) 67%, rgb(255, 144, 0) 83%, rgb(255, 4, 0) 100%); width: 45px; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">100</div></td></tr>';
     legend_html += '<tr id="health-impact-legend" style="display: none"><td><div style="font-size: 17px">Nutritional Deficiencies</div><svg width="242" height="180"><rect width="240" height="160" fill="white" opacity="0"></rect> <g transform="translate(2,10)"> <circle class="gain" r="5" cx="5" cy="10" style="fill: #8b0000; stroke: #fff;"></circle> <circle class="loss" r="5" cx="5" cy="30" style="fill: #00008b; stroke: #fff;"></circle> <text x="15" y="13">Mean deaths per capita</text> <text x="15" y="33">Mean lives per capita</text> <circle r="10.0" cx="160.0" cy="160.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="152.0" dy="13" style="font-size: 10px; fill: #666">5K</text><circle r="30.0" cx="160.0" cy="140.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="130.0" dy="13" style="font-size: 10px; fill: #666">15K</text><circle r="60.0" cx="160.0" cy="110.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="80.0" dy="13" style="font-size: 10px; fill: #666">30K</text></g> </svg></td></tr>';
-
+    legend_html += '<tr id="sea-level-rise-legend" style="display: none"><td><div style="font-size: 17px">Global Temperature Rise &#x2103;</div><div style="font-size: 15px">Future Sea Level <span id="slr-feet" style="width:25px;"></span>&nbsp;<span id="slr-meters" style="width:25px; color: red;"></span></div></td></tr>';
 
     legend_html += '</table>';
     legend_html += '</div>';
@@ -2433,6 +2433,9 @@
       //SLR
       if (showSeaLevelRiseLayer) {
         // Construct view for hansenMapLayer2
+        var sea_level_heights = [[0.0,0.0], [2.4,0.7], [7.0, 2.1], [9.4,2.9], [15,4.7], [18,5.6], [21,6.4], [26,7.9], [29,8.9]]; // [feet,meters]
+        var feet = document.getElementById("slr-feet");
+        var meters = document.getElementById("slr-meters");        
         var seaLevelRiseLayerView = getLayerView(seaLevelRiseLayer, landsatBaseMapLayer);
         var options = {};
         var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
@@ -2449,6 +2452,14 @@
         } else if (visibleBaseMapLayer == "dark") {
           options.color = [0.203125, 0.203125, 0.203125, 1.0];
         }        
+        var currentIndex = 0;
+        for (var i = 0; i < times.length; i++) {
+          if (timelapse.getCurrentCaptureTime() == times[i]) {
+            currentIndex = i;
+          }
+        }
+        //feet.innerHTML = sea_level_heights[currentIndex][0] + "ft";
+        meters.innerHTML = "+" + sea_level_heights[currentIndex][1].toFixed(1) + "m";
         seaLevelRiseLayer.draw(seaLevelRiseLayerView, options);
       }
 
