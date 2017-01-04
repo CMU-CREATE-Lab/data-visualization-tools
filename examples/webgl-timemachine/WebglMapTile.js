@@ -157,7 +157,7 @@ WebglMapTile.prototype._drawSeaLevelRise = function(transform, options) {
               this._bounds.max.x - this._bounds.min.x,
               this._bounds.max.y - this._bounds.min.y);
 
-  if (this._ready) {
+  if (this._ready && this._tileidx.l > 3) { // TODO: Get tiles w level > 3 that arent empty
     var color = options.color || [0., 0., 0., 1.0]; 
 
     gl.useProgram(this._textureProgram);
@@ -226,14 +226,18 @@ WebglMapTile.seaLevelRiseTextureFragmentShader =
   'void main(void) {\n' +
   '  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));\n' +
   '  if (textureColor.r == 0. && textureColor.g == 0. && textureColor.b == 0.) {\n' +
-  '    gl_FragColor = vec4(textureColor.rgb, 0.);\n' +
-  '  } else if (textureColor.r == 1. && textureColor.g == 1. && textureColor.b == 1.) {\n' +
+  '    gl_FragColor = vec4(u_Color.rgb, 1.);\n' +
+  '  } else if (textureColor.r == textureColor.g && textureColor.b == textureColor.r) {\n' +
   '    gl_FragColor = vec4(textureColor.rgb, 0.);\n' +
   '  } else {\n' +
-  '   float currentC = u_C*2.0 / 256.0;\n' +
+  '   float currentC = u_C*2.0 / 255.0;\n' +
   '   if (textureColor.b <= currentC) {\n' +
   '      gl_FragColor = vec4(u_Color.rgb, textureColor.a);\n'+
   '   }\n'+ 
+  '   else {\n' +
+  '      gl_FragColor = vec4(1.0,0.0,0.0, 0.0);\n'+
+  '   }\n'+ 
+  
   '  }\n' +
   '}\n';
 
