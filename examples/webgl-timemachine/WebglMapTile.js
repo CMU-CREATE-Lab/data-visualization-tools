@@ -230,7 +230,7 @@ WebglMapTile.seaLevelRiseTextureFragmentShader =
   '  } else if (textureColor.r == 1. && textureColor.g == 1. && textureColor.b == 1.) {\n' +
   '    gl_FragColor = vec4(textureColor.rgb, 0.);\n' +
   '  } else {\n' +
-  '   float currentC = u_C / 256.0;\n' +
+  '   float currentC = u_C*2.0 / 256.0;\n' +
   '   if (textureColor.b <= currentC) {\n' +
   '      gl_FragColor = vec4(u_Color.rgb, textureColor.a);\n'+
   '   }\n'+ 
