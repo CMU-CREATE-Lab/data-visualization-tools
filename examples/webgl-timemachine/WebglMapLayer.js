@@ -44,6 +44,17 @@ WebglMapLayer.prototype.setOptions = function(options) {
   if (options.tileHeight !== undefined) {
     this.setTileHeight(options.tileHeight);
   }
+  if (options.fragmentShader != undefined) {
+    this._fragmentShader = options.fragmentShader;
+  }
+
+  if (options.vertexShader != undefined) {
+    this._vertexShader = options.vertexShader;
+  }
+
+  if (options.drawFunction != undefined) {
+    this._drawFunction = options.drawFunction;
+  }
 
 }
 
@@ -69,10 +80,22 @@ getHeight = function() {
     return this._tileView.getHeight();
 }
 
-WebglMapLayer.prototype.
-_createTile = function(ti, bounds) {
+WebglMapLayer.prototype._createTile = function(ti, bounds) {
+  var opt_options = {};
+
+  if (this._drawFunction) {
+    opt_options.drawFunction = this._drawFunction;
+  }
+
+  if (this._fragmentShader) {
+    opt_options.fragmentShader = this._fragmentShader;
+  }
+  if (this._vertexShader) {
+    opt_options.vertexShader = this._vertexShader;
+  }
+
   var url = this._tileUrl.replace("{z}", ti.l).replace("{x}", ti.c).replace("{y}", ti.r);
-  return new WebglMapTile(glb, ti, bounds, url, this._defaultUrl);
+  return new WebglMapTile(glb, ti, bounds, url, this._defaultUrl, opt_options);
 }
 
 WebglMapLayer.prototype.
@@ -81,11 +104,13 @@ destroy = function() {
 }
 
 // viewBounds:  xmin, xmax, ymin, ymax all in coords 0-256
-WebglMapLayer.prototype.
-draw = function(view) {
+WebglMapLayer.prototype.draw = function(view, opt_options) {
   var width = this._canvasLayer.canvas.width / this._canvasLayer.resolutionScale_;
   var height = this._canvasLayer.canvas.height / this._canvasLayer.resolutionScale_;
-
+  var options = {};
+  if (typeof(opt_options) != "undefined") {
+    options = opt_options;
+  }
   // Compute transform to be x:0-1, y:0-1
   var transform = new Float32Array([2/width,0,0,0, 0,-2/height,0,0, 0,0,0,0, -1,1,0,1]);
   translateMatrix(transform, width*0.5, height*0.5);
@@ -96,5 +121,5 @@ draw = function(view) {
 
   // TODO: Refactor how tile views are initialized and drawn
   this._tileView.setView(view, width, height, this._canvasLayer.resolutionScale_);
-  this._tileView.update(transform);
+  this._tileView.update(transform, options);
 }
