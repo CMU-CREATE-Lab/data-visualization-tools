@@ -1,14 +1,21 @@
 "use strict";
 
-function WebglMapTile(glb, tileidx, bounds, url, defaultUrl) {
+function WebglMapTile(glb, tileidx, bounds, url, defaultUrl, opt_options) {
   if (!WebglMapTile._initted) {
     WebglMapTile._init();
   }
   this._tileidx = tileidx;
   this.glb = glb;
   this.gl = glb.gl;
-  this._textureProgram = glb.programFromSources(WebglMapTile.textureVertexShader,
-                                                WebglMapTile.textureFragmentShader);
+
+  var opt_options = opt_options || {};
+  this._fragmentShader = opt_options.fragmentShader || WebglMapTile.textureFragmentShader;
+  this._vertexShader = opt_options.vertexShader || WebglMapTile.textureVertexShader;
+  this.draw = opt_options.drawFunction || this._draw;
+
+
+  this._textureProgram = glb.programFromSources(this._vertexShader,
+                                                this._fragmentShader);
   this._texture = this._createTexture();
 
   this._triangles = glb.createBuffer(new Float32Array([0, 0,
@@ -118,7 +125,7 @@ WebglMapTile.r2 = function(x) {
 };
 
 
-WebglMapTile.prototype.draw = function(transform) {
+WebglMapTile.prototype._draw = function(transform) {
   var gl = this.gl;
   var tileTransform = new Float32Array(transform);
   translateMatrix(tileTransform, this._bounds.min.x, this._bounds.min.y);
@@ -142,16 +149,48 @@ WebglMapTile.prototype.draw = function(transform) {
   }
 };
 
+WebglMapTile.prototype._drawSeaLevelRise = function(transform, options) {
+  var gl = this.gl;
+  var tileTransform = new Float32Array(transform);
+  translateMatrix(tileTransform, this._bounds.min.x, this._bounds.min.y);
+  scaleMatrix(tileTransform,
+              this._bounds.max.x - this._bounds.min.x,
+              this._bounds.max.y - this._bounds.min.y);
+
+  if (this._ready) {
+    var color = options.color || [0., 0., 0., 1.0]; 
+
+    gl.useProgram(this._textureProgram);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    var cLoc = gl.getUniformLocation(this._textureProgram, 'u_C');
+    gl.uniform1f(cLoc, options.currentC);
+    var uColor =  color;
+    var colorLoc = gl.getUniformLocation(this._textureProgram, 'u_Color');
+    gl.uniform4fv(colorLoc, uColor);
+
+    gl.uniformMatrix4fv(this._textureProgram.uTransform, false, tileTransform);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._triangles);
+    gl.vertexAttribPointer(this._textureProgram.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.enableVertexAttribArray(this._textureProgram.aTextureCoord);
+    gl.bindTexture(gl.TEXTURE_2D, this._texture);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    gl.disable(gl.BLEND);
+  }
+};
+
 // Update and draw tiles
 // Assumes tiles is sorted low res to high res (by TileView)
-WebglMapTile.update = function(tiles, transform) {
+WebglMapTile.update = function(tiles, transform, options) {
   if (si) return;
   WebglTimeMachinePerf.instance.startFrame();
 
   var canvas = document.getElementById('webgl');
 
   for (var i = 0; i < tiles.length; i++) {
-    tiles[i].draw(transform);
+    tiles[i].draw(transform, options);
   }
 
   WebglTimeMachinePerf.instance.endFrame();
@@ -176,6 +215,26 @@ WebglMapTile.textureFragmentShader =
   'void main(void) {\n' +
   '  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));\n' +
   '  gl_FragColor = vec4(textureColor.rgb, textureColor.a);\n' +
+  '}\n';
+
+WebglMapTile.seaLevelRiseTextureFragmentShader =
+  'precision mediump float;\n' +
+  'varying vec2 vTextureCoord;\n' +
+  'uniform sampler2D uSampler;\n' +
+  'uniform float u_C;\n' +
+  'uniform vec4 u_Color;\n' + 
+  'void main(void) {\n' +
+  '  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));\n' +
+  '  if (textureColor.r == 0. && textureColor.g == 0. && textureColor.b == 0.) {\n' +
+  '    gl_FragColor = vec4(textureColor.rgb, 0.);\n' +
+  '  } else if (textureColor.r == 1. && textureColor.g == 1. && textureColor.b == 1.) {\n' +
+  '    gl_FragColor = vec4(textureColor.rgb, 0.);\n' +
+  '  } else {\n' +
+  '   float currentC = u_C / 256.0;\n' +
+  '   if (textureColor.b <= currentC) {\n' +
+  '      gl_FragColor = vec4(u_Color.rgb, textureColor.a);\n'+
+  '   }\n'+ 
+  '  }\n' +
   '}\n';
 
 // stopit:  set to true to disable update()
