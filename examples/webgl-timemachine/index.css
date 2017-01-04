@@ -285,10 +285,12 @@ html, body {
   bottom: 160px !important;
 }
 #layers-list.right-panel {
+  overflow: auto;
+  height: calc(100% - 170px);
   position: absolute;
   bottom: 120px;
   right: 20px;
-  width: 335px;
+  width: 365px;
   padding: 10px;
   background: white;
   border-radius: 2px;
@@ -600,12 +602,50 @@ html, body {
   right: -250px;
 }
 .share {
-  top: 80px !important;
-  left: 90px !important;
+  top: 24px !important;
+  left: 375px !important;
 }
 .share .customButton {
   height: 21px !important;
 }
 .share .customButton .ui-button-text {
   margin-top: 0px !important;
+}
+
+#layers-list::-webkit-scrollbar {
+  -webkit-appearance: none;
+  background: transparent;
+  overflow: visible;
+  width: 17px;
+}
+
+#layers-list::-webkit-scrollbar:vertical {
+  border-width: 6px 4px;
+  min-height: 40px;
+}
+
+#layers-list::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border: solid #fff;
+}
+
+#layers-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+#layers-list::-webkit-scrollbar-track-piece {
+  background-color: #fff;
+}
+
+#layers-list::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+#layers-list::-webkit-scrollbar-thumb {
+  background-color: #ADADAD;
+  -webkit-box-shadow: inset 1px 1px 0 rgba(0,0,0,0.10),inset 0 -1px 0 rgba(0,0,0,0.07);
+}
+
+#layers-list::-webkit-scrollbar-thumb:hover {
+  background-color: #999;
 }

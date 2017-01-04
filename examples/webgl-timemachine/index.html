@@ -89,7 +89,7 @@
     var showChiku = !!EARTH_TIMELAPSE_CONFIG.showChiku;
     var showSeaLevelRise = !!EARTH_TIMELAPSE_CONFIG.showSeaLevelRise; //SLR
 
-    var showShareButton = (window.location.hash.indexOf("showShareButton") >= 0);
+    var showShareButton = (window.location.hash.indexOf("showShareButton") >= 0) || !!EARTH_TIMELAPSE_CONFIG.showShareButton;
     var isHyperwall = showShareButton ? false : !!EARTH_TIMELAPSE_CONFIG.isHyperwall;
     var useGoogleMaps = !!EARTH_TIMELAPSE_CONFIG.useGoogleMaps;
     var useGoogleSearch = (typeof(EARTH_TIMELAPSE_CONFIG.useGoogleSearch) == "undefined") ? true : !!EARTH_TIMELAPSE_CONFIG.useGoogleSearch;
@@ -168,7 +168,7 @@
     var waterOccurrenceUrl = rootTilePath + "/water/occurrence-2015/{default}/{z}/{x}/{y}.png";
     var waterChangeUrl = rootTilePath + "/water/change-2015/{default}/{z}/{x}/{y}.png";
 
-    var wdpaUrl = rootTilePath + "/wdpaline-year/";
+    var wdpaUrl = rootTilePath + "/wdpaline-year";
     var mcrmUrl = rootTilePath + "/coral/mcrm-lines-wrapdateline";
 
     // VIIRS fix
@@ -221,7 +221,7 @@
         useTouchFriendlyUI: isHyperwall,
         datasetType: "landsat",
         playOnLoad: enableRecordingMode ? false : true,
-        mediaType: ".mp4",
+        mediaType: ".webm",
         onTimeMachinePlayerReady: function(viewerDivId) {},
         scaleBarOptions: {
           scaleBarDiv: "scaleBar1"
@@ -1074,9 +1074,9 @@
       var width = $(window).width();
       var height = $(window).height();
       var scale = Math.min(1, Math.min((width * 1.8) / 1920, (height * 1.28) / 1200));
-      if (!enableLetterboxMode) {
-      $('#layers-list').css({'transform-origin': 'bottom right', 'transform': 'scale(' + scale + ')'});
-      }
+      //if (!enableLetterboxMode) {
+      //$('#layers-list').css({'transform-origin': 'bottom right', 'transform': 'scale(' + scale + ')'});
+      //}
       if (!isHyperwall && enableLetterboxMode) {
       scale = Math.min(1, Math.min(width / 1920, height / 1080));
       $('.map-layer-div').css({'transform-origin': 'center right', 'transform': 'scale(' + scale + ')'});
