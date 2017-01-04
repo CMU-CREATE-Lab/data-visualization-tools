@@ -87,6 +87,7 @@
     var showZika = !!EARTH_TIMELAPSE_CONFIG.showZika;
     var showDengue = !!EARTH_TIMELAPSE_CONFIG.showDengue;
     var showChiku = !!EARTH_TIMELAPSE_CONFIG.showChiku;
+    var showSeaLevelRise = !!EARTH_TIMELAPSE_CONFIG.showSeaLevelRise; //SLR
 
     var showShareButton = (window.location.hash.indexOf("showShareButton") >= 0);
     var isHyperwall = showShareButton ? false : !!EARTH_TIMELAPSE_CONFIG.isHyperwall;
@@ -136,6 +137,7 @@
     var zikaLayer, dengueLayer, chikuLayer;
     var viirsLayer;
     var wdpaLayer;
+    var seaLevelRiseLayer; //SLR
 
     // ## 2 ##
     //// Layer tile paths
@@ -190,6 +192,8 @@
     var zikaUrl = rootTilePath + "/pandemics/zika";
     var dengueUrl = rootTilePath + "/pandemics/dengue";
     var chikuUrl = rootTilePath + "/pandemics/chiku";
+
+    var seaLevelRiseUrl = "http://a.ss2tiles.climatecentral.org/lockin_animated/{z}/{x}/{y}.png"; //SLR
 
 
     function init() {
@@ -951,6 +955,21 @@
       }
     }).prop('checked', showChikuLayer);
 
+    $("#show-sea-level-rise").on("click", function() { //SLR
+      if ($(this).prop('checked')) {
+        showSeaLevelRiseLayer = true;
+        setActiveLayersWithTimeline(1);
+        $("#sea-level-rise-legend").show();
+        timelineType = "customUI";
+        requestNewTimeline("sea-level-rise-times.json", timelineType);                
+      } else {
+        requestNewTimeline(cachedLandsatTimeJson, timelineType);
+        showSeaLevelRiseLayer = false;
+        setActiveLayersWithTimeline(-1);
+        $("#sea-level-rise-legend").hide();
+      }
+    }).prop('checked', showSeaLevelRiseLayer);
+
     // Set the starting base layer
     $("input:radio[name=base-layers]").on("click", function() {
       visibleBaseMapLayer = $(this).val();
@@ -1180,6 +1199,7 @@
     var showZikaLayer = false;
     var showDengueLayer = false;
     var showChikuLayer = false;
+    var showSeaLevelRiseLayer = false; //SLR
 
 
     // Default Time Machine visibility
@@ -1246,6 +1266,7 @@
     var show_dengue = '<td class="dengue-select"> <label for="show-dengue" name="sp"><input type="checkbox" id="show-dengue" />Dengue<span class="credit"> (LSHTM)</span></label></td>';
     var show_chiku = '<td class="chiku-select"> <label for="show-chiku" name="sp"><input type="checkbox" id="show-chiku" />Chikungunya<span class="credit"> (LSHTM)</span></label></td>';
 
+    var show_sea_level_rise = '<td class="sea-level-rise-select"><label for="show-sea-level-rise" name="slr"><input type="checkbox" id="show-sea-level-rise" />Sea Level Rise<span class="credit"> (Climate Central)</span></label></td>'; //SLR
 
     if (enableLetterboxMode) {
       layer_html += '<div class="base-map-div">';
@@ -1392,6 +1413,11 @@
         layer_html += show_chiku;
         layer_html += '   </tr>';
       }
+     if (showSeaLevelRise){ //SLR
+        layer_html += '   <tr>';
+        layer_html += show_sea_level_rise;
+        layer_html += '   </tr>';
+      }      
       layer_html += '   <tr>';
       layer_html += show_himawari;
       layer_html += '   </tr>';
@@ -1703,6 +1729,17 @@
       vertexShader: WebGLVectorTile2.vectorPointTileVertexShader
     };
     chikuLayer  = new WebglVectorLayer2(glb, canvasLayer, chikuUrl, chikuLayerOptions);
+
+    var seaLevelRiseLayerOptions = {
+      nLevels: 12,
+      tileWidth: 256,
+      tileHeight: 256,
+      fragmentShader: WebglMapTile.seaLevelRiseTextureFragmentShader,
+      drawFunction: WebglMapTile.prototype._drawSeaLevelRise,
+
+    };
+
+    seaLevelRiseLayer = new WebglMapLayer(glb, canvasLayer, seaLevelRiseUrl, seaLevelRiseLayerOptions); //SLR
 
     // Layer Toggle UI
     initLayerToggleUI();
@@ -2391,6 +2428,28 @@
         options.color = [0.1, 0.1, 1.0, 1.0];
         options.pointSize = 20.0;
         chikuLayer.draw(chikuLayerView, options);
+      }
+
+      //SLR
+      if (showSeaLevelRiseLayer) {
+        // Construct view for hansenMapLayer2
+        var seaLevelRiseLayerView = getLayerView(seaLevelRiseLayer, landsatBaseMapLayer);
+        var options = {};
+        var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
+        var times = timelapse.getCaptureTimes();
+        var start = parseFloat(times[0]);
+        var end = parseFloat(times[times.length - 1]) + 0.5;
+        var range = end - start;
+        var current = ratio*range + start;
+        options.currentC = Math.min(current, 4.0);
+        if (visibleBaseMapLayer == "landsat") {
+          options.color = [0.1,0.1,0.1,1.0];
+        } else if (visibleBaseMapLayer == "light") {
+          options.color = [0.4921875, 0.7421875, 0.91015625, 1.0];
+        } else if (visibleBaseMapLayer == "dark") {
+          options.color = [0.203125, 0.203125, 0.203125, 1.0];
+        }        
+        seaLevelRiseLayer.draw(seaLevelRiseLayerView, options);
       }
 
       // ## 7 ##
