@@ -115,7 +115,6 @@
     var timelapse, previousWaypoint = {}, previousHimawariIdx, waypointViewChangeListener, hideWaypointListener;
     var himawariWaypoints = {};
     var timelineType = "customUI";
-    var previousTimelineType = timelineType;
     var activeLayersWithTimeline = 0;
     var keysDown = [];
 
@@ -1183,7 +1182,6 @@
             $(".customControl").hide();
             $(".controls, .captureTime").show();
           }
-          previousTimelineType = timelineType;
         }
       };
 
