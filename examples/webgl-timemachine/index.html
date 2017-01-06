@@ -89,6 +89,7 @@
     var showDengue = !!EARTH_TIMELAPSE_CONFIG.showDengue;
     var showChiku = !!EARTH_TIMELAPSE_CONFIG.showChiku;
     var showSeaLevelRise = !!EARTH_TIMELAPSE_CONFIG.showSeaLevelRise; //SLR
+    var showUrbanFragility = !!EARTH_TIMELAPSE_CONFIG.showUrbanFragility;
 
     var showShareButton = (window.location.hash.indexOf("showShareButton") >= 0) || !!EARTH_TIMELAPSE_CONFIG.showShareButton;
     var isHyperwall = showShareButton ? false : !!EARTH_TIMELAPSE_CONFIG.isHyperwall;
@@ -144,6 +145,7 @@
     var viirsLayer;
     var wdpaLayer;
     var seaLevelRiseLayer; //SLR
+    var urbanFragilityLayer;
 
     // ## 2 ##
     //// Layer tile paths
@@ -201,6 +203,7 @@
 
     var seaLevelRiseUrl = "http://a.ss2tiles.climatecentral.org/lockin_animated/{z}/{x}/{y}.png"; //SLR
 
+    var urbanFragilityUrl = rootTilePath + "/urban-fragility";
 
     function init() {
       var settings = {
@@ -1000,6 +1003,21 @@
         }
       }).prop('checked', showSeaLevelRiseLayer);
 
+      $("#show-urban-fragility").on("click", function() { 
+        if ($(this).prop('checked')) {
+          showUrbanFragilityLayer = true;
+          setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
+          requestNewTimeline("urban-fragility-times.json", timelineType);
+          $("#urban-fragility-legend").show();
+        } else {
+          showUrbanFragilityLayer = false;
+          setActiveLayersWithTimeline(-1);
+          requestNewTimeline(cachedLandsatTimeJson, timelineType);
+          $("#urban-fragility-legend").hide();
+        }
+      }).prop('checked', showUrbanFragilityLayer);
+
 
       $("input:radio[name=base-layers]").on("click", function() {
         visibleBaseMapLayer = $(this).val();
@@ -1251,6 +1269,7 @@
     var showDengueLayer = false;
     var showChikuLayer = false;
     var showSeaLevelRiseLayer = false; //SLR
+    var showUrbanFragilityLayer = false;
 
 
     // Default Time Machine visibility
@@ -1317,6 +1336,7 @@
       var show_dengue = '<td class="dengue-select"> <label for="show-dengue" name="dv"><input type="checkbox" id="show-dengue" />Dengue<span class="credit"> (LSHTM)</span></label></td>';
       var show_chiku = '<td class="chiku-select"> <label for="show-chiku" name="cv"><input type="checkbox" id="show-chiku" />Chikungunya<span class="credit"> (LSHTM)</span></label></td>';
       var show_sea_level_rise = '<td class="sea-level-rise-select"><label for="show-sea-level-rise" name="slr"><input type="checkbox" id="show-sea-level-rise" />Sea Level Rise<span class="credit"> (Climate Central)</span></label></td>'; //SLR
+      var show_urban_fragility = '<td class="urban-fragility-select"><label for="show-urban-fragility" name="uf"><input type="checkbox" id="show-urban-fragility" />Urban Fragility<span class="credit"> (Igarape Institute)</span></label></td>'; 
 
       if (enableLetterboxMode) {
         layer_html += '<div class="base-map-div">';
@@ -1468,6 +1488,11 @@
           layer_html += show_sea_level_rise;
           layer_html += '   </tr>';
         }
+        if (showUrbanFragility) { 
+          layer_html += '   <tr>';
+          layer_html += show_urban_fragility;
+          layer_html += '   </tr>';
+        }
         layer_html += '   <tr>';
         layer_html += show_himawari;
         layer_html += '   </tr>';
@@ -1532,6 +1557,7 @@
       legend_html += '<tr id="vsi-legend" style="display: none"><td><div style="font-size: 17px">Vegetation Sensitivity Index 2000-2013</div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">0</div><div style="margin-top: 4px; float: left; background-image: -webkit-linear-gradient(left, rgb(0, 139, 0), rgb(92, 182, 69) 17%, rgb(163, 221, 99) 33%, rgb(255, 255, 0) 50%, rgb(255, 205, 0) 67%, rgb(255, 144, 0) 83%, rgb(255, 4, 0) 100%);background-image: linear-gradient(left, rgb(0, 139, 0), rgb(92, 182, 69) 17%, rgb(163, 221, 99) 33%, rgb(255, 255, 0) 50%, rgb(255, 205, 0) 67%, rgb(255, 144, 0) 83%, rgb(255, 4, 0) 100%); width: 45px; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">100</div></td></tr>';
       legend_html += '<tr id="health-impact-legend" style="display: none"><td><div style="font-size: 17px">Nutritional Deficiencies</div><svg width="242" height="180"><rect width="240" height="160" fill="white" opacity="0"></rect> <g transform="translate(2,10)"> <circle class="gain" r="5" cx="5" cy="10" style="fill: #8b0000; stroke: #fff;"></circle> <circle class="loss" r="5" cx="5" cy="30" style="fill: #00008b; stroke: #fff;"></circle> <text x="15" y="13">Mean deaths per capita</text> <text x="15" y="33">Mean lives per capita</text> <circle r="10.0" cx="160.0" cy="160.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="152.0" dy="13" style="font-size: 10px; fill: #666">5K</text><circle r="30.0" cx="160.0" cy="140.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="130.0" dy="13" style="font-size: 10px; fill: #666">15K</text><circle r="60.0" cx="160.0" cy="110.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="80.0" dy="13" style="font-size: 10px; fill: #666">30K</text></g> </svg></td></tr>';
       legend_html += '<tr id="sea-level-rise-legend" style="display: none"><td><div style="font-size: 17px">Global Temperature Rise &#x2103;</div><div style="font-size: 15px">Future Sea Level <span id="slr-feet" style="width:25px;"></span>&nbsp;<span id="slr-meters" style="width:25px; color: red;"></span></div></td></tr>';
+      legend_html += '<tr id="urban-fragility-legend" style="display: none"><td><div style="font-size: 17px">Fragile Score</div></div><svg width="200" height="30"> <rect fill="rgb(255,255,204)" x="0"   height="9" width="20"></rect><rect fill="rgb(255,237,160)" x="20"  height="9" width="20"></rect><rect fill="rgb(254,217,118)" x="40"  height="9" width="20"></rect><rect fill="rgb(254,178,76)"  x="60"  height="9" width="20"></rect><rect fill="rgb(253,141,60)"  x="80"  height="9" width="20"></rect><rect fill="rgb(252,78,42)"   x="100" height="9" width="20"></rect><rect fill="rgb(227,26,28)"   x="120" height="9" width="20"></rect><rect fill="rgb(189,0,38)"    x="140" height="9" width="20"></rect><rect fill="rgb(128,0,38)"    x="160" height="9" width="20"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">1.0</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="85">2.1</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="165">3.1</text></svg></td></tr>';
 
       legend_html += '</table>';
       legend_html += '</div>';
@@ -1790,6 +1816,18 @@
       };
 
       seaLevelRiseLayer = new WebglMapLayer(glb, canvasLayer, seaLevelRiseUrl, seaLevelRiseLayerOptions); //SLR
+
+
+      var urbanFragilityLayerOptions = {
+        tileWidth: 256,
+        tileHeight: 256,
+        nLevels: 0,
+        setDataFunction: WebGLVectorTile2.prototype._setUrbanFragilityData,
+        drawFunction: WebGLVectorTile2.prototype._drawUrbanFragility,
+        fragmentShader: WebGLVectorTile2.urbanFragilityFragmentShader,
+        vertexShader: WebGLVectorTile2.urbanFragilityVertexShader
+      };
+      urbanFragilityLayer = new WebglVectorLayer2(glb, canvasLayer, urbanFragilityUrl, urbanFragilityLayerOptions);
 
       // Layer Toggle UI
       initLayerToggleUI();
@@ -2162,6 +2200,58 @@
         view.y *= timelapse2map;
         view.scale /= timelapse2map;
         return view;
+      }
+
+      // Extracting dates from timelapse -- TODO: Refactor and put in timemachine?
+      function getDates(timelapse) {
+        var dates = [];
+        for (var i = 0; i < timelapse.getNumFrames(); i++) {
+          dates.push(new Date(timelapse.getCaptureTimes()[i]))
+        }
+        return dates;
+      }
+
+      function getCurrentTimes(timelapse) {
+        var currentTimes = []
+        for (var i = 0; i < timelapse.getNumFrames(); i++) {
+          currentTimes.push(i/timelapse.getFps())
+        }
+        return currentTimes;
+      }
+
+      function getCurrentTimeIndex(currentTime, currentTimes) {
+        for (var i = 0; i < currentTimes.length; i++) {
+          if (currentTime <= currentTimes[i])  {
+            return i
+          }
+        }
+        return currentTimes.length - 1;
+      }
+
+      function getCurrentTimesDelta(currentTime, currentTimes) {
+        var currentIndex = getCurrentTimeIndex(currentTime, currentTimes);
+        var previousIndex = 0;
+        var range = 1;
+        if (currentIndex != 0) {
+          previousIndex = currentIndex - 1;
+          range = (currentTimes[currentIndex] - currentTimes[previousIndex]);
+        }
+        var delta = (currentTime - currentTimes[previousIndex]) / range;
+        return delta;
+      }
+
+
+      function getCurrentDate(currentTime, currentTimes, dates) {
+        var delta = getCurrentTimesDelta(currentTime, currentTimes);
+        var currentIndex = getCurrentTimeIndex(currentTime, currentTimes);
+        var previousIndex = 0;
+        if (currentIndex != 0) {
+          previousIndex = currentIndex - 1;
+        }
+        var currentDate = dates[currentIndex];
+        var previousDate = dates[previousIndex];
+        var range = currentDate - previousDate;
+        return new Date(previousDate.getTime() + range*delta);
       }
 
       // Draw Himawari8. This is a special case that does not play with any of the other layers.
@@ -2575,6 +2665,23 @@
           //feet.innerHTML = sea_level_heights[currentIndex][0] + "ft";
           meters.innerHTML = "+" + sea_level_heights[currentIndex][1].toFixed(1) + "m";
           seaLevelRiseLayer.draw(seaLevelRiseLayerView, options);
+        }
+
+        if (showUrbanFragilityLayer) {
+          var urbanFragilityLayerView = getLayerView(urbanFragilityLayer, landsatBaseMapLayer);
+          var options = {};
+          options.zoom = timelapse.getCurrentZoom();
+
+          var currentTime = timelapse.getCurrentTime();
+          var currentTimes = getCurrentTimes(timelapse);
+          var dates = getDates(timelapse);
+          var delta = getCurrentTimesDelta(currentTime, currentTimes);
+          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
+          var year = currentDate.getUTCFullYear();
+          options.year = year;
+          options.delta = Math.min(delta, 1);
+          urbanFragilityLayer.draw(urbanFragilityLayerView, options);
+
         }
 
         // ## 7 ##
