@@ -245,6 +245,49 @@ WebGLVectorTile2.prototype._setHealthImpactData = function(arrayBuffer) {
   }
 }
 
+WebGLVectorTile2.prototype._setUrbanFragilityData = function(arrayBuffer) {
+  var gl = this.gl;
+  this._pointCount = arrayBuffer.length / 5;
+  if (this._pointCount > 0) {
+    this._data = arrayBuffer;
+    this._arrayBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Centroid');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 20, 0);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Year');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 20, 8);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Val1');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 20, 12);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Val2');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 20, 16);
+
+    this._texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, this._texture);
+
+    // Set the parameters so we can render any size image.
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+    // Upload the image into the texture.
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._image);
+
+    gl.bindTexture(gl.TEXTURE_2D, null);
+
+    this._ready = true;
+  }
+}
+
 
 WebGLVectorTile2.prototype.isReady = function() {
   return this._ready;
@@ -702,6 +745,66 @@ WebGLVectorTile2.prototype._drawViirs = function(transform, options) {
   }
 }
 
+WebGLVectorTile2.prototype._drawUrbanFragility = function(transform, options) {
+  var gl = this.gl;
+  if (this._ready) {
+    gl.useProgram(this.program);
+    gl.enable(gl.BLEND);
+    gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+
+    var zoom = options.zoom || (2.0 * window.devicePixelRatio);
+    var pointSize = Math.floor( ((20-5) * (zoom - 0) / (21 - 0)) + 5 );
+    if (isNaN(pointSize)) {
+      pointSize = 1.0;
+    }
+    var pointSize = 2.0 * window.devicePixelRatio;
+
+    var sizeLoc = gl.getUniformLocation(this.program, 'u_Size');
+    gl.uniform1f(sizeLoc, pointSize);
+
+    var tileTransform = new Float32Array(transform);
+    scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
+    translateMatrix(tileTransform, (this._bounds.max.x - this._bounds.min.x)/256., (this._bounds.max.y - this._bounds.min.y)/256.);
+    scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+    var matrixLoc = gl.getUniformLocation(this.program, 'u_MapMatrix');
+    gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+
+    var year = options.year;
+    var delta = options.delta;
+
+    var deltaLoc = gl.getUniformLocation(this.program, 'u_Delta');
+    gl.uniform1f(deltaLoc, delta);
+
+    var epochLoc = gl.getUniformLocation(this.program, 'u_Year');
+    gl.uniform1f(epochLoc, year);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Centroid');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 20, 0);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Year');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 20, 8);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Val1');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 20, 12);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Val2');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 20, 16);
+
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, this._texture); 
+    gl.uniform1i(gl.getUniformLocation(this.program, "u_Image"), 0);
+
+    gl.drawArrays(gl.POINTS, 0, this._pointCount);
+
+    gl.disable(gl.BLEND);
+  }
+}
+
 // Update and draw tiles
 WebGLVectorTile2.update = function(tiles, transform, options) {
   for (var i = 0; i < tiles.length; i++) {
@@ -1015,4 +1118,48 @@ WebGLVectorTile2.wdpaFragmentShader =
 'void main() {\n' +
 '  gl_FragColor = vec4(.0, 1., .15, 1.0);\n' +
 '}\n';
+
+WebGLVectorTile2.urbanFragilityVertexShader = 
+'attribute vec4 a_Centroid;\n' +
+'attribute float a_Year;\n' +
+'attribute float a_Val1;\n' +
+'attribute float a_Val2;\n' +
+'uniform float u_Delta;\n' +
+'uniform float u_Size;\n' +
+'uniform float u_Year;\n' +
+'uniform mat4 u_MapMatrix;\n' +
+'varying float v_Val;\n' +
+'\n' +
+'void main() {\n' +
+'  vec4 position;\n' +
+'  if (a_Year != u_Year) {\n' +
+'    position = vec4(-1,-1,-1,-1);\n' +
+'  } else {\n' +
+'    position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);\n' +
+'  }\n' +
+'  gl_Position = position;\n' +
+'  float size = (a_Val2 - a_Val1) * u_Delta + a_Val1;\n' +
+'  v_Val = size;\n' +
+'  gl_PointSize = u_Size * exp(size);\n' +
+'}\n';
+
+WebGLVectorTile2.urbanFragilityFragmentShader = 
+'precision mediump float;\n' +
+'uniform sampler2D u_Image;\n' +
+'varying float v_Val;\n' +
+'float scale(float val) {\n' +
+'  float min = 1.;\n' +
+'  float max = 3.5;\n' +
+'  return (val - min)/(max -min);\n' +
+'}\n' +
+'void main() {\n' +
+'  float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
+'  dist = 1. - (dist * 2.);\n' +
+'  dist = max(0., dist);\n' +
+'  float alpha = smoothstep(0.3-dist, 0.3, dist);\n' +
+'  vec4 color = texture2D(u_Image, vec2(scale(v_Val),scale(v_Val)));\n' +
+'  gl_FragColor = vec4(color.r, color.g, color.b, .75) * alpha;\n' +
+'}\n';
+
+
 
