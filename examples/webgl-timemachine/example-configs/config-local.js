@@ -27,6 +27,7 @@ var EARTH_TIMELAPSE_CONFIG = {
   "showDengue": false,
   "showChiku": false,
   "subsampleAnnualRefugees": false,
-  "showSeaLevelRise": false
+  "showSeaLevelRise": false,
+  "showUrbanFragility": false
 
 };
