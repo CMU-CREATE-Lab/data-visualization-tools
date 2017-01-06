@@ -32,13 +32,17 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
 
   this.program = glb.programFromSources(this._vertexShader, this._fragmentShader);  
 
-  this._image = new Image();
-  this._image.src = "annual-refugees-color-map.png";
-  this._image.onload = function() {
-    console.log("loaded");
+  if (opt_options.imageSrc) {
+    this._image = new Image();
+    this._image.src = opt_options.imageSrc;
+    var that = this;
+    this._image.onload = function() {
+      that._load();
+    }
+  } else {
+    this._load();
   }
 
-  this._load();
 
 }
 

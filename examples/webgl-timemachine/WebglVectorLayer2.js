@@ -9,8 +9,6 @@ function WebglVectorLayer2(glb, canvasLayer, tileUrl, opt_options) {
   this._tileWidth = 256;
   this._tileHeight = 256;
 
-
-
   if (opt_options) {
     this.setOptions(opt_options);
   }
@@ -62,6 +60,10 @@ WebglVectorLayer2.prototype.setOptions = function(options) {
     this._vertexShader = options.vertexShader;
   }
 
+  if (options.imageSrc != undefined) {
+    this._imageSrc = options.imageSrc;
+  }
+
 }
 
 
@@ -99,6 +101,9 @@ WebglVectorLayer2.prototype._createTile = function(ti, bounds) {
   }
   if (this._vertexShader) {
     opt_options.vertexShader = this._vertexShader;
+  }
+  if (this._imageSrc) {
+    opt_options.imageSrc = this._imageSrc;
   }
 
   return new WebGLVectorTile2(glb, ti, bounds, url, opt_options);

@@ -1757,7 +1757,9 @@
         setDataFunction: WebGLVectorTile2.prototype._setAnnualRefugeesData,
         drawFunction: WebGLVectorTile2.prototype._drawAnnualRefugees,
         fragmentShader: WebGLVectorTile2.annualRefugeesFragmentShader,
-        vertexShader: WebGLVectorTile2.annualRefugeesVertexShader
+        vertexShader: WebGLVectorTile2.annualRefugeesVertexShader,
+        imageSrc: "annual-refugees-color-map.png"
+
       };
       annualRefugeesLayer = new WebglVectorLayer2(glb, canvasLayer, annualRefugeesUrl, annualRefugeesLayerOptions);
 
@@ -1825,7 +1827,9 @@
         setDataFunction: WebGLVectorTile2.prototype._setUrbanFragilityData,
         drawFunction: WebGLVectorTile2.prototype._drawUrbanFragility,
         fragmentShader: WebGLVectorTile2.urbanFragilityFragmentShader,
-        vertexShader: WebGLVectorTile2.urbanFragilityVertexShader
+        vertexShader: WebGLVectorTile2.urbanFragilityVertexShader,
+        imageSrc: "urban-fragility-color-map.png"
+
       };
       urbanFragilityLayer = new WebglVectorLayer2(glb, canvasLayer, urbanFragilityUrl, urbanFragilityLayerOptions);
 
