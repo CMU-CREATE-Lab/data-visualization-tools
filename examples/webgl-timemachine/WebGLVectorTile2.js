@@ -687,7 +687,7 @@ WebGLVectorTile2.prototype._drawViirs = function(transform, options) {
   var minTemp = opts.minTemp || _minTemp;
   var maxTemp = opts.maxTemp || _maxTemp;
   var pointSize = opts.pointSize || (2.0 * window.devicePixelRatio);
-  var zoom = options.zoom || (2.0 * window.devicePixelRatio);
+  var zoom = options.zoom;
 
   if (options.currentTime) {
     maxTime = options.currentTime;
@@ -727,10 +727,10 @@ WebGLVectorTile2.prototype._drawViirs = function(transform, options) {
     gl.vertexAttribPointer(tempLocation, 1, gl.FLOAT, false, 16, 12);
 
     var timeLoc = gl.getUniformLocation(this.program, 'maxTime');
-    gl.uniform1f(timeLoc, maxTime*1.);
+    gl.uniform1f(timeLoc, maxTime/1000.);
 
     var timeLoc = gl.getUniformLocation(this.program, 'minTime');
-    gl.uniform1f(timeLoc, minTime*1.);
+    gl.uniform1f(timeLoc, minTime/1000.);
 
     var showTempLoc = gl.getUniformLocation(this.program, 'showTemp');
     gl.uniform1f(showTempLoc, showTemp);
