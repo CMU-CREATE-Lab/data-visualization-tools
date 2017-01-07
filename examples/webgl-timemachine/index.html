@@ -1587,7 +1587,7 @@
       // Landsat
       var defaultTimeMachineLayerOptions = {
         mediaType: ".mp4",
-        numFrames: 32,
+        numFrames: cached_ajax['landsat-times.json']['capture-times'].length,
         fps: 10
       };
       landsatBaseMapLayer = new WebglTimeMachineLayer(glb, canvasLayer, landsatUrl, defaultTimeMachineLayerOptions);
@@ -1595,7 +1595,7 @@
       // Coral Bleaching Alerts
       var crwTimemacineLayerOptions = {
         mediaType: ".mp4",
-        numFrames: 904,
+        numFrames: cached_ajax['crw-times.json']['capture-times'].length,
         fps: 22,
         video_width: 1424,
         video_height: 800,
@@ -1608,7 +1608,7 @@
       // Himawari-8
       var himawariTimeMachineLayerOptions = {
         mediaType: ".mp4",
-        numFrames: 4249,
+        numFrames: cached_ajax['himawari-times.json']['capture-times'].length,
         fps: 12,
         nLevels: 4,
         video_width: 1424,
@@ -1621,7 +1621,7 @@
       // Forest Alerts
       var forestAlertsTimeMachineLayerOptions = {
         mediaType: ".mp4",
-        numFrames: 237,
+        numFrames: cached_ajax['forest-alerts-times.json']['capture-times'].length,
         fps: 10,
         nLevels: 11,
         video_width: 1424,
