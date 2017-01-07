@@ -282,7 +282,7 @@ html, body {
   z-index: 99;
 }
 #layers-list.right-panel.hyperwall {
-  bottom: 160px !important;
+  bottom: 135px !important;
 }
 #layers-list.right-panel {
   overflow: auto;
