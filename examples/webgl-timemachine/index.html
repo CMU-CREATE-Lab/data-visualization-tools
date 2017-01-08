@@ -1138,7 +1138,7 @@
       });
 
       $('.map-layer-checkbox, .ui-multiselect-checkboxes').on("click", function() {
-        var selectedLayers = $(this).find("input:checked");
+        var selectedLayers = $('.map-layer-checkbox, .ui-multiselect-checkboxes').find("input:checked");
         var numLayersOn = selectedLayers.size();
         var continueState = true;
         selectedLayers.each(function() {
@@ -1171,17 +1171,14 @@
       }
 
       var timelineUIHandler = function() {
-        console.log("hey");
         // Hide any timelines that are visible if we have no layers up that require a timeline or we are a static layer that fully covers the entire globe
         if (activeLayersWithTimeline <= 0 || (visibleBaseMapLayer == "landsat" && activeLayersWithTimeline == 1 && (showLightsAtNightLayer || showHansenLayer2 || showVsiLayer))) {
           $(".controls, .customControl").hide();
         } else {
           if (timelineType == "customUI") {
-            console.log("customUI time");
             $(".controls, .captureTime").hide();
             $(".customControl").show().children().show();
           } else if (timelineType == "defaultUI") {
-            console.log("defaultUI time");
             $(".customControl").hide();
             $(".controls, .captureTime").show();
           }
@@ -1193,7 +1190,7 @@
         if (activeLayersWithTimeline < 0) activeLayersWithTimeline = 0;
       };
 
-      $('#layers-list input').on("click", timelineUIHandler);
+      $('#layers-list input, .ui-multiselect-checkboxes input').on("click", timelineUIHandler);
 
       timelapse.addTimelineUIChangeListener(timelineUIHandler);
     }
@@ -1630,7 +1627,7 @@
       if (enableLetterboxMode) {
         $(layer_html).appendTo($("#content"));
         $(legend_html).appendTo($("#content"));
-        $("#presentation-slider-selection, .base-map-radio, .map-layer-checkbox, .extras-selector, .presentationSlider, #layers-legend, .customInstructions").addClass("letterbox");
+        $("#presentation-slider-selection, .base-map-radio, .map-layer-checkbox, .extras-selector, .presentationSlider, #layers-legend, .customInstructions, .player").addClass("letterbox");
         $(".base-map-div, .map-layer-div, .extras-selector-div").addClass("top-panel letterbox");
         $(".current-location-text, .landsat-select, .wdpa-select, .forest-change-select, .viirs-select, .forest-loss-gain-select, .animated-forest-loss-select, .forest-alerts-select, .forest-alerts-no-overlay-select, .lights-at-night-select, .coral-select, .coral-bleaching-select, .wind-select, .solar-select, .drilling-select, .himawari-select, .water-occurrence-select, .water-change-select .monthly-refugees-select").addClass("letterbox");
         // Theme dropdowns
