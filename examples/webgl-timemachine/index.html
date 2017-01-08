@@ -118,6 +118,8 @@
     var himawariWaypoints = {};
     var timelineType = "customUI";
     var activeLayersWithTimeline = 0;
+    var previousActiveLayersWithTimeline = 0;
+    var doTimelineUIHandlerFinalCheck = false;
     var keysDown = [];
 
     // This is necessary because waypoint thumbnails are generated from the Landsat set and thus the best we can show is just a solid black thumbnail
@@ -592,11 +594,11 @@
           showViirsLayer = false;
           if (doSwitchToLandsat()) {
             timelineType = "customUI";
-            setActiveLayersWithTimeline(-1);
             requestNewTimeline(cachedLandsatTimeJson, timelineType);
             timelapse.setPlaybackRate(defaultPlaybackSpeed);
             timelapse.setDoDwell(true);
           }
+          setActiveLayersWithTimeline(-1);
           $("#fires-at-night-legend").hide();
         }
       }).prop('checked', showViirsLayer);
@@ -613,8 +615,8 @@
           showMcrmLayer = false;
           if (doSwitchToLandsat()) {
             timelineType = "customUI";
-            setActiveLayersWithTimeline(-1);
           }
+          setActiveLayersWithTimeline(-1);
           if (!$("#show-coral-bleaching-alerts").prop('checked')) {
             $("#coral-bleaching-legend").hide();
           }
@@ -639,13 +641,13 @@
           showMcrmLayer = false;
           if (doSwitchToLandsat()) {
             timelineType = "customUI";
-            setActiveLayersWithTimeline(-1);
             requestNewTimeline(cachedLandsatTimeJson, timelineType);
             timelapse.setDoDwell(true);
             WebglVideoTile.useGreenScreen = false;
             var v = timelapse.getVideoset();
             v.setFps(10);
           }
+          setActiveLayersWithTimeline(-1);
           $("#coral-bleaching-alerts-legend").hide();
           if (!$("#show-coral").prop('checked')) {
             $("#coral-bleaching-legend").hide();
@@ -765,12 +767,12 @@
           showMonthlyRefugeesLayer = false;
           if (doSwitchToLandsat()) {
             timelineType = "customUI";
-            setActiveLayersWithTimeline(-1);
             requestNewTimeline(cachedLandsatTimeJson, timelineType);
             timelapse.setPlaybackRate(defaultPlaybackSpeed);
             timelapse.setDoDwell(true);
             timelapse.setMaxScale(landsatMaxScale);
           }
+          setActiveLayersWithTimeline(-1);
           $("#monthly-refugees-legend").hide();
         }
       }).prop('checked', showMonthlyRefugeesLayer);
@@ -820,23 +822,17 @@
             $("#health-impact-legend").show();
             previousVisibleBaseMapLayer = visibleBaseMapLayer;
           }
-          $("#health-impact-rcp2p6-legend").show();
           showHealthImpactRcp[0] = true;
         } else {
-          if (showHealthImpactRcp[1] || showHealthImpactRcp[2] || showHealthImpactRcp[3]) {
-            $("#health-impact-rcp2p6-legend").hide();
-          } else {
-            showHealthImpactLayer = false;
-            timelineType = "customUI";
-            setActiveLayersWithTimeline(-1);
-            requestNewTimeline(cachedLandsatTimeJson, timelineType);
-            timelapse.setPlaybackRate(defaultPlaybackSpeed);
-            timelapse.setDoDwell(true);
-            timelapse.setMaxScale(landsatMaxScale);
-            $("#health-impact-legend").hide();
-            visibleBaseMapLayer = previousVisibleBaseMapLayer;
-          }
-          $("#health-impact-rcp2p6-legend").hide();
+          showHealthImpactLayer = false;
+          timelineType = "customUI";
+          setActiveLayersWithTimeline(-1);
+          requestNewTimeline(cachedLandsatTimeJson, timelineType);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          timelapse.setDoDwell(true);
+          timelapse.setMaxScale(landsatMaxScale);
+          $("#health-impact-legend").hide();
+          visibleBaseMapLayer = previousVisibleBaseMapLayer;
           showHealthImpactRcp[0] = false;
         }
       }).prop('checked', showHealthImpactLayer);
@@ -854,23 +850,17 @@
             $("#health-impact-legend").show();
             previousVisibleBaseMapLayer = visibleBaseMapLayer;
           }
-          $("#health-impact-rcp4p5-legend").show();
           showHealthImpactRcp[1] = true;
         } else {
-          if (showHealthImpactRcp[0] || showHealthImpactRcp[2] || showHealthImpactRcp[3]) {
-            $("#health-impact-rcp4p5-legend").hide();
-          } else {
-            showHealthImpactLayer = false;
-            timelineType = "customUI";
-            setActiveLayersWithTimeline(-1);
-            requestNewTimeline(cachedLandsatTimeJson, timelineType);
-            timelapse.setPlaybackRate(defaultPlaybackSpeed);
-            timelapse.setDoDwell(true);
-            timelapse.setMaxScale(landsatMaxScale);
-            $("#health-impact-legend").hide();
-            visibleBaseMapLayer = previousVisibleBaseMapLayer;
-          }
-          $("#health-impact-rcp4p5-legend").hide();
+          showHealthImpactLayer = false;
+          timelineType = "customUI";
+          setActiveLayersWithTimeline(-1);
+          requestNewTimeline(cachedLandsatTimeJson, timelineType);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          timelapse.setDoDwell(true);
+          timelapse.setMaxScale(landsatMaxScale);
+          $("#health-impact-legend").hide();
+          visibleBaseMapLayer = previousVisibleBaseMapLayer;
           showHealthImpactRcp[1] = false;
         }
       }).prop('checked', showHealthImpactLayer);
@@ -888,23 +878,17 @@
             $("#health-impact-legend").show();
             previousVisibleBaseMapLayer = visibleBaseMapLayer;
           }
-          $("#health-impact-rcp6p0-legend").show();
           showHealthImpactRcp[2] = true;
         } else {
-          if (showHealthImpactRcp[0] || showHealthImpactRcp[1] || showHealthImpactRcp[3]) {
-            $("#health-impact-rcp6p0-legend").hide();
-          } else {
-            showHealthImpactLayer = false;
-            timelineType = "customUI";
-            setActiveLayersWithTimeline(-1);
-            requestNewTimeline(cachedLandsatTimeJson, timelineType);
-            timelapse.setPlaybackRate(defaultPlaybackSpeed);
-            timelapse.setDoDwell(true);
-            timelapse.setMaxScale(landsatMaxScale);
-            $("#health-impact-legend").hide();
-            visibleBaseMapLayer = previousVisibleBaseMapLayer;
-          }
-          $("#health-impact-rcp6p0-legend").hide();
+          showHealthImpactLayer = false;
+          timelineType = "customUI";
+          setActiveLayersWithTimeline(-1);
+          requestNewTimeline(cachedLandsatTimeJson, timelineType);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          timelapse.setDoDwell(true);
+          timelapse.setMaxScale(landsatMaxScale);
+          $("#health-impact-legend").hide();
+          visibleBaseMapLayer = previousVisibleBaseMapLayer;
           showHealthImpactRcp[2] = false;
         }
       }).prop('checked', showHealthImpactLayer);
@@ -921,23 +905,17 @@
             $("#health-impact-legend").show();
             previousVisibleBaseMapLayer = visibleBaseMapLayer;
           }
-          $("#health-impact-rcp8p5-legend").show();
           showHealthImpactRcp[3] = true;
         } else {
-          if (showHealthImpactRcp[0] || showHealthImpactRcp[1] || showHealthImpactRcp[2]) {
-            $("#health-impact-rcp8p5-legend").hide();
-          } else {
-            showHealthImpactLayer = false;
-            timelineType = "customUI";
-            setActiveLayersWithTimeline(-1);
-            requestNewTimeline(cachedLandsatTimeJson, timelineType);
-            timelapse.setPlaybackRate(defaultPlaybackSpeed);
-            timelapse.setDoDwell(true);
-            timelapse.setMaxScale(landsatMaxScale);
-            $("#health-impact-legend").hide();
-            visibleBaseMapLayer = previousVisibleBaseMapLayer;
-          }
-          $("#health-impact-rcp8p5-legend").hide();
+          showHealthImpactLayer = false;
+          timelineType = "customUI";
+          setActiveLayersWithTimeline(-1);
+          requestNewTimeline(cachedLandsatTimeJson, timelineType);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          timelapse.setDoDwell(true);
+          timelapse.setMaxScale(landsatMaxScale);
+          $("#health-impact-legend").hide();
+          visibleBaseMapLayer = previousVisibleBaseMapLayer;
           showHealthImpactRcp[3] = false;
         }
       }).prop('checked', showHealthImpactLayer);
@@ -1016,10 +994,13 @@
       }).prop('checked', showUrbanFragilityLayer);
 
 
+      // Base layers
       $("input:radio[name=base-layers]").on("click", function() {
         visibleBaseMapLayer = $(this).val();
         if (visibleBaseMapLayer == "landsat" && previousVisibleBaseMapLayer != "landsat") {
-          timelineType = "customUI";
+          if (!showViirsLayer) {
+            timelineType = "customUI";
+          }
           setActiveLayersWithTimeline(1);
         } else if (visibleBaseMapLayer != "landsat") {
           timelineType = "none";
@@ -1170,7 +1151,10 @@
         }
       }
 
-      var timelineUIHandler = function() {
+      var timelineUIHandler = function(e) {
+        var originalEvent = e.originalEvent;
+        var isFromUser = true;
+
         // Hide any timelines that are visible if we have no layers up that require a timeline or we are a static layer that fully covers the entire globe
         if (activeLayersWithTimeline <= 0 || (visibleBaseMapLayer == "landsat" && activeLayersWithTimeline == 1 && (showLightsAtNightLayer || showHansenLayer2 || showVsiLayer))) {
           $(".controls, .customControl").hide();
@@ -1183,16 +1167,44 @@
             $(".controls, .captureTime").show();
           }
         }
+
+        if (originalEvent) {
+          // If true, event came from user interaction, otherwise it came from javascript
+          if (!originalEvent.isTrusted)
+            isFromUser = false
+          // Browsers without isTrusted property
+          if (originalEvent.x == 0 && originalEvent.y == 0)
+            isFromUser = false;
+          // IE 11
+          if (originalEvent.isTrusted && (originalEvent.x == 0 && originalEvent.y == -55))
+            isFromUser = false;
+        }
+
+        // Special case
+        if (originalEvent && originalEvent.srcElement.id == "show-wdpa")
+          return;
+
+        if (doTimelineUIHandlerFinalCheck && isFromUser && ((activeLayersWithTimeline == 2 && visibleBaseMapLayer == "landsat") || (previousActiveLayersWithTimeline > 0 && activeLayersWithTimeline == 1 && visibleBaseMapLayer != "landsat"))) {
+          var selectedLayer = $('.map-layer-checkbox, .ui-multiselect-checkboxes').find("input:checked");
+          selectedLayer.prop("checked", false);
+          setActiveLayersWithTimeline(-1);
+          selectedLayer.click();
+          doTimelineUIHandlerFinalCheck = false;
+        } else if (activeLayersWithTimeline > 1) {
+          doTimelineUIHandlerFinalCheck = true;
+        }
       };
 
       var setActiveLayersWithTimeline = function(modifier) {
+        previousActiveLayersWithTimeline = activeLayersWithTimeline;
         activeLayersWithTimeline += modifier;
         if (activeLayersWithTimeline < 0) activeLayersWithTimeline = 0;
       };
 
       $('#layers-list input, .ui-multiselect-checkboxes input').on("click", timelineUIHandler);
 
-      timelapse.addTimelineUIChangeListener(timelineUIHandler);
+      // TODO: Do we need this?
+      //timelapse.addTimelineUIChangeListener(timelineUIHandler);
     }
   </script>
 
@@ -1388,9 +1400,9 @@
         layer_html += '      <td style="padding-bottom:16px; padding-right: 70px;">';
         layer_html += '        <select id="nutrition-theme" multiple="multiple" size="4">';
         layer_html += '          <option value="option1" data-id="show-health-impact-rcp2p6" data-name="hi-rcp2p6" data-credit="Oxford Martin">Nutritional Deficiencies RCP2.6</option>';
-        layer_html += '          <option value="option1" data-id="show-health-impact-rcp4p5" data-name="hi-rcp4p5" data-credit="Oxford Martin">Nutritional Deficiencies RCP4.5</option>';
-        layer_html += '          <option value="option2" data-id="show-health-impact-rcp6p0" data-name="hi-rcp6p0" data-credit="Oxford Martin">Nutritional Deficiencies RCP6.0</option>';
-        layer_html += '          <option value="option3" data-id="show-health-impact-rcp8p5" data-name="hi-rcp8p5" data-credit="Oxford Martin">Nutritional Deficiencies RCP8.5</option>';
+        layer_html += '          <option value="option2" data-id="show-health-impact-rcp4p5" data-name="hi-rcp4p5" data-credit="Oxford Martin">Nutritional Deficiencies RCP4.5</option>';
+        layer_html += '          <option value="option3" data-id="show-health-impact-rcp6p0" data-name="hi-rcp6p0" data-credit="Oxford Martin">Nutritional Deficiencies RCP6.0</option>';
+        layer_html += '          <option value="option4" data-id="show-health-impact-rcp8p5" data-name="hi-rcp8p5" data-credit="Oxford Martin">Nutritional Deficiencies RCP8.5</option>';
         layer_html += '        </select>';
         layer_html += '      </td>';
         layer_html += '      <td style="padding-bottom:16px; padding-right: 10px; text-align: right">';
