@@ -282,7 +282,7 @@
         v.setFps(12);
         timelapse.setMaxScale(himawariMaxScale);
         timelapse.setDoDwell(false);
-        timelapse.setPlaybackRate(1);
+        timelapse.setMasterPlaybackRate(1);
         previousVisibleBaseMapLayer = visibleBaseMapLayer;
         visibleBaseMapLayer = "himawari";
         $("#layers-legend").hide();
@@ -516,7 +516,7 @@
           v.setFps(10);
           timelapse.setMaxScale(landsatMaxScale);
           timelapse.setDoDwell(false);
-          timelapse.setPlaybackRate(1);
+          timelapse.setMasterPlaybackRate(1);
           previousVisibleBaseMapLayer = visibleBaseMapLayer;
           visibleBaseMapLayer = "forest-alarms";
         } else {
@@ -530,7 +530,7 @@
             var v = timelapse.getVideoset();
             v.setFps(10);
             timelapse.setDoDwell(true);
-            timelapse.setPlaybackRate(defaultPlaybackSpeed);
+            timelapse.setMasterPlaybackRate(defaultPlaybackSpeed);
           }
         }
       }).prop('checked', showForestAlertsTimeMachineLayer);
@@ -562,7 +562,7 @@
           v.setFps(10);
           timelapse.setMaxScale(landsatMaxScale);
           timelapse.setDoDwell(false);
-          timelapse.setPlaybackRate(1);
+          timelapse.setMasterPlaybackRate(1);
           previousVisibleBaseMapLayer = visibleBaseMapLayer;
           visibleBaseMapLayer = "forest-alarms-no-overlay";
         } else {
@@ -576,7 +576,7 @@
             var v = timelapse.getVideoset();
             v.setFps(10);
             timelapse.setDoDwell(true);
-            timelapse.setPlaybackRate(defaultPlaybackSpeed);
+            timelapse.setMasterPlaybackRate(defaultPlaybackSpeed);
           }
         }
       }).prop('checked', showForestAlertsNoOverlayTimeMachineLayer);
@@ -587,7 +587,7 @@
           setActiveLayersWithTimeline(1);
           timelineType = "defaultUI";
           requestNewTimeline("viirs-times.json", timelineType);
-          timelapse.setPlaybackRate(8);
+          timelapse.setMasterPlaybackRate(8);
           timelapse.setDoDwell(false);
           $("#fires-at-night-legend").show();
         } else {
@@ -595,7 +595,7 @@
           if (doSwitchToLandsat()) {
             timelineType = "customUI";
             requestNewTimeline(cachedLandsatTimeJson, timelineType);
-            timelapse.setPlaybackRate(defaultPlaybackSpeed);
+            timelapse.setMasterPlaybackRate(defaultPlaybackSpeed);
             timelapse.setDoDwell(true);
           }
           setActiveLayersWithTimeline(-1);
@@ -666,7 +666,7 @@
           v.setFps(12);
           timelapse.setMaxScale(himawariMaxScale);
           timelapse.setDoDwell(false);
-          timelapse.setPlaybackRate(1);
+          timelapse.setMasterPlaybackRate(1);
           previousVisibleBaseMapLayer = visibleBaseMapLayer;
           visibleBaseMapLayer = "himawari";
           $("#layers-legend").hide();
@@ -680,7 +680,7 @@
           visibleBaseMapLayer = previousVisibleBaseMapLayer;
           timelapse.setMaxScale(landsatMaxScale);
           timelapse.setDoDwell(true);
-          timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          timelapse.setMasterPlaybackRate(defaultPlaybackSpeed);
           $("#layers-legend").hide();
         }
         timelapse.warpTo(timelapse.getHomeView());
@@ -760,7 +760,7 @@
           setActiveLayersWithTimeline(1);
           timelineType = "defaultUI";
           requestNewTimeline("monthly-refugees-times.json", timelineType);
-          timelapse.setPlaybackRate(.85);
+          timelapse.setMasterPlaybackRate(.85);
           timelapse.setDoDwell(false);
           $("#monthly-refugees-legend").show();
         } else {
@@ -768,7 +768,7 @@
           if (doSwitchToLandsat()) {
             timelineType = "customUI";
             requestNewTimeline(cachedLandsatTimeJson, timelineType);
-            timelapse.setPlaybackRate(defaultPlaybackSpeed);
+            timelapse.setMasterPlaybackRate(defaultPlaybackSpeed);
             timelapse.setDoDwell(true);
             timelapse.setMaxScale(landsatMaxScale);
           }
@@ -784,14 +784,14 @@
           timelineType = "customUI";
           setActiveLayersWithTimeline(1);
           requestNewTimeline("annual-refugees-times.json", timelineType);
-          timelapse.setPlaybackRate(.045);
+          timelapse.setMasterPlaybackRate(.045);
           $("#annual-refugees-legend").show();
         } else {
           showAnnualRefugeesLayer = false;
           timelineType = "customUI";
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJson, timelineType);
-          timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          timelapse.setMasterPlaybackRate(defaultPlaybackSpeed);
           timelapse.setMaxScale(landsatMaxScale);
           $("#annual-refugees-legend").hide();
         }
@@ -817,7 +817,7 @@
             setActiveLayersWithTimeline(1);
             timelineType = "customUI";
             requestNewTimeline("health-impact-times.json", timelineType);
-            timelapse.setPlaybackRate(.05);
+            timelapse.setMasterPlaybackRate(.05);
             timelapse.setDoDwell(false);
             $("#health-impact-legend").show();
             previousVisibleBaseMapLayer = visibleBaseMapLayer;
@@ -828,7 +828,7 @@
           timelineType = "customUI";
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJson, timelineType);
-          timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          timelapse.setMasterPlaybackRate(defaultPlaybackSpeed);
           timelapse.setDoDwell(true);
           timelapse.setMaxScale(landsatMaxScale);
           $("#health-impact-legend").hide();
@@ -845,7 +845,7 @@
             timelineType = "customUI";
             setActiveLayersWithTimeline(1);
             requestNewTimeline("health-impact-times.json", timelineType);
-            timelapse.setPlaybackRate(.05);
+            timelapse.setMasterPlaybackRate(.05);
             timelapse.setDoDwell(false);
             $("#health-impact-legend").show();
             previousVisibleBaseMapLayer = visibleBaseMapLayer;
@@ -856,7 +856,7 @@
           timelineType = "customUI";
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJson, timelineType);
-          timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          timelapse.setMasterPlaybackRate(defaultPlaybackSpeed);
           timelapse.setDoDwell(true);
           timelapse.setMaxScale(landsatMaxScale);
           $("#health-impact-legend").hide();
@@ -873,7 +873,7 @@
             timelineType = "customUI";
             setActiveLayersWithTimeline(1);
             requestNewTimeline("health-impact-times.json", timelineType);
-            timelapse.setPlaybackRate(.05);
+            timelapse.setMasterPlaybackRate(.05);
             timelapse.setDoDwell(false);
             $("#health-impact-legend").show();
             previousVisibleBaseMapLayer = visibleBaseMapLayer;
@@ -884,7 +884,7 @@
           timelineType = "customUI";
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJson, timelineType);
-          timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          timelapse.setMasterPlaybackRate(defaultPlaybackSpeed);
           timelapse.setDoDwell(true);
           timelapse.setMaxScale(landsatMaxScale);
           $("#health-impact-legend").hide();
@@ -901,7 +901,7 @@
             timelineType = "customUI";
             setActiveLayersWithTimeline(1);
             requestNewTimeline("health-impact-times.json", timelineType);
-            timelapse.setPlaybackRate(.05);
+            timelapse.setMasterPlaybackRate(.05);
             $("#health-impact-legend").show();
             previousVisibleBaseMapLayer = visibleBaseMapLayer;
           }
@@ -911,7 +911,7 @@
           timelineType = "customUI";
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJson, timelineType);
-          timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          timelapse.setMasterPlaybackRate(defaultPlaybackSpeed);
           timelapse.setDoDwell(true);
           timelapse.setMaxScale(landsatMaxScale);
           $("#health-impact-legend").hide();
@@ -2178,7 +2178,7 @@
                 timelapse.stopParabolicMotion();
                 timelapse.setNewView(himawariView, true, null, initialHimawariViewChangeHack);
               }
-              timelapse.setPlaybackRate(himawariPlaybackSpeed);
+              timelapse.setMasterPlaybackRate(himawariPlaybackSpeed);
               setTimeout(function() {
                 timelapse.seek(himawariTime);
               }, 150);
