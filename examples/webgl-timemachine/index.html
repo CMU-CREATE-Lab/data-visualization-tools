@@ -13,6 +13,7 @@
   <link href="../../timemachine/css/customUI.css" rel="stylesheet" type="text/css" />
   <link href="../../timemachine/css/leaflet/leaflet.css" rel="stylesheet" type="text/css" />
   <link href="../../js/customVideoTagControls/customVideoTagControls.css" rel="stylesheet" type="text/css" />
+  <link href="../../css/jquery.multiselect.css" rel="stylesheet" type="text/css" />
   <link href="index.css" rel="stylesheet" type="text/css" />
 
   <script src="../../timemachine/js/jquery/jquery.min.js" type="text/javascript"></script>
@@ -34,6 +35,7 @@
   <script src="../../timemachine/template_includes.js" type="text/javascript"></script>
   <script src="../../timemachine/js/leaflet/leaflet.min.js" type="text/javascript"></script>
   <script src="../../js/customVideoTagControls/customVideoTagControls.js" type="text/javascript"></script>
+  <script src="../../js/jquery.multiselect.js" type="text/javascript"></script>
 
   <script src="config-local.js" type="text/javascript"></script>
   <script src="../../../../config.js" type="text/javascript"></script>
@@ -530,9 +532,9 @@
           visibleBaseMapLayer = "forest-alarms";
         } else {
           showForestAlertsTimeMachineLayer = false;
-          timelineType = "customUI";
           setActiveLayersWithTimeline(-1);
           if (!showForestAlertsNoOverlayTimeMachineLayer && !showForestAlertsTimeMachineLayer) {
+            timelineType = "customUI";
             requestNewTimeline(cachedLandsatTimeJson, timelineType);
             visibleBaseMapLayer = $("input:radio[name=base-layers]:checked").val();
             timelapse.setMaxScale(landsatMaxScale);
@@ -576,9 +578,9 @@
           visibleBaseMapLayer = "forest-alarms-no-overlay";
         } else {
           showForestAlertsNoOverlayTimeMachineLayer = false;
-          timelineType = "customUI";
           setActiveLayersWithTimeline(-1);
           if (!showForestAlertsNoOverlayTimeMachineLayer && !showForestAlertsTimeMachineLayer) {
+            timelineType = "customUI";
             requestNewTimeline(cachedLandsatTimeJson, timelineType);
             visibleBaseMapLayer = $("input:radio[name=base-layers]:checked").val();
             timelapse.setMaxScale(landsatMaxScale);
@@ -659,7 +661,7 @@
       }).prop('checked', showCrwTimemachineLayer);
 
       $("#show-himawari").on("click", function() {
-        $(".map-layer-div input:checked").not("#show-himawari").trigger("click");
+        $(".map-layer-div, .ui-multiselect-checkboxes").find("input:checked").not("#show-himawari").trigger("click");
         if ($(this).prop('checked')) {
           showHimawariTimeMachineLayer = true;
           timelineType = "defaultUI";
@@ -1003,7 +1005,7 @@
         }
       }).prop('checked', showSeaLevelRiseLayer);
 
-      $("#show-urban-fragility").on("click", function() { 
+      $("#show-urban-fragility").on("click", function() {
         if ($(this).prop('checked')) {
           showUrbanFragilityLayer = true;
           setActiveLayersWithTimeline(1);
@@ -1128,30 +1130,6 @@
         'top': '0px'
       });
 
-      $(window).resize(function() {
-        var width = $(window).width();
-        var height = $(window).height();
-        var scale = Math.min(1, Math.min((width * 1.8) / 1920, (height * 1.28) / 1200));
-        //if (!enableLetterboxMode) {
-        //$('#layers-list').css({'transform-origin': 'bottom right', 'transform': 'scale(' + scale + ')'});
-        //}
-        if (!isHyperwall && enableLetterboxMode) {
-          scale = Math.min(1, Math.min(width / 1920, height / 1080));
-          $('.map-layer-div').css({
-            'transform-origin': 'center right',
-            'transform': 'scale(' + scale + ')'
-          });
-          $('.base-map-div').css({
-            'transform-origin': 'center left',
-            'transform': 'scale(' + scale + ')'
-          });
-          $('.extras-selector-div, .location_search_div').css({
-            'transform-origin': 'center left',
-            'transform': 'scale(' + '0.9' + ')'
-          });
-        }
-      });
-
       $(document).keydown(function(e) {
         if (keysDown.indexOf(e.keyCode) < 0) {
           keysDown.push(e.keyCode);
@@ -1164,8 +1142,8 @@
         keysDown.length = 0;
       });
 
-      $('.map-layer-checkbox').on("click", function() {
-        var selectedLayers = $('.map-layer-checkbox input:checked');
+      $('.map-layer-checkbox, .ui-multiselect-checkboxes').on("click", function() {
+        var selectedLayers = $(this).find("input:checked");
         var numLayersOn = selectedLayers.size();
         var continueState = true;
         selectedLayers.each(function() {
@@ -1336,7 +1314,7 @@
       var show_dengue = '<td class="dengue-select"> <label for="show-dengue" name="dv"><input type="checkbox" id="show-dengue" />Dengue<span class="credit"> (LSHTM)</span></label></td>';
       var show_chiku = '<td class="chiku-select"> <label for="show-chiku" name="cv"><input type="checkbox" id="show-chiku" />Chikungunya<span class="credit"> (LSHTM)</span></label></td>';
       var show_sea_level_rise = '<td class="sea-level-rise-select"><label for="show-sea-level-rise" name="slr"><input type="checkbox" id="show-sea-level-rise" />Sea Level Rise<span class="credit"> (Climate Central)</span></label></td>'; //SLR
-      var show_urban_fragility = '<td class="urban-fragility-select"><label for="show-urban-fragility" name="uf"><input type="checkbox" id="show-urban-fragility" />Urban Fragility<span class="credit"> (Igarape Institute)</span></label></td>'; 
+      var show_urban_fragility = '<td class="urban-fragility-select"><label for="show-urban-fragility" name="uf"><input type="checkbox" id="show-urban-fragility" />Urban Fragility<span class="credit"> (Igarape Institute)</span></label></td>';
 
       if (enableLetterboxMode) {
         layer_html += '<div class="base-map-div">';
@@ -1352,34 +1330,119 @@
         layer_html += '   </tr>';
         layer_html += ' </table>';
         layer_html += '</div>';
-        layer_html += '<div class="map-layer-div">';
-        layer_html += ' <table class="map-layer-checkbox" cellspacing="3">';
-        layer_html += '   <tr>';
-        layer_html += show_viirs;
-        layer_html += show_solar_installs;
-        layer_html += show_coral;
-        layer_html += show_forest_change;
-        layer_html += show_forest_alerts;
-        layer_html += show_himawari;
-        layer_html += '   </tr>';
-        layer_html += '   <tr>';
-        layer_html += show_lights_at_night;
-        layer_html += show_usgs_windturbine;
-        if (showGlobalWindPower) {
-          layer_html += show_global_wind_power;
-        }
-        layer_html += show_water_occurrence;
-        layer_html += show_forest_loss_gain;
-        layer_html += show_forest_alert_no_overlay;
-        layer_html += '   </tr>';
-        layer_html += '   <tr>';
-        layer_html += show_drilling;
-        layer_html += show_coral_bleaching_alerts;
-        layer_html += show_water_change;
-        layer_html += show_animated_forest_loss_gain;
-        layer_html += show_wdpa;
-        layer_html += '   </tr>';
-        layer_html += ' </table>';
+        layer_html += '<div class="map-layer-div" style="color: white">';
+        layer_html += '  <table class="map-layer-checkbox" cellspacing="3">';
+
+        layer_html += '    <tr>';
+        layer_html += '      <td style="padding-bottom:16px; padding-right: 10px; text-align: right">';
+        layer_html += '        Forests:';
+        layer_html += '      </td>';
+        layer_html += '      <td style="padding-bottom:16px; padding-right: 70px;">';
+        layer_html += '        <select id="forest-theme" multiple="multiple" size="6">';
+        layer_html += '          <option value="option1" data-id="show-forest-change" data-name="fly" data-credit="Hansen et al">Forest Loss By Year</option>';
+        layer_html += '          <option value="option2" data-id="show-forest-alerts" data-name="fla" data-credit="Hansen et al">Forest Alerts (Overlay)</option>';
+        layer_html += '          <option value="option3" data-id="show-forest-loss-gain" data-name="flg" data-credit="Hansen et al">Forest Loss/Gain</option>';
+        layer_html += '          <option value="option4" data-id="show-forest-alerts-no-overlay" data-name="flano" data-credit="Hansen et al">Forest Alerts (No Overlay)</option>';
+        layer_html += '          <option value="option5" data-id="show-animated-forest-loss-gain" data-name="aflg" data-credit="Hansen et al">Animated Loss/Gain</option>';
+        layer_html += '          <option value="option6" data-id="show-wdpa" data-name="wdpa" data-credit="UNEP-WCMC">Protected Areas</option>';
+        layer_html += '        </select>';
+        layer_html += '      </td>';
+        layer_html += '      <td style="padding-bottom:16px; padding-right: 10px; text-align: right">';
+        layer_html += '        Energy:';
+        layer_html += '      </td>';
+        layer_html += '      <td style="padding-bottom:16px; padding-right: 70px;">';
+        layer_html += '        <select id="energy-theme" multiple="multiple" size="5">';
+        layer_html += '          <option value="option1" data-id="show-solar-installs" data-name="sp" data-credit="NREL">Solar PV (USA)</option>';
+        layer_html += '          <option value="option2" data-id="show-usgs-windturbine" data-name="wp" data-credit="USGS">Wind Power (USA)</option>';
+        layer_html += '          <option value="option3" data-id="show-drilling" data-name="drl" data-credit="CREATE Lab">Oil/Gas Drilling (USA)</option>';
+        layer_html += '          <option value="option4" data-id="show-global-wind-power" data-name="gwp" data-credit="TheWindPower.net">Wind Power Global</option>';
+        layer_html += '          <option value="option5" data-id="show-viirs" data-name="viirs" data-credit="NOAA">Fires at Night</option>';
+        layer_html += '        </select>';
+        layer_html += '      </td>';
+        layer_html += '      <td style="padding-bottom:16px; padding-right: 10px; text-align: right">';
+        layer_html += '        Pandemics:';
+        layer_html += '      </td>';
+        layer_html += '      <td style="padding-bottom:16px; padding-right: 70px;">';
+        layer_html += '        <select id="pandemic-theme" multiple="multiple" size="3">';
+        layer_html += '          <option value="option1" data-id="show-zika" data-name="zv" data-credit="LSHTM">Zika</option>';
+        layer_html += '          <option value="option2" data-id="show-dengue" data-name="dv" data-credit="LSHTMC">Dengue</option>';
+        layer_html += '          <option value="option3" data-id="show-chiku" data-name="cv" data-credit="LSHTM">Chikungunya</option>';
+        layer_html += '        </select>';
+        layer_html += '      </td>';
+        layer_html += '      <td style="position: absolute; margin-top: -7px">';
+        layer_html += '        <label for="show-himawari" name="h8">';
+        layer_html += '          <input type="checkbox" id="show-himawari" style=" top: 2px" />Himawari-8';
+        layer_html += '          <span class="credit"> (JMA)</span>';
+        layer_html += '        </label>';
+        layer_html += '      </td>';
+        layer_html += '    </tr>';
+
+        layer_html += '    <tr>';
+        layer_html += '      <td style="padding-bottom:16px; padding-right: 10px; text-align: right">';
+        layer_html += '        Water:';
+        layer_html += '      </td>';
+        layer_html += '      <td style="padding-bottom:16px; padding-right: 70px;">';
+        layer_html += '        <select id="water-theme" multiple="multiple" size="2">';
+        layer_html += '          <option value="option1" data-id="show-water-occurrence" data-name="wo" data-credit="JRC">Water Occurrence</option>';
+        layer_html += '          <option value="option2" data-id="show-water-change" data-name="wc" data-credit="JRC">Water Change</option>';
+        layer_html += '        </select>';
+        layer_html += '      </td>';
+        layer_html += '      <td style="padding-bottom:16px; padding-right: 10px; text-align: right">';
+        layer_html += '        Nutrition:';
+        layer_html += '      </td>';
+        layer_html += '      <td style="padding-bottom:16px; padding-right: 70px;">';
+        layer_html += '        <select id="nutrition-theme" multiple="multiple" size="4">';
+        layer_html += '          <option value="option1" data-id="show-health-impact-rcp2p6" data-name="hi-rcp2p6" data-credit="Oxford Martin">Nutritional Deficiencies RCP2.6</option>';
+        layer_html += '          <option value="option1" data-id="show-health-impact-rcp4p5" data-name="hi-rcp4p5" data-credit="Oxford Martin">Nutritional Deficiencies RCP4.5</option>';
+        layer_html += '          <option value="option2" data-id="show-health-impact-rcp6p0" data-name="hi-rcp6p0" data-credit="Oxford Martin">Nutritional Deficiencies RCP6.0</option>';
+        layer_html += '          <option value="option3" data-id="show-health-impact-rcp8p5" data-name="hi-rcp8p5" data-credit="Oxford Martin">Nutritional Deficiencies RCP8.5</option>';
+        layer_html += '        </select>';
+        layer_html += '      </td>';
+        layer_html += '      <td style="padding-bottom:16px; padding-right: 10px; text-align: right">';
+        layer_html += '        Climate Resilience:';
+        layer_html += '      </td>';
+        layer_html += '      <td style="padding-bottom:16px; padding-right: 70px;">';
+        layer_html += '        <select id="resilience-theme" multiple="multiple" size="2">';
+        layer_html += '          <option value="option1" data-id="show-vsi" data-name="vsi" data-credit="Oxford Martin">Vegetation Sensitivity Index</option>';
+        layer_html += '          <option value="option2" data-id="show-sea-level-rise" data-name="slr" data-credit="Climate Central">Sea Level Rise</option>';
+        layer_html += '        </select>';
+        layer_html += '      </td>';
+        layer_html += '    </tr>';
+
+        layer_html += '    <tr>';
+        layer_html += '      <td style="padding-bottom:16px; padding-right: 10px; text-align: right">';
+        layer_html += '        Coral:';
+        layer_html += '      </td>';
+        layer_html += '      <td style="padding-bottom:16px; padding-right: 70px;">';
+        layer_html += '        <select id="coral-theme" multiple="multiple" size="2">';
+        layer_html += '          <option value="option1" data-id="show-coral" data-name="cb" data-credit="NOAA, UNEP-WCMC">Coral Bleaching</option>';
+        layer_html += '          <option value="option2" data-id="show-coral-bleaching-alerts" data-name="crw" data-credit="NOAA, UNEP-WCMC">Coral Reef Watch</option>';
+        layer_html += '        </select>';
+        layer_html += '      </td>';
+        layer_html += '      <td style="padding-bottom:16px; padding-right: 10px; text-align: right">';
+        layer_html += '        Refugees:';
+        layer_html += '      </td>';
+        layer_html += '      <td style="padding-bottom:16px; padding-right: 70px;">';
+        layer_html += '        <select id="refugee-theme" multiple="multiple" size="2">';
+        layer_html += '          <option value="option1" data-id="show-monthly-refugees" data-name="mmr" data-credit="UNHCR">Monthly Mediterranean Refugees</option>';
+        layer_html += '          <option value="option2" data-id="show-annual-refugees" data-name="ar" data-credit="UNHCR">Annual Refugees</option>';
+        layer_html += '        </select>';
+        layer_html += '      </td>';
+        layer_html += '      <td style="padding-bottom:16px; padding-right: 10px; text-align: right">';
+        layer_html += '        Urbanization:';
+        layer_html += '      </td>';
+        layer_html += '      <td style="padding-bottom:16px; padding-right: 70px;">';
+        layer_html += '        <select id="urbanization-theme" multiple="multiple" size="2">';
+        layer_html += '          <option value="option1" data-id="show-lights-at-night" data-name="lan" data-credit="NOAA, Google">Lights at Night</option>';
+        layer_html += '          <option value="option2" data-id="show-urban-fragility" data-name="uf" data-credit="Igarape Institute">Urban Fragility</option>';
+        layer_html += '        </select>';
+        layer_html += '      </td>';
+        layer_html += '    </tr>';
+
+        // ## 5 ##
+        //// Add layers to letterbox UI panel ////
+        //
+        layer_html += '  </table>';
         layer_html += '</div>';
       } else {
         layer_html += '<div class="base-map-div">';
@@ -1488,7 +1551,7 @@
           layer_html += show_sea_level_rise;
           layer_html += '   </tr>';
         }
-        if (showUrbanFragility) { 
+        if (showUrbanFragility) {
           layer_html += '   <tr>';
           layer_html += show_urban_fragility;
           layer_html += '   </tr>';
@@ -1498,8 +1561,9 @@
         layer_html += '   </tr>';
         layer_html += ' </table>';
         layer_html += '</div>';
+
         // ## 5 ##
-        //// Add layer to UI panel ////
+        //// Add layers to side UI panel ////
         //
       }
 
@@ -1533,7 +1597,6 @@
       layer_html += '   </optgroup>';
       layer_html += ' </select>';
       layer_html += '</div>';
-
       layer_html += '</div>';
 
       var legend_html = '<div id="layers-legend">';
@@ -1559,6 +1622,9 @@
       legend_html += '<tr id="sea-level-rise-legend" style="display: none"><td><div style="font-size: 17px">Global Temperature Rise &#x2103;</div><div style="font-size: 15px">Future Sea Level <span id="slr-feet" style="width:25px;"></span>&nbsp;<span id="slr-meters" style="width:25px; color: red;"></span></div></td></tr>';
       legend_html += '<tr id="urban-fragility-legend" style="display: none"><td><div style="font-size: 17px">Fragile Score</div></div><svg width="200" height="30"> <rect fill="rgb(255,255,204)" x="0"   height="9" width="20"></rect><rect fill="rgb(255,237,160)" x="20"  height="9" width="20"></rect><rect fill="rgb(254,217,118)" x="40"  height="9" width="20"></rect><rect fill="rgb(254,178,76)"  x="60"  height="9" width="20"></rect><rect fill="rgb(253,141,60)"  x="80"  height="9" width="20"></rect><rect fill="rgb(252,78,42)"   x="100" height="9" width="20"></rect><rect fill="rgb(227,26,28)"   x="120" height="9" width="20"></rect><rect fill="rgb(189,0,38)"    x="140" height="9" width="20"></rect><rect fill="rgb(128,0,38)"    x="160" height="9" width="20"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">1.0</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="85">2.1</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="165">3.1</text></svg></td></tr>';
 
+      // ## 5b ##
+      //// Add to layer legend ////
+      //
       legend_html += '</table>';
       legend_html += '</div>';
       legend_html += '</div>';
@@ -1569,6 +1635,70 @@
         $("#presentation-slider-selection, .base-map-radio, .map-layer-checkbox, .extras-selector, .presentationSlider, #layers-legend").addClass("letterbox");
         $(".base-map-div, .map-layer-div, .extras-selector-div").addClass("top-panel letterbox");
         $(".current-location-text, .landsat-select, .wdpa-select, .forest-change-select, .viirs-select, .forest-loss-gain-select, .animated-forest-loss-select, .forest-alerts-select, .forest-alerts-no-overlay-select, .lights-at-night-select, .coral-select, .coral-bleaching-select, .wind-select, .solar-select, .drilling-select, .himawari-select, .water-occurrence-select, .water-change-select .monthly-refugees-select").addClass("letterbox");
+        // Theme dropdowns
+        $("#forest-theme").multiselect({
+            header: false,
+            noneSelectedText: "Select layers...",
+            selectedText: "# layer(s) selected",
+            menuWidth: 630,
+            height: 106
+        });
+        $("#water-theme").multiselect({
+            header: false,
+            noneSelectedText: "Select layers...",
+            selectedText: "# layer(s) selected",
+            menuWidth: 470,
+            height: 28
+        });
+        $("#energy-theme").multiselect({
+            header: false,
+            noneSelectedText: "Select layers...",
+            selectedText: "# layer(s) selected",
+            menuWidth: 620,
+            height: 106
+        });
+        $("#coral-theme").multiselect({
+            header: false,
+            noneSelectedText: "Select layers...",
+            selectedText: "# layer(s) selected",
+            menuWidth: 600,
+            height: 28
+        });
+        $("#pandemic-theme").multiselect({
+            header: false,
+            noneSelectedText: "Select layers...",
+            selectedText: "# layer(s) selected",
+            menuWidth: 470,
+            height: 68
+        });
+        $("#refugee-theme").multiselect({
+            header: false,
+            noneSelectedText: "Select layers...",
+            selectedText: "# layer(s) selected",
+            menuWidth: 730,
+            height: 28
+        });
+        $("#nutrition-theme").multiselect({
+            header: false,
+            noneSelectedText: "Select layers...",
+            selectedText: "# layer(s) selected",
+            menuWidth: 733,
+            height: 68
+        });
+        $("#resilience-theme").multiselect({
+            header: false,
+            noneSelectedText: "Select layers...",
+            selectedText: "# layer(s) selected",
+            menuWidth: 700,
+            height: 28
+        });
+        $("#urbanization-theme").multiselect({
+            header: false,
+            noneSelectedText: "Select layers...",
+            selectedText: "# layer(s) selected",
+            menuWidth: 500,
+            height: 28
+        });
       } else {
         $(layer_html).appendTo($("#timeMachine .player"));
         $(legend_html).appendTo($("#timeMachine .player"));
@@ -1978,9 +2108,9 @@
           // Special case if himawari waypoint
           var himawariWaypoint = himawariWaypoints[waypointIndex];
           if (himawariWaypoint)
-            $(".map-layer-div input:checked").not("#show-himawari").trigger("click");
+            $(".map-layer-div, .ui-multiselect-checkboxes").find("input:checked").not("#show-himawari").trigger("click");
           else
-            $(".map-layer-div input:checked").trigger("click");
+            $(".map-layer-div, .ui-multiselect-checkboxes").find("input:checked").trigger("click");
 
           // Handle layers
           waypointLayers.forEach(function(layer) {
@@ -2302,7 +2432,7 @@
 
         // Draw Water Occurrence
         if (showWaterOccurrenceLayer) {
-          var waterOccurrenceView = getLayerView(waterOccurenceLayer, landsatBaseMapLayer);
+          var waterOccurrenceView = getLayerView(waterOccurrenceLayer, landsatBaseMapLayer);
           waterOccurrenceLayer.draw(waterOccurrenceView);
         }
 

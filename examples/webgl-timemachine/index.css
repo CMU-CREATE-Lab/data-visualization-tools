@@ -137,8 +137,6 @@ html, body {
   border-bottom-left-radius: 2px;
 }
 .top-panel {
-  background: black;
-  border: 0px solid black;
   border-radius: 0px;
   outline: none;
   font-family: Arial, Helvetica, sans-serif;
@@ -185,8 +183,8 @@ html, body {
   padding-right: 15px;
 }
 .top-panel label {
-  border: 1px solid black;
-  color: white;
+  border: 1px solid black !important;
+  color: white !important;
 }
 .top-panel label .credit {
   color: #A1A1A1;
@@ -194,17 +192,17 @@ html, body {
 .map-layer-div.letterbox {
   height: 152px;
   position: absolute;
-  right: 20px;
+  left: 550px;
   bottom: auto;
-  top: 0px;
+  top: 4px;
 }
 .map-layer-checkbox.letterbox {
   position: relative;
   top: 7px;
-  left: 4px;
+  left: 15px;
 }
 .base-map-div.letterbox {
-  width: 342px;
+  width: 234px;
   height: 152px;
   position: absolute;
   left: 248px;
@@ -212,12 +210,11 @@ html, body {
   top: 0px;
 }
 .base-map-div.letterbox.hyperwall {
-  left: 272px;
+  left: 261px;
 }
 .base-map-radio.letterbox {
   position: relative;
   top: 7px;
-  left: -11px;
 }
 .extras-selector-div {
   padding: 10px;
@@ -269,7 +266,7 @@ html, body {
 #location_search.letterbox {
   position: relative;
   top: 32px;
-  left: 23px;
+  left: 23px !important;
   width: 200px;
   margin: 0;
   padding-bottom: 7px;
@@ -317,10 +314,10 @@ html, body {
 }
 #timeMachine.letterbox {
   background-color: black !important;
-  overflow: hidden;
-  position: relative;
-  width: 100%;
-  height: calc(100% - 312px);
+  overflow: hidden !important;
+  position: relative !important;
+  width: 100% !important;
+  height: calc(100% - 312px) !important;
 }
 #letterbox-bottom {
   position: relative;
@@ -649,3 +646,49 @@ html, body {
 #layers-list::-webkit-scrollbar-thumb:hover {
   background-color: #999;
 }
+
+.ui-multiselect-menu ul{
+  width: auto;!important;
+  margin-top: -3px !important;
+  overflow:hidden !important;
+  padding-left: 6px;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.ui-multiselect-menu li{
+  font-size: 18px;
+  line-height:1.5em !important;
+  border-bottom:1px solid #ccc !important;
+  float:left !important;
+  display:inline !important;
+}
+.ui-multiselect {
+  font-size: 16px;
+}
+
+#double li  { width:50% !important;}
+#triple li  { width:33.333% !important;}
+#quad li    { width:25% !important; }
+#six li     { width:16.666% !important; }
+
+.ui-multiselect-menu .credit {
+  color: #555555;
+  font-size: 11px;
+  position: relative;
+  top: -2px;
+  right: -4px;
+}
+
+#layers-list button {
+  cursor: pointer;
+  height: 26px;
+  border-radius: 2px !important;
+}
+
+button:focus {outline:0;}
+
+input:focus {outline:0;}
