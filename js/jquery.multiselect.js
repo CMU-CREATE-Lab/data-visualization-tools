@@ -122,6 +122,8 @@
           .addClass('ui-multiselect-checkboxes ui-helper-reset')
           .appendTo(this.menu);
 
+        this.menu.prop("id", $(el).prop("id") + "-selection");
+
         $('<div />').prependTo(this.menu).addClass("selection-arrow");
 
         // perform event bindings
@@ -239,7 +241,7 @@
       });
       this.menu.find(".ui-multiselect-checkboxes").remove();
       this.menu.append($dropdown);
-      $dropdown.prop("id", this.options.colType);
+      $dropdown.addClass(this.options.colType);
 
       // cache some moar useful elements
       this.labels = menu.find('label');

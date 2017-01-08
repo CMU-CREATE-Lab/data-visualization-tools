@@ -1353,6 +1353,7 @@
         layer_html += '          <option value="option5" data-id="show-animated-forest-loss-gain" data-name="aflg" data-credit="Hansen et al">Animated Loss/Gain</option>';
         layer_html += '          <option value="option6" data-id="show-wdpa" data-name="wdpa" data-credit="UNEP-WCMC">Protected Areas</option>';
         layer_html += '        </select>';
+        layer_html += '        <button class="clear-theme" type="button">Clear <br>Theme</button>';
         layer_html += '      </td>';
         layer_html += '      <td style="padding-bottom:16px; padding-right: 10px; text-align: right">';
         layer_html += '        Energy:';
@@ -1365,6 +1366,7 @@
         layer_html += '          <option value="option4" data-id="show-global-wind-power" data-name="gwp" data-credit="TheWindPower.net">Wind Power Global</option>';
         layer_html += '          <option value="option5" data-id="show-viirs" data-name="viirs" data-credit="NOAA">Fires at Night</option>';
         layer_html += '        </select>';
+        layer_html += '        <button class="clear-theme" type="button">Clear <br>Theme</button>';
         layer_html += '      </td>';
         layer_html += '      <td style="padding-bottom:16px; padding-right: 10px; text-align: right">';
         layer_html += '        Pandemics:';
@@ -1375,6 +1377,7 @@
         layer_html += '          <option value="option2" data-id="show-dengue" data-name="dv" data-credit="LSHTMC">Dengue</option>';
         layer_html += '          <option value="option3" data-id="show-chiku" data-name="cv" data-credit="LSHTM">Chikungunya</option>';
         layer_html += '        </select>';
+        layer_html += '        <button class="clear-theme" type="button">Clear <br>Theme</button>';
         layer_html += '      </td>';
         layer_html += '      <td style="position: absolute; margin-top: -7px">';
         layer_html += '        <label for="show-himawari" name="h8">';
@@ -1393,6 +1396,7 @@
         layer_html += '          <option value="option1" data-id="show-water-occurrence" data-name="wo" data-credit="JRC">Water Occurrence</option>';
         layer_html += '          <option value="option2" data-id="show-water-change" data-name="wc" data-credit="JRC">Water Change</option>';
         layer_html += '        </select>';
+        layer_html += '        <button class="clear-theme" type="button">Clear <br>Theme</button>';
         layer_html += '      </td>';
         layer_html += '      <td style="padding-bottom:16px; padding-right: 10px; text-align: right">';
         layer_html += '        Nutrition:';
@@ -1404,6 +1408,7 @@
         layer_html += '          <option value="option3" data-id="show-health-impact-rcp6p0" data-name="hi-rcp6p0" data-credit="Oxford Martin">Nutritional Deficiencies RCP6.0</option>';
         layer_html += '          <option value="option4" data-id="show-health-impact-rcp8p5" data-name="hi-rcp8p5" data-credit="Oxford Martin">Nutritional Deficiencies RCP8.5</option>';
         layer_html += '        </select>';
+        layer_html += '        <button class="clear-theme" type="button">Clear <br>Theme</button>';
         layer_html += '      </td>';
         layer_html += '      <td style="padding-bottom:16px; padding-right: 10px; text-align: right">';
         layer_html += '        Climate Resilience:';
@@ -1413,6 +1418,7 @@
         layer_html += '          <option value="option1" data-id="show-vsi" data-name="vsi" data-credit="Oxford Martin">Vegetation Sensitivity Index</option>';
         layer_html += '          <option value="option2" data-id="show-sea-level-rise" data-name="slr" data-credit="Climate Central">Sea Level Rise</option>';
         layer_html += '        </select>';
+        layer_html += '        <button class="clear-theme" type="button">Clear <br>Theme</button>';
         layer_html += '      </td>';
         layer_html += '    </tr>';
 
@@ -1425,6 +1431,7 @@
         layer_html += '          <option value="option1" data-id="show-coral" data-name="cb" data-credit="NOAA, UNEP-WCMC">Coral Bleaching</option>';
         layer_html += '          <option value="option2" data-id="show-coral-bleaching-alerts" data-name="crw" data-credit="NOAA, UNEP-WCMC">Coral Reef Watch</option>';
         layer_html += '        </select>';
+        layer_html += '        <button class="clear-theme" type="button">Clear <br>Theme</button>';
         layer_html += '      </td>';
         layer_html += '      <td style="padding-bottom:16px; padding-right: 10px; text-align: right">';
         layer_html += '        Refugees:';
@@ -1434,6 +1441,7 @@
         layer_html += '          <option value="option1" data-id="show-monthly-refugees" data-name="mmr" data-credit="UNHCR">Monthly Mediterranean Refugees</option>';
         layer_html += '          <option value="option2" data-id="show-annual-refugees" data-name="ar" data-credit="UNHCR">Annual Refugees</option>';
         layer_html += '        </select>';
+        layer_html += '        <button class="clear-theme" type="button">Clear <br>Theme</button>';
         layer_html += '      </td>';
         layer_html += '      <td style="padding-bottom:16px; padding-right: 10px; text-align: right">';
         layer_html += '        Urbanization:';
@@ -1443,6 +1451,7 @@
         layer_html += '          <option value="option1" data-id="show-lights-at-night" data-name="lan" data-credit="NOAA, Google">Lights at Night</option>';
         layer_html += '          <option value="option2" data-id="show-urban-fragility" data-name="uf" data-credit="Igarape Institute">Urban Fragility</option>';
         layer_html += '        </select>';
+        layer_html += '        <button class="clear-theme" type="button">Clear <br>Theme</button>';
         layer_html += '      </td>';
         layer_html += '    </tr>';
 
@@ -1642,6 +1651,13 @@
         $("#presentation-slider-selection, .base-map-radio, .map-layer-checkbox, .extras-selector, .presentationSlider, #layers-legend, .customInstructions, .player").addClass("letterbox");
         $(".base-map-div, .map-layer-div, .extras-selector-div").addClass("top-panel letterbox");
         $(".current-location-text, .landsat-select, .wdpa-select, .forest-change-select, .viirs-select, .forest-loss-gain-select, .animated-forest-loss-select, .forest-alerts-select, .forest-alerts-no-overlay-select, .lights-at-night-select, .coral-select, .coral-bleaching-select, .wind-select, .solar-select, .drilling-select, .himawari-select, .water-occurrence-select, .water-change-select .monthly-refugees-select").addClass("letterbox");
+        $(".clear-theme").on("click", function() {
+          var selectedTheme = $(this).prev().prop('id').replace("_ms", "-selection");
+          var selectedLayers = $("#" + selectedTheme).find("input:checked");
+          selectedLayers.each(function() {
+            if ($(this).prop('checked')) $(this).trigger("click");
+          });
+        });
         // Theme dropdowns
         $("#forest-theme").multiselect({
             header: false,

@@ -577,11 +577,11 @@ html, body {
   font-size: 15px;
 }
 
-#single li  { width:100% !important;}
-#double li  { width:50% !important;}
-#triple li  { width:33.333% !important;}
-#quad li    { width:25% !important; }
-#six li     { width:16.666% !important; }
+.single li  { width:100% !important;}
+.double li  { width:50% !important;}
+.triple li  { width:33.333% !important;}
+.quad li    { width:25% !important; }
+.six li     { width:16.666% !important; }
 
 .ui-multiselect-menu .credit {
   color: #555555;
@@ -600,3 +600,9 @@ html, body {
 button:focus {outline:0;}
 
 input:focus {outline:0;}
+
+.clear-theme {
+  position: absolute;
+  margin-left: 8px;
+  font-size: 9px;
+}
