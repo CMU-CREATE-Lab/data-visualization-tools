@@ -11,6 +11,7 @@ html, body {
 .player {
   border: 0px !important;
   z-index: 0;
+  height: 100% !important;
 }
 .snaplapse_keyframe_list_item.letterbox:not(.recording) .snaplapse_keyframe_list_item_title {
   font-size: 15px;
@@ -200,9 +201,6 @@ html, body {
   position: relative;
   top: 7px;
   left: 50px;
-}
-.customInstructions.letterbox {
-  bottom: -93px !important;
 }
 .customZoomhelp.hyperwall {
   display: none;
@@ -418,18 +416,6 @@ html, body {
 }
 .customControl.recording {
   bottom: 118px;
-}
-.customControl.letterbox {
-  bottom: -94px;
-}
-.controls.letterbox {
-  bottom: -94px;
-}
-.scaleBarContainer.letterbox {
-  bottom: 12px !important;
-}
-.captureTime.letterbox {
-  bottom: -76px;
 }
 .snaplapse-annotation-description .recording {
   font-size: 60px !important;
