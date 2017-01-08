@@ -1161,7 +1161,7 @@
         }
       });
 
-      $('#layers-list').on("click", "input", function(e) {
+      $('#layers-list, .ui-multiselect-checkboxes').on("click", "input", function(e) {
         if (e.originalEvent && event.pageX != 0 && event.pageY != 0)
           UTIL.addGoogleAnalyticEvent('button', 'click', 'layer=' + $(this).prop("id"));
       });
@@ -2124,7 +2124,7 @@
 
           // Handle layers
           waypointLayers.forEach(function(layer) {
-            var $layerToggle = $("#layers-list label[name='" + layer + "'] input");
+            var $layerToggle = $("#layers-list label[name='" + layer + "'] input, .ui-multiselect-checkboxes label[name='" + layer + "'] input");
             if (!$layerToggle.prop('checked')) $layerToggle.trigger("click");
           });
 
