@@ -1632,7 +1632,7 @@
       if (enableLetterboxMode) {
         $(layer_html).appendTo($("#content"));
         $(legend_html).appendTo($("#content"));
-        $("#presentation-slider-selection, .base-map-radio, .map-layer-checkbox, .extras-selector, .presentationSlider, #layers-legend").addClass("letterbox");
+        $("#presentation-slider-selection, .base-map-radio, .map-layer-checkbox, .extras-selector, .presentationSlider, #layers-legend, .customInstructions").addClass("letterbox");
         $(".base-map-div, .map-layer-div, .extras-selector-div").addClass("top-panel letterbox");
         $(".current-location-text, .landsat-select, .wdpa-select, .forest-change-select, .viirs-select, .forest-loss-gain-select, .animated-forest-loss-select, .forest-alerts-select, .forest-alerts-no-overlay-select, .lights-at-night-select, .coral-select, .coral-bleaching-select, .wind-select, .solar-select, .drilling-select, .himawari-select, .water-occurrence-select, .water-change-select .monthly-refugees-select").addClass("letterbox");
         // Theme dropdowns
@@ -1641,63 +1641,72 @@
             noneSelectedText: "Select layers...",
             selectedText: "# layer(s) selected",
             menuWidth: 630,
-            height: 106
+            height: 116,
+            colType: "double"
         });
         $("#water-theme").multiselect({
             header: false,
             noneSelectedText: "Select layers...",
             selectedText: "# layer(s) selected",
             menuWidth: 470,
-            height: 28
+            height: 32,
+            colType: "double"
         });
         $("#energy-theme").multiselect({
             header: false,
             noneSelectedText: "Select layers...",
             selectedText: "# layer(s) selected",
             menuWidth: 620,
-            height: 106
+            height: 116,
+            colType: "double"
         });
         $("#coral-theme").multiselect({
             header: false,
             noneSelectedText: "Select layers...",
             selectedText: "# layer(s) selected",
             menuWidth: 600,
-            height: 28
+            height: 32,
+            colType: "double"
         });
         $("#pandemic-theme").multiselect({
             header: false,
             noneSelectedText: "Select layers...",
             selectedText: "# layer(s) selected",
             menuWidth: 470,
-            height: 68
+            height: 72,
+            colType: "double"
         });
         $("#refugee-theme").multiselect({
             header: false,
             noneSelectedText: "Select layers...",
             selectedText: "# layer(s) selected",
             menuWidth: 730,
-            height: 28
+            height: 32,
+            colType: "double"
         });
         $("#nutrition-theme").multiselect({
             header: false,
             noneSelectedText: "Select layers...",
             selectedText: "# layer(s) selected",
             menuWidth: 733,
-            height: 68
+            height: 72,
+            colType: "double"
         });
         $("#resilience-theme").multiselect({
             header: false,
             noneSelectedText: "Select layers...",
             selectedText: "# layer(s) selected",
-            menuWidth: 700,
-            height: 28
+            menuWidth: 340,
+            height: 72,
+            colType: "single"
         });
         $("#urbanization-theme").multiselect({
             header: false,
             noneSelectedText: "Select layers...",
             selectedText: "# layer(s) selected",
-            menuWidth: 500,
-            height: 28
+            menuWidth: 472,
+            height: 32,
+            colType: "double"
         });
       } else {
         $(layer_html).appendTo($("#timeMachine .player"));
@@ -1706,7 +1715,7 @@
       }
 
       if (isHyperwall) {
-        $("#layers-list, .sideToolBar, #layers-legend, #presentation-slider-selection, .base-map-div, .current-location-text").addClass("hyperwall");
+        $("#layers-list, .sideToolBar, #layers-legend, #presentation-slider-selection, .base-map-div, .current-location-text, .customZoomhelp").addClass("hyperwall");
       }
 
 
@@ -2027,15 +2036,16 @@
       }
 
       if (snaplapseViewerForPresentationSlider) {
-        // Change UI based on whether setup is a hyperwall or not
+        $('.presentationSlider').show();
+        var $elements = $('.presentationSlider, .customControl, .controls, .captureTime, .scaleBarContainer, .snaplapse_keyframe_container, .keyframeSubtitleBoxForHovering, .snaplapse_keyframe_list_item_presentation, .snaplapse_keyframe_list_item_thumbnail_overlay_presentation');
+        if (isHyperwall)
+          $elements.addClass('hyperwall');
+        if (enableLetterboxMode)
+          $elements.addClass('letterbox');
+        if (enableRecordingMode)
+          $elements.addClass('recording');
+
         snaplapseViewerForPresentationSlider.addEventListener('snaplapse-loaded', function() {
-          var $elements = $('.presentationSlider, .snaplapse_keyframe_container, .keyframeSubtitleBoxForHovering, .snaplapse_keyframe_list_item_presentation, .snaplapse_keyframe_list_item_thumbnail_overlay_presentation');
-          if (isHyperwall)
-            $elements.addClass('hyperwall');
-          if (enableLetterboxMode)
-            $elements.addClass('letterbox');
-          if (enableRecordingMode)
-            $elements.addClass('recording');
           $(".snaplapse_keyframe_container").scrollLeft(0);
         });
 

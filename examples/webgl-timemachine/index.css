@@ -192,14 +192,20 @@ html, body {
 .map-layer-div.letterbox {
   height: 152px;
   position: absolute;
-  left: 550px;
+  left: 525px;
   bottom: auto;
   top: 4px;
 }
 .map-layer-checkbox.letterbox {
   position: relative;
   top: 7px;
-  left: 15px;
+  left: 50px;
+}
+.customInstructions.letterbox {
+  bottom: -93px !important;
+}
+.customZoomhelp.hyperwall {
+  display: none;
 }
 .base-map-div.letterbox {
   width: 234px;
@@ -210,7 +216,7 @@ html, body {
   top: 0px;
 }
 .base-map-div.letterbox.hyperwall {
-  left: 261px;
+  left: 235px;
 }
 .base-map-radio.letterbox {
   position: relative;
@@ -230,7 +236,7 @@ html, body {
   position: relative;
   top: 14px;
   left: 20px;
-  width: 220px !important;
+  width: 197px !important;
   outline: none;
 }
 #location_search {
@@ -257,17 +263,17 @@ html, body {
   left: 161px !important;
 }
 .location_search_div.letterbox {
-  width: 200px;
+  width: 177px;
   position: absolute;
   bottom: auto;
-  top: 0px;
+  top: -12px;
   height: 74px;
 }
 #location_search.letterbox {
   position: relative;
   top: 32px;
   left: 23px !important;
-  width: 200px;
+  width: 177px;
   margin: 0;
   padding-bottom: 7px;
   padding-top: 7px;
@@ -319,6 +325,7 @@ html, body {
   width: 100% !important;
   height: calc(100% - 312px) !important;
 }
+
 #letterbox-bottom {
   position: relative;
   width: 100%;
@@ -412,6 +419,18 @@ html, body {
 .customControl.recording {
   bottom: 118px;
 }
+.customControl.letterbox {
+  bottom: -94px;
+}
+.controls.letterbox {
+  bottom: -94px;
+}
+.scaleBarContainer.letterbox {
+  bottom: 12px !important;
+}
+.captureTime.letterbox {
+  bottom: -76px;
+}
 .snaplapse-annotation-description .recording {
   font-size: 60px !important;
   padding-bottom: 70px !important;
@@ -466,108 +485,7 @@ html, body {
   background-image: -ms-linear-gradient(left, #ff0000 0%, #000000 50%, #00ff00 100%);
   background-image: linear-gradient(left, #ff0000 0%, #000000 50%, #00ff00 100%);
 }
-.landsat-select.letterbox .credit {
-  position: absolute !important;
-  left: 40px;
-  margin-top: 30px;
-  width: 10px;
-}
-.wdpa-select.letterbox .credit {
-  position: absolute;
-  left: 908px;
-  margin-top: 118px;
-  width: 10px;
-}
-.forest-change-select.letterbox .credit {
-  position: absolute;
-  left: 678px;
-  margin-top: 30px;
-  width: 10px;
-}
-.viirs-select.letterbox .credit {
-  position: absolute;
-  left: 40px;
-  margin-top: 30px;
-  width: 10px;
-}
-.forest-loss-gain-select.letterbox .credit {
-  position: absolute;
-  left: 678px;
-  margin-top: 74px;
-  width: 10px;
-}
-.animated-forest-loss-select.letterbox .credit {
-  position: absolute;
-  left: 678px;
-  margin-top: 118px;
-  width: 10px;
-}
-.lights-at-night-select.letterbox .credit {
-  position: absolute;
-  left: 40px;
-  margin-top: 74px;
-  width: 10px;
-}
-.coral-select.letterbox .credit {
-  position: absolute;
-  left: 469px;
-  margin-top: 30px;
-  width: 10px;
-}
-.coral-bleaching-select.letterbox .credit {
-  position: absolute;
-  left: 223px;
-  margin-top: 118px;
-  width: 10px;
-}
-.wind-select.letterbox .credit {
-  position: absolute;
-  left: 223px;
-  margin-top: 74px;
-  width: 10px;
-}
-.solar-select.letterbox .credit {
-  position: absolute;
-  left: 223px;
-  margin-top: 30px;
-  width: 10px;
-}
-.drilling-select.letterbox .credit {
-  position: absolute;
-  left: 40px;
-  margin-top: 118px;
-  width: 10px;
-}
-.himawari-select.letterbox .credit {
-  position: absolute;
-  left: 1205px;
-  margin-top: 30px;
-  width: 10px;
-}
-.water-occurrence-select.letterbox .credit {
-  position: absolute;
-  left: 469px;
-  margin-top: 74px;
-  width: 10px;
-}
-.water-change-select.letterbox .credit {
-  position: absolute;
-  left: 469px;
-  margin-top: 118px;
-  width: 10px;
-}
-.forest-alerts-select.letterbox .credit {
-  position: absolute;
-  left: 908px;
-  margin-top: 30px;
-  width: 10px;
-}
-.forest-alerts-no-overlay-select.letterbox .credit {
-  position: absolute;
-  left: 908px;
-  margin-top: 74px;
-  width: 10px;
-}
+
 .sideToolBar.hyperwall {
   display: none;
 }
@@ -592,7 +510,7 @@ html, body {
   padding-right: 8px;
 }
 #presentation-slider-selection.letterbox {
-  display: block;
+  display: block !important;
 }
 #automode-section {
   position: absolute;
@@ -659,17 +577,19 @@ html, body {
   -ms-user-select: none;
   user-select: none;
 }
+
 .ui-multiselect-menu li{
-  font-size: 18px;
+  font-size: 17px;
   line-height:1.5em !important;
   border-bottom:1px solid #ccc !important;
   float:left !important;
   display:inline !important;
 }
 .ui-multiselect {
-  font-size: 16px;
+  font-size: 15px;
 }
 
+#single li  { width:100% !important;}
 #double li  { width:50% !important;}
 #triple li  { width:33.333% !important;}
 #quad li    { width:25% !important; }
@@ -685,7 +605,7 @@ html, body {
 
 #layers-list button {
   cursor: pointer;
-  height: 26px;
+  height: 30px;
   border-radius: 2px !important;
 }
 

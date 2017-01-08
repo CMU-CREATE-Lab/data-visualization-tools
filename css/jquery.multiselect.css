@@ -13,7 +13,7 @@
 
 .ui-multiselect-menu { display:none; padding:3px; position:absolute; text-align: left; z-index: 9999}
 .ui-multiselect-checkboxes { overflow-y:auto; position:relative; }
-.ui-multiselect-checkboxes label { border:1px solid transparent; cursor:pointer; display:block; padding:3px 0px; }
+.ui-multiselect-checkboxes label { border:1px solid transparent; cursor:pointer; display:block; padding:5px 0px; }
 .ui-multiselect-checkboxes label input { position:relative; top:1px }
 .ui-multiselect-checkboxes li.ui-multiselect-optgroup-label { border-bottom:1px solid; font-weight:bold; text-align:center; }
 .ui-multiselect-checkboxes li.ui-multiselect-optgroup-label a { display:block; margin:1px 0; padding:3px; text-decoration:none; }

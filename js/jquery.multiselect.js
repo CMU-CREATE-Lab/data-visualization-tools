@@ -47,7 +47,8 @@
       appendTo: null,
       menuWidth:null,
       selectedListSeparator: ', ',
-      disableInputsOnToggle: true
+      disableInputsOnToggle: true,
+      colType: "single"
     },
 
     _getAppendEl: function() {
@@ -238,7 +239,7 @@
       });
       this.menu.find(".ui-multiselect-checkboxes").remove();
       this.menu.append($dropdown);
-      $dropdown.prop("id", "double");
+      $dropdown.prop("id", this.options.colType);
 
       // cache some moar useful elements
       this.labels = menu.find('label');
@@ -816,6 +817,7 @@
         my: "left top",
         at: "left top",
         of: this.button,
+        collision: "none none"
       };
       if(!$.isEmptyObject(this.options.position)) {
         pos.my = this.options.position.my || pos.my;
@@ -876,6 +878,10 @@
         case 'selectedListSeparator':
           this.options[key] = value;
           this.button[0].defaultValue = this.update();
+          break;
+        case 'colType':
+          this.options[key] = value || "single";
+          this.update();
           break;
       }
 
