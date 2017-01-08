@@ -158,7 +158,7 @@ WebglMapTile.prototype._drawSeaLevelRise = function(transform, options) {
               this._bounds.max.y - this._bounds.min.y);
 
   if (this._ready && this._tileidx.l > 3) { // TODO: Get tiles w level > 3 that arent empty
-    var color = options.color || [0., 0., 0., 1.0]; 
+    var color = options.color || [0., 0., 0., 1.0];
 
     gl.useProgram(this._textureProgram);
     gl.enable(gl.BLEND);
@@ -185,7 +185,7 @@ WebglMapTile.prototype._drawSeaLevelRise = function(transform, options) {
 // Assumes tiles is sorted low res to high res (by TileView)
 WebglMapTile.update = function(tiles, transform, options) {
   if (si) return;
-  WebglTimeMachinePerf.instance.startFrame();
+  //WebglTimeMachinePerf.instance.startFrame();
 
   var canvas = document.getElementById('webgl');
 
@@ -193,7 +193,7 @@ WebglMapTile.update = function(tiles, transform, options) {
     tiles[i].draw(transform, options);
   }
 
-  WebglTimeMachinePerf.instance.endFrame();
+  //WebglTimeMachinePerf.instance.endFrame();
 }
 
 
@@ -222,7 +222,7 @@ WebglMapTile.seaLevelRiseTextureFragmentShader =
   'varying vec2 vTextureCoord;\n' +
   'uniform sampler2D uSampler;\n' +
   'uniform float u_C;\n' +
-  'uniform vec4 u_Color;\n' + 
+  'uniform vec4 u_Color;\n' +
   'void main(void) {\n' +
   '  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));\n' +
   '  if (textureColor.r == 0. && textureColor.g == 0. && textureColor.b == 0.) {\n' +
@@ -233,11 +233,11 @@ WebglMapTile.seaLevelRiseTextureFragmentShader =
   '   float currentC = u_C*2.0 / 255.0;\n' +
   '   if (textureColor.b <= currentC) {\n' +
   '      gl_FragColor = vec4(u_Color.rgb, textureColor.a);\n'+
-  '   }\n'+ 
+  '   }\n'+
   '   else {\n' +
   '      gl_FragColor = vec4(1.0,0.0,0.0, 0.0);\n'+
-  '   }\n'+ 
-  
+  '   }\n'+
+
   '  }\n' +
   '}\n';
 

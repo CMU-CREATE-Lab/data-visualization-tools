@@ -52,7 +52,6 @@
   <script src="WebglMapLayer.js"></script>
   <script src="WebglVectorLayer.js"></script>
   <script src="WebglVectorLayer2.js"></script>
-  <script src="WebglTimeMachinePerf.js"></script>
   <script src="WebGLVectorTile.js"></script>
   <script src="WebGLVectorTile2.js"></script>
   <script src="WebglMapTile.js"></script>
@@ -115,7 +114,7 @@
     var visibleBaseMapLayer = "landsat";
     var previousVisibleBaseMapLayer = visibleBaseMapLayer;
     WebglVideoTile.useFaderShader = useFaderShader;
-    var timelapse, previousWaypoint = {}, previousHimawariIdx, waypointViewChangeListener, hideWaypointListener;
+    var timelapse, previousWaypoint = {}, waypointViewChangeListener, hideWaypointListener;
     var himawariWaypoints = {};
     var timelineType = "customUI";
     var activeLayersWithTimeline = 0;
@@ -267,18 +266,6 @@
 
       timelapse = new org.gigapan.timelapse.Timelapse("timeMachine", settings);
       onTimeMachinePlayerReady();
-
-      //document.body.appendChild( stats.domElement );
-      //$(stats.domElement).css('z-index', 1000);
-
-      perf = new WebglTimeMachinePerf(document.getElementById('stats'), timelapse);
-      $('#stats').hide();
-      /*$(document).keypress(function(e) {
-        // ctrl-a toggles perf
-        if (e.keyCode == 1) {
-        $('#stats').toggle();
-        }
-      });*/
     }
 
     $(init);
@@ -384,11 +371,11 @@
       $("#show-water-occurrence").on("click", function() {
         var $this = $(this);
         if ($this.is(':checked')) {
-          showWaterOccurrenceLayer = true;
-          timelineType = "none";
           if ($("#show-water-change").prop('checked')) {
             $("#show-water-change").click();
           }
+          showWaterOccurrenceLayer = true;
+          timelineType = "none";
           $("#water-occurrence-legend").show();
         } else {
           showWaterOccurrenceLayer = false;
@@ -400,11 +387,11 @@
       $("#show-water-change").on("click", function() {
         var $this = $(this);
         if ($this.is(':checked')) {
-          showWaterChangeLayer = true;
-          timelineType = "none";
           if ($("#show-water-occurrence").prop('checked')) {
             $("#show-water-occurrence").click();
           }
+          showWaterChangeLayer = true;
+          timelineType = "none";
           $("#water-change-legend").show();
         } else {
           showWaterChangeLayer = false;
@@ -428,8 +415,6 @@
 
       $("#show-forest-change").on("click", function() {
         if ($(this).prop('checked')) {
-          showHansenLayer = true;
-          timelineType = "none";
           if ($("#show-forest-loss-gain").prop('checked')) {
             $("#show-forest-loss-gain").click();
           }
@@ -442,6 +427,8 @@
           if ($("#show-forest-alerts-no-overlay").prop('checked')) {
             $("#show-forest-alerts-no-overlay").click();
           }
+          showHansenLayer = true;
+          timelineType = "none";
           $("#forest-loss-year-legend").show();
         } else {
           showHansenLayer = false;
@@ -452,8 +439,6 @@
 
       $("#show-forest-loss-gain").on("click", function() {
         if ($(this).prop('checked')) {
-          showHansenLayer2 = true;
-          timelineType = "none";
           if ($("#show-forest-change").prop('checked')) {
             $("#show-forest-change").click();
           }
@@ -466,6 +451,8 @@
           if ($("#show-forest-alerts-no-overlay").prop('checked')) {
             $("#show-forest-alerts-no-overlay").click();
           }
+          showHansenLayer2 = true;
+          timelineType = "none";
           $("#forest-loss-gain-legend").show();
         } else {
           showHansenLayer2 = false;
@@ -476,10 +463,6 @@
 
       $("#show-animated-forest-loss-gain").on("click", function() {
         if ($(this).prop('checked')) {
-          showAnimatedHansenLayer = true;
-          if (!showViirsLayer)
-            timelineType = "customUI";
-          setActiveLayersWithTimeline(1);
           if ($("#show-forest-change").prop('checked')) {
             $("#show-forest-change").click();
           }
@@ -492,13 +475,17 @@
           if ($("#show-forest-alerts-no-overlay").prop('checked')) {
             $("#show-forest-alerts-no-overlay").click();
           }
+          showAnimatedHansenLayer = true;
+          if (!showViirsLayer)
+            timelineType = "customUI";
+          setActiveLayersWithTimeline(1);
           $("#forest-loss-gain-legend").show();
         } else {
           showAnimatedHansenLayer = false;
           setActiveLayersWithTimeline(-1);
           $("#forest-loss-gain-legend").hide();
         }
-      }).prop('checked', showViirsLayer);
+      }).prop('checked', showAnimatedHansenLayer);
 
       $("#show-forest-alerts").on("click", function() {
         // Do not load if Himawari is up since both are video timemachines.
@@ -507,10 +494,6 @@
           return;
         }
         if ($(this).prop('checked')) {
-          showForestAlertsTimeMachineLayer = true;
-          timelineType = "defaultUI";
-          setActiveLayersWithTimeline(1);
-          requestNewTimeline("forest-alerts-times.json", timelineType);
           if ($("#show-forest-change").prop('checked')) {
             $("#show-forest-change").click();
           }
@@ -523,6 +506,10 @@
           if ($("#show-forest-alerts-no-overlay").prop('checked')) {
             $("#show-forest-alerts-no-overlay").click();
           }
+          showForestAlertsTimeMachineLayer = true;
+          timelineType = "defaultUI";
+          setActiveLayersWithTimeline(1);
+          requestNewTimeline("forest-alerts-times.json", timelineType);
           var v = timelapse.getVideoset();
           v.setFps(10);
           timelapse.setMaxScale(landsatMaxScale);
@@ -553,10 +540,6 @@
           return;
         }
         if ($(this).prop('checked')) {
-          showForestAlertsNoOverlayTimeMachineLayer = true;
-          timelineType = "defaultUI";
-          setActiveLayersWithTimeline(1);
-          requestNewTimeline("forest-alerts-times.json", timelineType);
           if ($("#show-forest-change").prop('checked')) {
             $("#show-forest-change").click();
           }
@@ -569,6 +552,10 @@
           if ($("#show-forest-alerts").prop('checked')) {
             $("#show-forest-alerts").click();
           }
+          showForestAlertsNoOverlayTimeMachineLayer = true;
+          timelineType = "defaultUI";
+          setActiveLayersWithTimeline(1);
+          requestNewTimeline("forest-alerts-times.json", timelineType);
           var v = timelapse.getVideoset();
           v.setFps(10);
           timelapse.setMaxScale(landsatMaxScale);
@@ -603,11 +590,13 @@
           $("#fires-at-night-legend").show();
         } else {
           showViirsLayer = false;
-          timelineType = "customUI";
-          setActiveLayersWithTimeline(-1);
-          requestNewTimeline(cachedLandsatTimeJson, timelineType);
-          timelapse.setPlaybackRate(defaultPlaybackSpeed);
-          timelapse.setDoDwell(true);
+          if (doSwitchToLandsat()) {
+            timelineType = "customUI";
+            setActiveLayersWithTimeline(-1);
+            requestNewTimeline(cachedLandsatTimeJson, timelineType);
+            timelapse.setPlaybackRate(defaultPlaybackSpeed);
+            timelapse.setDoDwell(true);
+          }
           $("#fires-at-night-legend").hide();
         }
       }).prop('checked', showViirsLayer);
@@ -622,8 +611,10 @@
         } else {
           showCoralBleachingLayer = false;
           showMcrmLayer = false;
-          timelineType = "customUI";
-          setActiveLayersWithTimeline(-1);
+          if (doSwitchToLandsat()) {
+            timelineType = "customUI";
+            setActiveLayersWithTimeline(-1);
+          }
           if (!$("#show-coral-bleaching-alerts").prop('checked')) {
             $("#coral-bleaching-legend").hide();
           }
@@ -646,13 +637,15 @@
         } else {
           showCrwTimemachineLayer = false;
           showMcrmLayer = false;
-          timelineType = "customUI";
-          setActiveLayersWithTimeline(-1);
-          requestNewTimeline(cachedLandsatTimeJson, timelineType);
-          timelapse.setDoDwell(true);
-          WebglVideoTile.useGreenScreen = false;
-          var v = timelapse.getVideoset();
-          v.setFps(10);
+          if (doSwitchToLandsat()) {
+            timelineType = "customUI";
+            setActiveLayersWithTimeline(-1);
+            requestNewTimeline(cachedLandsatTimeJson, timelineType);
+            timelapse.setDoDwell(true);
+            WebglVideoTile.useGreenScreen = false;
+            var v = timelapse.getVideoset();
+            v.setFps(10);
+          }
           $("#coral-bleaching-alerts-legend").hide();
           if (!$("#show-coral").prop('checked')) {
             $("#coral-bleaching-legend").hide();
@@ -757,7 +750,7 @@
           timelineType = "customUI";
           $("#lights-at-night-legend").hide();
         }
-      }).prop('checked', showCoralBleachingLayer);
+      }).prop('checked', showLightsAtNightLayer);
 
       $("#show-monthly-refugees").on("click", function() {
         if ($(this).prop('checked')) {
@@ -770,12 +763,14 @@
           $("#monthly-refugees-legend").show();
         } else {
           showMonthlyRefugeesLayer = false;
-          timelineType = "customUI";
-          setActiveLayersWithTimeline(-1);
-          requestNewTimeline(cachedLandsatTimeJson, timelineType);
-          timelapse.setPlaybackRate(defaultPlaybackSpeed);
-          timelapse.setDoDwell(true);
-          timelapse.setMaxScale(landsatMaxScale);
+          if (doSwitchToLandsat()) {
+            timelineType = "customUI";
+            setActiveLayersWithTimeline(-1);
+            requestNewTimeline(cachedLandsatTimeJson, timelineType);
+            timelapse.setPlaybackRate(defaultPlaybackSpeed);
+            timelapse.setDoDwell(true);
+            timelapse.setMaxScale(landsatMaxScale);
+          }
           $("#monthly-refugees-legend").hide();
         }
       }).prop('checked', showMonthlyRefugeesLayer);
@@ -1166,15 +1161,27 @@
           UTIL.addGoogleAnalyticEvent('button', 'click', 'layer=' + $(this).prop("id"));
       });
 
+      var doSwitchToLandsat = function() {
+        // Special case for layers with defaultUI timeline.
+        if (timelineType == "defaultUI" && (showViirsLayer || showMonthlyRefugeesLayer || showCrwTimemachineLayer)) {
+          return false;
+        } else {
+          return true;
+        }
+      }
+
       var timelineUIHandler = function() {
+        console.log("hey");
         // Hide any timelines that are visible if we have no layers up that require a timeline or we are a static layer that fully covers the entire globe
         if (activeLayersWithTimeline <= 0 || (visibleBaseMapLayer == "landsat" && activeLayersWithTimeline == 1 && (showLightsAtNightLayer || showHansenLayer2 || showVsiLayer))) {
           $(".controls, .customControl").hide();
         } else {
           if (timelineType == "customUI") {
+            console.log("customUI time");
             $(".controls, .captureTime").hide();
             $(".customControl").show().children().show();
           } else if (timelineType == "defaultUI") {
+            console.log("defaultUI time");
             $(".customControl").hide();
             $(".controls, .captureTime").show();
           }
@@ -1201,15 +1208,6 @@
 
   <script type="text/javascript">
     "use strict";
-
-    /* begin stats */
-    /*var stats = new Stats();
-    stats.setMode(0); // 0: fps, 1: ms
-    // Align top-left
-    stats.domElement.style.position = 'absolute';
-    stats.domElement.style.left = '0px';
-    stats.domElement.style.top = '0px';*/
-    /* end stats */
 
     // BEGIN WebGL vars
     var canvasLayer;
@@ -2277,7 +2275,6 @@
       $(".share").appendTo($(".location_search_div"));
     }
 
-    var perf;
     var maximumUpdateTime = 20; // milliseconds
     var startOfRedraw;
 
@@ -2292,38 +2289,9 @@
       gl.viewport(0, 0, width, height);
     }
 
-    //var firstDrawTime = null;
-    //var lastFrameTime = null
-
     // Draws to canvas.
     // Called by TimeMachineCanavasLayer during animation and/or view changes
     function update() {
-
-      /*var frameTime = performance.now();
-      startOfRedraw = frameTime;
-
-      if (lastFrameTime != null) {
-        var duration = frameTime - lastFrameTime;
-      }
-      lastFrameTime = frameTime;
-
-      //stats.begin();
-      if (WebglVideoTile.verbose) {
-        function r2(x) {
-        return Math.round(x * 100) / 100;
-        }
-        console.log(r2(performance.now()) + ' update start --------------------------------------------------');
-      }*/
-
-      //if (performance.now() - firstDrawTime < 1 * 5000) {
-      //  WebglVideoTile.verbose = true;
-      //} else {
-      //  if (WebglVideoTile.verbose) {
-      //    WebglVideoTile.verbose = false;
-      //    console.log(WebglVideoTile.stats());
-      //  }
-      //}
-
       gl.clear(gl.COLOR_BUFFER_BIT);
 
       //
@@ -2344,21 +2312,21 @@
         view.y *= timelapse2map;
         view.scale /= timelapse2map;
         return view;
-      }
+      };
 
       // Extracting dates from timelapse -- TODO: Refactor and put in timemachine?
       function getDates(timelapse) {
         var dates = [];
         for (var i = 0; i < timelapse.getNumFrames(); i++) {
-          dates.push(new Date(timelapse.getCaptureTimes()[i]))
+          dates.push(new Date(timelapse.getCaptureTimes()[i]));
         }
         return dates;
       }
 
       function getCurrentTimes(timelapse) {
-        var currentTimes = []
+        var currentTimes = [];
         for (var i = 0; i < timelapse.getNumFrames(); i++) {
-          currentTimes.push(i/timelapse.getFps())
+          currentTimes.push(i/timelapse.getFps());
         }
         return currentTimes;
       }
@@ -2366,7 +2334,7 @@
       function getCurrentTimeIndex(currentTime, currentTimes) {
         for (var i = 0; i < currentTimes.length; i++) {
           if (currentTime <= currentTimes[i])  {
-            return i
+            return i;
           }
         }
         return currentTimes.length - 1;
@@ -2383,7 +2351,6 @@
         var delta = (currentTime - currentTimes[previousIndex]) / range;
         return delta;
       }
-
 
       function getCurrentDate(currentTime, currentTimes, dates) {
         var delta = getCurrentTimesDelta(currentTime, currentTimes);
@@ -2588,6 +2555,7 @@
 
         // Draw Protected Areas (WDPA)
         if (showWdpaLayer) {
+          var options = {};
           var wdpaLayerView = getLayerView(wdpaLayer, landsatBaseMapLayer);
           wdpaLayer.draw(wdpaLayerView, options);
         }
@@ -2833,7 +2801,6 @@
         //
 
       }
-      //stats.end();
     }
   </script>
 
@@ -2876,21 +2843,20 @@
     <h3></h3>
     <p></p>
   </div>
-  <canvas id="stats" style="position:absolute; top:0px; right:0px; z-index:100" width=1000 height=153></canvas>
   <div id="extras-content" title=""></div>
   <div id="presentation-slider-selection">
     <table>
       <tr>
-        <td style="color: white">Jump To:
-          <td id="climate-1-section"><button type="button">Climate 1</button></td>
-          <td id="climate-2-section"><button type="button">Climate 2</button></td>
-          <td id="forest-section"><button type="button">Forest</button></td>
-          <td id="water-section"><button type="button">Water</button></td>
-          <td id="resources-1-section"><button type="button">Resources 1</button></td>
-          <td id="resources-2-section"><button type="button">Resources 2</button></td>
-          <td id="industrialization-section"><button type="button">Industrialization</button></td>
-          <td id="himawari-section"><button type="button">Himawari-8</button></td>
-          <td id="automode-section"><button type="button">Launch Automode</button></td>
+        <td style="color: white">Jump To:</td>
+        <td id="climate-1-section"><button type="button">Climate 1</button></td>
+        <td id="climate-2-section"><button type="button">Climate 2</button></td>
+        <td id="forest-section"><button type="button">Forest</button></td>
+        <td id="water-section"><button type="button">Water</button></td>
+        <td id="resources-1-section"><button type="button">Resources 1</button></td>
+        <td id="resources-2-section"><button type="button">Resources 2</button></td>
+        <td id="industrialization-section"><button type="button">Industrialization</button></td>
+        <td id="himawari-section"><button type="button">Himawari-8</button></td>
+        <td id="automode-section"><button type="button">Launch Automode</button></td>
       </tr>
     </table>
   </div>

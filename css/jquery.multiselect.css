@@ -18,4 +18,4 @@
 .ui-multiselect-checkboxes li.ui-multiselect-optgroup-label { border-bottom:1px solid; font-weight:bold; text-align:center; }
 .ui-multiselect-checkboxes li.ui-multiselect-optgroup-label a { display:block; margin:1px 0; padding:3px; text-decoration:none; }
 .ui-multiselect-checkboxes input[type="checkbox"]{ width: 17px; height: 17px; top: 2px; cursor: pointer; }
-.ui-multiselect-menu .selection-arrow { width: 0; height: 0; border-style: solid; border-width: 13px 20px 13px 0; border-color: transparent #ffffff transparent transparent; position: absolute; left: -14px; top: 0px; }
+.ui-multiselect-menu .selection-arrow { width: 0; height: 0; border-style: solid; border-width: 13px 20px 13px 0; border-color: transparent #ffffff transparent transparent; position: absolute; left: -12px; top: 1px; }

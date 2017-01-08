@@ -144,7 +144,7 @@ WebglMapTile2.prototype.draw = function(transform, options) {
     gl.bindBuffer(gl.ARRAY_BUFFER, this._triangles);
     gl.vertexAttribPointer(this._textureProgram.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
 
-/*    gl.activeTexture(gl.TEXTURE0);    
+/*    gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, this._texture);
 */
     var imageLocation0 = gl.getUniformLocation(this._textureProgram, "uSampler0");
@@ -169,7 +169,7 @@ WebglMapTile2.prototype.draw = function(transform, options) {
 // Assumes tiles is sorted low res to high res (by TileView)
 WebglMapTile2.update = function(tiles, transform, options) {
   if (si) return;
-  WebglTimeMachinePerf.instance.startFrame();
+  //WebglTimeMachinePerf.instance.startFrame();
 
   var canvas = document.getElementById('webgl');
 
@@ -177,7 +177,7 @@ WebglMapTile2.update = function(tiles, transform, options) {
     tiles[i].draw(transform, options);
   }
 
-  WebglTimeMachinePerf.instance.endFrame();
+  //WebglTimeMachinePerf.instance.endFrame();
 }
 
 
@@ -203,12 +203,12 @@ WebglMapTile2.textureFragmentShader =
   '  vec4 textureColor1 = texture2D(uSampler1, vec2(vTextureCoord.s, vTextureCoord.t));\n' +
   '  vec4 color0 = vec4(0.,0.,0.,0);\n' +
   '  vec4 color1 = vec4(0.,0.,0.,0);\n' +
-  '  if (textureColor0.g > 1. - uAlpha) {\n' + 
-  '    color0 = vec4(textureColor0.a, 0., 0., textureColor0.a); \n' + 
-  '  }\n' +  
-  '  if (textureColor1.b > 0.40) {\n' + 
-  '    color1 = vec4(0., 0., textureColor1.b * uAlpha, uAlpha);\n' + 
-  '  }\n' + 
+  '  if (textureColor0.g > 1. - uAlpha) {\n' +
+  '    color0 = vec4(textureColor0.a, 0., 0., textureColor0.a); \n' +
+  '  }\n' +
+  '  if (textureColor1.b > 0.40) {\n' +
+  '    color1 = vec4(0., 0., textureColor1.b * uAlpha, uAlpha);\n' +
+  '  }\n' +
   '  gl_FragColor = color0 + color1;\n' +
   '}\n';
 
