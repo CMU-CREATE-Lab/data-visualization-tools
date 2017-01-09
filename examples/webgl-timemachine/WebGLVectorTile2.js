@@ -343,7 +343,7 @@ WebGLVectorTile2.prototype._drawWdpa = function(transform, options) {
 
 WebGLVectorTile2.prototype._drawLines = function(transform) {
   var gl = this.gl;
-  if (this._ready) {
+  if (this._ready && this._pointCount > 0) {
     gl.lineWidth(2);
     gl.useProgram(this.program);
 

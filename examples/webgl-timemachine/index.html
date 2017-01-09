@@ -135,7 +135,7 @@
     //
 
     var forestAlertsTimeMachineLayer, forestAlertsNoOverlayTimeMachineLayer, landsatBaseMapLayer, darkBaseMapLayer, lightBaseMapLayer, mcrmVectorLayer;
-    var hansenMapLayer, hansenMapLayer2, coralBleachingTile, lightsAtNightMapLayer, crwTimemachineLayer, animatedHansenLayer, himawariTimemachineLayer;
+    var hansenMapLayer, hansenMapLayer2, lightsAtNightMapLayer, crwTimemachineLayer, animatedHansenLayer, himawariTimemachineLayer;
     var waterOccurrenceLayer, waterChangeLayer, usgsWindTurbineLayer, solarInstallsLayer, drillingLayer, monthlyRefugeesTile;
     var globalWindPowerLayer;
     var annualRefugeesLayer;
@@ -146,6 +146,7 @@
     var wdpaLayer;
     var seaLevelRiseLayer; //SLR
     var urbanFragilityLayer;
+    var coralBleachingLayer;
 
     // ## 2 ##
     //// Layer tile paths
@@ -183,7 +184,7 @@
     var viirsUrl = rootTilePath + "/viirs/createlab-viirs-uncorrected-20140314-20150403.bin";
     var viirsUrl = rootTilePath + "/viirs";
 
-    var coralBleachingUrl = rootTilePath + "/coral/bleaching_reports_4km_81-10.bin";
+    var coralBleachingUrl = rootTilePath + "/coral";    
     var usgsWindTurbineUrl = rootTilePath + "/energy/wind-installs-usgs";
     var solarInstallsUrl = rootTilePath + "/energy/solar-installs";
     var globalWindPowerUrl = rootTilePath + "/energy/global-wind-power";
@@ -1844,8 +1845,19 @@
 
 
       // Single tile
-      coralBleachingTile = new WebglCoralTile(glb, coralBleachingUrl);
       monthlyRefugeesTile = new MonthlyRefugeesTile(glb, monthlyRefugeesUrl);
+
+
+      var coralBleachingLayerOptions = {
+        tileWidth: 256,
+        tileHeight: 256,
+        nLevels: 0,
+        setDataFunction: WebGLVectorTile2.prototype._setUsgsWindTurbineData,
+        drawFunction: WebGLVectorTile2.prototype._drawPoints,
+        fragmentShader: WebGLVectorTile2.vectorPointTileFragmentShader,
+        vertexShader: WebGLVectorTile2.vectorPointTileVertexShader
+      };
+      coralBleachingLayer = new WebglVectorLayer2(glb, canvasLayer, coralBleachingUrl, coralBleachingLayerOptions);
 
       var lightsAtNightMapLayerOptions = {
         nLevels: 8,
@@ -2496,14 +2508,18 @@
 
         // Draw Coral Bleaching
         if (showCoralBleachingLayer) {
-          var coralBleachingView = timelapse.getView();
-          coralBleachingView.zoom = timelapse.getCurrentZoom();
+          var coralBleachingLayerView = getLayerView(coralBleachingLayer, landsatBaseMapLayer);
+          var options = {};
+          options.zoom = timelapse.getCurrentZoom();
           var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
           var times = timelapse.getCaptureTimes();
           var range = new Date(times[times.length - 1]).getTime() - new Date(times[0]).getTime();
           var currentDate = ratio * range + new Date(times[0]).getTime();
-          coralBleachingView.currentDate = currentDate;
-          coralBleachingTile.draw(coralBleachingView);
+          options.currentTime = currentDate;
+          options.color = [.82, .22, .07, 1.0];
+          options.pointSize = 8.0;
+          coralBleachingLayer.draw(coralBleachingLayerView, options);
+
         }
 
         // Draw Wind Layer
