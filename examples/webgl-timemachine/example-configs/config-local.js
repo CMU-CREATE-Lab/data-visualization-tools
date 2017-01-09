@@ -1,6 +1,7 @@
 var EARTH_TIMELAPSE_CONFIG = {
-  "version" : 5,
+  "version" : 6,
   "browserScaleFactor" : 1,
+  "showShareButton": false,
   "isHyperwall" : false,
   "useGoogleMaps" : false,
   "useGoogleSearch" : false,
@@ -29,5 +30,4 @@ var EARTH_TIMELAPSE_CONFIG = {
   "subsampleAnnualRefugees": false,
   "showSeaLevelRise": false,
   "showUrbanFragility": false
-
 };
