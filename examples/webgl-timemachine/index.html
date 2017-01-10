@@ -117,7 +117,6 @@
     var timelineType = "customUI";
     var activeLayersWithTimeline = 0;
     var previousActiveLayersWithTimeline = 0;
-    var doTimelineUIHandlerFinalCheck = false;
     var keysDown = [];
 
     // This is necessary because waypoint thumbnails are generated from the Landsat set and thus the best we can show is just a solid black thumbnail
@@ -186,7 +185,7 @@
     var viirsUrl = rootTilePath + "/viirs/createlab-viirs-uncorrected-20140314-20150403.bin";
     var viirsUrl = rootTilePath + "/viirs";
 
-    var coralBleachingUrl = rootTilePath + "/coral";    
+    var coralBleachingUrl = rootTilePath + "/coral";
     var usgsWindTurbineUrl = rootTilePath + "/energy/wind-installs-usgs";
     var solarInstallsUrl = rootTilePath + "/energy/solar-installs";
     var globalWindPowerUrl = rootTilePath + "/energy/global-wind-power";
@@ -605,6 +604,9 @@
 
       $("#show-coral").on("click", function() {
         if ($(this).prop('checked')) {
+          if ($("#show-coral-bleaching-alerts").prop('checked')) {
+            $("#show-coral-bleaching-alerts").click();
+          }
           showCoralBleachingLayer = true;
           showMcrmLayer = true;
           timelineType = "customUI";
@@ -625,6 +627,9 @@
 
       $("#show-coral-bleaching-alerts").on("click", function() {
         if ($(this).prop('checked')) {
+          if ($("#show-coral").prop('checked')) {
+            $("#show-coral").click();
+          }
           timelineType = "defaultUI";
           showCrwTimemachineLayer = true;
           showMcrmLayer = true;
@@ -660,6 +665,7 @@
         $(".map-layer-div, .ui-multiselect-checkboxes").find("input:checked").not("#show-himawari").trigger("click");
         if ($(this).prop('checked')) {
           showHimawariTimeMachineLayer = true;
+          setActiveLayersWithTimeline(1);
           timelineType = "defaultUI";
           requestNewTimeline("himawari-times.json", timelineType);
           var v = timelapse.getVideoset();
@@ -672,6 +678,7 @@
           $("#layers-legend").hide();
         } else {
           showHimawariTimeMachineLayer = false;
+          setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
           requestNewTimeline(cachedLandsatTimeJson, timelineType);
           var v = timelapse.getVideoset();
@@ -755,6 +762,9 @@
 
       $("#show-monthly-refugees").on("click", function() {
         if ($(this).prop('checked')) {
+          if ($("#show-annual-refugees").prop('checked')) {
+            $("#show-annual-refugees").click();
+          }
           showMonthlyRefugeesLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "defaultUI";
@@ -779,6 +789,9 @@
 
       $("#show-annual-refugees").on("click", function() {
         if ($(this).prop('checked')) {
+          if ($("#show-monthly-refugees").prop('checked')) {
+            $("#show-monthly-refugees").click();
+          }
           showAnnualRefugeesLayer = true;
           timelineType = "customUI";
           setActiveLayersWithTimeline(1);
@@ -810,111 +823,119 @@
 
       $("#show-health-impact-rcp2p6").on("click", function() {
         if ($(this).prop('checked')) {
-          if (!showHealthImpactLayer) {
+          if (visibleBaseMapLayer != "dark") {
             $("#dark-base").click();
-            showHealthImpactLayer = true;
-            setActiveLayersWithTimeline(1);
-            timelineType = "customUI";
-            requestNewTimeline("health-impact-times.json", timelineType);
-            timelapse.setMasterPlaybackRate(.05);
-            timelapse.setDoDwell(false);
-            $("#health-impact-legend").show();
-            previousVisibleBaseMapLayer = visibleBaseMapLayer;
           }
+          showHealthImpactLayer = true;
+          setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
+          requestNewTimeline("health-impact-times.json", timelineType);
+          timelapse.setMasterPlaybackRate(.05);
+          timelapse.setDoDwell(false);
+          $("#health-impact-legend").show();
+          previousVisibleBaseMapLayer = visibleBaseMapLayer;
           showHealthImpactRcp[0] = true;
         } else {
-          showHealthImpactLayer = false;
-          timelineType = "customUI";
+          if (!showHealthImpactRcp[1] && !showHealthImpactRcp[2] && !showHealthImpactRcp[3]) {
+            showHealthImpactLayer = false;
+            timelineType = "customUI";
+            requestNewTimeline(cachedLandsatTimeJson, timelineType);
+            timelapse.setMasterPlaybackRate(defaultPlaybackSpeed);
+            timelapse.setDoDwell(true);
+            timelapse.setMaxScale(landsatMaxScale);
+            $("#health-impact-legend").hide();
+            visibleBaseMapLayer = previousVisibleBaseMapLayer;
+          }
           setActiveLayersWithTimeline(-1);
-          requestNewTimeline(cachedLandsatTimeJson, timelineType);
-          timelapse.setMasterPlaybackRate(defaultPlaybackSpeed);
-          timelapse.setDoDwell(true);
-          timelapse.setMaxScale(landsatMaxScale);
-          $("#health-impact-legend").hide();
-          visibleBaseMapLayer = previousVisibleBaseMapLayer;
           showHealthImpactRcp[0] = false;
         }
       }).prop('checked', showHealthImpactLayer);
 
       $("#show-health-impact-rcp4p5").on("click", function() {
         if ($(this).prop('checked')) {
-          if (!showHealthImpactLayer) {
+          if (visibleBaseMapLayer != "dark") {
             $("#dark-base").click();
-            showHealthImpactLayer = true;
-            timelineType = "customUI";
-            setActiveLayersWithTimeline(1);
-            requestNewTimeline("health-impact-times.json", timelineType);
-            timelapse.setMasterPlaybackRate(.05);
-            timelapse.setDoDwell(false);
-            $("#health-impact-legend").show();
-            previousVisibleBaseMapLayer = visibleBaseMapLayer;
           }
+          showHealthImpactLayer = true;
+          timelineType = "customUI";
+          setActiveLayersWithTimeline(1);
+          requestNewTimeline("health-impact-times.json", timelineType);
+          timelapse.setMasterPlaybackRate(.05);
+          timelapse.setDoDwell(false);
+          $("#health-impact-legend").show();
+          previousVisibleBaseMapLayer = visibleBaseMapLayer;
           showHealthImpactRcp[1] = true;
         } else {
-          showHealthImpactLayer = false;
-          timelineType = "customUI";
+          if (!showHealthImpactRcp[0] && !showHealthImpactRcp[2] && !showHealthImpactRcp[3]) {
+            showHealthImpactLayer = false;
+            timelineType = "customUI";
+            requestNewTimeline(cachedLandsatTimeJson, timelineType);
+            timelapse.setMasterPlaybackRate(defaultPlaybackSpeed);
+            timelapse.setDoDwell(true);
+            timelapse.setMaxScale(landsatMaxScale);
+            $("#health-impact-legend").hide();
+            visibleBaseMapLayer = previousVisibleBaseMapLayer;
+          }
           setActiveLayersWithTimeline(-1);
-          requestNewTimeline(cachedLandsatTimeJson, timelineType);
-          timelapse.setMasterPlaybackRate(defaultPlaybackSpeed);
-          timelapse.setDoDwell(true);
-          timelapse.setMaxScale(landsatMaxScale);
-          $("#health-impact-legend").hide();
-          visibleBaseMapLayer = previousVisibleBaseMapLayer;
           showHealthImpactRcp[1] = false;
         }
       }).prop('checked', showHealthImpactLayer);
 
       $("#show-health-impact-rcp6p0").on("click", function() {
         if ($(this).prop('checked')) {
-          if (!showHealthImpactLayer) {
+          if (visibleBaseMapLayer != "dark") {
             $("#dark-base").click();
-            showHealthImpactLayer = true;
-            timelineType = "customUI";
-            setActiveLayersWithTimeline(1);
-            requestNewTimeline("health-impact-times.json", timelineType);
-            timelapse.setMasterPlaybackRate(.05);
-            timelapse.setDoDwell(false);
-            $("#health-impact-legend").show();
-            previousVisibleBaseMapLayer = visibleBaseMapLayer;
           }
+          showHealthImpactLayer = true;
+          timelineType = "customUI";
+          setActiveLayersWithTimeline(1);
+          requestNewTimeline("health-impact-times.json", timelineType);
+          timelapse.setMasterPlaybackRate(.05);
+          timelapse.setDoDwell(false);
+          $("#health-impact-legend").show();
+          previousVisibleBaseMapLayer = visibleBaseMapLayer;
           showHealthImpactRcp[2] = true;
         } else {
-          showHealthImpactLayer = false;
-          timelineType = "customUI";
+          if (!showHealthImpactRcp[0] && !showHealthImpactRcp[1] && !showHealthImpactRcp[3]) {
+            showHealthImpactLayer = false;
+            timelineType = "customUI";
+            requestNewTimeline(cachedLandsatTimeJson, timelineType);
+            timelapse.setMasterPlaybackRate(defaultPlaybackSpeed);
+            timelapse.setDoDwell(true);
+            timelapse.setMaxScale(landsatMaxScale);
+            $("#health-impact-legend").hide();
+            visibleBaseMapLayer = previousVisibleBaseMapLayer;
+          }
           setActiveLayersWithTimeline(-1);
-          requestNewTimeline(cachedLandsatTimeJson, timelineType);
-          timelapse.setMasterPlaybackRate(defaultPlaybackSpeed);
-          timelapse.setDoDwell(true);
-          timelapse.setMaxScale(landsatMaxScale);
-          $("#health-impact-legend").hide();
-          visibleBaseMapLayer = previousVisibleBaseMapLayer;
           showHealthImpactRcp[2] = false;
         }
       }).prop('checked', showHealthImpactLayer);
 
       $("#show-health-impact-rcp8p5").on("click", function() {
         if ($(this).prop('checked')) {
-          if (!showHealthImpactLayer) {
+          if (visibleBaseMapLayer != "dark") {
             $("#dark-base").click();
-            showHealthImpactLayer = true;
-            timelineType = "customUI";
-            setActiveLayersWithTimeline(1);
-            requestNewTimeline("health-impact-times.json", timelineType);
-            timelapse.setMasterPlaybackRate(.05);
-            $("#health-impact-legend").show();
-            previousVisibleBaseMapLayer = visibleBaseMapLayer;
           }
+          showHealthImpactLayer = true;
+          timelineType = "customUI";
+          setActiveLayersWithTimeline(1);
+          requestNewTimeline("health-impact-times.json", timelineType);
+          timelapse.setMasterPlaybackRate(.05);
+          $("#health-impact-legend").show();
+          previousVisibleBaseMapLayer = visibleBaseMapLayer;
           showHealthImpactRcp[3] = true;
         } else {
-          showHealthImpactLayer = false;
-          timelineType = "customUI";
+          if (!showHealthImpactRcp[0] && !showHealthImpactRcp[1] && !showHealthImpactRcp[2]) {
+            showHealthImpactLayer = false;
+            timelineType = "customUI";
+            requestNewTimeline(cachedLandsatTimeJson, timelineType);
+            timelapse.setMasterPlaybackRate(defaultPlaybackSpeed);
+            timelapse.setDoDwell(true);
+            timelapse.setMaxScale(landsatMaxScale);
+            $("#health-impact-legend").hide();
+            visibleBaseMapLayer = previousVisibleBaseMapLayer;
+          }
           setActiveLayersWithTimeline(-1);
-          requestNewTimeline(cachedLandsatTimeJson, timelineType);
-          timelapse.setMasterPlaybackRate(defaultPlaybackSpeed);
-          timelapse.setDoDwell(true);
-          timelapse.setMaxScale(landsatMaxScale);
-          $("#health-impact-legend").hide();
-          visibleBaseMapLayer = previousVisibleBaseMapLayer;
           showHealthImpactRcp[3] = false;
         }
       }).prop('checked', showHealthImpactLayer);
@@ -1151,21 +1172,33 @@
       }
 
       var timelineUIHandler = function(e) {
-        var originalEvent = e.originalEvent;
         var isFromUser = true;
+
+        if (showViirsLayer) {
+          timelineType = "defaultUI";
+        }
+
+        // Toggle off Himawari if any other layer is selected when it is up. Himawari is a special mode.
+        if (showHimawariTimeMachineLayer && $('.map-layer-checkbox, .ui-multiselect-checkboxes').find("input:checked").length > 1) {
+          $("#show-himawari").click();
+        }
 
         // Hide any timelines that are visible if we have no layers up that require a timeline or we are a static layer that fully covers the entire globe
         if (activeLayersWithTimeline <= 0 || (visibleBaseMapLayer == "landsat" && activeLayersWithTimeline == 1 && (showLightsAtNightLayer || showHansenLayer2 || showVsiLayer))) {
           $(".controls, .customControl").hide();
+          $(".customControl").hide();
         } else {
           if (timelineType == "customUI") {
             $(".controls, .captureTime").hide();
-            $(".customControl").show().children().show();
+            $(".customControl").show();
           } else if (timelineType == "defaultUI") {
             $(".customControl").hide();
             $(".controls, .captureTime").show();
           }
         }
+
+        if (e)
+          var originalEvent = e.originalEvent;
 
         if (originalEvent) {
           // If true, event came from user interaction, otherwise it came from javascript
@@ -1179,18 +1212,27 @@
             isFromUser = false;
         }
 
-        // Special case
-        if (originalEvent && originalEvent.srcElement.id == "show-wdpa")
-          return;
+        if (activeLayersWithTimeline >= 1 && !(showLightsAtNightLayer || showHansenLayer2 || showVsiLayer)) {
+          if (timelineType == "customUI") {
+            $(".customControl").show().children().show();
+          }
+        }
 
-        if (doTimelineUIHandlerFinalCheck && isFromUser && ((activeLayersWithTimeline == 2 && visibleBaseMapLayer == "landsat") || (previousActiveLayersWithTimeline > 0 && activeLayersWithTimeline == 1 && visibleBaseMapLayer != "landsat"))) {
-          var selectedLayer = $('.map-layer-checkbox, .ui-multiselect-checkboxes').find("input:checked");
+        if (isFromUser && visibleBaseMapLayer != "landsat" && activeLayersWithTimeline == 0)
+          $(".customControl").hide().children().hide();
+
+        var selectedLayer = $('.map-layer-checkbox, .ui-multiselect-checkboxes').find("input:checked");
+        if (activeLayersWithTimeline == 1 && timelineType == "defaultUI") {
           selectedLayer.prop("checked", false);
           setActiveLayersWithTimeline(-1);
           selectedLayer.click();
-          doTimelineUIHandlerFinalCheck = false;
-        } else if (activeLayersWithTimeline > 1) {
-          doTimelineUIHandlerFinalCheck = true;
+          // Force checked state back on
+          selectedLayer.prop("checked", true);
+          if (activeLayersWithTimeline == 0) {
+            setActiveLayersWithTimeline(1);
+          } else if (activeLayersWithTimeline > 1) {
+            setActiveLayersWithTimeline(-1);
+          }
         }
       };
 
@@ -1653,7 +1695,7 @@
         $(legend_html).appendTo($("#content"));
         $("#presentation-slider-selection, .base-map-radio, .map-layer-checkbox, .extras-selector, .presentationSlider, #layers-legend, .customInstructions, .player").addClass("letterbox");
         $(".base-map-div, .map-layer-div, .extras-selector-div").addClass("top-panel letterbox");
-        $(".current-location-text, .landsat-select, .wdpa-select, .forest-change-select, .viirs-select, .forest-loss-gain-select, .animated-forest-loss-select, .forest-alerts-select, .forest-alerts-no-overlay-select, .lights-at-night-select, .coral-select, .coral-bleaching-select, .wind-select, .solar-select, .drilling-select, .himawari-select, .water-occurrence-select, .water-change-select .monthly-refugees-select").addClass("letterbox");
+        $(".current-location-text").addClass("letterbox");
         $(".clear-theme").on("click", function() {
           var selectedTheme = $(this).prev().prop('id').replace("_ms", "-selection");
           var selectedLayers = $("#" + selectedTheme).find("input:checked");
@@ -1932,19 +1974,6 @@
         vertexShader: WebGLVectorTile2.monthlyRefugeesVertexShader
       };
       monthlyRefugeesLayer = new WebglVectorLayer2(glb, canvasLayer, monthlyRefugeesUrl, monthlyRefugeesLayerOptions);
-
-      var annualRefugeesLayerOptions = {
-        tileWidth: 256,
-        tileHeight: 256,
-        nLevels: 0,
-        setDataFunction: WebGLVectorTile2.prototype._setAnnualRefugeesData,
-        drawFunction: WebGLVectorTile2.prototype._drawAnnualRefugees,
-        fragmentShader: WebGLVectorTile2.annualRefugeesFragmentShader,
-        vertexShader: WebGLVectorTile2.annualRefugeesVertexShader,
-        imageSrc: "annual-refugees-color-map.png"
-
-      };
-      annualRefugeesLayer = new WebglVectorLayer2(glb, canvasLayer, annualRefugeesUrl, annualRefugeesLayerOptions);
 
       var annualRefugeesLayerOptions = {
         tileWidth: 256,
@@ -2526,7 +2555,6 @@
           options.color = [.82, .22, .07, 1.0];
           options.pointSize = 8.0;
           coralBleachingLayer.draw(coralBleachingLayerView, options);
-
         }
 
         // Draw Wind Layer
@@ -2628,15 +2656,12 @@
           var monthlyRefugeesLayerView = getLayerView(monthlyRefugeesLayer, landsatBaseMapLayer);
           var options = {};
           options.zoom = timelapse.getCurrentZoom();
-
           var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
           var times = timelapse.getCaptureTimes();
           var range = new Date(times[times.length - 1]).getTime() - new Date(times[0]).getTime();
           var currentDate = (ratio * range + new Date(times[0]).getTime());
           options.currentDate = currentDate;
-
           monthlyRefugeesLayer.draw(monthlyRefugeesLayerView, options);
-
         }
 
         // Draw Annual Refugees
