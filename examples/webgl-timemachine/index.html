@@ -106,6 +106,7 @@
     var rootTilePath = (typeof(EARTH_TIMELAPSE_CONFIG.rootTilePath) == "undefined") ? "../../../data/" : EARTH_TIMELAPSE_CONFIG.rootTilePath;
 
     var NORTH = 85.05113006405742; // Latitude for Northern most extent
+    var numLandsatFrames = cached_ajax['landsat-times.json']['capture-times'].length;
     var landsatMaxScale = 1.25;
     var himawariMaxScale = 0.02;
     var isAutoModeRunning = false;

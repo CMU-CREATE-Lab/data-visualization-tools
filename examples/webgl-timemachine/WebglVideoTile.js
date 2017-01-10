@@ -247,7 +247,7 @@ _frameIsInPipeline = function(frameno) {
 WebglVideoTile.prototype.
 _tryCaptureFrame = function(displayFrameDiscrete, actualVideoFrame, actualVideoFrameDiscrete, isPaused) {
   // Only try to capture if it's needed, if we're not currently showing (too late),
-  // and if in the safe range of times to capture  
+  // and if in the safe range of times to capture
   if ((isPaused || displayFrameDiscrete != actualVideoFrameDiscrete) &&
       this._frameIsNeeded(actualVideoFrameDiscrete, displayFrameDiscrete) &&
       !this._frameIsInPipeline(actualVideoFrameDiscrete) &&
@@ -579,9 +579,10 @@ draw = function(transform) {
         isPaused = true;
       }
 
+      var numTimelapseFrames = (typeof visibleBaseMapLayer != "undefined" && visibleBaseMapLayer == "landsat") ? numLandsatFrames : timelapse.getNumFrames();
       // TODO -- why is there a texture still in pipeline[1] that isn't usable when the timelapse is paused?
       if (this._pipeline[1].texture &&
-          this._pipeline[1].frameno < timelapse.getNumFrames() &&
+          this._pipeline[1].frameno < numTimelapseFrames &&
           this._pipeline[1].frameno > this._pipeline[0].frameno &&
           !isPaused) {
         gl.bindTexture(gl.TEXTURE_2D, this._pipeline[1].texture);
@@ -625,6 +626,14 @@ WebglVideoTile.update = function(tiles, transform) {
   var fps = tiles[0]._fps
 
   var displayFrame = timelapse.getVideoset().getCurrentTime() * fps;
+
+  var numTimelapseFrames = (typeof visibleBaseMapLayer != "undefined" && visibleBaseMapLayer == "landsat") ? numLandsatFrames : timelapse.getNumFrames();
+
+  // Like with the other layer hacks below, we should have a way to pass in these values
+  if ((typeof showUrbanFragilityLayer != "undefined" && showUrbanFragilityLayer) ||
+    (typeof showAnnualRefugeesLayer != "undefined" && showAnnualRefugeesLayer)) {
+    displayFrame = Math.min(numTimelapseFrames, displayFrame + 16);
+  }
 
   // TODO(rsargent+pdille): This hacks timelapse to show frame 27 (2011) if VIIRS is showing
   // TODO -- Global showViirsLayer should be passed as option
