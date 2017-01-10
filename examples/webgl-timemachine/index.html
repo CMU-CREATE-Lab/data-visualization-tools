@@ -2363,7 +2363,21 @@
         }
       });
 
+      var layerChangeFromHash = function() {
+        var shareViewTmpArray = window.location.hash.split("l=");
+        if (shareViewTmpArray.length == 2) {
+          var layers = shareViewTmpArray[1].split(",");
+          layers.forEach(function(layer) {
+            var $layerToggle = $("#layers-list label[name='" + layer + "'] input, .ui-multiselect-checkboxes label[name='" + layer + "'] input");
+            if (!$layerToggle.prop('checked')) $layerToggle.trigger("click");
+          });
+        }
+      };
+
       $(window).trigger("resize");
+      $(window).on('hashchange', function() {
+        layerChangeFromHash()
+      }).trigger('hashchange');
       $(".share").appendTo($(".location_search_div"));
     }
 
