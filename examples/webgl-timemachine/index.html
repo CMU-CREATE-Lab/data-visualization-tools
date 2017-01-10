@@ -1216,7 +1216,8 @@
             isFromUser = false;
         }
 
-        if (activeLayersWithTimeline >= 1 && visibleBaseMapLayer != "landsat") {
+        if ((activeLayersWithTimeline >= 1 && visibleBaseMapLayer != "landsat") ||
+            (activeLayersWithTimeline == 1 && visibleBaseMapLayer == "landsat" && !(showLightsAtNightLayer || showHansenLayer2 || showVsiLayer))) {
           if (timelineType == "customUI") {
             $(".customControl").show().children().show();
           } else if (timelineType == "defaultUI") {
@@ -2888,7 +2889,9 @@
             }
           }
           //feet.innerHTML = sea_level_heights[currentIndex][0] + "ft";
-          meters.innerHTML = "+" + sea_level_heights[currentIndex][1].toFixed(1) + "m";
+          if (sea_level_heights[currentIndex]) {
+            meters.innerHTML = "+" + sea_level_heights[currentIndex][1].toFixed(1) + "m";
+          }
           seaLevelRiseLayer.draw(seaLevelRiseLayerView, options);
         }
 
