@@ -29,7 +29,7 @@
     options: {
       header: true,
       height: 175,
-      minWidth: 175,
+      minWidth: 180,
       classes: '',
       checkAllText: 'Check all',
       uncheckAllText: 'Uncheck all',
@@ -287,6 +287,11 @@
     // can easily override it.
     _setButtonValue: function(value) {
       this.buttonlabel.text(value);
+      if (value == "Select layers...") {
+        this.buttonlabel.removeClass("layer-in-theme-selected");
+      } else {
+        this.buttonlabel.addClass("layer-in-theme-selected");
+      }
     },
 
     _bindButtonEvents: function() {
