@@ -1216,9 +1216,11 @@
             isFromUser = false;
         }
 
-        if (activeLayersWithTimeline >= 1 && !(showLightsAtNightLayer || showHansenLayer2 || showVsiLayer)) {
+        if (activeLayersWithTimeline >= 1 && visibleBaseMapLayer != "landsat") {
           if (timelineType == "customUI") {
             $(".customControl").show().children().show();
+          } else if (timelineType == "defaultUI") {
+            $(".controls, .captureTime").show();
           }
         }
 
@@ -1238,6 +1240,7 @@
             setActiveLayersWithTimeline(-1);
           }
         }
+
       };
 
       var setActiveLayersWithTimeline = function(modifier) {
