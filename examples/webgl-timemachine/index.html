@@ -130,7 +130,7 @@
     };
 
     // The index (starting from 0) of where in the waypoint slider to jump to.
-    var jumpToIndicies = [0, 14, 30, 40, 55, 69, 93, 110];
+    var jumpToIndices = [0, 14, 30, 40, 55, 69, 93, 110];
 
 
     // ## 1 ##
@@ -2342,21 +2342,21 @@
           snaplapseForPresentationSlider.getSnaplapseViewer().initializeAndRunAutoMode();
         } else {
           if (sectionId == "climate-1-section") {
-            var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(jumpToIndicies[0]));
+            var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(jumpToIndices[0]));
           } else if (sectionId == "climate-2-section") {
-            var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(jumpToIndicies[1]));
+            var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(jumpToIndices[1]));
           } else if (sectionId == "forest-section") {
-            var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(jumpToIndicies[2]));
+            var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(jumpToIndices[2]));
           } else if (sectionId == "water-section") {
-            var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(jumpToIndicies[3]));
+            var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(jumpToIndices[3]));
           } else if (sectionId == "resources-1-section") {
-            var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(jumpToIndicies[4]));
+            var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(jumpToIndices[4]));
           } else if (sectionId == "resources-2-section") {
-            var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(jumpToIndicies[5]));
+            var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(jumpToIndices[5]));
           } else if (sectionId == "industrialization-section") {
-            var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(jumpToIndicies[6]));
+            var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(jumpToIndices[6]));
           } else if (sectionId == "himawari-section") {
-            var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(jumpToIndicies[7]));
+            var scrollTo = $($(".snaplapse_keyframe_list").children().children().get(jumpToIndices[7]));
           }
           var scrollAmount = scrollTo.offset().left - waypointContainer.offset().left + waypointContainer.scrollLeft();
           $(".snaplapse_keyframe_container").scrollLeft(scrollAmount);
