@@ -99,6 +99,9 @@
     var waypointDelayInMilliseconds = parseInt(EARTH_TIMELAPSE_CONFIG.waypointDelayInMilliseconds) || 1 * 15 * 1000;
     var defaultPlaybackSpeed = parseFloat(EARTH_TIMELAPSE_CONFIG.defaultPlaybackSpeed) || 0.5;
     var enableLetterboxMode = !!EARTH_TIMELAPSE_CONFIG.enableLetterboxMode;
+    var letterboxModeHash = window.location.hash.split("&enableLetterboxMode=")[1];
+    if (letterboxModeHash)
+      enableLetterboxMode = !!letterboxModeHash;
     var useFaderShader = (typeof(EARTH_TIMELAPSE_CONFIG.useFaderShader) == "undefined") ? true : !!EARTH_TIMELAPSE_CONFIG.useFaderShader;
     var enableWaypointText = (typeof(EARTH_TIMELAPSE_CONFIG.enableWaypointText) == "undefined") ? true : !!EARTH_TIMELAPSE_CONFIG.enableWaypointText;
     var enableRecordingMode = !!EARTH_TIMELAPSE_CONFIG.enableRecordingMode;
@@ -2429,7 +2432,7 @@
       var layerChangeFromHash = function() {
         var shareViewTmpArray = window.location.hash.split("l=");
         if (shareViewTmpArray.length == 2) {
-          var layers = shareViewTmpArray[1].split(",");
+          var layers = shareViewTmpArray[1].split("&")[0].split(",");
           layers.forEach(function(layer) {
             var $layerToggle = $("#layers-list label[name='" + layer + "'] input, .ui-multiselect-checkboxes label[name='" + layer + "'] input");
             if (!$layerToggle.prop('checked')) $layerToggle.trigger("click");
