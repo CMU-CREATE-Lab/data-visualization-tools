@@ -29,5 +29,7 @@ var EARTH_TIMELAPSE_CONFIG = {
   "showChiku": false,
   "subsampleAnnualRefugees": false,
   "showSeaLevelRise": false,
-  "showUrbanFragility": false
+  "showUrbanFragility": false,
+  "showGtd": false
+
 };

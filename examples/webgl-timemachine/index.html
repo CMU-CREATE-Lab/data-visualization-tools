@@ -88,6 +88,7 @@
     var showChiku = !!EARTH_TIMELAPSE_CONFIG.showChiku;
     var showSeaLevelRise = !!EARTH_TIMELAPSE_CONFIG.showSeaLevelRise; //SLR
     var showUrbanFragility = !!EARTH_TIMELAPSE_CONFIG.showUrbanFragility;
+    var showGtd = !!EARTH_TIMELAPSE_CONFIG.showGtd;
 
     var showShareButton = (window.location.hash.indexOf("showShareButton") >= 0) || !!EARTH_TIMELAPSE_CONFIG.showShareButton;
     var isHyperwall = showShareButton ? false : !!EARTH_TIMELAPSE_CONFIG.isHyperwall;
@@ -164,6 +165,7 @@
     var urbanFragilityLayer;
     var coralBleachingLayer;
     var monthlyRefugeesLayer;
+    var gtdLayer;
 
     // ## 2 ##
     //// Layer tile paths
@@ -217,6 +219,7 @@
 
     var seaLevelRiseUrl = "http://a.ss2tiles.climatecentral.org/lockin_animated/{z}/{x}/{y}.png"; //SLR
     var urbanFragilityUrl = rootTilePath + "/urban-fragility";
+    var gtdUrl = rootTilePath + "/gtd";
 
     function init() {
       var settings = {
@@ -1096,6 +1099,18 @@
         }
       }).prop('checked', showUrbanFragilityLayer);
 
+      $("#show-gtd").on("click", function() {
+        if ($(this).prop('checked')) {
+          showGtdLayer = true;
+          setActiveLayersWithTimeline(1);
+          $("#gtd-legend").show();
+        } else {
+          showGtdLayer = false;
+          setActiveLayersWithTimeline(-1);
+          $("#gtd-legend").hide();
+        }
+      }).prop('checked', showGtdLayer);
+
 
       // Base layers
       $("input:radio[name=base-layers]").on("click", function() {
@@ -1391,6 +1406,7 @@
     var showChikuLayer = false;
     var showSeaLevelRiseLayer = false; //SLR
     var showUrbanFragilityLayer = false;
+    var showGtdLayer = false;
 
 
     // Default Time Machine visibility
@@ -1461,6 +1477,8 @@
       var show_sea_level_rise_4p0 = '<td class="sea-level-rise-4p0-select"><label for="show-sea-level-rise-4p0" name="slr"><input type="checkbox" id="show-sea-level-rise-4p0"  name="slr"/>Sea Level Rise 4.0 &deg;C<span class="credit"> (Climate Central)</span></label></td>'; //SLR
 
       var show_urban_fragility = '<td class="urban-fragility-select"><label for="show-urban-fragility" name="uf"><input type="checkbox" id="show-urban-fragility" />Urban Fragility<span class="credit"> (Igarape Institute)</span></label></td>';
+      var show_gtd = '<td class="gtd-select"><label for="show-gtd" name="uf"><input type="checkbox" id="show-gtd" />Global Terrorism Database<span class="credit"> (UMD)</span></label></td>';
+
 
       if (enableLetterboxMode) {
         layer_html += '<div class="base-map-div">';
@@ -1717,6 +1735,11 @@
           layer_html += show_urban_fragility;
           layer_html += '   </tr>';
         }
+        if (showGtd) {
+          layer_html += '   <tr>';
+          layer_html += show_gtd;
+          layer_html += '   </tr>';
+        }
         layer_html += '   <tr>';
         layer_html += show_himawari;
         layer_html += '   </tr>';
@@ -1785,6 +1808,7 @@
       legend_html += '<tr id="zika-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Zika Virus</div></td></tr>';
       legend_html += '<tr id="chiku-legend" style="display: none"><td><div style="background-color:#6070ff; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Chikungunya Virus</div></td></tr>';
       legend_html += '<tr id="dengue-legend" style="display: none"><td><div style="background-color:#a1ef5f; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Dengue Virus</div></td></tr>';
+      legend_html += '<tr id="gtd-legend" style="display: none"><td><div style="float:left; background-color:red; width:17px; height: 5px;"></div><div style="margin-left: 29px; margin-top: -5px; font-size: 17px">GTD Casualties</div></td></tr>';
 
 
       // ## 5b ##
@@ -2161,6 +2185,17 @@
 
       };
       urbanFragilityLayer = new WebglVectorLayer2(glb, canvasLayer, urbanFragilityUrl, urbanFragilityLayerOptions);
+
+      var gtdLayerOptions = {
+        tileWidth: 256,
+        tileHeight: 256,
+        nLevels: 0,
+        setDataFunction: WebGLVectorTile2.prototype._setGtdData,
+        drawFunction: WebGLVectorTile2.prototype._drawGtd,
+        fragmentShader: WebGLVectorTile2.gtdFragmentShader,
+        vertexShader: WebGLVectorTile2.gtdVertexShader
+      };
+      gtdLayer = new WebglVectorLayer2(glb, canvasLayer, gtdUrl, gtdLayerOptions);
 
       // Layer Toggle UI
       initLayerToggleUI();
@@ -2962,6 +2997,20 @@
           urbanFragilityLayer.draw(urbanFragilityLayerView, options);
 
         }
+
+        if (showGtdLayer) {
+          var gtdLayerView = getLayerView(gtdLayer, landsatBaseMapLayer);
+          var options = {};
+          options.zoom = timelapse.getCurrentZoom();
+          var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
+          var times = timelapse.getCaptureTimes();
+          var range = new Date(times[times.length - 1]).getTime() - new Date(times[0]).getTime();
+          var currentDate = ratio * range + new Date(times[0]).getTime();
+          options.currentTime = currentDate;
+          options.color = [1.0, 0.0, 0.0, 1.0];
+          gtdLayer.draw(gtdLayerView, options);
+        }
+
 
         // ## 7 ##
         //// Layers to draw on top go here

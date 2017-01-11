@@ -87,6 +87,32 @@ WebGLVectorTile2.prototype._setWdpaData = function(arrayBuffer) {
   }
 }
 
+WebGLVectorTile2.prototype._setGtdData = function(arrayBuffer) {
+  var gl = this.gl;
+  this._pointCount = arrayBuffer.length / 4;
+  if (this._pointCount > 0) {
+    this._data = arrayBuffer;
+    this._arrayBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_WorldCoord');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 16, 0);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Epoch');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 16, 8);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_NCasualties');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 16, 12);
+
+    this._ready = true;
+  }
+}
+
+
 WebGLVectorTile2.prototype._setViirsData = function(arrayBuffer) {
   var gl = this.gl;
   this._pointCount = arrayBuffer.length / 4;
@@ -458,6 +484,63 @@ WebGLVectorTile2.prototype._drawPoints = function(transform, options) {
     var uColor =  color;
     var colorLoc = gl.getUniformLocation(this.program, 'uColor');
     gl.uniform4fv(colorLoc, uColor);
+
+
+    gl.drawArrays(gl.POINTS, 0, this._pointCount);
+    gl.disable(gl.BLEND);
+  }
+}
+
+WebGLVectorTile2.prototype._drawGtd = function(transform, options) {
+  var gl = this.gl;
+  if (this._ready) {
+    gl.useProgram(this.program);
+    gl.enable(gl.BLEND);
+    gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
+
+    var tileTransform = new Float32Array(transform);
+    var zoom = options.zoom;
+    var currentTime = options.currentTime/1000.;
+    var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
+    var color = options.color || [.1, .1, .5, 1.0]; 
+
+    scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
+
+    translateMatrix(tileTransform, (this._bounds.max.x - this._bounds.min.x)/256., (this._bounds.max.y - this._bounds.min.y)/256.);
+    scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+
+    pointSize *= Math.floor((zoom + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+    // Passing a NaN value to the shader with a large number of points is very bad
+    if (isNaN(pointSize)) {
+      pointSize = 1.0;
+    }
+
+    var matrixLoc = gl.getUniformLocation(this.program, 'mapMatrix');
+    gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_WorldCoord');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 16, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+
+    var timeLocation = gl.getAttribLocation(this.program, "a_Epoch");
+    gl.enableVertexAttribArray(timeLocation);
+    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 16, 8); // 8 byte offset
+
+    var timeLocation = gl.getAttribLocation(this.program, "a_NCasualties");
+    gl.enableVertexAttribArray(timeLocation);
+    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 16, 12); // 8 byte offset
+  
+    var matrixLoc = gl.getUniformLocation(this.program, 'u_MapMatrix');
+    gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+
+    var sliderTime = gl.getUniformLocation(this.program, 'u_EpochTime');
+    gl.uniform1f(sliderTime, currentTime);
+
+    var spanEpoch = 2.0*365*24*68*60;
+    var span = gl.getUniformLocation(this.program, 'u_Span');
+    gl.uniform1f(span, spanEpoch);
 
 
     gl.drawArrays(gl.POINTS, 0, this._pointCount);
@@ -1359,5 +1442,37 @@ WebGLVectorTile2.monthlyRefugeesFragmentShader =
         "dist = max(0., dist);\n" + 
         "gl_FragColor = vColor * dist;\n" + 
     "}";
+
+WebGLVectorTile2.gtdVertexShader =
+"        attribute vec4 a_WorldCoord;\n" +
+"        attribute float a_Epoch;\n" +
+"        attribute float a_NCasualties;\n" +
+"        uniform float u_EpochTime;\n" +
+"        uniform float u_Span;\n" +
+"        uniform mat4 u_MapMatrix;\n" +
+"        varying float v_Alpha;\n" +
+"        void main() {\n" +
+"          if ( a_Epoch > u_EpochTime) {\n" +
+"            gl_Position = vec4(-1,-1,-1,-1);\n" +
+"          } else if (u_EpochTime - a_Epoch > u_Span) {\n" +
+"            gl_Position = vec4(-1,-1,-1,-1);\n" +
+"          }\n" +
+"          else {\n" +
+"            gl_Position = u_MapMatrix * a_WorldCoord;\n" +
+"          }\n" +
+"          v_Alpha = (u_EpochTime - a_Epoch) / u_Span;\n" +
+"          gl_PointSize = 1.0 * a_NCasualties;\n" +
+"        }\n";
+
+WebGLVectorTile2.gtdFragmentShader =
+"        precision mediump float;\n" +
+"        varying float v_Alpha;\n" +
+"        void main() {\n" +
+"          float r = 1.0 - v_Alpha;\n" +
+"          float dist = distance( vec2(0.5, 0.5), gl_PointCoord);\n" +
+"          dist = 1.0 - (dist * 2.0);\n" +
+"          dist = max(0.0, dist);\n" +
+"          gl_FragColor =  vec4(r, .0, .0, .85) * dist;\n" +
+"        }\n";
 
 
