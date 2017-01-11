@@ -102,15 +102,30 @@
     var letterboxModeHash = window.location.hash.split("&enableLetterboxMode=")[1];
     if (letterboxModeHash)
       enableLetterboxMode = !!letterboxModeHash;
+    var landsatVersion = EARTH_TIMELAPSE_CONFIG.landsatVersion || "2015";
     var useFaderShader = (typeof(EARTH_TIMELAPSE_CONFIG.useFaderShader) == "undefined") ? true : !!EARTH_TIMELAPSE_CONFIG.useFaderShader;
     var enableWaypointText = (typeof(EARTH_TIMELAPSE_CONFIG.enableWaypointText) == "undefined") ? true : !!EARTH_TIMELAPSE_CONFIG.enableWaypointText;
     var enableRecordingMode = !!EARTH_TIMELAPSE_CONFIG.enableRecordingMode;
     var trackingId = EARTH_TIMELAPSE_CONFIG.trackingId || "UA-4157572-7";
     var rootTilePath = (typeof(EARTH_TIMELAPSE_CONFIG.rootTilePath) == "undefined") ? "../../../data/" : EARTH_TIMELAPSE_CONFIG.rootTilePath;
 
+    // TODO: Until we decide to force everyone to latest landsat, pull the version corresponding to the config above.
+    var head = document.getElementsByTagName('head')[0];
+    var js = document.createElement("script");
+    js.type = "text/javascript";
+    if (landsatVersion == "2015"){
+      js.src = "landsat_ajax_includes.js";
+      var cachedLandsatTimeJsonPath = "landsat-times.json";
+
+    } else {
+      js.src = "landsat_ajax_includes_2016.js";
+      var cachedLandsatTimeJsonPath = "landsat-times-2016.json";
+    }
+    head.appendChild(js);
+
     var NORTH = 85.05113006405742; // Latitude for Northern most extent
-    var numLandsatFrames = cached_ajax['landsat-times.json']['capture-times'].length;
-    var landsatMaxScale = 1.25;
+    var numLandsatFrames = cached_ajax[cachedLandsatTimeJsonPath]['capture-times'].length;
+    var landsatMaxScale = (landsatVersion == "2015") ? 1.25 : 0.45;
     var himawariMaxScale = 0.02;
     var isAutoModeRunning = false;
     var visibleBaseMapLayer = "landsat";
@@ -160,11 +175,7 @@
     //// Layer tile paths
     //
 
-    var landsatUrl = rootTilePath + "/earthtime-annual-2015-v2/1068x600";
-    // Use landsat-times-2016.json for the latest set of times
-    var cachedLandsatTimeJson = "landsat-times.json";
-    // Using "https" will casue the thumbnail loading from the server to fail
-    //var landsatUrl = "http://earthengine.google.org/timelapse/data/20130507";
+    var landsatUrl = (landsatVersion == "2015") ? rootTilePath + "/earthtime-annual-2015-v2/1068x600" : rootTilePath + "/earthtime-annual-2016-v14/1068x600";;
     var crwTimemachineUrl = rootTilePath + "/coral/coralreefwatch-3.timemachine/crf20-22fps-1424x800";
     var himawariTimemachineUrl = rootTilePath + "/himawari8/himawari8-nov-2015.timemachine/crf26-12fps-1424x800";
     var forestAlertsTimeMachineUrl = rootTilePath + "/global-forest-alerts/ForestAlarms2016v2/1068x600";
@@ -225,7 +236,8 @@
         enablePresentationSlider: enableRecordingMode ? false : true,
         enableEditor: enableRecordingMode ? true : false,
         showEditorOnLoad: enableRecordingMode ? true : false,
-        thumbnailServerRootTileUrl: "http://earthengine.google.org/timelapse/data/20130507",
+        // Using "https" will casue the thumbnail loading from the server to fail
+        thumbnailServerRootTileUrl: (landsatVersion == "2015") ? "http://earthengine.google.org/timelapse/data/20130507" : "http://storage.googleapis.com/earthengine-timelapse/herwig/earthtime_annual_1984_2016/v05",
         showFullScreenBtn: false,
         showShareBtn: showShareButton,
         presentationSliderSettings: enableRecordingMode ? {} : {
@@ -241,7 +253,7 @@
         useTouchFriendlyUI: isHyperwall,
         datasetType: "landsat",
         playOnLoad: enableRecordingMode ? false : true,
-        mediaType: ".webm",
+        mediaType: (landsatVersion == "2015") ? ".webm" : ".mp4",
         onTimeMachinePlayerReady: function(viewerDivId) {},
         scaleBarOptions: {
           scaleBarDiv: "scaleBar1"
@@ -991,11 +1003,11 @@
       $("#show-sea-level-rise-1p5").on("click", function() { //SLR
         if ($(this).prop('checked')) {
           if ($("#show-sea-level-rise-2p0").prop('checked')) {
-            $("#show-sea-level-rise-2p0").prop('checked', false);                        
+            $("#show-sea-level-rise-2p0").prop('checked', false);
           }
           if ($("#show-sea-level-rise-4p0").prop('checked')) {
-            $("#show-sea-level-rise-4p0").prop('checked', false);                        
-          }          
+            $("#show-sea-level-rise-4p0").prop('checked', false);
+          }
           showSeaLevelRiseLayer = true;
           timelineType = "customUI";
           setActiveLayersWithTimeline(1);
@@ -1013,11 +1025,11 @@
       $("#show-sea-level-rise-2p0").on("click", function() { //SLR
         if ($(this).prop('checked')) {
           if ($("#show-sea-level-rise-1p5").prop('checked')) {
-            $("#show-sea-level-rise-1p5").prop('checked', false);                        
+            $("#show-sea-level-rise-1p5").prop('checked', false);
           }
           if ($("#show-sea-level-rise-4p0").prop('checked')) {
-            $("#show-sea-level-rise-4p0").prop('checked', false);                        
-          }          
+            $("#show-sea-level-rise-4p0").prop('checked', false);
+          }
           showSeaLevelRiseLayer = true;
           timelineType = "customUI";
           setActiveLayersWithTimeline(1);
@@ -1035,11 +1047,11 @@
       $("#show-sea-level-rise-4p0").on("click", function() { //SLR
         if ($(this).prop('checked')) {
           if ($("#show-sea-level-rise-2p0").prop('checked')) {
-            $("#show-sea-level-rise-2p0").prop('checked', false);                        
+            $("#show-sea-level-rise-2p0").prop('checked', false);
           }
           if ($("#show-sea-level-rise-1p5").prop('checked')) {
-            $("#show-sea-level-rise-1p5").prop('checked', false);                        
-          }          
+            $("#show-sea-level-rise-1p5").prop('checked', false);
+          }
           showSeaLevelRiseLayer = true;
           timelineType = "customUI";
           setActiveLayersWithTimeline(1);
@@ -1091,8 +1103,11 @@
       $('input:radio[name=base-layers][id=' + visibleBaseMapLayer + '-base]').prop('checked', true);
 
       // Initially set activeLayersWithTimeline to 1 if we first load with landsat enabled.
-      if (visibleBaseMapLayer == "landsat")
+      // Also set the custom scale.
+      if (visibleBaseMapLayer == "landsat") {
         activeLayersWithTimeline = 1;
+        timelapse.setMaxScale(landsatMaxScale);
+      }
 
       // Copy over data attributes to selectmenu
       $.widget("ui.selectmenu", $.ui.selectmenu, {
@@ -1864,7 +1879,7 @@
       // Landsat
       var defaultTimeMachineLayerOptions = {
         mediaType: ".mp4",
-        numFrames: cached_ajax['landsat-times.json']['capture-times'].length,
+        numFrames: numLandsatFrames,
         fps: 10
       };
       landsatBaseMapLayer = new WebglTimeMachineLayer(glb, canvasLayer, landsatUrl, defaultTimeMachineLayerOptions);
