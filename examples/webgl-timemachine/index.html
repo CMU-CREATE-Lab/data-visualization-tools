@@ -985,8 +985,58 @@
         }
       }).prop('checked', showChikuLayer);
 
-      $("#show-sea-level-rise").on("click", function() { //SLR
+      $("#show-sea-level-rise-1p5").on("click", function() { //SLR
         if ($(this).prop('checked')) {
+          if ($("#show-sea-level-rise-2p0").prop('checked')) {
+            $("#show-sea-level-rise-2p0").prop('checked', false);                        
+          }
+          if ($("#show-sea-level-rise-4p0").prop('checked')) {
+            $("#show-sea-level-rise-4p0").prop('checked', false);                        
+          }          
+          showSeaLevelRiseLayer = true;
+          timelineType = "customUI";
+          setActiveLayersWithTimeline(1);
+          requestNewTimeline("sea-level-rise-1p5-times.json", timelineType);
+          $("#sea-level-rise-legend").show();
+        } else {
+          showSeaLevelRiseLayer = false;
+          timelineType = "customUI";
+          setActiveLayersWithTimeline(-1);
+          requestNewTimeline(cachedLandsatTimeJson, timelineType);
+          $("#sea-level-rise-legend").hide();
+        }
+      }).prop('checked', showSeaLevelRiseLayer);
+
+      $("#show-sea-level-rise-2p0").on("click", function() { //SLR
+        if ($(this).prop('checked')) {
+          if ($("#show-sea-level-rise-1p5").prop('checked')) {
+            $("#show-sea-level-rise-1p5").prop('checked', false);                        
+          }
+          if ($("#show-sea-level-rise-4p0").prop('checked')) {
+            $("#show-sea-level-rise-4p0").prop('checked', false);                        
+          }          
+          showSeaLevelRiseLayer = true;
+          timelineType = "customUI";
+          setActiveLayersWithTimeline(1);
+          requestNewTimeline("sea-level-rise-2p0-times.json", timelineType);
+          $("#sea-level-rise-legend").show();
+        } else {
+          showSeaLevelRiseLayer = false;
+          timelineType = "customUI";
+          setActiveLayersWithTimeline(-1);
+          requestNewTimeline(cachedLandsatTimeJson, timelineType);
+          $("#sea-level-rise-legend").hide();
+        }
+      }).prop('checked', showSeaLevelRiseLayer);
+
+      $("#show-sea-level-rise-4p0").on("click", function() { //SLR
+        if ($(this).prop('checked')) {
+          if ($("#show-sea-level-rise-2p0").prop('checked')) {
+            $("#show-sea-level-rise-2p0").prop('checked', false);                        
+          }
+          if ($("#show-sea-level-rise-1p5").prop('checked')) {
+            $("#show-sea-level-rise-1p5").prop('checked', false);                        
+          }          
           showSeaLevelRiseLayer = true;
           timelineType = "customUI";
           setActiveLayersWithTimeline(1);
@@ -1000,6 +1050,7 @@
           $("#sea-level-rise-legend").hide();
         }
       }).prop('checked', showSeaLevelRiseLayer);
+
 
       $("#show-urban-fragility").on("click", function() {
         if ($(this).prop('checked')) {
@@ -1368,7 +1419,10 @@
       var show_zika = '<td class="zika-select"> <label for="show-zika" name="zv"><input type="checkbox" id="show-zika" />Zika<span class="credit"> (LSHTM)</span></label></td>';
       var show_dengue = '<td class="dengue-select"> <label for="show-dengue" name="dv"><input type="checkbox" id="show-dengue" />Dengue<span class="credit"> (LSHTM)</span></label></td>';
       var show_chiku = '<td class="chiku-select"> <label for="show-chiku" name="cv"><input type="checkbox" id="show-chiku" />Chikungunya<span class="credit"> (LSHTM)</span></label></td>';
-      var show_sea_level_rise = '<td class="sea-level-rise-select"><label for="show-sea-level-rise" name="slr"><input type="checkbox" id="show-sea-level-rise" />Sea Level Rise<span class="credit"> (Climate Central)</span></label></td>'; //SLR
+      var show_sea_level_rise_1p5 = '<td class="sea-level-rise-1p5-select"><label for="show-sea-level-rise-1p5" name="slr"><input type="checkbox" id="show-sea-level-rise-1p5" name="slr" />Sea Level Rise 1.5 &deg;C<span class="credit"> (Climate Central)</span></label></td>'; //SLR
+      var show_sea_level_rise_2p0 = '<td class="sea-level-rise-2p0-select"><label for="show-sea-level-rise-2p0" name="slr"><input type="checkbox" id="show-sea-level-rise-2p0"  name="slr" />Sea Level Rise 2.0 &deg;C<span class="credit"> (Climate Central)</span></label></td>'; //SLR
+      var show_sea_level_rise_4p0 = '<td class="sea-level-rise-4p0-select"><label for="show-sea-level-rise-4p0" name="slr"><input type="checkbox" id="show-sea-level-rise-4p0"  name="slr"/>Sea Level Rise 4.0 &deg;C<span class="credit"> (Climate Central)</span></label></td>'; //SLR
+
       var show_urban_fragility = '<td class="urban-fragility-select"><label for="show-urban-fragility" name="uf"><input type="checkbox" id="show-urban-fragility" />Urban Fragility<span class="credit"> (Igarape Institute)</span></label></td>';
 
       if (enableLetterboxMode) {
@@ -1612,7 +1666,13 @@
         }
         if (showSeaLevelRise) { //SLR
           layer_html += '   <tr>';
-          layer_html += show_sea_level_rise;
+          layer_html += show_sea_level_rise_1p5;
+          layer_html += '   </tr>';
+          layer_html += '   <tr>';
+          layer_html += show_sea_level_rise_2p0;
+          layer_html += '   </tr>';
+          layer_html += '   <tr>';
+          layer_html += show_sea_level_rise_4p0;
           layer_html += '   </tr>';
         }
         if (showUrbanFragility) {
