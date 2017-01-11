@@ -1110,6 +1110,7 @@
         if ($(this).prop('checked')) {
           showGtdLayer = true;
           setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
           $("#gtd-legend").show();
         } else {
           showGtdLayer = false;
@@ -1483,12 +1484,11 @@
       var show_zika = '<td class="zika-select"> <label for="show-zika" name="zv"><input type="checkbox" id="show-zika" />Zika<span class="credit"> (LSHTM)</span></label></td>';
       var show_dengue = '<td class="dengue-select"> <label for="show-dengue" name="dv"><input type="checkbox" id="show-dengue" />Dengue<span class="credit"> (LSHTM)</span></label></td>';
       var show_chiku = '<td class="chiku-select"> <label for="show-chiku" name="cv"><input type="checkbox" id="show-chiku" />Chikungunya<span class="credit"> (LSHTM)</span></label></td>';
-      var show_sea_level_rise_1p5 = '<td class="sea-level-rise-1p5-select"><label for="show-sea-level-rise-1p5" name="slr"><input type="checkbox" id="show-sea-level-rise-1p5" name="slr" />Sea Level Rise 1.5 &deg;C<span class="credit"> (Climate Central)</span></label></td>'; //SLR
-      var show_sea_level_rise_2p0 = '<td class="sea-level-rise-2p0-select"><label for="show-sea-level-rise-2p0" name="slr"><input type="checkbox" id="show-sea-level-rise-2p0"  name="slr" />Sea Level Rise 2.0 &deg;C<span class="credit"> (Climate Central)</span></label></td>'; //SLR
-      var show_sea_level_rise_4p0 = '<td class="sea-level-rise-4p0-select"><label for="show-sea-level-rise-4p0" name="slr"><input type="checkbox" id="show-sea-level-rise-4p0"  name="slr"/>Sea Level Rise 4.0 &deg;C<span class="credit"> (Climate Central)</span></label></td>'; //SLR
-
+      var show_sea_level_rise_1p5 = '<td class="sea-level-rise-1p5-select"><label for="show-sea-level-rise-1p5" name="slr15"><input type="checkbox" id="show-sea-level-rise-1p5" name="slr" />Sea Level Rise 1.5 &deg;C<span class="credit"> (Climate Central)</span></label></td>'; //SLR
+      var show_sea_level_rise_2p0 = '<td class="sea-level-rise-2p0-select"><label for="show-sea-level-rise-2p0" name="slr2"><input type="checkbox" id="show-sea-level-rise-2p0"  name="slr" />Sea Level Rise 2.0 &deg;C<span class="credit"> (Climate Central)</span></label></td>'; //SLR
+      var show_sea_level_rise_4p0 = '<td class="sea-level-rise-4p0-select"><label for="show-sea-level-rise-4p0" name="slr4"><input type="checkbox" id="show-sea-level-rise-4p0"  name="slr"/>Sea Level Rise 4.0 &deg;C<span class="credit"> (Climate Central)</span></label></td>'; //SLR
       var show_urban_fragility = '<td class="urban-fragility-select"><label for="show-urban-fragility" name="uf"><input type="checkbox" id="show-urban-fragility" />Urban Fragility<span class="credit"> (Igarape Institute)</span></label></td>';
-      var show_gtd = '<td class="gtd-select"><label for="show-gtd" name="uf"><input type="checkbox" id="show-gtd" />Global Terrorism Database<span class="credit"> (UMD)</span></label></td>';
+      var show_gtd = '<td class="gtd-select"><label for="show-gtd" name="gtd"><input type="checkbox" id="show-gtd" />Global Terrorism Database<span class="credit"> (UMD)</span></label></td>';
 
 
       if (enableLetterboxMode) {
@@ -1556,13 +1556,16 @@
         layer_html += '    </tr>';
 
         layer_html += '    <tr>';
+        layer_html += '      </td>';
         layer_html += '      <td style="padding-bottom:16px; padding-right: 10px; text-align: right">';
-        layer_html += '        Water:';
+        layer_html += '        Climate Resilience:';
         layer_html += '      </td>';
         layer_html += '      <td style="padding-bottom:16px; padding-right: 70px;">';
-        layer_html += '        <select id="water-theme" multiple="multiple" size="2">';
-        layer_html += '          <option value="option1" data-id="show-water-occurrence" data-name="wo" data-credit="JRC">Water Occurrence</option>';
-        layer_html += '          <option value="option2" data-id="show-water-change" data-name="wc" data-credit="JRC">Water Change</option>';
+        layer_html += '        <select id="resilience-theme" multiple="multiple" size="4">';
+        layer_html += '          <option value="option1" data-id="show-sea-level-rise-1p5" data-name="slr15" data-credit="Climate Central">Sea Level Rise 1.5&deg;C</option>';
+        layer_html += '          <option value="option2" data-id="show-sea-level-rise-2p0" data-name="slr2" data-credit="Climate Central">Sea Level Rise 2.0&deg;C</option>';
+        layer_html += '          <option value="option3" data-id="show-sea-level-rise-4p0" data-name="slr4" data-credit="Climate Central">Sea Level Rise 4.0&deg;C</option>';
+        layer_html += '          <option value="option4" data-id="show-vsi" data-name="vsi" data-credit="Oxford Martin">Vegetation Sensitivity Index</option>';
         layer_html += '        </select>';
         layer_html += '        <button class="clear-theme" type="button">Clear <br>Theme</button>';
         layer_html += '      </td>';
@@ -1577,16 +1580,21 @@
         layer_html += '          <option value="option4" data-id="show-health-impact-rcp8p5" data-name="hi-rcp8p5" data-credit="Oxford Martin">Nutritional Deficiencies RCP8.5</option>';
         layer_html += '        </select>';
         layer_html += '        <button class="clear-theme" type="button">Clear <br>Theme</button>';
-        layer_html += '      </td>';
         layer_html += '      <td style="padding-bottom:16px; padding-right: 10px; text-align: right">';
-        layer_html += '        Climate Resilience:';
+        layer_html += '        Water:';
         layer_html += '      </td>';
         layer_html += '      <td style="padding-bottom:16px; padding-right: 70px;">';
-        layer_html += '        <select id="resilience-theme" multiple="multiple" size="2">';
-        layer_html += '          <option value="option1" data-id="show-vsi" data-name="vsi" data-credit="Oxford Martin">Vegetation Sensitivity Index</option>';
-        layer_html += '          <option value="option2" data-id="show-sea-level-rise" data-name="slr" data-credit="Climate Central">Sea Level Rise</option>';
+        layer_html += '        <select id="water-theme" multiple="multiple" size="2">';
+        layer_html += '          <option value="option1" data-id="show-water-occurrence" data-name="wo" data-credit="JRC">Water Occurrence</option>';
+        layer_html += '          <option value="option2" data-id="show-water-change" data-name="wc" data-credit="JRC">Water Change</option>';
         layer_html += '        </select>';
         layer_html += '        <button class="clear-theme" type="button">Clear <br>Theme</button>';
+        layer_html += '      </td>';
+        layer_html += '      <td style="position: absolute; margin-top: -7px">';
+        layer_html += '        <label for="show-gtd" name="gtd">';
+        layer_html += '          <input type="checkbox" id="show-gtd" style=" top: 2px" />Global Terrorism <br> Database';
+        layer_html += '          <span class="credit"> (UMD)</span>';
+        layer_html += '        </label>';
         layer_html += '      </td>';
         layer_html += '    </tr>';
 
@@ -1855,7 +1863,7 @@
             header: false,
             noneSelectedText: "Select layers...",
             selectedText: "# layer(s) selected",
-            menuWidth: 470,
+            menuWidth: 425,
             height: 32,
             colType: "double"
         });
@@ -1903,9 +1911,9 @@
             header: false,
             noneSelectedText: "Select layers...",
             selectedText: "# layer(s) selected",
-            menuWidth: 340,
+            menuWidth: 650,
             height: 72,
-            colType: "single"
+            colType: "double"
         });
         $("#urbanization-theme").multiselect({
             header: false,
