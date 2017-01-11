@@ -100,7 +100,7 @@
     var enableLetterboxMode = !!EARTH_TIMELAPSE_CONFIG.enableLetterboxMode;
     var letterboxModeHash = window.location.hash.split("&enableLetterboxMode=")[1];
     if (letterboxModeHash)
-      enableLetterboxMode = !!letterboxModeHash;
+      enableLetterboxMode = letterboxModeHash === "true";
     var landsatVersion = EARTH_TIMELAPSE_CONFIG.landsatVersion || "2015";
     var useFaderShader = (typeof(EARTH_TIMELAPSE_CONFIG.useFaderShader) == "undefined") ? true : !!EARTH_TIMELAPSE_CONFIG.useFaderShader;
     var enableWaypointText = (typeof(EARTH_TIMELAPSE_CONFIG.enableWaypointText) == "undefined") ? true : !!EARTH_TIMELAPSE_CONFIG.enableWaypointText;
