@@ -305,6 +305,21 @@
       }
     }
 
+   function verticalTouchScroll(id){
+      var el = document.getElementById(id);
+      var scrollStartPos = 0;
+
+      document.getElementById(id).addEventListener("touchstart", function(event) {
+        scrollStartPos = this.scrollTop+event.touches[0].pageY;
+        event.preventDefault();
+      },false);
+
+      document.getElementById(id).addEventListener("touchmove", function(event) {
+        this.scrollTop = scrollStartPos-event.touches[0].pageY;
+        event.preventDefault();
+      },false);
+    }
+
     function googleMapsLoadedCallback() {
       if (useGoogleSearch) {
         var autocomplete = new google.maps.places.Autocomplete($("#location_search").get(0));
@@ -1318,6 +1333,11 @@
       };
 
       $('#layers-list input, .ui-multiselect-checkboxes input').on("click", timelineUIHandler);
+
+      // Make right layers panel vertically touch scrollable.
+      if (document.createEvent("TouchEvent")) {
+        verticalTouchScroll("layers-list");
+      }
 
       // TODO: Do we need this?
       //timelapse.addTimelineUIChangeListener(timelineUIHandler);
