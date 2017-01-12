@@ -32,6 +32,7 @@ var EARTH_TIMELAPSE_CONFIG = {
   "showUrbanFragility": false,
   "showGtd": false,
   "showHiv": false,
-  "showObesity": false
+  "showObesity": false,
+  "showVaccineConfidence": false
 
 };
