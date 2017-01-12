@@ -36,6 +36,7 @@
   <script src="../../timemachine/js/leaflet/leaflet.min.js" type="text/javascript"></script>
   <script src="../../js/customVideoTagControls/customVideoTagControls.js" type="text/javascript"></script>
   <script src="../../js/jquery.multiselect.js" type="text/javascript"></script>
+  <script src="../../js/earcut.min.js" type="text/javascript"></script>
 
   <script src="config-local.js" type="text/javascript"></script>
   <script src="../../../../config.js" type="text/javascript"></script>
@@ -95,6 +96,7 @@
     var showUrbanFragility = !!EARTH_TIMELAPSE_CONFIG.showUrbanFragility;
     var showGtd = !!EARTH_TIMELAPSE_CONFIG.showGtd;
     var showHiv = !!EARTH_TIMELAPSE_CONFIG.showHiv;
+    var showObesity = !!EARTH_TIMELAPSE_CONFIG.showObesity;
 
     var showShareButton =  !!EARTH_TIMELAPSE_CONFIG.showShareButton;
     var showShareButtonHash = window.location.hash.split("showShareButton=")[1];
@@ -176,6 +178,7 @@
     var monthlyRefugeesLayer;
     var gtdLayer;
     var hivLayer;
+    var obesityLayer;
 
     // ## 2 ##
     //// Layer tile paths
@@ -231,6 +234,7 @@
     var urbanFragilityUrl = rootTilePath + "/urban-fragility";
     var gtdUrl = rootTilePath + "/gtd";
     var hivUrl = rootTilePath + "/hiv";
+    var obesityUrl = rootTilePath + "/obesity";
 
     function init() {
       var settings = {
@@ -1151,6 +1155,26 @@
         }
       }).prop('checked', showHivLayer);
 
+      $("#show-obesity").on("click", function() {
+        if ($(this).prop('checked')) {
+          if (visibleBaseMapLayer != "dark") {
+            $("#dark-base").click();
+          }
+          showObesityLayer = true;
+          timelineType = "customUI";
+          setActiveLayersWithTimeline(1);
+          requestNewTimeline("obesity-times.json", timelineType);
+          $("#obesity-legend").show();
+          previousVisibleBaseMapLayer = visibleBaseMapLayer;
+        } else {
+            showObesityLayer = false;
+            timelineType = "customUI";
+            requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+            $("#obesity-legend").hide();
+            visibleBaseMapLayer = previousVisibleBaseMapLayer;            
+          setActiveLayersWithTimeline(-1);
+        }
+      }).prop('checked', showObesityLayer);
 
       // Base layers
       $("input:radio[name=base-layers]").on("click", function() {
@@ -1452,6 +1476,7 @@
     var showUrbanFragilityLayer = false;
     var showGtdLayer = false;
     var showHivLayer = false;
+    var showObesityLayer = false;
 
 
     // Default Time Machine visibility
@@ -1523,6 +1548,7 @@
       var show_urban_fragility = '<td class="urban-fragility-select"><label for="show-urban-fragility" name="uf"><input type="checkbox" id="show-urban-fragility" />Urban Fragility<span class="credit"> (Igarape Institute)</span></label></td>';
       var show_gtd = '<td class="gtd-select"><label for="show-gtd" name="gtd"><input type="checkbox" id="show-gtd" />Global Terrorism Database<span class="credit"> (UMD)</span></label></td>';
       var show_hiv = '<td class="hiv-select"><label for="show-hiv" name="hiv"><input type="checkbox" id="show-hiv" />HIV Infections<span class="credit"> (LSHTM)</span></label></td>';
+      var show_obesity = '<td class="obesity-select"><label for="show-obesity" name="obesity"><input type="checkbox" id="show-obesity" />Obesity<span class="credit"> (LSHTM)</span></label></td>';
 
 
       if (enableLetterboxMode) {
@@ -1798,6 +1824,11 @@
           layer_html += show_hiv;
           layer_html += '   </tr>';
         }
+        if (showObesity) {
+          layer_html += '   <tr>';
+          layer_html += show_obesity;
+          layer_html += '   </tr>';
+        }
         layer_html += '   <tr>';
         layer_html += show_himawari;
         layer_html += '   </tr>';
@@ -1868,6 +1899,7 @@
       legend_html += '<tr id="dengue-legend" style="display: none"><td><div style="background-color:#a1ef5f; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Dengue Virus</div></td></tr>';
       legend_html += '<tr id="gtd-legend" style="display: none"><td><div style="float:left; background-color:red; width:17px; height: 5px;"></div><div style="margin-left: 29px; margin-top: -5px; font-size: 17px">GTD Casualties</div></td></tr>';
       legend_html += '<tr id="hiv-legend" style="display: none"><td><div style="font-size: 17px">Annual new HIV infections</div></div><svg width="200" height="29"><rect fill="#ffffff" x="0" height="9" width="20.0"></rect><rect fill="#ffd8e7" x="20." height="9" width="20.0"></rect><rect fill="#feb1d1" x="40." height="9" width="20.0"></rect><rect fill="#f18bbd" x="60." height="9" width="20.0"></rect><rect fill="#dd68ac" x="80." height="9" width="20.0"></rect><rect fill="#c4479e" x="100." height="9" width="20.0"></rect><rect fill="#a52792" x="120." height="9" width="20.0"></rect><rect fill="#7d0989" x="140." height="9" width="20.0"></rect><rect fill="#4b0082" x="160." height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">1K</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="35">10K</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="80">100K</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="155">850K</text></svg></td></tr>';
+      legend_html += '<tr id="obesity-legend" style="display: none"><td><div style="font-size: 17px">Obesity preva;ence among adults</div><svg width="200" height="29"> <rect fill="#ffffff" x="0" height="9" width="20"></rect><rect fill="#fff18e" x="20" height="9" width="20"></rect><rect fill="#ffdc5b" x="40" height="9" width="20"></rect><rect fill="#ffc539" x="60" height="9" width="20"></rect><rect fill="#ffad21" x="80" height="9" width="20"></rect><rect fill="#ff920c" x="100" height="9" width="20"></rect><rect fill="#ff7500" x="120" height="9" width="20"></rect><rect fill="#ff5000" x="140" height="9" width="20"></rect><rect fill="#ff0000" x="160" height="9" width="20"></rect><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="29" x="0">0%</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="29" x="80">15%</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="29" x="160">>30%</text></svg></td></tr>';
 
 
       // ## 5b ##
@@ -2265,9 +2297,23 @@
         fragmentShader: WebGLVectorTile2.hivFragmentShader,
         vertexShader: WebGLVectorTile2.hivVertexShader,
         imageSrc: "hiv-color-map.png"
-
       };
       hivLayer = new WebglVectorLayer2(glb, canvasLayer, hivUrl, hivLayerOptions);
+
+
+      var obesityLayerOptions = {
+        tileWidth: 256,
+        tileHeight: 256,
+        nLevels: 0,
+        setDataFunction: WebGLVectorTile2.prototype._setObesityData,
+        loadDataFunction: WebGLVectorTile2.prototype._loadGeojsonData,
+        drawFunction: WebGLVectorTile2.prototype._drawObesity,
+        fragmentShader: WebGLVectorTile2.obesityFragmentShader,
+        vertexShader: WebGLVectorTile2.obesityVertexShader,
+        imageSrc: "obesity-color-map.png",
+        tileExtension: ".geojson"
+      };
+      obesityLayer = new WebglVectorLayer2(glb, canvasLayer, obesityUrl, obesityLayerOptions);
 
       // Layer Toggle UI
       initLayerToggleUI();
@@ -3077,11 +3123,12 @@
           var gtdLayerView = getLayerView(gtdLayer, landsatBaseMapLayer);
           var options = {};
           options.zoom = timelapse.getCurrentZoom();
-          var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
-          var times = timelapse.getCaptureTimes();
-          var range = new Date(times[times.length - 1]).getTime() - new Date(times[0]).getTime();
-          var currentDate = ratio * range + new Date(times[0]).getTime();
-          options.currentTime = currentDate;
+          var currentTime = timelapse.getCurrentTime();
+          var currentTimes = getCurrentTimes(timelapse);
+          var dates = getDates(timelapse);
+          var delta = getCurrentTimesDelta(currentTime, currentTimes);
+          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
+          options.currentTime = currentDate;          
           options.color = [1.0, 0.0, 0.0, 1.0];
           gtdLayer.draw(gtdLayerView, options);
         }
@@ -3100,6 +3147,23 @@
           options.year = year;
           options.delta = Math.min(delta, 1);
           hivLayer.draw(hivLayerView, options);
+
+        }
+
+        if (showObesityLayer) {
+          var obesityLayerView = getLayerView(obesityLayer, landsatBaseMapLayer);
+          var options = {};
+          options.zoom = timelapse.getCurrentZoom();
+
+          var currentTime = timelapse.getCurrentTime();
+          var currentTimes = getCurrentTimes(timelapse);
+          var dates = getDates(timelapse);
+          var delta = getCurrentTimesDelta(currentTime, currentTimes);
+          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
+          var year = currentDate.getUTCFullYear();
+          options.year = year;
+          options.delta = Math.min(delta, 1);
+          obesityLayer.draw(obesityLayerView, options);
 
         }
 
