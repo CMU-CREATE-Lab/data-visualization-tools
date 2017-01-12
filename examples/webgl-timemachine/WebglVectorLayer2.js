@@ -8,6 +8,7 @@ function WebglVectorLayer2(glb, canvasLayer, tileUrl, opt_options) {
   this._nLevels = 21;
   this._tileWidth = 256;
   this._tileHeight = 256;
+  this._tileExtension = opt_options.tileExtension || '.bin';
 
   if (opt_options) {
     this.setOptions(opt_options);
@@ -46,6 +47,10 @@ WebglVectorLayer2.prototype.setOptions = function(options) {
 
   if (options.setDataFunction != undefined) {
     this._setDataFunction = options.setDataFunction;
+  }
+
+  if (options.loadDataFunction != undefined) {
+    this._loadDataFunction = options.loadDataFunction;
   }
 
   if (options.drawFunction != undefined) {
@@ -88,10 +93,13 @@ WebglVectorLayer2.prototype.getHeight = function() {
 }
 
 WebglVectorLayer2.prototype._createTile = function(ti, bounds) {
-  var url = this._tileUrl + '/' + ti.l + '/' + (ti.c) + '/' + (ti.r) + '.bin';
+  var url = this._tileUrl + '/' + ti.l + '/' + (ti.c) + '/' + (ti.r) + this._tileExtension;
   var opt_options = {}
   if (this._setDataFunction) {
     opt_options.setDataFunction = this._setDataFunction;
+  }
+  if (this._loadDataFunction) {
+    opt_options.loadDataFunction = this._loadDataFunction;
   }
   if (this._drawFunction) {
     opt_options.drawFunction = this._drawFunction;
