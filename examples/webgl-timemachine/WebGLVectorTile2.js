@@ -662,6 +662,7 @@ WebGLVectorTile2.prototype._drawLines = function(transform) {
   }
 }
 
+// Used by coral
 WebGLVectorTile2.prototype._drawPoints = function(transform, options) {
   var gl = this.gl;
   if (this._ready) {
@@ -959,6 +960,7 @@ WebGLVectorTile2.prototype._drawAnnualRefugees = function(transform, options) {
     if (isNaN(pointSize)) {
       pointSize = 1.0;
     }
+    pointSize *= 2;
     var sizeLoc = gl.getUniformLocation(this.program, 'uSize');
     gl.uniform1f(sizeLoc, pointSize);
 
