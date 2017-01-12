@@ -473,6 +473,118 @@ WebGLVectorTile2.prototype._setObesityData = function(data) {
   }
 }
 
+WebGLVectorTile2.prototype._setVaccineConfidenceData = function(data) {
+  function LatLongToPixelXY(latitude, longitude) {
+    var pi_180 = Math.PI / 180.0;
+    var pi_4 = Math.PI * 4;
+    var sinLatitude = Math.sin(latitude * pi_180);
+    var pixelY = (0.5 - Math.log((1 + sinLatitude) / (1 - sinLatitude)) / (pi_4)) * 256;
+    var pixelX = ((longitude + 180) / 360) * 256;
+    var pixel = { x: pixelX, y: pixelY };
+    return pixel;
+  }
+
+  var gl = this.gl;
+
+  var verts = [];
+  var rawVerts = [];
+
+
+  /*
+    questions = ["Vaccines are important for children to have",
+                 "Overall I think vaccines are safe",
+                 "Overall I think vaccines are effective",
+                 "Vaccines are compatible with my religious beliefs"]
+    responses = ["Strongly agree", 
+                 "Tend to agree", 
+                 "Tend to disagree", 
+                 "Strongly disagree", 
+                 "Do not know"]
+  */
+  var questions = ['Q1', 'Q2', 'Q3', 'Q4'];
+  var minValues = {
+    'Q1': 0.16, 
+    'Q2': 0.41000000000000003, 
+    'Q3': 0.26, 
+    'Q4':0.47
+  };
+
+  if (typeof data.features != "undefined") {
+    for (var f = 0; f < data.features.length ; f++) {
+      var feature = data.features[f];
+      if (feature.geometry.type != "MultiPolygon") {
+        var mydata = earcut.flatten(feature.geometry.coordinates);
+        var triangles = earcut(mydata.vertices, mydata.holes, mydata.dimensions);
+        for (var i = 0; i < triangles.length; i++) {
+          var pixel = LatLongToPixelXY(mydata.vertices[triangles[i]*2 + 1],mydata.vertices[triangles[i]*2]);
+          verts.push(pixel.x, pixel.y);
+          for (var ii = 0; ii < questions.length; ii++) {
+            var q = questions[ii];
+            verts.push((feature.properties[q][2] + feature.properties[q][3])/minValues[q]);
+          } 
+        }
+      } else {
+        for (var j = 0; j < feature.geometry.coordinates.length; j++) {
+          var mydata = earcut.flatten(feature.geometry.coordinates[j]);
+          var triangles = earcut(mydata.vertices, mydata.holes, mydata.dimensions);
+          for (var i = 0; i < triangles.length; i++) {
+            var pixel = LatLongToPixelXY(mydata.vertices[triangles[i]*2 + 1],mydata.vertices[triangles[i]*2]);
+            verts.push(pixel.x, pixel.y);
+            for (var ii = 0; ii < questions.length; ii++) {
+              var q = questions[ii];
+              verts.push((feature.properties[q][2] + feature.properties[q][3])/minValues[q]);
+            }
+          }
+        }
+      }            
+    }
+
+    this._pointCount = verts.length / 6;
+    if (this._pointCount > 0) {
+      this._data = new Float32Array(verts);
+
+      this.arrayBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.arrayBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);
+
+      var attributeLoc = gl.getAttribLocation(this.program, 'a_Vertex');
+      gl.enableVertexAttribArray(attributeLoc);
+      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 24, 0);
+
+      var attributeLoc = gl.getAttribLocation(this.program, 'a_Val1');
+      gl.enableVertexAttribArray(attributeLoc);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 8);
+
+      var attributeLoc = gl.getAttribLocation(this.program, 'a_Val2');
+      gl.enableVertexAttribArray(attributeLoc);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 12);
+
+      var attributeLoc = gl.getAttribLocation(this.program, 'a_Val3');
+      gl.enableVertexAttribArray(attributeLoc);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 16);
+
+      var attributeLoc = gl.getAttribLocation(this.program, 'a_Val4');
+      gl.enableVertexAttribArray(attributeLoc);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 20);
+
+      this._texture = gl.createTexture();
+
+      gl.bindTexture(gl.TEXTURE_2D, this._texture);
+
+      // Set the parameters so we can render any size image.
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+      // Upload the image into the texture.
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._image);
+
+      this._ready = true;
+    }
+  }
+}
+
 
 WebGLVectorTile2.prototype.isReady = function() {
   return this._ready;
@@ -1172,6 +1284,61 @@ WebGLVectorTile2.prototype._drawObesity = function(transform, options) {
   }
 }
 
+WebGLVectorTile2.prototype._drawVaccineConfidence = function(transform, options) {
+  var gl = this.gl;
+  if (this._ready && this._pointCount > 0) {
+    gl.useProgram(this.program);
+    gl.enable(gl.BLEND);
+    gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.arrayBuffer);
+
+    var tileTransform = new Float32Array(transform);
+
+
+    scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
+
+    translateMatrix(tileTransform, (this._bounds.max.x - this._bounds.min.x)/256., (this._bounds.max.y - this._bounds.min.y)/256.);
+    scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+  
+    var matrixLoc = gl.getUniformLocation(this.program, 'u_MapMatrix');
+    gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+
+    var val = options.val || 1.0;
+
+    var valLoc = gl.getUniformLocation(this.program, 'u_Val');
+    gl.uniform1f(valLoc, val);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Vertex');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 24, 0);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Val1');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 8);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Val2');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 12);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Val3');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 16);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Val4');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 20);
+
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, this._texture); 
+    gl.uniform1i(gl.getUniformLocation(this.program, "u_Image"), 0);
+    
+    gl.drawArrays(gl.TRIANGLES, 0, this._pointCount);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    gl.disable(gl.BLEND);
+
+  }
+}
+
 
 // Update and draw tiles
 WebGLVectorTile2.update = function(tiles, transform, options) {
@@ -1704,6 +1871,43 @@ WebGLVectorTile2.obesityVertexShader =
 '      }\n';
 
 WebGLVectorTile2.obesityFragmentShader = 
+'      #extension GL_OES_standard_derivatives : enable\n' +
+'      precision mediump float;\n' +
+'      uniform sampler2D u_Image;\n' +
+'      varying float v_Val;\n' +
+'      void main() {\n' +
+'        vec4 color = texture2D(u_Image, vec2(v_Val,v_Val));\n' +
+'        gl_FragColor = vec4(color.r, color.g, color.b, 1.);\n' +
+'      }\n';
+
+WebGLVectorTile2.vaccineConfidenceVertexShader = 
+'      attribute vec4 a_Vertex;\n' +
+'      attribute float a_Val1;\n' +
+'      attribute float a_Val2;\n' +
+'      attribute float a_Val3;\n' +
+'      attribute float a_Val4;\n' +
+'      uniform float u_Val;\n' +
+'      uniform mat4 u_MapMatrix;\n' +
+'      varying float v_Val;\n' +
+'      void main() {\n' +
+'        vec4 position;\n' +
+'        position = u_MapMatrix * vec4(a_Vertex.x, a_Vertex.y, 0, 1);\n' +
+'        gl_Position = position;\n' +
+'        if (u_Val == 1.0) {\n' +
+'          v_Val = a_Val1;\n' +
+'        }\n' +
+'        if (u_Val == 2.0) {\n' +
+'          v_Val = a_Val2;\n' +
+'        }\n' +
+'        if (u_Val == 3.0) {\n' +
+'          v_Val = a_Val3;\n' +
+'        }\n' +
+'        if (u_Val == 4.0) {\n' +
+'          v_Val = a_Val4;\n' +
+'        }\n' +
+'      }\n';
+
+WebGLVectorTile2.vaccineConfidenceFragmentShader = 
 '      #extension GL_OES_standard_derivatives : enable\n' +
 '      precision mediump float;\n' +
 '      uniform sampler2D u_Image;\n' +
