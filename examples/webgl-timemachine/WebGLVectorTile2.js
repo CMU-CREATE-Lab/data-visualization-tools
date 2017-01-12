@@ -952,12 +952,13 @@ WebGLVectorTile2.prototype._drawUrbanFragility = function(transform, options) {
     gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
     gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
-    var zoom = options.zoom || (2.0 * window.devicePixelRatio);
-    var pointSize = Math.floor( ((20-5) * (zoom - 0) / (21 - 0)) + 5 );
+    var zoom = options.zoom;
+
+    var pointSize;
+    pointSize = Math.floor((zoom + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1);
     if (isNaN(pointSize)) {
       pointSize = 1.0;
-    }
-    var pointSize = 2.0 * window.devicePixelRatio;
+    }    
 
     var sizeLoc = gl.getUniformLocation(this.program, 'u_Size');
     gl.uniform1f(sizeLoc, pointSize);
@@ -1474,5 +1475,43 @@ WebGLVectorTile2.gtdFragmentShader =
 "          dist = max(0.0, dist);\n" +
 "          gl_FragColor =  vec4(r, .0, .0, .85) * dist;\n" +
 "        }\n";
+
+
+WebGLVectorTile2.hivVertexShader = 
+'attribute vec4 a_Centroid;\n' +
+'attribute float a_Year;\n' +
+'attribute float a_Val1;\n' +
+'attribute float a_Val2;\n' +
+'uniform float u_Delta;\n' +
+'uniform float u_Size;\n' +
+'uniform float u_Year;\n' +
+'uniform mat4 u_MapMatrix;\n' +
+'varying float v_Val;\n' +
+'\n' +
+'void main() {\n' +
+'  vec4 position;\n' +
+'  if (a_Year != u_Year) {\n' +
+'    position = vec4(-1,-1,-1,-1);\n' +
+'  } else {\n' +
+'    position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);\n' +
+'  }\n' +
+'  gl_Position = position;\n' +
+'  float size = (a_Val2 - a_Val1) * u_Delta + a_Val1;\n' +
+'  v_Val = size;\n' +
+'  gl_PointSize = 100.0 * u_Size * abs(size);\n' +
+'}\n';
+
+WebGLVectorTile2.hivFragmentShader = 
+'precision mediump float;\n' +
+'uniform sampler2D u_Image;\n' +
+'varying float v_Val;\n' +
+'void main() {\n' +
+'  float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
+'  dist = 1. - (dist * 2.);\n' +
+'  dist = max(0., dist);\n' +
+'  float alpha = smoothstep(0.3-dist, 0.3, dist);\n' +
+'  vec4 color = texture2D(u_Image, vec2(v_Val,v_Val));\n' +
+'  gl_FragColor = vec4(color.r, color.g, color.b, .75) * alpha;\n' +
+'}\n';
 
 
