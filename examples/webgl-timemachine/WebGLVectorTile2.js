@@ -24,6 +24,7 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
 
   var opt_options = opt_options || {};
   this._setData = opt_options.setDataFunction || this._setCoralReefData;
+  this._load = opt_options.loadDataFunction || this._loadData;
   this.draw = opt_options.drawFunction || this._drawLines;
   this._fragmentShader = opt_options.fragmentShader || WebGLVectorTile2.vectorTileFragmentShader;
   this._vertexShader = opt_options.vertexShader || WebGLVectorTile2.vectorTileVertexShader;
@@ -46,7 +47,7 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
 
 }
 
-WebGLVectorTile2.prototype._load = function() {
+WebGLVectorTile2.prototype._loadData = function() {
   var that = this;
   this.xhr = new XMLHttpRequest();
   this.xhr.open('GET', that._url);
@@ -62,6 +63,25 @@ WebGLVectorTile2.prototype._load = function() {
   }
   this.xhr.onerror = function() {
     that._setData(new Float32Array([]));
+  }
+  this.xhr.send();  
+}
+
+WebGLVectorTile2.prototype._loadGeojsonData = function() {
+  var that = this;
+  this.xhr = new XMLHttpRequest();
+  this.xhr.open('GET', that._url);
+  var data;
+  this.xhr.onload = function() {
+    if (this.status == 404) {
+      data = "";
+    } else {
+      data = JSON.parse(this.responseText);
+    }
+    that._setData(data);
+  }
+  this.xhr.onerror = function() {
+    that._setData('');
   }
   this.xhr.send();  
 }
@@ -359,6 +379,140 @@ WebGLVectorTile2.prototype._setUrbanFragilityData = function(arrayBuffer) {
     gl.bindTexture(gl.TEXTURE_2D, null);
 
     this._ready = true;
+  }
+}
+
+WebGLVectorTile2.prototype._setObesityData = function(arrayBuffer) {
+  var gl = this.gl;
+  this._pointCount = arrayBuffer.length / 5;
+  if (this._pointCount > 0) {
+    this._data = arrayBuffer;
+    this._arrayBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Centroid');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 20, 0);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Year');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 20, 8);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Val1');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 20, 12);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Val2');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 20, 16);
+
+    this._texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, this._texture);
+
+    // Set the parameters so we can render any size image.
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+    // Upload the image into the texture.
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._image);
+
+    gl.bindTexture(gl.TEXTURE_2D, null);
+
+    this._ready = true;
+  }
+}
+
+WebGLVectorTile2.prototype._setObesityData = function(data) {
+  function LatLongToPixelXY(latitude, longitude) {
+    var pi_180 = Math.PI / 180.0;
+    var pi_4 = Math.PI * 4;
+    var sinLatitude = Math.sin(latitude * pi_180);
+    var pixelY = (0.5 - Math.log((1 + sinLatitude) / (1 - sinLatitude)) / (pi_4)) * 256;
+    var pixelX = ((longitude + 180) / 360) * 256;
+    var pixel = { x: pixelX, y: pixelY };
+    return pixel;
+  }
+
+  var gl = this.gl;
+
+  var verts = [];
+  var rawVerts = [];
+
+  if (typeof data.features != "undefined") {
+    for (var f = 0; f < data.features.length ; f++) {
+      var feature = data.features[f];
+
+      var years = feature.properties.years;
+      for (var ii = 0; ii < years.length; ii++) {
+        if (feature.geometry.type != "MultiPolygon") {
+          var mydata = earcut.flatten(feature.geometry.coordinates);
+          var triangles = earcut(mydata.vertices, mydata.holes, mydata.dimensions);
+          for (var i = 0; i < triangles.length; i++) {
+            var pixel = LatLongToPixelXY(mydata.vertices[triangles[i]*2 + 1],mydata.vertices[triangles[i]*2]);
+            if (ii < years.length - 1) {
+              verts.push(pixel.x, pixel.y, years[ii].year, years[ii].scaled_mean, years[ii + 1].scaled_mean);
+            } else {
+              verts.push(pixel.x, pixel.y, years[ii].year, years[ii].scaled_mean, years[ii].scaled_mean);
+            }
+          }
+        } else {
+          for ( var j = 0; j < feature.geometry.coordinates.length; j++) {
+            var mydata = earcut.flatten(feature.geometry.coordinates[j]);
+            var triangles = earcut(mydata.vertices, mydata.holes, mydata.dimensions);
+            for (var i = 0; i < triangles.length; i++) {
+              var pixel = LatLongToPixelXY(mydata.vertices[triangles[i]*2 + 1],mydata.vertices[triangles[i]*2]);
+              if (ii < years.length - 1) {
+                verts.push(pixel.x, pixel.y, years[ii].year, years[ii].scaled_mean, years[ii + 1].scaled_mean);
+              } else {
+                verts.push(pixel.x, pixel.y, years[ii].year, years[ii].scaled_mean, years[ii].scaled_mean);
+              }
+            }
+          }
+        }            
+      }
+    }
+    this._pointCount = verts.length / 5;
+    if (this._pointCount > 0) {
+      this._data = new Float32Array(verts);
+
+      this.arrayBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.arrayBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);
+
+      var attributeLoc = gl.getAttribLocation(this.program, 'a_Vertex');
+      gl.enableVertexAttribArray(attributeLoc);
+      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 20, 0);
+
+      var attributeLoc = gl.getAttribLocation(this.program, 'a_Year');
+      gl.enableVertexAttribArray(attributeLoc);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 20, 8);
+
+      var attributeLoc = gl.getAttribLocation(this.program, 'a_Val1');
+      gl.enableVertexAttribArray(attributeLoc);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 20, 12);
+
+      var attributeLoc = gl.getAttribLocation(this.program, 'a_Val2');
+      gl.enableVertexAttribArray(attributeLoc);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 20, 16);
+
+      this._texture = gl.createTexture();
+
+      gl.bindTexture(gl.TEXTURE_2D, this._texture);
+
+      // Set the parameters so we can render any size image.
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+      // Upload the image into the texture.
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._image);
+
+      this._ready = true;
+    }
   }
 }
 
@@ -1005,6 +1159,63 @@ WebGLVectorTile2.prototype._drawUrbanFragility = function(transform, options) {
   }
 }
 
+WebGLVectorTile2.prototype._drawObesity = function(transform, options) {
+  var gl = this.gl;
+  if (this._ready && this._pointCount > 0) {
+    gl.useProgram(this.program);
+    gl.enable(gl.BLEND);
+    gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.arrayBuffer);
+
+    var tileTransform = new Float32Array(transform);
+
+
+    scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
+
+    translateMatrix(tileTransform, (this._bounds.max.x - this._bounds.min.x)/256., (this._bounds.max.y - this._bounds.min.y)/256.);
+    scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+
+    var year = options.year;
+    var delta = options.delta;
+  
+    var matrixLoc = gl.getUniformLocation(this.program, 'u_MapMatrix');
+    gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+
+    var deltaLoc = gl.getUniformLocation(this.program, 'u_Delta');
+    gl.uniform1f(deltaLoc, delta);
+
+    var epochLoc = gl.getUniformLocation(this.program, 'u_Year');
+    gl.uniform1f(epochLoc, year);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Vertex');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 20, 0);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Year');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 20, 8);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Val1');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 20, 12);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Val2');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 20, 16);
+
+
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, this._texture); 
+    gl.uniform1i(gl.getUniformLocation(this.program, "u_Image"), 0);
+    
+    gl.drawArrays(gl.TRIANGLES, 0, this._pointCount);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    gl.disable(gl.BLEND);
+
+  }
+}
+
+
 // Update and draw tiles
 WebGLVectorTile2.update = function(tiles, transform, options) {
   for (var i = 0; i < tiles.length; i++) {
@@ -1514,4 +1725,33 @@ WebGLVectorTile2.hivFragmentShader =
 '  gl_FragColor = vec4(color.r, color.g, color.b, .75) * alpha;\n' +
 '}\n';
 
+WebGLVectorTile2.obesityVertexShader = 
+'      attribute vec4 a_Vertex;\n' +
+'      attribute float a_Year;\n' +
+'      attribute float a_Val1;\n' +
+'      attribute float a_Val2;\n' +
+'      uniform float u_Delta;\n' +
+'      uniform float u_Size;\n' +
+'      uniform float u_Year;\n' +
+'      uniform mat4 u_MapMatrix;\n' +
+'      varying float v_Val;\n' +
+'      void main() {\n' +
+'        vec4 position;\n' +
+'        if (a_Year != u_Year) {\n' +
+'          position = vec4(-1,-1,-1,-1);\n' +
+'        } else {\n' +
+'          position = u_MapMatrix * vec4(a_Vertex.x, a_Vertex.y, 0, 1);\n' +
+'        }\n' +
+'        gl_Position = position;\n' +
+'        v_Val = (a_Val2 - a_Val1) * u_Delta + a_Val1;\n' +
+'      }\n';
 
+WebGLVectorTile2.obesityFragmentShader = 
+'      #extension GL_OES_standard_derivatives : enable\n' +
+'      precision mediump float;\n' +
+'      uniform sampler2D u_Image;\n' +
+'      varying float v_Val;\n' +
+'      void main() {\n' +
+'        vec4 color = texture2D(u_Image, vec2(v_Val,v_Val));\n' +
+'        gl_FragColor = vec4(color.r, color.g, color.b, 1.);\n' +
+'      }\n';
