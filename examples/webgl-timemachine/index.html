@@ -1149,12 +1149,12 @@
           $("#hiv-legend").show();
           previousVisibleBaseMapLayer = visibleBaseMapLayer;
         } else {
-            showHivLayer = false;
-            timelineType = "customUI";
-            requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-            $("#hiv-legend").hide();
-            visibleBaseMapLayer = previousVisibleBaseMapLayer;            
+          showHivLayer = false;
+          timelineType = "customUI";
           setActiveLayersWithTimeline(-1);
+          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+          $("#hiv-legend").hide();
+          visibleBaseMapLayer = previousVisibleBaseMapLayer;
         }
       }).prop('checked', showHivLayer);
 
@@ -1170,12 +1170,12 @@
           $("#obesity-legend").show();
           previousVisibleBaseMapLayer = visibleBaseMapLayer;
         } else {
-            showObesityLayer = false;
-            timelineType = "customUI";
-            requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-            $("#obesity-legend").hide();
-            visibleBaseMapLayer = previousVisibleBaseMapLayer;            
+          showObesityLayer = false;
+          timelineType = "customUI";
           setActiveLayersWithTimeline(-1);
+          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+          $("#obesity-legend").hide();
+          visibleBaseMapLayer = previousVisibleBaseMapLayer;
         }
       }).prop('checked', showObesityLayer);
 
@@ -1617,10 +1617,12 @@
         layer_html += '        Pandemics:';
         layer_html += '      </td>';
         layer_html += '      <td style="padding-bottom:16px; padding-right: 70px;">';
-        layer_html += '        <select id="pandemic-theme" multiple="multiple" size="3">';
+        layer_html += '        <select id="pandemic-theme" multiple="multiple" size="5">';
         layer_html += '          <option value="option1" data-id="show-zika" data-name="zv" data-credit="LSHTM">Zika</option>';
         layer_html += '          <option value="option2" data-id="show-dengue" data-name="dv" data-credit="LSHTMC">Dengue</option>';
         layer_html += '          <option value="option3" data-id="show-chiku" data-name="cv" data-credit="LSHTM">Chikungunya</option>';
+        layer_html += '          <option value="option4" data-id="show-hiv" data-name="hiv" data-credit="LSHTM">HIV Infections</option>';
+        layer_html += '          <option value="option5" data-id="show-obesity" data-name="obesity" data-credit="LSHTM">Obesity</option>';
         layer_html += '        </select>';
         layer_html += '        <button class="clear-theme" type="button">Clear <br>Theme</button>';
         layer_html += '      </td>';
@@ -1983,8 +1985,8 @@
             header: false,
             noneSelectedText: "Select layers...",
             selectedText: "# layer(s) selected",
-            menuWidth: 470,
-            height: 72,
+            menuWidth: 410,
+            height: 116,
             colType: "double"
         });
         $("#refugee-theme").multiselect({
