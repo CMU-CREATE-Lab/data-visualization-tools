@@ -30,6 +30,7 @@ var EARTH_TIMELAPSE_CONFIG = {
   "subsampleAnnualRefugees": false,
   "showSeaLevelRise": false,
   "showUrbanFragility": false,
-  "showGtd": false
+  "showGtd": false,
+  "showHiv": false
 
 };
