@@ -94,6 +94,7 @@
     var showSeaLevelRise = !!EARTH_TIMELAPSE_CONFIG.showSeaLevelRise; //SLR
     var showUrbanFragility = !!EARTH_TIMELAPSE_CONFIG.showUrbanFragility;
     var showGtd = !!EARTH_TIMELAPSE_CONFIG.showGtd;
+    var showHiv = !!EARTH_TIMELAPSE_CONFIG.showHiv;
 
     var showShareButton =  !!EARTH_TIMELAPSE_CONFIG.showShareButton;
     var showShareButtonHash = window.location.hash.split("showShareButton=")[1];
@@ -174,6 +175,7 @@
     var coralBleachingLayer;
     var monthlyRefugeesLayer;
     var gtdLayer;
+    var hivLayer;
 
     // ## 2 ##
     //// Layer tile paths
@@ -228,6 +230,7 @@
     var seaLevelRiseUrl = "http://a.ss2tiles.climatecentral.org/lockin_animated/{z}/{x}/{y}.png"; //SLR
     var urbanFragilityUrl = rootTilePath + "/urban-fragility";
     var gtdUrl = rootTilePath + "/gtd";
+    var hivUrl = rootTilePath + "/hiv";
 
     function init() {
       var settings = {
@@ -1127,6 +1130,27 @@
         }
       }).prop('checked', showGtdLayer);
 
+      $("#show-hiv").on("click", function() {
+        if ($(this).prop('checked')) {
+          if (visibleBaseMapLayer != "dark") {
+            $("#dark-base").click();
+          }
+          showHivLayer = true;
+          timelineType = "customUI";
+          setActiveLayersWithTimeline(1);
+          requestNewTimeline("hiv-times.json", timelineType);
+          $("#hiv-legend").show();
+          previousVisibleBaseMapLayer = visibleBaseMapLayer;
+        } else {
+            showHivLayer = false;
+            timelineType = "customUI";
+            requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+            $("#hiv-legend").hide();
+            visibleBaseMapLayer = previousVisibleBaseMapLayer;            
+          setActiveLayersWithTimeline(-1);
+        }
+      }).prop('checked', showHivLayer);
+
 
       // Base layers
       $("input:radio[name=base-layers]").on("click", function() {
@@ -1427,6 +1451,7 @@
     var showSeaLevelRiseLayer = false; //SLR
     var showUrbanFragilityLayer = false;
     var showGtdLayer = false;
+    var showHivLayer = false;
 
 
     // Default Time Machine visibility
@@ -1497,6 +1522,7 @@
       var show_sea_level_rise_4p0 = '<td class="sea-level-rise-4p0-select"><label for="show-sea-level-rise-4p0" name="slr4"><input type="checkbox" id="show-sea-level-rise-4p0"  name="slr"/>Sea Level Rise 4.0&deg; C<span class="credit"> (Climate Central)</span></label></td>'; //SLR
       var show_urban_fragility = '<td class="urban-fragility-select"><label for="show-urban-fragility" name="uf"><input type="checkbox" id="show-urban-fragility" />Urban Fragility<span class="credit"> (Igarape Institute)</span></label></td>';
       var show_gtd = '<td class="gtd-select"><label for="show-gtd" name="gtd"><input type="checkbox" id="show-gtd" />Global Terrorism Database<span class="credit"> (UMD)</span></label></td>';
+      var show_hiv = '<td class="hiv-select"><label for="show-hiv" name="hiv"><input type="checkbox" id="show-hiv" />HIV Infections<span class="credit"> (LSHTM)</span></label></td>';
 
 
       if (enableLetterboxMode) {
@@ -1767,6 +1793,11 @@
           layer_html += show_gtd;
           layer_html += '   </tr>';
         }
+        if (showHiv) {
+          layer_html += '   <tr>';
+          layer_html += show_hiv;
+          layer_html += '   </tr>';
+        }
         layer_html += '   <tr>';
         layer_html += show_himawari;
         layer_html += '   </tr>';
@@ -1836,6 +1867,7 @@
       legend_html += '<tr id="chiku-legend" style="display: none"><td><div style="background-color:#6070ff; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Chikungunya Virus</div></td></tr>';
       legend_html += '<tr id="dengue-legend" style="display: none"><td><div style="background-color:#a1ef5f; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Dengue Virus</div></td></tr>';
       legend_html += '<tr id="gtd-legend" style="display: none"><td><div style="float:left; background-color:red; width:17px; height: 5px;"></div><div style="margin-left: 29px; margin-top: -5px; font-size: 17px">GTD Casualties</div></td></tr>';
+      legend_html += '<tr id="hiv-legend" style="display: none"><td><div style="font-size: 17px">Annual new HIV infections</div></div><svg width="200" height="29"><rect fill="#ffffff" x="0" height="9" width="20.0"></rect><rect fill="#ffd8e7" x="20." height="9" width="20.0"></rect><rect fill="#feb1d1" x="40." height="9" width="20.0"></rect><rect fill="#f18bbd" x="60." height="9" width="20.0"></rect><rect fill="#dd68ac" x="80." height="9" width="20.0"></rect><rect fill="#c4479e" x="100." height="9" width="20.0"></rect><rect fill="#a52792" x="120." height="9" width="20.0"></rect><rect fill="#7d0989" x="140." height="9" width="20.0"></rect><rect fill="#4b0082" x="160." height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="29" x="0">1K</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="29" x="35">10K</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="29" x="80">100K</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="29" x="155">850K</text></svg></td></tr>';
 
 
       // ## 5b ##
@@ -2223,6 +2255,19 @@
         vertexShader: WebGLVectorTile2.gtdVertexShader
       };
       gtdLayer = new WebglVectorLayer2(glb, canvasLayer, gtdUrl, gtdLayerOptions);
+
+      var hivLayerOptions = {
+        tileWidth: 256,
+        tileHeight: 256,
+        nLevels: 0,
+        setDataFunction: WebGLVectorTile2.prototype._setUrbanFragilityData,
+        drawFunction: WebGLVectorTile2.prototype._drawUrbanFragility,
+        fragmentShader: WebGLVectorTile2.hivFragmentShader,
+        vertexShader: WebGLVectorTile2.hivVertexShader,
+        imageSrc: "hiv-color-map.png"
+
+      };
+      hivLayer = new WebglVectorLayer2(glb, canvasLayer, hivUrl, hivLayerOptions);
 
       // Layer Toggle UI
       initLayerToggleUI();
@@ -3041,6 +3086,22 @@
           gtdLayer.draw(gtdLayerView, options);
         }
 
+        if (showHivLayer) {
+          var hivLayerView = getLayerView(hivLayer, landsatBaseMapLayer);
+          var options = {};
+          options.zoom = timelapse.getCurrentZoom();
+
+          var currentTime = timelapse.getCurrentTime();
+          var currentTimes = getCurrentTimes(timelapse);
+          var dates = getDates(timelapse);
+          var delta = getCurrentTimesDelta(currentTime, currentTimes);
+          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
+          var year = currentDate.getUTCFullYear();
+          options.year = year;
+          options.delta = Math.min(delta, 1);
+          hivLayer.draw(hivLayerView, options);
+
+        }
 
         // ## 7 ##
         //// Layers to draw on top go here
