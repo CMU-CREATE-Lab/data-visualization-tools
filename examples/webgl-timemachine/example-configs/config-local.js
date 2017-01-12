@@ -31,6 +31,7 @@ var EARTH_TIMELAPSE_CONFIG = {
   "showSeaLevelRise": false,
   "showUrbanFragility": false,
   "showGtd": false,
-  "showHiv": false
+  "showHiv": false,
+  "showObesity": false
 
 };
