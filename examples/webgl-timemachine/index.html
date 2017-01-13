@@ -98,6 +98,7 @@
     var showHiv = !!EARTH_TIMELAPSE_CONFIG.showHiv;
     var showObesity = !!EARTH_TIMELAPSE_CONFIG.showObesity;
     var showVaccineConfidence = !!EARTH_TIMELAPSE_CONFIG.showVaccineConfidence;
+    var showNdviAnomaly = !!EARTH_TIMELAPSE_CONFIG.showNdviAnomaly;
 
     var showShareButton =  !!EARTH_TIMELAPSE_CONFIG.showShareButton;
     var showShareButtonHash = window.location.hash.split("showShareButton=")[1];
@@ -164,7 +165,7 @@
     //
 
     var forestAlertsTimeMachineLayer, forestAlertsNoOverlayTimeMachineLayer, landsatBaseMapLayer, darkBaseMapLayer, lightBaseMapLayer, mcrmVectorLayer;
-    var hansenMapLayer, hansenMapLayer2, lightsAtNightMapLayer, crwTimemachineLayer, animatedHansenLayer, himawariTimemachineLayer;
+    var hansenMapLayer, hansenMapLayer2, lightsAtNightMapLayer, crwTimemachineLayer, animatedHansenLayer, himawariTimemachineLayer, ndviAnomalyTimemachineLayer;
     var waterOccurrenceLayer, waterChangeLayer, usgsWindTurbineLayer, solarInstallsLayer, drillingLayer;
     var globalWindPowerLayer;
     var annualRefugeesLayer;
@@ -188,6 +189,7 @@
 
     var landsatUrl = (landsatVersion == "2015") ? rootTilePath + "/earthtime-annual-2015-v2/1068x600" : rootTilePath + "/earthtime-annual-2016-v14/1068x600";;
     var crwTimemachineUrl = rootTilePath + "/coral/coralreefwatch-3.timemachine/crf20-22fps-1424x800";
+    var ndviAnomalyTimemachineUrl = "http://storage.googleapis.com/earthengine-timelapse/ndvi_anomaly_1000v01/1068x600";
     var himawariTimemachineUrl = rootTilePath + "/himawari8/himawari8-nov-2015.timemachine/crf26-12fps-1424x800";
     var forestAlertsTimeMachineUrl = rootTilePath + "/global-forest-alerts/ForestAlarms2016v2/1068x600";
     var forestAlertsNoOverlayTimeMachineUrl = rootTilePath + "/global-forest-alerts/ForestAlarmsNoOverlay2016v1/1068x600";
@@ -714,6 +716,33 @@
         }
       }).prop('checked', showCrwTimemachineLayer);
 
+
+      $("#show-ndvi-anomaly").on("click", function() {
+        if ($(this).prop('checked')) {
+          timelineType = "customUI";
+          showNdviAnomalyTimemachineLayer = true;
+          setActiveLayersWithTimeline(1);
+          requestNewTimeline("ndvi-anomaly-times.json", timelineType);
+          var v = timelapse.getVideoset();
+          v.setFps(1);
+          timelapse.setDoDwell(false);
+          WebglVideoTile.useGreenScreen = true;
+          $("#ndvi-anomaly-legend").show();
+        } else {
+          showNdviAnomalyTimemachineLayer = false;
+          if (doSwitchToLandsat()) {
+            timelineType = "customUI";
+            requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+            timelapse.setDoDwell(true);
+            WebglVideoTile.useGreenScreen = false;
+            var v = timelapse.getVideoset();
+            v.setFps(10);
+          }
+          setActiveLayersWithTimeline(-1);
+          $("#ndvi-anomaly-legend").hide();
+        }
+      }).prop('checked', showNdviAnomalyTimemachineLayer);
+
       $("#show-himawari").on("click", function() {
         // Note: Do not call setActiveLayersWithTimeline for himawari
         $(".map-layer-div, .ui-multiselect-checkboxes").find("input:checked").not("#show-himawari").trigger("click");
@@ -1195,7 +1224,7 @@
           }
           if (visibleBaseMapLayer != "dark") {
             $("#dark-base").click();
-          }          
+          }
           showVaccineConfidenceLayer = true;
           timelineType = "none";
           $("#vaccine-confidence-q1-legend").show();
@@ -1222,7 +1251,7 @@
           }
           if (visibleBaseMapLayer != "dark") {
             $("#dark-base").click();
-          }          
+          }
           showVaccineConfidenceLayer = true;
           timelineType = "none";
           $("#vaccine-confidence-q2-legend").show();
@@ -1249,7 +1278,7 @@
           }
           if (visibleBaseMapLayer != "dark") {
             $("#dark-base").click();
-          }          
+          }
           showVaccineConfidenceLayer = true;
           timelineType = "none";
           $("#vaccine-confidence-q3-legend").show();
@@ -1276,7 +1305,7 @@
           }
           if (visibleBaseMapLayer != "dark") {
             $("#dark-base").click();
-          }          
+          }
           showVaccineConfidenceLayer = true;
           timelineType = "none";
           $("#vaccine-confidence-q4-legend").show();
@@ -1565,6 +1594,7 @@
     var showCoralBleachingLayer = false;
     var showLightsAtNightLayer = false;
     var showCrwTimemachineLayer = false;
+    var showNdviAnomalyTimemachineLayer = false;
     var showAnimatedHansenLayer = false;
     var showHimawariTimeMachineLayer = false;
     var showForestAlertsTimeMachineLayer = false;
@@ -1665,6 +1695,7 @@
       var show_vaccine_confidence_q2 = '<td class="vaccine-confidence-q2-select"><label for="show-vaccine-confidence-q2" name="vaccine-confidence-q2"><input type="checkbox" id="show-vaccine-confidence-q2" />Vaccines are safe<span class="credit"> (LSHTM)</span></label></td>';
       var show_vaccine_confidence_q3 = '<td class="vaccine-confidence-q3-select"><label for="show-vaccine-confidence-q3" name="vaccine-confidence-q3"><input type="checkbox" id="show-vaccine-confidence-q3" />Vaccines are effective<span class="credit"> (LSHTM)</span></label></td>';
       var show_vaccine_confidence_q4 = '<td class="vaccine-confidence-q4-select"><label for="show-vaccine-confidence-q4" name="vaccine-confidence-q4"><input type="checkbox" id="show-vaccine-confidence-q4" />Vaccines and religious beliefs<span class="credit"> (LSHTM)</span></label></td>';
+      var show_ndvi_anomaly = '<td class="ndvi-anomaly-select"><label for="show-ndvi-anomaly" name="ndvia"><input type="checkbox" id="show-ndvi-anomaly" />NDVI Anomaly<span class="credit"> ()</span></label></td>';
 
 
       if (enableLetterboxMode) {
@@ -1947,6 +1978,11 @@
           layer_html += show_obesity;
           layer_html += '   </tr>';
         }
+        if (showNdviAnomaly) {
+          layer_html += '   <tr>';
+          layer_html += show_ndvi_anomaly;
+          layer_html += '   </tr>';
+        }
         if (showVaccineConfidence) {
           layer_html += '   <tr>';
           layer_html += show_vaccine_confidence_q1;
@@ -2154,6 +2190,19 @@
         fps: 10
       };
       landsatBaseMapLayer = new WebglTimeMachineLayer(glb, canvasLayer, landsatUrl, defaultTimeMachineLayerOptions);
+
+      // NDVI
+      var ndviAnomalyTimemachineLayerOptions = {
+        mediaType: ".mp4",
+        numFrames: cached_ajax['ndvi-anomaly-times.json']['capture-times'].length,
+        fps: 1,
+        video_width: 1424,
+        video_height: 800,
+        width: 40076,
+        height: 40076,
+        greenScreen: true
+      };
+      ndviAnomalyTimemachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, ndviAnomalyTimemachineUrl, ndviAnomalyTimemachineLayerOptions);
 
       // Coral Bleaching Alerts
       var crwTimemacineLayerOptions = {
@@ -2906,6 +2955,12 @@
         if (showCrwTimemachineLayer) {
           var crwView = getLayerView(crwTimemachineLayer, landsatBaseMapLayer);
           crwTimemachineLayer.draw(crwView, tileViewVisibility);
+        }
+
+        // Draw NDVI Anomaly
+        if (showNdviAnomalyTimemachineLayer) {
+          var ndviView = getLayerView(ndviAnomalyTimemachineLayer, landsatBaseMapLayer);
+          ndviAnomalyTimemachineLayer.draw(ndviView, tileViewVisibility);
         }
 
         // Draw Forest Loss by Year (Transparent)
