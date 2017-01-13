@@ -1179,15 +1179,111 @@
         }
       }).prop('checked', showObesityLayer);
 
-      $("#show-vaccine-confidence").on("click", function() {
+      $("#show-vaccine-confidence-q1").on("click", function() {
         if ($(this).prop('checked')) {
+          if ($("#show-vaccine-confidence-q2").prop('checked')) {
+            $("#show-vaccine-confidence-q2").prop('checked', false);
+            $("#vaccine-confidence-q2-legend").hide();
+          }
+          if ($("#show-vaccine-confidence-q3").prop('checked')) {
+            $("#show-vaccine-confidence-q3").prop('checked', false);
+            $("#vaccine-confidence-q3-legend").hide();
+          }
+          if ($("#show-vaccine-confidence-q4").prop('checked')) {
+            $("#show-vaccine-confidence-q4").prop('checked', false);
+            $("#vaccine-confidence-q4-legend").hide();
+          }
+          if (visibleBaseMapLayer != "dark") {
+            $("#dark-base").click();
+          }          
           showVaccineConfidenceLayer = true;
           timelineType = "none";
-          $("#vaccine-confidence-legend").show();
+          $("#vaccine-confidence-q1-legend").show();
         } else {
           showVaccineConfidenceLayer = false;
           timelineType = "customUI";
-          $("#vaccine-confidence-legend").hide();
+          $("#vaccine-confidence-q1-legend").hide();
+        }
+      }).prop('checked', showVaccineConfidenceLayer);
+
+      $("#show-vaccine-confidence-q2").on("click", function() {
+        if ($(this).prop('checked')) {
+          if ($("#show-vaccine-confidence-q1").prop('checked')) {
+            $("#show-vaccine-confidence-q1").prop('checked', false);
+            $("#vaccine-confidence-q1-legend").hide();
+          }
+          if ($("#show-vaccine-confidence-q3").prop('checked')) {
+            $("#show-vaccine-confidence-q3").prop('checked', false);
+            $("#vaccine-confidence-q3-legend").hide();
+          }
+          if ($("#show-vaccine-confidence-q4").prop('checked')) {
+            $("#show-vaccine-confidence-q4").prop('checked', false);
+            $("#vaccine-confidence-q4-legend").hide();
+          }
+          if (visibleBaseMapLayer != "dark") {
+            $("#dark-base").click();
+          }          
+          showVaccineConfidenceLayer = true;
+          timelineType = "none";
+          $("#vaccine-confidence-q2-legend").show();
+        } else {
+          showVaccineConfidenceLayer = false;
+          timelineType = "customUI";
+          $("#vaccine-confidence-q2-legend").hide();
+        }
+      }).prop('checked', showVaccineConfidenceLayer);
+
+      $("#show-vaccine-confidence-q3").on("click", function() {
+        if ($(this).prop('checked')) {
+          if ($("#show-vaccine-confidence-q1").prop('checked')) {
+            $("#show-vaccine-confidence-q1").prop('checked', false);
+            $("#vaccine-confidence-q1-legend").hide();
+          }
+          if ($("#show-vaccine-confidence-q2").prop('checked')) {
+            $("#show-vaccine-confidence-q2").prop('checked', false);
+            $("#vaccine-confidence-q2-legend").hide();
+          }
+          if ($("#show-vaccine-confidence-q4").prop('checked')) {
+            $("#show-vaccine-confidence-q4").prop('checked', false);
+            $("#vaccine-confidence-q4-legend").hide();
+          }
+          if (visibleBaseMapLayer != "dark") {
+            $("#dark-base").click();
+          }          
+          showVaccineConfidenceLayer = true;
+          timelineType = "none";
+          $("#vaccine-confidence-q3-legend").show();
+        } else {
+          showVaccineConfidenceLayer = false;
+          timelineType = "customUI";
+          $("#vaccine-confidence-q3-legend").hide();
+        }
+      }).prop('checked', showVaccineConfidenceLayer);
+
+      $("#show-vaccine-confidence-q4").on("click", function() {
+        if ($(this).prop('checked')) {
+          if ($("#show-vaccine-confidence-q1").prop('checked')) {
+            $("#show-vaccine-confidence-q1").prop('checked', false);
+            $("#vaccine-confidence-q1-legend").hide();
+          }
+          if ($("#show-vaccine-confidence-q3").prop('checked')) {
+            $("#show-vaccine-confidence-q3").prop('checked', false);
+            $("#vaccine-confidence-q3-legend").hide();
+          }
+          if ($("#show-vaccine-confidence-q2").prop('checked')) {
+            $("#show-vaccine-confidence-q2").prop('checked', false);
+            $("#vaccine-confidence-q2-legend").hide();
+          }
+          if (visibleBaseMapLayer != "dark") {
+            $("#dark-base").click();
+          }          
+          showVaccineConfidenceLayer = true;
+          timelineType = "none";
+          $("#vaccine-confidence-q4-legend").show();
+        } else {
+          showVaccineConfidenceLayer = false;
+          timelineType = "customUI";
+          $("#vaccine-confidence-q4-legend").hide();
         }
       }).prop('checked', showVaccineConfidenceLayer);
 
@@ -1565,7 +1661,10 @@
       var show_gtd = '<td class="gtd-select"><label for="show-gtd" name="gtd"><input type="checkbox" id="show-gtd" />Global Terrorism Database<span class="credit"> (UMD)</span></label></td>';
       var show_hiv = '<td class="hiv-select"><label for="show-hiv" name="hiv"><input type="checkbox" id="show-hiv" />HIV Infections<span class="credit"> (LSHTM)</span></label></td>';
       var show_obesity = '<td class="obesity-select"><label for="show-obesity" name="obesity"><input type="checkbox" id="show-obesity" />Obesity<span class="credit"> (LSHTM)</span></label></td>';
-      var show_vaccine_confidence = '<td class="vaccine-confidence-select"><label for="show-vaccine-confidence" name="obesity"><input type="checkbox" id="show-vaccine-confidence" />Vaccine Confidence<span class="credit"> (LSHTM)</span></label></td>';
+      var show_vaccine_confidence_q1 = '<td class="vaccine-confidence-q1-select"><label for="show-vaccine-confidence-q1" name="vaccine-confidence-q1"><input type="checkbox" id="show-vaccine-confidence-q1" />Vaccines are important for children<span class="credit"> (LSHTM)</span></label></td>';
+      var show_vaccine_confidence_q2 = '<td class="vaccine-confidence-q2-select"><label for="show-vaccine-confidence-q2" name="vaccine-confidence-q2"><input type="checkbox" id="show-vaccine-confidence-q2" />Vaccines are safe<span class="credit"> (LSHTM)</span></label></td>';
+      var show_vaccine_confidence_q3 = '<td class="vaccine-confidence-q3-select"><label for="show-vaccine-confidence-q3" name="vaccine-confidence-q3"><input type="checkbox" id="show-vaccine-confidence-q3" />Vaccines are effective<span class="credit"> (LSHTM)</span></label></td>';
+      var show_vaccine_confidence_q4 = '<td class="vaccine-confidence-q4-select"><label for="show-vaccine-confidence-q4" name="vaccine-confidence-q4"><input type="checkbox" id="show-vaccine-confidence-q4" />Vaccines and religious beliefs<span class="credit"> (LSHTM)</span></label></td>';
 
 
       if (enableLetterboxMode) {
@@ -1850,7 +1949,16 @@
         }
         if (showVaccineConfidence) {
           layer_html += '   <tr>';
-          layer_html += show_vaccine_confidence;
+          layer_html += show_vaccine_confidence_q1;
+          layer_html += '   </tr>';
+          layer_html += '   <tr>';
+          layer_html += show_vaccine_confidence_q2;
+          layer_html += '   </tr>';
+          layer_html += '   <tr>';
+          layer_html += show_vaccine_confidence_q3;
+          layer_html += '   </tr>';
+          layer_html += '   <tr>';
+          layer_html += show_vaccine_confidence_q4;
           layer_html += '   </tr>';
         }
         layer_html += '   <tr>';
@@ -1924,7 +2032,10 @@
       legend_html += '<tr id="gtd-legend" style="display: none"><td><div style="float:left; background-color:red; width:17px; height: 5px;"></div><div style="margin-left: 29px; margin-top: -5px; font-size: 17px">GTD Casualties</div></td></tr>';
       legend_html += '<tr id="hiv-legend" style="display: none"><td><div style="font-size: 17px">Annual new HIV infections</div></div><svg width="200" height="29"><rect fill="#ffffff" x="0" height="9" width="20.0"></rect><rect fill="#ffd8e7" x="20." height="9" width="20.0"></rect><rect fill="#feb1d1" x="40." height="9" width="20.0"></rect><rect fill="#f18bbd" x="60." height="9" width="20.0"></rect><rect fill="#dd68ac" x="80." height="9" width="20.0"></rect><rect fill="#c4479e" x="100." height="9" width="20.0"></rect><rect fill="#a52792" x="120." height="9" width="20.0"></rect><rect fill="#7d0989" x="140." height="9" width="20.0"></rect><rect fill="#4b0082" x="160." height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">1K</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="35">10K</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="80">100K</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="155">850K</text></svg></td></tr>';
       legend_html += '<tr id="obesity-legend" style="display: none"><td><div style="font-size: 17px">Obesity prevalence among adults</div><svg width="200" height="29"> <rect fill="#ffffff" x="0" height="9" width="20"></rect><rect fill="#fff18e" x="20" height="9" width="20"></rect><rect fill="#ffdc5b" x="40" height="9" width="20"></rect><rect fill="#ffc539" x="60" height="9" width="20"></rect><rect fill="#ffad21" x="80" height="9" width="20"></rect><rect fill="#ff920c" x="100" height="9" width="20"></rect><rect fill="#ff7500" x="120" height="9" width="20"></rect><rect fill="#ff5000" x="140" height="9" width="20"></rect><rect fill="#ff0000" x="160" height="9" width="20"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">0%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="80">15%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="160">>30%</text></svg></td></tr>';
-      legend_html += '<tr id="vaccine-confidence-legend" style="display: none"><td><div style="font-size: 17px">QUESTION</div><svg width="200" height="29"><rect fill="#ffffe0" x="0" height="9" width="20.0"></rect><rect fill="#ffe3af" x="20" height="9" width="20.0"></rect><rect fill="#ffc58a" x="40" height="9" width="20.0"></rect><rect fill="#ffa474" x="60" height="9" width="20.0"></rect><rect fill="#fa8266" x="80" height="9" width="20.0"></rect><rect fill="#ed645c" x="100" height="9" width="20.0"></rect><rect fill="#db4551" x="120" height="9" width="20.0"></rect><rect fill="#c52940" x="140" height="9" width="20.0"></rect><rect fill="#aa0e27" x="160" height="9" width="20.0"></rect><rect fill="#8b0000" x="180" height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="29" x="0">%%%</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="29" x="170">%%%</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="29" x="90">%%%</text></svg></td></tr>';
+      legend_html += '<tr id="vaccine-confidence-q1-legend" style="display: none"><td><div style="font-size: 13px">Vaccines are important for children to have</div><svg width="200" height="29"><rect fill="#ffffe0" x="0" height="9" width="20.0"></rect><rect fill="#ffe3af" x="20" height="9" width="20.0"></rect><rect fill="#ffc58a" x="40" height="9" width="20.0"></rect><rect fill="#ffa474" x="60" height="9" width="20.0"></rect><rect fill="#fa8266" x="80" height="9" width="20.0"></rect><rect fill="#ed645c" x="100" height="9" width="20.0"></rect><rect fill="#db4551" x="120" height="9" width="20.0"></rect><rect fill="#c52940" x="140" height="9" width="20.0"></rect><rect fill="#aa0e27" x="160" height="9" width="20.0"></rect><rect fill="#8b0000" x="180" height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">0%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="90">8%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="180">16%</text></svg></td></tr>';
+      legend_html += '<tr id="vaccine-confidence-q2-legend" style="display: none"><td><div style="font-size: 13px">Overall I think vaccines are safe</div><svg width="200" height="29"><rect fill="#ffffe0" x="0" height="9" width="20.0"></rect><rect fill="#ffe3af" x="20" height="9" width="20.0"></rect><rect fill="#ffc58a" x="40" height="9" width="20.0"></rect><rect fill="#ffa474" x="60" height="9" width="20.0"></rect><rect fill="#fa8266" x="80" height="9" width="20.0"></rect><rect fill="#ed645c" x="100" height="9" width="20.0"></rect><rect fill="#db4551" x="120" height="9" width="20.0"></rect><rect fill="#c52940" x="140" height="9" width="20.0"></rect><rect fill="#aa0e27" x="160" height="9" width="20.0"></rect><rect fill="#8b0000" x="180" height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">0%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="90">20%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="180">41%</text></svg></td></tr>';
+      legend_html += '<tr id="vaccine-confidence-q3-legend" style="display: none"><td><div style="font-size: 13px">Overall I think vaccines are effective</div><svg width="200" height="29"><rect fill="#ffffe0" x="0" height="9" width="20.0"></rect><rect fill="#ffe3af" x="20" height="9" width="20.0"></rect><rect fill="#ffc58a" x="40" height="9" width="20.0"></rect><rect fill="#ffa474" x="60" height="9" width="20.0"></rect><rect fill="#fa8266" x="80" height="9" width="20.0"></rect><rect fill="#ed645c" x="100" height="9" width="20.0"></rect><rect fill="#db4551" x="120" height="9" width="20.0"></rect><rect fill="#c52940" x="140" height="9" width="20.0"></rect><rect fill="#aa0e27" x="160" height="9" width="20.0"></rect><rect fill="#8b0000" x="180" height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">0%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="90">13%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="180">26%</text></svg></td></tr>';
+      legend_html += '<tr id="vaccine-confidence-q4-legend" style="display: none"><td><div style="font-size: 13px">Vaccines are compatible with my religious beliefs</div><svg width="200" height="29"><rect fill="#ffffe0" x="0" height="9" width="20.0"></rect><rect fill="#ffe3af" x="20" height="9" width="20.0"></rect><rect fill="#ffc58a" x="40" height="9" width="20.0"></rect><rect fill="#ffa474" x="60" height="9" width="20.0"></rect><rect fill="#fa8266" x="80" height="9" width="20.0"></rect><rect fill="#ed645c" x="100" height="9" width="20.0"></rect><rect fill="#db4551" x="120" height="9" width="20.0"></rect><rect fill="#c52940" x="140" height="9" width="20.0"></rect><rect fill="#aa0e27" x="160" height="9" width="20.0"></rect><rect fill="#8b0000" x="180" height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">0%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="90">23%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="180">47%</text></svg></td></tr>';
 
 
 
@@ -3212,6 +3323,19 @@
 
         if (showVaccineConfidenceLayer) {
           var vaccineConfidenceLayerView = getLayerView(vaccineConfidenceLayer, landsatBaseMapLayer);
+          var options = {};
+
+          var vaccineConfidenceQuestion = 1.0;
+          if ($("#show-vaccine-confidence-q2").prop('checked')) {
+            vaccineConfidenceQuestion = 2.0;
+          }
+          if ($("#show-vaccine-confidence-q3").prop('checked')) {
+            vaccineConfidenceQuestion = 3.0;
+          }
+          if ($("#show-vaccine-confidence-q4").prop('checked')) {
+            vaccineConfidenceQuestion = 4.0;
+          }
+          options.question = vaccineConfidenceQuestion;
           vaccineConfidenceLayer.draw(vaccineConfidenceLayerView, options);
 
         }

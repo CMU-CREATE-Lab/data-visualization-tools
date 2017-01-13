@@ -1305,7 +1305,7 @@ WebGLVectorTile2.prototype._drawVaccineConfidence = function(transform, options)
     var matrixLoc = gl.getUniformLocation(this.program, 'u_MapMatrix');
     gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
 
-    var val = options.val || 1.0;
+    var val = options.question || 1.0;
 
     var valLoc = gl.getUniformLocation(this.program, 'u_Val');
     gl.uniform1f(valLoc, val);
