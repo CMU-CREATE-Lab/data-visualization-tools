@@ -1938,7 +1938,7 @@
       if (enableLetterboxMode) {
         $(layer_html).appendTo($("#content"));
         $(legend_html).appendTo($("#content"));
-        $("#presentation-slider-selection, .base-map-radio, .map-layer-checkbox, .extras-selector, .presentationSlider, #layers-legend, .customInstructions, .player").addClass("letterbox");
+        $("#presentation-slider-selection, .base-map-radio, .map-layer-checkbox, .extras-selector, .presentationSlider, #layers-legend, .customInstructions, .player, .share").addClass("letterbox");
         $(".base-map-div, .map-layer-div, .extras-selector-div").addClass("top-panel letterbox");
         $(".current-location-text").addClass("letterbox");
         $(".clear-theme").on("click", function() {
@@ -3171,7 +3171,7 @@
           var dates = getDates(timelapse);
           var delta = getCurrentTimesDelta(currentTime, currentTimes);
           var currentDate = getCurrentDate(currentTime, currentTimes, dates);
-          options.currentTime = currentDate;          
+          options.currentTime = currentDate;
           options.color = [1.0, 0.0, 0.0, 1.0];
           gtdLayer.draw(gtdLayerView, options);
         }

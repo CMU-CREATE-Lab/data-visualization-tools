@@ -508,6 +508,10 @@ html, body {
   top: 24px !important;
   left: 375px !important;
 }
+.share.letterbox {
+  top: 28px !important;
+  left: 580px !important;
+}
 .share .customButton {
   height: 21px !important;
 }
