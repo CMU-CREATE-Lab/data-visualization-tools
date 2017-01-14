@@ -34,5 +34,6 @@ var EARTH_TIMELAPSE_CONFIG = {
   "showHiv": false,
   "showObesity": false,
   "showVaccineConfidence": false,
-  "showNdviAnomaly": false
+  "showNdviAnomaly": false,
+  "showEbola": false
 };
