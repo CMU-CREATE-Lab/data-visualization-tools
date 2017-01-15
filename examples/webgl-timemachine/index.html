@@ -1684,18 +1684,18 @@
       var show_zika = '<td class="zika-select"> <label for="show-zika" name="zv"><input type="checkbox" id="show-zika" />Zika<span class="credit"> (LSHTM)</span></label></td>';
       var show_dengue = '<td class="dengue-select"> <label for="show-dengue" name="dv"><input type="checkbox" id="show-dengue" />Dengue<span class="credit"> (LSHTM)</span></label></td>';
       var show_chiku = '<td class="chiku-select"> <label for="show-chiku" name="cv"><input type="checkbox" id="show-chiku" />Chikungunya<span class="credit"> (LSHTM)</span></label></td>';
-      var show_sea_level_rise_1p5 = '<td class="sea-level-rise-1p5-select"><label for="show-sea-level-rise-1p5" name="slr15"><input type="checkbox" id="show-sea-level-rise-1p5" name="slr" />Sea Level Rise 1.5&deg; C<span class="credit"> (Climate Central)</span></label></td>'; //SLR
-      var show_sea_level_rise_2p0 = '<td class="sea-level-rise-2p0-select"><label for="show-sea-level-rise-2p0" name="slr2"><input type="checkbox" id="show-sea-level-rise-2p0"  name="slr" />Sea Level Rise 2.0&deg; C<span class="credit"> (Climate Central)</span></label></td>'; //SLR
-      var show_sea_level_rise_4p0 = '<td class="sea-level-rise-4p0-select"><label for="show-sea-level-rise-4p0" name="slr4"><input type="checkbox" id="show-sea-level-rise-4p0"  name="slr"/>Sea Level Rise 4.0&deg; C<span class="credit"> (Climate Central)</span></label></td>'; //SLR
+      var show_sea_level_rise_1p5 = '<td class="sea-level-rise-1p5-select"><label for="show-sea-level-rise-1p5" name="slr15"><input type="checkbox" id="show-sea-level-rise-1p5" />Sea Level Rise 1.5&deg; C<span class="credit"> (Climate Central)</span></label></td>'; //SLR
+      var show_sea_level_rise_2p0 = '<td class="sea-level-rise-2p0-select"><label for="show-sea-level-rise-2p0" name="slr2"><input type="checkbox" id="show-sea-level-rise-2p0" />Sea Level Rise 2.0&deg; C<span class="credit"> (Climate Central)</span></label></td>'; //SLR
+      var show_sea_level_rise_4p0 = '<td class="sea-level-rise-4p0-select"><label for="show-sea-level-rise-4p0" name="slr4"><input type="checkbox" id="show-sea-level-rise-4p0" />Sea Level Rise 4.0&deg; C<span class="credit"> (Climate Central)</span></label></td>'; //SLR
       var show_urban_fragility = '<td class="urban-fragility-select"><label for="show-urban-fragility" name="uf"><input type="checkbox" id="show-urban-fragility" />Urban Fragility<span class="credit"> (Igarape Institute)</span></label></td>';
       var show_gtd = '<td class="gtd-select"><label for="show-gtd" name="gtd"><input type="checkbox" id="show-gtd" />Global Terrorism Database<span class="credit"> (UMD)</span></label></td>';
       var show_hiv = '<td class="hiv-select"><label for="show-hiv" name="hiv"><input type="checkbox" id="show-hiv" />HIV Infections<span class="credit"> (LSHTM)</span></label></td>';
       var show_obesity = '<td class="obesity-select"><label for="show-obesity" name="obesity"><input type="checkbox" id="show-obesity" />Obesity<span class="credit"> (LSHTM)</span></label></td>';
-      var show_vaccine_confidence_q1 = '<td class="vaccine-confidence-q1-select"><label for="show-vaccine-confidence-q1" name="vaccine-confidence-q1"><input type="checkbox" id="show-vaccine-confidence-q1" />Vaccines are important for children<span class="credit"> (LSHTM)</span></label></td>';
-      var show_vaccine_confidence_q2 = '<td class="vaccine-confidence-q2-select"><label for="show-vaccine-confidence-q2" name="vaccine-confidence-q2"><input type="checkbox" id="show-vaccine-confidence-q2" />Vaccines are safe<span class="credit"> (LSHTM)</span></label></td>';
-      var show_vaccine_confidence_q3 = '<td class="vaccine-confidence-q3-select"><label for="show-vaccine-confidence-q3" name="vaccine-confidence-q3"><input type="checkbox" id="show-vaccine-confidence-q3" />Vaccines are effective<span class="credit"> (LSHTM)</span></label></td>';
-      var show_vaccine_confidence_q4 = '<td class="vaccine-confidence-q4-select"><label for="show-vaccine-confidence-q4" name="vaccine-confidence-q4"><input type="checkbox" id="show-vaccine-confidence-q4" />Vaccines and religious beliefs<span class="credit"> (LSHTM)</span></label></td>';
-      var show_ndvi_anomaly = '<td class="ndvi-anomaly-select"><label for="show-ndvi-anomaly" name="ndvia"><input type="checkbox" id="show-ndvi-anomaly" />NDVI Anomaly<span class="credit"> ()</span></label></td>';
+      var show_vaccine_confidence_q1 = '<td class="vaccine-confidence-q1-select"><label for="show-vaccine-confidence-q1" name="vc1"><input type="checkbox" id="show-vaccine-confidence-q1" />Vaccines are important for children<span class="credit"> (LSHTM)</span></label></td>';
+      var show_vaccine_confidence_q2 = '<td class="vaccine-confidence-q2-select"><label for="show-vaccine-confidence-q2" name="vc2"><input type="checkbox" id="show-vaccine-confidence-q2" />Vaccines are safe<span class="credit"> (LSHTM)</span></label></td>';
+      var show_vaccine_confidence_q3 = '<td class="vaccine-confidence-q3-select"><label for="show-vaccine-confidence-q3" name="vc3"><input type="checkbox" id="show-vaccine-confidence-q3" />Vaccines are effective<span class="credit"> (LSHTM)</span></label></td>';
+      var show_vaccine_confidence_q4 = '<td class="vaccine-confidence-q4-select"><label for="show-vaccine-confidence-q4" name="vc4"><input type="checkbox" id="show-vaccine-confidence-q4" />Vaccines and religious beliefs<span class="credit"> (LSHTM)</span></label></td>';
+      var show_ndvi_anomaly = '<td class="ndvi-anomaly-select"><label for="show-ndvi-anomaly" name="ndvia"><input type="checkbox" id="show-ndvi-anomaly" />Vegetation Index Reduction<span class="credit"> (USGS)</span></label></td>';
 
 
       if (enableLetterboxMode) {
@@ -1747,12 +1747,16 @@
         layer_html += '        Pandemics:';
         layer_html += '      </td>';
         layer_html += '      <td style="padding-bottom:16px; padding-right: 70px;">';
-        layer_html += '        <select id="pandemic-theme" multiple="multiple" size="5">';
+        layer_html += '        <select id="pandemic-theme" multiple="multiple" size="9">';
         layer_html += '          <option value="option1" data-id="show-zika" data-name="zv" data-credit="LSHTM">Zika</option>';
         layer_html += '          <option value="option2" data-id="show-dengue" data-name="dv" data-credit="LSHTMC">Dengue</option>';
         layer_html += '          <option value="option3" data-id="show-chiku" data-name="cv" data-credit="LSHTM">Chikungunya</option>';
         layer_html += '          <option value="option4" data-id="show-hiv" data-name="hiv" data-credit="LSHTM">HIV Infections</option>';
         layer_html += '          <option value="option5" data-id="show-obesity" data-name="obesity" data-credit="LSHTM">Obesity</option>';
+        layer_html += '          <option value="option6" data-id="show-vaccine-confidence-q1" data-name="vc1" data-credit="LSHTM">Vaccines & Children</option>';
+        layer_html += '          <option value="option7" data-id="show-vaccine-confidence-q2" data-name="vc2" data-credit="LSHTM">Vaccine Safety</option>';
+        layer_html += '          <option value="option8" data-id="show-vaccine-confidence-q3" data-name="vc3" data-credit="LSHTM">Vaccine Effectiveness</option>';
+        layer_html += '          <option value="option9" data-id="show-vaccine-confidence-q4" data-name="vc4" data-credit="LSHTM">Vaccines & Religion</option>';
         layer_html += '        </select>';
         layer_html += '        <button class="clear-theme" type="button">Clear <br>Theme</button>';
         layer_html += '      </td>';
@@ -1767,14 +1771,15 @@
         layer_html += '    <tr>';
         layer_html += '      </td>';
         layer_html += '      <td style="padding-bottom:16px; padding-right: 10px; text-align: right">';
-        layer_html += '        Climate Resilience:';
+        layer_html += '        Climate:';
         layer_html += '      </td>';
         layer_html += '      <td style="padding-bottom:16px; padding-right: 70px;">';
-        layer_html += '        <select id="resilience-theme" multiple="multiple" size="4">';
+        layer_html += '        <select id="resilience-theme" multiple="multiple" size="5">';
         layer_html += '          <option value="option1" data-id="show-sea-level-rise-1p5" data-name="slr15" data-credit="Climate Central">Sea Level Rise 1.5&deg;C</option>';
         layer_html += '          <option value="option2" data-id="show-sea-level-rise-2p0" data-name="slr2" data-credit="Climate Central">Sea Level Rise 2.0&deg;C</option>';
         layer_html += '          <option value="option3" data-id="show-sea-level-rise-4p0" data-name="slr4" data-credit="Climate Central">Sea Level Rise 4.0&deg;C</option>';
-        layer_html += '          <option value="option4" data-id="show-vsi" data-name="vsi" data-credit="Oxford Martin">Vegetation Sensitivity Index</option>';
+        layer_html += '          <option value="option4" data-id="show-ndvi-anomaly" data-name="ndvia" data-credit="USGS">Vegetation Index Reduction</option>';
+        layer_html += '          <option value="option5" data-id="show-vsi" data-name="vsi" data-credit="Oxford Martin">Vegetation Sensitivity Index</option>';
         layer_html += '        </select>';
         layer_html += '        <button class="clear-theme" type="button">Clear <br>Theme</button>';
         layer_html += '      </td>';
@@ -2072,6 +2077,7 @@
       legend_html += '<tr id="vaccine-confidence-q2-legend" style="display: none"><td><div style="font-size: 13px">Overall I think vaccines are safe</div><svg width="200" height="29"><rect fill="#ffffe0" x="0" height="9" width="20.0"></rect><rect fill="#ffe3af" x="20" height="9" width="20.0"></rect><rect fill="#ffc58a" x="40" height="9" width="20.0"></rect><rect fill="#ffa474" x="60" height="9" width="20.0"></rect><rect fill="#fa8266" x="80" height="9" width="20.0"></rect><rect fill="#ed645c" x="100" height="9" width="20.0"></rect><rect fill="#db4551" x="120" height="9" width="20.0"></rect><rect fill="#c52940" x="140" height="9" width="20.0"></rect><rect fill="#aa0e27" x="160" height="9" width="20.0"></rect><rect fill="#8b0000" x="180" height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">0%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="90">20%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="180">41%</text></svg></td></tr>';
       legend_html += '<tr id="vaccine-confidence-q3-legend" style="display: none"><td><div style="font-size: 13px">Overall I think vaccines are effective</div><svg width="200" height="29"><rect fill="#ffffe0" x="0" height="9" width="20.0"></rect><rect fill="#ffe3af" x="20" height="9" width="20.0"></rect><rect fill="#ffc58a" x="40" height="9" width="20.0"></rect><rect fill="#ffa474" x="60" height="9" width="20.0"></rect><rect fill="#fa8266" x="80" height="9" width="20.0"></rect><rect fill="#ed645c" x="100" height="9" width="20.0"></rect><rect fill="#db4551" x="120" height="9" width="20.0"></rect><rect fill="#c52940" x="140" height="9" width="20.0"></rect><rect fill="#aa0e27" x="160" height="9" width="20.0"></rect><rect fill="#8b0000" x="180" height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">0%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="90">13%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="180">26%</text></svg></td></tr>';
       legend_html += '<tr id="vaccine-confidence-q4-legend" style="display: none"><td><div style="font-size: 13px">Vaccines are compatible with my religious beliefs</div><svg width="200" height="29"><rect fill="#ffffe0" x="0" height="9" width="20.0"></rect><rect fill="#ffe3af" x="20" height="9" width="20.0"></rect><rect fill="#ffc58a" x="40" height="9" width="20.0"></rect><rect fill="#ffa474" x="60" height="9" width="20.0"></rect><rect fill="#fa8266" x="80" height="9" width="20.0"></rect><rect fill="#ed645c" x="100" height="9" width="20.0"></rect><rect fill="#db4551" x="120" height="9" width="20.0"></rect><rect fill="#c52940" x="140" height="9" width="20.0"></rect><rect fill="#aa0e27" x="160" height="9" width="20.0"></rect><rect fill="#8b0000" x="180" height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">0%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="90">23%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="180">47%</text></svg></td></tr>';
+      legend_html += '<tr id="ndvi-anomaly-legend" style="display: none"><td><div style="font-size: 17px">Vegetation Reduction</div><div style="margin-left: 8px"><div class="ndviAnomalyLegendGradient" style="clear: both;"></div><div style="font-size: 13px; float: left">None</div><div style="font-size: 13px; float: right">Most Reduced</div></div></td></tr>';
 
 
 
@@ -2132,8 +2138,8 @@
             header: false,
             noneSelectedText: "Select layers...",
             selectedText: "# layer(s) selected",
-            menuWidth: 410,
-            height: 116,
+            menuWidth: 520,
+            height: 200,
             colType: "double"
         });
         $("#refugee-theme").multiselect({
@@ -2156,15 +2162,15 @@
             header: false,
             noneSelectedText: "Select layers...",
             selectedText: "# layer(s) selected",
-            menuWidth: 650,
+            menuWidth: 950,
             height: 72,
-            colType: "double"
+            colType: "triple"
         });
         $("#urbanization-theme").multiselect({
             header: false,
             noneSelectedText: "Select layers...",
             selectedText: "# layer(s) selected",
-            menuWidth: 472,
+            menuWidth: 480,
             height: 32,
             colType: "double"
         });
@@ -2191,7 +2197,7 @@
       };
       landsatBaseMapLayer = new WebglTimeMachineLayer(glb, canvasLayer, landsatUrl, defaultTimeMachineLayerOptions);
 
-      // NDVI
+      // NDVI Anomaly
       var ndviAnomalyTimemachineLayerOptions = {
         mediaType: ".mp4",
         numFrames: cached_ajax['ndvi-anomaly-times.json']['capture-times'].length,

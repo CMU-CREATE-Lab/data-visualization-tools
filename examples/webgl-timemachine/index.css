@@ -1,5 +1,6 @@
 html, body {
   height: 100%;
+  overflow: hidden;
 }
 #timeMachine {
   background-color: black !important;
@@ -472,6 +473,15 @@ html, body {
   background-image: -moz-linear-gradient(left, #ff0000 0%, #000000 50%, #00ff00 100%);
   background-image: -ms-linear-gradient(left, #ff0000 0%, #000000 50%, #00ff00 100%);
   background-image: linear-gradient(left, #ff0000 0%, #000000 50%, #00ff00 100%);
+}
+
+.ndviAnomalyLegendGradient {
+  height: 10px;
+  background-image: -webkit-linear-gradient(left, #ffffff 0%, #ff4c0c 100%);
+  background-image: -o-linear-gradient(left, #ffffff 0%, #ff4c0c 100%);
+  background-image: -moz-linear-gradient(left, #ffffff 0%, #ff4c0c 100%);
+  background-image: -ms-linear-gradient(left, #ffffff 0%, #ff4c0c 100%);
+  background-image: linear-gradient(left, #ffffff 0%, #ff4c0c 100%);
 }
 
 .sideToolBar.hyperwall {
