@@ -625,3 +625,7 @@ input:focus {outline:0;}
 .layer-in-theme-selected {
   font-weight: bold;
 }
+
+.svg-legend {
+  padding-top: 5px;
+}
