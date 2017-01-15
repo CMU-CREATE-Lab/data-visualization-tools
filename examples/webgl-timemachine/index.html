@@ -140,7 +140,7 @@
     var visibleBaseMapLayer = "landsat";
     var previousVisibleBaseMapLayer = visibleBaseMapLayer;
     WebglVideoTile.useFaderShader = useFaderShader;
-    var timelapse, previousWaypoint = {}, waypointViewChangeListener, hideWaypointListener;
+    var timelapse, previousWaypoint = {}, waypointViewChangeListener, hideWaypointListener, waypointTimeChangeListener;
     var himawariWaypoints = {};
     var timelineType = "customUI";
     var activeLayersWithTimeline = 0;
@@ -2738,7 +2738,19 @@
           var waypointIndex = waypoint.index;
           var waypointBounds = waypoint.bounds;
           var waypointLayers = waypoint.layers || [];
-          var waypointTime = waypoint.time;
+          var waypointStartTime = waypoint.time;
+          var waypointEndTime = waypoint.endTime;
+
+          timelapse.removeTimeChangeListener(waypointTimeChangeListener);
+
+          if (waypointEndTime >= 0 && waypointStartTime != waypointEndTime) {
+            waypointTimeChangeListener = function(t) {
+              if (t > waypointEndTime) {
+                timelapse.seek(waypointStartTime);
+              }
+            }
+            timelapse.addTimeChangeListener(waypointTimeChangeListener);
+          }
 
           // Display info box for the waypoints
           if (enableWaypointText) {
@@ -2752,7 +2764,7 @@
               if (currentView.scale * 2.5 > waypointScale && (currentView.x >= waypointBounds.xmin && currentView.x <= waypointBounds.xmax && currentView.y >= waypointBounds.ymin && currentView.y <= waypointBounds.ymax)) {
                 if (waypoint.annotationBoxTitle || waypoint.description) {
                   $current_location_text.show();
-                  timelapse.seek(waypointTime);
+                  timelapse.seek(waypointStartTime);
                   $current_location_text.find("h3").text(waypoint.annotationBoxTitle);
                   $current_location_text.find("p").text(waypoint.description);
                   previousWaypoint.scale = waypointScale;
@@ -2763,6 +2775,7 @@
                     if ((previousWaypoint.scale / 2.5 > currentView.scale || !(currentView.x >= previousWaypointBounds.xmin && currentView.x <= previousWaypointBounds.xmax && currentView.y >= previousWaypointBounds.ymin && currentView.y <= previousWaypointBounds.ymax))) {
                       $(".current-location-text").hide();
                       timelapse.removeViewChangeListener(hideWaypointListener);
+                      timelapse.removeTimeChangeListener(waypointTimeChangeListener);
                     }
                   };
                   timelapse.addViewChangeListener(hideWaypointListener);
