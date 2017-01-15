@@ -629,3 +629,7 @@ input:focus {outline:0;}
 .svg-legend {
   padding-top: 5px;
 }
+
+#current-location-text-picture {
+  padding-top: 18px;
+}

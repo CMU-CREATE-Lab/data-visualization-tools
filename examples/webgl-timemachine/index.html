@@ -142,6 +142,7 @@
     WebglVideoTile.useFaderShader = useFaderShader;
     var timelapse, previousWaypoint = {}, waypointViewChangeListener, hideWaypointListener, waypointTimeChangeListener;
     var himawariWaypoints = {};
+    var annotationPicturePaths = {};
     var timelineType = "customUI";
     var activeLayersWithTimeline = 0;
     var previousActiveLayersWithTimeline = 0;
@@ -1465,6 +1466,11 @@
         appendTo: appendTarget
       });
 
+      $("#current-location-text-picture").on('load', function() {
+        var $current_location_text = $(".current-location-text");
+        $(".current-location-text").css("max-width", $(this).width());
+      })
+
       // Use click event rather than selectmenu 'change' since that event is not registered on the touch screen.
       $(".ui-selectmenu-menu").on("click", "li", function(e) {
         var fileName = $(e.currentTarget).data("filename");
@@ -2661,6 +2667,7 @@
           var waypointJSON = JSON.parse(snaplapseForPresentationSlider.CSVToJSON(csvdata));
           for (var i = 0; i < waypointJSON.snaplapse.keyframes.length; i++) {
             var keyframe = waypointJSON.snaplapse.keyframes[i];
+            annotationPicturePaths[i] = { path : keyframe.unsafe_string_annotationPicPath };
             // Himawari is a special case.
             // We need to store the bounds and times and then replace them with a default view.
             // The default view allows for a black thumbnail to be used on the waypoint slider instead of some random position in Landsat
@@ -2766,6 +2773,13 @@
                   $current_location_text.show();
                   timelapse.seek(waypointStartTime);
                   $current_location_text.find("h3").text(waypoint.annotationBoxTitle);
+                  var $current_location_text_picture = $current_location_text.find("img");
+                  if (annotationPicturePaths[waypointIndex] && annotationPicturePaths[waypointIndex].path) {
+                    $current_location_text_picture.attr("src", annotationPicturePaths[waypointIndex].path);
+                  } else {
+                    $current_location_text_picture.attr("src", "");
+                    $current_location_text.css("max-width", 283);
+                  }
                   $current_location_text.find("p").text(waypoint.description);
                   previousWaypoint.scale = waypointScale;
                   previousWaypoint.bounds = waypointBounds;
@@ -3624,6 +3638,7 @@
   <div class="current-location-text">
     <h3></h3>
     <p></p>
+    <img id="current-location-text-picture" src="">
   </div>
   <div id="extras-content" title=""></div>
   <div id="presentation-slider-selection">
