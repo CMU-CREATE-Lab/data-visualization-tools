@@ -157,7 +157,7 @@ WebglMapTile.prototype._drawSeaLevelRise = function(transform, options) {
               this._bounds.max.x - this._bounds.min.x,
               this._bounds.max.y - this._bounds.min.y);
 
-  if (this._ready && this._tileidx.l > 3) { // TODO: Get tiles w level > 3 that arent empty
+  if (this._ready /*&& this._tileidx.l > 3*/) { // TODO: Get tiles w level > 3 that arent empty
     var color = options.color || [0., 0., 0., 1.0];
 
     gl.useProgram(this._textureProgram);
