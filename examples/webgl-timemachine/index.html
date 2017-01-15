@@ -585,7 +585,8 @@
             var v = timelapse.getVideoset();
             v.setFps(10);
             timelapse.setDoDwell(true);
-            timelapse.setMasterPlaybackRate(defaultPlaybackSpeed);
+            timelapse.setMasterPlaybackRate(1);
+            timelapse.setPlaybackRate(defaultPlaybackSpeed);
           }
         }
       }).prop('checked', showForestAlertsTimeMachineLayer);
@@ -631,7 +632,8 @@
             var v = timelapse.getVideoset();
             v.setFps(10);
             timelapse.setDoDwell(true);
-            timelapse.setMasterPlaybackRate(defaultPlaybackSpeed);
+            timelapse.setMasterPlaybackRate(1);
+            timelapse.setPlaybackRate(defaultPlaybackSpeed);
           }
         }
       }).prop('checked', showForestAlertsNoOverlayTimeMachineLayer);
@@ -650,7 +652,8 @@
           if (doSwitchToLandsat()) {
             timelineType = "customUI";
             requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-            timelapse.setMasterPlaybackRate(defaultPlaybackSpeed);
+            timelapse.setMasterPlaybackRate(1);
+            timelapse.setPlaybackRate(defaultPlaybackSpeed);
             timelapse.setDoDwell(true);
           }
           setActiveLayersWithTimeline(-1);
@@ -769,7 +772,8 @@
           visibleBaseMapLayer = previousVisibleBaseMapLayer;
           timelapse.setMaxScale(landsatMaxScale);
           timelapse.setDoDwell(true);
-          timelapse.setMasterPlaybackRate(defaultPlaybackSpeed);
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
           $("#layers-legend").hide();
         }
         timelapse.warpTo(timelapse.getHomeView());
@@ -860,7 +864,8 @@
           if (doSwitchToLandsat()) {
             timelineType = "customUI";
             requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-            timelapse.setMasterPlaybackRate(defaultPlaybackSpeed);
+            timelapse.setMasterPlaybackRate(1);
+            timelapse.setPlaybackRate(defaultPlaybackSpeed);
             timelapse.setDoDwell(true);
             timelapse.setMaxScale(landsatMaxScale);
           }
@@ -886,7 +891,8 @@
           timelineType = "customUI";
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-          timelapse.setMasterPlaybackRate(defaultPlaybackSpeed);
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
           timelapse.setMaxScale(landsatMaxScale);
           $("#annual-refugees-legend").hide();
         }
@@ -923,7 +929,8 @@
             showHealthImpactLayer = false;
             timelineType = "customUI";
             requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-            timelapse.setMasterPlaybackRate(defaultPlaybackSpeed);
+            timelapse.setMasterPlaybackRate(1);
+            timelapse.setPlaybackRate(defaultPlaybackSpeed);
             timelapse.setDoDwell(true);
             timelapse.setMaxScale(landsatMaxScale);
             $("#health-impact-legend").hide();
@@ -953,7 +960,8 @@
             showHealthImpactLayer = false;
             timelineType = "customUI";
             requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-            timelapse.setMasterPlaybackRate(defaultPlaybackSpeed);
+            timelapse.setMasterPlaybackRate(1);
+            timelapse.setPlaybackRate(defaultPlaybackSpeed);
             timelapse.setDoDwell(true);
             timelapse.setMaxScale(landsatMaxScale);
             $("#health-impact-legend").hide();
@@ -983,7 +991,8 @@
             showHealthImpactLayer = false;
             timelineType = "customUI";
             requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-            timelapse.setMasterPlaybackRate(defaultPlaybackSpeed);
+            timelapse.setMasterPlaybackRate(1);
+            timelapse.setPlaybackRate(defaultPlaybackSpeed);
             timelapse.setDoDwell(true);
             timelapse.setMaxScale(landsatMaxScale);
             $("#health-impact-legend").hide();
@@ -1012,7 +1021,8 @@
             showHealthImpactLayer = false;
             timelineType = "customUI";
             requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-            timelapse.setMasterPlaybackRate(defaultPlaybackSpeed);
+            timelapse.setMasterPlaybackRate(1);
+            timelapse.setPlaybackRate(defaultPlaybackSpeed);
             timelapse.setDoDwell(true);
             timelapse.setMaxScale(landsatMaxScale);
             $("#health-impact-legend").hide();
@@ -1032,6 +1042,8 @@
         } else {
           showZikaLayer = false;
           timelineType = "customUI";
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
           setActiveLayersWithTimeline(-1);
           $("#zika-legend").hide();
         }
@@ -1046,6 +1058,8 @@
         } else {
           showDengueLayer = false;
           timelineType = "customUI";
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
           setActiveLayersWithTimeline(-1);
           $("#dengue-legend").hide();
         }
@@ -1060,6 +1074,8 @@
         } else {
           showChikuLayer = false;
           timelineType = "customUI";
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
           setActiveLayersWithTimeline(-1);
           $("#chiku-legend").hide();
         }
@@ -2627,6 +2643,7 @@
           var waypointIndex = waypoint.index;
           var waypointBounds = waypoint.bounds;
           var waypointLayers = waypoint.layers || [];
+          var waypointTime = waypoint.time;
 
           // Display info box for the waypoints
           if (enableWaypointText) {
@@ -2640,6 +2657,7 @@
               if (currentView.scale * 2.5 > waypointScale && (currentView.x >= waypointBounds.xmin && currentView.x <= waypointBounds.xmax && currentView.y >= waypointBounds.ymin && currentView.y <= waypointBounds.ymax)) {
                 if (waypoint.annotationBoxTitle || waypoint.description) {
                   $current_location_text.show();
+                  timelapse.seek(waypointTime);
                   $current_location_text.find("h3").text(waypoint.annotationBoxTitle);
                   $current_location_text.find("p").text(waypoint.description);
                   previousWaypoint.scale = waypointScale;
