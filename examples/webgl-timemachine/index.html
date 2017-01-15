@@ -323,6 +323,7 @@
         timelapse.setMaxScale(himawariMaxScale);
         timelapse.setDoDwell(false);
         timelapse.setMasterPlaybackRate(1);
+        timelapse.setPlaybackRate(1);
         previousVisibleBaseMapLayer = visibleBaseMapLayer;
         visibleBaseMapLayer = "himawari";
         $("#layers-legend").hide();
@@ -572,6 +573,7 @@
           timelapse.setMaxScale(landsatMaxScale);
           timelapse.setDoDwell(false);
           timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(1);
           previousVisibleBaseMapLayer = visibleBaseMapLayer;
           visibleBaseMapLayer = "forest-alarms";
         } else {
@@ -619,6 +621,7 @@
           timelapse.setMaxScale(landsatMaxScale);
           timelapse.setDoDwell(false);
           timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(1);
           previousVisibleBaseMapLayer = visibleBaseMapLayer;
           visibleBaseMapLayer = "forest-alarms-no-overlay";
         } else {
@@ -645,6 +648,7 @@
           timelineType = "defaultUI";
           requestNewTimeline("viirs-times.json", timelineType);
           timelapse.setMasterPlaybackRate(8);
+          timelapse.setPlaybackRate(8);
           timelapse.setDoDwell(false);
           $("#fires-at-night-legend").show();
         } else {
@@ -759,6 +763,7 @@
           timelapse.setMaxScale(himawariMaxScale);
           timelapse.setDoDwell(false);
           timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(1);
           previousVisibleBaseMapLayer = visibleBaseMapLayer;
           visibleBaseMapLayer = "himawari";
           $("#layers-legend").hide();
@@ -857,6 +862,7 @@
           timelineType = "defaultUI";
           requestNewTimeline("monthly-refugees-times.json", timelineType);
           timelapse.setMasterPlaybackRate(.85);
+          timelapse.setPlaybackRate(.85);
           timelapse.setDoDwell(false);
           $("#monthly-refugees-legend").show();
         } else {
@@ -885,6 +891,7 @@
           setActiveLayersWithTimeline(1);
           requestNewTimeline("annual-refugees-times.json", timelineType);
           timelapse.setMasterPlaybackRate(.045);
+          timelapse.setPlaybackRate(.045);
           $("#annual-refugees-legend").show();
         } else {
           showAnnualRefugeesLayer = false;
@@ -920,6 +927,7 @@
           timelineType = "customUI";
           requestNewTimeline("health-impact-times.json", timelineType);
           timelapse.setMasterPlaybackRate(.05);
+          timelapse.setPlaybackRate(.05);
           timelapse.setDoDwell(false);
           $("#health-impact-legend").show();
           previousVisibleBaseMapLayer = visibleBaseMapLayer;
@@ -951,6 +959,7 @@
           setActiveLayersWithTimeline(1);
           requestNewTimeline("health-impact-times.json", timelineType);
           timelapse.setMasterPlaybackRate(.05);
+          timelapse.setPlaybackRate(.05);
           timelapse.setDoDwell(false);
           $("#health-impact-legend").show();
           previousVisibleBaseMapLayer = visibleBaseMapLayer;
@@ -982,6 +991,7 @@
           setActiveLayersWithTimeline(1);
           requestNewTimeline("health-impact-times.json", timelineType);
           timelapse.setMasterPlaybackRate(.05);
+          timelapse.setPlaybackRate(.05);
           timelapse.setDoDwell(false);
           $("#health-impact-legend").show();
           previousVisibleBaseMapLayer = visibleBaseMapLayer;
@@ -1013,6 +1023,7 @@
           setActiveLayersWithTimeline(1);
           requestNewTimeline("health-impact-times.json", timelineType);
           timelapse.setMasterPlaybackRate(.05);
+          timelapse.setPlaybackRate(.05);
           $("#health-impact-legend").show();
           previousVisibleBaseMapLayer = visibleBaseMapLayer;
           showHealthImpactRcp[3] = true;
@@ -2724,6 +2735,7 @@
                 timelapse.setNewView(himawariView, true, null, initialHimawariViewChangeHack);
               }
               timelapse.setMasterPlaybackRate(himawariPlaybackSpeed);
+              timelapse.setPlaybackRate(himawariPlaybackSpeed);
               setTimeout(function() {
                 timelapse.seek(himawariTime);
               }, 150);
