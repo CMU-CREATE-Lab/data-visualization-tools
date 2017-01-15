@@ -3531,6 +3531,7 @@
           var currentDate = getCurrentDate(currentTime, currentTimes, dates);
           options.currentTime = currentDate;
           options.color = [1.0, 0.0, 0.0, 1.0];
+          options.pointSize = 2.5;
           ebolaDeathsLayer.draw(ebolaLayerView, options);
         }
 
@@ -3544,7 +3545,8 @@
           var delta = getCurrentTimesDelta(currentTime, currentTimes);
           var currentDate = getCurrentDate(currentTime, currentTimes, dates);
           options.currentTime = currentDate;
-          options.color = [0.85, 0.15, 0.05, 1.0];
+          options.color = [0.0, 1.0, 0.0, 1.0];
+          options.pointSize = 2.5;
           ebolaCasesLayer.draw(ebolaLayerView, options);
         }
 
@@ -3558,7 +3560,8 @@
           var delta = getCurrentTimesDelta(currentTime, currentTimes);
           var currentDate = getCurrentDate(currentTime, currentTimes, dates);
           options.currentTime = currentDate;
-          options.color = [0.85, 0.15, 0.05, 1.0];
+          options.color = [0.0, 0.0, 1.0, 1.0];
+          options.pointSize = 5.0;
           ebolaNewCasesLayer.draw(ebolaLayerView, options);
         }
 
