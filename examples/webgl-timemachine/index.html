@@ -183,6 +183,7 @@
     var hivLayer;
     var obesityLayer;
     var vaccineConfidenceLayer;
+    var ebolaDeathsLayer;
 
     // ## 2 ##
     //// Layer tile paths
@@ -241,6 +242,7 @@
     var hivUrl = rootTilePath + "/hiv";
     var obesityUrl = rootTilePath + "/obesity";
     var vaccineConfidenceUrl = rootTilePath + "/vaccine-confidence";
+    var ebolaDeathsUrl = rootTilePath + "/ebola/deaths";
 
     function init() {
       var settings = {
@@ -1344,6 +1346,22 @@
         }
       }).prop('checked', showVaccineConfidenceLayer);
 
+      $("#show-ebola-deaths").on("click", function() {
+        if ($(this).prop('checked')) {
+          showEbolaDeathsLayer = true;
+          setActiveLayersWithTimeline(1);
+          timelineType = "defaultUI";
+          requestNewTimeline("ebola-times.json", timelineType);
+          $("#ebola-deaths-legend").show();
+        } else {
+          showEbolaDeathsLayer = false;
+          setActiveLayersWithTimeline(-1);
+          timelineType = "customUI";
+          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+          $("#ebola-deaths-legend").hide();
+        }
+      }).prop('checked', showEbolaDeathsLayer);
+
       // Base layers
       $("input:radio[name=base-layers]").on("click", function() {
         visibleBaseMapLayer = $(this).val();
@@ -1647,7 +1665,7 @@
     var showHivLayer = false;
     var showObesityLayer = false;
     var showVaccineConfidenceLayer = false;
-
+    var showEbolaDeathsLayer = false;
 
     // Default Time Machine visibility
     var tileViewVisibility = {
@@ -1724,7 +1742,7 @@
       var show_vaccine_confidence_q3 = '<td class="vaccine-confidence-q3-select"><label for="show-vaccine-confidence-q3" name="vc3"><input type="checkbox" id="show-vaccine-confidence-q3" />Vaccines are effective<span class="credit"> (LSHTM)</span></label></td>';
       var show_vaccine_confidence_q4 = '<td class="vaccine-confidence-q4-select"><label for="show-vaccine-confidence-q4" name="vc4"><input type="checkbox" id="show-vaccine-confidence-q4" />Vaccines and religious beliefs<span class="credit"> (LSHTM)</span></label></td>';
       var show_ndvi_anomaly = '<td class="ndvi-anomaly-select"><label for="show-ndvi-anomaly" name="ndvia"><input type="checkbox" id="show-ndvi-anomaly" />Vegetation Index Reduction<span class="credit"> (USGS)</span></label></td>';
-
+      var show_ebola_deaths = '<td class="ebola-deaths-select"><label for="show-ebola-deaths" name="ebola-deaths"><input type="checkbox" id="show-ebola-deaths" />Ebola Deaths<span class="credit"> (LSHTM)</span></label></td>';
 
       if (enableLetterboxMode) {
         layer_html += '<div class="base-map-div">';
@@ -2030,6 +2048,11 @@
           layer_html += show_vaccine_confidence_q4;
           layer_html += '   </tr>';
         }
+        if (showEbola) {
+          layer_html += '   <tr>';
+          layer_html += show_ebola_deaths;
+          layer_html += '   </tr>';
+        }
         layer_html += '   <tr>';
         layer_html += show_himawari;
         layer_html += '   </tr>';
@@ -2111,7 +2134,7 @@
       legend_html += '<tr id="vaccine-confidence-q3-legend" style="display: none"><td><div style="font-size: 13px">Disagree that vaccines are effective</div><svg class="svg-legend" width="200" height="29"><rect fill="#ffffe0" x="0" height="9" width="20.0"></rect><rect fill="#ffe3af" x="20" height="9" width="20.0"></rect><rect fill="#ffc58a" x="40" height="9" width="20.0"></rect><rect fill="#ffa474" x="60" height="9" width="20.0"></rect><rect fill="#fa8266" x="80" height="9" width="20.0"></rect><rect fill="#ed645c" x="100" height="9" width="20.0"></rect><rect fill="#db4551" x="120" height="9" width="20.0"></rect><rect fill="#c52940" x="140" height="9" width="20.0"></rect><rect fill="#aa0e27" x="160" height="9" width="20.0"></rect><rect fill="#8b0000" x="180" height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">0%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="90">13%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="180">26%</text></svg></td></tr>';
       legend_html += '<tr id="vaccine-confidence-q4-legend" style="display: none"><td><div style="font-size: 13px">Disagree that vaccines are compatible with my religious beliefs</div><svg class="svg-legend" width="200" height="29"><rect fill="#ffffe0" x="0" height="9" width="20.0"></rect><rect fill="#ffe3af" x="20" height="9" width="20.0"></rect><rect fill="#ffc58a" x="40" height="9" width="20.0"></rect><rect fill="#ffa474" x="60" height="9" width="20.0"></rect><rect fill="#fa8266" x="80" height="9" width="20.0"></rect><rect fill="#ed645c" x="100" height="9" width="20.0"></rect><rect fill="#db4551" x="120" height="9" width="20.0"></rect><rect fill="#c52940" x="140" height="9" width="20.0"></rect><rect fill="#aa0e27" x="160" height="9" width="20.0"></rect><rect fill="#8b0000" x="180" height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">0%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="90">23%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="180">47%</text></svg></td></tr>';
       legend_html += '<tr id="ndvi-anomaly-legend" style="display: none"><td><div style="font-size: 17px">Vegetation Reduction</div><div style="margin-left: 8px"><div class="ndviAnomalyLegendGradient" style="clear: both;"></div><div style="font-size: 13px; float: left">None</div><div style="font-size: 13px; float: right">Most Reduced</div></div></td></tr>';
-
+      legend_html += '<tr id="ebola-deaths-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Ebola Deaths</div></td></tr>';
 
 
       // ## 5b ##
@@ -2553,6 +2576,18 @@
         tileExtension: ".geojson"
       };
       vaccineConfidenceLayer = new WebglVectorLayer2(glb, canvasLayer, vaccineConfidenceUrl, vaccineConfidenceLayerOptions);
+
+      var ebolaLayerOptions = {
+        tileWidth: 256,
+        tileHeight: 256,
+        nLevels: 0,
+        setDataFunction: WebGLVectorTile2.prototype._setEbolaData,
+        drawFunction: WebGLVectorTile2.prototype._drawEbola,
+        fragmentShader: WebGLVectorTile2.ebolaFragmentShader,
+        vertexShader: WebGLVectorTile2.ebolaVertexShader
+      };
+      ebolaDeathsLayer = new WebglVectorLayer2(glb, canvasLayer, ebolaDeathsUrl, ebolaLayerOptions);
+
 
       // Layer Toggle UI
       initLayerToggleUI();
@@ -3435,6 +3470,20 @@
           options.question = vaccineConfidenceQuestion;
           vaccineConfidenceLayer.draw(vaccineConfidenceLayerView, options);
 
+        }
+
+        if (showEbolaDeathsLayer) {
+          var ebolaLayerView = getLayerView(ebolaDeathsLayer, landsatBaseMapLayer);
+          var options = {};
+          options.zoom = timelapse.getCurrentZoom();
+          var currentTime = timelapse.getCurrentTime();
+          var currentTimes = getCurrentTimes(timelapse);
+          var dates = getDates(timelapse);
+          var delta = getCurrentTimesDelta(currentTime, currentTimes);
+          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
+          options.currentTime = currentDate;
+          options.color = [1.0, 0.0, 0.0, 1.0];
+          ebolaDeathsLayer.draw(ebolaLayerView, options);
         }
 
 
