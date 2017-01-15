@@ -184,6 +184,8 @@
     var obesityLayer;
     var vaccineConfidenceLayer;
     var ebolaDeathsLayer;
+    var ebolaCasesLayer;
+    var ebolaNewCasesLayer;
 
     // ## 2 ##
     //// Layer tile paths
@@ -243,6 +245,8 @@
     var obesityUrl = rootTilePath + "/obesity";
     var vaccineConfidenceUrl = rootTilePath + "/vaccine-confidence";
     var ebolaDeathsUrl = rootTilePath + "/ebola/deaths";
+    var ebolaCasesUrl = rootTilePath + "/ebola/cases";
+    var ebolaNewCasesUrl = rootTilePath + "/ebola/new-cases";
 
     function init() {
       var settings = {
@@ -1362,6 +1366,38 @@
         }
       }).prop('checked', showEbolaDeathsLayer);
 
+      $("#show-ebola-cases").on("click", function() {
+        if ($(this).prop('checked')) {
+          showEbolaCasesLayer = true;
+          setActiveLayersWithTimeline(1);
+          timelineType = "defaultUI";
+          requestNewTimeline("ebola-times.json", timelineType);
+          $("#ebola-cases-legend").show();
+        } else {
+          showEbolaCasesLayer = false;
+          setActiveLayersWithTimeline(-1);
+          timelineType = "customUI";
+          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+          $("#ebola-cases-legend").hide();
+        }
+      }).prop('checked', showEbolaCasesLayer);
+
+      $("#show-ebola-new-cases").on("click", function() {
+        if ($(this).prop('checked')) {
+          showEbolaNewCasesLayer = true;
+          setActiveLayersWithTimeline(1);
+          timelineType = "defaultUI";
+          requestNewTimeline("ebola-times.json", timelineType);
+          $("#ebola-new-cases-legend").show();
+        } else {
+          showEbolaNewCasesLayer = false;
+          setActiveLayersWithTimeline(-1);
+          timelineType = "customUI";
+          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+          $("#ebola-new-cases-legend").hide();
+        }
+      }).prop('checked', showEbolaNewCasesLayer);
+
       // Base layers
       $("input:radio[name=base-layers]").on("click", function() {
         visibleBaseMapLayer = $(this).val();
@@ -1666,6 +1702,8 @@
     var showObesityLayer = false;
     var showVaccineConfidenceLayer = false;
     var showEbolaDeathsLayer = false;
+    var showEbolaCasesLayer = false;
+    var showEbolaNewCasesLayer = false;
 
     // Default Time Machine visibility
     var tileViewVisibility = {
@@ -1743,6 +1781,8 @@
       var show_vaccine_confidence_q4 = '<td class="vaccine-confidence-q4-select"><label for="show-vaccine-confidence-q4" name="vc4"><input type="checkbox" id="show-vaccine-confidence-q4" />Vaccines and religious beliefs<span class="credit"> (LSHTM)</span></label></td>';
       var show_ndvi_anomaly = '<td class="ndvi-anomaly-select"><label for="show-ndvi-anomaly" name="ndvia"><input type="checkbox" id="show-ndvi-anomaly" />Vegetation Index Reduction<span class="credit"> (USGS)</span></label></td>';
       var show_ebola_deaths = '<td class="ebola-deaths-select"><label for="show-ebola-deaths" name="ebola-deaths"><input type="checkbox" id="show-ebola-deaths" />Ebola Deaths<span class="credit"> (LSHTM)</span></label></td>';
+      var show_ebola_cases = '<td class="ebola-cases-select"><label for="show-ebola-cases" name="ebola-cases"><input type="checkbox" id="show-ebola-cases" />Ebola Cases<span class="credit"> (LSHTM)</span></label></td>';
+      var show_ebola_new_cases = '<td class="ebola-new-cases-select"><label for="show-ebola-new-cases" name="ebola-new-cases"><input type="checkbox" id="show-ebola-new-cases" />Ebola New Cases<span class="credit"> (LSHTM)</span></label></td>';
 
       if (enableLetterboxMode) {
         layer_html += '<div class="base-map-div">';
@@ -2052,6 +2092,12 @@
           layer_html += '   <tr>';
           layer_html += show_ebola_deaths;
           layer_html += '   </tr>';
+          layer_html += '   <tr>';
+          layer_html += show_ebola_cases;
+          layer_html += '   </tr>';
+          layer_html += '   <tr>';
+          layer_html += show_ebola_new_cases;
+          layer_html += '   </tr>';
         }
         layer_html += '   <tr>';
         layer_html += show_himawari;
@@ -2135,7 +2181,8 @@
       legend_html += '<tr id="vaccine-confidence-q4-legend" style="display: none"><td><div style="font-size: 13px">Disagree that vaccines are compatible with my religious beliefs</div><svg class="svg-legend" width="200" height="29"><rect fill="#ffffe0" x="0" height="9" width="20.0"></rect><rect fill="#ffe3af" x="20" height="9" width="20.0"></rect><rect fill="#ffc58a" x="40" height="9" width="20.0"></rect><rect fill="#ffa474" x="60" height="9" width="20.0"></rect><rect fill="#fa8266" x="80" height="9" width="20.0"></rect><rect fill="#ed645c" x="100" height="9" width="20.0"></rect><rect fill="#db4551" x="120" height="9" width="20.0"></rect><rect fill="#c52940" x="140" height="9" width="20.0"></rect><rect fill="#aa0e27" x="160" height="9" width="20.0"></rect><rect fill="#8b0000" x="180" height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">0%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="90">23%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="180">47%</text></svg></td></tr>';
       legend_html += '<tr id="ndvi-anomaly-legend" style="display: none"><td><div style="font-size: 17px">Vegetation Reduction</div><div style="margin-left: 8px"><div class="ndviAnomalyLegendGradient" style="clear: both;"></div><div style="font-size: 13px; float: left">None</div><div style="font-size: 13px; float: right">Most Reduced</div></div></td></tr>';
       legend_html += '<tr id="ebola-deaths-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Ebola Deaths</div></td></tr>';
-
+      legend_html += '<tr id="ebola-cases-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Ebola Cases</div></td></tr>';
+      legend_html += '<tr id="ebola-new-cases-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Ebola New Cases</div></td></tr>';
 
       // ## 5b ##
       //// Add to layer legend ////
@@ -2587,7 +2634,8 @@
         vertexShader: WebGLVectorTile2.ebolaVertexShader
       };
       ebolaDeathsLayer = new WebglVectorLayer2(glb, canvasLayer, ebolaDeathsUrl, ebolaLayerOptions);
-
+      ebolaCasesLayer = new WebglVectorLayer2(glb, canvasLayer, ebolaCasesUrl, ebolaLayerOptions);
+      ebolaNewCasesLayer = new WebglVectorLayer2(glb, canvasLayer, ebolaNewCasesUrl, ebolaLayerOptions);
 
       // Layer Toggle UI
       initLayerToggleUI();
@@ -3486,6 +3534,33 @@
           ebolaDeathsLayer.draw(ebolaLayerView, options);
         }
 
+        if (showEbolaCasesLayer) {
+          var ebolaLayerView = getLayerView(ebolaCasesLayer, landsatBaseMapLayer);
+          var options = {};
+          options.zoom = timelapse.getCurrentZoom();
+          var currentTime = timelapse.getCurrentTime();
+          var currentTimes = getCurrentTimes(timelapse);
+          var dates = getDates(timelapse);
+          var delta = getCurrentTimesDelta(currentTime, currentTimes);
+          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
+          options.currentTime = currentDate;
+          options.color = [0.85, 0.15, 0.05, 1.0];
+          ebolaCasesLayer.draw(ebolaLayerView, options);
+        }
+
+        if (showEbolaNewCasesLayer) {
+          var ebolaLayerView = getLayerView(ebolaNewCasesLayer, landsatBaseMapLayer);
+          var options = {};
+          options.zoom = timelapse.getCurrentZoom();
+          var currentTime = timelapse.getCurrentTime();
+          var currentTimes = getCurrentTimes(timelapse);
+          var dates = getDates(timelapse);
+          var delta = getCurrentTimesDelta(currentTime, currentTimes);
+          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
+          options.currentTime = currentDate;
+          options.color = [0.85, 0.15, 0.05, 1.0];
+          ebolaNewCasesLayer.draw(ebolaLayerView, options);
+        }
 
         // ## 7 ##
         //// Layers to draw on top go here
