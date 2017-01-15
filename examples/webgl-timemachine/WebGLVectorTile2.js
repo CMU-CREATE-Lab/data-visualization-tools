@@ -851,11 +851,17 @@ WebGLVectorTile2.prototype._drawEbola = function(transform, options) {
     gl.enableVertexAttribArray(timeLocation);
     gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 24, 20); 
 
+    var colorLoc = gl.getUniformLocation(this.program, 'u_Color');
+    gl.uniform4fv(colorLoc, color);
+
     var matrixLoc = gl.getUniformLocation(this.program, 'u_MapMatrix');
     gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
 
     var sliderTime = gl.getUniformLocation(this.program, 'u_Epoch');
     gl.uniform1f(sliderTime, currentTime);
+
+    var sliderTime = gl.getUniformLocation(this.program, 'u_Size');
+    gl.uniform1f(sliderTime, pointSize);
 
     gl.drawArrays(gl.POINTS, 0, this._pointCount);
     gl.disable(gl.BLEND);
@@ -2016,6 +2022,7 @@ WebGLVectorTile2.ebolaVertexShader =
 '      attribute float a_Epoch2;\n' +
 '      attribute float a_Deaths2;\n' +
 '      uniform float u_Epoch;\n' +
+'      uniform float u_Size;\n' +
 '      uniform mat4 u_MapMatrix;\n' +
 '      varying float v_Val;\n' +
 '      void main() {\n' +
@@ -2030,20 +2037,21 @@ WebGLVectorTile2.ebolaVertexShader =
 '        gl_Position = position;\n' +
 '        float delta = (u_Epoch - a_Epoch1)/(a_Epoch2 - a_Epoch1);\n' +
 '        float size = (a_Deaths2 - a_Deaths1) * delta + a_Deaths1;\n' +
-'        gl_PointSize = size;\n' +
+'        gl_PointSize = u_Size * size;\n' +
 '      }\n';
 
 WebGLVectorTile2.ebolaFragmentShader = 
 '      #extension GL_OES_standard_derivatives : enable\n' +
 '      precision mediump float;\n' +
 '      varying float v_Val;\n' +
+'      uniform vec4 u_Color;\n' +
 '      void main() {\n' +
 '          float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
 '          dist = 1. - (dist * 2.);\n' +
 '          dist = max(0., dist);\n' +
 '          float delta = fwidth(dist);\n' +
 '          float alpha = smoothstep(0.45-delta, 0.45, dist);\n' +
-'          vec4 circleColor = vec4(1.0,0.0,0.0,1.0);\n' +
+'          vec4 circleColor = u_Color;\n' +
 '          vec4 outlineColor = vec4(1.0,1.0,1.0,1.0);\n' +
 '          float outerEdgeCenter = 0.5 - .01;\n' +
 '          float stroke = smoothstep(outerEdgeCenter - delta, outerEdgeCenter + delta, dist);\n' +
