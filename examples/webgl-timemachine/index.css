@@ -155,7 +155,7 @@ html, body {
   user-select: none;
   white-space: nowrap;
 }
-#layers-list label .credit {
+#layers-list label .credit, .credit {
   color: #555555;
   font-size: 14px;
   position: relative;
@@ -192,7 +192,7 @@ html, body {
   color: white !important;
 }
 .top-panel label .credit {
-  color: #A1A1A1;
+  color: #A1A1A1 !important;
 }
 .map-layer-div.letterbox {
   height: 152px;
