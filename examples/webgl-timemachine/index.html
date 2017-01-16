@@ -1827,10 +1827,10 @@
       var show_zika = '<td class="zika-select"> <label for="show-zika" name="zv"><input type="checkbox" id="show-zika" />Zika<span class="credit"> (LSHTM)</span></label></td>';
       var show_dengue = '<td class="dengue-select"> <label for="show-dengue" name="dv"><input type="checkbox" id="show-dengue" />Dengue<span class="credit"> (LSHTM)</span></label></td>';
       var show_chiku = '<td class="chiku-select"> <label for="show-chiku" name="cv"><input type="checkbox" id="show-chiku" />Chikungunya<span class="credit"> (LSHTM)</span></label></td>';
-      var show_sea_level_rise_1p0 = '<td class="sea-level-rise-1p0-select"><label for="show-sea-level-rise-1p0" name="slr10"><input type="checkbox" id="show-sea-level-rise-1p0" />Sea Level Rise 1.0&deg; C<span class="credit"> (Climate Central)</span></label></td>'; //SLR
-      var show_sea_level_rise_1p5 = '<td class="sea-level-rise-1p5-select"><label for="show-sea-level-rise-1p5" name="slr15"><input type="checkbox" id="show-sea-level-rise-1p5" />Sea Level Rise 1.5&deg; C<span class="credit"> (Climate Central)</span></label></td>'; //SLR
-      var show_sea_level_rise_2p0 = '<td class="sea-level-rise-2p0-select"><label for="show-sea-level-rise-2p0" name="slr2"><input type="checkbox" id="show-sea-level-rise-2p0" />Sea Level Rise 2.0&deg; C<span class="credit"> (Climate Central)</span></label></td>'; //SLR
-      var show_sea_level_rise_4p0 = '<td class="sea-level-rise-4p0-select"><label for="show-sea-level-rise-4p0" name="slr4"><input type="checkbox" id="show-sea-level-rise-4p0" />Sea Level Rise 4.0&deg; C<span class="credit"> (Climate Central)</span></label></td>'; //SLR
+      var show_sea_level_rise_1p0 = '<td class="sea-level-rise-1p0-select"><label for="show-sea-level-rise-1p0" name="slr10"><input type="checkbox" id="show-sea-level-rise-1p0" />Sea Level Rise 1.0 &deg; C<span class="credit"> (Climate Central)</span></label></td>'; //SLR
+      var show_sea_level_rise_1p5 = '<td class="sea-level-rise-1p5-select"><label for="show-sea-level-rise-1p5" name="slr15"><input type="checkbox" id="show-sea-level-rise-1p5" />Sea Level Rise 1.5 &deg; C<span class="credit"> (Climate Central)</span></label></td>'; //SLR
+      var show_sea_level_rise_2p0 = '<td class="sea-level-rise-2p0-select"><label for="show-sea-level-rise-2p0" name="slr2"><input type="checkbox" id="show-sea-level-rise-2p0" />Sea Level Rise 2.0 &deg; C<span class="credit"> (Climate Central)</span></label></td>'; //SLR
+      var show_sea_level_rise_4p0 = '<td class="sea-level-rise-4p0-select"><label for="show-sea-level-rise-4p0" name="slr4"><input type="checkbox" id="show-sea-level-rise-4p0" />Sea Level Rise 4.0 &deg; C<span class="credit"> (Climate Central)</span></label></td>'; //SLR
       var show_urban_fragility = '<td class="urban-fragility-select"><label for="show-urban-fragility" name="uf"><input type="checkbox" id="show-urban-fragility" />Urban Fragility<span class="credit"> (Igarape Institute)</span></label></td>';
       var show_gtd = '<td class="gtd-select"><label for="show-gtd" name="gtd"><input type="checkbox" id="show-gtd" />Global Terrorism Database<span class="credit"> (UMD)</span></label></td>';
       var show_hiv = '<td class="hiv-select"><label for="show-hiv" name="hiv"><input type="checkbox" id="show-hiv" />HIV Infections<span class="credit"> (LSHTM)</span></label></td>';
@@ -1922,10 +1922,10 @@
         layer_html += '      </td>';
         layer_html += '      <td style="padding-bottom:16px; padding-right: 70px;">';
         layer_html += '        <select id="resilience-theme" multiple="multiple" size="6">';
-        layer_html += '          <option value="option1" data-id="show-sea-level-rise-1p0" data-name="slr1" data-credit="Climate Central">Sea Level Rise 2m</option>';
-        layer_html += '          <option value="option2" data-id="show-sea-level-rise-1p5" data-name="slr15" data-credit="Climate Central">Sea Level Rise 1.5&deg;C</option>';
-        layer_html += '          <option value="option3" data-id="show-sea-level-rise-2p0" data-name="slr2" data-credit="Climate Central">Sea Level Rise 2.0&deg;C</option>';
-        layer_html += '          <option value="option4" data-id="show-sea-level-rise-4p0" data-name="slr4" data-credit="Climate Central">Sea Level Rise 4.0&deg;C</option>';
+        layer_html += '          <option value="option1" data-id="show-sea-level-rise-1p0" data-name="slr1" data-credit="Climate Central">Sea Level Rise 2m (1.0 &deg;C)</option>';
+        layer_html += '          <option value="option2" data-id="show-sea-level-rise-1p5" data-name="slr15" data-credit="Climate Central">Sea Level Rise 1.5 &deg;C</option>';
+        layer_html += '          <option value="option3" data-id="show-sea-level-rise-2p0" data-name="slr2" data-credit="Climate Central">Sea Level Rise 2.0 &deg;C</option>';
+        layer_html += '          <option value="option4" data-id="show-sea-level-rise-4p0" data-name="slr4" data-credit="Climate Central">Sea Level Rise 4.0 &deg;C</option>';
         layer_html += '          <option value="option5" data-id="show-ndvi-anomaly" data-name="ndvia" data-credit="USGS">Vegetation Index Reduction</option>';
         layer_html += '          <option value="option6" data-id="show-vsi" data-name="vsi" data-credit="Oxford Martin">Vegetation Sensitivity Index</option>';
         layer_html += '        </select>';
@@ -2233,7 +2233,7 @@
       legend_html += '<tr id="annual-refugees-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(left, #ff0000 0%, #ffffff 100%);background: -webkit-linear-gradient(left, #ff0000 0%,#ffffff 100%); background: linear-gradient(to right, #ff0000 0%,#ffffff 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Annual Refugees 2000 - 2015 <span class="credit"> (UNHCR)</span></div></td></tr>';
       legend_html += '<tr id="vsi-legend" style="display: none"><td><div style="font-size: 17px">Vegetation Sensitivity Index 2000-2013 <span class="credit"> (USGS)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">0</div><div style="margin-top: 4px; float: left; background-image: -webkit-linear-gradient(left, rgb(0, 139, 0), rgb(92, 182, 69) 17%, rgb(163, 221, 99) 33%, rgb(255, 255, 0) 50%, rgb(255, 205, 0) 67%, rgb(255, 144, 0) 83%, rgb(255, 4, 0) 100%);background-image: linear-gradient(left, rgb(0, 139, 0), rgb(92, 182, 69) 17%, rgb(163, 221, 99) 33%, rgb(255, 255, 0) 50%, rgb(255, 205, 0) 67%, rgb(255, 144, 0) 83%, rgb(255, 4, 0) 100%); width: 45px; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">100</div></td></tr>';
       legend_html += '<tr id="health-impact-legend" style="display: none"><td><div style="font-size: 17px">Nutritional Deficiencies<span class="credit"> (Oxford Martin)</span></div><svg class="svg-legend" width="242" height="180"><rect width="240" height="160" fill="white" opacity="0"></rect> <g transform="translate(2,10)"> <circle class="gain" r="5" cx="5" cy="10" style="fill: #8b0000; stroke: #fff;"></circle> <circle class="loss" r="5" cx="5" cy="30" style="fill: #00008b; stroke: #fff;"></circle> <text x="15" y="13">Mean deaths per capita</text> <text x="15" y="33">Mean lives per capita</text> <circle r="10.0" cx="160.0" cy="160.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="152.0" dy="13" style="font-size: 10px; fill: #666">5K</text><circle r="30.0" cx="160.0" cy="140.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="130.0" dy="13" style="font-size: 10px; fill: #666">15K</text><circle r="60.0" cx="160.0" cy="110.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="80.0" dy="13" style="font-size: 10px; fill: #666">30K</text></g> </svg></td></tr>';
-      legend_html += '<tr id="sea-level-rise-legend" style="display: none"><td><div style="font-size: 17px">Global Temperature Rise <span id="slr-degree"></span>&#x2103;<span class="credit"> (Climate Central)</span></div><div style="font-size: 15px">Future Sea Level<span id="slr-feet" style="width:25px;"></span>&nbsp;<span id="slr-meters" style="width:25px; color: red;"></span></div></td></tr>';
+      legend_html += '<tr id="sea-level-rise-legend" style="display: none"><td><div style="font-size: 17px">Global Temperature Rise <span id="slr-degree"></span> &#x2103;<span class="credit"> (Climate Central)</span></div><div style="font-size: 15px">Future Sea Level<span id="slr-feet" style="width:25px;"></span>&nbsp;<span id="slr-meters" style="width:25px; color: red;"></span></div></td></tr>';
       legend_html += '<tr id="urban-fragility-legend" style="display: none"><td><div style="font-size: 17px">Fragile Score <span class="credit"> (Igarape Institute)</span></div></div><svg class="svg-legend" width="200" height="30"> <rect fill="rgb(255,255,204)" x="0"   height="9" width="20"></rect><rect fill="rgb(255,237,160)" x="20"  height="9" width="20"></rect><rect fill="rgb(254,217,118)" x="40"  height="9" width="20"></rect><rect fill="rgb(254,178,76)"  x="60"  height="9" width="20"></rect><rect fill="rgb(253,141,60)"  x="80"  height="9" width="20"></rect><rect fill="rgb(252,78,42)"   x="100" height="9" width="20"></rect><rect fill="rgb(227,26,28)"   x="120" height="9" width="20"></rect><rect fill="rgb(189,0,38)"    x="140" height="9" width="20"></rect><rect fill="rgb(128,0,38)"    x="160" height="9" width="20"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">1.0</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="85">2.1</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="165">3.1</text></svg></td></tr>';
       legend_html += '<tr id="zika-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Zika Virus <span class="credit"> (LSHTM)</span></div></td></tr>';
       legend_html += '<tr id="chiku-legend" style="display: none"><td><div style="background-color:#6070ff; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Chikungunya Virus <span class="credit"> (LSHTM)</span></div></td></tr>';
@@ -2331,7 +2331,7 @@
             header: false,
             noneSelectedText: "Select layers...",
             selectedText: "# layer(s) selected",
-            menuWidth: 950,
+            menuWidth: 1032,
             height: 72,
             colType: "triple"
         });
@@ -3514,7 +3514,7 @@
           if (sea_level_heights[currentIndex]) {
             meters.innerHTML = "+" + sea_level_heights[currentIndex][1].toFixed(1) + "m";
           }
-          degree.innerHTML = currentIndex / 2;
+          degree.innerHTML = (currentIndex / 2).toFixed(1);
           seaLevelRiseLayer.draw(seaLevelRiseLayerView, options);
         }
 
