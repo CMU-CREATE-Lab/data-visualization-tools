@@ -1792,9 +1792,9 @@
       var show_vaccine_confidence_q3 = '<td class="vaccine-confidence-q3-select"><label for="show-vaccine-confidence-q3" name="vc3"><input type="checkbox" id="show-vaccine-confidence-q3" />Vaccines are effective<span class="credit"> (LSHTM)</span></label></td>';
       var show_vaccine_confidence_q4 = '<td class="vaccine-confidence-q4-select"><label for="show-vaccine-confidence-q4" name="vc4"><input type="checkbox" id="show-vaccine-confidence-q4" />Vaccines and religious beliefs<span class="credit"> (LSHTM)</span></label></td>';
       var show_ndvi_anomaly = '<td class="ndvi-anomaly-select"><label for="show-ndvi-anomaly" name="ndvia"><input type="checkbox" id="show-ndvi-anomaly" />Vegetation Index Reduction<span class="credit"> (USGS)</span></label></td>';
-      var show_ebola_deaths = '<td class="ebola-deaths-select"><label for="show-ebola-deaths" name="ebola-deaths"><input type="checkbox" id="show-ebola-deaths" />Ebola Deaths<span class="credit"> (LSHTM)</span></label></td>';
-      var show_ebola_cases = '<td class="ebola-cases-select"><label for="show-ebola-cases" name="ebola-cases"><input type="checkbox" id="show-ebola-cases" />Ebola Cases<span class="credit"> (LSHTM)</span></label></td>';
-      var show_ebola_new_cases = '<td class="ebola-new-cases-select"><label for="show-ebola-new-cases" name="ebola-new-cases"><input type="checkbox" id="show-ebola-new-cases" />Ebola New Cases<span class="credit"> (LSHTM)</span></label></td>';
+      var show_ebola_deaths = '<td class="ebola-deaths-select"><label for="show-ebola-deaths" name="ed"><input type="checkbox" id="show-ebola-deaths" />Ebola Deaths<span class="credit"> (LSHTM)</span></label></td>';
+      var show_ebola_cases = '<td class="ebola-cases-select"><label for="show-ebola-cases" name="ec"><input type="checkbox" id="show-ebola-cases" />Ebola Cases<span class="credit"> (LSHTM)</span></label></td>';
+      var show_ebola_new_cases = '<td class="ebola-new-cases-select"><label for="show-ebola-new-cases" name="enc"><input type="checkbox" id="show-ebola-new-cases" />Ebola New Cases<span class="credit"> (LSHTM)</span></label></td>';
 
       if (enableLetterboxMode) {
         layer_html += '<div class="base-map-div">';
@@ -1845,16 +1845,17 @@
         layer_html += '        Pandemics:';
         layer_html += '      </td>';
         layer_html += '      <td style="padding-bottom:16px; padding-right: 70px;">';
-        layer_html += '        <select id="pandemic-theme" multiple="multiple" size="9">';
+        layer_html += '        <select id="pandemic-theme" multiple="multiple" size="10">';
         layer_html += '          <option value="option1" data-id="show-zika" data-name="zv" data-credit="LSHTM">Zika</option>';
         layer_html += '          <option value="option2" data-id="show-dengue" data-name="dv" data-credit="LSHTMC">Dengue</option>';
         layer_html += '          <option value="option3" data-id="show-chiku" data-name="cv" data-credit="LSHTM">Chikungunya</option>';
-        layer_html += '          <option value="option4" data-id="show-hiv" data-name="hiv" data-credit="LSHTM">HIV Infections</option>';
-        layer_html += '          <option value="option5" data-id="show-obesity" data-name="obesity" data-credit="LSHTM">Obesity</option>';
-        layer_html += '          <option value="option6" data-id="show-vaccine-confidence-q1" data-name="vc1" data-credit="LSHTM">Vaccines & Children</option>';
-        layer_html += '          <option value="option7" data-id="show-vaccine-confidence-q2" data-name="vc2" data-credit="LSHTM">Vaccine Safety</option>';
-        layer_html += '          <option value="option8" data-id="show-vaccine-confidence-q3" data-name="vc3" data-credit="LSHTM">Vaccine Effectiveness</option>';
-        layer_html += '          <option value="option9" data-id="show-vaccine-confidence-q4" data-name="vc4" data-credit="LSHTM">Vaccines & Religion</option>';
+        layer_html += '          <option value="option4" data-id="show-ebola-deaths" data-name="ed" data-credit="LSHTM">Ebola Deaths</option>';
+        layer_html += '          <option value="option5" data-id="show-hiv" data-name="hiv" data-credit="LSHTM">HIV Infections</option>';
+        layer_html += '          <option value="option6" data-id="show-obesity" data-name="obesity" data-credit="LSHTM">Obesity</option>';
+        layer_html += '          <option value="option7" data-id="show-vaccine-confidence-q1" data-name="vc1" data-credit="LSHTM">Vaccines & Children</option>';
+        layer_html += '          <option value="option8" data-id="show-vaccine-confidence-q2" data-name="vc2" data-credit="LSHTM">Vaccine Safety</option>';
+        layer_html += '          <option value="option9" data-id="show-vaccine-confidence-q3" data-name="vc3" data-credit="LSHTM">Vaccine Effectiveness</option>';
+        layer_html += '          <option value="option10" data-id="show-vaccine-confidence-q4" data-name="vc4" data-credit="LSHTM">Vaccines & Religion</option>';
         layer_html += '        </select>';
         layer_html += '        <button class="clear-theme" type="button">Clear <br>Theme</button>';
         layer_html += '      </td>';
