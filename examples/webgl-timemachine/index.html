@@ -1565,6 +1565,14 @@
       });
 
       $(document).keydown(function(e) {
+        // 'a' key
+        // Quick way to stop animating and go to the beginning
+        if (e.keyCode === 65) {
+          if (!timelapse.isPaused()) {
+            timelapse.handlePlayPause();
+          }
+          timelapse.seek(0);
+        }
         if (keysDown.indexOf(e.keyCode) < 0) {
           keysDown.push(e.keyCode);
           // SHIFT + S + V
