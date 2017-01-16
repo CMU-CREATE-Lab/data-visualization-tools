@@ -114,6 +114,7 @@ html, body {
   right: 0px !important;
   height: auto !important;
   width: auto !important;
+  background: black !important;
 }
 #extras-content {
   display: none;
