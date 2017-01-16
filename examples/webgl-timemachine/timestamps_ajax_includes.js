@@ -9,6 +9,7 @@ cached_ajax['monthly-refugees-times.json']={"capture-times":["2014-1-1","2014-1-
 cached_ajax['annual-refugees-times.json']={"capture-times":["2000","2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012","2013", "2014", "2015", "2016"]};
 cached_ajax['health-impact-times.json']={"capture-times":["2015","2020","2025","2030","2035","2040","2045","2050"]};
 cached_ajax['sea-level-rise-times.json']={"capture-times":["0","0.5","1.0","1.5","2.0","2.5","3.0","3.5","4.0"]};
+cached_ajax['sea-level-rise-1p0-times.json']={"capture-times":["0","0.5","1.0"]};
 cached_ajax['sea-level-rise-1p5-times.json']={"capture-times":["0","0.5","1.0","1.5"]};
 cached_ajax['sea-level-rise-2p0-times.json']={"capture-times":["0","0.5","1.0","1.5","2.0"]};
 cached_ajax['urban-fragility-times.json']={"capture-times":["2000","2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012","2013", "2014", "2015"]};
