@@ -352,7 +352,7 @@ html, body {
   background: rgba(255, 255, 255, 1);
   padding: 18px;
   position: absolute;
-  bottom: 230px;
+  bottom: 178px;
   left: 20px;
   z-index: 10;
   max-width: 283px;
@@ -362,12 +362,12 @@ html, body {
   border-radius: 2px !important;
   box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
 }
-.current-location-text.letterbox {
+/*.current-location-text.letterbox {
   bottom: 160px !important;
 }
 .current-location-text.hyperwall {
   bottom: 260px !important;
-}
+}*/
 .current-location-text h3 {
   margin-bottom: 0.35em;
   font-family: 'franklin-gothic-urw-comp', 'Helvetica Neue', Helvetica, Arial, sans-serif;
