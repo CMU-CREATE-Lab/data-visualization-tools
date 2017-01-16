@@ -289,8 +289,10 @@
       this.buttonlabel.text(value);
       if (value == "Select layers...") {
         this.buttonlabel.removeClass("layer-in-theme-selected");
+        this.buttonlabel.parent().next().removeClass("layer-in-theme-selected");
       } else {
         this.buttonlabel.addClass("layer-in-theme-selected");
+        this.buttonlabel.parent().next().addClass("layer-in-theme-selected");
       }
     },
 
