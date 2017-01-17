@@ -2829,6 +2829,14 @@
           var waypointLayers = waypoint.layers || [];
           var waypointStartTime = waypoint.time;
           var waypointEndTime = waypoint.endTime;
+          var himawariWaypoint = himawariWaypoints[waypointIndex];
+
+          // We are still technically using Landsat projections for any dataset being drawn,
+          // so the bounds that slide-change returns is not valid for our use. But we already
+          // know the bounds each himawari waypoints should be, so use that instead.
+          if (himawariWaypoint) {
+            waypointBounds = himawariWaypoint.bounds;
+          }
 
           timelapse.removeTimeChangeListener(waypointTimeChangeListener);
 
@@ -2891,8 +2899,7 @@
           if (himawariIdx > -1) waypointLayers.splice(himawariIdx, 1);
 
           // Clear out layers if they were already checked
-          // Special case if himawari waypoint
-          var himawariWaypoint = himawariWaypoints[waypointIndex];
+          // If himawari waypoint, clear out everything
           if (himawariWaypoint)
             $(".map-layer-div, .ui-multiselect-checkboxes").find("input:checked").not("#show-himawari").trigger("click");
           else
