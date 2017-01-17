@@ -1403,6 +1403,7 @@
           setActiveLayersWithTimeline(1);
           timelineType = "defaultUI";
           requestNewTimeline("ebola-times.json", timelineType);
+          timelapse.setPlaybackRate(1);
           $("#ebola-deaths-legend").show();
         } else {
           showEbolaDeathsLayer = false;
@@ -1410,6 +1411,7 @@
           if (!$("#show-ebola-cases").prop('checked') && !$("#show-ebola-new-cases").prop('checked')) {
             timelineType = "customUI";
             requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+            timelapse.setPlaybackRate(defaultPlaybackSpeed);
           }
           $("#ebola-deaths-legend").hide();
         }
@@ -1421,6 +1423,7 @@
           setActiveLayersWithTimeline(1);
           timelineType = "defaultUI";
           requestNewTimeline("ebola-times.json", timelineType);
+          timelapse.setPlaybackRate(1);
           $("#ebola-cases-legend").show();
         } else {
           showEbolaCasesLayer = false;
@@ -1428,6 +1431,7 @@
           if (!$("#show-ebola-deaths").prop('checked') && !$("#show-ebola-new-cases").prop('checked')) {
             timelineType = "customUI";
             requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+            timelapse.setPlaybackRate(defaultPlaybackSpeed);
           }
           $("#ebola-cases-legend").hide();
         }
@@ -1439,6 +1443,7 @@
           setActiveLayersWithTimeline(1);
           timelineType = "defaultUI";
           requestNewTimeline("ebola-times.json", timelineType);
+          timelapse.setPlaybackRate(1);
           $("#ebola-new-cases-legend").show();
         } else {
           showEbolaNewCasesLayer = false;
@@ -1446,6 +1451,7 @@
           if (!$("#show-ebola-deaths").prop('checked') && !$("#show-ebola-cases").prop('checked')) {
             timelineType = "customUI";
             requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+            timelapse.setPlaybackRate(defaultPlaybackSpeed);
           }
           $("#ebola-new-cases-legend").hide();
         }
