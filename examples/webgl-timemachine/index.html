@@ -1578,13 +1578,20 @@
       });
 
       $(document).keydown(function(e) {
-        // 'a' key
-        // Quick way to stop animating and go to the beginning
-        if (e.keyCode === 65) {
-          if (!timelapse.isPaused()) {
-            timelapse.handlePlayPause();
+        if (isHyperwall) {
+          // 'a' key
+          // Quick way to stop animating and go to the beginning
+          if (e.keyCode === 65) {
+            if (!timelapse.isPaused()) {
+              timelapse.handlePlayPause();
+            }
+            timelapse.seek(0);
           }
-          timelapse.seek(0);
+          // 'c' key
+          // Quick way to clear all layers
+          if (e.keyCode === 67) {
+            $(".map-layer-div, .ui-multiselect-checkboxes").find("input:checked").trigger("click");
+          }
         }
         if (keysDown.indexOf(e.keyCode) < 0) {
           keysDown.push(e.keyCode);
