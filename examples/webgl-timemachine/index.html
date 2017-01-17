@@ -1057,11 +1057,14 @@
           showZikaLayer = true;
           timelineType = "customUI";
           setActiveLayersWithTimeline(1);
+          // TODO: Hack timeline to show all of 2016 for Zika
+          requestNewTimeline("zika-times.json", timelineType);
           $("#zika-legend").show();
         } else {
           showZikaLayer = false;
           timelineType = "customUI";
           timelapse.setMasterPlaybackRate(1);
+          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
           setActiveLayersWithTimeline(-1);
           $("#zika-legend").hide();
@@ -1249,6 +1252,7 @@
           timelineType = "customUI";
           setActiveLayersWithTimeline(1);
           requestNewTimeline("hiv-times.json", timelineType);
+          timelapse.setPlaybackRate(0.5);
           $("#hiv-legend").show();
           previousVisibleBaseMapLayer = visibleBaseMapLayer;
         } else {
@@ -1256,6 +1260,7 @@
           timelineType = "customUI";
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
           $("#hiv-legend").hide();
           visibleBaseMapLayer = previousVisibleBaseMapLayer;
         }
@@ -1270,6 +1275,7 @@
           timelineType = "customUI";
           setActiveLayersWithTimeline(1);
           requestNewTimeline("obesity-times.json", timelineType);
+          timelapse.setPlaybackRate(1);
           $("#obesity-legend").show();
           previousVisibleBaseMapLayer = visibleBaseMapLayer;
         } else {
@@ -1277,6 +1283,7 @@
           timelineType = "customUI";
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
           $("#obesity-legend").hide();
           visibleBaseMapLayer = previousVisibleBaseMapLayer;
         }
@@ -3577,6 +3584,9 @@
           var delta = getCurrentTimesDelta(currentTime, currentTimes);
           var currentDate = getCurrentDate(currentTime, currentTimes, dates);
           var year = currentDate.getUTCFullYear();
+          // TODO: Need to cap the year to the final year of what the time is showing
+          //       Should happen in getCurrentDate method
+          year = Math.min(2013, year);
           options.year = year;
           options.delta = Math.min(delta, 1);
           obesityLayer.draw(obesityLayerView, options);
