@@ -3386,10 +3386,12 @@
           var monthlyRefugeesLayerView = getLayerView(monthlyRefugeesLayer, landsatBaseMapLayer);
           var options = {};
           options.zoom = timelapse.getCurrentZoom();
-          var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
-          var times = timelapse.getCaptureTimes();
-          var range = new Date(times[times.length - 1]).getTime() - new Date(times[0]).getTime();
-          var currentDate = (ratio * range + new Date(times[0]).getTime());
+          var currentTime = timelapse.getCurrentTime();
+          var currentTimes = getCurrentTimes(timelapse);
+          var dates = getDates(timelapse);
+          var delta = getCurrentTimesDelta(currentTime, currentTimes);
+          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
+
           options.currentDate = currentDate;
           monthlyRefugeesLayer.draw(monthlyRefugeesLayerView, options);
         }
