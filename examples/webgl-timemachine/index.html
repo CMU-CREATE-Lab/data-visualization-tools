@@ -1275,7 +1275,8 @@
           timelineType = "customUI";
           setActiveLayersWithTimeline(1);
           requestNewTimeline("obesity-times.json", timelineType);
-          timelapse.setPlaybackRate(1);
+          timelapse.setMasterPlaybackRate(2);
+          timelapse.setPlaybackRate(2);
           $("#obesity-legend").show();
           previousVisibleBaseMapLayer = visibleBaseMapLayer;
         } else {
@@ -1283,6 +1284,7 @@
           timelineType = "customUI";
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+          timelapse.setMasterPlaybackRate(1);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
           $("#obesity-legend").hide();
           visibleBaseMapLayer = previousVisibleBaseMapLayer;
