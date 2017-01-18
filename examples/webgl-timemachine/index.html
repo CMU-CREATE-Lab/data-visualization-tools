@@ -100,6 +100,8 @@
     var showVaccineConfidence = !!EARTH_TIMELAPSE_CONFIG.showVaccineConfidence;
     var showNdviAnomaly = !!EARTH_TIMELAPSE_CONFIG.showNdviAnomaly;
     var showEbola = !!EARTH_TIMELAPSE_CONFIG.showEbola;
+    var showWaterOccurrence = !!EARTH_TIMELAPSE_CONFIG.showWaterOccurrence;
+    var showWaterChange = !!EARTH_TIMELAPSE_CONFIG.showWaterChange;
 
     var showShareButton =  !!EARTH_TIMELAPSE_CONFIG.showShareButton;
     var showShareButtonHash = window.location.hash.split("showShareButton=")[1];
@@ -2078,15 +2080,16 @@
         layer_html += '   <tr>';
         layer_html += show_drilling;
         layer_html += '   </tr>';
-
-        // TODO add config check here
-        layer_html += '   <tr>';
-        layer_html += show_water_occurrence;
-        layer_html += '   </tr>';
-        layer_html += '   <tr>';
-        layer_html += show_water_change;
-        layer_html += '   </tr>';
-
+        if (showWaterOccurrence) {
+          layer_html += '   <tr>';
+          layer_html += show_water_occurrence;
+          layer_html += '   </tr>';
+        }
+        if (showWaterChange) {
+          layer_html += '   <tr>';
+          layer_html += show_water_change;
+          layer_html += '   </tr>';
+        }
         if (showMonthlyRefugees) {
           layer_html += '   <tr>';
           layer_html += show_monthly_refugees;
