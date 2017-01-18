@@ -2900,6 +2900,10 @@
                 $(".current-location-text").hide();
               }
             };
+
+            // Close the extra content pop-up if a waypoint is clicked.
+            $('#extras-content').dialog('close');
+
             timelapse.addViewChangeListener(waypointViewChangeListener);
           }
 
