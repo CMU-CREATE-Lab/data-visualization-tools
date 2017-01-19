@@ -142,7 +142,7 @@
     var visibleBaseMapLayer = "landsat";
     var previousVisibleBaseMapLayer = visibleBaseMapLayer;
     WebglVideoTile.useFaderShader = useFaderShader;
-    var timelapse, previousWaypoint = {}, waypointViewChangeListener, hideWaypointListener, waypointTimeChangeListener;
+    var timelapse, snaplapseViewerForPresentationSlider, previousWaypoint = {}, waypointViewChangeListener, hideWaypointListener, waypointTimeChangeListener;
     var himawariWaypoints = {};
     var annotationPicturePaths = {};
     var timelineType = "customUI";
@@ -1535,6 +1535,8 @@
 
       // Use click event rather than selectmenu 'change' since that event is not registered on the touch screen.
       $(".ui-selectmenu-menu").on("click", "li", function(e) {
+        // Reset automode timer, since clicking a waypoint now closes the extras pop-up.
+        snaplapseViewerForPresentationSlider.startAutoModeIdleTimeout();
         var fileName = $(e.currentTarget).data("filename");
         var fileType = $(e.currentTarget).data("type");
         $("#extras-content").dialog('option', 'title', $(e.currentTarget).text());
@@ -2751,7 +2753,6 @@
 
       // Toggle layers off when auto mode begins
       var snaplapseForPresentationSlider = timelapse.getSnaplapseForPresentationSlider();
-      var snaplapseViewerForPresentationSlider;
       if (snaplapseForPresentationSlider) {
         snaplapseViewerForPresentationSlider = snaplapseForPresentationSlider.getSnaplapseViewer();
       }
