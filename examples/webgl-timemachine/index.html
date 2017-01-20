@@ -1465,11 +1465,13 @@
       $("input:radio[name=base-layers]").on("click", function() {
         visibleBaseMapLayer = $(this).val();
         if (visibleBaseMapLayer == "landsat" && previousVisibleBaseMapLayer != "landsat") {
+          $(".googleLogo").show();
           if (!showViirsLayer) {
             timelineType = "customUI";
           }
           setActiveLayersWithTimeline(1);
         } else if (visibleBaseMapLayer != "landsat") {
+          $(".googleLogo").hide();
           timelineType = "none";
           if (previousVisibleBaseMapLayer == "landsat")
             setActiveLayersWithTimeline(-1);
