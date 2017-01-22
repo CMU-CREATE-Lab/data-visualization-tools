@@ -289,13 +289,16 @@ html, body {
 #layers-list.right-panel.hyperwall {
   bottom: 135px !important;
 }
+fieldset {
+  margin: 0;
+}
 #layers-list.right-panel {
   overflow: auto;
   height: calc(100% - 170px);
   position: absolute;
   bottom: 120px;
   right: 20px;
-  width: 365px;
+  width: 404px;
   padding: 10px;
   background: white;
   border-radius: 2px;

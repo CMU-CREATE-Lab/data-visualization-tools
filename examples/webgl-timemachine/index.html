@@ -92,7 +92,7 @@
     var showZika = !!EARTH_TIMELAPSE_CONFIG.showZika;
     var showDengue = !!EARTH_TIMELAPSE_CONFIG.showDengue;
     var showChiku = !!EARTH_TIMELAPSE_CONFIG.showChiku;
-    var showSeaLevelRise = !!EARTH_TIMELAPSE_CONFIG.showSeaLevelRise; //SLR
+    var showSeaLevelRise = !!EARTH_TIMELAPSE_CONFIG.showSeaLevelRise;
     var showUrbanFragility = !!EARTH_TIMELAPSE_CONFIG.showUrbanFragility;
     var showGtd = !!EARTH_TIMELAPSE_CONFIG.showGtd;
     var showHiv = !!EARTH_TIMELAPSE_CONFIG.showHiv;
@@ -178,7 +178,7 @@
     var zikaLayer, dengueLayer, chikuLayer;
     var viirsLayer;
     var wdpaLayer;
-    var seaLevelRiseLayer; //SLR
+    var seaLevelRiseLayer;
     var urbanFragilityLayer;
     var coralBleachingLayer;
     var monthlyRefugeesLayer;
@@ -241,7 +241,7 @@
     var dengueUrl = rootTilePath + "/pandemics/dengue";
     var chikuUrl = rootTilePath + "/pandemics/chiku";
 
-    var seaLevelRiseUrl = "http://a.ss2tiles.climatecentral.org/lockin_animated_land/{z}/{x}/{y}.png"; //SLR
+    var seaLevelRiseUrl = "http://a.ss2tiles.climatecentral.org/lockin_animated_land/{z}/{x}/{y}.png";
     var urbanFragilityUrl = rootTilePath + "/urban-fragility";
     var gtdUrl = rootTilePath + "/gtd";
     var hivUrl = rootTilePath + "/hiv";
@@ -1105,7 +1105,7 @@
         }
       }).prop('checked', showChikuLayer);
 
-      $("#show-sea-level-rise-1p0").on("click", function() { //SLR
+      $("#show-sea-level-rise-1p0").on("click", function() {
         if ($(this).prop('checked')) {
           if ($("#show-sea-level-rise-1p5").prop('checked')) {
             $("#show-sea-level-rise-1p5").prop('checked', false);
@@ -1133,7 +1133,7 @@
         }
       }).prop('checked', showSeaLevelRiseLayer);
 
-      $("#show-sea-level-rise-1p5").on("click", function() { //SLR
+      $("#show-sea-level-rise-1p5").on("click", function() {
         if ($(this).prop('checked')) {
           if ($("#show-sea-level-rise-1p0").prop('checked')) {
             $("#show-sea-level-rise-1p0").prop('checked', false);
@@ -1161,7 +1161,7 @@
         }
       }).prop('checked', showSeaLevelRiseLayer);
 
-      $("#show-sea-level-rise-2p0").on("click", function() { //SLR
+      $("#show-sea-level-rise-2p0").on("click", function() {
         if ($(this).prop('checked')) {
           if ($("#show-sea-level-rise-1p0").prop('checked')) {
             $("#show-sea-level-rise-1p0").prop('checked', false);
@@ -1189,7 +1189,7 @@
         }
       }).prop('checked', showSeaLevelRiseLayer);
 
-      $("#show-sea-level-rise-4p0").on("click", function() { //SLR
+      $("#show-sea-level-rise-4p0").on("click", function() {
         if ($(this).prop('checked')) {
           if ($("#show-sea-level-rise-1p0").prop('checked')) {
             $("#show-sea-level-rise-1p0").prop('checked', false);
@@ -1782,7 +1782,7 @@
     var showZikaLayer = false;
     var showDengueLayer = false;
     var showChikuLayer = false;
-    var showSeaLevelRiseLayer = false; //SLR
+    var showSeaLevelRiseLayer = false;
     var showUrbanFragilityLayer = false;
     var showGtdLayer = false;
     var showHivLayer = false;
@@ -1855,18 +1855,18 @@
       var show_zika = '<td class="zika-select"> <label for="show-zika" name="zv"><input type="checkbox" id="show-zika" />Zika<span class="credit"> (LSHTM)</span></label></td>';
       var show_dengue = '<td class="dengue-select"> <label for="show-dengue" name="dv"><input type="checkbox" id="show-dengue" />Dengue<span class="credit"> (LSHTM)</span></label></td>';
       var show_chiku = '<td class="chiku-select"> <label for="show-chiku" name="cv"><input type="checkbox" id="show-chiku" />Chikungunya<span class="credit"> (LSHTM)</span></label></td>';
-      var show_sea_level_rise_1p0 = '<td class="sea-level-rise-1p0-select"><label for="show-sea-level-rise-1p0" name="slr10"><input type="checkbox" id="show-sea-level-rise-1p0" />Sea Level Rise 1.0 &deg; C<span class="credit"> (Climate Central)</span></label></td>'; //SLR
-      var show_sea_level_rise_1p5 = '<td class="sea-level-rise-1p5-select"><label for="show-sea-level-rise-1p5" name="slr15"><input type="checkbox" id="show-sea-level-rise-1p5" />Sea Level Rise 1.5 &deg; C<span class="credit"> (Climate Central)</span></label></td>'; //SLR
-      var show_sea_level_rise_2p0 = '<td class="sea-level-rise-2p0-select"><label for="show-sea-level-rise-2p0" name="slr2"><input type="checkbox" id="show-sea-level-rise-2p0" />Sea Level Rise 2.0 &deg; C<span class="credit"> (Climate Central)</span></label></td>'; //SLR
-      var show_sea_level_rise_4p0 = '<td class="sea-level-rise-4p0-select"><label for="show-sea-level-rise-4p0" name="slr4"><input type="checkbox" id="show-sea-level-rise-4p0" />Sea Level Rise 4.0 &deg; C<span class="credit"> (Climate Central)</span></label></td>'; //SLR
+      var show_sea_level_rise_1p0 = '<td class="sea-level-rise-1p0-select"><label for="show-sea-level-rise-1p0" name="slr10"><input type="checkbox" id="show-sea-level-rise-1p0" />Sea Level Rise 1.0 &deg; C<span class="credit"> (Climate Central)</span></label></td>';
+      var show_sea_level_rise_1p5 = '<td class="sea-level-rise-1p5-select"><label for="show-sea-level-rise-1p5" name="slr15"><input type="checkbox" id="show-sea-level-rise-1p5" />Sea Level Rise 1.5 &deg; C<span class="credit"> (Climate Central)</span></label></td>';
+      var show_sea_level_rise_2p0 = '<td class="sea-level-rise-2p0-select"><label for="show-sea-level-rise-2p0" name="slr2"><input type="checkbox" id="show-sea-level-rise-2p0" />Sea Level Rise 2.0 &deg; C<span class="credit"> (Climate Central)</span></label></td>';
+      var show_sea_level_rise_4p0 = '<td class="sea-level-rise-4p0-select"><label for="show-sea-level-rise-4p0" name="slr4"><input type="checkbox" id="show-sea-level-rise-4p0" />Sea Level Rise 4.0 &deg; C<span class="credit"> (Climate Central)</span></label></td>';
       var show_urban_fragility = '<td class="urban-fragility-select"><label for="show-urban-fragility" name="uf"><input type="checkbox" id="show-urban-fragility" />Urban Fragility<span class="credit"> (Igarape Institute)</span></label></td>';
       var show_gtd = '<td class="gtd-select"><label for="show-gtd" name="gtd"><input type="checkbox" id="show-gtd" />Global Terrorism Database<span class="credit"> (UMD)</span></label></td>';
       var show_hiv = '<td class="hiv-select"><label for="show-hiv" name="hiv"><input type="checkbox" id="show-hiv" />HIV Infections<span class="credit"> (LSHTM)</span></label></td>';
       var show_obesity = '<td class="obesity-select"><label for="show-obesity" name="obesity"><input type="checkbox" id="show-obesity" />Obesity<span class="credit"> (LSHTM)</span></label></td>';
-      var show_vaccine_confidence_q1 = '<td class="vaccine-confidence-q1-select"><label for="show-vaccine-confidence-q1" name="vc1"><input type="checkbox" id="show-vaccine-confidence-q1" />Vaccines are important for children<span class="credit"> (LSHTM)</span></label></td>';
-      var show_vaccine_confidence_q2 = '<td class="vaccine-confidence-q2-select"><label for="show-vaccine-confidence-q2" name="vc2"><input type="checkbox" id="show-vaccine-confidence-q2" />Vaccines are safe<span class="credit"> (LSHTM)</span></label></td>';
-      var show_vaccine_confidence_q3 = '<td class="vaccine-confidence-q3-select"><label for="show-vaccine-confidence-q3" name="vc3"><input type="checkbox" id="show-vaccine-confidence-q3" />Vaccines are effective<span class="credit"> (LSHTM)</span></label></td>';
-      var show_vaccine_confidence_q4 = '<td class="vaccine-confidence-q4-select"><label for="show-vaccine-confidence-q4" name="vc4"><input type="checkbox" id="show-vaccine-confidence-q4" />Vaccines and religious beliefs<span class="credit"> (LSHTM)</span></label></td>';
+      var show_vaccine_confidence_q1 = '<td class="vaccine-confidence-q1-select"><label for="show-vaccine-confidence-q1" name="vc1"><input type="checkbox" id="show-vaccine-confidence-q1" />Vaccines & Children<span class="credit"> (LSHTM)</span></label></td>';
+      var show_vaccine_confidence_q2 = '<td class="vaccine-confidence-q2-select"><label for="show-vaccine-confidence-q2" name="vc2"><input type="checkbox" id="show-vaccine-confidence-q2" />Vaccine Safety<span class="credit"> (LSHTM)</span></label></td>';
+      var show_vaccine_confidence_q3 = '<td class="vaccine-confidence-q3-select"><label for="show-vaccine-confidence-q3" name="vc3"><input type="checkbox" id="show-vaccine-confidence-q3" />Vaccine Effectiveness<span class="credit"> (LSHTM)</span></label></td>';
+      var show_vaccine_confidence_q4 = '<td class="vaccine-confidence-q4-select"><label for="show-vaccine-confidence-q4" name="vc4"><input type="checkbox" id="show-vaccine-confidence-q4" />Vaccines & Religion<span class="credit"> (LSHTM)</span></label></td>';
       var show_ndvi_anomaly = '<td class="ndvi-anomaly-select"><label for="show-ndvi-anomaly" name="ndvia"><input type="checkbox" id="show-ndvi-anomaly" />Vegetation Index Reduction<span class="credit"> (USGS)</span></label></td>';
       var show_ebola_deaths = '<td class="ebola-deaths-select"><label for="show-ebola-deaths" name="ed"><input type="checkbox" id="show-ebola-deaths" />Ebola Deaths<span class="credit"> (LSHTM)</span></label></td>';
       var show_ebola_cases = '<td class="ebola-cases-select"><label for="show-ebola-cases" name="ec"><input type="checkbox" id="show-ebola-cases" />Ebola Cases<span class="credit"> (LSHTM)</span></label></td>';
@@ -2040,6 +2040,10 @@
         layer_html += '</div>';
         layer_html += '<div class="map-layer-div">';
         layer_html += ' <table class="map-layer-checkbox" cellspacing="0">';
+
+        /* FOREST THEME */
+        layer_html += '<tr><td><fieldset><table>';
+        layer_html += '<legend>Forests</legend>';
         layer_html += '   <tr>';
         layer_html += show_wdpa;
         layer_html += '   </tr>';
@@ -2060,30 +2064,12 @@
           layer_html += show_forest_alert_no_overlay;
           layer_html += '   </tr>';
         }
-        layer_html += '   <tr>';
-        layer_html += show_viirs;
-        layer_html += '   </tr>';
-        layer_html += show_lights_at_night;
-        layer_html += '   <tr>';
-        layer_html += show_coral;
-        layer_html += '   </tr>';
-        layer_html += '   <tr>';
-        layer_html += show_coral_bleaching_alerts;
-        layer_html += '   </tr>';
-        layer_html += '   <tr>';
-        layer_html += show_usgs_windturbine;
-        layer_html += '   </tr>';
-        if (showGlobalWindPower) {
-          layer_html += '   <tr>';
-          layer_html += show_global_wind_power;
-          layer_html += '   </tr>';
-        }
-        layer_html += '   <tr>';
-        layer_html += show_solar_installs;
-        layer_html += '   </tr>';
-        layer_html += '   <tr>';
-        layer_html += show_drilling;
-        layer_html += '   </tr>';
+        layer_html += '</tr></td></table></fieldset>';
+        /* END FOREST THEME */
+
+        /* WATER THEME */
+        layer_html += '<tr><td><fieldset><table>';
+        layer_html += '<legend>Water</legend>';
         if (showWaterOccurrence) {
           layer_html += '   <tr>';
           layer_html += show_water_occurrence;
@@ -2094,14 +2080,29 @@
           layer_html += show_water_change;
           layer_html += '   </tr>';
         }
-        if (showMonthlyRefugees) {
+        layer_html += '</tr></td></table></fieldset>';
+        /* END WATER THEME */
+
+        /* CLIMATE THEME */
+        layer_html += '<tr><td><fieldset><table>';
+        layer_html += '<legend>Climate</legend>';
+        if (showSeaLevelRise) {
           layer_html += '   <tr>';
-          layer_html += show_monthly_refugees;
+          layer_html += show_sea_level_rise_1p0;
+          layer_html += '   </tr>';
+          layer_html += '   <tr>';
+          layer_html += show_sea_level_rise_1p5;
+          layer_html += '   </tr>';
+          layer_html += '   <tr>';
+          layer_html += show_sea_level_rise_2p0;
+          layer_html += '   </tr>';
+          layer_html += '   <tr>';
+          layer_html += show_sea_level_rise_4p0;
           layer_html += '   </tr>';
         }
-        if (showAnnualRefugees) {
+        if (showNdviAnomaly) {
           layer_html += '   <tr>';
-          layer_html += show_annual_refugees;
+          layer_html += show_ndvi_anomaly;
           layer_html += '   </tr>';
         }
         if (showVsi) {
@@ -2109,6 +2110,46 @@
           layer_html += show_vsi;
           layer_html += '   </tr>';
         }
+        layer_html += '</tr></td></table></fieldset>';
+        /* END CLIMATE THEME */
+
+        /* CORAL THEME */
+        layer_html += '<tr><td><fieldset><table>';
+        layer_html += '<legend>Coral</legend>';
+        layer_html += show_coral;
+        layer_html += '   </tr>';
+        layer_html += '   <tr>';
+        layer_html += show_coral_bleaching_alerts;
+        layer_html += '   </tr>';
+        layer_html += '</tr></td></table></fieldset>';
+        /* END CORAL THEME */
+
+        /* ENERGY THEME */
+        layer_html += '<tr><td><fieldset><table>';
+        layer_html += '<legend>Energy</legend>';
+        layer_html += '   <tr>';
+        layer_html += show_solar_installs;
+        layer_html += '   </tr>';
+        layer_html += '   <tr>';
+        layer_html += show_usgs_windturbine;
+        layer_html += '   </tr>';
+        if (showGlobalWindPower) {
+          layer_html += '   <tr>';
+          layer_html += show_global_wind_power;
+          layer_html += '   </tr>';
+        }
+        layer_html += '   <tr>';
+        layer_html += show_drilling;
+        layer_html += '   </tr>';
+        layer_html += '   <tr>';
+        layer_html += show_viirs;
+        layer_html += '   </tr>';
+        layer_html += '</tr></td></table></fieldset>';
+        /* END ENERGY THEME */
+
+        /* NUTRITION THEME */
+        layer_html += '<tr><td><fieldset><table>';
+        layer_html += '<legend>Nutrition</legend>';
         if (showHealthImpact) {
           layer_html += '   <tr>';
           layer_html += show_health_impact_rcp2p6;
@@ -2123,6 +2164,28 @@
           layer_html += show_health_impact_rcp8p5;
           layer_html += '   </tr>';
         }
+        layer_html += '</tr></td></table></fieldset>';
+        /* END NUTRITION THEME */
+
+        /* REFUGEE THEME */
+        layer_html += '<tr><td><fieldset><table>';
+        layer_html += '<legend>Refugees</legend>';
+        if (showMonthlyRefugees) {
+          layer_html += '   <tr>';
+          layer_html += show_monthly_refugees;
+          layer_html += '   </tr>';
+        }
+        if (showAnnualRefugees) {
+          layer_html += '   <tr>';
+          layer_html += show_annual_refugees;
+          layer_html += '   </tr>';
+        }
+        layer_html += '</tr></td></table></fieldset>';
+        /* END REFUGEE THEME */
+
+        /* PANDEMICS THEME */
+        layer_html += '<tr><td><fieldset><table>';
+        layer_html += '<legend>Pandemics</legend>';
         if (showZika) {
           layer_html += '   <tr>';
           layer_html += show_zika;
@@ -2138,28 +2201,15 @@
           layer_html += show_chiku;
           layer_html += '   </tr>';
         }
-        if (showSeaLevelRise) { //SLR
+        if (showEbola) {
           layer_html += '   <tr>';
-          layer_html += show_sea_level_rise_1p0;
+          layer_html += show_ebola_deaths;
           layer_html += '   </tr>';
           layer_html += '   <tr>';
-          layer_html += show_sea_level_rise_1p5;
+          layer_html += show_ebola_cases;
           layer_html += '   </tr>';
           layer_html += '   <tr>';
-          layer_html += show_sea_level_rise_2p0;
-          layer_html += '   </tr>';
-          layer_html += '   <tr>';
-          layer_html += show_sea_level_rise_4p0;
-          layer_html += '   </tr>';
-        }
-        if (showUrbanFragility) {
-          layer_html += '   <tr>';
-          layer_html += show_urban_fragility;
-          layer_html += '   </tr>';
-        }
-        if (showGtd) {
-          layer_html += '   <tr>';
-          layer_html += show_gtd;
+          layer_html += show_ebola_new_cases;
           layer_html += '   </tr>';
         }
         if (showHiv) {
@@ -2170,11 +2220,6 @@
         if (showObesity) {
           layer_html += '   <tr>';
           layer_html += show_obesity;
-          layer_html += '   </tr>';
-        }
-        if (showNdviAnomaly) {
-          layer_html += '   <tr>';
-          layer_html += show_ndvi_anomaly;
           layer_html += '   </tr>';
         }
         if (showVaccineConfidence) {
@@ -2191,20 +2236,36 @@
           layer_html += show_vaccine_confidence_q4;
           layer_html += '   </tr>';
         }
-        if (showEbola) {
+        layer_html += '</tr></td></table></fieldset>';
+        /* END PANDEMICS THEME */
+
+        /* URBANIZATION THEME */
+        layer_html += '<tr><td><fieldset><table>';
+        layer_html += '<legend>Urbanization</legend>';
+        // TODO: Make a base layer
+        layer_html += '   <tr>';
+        layer_html += show_lights_at_night;
+        layer_html += '   </tr>';
+        // END TODO
+        if (showUrbanFragility) {
           layer_html += '   <tr>';
-          layer_html += show_ebola_deaths;
+          layer_html += show_urban_fragility;
           layer_html += '   </tr>';
+        }
+        layer_html += '</tr></td></table></fieldset>';
+        /* END URBANIZATION THEME */
+
+        /* MISC THEME */
+        if (showGtd) {
           layer_html += '   <tr>';
-          layer_html += show_ebola_cases;
-          layer_html += '   </tr>';
-          layer_html += '   <tr>';
-          layer_html += show_ebola_new_cases;
+          layer_html += show_gtd;
           layer_html += '   </tr>';
         }
         layer_html += '   <tr>';
         layer_html += show_himawari;
         layer_html += '   </tr>';
+        /* END MISC THEME */
+
         layer_html += ' </table>';
         layer_html += '</div>';
 
@@ -2661,7 +2722,7 @@
 
       };
 
-      seaLevelRiseLayer = new WebglMapLayer(glb, canvasLayer, seaLevelRiseUrl, seaLevelRiseLayerOptions); //SLR
+      seaLevelRiseLayer = new WebglMapLayer(glb, canvasLayer, seaLevelRiseUrl, seaLevelRiseLayerOptions);
 
 
       var urbanFragilityLayerOptions = {
