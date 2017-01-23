@@ -3197,7 +3197,16 @@
         var currentDate = dates[currentIndex];
         var previousDate = dates[previousIndex];
         var range = currentDate - previousDate;
-        return new Date(previousDate.getTime() + range*delta);
+        var date = new Date(previousDate.getTime() + range*delta);
+        // Ensure we don't go beyond the last date of the timeline.
+        // An example of where this is needed is when we are playing at fast speed and the current time
+        // might go slightly beyond (small epsilon) the desired end time. You can see this when playing
+        // the Obesity layer at fast speed.
+        var lastTimelineDate = new Date(timelapse.getCaptureTimes()[timelapse.getNumFrames() - 1]);
+        if (date > lastTimelineDate) {
+          date = lastTimelineDate;
+        }
+        return date;
       }
 
       // Draw Himawari8. This is a special case that does not play with any of the other layers.
@@ -3633,7 +3642,6 @@
           options.year = year;
           options.delta = Math.min(delta, 1);
           hivLayer.draw(hivLayerView, options);
-
         }
 
         if (showObesityLayer) {
@@ -3647,13 +3655,9 @@
           var delta = getCurrentTimesDelta(currentTime, currentTimes);
           var currentDate = getCurrentDate(currentTime, currentTimes, dates);
           var year = currentDate.getUTCFullYear();
-          // TODO: Need to cap the year to the final year of what the time is showing
-          //       Should happen in getCurrentDate method
-          year = Math.min(2013, year);
           options.year = year;
           options.delta = Math.min(delta, 1);
           obesityLayer.draw(obesityLayerView, options);
-
         }
 
         if (showVaccineConfidenceLayer) {
