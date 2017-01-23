@@ -48,6 +48,7 @@
       menuWidth:null,
       selectedListSeparator: ', ',
       disableInputsOnToggle: true,
+      groupColumns: false,
       colType: "single"
     },
 
@@ -71,6 +72,7 @@
 
       this.speed = $.fx.speeds._default; // default speed for effects
       this._isOpen = false; // assume no
+      this.inputIdCounter = 0;
 
       // create a unique namespace for events that the widget
       // factory cannot unbind automatically. Use eventNamespace if on
@@ -122,8 +124,9 @@
           .addClass('ui-multiselect-checkboxes ui-helper-reset')
           .appendTo(this.menu);
 
+        // (pdille): Add id to each selection
         this.menu.prop("id", $(el).prop("id") + "-selection");
-
+        // (pdille): Add a div that acts as an arrow
         $('<div />').prependTo(this.menu).addClass("selection-arrow");
 
         // perform event bindings
@@ -148,6 +151,8 @@
       }
       if(!this.options.multiple) {
         this.headerLinkContainer.find('.ui-multiselect-all, .ui-multiselect-none').hide();
+      } else {
+        this.headerLinkContainer.find('.ui-multiselect-all, .ui-multiselect-none').show();
       }
       if(this.options.autoOpen) {
         this.open();
@@ -157,62 +162,79 @@
       }
     },
 
+    _makeOption: function(option) {
+      var title = option.title ? option.title : null;
+      var value = option.value;
+      var id = this.element.attr('id') || multiselectID; // unique ID for the label & option tags
+      var inputID = 'ui-multiselect-' + multiselectID + '-' + (option.id || id + '-option-' + this.inputIdCounter++);
+      var isDisabled = option.disabled;
+      var isSelected = option.selected;
+      var labelClasses = [ 'ui-corner-all' ];
+      var liClasses = [];
+      var o = this.options;
+
+      if(isDisabled) {
+        liClasses.push('ui-multiselect-disabled');
+        labelClasses.push('ui-state-disabled');
+      }
+      if(option.className) {
+        liClasses.push(option.className);
+      }
+      if(isSelected && !o.multiple) {
+        labelClasses.push('ui-state-active');
+      }
+
+      var $item = $("<li/>").addClass(liClasses.join(' '));
+      var $label = $("<label/>").attr({
+        "for": $(option).data("id"),
+        "title": title,
+        "name": $(option).data("name")
+      }).addClass(labelClasses.join(' ')).appendTo($item);
+      var $input = $("<input/>").attr({
+        "name": $(option).data("name"),
+        "type": o.multiple ? "checkbox" : "radio",
+        "value": value,
+        "title": title,
+        "id": $(option).data("id"),
+        "checked": isSelected ? "checked" : null,
+        "aria-selected": isSelected ? "true" : null,
+        "disabled": isDisabled ? "disabled" : null,
+        "aria-disabled": isDisabled ? "true" : null
+      }).data($(option).data()).appendTo($label);
+
+      $("<span/>").text($(option).text()).appendTo($label);
+
+      return $item;
+    },
+
+    _buildOptionList: function(element, $appendTo) {
+      var self = this;
+      element.children().each(function() {
+        var $this = $(this);
+        if(this.tagName === 'OPTGROUP') {
+          var $optionGroup = $("<ul/>").addClass('ui-multiselect-optgroup ' + this.className).appendTo($appendTo);
+          if(self.options.groupColumns) {
+            $optionGroup.addClass("ui-multiselect-columns");
+          }
+          $("<a/>").text(this.getAttribute('label')).appendTo($optionGroup);
+          self._buildOptionList($this, $optionGroup);
+        } else {
+          var $listItem = self._makeOption(this).appendTo($appendTo);
+        }
+      });
+
+    },
+
     refresh: function(init) {
-      var inputIdCounter = 0;
+      var self = this;
       var el = this.element;
       var o = this.options;
       var menu = this.menu;
       var checkboxContainer = this.checkboxContainer;
       var html = "";
       var $dropdown = $("<ul/>").addClass('ui-multiselect-checkboxes ui-helper-reset');
-      var id = el.attr('id') || multiselectID++; // unique ID for the label & option tags
+      this.inputIdCounter = 0;
 
-      function makeItem(option, isInOptionGroup) {
-        var title = option.title ? option.title : null;
-        var value = option.value;
-        var inputID = 'ui-multiselect-' + multiselectID + '-' + (option.id || id + '-option-' + inputIdCounter++);
-        var isDisabled = option.disabled;
-        var isSelected = option.selected;
-        var labelClasses = [ 'ui-corner-all' ];
-        var liClasses = [];
-
-        if(isDisabled) {
-          liClasses.push('ui-multiselect-disabled');
-          labelClasses.push('ui-state-disabled');
-        }
-        if(option.className) {
-          liClasses.push(option.className);
-        }
-        if(isSelected && !o.multiple) {
-          labelClasses.push('ui-state-active');
-        }
-        if(isInOptionGroup) {
-          liClasses.push('ui-multiselect-optgrp-child');
-        }
-
-        var $item = $("<li/>").addClass(liClasses.join(' '));
-        var $label = $("<label/>").attr({
-          "for": $(option).data("id"),
-          "title": title,
-          "name": $(option).data("name")
-        }).addClass(labelClasses.join(' ')).appendTo($item);
-        var $input = $("<input/>").attr({
-          "name": $(option).data("name"),
-          "type": o.multiple ? "checkbox" : "radio",
-          "value": value,
-          "title": title,
-          "id": $(option).data("id"),
-          "checked": isSelected ? "checked" : null,
-          "aria-selected": isSelected ? "true" : null,
-          "disabled": isDisabled ? "disabled" : null,
-          "aria-disabled": isDisabled ? "true" : null
-        }).data($(option).data()).appendTo($label);
-
-        $("<span/>").text($(option).text()).appendTo($label);
-        $("<span/>").addClass("credit").text("(" + $(option).data("credit") + ")").appendTo($label);
-
-        return $item;
-      }//makeItem
 
       // update header link container visibility if needed
       if (this.options.header) {
@@ -223,29 +245,16 @@
         }
       }
 
-      //Turn all the options and optiongroups into list items
-      el.children().each(function(i) {
-        var $this = $(this);
+      this._buildOptionList(el, $dropdown);
 
-        if(this.tagName === 'OPTGROUP') {
-          var $groupLabel = $("<li/>").addClass('ui-multiselect-optgroup-label ' + this.className).appendTo($dropdown);
-          var $link = $("<a/>").attr("href", "#").text(this.getAttribute('label')).appendTo($groupLabel);
-
-          $this.children().each(function() {
-            var $listItem = makeItem(this, true).appendTo($dropdown);
-          });
-        } else {
-          var $listItem = makeItem(this).appendTo($dropdown);
-        }
-
-      });
       this.menu.find(".ui-multiselect-checkboxes").remove();
       this.menu.append($dropdown);
-      $dropdown.addClass(this.options.colType);
 
       // cache some moar useful elements
       this.labels = menu.find('label');
       this.inputs = this.labels.children('input');
+      // (pdille)
+      $dropdown.addClass(this.options.colType);
 
       this._setButtonWidth();
 
@@ -287,6 +296,8 @@
     // can easily override it.
     _setButtonValue: function(value) {
       this.buttonlabel.text(value);
+      // (pdille): Add class to selection based upon whether anything is selected
+      // In this case make the text bold to indicate items are selected.
       if (value == "Select layers...") {
         this.buttonlabel.removeClass("layer-in-theme-selected");
         this.buttonlabel.parent().next().removeClass("layer-in-theme-selected");
@@ -312,7 +323,8 @@
       // button events
       button.bind({
         click: clickHandler,
-        keypress: function(e) {
+        // (pdille): Comment out mouse and keypress events
+        /*keypress: function(e) {
           switch(e.which) {
             case 27: // esc
             case 38: // up
@@ -325,7 +337,7 @@
               break;
           }
         },
-        /*mouseenter: function() {
+        mouseenter: function() {
           if(!button.hasClass('ui-state-disabled')) {
             $(this).addClass('ui-state-hover');
           }
@@ -347,13 +359,13 @@
     _bindMenuEvents: function() {
       var self = this;
       // optgroup label toggle support
-      this.menu.delegate('li.ui-multiselect-optgroup-label a', 'click.multiselect', function(e) {
+      this.menu.delegate('.ui-multiselect-optgroup a', 'click.multiselect', function(e) {
         e.preventDefault();
 
         var $this = $(this);
-        var $inputs = $this.parent().nextUntil(':not(.ui-multiselect-optgrp-child)').find('input:visible:not(:disabled)');
+        var $inputs = $this.parent().find('input:visible:not(:disabled)');
         var nodes = $inputs.get();
-        var label = $this.parent().text();
+        var label = $this.text();
 
         // trigger event and bail if the return is false
         if(self._trigger('beforeoptgrouptoggle', e, { inputs:nodes, label:label }) === false) {
@@ -372,12 +384,13 @@
           checked: nodes.length ? nodes[0].checked : null
         });
       })
+      // (pdille): Comment out mouse and keydown events
       /*.delegate('label', 'mouseenter.multiselect', function() {
         if(!$(this).hasClass('ui-state-disabled')) {
           self.labels.removeClass('ui-state-hover');
           $(this).addClass('ui-state-hover').find('input').focus();
         }
-      })*/
+      })
       .delegate('label', 'keydown.multiselect', function(e) {
         if(e.which === 82) {
           return; //"r" key, often used for reload.
@@ -419,7 +432,7 @@
             }
             break;
         }
-      })
+      })*/
       .delegate('input[type="checkbox"], input[type="radio"]', 'click.multiselect', function(e) {
         var $this = $(this);
         var val = this.value;
@@ -481,7 +494,20 @@
         }
 
         e.preventDefault();
-      });
+      })/*.delegate('a', 'keydown.multiselect', function(e) {
+        switch(e.which) {
+          case 27:
+            self.close();
+            break;
+          case 9:
+            var $target = $(e.target);
+            if((e.shiftKey && !$target.parent().prev().length && !self.header.find(".ui-multiselect-filter").length) || (!$target.parent().next().length && !self.labels.length && !e.shiftKey)) {
+              self.close();
+              e.preventDefault();
+            }
+            break;
+        }
+      })*/;
     },
 
     // binds events
@@ -535,7 +561,8 @@
     },
     // set button width
     _setButtonWidth: function() {
-      var width = 0; //this.element.outerWidth();
+      // (pdille): width initially was this.element.outerWidth()
+      var width = 0;
       var minVal = this._getMinWidth();
 
       if(width < minVal) {
@@ -555,7 +582,7 @@
     _setMenuHeight: function() {
       var headerHeight = this.menu.children(".ui-multiselect-header:visible").outerHeight(true);
       var ulHeight = 0;
-      this.menu.find(".ui-multiselect-checkboxes li").each(function(idx, li) {
+      this.menu.find(".ui-multiselect-checkboxes li, .ui-multiselect-checkboxes a").each(function(idx, li) {
         ulHeight += $(li).outerHeight(true);
       });
       if(ulHeight > this.options.height) {
@@ -580,7 +607,11 @@
       var moveToLast = which === 38 || which === 37;
 
       // select the first li that isn't an optgroup label / disabled
-      var $next = $start.parent()[moveToLast ? 'prevAll' : 'nextAll']('li:not(.ui-multiselect-disabled, .ui-multiselect-optgroup-label):visible').first();
+      var $next = $start.parent()[moveToLast ? 'prevAll' : 'nextAll']('li:not(.ui-multiselect-disabled, .ui-multiselect-optgroup):visible').first();
+      // we might have to jump to the next/previous option group
+      if(!$next.length) {
+        $next = $start.parents(".ui-multiselect-optgroup")[moveToLast ? "prev" : "next" ]();
+      }
 
       // if at the first/last element
       if(!$next.length) {
@@ -593,7 +624,7 @@
         $container.scrollTop(moveToLast ? $container.height() : 0);
 
       } else {
-        $next.find('label:visible').trigger('mouseover');
+        $next.find('label:visible')[ moveToLast ? "last" : "first" ]().trigger('mouseover');
       }
     },
 
@@ -700,7 +731,7 @@
         return;
       }
 
-      var $container = menu.find('ul').last();
+      var $container = menu.find('.ui-multiselect-checkboxes');
       var effect = o.show;
 
       // figure out opening effects/speeds
@@ -716,7 +747,7 @@
       }
 
       // set the scroll of the checkbox container
-      $container.scrollTop(0).height(o.height);
+      $container.scrollTop(0);
 
       // show the menu, maybe with a speed/effect combo
       $.fn.show.apply(menu, args);
@@ -730,8 +761,10 @@
       var filter = this.header.find(".ui-multiselect-filter");
       if(filter.length) {
         filter.first().find('input').trigger('focus');
-      } else {
+      } else if(this.labels.length){
         this.labels.filter(':not(.ui-state-disabled)').eq(0).trigger('mouseover').trigger('mouseenter').find('input').trigger('focus');
+      } else {
+        this.header.find('a').first().trigger('focus');
       }
 
 
@@ -821,7 +854,47 @@
       return this.button;
     },
 
+    getMenu: function() {
+      return this.menu;
+    },
+
+    getLabels: function() {
+      return this.labels;
+    },
+
+    addOption: function(attributes, text, groupLabel) {
+      var $option = $("<option/>").attr(attributes).text(text);
+      var optionNode = $option.get(0);
+      if(groupLabel) {
+        this.element.children("OPTGROUP").filter(function() {
+          return $(this).prop("label") === groupLabel;
+        }).append($option);
+        this.menu.find(".ui-multiselect-optgroup").filter(function() {
+          return $(this).find("a").text() === groupLabel;
+        }).append(this._makeOption(optionNode));
+      } else {
+        this.element.append($option);
+        this.menu.find(".ui-multiselect-checkboxes").append(this._makeOption(optionNode));
+      }
+      // update cached elements
+      this.labels = this.menu.find('label');
+      this.inputs = this.labels.children('input');
+    },
+
+    removeOption: function(value) {
+      if(!value) {
+        return;
+      }
+      this.element.find("option[value=" + value + "]").remove();
+      this.labels.find("input[value=" + value + "]").parents("li").remove();
+
+      // update cached elements
+      this.labels = this.menu.find('label');
+      this.inputs = this.labels.children('input');
+    },
+
     position: function() {
+      // (pdille): Position dropdown to fit Earth Timelapse letterbox space
       var pos = {
         my: "left top",
         at: "left top",
@@ -848,7 +921,12 @@
 
       switch(key) {
         case 'header':
-          menu.find('div.ui-multiselect-header')[value ? 'show' : 'hide']();
+          if(typeof value === 'boolean') {
+            this.header[value ? 'show' : 'hide']();
+          } else if(typeof value === 'string') {
+            this.headerLinkContainer.children("li:not(:last-child)").remove();
+            this.headerLinkContainer.prepend("<li>" + value + "</li>");
+          }
           break;
         case 'checkAllText':
           menu.find('a.ui-multiselect-all span').eq(-1).text(value);
@@ -879,6 +957,7 @@
           menu.toggleClass('ui-multiselect-single', !value);
           this.options.multiple = value;
           this.element[0].multiple = value;
+          this.uncheckAll();
           this.refresh();
           break;
         case 'position':
@@ -888,6 +967,7 @@
           this.options[key] = value;
           this.button[0].defaultValue = this.update();
           break;
+        // (pdille): Number of columns the selection dropdown has
         case 'colType':
           this.options[key] = value || "single";
           this.update();
