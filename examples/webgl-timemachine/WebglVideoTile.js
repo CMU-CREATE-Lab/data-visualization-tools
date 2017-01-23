@@ -629,18 +629,30 @@ WebglVideoTile.update = function(tiles, transform) {
 
   var numTimelapseFrames = (typeof visibleBaseMapLayer != "undefined" && visibleBaseMapLayer == "landsat") ? numLandsatFrames : timelapse.getNumFrames();
 
-  // Like with the other layer hacks below, we should have a way to pass in these values
-  if ((typeof showUrbanFragilityLayer != "undefined" && showUrbanFragilityLayer) ||
-    (typeof showAnnualRefugeesLayer != "undefined" && showAnnualRefugeesLayer)) {
+  // Start at 2000 (frame 16) for Urban Fragility
+  // TODO: Like with the other layer hacks below, we should have a way to pass in these values
+  if (typeof showUrbanFragilityLayer != "undefined" && showUrbanFragilityLayer) {
     displayFrame = Math.min(numTimelapseFrames, displayFrame + 16);
   }
 
-  // TODO(rsargent+pdille): This hacks timelapse to show frame 27 (2011) if VIIRS is showing
-  // TODO -- Global showViirsLayer should be passed as option
+  // Start at 2000 (frame 16) for Annual Refugees
+  // TODO: Like with the other layer hacks below, we should have a way to pass in these values
+  if (typeof showAnnualRefugeesLayer != "undefined" && showAnnualRefugeesLayer) {
+    displayFrame = Math.min(numTimelapseFrames, displayFrame + 16);
+  }
+
+  // Start at 2000 (frame 16) for Animated Forest Loss/Gain
+  // TODO: Like with the other layer hacks below, we should have a way to pass in these values
+  if (typeof showAnimatedHansenLayer != "undefined" && showAnimatedHansenLayer) {
+    displayFrame = Math.min(numTimelapseFrames, displayFrame + 16);
+  }
+
+  // TODO: This hacks timelapse to always show frame 27 (2011) if VIIRS is showing
   if (typeof showViirsLayer != "undefined" && showViirsLayer) {
     displayFrame = 27;
   }
 
+  // TODO: This hacks timelapse to always show frame 31 (2015 or 2016 depending upon which Landsat) if SLR is showing
   if (typeof showSeaLevelRiseLayer != "undefined" && showSeaLevelRiseLayer) {
     displayFrame = 31;
   }

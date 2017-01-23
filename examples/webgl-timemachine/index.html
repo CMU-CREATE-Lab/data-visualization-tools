@@ -544,23 +544,21 @@
             $("#show-forest-alerts-no-overlay").click();
           }
           showAnimatedHansenLayer = true;
-          if (!showViirsLayer)
-            timelineType = "customUI";
           setActiveLayersWithTimeline(1);
+          if (!showViirsLayer) {
+            timelineType = "customUI";
+            requestNewTimeline("animated-forest-loss-gain-times.json", timelineType);
+          }
           $("#forest-loss-gain-legend").show();
         } else {
           showAnimatedHansenLayer = false;
           setActiveLayersWithTimeline(-1);
+          doSwitchToLandsat();
           $("#forest-loss-gain-legend").hide();
         }
       }).prop('checked', showAnimatedHansenLayer);
 
       $("#show-forest-alerts").on("click", function() {
-        // Do not load if Himawari is up since both are video timemachines.
-        if ($("#show-himawari").prop('checked')) {
-          $(this).prop('checked', false);
-          return;
-        }
         if ($(this).prop('checked')) {
           if ($("#show-forest-change").prop('checked')) {
             $("#show-forest-change").click();
@@ -575,8 +573,8 @@
             $("#show-forest-alerts-no-overlay").click();
           }
           showForestAlertsTimeMachineLayer = true;
-          timelineType = "defaultUI";
           setActiveLayersWithTimeline(1);
+          timelineType = "defaultUI";
           requestNewTimeline("forest-alerts-times.json", timelineType);
           var v = timelapse.getVideoset();
           v.setFps(10);
@@ -604,11 +602,6 @@
       }).prop('checked', showForestAlertsTimeMachineLayer);
 
       $("#show-forest-alerts-no-overlay").on("click", function() {
-        // Do not load if Himawari is up since both are video timemachines.
-        if ($("#show-himawari").prop('checked')) {
-          $(this).prop('checked', false);
-          return;
-        }
         if ($(this).prop('checked')) {
           if ($("#show-forest-change").prop('checked')) {
             $("#show-forest-change").click();
@@ -623,8 +616,8 @@
             $("#show-forest-alerts").click();
           }
           showForestAlertsNoOverlayTimeMachineLayer = true;
-          timelineType = "defaultUI";
           setActiveLayersWithTimeline(1);
+          timelineType = "defaultUI";
           requestNewTimeline("forest-alerts-times.json", timelineType);
           var v = timelapse.getVideoset();
           v.setFps(10);
@@ -663,14 +656,8 @@
           $("#fires-at-night-legend").show();
         } else {
           showViirsLayer = false;
-          if (doSwitchToLandsat()) {
-            timelineType = "customUI";
-            requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-            timelapse.setMasterPlaybackRate(1);
-            timelapse.setPlaybackRate(defaultPlaybackSpeed);
-            timelapse.setDoDwell(true);
-          }
           setActiveLayersWithTimeline(-1);
+          doSwitchToLandsat();
           $("#fires-at-night-legend").hide();
         }
       }).prop('checked', showViirsLayer);
@@ -681,17 +668,15 @@
             $("#show-coral-bleaching-alerts").click();
           }
           showCoralBleachingLayer = true;
+          setActiveLayersWithTimeline(1);
           showMcrmLayer = true;
           timelineType = "customUI";
-          setActiveLayersWithTimeline(1);
           $("#coral-bleaching-legend").show();
         } else {
           showCoralBleachingLayer = false;
           showMcrmLayer = false;
-          if (doSwitchToLandsat()) {
-            timelineType = "customUI";
-          }
           setActiveLayersWithTimeline(-1);
+          doSwitchToLandsat();
           if (!$("#show-coral-bleaching-alerts").prop('checked')) {
             $("#coral-bleaching-legend").hide();
           }
@@ -703,10 +688,10 @@
           if ($("#show-coral").prop('checked')) {
             $("#show-coral").click();
           }
-          timelineType = "defaultUI";
           showCrwTimemachineLayer = true;
           showMcrmLayer = true;
           setActiveLayersWithTimeline(1);
+          timelineType = "defaultUI";
           requestNewTimeline("crw-times.json", timelineType);
           var v = timelapse.getVideoset();
           v.setFps(22);
@@ -717,15 +702,8 @@
         } else {
           showCrwTimemachineLayer = false;
           showMcrmLayer = false;
-          if (doSwitchToLandsat()) {
-            timelineType = "customUI";
-            requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-            timelapse.setDoDwell(true);
-            WebglVideoTile.useGreenScreen = false;
-            var v = timelapse.getVideoset();
-            v.setFps(10);
-          }
           setActiveLayersWithTimeline(-1);
+          doSwitchToLandsat();
           $("#coral-bleaching-alerts-legend").hide();
           if (!$("#show-coral").prop('checked')) {
             $("#coral-bleaching-legend").hide();
@@ -733,12 +711,11 @@
         }
       }).prop('checked', showCrwTimemachineLayer);
 
-
       $("#show-ndvi-anomaly").on("click", function() {
         if ($(this).prop('checked')) {
-          timelineType = "customUI";
           showNdviAnomalyTimemachineLayer = true;
           setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
           requestNewTimeline("ndvi-anomaly-times.json", timelineType);
           var v = timelapse.getVideoset();
           v.setFps(1);
@@ -747,21 +724,13 @@
           $("#ndvi-anomaly-legend").show();
         } else {
           showNdviAnomalyTimemachineLayer = false;
-          if (doSwitchToLandsat()) {
-            timelineType = "customUI";
-            requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-            timelapse.setDoDwell(true);
-            WebglVideoTile.useGreenScreen = false;
-            var v = timelapse.getVideoset();
-            v.setFps(10);
-          }
           setActiveLayersWithTimeline(-1);
+          doSwitchToLandsat();
           $("#ndvi-anomaly-legend").hide();
         }
       }).prop('checked', showNdviAnomalyTimemachineLayer);
 
       $("#show-himawari").on("click", function() {
-        // Note: Do not call setActiveLayersWithTimeline for himawari
         $(".map-layer-div, .ui-multiselect-checkboxes").find("input:checked").not("#show-himawari").trigger("click");
         if ($(this).prop('checked')) {
           showHimawariTimeMachineLayer = true;
@@ -781,10 +750,10 @@
           showHimawariTimeMachineLayer = false;
           setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
+          visibleBaseMapLayer = previousVisibleBaseMapLayer;
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           var v = timelapse.getVideoset();
           v.setFps(10);
-          visibleBaseMapLayer = previousVisibleBaseMapLayer;
           timelapse.setMaxScale(landsatMaxScale);
           timelapse.setDoDwell(true);
           timelapse.setMasterPlaybackRate(1);
@@ -797,13 +766,13 @@
       $("#show-usgs-windturbine").on("click", function() {
         if ($(this).prop('checked')) {
           showUsgsWindTurbineLayer = true;
-          timelineType = "customUI";
           setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
           $("#wind-installs-legend").show();
         } else {
           showUsgsWindTurbineLayer = false;
-          timelineType = "customUI";
           setActiveLayersWithTimeline(-1);
+          timelineType = "customUI";
           $("#wind-installs-legend").hide();
         }
       }).prop('checked', showUsgsWindTurbineLayer);
@@ -811,13 +780,13 @@
       $("#show-global-wind-power").on("click", function() {
         if ($(this).prop('checked')) {
           showGlobalWindPowerLayer = true;
-          timelineType = "customUI";
           setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
           $("#global-wind-power-legend").show();
         } else {
           showGlobalWindPowerLayer = false;
-          timelineType = "customUI";
           setActiveLayersWithTimeline(-1);
+          timelineType = "customUI";
           $("#global-wind-power-legend").hide();
         }
       }).prop('checked', showGlobalWindPowerLayer);
@@ -825,13 +794,13 @@
       $("#show-solar-installs").on("click", function() {
         if ($(this).prop('checked')) {
           showSolarInstallsLayer = true;
-          timelineType = "customUI";
           setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
           $("#solar-installs-legend").show();
         } else {
           showSolarInstallsLayer = false;
-          timelineType = "customUI";
           setActiveLayersWithTimeline(-1);
+          timelineType = "customUI";
           $("#solar-installs-legend").hide();
         }
       }).prop('checked', showSolarInstallsLayer);
@@ -839,13 +808,13 @@
       $("#show-drilling").on("click", function() {
         if ($(this).prop('checked')) {
           showDrillingLayer = true;
-          timelineType = "customUI";
           setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
           $("#drilling-legend").show();
         } else {
           showDrillingLayer = false;
-          timelineType = "customUI";
           setActiveLayersWithTimeline(-1);
+          timelineType = "customUI";
           $("#drilling-legend").hide();
         }
       }).prop('checked', showDrillingLayer);
@@ -877,15 +846,8 @@
           $("#monthly-refugees-legend").show();
         } else {
           showMonthlyRefugeesLayer = false;
-          if (doSwitchToLandsat()) {
-            timelineType = "customUI";
-            requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-            timelapse.setMasterPlaybackRate(1);
-            timelapse.setPlaybackRate(defaultPlaybackSpeed);
-            timelapse.setDoDwell(true);
-            timelapse.setMaxScale(landsatMaxScale);
-          }
           setActiveLayersWithTimeline(-1);
+          doSwitchToLandsat();
           $("#monthly-refugees-legend").hide();
         }
       }).prop('checked', showMonthlyRefugeesLayer);
@@ -897,16 +859,16 @@
             $("#show-monthly-refugees").click();
           }
           showAnnualRefugeesLayer = true;
-          timelineType = "customUI";
           setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
           requestNewTimeline("annual-refugees-times.json", timelineType);
           timelapse.setMasterPlaybackRate(.045);
           timelapse.setPlaybackRate(.0225);
           $("#annual-refugees-legend").show();
         } else {
           showAnnualRefugeesLayer = false;
-          timelineType = "customUI";
           setActiveLayersWithTimeline(-1);
+          timelineType = "customUI";
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           timelapse.setMasterPlaybackRate(1);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
@@ -940,9 +902,10 @@
           timelapse.setPlaybackRate(.05);
           timelapse.setDoDwell(false);
           $("#health-impact-legend").show();
-          previousVisibleBaseMapLayer = visibleBaseMapLayer;
           showHealthImpactRcp[0] = true;
         } else {
+          showHealthImpactRcp[0] = false;
+          setActiveLayersWithTimeline(-1);
           if (!showHealthImpactRcp[1] && !showHealthImpactRcp[2] && !showHealthImpactRcp[3]) {
             showHealthImpactLayer = false;
             timelineType = "customUI";
@@ -952,10 +915,7 @@
             timelapse.setDoDwell(true);
             timelapse.setMaxScale(landsatMaxScale);
             $("#health-impact-legend").hide();
-            visibleBaseMapLayer = previousVisibleBaseMapLayer;
           }
-          setActiveLayersWithTimeline(-1);
-          showHealthImpactRcp[0] = false;
         }
       }).prop('checked', showHealthImpactLayer);
 
@@ -965,16 +925,17 @@
             $("#dark-base").click();
           }
           showHealthImpactLayer = true;
-          timelineType = "customUI";
           setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
           requestNewTimeline("health-impact-times.json", timelineType);
           timelapse.setMasterPlaybackRate(.05);
           timelapse.setPlaybackRate(.05);
           timelapse.setDoDwell(false);
           $("#health-impact-legend").show();
-          previousVisibleBaseMapLayer = visibleBaseMapLayer;
           showHealthImpactRcp[1] = true;
         } else {
+          showHealthImpactRcp[1] = false;
+          setActiveLayersWithTimeline(-1);
           if (!showHealthImpactRcp[0] && !showHealthImpactRcp[2] && !showHealthImpactRcp[3]) {
             showHealthImpactLayer = false;
             timelineType = "customUI";
@@ -984,10 +945,7 @@
             timelapse.setDoDwell(true);
             timelapse.setMaxScale(landsatMaxScale);
             $("#health-impact-legend").hide();
-            visibleBaseMapLayer = previousVisibleBaseMapLayer;
           }
-          setActiveLayersWithTimeline(-1);
-          showHealthImpactRcp[1] = false;
         }
       }).prop('checked', showHealthImpactLayer);
 
@@ -997,16 +955,17 @@
             $("#dark-base").click();
           }
           showHealthImpactLayer = true;
-          timelineType = "customUI";
           setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
           requestNewTimeline("health-impact-times.json", timelineType);
           timelapse.setMasterPlaybackRate(.05);
           timelapse.setPlaybackRate(.05);
           timelapse.setDoDwell(false);
           $("#health-impact-legend").show();
-          previousVisibleBaseMapLayer = visibleBaseMapLayer;
           showHealthImpactRcp[2] = true;
         } else {
+          showHealthImpactRcp[2] = false;
+          setActiveLayersWithTimeline(-1);
           if (!showHealthImpactRcp[0] && !showHealthImpactRcp[1] && !showHealthImpactRcp[3]) {
             showHealthImpactLayer = false;
             timelineType = "customUI";
@@ -1016,10 +975,7 @@
             timelapse.setDoDwell(true);
             timelapse.setMaxScale(landsatMaxScale);
             $("#health-impact-legend").hide();
-            visibleBaseMapLayer = previousVisibleBaseMapLayer;
           }
-          setActiveLayersWithTimeline(-1);
-          showHealthImpactRcp[2] = false;
         }
       }).prop('checked', showHealthImpactLayer);
 
@@ -1029,15 +985,16 @@
             $("#dark-base").click();
           }
           showHealthImpactLayer = true;
-          timelineType = "customUI";
           setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
           requestNewTimeline("health-impact-times.json", timelineType);
           timelapse.setMasterPlaybackRate(.05);
           timelapse.setPlaybackRate(.05);
           $("#health-impact-legend").show();
-          previousVisibleBaseMapLayer = visibleBaseMapLayer;
           showHealthImpactRcp[3] = true;
         } else {
+          showHealthImpactRcp[3] = false;
+          setActiveLayersWithTimeline(-1);
           if (!showHealthImpactRcp[0] && !showHealthImpactRcp[1] && !showHealthImpactRcp[2]) {
             showHealthImpactLayer = false;
             timelineType = "customUI";
@@ -1047,28 +1004,25 @@
             timelapse.setDoDwell(true);
             timelapse.setMaxScale(landsatMaxScale);
             $("#health-impact-legend").hide();
-            visibleBaseMapLayer = previousVisibleBaseMapLayer;
           }
-          setActiveLayersWithTimeline(-1);
-          showHealthImpactRcp[3] = false;
         }
       }).prop('checked', showHealthImpactLayer);
 
       $("#show-zika").on("click", function() {
         if ($(this).prop('checked')) {
           showZikaLayer = true;
-          timelineType = "customUI";
           setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
           // TODO: Hack timeline to show all of 2016 for Zika
           requestNewTimeline("zika-times.json", timelineType);
           $("#zika-legend").show();
         } else {
           showZikaLayer = false;
-          timelineType = "customUI";
-          timelapse.setMasterPlaybackRate(1);
-          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-          timelapse.setPlaybackRate(defaultPlaybackSpeed);
           setActiveLayersWithTimeline(-1);
+          timelineType = "customUI";
+          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
           $("#zika-legend").hide();
         }
       }).prop('checked', showZikaLayer);
@@ -1081,10 +1035,10 @@
           $("#dengue-legend").show();
         } else {
           showDengueLayer = false;
+          setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
           timelapse.setMasterPlaybackRate(1);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
-          setActiveLayersWithTimeline(-1);
           $("#dengue-legend").hide();
         }
       }).prop('checked', showDengueLayer);
@@ -1092,15 +1046,15 @@
       $("#show-chiku").on("click", function() {
         if ($(this).prop('checked')) {
           showChikuLayer = true;
-          timelineType = "customUI";
           setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
           $("#chiku-legend").show();
         } else {
           showChikuLayer = false;
+          setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
           timelapse.setMasterPlaybackRate(1);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
-          setActiveLayersWithTimeline(-1);
           $("#chiku-legend").hide();
         }
       }).prop('checked', showChikuLayer);
@@ -1120,14 +1074,14 @@
             setActiveLayersWithTimeline(-1);
           }
           showSeaLevelRiseLayer = true;
-          timelineType = "customUI";
           setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
           requestNewTimeline("sea-level-rise-1p0-times.json", timelineType);
           $("#sea-level-rise-legend").show();
         } else {
           showSeaLevelRiseLayer = false;
-          timelineType = "customUI";
           setActiveLayersWithTimeline(-1);
+          timelineType = "customUI";
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           $("#sea-level-rise-legend").hide();
         }
@@ -1148,14 +1102,14 @@
             setActiveLayersWithTimeline(-1);
           }
           showSeaLevelRiseLayer = true;
-          timelineType = "customUI";
           setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
           requestNewTimeline("sea-level-rise-1p5-times.json", timelineType);
           $("#sea-level-rise-legend").show();
         } else {
           showSeaLevelRiseLayer = false;
-          timelineType = "customUI";
           setActiveLayersWithTimeline(-1);
+          timelineType = "customUI";
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           $("#sea-level-rise-legend").hide();
         }
@@ -1176,14 +1130,14 @@
             setActiveLayersWithTimeline(-1);
           }
           showSeaLevelRiseLayer = true;
-          timelineType = "customUI";
           setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
           requestNewTimeline("sea-level-rise-2p0-times.json", timelineType);
           $("#sea-level-rise-legend").show();
         } else {
           showSeaLevelRiseLayer = false;
-          timelineType = "customUI";
           setActiveLayersWithTimeline(-1);
+          timelineType = "customUI";
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           $("#sea-level-rise-legend").hide();
         }
@@ -1204,14 +1158,14 @@
             setActiveLayersWithTimeline(-1);
           }
           showSeaLevelRiseLayer = true;
-          timelineType = "customUI";
           setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
           requestNewTimeline("sea-level-rise-times.json", timelineType);
           $("#sea-level-rise-legend").show();
         } else {
           showSeaLevelRiseLayer = false;
-          timelineType = "customUI";
           setActiveLayersWithTimeline(-1);
+          timelineType = "customUI";
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           $("#sea-level-rise-legend").hide();
         }
@@ -1251,20 +1205,18 @@
             $("#dark-base").click();
           }
           showHivLayer = true;
-          timelineType = "customUI";
           setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
           requestNewTimeline("hiv-times.json", timelineType);
           timelapse.setPlaybackRate(0.5);
           $("#hiv-legend").show();
-          previousVisibleBaseMapLayer = visibleBaseMapLayer;
         } else {
           showHivLayer = false;
-          timelineType = "customUI";
           setActiveLayersWithTimeline(-1);
+          timelineType = "customUI";
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
           $("#hiv-legend").hide();
-          visibleBaseMapLayer = previousVisibleBaseMapLayer;
         }
       }).prop('checked', showHivLayer);
 
@@ -1274,22 +1226,20 @@
             $("#dark-base").click();
           }
           showObesityLayer = true;
-          timelineType = "customUI";
           setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
           requestNewTimeline("obesity-times.json", timelineType);
           timelapse.setMasterPlaybackRate(2);
           timelapse.setPlaybackRate(2);
           $("#obesity-legend").show();
-          previousVisibleBaseMapLayer = visibleBaseMapLayer;
         } else {
           showObesityLayer = false;
-          timelineType = "customUI";
           setActiveLayersWithTimeline(-1);
+          timelineType = "customUI";
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           timelapse.setMasterPlaybackRate(1);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
           $("#obesity-legend").hide();
-          visibleBaseMapLayer = previousVisibleBaseMapLayer;
         }
       }).prop('checked', showObesityLayer);
 
@@ -1465,16 +1415,16 @@
       $("input:radio[name=base-layers]").on("click", function() {
         visibleBaseMapLayer = $(this).val();
         if (visibleBaseMapLayer == "landsat" && previousVisibleBaseMapLayer != "landsat") {
-          $(".googleLogo").show();
+          setActiveLayersWithTimeline(1);
           if (!showViirsLayer) {
             timelineType = "customUI";
           }
-          setActiveLayersWithTimeline(1);
+          $(".googleLogo").show();
         } else if (visibleBaseMapLayer != "landsat") {
-          $(".googleLogo").hide();
-          timelineType = "none";
           if (previousVisibleBaseMapLayer == "landsat")
             setActiveLayersWithTimeline(-1);
+          timelineType = "none";
+          $(".googleLogo").hide();
         }
         previousVisibleBaseMapLayer = visibleBaseMapLayer;
       });
@@ -1641,6 +1591,14 @@
         if (timelineType == "defaultUI" && (showViirsLayer || showMonthlyRefugeesLayer || showCrwTimemachineLayer)) {
           return false;
         } else {
+          timelineType = "customUI";
+          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          timelapse.setDoDwell(true);
+          WebglVideoTile.useGreenScreen = false;
+          var v = timelapse.getVideoset();
+          v.setFps(10);
           return true;
         }
       }
