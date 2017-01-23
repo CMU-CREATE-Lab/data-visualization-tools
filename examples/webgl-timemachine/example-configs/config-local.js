@@ -11,7 +11,7 @@ var EARTH_TIMELAPSE_CONFIG = {
   "waypointDelayInMilliseconds" : 1 * 20 * 1000,
   "showEVA" : false,
   "showForestAlerts" : false,
-  "showLODES" : false,
+  "showLodes" : false,
   "showGlobalWindPower": false,
   "enableLetterboxMode" : false,
   "useFaderShader" : true,
