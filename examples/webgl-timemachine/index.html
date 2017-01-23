@@ -1647,7 +1647,10 @@
         if ((activeLayersWithTimeline >= 1 && visibleBaseMapLayer != "landsat") ||
             (activeLayersWithTimeline == 1 && visibleBaseMapLayer == "landsat" && !(showLightsAtNightLayer || showHansenLayer2 || showVsiLayer))) {
           if (timelineType == "customUI") {
-            $(".customControl").show().children().not(".googleLogo").show();
+            $(".customControl").show().children().show();
+            if (visibleBaseMapLayer != "landsat") {
+              $(".googleLogo").hide();
+            }
           } else if (timelineType == "defaultUI") {
             $(".controls, .captureTime").show();
           }
