@@ -128,6 +128,12 @@ html, body {
   bottom: 0px !important;
   width: auto !important;
   height: auto !important;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 .ghinda-video-player {
   width: 100% !important;
@@ -523,8 +529,8 @@ fieldset {
   left: 375px !important;
 }
 .share.letterbox {
-  top: 28px !important;
-  left: 580px !important;
+  top: 73px !important;
+  left: 23px !important;
 }
 .share .customButton {
   height: 21px !important;

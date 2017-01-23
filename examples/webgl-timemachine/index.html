@@ -1689,7 +1689,7 @@
         if ((activeLayersWithTimeline >= 1 && visibleBaseMapLayer != "landsat") ||
             (activeLayersWithTimeline == 1 && visibleBaseMapLayer == "landsat" && !(showLightsAtNightLayer || showHansenLayer2 || showVsiLayer))) {
           if (timelineType == "customUI") {
-            $(".customControl").show().children().show();
+            $(".customControl").show().children().not(".googleLogo").show();
           } else if (timelineType == "defaultUI") {
             $(".controls, .captureTime").show();
           }
@@ -2408,7 +2408,7 @@
             noneSelectedText: "Select layers...",
             selectedText: "# layer(s) selected",
             menuWidth: 520,
-            height: 200,
+            height: 194,
             colType: "double"
         });
         $("#refugee-theme").multiselect({
