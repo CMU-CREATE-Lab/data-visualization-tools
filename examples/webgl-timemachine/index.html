@@ -37,6 +37,7 @@
   <script src="../../js/customVideoTagControls/customVideoTagControls.js" type="text/javascript"></script>
   <script src="../../js/jquery.multiselect.js" type="text/javascript"></script>
   <script src="../../js/earcut.min.js" type="text/javascript"></script>
+  <script src="../../js/dat.gui.min.js"></script>
 
   <script src="config-local.js" type="text/javascript"></script>
   <script src="../../../../config.js" type="text/javascript"></script>
@@ -81,7 +82,7 @@
     var googleMapsAPIKey = EARTH_TIMELAPSE_CONFIG.googleMapsAPIKey;
 
     var showEVA = !!EARTH_TIMELAPSE_CONFIG.showEVA;
-    var showLODES = !!EARTH_TIMELAPSE_CONFIG.showLODES;
+    var showLodes = !!EARTH_TIMELAPSE_CONFIG.showLodes;
     var showForestAlerts = !!EARTH_TIMELAPSE_CONFIG.showForestAlerts;
     var showMonthlyRefugees = !!EARTH_TIMELAPSE_CONFIG.showMonthlyRefugees;
     var showAnnualRefugees = !!EARTH_TIMELAPSE_CONFIG.showAnnualRefugees;
@@ -189,7 +190,126 @@
     var ebolaDeathsLayer;
     var ebolaCasesLayer;
     var ebolaNewCasesLayer;
+    var lodesLayer;
 
+    // LODES interface  
+    var lodesGui;
+    var lodesOptions;
+
+    var LodesOptions = function() {
+      this.doPulse = true;
+      this.totalTime = 1000;
+      this.dwellTime = 1000;
+      this.filter = true;
+      this.distance = 50.;
+      this.animate = 'animate';
+      this.speed = 1;
+      this.se01 = true;
+      this.se02 = true;
+      this.se03 = true;
+    };
+
+    var lodesAnimationState = {
+      then: new Date(),
+      inMainLoop: false,
+      inStartDwell: true,
+      inEndDwell: false,
+      pulse: false
+    }
+
+    function lodesLayerInfo() {
+      var readyTileCount = 0;
+      var waitingTileCount = 0;
+
+      var pointCount = 0;
+      var keys = Object.keys(lodesLayer._tileView._tiles);
+      var zoomLevel = 0;
+      var lodesLayerView = timelapse.getView();
+      var timelapse2map = lodesLayer.getWidth() / landsatBaseMapLayer.getWidth();
+      lodesLayerView.scale /= timelapse2map;
+
+      var zoomLevel = lodesLayer._tileView._scale2level(lodesLayerView.scale);
+
+      var lightBaseMapView = timelapse.getView();
+      var timelapse2map = lightBaseMapLayer.getWidth() / landsatBaseMapLayer.getWidth();
+      lightBaseMapView.x *= timelapse2map;
+      lightBaseMapView.y *= timelapse2map;
+      lightBaseMapView.scale /= timelapse2map;
+      var mapLevel = lightBaseMapLayer._tileView._scale2level(lightBaseMapView.scale);
+
+      for (var i = 0; i < keys.length; i++) {
+        var tile = lodesLayer._tileView._tiles[keys[i]];
+        if (tile._ready) {
+          readyTileCount++;
+          pointCount += tile._pointCount;
+        } else {
+          waitingTileCount++;
+        }
+      }
+
+      return {
+        'readyTileCount': readyTileCount,
+        'waitingTileCount': waitingTileCount,
+        'pointCount': pointCount,
+        'zoomLevel': zoomLevel,
+        'mapLevel': mapLevel
+      }
+    }
+
+    function initLodesGui() {
+      var el = document.createElement("div");
+      el["id"] = "se01-color";
+      document.body.appendChild(el);
+      var el = document.createElement("div");
+      el["id"] = "se02-color";
+      document.body.appendChild(el);
+      var el = document.createElement("div");
+      el["id"] = "se03-color";
+      document.body.appendChild(el);
+
+      lodesOptions = new LodesOptions();      
+      var gui = new dat.GUI();
+      var f1 = gui.addFolder('Animation');
+      f1.add(lodesOptions, 'animate', { animate: 'animate', home: 'home', work: 'work' } );
+      f1.add(lodesOptions, 'speed', { fast: 1, medium: 3, slow: 5});
+      f1.open();
+      var f2 = gui.addFolder('Distance in KM');
+      f2.add(lodesOptions, 'filter');
+      f2.add(lodesOptions, 'distance',10,100);
+      f2.open();
+      var f3 = gui.addFolder('Earnings per Month');
+      f3.add(lodesOptions, 'se01').name('< $1251');
+      f3.add(lodesOptions, 'se02').name('$1251 - $3333');
+      f3.add(lodesOptions, 'se03').name('> $3333');
+      f3.open();
+      f3.onResize = function() {
+          var el1 = document.getElementById("se01-color");
+          var el2 = document.getElementById("se02-color");
+          var el3 = document.getElementById("se03-color");
+
+          if (f3.closed) {
+              el1.style['display'] = 'none';
+              el2.style['display'] = 'none';
+              el3.style['display'] = 'none';
+          } else {
+              el1.style['display'] = 'block';
+              el2.style['display'] = 'block';
+              el3.style['display'] = 'block';
+          }
+      }
+      gui.onResize = function() {
+          if (gui.closed) {
+              var el1 = document.getElementById("se01-color");
+              var el2 = document.getElementById("se02-color");
+              var el3 = document.getElementById("se03-color");
+
+              el1.style['display'] = 'none';
+              el2.style['display'] = 'none';
+              el3.style['display'] = 'none';
+
+          }
+      }
+    }
     // ## 2 ##
     //// Layer tile paths
     //
@@ -250,6 +370,8 @@
     var ebolaDeathsUrl = rootTilePath + "/ebola/deaths";
     var ebolaCasesUrl = rootTilePath + "/ebola/cases";
     var ebolaNewCasesUrl = rootTilePath + "/ebola/new-cases";
+
+    var lodesUrl = rootTilePath + "/lodes/lodes-10";
 
     function init() {
       var settings = {
@@ -1411,6 +1533,19 @@
         }
       }).prop('checked', showEbolaNewCasesLayer);
 
+      $("#show-lodes").on("click", function() {
+        if ($(this).prop('checked')) {
+          showLodesLayer = true;
+          timelineType = "none";
+          $("#lodes-legend").show();
+        } else {
+          showLodesLayer = false;
+          timelineType = "customUI";
+          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+        }
+        $("#lodes-legend").hide();
+      }).prop('checked', showLodesLayer);
+
       // Base layers
       $("input:radio[name=base-layers]").on("click", function() {
         visibleBaseMapLayer = $(this).val();
@@ -1752,6 +1887,7 @@
     var showEbolaDeathsLayer = false;
     var showEbolaCasesLayer = false;
     var showEbolaNewCasesLayer = false;
+    var showLodesLayer = false;
 
     // Default Time Machine visibility
     var tileViewVisibility = {
@@ -1832,6 +1968,7 @@
       var show_ebola_deaths = '<td class="ebola-deaths-select"><label for="show-ebola-deaths" name="ed"><input type="checkbox" id="show-ebola-deaths" />Ebola Deaths<span class="credit"> (LSHTM)</span></label></td>';
       var show_ebola_cases = '<td class="ebola-cases-select"><label for="show-ebola-cases" name="ec"><input type="checkbox" id="show-ebola-cases" />Ebola Cases<span class="credit"> (LSHTM)</span></label></td>';
       var show_ebola_new_cases = '<td class="ebola-new-cases-select"><label for="show-ebola-new-cases" name="enc"><input type="checkbox" id="show-ebola-new-cases" />Ebola New Cases<span class="credit"> (LSHTM)</span></label></td>';
+      var show_lodes = '<td class="lodes-select"><label for="lodes-cases" name="lodes"><input type="checkbox" id="show-lodes" />LODES<span class="credit"> (US Census)</span></label></td>';
 
       if (enableLetterboxMode) {
         layer_html += '<div class="base-map-div">';
@@ -2222,6 +2359,11 @@
           layer_html += show_gtd;
           layer_html += '   </tr>';
         }
+        if (showLodes) {
+          layer_html += '   <tr>';
+          layer_html += show_lodes;
+          layer_html += '   </tr>';
+        }
         layer_html += '   <tr>';
         layer_html += show_himawari;
         layer_html += '   </tr>';
@@ -2259,8 +2401,6 @@
       layer_html += '   <option data-file-playback-rate="1.5" data-type="video" data-file-name="temp-anomaly.mp4">Temperature Anomaly 1970-2016</option>';
       if (showEVA)
         layer_html += '   <option data-type="link" data-link-path="http://localhost:8080/?uid=history-1436384863961-Vyxt6PIO">EVA - Explorable Visual Analytics</option>';
-      if (showLODES)
-        layer_html += '   <option data-type="link" data-link-path="lodes.html#earthTimeBackButton">LODES - Origin-Destination Employment Statistics</option>';
       layer_html += '   <optgroup label="World Economic Forum - Davos 2016">';
       layer_html += '   <option data-file-playback-rate="1" data-type="video" data-file-name="WEF/The Climate Crisis with Naomi Oreskes and Achim Steiner.mp4">Climate Crisis with Naomi Oreskes and Achim Steiner</option>';
       layer_html += '   <option data-file-playback-rate="1" data-type="video" data-file-name="WEF/The Climate Crisis with Naomi Oreskes and Nicholas Stern.mp4">Climate Crisis with Naomi Oreskes and Nicholas Stern</option>';
@@ -2310,6 +2450,8 @@
       legend_html += '<tr id="ebola-deaths-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Ebola Deaths <span class="credit"> (LSHTM)</span></div></td></tr>';
       legend_html += '<tr id="ebola-cases-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Ebola Cases <span class="credit"> (LSHTM)</span></div></td></tr>';
       legend_html += '<tr id="ebola-new-cases-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Ebola New Cases <span class="credit"> (LSHTM)</span></div></td></tr>';
+      legend_html += '<tr id="lodes-legend" style="display: none"><td><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">LODES</div></td></tr>';
+
 
       // ## 5b ##
       //// Add to layer legend ////
@@ -2763,6 +2905,18 @@
       ebolaDeathsLayer = new WebglVectorLayer2(glb, canvasLayer, ebolaDeathsUrl, ebolaLayerOptions);
       ebolaCasesLayer = new WebglVectorLayer2(glb, canvasLayer, ebolaCasesUrl, ebolaLayerOptions);
       ebolaNewCasesLayer = new WebglVectorLayer2(glb, canvasLayer, ebolaNewCasesUrl, ebolaLayerOptions);
+
+      var lodesLayerOptions = {
+        tileWidth: 256,
+        tileHeight: 256,
+        nLevels: 10,
+        setDataFunction: WebGLVectorTile2.prototype._setLodesData,
+        drawFunction: WebGLVectorTile2.prototype._drawLodes,
+        fragmentShader: WebGLVectorTile2.lodesFragmentShader,
+        vertexShader: WebGLVectorTile2.lodesVertexShader
+      };
+      lodesLayer = new WebglVectorLayer2(glb, canvasLayer, lodesUrl, lodesLayerOptions);
+      initLodesGui();
 
       // Layer Toggle UI
       initLayerToggleUI();
@@ -3726,6 +3880,86 @@
           options.pointSize = 5.0;
           ebolaNewCasesLayer.draw(ebolaLayerView, options);
         }
+
+        if (showLodesLayer) {
+
+          var lodesLayerView = getLayerView(lodesLayer, landsatBaseMapLayer);
+          var options = {};
+          options.zoom = timelapse.getCurrentZoom();
+          options.se01 = lodesOptions.se01;
+          options.se02 = lodesOptions.se02;
+          options.se03 = lodesOptions.se03;
+
+          options.filter = lodesOptions.filter;
+          options.distance = lodesOptions.distance;
+
+          if (lodesOptions.animate == 'animate') {
+            var now = new Date();
+            var deltaTime = now.getTime() - lodesAnimationState.then.getTime();
+            var step = deltaTime/(lodesOptions.totalTime*lodesOptions.speed);
+            if (lodesAnimationState.inMainLoop) {
+              if (lodesOptions.doPulse) {
+                if (lodesAnimationState.pulse) {
+                  step = 1. - step;
+                }
+              } else if (lodesAnimationState.pulse) {
+                lodesAnimationState.pulse = false;
+              }
+
+              if (deltaTime >= lodesOptions.totalTime*lodesOptions.speed) {
+                lodesAnimationState.then = new Date();
+                lodesAnimationState.inMainLoop = false;
+                if (lodesOptions.doPulse && lodesAnimationState.pulse) {
+                  lodesAnimationState.inStartDwell = true;
+                } else {
+                  lodesAnimationState.inEndDwell = true;
+                }
+              }
+            }
+            else if (lodesOptions.inStartDwell) {
+              step = 0.;
+              if (deltaTime >= lodesOptions.dwellTime) {
+                lodesOptions.inStartDwell = false;
+                lodesOptions.inMainLoop = true;
+                lodesOptions.then = new Date();
+                if (lodesOptions.doPulse) {
+                  lodesOptions.pulse = false;
+                }
+              }
+            }
+            else {
+              step = 1.;
+              if (deltaTime >= lodesOptions.dwellTime) {
+                lodesAnimationState.inEndDwell = false;
+                lodesAnimationState.then = new Date();
+                if (lodesOptions.doPulse) {
+                  lodesAnimationState.inMainLoop = true;
+                  lodesAnimationState.pulse = true;
+                } else {
+                  lodesAnimationState.inStartDwell = true;
+                }
+              }
+            }
+            step = Math.min(Math.max(step, 0.),1.);
+
+          } else if (lodesOptions.animate == 'home'){
+              step = 0.;
+          } else {
+            step = 1.;
+          }
+
+          options.step = step;
+
+          var info = lodesLayerInfo();
+          var throttle = 1.0;
+          if (info.zoomLevel >= 5 && info.mapLevel >= 5 && info.mapLevel < 11) {
+            throttle = Math.min(1000000/info.pointCount, 1.0);
+          }
+
+          options.throttle = throttle;
+          lodesLayer.draw(lodesLayerView, options);
+        }
+
 
         // ## 7 ##
         //// Layers to draw on top go here
