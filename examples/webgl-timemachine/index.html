@@ -257,16 +257,6 @@
     }
 
     function initLodesGui() {
-      var el = document.createElement("div");
-      el["id"] = "se01-color";
-      document.body.appendChild(el);
-      var el = document.createElement("div");
-      el["id"] = "se02-color";
-      document.body.appendChild(el);
-      var el = document.createElement("div");
-      el["id"] = "se03-color";
-      document.body.appendChild(el);
-
       lodesOptions = new LodesOptions();      
       var gui = new dat.GUI();
       var f1 = gui.addFolder('Animation');
@@ -309,6 +299,41 @@
 
           }
       }
+      var dg = document.getElementsByClassName("dg ac")[0];
+      var el = document.createElement("div");
+      el["id"] = "se01-color";
+      el["style"]["position"] = "absolute";
+      el["style"]["width"] = "24px";
+      el["style"]["height"] = "12px";
+      el["style"]["top"] = "205px";
+      el["style"]["right"] = "112px";
+      el["style"]["backgroundColor"] = "#194BFF";
+      el["style"]["zIndex"] = 100;
+      dg.appendChild(el);
+
+      var el = document.createElement("div");
+      el["id"] = "se02-color";
+      el["style"]["position"] = "absolute";
+      el["style"]["width"] = "24px";
+      el["style"]["height"] = "12px";
+      el["style"]["top"] = "233px";
+      el["style"]["right"] = "112px";
+      el["style"]["backgroundColor"] = "#148A09";
+      el["style"]["zIndex"] = 100;
+      dg.appendChild(el);
+
+      var el = document.createElement("div");
+      el["id"] = "se03-color";
+      el["style"]["position"] = "absolute";
+      el["style"]["width"] = "24px";
+      el["style"]["height"] = "12px";
+      el["style"]["top"] = "261px";
+      el["style"]["right"] = "112px";
+      el["style"]["backgroundColor"] = "#E31E1E";
+      el["style"]["zIndex"] = 100;
+      dg.appendChild(el);
+      dg["style"]["display"] = "none";
+
     }
     // ## 2 ##
     //// Layer tile paths
@@ -1534,13 +1559,19 @@
       }).prop('checked', showEbolaNewCasesLayer);
 
       $("#show-lodes").on("click", function() {
+        var dg = document.getElementsByClassName("dg ac")[0];
         if ($(this).prop('checked')) {
+          if (visibleBaseMapLayer != "light") {
+            $("#light-base").click();
+          }
+          dg["style"]["display"] = "block";
           showLodesLayer = true;
           timelineType = "none";
           $("#lodes-legend").show();
         } else {
           showLodesLayer = false;
           timelineType = "customUI";
+          dg["style"]["display"] = "none";
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
         }
         $("#lodes-legend").hide();
@@ -3916,14 +3947,14 @@
                 }
               }
             }
-            else if (lodesOptions.inStartDwell) {
+            else if (lodesAnimationState.inStartDwell) {
               step = 0.;
               if (deltaTime >= lodesOptions.dwellTime) {
-                lodesOptions.inStartDwell = false;
-                lodesOptions.inMainLoop = true;
-                lodesOptions.then = new Date();
+                lodesAnimationState.inStartDwell = false;
+                lodesAnimationState.inMainLoop = true;
+                lodesAnimationState.then = new Date();
                 if (lodesOptions.doPulse) {
-                  lodesOptions.pulse = false;
+                  lodesAnimationState.pulse = false;
                 }
               }
             }
