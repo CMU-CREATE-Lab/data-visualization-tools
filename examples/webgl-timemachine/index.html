@@ -1835,6 +1835,12 @@
           }
         }
 
+        if (timelineType == "defaultUI") {
+          $(".customHelpLabel-touchFriendly").css("top", "-8px");
+        } else {
+          $(".customHelpLabel-touchFriendly").css("top", "-26px");
+        }
+
       };
 
       var setActiveLayersWithTimeline = function(modifier) {
