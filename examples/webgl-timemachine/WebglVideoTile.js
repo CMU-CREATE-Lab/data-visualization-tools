@@ -754,8 +754,8 @@ WebglVideoTile.textureGreenScreenFragmentFaderShader =
   '  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t)); \n' +
   '  vec4 textureColor2 = texture2D(uSampler2, vec2(vTextureCoord.s, vTextureCoord.t));\n' +
   '  vec4 fragColor = textureColor * (1.0 - uAlpha) + textureColor2 * uAlpha;\n' +
-  '  if (fragColor.r < .5) { \n' +
-  '    gl_FragColor = vec4(fragColor.rgb, fragColor.r);\n' +
+  '  if (fragColor.r + fragColor.g + fragColor.b < .5) { \n' +
+  '    gl_FragColor = vec4(fragColor.rgb, (fragColor.r + fragColor.g + fragColor.b)/.5);\n' +
   '  } else { \n' +
   '    gl_FragColor = fragColor;\n' +
   '  }\n' +
