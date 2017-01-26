@@ -336,7 +336,6 @@ fieldset {
   width: 100% !important;
   height: calc(100% - 312px) !important;
 }
-
 #letterbox-bottom {
   position: relative;
   width: 100%;
@@ -362,7 +361,7 @@ fieldset {
   background: rgba(255, 255, 255, 1);
   padding: 18px;
   position: absolute;
-  bottom: 178px;
+  bottom: 230px;
   left: 20px;
   z-index: 10;
   max-width: 283px;
@@ -372,12 +371,15 @@ fieldset {
   border-radius: 2px !important;
   box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
 }
-/*.current-location-text.letterbox {
-  bottom: 160px !important;
+.current-location-text.letterbox {
+  bottom: 140px !important;
+}
+.current-location-text.letterbox.hyperwall {
+  bottom: 170px !important;
 }
 .current-location-text.hyperwall {
   bottom: 260px !important;
-}*/
+}
 .current-location-text h3 {
   margin-bottom: 0.35em;
   font-family: 'franklin-gothic-urw-comp', 'Helvetica Neue', Helvetica, Arial, sans-serif;
