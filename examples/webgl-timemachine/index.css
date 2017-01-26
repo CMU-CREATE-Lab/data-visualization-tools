@@ -226,6 +226,9 @@ html, body {
 .base-map-div.letterbox.hyperwall {
   left: 235px;
 }
+.base-map-radio {
+  width: 100%;
+}
 .base-map-radio.letterbox {
   position: relative;
   top: 7px;

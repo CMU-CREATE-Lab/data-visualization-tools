@@ -1995,7 +1995,7 @@
       var show_ebola_deaths = '<td class="ebola-deaths-select"><label for="show-ebola-deaths" name="ed"><input type="checkbox" id="show-ebola-deaths" />Ebola Deaths<span class="credit"> (LSHTM)</span></label></td>';
       var show_ebola_cases = '<td class="ebola-cases-select"><label for="show-ebola-cases" name="ec"><input type="checkbox" id="show-ebola-cases" />Ebola Cases<span class="credit"> (LSHTM)</span></label></td>';
       var show_ebola_new_cases = '<td class="ebola-new-cases-select"><label for="show-ebola-new-cases" name="enc"><input type="checkbox" id="show-ebola-new-cases" />Ebola New Cases<span class="credit"> (LSHTM)</span></label></td>';
-      var show_lodes = '<td class="lodes-select"><label for="lodes-cases" name="lodes"><input type="checkbox" id="show-lodes" />LODES<span class="credit"> (US Census)</span></label></td>';
+      var show_lodes = '<td class="lodes-select"><label for="show-lodes" name="lodes"><input type="checkbox" id="show-lodes" />LODES<span class="credit"> (US Census)</span></label></td>';
 
       if (enableLetterboxMode) {
         layer_html += '<div class="base-map-div">';
@@ -2144,6 +2144,12 @@
         layer_html += '        </select>';
         layer_html += '        <button class="clear-theme" type="button">Clear <br>Theme</button>';
         layer_html += '      </td>';
+        layer_html += '      <td style="position: absolute; margin-top: -7px">';
+        layer_html += '        <label for="show-lodes" name="lodes">';
+        layer_html += '          <input type="checkbox" id="show-lodes" style=" top: 2px" />LODES';
+        layer_html += '          <span class="credit"> (US Census)</span>';
+        layer_html += '        </label>';
+        layer_html += '      </td>';
         layer_html += '    </tr>';
 
         // ## 5 ##
@@ -2152,19 +2158,24 @@
         layer_html += '  </table>';
         layer_html += '</div>';
       } else {
+        /* BASE LAYERS */
         layer_html += '<div class="base-map-div">';
-        layer_html += ' <table class="base-map-radio" cellspacing="0">';
-        layer_html += '   <tr>';
+        layer_html += '  <table class="base-map-radio" cellspacing="0">';
+        layer_html += '    <tr><td><fieldset><table>';
+        layer_html += '      <legend>Base Layers</legend>';
+        layer_html += '      <tr>';
         layer_html += landsat_base;
-        layer_html += '   </tr>';
-        layer_html += '   <tr>';
+        layer_html += '      </tr>';
+        layer_html += '      <tr>';
         layer_html += light_base;
         layer_html += dark_base;
-        layer_html += '   </tr>';
-        layer_html += ' </table>';
+        layer_html += '      </tr>';
+        layer_html += '    </tr></td></table></fieldset>';
+        layer_html += '  </table>';
         layer_html += '</div>';
         layer_html += '<div class="map-layer-div">';
-        layer_html += ' <table class="map-layer-checkbox" cellspacing="0">';
+        layer_html += '  <table class="map-layer-checkbox" cellspacing="0">';
+        /* END BASE LAYERS */
 
         /* FOREST THEME */
         layer_html += '<tr><td><fieldset><table>';
