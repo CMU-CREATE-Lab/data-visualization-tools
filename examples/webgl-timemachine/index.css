@@ -303,7 +303,7 @@ fieldset {
 }
 #layers-list.right-panel {
   overflow: auto;
-  height: calc(100% - 170px);
+  height: calc(100% - 179px);
   position: absolute;
   bottom: 120px;
   right: 20px;
