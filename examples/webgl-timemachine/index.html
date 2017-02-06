@@ -911,6 +911,7 @@
           showUsgsWindTurbineLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
+          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           $("#wind-installs-legend").show();
         } else {
           showUsgsWindTurbineLayer = false;
@@ -925,6 +926,7 @@
           showGlobalWindPowerLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
+          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           $("#global-wind-power-legend").show();
         } else {
           showGlobalWindPowerLayer = false;
@@ -939,6 +941,7 @@
           showSolarInstallsLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
+          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           $("#solar-installs-legend").show();
         } else {
           showSolarInstallsLayer = false;
@@ -952,12 +955,14 @@
         if ($(this).prop('checked')) {
           showDrillingLayer = true;
           setActiveLayersWithTimeline(1);
-          timelineType = "customUI";
+          timelineType = "defaultUI";
+          requestNewTimeline("drilling-times.json", timelineType);
           $("#drilling-legend").show();
         } else {
           showDrillingLayer = false;
           setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
+          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           $("#drilling-legend").hide();
         }
       }).prop('checked', showDrillingLayer);
@@ -1971,7 +1976,7 @@
       var show_usgs_windturbine = '<td class="wind-select"><label for="show-usgs-windturbine" name="wp"><input type="checkbox" id="show-usgs-windturbine" />Wind Power (USA)<span class="credit" style=""> (USGS)</span></label></td>';
       var show_global_wind_power = '<td class="wind-select"><label for="show-global-wind-power" name="gwp"><input type="checkbox" id="show-global-wind-power" />Wind Power (Global)<span class="credit" style=""> (TheWindPower.net)</span></label></td>';
       var show_solar_installs = '<td class="solar-select"> <label for="show-solar-installs" name="sp"><input type="checkbox" id="show-solar-installs" />Solar PV (USA)<span class="credit"> (NREL)</span></label></td>';
-      var show_drilling = '<td class="drilling-select"><label for="show-drilling" name="drl"><input type="checkbox" id="show-drilling" />Oil/Gas Drilling<span class="credit"> (CREATE Lab)</span></label></td>';
+      var show_drilling = '<td class="drilling-select"><label for="show-drilling" name="drl"><input type="checkbox" id="show-drilling" />Oil/Gas Drilling<span class="credit"> (FracTracker, CREATE Lab)</span></label></td>';
       var show_himawari = '<td class="himawari-select"><label for="show-himawari" name="h8"><input type="checkbox" id="show-himawari" />Himawari-8<span class="credit"> (JMA)</span></label></td>';
       var show_water_occurrence = '<td class="water-occurrence-select"><label for="show-water-occurrence" name="wo"><input type="checkbox" id="show-water-occurrence" />Water Occurrence<span class="credit"> (JRC)</span></label></td>';
       var show_water_change = '<td class="water-change-select"><label for="show-water-change" name="wc"><input type="checkbox" id="show-water-change" />Water Change<span class="credit"> (JRC)</span></label></td>';
@@ -2042,7 +2047,7 @@
         layer_html += '        <select id="energy-theme" multiple="multiple" size="5">';
         layer_html += '          <option value="option1" data-id="show-solar-installs" data-name="sp" data-credit="NREL">US Solar PV</option>';
         layer_html += '          <option value="option2" data-id="show-usgs-windturbine" data-name="wp" data-credit="USGS">US Wind Power</option>';
-        layer_html += '          <option value="option3" data-id="show-drilling" data-name="drl" data-credit="CREATE Lab">US Oil/Gas Drilling</option>';
+        layer_html += '          <option value="option3" data-id="show-drilling" data-name="drl" data-credit="FracTracker, CREATE Lab">US Oil/Gas Drilling</option>';
         layer_html += '          <option value="option4" data-id="show-global-wind-power" data-name="gwp" data-credit="TheWindPower.net">Global Wind Power</option>';
         layer_html += '          <option value="option5" data-id="show-viirs" data-name="viirs" data-credit="NOAA">Fires at Night</option>';
         layer_html += '        </select>';
@@ -3497,10 +3502,11 @@
           var viirsLayerView = getLayerView(viirsLayer, landsatBaseMapLayer);
           var options = {};
           options.zoom = timelapse.getCurrentZoom();
-          var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
-          var times = timelapse.getCaptureTimes();
-          var range = new Date(times[times.length - 1]).getTime() - new Date(times[0]).getTime();
-          var currentDate = ratio * range + new Date(times[0]).getTime();
+          var currentTime = timelapse.getCurrentTime();
+          var currentTimes = getCurrentTimes(timelapse);
+          var dates = getDates(timelapse);
+          var delta = getCurrentTimesDelta(currentTime, currentTimes);
+          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
           options.currentTime = currentDate;
           viirsLayer.draw(viirsLayerView, options);
         }
@@ -3510,10 +3516,11 @@
           var coralBleachingLayerView = getLayerView(coralBleachingLayer, landsatBaseMapLayer);
           var options = {};
           options.zoom = timelapse.getCurrentZoom();
-          var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
-          var times = timelapse.getCaptureTimes();
-          var range = new Date(times[times.length - 1]).getTime() - new Date(times[0]).getTime();
-          var currentDate = ratio * range + new Date(times[0]).getTime();
+          var currentTime = timelapse.getCurrentTime();
+          var currentTimes = getCurrentTimes(timelapse);
+          var dates = getDates(timelapse);
+          var delta = getCurrentTimesDelta(currentTime, currentTimes);
+          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
           options.currentTime = currentDate;
           options.color = [.82, .22, .07, 1.0];
           options.pointSize = 8.0;
@@ -3525,10 +3532,11 @@
           var usgsWindTurbineLayerView = getLayerView(usgsWindTurbineLayer, landsatBaseMapLayer);
           var options = {};
           options.zoom = timelapse.getCurrentZoom();
-          var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
-          var times = timelapse.getCaptureTimes();
-          var range = new Date(times[times.length - 1]).getTime() - new Date(times[0]).getTime();
-          var currentDate = ratio * range + new Date(times[0]).getTime();
+          var currentTime = timelapse.getCurrentTime();
+          var currentTimes = getCurrentTimes(timelapse);
+          var dates = getDates(timelapse);
+          var delta = getCurrentTimesDelta(currentTime, currentTimes);
+          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
           options.currentTime = currentDate;
           options.color = [0.1, 0.5, 0.1, 1.0];
           options.pointSize = 3.0;
@@ -3540,10 +3548,11 @@
           var globalWindPowerLayerView = getLayerView(globalWindPowerLayer, landsatBaseMapLayer);
           var options = {};
           options.zoom = timelapse.getCurrentZoom();
-          var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
-          var times = timelapse.getCaptureTimes();
-          var range = new Date(times[times.length - 1]).getTime() - new Date(times[0]).getTime();
-          var currentDate = ratio * range + new Date(times[0]).getTime();
+          var currentTime = timelapse.getCurrentTime();
+          var currentTimes = getCurrentTimes(timelapse);
+          var dates = getDates(timelapse);
+          var delta = getCurrentTimesDelta(currentTime, currentTimes);
+          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
           options.currentTime = currentDate;
           options.pointSize = 3;
           options.color = [0.1, 0.5, 0.1, 1.0];
@@ -3555,10 +3564,11 @@
           var solarInstallsLayerView = getLayerView(solarInstallsLayer, landsatBaseMapLayer);
           var options = {};
           options.zoom = timelapse.getCurrentZoom();
-          var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
-          var times = timelapse.getCaptureTimes();
-          var range = new Date(times[times.length - 1]).getTime() - new Date(times[0]).getTime();
-          var currentDate = ratio * range + new Date(times[0]).getTime();
+          var currentTime = timelapse.getCurrentTime();
+          var currentTimes = getCurrentTimes(timelapse);
+          var dates = getDates(timelapse);
+          var delta = getCurrentTimesDelta(currentTime, currentTimes);
+          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
           options.currentTime = currentDate;
           options.pointSize = 3;
           solarInstallsLayer.draw(solarInstallsLayerView, options);
@@ -3569,10 +3579,11 @@
           var drillingLayerView = getLayerView(drillingLayer, landsatBaseMapLayer);
           var options = {};
           options.zoom = timelapse.getCurrentZoom();
-          var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
-          var times = timelapse.getCaptureTimes();
-          var range = new Date(times[times.length - 1]).getTime() - new Date(times[0]).getTime();
-          var currentDate = ratio * range + new Date(times[0]).getTime();
+          var currentTime = timelapse.getCurrentTime();
+          var currentTimes = getCurrentTimes(timelapse);
+          var dates = getDates(timelapse);
+          var delta = getCurrentTimesDelta(currentTime, currentTimes);
+          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
           options.currentTime = currentDate;
           options.color = [0.82, 0.22, 0.07, 1.0];
           drillingLayer.draw(drillingLayerView, options);
@@ -3627,8 +3638,7 @@
           var dates = getDates(timelapse);
           var delta = getCurrentTimesDelta(currentTime, currentTimes);
           var currentDate = getCurrentDate(currentTime, currentTimes, dates);
-
-          options.currentDate = currentDate;
+          options.currentTime = currentDate;
           monthlyRefugeesLayer.draw(monthlyRefugeesLayerView, options);
         }
 

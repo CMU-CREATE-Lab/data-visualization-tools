@@ -29,9 +29,9 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
   this._fragmentShader = opt_options.fragmentShader || WebGLVectorTile2.vectorTileFragmentShader;
   this._vertexShader = opt_options.vertexShader || WebGLVectorTile2.vectorTileVertexShader;
 
-  this.gl.getExtension("OES_standard_derivatives");   
+  this.gl.getExtension("OES_standard_derivatives");
 
-  this.program = glb.programFromSources(this._vertexShader, this._fragmentShader);  
+  this.program = glb.programFromSources(this._vertexShader, this._fragmentShader);
 
   if (opt_options.imageSrc) {
     this._image = new Image();
@@ -64,7 +64,7 @@ WebGLVectorTile2.prototype._loadData = function() {
   this.xhr.onerror = function() {
     that._setData(new Float32Array([]));
   }
-  this.xhr.send();  
+  this.xhr.send();
 }
 
 WebGLVectorTile2.prototype._loadGeojsonData = function() {
@@ -83,7 +83,7 @@ WebGLVectorTile2.prototype._loadGeojsonData = function() {
   this.xhr.onerror = function() {
     that._setData('');
   }
-  this.xhr.send();  
+  this.xhr.send();
 }
 
 WebGLVectorTile2.prototype._setWdpaData = function(arrayBuffer) {
@@ -253,7 +253,7 @@ WebGLVectorTile2.prototype._setLodesData = function(arrayBuffer) {
 
 WebGLVectorTile2.prototype._setMonthlyRefugeesData = function(arrayBuffer) {
   var gl = this.gl;
-  this._pointCount = arrayBuffer.length / 10; 
+  this._pointCount = arrayBuffer.length / 10;
 
   if (this._pointCount > 0) {
     this._data = arrayBuffer;
@@ -461,7 +461,7 @@ WebGLVectorTile2.prototype._setObesityData = function(data) {
               }
             }
           }
-        }            
+        }
       }
     }
     this._pointCount = verts.length / 5;
@@ -528,17 +528,17 @@ WebGLVectorTile2.prototype._setVaccineConfidenceData = function(data) {
                  "Overall I think vaccines are safe",
                  "Overall I think vaccines are effective",
                  "Vaccines are compatible with my religious beliefs"]
-    responses = ["Strongly agree", 
-                 "Tend to agree", 
-                 "Tend to disagree", 
-                 "Strongly disagree", 
+    responses = ["Strongly agree",
+                 "Tend to agree",
+                 "Tend to disagree",
+                 "Strongly disagree",
                  "Do not know"]
   */
   var questions = ['Q1', 'Q2', 'Q3', 'Q4'];
   var minValues = {
-    'Q1': 0.16, 
-    'Q2': 0.41000000000000003, 
-    'Q3': 0.26, 
+    'Q1': 0.16,
+    'Q2': 0.41000000000000003,
+    'Q3': 0.26,
     'Q4':0.47
   };
 
@@ -554,7 +554,7 @@ WebGLVectorTile2.prototype._setVaccineConfidenceData = function(data) {
           for (var ii = 0; ii < questions.length; ii++) {
             var q = questions[ii];
             verts.push((feature.properties[q][2] + feature.properties[q][3])/minValues[q]);
-          } 
+          }
         }
       } else {
         for (var j = 0; j < feature.geometry.coordinates.length; j++) {
@@ -569,7 +569,7 @@ WebGLVectorTile2.prototype._setVaccineConfidenceData = function(data) {
             }
           }
         }
-      }            
+      }
     }
 
     this._pointCount = verts.length / 6;
@@ -664,7 +664,7 @@ WebGLVectorTile2.prototype._drawWdpa = function(transform, options) {
     gl.uniform1f(timeLoc, minTime);
 
     gl.drawArrays(gl.LINES, 0, this._pointCount);
-  }  
+  }
 }
 
 WebGLVectorTile2.prototype._drawLines = function(transform) {
@@ -681,7 +681,7 @@ WebGLVectorTile2.prototype._drawLines = function(transform) {
     translateMatrix(tileTransform, (this._bounds.max.x - this._bounds.min.x)/256., (this._bounds.max.y - this._bounds.min.y)/256.);
     scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-  
+
     var matrixLoc = gl.getUniformLocation(this.program, 'mapMatrix');
     gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
 
@@ -707,7 +707,7 @@ WebGLVectorTile2.prototype._drawPoints = function(transform, options) {
     var zoom = options.zoom;
     var maxTime = options.currentTime/1000.;
     var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-    var color = options.color || [.1, .1, .5, 1.0]; 
+    var color = options.color || [.1, .1, .5, 1.0];
 
     scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
 
@@ -759,7 +759,7 @@ WebGLVectorTile2.prototype._drawGtd = function(transform, options) {
     var zoom = options.zoom;
     var currentTime = options.currentTime/1000.;
     var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-    var color = options.color || [.1, .1, .5, 1.0]; 
+    var color = options.color || [.1, .1, .5, 1.0];
 
     scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
 
@@ -788,7 +788,7 @@ WebGLVectorTile2.prototype._drawGtd = function(transform, options) {
     var timeLocation = gl.getAttribLocation(this.program, "a_NCasualties");
     gl.enableVertexAttribArray(timeLocation);
     gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 16, 12); // 8 byte offset
-  
+
     var matrixLoc = gl.getUniformLocation(this.program, 'u_MapMatrix');
     gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
 
@@ -816,7 +816,7 @@ WebGLVectorTile2.prototype._drawEbola = function(transform, options) {
     var zoom = options.zoom;
     var currentTime = options.currentTime.getTime()/1000.;
     var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-    var color = options.color || [.1, .1, .5, 1.0]; 
+    var color = options.color || [.1, .1, .5, 1.0];
 
     scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
 
@@ -833,23 +833,23 @@ WebGLVectorTile2.prototype._drawEbola = function(transform, options) {
 
     var attributeLoc = gl.getAttribLocation(this.program, 'a_Centroid');
     gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 24, 0); 
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 24, 0);
 
     var timeLocation = gl.getAttribLocation(this.program, "a_Epoch1");
     gl.enableVertexAttribArray(timeLocation);
-    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 24, 8); 
+    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 24, 8);
 
     var timeLocation = gl.getAttribLocation(this.program, "a_Deaths1");
     gl.enableVertexAttribArray(timeLocation);
-    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 24, 12); 
+    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 24, 12);
 
     var timeLocation = gl.getAttribLocation(this.program, "a_Epoch2");
     gl.enableVertexAttribArray(timeLocation);
-    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 24, 16); 
+    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 24, 16);
 
     var timeLocation = gl.getAttribLocation(this.program, "a_Deaths2");
     gl.enableVertexAttribArray(timeLocation);
-    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 24, 20); 
+    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 24, 20);
 
     var colorLoc = gl.getUniformLocation(this.program, 'u_Color');
     gl.uniform4fv(colorLoc, color);
@@ -989,7 +989,7 @@ WebGLVectorTile2.prototype._drawMonthlyRefugees = function(transform, options) {
 
     var sizeLoc = gl.getUniformLocation(this.program, 'uSize');
     gl.uniform1f(sizeLoc, pointSize);
-      
+
     var timeLoc = gl.getUniformLocation(this.program, 'uTotalTime');
     gl.uniform1f(timeLoc, 1296000);
 
@@ -999,7 +999,7 @@ WebGLVectorTile2.prototype._drawMonthlyRefugees = function(transform, options) {
     var matrixLoc = gl.getUniformLocation(this.program, 'uMapMatrix');
     gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
 
-    var currentTime = options.currentDate;
+    var currentTime = options.currentTime;
     var epochLoc = gl.getUniformLocation(this.program, 'uEpoch');
     gl.uniform1f(epochLoc, currentTime/1000.);
 
@@ -1092,7 +1092,7 @@ WebGLVectorTile2.prototype._drawAnnualRefugees = function(transform, options) {
     gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 28, 24);
 
     gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, this._texture); 
+    gl.bindTexture(gl.TEXTURE_2D, this._texture);
     gl.uniform1i(gl.getUniformLocation(this.program, "u_Image"), 0);
 
     if (subsampleAnnualRefugees) {
@@ -1223,7 +1223,7 @@ WebGLVectorTile2.prototype._drawViirs = function(transform, options) {
     pointSize *= Math.floor((zoom + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1);
     if (isNaN(pointSize)) {
       pointSize = 1.0;
-    }    
+    }
 
     var matrixLoc = gl.getUniformLocation(this.program, 'mapMatrix');
     gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
@@ -1279,7 +1279,7 @@ WebGLVectorTile2.prototype._drawUrbanFragility = function(transform, options) {
     pointSize = Math.floor((zoom + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1);
     if (isNaN(pointSize)) {
       pointSize = 1.0;
-    }    
+    }
 
     var sizeLoc = gl.getUniformLocation(this.program, 'u_Size');
     gl.uniform1f(sizeLoc, pointSize);
@@ -1317,7 +1317,7 @@ WebGLVectorTile2.prototype._drawUrbanFragility = function(transform, options) {
     gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 20, 16);
 
     gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, this._texture); 
+    gl.bindTexture(gl.TEXTURE_2D, this._texture);
     gl.uniform1i(gl.getUniformLocation(this.program, "u_Image"), 0);
 
     gl.drawArrays(gl.POINTS, 0, this._pointCount);
@@ -1344,7 +1344,7 @@ WebGLVectorTile2.prototype._drawObesity = function(transform, options) {
 
     var year = options.year;
     var delta = options.delta;
-  
+
     var matrixLoc = gl.getUniformLocation(this.program, 'u_MapMatrix');
     gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
 
@@ -1372,9 +1372,9 @@ WebGLVectorTile2.prototype._drawObesity = function(transform, options) {
 
 
     gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, this._texture); 
+    gl.bindTexture(gl.TEXTURE_2D, this._texture);
     gl.uniform1i(gl.getUniformLocation(this.program, "u_Image"), 0);
-    
+
     gl.drawArrays(gl.TRIANGLES, 0, this._pointCount);
     gl.bindTexture(gl.TEXTURE_2D, null);
     gl.disable(gl.BLEND);
@@ -1397,7 +1397,7 @@ WebGLVectorTile2.prototype._drawVaccineConfidence = function(transform, options)
 
     translateMatrix(tileTransform, (this._bounds.max.x - this._bounds.min.x)/256., (this._bounds.max.y - this._bounds.min.y)/256.);
     scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
-  
+
     var matrixLoc = gl.getUniformLocation(this.program, 'u_MapMatrix');
     gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
 
@@ -1427,9 +1427,9 @@ WebGLVectorTile2.prototype._drawVaccineConfidence = function(transform, options)
     gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 20);
 
     gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, this._texture); 
+    gl.bindTexture(gl.TEXTURE_2D, this._texture);
     gl.uniform1i(gl.getUniformLocation(this.program, "u_Image"), 0);
-    
+
     gl.drawArrays(gl.TRIANGLES, 0, this._pointCount);
     gl.bindTexture(gl.TEXTURE_2D, null);
     gl.disable(gl.BLEND);
@@ -1457,18 +1457,18 @@ WebGLVectorTile2.vectorTileVertexShader =
 
 WebGLVectorTile2.vectorPointTileVertexShader =
 'attribute vec4 worldCoord;\n' +
-'attribute float time;\n' + 
+'attribute float time;\n' +
 
-'uniform float uMaxTime;\n' + 
+'uniform float uMaxTime;\n' +
 'uniform float uPointSize;\n' +
 'uniform mat4 mapMatrix;\n' +
 
 'void main() {\n' +
-'  if (time > uMaxTime) {\n' + 
-'    gl_Position = vec4(-1,-1,-1,-1);\n' + 
-'  } else {\n' + 
-'    gl_Position = mapMatrix * worldCoord;\n' + 
-'  };\n' + 
+'  if (time > uMaxTime) {\n' +
+'    gl_Position = vec4(-1,-1,-1,-1);\n' +
+'  } else {\n' +
+'    gl_Position = mapMatrix * worldCoord;\n' +
+'  };\n' +
 '  gl_PointSize = uPointSize;\n' +
 '}';
 
@@ -1479,12 +1479,12 @@ WebGLVectorTile2.vectorTileFragmentShader =
 
 WebGLVectorTile2.vectorPointTileFragmentShader =
 'precision mediump float;\n' +
-'uniform vec4 uColor;\n' + 
+'uniform vec4 uColor;\n' +
 'void main() {\n' +
-'  float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' + 
-'  dist = 1. - (dist * 2.);\n' + 
-'  dist = max(0., dist);\n' + 
-'  gl_FragColor = uColor * dist;\n' + 
+'  float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
+'  dist = 1. - (dist * 2.);\n' +
+'  dist = max(0., dist);\n' +
+'  gl_FragColor = uColor * dist;\n' +
 '}\n';
 
 WebGLVectorTile2.lodesVertexShader =
@@ -1545,20 +1545,20 @@ WebGLVectorTile2.lodesFragmentShader =
   '  gl_FragColor = vec4(unpackColor(vColor),.75);\n' +
   '}\n';
 
-WebGLVectorTile2.annualRefugeesFragmentShader = 
+WebGLVectorTile2.annualRefugeesFragmentShader =
 '      precision mediump float;\n' +
-'      uniform sampler2D u_Image;\n' + 
-'      varying float v_Delta;\n' + 
+'      uniform sampler2D u_Image;\n' +
+'      varying float v_Delta;\n' +
 '      void main() {\n' +
 '          float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
 '          dist = 1. - (dist * 2.);\n' +
 '          dist = max(0., dist);\n' +
 '          gl_FragColor = vec4(1., 0., 0., 1.) * dist;\n' +
 '          vec4 color = texture2D(u_Image, vec2(v_Delta,v_Delta));\n' +
-'          gl_FragColor = vec4(color.r, color.g, color.b, 1.) * dist;\n' + 
+'          gl_FragColor = vec4(color.r, color.g, color.b, 1.) * dist;\n' +
 '      }\n';
 
-WebGLVectorTile2.annualRefugeesVertexShader = 
+WebGLVectorTile2.annualRefugeesVertexShader =
 '      attribute vec4 aStartPoint;\n' +
 '      attribute vec4 aEndPoint;\n' +
 '      attribute vec4 aMidPoint;\n' +
@@ -1567,7 +1567,7 @@ WebGLVectorTile2.annualRefugeesVertexShader =
 '      uniform float uEpoch;\n' +
 '      uniform float uSpan;\n' +
 '      uniform mat4 uMapMatrix;\n' +
-'      varying float v_Delta;\n' + 
+'      varying float v_Delta;\n' +
 '      vec4 bezierCurve(float t, vec4 P0, vec4 P1, vec4 P2) {\n' +
 '        return (1.0-t)*(1.0-t)*P0 + 2.0*(1.0-t)*t*P1 + t*t*P2;\n' +
 '      }\n' +
@@ -1579,7 +1579,7 @@ WebGLVectorTile2.annualRefugeesVertexShader =
 '          position = vec4(-1,-1,-1,-1);\n' +
 '        } else {\n' +
 '          float t = (uEpoch - aEpoch)/uSpan;\n' +
-'          v_Delta = 1.0 - (aEpoch - uEpoch)/uSpan;\n' + 
+'          v_Delta = 1.0 - (aEpoch - uEpoch)/uSpan;\n' +
 '          vec4 pos = bezierCurve(1.0 + t, aStartPoint, aMidPoint, aEndPoint);\n' +
 '          position = uMapMatrix * vec4(pos.x, pos.y, 0, 1);\n' +
 '        }\n' +
@@ -1588,7 +1588,7 @@ WebGLVectorTile2.annualRefugeesVertexShader =
 '        gl_PointSize = 4.0;\n' +
 '      }\n';
 
-WebGLVectorTile2.healthImpactVertexShader = 
+WebGLVectorTile2.healthImpactVertexShader =
 '      attribute vec4 a_Centroid;\n' +
 '      attribute float a_Year;\n' +
 '      attribute float a_Val1;\n' +
@@ -1597,7 +1597,7 @@ WebGLVectorTile2.healthImpactVertexShader =
 '      uniform bool u_ShowRcp2p6;\n' +
 '      uniform bool u_ShowRcp4p5;\n' +
 '      uniform bool u_ShowRcp6p0;\n' +
-'      uniform bool u_ShowRcp8p5;\n' +             
+'      uniform bool u_ShowRcp8p5;\n' +
 '      uniform float u_Delta;\n' +
 '      uniform float u_Size;\n' +
 '      uniform float u_Year;\n' +
@@ -1630,7 +1630,7 @@ WebGLVectorTile2.healthImpactVertexShader =
 '        gl_PointSize = 2.0 * abs(size);\n' +
 '      }\n';
 
-WebGLVectorTile2.healthImpactFragmentShader = 
+WebGLVectorTile2.healthImpactFragmentShader =
 '      #extension GL_OES_standard_derivatives : enable\n' +
 '      precision mediump float;\n' +
 '      varying float v_Val;\n' +
@@ -1670,65 +1670,65 @@ WebGLVectorTile2.healthImpactFragmentShader =
 '      }';
 
 WebGLVectorTile2.viirsVertexShader =
-  'attribute vec4 worldCoord;\n' + 
-  'attribute float time;\n' + 
-  'attribute float temp;\n' + 
+  'attribute vec4 worldCoord;\n' +
+  'attribute float time;\n' +
+  'attribute float temp;\n' +
 
-  'uniform mat4 mapMatrix;\n' + 
-  'uniform float pointSize;\n' + 
-  'uniform float maxTime;\n' + 
-  'uniform float minTime;\n' + 
-  'uniform float minTemp;\n' + 
-  'uniform float maxTemp;\n' + 
+  'uniform mat4 mapMatrix;\n' +
+  'uniform float pointSize;\n' +
+  'uniform float maxTime;\n' +
+  'uniform float minTime;\n' +
+  'uniform float minTemp;\n' +
+  'uniform float maxTemp;\n' +
 
-  'varying float vTemp;\n' + 
+  'varying float vTemp;\n' +
 
-  'void main() {\n' + 
-  '  if (time < minTime || time > maxTime || temp == 1810. || temp < minTemp || temp > maxTemp) {\n' + 
-  '    gl_Position = vec4(-1,-1,-1,-1);\n' + 
-  '  } else {\n' + 
-  '    gl_Position = mapMatrix * worldCoord;\n' + 
-  '  };\n' + 
-  '  gl_PointSize = pointSize;\n' + 
-  '  vTemp = temp;\n' + 
+  'void main() {\n' +
+  '  if (time < minTime || time > maxTime || temp == 1810. || temp < minTemp || temp > maxTemp) {\n' +
+  '    gl_Position = vec4(-1,-1,-1,-1);\n' +
+  '  } else {\n' +
+  '    gl_Position = mapMatrix * worldCoord;\n' +
+  '  };\n' +
+  '  gl_PointSize = pointSize;\n' +
+  '  vTemp = temp;\n' +
   '}';
 
 WebGLVectorTile2.viirsFragmentShader =
-  'precision mediump float;\n' + 
+  'precision mediump float;\n' +
 
-  'uniform bool showTemp;\n' + 
+  'uniform bool showTemp;\n' +
 
-  'varying float vTemp;\n' + 
+  'varying float vTemp;\n' +
 
-  'void main() {\n' + 
-  '  vec3 color;\n' + 
-  '  vec3 purple = vec3(.4,.0, .8);\n' + 
-  '  vec3 blue = vec3(.0, .0, .8);\n' + 
-  '  vec3 green = vec3(.0, .8, .0);\n' + 
-  '  vec3 yellow = vec3(1., 1., .0);\n' + 
-  '  vec3 red = vec3(.8, .0, .0);\n' + 
+  'void main() {\n' +
+  '  vec3 color;\n' +
+  '  vec3 purple = vec3(.4,.0, .8);\n' +
+  '  vec3 blue = vec3(.0, .0, .8);\n' +
+  '  vec3 green = vec3(.0, .8, .0);\n' +
+  '  vec3 yellow = vec3(1., 1., .0);\n' +
+  '  vec3 red = vec3(.8, .0, .0);\n' +
 
-  '  if (showTemp) {\n' + 
-  '    if (vTemp > 400. && vTemp < 1000.) {\n' + 
-  '      color = purple;\n' + 
-  '    } else if (vTemp > 1000. && vTemp < 1200.) {\n' + 
-  '      color = blue;\n' + 
-  '    } else if (vTemp > 1200. && vTemp < 1400.) {\n' + 
-  '      color = green;\n' + 
-  '    } else if (vTemp > 1400. && vTemp < 1600.) {\n' + 
-  '      color = yellow;\n' + 
-  '    } else {\n' + 
-  '      color = red;\n' + 
-  '    }\n' + 
-  '  } else {\n' + 
-  '    color = vec3(.82, .22, .07);\n' + 
-  '  }\n' + 
+  '  if (showTemp) {\n' +
+  '    if (vTemp > 400. && vTemp < 1000.) {\n' +
+  '      color = purple;\n' +
+  '    } else if (vTemp > 1000. && vTemp < 1200.) {\n' +
+  '      color = blue;\n' +
+  '    } else if (vTemp > 1200. && vTemp < 1400.) {\n' +
+  '      color = green;\n' +
+  '    } else if (vTemp > 1400. && vTemp < 1600.) {\n' +
+  '      color = yellow;\n' +
+  '    } else {\n' +
+  '      color = red;\n' +
+  '    }\n' +
+  '  } else {\n' +
+  '    color = vec3(.82, .22, .07);\n' +
+  '  }\n' +
 
-  '  float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' + 
-  '  dist = 1. - (dist * 2.);\n' + 
-  '  dist = max(0., dist);\n' + 
+  '  float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
+  '  dist = 1. - (dist * 2.);\n' +
+  '  dist = max(0., dist);\n' +
 
-  '  gl_FragColor = vec4(color, 1.) * dist;\n' + 
+  '  gl_FragColor = vec4(color, 1.) * dist;\n' +
   '}';
 
 WebGLVectorTile2.wdpaVertexShader =
@@ -1752,7 +1752,7 @@ WebGLVectorTile2.wdpaFragmentShader =
 '  gl_FragColor = vec4(.0, 1., .15, 1.0);\n' +
 '}\n';
 
-WebGLVectorTile2.urbanFragilityVertexShader = 
+WebGLVectorTile2.urbanFragilityVertexShader =
 'attribute vec4 a_Centroid;\n' +
 'attribute float a_Year;\n' +
 'attribute float a_Val1;\n' +
@@ -1776,7 +1776,7 @@ WebGLVectorTile2.urbanFragilityVertexShader =
 '  gl_PointSize = u_Size * exp(size);\n' +
 '}\n';
 
-WebGLVectorTile2.urbanFragilityFragmentShader = 
+WebGLVectorTile2.urbanFragilityFragmentShader =
 'precision mediump float;\n' +
 'uniform sampler2D u_Image;\n' +
 'varying float v_Val;\n' +
@@ -1795,86 +1795,86 @@ WebGLVectorTile2.urbanFragilityFragmentShader =
 '}\n';
 
 WebGLVectorTile2.monthlyRefugeesVertexShader =
-    "attribute vec4 aStartPoint;\n" + 
-    "attribute vec4 aEndPoint;\n" +  
-    "attribute vec4 aMidPoint;\n" + 
-    "attribute float aEpoch;\n" + 
-    "attribute float aEndTime;\n" + 
-    "attribute float aSpan;\n" + 
-    "attribute float aTimeOffset;\n" + 
+    "attribute vec4 aStartPoint;\n" +
+    "attribute vec4 aEndPoint;\n" +
+    "attribute vec4 aMidPoint;\n" +
+    "attribute float aEpoch;\n" +
+    "attribute float aEndTime;\n" +
+    "attribute float aSpan;\n" +
+    "attribute float aTimeOffset;\n" +
 
-    "uniform float uSize;\n" + 
-    "uniform float uEpoch;\n" + 
-    "uniform mat4 uMapMatrix;\n" + 
-    "uniform float uTotalTime;\n" + 
+    "uniform float uSize;\n" +
+    "uniform float uEpoch;\n" +
+    "uniform mat4 uMapMatrix;\n" +
+    "uniform float uTotalTime;\n" +
 
-    "float Epsilon = 1e-10;\n" +  
-    "varying vec4 vColor;\n" +  
-      
+    "float Epsilon = 1e-10;\n" +
+    "varying vec4 vColor;\n" +
+
     "vec4 bezierCurve(float t, vec4 P0, vec4 P1, vec4 P2) {\n" +
-        "return (1.0-t)*(1.0-t)*P0 + 2.0*(1.0-t)*t*P1 + t*t*P2;\n" + 
-    "}\n" + 
+        "return (1.0-t)*(1.0-t)*P0 + 2.0*(1.0-t)*t*P1 + t*t*P2;\n" +
+    "}\n" +
 
     "vec3 HUEtoRGB(float H){\n" +
-        "float R = abs((H * 6.) - 3.) - 1.;\n" + 
-        "float G = 2. - abs((H * 6.) - 2.);\n" + 
-        "float B = 2. - abs((H * 6.) - 4.);\n" + 
-        "return clamp(vec3(R,G,B), 0.0, 1.0);\n" + 
-    "}\n" + 
+        "float R = abs((H * 6.) - 3.) - 1.;\n" +
+        "float G = 2. - abs((H * 6.) - 2.);\n" +
+        "float B = 2. - abs((H * 6.) - 4.);\n" +
+        "return clamp(vec3(R,G,B), 0.0, 1.0);\n" +
+    "}\n" +
 
     "vec3 HSLtoRGB(vec3 HSL){\n" +
-        "vec3 RGB = HUEtoRGB(HSL.x);\n" + 
-        "float C = (1. - abs(2. * HSL.z - 1.)) * HSL.y;\n" + 
-        "return (RGB - 0.5) * C + HSL.z;\n" + 
-    "}\n" + 
- 
-    "vec3 RGBtoHCV(vec3 RGB){\n" +
-        "vec4 P = (RGB.g < RGB.b) ? vec4(RGB.bg, -1.0, 2.0/3.0) : vec4(RGB.gb, 0.0, -1.0/3.0);\n" + 
-        "vec4 Q = (RGB.r < P.x) ? vec4(P.xyw, RGB.r) : vec4(RGB.r, P.yzx);\n" + 
-        "float C = Q.x - min(Q.w, Q.y);\n" + 
-        "float H = abs((Q.w - Q.y) / (6. * C + Epsilon) + Q.z);\n" + 
-        "return vec3(H, C, Q.x);\n" + 
-     "}\n" + 
-    
-     "vec3 RGBtoHSL(vec3 RGB){\n" +
-        "vec3 HCV = RGBtoHCV(RGB);\n" + 
-        "float L = HCV.z - HCV.y * 0.5;\n" + 
-        "float S = HCV.y / (1. - abs(L * 2. - 1.) + Epsilon);\n" + 
-        "return vec3(HCV.x, S, L);\n" + 
-     "}\n" + 
+        "vec3 RGB = HUEtoRGB(HSL.x);\n" +
+        "float C = (1. - abs(2. * HSL.z - 1.)) * HSL.y;\n" +
+        "return (RGB - 0.5) * C + HSL.z;\n" +
+    "}\n" +
 
-    "vec4 calcColor(float p, vec3 c){\n" + 
-        "vec3 hsl = RGBtoHSL(c);\n" +  
-        "return vec4(HSLtoRGB(vec3(hsl.x, hsl.y, p)), 1.);\n" +  
-    "}\n" + 
+    "vec3 RGBtoHCV(vec3 RGB){\n" +
+        "vec4 P = (RGB.g < RGB.b) ? vec4(RGB.bg, -1.0, 2.0/3.0) : vec4(RGB.gb, 0.0, -1.0/3.0);\n" +
+        "vec4 Q = (RGB.r < P.x) ? vec4(P.xyw, RGB.r) : vec4(RGB.r, P.yzx);\n" +
+        "float C = Q.x - min(Q.w, Q.y);\n" +
+        "float H = abs((Q.w - Q.y) / (6. * C + Epsilon) + Q.z);\n" +
+        "return vec3(H, C, Q.x);\n" +
+     "}\n" +
+
+     "vec3 RGBtoHSL(vec3 RGB){\n" +
+        "vec3 HCV = RGBtoHCV(RGB);\n" +
+        "float L = HCV.z - HCV.y * 0.5;\n" +
+        "float S = HCV.y / (1. - abs(L * 2. - 1.) + Epsilon);\n" +
+        "return vec3(HCV.x, S, L);\n" +
+     "}\n" +
+
+    "vec4 calcColor(float p, vec3 c){\n" +
+        "vec3 hsl = RGBtoHSL(c);\n" +
+        "return vec4(HSLtoRGB(vec3(hsl.x, hsl.y, p)), 1.);\n" +
+    "}\n" +
 
     "void main() {\n" +
-        "vec4 position;\n" + 
+        "vec4 position;\n" +
         "if (uEpoch < aEpoch || (uEpoch > aEpoch + aSpan)) {\n" +
-            "position = vec4(-1,-1,-1,-1);\n" + 
+            "position = vec4(-1,-1,-1,-1);\n" +
         "}else {\n" +
-            "float t = (uEpoch - aEpoch)/aSpan + aTimeOffset;\n" + 
-            "t = min(t, 1.);\n" + 
-            "t = max(t,0.);\n" + 
-            "vec4 pos = bezierCurve(t, aStartPoint, aMidPoint, aEndPoint);\n" + 
-            "position = uMapMatrix * vec4(pos.x, pos.y, 0, 1);\n" + 
-            "float luminance = clamp(1. - ((aEndTime - uEpoch)/uTotalTime), 0.45, 0.95);\n" + 
-            "vColor = calcColor(luminance, vec3(1.,0.,0.));\n" + 
-        "}\n" + 
-        
-        "gl_Position = position;\n" + 
-        "gl_PointSize = uSize;\n" + 
+            "float t = (uEpoch - aEpoch)/aSpan + aTimeOffset;\n" +
+            "t = min(t, 1.);\n" +
+            "t = max(t,0.);\n" +
+            "vec4 pos = bezierCurve(t, aStartPoint, aMidPoint, aEndPoint);\n" +
+            "position = uMapMatrix * vec4(pos.x, pos.y, 0, 1);\n" +
+            "float luminance = clamp(1. - ((aEndTime - uEpoch)/uTotalTime), 0.45, 0.95);\n" +
+            "vColor = calcColor(luminance, vec3(1.,0.,0.));\n" +
+        "}\n" +
+
+        "gl_Position = position;\n" +
+        "gl_PointSize = uSize;\n" +
     "}";
 
 WebGLVectorTile2.monthlyRefugeesFragmentShader =
-    "precision mediump float;\n" + 
-    "varying vec4 vColor;\n" + 
-      
+    "precision mediump float;\n" +
+    "varying vec4 vColor;\n" +
+
     "void main() {\n" +
-        "float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n" + 
-        "dist = 1. - (dist * 2.);\n" + 
-        "dist = max(0., dist);\n" + 
-        "gl_FragColor = vColor * dist;\n" + 
+        "float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n" +
+        "dist = 1. - (dist * 2.);\n" +
+        "dist = max(0., dist);\n" +
+        "gl_FragColor = vColor * dist;\n" +
     "}";
 
 WebGLVectorTile2.gtdVertexShader =
@@ -1910,7 +1910,7 @@ WebGLVectorTile2.gtdFragmentShader =
 "        }\n";
 
 
-WebGLVectorTile2.hivVertexShader = 
+WebGLVectorTile2.hivVertexShader =
 'attribute vec4 a_Centroid;\n' +
 'attribute float a_Year;\n' +
 'attribute float a_Val1;\n' +
@@ -1934,7 +1934,7 @@ WebGLVectorTile2.hivVertexShader =
 '  gl_PointSize = 100.0 * u_Size * abs(size);\n' +
 '}\n';
 
-WebGLVectorTile2.hivFragmentShader = 
+WebGLVectorTile2.hivFragmentShader =
 'precision mediump float;\n' +
 'uniform sampler2D u_Image;\n' +
 'varying float v_Val;\n' +
@@ -1947,7 +1947,7 @@ WebGLVectorTile2.hivFragmentShader =
 '  gl_FragColor = vec4(color.r, color.g, color.b, .75) * alpha;\n' +
 '}\n';
 
-WebGLVectorTile2.obesityVertexShader = 
+WebGLVectorTile2.obesityVertexShader =
 '      attribute vec4 a_Vertex;\n' +
 '      attribute float a_Year;\n' +
 '      attribute float a_Val1;\n' +
@@ -1968,7 +1968,7 @@ WebGLVectorTile2.obesityVertexShader =
 '        v_Val = (a_Val2 - a_Val1) * u_Delta + a_Val1;\n' +
 '      }\n';
 
-WebGLVectorTile2.obesityFragmentShader = 
+WebGLVectorTile2.obesityFragmentShader =
 '      #extension GL_OES_standard_derivatives : enable\n' +
 '      precision mediump float;\n' +
 '      uniform sampler2D u_Image;\n' +
@@ -1978,7 +1978,7 @@ WebGLVectorTile2.obesityFragmentShader =
 '        gl_FragColor = vec4(color.r, color.g, color.b, 1.);\n' +
 '      }\n';
 
-WebGLVectorTile2.vaccineConfidenceVertexShader = 
+WebGLVectorTile2.vaccineConfidenceVertexShader =
 '      attribute vec4 a_Vertex;\n' +
 '      attribute float a_Val1;\n' +
 '      attribute float a_Val2;\n' +
@@ -2005,7 +2005,7 @@ WebGLVectorTile2.vaccineConfidenceVertexShader =
 '        }\n' +
 '      }\n';
 
-WebGLVectorTile2.vaccineConfidenceFragmentShader = 
+WebGLVectorTile2.vaccineConfidenceFragmentShader =
 '      #extension GL_OES_standard_derivatives : enable\n' +
 '      precision mediump float;\n' +
 '      uniform sampler2D u_Image;\n' +
@@ -2015,7 +2015,7 @@ WebGLVectorTile2.vaccineConfidenceFragmentShader =
 '        gl_FragColor = vec4(color.r, color.g, color.b, 1.);\n' +
 '      }\n';
 
-WebGLVectorTile2.ebolaVertexShader = 
+WebGLVectorTile2.ebolaVertexShader =
 '      attribute vec4 a_Centroid;\n' +
 '      attribute float a_Epoch1;\n' +
 '      attribute float a_Deaths1;\n' +
@@ -2040,7 +2040,7 @@ WebGLVectorTile2.ebolaVertexShader =
 '        gl_PointSize = u_Size * size;\n' +
 '      }\n';
 
-WebGLVectorTile2.ebolaFragmentShader = 
+WebGLVectorTile2.ebolaFragmentShader =
 '      #extension GL_OES_standard_derivatives : enable\n' +
 '      precision mediump float;\n' +
 '      varying float v_Val;\n' +
