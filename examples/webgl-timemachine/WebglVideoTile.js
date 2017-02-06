@@ -364,15 +364,28 @@ updatePhase2 = function(displayFrame) {
   var displayFrameDiscrete = Math.min(Math.floor(displayFrame), this._nframes - 1);
   var readyState = this._video.readyState;
   var isPaused = timelapse.isPaused();
-  // TODO(rsargent+pdille): This hacks timelapse to show frame 27 (2011) if VIIRS is showing
-  // TODO -- Global var should be passed as option
-  if (typeof showViirsLayer != "undefined" && showViirsLayer) {
-    isPaused = true;
-  }
-  if (typeof showSeaLevelRiseLayer != "undefined" && showSeaLevelRiseLayer) {
+
+  // TODO: Hack for frames with fixed year or range of Landsat years to be shown.
+  // Any layer where we set a fixed frame (or range of frames) needs to set isPaused or no new tiles are brought in until you pause.
+  if (typeof showUrbanFragilityLayer != "undefined" && showUrbanFragilityLayer) {
     isPaused = true;
   }
 
+  if (typeof showAnnualRefugeesLayer != "undefined" && showAnnualRefugeesLayer) {
+    isPaused = true;
+  }
+
+  if (typeof showViirsLayer != "undefined" && showViirsLayer) {
+    isPaused = true;
+  }
+
+  if (typeof showDrillingLayer != "undefined" && showDrillingLayer) {
+    isPaused = true;
+  }
+
+  if (typeof showSeaLevelRiseLayer != "undefined" && showSeaLevelRiseLayer) {
+    isPaused = true;
+  }
 
   if (readyState == 0) {
     return;
@@ -569,9 +582,20 @@ draw = function(transform) {
       gl.activeTexture(gl.TEXTURE1);
 
       var isPaused = timelapse.isPaused();
-      // TODO(rsargent+pdille): This hacks timelapse to show frame 27 (2011) if VIIRS is showing
-      // TODO -- Global var should be passed as option
+
+      if (typeof showUrbanFragilityLayer != "undefined" && showUrbanFragilityLayer) {
+        isPaused = true;
+      }
+
+      if (typeof showAnnualRefugeesLayer != "undefined" && showAnnualRefugeesLayer) {
+        isPaused = true;
+      }
+
       if (typeof showViirsLayer != "undefined" && showViirsLayer) {
+        isPaused = true;
+      }
+
+      if (typeof showDrillingLayer != "undefined" && showDrillingLayer) {
         isPaused = true;
       }
 
@@ -652,7 +676,7 @@ WebglVideoTile.update = function(tiles, transform) {
   if (typeof showViirsLayer != "undefined" && showViirsLayer) {
     var yearString = timelapse.getCurrentCaptureTime().substring(0,4);
     var year = parseInt(yearString);
-    displayFrame = year - 1984;
+    displayFrame = Math.max(0, year - 1984);
   }
 
   // Show Landsat year depending upon what year is being shown for Drilling timeline
@@ -660,10 +684,7 @@ WebglVideoTile.update = function(tiles, transform) {
   if (typeof showDrillingLayer != "undefined" && showDrillingLayer) {
     var yearString = timelapse.getCurrentCaptureTime().substring(0,4);
     var year = parseInt(yearString);
-    if (parseInt(yearString) <= 1984)
-      displayFrame = 0;
-    else
-      displayFrame = year - 1984;
+    displayFrame = Math.max(0, year - 1984);
   }
 
   // TODO: This hacks timelapse to always show the last Landsat frame if SLR is showing
