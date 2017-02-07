@@ -300,6 +300,10 @@ html, body {
 }
 fieldset {
   margin: 0;
+  padding-left: 0px;
+  padding-right: 0px;
+  margin-bottom: 10px;
+  width: 100%;
 }
 #layers-list.right-panel {
   overflow: auto;
@@ -307,7 +311,7 @@ fieldset {
   position: absolute;
   bottom: 120px;
   right: 20px;
-  width: 404px;
+  width: 366px;
   padding: 10px;
   background: white;
   border-radius: 2px;
@@ -315,7 +319,7 @@ fieldset {
   box-shadow: 2px 2px 3px rgba(0,0,0,0.3);
   outline: none;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 15px;
+  font-size: 14px;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -653,4 +657,50 @@ input:focus {outline:0;}
 
 #current-location-text-picture {
   padding-top: 18px;
+}
+
+.toggleLegendBtn {
+  position: absolute;
+  right: 0px;
+  top: 3px;
+}
+
+.toggleLegendBtn.ui-button {
+  outline-width: 0;
+  width: 20px !important;
+  height: 20px !important;
+  margin-right: 0px;
+  margin-left: 0px;
+  border-radius: 0px !important;
+  vertical-align: middle;
+  box-shadow: 2px 2px 3px rgba(0,0,0,0.3);
+  z-index: 999;
+  background: white;
+}
+
+.toggleLegendBtn .ui-button-text {
+  height: 0px;
+}
+
+.toggleLegendBtn .ui-icon {
+  margin-left: -8px;
+}
+
+.hide-layers-list {
+  width: 0px !important;
+  height: 0px !important;
+  padding: 10px !important;
+  overflow: hidden !important;
+  top: 20px !important;
+  -webkit-transition: width 0.15s, height 0.15s;
+  -ms-transition: width 0.15s, height 0.15s;
+  -moz-transition: width 0.15s, height 0.15s;
+  -khtml-transition: width 0.15s, height 0.15s;
+  transition: width 0.15s, height 0.15s;
+}
+
+.layer-list-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 0px;
 }
