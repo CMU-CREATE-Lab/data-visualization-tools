@@ -295,9 +295,7 @@ html, body {
 #layers-list {
   z-index: 99;
 }
-#layers-list.right-panel.hyperwall {
-  bottom: 135px !important;
-}
+
 fieldset {
   margin: 0;
   padding-left: 0px;
@@ -305,11 +303,15 @@ fieldset {
   margin-bottom: 10px;
   width: 100%;
 }
+#layers-list.right-panel.hyperwall {
+  height: calc(100% - 189px);
+}
+
 #layers-list.right-panel {
   overflow: auto;
-  height: calc(100% - 179px);
+  height: calc(100% - 162px);
   position: absolute;
-  bottom: 120px;
+  top: 23px;
   right: 20px;
   width: 366px;
   padding: 10px;
