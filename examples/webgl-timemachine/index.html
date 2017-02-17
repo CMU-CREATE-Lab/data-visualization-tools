@@ -465,25 +465,7 @@
       }
     );
 
-    function loadHimawari() {
-      if (!$("#show-himawari").prop('checked')) {
-        $('#show-himawari').prop('checked', true);
-        timelineType = "defaultUI";
-        requestNewTimeline("himawari-times.json", timelineType);
-        showHimawariTimeMachineLayer = true;
-        var v = timelapse.getVideoset();
-        v.setFps(12);
-        timelapse.setMaxScale(himawariMaxScale);
-        timelapse.setDoDwell(false);
-        timelapse.setMasterPlaybackRate(1);
-        timelapse.setPlaybackRate(1);
-        previousVisibleBaseMapLayer = visibleBaseMapLayer;
-        visibleBaseMapLayer = "himawari";
-        $("#layers-legend").hide();
-      }
-    }
-
-   function verticalTouchScroll(id){
+    function verticalTouchScroll(id){
       var el = document.getElementById(id);
       var scrollStartPos = 0;
 
@@ -3123,6 +3105,7 @@
           // know the bounds each himawari waypoints should be, so use that instead.
           if (himawariWaypoint) {
             waypointBounds = himawariWaypoint.bounds;
+            waypointStartTime = himawariWaypoint.time;
           }
 
           timelapse.removeTimeChangeListener(waypointTimeChangeListener);
@@ -3221,7 +3204,7 @@
                 timelapse.stopParabolicMotion();
                 timelapse.setNewView(himawariView);
               } else {
-                loadHimawari();
+                $("#show-himawari").click();
                 timelapse.stopParabolicMotion();
                 timelapse.setNewView(himawariView, true, null, initialHimawariViewChangeHack);
               }
