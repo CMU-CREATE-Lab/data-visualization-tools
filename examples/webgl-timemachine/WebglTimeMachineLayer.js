@@ -43,6 +43,10 @@ function WebglTimeMachineLayer(glb, canvasLayer, rootUrl, opt_options) {
   };
 }
 
+WebglTimeMachineLayer.prototype.resetDimensions = function(json) {
+    this._tileView.resetDimensions(json);
+};
+
 WebglTimeMachineLayer.prototype.getWidth = function() {
     return this._tileView.getWidth();
 };
@@ -70,9 +74,8 @@ WebglTimeMachineLayer.prototype.draw = function(view, tileViewVisibility) {
       this._tileView.levelThreshold = -1.5;
     } else {
       // Not moving to waypoint;  increase level of detail
-      this._tileView.levelThreshold = 0;   // maybe try -0.25 or 0//
+      this._tileView.levelThreshold = 0;
     }
-    // NOTE: Davos screen was +0.75
     if (EARTH_TIMELAPSE_CONFIG.videoLevelThresholdModifier) {
       this._tileView.levelThreshold += EARTH_TIMELAPSE_CONFIG.videoLevelThresholdModifier;
     }
