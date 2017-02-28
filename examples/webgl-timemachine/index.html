@@ -872,14 +872,14 @@
           timelapse.setPlaybackRate(1);
           $("#layers-legend").hide();
           // Handle Landsat 2016 bounds.
-          if (landsatVersion == "2016") {
-            $.getScript("himawari_landsat_ajax_includes.js")
-              .done(function(script, status) {
-                eval(script);
-                landsatBaseMapLayer.resetDimensions(cached_ajax["./1068x600/r.json"]);
-              }
-            );
-          }
+          //if (landsatVersion == "2016") {
+          //  $.getScript("himawari_landsat_ajax_includes.js")
+          //    .done(function(script, status) {
+          //      eval(script);
+          //      landsatBaseMapLayer.resetDimensions(cached_ajax["./1068x600/r.json"]);
+          //    }
+          //  );
+          //}
         } else {
           showHimawariTimeMachineLayer = false;
           setActiveLayersWithTimeline(-1);
@@ -894,14 +894,14 @@
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
           $("#layers-legend").hide();
           // Handle Landsat 2016 bounds.
-          if (landsatVersion == "2016") {
-            $.getScript(landsatAjaxIncludesPath)
-              .done(function(script, status) {
-                eval(script);
-                landsatBaseMapLayer.resetDimensions(cached_ajax["./1068x600/r.json"]);
-              }
-            );
-          }
+          //if (landsatVersion == "2016") {
+          //  $.getScript(landsatAjaxIncludesPath)
+          //    .done(function(script, status) {
+          //      eval(script);
+          //      landsatBaseMapLayer.resetDimensions(cached_ajax["./1068x600/r.json"]);
+          //    }
+          //  );
+          //}
         }
         timelapse.warpTo(timelapse.getHomeView());
       }).prop('checked', showHimawariTimeMachineLayer);
