@@ -57,8 +57,11 @@ TileView.prototype.
 resetDimensions = function (json) {
   this._panoWidth = json.width;
   this._panoHeight = json.height;
-  this._tileWidth = json.tile_width;
-  this._tileHeight = json.tile_height;
+  this._tileWidth = json.video_width;
+  this._tileHeight = json.video_height;
+  this._destroy();
+  this._tiles = {};
+  this._tilecache = {};
   for (this._maxLevel = 0;
        (this._tileWidth << this._maxLevel) < this._panoWidth ||
        (this._tileHeight << this._maxLevel) < this._panoHeight;
