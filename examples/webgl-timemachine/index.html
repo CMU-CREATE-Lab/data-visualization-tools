@@ -336,6 +336,7 @@
     //
 
     var landsatUrl = (landsatVersion == "2015") ? rootTilePath + "/earthtime-annual-2015-v2/1068x600" : rootTilePath + "/earthtime-annual-2016-v14/1068x600";
+
     var crwTimemachineUrl = rootTilePath + "/coral/coralreefwatch-3.timemachine/crf20-22fps-1424x800";
     var ndviAnomalyTimemachineUrl = rootTilePath + "/ndvi_anomaly_1000v01/1068x600";
     var himawariTimemachineUrl = rootTilePath + "/himawari8/himawari8-nov-2015.timemachine/crf26-12fps-1424x800";
@@ -1977,7 +1978,7 @@
       var show_global_wind_power = '<td class="wind-select"><label for="show-global-wind-power" name="gwp"><input type="checkbox" id="show-global-wind-power" />Wind Power (Global)<span class="credit" style=""> (TheWindPower.net)</span></label></td>';
       var show_solar_installs = '<td class="solar-select"> <label for="show-solar-installs" name="sp"><input type="checkbox" id="show-solar-installs" />Solar PV (USA)<span class="credit"> (NREL)</span></label></td>';
       var show_drilling = '<td class="drilling-select"><label for="show-drilling" name="drl"><input type="checkbox" id="show-drilling" />Oil/Gas Drilling<span class="credit"> (FracTracker, CREATE Lab)</span></label></td>';
-      var show_himawari = '<td class="himawari-select"><label for="show-himawari" name="h8"><input type="checkbox" id="show-himawari" />Himawari-8<span class="credit"> (JMA)</span></label></td>';
+      var show_himawari = '<td class="himawari-select"><label for="show-himawari" name="h8_16"><input type="checkbox" id="show-himawari" />Himawari-8<span class="credit"> (JMA)</span></label></td>';
       var show_water_occurrence = '<td class="water-occurrence-select"><label for="show-water-occurrence" name="wo"><input type="checkbox" id="show-water-occurrence" />Water Occurrence<span class="credit"> (JRC)</span></label></td>';
       var show_water_change = '<td class="water-change-select"><label for="show-water-change" name="wc"><input type="checkbox" id="show-water-change" />Water Change<span class="credit"> (JRC)</span></label></td>';
       var show_monthly_refugees = '<td class="monthly-refugees-select"><label for="show-monthly-refugees" name="mmr"><input type="checkbox" id="show-monthly-refugees" />Monthly Mediterranean Refugees<span class="credit"> (UNHCR)</span></label></td>';
@@ -2072,7 +2073,7 @@
         layer_html += '        <button class="clear-theme" type="button">Clear <br>Theme</button>';
         layer_html += '      </td>';
         layer_html += '      <td style="position: absolute; margin-top: -7px">';
-        layer_html += '        <label for="show-himawari" name="h8">';
+        layer_html += '        <label for="show-himawari" name="h8_16">';
         layer_html += '          <input type="checkbox" id="show-himawari" style=" top: 2px" />Himawari-8';
         layer_html += '          <span class="credit"> (JMA)</span>';
         layer_html += '        </label>';
@@ -3036,13 +3037,26 @@
             // The default view allows for a black thumbnail to be used on the waypoint slider instead of some random position in Landsat
             // Then when we actually click the Himawari waypoint, we load up the original bounds and time and use them.
             for (var j = 0; j < keyframe.layers.length; j++) {
-              if (keyframe.layers[j] == "h8") {
+              if (keyframe.layers[j] == "h8" || keyframe.layers[j] == "h8_16") {
+                // Himawari keyframes made with Landsat 2015 and viewed in Landsat 2016 with reset dimensions
+                // do not position correctly and need to be corrected below.
+                if (landsatVersion == "2016" && keyframe.layers[j] == "h8") {
+                  keyframe.bounds.xmin -= 34645;
+                  keyframe.bounds.xmax -= 30000;
+                  keyframe.bounds.ymin -= 80931;
+                  keyframe.bounds.ymax -= 15128;
+                  var tmp = timelapse.pixelBoundingBoxToPixelCenter(keyframe.bounds);
+                  tmp.scale *= 2;
+                  keyframe.bounds = timelapse.pixelCenterToPixelBoundingBoxView(tmp).bbox;
+                }
+
                 himawariWaypoints[i] = {
                   bounds: keyframe.bounds,
                   time: keyframe.time
                 };
                 keyframe.bounds = himawariWaypointThumbnailBounds;
                 keyframe.time = 0;
+                break;
               }
             }
             // Sections in the spreadsheet to jump to are flagged by having the title start with a #
@@ -3191,6 +3205,7 @@
 
           // Remove himawari since we do special cases further below
           var himawariIdx = waypointLayers.indexOf("h8");
+          himawariIdx = himawariIdx > -1 ? himawariIdx : waypointLayers.indexOf("h8_16");
           if (himawariIdx > -1) waypointLayers.splice(himawariIdx, 1);
 
           // Clear out layers if they were already checked
