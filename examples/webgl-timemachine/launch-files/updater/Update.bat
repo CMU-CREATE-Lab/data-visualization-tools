@@ -51,7 +51,7 @@ call :UPDATE_PROMPT
   %GIT_PATH% submodule foreach --recursive git fetch --all
   %GIT_PATH% submodule foreach --recursive git reset --hard origin/master
   cd /D %UPDATER_PATH%
-  xcopy /Y "%LAUNCH_FILES_PATH%" "%UPDATER_PATH%/.."
+  xcopy /Y /S "%LAUNCH_FILES_PATH%" "%UPDATER_PATH%/.."
   call :FIX_FILE_PERMISSIONS
   if %errorlevel% neq 0 goto :UPDATE_FAILED /b %errorlevel%
   call :SET_READ_ONLY_STATE
