@@ -1,5 +1,6 @@
 var EARTH_TIMELAPSE_CONFIG = {
   "version" : 6,
+  "landsatVersion" : "2016",
   "browserScaleFactor" : 1,
   "showShareButton": false,
   "isHyperwall" : false,
