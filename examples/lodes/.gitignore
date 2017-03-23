@@ -1,2 +1,4 @@
 *.bin-shard*
 TAB2000_TAB2010_ST*
+*.pyc
+.ipynb_checkpoints
