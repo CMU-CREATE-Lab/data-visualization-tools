@@ -57,6 +57,7 @@
   <script src="WebglMapTile.js"></script>
   <script src="WebglMapTile2.js"></script>
   <script src="WebglMapLayer2.js"></script>
+  <script src="perf.js"></script>
 
   <script type="text/javascript">
     "use strict";
@@ -213,18 +214,18 @@
       pulse: false
     }
 
-    function lodesLayerInfo() {
+    function getLayerInfo(layer) {
       var readyTileCount = 0;
       var waitingTileCount = 0;
 
       var pointCount = 0;
-      var keys = Object.keys(lodesLayer._tileView._tiles);
+      var keys = Object.keys(layer._tileView._tiles);
       var zoomLevel = 0;
-      var lodesLayerView = timelapse.getView();
-      var timelapse2map = lodesLayer.getWidth() / landsatBaseMapLayer.getWidth();
-      lodesLayerView.scale /= timelapse2map;
+      var layerView = timelapse.getView();
+      var timelapse2map = layer.getWidth() / landsatBaseMapLayer.getWidth();
+      layerView.scale /= timelapse2map;
 
-      var zoomLevel = lodesLayer._tileView._scale2level(lodesLayerView.scale);
+      var zoomLevel = layer._tileView._scale2level(layerView.scale);
 
       var lightBaseMapView = timelapse.getView();
       var timelapse2map = lightBaseMapLayer.getWidth() / landsatBaseMapLayer.getWidth();
@@ -234,7 +235,7 @@
       var mapLevel = lightBaseMapLayer._tileView._scale2level(lightBaseMapView.scale);
 
       for (var i = 0; i < keys.length; i++) {
-        var tile = lodesLayer._tileView._tiles[keys[i]];
+        var tile = layer._tileView._tiles[keys[i]];
         if (tile._ready) {
           readyTileCount++;
           pointCount += tile._pointCount;
@@ -1934,6 +1935,101 @@
       vectorTile: false
     };
 
+    var dotmapLayers = [];
+    var layersToShowOnCreation = {};
+    //
+    function addDotmapLayer(nickname, name, credit, columnDefs) {
+      var layerOptions = {
+        tileWidth: 256,
+        tileHeight: 256,
+        nLevels: 10,
+        setDataFunction: WebGLVectorTile2.prototype._setColorDotmapData,
+        drawFunction: WebGLVectorTile2.prototype._drawColorDotmap,
+        fragmentShader: WebGLVectorTile2.colorDotmapFragmentShader,
+        vertexShader: WebGLVectorTile2.colorDotmapVertexShader
+      };
+
+      var tileUrl = 'http://rp.createlab.org:5000/tilesv1/';
+      var layerTokens = [];
+      for (var i = 0; i < columnDefs.length; i++) {
+        layerTokens.push(encodeURIComponent(columnDefs[i].color) + ';' +
+                         encodeURIComponent(columnDefs[i].expression.replace(/\s/g, '')));
+      }
+      tileUrl += layerTokens.join(';;');
+      
+      var layer = new WebglVectorLayer2(glb, canvasLayer, tileUrl, layerOptions);
+      dotmapLayers.push(layer);
+
+      var id = 'show-dotmap-' + nickname;
+      
+      var row = '<tr><td><label name="' + nickname + '">';
+      row += '<input type="checkbox" id="' + id + '">';
+      row += name;
+      
+      if (credit) row += '<span class="credit">(' + credit + ')</span>';
+
+      row += '</label></td></tr>';
+
+      $('#dotmaps_table tr:last').after(row);
+
+      $('#' + id).on("click", function() {
+        if ($(this).prop('checked')) {
+          // Turn on layer
+          if (visibleBaseMapLayer != "dark") {
+            $("#dark-base").click();
+          }
+          layer.visible = true;
+          timelineType = "none";
+          // TODO: show legend.... $("#census-legend").show();
+        } else {
+          // Turn off layer
+          layer.visible = false;
+          timelineType = "customUI";
+          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+        }
+        // TODO hide legend $("#census-legend").hide();
+      }).prop('checked', layer.visible);
+
+      if (layersToShowOnCreation[nickname]) {
+        $('#' + id).click();
+      }
+    }
+
+    function loadDotmapLayersFromTsv(tsvLayerDefinitions) {
+      var layerdefs = tsvLayerDefinitions.split('\n').slice(2);
+      for (var i = 0; i < layerdefs.length; i++) {
+        var layerdef = layerdefs[i].split('\t');
+        if (layerdef[0] == 'FALSE') continue;
+
+        var columnDefs = [];
+        for (var c = 0; 1; c++) {
+          var name = layerdef[c * 3 + 4];
+          if (!name) break;
+          var color = layerdef[c * 3 + 5];
+          var expression = layerdef[c * 3 + 6];
+          columnDefs.push({name: name, color: color, expression: expression});
+        }
+        addDotmapLayer(layerdef[1], // nickname
+                       layerdef[2], // name
+                       layerdef[3], // credit
+                       columnDefs);
+      }
+    }
+
+    function loadDotmapLayers() {
+      var layersGsheetUrl = 'https://docs.google.com/spreadsheets/d/1hFpDXOyjvjTpad7HpB0K-3thuYqSOlDJ4oExCTcscUk/edit#gid=358696896';
+
+      var snaplapseForPresentationSlider = timelapse.getSnaplapseForPresentationSlider();
+      if (snaplapseForPresentationSlider) {
+        snaplapseViewerForPresentationSlider = snaplapseForPresentationSlider.getSnaplapseViewer();
+      }
+      snaplapseForPresentationSlider.gdocToJSON(layersGsheetUrl, function(tsvdata) {
+        loadDotmapLayersFromTsv(tsvdata);
+      });
+    }
+
+
+
     function onTimeMachinePlayerReady() {
       // initialize the canvasLayer
       var timeMachineCanvasLayerOptions = {
@@ -2404,15 +2500,21 @@
         layer_html += '</tr></td></table></fieldset>';
         /* END URBANIZATION THEME */
 
+        /* DOTMAPS */
+        layer_html += '<tr><td><fieldset><table id="dotmaps_table">';
+        layer_html += '<legend>Dotmaps</legend>';
+        if (showLodes) {
+          layer_html += '   <tr>';
+          layer_html += show_lodes;
+          layer_html += '   </tr>';
+        }
+        layer_html += '</table></fieldset></td></tr>';
+        /* END DOTMAPS */
+
         /* MISC THEME */
         if (showGtd) {
           layer_html += '   <tr>';
           layer_html += show_gtd;
-          layer_html += '   </tr>';
-        }
-        if (showLodes) {
-          layer_html += '   <tr>';
-          layer_html += show_lodes;
           layer_html += '   </tr>';
         }
         layer_html += '   <tr>';
@@ -3093,6 +3195,9 @@
         timelapse.loadSharedDataFromUnsafeURL(waypointSliderContent);
       }
 
+      // Load spreadsheet-defined dotmap layers
+      loadDotmapLayers();
+        
       if (snaplapseViewerForPresentationSlider) {
         $('.presentationSlider').show();
         var $elements = $('.presentationSlider, .customControl, .controls, .captureTime, .scaleBarContainer, .snaplapse_keyframe_container, .keyframeSubtitleBoxForHovering, .snaplapse_keyframe_list_item_presentation, .snaplapse_keyframe_list_item_thumbnail_overlay_presentation');
@@ -3359,6 +3464,7 @@
         if (shareViewTmpArray.length == 2) {
           var layers = shareViewTmpArray[1].split("&")[0].split(",");
           layers.forEach(function(layer) {
+            layersToShowOnCreation[layer] = true;
             var $layerToggle = $("#layers-list label[name='" + layer + "'] input, .ui-multiselect-checkboxes label[name='" + layer + "'] input");
             if (!$layerToggle.prop('checked')) $layerToggle.trigger("click");
           });
@@ -3389,6 +3495,7 @@
     // Draws to canvas.
     // Called by TimeMachineCanavasLayer during animation and/or view changes
     function update() {
+      perf_drawframe();
       gl.clear(gl.COLOR_BUFFER_BIT);
 
       //
@@ -4060,7 +4167,7 @@
 
           options.step = step;
 
-          var info = lodesLayerInfo();
+          var info = getLayerInfo(lodesLayer);
           var throttle = 1.0;
           if (info.zoomLevel >= 5 && info.mapLevel >= 5 && info.mapLevel < 11) {
             throttle = Math.min(1000000/info.pointCount, 1.0);
@@ -4070,7 +4177,25 @@
           lodesLayer.draw(lodesLayerView, options);
         }
 
-
+        // Show dotmaps loaded from spreadsheet
+        for (var i = 0; i < dotmapLayers.length; i++) {
+          var layer = dotmapLayers[i];
+          if (layer.visible) {
+            var view = getLayerView(layer, landsatBaseMapLayer);
+            var options = {};
+            options.zoom = timelapse.getCurrentZoom();
+            
+            var info = getLayerInfo(layer);
+            var throttle = 1.0;
+            if (info.zoomLevel >= 5 && info.mapLevel >= 5 && info.mapLevel < 11) {
+              throttle = Math.min(3000000/info.pointCount, 1.0);
+            }
+            
+            options.throttle = throttle;
+            layer.draw(view, options);
+          }
+        }
+          
         // ## 7 ##
         //// Layers to draw on top go here
         //

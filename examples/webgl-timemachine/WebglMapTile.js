@@ -140,8 +140,8 @@ WebglMapTile.prototype._draw = function(transform) {
     gl.uniformMatrix4fv(this._textureProgram.uTransform, false, tileTransform);
     gl.bindBuffer(gl.ARRAY_BUFFER, this._triangles);
     gl.vertexAttribPointer(this._textureProgram.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
-    gl.activeTexture(gl.TEXTURE0);
     gl.enableVertexAttribArray(this._textureProgram.aTextureCoord);
+    gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, this._texture);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     gl.bindTexture(gl.TEXTURE_2D, null);

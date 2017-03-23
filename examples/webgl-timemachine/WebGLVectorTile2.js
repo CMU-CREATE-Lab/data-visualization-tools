@@ -49,6 +49,7 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
 
 WebGLVectorTile2.prototype._loadData = function() {
   var that = this;
+  this.startTime = new Date().getTime();
   this.xhr = new XMLHttpRequest();
   this.xhr.open('GET', that._url);
   this.xhr.responseType = 'arraybuffer';
@@ -58,6 +59,7 @@ WebGLVectorTile2.prototype._loadData = function() {
       float32Array = new Float32Array([]);
     } else {
       float32Array = new Float32Array(this.response);
+      perf_receive(float32Array.length * 4, new Date().getTime() - that.startTime);
     }
     that._setData(float32Array);
   }
@@ -86,6 +88,7 @@ WebGLVectorTile2.prototype._loadGeojsonData = function() {
   this.xhr.send();
 }
 
+// WDPA: worldCoord[2]  time
 WebGLVectorTile2.prototype._setWdpaData = function(arrayBuffer) {
   var gl = this.gl;
   this._pointCount = arrayBuffer.length / 3;
@@ -107,6 +110,7 @@ WebGLVectorTile2.prototype._setWdpaData = function(arrayBuffer) {
   }
 }
 
+// Global Terrorism Database: a_WorldCoord[2]  a_Epoch  a_NCasualties
 WebGLVectorTile2.prototype._setGtdData = function(arrayBuffer) {
   var gl = this.gl;
   this._pointCount = arrayBuffer.length / 4;
@@ -132,6 +136,7 @@ WebGLVectorTile2.prototype._setGtdData = function(arrayBuffer) {
   }
 }
 
+// Ebola: a_Centroid[2] a_Epoch1 a_Deaths1 a_Epoch2 a_Deaths2
 WebGLVectorTile2.prototype._setEbolaData = function(arrayBuffer) {
   var gl = this.gl;
   this._pointCount = arrayBuffer.length / 6;
@@ -166,6 +171,7 @@ WebGLVectorTile2.prototype._setEbolaData = function(arrayBuffer) {
 }
 
 
+// VIIRS fires: worldCoord[2] time temp
 WebGLVectorTile2.prototype._setViirsData = function(arrayBuffer) {
   var gl = this.gl;
   this._pointCount = arrayBuffer.length / 4;
@@ -190,6 +196,7 @@ WebGLVectorTile2.prototype._setViirsData = function(arrayBuffer) {
   this._ready = true;
 }
 
+// Coral Reef outlines worldCoord[2]
 WebGLVectorTile2.prototype._setCoralReefData = function(arrayBuffer) {
   var gl = this.gl;
   this._pointCount = arrayBuffer.length / 2;
@@ -206,6 +213,7 @@ WebGLVectorTile2.prototype._setCoralReefData = function(arrayBuffer) {
   this._ready = true;
 }
 
+// USGS Wind Turbines worldCoord[2]  time
 WebGLVectorTile2.prototype._setUsgsWindTurbineData = function(arrayBuffer) {
   var gl = this.gl;
   this._pointCount = arrayBuffer.length / 3;
@@ -226,6 +234,7 @@ WebGLVectorTile2.prototype._setUsgsWindTurbineData = function(arrayBuffer) {
   this._ready = true;
 }
 
+// LODES   centroid[4]  aDist  aColor
 WebGLVectorTile2.prototype._setLodesData = function(arrayBuffer) {
   var gl = this.gl;
   this._pointCount = arrayBuffer.length / 6;
@@ -251,6 +260,21 @@ WebGLVectorTile2.prototype._setLodesData = function(arrayBuffer) {
   }
 }
 
+// Color Dotmap (not animated)  aWorldCoord[2]  aColor
+WebGLVectorTile2.prototype._setColorDotmapData = function(arrayBuffer) {
+  var gl = this.gl;
+  this._pointCount = arrayBuffer.length / 3;
+  if (this._pointCount > 0) {
+    this._data = arrayBuffer;
+    this._arrayBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);
+
+    this._ready = true;
+  }
+}
+
+// Monthly Refugees aStartPoint[2] aEndPoint[2] aMidPoint[2] aEpoch aEndTime aSpan aTimeOffset
 WebGLVectorTile2.prototype._setMonthlyRefugeesData = function(arrayBuffer) {
   var gl = this.gl;
   this._pointCount = arrayBuffer.length / 10;
@@ -295,6 +319,7 @@ WebGLVectorTile2.prototype._setMonthlyRefugeesData = function(arrayBuffer) {
   }
 }
 
+// Annual Refugees aStartPoint[2] aEndPoint[2] aMidPoint[2] aEpoch
 WebGLVectorTile2.prototype._setAnnualRefugeesData = function(arrayBuffer) {
   var gl = this.gl;
   this._pointCount = arrayBuffer.length / 7;
@@ -664,7 +689,8 @@ WebGLVectorTile2.prototype._drawWdpa = function(transform, options) {
     gl.uniform1f(timeLoc, minTime);
 
     gl.drawArrays(gl.LINES, 0, this._pointCount);
-  }
+    perf_draw_lines(this._pointCount);
+  }  
 }
 
 WebGLVectorTile2.prototype._drawLines = function(transform) {
@@ -692,6 +718,7 @@ WebGLVectorTile2.prototype._drawLines = function(transform) {
     gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 8, 0);
 
     gl.drawArrays(gl.LINES, 0, this._pointCount);
+    perf_draw_lines(this._pointCount);
   }
 }
 
@@ -744,6 +771,7 @@ WebGLVectorTile2.prototype._drawPoints = function(transform, options) {
 
 
     gl.drawArrays(gl.POINTS, 0, this._pointCount);
+    perf_draw_points(this._pointCount);
     gl.disable(gl.BLEND);
   }
 }
@@ -801,6 +829,7 @@ WebGLVectorTile2.prototype._drawGtd = function(transform, options) {
 
 
     gl.drawArrays(gl.POINTS, 0, this._pointCount);
+    perf_draw_points(this._pointCount);
     gl.disable(gl.BLEND);
   }
 }
@@ -864,6 +893,7 @@ WebGLVectorTile2.prototype._drawEbola = function(transform, options) {
     gl.uniform1f(sliderTime, pointSize);
 
     gl.drawArrays(gl.POINTS, 0, this._pointCount);
+    perf_draw_points(this._pointCount);
     gl.disable(gl.BLEND);
   }
 }
@@ -966,6 +996,46 @@ WebGLVectorTile2.prototype._drawLodes = function(transform, options) {
     gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 20);
 
     gl.drawArrays(gl.POINTS, 0, Math.floor(this._pointCount*throttle));
+    perf_draw_points(Math.floor(this._pointCount*throttle))
+    gl.disable(gl.BLEND);
+  }
+}
+
+WebGLVectorTile2.prototype._drawColorDotmap = function(transform, options) {
+  var gl = this.gl;
+  if (this._ready) {
+    gl.useProgram(this.program);
+    gl.enable( gl.BLEND );
+    gl.blendEquationSeparate( gl.FUNC_ADD, gl.FUNC_ADD );
+    gl.blendFuncSeparate( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA );
+
+    var tileTransform = new Float32Array(transform);
+    var zoom = options.zoom || (2.0 * window.devicePixelRatio);
+    scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
+    scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+
+    var throttle = 1.0;
+    if (typeof options.throttle != "undefined") {
+        throttle = options.throttle
+    }
+
+    var pointSize = 2.0;
+    gl.uniform1f(this.program.uSize, pointSize);
+
+    gl.uniform1f(this.program.uZoom, zoom);
+
+    gl.uniformMatrix4fv(this.program.mapMatrix, false, tileTransform);
+
+    gl.enableVertexAttribArray(this.program.aWorldCoord);
+		gl.vertexAttribPointer(this.program.aWorldCoord, 4, gl.FLOAT, false, 12, 0);
+
+    gl.enableVertexAttribArray(this.program.aColor);
+    gl.vertexAttribPointer(this.program.aColor, 1, gl.FLOAT, false, 12, 8);
+
+    gl.drawArrays(gl.POINTS, 0, Math.floor(this._pointCount*throttle));
+    perf_draw_points(Math.floor(this._pointCount*throttle))
     gl.disable(gl.BLEND);
   }
 }
@@ -1032,6 +1102,7 @@ WebGLVectorTile2.prototype._drawMonthlyRefugees = function(transform, options) {
     gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 40, 36);
 
     gl.drawArrays(gl.POINTS, 0, this._pointCount);
+    perf_draw_points(this._pointCount);
 
     gl.disable(gl.BLEND);
   }
@@ -1097,6 +1168,7 @@ WebGLVectorTile2.prototype._drawAnnualRefugees = function(transform, options) {
 
     if (subsampleAnnualRefugees) {
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
+      perf_draw_points(this._pointCount);
     } else {
       var year = currentTime.getUTCFullYear();
       year = Math.min(year,2015);
@@ -1110,6 +1182,7 @@ WebGLVectorTile2.prototype._drawAnnualRefugees = function(transform, options) {
         count = pointIdx[year]['count'];
       }
       gl.drawArrays(gl.POINTS, pointIdx[year]['start'], count);
+      perf_draw_points(count);
     }
     gl.bindTexture(gl.TEXTURE_2D, null);
     gl.disable(gl.BLEND);
@@ -1183,6 +1256,7 @@ WebGLVectorTile2.prototype._drawHealthImpact = function(transform, options) {
     gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 20);
 
     gl.drawArrays(gl.POINTS, 0, this._pointCount);
+    perf_draw_points(this._pointCount);
 
     gl.disable(gl.BLEND);
   }
@@ -1261,6 +1335,7 @@ WebGLVectorTile2.prototype._drawViirs = function(transform, options) {
     gl.uniform1f(pointSizeLoc, pointSize);
 
     gl.drawArrays(gl.POINTS, 0, this._pointCount);
+    perf_draw_points(this._pointCount);
     gl.disable(gl.BLEND);
   }
 }
@@ -1321,6 +1396,7 @@ WebGLVectorTile2.prototype._drawUrbanFragility = function(transform, options) {
     gl.uniform1i(gl.getUniformLocation(this.program, "u_Image"), 0);
 
     gl.drawArrays(gl.POINTS, 0, this._pointCount);
+    perf_draw_points(this._pointCount);
 
     gl.disable(gl.BLEND);
   }
@@ -1376,6 +1452,7 @@ WebGLVectorTile2.prototype._drawObesity = function(transform, options) {
     gl.uniform1i(gl.getUniformLocation(this.program, "u_Image"), 0);
 
     gl.drawArrays(gl.TRIANGLES, 0, this._pointCount);
+    perf_draw_triangles(this._pointCount);
     gl.bindTexture(gl.TEXTURE_2D, null);
     gl.disable(gl.BLEND);
 
@@ -1431,6 +1508,7 @@ WebGLVectorTile2.prototype._drawVaccineConfidence = function(transform, options)
     gl.uniform1i(gl.getUniformLocation(this.program, "u_Image"), 0);
 
     gl.drawArrays(gl.TRIANGLES, 0, this._pointCount);
+    perf_draw_triangles(this._pointCount);
     gl.bindTexture(gl.TEXTURE_2D, null);
     gl.disable(gl.BLEND);
 
@@ -1543,6 +1621,37 @@ WebGLVectorTile2.lodesFragmentShader =
   '}\n' +
   'void main() {\n' +
   '  gl_FragColor = vec4(unpackColor(vColor),.75);\n' +
+  '}\n';
+
+WebGLVectorTile2.colorDotmapVertexShader =
+  'attribute vec2 aWorldCoord;\n' +
+  'attribute float aColor;\n' +
+  'uniform float uZoom;\n' +
+  'uniform float uSize;\n' +
+  'uniform mat4 mapMatrix;\n' +
+  'varying float vColor;\n' +
+  'void main() {\n' +
+  '  //gl_Position = mapMatrix * vec4(aWorldCoord.x, aWorldCoord.y, 0, 1);\n' +
+  '  //gl_Position = vec4(300.0*(aWorldCoord.x+mapMatrix[3][0]), 300.0*(-aWorldCoord.y+mapMatrix[3][1]), 0.0, 300.0);\n' +
+  '  gl_Position = vec4(aWorldCoord.x * mapMatrix[0][0] + mapMatrix[3][0], aWorldCoord.y * mapMatrix[1][1] + mapMatrix[3][1],0,1);\n' +
+  '  //gl_PointSize = uSize;\n' +
+  '  gl_PointSize = 1.5;\n' +
+  '  vColor = aColor;\n' +
+  '}\n';
+
+WebGLVectorTile2.colorDotmapFragmentShader =
+  'precision lowp float;\n' +
+  'varying float vColor;\n' +
+  'vec3 unpackColor(float f) {\n' +
+  '  vec3 color;\n' +
+  '  color.b = floor(f / 256.0 / 256.0);\n' +
+  '  color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);\n' +
+  '  color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);\n' +
+  '  return color / 256.0;\n' +
+  '}\n' +
+  'void main() {\n' +
+  '  gl_FragColor = vec4(unpackColor(vColor),1.0);\n' +
+  '  //gl_FragColor = vec4(0.0,1.0,0.0,1.0);\n' +
   '}\n';
 
 WebGLVectorTile2.annualRefugeesFragmentShader =

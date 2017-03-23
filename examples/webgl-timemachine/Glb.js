@@ -48,9 +48,8 @@ programFromSources = function(vertexSource, fragmentSource) {
     if (!this.gl.getProgramParameter(program, this.gl.LINK_STATUS)) {
       throw new Error('Linking shader program, ' + this.gl.getProgramInfoLog(program));
     }
+    this._addAttribsAndUniformsToProgram(program);
   }
-
-  this._addAttribsAndUniformsToProgram(program);
 
   return program;
 }
