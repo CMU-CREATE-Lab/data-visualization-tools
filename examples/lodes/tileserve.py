@@ -5,12 +5,11 @@ print sys.executable
 
 from urllib2 import parse_http_list as _parse_list_header
 
-import ast, flask, json, numpy, os, psycopg2, struct, tempfile, time, random, re, sys
+import ast, flask, functools, gzip, json, numpy, os, psycopg2, random, re, struct, sys, tempfile, time
 from flask import after_this_request, request
 from cStringIO import StringIO as IO
-import gzip
-import functools
 
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 def exec_ipynb(filename_or_url):
     nb = (urllib2.urlopen(filename_or_url) if re.match(r'https?:', filename_or_url) else open(filename_or_url)).read()
@@ -419,7 +418,7 @@ def generate_tile_data(layer, z, x, y, use_c=False):
     start_time = time.time()
     # remove block # and seq #, add color
     
-    prototile_path = '/Users/rsargent/projects/dotmaps/server/data-visualization-tools/examples/lodes/prototiles/{z}/{x}/{y}.bin'.format(**locals())
+    prototile_path = 'prototiles/{z}/{x}/{y}.bin'.format(**locals())
     incount = os.path.getsize(prototile_path) / prototile_record_len
     tile = bytearray(tile_record_len * incount)
     if use_c:
@@ -483,7 +482,13 @@ def serve_tile_v1(layerdef, z, x, y, suffix):
             raise 'Invalid suffix {suffix}'.format(**locals())
     except Exception as e:
         print str(e)
-        raise
+        if suffix == 'debug':
+            html = '<html><head></head><body><pre>\n'
+            html += str(e)
+            html += '\n</pre></body></html>'
+            return html
+        else:
+            raise
 
 @app.route('/<layer>/<z>/<x>/<y>.<suffix>')
 def serve_tile_v0(layer, z, x, y, suffix):
@@ -510,5 +515,14 @@ def serve_tile_v0(layer, z, x, y, suffix):
     else:
         raise 'Invalid suffix {suffix}'.format(**locals())
 
+
+@app.route('/')
+def hello():
+    return """
+<html><head></head><body>
+Test tiles:<br>
+<a href="/tilesv1/%230000ff;min(census2000_block2010.p001001%2Ccensus2010_block2010.p001001);;%23ff0000;max(0%2Ccensus2000_block2010.p001001-census2010_block2010.p001001);;%2300ff00;max(0%2Ccensus2010_block2010.p001001-census2000_block2010.p001001)/0/0/0.debug">Pop change 2000-2010 0/0/0</a>
+"""
+ 
 #app.run(host='0.0.0.0', port=5000)
 
