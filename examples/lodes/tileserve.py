@@ -27,7 +27,6 @@ set_default_psql_database('census2010')
 
 app = flask.Flask(__name__)
 
-
 def gzipped(f):
     @functools.wraps(f)
     def view_func(*args, **kwargs):
@@ -48,7 +47,8 @@ def gzipped(f):
             start_time = time.time()
             gzip_buffer = IO()
             gzip_file = gzip.GzipFile(mode='wb',
-                                      fileobj=gzip_buffer)
+                                      fileobj=gzip_buffer,
+                                      compresslevel=1)
             gzip_file.write(response.data)
             gzip_file.close()
             
@@ -189,126 +189,6 @@ def assemble_cols(cols):
 
 populations = {}
 colors = {}
-
-# working age
-
-working_age_males = (
-    load_column('census2010_block2010', 'p012006') +     # Male 15 to 17 years
-    load_column('census2010_block2010', 'p012007') +     # Male 18 and 19 years
-    load_column('census2010_block2010', 'p012008') +     # Male 20 years
-    load_column('census2010_block2010', 'p012009') +     # Male 21 years
-    load_column('census2010_block2010', 'p012010') +     # Male 22 to 24 years
-    load_column('census2010_block2010', 'p012011') +     # Male 25 to 29 years
-    load_column('census2010_block2010', 'p012012') +     # Male 30 to 34 years
-    load_column('census2010_block2010', 'p012013') +     # Male 35 to 39 years
-    load_column('census2010_block2010', 'p012014') +     # Male 40 to 44 years
-    load_column('census2010_block2010', 'p012015') +     # Male 45 to 49 years
-    load_column('census2010_block2010', 'p012016') +     # Male 50 to 54 years
-    load_column('census2010_block2010', 'p012017') +     # Male 55 to 59 years
-    load_column('census2010_block2010', 'p012018') +     # Male 60 and 61 years
-    load_column('census2010_block2010', 'p012019')       # Male 62 to 64 years
-)
-working_age_females = (
-    load_column('census2010_block2010', 'p012030') +     # Female 15 to 17 years
-    load_column('census2010_block2010', 'p012031') +     # Female 18 and 19 years
-    load_column('census2010_block2010', 'p012032') +     # Female 20 years
-    load_column('census2010_block2010', 'p012033') +     # Female 21 years
-    load_column('census2010_block2010', 'p012034') +     # Female 22 to 24 years
-    load_column('census2010_block2010', 'p012035') +     # Female 25 to 29 years
-    load_column('census2010_block2010', 'p012036') +     # Female 30 to 34 years
-    load_column('census2010_block2010', 'p012037') +     # Female 35 to 39 years
-    load_column('census2010_block2010', 'p012038') +     # Female 40 to 44 years
-    load_column('census2010_block2010', 'p012039') +     # Female 45 to 49 years
-    load_column('census2010_block2010', 'p012040') +     # Female 50 to 54 years
-    load_column('census2010_block2010', 'p012041') +     # Female 55 to 59 years
-    load_column('census2010_block2010', 'p012042') +     # Female 60 and 61 years
-    load_column('census2010_block2010', 'p012043')       # Female 62 to 64 years
-)
-
-
-# jobs2011
-# p2010 = load_column('census2010_block2010', 'p001001')
-# ce01 = load_column('lodes2011', 'rac_jt01_ce01') # $1250 or less
-# ce02 = load_column('lodes2011', 'rac_jt01_ce02') # $1250 - $3333
-# ce03 = load_column('lodes2011', 'rac_jt01_ce03') # > $3333
-# nonworking = working_age_females + working_age_males - ce01 - ce02 - ce03
-# populations['jobs2011'] = assemble_cols([ce01+ce02, ce03, nonworking])
-
-populations['jobs2011'] = assemble_cols([
-    eval_layer_column('lodes2011.rac_jt01_ce01 + lodes2011.rac_jt01_ce02'),
-    eval_layer_column('lodes2011.rac_jt01_ce03'),
-    eval_layer_column('census2010_block2010.p012006 + census2010_block2010.p012007 + census2010_block2010.p012008 + census2010_block2010.p012009 + census2010_block2010.p012010 + census2010_block2010.p012011 + census2010_block2010.p012012 + census2010_block2010.p012013 + census2010_block2010.p012014 + census2010_block2010.p012015 + census2010_block2010.p012016 + census2010_block2010.p012017 + census2010_block2010.p012018 + census2010_block2010.p012019 + census2010_block2010.p012030 + census2010_block2010.p012031 + census2010_block2010.p012032 + census2010_block2010.p012033 + census2010_block2010.p012034 + census2010_block2010.p012035 + census2010_block2010.p012036 + census2010_block2010.p012037 + census2010_block2010.p012038 + census2010_block2010.p012039 + census2010_block2010.p012040 + census2010_block2010.p012041 + census2010_block2010.p012042 + census2010_block2010.p012043 - lodes2011.rac_jt01_c000')])
-
-assert populations['jobs2011'].dtype == numpy.float32
-
-colors['jobs2011'] = numpy.array([
-    [pack_color({'r':0, 'g':255, 'b':0}),   
-     pack_color({'r':255, 'g':0, 'b':0}),   
-     pack_color({'r':0, 'g':0, 'b':255})],
-       ],
-     dtype = numpy.float32)
-
-
-#     pack_color({'r':112, 'g':176, 'b':255}),
-#     pack_color({'r': 75, 'g':255, 'b':  0}),
-#     pack_color({'r':255, 'g':  0, 'b':  0}),
-#     pack_color({'r':255, 'g':171, 'b':  0})
-
-#colors['jobs2011'] = color4dark5
-
-# .Accent .q0-4{fill:rgb(127,201,127)} .Accent .q1-4{fill:rgb(190,174,212)} .Accent .q2-4{fill:rgb(253,192,134)} .Accent .q3-4{fill:rgb(255,255,153)}
-
-
-#jobchange
-j2007 = load_column('lodes2007', 'rac_jt01_c000')
-j2008 = load_column('lodes2008', 'rac_jt01_c000')
-j2009 = load_column('lodes2009', 'rac_jt01_c000')
-j2010 = load_column('lodes2010', 'rac_jt01_c000')
-# todo: get jt03 from 2010 to omit federal jobs
-#  or compare jt00 and jt02 for all non-federal jobs
-
-populations['jobchange'] = assemble_cols([
-        numpy.minimum(j2007, j2009),
-        numpy.maximum(0, j2007-j2009),
-        numpy.maximum(0, j2009-j2007)
-            ])
-
-colors['jobchange'] = numpy.array(
-    [pack_color({'r':0, 'g':0, 'b':255}),   # blue:  both 2006 and 2010                                      
-     pack_color({'r':255, 'g':0, 'b':0}),   # red: disappeared                                               
-     pack_color({'r':0, 'g':255, 'b':0})],   # green: added                                                  
-    dtype = numpy.float32);
-
-
-# popchange2000_2010
-p2000 = load_column('census2000_block2010', 'p001001')
-p2010 = load_column('census2010_block2010', 'p001001')
-
-populations['popchange2000_2010'] = assemble_cols([
-        numpy.minimum(p2000, p2010),
-        numpy.maximum(0, p2000-p2010),
-        numpy.maximum(0, p2010-p2000)
-            ])
-
-colors['popchange2000_2010'] = numpy.array(
-    [pack_color({'r':0, 'g':0, 'b':255}),   # blue:  both 2000 and 2010                                      
-     pack_color({'r':255, 'g':0, 'b':0}),   # red: disappeared                                               
-     pack_color({'r':0, 'g':255, 'b':0})],   # green: added                                                  
-    dtype = numpy.float32);
-
-#populations['jobs2011'] = populations['popchange2000_2010']
-#colors['jobs2011'] = colors['popchange2000_2010']
-
-#cols = [numpy.subtract(numpy.multiply(p2000, 1.0), 0.0)]
-
-#@app.after_request
-#def after_request(response):
-#    print "got an after request"
-#    print 'Content-Length was ', response.headers['Content-Length']
-#    response.headers['Content-Length']=None
-#    #response.headers.remove('Content-Length')
-#    response.headers['Content-Encoding'] = 'gzip'
-#    return response
 
 def compute_tile_data_python(prototile_path, incount, tile, populations):
     raise 'Dont call me'
@@ -456,6 +336,7 @@ def find_or_generate_layer(layerdef):
     return layer
 
 @app.route('/tilesv1/<layerdef>/<z>/<x>/<y>.<suffix>')
+@gzipped
 def serve_tile_v1(layerdef, z, x, y, suffix):
     try:
         layer = find_or_generate_layer(layerdef)
