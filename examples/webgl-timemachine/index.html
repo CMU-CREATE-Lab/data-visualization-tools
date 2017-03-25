@@ -1973,6 +1973,24 @@
 
       $('#dotmaps_table tr:last').after(row);
 
+      // Create and insert legend			  
+      var legend='<tr id="' + nickname + '-legend" style="display: none"><td>';
+      legend += '<div style="font-size: 17px">' + name
+      if (credit) legend += '<span class="credit">(' + credit + ')</span>';
+      legend += '</div>'
+
+      legend += '<div style="float: left; padding-right:8px">';
+      for (var i = 0; i < columnDefs.length; i++) {
+        legend += '<div style="float: left; padding-right:8px">'
+        legend += '<div style="background-color:' + columnDefs[i].color + '; width: 12px; height: 12px; float: left; margin-top: 2px; margin-left: 8px;"></div>';
+        legend += '&nbsp;' + columnDefs[i].name + '</div>'
+      }
+      legend += '</div>';
+      legend += '</td></tr>';
+
+      $('#legend-content table tr:last').after(legend);
+
+      // Handle click event to turn on and off layer
       $('#' + id).on("click", function() {
         if ($(this).prop('checked')) {
           // Turn on layer
@@ -1981,14 +1999,14 @@
           }
           layer.visible = true;
           timelineType = "none";
-          // TODO: show legend.... $("#census-legend").show();
+          $("#" + nickname + "-legend").show();
         } else {
           // Turn off layer
           layer.visible = false;
           timelineType = "customUI";
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+          $("#" + nickname + "-legend").hide();
         }
-        // TODO hide legend $("#census-legend").hide();
       }).prop('checked', layer.visible);
 
       if (layersToShowOnCreation[nickname]) {
@@ -4186,13 +4204,13 @@
             var options = {};
             options.zoom = timelapse.getCurrentZoom();
             
+            // Throttle number of pixels if we're drawing "too many"
+            var maxPoints = canvasLayer.canvas.width * canvasLayer.canvas.height;
             var info = getLayerInfo(layer);
-            var throttle = 1.0;
-            if (info.zoomLevel >= 5 && info.mapLevel >= 5 && info.mapLevel < 11) {
-              throttle = Math.min(3000000/info.pointCount, 1.0);
-            }
+            var drawFraction = 1.0;
+            drawFraction = Math.min(maxPoints/info.pointCount, 1.0);
             
-            options.throttle = throttle;
+            options.throttle = drawFraction;
             layer.draw(view, options);
           }
         }
