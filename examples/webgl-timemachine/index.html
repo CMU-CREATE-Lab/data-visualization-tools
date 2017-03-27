@@ -467,16 +467,16 @@
       }
     );
 
-    function verticalTouchScroll(id){
-      var el = document.getElementById(id);
+    function verticalTouchScroll(selector){
+      var el = $(selector)[0];
       var scrollStartPos = 0;
 
-      document.getElementById(id).addEventListener("touchstart", function(event) {
+      el.addEventListener("touchstart", function(event) {
         scrollStartPos = this.scrollTop+event.touches[0].pageY;
         event.preventDefault();
       },false);
 
-      document.getElementById(id).addEventListener("touchmove", function(event) {
+      el.addEventListener("touchmove", function(event) {
         this.scrollTop = scrollStartPos-event.touches[0].pageY;
         event.preventDefault();
       },false);
@@ -1733,7 +1733,8 @@
 
       $('.map-layer-checkbox, .ui-multiselect-checkboxes').on("click", function() {
         var selectedLayers = $('.map-layer-checkbox, .ui-multiselect-checkboxes').find("input:checked");
-        var numLayersOn = selectedLayers.size();
+        // Subtract one, since base layers are included in this count but they don't use the legend.
+        var numLayersOn = selectedLayers.size() - 1;
         var continueState = true;
         selectedLayers.each(function() {
           if (this.id.indexOf("himawari") > 0) {
@@ -1861,7 +1862,7 @@
       // Make right layers panel vertically touch scrollable.
       try {
         if (document.createEvent("TouchEvent")) {
-          verticalTouchScroll("layers-list");
+          verticalTouchScroll(".layers-scroll-vertical");
         }
       } catch (e) {
         // Error creating touch event
@@ -2285,10 +2286,13 @@
         layer_html += '  </table>';
         layer_html += '</div>';
       } else {
-        /* BASE LAYERS */
         layer_html += '<p class="layer-list-title">Select one or more layers:</p>';
-        layer_html += '<div class="base-map-div">';
-        layer_html += '  <table class="base-map-radio" cellspacing="0">';
+        layer_html += '<button class="toggleLegendBtn" title="Toggle layer panel">Toggle</button>';
+        layer_html += '<div class="layers-scroll-vertical">';
+        layer_html += '<div class="map-layer-div">';
+        layer_html += '  <table class="map-layer-checkbox" cellspacing="0">';
+
+        /* BASE LAYERS */
         layer_html += '    <tr><td><fieldset><table>';
         layer_html += '      <legend>Base Layers</legend>';
         layer_html += '      <tr>';
@@ -2299,10 +2303,6 @@
         layer_html += dark_base;
         layer_html += '      </tr>';
         layer_html += '    </tr></td></table></fieldset>';
-        layer_html += '  </table>';
-        layer_html += '</div>';
-        layer_html += '<div class="map-layer-div">';
-        layer_html += '  <table class="map-layer-checkbox" cellspacing="0">';
         /* END BASE LAYERS */
 
         /* FOREST THEME */
@@ -2584,7 +2584,7 @@
       layer_html += '   </optgroup>';
       layer_html += ' </select>';
       layer_html += '</div>';
-      layer_html += '<div><button class="toggleLegendBtn" title="Toggle layer panel">Toggle</button></div>';
+      layer_html += '</div>';
       layer_html += '</div>';
 
       var legend_html = '<div id="layers-legend">';
@@ -2739,10 +2739,10 @@
           $("#layers-list").scrollTop(0);
           if ($("#layers-list").hasClass("hide-layers-list")) {
             $("#layers-list").removeClass("hide-layers-list");
-            $(this).css("top", "3px");
+            $(this).css({"top" : "3px", "right" : "5px"});
           } else {
             $("#layers-list").addClass("hide-layers-list");
-            $(this).css("top", "0px");
+            $(this).css({"top" : "0px", "right" : "0px"});
           }
           var $icon = $(this).children(".ui-icon");
           if ($icon.hasClass(toggleIconOpen)) {

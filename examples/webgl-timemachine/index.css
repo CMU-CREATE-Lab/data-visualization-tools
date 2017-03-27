@@ -301,20 +301,24 @@ fieldset {
   padding-left: 0px;
   padding-right: 0px;
   margin-bottom: 10px;
-  width: 100%;
 }
 #layers-list.right-panel.hyperwall {
   height: calc(100% - 189px);
 }
 
-#layers-list.right-panel {
+.layers-scroll-vertical {
   overflow: auto;
+  height: calc(100% - 25px);
+}
+
+#layers-list.right-panel {
   height: calc(100% - 162px);
   position: absolute;
   top: 23px;
   right: 20px;
   width: 366px;
   padding: 10px;
+  padding-right: 1px;
   background: white;
   border-radius: 2px;
   border: 1px solid #656565;
@@ -556,41 +560,41 @@ fieldset {
   margin-top: 0px !important;
 }
 
-#layers-list::-webkit-scrollbar {
+.layers-scroll-vertical::-webkit-scrollbar {
   -webkit-appearance: none;
   background: transparent;
   overflow: visible;
   width: 17px;
 }
 
-#layers-list::-webkit-scrollbar:vertical {
+.layers-scroll-vertical::-webkit-scrollbar:vertical {
   border-width: 6px 4px;
   min-height: 40px;
 }
 
-#layers-list::-webkit-scrollbar-thumb {
+.layers-scroll-vertical::-webkit-scrollbar-thumb {
   background-color: rgba(0, 0, 0, 0.2);
   border: solid #fff;
 }
 
-#layers-list::-webkit-scrollbar-thumb:hover {
+.layers-scroll-vertical::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 0, 0, 0.8);
 }
 
-#layers-list::-webkit-scrollbar-track-piece {
+.layers-scroll-vertical::-webkit-scrollbar-track-piece {
   background-color: #fff;
 }
 
-#layers-list::-webkit-scrollbar-corner {
+.layers-scroll-vertical::-webkit-scrollbar-corner {
   background: transparent;
 }
 
-#layers-list::-webkit-scrollbar-thumb {
+.layers-scroll-vertical::-webkit-scrollbar-thumb {
   background-color: #ADADAD;
   -webkit-box-shadow: inset 1px 1px 0 rgba(0,0,0,0.10),inset 0 -1px 0 rgba(0,0,0,0.07);
 }
 
-#layers-list::-webkit-scrollbar-thumb:hover {
+.layers-scroll-vertical::-webkit-scrollbar-thumb:hover {
   background-color: #999;
 }
 
@@ -665,6 +669,7 @@ input:focus {outline:0;}
   position: absolute;
   right: 0px;
   top: 3px;
+  right: 5px;
 }
 
 .toggleLegendBtn.ui-button {
