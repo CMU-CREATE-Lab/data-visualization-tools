@@ -1829,20 +1829,6 @@
         if (isFromUser && visibleBaseMapLayer != "landsat" && activeLayersWithTimeline == 0)
           $(".customControl").hide().children().hide();
 
-        var selectedLayer = $('.map-layer-checkbox, .ui-multiselect-checkboxes').find("input:checked");
-        if (activeLayersWithTimeline == 1 && timelineType == "defaultUI") {
-          selectedLayer.prop("checked", false);
-          setActiveLayersWithTimeline(-1);
-          selectedLayer.click();
-          // Force checked state back on
-          selectedLayer.prop("checked", true);
-          if (activeLayersWithTimeline == 0) {
-            setActiveLayersWithTimeline(1);
-          } else if (activeLayersWithTimeline > 1) {
-            setActiveLayersWithTimeline(-1);
-          }
-        }
-
         if (timelineType == "defaultUI") {
           $(".customHelpLabel-touchFriendly").css("top", "-8px");
         } else {
@@ -1963,18 +1949,18 @@
       dotmapLayers.push(layer);
 
       var id = 'show-dotmap-' + nickname;
-      
+
       var row = '<tr><td><label name="' + nickname + '">';
       row += '<input type="checkbox" id="' + id + '">';
       row += name;
-      
+
       if (credit) row += '<span class="credit">(' + credit + ')</span>';
 
       row += '</label></td></tr>';
 
       $('#dotmaps_table tr:last').after(row);
 
-      // Create and insert legend			  
+      // Create and insert legend
       var legend='<tr id="' + nickname + '-legend" style="display: none"><td>';
       legend += '<div style="font-size: 17px">' + name
       if (credit) legend += '<span class="credit">(' + credit + ')</span>';
@@ -3214,7 +3200,7 @@
 
       // Load spreadsheet-defined dotmap layers
       loadDotmapLayers();
-        
+
       if (snaplapseViewerForPresentationSlider) {
         $('.presentationSlider').show();
         var $elements = $('.presentationSlider, .customControl, .controls, .captureTime, .scaleBarContainer, .snaplapse_keyframe_container, .keyframeSubtitleBoxForHovering, .snaplapse_keyframe_list_item_presentation, .snaplapse_keyframe_list_item_thumbnail_overlay_presentation');
@@ -4201,18 +4187,18 @@
             var view = getLayerView(layer, landsatBaseMapLayer);
             var options = {};
             options.zoom = timelapse.getCurrentZoom();
-            
+
             // Throttle number of pixels if we're drawing "too many"
             var maxPoints = canvasLayer.canvas.width * canvasLayer.canvas.height;
             var info = getLayerInfo(layer);
             var drawFraction = 1.0;
             drawFraction = Math.min(maxPoints/info.pointCount, 1.0);
-            
+
             options.throttle = drawFraction;
             layer.draw(view, options);
           }
         }
-          
+
         // ## 7 ##
         //// Layers to draw on top go here
         //
