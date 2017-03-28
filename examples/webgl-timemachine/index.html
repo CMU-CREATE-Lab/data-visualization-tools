@@ -2517,6 +2517,8 @@
         /* END DOTMAPS */
 
         /* MISC THEME */
+        layer_html += '<tr><td><fieldset><table>';
+        layer_html += '<legend>Other</legend>';
         if (showGtd) {
           layer_html += '   <tr>';
           layer_html += show_gtd;
@@ -2525,6 +2527,7 @@
         layer_html += '   <tr>';
         layer_html += show_himawari;
         layer_html += '   </tr>';
+        layer_html += '</tr></td></table></fieldset>';
         /* END MISC THEME */
 
         layer_html += ' </table>';
