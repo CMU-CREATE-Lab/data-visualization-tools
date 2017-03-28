@@ -359,42 +359,42 @@
     var waterOccurrenceUrl = rootTilePath + "/water/occurrence_2016/{default}/{z}/{x}/{y}.png";
     var waterChangeUrl = rootTilePath + "/water/change_2016/{default}/{z}/{x}/{y}.png";
 
-    var wdpaUrl = rootTilePath + "/wdpaline-year";
-    var mcrmUrl = rootTilePath + "/coral/mcrm-lines-wrapdateline";
+    var wdpaUrl = rootTilePath + "/wdpaline-year/{z}/{x}/{y}.bin";
+    var mcrmUrl = rootTilePath + "/coral/mcrm-lines-wrapdateline/{z}/{x}/{y}.bin";
 
     // VIIRS fix
     var viirsUrl = rootTilePath + "/viirs/createlab-viirs-uncorrected-20140314-20150403.bin";
-    var viirsUrl = rootTilePath + "/viirs";
+    var viirsUrl = rootTilePath + "/viirs/{z}/{x}/{y}.bin";
 
-    var coralBleachingUrl = rootTilePath + "/coral";
-    var usgsWindTurbineUrl = rootTilePath + "/energy/wind-installs-usgs";
-    var solarInstallsUrl = rootTilePath + "/energy/solar-installs";
-    var globalWindPowerUrl = rootTilePath + "/energy/global-wind-power";
-    var drillingUrl = rootTilePath + "/energy/drilling";
+    var coralBleachingUrl = rootTilePath + "/coral/{z}/{x}/{y}.bin";
+    var usgsWindTurbineUrl = rootTilePath + "/energy/wind-installs-usgs/{z}/{x}/{y}.bin";
+    var solarInstallsUrl = rootTilePath + "/energy/solar-installs/{z}/{x}/{y}.bin";
+    var globalWindPowerUrl = rootTilePath + "/energy/global-wind-power/{z}/{x}/{y}.bin";
+    var drillingUrl = rootTilePath + "/energy/drilling/{z}/{x}/{y}.bin";
     var animatedHansenUrls = [gfcTransUrl, gfcLossGainUrl];
-    var monthlyRefugeesUrl = rootTilePath + '/monthly-mediterranean-refugees';
+    var monthlyRefugeesUrl = rootTilePath + '/monthly-mediterranean-refugees/{z}/{x}/{y}.bin';
 
-    var annualRefugeesUrl = rootTilePath + "/annual-refugees";
+    var annualRefugeesUrl = rootTilePath + "/annual-refugees/{z}/{x}/{y}.bin";
     if (subsampleAnnualRefugees) {
-      annualRefugeesUrl = rootTilePath + "/annual-refugees/subsampled";
+      annualRefugeesUrl = rootTilePath + "/annual-refugees/subsampled/{z}/{x}/{y}.bin";
     }
     var vsiUrl = rootTilePath + "/vsi/tiles/{default}/{z}/{x}/{y}.png";
-    var healthImpactUrl = rootTilePath + "/health-impact";
-    var zikaUrl = rootTilePath + "/pandemics/zika";
-    var dengueUrl = rootTilePath + "/pandemics/dengue";
-    var chikuUrl = rootTilePath + "/pandemics/chiku";
+    var healthImpactUrl = rootTilePath + "/health-impact/{z}/{x}/{y}.bin";
+    var zikaUrl = rootTilePath + "/pandemics/zika/{z}/{x}/{y}.bin";
+    var dengueUrl = rootTilePath + "/pandemics/dengue/{z}/{x}/{y}.bin";
+    var chikuUrl = rootTilePath + "/pandemics/chiku/{z}/{x}/{y}.bin";
 
     var seaLevelRiseUrl = "http://a.ss2tiles.climatecentral.org/lockin_animated_land/{z}/{x}/{y}.png";
-    var urbanFragilityUrl = rootTilePath + "/urban-fragility";
-    var gtdUrl = rootTilePath + "/gtd";
-    var hivUrl = rootTilePath + "/hiv";
-    var obesityUrl = rootTilePath + "/obesity";
-    var vaccineConfidenceUrl = rootTilePath + "/vaccine-confidence";
-    var ebolaDeathsUrl = rootTilePath + "/ebola/deaths";
-    var ebolaCasesUrl = rootTilePath + "/ebola/cases";
-    var ebolaNewCasesUrl = rootTilePath + "/ebola/new-cases";
+    var urbanFragilityUrl = rootTilePath + "/urban-fragility/{z}/{x}/{y}.bin";
+    var gtdUrl = rootTilePath + "/gtd/{z}/{x}/{y}.bin";
+    var hivUrl = rootTilePath + "/hiv/{z}/{x}/{y}.bin";
+    var obesityUrl = rootTilePath + "/obesity/{z}/{x}/{y}.geojson";
+    var vaccineConfidenceUrl = rootTilePath + "/vaccine-confidence/{z}/{x}/{y}.geojson";
+    var ebolaDeathsUrl = rootTilePath + "/ebola/deaths/{z}/{x}/{y}.bin";
+    var ebolaCasesUrl = rootTilePath + "/ebola/cases/{z}/{x}/{y}.bin";
+    var ebolaNewCasesUrl = rootTilePath + "/ebola/new-cases/{z}/{x}/{y}.bin";
 
-    var lodesUrl = rootTilePath + "/lodes/lodes-10";
+    var lodesUrl = rootTilePath + "/lodes/lodes-10/{z}/{x}/{y}.bin";
 
     function init() {
       var settings = {
@@ -1958,7 +1958,7 @@
                          encodeURIComponent(columnDefs[i].expression.replace(/\s/g, '')));
       }
       tileUrl += layerTokens.join(';;');
-      
+      tileUrl += "/{z}/{x}/{y}.bin";
       var layer = new WebglVectorLayer2(glb, canvasLayer, tileUrl, layerOptions);
       dotmapLayers.push(layer);
 
@@ -3085,8 +3085,7 @@
         drawFunction: WebGLVectorTile2.prototype._drawObesity,
         fragmentShader: WebGLVectorTile2.obesityFragmentShader,
         vertexShader: WebGLVectorTile2.obesityVertexShader,
-        imageSrc: "obesity-color-map.png",
-        tileExtension: ".geojson"
+        imageSrc: "obesity-color-map.png"
       };
       obesityLayer = new WebglVectorLayer2(glb, canvasLayer, obesityUrl, obesityLayerOptions);
 
@@ -3099,8 +3098,7 @@
         drawFunction: WebGLVectorTile2.prototype._drawVaccineConfidence,
         fragmentShader: WebGLVectorTile2.vaccineConfidenceFragmentShader,
         vertexShader: WebGLVectorTile2.vaccineConfidenceVertexShader,
-        imageSrc: "vaccine-confidence-color-map.png",
-        tileExtension: ".geojson"
+        imageSrc: "vaccine-confidence-color-map.png"
       };
       vaccineConfidenceLayer = new WebglVectorLayer2(glb, canvasLayer, vaccineConfidenceUrl, vaccineConfidenceLayerOptions);
 
