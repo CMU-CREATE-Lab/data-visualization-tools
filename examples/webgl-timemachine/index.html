@@ -1927,6 +1927,7 @@
     };
 
     var dotmapLayers = [];
+    var dotlayerAlreadyLoaded;
     var layersToShowOnCreation = {};
     //
     function addDotmapLayer(nickname, name, credit, columnDefs) {
@@ -2026,15 +2027,29 @@
       }
     }
 
-    function loadDotmapLayers() {
-      var layersGsheetUrl = 'https://docs.google.com/spreadsheets/d/1hFpDXOyjvjTpad7HpB0K-3thuYqSOlDJ4oExCTcscUk/edit#gid=358696896';
+    function loadDotmapLayers(docTabId) {
+      // docTabId DOCID.TABID, e.g. 1hFpDXOyjvjTpad7HpB0K-3thuYqSOlDJ4oExCTcscUk.358696896,
+      // which would translate into https://docs.google.com/spreadsheets/d/1hFpDXOyjvjTpad7HpB0K-3thuYqSOlDJ4oExCTcscUk/edit#gid=358696896
 
-      org.gigapan.Util.gdocToJSON(layersGsheetUrl, function(tsvdata) {
+      if (dotlayerAlreadyLoaded) {
+          if (docTabId == dotlayerAlreadyLoaded) return;
+          // We need to reload the dotlayers, but we don't know how to do that
+          // So just refresh this page instead.
+          // TODO: clear the layers and reload just the layers.
+          location.reload();
+      }
+      dotlayerAlreadyLoaded = docTabId;
+
+      var docId = docTabId.split('.')[0];
+      var tabId = docTabId.split('.')[1];
+      var url = 'https://docs.google.com/spreadsheets/d/' + docId + '/edit'
+      if (tabId) {
+          url += '#gid=' + tabId;
+      }
+      org.gigapan.Util.gdocToJSON(url, function(tsvdata) {
         loadDotmapLayersFromTsv(tsvdata);
       });
     }
-
-
 
     function onTimeMachinePlayerReady() {
       // initialize the canvasLayer
@@ -2846,8 +2861,6 @@
       var baseMapLayerOptions = isHyperwall ? retinaMapLayerOptions : defaultBaseMapLayerOptions;
 
       lightBaseMapLayer = new WebglMapLayer(glb, canvasLayer, lightMapUrl, defaultBaseMapLayerOptions);
-      console.log('useGoogleMaps is ' + useGoogleMaps);
-      console.log('lightBaseMapLayer has ' + defaultBaseMapLayerOptions.nLevels + ' levels');
       darkBaseMapLayer = new WebglMapLayer(glb, canvasLayer, darkMapUrl, defaultBaseMapLayerOptions);
       hansenMapLayer = new WebglMapLayer(glb, canvasLayer, gfcTransUrl, defaultMapLayerOptions);
       hansenMapLayer2 = new WebglMapLayer(glb, canvasLayer, gfcLossGainUrl, defaultMapLayerOptions);
@@ -3205,9 +3218,6 @@
         timelapse.loadSharedDataFromUnsafeURL(waypointSliderContent);
       }
 
-      // Load spreadsheet-defined dotmap layers
-      loadDotmapLayers();
-
       if (snaplapseViewerForPresentationSlider) {
         $('.presentationSlider').show();
         var $elements = $('.presentationSlider, .customControl, .controls, .captureTime, .scaleBarContainer, .snaplapse_keyframe_container, .keyframeSubtitleBoxForHovering, .snaplapse_keyframe_list_item_presentation, .snaplapse_keyframe_list_item_thumbnail_overlay_presentation');
@@ -3469,22 +3479,25 @@
         }
       });
 
-      var layerChangeFromHash = function() {
-        var shareViewTmpArray = window.location.hash.split("l=");
-        if (shareViewTmpArray.length == 2) {
-          var layers = shareViewTmpArray[1].split("&")[0].split(",");
-          layers.forEach(function(layer) {
-            layersToShowOnCreation[layer] = true;
-            var $layerToggle = $("#layers-list label[name='" + layer + "'] input, .ui-multiselect-checkboxes label[name='" + layer + "'] input");
-            if (!$layerToggle.prop('checked')) $layerToggle.trigger("click");
-          });
-        }
+      var hashChange = function() {
+          var vals = org.gigapan.Util.getUnsafeHashVars();
+          if (vals.l) {
+              var layers = vals.l.split(",");
+              layers.forEach(function(layer) {
+                  layersToShowOnCreation[layer] = true;
+                  var $layerToggle = $("#layers-list label[name='" + layer + "'] input, .ui-multiselect-checkboxes label[name='" + layer + "'] input");
+                  if (!$layerToggle.prop('checked')) $layerToggle.trigger("click");
+              });
+          }
+          if (vals.dotlayers) {
+              loadDotmapLayers(vals.dotlayers);
+          } else {
+              loadDotmapLayers('1hFpDXOyjvjTpad7HpB0K-3thuYqSOlDJ4oExCTcscUk.358696896');
+          }
       };
 
       $(window).trigger("resize");
-      $(window).on('hashchange', function() {
-        layerChangeFromHash()
-      }).trigger('hashchange');
+      $(window).on('hashchange', hashChange).trigger('hashchange');
       $(".share").appendTo($(".location_search_div"));
     }
 
