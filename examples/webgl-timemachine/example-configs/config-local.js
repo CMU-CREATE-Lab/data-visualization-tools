@@ -6,6 +6,7 @@ var EARTH_TIMELAPSE_CONFIG = {
   "isHyperwall" : false,
   "useGoogleMaps" : false,
   "useGoogleSearch" : false,
+  "googleMapsAPIKey" : "",
   "defaultPlaybackSpeed" : 0.5,
   "enableAutoMode" : false,
   "screenTimeoutInMilliseconds" : 4 * 60 * 1000,
