@@ -397,6 +397,10 @@
     var lodesUrl = rootTilePath + "/lodes/lodes-10/{z}/{x}/{y}.bin";
 
     function init() {
+      var enablePresentationSlider = true;
+      if (enableRecordingMode || window.location.hash.split("disablePresentationSlider=")[1]) {
+        enablePresentationSlider = false;
+      }
       var settings = {
         loopDwell: {
           startDwell: 1.5,
@@ -406,7 +410,7 @@
         viewerType: "webgl",
         url: landsatUrl,
         apiKeys: googleMapsAPIKey ? {'googleMaps': googleMapsAPIKey} : undefined,
-        enablePresentationSlider: enableRecordingMode ? false : true,
+        enablePresentationSlider: enablePresentationSlider,
         enableEditor: enableRecordingMode ? true : false,
         showEditorOnLoad: enableRecordingMode ? true : false,
         // Using "https" will casue the thumbnail loading from the server to fail
@@ -1936,7 +1940,7 @@
         vertexShader: WebGLVectorTile2.colorDotmapVertexShader
       };
 
-      var tileUrl = 'http://lauwers.ece.cmu.edu:8888/tilesv1/';
+      var tileUrl = 'http://dotmaptiles.createlab.org:8888/tilesv1/';
       //var tileUrl = 'http://rp.createlab.org:5000/tilesv1/';
       var layerTokens = [];
       for (var i = 0; i < columnDefs.length; i++) {
@@ -2025,11 +2029,7 @@
     function loadDotmapLayers() {
       var layersGsheetUrl = 'https://docs.google.com/spreadsheets/d/1hFpDXOyjvjTpad7HpB0K-3thuYqSOlDJ4oExCTcscUk/edit#gid=358696896';
 
-      var snaplapseForPresentationSlider = timelapse.getSnaplapseForPresentationSlider();
-      if (snaplapseForPresentationSlider) {
-        snaplapseViewerForPresentationSlider = snaplapseForPresentationSlider.getSnaplapseViewer();
-      }
-      snaplapseForPresentationSlider.gdocToJSON(layersGsheetUrl, function(tsvdata) {
+      org.gigapan.Util.gdocToJSON(layersGsheetUrl, function(tsvdata) {
         loadDotmapLayersFromTsv(tsvdata);
       });
     }
@@ -2831,14 +2831,14 @@
 
       // For any retina raster map
       var retinaMapLayerOptions = {
-        nLevels: 11,
+        nLevels: useGoogleMaps ? 20 : 11,
         tileWidth: 512,
         tileHeight: 512
       };
 
       // For the light/dark base layers
       var defaultBaseMapLayerOptions = {
-        nLevels: 11,
+        nLevels: useGoogleMaps ? 20 : 11,
         tileWidth: 256,
         tileHeight: 256
       };
@@ -2846,6 +2846,8 @@
       var baseMapLayerOptions = isHyperwall ? retinaMapLayerOptions : defaultBaseMapLayerOptions;
 
       lightBaseMapLayer = new WebglMapLayer(glb, canvasLayer, lightMapUrl, defaultBaseMapLayerOptions);
+      console.log('useGoogleMaps is ' + useGoogleMaps);
+      console.log('lightBaseMapLayer has ' + defaultBaseMapLayerOptions.nLevels + ' levels');
       darkBaseMapLayer = new WebglMapLayer(glb, canvasLayer, darkMapUrl, defaultBaseMapLayerOptions);
       hansenMapLayer = new WebglMapLayer(glb, canvasLayer, gfcTransUrl, defaultMapLayerOptions);
       hansenMapLayer2 = new WebglMapLayer(glb, canvasLayer, gfcLossGainUrl, defaultMapLayerOptions);
@@ -3181,20 +3183,22 @@
           timelapse.loadSharedDataFromUnsafeURL(waypointSliderContent);
         };
 
-        if (waypointSliderContentPath.indexOf("http") >= 0) {
-          // Load waypoints from Google Docs
-          snaplapseForPresentationSlider.gdocToJSON(waypointSliderContentPath, function(csvdata) {
-            loadWaypointSliderContentFromCSV(csvdata);
-          });
-        } else {
-          // Load local version of the waypoints .tsv file
-          $.ajax({
-            url: waypointSliderContentPath,
-            dataType: "text",
-            success: function(csvdata) {
+        if (timelapse.isPresentationSliderEnabled()) {
+          if (waypointSliderContentPath.indexOf("http") >= 0) {
+            // Load waypoints from Google Docs
+            org.gigapan.Util.gdocToJSON(waypointSliderContentPath, function(csvdata) {
               loadWaypointSliderContentFromCSV(csvdata);
-            }
-          });
+            });
+          } else {
+            // Load local version of the waypoints .tsv file
+            $.ajax({
+              url: waypointSliderContentPath,
+              dataType: "text",
+              success: function(csvdata) {
+                loadWaypointSliderContentFromCSV(csvdata);
+              }
+            });
+          }
         }
       } else {
         // Load the long, encoded URL outputted by the Tour Editor
