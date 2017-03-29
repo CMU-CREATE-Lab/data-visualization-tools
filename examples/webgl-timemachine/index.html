@@ -2731,6 +2731,14 @@
         $(legend_html).appendTo($("#timeMachine .player"));
         $("#layers-list").addClass("right-panel");
 
+        // Hide any fieldsets that have all their children
+        // hidden (i.e. all layers of that topic are hidden)
+        $("#layers-list fieldset > table").each(function() {
+          if ($(this).children().length == 0) {
+            $(this).parent().hide();
+          }
+        });
+
         var toggleIconClose = "ui-icon-arrowthick-1-ne";
         var toggleIconOpen = "ui-icon-arrowthick-1-sw";
         var $toggleLegendBtn = $(".toggleLegendBtn");
