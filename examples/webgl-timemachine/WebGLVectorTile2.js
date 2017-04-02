@@ -1029,13 +1029,14 @@ WebGLVectorTile2.prototype._drawColorDotmap = function(transform, options) {
     gl.uniformMatrix4fv(this.program.mapMatrix, false, tileTransform);
 
     gl.enableVertexAttribArray(this.program.aWorldCoord);
-		gl.vertexAttribPointer(this.program.aWorldCoord, 4, gl.FLOAT, false, 12, 0);
+    gl.vertexAttribPointer(this.program.aWorldCoord, 2, gl.FLOAT, false, 12, 0);
 
     gl.enableVertexAttribArray(this.program.aColor);
     gl.vertexAttribPointer(this.program.aColor, 1, gl.FLOAT, false, 12, 8);
 
-    gl.drawArrays(gl.POINTS, 0, Math.floor(this._pointCount*throttle));
-    perf_draw_points(Math.floor(this._pointCount*throttle))
+    var npoints = Math.floor(this._pointCount*throttle);
+    gl.drawArrays(gl.POINTS, 0, npoints);
+    perf_draw_points(npoints);
     gl.disable(gl.BLEND);
   }
 }
