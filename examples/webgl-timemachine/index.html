@@ -2011,6 +2011,7 @@
       for (var i = 0; i < layerdefs.length; i++) {
         var layerdef = layerdefs[i].split('\t');
         if (layerdef[0] == 'FALSE') continue;
+	var layerIdentifier = layerdef[1].replace(/\W+/g, '_'); // sanitize non-word chars
 
         var columnDefs = [];
         for (var c = 0; 1; c++) {
@@ -2020,7 +2021,7 @@
           var expression = layerdef[c * 3 + 6];
           columnDefs.push({name: name, color: color, expression: expression});
         }
-        addDotmapLayer(layerdef[1], // nickname
+        addDotmapLayer(layerIdentifier, // identifier
                        layerdef[2], // name
                        layerdef[3], // credit
                        columnDefs);
@@ -4247,7 +4248,7 @@
       a.async = 1;
       a.src = g;
       m.parentNode.insertBefore(a, m)
-    })(window, document, 'script', 'http://www.google-analytics.com/analytics.js', 'ga');
+    })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
     // Write to local storage since cookies cannot be used on file://
     // allowLinker is for crossdomain (the tracking domain is different from where we are sending from)
     ga('create', trackingId, 'auto', {
