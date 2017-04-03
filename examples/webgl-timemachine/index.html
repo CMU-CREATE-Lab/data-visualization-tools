@@ -140,7 +140,7 @@
     var visibleBaseMapLayer = "landsat";
     var previousVisibleBaseMapLayer = visibleBaseMapLayer;
     WebglVideoTile.useFaderShader = useFaderShader;
-    var timelapse, snaplapseViewerForPresentationSlider, previousWaypoint = {}, waypointViewChangeListener, hideWaypointListener, waypointTimeChangeListener;
+    var timelapse, snaplapseViewerForPresentationSlider, previousWaypoint = {}, waypointViewChangeListener, hideWaypointListener, waypointTimeChangeListener, snaplapseForPresentationSlider;
     var himawariWaypoints = {};
     var annotationPicturePaths = {};
     var timelineType = "customUI";
@@ -2011,7 +2011,7 @@
       for (var i = 0; i < layerdefs.length; i++) {
         var layerdef = layerdefs[i].split('\t');
         if (layerdef[0] == 'FALSE') continue;
-	var layerIdentifier = layerdef[1].replace(/\W+/g, '_'); // sanitize non-word chars
+        var layerIdentifier = layerdef[1].replace(/\W+/g, '_'); // sanitize non-word chars
 
         var columnDefs = [];
         for (var c = 0; 1; c++) {
@@ -2043,12 +2043,64 @@
 
       var docId = docTabId.split('.')[0];
       var tabId = docTabId.split('.')[1];
-      var url = 'https://docs.google.com/spreadsheets/d/' + docId + '/edit'
+      var url = 'https://docs.google.com/spreadsheets/d/' + docId + '/edit';
       if (tabId) {
           url += '#gid=' + tabId;
       }
       org.gigapan.Util.gdocToJSON(url, function(tsvdata) {
         loadDotmapLayersFromTsv(tsvdata);
+      });
+    }
+
+    function loadWaypointSliderContentFromCSV(csvdata) {
+      var waypointJSON = JSON.parse(snaplapseForPresentationSlider.CSVToJSON(csvdata));
+      for (var i = 0; i < waypointJSON.snaplapse.keyframes.length; i++) {
+        var keyframe = waypointJSON.snaplapse.keyframes[i];
+        annotationPicturePaths[i] = { path : keyframe.unsafe_string_annotationPicPath };
+        // Himawari is a special case.
+        // We need to store the bounds and times and then replace them with a default view.
+        // The default view allows for a black thumbnail to be used on the waypoint slider instead of some random position in Landsat
+        // Then when we actually click the Himawari waypoint, we load up the original bounds and time and use them.
+        for (var j = 0; j < keyframe.layers.length; j++) {
+          if (keyframe.layers[j] == "h8" || keyframe.layers[j] == "h8_16") {
+            // Himawari keyframes made with Landsat 2015 and viewed in Landsat 2016 with reset dimensions
+            // do not position correctly and need to be corrected below.
+            if (landsatVersion == "2016" && keyframe.layers[j] == "h8") {
+              keyframe.bounds.xmin -= 34645;
+              keyframe.bounds.xmax -= 30000;
+              keyframe.bounds.ymin -= 80931;
+              keyframe.bounds.ymax -= 15128;
+              var tmp = timelapse.pixelBoundingBoxToPixelCenter(keyframe.bounds);
+              tmp.scale *= 2;
+              keyframe.bounds = timelapse.pixelCenterToPixelBoundingBoxView(tmp).bbox;
+            }
+
+            himawariWaypoints[i] = {
+              bounds: keyframe.bounds,
+              time: keyframe.time
+            };
+            keyframe.bounds = himawariWaypointThumbnailBounds;
+            keyframe.time = 0;
+            break;
+          }
+        }
+        // Sections in the spreadsheet to jump to are flagged by having the title start with a #
+        if (keyframe.unsafe_string_frameTitle.indexOf("#") == 0) {
+          keyframe.unsafe_string_frameTitle = keyframe.unsafe_string_frameTitle.slice(1);
+          jumpToButtons[keyframe.unsafe_string_frameTitle] = i;
+        }
+      }
+
+      $.each(jumpToButtons, function(sectionTitle, sectionIdx) {
+        $("#presentation-slider-selection > table td:last").before($('<td data-section-idx=' + sectionIdx + '><button type="button">' + sectionTitle + '</button></td>'));
+      });
+      waypointSliderContent = "#presentation=" + snaplapseForPresentationSlider.getAsUrlString(waypointJSON.snaplapse.keyframes);
+      timelapse.loadSharedDataFromUnsafeURL(waypointSliderContent);
+    }
+
+    function loadWaypointsFromGdoc(waypointSliderContentPath) {
+      org.gigapan.Util.gdocToJSON(waypointSliderContentPath, function(csvdata) {
+        loadWaypointSliderContentFromCSV(csvdata);
       });
     }
 
@@ -3152,79 +3204,9 @@
       }
 
       // Toggle layers off when auto mode begins
-      var snaplapseForPresentationSlider = timelapse.getSnaplapseForPresentationSlider();
+      snaplapseForPresentationSlider = timelapse.getSnaplapseForPresentationSlider();
       if (snaplapseForPresentationSlider) {
         snaplapseViewerForPresentationSlider = snaplapseForPresentationSlider.getSnaplapseViewer();
-      }
-
-      // Load waypoints
-      if (waypointSliderContentPath) {
-        var loadWaypointSliderContentFromCSV = function(csvdata) {
-          var waypointJSON = JSON.parse(snaplapseForPresentationSlider.CSVToJSON(csvdata));
-          for (var i = 0; i < waypointJSON.snaplapse.keyframes.length; i++) {
-            var keyframe = waypointJSON.snaplapse.keyframes[i];
-            annotationPicturePaths[i] = { path : keyframe.unsafe_string_annotationPicPath };
-            // Himawari is a special case.
-            // We need to store the bounds and times and then replace them with a default view.
-            // The default view allows for a black thumbnail to be used on the waypoint slider instead of some random position in Landsat
-            // Then when we actually click the Himawari waypoint, we load up the original bounds and time and use them.
-            for (var j = 0; j < keyframe.layers.length; j++) {
-              if (keyframe.layers[j] == "h8" || keyframe.layers[j] == "h8_16") {
-                // Himawari keyframes made with Landsat 2015 and viewed in Landsat 2016 with reset dimensions
-                // do not position correctly and need to be corrected below.
-                if (landsatVersion == "2016" && keyframe.layers[j] == "h8") {
-                  keyframe.bounds.xmin -= 34645;
-                  keyframe.bounds.xmax -= 30000;
-                  keyframe.bounds.ymin -= 80931;
-                  keyframe.bounds.ymax -= 15128;
-                  var tmp = timelapse.pixelBoundingBoxToPixelCenter(keyframe.bounds);
-                  tmp.scale *= 2;
-                  keyframe.bounds = timelapse.pixelCenterToPixelBoundingBoxView(tmp).bbox;
-                }
-
-                himawariWaypoints[i] = {
-                  bounds: keyframe.bounds,
-                  time: keyframe.time
-                };
-                keyframe.bounds = himawariWaypointThumbnailBounds;
-                keyframe.time = 0;
-                break;
-              }
-            }
-            // Sections in the spreadsheet to jump to are flagged by having the title start with a #
-            if (keyframe.unsafe_string_frameTitle.indexOf("#") == 0) {
-              keyframe.unsafe_string_frameTitle = keyframe.unsafe_string_frameTitle.slice(1);
-              jumpToButtons[keyframe.unsafe_string_frameTitle] = i;
-            }
-          }
-
-          $.each(jumpToButtons, function(sectionTitle, sectionIdx) {
-            $("#presentation-slider-selection > table td:last").before($('<td data-section-idx=' + sectionIdx + '><button type="button">' + sectionTitle + '</button></td>'));
-          });
-          waypointSliderContent = "#presentation=" + snaplapseForPresentationSlider.getAsUrlString(waypointJSON.snaplapse.keyframes);
-          timelapse.loadSharedDataFromUnsafeURL(waypointSliderContent);
-        };
-
-        if (timelapse.isPresentationSliderEnabled()) {
-          if (waypointSliderContentPath.indexOf("http") >= 0) {
-            // Load waypoints from Google Docs
-            org.gigapan.Util.gdocToJSON(waypointSliderContentPath, function(csvdata) {
-              loadWaypointSliderContentFromCSV(csvdata);
-            });
-          } else {
-            // Load local version of the waypoints .tsv file
-            $.ajax({
-              url: waypointSliderContentPath,
-              dataType: "text",
-              success: function(csvdata) {
-                loadWaypointSliderContentFromCSV(csvdata);
-              }
-            });
-          }
-        }
-      } else {
-        // Load the long, encoded URL outputted by the Tour Editor
-        timelapse.loadSharedDataFromUnsafeURL(waypointSliderContent);
       }
 
       if (snaplapseViewerForPresentationSlider) {
@@ -3489,20 +3471,53 @@
       });
 
       var hashChange = function() {
-          var vals = org.gigapan.Util.getUnsafeHashVars();
-          if (vals.l) {
-              var layers = vals.l.split(",");
-              layers.forEach(function(layer) {
-                  layersToShowOnCreation[layer] = true;
-                  var $layerToggle = $("#layers-list label[name='" + layer + "'] input, .ui-multiselect-checkboxes label[name='" + layer + "'] input");
-                  if (!$layerToggle.prop('checked')) $layerToggle.trigger("click");
-              });
+        var vals = org.gigapan.Util.getUnsafeHashVars();
+        if (vals.l) {
+          var layers = vals.l.split(",");
+          layers.forEach(function(layer) {
+            layersToShowOnCreation[layer] = true;
+            var $layerToggle = $("#layers-list label[name='" + layer + "'] input, .ui-multiselect-checkboxes label[name='" + layer + "'] input");
+            if (!$layerToggle.prop('checked')) {
+              $layerToggle.trigger("click");
+            }
+          });
+        }
+
+        if (vals.waypoints && timelapse.isPresentationSliderEnabled()) {
+          var docId = vals.waypoints.split('.')[0];
+          var tabId = vals.waypoints.split('.')[1];
+          waypointSliderContentPath = 'https://docs.google.com/spreadsheets/d/' + docId + '/edit';
+          if (tabId) {
+            waypointSliderContentPath += '#gid=' + tabId;
           }
-          if (vals.dotlayers) {
-              loadDotmapLayers(vals.dotlayers);
-          } else {
-              loadDotmapLayers('1hFpDXOyjvjTpad7HpB0K-3thuYqSOlDJ4oExCTcscUk.358696896');
+          loadWaypointsFromGdoc(waypointSliderContentPath);
+        } else if (vals.dotlayers) {
+          loadDotmapLayers(vals.dotlayers);
+        } else {
+          // Load default dotmap layers
+          loadDotmapLayers('1hFpDXOyjvjTpad7HpB0K-3thuYqSOlDJ4oExCTcscUk.358696896');
+          // Load default waypoints
+          if (timelapse.isPresentationSliderEnabled()) {
+            if (waypointSliderContentPath) {
+              if (waypointSliderContentPath.indexOf("http") >= 0) {
+                // Load waypoints from Google Docs
+                loadWaypointsFromGdoc(waypointSliderContentPath);
+              } else {
+                // Load local version of the waypoints .tsv file
+                $.ajax({
+                  url: waypointSliderContentPath,
+                  dataType: "text",
+                  success: function(csvdata) {
+                    loadWaypointSliderContentFromCSV(csvdata);
+                  }
+                });
+              }
+            } else {
+              // Load the long, encoded URL outputted by the Tour Editor
+              timelapse.loadSharedDataFromUnsafeURL(waypointSliderContent);
+            }
           }
+        }
       };
 
       $(window).trigger("resize");
