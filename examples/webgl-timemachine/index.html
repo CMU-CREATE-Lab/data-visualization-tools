@@ -2054,6 +2054,12 @@
 
     function loadWaypointSliderContentFromCSV(csvdata) {
       var waypointJSON = JSON.parse(snaplapseForPresentationSlider.CSVToJSON(csvdata));
+
+      // Clear out internal data stores
+      jumpToButtons = {};
+      annotationPicturePaths = {};
+      himawariWaypoints = {};
+
       for (var i = 0; i < waypointJSON.snaplapse.keyframes.length; i++) {
         var keyframe = waypointJSON.snaplapse.keyframes[i];
         annotationPicturePaths[i] = { path : keyframe.unsafe_string_annotationPicPath };
@@ -2084,6 +2090,7 @@
             break;
           }
         }
+
         // Sections in the spreadsheet to jump to are flagged by having the title start with a #
         if (keyframe.unsafe_string_frameTitle.indexOf("#") == 0) {
           keyframe.unsafe_string_frameTitle = keyframe.unsafe_string_frameTitle.slice(1);
@@ -2091,6 +2098,10 @@
         }
       }
 
+      // Clear out quick selection bar
+      // First child is the title and last is the automode button
+      $('#presentation-slider-selection table td:not(:first-child, :last-child)').remove();
+      // Add to quick selection bar
       $.each(jumpToButtons, function(sectionTitle, sectionIdx) {
         $("#presentation-slider-selection > table td:last").before($('<td data-section-idx=' + sectionIdx + '><button type="button">' + sectionTitle + '</button></td>'));
       });
