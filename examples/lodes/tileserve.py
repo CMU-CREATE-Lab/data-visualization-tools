@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
-import sys
-print sys.executable
+import sys, traceback
 
 from urllib2 import parse_http_list as _parse_list_header
 
@@ -140,13 +139,37 @@ def query_psql(query, quiet=False, database=None):
 
 column_cache = {}
 
+class InvalidUsage(Exception):
+    def __init__(self, message):
+        self.message = message
+
+cache_dir = 'columncache'
+
+def list_datasets():
+    return sorted(os.listdir(cache_dir))
+
+def list_columns(dataset):
+    dir = '{cache_dir}/{dataset}'.format(cache_dir=cache_dir, **locals())
+    if not os.path.exists(dir):
+        msg = 'Dataset named "{dataset}" not found.<br><a href="/data">List valid datasets</a>'.format(**locals())
+        raise InvalidUsage(msg)
+    return sorted([c.replace('.numpy', '') for c in os.listdir(dir)])
+
 def load_column(dataset, column):
     cache_key = '{dataset}.{column}'.format(**locals())
     if cache_key in column_cache:
         return column_cache[cache_key]
-    cache_dir = 'columncache'
-    cache_filename = '{cache_dir}/{dataset}/{column}.numpy'.format(**locals())
-    data = numpy.load(open(cache_filename))
+    dir = '{cache_dir}/{dataset}'.format(cache_dir=cache_dir, **locals())
+    if not os.path.exists(dir):
+        msg = 'Dataset named "{dataset}" not found.<br><a href="/data">List valid datasets</a>'.format(**locals())
+        raise InvalidUsage(msg)
+    cache_filename = '{dir}/{column}.numpy'.format(**locals())
+    try:
+        data = numpy.load(open(cache_filename))
+    except:
+        msg = 'Column named "{column}" in dataset "{dataset}" not found.<br><a href="/data/{dataset}">List valid columns from {dataset}</a>'.format(**locals())
+        raise InvalidUsage(msg)
+        
     print 'Read {cache_filename}'.format(**locals())
     column_cache[cache_key] = data
     return data
@@ -175,17 +198,24 @@ def eval_(node):
     elif isinstance(node, ast.UnaryOp): # <operator> <operand> e.g., -1
         return unary_operators[type(node.op)](eval_(node.operand))
     elif isinstance(node, ast.Call):
-        return apply(functions[node.func.id], [eval_(arg) for arg in node.args])
+        func_name = node.func.id
+        if not func_name in functions:
+            raise InvalidUsage('Function {func_name} does not exist.  Valid functions are '.format(**locals()) +
+                               ', '.join(sorted(functions.keys())))
+        return apply(functions[func_name], [eval_(arg) for arg in node.args])
     elif isinstance(node, ast.Attribute):
         return load_column(node.value.id, node.attr)
-    raise Exception('cannot parse %s' % ast.dump(node))
+    raise InvalidUsage('cannot parse %s' % ast.dump(node))
 
     
 def eval_layer_column(expr):
-    return eval_(ast.parse(expr, mode='eval').body)
+    try:
+        return eval_(ast.parse(expr, mode='eval').body)
+    except SyntaxError,e:
+        raise InvalidUsage('<pre>' + traceback.format_exc(0) + '</pre>')
 
 def assemble_cols(cols):
-    return numpy.hstack([c.reshape(len(c), 1) for c in cols])
+    return numpy.hstack([c.reshape(len(c), 1) for c in cols]).astype(numpy.float32)
 
 populations = {}
 colors = {}
@@ -241,12 +271,16 @@ int compute_tile_data(
     const char *prototile_path,
     int incount,
     TileRecord *tile_data,
+    int tile_data_length,
     float *populations,
     unsigned int pop_rows,
     unsigned int pop_cols,
     float *colors)
 {
     if (incount == 0) return 0;
+    if (incount * sizeof(TileRecord) != tile_data_length) {
+        return -10;
+    }
 
     int fd = open(prototile_path, O_RDONLY);
     if (fd < 0) return -1;
@@ -254,6 +288,10 @@ int compute_tile_data(
     PrototileRecord *p = mmap (0, incount*sizeof(PrototileRecord),
                                PROT_READ, MAP_SHARED, fd, 0);
     if (p == MAP_FAILED) return -2;
+    double sum = 0;
+    for (unsigned i = 0 ; i < pop_rows * pop_cols; i++) {
+        sum += populations[i];
+    }
 
     unsigned outcount = 0;
     for (unsigned i = 0; i < incount; i++) {
@@ -270,6 +308,7 @@ int compute_tile_data(
             }
             seq -= populations[rec.blockIdx * pop_cols + c];
             if (seq < 0) {
+                if (outcount >= incount) return -4;
                 tile_data[outcount].x = rec.x;
                 tile_data[outcount].y = rec.y;
                 tile_data[outcount].color = colors[c];
@@ -278,7 +317,6 @@ int compute_tile_data(
             }
         }
     }
-    
     munmap(p, incount*sizeof(PrototileRecord));
     close(fd);
     return outcount;
@@ -286,10 +324,13 @@ int compute_tile_data(
 """)
 
 def compute_tile_data_c(prototile_path, incount, tile, populations, colors):
+    assert(populations.dtype == numpy.float32)
+    assert(colors.dtype == numpy.float32)
     return compute_tile_data_ext.compute_tile_data(
         prototile_path,
         int(incount),
         to_ctype_reference(tile),
+        len(tile),
         to_ctype_reference(populations),
         populations.shape[0], populations.shape[1],
         to_ctype_reference(colors))
@@ -357,45 +398,46 @@ def serve_tile_v1(layerdef, z, x, y, suffix):
             return flask.Response(html, mimetype='text/html')
         elif suffix == 'bin':
             response = flask.Response(tile[0 : outcount * tile_record_len], mimetype='application/octet-stream')
-            response.headers['Access-Control-Allow-Origin'] = '*'
-            return response
         else:
-            raise 'Invalid suffix {suffix}'.format(**locals())
-    except Exception as e:
-        print str(e)
+            raise InvalidUsage('Invalid suffix {suffix}'.format(**locals()))
+    except InvalidUsage, e:
+        response = flask.Response('<h2>400 Invalid Usage</h2>' + e.message, status=400)
+    except:
+        print traceback.format_exc()
         if suffix == 'debug':
             html = '<html><head></head><body><pre>\n'
-            html += str(e)
+            html += traceback.format_exc()
             html += '\n</pre></body></html>'
             return html
         else:
             raise
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
 
-@app.route('/<layer>/<z>/<x>/<y>.<suffix>')
-def serve_tile_v0(layer, z, x, y, suffix):
-    print 'serve_tile'
-    tile = generate_tile_data(layer, z, x, y, use_c=True)
-    outcount = len(tile) / tile_record_len
+@app.route('/data')
+def show_datasets():
+    html = '<html><head></head><body><h1>Available datasets:</h1>\n'
+    for ds in list_datasets():
+        html += '<a href="data/{ds}">{ds}</a><br>\n'.format(**locals())
+    html += '</body></html>'
+    return html
 
-    if suffix == 'debug':
+@app.route('/data/<dataset>')
+def show_dataset_columns(dataset):
+    try:
+        columns = list_columns(dataset)
         html = '<html><head></head><body>'
-        html += 'tile {layer}/{z}/{y}/{x}  has {outcount} points<br>'.format(**locals())
-        for i in range(0, min(outcount, 10)):
-            html += 'Point {i}: '.format(**locals())
-            html += ', '.join([str(x) for x in struct.unpack_from(tile_record_format, tile, i * tile_record_len)])
-            html += '<br>\n'
-        if outcount > 10:
-            html += '...<br>'
+        html += '<a href="../data">Back to all datasets</a><br>'
+        html += '<h1>Columns in dataset {dataset}:</h1>\n'.format(**locals())
+        for col in columns:
+            html += '{col}<br>\n'.format(**locals())
         html += '</body></html>'
-        
-        return flask.Response(html, mimetype='text/html')
-    elif suffix == 'bin':
-        response = flask.Response(tile[0 : outcount * tile_record_len], mimetype='application/octet-stream')
-        response.headers['Access-Control-Allow-Origin'] = '*'
-        return response
-    else:
-        raise 'Invalid suffix {suffix}'.format(**locals())
-
+        return html
+    except InvalidUsage, e:
+        return flask.Response('<h2>400 Invalid Usage</h2>' + e.message, status=400)
+    except:
+        print traceback.format_exc()
+        raise
 
 @app.route('/')
 def hello():
@@ -407,3 +449,9 @@ Test tiles:<br>
  
 #app.run(host='0.0.0.0', port=5000)
 
+if __name__ == '__main__':
+    with app.test_request_context(sys.argv[1]):
+        response = app.full_dispatch_request()
+        print response.status_code
+        print response.get_data()
+        
