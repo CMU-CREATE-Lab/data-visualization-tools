@@ -4,7 +4,7 @@ import sys, traceback
 
 from urllib2 import parse_http_list as _parse_list_header
 
-import ast, flask, functools, gzip, json, numpy, os, psycopg2, random, re, struct, sys, tempfile, time
+import ast, flask, functools, gzip, json, numpy, os, psycopg2, random, re, struct, sys, tempfile, time, urlparse
 from flask import after_this_request, request
 from cStringIO import StringIO as IO
 
@@ -78,14 +78,22 @@ def pack_color(color):
     return color['r'] + color['g'] * 256.0 + color['b'] * 256.0 * 256.0;
 
 def parse_color(color):
-    if type(color) == str or type(color) == unicode:
-        if len(color) == 7:
-            color = color[1:]
-        if len(color) == 6:
-            return pack_color({'r': int(color[0:2], 16),
-                               'g': int(color[2:4], 16),
-                               'b': int(color[4:6], 16)})
-    raise Exception('cannot parse color %s' % color)
+    color = color.strip()
+    c = color
+    try:
+        if c[0] == '#':
+            c = c[1:]
+        if len(c) == 3:
+            return pack_color({'r': 17 * int(c[0:1], 16),
+                               'g': 17 * int(c[1:2], 16),
+                               'b': 17 * int(c[2:3], 16)})
+        if len(c) == 6:
+            return pack_color({'r': int(c[0:2], 16),
+                               'g': int(c[2:4], 16),
+                               'b': int(c[4:6], 16)})
+    except:
+        pass
+    raise InvalidUsage('Cannot parse color <code><b>%s</b></code> from spreadsheet.<br><br>Color must be in standard web form, <code><b>#RRGGBB</b></code>, where RR, GG, and BB are each two-digit hexadecimal numbers between 00 and FF.<br><br>See <a href="https://www.w3schools.com/colors/colors_picker.asp">HTML Color Picker</a>' % color)
 
 def parse_colors(colors):
     packed = [parse_color(color) for color in colors]
@@ -148,10 +156,14 @@ cache_dir = 'columncache'
 def list_datasets():
     return sorted(os.listdir(cache_dir))
 
+# Compute relative path from request to /data
+def dataroot():
+    return '../' * len(request.path.split('/')) + 'data'
+
 def list_columns(dataset):
     dir = '{cache_dir}/{dataset}'.format(cache_dir=cache_dir, **locals())
     if not os.path.exists(dir):
-        msg = 'Dataset named "{dataset}" not found.<br><a href="/data">List valid datasets</a>'.format(**locals())
+        msg = 'Dataset named "{dataset}" not found.<br><br><a href="{dataroot}">List valid datasets</a>'.format(dataroot=dataroot(), **locals())
         raise InvalidUsage(msg)
     return sorted([c.replace('.numpy', '') for c in os.listdir(dir)])
 
@@ -161,13 +173,13 @@ def load_column(dataset, column):
         return column_cache[cache_key]
     dir = '{cache_dir}/{dataset}'.format(cache_dir=cache_dir, **locals())
     if not os.path.exists(dir):
-        msg = 'Dataset named "{dataset}" not found.<br><a href="/data">List valid datasets</a>'.format(**locals())
+        msg = 'Dataset named "{dataset}" not found.<br><br><a href="{dataroot}">List valid datasets</a>'.format(dataroot=dataroot(), **locals())
         raise InvalidUsage(msg)
     cache_filename = '{dir}/{column}.numpy'.format(**locals())
     try:
         data = numpy.load(open(cache_filename))
     except:
-        msg = 'Column named "{column}" in dataset "{dataset}" not found.<br><a href="/data/{dataset}">List valid columns from {dataset}</a>'.format(**locals())
+        msg = 'Column named "{column}" in dataset "{dataset}" not found.<br><br><a href="{dataroot}/{dataset}">List valid columns from {dataset}</a>'.format(dataroot=dataroot(), **locals())
         raise InvalidUsage(msg)
         
     print 'Read {cache_filename}'.format(**locals())
