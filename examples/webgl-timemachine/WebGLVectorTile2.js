@@ -43,8 +43,35 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
   } else {
     this._load();
   }
+}
 
+WebGLVectorTile2.errorsAlreadyShown = {};
+WebGLVectorTile2.errorDialog = null;
 
+WebGLVectorTile2.prototype._showErrorOnce = function(msg) {
+  var tileUrl = this._url;
+  if (!WebGLVectorTile2.errorsAlreadyShown[msg]) {
+    WebGLVectorTile2.errorsAlreadyShown[msg] = true;
+
+    console.log(tileUrl);
+    console.log(msg);
+
+    if (!WebGLVectorTile2.errorDialog) {
+      WebGLVectorTile2.errorDialog = $(document.createElement('div'));
+    }
+    WebGLVectorTile2.errorDialog.html(msg).attr('title', 'Layer error');
+    WebGLVectorTile2.errorDialog.find('a').map(function () {
+      if ($(this).attr('href').indexOf('//') == -1) {
+        // Base links on tile URL, not page URL
+        $(this).attr('href', tileUrl + $(this).attr('href'));
+      }
+      $(this).attr('target', '_blank');
+    });
+    WebGLVectorTile2.errorDialog.dialog({
+      buttons : { Ok: function() { $(this).dialog("close") } },
+      open: function() { $(this).find(':link').blur(); }
+    });
+  }
 }
 
 WebGLVectorTile2.prototype._loadData = function() {
@@ -56,6 +83,11 @@ WebGLVectorTile2.prototype._loadData = function() {
   var float32Array;
   this.xhr.onload = function() {
     if (this.status == 404) {
+      float32Array = new Float32Array([]);
+    } else if (this.status == 400) {
+      var msg = String.fromCharCode.apply(null, new Uint8Array(this.response));
+      msg = msg.replace(/<h.*?>.*?<\/h.*?>/, '');  // Remove first header, which is status code
+      that._showErrorOnce(msg);
       float32Array = new Float32Array([]);
     } else {
       float32Array = new Float32Array(this.response);

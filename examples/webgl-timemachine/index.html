@@ -3501,11 +3501,7 @@
             waypointSliderContentPath += '#gid=' + tabId;
           }
           loadWaypointsFromGdoc(waypointSliderContentPath);
-        } else if (vals.dotlayers) {
-          loadDotmapLayers(vals.dotlayers);
         } else {
-          // Load default dotmap layers
-          loadDotmapLayers('1hFpDXOyjvjTpad7HpB0K-3thuYqSOlDJ4oExCTcscUk.358696896');
           // Load default waypoints
           if (timelapse.isPresentationSliderEnabled()) {
             if (waypointSliderContentPath) {
@@ -3527,6 +3523,13 @@
               timelapse.loadSharedDataFromUnsafeURL(waypointSliderContent);
             }
           }
+        }
+
+        if (vals.dotlayers) {
+          loadDotmapLayers(vals.dotlayers);
+        } else {
+          // Load default dotmap layers from "Earth Timelapse Default Waypoints and Layers"
+          loadDotmapLayers('1rCiksJv4aXi1usI0_9zdl4v5vuOfiHgMRidiDPt1WfE.358696896');
         }
       };
 
