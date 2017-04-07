@@ -462,6 +462,7 @@
 
       timelapse = new org.gigapan.timelapse.Timelapse("timeMachine", settings);
       onTimeMachinePlayerReady();
+      initSettingsUI();
     }
 
     $.getScript(landsatAjaxIncludesPath)
@@ -1927,7 +1928,7 @@
     };
 
     var dotmapLayers = [];
-    var dotlayerAlreadyLoaded;
+    var dotlayersAlreadyLoaded;
     var layersToShowOnCreation = {};
     //
     function addDotmapLayer(nickname, name, credit, columnDefs) {
@@ -2032,14 +2033,14 @@
       // docTabId DOCID.TABID, e.g. 1hFpDXOyjvjTpad7HpB0K-3thuYqSOlDJ4oExCTcscUk.358696896,
       // which would translate into https://docs.google.com/spreadsheets/d/1hFpDXOyjvjTpad7HpB0K-3thuYqSOlDJ4oExCTcscUk/edit#gid=358696896
 
-      if (dotlayerAlreadyLoaded) {
-          if (docTabId == dotlayerAlreadyLoaded) return;
+      if (dotlayersAlreadyLoaded) {
+          if (docTabId == dotlayersAlreadyLoaded) return;
           // We need to reload the dotlayers, but we don't know how to do that
           // So just refresh this page instead.
           // TODO: clear the layers and reload just the layers.
           location.reload();
       }
-      dotlayerAlreadyLoaded = docTabId;
+      dotlayersAlreadyLoaded = docTabId;
 
       var docId = docTabId.split('.')[0];
       var tabId = docTabId.split('.')[1];
@@ -2113,6 +2114,32 @@
       org.gigapan.Util.gdocToJSON(waypointSliderContentPath, function(csvdata) {
         loadWaypointSliderContentFromCSV(csvdata);
       });
+    }
+
+    var waypointsAlreadyLoaded;
+    function loadWaypointsFromPath(path) {
+      if (waypointsAlreadyLoaded) {
+        if (path == waypointsAlreadyLoaded) return;
+        // We need to reload waypoints, but we don't know how to do that
+        // So just refresh this page instead.
+        // TODO: clear the waypoints and just reload the waypoints
+        location.reload();
+      }
+      waypointsAlreadyLoaded = path;
+              
+      if (path.indexOf("http") >= 0) {
+        // Load waypoints from Google Docs
+        loadWaypointsFromGdoc(path);
+      } else {
+        // Load local version of the waypoints .tsv file
+        $.ajax({
+          url: path,
+          dataType: "text",
+          success: function(csvdata) {
+            loadWaypointSliderContentFromCSV(csvdata);
+          }
+        });
+      }
     }
 
     function onTimeMachinePlayerReady() {
@@ -3480,6 +3507,8 @@
         }
       });
 
+
+
       var hashChange = function() {
         var vals = org.gigapan.Util.getUnsafeHashVars();
         if (vals.l) {
@@ -3493,37 +3522,14 @@
           });
         }
 
-        if (vals.waypoints && timelapse.isPresentationSliderEnabled()) {
-          var docId = vals.waypoints.split('.')[0];
-          var tabId = vals.waypoints.split('.')[1];
-          waypointSliderContentPath = 'https://docs.google.com/spreadsheets/d/' + docId + '/edit';
-          if (tabId) {
-            waypointSliderContentPath += '#gid=' + tabId;
+        if (timelapse.isPresentationSliderEnabled()) {
+          var waypointsPath;
+          if (vals.waypoints) {
+            waypointsPath = docTabToGoogleSheetUrl(vals.waypoints);
           }
-          loadWaypointsFromGdoc(waypointSliderContentPath);
-        } else {
-          // Load default waypoints
-          if (timelapse.isPresentationSliderEnabled()) {
-            if (waypointSliderContentPath) {
-              if (waypointSliderContentPath.indexOf("http") >= 0) {
-                // Load waypoints from Google Docs
-                loadWaypointsFromGdoc(waypointSliderContentPath);
-              } else {
-                // Load local version of the waypoints .tsv file
-                $.ajax({
-                  url: waypointSliderContentPath,
-                  dataType: "text",
-                  success: function(csvdata) {
-                    loadWaypointSliderContentFromCSV(csvdata);
-                  }
-                });
-              }
-            } else {
-              // Load the long, encoded URL outputted by the Tour Editor
-              timelapse.loadSharedDataFromUnsafeURL(waypointSliderContent);
-            }
-          }
-        }
+          waypointsPath = waypointsPath || waypointSliderContentPath;
+          loadWaypointsFromPath(waypointsPath);
+        }        
 
         if (vals.dotlayers) {
           loadDotmapLayers(vals.dotlayers);
@@ -3536,6 +3542,113 @@
       $(window).trigger("resize");
       $(window).on('hashchange', hashChange).trigger('hashchange');
       $(".share").appendTo($(".location_search_div"));
+    }
+
+    function docTabToGoogleSheetUrl(doctab) {
+      var docId = doctab.split('.')[0];
+      var ret = 'https://docs.google.com/spreadsheets/d/' + docId + '/edit';
+      var tabId = doctab.split('.')[1];
+      if (tabId) ret += '#gid=' + tabId;
+      return ret;
+    }
+      
+    function googleSheetUrlToDocTab(url) {
+      var match = /spreadsheets\/d\/(.*?)\/(.*?[#&]gid=(\d+))?/.exec(url);
+      if (!match || match[1].len < 20) return null;
+      var ret = match[1];
+      if (match[3]) ret += '.' + match[3];
+      return ret;
+    }
+
+    var spreadsheetUrlDialog;
+    function askForSpreadsheetUrl(type, callback) {
+      if (!spreadsheetUrlDialog) {
+        spreadsheetUrlDialog = $('<div style="line-height: 200%"></div>').appendTo($('body'));
+      }
+      var d = spreadsheetUrlDialog;
+      d.html('Paste new Google Spreadsheet tab URL for ' + type + '.<br>' +
+             '<input type="text" size=90></input><br>' +
+             '<i>If your spreadsheet has more than one tab, be sure to select the correct tab ' +
+             'before copying its URL, as each tab has a different URL.</i>');
+
+      d.dialog({
+        minWidth: 800,
+        buttons: {
+          Ok: function() {
+            var url = d.find('input').val();
+            if (googleSheetUrlToDocTab(url)) {
+              $(this).dialog("close");
+              callback(url);
+            } else {
+              msg.html('Invalid URL');
+            }
+          },
+          Cancel: function() { $(this).dialog("close") }
+        }
+      });
+    }
+
+    // Modify window.location.hash to include all fields from object newFields.
+    // If a field in newFields isn't already in window.location.hash, add it.
+    // If a field in newFields isn already in window.location.hash, overwrite it.
+    function changeHash(newFields) {
+      var fields = org.gigapan.Util.getUnsafeHashVars();
+      $.extend(fields, newFields);
+      var newHash;
+      for (var prop in fields) {
+        if (fields.hasOwnProperty(prop)) {
+          if (newHash) {
+            newHash += '&';
+          } else {
+            newHash = '#';
+          }
+          newHash += prop + '=' + fields[prop];
+        }
+      }
+      window.location.hash = newHash;
+    }
+
+    var settingsDialog;
+
+    function showSettingsDialog() {
+      if (!settingsDialog) {
+        settingsDialog =
+          $('<div title="Settings" style="line-height: 200%"></div>')
+          .appendTo($('body'));
+      }
+
+      var d = settingsDialog;
+      d.html('<a target="_blank" href="' + waypointsAlreadyLoaded + '">Current spreadsheet providing waypoints list</a>' +
+             '<button style="float: right">Switch</button><br>' +
+             '<a target="_blank" href="' + dotlayersAlreadyLoaded + '">Current spreadsheet providing dotmap layers list</a>' +
+             '<button style="float: right">Switch</button><br>');
+
+      d.find('button:eq(0)').click(function () {
+        askForSpreadsheetUrl('waypoints', function (newUrl) {
+          changeHash({waypoints: googleSheetUrlToDocTab(newUrl)});
+          d.dialog("close");
+        });
+      });
+      
+      d.find('button:eq(1)').click(function () {
+        askForSpreadsheetUrl('dotmap layers', function (newUrl) {
+          changeHash({dotlayers: googleSheetUrlToDocTab(newUrl)});
+          d.dialog("close");
+        });
+      });
+      
+      d.dialog({
+        minWidth: 400,
+        buttons: {
+          Ok: function() { d.dialog("close") },
+          Cancel: function() { d.dialog("close") }
+        }
+      });
+    }
+    
+    function initSettingsUI() {
+      var b = $('<img src="settings-icon.png" style="position:absolute; top:223px; left:32px; width:29px">').appendTo($('body'));
+      b.click(showSettingsDialog);
     }
 
     var maximumUpdateTime = 20; // milliseconds
@@ -3551,7 +3664,7 @@
 
       gl.viewport(0, 0, width, height);
     }
-
+    
     // Draws to canvas.
     // Called by TimeMachineCanavasLayer during animation and/or view changes
     function update() {
