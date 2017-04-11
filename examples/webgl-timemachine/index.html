@@ -80,6 +80,7 @@
 
     var showEVA = !!EARTH_TIMELAPSE_CONFIG.showEVA;
     var showLodes = !!EARTH_TIMELAPSE_CONFIG.showLodes;
+    var showCustomDotmaps = typeof(EARTH_TIMELAPSE_CONFIG.showCustomDotmaps) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showCustomDotmaps;
     var showForestAlerts = !!EARTH_TIMELAPSE_CONFIG.showForestAlerts;
     var showMonthlyRefugees = !!EARTH_TIMELAPSE_CONFIG.showMonthlyRefugees;
     var showAnnualRefugees = !!EARTH_TIMELAPSE_CONFIG.showAnnualRefugees;
@@ -101,10 +102,11 @@
     var showWaterOccurrence = !!EARTH_TIMELAPSE_CONFIG.showWaterOccurrence;
     var showWaterChange = !!EARTH_TIMELAPSE_CONFIG.showWaterChange;
 
-    var showShareButton =  !!EARTH_TIMELAPSE_CONFIG.showShareButton;
+    var showShareButton = !!EARTH_TIMELAPSE_CONFIG.showShareButton;
     var showShareButtonHash = window.location.hash.split("showShareButton=")[1];
     if (showShareButtonHash)
       showShareButton = showShareButtonHash === "true";
+    var showSettingsButton = typeof(EARTH_TIMELAPSE_CONFIG.showSettingsButton) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showSettingsButton;
     var isHyperwall = !!EARTH_TIMELAPSE_CONFIG.isHyperwall;
     var useGoogleMaps = !!EARTH_TIMELAPSE_CONFIG.useGoogleMaps;
     var useGoogleSearch = (typeof(EARTH_TIMELAPSE_CONFIG.useGoogleSearch) == "undefined") ? true : !!EARTH_TIMELAPSE_CONFIG.useGoogleSearch;
@@ -462,7 +464,9 @@
 
       timelapse = new org.gigapan.timelapse.Timelapse("timeMachine", settings);
       onTimeMachinePlayerReady();
-      initSettingsUI();
+      if (showSettingsButton) {
+        initSettingsUI();
+      }
     }
 
     $.getScript(landsatAjaxIncludesPath)
@@ -1581,8 +1585,8 @@
           timelineType = "customUI";
           dg["style"]["display"] = "none";
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+          $("#lodes-legend").hide();
         }
-        $("#lodes-legend").hide();
       }).prop('checked', showLodesLayer);
 
       // Base layers
@@ -1927,10 +1931,11 @@
       vectorTile: false
     };
 
+    var waypointsLoadedPath;
     var dotmapLayers = [];
-    var dotlayersAlreadyLoaded;
+    var dotlayersLoadedPath;
     var layersToShowOnCreation = {};
-    //
+
     function addDotmapLayer(nickname, name, credit, columnDefs) {
       var layerOptions = {
         tileWidth: 256,
@@ -1964,7 +1969,7 @@
 
       row += '</label></td></tr>';
 
-      $('#dotmaps_table tr:last').after(row);
+      $('#custom_dotmaps_table').last().append(row);
 
       // Create and insert legend
       var legend='<tr id="' + nickname + '-legend" style="display: none"><td>';
@@ -2033,14 +2038,14 @@
       // docTabId DOCID.TABID, e.g. 1hFpDXOyjvjTpad7HpB0K-3thuYqSOlDJ4oExCTcscUk.358696896,
       // which would translate into https://docs.google.com/spreadsheets/d/1hFpDXOyjvjTpad7HpB0K-3thuYqSOlDJ4oExCTcscUk/edit#gid=358696896
 
-      if (dotlayersAlreadyLoaded) {
-          if (docTabId == dotlayersAlreadyLoaded) return;
-          // We need to reload the dotlayers, but we don't know how to do that
-          // So just refresh this page instead.
-          // TODO: clear the layers and reload just the layers.
-          location.reload();
-      }
-      dotlayersAlreadyLoaded = docTabId;
+      if (docTabId == dotlayersLoadedPath) return;
+      dotlayersLoadedPath = docTabId;
+
+      // Make fieldset visible, since it may have been hidden on initial page load
+      $('#custom_dotmaps_table').parent().show();
+      // Clear out any dot layers that have already been loaded
+      $("#custom_dotmaps_table").find("input:checked").trigger("click");
+      $('#custom_dotmaps_table').empty();
 
       var docId = docTabId.split('.')[0];
       var tabId = docTabId.split('.')[1];
@@ -2116,17 +2121,10 @@
       });
     }
 
-    var waypointsAlreadyLoaded;
     function loadWaypointsFromPath(path) {
-      if (waypointsAlreadyLoaded) {
-        if (path == waypointsAlreadyLoaded) return;
-        // We need to reload waypoints, but we don't know how to do that
-        // So just refresh this page instead.
-        // TODO: clear the waypoints and just reload the waypoints
-        location.reload();
-      }
-      waypointsAlreadyLoaded = path;
-              
+      if (path == waypointsLoadedPath) return;
+      waypointsLoadedPath = path;
+
       if (path.indexOf("http") >= 0) {
         // Load waypoints from Google Docs
         loadWaypointsFromGdoc(path);
@@ -2378,7 +2376,7 @@
         layer_html += '  </table>';
         layer_html += '</div>';
       } else {
-        layer_html += '<button class="toggleLegendBtn" title="Toggle layer panel">Toggle</button>';
+        layer_html += '<button class="toggleLayerPanelBtn" title="Toggle layer panel">Toggle</button>';
         layer_html += '<div class="layers-scroll-vertical">';
         layer_html += '<div class="map-layer-div">';
         layer_html += '  <table class="map-layer-checkbox" cellspacing="0">';
@@ -2617,6 +2615,10 @@
           layer_html += '   <tr>';
           layer_html += show_lodes;
           layer_html += '   </tr>';
+          layer_html += '</table>';
+        }
+        if (showCustomDotmaps) {
+          layer_html += '<table id="custom_dotmaps_table">'
         }
         layer_html += '</table></fieldset></td></tr>';
         /* END DOTMAPS */
@@ -2720,7 +2722,7 @@
       legend_html += '<tr id="ebola-deaths-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Ebola Deaths <span class="credit"> (LSHTM)</span></div></td></tr>';
       legend_html += '<tr id="ebola-cases-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Ebola Cases <span class="credit"> (LSHTM)</span></div></td></tr>';
       legend_html += '<tr id="ebola-new-cases-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Ebola New Cases <span class="credit"> (LSHTM)</span></div></td></tr>';
-      legend_html += '<tr id="lodes-legend" style="display: none"><td><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">LODES</div></td></tr>';
+      legend_html += '<tr id="lodes-legend" style="display: none"><td><div>LODES<span class="credit"> (US Census)</span></div></td></tr>';
 
 
       // ## 5b ##
@@ -2825,14 +2827,18 @@
         // hidden (i.e. all layers of that topic are hidden)
         $("#layers-list fieldset > table").each(function() {
           if ($(this).children().length == 0) {
-            $(this).parent().hide();
+            if ($(this).next().is("table")) {
+              $(this).hide();
+            } else {
+              $(this).parent().hide();
+            }
           }
         });
 
         var toggleIconClose = "ui-icon-arrowthick-1-ne";
         var toggleIconOpen = "ui-icon-arrowthick-1-sw";
-        var $toggleLegendBtn = $(".toggleLegendBtn");
-        $toggleLegendBtn.button({
+        var $toggleLayerPanelBtn = $(".toggleLayerPanelBtn");
+        $toggleLayerPanelBtn.button({
           icons: {
             primary: toggleIconClose
           },
@@ -2848,14 +2854,14 @@
           }
           var $icon = $(this).children(".ui-icon");
           if ($icon.hasClass(toggleIconOpen)) {
-            $toggleLegendBtn.button({
+            $toggleLayerPanelBtn.button({
               icons: {
                 primary: toggleIconClose
               },
               text: false
             });
           } else if ($icon.hasClass(toggleIconClose)) {
-            $toggleLegendBtn.button({
+            $toggleLayerPanelBtn.button({
               icons: {
                 primary: toggleIconOpen
               },
@@ -3417,7 +3423,7 @@
         $locationSearchDiv.addClass("top-panel letterbox").appendTo($("#content"));
         $("#location_search").addClass("letterbox");
       } else {
-        $locationSearchDiv.appendTo($("#timeMachine"));
+        $locationSearchDiv.appendTo($("#timeMachine .player"));
       }
 
       if (isHyperwall) {
@@ -3529,7 +3535,7 @@
           }
           waypointsPath = waypointsPath || waypointSliderContentPath;
           loadWaypointsFromPath(waypointsPath);
-        }        
+        }
 
         if (vals.dotlayers) {
           loadDotmapLayers(vals.dotlayers);
@@ -3551,7 +3557,7 @@
       if (tabId) ret += '#gid=' + tabId;
       return ret;
     }
-      
+
     function googleSheetUrlToDocTab(url) {
       var match = /spreadsheets\/d\/(.*?)\/(.*?[#&]gid=(\d+))?/.exec(url);
       if (!match || match[1].len < 20) return null;
@@ -3573,6 +3579,7 @@
 
       d.dialog({
         minWidth: 800,
+        title: "Change " + type,
         buttons: {
           Ok: function() {
             var url = d.find('input').val();
@@ -3580,7 +3587,7 @@
               $(this).dialog("close");
               callback(url);
             } else {
-              msg.html('Invalid URL');
+              alert('URL entered is not a valid Google Spreadsheet link.');
             }
           },
           Cancel: function() { $(this).dialog("close") }
@@ -3618,10 +3625,11 @@
       }
 
       var d = settingsDialog;
-      d.html('<a target="_blank" href="' + waypointsAlreadyLoaded + '">Current spreadsheet providing waypoints list</a>' +
-             '<button style="float: right">Switch</button><br>' +
-             '<a target="_blank" href="' + dotlayersAlreadyLoaded + '">Current spreadsheet providing dotmap layers list</a>' +
-             '<button style="float: right">Switch</button><br>');
+      d.html('<a target="_blank" href="' + waypointsLoadedPath + '" title="Click to view current waypoint spreadsheet">Current waypoints spreadsheet</a>' +
+             '<button style="float: right; cursor: pointer;" title="Click to change waypoint list">Switch</button><br>' +
+             '<a target="_blank" href="' + dotlayersLoadedPath + '" title="Click to view current dotmap spreadsheet">Current dotmap layer spreadsheet</a>' +
+             '<button style="float: right; cursor: pointer;" title="Click to change dotmap layers">Switch</button><br>');
+
 
       d.find('button:eq(0)').click(function () {
         askForSpreadsheetUrl('waypoints', function (newUrl) {
@@ -3629,26 +3637,33 @@
           d.dialog("close");
         });
       });
-      
+
       d.find('button:eq(1)').click(function () {
         askForSpreadsheetUrl('dotmap layers', function (newUrl) {
           changeHash({dotlayers: googleSheetUrlToDocTab(newUrl)});
           d.dialog("close");
         });
       });
-      
+
       d.dialog({
-        minWidth: 400,
+        minWidth: 350,
         buttons: {
           Ok: function() { d.dialog("close") },
           Cancel: function() { d.dialog("close") }
         }
       });
     }
-    
+
     function initSettingsUI() {
-      var b = $('<img src="settings-icon.png" style="position:absolute; top:223px; left:32px; width:29px">').appendTo($('body'));
-      b.click(showSettingsDialog);
+      $('.sideToolBar').append('<button class="settings" title="Settings"></button>');
+      $(".settings").button({
+        icons: {
+          primary: "ui-icon-custom-gear"
+        },
+        text: false
+      }).click(function() {
+        showSettingsDialog();
+      });
     }
 
     var maximumUpdateTime = 20; // milliseconds
@@ -3664,7 +3679,7 @@
 
       gl.viewport(0, 0, width, height);
     }
-    
+
     // Draws to canvas.
     // Called by TimeMachineCanavasLayer during animation and/or view changes
     function update() {

@@ -252,7 +252,7 @@ html, body {
 }
 #location_search {
   position: absolute;
-  top: 23px;
+  top: 20px;
   left: 230px;
   width: 239px;
   padding-bottom: 11px;
@@ -308,13 +308,13 @@ fieldset {
 
 .layers-scroll-vertical {
   overflow: auto;
-  height: calc(100% - 25px);
+  height: calc(100% - 4px);
 }
 
 #layers-list.right-panel {
-  height: calc(100% - 162px);
+  height: calc(100% - 155px);
   position: absolute;
-  top: 23px;
+  top: 20px;
   right: 20px;
   width: 366px;
   padding: 10px;
@@ -454,8 +454,8 @@ fieldset {
   z-index: 90;
   display: none;
   position: absolute;
-  top: 82px;
-  left: 91px;
+  top: 73px;
+  left: 90px;
   width: auto;
   padding: 4px;
   padding-right: 14px;
@@ -646,6 +646,8 @@ button:focus {outline:0;}
 
 input:focus {outline:0;}
 
+a:focus { outline:0; }
+
 .clear-theme {
   position: absolute;
   margin-left: 8px;
@@ -665,14 +667,14 @@ input:focus {outline:0;}
   padding-top: 18px;
 }
 
-.toggleLegendBtn {
+.toggleLayerPanelBtn {
   position: absolute;
   right: 0px;
   top: 3px;
   right: 5px;
 }
 
-.toggleLegendBtn.ui-button {
+.toggleLayerPanelBtn.ui-button {
   outline-width: 0;
   width: 20px !important;
   height: 20px !important;
@@ -685,11 +687,11 @@ input:focus {outline:0;}
   background: white;
 }
 
-.toggleLegendBtn .ui-button-text {
+.toggleLayerPanelBtn .ui-button-text {
   height: 0px;
 }
 
-.toggleLegendBtn .ui-icon {
+.toggleLayerPanelBtn .ui-icon {
   margin-left: -8px;
 }
 
@@ -710,4 +712,50 @@ input:focus {outline:0;}
   font-size: 16px;
   font-weight: bold;
   margin-top: 0px;
+}
+
+.zoomSlider {
+  display: none;
+}
+
+.pan {
+  display: none;
+}
+
+.sideToolBar .ui-button {
+  width: 25px;
+  height: 25px;
+}
+
+.customInstructions span.customMovehelp {
+  top: calc(50% - 200px) !important;
+  left: calc(50% - 70px) !important;
+}
+
+.customInstructions span.customZoomhelp {
+  top: 20px !important;
+}
+
+.settings {
+  display: block;
+  top: 5px;
+  width: 20px;
+  height: 20px;
+  margin: 0 auto;
+  background: white;
+  border: 1px solid #656565;
+  border-radius: 2px !important;
+  box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
+}
+
+.ui-icon-custom-gear {
+  background: url(../../images/settings-icon.png) !important;
+  width: 15px;
+  height: 15px;
+  background-size: contain !important;
+  opacity: 0.55;
+}
+
+.ui-button.ui-state-hover .ui-icon.ui-icon-custom-gear {
+  opacity: 1;
 }
