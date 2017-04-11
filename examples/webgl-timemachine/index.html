@@ -1964,9 +1964,6 @@
       var row = '<tr><td><label name="' + nickname + '">';
       row += '<input type="checkbox" id="' + id + '">';
       row += name;
-
-      if (credit) row += '<span class="credit">(' + credit + ')</span>';
-
       row += '</label></td></tr>';
 
       $('#custom_dotmaps_table').last().append(row);
@@ -2167,53 +2164,53 @@
       // NOTE NOTE NOTE
       // What is set for the name in the label must never be changed and is forever connected to share links
       // The schema for generating the label name is using the initials of the data product. If this ends up conflicting
-      // with one that already exisits, then it is up to you to come up with something. Perhaps the initials of the name you would
+      // with one that already exists, then it is up to you to come up with something. Perhaps the initials of the name you would
       // give it when describing the layer to someone. Keep it as short as possible though.
       // NOTE NOTE NOTE
-      var show_wdpa = '<td class="wdpa-select"><label for="show-wdpa" name="wdpa"><input type="checkbox" id="show-wdpa" />Protected Areas<span class="credit"> (UNEP-WCMC)</span></label></td>';
-      var show_forest_change = '<td class="forest-change-select"><label for="show-forest-change" name="fly"><input type="checkbox" id="show-forest-change" />Forest Loss by Year<span class="credit"> (Hansen et al)</span></label></td>';
-      var show_forest_loss_gain = '<td class="forest-loss-gain-select"><label for="show-forest-loss-gain" name="flg"><input type="checkbox" id="show-forest-loss-gain" />Forest Loss/Gain<span class="credit"> (Hansen et al)</span></label></td>';
-      var show_animated_forest_loss_gain = '<td class="animated-forest-loss-select"><label for="show-animated-forest-loss-gain" name="aflg"><input type="checkbox" id="show-animated-forest-loss-gain" />Animated Loss/Gain<span class="credit"> (Hansen et al)</span></label></td>';
+      var show_wdpa = '<td class="wdpa-select"><label for="show-wdpa" name="wdpa"><input type="checkbox" id="show-wdpa" />Protected Areas</label></td>';
+      var show_forest_change = '<td class="forest-change-select"><label for="show-forest-change" name="fly"><input type="checkbox" id="show-forest-change" />Forest Loss by Year</label></td>';
+      var show_forest_loss_gain = '<td class="forest-loss-gain-select"><label for="show-forest-loss-gain" name="flg"><input type="checkbox" id="show-forest-loss-gain" />Forest Loss/Gain</label></td>';
+      var show_animated_forest_loss_gain = '<td class="animated-forest-loss-select"><label for="show-animated-forest-loss-gain" name="aflg"><input type="checkbox" id="show-animated-forest-loss-gain" />Animated Loss/Gain</label></td>';
       var show_viirs = '<td class="viirs-select"><label for="show-viirs" name="viirs"><input type="checkbox" id="show-viirs" />Fires at Night<span class="credit"> (NOAA)</span></label></td>';
-      var show_forest_alerts = '<td class="forest-alerts-select"><label for="show-forest-alerts" name="fla"><input type="checkbox" id="show-forest-alerts" />Forest Loss Alerts<span class="credit"> (Hansen et al)</span></label></td>';
-      var show_forest_alert_no_overlay = '<td class="forest-alerts-no-overlay-select"><label for="show-forest-alerts-no-overlay" name="flano"><input type="checkbox" id="show-forest-alerts-no-overlay" />Forest Loss Alerts <span style="font-size: 14px">(No Overlay)</span><span class="credit"> (Hansen et al)</span></label></td>';
-      var show_lights_at_night = '<td class="lights-at-night-select"><label for="show-lights-at-night" name="lan"><input type="checkbox" id="show-lights-at-night" />Lights at Night<span class="credit"> (NOAA, Google)</span></label></td>';
-      var show_coral = '<td class="coral-select"><label for="show-coral" name="cb"><input type="checkbox" id="show-coral"/>Coral Bleaching<span class="credit"> (NOAA, UNEP-WCMC)</span></label></td>';
-      var show_coral_bleaching_alerts = '<td class="coral-bleaching-select"><label for="show-coral-bleaching-alerts" name="crw"><input type="checkbox" id="show-coral-bleaching-alerts" />Coral Reef Watch<span class="credit"> (NOAA, UNEP-WCMC)</span></label></td>';
-      var show_usgs_windturbine = '<td class="wind-select"><label for="show-usgs-windturbine" name="wp"><input type="checkbox" id="show-usgs-windturbine" />Wind Power (USA)<span class="credit" style=""> (USGS)</span></label></td>';
-      var show_global_wind_power = '<td class="wind-select"><label for="show-global-wind-power" name="gwp"><input type="checkbox" id="show-global-wind-power" />Wind Power (Global)<span class="credit" style=""> (TheWindPower.net)</span></label></td>';
-      var show_solar_installs = '<td class="solar-select"> <label for="show-solar-installs" name="sp"><input type="checkbox" id="show-solar-installs" />Solar PV (USA)<span class="credit"> (NREL)</span></label></td>';
-      var show_drilling = '<td class="drilling-select"><label for="show-drilling" name="drl"><input type="checkbox" id="show-drilling" />Oil/Gas Drilling<span class="credit"> (FracTracker, CREATE Lab)</span></label></td>';
-      var show_himawari = '<td class="himawari-select"><label for="show-himawari" name="h8_16"><input type="checkbox" id="show-himawari" />Himawari-8<span class="credit"> (JMA)</span></label></td>';
-      var show_water_occurrence = '<td class="water-occurrence-select"><label for="show-water-occurrence" name="wo"><input type="checkbox" id="show-water-occurrence" />Water Occurrence<span class="credit"> (JRC)</span></label></td>';
-      var show_water_change = '<td class="water-change-select"><label for="show-water-change" name="wc"><input type="checkbox" id="show-water-change" />Water Change<span class="credit"> (JRC)</span></label></td>';
-      var show_monthly_refugees = '<td class="monthly-refugees-select"><label for="show-monthly-refugees" name="mmr"><input type="checkbox" id="show-monthly-refugees" />Monthly Mediterranean Refugees<span class="credit"> (UNHCR)</span></label></td>';
-      var show_annual_refugees = '<td class="annual-refugees-select"><label for="show-annual-refugees" name="ar"><input type="checkbox" id="show-annual-refugees" />Annual Refugees<span class="credit"> (UNHCR)</span></label></td>';
-      var show_vsi = '<td class="vsi-select"><label for="show-vsi" name="vsi"><input type="checkbox" id="show-vsi" />Vegetation Sensitivity Index<span class="credit"> (Oxford Martin)</span></label></td>';
-      var show_health_impact_rcp2p6 = '<td class="health-impact-rcp2p6-select"><label for="show-health-impact-rcp2p6" name="hi-rcp2p6"><input type="checkbox" id="show-health-impact-rcp2p6" />Nutritional Deficiency RCP2.6<span class="credit"> (Oxford Martin)</span></label></td>';
-      var show_health_impact_rcp4p5 = '<td class="health-impact-rcp4p5-select"><label for="show-health-impact-rcp4p5" name="hi-rcp4p5"><input type="checkbox" id="show-health-impact-rcp4p5" />Nutritional Deficiency RCP4.5<span class="credit"> (Oxford Martin)</span></label></td>';
-      var show_health_impact_rcp6p0 = '<td class="health-impact-rcp6p0-select"><label for="show-health-impact-rcp6p0" name="hi-rcp6p0"><input type="checkbox" id="show-health-impact-rcp6p0" />Nutritional Deficiency RCP6.0<span class="credit"> (Oxford Martin)</span></label></td>';
-      var show_health_impact_rcp8p5 = '<td class="health-impact-rcp8p5-select"><label for="show-health-impact-rcp8p5" name="hi-rcp8p5"><input type="checkbox" id="show-health-impact-rcp8p5" />Nutritional Deficiency RCP8.5<span class="credit"> (Oxford Martin)</span></label></td>';
-      var show_zika = '<td class="zika-select"> <label for="show-zika" name="zv"><input type="checkbox" id="show-zika" />Zika<span class="credit"> (LSHTM)</span></label></td>';
-      var show_dengue = '<td class="dengue-select"> <label for="show-dengue" name="dv"><input type="checkbox" id="show-dengue" />Dengue<span class="credit"> (LSHTM)</span></label></td>';
-      var show_chiku = '<td class="chiku-select"> <label for="show-chiku" name="cv"><input type="checkbox" id="show-chiku" />Chikungunya<span class="credit"> (LSHTM)</span></label></td>';
-      var show_sea_level_rise_1p0 = '<td class="sea-level-rise-1p0-select"><label for="show-sea-level-rise-1p0" name="slr10"><input type="checkbox" id="show-sea-level-rise-1p0" />Sea Level Rise 1.0 &deg; C<span class="credit"> (Climate Central)</span></label></td>';
-      var show_sea_level_rise_1p5 = '<td class="sea-level-rise-1p5-select"><label for="show-sea-level-rise-1p5" name="slr15"><input type="checkbox" id="show-sea-level-rise-1p5" />Sea Level Rise 1.5 &deg; C<span class="credit"> (Climate Central)</span></label></td>';
-      var show_sea_level_rise_2p0 = '<td class="sea-level-rise-2p0-select"><label for="show-sea-level-rise-2p0" name="slr2"><input type="checkbox" id="show-sea-level-rise-2p0" />Sea Level Rise 2.0 &deg; C<span class="credit"> (Climate Central)</span></label></td>';
-      var show_sea_level_rise_4p0 = '<td class="sea-level-rise-4p0-select"><label for="show-sea-level-rise-4p0" name="slr4"><input type="checkbox" id="show-sea-level-rise-4p0" />Sea Level Rise 4.0 &deg; C<span class="credit"> (Climate Central)</span></label></td>';
-      var show_urban_fragility = '<td class="urban-fragility-select"><label for="show-urban-fragility" name="uf"><input type="checkbox" id="show-urban-fragility" />Urban Fragility<span class="credit"> (Igarape Institute)</span></label></td>';
-      var show_gtd = '<td class="gtd-select"><label for="show-gtd" name="gtd"><input type="checkbox" id="show-gtd" />Global Terrorism Database<span class="credit"> (UMD)</span></label></td>';
-      var show_hiv = '<td class="hiv-select"><label for="show-hiv" name="hiv"><input type="checkbox" id="show-hiv" />HIV Infections<span class="credit"> (LSHTM)</span></label></td>';
-      var show_obesity = '<td class="obesity-select"><label for="show-obesity" name="obesity"><input type="checkbox" id="show-obesity" />Obesity<span class="credit"> (LSHTM)</span></label></td>';
-      var show_vaccine_confidence_q1 = '<td class="vaccine-confidence-q1-select"><label for="show-vaccine-confidence-q1" name="vc1"><input type="checkbox" id="show-vaccine-confidence-q1" />Vaccines & Children<span class="credit"> (LSHTM)</span></label></td>';
-      var show_vaccine_confidence_q2 = '<td class="vaccine-confidence-q2-select"><label for="show-vaccine-confidence-q2" name="vc2"><input type="checkbox" id="show-vaccine-confidence-q2" />Vaccine Safety<span class="credit"> (LSHTM)</span></label></td>';
-      var show_vaccine_confidence_q3 = '<td class="vaccine-confidence-q3-select"><label for="show-vaccine-confidence-q3" name="vc3"><input type="checkbox" id="show-vaccine-confidence-q3" />Vaccine Effectiveness<span class="credit"> (LSHTM)</span></label></td>';
-      var show_vaccine_confidence_q4 = '<td class="vaccine-confidence-q4-select"><label for="show-vaccine-confidence-q4" name="vc4"><input type="checkbox" id="show-vaccine-confidence-q4" />Vaccines & Religion<span class="credit"> (LSHTM)</span></label></td>';
-      var show_ndvi_anomaly = '<td class="ndvi-anomaly-select"><label for="show-ndvi-anomaly" name="ndvia"><input type="checkbox" id="show-ndvi-anomaly" />Vegetation Index Reduction<span class="credit"> (USGS)</span></label></td>';
-      var show_ebola_deaths = '<td class="ebola-deaths-select"><label for="show-ebola-deaths" name="ed"><input type="checkbox" id="show-ebola-deaths" />Ebola Deaths<span class="credit"> (LSHTM)</span></label></td>';
-      var show_ebola_cases = '<td class="ebola-cases-select"><label for="show-ebola-cases" name="ec"><input type="checkbox" id="show-ebola-cases" />Ebola Cases<span class="credit"> (LSHTM)</span></label></td>';
-      var show_ebola_new_cases = '<td class="ebola-new-cases-select"><label for="show-ebola-new-cases" name="enc"><input type="checkbox" id="show-ebola-new-cases" />Ebola New Cases<span class="credit"> (LSHTM)</span></label></td>';
-      var show_lodes = '<td class="lodes-select"><label for="show-lodes" name="lodes"><input type="checkbox" id="show-lodes" />LODES<span class="credit"> (US Census)</span></label></td>';
+      var show_forest_alerts = '<td class="forest-alerts-select"><label for="show-forest-alerts" name="fla"><input type="checkbox" id="show-forest-alerts" />Forest Loss Alerts</label></td>';
+      var show_forest_alert_no_overlay = '<td class="forest-alerts-no-overlay-select"><label for="show-forest-alerts-no-overlay" name="flano"><input type="checkbox" id="show-forest-alerts-no-overlay" />Forest Loss Alerts <span style="font-size: 14px">(No Overlay)</span></label></td>';
+      var show_lights_at_night = '<td class="lights-at-night-select"><label for="show-lights-at-night" name="lan"><input type="checkbox" id="show-lights-at-night" />Lights at Night</label></td>';
+      var show_coral = '<td class="coral-select"><label for="show-coral" name="cb"><input type="checkbox" id="show-coral"/>Coral Bleaching</label></td>';
+      var show_coral_bleaching_alerts = '<td class="coral-bleaching-select"><label for="show-coral-bleaching-alerts" name="crw"><input type="checkbox" id="show-coral-bleaching-alerts" />Coral Reef Watch</label></td>';
+      var show_usgs_windturbine = '<td class="wind-select"><label for="show-usgs-windturbine" name="wp"><input type="checkbox" id="show-usgs-windturbine" />Wind Power (USA)</span></label></td>';
+      var show_global_wind_power = '<td class="wind-select"><label for="show-global-wind-power" name="gwp"><input type="checkbox" id="show-global-wind-power" />Wind Power (Global)/label></td>';
+      var show_solar_installs = '<td class="solar-select"> <label for="show-solar-installs" name="sp"><input type="checkbox" id="show-solar-installs" />Solar PV (USA)</label></td>';
+      var show_drilling = '<td class="drilling-select"><label for="show-drilling" name="drl"><input type="checkbox" id="show-drilling" />Oil/Gas Drilling</label></td>';
+      var show_himawari = '<td class="himawari-select"><label for="show-himawari" name="h8_16"><input type="checkbox" id="show-himawari" />Himawari-8</label></td>';
+      var show_water_occurrence = '<td class="water-occurrence-select"><label for="show-water-occurrence" name="wo"><input type="checkbox" id="show-water-occurrence" />Water Occurrence</label></td>';
+      var show_water_change = '<td class="water-change-select"><label for="show-water-change" name="wc"><input type="checkbox" id="show-water-change" />Water Change</label></td>';
+      var show_monthly_refugees = '<td class="monthly-refugees-select"><label for="show-monthly-refugees" name="mmr"><input type="checkbox" id="show-monthly-refugees" />Monthly Mediterranean Refugees</label></td>';
+      var show_annual_refugees = '<td class="annual-refugees-select"><label for="show-annual-refugees" name="ar"><input type="checkbox" id="show-annual-refugees" />Annual Refugees</label></td>';
+      var show_vsi = '<td class="vsi-select"><label for="show-vsi" name="vsi"><input type="checkbox" id="show-vsi" />Vegetation Sensitivity Index</label></td>';
+      var show_health_impact_rcp2p6 = '<td class="health-impact-rcp2p6-select"><label for="show-health-impact-rcp2p6" name="hi-rcp2p6"><input type="checkbox" id="show-health-impact-rcp2p6" />Nutritional Deficiency RCP2.6</label></td>';
+      var show_health_impact_rcp4p5 = '<td class="health-impact-rcp4p5-select"><label for="show-health-impact-rcp4p5" name="hi-rcp4p5"><input type="checkbox" id="show-health-impact-rcp4p5" />Nutritional Deficiency RCP4.5</label></td>';
+      var show_health_impact_rcp6p0 = '<td class="health-impact-rcp6p0-select"><label for="show-health-impact-rcp6p0" name="hi-rcp6p0"><input type="checkbox" id="show-health-impact-rcp6p0" />Nutritional Deficiency RCP6.0</label></td>';
+      var show_health_impact_rcp8p5 = '<td class="health-impact-rcp8p5-select"><label for="show-health-impact-rcp8p5" name="hi-rcp8p5"><input type="checkbox" id="show-health-impact-rcp8p5" />Nutritional Deficiency RCP8.5</label></td>';
+      var show_zika = '<td class="zika-select"> <label for="show-zika" name="zv"><input type="checkbox" id="show-zika" />Zika</label></td>';
+      var show_dengue = '<td class="dengue-select"> <label for="show-dengue" name="dv"><input type="checkbox" id="show-dengue" />Dengue</label></td>';
+      var show_chiku = '<td class="chiku-select"> <label for="show-chiku" name="cv"><input type="checkbox" id="show-chiku" />Chikungunya</label></td>';
+      var show_sea_level_rise_1p0 = '<td class="sea-level-rise-1p0-select"><label for="show-sea-level-rise-1p0" name="slr10"><input type="checkbox" id="show-sea-level-rise-1p0" />Sea Level Rise 1.0 &deg; C</label></td>';
+      var show_sea_level_rise_1p5 = '<td class="sea-level-rise-1p5-select"><label for="show-sea-level-rise-1p5" name="slr15"><input type="checkbox" id="show-sea-level-rise-1p5" />Sea Level Rise 1.5 &deg; C</label></td>';
+      var show_sea_level_rise_2p0 = '<td class="sea-level-rise-2p0-select"><label for="show-sea-level-rise-2p0" name="slr2"><input type="checkbox" id="show-sea-level-rise-2p0" />Sea Level Rise 2.0 &deg; C</label></td>';
+      var show_sea_level_rise_4p0 = '<td class="sea-level-rise-4p0-select"><label for="show-sea-level-rise-4p0" name="slr4"><input type="checkbox" id="show-sea-level-rise-4p0" />Sea Level Rise 4.0 &deg; C</label></td>';
+      var show_urban_fragility = '<td class="urban-fragility-select"><label for="show-urban-fragility" name="uf"><input type="checkbox" id="show-urban-fragility" />Urban Fragility</label></td>';
+      var show_gtd = '<td class="gtd-select"><label for="show-gtd" name="gtd"><input type="checkbox" id="show-gtd" />Global Terrorism Database</label></td>';
+      var show_hiv = '<td class="hiv-select"><label for="show-hiv" name="hiv"><input type="checkbox" id="show-hiv" />HIV Infections</label></td>';
+      var show_obesity = '<td class="obesity-select"><label for="show-obesity" name="obesity"><input type="checkbox" id="show-obesity" />Obesity</label></td>';
+      var show_vaccine_confidence_q1 = '<td class="vaccine-confidence-q1-select"><label for="show-vaccine-confidence-q1" name="vc1"><input type="checkbox" id="show-vaccine-confidence-q1" />Vaccines & Children</label></td>';
+      var show_vaccine_confidence_q2 = '<td class="vaccine-confidence-q2-select"><label for="show-vaccine-confidence-q2" name="vc2"><input type="checkbox" id="show-vaccine-confidence-q2" />Vaccine Safety</label></td>';
+      var show_vaccine_confidence_q3 = '<td class="vaccine-confidence-q3-select"><label for="show-vaccine-confidence-q3" name="vc3"><input type="checkbox" id="show-vaccine-confidence-q3" />Vaccine Effectiveness</label></td>';
+      var show_vaccine_confidence_q4 = '<td class="vaccine-confidence-q4-select"><label for="show-vaccine-confidence-q4" name="vc4"><input type="checkbox" id="show-vaccine-confidence-q4" />Vaccines & Religion</label></td>';
+      var show_ndvi_anomaly = '<td class="ndvi-anomaly-select"><label for="show-ndvi-anomaly" name="ndvia"><input type="checkbox" id="show-ndvi-anomaly" />Vegetation Index Reduction</label></td>';
+      var show_ebola_deaths = '<td class="ebola-deaths-select"><label for="show-ebola-deaths" name="ed"><input type="checkbox" id="show-ebola-deaths" />Ebola Deaths</label></td>';
+      var show_ebola_cases = '<td class="ebola-cases-select"><label for="show-ebola-cases" name="ec"><input type="checkbox" id="show-ebola-cases" />Ebola Cases</label></td>';
+      var show_ebola_new_cases = '<td class="ebola-new-cases-select"><label for="show-ebola-new-cases" name="enc"><input type="checkbox" id="show-ebola-new-cases" />Ebola New Cases</label></td>';
+      var show_lodes = '<td class="lodes-select"><label for="show-lodes" name="lodes"><input type="checkbox" id="show-lodes" />LODES</label></td>';
 
       if (enableLetterboxMode) {
         layer_html += '<div class="base-map-div">';

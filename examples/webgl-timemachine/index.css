@@ -90,12 +90,12 @@ html, body {
   background: #EFEFEF !important;
 }
 .ui-selectmenu-button {
-  margin-left: 3px;
+  margin-left: -9px;
   font-size: 14px !important;
   background: #EFEFEF !important;
   height: 29px !important;
   border-radius: 2px;
-  max-width: 310px !important;
+  width: 100% !important;
 }
 .ui-selectmenu-button span.ui-selectmenu-text {
   padding-left: 10px !important;
@@ -212,6 +212,9 @@ html, body {
   top: 7px;
   left: 50px;
 }
+.map-layer-checkbox {
+  margin-right: 5px;
+}
 .customZoomhelp.hyperwall {
   display: none;
 }
@@ -316,7 +319,7 @@ fieldset {
   position: absolute;
   top: 20px;
   right: 20px;
-  width: 366px;
+  width: auto;
   padding: 10px;
   padding-right: 1px;
   background: white;
@@ -730,6 +733,10 @@ a:focus { outline:0; }
 .customInstructions span.customMovehelp {
   top: calc(50% - 200px) !important;
   left: calc(50% - 70px) !important;
+}
+
+.customInstructions-touchFriendly span.customMovehelp {
+  left: calc(50% - 190px) !important;
 }
 
 .customInstructions span.customZoomhelp {
