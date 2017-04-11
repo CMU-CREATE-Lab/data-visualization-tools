@@ -1,6 +1,7 @@
 var EARTH_TIMELAPSE_CONFIG = {
   "version" : 6,
   "landsatVersion" : "2016",
+  "landsatUrl":  "http://storage.googleapis.com/earthengine-timelapse/herwig/earthtime_annual_1984_2016/v14/1068x600",
   "browserScaleFactor" : 1,
   "showShareButton": false,
   "isHyperwall" : false,
