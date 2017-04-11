@@ -256,7 +256,7 @@ html, body {
 #location_search {
   position: absolute;
   top: 20px;
-  left: 230px;
+  left: 205px;
   width: 239px;
   padding-bottom: 11px;
   padding-top: 12px;
@@ -458,7 +458,7 @@ fieldset {
   display: none;
   position: absolute;
   top: 73px;
-  left: 90px;
+  left: 65px;
   width: auto;
   padding: 4px;
   padding-right: 14px;
