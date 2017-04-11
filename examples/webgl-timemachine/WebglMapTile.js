@@ -181,6 +181,42 @@ WebglMapTile.prototype._drawSeaLevelRise = function(transform, options) {
   }
 };
 
+WebglMapTile.prototype._drawAnimatedTexture = function(transform, options) {
+  var gl = this.gl;
+  var tileTransform = new Float32Array(transform);
+  translateMatrix(tileTransform, this._bounds.min.x, this._bounds.min.y);
+  scaleMatrix(tileTransform,
+              this._bounds.max.x - this._bounds.min.x,
+              this._bounds.max.y - this._bounds.min.y);
+
+  if (this._ready /*&& this._tileidx.l > 3*/) { // TODO: Get tiles w level > 3 that arent empty
+    var color = options.color || [0., 0., 0., 1.0];
+
+    var currentAlpha = options.currentAlpha || 0.95;
+    var currentBValue = options.currentBValue;
+    gl.useProgram(this._textureProgram);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+    //console.log(currentBValue);
+    var cLoc = gl.getUniformLocation(this._textureProgram, 'u_b');
+    gl.uniform1f(cLoc, currentBValue);
+
+    var cLoc = gl.getUniformLocation(this._textureProgram, 'u_alpha');
+    gl.uniform1f(cLoc, currentAlpha);
+
+    gl.uniformMatrix4fv(this._textureProgram.uTransform, false, tileTransform);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._triangles);
+    gl.vertexAttribPointer(this._textureProgram.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.enableVertexAttribArray(this._textureProgram.aTextureCoord);
+    gl.bindTexture(gl.TEXTURE_2D, this._texture);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    gl.disable(gl.BLEND);
+  }
+};
+
 // Update and draw tiles
 // Assumes tiles is sorted low res to high res (by TileView)
 WebglMapTile.update = function(tiles, transform, options) {
@@ -238,6 +274,24 @@ WebglMapTile.seaLevelRiseTextureFragmentShader =
   '      gl_FragColor = vec4(1.0,0.0,0.0, 0.0);\n'+
   '   }\n'+
 
+  '  }\n' +
+  '}\n';
+
+WebglMapTile.animatedTextureFragmentShader =
+  'precision mediump float;\n' +
+  'varying vec2 vTextureCoord;\n' +
+  'uniform sampler2D u_sampler;\n' +
+  'uniform float u_b;\n' +
+  'uniform float u_alpha;\n' +
+  'void main(void) {\n' +
+  '  vec4 textureColor = texture2D(u_sampler, vec2(vTextureCoord.s, vTextureCoord.t));\n' +
+  '  if (textureColor.r == 0. && textureColor.g == 0. && textureColor.b == 0.) {\n' +
+  '    gl_FragColor = vec4(1.0, 0., 0.,.0);\n' +
+  '  }\n' +   
+  '  else if (textureColor.b >= u_b) { \n' +
+  '    gl_FragColor = vec4(textureColor.rgb, 1.);\n' +
+  '  } else {\n' +
+  '    gl_FragColor = vec4(1.,0.,0.,0.);\n' +
   '  }\n' +
   '}\n';
 

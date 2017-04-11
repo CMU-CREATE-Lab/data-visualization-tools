@@ -40,5 +40,6 @@ var EARTH_TIMELAPSE_CONFIG = {
   "showNdviAnomaly": false,
   "showEbola": false,
   "showWaterOccurrence" : false,
-  "showWaterChange" : false
+  "showWaterChange" : false,
+  "showCumulativeActiveMining": false
 };
