@@ -874,8 +874,12 @@
       }).prop('checked', showNdviAnomalyTimemachineLayer);
 
       $("#show-himawari").on("click", function() {
-        $(".map-layer-div, .ui-multiselect-checkboxes").find("input:checked").not("#show-himawari").trigger("click");
         if ($(this).prop('checked')) {
+          // Clear out non-himawari8 layers if they were already active.
+          var $activeLayersNotIncludingHimawari = $(".map-layer-div, .ui-multiselect-checkboxes").find("input:checked").not("#show-himawari");
+          if ($activeLayersNotIncludingHimawari.length > 1) {
+            $activeLayersNotIncludingHimawari.trigger("click");
+          }
           showHimawariTimeMachineLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "defaultUI";
@@ -1810,7 +1814,8 @@
         }
 
         // Toggle off Himawari if any other layer is selected when it is up. Himawari is a special mode.
-        if (showHimawariTimeMachineLayer && $('.map-layer-checkbox, .ui-multiselect-checkboxes').find("input:checked").length > 1) {
+        // Base layer is part of the checkbox total, hence the > 1 check.
+        if (showHimawariTimeMachineLayer && $('.map-layer-checkbox, .ui-multiselect-checkboxes').find("input:checked").not("#show-himawari").length > 1) {
           $("#show-himawari").click();
         }
 
