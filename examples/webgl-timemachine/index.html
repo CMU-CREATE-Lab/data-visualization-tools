@@ -75,7 +75,7 @@
     var waypointSliderContentPath = EARTH_TIMELAPSE_CONFIG.waypointSliderContentPath || "default-waypoints.tsv";
     var useUrbanFragilityWaypoints = window.location.hash.split("useUrbanFragilityWaypoints=")[1];
     if (useUrbanFragilityWaypoints === "true")
-      waypointSliderContentPath = "https://docs.google.com/spreadsheets/d/1hFpDXOyjvjTpad7HpB0K-3thuYqSOlDJ4oExCTcscUk/edit#gid=2079361928";
+      waypointSliderContentPath = "https://docs.google.com/spreadsheets/d/1hFpDXOyjvjTpad7HpB0K-3thuYqSOlDJ4oExCTcscUk/edit#gid=1757433978";
     var googleMapsAPIKey = EARTH_TIMELAPSE_CONFIG.googleMapsAPIKey;
 
     var showEVA = !!EARTH_TIMELAPSE_CONFIG.showEVA;
@@ -2658,7 +2658,7 @@
         if (showCumulativeActiveMining) {
           layer_html += '   <tr>';
           layer_html += show_cumulative_active_mining_layer;
-          layer_html += '   </tr>';          
+          layer_html += '   </tr>';
         }
         layer_html += '   <tr>';
         layer_html += show_himawari;
