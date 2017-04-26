@@ -68,6 +68,7 @@ def gzipped(f):
 def pack_color(color):
     return color['r'] + color['g'] * 256.0 + color['b'] * 256.0 * 256.0;
 
+# packs to the range 0 ... 256^3-1
 def unpack_color(f):
     b = floor(f / 256.0 / 256.0)
     g = floor((f - b * 256.0 * 256.0) / 256.0)
@@ -434,10 +435,16 @@ def show_datasets():
     html += '</body></html>'
     return html
 
+@app.route('/data/census2010_block2010')
+def show_dataset_columns_2010():
+    return open('show-2010-hierarchy.html').read()
+
 @app.route('/data/<dataset>')
 def show_dataset_columns(dataset):
     try:
         columns = list_columns(dataset)
+        if dataset == 'census2000_block2010':
+            columns = [c for c in columns if c == c.upper()]
         html = '<html><head></head><body>'
         html += '<a href="../data">Back to all datasets</a><br>'
         html += '<h1>Columns in dataset {dataset}:</h1>\n'.format(**locals())
@@ -459,6 +466,14 @@ Test tiles:<br>
 <a href="/tilesv1/%230000ff;min(census2000_block2010.p001001%2Ccensus2010_block2010.p001001);;%23ff0000;max(0%2Ccensus2000_block2010.p001001-census2010_block2010.p001001);;%2300ff00;max(0%2Ccensus2010_block2010.p001001-census2000_block2010.p001001)/0/0/0.debug">Pop change 2000-2010 0/0/0</a>
 """
  
+@app.route('/test')
+def test_1990():
+    return open('test-1990-hierarchy.html').read()
+
+@app.route('/assets/<filename>')
+def get_asset(filename):
+    return open('assets/' + filename).read()
+
 #app.run(host='0.0.0.0', port=5000)
 
 if __name__ == '__main__':
