@@ -73,6 +73,14 @@
     // Deprecated externally but still used internally. Instead use waypointSliderContentPath, which points to an online or exported spreadsheet.
     var waypointSliderContent = EARTH_TIMELAPSE_CONFIG.waypointCollection;
     var waypointSliderContentPath = EARTH_TIMELAPSE_CONFIG.waypointSliderContentPath || "default-waypoints.tsv";
+    var dotmapsContentPath;
+    if (typeof(EARTH_TIMELAPSE_CONFIG.dotmapsContentPath) === "undefined") {
+      dotmapsContentPath = "1rCiksJv4aXi1usI0_9zdl4v5vuOfiHgMRidiDPt1WfE.358696896";
+    } else if (EARTH_TIMELAPSE_CONFIG.dotmapsContentPath === "") {
+      dotmapsContentPath = "default-dotmaps.tsv";
+    } else {
+      dotmapsContentPath =  EARTH_TIMELAPSE_CONFIG.dotmapsContentPath;
+    }
     var useUrbanFragilityWaypoints = window.location.hash.split("useUrbanFragilityWaypoints=")[1];
     if (useUrbanFragilityWaypoints === "true")
       waypointSliderContentPath = "https://docs.google.com/spreadsheets/d/1hFpDXOyjvjTpad7HpB0K-3thuYqSOlDJ4oExCTcscUk/edit#gid=1757433978";
@@ -2060,16 +2068,6 @@
     function loadDotmapLayers(docTabId) {
       // docTabId DOCID.TABID, e.g. 1hFpDXOyjvjTpad7HpB0K-3thuYqSOlDJ4oExCTcscUk.358696896,
       // which would translate into https://docs.google.com/spreadsheets/d/1hFpDXOyjvjTpad7HpB0K-3thuYqSOlDJ4oExCTcscUk/edit#gid=358696896
-
-      if (docTabId == dotlayersLoadedPath) return;
-      dotlayersLoadedPath = docTabId;
-
-      // Make fieldset visible, since it may have been hidden on initial page load
-      $('#custom_dotmaps_table').parent().show();
-      // Clear out any dot layers that have already been loaded
-      $("#custom_dotmaps_table").find("input:checked").trigger("click");
-      $('#custom_dotmaps_table').empty();
-
       var docId = docTabId.split('.')[0];
       var tabId = docTabId.split('.')[1];
       var url = 'https://docs.google.com/spreadsheets/d/' + docId + '/edit';
@@ -2079,6 +2077,31 @@
       org.gigapan.Util.gdocToJSON(url, function(tsvdata) {
         loadDotmapLayersFromTsv(tsvdata);
       });
+    }
+
+    function loadDotmapsFromPath(path) {
+      if (path == dotlayersLoadedPath) return;
+      dotlayersLoadedPath = path;
+
+      // Make fieldset visible, since it may have been hidden on initial page load
+      $('#custom_dotmaps_table').parent().show();
+      // Clear out any dot layers that have already been loaded
+      $("#custom_dotmaps_table").find("input:checked").trigger("click");
+      $('#custom_dotmaps_table').empty();
+
+      if (path.indexOf(".tsv") != -1) {
+        // Load local version of the dotmaps .tsv file
+        $.ajax({
+          url: path,
+          dataType: "text",
+          success: function(csvdata) {
+            loadDotmapLayersFromTsv(csvdata);
+          }
+        });
+      } else {
+        // Load dotmaps from Google Docs
+        loadDotmapLayers(path);
+      }
     }
 
     function loadWaypointSliderContentFromCSV(csvdata) {
@@ -3552,8 +3575,6 @@
         }
       });
 
-
-
       var hashChange = function() {
         var vals = org.gigapan.Util.getUnsafeHashVars();
         if (vals.l) {
@@ -3576,11 +3597,13 @@
           loadWaypointsFromPath(waypointsPath);
         }
 
-        if (vals.dotlayers) {
-          loadDotmapLayers(vals.dotlayers);
-        } else {
-          // Load default dotmap layers from "Earth Timelapse Default Waypoints and Layers"
-          loadDotmapLayers('1rCiksJv4aXi1usI0_9zdl4v5vuOfiHgMRidiDPt1WfE.358696896');
+        if (showCustomDotmaps) {
+          var dotmapsPath;
+          if (vals.dotlayers) {
+            dotmapsPath = vals.dotlayers;
+          }
+          dotmapsPath = dotmapsPath || dotmapsContentPath;
+          loadDotmapsFromPath(dotmapsPath);
         }
       };
 
