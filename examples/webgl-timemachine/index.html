@@ -81,6 +81,16 @@
     } else {
       dotmapsContentPath =  EARTH_TIMELAPSE_CONFIG.dotmapsContentPath;
     }
+
+    if (typeof(Storage) !== "undefined") {
+      if (localStorage.waypointSliderContentPath) {
+        waypointSliderContentPath = localStorage.waypointSliderContentPath;
+      }
+      if (localStorage.dotmapsContentPath) {
+        dotmapsContentPath = localStorage.dotmapsContentPath;
+      }
+    }
+
     var useUrbanFragilityWaypoints = window.location.hash.split("useUrbanFragilityWaypoints=")[1];
     if (useUrbanFragilityWaypoints === "true")
       waypointSliderContentPath = "https://docs.google.com/spreadsheets/d/1hFpDXOyjvjTpad7HpB0K-3thuYqSOlDJ4oExCTcscUk/edit#gid=1757433978";
@@ -3635,16 +3645,28 @@
       }
       var d = spreadsheetUrlDialog;
       d.html('Paste new Google Spreadsheet tab URL for ' + type + '.<br>' +
-             '<input type="text" size=90></input><br>' +
+             '<input type="text" size=90 id="spreadsheet-path"></input><br>' +
              '<i>If your spreadsheet has more than one tab, be sure to select the correct tab ' +
-             'before copying its URL, as each tab has a different URL.</i>');
+             'before copying its URL, as each tab has a different URL.</i><br>' +
+             '<input type="checkbox" id="make-spreadsheet-default" value="' + type + '" style="cursor: pointer;"> Make this the default spreadsheet loaded from now on?<br>');
 
       d.dialog({
         minWidth: 800,
         title: "Change " + type,
         buttons: {
           Ok: function() {
-            var url = d.find('input').val();
+            var url = d.find('#spreadsheet-path').val();
+            if (typeof(Storage) !== "undefined") {
+              var $makeDefaultElem = d.find('#make-spreadsheet-default');
+              var makeDefault = $makeDefaultElem.is(':checked');
+              if (makeDefault) {
+                if (type == "waypoints") {
+                  localStorage.waypointSliderContentPath = url;
+                } else if (type == "dotmap layers") {
+                  localStorage.dotmapsContentPath = url;
+                }
+              }
+            }
             if (googleSheetUrlToDocTab(url)) {
               $(this).dialog("close");
               callback(url);
@@ -3677,6 +3699,13 @@
       window.location.hash = newHash;
     }
 
+    function getSpreadsheetDownloadPath(path) {
+      if (path.indexOf(".tsv") == -1 && path.indexOf("http") == -1) {
+        path = docTabToGoogleSheetUrl(path);
+      }
+      return path;
+    }
+
     var settingsDialog;
 
     function showSettingsDialog() {
@@ -3687,10 +3716,11 @@
       }
 
       var d = settingsDialog;
-      d.html('<a target="_blank" href="' + waypointsLoadedPath + '" title="Click to view current waypoint spreadsheet">Current waypoints spreadsheet</a>' +
+      d.html('<a target="_blank" href="' + getSpreadsheetDownloadPath(waypointsLoadedPath) + '" title="Click to view current waypoint spreadsheet">Current waypoints spreadsheet</a>' +
              '<button style="float: right; cursor: pointer;" title="Click to change waypoint list">Switch</button><br>' +
-             '<a target="_blank" href="' + dotlayersLoadedPath + '" title="Click to view current dotmap spreadsheet">Current dotmap layer spreadsheet</a>' +
-             '<button style="float: right; cursor: pointer;" title="Click to change dotmap layers">Switch</button><br>');
+             '<a target="_blank" href="' + getSpreadsheetDownloadPath(dotlayersLoadedPath) + '" title="Click to view current dotmap spreadsheet">Current dotmap layer spreadsheet</a>' +
+             '<button style="float: right; cursor: pointer;" title="Click to change dotmap layers">Switch</button><br><br>' +
+             '<button style="float: right; cursor: pointer; font-size: 12px" title="Reset spreadsheets back to their defaults">Reset spreadsheets to default values</button><br>');
 
 
       d.find('button:eq(0)').click(function () {
@@ -3705,6 +3735,13 @@
           changeHash({dotlayers: googleSheetUrlToDocTab(newUrl)});
           d.dialog("close");
         });
+      });
+
+      d.find('button:eq(2)').click(function () {
+        localStorage.removeItem("waypointSliderContentPath");
+        localStorage.removeItem("dotmapsContentPath");
+        parent.location.hash = '';
+        alert("Spreadsheets successfully reset back to their default values");
       });
 
       d.dialog({
