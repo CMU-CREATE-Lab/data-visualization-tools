@@ -16,7 +16,15 @@ for /f "tokens=2 delims=:, " %%a in (' find "launchMode" ^< "config.js" ') do (
 
 for /f "tokens=2 delims=:, " %%a in (' find "clearProfile" ^< "config.js" ') do (
   if %%~a == true (
-    rmdir /Q /S "%tmp%/et"
+    :: Keep the Local Storage directory because Timelapse localStorage values may still be needed across loads
+    for /d %%I in ("%tmp%\et\Default\*") do (
+      if /i not "%%~nxI" equ "Local Storage" rmdir /q /s "%%~I"
+    )
+    del /q "%tmp%\et\Default\*
+    for /d %%I in ("%tmp%\et\*") do (
+      if /i not "%%~nxI" equ "Default" rmdir /q /s "%%~I"
+    )
+    del /q "%tmp%\et\*
   )
 )
 
