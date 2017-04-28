@@ -42,5 +42,7 @@ var EARTH_TIMELAPSE_CONFIG = {
   "showEbola": false,
   "showWaterOccurrence" : false,
   "showWaterChange" : false,
-  "showCumulativeActiveMining": false
+  "showCumulativeActiveMining": false,
+  "showCsvLayers": true
+  
 };

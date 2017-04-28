@@ -101,6 +101,7 @@
     var showEVA = !!EARTH_TIMELAPSE_CONFIG.showEVA;
     var showLodes = !!EARTH_TIMELAPSE_CONFIG.showLodes;
     var showCustomDotmaps = typeof(EARTH_TIMELAPSE_CONFIG.showCustomDotmaps) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showCustomDotmaps;
+    var showCsvLayers = !!EARTH_TIMELAPSE_CONFIG.showCsvLayers;
     var showForestAlerts = !!EARTH_TIMELAPSE_CONFIG.showForestAlerts;
     var showMonthlyRefugees = !!EARTH_TIMELAPSE_CONFIG.showMonthlyRefugees;
     var showAnnualRefugees = !!EARTH_TIMELAPSE_CONFIG.showAnnualRefugees;
@@ -3623,7 +3624,9 @@
           loadDotmapsFromPath(dotmapsPath);
         }
 
-        csvFileLayers.loadLayers('1U1O4gdlIfNgLnB6LVu-JM2AnqkLZ_WTq5pTMZuEH0VE');
+        if (showCsvLayers) {
+          csvFileLayers.loadLayers('1U1O4gdlIfNgLnB6LVu-JM2AnqkLZ_WTq5pTMZuEH0VE');
+        }
       };
 
       $(window).trigger("resize");
