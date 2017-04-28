@@ -68,6 +68,10 @@ WebglVectorLayer2.prototype.setOptions = function(options) {
     this._imageSrc = options.imageSrc;
   }
 
+  if (options.scalingFunction != undefined) {
+    this._scalingFunction = options.scalingFunction;
+  }
+
 }
 
 
@@ -112,6 +116,9 @@ WebglVectorLayer2.prototype._createTile = function(ti, bounds) {
   }
   if (this._imageSrc) {
     opt_options.imageSrc = this._imageSrc;
+  }
+  if (this._scalingFunction) {
+    opt_options.scalingFunction = this._scalingFunction;
   }
   return new WebGLVectorTile2(glb, ti, bounds, url, opt_options);
 }

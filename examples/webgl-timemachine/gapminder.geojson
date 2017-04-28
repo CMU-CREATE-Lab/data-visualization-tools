@@ -1,0 +1,4919 @@
+{
+    "type": "FeatureCollections", 
+    "features": [
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    66, 
+                    33
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    174.93333333333334, 
+                    103.11672116189807
+                ], 
+                "gapminder_name": "Afghanistan", 
+                "gapminder_geo": "afg"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    "", 
+                    ""
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    "", 
+                    ""
+                ], 
+                "gapminder_name": "Akrotiri and Dhekelia", 
+                "gapminder_geo": "akr_a_dhe"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    1.52109, 
+                    42.50779
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    129.081664, 
+                    94.54370420325792
+                ], 
+                "gapminder_name": "Andorra", 
+                "gapminder_geo": "and"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -171.082, 
+                    -11.056
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    6.341688888888894, 
+                    135.9112940671489
+                ], 
+                "gapminder_name": "American Samoa", 
+                "gapminder_geo": "asm"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    20, 
+                    60.25
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    142.22222222222223, 
+                    73.98540100280432
+                ], 
+                "gapminder_name": "\u00c5land", 
+                "gapminder_geo": "ala"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    18.5, 
+                    -12.5
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    141.15555555555557, 
+                    136.96025300373762
+                ], 
+                "gapminder_name": "Angola", 
+                "gapminder_geo": "ago"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    20, 
+                    41
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    142.22222222222223, 
+                    95.98106221608322
+                ], 
+                "gapminder_name": "Albania", 
+                "gapminder_geo": "alb"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -63.05, 
+                    18.21667
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    83.16444444444444, 
+                    114.82199399750073
+                ], 
+                "gapminder_name": "Anguilla", 
+                "gapminder_geo": "aia"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    "", 
+                    ""
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    "", 
+                    ""
+                ], 
+                "gapminder_name": "Abkhazia", 
+                "gapminder_geo": "abkh"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    3, 
+                    28
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    130.13333333333333, 
+                    107.24549110793109
+                ], 
+                "gapminder_name": "Algeria", 
+                "gapminder_geo": "dza"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    0, 
+                    -90
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    128.0, 
+                    256.000010058259
+                ], 
+                "gapminder_name": "Antarctica", 
+                "gapminder_geo": "ata"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -69.96667, 
+                    12.5
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    78.24592355555556, 
+                    119.0397469962624
+                ], 
+                "gapminder_name": "Aruba", 
+                "gapminder_geo": "abw"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -61.8, 
+                    17.05
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    84.05333333333334, 
+                    115.69254649643912
+                ], 
+                "gapminder_name": "Antigua and Barbuda", 
+                "gapminder_geo": "atg"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -64, 
+                    -34
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    82.4888888888889, 
+                    153.73606710590744
+                ], 
+                "gapminder_name": "Argentina", 
+                "gapminder_geo": "arg"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    135, 
+                    -25
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    224.0, 
+                    146.37031359488122
+                ], 
+                "gapminder_name": "Australia", 
+                "gapminder_geo": "aus"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    45, 
+                    40.25
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    160.0, 
+                    96.68376535608883
+                ], 
+                "gapminder_name": "Armenia", 
+                "gapminder_geo": "arm"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    13.33333, 
+                    47.33333
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    137.4814791111111, 
+                    89.69326351599643
+                ], 
+                "gapminder_name": "Austria", 
+                "gapminder_geo": "aut"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    50.55, 
+                    26.03333
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    163.9466666666667, 
+                    108.81543766419317
+                ], 
+                "gapminder_name": "Bahrain", 
+                "gapminder_geo": "bhr"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -77.37122, 
+                    25.04082
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    72.98046577777778, 
+                    109.59765271719162
+                ], 
+                "gapminder_name": "Bahamas", 
+                "gapminder_geo": "bhs"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    47.5, 
+                    40.5
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    161.77777777777777, 
+                    96.45040592444009
+                ], 
+                "gapminder_name": "Azerbaijan", 
+                "gapminder_geo": "aze"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    28, 
+                    53
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    147.9111111111111, 
+                    83.39247103387747
+                ], 
+                "gapminder_name": "Belarus", 
+                "gapminder_geo": "blr"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    90, 
+                    24
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    192.0, 
+                    110.41117448489817
+                ], 
+                "gapminder_name": "Bangladesh", 
+                "gapminder_geo": "bgd"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -88.19756, 
+                    17.49952
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    65.28173511111112, 
+                    115.35778639451614
+                ], 
+                "gapminder_name": "Belize", 
+                "gapminder_geo": "blz"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    4.5, 
+                    50.75
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    131.2, 
+                    85.98477883931723
+                ], 
+                "gapminder_name": "Belgium", 
+                "gapminder_geo": "bel"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -64.78303, 
+                    32.2949
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    81.93206755555556, 
+                    103.7122160318626
+                ], 
+                "gapminder_name": "Bermuda", 
+                "gapminder_geo": "bmu"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -59.53333, 
+                    13.16667
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    85.66518755555555, 
+                    118.55352183697238
+                ], 
+                "gapminder_name": "Barbados", 
+                "gapminder_geo": "brb"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    2.25, 
+                    9.5
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    129.6, 
+                    121.21327634574975
+                ], 
+                "gapminder_name": "Benin", 
+                "gapminder_geo": "ben"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -65, 
+                    -17
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    81.77777777777777, 
+                    140.27026838677742
+                ], 
+                "gapminder_name": "Bolivia", 
+                "gapminder_geo": "bol"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    90.5, 
+                    27.5
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    192.35555555555555, 
+                    107.64725639066397
+                ], 
+                "gapminder_name": "Bhutan", 
+                "gapminder_geo": "btn"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    "", 
+                    ""
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    "", 
+                    ""
+                ], 
+                "gapminder_name": "Bouvet Island", 
+                "gapminder_geo": "bouisl"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    17.83333, 
+                    44.25
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    140.68147911111112, 
+                    92.83898400107485
+                ], 
+                "gapminder_name": "Bosnia and Herzegovina", 
+                "gapminder_geo": "bih"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    72, 
+                    -6
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    179.2, 
+                    132.27448632017592
+                ], 
+                "gapminder_name": "British Indian Ocean Territory", 
+                "gapminder_geo": "iot"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -64.5, 
+                    18.5
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    82.13333333333334, 
+                    114.60971053218607
+                ], 
+                "gapminder_name": "British Virgin Islands", 
+                "gapminder_geo": "vgb"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    24, 
+                    -22
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    145.06666666666666, 
+                    144.04367292383128
+                ], 
+                "gapminder_name": "Botswana", 
+                "gapminder_geo": "bwa"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -1.66667, 
+                    12.5
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    126.81481244444444, 
+                    119.0397469962624
+                ], 
+                "gapminder_name": "Burkina Faso", 
+                "gapminder_geo": "bfa"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -55, 
+                    -10
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    88.88888888888889, 
+                    135.14749131138143
+                ], 
+                "gapminder_name": "Brazil", 
+                "gapminder_geo": "bra"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    114.66667, 
+                    4.5
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    209.5407431111111, 
+                    124.79670504936792
+                ], 
+                "gapminder_name": "Brunei", 
+                "gapminder_geo": "brn"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    25.25, 
+                    42.66667
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    145.95555555555555, 
+                    94.39024851789073
+                ], 
+                "gapminder_name": "Bulgaria", 
+                "gapminder_geo": "bgr"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    105, 
+                    13
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    202.66666666666666, 
+                    118.67520134718035
+                ], 
+                "gapminder_name": "Cambodia", 
+                "gapminder_geo": "khm"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -24, 
+                    16
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    110.93333333333334, 
+                    116.47139523891636
+                ], 
+                "gapminder_name": "Cape Verde", 
+                "gapminder_geo": "cpv"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    12.5, 
+                    6
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    136.88888888888889, 
+                    123.72551367982409
+                ], 
+                "gapminder_name": "Cameroon", 
+                "gapminder_geo": "cmr"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -80.66667, 
+                    19.5
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    70.63703466666666, 
+                    113.85761290484892
+                ], 
+                "gapminder_name": "Cayman Islands", 
+                "gapminder_geo": "cym"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    30, 
+                    -3.5
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    149.33333333333334, 
+                    130.49043824226254
+                ], 
+                "gapminder_name": "Burundi", 
+                "gapminder_geo": "bdi"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    21, 
+                    7
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    142.93333333333334, 
+                    123.00979254977683
+                ], 
+                "gapminder_name": "Central African Republic", 
+                "gapminder_geo": "caf"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -113.64258, 
+                    60.10867
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    47.18749866666667, 
+                    74.18750066071178
+                ], 
+                "gapminder_name": "Canada", 
+                "gapminder_geo": "can"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    "", 
+                    ""
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    "", 
+                    ""
+                ], 
+                "gapminder_name": "Channel Islands", 
+                "gapminder_geo": "chanisl"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -70.64827, 
+                    -33.45694
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    77.76123022222222, 
+                    153.27173044476172
+                ], 
+                "gapminder_name": "Chile", 
+                "gapminder_geo": "chl"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    19, 
+                    15
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    141.51111111111112, 
+                    117.20935606509084
+                ], 
+                "gapminder_name": "Chad", 
+                "gapminder_geo": "tcd"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    96.87332, 
+                    -12.1642
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    196.88769422222225, 
+                    136.71582152349671
+                ], 
+                "gapminder_name": "Cocos Island", 
+                "gapminder_geo": "cck"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    105, 
+                    35
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    202.66666666666666, 
+                    101.40104481443534
+                ], 
+                "gapminder_name": "China", 
+                "gapminder_geo": "chn"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    23.5, 
+                    -2.5
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    144.7111111111111, 
+                    129.77834215275402
+                ], 
+                "gapminder_name": "Congo, Dem. Rep.", 
+                "gapminder_geo": "cod"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    "", 
+                    ""
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    "", 
+                    ""
+                ], 
+                "gapminder_name": "Clipperton", 
+                "gapminder_geo": "fra_clipperton"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    105.66667, 
+                    -10.5
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    203.1407431111111, 
+                    135.508814535521
+                ], 
+                "gapminder_name": "Christmas Island", 
+                "gapminder_geo": "cxr"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -73.25, 
+                    4
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    75.91111111111111, 
+                    125.15324215665274
+                ], 
+                "gapminder_name": "Colombia", 
+                "gapminder_geo": "col"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    44.44553, 
+                    -12.23333
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    159.60571022222223, 
+                    136.76611627067086
+                ], 
+                "gapminder_name": "Comoros", 
+                "gapminder_geo": "com"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -159.78516, 
+                    -21.24842
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    14.37499733333334, 
+                    143.468748294261
+                ], 
+                "gapminder_name": "Cook Is", 
+                "gapminder_geo": "cok"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -84, 
+                    10
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    68.26666666666667, 
+                    120.85250868861858
+                ], 
+                "gapminder_name": "Costa Rica", 
+                "gapminder_geo": "cri"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -5.5, 
+                    8
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    124.08888888888889, 
+                    122.29253586957215
+                ], 
+                "gapminder_name": "Cote d'Ivoire", 
+                "gapminder_geo": "civ"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    15.5, 
+                    45.16667
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    139.0222222222222, 
+                    91.92175110139956
+                ], 
+                "gapminder_name": "Croatia", 
+                "gapminder_geo": "hrv"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    15.5, 
+                    -1
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    139.0222222222222, 
+                    128.71114721666606
+                ], 
+                "gapminder_name": "Congo, Rep.", 
+                "gapminder_geo": "cog"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -79.5, 
+                    22
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    71.46666666666667, 
+                    111.95632707616872
+                ], 
+                "gapminder_name": "Cuba", 
+                "gapminder_geo": "cub"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -68.96667, 
+                    12.16667
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    78.95703466666667, 
+                    119.28238168180488
+                ], 
+                "gapminder_name": "Cura\u00e7ao", 
+                "gapminder_geo": "nld_curacao"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    "", 
+                    ""
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    "", 
+                    ""
+                ], 
+                "gapminder_name": "Czechoslovakia", 
+                "gapminder_geo": "cheslo"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    10, 
+                    56
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    135.11111111111111, 
+                    79.71669114605123
+                ], 
+                "gapminder_name": "Denmark", 
+                "gapminder_geo": "dnk"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    15, 
+                    49.75
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    138.66666666666666, 
+                    87.09691969194691
+                ], 
+                "gapminder_name": "Czech Republic", 
+                "gapminder_geo": "cze"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    33, 
+                    35
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    151.46666666666667, 
+                    101.40104481443534
+                ], 
+                "gapminder_name": "Cyprus", 
+                "gapminder_geo": "cyp"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -61.33333, 
+                    15.5
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    84.38518755555556, 
+                    116.84082214812342
+                ], 
+                "gapminder_name": "Dominica", 
+                "gapminder_geo": "dma"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    43.14503, 
+                    11.58901
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    158.68091022222222, 
+                    119.70215186012297
+                ], 
+                "gapminder_name": "Djibouti", 
+                "gapminder_geo": "dji"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    30, 
+                    27
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    149.33333333333334, 
+                    108.04720062765387
+                ], 
+                "gapminder_name": "Egypt", 
+                "gapminder_geo": "egy"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    "", 
+                    ""
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    "", 
+                    ""
+                ], 
+                "gapminder_name": "East Germany", 
+                "gapminder_geo": "deu_east"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -70.66667, 
+                    19
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    77.74814577777778, 
+                    114.23422671061515
+                ], 
+                "gapminder_name": "Dominican Republic", 
+                "gapminder_geo": "dom"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -78.25, 
+                    -1.25
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    72.35555555555555, 
+                    128.8889594105721
+                ], 
+                "gapminder_name": "Ecuador", 
+                "gapminder_geo": "ecu"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -88.91667, 
+                    13.83333
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    64.770368, 
+                    118.06597866447105
+                ], 
+                "gapminder_name": "El Salvador", 
+                "gapminder_geo": "slv"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    10.5, 
+                    1.7
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    135.46666666666667, 
+                    126.7909336989813
+                ], 
+                "gapminder_name": "Equatorial Guinea", 
+                "gapminder_geo": "gnq"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    26, 
+                    59
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    146.48888888888888, 
+                    75.74352661584689
+                ], 
+                "gapminder_name": "Estonia", 
+                "gapminder_geo": "est"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    39, 
+                    15
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    155.73333333333332, 
+                    117.20935606509084
+                ], 
+                "gapminder_name": "Eritrea", 
+                "gapminder_geo": "eri"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    "", 
+                    ""
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    "", 
+                    ""
+                ], 
+                "gapminder_name": "Eritrea and Ethiopia", 
+                "gapminder_geo": "eri_a_eth"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -7, 
+                    62
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    123.02222222222223, 
+                    71.40762039505364
+                ], 
+                "gapminder_name": "Faeroe Islands", 
+                "gapminder_geo": "fro"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -59.16667, 
+                    -51.75
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    85.92592355555554, 
+                    171.15137948673964
+                ], 
+                "gapminder_name": "Falkland Is (Malvinas)", 
+                "gapminder_geo": "flk"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    39.5, 
+                    9
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    156.0888888888889, 
+                    121.57351753373084
+                ], 
+                "gapminder_name": "Ethiopia", 
+                "gapminder_geo": "eth"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    26, 
+                    64
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    146.48888888888888, 
+                    68.27352134720488
+                ], 
+                "gapminder_name": "Finland", 
+                "gapminder_geo": "fin"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    178, 
+                    -18
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    254.57777777777778, 
+                    141.01590044362635
+                ], 
+                "gapminder_name": "Fiji", 
+                "gapminder_geo": "fji"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    "", 
+                    ""
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    "", 
+                    ""
+                ], 
+                "gapminder_name": "French Southern and Antarctic Lands", 
+                "gapminder_geo": "fra_antarc"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    2, 
+                    46
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    129.42222222222222, 
+                    91.07501474058921
+                ], 
+                "gapminder_name": "France", 
+                "gapminder_geo": "fra"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -15.5, 
+                    13.5
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    116.97777777777777, 
+                    118.30992049103556
+                ], 
+                "gapminder_name": "Gambia", 
+                "gapminder_geo": "gmb"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -53, 
+                    4
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    90.31111111111112, 
+                    125.15324215665274
+                ], 
+                "gapminder_name": "French Guiana", 
+                "gapminder_geo": "guf"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    "", 
+                    ""
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    "", 
+                    ""
+                ], 
+                "gapminder_name": "Gaza Strip", 
+                "gapminder_geo": "pse_gaza"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -140, 
+                    -15
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    28.444444444444443, 
+                    138.79064393490916
+                ], 
+                "gapminder_name": "French Polynesia", 
+                "gapminder_geo": "pyf"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    11.75, 
+                    -1
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    136.35555555555555, 
+                    128.71114721666606
+                ], 
+                "gapminder_name": "Gabon", 
+                "gapminder_geo": "gab"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    10.5, 
+                    51.5
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    135.46666666666667, 
+                    85.13498764623876
+                ], 
+                "gapminder_name": "Germany", 
+                "gapminder_geo": "deu"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    43.4999, 
+                    41.99998
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    158.93326222222223, 
+                    95.03158027127785
+                ], 
+                "gapminder_name": "Georgia", 
+                "gapminder_geo": "geo"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    22, 
+                    39
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    143.64444444444445, 
+                    97.83786851383917
+                ], 
+                "gapminder_name": "Greece", 
+                "gapminder_geo": "grc"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -1.2, 
+                    8.1
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    127.14666666666668, 
+                    122.22071706381672
+                ], 
+                "gapminder_name": "Ghana", 
+                "gapminder_geo": "gha"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -40, 
+                    72
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    99.55555555555556, 
+                    52.92042398551503
+                ], 
+                "gapminder_name": "Greenland", 
+                "gapminder_geo": "grl"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -5.35257, 
+                    36.14474
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    124.193728, 
+                    100.40020469259652
+                ], 
+                "gapminder_name": "Gibraltar", 
+                "gapminder_geo": "gib"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -61.66667, 
+                    12.11667
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    84.14814577777777, 
+                    119.31875079652039
+                ], 
+                "gapminder_name": "Grenada", 
+                "gapminder_geo": "grd"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -90.51327, 
+                    14.64072
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    63.635008, 
+                    117.47363647628401
+                ], 
+                "gapminder_name": "Guatemala", 
+                "gapminder_geo": "gtm"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -61.58333, 
+                    16.25
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    84.20740977777778, 
+                    116.28633673628092
+                ], 
+                "gapminder_name": "Guadeloupe", 
+                "gapminder_geo": "glp"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -2.57629, 
+                    49.45474
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    126.16797155555555, 
+                    87.4208933051215
+                ], 
+                "gapminder_name": "Guernsey", 
+                "gapminder_geo": "gbg"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    144.81834, 
+                    13.47861
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    230.9819306666667, 
+                    118.32556267112939
+                ], 
+                "gapminder_name": "Guam", 
+                "gapminder_geo": "gum"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -10.66667, 
+                    10.83333
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    120.41481244444444, 
+                    120.24998261181113
+                ], 
+                "gapminder_name": "Guinea", 
+                "gapminder_geo": "gin"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -15, 
+                    12
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    117.33333333333333, 
+                    119.40358804450094
+                ], 
+                "gapminder_name": "Guinea-Bissau", 
+                "gapminder_geo": "gnb"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -72.41667, 
+                    19
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    76.50370133333334, 
+                    114.23422671061515
+                ], 
+                "gapminder_name": "Haiti", 
+                "gapminder_geo": "hti"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    "", 
+                    ""
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    "", 
+                    ""
+                ], 
+                "gapminder_name": "Heard and McDonald Islands", 
+                "gapminder_geo": "heard_a_mcd"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    12.45332, 
+                    41.90236
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    136.8556942222222, 
+                    95.1249207385203
+                ], 
+                "gapminder_name": "Holy See", 
+                "gapminder_geo": "hos"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -59, 
+                    5
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    86.04444444444445, 
+                    124.43992298289838
+                ], 
+                "gapminder_name": "Guyana", 
+                "gapminder_geo": "guy"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -86.5, 
+                    15
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    66.4888888888889, 
+                    117.20935606509084
+                ], 
+                "gapminder_name": "Honduras", 
+                "gapminder_geo": "hnd"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    20, 
+                    47
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    142.22222222222223, 
+                    90.04191318303863
+                ], 
+                "gapminder_name": "Hungary", 
+                "gapminder_geo": "hun"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    120, 
+                    -5
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    213.33333333333334, 
+                    131.5600770171016
+                ], 
+                "gapminder_name": "Indonesia", 
+                "gapminder_geo": "idn"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -18, 
+                    65
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    115.2, 
+                    66.62153256624377
+                ], 
+                "gapminder_name": "Iceland", 
+                "gapminder_geo": "isl"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    79, 
+                    22
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    184.17777777777778, 
+                    111.95632707616872
+                ], 
+                "gapminder_name": "India", 
+                "gapminder_geo": "ind"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    114.15769, 
+                    22.28552
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    209.17880177777778, 
+                    111.73712356616237
+                ], 
+                "gapminder_name": "Hong Kong, China", 
+                "gapminder_geo": "hkg"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    53, 
+                    32
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    165.6888888888889, 
+                    103.9598972070865
+                ], 
+                "gapminder_name": "Iran", 
+                "gapminder_geo": "irn"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -8, 
+                    53
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    122.31111111111112, 
+                    83.39247103387747
+                ], 
+                "gapminder_name": "Ireland", 
+                "gapminder_geo": "irl"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    34.75, 
+                    31.5
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    152.7111111111111, 
+                    104.37802693898524
+                ], 
+                "gapminder_name": "Israel", 
+                "gapminder_geo": "isr"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    12.83333, 
+                    42.83333
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    137.12592355555554, 
+                    94.22885636466282
+                ], 
+                "gapminder_name": "Italy", 
+                "gapminder_geo": "ita"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    44, 
+                    33
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    159.2888888888889, 
+                    103.11672116189807
+                ], 
+                "gapminder_name": "Iraq", 
+                "gapminder_geo": "irq"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -77.25, 
+                    18.16667
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    73.06666666666666, 
+                    114.85942021204605
+                ], 
+                "gapminder_name": "Jamaica", 
+                "gapminder_geo": "jam"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -4.48333, 
+                    54.15
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    124.81185422222222, 
+                    82.01509951488987
+                ], 
+                "gapminder_name": "Isle of Man", 
+                "gapminder_geo": "gbm"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    139.75309, 
+                    35.68536
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    227.3799751111111, 
+                    100.8035594540489
+                ], 
+                "gapminder_name": "Japan", 
+                "gapminder_geo": "jpn"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    68, 
+                    48
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    176.35555555555555, 
+                    88.98929041012298
+                ], 
+                "gapminder_name": "Kazakhstan", 
+                "gapminder_geo": "kaz"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    38, 
+                    1
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    155.0222222222222, 
+                    127.28885278333395
+                ], 
+                "gapminder_name": "Kenya", 
+                "gapminder_geo": "ken"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -2.11667, 
+                    49.21667
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    126.49481244444445, 
+                    87.68069680900254
+                ], 
+                "gapminder_name": "Jersey", 
+                "gapminder_geo": "jey"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    36, 
+                    31
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    153.6, 
+                    104.793926550227
+                ], 
+                "gapminder_name": "Jordan", 
+                "gapminder_geo": "jor"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    172.984, 
+                    1.421
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    251.01084444444447, 
+                    126.9894075039025
+                ], 
+                "gapminder_name": "Kiribati", 
+                "gapminder_geo": "kir"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    105, 
+                    18
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    202.66666666666666, 
+                    114.98409955637366
+                ], 
+                "gapminder_name": "Lao", 
+                "gapminder_geo": "lao"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    "", 
+                    ""
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    "", 
+                    ""
+                ], 
+                "gapminder_name": "Kosovo", 
+                "gapminder_geo": "kos"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    47.97833, 
+                    29.36972
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    162.11792355555556, 
+                    106.13516380649217
+                ], 
+                "gapminder_name": "Kuwait", 
+                "gapminder_geo": "kwt"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    75, 
+                    41.5
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    181.33333333333334, 
+                    95.50814442739468
+                ], 
+                "gapminder_name": "Kyrgyz Republic", 
+                "gapminder_geo": "kgz"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -9.5, 
+                    6.5
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    121.24444444444444, 
+                    123.3678310242578
+                ], 
+                "gapminder_name": "Liberia", 
+                "gapminder_geo": "lbr"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    25, 
+                    57
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    145.77777777777777, 
+                    78.42820828124746
+                ], 
+                "gapminder_name": "Latvia", 
+                "gapminder_geo": "lva"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    35.83333, 
+                    33.83333
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    153.4814791111111, 
+                    102.4067550486147
+                ], 
+                "gapminder_name": "Lebanon", 
+                "gapminder_geo": "lbn"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    17, 
+                    28
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    140.0888888888889, 
+                    107.24549110793109
+                ], 
+                "gapminder_name": "Libya", 
+                "gapminder_geo": "lby"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    6.13, 
+                    49.61167
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    132.3591111111111, 
+                    87.24894638720653
+                ], 
+                "gapminder_name": "Luxembourg", 
+                "gapminder_geo": "lux"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    28.25, 
+                    -29.5
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    148.0888888888889, 
+                    149.97121120261593
+                ], 
+                "gapminder_name": "Lesotho", 
+                "gapminder_geo": "lso"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    9.53333, 
+                    47.16667
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    134.77925688888888, 
+                    89.86785660259596
+                ], 
+                "gapminder_name": "Liechtenstein", 
+                "gapminder_geo": "lie"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    24, 
+                    55.41667
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    145.06666666666666, 
+                    80.45296665340192
+                ], 
+                "gapminder_name": "Lithuania", 
+                "gapminder_geo": "ltu"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    113.54611, 
+                    22.20056
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    208.74390044444445, 
+                    111.80239678245395
+                ], 
+                "gapminder_name": "Macao, China", 
+                "gapminder_geo": "mac"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    47, 
+                    -20
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    161.42222222222222, 
+                    142.52016656348022
+                ], 
+                "gapminder_name": "Madagascar", 
+                "gapminder_geo": "mdg"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    34, 
+                    -13.5
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    152.17777777777778, 
+                    137.69007950896446
+                ], 
+                "gapminder_name": "Malawi", 
+                "gapminder_geo": "mwi"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    112.5, 
+                    2.5
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    208.0, 
+                    126.22165784724601
+                ], 
+                "gapminder_name": "Malaysia", 
+                "gapminder_geo": "mys"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    21.75, 
+                    41.66667
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    143.46666666666667, 
+                    95.34969202638634
+                ], 
+                "gapminder_name": "Macedonia, FYR", 
+                "gapminder_geo": "mkd"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -2, 
+                    18
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    126.57777777777778, 
+                    114.98409955637366
+                ], 
+                "gapminder_name": "Mali", 
+                "gapminder_geo": "mli"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    73, 
+                    3.2
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    179.9111111111111, 
+                    125.72326050434258
+                ], 
+                "gapminder_name": "Maldives", 
+                "gapminder_geo": "mdv"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    14.43333, 
+                    35.91667
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    138.26370133333333, 
+                    100.60075242849939
+                ], 
+                "gapminder_name": "Malta", 
+                "gapminder_geo": "mlt"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -10.5, 
+                    20.25
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    120.53333333333333, 
+                    113.29049529029005
+                ], 
+                "gapminder_name": "Mauritania", 
+                "gapminder_geo": "mrt"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -61, 
+                    14.66667
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    84.62222222222222, 
+                    117.45456272155043
+                ], 
+                "gapminder_name": "Martinique", 
+                "gapminder_geo": "mtq"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    171.236, 
+                    7.113
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    249.7678222222222, 
+                    122.9288236814887
+                ], 
+                "gapminder_name": "Marshall Islands", 
+                "gapminder_geo": "mhl"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    45.16667, 
+                    -12.83333
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    160.1185208888889, 
+                    137.2032008331014
+                ], 
+                "gapminder_name": "Mayotte", 
+                "gapminder_geo": "myt"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    57.58333, 
+                    -20.3
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    168.94814577777777, 
+                    142.74740879533516
+                ], 
+                "gapminder_name": "Mauritius", 
+                "gapminder_geo": "mus"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -99.12766, 
+                    19.42847
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    57.50921955555555, 
+                    113.91156188869667
+                ], 
+                "gapminder_name": "Mexico", 
+                "gapminder_geo": "mex"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    28.58333, 
+                    47.25
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    148.32592355555556, 
+                    89.78062873304258
+                ], 
+                "gapminder_name": "Moldova", 
+                "gapminder_geo": "mda"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    158.162, 
+                    6.924
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    240.47075555555557, 
+                    123.06423844091569
+                ], 
+                "gapminder_name": "Micronesia, Fed. Sts.", 
+                "gapminder_geo": "fsm"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -62.2, 
+                    16.75
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    83.76888888888888, 
+                    115.9155090730293
+                ], 
+                "gapminder_name": "Montserrat", 
+                "gapminder_geo": "msr"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    7.41667, 
+                    43.73333
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    133.27407644444446, 
+                    93.34967691591004
+                ], 
+                "gapminder_name": "Monaco", 
+                "gapminder_geo": "mco"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    105, 
+                    46
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    202.66666666666666, 
+                    91.07501474058921
+                ], 
+                "gapminder_name": "Mongolia", 
+                "gapminder_geo": "mng"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    35, 
+                    -18.25
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    152.88888888888889, 
+                    141.2029602865342
+                ], 
+                "gapminder_name": "Mozambique", 
+                "gapminder_geo": "moz"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    19.25, 
+                    42.75
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    141.6888888888889, 
+                    94.30960668593835
+                ], 
+                "gapminder_name": "Montenegro", 
+                "gapminder_geo": "mne"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -6, 
+                    32
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    123.73333333333333, 
+                    103.9598972070865
+                ], 
+                "gapminder_name": "Morocco", 
+                "gapminder_geo": "mar"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    166.933, 
+                    -0.517
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    246.70791111111112, 
+                    128.36764943353535
+                ], 
+                "gapminder_name": "Nauru", 
+                "gapminder_geo": "nru"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    17, 
+                    -22
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    140.0888888888889, 
+                    144.04367292383128
+                ], 
+                "gapminder_name": "Namibia", 
+                "gapminder_geo": "nam"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    5.75, 
+                    52.25
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    132.0888888888889, 
+                    84.27109472233107
+                ], 
+                "gapminder_name": "Netherlands", 
+                "gapminder_geo": "nld"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    96, 
+                    21
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    196.26666666666668, 
+                    112.72063222536109
+                ], 
+                "gapminder_name": "Myanmar", 
+                "gapminder_geo": "mmr"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    "", 
+                    ""
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    "", 
+                    ""
+                ], 
+                "gapminder_name": "Netherlands Antilles", 
+                "gapminder_geo": "ant"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    174, 
+                    -42
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    251.73333333333332, 
+                    160.96843886660687
+                ], 
+                "gapminder_name": "New Zealand", 
+                "gapminder_geo": "nzl"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    84, 
+                    28
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    187.73333333333332, 
+                    107.24549110793109
+                ], 
+                "gapminder_name": "Nepal", 
+                "gapminder_geo": "npl"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    165.5, 
+                    -21.5
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    245.6888888888889, 
+                    143.66086350737777
+                ], 
+                "gapminder_name": "New Caledonia", 
+                "gapminder_geo": "ncl"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    "", 
+                    ""
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    "", 
+                    ""
+                ], 
+                "gapminder_name": "Ngorno-Karabakh", 
+                "gapminder_geo": "ngokar"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -85, 
+                    13
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    67.55555555555556, 
+                    118.67520134718035
+                ], 
+                "gapminder_name": "Nicaragua", 
+                "gapminder_geo": "nic"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    9, 
+                    18
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    134.4, 
+                    114.98409955637366
+                ], 
+                "gapminder_name": "Niger", 
+                "gapminder_geo": "ner"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -169.86667, 
+                    -19.03333
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    7.2059235555555565, 
+                    141.7908428219221
+                ], 
+                "gapminder_name": "Niue", 
+                "gapminder_geo": "niu"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    167.95, 
+                    -29.03333
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    247.4311111111111, 
+                    149.59079709013417
+                ], 
+                "gapminder_name": "Norfolk Island", 
+                "gapminder_geo": "nfk"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    8, 
+                    10
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    133.6888888888889, 
+                    120.85250868861858
+                ], 
+                "gapminder_name": "Nigeria", 
+                "gapminder_geo": "nga"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    127, 
+                    40
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    218.3111111111111, 
+                    96.91626438171672
+                ], 
+                "gapminder_name": "North Korea", 
+                "gapminder_geo": "prk"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    "", 
+                    ""
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    "", 
+                    ""
+                ], 
+                "gapminder_name": "Northern Cyprus", 
+                "gapminder_geo": "cyp_nor"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    145.756, 
+                    15.214
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    231.64871111111108, 
+                    117.05173078180997
+                ], 
+                "gapminder_name": "Northern Mariana Islands", 
+                "gapminder_geo": "mnp"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    134.621, 
+                    7.503
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    223.73048888888889, 
+                    122.64921847576221
+                ], 
+                "gapminder_name": "Palau", 
+                "gapminder_geo": "plw"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    10, 
+                    62
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    135.11111111111111, 
+                    71.40762039505364
+                ], 
+                "gapminder_name": "Norway", 
+                "gapminder_geo": "nor"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    57, 
+                    21
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    168.53333333333333, 
+                    112.72063222536109
+                ], 
+                "gapminder_name": "Oman", 
+                "gapminder_geo": "omn"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    35.20329, 
+                    31.92157
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    153.03345066666668, 
+                    104.02563477897334
+                ], 
+                "gapminder_name": "Palestine", 
+                "gapminder_geo": "pse"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -79.51973, 
+                    8.9936
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    71.45263644444445, 
+                    121.5781253342642
+                ], 
+                "gapminder_name": "Panama", 
+                "gapminder_geo": "pan"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    147, 
+                    -6
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    232.53333333333333, 
+                    132.27448632017592
+                ], 
+                "gapminder_name": "Papua New Guinea", 
+                "gapminder_geo": "png"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -75.25, 
+                    -10
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    74.4888888888889, 
+                    135.14749131138143
+                ], 
+                "gapminder_name": "Peru", 
+                "gapminder_geo": "per"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    "", 
+                    ""
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    "", 
+                    ""
+                ], 
+                "gapminder_name": "North Yemen (former)", 
+                "gapminder_geo": "yem_north"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    70, 
+                    30
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    177.77777777777777, 
+                    105.61925423577219
+                ], 
+                "gapminder_name": "Pakistan", 
+                "gapminder_geo": "pak"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -58, 
+                    -23.33333
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    86.75555555555556, 
+                    145.07121216800874
+                ], 
+                "gapminder_name": "Paraguay", 
+                "gapminder_geo": "pry"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    122, 
+                    13
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    214.75555555555556, 
+                    118.67520134718035
+                ], 
+                "gapminder_name": "Philippines", 
+                "gapminder_geo": "phl"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -130.1, 
+                    -25.06667
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    35.48444444444445, 
+                    146.42263870573942
+                ], 
+                "gapminder_name": "Pitcairn", 
+                "gapminder_geo": "pcn"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -66.10572, 
+                    18.46633
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    80.99148799999999, 
+                    114.6349558782766
+                ], 
+                "gapminder_name": "Puerto Rico", 
+                "gapminder_geo": "pri"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    51.52245, 
+                    25.27932
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    164.63818666666666, 
+                    109.41027479057948
+                ], 
+                "gapminder_name": "Qatar", 
+                "gapminder_geo": "qat"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    20, 
+                    52
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    142.22222222222223, 
+                    84.56066396718006
+                ], 
+                "gapminder_name": "Poland", 
+                "gapminder_geo": "pol"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    100, 
+                    60
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    199.11111111111111, 
+                    74.34230806029021
+                ], 
+                "gapminder_name": "Russia", 
+                "gapminder_geo": "rus"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -8.13057, 
+                    39.6945
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    122.21826133333333, 
+                    97.19922567993041
+                ], 
+                "gapminder_name": "Portugal", 
+                "gapminder_geo": "prt"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    30, 
+                    -2
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    149.33333333333334, 
+                    129.4225111326762
+                ], 
+                "gapminder_name": "Rwanda", 
+                "gapminder_geo": "rwa"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -172.13333, 
+                    -13.8
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    5.594076444444444, 
+                    137.90961376534105
+                ], 
+                "gapminder_name": "Samoa", 
+                "gapminder_geo": "wsm"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    55.4504, 
+                    -20.88231
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    167.43139555555555, 
+                    143.18975819636128
+                ], 
+                "gapminder_name": "Reunion", 
+                "gapminder_geo": "reu"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    45, 
+                    25
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    160.0, 
+                    109.62968640511879
+                ], 
+                "gapminder_name": "Saudi Arabia", 
+                "gapminder_geo": "sau"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    12.44639, 
+                    43.93667
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    136.85076622222223, 
+                    93.14921930518868
+                ], 
+                "gapminder_name": "San Marino", 
+                "gapminder_geo": "smr"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -14.25, 
+                    14.5
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    117.86666666666666, 
+                    117.57702922918061
+                ], 
+                "gapminder_name": "Senegal", 
+                "gapminder_geo": "sen"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    25, 
+                    46
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    145.77777777777777, 
+                    91.07501474058921
+                ], 
+                "gapminder_name": "Romania", 
+                "gapminder_geo": "rou"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    20.45998, 
+                    44.81892
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    142.54931911111112, 
+                    92.27142804225798
+                ], 
+                "gapminder_name": "Serbia", 
+                "gapminder_geo": "srb"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    7, 
+                    1
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    132.9777777777778, 
+                    127.28885278333395
+                ], 
+                "gapminder_name": "Sao Tome and Principe", 
+                "gapminder_geo": "stp"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    "", 
+                    ""
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    "", 
+                    ""
+                ], 
+                "gapminder_name": "Serbia and Montenegro", 
+                "gapminder_geo": "scg"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    55.66667, 
+                    -4.58333
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    167.58518755555556, 
+                    131.26273849663042
+                ], 
+                "gapminder_name": "Seychelles", 
+                "gapminder_geo": "syc"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    103.85007, 
+                    1.28967
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    201.84893866666667, 
+                    127.08282388149046
+                ], 
+                "gapminder_name": "Singapore", 
+                "gapminder_geo": "sgp"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    "", 
+                    ""
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    "", 
+                    ""
+                ], 
+                "gapminder_name": "Serbia excluding Kosovo", 
+                "gapminder_geo": "scg_ex_kos"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -11.5, 
+                    8.5
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    119.82222222222222, 
+                    121.93326114319231
+                ], 
+                "gapminder_name": "Sierra Leone", 
+                "gapminder_geo": "sle"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    19.5, 
+                    48.66667
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    141.86666666666667, 
+                    88.2761603911597
+                ], 
+                "gapminder_name": "Slovak Republic", 
+                "gapminder_geo": "svk"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -63.06667, 
+                    18.04167
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    83.15259022222222, 
+                    114.95293894311463
+                ], 
+                "gapminder_name": "Sint Maarten (Dutch part)", 
+                "gapminder_geo": "sxm"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    48, 
+                    6
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    162.13333333333333, 
+                    123.72551367982409
+                ], 
+                "gapminder_name": "Somalia", 
+                "gapminder_geo": "som"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    15, 
+                    46.08333
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    138.66666666666666, 
+                    90.98964676787662
+                ], 
+                "gapminder_name": "Slovenia", 
+                "gapminder_geo": "svn"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    159, 
+                    -8
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    241.06666666666666, 
+                    133.70746413042787
+                ], 
+                "gapminder_name": "Solomon Islands", 
+                "gapminder_geo": "slb"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    "", 
+                    ""
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    "", 
+                    ""
+                ], 
+                "gapminder_name": "Somaliland", 
+                "gapminder_geo": "som_somland"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    127.75, 
+                    36.5
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    218.84444444444443, 
+                    100.08664990702526
+                ], 
+                "gapminder_name": "South Korea", 
+                "gapminder_geo": "kor"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    "", 
+                    ""
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    "", 
+                    ""
+                ], 
+                "gapminder_name": "South Ossetia", 
+                "gapminder_geo": "sosset"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    24, 
+                    -29
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    145.06666666666666, 
+                    149.56369370272338
+                ], 
+                "gapminder_name": "South Africa", 
+                "gapminder_geo": "zaf"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    "", 
+                    ""
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    "", 
+                    ""
+                ], 
+                "gapminder_name": "South Georgia and the South Sandwich Islands", 
+                "gapminder_geo": "sgero_a_ssandw"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    30, 
+                    7.5
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    149.33333333333334, 
+                    122.65137022496212
+                ], 
+                "gapminder_name": "South Sudan", 
+                "gapminder_geo": "ssd"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    "", 
+                    ""
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    "", 
+                    ""
+                ], 
+                "gapminder_name": "South Yemen (former)", 
+                "gapminder_geo": "yem_south"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    "", 
+                    ""
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    "", 
+                    ""
+                ], 
+                "gapminder_name": "St. Barth\u00e9lemy", 
+                "gapminder_geo": "stbar"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -5.7, 
+                    -15.95
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    123.94666666666667, 
+                    139.4916209590863
+                ], 
+                "gapminder_name": "St. Helena", 
+                "gapminder_geo": "shn"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -4, 
+                    40
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    125.15555555555555, 
+                    96.91626438171672
+                ], 
+                "gapminder_name": "Spain", 
+                "gapminder_geo": "esp"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -62.75, 
+                    17.33333
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    83.37777777777778, 
+                    115.48164432036697
+                ], 
+                "gapminder_name": "St. Kitts and Nevis", 
+                "gapminder_geo": "kna"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    "", 
+                    ""
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    "", 
+                    ""
+                ], 
+                "gapminder_name": "St. Martin", 
+                "gapminder_geo": "stmar"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -60.96667, 
+                    13.88333
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    84.64592355555556, 
+                    118.02935708789133
+                ], 
+                "gapminder_name": "St. Lucia", 
+                "gapminder_geo": "lca"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    80.75, 
+                    7.75
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    185.42222222222222, 
+                    122.47200631847684
+                ], 
+                "gapminder_name": "Sri Lanka", 
+                "gapminder_geo": "lka"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    "", 
+                    ""
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    "", 
+                    ""
+                ], 
+                "gapminder_name": "St. Martin (French part)", 
+                "gapminder_geo": "maf"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -61.2, 
+                    13.08333
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    84.48, 
+                    118.61437552491611
+                ], 
+                "gapminder_name": "St. Vincent and the Grenadines", 
+                "gapminder_geo": "vct"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    20, 
+                    78
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    142.22222222222223, 
+                    36.212560327626775
+                ], 
+                "gapminder_name": "Svalbard", 
+                "gapminder_geo": "sjm"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -56.33333, 
+                    46.83333
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    87.94074311111112, 
+                    90.21542764507811
+                ], 
+                "gapminder_name": "St.-Pierre-et-Miquelon", 
+                "gapminder_geo": "spm"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    15, 
+                    62
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    138.66666666666666, 
+                    71.40762039505364
+                ], 
+                "gapminder_name": "Sweden", 
+                "gapminder_geo": "swe"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    30, 
+                    16
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    149.33333333333334, 
+                    116.47139523891636
+                ], 
+                "gapminder_name": "Sudan", 
+                "gapminder_geo": "sdn"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    31.5, 
+                    -26.5
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    150.4, 
+                    147.55462956143526
+                ], 
+                "gapminder_name": "Swaziland", 
+                "gapminder_geo": "swz"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -56, 
+                    4
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    88.17777777777778, 
+                    125.15324215665274
+                ], 
+                "gapminder_name": "Suriname", 
+                "gapminder_geo": "sur"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    8.01427, 
+                    47.00016
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    133.69903644444446, 
+                    90.0417463528015
+                ], 
+                "gapminder_name": "Switzerland", 
+                "gapminder_geo": "che"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    121, 
+                    24
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    214.04444444444445, 
+                    110.41117448489817
+                ], 
+                "gapminder_name": "Taiwan", 
+                "gapminder_geo": "twn"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    38, 
+                    35
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    155.0222222222222, 
+                    101.40104481443534
+                ], 
+                "gapminder_name": "Syria", 
+                "gapminder_geo": "syr"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -171.83, 
+                    -9.167
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    5.809777777777769, 
+                    134.54674625667664
+                ], 
+                "gapminder_name": "Tokelau", 
+                "gapminder_geo": "tkl"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    71, 
+                    39
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    178.48888888888888, 
+                    97.83786851383917
+                ], 
+                "gapminder_name": "Tajikistan", 
+                "gapminder_geo": "tjk"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    125.75, 
+                    -8.83333
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    217.42222222222222, 
+                    134.306511665418
+                ], 
+                "gapminder_name": "Timor-Leste", 
+                "gapminder_geo": "tls"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    1.08333, 
+                    8.66667
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    128.770368, 
+                    121.81339772024995
+                ], 
+                "gapminder_name": "Togo", 
+                "gapminder_geo": "tgo"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    35, 
+                    -6
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    152.88888888888889, 
+                    132.27448632017592
+                ], 
+                "gapminder_name": "Tanzania", 
+                "gapminder_geo": "tza"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    101, 
+                    15.5
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    199.82222222222222, 
+                    116.84082214812342
+                ], 
+                "gapminder_name": "Thailand", 
+                "gapminder_geo": "tha"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    "", 
+                    ""
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    "", 
+                    ""
+                ], 
+                "gapminder_name": "Transnistria", 
+                "gapminder_geo": "transn"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -175, 
+                    -20
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    3.5555555555555554, 
+                    142.52016656348022
+                ], 
+                "gapminder_name": "Tonga", 
+                "gapminder_geo": "ton"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -61, 
+                    11
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    84.62222222222222, 
+                    120.12927735600724
+                ], 
+                "gapminder_name": "Trinidad and Tobago", 
+                "gapminder_geo": "tto"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    35, 
+                    39
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    152.88888888888889, 
+                    97.83786851383917
+                ], 
+                "gapminder_name": "Turkey", 
+                "gapminder_geo": "tur"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    59.66667, 
+                    39.75
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    170.429632, 
+                    97.14791371683184
+                ], 
+                "gapminder_name": "Turkmenistan", 
+                "gapminder_geo": "tkm"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -71.58333, 
+                    21.73333
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    77.09629866666667, 
+                    112.16066045498248
+                ], 
+                "gapminder_name": "Turks and Caicos Islands", 
+                "gapminder_geo": "tca"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    9, 
+                    34
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    134.4, 
+                    102.26393289409256
+                ], 
+                "gapminder_name": "Tunisia", 
+                "gapminder_geo": "tun"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    179.14478, 
+                    -8.51719
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    255.39184355555554, 
+                    134.07909889540565
+                ], 
+                "gapminder_name": "Tuvalu", 
+                "gapminder_geo": "tuv"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    54.5, 
+                    23.75
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    166.75555555555556, 
+                    110.60558832603377
+                ], 
+                "gapminder_name": "United Arab Emirates", 
+                "gapminder_geo": "are"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -2.69531, 
+                    54.75844
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    126.08333511111111, 
+                    81.27083871243272
+                ], 
+                "gapminder_name": "United Kingdom", 
+                "gapminder_geo": "gbr"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    32.5, 
+                    1.25
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    151.11111111111111, 
+                    127.11104058942787
+                ], 
+                "gapminder_name": "Uganda", 
+                "gapminder_geo": "uga"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    "", 
+                    ""
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    "", 
+                    ""
+                ], 
+                "gapminder_name": "United Korea (former)", 
+                "gapminder_geo": "korea_union"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -56, 
+                    -33
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    88.17777777777778, 
+                    152.88327883810194
+                ], 
+                "gapminder_name": "Uruguay", 
+                "gapminder_geo": "ury"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    32, 
+                    49
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    150.75555555555556, 
+                    87.91606118423016
+                ], 
+                "gapminder_name": "Ukraine", 
+                "gapminder_geo": "ukr"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -98.5, 
+                    39.76
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    57.955555555555556, 
+                    97.13866392446096
+                ], 
+                "gapminder_name": "United States", 
+                "gapminder_geo": "usa"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    63.83333, 
+                    41.66667
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    173.39259022222222, 
+                    95.34969202638634
+                ], 
+                "gapminder_name": "Uzbekistan", 
+                "gapminder_geo": "uzb"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    "", 
+                    ""
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    "", 
+                    ""
+                ], 
+                "gapminder_name": "US Minor Outlying Islands", 
+                "gapminder_geo": "usa_minor_out_isl"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    "", 
+                    ""
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    "", 
+                    ""
+                ], 
+                "gapminder_name": "West Bank", 
+                "gapminder_geo": "pse_west_bank"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    167, 
+                    -16
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    246.75555555555556, 
+                    139.52860476108364
+                ], 
+                "gapminder_name": "Vanuatu", 
+                "gapminder_geo": "vut"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -66, 
+                    8
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    81.06666666666666, 
+                    122.29253586957215
+                ], 
+                "gapminder_name": "Venezuela", 
+                "gapminder_geo": "ven"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    107.83333, 
+                    16.16667
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    204.68147911111112, 
+                    116.34804639972711
+                ], 
+                "gapminder_name": "Vietnam", 
+                "gapminder_geo": "vnm"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -176.2, 
+                    -13.3
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    2.7022222222222303, 
+                    137.54387697063078
+                ], 
+                "gapminder_name": "Wallis et Futuna", 
+                "gapminder_geo": "wlf"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    "", 
+                    ""
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    "", 
+                    ""
+                ], 
+                "gapminder_name": "West Germany", 
+                "gapminder_geo": "deu_west"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    "", 
+                    ""
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    "", 
+                    ""
+                ], 
+                "gapminder_name": "Yugoslavia", 
+                "gapminder_geo": "yug"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -12.65625, 
+                    24.49215
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    119.0, 
+                    110.02734182864413
+                ], 
+                "gapminder_name": "Western Sahara", 
+                "gapminder_geo": "esh"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    "", 
+                    ""
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    "", 
+                    ""
+                ], 
+                "gapminder_name": "USSR", 
+                "gapminder_geo": "ussr"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -64.98348, 
+                    18.34829
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    81.78952533333333, 
+                    114.72342174315888
+                ], 
+                "gapminder_name": "Virgin Islands (U.S.)", 
+                "gapminder_geo": "vir"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    47.5, 
+                    15.5
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    161.77777777777777, 
+                    116.84082214812342
+                ], 
+                "gapminder_name": "Yemen", 
+                "gapminder_geo": "yem"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    28.5, 
+                    -14.33333
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    148.26666666666668, 
+                    138.30059636068398
+                ], 
+                "gapminder_name": "Zambia", 
+                "gapminder_geo": "zmb"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    29.75, 
+                    -19
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "webmercator": [
+                    149.15555555555557, 
+                    141.76577328938487
+                ], 
+                "gapminder_name": "Zimbabwe", 
+                "gapminder_geo": "zwe"
+            }
+        }
+    ]
+}

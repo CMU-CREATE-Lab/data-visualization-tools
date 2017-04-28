@@ -38,6 +38,8 @@
   <script src="../../js/jquery.multiselect.js" type="text/javascript"></script>
   <script src="../../js/earcut.min.js" type="text/javascript"></script>
   <script src="../../js/dat.gui.min.js"></script>
+  <script src="../../js/papaparse.min.js"></script>
+  <script src="../../js/d3.min.js"></script>
 
   <script src="config-local.js" type="text/javascript"></script>
   <script src="../../../../config.js" type="text/javascript"></script>
@@ -1825,6 +1827,7 @@
       }
 
       var timelineUIHandler = function(e) {
+        //return;
         var isFromUser = true;
 
         if (showViirsLayer || showDrillingLayer) {
@@ -1889,11 +1892,7 @@
 
       };
 
-      var setActiveLayersWithTimeline = function(modifier) {
-        previousActiveLayersWithTimeline = activeLayersWithTimeline;
-        activeLayersWithTimeline += modifier;
-        if (activeLayersWithTimeline < 0) activeLayersWithTimeline = 0;
-      };
+
 
       $('#layers-list input, .ui-multiselect-checkboxes input').on("click", timelineUIHandler);
 
@@ -1909,6 +1908,12 @@
       // TODO: Do we need this?
       //timelapse.addTimelineUIChangeListener(timelineUIHandler);
     }
+    function setActiveLayersWithTimeline (modifier) {
+      console.log('setActiveLayersWithTimeline');
+      previousActiveLayersWithTimeline = activeLayersWithTimeline;
+      activeLayersWithTimeline += modifier;
+      if (activeLayersWithTimeline < 0) activeLayersWithTimeline = 0;
+    };    
   </script>
 
   <script src="../../js/TimeMachineCanvasLayer.js" type="text/javascript"></script>
@@ -1917,6 +1922,7 @@
   <script type="text/javascript" src="../../js/io.js"></script>
   <script type="text/javascript" src="../../js/utils.js"></script>
   <script type="text/javascript" src="../../js/polyfills.js"></script>
+  <script src="csvFileLayer.js"></script>
 
   <script type="text/javascript">
     "use strict";
@@ -1976,6 +1982,7 @@
     };
 
     var waypointsLoadedPath;
+    var csvFileLayers = new CsvFileLayer();
     var dotmapLayers = [];
     var dotlayersLoadedPath;
     var layersToShowOnCreation = {};
@@ -2681,7 +2688,7 @@
         /* END DOTMAPS */
 
         /* MISC THEME */
-        layer_html += '<tr><td><fieldset><table>';
+        layer_html += '<tr><td><fieldset><table id="other_table">';
         layer_html += '<legend>Other</legend>';
         if (showGtd) {
           layer_html += '   <tr>';
@@ -4542,6 +4549,22 @@
         // ## 7 ##
         //// Layers to draw on top go here
         //
+        for (var i = 0; i < csvFileLayers.layers.length; i++) {
+          var layer = csvFileLayers.layers[i];
+          if (layer.visible) {
+            var view = getLayerView(layer, landsatBaseMapLayer);
+            var options = {};
+            options.zoom = timelapse.getCurrentZoom();
+            var currentTime = timelapse.getCurrentTime();
+            var currentTimes = getCurrentTimes(timelapse);
+            var dates = getDates(timelapse);
+            var delta = getCurrentTimesDelta(currentTime, currentTimes);
+            var currentDate = getCurrentDate(currentTime, currentTimes, dates);
+            options.currentTime = currentDate;            
+            options.pointSize = 500.;
+            layer.draw(view, options);
+          }
+        }
 
       }
     }

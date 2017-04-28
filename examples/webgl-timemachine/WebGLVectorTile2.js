@@ -43,6 +43,10 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
   } else {
     this._load();
   }
+
+  if (opt_options.scalingFunction) {
+    this.scalingFunction = opt_options.scalingFunction;
+  }
 }
 
 WebGLVectorTile2.errorsAlreadyShown = {};
@@ -119,6 +123,138 @@ WebGLVectorTile2.prototype._loadGeojsonData = function() {
   }
   this.xhr.send();
 }
+
+WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
+  var that = this;
+  this.xhr = new XMLHttpRequest();
+  this.xhr.open('GET', that._url);
+  var data;
+  this.xhr.onload = function() {
+    if (this.status == 404) {
+      data = "";
+    } else {
+      var csvdata = this.responseText;
+      // Assumes data is of the following format
+      // header row Country,      year_0, ..., year_N
+      // data row   country_name, value_0,..., value_N
+      // ...
+      var jsondata = Papa.parse(csvdata, {header: false});
+      var header = jsondata.data[0];
+      var epochs = [];
+      var points = [];
+      var maxValue = 0;
+      var minValue = 1e6; //TODO Is this an ok value?
+      for (var i = 1; i < header.length; i++) {
+        epochs[i] = new Date(header[i]).getTime()/1000.;
+      }
+      for (var i = 1; i < jsondata.data.length; i++) {
+        var country = jsondata.data[i];
+        var centroid = searchCountryList(country[0]);
+        if (centroid[0] == "" || centroid[1] == "") {
+          console.log('ERROR: Could not find ' + country[0]);
+        } else {
+          var idx = [];
+          for (var j = 1; j < country.length; j++) {
+            country[j] = country[j].replace(/,/g , "");
+            if (country[j] != "") {
+              idx.push(j);
+            }
+          }
+          for (var j = 0; j < idx.length - 1; j++) {
+            points.push(centroid[0]);
+            points.push(centroid[1]);
+            var k = idx[j];
+            points.push(epochs[k]);
+            points.push(parseFloat(country[k]));
+            if (parseFloat(country[k]) > maxValue) {
+              maxValue = parseFloat(country[k]);
+            }
+            if (parseFloat(country[k]) < minValue) {
+              minValue = parseFloat(country[k]);
+            }
+            if (idx.length > 1) {
+              var k = idx[j+1];
+              points.push(epochs[k]);
+              points.push(parseFloat(country[k]));              
+            } else {
+              var k = idx[j];
+              points.push(epochs[k]);
+              points.push(parseFloat(country[k]));              
+            }
+          }
+          if (idx.length > 1) {
+            points.push(centroid[0]);
+            points.push(centroid[1]);
+            var k = idx[j-1];
+            points.push(epochs[k]);
+            points.push(parseFloat(country[k]));
+            if (parseFloat(country[k]) > maxValue) {
+              maxValue = parseFloat(country[k]);
+            }
+            if (parseFloat(country[k]) < minValue) {
+              minValue = parseFloat(country[k]);
+            }
+            points.push(epochs[k]);
+            points.push(parseFloat(country[k]));
+          }          
+        }
+      }
+      //console.log(jsondata.data[100]);
+      // data format is
+      // x,y,epoch_0,val_0,epoch_1,val_1
+/*      var radius = d3.scaleSqrt()
+        .domain([minValue, maxValue])
+        .range([0, 1]);      
+*/
+      console.log(that.scalingFunction);
+      var radius = eval(that.scalingFunction);
+      for (var i = 0; i < points.length; i+=6) {
+        points[i+3] = radius(points[i+3]);
+        points[i+5] = radius(points[i+5]);
+      }
+    }
+    that._setData(new Float32Array(points));
+  }
+  this.xhr.onerror = function() {
+    that._setData('');
+  }
+  this.xhr.send();
+}
+
+WebGLVectorTile2.prototype._setBubbleMapData = function(arrayBuffer) {
+  console.log('_setBubbleMapData');
+  var gl = this.gl;
+  this._pointCount = arrayBuffer.length / 6;
+  if (this._pointCount > 0) {
+    this._data = arrayBuffer;
+    this._arrayBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Centroid');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 24, 0);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Epoch1');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 8);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Val1');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 12);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Epoch2');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 16);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Val2');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 20);
+
+    this._ready = true;
+  }
+}
+
 
 // WDPA: worldCoord[2]  time
 WebGLVectorTile2.prototype._setWdpaData = function(arrayBuffer) {
@@ -909,6 +1045,70 @@ WebGLVectorTile2.prototype._drawEbola = function(transform, options) {
     gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 24, 16);
 
     var timeLocation = gl.getAttribLocation(this.program, "a_Deaths2");
+    gl.enableVertexAttribArray(timeLocation);
+    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 24, 20);
+
+    var colorLoc = gl.getUniformLocation(this.program, 'u_Color');
+    gl.uniform4fv(colorLoc, color);
+
+    var matrixLoc = gl.getUniformLocation(this.program, 'u_MapMatrix');
+    gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+
+    var sliderTime = gl.getUniformLocation(this.program, 'u_Epoch');
+    gl.uniform1f(sliderTime, currentTime);
+
+    var sliderTime = gl.getUniformLocation(this.program, 'u_Size');
+    gl.uniform1f(sliderTime, pointSize);
+
+    gl.drawArrays(gl.POINTS, 0, this._pointCount);
+    perf_draw_points(this._pointCount);
+    gl.disable(gl.BLEND);
+  }
+}
+
+WebGLVectorTile2.prototype._drawBubbleMap = function(transform, options) {
+  var gl = this.gl;
+  if (this._ready) {
+    gl.useProgram(this.program);
+    gl.enable(gl.BLEND);
+    gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
+
+    var tileTransform = new Float32Array(transform);
+    var zoom = options.zoom;
+    var currentTime = options.currentTime.getTime()/1000.;
+    var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
+    var color = options.color || [.1, .1, .5, 1.0];
+
+    scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
+
+    translateMatrix(tileTransform, (this._bounds.max.x - this._bounds.min.x)/256., (this._bounds.max.y - this._bounds.min.y)/256.);
+    scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+
+    pointSize *= Math.floor((zoom + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+    // Passing a NaN value to the shader with a large number of points is very bad
+    if (isNaN(pointSize)) {
+      pointSize = 1.0;
+    }
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Centroid');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 24, 0);
+
+    var timeLocation = gl.getAttribLocation(this.program, "a_Epoch1");
+    gl.enableVertexAttribArray(timeLocation);
+    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 24, 8);
+
+    var timeLocation = gl.getAttribLocation(this.program, "a_Val1");
+    gl.enableVertexAttribArray(timeLocation);
+    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 24, 12);
+
+    var timeLocation = gl.getAttribLocation(this.program, "a_Epoch2");
+    gl.enableVertexAttribArray(timeLocation);
+    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 24, 16);
+
+    var timeLocation = gl.getAttribLocation(this.program, "a_Val2");
     gl.enableVertexAttribArray(timeLocation);
     gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 24, 20);
 
@@ -2183,6 +2383,47 @@ WebGLVectorTile2.ebolaVertexShader =
 '      }\n';
 
 WebGLVectorTile2.ebolaFragmentShader =
+'      #extension GL_OES_standard_derivatives : enable\n' +
+'      precision mediump float;\n' +
+'      varying float v_Val;\n' +
+'      uniform vec4 u_Color;\n' +
+'      void main() {\n' +
+'          float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
+'          dist = 1. - (dist * 2.);\n' +
+'          dist = max(0., dist);\n' +
+'          float delta = fwidth(dist);\n' +
+'          float alpha = smoothstep(0.45-delta, 0.45, dist);\n' +
+'          vec4 circleColor = u_Color;\n' +
+'          vec4 outlineColor = vec4(1.0,1.0,1.0,1.0);\n' +
+'          float outerEdgeCenter = 0.5 - .01;\n' +
+'          float stroke = smoothstep(outerEdgeCenter - delta, outerEdgeCenter + delta, dist);\n' +
+'          gl_FragColor = vec4( mix(outlineColor.rgb, circleColor.rgb, stroke), alpha*.75 );\n' +
+'      }';
+
+WebGLVectorTile2.bubbleMapVertexShader =
+'      attribute vec4 a_Centroid;\n' +
+'      attribute float a_Epoch1;\n' +
+'      attribute float a_Val1;\n' +
+'      attribute float a_Epoch2;\n' +
+'      attribute float a_Val2;\n' +
+'      uniform float u_Epoch;\n' +
+'      uniform float u_Size;\n' +
+'      uniform mat4 u_MapMatrix;\n' +
+'      varying float v_Val;\n' +
+'      void main() {\n' +
+'        vec4 position;\n' +
+'        if (a_Epoch1 > u_Epoch || a_Epoch2 <= u_Epoch) {\n' +
+'          position = vec4(-1,-1,-1,-1);\n' +
+'        } else {\n' +
+'          position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);\n' +
+'        }\n' +
+'        gl_Position = position;\n' +
+'        float delta = (u_Epoch - a_Epoch1)/(a_Epoch2 - a_Epoch1);\n' +
+'        float size = (a_Val2 - a_Val1) * delta + a_Val1;\n' +
+'        gl_PointSize = u_Size * size;\n' +
+'      }\n';
+
+WebGLVectorTile2.bubbleMapFragmentShader =
 '      #extension GL_OES_standard_derivatives : enable\n' +
 '      precision mediump float;\n' +
 '      varying float v_Val;\n' +
