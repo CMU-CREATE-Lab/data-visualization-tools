@@ -185,7 +185,7 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
           if (idx.length > 1) {
             points.push(centroid[0]);
             points.push(centroid[1]);
-            var k = idx[j-1];
+            var k = idx[j];
             points.push(epochs[k]);
             points.push(parseFloat(country[k]));
             if (parseFloat(country[k]) > maxValue) {
@@ -194,7 +194,7 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
             if (parseFloat(country[k]) < minValue) {
               minValue = parseFloat(country[k]);
             }
-            points.push(epochs[k]);
+            points.push(epochs[k+1]);
             points.push(parseFloat(country[k]));
           }          
         }
