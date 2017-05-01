@@ -141,7 +141,7 @@ xhr.send();
 function searchCountryList(name) {
   for (var i = 0; i < COUNTRY_LIST['features'].length; i++) {
     var feature = COUNTRY_LIST['features'][i];
-    if (name == feature['properties']['gapminder_name'] || name == feature['properties']['gapminder_geo']) {
+    if (name == feature['properties']['gapminder_name'] || name == feature['properties']['gapminder_geo'] || name == feature['properties']['iso_3136']) {
       return feature['properties']['webmercator'];
     }
   }
