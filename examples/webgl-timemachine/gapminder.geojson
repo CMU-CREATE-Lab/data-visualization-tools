@@ -16,6 +16,7 @@
                     103.11672116189807
                 ], 
                 "gapminder_name": "Afghanistan", 
+                "iso_3136": "AF", 
                 "gapminder_geo": "afg"
             }
         }, 
@@ -34,6 +35,7 @@
                     ""
                 ], 
                 "gapminder_name": "Akrotiri and Dhekelia", 
+                "iso_3136": "", 
                 "gapminder_geo": "akr_a_dhe"
             }
         }, 
@@ -52,6 +54,7 @@
                     94.54370420325792
                 ], 
                 "gapminder_name": "Andorra", 
+                "iso_3136": "AD", 
                 "gapminder_geo": "and"
             }
         }, 
@@ -70,6 +73,7 @@
                     135.9112940671489
                 ], 
                 "gapminder_name": "American Samoa", 
+                "iso_3136": "AS", 
                 "gapminder_geo": "asm"
             }
         }, 
@@ -88,6 +92,7 @@
                     73.98540100280432
                 ], 
                 "gapminder_name": "\u00c5land", 
+                "iso_3136": "", 
                 "gapminder_geo": "ala"
             }
         }, 
@@ -106,6 +111,7 @@
                     136.96025300373762
                 ], 
                 "gapminder_name": "Angola", 
+                "iso_3136": "AO", 
                 "gapminder_geo": "ago"
             }
         }, 
@@ -124,6 +130,7 @@
                     95.98106221608322
                 ], 
                 "gapminder_name": "Albania", 
+                "iso_3136": "AL", 
                 "gapminder_geo": "alb"
             }
         }, 
@@ -142,6 +149,7 @@
                     114.82199399750073
                 ], 
                 "gapminder_name": "Anguilla", 
+                "iso_3136": "AI", 
                 "gapminder_geo": "aia"
             }
         }, 
@@ -160,6 +168,7 @@
                     ""
                 ], 
                 "gapminder_name": "Abkhazia", 
+                "iso_3136": "", 
                 "gapminder_geo": "abkh"
             }
         }, 
@@ -178,6 +187,7 @@
                     107.24549110793109
                 ], 
                 "gapminder_name": "Algeria", 
+                "iso_3136": "DZ", 
                 "gapminder_geo": "dza"
             }
         }, 
@@ -196,6 +206,7 @@
                     256.000010058259
                 ], 
                 "gapminder_name": "Antarctica", 
+                "iso_3136": "", 
                 "gapminder_geo": "ata"
             }
         }, 
@@ -214,6 +225,7 @@
                     119.0397469962624
                 ], 
                 "gapminder_name": "Aruba", 
+                "iso_3136": "AW", 
                 "gapminder_geo": "abw"
             }
         }, 
@@ -232,6 +244,7 @@
                     115.69254649643912
                 ], 
                 "gapminder_name": "Antigua and Barbuda", 
+                "iso_3136": "AG", 
                 "gapminder_geo": "atg"
             }
         }, 
@@ -250,6 +263,7 @@
                     153.73606710590744
                 ], 
                 "gapminder_name": "Argentina", 
+                "iso_3136": "AR", 
                 "gapminder_geo": "arg"
             }
         }, 
@@ -268,6 +282,7 @@
                     146.37031359488122
                 ], 
                 "gapminder_name": "Australia", 
+                "iso_3136": "AU", 
                 "gapminder_geo": "aus"
             }
         }, 
@@ -286,6 +301,7 @@
                     96.68376535608883
                 ], 
                 "gapminder_name": "Armenia", 
+                "iso_3136": "AM", 
                 "gapminder_geo": "arm"
             }
         }, 
@@ -304,6 +320,7 @@
                     89.69326351599643
                 ], 
                 "gapminder_name": "Austria", 
+                "iso_3136": "AT", 
                 "gapminder_geo": "aut"
             }
         }, 
@@ -322,6 +339,7 @@
                     108.81543766419317
                 ], 
                 "gapminder_name": "Bahrain", 
+                "iso_3136": "BH", 
                 "gapminder_geo": "bhr"
             }
         }, 
@@ -340,6 +358,7 @@
                     109.59765271719162
                 ], 
                 "gapminder_name": "Bahamas", 
+                "iso_3136": "BS", 
                 "gapminder_geo": "bhs"
             }
         }, 
@@ -358,6 +377,7 @@
                     96.45040592444009
                 ], 
                 "gapminder_name": "Azerbaijan", 
+                "iso_3136": "AZ", 
                 "gapminder_geo": "aze"
             }
         }, 
@@ -376,6 +396,7 @@
                     83.39247103387747
                 ], 
                 "gapminder_name": "Belarus", 
+                "iso_3136": "BY", 
                 "gapminder_geo": "blr"
             }
         }, 
@@ -394,6 +415,7 @@
                     110.41117448489817
                 ], 
                 "gapminder_name": "Bangladesh", 
+                "iso_3136": "BD", 
                 "gapminder_geo": "bgd"
             }
         }, 
@@ -412,6 +434,7 @@
                     115.35778639451614
                 ], 
                 "gapminder_name": "Belize", 
+                "iso_3136": "BZ", 
                 "gapminder_geo": "blz"
             }
         }, 
@@ -430,6 +453,7 @@
                     85.98477883931723
                 ], 
                 "gapminder_name": "Belgium", 
+                "iso_3136": "BE", 
                 "gapminder_geo": "bel"
             }
         }, 
@@ -448,6 +472,7 @@
                     103.7122160318626
                 ], 
                 "gapminder_name": "Bermuda", 
+                "iso_3136": "BM", 
                 "gapminder_geo": "bmu"
             }
         }, 
@@ -466,6 +491,7 @@
                     118.55352183697238
                 ], 
                 "gapminder_name": "Barbados", 
+                "iso_3136": "BB", 
                 "gapminder_geo": "brb"
             }
         }, 
@@ -484,6 +510,7 @@
                     121.21327634574975
                 ], 
                 "gapminder_name": "Benin", 
+                "iso_3136": "BJ", 
                 "gapminder_geo": "ben"
             }
         }, 
@@ -502,6 +529,7 @@
                     140.27026838677742
                 ], 
                 "gapminder_name": "Bolivia", 
+                "iso_3136": "BO", 
                 "gapminder_geo": "bol"
             }
         }, 
@@ -520,6 +548,7 @@
                     107.64725639066397
                 ], 
                 "gapminder_name": "Bhutan", 
+                "iso_3136": "BT", 
                 "gapminder_geo": "btn"
             }
         }, 
@@ -538,6 +567,7 @@
                     ""
                 ], 
                 "gapminder_name": "Bouvet Island", 
+                "iso_3136": "BV", 
                 "gapminder_geo": "bouisl"
             }
         }, 
@@ -556,6 +586,7 @@
                     92.83898400107485
                 ], 
                 "gapminder_name": "Bosnia and Herzegovina", 
+                "iso_3136": "BA", 
                 "gapminder_geo": "bih"
             }
         }, 
@@ -574,6 +605,7 @@
                     132.27448632017592
                 ], 
                 "gapminder_name": "British Indian Ocean Territory", 
+                "iso_3136": "IO", 
                 "gapminder_geo": "iot"
             }
         }, 
@@ -592,6 +624,7 @@
                     114.60971053218607
                 ], 
                 "gapminder_name": "British Virgin Islands", 
+                "iso_3136": "VG", 
                 "gapminder_geo": "vgb"
             }
         }, 
@@ -610,6 +643,7 @@
                     144.04367292383128
                 ], 
                 "gapminder_name": "Botswana", 
+                "iso_3136": "BW", 
                 "gapminder_geo": "bwa"
             }
         }, 
@@ -628,6 +662,7 @@
                     119.0397469962624
                 ], 
                 "gapminder_name": "Burkina Faso", 
+                "iso_3136": "BF", 
                 "gapminder_geo": "bfa"
             }
         }, 
@@ -646,6 +681,7 @@
                     135.14749131138143
                 ], 
                 "gapminder_name": "Brazil", 
+                "iso_3136": "BR", 
                 "gapminder_geo": "bra"
             }
         }, 
@@ -664,6 +700,7 @@
                     124.79670504936792
                 ], 
                 "gapminder_name": "Brunei", 
+                "iso_3136": "BN", 
                 "gapminder_geo": "brn"
             }
         }, 
@@ -682,6 +719,7 @@
                     94.39024851789073
                 ], 
                 "gapminder_name": "Bulgaria", 
+                "iso_3136": "BG", 
                 "gapminder_geo": "bgr"
             }
         }, 
@@ -700,6 +738,7 @@
                     118.67520134718035
                 ], 
                 "gapminder_name": "Cambodia", 
+                "iso_3136": "KH", 
                 "gapminder_geo": "khm"
             }
         }, 
@@ -718,6 +757,7 @@
                     116.47139523891636
                 ], 
                 "gapminder_name": "Cape Verde", 
+                "iso_3136": "CV", 
                 "gapminder_geo": "cpv"
             }
         }, 
@@ -736,6 +776,7 @@
                     123.72551367982409
                 ], 
                 "gapminder_name": "Cameroon", 
+                "iso_3136": "CM", 
                 "gapminder_geo": "cmr"
             }
         }, 
@@ -754,6 +795,7 @@
                     113.85761290484892
                 ], 
                 "gapminder_name": "Cayman Islands", 
+                "iso_3136": "KY", 
                 "gapminder_geo": "cym"
             }
         }, 
@@ -772,6 +814,7 @@
                     130.49043824226254
                 ], 
                 "gapminder_name": "Burundi", 
+                "iso_3136": "BI", 
                 "gapminder_geo": "bdi"
             }
         }, 
@@ -790,6 +833,7 @@
                     123.00979254977683
                 ], 
                 "gapminder_name": "Central African Republic", 
+                "iso_3136": "CF", 
                 "gapminder_geo": "caf"
             }
         }, 
@@ -808,6 +852,7 @@
                     74.18750066071178
                 ], 
                 "gapminder_name": "Canada", 
+                "iso_3136": "CA", 
                 "gapminder_geo": "can"
             }
         }, 
@@ -826,6 +871,7 @@
                     ""
                 ], 
                 "gapminder_name": "Channel Islands", 
+                "iso_3136": "", 
                 "gapminder_geo": "chanisl"
             }
         }, 
@@ -844,6 +890,7 @@
                     153.27173044476172
                 ], 
                 "gapminder_name": "Chile", 
+                "iso_3136": "CL", 
                 "gapminder_geo": "chl"
             }
         }, 
@@ -862,6 +909,7 @@
                     117.20935606509084
                 ], 
                 "gapminder_name": "Chad", 
+                "iso_3136": "TD", 
                 "gapminder_geo": "tcd"
             }
         }, 
@@ -880,6 +928,7 @@
                     136.71582152349671
                 ], 
                 "gapminder_name": "Cocos Island", 
+                "iso_3136": "", 
                 "gapminder_geo": "cck"
             }
         }, 
@@ -898,6 +947,7 @@
                     101.40104481443534
                 ], 
                 "gapminder_name": "China", 
+                "iso_3136": "CN", 
                 "gapminder_geo": "chn"
             }
         }, 
@@ -916,6 +966,7 @@
                     129.77834215275402
                 ], 
                 "gapminder_name": "Congo, Dem. Rep.", 
+                "iso_3136": "", 
                 "gapminder_geo": "cod"
             }
         }, 
@@ -934,6 +985,7 @@
                     ""
                 ], 
                 "gapminder_name": "Clipperton", 
+                "iso_3136": "", 
                 "gapminder_geo": "fra_clipperton"
             }
         }, 
@@ -952,6 +1004,7 @@
                     135.508814535521
                 ], 
                 "gapminder_name": "Christmas Island", 
+                "iso_3136": "CX", 
                 "gapminder_geo": "cxr"
             }
         }, 
@@ -970,6 +1023,7 @@
                     125.15324215665274
                 ], 
                 "gapminder_name": "Colombia", 
+                "iso_3136": "CO", 
                 "gapminder_geo": "col"
             }
         }, 
@@ -988,6 +1042,7 @@
                     136.76611627067086
                 ], 
                 "gapminder_name": "Comoros", 
+                "iso_3136": "KM", 
                 "gapminder_geo": "com"
             }
         }, 
@@ -1006,6 +1061,7 @@
                     143.468748294261
                 ], 
                 "gapminder_name": "Cook Is", 
+                "iso_3136": "", 
                 "gapminder_geo": "cok"
             }
         }, 
@@ -1024,6 +1080,7 @@
                     120.85250868861858
                 ], 
                 "gapminder_name": "Costa Rica", 
+                "iso_3136": "CR", 
                 "gapminder_geo": "cri"
             }
         }, 
@@ -1042,6 +1099,7 @@
                     122.29253586957215
                 ], 
                 "gapminder_name": "Cote d'Ivoire", 
+                "iso_3136": "CI", 
                 "gapminder_geo": "civ"
             }
         }, 
@@ -1060,6 +1118,7 @@
                     91.92175110139956
                 ], 
                 "gapminder_name": "Croatia", 
+                "iso_3136": "HR", 
                 "gapminder_geo": "hrv"
             }
         }, 
@@ -1078,6 +1137,7 @@
                     128.71114721666606
                 ], 
                 "gapminder_name": "Congo, Rep.", 
+                "iso_3136": "", 
                 "gapminder_geo": "cog"
             }
         }, 
@@ -1096,6 +1156,7 @@
                     111.95632707616872
                 ], 
                 "gapminder_name": "Cuba", 
+                "iso_3136": "CU", 
                 "gapminder_geo": "cub"
             }
         }, 
@@ -1114,6 +1175,7 @@
                     119.28238168180488
                 ], 
                 "gapminder_name": "Cura\u00e7ao", 
+                "iso_3136": "", 
                 "gapminder_geo": "nld_curacao"
             }
         }, 
@@ -1132,6 +1194,7 @@
                     ""
                 ], 
                 "gapminder_name": "Czechoslovakia", 
+                "iso_3136": "", 
                 "gapminder_geo": "cheslo"
             }
         }, 
@@ -1150,6 +1213,7 @@
                     79.71669114605123
                 ], 
                 "gapminder_name": "Denmark", 
+                "iso_3136": "DK", 
                 "gapminder_geo": "dnk"
             }
         }, 
@@ -1168,6 +1232,7 @@
                     87.09691969194691
                 ], 
                 "gapminder_name": "Czech Republic", 
+                "iso_3136": "CZ", 
                 "gapminder_geo": "cze"
             }
         }, 
@@ -1186,6 +1251,7 @@
                     101.40104481443534
                 ], 
                 "gapminder_name": "Cyprus", 
+                "iso_3136": "CY", 
                 "gapminder_geo": "cyp"
             }
         }, 
@@ -1204,6 +1270,7 @@
                     116.84082214812342
                 ], 
                 "gapminder_name": "Dominica", 
+                "iso_3136": "DM", 
                 "gapminder_geo": "dma"
             }
         }, 
@@ -1222,6 +1289,7 @@
                     119.70215186012297
                 ], 
                 "gapminder_name": "Djibouti", 
+                "iso_3136": "DJ", 
                 "gapminder_geo": "dji"
             }
         }, 
@@ -1240,6 +1308,7 @@
                     108.04720062765387
                 ], 
                 "gapminder_name": "Egypt", 
+                "iso_3136": "EG", 
                 "gapminder_geo": "egy"
             }
         }, 
@@ -1258,6 +1327,7 @@
                     ""
                 ], 
                 "gapminder_name": "East Germany", 
+                "iso_3136": "", 
                 "gapminder_geo": "deu_east"
             }
         }, 
@@ -1276,6 +1346,7 @@
                     114.23422671061515
                 ], 
                 "gapminder_name": "Dominican Republic", 
+                "iso_3136": "DO", 
                 "gapminder_geo": "dom"
             }
         }, 
@@ -1294,6 +1365,7 @@
                     128.8889594105721
                 ], 
                 "gapminder_name": "Ecuador", 
+                "iso_3136": "EC", 
                 "gapminder_geo": "ecu"
             }
         }, 
@@ -1312,6 +1384,7 @@
                     118.06597866447105
                 ], 
                 "gapminder_name": "El Salvador", 
+                "iso_3136": "SV", 
                 "gapminder_geo": "slv"
             }
         }, 
@@ -1330,6 +1403,7 @@
                     126.7909336989813
                 ], 
                 "gapminder_name": "Equatorial Guinea", 
+                "iso_3136": "GQ", 
                 "gapminder_geo": "gnq"
             }
         }, 
@@ -1348,6 +1422,7 @@
                     75.74352661584689
                 ], 
                 "gapminder_name": "Estonia", 
+                "iso_3136": "EE", 
                 "gapminder_geo": "est"
             }
         }, 
@@ -1366,6 +1441,7 @@
                     117.20935606509084
                 ], 
                 "gapminder_name": "Eritrea", 
+                "iso_3136": "ER", 
                 "gapminder_geo": "eri"
             }
         }, 
@@ -1384,6 +1460,7 @@
                     ""
                 ], 
                 "gapminder_name": "Eritrea and Ethiopia", 
+                "iso_3136": "", 
                 "gapminder_geo": "eri_a_eth"
             }
         }, 
@@ -1402,6 +1479,7 @@
                     71.40762039505364
                 ], 
                 "gapminder_name": "Faeroe Islands", 
+                "iso_3136": "", 
                 "gapminder_geo": "fro"
             }
         }, 
@@ -1420,6 +1498,7 @@
                     171.15137948673964
                 ], 
                 "gapminder_name": "Falkland Is (Malvinas)", 
+                "iso_3136": "", 
                 "gapminder_geo": "flk"
             }
         }, 
@@ -1438,6 +1517,7 @@
                     121.57351753373084
                 ], 
                 "gapminder_name": "Ethiopia", 
+                "iso_3136": "ET", 
                 "gapminder_geo": "eth"
             }
         }, 
@@ -1456,6 +1536,7 @@
                     68.27352134720488
                 ], 
                 "gapminder_name": "Finland", 
+                "iso_3136": "FI", 
                 "gapminder_geo": "fin"
             }
         }, 
@@ -1474,6 +1555,7 @@
                     141.01590044362635
                 ], 
                 "gapminder_name": "Fiji", 
+                "iso_3136": "FJ", 
                 "gapminder_geo": "fji"
             }
         }, 
@@ -1492,6 +1574,7 @@
                     ""
                 ], 
                 "gapminder_name": "French Southern and Antarctic Lands", 
+                "iso_3136": "TF", 
                 "gapminder_geo": "fra_antarc"
             }
         }, 
@@ -1510,6 +1593,7 @@
                     91.07501474058921
                 ], 
                 "gapminder_name": "France", 
+                "iso_3136": "FR", 
                 "gapminder_geo": "fra"
             }
         }, 
@@ -1528,6 +1612,7 @@
                     118.30992049103556
                 ], 
                 "gapminder_name": "Gambia", 
+                "iso_3136": "GM", 
                 "gapminder_geo": "gmb"
             }
         }, 
@@ -1546,6 +1631,7 @@
                     125.15324215665274
                 ], 
                 "gapminder_name": "French Guiana", 
+                "iso_3136": "GF", 
                 "gapminder_geo": "guf"
             }
         }, 
@@ -1564,6 +1650,7 @@
                     ""
                 ], 
                 "gapminder_name": "Gaza Strip", 
+                "iso_3136": "PS", 
                 "gapminder_geo": "pse_gaza"
             }
         }, 
@@ -1582,6 +1669,7 @@
                     138.79064393490916
                 ], 
                 "gapminder_name": "French Polynesia", 
+                "iso_3136": "PF", 
                 "gapminder_geo": "pyf"
             }
         }, 
@@ -1600,6 +1688,7 @@
                     128.71114721666606
                 ], 
                 "gapminder_name": "Gabon", 
+                "iso_3136": "GA", 
                 "gapminder_geo": "gab"
             }
         }, 
@@ -1618,6 +1707,7 @@
                     85.13498764623876
                 ], 
                 "gapminder_name": "Germany", 
+                "iso_3136": "DE", 
                 "gapminder_geo": "deu"
             }
         }, 
@@ -1636,6 +1726,7 @@
                     95.03158027127785
                 ], 
                 "gapminder_name": "Georgia", 
+                "iso_3136": "GE", 
                 "gapminder_geo": "geo"
             }
         }, 
@@ -1654,6 +1745,7 @@
                     97.83786851383917
                 ], 
                 "gapminder_name": "Greece", 
+                "iso_3136": "GR", 
                 "gapminder_geo": "grc"
             }
         }, 
@@ -1672,6 +1764,7 @@
                     122.22071706381672
                 ], 
                 "gapminder_name": "Ghana", 
+                "iso_3136": "GH", 
                 "gapminder_geo": "gha"
             }
         }, 
@@ -1690,6 +1783,7 @@
                     52.92042398551503
                 ], 
                 "gapminder_name": "Greenland", 
+                "iso_3136": "GL", 
                 "gapminder_geo": "grl"
             }
         }, 
@@ -1708,6 +1802,7 @@
                     100.40020469259652
                 ], 
                 "gapminder_name": "Gibraltar", 
+                "iso_3136": "GI", 
                 "gapminder_geo": "gib"
             }
         }, 
@@ -1726,6 +1821,7 @@
                     119.31875079652039
                 ], 
                 "gapminder_name": "Grenada", 
+                "iso_3136": "GD", 
                 "gapminder_geo": "grd"
             }
         }, 
@@ -1744,6 +1840,7 @@
                     117.47363647628401
                 ], 
                 "gapminder_name": "Guatemala", 
+                "iso_3136": "GT", 
                 "gapminder_geo": "gtm"
             }
         }, 
@@ -1762,6 +1859,7 @@
                     116.28633673628092
                 ], 
                 "gapminder_name": "Guadeloupe", 
+                "iso_3136": "GP", 
                 "gapminder_geo": "glp"
             }
         }, 
@@ -1780,6 +1878,7 @@
                     87.4208933051215
                 ], 
                 "gapminder_name": "Guernsey", 
+                "iso_3136": "GG", 
                 "gapminder_geo": "gbg"
             }
         }, 
@@ -1798,6 +1897,7 @@
                     118.32556267112939
                 ], 
                 "gapminder_name": "Guam", 
+                "iso_3136": "GU", 
                 "gapminder_geo": "gum"
             }
         }, 
@@ -1816,6 +1916,7 @@
                     120.24998261181113
                 ], 
                 "gapminder_name": "Guinea", 
+                "iso_3136": "GN", 
                 "gapminder_geo": "gin"
             }
         }, 
@@ -1834,6 +1935,7 @@
                     119.40358804450094
                 ], 
                 "gapminder_name": "Guinea-Bissau", 
+                "iso_3136": "GW", 
                 "gapminder_geo": "gnb"
             }
         }, 
@@ -1852,6 +1954,7 @@
                     114.23422671061515
                 ], 
                 "gapminder_name": "Haiti", 
+                "iso_3136": "HT", 
                 "gapminder_geo": "hti"
             }
         }, 
@@ -1870,6 +1973,7 @@
                     ""
                 ], 
                 "gapminder_name": "Heard and McDonald Islands", 
+                "iso_3136": "", 
                 "gapminder_geo": "heard_a_mcd"
             }
         }, 
@@ -1888,6 +1992,7 @@
                     95.1249207385203
                 ], 
                 "gapminder_name": "Holy See", 
+                "iso_3136": "", 
                 "gapminder_geo": "hos"
             }
         }, 
@@ -1906,6 +2011,7 @@
                     124.43992298289838
                 ], 
                 "gapminder_name": "Guyana", 
+                "iso_3136": "GY", 
                 "gapminder_geo": "guy"
             }
         }, 
@@ -1924,6 +2030,7 @@
                     117.20935606509084
                 ], 
                 "gapminder_name": "Honduras", 
+                "iso_3136": "HN", 
                 "gapminder_geo": "hnd"
             }
         }, 
@@ -1942,6 +2049,7 @@
                     90.04191318303863
                 ], 
                 "gapminder_name": "Hungary", 
+                "iso_3136": "HU", 
                 "gapminder_geo": "hun"
             }
         }, 
@@ -1960,6 +2068,7 @@
                     131.5600770171016
                 ], 
                 "gapminder_name": "Indonesia", 
+                "iso_3136": "ID", 
                 "gapminder_geo": "idn"
             }
         }, 
@@ -1978,6 +2087,7 @@
                     66.62153256624377
                 ], 
                 "gapminder_name": "Iceland", 
+                "iso_3136": "IS", 
                 "gapminder_geo": "isl"
             }
         }, 
@@ -1996,6 +2106,7 @@
                     111.95632707616872
                 ], 
                 "gapminder_name": "India", 
+                "iso_3136": "IN", 
                 "gapminder_geo": "ind"
             }
         }, 
@@ -2014,6 +2125,7 @@
                     111.73712356616237
                 ], 
                 "gapminder_name": "Hong Kong, China", 
+                "iso_3136": "", 
                 "gapminder_geo": "hkg"
             }
         }, 
@@ -2032,6 +2144,7 @@
                     103.9598972070865
                 ], 
                 "gapminder_name": "Iran", 
+                "iso_3136": "IR", 
                 "gapminder_geo": "irn"
             }
         }, 
@@ -2050,6 +2163,7 @@
                     83.39247103387747
                 ], 
                 "gapminder_name": "Ireland", 
+                "iso_3136": "IE", 
                 "gapminder_geo": "irl"
             }
         }, 
@@ -2068,6 +2182,7 @@
                     104.37802693898524
                 ], 
                 "gapminder_name": "Israel", 
+                "iso_3136": "IL", 
                 "gapminder_geo": "isr"
             }
         }, 
@@ -2086,6 +2201,7 @@
                     94.22885636466282
                 ], 
                 "gapminder_name": "Italy", 
+                "iso_3136": "IT", 
                 "gapminder_geo": "ita"
             }
         }, 
@@ -2104,6 +2220,7 @@
                     103.11672116189807
                 ], 
                 "gapminder_name": "Iraq", 
+                "iso_3136": "IQ", 
                 "gapminder_geo": "irq"
             }
         }, 
@@ -2122,6 +2239,7 @@
                     114.85942021204605
                 ], 
                 "gapminder_name": "Jamaica", 
+                "iso_3136": "JM", 
                 "gapminder_geo": "jam"
             }
         }, 
@@ -2140,6 +2258,7 @@
                     82.01509951488987
                 ], 
                 "gapminder_name": "Isle of Man", 
+                "iso_3136": "IM", 
                 "gapminder_geo": "gbm"
             }
         }, 
@@ -2158,6 +2277,7 @@
                     100.8035594540489
                 ], 
                 "gapminder_name": "Japan", 
+                "iso_3136": "JP", 
                 "gapminder_geo": "jpn"
             }
         }, 
@@ -2176,6 +2296,7 @@
                     88.98929041012298
                 ], 
                 "gapminder_name": "Kazakhstan", 
+                "iso_3136": "KZ", 
                 "gapminder_geo": "kaz"
             }
         }, 
@@ -2194,6 +2315,7 @@
                     127.28885278333395
                 ], 
                 "gapminder_name": "Kenya", 
+                "iso_3136": "KE", 
                 "gapminder_geo": "ken"
             }
         }, 
@@ -2212,6 +2334,7 @@
                     87.68069680900254
                 ], 
                 "gapminder_name": "Jersey", 
+                "iso_3136": "JE", 
                 "gapminder_geo": "jey"
             }
         }, 
@@ -2230,6 +2353,7 @@
                     104.793926550227
                 ], 
                 "gapminder_name": "Jordan", 
+                "iso_3136": "JO", 
                 "gapminder_geo": "jor"
             }
         }, 
@@ -2248,6 +2372,7 @@
                     126.9894075039025
                 ], 
                 "gapminder_name": "Kiribati", 
+                "iso_3136": "KI", 
                 "gapminder_geo": "kir"
             }
         }, 
@@ -2266,6 +2391,7 @@
                     114.98409955637366
                 ], 
                 "gapminder_name": "Lao", 
+                "iso_3136": "", 
                 "gapminder_geo": "lao"
             }
         }, 
@@ -2284,6 +2410,7 @@
                     ""
                 ], 
                 "gapminder_name": "Kosovo", 
+                "iso_3136": "", 
                 "gapminder_geo": "kos"
             }
         }, 
@@ -2302,6 +2429,7 @@
                     106.13516380649217
                 ], 
                 "gapminder_name": "Kuwait", 
+                "iso_3136": "KW", 
                 "gapminder_geo": "kwt"
             }
         }, 
@@ -2320,6 +2448,7 @@
                     95.50814442739468
                 ], 
                 "gapminder_name": "Kyrgyz Republic", 
+                "iso_3136": "", 
                 "gapminder_geo": "kgz"
             }
         }, 
@@ -2338,6 +2467,7 @@
                     123.3678310242578
                 ], 
                 "gapminder_name": "Liberia", 
+                "iso_3136": "LR", 
                 "gapminder_geo": "lbr"
             }
         }, 
@@ -2356,6 +2486,7 @@
                     78.42820828124746
                 ], 
                 "gapminder_name": "Latvia", 
+                "iso_3136": "LV", 
                 "gapminder_geo": "lva"
             }
         }, 
@@ -2374,6 +2505,7 @@
                     102.4067550486147
                 ], 
                 "gapminder_name": "Lebanon", 
+                "iso_3136": "LB", 
                 "gapminder_geo": "lbn"
             }
         }, 
@@ -2392,6 +2524,7 @@
                     107.24549110793109
                 ], 
                 "gapminder_name": "Libya", 
+                "iso_3136": "LY", 
                 "gapminder_geo": "lby"
             }
         }, 
@@ -2410,6 +2543,7 @@
                     87.24894638720653
                 ], 
                 "gapminder_name": "Luxembourg", 
+                "iso_3136": "LU", 
                 "gapminder_geo": "lux"
             }
         }, 
@@ -2428,6 +2562,7 @@
                     149.97121120261593
                 ], 
                 "gapminder_name": "Lesotho", 
+                "iso_3136": "LS", 
                 "gapminder_geo": "lso"
             }
         }, 
@@ -2446,6 +2581,7 @@
                     89.86785660259596
                 ], 
                 "gapminder_name": "Liechtenstein", 
+                "iso_3136": "LI", 
                 "gapminder_geo": "lie"
             }
         }, 
@@ -2464,6 +2600,7 @@
                     80.45296665340192
                 ], 
                 "gapminder_name": "Lithuania", 
+                "iso_3136": "LT", 
                 "gapminder_geo": "ltu"
             }
         }, 
@@ -2482,6 +2619,7 @@
                     111.80239678245395
                 ], 
                 "gapminder_name": "Macao, China", 
+                "iso_3136": "", 
                 "gapminder_geo": "mac"
             }
         }, 
@@ -2500,6 +2638,7 @@
                     142.52016656348022
                 ], 
                 "gapminder_name": "Madagascar", 
+                "iso_3136": "MG", 
                 "gapminder_geo": "mdg"
             }
         }, 
@@ -2518,6 +2657,7 @@
                     137.69007950896446
                 ], 
                 "gapminder_name": "Malawi", 
+                "iso_3136": "MW", 
                 "gapminder_geo": "mwi"
             }
         }, 
@@ -2536,6 +2676,7 @@
                     126.22165784724601
                 ], 
                 "gapminder_name": "Malaysia", 
+                "iso_3136": "MY", 
                 "gapminder_geo": "mys"
             }
         }, 
@@ -2554,6 +2695,7 @@
                     95.34969202638634
                 ], 
                 "gapminder_name": "Macedonia, FYR", 
+                "iso_3136": "", 
                 "gapminder_geo": "mkd"
             }
         }, 
@@ -2572,6 +2714,7 @@
                     114.98409955637366
                 ], 
                 "gapminder_name": "Mali", 
+                "iso_3136": "ML", 
                 "gapminder_geo": "mli"
             }
         }, 
@@ -2590,6 +2733,7 @@
                     125.72326050434258
                 ], 
                 "gapminder_name": "Maldives", 
+                "iso_3136": "MV", 
                 "gapminder_geo": "mdv"
             }
         }, 
@@ -2608,6 +2752,7 @@
                     100.60075242849939
                 ], 
                 "gapminder_name": "Malta", 
+                "iso_3136": "MT", 
                 "gapminder_geo": "mlt"
             }
         }, 
@@ -2626,6 +2771,7 @@
                     113.29049529029005
                 ], 
                 "gapminder_name": "Mauritania", 
+                "iso_3136": "MR", 
                 "gapminder_geo": "mrt"
             }
         }, 
@@ -2644,6 +2790,7 @@
                     117.45456272155043
                 ], 
                 "gapminder_name": "Martinique", 
+                "iso_3136": "MQ", 
                 "gapminder_geo": "mtq"
             }
         }, 
@@ -2662,6 +2809,7 @@
                     122.9288236814887
                 ], 
                 "gapminder_name": "Marshall Islands", 
+                "iso_3136": "MH", 
                 "gapminder_geo": "mhl"
             }
         }, 
@@ -2680,6 +2828,7 @@
                     137.2032008331014
                 ], 
                 "gapminder_name": "Mayotte", 
+                "iso_3136": "YT", 
                 "gapminder_geo": "myt"
             }
         }, 
@@ -2698,6 +2847,7 @@
                     142.74740879533516
                 ], 
                 "gapminder_name": "Mauritius", 
+                "iso_3136": "MU", 
                 "gapminder_geo": "mus"
             }
         }, 
@@ -2716,6 +2866,7 @@
                     113.91156188869667
                 ], 
                 "gapminder_name": "Mexico", 
+                "iso_3136": "MX", 
                 "gapminder_geo": "mex"
             }
         }, 
@@ -2734,6 +2885,7 @@
                     89.78062873304258
                 ], 
                 "gapminder_name": "Moldova", 
+                "iso_3136": "MD", 
                 "gapminder_geo": "mda"
             }
         }, 
@@ -2752,6 +2904,7 @@
                     123.06423844091569
                 ], 
                 "gapminder_name": "Micronesia, Fed. Sts.", 
+                "iso_3136": "", 
                 "gapminder_geo": "fsm"
             }
         }, 
@@ -2770,6 +2923,7 @@
                     115.9155090730293
                 ], 
                 "gapminder_name": "Montserrat", 
+                "iso_3136": "MS", 
                 "gapminder_geo": "msr"
             }
         }, 
@@ -2788,6 +2942,7 @@
                     93.34967691591004
                 ], 
                 "gapminder_name": "Monaco", 
+                "iso_3136": "MC", 
                 "gapminder_geo": "mco"
             }
         }, 
@@ -2806,6 +2961,7 @@
                     91.07501474058921
                 ], 
                 "gapminder_name": "Mongolia", 
+                "iso_3136": "MN", 
                 "gapminder_geo": "mng"
             }
         }, 
@@ -2824,6 +2980,7 @@
                     141.2029602865342
                 ], 
                 "gapminder_name": "Mozambique", 
+                "iso_3136": "MZ", 
                 "gapminder_geo": "moz"
             }
         }, 
@@ -2842,6 +2999,7 @@
                     94.30960668593835
                 ], 
                 "gapminder_name": "Montenegro", 
+                "iso_3136": "ME", 
                 "gapminder_geo": "mne"
             }
         }, 
@@ -2860,6 +3018,7 @@
                     103.9598972070865
                 ], 
                 "gapminder_name": "Morocco", 
+                "iso_3136": "MA", 
                 "gapminder_geo": "mar"
             }
         }, 
@@ -2878,6 +3037,7 @@
                     128.36764943353535
                 ], 
                 "gapminder_name": "Nauru", 
+                "iso_3136": "NR", 
                 "gapminder_geo": "nru"
             }
         }, 
@@ -2896,6 +3056,7 @@
                     144.04367292383128
                 ], 
                 "gapminder_name": "Namibia", 
+                "iso_3136": "NA", 
                 "gapminder_geo": "nam"
             }
         }, 
@@ -2914,6 +3075,7 @@
                     84.27109472233107
                 ], 
                 "gapminder_name": "Netherlands", 
+                "iso_3136": "NL", 
                 "gapminder_geo": "nld"
             }
         }, 
@@ -2932,6 +3094,7 @@
                     112.72063222536109
                 ], 
                 "gapminder_name": "Myanmar", 
+                "iso_3136": "", 
                 "gapminder_geo": "mmr"
             }
         }, 
@@ -2950,6 +3113,7 @@
                     ""
                 ], 
                 "gapminder_name": "Netherlands Antilles", 
+                "iso_3136": "", 
                 "gapminder_geo": "ant"
             }
         }, 
@@ -2968,6 +3132,7 @@
                     160.96843886660687
                 ], 
                 "gapminder_name": "New Zealand", 
+                "iso_3136": "NZ", 
                 "gapminder_geo": "nzl"
             }
         }, 
@@ -2986,6 +3151,7 @@
                     107.24549110793109
                 ], 
                 "gapminder_name": "Nepal", 
+                "iso_3136": "NP", 
                 "gapminder_geo": "npl"
             }
         }, 
@@ -3004,6 +3170,7 @@
                     143.66086350737777
                 ], 
                 "gapminder_name": "New Caledonia", 
+                "iso_3136": "NC", 
                 "gapminder_geo": "ncl"
             }
         }, 
@@ -3022,6 +3189,7 @@
                     ""
                 ], 
                 "gapminder_name": "Ngorno-Karabakh", 
+                "iso_3136": "", 
                 "gapminder_geo": "ngokar"
             }
         }, 
@@ -3040,6 +3208,7 @@
                     118.67520134718035
                 ], 
                 "gapminder_name": "Nicaragua", 
+                "iso_3136": "NI", 
                 "gapminder_geo": "nic"
             }
         }, 
@@ -3058,6 +3227,7 @@
                     114.98409955637366
                 ], 
                 "gapminder_name": "Niger", 
+                "iso_3136": "NE", 
                 "gapminder_geo": "ner"
             }
         }, 
@@ -3076,6 +3246,7 @@
                     141.7908428219221
                 ], 
                 "gapminder_name": "Niue", 
+                "iso_3136": "NU", 
                 "gapminder_geo": "niu"
             }
         }, 
@@ -3094,6 +3265,7 @@
                     149.59079709013417
                 ], 
                 "gapminder_name": "Norfolk Island", 
+                "iso_3136": "NF", 
                 "gapminder_geo": "nfk"
             }
         }, 
@@ -3112,6 +3284,7 @@
                     120.85250868861858
                 ], 
                 "gapminder_name": "Nigeria", 
+                "iso_3136": "NG", 
                 "gapminder_geo": "nga"
             }
         }, 
@@ -3130,6 +3303,7 @@
                     96.91626438171672
                 ], 
                 "gapminder_name": "North Korea", 
+                "iso_3136": "KP", 
                 "gapminder_geo": "prk"
             }
         }, 
@@ -3148,6 +3322,7 @@
                     ""
                 ], 
                 "gapminder_name": "Northern Cyprus", 
+                "iso_3136": "", 
                 "gapminder_geo": "cyp_nor"
             }
         }, 
@@ -3166,6 +3341,7 @@
                     117.05173078180997
                 ], 
                 "gapminder_name": "Northern Mariana Islands", 
+                "iso_3136": "MP", 
                 "gapminder_geo": "mnp"
             }
         }, 
@@ -3184,6 +3360,7 @@
                     122.64921847576221
                 ], 
                 "gapminder_name": "Palau", 
+                "iso_3136": "PW", 
                 "gapminder_geo": "plw"
             }
         }, 
@@ -3202,6 +3379,7 @@
                     71.40762039505364
                 ], 
                 "gapminder_name": "Norway", 
+                "iso_3136": "NO", 
                 "gapminder_geo": "nor"
             }
         }, 
@@ -3220,6 +3398,7 @@
                     112.72063222536109
                 ], 
                 "gapminder_name": "Oman", 
+                "iso_3136": "OM", 
                 "gapminder_geo": "omn"
             }
         }, 
@@ -3238,6 +3417,7 @@
                     104.02563477897334
                 ], 
                 "gapminder_name": "Palestine", 
+                "iso_3136": "", 
                 "gapminder_geo": "pse"
             }
         }, 
@@ -3256,6 +3436,7 @@
                     121.5781253342642
                 ], 
                 "gapminder_name": "Panama", 
+                "iso_3136": "PA", 
                 "gapminder_geo": "pan"
             }
         }, 
@@ -3274,6 +3455,7 @@
                     132.27448632017592
                 ], 
                 "gapminder_name": "Papua New Guinea", 
+                "iso_3136": "PG", 
                 "gapminder_geo": "png"
             }
         }, 
@@ -3292,6 +3474,7 @@
                     135.14749131138143
                 ], 
                 "gapminder_name": "Peru", 
+                "iso_3136": "PE", 
                 "gapminder_geo": "per"
             }
         }, 
@@ -3310,6 +3493,7 @@
                     ""
                 ], 
                 "gapminder_name": "North Yemen (former)", 
+                "iso_3136": "", 
                 "gapminder_geo": "yem_north"
             }
         }, 
@@ -3328,6 +3512,7 @@
                     105.61925423577219
                 ], 
                 "gapminder_name": "Pakistan", 
+                "iso_3136": "PK", 
                 "gapminder_geo": "pak"
             }
         }, 
@@ -3346,6 +3531,7 @@
                     145.07121216800874
                 ], 
                 "gapminder_name": "Paraguay", 
+                "iso_3136": "PY", 
                 "gapminder_geo": "pry"
             }
         }, 
@@ -3364,6 +3550,7 @@
                     118.67520134718035
                 ], 
                 "gapminder_name": "Philippines", 
+                "iso_3136": "PH", 
                 "gapminder_geo": "phl"
             }
         }, 
@@ -3382,6 +3569,7 @@
                     146.42263870573942
                 ], 
                 "gapminder_name": "Pitcairn", 
+                "iso_3136": "", 
                 "gapminder_geo": "pcn"
             }
         }, 
@@ -3400,6 +3588,7 @@
                     114.6349558782766
                 ], 
                 "gapminder_name": "Puerto Rico", 
+                "iso_3136": "PR", 
                 "gapminder_geo": "pri"
             }
         }, 
@@ -3418,6 +3607,7 @@
                     109.41027479057948
                 ], 
                 "gapminder_name": "Qatar", 
+                "iso_3136": "QA", 
                 "gapminder_geo": "qat"
             }
         }, 
@@ -3436,6 +3626,7 @@
                     84.56066396718006
                 ], 
                 "gapminder_name": "Poland", 
+                "iso_3136": "PL", 
                 "gapminder_geo": "pol"
             }
         }, 
@@ -3454,6 +3645,7 @@
                     74.34230806029021
                 ], 
                 "gapminder_name": "Russia", 
+                "iso_3136": "RU", 
                 "gapminder_geo": "rus"
             }
         }, 
@@ -3472,6 +3664,7 @@
                     97.19922567993041
                 ], 
                 "gapminder_name": "Portugal", 
+                "iso_3136": "PT", 
                 "gapminder_geo": "prt"
             }
         }, 
@@ -3490,6 +3683,7 @@
                     129.4225111326762
                 ], 
                 "gapminder_name": "Rwanda", 
+                "iso_3136": "RW", 
                 "gapminder_geo": "rwa"
             }
         }, 
@@ -3508,6 +3702,7 @@
                     137.90961376534105
                 ], 
                 "gapminder_name": "Samoa", 
+                "iso_3136": "WS", 
                 "gapminder_geo": "wsm"
             }
         }, 
@@ -3526,6 +3721,7 @@
                     143.18975819636128
                 ], 
                 "gapminder_name": "Reunion", 
+                "iso_3136": "RE", 
                 "gapminder_geo": "reu"
             }
         }, 
@@ -3544,6 +3740,7 @@
                     109.62968640511879
                 ], 
                 "gapminder_name": "Saudi Arabia", 
+                "iso_3136": "SA", 
                 "gapminder_geo": "sau"
             }
         }, 
@@ -3562,6 +3759,7 @@
                     93.14921930518868
                 ], 
                 "gapminder_name": "San Marino", 
+                "iso_3136": "SM", 
                 "gapminder_geo": "smr"
             }
         }, 
@@ -3580,6 +3778,7 @@
                     117.57702922918061
                 ], 
                 "gapminder_name": "Senegal", 
+                "iso_3136": "SN", 
                 "gapminder_geo": "sen"
             }
         }, 
@@ -3598,6 +3797,7 @@
                     91.07501474058921
                 ], 
                 "gapminder_name": "Romania", 
+                "iso_3136": "RO", 
                 "gapminder_geo": "rou"
             }
         }, 
@@ -3616,6 +3816,7 @@
                     92.27142804225798
                 ], 
                 "gapminder_name": "Serbia", 
+                "iso_3136": "RS", 
                 "gapminder_geo": "srb"
             }
         }, 
@@ -3634,6 +3835,7 @@
                     127.28885278333395
                 ], 
                 "gapminder_name": "Sao Tome and Principe", 
+                "iso_3136": "ST", 
                 "gapminder_geo": "stp"
             }
         }, 
@@ -3652,6 +3854,7 @@
                     ""
                 ], 
                 "gapminder_name": "Serbia and Montenegro", 
+                "iso_3136": "", 
                 "gapminder_geo": "scg"
             }
         }, 
@@ -3670,6 +3873,7 @@
                     131.26273849663042
                 ], 
                 "gapminder_name": "Seychelles", 
+                "iso_3136": "SC", 
                 "gapminder_geo": "syc"
             }
         }, 
@@ -3688,6 +3892,7 @@
                     127.08282388149046
                 ], 
                 "gapminder_name": "Singapore", 
+                "iso_3136": "SG", 
                 "gapminder_geo": "sgp"
             }
         }, 
@@ -3706,6 +3911,7 @@
                     ""
                 ], 
                 "gapminder_name": "Serbia excluding Kosovo", 
+                "iso_3136": "", 
                 "gapminder_geo": "scg_ex_kos"
             }
         }, 
@@ -3724,6 +3930,7 @@
                     121.93326114319231
                 ], 
                 "gapminder_name": "Sierra Leone", 
+                "iso_3136": "SL", 
                 "gapminder_geo": "sle"
             }
         }, 
@@ -3742,6 +3949,7 @@
                     88.2761603911597
                 ], 
                 "gapminder_name": "Slovak Republic", 
+                "iso_3136": "", 
                 "gapminder_geo": "svk"
             }
         }, 
@@ -3760,6 +3968,7 @@
                     114.95293894311463
                 ], 
                 "gapminder_name": "Sint Maarten (Dutch part)", 
+                "iso_3136": "", 
                 "gapminder_geo": "sxm"
             }
         }, 
@@ -3778,6 +3987,7 @@
                     123.72551367982409
                 ], 
                 "gapminder_name": "Somalia", 
+                "iso_3136": "SO", 
                 "gapminder_geo": "som"
             }
         }, 
@@ -3796,6 +4006,7 @@
                     90.98964676787662
                 ], 
                 "gapminder_name": "Slovenia", 
+                "iso_3136": "SI", 
                 "gapminder_geo": "svn"
             }
         }, 
@@ -3814,6 +4025,7 @@
                     133.70746413042787
                 ], 
                 "gapminder_name": "Solomon Islands", 
+                "iso_3136": "SB", 
                 "gapminder_geo": "slb"
             }
         }, 
@@ -3832,6 +4044,7 @@
                     ""
                 ], 
                 "gapminder_name": "Somaliland", 
+                "iso_3136": "", 
                 "gapminder_geo": "som_somland"
             }
         }, 
@@ -3850,6 +4063,7 @@
                     100.08664990702526
                 ], 
                 "gapminder_name": "South Korea", 
+                "iso_3136": "KR", 
                 "gapminder_geo": "kor"
             }
         }, 
@@ -3868,6 +4082,7 @@
                     ""
                 ], 
                 "gapminder_name": "South Ossetia", 
+                "iso_3136": "", 
                 "gapminder_geo": "sosset"
             }
         }, 
@@ -3886,6 +4101,7 @@
                     149.56369370272338
                 ], 
                 "gapminder_name": "South Africa", 
+                "iso_3136": "ZA", 
                 "gapminder_geo": "zaf"
             }
         }, 
@@ -3904,6 +4120,7 @@
                     ""
                 ], 
                 "gapminder_name": "South Georgia and the South Sandwich Islands", 
+                "iso_3136": "", 
                 "gapminder_geo": "sgero_a_ssandw"
             }
         }, 
@@ -3922,6 +4139,7 @@
                     122.65137022496212
                 ], 
                 "gapminder_name": "South Sudan", 
+                "iso_3136": "SS", 
                 "gapminder_geo": "ssd"
             }
         }, 
@@ -3940,6 +4158,7 @@
                     ""
                 ], 
                 "gapminder_name": "South Yemen (former)", 
+                "iso_3136": "", 
                 "gapminder_geo": "yem_south"
             }
         }, 
@@ -3958,6 +4177,7 @@
                     ""
                 ], 
                 "gapminder_name": "St. Barth\u00e9lemy", 
+                "iso_3136": "", 
                 "gapminder_geo": "stbar"
             }
         }, 
@@ -3976,6 +4196,7 @@
                     139.4916209590863
                 ], 
                 "gapminder_name": "St. Helena", 
+                "iso_3136": "", 
                 "gapminder_geo": "shn"
             }
         }, 
@@ -3994,6 +4215,7 @@
                     96.91626438171672
                 ], 
                 "gapminder_name": "Spain", 
+                "iso_3136": "ES", 
                 "gapminder_geo": "esp"
             }
         }, 
@@ -4012,6 +4234,7 @@
                     115.48164432036697
                 ], 
                 "gapminder_name": "St. Kitts and Nevis", 
+                "iso_3136": "", 
                 "gapminder_geo": "kna"
             }
         }, 
@@ -4030,6 +4253,7 @@
                     ""
                 ], 
                 "gapminder_name": "St. Martin", 
+                "iso_3136": "", 
                 "gapminder_geo": "stmar"
             }
         }, 
@@ -4048,6 +4272,7 @@
                     118.02935708789133
                 ], 
                 "gapminder_name": "St. Lucia", 
+                "iso_3136": "", 
                 "gapminder_geo": "lca"
             }
         }, 
@@ -4066,6 +4291,7 @@
                     122.47200631847684
                 ], 
                 "gapminder_name": "Sri Lanka", 
+                "iso_3136": "LK", 
                 "gapminder_geo": "lka"
             }
         }, 
@@ -4084,6 +4310,7 @@
                     ""
                 ], 
                 "gapminder_name": "St. Martin (French part)", 
+                "iso_3136": "", 
                 "gapminder_geo": "maf"
             }
         }, 
@@ -4102,6 +4329,7 @@
                     118.61437552491611
                 ], 
                 "gapminder_name": "St. Vincent and the Grenadines", 
+                "iso_3136": "", 
                 "gapminder_geo": "vct"
             }
         }, 
@@ -4120,6 +4348,7 @@
                     36.212560327626775
                 ], 
                 "gapminder_name": "Svalbard", 
+                "iso_3136": "SJ", 
                 "gapminder_geo": "sjm"
             }
         }, 
@@ -4138,6 +4367,7 @@
                     90.21542764507811
                 ], 
                 "gapminder_name": "St.-Pierre-et-Miquelon", 
+                "iso_3136": "", 
                 "gapminder_geo": "spm"
             }
         }, 
@@ -4156,6 +4386,7 @@
                     71.40762039505364
                 ], 
                 "gapminder_name": "Sweden", 
+                "iso_3136": "SE", 
                 "gapminder_geo": "swe"
             }
         }, 
@@ -4174,6 +4405,7 @@
                     116.47139523891636
                 ], 
                 "gapminder_name": "Sudan", 
+                "iso_3136": "SD", 
                 "gapminder_geo": "sdn"
             }
         }, 
@@ -4192,6 +4424,7 @@
                     147.55462956143526
                 ], 
                 "gapminder_name": "Swaziland", 
+                "iso_3136": "SZ", 
                 "gapminder_geo": "swz"
             }
         }, 
@@ -4210,6 +4443,7 @@
                     125.15324215665274
                 ], 
                 "gapminder_name": "Suriname", 
+                "iso_3136": "SR", 
                 "gapminder_geo": "sur"
             }
         }, 
@@ -4228,6 +4462,7 @@
                     90.0417463528015
                 ], 
                 "gapminder_name": "Switzerland", 
+                "iso_3136": "CH", 
                 "gapminder_geo": "che"
             }
         }, 
@@ -4246,6 +4481,7 @@
                     110.41117448489817
                 ], 
                 "gapminder_name": "Taiwan", 
+                "iso_3136": "TW", 
                 "gapminder_geo": "twn"
             }
         }, 
@@ -4264,6 +4500,7 @@
                     101.40104481443534
                 ], 
                 "gapminder_name": "Syria", 
+                "iso_3136": "SY", 
                 "gapminder_geo": "syr"
             }
         }, 
@@ -4282,6 +4519,7 @@
                     134.54674625667664
                 ], 
                 "gapminder_name": "Tokelau", 
+                "iso_3136": "TK", 
                 "gapminder_geo": "tkl"
             }
         }, 
@@ -4300,6 +4538,7 @@
                     97.83786851383917
                 ], 
                 "gapminder_name": "Tajikistan", 
+                "iso_3136": "TJ", 
                 "gapminder_geo": "tjk"
             }
         }, 
@@ -4318,6 +4557,7 @@
                     134.306511665418
                 ], 
                 "gapminder_name": "Timor-Leste", 
+                "iso_3136": "TL", 
                 "gapminder_geo": "tls"
             }
         }, 
@@ -4336,6 +4576,7 @@
                     121.81339772024995
                 ], 
                 "gapminder_name": "Togo", 
+                "iso_3136": "TG", 
                 "gapminder_geo": "tgo"
             }
         }, 
@@ -4354,6 +4595,7 @@
                     132.27448632017592
                 ], 
                 "gapminder_name": "Tanzania", 
+                "iso_3136": "TZ", 
                 "gapminder_geo": "tza"
             }
         }, 
@@ -4372,6 +4614,7 @@
                     116.84082214812342
                 ], 
                 "gapminder_name": "Thailand", 
+                "iso_3136": "TH", 
                 "gapminder_geo": "tha"
             }
         }, 
@@ -4390,6 +4633,7 @@
                     ""
                 ], 
                 "gapminder_name": "Transnistria", 
+                "iso_3136": "", 
                 "gapminder_geo": "transn"
             }
         }, 
@@ -4408,6 +4652,7 @@
                     142.52016656348022
                 ], 
                 "gapminder_name": "Tonga", 
+                "iso_3136": "TO", 
                 "gapminder_geo": "ton"
             }
         }, 
@@ -4426,6 +4671,7 @@
                     120.12927735600724
                 ], 
                 "gapminder_name": "Trinidad and Tobago", 
+                "iso_3136": "TT", 
                 "gapminder_geo": "tto"
             }
         }, 
@@ -4444,6 +4690,7 @@
                     97.83786851383917
                 ], 
                 "gapminder_name": "Turkey", 
+                "iso_3136": "TR", 
                 "gapminder_geo": "tur"
             }
         }, 
@@ -4462,6 +4709,7 @@
                     97.14791371683184
                 ], 
                 "gapminder_name": "Turkmenistan", 
+                "iso_3136": "TM", 
                 "gapminder_geo": "tkm"
             }
         }, 
@@ -4480,6 +4728,7 @@
                     112.16066045498248
                 ], 
                 "gapminder_name": "Turks and Caicos Islands", 
+                "iso_3136": "TC", 
                 "gapminder_geo": "tca"
             }
         }, 
@@ -4498,6 +4747,7 @@
                     102.26393289409256
                 ], 
                 "gapminder_name": "Tunisia", 
+                "iso_3136": "TN", 
                 "gapminder_geo": "tun"
             }
         }, 
@@ -4516,6 +4766,7 @@
                     134.07909889540565
                 ], 
                 "gapminder_name": "Tuvalu", 
+                "iso_3136": "TV", 
                 "gapminder_geo": "tuv"
             }
         }, 
@@ -4534,6 +4785,7 @@
                     110.60558832603377
                 ], 
                 "gapminder_name": "United Arab Emirates", 
+                "iso_3136": "AE", 
                 "gapminder_geo": "are"
             }
         }, 
@@ -4552,6 +4804,7 @@
                     81.27083871243272
                 ], 
                 "gapminder_name": "United Kingdom", 
+                "iso_3136": "GB", 
                 "gapminder_geo": "gbr"
             }
         }, 
@@ -4570,6 +4823,7 @@
                     127.11104058942787
                 ], 
                 "gapminder_name": "Uganda", 
+                "iso_3136": "UG", 
                 "gapminder_geo": "uga"
             }
         }, 
@@ -4588,6 +4842,7 @@
                     ""
                 ], 
                 "gapminder_name": "United Korea (former)", 
+                "iso_3136": "", 
                 "gapminder_geo": "korea_union"
             }
         }, 
@@ -4606,6 +4861,7 @@
                     152.88327883810194
                 ], 
                 "gapminder_name": "Uruguay", 
+                "iso_3136": "UY", 
                 "gapminder_geo": "ury"
             }
         }, 
@@ -4624,6 +4880,7 @@
                     87.91606118423016
                 ], 
                 "gapminder_name": "Ukraine", 
+                "iso_3136": "UA", 
                 "gapminder_geo": "ukr"
             }
         }, 
@@ -4642,6 +4899,7 @@
                     97.13866392446096
                 ], 
                 "gapminder_name": "United States", 
+                "iso_3136": "US", 
                 "gapminder_geo": "usa"
             }
         }, 
@@ -4660,6 +4918,7 @@
                     95.34969202638634
                 ], 
                 "gapminder_name": "Uzbekistan", 
+                "iso_3136": "UZ", 
                 "gapminder_geo": "uzb"
             }
         }, 
@@ -4678,6 +4937,7 @@
                     ""
                 ], 
                 "gapminder_name": "US Minor Outlying Islands", 
+                "iso_3136": "UM", 
                 "gapminder_geo": "usa_minor_out_isl"
             }
         }, 
@@ -4696,6 +4956,7 @@
                     ""
                 ], 
                 "gapminder_name": "West Bank", 
+                "iso_3136": "PS", 
                 "gapminder_geo": "pse_west_bank"
             }
         }, 
@@ -4714,6 +4975,7 @@
                     139.52860476108364
                 ], 
                 "gapminder_name": "Vanuatu", 
+                "iso_3136": "VU", 
                 "gapminder_geo": "vut"
             }
         }, 
@@ -4732,6 +4994,7 @@
                     122.29253586957215
                 ], 
                 "gapminder_name": "Venezuela", 
+                "iso_3136": "VE", 
                 "gapminder_geo": "ven"
             }
         }, 
@@ -4750,6 +5013,7 @@
                     116.34804639972711
                 ], 
                 "gapminder_name": "Vietnam", 
+                "iso_3136": "VN", 
                 "gapminder_geo": "vnm"
             }
         }, 
@@ -4768,6 +5032,7 @@
                     137.54387697063078
                 ], 
                 "gapminder_name": "Wallis et Futuna", 
+                "iso_3136": "", 
                 "gapminder_geo": "wlf"
             }
         }, 
@@ -4786,6 +5051,7 @@
                     ""
                 ], 
                 "gapminder_name": "West Germany", 
+                "iso_3136": "", 
                 "gapminder_geo": "deu_west"
             }
         }, 
@@ -4804,6 +5070,7 @@
                     ""
                 ], 
                 "gapminder_name": "Yugoslavia", 
+                "iso_3136": "", 
                 "gapminder_geo": "yug"
             }
         }, 
@@ -4822,6 +5089,7 @@
                     110.02734182864413
                 ], 
                 "gapminder_name": "Western Sahara", 
+                "iso_3136": "EH", 
                 "gapminder_geo": "esh"
             }
         }, 
@@ -4840,6 +5108,7 @@
                     ""
                 ], 
                 "gapminder_name": "USSR", 
+                "iso_3136": "", 
                 "gapminder_geo": "ussr"
             }
         }, 
@@ -4858,6 +5127,7 @@
                     114.72342174315888
                 ], 
                 "gapminder_name": "Virgin Islands (U.S.)", 
+                "iso_3136": "", 
                 "gapminder_geo": "vir"
             }
         }, 
@@ -4876,6 +5146,7 @@
                     116.84082214812342
                 ], 
                 "gapminder_name": "Yemen", 
+                "iso_3136": "YE", 
                 "gapminder_geo": "yem"
             }
         }, 
@@ -4894,6 +5165,7 @@
                     138.30059636068398
                 ], 
                 "gapminder_name": "Zambia", 
+                "iso_3136": "ZM", 
                 "gapminder_geo": "zmb"
             }
         }, 
@@ -4912,6 +5184,7 @@
                     141.76577328938487
                 ], 
                 "gapminder_name": "Zimbabwe", 
+                "iso_3136": "ZW", 
                 "gapminder_geo": "zwe"
             }
         }
