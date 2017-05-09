@@ -26,6 +26,7 @@ var EARTH_TIMELAPSE_CONFIG = {
   "waypointSliderContentPath" : "",
   "showMonthlyRefugees": false,
   "showAnnualRefugees": false,
+  "showAnnualReturns": false,
   "subsampleAnnualRefugees": false,
   "showVsi": false,
   "showHealthImpact": false,

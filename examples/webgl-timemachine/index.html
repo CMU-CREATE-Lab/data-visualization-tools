@@ -106,6 +106,7 @@
     var showMonthlyRefugees = !!EARTH_TIMELAPSE_CONFIG.showMonthlyRefugees;
     var showAnnualRefugees = !!EARTH_TIMELAPSE_CONFIG.showAnnualRefugees;
     var subsampleAnnualRefugees = !!EARTH_TIMELAPSE_CONFIG.subsampleAnnualRefugees;
+    var showAnnualReturns = !!EARTH_TIMELAPSE_CONFIG.showAnnualReturns;
     var showGlobalWindPower = !!EARTH_TIMELAPSE_CONFIG.showGlobalWindPower;
     var showVsi = !!EARTH_TIMELAPSE_CONFIG.showVsi;
     var showHealthImpact = !!EARTH_TIMELAPSE_CONFIG.showHealthImpact;
@@ -196,6 +197,7 @@
     var waterOccurrenceLayer, waterChangeLayer, usgsWindTurbineLayer, solarInstallsLayer, drillingLayer;
     var globalWindPowerLayer;
     var annualRefugeesLayer;
+    var annualReturnsLayer;
     var vsiLayer;
     var healthImpactLayer;
     var zikaLayer, dengueLayer, chikuLayer;
@@ -406,6 +408,9 @@
     if (subsampleAnnualRefugees) {
       annualRefugeesUrl = rootTilePath + "/annual-refugees/subsampled/{z}/{x}/{y}.bin";
     }
+    //var annualReturnsUrl = rootTilePath + "/annual-refugees/{z}/{x}/{y}.bin";
+    var annualReturnsUrl =  "/refugee-returns/data/refugee-returns.bin";
+
     var vsiUrl = rootTilePath + "/vsi/tiles/{default}/{z}/{x}/{y}.png";
     var healthImpactUrl = rootTilePath + "/health-impact/{z}/{x}/{y}.bin";
     var zikaUrl = rootTilePath + "/pandemics/zika/{z}/{x}/{y}.bin";
@@ -1067,6 +1072,30 @@
           $("#annual-refugees-legend").hide();
         }
       }).prop('checked', showAnnualRefugeesLayer);
+
+      $("#show-annual-returns").on("click", function() {
+        if ($(this).prop('checked')) {
+          if ($("#show-monthly-refugees").prop('checked')) {
+            $("#show-monthly-refugees").click();
+          }
+          showAnnualReturnsLayer = true;
+          setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
+          requestNewTimeline("annual-refugees-times.json", timelineType);
+          timelapse.setMasterPlaybackRate(.045);
+          timelapse.setPlaybackRate(.0225);
+          $("#annual-returns-legend").show();
+        } else {
+          showAnnualReturnsLayer = false;
+          setActiveLayersWithTimeline(-1);
+          timelineType = "customUI";
+          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          timelapse.setMaxScale(landsatMaxScale);
+          $("#annual-returns-legend").hide();
+        }
+      }).prop('checked', showAnnualReturnsLayer);
 
       $("#show-vsi").on("click", function() {
         if ($(this).prop('checked')) {
@@ -1958,6 +1987,7 @@
     var showDrillingLayer = false;
     var showMonthlyRefugeesLayer = false;
     var showAnnualRefugeesLayer = false;
+    var showAnnualReturnsLayer = false;
     var showVsiLayer = false;
     var showHealthImpactLayer = false;
     var showHealthImpactRcp = [false, false, false, false]; // 2.6, 4.5, 6.0, 8.5
@@ -2253,6 +2283,7 @@
       var show_water_change = '<td class="water-change-select"><label for="show-water-change" name="wc"><input type="checkbox" id="show-water-change" />Water Change</label></td>';
       var show_monthly_refugees = '<td class="monthly-refugees-select"><label for="show-monthly-refugees" name="mmr"><input type="checkbox" id="show-monthly-refugees" />Monthly Mediterranean Refugees</label></td>';
       var show_annual_refugees = '<td class="annual-refugees-select"><label for="show-annual-refugees" name="ar"><input type="checkbox" id="show-annual-refugees" />Annual Refugees</label></td>';
+      var show_annual_returns = '<td class="annual-returns-select"><label for="show-annual-returns" name="ar"><input type="checkbox" id="show-annual-returns" />Annual Returns</label></td>';
       var show_vsi = '<td class="vsi-select"><label for="show-vsi" name="vsi"><input type="checkbox" id="show-vsi" />Vegetation Sensitivity Index</label></td>';
       var show_health_impact_rcp2p6 = '<td class="health-impact-rcp2p6-select"><label for="show-health-impact-rcp2p6" name="hi-rcp2p6"><input type="checkbox" id="show-health-impact-rcp2p6" />Nutritional Deficiency RCP2.6</label></td>';
       var show_health_impact_rcp4p5 = '<td class="health-impact-rcp4p5-select"><label for="show-health-impact-rcp4p5" name="hi-rcp4p5"><input type="checkbox" id="show-health-impact-rcp4p5" />Nutritional Deficiency RCP4.5</label></td>';
@@ -2414,6 +2445,7 @@
         layer_html += '        <select id="refugee-theme" multiple="multiple" size="2">';
         layer_html += '          <option value="option1" data-id="show-monthly-refugees" data-name="mmr" data-credit="UNHCR">Monthly Mediterranean Refugees</option>';
         layer_html += '          <option value="option2" data-id="show-annual-refugees" data-name="ar" data-credit="UNHCR">Annual Refugees</option>';
+        layer_html += '          <option value="option3" data-id="show-annual-returns" data-name="arr" data-credit="UNHCR">Annual Returns</option>';
         layer_html += '        </select>';
         layer_html += '        <button class="clear-theme" type="button">Clear <br>Theme</button>';
         layer_html += '      </td>';
@@ -2598,6 +2630,11 @@
           layer_html += show_annual_refugees;
           layer_html += '   </tr>';
         }
+        if (showAnnualReturns) {
+          layer_html += '   <tr>';
+          layer_html += show_annual_returns;
+          layer_html += '   </tr>';
+        }
         layer_html += '</tr></td></table></fieldset>';
         /* END REFUGEE THEME */
 
@@ -2774,6 +2811,8 @@
         legend_html += '<tr id="annual-refugees-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(right, #da7300 25%, red 100%);background: -webkit-linear-gradient(left, #da7300 25%,red 100%); background: linear-gradient(to right, #da7300 25%,red 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Global Refugee Flow: 2000 - 2015 <span class="credit"> (UNHCR) <br> 1 dot = ~17 refugees</span></div></td></tr>';
       else
         legend_html += '<tr id="annual-refugees-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(right, #da7300 25%, red 100%);background: -webkit-linear-gradient(left, #da7300 25%,red 100%); background: linear-gradient(to right, #da7300 25%,red 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Global Refugee Flow: 2000 - 2015 <span class="credit"> (UNHCR) <br> 1 dot = 1 refugee </span></div></td></tr>';
+      legend_html += '<tr id="annual-returns-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(right, #da7300 25%, red 100%);background: -webkit-linear-gradient(left, #da7300 25%,red 100%); background: linear-gradient(to right, #da7300 25%,red 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Global Refugee Return Flow: 2000 - 2015 <span class="credit"> (UNHCR) <br> 1 dot = 1 refugee </span></div></td></tr>';
+
       legend_html += '<tr id="vsi-legend" style="display: none"><td><div style="font-size: 17px">Vegetation Sensitivity Index 2000-2013 <span class="credit"> (USGS)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">0</div><div style="margin-top: 4px; float: left; background-image: -webkit-linear-gradient(left, rgb(0, 139, 0), rgb(92, 182, 69) 17%, rgb(163, 221, 99) 33%, rgb(255, 255, 0) 50%, rgb(255, 205, 0) 67%, rgb(255, 144, 0) 83%, rgb(255, 4, 0) 100%);background-image: linear-gradient(left, rgb(0, 139, 0), rgb(92, 182, 69) 17%, rgb(163, 221, 99) 33%, rgb(255, 255, 0) 50%, rgb(255, 205, 0) 67%, rgb(255, 144, 0) 83%, rgb(255, 4, 0) 100%); width: 45px; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">100</div></td></tr>';
       legend_html += '<tr id="health-impact-legend" style="display: none"><td><div style="font-size: 17px">Nutritional Deficiencies<span class="credit"> (Oxford Martin)</span></div><svg class="svg-legend" width="242" height="180"><rect width="240" height="160" fill="white" opacity="0"></rect> <g transform="translate(2,10)"> <circle class="gain" r="5" cx="5" cy="10" style="fill: #8b0000; stroke: #fff;"></circle> <circle class="loss" r="5" cx="5" cy="30" style="fill: #00008b; stroke: #fff;"></circle> <text x="15" y="13">Mean deaths per capita</text> <text x="15" y="33">Mean lives per capita</text> <circle r="10.0" cx="160.0" cy="160.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="152.0" dy="13" style="font-size: 10px; fill: #666">5K</text><circle r="30.0" cx="160.0" cy="140.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="130.0" dy="13" style="font-size: 10px; fill: #666">15K</text><circle r="60.0" cx="160.0" cy="110.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="80.0" dy="13" style="font-size: 10px; fill: #666">30K</text></g> </svg></td></tr>';
       legend_html += '<tr id="sea-level-rise-legend" style="display: none"><td><div style="font-size: 17px">Global Temperature Rise <span id="slr-degree"></span> &#x2103;<span class="credit"> (Climate Central)</span></div><div style="font-size: 15px">Future Sea Level<span id="slr-feet" style="width:25px;"></span>&nbsp;<span id="slr-meters" style="width:25px; color: red;"></span></div></td></tr>';
@@ -3159,6 +3198,19 @@
 
       };
       annualRefugeesLayer = new WebglVectorLayer2(glb, canvasLayer, annualRefugeesUrl, annualRefugeesLayerOptions);
+
+      var annualReturnsLayerOptions = {
+        tileWidth: 256,
+        tileHeight: 256,
+        nLevels: 0,
+        setDataFunction: WebGLVectorTile2.prototype._setAnnualRefugeesData,
+        drawFunction: WebGLVectorTile2.prototype._drawAnnualRefugees,
+        fragmentShader: WebGLVectorTile2.annualRefugeesFragmentShader,
+        vertexShader: WebGLVectorTile2.annualRefugeesVertexShader,
+        imageSrc: "annual-refugees-color-map.png"
+
+      };
+      annualReturnsLayer = new WebglVectorLayer2(glb, canvasLayer, annualReturnsUrl, annualReturnsLayerOptions);
 
       var healthImpactLayerOptions = {
         tileWidth: 256,
@@ -4136,6 +4188,41 @@
             2015: {'count': 2331430, 'start': 17433539}
           };
           annualRefugeesLayer.draw(annualRefugeesLayerView, options);
+        }
+
+        // Draw Annual Returns
+        if (showAnnualReturnsLayer) {
+          var annualReturnsLayerView = getLayerView(annualReturnsLayer, landsatBaseMapLayer);
+          var options = {};
+          options.zoom = timelapse.getCurrentZoom();
+          var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
+          var times = timelapse.getCaptureTimes();
+          var startDate = new Date(parseInt(times[0]), 0, 1);
+          var endDate = new Date(parseInt(times[times.length - 1]) + 1, 0, 1);
+          var range = endDate.getTime() - startDate.getTime();
+          var currentDate = new Date(ratio * range + startDate.getTime());
+          options.currentTime = currentDate;
+          options.span = 240 * 24 * 60 * 60 * 1000;
+          //options.subsampleAnnualRefugees = subsampleAnnualRefugees;
+          options.pointIdx = {
+            2000: {'count': 763562, 'start': 0},
+            2001: {'count': 453831, 'start': 763562},
+            2002: {'count': 2411730, 'start': 1217393},
+            2003: {'count': 1093240, 'start': 3629123},
+            2004: {'count': 1431823, 'start': 4722363},
+            2005: {'count': 1105375, 'start': 6154186},
+            2006: {'count': 710542, 'start': 7259561},
+            2007: {'count': 728128, 'start': 7970103},
+            2008: {'count': 589392, 'start': 8698231},
+            2009: {'count': 247555, 'start': 9287623},
+            2010: {'count': 171179, 'start': 9535178},
+            2011: {'count': 530960, 'start': 9706357},
+            2012: {'count': 525154, 'start': 10237317},
+            2013: {'count': 413619, 'start': 10762471},
+            2014: {'count': 126877, 'start': 11176090},
+            2015: {'count': 201440, 'start': 11302967}
+          };
+          annualReturnsLayer.draw(annualReturnsLayerView, options);
         }
 
         // Draw Nutritional Deficiency Layers
