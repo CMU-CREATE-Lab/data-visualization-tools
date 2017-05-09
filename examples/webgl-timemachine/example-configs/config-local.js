@@ -28,6 +28,7 @@ var EARTH_TIMELAPSE_CONFIG = {
   "showAnnualRefugees": false,
   "showAnnualReturns": false,
   "subsampleAnnualRefugees": false,
+  "subsampleAnnualReturns": false,
   "showVsi": false,
   "showHealthImpact": false,
   "showZika": false,
