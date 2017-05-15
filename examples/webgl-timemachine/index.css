@@ -746,7 +746,6 @@ a:focus { outline:0; }
 
 .settings {
   display: block;
-  top: 5px;
   width: 20px;
   height: 20px;
   margin: 0 auto;
@@ -762,6 +761,7 @@ a:focus { outline:0; }
   height: 15px;
   background-size: contain !important;
   opacity: 0.55;
+  transform: scale(0.8);
 }
 
 .ui-button.ui-state-hover .ui-icon.ui-icon-custom-gear {
@@ -800,4 +800,8 @@ a:focus { outline:0; }
 
 .ui-selectmenu-open {
   top: 0px !important;
+}
+
+.zoomall {
+  margin-top: 15px !important;
 }
