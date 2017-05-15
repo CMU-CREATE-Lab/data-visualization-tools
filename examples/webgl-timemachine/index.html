@@ -1888,10 +1888,11 @@
       var timelineUIHandler = function(e) {
         var $layerContainer = $(e.target).parents("table");
         var $layerContainerHeader = $layerContainer.prev();
+        var $firstlayerContainerHeader = $('.map-layer-div').find("h3").first();
         var numLayersActiveInCurrentContainer = $layerContainer.find("input:checked").length;
 
         // Add indicator that a layer is on in a category but ignore the first category (base layers)
-        if (numLayersActiveInCurrentContainer > 0 && $layerContainerHeader[0].id != "ui-id-13") {
+        if (numLayersActiveInCurrentContainer > 0 && $layerContainerHeader[0].id != $firstlayerContainerHeader[0].id) {
           $layerContainerHeader.append("<span class='.ui-accordion-header-icon ui-icon ui-icon-bullet active-layers-in-category'>");
         } else {
           $layerContainerHeader.find(".active-layers-in-category").remove();
