@@ -305,9 +305,6 @@ fieldset {
   padding-right: 0px;
   margin-bottom: 10px;
 }
-#layers-list.right-panel.hyperwall {
-  height: calc(100% - 189px);
-}
 
 .layers-scroll-vertical {
   overflow: auto;
@@ -316,7 +313,8 @@ fieldset {
 }
 
 #layers-list.right-panel {
-  height: calc(100% - 292px);
+  height: calc(100% - 160px);
+  max-height: 565px;
   position: absolute;
   top: 20px;
   right: 20px;

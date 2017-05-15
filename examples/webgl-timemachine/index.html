@@ -1963,6 +1963,12 @@
 
       $('#layers-list, .ui-multiselect-checkboxes').on('click', 'input', timelineUIHandler);
 
+      $("body").on("click", ".ui-accordion-header", function() {
+        $('.layers-scroll-vertical').animate({
+          scrollTop: $(this).offset().top - 25
+        });
+      });
+
       // Make right layers panel vertically touch scrollable.
       try {
         if (document.createEvent("TouchEvent")) {
