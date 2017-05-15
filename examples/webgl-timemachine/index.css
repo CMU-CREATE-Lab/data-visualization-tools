@@ -95,7 +95,7 @@ html, body {
   background: #EFEFEF !important;
   height: 29px !important;
   border-radius: 2px;
-  width: 100% !important;
+  width: calc(100% + 9px) !important;
 }
 .ui-selectmenu-button span.ui-selectmenu-text {
   padding-left: 10px !important;
@@ -184,6 +184,7 @@ html, body {
   cursor: pointer;
   color: black;
   display: block;
+  width: 0px;
   margin-right: 0;
   margin-top: -5px;
   margin-left: -3px;
@@ -211,8 +212,6 @@ html, body {
   position: relative;
   top: 7px;
   left: 50px;
-}
-.map-layer-checkbox {
   margin-right: 5px;
 }
 .customZoomhelp.hyperwall {
@@ -238,6 +237,7 @@ html, body {
 }
 .extras-selector-div {
   padding: 10px;
+  padding-bottom: 0px;
 }
 .extras-selector-div.letterbox {
   position: absolute;
@@ -311,17 +311,20 @@ fieldset {
 
 .layers-scroll-vertical {
   overflow: auto;
-  height: calc(100% - 4px);
+  height: calc(100% - 12px);
+  padding-top: 5px;
 }
 
 #layers-list.right-panel {
-  height: calc(100% - 155px);
+  height: calc(100% - 292px);
   position: absolute;
   top: 20px;
   right: 20px;
-  width: auto;
+  width: 275px;
   padding: 10px;
   padding-right: 1px;
+  padding-top: 0px;
+  padding-bottom: 0px;
   background: white;
   border-radius: 2px;
   border: 1px solid #656565;
@@ -765,4 +768,38 @@ a:focus { outline:0; }
 
 .ui-button.ui-state-hover .ui-icon.ui-icon-custom-gear {
   opacity: 1;
+}
+
+:focus, :active {
+  outline: 0;
+}
+
+.ui-accordion-header {
+  background: #e6e6e6 !important;
+  margin-top: 5px !important;
+  width: calc(100% - 53px) !important;
+}
+
+.map-layer-div > table {
+  width: 100%;
+}
+
+.ui-accordion .ui-accordion-content {
+  padding: 0px;
+  width: calc(100% - 9px) !important;
+}
+
+.active-layers-in-category {
+  position: absolute !important;
+  right: .5em !important;
+  top: 50% !important;
+  margin-top: -8px !important;
+}
+
+.map-layer-div .ui-corner-all {
+  border-radius: 0px !important;
+}
+
+.ui-selectmenu-open {
+  top: 0px !important;
 }

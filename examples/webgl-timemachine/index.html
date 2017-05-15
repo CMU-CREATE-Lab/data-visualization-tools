@@ -1714,6 +1714,10 @@
         appendTarget = "#content";
       }
       $("#extras-selector").selectmenu({
+        close: function() {
+          // Chrome css workaround...
+          $("#layers-list.right-panel").hide().show(0);
+        },
         position: {
           at: "left top",
           collision: 'flip',
@@ -1791,21 +1795,42 @@
       });
 
       $(document).keydown(function(e) {
-        if (isHyperwall) {
-          // 'a' key
-          // Quick way to stop animating and go to the beginning
-          if (e.keyCode === 65) {
-            if (!timelapse.isPaused()) {
-              timelapse.handlePlayPause();
-            }
-            timelapse.seek(0);
+        if (e.target.id == 'location_search') return;
+        // 'a' key
+        // Quick way to stop animating and go to the beginning
+        if (e.keyCode === 65) {
+          if (!timelapse.isPaused()) {
+            timelapse.handlePlayPause();
           }
-          // 'c' key
-          // Quick way to clear all layers
-          if (e.keyCode === 67) {
-            $(".map-layer-div, .ui-multiselect-checkboxes").find("input:checked").trigger("click");
-          }
+          timelapse.seek(0);
         }
+        // 's' key
+        // Quick way to stop animating and go to the end
+        if (e.keyCode === 83) {
+          if (!timelapse.isPaused()) {
+            timelapse.handlePlayPause();
+          }
+          timelapse.seek(timelapse.getDuration());
+        }
+        // 'c' key
+        // Quick way to clear all layers
+        if (e.keyCode === 67) {
+          $(".map-layer-div, .ui-multiselect-checkboxes").find("input:checked").trigger("click");
+          var openCategories = $("h3.ui-accordion-header.ui-state-active");
+          var availableCategories = $(".map-layer-div").children("h3");
+          $.each(openCategories, function(index, value) {
+            if (index == 0) return;
+            var openIndex = availableCategories.index(openCategories[index]);
+            $(".map-layer-div").accordion("option", "active", openIndex);
+          });
+        }
+        // 'l' key (lowercase L)
+        // Quick way to turn on automode
+        if (e.keyCode === 76) {
+          var snaplapseForPresentationSlider = timelapse.getSnaplapseForPresentationSlider();
+          snaplapseForPresentationSlider.getSnaplapseViewer().initializeAndRunAutoMode();
+        }
+        // Bring up share view dialog
         if (keysDown.indexOf(e.keyCode) < 0) {
           keysDown.push(e.keyCode);
           // SHIFT + S + V
@@ -1817,6 +1842,7 @@
         keysDown.length = 0;
       });
 
+      // Legend container toggling
       $('.map-layer-checkbox, .ui-multiselect-checkboxes').on("click", function() {
         var selectedLayers = $('.map-layer-checkbox, .ui-multiselect-checkboxes').find("input:checked");
         // Subtract one, since base layers are included in this count but they don't use the legend.
@@ -1860,7 +1886,17 @@
       }
 
       var timelineUIHandler = function(e) {
-        //return;
+        var $layerContainer = $(e.target).parents("table");
+        var $layerContainerHeader = $layerContainer.prev();
+        var numLayersActiveInCurrentContainer = $layerContainer.find("input:checked").length;
+
+        // Add indicator that a layer is on in a category but ignore the first category (base layers)
+        if (numLayersActiveInCurrentContainer > 0 && $layerContainerHeader[0].id != "ui-id-13") {
+          $layerContainerHeader.append("<span class='.ui-accordion-header-icon ui-icon ui-icon-bullet active-layers-in-category'>");
+        } else {
+          $layerContainerHeader.find(".active-layers-in-category").remove();
+        }
+
         var isFromUser = true;
 
         if (showViirsLayer || showDrillingLayer) {
@@ -1925,9 +1961,7 @@
 
       };
 
-
-
-      $('#layers-list input, .ui-multiselect-checkboxes input').on("click", timelineUIHandler);
+      $('#layers-list, .ui-multiselect-checkboxes').on('click', 'input', timelineUIHandler);
 
       // Make right layers panel vertically touch scrollable.
       try {
@@ -1942,11 +1976,10 @@
       //timelapse.addTimelineUIChangeListener(timelineUIHandler);
     }
     function setActiveLayersWithTimeline (modifier) {
-      console.log('setActiveLayersWithTimeline');
       previousActiveLayersWithTimeline = activeLayersWithTimeline;
       activeLayersWithTimeline += modifier;
       if (activeLayersWithTimeline < 0) activeLayersWithTimeline = 0;
-    };    
+    };
   </script>
 
   <script src="../../js/TimeMachineCanvasLayer.js" type="text/javascript"></script>
@@ -2049,9 +2082,9 @@
       var row = '<tr><td><label name="' + nickname + '">';
       row += '<input type="checkbox" id="' + id + '">';
       row += name;
-      row += '</label></td></tr>';
+      row += '</label></tr>';
 
-      $('#custom_dotmaps_table').last().append(row);
+      $('#dotmaps_table').last().append(row);
 
       // Create and insert legend
       var legend='<tr id="' + nickname + '-legend" style="display: none"><td>';
@@ -2066,7 +2099,7 @@
         legend += '&nbsp;' + columnDefs[i].name + '</div>'
       }
       legend += '</div>';
-      legend += '</td></tr>';
+      legend += '</tr>';
 
       $('#legend-content table tr:last').after(legend);
 
@@ -2135,10 +2168,10 @@
       dotlayersLoadedPath = path;
 
       // Make fieldset visible, since it may have been hidden on initial page load
-      $('#custom_dotmaps_table').parent().show();
+      //$('#custom_dotmaps_table').parent().show();
       // Clear out any dot layers that have already been loaded
-      $("#custom_dotmaps_table").find("input:checked").trigger("click");
-      $('#custom_dotmaps_table').empty();
+      //$("#custom_dotmaps_table").find("input:checked").trigger("click");
+      //$('#custom_dotmaps_table').empty();
 
       if (path.indexOf(".tsv") != -1) {
         // Load local version of the dotmaps .tsv file
@@ -2256,7 +2289,7 @@
 
       layer_html += '<div id="layers-list">';
 
-      var landsat_base_str = '<label class="landsat-select" for="landsat-base" name="blsat"><input type="radio" id="landsat-base" name="base-layers" value="landsat"/>Earth Engine Timelapse<span class="credit"> (Google)</span></label>';
+      var landsat_base_str = '<label class="landsat-select" for="landsat-base" name="blsat"><input type="radio" id="landsat-base" name="base-layers" value="landsat"/>Google Earth Engine Timelapse</label>';
       var landsat_base = '<td colspan="2">' + landsat_base_str + '</td>';
       var light_base = '<td><label for="light-base" name="blte"><input type="radio" id="light-base" name="base-layers" value="light"/><span>Light Map</span></label></td>';
       var dark_base = '<td><label for="dark-base" name="bdrk"><input type="radio" id="dark-base" name="base-layers" value="dark"/><span>Dark Map</span></label></td>';
@@ -2271,7 +2304,7 @@
       var show_forest_change = '<td class="forest-change-select"><label for="show-forest-change" name="fly"><input type="checkbox" id="show-forest-change" />Forest Loss by Year</label></td>';
       var show_forest_loss_gain = '<td class="forest-loss-gain-select"><label for="show-forest-loss-gain" name="flg"><input type="checkbox" id="show-forest-loss-gain" />Forest Loss/Gain</label></td>';
       var show_animated_forest_loss_gain = '<td class="animated-forest-loss-select"><label for="show-animated-forest-loss-gain" name="aflg"><input type="checkbox" id="show-animated-forest-loss-gain" />Animated Loss/Gain</label></td>';
-      var show_viirs = '<td class="viirs-select"><label for="show-viirs" name="viirs"><input type="checkbox" id="show-viirs" />Fires at Night<span class="credit"> (NOAA)</span></label></td>';
+      var show_viirs = '<td class="viirs-select"><label for="show-viirs" name="viirs"><input type="checkbox" id="show-viirs" />Fires at Night</label></td>';
       var show_forest_alerts = '<td class="forest-alerts-select"><label for="show-forest-alerts" name="fla"><input type="checkbox" id="show-forest-alerts" />Forest Loss Alerts</label></td>';
       var show_forest_alert_no_overlay = '<td class="forest-alerts-no-overlay-select"><label for="show-forest-alerts-no-overlay" name="flano"><input type="checkbox" id="show-forest-alerts-no-overlay" />Forest Loss Alerts <span style="font-size: 14px">(No Overlay)</span></label></td>';
       var show_lights_at_night = '<td class="lights-at-night-select"><label for="show-lights-at-night" name="lan"><input type="checkbox" id="show-lights-at-night" />Lights at Night</label></td>';
@@ -2280,13 +2313,13 @@
       var show_usgs_windturbine = '<td class="wind-select"><label for="show-usgs-windturbine" name="wp"><input type="checkbox" id="show-usgs-windturbine" />Wind Power (USA)</span></label></td>';
       var show_global_wind_power = '<td class="wind-select"><label for="show-global-wind-power" name="gwp"><input type="checkbox" id="show-global-wind-power" />Wind Power (Global)/label></td>';
       var show_solar_installs = '<td class="solar-select"> <label for="show-solar-installs" name="sp"><input type="checkbox" id="show-solar-installs" />Solar PV (USA)</label></td>';
-      var show_drilling = '<td class="drilling-select"><label for="show-drilling" name="drl"><input type="checkbox" id="show-drilling" />Oil/Gas Drilling</label></td>';
+      var show_drilling = '<td class="drilling-select"><label for="show-drilling" name="drl"><input type="checkbox" id="show-drilling" />Oil/Gas Drilling (USA)</label></td>';
       var show_himawari = '<td class="himawari-select"><label for="show-himawari" name="h8_16"><input type="checkbox" id="show-himawari" />Himawari-8</label></td>';
       var show_water_occurrence = '<td class="water-occurrence-select"><label for="show-water-occurrence" name="wo"><input type="checkbox" id="show-water-occurrence" />Water Occurrence</label></td>';
       var show_water_change = '<td class="water-change-select"><label for="show-water-change" name="wc"><input type="checkbox" id="show-water-change" />Water Change</label></td>';
-      var show_monthly_refugees = '<td class="monthly-refugees-select"><label for="show-monthly-refugees" name="mmr"><input type="checkbox" id="show-monthly-refugees" />Monthly Mediterranean Refugees</label></td>';
-      var show_annual_refugees = '<td class="annual-refugees-select"><label for="show-annual-refugees" name="ar"><input type="checkbox" id="show-annual-refugees" />Annual Refugees</label></td>';
-      var show_annual_returns = '<td class="annual-returns-select"><label for="show-annual-returns" name="ar"><input type="checkbox" id="show-annual-returns" />Annual Returns</label></td>';
+      var show_monthly_refugees = '<td class="monthly-refugees-select"><label for="show-monthly-refugees" name="mmr"><input type="checkbox" id="show-monthly-refugees" />Mediterranean Refugees</label></td>';
+      var show_annual_refugees = '<td class="annual-refugees-select"><label for="show-annual-refugees" name="ar"><input type="checkbox" id="show-annual-refugees" />Global Refugees</label></td>';
+      var show_annual_returns = '<td class="annual-returns-select"><label for="show-annual-returns" name="ar"><input type="checkbox" id="show-annual-returns" />Global Refugee Returns</label></td>';
       var show_vsi = '<td class="vsi-select"><label for="show-vsi" name="vsi"><input type="checkbox" id="show-vsi" />Vegetation Sensitivity Index</label></td>';
       var show_health_impact_rcp2p6 = '<td class="health-impact-rcp2p6-select"><label for="show-health-impact-rcp2p6" name="hi-rcp2p6"><input type="checkbox" id="show-health-impact-rcp2p6" />Nutritional Deficiency RCP2.6</label></td>';
       var show_health_impact_rcp4p5 = '<td class="health-impact-rcp4p5-select"><label for="show-health-impact-rcp4p5" name="hi-rcp4p5"><input type="checkbox" id="show-health-impact-rcp4p5" />Nutritional Deficiency RCP4.5</label></td>';
@@ -2478,51 +2511,50 @@
       } else {
         layer_html += '<button class="toggleLayerPanelBtn" title="Toggle layer panel">Toggle</button>';
         layer_html += '<div class="layers-scroll-vertical">';
-        layer_html += '<div class="map-layer-div">';
-        layer_html += '  <table class="map-layer-checkbox" cellspacing="0">';
+        layer_html += '<div class="map-layer-div map-layer-checkbox">';
 
         /* BASE LAYERS */
-        layer_html += '    <tr><td><fieldset><table>';
-        layer_html += '      <legend>Base Layers</legend>';
-        layer_html += '      <tr>';
+        layer_html += '  <h3>Base Layers</h3>';
+        layer_html += '  <table>';
+        layer_html += '    <tr>';
         layer_html += landsat_base;
-        layer_html += '      </tr>';
-        layer_html += '      <tr>';
+        layer_html += '    </tr>';
+        layer_html += '    <tr>'
         layer_html += light_base;
         layer_html += dark_base;
-        layer_html += '      </tr>';
-        layer_html += '    </tr></td></table></fieldset>';
+        layer_html += '    </tr>';
+        layer_html += '  </table>';
         /* END BASE LAYERS */
 
         /* FOREST THEME */
-        layer_html += '<tr><td><fieldset><table>';
-        layer_html += '<legend>Forests</legend>';
-        layer_html += '   <tr>';
+        layer_html += '  <h3>Forests</h3>';
+        layer_html += '  <table>';
+        layer_html += '    <tr>';
         layer_html += show_wdpa;
-        layer_html += '   </tr>';
-        layer_html += '   <tr>';
+        layer_html += '    </tr>';
+        layer_html += '    <tr>';
         layer_html += show_forest_change;
-        layer_html += '   </tr>';
-        layer_html += '   <tr>';
+        layer_html += '    </tr>';
+        layer_html += '    <tr>';
         layer_html += show_forest_loss_gain;
-        layer_html += '   </tr>';
-        layer_html += '   <tr>';
+        layer_html += '    </tr>';
+        layer_html += '    <tr>';
         layer_html += show_animated_forest_loss_gain;
-        layer_html += '   </tr>';
+        layer_html += '    </tr>';
         if (showForestAlerts) {
-          layer_html += '   <tr>';
+          layer_html += '    <tr>';
           layer_html += show_forest_alerts;
-          layer_html += '   </tr>';
-          layer_html += '   <tr>';
+          layer_html += '    </tr>';
+          layer_html += '    <tr>';
           layer_html += show_forest_alert_no_overlay;
-          layer_html += '   </tr>';
+          layer_html += '    </tr>';
         }
-        layer_html += '</tr></td></table></fieldset>';
+        layer_html += '  </table>';
         /* END FOREST THEME */
 
         /* WATER THEME */
-        layer_html += '<tr><td><fieldset><table>';
-        layer_html += '<legend>Water</legend>';
+        layer_html += '  <h3>Water</h3>';
+        layer_html += '  <table>';
         if (showWaterOccurrence) {
           layer_html += '   <tr>';
           layer_html += show_water_occurrence;
@@ -2533,222 +2565,219 @@
           layer_html += show_water_change;
           layer_html += '   </tr>';
         }
-        layer_html += '</tr></td></table></fieldset>';
+        layer_html += '  </table>';
         /* END WATER THEME */
 
         /* CLIMATE THEME */
-        layer_html += '<tr><td><fieldset><table>';
-        layer_html += '<legend>Climate</legend>';
+        layer_html += '  <h3>Climate</h3>';
+        layer_html += '  <table>';
         if (showSeaLevelRise) {
-          layer_html += '   <tr>';
+          layer_html += '    <tr>';
           layer_html += show_sea_level_rise_1p0;
-          layer_html += '   </tr>';
-          layer_html += '   <tr>';
+          layer_html += '    </tr>';
+          layer_html += '    <tr>';
           layer_html += show_sea_level_rise_1p5;
-          layer_html += '   </tr>';
-          layer_html += '   <tr>';
+          layer_html += '    </tr>';
+          layer_html += '    <tr>';
           layer_html += show_sea_level_rise_2p0;
-          layer_html += '   </tr>';
-          layer_html += '   <tr>';
+          layer_html += '    </tr>';
+          layer_html += '    <tr>';
           layer_html += show_sea_level_rise_4p0;
-          layer_html += '   </tr>';
+          layer_html += '    </tr>';
         }
         if (showNdviAnomaly) {
-          layer_html += '   <tr>';
+          layer_html += '    <tr>';
           layer_html += show_ndvi_anomaly;
-          layer_html += '   </tr>';
+          layer_html += '    </tr>';
         }
         if (showVsi) {
           layer_html += '   <tr>';
           layer_html += show_vsi;
           layer_html += '   </tr>';
         }
-        layer_html += '</tr></td></table></fieldset>';
+        layer_html += '  </table>';
         /* END CLIMATE THEME */
 
         /* CORAL THEME */
-        layer_html += '<tr><td><fieldset><table>';
-        layer_html += '<legend>Coral</legend>';
+        layer_html += '  <h3>Coral</h3>';
+        layer_html += '  <table>';
+        layer_html += '    <tr>';
         layer_html += show_coral;
-        layer_html += '   </tr>';
-        layer_html += '   <tr>';
+        layer_html += '    </tr>';
+        layer_html += '    <tr>';
         layer_html += show_coral_bleaching_alerts;
-        layer_html += '   </tr>';
-        layer_html += '</tr></td></table></fieldset>';
+        layer_html += '    </tr>';
+        layer_html += '  </table>';
         /* END CORAL THEME */
 
         /* ENERGY THEME */
-        layer_html += '<tr><td><fieldset><table>';
-        layer_html += '<legend>Energy</legend>';
-        layer_html += '   <tr>';
+        layer_html += '  <h3>Energy</h3>';
+        layer_html += '  <table>';
+        layer_html += '    <tr>';
         layer_html += show_solar_installs;
-        layer_html += '   </tr>';
-        layer_html += '   <tr>';
+        layer_html += '    </tr>';
+        layer_html += '    <tr>';
         layer_html += show_usgs_windturbine;
-        layer_html += '   </tr>';
+        layer_html += '    </tr>';
         if (showGlobalWindPower) {
-          layer_html += '   <tr>';
+          layer_html += '    <tr>';
           layer_html += show_global_wind_power;
-          layer_html += '   </tr>';
+          layer_html += '    </tr>';
         }
-        layer_html += '   <tr>';
+        layer_html += '    <tr>';
         layer_html += show_drilling;
-        layer_html += '   </tr>';
-        layer_html += '   <tr>';
+        layer_html += '    </tr>';
+        layer_html += '    <tr>';
         layer_html += show_viirs;
-        layer_html += '   </tr>';
-        layer_html += '</tr></td></table></fieldset>';
+        layer_html += '    </tr>';
+        layer_html += '  </table>';
         /* END ENERGY THEME */
 
         /* NUTRITION THEME */
-        layer_html += '<tr><td><fieldset><table>';
-        layer_html += '<legend>Nutrition</legend>';
+        layer_html += '  <h3>Nutrition</h3>';
+        layer_html += '  <table>';
         if (showHealthImpact) {
-          layer_html += '   <tr>';
+          layer_html += '    <tr>';
           layer_html += show_health_impact_rcp2p6;
-          layer_html += '   </tr>';
-          layer_html += '   <tr>';
+          layer_html += '    </tr>';
+          layer_html += '    <tr>';
           layer_html += show_health_impact_rcp4p5;
-          layer_html += '   </tr>';
-          layer_html += '   <tr>';
+          layer_html += '    </tr>';
+          layer_html += '    <tr>';
           layer_html += show_health_impact_rcp6p0;
-          layer_html += '   </tr>';
-          layer_html += '   <tr>';
+          layer_html += '    </tr>';
+          layer_html += '    <tr>';
           layer_html += show_health_impact_rcp8p5;
-          layer_html += '   </tr>';
+          layer_html += '    </tr>';
         }
-        layer_html += '</tr></td></table></fieldset>';
+        layer_html += '  </table>';
         /* END NUTRITION THEME */
 
         /* REFUGEE THEME */
-        layer_html += '<tr><td><fieldset><table>';
-        layer_html += '<legend>Refugees</legend>';
+        layer_html += '  <h3>Refugees</h3>';
+        layer_html += '  <table>';
         if (showMonthlyRefugees) {
-          layer_html += '   <tr>';
+          layer_html += '    <tr>';
           layer_html += show_monthly_refugees;
-          layer_html += '   </tr>';
+          layer_html += '    </tr>';
         }
         if (showAnnualRefugees) {
-          layer_html += '   <tr>';
+          layer_html += '    <tr>';
           layer_html += show_annual_refugees;
-          layer_html += '   </tr>';
+          layer_html += '    </tr>';
         }
         if (showAnnualReturns) {
-          layer_html += '   <tr>';
+          layer_html += '    <tr>';
           layer_html += show_annual_returns;
-          layer_html += '   </tr>';
+          layer_html += '    </tr>';
         }
-        layer_html += '</tr></td></table></fieldset>';
+        layer_html += '  </table>';
         /* END REFUGEE THEME */
 
         /* PANDEMICS THEME */
-        layer_html += '<tr><td><fieldset><table>';
-        layer_html += '<legend>Pandemics</legend>';
+        layer_html += '  <h3>Pandemics</h3>';
+        layer_html += '  <table>';
         if (showZika) {
-          layer_html += '   <tr>';
+          layer_html += '    <tr>';
           layer_html += show_zika;
-          layer_html += '   </tr>';
+          layer_html += '    </tr>';
         }
         if (showDengue) {
-          layer_html += '   <tr>';
+          layer_html += '    <tr>';
           layer_html += show_dengue;
-          layer_html += '   </tr>';
+          layer_html += '    </tr>';
         }
         if (showChiku) {
-          layer_html += '   <tr>';
+          layer_html += '    <tr>';
           layer_html += show_chiku;
-          layer_html += '   </tr>';
+          layer_html += '    </tr>';
         }
         if (showEbola) {
-          layer_html += '   <tr>';
+          layer_html += '    <tr>';
           layer_html += show_ebola_deaths;
-          layer_html += '   </tr>';
-          layer_html += '   <tr>';
+          layer_html += '    </tr>';
+          layer_html += '    <tr>';
           layer_html += show_ebola_cases;
-          layer_html += '   </tr>';
-          layer_html += '   <tr>';
+          layer_html += '    </tr>';
+          layer_html += '    <tr>';
           layer_html += show_ebola_new_cases;
-          layer_html += '   </tr>';
+          layer_html += '    </tr>';
         }
         if (showHiv) {
-          layer_html += '   <tr>';
+          layer_html += '    <tr>';
           layer_html += show_hiv;
-          layer_html += '   </tr>';
+          layer_html += '    </tr>';
         }
         if (showObesity) {
-          layer_html += '   <tr>';
+          layer_html += '    <tr>';
           layer_html += show_obesity;
-          layer_html += '   </tr>';
+          layer_html += '    </tr>';
         }
         if (showVaccineConfidence) {
-          layer_html += '   <tr>';
+          layer_html += '    <tr>';
           layer_html += show_vaccine_confidence_q1;
-          layer_html += '   </tr>';
-          layer_html += '   <tr>';
+          layer_html += '    </tr>';
+          layer_html += '    <tr>';
           layer_html += show_vaccine_confidence_q2;
-          layer_html += '   </tr>';
-          layer_html += '   <tr>';
+          layer_html += '    </tr>';
+          layer_html += '    <tr>';
           layer_html += show_vaccine_confidence_q3;
-          layer_html += '   </tr>';
-          layer_html += '   <tr>';
+          layer_html += '    </tr>';
+          layer_html += '    <tr>';
           layer_html += show_vaccine_confidence_q4;
-          layer_html += '   </tr>';
+          layer_html += '    </tr>';
         }
-        layer_html += '</tr></td></table></fieldset>';
+        layer_html += '  </table>';
         /* END PANDEMICS THEME */
 
         /* URBANIZATION THEME */
-        layer_html += '<tr><td><fieldset><table>';
-        layer_html += '<legend>Urbanization</legend>';
-        // TODO: Make a base layer
-        layer_html += '   <tr>';
+        layer_html += '  <h3>Urbanization</h3>';
+        layer_html += '  <table>';
+        layer_html += '    <tr>';
         layer_html += show_lights_at_night;
-        layer_html += '   </tr>';
-        // END TODO
+        layer_html += '    </tr>';
         if (showUrbanFragility) {
-          layer_html += '   <tr>';
+          layer_html += '    <tr>';
           layer_html += show_urban_fragility;
-          layer_html += '   </tr>';
+          layer_html += '    </tr>';
         }
-        layer_html += '</tr></td></table></fieldset>';
+        layer_html += '  </table>';
         /* END URBANIZATION THEME */
 
         /* DOTMAPS */
-        layer_html += '<tr><td><fieldset><table id="dotmaps_table">';
-        layer_html += '<legend>Dotmaps</legend>';
+        layer_html += '  <h3>Dotmaps</h3>';
+        layer_html += '  <table id="dotmaps_table">';
         if (showLodes) {
-          layer_html += '   <tr>';
+          layer_html += '    <tr>';
           layer_html += show_lodes;
-          layer_html += '   </tr>';
-          layer_html += '</table>';
+          layer_html += '    </tr>';
         }
-        if (showCustomDotmaps) {
-          layer_html += '<table id="custom_dotmaps_table">'
-        }
-        layer_html += '</table></fieldset></td></tr>';
+
+        layer_html += '  </table>';
+
         /* END DOTMAPS */
 
         /* MISC THEME */
-        layer_html += '<tr><td><fieldset><table id="other_table">';
-        layer_html += '<legend>Other</legend>';
+        layer_html += '  <h3>Other</h3>';
+        layer_html += '  <table id="other_table">';
         if (showGtd) {
-          layer_html += '   <tr>';
+          layer_html += '    <tr>';
           layer_html += show_gtd;
-          layer_html += '   </tr>';
+          layer_html += '    </tr>';
         }
         if (showCumulativeActiveMining) {
-          layer_html += '   <tr>';
+          layer_html += '    <tr>';
           layer_html += show_cumulative_active_mining_layer;
-          layer_html += '   </tr>';
+          layer_html += '    </tr>';
         }
-        layer_html += '   <tr>';
+        layer_html += '    <tr>';
         layer_html += show_himawari;
-        layer_html += '   </tr>';
-        layer_html += '</tr></td></table></fieldset>';
+        layer_html += '    </tr>';
+        layer_html += '  </table>';
         /* END MISC THEME */
 
-        layer_html += ' </table>';
         layer_html += '</div>';
+
 
         // ## 5 ##
         //// Add layers to side UI panel ////
@@ -2796,48 +2825,48 @@
       var legend_html = '<div id="layers-legend">';
       legend_html += '<div id="legend-content">';
       legend_html += '<table cellpadding=5>';
-      legend_html += '<tr id="wdpa-legend" style="display: none"><td><div style="background-color:#33da4f; width:17px; height: 5px;"></div><div style="margin-left: 29px; margin-top: -11px; font-size: 17px">Protected Areas<span class="credit"> (UNEP-WCMC)</span></div></td></tr>';
-      legend_html += '<tr id="forest-loss-year-legend" style="display: none"><td><div style="font-size: 17px">Forest Loss By Year <span class="credit"> (Hansen et al)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">2000</div><div style="margin-top: 3px; float: left; background-image: -webkit-linear-gradient(left, yellow, orange 65%, red 100%);background-image: linear-gradient(left, yellow, orange 65%, red 100%); width: 45px; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">2014</div></div></td></tr>';
-      legend_html += '<tr id="forest-loss-gain-legend" style="display: none; font-size: 14px;"><td><div style="font-size: 17px">Forest Loss/Gain 2000-2014 <span class="credit"> (Hansen et al)</span></div><div style="float: left; padding-right:8px"><div style="background-color:#00e000; width: 12px; height: 12px; float: left; margin-top: 2px; margin-left: 8px;"></div>&nbsp;Extent</div><div style="float: left; padding-right:8px"><div style="background-color:#ff0000; width: 12px; height: 12px; float: left; margin-top: 2px"></div>&nbsp;Loss</div><div style="float: left; padding-right:8px"><div style="background-color:#0000ff; width: 12px; height: 12px; float: left; margin-top: 2px"></div>&nbsp;Gain</div><div><div style="background-color:#ff00ff; width: 12px; height: 12px; float: left; margin-top: 2px"></div>&nbsp;Both</div></td></tr>';
-      legend_html += '<tr id="fires-at-night-legend" style="display: none"><td><div style="background-color:#eda46a; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Fires At Night <span class="credit"> (NOAA)</span></div></td></tr>';
-      legend_html += '<tr id="lights-at-night-legend" style="display: none"><td><div style="font-size: 17px">Lights at Night over 25 Years <span class="credit"> (NOAA, Google)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">Decrease</div><div style="margin-top: 4px; float: left; background-image: -webkit-linear-gradient(left, #4848FD, green 50%, red 100%);background-image: linear-gradient(left, #4848FD, green 50%, red 100%); width: 45px; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">Increase</div></td></tr>';
-      legend_html += '<tr id="coral-bleaching-legend" style="display: none"><td><div style="float:left; background-color:#fa13ab; width:17px; height: 5px;"></div><div style="margin-left: 29px; margin-top: -5px; font-size: 17px">Coral Reefs <span class="credit"> (NOAA, UNEP-WCMC)</span></div></td></tr>';
-      legend_html += '<tr id="coral-bleaching-alerts-legend" style="display: none"><td><div style="font-size: 17px">Coral Reef Watch <span class="credit"> (NOAA, UNEP-WCMC)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">Watch</div><div style="margin-top: 4px; float: left; background-image: -webkit-linear-gradient(left, #ffff00, #fbb404 65%, #a00200 100%);background-image: linear-gradient(left, #ffff00, #fbb404 65%, #a00200 100%); width: 45px; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">Alert</div></td></tr>';
-      legend_html += '<tr id="wind-installs-legend" style="display: none"><td><div style="background-color:#a0fe8f; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -16px; font-size: 17px">US Wind Power <span class="credit"> (USGS)</span></div></div></td></tr>';
-      legend_html += '<tr id="global-wind-power-legend" style="display: none"><td><div style="background-color:#a0fe8f; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -16px; font-size: 17px">Global Wind Power <span class="credit"> (TheWindPower.net)</span></div></div></td></tr>';
-      legend_html += '<tr id="solar-installs-legend" style="display: none"><td><div style="background-color:#7376b2; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -16px; font-size: 17px">US Solar Photovoltaic <span class="credit"> (NREL)</span></div></td></tr>';
-      legend_html += '<tr id="drilling-legend" style="display: none"><td><div style="background-color:#eda46a; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">US Oil/Gass Drilling <span class="credit"> (FracTracker, CREATE Lab)</span></div></td></tr>';
-      legend_html += '<tr id="water-occurrence-legend" style="display: none"><td><div style="font-size: 17px">Water Occurrence 1984-2015 <span class="credit"> (JRC)</span></div><div style="margin-left: 8px"><div style="font-size: 13px; float: left">100%</div><div style="font-size: 13px; float: right;">0%</div><div class="waterLegendGradient" style="clear: both;"></div><div style="font-size: 13px; float: left">Always water</div><div style="font-size: 13px; float: right">Never water</div></div></td></tr>';
-      legend_html += '<tr id="water-change-legend" style="display: none"><td><div style="font-size: 17px">Water Change 1984-1999 to 2000-2015 <span class="credit"> (JRC)</span></div><div style="margin-left: 8px"><div class="waterChangeLegendGradient" style="clear: both;"></div><div style="font-size: 13px; float: left">Water Loss</div><div style="font-size: 13px; float: right">Water Gain</div></div></td></tr>';
-      legend_html += '<tr id="monthly-refugees-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(right, #ff0000 0%, #ffffff 100%);background: -webkit-linear-gradient(left, #ff0000 0%,#ffffff 100%); background: linear-gradient(to right, #ff0000 0%,#ffffff 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Refugees Crossing the Mediterranean: Jan 2014 - Jun 2016 <span class="credit"> (UNHCR)</span></div></td></tr>';
+      legend_html += '<tr id="wdpa-legend" style="display: none"><td><div style="background-color:#33da4f; width:17px; height: 5px;"></div><div style="margin-left: 29px; margin-top: -11px; font-size: 17px">Protected Areas<span class="credit"> (UNEP-WCMC)</span></div></tr>';
+      legend_html += '<tr id="forest-loss-year-legend" style="display: none"><td><div style="font-size: 17px">Forest Loss By Year <span class="credit"> (Hansen et al)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">2000</div><div style="margin-top: 3px; float: left; background-image: -webkit-linear-gradient(left, yellow, orange 65%, red 100%);background-image: linear-gradient(left, yellow, orange 65%, red 100%); width: 45px; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">2014</div></div></tr>';
+      legend_html += '<tr id="forest-loss-gain-legend" style="display: none; font-size: 14px;"><td><div style="font-size: 17px">Forest Loss/Gain 2000-2014 <span class="credit"> (Hansen et al)</span></div><div style="float: left; padding-right:8px"><div style="background-color:#00e000; width: 12px; height: 12px; float: left; margin-top: 2px; margin-left: 8px;"></div>&nbsp;Extent</div><div style="float: left; padding-right:8px"><div style="background-color:#ff0000; width: 12px; height: 12px; float: left; margin-top: 2px"></div>&nbsp;Loss</div><div style="float: left; padding-right:8px"><div style="background-color:#0000ff; width: 12px; height: 12px; float: left; margin-top: 2px"></div>&nbsp;Gain</div><div><div style="background-color:#ff00ff; width: 12px; height: 12px; float: left; margin-top: 2px"></div>&nbsp;Both</div></tr>';
+      legend_html += '<tr id="fires-at-night-legend" style="display: none"><td><div style="background-color:#eda46a; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Fires At Night <span class="credit"> (NOAA)</span></div></tr>';
+      legend_html += '<tr id="lights-at-night-legend" style="display: none"><td><div style="font-size: 17px">Lights at Night over 25 Years <span class="credit"> (NOAA, Google)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">Decrease</div><div style="margin-top: 4px; float: left; background-image: -webkit-linear-gradient(left, #4848FD, green 50%, red 100%);background-image: linear-gradient(left, #4848FD, green 50%, red 100%); width: 45px; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">Increase</div></tr>';
+      legend_html += '<tr id="coral-bleaching-legend" style="display: none"><td><div style="float:left; background-color:#fa13ab; width:17px; height: 5px;"></div><div style="margin-left: 29px; margin-top: -5px; font-size: 17px">Coral Reefs <span class="credit"> (NOAA, UNEP-WCMC)</span></div></tr>';
+      legend_html += '<tr id="coral-bleaching-alerts-legend" style="display: none"><td><div style="font-size: 17px">Coral Reef Watch <span class="credit"> (NOAA, UNEP-WCMC)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">Watch</div><div style="margin-top: 4px; float: left; background-image: -webkit-linear-gradient(left, #ffff00, #fbb404 65%, #a00200 100%);background-image: linear-gradient(left, #ffff00, #fbb404 65%, #a00200 100%); width: 45px; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">Alert</div></tr>';
+      legend_html += '<tr id="wind-installs-legend" style="display: none"><td><div style="background-color:#a0fe8f; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -16px; font-size: 17px">US Wind Power <span class="credit"> (USGS)</span></div></div></tr>';
+      legend_html += '<tr id="global-wind-power-legend" style="display: none"><td><div style="background-color:#a0fe8f; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -16px; font-size: 17px">Global Wind Power <span class="credit"> (TheWindPower.net)</span></div></div></tr>';
+      legend_html += '<tr id="solar-installs-legend" style="display: none"><td><div style="background-color:#7376b2; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -16px; font-size: 17px">US Solar Photovoltaic <span class="credit"> (NREL)</span></div></tr>';
+      legend_html += '<tr id="drilling-legend" style="display: none"><td><div style="background-color:#eda46a; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">US Oil/Gass Drilling <span class="credit"> (FracTracker, CREATE Lab)</span></div></tr>';
+      legend_html += '<tr id="water-occurrence-legend" style="display: none"><td><div style="font-size: 17px">Water Occurrence 1984-2015 <span class="credit"> (JRC)</span></div><div style="margin-left: 8px"><div style="font-size: 13px; float: left">100%</div><div style="font-size: 13px; float: right;">0%</div><div class="waterLegendGradient" style="clear: both;"></div><div style="font-size: 13px; float: left">Always water</div><div style="font-size: 13px; float: right">Never water</div></div></tr>';
+      legend_html += '<tr id="water-change-legend" style="display: none"><td><div style="font-size: 17px">Water Change 1984-1999 to 2000-2015 <span class="credit"> (JRC)</span></div><div style="margin-left: 8px"><div class="waterChangeLegendGradient" style="clear: both;"></div><div style="font-size: 13px; float: left">Water Loss</div><div style="font-size: 13px; float: right">Water Gain</div></div></tr>';
+      legend_html += '<tr id="monthly-refugees-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(right, #ff0000 0%, #ffffff 100%);background: -webkit-linear-gradient(left, #ff0000 0%,#ffffff 100%); background: linear-gradient(to right, #ff0000 0%,#ffffff 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Refugees Crossing the Mediterranean: Jan 2014 - Jun 2016 <span class="credit"> (UNHCR)</span></div></tr>';
       if (subsampleAnnualRefugees)
-        legend_html += '<tr id="annual-refugees-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(right, #da7300 25%, red 100%);background: -webkit-linear-gradient(left, #da7300 25%,red 100%); background: linear-gradient(to right, #da7300 25%,red 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Global Refugee Flow: 2000 - 2015 <span class="credit"> (UNHCR) <br> 1 dot = ~17 refugees</span></div></td></tr>';
+        legend_html += '<tr id="annual-refugees-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(right, #da7300 25%, red 100%);background: -webkit-linear-gradient(left, #da7300 25%,red 100%); background: linear-gradient(to right, #da7300 25%,red 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Global Refugee Flow: 2000 - 2015 <span class="credit"> (UNHCR) <br> 1 dot = ~17 refugees</span></div></tr>';
       else
-        legend_html += '<tr id="annual-refugees-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(right, #da7300 25%, red 100%);background: -webkit-linear-gradient(left, #da7300 25%,red 100%); background: linear-gradient(to right, #da7300 25%,red 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Global Refugee Flow: 2000 - 2015 <span class="credit"> (UNHCR) <br> 1 dot = 1 refugee </span></div></td></tr>';
+        legend_html += '<tr id="annual-refugees-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(right, #da7300 25%, red 100%);background: -webkit-linear-gradient(left, #da7300 25%,red 100%); background: linear-gradient(to right, #da7300 25%,red 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Global Refugee Flow: 2000 - 2015 <span class="credit"> (UNHCR) <br> 1 dot = 1 refugee </span></div></tr>';
       if (subsampleAnnualReturns)
-        legend_html += '<tr id="annual-returns-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(right, lightyellow 25%, navy 100%);background: -webkit-linear-gradient(left, lightyellow 25%,navy 100%); background: linear-gradient(to right, lightyellow 25%,navy 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Global Refugee Return Flow: 2000 - 2015 <span class="credit"> (UNHCR) <br> 1 dot = ~17 refugees </span></div></td></tr>';
+        legend_html += '<tr id="annual-returns-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(right, lightyellow 25%, navy 100%);background: -webkit-linear-gradient(left, lightyellow 25%,navy 100%); background: linear-gradient(to right, lightyellow 25%,navy 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Global Refugee Return Flow: 2000 - 2015 <span class="credit"> (UNHCR) <br> 1 dot = ~17 refugees </span></div></tr>';
       else
-        legend_html += '<tr id="annual-returns-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(right, lightyellow 25%, navy 100%);background: -webkit-linear-gradient(left, lightyellow 25%,navy 100%); background: linear-gradient(to right, lightyellow 25%,navy 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Global Refugee Return Flow: 2000 - 2015 <span class="credit"> (UNHCR) <br> 1 dot = 1 refugee </span></div></td></tr>';
-      legend_html += '<tr id="vsi-legend" style="display: none"><td><div style="font-size: 17px">Vegetation Sensitivity Index 2000-2013 <span class="credit"> (USGS)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">0</div><div style="margin-top: 4px; float: left; background-image: -webkit-linear-gradient(left, rgb(0, 139, 0), rgb(92, 182, 69) 17%, rgb(163, 221, 99) 33%, rgb(255, 255, 0) 50%, rgb(255, 205, 0) 67%, rgb(255, 144, 0) 83%, rgb(255, 4, 0) 100%);background-image: linear-gradient(left, rgb(0, 139, 0), rgb(92, 182, 69) 17%, rgb(163, 221, 99) 33%, rgb(255, 255, 0) 50%, rgb(255, 205, 0) 67%, rgb(255, 144, 0) 83%, rgb(255, 4, 0) 100%); width: 45px; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">100</div></td></tr>';
-      legend_html += '<tr id="health-impact-legend" style="display: none"><td><div style="font-size: 17px">Nutritional Deficiencies<span class="credit"> (Oxford Martin)</span></div><svg class="svg-legend" width="242" height="180"><rect width="240" height="160" fill="white" opacity="0"></rect> <g transform="translate(2,10)"> <circle class="gain" r="5" cx="5" cy="10" style="fill: #8b0000; stroke: #fff;"></circle> <circle class="loss" r="5" cx="5" cy="30" style="fill: #00008b; stroke: #fff;"></circle> <text x="15" y="13">Mean deaths per capita</text> <text x="15" y="33">Mean lives per capita</text> <circle r="10.0" cx="160.0" cy="160.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="152.0" dy="13" style="font-size: 10px; fill: #666">5K</text><circle r="30.0" cx="160.0" cy="140.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="130.0" dy="13" style="font-size: 10px; fill: #666">15K</text><circle r="60.0" cx="160.0" cy="110.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="80.0" dy="13" style="font-size: 10px; fill: #666">30K</text></g> </svg></td></tr>';
-      legend_html += '<tr id="sea-level-rise-legend" style="display: none"><td><div style="font-size: 17px">Global Temperature Rise <span id="slr-degree"></span> &#x2103;<span class="credit"> (Climate Central)</span></div><div style="font-size: 15px">Future Sea Level<span id="slr-feet" style="width:25px;"></span>&nbsp;<span id="slr-meters" style="width:25px; color: red;"></span></div></td></tr>';
-      legend_html += '<tr id="urban-fragility-legend" style="display: none"><td><div style="font-size: 17px">Fragile Score <span class="credit"> (Igarape Institute)</span></div></div><svg class="svg-legend" width="200" height="30"> <rect fill="rgb(255,255,204)" x="0"   height="9" width="20"></rect><rect fill="rgb(255,237,160)" x="20"  height="9" width="20"></rect><rect fill="rgb(254,217,118)" x="40"  height="9" width="20"></rect><rect fill="rgb(254,178,76)"  x="60"  height="9" width="20"></rect><rect fill="rgb(253,141,60)"  x="80"  height="9" width="20"></rect><rect fill="rgb(252,78,42)"   x="100" height="9" width="20"></rect><rect fill="rgb(227,26,28)"   x="120" height="9" width="20"></rect><rect fill="rgb(189,0,38)"    x="140" height="9" width="20"></rect><rect fill="rgb(128,0,38)"    x="160" height="9" width="20"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">1.0</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="85">2.1</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="165">3.1</text></svg></td></tr>';
-      legend_html += '<tr id="zika-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Zika Virus <span class="credit"> (LSHTM)</span></div></td></tr>';
-      legend_html += '<tr id="chiku-legend" style="display: none"><td><div style="background-color:#6070ff; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Chikungunya Virus <span class="credit"> (LSHTM)</span></div></td></tr>';
-      legend_html += '<tr id="dengue-legend" style="display: none"><td><div style="background-color:#a1ef5f; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Dengue Virus <span class="credit"> (LSHTM)</span></div></td></tr>';
-      legend_html += '<tr id="gtd-legend" style="display: none"><td><div style="float:left; background-color:red; width:17px; height: 5px;"></div><div style="margin-left: 29px; margin-top: -5px; font-size: 17px">Global Terrorism Database Events <span class="credit"> (UMD)</span></div></td></tr>';
-      legend_html += '<tr id="hiv-legend" style="display: none"><td><div style="font-size: 17px">Annual new HIV infections <span class="credit"> (LSHTM)</span></div></div><svg class="svg-legend" width="200" height="29"><rect fill="#ffffff" x="0" height="9" width="20.0"></rect><rect fill="#ffd8e7" x="20." height="9" width="20.0"></rect><rect fill="#feb1d1" x="40." height="9" width="20.0"></rect><rect fill="#f18bbd" x="60." height="9" width="20.0"></rect><rect fill="#dd68ac" x="80." height="9" width="20.0"></rect><rect fill="#c4479e" x="100." height="9" width="20.0"></rect><rect fill="#a52792" x="120." height="9" width="20.0"></rect><rect fill="#7d0989" x="140." height="9" width="20.0"></rect><rect fill="#4b0082" x="160." height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">1K</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="35">10K</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="80">100K</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="155">850K</text></svg></td></tr>';
-      legend_html += '<tr id="obesity-legend" style="display: none"><td><div style="font-size: 17px">Obesity prevalence among adults <span class="credit"> (LSHTM)</span></div><svg class="svg-legend" width="200" height="29"> <rect fill="#ffffff" x="0" height="9" width="20"></rect><rect fill="#fff18e" x="20" height="9" width="20"></rect><rect fill="#ffdc5b" x="40" height="9" width="20"></rect><rect fill="#ffc539" x="60" height="9" width="20"></rect><rect fill="#ffad21" x="80" height="9" width="20"></rect><rect fill="#ff920c" x="100" height="9" width="20"></rect><rect fill="#ff7500" x="120" height="9" width="20"></rect><rect fill="#ff5000" x="140" height="9" width="20"></rect><rect fill="#ff0000" x="160" height="9" width="20"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">0%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="80">15%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="160">>30%</text></svg></td></tr>';
-      legend_html += '<tr id="vaccine-confidence-q1-legend" style="display: none"><td><div style="font-size: 13px">Disagree that vaccines are important for children to have <span class="credit"> (LSHTM)</span></div><svg class="svg-legend" width="200" height="29"><rect fill="#ffffe0" x="0" height="9" width="20.0"></rect><rect fill="#ffe3af" x="20" height="9" width="20.0"></rect><rect fill="#ffc58a" x="40" height="9" width="20.0"></rect><rect fill="#ffa474" x="60" height="9" width="20.0"></rect><rect fill="#fa8266" x="80" height="9" width="20.0"></rect><rect fill="#ed645c" x="100" height="9" width="20.0"></rect><rect fill="#db4551" x="120" height="9" width="20.0"></rect><rect fill="#c52940" x="140" height="9" width="20.0"></rect><rect fill="#aa0e27" x="160" height="9" width="20.0"></rect><rect fill="#8b0000" x="180" height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">0%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="90">8%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="180">16%</text></svg></td></tr>';
-      legend_html += '<tr id="vaccine-confidence-q2-legend" style="display: none"><td><div style="font-size: 13px">Disagree that vaccines are safe <span class="credit"> (LSHTM)</span></div><svg class="svg-legend" width="200" height="29"><rect fill="#ffffe0" x="0" height="9" width="20.0"></rect><rect fill="#ffe3af" x="20" height="9" width="20.0"></rect><rect fill="#ffc58a" x="40" height="9" width="20.0"></rect><rect fill="#ffa474" x="60" height="9" width="20.0"></rect><rect fill="#fa8266" x="80" height="9" width="20.0"></rect><rect fill="#ed645c" x="100" height="9" width="20.0"></rect><rect fill="#db4551" x="120" height="9" width="20.0"></rect><rect fill="#c52940" x="140" height="9" width="20.0"></rect><rect fill="#aa0e27" x="160" height="9" width="20.0"></rect><rect fill="#8b0000" x="180" height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">0%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="90">20%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="180">41%</text></svg></td></tr>';
-      legend_html += '<tr id="vaccine-confidence-q3-legend" style="display: none"><td><div style="font-size: 13px">Disagree that vaccines are effective <span class="credit"> (LSHTM)</span></div><svg class="svg-legend" width="200" height="29"><rect fill="#ffffe0" x="0" height="9" width="20.0"></rect><rect fill="#ffe3af" x="20" height="9" width="20.0"></rect><rect fill="#ffc58a" x="40" height="9" width="20.0"></rect><rect fill="#ffa474" x="60" height="9" width="20.0"></rect><rect fill="#fa8266" x="80" height="9" width="20.0"></rect><rect fill="#ed645c" x="100" height="9" width="20.0"></rect><rect fill="#db4551" x="120" height="9" width="20.0"></rect><rect fill="#c52940" x="140" height="9" width="20.0"></rect><rect fill="#aa0e27" x="160" height="9" width="20.0"></rect><rect fill="#8b0000" x="180" height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">0%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="90">13%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="180">26%</text></svg></td></tr>';
-      legend_html += '<tr id="vaccine-confidence-q4-legend" style="display: none"><td><div style="font-size: 13px">Disagree that vaccines are compatible with my religious beliefs <span class="credit"> (LSHTM)</span></div><svg class="svg-legend" width="200" height="29"><rect fill="#ffffe0" x="0" height="9" width="20.0"></rect><rect fill="#ffe3af" x="20" height="9" width="20.0"></rect><rect fill="#ffc58a" x="40" height="9" width="20.0"></rect><rect fill="#ffa474" x="60" height="9" width="20.0"></rect><rect fill="#fa8266" x="80" height="9" width="20.0"></rect><rect fill="#ed645c" x="100" height="9" width="20.0"></rect><rect fill="#db4551" x="120" height="9" width="20.0"></rect><rect fill="#c52940" x="140" height="9" width="20.0"></rect><rect fill="#aa0e27" x="160" height="9" width="20.0"></rect><rect fill="#8b0000" x="180" height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">0%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="90">23%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="180">47%</text></svg></td></tr>';
-      legend_html += '<tr id="ndvi-anomaly-legend" style="display: none"><td><div style="font-size: 17px">Vegetation Reduction <span class="credit"> (USGS)</span></div><div style="margin-left: 8px"><div class="ndviAnomalyLegendGradient" style="clear: both;"></div><div style="font-size: 13px; float: left">None</div><div style="font-size: 13px; float: right">Most Reduced</div></div></td></tr>';
-      legend_html += '<tr id="ebola-deaths-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Ebola Deaths <span class="credit"> (LSHTM)</span></div></td></tr>';
-      legend_html += '<tr id="ebola-cases-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Ebola Cases <span class="credit"> (LSHTM)</span></div></td></tr>';
-      legend_html += '<tr id="ebola-new-cases-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Ebola New Cases <span class="credit"> (LSHTM)</span></div></td></tr>';
-      legend_html += '<tr id="lodes-legend" style="display: none"><td><div>LODES<span class="credit"> (US Census)</span></div></td></tr>';
-      legend_html += '<tr id="cumulative-active-mining-legend" style="display: none"><td><div>Active Mining<span class="credit"> (SkyTruth)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">1984</div><div style="margin-top: 3px; float: left; background-image: -webkit-linear-gradient( to right, rgb(255,255,255),rgb(128,0,0));background-image: linear-gradient(to right, rgb(255,255,255),rgb(128,0,0)); width: 45px; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">2016</div></td></tr>';
+        legend_html += '<tr id="annual-returns-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(right, lightyellow 25%, navy 100%);background: -webkit-linear-gradient(left, lightyellow 25%,navy 100%); background: linear-gradient(to right, lightyellow 25%,navy 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Global Refugee Return Flow: 2000 - 2015 <span class="credit"> (UNHCR) <br> 1 dot = 1 refugee </span></div></tr>';
+      legend_html += '<tr id="vsi-legend" style="display: none"><td><div style="font-size: 17px">Vegetation Sensitivity Index 2000-2013 <span class="credit"> (USGS)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">0</div><div style="margin-top: 4px; float: left; background-image: -webkit-linear-gradient(left, rgb(0, 139, 0), rgb(92, 182, 69) 17%, rgb(163, 221, 99) 33%, rgb(255, 255, 0) 50%, rgb(255, 205, 0) 67%, rgb(255, 144, 0) 83%, rgb(255, 4, 0) 100%);background-image: linear-gradient(left, rgb(0, 139, 0), rgb(92, 182, 69) 17%, rgb(163, 221, 99) 33%, rgb(255, 255, 0) 50%, rgb(255, 205, 0) 67%, rgb(255, 144, 0) 83%, rgb(255, 4, 0) 100%); width: 45px; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">100</div></tr>';
+      legend_html += '<tr id="health-impact-legend" style="display: none"><td><div style="font-size: 17px">Nutritional Deficiencies<span class="credit"> (Oxford Martin)</span></div><svg class="svg-legend" width="242" height="180"><rect width="240" height="160" fill="white" opacity="0"></rect> <g transform="translate(2,10)"> <circle class="gain" r="5" cx="5" cy="10" style="fill: #8b0000; stroke: #fff;"></circle> <circle class="loss" r="5" cx="5" cy="30" style="fill: #00008b; stroke: #fff;"></circle> <text x="15" y="13">Mean deaths per capita</text> <text x="15" y="33">Mean lives per capita</text> <circle r="10.0" cx="160.0" cy="160.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="152.0" dy="13" style="font-size: 10px; fill: #666">5K</text><circle r="30.0" cx="160.0" cy="140.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="130.0" dy="13" style="font-size: 10px; fill: #666">15K</text><circle r="60.0" cx="160.0" cy="110.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="80.0" dy="13" style="font-size: 10px; fill: #666">30K</text></g> </svg></tr>';
+      legend_html += '<tr id="sea-level-rise-legend" style="display: none"><td><div style="font-size: 17px">Global Temperature Rise <span id="slr-degree"></span> &#x2103;<span class="credit"> (Climate Central)</span></div><div style="font-size: 15px">Future Sea Level<span id="slr-feet" style="width:25px;"></span>&nbsp;<span id="slr-meters" style="width:25px; color: red;"></span></div></tr>';
+      legend_html += '<tr id="urban-fragility-legend" style="display: none"><td><div style="font-size: 17px">Fragile Score <span class="credit"> (Igarape Institute)</span></div></div><svg class="svg-legend" width="200" height="30"> <rect fill="rgb(255,255,204)" x="0"   height="9" width="20"></rect><rect fill="rgb(255,237,160)" x="20"  height="9" width="20"></rect><rect fill="rgb(254,217,118)" x="40"  height="9" width="20"></rect><rect fill="rgb(254,178,76)"  x="60"  height="9" width="20"></rect><rect fill="rgb(253,141,60)"  x="80"  height="9" width="20"></rect><rect fill="rgb(252,78,42)"   x="100" height="9" width="20"></rect><rect fill="rgb(227,26,28)"   x="120" height="9" width="20"></rect><rect fill="rgb(189,0,38)"    x="140" height="9" width="20"></rect><rect fill="rgb(128,0,38)"    x="160" height="9" width="20"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">1.0</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="85">2.1</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="165">3.1</text></svg></tr>';
+      legend_html += '<tr id="zika-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Zika Virus <span class="credit"> (LSHTM)</span></div></tr>';
+      legend_html += '<tr id="chiku-legend" style="display: none"><td><div style="background-color:#6070ff; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Chikungunya Virus <span class="credit"> (LSHTM)</span></div></tr>';
+      legend_html += '<tr id="dengue-legend" style="display: none"><td><div style="background-color:#a1ef5f; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Dengue Virus <span class="credit"> (LSHTM)</span></div></tr>';
+      legend_html += '<tr id="gtd-legend" style="display: none"><td><div style="float:left; background-color:red; width:17px; height: 5px;"></div><div style="margin-left: 29px; margin-top: -5px; font-size: 17px">Global Terrorism Database Events <span class="credit"> (UMD)</span></div></tr>';
+      legend_html += '<tr id="hiv-legend" style="display: none"><td><div style="font-size: 17px">Annual new HIV infections <span class="credit"> (LSHTM)</span></div></div><svg class="svg-legend" width="200" height="29"><rect fill="#ffffff" x="0" height="9" width="20.0"></rect><rect fill="#ffd8e7" x="20." height="9" width="20.0"></rect><rect fill="#feb1d1" x="40." height="9" width="20.0"></rect><rect fill="#f18bbd" x="60." height="9" width="20.0"></rect><rect fill="#dd68ac" x="80." height="9" width="20.0"></rect><rect fill="#c4479e" x="100." height="9" width="20.0"></rect><rect fill="#a52792" x="120." height="9" width="20.0"></rect><rect fill="#7d0989" x="140." height="9" width="20.0"></rect><rect fill="#4b0082" x="160." height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">1K</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="35">10K</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="80">100K</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="155">850K</text></svg></tr>';
+      legend_html += '<tr id="obesity-legend" style="display: none"><td><div style="font-size: 17px">Obesity prevalence among adults <span class="credit"> (LSHTM)</span></div><svg class="svg-legend" width="200" height="29"> <rect fill="#ffffff" x="0" height="9" width="20"></rect><rect fill="#fff18e" x="20" height="9" width="20"></rect><rect fill="#ffdc5b" x="40" height="9" width="20"></rect><rect fill="#ffc539" x="60" height="9" width="20"></rect><rect fill="#ffad21" x="80" height="9" width="20"></rect><rect fill="#ff920c" x="100" height="9" width="20"></rect><rect fill="#ff7500" x="120" height="9" width="20"></rect><rect fill="#ff5000" x="140" height="9" width="20"></rect><rect fill="#ff0000" x="160" height="9" width="20"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">0%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="80">15%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="160">>30%</text></svg></tr>';
+      legend_html += '<tr id="vaccine-confidence-q1-legend" style="display: none"><td><div style="font-size: 13px">Disagree that vaccines are important for children to have <span class="credit"> (LSHTM)</span></div><svg class="svg-legend" width="200" height="29"><rect fill="#ffffe0" x="0" height="9" width="20.0"></rect><rect fill="#ffe3af" x="20" height="9" width="20.0"></rect><rect fill="#ffc58a" x="40" height="9" width="20.0"></rect><rect fill="#ffa474" x="60" height="9" width="20.0"></rect><rect fill="#fa8266" x="80" height="9" width="20.0"></rect><rect fill="#ed645c" x="100" height="9" width="20.0"></rect><rect fill="#db4551" x="120" height="9" width="20.0"></rect><rect fill="#c52940" x="140" height="9" width="20.0"></rect><rect fill="#aa0e27" x="160" height="9" width="20.0"></rect><rect fill="#8b0000" x="180" height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">0%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="90">8%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="180">16%</text></svg></tr>';
+      legend_html += '<tr id="vaccine-confidence-q2-legend" style="display: none"><td><div style="font-size: 13px">Disagree that vaccines are safe <span class="credit"> (LSHTM)</span></div><svg class="svg-legend" width="200" height="29"><rect fill="#ffffe0" x="0" height="9" width="20.0"></rect><rect fill="#ffe3af" x="20" height="9" width="20.0"></rect><rect fill="#ffc58a" x="40" height="9" width="20.0"></rect><rect fill="#ffa474" x="60" height="9" width="20.0"></rect><rect fill="#fa8266" x="80" height="9" width="20.0"></rect><rect fill="#ed645c" x="100" height="9" width="20.0"></rect><rect fill="#db4551" x="120" height="9" width="20.0"></rect><rect fill="#c52940" x="140" height="9" width="20.0"></rect><rect fill="#aa0e27" x="160" height="9" width="20.0"></rect><rect fill="#8b0000" x="180" height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">0%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="90">20%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="180">41%</text></svg></tr>';
+      legend_html += '<tr id="vaccine-confidence-q3-legend" style="display: none"><td><div style="font-size: 13px">Disagree that vaccines are effective <span class="credit"> (LSHTM)</span></div><svg class="svg-legend" width="200" height="29"><rect fill="#ffffe0" x="0" height="9" width="20.0"></rect><rect fill="#ffe3af" x="20" height="9" width="20.0"></rect><rect fill="#ffc58a" x="40" height="9" width="20.0"></rect><rect fill="#ffa474" x="60" height="9" width="20.0"></rect><rect fill="#fa8266" x="80" height="9" width="20.0"></rect><rect fill="#ed645c" x="100" height="9" width="20.0"></rect><rect fill="#db4551" x="120" height="9" width="20.0"></rect><rect fill="#c52940" x="140" height="9" width="20.0"></rect><rect fill="#aa0e27" x="160" height="9" width="20.0"></rect><rect fill="#8b0000" x="180" height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">0%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="90">13%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="180">26%</text></svg></tr>';
+      legend_html += '<tr id="vaccine-confidence-q4-legend" style="display: none"><td><div style="font-size: 13px">Disagree that vaccines are compatible with my religious beliefs <span class="credit"> (LSHTM)</span></div><svg class="svg-legend" width="200" height="29"><rect fill="#ffffe0" x="0" height="9" width="20.0"></rect><rect fill="#ffe3af" x="20" height="9" width="20.0"></rect><rect fill="#ffc58a" x="40" height="9" width="20.0"></rect><rect fill="#ffa474" x="60" height="9" width="20.0"></rect><rect fill="#fa8266" x="80" height="9" width="20.0"></rect><rect fill="#ed645c" x="100" height="9" width="20.0"></rect><rect fill="#db4551" x="120" height="9" width="20.0"></rect><rect fill="#c52940" x="140" height="9" width="20.0"></rect><rect fill="#aa0e27" x="160" height="9" width="20.0"></rect><rect fill="#8b0000" x="180" height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">0%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="90">23%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="180">47%</text></svg></tr>';
+      legend_html += '<tr id="ndvi-anomaly-legend" style="display: none"><td><div style="font-size: 17px">Vegetation Reduction <span class="credit"> (USGS)</span></div><div style="margin-left: 8px"><div class="ndviAnomalyLegendGradient" style="clear: both;"></div><div style="font-size: 13px; float: left">None</div><div style="font-size: 13px; float: right">Most Reduced</div></div></tr>';
+      legend_html += '<tr id="ebola-deaths-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Ebola Deaths <span class="credit"> (LSHTM)</span></div></tr>';
+      legend_html += '<tr id="ebola-cases-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Ebola Cases <span class="credit"> (LSHTM)</span></div></tr>';
+      legend_html += '<tr id="ebola-new-cases-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Ebola New Cases <span class="credit"> (LSHTM)</span></div></tr>';
+      legend_html += '<tr id="lodes-legend" style="display: none"><td><div>LODES<span class="credit"> (US Census)</span></div></tr>';
+      legend_html += '<tr id="cumulative-active-mining-legend" style="display: none"><td><div>Active Mining<span class="credit"> (SkyTruth)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">1984</div><div style="margin-top: 3px; float: left; background-image: -webkit-linear-gradient( to right, rgb(255,255,255),rgb(128,0,0));background-image: linear-gradient(to right, rgb(255,255,255),rgb(128,0,0)); width: 45px; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">2016</div></tr>';
 
       // ## 5b ##
       //// Add to layer legend ////
@@ -2939,13 +2968,10 @@
 
         // Hide any fieldsets that have all their children
         // hidden (i.e. all layers of that topic are hidden)
-        $("#layers-list fieldset > table").each(function() {
-          if ($(this).children().length == 0) {
-            if ($(this).next().is("table")) {
-              $(this).hide();
-            } else {
-              $(this).parent().hide();
-            }
+        $("#layers-list").find('table').each(function() {
+          if ($($(this)[0]).children().length == 0) {
+            if (this.id == "dotmaps_table" && (showLodesLayer || showCustomDotmaps)) return;
+            $(this).prev().hide();
           }
         });
 
@@ -3686,6 +3712,43 @@
           csvFileLayers.loadLayers('166APRwrcAovc5sxf58SY7PdwVQRObfjVbf4ywDTm_R8');
         }
       };
+
+      $(".map-layer-div").accordion({
+        collapsible: true,
+        active: false,
+        animate: false,
+        heightStyle: 'content',
+        beforeActivate: function(event, ui) {
+          // The accordion believes a panel is being opened
+          if (ui.newHeader[0]) {
+              var currHeader  = ui.newHeader;
+              var currContent = currHeader.next('.ui-accordion-content');
+          // The accordion believes a panel is being closed
+          } else {
+              var currHeader  = ui.oldHeader;
+              var currContent = currHeader.next('.ui-accordion-content');
+          }
+          // Since we've changed the default behavior, this detects the actual status
+          var isPanelSelected = currHeader.attr('aria-selected') == 'true';
+
+          // Toggle the panel's header
+          currHeader.toggleClass('ui-corner-all',isPanelSelected).toggleClass('accordion-header-active ui-state-active ui-corner-top', !isPanelSelected).attr('aria-selected', ((!isPanelSelected).toString()));
+
+          // Toggle the panel's icon
+          currHeader.children('.ui-icon').toggleClass('ui-icon-triangle-1-e', isPanelSelected).toggleClass('ui-icon-triangle-1-s', !isPanelSelected);
+
+          // Toggle the panel's content
+          currContent.toggleClass('accordion-content-active', !isPanelSelected)
+          if (isPanelSelected) {
+            currContent.slideUp(0);
+          } else {
+            currContent.slideDown(0);
+          }
+
+          // Cancel the default action
+          return false;
+        }
+      });
 
       $(window).trigger("resize");
       $(window).on('hashchange', hashChange).trigger('hashchange');
@@ -4658,7 +4721,7 @@
             var dates = getDates(timelapse);
             var delta = getCurrentTimesDelta(currentTime, currentTimes);
             var currentDate = getCurrentDate(currentTime, currentTimes, dates);
-            options.currentTime = currentDate;            
+            options.currentTime = currentDate;
             options.pointSize = 500.;
             layer.draw(view, options);
           }

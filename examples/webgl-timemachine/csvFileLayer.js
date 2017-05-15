@@ -23,7 +23,6 @@ CsvFileLayer.prototype.addLayer = function addLayer(nickname, url, name, credit,
   var row = '<tr><td><label name="' + nickname + '">';
   row += '<input type="checkbox" id="' + id + '">';
   row += name;
-  if (credit) row += '<span class="credit">(' + credit + ')</span>';
   row += '</label></td></tr>';
   $('#other_table tr:last').after(row);
 
@@ -57,7 +56,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(nickname, url, name, credit,
       }
       layer.visible = true;
       $("#" + nickname + "-legend").show();
-      
+
     } else {
       // Turn off layer
       layer.visible = false;
@@ -125,7 +124,7 @@ CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate,
     for (var i = startDate; i < endDate + 1; i+=step) {
       captureTimes.push(i.toString());
     }
-    
+
   }
   cached_ajax[identifier + '.json'] = {"capture-times":  captureTimes};
 }
