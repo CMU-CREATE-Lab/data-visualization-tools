@@ -257,7 +257,7 @@ WebGLVectorTile2.prototype._setBubbleMapData = function(arrayBuffer) {
 
 WebGLVectorTile2.prototype._setIomIdpData = function(data) {
   var maxValue = 905835.0;
-  var radius = d3.scaleSqrt().domain([0, maxValue]).range([0, 50]);
+  var radius = d3.scaleSqrt().domain([0, maxValue]).range([0, 60]);
 
   var features = data.features;
   var points = [];
