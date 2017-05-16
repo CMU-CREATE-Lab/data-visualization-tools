@@ -2680,7 +2680,7 @@ WebGLVectorTile2.iomIdpVertexShader = "" +
 "            position = vec4(-1,-1,-1,-1);\n" +
 "          }\n" + 
 "        }\n" +
-"        if (a_country == 760.0 && !u_show_syr_idps) {\n" +
+"        if (a_country == 760.0) {\n" +
 "          if (a_type == 0.0 && !u_show_syr_idps) {\n" +   
 "            position = vec4(-1,-1,-1,-1);\n" +
 "          }\n" + 
