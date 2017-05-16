@@ -1677,13 +1677,14 @@
           setActiveLayersWithTimeline(1);
           timelineType = "defaultUI";
           requestNewTimeline("iraq-iom-idp-times.json", timelineType);
-          $("#iraq-iom-idp-legend").show();
+          $("#iom-idp-legend").show();
           iomIdpLayer.options['showIrqIdps'] = true;
         } else {
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-          $("#iraq-iom-idp-legend").hide();
+          if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked')) 
+            $("#iom-idp-legend").hide();
           iomIdpLayer.options['showIrqIdps'] = false;
         }
       }).prop('checked', showIomIdpLayer);
@@ -1694,13 +1695,14 @@
           setActiveLayersWithTimeline(1);
           timelineType = "defaultUI";
           requestNewTimeline("syria-iom-idp-times.json", timelineType);
-          $("#syria-iom-idp-legend").show();
+          $("#iom-idp-legend").show();
           iomIdpLayer.options['showSyrIdps'] = true;
         } else {
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-          $("#syria-iom-idp-legend").hide();
+          if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked')) 
+            $("#iom-idp-legend").hide();
           iomIdpLayer.options['showSyrIdps'] = false;
         }
       }).prop('checked', showIomIdpLayer);
@@ -1711,13 +1713,14 @@
           setActiveLayersWithTimeline(1);
           timelineType = "defaultUI";
           requestNewTimeline("yemen-iom-idp-times.json", timelineType);
-          $("#yemen-iom-idp-legend").show();
+          $("#iom-idp-legend").show();
           iomIdpLayer.options['showYemIdps'] = true;
         } else {
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-          $("#yemen-iom-idp-legend").hide();
+          if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked')) 
+            $("#iom-idp-legend").hide();
           iomIdpLayer.options['showYemIdps'] = false;
         }
       }).prop('checked', showIomIdpLayer);
@@ -1728,13 +1731,14 @@
           setActiveLayersWithTimeline(1);
           timelineType = "defaultUI";
           requestNewTimeline("libya-iom-idp-times.json", timelineType);
-          $("#libya-iom-idp-legend").show();
+          $("#iom-idp-legend").show();
           iomIdpLayer.options['showLbyIdps'] = true;
         } else {
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-          $("#libya-iom-idp-legend").hide();
+          if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked')) 
+            $("#iom-idp-legend").hide();
           iomIdpLayer.options['showLbyIdps'] = false;
         }
       }).prop('checked', showIomIdpLayer);
@@ -2975,6 +2979,7 @@
       legend_html += '<tr id="syria-iom-idp-legend" style="display: none"><td><div>Syria IDPS<span class="credit"> (IOM)</span></div></td></tr>';
       legend_html += '<tr id="yemen-iom-idp-legend" style="display: none"><td><div>Yemen IDPS<span class="credit"> (IOM)</span></div></td></tr>';
       legend_html += '<tr id="libya-iom-idp-legend" style="display: none"><td><div>Libya IDPS<span class="credit"> (IOM)</span></div></td></tr>';
+      legend_html += '<tr id="iom-idp-legend" style="display: none"><td><div style="font-size: 17px">IDPs and Returns<span class="credit"> (IOM)</span></div><svg class="svg-legend" width="242" height="180"><rect width="240" height="160" fill="white" opacity="0"></rect> <g transform="translate(2,10)"> <circle class="gain" r="5" cx="5" cy="10" style="fill: #8b0000; stroke: #fff;"></circle> <circle class="loss" r="5" cx="5" cy="30" style="fill: #00008b; stroke: #fff;"></circle> <text x="15" y="13">Individuals displaced</text> <text x="15" y="33">Indivdual returns</text> <circle r="10.0" cx="160.0" cy="160.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="152.0" dy="13" style="font-size: 10px; fill: #666">5K</text><circle r="30.0" cx="160.0" cy="140.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="130.0" dy="13" style="font-size: 10px; fill: #666">15K</text><circle r="60.0" cx="160.0" cy="110.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="80.0" dy="13" style="font-size: 10px; fill: #666">30K</text></g> </svg></tr>';
 
       // ## 5b ##
       //// Add to layer legend ////
