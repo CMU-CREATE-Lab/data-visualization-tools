@@ -45,6 +45,7 @@ var EARTH_TIMELAPSE_CONFIG = {
   "showWaterOccurrence" : false,
   "showWaterChange" : false,
   "showCumulativeActiveMining": false,
-  "showCsvLayers": true
+  "showCsvLayers": true,
+  "showIomIdp": true
   
 };

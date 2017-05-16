@@ -126,6 +126,7 @@
     var showWaterChange = !!EARTH_TIMELAPSE_CONFIG.showWaterChange;
     var showSeaLevelRise = !!EARTH_TIMELAPSE_CONFIG.showSeaLevelRise;
     var showCumulativeActiveMining = !!EARTH_TIMELAPSE_CONFIG.showCumulativeActiveMining;
+    var showIomIdp = !!EARTH_TIMELAPSE_CONFIG.showIomIdp;
 
     var showShareButton = !!EARTH_TIMELAPSE_CONFIG.showShareButton;
     var showShareButtonHash = window.location.hash.split("showShareButton=")[1];
@@ -217,6 +218,8 @@
     var ebolaNewCasesLayer;
     var lodesLayer;
     var cumulativeActiveMiningLayer;
+    var iomIdpLayer;
+
 
     // LODES interface
     var lodesGui;
@@ -433,6 +436,8 @@
     var lodesUrl = rootTilePath + "/lodes/lodes-10/{z}/{x}/{y}.bin";
 
     var cumulativeActiveMiningUrl = "http://storage.googleapis.com/skytruth-data/color_test_cumulativeActiveMining-FOOTPRINT/{z}/{x}/{y}.png";
+
+    var iomIdpUrl = "/iom-idp/data/idp-returns.geojson";
 
     function init() {
       var enablePresentationSlider = true;
@@ -1666,6 +1671,21 @@
         }
       }).prop('checked', showCumulativeActiveMiningLayer);
 
+      $("#show-iraq-iom-idp").on("click", function() {
+        if ($(this).prop('checked')) {
+          showIomIdpLayer = true;
+          setActiveLayersWithTimeline(1);
+          timelineType = "defaultUI";
+          requestNewTimeline("iraq-iom-idp-times.json", timelineType);
+          $("#iraq-iom-idp-legend").show();
+        } else {
+          showIomIdpLayer = false;
+          setActiveLayersWithTimeline(-1);
+          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+          $("#iraq-iom-idp-legend").hide();
+        }
+      }).prop('checked', showIomIdpLayer);
+
       // Base layers
       $("input:radio[name=base-layers]").on("click", function() {
         visibleBaseMapLayer = $(this).val();
@@ -2048,6 +2068,7 @@
     var showEbolaNewCasesLayer = false;
     var showLodesLayer = false;
     var showCumulativeActiveMiningLayer = false;
+    var showIomIdpLayer = false;
 
     // Default Time Machine visibility
     var tileViewVisibility = {
@@ -2353,6 +2374,8 @@
       var show_ebola_new_cases = '<td class="ebola-new-cases-select"><label for="show-ebola-new-cases" name="enc"><input type="checkbox" id="show-ebola-new-cases" />Ebola New Cases</label></td>';
       var show_lodes = '<td class="lodes-select"><label for="show-lodes" name="lodes"><input type="checkbox" id="show-lodes" />LODES</label></td>';
       var show_cumulative_active_mining_layer = '<td class="cumulative-active-mining-select"><label for="show-cumulative-active-mining" name="cumulative-active-mining"><input type="checkbox" id="show-cumulative-active-mining" />Active Mining</label></td>';
+      var show_iraq_iom_idp = '<td class="iraq-iom-idp-select"><label for="show-iraq-iom-idp" name="iraq-iom-idp"><input type="checkbox" id="show-iraq-iom-idp" />Iraq IDPs and Returns</label></td>';
+
 
       if (enableLetterboxMode) {
         layer_html += '<div class="base-map-div">';
@@ -2678,6 +2701,11 @@
           layer_html += show_annual_returns;
           layer_html += '    </tr>';
         }
+        if (showIomIdp) {
+          layer_html += '   <tr>';
+          layer_html += show_iraq_iom_idp;
+          layer_html += '   </tr>';
+        }
         layer_html += '  </table>';
         /* END REFUGEE THEME */
 
@@ -2874,6 +2902,7 @@
       legend_html += '<tr id="ebola-new-cases-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Ebola New Cases <span class="credit"> (LSHTM)</span></div></tr>';
       legend_html += '<tr id="lodes-legend" style="display: none"><td><div>LODES<span class="credit"> (US Census)</span></div></tr>';
       legend_html += '<tr id="cumulative-active-mining-legend" style="display: none"><td><div>Active Mining<span class="credit"> (SkyTruth)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">1984</div><div style="margin-top: 3px; float: left; background-image: -webkit-linear-gradient( to right, rgb(255,255,255),rgb(128,0,0));background-image: linear-gradient(to right, rgb(255,255,255),rgb(128,0,0)); width: 45px; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">2016</div></tr>';
+      legend_html += '<tr id="iraq-iom-idp-legend" style="display: none"><td><div>IRAQ IDPS & Returns<span class="credit"> (IOM)</span></div></td></tr>';
 
       // ## 5b ##
       //// Add to layer legend ////
@@ -3404,6 +3433,18 @@
 
       };
       cumulativeActiveMiningLayer = new WebglMapLayer(glb, canvasLayer, cumulativeActiveMiningUrl, cumulativeActiveMiningLayerOptions);
+
+      var iomIdpLayerOptions = {
+        tileWidth: 256,
+        tileHeight: 256,
+        nLevels: 0,
+        loadDataFunction: WebGLVectorTile2.prototype._loadGeojsonData,
+        setDataFunction: WebGLVectorTile2.prototype._setIomIdpData,
+        drawFunction: WebGLVectorTile2.prototype._drawIomIdp,
+        fragmentShader: WebGLVectorTile2.iomIdpFragmentShader,
+        vertexShader: WebGLVectorTile2.iomIdpVertexShader
+      };
+      iomIdpLayer = new WebglVectorLayer2(glb, canvasLayer, iomIdpUrl, iomIdpLayerOptions);
 
       // Layer Toggle UI
       initLayerToggleUI();
@@ -4732,6 +4773,26 @@
             options.pointSize = 500.;
             layer.draw(view, options);
           }
+        }
+
+        if (showIomIdpLayer) {
+          var iomIdpLayerView = getLayerView(iomIdpLayer, landsatBaseMapLayer);
+          var options = {};
+          options.zoom = timelapse.getCurrentZoom();
+          var currentTime = timelapse.getCurrentTime();
+          var currentTimes = getCurrentTimes(timelapse);
+          var dates = getDates(timelapse);
+          var delta = getCurrentTimesDelta(currentTime, currentTimes);
+          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
+          options.epoch = currentDate.getTime()/1000.;
+          options.pointSize = 2.0;
+          options.showIdp = true;
+          options.showReturns = true;
+          options.showIrq = true;
+          options.showSyr = true;
+          options.showYem = true;
+          options.showLby = true;
+          iomIdpLayer.draw(iomIdpLayerView, options);
         }
 
       }
