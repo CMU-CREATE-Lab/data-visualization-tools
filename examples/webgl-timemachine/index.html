@@ -1678,11 +1678,13 @@
           timelineType = "defaultUI";
           requestNewTimeline("iraq-iom-idp-times.json", timelineType);
           $("#iraq-iom-idp-legend").show();
+          iomIdpLayer.options['showIrq'] = true;
         } else {
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           $("#iraq-iom-idp-legend").hide();
+          iomIdpLayer.options['showIrq'] = false;
         }
       }).prop('checked', showIomIdpLayer);
 
@@ -3445,6 +3447,12 @@
         vertexShader: WebGLVectorTile2.iomIdpVertexShader
       };
       iomIdpLayer = new WebglVectorLayer2(glb, canvasLayer, iomIdpUrl, iomIdpLayerOptions);
+      iomIdpLayer.options = {
+        'showIrq': false,
+        'showSyr': false,
+        'showYem': false,
+        'showLby': false
+      }
 
       // Layer Toggle UI
       initLayerToggleUI();
@@ -4788,10 +4796,10 @@
           options.pointSize = 2.0;
           options.showIdp = true;
           options.showReturns = true;
-          options.showIrq = true;
-          options.showSyr = true;
-          options.showYem = true;
-          options.showLby = true;
+          options.showIrq = iomIdpLayer.options['showIrq'];
+          options.showSyr = iomIdpLayer.options['showSyr'];
+          options.showYem = iomIdpLayer.options['showYem'];
+          options.showLby = iomIdpLayer.options['showLby'];
           iomIdpLayer.draw(iomIdpLayerView, options);
         }
 
