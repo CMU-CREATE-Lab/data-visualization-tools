@@ -1678,13 +1678,13 @@
           timelineType = "defaultUI";
           requestNewTimeline("iraq-iom-idp-times.json", timelineType);
           $("#iraq-iom-idp-legend").show();
-          iomIdpLayer.options['showIrq'] = true;
+          iomIdpLayer.options['showIrqIdps'] = true;
         } else {
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           $("#iraq-iom-idp-legend").hide();
-          iomIdpLayer.options['showIrq'] = false;
+          iomIdpLayer.options['showIrqIdps'] = false;
         }
       }).prop('checked', showIomIdpLayer);
 
@@ -1695,13 +1695,13 @@
           timelineType = "defaultUI";
           requestNewTimeline("syria-iom-idp-times.json", timelineType);
           $("#syria-iom-idp-legend").show();
-          iomIdpLayer.options['showSyr'] = true;
+          iomIdpLayer.options['showSyrIdps'] = true;
         } else {
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           $("#syria-iom-idp-legend").hide();
-          iomIdpLayer.options['showSyr'] = false;
+          iomIdpLayer.options['showSyrIdps'] = false;
         }
       }).prop('checked', showIomIdpLayer);
 
@@ -1712,13 +1712,13 @@
           timelineType = "defaultUI";
           requestNewTimeline("yemen-iom-idp-times.json", timelineType);
           $("#yemen-iom-idp-legend").show();
-          iomIdpLayer.options['showYem'] = true;
+          iomIdpLayer.options['showYemIdps'] = true;
         } else {
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           $("#yemen-iom-idp-legend").hide();
-          iomIdpLayer.options['showYem'] = false;
+          iomIdpLayer.options['showYemIdps'] = false;
         }
       }).prop('checked', showIomIdpLayer);
 
@@ -1729,13 +1729,13 @@
           timelineType = "defaultUI";
           requestNewTimeline("libya-iom-idp-times.json", timelineType);
           $("#libya-iom-idp-legend").show();
-          iomIdpLayer.options['showLby'] = true;
+          iomIdpLayer.options['showLbyIdps'] = true;
         } else {
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           $("#libya-iom-idp-legend").hide();
-          iomIdpLayer.options['showLby'] = false;
+          iomIdpLayer.options['showLbyIdps'] = false;
         }
       }).prop('checked', showIomIdpLayer);
 
@@ -2428,10 +2428,10 @@
       var show_ebola_new_cases = '<td class="ebola-new-cases-select"><label for="show-ebola-new-cases" name="enc"><input type="checkbox" id="show-ebola-new-cases" />Ebola New Cases</label></td>';
       var show_lodes = '<td class="lodes-select"><label for="show-lodes" name="lodes"><input type="checkbox" id="show-lodes" />LODES</label></td>';
       var show_cumulative_active_mining_layer = '<td class="cumulative-active-mining-select"><label for="show-cumulative-active-mining" name="cumulative-active-mining"><input type="checkbox" id="show-cumulative-active-mining" />Active Mining</label></td>';
-      var show_iraq_iom_idp = '<td class="iraq-iom-idp-select"><label for="show-iraq-iom-idp" name="iraq-iom-idp"><input type="checkbox" id="show-iraq-iom-idp" />Iraq IDPs and Returns</label></td>';
-      var show_syria_iom_idp = '<td class="syria-iom-idp-select"><label for="show-syria-iom-idp" name="syria-iom-idp"><input type="checkbox" id="show-syria-iom-idp" />Syria IDPs and Returns</label></td>';
-      var show_libya_iom_idp = '<td class="libya-iom-idp-select"><label for="show-libya-iom-idp" name="libya-iom-idp"><input type="checkbox" id="show-libya-iom-idp" />Libya IDPs and Returns</label></td>';
-      var show_yemen_iom_idp = '<td class="yemen-iom-idp-select"><label for="show-yemen-iom-idp" name="yemen-iom-idp"><input type="checkbox" id="show-yemen-iom-idp" />Yemen IDPs and Returns</label></td>';
+      var show_iraq_iom_idp = '<td class="iraq-iom-idp-select"><label for="show-iraq-iom-idp" name="iraq-iom-idp"><input type="checkbox" id="show-iraq-iom-idp" />Iraq IDPs</label></td>';
+      var show_syria_iom_idp = '<td class="syria-iom-idp-select"><label for="show-syria-iom-idp" name="syria-iom-idp"><input type="checkbox" id="show-syria-iom-idp" />Syria IDPs</label></td>';
+      var show_libya_iom_idp = '<td class="libya-iom-idp-select"><label for="show-libya-iom-idp" name="libya-iom-idp"><input type="checkbox" id="show-libya-iom-idp" />Libya IDPs</label></td>';
+      var show_yemen_iom_idp = '<td class="yemen-iom-idp-select"><label for="show-yemen-iom-idp" name="yemen-iom-idp"><input type="checkbox" id="show-yemen-iom-idp" />Yemen IDPs</label></td>';
 
 
       if (enableLetterboxMode) {
@@ -2968,10 +2968,10 @@
       legend_html += '<tr id="ebola-new-cases-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Ebola New Cases <span class="credit"> (LSHTM)</span></div></tr>';
       legend_html += '<tr id="lodes-legend" style="display: none"><td><div>LODES<span class="credit"> (US Census)</span></div></tr>';
       legend_html += '<tr id="cumulative-active-mining-legend" style="display: none"><td><div>Active Mining<span class="credit"> (SkyTruth)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">1984</div><div style="margin-top: 3px; float: left; background-image: -webkit-linear-gradient( to right, rgb(255,255,255),rgb(128,0,0));background-image: linear-gradient(to right, rgb(255,255,255),rgb(128,0,0)); width: 45px; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">2016</div></tr>';
-      legend_html += '<tr id="iraq-iom-idp-legend" style="display: none"><td><div>IRAQ IDPS & Returns<span class="credit"> (IOM)</span></div></td></tr>';
-      legend_html += '<tr id="syria-iom-idp-legend" style="display: none"><td><div>Syria IDPS & Returns<span class="credit"> (IOM)</span></div></td></tr>';
-      legend_html += '<tr id="yemen-iom-idp-legend" style="display: none"><td><div>Yemen IDPS & Returns<span class="credit"> (IOM)</span></div></td></tr>';
-      legend_html += '<tr id="libya-iom-idp-legend" style="display: none"><td><div>Libya IDPS & Returns<span class="credit"> (IOM)</span></div></td></tr>';
+      legend_html += '<tr id="iraq-iom-idp-legend" style="display: none"><td><div>IRAQ IDPS<span class="credit"> (IOM)</span></div></td></tr>';
+      legend_html += '<tr id="syria-iom-idp-legend" style="display: none"><td><div>Syria IDPS<span class="credit"> (IOM)</span></div></td></tr>';
+      legend_html += '<tr id="yemen-iom-idp-legend" style="display: none"><td><div>Yemen IDPS<span class="credit"> (IOM)</span></div></td></tr>';
+      legend_html += '<tr id="libya-iom-idp-legend" style="display: none"><td><div>Libya IDPS<span class="credit"> (IOM)</span></div></td></tr>';
 
       // ## 5b ##
       //// Add to layer legend ////
@@ -3515,11 +3515,14 @@
       };
       iomIdpLayer = new WebglVectorLayer2(glb, canvasLayer, iomIdpUrl, iomIdpLayerOptions);
       iomIdpLayer.options = {
-        'showIrq': false,
-        'showSyr': false,
-        'showYem': false,
-        'showLby': false
-      }
+        'showIrqIdps': false,
+        'showSyrIdps': false,
+        'showYemIdps': false,
+        'showLbyIdps': false,
+        'showIrqReturns': false,
+        'showSyrReturns': false,
+        'showYemReturns': false,
+        'showLbyReturns': false      }
 
       // Layer Toggle UI
       initLayerToggleUI();
@@ -4861,12 +4864,16 @@
           var currentDate = getCurrentDate(currentTime, currentTimes, dates);
           options.epoch = currentDate.getTime()/1000.;
           options.pointSize = 2.0;
-          options.showIdp = true;
-          options.showReturns = true;
-          options.showIrq = iomIdpLayer.options['showIrq'];
-          options.showSyr = iomIdpLayer.options['showSyr'];
-          options.showYem = iomIdpLayer.options['showYem'];
-          options.showLby = iomIdpLayer.options['showLby'];
+//          options.showIdp = true;
+//          options.showReturns = true;
+          options.showIrqIdps = iomIdpLayer.options['showIrqIdps'];
+          options.showSyrIdps = iomIdpLayer.options['showSyrIdps'];
+          options.showYemIdps = iomIdpLayer.options['showYemIdps'];
+          options.showLbyIdps = iomIdpLayer.options['showLbyIdps'];
+          options.showIrqReturns = iomIdpLayer.options['showIrqReturns'];
+          options.showSyrReturns = iomIdpLayer.options['showSyrReturns'];
+          options.showYemReturns = iomIdpLayer.options['showYemReturns'];
+          options.showLbyReturns = iomIdpLayer.options['showLbyReturns'];
           iomIdpLayer.draw(iomIdpLayerView, options);
         }
 

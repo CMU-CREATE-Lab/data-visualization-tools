@@ -1887,23 +1887,29 @@ WebGLVectorTile2.prototype._drawIomIdp = function(transform, options) {
     var uniformLoc = gl.getUniformLocation(this.program, 'u_epoch');
     gl.uniform1f(uniformLoc, options.epoch);
 
-    var uniformLoc = gl.getUniformLocation(this.program, 'u_show_idp');
-    gl.uniform1f(uniformLoc, options.showIdp);
+    var uniformLoc = gl.getUniformLocation(this.program, 'u_show_irq_idps');
+    gl.uniform1f(uniformLoc, options.showIrqIdps);
 
-    var uniformLoc = gl.getUniformLocation(this.program, 'u_show_returns');
-    gl.uniform1f(uniformLoc, options.showReturns);
+    var uniformLoc = gl.getUniformLocation(this.program, 'u_show_syr_idps');
+    gl.uniform1f(uniformLoc, options.showSyrIdps);
 
-    var uniformLoc = gl.getUniformLocation(this.program, 'u_show_irq');
-    gl.uniform1f(uniformLoc, options.showIrq);
+    var uniformLoc = gl.getUniformLocation(this.program, 'u_show_yem_idps');
+    gl.uniform1f(uniformLoc, options.showYemIdps);
 
-    var uniformLoc = gl.getUniformLocation(this.program, 'u_show_syr');
-    gl.uniform1f(uniformLoc, options.showSyr);
+    var uniformLoc = gl.getUniformLocation(this.program, 'u_show_lby_idps');
+    gl.uniform1f(uniformLoc, options.showLbyIdps);
 
-    var uniformLoc = gl.getUniformLocation(this.program, 'u_show_yem');
-    gl.uniform1f(uniformLoc, options.showYem);
+    var uniformLoc = gl.getUniformLocation(this.program, 'u_show_irq_returns');
+    gl.uniform1f(uniformLoc, options.showIrqReturns);
 
-    var uniformLoc = gl.getUniformLocation(this.program, 'u_show_lby');
-    gl.uniform1f(uniformLoc, options.showLby);
+    var uniformLoc = gl.getUniformLocation(this.program, 'u_show_syr_returns');
+    gl.uniform1f(uniformLoc, options.showSyrReturns);
+
+    var uniformLoc = gl.getUniformLocation(this.program, 'u_show_yem_returns');
+    gl.uniform1f(uniformLoc, options.showYemReturns);
+
+    var uniformLoc = gl.getUniformLocation(this.program, 'u_show_lby_returns');
+    gl.uniform1f(uniformLoc, options.showLbyReturns);
 
     var attributeLoc = gl.getAttribLocation(this.program, 'a_country')
     gl.enableVertexAttribArray(attributeLoc);
@@ -2644,12 +2650,14 @@ WebGLVectorTile2.iomIdpVertexShader = "" +
 "uniform mat4 u_map_matrix;\n" +
 "uniform float u_point_size;\n" +
 "uniform float u_epoch;\n" +
-"uniform bool u_show_idp;\n" +
-"uniform bool u_show_returns;\n" +
-"uniform bool u_show_irq;\n" +
-"uniform bool u_show_syr;\n" +
-"uniform bool u_show_yem;\n" +
-"uniform bool u_show_lby;\n" +
+"uniform bool u_show_irq_idps;\n" +
+"uniform bool u_show_syr_idps;\n" +
+"uniform bool u_show_yem_idps;\n" +
+"uniform bool u_show_lby_idps;\n" +
+"uniform bool u_show_irq_returns;\n" +
+"uniform bool u_show_syr_returns;\n" +
+"uniform bool u_show_yem_returns;\n" +
+"uniform bool u_show_lby_returns;\n" +
 "varying float v_type;\n" +
 "void main() {\n" +
 "  vec4 position;\n" +
@@ -2658,23 +2666,43 @@ WebGLVectorTile2.iomIdpVertexShader = "" +
 "        } else {\n" +
 "          position = u_map_matrix * vec4(a_coord.x, a_coord.y, 0, 1);\n" +
 "        }\n" +
-"        if (a_type == 0.0 && !u_show_idp) {\n" +
-"          position = vec4(-1,-1,-1,-1);\n" +
+"        //if (a_type == 0.0 && !u_show_idp) {\n" +
+"        //  position = vec4(-1,-1,-1,-1);\n" +
+"        //}\n" +
+"        //if (a_type == 1.0 && !u_show_returns) {\n" +
+"        //  position = vec4(-1,-1,-1,-1);\n" +
+"        //}\n" +
+"        if (a_country == 368.0) { \n" + // Iraq
+"          if (a_type == 0.0 && !u_show_irq_idps) {\n" +   
+"            position = vec4(-1,-1,-1,-1);\n" +
+"          }\n" + 
+"          if (a_type == 1.0 && !u_show_irq_returns) {\n" +   
+"            position = vec4(-1,-1,-1,-1);\n" +
+"          }\n" + 
 "        }\n" +
-"        if (a_type == 1.0 && !u_show_returns) {\n" +
-"          position = vec4(-1,-1,-1,-1);\n" +
+"        if (a_country == 760.0 && !u_show_syr_idps) {\n" +
+"          if (a_type == 0.0 && !u_show_syr_idps) {\n" +   
+"            position = vec4(-1,-1,-1,-1);\n" +
+"          }\n" + 
+"          if (a_type == 1.0 && !u_show_syr_returns) {\n" +   
+"            position = vec4(-1,-1,-1,-1);\n" +
+"          }\n" + 
 "        }\n" +
-"        if (a_country == 368.0 && !u_show_irq) {\n" +
-"          position = vec4(-1,-1,-1,-1);\n" +
+"        if (a_country == 887.0) {\n" +
+"          if (a_type == 0.0 && !u_show_yem_idps) {\n" +   
+"            position = vec4(-1,-1,-1,-1);\n" +
+"          }\n" + 
+"          if (a_type == 1.0 && !u_show_yem_returns) {\n" +   
+"            position = vec4(-1,-1,-1,-1);\n" +
+"          }\n" + 
 "        }\n" +
-"        if (a_country == 760.0 && !u_show_syr) {\n" +
-"          position = vec4(-1,-1,-1,-1);\n" +
-"        }\n" +
-"        if (a_country == 887.0 && !u_show_yem) {\n" +
-"          position = vec4(-1,-1,-1,-1);\n" +
-"        }\n" +
-"        if (a_country == 434.0 && !u_show_lby) {\n" +
-"          position = vec4(-1,-1,-1,-1);\n" +
+"        if (a_country == 434.0) {\n" +
+"          if (a_type == 0.0 && !u_show_lby_idps) {\n" +   
+"            position = vec4(-1,-1,-1,-1);\n" +
+"          }\n" + 
+"          if (a_type == 1.0 && !u_show_lby_returns) {\n" +   
+"            position = vec4(-1,-1,-1,-1);\n" +
+"          }\n" + 
 "        }\n" +
 "  gl_Position = position;\n" +
 "  float delta = (u_epoch - a_epoch1)/(a_epoch2 - a_epoch1);\n" +
