@@ -255,6 +255,119 @@ WebGLVectorTile2.prototype._setBubbleMapData = function(arrayBuffer) {
   }
 }
 
+WebGLVectorTile2.prototype._setIomIdpData = function(data) {
+  var maxValue = 905835.0;
+  var radius = d3.scaleSqrt().domain([0, maxValue]).range([0, 50]);
+
+  var features = data.features;
+  var points = [];
+
+  // Convert iso3 to numeric code
+  function alpha2num(alpha) {
+    if (alpha == 'IRQ')
+      return 368
+    if (alpha == 'SYR')
+      return 760
+    if (alpha == 'YEM')
+      return 887
+    if (alpha == 'LBY')
+      return 434
+    return -1
+  }
+
+  //points look like country_code,type,x,y,epoch_1,val_1,epoch_2,val_2
+  for (var i = 0; i < features.length; i++) {
+    var properties = features[i]['properties'];              
+    var xy = properties['xy'];
+    var epochs = properties['epochs'];
+    var idpValues = properties['idp_values'];
+    var returnsValues = properties['returns_values'];
+    var iso3 = properties['iso3'];
+
+    for (var j = 0; j < epochs.length - 1; j++) {
+      var p = {
+        cc: alpha2num(iso3),
+        type: 0,
+        x: xy[0],
+        y: xy[1],
+        epoch1: epochs[j],
+        val1: idpValues[j],
+        epoch2: epochs[j+1],
+        val2: idpValues[j+1]
+      }
+      points.push(p);
+      var p = {
+        cc: alpha2num(iso3),
+        type: 1,
+        x: xy[0],
+        y: xy[1],
+        epoch1: epochs[j],
+        val1: returnsValues[j],
+        epoch2: epochs[j+1],
+        val2: returnsValues[j+1]
+      }
+      points.push(p);
+   }
+  }
+  points.sort(function(a,b) {
+    return b.val2 - a.val2;
+  });
+  var arr = [];
+  for (var k = 0; k < points.length; k++) {
+    arr.push(points[k].cc);
+    arr.push(points[k].type);
+    arr.push(points[k].x);
+    arr.push(points[k].y);
+    arr.push(points[k].epoch1);
+    arr.push(radius(points[k].val1));
+    arr.push(points[k].epoch2);
+    arr.push(radius(points[k].val2));
+  }
+
+  var gl = this.gl;
+  var arrayBuffer = new Float32Array(arr);
+  this._pointCount = arrayBuffer.length / 8;
+  if (this._pointCount > 0) {
+
+    this._data = arrayBuffer;
+    this._arrayBuffer = gl.createBuffer();
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_country')
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 32, 0);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_type')
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 32, 4);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_coord')
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 32, 8);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch1')
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 32, 16);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_val1')
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 32, 20);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch2')
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 32, 24);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_val2')
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 32, 28);
+
+    this._ready = true;
+
+  }
+}
+
 
 // WDPA: worldCoord[2]  time
 WebGLVectorTile2.prototype._setWdpaData = function(arrayBuffer) {
@@ -1749,6 +1862,84 @@ WebGLVectorTile2.prototype._drawVaccineConfidence = function(transform, options)
 }
 
 
+WebGLVectorTile2.prototype._drawIomIdp = function(transform, options) {
+  var gl = this.gl;
+  if (this._ready && this._pointCount > 0) {
+    gl.useProgram(this.program);
+    gl.enable(gl.BLEND);
+    gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+
+    var tileTransform = new Float32Array(transform);
+
+
+    scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
+
+    translateMatrix(tileTransform, (this._bounds.max.x - this._bounds.min.x)/256., (this._bounds.max.y - this._bounds.min.y)/256.);
+    scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+
+    var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
+    gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+
+    var uniformLoc = gl.getUniformLocation(this.program, 'u_point_size');
+    gl.uniform1f(uniformLoc, options.pointSize);
+
+    var uniformLoc = gl.getUniformLocation(this.program, 'u_epoch');
+    gl.uniform1f(uniformLoc, options.epoch);
+
+    var uniformLoc = gl.getUniformLocation(this.program, 'u_show_idp');
+    gl.uniform1f(uniformLoc, options.showIdp);
+
+    var uniformLoc = gl.getUniformLocation(this.program, 'u_show_returns');
+    gl.uniform1f(uniformLoc, options.showReturns);
+
+    var uniformLoc = gl.getUniformLocation(this.program, 'u_show_irq');
+    gl.uniform1f(uniformLoc, options.showIrq);
+
+    var uniformLoc = gl.getUniformLocation(this.program, 'u_show_syr');
+    gl.uniform1f(uniformLoc, options.showSyr);
+
+    var uniformLoc = gl.getUniformLocation(this.program, 'u_show_yem');
+    gl.uniform1f(uniformLoc, options.showYem);
+
+    var uniformLoc = gl.getUniformLocation(this.program, 'u_show_lby');
+    gl.uniform1f(uniformLoc, options.showLby);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_country')
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 32, 0);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_type')
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 32, 4);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_coord')
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 32, 8);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch1')
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 32, 16);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_val1')
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 32, 20);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch2')
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 32, 24);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_val2')
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 32, 28);
+
+    gl.drawArrays(gl.POINTS, 0, this._pointCount);
+    gl.disable(gl.BLEND);
+
+  }
+
+}
+
 // Update and draw tiles
 WebGLVectorTile2.update = function(tiles, transform, options) {
   for (var i = 0; i < tiles.length; i++) {
@@ -2440,3 +2631,81 @@ WebGLVectorTile2.bubbleMapFragmentShader =
 '          float stroke = smoothstep(outerEdgeCenter - delta, outerEdgeCenter + delta, dist);\n' +
 '          gl_FragColor = vec4( mix(outlineColor.rgb, circleColor.rgb, stroke), alpha*.75 );\n' +
 '      }';
+
+
+WebGLVectorTile2.iomIdpVertexShader = "" +
+"attribute vec4 a_coord;\n" +
+"attribute float a_country;\n" +
+"attribute float a_type;\n" +
+"attribute float a_epoch1;\n" +
+"attribute float a_val1;\n" +
+"attribute float a_epoch2;\n" +
+"attribute float a_val2;\n" +
+"uniform mat4 u_map_matrix;\n" +
+"uniform float u_point_size;\n" +
+"uniform float u_epoch;\n" +
+"uniform bool u_show_idp;\n" +
+"uniform bool u_show_returns;\n" +
+"uniform bool u_show_irq;\n" +
+"uniform bool u_show_syr;\n" +
+"uniform bool u_show_yem;\n" +
+"uniform bool u_show_lby;\n" +
+"varying float v_type;\n" +
+"void main() {\n" +
+"  vec4 position;\n" +
+"        if (a_epoch1 > u_epoch || a_epoch2 <= u_epoch) {\n" +
+"          position = vec4(-1,-1,-1,-1);\n" +
+"        } else {\n" +
+"          position = u_map_matrix * vec4(a_coord.x, a_coord.y, 0, 1);\n" +
+"        }\n" +
+"        if (a_type == 0.0 && !u_show_idp) {\n" +
+"          position = vec4(-1,-1,-1,-1);\n" +
+"        }\n" +
+"        if (a_type == 1.0 && !u_show_returns) {\n" +
+"          position = vec4(-1,-1,-1,-1);\n" +
+"        }\n" +
+"        if (a_country == 368.0 && !u_show_irq) {\n" +
+"          position = vec4(-1,-1,-1,-1);\n" +
+"        }\n" +
+"        if (a_country == 760.0 && !u_show_syr) {\n" +
+"          position = vec4(-1,-1,-1,-1);\n" +
+"        }\n" +
+"        if (a_country == 887.0 && !u_show_yem) {\n" +
+"          position = vec4(-1,-1,-1,-1);\n" +
+"        }\n" +
+"        if (a_country == 434.0 && !u_show_lby) {\n" +
+"          position = vec4(-1,-1,-1,-1);\n" +
+"        }\n" +
+"  gl_Position = position;\n" +
+"  float delta = (u_epoch - a_epoch1)/(a_epoch2 - a_epoch1);\n" +
+"  float size = (a_val2 - a_val1) * delta + a_val1;\n" +
+"  gl_PointSize = u_point_size * size;\n" +
+"  v_type = a_type;\n" +
+"}";
+
+WebGLVectorTile2.iomIdpFragmentShader = "" +
+"#extension GL_OES_standard_derivatives : enable\n" +
+"precision mediump float;\n" +
+"varying float v_type;\n" +
+"void main() {\n" +
+"  // set pixels in points to something that stands out\n" +
+"  //float dist = distance(gl_PointCoord.xy, vec2(0.5, 0.5));\n" +
+"  //float delta = fwidth(dist);\n" +
+"  //float alpha = smoothstep(0.45-delta, 0.45, dist);\n" +
+"  //gl_FragColor = vec4(.65, .07, .07, .75) * (1. - alpha);\n" +
+'  vec4 color = vec4(.65, .07, .07, .95);\n' +
+'  if (v_type == 1.0) {\n' + 
+'    color = vec4(0.07, .07, .65, .95);\n' +
+'  }\n' + 
+'          float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
+'          dist = 1. - (dist * 2.);\n' +
+'          dist = max(0., dist);\n' +
+'          float delta = fwidth(dist);\n' +
+'          float alpha = smoothstep(0.45-delta, 0.45, dist);\n' +
+'          vec4 circleColor = color; //vec4(.65, .07, .07, .95);\n' +
+'          vec4 outlineColor = vec4(1.0,1.0,1.0,1.0);\n' +
+'          float outerEdgeCenter = 0.5 - .01;\n' +
+'          float stroke = smoothstep(outerEdgeCenter - delta, outerEdgeCenter + delta, dist);\n' +
+'          gl_FragColor = vec4( mix(outlineColor.rgb, circleColor.rgb, stroke), alpha*.75 );\n' +
+
+"}";
