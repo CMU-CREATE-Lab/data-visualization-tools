@@ -1688,6 +1688,24 @@
         }
       }).prop('checked', showIomIdpLayer);
 
+      $("#show-syria-iom-idp").on("click", function() {
+        if ($(this).prop('checked')) {
+          showIomIdpLayer = true;
+          setActiveLayersWithTimeline(1);
+          timelineType = "defaultUI";
+          requestNewTimeline("syria-iom-idp-times.json", timelineType);
+          $("#syria-iom-idp-legend").show();
+          iomIdpLayer.options['showSyr'] = true;
+        } else {
+          showIomIdpLayer = false;
+          setActiveLayersWithTimeline(-1);
+          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+          $("#syria-iom-idp-legend").hide();
+          iomIdpLayer.options['showSyr'] = false;
+        }
+      }).prop('checked', showIomIdpLayer);
+
+
       // Base layers
       $("input:radio[name=base-layers]").on("click", function() {
         visibleBaseMapLayer = $(this).val();
@@ -2377,6 +2395,7 @@
       var show_lodes = '<td class="lodes-select"><label for="show-lodes" name="lodes"><input type="checkbox" id="show-lodes" />LODES</label></td>';
       var show_cumulative_active_mining_layer = '<td class="cumulative-active-mining-select"><label for="show-cumulative-active-mining" name="cumulative-active-mining"><input type="checkbox" id="show-cumulative-active-mining" />Active Mining</label></td>';
       var show_iraq_iom_idp = '<td class="iraq-iom-idp-select"><label for="show-iraq-iom-idp" name="iraq-iom-idp"><input type="checkbox" id="show-iraq-iom-idp" />Iraq IDPs and Returns</label></td>';
+      var show_syria_iom_idp = '<td class="syria-iom-idp-select"><label for="show-syria-iom-idp" name="syria-iom-idp"><input type="checkbox" id="show-syria-iom-idp" />Syria IDPs and Returns</label></td>';
 
 
       if (enableLetterboxMode) {
@@ -2707,6 +2726,9 @@
           layer_html += '   <tr>';
           layer_html += show_iraq_iom_idp;
           layer_html += '   </tr>';
+          layer_html += '   <tr>';
+          layer_html += show_syria_iom_idp;
+          layer_html += '   </tr>';
         }
         layer_html += '  </table>';
         /* END REFUGEE THEME */
@@ -2905,6 +2927,7 @@
       legend_html += '<tr id="lodes-legend" style="display: none"><td><div>LODES<span class="credit"> (US Census)</span></div></tr>';
       legend_html += '<tr id="cumulative-active-mining-legend" style="display: none"><td><div>Active Mining<span class="credit"> (SkyTruth)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">1984</div><div style="margin-top: 3px; float: left; background-image: -webkit-linear-gradient( to right, rgb(255,255,255),rgb(128,0,0));background-image: linear-gradient(to right, rgb(255,255,255),rgb(128,0,0)); width: 45px; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">2016</div></tr>';
       legend_html += '<tr id="iraq-iom-idp-legend" style="display: none"><td><div>IRAQ IDPS & Returns<span class="credit"> (IOM)</span></div></td></tr>';
+      legend_html += '<tr id="syria-iom-idp-legend" style="display: none"><td><div>Syria IDPS & Returns<span class="credit"> (IOM)</span></div></td></tr>';
 
       // ## 5b ##
       //// Add to layer legend ////
