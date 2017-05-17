@@ -1683,7 +1683,7 @@
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-          if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked')) 
+          if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked')) 
             $("#iom-idp-legend").hide();
           iomIdpLayer.options['showIrqIdps'] = false;
         }
@@ -1701,7 +1701,7 @@
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-          if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked')) 
+          if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked')) 
             $("#iom-idp-legend").hide();
           iomIdpLayer.options['showSyrIdps'] = false;
         }
@@ -1719,7 +1719,7 @@
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-          if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked')) 
+          if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked')) 
             $("#iom-idp-legend").hide();
           iomIdpLayer.options['showYemIdps'] = false;
         }
@@ -1737,12 +1737,83 @@
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-          if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked')) 
+          if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked')) 
             $("#iom-idp-legend").hide();
           iomIdpLayer.options['showLbyIdps'] = false;
         }
       }).prop('checked', showIomIdpLayer);
 
+      $("#show-iraq-iom-return").on("click", function() {
+        if ($(this).prop('checked')) {
+          showIomIdpLayer = true;
+          setActiveLayersWithTimeline(1);
+          timelineType = "defaultUI";
+          requestNewTimeline("iraq-iom-idp-times.json", timelineType);
+          $("#iom-idp-legend").show();
+          iomIdpLayer.options['showIrqReturns'] = true;
+        } else {
+          showIomIdpLayer = false;
+          setActiveLayersWithTimeline(-1);
+          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+          if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked')) 
+            $("#iom-idp-legend").hide();
+          iomIdpLayer.options['showIrqReturns'] = false;
+        }
+      }).prop('checked', showIomIdpLayer);
+
+      $("#show-syria-iom-return").on("click", function() {
+        if ($(this).prop('checked')) {
+          showIomIdpLayer = true;
+          setActiveLayersWithTimeline(1);
+          timelineType = "defaultUI";
+          requestNewTimeline("syria-iom-idp-times.json", timelineType);
+          $("#iom-idp-legend").show();
+          iomIdpLayer.options['showSyrReturns'] = true;
+        } else {
+          showIomIdpLayer = false;
+          setActiveLayersWithTimeline(-1);
+          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+          if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked')) 
+            $("#iom-idp-legend").hide();
+          iomIdpLayer.options['showSyrReturns'] = false;
+        }
+      }).prop('checked', showIomIdpLayer);
+
+      $("#show-yemen-iom-return").on("click", function() {
+        if ($(this).prop('checked')) {
+          showIomIdpLayer = true;
+          setActiveLayersWithTimeline(1);
+          timelineType = "defaultUI";
+          requestNewTimeline("yemen-iom-idp-times.json", timelineType);
+          $("#iom-idp-legend").show();
+          iomIdpLayer.options['showYemReturns'] = true;
+        } else {
+          showIomIdpLayer = false;
+          setActiveLayersWithTimeline(-1);
+          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+          if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked')) 
+            $("#iom-idp-legend").hide();
+          iomIdpLayer.options['showYemReturns'] = false;
+        }
+      }).prop('checked', showIomIdpLayer);
+
+      $("#show-libya-iom-return").on("click", function() {
+        if ($(this).prop('checked')) {
+          showIomIdpLayer = true;
+          setActiveLayersWithTimeline(1);
+          timelineType = "defaultUI";
+          requestNewTimeline("libya-iom-idp-times.json", timelineType);
+          $("#iom-idp-legend").show();
+          iomIdpLayer.options['showLbyReturns'] = true;
+        } else {
+          showIomIdpLayer = false;
+          setActiveLayersWithTimeline(-1);
+          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+          if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked')) 
+            $("#iom-idp-legend").hide();
+          iomIdpLayer.options['showLbyReturns'] = false;
+        }
+      }).prop('checked', showIomIdpLayer);
 
       // Base layers
       $("input:radio[name=base-layers]").on("click", function() {
@@ -2436,6 +2507,10 @@
       var show_syria_iom_idp = '<td class="syria-iom-idp-select"><label for="show-syria-iom-idp" name="syria-iom-idp"><input type="checkbox" id="show-syria-iom-idp" />Syria IDPs</label></td>';
       var show_libya_iom_idp = '<td class="libya-iom-idp-select"><label for="show-libya-iom-idp" name="libya-iom-idp"><input type="checkbox" id="show-libya-iom-idp" />Libya IDPs</label></td>';
       var show_yemen_iom_idp = '<td class="yemen-iom-idp-select"><label for="show-yemen-iom-idp" name="yemen-iom-idp"><input type="checkbox" id="show-yemen-iom-idp" />Yemen IDPs</label></td>';
+      var show_iraq_iom_return = '<td class="iraq-iom-return-select"><label for="show-iraq-iom-return" name="iraq-iom-return"><input type="checkbox" id="show-iraq-iom-return" />Iraq returns</label></td>';
+      var show_syria_iom_return = '<td class="syria-iom-return-select"><label for="show-syria-iom-return" name="syria-iom-return"><input type="checkbox" id="show-syria-iom-return" />Syria returns</label></td>';
+      var show_libya_iom_return = '<td class="libya-iom-return-select"><label for="show-libya-iom-return" name="libya-iom-return"><input type="checkbox" id="show-libya-iom-return" />Libya returns</label></td>';
+      var show_yemen_iom_return = '<td class="yemen-iom-return-select"><label for="show-yemen-iom-return" name="yemen-iom-return"><input type="checkbox" id="show-yemen-iom-return" />Yemen returns</label></td>';
 
 
       if (enableLetterboxMode) {
@@ -2774,6 +2849,18 @@
           layer_html += '   </tr>';
           layer_html += '   <tr>';
           layer_html += show_yemen_iom_idp;
+          layer_html += '   </tr>';
+          layer_html += '   <tr>';
+          layer_html += show_iraq_iom_return;
+          layer_html += '   </tr>';
+          layer_html += '   <tr>';
+          layer_html += show_syria_iom_return;
+          layer_html += '   </tr>';
+          layer_html += '   <tr>';
+          layer_html += show_libya_iom_return;
+          layer_html += '   </tr>';
+          layer_html += '   <tr>';
+          layer_html += show_yemen_iom_return;
           layer_html += '   </tr>';
         }
         layer_html += '  </table>';
