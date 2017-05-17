@@ -2979,7 +2979,7 @@
       legend_html += '<tr id="syria-iom-idp-legend" style="display: none"><td><div>Syria IDPS<span class="credit"> (IOM)</span></div></td></tr>';
       legend_html += '<tr id="yemen-iom-idp-legend" style="display: none"><td><div>Yemen IDPS<span class="credit"> (IOM)</span></div></td></tr>';
       legend_html += '<tr id="libya-iom-idp-legend" style="display: none"><td><div>Libya IDPS<span class="credit"> (IOM)</span></div></td></tr>';
-      legend_html += '<tr id="iom-idp-legend" style="display: none"><td><div style="font-size: 17px">IDPs and Returns<span class="credit"> (IOM)</span></div><svg class="svg-legend" width="242" height="180"><rect width="240" height="160" fill="white" opacity="0"></rect> <g transform="translate(2,10)"> <circle class="gain" r="5" cx="5" cy="10" style="fill: #8b0000; stroke: #fff;"></circle> <circle class="loss" r="5" cx="5" cy="30" style="fill: #00008b; stroke: #fff;"></circle> <text x="15" y="13">Individuals displaced</text> <text x="15" y="33">Indivdual returns</text> <circle r="10.0" cx="160.0" cy="160.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="152.0" dy="13" style="font-size: 10px; fill: #666">36K</text><circle r="30.0" cx="160.0" cy="140.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="130.0" dy="13" style="font-size: 10px; fill: #666">325K</text><circle r="60.0" cx="160.0" cy="110.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="80.0" dy="13" style="font-size: 10px; fill: #666">900K</text></g> </svg></tr>';
+      legend_html += '<tr id="iom-idp-legend" style="display: none"><td><div style="font-size: 17px">IDPs and Returns<span class="credit"> (IOM)</span></div><svg class="svg-legend" width="242" height="130"><rect width="240" height="110" fill="white" opacity="0"></rect> <g transform="translate(2,10)"> <circle class="gain" r="5" cx="5" cy="10" style="fill: #8b0000; stroke: #fff;"></circle> <circle class="loss" r="5" cx="5" cy="30" style="fill: #00008b; stroke: #fff;"></circle> <text x="15" y="13">Individuals displaced</text> <text x="15" y="33">Indivdual returns</text> <circle r="10.0" cx="160.0" cy="110.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="102.0" dy="13" style="font-size: 10px; fill: #666">18K</text><circle r="30.0" cx="160.0" cy="90.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="80.0" dy="13" style="font-size: 10px; fill: #666">900K</text><!--<circle r="60.0" cx="160.0" cy="110.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="80.0" dy="13" style="font-size: 10px; fill: #666">900K</text>--></g> </svg></tr>';
 
       // ## 5b ##
       //// Add to layer legend ////
@@ -4871,9 +4871,7 @@
           var delta = getCurrentTimesDelta(currentTime, currentTimes);
           var currentDate = getCurrentDate(currentTime, currentTimes, dates);
           options.epoch = currentDate.getTime()/1000.;
-          options.pointSize = 2.0;
-//          options.showIdp = true;
-//          options.showReturns = true;
+          options.pointSize = 4.0;
           options.showIrqIdps = iomIdpLayer.options['showIrqIdps'];
           options.showSyrIdps = iomIdpLayer.options['showSyrIdps'];
           options.showYemIdps = iomIdpLayer.options['showYemIdps'];
