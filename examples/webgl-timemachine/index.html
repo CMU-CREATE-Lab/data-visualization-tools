@@ -1679,12 +1679,16 @@
           requestNewTimeline("iraq-iom-idp-times.json", timelineType);
           $("#iom-idp-legend").show();
           iomIdpLayer.options['showIrqIdps'] = true;
+          timelapse.setMasterPlaybackRate(.5);
+          timelapse.setPlaybackRate(.1);
         } else {
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked')) 
             $("#iom-idp-legend").hide();
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
           iomIdpLayer.options['showIrqIdps'] = false;
         }
       }).prop('checked', showIomIdpLayer);
@@ -1697,12 +1701,16 @@
           requestNewTimeline("syria-iom-idp-times.json", timelineType);
           $("#iom-idp-legend").show();
           iomIdpLayer.options['showSyrIdps'] = true;
+          timelapse.setMasterPlaybackRate(.5);
+          timelapse.setPlaybackRate(.1);
         } else {
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked')) 
             $("#iom-idp-legend").hide();
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
           iomIdpLayer.options['showSyrIdps'] = false;
         }
       }).prop('checked', showIomIdpLayer);
@@ -1715,12 +1723,16 @@
           requestNewTimeline("yemen-iom-idp-times.json", timelineType);
           $("#iom-idp-legend").show();
           iomIdpLayer.options['showYemIdps'] = true;
+          timelapse.setMasterPlaybackRate(.5);
+          timelapse.setPlaybackRate(.1);
         } else {
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked')) 
             $("#iom-idp-legend").hide();
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
           iomIdpLayer.options['showYemIdps'] = false;
         }
       }).prop('checked', showIomIdpLayer);
@@ -1733,12 +1745,16 @@
           requestNewTimeline("libya-iom-idp-times.json", timelineType);
           $("#iom-idp-legend").show();
           iomIdpLayer.options['showLbyIdps'] = true;
+          timelapse.setMasterPlaybackRate(.5);
+          timelapse.setPlaybackRate(.1);
         } else {
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked')) 
             $("#iom-idp-legend").hide();
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
           iomIdpLayer.options['showLbyIdps'] = false;
         }
       }).prop('checked', showIomIdpLayer);
@@ -1751,12 +1767,16 @@
           requestNewTimeline("iraq-iom-idp-times.json", timelineType);
           $("#iom-idp-legend").show();
           iomIdpLayer.options['showIrqReturns'] = true;
+          timelapse.setMasterPlaybackRate(.5);
+          timelapse.setPlaybackRate(.1);
         } else {
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked')) 
             $("#iom-idp-legend").hide();
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
           iomIdpLayer.options['showIrqReturns'] = false;
         }
       }).prop('checked', showIomIdpLayer);
@@ -1769,12 +1789,16 @@
           requestNewTimeline("syria-iom-idp-times.json", timelineType);
           $("#iom-idp-legend").show();
           iomIdpLayer.options['showSyrReturns'] = true;
+          timelapse.setMasterPlaybackRate(.5);
+          timelapse.setPlaybackRate(.1);
         } else {
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked')) 
             $("#iom-idp-legend").hide();
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
           iomIdpLayer.options['showSyrReturns'] = false;
         }
       }).prop('checked', showIomIdpLayer);
@@ -1787,12 +1811,16 @@
           requestNewTimeline("yemen-iom-idp-times.json", timelineType);
           $("#iom-idp-legend").show();
           iomIdpLayer.options['showYemReturns'] = true;
+          timelapse.setMasterPlaybackRate(.5);
+          timelapse.setPlaybackRate(.1);
         } else {
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked')) 
             $("#iom-idp-legend").hide();
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
           iomIdpLayer.options['showYemReturns'] = false;
         }
       }).prop('checked', showIomIdpLayer);
@@ -1805,12 +1833,16 @@
           requestNewTimeline("libya-iom-idp-times.json", timelineType);
           $("#iom-idp-legend").show();
           iomIdpLayer.options['showLbyReturns'] = true;
+          timelapse.setMasterPlaybackRate(.5);
+          timelapse.setPlaybackRate(.1);
         } else {
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked')) 
             $("#iom-idp-legend").hide();
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
           iomIdpLayer.options['showLbyReturns'] = false;
         }
       }).prop('checked', showIomIdpLayer);
@@ -2476,7 +2508,7 @@
       var show_water_change = '<td class="water-change-select"><label for="show-water-change" name="wc"><input type="checkbox" id="show-water-change" />Water Change</label></td>';
       var show_monthly_refugees = '<td class="monthly-refugees-select"><label for="show-monthly-refugees" name="mmr"><input type="checkbox" id="show-monthly-refugees" />Mediterranean Refugees</label></td>';
       var show_annual_refugees = '<td class="annual-refugees-select"><label for="show-annual-refugees" name="ar"><input type="checkbox" id="show-annual-refugees" />Global Refugees</label></td>';
-      var show_annual_returns = '<td class="annual-returns-select"><label for="show-annual-returns" name="ar"><input type="checkbox" id="show-annual-returns" />Global Refugee Returns</label></td>';
+      var show_annual_returns = '<td class="annual-returns-select"><label for="show-annual-returns" name="ar"><input type="checkbox" id="show-annual-returns" />Global Returnees</label></td>';
       var show_vsi = '<td class="vsi-select"><label for="show-vsi" name="vsi"><input type="checkbox" id="show-vsi" />Vegetation Sensitivity Index</label></td>';
       var show_health_impact_rcp2p6 = '<td class="health-impact-rcp2p6-select"><label for="show-health-impact-rcp2p6" name="hi-rcp2p6"><input type="checkbox" id="show-health-impact-rcp2p6" />Nutritional Deficiency RCP2.6</label></td>';
       var show_health_impact_rcp4p5 = '<td class="health-impact-rcp4p5-select"><label for="show-health-impact-rcp4p5" name="hi-rcp4p5"><input type="checkbox" id="show-health-impact-rcp4p5" />Nutritional Deficiency RCP4.5</label></td>';
@@ -2507,10 +2539,10 @@
       var show_syria_iom_idp = '<td class="syria-iom-idp-select"><label for="show-syria-iom-idp" name="syria-iom-idp"><input type="checkbox" id="show-syria-iom-idp" />Syria IDPs</label></td>';
       var show_libya_iom_idp = '<td class="libya-iom-idp-select"><label for="show-libya-iom-idp" name="libya-iom-idp"><input type="checkbox" id="show-libya-iom-idp" />Libya IDPs</label></td>';
       var show_yemen_iom_idp = '<td class="yemen-iom-idp-select"><label for="show-yemen-iom-idp" name="yemen-iom-idp"><input type="checkbox" id="show-yemen-iom-idp" />Yemen IDPs</label></td>';
-      var show_iraq_iom_return = '<td class="iraq-iom-return-select"><label for="show-iraq-iom-return" name="iraq-iom-return"><input type="checkbox" id="show-iraq-iom-return" />Iraq returns</label></td>';
-      var show_syria_iom_return = '<td class="syria-iom-return-select"><label for="show-syria-iom-return" name="syria-iom-return"><input type="checkbox" id="show-syria-iom-return" />Syria returns</label></td>';
-      var show_libya_iom_return = '<td class="libya-iom-return-select"><label for="show-libya-iom-return" name="libya-iom-return"><input type="checkbox" id="show-libya-iom-return" />Libya returns</label></td>';
-      var show_yemen_iom_return = '<td class="yemen-iom-return-select"><label for="show-yemen-iom-return" name="yemen-iom-return"><input type="checkbox" id="show-yemen-iom-return" />Yemen returns</label></td>';
+      var show_iraq_iom_return = '<td class="iraq-iom-return-select"><label for="show-iraq-iom-return" name="iraq-iom-return"><input type="checkbox" id="show-iraq-iom-return" />Iraq Returnees</label></td>';
+      var show_syria_iom_return = '<td class="syria-iom-return-select"><label for="show-syria-iom-return" name="syria-iom-return"><input type="checkbox" id="show-syria-iom-return" />Syria Returnees</label></td>';
+      var show_libya_iom_return = '<td class="libya-iom-return-select"><label for="show-libya-iom-return" name="libya-iom-return"><input type="checkbox" id="show-libya-iom-return" />Libya Returnees</label></td>';
+      var show_yemen_iom_return = '<td class="yemen-iom-return-select"><label for="show-yemen-iom-return" name="yemen-iom-return"><input type="checkbox" id="show-yemen-iom-return" />Yemen Returnees</label></td>';
 
 
       if (enableLetterboxMode) {
@@ -2820,7 +2852,7 @@
         /* END NUTRITION THEME */
 
         /* REFUGEE THEME */
-        layer_html += '  <h3>Refugees</h3>';
+        layer_html += '  <h3>Forced Displacement</h3>';
         layer_html += '  <table>';
         if (showMonthlyRefugees) {
           layer_html += '    <tr>';
@@ -3066,7 +3098,7 @@
       legend_html += '<tr id="syria-iom-idp-legend" style="display: none"><td><div>Syria IDPS<span class="credit"> (IOM)</span></div></td></tr>';
       legend_html += '<tr id="yemen-iom-idp-legend" style="display: none"><td><div>Yemen IDPS<span class="credit"> (IOM)</span></div></td></tr>';
       legend_html += '<tr id="libya-iom-idp-legend" style="display: none"><td><div>Libya IDPS<span class="credit"> (IOM)</span></div></td></tr>';
-      legend_html += '<tr id="iom-idp-legend" style="display: none"><td><div style="font-size: 17px">IDPs and Returns<span class="credit"> (IOM)</span></div><svg class="svg-legend" width="242" height="130"><rect width="240" height="110" fill="white" opacity="0"></rect> <g transform="translate(2,10)"> <circle class="gain" r="5" cx="5" cy="10" style="fill: #8b0000; stroke: #fff;"></circle> <circle class="loss" r="5" cx="5" cy="30" style="fill: #00008b; stroke: #fff;"></circle> <text x="15" y="13">Individuals displaced</text> <text x="15" y="33">Indivdual returns</text> <circle r="10.0" cx="160.0" cy="110.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="102.0" dy="13" style="font-size: 10px; fill: #666">18K</text><circle r="30.0" cx="160.0" cy="90.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="80.0" dy="13" style="font-size: 10px; fill: #666">900K</text><!--<circle r="60.0" cx="160.0" cy="110.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="80.0" dy="13" style="font-size: 10px; fill: #666">900K</text>--></g> </svg></tr>';
+      legend_html += '<tr id="iom-idp-legend" style="display: none"><td><div style="font-size: 17px">Internally Displaced Persons (IDPs) <br/>and Returnees<span class="credit"> (IOM)</span></div><svg class="svg-legend" width="242" height="130"><rect width="240" height="110" fill="white" opacity="0"></rect> <g transform="translate(2,10)"> <circle class="gain" r="5" cx="5" cy="10" style="fill: #8b0000; stroke: #fff;"></circle> <circle class="loss" r="5" cx="5" cy="30" style="fill: #00008b; stroke: #fff;"></circle> <text x="15" y="13">Individuals displaced</text> <text x="15" y="33">Indivdual returnees</text> <circle r="10.0" cx="160.0" cy="110.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="102.0" dy="13" style="font-size: 10px; fill: #666">18K</text><circle r="30.0" cx="160.0" cy="90.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="80.0" dy="13" style="font-size: 10px; fill: #666">900K</text><!--<circle r="60.0" cx="160.0" cy="110.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="80.0" dy="13" style="font-size: 10px; fill: #666">900K</text>--></g> </svg></tr>';
 
       // ## 5b ##
       //// Add to layer legend ////
