@@ -198,7 +198,7 @@
     //
 
     var forestAlertsTimeMachineLayer, forestAlertsNoOverlayTimeMachineLayer, landsatBaseMapLayer, darkBaseMapLayer, lightBaseMapLayer, mcrmVectorLayer;
-    var hansenMapLayer, hansenMapLayer2, lightsAtNightMapLayer, crwTimemachineLayer, animatedHansenLayer, himawariTimemachineLayer, ndviAnomalyTimemachineLayer;
+    var hansenMapLayer, hansenMapLayer2, lightsAtNightMapLayer, lightsAtNight2016MapLayer, crwTimemachineLayer, animatedHansenLayer, himawariTimemachineLayer, ndviAnomalyTimemachineLayer;
     var waterOccurrenceLayer, waterChangeLayer, usgsWindTurbineLayer, solarInstallsLayer, drillingLayer;
     var globalWindPowerLayer;
     var annualRefugeesLayer;
@@ -396,6 +396,8 @@
     var lightMapUrl = useGoogleMaps ? googleMapsDefaultRetinaUrl : osmLightRetinaUrl;
     var darkMapUrl = useGoogleMaps ? googleMapsDarkStyleRetinaUrl : osmDarkRetinaUrl;
     var lightsAtNightUrl = rootTilePath + "/lights-at-night/{default}/{z}/{x}/{y}.png";
+    // Note that x/y are swapped for this dataset
+    var lightsAtNight2016Url = rootTilePath + "/lights-at-night-2016/{default}/{z}/{y}/{x}.jpg";
     var waterOccurrenceUrl = rootTilePath + "/water/occurrence_2016/{default}/{z}/{x}/{y}.png";
     var waterChangeUrl = rootTilePath + "/water/change_2016/{default}/{z}/{x}/{y}.png";
 
@@ -989,7 +991,7 @@
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
           $("#berkeley-earth-temperature-anomaly-legend").hide();
-          timelapse.setPlaybackRate(defaultPlaybackSpeed);       
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
         }
       }).prop('checked', showBerkeleyEarthTemperatureAnomalyTimeMachineLayer);
 
@@ -1056,6 +1058,9 @@
 
       $("#show-lights-at-night").on("click", function() {
         if ($(this).prop('checked')) {
+          if ($("#show-lights-at-night-2016").prop('checked')) {
+            $("#show-lights-at-night-2016").click();
+          }
           showLightsAtNightLayer = true;
           timelineType = "none";
           $("#lights-at-night-legend").show();
@@ -1065,6 +1070,21 @@
           $("#lights-at-night-legend").hide();
         }
       }).prop('checked', showLightsAtNightLayer);
+
+      $("#show-lights-at-night-2016").on("click", function() {
+        if ($(this).prop('checked')) {
+          if ($("#show-lights-at-night").prop('checked')) {
+            $("#show-lights-at-night").click();
+          }
+          showLightsAtNight2016Layer = true;
+          timelineType = "none";
+          $("#lights-at-night-2016-legend").show();
+        } else {
+          showLightsAtNight2016Layer = false;
+          timelineType = "customUI";
+          $("#lights-at-night-2016-legend").hide();
+        }
+      }).prop('checked', showLightsAtNight2016Layer);
 
       $("#show-monthly-refugees").on("click", function() {
         if ($(this).prop('checked')) {
@@ -1731,7 +1751,7 @@
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-          if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked')) 
+          if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked'))
             $("#iom-idp-legend").hide();
           timelapse.setMasterPlaybackRate(1);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
@@ -1753,7 +1773,7 @@
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-          if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked')) 
+          if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked'))
             $("#iom-idp-legend").hide();
           timelapse.setMasterPlaybackRate(1);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
@@ -1775,7 +1795,7 @@
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-          if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked')) 
+          if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked'))
             $("#iom-idp-legend").hide();
           timelapse.setMasterPlaybackRate(1);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
@@ -1797,7 +1817,7 @@
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-          if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked')) 
+          if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked'))
             $("#iom-idp-legend").hide();
           timelapse.setMasterPlaybackRate(1);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
@@ -1819,7 +1839,7 @@
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-          if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked')) 
+          if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked'))
             $("#iom-idp-legend").hide();
           timelapse.setMasterPlaybackRate(1);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
@@ -1841,7 +1861,7 @@
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-          if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked')) 
+          if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked'))
             $("#iom-idp-legend").hide();
           timelapse.setMasterPlaybackRate(1);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
@@ -1863,7 +1883,7 @@
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-          if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked')) 
+          if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked'))
             $("#iom-idp-legend").hide();
           timelapse.setMasterPlaybackRate(1);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
@@ -1885,7 +1905,7 @@
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-          if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked')) 
+          if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked'))
             $("#iom-idp-legend").hide();
           timelapse.setMasterPlaybackRate(1);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
@@ -2138,7 +2158,7 @@
         }
 
         // Hide any timelines that are visible if we have no layers up that require a timeline or we are a static layer that fully covers the entire globe
-        if (activeLayersWithTimeline <= 0 || (visibleBaseMapLayer == "landsat" && activeLayersWithTimeline == 1 && (showLightsAtNightLayer || showHansenLayer2 || showVsiLayer))) {
+        if (activeLayersWithTimeline <= 0 || (visibleBaseMapLayer == "landsat" && activeLayersWithTimeline == 1 && (showLightsAtNightLayer || showLightsAtNight2016Layer || showHansenLayer2 || showVsiLayer))) {
           $(".controls, .customControl").hide();
           $(".customControl").hide();
         } else if (activeLayersWithTimeline > 0) {
@@ -2167,7 +2187,7 @@
         }
 
         if ((activeLayersWithTimeline >= 1 && visibleBaseMapLayer != "landsat") ||
-            (activeLayersWithTimeline == 1 && visibleBaseMapLayer == "landsat" && !(showLightsAtNightLayer || showHansenLayer2 || showVsiLayer))) {
+            (activeLayersWithTimeline == 1 && visibleBaseMapLayer == "landsat" && !(showLightsAtNightLayer || showLightsAtNight2016Layer || showHansenLayer2 || showVsiLayer))) {
           if (timelineType == "customUI") {
             $(".customControl").show().children().show();
             if (visibleBaseMapLayer != "landsat") {
@@ -2243,6 +2263,7 @@
     var showViirsLayer = false;
     var showCoralBleachingLayer = false;
     var showLightsAtNightLayer = false;
+    var showLightsAtNight2016Layer = false;
     var showCrwTimemachineLayer = false;
     var showNdviAnomalyTimemachineLayer = false;
     var showAnimatedHansenLayer = false;
@@ -2544,7 +2565,8 @@
       var show_viirs = '<td class="viirs-select"><label for="show-viirs" name="viirs"><input type="checkbox" id="show-viirs" />Fires at Night</label></td>';
       var show_forest_alerts = '<td class="forest-alerts-select"><label for="show-forest-alerts" name="fla"><input type="checkbox" id="show-forest-alerts" />Forest Loss Alerts</label></td>';
       var show_forest_alert_no_overlay = '<td class="forest-alerts-no-overlay-select"><label for="show-forest-alerts-no-overlay" name="flano"><input type="checkbox" id="show-forest-alerts-no-overlay" />Forest Loss Alerts <span style="font-size: 14px">(No Overlay)</span></label></td>';
-      var show_lights_at_night = '<td class="lights-at-night-select"><label for="show-lights-at-night" name="lan"><input type="checkbox" id="show-lights-at-night" />Lights at Night</label></td>';
+      var show_lights_at_night = '<td class="lights-at-night-select"><label for="show-lights-at-night" name="lan"><input type="checkbox" id="show-lights-at-night" />Lights at Night (25 years)</label></td>';
+      var show_lights_at_night_2016 = '<td class="lights-at-night-2016-select"><label for="show-lights-at-night-2016" name="lan"><input type="checkbox" id="show-lights-at-night-2016" />Lights at Night 2016</label></td>';
       var show_coral = '<td class="coral-select"><label for="show-coral" name="cb"><input type="checkbox" id="show-coral"/>Coral Bleaching</label></td>';
       var show_coral_bleaching_alerts = '<td class="coral-bleaching-select"><label for="show-coral-bleaching-alerts" name="crw"><input type="checkbox" id="show-coral-bleaching-alerts" />Coral Reef Watch</label></td>';
       var show_usgs_windturbine = '<td class="wind-select"><label for="show-usgs-windturbine" name="wp"><input type="checkbox" id="show-usgs-windturbine" />Wind Power (USA)</span></label></td>';
@@ -2571,7 +2593,7 @@
       var show_sea_level_rise_4p0 = '<td class="sea-level-rise-4p0-select"><label for="show-sea-level-rise-4p0" name="slr4"><input type="checkbox" id="show-sea-level-rise-4p0" />Sea Level Rise 4.0 &deg; C</label></td>';
       var show_urban_fragility = '<td class="urban-fragility-select"><label for="show-urban-fragility" name="uf"><input type="checkbox" id="show-urban-fragility" />Urban Fragility</label></td>';
       var show_gtd = '<td class="gtd-select"><label for="show-gtd" name="gtd"><input type="checkbox" id="show-gtd" />Global Terrorism Database</label></td>';
-      var show_uppsala_conflict = '<td class="uppsala-conflict-select"><label for="show-uppsala-conflict" name="uppsala-conflict"><input type="checkbox" id="show-uppsala-conflict" />UCDP Event Dataset</label></td>';      
+      var show_uppsala_conflict = '<td class="uppsala-conflict-select"><label for="show-uppsala-conflict" name="uppsala-conflict"><input type="checkbox" id="show-uppsala-conflict" />UCDP Event Dataset</label></td>';
       var show_hiv = '<td class="hiv-select"><label for="show-hiv" name="hiv"><input type="checkbox" id="show-hiv" />HIV Infections</label></td>';
       var show_obesity = '<td class="obesity-select"><label for="show-obesity" name="obesity"><input type="checkbox" id="show-obesity" />Obesity</label></td>';
       var show_vaccine_confidence_q1 = '<td class="vaccine-confidence-q1-select"><label for="show-vaccine-confidence-q1" name="vc1"><input type="checkbox" id="show-vaccine-confidence-q1" />Vaccines & Children</label></td>';
@@ -3015,6 +3037,9 @@
         layer_html += '    <tr>';
         layer_html += show_lights_at_night;
         layer_html += '    </tr>';
+        layer_html += '    <tr>';
+        layer_html += show_lights_at_night_2016;
+        layer_html += '    </tr>';
         if (showUrbanFragility) {
           layer_html += '    <tr>';
           layer_html += show_urban_fragility;
@@ -3092,7 +3117,6 @@
       layer_html += '   <option data-file-playback-rate="1.5" data-type="video" data-file-name="temp-anomaly.mp4">Temperature Anomaly 1970-2016</option>';
       layer_html += '   <option data-type="img" data-link-path="water-synergies.png">Water Synergies</option>';
       layer_html += '   <option data-type="img" data-link-path="altered-river-flow.png">Altered River Flow</option>';
-
       if (showEVA)
         layer_html += '   <option data-type="link" data-link-path="http://localhost:8080/?uid=history-1436384863961-Vyxt6PIO">EVA - Explorable Visual Analytics</option>';
       layer_html += '   <optgroup label="World Economic Forum - Davos 2016">';
@@ -3117,6 +3141,7 @@
       legend_html += '<tr id="forest-loss-gain-legend" style="display: none; font-size: 14px;"><td><div style="font-size: 17px">Forest Loss/Gain 2000-2014 <span class="credit"> (Hansen et al)</span></div><div style="float: left; padding-right:8px"><div style="background-color:#00e000; width: 12px; height: 12px; float: left; margin-top: 2px; margin-left: 8px;"></div>&nbsp;Extent</div><div style="float: left; padding-right:8px"><div style="background-color:#ff0000; width: 12px; height: 12px; float: left; margin-top: 2px"></div>&nbsp;Loss</div><div style="float: left; padding-right:8px"><div style="background-color:#0000ff; width: 12px; height: 12px; float: left; margin-top: 2px"></div>&nbsp;Gain</div><div><div style="background-color:#ff00ff; width: 12px; height: 12px; float: left; margin-top: 2px"></div>&nbsp;Both</div></tr>';
       legend_html += '<tr id="fires-at-night-legend" style="display: none"><td><div style="background-color:#eda46a; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Fires At Night <span class="credit"> (NOAA)</span></div></tr>';
       legend_html += '<tr id="lights-at-night-legend" style="display: none"><td><div style="font-size: 17px">Lights at Night over 25 Years <span class="credit"> (NOAA, Google)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">Decrease</div><div style="margin-top: 4px; float: left; background-image: -webkit-linear-gradient(left, #4848FD, green 50%, red 100%);background-image: linear-gradient(left, #4848FD, green 50%, red 100%); width: 45px; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">Increase</div></tr>';
+      legend_html += '<tr id="lights-at-night-2016-legend" style="display: none"><td><div style="font-size: 17px">Lights at Night 2016 <span class="credit"> (NOAA)</span></div></tr>';
       legend_html += '<tr id="coral-bleaching-legend" style="display: none"><td><div style="float:left; background-color:#fa13ab; width:17px; height: 5px;"></div><div style="margin-left: 29px; margin-top: -5px; font-size: 17px">Coral Reefs <span class="credit"> (NOAA, UNEP-WCMC)</span></div></tr>';
       legend_html += '<tr id="coral-bleaching-alerts-legend" style="display: none"><td><div style="font-size: 17px">Coral Reef Watch <span class="credit"> (NOAA, UNEP-WCMC)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">Watch</div><div style="margin-top: 4px; float: left; background-image: -webkit-linear-gradient(left, #ffff00, #fbb404 65%, #a00200 100%);background-image: linear-gradient(left, #ffff00, #fbb404 65%, #a00200 100%); width: 45px; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">Alert</div></tr>';
       legend_html += '<tr id="wind-installs-legend" style="display: none"><td><div style="background-color:#a0fe8f; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -16px; font-size: 17px">US Wind Power <span class="credit"> (USGS)</span></div></div></tr>';
@@ -3441,6 +3466,13 @@
         tileHeight: 256
       };
       lightsAtNightMapLayer = new WebglMapLayer(glb, canvasLayer, lightsAtNightUrl, lightsAtNightMapLayerOptions);
+
+      var lightsAtNight2016MapLayerOptions = {
+        nLevels: 9,
+        tileWidth: 256,
+        tileHeight: 256
+      };
+      lightsAtNight2016MapLayer = new WebglMapLayer(glb, canvasLayer, lightsAtNight2016Url, lightsAtNight2016MapLayerOptions);
 
       var animatedHansenLayerOptions = {
         nLevels: 12,
@@ -4348,6 +4380,9 @@
         if (showLightsAtNightLayer) { // Draw lightsAtNightMapLayer
           var lightsAtNightLayerView = getLayerView(lightsAtNightMapLayer, landsatBaseMapLayer);
           lightsAtNightMapLayer.draw(lightsAtNightLayerView);
+        } else if (showLightsAtNight2016Layer) { // Draw lightsAtNight2016MapLayer
+          var lightsAtNight2016LayerView = getLayerView(lightsAtNight2016MapLayer, landsatBaseMapLayer);
+          lightsAtNight2016MapLayer.draw(lightsAtNight2016LayerView);
         } else if (showHansenLayer2) { // Draw Forest Loss/Gain
           var hansenMapLayerView2 = getLayerView(hansenMapLayer2, landsatBaseMapLayer);
           hansenMapLayer2.draw(hansenMapLayerView2);
@@ -4750,7 +4785,7 @@
             options.color = [0.4921875, 0.7421875, 0.91015625, 1.0];
           } else if (visibleBaseMapLayer == "dark") {
             options.color = [0.203125, 0.203125, 0.203125, 1.0];
-          } else if (showLightsAtNightLayer) {
+          } else if (showLightsAtNightLayer || showLightsAtNight2016Layer) {
             options.color = [0.0, 0.0, 0.0, 1.0];
           }
           var currentIndex = 0;
