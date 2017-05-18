@@ -222,6 +222,7 @@
     var cumulativeActiveMiningLayer;
     var iomIdpLayer;
     var berkeleyEarthTemperatureAnomalyTimeMachineLayer;
+    var landBorderLayer;
 
     // LODES interface
     var lodesGui;
@@ -440,6 +441,7 @@
     var cumulativeActiveMiningUrl = "http://storage.googleapis.com/skytruth-data/color_test_cumulativeActiveMining-FOOTPRINT/{z}/{x}/{y}.png";
 
     var iomIdpUrl = rootTilePath + "/iom-idp/idp-returns.geojson";
+    var landBorderUrl = "/data/land-borders/{default}/{z}/{x}/{y}.png";
 
     function init() {
       var enablePresentationSlider = true;
@@ -3389,6 +3391,8 @@
       waterOccurrenceLayer = new WebglMapLayer(glb, canvasLayer, waterOccurrenceUrl, defaultBaseMapLayerOptions);
       waterChangeLayer = new WebglMapLayer(glb, canvasLayer, waterChangeUrl, defaultBaseMapLayerOptions);
 
+      landBorderLayer = new WebglMapLayer(glb, canvasLayer, landBorderUrl, defaultBaseMapLayerOptions);
+
       vsiLayer = new WebglMapLayer(glb, canvasLayer, vsiUrl, defaultMapLayerOptions);
 
 
@@ -5050,6 +5054,10 @@
         if (showBerkeleyEarthTemperatureAnomalyTimeMachineLayer) {
           var view = getLayerView(berkeleyEarthTemperatureAnomalyTimeMachineLayer, landsatBaseMapLayer);
           berkeleyEarthTemperatureAnomalyTimeMachineLayer.draw(view, tileViewVisibility);
+
+
+          var landBorderView = getLayerView(landBorderLayer, landsatBaseMapLayer);
+          landBorderLayer.draw(landBorderView);
         }
 
 
