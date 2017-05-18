@@ -127,6 +127,8 @@
     var showSeaLevelRise = !!EARTH_TIMELAPSE_CONFIG.showSeaLevelRise;
     var showCumulativeActiveMining = !!EARTH_TIMELAPSE_CONFIG.showCumulativeActiveMining;
     var showIomIdp = !!EARTH_TIMELAPSE_CONFIG.showIomIdp;
+    var showBerkeleyEarthTemperatureAnomaly = !!EARTH_TIMELAPSE_CONFIG.showBerkeleyEarthTemperatureAnomaly;
+
 
     var showShareButton = !!EARTH_TIMELAPSE_CONFIG.showShareButton;
     var showShareButtonHash = window.location.hash.split("showShareButton=")[1];
@@ -219,7 +221,7 @@
     var lodesLayer;
     var cumulativeActiveMiningLayer;
     var iomIdpLayer;
-
+    var berkeleyEarthTemperatureAnomalyTimeMachineLayer;
 
     // LODES interface
     var lodesGui;
@@ -377,7 +379,7 @@
     var himawariTimemachineUrl = rootTilePath + "/himawari8/himawari8-nov-2015.timemachine/crf26-12fps-1424x800";
     var forestAlertsTimeMachineUrl = rootTilePath + "/global-forest-alerts/ForestAlarms2016v2/1068x600";
     var forestAlertsNoOverlayTimeMachineUrl = rootTilePath + "/global-forest-alerts/ForestAlarmsNoOverlay2016v1/1068x600";
-
+    var berkeleyEarthTemperatureAnomalyTimeMachineUrl = "/temperature-anomaly/data/timemachine/crf26-12fps-l70-1140x640";
     var osmDefaultUrl = rootTilePath + "/openstreetmap/default/";
     var osmLightRetinaUrl = rootTilePath + "/openstreetmap/light_all_retina/{default}/{z}/{x}/{y}.png";
     var osmDarkRetinaUrl = rootTilePath + "/openstreetmap/dark_all_retina/{default}/{z}/{x}/{y}.png";
@@ -961,6 +963,28 @@
         }
         timelapse.warpTo(timelapse.getHomeView());
       }).prop('checked', showHimawariTimeMachineLayer);
+
+      $("#show-berkeley-earth-temperature-anomaly").on("click", function() {
+        if ($(this).prop('checked')) {
+          showBerkeleyEarthTemperatureAnomalyTimeMachineLayer = true;
+          setActiveLayersWithTimeline(1);
+          timelineType = "defaultUI";
+          requestNewTimeline("berkeley-earth-temperature-anomaly-times.json", timelineType);
+          var v = timelapse.getVideoset();
+          v.setFps(12);
+          timelapse.setDoDwell(false);
+          WebglVideoTile.useGreenScreen = false;
+          timelapse.setMasterPlaybackRate(1.0);
+
+          $("#berkeley-earth-temperature-anomaly-legend").show();
+        } else {
+          showBerkeleyEarthTemperatureAnomalyTimeMachineLayer = false;
+          setActiveLayersWithTimeline(-1);
+          doSwitchToLandsat();
+          $("#berkeley-earth-temperature-anomaly-legend").hide();
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);       
+        }
+      }).prop('checked', showBerkeleyEarthTemperatureAnomalyTimeMachineLayer);
 
       $("#show-usgs-windturbine").on("click", function() {
         if ($(this).prop('checked')) {
@@ -2230,6 +2254,7 @@
     var showLodesLayer = false;
     var showCumulativeActiveMiningLayer = false;
     var showIomIdpLayer = false;
+    var showBerkeleyEarthTemperatureAnomalyTimeMachineLayer = false;
 
     // Default Time Machine visibility
     var tileViewVisibility = {
@@ -2543,6 +2568,7 @@
       var show_syria_iom_return = '<td class="syria-iom-return-select"><label for="show-syria-iom-return" name="syria-iom-return"><input type="checkbox" id="show-syria-iom-return" />Syria Returnees</label></td>';
       var show_libya_iom_return = '<td class="libya-iom-return-select"><label for="show-libya-iom-return" name="libya-iom-return"><input type="checkbox" id="show-libya-iom-return" />Libya Returnees</label></td>';
       var show_yemen_iom_return = '<td class="yemen-iom-return-select"><label for="show-yemen-iom-return" name="yemen-iom-return"><input type="checkbox" id="show-yemen-iom-return" />Yemen Returnees</label></td>';
+      var show_berkeley_earth_temperature_anomaly = '<td class="berkeley-earth-temperature-anomaly-select"><label for="show-berkeley-earth-temperature-anomaly" name="berkeley-earth-temperature-anomaly"><input type="checkbox" id="show-berkeley-earth-temperature-anomaly" />Berkeley Earth Temperature Anomaly</label></td>';
 
 
       if (enableLetterboxMode) {
@@ -2792,6 +2818,11 @@
           layer_html += '   <tr>';
           layer_html += show_vsi;
           layer_html += '   </tr>';
+        }
+        if (showBerkeleyEarthTemperatureAnomaly) {
+          layer_html += '    <tr>';
+          layer_html += show_berkeley_earth_temperature_anomaly;
+          layer_html += '    </tr>';
         }
         layer_html += '  </table>';
         /* END CLIMATE THEME */
@@ -3312,6 +3343,19 @@
       };
       forestAlertsTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, forestAlertsTimeMachineUrl, forestAlertsTimeMachineLayerOptions);
       forestAlertsNoOverlayTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, forestAlertsNoOverlayTimeMachineUrl, forestAlertsTimeMachineLayerOptions);
+
+      // Himawari-8
+      var berkeleyEarthTemperatureAnomalyTimeMachineLayerOptions = {
+        mediaType: ".mp4",
+        numFrames: cached_ajax['berkeley-earth-temperature-anomaly-times.json']['capture-times'].length,
+        fps: 12,
+        nLevels: 2,
+        video_width: 1140,
+        video_height: 640,
+        width: 1024,
+        height: 1024
+      };
+      berkeleyEarthTemperatureAnomalyTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, berkeleyEarthTemperatureAnomalyTimeMachineUrl, berkeleyEarthTemperatureAnomalyTimeMachineLayerOptions);
 
       // For any raster map
       var defaultMapLayerOptions = {
@@ -5001,6 +5045,12 @@
           options.showLbyReturns = iomIdpLayer.options['showLbyReturns'];
           iomIdpLayer.draw(iomIdpLayerView, options);
         }
+
+        if (showBerkeleyEarthTemperatureAnomalyTimeMachineLayer) {
+          var view = getLayerView(berkeleyEarthTemperatureAnomalyTimeMachineLayer, landsatBaseMapLayer);
+          berkeleyEarthTemperatureAnomalyTimeMachineLayer.draw(view, tileViewVisibility);
+        }
+
 
       }
     }
