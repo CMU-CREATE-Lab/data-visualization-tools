@@ -417,6 +417,36 @@ WebGLVectorTile2.prototype._setGtdData = function(arrayBuffer) {
   }
 }
 
+// UCDP Database: a_centroid[2]  a_val a_start_epoch a_end_epoch  
+WebGLVectorTile2.prototype._setUppsalaConflictData = function(arrayBuffer) {
+  var gl = this.gl;
+  this._pointCount = arrayBuffer.length / 5;
+  if (this._pointCount > 0) {
+    this._data = arrayBuffer;
+    this._arrayBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_centroid');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 20, 0);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_val');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 20, 8);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_start_epoch');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 20, 12);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_end_epoch');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 20, 16);
+
+    this._ready = true;
+  }
+}
+
 // Ebola: a_Centroid[2] a_Epoch1 a_Deaths1 a_Epoch2 a_Deaths2
 WebGLVectorTile2.prototype._setEbolaData = function(arrayBuffer) {
   var gl = this.gl;
@@ -1106,6 +1136,71 @@ WebGLVectorTile2.prototype._drawGtd = function(transform, options) {
 
     var spanEpoch = 2.0*365*24*68*60;
     var span = gl.getUniformLocation(this.program, 'u_Span');
+    gl.uniform1f(span, spanEpoch);
+
+
+    gl.drawArrays(gl.POINTS, 0, this._pointCount);
+    perf_draw_points(this._pointCount);
+    gl.disable(gl.BLEND);
+  }
+}
+
+WebGLVectorTile2.prototype._drawUppsalaConflict = function(transform, options) {
+  var gl = this.gl;
+  if (this._ready) {
+    gl.useProgram(this.program);
+    gl.enable(gl.BLEND);
+    gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
+
+    var tileTransform = new Float32Array(transform);
+    var zoom = options.zoom;
+    var currentTime = options.currentTime/1000.;
+    var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
+    var color = options.color || [.1, .1, .5, 1.0];
+
+    scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
+
+    translateMatrix(tileTransform, (this._bounds.max.x - this._bounds.min.x)/256., (this._bounds.max.y - this._bounds.min.y)/256.);
+    scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+
+    pointSize *= Math.floor((zoom + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+    // Passing a NaN value to the shader with a large number of points is very bad
+    if (isNaN(pointSize)) {
+      pointSize = 1.0;
+    }
+
+    var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
+    gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_centroid');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 20, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+
+    var timeLocation = gl.getAttribLocation(this.program, "a_val");
+    gl.enableVertexAttribArray(timeLocation);
+    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 20, 8); // 8 byte offset
+
+    var timeLocation = gl.getAttribLocation(this.program, "a_start_epoch");
+    gl.enableVertexAttribArray(timeLocation);
+    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 20, 12); // 8 byte offset
+
+    var timeLocation = gl.getAttribLocation(this.program, "a_end_epoch");
+    gl.enableVertexAttribArray(timeLocation);
+    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 20, 16); // 8 byte offset
+
+    var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
+    gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+
+    var sliderTime = gl.getUniformLocation(this.program, 'u_epoch');
+    gl.uniform1f(sliderTime, currentTime);
+
+    var sliderTime = gl.getUniformLocation(this.program, 'u_size');
+    gl.uniform1f(sliderTime, pointSize);
+
+    var spanEpoch = 24.0*30*24*68*60;
+    var span = gl.getUniformLocation(this.program, 'u_span');
     gl.uniform1f(span, spanEpoch);
 
 
@@ -2448,6 +2543,40 @@ WebGLVectorTile2.gtdFragmentShader =
 "          gl_FragColor =  vec4(r, .0, .0, .85) * dist;\n" +
 "        }\n";
 
+WebGLVectorTile2.uppsalaConflictVertexShader =
+"        attribute vec4 a_centroid;\n" +
+"        attribute float a_start_epoch;\n" +
+"        attribute float a_end_epoch;\n" +
+"        attribute float a_val;\n" +
+"        uniform float u_epoch;\n" +
+"        uniform float u_span;\n" +
+"        uniform float u_size;\n" +
+"        uniform mat4 u_map_matrix;\n" +
+"        varying float v_alpha;\n" +
+"        void main() {\n" +
+"          if ( a_start_epoch > u_epoch) {\n" +
+"            gl_Position = vec4(-1,-1,-1,-1);\n" +
+"          } else if (u_epoch - a_end_epoch > u_span) {\n" +
+"            gl_Position = vec4(-1,-1,-1,-1);\n" +
+"          }\n" +
+"          else {\n" +
+"            gl_Position = u_map_matrix * a_centroid;\n" +
+"          }\n" +
+"          v_alpha = (u_epoch - a_end_epoch) / u_span;\n" +
+"          gl_PointSize = u_size * a_val;\n" +
+"        }\n";
+
+
+WebGLVectorTile2.uppsalaConflictFragmentShader =
+"        precision mediump float;\n" +
+"        varying float v_alpha;\n" +
+"        void main() {\n" +
+"          float r = 1.0 - v_alpha;\n" +
+"          float dist = distance( vec2(0.5, 0.5), gl_PointCoord);\n" +
+"          dist = 1.0 - (dist * 2.0);\n" +
+"          dist = max(0.0, dist);\n" +
+"          gl_FragColor =  vec4(r, .0, .0, .85) * dist;\n" +
+"        }\n";
 
 WebGLVectorTile2.hivVertexShader =
 'attribute vec4 a_Centroid;\n' +

@@ -47,5 +47,6 @@ var EARTH_TIMELAPSE_CONFIG = {
   "showCumulativeActiveMining": false,
   "showCsvLayers": true,
   "showIomIdp": true,
-  "showBerkeleyEarthTemperatureAnomaly": true
+  "showBerkeleyEarthTemperatureAnomaly": true,
+  "showUppsalaConflict": false
 };
