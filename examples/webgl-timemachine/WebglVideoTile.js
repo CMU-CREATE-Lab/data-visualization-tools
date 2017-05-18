@@ -671,6 +671,12 @@ WebglVideoTile.update = function(tiles, transform) {
     displayFrame = Math.min(numTimelapseFrames, displayFrame + 16);
   }
 
+  // Start at 1988 (frame 4) for Uppsala Conflict
+  // TODO: Like with the other layer hacks, we should have a way to pass in these values
+  if (typeof showUppsalaConflictLayer != "undefined" && showUppsalaConflictLayer) {
+    displayFrame = Math.min(numTimelapseFrames, displayFrame + 4);
+  }
+
   // Show Landsat year depending upon what year is being shown for the VIIRS timeline
   // TODO: Like with the other layer hacks, we should have a way to pass in these values
   if (typeof showViirsLayer != "undefined" && showViirsLayer) {
