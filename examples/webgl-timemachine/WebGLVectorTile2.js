@@ -1330,7 +1330,7 @@ WebGLVectorTile2.prototype._drawBubbleMap = function(transform, options) {
     gl.uniform1f(sliderTime, currentTime);
 
     var sliderTime = gl.getUniformLocation(this.program, 'u_Size');
-    gl.uniform1f(sliderTime, pointSize);
+    gl.uniform1f(sliderTime, 2.0);
 
     gl.drawArrays(gl.POINTS, 0, this._pointCount);
     perf_draw_points(this._pointCount);
