@@ -2038,7 +2038,7 @@
           $extrasHtml = '<iframe style="border: 0px; scrolling: no; width: 100%; height: 100%" src="' + $(e.currentTarget).data("linkpath") + '"></iframe>';
           $("#extras-content").html($extrasHtml).dialog("open");
         } else if (fileType == "img") {
-          $extrasHtml = '<img height="100%" style="display: block; margin: 0 auto;" src="../../../extras/' + $(e.currentTarget).data("linkpath") + '">';
+          $extrasHtml = '<img id="extras-img" height="100%" style="display: block; margin: 0 auto;" src="../../../extras/' + $(e.currentTarget).data("linkpath") + '">';
           $("#extras-content").html($extrasHtml).dialog("open");
         } else if (fileType == "link") {
           window.location.href = $(e.currentTarget).data("linkpath");
@@ -2101,6 +2101,16 @@
         if (e.keyCode === 76) {
           var snaplapseForPresentationSlider = timelapse.getSnaplapseForPresentationSlider();
           snaplapseForPresentationSlider.getSnaplapseViewer().initializeAndRunAutoMode();
+        }
+        // 'o' key (lowercase o)
+        // Special case for flipping through water synergy slides
+        if (e.keyCode === 79) {
+          var $extrasImage = $("#extras-img");
+          if ($extrasImage[0].src.indexOf("water-synergies-p2") != -1) {
+            $extrasImage[0].src = "../../../extras/water-synergies-p1.png";
+          } else {
+            $extrasImage[0].src = "../../../extras/water-synergies-p2.png";
+          }
         }
         // Bring up share view dialog
         if (keysDown.indexOf(e.keyCode) < 0) {
