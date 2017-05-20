@@ -178,6 +178,7 @@
     var activeLayersWithTimeline = 0;
     var previousActiveLayersWithTimeline = 0;
     var keysDown = [];
+    var $lastSelectedExtra;
 
     // This is necessary because waypoint thumbnails are generated from the Landsat set and thus the best we can show is just a solid black thumbnail
     // instead of some random location that a himawari bounds corresponds to in Landsat.
@@ -1989,6 +1990,7 @@
         close: function() {
           // Chrome css workaround...
           $("#layers-list.right-panel").hide().show(0);
+          $lastSelectedExtra = null;
         },
         position: {
           at: "left top",
@@ -2018,6 +2020,7 @@
 
       // Use click event rather than selectmenu 'change' since that event is not registered on the touch screen.
       $(".ui-selectmenu-menu").on("click", "li", function(e) {
+        $lastSelectedExtra = $(e.currentTarget);
         // Reset automode timer, since clicking a waypoint now closes the extras pop-up.
         snaplapseViewerForPresentationSlider.startAutoModeIdleTimeout();
         var fileName = $(e.currentTarget).data("filename");
@@ -2102,14 +2105,14 @@
           var snaplapseForPresentationSlider = timelapse.getSnaplapseForPresentationSlider();
           snaplapseForPresentationSlider.getSnaplapseViewer().initializeAndRunAutoMode();
         }
-        // 'o' key (lowercase o)
-        // Special case for flipping through water synergy slides
-        if (e.keyCode === 79) {
-          var $extrasImage = $("#extras-img");
-          if ($extrasImage[0].src.indexOf("water-synergies-p2") != -1) {
-            $extrasImage[0].src = "../../../extras/water-synergies-p1.png";
+        // up/down arrows (but only if a select menu option has already been clicked)
+        // Quick way to toggle between the various items under the extras menu
+        if ((e.keyCode === 38 || e.keyCode === 40) && $lastSelectedExtra) {
+          // up arrow
+          if (e.keyCode === 38) {
+            $lastSelectedExtra.prev().click();
           } else {
-            $extrasImage[0].src = "../../../extras/water-synergies-p2.png";
+            $lastSelectedExtra.next().click();
           }
         }
         // Bring up share view dialog
