@@ -129,7 +129,8 @@
     var showIomIdp = !!EARTH_TIMELAPSE_CONFIG.showIomIdp;
     var showBerkeleyEarthTemperatureAnomaly = !!EARTH_TIMELAPSE_CONFIG.showBerkeleyEarthTemperatureAnomaly;
     var showUppsalaConflict = !!EARTH_TIMELAPSE_CONFIG.showUppsalaConflict;
-
+    var showLightsAtNight2012 = !!EARTH_TIMELAPSE_CONFIG.showLightsAtNight2012;
+    var showLightsAtNight2016 = !!EARTH_TIMELAPSE_CONFIG.showLightsAtNight2016;
 
     var showShareButton = !!EARTH_TIMELAPSE_CONFIG.showShareButton;
     var showShareButtonHash = window.location.hash.split("showShareButton=")[1];
@@ -2605,8 +2606,8 @@
       var show_forest_alerts = '<td class="forest-alerts-select"><label for="show-forest-alerts" name="fla"><input type="checkbox" id="show-forest-alerts" />Forest Loss Alerts</label></td>';
       var show_forest_alert_no_overlay = '<td class="forest-alerts-no-overlay-select"><label for="show-forest-alerts-no-overlay" name="flano"><input type="checkbox" id="show-forest-alerts-no-overlay" />Forest Loss Alerts <span style="font-size: 14px">(No Overlay)</span></label></td>';
       var show_lights_at_night = '<td class="lights-at-night-select"><label for="show-lights-at-night" name="lan"><input type="checkbox" id="show-lights-at-night" />Lights at Night (25 years)</label></td>';
-      var show_lights_at_night_2012 = '<td class="lights-at-night-2012-select"><label for="show-lights-at-night-2012" name="lan"><input type="checkbox" id="show-lights-at-night-2012" />Lights at Night 2012</label></td>';
-      var show_lights_at_night_2016 = '<td class="lights-at-night-2016-select"><label for="show-lights-at-night-2016" name="lan"><input type="checkbox" id="show-lights-at-night-2016" />Lights at Night 2016</label></td>';
+      var show_lights_at_night_2012 = '<td class="lights-at-night-2012-select"><label for="show-lights-at-night-2012" name="lan12"><input type="checkbox" id="show-lights-at-night-2012" />Lights at Night 2012</label></td>';
+      var show_lights_at_night_2016 = '<td class="lights-at-night-2016-select"><label for="show-lights-at-night-2016" name="lan16"><input type="checkbox" id="show-lights-at-night-2016" />Lights at Night 2016</label></td>';
       var show_coral = '<td class="coral-select"><label for="show-coral" name="cb"><input type="checkbox" id="show-coral"/>Coral Bleaching</label></td>';
       var show_coral_bleaching_alerts = '<td class="coral-bleaching-select"><label for="show-coral-bleaching-alerts" name="crw"><input type="checkbox" id="show-coral-bleaching-alerts" />Coral Reef Watch</label></td>';
       var show_usgs_windturbine = '<td class="wind-select"><label for="show-usgs-windturbine" name="wp"><input type="checkbox" id="show-usgs-windturbine" />Wind Power (USA)</span></label></td>';
@@ -3077,12 +3078,16 @@
         layer_html += '    <tr>';
         layer_html += show_lights_at_night;
         layer_html += '    </tr>';
-        layer_html += '    <tr>';
-        layer_html += show_lights_at_night_2012;
-        layer_html += '    </tr>';
-        layer_html += '    <tr>';
-        layer_html += show_lights_at_night_2016;
-        layer_html += '    </tr>';
+        if (showLightsAtNight2012) {
+          layer_html += '    <tr>';
+          layer_html += show_lights_at_night_2012;
+          layer_html += '    </tr>';
+        }
+        if (showLightsAtNight2016) {
+          layer_html += '    <tr>';
+          layer_html += show_lights_at_night_2016;
+          layer_html += '    </tr>';
+        }
         if (showUrbanFragility) {
           layer_html += '    <tr>';
           layer_html += show_urban_fragility;

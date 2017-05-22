@@ -48,5 +48,7 @@ var EARTH_TIMELAPSE_CONFIG = {
   "showCsvLayers": true,
   "showIomIdp": true,
   "showBerkeleyEarthTemperatureAnomaly": true,
-  "showUppsalaConflict": false
+  "showUppsalaConflict": false,
+  "showLightsAtNight2012": false,
+  "showLightsAtNight2016": false
 };
