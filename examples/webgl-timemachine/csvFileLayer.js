@@ -76,7 +76,7 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
     var layerIdentifier = layerdef[1].replace(/\W+/g, '_'); // sanitize non-word chars
     var scalingFunction = layerdef[8].trim();
     if (scalingFunction == '') {
-      scalingFunction = 'd3.scaleSqrt().domain([minValue, maxValue]).range([0, 1])';
+      scalingFunction = 'd3.scaleSqrt().domain([minValue, maxValue]).range([0, 100])';
     }
 
     this.addLayer(layerIdentifier, // identifier
