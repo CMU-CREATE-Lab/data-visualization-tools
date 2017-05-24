@@ -4,7 +4,6 @@ var CsvFileLayer = function CsvFileLayer() {
 }
 
 CsvFileLayer.prototype.addLayer = function addLayer(nickname, url, name, credit, scalingFunction) {
-  console.log('addLayer: ' + scalingFunction);
   var layerOptions = {
     tileWidth: 256,
     tileHeight: 256,
