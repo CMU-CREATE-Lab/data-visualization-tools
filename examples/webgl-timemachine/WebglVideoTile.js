@@ -432,7 +432,6 @@ updatePhase2 = function(displayFrame) {
     futureTargetVideoFrame = Math.min(futureTargetVideoFrame,
                                       nextNeededFrame + 0.5);
   }
-
   // Set speed so that in one webgl frame, we'll be exactly at the right time
   var speed = (futureTargetVideoFrame - actualVideoFrame) / future;
   if (speed < 0) speed = 0;
@@ -603,7 +602,7 @@ draw = function(transform) {
         isPaused = true;
       }
 
-      var numTimelapseFrames = (typeof visibleBaseMapLayer != "undefined" && visibleBaseMapLayer == "landsat") ? numLandsatFrames : timelapse.getNumFrames();
+      var numTimelapseFrames = this._nframes;
       // TODO -- why is there a texture still in pipeline[1] that isn't usable when the timelapse is paused?
       if (this._pipeline[1].texture &&
           this._pipeline[1].frameno < numTimelapseFrames &&
@@ -651,8 +650,9 @@ WebglVideoTile.update = function(tiles, transform) {
 
   var displayFrame = timelapse.getVideoset().getCurrentTime() * fps;
 
-  var numTimelapseFrames = (typeof visibleBaseMapLayer != "undefined" && visibleBaseMapLayer == "landsat") ? numLandsatFrames : timelapse.getNumFrames();
+  var numTimelapseFrames = tiles[0]._nframes;
 
+  //console.log(numTimelapseFrames);
   // Start at 2000 (frame 16) for Urban Fragility
   // TODO: Like with the other layer hacks, we should have a way to pass in these values
   if (typeof showUrbanFragilityLayer != "undefined" && showUrbanFragilityLayer) {

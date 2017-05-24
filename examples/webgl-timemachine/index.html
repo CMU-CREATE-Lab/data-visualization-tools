@@ -165,7 +165,6 @@
     }
 
     var NORTH = 85.05113006405742; // Latitude for Northern most extent
-    var numLandsatFrames = cached_ajax[cachedLandsatTimeJsonPath]['capture-times'].length;
     var landsatMaxScale = (landsatVersion == "2015") ? 1.25 : 0.45;
     var himawariMaxScale = 0.02;
     var isAutoModeRunning = false;
@@ -3393,7 +3392,7 @@
       // Landsat
       var defaultTimeMachineLayerOptions = {
         mediaType: ".mp4",
-        numFrames: numLandsatFrames,
+        numFrames: cached_ajax[cachedLandsatTimeJsonPath]['capture-times'].length,
         fps: 10
       };
       landsatBaseMapLayer = new WebglTimeMachineLayer(glb, canvasLayer, landsatUrl, defaultTimeMachineLayerOptions);
