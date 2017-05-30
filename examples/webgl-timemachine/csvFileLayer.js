@@ -128,17 +128,19 @@ CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate,
   cached_ajax[identifier + '.json'] = {"capture-times":  captureTimes};
 }
 
-var COUNTRY_LIST = null;
+var COUNTRY_CENTROIDS = null;
 var xhr = new XMLHttpRequest();
 xhr.open('GET', "gapminder.geojson");
 xhr.onload = function() {
-    COUNTRY_LIST = JSON.parse(this.responseText);
+    COUNTRY_CENTROIDS = JSON.parse(this.responseText);
 }
 xhr.send();
 
+
+
 function searchCountryList(name) {
-  for (var i = 0; i < COUNTRY_LIST['features'].length; i++) {
-    var feature = COUNTRY_LIST['features'][i];
+  for (var i = 0; i < COUNTRY_CENTROIDS['features'].length; i++) {
+    var feature = COUNTRY_CENTROIDS['features'][i];
     var names = feature['properties']['names'];
     for (var j = 0; j < names.length; j++) {
       if (name == names[j]) {
