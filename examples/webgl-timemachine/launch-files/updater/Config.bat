@@ -46,7 +46,7 @@ goto :UPDATE_CANCEL
   :: String replace using SSED
   %SSED_PATH% -ie "s/\"waypointSliderContentPath\".*\"/\"waypointSliderContentPath\" : \"%WAYPOINT_PATH%\"/g" %CONFIG_PATH%
   if %errorlevel% neq 0 goto :UPDATE_FAILED /b %errorlevel%
-  rm %TMP_CONFIG_PATH%
+  del %TMP_CONFIG_PATH%
   call :SET_READ_ONLY_STATE
   goto :UPDATE_SUCCESSFUL
 
