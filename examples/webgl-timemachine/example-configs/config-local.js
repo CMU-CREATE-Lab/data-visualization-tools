@@ -50,5 +50,6 @@ var EARTH_TIMELAPSE_CONFIG = {
   "showBerkeleyEarthTemperatureAnomaly": true,
   "showUppsalaConflict": false,
   "showLightsAtNight2012": false,
-  "showLightsAtNight2016": false
+  "showLightsAtNight2016": false,
+  "showOmiNo2": true
 };

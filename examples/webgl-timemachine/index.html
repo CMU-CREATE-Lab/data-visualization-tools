@@ -131,6 +131,7 @@
     var showUppsalaConflict = !!EARTH_TIMELAPSE_CONFIG.showUppsalaConflict;
     var showLightsAtNight2012 = !!EARTH_TIMELAPSE_CONFIG.showLightsAtNight2012;
     var showLightsAtNight2016 = !!EARTH_TIMELAPSE_CONFIG.showLightsAtNight2016;
+    var showOmiNo2 = !!EARTH_TIMELAPSE_CONFIG.showOmiNo2;
 
     var showShareButton = !!EARTH_TIMELAPSE_CONFIG.showShareButton;
     var showShareButtonHash = window.location.hash.split("showShareButton=")[1];
@@ -226,6 +227,7 @@
     var berkeleyEarthTemperatureAnomalyTimeMachineLayer;
     var landBorderLayer;
     var uppsalaConflictLayer;
+    var omiNo2Layer;
 
 
     // LODES interface
@@ -451,6 +453,8 @@
     var landBorderUrl = rootTilePath + "/land-borders/{default}/{z}/{x}/{y}.png";
 
     var uppsalaConflictUrl = rootTilePath + "/ucdp/uppsala-conflict.bin";
+
+    var omiNo2Url = "/omi-no2/data";
 
     function init() {
       var enablePresentationSlider = true;
@@ -1939,6 +1943,20 @@
         }
       }).prop('checked', showIomIdpLayer);
 
+      $("#show-omi-no2").on("click", function() {
+        if ($(this).prop('checked')) {
+          showOmiNo2Layer = true;
+          setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
+          requestNewTimeline("omi-no2-times.json", timelineType);
+          $("#omi-no2-legend").show();
+        } else {
+          showIomIdpLayer = false;
+          setActiveLayersWithTimeline(-1);
+          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+        }
+      }).prop('checked', showOmiNo2Layer);
+
       // Base layers
       $("input:radio[name=base-layers]").on("click", function() {
         visibleBaseMapLayer = $(this).val();
@@ -2338,6 +2356,7 @@
     var showCumulativeActiveMiningLayer = false;
     var showIomIdpLayer = false;
     var showBerkeleyEarthTemperatureAnomalyTimeMachineLayer = false;
+    var showOmiNo2Layer = false;
 
     // Default Time Machine visibility
     var tileViewVisibility = {
@@ -2655,6 +2674,7 @@
       var show_libya_iom_return = '<td class="libya-iom-return-select"><label for="show-libya-iom-return" name="libya-iom-return"><input type="checkbox" id="show-libya-iom-return" />Libya Returnees</label></td>';
       var show_yemen_iom_return = '<td class="yemen-iom-return-select"><label for="show-yemen-iom-return" name="yemen-iom-return"><input type="checkbox" id="show-yemen-iom-return" />Yemen Returnees</label></td>';
       var show_berkeley_earth_temperature_anomaly = '<td class="berkeley-earth-temperature-anomaly-select"><label for="show-berkeley-earth-temperature-anomaly" name="berkeley-earth-temperature-anomaly"><input type="checkbox" id="show-berkeley-earth-temperature-anomaly" />Temperature Anomaly</label></td>';
+      var show_omi_no2 = '<td class="omi-no2-select"><label for="show-omi-no2" name="omi-no2"><input type="checkbox" id="show-omi-no2" />OMI NO2</label></td>';
 
 
       if (enableLetterboxMode) {
@@ -2909,6 +2929,11 @@
           layer_html += '    <tr>';
           layer_html += show_berkeley_earth_temperature_anomaly;
           layer_html += '    </tr>';
+        }
+        if (showOmiNo2) {
+          layer_html += '   <tr>';
+          layer_html += show_omi_no2;
+          layer_html += '   </tr>';
         }
         layer_html += '  </table>';
         /* END CLIMATE THEME */
@@ -3462,6 +3487,20 @@
         height: 1024
       };
       berkeleyEarthTemperatureAnomalyTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, berkeleyEarthTemperatureAnomalyTimeMachineUrl, berkeleyEarthTemperatureAnomalyTimeMachineLayerOptions);
+
+
+      var omiNo2LayerOptions = {
+        mediaType: ".mp4",
+        numFrames: cached_ajax['omi-no2-times.json']['capture-times'].length,
+        fps: 12,
+        nlevels: 1,
+        video_width: 1024,
+        video_height: 1024,
+        width: 1024,
+        height: 1024,
+        greenScreen: true
+      };
+      omiNo2Layer = new WebglTimeMachineLayer(glb, canvasLayer, omiNo2Url, omiNo2LayerOptions);
 
       // For any raster map
       var defaultMapLayerOptions = {
@@ -5206,6 +5245,11 @@
 
           var landBorderView = getLayerView(landBorderLayer, landsatBaseMapLayer);
           landBorderLayer.draw(landBorderView);
+        }
+
+        if (showOmiNo2Layer) {
+          var view = getLayerView(omiNo2Layer, landsatBaseMapLayer);
+          omiNo2Layer.draw(view, tileViewVisibility);
         }
 
 
