@@ -3,7 +3,7 @@ var CsvFileLayer = function CsvFileLayer() {
   this.layerAleadyLoaded;
 }
 
-CsvFileLayer.prototype.addLayer = function addLayer(nickname, url, name, credit, scalingFunction) {
+CsvFileLayer.prototype.addLayer = function addLayer(nickname, url, name, credit, scalingFunction, mapType) {
   var layerOptions = {
     tileWidth: 256,
     tileHeight: 256,
@@ -15,6 +15,15 @@ CsvFileLayer.prototype.addLayer = function addLayer(nickname, url, name, credit,
     fragmentShader: WebGLVectorTile2.bubbleMapFragmentShader,
     vertexShader: WebGLVectorTile2.bubbleMapVertexShader
   };
+  if (mapType == "choropleth") {
+    layerOptions.loadDataFunction = WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv;
+    //layerOptions.setDataFunction = WebGLVectorTile2.prototype._setChoroplethMapData;
+    //layerOptions.drawFunction = WebGLVectorTile2.prototype._drawChoroplethMap;
+    //layerOptions.fragmentShader = WebGLVectorTile2.choroplethMapFragmentShader;
+    //layerOptions.vertexShader = WebGLVectorTile2.choroplethMapVertexShader;
+  }
+
+
   var layer = new WebglVectorLayer2(glb, canvasLayer, url, layerOptions);
   this.layers.push(layer);
 
@@ -78,12 +87,18 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
     if (scalingFunction == '') {
       scalingFunction = 'd3.scaleSqrt().domain([minValue, maxValue]).range([0, 100])';
     }
+    var mapType = layerdef[9].trim();
+    console.log(mapType);
+    if (mapType != "bubble" && mapType != "choropleth") {
+      mapType = "bubble";
+    }
 
     this.addLayer(layerIdentifier, // identifier
       layerdef[2], // url
       layerdef[3], // name
       layerdef[4],
-      scalingFunction); // credit
+      scalingFunction,
+      mapType); // credit
 
     this.setTimeLine(layerIdentifier,
       parseInt(layerdef[5], 10), // start date
@@ -133,6 +148,15 @@ var xhr = new XMLHttpRequest();
 xhr.open('GET', "gapminder.geojson");
 xhr.onload = function() {
     COUNTRY_CENTROIDS = JSON.parse(this.responseText);
+}
+xhr.send();
+
+
+var COUNTRY_POLYGONS = null;
+var xhr = new XMLHttpRequest();
+xhr.open('GET', "country_polygons.geojson");
+xhr.onload = function() {
+    COUNTRY_POLYGONS = JSON.parse(this.responseText);
 }
 xhr.send();
 
