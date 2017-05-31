@@ -1,0 +1,71 @@
+@font-face {
+    font-family: 'Blender'; 
+    src: url("blender.ttf");
+}
+
+.explainborder{
+    /*pointer-events:none; */ /* deactiating clicking */
+    position:absolute;
+    border-style:solid;
+    border-width:2px;
+    border-color:#fff;
+    background-color:rgba(100,100,100,0.5);
+    top:100px;
+    bottom:200px;
+    border-radius: 10px;
+    
+
+    /*width:500px;*/
+    left:200px;
+    right:200px;
+    /*width:500px;*/
+    /*width: -webkit-calc(100% - 400px);
+    width:    -moz-calc(100% - 400px);
+    width:         calc(100% - 400px);*/
+    overflow: scroll;
+    
+}
+.blender{font-family: "Blender","Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+.explain{
+    /*position:relative;*/
+    font-size:4vw;
+    color:#fff;
+    text-align:center;
+    /*width:500px;*/
+}
+
+.initial{
+padding-top:120px;
+padding-bottom:120px;
+}
+
+.gbutton{
+    position:relative;
+    font-family:'Blender';
+    background-color:Transparent;
+    border:2px solid #fff;
+    text-align:center;
+    padding:15px 20px 15px 20px;
+    color:#fff;
+    font-size:20px;
+    cursor:pointer;
+    transition:background 0.5s ease-in-out;
+    text-decoration:none;
+    pointer-events:auto;
+}
+.gbutton:hover{
+    background:#f4ae01;
+    border:2px solid #fff;
+    color:#fff;
+}
+
+.explaincontainer{
+    position:absolute;
+    left:0;
+    top:0;
+    height:100%;
+    width:100%;
+    /*background-color:*/
+    z-index:99;
+}

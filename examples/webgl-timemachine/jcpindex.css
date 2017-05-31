@@ -42,9 +42,7 @@
 .location_search_div{
   position:fixed;
   width:100%;
-  /*background-color:#fff;
-  width:500px;
-  height:500px;*/
+  z-index:99;
 }
 .customLogo{
     position:absolute;
@@ -66,19 +64,11 @@
     background-image: url("jcpassets/WEF.png");
 }
 #location_search{
-  /*position:relative Qimportant;*/
+
   left:230px!important;
   height:30px!important;
 }
-#layers-list label {
-font-family: "Blender","Helvetica Neue",Helvetica,Arial,sans-serif;
 
-}
-
-#location_search {
-  font-family: "Blender","Helvetica Neue",Helvetica,Arial,sans-serif;
-  /*left:100px!important;*/
-}
 
 
 
@@ -140,9 +130,7 @@ font-family: "Blender","Helvetica Neue",Helvetica,Arial,sans-serif;
 /*.sideToolBar{
   display:none;
 }*/
-.pan{
-    display:none
-}
+
 .sideToolBar{
     position: absolute;
     top: 20px;
@@ -154,20 +142,12 @@ font-family: "Blender","Helvetica Neue",Helvetica,Arial,sans-serif;
     position:absolute;
     /*right:10px;*/
 }
-.toggleLegendBtn{
-    display:none;
-}
-.hide-layers-list{
-    display:none;
-}
+
 .share{
   top:23px !important;   /* aligning with search */
   /*left:362px!important;*/
 }
 
-.customHelpLabel{
-    display:none;
-}
 .customButton {
     width: 38px;
     height: 38px;
@@ -179,9 +159,6 @@ font-family: "Blender","Helvetica Neue",Helvetica,Arial,sans-serif;
     font-family: Arial, Helvetica, sans-serif !important;
     font-size: 11px !important;
     z-index: 30;
-}
-.ui-button-text{
-  color:#fff!important;
 }
 
 .jcpshare{
@@ -244,58 +221,7 @@ font-family: "Blender","Helvetica Neue",Helvetica,Arial,sans-serif;
     z-index: 30;
     cursor: pointer; 
 }
-.button2{
-    font-family: "Blender","Helvetica Neue",Helvetica,Arial,sans-serif;
-    text-align:center;
-    color:#aaa;
-    top:60px;
-    width: 100%;
-    height: 60px;
-    background: #222 !important;
-    border: 1px solid #434343 !important;
-    border-radius: 2px !important;
-    box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
-    outline: none;
-    font-family: Arial, Helvetica, sans-serif !important;
-    font-size: 11px !important;
-    z-index: 50;
-    cursor: pointer; 
-}
-.button3{
-    font-family: "Blender","Helvetica Neue",Helvetica,Arial,sans-serif;
-    text-align:center;
-    color:#aaa;
-    top:120px;
-    width: 100%;
-    height: 60px;
-    background: #222 !important;
-    border: 1px solid #434343  !important;
-    border-radius: 2px !important;
-    box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
-    outline: none;
-    font-family: Arial, Helvetica, sans-serif !important;
-    font-size: 11px !important;
-    z-index: 50;
-    cursor: pointer; 
-}
-.button4{ 
-  /*The button next to share*/
-    font-family: "Blender","Helvetica Neue",Helvetica,Arial,sans-serif;
-    text-align:center;
-    color:#aaa;
-    top:180px;
-    width: 100%;
-    height: 60px;
-    background: #222 !important;
-    border: 1px solid #434343  !important;
-    border-radius: 2px !important;
-    box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
-    outline: none;
-    font-family: Arial, Helvetica, sans-serif !important;
-    font-size: 11px !important;
-    z-index: 50;
-    cursor: pointer; 
-}
+
 .buttonTemp{
     position:absolute;
     font-family: "Blender","Helvetica Neue",Helvetica,Arial,sans-serif;
@@ -314,21 +240,6 @@ font-family: "Blender","Helvetica Neue",Helvetica,Arial,sans-serif;
     font-size: 11px !important;
     z-index: 30;
     cursor: pointer; 
-
-}
-.layer-list-title{
-    font-family: "Blender","Helvetica Neue",Helvetica,Arial,sans-serif;
-    font-weight:bold;
-    border-bottom: solid #aaa;
-}
-
-
-.layerNav{   /* this has layer buttons */
-  position:absolute;
-  width: 120px;
-  height: 38px;
-  right:300px;
-  top:23px;
 
 }
 
@@ -376,39 +287,17 @@ font-family: "Blender","Helvetica Neue",Helvetica,Arial,sans-serif;
   white-space: nowrap;
 }*/
 
-#layers-list.right-panel {
+/*#layers-list.right-panel {
   left:100px !important;
   top:80px;
 }
-.player{  /* this makes it full screen */
-    height:100% !important;
-}
+
 #layers-legend{
     left:100px!important;
-}
+}*/
 
 
 
-
-.jcpScreen{
-    position:absolute;
-    /*visibility:hidden;*/
-    top:140px;
-    left:70px;
-    font-family: "Blender","Helvetica Neue",Helvetica,Arial,sans-serif;
-    text-align:center;
-    color:#fff;
-    width: 300px;
-    height: 240px;
-    background: #bbb !important;
-    border: 1px solid #656565 !important;
-    border-radius: 2px !important;
-    box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
-    outline: none;
-    font-family: Arial, Helvetica, sans-serif !important;
-    font-size: 11px !important;
-    z-index: 30;
-}
 
 
 /*      radio button styling     */
@@ -416,9 +305,7 @@ input[type="radio"]:checked + label span{
      background-color:#f00;
 }
 
-.jcpscreen{
-    margin-left:250px;margin-right:250px;font-family:'HelveticaNeue-Light', 'Arial', sans-serif;margin-top:40px;margin-bottom:100px;font-weight:10;color:#fff; font-size:15px;text-align:center;
-}
+
 .explainborder{
     /*pointer-events:none; */ /* deactiating clicking */
     position:relative;

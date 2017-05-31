@@ -60,32 +60,7 @@ $( window ).load(function() {
 
   tempbuttonpressed=false;
 
-  jcpScreen="";
-  jcpScreen+="<div class='jcpScreen'>";
-  jcpScreen+="wow";
-  jcpScreen+="</div>";
 
-
-  
-////////////////
-//layer button
-var layerNav='';
-layerNav+="<div class='layerNav'>";
-var ebutton="";
-  ebutton+="<button class='ebutton'>"
-  // ebutton+='<i class="fa fa-globe fa-3x" aria-hidden="true" style="color:green"></i>'
-  ebutton+="</button>"
-   ebutton+="<button class='ebutton'>"
-  // ebutton+='<i class="fa fa-globe fa-3x" aria-hidden="true" style="color:#aaa;"></i>'
-  ebutton+="</button>"
-   ebutton+="<button class='ebutton'>"
-  // ebutton+='<i class="fa fa-globe fa-3x" aria-hidden="true" style="color:#000;"></i>'
-  ebutton+="</button>"
-  layerNav+=ebutton;
-layerNav+="</div>"
-
- 
- $(".location_search_div").append(layerNav);
 
 
 //////////////
