@@ -13,19 +13,25 @@ var introdiv1=""
 introdiv1+='<div class="explainborder" id="popupdiv">'
 introdiv1+=     '<div class="explain blender" id="explaindiv">'
 introdiv1+=         '<div id="initial">'
+introdiv1+=             '<div class="row">'
+introdiv1+=                 '<div class="colz-4">'
 introdiv1+=             'EARTH </br> Timelapse </br>'
 introdiv1+=             '<button class="gbutton" id="explorebutton" style="margin-top:50px;" onclick="exploreclicked()"> Explore &nbsp &#10095</button></a>'
+introdiv1+=                 '</div>'
+introdiv1+=                 '<div class="colz-4">'
+introdiv1+=             'EARTH </br> Timelapse </br>'
+introdiv1+=             '<button class="gbutton" id="explorebutton" style="margin-top:50px;" onclick="exploreclicked()"> Explore &nbsp &#10095</button></a>'
+introdiv1+=                 '</div>'
+introdiv1+=                 '<div class="colz-4">'
+introdiv1+=             'EARTH </br> Timelapse </br>'
+introdiv1+=             '<button class="gbutton" id="explorebutton" style="margin-top:50px;" onclick="exploreclicked()"> Explore &nbsp &#10095</button></a>'
+introdiv1+=                 '</div>'
+introdiv1+=             '</div>'
 introdiv1+=         '</div>'
 introdiv1+=     '</div>'
 introdiv1+='</div>'
 
 $("#timeMachine").append(introdiv1);
-
-// var test="<div class='explaincontainer'>z</div>"
-// $("#timeMachine").append(test);
-
-
-
 
 });
 
@@ -46,12 +52,12 @@ var testdiv="<div id='try'>test</div>"
 function exploreclicked(){
     $( "#initial" ).animate({
                     opacity: 1,
-                    left: "-=50",
+                    left: "-=100%",
                     // height: "toggle"
     }, 1000,function(){
         console.log("complete");
-        $('#initial').remove();
-        $("#explaindiv").append(testdiv);
+        // $('#initial').remove();
+        // $("#explaindiv").append(testdiv);
     });
 
 }
