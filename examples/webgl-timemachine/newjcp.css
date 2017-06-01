@@ -75,10 +75,13 @@
 
 #initial{ /* this currently has 3 divs */
     position:relative;
-padding-top:120px;
-padding-bottom:120px;
+height:100%;
 left:0px;
 width:300%; /* Be careful with this. this is to scroll left */
+}
+#firstinitial{
+    padding-top:120px;
+padding-bottom:120px;
 }
 
 .gbutton{
@@ -110,3 +113,37 @@ width:300%; /* Be careful with this. this is to scroll left */
     /*background-color:*/
     z-index:99;
 }
+
+/* vid attributes */
+.vidContainer{
+    position:relative;
+    /*background-color:#f00;*/
+    cursor:hand;
+}
+.vidContainer video {
+    width:100%;
+    height: 100vh; 
+    min-height: 100%;
+    z-index:0;
+    margin:auto;
+}
+.overlay {
+    position:absolute;
+    top:0;
+    left:0;
+    z-index:1;
+}
+.videotext{
+    position:absolute;
+
+    
+    font-size:4vw;
+    color:#fff;
+ margin-left: auto;
+    margin-right: auto;
+    left:50%;
+    z-index:10;
+  transform: translate(-50%, 50%);
+}
+
+/* /////////////  */
