@@ -159,10 +159,10 @@ padding-bottom:120px;
 
 .jcpButton {
     position:absolute;
-    left:500px;
-    top:10px;
-    width: 38px;
-    height: 38px;
+    left:450px;
+    top:20px;
+    width: 100px;
+    height: 20px;
     /*background: #259cdb !important;*/
     background: #fff;
     color:#333;

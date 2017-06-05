@@ -80,7 +80,7 @@ introdiv1+='</div>'
 $("#timeMachine").append(introdiv1);
 
 
-$( "#explorebutton" ).click(); //for debugging, skips the explore button click part
+// $( "#explorebutton" ).click(); //for debugging, skips the explore button click part
 
 $(".toggleLayerPanelBtn").click(); //another debugging. closes down button
 
@@ -183,7 +183,7 @@ function storyclicked(category){
                     opacity: 1,
                     left: "-=100%",
                     // height: "toggle"
-        }, 1000,function(){
+        }, 500,function(){
             console.log("complete");
             // $('#initial').remove();
             // $("#explaindiv").append(testdiv);
@@ -198,7 +198,7 @@ function storyclicked(category){
                     opacity: 1,
                     left: "-=100%",
                     // height: "toggle"
-        }, 1000,function(){
+        }, 500,function(){
             console.log("complete");
             // $('#initial').remove();
             // $("#explaindiv").append(testdiv);
@@ -213,7 +213,7 @@ function goback(){
                     opacity: 1,
                     left: "+=100%",
                     // height: "toggle"
-        }, 1000,function(){
+        }, 500,function(){
             console.log("complete");
             
         });
