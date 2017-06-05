@@ -20,7 +20,7 @@ storydiv+='<div class="row">';
 var refugee_video_div=""
 refugee_video_div+='<div class="colz-6">'
 refugee_video_div+='<div class="vidContainer" id="refugee_vid_button" style="z-index:0;width:100%;height:100%;" align:"center">'
-refugee_video_div+=    '<div class="videotext blender">Refugee Crisis</div>'
+refugee_video_div+=    '<div class="videotext blender">Sample: Refugee</div>'
 refugee_video_div+=    '<video id="refugeevideo" poster="/static/img/earth.png" style="height:100%;position:relative;z-index:1;width:100%;" loop >'
 refugee_video_div+=        '<source src="http://img.timeinc.net/time/video/time-lapse/earth-time-lapse.ogg" type="video/ogg"/>'
 refugee_video_div+=    '</video>'
@@ -30,7 +30,7 @@ refugee_video_div+='</div>'
 var pandemics_video_div=""
 pandemics_video_div+='<div class="colz-6">'
 pandemics_video_div+='<div class="vidContainer" id="pandemics_vid_button" style="z-index:0;width:100%;height:100%;" align:"center" onclick="tester()">'
-pandemics_video_div+=  '<div class="videotext blender">Pandemics</div>'
+pandemics_video_div+=  '<div class="videotext blender">Sample: Pandemics</div>'
 pandemics_video_div+=  '<video id="pandemicsvideo" poster="/static/img/earth.png" style="height:100%;position:relative;z-index:1;width:100%;" loop >'
 pandemics_video_div+=    '<source src="http://img.timeinc.net/time/video/time-lapse/earth-time-lapse.ogg" type="video/ogg"/>'
 pandemics_video_div+=  '</video>'
@@ -70,13 +70,17 @@ introdiv1+=             '</div>'
 introdiv1+=         '</div>'
 introdiv1+=     '</div>'
 // introdiv1+='<div class="explainborderhead">wow</div>'
-introdiv1+= '<button class="gbutton" onclick="goback()" style="margin-top:-100px"> test </button>'
+introdiv1+= '<div style="text-align:center">'
+introdiv1+= '<button class="jcpnavbutton" onclick="goback()" style="margin-top:-100px"> &#10094 </button>'
+introdiv1+= '<button class="jcpnavbutton" onclick="hideintro()" style="margin-top:-100px"> close </button>'
+introdiv1+= '<button class="jcpnavbutton" onclick="goforward()" style="margin-top:-100px"> &#10095 </button>'
+introdiv1+= '</div>'
 introdiv1+='</div>'
 
 $("#timeMachine").append(introdiv1);
 
 
-$( "#explorebutton" ).click(); //for debugging, skips the explore button click part
+// $( "#explorebutton" ).click(); //for debugging, skips the explore button click part
 $(".toggleLayerPanelBtn").click(); //another debugging. closes down button
 
 
@@ -104,7 +108,21 @@ refugee_story_div+='TEST WOW'
 refugee_story_div+='</div>'
 
 
+var intro_button=""
+intro_button+="<button class='jcpButton'onclick='showintro()'>JCP Intro test</button>";
+$("#timeMachine").append(intro_button);
 
+
+
+//videos
+
+var refugeevid = document.getElementById("refugeevideo"),
+    pandemicsvid=document.getElementById("pandemicsvideo");
+refugeevid.playbackRate=1;
+  refugeevid.play();
+
+  pandemicsvid.playbackRate=1;
+  pandemicsvid.play();
 });
 
 
@@ -131,13 +149,7 @@ function exploreclicked(){
         // $('#initial').remove();
         // $("#explaindiv").append(testdiv);
     });
-var refugeevid = document.getElementById("refugeevideo"),
-    pandemicsvid=document.getElementById("pandemicsvideo");
-refugeevid.playbackRate=1;
-  refugeevid.play();
 
-  pandemicsvid.playbackRate=1;
-  pandemicsvid.play();
 }
 
 function storyclicked(category){
@@ -151,7 +163,7 @@ function storyclicked(category){
             // $('#initial').remove();
             // $("#explaindiv").append(testdiv);
         });
-        $("#secondinitial").html("REFUGEE WOWOWOW")
+        $("#secondinitial").html("REFUGEE TEST TEST TEST ")
 
     }
     if (category == 'pandemics'){
@@ -164,12 +176,12 @@ function storyclicked(category){
             // $('#initial').remove();
             // $("#explaindiv").append(testdiv);
         });
-        $("#secondinitial").html("WOW PENDEMICS")
+        $("#secondinitial").html("PENDEMICS TEST TEST TEST")
 
     }
 }
 function goback(){
-    alert("GOING BACK!!!");
+
     $( "#initial" ).animate({
                     opacity: 1,
                     left: "+=100%",
@@ -179,3 +191,32 @@ function goback(){
             
         });
 }
+function goforward(){
+
+    $( "#initial" ).animate({
+                    opacity: 1,
+                    left: "-=100%",
+                    // height: "toggle"
+        }, 1000,function(){
+            console.log("complete");
+            
+        });
+}
+function hideintro(){
+    alert("hiding intro");
+    $(".explainborder").hide();
+}
+function showintro(){
+    alert("showing intro");
+    $(".explainborder").show();
+}
+
+
+// implement fullscreen mode?
+
+// implement hide intro custom button here
+
+
+
+
+// implement show intro custom button here
