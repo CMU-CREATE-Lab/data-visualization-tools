@@ -19,8 +19,7 @@ storydiv+='<div class="row">';
  // I am gonna try to implement a function for this //
 var refugeediv=""
 refugeediv+='<div class="colz-6">'
-refugeediv+='<div class="vidContainer" style="z-index:0;width:100%;height:100%;" align:"center">'
-
+refugeediv+='<div class="vidContainer" id="refugee_vid_button" style="z-index:0;width:100%;height:100%;" align:"center">'
 refugeediv+=    '<div class="videotext blender">Refugee Crisis</div>'
 refugeediv+=    '<video id="refugeevideo" poster="/static/img/earth.png" style="height:100%;position:relative;z-index:1;width:100%;" loop >'
 refugeediv+=        '<source src="http://img.timeinc.net/time/video/time-lapse/earth-time-lapse.ogg" type="video/ogg"/>'
@@ -30,7 +29,7 @@ refugeediv+='</div>'
 
 var pandemicsdiv=""
 pandemicsdiv+='<div class="colz-6">'
-pandemicsdiv+='<div class="vidContainer" style="z-index:0;width:100%;height:100%;" align:"center" onclick="tester()">'
+pandemicsdiv+='<div class="vidContainer" id="pandemics_vid_button" style="z-index:0;width:100%;height:100%;" align:"center" onclick="tester()">'
 pandemicsdiv+=  '<div class="videotext blender">Pandemics</div>'
 pandemicsdiv+=  '<video id="pandemicsvideo" poster="/static/img/earth.png" style="height:100%;position:relative;z-index:1;width:100%;" loop >'
 pandemicsdiv+=    '<source src="http://img.timeinc.net/time/video/time-lapse/earth-time-lapse.ogg" type="video/ogg"/>'
@@ -49,15 +48,9 @@ storydiv+=pandemicsdiv;
 
 storydiv+='</div>'
 
-
-
-
-
-
-
-
 var introdiv1=""
 introdiv1+='<div class="explainborder" id="popupdiv">'
+introdiv1+='<div class="explainborderhead">wow</div>'
 introdiv1+=     '<div class="explain blender" id="explaindiv">'
 introdiv1+=         '<div id="initial">'
 introdiv1+=             '<div class="row">'
@@ -83,6 +76,23 @@ $("#timeMachine").append(introdiv1);
 
 
 $( "#explorebutton" ).click(); //for debugging, skips the explore button click part
+
+
+
+// All of my touchstart events. This is faster than onClick by 300ms
+
+
+
+$("#refugee_vid_button").bind('touchstart click', function(){
+    alert("wow")
+})
+$("#pandemics_vid_button").bind('touchstart click', function(){
+    alert("wow")
+})
+
+// refugee_vid_button.bind('touchstart click', function(){
+//     alert("wow")
+// })
 
 
 
@@ -120,3 +130,5 @@ refugeevid.playbackRate=1;
   pandemicsvid.playbackRate=1;
   pandemicsvid.play();
 }
+
+

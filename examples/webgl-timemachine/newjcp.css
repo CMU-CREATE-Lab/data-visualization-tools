@@ -39,7 +39,16 @@
 .colz-12 {width: 100%;}
 
 
-
+.explainborderhead{
+  
+    color:#fff;
+    font-weight:bold;
+    background-color:#aaa;
+    padding:2px 15px;
+    border-bottom:1px solid transparent;
+    border-top-right-radius:3px;
+    border-top-left-radius:3px;
+}
 
 .explainborder{
     /*pointer-events:none; */ /* deactiating clicking */
