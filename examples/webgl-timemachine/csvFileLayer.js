@@ -17,10 +17,11 @@ CsvFileLayer.prototype.addLayer = function addLayer(nickname, url, name, credit,
   };
   if (mapType == "choropleth") {
     layerOptions.loadDataFunction = WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv;
-    //layerOptions.setDataFunction = WebGLVectorTile2.prototype._setChoroplethMapData;
-    //layerOptions.drawFunction = WebGLVectorTile2.prototype._drawChoroplethMap;
-    //layerOptions.fragmentShader = WebGLVectorTile2.choroplethMapFragmentShader;
-    //layerOptions.vertexShader = WebGLVectorTile2.choroplethMapVertexShader;
+    layerOptions.setDataFunction = WebGLVectorTile2.prototype._setChoroplethMapData;
+    layerOptions.drawFunction = WebGLVectorTile2.prototype._drawChoroplethMap;
+    layerOptions.fragmentShader = WebGLVectorTile2.choroplethMapFragmentShader;
+    layerOptions.vertexShader = WebGLVectorTile2.choroplethMapVertexShader;
+    layerOptions.imageSrc =  "obesity-color-map.png";
   }
 
 
@@ -88,7 +89,6 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
       scalingFunction = 'd3.scaleSqrt().domain([minValue, maxValue]).range([0, 100])';
     }
     var mapType = layerdef[9].trim();
-    console.log(mapType);
     if (mapType != "bubble" && mapType != "choropleth") {
       mapType = "bubble";
     }
@@ -162,16 +162,17 @@ xhr.send();
 
 
 
-function searchCountryList(name) {
-  for (var i = 0; i < COUNTRY_CENTROIDS['features'].length; i++) {
-    var feature = COUNTRY_CENTROIDS['features'][i];
+function searchCountryList(feature_collection, name) {
+  for (var i = 0; i < feature_collection['features'].length; i++) {
+    var feature = feature_collection['features'][i];
     var names = feature['properties']['names'];
     for (var j = 0; j < names.length; j++) {
       if (name == names[j]) {
-        return feature['properties']['webmercator'];
+        //return feature['properties']['webmercator'];
+        return feature;
       }     
     }
   }
-  return ['',''];
+  return {};
 }
 
