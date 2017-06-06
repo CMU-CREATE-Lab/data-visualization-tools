@@ -6,7 +6,7 @@ $( window ).load(function() {
         snaplapseViewerForPresentationSlider = snaplapseForPresentationSlider.getSnaplapseViewer();
     }
     var waypointSliderContentPath="https://docs.google.com/spreadsheets/d/1JLY9J4XYsWaz-lD8tzAIF1oBjaxIQbqe0AISt5Q48ro/edit#gid=0";
-    snaplapseForPresentationSlider.gdocToJSON(waypointSliderContentPath, function(csvdata) {
+    snaplapseForPresentationSlider.gJSON(waypointSliderContentPath, function(csvdata) {
         var waypointJSON = JSON.parse(snaplapseForPresentationSlider.CSVToJSON(csvdata));
         var waypointSliderContent = "#presentation=" + snaplapseForPresentationSlider.getAsUrlString(waypointJSON.snaplapse.keyframes);
         timelapse.loadSharedDataFromUnsafeURL(waypointSliderContent);

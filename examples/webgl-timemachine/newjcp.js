@@ -233,6 +233,17 @@ function showintro(){
     $(".explainborder").show();
 }
 
+//hiding .presentationSlider
+function hide_presentationSlider(){
+    $(".presentationSlider").hide();
+    // $(".player").css("bottom","0px")
+    // $("#timeMachine_timelapse").css("bottom")
+}
+function show_presentationSlider(){
+    $(".presentationSlider").show();
+}
+
+////
 
 // implement fullscreen mode?
 
@@ -243,25 +254,26 @@ function showintro(){
 
 // implement show intro custom button here
 
-
+// "waypointSliderContentPath":"https://docs.google.com/spreadsheets/d/1JLY9J4XYsWaz-lD8tzAIF1oBjaxIQbqe0AISt5Q48ro/edit#gid=1186806884", //very faster loading purpose
+//  "waypointSliderContentPath":"https://docs.google.com/spreadsheets/d/1JLY9J4XYsWaz-lD8tzAIF1oBjaxIQbqe0AISt5Q48ro/edit#gid=1769400286", // bit faster loading purpose
 
 
 // bottom div story stuff here
-// $( window ).load(function() {
 
-//     function deployslide(){
-//     var snaplapseForPresentationSlider = timelapse.getSnaplapseForPresentationSlider();
-//     if (snaplapseForPresentationSlider) {
-//         snaplapseViewerForPresentationSlider = snaplapseForPresentationSlider.getSnaplapseViewer();
-//     }
-//     var waypointSliderContentPath="https://docs.google.com/spreadsheets/d/1JLY9J4XYsWaz-lD8tzAIF1oBjaxIQbqe0AISt5Q48ro/edit#gid=0";
-//     snaplapseForPresentationSlider.gdocToJSON(waypointSliderContentPath, function(csvdata) {
-//         var waypointJSON = JSON.parse(snaplapseForPresentationSlider.CSVToJSON(csvdata));
-//         var waypointSliderContent = "#presentation=" + snaplapseForPresentationSlider.getAsUrlString(waypointJSON.snaplapse.keyframes);
-//         timelapse.loadSharedDataFromUnsafeURL(waypointSliderContent);
-//     });
-//     }
-// });
+
+    function deployslide(){
+    var snaplapseForPresentationSlider = timelapse.getSnaplapseForPresentationSlider();
+    if (snaplapseForPresentationSlider) {
+        snaplapseViewerForPresentationSlider = snaplapseForPresentationSlider.getSnaplapseViewer();
+    }
+    var waypointSliderContentPath="https://docs.google.com/spreadsheets/d/1JLY9J4XYsWaz-lD8tzAIF1oBjaxIQbqe0AISt5Q48ro/edit#gid=0";
+    snaplapseForPresentationSlider.gdocToJSON(waypointSliderContentPath, function(csvdata) {
+        var waypointJSON = JSON.parse(snaplapseForPresentationSlider.CSVToJSON(csvdata));
+        var waypointSliderContent = "#presentation=" + snaplapseForPresentationSlider.getAsUrlString(waypointJSON.snaplapse.keyframes);
+        timelapse.loadSharedDataFromUnsafeURL(waypointSliderContent);
+    });
+    }
+
 
 // document.getElementsByClassName("snaplapse_keyframe_list").length
 
