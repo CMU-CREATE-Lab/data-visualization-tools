@@ -26,18 +26,8 @@ $("#timeMachine").append(yeardiv);
 //// this is a bigger date field
 ///////////////////////////////////
 
-// using storiesjcp.js
-function createStoryDiv(){
-    var col=STORIES_CONFIG.column_numbers;
-    var stories=STORIES_CONFIG.story_lists;
-    for (key in stories){
-        console.log(key);
-        window[key+"_video_div"]="";
-        console.log(window[key])
-    }
-}
 
-createStoryDiv();
+// createStoryDiv();
 
 
 
@@ -98,8 +88,8 @@ introdiv1+=             '<div class="colz-4" id="firstinitial">'
 introdiv1+=                 'EARTH </br> Timelapse </br>'
 introdiv1+=                 '<button class="gbutton" id="explorebutton" style="margin-top:50px;" onclick="exploreclicked()"> Explore &nbsp &#10095</button></a>'
 introdiv1+=             '</div>'
-introdiv1+=             '<div class="colz-4">'
-introdiv1+=                 storydiv;
+introdiv1+=             '<div class="colz-4" id="video_div_here">'
+// introdiv1+=                 storydiv;
 introdiv1+=             '</div>'
 introdiv1+=                 '<div class="colz-4" id="secondinitial">'
 introdiv1+=             '</div>'
@@ -116,26 +106,63 @@ introdiv1+='</div>'
 $("#timeMachine").append(introdiv1);
 
 
+
+
+
+function createStoryDiv(){
+    var col=STORIES_CONFIG.column_numbers;
+    var stories=STORIES_CONFIG.story_lists;
+   
+    $("#video_div_here").append( '<div class="colz-12">CATEGORIES</div>');
+    for (key in stories){
+        console.log(key);
+        var s=key+"_video_div"
+        window[s]="";
+        window[s]+='<div class="colz-'+String(12/col)+'">'
+        window[s]+='<div class="vidContainer" id="'+key+'_vid_button" style="z-index:0;width:100%;height:100%;" align:"center">'
+        window[s]+=    '<div class="videotext blender">'+STORIES_CONFIG.story_lists[key].heading_text +'</div>'
+        window[s]+=    '<video id="'+key+'video" poster="/static/img/earth.png" style="height:100%;position:relative;z-index:1;width:100%;" loop >'
+        window[s]+=        '<source src="'+STORIES_CONFIG.story_lists[key].vid_url+'" type="video/ogg"/>'
+        window[s]+=    '</video>'
+        window[s]+='</div>'
+        window[s]+='</div>'
+        // console.log(window[s])
+        $("#video_div_here").append(window[s]);
+        document.getElementById(key+"video").play();
+
+        var vidbutton=key+"_vid_button"
+        console.log(vidbutton);
+        $("#"+key+"_vid_button").bind('touchstart click', function(){
+            console.log("WOW!",key)
+            storyclicked(key)
+            deploySlide(STORIES_CONFIG.story_lists[key].slide_url)
+            var s=300
+            // $(".presentationSlider").fadeOut(s).fadeIn(s).fadeOut(s).fadeIn(s).fadeOut(s).fadeIn(s)
+             // Lol at above line. It will theoretically blink the presentationslider back and forth 
+        });
+    }
+}
+createStoryDiv();
+
+
 // $( "#explorebutton" ).click(); //for debugging, skips the explore button click part
 
 $(".toggleLayerPanelBtn").click(); //another debugging. closes down button
 
 
-// All of my touchstart events. This is faster than onClick by 300ms
-$("#refugee_vid_button").bind('touchstart click', function(){
-    storyclicked('refugee')
-    deploySlide(refugee_url)
-    var s=300
-    // $(".presentationSlider").fadeOut(s).fadeIn(s).fadeOut(s).fadeIn(s).fadeOut(s).fadeIn(s)
-    // Lol at above line. It will theoretically blink the presentationslider back and forth  
-})
-$("#pandemics_vid_button").bind('touchstart click', function(){
-    storyclicked('pandemics')
-    deploySlide(pandemics_url)
-    var s=300
-    // $(".presentationSlider").fadeOut(s).fadeIn(s).fadeOut(s).fadeIn(s).fadeOut(s).fadeIn(s)
-    // Lol at above line. It will theoretically blink the presentationslider back and forth
-})
+// // All of my touchstart events. This is faster than onClick by 300ms
+// $("#refugee_vid_button").bind('touchstart click', function(){
+//     storyclicked('refugee')
+//     deploySlide(refugee_url)
+//     var s=300
+   
+// })
+// $("#pandemics_vid_button").bind('touchstart click', function(){
+//     storyclicked('pandemics')
+//     deploySlide(pandemics_url)
+//     var s=300
+   
+// })
 
 // show intro button next to the share button
 var intro_show_button=""
@@ -153,9 +180,9 @@ var refugeevid = document.getElementById("refugeevideo");
 var pandemicsvid=document.getElementById("pandemicsvideo");
 
     // refugeevid.playbackRate=1;
-    refugeevid.play();
+    // refugeevid.play();
     // pandemicsvid.playbackRate=1;
-    pandemicsvid.play();
+    // pandemicsvid.play();
 });
 
 
@@ -260,6 +287,7 @@ pandemics_story_div+='</div>'
 pandemics_story_div+='</div>'
 
 function storyclicked(category){
+    alert(category)
     if (category == 'refugee'){
         $( "#initial" ).animate({
                     opacity: 1,
@@ -342,4 +370,7 @@ function deploySlide(gurl){
 
 // document.getElementsByClassName("snaplapse_keyframe_list").length
 
+
+
+// using storiesjcp.js
 
