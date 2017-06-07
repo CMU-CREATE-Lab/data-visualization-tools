@@ -1,22 +1,35 @@
+////// THIS IS WHERE ALL THE WINDOW LOAD STARTS
 $( window ).load(function() {
+hide_presentationSlider();
 var introview= {center:{"lat":25.343,"lng":38.48112},"zoom":2.837}
 timelapse.setNewView(introview,true)
 
 
-
-// testing out the right sidebar with hamburger
+////////DELETE THIS ONE
+// testing out the right sidebar with hamburger. THIS IS ONE NEEDS TO BE DELETED
 var sidebardiv='<div id="sidebar" style="position: fixed; display: inline-block; top: 0px; height: 100%; width: 200px; right: -200px; background-color:#ff0; transition: all 0.2s ease-in-out; z-index:98;"></div>'
 $("#timeMachine").append(sidebardiv);
-/////
-
-
-
+function toggle_sidebar()
+{
+    var sidebar = document.getElementById("sidebar");        
+    console.log(sidebar.style.left);
+    if(sidebar.style.right == "-200px"){
+        sidebar.style.right = "0px";
+    }
+    else{
+        sidebar.style.right = "-200px";
+    }
+}
+//// delete above stuff
+var yeardiv="<div id='jcpYearDiv'></div>"
+$("#timeMachine").append(yeardiv);
+//// this is a bigger date field
+///////////////////////////////////
 
 
 var storydiv="";
 storydiv+='<div class="row">';
-
- // I am gonna try to implement a function for this //
+ // TODO: try to implement a function for this //
 var refugee_video_div=""
 refugee_video_div+='<div class="colz-6">'
 refugee_video_div+='<div class="vidContainer" id="refugee_vid_button" style="z-index:0;width:100%;height:100%;" align:"center">'
@@ -50,31 +63,26 @@ storydiv+='</div>'
 
 var introdiv1=""
 introdiv1+='<div class="explainborder" id="popupdiv">'
-// introdiv1+='<div class="explainborderhead">wow</div>'
-introdiv1+=     '<div class="explain blender" id="explaindiv">'
-introdiv1+=         '<div id="initial">'
-introdiv1+=             '<div class="row">'
-
-introdiv1+=                 '<div class="colz-4" id="firstinitial">'
-introdiv1+=             'EARTH </br> Timelapse </br>'
-introdiv1+=             '<button class="gbutton" id="explorebutton" style="margin-top:50px;" onclick="exploreclicked()"> Explore &nbsp &#10095</button></a>'
-introdiv1+=                 '</div>'
-introdiv1+=                 '<div class="colz-4">'
-introdiv1+=storydiv;
-introdiv1+=                     '</div>'
-
+////////////////////////////////////   #initial is set as 300% to have 3 different screens
+introdiv1+=     '<div class="explain blender" id="initial">'
+introdiv1+=         '<div class="row">'
+introdiv1+=             '<div class="colz-4" id="firstinitial">'
+introdiv1+=                 'EARTH </br> Timelapse </br>'
+introdiv1+=                 '<button class="gbutton" id="explorebutton" style="margin-top:50px;" onclick="exploreclicked()"> Explore &nbsp &#10095</button></a>'
+introdiv1+=             '</div>'
+introdiv1+=             '<div class="colz-4">'
+introdiv1+=                 storydiv;
+introdiv1+=             '</div>'
 introdiv1+=                 '<div class="colz-4" id="secondinitial">'
-
-introdiv1+=                 '</div>'
 introdiv1+=             '</div>'
 introdiv1+=         '</div>'
 introdiv1+=     '</div>'
-// introdiv1+='<div class="explainborderhead">wow</div>'
-introdiv1+= '<div style="text-align:center">'
-introdiv1+= '<button class="jcpnavbutton" onclick="goback()" style="margin-top:-100px"> &#10094 </button>'
-introdiv1+= '<button class="jcpnavbutton" onclick="hideintro()" style="margin-top:-100px">close intro </button>'
-introdiv1+= '<button class="jcpnavbutton" onclick="goforward()" style="margin-top:-100px"> &#10095 </button>'
-introdiv1+= '</div>'
+//////////////////////////////////////
+introdiv1+= '<div style="text-align:center;">'
+introdiv1+=     '<button class="jcpnavbutton" onclick="goback()" style="margin-top:-100px"> &#10094 </button>'
+introdiv1+=     '<button class="jcpnavbutton" onclick="hide_intro()" style="margin-top:-100px">close intro </button>'
+introdiv1+=     '<button class="jcpnavbutton" onclick="goforward()" style="margin-top:-100px"> &#10095 </button>'
+introdiv1+=     '</div>'
 introdiv1+='</div>'
 
 $("#timeMachine").append(introdiv1);
@@ -86,56 +94,93 @@ $(".toggleLayerPanelBtn").click(); //another debugging. closes down button
 
 
 // All of my touchstart events. This is faster than onClick by 300ms
-
-
-
 $("#refugee_vid_button").bind('touchstart click', function(){
-    // alert("refugee clicked")
     storyclicked('refugee')
 })
 $("#pandemics_vid_button").bind('touchstart click', function(){
-    // alert("pandemics clicked")
     storyclicked('pandemics')
 })
 
-// refugee_vid_button.bind('touchstart click', function(){
-//     alert("wow")
-// })
+// show intro button next to the share button
+var intro_show_button=""
+intro_show_button+="<button class='show_intro_button'onclick='show_intro()'>Show Intro</button>";
+$("#timeMachine").append(intro_show_button);
+
+// Full Screen button next to show intro button
+var full_screen_button=""
+full_screen_button+="<button class='full_screen_button'onclick='fullScreenMode()'>Full Screen</button>";
+$("#timeMachine").append(full_screen_button);
 
 
+//videos -> this plays the video at playback rate of 1
+var refugeevid = document.getElementById("refugeevideo");
+var pandemicsvid=document.getElementById("pandemicsvideo");
 
-
-var intro_button=""
-intro_button+="<button class='jcpButton'onclick='showintro()'>JCP Intro test</button>";
-$("#timeMachine").append(intro_button);
-
-
-
-//videos
-
-var refugeevid = document.getElementById("refugeevideo"),
-    pandemicsvid=document.getElementById("pandemicsvideo");
-refugeevid.playbackRate=1;
-  refugeevid.play();
-
-  pandemicsvid.playbackRate=1;
-  pandemicsvid.play();
+    refugeevid.playbackRate=1;
+    refugeevid.play();
+    pandemicsvid.playbackRate=1;
+    pandemicsvid.play();
 });
 
 
-function toggle_sidebar()
-{
-    var sidebar = document.getElementById("sidebar");        
-    console.log(sidebar.style.left);
-    if(sidebar.style.right == "-200px"){
-        sidebar.style.right = "0px";
+
+/////////////////////////////////
+function hide_presentationSlider(){
+    $(".presentationSlider").hide();
+    // $(".player").css("bottom","0px")
+    // $("#timeMachine_timelapse").css("bottom")
+}
+function show_presentationSlider(){
+    $(".presentationSlider").show();
+}
+function hide_customControl(){
+    $(".customControl").hide();
+    // $(".player").css("bottom","0px")
+    // $("#timeMachine_timelapse").css("bottom")
+}
+function show_customControl(){
+    $(".customControl").show();
+}
+var fullscreenstat=0;
+function fullScreenMode(){
+    if (fullscreenstat==0){
+         $(".full_screen_button").html("Exit Full Screen");
+         fullscreenstat=1;
+         enter_fullScreenMode();
+
     }
-    else{
-        sidebar.style.right = "-200px";
+    else {
+         $(".full_screen_button").html("Full Screen")
+         exit_fullScreenMode();
+         fullscreenstat=0;
     }
 }
+function enter_fullScreenMode(){
+    hide_presentationSlider();
+    hide_customControl();
+    hide_intro();
 
-var testdiv="<div id='try'>test</div>"
+}
+function exit_fullScreenMode(){
+    show_presentationSlider();
+    show_customControl();
+}
+function detectTimeChange(){
+
+    $('.timeText').bind("DOMSubtreeModified",function(){
+    // console.log($('.timeText').html());
+    $("#jcpYearDiv").html($('.timeText').html())
+    });
+}
+/////////////////
+
+
+
+
+
+
+
+
 function exploreclicked(){
     $( "#initial" ).animate({
                     opacity: 1,
@@ -143,8 +188,7 @@ function exploreclicked(){
                     // height: "toggle"
     }, 500,function(){
         console.log("complete");
-        // $('#initial').remove();
-        // $("#explaindiv").append(testdiv);
+
     });
 
 }
@@ -186,11 +230,9 @@ function storyclicked(category){
         }, 500,function(){
             console.log("complete");
             // $('#initial').remove();
-            // $("#explaindiv").append(testdiv);
+
         });
         $("#secondinitial").html(refugee_story_div)
-
-
     }
     if (category == 'pandemics'){
         $( "#initial" ).animate({
@@ -200,7 +242,7 @@ function storyclicked(category){
         }, 500,function(){
             console.log("complete");
             // $('#initial').remove();
-            // $("#explaindiv").append(testdiv);
+ 
         });
         $("#secondinitial").html(pandemics_story_div)
 
@@ -226,53 +268,38 @@ function goforward(){
             
         });
 }
-function hideintro(){
+function hide_intro(){
     $(".explainborder").hide();
 }
-function showintro(){
+function show_intro(){
     $(".explainborder").show();
 }
 
 //hiding .presentationSlider
-function hide_presentationSlider(){
-    $(".presentationSlider").hide();
-    // $(".player").css("bottom","0px")
-    // $("#timeMachine_timelapse").css("bottom")
-}
-function show_presentationSlider(){
-    $(".presentationSlider").show();
-}
+
 
 ////
 
 // implement fullscreen mode?
 
-// implement hide intro custom button here
 
 
+//////// bottom presentation slider deployment with different google doc urls
+var refugee_url="https://docs.google.com/spreadsheets/d/1JLY9J4XYsWaz-lD8tzAIF1oBjaxIQbqe0AISt5Q48ro/edit#gid=1769400286";
+var pandemics_url="https://docs.google.com/spreadsheets/d/1JLY9J4XYsWaz-lD8tzAIF1oBjaxIQbqe0AISt5Q48ro/edit#gid=0";
 
-
-// implement show intro custom button here
-
-// "waypointSliderContentPath":"https://docs.google.com/spreadsheets/d/1JLY9J4XYsWaz-lD8tzAIF1oBjaxIQbqe0AISt5Q48ro/edit#gid=1186806884", //very faster loading purpose
-//  "waypointSliderContentPath":"https://docs.google.com/spreadsheets/d/1JLY9J4XYsWaz-lD8tzAIF1oBjaxIQbqe0AISt5Q48ro/edit#gid=1769400286", // bit faster loading purpose
-
-
-// bottom div story stuff here
-
-
-    function deployslide(){
+function deploySlide(gurl){
     var snaplapseForPresentationSlider = timelapse.getSnaplapseForPresentationSlider();
     if (snaplapseForPresentationSlider) {
         snaplapseViewerForPresentationSlider = snaplapseForPresentationSlider.getSnaplapseViewer();
     }
-    var waypointSliderContentPath="https://docs.google.com/spreadsheets/d/1JLY9J4XYsWaz-lD8tzAIF1oBjaxIQbqe0AISt5Q48ro/edit#gid=0";
-    snaplapseForPresentationSlider.gdocToJSON(waypointSliderContentPath, function(csvdata) {
+    var waypointSliderContentPath=gurl;
+    org.gigapan.Util.gdocToJSON(waypointSliderContentPath, function(csvdata) {
         var waypointJSON = JSON.parse(snaplapseForPresentationSlider.CSVToJSON(csvdata));
         var waypointSliderContent = "#presentation=" + snaplapseForPresentationSlider.getAsUrlString(waypointJSON.snaplapse.keyframes);
         timelapse.loadSharedDataFromUnsafeURL(waypointSliderContent);
     });
-    }
+}
 
 
 // document.getElementsByClassName("snaplapse_keyframe_list").length
