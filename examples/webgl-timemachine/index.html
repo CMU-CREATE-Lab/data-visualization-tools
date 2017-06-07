@@ -454,7 +454,7 @@
 
     var uppsalaConflictUrl = rootTilePath + "/ucdp/uppsala-conflict.bin";
 
-    var omiNo2Url = "/omi-no2/data";
+    var omiNo2Url = rootTilePath + "/omi-no2/omi-no2.timemachine/crf22-6fps-1424x800";
 
     function init() {
       var enablePresentationSlider = true;
@@ -1951,7 +1951,7 @@
           requestNewTimeline("omi-no2-times.json", timelineType);
           $("#omi-no2-legend").show();
         } else {
-          showIomIdpLayer = false;
+          showOmiNo2Layer = false;
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
         }
@@ -3492,12 +3492,12 @@
       var omiNo2LayerOptions = {
         mediaType: ".mp4",
         numFrames: cached_ajax['omi-no2-times.json']['capture-times'].length,
-        fps: 12,
-        nlevels: 1,
-        video_width: 1024,
-        video_height: 1024,
-        width: 1024,
-        height: 1024,
+        fps: 6,
+        nlevels: 2,
+        video_width: 1424,
+        video_height: 800,
+        width: 1440,
+        height: 1440,
         greenScreen: true
       };
       omiNo2Layer = new WebglTimeMachineLayer(glb, canvasLayer, omiNo2Url, omiNo2LayerOptions);
