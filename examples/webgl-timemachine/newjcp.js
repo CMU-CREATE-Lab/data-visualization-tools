@@ -26,6 +26,22 @@ $("#timeMachine").append(yeardiv);
 //// this is a bigger date field
 ///////////////////////////////////
 
+// using storiesjcp.js
+function createStoryDiv(){
+    var col=STORIES_CONFIG.column_numbers;
+    var stories=STORIES_CONFIG.story_lists;
+    for (key in stories){
+        console.log(key);
+        window[key+"_video_div"]="";
+        console.log(window[key])
+    }
+}
+
+createStoryDiv();
+
+
+
+
 
 var storydiv="";
 storydiv+='<div class="row">';
@@ -42,7 +58,7 @@ refugee_video_div+='</div>'
 
 var pandemics_video_div=""
 pandemics_video_div+='<div class="colz-6">'
-pandemics_video_div+='<div class="vidContainer" id="pandemics_vid_button" style="z-index:0;width:100%;height:100%;" align:"center" onclick="tester()">'
+pandemics_video_div+='<div class="vidContainer" id="pandemics_vid_button" style="z-index:0;width:100%;height:100%;" align:"center" >'
 pandemics_video_div+=  '<div class="videotext blender">Sample: Pandemics</div>'
 pandemics_video_div+=  '<video id="pandemicsvideo" poster="/static/img/earth.png" style="height:100%;position:relative;z-index:1;width:100%;" loop >'
 pandemics_video_div+=    '<source src="http://img.timeinc.net/time/video/time-lapse/earth-time-lapse.ogg" type="video/ogg"/>'
@@ -51,10 +67,22 @@ pandemics_video_div+='</div>'
 pandemics_video_div+='</div>'
 
 
+var urbanization_video_div=""
+urbanization_video_div+='<div class="colz-6">'
+urbanization_video_div+='<div class="vidContainer" id="urbanization_vid_button" style="z-index:0;width:100%;height:100%;" align:"center" >'
+urbanization_video_div+=  '<div class="videotext blender">Sample: Urbanization</div>'
+urbanization_video_div+=  '<video id="urbanizationvideo" poster="/static/img/earth.png" style="height:100%;position:relative;z-index:1;width:100%;" loop >'
+urbanization_video_div+=    '<source src="http://img.timeinc.net/time/video/time-lapse/earth-time-lapse.ogg" type="video/ogg"/>'
+urbanization_video_div+=  '</video>'
+urbanization_video_div+='</div>'
+urbanization_video_div+='</div>'
+
+
 
 storydiv+='<div class="colz-12">CATEGORIES</div>'
 storydiv+=refugee_video_div;
 storydiv+=pandemics_video_div;
+storydiv+=urbanization_video_div;
 
 
 
@@ -96,9 +124,17 @@ $(".toggleLayerPanelBtn").click(); //another debugging. closes down button
 // All of my touchstart events. This is faster than onClick by 300ms
 $("#refugee_vid_button").bind('touchstart click', function(){
     storyclicked('refugee')
+    deploySlide(refugee_url)
+    var s=300
+    // $(".presentationSlider").fadeOut(s).fadeIn(s).fadeOut(s).fadeIn(s).fadeOut(s).fadeIn(s)
+    // Lol at above line. It will theoretically blink the presentationslider back and forth  
 })
 $("#pandemics_vid_button").bind('touchstart click', function(){
     storyclicked('pandemics')
+    deploySlide(pandemics_url)
+    var s=300
+    // $(".presentationSlider").fadeOut(s).fadeIn(s).fadeOut(s).fadeIn(s).fadeOut(s).fadeIn(s)
+    // Lol at above line. It will theoretically blink the presentationslider back and forth
 })
 
 // show intro button next to the share button
@@ -116,11 +152,13 @@ $("#timeMachine").append(full_screen_button);
 var refugeevid = document.getElementById("refugeevideo");
 var pandemicsvid=document.getElementById("pandemicsvideo");
 
-    refugeevid.playbackRate=1;
+    // refugeevid.playbackRate=1;
     refugeevid.play();
-    pandemicsvid.playbackRate=1;
+    // pandemicsvid.playbackRate=1;
     pandemicsvid.play();
 });
+
+
 
 
 
