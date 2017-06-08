@@ -51,5 +51,7 @@ var EARTH_TIMELAPSE_CONFIG = {
   "showUppsalaConflict": false,
   "showLightsAtNight2012": false,
   "showLightsAtNight2016": false,
-  "showOmiNo2": true
+  "showOmiNo2": true,
+  "showChinaInfrastructure": true
+
 };
