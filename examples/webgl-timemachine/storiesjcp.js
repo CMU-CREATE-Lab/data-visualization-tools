@@ -3,13 +3,13 @@ var STORIES_CONFIG = {
     "story_lists":{
         "refugee":{
             "vid_url":"http://img.timeinc.net/time/video/time-lapse/earth-time-lapse.ogg",
-            "heading_text":"Sample: w",
+            "heading_text":"Sample: Refugee",
             "slide_url":"https://docs.google.com/spreadsheets/d/1JLY9J4XYsWaz-lD8tzAIF1oBjaxIQbqe0AISt5Q48ro/edit#gid=1769400286",
             
         },
         "pandemics":{
             "vid_url":"http://img.timeinc.net/time/video/time-lapse/earth-time-lapse.ogg",
-            "heading_text":"Sample: z",
+            "heading_text":"Sample: Pandemics",
             "slide_url":"https://docs.google.com/spreadsheets/d/1JLY9J4XYsWaz-lD8tzAIF1oBjaxIQbqe0AISt5Q48ro/edit#gid=0",
         },
         "urbanization":{

@@ -38,16 +38,44 @@
 .colz-11 {width: 91.66%;}
 .colz-12 {width: 100%;}
 
+/* close button */
 
+/* ends here */
 .explainborderhead{
-  
+    font: 14px/100% arial, sans-serif;
+    text-shadow: 0 1px 0 #fff;
+    text-align:right;
     color:#fff;
     font-weight:bold;
     background-color:#aaa;
     padding:2px 15px;
     border-bottom:1px solid transparent;
-    border-top-right-radius:3px;
-    border-top-left-radius:3px;
+    border-top-right-radius:10px;
+    border-top-left-radius:10px;
+    
+    position:fixed;
+    left:200px;right:200px;
+    /*transform: translateX(-50%);*/
+    display:block;
+}
+
+.explainborderbottom{
+    font: 14px/100% arial, sans-serif;
+    text-shadow: 0 1px 0 #fff;
+    text-align:right;
+    color:#fff;
+    font-weight:bold;
+    /*background-color:#aaa;*/
+    padding:2px 15px;
+    border-bottom:1px solid transparent;
+  border-bottom-right-radius:10px;
+    border-bottom-left-radius:10px;
+    bottom:200px;
+    position:fixed;
+    left:200px;right:200px;
+    /*transform: translateX(-50%);*/
+    display:block;
+
 }
 
 .explainborder{
@@ -75,7 +103,8 @@
 .blender{font-family: "Blender","Helvetica Neue",Helvetica,Arial,sans-serif;
 }
 .explain{
-    font-size:4vw;
+    position:relative;
+    font-size:5vw;
     color:#fff;
     text-align:center;
 }
@@ -97,9 +126,9 @@ padding-top:10vw;
     background-color:Transparent;
     border:2px solid #fff;
     text-align:center;
-    padding:15px 20px 15px 20px;
+    padding:1vw;
     color:#fff;
-    font-size:20px;
+    font-size:1.5vw;
     cursor:pointer;
     transition:background 0.5s ease-in-out;
     text-decoration:none;
@@ -219,3 +248,5 @@ padding-top:10vw;
 
     z-index:99;
 }
+
+/* close button */
