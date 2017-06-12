@@ -123,6 +123,7 @@ width:300%; /* Be careful with this. this is to scroll left */
 padding-top:10vw;
 }
 .storieshead{
+    margin-top:1vw;
     font-size:5vw;
 }
 .gbutton{
@@ -158,8 +159,10 @@ padding-top:10vw;
 
 /* vid attributes */
 #video_div_here{
-    width:100%;
-    height:auto;
+    margin-left:5%;
+    width:90%;
+    height:20%;
+    /*height:auto;*/
 }
 .vidContainer{
     position:relative;

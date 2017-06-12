@@ -8,7 +8,7 @@ var STORIES_CONFIG = {
             
         },
         "pandemics":{
-            "vid_url":"jcpassets/wef.mov",
+            "vid_url":"jcpassets/refugee.mov",
             "heading_text":"Sample: Pandemics",
             "slide_url":"https://docs.google.com/spreadsheets/d/1JLY9J4XYsWaz-lD8tzAIF1oBjaxIQbqe0AISt5Q48ro/edit#gid=0",
         },
@@ -18,8 +18,8 @@ var STORIES_CONFIG = {
             "slide_url":"https://docs.google.com/spreadsheets/d/1JLY9J4XYsWaz-lD8tzAIF1oBjaxIQbqe0AISt5Q48ro/edit#gid=0",
         },
         "climate":{
-            "vid_url":"jcpassets/florida.mp4",
-            "heading_text":"Sample: climate",
+            "vid_url":"jcpassets/ice_nasa.mp4",
+            "heading_text":"Sample anything",
             "slide_url":"https://docs.google.com/spreadsheets/d/1JLY9J4XYsWaz-lD8tzAIF1oBjaxIQbqe0AISt5Q48ro/edit#gid=0",
         },
     }

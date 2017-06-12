@@ -22,7 +22,7 @@ $("#timeMachine").append(yeardiv);
 var introdiv1=""
 introdiv1+='<div class="explainborder" id="popupdiv">'
 ////////////////////////////////////   #initial is set as 300% to have 3 different screens
-introdiv1+='<div class="explainborderhead"><button onclick="hide_intro()">✖</button>'
+introdiv1+='<div class="explainborderhead"><button onclick="hide_intro()"  style="z-index:50">✖</button>'
 introdiv1+='</div>'
 introdiv1+=     '<div class="explain blender" id="initial">'
 introdiv1+=         '<div class="row">'
@@ -50,7 +50,8 @@ introdiv1+=     '</div>'
 introdiv1+='</div>'
 
 
-$("#timeMachine").append(introdiv1);
+$("#timeMachine").append(introdiv1)
+
 
 
 
@@ -83,7 +84,7 @@ function createStoryDiv(){
 createStoryDiv();
 
 
-$( "#explorebutton" ).click(); //for debugging, skips the explore button click part
+// $( "#explorebutton" ).click(); //for debugging, skips the explore button click part
 
 $(".toggleLayerPanelBtn").click(); //another debugging. closes down button
 
@@ -100,7 +101,7 @@ $("#timeMachine").append(full_screen_button);
 
 
 
-hide_presentationSlider();    
+// hide_presentationSlider();    
 });
 
 
