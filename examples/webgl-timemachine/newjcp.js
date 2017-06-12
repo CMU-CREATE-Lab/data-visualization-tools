@@ -30,7 +30,9 @@ introdiv1+=             '<div class="colz-4" id="firstinitial">'
 introdiv1+=                 'EARTH </br> Timelapse </br>'
 introdiv1+=                 '<button class="gbutton" id="explorebutton" style="margin-top:50px;" onclick="exploreclicked()"> Explore &nbsp &#10095</button></a>'
 introdiv1+=             '</div>'
-introdiv1+=             '<div class="colz-4" id="video_div_here">'
+introdiv1+=             '<div class="colz-4" >'
+introdiv1+=                 '<div class="colz-12 storieshead">Explore</div>'
+introdiv1+=                 '<div id="video_div_here"></div>'
 // introdiv1+=                 storydiv;
 introdiv1+=             '</div>'
 introdiv1+=                 '<div class="colz-4" id="secondinitial">'
@@ -58,15 +60,15 @@ function createStoryDiv(){
     var col=STORIES_CONFIG.column_numbers;
     var stories=STORIES_CONFIG.story_lists;
    
-    $("#video_div_here").append( '<div class="colz-12">CATEGORIES</div>');
+
     for (key in stories){
         console.log(key);
         var s=key+"_video_div"
         window[s]="";
         window[s]+='<div class="colz-'+String(12/col)+'">'
-        window[s]+='<div class="vidContainer" id="'+key+'_vid_button" style="z-index:0;width:100%;height:100%;"onclick=storyclicked("'+String(key) +'")>'
+        window[s]+='<div class="vidContainer" id="'+key+'_vid_button" onclick=storyclicked("'+String(key) +'")>'
         window[s]+=    '<div class="videotext blender">'+STORIES_CONFIG.story_lists[key].heading_text +'</div>'
-        window[s]+=    '<video id="'+key+'video" poster="/static/img/earth.png" style="height:100%;position:relative;z-index:1;width:100%;" loop >'
+        window[s]+=    '<video id="'+key+'video" poster="/static/img/earth.png" loop >'
         window[s]+=        '<source src="'+STORIES_CONFIG.story_lists[key].vid_url+'" type="video/ogg"/>'
         window[s]+=    '</video>'
         window[s]+='</div>'
@@ -81,7 +83,7 @@ function createStoryDiv(){
 createStoryDiv();
 
 
-// $( "#explorebutton" ).click(); //for debugging, skips the explore button click part
+$( "#explorebutton" ).click(); //for debugging, skips the explore button click part
 
 $(".toggleLayerPanelBtn").click(); //another debugging. closes down button
 
