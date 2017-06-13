@@ -459,7 +459,7 @@
 
     var uppsalaConflictUrl = rootTilePath + "/ucdp/uppsala-conflict.bin";
 
-    var omiNo2Url = rootTilePath + "/omi-no2/omi-no2.timemachine/crf22-6fps-1424x800";
+    var omiNo2Url = rootTilePath + "/omi-no2/omi-no2.timemachine/crf24-12fps-1424x800";
 
     var chinaAviationUrl = rootTilePath + "/china-infrastructure/china-aviation.bin";
     var chinaPowerPlantsUrl = rootTilePath + "/china-infrastructure/china-power-plants.bin";
@@ -1974,11 +1974,15 @@
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
           requestNewTimeline("omi-no2-times.json", timelineType);
+          timelapse.setMasterPlaybackRate(.5);
+          timelapse.setPlaybackRate(.1);
           $("#omi-no2-legend").show();
         } else {
           showOmiNo2Layer = false;
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
         }
       }).prop('checked', showOmiNo2Layer);
 
@@ -3610,12 +3614,12 @@
       var omiNo2LayerOptions = {
         mediaType: ".mp4",
         numFrames: cached_ajax['omi-no2-times.json']['capture-times'].length,
-        fps: 6,
-        nlevels: 2,
+        fps: 12,
+        nlevels: 4,
         video_width: 1424,
         video_height: 800,
-        width: 1440,
-        height: 1440,
+        width: 5760,
+        height: 5760,
         greenScreen: true
       };
       omiNo2Layer = new WebglTimeMachineLayer(glb, canvasLayer, omiNo2Url, omiNo2LayerOptions);
