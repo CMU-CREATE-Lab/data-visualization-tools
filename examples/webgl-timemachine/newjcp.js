@@ -22,7 +22,7 @@ $("#timeMachine").append(yeardiv);
 var introdiv1=""
 introdiv1+='<div class="explainborder" id="popupdiv">'
 ////////////////////////////////////   #initial is set as 300% to have 3 different screens
-introdiv1+='<div class="explainborderhead"><button onclick="hide_intro()"  style="z-index:50"></button>'
+introdiv1+='<div class="explainborderhead">'
 introdiv1+='</div>'
 introdiv1+=     '<div class="explain blender" id="initial">'
 introdiv1+=         '<div class="row">'
@@ -282,10 +282,10 @@ function startTour(category){
      $(".explainborder").hide();
      var relatableContent="";
      relatableContent+='<div class="relatableContent">'
-     relatableContent+='<div class="relatableContentHead">How does '+category+' connect to...</div>'
+     relatableContent+='<div class="relatableContentHead">How does '+category+' relate to...</div>'
      relatableContent+='<button class="contentButton"  onclick="getintroagain('+"'"+"refugee"+"'"+')">Refugee</button></br>'
-     relatableContent+='<button class="contentButton"  onclick="getintroagain('+"'"+"pandemics"+"'"+')">pandemics</button></br>'
-     relatableContent+='<button class="contentButton" onclick="getintroagain('+"'"+"climate"+"'"+')">Climate Change</button></br>'
+     relatableContent+='<button class="contentButton"  onclick="getintroagain('+"'"+"pandemics"+"'"+')">Pandemics</button></br>'
+     relatableContent+='<button class="contentButton" onclick="getintroagain('+"'"+"urbanization"+"'"+')">Urbanization</button></br>'
      relatableContent+='</div>'
      $("#timeMachine").append(relatableContent);
      $(".relatableContentHead").click(function(){
@@ -302,7 +302,7 @@ function startTour(category){
 
 
 function getintroagain(category){ // this uses storiesjcp.js configuration file
-    alert(category);
+    // alert(category);
     show_intro();
     window[category+"_story_div"]=""
     window[category+"_story_div"]+='<div class="colz-12">'

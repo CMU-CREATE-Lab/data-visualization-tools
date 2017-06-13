@@ -301,6 +301,8 @@ padding-top:10vw;
     border-top-left-radius:10px;
     font-weight: bold;
     z-index:51;
+    border-bottom:2px solid #fff;
+    /*margin-bottom:20px;*/
 }
 .relatableContent{
     /*padding-left:10px;
