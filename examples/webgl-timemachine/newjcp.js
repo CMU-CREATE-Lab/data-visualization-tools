@@ -22,7 +22,7 @@ $("#timeMachine").append(yeardiv);
 var introdiv1=""
 introdiv1+='<div class="explainborder" id="popupdiv">'
 ////////////////////////////////////   #initial is set as 300% to have 3 different screens
-introdiv1+='<div class="explainborderhead"><button onclick="hide_intro()"  style="z-index:50">✖</button>'
+introdiv1+='<div class="explainborderhead"><button onclick="hide_intro()"  style="z-index:50"></button>'
 introdiv1+='</div>'
 introdiv1+=     '<div class="explain blender" id="initial">'
 introdiv1+=         '<div class="row">'
@@ -40,18 +40,28 @@ introdiv1+=             '</div>'
 introdiv1+=         '</div>'
 introdiv1+=     '</div>'
 //////////////////////////////////////
-introdiv1+=     '<div class="explainborderbottom">'
-introdiv1+=         '<div style="text-align:center;">'
-introdiv1+=             '<button class="jcpnavbutton" onclick="goback()" style="margin-top:-100px"> &#10094 </button>'
-introdiv1+=             '<button class="jcpnavbutton" onclick="hide_intro()" style="margin-top:-100px">close intro </button>'
-introdiv1+=             '<button class="jcpnavbutton" onclick="goforward()" style="margin-top:-100px"> &#10095 </button>'
-introdiv1+=         '</div>'
-introdiv1+=     '</div>'
+// introdiv1+=     '<div class="explainborderbottom">'
+// introdiv1+=         '<div style="text-align:center;">'
+// introdiv1+=             '<button class="jcpnavbutton" onclick="goback()" style="margin-top:-100px"> &#10094 </button>'
+// introdiv1+=             '<button class="jcpnavbutton" onclick="hide_intro()" style="margin-top:-100px">close intro </button>'
+// introdiv1+=             '<button class="jcpnavbutton" onclick="goforward()" style="margin-top:-100px"> &#10095 </button>'
+// introdiv1+=         '</div>'
+// introdiv1+=     '</div>'
 introdiv1+='</div>'
 
 
-$("#timeMachine").append(introdiv1)
+var directionnav=""
 
+directionnav+='<div class="bottomDirectionNav ">'
+directionnav+='<div style="text-align:center;">'
+directionnav+=             '<button class="jcpnavbutton" onclick="goback()" style="margin-top:-100px"> &#10094 </button>'
+directionnav+=             '<button class="jcpnavbutton" onclick="hide_intro()" style="margin-top:-100px">close intro </button>'
+directionnav+=             '<button class="jcpnavbutton" onclick="goforward()" style="margin-top:-100px"> &#10095 </button>'
+directionnav+='</div>'
+directionnav+='</div>'
+
+$("#timeMachine").append(introdiv1)
+$("#timeMachine").append(directionnav)
 
 
 
@@ -162,9 +172,6 @@ function detectTimeChange(){
 
 
 
-
-
-
 function exploreclicked(){
     $( "#initial" ).animate({
                     opacity: 1,
@@ -177,36 +184,28 @@ function exploreclicked(){
 
 }
 
+function storyclicked(category){ // this uses storiesjcp.js configuration file
+    window[category+"_story_div"]=""
+    window[category+"_story_div"]+='<div class="colz-12">'
+    window[category+"_story_div"]+=STORIES_CONFIG.story_lists[category].heading_text
+    window[category+"_story_div"]+='</div>'
+    window[category+"_story_div"]+='<div class="colz-6">'
+    window[category+"_story_div"]+='<img src="'+STORIES_CONFIG.story_lists[category].img_url +'"style="width:90%;height:auto;"/>'
+    window[category+"_story_div"]+='</div>'
+    window[category+"_story_div"]+='<div class="colz-6">'
+    window[category+"_story_div"]+='<div style="font-size:1vw;height:20vw;text-align:left; overflow-y: scroll;">'
+    for (var i=0;i<STORIES_CONFIG.story_lists[category].img_descript.length;i++){ // this is in paragraph form. It uses array of "img_descript"
+        window[category+"_story_div"]+=STORIES_CONFIG.story_lists[category].img_descript[i];
+        if (i==STORIES_CONFIG.story_lists[category].img_descript.length-1){
+            window[category+"_story_div"]+='</br>'
+        }
+    }
+    window[category+"_story_div"]+='A pandemic (from Greek πᾶν pan "all" and δῆμος demos "people") is an epidemic of infectious disease that has spread through human populations across a large region; for instance multiple continents, or even worldwide. A widespread endemic disease that is stable in terms of how many people are getting sick from it is not a pandemic. Further, flu pandemics generally exclude recurrences of seasonal flu. Throughout history, there have been a number of pandemics, such as smallpox and tuberculosis. One of the most devastating pandemics was the Black Death, killing over 75 million people in 1350. The most recent pandemics include the HIV pandemic as well as the 1918 and 2009 H1N1 pandemics.'
+    window[category+"_story_div"]+='</div>'
+    window[category+"_story_div"]+='</div>'
+    window[category+"_story_div"]+='<button class="tourButton" onClick="startTour('+"'"+category+"'" +')">Start Tour</button>'
 
-var refugee_story_div=""
-refugee_story_div+='<div class="colz-12">'
-refugee_story_div+="Refugee Crisis"
-refugee_story_div+='</div>'
-refugee_story_div+='<div class="colz-6">'
-refugee_story_div+='<img src="jcpassets/refugee.jpg" style="width:90%;height:auto;"/>'
-refugee_story_div+='</div>'
-refugee_story_div+='<div class="colz-6">'
-refugee_story_div+='<div style="font-size:1vw;text-align:left;">'
-refugee_story_div+='Refugee crisis can refer to movements of large groups of displaced persons, who could be either internally displaced persons, refugees or other migrants. It can also refer to incidents in the country of origin or departure, to large problems whilst on the move or even after arrival in a safe country that involve large groups of displaced persons.'
-refugee_story_div+="Back in 2006, there were 8.4 million UNHCR registered refugees worldwide, which was the lowest number since 1980. At the end of 2015, there were 16.1 million refugees worldwide. When adding the 5.2 million Palestinian refugees who are under UNRWA's mandate there are 21.3 million refugees worldwide. The overall forced displacement worldwide has reached to a total of 65.3 million displaced persons in the end of 2015, while it was 59.5 million 12 months earlier. One in every 113 people globally is an asylum seeker or a refugee. In 2015, the total number of displaced people worldwide, including refugees, asylum seekers and internally displaced persons, was at its highest level on record."
-refugee_story_div+='</div>'
-refugee_story_div+='</div>'
 
-var pandemics_story_div=""
-pandemics_story_div+='<div class="colz-12">'
-pandemics_story_div+="Pandemics"
-pandemics_story_div+='</div>'
-pandemics_story_div+='<div class="colz-6">'
-pandemics_story_div+='<img src="jcpassets/pandemics.jpg" style="width:90%;height:auto;"/>'
-pandemics_story_div+='</div>'
-pandemics_story_div+='<div class="colz-6">'
-pandemics_story_div+='<div style="font-size:1vw;text-align:left;">'
-pandemics_story_div+='A pandemic (from Greek πᾶν pan "all" and δῆμος demos "people") is an epidemic of infectious disease that has spread through human populations across a large region; for instance multiple continents, or even worldwide. A widespread endemic disease that is stable in terms of how many people are getting sick from it is not a pandemic. Further, flu pandemics generally exclude recurrences of seasonal flu. Throughout history, there have been a number of pandemics, such as smallpox and tuberculosis. One of the most devastating pandemics was the Black Death, killing over 75 million people in 1350. The most recent pandemics include the HIV pandemic as well as the 1918 and 2009 H1N1 pandemics.'
-pandemics_story_div+='</div>'
-pandemics_story_div+='</div>'
-
-function storyclicked(category){
-    // alert(category)
     $( "#initial" ).animate({
         opacity: 1,
         left: "-=100%",
@@ -278,4 +277,52 @@ function toggle_sidebar()
     else{
         sidebar.style.right = "-200px";
     }
+}
+function startTour(category){
+     $(".explainborder").hide();
+     var relatableContent="";
+     relatableContent+='<div class="relatableContent">'
+     relatableContent+='<div class="relatableContentHead">How does '+category+' connect to...</div>'
+     relatableContent+='<button class="contentButton"  onclick="getintroagain('+"'"+"refugee"+"'"+')">Refugee</button></br>'
+     relatableContent+='<button class="contentButton"  onclick="getintroagain('+"'"+"pandemics"+"'"+')">pandemics</button></br>'
+     relatableContent+='<button class="contentButton" onclick="getintroagain('+"'"+"climate"+"'"+')">Climate Change</button></br>'
+     relatableContent+='</div>'
+     $("#timeMachine").append(relatableContent);
+     $(".relatableContentHead").click(function(){
+         if ($(".relatableContent").css("height")!="40px"){
+            $(".relatableContent").animate({height:"40px"},500);
+         }
+         else{
+             $(".relatableContent").animate({height:"15vw"},500);
+         }
+        
+     })
+
+}
+
+
+function getintroagain(category){ // this uses storiesjcp.js configuration file
+    alert(category);
+    show_intro();
+    window[category+"_story_div"]=""
+    window[category+"_story_div"]+='<div class="colz-12">'
+    window[category+"_story_div"]+=STORIES_CONFIG.story_lists[category].heading_text
+    window[category+"_story_div"]+='</div>'
+    window[category+"_story_div"]+='<div class="colz-6">'
+    window[category+"_story_div"]+='<img src="'+STORIES_CONFIG.story_lists[category].img_url +'"style="width:90%;height:auto;"/>'
+    window[category+"_story_div"]+='</div>'
+    window[category+"_story_div"]+='<div class="colz-6">'
+    window[category+"_story_div"]+='<div style="font-size:1vw;height:20vw;text-align:left; overflow-y: scroll;">'
+    for (var i=0;i<STORIES_CONFIG.story_lists[category].img_descript.length;i++){ // this is in paragraph form. It uses array of "img_descript"
+        window[category+"_story_div"]+=STORIES_CONFIG.story_lists[category].img_descript[i];
+        if (i==STORIES_CONFIG.story_lists[category].img_descript.length-1){
+            window[category+"_story_div"]+='</br>'
+        }
+    }
+    window[category+"_story_div"]+='A pandemic (from Greek πᾶν pan "all" and δῆμος demos "people") is an epidemic of infectious disease that has spread through human populations across a large region; for instance multiple continents, or even worldwide. A widespread endemic disease that is stable in terms of how many people are getting sick from it is not a pandemic. Further, flu pandemics generally exclude recurrences of seasonal flu. Throughout history, there have been a number of pandemics, such as smallpox and tuberculosis. One of the most devastating pandemics was the Black Death, killing over 75 million people in 1350. The most recent pandemics include the HIV pandemic as well as the 1918 and 2009 H1N1 pandemics.'
+    window[category+"_story_div"]+='</div>'
+    window[category+"_story_div"]+='</div>'
+    window[category+"_story_div"]+='<button class="tourButton" onClick="startTour('+"'"+category+"'" +')">Start Tour</button>'
+
+ $("#secondinitial").html(window[category+"_story_div"])
 }
