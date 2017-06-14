@@ -60,6 +60,7 @@
   <script src="WebglMapTile2.js"></script>
   <script src="WebglMapLayer2.js"></script>
   <script src="perf.js"></script>
+  <script src="../../js/utils.js"></script>
 
   <script type="text/javascript">
     "use strict";
@@ -133,6 +134,21 @@
     var showLightsAtNight2016 = !!EARTH_TIMELAPSE_CONFIG.showLightsAtNight2016;
     var showOmiNo2 = !!EARTH_TIMELAPSE_CONFIG.showOmiNo2;
     var showChinaInfrastructure = !!EARTH_TIMELAPSE_CONFIG.showChinaInfrastructure;
+
+    $.ajax({
+      url: "http://verify.createlab.org:1337/et-china-infastructure",
+      data: {
+        token: getUrlParameter("cit")
+      }
+    }).done(function(res) {
+      if (res.response) {
+        $("#ci").css("visibility", "visible");
+      } else {
+        showChinaInfrastructure = false;
+        $("#ci").prev().remove();
+        $("#ci").remove();
+      }
+    });
 
     var showShareButton = !!EARTH_TIMELAPSE_CONFIG.showShareButton;
     var showShareButtonHash = window.location.hash.split("showShareButton=")[1];
@@ -2383,7 +2399,6 @@
 
   <script type="text/javascript" src="../../js/base.js"></script>
   <script type="text/javascript" src="../../js/io.js"></script>
-  <script type="text/javascript" src="../../js/utils.js"></script>
   <script type="text/javascript" src="../../js/polyfills.js"></script>
   <script src="csvFileLayer.js"></script>
 
@@ -2769,7 +2784,7 @@
       var show_china_aviation = '<td class="china-aviation-select"><label for="show-china-aviation" name="china-aviation"><input type="checkbox" id="show-china-aviation" />China Aviation</label></td>';
       var show_china_power_plants = '<td class="china-power-plants-select"><label for="show-china-power-plants" name="china-power-plants"><input type="checkbox" id="show-china-power-plants" />China Power Plants</label></td>';
       var show_china_reservoirs = '<td class="china-reservoirs-select"><label for="show-china-reservoirs" name="china-reservoirs"><input type="checkbox" id="show-china-reservoirs" />China Reservoirs</label></td>';
-     var show_china_waste_treatment_plants = '<td class="china-waste-treatment-plants-select"><label for="show-china-waste-treatment-plants" name="china-waste-treatment-plants"><input type="checkbox" id="show-china-waste-treatment-plants" />China Waste Treatment Plants</label></td>';
+      var show_china_waste_treatment_plants = '<td class="china-waste-treatment-plants-select"><label for="show-china-waste-treatment-plants" name="china-waste-treatment-plants"><input type="checkbox" id="show-china-waste-treatment-plants" />China Waste Treatment Plants</label></td>';
 
 
 
@@ -3219,7 +3234,7 @@
         /* CHINA INFRASTRUCTURE THEME */
         if (showChinaInfrastructure) {
           layer_html += '  <h3>China Infrastructure</h3>';
-          layer_html += '  <table>';
+          layer_html += '  <table id ="ci" style="visibility: hidden">';
           layer_html += '    <tr>';
           layer_html += show_china_aviation;
           layer_html += '    </tr>';

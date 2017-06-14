@@ -36,11 +36,11 @@ function PixelXYToLatLong(xy) {
 function circumferenceOfEarthAtLatitude(latitude) {
   return Math.cos(latitude * Math.PI/180).toFixed(8) * 40075017;
 }
-      
+
 function getMetersPerPixelAtLatitude(latitude, zoom) {
   return circumferenceOfEarthAtLatitude(latitude) / (256 * Math.pow(2,zoom)) ;
 }
-      
+
 function getPixelDiameterAtLatitude(diameterInMeters, latitude, zoom) {
   return diameterInMeters / getMetersPerPixelAtLatitude(latitude, zoom);
 }
@@ -94,8 +94,8 @@ function invert4(out, a) {
 
   det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 
-  if (!det) { 
-    return null; 
+  if (!det) {
+    return null;
   }
   det = 1.0 / det;
 
@@ -122,26 +122,26 @@ function invert4(out, a) {
 
 Date.prototype.yyyymmdd = function(stepsize) {
   if (stepsize == undefined) stepsize = -1;
-  
-  var yyyy = this.getUTCFullYear().toString();                                    
+
+  var yyyy = this.getUTCFullYear().toString();
   var mm = (this.getUTCMonth()+1).toString();
-  var dd  = this.getUTCDate().toString();             
+  var dd  = this.getUTCDate().toString();
   var res = yyyy;
   if (stepsize < 365*24*60*60) res += '-' + (mm[1]?mm:"0"+mm[0]) + '-' + (dd[1]?dd:"0"+dd[0]);
   return res;
-};  
+};
 
 Date.prototype.hhmmss = function(stepsize) {
   if (stepsize == undefined) stepsize = -1;
 
-  var hh = this.getUTCHours().toString();                                    
+  var hh = this.getUTCHours().toString();
   var mm = this.getUTCMinutes().toString();
   var ss  = this.getUTCSeconds().toString();
   var res = hh[1]?hh:"0"+hh[0];
   if (stepsize < 60*60) res += ':' + (mm[1]?mm:"0"+mm[0]);
   if (stepsize < 60) res += ':' + (ss[1]?ss:"0"+ss[0]);
   return res;
-}; 
+};
 
 Date.prototype.rfcstring = function(sep, stepsize) {
   if (sep == undefined) sep = "T";
@@ -342,7 +342,7 @@ function setParameter(name, value) {
     replacement = "&" + name + "=" + encodeURIComponent(value);
   }
   if (regex.exec(location.hash) == null) {
-    location.hash = "#" + (location.hash + replacement).substr(1);    
+    location.hash = "#" + (location.hash + replacement).substr(1);
   } else {
     results = location.hash.replace(regex, replacement);
     location.hash = "#" + results.substr(1);
@@ -422,4 +422,11 @@ function relUrlToAbsUrl(url) {
   div.firstChild.href = url; // Ensures that the href is properly escaped
   div.innerHTML = div.innerHTML; // Run the current innerHTML back through the parser
   return div.firstChild.href;
+}
+
+function getUrlParameter(name) {
+  name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+  var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+  var results = regex.exec(location.search);
+  return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
 }
