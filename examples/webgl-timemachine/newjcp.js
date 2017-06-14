@@ -1,5 +1,6 @@
 ////// THIS IS WHERE ALL THE WINDOW LOAD STARTS
 $( window ).load(function() {
+    // disableTimeMachine();
 
 var introview= {center:{"lat":25.343,"lng":38.48112},"zoom":2.837}
 timelapse.setNewView(introview,true)
@@ -39,14 +40,7 @@ introdiv1+=                 '<div class="colz-4" id="secondinitial">'
 introdiv1+=             '</div>'
 introdiv1+=         '</div>'
 introdiv1+=     '</div>'
-//////////////////////////////////////
-// introdiv1+=     '<div class="explainborderbottom">'
-// introdiv1+=         '<div style="text-align:center;">'
-// introdiv1+=             '<button class="jcpnavbutton" onclick="goback()" style="margin-top:-100px"> &#10094 </button>'
-// introdiv1+=             '<button class="jcpnavbutton" onclick="hide_intro()" style="margin-top:-100px">close intro </button>'
-// introdiv1+=             '<button class="jcpnavbutton" onclick="goforward()" style="margin-top:-100px"> &#10095 </button>'
-// introdiv1+=         '</div>'
-// introdiv1+=     '</div>'
+
 introdiv1+='</div>'
 
 
@@ -121,8 +115,7 @@ $("#timeMachine").append(full_screen_button);
 /////////////////////////////////
 function hide_presentationSlider(){
     $(".presentationSlider").hide();
-    // $(".player").css("bottom","0px")
-    // $("#timeMachine_timelapse").css("bottom")
+
 }
 function show_presentationSlider(){
     $(".presentationSlider").show();
@@ -193,7 +186,7 @@ function storyclicked(category){ // this uses storiesjcp.js configuration file
     window[category+"_story_div"]+='<img src="'+STORIES_CONFIG.story_lists[category].img_url +'"style="width:90%;height:auto;"/>'
     window[category+"_story_div"]+='</div>'
     window[category+"_story_div"]+='<div class="colz-6">'
-    window[category+"_story_div"]+='<div style="font-size:1vw;height:20vw;text-align:left; overflow-y: scroll;">'
+    window[category+"_story_div"]+='<div style="font-size:1vw;height:50vh;text-align:left; overflow-y: scroll;">'
     for (var i=0;i<STORIES_CONFIG.story_lists[category].img_descript.length;i++){ // this is in paragraph form. It uses array of "img_descript"
         window[category+"_story_div"]+=STORIES_CONFIG.story_lists[category].img_descript[i];
         if (i==STORIES_CONFIG.story_lists[category].img_descript.length-1){
@@ -288,6 +281,7 @@ function startTour(category){
      relatableContent+='<button class="contentButton" onclick="getintroagain('+"'"+"urbanization"+"'"+')">Urbanization</button></br>'
      relatableContent+='</div>'
      $("#timeMachine").append(relatableContent);
+    $(".relatableContent").animate({height:"15vw"},500);
      $(".relatableContentHead").click(function(){
          if ($(".relatableContent").css("height")!="40px"){
             $(".relatableContent").animate({height:"40px"},500);
@@ -312,7 +306,7 @@ function getintroagain(category){ // this uses storiesjcp.js configuration file
     window[category+"_story_div"]+='<img src="'+STORIES_CONFIG.story_lists[category].img_url +'"style="width:90%;height:auto;"/>'
     window[category+"_story_div"]+='</div>'
     window[category+"_story_div"]+='<div class="colz-6">'
-    window[category+"_story_div"]+='<div style="font-size:1vw;height:20vw;text-align:left; overflow-y: scroll;">'
+    window[category+"_story_div"]+='<div style="font-size:1vw;height:50vh;text-align:left; overflow-y: scroll;">'
     for (var i=0;i<STORIES_CONFIG.story_lists[category].img_descript.length;i++){ // this is in paragraph form. It uses array of "img_descript"
         window[category+"_story_div"]+=STORIES_CONFIG.story_lists[category].img_descript[i];
         if (i==STORIES_CONFIG.story_lists[category].img_descript.length-1){
@@ -325,4 +319,14 @@ function getintroagain(category){ // this uses storiesjcp.js configuration file
     window[category+"_story_div"]+='<button class="tourButton" onClick="startTour('+"'"+category+"'" +')">Start Tour</button>'
 
  $("#secondinitial").html(window[category+"_story_div"])
+ deploySlide(window[category+"_url"])
+}
+
+
+
+function disableTimeMachine(){
+    $("#timeMachine").css("pointer-events","none");
+}
+function enableTimeMachine(){
+    $("#timeMachine").css("pointer-events","auto");
 }

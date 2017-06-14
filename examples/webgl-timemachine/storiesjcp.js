@@ -1,5 +1,5 @@
 var STORIES_CONFIG = {
-    "column_numbers":2,
+    "column_numbers":4,
     "story_lists":{
         "refugee":{
             "vid_url":"jcpassets/florida.mp4",
@@ -37,7 +37,7 @@ var STORIES_CONFIG = {
 var CONNECTION_CONFIG={
     "refugee":{
         "urbanization":{
-            
+
         }
     }
 }
