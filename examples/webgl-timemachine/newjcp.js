@@ -6,19 +6,7 @@ var introview= {center:{"lat":25.343,"lng":38.48112},"zoom":2.837}
 timelapse.setNewView(introview,true)
 
 
-////////DELETE THIS ONE
-// testing out the right sidebar with hamburger. THIS IS ONE NEEDS TO BE DELETED
-function createSidebar(w,color){
-    var sidebar='<div id="sidebar" style="position: fixed; display: inline-block; top: 0px; height: 100%; width: 500px; right: -500px; background-color:#ff0; transition: all 0.2s ease-in-out; z-index:98;"></div>'
-}
-var sidebardiv='<div id="sidebar" style="position: fixed; display: inline-block; top: 0px; height: 100%; width: 500px; right: -500px; background-color:#ff0; transition: all 0.2s ease-in-out; z-index:98;"></div>'
-$("#timeMachine").append(sidebardiv);
 
-//// delete above stuff
-var yeardiv="<div id='jcpYearDiv'></div>"
-$("#timeMachine").append(yeardiv);
-//// this is a bigger date field
-///////////////////////////////////
 
 var introdiv1=""
 introdiv1+='<div class="explainborder" id="popupdiv">'
@@ -65,7 +53,6 @@ function createStoryDiv(){
     var col=STORIES_CONFIG.column_numbers;
     var stories=STORIES_CONFIG.story_lists;
    
-
     for (key in stories){
         console.log(key);
         var s=key+"_video_div"
@@ -88,9 +75,14 @@ function createStoryDiv(){
 createStoryDiv();
 
 
-// $( "#explorebutton" ).click(); //for debugging, skips the explore button click part
+$(".toggleLayerPanelBtn").click(); 
+$(".toggleLayerPanelBtn").click(function(){
+    alert("wow")
+    var introbutton=""
+    introbutton+="<button class='intro_button'onclick='show_intro()'>Show Intro</button>"
+    $("#timeMachine").append(introbutton);
+})
 
-$(".toggleLayerPanelBtn").click(); //another debugging. closes down button
 
 
 // show intro button next to the share button
@@ -103,9 +95,6 @@ var full_screen_button=""
 full_screen_button+="<button class='full_screen_button'onclick='fullScreenMode()'>Full Screen</button>";
 $("#timeMachine").append(full_screen_button);
 
-
-
-// hide_presentationSlider();    
 });
 
 
@@ -152,15 +141,6 @@ function exit_fullScreenMode(){
     show_presentationSlider();
     show_customControl();
 }
-function detectTimeChange(){
-
-    $('.timeText').bind("DOMSubtreeModified",function(){
-    // console.log($('.timeText').html());
-    $("#jcpYearDiv").html($('.timeText').html())
-    });
-}
-/////////////////
-
 
 
 
@@ -232,6 +212,7 @@ function hide_intro(){
     $(".explainborder").hide();
 }
 function show_intro(){
+    $(".relatableContent").remove();
     $(".explainborder").show();
 }
 
@@ -278,9 +259,11 @@ function startTour(category){
      var relatableContent="";
      relatableContent+='<div class="relatableContent">'
      relatableContent+='<div class="relatableContentHead">How does '+category+' relate to...</div>'
-     relatableContent+='<button class="contentButton"  onclick="getintroagain('+"'"+"refugee"+"'"+')">Refugee</button></br>'
-     relatableContent+='<button class="contentButton"  onclick="getintroagain('+"'"+"pandemics"+"'"+')">Pandemics</button></br>'
-     relatableContent+='<button class="contentButton" onclick="getintroagain('+"'"+"urbanization"+"'"+')">Urbanization</button></br>'
+    //  relatableContent+='<div '
+     relatableContent+=     '<button class="contentButton"  onclick="getintroagain('+"'"+"refugee"+"'"+')">Refugee</button></br>'
+     relatableContent+=     '<button class="contentButton"  onclick="getintroagain('+"'"+"pandemics"+"'"+')">Pandemics</button></br>'
+     relatableContent+=     '<button class="contentButton" onclick="getintroagain('+"'"+"urbanization"+"'"+')">Urbanization</button></br>'
+     relatableContent+='<button class="reopenButton" onclick="show_intro()">Back to Stories</button></br>'
      relatableContent+='</div>'
      $("#timeMachine").append(relatableContent);
     $(".relatableContent").animate({height:"15vw"},500);
