@@ -106,7 +106,7 @@
 }
 .explain{
     position:relative;
-    font-size:5vw;
+    font-size:10vh;
     color:#fff;
     text-align:center;
     
@@ -133,9 +133,9 @@ padding-top:10vw;
     background-color:Transparent;
     border:2px solid #fff;
     text-align:center;
-    padding:1.5vw;
+    padding:2vh;
     color:#fff;
-    font-size:2vw;
+    font-size:4vh;
     cursor:pointer;
     transition:background 0.5s ease-in-out;
     text-decoration:none;

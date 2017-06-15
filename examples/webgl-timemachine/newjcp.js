@@ -166,6 +166,7 @@ function detectTimeChange(){
 
 
 function exploreclicked(){
+    hide_presentationSlider();
     $( "#initial" ).animate({
                     opacity: 1,
                     left: "-=100%",
@@ -273,6 +274,7 @@ function toggle_sidebar()
 }
 function startTour(category){
      $(".explainborder").hide();
+     $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation")[0].click();
      var relatableContent="";
      relatableContent+='<div class="relatableContent">'
      relatableContent+='<div class="relatableContentHead">How does '+category+' relate to...</div>'
@@ -297,6 +299,7 @@ function startTour(category){
 
 function getintroagain(category){ // this uses storiesjcp.js configuration file
     // alert(category);
+     $(".relatableContent").remove();
     show_intro();
     window[category+"_story_div"]=""
     window[category+"_story_div"]+='<div class="colz-12">'
@@ -325,8 +328,8 @@ function getintroagain(category){ // this uses storiesjcp.js configuration file
 
 
 function disableTimeMachine(){
-    $("#timeMachine").css("pointer-events","none");
+    $(".player").css("pointer-events","none");
 }
 function enableTimeMachine(){
-    $("#timeMachine").css("pointer-events","auto");
+    $(".player").css("pointer-events","auto");
 }
