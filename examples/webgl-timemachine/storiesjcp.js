@@ -25,12 +25,15 @@ var STORIES_CONFIG = {
             "vid_url":"http://img.timeinc.net/time/video/time-lapse/earth-time-lapse.ogg",
             "heading_text":"Sample Urbanization",
             "slide_url":"https://docs.google.com/spreadsheets/d/1JLY9J4XYsWaz-lD8tzAIF1oBjaxIQbqe0AISt5Q48ro/edit#gid=0",
+            "img_url":"jcpassets/urbanization.jpg",
+            "img_descript":['A pandemic (from Greek πᾶν pan "all" and δῆμος demos "people") is an epidemic of infectious disease that has spread through human populations across a large region; for instance multiple continents, or even worldwide. A widespread endemic disease that is stable in terms of how many people are getting sick from it is not a pandemic. Further, flu pandemics generally exclude recurrences of seasonal flu. Throughout history, there have been a number of pandemics, such as smallpox and tuberculosis. One of the most devastating pandemics was the Black Death, killing over 75 million people in 1350. The most recent pandemics include the HIV pandemic as well as the 1918 and 2009 H1N1 pandemics.',]
         },
         "climate":{
             "vid_url":"jcpassets/ice_nasa.mp4",
             "heading_text":"Sample Sample ",
             "slide_url":"https://docs.google.com/spreadsheets/d/1JLY9J4XYsWaz-lD8tzAIF1oBjaxIQbqe0AISt5Q48ro/edit#gid=0",
         },
+        
     }
 };
 

@@ -13,6 +13,10 @@ introdiv1+='<div class="explainborder" id="popupdiv">'
 ////////////////////////////////////   #initial is set as 300% to have 3 different screens
 introdiv1+='<div class="explainborderhead">'
 introdiv1+='</div>'
+introdiv1+='<div class="explainborderleft">'
+introdiv1+='</div>'
+introdiv1+='<div class="explainborderright"> &#10095'
+introdiv1+='</div>'
 introdiv1+=     '<div class="explain blender" id="initial">'
 introdiv1+=         '<div class="row">'
 introdiv1+=             '<div class="colz-4" id="firstinitial">'
@@ -28,7 +32,8 @@ introdiv1+=                 '<div class="colz-4" id="secondinitial">'
 introdiv1+=             '</div>'
 introdiv1+=         '</div>'
 introdiv1+=     '</div>'
-
+introdiv1+='<div class="explainborderbottom">'
+introdiv1+='</div>'
 introdiv1+='</div>'
 
 
@@ -266,13 +271,13 @@ function startTour(category){
      relatableContent+='<button class="reopenButton" onclick="show_intro()">Back to Stories</button></br>'
      relatableContent+='</div>'
      $("#timeMachine").append(relatableContent);
-    $(".relatableContent").animate({height:"15vw"},500);
+    $(".relatableContent").animate({height:"300px"},500);
      $(".relatableContentHead").click(function(){
          if ($(".relatableContent").css("height")!="40px"){
             $(".relatableContent").animate({height:"40px"},500);
          }
          else{
-             $(".relatableContent").animate({height:"15vw"},500);
+             $(".relatableContent").animate({height:"300px"},500);
          }
         
      })
