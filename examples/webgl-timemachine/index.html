@@ -2006,9 +2006,14 @@
         if ($(this).prop('checked')) {
           showChinaAviationLayer = true;
           $("#china-aviation-legend").show();
+          setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
+          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
         } else {
           showChinaAviationLayer = false;
           $("#china-aviation-legend").hide();
+          setActiveLayersWithTimeline(-1);
+          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
         }
       }).prop('checked', showChinaAviationLayer);
 
