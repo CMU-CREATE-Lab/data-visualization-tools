@@ -5418,7 +5418,7 @@
           var delta = getCurrentTimesDelta(currentTime, currentTimes);
           var currentDate = getCurrentDate(currentTime, currentTimes, dates);
           options.currentTime = currentDate;
-          options.pointSize = 3;
+          options.pointSize = 5 * window.devicePixelRatio;
           options.color = [1.0, 0.0, 0.0, 1.0];
           chinaAviationLayer.draw(chinaAviationLayerView, options);
         }
@@ -5433,7 +5433,7 @@
           var delta = getCurrentTimesDelta(currentTime, currentTimes);
           var currentDate = getCurrentDate(currentTime, currentTimes, dates);
           options.currentTime = currentDate;
-          options.pointSize = 3;
+          options.pointSize = 5 * window.devicePixelRatio;
           options.color = [0.0, 1.0, 0.0, 1.0];
           chinaPowerPlantsLayer.draw(chinaPowerPlantsLayerView, options);
         }
@@ -5448,7 +5448,7 @@
           var delta = getCurrentTimesDelta(currentTime, currentTimes);
           var currentDate = getCurrentDate(currentTime, currentTimes, dates);
           options.currentTime = currentDate;
-          options.pointSize = 3;
+          options.pointSize = 5 * window.devicePixelRatio;
           options.color = [0.0, 0.0, 1.0, 1.0];
           chinaReservoirsLayer.draw(chinaReservoirsLayerView, options);
         }
@@ -5463,7 +5463,7 @@
           var delta = getCurrentTimesDelta(currentTime, currentTimes);
           var currentDate = getCurrentDate(currentTime, currentTimes, dates);
           options.currentTime = currentDate;
-          options.pointSize = 3;
+          options.pointSize = 5 * window.devicePixelRatio;
           options.color = [1.0, 0.5, 0.15, 1.0];
           chinaWasteTreatmentPlantsLayer.draw(chinaWasteTreatmentPlantsLayerView, options);
         }
