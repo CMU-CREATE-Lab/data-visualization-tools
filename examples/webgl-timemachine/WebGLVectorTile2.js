@@ -2384,7 +2384,7 @@ WebGLVectorTile2.colorDotmapVertexShader =
   '  //gl_Position = vec4(300.0*(aWorldCoord.x+mapMatrix[3][0]), 300.0*(-aWorldCoord.y+mapMatrix[3][1]), 0.0, 300.0);\n' +
   '  gl_Position = vec4(aWorldCoord.x * mapMatrix[0][0] + mapMatrix[3][0], aWorldCoord.y * mapMatrix[1][1] + mapMatrix[3][1],0,1);\n' +
   '  //gl_PointSize = uSize;\n' +
-  '  gl_PointSize = 1.5;\n' +
+  '  gl_PointSize = 0.5;\n' +
   '  vColor = aColor;\n' +
   '}\n';
 
