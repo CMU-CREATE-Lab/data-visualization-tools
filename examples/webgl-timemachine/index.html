@@ -1037,6 +1037,8 @@
           showBerkeleyEarthTemperatureAnomalyTimeMachineLayer = false;
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
+          var v = timelapse.getVideoset();
+          v.setFps(10);
           $("#berkeley-earth-temperature-anomaly-legend").hide();
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
         }
@@ -1990,6 +1992,8 @@
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
           requestNewTimeline("omi-no2-times.json", timelineType);
+          var v = timelapse.getVideoset();
+          v.setFps(12);
           timelapse.setMasterPlaybackRate(.5);
           timelapse.setPlaybackRate(.1);
           $("#omi-no2-legend").show();
@@ -1997,6 +2001,8 @@
           showOmiNo2Layer = false;
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+          var v = timelapse.getVideoset();
+          v.setFps(10);
           timelapse.setMasterPlaybackRate(1);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
         }
