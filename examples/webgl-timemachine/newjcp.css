@@ -48,21 +48,25 @@
     text-align:right;
     color:#fff;
     font-weight:bold;
-    background-color:turquoise;
+    background-color:rgba(100,100,100,0.5);
     padding:2px 15px;
     border-bottom:1px solid transparent;
     border-top-left-radius:10px;
     border-bottom-left-radius:10px;
     position:fixed;
-    width:10%;
+    
     /*height:100%;*/
-    top:-1px;
+
     z-index:99;
     /*left:200px;right:200px;*/
     /*transform: translateX(-50%);*/
-    display:block;
+    /*display:block;*/
+    display: flex;
+    align-items: center;
     top:100px;
     bottom:240px;
+    width:5vw;
+    font-size:5vw;
 }
 .explainborderright{
     position:absolute;
@@ -71,23 +75,24 @@
     text-align:right;
     color:#fff;
     font-weight:bold;
-    background-color:teal;
+    background-color:rgba(100,100,100,0.5);
     padding:2px 15px;
     border-bottom:1px solid transparent;
     border-top-right-radius:10px;
     border-bottom-right-radius:10px;
     position:fixed;
-    width:10%;
-    font-size:30vh;
-    top:50%;
-    padding-top:50%;
+    width:5vw;
+    font-size:5vw;
+    float:right;
     /*height:100%;*/
-    top:-1px;
+    text-align: right;
+
     z-index:99;
     right:0px;
     /*left:200px;right:200px;*/
     /*transform: translateX(-50%);*/
-    display:block;
+    display: flex;
+    align-items: center;
     top:100px;
     bottom:240px;
 }
@@ -107,7 +112,7 @@
     width:90%;
     height:100px;
     top:-1px;
-    z-index:99;
+    z-index:50;
     /*left:200px;right:200px;*/
     /*transform: translateX(-50%);*/
     display:block;
@@ -131,7 +136,7 @@
     height:240px;
     /*top:px;*/
     bottom:1px;
-    z-index:99;
+    z-index:50;
     /*left:200px;right:200px;*/
     /*transform: translateX(-50%);*/
     display:block;
@@ -155,10 +160,12 @@
 }
 
 .bottomDirectionNav{
+    bottom:200px;
     width:100%;
     position:fixed;
     /*left:200px;right:200px;*/
     display:block;
+    z-index:51;
 
 }
 
@@ -384,15 +391,12 @@ padding-top:10vw;
     /*margin-bottom:20px;*/
 }
 .relatableContent{
-    /*padding-left:10px;
-    padding-right:10px;*/
     text-align:center;
     color:#fff;
     position:absolute;
-    bottom:100px;
+    bottom:200px;
     right:0px;
     width:20vw;
- 
     background-color:rgba(40,55,65, 0.8);
     border:2px solid #fff;
     border-top-left-radius:10px;

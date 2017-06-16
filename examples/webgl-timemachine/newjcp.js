@@ -14,8 +14,10 @@ introdiv1+='<div class="explainborder" id="popupdiv">'
 introdiv1+='<div class="explainborderhead">'
 introdiv1+='</div>'
 introdiv1+='<div class="explainborderleft">'
+introdiv1+='&#10094'
 introdiv1+='</div>'
-introdiv1+='<div class="explainborderright"> &#10095'
+introdiv1+='<div class="explainborderright">'
+introdiv1+='&#10095 '
 introdiv1+='</div>'
 introdiv1+=     '<div class="explain blender" id="initial">'
 introdiv1+=         '<div class="row">'
@@ -41,9 +43,9 @@ var directionnav=""
 
 directionnav+='<div class="bottomDirectionNav ">'
 directionnav+='<div style="text-align:center;">'
-directionnav+=             '<button class="jcpnavbutton" onclick="goback()" style="margin-top:-100px"> &#10094 </button>'
-directionnav+=             '<button class="jcpnavbutton" onclick="hide_intro()" style="margin-top:-100px">close intro </button>'
-directionnav+=             '<button class="jcpnavbutton" onclick="goforward()" style="margin-top:-100px"> &#10095 </button>'
+directionnav+=             '<button class="jcpnavbutton" id="backbutton" onclick="goback()" style="margin-top:-100px"> &#10094 </button>'
+directionnav+=             '<button class="jcpnavbutton" id="introopenclosebutton" onclick="hide_intro()" style="margin-top:-100px">- </button>'
+directionnav+=             '<button class="jcpnavbutton" id="forwardbutton" onclick="goforward()" style="margin-top:-100px"> &#10095 </button>'
 directionnav+='</div>'
 directionnav+='</div>'
 
@@ -51,9 +53,8 @@ $("#timeMachine").append(introdiv1)
 $("#timeMachine").append(directionnav)
 
 
-
-
-
+$(".explainborderright").height()
+$(".explainborderright").css("padding-top","40px;")
 function createStoryDiv(){
     var col=STORIES_CONFIG.column_numbers;
     var stories=STORIES_CONFIG.story_lists;
@@ -264,7 +265,7 @@ function startTour(category){
      var relatableContent="";
      relatableContent+='<div class="relatableContent">'
      relatableContent+='<div class="relatableContentHead">How does '+category+' relate to...</div>'
-    //  relatableContent+='<div '
+
      relatableContent+=     '<button class="contentButton"  onclick="getintroagain('+"'"+"refugee"+"'"+')">Refugee</button></br>'
      relatableContent+=     '<button class="contentButton"  onclick="getintroagain('+"'"+"pandemics"+"'"+')">Pandemics</button></br>'
      relatableContent+=     '<button class="contentButton" onclick="getintroagain('+"'"+"urbanization"+"'"+')">Urbanization</button></br>'
