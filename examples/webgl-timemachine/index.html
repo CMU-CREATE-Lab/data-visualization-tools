@@ -135,20 +135,23 @@
     var showOmiNo2 = !!EARTH_TIMELAPSE_CONFIG.showOmiNo2;
     var showChinaInfrastructure = !!EARTH_TIMELAPSE_CONFIG.showChinaInfrastructure;
 
-    $.ajax({
-      url: "http://verify.createlab.org:1337/et-china-infrastructure",
-      data: {
-        token: getUrlParameter("cit")
-      }
-    }).done(function(res) {
-      if (res.response) {
-        $("#ci").css("visibility", "visible");
-      } else {
-        showChinaInfrastructure = false;
-        $("#ci").prev().remove();
-        $("#ci").remove();
-      }
-    });
+    // Check URL layer verification tokens only if on http or https
+    if (window.location.href.indexOf("http") == 0) {
+      $.ajax({
+        url: "http://verify.createlab.org:1337/et-china-infrastructure",
+        data: {
+          token: getUrlParameter("cit")
+        }
+      }).done(function(res) {
+        if (res.response) {
+          $("#ci").css("visibility", "visible");
+        } else {
+          showChinaInfrastructure = false;
+          $("#ci").prev().remove();
+          $("#ci").remove();
+        }
+      });
+    }
 
     var showShareButton = !!EARTH_TIMELAPSE_CONFIG.showShareButton;
     var showShareButtonHash = window.location.hash.split("showShareButton=")[1];
