@@ -5,9 +5,6 @@ $( window ).load(function() {
 var introview= {center:{"lat":25.343,"lng":38.48112},"zoom":2.837}
 timelapse.setNewView(introview,true)
 
-
-
-
 var introdiv1=""
 introdiv1+='<div class="explainborder" id="popupdiv">'
 ////////////////////////////////////   #initial is set as 300% to have 3 different screens
@@ -28,7 +25,6 @@ introdiv1+=             '</div>'
 introdiv1+=             '<div class="colz-4" >'
 introdiv1+=                 '<div class="colz-12 storieshead">Explore</div>'
 introdiv1+=                 '<div id="video_div_here"></div>'
-// introdiv1+=                 storydiv;
 introdiv1+=             '</div>'
 introdiv1+=                 '<div class="colz-4" id="secondinitial">'
 introdiv1+=             '</div>'
@@ -50,6 +46,7 @@ directionnav+='</div>'
 directionnav+='</div>'
 
 $("#timeMachine").append(introdiv1)
+$(".explainborderleft").hide();
 $("#timeMachine").append(directionnav)
 
 
@@ -66,7 +63,7 @@ function createStoryDiv(){
         window[s]+='<div class="colz-'+String(12/col)+'">'
         window[s]+='<div class="vidContainer" id="'+key+'_vid_button" onclick=storyclicked("'+String(key) +'")>'
         window[s]+=    '<div class="videotext blender">'+STORIES_CONFIG.story_lists[key].heading_text +'</div>'
-        window[s]+=    '<video id="'+key+'video" poster="/static/img/earth.png" loop >'
+        window[s]+=    '<video id="'+key+'video" poster="jcpassets/pandemics.jpg" loop >'
         window[s]+=        '<source src="'+STORIES_CONFIG.story_lists[key].vid_url+'" type="video/ogg"/>'
         window[s]+=    '</video>'
         window[s]+='</div>'
@@ -75,7 +72,6 @@ function createStoryDiv(){
         $("#video_div_here").append(window[s]);
         document.getElementById(key+"video").play();
         var vidbutton=key+"_vid_button"
-       
     }
 }
 createStoryDiv();
@@ -83,10 +79,19 @@ createStoryDiv();
 
 $(".toggleLayerPanelBtn").click(); 
 $(".toggleLayerPanelBtn").click(function(){
-    alert("wow")
     var introbutton=""
-    introbutton+="<button class='intro_button'onclick='show_intro()'>Show Intro</button>"
-    $("#timeMachine").append(introbutton);
+        introbutton+="<button class='intro_button'onclick='show_intro()'>Show Intro</button>"
+    if ($("#layers-list").hasClass("hide-layers-list")){
+        console.log("closed")
+        show_intro();
+        $(".intro_button").remove();
+    }
+    else{
+        console.log("open");
+        hide_intro();
+        $(".intro_button").remove();
+        $("#timeMachine").append(introbutton);
+    }    
 })
 
 
@@ -157,14 +162,12 @@ function exploreclicked(){
                     opacity: 1,
                     left: "-=100%",
                     // height: "toggle"
-    }, 500,function(){
-        console.log("complete");
-
-    });
-
+    }, 500);
+    $(".explainborderleft").show();
+    // $(".explainborderright").hide();
 }
 
-function storyclicked(category){ // this uses storiesjcp.js configuration file
+function populatestory(category){
     window[category+"_story_div"]=""
     window[category+"_story_div"]+='<div class="colz-12">'
     window[category+"_story_div"]+=STORIES_CONFIG.story_lists[category].heading_text
@@ -173,7 +176,7 @@ function storyclicked(category){ // this uses storiesjcp.js configuration file
     window[category+"_story_div"]+='<img src="'+STORIES_CONFIG.story_lists[category].img_url +'"style="width:90%;height:auto;"/>'
     window[category+"_story_div"]+='</div>'
     window[category+"_story_div"]+='<div class="colz-6">'
-    window[category+"_story_div"]+='<div style="font-size:1vw;height:50vh;text-align:left; overflow-y: scroll;">'
+    window[category+"_story_div"]+='<div style="font-size:1vw;height:40vh;text-align:left; overflow-y: scroll;margin-right:10%;">'
     for (var i=0;i<STORIES_CONFIG.story_lists[category].img_descript.length;i++){ // this is in paragraph form. It uses array of "img_descript"
         window[category+"_story_div"]+=STORIES_CONFIG.story_lists[category].img_descript[i];
         if (i==STORIES_CONFIG.story_lists[category].img_descript.length-1){
@@ -184,25 +187,35 @@ function storyclicked(category){ // this uses storiesjcp.js configuration file
     window[category+"_story_div"]+='</div>'
     window[category+"_story_div"]+='</div>'
     window[category+"_story_div"]+='<button class="tourButton" onClick="startTour('+"'"+category+"'" +')">Start Tour</button>'
+    $("#secondinitial").html(window[category+"_story_div"])
+}
 
+function storyclicked(category){ // this uses storiesjcp.js configuration file
+    populatestory(category);
 
     $( "#initial" ).animate({
         opacity: 1,
         left: "-=100%",
         }, 500);
-        $("#secondinitial").html(window[category+"_story_div"])
+       
         deploySlide(window[category+"_url"])
 }
 
 function goback(){
+    if ($("#initial").css("left")!="0px"){
     $( "#initial" ).animate({
                     opacity: 1,
                     left: "+=100%",
                     // height: "toggle"
         }, 500,function(){
-            console.log("complete");
+
+            if ($("#initial").css("left") == "0px"){
+                $(".explainborderleft").hide();
+            }
+            
             
         });
+    }
 }
 function goforward(){
     $( "#initial" ).animate({
@@ -213,6 +226,7 @@ function goforward(){
             console.log("complete");
             
         });
+    $(".explainborderleft").show();
 }
 function hide_intro(){
     $(".explainborder").hide();
@@ -287,31 +301,10 @@ function startTour(category){
 
 
 function getintroagain(category){ // this uses storiesjcp.js configuration file
-    // alert(category);
      $(".relatableContent").remove();
+    populatestory(category);
     show_intro();
-    window[category+"_story_div"]=""
-    window[category+"_story_div"]+='<div class="colz-12">'
-    window[category+"_story_div"]+=STORIES_CONFIG.story_lists[category].heading_text
-    window[category+"_story_div"]+='</div>'
-    window[category+"_story_div"]+='<div class="colz-6">'
-    window[category+"_story_div"]+='<img src="'+STORIES_CONFIG.story_lists[category].img_url +'"style="width:90%;height:auto;"/>'
-    window[category+"_story_div"]+='</div>'
-    window[category+"_story_div"]+='<div class="colz-6">'
-    window[category+"_story_div"]+='<div style="font-size:1vw;height:50vh;text-align:left; overflow-y: scroll;">'
-    for (var i=0;i<STORIES_CONFIG.story_lists[category].img_descript.length;i++){ // this is in paragraph form. It uses array of "img_descript"
-        window[category+"_story_div"]+=STORIES_CONFIG.story_lists[category].img_descript[i];
-        if (i==STORIES_CONFIG.story_lists[category].img_descript.length-1){
-            window[category+"_story_div"]+='</br>'
-        }
-    }
-    window[category+"_story_div"]+='A pandemic (from Greek πᾶν pan "all" and δῆμος demos "people") is an epidemic of infectious disease that has spread through human populations across a large region; for instance multiple continents, or even worldwide. A widespread endemic disease that is stable in terms of how many people are getting sick from it is not a pandemic. Further, flu pandemics generally exclude recurrences of seasonal flu. Throughout history, there have been a number of pandemics, such as smallpox and tuberculosis. One of the most devastating pandemics was the Black Death, killing over 75 million people in 1350. The most recent pandemics include the HIV pandemic as well as the 1918 and 2009 H1N1 pandemics.'
-    window[category+"_story_div"]+='</div>'
-    window[category+"_story_div"]+='</div>'
-    window[category+"_story_div"]+='<button class="tourButton" onClick="startTour('+"'"+category+"'" +')">Start Tour</button>'
-
- $("#secondinitial").html(window[category+"_story_div"])
- deploySlide(window[category+"_url"])
+    deploySlide(window[category+"_url"])
 }
 
 

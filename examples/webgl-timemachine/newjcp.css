@@ -67,6 +67,12 @@
     bottom:240px;
     width:5vw;
     font-size:5vw;
+    /*display:none;*/
+}
+.explainborderleft:hover{
+    background:#f4ae01;
+     transition: all 0.5s ease 0s;
+ 
 }
 .explainborderright{
     position:absolute;
@@ -95,6 +101,11 @@
     align-items: center;
     top:100px;
     bottom:240px;
+}
+.explainborderright:hover{
+    background:#f4ae01;
+     transition: all 0.5s ease 0s;
+ 
 }
 .explainborderhead{
     position:absolute;
@@ -156,7 +167,8 @@
     border-radius: 10px;
     /*left:200px;*/
     /*right:200px;*/
-    overflow: hidden
+    overflow: hidden;
+    z-index:50;
 }
 
 .bottomDirectionNav{
