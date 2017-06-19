@@ -52,6 +52,7 @@ var EARTH_TIMELAPSE_CONFIG = {
   "showLightsAtNight2012": false,
   "showLightsAtNight2016": false,
   "showOmiNo2": true,
-  "showChinaInfrastructure": true
+  "showChinaInfrastructure": true,
+  "showBePm25": true
 
 };
