@@ -2250,6 +2250,24 @@
           } else {
             $lastSelectedExtra.next().click();
           }
+        } else if (e.keyCode === 38) {
+          var dotmaps = $("[id^='show-dotmap']");
+          for (var i = 0; i < dotmaps.length; i++) {
+            if ($(dotmaps[i]).prop('checked')) {
+              $(dotmaps[i-1]).click();
+              e.preventDefault();
+              break; 
+            }
+          } 
+        } else if (e.keyCode === 40) {
+          var dotmaps = $("[id^='show-dotmap']");
+          for (var i = 0; i < dotmaps.length; i++) {
+            if ($(dotmaps[i]).prop('checked')) {
+              $(dotmaps[i+1]).click();
+              e.preventDefault();
+              break; 
+            }
+          } 
         }
         // Bring up share view dialog
         if (keysDown.indexOf(e.keyCode) < 0) {
@@ -2543,10 +2561,15 @@
       // Handle click event to turn on and off layer
       $('#' + id).on("click", function() {
         if ($(this).prop('checked')) {
-          // Turn on layer
+          // Turn off other dotmap layers
+          $('#' + id).prop('checked', false);
+          $("[id^='show-dotmap']:checked").click();
+          $('#' + id).prop('checked', true);
+          // Use dark basemap
           if (visibleBaseMapLayer != "dark") {
             $("#dark-base").click();
           }
+          // Turn on layer
           layer.visible = true;
           timelineType = "none";
           $("#" + nickname + "-legend").show();
@@ -5299,7 +5322,7 @@
             // Throttle number of pixels if we're drawing "too many"
             var maxPoints = canvasLayer.canvas.width * canvasLayer.canvas.height;
             var info = getLayerInfo(layer);
-            var drawFraction = 1.0;
+            var drawFraction = 0.125;
             drawFraction = Math.min(maxPoints/info.pointCount, 1.0);
 
             options.throttle = drawFraction;
