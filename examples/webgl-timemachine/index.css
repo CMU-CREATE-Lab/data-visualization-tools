@@ -2,13 +2,6 @@ html, body {
   height: 100%;
   overflow: hidden;
 }
-#timeMachine {
-  background-color: black !important;
-  position: absolute;
-  overflow: hidden;
-  width: 100% !important;
-  height: 100% !important;
-}
 .player {
   border: 0px !important;
   z-index: 0;
@@ -346,12 +339,22 @@ fieldset {
   height: 156px;
   background: black;
 }
-#timeMachine.letterbox {
+#timeMachine {
+  position: absolute;
   background-color: black !important;
   overflow: hidden !important;
   position: relative !important;
   width: 100% !important;
+  height: 100%;
+}
+#timeMachine.letterbox {
   height: calc(100% - 312px) !important;
+}
+#timeMachine.presentationSliderSelection {
+  height: calc(100% - 35px) !important;
+}
+#timeMachine.presentationSliderSelectionOverflow {
+  height: calc(100% - 52px) !important;
 }
 #letterbox-bottom {
   position: relative;
@@ -519,36 +522,46 @@ fieldset {
 .presentationSlider.letterbox {
   bottom: 62px !important;
 }
+
 #presentation-slider-selection {
   display: none;
   position: absolute;
   bottom: 0px;
-  left: 20px;
+  left: 0px;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  overflow-x: auto;
+  width: 100%;
+  background: rgba(53, 53, 53, 1);
 }
-#presentation-slider-selection button {
-  font-size: 15px;
-  cursor: pointer;
-  padding: 5px;
+
+#presentation-slider-selection table {
+  height: 36px;
 }
-#presentation-slider-selection.hyperwall button {
-  font-size: 17px;
+
+#presentation-slider-selection div {
+  color: white;
+  white-space:nowrap;
 }
+
+#presentation-slider-selection td.clickable:hover {
+  background: rgba(83, 83, 83, 1);
+}
+
 #presentation-slider-selection td {
-  padding-right: 8px;
+  border-right: 1px solid white;
+  padding-left: 10px;
+  padding-right: 10px;
 }
-#presentation-slider-selection.letterbox {
-  display: block !important;
+
+.clickable {
+  cursor: pointer;
 }
-#automode-section {
-  position: absolute;
-  right: -250px;
-}
+
 .share {
   top: 22px !important;
   left: 356px !important;
