@@ -22,9 +22,9 @@ set DISKPART3="%tmp%\dp3.txt"
 
 :: Globals ::
 set UPDATER_PATH=%~dp0
-set SSED_PATH=%UPDATER_PATH%../app/libs/ssed/ssed.exe
-set CONFIG_PATH=%UPDATER_PATH%../config.js
-set TMP_CONFIG_PATH=%UPDATER_PATH%../config.jse
+set SSED_PATH=%UPDATER_PATH%..\app\libs\ssed\ssed.exe
+set CONFIG_PATH=%UPDATER_PATH%..\config.js
+set TMP_CONFIG_PATH=%UPDATER_PATH%..\config.jse
 set WAYPOINT_COLLECTION=""
 
 echo This program allows you to change the waypoint Google Spreadsheet link.

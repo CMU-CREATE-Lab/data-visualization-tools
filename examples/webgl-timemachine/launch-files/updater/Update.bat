@@ -22,9 +22,9 @@ set DISKPART3="%tmp%\dp3.txt"
 
 :: Globals ::
 set UPDATER_PATH=%~dp0
-set GIT_PATH=%UPDATER_PATH%../app/libs/git/win32/bin/git.exe
-set APP_PATH=%UPDATER_PATH%../app/data-visualization-tools
-set LAUNCH_FILES_PATH=%APP_PATH%/examples/webgl-timemachine/launch-files
+set GIT_PATH=%UPDATER_PATH%..\app\libs\git\win32\bin\git.exe
+set APP_PATH=%UPDATER_PATH%..\app\data-visualization-tools
+set LAUNCH_FILES_PATH=%APP_PATH%\examples\webgl-timemachine\launch-files
 
 echo This will update Earth Timelapse to the latest version.
 echo An Internet connection is required to proceed.
