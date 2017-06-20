@@ -1,6 +1,9 @@
-////// THIS IS WHERE ALL THE WINDOW LOAD STARTS
+
+//Todo: Expert mode must load expert presentation bar on the bottom of the screen.
 $( window ).load(function() {
     // disableTimeMachine();
+    //   $(".presentationSlider").hide();
+    
 
 var introview= {center:{"lat":25.343,"lng":38.48112},"zoom":2.837}
 timelapse.setNewView(introview,true)
@@ -9,6 +12,7 @@ var introdiv1=""
 introdiv1+='<div class="explainborder" id="popupdiv">'
 ////////////////////////////////////   #initial is set as 300% to have 3 different screens
 introdiv1+='<div class="explainborderhead">'
+introdiv1+= "<button class='expertmodeButton' onclick='hide_intro()'>Expert</button>"
 introdiv1+='</div>'
 introdiv1+='<div class="explainborderleft" onclick="goback()">'
 introdiv1+='&#10094'
@@ -22,7 +26,7 @@ introdiv1+=             '<div class="colz-4" id="firstinitial">'
 introdiv1+=                 'EARTH </br> Timelapse </br>'
 introdiv1+=                 '<button class="gbutton" id="explorebutton" style="margin-top:50px;" onclick="exploreclicked()"> Explore &nbsp &#10095</button></a>'
 introdiv1+=             '</div>'
-introdiv1+=             '<div class="colz-4" >'
+introdiv1+=             '<div class="colz-4" style="overflow:scroll">'
 introdiv1+=                 '<div class="colz-12 storieshead">Explore</div>'
 introdiv1+=                 '<div id="video_div_here"></div>'
 introdiv1+=             '</div>'
@@ -35,19 +39,18 @@ introdiv1+='</div>'
 introdiv1+='</div>'
 
 
-var directionnav=""
-
-directionnav+='<div class="bottomDirectionNav ">'
-directionnav+='<div style="text-align:center;">'
-directionnav+=             '<button class="jcpnavbutton" id="backbutton" onclick="goback()" style="margin-top:-100px"> &#10094 </button>'
-directionnav+=             '<button class="jcpnavbutton" id="introopenclosebutton" onclick="hide_intro()" style="margin-top:-100px">- </button>'
-directionnav+=             '<button class="jcpnavbutton" id="forwardbutton" onclick="goforward()" style="margin-top:-100px"> &#10095 </button>'
-directionnav+='</div>'
-directionnav+='</div>'
+// var directionnav=""
+// directionnav+='<div class="bottomDirectionNav ">'
+// directionnav+='<div style="text-align:center;">'
+// directionnav+=             '<button class="jcpnavbutton" id="backbutton" onclick="goback()" style="margin-top:-100px"> &#10094 </button>'
+// directionnav+=             '<button class="jcpnavbutton" id="introopenclosebutton" onclick="hide_intro()" style="margin-top:-100px">- </button>'
+// directionnav+=             '<button class="jcpnavbutton" id="forwardbutton" onclick="goforward()" style="margin-top:-100px"> &#10095 </button>'
+// directionnav+='</div>'
+// directionnav+='</div>'
 
 $("#timeMachine").append(introdiv1)
 $(".explainborderleft").hide();
-$("#timeMachine").append(directionnav)
+// $("#timeMachine").append(directionnav) 
 
 
 $(".explainborderright").height()
@@ -83,14 +86,17 @@ $(".toggleLayerPanelBtn").click(function(){
         introbutton+="<button class='intro_button'onclick='show_intro()'>Show Intro</button>"
     if ($("#layers-list").hasClass("hide-layers-list")){
         console.log("closed")
-        show_intro();
-        $(".intro_button").remove();
+         $(".relatableContent").remove();
+        // show_intro();
+        // $(".intro_button").remove();
     }
     else{
         console.log("open");
-        hide_intro();
-        $(".intro_button").remove();
-        $("#timeMachine").append(introbutton);
+         $(".relatableContent").remove();
+         expertSlide("https://docs.google.com/spreadsheets/d/1rCiksJv4aXi1usI0_9zdl4v5vuOfiHgMRidiDPt1WfE/edit#gid=0")
+        // hide_intro();
+        // $(".intro_button").remove();
+        // $("#timeMachine").append(introbutton);
     }    
 })
 
@@ -104,7 +110,7 @@ $("#timeMachine").append(intro_show_button);
 // Full Screen button next to show intro button
 var full_screen_button=""
 full_screen_button+="<button class='full_screen_button'onclick='fullScreenMode()'>Full Screen</button>";
-$("#timeMachine").append(full_screen_button);
+// $("#timeMachine").append(full_screen_button);
 
 });
 
@@ -164,6 +170,7 @@ function exploreclicked(){
                     // height: "toggle"
     }, 500);
     $(".explainborderleft").show();
+    $(".explainborder").css("overflow-y","scroll")
     // $(".explainborderright").hide();
 }
 
@@ -176,7 +183,7 @@ function populatestory(category){
     window[category+"_story_div"]+='<img src="'+STORIES_CONFIG.story_lists[category].img_url +'"style="width:90%;height:auto;"/>'
     window[category+"_story_div"]+='</div>'
     window[category+"_story_div"]+='<div class="colz-6">'
-    window[category+"_story_div"]+='<div style="font-size:1vw;height:40vh;text-align:left; overflow-y: scroll;margin-right:10%;">'
+    window[category+"_story_div"]+='<div style="font-size:2vh;height:40vh;text-align:left; overflow-y: scroll;margin-right:10%;">'
     for (var i=0;i<STORIES_CONFIG.story_lists[category].img_descript.length;i++){ // this is in paragraph form. It uses array of "img_descript"
         window[category+"_story_div"]+=STORIES_CONFIG.story_lists[category].img_descript[i];
         if (i==STORIES_CONFIG.story_lists[category].img_descript.length-1){
@@ -192,13 +199,11 @@ function populatestory(category){
 
 function storyclicked(category){ // this uses storiesjcp.js configuration file
     populatestory(category);
-
     $( "#initial" ).animate({
         opacity: 1,
         left: "-=100%",
         }, 500);
-       
-        deploySlide(window[category+"_url"])
+        deploySlide(String(category));
 }
 
 function goback(){
@@ -211,6 +216,7 @@ function goback(){
 
             if ($("#initial").css("left") == "0px"){
                 $(".explainborderleft").hide();
+                $(".explainborder").css("overflow-y","hidden")
             }
             
             
@@ -234,22 +240,21 @@ function hide_intro(){
 function show_intro(){
     $(".relatableContent").remove();
     $(".explainborder").show();
+    if (!$("#layers-list").hasClass("hide-layers-list")){
+        $(".toggleLayerPanelBtn").click(); 
+
+    }
 }
 
-//hiding .presentationSlider
-
-
-////
-
-// implement fullscreen mode?
-
-
-
-//////// bottom presentation slider deployment with different google doc urls
-var refugee_url="https://docs.google.com/spreadsheets/d/1JLY9J4XYsWaz-lD8tzAIF1oBjaxIQbqe0AISt5Q48ro/edit#gid=1769400286";
-var pandemics_url="https://docs.google.com/spreadsheets/d/1JLY9J4XYsWaz-lD8tzAIF1oBjaxIQbqe0AISt5Q48ro/edit#gid=0";
+// var snaplapseForPresentationSlider = timelapse.getSnaplapseForPresentationSlider();
+// snaplapseForPresentationSlider.addEventListener('snaplapse-loaded', function() {
+//            $(".presentationSlider").hide();
+// });
 
 function deploySlide(gurl){
+
+    gurl=STORIES_CONFIG.story_lists[gurl]
+    gurl=gurl.slide_url;
     var snaplapseForPresentationSlider = timelapse.getSnaplapseForPresentationSlider();
     if (snaplapseForPresentationSlider) {
         snaplapseViewerForPresentationSlider = snaplapseForPresentationSlider.getSnaplapseViewer();
@@ -262,6 +267,20 @@ function deploySlide(gurl){
     });
 }
 
+function expertSlide(url){
+    var snaplapseForPresentationSlider = timelapse.getSnaplapseForPresentationSlider();
+    if (snaplapseForPresentationSlider) {
+        snaplapseViewerForPresentationSlider = snaplapseForPresentationSlider.getSnaplapseViewer();
+    }
+    var waypointSliderContentPath=url;
+    org.gigapan.Util.gdocToJSON(waypointSliderContentPath, function(csvdata) {
+        var waypointJSON = JSON.parse(snaplapseForPresentationSlider.CSVToJSON(csvdata));
+        var waypointSliderContent = "#presentation=" + snaplapseForPresentationSlider.getAsUrlString(waypointJSON.snaplapse.keyframes);
+        timelapse.loadSharedDataFromUnsafeURL(waypointSliderContent);
+    });
+}
+
+
 function toggle_sidebar()
 {
     var sidebar = document.getElementById("sidebar");        
@@ -273,17 +292,24 @@ function toggle_sidebar()
         sidebar.style.right = "-200px";
     }
 }
+
+// todo: relationship graph should go here instead of hardcoding everything. Use CONNECTION_CONFIG from storiesjcp.js
 function startTour(category){
      $(".explainborder").hide();
      $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation")[0].click();
      var relatableContent="";
      relatableContent+='<div class="relatableContent">'
      relatableContent+='<div class="relatableContentHead">How does '+category+' relate to...</div>'
-
-     relatableContent+=     '<button class="contentButton"  onclick="getintroagain('+"'"+"refugee"+"'"+')">Refugee</button></br>'
-     relatableContent+=     '<button class="contentButton"  onclick="getintroagain('+"'"+"pandemics"+"'"+')">Pandemics</button></br>'
-     relatableContent+=     '<button class="contentButton" onclick="getintroagain('+"'"+"urbanization"+"'"+')">Urbanization</button></br>'
-     relatableContent+='<button class="reopenButton" onclick="show_intro()">Back to Stories</button></br>'
+     r_categories=CONNECTION_CONFIG[String(category)]
+     console.log(r_categories)
+     console.log(r_categories.length);
+     for (var i=0;i<r_categories.length;i++){
+         relatableContent+=     '<button class="contentButton"  onclick="getintroagain('+"'"+r_categories[i]+"'"+')">'+r_categories[i]+'</button></br>'
+     }
+    //  relatableContent+=     '<button class="contentButton"  onclick="getintroagain('+"'"+"refugee"+"'"+')">Refugee</button></br>'
+    //  relatableContent+=     '<button class="contentButton"  onclick="getintroagain('+"'"+"pandemics"+"'"+')">Pandemics</button></br>'
+    //  relatableContent+=     '<button class="contentButton" onclick="getintroagain('+"'"+"urbanization"+"'"+')">Urbanization</button></br>'
+    //  relatableContent+='<button class="reopenButton" onclick="show_intro()">Back to Stories</button></br>'
      relatableContent+='</div>'
      $("#timeMachine").append(relatableContent);
     $(".relatableContent").animate({height:"300px"},500);
@@ -304,7 +330,8 @@ function getintroagain(category){ // this uses storiesjcp.js configuration file
      $(".relatableContent").remove();
     populatestory(category);
     show_intro();
-    deploySlide(window[category+"_url"])
+
+    deploySlide(String(category));
 }
 
 
@@ -315,3 +342,4 @@ function disableTimeMachine(){
 function enableTimeMachine(){
     $(".player").css("pointer-events","auto");
 }
+

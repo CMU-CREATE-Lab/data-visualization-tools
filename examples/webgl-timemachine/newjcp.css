@@ -63,8 +63,8 @@
     /*display:block;*/
     display: flex;
     align-items: center;
-    top:100px;
-    bottom:240px;
+    top:0px;
+    bottom:0px;
     width:5vw;
     font-size:5vw;
     /*display:none;*/
@@ -101,6 +101,7 @@
     align-items: center;
     top:100px;
     bottom:240px;
+    display:none;
 }
 .explainborderright:hover{
     background:#f4ae01;
@@ -109,7 +110,8 @@
 }
 .explainborderhead{
     position:absolute;
-    font: 14px/100% arial, sans-serif;
+    /*font: 14px/100% arial, sans-serif;*/
+    
     text-shadow: 0 1px 0 #fff;
     text-align:right;
     color:#fff;
@@ -120,7 +122,7 @@
     border-top-right-radius:10px;
     border-top-left-radius:10px;
     position:fixed;
-    width:90%;
+    width:100%;
     height:100px;
     top:-1px;
     z-index:50;
@@ -161,13 +163,15 @@
     border-width:2px;
     border-color:#fff;
     background-color:rgba(100,100,100,0.5);
-    top:100px;
+    top:0px;
 
-    bottom:240px;
+    bottom:0px;
     border-radius: 10px;
     /*left:200px;*/
     /*right:200px;*/
-    overflow: hidden;
+    overflow:hidden;
+ 
+   
     z-index:50;
 }
 
@@ -200,7 +204,7 @@ width:300%; /* Be careful with this. this is to scroll left */
 }
 #firstinitial{
     position:relative;
-padding-top:10vw;
+    padding-top:15vw;
 }
 .storieshead{
     margin-top:1vw;
@@ -240,17 +244,21 @@ padding-top:10vw;
 /* vid attributes */
 #video_div_here{
     margin-left:5%;
+    /*margin-right:5%;*/
     width:90%;
-    height:20%;
+    height:100%;
+    background-color:#fff;
+    
     /*height:auto;*/
 }
 .vidContainer{
     position:relative;
     /*background-color:#f00;*/
     cursor:hand;
-    height:20vw;
-    border: 1px solid #656565 !important;
+    height:25vh;
+    /*border: 1px solid #656565 !important;*/
     overflow:hidden;
+    cursor: pointer;
     
 }
 .vidContainer video {
@@ -466,3 +474,24 @@ padding-top:10vw;
     
 }
 
+
+.expertmodeButton{
+    position:relative;
+    font-family:'Blender';
+    background-color:rgba(103,190,240,1);
+    border:2px solid #fff;
+    text-align:center;
+    padding:10px;
+    color:#fff;
+    font-size:20px;;
+    cursor:pointer;
+    transition:background 0.5s ease-in-out;
+    text-decoration:none;
+    border-radius:0.5vh;
+    pointer-events:auto;
+}
+.expertmodeButton:hover{
+    background:#f4ae01;
+    border:2px solid #fff;
+    color:#fff;
+}
