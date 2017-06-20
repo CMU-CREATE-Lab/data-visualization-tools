@@ -137,24 +137,6 @@
     var showBePm25 = !!EARTH_TIMELAPSE_CONFIG.showBePm25;
 
 
-    // Check URL layer verification tokens only if on http or https
-    if (window.location.href.indexOf("http") == 0) {
-      $.ajax({
-        url: "http://verify.createlab.org:1337/et-china-infrastructure",
-        data: {
-          token: getUrlParameter("cit")
-        }
-      }).done(function(res) {
-        if (res.response) {
-          $("#ci").css("visibility", "visible");
-        } else {
-          showChinaInfrastructure = false;
-          $("#ci").prev().remove();
-          $("#ci").remove();
-        }
-      });
-    }
-
     var showShareButton = !!EARTH_TIMELAPSE_CONFIG.showShareButton;
     var showShareButtonHash = window.location.hash.split("showShareButton=")[1];
     if (showShareButtonHash)
@@ -1830,6 +1812,7 @@
         } else {
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
+          timelineType = "customUI";
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked'))
             $("#iom-idp-legend").hide();
@@ -1852,6 +1835,7 @@
         } else {
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
+          timelineType = "customUI";
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked'))
             $("#iom-idp-legend").hide();
@@ -1874,6 +1858,7 @@
         } else {
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
+          timelineType = "customUI";
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked'))
             $("#iom-idp-legend").hide();
@@ -1896,6 +1881,7 @@
         } else {
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
+          timelineType = "customUI";
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked'))
             $("#iom-idp-legend").hide();
@@ -1918,6 +1904,7 @@
         } else {
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
+          timelineType = "customUI";
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked'))
             $("#iom-idp-legend").hide();
@@ -1939,6 +1926,7 @@
           timelapse.setPlaybackRate(.1);
         } else {
           showIomIdpLayer = false;
+          timelineType = "customUI";
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked'))
@@ -1961,6 +1949,7 @@
           timelapse.setPlaybackRate(.1);
         } else {
           showIomIdpLayer = false;
+          timelineType = "customUI";
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked'))
@@ -1983,6 +1972,7 @@
           timelapse.setPlaybackRate(.1);
         } else {
           showIomIdpLayer = false;
+          timelineType = "customUI";
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked'))
@@ -2007,6 +1997,7 @@
         } else {
           showOmiNo2Layer = false;
           setActiveLayersWithTimeline(-1);
+          timelineType = "customUI";
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           var v = timelapse.getVideoset();
           v.setFps(10);
@@ -2029,6 +2020,7 @@
         } else {
           showBePm25Layer = false;
           setActiveLayersWithTimeline(-1);
+          timelineType = "customUI";
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           var v = timelapse.getVideoset();
           v.setFps(10);
@@ -3325,8 +3317,8 @@
 
         /* CHINA INFRASTRUCTURE THEME */
         if (showChinaInfrastructure) {
-          layer_html += '  <h3>China Infrastructure</h3>';
-          layer_html += '  <table id ="ci" style="visibility: hidden">';
+          layer_html += '  <h3 style="display: none">China Infrastructure</h3>';
+          layer_html += '  <table id="ci" style="display: none">';
           layer_html += '    <tr>';
           layer_html += show_china_aviation;
           layer_html += '    </tr>';
@@ -3635,6 +3627,28 @@
           }
           $("#layers-list.right-panel").hide().show(0);
         });
+      }
+
+      // Check URL layer verification tokens only if on http or https
+      if (window.location.href.indexOf("http") == 0) {
+        $.ajax({
+          url: "http://verify.createlab.org:1337/et-china-infrastructure",
+          data: {
+            token: getUrlParameter("cit")
+          }
+        }).done(function(res) {
+          if (res.response) {
+            $("#ci").show();
+            $("#ci").prev().show();
+          } else {
+            showChinaInfrastructure = false;
+            $("#ci").prev().remove();
+            $("#ci").remove();
+          }
+        });
+      } else {
+        $("#ci").show();
+        $("#ci").prev().show();
       }
 
       if (isHyperwall) {
