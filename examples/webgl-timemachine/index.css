@@ -560,6 +560,7 @@ fieldset {
 
 .clickable {
   cursor: pointer;
+  text-decoration: underline white;
 }
 
 .share {
