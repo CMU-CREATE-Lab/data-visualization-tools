@@ -12,7 +12,7 @@ var introdiv1=""
 introdiv1+='<div class="explainborder" id="popupdiv">'
 ////////////////////////////////////   #initial is set as 300% to have 3 different screens
 introdiv1+='<div class="explainborderhead">'
-introdiv1+= "<button class='expertmodeButton' onclick='hide_intro()'>Expert</button>"
+introdiv1+= "<button class='expertmodeButton' onclick='startExpert()'>Expert</button>"
 introdiv1+='</div>'
 introdiv1+='<div class="explainborderleft" onclick="goback()">'
 introdiv1+='&#10094'
@@ -55,6 +55,7 @@ $(".explainborderleft").hide();
 
 $(".explainborderright").height()
 $(".explainborderright").css("padding-top","40px;")
+
 function createStoryDiv(){
     var col=STORIES_CONFIG.column_numbers;
     var stories=STORIES_CONFIG.story_lists;
@@ -64,9 +65,9 @@ function createStoryDiv(){
         var s=key+"_video_div"
         window[s]="";
         window[s]+='<div class="colz-'+String(12/col)+'">'
-        window[s]+='<div class="vidContainer" id="'+key+'_vid_button" onclick=storyclicked("'+String(key) +'")>'
+        window[s]+='<div class="vidContainer" id="'+key+'_vid_button" >'
         window[s]+=    '<div class="videotext blender">'+STORIES_CONFIG.story_lists[key].heading_text +'</div>'
-        window[s]+=    '<video id="'+key+'video" poster="jcpassets/pandemics.jpg" loop >'
+        window[s]+=    '<video id="'+key+'video" poster="jcpassets/pandemics.jpg" onclick=storyclicked("'+String(key) +'") loop >'
         window[s]+=        '<source src="'+STORIES_CONFIG.story_lists[key].vid_url+'" type="video/ogg"/>'
         window[s]+=    '</video>'
         window[s]+='</div>'
@@ -93,7 +94,7 @@ $(".toggleLayerPanelBtn").click(function(){
     else{
         console.log("open");
          $(".relatableContent").remove();
-         expertSlide("https://docs.google.com/spreadsheets/d/1rCiksJv4aXi1usI0_9zdl4v5vuOfiHgMRidiDPt1WfE/edit#gid=0")
+        //  expertSlide("https://docs.google.com/spreadsheets/d/1rCiksJv4aXi1usI0_9zdl4v5vuOfiHgMRidiDPt1WfE/edit#gid=0")
         // hide_intro();
         // $(".intro_button").remove();
         // $("#timeMachine").append(introbutton);
@@ -193,11 +194,13 @@ function populatestory(category){
     window[category+"_story_div"]+='A pandemic (from Greek πᾶν pan "all" and δῆμος demos "people") is an epidemic of infectious disease that has spread through human populations across a large region; for instance multiple continents, or even worldwide. A widespread endemic disease that is stable in terms of how many people are getting sick from it is not a pandemic. Further, flu pandemics generally exclude recurrences of seasonal flu. Throughout history, there have been a number of pandemics, such as smallpox and tuberculosis. One of the most devastating pandemics was the Black Death, killing over 75 million people in 1350. The most recent pandemics include the HIV pandemic as well as the 1918 and 2009 H1N1 pandemics.'
     window[category+"_story_div"]+='</div>'
     window[category+"_story_div"]+='</div>'
-    window[category+"_story_div"]+='<button class="tourButton" onClick="startTour('+"'"+category+"'" +')">Start Tour</button>'
+    window[category+"_story_div"]+='<button class="tourButton" onClick="startTour('+"'"+category+"'" +')">Open Timelapse</button>'
     $("#secondinitial").html(window[category+"_story_div"])
 }
 
 function storyclicked(category){ // this uses storiesjcp.js configuration file
+    $(".explainborder").scrollTop(0);
+    $(".explainborder").css("overflow-y","hidden")
     populatestory(category);
     $( "#initial" ).animate({
         opacity: 1,
@@ -207,6 +210,8 @@ function storyclicked(category){ // this uses storiesjcp.js configuration file
 }
 
 function goback(){
+    $(".explainborder").scrollTop(0);
+    $(".explainborder").css("overflow-y","hidden")
     if ($("#initial").css("left")!="0px"){
     $( "#initial" ).animate({
                     opacity: 1,
@@ -217,6 +222,9 @@ function goback(){
             if ($("#initial").css("left") == "0px"){
                 $(".explainborderleft").hide();
                 $(".explainborder").css("overflow-y","hidden")
+            }
+            else{
+                $(".explainborder").css("overflow-y","scroll")
             }
             
             
@@ -235,7 +243,7 @@ function goforward(){
     $(".explainborderleft").show();
 }
 function hide_intro(){
-    $(".explainborder").hide();
+   $(".explainborder").hide("slide", {direction: "up" }, "slow");
 }
 function show_intro(){
     $(".relatableContent").remove();
@@ -295,7 +303,7 @@ function toggle_sidebar()
 
 // todo: relationship graph should go here instead of hardcoding everything. Use CONNECTION_CONFIG from storiesjcp.js
 function startTour(category){
-     $(".explainborder").hide();
+     hide_intro();
      $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation")[0].click();
      var relatableContent="";
      relatableContent+='<div class="relatableContent">'
@@ -343,3 +351,8 @@ function enableTimeMachine(){
     $(".player").css("pointer-events","auto");
 }
 
+function startExpert(){
+    hide_intro();
+    expertSlide("https://docs.google.com/spreadsheets/d/1rCiksJv4aXi1usI0_9zdl4v5vuOfiHgMRidiDPt1WfE/edit#gid=0")
+
+}
