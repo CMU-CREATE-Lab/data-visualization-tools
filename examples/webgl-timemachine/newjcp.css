@@ -54,6 +54,7 @@
     border-top-left-radius:10px;
     border-bottom-left-radius:10px;
     position:fixed;
+    cursor:pointer;
     
     /*height:100%;*/
 
@@ -160,7 +161,7 @@
     
     position:absolute;
     border-style:solid;
-    border-width:2px;
+    border-width:5px;
     border-color:#fff;
     background-color:rgba(100,100,100,0.5);
     top:0px;
@@ -181,7 +182,7 @@
     position:fixed;
     /*left:200px;right:200px;*/
     display:block;
-    z-index:51;
+    z-index:30;
 
 }
 
@@ -355,9 +356,9 @@ width:300%; /* Be careful with this. this is to scroll left */
     position:relative;
     font-family:'Blender',Arial, Helvetica, sans-serif;
     background-color:Transparent;
-    border:2px solid #fff;
+    border:3px solid #fff;
     text-align:center;
-    padding:5px 10px 5px 10px;
+    padding:4px 10px 4px 10px;
     color:#fff;
     font-size:20px;
     cursor:pointer;
@@ -391,7 +392,7 @@ width:300%; /* Be careful with this. this is to scroll left */
     cursor:pointer;
     transition:background 0.5s ease-in-out;
     text-decoration:none;
-    border-radius:10vw;
+    border-radius:1vw;
     pointer-events:auto;
 }
 .tourButton:hover{
@@ -482,19 +483,27 @@ width:300%; /* Be careful with this. this is to scroll left */
 .expertmodeButton{
     position:relative;
     font-family:'Blender',Arial, Helvetica, sans-serif;
-    /*background-color:rgba(103,190,240,1);*/
+
     background-color:#000;
     border:2px solid #fff;
     text-align:center;
-    padding:10px;
-    /*color:#fff;*/
+ 
+    padding:5px 10px;
+
     color:#fff;
-    font-size:20px;;
+    font-size:18px;;
     cursor:pointer;
     transition:background 0.5s ease-in-out;
     text-decoration:none;
     border-radius:0.5vh;
     pointer-events:auto;
+    top:5px;
+    right:0px;
+    /*width:100%;*/
+    position:fixed;
+
+    display:block;
+    z-index:51;
 }
 .expertmodeButton:hover{
     background:#f4ae01;

@@ -1,3 +1,9 @@
+var CONNECTION_CONFIG={ //used for relatableContent div.
+    "refugee":["urbanization","pandemics","energy"],
+    "pandemics":["refugee","water","forests"],
+    "urbanization":["pandemics","refugee","water"],
+}
+
 var STORIES_CONFIG = {
     "column_numbers":2,
     "story_lists":{
@@ -64,9 +70,4 @@ var STORIES_CONFIG = {
     }
 };
 
-var CONNECTION_CONFIG={
-    "refugee":["urbanization","pandemics","energy"],
-    "pandemics":["refugee","water","forests"],
-    "urbanization":["pandemics","refugee","water"],
-}
 

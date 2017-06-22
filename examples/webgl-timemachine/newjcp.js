@@ -12,7 +12,7 @@ var introdiv1=""
 introdiv1+='<div class="explainborder" id="popupdiv">'
 ////////////////////////////////////   #initial is set as 300% to have 3 different screens
 introdiv1+='<div class="explainborderhead">'
-introdiv1+= "<button class='expertmodeButton' onclick='startExpert()'>Expert</button>"
+// introdiv1+= "<button class='expertmodeButton' onclick='startExpert()'>Expert</button>"
 introdiv1+='</div>'
 introdiv1+='<div class="explainborderleft" onclick="goback()">'
 introdiv1+='&#10094'
@@ -39,29 +39,32 @@ introdiv1+='</div>'
 introdiv1+='</div>'
 
 
-// var directionnav=""
-// directionnav+='<div class="bottomDirectionNav ">'
-// directionnav+='<div style="text-align:center;">'
+var directionnav=""
+directionnav+='<div class="bottomDirectionNav ">'
+directionnav+='<div style="text-align:center;">'
 // directionnav+=             '<button class="jcpnavbutton" id="backbutton" onclick="goback()" style="margin-top:-100px"> &#10094 </button>'
 // directionnav+=             '<button class="jcpnavbutton" id="introopenclosebutton" onclick="hide_intro()" style="margin-top:-100px">- </button>'
 // directionnav+=             '<button class="jcpnavbutton" id="forwardbutton" onclick="goforward()" style="margin-top:-100px"> &#10095 </button>'
-// directionnav+='</div>'
-// directionnav+='</div>'
+directionnav+=             '<button class="jcpnavbutton" onclick="show_intro()" style="margin-top:-100px"> Show Intro </button>'
+directionnav+='</div>'
+directionnav+='</div>'
 
 $("#timeMachine").append(introdiv1)
-$(".explainborderleft").hide();
-// $("#timeMachine").append(directionnav) 
-
+$(".explainborderleft").hide(); //initially we must hide the left back button
+$("#timeMachine").append(directionnav) 
+$(".bottomDirectionNav").hide()
 
 $(".explainborderright").height()
 $(".explainborderright").css("padding-top","40px;")
 
+var expertButton = "<button class='expertmodeButton' onclick='startExpert()'>Expert</button>"
+$("#timeMachine").append(expertButton)
 function createStoryDiv(){
     var col=STORIES_CONFIG.column_numbers;
     var stories=STORIES_CONFIG.story_lists;
    
     for (key in stories){
-        console.log(key);
+
         var s=key+"_video_div"
         window[s]="";
         window[s]+='<div class="colz-'+String(12/col)+'">'
@@ -72,7 +75,7 @@ function createStoryDiv(){
         window[s]+=    '</video>'
         window[s]+='</div>'
         window[s]+='</div>'
-        // console.log(window[s])
+
         $("#video_div_here").append(window[s]);
         document.getElementById(key+"video").play();
         var vidbutton=key+"_vid_button"
@@ -86,18 +89,16 @@ $(".toggleLayerPanelBtn").click(function(){
     var introbutton=""
         introbutton+="<button class='intro_button'onclick='show_intro()'>Show Intro</button>"
     if ($("#layers-list").hasClass("hide-layers-list")){
+        $(".expertmodeButton").show();
         console.log("closed")
          $(".relatableContent").remove();
-        // show_intro();
-        // $(".intro_button").remove();
+         
+
     }
     else{
         console.log("open");
          $(".relatableContent").remove();
-        //  expertSlide("https://docs.google.com/spreadsheets/d/1rCiksJv4aXi1usI0_9zdl4v5vuOfiHgMRidiDPt1WfE/edit#gid=0")
-        // hide_intro();
-        // $(".intro_button").remove();
-        // $("#timeMachine").append(introbutton);
+      
     }    
 })
 
@@ -122,6 +123,7 @@ full_screen_button+="<button class='full_screen_button'onclick='fullScreenMode()
 /////////////////////////////////
 function hide_presentationSlider(){
     $(".presentationSlider").hide();
+    
 
 }
 function show_presentationSlider(){
@@ -129,8 +131,7 @@ function show_presentationSlider(){
 }
 function hide_customControl(){
     $(".customControl").hide();
-    // $(".player").css("bottom","0px")
-    // $("#timeMachine_timelapse").css("bottom")
+
 }
 function show_customControl(){
     $(".customControl").show();
@@ -216,7 +217,6 @@ function goback(){
     $( "#initial" ).animate({
                     opacity: 1,
                     left: "+=100%",
-                    // height: "toggle"
         }, 500,function(){
 
             if ($("#initial").css("left") == "0px"){
@@ -226,8 +226,6 @@ function goback(){
             else{
                 $(".explainborder").css("overflow-y","scroll")
             }
-            
-            
         });
     }
 }
@@ -236,16 +234,15 @@ function goforward(){
                     opacity: 1,
                     left: "-=100%",
                     // height: "toggle"
-        }, 500,function(){
-            console.log("complete");
-            
-        });
+        }, 500);
     $(".explainborderleft").show();
 }
 function hide_intro(){
    $(".explainborder").hide("slide", {direction: "up" }, "slow");
+   $(".bottomDirectionNav").show("slide", {direction: "down" }, "slow")
 }
 function show_intro(){
+     $(".bottomDirectionNav").hide()
     $(".relatableContent").remove();
     $(".explainborder").show();
     if (!$("#layers-list").hasClass("hide-layers-list")){
@@ -314,10 +311,6 @@ function startTour(category){
      for (var i=0;i<r_categories.length;i++){
          relatableContent+=     '<button class="contentButton"  onclick="getintroagain('+"'"+r_categories[i]+"'"+')">'+r_categories[i]+'</button></br>'
      }
-    //  relatableContent+=     '<button class="contentButton"  onclick="getintroagain('+"'"+"refugee"+"'"+')">Refugee</button></br>'
-    //  relatableContent+=     '<button class="contentButton"  onclick="getintroagain('+"'"+"pandemics"+"'"+')">Pandemics</button></br>'
-    //  relatableContent+=     '<button class="contentButton" onclick="getintroagain('+"'"+"urbanization"+"'"+')">Urbanization</button></br>'
-    //  relatableContent+='<button class="reopenButton" onclick="show_intro()">Back to Stories</button></br>'
      relatableContent+='</div>'
      $("#timeMachine").append(relatableContent);
     $(".relatableContent").animate({height:"300px"},500);
@@ -338,7 +331,6 @@ function getintroagain(category){ // this uses storiesjcp.js configuration file
      $(".relatableContent").remove();
     populatestory(category);
     show_intro();
-
     deploySlide(String(category));
 }
 
@@ -354,5 +346,6 @@ function enableTimeMachine(){
 function startExpert(){
     hide_intro();
     expertSlide("https://docs.google.com/spreadsheets/d/1rCiksJv4aXi1usI0_9zdl4v5vuOfiHgMRidiDPt1WfE/edit#gid=0")
-
+    $(".toggleLayerPanelBtn").click(); 
+    $(".expertmodeButton").hide();
 }
