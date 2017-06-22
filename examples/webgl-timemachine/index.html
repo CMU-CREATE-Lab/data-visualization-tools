@@ -5529,7 +5529,6 @@
           var view = getLayerView(berkeleyEarthTemperatureAnomalyTimeMachineLayer, landsatBaseMapLayer);
           berkeleyEarthTemperatureAnomalyTimeMachineLayer.draw(view, tileViewVisibility);
 
-
           var landBorderView = getLayerView(landBorderLayer, landsatBaseMapLayer);
           landBorderLayer.draw(landBorderView);
         }
@@ -5537,6 +5536,9 @@
         if (showOmiNo2Layer) {
           var view = getLayerView(omiNo2Layer, landsatBaseMapLayer);
           omiNo2Layer.draw(view, tileViewVisibility);
+
+          var landBorderView = getLayerView(landBorderLayer, landsatBaseMapLayer);
+          landBorderLayer.draw(landBorderView);
         }
 
         if (showBePm25Layer) {
