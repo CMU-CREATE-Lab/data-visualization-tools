@@ -45,7 +45,7 @@ directionnav+='<div style="text-align:center;">'
 // directionnav+=             '<button class="jcpnavbutton" id="backbutton" onclick="goback()" style="margin-top:-100px"> &#10094 </button>'
 // directionnav+=             '<button class="jcpnavbutton" id="introopenclosebutton" onclick="hide_intro()" style="margin-top:-100px">- </button>'
 // directionnav+=             '<button class="jcpnavbutton" id="forwardbutton" onclick="goforward()" style="margin-top:-100px"> &#10095 </button>'
-directionnav+=             '<button class="jcpnavbutton" onclick="show_intro()" style="margin-top:-100px"> Show Intro </button>'
+directionnav+=             '<button class="jcpnavbutton" onclick="show_intro()" > Show Intro </button>'
 directionnav+='</div>'
 directionnav+='</div>'
 
@@ -86,8 +86,7 @@ createStoryDiv();
 
 $(".toggleLayerPanelBtn").click(); 
 $(".toggleLayerPanelBtn").click(function(){
-    var introbutton=""
-        introbutton+="<button class='intro_button'onclick='show_intro()'>Show Intro</button>"
+  
     if ($("#layers-list").hasClass("hide-layers-list")){
         $(".expertmodeButton").show();
         console.log("closed")
@@ -104,10 +103,7 @@ $(".toggleLayerPanelBtn").click(function(){
 
 
 
-// show intro button next to the share button
-var intro_show_button=""
-intro_show_button+="<button class='show_intro_button'onclick='show_intro()'>Show Intro</button>";
-$("#timeMachine").append(intro_show_button);
+
 
 // Full Screen button next to show intro button
 var full_screen_button=""
@@ -260,7 +256,9 @@ function deploySlide(gurl){
 
     gurl=STORIES_CONFIG.story_lists[gurl]
     gurl=gurl.slide_url;
+    currentSlideUrl=gurl
     var snaplapseForPresentationSlider = timelapse.getSnaplapseForPresentationSlider();
+    
     if (snaplapseForPresentationSlider) {
         snaplapseViewerForPresentationSlider = snaplapseForPresentationSlider.getSnaplapseViewer();
     }
@@ -273,6 +271,7 @@ function deploySlide(gurl){
 }
 
 function expertSlide(url){
+    currentSlideUrl=url;
     var snaplapseForPresentationSlider = timelapse.getSnaplapseForPresentationSlider();
     if (snaplapseForPresentationSlider) {
         snaplapseViewerForPresentationSlider = snaplapseForPresentationSlider.getSnaplapseViewer();
@@ -304,22 +303,22 @@ function startTour(category){
      $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation")[0].click();
      var relatableContent="";
      relatableContent+='<div class="relatableContent">'
-     relatableContent+='<div class="relatableContentHead">How does '+category+' relate to...</div>'
+     relatableContent+='<div class="relatableContentHead">How does '+category+' relate to... </div>'
      r_categories=CONNECTION_CONFIG[String(category)]
-     console.log(r_categories)
-     console.log(r_categories.length);
      for (var i=0;i<r_categories.length;i++){
          relatableContent+=     '<button class="contentButton"  onclick="getintroagain('+"'"+r_categories[i]+"'"+')">'+r_categories[i]+'</button></br>'
      }
      relatableContent+='</div>'
      $("#timeMachine").append(relatableContent);
-    $(".relatableContent").animate({height:"300px"},500);
+    // $(".relatableContent").animate({height:"300px"},500);
+    var curheight=$(".relatableContent").css("height")
      $(".relatableContentHead").click(function(){
+         
          if ($(".relatableContent").css("height")!="40px"){
             $(".relatableContent").animate({height:"40px"},500);
          }
          else{
-             $(".relatableContent").animate({height:"300px"},500);
+             $(".relatableContent").animate({height:curheight},500);
          }
         
      })
@@ -345,7 +344,13 @@ function enableTimeMachine(){
 
 function startExpert(){
     hide_intro();
-    expertSlide("https://docs.google.com/spreadsheets/d/1rCiksJv4aXi1usI0_9zdl4v5vuOfiHgMRidiDPt1WfE/edit#gid=0")
+    if (currentSlideUrl != JCP_EXPERT_WAYPOINT_URL)
+    {
+        expertSlide(JCP_EXPERT_WAYPOINT_URL)
+    }
     $(".toggleLayerPanelBtn").click(); 
     $(".expertmodeButton").hide();
 }
+
+
+var currentSlideUrl=""

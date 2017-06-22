@@ -49,7 +49,7 @@
     color:#fff;
     font-weight:bold;
     background-color:rgba(100,100,100,0.5);
-    padding:2px 15px;
+    padding:10px 15px;
     border-bottom:1px solid transparent;
     border-top-left-radius:10px;
     border-bottom-left-radius:10px;
@@ -161,7 +161,7 @@
     
     position:absolute;
     border-style:solid;
-    border-width:5px;
+    border-width:3px;
     border-color:#fff;
     background-color:rgba(100,100,100,0.5);
     top:0px;
@@ -177,7 +177,7 @@
 }
 
 .bottomDirectionNav{
-    bottom:200px;
+    bottom:170px;
     width:100%;
     position:fixed;
     /*left:200px;right:200px;*/
@@ -205,7 +205,7 @@ width:300%; /* Be careful with this. this is to scroll left */
 }
 #firstinitial{
     position:relative;
-    padding-top:15vw;
+    padding-top:27vh;
 }
 .storieshead{
     margin-top:1vw;
@@ -223,7 +223,7 @@ width:300%; /* Be careful with this. this is to scroll left */
     cursor:pointer;
     transition:background 0.5s ease-in-out;
     text-decoration:none;
-    border-radius:4vh;
+    border-radius:1.5vh;
     pointer-events:auto;
 }
 .gbutton:hover{
@@ -282,15 +282,19 @@ width:300%; /* Be careful with this. this is to scroll left */
 }
 .videotext{
     position:absolute;
+    display:flex;
+    justify-content:center;
+    align-items:center;
 
     
-    font-size:3vw;
+    font-size:65%;
     color:#fff;
  margin-left: auto;
     margin-right: auto;
     left:50%;
+    top:10vh;
     z-index:10;
-  transform: translate(-50%, 50%);
+  transform: translate(-50%, 0%);
 }
 
 /* /////////////  */
@@ -414,6 +418,7 @@ width:300%; /* Be careful with this. this is to scroll left */
     z-index:51;
     border-bottom:2px solid #fff;
     /*margin-bottom:20px;*/
+    text-align:left;
 }
 .relatableContent{
     text-align:center;
@@ -421,7 +426,9 @@ width:300%; /* Be careful with this. this is to scroll left */
     position:absolute;
     bottom:200px;
     right:0px;
-    width:20vw;
+    /*width:20vw;*/
+    width:360px;
+    padding-bottom:10px;
     background-color:rgba(40,55,65, 0.8);
     border:2px solid #fff;
     border-top-left-radius:10px;

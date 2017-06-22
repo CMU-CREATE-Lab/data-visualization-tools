@@ -1,15 +1,18 @@
+var JCP_EXPERT_WAYPOINT_URL="https://docs.google.com/spreadsheets/d/1rCiksJv4aXi1usI0_9zdl4v5vuOfiHgMRidiDPt1WfE/edit#gid=0" // This is going to be Expert Presentation Slider URL
 var CONNECTION_CONFIG={ //used for relatableContent div.
     "refugee":["urbanization","pandemics","energy"],
     "pandemics":["refugee","water","forests"],
-    "urbanization":["pandemics","refugee","water"],
+    "energy":["urbanization"],
+    "forsts":["refugee"],
+    "urbanization":["pandemics","refugee","water","climate","nutrition"],
 }
 
 var STORIES_CONFIG = {
-    "column_numbers":2,
+    "column_numbers":3,
     "story_lists":{
         "refugee":{
             "vid_url":"jcpassets/florida.mp4",
-            "heading_text":"Sample Refugee",
+            "heading_text":"Refugee",
             "slide_url":"https://docs.google.com/spreadsheets/d/1JLY9J4XYsWaz-lD8tzAIF1oBjaxIQbqe0AISt5Q48ro/edit#gid=1769400286",
             "img_url":"jcpassets/refugee.jpg",
             "img_descript":["Refugee crisis can refer to movements of large groups of displaced persons, who could be either internally displaced persons, refugees or other migrants. It can also refer to incidents in the country of origin or departure, to large problems whilst on the move or even after arrival in a safe country that involve large groups of displaced persons.",
@@ -22,21 +25,21 @@ var STORIES_CONFIG = {
         },
         "pandemics":{
             "vid_url":"jcpassets/refugee.mov",
-            "heading_text":"Sample Pandemics",
+            "heading_text":"Pandemics",
             "slide_url":"https://docs.google.com/spreadsheets/d/1JLY9J4XYsWaz-lD8tzAIF1oBjaxIQbqe0AISt5Q48ro/edit#gid=0",
             "img_url":"jcpassets/pandemics.jpg",
             "img_descript":['A pandemic (from Greek πᾶν pan "all" and δῆμος demos "people") is an epidemic of infectious disease that has spread through human populations across a large region; for instance multiple continents, or even worldwide. A widespread endemic disease that is stable in terms of how many people are getting sick from it is not a pandemic. Further, flu pandemics generally exclude recurrences of seasonal flu. Throughout history, there have been a number of pandemics, such as smallpox and tuberculosis. One of the most devastating pandemics was the Black Death, killing over 75 million people in 1350. The most recent pandemics include the HIV pandemic as well as the 1918 and 2009 H1N1 pandemics.',]
         },
         "urbanization":{
             "vid_url":"http://img.timeinc.net/time/video/time-lapse/earth-time-lapse.ogg",
-            "heading_text":"Sample Urbanization",
+            "heading_text":"Urbanization",
             "slide_url":"https://docs.google.com/spreadsheets/d/1JLY9J4XYsWaz-lD8tzAIF1oBjaxIQbqe0AISt5Q48ro/edit#gid=0",
             "img_url":"jcpassets/urbanization.jpg",
             "img_descript":['A pandemic (from Greek πᾶν pan "all" and δῆμος demos "people") is an epidemic of infectious disease that has spread through human populations across a large region; for instance multiple continents, or even worldwide. A widespread endemic disease that is stable in terms of how many people are getting sick from it is not a pandemic. Further, flu pandemics generally exclude recurrences of seasonal flu. Throughout history, there have been a number of pandemics, such as smallpox and tuberculosis. One of the most devastating pandemics was the Black Death, killing over 75 million people in 1350. The most recent pandemics include the HIV pandemic as well as the 1918 and 2009 H1N1 pandemics.',]
         },
         "climate":{
             "vid_url":"jcpassets/ice_nasa.mp4",
-            "heading_text":"Sample Sample ",
+            "heading_text":"Sample ",
             "slide_url":"https://docs.google.com/spreadsheets/d/1JLY9J4XYsWaz-lD8tzAIF1oBjaxIQbqe0AISt5Q48ro/edit#gid=0",
         },
         "forests":{
