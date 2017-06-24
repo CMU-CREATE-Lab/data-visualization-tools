@@ -5499,6 +5499,9 @@
             var currentDate = getCurrentDate(currentTime, currentTimes, dates);
             options.currentTime = currentDate;
             options.pointSize = 500.;
+            if (layer.options) {
+              $.extend(options, layer.options);
+            }
             layer.draw(view, options);
           }
         }

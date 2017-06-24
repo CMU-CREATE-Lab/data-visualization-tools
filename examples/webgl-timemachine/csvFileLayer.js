@@ -3,7 +3,7 @@ var CsvFileLayer = function CsvFileLayer() {
   this.layerAleadyLoaded;
 }
 
-CsvFileLayer.prototype.addLayer = function addLayer(nickname, url, name, credit, scalingFunction, mapType) {
+CsvFileLayer.prototype.addLayer = function addLayer(nickname, url, name, credit, scalingFunction, mapType, color) {
   var layerOptions = {
     tileWidth: 256,
     tileHeight: 256,
@@ -26,6 +26,10 @@ CsvFileLayer.prototype.addLayer = function addLayer(nickname, url, name, credit,
 
 
   var layer = new WebglVectorLayer2(glb, canvasLayer, url, layerOptions);
+  layer.options = layer.options || {};
+  if (color) {
+    layer.options.color = color;
+  }
   this.layers.push(layer);
 
   var id = 'show-csv-' + nickname;
@@ -93,12 +97,16 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
       mapType = "bubble";
     }
 
+    var optionalColor = layerdef[10].trim();
+    if (optionalColor) optionalColor = JSON.parse(optionalColor);
+
     this.addLayer(layerIdentifier, // identifier
       layerdef[2], // url
       layerdef[3], // name
-      layerdef[4],
+      layerdef[4], // credit
       scalingFunction,
-      mapType); // credit
+      mapType,
+      optionalColor);
 
     this.setTimeLine(layerIdentifier,
       parseInt(layerdef[5], 10), // start date
