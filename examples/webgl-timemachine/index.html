@@ -100,6 +100,7 @@
     var googleMapsAPIKey = EARTH_TIMELAPSE_CONFIG.googleMapsAPIKey;
 
     var showEVA = !!EARTH_TIMELAPSE_CONFIG.showEVA;
+    var showGFW = !!EARTH_TIMELAPSE_CONFIG.showGFW;
     var showLodes = !!EARTH_TIMELAPSE_CONFIG.showLodes;
     var showCustomDotmaps = typeof(EARTH_TIMELAPSE_CONFIG.showCustomDotmaps) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showCustomDotmaps;
     var showCsvLayers = !!EARTH_TIMELAPSE_CONFIG.showCsvLayers;
@@ -2209,6 +2210,9 @@
         draggable: false,
         resizable: false,
         dialogClass: "extras-content-video",
+        open: function(event, ui) {
+          $("#timeMachine").removeClass("presentationSliderSelection presentationSliderSelectionOverflow");
+        },
         beforeClose: function(event, ui) {
           var $extrasVideo = $("#extras-video");
           if ($extrasVideo && $extrasVideo[0]) {
@@ -2216,6 +2220,17 @@
             $extrasVideo[0].src = "";
           }
           $("#extras-selector").val("select").selectmenu('refresh');
+          // Chrome css workaround...
+          $("#layers-list.right-panel").hide().show(0);
+          if (!enableLetterboxMode && Object.keys(jumpToButtons).length > 0) {
+            var presentationSliderSelectionHasScroll = $("#presentation-slider-selection")[0].scrollWidth > $("#presentation-slider-selection")[0].clientWidth;
+            if (presentationSliderSelectionHasScroll) {
+              $("#timeMachine").removeClass("presentationSliderSelection").addClass("presentationSliderSelectionOverflow");
+            } else {
+              $("#timeMachine").addClass("presentationSliderSelection").removeClass("presentationSliderSelectionOverflow");
+            }
+          }
+
         }
       }).css({
         'z-index': '2000',
@@ -3413,6 +3428,8 @@
       layer_html += '   <option data-type="img" data-link-path="smog_free_tower_tianjin.jpg">Smog Free Tower Tianjin</option>';
       if (showEVA)
         layer_html += '   <option data-type="link" data-link-path="http://localhost:8080/?uid=history-1436384863961-Vyxt6PIO">EVA - Explorable Visual Analytics</option>';
+      if (showGFW)
+        layer_html += '   <option data-type="iframe" data-link-path="http://localhost:8081/index.html?workspace=https://api-dot-skytruth-pleuston.appspot.com/v1/workspaces/udw-v1-4a79e843-9e84-4c02-a903-f49c4d0ebc0c">Global Fishing Watch</option>';
       layer_html += '   <optgroup label="World Economic Forum - Davos 2016">';
       layer_html += '   <option data-file-playback-rate="1" data-type="video" data-file-name="WEF/The Climate Crisis with Naomi Oreskes and Achim Steiner.mp4">Climate Crisis with Naomi Oreskes and Achim Steiner</option>';
       layer_html += '   <option data-file-playback-rate="1" data-type="video" data-file-name="WEF/The Climate Crisis with Naomi Oreskes and Nicholas Stern.mp4">Climate Crisis with Naomi Oreskes and Nicholas Stern</option>';
@@ -3628,6 +3645,7 @@
               text: false
             });
           }
+          // Chrome css workaround...
           $("#layers-list.right-panel").hide().show(0);
         });
       }
@@ -4580,7 +4598,7 @@
     }
 
     function getSpreadsheetDownloadPath(path) {
-      if (path.indexOf(".tsv") == -1 && path.indexOf("http") == -1) {
+      if (path && path.indexOf(".tsv") == -1 && path.indexOf("http") == -1) {
         path = docTabToGoogleSheetUrl(path);
       }
       return path;
