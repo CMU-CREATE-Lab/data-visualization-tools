@@ -13,7 +13,7 @@ var EARTH_TIMELAPSE_CONFIG = {
   "screenTimeoutInMilliseconds" : 4 * 60 * 1000,
   "waypointDelayInMilliseconds" : 1 * 20 * 1000,
   "showEVA" : false,
-  "showGFW", : false,
+  "showGFW" : false,
   "showForestAlerts" : false,
   "showLodes" : false,
   "showGlobalWindPower": false,
