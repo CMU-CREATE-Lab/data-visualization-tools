@@ -6,6 +6,7 @@ SETLOCAL EnableDelayedExpansion
 set BROWSER_SCALE_FACTOR=1
 set LAUNCH_MODE=""
 set USE_FROZEN_CHROME=0
+set SHOW_GFW=0
 
 for /f "tokens=2 delims=:, " %%a in (' find "browserScaleFactor" ^< "config.js" ') do (
   set BROWSER_SCALE_FACTOR=%%~a
@@ -17,6 +18,10 @@ for /f "tokens=2 delims=:, " %%a in (' find "launchMode" ^< "config.js" ') do (
 
 for /f "tokens=2 delims=:, " %%a in (' find "useFrozenChrome" ^< "config.js" ') do (
   set USE_FROZEN_CHROME=%%~a
+)
+
+for /f "tokens=2 delims=:, " %%a in (' find "showGFW" ^< "config.js" ') do (
+  set SHOW_GFW=%%~a
 )
 
 for /f "tokens=2 delims=:, " %%a in (' find "clearProfile" ^< "config.js" ') do (
@@ -47,8 +52,16 @@ if %USE_FROZEN_CHROME% == true (
   set CHROME_LAUNCH_PATH=chrome
 )
 
+if %SHOW_GFW% == true (
+  set GFW_ARGS=--ignore-certificate-errors  --ignore-urlfetcher-cert-requests
+  taskkill /f /im "mongoose-webserver.exe"
+  start /d "%cd\%app\extras\gfw-legacy-china" mongoose-webserver.exe
+) else (
+  set GFW_ARGS=
+)
+
 set LAUNCH_PATH=%cd%/app/data-visualization-tools/examples/webgl-timemachine/index.html
-set ARGS="--video-threads=%NUMBER_OF_PROCESSORS% --allow-file-access-from-files %LAUNCH_MODE% --device-scale-factor=%BROWSER_SCALE_FACTOR% --user-data-dir=%tmp%/et --no-first-run %EXTENSION_ARGS%"
+set ARGS="--video-threads=%NUMBER_OF_PROCESSORS% --allow-file-access-from-files %LAUNCH_MODE% --device-scale-factor=%BROWSER_SCALE_FACTOR% --user-data-dir=%tmp%/et --no-first-run %EXTENSION_ARGS% %GFW_ARGS%"
 
 echo Launching user installed Chrome.
 start "Chrome" %CHROME_LAUNCH_PATH% --app="%LAUNCH_PATH%" "%ARGS%" || goto :USER_DOES_NOT_HAVE_CHROME
