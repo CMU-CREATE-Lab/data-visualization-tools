@@ -1,5 +1,5 @@
 var JCP_EXPERT_WAYPOINT_URL="https://docs.google.com/spreadsheets/d/1rCiksJv4aXi1usI0_9zdl4v5vuOfiHgMRidiDPt1WfE/edit#gid=0" // This is going to be Expert Presentation Slider URL
-var CONNECTION_CONFIG={ //used for relatableContent div.
+var CONNECTION_CONFIG={ //used for relatableContent div. //case sensative
     "refugee":["urbanization","pandemics","energy"],
     "pandemics":["refugee","water","forests"],
     "energy":["urbanization"],
@@ -39,7 +39,7 @@ var STORIES_CONFIG = {
         },
         "climate":{
             "vid_url":"jcpassets/ice_nasa.mp4",
-            "heading_text":"Sample ",
+            "heading_text":"Climate",
             "slide_url":"https://docs.google.com/spreadsheets/d/1JLY9J4XYsWaz-lD8tzAIF1oBjaxIQbqe0AISt5Q48ro/edit#gid=0",
         },
         "forests":{

@@ -75,35 +75,7 @@
      transition: all 0.5s ease 0s;
  
 }
-.explainborderright{
-    position:absolute;
-    font: 14px/100% arial, sans-serif;
-    text-shadow: 0 1px 0 #fff;
-    text-align:right;
-    color:#fff;
-    font-weight:bold;
-    background-color:rgba(100,100,100,0.5);
-    padding:2px 15px;
-    border-bottom:1px solid transparent;
-    border-top-right-radius:10px;
-    border-bottom-right-radius:10px;
-    position:fixed;
-    width:5vw;
-    font-size:5vw;
-    float:right;
-    /*height:100%;*/
-    text-align: right;
 
-    z-index:99;
-    right:0px;
-    /*left:200px;right:200px;*/
-    /*transform: translateX(-50%);*/
-    display: flex;
-    align-items: center;
-    top:100px;
-    bottom:240px;
-    display:none;
-}
 .explainborderright:hover{
     background:#f4ae01;
      transition: all 0.5s ease 0s;
@@ -186,7 +158,7 @@
 
 }
 
-.blender{font-family: "Blender",Arial, Helvetica, sans-serif;
+.blender{font-family: Arial, Helvetica, sans-serif;
 }
 .explain{
     position:relative;
@@ -198,7 +170,7 @@
 
 #initial{ /* this currently has 3 divs */
     position:relative;
-height:90%;
+/*height:90%;*/
 left:0px;
 width:300%; /* Be careful with this. this is to scroll left */
 
@@ -494,9 +466,7 @@ width:300%; /* Be careful with this. this is to scroll left */
     background-color:#000;
     border:2px solid #fff;
     text-align:center;
- 
     padding:5px 10px;
-
     color:#fff;
     font-size:18px;;
     cursor:pointer;
@@ -505,7 +475,7 @@ width:300%; /* Be careful with this. this is to scroll left */
     border-radius:0.5vh;
     pointer-events:auto;
     top:5px;
-    right:0px;
+    right:5px;
     /*width:100%;*/
     position:fixed;
 
