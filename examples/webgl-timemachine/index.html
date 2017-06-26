@@ -2016,6 +2016,8 @@
           requestNewTimeline("be-pm25-times.json", timelineType);
           var v = timelapse.getVideoset();
           v.setFps(22);
+          timelapse.setMasterPlaybackRate(.5);
+          timelapse.setPlaybackRate(.1);
           $("#be-pm25-legend").show();
         } else {
           showBePm25Layer = false;
@@ -2024,6 +2026,8 @@
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           var v = timelapse.getVideoset();
           v.setFps(10);
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
           $("#be-pm25-legend").hide();
         }
       }).prop('checked', showBePm25Layer);
