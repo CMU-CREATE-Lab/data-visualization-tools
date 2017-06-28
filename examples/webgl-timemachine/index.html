@@ -84,7 +84,15 @@
     } else {
       dotmapsContentPath =  EARTH_TIMELAPSE_CONFIG.dotmapsContentPath;
     }
-
+    var csvLayersContentPath;
+    if (typeof(EARTH_TIMELAPSE_CONFIG.csvContentPath) === "undefined") {
+      csvLayersContentPath = "1rCiksJv4aXi1usI0_9zdl4v5vuOfiHgMRidiDPt1WfE.870361385";
+    } else if (EARTH_TIMELAPSE_CONFIG.csvContentPath === "") {
+      csvLayersContentPath = "default-csvlayers.tsv";
+    } else {
+      csvLayersContentPath =  EARTH_TIMELAPSE_CONFIG.csvLayersContentPath;
+    }
+    // Local Storage
     if (typeof(Storage) !== "undefined") {
       if (localStorage.waypointSliderContentPath) {
         waypointSliderContentPath = localStorage.waypointSliderContentPath;
@@ -92,8 +100,10 @@
       if (localStorage.dotmapsContentPath) {
         dotmapsContentPath = localStorage.dotmapsContentPath;
       }
+      if (localStorage.csvLayersContentPath) {
+        csvLayersContentPath = localStorage.csvLayersContentPath;
+      }
     }
-
     var useUrbanFragilityWaypoints = window.location.hash.split("useUrbanFragilityWaypoints=")[1];
     if (useUrbanFragilityWaypoints === "true")
       waypointSliderContentPath = "https://docs.google.com/spreadsheets/d/1hFpDXOyjvjTpad7HpB0K-3thuYqSOlDJ4oExCTcscUk/edit#gid=1757433978";
@@ -2545,6 +2555,7 @@
     var csvFileLayers = new CsvFileLayer();
     var dotmapLayers = [];
     var dotlayersLoadedPath;
+    var csvlayersLoadedPath;
     var layersToShowOnCreation = {};
 
     function addDotmapLayer(nickname, name, credit, columnDefs) {
@@ -2577,7 +2588,7 @@
       row += name;
       row += '</label></tr>';
 
-      $('#dotmaps_table').last().append(row);
+      $('#custom_dotmaps_table').append(row);
 
       // Create and insert legend
       var legend='<tr id="' + nickname + '-legend" style="display: none"><td>';
@@ -2665,11 +2676,10 @@
       if (path == dotlayersLoadedPath) return;
       dotlayersLoadedPath = path;
 
-      // Make fieldset visible, since it may have been hidden on initial page load
-      //$('#custom_dotmaps_table').parent().show();
       // Clear out any dot layers that have already been loaded
-      //$("#custom_dotmaps_table").find("input:checked").trigger("click");
-      //$('#custom_dotmaps_table').empty();
+      $("#dotmaps_table").find("input:checked").trigger("click");
+      // First one is always LODES
+      $('#custom_dotmaps_table').empty();
 
       if (path.indexOf(".tsv") != -1) {
         // Load local version of the dotmaps .tsv file
@@ -3355,7 +3365,6 @@
         }
         /* END CHINA INFRASTRUCTURE THEME */
 
-
         /* DOTMAPS */
         layer_html += '  <h3>Dotmaps</h3>';
         layer_html += '  <table id="dotmaps_table">';
@@ -3365,8 +3374,9 @@
           layer_html += '    </tr>';
         }
 
+        layer_html += '  <tbody id="custom_dotmaps_table">';
+        layer_html += '  </tbody>';
         layer_html += '  </table>';
-
         /* END DOTMAPS */
 
         /* MISC THEME */
@@ -3390,6 +3400,9 @@
         layer_html += '    <tr>';
         layer_html += show_himawari;
         layer_html += '    </tr>';
+
+        layer_html += '  <tbody id="csvlayers_table">';
+        layer_html += '  </tbody>';
         layer_html += '  </table>';
         /* END MISC THEME */
 
@@ -4480,7 +4493,12 @@
         }
 
         if (showCsvLayers) {
-          csvFileLayers.loadLayers('1rCiksJv4aXi1usI0_9zdl4v5vuOfiHgMRidiDPt1WfE.870361385');
+          var csvlayersPath;
+          if (vals.csvlayers) {
+            csvlayersPath = vals.csvlayers;
+          }
+          csvlayersPath = csvlayersPath || csvLayersContentPath;
+          csvFileLayers.loadLayers(csvlayersPath);
         }
       };
 
@@ -4554,7 +4572,7 @@
              '<input type="text" size=90 id="spreadsheet-path"></input><br>' +
              '<i>If your spreadsheet has more than one tab, be sure to select the correct tab ' +
              'before copying its URL, as each tab has a different URL.</i><br>' +
-             '<input type="checkbox" id="make-spreadsheet-default" value="' + type + '" style="cursor: pointer;"> Make this the default spreadsheet loaded from now on?<br>');
+             '<label style="cursor: pointer"><input type="checkbox" id="make-spreadsheet-default" value="' + type + '" style="cursor: pointer;">Make this the default spreadsheet loaded from now on?</label><br>');
 
       d.dialog({
         minWidth: 800,
@@ -4570,6 +4588,8 @@
                   localStorage.waypointSliderContentPath = url;
                 } else if (type == "dotmap layers") {
                   localStorage.dotmapsContentPath = url;
+                } else if (type == "csv layers") {
+                  localStorage.csvLayersContentPath = url;
                 }
               }
             }
@@ -4625,7 +4645,9 @@
       d.html('<a target="_blank" href="' + getSpreadsheetDownloadPath(waypointsLoadedPath) + '" title="Click to view current waypoint spreadsheet">Current waypoints spreadsheet</a>' +
              '<button style="float: right; cursor: pointer;" title="Click to change waypoint list">Switch</button><br>' +
              '<a target="_blank" href="' + getSpreadsheetDownloadPath(dotlayersLoadedPath) + '" title="Click to view current dotmap spreadsheet">Current dotmap layer spreadsheet</a>' +
-             '<button style="float: right; cursor: pointer;" title="Click to change dotmap layers">Switch</button><br><br>' +
+             '<button style="float: right; cursor: pointer;" title="Click to change dotmap layers">Switch</button><br>' +
+             '<a target="_blank" href="' + getSpreadsheetDownloadPath(csvlayersLoadedPath) + '" title="Click to view current csv spreadsheet">Current csv layer spreadsheet</a>' +
+             '<button style="float: right; cursor: pointer;" title="Click to change csv layers">Switch</button><br><br>' +
              '<button style="float: right; cursor: pointer; font-size: 12px" title="Reset spreadsheets back to their defaults">Reset spreadsheets to default values</button><br>');
 
 
@@ -4644,10 +4666,18 @@
       });
 
       d.find('button:eq(2)').click(function () {
+        askForSpreadsheetUrl('csv layers', function (newUrl) {
+          changeHash({csvlayers: googleSheetUrlToDocTab(newUrl)});
+          d.dialog("close");
+        });
+      });
+
+      d.find('button:eq(3)').click(function () {
         localStorage.removeItem("waypointSliderContentPath");
         localStorage.removeItem("dotmapsContentPath");
+        localStorage.removeItem("csvLayersContentPath");
         parent.location.hash = '';
-        alert("Spreadsheets successfully reset back to their default values");
+        alert("Spreadsheets successfully reset back to their default values. You may have to reload the page to see this change.");
       });
 
       d.dialog({

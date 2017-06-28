@@ -3,6 +3,7 @@ var CsvFileLayer = function CsvFileLayer() {
   this.layerAleadyLoaded;
 }
 
+
 CsvFileLayer.prototype.addLayer = function addLayer(nickname, url, name, credit, scalingFunction, mapType, color) {
   var layerOptions = {
     tileWidth: 256,
@@ -24,7 +25,6 @@ CsvFileLayer.prototype.addLayer = function addLayer(nickname, url, name, credit,
     layerOptions.imageSrc =  "obesity-color-map.png";
   }
 
-
   var layer = new WebglVectorLayer2(glb, canvasLayer, url, layerOptions);
   layer.options = layer.options || {};
   if (color) {
@@ -37,7 +37,8 @@ CsvFileLayer.prototype.addLayer = function addLayer(nickname, url, name, credit,
   row += '<input type="checkbox" id="' + id + '">';
   row += name;
   row += '</label></td></tr>';
-  $('#other_table tr:last').after(row);
+
+  $('#csvlayers_table').append(row);
 
   // Create and insert legend
   var legend='<tr id="' + nickname + '-legend" style="display: none"><td>';
@@ -82,6 +83,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(nickname, url, name, credit,
   }).prop('checked', layer.visible);
 }
 
+
 CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefinitions) {
   var layerdefs = layerDefinitions.split('\n').slice(2); // Remove column headers
   for (var i = 0; i < layerdefs.length; i++) {
@@ -115,28 +117,40 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
   }
 }
 
-CsvFileLayer.prototype.loadLayers = function loadLayers(docTabId) {
-  if (this.layerAlreadyLoaded) {
-    if (docTabId == this.layerAlreadyLoaded) return;
-    // We need to reload the dotlayers, but we don't know how to do that
-    // So just refresh this page instead.
-    // TODO: clear the layers and reload just the layers.
-    location.reload();
-  }
-  this.layerAlreadyLoaded = docTabId;
+CsvFileLayer.prototype.loadLayers = function loadLayers(path) {
+  if (path == csvlayersLoadedPath) return;
+  csvlayersLoadedPath = path;
+  var url = path;
 
-  var docId = docTabId.split('.')[0];
-  var tabId = docTabId.split('.')[1];
-  var url = 'https://docs.google.com/spreadsheets/d/' + docId + '/edit';
-  if (tabId) {
-      url += '#gid=' + tabId;
-  }
   var that = this;
+
+  // Clear out any csv layers that have already been loaded
+  $("#csvlayers_table").find("input:checked").trigger("click");
+  $('#csvlayers_table').empty();
+
+  if (path.indexOf(".tsv") != -1) {
+    // Load local version of the csv .tsv file
+    $.ajax({
+      url: path,
+      dataType: "text",
+      success: function(csvdata) {
+        that.loadLayersFromTsv(tsvdata);
+      }
+    });
+    return;
+  } else if (path.indexOf("http") != 0) {
+    var docId = path.split('.')[0];
+    var tabId = path.split('.')[1];
+    url = 'https://docs.google.com/spreadsheets/d/' + docId + '/edit';
+    if (tabId) {
+        url += '#gid=' + tabId;
+    }
+  }
   org.gigapan.Util.gdocToJSON(url, function(tsvdata) {
     that.loadLayersFromTsv(tsvdata);
   });
-
 }
+
 
 CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate, endDate, step) {
   var captureTimes = [];
@@ -178,7 +192,7 @@ function searchCountryList(feature_collection, name) {
       if (name == names[j]) {
         //return feature['properties']['webmercator'];
         return feature;
-      }     
+      }
     }
   }
   return {};
