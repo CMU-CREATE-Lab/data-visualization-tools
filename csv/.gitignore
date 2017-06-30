@@ -2,3 +2,5 @@ IRENA
 LuxembourgIncomeStudy
 WorldBank
 *.pyc
+.ipynb_checkpoints
+nohup.out
