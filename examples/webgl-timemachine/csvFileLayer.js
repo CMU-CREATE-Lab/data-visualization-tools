@@ -5,6 +5,8 @@ var CsvFileLayer = function CsvFileLayer() {
 
 
 CsvFileLayer.prototype.addLayer = function addLayer(nickname, url, name, credit, scalingFunction, mapType, color) {
+  // (someday) Use csv.createlab.org as translation gateway
+  // url = 'http://csv.createlab.org/' + url.replace(/^https?:\/\//,'')
   var layerOptions = {
     tileWidth: 256,
     tileHeight: 256,

@@ -125,6 +125,10 @@ WebGLVectorTile2.prototype._loadGeojsonData = function() {
 }
 
 WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
+  var proj = new org.gigapan.timelapse.MercatorProjection(
+      -180, 85.05112877980659, 180, -85.05112877980659,
+    256, 256);
+  
   var that = this;
   this.xhr = new XMLHttpRequest();
   this.xhr.open('GET', that._url);
@@ -140,66 +144,76 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
       // ...
       var jsondata = Papa.parse(csvdata, {header: false});
       var header = jsondata.data[0];
+      var has_lat_lon = (
+        header[1].substr(0,3).toLowerCase() == 'lat' &&
+          header[2].substr(0,3).toLowerCase() == 'lon');
+      var first_data_col = has_lat_lon ? 3 : 1;
       var epochs = [];
       var points = [];
       var maxValue = 0;
       var minValue = 1e6; //TODO Is this an ok value?
-      for (var i = 1; i < header.length; i++) {
+      for (var i = first_data_col; i < header.length; i++) {
         epochs[i] = new Date(header[i]).getTime()/1000.;
       }
       for (var i = 1; i < jsondata.data.length; i++) {
         var country = jsondata.data[i];
         var feature = searchCountryList(COUNTRY_CENTROIDS,country[0]);
-
-        if (! feature.hasOwnProperty("geometry")) {
+        var centroid;
+        
+        if (has_lat_lon && country[1] != '') {
+          var latlng = {lat:country[1], lng:country[2]};
+          var xy = proj.latlngToPoint(latlng);
+          centroid = [xy.x, xy.y];
+        } else if (! feature.hasOwnProperty("geometry")) {
           console.log('ERROR: Could not find ' + country[0]);
+          continue;
         } else {
-          var centroid = feature['properties']['webmercator'];
-          var idx = [];
-          for (var j = 1; j < country.length; j++) {
-            country[j] = country[j].replace(/,/g , "");
-            if (country[j] != "") {
-              idx.push(j);
-            }
+          centroid = feature['properties']['webmercator'];
+        }
+        var idx = [];
+        for (var j = first_data_col; j < country.length; j++) {
+          country[j] = country[j].replace(/,/g , "");
+          if (country[j] != "") {
+            idx.push(j);
           }
-          for (var j = 0; j < idx.length - 1; j++) {
-            points.push(centroid[0]);
-            points.push(centroid[1]);
-            var k = idx[j];
-            points.push(epochs[k]);
-            points.push(parseFloat(country[k]));
-            if (parseFloat(country[k]) > maxValue) {
-              maxValue = parseFloat(country[k]);
-            }
-            if (parseFloat(country[k]) < minValue) {
-              minValue = parseFloat(country[k]);
-            }
-            if (idx.length > 1) {
-              var k = idx[j+1];
-              points.push(epochs[k]);
-              points.push(parseFloat(country[k]));              
-            } else {
-              var k = idx[j];
-              points.push(epochs[k]);
-              points.push(parseFloat(country[k]));              
-            }
+        }
+        for (var j = 0; j < idx.length - 1; j++) {
+          points.push(centroid[0]);
+          points.push(centroid[1]);
+          var k = idx[j];
+          points.push(epochs[k]);
+          points.push(parseFloat(country[k]));
+          if (parseFloat(country[k]) > maxValue) {
+            maxValue = parseFloat(country[k]);
+          }
+          if (parseFloat(country[k]) < minValue) {
+            minValue = parseFloat(country[k]);
           }
           if (idx.length > 1) {
-            points.push(centroid[0]);
-            points.push(centroid[1]);
+            var k = idx[j+1];
+            points.push(epochs[k]);
+            points.push(parseFloat(country[k]));              
+          } else {
             var k = idx[j];
             points.push(epochs[k]);
-            points.push(parseFloat(country[k]));
-            if (parseFloat(country[k]) > maxValue) {
-              maxValue = parseFloat(country[k]);
-            }
-            if (parseFloat(country[k]) < minValue) {
-              minValue = parseFloat(country[k]);
-            }
-            points.push(epochs[k+1]);
-            points.push(parseFloat(country[k]));
-          }          
+            points.push(parseFloat(country[k]));              
+          }
         }
+        if (idx.length > 1) {
+          points.push(centroid[0]);
+          points.push(centroid[1]);
+          var k = idx[j];
+          points.push(epochs[k]);
+          points.push(parseFloat(country[k]));
+          if (parseFloat(country[k]) > maxValue) {
+            maxValue = parseFloat(country[k]);
+          }
+          if (parseFloat(country[k]) < minValue) {
+            minValue = parseFloat(country[k]);
+          }
+          points.push(epochs[k+1]);
+          points.push(parseFloat(country[k]));
+        }          
       }
       //console.log(jsondata.data[100]);
       // data format is
@@ -2970,7 +2984,8 @@ WebGLVectorTile2.bubbleMapVertexShader =
 '        gl_Position = position;\n' +
 '        float delta = (u_Epoch - a_Epoch1)/(a_Epoch2 - a_Epoch1);\n' +
 '        float size = (a_Val2 - a_Val1) * delta + a_Val1;\n' +
-'        gl_PointSize = u_Size * size;\n' +
+'        v_Val = size;\n' +
+'        gl_PointSize = abs(u_Size * size);\n' +
 '      }\n';
 
 WebGLVectorTile2.bubbleMapFragmentShader =
@@ -2985,6 +3000,7 @@ WebGLVectorTile2.bubbleMapFragmentShader =
 '          float delta = fwidth(dist);\n' +
 '          float alpha = smoothstep(0.45-delta, 0.45, dist);\n' +
 '          vec4 circleColor = u_Color;\n' +
+'          if (v_Val < 0.0) { circleColor[0] = 1.0; circleColor[1]=0.0; circleColor[2]=0.0; };\n' +
 '          vec4 outlineColor = vec4(1.0,1.0,1.0,1.0);\n' +
 '          float outerEdgeCenter = 0.5 - .01;\n' +
 '          float stroke = smoothstep(outerEdgeCenter - delta, outerEdgeCenter + delta, dist);\n' +
