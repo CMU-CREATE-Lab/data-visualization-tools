@@ -12,6 +12,7 @@ var EARTH_TIMELAPSE_CONFIG = {
   "enableAutoMode" : false,
   "screenTimeoutInMilliseconds" : 4 * 60 * 1000,
   "waypointDelayInMilliseconds" : 1 * 20 * 1000,
+  "showExtrasMenu" : true,
   "showEVA" : false,
   "showGFW" : false,
   "showForestAlerts" : false,
@@ -54,6 +55,5 @@ var EARTH_TIMELAPSE_CONFIG = {
   "showLightsAtNight2016": false,
   "showOmiNo2": true,
   "showChinaInfrastructure": true,
-  "showBePm25": true
-
+  "showBePm25": true,
 };
