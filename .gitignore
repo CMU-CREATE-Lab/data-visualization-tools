@@ -12,3 +12,4 @@ examples/webgl-timemachine/1068x600
 .idea/
 examples/webgl-timemachine/config-local.js
 examples/webgl-timemachine/index_old.html
+.ipynb_checkpoints
