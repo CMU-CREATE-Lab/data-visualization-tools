@@ -658,7 +658,7 @@ WebGLVectorTile2.prototype._setEbolaData = function(arrayBuffer) {
 // VIIRS fires: worldCoord[2] time temp
 WebGLVectorTile2.prototype._setViirsData = function(arrayBuffer) {
   var gl = this.gl;
-  this._pointCount = arrayBuffer.length / 4;
+  this._pointCount = arrayBuffer.length / 3;
 
   this._data = arrayBuffer;
   this._arrayBuffer = gl.createBuffer();
@@ -667,15 +667,15 @@ WebGLVectorTile2.prototype._setViirsData = function(arrayBuffer) {
 
   var attributeLoc = gl.getAttribLocation(this.program, 'worldCoord');
   gl.enableVertexAttribArray(attributeLoc);
-  gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 16, 0);
+  gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 12, 0);
 
   var timeLoc = gl.getAttribLocation(this.program, 'time');
   gl.enableVertexAttribArray(timeLoc);
-  gl.vertexAttribPointer(timeLoc, 1, gl.FLOAT, false, 16, 8);
+  gl.vertexAttribPointer(timeLoc, 1, gl.FLOAT, false, 12, 8);
 
-  var tempLocation = gl.getAttribLocation(this.program, "temp");
-  gl.enableVertexAttribArray(tempLocation);
-  gl.vertexAttribPointer(tempLocation, 1, gl.FLOAT, false, 16, 12);
+//  var tempLocation = gl.getAttribLocation(this.program, "temp");
+//  gl.enableVertexAttribArray(tempLocation);
+//  gl.vertexAttribPointer(tempLocation, 1, gl.FLOAT, false, 16, 12);
 
   this._ready = true;
 }
@@ -1999,15 +1999,15 @@ WebGLVectorTile2.prototype._drawViirs = function(transform, options) {
 
     var attributeLoc = gl.getAttribLocation(this.program, 'worldCoord');
     gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 16, 0);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 12, 0);
 
     var timeLoc = gl.getAttribLocation(this.program, 'time');
     gl.enableVertexAttribArray(timeLoc);
-    gl.vertexAttribPointer(timeLoc, 1, gl.FLOAT, false, 16, 8);
+    gl.vertexAttribPointer(timeLoc, 1, gl.FLOAT, false, 12, 8);
 
-    var tempLocation = gl.getAttribLocation(this.program, "temp");
-    gl.enableVertexAttribArray(tempLocation);
-    gl.vertexAttribPointer(tempLocation, 1, gl.FLOAT, false, 16, 12);
+//    var tempLocation = gl.getAttribLocation(this.program, "temp");
+//    gl.enableVertexAttribArray(tempLocation);
+//    gl.vertexAttribPointer(tempLocation, 1, gl.FLOAT, false, 16, 12);
 
     var timeLoc = gl.getUniformLocation(this.program, 'maxTime');
     gl.uniform1f(timeLoc, maxTime/1000.);
@@ -2564,51 +2564,52 @@ WebGLVectorTile2.viirsVertexShader =
   'uniform float pointSize;\n' +
   'uniform float maxTime;\n' +
   'uniform float minTime;\n' +
-  'uniform float minTemp;\n' +
-  'uniform float maxTemp;\n' +
+//  'uniform float minTemp;\n' +
+//  'uniform float maxTemp;\n' +
 
-  'varying float vTemp;\n' +
+//  'varying float vTemp;\n' +
 
   'void main() {\n' +
-  '  if (time < minTime || time > maxTime || temp == 1810. || temp < minTemp || temp > maxTemp) {\n' +
+//  '  if (time < minTime || time > maxTime || temp == 1810. || temp < minTemp || temp > maxTemp) {\n' +
+  '  if (time < minTime || time > maxTime) {\n' +
   '    gl_Position = vec4(-1,-1,-1,-1);\n' +
   '  } else {\n' +
   '    gl_Position = mapMatrix * worldCoord;\n' +
   '  };\n' +
   '  gl_PointSize = pointSize;\n' +
-  '  vTemp = temp;\n' +
+  //'  vTemp = temp;\n' +
   '}';
 
 WebGLVectorTile2.viirsFragmentShader =
   'precision mediump float;\n' +
 
-  'uniform bool showTemp;\n' +
+  //'uniform bool showTemp;\n' +
 
-  'varying float vTemp;\n' +
+  //'varying float vTemp;\n' +
 
   'void main() {\n' +
   '  vec3 color;\n' +
-  '  vec3 purple = vec3(.4,.0, .8);\n' +
-  '  vec3 blue = vec3(.0, .0, .8);\n' +
-  '  vec3 green = vec3(.0, .8, .0);\n' +
-  '  vec3 yellow = vec3(1., 1., .0);\n' +
-  '  vec3 red = vec3(.8, .0, .0);\n' +
+//  '  vec3 purple = vec3(.4,.0, .8);\n' +
+//  '  vec3 blue = vec3(.0, .0, .8);\n' +
+//  '  vec3 green = vec3(.0, .8, .0);\n' +
+//  '  vec3 yellow = vec3(1., 1., .0);\n' +
+//  '  vec3 red = vec3(.8, .0, .0);\n' +
 
-  '  if (showTemp) {\n' +
-  '    if (vTemp > 400. && vTemp < 1000.) {\n' +
-  '      color = purple;\n' +
-  '    } else if (vTemp > 1000. && vTemp < 1200.) {\n' +
-  '      color = blue;\n' +
-  '    } else if (vTemp > 1200. && vTemp < 1400.) {\n' +
-  '      color = green;\n' +
-  '    } else if (vTemp > 1400. && vTemp < 1600.) {\n' +
-  '      color = yellow;\n' +
-  '    } else {\n' +
-  '      color = red;\n' +
-  '    }\n' +
-  '  } else {\n' +
+//  '  if (showTemp) {\n' +
+//  '    if (vTemp > 400. && vTemp < 1000.) {\n' +
+//  '      color = purple;\n' +
+//  '    } else if (vTemp > 1000. && vTemp < 1200.) {\n' +
+//  '      color = blue;\n' +
+//  '    } else if (vTemp > 1200. && vTemp < 1400.) {\n' +
+//  '      color = green;\n' +
+//  '    } else if (vTemp > 1400. && vTemp < 1600.) {\n' +
+//  '      color = yellow;\n' +
+//  '    } else {\n' +
+//  '      color = red;\n' +
+//  '    }\n' +
+//  '  } else {\n' +
   '    color = vec3(.82, .22, .07);\n' +
-  '  }\n' +
+//  '  }\n' +
 
   '  float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
   '  dist = 1. - (dist * 2.);\n' +
