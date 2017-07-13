@@ -65,7 +65,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(nickname, url, name, credit,
     if ($(this).prop('checked')) {
       // Turn on layer
       setActiveLayersWithTimeline(1);
-      timelineType = "customUI";
+      timelineType = "defaultUI";
       requestNewTimeline(nickname + ".json", timelineType);
       if (visibleBaseMapLayer != "dark") {
         $("#dark-base").click();
