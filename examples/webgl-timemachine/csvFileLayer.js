@@ -113,9 +113,9 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
       optionalColor);
 
     this.setTimeLine(layerIdentifier,
-      parseInt(layerdef[5], 10), // start date
-      parseInt(layerdef[6], 10), // end date
-      parseInt(layerdef[7], 10)); // step size
+      layerdef[5], // start date
+      layerdef[6], // end date
+      layerdef[7]); // step size
   }
 }
 
@@ -156,11 +156,51 @@ CsvFileLayer.prototype.loadLayers = function loadLayers(path) {
 
 CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate, endDate, step) {
   var captureTimes = [];
-  if (isNaN(startDate) || isNaN(endDate) || isNaN(step) ) {
-    captureTimes = cached_ajax['landsat-times.json']['capture-times'];
-  } else {
-    for (var i = startDate; i < endDate + 1; i+=step) {
-      captureTimes.push(i.toString());
+
+  var yyyymm_re = /(\d{4})(\d{2})$/;
+  var sm = startDate.match(yyyymm_re);
+  var em = endDate.match(yyyymm_re);
+  if (sm && em) {
+    var startYear = sm[1];
+    var startMonth = sm[2];
+    var endYear = em[1];
+    var endMonth = em[2];
+    startYear = parseInt(startYear, 10);
+    startMonth = parseInt(startMonth, 10); 
+    endYear = parseInt(endYear, 10);
+    endMonth = parseInt(endMonth, 10);
+
+    if (isNaN(startYear) || isNaN(endYear) || isNaN(startMonth) || isNaN(endMonth) ) {
+      captureTimes = cached_ajax['landsat-times.json']['capture-times'];
+    } else {
+      function pad(n) {
+        return (n < 10) ? ("0" + n) : n;
+      }
+      for (var i = startYear; i <= endYear; i++) {
+        var beginMonth = 1;
+        var stopMonth = 12;
+        if (i == startYear) {
+          beginMonth = startMonth;
+        }
+        if (i == endYear) {
+          stopMonth = endMonth;
+        }
+        for (var j = beginMonth; j <= stopMonth; j++) {
+          captureTimes.push(pad(i.toString()) + "-" + pad(j.toString()));
+        }
+      }
+    }
+  } else  {
+    startDate = parseInt(startDate,10);
+    endDate = parseInt(endDate,10);
+    step = parseInt(step,10);
+    if (isNaN(startDate) || isNaN(endDate) || isNaN(step) ) {
+      captureTimes = cached_ajax['landsat-times.json']['capture-times'];
+    } else {
+      for (var i = startDate; i < endDate + 1; i+=step) {
+        captureTimes.push(i.toString());
+      }
+
     }
 
   }

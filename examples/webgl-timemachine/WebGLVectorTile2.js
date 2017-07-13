@@ -153,7 +153,14 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
       var maxValue = 0;
       var minValue = 1e6; //TODO Is this an ok value?
       for (var i = first_data_col; i < header.length; i++) {
-        epochs[i] = new Date(header[i]).getTime()/1000.;
+        var date = header[i];
+        var yyyymm_re = /(\d{4})(\d{2})$/;
+        var m = date.match(yyyymm_re);
+        if (m) {
+          epochs[i] = new Date(m[1] + "-" + m[2]).getTime()/1000.;
+        } else {
+          epochs[i] = new Date(header[i]).getTime()/1000.;
+        }
       }
       for (var i = 1; i < jsondata.data.length; i++) {
         var country = jsondata.data[i];
@@ -1452,6 +1459,8 @@ WebGLVectorTile2.prototype._drawBubbleMap = function(transform, options) {
     var currentTime = options.currentTime.getTime()/1000.;
     var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
     var color = options.color || [.1, .1, .5, 1.0];
+
+    //console.log(currentTime);
 
     scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
 
