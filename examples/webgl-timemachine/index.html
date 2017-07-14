@@ -5546,6 +5546,13 @@
         // ## 7 ##
         //// Layers to draw on top go here
         //
+        var visibleCsvLayers = [];
+        for (var i = 0; i < csvFileLayers.layers.length; i++) {
+          var layer = csvFileLayers.layers[i];
+          if (layer.visible && layer.paired) {
+            visibleCsvLayers.push(i);
+          }
+        }
         for (var i = 0; i < csvFileLayers.layers.length; i++) {
           var layer = csvFileLayers.layers[i];
           if (layer.visible) {
@@ -5559,6 +5566,14 @@
             var currentDate = getCurrentDate(currentTime, currentTimes, dates);
             options.currentTime = currentDate;
             options.pointSize = 500.;
+            if (visibleCsvLayers.length >= 2) {
+              if (visibleCsvLayers[0] == i) {
+                options.mode = 2.0;
+              }
+              if (visibleCsvLayers[1] == i) {
+                options.mode = 3.0;
+              }
+            }
             if (layer.options) {
               $.extend(options, layer.options);
             }

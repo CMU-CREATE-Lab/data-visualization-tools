@@ -32,6 +32,13 @@ CsvFileLayer.prototype.addLayer = function addLayer(nickname, url, name, credit,
   if (color) {
     layer.options.color = color;
   }
+  var re = /_paired/;
+  var m = nickname.match(re)
+  if (m) {
+    layer.paired = true;
+  } else {
+    layer.paired = false;
+  }
   this.layers.push(layer);
 
   var id = 'show-csv-' + nickname;

@@ -1459,6 +1459,7 @@ WebGLVectorTile2.prototype._drawBubbleMap = function(transform, options) {
     var currentTime = options.currentTime.getTime()/1000.;
     var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
     var color = options.color || [.1, .1, .5, 1.0];
+    var mode = options.mode || 1.0; // 1.0 == full circle, 2.0 == left half, 3.0 == right half 
 
     //console.log(currentTime);
 
@@ -1506,6 +1507,10 @@ WebGLVectorTile2.prototype._drawBubbleMap = function(transform, options) {
 
     var sliderTime = gl.getUniformLocation(this.program, 'u_Size');
     gl.uniform1f(sliderTime, 2.0);
+
+    var sliderTime = gl.getUniformLocation(this.program, 'u_Mode');
+    gl.uniform1f(sliderTime, mode);
+
 
     gl.drawArrays(gl.POINTS, 0, this._pointCount);
     perf_draw_points(this._pointCount);
@@ -3002,12 +3007,23 @@ WebGLVectorTile2.bubbleMapFragmentShader =
 '      precision mediump float;\n' +
 '      varying float v_Val;\n' +
 '      uniform vec4 u_Color;\n' +
+'      uniform float u_Mode;\n' +
 '      void main() {\n' +
 '          float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
 '          dist = 1. - (dist * 2.);\n' +
 '          dist = max(0., dist);\n' +
 '          float delta = fwidth(dist);\n' +
 '          float alpha = smoothstep(0.45-delta, 0.45, dist);\n' +
+'          if (u_Mode == 2.0) {\n' +
+'            if (gl_PointCoord.x > 0.5) {\n' +
+'              alpha = 0.0;\n' +
+'            }\n' +
+'          }\n' +
+'          if (u_Mode == 3.0) {\n' +
+'            if (gl_PointCoord.x < 0.5) {\n' +
+'              alpha = 0.0;\n' +
+'            }\n' +
+'          }\n' +
 '          vec4 circleColor = u_Color;\n' +
 '          if (v_Val < 0.0) { circleColor[0] = 1.0; circleColor[1]=0.0; circleColor[2]=0.0; };\n' +
 '          vec4 outlineColor = vec4(1.0,1.0,1.0,1.0);\n' +
