@@ -85,15 +85,17 @@ CsvDataGrapher.prototype.loadData = function loadData(jsonUrl, callback) {
   });
 };
 
-CsvDataGrapher.prototype.graphDataForLayer = function graphDataForLayer(layer) {
+CsvDataGrapher.prototype.graphDataForLayer = function graphDataForLayer(layerName) {
   var that = this;
-  var layerData = this.dataLayers[layer].data;
-  var layerTitle = this.dataLayers[layer].title;
+  var layer = this.dataLayers[layerName];
 
-  if (!layerData) {
-    console.log("Error. Graphing unavailable for this layer: " + layer + " Check layer name.");
+  if (!layer) {
+    console.log("Error. Graphing unavailable for this layer: " + layerName + " Check layer name.");
     return;
   }
+
+  var layerData = layer.data;
+  var layerTitle = layer.title;
 
   this.chart.options.data = [];
 
