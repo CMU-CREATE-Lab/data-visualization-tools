@@ -356,6 +356,10 @@ fieldset {
 #timeMachine.presentationSliderSelectionOverflow {
   height: calc(100% - 52px) !important;
 }
+
+#timeMachine.layerGraphs {
+  height: calc(100% - 305px) !important;
+}
 #letterbox-bottom {
   position: relative;
   width: 100%;
@@ -818,4 +822,11 @@ a:focus { outline:0; }
 
 .zoomall {
   margin-top: 20px !important;
+}
+
+#csvChartContainer {
+  height: 300px;
+  width: 100%;
+  padding-left: 2px;
+  display: none;
 }

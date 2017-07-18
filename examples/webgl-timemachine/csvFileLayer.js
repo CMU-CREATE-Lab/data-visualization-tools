@@ -85,9 +85,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(nickname, url, name, credit,
       layer.visible = false;
       $("#" + nickname + "-legend").hide();
       setActiveLayersWithTimeline(-1);
-      timelineType = "customUI";
-      requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-
+      doSwitchToLandsat();
     }
   }).prop('checked', layer.visible);
 }
@@ -173,7 +171,7 @@ CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate,
     var endYear = em[1];
     var endMonth = em[2];
     startYear = parseInt(startYear, 10);
-    startMonth = parseInt(startMonth, 10); 
+    startMonth = parseInt(startMonth, 10);
     endYear = parseInt(endYear, 10);
     endMonth = parseInt(endMonth, 10);
 
