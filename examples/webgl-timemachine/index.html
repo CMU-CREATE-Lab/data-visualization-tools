@@ -1789,9 +1789,8 @@
           $("#lodes-legend").show();
         } else {
           showLodesLayer = false;
-          timelineType = "customUI";
           dg["style"]["display"] = "none";
-          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+          doSwitchToLandsat();
           $("#lodes-legend").hide();
         }
       }).prop('checked', showLodesLayer);
@@ -2353,23 +2352,6 @@
           UTIL.addGoogleAnalyticEvent('button', 'click', 'layer=' + $(this).prop("id"));
       });
 
-      var doSwitchToLandsat = function() {
-        // Special case for layers with defaultUI timeline.
-        if (timelineType == "defaultUI" && (showViirsLayer || showMonthlyRefugeesLayer || showCrwTimemachineLayer)) {
-          return false;
-        } else {
-          timelineType = "customUI";
-          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-          timelapse.setMasterPlaybackRate(1);
-          timelapse.setPlaybackRate(defaultPlaybackSpeed);
-          timelapse.setDoDwell(true);
-          WebglVideoTile.useGreenScreen = false;
-          var v = timelapse.getVideoset();
-          v.setFps(10);
-          return true;
-        }
-      }
-
       var timelineUIHandler = function(e) {
         var $layerContainer = $(e.target).parents("table");
         var $layerContainerHeader = $layerContainer.prev();
@@ -2385,7 +2367,7 @@
 
         var isFromUser = true;
 
-        if (showViirsLayer || showDrillingLayer) {
+        if (showViirsLayer || showDrillingLayer || $("#csvlayers_table").find("input:checked").length > 0) {
           timelineType = "defaultUI";
         }
 
