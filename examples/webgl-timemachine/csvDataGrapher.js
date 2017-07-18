@@ -75,7 +75,8 @@ CsvDataGrapher.prototype.loadData = function loadData(jsonUrl, callback) {
   var that = this;
 
   $.ajax({
-    url: jsonUrl
+    url: jsonUrl,
+    dataType: "json"
   }).done(function(data) {
     that.dataLayers = data.layers;
     that.colors = data.colors;
