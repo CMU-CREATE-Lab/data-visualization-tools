@@ -165,7 +165,7 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
       for (var i = 1; i < jsondata.data.length; i++) {
         var country = jsondata.data[i];
         var feature = searchCountryList(COUNTRY_CENTROIDS,country[0]);
-        var centroid;
+        var centroid = ["",""];
         
         if (has_lat_lon && country[1] != '') {
           var latlng = {lat:country[1], lng:country[2]};
@@ -177,58 +177,54 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
         } else {
           centroid = feature['properties']['webmercator'];
         }
-        var idx = [];
-        for (var j = first_data_col; j < country.length; j++) {
-          country[j] = country[j].replace(/,/g , "");
-          if (country[j] != "") {
-            idx.push(j);
+
+	if (centroid[0] != "" && centroid[1] != "") {
+          var idx = [];
+          for (var j = first_data_col; j < country.length; j++) {
+            country[j] = country[j].replace(/,/g , "");
+            if (country[j] != "") {
+              idx.push(j);
+            }
           }
-        }
-        for (var j = 0; j < idx.length - 1; j++) {
-          points.push(centroid[0]);
-          points.push(centroid[1]);
-          var k = idx[j];
-          points.push(epochs[k]);
-          points.push(parseFloat(country[k]));
-          if (parseFloat(country[k]) > maxValue) {
-            maxValue = parseFloat(country[k]);
-          }
-          if (parseFloat(country[k]) < minValue) {
-            minValue = parseFloat(country[k]);
-          }
-          if (idx.length > 1) {
-            var k = idx[j+1];
-            points.push(epochs[k]);
-            points.push(parseFloat(country[k]));              
-          } else {
+          for (var j = 0; j < idx.length - 1; j++) {
+            points.push(centroid[0]);
+            points.push(centroid[1]);
             var k = idx[j];
             points.push(epochs[k]);
-            points.push(parseFloat(country[k]));              
+            points.push(parseFloat(country[k]));
+            if (parseFloat(country[k]) > maxValue) {
+              maxValue = parseFloat(country[k]);
+            }
+            if (parseFloat(country[k]) < minValue) {
+              minValue = parseFloat(country[k]);
+            }
+            if (idx.length > 1) {
+              var k = idx[j+1];
+              points.push(epochs[k]);
+              points.push(parseFloat(country[k]));              
+            } else {
+              var k = idx[j];
+              points.push(epochs[k]);
+              points.push(parseFloat(country[k]));              
+            }
           }
+          if (idx.length > 1) {
+            points.push(centroid[0]);
+            points.push(centroid[1]);
+            var k = idx[j];
+            points.push(epochs[k]);
+            points.push(parseFloat(country[k]));
+            if (parseFloat(country[k]) > maxValue) {
+              maxValue = parseFloat(country[k]);
+            }
+            if (parseFloat(country[k]) < minValue) {
+              minValue = parseFloat(country[k]);
+            }
+            points.push(epochs[k+1]);
+            points.push(parseFloat(country[k]));
+	  }
         }
-        if (idx.length > 1) {
-          points.push(centroid[0]);
-          points.push(centroid[1]);
-          var k = idx[j];
-          points.push(epochs[k]);
-          points.push(parseFloat(country[k]));
-          if (parseFloat(country[k]) > maxValue) {
-            maxValue = parseFloat(country[k]);
-          }
-          if (parseFloat(country[k]) < minValue) {
-            minValue = parseFloat(country[k]);
-          }
-          points.push(epochs[k+1]);
-          points.push(parseFloat(country[k]));
-        }          
       }
-      //console.log(jsondata.data[100]);
-      // data format is
-      // x,y,epoch_0,val_0,epoch_1,val_1
-/*      var radius = d3.scaleSqrt()
-        .domain([minValue, maxValue])
-        .range([0, 1]);      
-*/
       var radius = eval(that.scalingFunction);
       for (var i = 0; i < points.length; i+=6) {
         points[i+3] = radius(points[i+3]);
