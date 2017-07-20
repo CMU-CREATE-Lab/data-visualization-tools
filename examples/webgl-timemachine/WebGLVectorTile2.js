@@ -220,8 +220,11 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
             if (parseFloat(country[k]) < minValue) {
               minValue = parseFloat(country[k]);
             }
-            points.push(epochs[k+1]);
+
+	    var span = epochs[k] - epochs[k-1];
+            points.push(epochs[k] + span);
             points.push(parseFloat(country[k]));
+
 	  }
         }
       }
