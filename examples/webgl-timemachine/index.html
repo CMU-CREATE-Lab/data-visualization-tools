@@ -2268,9 +2268,9 @@
           }
           timelapse.seek(timelapse.getDuration());
         }
-        // 'c' key
+        // 'c' key and share view window not active
         // Quick way to clear all layers
-        if (e.keyCode === 67) {
+        if (e.keyCode === 67 && !$(".shareView").is(":visible")) {
           $(".map-layer-div, .ui-multiselect-checkboxes").find("input:checked").trigger("click");
           var openCategories = $("h3.ui-accordion-header.ui-state-active");
           var availableCategories = $(".map-layer-div").children("h3");
