@@ -360,6 +360,9 @@ fieldset {
 #timeMachine.layerGraphs {
   height: calc(100% - 305px) !important;
 }
+.current-location-text.layerGraphs {
+  bottom: 135px;
+}
 #letterbox-bottom {
   position: relative;
   width: 100%;

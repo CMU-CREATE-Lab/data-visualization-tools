@@ -129,6 +129,7 @@ CsvDataGrapher.prototype.graphDataForLayer = function graphDataForLayer(layerNam
   $("#presentation-slider-selection").hide();
   $(".presentationSlider").hide();
   $("#timeMachine").addClass("layerGraphs");
+  $(".current-location-text").addClass("layerGraphs");
   var snaplapse = timelapse.getSnaplapseForPresentationSlider();
   if (snaplapse) {
     snaplapse.getSnaplapseViewer().showHideSnaplapseContainer(false);
