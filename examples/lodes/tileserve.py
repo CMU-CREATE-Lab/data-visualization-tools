@@ -21,12 +21,12 @@ def log(msg):
     logfile.write('%s %5d %.3fGB: %s\n' % (date, os.getpid(), vmsize_gb(), msg))
     logfile.flush()
 
+# Choose logfile by running uwsgi with --logto PATH
+logfile = sys.stderr
+
 if '__file__' in globals():
-    logfile = open('/var/log/dotmap-tileserver.log', 'a')
     log('Starting, path ' + os.path.abspath(__file__))
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-else:
-    logfile = sys.stderr
 
 def exec_ipynb(filename_or_url):
     nb = (urllib2.urlopen(filename_or_url) if re.match(r'https?:', filename_or_url) else open(filename_or_url)).read()
