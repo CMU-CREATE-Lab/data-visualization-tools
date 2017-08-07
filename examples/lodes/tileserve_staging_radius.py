@@ -4,29 +4,11 @@ import sys, traceback
 
 from urllib2 import parse_http_list as _parse_list_header
 
-import ast, datetime, flask, functools, glob, gzip, json, md5, numpy, os, psycopg2, random, resource, re, struct, sys, tempfile, time, urlparse
-from dateutil import tz
+import ast, flask, functools, gzip, json, numpy, os, psycopg2, random, re, struct, sys, tempfile, time, urlparse
 from flask import after_this_request, request
 from cStringIO import StringIO as IO
 
-def cputime_ms():
-    resources = resource.getrusage(resource.RUSAGE_SELF)
-    return 1000.0 * (resources.ru_utime + resources.ru_stime)
-
-def vmsize_gb():
-    return float([l for l in open('/proc/%d/status' % os.getpid()).readlines() if l.startswith('VmSize:')][0].split()[1])/1e6
-
-def log(msg):
-    date = datetime.datetime.now(tz.tzlocal()).strftime('%Y-%m-%d %H:%M:%S%z')
-    logfile.write('%s %5d %.3fGB: %s\n' % (date, os.getpid(), vmsize_gb(), msg))
-    logfile.flush()
-
-if '__file__' in globals():
-    logfile = open('/var/log/dotmap-tileserver.log', 'a')
-    log('Starting, path ' + os.path.abspath(__file__))
-    os.chdir(os.path.dirname(os.path.abspath(__file__)))
-else:
-    logfile = sys.stderr
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 def exec_ipynb(filename_or_url):
     nb = (urllib2.urlopen(filename_or_url) if re.match(r'https?:', filename_or_url) else open(filename_or_url)).read()
@@ -40,6 +22,7 @@ def exec_ipynb(filename_or_url):
 exec_ipynb('timelapse-utilities.ipynb')
 
 set_default_psql_database('census2010')
+
 
 app = flask.Flask(__name__)
 
@@ -183,7 +166,7 @@ def list_columns(dataset):
     if not os.path.exists(dir):
         msg = 'Dataset named "{dataset}" not found.<br><br><a href="{dataroot}">List valid datasets</a>'.format(dataroot=dataroot(), **locals())
         raise InvalidUsage(msg)
-    return sorted([os.path.basename(c).replace('.numpy', '') for c in glob.glob(dir + '/*.numpy')])
+    return sorted([c.replace('.numpy', '') for c in os.listdir(dir)])
 
 def load_column(dataset, column):
     cache_key = '{dataset}.{column}'.format(**locals())
@@ -277,6 +260,7 @@ def compute_tile_data_python(prototile_path, incount, tile, populations):
     return outcount
 
 compute_tile_data_ext = compile_and_load("""
+#include <math.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -296,6 +280,33 @@ typedef struct {
   float y;
   float color;
 } __attribute__ ((packed)) TileRecord;
+
+// Input is range 0 ... 1 inclusive
+float pack4_c(const float v[4]) {
+  float tmp[4];
+  // Keep only top 7 bits of each component
+  for (unsigned i = 0; i < 4; i++) tmp[i] = floor(127.0 * v[i] + 0.5);
+  // Encode x,y,z in the mantissa, by creating a number 1.0 <= x < 2.0
+  float f = 1.0 + tmp[0]/128.0 + tmp[1]/(128.0*128.0) + tmp[2]/(128.0*128.0*128.0);
+  // Encode w in the exponent, and combine by multiplying
+  return exp2(tmp[3]) * f;
+}
+
+// For some reason, radius <= 126.0/127.0 we think
+float reencode_color_with_radius(float color, float radius) {
+  float v[4];
+  v[3] = radius;
+  // Decode old color encoding which is 0 ... 256^3-1 maps to 0..1 , 0..1, 0..1
+  v[2] = floor(color / 256.0 / 256.0);
+  v[1] = floor((color - v[2] * 256.0 * 256.0) / 256.0);
+  v[0] = floor(color - v[2] * 256.0 * 256.0 - v[1] * 256.0);
+
+  v[0] /= 255.0;
+  v[1] /= 255.0;
+  v[2] /= 255.0;
+
+  return pack4_c(v);
+}
 
 int compute_tile_data(
     const char *prototile_path,
@@ -324,15 +335,23 @@ int compute_tile_data(
     }
 
     unsigned outcount = 0;
+    // Loop over all the records in a prototile
     for (unsigned i = 0; i < incount; i++) {
         PrototileRecord rec = p[i];
         double seq = rec.seq;
         seq += (double)rand() / (double)((unsigned)RAND_MAX + 1);
         seq += 0.5;
+
+        // Compute total population we're trying to show
+        double total_pop = 0.0;
+        for (unsigned c = 0; c < pop_cols; c++) {
+            total_pop += populations[rec.blockIdx * pop_cols + c];
+        }
+
         for (unsigned c = 0; c < pop_cols; c++) {
             if (rec.blockIdx * pop_cols + c >= pop_rows * pop_cols) {
                 fprintf(stdout, 
-                        "yo, rec.blockIdx is %d, pop_rows is %d\\n",
+                        "Error: rec.blockIdx is %d, pop_rows is %d\\n",
                         rec.blockIdx, pop_rows);
                 return -3;
             }
@@ -341,7 +360,8 @@ int compute_tile_data(
                 if (outcount >= incount) return -4;
                 tile_data[outcount].x = rec.x;
                 tile_data[outcount].y = rec.y;
-                tile_data[outcount].color = colors[c];
+                float radius = 5.0;
+                tile_data[outcount].color = reencode_color_with_radius(colors[c], radius / 10.0);
                 outcount++;
                 break;
             }
@@ -382,7 +402,7 @@ def generate_tile_data(layer, z, x, y, use_c=False):
         raise Exception('compute_tile_data returned error %d' % outcount)
 
     duration = int(1000 * (time.time() - start_time))
-    log('{z}/{x}/{y}: {duration}ms to create tile from prototile'.format(**locals()))
+    print '{z}/{x}/{y}: {duration}ms to create tile from prototile'.format(**locals())
 
     return tile[0 : outcount * tile_record_len]
 
@@ -394,12 +414,7 @@ def find_or_generate_layer(layerdef):
         print 'Using cached {layerdef}'.format(**locals())
         return layer_cache[layerdef]
 
-    
-    start_time = time.time()
-    start_cputime_ms = cputime_ms()
-    
-    layerdef_hash = md5.new(layerdef).hexdigest()
-    log('{layerdef_hash}: computing from {layerdef}'.format(**locals()))
+    print 'Computing {layerdef}'.format(**locals())
     colors = []
     populations = []
     for (color, expression) in [x.split(';') for x in layerdef.split(';;')]:
@@ -409,9 +424,6 @@ def find_or_generate_layer(layerdef):
     layer = {'populations':assemble_cols(populations),
              'colors':parse_colors(colors)}
     layer_cache[layerdef] = layer
-    duration = int(1000 * (time.time() - start_time))
-    cpu = cputime_ms() - start_cputime_ms
-    log('{layerdef_hash}: {duration}ms ({cpu}ms CPU) to create'.format(**locals()))
     return layer
 
 @app.route('/tilesv1/<layerdef>/<z>/<x>/<y>.<suffix>')
@@ -464,27 +476,14 @@ def show_datasets():
 def show_dataset_columns_2010():
     return open('show-2010-hierarchy.html').read()
 
-@app.route('/data/census2000_block2010')
-def show_dataset_columns_2000():
-    return open('show-2000-hierarchy.html').read()
-
-@app.route('/data/census1990_block2010')
-def show_dataset_columns_1990():
-    return open('show-1990-hierarchy.html').read()
-
 @app.route('/data/<dataset>')
 def show_dataset_columns(dataset):
-    description = '{cache_dir}/{dataset}/description.html'.format(cache_dir=cache_dir, **locals())
-    html = '<html><head></head><body>'
-    html += '<a href="../data">Back to all datasets</a><br>'
-    if os.path.exists(description):
-        html += open(description).read()
-        html += '</body></html>'
-        return html
     try:
         columns = list_columns(dataset)
         if dataset == 'census2000_block2010':
             columns = [c for c in columns if c == c.upper()]
+        html = '<html><head></head><body>'
+        html += '<a href="../data">Back to all datasets</a><br>'
         html += '<h1>Columns in dataset {dataset}:</h1>\n'.format(**locals())
         for col in columns:
             html += '{col}<br>\n'.format(**locals())

@@ -1,8 +1,19 @@
+test2000cols:
+	./tileserve.py 'http://dotmaptiles.createlab.org:8888/data/census2000_block2010'
+
+test2010cols:
+	./tileserve.py 'http://dotmaptiles.createlab.org:8888/data/census2010_block2010'
+
 
 testlist:
 	./tileserve.py 'http://dotmaptiles.createlab.org:8888/data/xxx'
 	./tileserve.py 'http://dotmaptiles.createlab.org:8888/data/lodes2007'
 	./tileserve.py 'http://dotmaptiles.createlab.org:8888/data'
+
+test1990:
+	./tileserve.py 'http://dotmaptiles.createlab.org:8888/test'
+	./tileserve.py 'http://dotmaptiles.createlab.org:8888/assets/all.json'
+
 
 testcolor400:
 	./tileserve.py 'http://dotmaptiles.createlab.org:8888/tilesv1/%2300ff00;census2010_block2010.p012028%2Bcensus2010_block2010.p012029%2Bcensus2010_block2010.p012030;;%23fff0000;census2010_block2010.p012004%2Bcensus2010_block2010.p012005%2Bcensus2010_block2010.p012006/10/244/390.debug'

@@ -1,3 +1,3 @@
 #!/bin/sh
-uwsgi --ini tileserve-staging.ini --mount /=tileserve:app --processes=10
+uwsgi --ini tileserve-staging.ini --mount /=tileserve_staging:app --processes=10
 
