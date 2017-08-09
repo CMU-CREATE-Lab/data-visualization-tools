@@ -4,9 +4,18 @@ var CsvFileLayer = function CsvFileLayer() {
 }
 
 
-CsvFileLayer.prototype.addLayer = function addLayer(nickname, url, name, credit, scalingFunction, mapType, color) {
+CsvFileLayer.prototype.addLayer = function addLayer(opts) {
   // (someday) Use csv.createlab.org as translation gateway
   // url = 'http://csv.createlab.org/' + url.replace(/^https?:\/\//,'')
+
+  var nickname = opts["nickname"];
+  var url = opts["url"];
+  var name = opts["name"];
+  var credit = opts["credit"];
+  var scalingFunction = opts["scalingFunction"];
+  var mapType = opts["mapType"];
+  var color = opts["color"];
+
   var layerOptions = {
     tileWidth: 256,
     tileHeight: 256,
@@ -114,13 +123,17 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
         optionalColor = JSON.parse(optionalColor);
       }
 
-      this.addLayer(layerIdentifier, // identifier
-        layer["URL"], // url
-        layer["Name"], // name
-        layer["Credits"], // credit
-        scalingFunction,
-        mapType,
-        optionalColor);
+      var opts = {
+        nickname: layerIdentifier, 
+        url: layer["URL"], 
+        name: layer["Name"], 
+        credit: layer["Credits"], 
+        scalingFunction: scalingFunction, 
+        mapType: mapType, 
+        color: optionalColor
+      }
+
+      this.addLayer(opts);
 
       this.setTimeLine(layerIdentifier,
         layer["Start date"], // start date
