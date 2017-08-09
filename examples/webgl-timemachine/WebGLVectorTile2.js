@@ -295,9 +295,12 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
               idx.push(j);
             }
           }
-          for (var j = 0; j < idx.length - 1; j++) {
+          for (var j = 0; j < idx.length; j++) {
             var id_current = idx[j];
             var id_next = idx[j+1];
+            if (j == idx.length - 1) {
+              id_next = id_current;
+            }
 
             var epoch_1 = epochs[id_current];
             var val_1 = parseFloat(country[id_current]);
@@ -308,6 +311,10 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
               minValue = val_1;
             }
             var epoch_2 = epochs[id_next];
+            if (j == idx.length - 1) {
+              epoch_2 = epochs[id_current] + (epochs[id_current] - epochs[id_current - 1]);
+            }
+
             var val_2 = parseFloat(country[id_next]);
             if (val_2 > maxValue) {
               maxValue = val_2;
@@ -315,6 +322,7 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
             if (val_2 < minValue) {
               minValue = val_2;
             }
+
 
             if (feature.geometry.type != "MultiPolygon") {
               var mydata = earcut.flatten(feature.geometry.coordinates);
