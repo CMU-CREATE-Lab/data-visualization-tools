@@ -150,7 +150,9 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
         }
         xhr.send();
       } else {
-        opts["geojsonData"] = COUNTRY_POLYGONS;
+        if (mapType == "choropleth") {
+          opts["geojsonData"] = COUNTRY_POLYGONS;
+        }
         this.addLayer(opts);
         this.setTimeLine(layerIdentifier,
           layer["Start date"], // start date
