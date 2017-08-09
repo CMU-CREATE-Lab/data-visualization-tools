@@ -136,7 +136,6 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
       }
 
       if (typeof layer["External GeoJSON"] != "undefined" && layer["External GeoJSON"].trim() != "") {
-        console.log("External GeoJSON specified");
         var that = this;
         var xhr = new XMLHttpRequest();
         xhr.open('GET', layer["External GeoJSON"]);
@@ -199,7 +198,6 @@ CsvFileLayer.prototype.loadLayers = function loadLayers(path) {
 
 
 CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate, endDate, step) {
-  console.log(identifier + ", " + startDate + ", " + endDate);
   var captureTimes = [];
 
   var yyyymm_re = /(\d{4})(\d{2})$/;
@@ -240,11 +238,7 @@ CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate,
     startDate = parseInt(startDate,10);
     endDate = parseInt(endDate,10);
     step = parseInt(step,10);
-    console.log(startDate);
-    console.log(endDate);
-    console.log(step);
     if (isNaN(startDate) || isNaN(endDate) || isNaN(step) ) {
-      console.log("HEREHERE");
       captureTimes = cached_ajax['landsat-times.json']['capture-times'];
     } else {
       for (var i = startDate; i < endDate + 1; i+=step) {

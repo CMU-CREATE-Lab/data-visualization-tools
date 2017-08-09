@@ -360,7 +360,6 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
 }
 
 WebGLVectorTile2.prototype._setBubbleMapData = function(arrayBuffer) {
-  console.log('_setBubbleMapData');
   var gl = this.gl;
   this._pointCount = arrayBuffer.length / 6;
   if (this._pointCount > 0) {
@@ -396,7 +395,6 @@ WebGLVectorTile2.prototype._setBubbleMapData = function(arrayBuffer) {
 WebGLVectorTile2.prototype._setChoroplethMapData = function(arrayBuffer) {
   var gl = this.gl;
   this._pointCount = arrayBuffer.length / 6;
-  console.log(this._pointCount);
   if (this._pointCount > 0) {
     this._data = arrayBuffer;
     this._arrayBuffer = gl.createBuffer();
