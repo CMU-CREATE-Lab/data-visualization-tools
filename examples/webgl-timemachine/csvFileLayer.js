@@ -34,6 +34,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
     layerOptions.fragmentShader = WebGLVectorTile2.choroplethMapFragmentShader;
     layerOptions.vertexShader = WebGLVectorTile2.choroplethMapVertexShader;
     layerOptions.imageSrc =  "obesity-color-map.png";
+    layerOptions.geojsonData = opts["geojsonData"];
   }
 
   var layer = new WebglVectorLayer2(glb, canvasLayer, url, layerOptions);
@@ -123,6 +124,7 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
         optionalColor = JSON.parse(optionalColor);
       }
 
+
       var opts = {
         nickname: layerIdentifier, 
         url: layer["URL"], 
@@ -133,12 +135,29 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
         color: optionalColor
       }
 
-      this.addLayer(opts);
-
-      this.setTimeLine(layerIdentifier,
-        layer["Start date"], // start date
-        layer["End date"], // end date
-        layer["Step"]); // step size
+      if (typeof layer["External GeoJSON"] != "undefined" && layer["External GeoJSON"].trim() != "") {
+        console.log("External GeoJSON specified");
+        var that = this;
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', layer["External GeoJSON"]);
+        xhr.onload = function() {
+          var geojsonData = JSON.parse(this.responseText);
+          opts["geojsonData"] = geojsonData;
+          that.addLayer(opts);
+          that.setTimeLine(layerIdentifier,
+            layer["Start date"], // start date
+            layer["End date"], // end date
+            layer["Step"]); // step size
+        }
+        xhr.send();
+      } else {
+        opts["geojsonData"] = COUNTRY_POLYGONS;
+        this.addLayer(opts);
+        this.setTimeLine(layerIdentifier,
+          layer["Start date"], // start date
+          layer["End date"], // end date
+          layer["Step"]); // step size
+      }
     }
 
   }
@@ -180,6 +199,7 @@ CsvFileLayer.prototype.loadLayers = function loadLayers(path) {
 
 
 CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate, endDate, step) {
+  console.log(identifier + ", " + startDate + ", " + endDate);
   var captureTimes = [];
 
   var yyyymm_re = /(\d{4})(\d{2})$/;
@@ -194,6 +214,7 @@ CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate,
     startMonth = parseInt(startMonth, 10);
     endYear = parseInt(endYear, 10);
     endMonth = parseInt(endMonth, 10);
+
 
     if (isNaN(startYear) || isNaN(endYear) || isNaN(startMonth) || isNaN(endMonth) ) {
       captureTimes = cached_ajax['landsat-times.json']['capture-times'];
@@ -219,7 +240,11 @@ CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate,
     startDate = parseInt(startDate,10);
     endDate = parseInt(endDate,10);
     step = parseInt(step,10);
+    console.log(startDate);
+    console.log(endDate);
+    console.log(step);
     if (isNaN(startDate) || isNaN(endDate) || isNaN(step) ) {
+      console.log("HEREHERE");
       captureTimes = cached_ajax['landsat-times.json']['capture-times'];
     } else {
       for (var i = startDate; i < endDate + 1; i+=step) {
