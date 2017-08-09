@@ -92,35 +92,42 @@ CsvFileLayer.prototype.addLayer = function addLayer(nickname, url, name, credit,
 
 
 CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefinitions) {
-  var layerdefs = layerDefinitions.split('\n').slice(2); // Remove column headers
-  for (var i = 0; i < layerdefs.length; i++) {
-    var layerdef = layerdefs[i].split('\t');
-    if (layerdef[0] == 'FALSE') continue;
-    var layerIdentifier = layerdef[1].replace(/\W+/g, '_'); // sanitize non-word chars
-    var scalingFunction = layerdef[8].trim();
-    if (scalingFunction == '') {
-      scalingFunction = 'd3.scaleSqrt().domain([minValue, maxValue]).range([0, 100])';
+  var layersData = Papa.parse(layerDefinitions, {delimiter: "\t", header: true});
+
+  for (var i =  0; i < layersData['data'].length; i++) {
+    var layer = layersData['data'][i];
+    if (layer["Enabled"]) {
+      var layerIdentifier = layer["Share link identifier"].replace(/\W+/g, '_');
+
+      var scalingFunction = layer["Scaling"].trim();
+      if (scalingFunction == '') {
+        scalingFunction = 'd3.scaleSqrt().domain([minValue, maxValue]).range([0, 100])';
+      }      
+
+      var mapType = layer["Map Type"].trim();
+      if (mapType != "bubble" && mapType != "choropleth") {
+        mapType = "bubble";
+      }
+
+      var optionalColor = layer["Color"].trim();
+      if (optionalColor) {
+        optionalColor = JSON.parse(optionalColor);
+      }
+
+      this.addLayer(layerIdentifier, // identifier
+        layer["URL"], // url
+        layer["Name"], // name
+        layer["Credits"], // credit
+        scalingFunction,
+        mapType,
+        optionalColor);
+
+      this.setTimeLine(layerIdentifier,
+        layer["Start date"], // start date
+        layer["End date"], // end date
+        layer["Step"]); // step size
     }
-    var mapType = layerdef[9].trim();
-    if (mapType != "bubble" && mapType != "choropleth") {
-      mapType = "bubble";
-    }
 
-    var optionalColor = layerdef[10].trim();
-    if (optionalColor) optionalColor = JSON.parse(optionalColor);
-
-    this.addLayer(layerIdentifier, // identifier
-      layerdef[2], // url
-      layerdef[3], // name
-      layerdef[4], // credit
-      scalingFunction,
-      mapType,
-      optionalColor);
-
-    this.setTimeLine(layerIdentifier,
-      layerdef[5], // start date
-      layerdef[6], // end date
-      layerdef[7]); // step size
   }
 }
 
