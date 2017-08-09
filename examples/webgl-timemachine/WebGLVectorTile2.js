@@ -284,6 +284,9 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
       }
       for (var ii = 1; ii < jsondata.data.length; ii++) {
         var country = jsondata.data[ii];
+        if (that.geojsonData == null) {
+          that.geojsonData = COUNTRY_POLYGONS;
+        }
         var feature = searchCountryList(that.geojsonData,country[0]);
         if (!feature.hasOwnProperty("geometry")) {
           console.log('ERROR: Could not find ' + country[0]);
