@@ -72,6 +72,10 @@ WebglVectorLayer2.prototype.setOptions = function(options) {
     this._scalingFunction = options.scalingFunction;
   }
 
+  if (options.geojsonData != undefined) {
+    this._geojsonData = options.geojsonData;
+  }
+
 }
 
 
@@ -119,6 +123,9 @@ WebglVectorLayer2.prototype._createTile = function(ti, bounds) {
   }
   if (this._scalingFunction) {
     opt_options.scalingFunction = this._scalingFunction;
+  }
+  if (this._geojsonData) {
+    opt_options.geojsonData = this._geojsonData;
   }
   return new WebGLVectorTile2(glb, ti, bounds, url, opt_options);
 }

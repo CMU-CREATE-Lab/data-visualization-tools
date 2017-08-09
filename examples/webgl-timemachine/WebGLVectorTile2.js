@@ -47,6 +47,11 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
   if (opt_options.scalingFunction) {
     this.scalingFunction = opt_options.scalingFunction;
   }
+
+  if (opt_options.geojsonData) {
+    this.geojsonData = opt_options.geojsonData;
+  }
+
 }
 
 WebGLVectorTile2.errorsAlreadyShown = {};
@@ -279,7 +284,7 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
       }
       for (var ii = 1; ii < jsondata.data.length; ii++) {
         var country = jsondata.data[ii];
-        var feature = searchCountryList(COUNTRY_POLYGONS,country[0]);
+        var feature = searchCountryList(that.geojsonData,country[0]);
         if (!feature.hasOwnProperty("geometry")) {
           console.log('ERROR: Could not find ' + country[0]);
         } else {
