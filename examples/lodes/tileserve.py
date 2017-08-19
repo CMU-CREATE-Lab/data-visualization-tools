@@ -327,7 +327,6 @@ int compute_tile_data(
     for (unsigned i = 0; i < incount; i++) {
         PrototileRecord rec = p[i];
         double seq = rec.seq;
-        seq += (double)rand() / (double)((unsigned)RAND_MAX + 1);
         seq += 0.5;
         for (unsigned c = 0; c < pop_cols; c++) {
             if (rec.blockIdx * pop_cols + c >= pop_rows * pop_cols) {
