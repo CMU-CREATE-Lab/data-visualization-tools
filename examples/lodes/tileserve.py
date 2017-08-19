@@ -4,7 +4,9 @@ import sys, traceback
 
 from urllib2 import parse_http_list as _parse_list_header
 
-import ast, datetime, flask, functools, glob, gzip, json, md5, numpy, os, psycopg2, random, resource, re, struct, sys, tempfile, threading, time, urlparse
+import ast, datetime, flask, functools, glob, gzip, hashlib, json, md5, numpy, os, psycopg2, random, resource, re
+import struct, sys, tempfile, threading, time, urlparse
+
 from dateutil import tz
 from flask import after_this_request, request
 from cStringIO import StringIO as IO
@@ -277,12 +279,34 @@ def eval_(node):
         return load_column(node.value.id, node.attr)
     raise InvalidUsage('cannot parse %s' % ast.dump(node))
 
-    
+
+expression_cache = LruDict(50) # 
+
 def eval_layer_column(expr):
-    try:
-        return eval_(ast.parse(expr, mode='eval').body)
-    except SyntaxError,e:
-        raise InvalidUsage('<pre>' + traceback.format_exc(0) + '</pre>')
+    cache_key = hashlib.sha256(expr).hexdigest()
+    if expression_cache.has(cache_key):
+        return expression_cache.get(cache_key)
+
+    cache_filename = 'expression_cache/{cache_key}.float32'.format(**locals())
+    
+    if not os.path.exists(cache_filename):
+        try:
+            data = eval_(ast.parse(expr, mode='eval').body).astype(numpy.float32)
+        except SyntaxError,e:
+            raise InvalidUsage('<pre>' + traceback.format_exc(0) + '</pre>')
+        
+        try:
+            os.mkdir('expression_cache')
+        except:
+            pass
+        
+        tmpfile = cache_filename + '.tmp.%d.%d' % (os.getpid(), threading.current_thread().ident)
+        data.tofile(tmpfile)
+        os.rename(tmpfile, cache_filename)
+    
+    data = map_as_array(cache_filename)
+    expression_cache.insert(cache_key, data)
+    return data    
 
 def assemble_cols(cols):
     return numpy.hstack([c.reshape(len(c), 1) for c in cols]).astype(numpy.float32)
