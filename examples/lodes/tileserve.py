@@ -4,7 +4,7 @@ import sys, traceback
 
 from urllib2 import parse_http_list as _parse_list_header
 
-import ast, datetime, flask, functools, glob, gzip, json, md5, numpy, os, psycopg2, random, resource, re, struct, sys, tempfile, time, urlparse
+import ast, datetime, flask, functools, glob, gzip, json, md5, numpy, os, psycopg2, random, resource, re, struct, sys, tempfile, threading, time, urlparse
 from dateutil import tz
 from flask import after_this_request, request
 from cStringIO import StringIO as IO
@@ -163,8 +163,6 @@ def query_psql(query, quiet=False, database=None):
         sys.stdout.write('Execution of %s\ntook %g seconds and returned %d rows\n' % (query.strip(), elapsed, len(rows)))
     return rows
 
-column_cache = {}
-
 class InvalidUsage(Exception):
     def __init__(self, message):
         self.message = message
@@ -185,23 +183,65 @@ def list_columns(dataset):
         raise InvalidUsage(msg)
     return sorted([os.path.basename(c).replace('.numpy', '') for c in glob.glob(dir + '/*.numpy')])
 
+# Removing the least recent takes O(N) time;  could be make more efficient if needed for larger dicts
+
+class LruDict:
+    def __init__(self, max_entries):
+        self.max_entries = max_entries
+        self.entries = {}
+        self.usecount = 0
+    
+    def has(self, key):
+        return key in self.entries
+    
+    def get(self, key):
+        self.use(key)
+        return self.entries[key]['data']
+    
+    def use(self, key):
+        self.usecount += 1
+        self.entries[key]['lastuse'] = self.usecount
+
+    def insert(self, key, val):
+        self.entries[key] = {'data':val}
+        self.use(key)
+        if len(self.entries) > self.max_entries:
+            lru_key, lru_val = None, None
+            for key, val in self.entries.iteritems():
+                if not lru_val or val['lastuse'] < lru_val['lastuse']:
+                    lru_key, lru_val = key, val
+            if lru_val:
+                del self.entries[lru_key]
+
+column_cache = LruDict(100) # max entries
+
+def map_as_array(path):
+    return numpy.memmap(path, dtype=numpy.float32, mode='r')
+
 def load_column(dataset, column):
     cache_key = '{dataset}.{column}'.format(**locals())
-    if cache_key in column_cache:
-        return column_cache[cache_key]
+    if column_cache.has(cache_key):
+        return column_cache.get(cache_key)
     dir = '{cache_dir}/{dataset}'.format(cache_dir=cache_dir, **locals())
     if not os.path.exists(dir):
         msg = 'Dataset named "{dataset}" not found.<br><br><a href="{dataroot}">List valid datasets</a>'.format(dataroot=dataroot(), **locals())
         raise InvalidUsage(msg)
-    cache_filename = '{dir}/{column}.numpy'.format(**locals())
-    try:
-        data = numpy.load(open(cache_filename))
-    except:
-        msg = 'Column named "{column}" in dataset "{dataset}" not found.<br><br><a href="{dataroot}/{dataset}">List valid columns from {dataset}</a>'.format(dataroot=dataroot(), **locals())
-        raise InvalidUsage(msg)
-        
-    print 'Read {cache_filename}'.format(**locals())
-    column_cache[cache_key] = data
+    cache_filename_prefix = dir + '/' + column
+    cache_filename = cache_filename_prefix + '.float32'
+    if not os.path.exists(cache_filename):
+        if not os.path.exists(cache_filename_prefix + '.numpy'):
+            msg = ('Column named "{column}" in dataset "{dataset}" not found.<br><br>'
+                   '<a href="{dataroot}/{dataset}">List valid columns from {dataset}</a>').format(
+                dataroot=dataroot(), **locals())
+                   
+            raise InvalidUsage(msg)
+        data = numpy.load(open(cache_filename_prefix + '.numpy')).astype(numpy.float32)
+        tmpfile = cache_filename + '.tmp.%d.%d' % (os.getpid(), threading.current_thread().ident)
+        data.tofile(tmpfile)
+        os.rename(tmpfile, cache_filename)
+
+    data = map_as_array(cache_filename)
+    column_cache.insert(cache_key, data)
     return data
 
 binary_operators = {
