@@ -440,14 +440,13 @@ def generate_tile_data(layer, z, x, y, use_c=False):
     return tile[0 : outcount * tile_record_len]
 
 
-layer_cache = {}
+layer_cache = LruDict(50) # max entries
 
 def find_or_generate_layer(layerdef):
-    if layerdef in layer_cache:
+    if layer_cache.has(layerdef):
         print 'Using cached {layerdef}'.format(**locals())
-        return layer_cache[layerdef]
+        return layer_cache.get(layerdef)
 
-    
     start_time = time.time()
     start_cputime_ms = cputime_ms()
     
@@ -461,7 +460,7 @@ def find_or_generate_layer(layerdef):
 
     layer = {'populations':populations,
              'colors':parse_colors(colors)}
-    layer_cache[layerdef] = layer
+    layer_cache.insert(layerdef, layer)
     duration = int(1000 * (time.time() - start_time))
     cpu = cputime_ms() - start_cputime_ms
     log('{layerdef_hash}: {duration}ms ({cpu}ms CPU) to create'.format(**locals()))
