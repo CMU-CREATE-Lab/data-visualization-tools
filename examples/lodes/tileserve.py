@@ -308,8 +308,8 @@ def eval_layer_column(expr):
     expression_cache.insert(cache_key, data)
     return data    
 
-def assemble_cols(cols):
-    return numpy.hstack([c.reshape(len(c), 1) for c in cols]).astype(numpy.float32)
+#def assemble_cols(cols):
+#    return numpy.hstack([c.reshape(len(c), 1) for c in cols]).astype(numpy.float32)
 
 populations = {}
 colors = {}
@@ -366,7 +366,7 @@ int compute_tile_data(
     int incount,
     TileRecord *tile_data,
     int tile_data_length,
-    float *populations,
+    float **populations,
     unsigned int pop_rows,
     unsigned int pop_cols,
     float *colors)
@@ -382,10 +382,6 @@ int compute_tile_data(
     PrototileRecord *p = mmap (0, incount*sizeof(PrototileRecord),
                                PROT_READ, MAP_SHARED, fd, 0);
     if (p == MAP_FAILED) return -2;
-    double sum = 0;
-    for (unsigned i = 0 ; i < pop_rows * pop_cols; i++) {
-        sum += populations[i];
-    }
 
     unsigned outcount = 0;
     for (unsigned i = 0; i < incount; i++) {
@@ -393,13 +389,7 @@ int compute_tile_data(
         double seq = rec.seq;
         seq += 0.5;
         for (unsigned c = 0; c < pop_cols; c++) {
-            if (rec.blockIdx * pop_cols + c >= pop_rows * pop_cols) {
-                fprintf(stdout, 
-                        "yo, rec.blockIdx is %d, pop_rows is %d\\n",
-                        rec.blockIdx, pop_rows);
-                return -3;
-            }
-            seq -= populations[rec.blockIdx * pop_cols + c];
+            seq -= populations[c][rec.blockIdx];
             if (seq < 0) {
                 if (outcount >= incount) return -4;
                 tile_data[outcount].x = rec.x;
@@ -417,7 +407,7 @@ int compute_tile_data(
 """)
 
 def compute_tile_data_c(prototile_path, incount, tile, populations, colors):
-    assert(populations.dtype == numpy.float32)
+    assert(populations[0].dtype == numpy.float32)
     assert(colors.dtype == numpy.float32)
     return compute_tile_data_ext.compute_tile_data(
         prototile_path,
@@ -425,7 +415,7 @@ def compute_tile_data_c(prototile_path, incount, tile, populations, colors):
         to_ctype_reference(tile),
         len(tile),
         to_ctype_reference(populations),
-        populations.shape[0], populations.shape[1],
+        populations[0].size, len(populations),
         to_ctype_reference(colors))
 
 def generate_tile_data(layer, z, x, y, use_c=False):
@@ -469,7 +459,7 @@ def find_or_generate_layer(layerdef):
         colors.append(color)
         populations.append(eval_layer_column(expression))
 
-    layer = {'populations':assemble_cols(populations),
+    layer = {'populations':populations,
              'colors':parse_colors(colors)}
     layer_cache[layerdef] = layer
     duration = int(1000 * (time.time() - start_time))
