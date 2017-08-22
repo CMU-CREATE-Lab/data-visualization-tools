@@ -15,6 +15,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
   var scalingFunction = opts["scalingFunction"];
   var mapType = opts["mapType"];
   var color = opts["color"];
+  var legendContent = opts["legendContent"];
 
   var layerOptions = {
     tileWidth: 256,
@@ -63,7 +64,8 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
   var legend='<tr id="' + nickname + '-legend" style="display: none"><td>';
   legend += '<div style="font-size: 18px">' + name
   if (credit) legend += '<span class="credit">(' + credit + ')</span>';
-  legend += '</div>'
+  legend += '</div>';
+  legend += legendContent;
   legend += '<div style="float: left; padding-right:8px">';
 
   /* TODO -- Add columnDefs
@@ -124,6 +126,10 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
         optionalColor = JSON.parse(optionalColor);
       }
 
+      var legendContent = "";
+      if (typeof layer["Legend Content"] != "undefined") {
+        legendContent = layer["Legend Content"].trim();
+      }
 
       var opts = {
         nickname: layerIdentifier, 
@@ -132,7 +138,8 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
         credit: layer["Credits"], 
         scalingFunction: scalingFunction, 
         mapType: mapType, 
-        color: optionalColor
+        color: optionalColor,
+        legendContent: legendContent
       }
 
       if (typeof layer["External GeoJSON"] != "undefined" && layer["External GeoJSON"].trim() != "") {
