@@ -234,6 +234,8 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
           }
         }
       }
+      that._maxValue = maxValue;
+      that._minValue = minValue;
       var radius = eval(that.scalingFunction);
       for (var i = 0; i < points.length; i+=6) {
         points[i+3] = radius(points[i+3]);
@@ -1523,7 +1525,7 @@ WebGLVectorTile2.prototype._drawBubbleMap = function(transform, options) {
     gl.uniform1f(sliderTime, currentTime);
 
     var sliderTime = gl.getUniformLocation(this.program, 'u_Size');
-    gl.uniform1f(sliderTime, 2.0);
+    gl.uniform1f(sliderTime, 2.0 * window.devicePixelRatio);
 
     var sliderTime = gl.getUniformLocation(this.program, 'u_Mode');
     gl.uniform1f(sliderTime, mode);
