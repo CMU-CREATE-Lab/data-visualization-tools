@@ -131,32 +131,32 @@ WebGLVectorTile2.prototype._loadGeojsonData = function() {
 
 WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
   var proj = new org.gigapan.timelapse.MercatorProjection(
-      -180, 85.05112877980659, 180, -85.05112877980659,
+    -180, 85.05112877980659, 180, -85.05112877980659,
     256, 256);
 
   var that = this;
-  this.xhr = new XMLHttpRequest();
-  this.xhr.open('GET', that._url);
   var data;
+
+  this.xhr = new XMLHttpRequest();
+
+  this.xhr.open('GET', that._url);
+
   this.xhr.onload = function() {
     if (this.status == 404) {
       data = "";
     } else {
       var csvdata = this.responseText;
-      // Assumes data is of the following format
-      // header row Country,      year_0, ..., year_N
-      // data row   country_name, value_0,..., value_N
-      // ...
       var jsondata = Papa.parse(csvdata, {header: false});
       var header = jsondata.data[0];
       var has_lat_lon = (
         header[1].substr(0,3).toLowerCase() == 'lat' &&
-          header[2].substr(0,3).toLowerCase() == 'lon');
+        header[2].substr(0,3).toLowerCase() == 'lon');
       var first_data_col = has_lat_lon ? 3 : 1;
       var epochs = [];
       var points = [];
       var maxValue = 0;
       var minValue = 1e6; //TODO Is this an ok value?
+
       for (var i = first_data_col; i < header.length; i++) {
         var date = header[i];
         var yyyymm_re = /(\d{4})(\d{2})$/;
@@ -167,11 +167,12 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
           epochs[i] = new Date(header[i]).getTime()/1000.;
         }
       }
+
       for (var i = 1; i < jsondata.data.length; i++) {
         var country = jsondata.data[i];
         var feature = searchCountryList(COUNTRY_CENTROIDS,country[0]);
         var centroid = ["",""];
-
+        // Extract centroids
         if (has_lat_lon && country[1] != '') {
           var latlng = {lat:country[1], lng:country[2]};
           var xy = proj.latlngToPoint(latlng);
@@ -182,9 +183,10 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
         } else {
           centroid = feature['properties']['webmercator'];
         }
-
-	if (centroid[0] != "" && centroid[1] != "") {
+        // For all non-empty centroids, build indexes
+        if (centroid[0] != "" && centroid[1] != "") {
           var idx = [];
+          // Get indexes of non-blank values 
           for (var j = first_data_col; j < country.length; j++) {
             country[j] = country[j].replace(/,/g , "");
             if (country[j] != "") {
@@ -226,11 +228,10 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
               minValue = parseFloat(country[k]);
             }
 
-	    var span = epochs[k] - epochs[k-1];
+            var span = epochs[k] - epochs[k-1];
             points.push(epochs[k] + span);
             points.push(parseFloat(country[k]));
-
-	  }
+          }
         }
       }
       var radius = eval(that.scalingFunction);
@@ -241,9 +242,11 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
     }
     that._setData(new Float32Array(points));
   }
+
   this.xhr.onerror = function() {
     that._setData('');
   }
+  
   this.xhr.send();
 }
 
