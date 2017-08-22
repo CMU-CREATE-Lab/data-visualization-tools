@@ -282,8 +282,8 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
       var points = [];
       var maxValue = 0;
       var minValue = 1e6; //TODO Is this an ok value?
-        var verts = [];
-        var rawVerts = [];
+      var verts = [];
+      var rawVerts = [];
       for (var i = 1; i < header.length; i++) {
         epochs[i] = new Date(header[i]).getTime()/1000.;
       }
@@ -352,6 +352,8 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
           }
         }
       }
+      that._maxValue = maxValue;
+      that._minValue = minValue;
       var radius = eval(that.scalingFunction);
       for (var i = 0; i < verts.length; i+=6) {
         verts[i+3] = radius(verts[i+3]);
