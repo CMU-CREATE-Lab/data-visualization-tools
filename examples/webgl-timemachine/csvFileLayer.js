@@ -16,6 +16,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
   var mapType = opts["mapType"];
   var color = opts["color"];
   var legendContent = opts["legendContent"];
+  var externalGeojson = opts["externalGeojson"];
 
   var layerOptions = {
     tileWidth: 256,
@@ -26,7 +27,8 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
     setDataFunction: WebGLVectorTile2.prototype._setBubbleMapData,
     drawFunction: WebGLVectorTile2.prototype._drawBubbleMap,
     fragmentShader: WebGLVectorTile2.bubbleMapFragmentShader,
-    vertexShader: WebGLVectorTile2.bubbleMapVertexShader
+    vertexShader: WebGLVectorTile2.bubbleMapVertexShader,
+    externalGeojson: externalGeojson
   };
   if (mapType == "choropleth") {
     layerOptions.loadDataFunction = WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv;
@@ -35,7 +37,6 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
     layerOptions.fragmentShader = WebGLVectorTile2.choroplethMapFragmentShader;
     layerOptions.vertexShader = WebGLVectorTile2.choroplethMapVertexShader;
     layerOptions.imageSrc =  "obesity-color-map.png";
-    layerOptions.geojsonData = opts["geojsonData"];
   }
 
   var layer = new WebglVectorLayer2(glb, canvasLayer, url, layerOptions);
@@ -131,6 +132,11 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
         legendContent = layer["Legend Content"].trim();
       }
 
+      var externalGeojson = "";
+      if (typeof layer["External GeoJSON"] != "undefined") {
+        externalGeojson = layer["External GeoJSON"].trim()        
+      } 
+
       var opts = {
         nickname: layerIdentifier, 
         url: layer["URL"], 
@@ -139,33 +145,15 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
         scalingFunction: scalingFunction, 
         mapType: mapType, 
         color: optionalColor,
-        legendContent: legendContent
+        legendContent: legendContent,
+        externalGeojson: externalGeojson
       }
 
-      if (typeof layer["External GeoJSON"] != "undefined" && layer["External GeoJSON"].trim() != "") {
-        var that = this;
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', layer["External GeoJSON"]);
-        xhr.onload = function() {
-          var geojsonData = JSON.parse(this.responseText);
-          opts["geojsonData"] = geojsonData;
-          that.addLayer(opts);
-          that.setTimeLine(layerIdentifier,
-            layer["Start date"], // start date
-            layer["End date"], // end date
-            layer["Step"]); // step size
-        }
-        xhr.send();
-      } else {
-        if (mapType == "choropleth") {
-          opts["geojsonData"] = COUNTRY_POLYGONS;
-        }
-        this.addLayer(opts);
-        this.setTimeLine(layerIdentifier,
-          layer["Start date"], // start date
-          layer["End date"], // end date
-          layer["Step"]); // step size
-      }
+      this.addLayer(opts);
+      this.setTimeLine(layerIdentifier,
+        layer["Start date"], // start date
+        layer["End date"], // end date
+        layer["Step"]); // step size
     }
 
   }
