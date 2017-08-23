@@ -28,19 +28,33 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
   this.draw = opt_options.drawFunction || this._drawLines;
   this._fragmentShader = opt_options.fragmentShader || WebGLVectorTile2.vectorTileFragmentShader;
   this._vertexShader = opt_options.vertexShader || WebGLVectorTile2.vectorTileVertexShader;
+  this._externalGeojson = opt_options.externalGeojson;
 
   this.gl.getExtension("OES_standard_derivatives");
 
   this.program = glb.programFromSources(this._vertexShader, this._fragmentShader);
+
 
   if (opt_options.imageSrc) {
     this._image = new Image();
     this._image.src = opt_options.imageSrc;
     var that = this;
     this._image.onload = function() {
-      that._load();
+      if (typeof(that._externalGeojson) != "undefined" && that._externalGeojson != "") {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', that._externalGeojson);
+        xhr.onload = function() {
+          that.geojsonData = JSON.parse(this.responseText);
+          that._load();
+        };
+        xhr.send();
+
+      } else {
+        that.geojsonData = null;
+        that._load();
+      }
     }
-  } else {
+  } else {    
     this._load();
   }
 
@@ -48,9 +62,9 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
     this.scalingFunction = opt_options.scalingFunction;
   }
 
-  if (opt_options.geojsonData) {
-    this.geojsonData = opt_options.geojsonData;
-  }
+//  if (opt_options.geojsonData) {
+//    this.geojsonData = opt_options.geojsonData;
+//  }
 
 }
 
