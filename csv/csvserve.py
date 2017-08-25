@@ -40,5 +40,6 @@ def translate_csv_handler(ignore):
         remote_url += '?' + parsed.query
     html += translate_csv(remote_url)
     html += '</body></html>'
-    return flask.Response(html, mimetype='text/html')
-    
+    response = flask.Response(html, mimetype='text/html')
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response    
