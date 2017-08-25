@@ -2268,7 +2268,7 @@
           }
           timelapse.seek(timelapse.getDuration());
         }
-        // 'c' key and share view window not active
+        // 'c' key and share view dialog is not visible
         // Quick way to clear all layers
         if (e.keyCode === 67 && !$(".shareView").is(":visible")) {
           $(".map-layer-div, .ui-multiselect-checkboxes").find("input:checked").trigger("click");
@@ -2441,6 +2441,7 @@
       try {
         if (document.createEvent("TouchEvent")) {
           verticalTouchScroll(".layers-scroll-vertical");
+          verticalTouchScroll("#csvChartLegend");
         }
       } catch (e) {
         // Error creating touch event
@@ -2762,8 +2763,6 @@
           }
         }
         resize();
-      } else {
-        $("#presentation-slider-selection").hide();
       }
 
       waypointSliderContent = "#presentation=" + snaplapseForPresentationSlider.getAsUrlString(waypointJSON.snaplapse.keyframes);
@@ -3533,7 +3532,7 @@
       if (enableLetterboxMode) {
         $(layer_html).appendTo($("#content"));
         $(legend_html).appendTo($("#content"));
-        $("#presentation-slider-selection, .base-map-radio, .map-layer-checkbox, .extras-selector, .presentationSlider, #layers-legend, .customInstructions, .player, .share").addClass("letterbox");
+        $("#presentation-slider-selection, .base-map-radio, .map-layer-checkbox, .extras-selector, .presentationSlider, #layers-legend, .customInstructions, .player, .share, #presentation-slider-selection").addClass("letterbox");
         $(".base-map-div, .map-layer-div, .extras-selector-div").addClass("top-panel letterbox");
         $(".current-location-text").addClass("letterbox");
         $(".clear-theme").on("click", function() {
@@ -4494,30 +4493,6 @@
           }
           csvlayersPath = csvlayersPath || csvLayersContentPath;
           csvFileLayers.loadLayers(csvlayersPath);
-          // Handle graphing for certain CSV data
-          csvDataGrapher.initialize();
-          csvDataGrapher.loadData("jpmci-data.min.json", function() {
-            $("#csvlayers_table").on("click", "input", function(e) {
-              if ($(this).is(':checked') && $("#csvlayers_table").find("input:checked").length == 1) {
-                var layerName = $($(this).parent()[0]).attr("name");
-                csvDataGrapher.graphDataForLayer(layerName);
-              }
-              var activeCsvLayers = $("#csvlayers_table").find("input:checked");
-              if (activeCsvLayers.length == 0) {
-                $("#csvChartContainer").hide();
-                $("#presentation-slider-selection").show();
-                $(".presentationSlider").show();
-                $("#timeMachine").removeClass("layerGraphs");
-                $(".current-location-text").removeClass("layerGraphs");
-                var snaplapse = timelapse.getSnaplapseForPresentationSlider();
-                if (snaplapse) {
-                  snaplapse.getSnaplapseViewer().showHideSnaplapseContainer(true);
-                }
-                resize();
-              }
-            });
-          });
-
         }
       };
 
@@ -4562,6 +4537,56 @@
         var extraHeight = 20 + (showExtrasMenu * 41);
         $("#layers-list").css("max-height", Math.min(($(".map-layer-div").height() + extraHeight), parseInt($("#layers-list").css('max-height'), 10)) + "px");
       }
+
+      // CSV Data Grapher
+      var showHideCsvGrapher = function(doShow, layerId) {
+        if (layerId) {
+          var layerIdx = $("#show-csv-" + layerId).parents("tr").index();
+          var layerProps = csvFileLayers.layersData.data[layerIdx];
+          if (!layerProps['Show Graph']) return;
+        }
+
+        if (doShow) {
+          $("#csvChartLegend").show();
+          $("#csvChartContainer").show();
+          $("#presentation-slider-selection").hide();
+          $(".presentationSlider").hide();
+          $("#timeMachine").addClass("layerGraphs");
+        } else {
+          $("#csvChartLegend").hide();
+          $("#csvChartContainer").hide();
+          $("#presentation-slider-selection").show();
+          $(".presentationSlider").show();
+          $("#timeMachine").removeClass("layerGraphs");
+        }
+        var snaplapse = timelapse.getSnaplapseForPresentationSlider();
+        if (snaplapse) {
+          snaplapse.getSnaplapseViewer().showHideSnaplapseContainer(!doShow);
+        }
+        resize();
+        csvDataGrapher.chart.render();
+      };
+      csvFileLayers.addDataLoadedListener(function(layerId) {
+        csvDataGrapher.graphDataForLayer(layerId);
+        showHideCsvGrapher(true, layerId);
+      });
+      csvDataGrapher.initialize();
+      $("#csvlayers_table").on("click", "input", function(e) {
+        var activeCsvLayers = $("#csvlayers_table").find("input:checked");
+        var layerIdx = $(e.target).parents("tr").index();
+        var tiles = csvFileLayers.layers[layerIdx]._tileView._tiles;
+        var key = Object.keys(tiles)[0];
+        var dataLoaded = key && tiles[key]._ready;
+        if (activeCsvLayers.length > 0 && dataLoaded) {
+          var layerId = tiles[key].layerId;
+          csvDataGrapher.graphDataForLayer(layerId);
+          showHideCsvGrapher(true, layerId);
+        }
+        if (activeCsvLayers.length == 0) {
+          showHideCsvGrapher(false, layerId);
+          csvDataGrapher.activeLayer = {};
+        }
+      });
 
       $(window).trigger("resize");
       $(window).on('hashchange', hashChange).trigger('hashchange');
@@ -5754,7 +5779,10 @@
       </tr>
     </table>
   </div>
-  <div id="csvChartContainer">
+  <div id="csvChartContainer"></div>
+  <div id="csvChartLegend">
+    <ul id="csvChartLegendList"></ul>
+  </div>
 </body>
 
 </html>

@@ -358,7 +358,7 @@ fieldset {
 }
 
 #timeMachine.layerGraphs {
-  height: calc(100% - 305px) !important;
+  height: calc(100% - 255px) !important;
 }
 .current-location-text.layerGraphs {
   bottom: 135px;
@@ -550,6 +550,10 @@ fieldset {
   height: 36px;
 }
 
+#presentation-slider-selection.letterbox table {
+  height: 62px;
+}
+
 #presentation-slider-selection div {
   color: white;
   white-space:nowrap;
@@ -585,41 +589,41 @@ fieldset {
   margin-top: 0px !important;
 }
 
-.layers-scroll-vertical::-webkit-scrollbar {
+.layers-scroll-vertical::-webkit-scrollbar, #csvChartLegend::-webkit-scrollbar {
   -webkit-appearance: none;
   background: transparent;
   overflow: visible;
   width: 17px;
 }
 
-.layers-scroll-vertical::-webkit-scrollbar:vertical {
+.layers-scroll-vertical::-webkit-scrollbar:vertical, #csvChartLegend::-webkit-scrollbar:vertical {
   border-width: 6px 4px;
   min-height: 40px;
 }
 
-.layers-scroll-vertical::-webkit-scrollbar-thumb {
+.layers-scroll-vertical::-webkit-scrollbar-thumb, #csvChartLegend::-webkit-scrollbar-thumb {
   background-color: rgba(0, 0, 0, 0.2);
   border: solid #fff;
 }
 
-.layers-scroll-vertical::-webkit-scrollbar-thumb:hover {
+.layers-scroll-vertical::-webkit-scrollbar-thumb:hover, #csvChartLegend::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 0, 0, 0.8);
 }
 
-.layers-scroll-vertical::-webkit-scrollbar-track-piece {
-  background-color: #fff;
+.layers-scroll-vertical::-webkit-scrollbar-track-piece, #csvChartLegend::-webkit-scrollbar-track-piece {
+  background-color: #f1f1f1;
 }
 
-.layers-scroll-vertical::-webkit-scrollbar-corner {
+.layers-scroll-vertical::-webkit-scrollbar-corner, #csvChartLegend::-webkit-scrollbar-corner {
   background: transparent;
 }
 
-.layers-scroll-vertical::-webkit-scrollbar-thumb {
+.layers-scroll-vertical::-webkit-scrollbar-thumb, #csvChartLegend::-webkit-scrollbar-thumb {
   background-color: #ADADAD;
   -webkit-box-shadow: inset 1px 1px 0 rgba(0,0,0,0.10),inset 0 -1px 0 rgba(0,0,0,0.07);
 }
 
-.layers-scroll-vertical::-webkit-scrollbar-thumb:hover {
+.layers-scroll-vertical::-webkit-scrollbar-thumb:hover, #csvChartLegend::-webkit-scrollbar-thumb:hover {
   background-color: #999;
 }
 
@@ -828,8 +832,47 @@ a:focus { outline:0; }
 }
 
 #csvChartContainer {
-  height: 300px;
+  height: 250px;
   width: 100%;
-  padding-left: 2px;
   display: none;
+}
+
+#csvChartLegend {
+  width: 140px;
+  height: 250px;
+  position: absolute;
+  bottom: 0px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  font-size: 14px;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  display: none;
+}
+
+#csvChartLegendList {
+  line-height: 18px;
+  margin-left: -11px;
+}
+
+#csvChartLegendList li {
+  font-size: 34px;
+  left: 7px;
+  position: relative;
+}
+
+#csvChartLegendList li span{
+  color: #8e8e8e;
+  font-size: 14px;
+  left: -10px;
+  position: relative;
+  top: -5px;
+}
+
+.chartEntrySelected span {
+  color: black !important;
 }

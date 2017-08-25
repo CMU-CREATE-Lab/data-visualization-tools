@@ -287,7 +287,7 @@ WebglMapTile.animatedTextureFragmentShader =
   '  vec4 textureColor = texture2D(u_sampler, vec2(vTextureCoord.s, vTextureCoord.t));\n' +
   '  if (textureColor.r == 0. && textureColor.g == 0. && textureColor.b == 0.) {\n' +
   '    gl_FragColor = vec4(1.0, 0., 0.,.0);\n' +
-  '  }\n' +   
+  '  }\n' +
   '  else if (textureColor.b >= u_b) { \n' +
   '    gl_FragColor = vec4(textureColor.rgb, 1.);\n' +
   '  } else {\n' +

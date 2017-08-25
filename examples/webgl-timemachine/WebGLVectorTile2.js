@@ -25,6 +25,7 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
   var opt_options = opt_options || {};
   this._setData = opt_options.setDataFunction || this._setCoralReefData;
   this._load = opt_options.loadDataFunction || this._loadData;
+  this._dataLoaded = opt_options.dataLoadedFunction || this._defaultDataLoaded;
   this.draw = opt_options.drawFunction || this._drawLines;
   this._fragmentShader = opt_options.fragmentShader || WebGLVectorTile2.vectorTileFragmentShader;
   this._vertexShader = opt_options.vertexShader || WebGLVectorTile2.vectorTileVertexShader;
@@ -54,7 +55,7 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
         that._load();
       }
     }
-  } else {    
+  } else {
     this._load();
   }
 
@@ -66,6 +67,9 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
 //    this.geojsonData = opt_options.geojsonData;
 //  }
 
+  if (opt_options.layerId) {
+    this.layerId = opt_options.layerId;
+  }
 }
 
 WebGLVectorTile2.errorsAlreadyShown = {};
@@ -95,6 +99,10 @@ WebGLVectorTile2.prototype._showErrorOnce = function(msg) {
       open: function() { $(this).find(':link').blur(); }
     });
   }
+}
+
+WebGLVectorTile2.prototype._defaultDataLoaded = function() {
+  // Default tile loaded function
 }
 
 WebGLVectorTile2.prototype._loadData = function() {
@@ -160,8 +168,8 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
       data = "";
     } else {
       var csvdata = this.responseText;
-      var jsondata = Papa.parse(csvdata, {header: false});
-      var header = jsondata.data[0];
+      that.jsondata = Papa.parse(csvdata, {header: false});
+      var header = that.jsondata.data[0];
       var has_lat_lon = (
         header[1].substr(0,3).toLowerCase() == 'lat' &&
         header[2].substr(0,3).toLowerCase() == 'lon');
@@ -182,8 +190,8 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
         }
       }
 
-      for (var i = 1; i < jsondata.data.length; i++) {
-        var country = jsondata.data[i];
+      for (var i = 1; i < that.jsondata.data.length; i++) {
+        var country = that.jsondata.data[i];
         var feature = searchCountryList(COUNTRY_CENTROIDS,country[0]);
         var centroid = ["",""];
         // Extract centroids
@@ -200,7 +208,7 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
         // For all non-empty centroids, build indexes
         if (centroid[0] != "" && centroid[1] != "") {
           var idx = [];
-          // Get indexes of non-blank values 
+          // Get indexes of non-blank values
           for (var j = first_data_col; j < country.length; j++) {
             country[j] = country[j].replace(/,/g , "");
             if (country[j] != "") {
@@ -257,12 +265,13 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
       }
     }
     that._setData(new Float32Array(points));
+    that._dataLoaded(that.layerId);
   }
 
   this.xhr.onerror = function() {
     that._setData('');
   }
-  
+
   this.xhr.send();
 }
 
@@ -290,8 +299,8 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
       // header row Country,      year_0, ..., year_N
       // data row   country_name, value_0,..., value_N
       // ...
-      var jsondata = Papa.parse(csvdata, {header: false});
-      var header = jsondata.data[0];
+      that.jsondata = Papa.parse(csvdata, {header: false});
+      var header = that.jsondata.data[0];
       var epochs = [];
       var points = [];
       var maxValue = 0;
@@ -301,8 +310,8 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
       for (var i = 1; i < header.length; i++) {
         epochs[i] = new Date(header[i]).getTime()/1000.;
       }
-      for (var ii = 1; ii < jsondata.data.length; ii++) {
-        var country = jsondata.data[ii];
+      for (var ii = 1; ii < that.jsondata.data.length; ii++) {
+        var country = that.jsondata.data[ii];
         if (that.geojsonData == null) {
           that.geojsonData = COUNTRY_POLYGONS;
         }
@@ -3198,4 +3207,3 @@ WebGLVectorTile2.choroplethMapFragmentShader =
 '        gl_FragColor = vec4(color.r, color.g, color.b, 1.);\n' +
 '        //gl_FragColor = vec4(1.0, 0.0, 0.0, 1.);\n' +
 '      }\n';
-

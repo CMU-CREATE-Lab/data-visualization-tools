@@ -52,6 +52,10 @@ WebglVectorLayer2.prototype.setOptions = function(options) {
     this._loadDataFunction = options.loadDataFunction;
   }
 
+  if (options.dataLoadedFunction != undefined) {
+    this._dataLoadedFunction = options.dataLoadedFunction;
+  }
+
   if (options.drawFunction != undefined) {
     this._drawFunction = options.drawFunction;
   }
@@ -74,6 +78,10 @@ WebglVectorLayer2.prototype.setOptions = function(options) {
 
   if (options.externalGeojson != undefined) {
     this._externalGeojson = options.externalGeojson;
+  }
+
+  if (options.layerId != undefined) {
+    this._layerId = options.layerId;
   }
 
 }
@@ -109,6 +117,9 @@ WebglVectorLayer2.prototype._createTile = function(ti, bounds) {
   if (this._loadDataFunction) {
     opt_options.loadDataFunction = this._loadDataFunction;
   }
+  if (this._dataLoadedFunction) {
+    opt_options.dataLoadedFunction = this._dataLoadedFunction;
+  }
   if (this._drawFunction) {
     opt_options.drawFunction = this._drawFunction;
   }
@@ -126,6 +137,9 @@ WebglVectorLayer2.prototype._createTile = function(ti, bounds) {
   }
   if (this._externalGeojson) {
     opt_options.externalGeojson = this._externalGeojson;
+  }
+  if (this._layerId) {
+    opt_options.layerId = this._layerId;
   }
   return new WebGLVectorTile2(glb, ti, bounds, url, opt_options);
 }

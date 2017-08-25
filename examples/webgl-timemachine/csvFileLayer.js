@@ -1,6 +1,7 @@
 var CsvFileLayer = function CsvFileLayer() {
   this.layers = [];
-  this.layerAleadyLoaded;
+  this.dataLoadedListeners = [];
+  this.layersData = {};
 }
 
 
@@ -23,7 +24,9 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
     tileHeight: 256,
     nLevels: 0,
     scalingFunction: scalingFunction,
+    layerId: nickname,
     loadDataFunction: WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv,
+    dataLoadedFunction: this.dataLoadedFromCsv.bind(this),
     setDataFunction: WebGLVectorTile2.prototype._setBubbleMapData,
     drawFunction: WebGLVectorTile2.prototype._drawBubbleMap,
     fragmentShader: WebGLVectorTile2.bubbleMapFragmentShader,
@@ -104,18 +107,44 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
 }
 
 
-CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefinitions) {
-  var layersData = Papa.parse(layerDefinitions, {delimiter: "\t", header: true});
+CsvFileLayer.prototype.addDataLoadedListener = function addDataLoadedListener(listener) {
+  if (typeof(listener) === "function") {
+    this.dataLoadedListeners.push(listener);
+  }
+};
 
-  for (var i =  0; i < layersData['data'].length; i++) {
-    var layer = layersData['data'][i];
+
+CsvFileLayer.prototype.removeDataLoadedListener = function removeDataLoadedListener(listener) {
+  for (var i = 0; i < this.dataLoadedListeners.length; i++) {
+    if (this.dataLoadedListeners[i] == listener) {
+      this.dataLoadedListeners.splice(i, 1);
+      break;
+    }
+  }
+};
+
+
+CsvFileLayer.prototype.dataLoadedFromCsv = function dataLoadedFromCsv(layerId) {
+  for (var i = 0; i < this.dataLoadedListeners.length; i++) {
+    this.dataLoadedListeners[i](layerId);
+  }
+};
+
+
+CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefinitions) {
+  var that = this;
+
+  that.layersData = Papa.parse(layerDefinitions, {delimiter: "\t", header: true});
+
+  for (var i =  0; i < that.layersData['data'].length; i++) {
+    var layer = that.layersData['data'][i];
     if (layer["Enabled"]) {
       var layerIdentifier = layer["Share link identifier"].replace(/\W+/g, '_');
 
       var scalingFunction = layer["Scaling"].trim();
       if (scalingFunction == '') {
         scalingFunction = 'd3.scaleSqrt().domain([minValue, maxValue]).range([0, 100])';
-      }      
+      }
 
       var mapType = layer["Map Type"].trim();
       if (mapType != "bubble" && mapType != "choropleth") {
@@ -134,16 +163,16 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
 
       var externalGeojson = "";
       if (typeof layer["External GeoJSON"] != "undefined") {
-        externalGeojson = layer["External GeoJSON"].trim()        
-      } 
+        externalGeojson = layer["External GeoJSON"].trim()
+      }
 
       var opts = {
-        nickname: layerIdentifier, 
-        url: layer["URL"], 
-        name: layer["Name"], 
-        credit: layer["Credits"], 
-        scalingFunction: scalingFunction, 
-        mapType: mapType, 
+        nickname: layerIdentifier,
+        url: layer["URL"],
+        name: layer["Name"],
+        credit: layer["Credits"],
+        scalingFunction: scalingFunction,
+        mapType: mapType,
         color: optionalColor,
         legendContent: legendContent,
         externalGeojson: externalGeojson
@@ -157,7 +186,7 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
     }
 
   }
-}
+};
 
 CsvFileLayer.prototype.loadLayers = function loadLayers(path) {
   if (path == csvlayersLoadedPath) return;
@@ -169,6 +198,7 @@ CsvFileLayer.prototype.loadLayers = function loadLayers(path) {
   // Clear out any csv layers that have already been loaded
   $("#csvlayers_table").find("input:checked").trigger("click");
   $('#csvlayers_table').empty();
+  that.layers = [];
 
   if (path.indexOf(".tsv") != -1) {
     // Load local version of the csv .tsv file
@@ -185,13 +215,13 @@ CsvFileLayer.prototype.loadLayers = function loadLayers(path) {
     var tabId = path.split('.')[1];
     url = 'https://docs.google.com/spreadsheets/d/' + docId + '/edit';
     if (tabId) {
-        url += '#gid=' + tabId;
+      url += '#gid=' + tabId;
     }
   }
   org.gigapan.Util.gdocToJSON(url, function(tsvdata) {
     that.loadLayersFromTsv(tsvdata);
   });
-}
+};
 
 
 CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate, endDate, step) {
@@ -246,7 +276,8 @@ CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate,
 
   }
   cached_ajax[identifier + '.json'] = {"capture-times":  captureTimes};
-}
+};
+
 
 var COUNTRY_CENTROIDS = null;
 var xhr = new XMLHttpRequest();
@@ -266,7 +297,6 @@ xhr.onload = function() {
 xhr.send();
 
 
-
 function searchCountryList(feature_collection, name) {
   for (var i = 0; i < feature_collection['features'].length; i++) {
     var feature = feature_collection['features'][i];
@@ -279,5 +309,4 @@ function searchCountryList(feature_collection, name) {
     }
   }
   return {};
-}
-
+};
