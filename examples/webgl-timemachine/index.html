@@ -2640,23 +2640,29 @@
     }
 
     function loadDotmapLayersFromTsv(tsvLayerDefinitions) {
-      var layerdefs = tsvLayerDefinitions.split('\n').slice(2);
+      if (tsvLayerDefinitions.startsWith('Dotmap layer info')) {
+        // Backwards-compatibility;  paste new header
+        var header = 'Enabled\tShare link identifier\tName\tCredits\tPopName1\tColor1\tDefinition1\tPopName2\tColor2\tDefinition2\tPopName3\tColor3\tDefinition3\tPopName4\tColor4\tDefinition4\tPopName5\tColor5\tDefinition5\tPopName6\tColor6\tDefinition6\tPopName7\tColor7\tDefinition7\tPopName8\tColor8\tDefinition8\tPopName9\tColor9\tDefinition9';
+        tsvLayerDefinitions = [header].concat(tsvLayerDefinitions.split('\n').slice(2)).join('\n');
+      }
+      var parsed = Papa.parse(tsvLayerDefinitions, {delimiter: '\t', header: true});
+      var layerdefs = parsed['data'];
       for (var i = 0; i < layerdefs.length; i++) {
-        var layerdef = layerdefs[i].split('\t');
-        if (layerdef[0] == 'FALSE') continue;
-        var layerIdentifier = layerdef[1].replace(/\W+/g, '_'); // sanitize non-word chars
-
+        var layerdef = layerdefs[i];
+        if (layerdef['Enabled'].toLowerCase() == 'false') continue;
+        var layerIdentifier = layerdef['Share link identifier'].replace(/\W+/g, '_'); // sanitize non-word chars
+        
         var columnDefs = [];
-        for (var c = 0; 1; c++) {
-          var name = layerdef[c * 3 + 4];
+        for (var c = 1; 1; c++) {
+          var name = layerdef['PopName' + c];
           if (!name) break;
-          var color = layerdef[c * 3 + 5];
-          var expression = layerdef[c * 3 + 6];
+          var color = layerdef['Color' + c];
+          var expression = layerdef['Definition' + c];
           columnDefs.push({name: name, color: color, expression: expression});
         }
         addDotmapLayer(layerIdentifier, // identifier
-                       layerdef[2], // name
-                       layerdef[3], // credit
+                       layerdef['Name'], // name
+                       layerdef['Credits'], // credit
                        columnDefs);
       }
     }
