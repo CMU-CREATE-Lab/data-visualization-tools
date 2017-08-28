@@ -288,15 +288,15 @@ CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate,
 };
 
 var BUBBLE_MAP_LEGEND_TMPL = 
-  '<svg class="svg-legend" width="200" height="200">\n' +
-  '<circle class="gain" r="10" cx="15" cy="10" style="fill: green; stroke: #fff;"></circle> \n' +
-  '<text x="30" y="15">Total population</text> \n' +
-  '<circle r="25.0" cx="120.0" cy="135.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle>\n' +
-  '<circle r="40.0" cx="120.0" cy="120.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle>\n' +
-  '<circle r="50.0" cx="120.0" cy="110.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle>\n' +
-  '<text text-anchor="middle" x="120.0" y="125.0" dy="13" style="font-size: 12px; fill: #666">153M</text>\n' +
-  '<text text-anchor="middle" x="120.0" y="90.0" dy="13" style="font-size: 12px; fill: #666">611M</text>\n' +
-  '<text text-anchor="middle" x="120.0" y="65.0" dy="13" style="font-size: 12px; fill: #666">1.3B</text>\n' +
+  '<svg class="svg-legend" width="200" height="180">\n' +
+  '<!--<circle class="gain" r="10" cx="15" cy="10" style="fill: green; stroke: #fff;"></circle> \n' +
+  '<text x="30" y="15">Total population</text>--> \n' +
+  '<circle r="25.0" cx="120.0" cy="115.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle>\n' +
+  '<circle r="40.0" cx="120.0" cy="100.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle>\n' +
+  '<circle r="50.0" cx="120.0" cy="90.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle>\n' +
+  '<text text-anchor="middle" x="120.0" y="105.0" dy="13" style="font-size: 12px; fill: #666">153M</text>\n' +
+  '<text text-anchor="middle" x="120.0" y="70.0" dy="13" style="font-size: 12px; fill: #666">611M</text>\n' +
+  '<text text-anchor="middle" x="120.0" y="45.0" dy="13" style="font-size: 12px; fill: #666">1.3B</text>\n' +
   '</svg>\n';
 
 var CHOROPLETH_LEGEND_TMPL = 
