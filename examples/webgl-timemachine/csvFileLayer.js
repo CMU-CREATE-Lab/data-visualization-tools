@@ -288,7 +288,7 @@ CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate,
 };
 
 var BUBBLE_MAP_LEGEND_TMPL = 
-  '<svg class="svg-legend" width="240" height="240">\n' +
+  '<svg class="svg-legend" width="200" height="200">\n' +
   '<circle class="gain" r="10" cx="15" cy="10" style="fill: green; stroke: #fff;"></circle> \n' +
   '<text x="30" y="15">Total population</text> \n' +
   '<circle r="25.0" cx="120.0" cy="135.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle>\n' +
@@ -298,9 +298,23 @@ var BUBBLE_MAP_LEGEND_TMPL =
   '<text text-anchor="middle" x="120.0" y="90.0" dy="13" style="font-size: 12px; fill: #666">611M</text>\n' +
   '<text text-anchor="middle" x="120.0" y="65.0" dy="13" style="font-size: 12px; fill: #666">1.3B</text>\n' +
   '</svg>\n';
-;
 
-var CHOROPLETH_LEGEND_TMPL = '';
+var CHOROPLETH_LEGEND_TMPL = 
+  '<svg class="svg-legend" width="240" height="40">\n' +
+  '<text x="30" y="12">Total capacity in GWh</text>\n' +
+  '<rect fill="#ffffff" x="0"   y="15" height="10" width="25"></rect>\n' +
+  '<rect fill="#fff18e" x="25"  y="15" height="10" width="25"></rect>\n' +
+  '<rect fill="#ffdc5b" x="50"  y="15" height="10" width="25"></rect>\n' +
+  '<rect fill="#ffc539" x="75"  y="15" height="10" width="25"></rect>\n' +
+  '<rect fill="#ffad21" x="100"  y="15" height="10" width="25"></rect>\n' +
+  '<rect fill="#ff920c" x="125" y="15" height="10" width="25"></rect>\n' +
+  '<rect fill="#ff7500" x="150" y="15" height="10" width="25"></rect>\n' +
+  '<rect fill="#ff5000" x="175" y="15" height="10" width="25"></rect>\n' +
+  '<rect fill="#ff0000" x="200" y="15" height="10" width="25"></rect>\n' +
+  '<text font-size="11px" fill="rgba(0, 0, 0, 1.0)" y="35" x="12">0</text>\n' +
+  '<text font-size="11px" fill="rgba(0, 0, 0, 1.0)" y="35" x="103">38K</text>\n' +
+  '<text font-size="11px" fill="rgba(0, 0, 0, 1.0)" y="35" x="203">77K</text>\n' +
+  '</svg>\n';
 
 var COUNTRY_CENTROIDS = null;
 var xhr = new XMLHttpRequest();
