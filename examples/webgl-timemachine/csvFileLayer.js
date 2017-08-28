@@ -159,7 +159,16 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
       var legendContent = "";
       if (typeof layer["Legend Content"] != "undefined") {
         legendContent = layer["Legend Content"].trim();
+        if (legendContent == "auto") {
+          if (mapType == "bubble") {
+            legendContent = BUBBLE_MAP_LEGEND_TMPL;
+          } else {
+            legendContent = CHOROPLETH_LEGEND_TMPL;
+          }
+        }
       }
+
+
 
       var externalGeojson = "";
       if (typeof layer["External GeoJSON"] != "undefined") {
@@ -278,6 +287,20 @@ CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate,
   cached_ajax[identifier + '.json'] = {"capture-times":  captureTimes};
 };
 
+var BUBBLE_MAP_LEGEND_TMPL = 
+  '<svg class="svg-legend" width="240" height="240">\n' +
+  '<circle class="gain" r="10" cx="15" cy="10" style="fill: green; stroke: #fff;"></circle> \n' +
+  '<text x="30" y="15">Total population</text> \n' +
+  '<circle r="25.0" cx="120.0" cy="135.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle>\n' +
+  '<circle r="40.0" cx="120.0" cy="120.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle>\n' +
+  '<circle r="50.0" cx="120.0" cy="110.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle>\n' +
+  '<text text-anchor="middle" x="120.0" y="125.0" dy="13" style="font-size: 12px; fill: #666">153M</text>\n' +
+  '<text text-anchor="middle" x="120.0" y="90.0" dy="13" style="font-size: 12px; fill: #666">611M</text>\n' +
+  '<text text-anchor="middle" x="120.0" y="65.0" dy="13" style="font-size: 12px; fill: #666">1.3B</text>\n' +
+  '</svg>\n';
+;
+
+var CHOROPLETH_LEGEND_TMPL = '';
 
 var COUNTRY_CENTROIDS = null;
 var xhr = new XMLHttpRequest();
