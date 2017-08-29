@@ -259,6 +259,7 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
       that._maxValue = maxValue;
       that._minValue = minValue;
       var radius = eval(that.scalingFunction);
+      that._radius = radius;
       for (var i = 0; i < points.length; i+=6) {
         points[i+3] = radius(points[i+3]);
         points[i+5] = radius(points[i+5]);
