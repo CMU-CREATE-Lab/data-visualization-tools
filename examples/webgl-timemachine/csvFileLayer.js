@@ -165,12 +165,10 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
           if (mapType == "bubble") {
             legendContent = BUBBLE_MAP_LEGEND_TMPL.replace(/TMPL_ID/,layerIdentifier + '-svg' );
           } else {
-            legendContent = CHOROPLETH_LEGEND_TMPL;
+            legendContent = CHOROPLETH_LEGEND_TMPL.replace(/TMPL_ID/,layerIdentifier + '-svg' );
           }
         }
       }
-
-
 
       var externalGeojson = "";
       if (typeof layer["External GeoJSON"] != "undefined") {
@@ -315,6 +313,31 @@ CsvFileLayer.prototype.updateCsvFileLayerLegend = function updateCsvFileLayerLeg
           }          
         }
       }
+
+      if (this.layers[i]['opts']['mapType'] == 'choropleth' && this.layers[i]['opts']['legendContent'] != '') {
+        var radius = this.layers[i]['_tileView']['_tiles']['000000000000000']['_radius'];
+        var values = {
+          'MIN_CLT': radius.invert(0),
+          'MID_CLT': radius.invert(0.5),
+          'MAX_CLT': radius.invert(1)
+        }
+        var el = document.getElementById(layerId + '-svg');
+        if (el) {
+          for (var j = 0; j < el.children.length;j++) {
+            var child = el.children[j];
+            if (child.innerHTML == "MIN_CLT") {
+              child.innerHTML = child.innerHTML.replace(/MIN_CLT/,values['MIN_CLT']);          
+            }
+            if (child.innerHTML == "MID_CLT") {
+              child.innerHTML = child.innerHTML.replace(/MID_CLT/,values['MID_CLT']);          
+            }
+            if (child.innerHTML == "MAX_CLT") {
+              child.innerHTML = child.innerHTML.replace(/MAX_CLT/,values['MAX_CLT']);          
+            }
+          }          
+        }
+      }
+
       break;
     }
 
@@ -334,8 +357,8 @@ var BUBBLE_MAP_LEGEND_TMPL =
   '</svg>\n';
 
 var CHOROPLETH_LEGEND_TMPL = 
-  '<svg class="svg-legend" width="240" height="40">\n' +
-  '<text x="30" y="12">Total capacity in GWh</text>\n' +
+  '<svg id="TMPL_ID" class="svg-legend" width="240" height="40">\n' +
+  '<!--<text x="30" y="12">Total capacity in GWh</text>-->\n' +
   '<rect fill="#ffffff" x="0"   y="15" height="10" width="25"></rect>\n' +
   '<rect fill="#fff18e" x="25"  y="15" height="10" width="25"></rect>\n' +
   '<rect fill="#ffdc5b" x="50"  y="15" height="10" width="25"></rect>\n' +
@@ -345,9 +368,9 @@ var CHOROPLETH_LEGEND_TMPL =
   '<rect fill="#ff7500" x="150" y="15" height="10" width="25"></rect>\n' +
   '<rect fill="#ff5000" x="175" y="15" height="10" width="25"></rect>\n' +
   '<rect fill="#ff0000" x="200" y="15" height="10" width="25"></rect>\n' +
-  '<text font-size="11px" fill="rgba(0, 0, 0, 1.0)" y="35" x="12">0</text>\n' +
-  '<text font-size="11px" fill="rgba(0, 0, 0, 1.0)" y="35" x="103">38K</text>\n' +
-  '<text font-size="11px" fill="rgba(0, 0, 0, 1.0)" y="35" x="203">77K</text>\n' +
+  '<text font-size="11px" fill="rgba(0, 0, 0, 1.0)" y="35" x="12">MIN_CLT</text>\n' +
+  '<text font-size="11px" fill="rgba(0, 0, 0, 1.0)" y="35" x="103">MID_CLT</text>\n' +
+  '<text font-size="11px" fill="rgba(0, 0, 0, 1.0)" y="35" x="203">MAX_CLT</text>\n' +
   '</svg>\n';
 
 var COUNTRY_CENTROIDS = null;
