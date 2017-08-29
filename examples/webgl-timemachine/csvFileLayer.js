@@ -163,7 +163,7 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
         legendContent = layer["Legend Content"].trim();
         if (legendContent == "auto") {
           if (mapType == "bubble") {
-            legendContent = BUBBLE_MAP_LEGEND_TMPL;
+            legendContent = BUBBLE_MAP_LEGEND_TMPL.replace(/TMPL_ID/,layerIdentifier + '-svg' );
           } else {
             legendContent = CHOROPLETH_LEGEND_TMPL;
           }
@@ -299,11 +299,19 @@ CsvFileLayer.prototype.updateCsvFileLayerLegend = function updateCsvFileLayerLeg
           '80PX_BMLT': radius.invert(80),
           '100PX_BMLT': radius.invert(100)
         }
-        var legendContent = this.layers[i]['opts']['legendContent'].replace(/50PX_BMLT/,values['50PX_BMLT']);
-        legendContent = legendContent.replace(/80PX_BMLT/,values['80PX_BMLT']);
-        legendContent = legendContent.replace(/100PX_BMLT/,values['100PX_BMLT']);
-
-        
+        var el = document.getElementById(layerId + '-svg');
+        for (var j = 0; j < el.children.length;j++) {
+          var child = el.children[j];
+          if (child.innerHTML == "50PX_BMLT") {
+            child.innerHTML = child.innerHTML.replace(/50PX_BMLT/,values['50PX_BMLT']);          
+          }
+          if (child.innerHTML == "80PX_BMLT") {
+            child.innerHTML = child.innerHTML.replace(/80PX_BMLT/,values['80PX_BMLT']);          
+          }
+          if (child.innerHTML == "100PX_BMLT") {
+            child.innerHTML = child.innerHTML.replace(/100PX_BMLT/,values['100PX_BMLT']);          
+          }
+        }
       }
       break;
     }
@@ -312,7 +320,7 @@ CsvFileLayer.prototype.updateCsvFileLayerLegend = function updateCsvFileLayerLeg
 };
 
 var BUBBLE_MAP_LEGEND_TMPL = 
-  '<svg class="svg-legend" width="200" height="180">\n' +
+  '<svg id="TMPL_ID" class="svg-legend" width="200" height="180">\n' +
   '<!--<circle class="gain" r="10" cx="15" cy="10" style="fill: green; stroke: #fff;"></circle> \n' +
   '<text x="30" y="15">Total population</text>--> \n' +
   '<circle r="25.0" cx="120.0" cy="115.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle>\n' +
