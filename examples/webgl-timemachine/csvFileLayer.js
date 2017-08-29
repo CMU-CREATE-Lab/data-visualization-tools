@@ -300,17 +300,19 @@ CsvFileLayer.prototype.updateCsvFileLayerLegend = function updateCsvFileLayerLeg
           '100PX_BMLT': radius.invert(100)
         }
         var el = document.getElementById(layerId + '-svg');
-        for (var j = 0; j < el.children.length;j++) {
-          var child = el.children[j];
-          if (child.innerHTML == "50PX_BMLT") {
-            child.innerHTML = child.innerHTML.replace(/50PX_BMLT/,values['50PX_BMLT']);          
-          }
-          if (child.innerHTML == "80PX_BMLT") {
-            child.innerHTML = child.innerHTML.replace(/80PX_BMLT/,values['80PX_BMLT']);          
-          }
-          if (child.innerHTML == "100PX_BMLT") {
-            child.innerHTML = child.innerHTML.replace(/100PX_BMLT/,values['100PX_BMLT']);          
-          }
+        if (el) {
+          for (var j = 0; j < el.children.length;j++) {
+            var child = el.children[j];
+            if (child.innerHTML == "50PX_BMLT") {
+              child.innerHTML = child.innerHTML.replace(/50PX_BMLT/,values['50PX_BMLT']);          
+            }
+            if (child.innerHTML == "80PX_BMLT") {
+              child.innerHTML = child.innerHTML.replace(/80PX_BMLT/,values['80PX_BMLT']);          
+            }
+            if (child.innerHTML == "100PX_BMLT") {
+              child.innerHTML = child.innerHTML.replace(/100PX_BMLT/,values['100PX_BMLT']);          
+            }
+          }          
         }
       }
       break;
