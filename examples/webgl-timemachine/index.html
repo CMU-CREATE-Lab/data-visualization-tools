@@ -4576,6 +4576,9 @@
         csvDataGrapher.graphDataForLayer(layerId);
         showHideCsvGrapher(true, layerId);
       });
+      csvFileLayers.addDataLoadedListener(function(layerId) {
+        csvFileLayers.updateCsvFileLayerLegend(layerId);
+      });
       csvDataGrapher.initialize();
       $("#csvlayers_table").on("click", "input", function(e) {
         var activeCsvLayers = $("#csvlayers_table").find("input:checked");
