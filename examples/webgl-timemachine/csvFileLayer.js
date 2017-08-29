@@ -54,6 +54,8 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
   } else {
     layer.paired = false;
   }
+
+  layer.opts = opts;
   this.layers.push(layer);
 
   var id = 'show-csv-' + nickname;
@@ -287,6 +289,28 @@ CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate,
   cached_ajax[identifier + '.json'] = {"capture-times":  captureTimes};
 };
 
+CsvFileLayer.prototype.updateCsvFileLayerLegend = function updateCsvFileLayerLegend(layerId) {
+  for (var i = 0; i < this.layers.length; i++) {
+    if (this.layers[i]['_layerId'] == layerId) {
+      if (this.layers[i]['opts']['mapType'] == 'bubble' && this.layers[i]['opts']['legendContent'] != '') {
+        var radius = this.layers[i]['_tileView']['_tiles']['000000000000000']['_radius'];
+        var values = {
+          '50PX_BMLT': radius.invert(50),
+          '80PX_BMLT': radius.invert(80),
+          '100PX_BMLT': radius.invert(100)
+        }
+        var legendContent = this.layers[i]['opts']['legendContent'].replace(/50PX_BMLT/,values['50PX_BMLT']);
+        legendContent = legendContent.replace(/80PX_BMLT/,values['80PX_BMLT']);
+        legendContent = legendContent.replace(/100PX_BMLT/,values['100PX_BMLT']);
+
+        
+      }
+      break;
+    }
+
+  }
+};
+
 var BUBBLE_MAP_LEGEND_TMPL = 
   '<svg class="svg-legend" width="200" height="180">\n' +
   '<!--<circle class="gain" r="10" cx="15" cy="10" style="fill: green; stroke: #fff;"></circle> \n' +
@@ -294,9 +318,9 @@ var BUBBLE_MAP_LEGEND_TMPL =
   '<circle r="25.0" cx="120.0" cy="115.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle>\n' +
   '<circle r="40.0" cx="120.0" cy="100.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle>\n' +
   '<circle r="50.0" cx="120.0" cy="90.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle>\n' +
-  '<text text-anchor="middle" x="120.0" y="105.0" dy="13" style="font-size: 12px; fill: #666">153M</text>\n' +
-  '<text text-anchor="middle" x="120.0" y="70.0" dy="13" style="font-size: 12px; fill: #666">611M</text>\n' +
-  '<text text-anchor="middle" x="120.0" y="45.0" dy="13" style="font-size: 12px; fill: #666">1.3B</text>\n' +
+  '<text text-anchor="middle" x="120.0" y="105.0" dy="13" style="font-size: 12px; fill: #666">50PX_BMLT</text>\n' +
+  '<text text-anchor="middle" x="120.0" y="70.0" dy="13" style="font-size: 12px; fill: #666">80PX_BMLT</text>\n' +
+  '<text text-anchor="middle" x="120.0" y="45.0" dy="13" style="font-size: 12px; fill: #666">100PX_BMLT</text>\n' +
   '</svg>\n';
 
 var CHOROPLETH_LEGEND_TMPL = 
