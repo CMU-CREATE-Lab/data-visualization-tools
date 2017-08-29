@@ -379,11 +379,13 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
       that._maxValue = maxValue;
       that._minValue = minValue;
       var radius = eval(that.scalingFunction);
+      that._radius = radius;
       for (var i = 0; i < verts.length; i+=6) {
         verts[i+3] = radius(verts[i+3]);
         verts[i+5] = radius(verts[i+5]);
       }
     that._setData(new Float32Array(verts));
+    that._dataLoaded(that.layerId);
 
     }
   }
