@@ -19,6 +19,7 @@ var EARTH_TIMELAPSE_CONFIG = {
   "showLodes" : false,
   "showGlobalWindPower": false,
   "enableLetterboxMode" : false,
+  "enableThemeHamburgerButton" : true,
   "useFaderShader" : true,
   "enableWaypointText" : true,
   "enableRecordingMode" : false,

@@ -149,6 +149,7 @@
     var showBePm25 = !!EARTH_TIMELAPSE_CONFIG.showBePm25;
 
 
+    var enableThemeHamburgerButton = !!EARTH_TIMELAPSE_CONFIG.enableThemeHamburgerButton;
     var showShareButton = !!EARTH_TIMELAPSE_CONFIG.showShareButton;
     var showShareButtonHash = window.location.hash.split("showShareButton=")[1];
     if (showShareButtonHash)
@@ -189,6 +190,7 @@
     var previousVisibleBaseMapLayer = visibleBaseMapLayer;
     WebglVideoTile.useFaderShader = useFaderShader;
     var timelapse, snaplapseViewerForPresentationSlider, previousWaypoint = {}, waypointViewChangeListener, hideWaypointListener, waypointTimeChangeListener, snaplapseForPresentationSlider;
+    var currentWaypointTheme = "default";
     var himawariWaypoints = {};
     var annotationPicturePaths = {};
     var timelineType = "customUI";
@@ -2237,7 +2239,7 @@
           $("#extras-selector").val("select").selectmenu('refresh');
           // Chrome css workaround...
           $("#layers-list.right-panel").hide().show(0);
-          if (!enableLetterboxMode && Object.keys(jumpToButtons).length > 0) {
+          if (!enableThemeHamburgerButton && !enableLetterboxMode && Object.keys(jumpToButtons).length > 0) {
             var presentationSliderSelectionHasScroll = $("#presentation-slider-selection")[0].scrollWidth > $("#presentation-slider-selection")[0].clientWidth;
             if (presentationSliderSelectionHasScroll) {
               $("#timeMachine").removeClass("presentationSliderSelection").addClass("presentationSliderSelectionOverflow");
@@ -2445,6 +2447,7 @@
         if (document.createEvent("TouchEvent")) {
           verticalTouchScroll(".layers-scroll-vertical");
           verticalTouchScroll("#csvChartLegend");
+          verticalTouchScroll("#theme-list");
         }
       } catch (e) {
         // Error creating touch event
@@ -2709,17 +2712,12 @@
       }
     }
 
-    function loadWaypointSliderContentFromCSV(csvdata) {
-      var waypointJSON = JSON.parse(snaplapseForPresentationSlider.CSVToJSON(csvdata));
-
-      // Clear out internal data stores
-      jumpToButtons = {};
-      annotationPicturePaths = {};
-      himawariWaypoints = {};
-
-      for (var i = 0; i < waypointJSON.snaplapse.keyframes.length; i++) {
-        var keyframe = waypointJSON.snaplapse.keyframes[i];
-        annotationPicturePaths[i] = { path : keyframe.unsafe_string_annotationPicPath };
+    function modifyWaypointSliderContent(keyframes, theme) {
+      himawariWaypoints[theme] = {};
+      annotationPicturePaths[theme] = {};
+      for (var i = 0; i < keyframes.length; i++) {
+        var keyframe = keyframes[i];
+        annotationPicturePaths[theme][i] = { path : keyframe.unsafe_string_annotationPicPath };
         // Himawari is a special case.
         // We need to store the bounds and times and then replace them with a default view.
         // The default view allows for a black thumbnail to be used on the waypoint slider instead of some random position in Landsat
@@ -2737,8 +2735,7 @@
               tmp.scale *= 2;
               keyframe.bounds = timelapse.pixelCenterToPixelBoundingBoxView(tmp).bbox;
             }
-
-            himawariWaypoints[i] = {
+            himawariWaypoints[theme][i] = {
               bounds: keyframe.bounds,
               time: keyframe.time
             };
@@ -2754,8 +2751,43 @@
           jumpToButtons[keyframe.unsafe_string_frameTitle] = i;
         }
       }
+    }
 
-      if (Object.keys(jumpToButtons).length > 0) {
+    function loadWaypointSliderContentFromCSV(csvdata) {
+      // Clear out internal data stores and relevant dom elements
+      jumpToButtons = {};
+      annotationPicturePaths = {};
+      himawariWaypoints = {};
+      $("#theme-list").empty();
+      var currentWaypointSliderContentUrl;
+
+      if (enableThemeHamburgerButton) {
+        // May just be a single item if there is only only one or zero themes designated
+        var waypointJSONList = snaplapseForPresentationSlider.CSVToJSONList(csvdata);
+        for (var theme in waypointJSONList) {
+          var waypointJSON = JSON.parse(waypointJSONList[theme]);
+          var $themeEntry = $("<li>");
+          var themeId = theme.replace(/ /g,"_");
+          $themeEntry.attr("id", themeId);
+          $themeEntry.text(theme);
+          modifyWaypointSliderContent(waypointJSON.snaplapse.keyframes, themeId);
+          $themeEntry.data("waypoint-url", snaplapseForPresentationSlider.getAsUrlString(waypointJSON.snaplapse.keyframes));
+          $("#theme-list").append($themeEntry);
+        }
+        var hashVals = org.gigapan.Util.getUnsafeHashVars();
+        var $selectedThemeElement = hashVals.theme ? $("#" + hashVals.theme) : $("#theme-list").children().first();
+        $selectedThemeElement.click();
+      } else {
+        var waypointJSON = JSON.parse(snaplapseForPresentationSlider.CSVToJSON(csvdata));
+        modifyWaypointSliderContent(waypointJSON.snaplapse.keyframes, "default");
+        currentWaypointSliderContentUrl = snaplapseForPresentationSlider.getAsUrlString(waypointJSON.snaplapse.keyframes);
+      }
+
+      if (enableThemeHamburgerButton) {
+        $(".snaplapse_keyframe_container").prepend($("#presentation-slider-hamburger-wrapper"));
+        $(".snaplapse_keyframe_list").addClass("has-hamburger");
+        $("#presentation-slider-hamburger-wrapper").show();
+      } else if (Object.keys(jumpToButtons).length > 0) {
         $("#presentation-slider-selection").show();
         // Clear out quick selection bar
         $('#presentation-slider-selection table td:not(:first-child)').remove();
@@ -2776,7 +2808,7 @@
         resize();
       }
 
-      waypointSliderContent = "#presentation=" + snaplapseForPresentationSlider.getAsUrlString(waypointJSON.snaplapse.keyframes);
+      waypointSliderContent = "#presentation=" + currentWaypointSliderContentUrl;
       timelapse.loadSharedDataFromUnsafeURL(waypointSliderContent);
     }
 
@@ -3650,10 +3682,8 @@
         }).click(function() {
           if ($("#layers-list").hasClass("hide-layers-list")) {
             $("#layers-list").removeClass("hide-layers-list");
-            $(this).css({"top" : "3px", "right" : "5px"});
           } else {
             $("#layers-list").addClass("hide-layers-list");
-            $(this).css({"top" : "0px", "right" : "0px"});
           }
           var $icon = $(this).children(".ui-icon");
           if ($icon.hasClass(toggleIconOpen)) {
@@ -4235,7 +4265,7 @@
           var waypointIndex = waypoint.index;
           var waypointBounds = waypoint.bounds;
           isAutoModeRunning = snaplapseViewerForPresentationSlider.isAutoModeRunning();
-          if (himawariWaypoints[waypointIndex]) timelapse.setMaxScale(himawariMaxScale);
+          if (himawariWaypoints[currentWaypointTheme][waypointIndex]) timelapse.setMaxScale(himawariMaxScale);
           else timelapse.setMaxScale(landsatMaxScale);
         });
 
@@ -4246,7 +4276,7 @@
           var waypointLayers = waypoint.layers || [];
           var waypointStartTime = waypoint.time;
           var waypointEndTime = waypoint.endTime;
-          var himawariWaypoint = himawariWaypoints[waypointIndex];
+          var himawariWaypoint = himawariWaypoints[currentWaypointTheme][waypointIndex];
 
           // We are still technically using Landsat projections for any dataset being drawn,
           // so the bounds that slide-change returns is not valid for our use. But we already
@@ -4282,8 +4312,8 @@
                   timelapse.seek(waypointStartTime);
                   $current_location_text.find("h3").text(waypoint.annotationBoxTitle);
                   var $current_location_text_picture = $current_location_text.find("img");
-                  if (annotationPicturePaths[waypointIndex] && annotationPicturePaths[waypointIndex].path) {
-                    $current_location_text_picture.attr("src", annotationPicturePaths[waypointIndex].path);
+                  if (annotationPicturePaths[currentWaypointTheme] && annotationPicturePaths[currentWaypointTheme][waypointIndex].path) {
+                    $current_location_text_picture.attr("src", annotationPicturePaths[currentWaypointTheme][waypointIndex].path);
                   } else {
                     $current_location_text_picture.attr("src", "");
                     $current_location_text.css("max-width", 283);
@@ -4480,6 +4510,10 @@
           });
         }
 
+        if (vals.theme) {
+          $("#" + vals.theme).click();
+        }
+
         if (timelapse.isPresentationSliderEnabled()) {
           var waypointsPath;
           if (vals.waypoints) {
@@ -4606,6 +4640,32 @@
       $(window).trigger("resize");
       $(window).on('hashchange', hashChange).trigger('hashchange');
       $(".share").appendTo($(".location_search_div"));
+
+      $("#presentation-slider-hamburger-wrapper").on("click", function() {
+        $(".menu").slideToggle();
+        $(this).find(".hamburger").toggleClass("is-active");
+      });
+
+      $("#theme-menu").on("click", function(e) {
+        var $selectedThemeElement = $(e.target);
+        if (currentWaypointTheme == $selectedThemeElement.attr("id") || !$selectedThemeElement.data("waypoint-url")) return;
+        $(this).find("li").removeClass("checkmark");
+        $selectedThemeElement.addClass("checkmark");
+        changeHash({theme: $selectedThemeElement.attr("id")});
+        currentWaypointTheme = $selectedThemeElement.attr("id");
+        $("#theme-title").text($selectedThemeElement.text());
+        var waypointSliderContent = "#presentation=" + $selectedThemeElement.data("waypoint-url");
+        timelapse.loadSharedDataFromUnsafeURL(waypointSliderContent);
+      });
+
+      $("body").on("click", function(e) {
+        var $target = $(e.target).parent().closest("div");
+        if ($target.attr('id') == "presentation-slider-hamburger-wrapper" || $target.attr('id') == "theme-title-container") return;
+        if ($("#presentation-slider-hamburger-wrapper .hamburger").hasClass("is-active")) {
+          $("#presentation-slider-hamburger-wrapper").trigger("click");
+        }
+      });
+
     }
 
     function docTabToGoogleSheetUrl(doctab) {
@@ -4775,7 +4835,13 @@
       var height = canvasLayer.canvas.height;
       gl.viewport(0, 0, width, height);
 
-      if (Object.keys(jumpToButtons).length > 0 && !enableLetterboxMode) {
+      var windowWidth = $(window).width();
+      var windowHeight = $(window).height();
+
+      var scale = Math.min(1, Math.min((windowWidth * 2.2) / 1920, (windowHeight * 1.14) / 1080));
+      $('.current-location-text').css({'transform': 'scale(' + scale + ')'});
+
+      if (Object.keys(jumpToButtons).length > 0 && !enableThemeHamburgerButton && !enableLetterboxMode) {
         var presentationSliderSelection = $("#presentation-slider-selection");
         var presentationSliderSelectionHasScroll = presentationSliderSelection[0].scrollWidth > presentationSliderSelection[0].clientWidth;
         if (presentationSliderSelectionHasScroll) {
@@ -5791,6 +5857,23 @@
     <img id="current-location-text-picture" src="">
   </div>
   <div id="extras-content" title=""></div>
+
+  <div id="theme-menu" class="menu">
+    <div id="theme-list-caption">Themes:</div>
+    <ul id="theme-list">
+    </ul>
+</div>
+
+  <div id="presentation-slider-hamburger-wrapper">
+    <button class="hamburger" type="button">
+      <span class="hamburger-box">
+        <span class="hamburger-inner"></span>
+      </span>
+    </button>
+    <div id="theme-title-container">
+      <div id="theme-title">Refugee Crisis Full</div>
+    </div>
+  </div>
   <div id="presentation-slider-selection">
     <table>
       <tr>
