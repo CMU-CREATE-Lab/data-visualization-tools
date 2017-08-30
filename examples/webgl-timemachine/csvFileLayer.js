@@ -2,6 +2,40 @@ var CsvFileLayer = function CsvFileLayer() {
   this.layers = [];
   this.dataLoadedListeners = [];
   this.layersData = {};
+
+  this.formatValue = function(value) {
+    var absValue = Math.abs(value);
+    var suffix = '';
+    if (absValue < 1000) {
+        value = value;
+    }
+    else if (absValue < 1000000) {
+        value = value / 1000;
+        suffix = "k";
+    }
+    else if (absValue < 1000000000 && (absValue / 1000000) != 1000) {
+        value = value / 1000000;
+        suffix = "M";
+    }
+    else if (absValue < 1000000000000 && (absValue / 1000000000) != 1000) {
+        value = value / 1000000000;
+        suffix = "G";
+    }
+    else if (absValue < 1000000000000000 && (absValue / 1000000000000) != 1000) {
+        value = value / 1000000000000;
+        suffix = "T";
+    }
+    else {
+        value = value / 1000000000000000;
+        suffix = "P";
+    }
+
+    var valueStr = value.toFixed(2);
+    var find = '\\.?0+$';
+    var re = new RegExp(find, 'g');
+    valueStr = valueStr.replace(re, '') + suffix;
+    return valueStr;
+  }
 }
 
 
@@ -293,10 +327,12 @@ CsvFileLayer.prototype.updateCsvFileLayerLegend = function updateCsvFileLayerLeg
       if (this.layers[i]['opts']['mapType'] == 'bubble' && this.layers[i]['opts']['legendContent'] != '') {
         var radius = this.layers[i]['_tileView']['_tiles']['000000000000000']['_radius'];
         var values = {
-          '50PX_BMLT': radius.invert(50),
-          '80PX_BMLT': radius.invert(80),
-          '100PX_BMLT': radius.invert(100)
+          '50PX_BMLT': this.formatValue(radius.invert(50)),
+          '80PX_BMLT': this.formatValue(radius.invert(80)),
+          '100PX_BMLT': this.formatValue(radius.invert(100))
         }
+
+
         var el = document.getElementById(layerId + '-svg');
         if (el) {
           for (var j = 0; j < el.children.length;j++) {
@@ -317,9 +353,9 @@ CsvFileLayer.prototype.updateCsvFileLayerLegend = function updateCsvFileLayerLeg
       if (this.layers[i]['opts']['mapType'] == 'choropleth' && this.layers[i]['opts']['legendContent'] != '') {
         var radius = this.layers[i]['_tileView']['_tiles']['000000000000000']['_radius'];
         var values = {
-          'MIN_CLT': radius.invert(0),
-          'MID_CLT': radius.invert(0.5),
-          'MAX_CLT': radius.invert(1)
+          'MIN_CLT': this.formatValue(radius.invert(0)),
+          'MID_CLT': this.formatValue(radius.invert(0.5)),
+          'MAX_CLT': this.formatValue(radius.invert(1))
         }
         var el = document.getElementById(layerId + '-svg');
         if (el) {
