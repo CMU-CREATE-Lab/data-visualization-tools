@@ -2553,7 +2553,7 @@
     var showChinaWasteTreatmentPlantsLayer = false;
     var showBePm25Layer = false;
     var showCountryLabelMapLayer = false;
-    
+
 
     // Default Time Machine visibility
     var tileViewVisibility = {
@@ -2659,7 +2659,7 @@
         var layerdef = layerdefs[i];
         if (layerdef['Enabled'].toLowerCase() == 'false') continue;
         var layerIdentifier = layerdef['Share link identifier'].replace(/\W+/g, '_'); // sanitize non-word chars
-        
+
         var columnDefs = [];
         for (var c = 1; 1; c++) {
           var name = layerdef['PopName' + c];
@@ -3862,7 +3862,7 @@
       var baseMapLayerOptions = isHyperwall ? retinaMapLayerOptions : defaultBaseMapLayerOptions;
 
       lightBaseMapLayer = new WebglMapLayer(glb, canvasLayer, lightMapUrl, defaultBaseMapLayerOptions);
-      darkBaseMapLayer = new WebglMapLayer(glb, canvasLayer, darkMapUrl, defaultBaseMapLayerOptions);      
+      darkBaseMapLayer = new WebglMapLayer(glb, canvasLayer, darkMapUrl, defaultBaseMapLayerOptions);
       hansenMapLayer = new WebglMapLayer(glb, canvasLayer, gfcTransUrl, defaultMapLayerOptions);
       hansenMapLayer2 = new WebglMapLayer(glb, canvasLayer, gfcLossGainUrl, defaultMapLayerOptions);
       mcrmVectorLayer = new WebglVectorLayer2(glb, canvasLayer, mcrmUrl, defaultBaseMapLayerOptions);
@@ -5808,7 +5808,7 @@
           chinaWasteTreatmentPlantsLayer.draw(chinaWasteTreatmentPlantsLayerView, options);
         }
 
-        if (showCountryLabelMapLayer) { 
+        if (showCountryLabelMapLayer) {
           var countryLabelMapView = getLayerView(countryLabelMapLayer, landsatBaseMapLayer);
           countryLabelMapLayer.draw(countryLabelMapView);
         }
@@ -5871,7 +5871,7 @@
       </span>
     </button>
     <div id="theme-title-container">
-      <div id="theme-title">Refugee Crisis Full</div>
+      <div id="theme-title"></div>
     </div>
   </div>
   <div id="presentation-slider-selection">
