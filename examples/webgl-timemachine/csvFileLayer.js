@@ -131,6 +131,9 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
       }
       layer.visible = true;
       $("#" + nickname + "-legend").show();
+      if (mapType == "choropleth") {
+        showCountryLabelMapLayer = true;
+      }
 
     } else {
       // Turn off layer
@@ -138,6 +141,9 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
       $("#" + nickname + "-legend").hide();
       setActiveLayersWithTimeline(-1);
       doSwitchToLandsat();
+      if (mapType == "choropleth") {
+        showCountryLabelMapLayer = false;
+      }      
     }
   }).prop('checked', layer.visible);
 }
