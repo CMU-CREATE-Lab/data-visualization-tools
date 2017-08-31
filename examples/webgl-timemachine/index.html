@@ -2286,6 +2286,11 @@
             $(".map-layer-div").accordion("option", "active", openIndex);
           });
         }
+        // 'h' key
+        // Quick way to toggle the layer panel
+        if (e.keyCode === 72) {
+          $(".toggleLayerPanelBtn").click();
+        }
         // 'l' key (lowercase L)
         // Quick way to turn on automode
         if (e.keyCode === 76) {
