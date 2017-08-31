@@ -1020,14 +1020,10 @@ a:focus { outline:0; }
  border-top: 2px solid #d3d3d3;
 }
 
-.checkmark {
-  display: inline-block;
-}
-
 .checkmark:after {
   /* Add another block-level blank space */
   content: '';
-  display: block;
+  display: inline-block;
   /* Make it a small rectangle so the border will create an L-shape */
   width: 4px;
   height: 12px;
@@ -1036,9 +1032,8 @@ a:focus { outline:0; }
   border-width: 0 2px 2px 0;
   /* Rotate the L 45 degrees to turn it into a checkmark */
   transform: rotate(45deg);
-  position: absolute;
-  right: 30px;
-  margin-top: -17px;
+  position: relative;
+  left: 185px;
 }
 
 #layers-list .ui-accordion .ui-accordion-header {
