@@ -2771,7 +2771,8 @@
           $themeEntry.attr("id", themeId);
           $themeEntry.text(theme);
           modifyWaypointSliderContent(waypointJSON.snaplapse.keyframes, themeId);
-          $themeEntry.data("waypoint-url", snaplapseForPresentationSlider.getAsUrlString(waypointJSON.snaplapse.keyframes));
+          currentWaypointSliderContentUrl = snaplapseForPresentationSlider.getAsUrlString(waypointJSON.snaplapse.keyframes);
+          $themeEntry.data("waypoint-url", currentWaypointSliderContentUrl);
           $("#theme-list").append($themeEntry);
         }
         var hashVals = org.gigapan.Util.getUnsafeHashVars();
@@ -2781,6 +2782,8 @@
         var waypointJSON = JSON.parse(snaplapseForPresentationSlider.CSVToJSON(csvdata));
         modifyWaypointSliderContent(waypointJSON.snaplapse.keyframes, "default");
         currentWaypointSliderContentUrl = snaplapseForPresentationSlider.getAsUrlString(waypointJSON.snaplapse.keyframes);
+        waypointSliderContent = "#presentation=" + currentWaypointSliderContentUrl;
+        timelapse.loadSharedDataFromUnsafeURL(waypointSliderContent);
       }
 
       if (enableThemeHamburgerButton) {
@@ -2808,8 +2811,6 @@
         resize();
       }
 
-      waypointSliderContent = "#presentation=" + currentWaypointSliderContentUrl;
-      timelapse.loadSharedDataFromUnsafeURL(waypointSliderContent);
     }
 
     function loadWaypointsFromGdoc(waypointSliderContentPath) {
