@@ -150,6 +150,7 @@
 
 
     var enableThemeHamburgerButton = !!EARTH_TIMELAPSE_CONFIG.enableThemeHamburgerButton;
+    var useJumpToButtons = false;
     var showShareButton = !!EARTH_TIMELAPSE_CONFIG.showShareButton;
     var showShareButtonHash = window.location.hash.split("showShareButton=")[1];
     if (showShareButtonHash)
@@ -2239,7 +2240,7 @@
           $("#extras-selector").val("select").selectmenu('refresh');
           // Chrome css workaround...
           $("#layers-list.right-panel").hide().show(0);
-          if (!enableThemeHamburgerButton && !enableLetterboxMode && Object.keys(jumpToButtons).length > 0) {
+          if (!enableThemeHamburgerButton && !enableLetterboxMode && useJumpToButtons) {
             var presentationSliderSelectionHasScroll = $("#presentation-slider-selection")[0].scrollWidth > $("#presentation-slider-selection")[0].clientWidth;
             if (presentationSliderSelectionHasScroll) {
               $("#timeMachine").removeClass("presentationSliderSelection").addClass("presentationSliderSelectionOverflow");
@@ -2372,7 +2373,7 @@
 
         var isFromUser = true;
 
-        if (showViirsLayer || showDrillingLayer || $("#csvlayers_table").find("input:checked").length > 0) {
+        if (showViirsLayer || showDrillingLayer || $(".csvlayer").find("input:checked").length > 0) {
           timelineType = "defaultUI";
         }
 
@@ -2464,7 +2465,7 @@
 
     function doSwitchToLandsat() {
       // Special case for layers with defaultUI timeline.
-      if ((timelineType == "defaultUI" && (showViirsLayer || showMonthlyRefugeesLayer || showCrwTimemachineLayer)) ||  $("#csvlayers_table").find("input:checked").length > 0) {
+      if ((timelineType == "defaultUI" && (showViirsLayer || showMonthlyRefugeesLayer || showCrwTimemachineLayer)) ||  $(".csvlayer").find("input:checked").length > 0) {
         return false;
       } else {
         timelineType = "customUI";
@@ -2569,7 +2570,7 @@
     var csvlayersLoadedPath;
     var layersToShowOnCreation = {};
 
-    function addDotmapLayer(nickname, name, credit, columnDefs) {
+    function addDotmapLayer(nickname, name, credit, category, columnDefs) {
       var layerOptions = {
         tileWidth: 256,
         tileHeight: 256,
@@ -2581,7 +2582,6 @@
       };
 
       var tileUrl = 'http://dotmaptiles.createlab.org/tilesv1/';
-      //var tileUrl = 'http://rp.createlab.org:5000/tilesv1/';
       var layerTokens = [];
       for (var i = 0; i < columnDefs.length; i++) {
         layerTokens.push(encodeURIComponent(columnDefs[i].color) + ';' +
@@ -2593,13 +2593,18 @@
       dotmapLayers.push(layer);
 
       var id = 'show-dotmap-' + nickname;
+      var category_id = category ? "category-" + category.trim().replace(/ /g,"-").toLowerCase() : "category-us-demographics";
 
       var row = '<tr><td><label name="' + nickname + '">';
       row += '<input type="checkbox" id="' + id + '">';
       row += name;
       row += '</label></tr>';
 
-      $('#custom_dotmaps_table').append(row);
+      if ($('#' + category_id).length == 0) {
+        $(".map-layer-div #other_table").prev("h3").before("<h3 class='dotmap'>" + category + "</h3><table class=dotmap' id='" + category_id + "'></table>");
+      }
+
+      $('#' + category_id).append(row);
 
       // Create and insert legend
       var legend='<tr id="' + nickname + '-legend" style="display: none"><td>';
@@ -2671,6 +2676,7 @@
         addDotmapLayer(layerIdentifier, // identifier
                        layerdef['Name'], // name
                        layerdef['Credits'], // credit
+                       layerdef['Category'], // layer category
                        columnDefs);
       }
     }
@@ -2693,8 +2699,9 @@
       if (path == dotlayersLoadedPath) return;
       dotlayersLoadedPath = path;
 
-      // Clear out any dot layers that have already been loaded
-      $("#dotmaps_table").find("input:checked").trigger("click");
+      // Clear out any dot map layers that have already been loaded
+      $("#dotmaps_table, .dotmap").find("input:checked").trigger("click");
+      $(".dotmap").remove();
       $('#custom_dotmaps_table').empty();
 
       if (path.indexOf(".tsv") != -1) {
@@ -2749,6 +2756,7 @@
         if (keyframe.unsafe_string_frameTitle.indexOf("#") == 0) {
           keyframe.unsafe_string_frameTitle = keyframe.unsafe_string_frameTitle.slice(1);
           jumpToButtons[keyframe.unsafe_string_frameTitle] = i;
+          useJumpToButtons = true;
         }
       }
     }
@@ -2790,7 +2798,7 @@
         $(".snaplapse_keyframe_container").prepend($("#presentation-slider-hamburger-wrapper"));
         $(".snaplapse_keyframe_list").addClass("has-hamburger");
         $("#presentation-slider-hamburger-wrapper").show();
-      } else if (Object.keys(jumpToButtons).length > 0) {
+      } else if (useJumpToButtons) {
         $("#presentation-slider-selection").show();
         // Clear out quick selection bar
         $('#presentation-slider-selection table td:not(:first-child)').remove();
@@ -3102,7 +3110,7 @@
 
         /* BASE LAYERS */
         layer_html += '  <h3>Base Layers</h3>';
-        layer_html += '  <table>';
+        layer_html += '  <table id="category-base-layers">';
         layer_html += '    <tr>';
         layer_html += landsat_base;
         layer_html += '    </tr>';
@@ -3113,9 +3121,9 @@
         layer_html += '  </table>';
         /* END BASE LAYERS */
 
-        /* FOREST THEME */
+        /* FOREST CATEGORY */
         layer_html += '  <h3>Forests</h3>';
-        layer_html += '  <table>';
+        layer_html += '  <table id="category-forests">';
         layer_html += '    <tr>';
         layer_html += show_wdpa;
         layer_html += '    </tr>';
@@ -3137,11 +3145,11 @@
           layer_html += '    </tr>';
         }
         layer_html += '  </table>';
-        /* END FOREST THEME */
+        /* END FOREST CATEGORY */
 
-        /* WATER THEME */
+        /* WATER CATEGORY */
         layer_html += '  <h3>Water</h3>';
-        layer_html += '  <table>';
+        layer_html += '  <table id="category-water">';
         if (showWaterOccurrence) {
           layer_html += '   <tr>';
           layer_html += show_water_occurrence;
@@ -3153,11 +3161,11 @@
           layer_html += '   </tr>';
         }
         layer_html += '  </table>';
-        /* END WATER THEME */
+        /* END WATER CATEGORY */
 
-        /* CLIMATE THEME */
+        /* CLIMATE CATEGORY */
         layer_html += '  <h3>Climate</h3>';
-        layer_html += '  <table>';
+        layer_html += '  <table id="category-climate">';
         if (showSeaLevelRise) {
           layer_html += '    <tr>';
           layer_html += show_sea_level_rise_4p0;
@@ -3179,11 +3187,11 @@
           layer_html += '    </tr>';
         }
         layer_html += '  </table>';
-        /* END CLIMATE THEME */
+        /* END CLIMATE CATEGORY */
 
-        /* AIR QUALITY THEME */
+        /* AIR QUALITY CATEGORY */
         layer_html += '  <h3>Air Quality</h3>';
-        layer_html += '  <table>';
+        layer_html += '  <table id="category-air-quality">';
         if (showOmiNo2) {
           layer_html += '   <tr>';
           layer_html += show_omi_no2;
@@ -3195,12 +3203,11 @@
           layer_html += '   </tr>';
         }
         layer_html += '  </table>';
-        /* END AIR QUALITY THEME */
+        /* END AIR QUALITY CATEGORY */
 
-
-        /* CORAL THEME */
+        /* CORAL CATEGORY */
         layer_html += '  <h3>Coral</h3>';
-        layer_html += '  <table>';
+        layer_html += '  <table id="category-coral">';
         layer_html += '    <tr>';
         layer_html += show_coral;
         layer_html += '    </tr>';
@@ -3208,11 +3215,11 @@
         layer_html += show_coral_bleaching_alerts;
         layer_html += '    </tr>';
         layer_html += '  </table>';
-        /* END CORAL THEME */
+        /* END CORAL CATEGORY */
 
-        /* ENERGY THEME */
+        /* ENERGY CATEGORY */
         layer_html += '  <h3>Energy</h3>';
-        layer_html += '  <table>';
+        layer_html += '  <table id="category-energy">';
         layer_html += '    <tr>';
         layer_html += show_solar_installs;
         layer_html += '    </tr>';
@@ -3231,11 +3238,11 @@
         layer_html += show_viirs;
         layer_html += '    </tr>';
         layer_html += '  </table>';
-        /* END ENERGY THEME */
+        /* END ENERGY CATEGORY */
 
-        /* NUTRITION THEME */
+        /* NUTRITION CATEGORY */
         layer_html += '  <h3>Nutrition</h3>';
-        layer_html += '  <table>';
+        layer_html += '  <table id="category-nutrition">';
         if (showHealthImpact) {
           layer_html += '    <tr>';
           layer_html += show_health_impact_rcp2p6;
@@ -3251,11 +3258,11 @@
           layer_html += '    </tr>';
         }
         layer_html += '  </table>';
-        /* END NUTRITION THEME */
+        /* END NUTRITION CATEGORY */
 
-        /* REFUGEE THEME */
+        /* REFUGEE CATEGORY */
         layer_html += '  <h3>Forced Displacement</h3>';
-        layer_html += '  <table>';
+        layer_html += '  <table id="category-forced-displacement">';
         if (showMonthlyRefugees) {
           layer_html += '    <tr>';
           layer_html += show_monthly_refugees;
@@ -3298,11 +3305,11 @@
           layer_html += '   </tr>';
         }
         layer_html += '  </table>';
-        /* END REFUGEE THEME */
+        /* END REFUGEE CATEGORY */
 
-        /* PANDEMICS THEME */
+        /* PANDEMICS CATEGORY */
         layer_html += '  <h3>Pandemics</h3>';
-        layer_html += '  <table>';
+        layer_html += '  <table id="category-pandemics">';
         if (showZika) {
           layer_html += '    <tr>';
           layer_html += show_zika;
@@ -3354,11 +3361,11 @@
           layer_html += '    </tr>';
         }
         layer_html += '  </table>';
-        /* END PANDEMICS THEME */
+        /* END PANDEMICS CATEGORY */
 
-        /* URBANIZATION THEME */
+        /* URBANIZATION CATEGORY */
         layer_html += '  <h3>Urbanization</h3>';
-        layer_html += '  <table>';
+        layer_html += '  <table id="category-urbanization">';
         layer_html += '    <tr>';
         layer_html += show_lights_at_night;
         layer_html += '    </tr>';
@@ -3378,12 +3385,12 @@
           layer_html += '    </tr>';
         }
         layer_html += '  </table>';
-        /* END URBANIZATION THEME */
+        /* END URBANIZATION CATEGORY */
 
-        /* CHINA INFRASTRUCTURE THEME */
+        /* CHINA INFRASTRUCTURE CATEGORY */
         if (showChinaInfrastructure) {
           layer_html += '  <h3 style="display: none">China Infrastructure</h3>';
-          layer_html += '  <table id="ci" style="display: none">';
+          layer_html += '  <table id="category-ci" style="display: none">';
           layer_html += '    <tr>';
           layer_html += show_china_aviation;
           layer_html += '    </tr>';
@@ -3397,25 +3404,21 @@
           layer_html += show_china_waste_treatment_plants;
           layer_html += '    </tr>';
           layer_html += '  </table>';
-
         }
-        /* END CHINA INFRASTRUCTURE THEME */
+        /* END CHINA INFRASTRUCTURE CATEGORY */
 
-        /* DOTMAPS */
-        layer_html += '  <h3>Dotmaps</h3>';
-        layer_html += '  <table id="dotmaps_table">';
+        /* US DEMOGRAPHICS CATEGORY */
         if (showLodes) {
+          layer_html += '  <h3>US Demographics</h3>';
+          layer_html += '  <table id="category-us-demographics">';
           layer_html += '    <tr>';
           layer_html += show_lodes;
           layer_html += '    </tr>';
+          layer_html += '  </table>';
         }
+        /* END US DEMOGRAPHICS CATEGORY */
 
-        layer_html += '  <tbody id="custom_dotmaps_table">';
-        layer_html += '  </tbody>';
-        layer_html += '  </table>';
-        /* END DOTMAPS */
-
-        /* MISC THEME */
+        /* MISC CATEGORY */
         layer_html += '  <h3>Other</h3>';
         layer_html += '  <table id="other_table">';
         if (showGtd) {
@@ -3436,18 +3439,18 @@
         layer_html += '    <tr>';
         layer_html += show_himawari;
         layer_html += '    </tr>';
-
+        // Custom CSV Layers
         layer_html += '  <tbody id="csvlayers_table">';
         layer_html += '  </tbody>';
+
         layer_html += '  </table>';
-        /* END MISC THEME */
-
-        layer_html += '</div>';
-
+        /* END MISC CATEGORY */
 
         // ## 5 ##
-        //// Add layers to side UI panel ////
+        //// Add additional layers to side UI panel ////
         //
+
+        layer_html += '</div>';
       }
 
       // Extras menu
@@ -3667,7 +3670,7 @@
         // Hide any fieldsets that have all their children
         // hidden (i.e. all layers of that topic are hidden)
         $("#layers-list").find('table').each(function() {
-          if ($($(this)[0]).children().length == 0 || (this.id == "dotmaps_table" && !showLodes && !showCustomDotmaps)) {
+          if ($($(this)[0]).children().length == 0) {
             $(this).prev().hide();
           }
         });
@@ -3716,17 +3719,17 @@
           }
         }).done(function(res) {
           if (res.response) {
-            $("#ci").show();
-            $("#ci").prev().show();
+            $("#category-ci").show();
+            $("#category-ci").prev().show();
           } else {
             showChinaInfrastructure = false;
-            $("#ci").prev().remove();
-            $("#ci").remove();
+            $("#category-ci").prev().remove();
+            $("#category-ci").remove();
           }
         });
       } else {
-        $("#ci").show();
-        $("#ci").prev().show();
+        $("#category-ci").show();
+        $("#category-ci").prev().show();
       }
 
       if (isHyperwall) {
@@ -4596,13 +4599,17 @@
         if (doShow) {
           $("#csvChartLegend").show();
           $("#csvChartContainer").show();
-          $("#presentation-slider-selection").hide();
+          if (useJumpToButtons) {
+            $("#presentation-slider-selection").hide();
+          }
           $(".presentationSlider").hide();
           $("#timeMachine").addClass("layerGraphs");
         } else {
           $("#csvChartLegend").hide();
           $("#csvChartContainer").hide();
-          $("#presentation-slider-selection").show();
+          if (useJumpToButtons) {
+            $("#presentation-slider-selection").show();
+          }
           $(".presentationSlider").show();
           $("#timeMachine").removeClass("layerGraphs");
         }
@@ -4621,8 +4628,8 @@
         csvFileLayers.updateCsvFileLayerLegend(layerId);
       });
       csvDataGrapher.initialize();
-      $("#csvlayers_table").on("click", "input", function(e) {
-        var activeCsvLayers = $("#csvlayers_table").find("input:checked");
+      $("#csvlayers_table, .csvlayer").on("click", "input", function(e) {
+        var activeCsvLayers = $("#csvlayers_table, .csvlayer").find("input:checked");
         var layerIdx = $(e.target).parents("tr").index();
         var tiles = csvFileLayers.layers[layerIdx]._tileView._tiles;
         var key = Object.keys(tiles)[0];
@@ -4842,7 +4849,7 @@
       var scale = Math.min(1, Math.min((windowWidth * 2.2) / 1920, (windowHeight * 1.14) / 1080));
       $('.current-location-text').css({'transform': 'scale(' + scale + ')'});
 
-      if (Object.keys(jumpToButtons).length > 0 && !enableThemeHamburgerButton && !enableLetterboxMode) {
+      if (useJumpToButtons && !enableThemeHamburgerButton && !enableLetterboxMode) {
         var presentationSliderSelection = $("#presentation-slider-selection");
         var presentationSliderSelectionHasScroll = presentationSliderSelection[0].scrollWidth > presentationSliderSelection[0].clientWidth;
         if (presentationSliderSelectionHasScroll) {

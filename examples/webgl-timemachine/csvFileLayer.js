@@ -52,6 +52,8 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
   var color = opts["color"];
   var legendContent = opts["legendContent"];
   var externalGeojson = opts["externalGeojson"];
+  var category = opts["category"];
+  var category_id = category ? "category-" + category.trim().replace(/ /g,"-").toLowerCase() : "csvlayers_table";
 
   var layerOptions = {
     tileWidth: 256,
@@ -98,7 +100,16 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
   row += name;
   row += '</label></td></tr>';
 
-  $('#csvlayers_table').append(row);
+  // Default category
+  if (category_id == "category-other") {
+    category_id = "csvlayers_table";
+  }
+
+  if ($('#' + category_id).length == 0) {
+    $(".map-layer-div #other_table").prev("h3").before("<h3 class='csvlayer'>" + category + "</h3><table class=csvlayer' id='" + category_id + "'></table>");
+  }
+
+  $('#' + category_id).append(row);
 
   // Create and insert legend
   var legend='<tr id="' + nickname + '-legend" style="display: none"><td>';
@@ -107,14 +118,6 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
   legend += '</div>';
   legend += legendContent;
   legend += '<div style="float: left; padding-right:8px">';
-
-  /* TODO -- Add columnDefs
-  for (var i = 0; i < columnDefs.length; i++) {
-    legend += '<div style="float: left; padding-right:8px">'
-    legend += '<div style="background-color:' + columnDefs[i].color + '; width: 12px; height: 12px; float: left; margin-top: 2px; margin-left: 8px;"></div>';
-    legend += '&nbsp;' + columnDefs[i].name + '</div>'
-  }
-  */
   legend += '</div>';
   legend += '</td></tr>';
   $('#legend-content table tr:last').after(legend);
@@ -143,7 +146,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
       doSwitchToLandsat();
       if (mapType == "choropleth") {
         showCountryLabelMapLayer = false;
-      }      
+      }
     }
   }).prop('checked', layer.visible);
 }
@@ -220,6 +223,7 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
         url: layer["URL"],
         name: layer["Name"],
         credit: layer["Credits"],
+        category: layer["Category"],
         scalingFunction: scalingFunction,
         mapType: mapType,
         color: optionalColor,
@@ -235,6 +239,8 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
     }
 
   }
+  // New layers have been added, so refresh the layer panel
+  $(".map-layer-div").accordion("refresh");
 };
 
 CsvFileLayer.prototype.loadLayers = function loadLayers(path) {
@@ -245,8 +251,9 @@ CsvFileLayer.prototype.loadLayers = function loadLayers(path) {
   var that = this;
 
   // Clear out any csv layers that have already been loaded
-  $("#csvlayers_table").find("input:checked").trigger("click");
-  $('#csvlayers_table').empty();
+  $("#csvlayers_table, .csvlayer").find("input:checked").trigger("click");
+  $(".csvlayer").remove();
+  $("#csvlayers_table").empty();
   that.layers = [];
 
   if (path.indexOf(".tsv") != -1) {
@@ -344,15 +351,15 @@ CsvFileLayer.prototype.updateCsvFileLayerLegend = function updateCsvFileLayerLeg
           for (var j = 0; j < el.children.length;j++) {
             var child = el.children[j];
             if (child.innerHTML == "50PX_BMLT") {
-              child.innerHTML = child.innerHTML.replace(/50PX_BMLT/,values['50PX_BMLT']);          
+              child.innerHTML = child.innerHTML.replace(/50PX_BMLT/,values['50PX_BMLT']);
             }
             if (child.innerHTML == "80PX_BMLT") {
-              child.innerHTML = child.innerHTML.replace(/80PX_BMLT/,values['80PX_BMLT']);          
+              child.innerHTML = child.innerHTML.replace(/80PX_BMLT/,values['80PX_BMLT']);
             }
             if (child.innerHTML == "100PX_BMLT") {
-              child.innerHTML = child.innerHTML.replace(/100PX_BMLT/,values['100PX_BMLT']);          
+              child.innerHTML = child.innerHTML.replace(/100PX_BMLT/,values['100PX_BMLT']);
             }
-          }          
+          }
         }
       }
 
@@ -368,15 +375,15 @@ CsvFileLayer.prototype.updateCsvFileLayerLegend = function updateCsvFileLayerLeg
           for (var j = 0; j < el.children.length;j++) {
             var child = el.children[j];
             if (child.innerHTML == "MIN_CLT") {
-              child.innerHTML = child.innerHTML.replace(/MIN_CLT/,values['MIN_CLT']);          
+              child.innerHTML = child.innerHTML.replace(/MIN_CLT/,values['MIN_CLT']);
             }
             if (child.innerHTML == "MID_CLT") {
-              child.innerHTML = child.innerHTML.replace(/MID_CLT/,values['MID_CLT']);          
+              child.innerHTML = child.innerHTML.replace(/MID_CLT/,values['MID_CLT']);
             }
             if (child.innerHTML == "MAX_CLT") {
-              child.innerHTML = child.innerHTML.replace(/MAX_CLT/,values['MAX_CLT']);          
+              child.innerHTML = child.innerHTML.replace(/MAX_CLT/,values['MAX_CLT']);
             }
-          }          
+          }
         }
       }
 
@@ -386,7 +393,7 @@ CsvFileLayer.prototype.updateCsvFileLayerLegend = function updateCsvFileLayerLeg
   }
 };
 
-var BUBBLE_MAP_LEGEND_TMPL = 
+var BUBBLE_MAP_LEGEND_TMPL =
   '<svg id="TMPL_ID" class="svg-legend" width="200" height="180">\n' +
   '<!--<circle class="gain" r="10" cx="15" cy="10" style="fill: green; stroke: #fff;"></circle> \n' +
   '<text x="30" y="15">Total population</text>--> \n' +
@@ -398,7 +405,7 @@ var BUBBLE_MAP_LEGEND_TMPL =
   '<text text-anchor="middle" x="120.0" y="45.0" dy="13" style="font-size: 12px; fill: #666">100PX_BMLT</text>\n' +
   '</svg>\n';
 
-var CHOROPLETH_LEGEND_TMPL = 
+var CHOROPLETH_LEGEND_TMPL =
   '<svg id="TMPL_ID" class="svg-legend" width="240" height="40">\n' +
   '<!--<text x="30" y="12">Total capacity in GWh</text>-->\n' +
   '<rect fill="#ffffff" x="0"   y="15" height="10" width="25"></rect>\n' +

@@ -305,7 +305,7 @@ fieldset {
   position: absolute;
   top: 20px;
   right: 20px;
-  width: 275px;
+  width: 280px;
   padding-top: 0px;
   padding-bottom: 0px;
   background: white;
@@ -350,7 +350,7 @@ fieldset {
 }
 
 #timeMachine.layerGraphs {
-  height: calc(100% - 255px) !important;
+  height: calc(100% - 225px) !important;
 }
 .current-location-text.layerGraphs {
   bottom: 135px;
@@ -599,7 +599,7 @@ fieldset {
   -webkit-appearance: none;
   background: transparent;
   overflow: visible;
-  width: 17px;
+  width: 14px;
 }
 
 .layers-scroll-vertical::-webkit-scrollbar:vertical, #csvChartLegend::-webkit-scrollbar:vertical {
@@ -839,14 +839,14 @@ a:focus { outline:0; }
 }
 
 #csvChartContainer {
-  height: 250px;
+  height: 230px;
   width: 100%;
   display: none;
 }
 
 #csvChartLegend {
   width: 140px;
-  height: 250px;
+  height: 225px;
   position: absolute;
   bottom: 0px;
   overflow-y: auto;
