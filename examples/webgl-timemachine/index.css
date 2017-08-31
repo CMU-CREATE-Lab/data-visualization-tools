@@ -916,7 +916,7 @@ a:focus { outline:0; }
   cursor: pointer;
 }
 
-.hamburger:hover .hamburger-inner, .hamburger:hover .hamburger-label{
+#presentation-slider-hamburger-wrapper:hover > .hamburger {
   opacity: 0.8;
 }
 
@@ -983,7 +983,7 @@ a:focus { outline:0; }
   padding: 0;
   list-style-type: none;
   list-style-image: none;
-  height: 100%;
+  height: calc(100% - 40px);
   overflow-y: auto;
 }
 
