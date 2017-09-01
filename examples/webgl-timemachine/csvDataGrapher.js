@@ -155,7 +155,7 @@ CsvDataGrapher.prototype.graphDataForLayer = function graphDataForLayer(layerNam
     idx++;
   }
 
-  this.chart.options.title.text = this.activeLayer.title;//this.titles[layerName];
+  this.chart.options.title.text = this.activeLayer.title;
   this.chart.render();
 };
 
