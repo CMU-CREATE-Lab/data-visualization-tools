@@ -916,8 +916,8 @@ a:focus { outline:0; }
   cursor: pointer;
 }
 
-#presentation-slider-hamburger-wrapper:hover > .hamburger {
-  opacity: 0.8;
+#presentation-slider-hamburger-wrapper:hover > .hamburger, #presentation-slider-hamburger-wrapper:hover #theme-title-container {
+  background-color: #171616;
 }
 
 .hamburger-box {
