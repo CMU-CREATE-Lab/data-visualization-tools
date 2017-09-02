@@ -2800,7 +2800,7 @@
           $("#theme-list").append($themeEntry);
         }
         var hashVals = org.gigapan.Util.getUnsafeHashVars();
-        var $selectedThemeElement = hashVals.theme ? $("#" + hashVals.theme) : $("#theme-list").children().first();
+        var $selectedThemeElement = waypointJSONList[hashVals.theme] ? $("#" + hashVals.theme) : $("#theme-list").children().first();
         $selectedThemeElement.click();
       } else {
         currentWaypointTheme = "default";
