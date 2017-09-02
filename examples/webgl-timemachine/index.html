@@ -4607,8 +4607,11 @@
 
       // CSV Data Grapher
       var showHideCsvGrapher = function(doShow, layerId) {
-        if (layerId) {
-          var layerIdx = $("#show-csv-" + layerId).parents("tr").index();
+        if (doShow && layerId) {
+          var layerIds = csvFileLayers.layersData.data.map(function(props) {
+            return props['Share link identifier'];
+          });
+          var layerIdx = layerIds.indexOf(layerId);
           var layerProps = csvFileLayers.layersData.data[layerIdx];
           if (!layerProps['Show Graph']) return;
         }
@@ -4647,7 +4650,11 @@
       csvDataGrapher.initialize();
       $("#csvlayers_table, .csvlayer").on("click", "input", function(e) {
         var activeCsvLayers = $("#csvlayers_table, .csvlayer").find("input:checked");
-        var layerIdx = $(e.target).parents("tr").index();
+        var layerId = $(e.target).parent().attr("name");
+        var layerIds = csvFileLayers.layersData.data.map(function(props) {
+          return props['Share link identifier'];
+        });
+        var layerIdx = layerIds.indexOf(layerId);
         var tiles = csvFileLayers.layers[layerIdx]._tileView._tiles;
         var key = Object.keys(tiles)[0];
         var dataLoaded = key && tiles[key]._ready;

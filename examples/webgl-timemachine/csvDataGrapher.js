@@ -122,6 +122,7 @@ CsvDataGrapher.prototype.graphDataForLayer = function graphDataForLayer(layerNam
   $("#csvChartLegendList").empty();
   var idx = 0;
   for (var entryName in that.activeLayer.entries) {
+    if (!entryName) continue;
     var markerType = "circle";
     var initialVisibility = idx == 0 ? true : false;
     var initialToolTipContent  = idx == 0 ? undefined : null;
