@@ -2444,7 +2444,7 @@
 
       $('#layers-list, .ui-multiselect-checkboxes').on('click', 'input', timelineUIHandler);
 
-      $("body").on("click", ".ui-accordion-header", function() {
+      $("body").on("click", "#layers-list .ui-accordion-header", function() {
         $('.layers-scroll-vertical').animate({
           scrollTop: $(this)[0].offsetTop
         });

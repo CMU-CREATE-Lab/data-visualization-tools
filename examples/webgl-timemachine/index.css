@@ -814,7 +814,7 @@ a:focus { outline:0; }
   width: 100%;
 }
 
-.ui-accordion .ui-accordion-content {
+#layers-list .ui-accordion .ui-accordion-content {
   padding: 0px;
   width: 100% !important;
 }
