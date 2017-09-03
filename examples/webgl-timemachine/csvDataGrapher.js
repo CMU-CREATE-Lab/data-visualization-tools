@@ -126,11 +126,14 @@ CsvDataGrapher.prototype.graphDataForLayer = function graphDataForLayer(layerNam
     var markerType = "circle";
     var initialVisibility = idx == 0 ? true : false;
     var initialToolTipContent  = idx == 0 ? undefined : null;
+    // Fallback to black if we run out of colors
+    var markerColor = that.colors[idx] || "black";
 
     // TODO: How to handle special cases?
     // TODO: Allow for different marker types in spreadsheet?
     if (entryName == "National") {
       markerType = "square";
+      markerColor = "black";
       initialVisibility = true;
       initialToolTipContent = undefined;
     }
@@ -143,8 +146,7 @@ CsvDataGrapher.prototype.graphDataForLayer = function graphDataForLayer(layerNam
       toolTipContent: initialToolTipContent,
       name: entryName,
       markerType: markerType,
-      // Fallback to black if we run out of colors
-      color: that.colors[idx] || "black",
+      color: markerColor,
       dataPoints: that.activeLayer.entries[entryName],
       visible: initialVisibility
     });
