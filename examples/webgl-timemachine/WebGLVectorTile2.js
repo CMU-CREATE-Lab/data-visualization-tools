@@ -2828,7 +2828,14 @@ WebGLVectorTile2.gtdVertexShader =
 "            gl_Position = u_MapMatrix * a_WorldCoord;\n" +
 "          }\n" +
 "          v_Alpha = (u_EpochTime - a_Epoch) / u_Span;\n" +
-"          gl_PointSize = 1.0 * a_NCasualties;\n" +
+"          //gl_PointSize = 1.0 * a_NCasualties;\n" +
+'          float pointSize = 5.0;\n' +
+'          if (a_NCasualties > 5.0) {\n' +
+'            pointSize = a_NCasualties;\n' +
+'          } else {\n' + 
+'            pointSize = 5.0;\n' +
+'          }\n' + 
+'          gl_PointSize = max(10.0,300.0*smoothstep(5., 94., sqrt(pointSize)));\n' +
 "        }\n";
 
 WebGLVectorTile2.gtdFragmentShader =
