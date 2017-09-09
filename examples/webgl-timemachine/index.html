@@ -2788,12 +2788,11 @@
       if (enableThemeHamburgerButton) {
         // May just be a single item if there is only only one or zero themes designated
         var waypointJSONList = snaplapseForPresentationSlider.CSVToJSONList(csvdata);
-        for (var theme in waypointJSONList) {
-          var waypointJSON = JSON.parse(waypointJSONList[theme]);
+        for (var themeId in waypointJSONList) {
+          var waypointJSON = JSON.parse(waypointJSONList[themeId].waypoints);
           var $themeEntry = $("<li>");
-          var themeId = theme.replace(/ /g,"_");
           $themeEntry.attr("id", themeId);
-          $themeEntry.text(theme);
+          $themeEntry.text(waypointJSONList[themeId].themeTitle);
           modifyWaypointSliderContent(waypointJSON.snaplapse.keyframes, themeId);
           currentWaypointSliderContentUrl = snaplapseForPresentationSlider.getAsUrlString(waypointJSON.snaplapse.keyframes);
           $themeEntry.data("waypoint-url", currentWaypointSliderContentUrl);
@@ -2814,6 +2813,7 @@
       if (enableThemeHamburgerButton) {
         $(".snaplapse_keyframe_container").prepend($("#presentation-slider-hamburger-wrapper"));
         $(".snaplapse_keyframe_list").addClass("has-hamburger");
+        $("#presentation-slider-hamburger-wrapper .hamburger, #presentation-slider-hamburger-wrapper #theme-title-container").height($(".snaplapse_keyframe_list").height());
         $("#presentation-slider-hamburger-wrapper").show();
       } else if (useJumpToButtons) {
         $("#presentation-slider-selection").show();
