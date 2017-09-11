@@ -84,6 +84,10 @@ WebglVectorLayer2.prototype.setOptions = function(options) {
     this._layerId = options.layerId;
   }
 
+  if (options.numAttributes != undefined) {
+    this._numAttributes = options.numAttributes;
+  }
+
 }
 
 
@@ -140,6 +144,9 @@ WebglVectorLayer2.prototype._createTile = function(ti, bounds) {
   }
   if (this._layerId) {
     opt_options.layerId = this._layerId;
+  }
+  if (this._numAttributes) {
+    opt_options.numAttributes = this._numAttributes;
   }
   return new WebGLVectorTile2(glb, ti, bounds, url, opt_options);
 }
