@@ -30,6 +30,7 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
   this._fragmentShader = opt_options.fragmentShader || WebGLVectorTile2.vectorTileFragmentShader;
   this._vertexShader = opt_options.vertexShader || WebGLVectorTile2.vectorTileVertexShader;
   this._externalGeojson = opt_options.externalGeojson;
+  this._numAttributes = opt_options.numAttributes;
 
   this.gl.getExtension("OES_standard_derivatives");
 
@@ -1174,6 +1175,18 @@ WebGLVectorTile2.prototype._setVaccineConfidenceData = function(data) {
   }
 }
 
+WebGLVectorTile2.prototype._setBufferData  = function(data) {
+    console.log('_setBufferData');
+    var gl = this.gl;
+    this._pointCount = data.length / this._numAttributes;
+    if (this._pointCount > 0) {
+      this._data = data;    
+      this.arrayBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.arrayBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);      
+      this._ready = true;
+    }
+}
 
 WebGLVectorTile2.prototype.isReady = function() {
   return this._ready;
@@ -1495,8 +1508,10 @@ WebGLVectorTile2.prototype._drawEbola = function(transform, options) {
 }
 
 WebGLVectorTile2.prototype._drawBubbleMap = function(transform, options) {
+
   var gl = this.gl;
   if (this._ready) {
+    console.log(options);
     gl.useProgram(this.program);
     gl.enable(gl.BLEND);
     gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
@@ -2143,6 +2158,8 @@ WebGLVectorTile2.prototype._drawUrbanFragility = function(transform, options) {
 }
 
 WebGLVectorTile2.prototype._drawObesity = function(transform, options) {
+  console.log(options);
+  console.log(this._pointCount);
   var gl = this.gl;
   if (this._ready && this._pointCount > 0) {
     gl.useProgram(this.program);
@@ -2194,6 +2211,61 @@ WebGLVectorTile2.prototype._drawObesity = function(transform, options) {
     gl.drawArrays(gl.TRIANGLES, 0, this._pointCount);
     perf_draw_triangles(this._pointCount);
     gl.bindTexture(gl.TEXTURE_2D, null);
+    gl.disable(gl.BLEND);
+
+  }
+}
+
+WebGLVectorTile2.prototype._drawTimeSeriesPointData = function(transform, options) {
+  var gl = this.gl;
+  if (this._ready && this._pointCount > 0) {
+    gl.useProgram(this.program);
+    gl.enable(gl.BLEND);
+    gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
+    //gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.arrayBuffer);
+
+    var tileTransform = new Float32Array(transform);
+
+
+    scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
+
+    translateMatrix(tileTransform, (this._bounds.max.x - this._bounds.min.x)/256., (this._bounds.max.y - this._bounds.min.y)/256.);
+    scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+
+    var year = options.year;
+    var maxValue = options.maxValue || 100.0;
+
+    var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
+    gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+
+    var maxValueLoc = gl.getUniformLocation(this.program, 'u_max_value');
+    gl.uniform1f(maxValueLoc, maxValue);
+
+    var epochLoc = gl.getUniformLocation(this.program, 'u_epoch');
+    gl.uniform1f(epochLoc, year);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_centroid');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this._numAttributes * 4, 0);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch1');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._numAttributes * 4, 8);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_val1');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._numAttributes * 4, 12);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch2');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._numAttributes * 4, 16);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_val2');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._numAttributes * 4, 20);
+
+    gl.drawArrays(gl.POINTS, 0, this._pointCount);
     gl.disable(gl.BLEND);
 
   }
@@ -3217,3 +3289,44 @@ WebGLVectorTile2.choroplethMapFragmentShader =
 '        gl_FragColor = vec4(color.r, color.g, color.b, 1.);\n' +
 '        //gl_FragColor = vec4(1.0, 0.0, 0.0, 1.);\n' +
 '      }\n';
+
+
+WebGLVectorTile2.timeSeriesPointDataVertexShader =
+'      //WebGLVectorTile2.timeSeriesPointDataVertexShader\n' + 
+'      attribute vec4 a_centroid;\n' +
+'      attribute float a_epoch1;\n' +
+'      attribute float a_val1;\n' +
+'      attribute float a_epoch2;\n' +
+'      attribute float a_val2;\n' +
+'      uniform float u_max_value;\n' +
+'      uniform float u_epoch;\n' +
+'      uniform mat4 u_map_matrix;\n' +
+'      varying float v_val;\n' +
+'      void main() {\n' +
+'        vec4 position;\n' +
+'        if (a_epoch1 > u_epoch || a_epoch2 <= u_epoch) {\n' +
+'          position = vec4(-1,-1,-1,-1);\n' +
+'        } else {\n' +
+'          position = u_map_matrix * vec4(a_centroid.x, a_centroid.y, 0, 1);\n' +
+'        }\n' +
+'        gl_Position = position;\n' +
+'        float delta = (u_epoch - a_epoch1)/(a_epoch2 - a_epoch1);\n' +
+'        v_val = (a_val2 - a_val1) * delta + a_val1;\n' +
+'        gl_PointSize = 25.0;\n' + 
+'        gl_PointSize = 150. * smoothstep(0.0, u_max_value, sqrt(v_val));\n' +
+'      }\n';
+
+WebGLVectorTile2.timeSeriesPointDataFragmentShader =
+'      //WebGLVectorTile2.timeSeriesPointDataFragmentShader\n' + 
+  'precision mediump float;\n' +
+
+  'void main() {\n' +
+  '  vec3 color;\n' +
+  '  color = vec3(212./255., 212./255., 212./255.);\n' +
+  '  float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
+  '  dist = 1. - (dist * 2.);\n' +
+  '  dist = max(0., dist);\n' +
+
+  '  gl_FragColor = vec4(color, 1.) * dist;\n' +
+  '}';
+
