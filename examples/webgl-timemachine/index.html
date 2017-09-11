@@ -2123,6 +2123,10 @@
           timelineType = "customUI";
           requestNewTimeline("expanding-cities-times.json", timelineType);
           $("#expanding-cities-legend").show();
+          if (visibleBaseMapLayer != "dark") {
+            $("#dark-base").click();
+          }
+
         } else {
           showExpandingCitiesLayer = false;
           setActiveLayersWithTimeline(-1);
