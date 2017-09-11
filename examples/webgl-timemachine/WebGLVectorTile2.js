@@ -2221,8 +2221,8 @@ WebGLVectorTile2.prototype._drawTimeSeriesPointData = function(transform, option
   if (this._ready && this._pointCount > 0) {
     gl.useProgram(this.program);
     gl.enable(gl.BLEND);
-    gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
-    //gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
+    //gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
+    gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
     gl.bindBuffer(gl.ARRAY_BUFFER, this.arrayBuffer);
 
     var tileTransform = new Float32Array(transform);
@@ -3313,7 +3313,7 @@ WebGLVectorTile2.timeSeriesPointDataVertexShader =
 '        float delta = (u_epoch - a_epoch1)/(a_epoch2 - a_epoch1);\n' +
 '        v_val = (a_val2 - a_val1) * delta + a_val1;\n' +
 '        gl_PointSize = 25.0;\n' + 
-'        gl_PointSize = 150. * smoothstep(0.0, u_max_value, sqrt(v_val));\n' +
+'        gl_PointSize = 140. * smoothstep(10.0, u_max_value, sqrt(v_val)) + 10.;\n' +
 '      }\n';
 
 WebGLVectorTile2.timeSeriesPointDataFragmentShader =
