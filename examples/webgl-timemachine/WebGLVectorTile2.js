@@ -14,7 +14,6 @@
 // the flexibility of being able to capture the video across a range of times
 
 function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
-
   this.glb = glb;
   this.gl = glb.gl;
   this._tileidx = tileidx;
@@ -1511,7 +1510,6 @@ WebGLVectorTile2.prototype._drawBubbleMap = function(transform, options) {
 
   var gl = this.gl;
   if (this._ready) {
-    console.log(options);
     gl.useProgram(this.program);
     gl.enable(gl.BLEND);
     gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
