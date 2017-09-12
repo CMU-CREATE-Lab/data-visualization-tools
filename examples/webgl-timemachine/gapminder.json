@@ -1,0 +1,552 @@
+//gapminder.json
+var COUNTRY_CENTROIDS = {
+    "type": "FeatureCollections", 
+    "features": [
+        {"geometry": {"type": "Point", "coordinates": [66,33]}, "type": "Feature", "properties": {"webmercator": [174.93333333333334,103.11672116189807], "names": ["Afghanistan","afg","AF","Afg.","AFG","Afghanistan","Islamic State of Afghanistan","AF","AFG","004","Afghanistan","Afghanistan","Afghanistan"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": ["",""]}, "type": "Feature", "properties": {"webmercator": ["",""], "names": ["Akrotiri and Dhekelia","akr_a_dhe"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [1.52109,42.50779]}, "type": "Feature", "properties": {"webmercator": [129.081664,94.54370420325792], "names": ["Andorra","and","AD","And.","AND","Andorra","Principality of Andorra","AD","AND","020","Andorra","Andorra","Andorra"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-171.082,-11.056]}, "type": "Feature", "properties": {"webmercator": [6.341688888888894,135.9112940671489], "names": ["American Samoa","asm","AS","Am. Samoa","ASM","American Samoa","American Samoa","AS","ASM","016","American Samoa","American Samoa","American Samoa"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [20,60.25]}, "type": "Feature", "properties": {"webmercator": [142.22222222222223,73.98540100280432], "names": ["\u00c5land","ala"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [18.5,-12.5]}, "type": "Feature", "properties": {"webmercator": [141.15555555555557,136.96025300373762], "names": ["Angola","ago","AO","Ang.","AGO","Angola","People's Republic of Angola","AO","AGO","024","Angola","Angola","Angola"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [20,41]}, "type": "Feature", "properties": {"webmercator": [142.22222222222223,95.98106221608322], "names": ["Albania","alb","AL","Alb.","ALB","Albania","Republic of Albania","AL","ALB","008","Albania","Albania","Albania"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-63.05,18.21667]}, "type": "Feature", "properties": {"webmercator": [83.16444444444444,114.82199399750073], "names": ["Anguilla","aia","AI","Ang.","AIA","Anguilla","AI","AIA","660","Anguilla","Anguilla","Anguilla"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": ["",""]}, "type": "Feature", "properties": {"webmercator": ["",""], "names": ["Abkhazia","abkh"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [3,28]}, "type": "Feature", "properties": {"webmercator": [130.13333333333333,107.24549110793109], "names": ["Algeria","dza","DZ","Alg.","DZA","Algeria","People's Democratic Republic of Algeria","DZ","DZA","012","Algeria","Algeria","Algeria"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [0,-90]}, "type": "Feature", "properties": {"webmercator": [128.0,256.000010058259], "names": ["Antarctica","ata","Ant.","ATA","Antarctica","AQ","ATA","010","Antarctica","Antarctica","Antarctica"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-69.96667,12.5]}, "type": "Feature", "properties": {"webmercator": [78.24592355555556,119.0397469962624], "names": ["Aruba","abw","AW","Aruba","ABW","Aruba","Aruba","AW","ABW","533","Aruba","Aruba","Aruba"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-61.8,17.05]}, "type": "Feature", "properties": {"webmercator": [84.05333333333334,115.69254649643912], "names": ["Antigua and Barbuda","atg","AG","Ant.B.","ATG","Antigua and Barbuda","Antigua and Barbuda","AG","ATG","028","Antigua and Barb.","Antigua and Barbuda","Antigua and Barbuda"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-64,-34]}, "type": "Feature", "properties": {"webmercator": [82.4888888888889,153.73606710590744], "names": ["Argentina","arg","AR","Arg.","ARG","Argentina","Argentine Republic","AR","ARG","032","Argentina","Argentina","Argentina"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [135,-25]}, "type": "Feature", "properties": {"webmercator": [224.0,146.37031359488122], "names": ["Australia","aus","AU","Auz.","AUS","Australia","Commonwealth of Australia","AU","AUS","036","Australia","Australia","Australia"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [45,40.25]}, "type": "Feature", "properties": {"webmercator": [160.0,96.68376535608883], "names": ["Armenia","arm","AM","Arm.","ARM","Armenia","Republic of Armenia","AM","ARM","051","Armenia","Armenia","Armenia"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [13.33333,47.33333]}, "type": "Feature", "properties": {"webmercator": [137.4814791111111,89.69326351599643], "names": ["Austria","aut","AT","Aust.","AUT","Austria","Republic of Austria","AT","AUT","040","Austria","Austria","Austria"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [50.55,26.03333]}, "type": "Feature", "properties": {"webmercator": [163.9466666666667,108.81543766419317], "names": ["Bahrain","bhr","BH","Bahr.","BHR","Bahrain","Kingdom of Bahrain","BH","BHR","048","Bahrain","Bahrain","Bahrain"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-77.37122,25.04082]}, "type": "Feature", "properties": {"webmercator": [72.98046577777778,109.59765271719162], "names": ["Bahamas","bhs","BS","Bhs.","BHS","The Bahamas","Commonwealth of the Bahamas","BS","BHS","044","Bahamas","Bahamas","Bahamas, The"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [47.5,40.5]}, "type": "Feature", "properties": {"webmercator": [161.77777777777777,96.45040592444009], "names": ["Azerbaijan","aze","AZ","Aze.","AZE","Azerbaijan","Republic of Azerbaijan","AZ","AZE","031","Azerbaijan","Azerbaijan","Azerbaijan"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [28,53]}, "type": "Feature", "properties": {"webmercator": [147.9111111111111,83.39247103387747], "names": ["Belarus","blr","BY","Bela.","BLR","Belarus","Republic of Belarus","BY","BLR","112","Belarus","Belarus","Belarus"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [90,24]}, "type": "Feature", "properties": {"webmercator": [192.0,110.41117448489817], "names": ["Bangladesh","bgd","BD","Bang.","BGD","Bangladesh","People's Republic of Bangladesh","BD","BGD","050","Bangladesh","Bangladesh","Bangladesh"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-88.19756,17.49952]}, "type": "Feature", "properties": {"webmercator": [65.28173511111112,115.35778639451614], "names": ["Belize","blz","BZ","Belize","BLZ","Belize","Belize","BZ","BLZ","084","Belize","Belize","Belize"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [4.5,50.75]}, "type": "Feature", "properties": {"webmercator": [131.2,85.98477883931723], "names": ["Belgium","bel","BE","Belg.","BEL","Belgium","Kingdom of Belgium","BE","BEL","056","Belgium","Belgium","Belgium"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-64.78303,32.2949]}, "type": "Feature", "properties": {"webmercator": [81.93206755555556,103.7122160318626], "names": ["Bermuda","bmu","BM","Berm.","BMU","Bermuda","The Bermudas or Somers Isles","BM","BMU","060","Bermuda","Bermuda","Bermuda"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-59.53333,13.16667]}, "type": "Feature", "properties": {"webmercator": [85.66518755555555,118.55352183697238], "names": ["Barbados","brb","BB","Barb.","BRB","Barbados","Barbados","BB","BRB","052","Barbados","Barbados","Barbados"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [2.25,9.5]}, "type": "Feature", "properties": {"webmercator": [129.6,121.21327634574975], "names": ["Benin","ben","BJ","Benin","BEN","Benin","Republic of Benin","BJ","BEN","204","Benin","Benin","Benin"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-65,-17]}, "type": "Feature", "properties": {"webmercator": [81.77777777777777,140.27026838677742], "names": ["Bolivia","bol","BO","Bolivia","BOL","Bolivia","Plurinational State of Bolivia","BO","BOL","068","Bolivia","Bolivia","Bolivia"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [90.5,27.5]}, "type": "Feature", "properties": {"webmercator": [192.35555555555555,107.64725639066397], "names": ["Bhutan","btn","BT","Bhutan","BTN","Bhutan","Kingdom of Bhutan","BT","BTN","064","Bhutan","Bhutan","Bhutan"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": ["",""]}, "type": "Feature", "properties": {"webmercator": ["",""], "names": ["Bouvet Island","bouisl","BV"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [17.83333,44.25]}, "type": "Feature", "properties": {"webmercator": [140.68147911111112,92.83898400107485], "names": ["Bosnia and Herzegovina","bih","BA","B.H.","BIH","Bosnia and Herzegovina","Bosnia and Herzegovina","BA","BIH","070","Bosnia and Herz.","Bosnia and Herzegovina","Bosnia and Herzegovina"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [72,-6]}, "type": "Feature", "properties": {"webmercator": [179.2,132.27448632017592], "names": ["British Indian Ocean Territory","iot","IO","I.O.T.","IOT","British Indian Ocean Territory","IO","IOT","086","Br. Indian Ocean Ter.","British Indian Ocean Territory","British Indian Ocean Territory"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-64.5,18.5]}, "type": "Feature", "properties": {"webmercator": [82.13333333333334,114.60971053218607], "names": ["British Virgin Islands","vgb","VG","V.I. (Br.)","VGB","British Virgin Islands","British Virgin Islands","VG","VGB","092","British Virgin Is.","British Virgin Islands","British Virgin Islands"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [24,-22]}, "type": "Feature", "properties": {"webmercator": [145.06666666666666,144.04367292383128], "names": ["Botswana","bwa","BW","Bwa.","BWA","Botswana","Republic of Botswana","BW","BWA","072","Botswana","Botswana","Botswana"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-1.66667,12.5]}, "type": "Feature", "properties": {"webmercator": [126.81481244444444,119.0397469962624], "names": ["Burkina Faso","bfa","BF","B.F.","BFA","Burkina Faso","Burkina Faso","BF","BFA","854","Burkina Faso","Burkina Faso","Burkina Faso"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-55,-10]}, "type": "Feature", "properties": {"webmercator": [88.88888888888889,135.14749131138143], "names": ["Brazil","bra","BR","Brazil","BRA","Brazil","Federative Republic of Brazil","BR","BRA","076","Brazil","Brazil","Brazil"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [114.66667,4.5]}, "type": "Feature", "properties": {"webmercator": [209.5407431111111,124.79670504936792], "names": ["Brunei","brn","BN","Brunei","BRN","Brunei","Negara Brunei Darussalam","BN","BRN","096","Brunei","Brunei Darussalam","Brunei"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [25.25,42.66667]}, "type": "Feature", "properties": {"webmercator": [145.95555555555555,94.39024851789073], "names": ["Bulgaria","bgr","BG","Bulg.","BGR","Bulgaria","Republic of Bulgaria","BG","BGR","100","Bulgaria","Bulgaria","Bulgaria"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [105,13]}, "type": "Feature", "properties": {"webmercator": [202.66666666666666,118.67520134718035], "names": ["Cambodia","khm","KH","Camb.","KHM","Cambodia","Kingdom of Cambodia","KH","KHM","116","Cambodia","Cambodia","Cambodia"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-24,16]}, "type": "Feature", "properties": {"webmercator": [110.93333333333334,116.47139523891636], "names": ["Cape Verde","cpv","CV","C.Vd.","CPV","Cape Verde","Republic of Cape Verde","CV","CPV","132","Cape Verde","Cape Verde","Cape Verde"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [12.5,6]}, "type": "Feature", "properties": {"webmercator": [136.88888888888889,123.72551367982409], "names": ["Cameroon","cmr","CM","Cam.","CMR","Cameroon","Republic of Cameroon","CM","CMR","120","Cameroon","Cameroon","Cameroon"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-80.66667,19.5]}, "type": "Feature", "properties": {"webmercator": [70.63703466666666,113.85761290484892], "names": ["Cayman Islands","cym","KY","Cym. Is.","CYM","Cayman Islands","Cayman Islands","KY","CYM","136","Cayman Is.","Cayman Islands","Cayman Islands"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [30,-3.5]}, "type": "Feature", "properties": {"webmercator": [149.33333333333334,130.49043824226254], "names": ["Burundi","bdi","BI","Bur.","BDI","Burundi","Republic of Burundi","BI","BDI","108","Burundi","Burundi","Burundi"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [21,7]}, "type": "Feature", "properties": {"webmercator": [142.93333333333334,123.00979254977683], "names": ["Central African Republic","caf","CF","C.A.R.","CAF","Central African Republic","Central African Republic","CF","CAF","140","Central African Rep.","Central African Republic","Central African Republic"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-113.64258,60.10867]}, "type": "Feature", "properties": {"webmercator": [47.18749866666667,74.18750066071178], "names": ["Canada","can","CA","Can.","CAN","Canada","Canada","CA","CAN","124","Canada","Canada","Canada"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": ["",""]}, "type": "Feature", "properties": {"webmercator": ["",""], "names": ["Channel Islands","chanisl"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-70.64827,-33.45694]}, "type": "Feature", "properties": {"webmercator": [77.76123022222222,153.27173044476172], "names": ["Chile","chl","CL","Chile","CHL","Chile","Republic of Chile","CL","CHL","152","Chile","Chile","Chile"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [19,15]}, "type": "Feature", "properties": {"webmercator": [141.51111111111112,117.20935606509084], "names": ["Chad","tcd","TD","Chad","TCD","Chad","Republic of Chad","TD","TCD","148","Chad","Chad","Chad"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [96.87332,-12.1642]}, "type": "Feature", "properties": {"webmercator": [196.88769422222225,136.71582152349671], "names": ["Cocos Island","cck"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [105,35]}, "type": "Feature", "properties": {"webmercator": [202.66666666666666,101.40104481443534], "names": ["China","chn","CN","China","CHN","China","People's Republic of China","CN","CHN","156","China","China","China"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [23.5,-2.5]}, "type": "Feature", "properties": {"webmercator": [144.7111111111111,129.77834215275402], "names": ["Congo, Dem. Rep.","cod","D.R.C.","COD","Democratic Republic of the Congo","Democratic Republic of the Congo","CD","COD","180","Dem. Rep. Congo","Democratic Republic of the Congo","Congo, Dem. Rep."]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": ["",""]}, "type": "Feature", "properties": {"webmercator": ["",""], "names": ["Clipperton","fra_clipperton"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [105.66667,-10.5]}, "type": "Feature", "properties": {"webmercator": [203.1407431111111,135.508814535521], "names": ["Christmas Island","cxr","CX"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-73.25,4]}, "type": "Feature", "properties": {"webmercator": [75.91111111111111,125.15324215665274], "names": ["Colombia","col","CO","Col.","COL","Colombia","Republic of Colombia","CO","COL","170","Colombia","Colombia","Colombia"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [44.44553,-12.23333]}, "type": "Feature", "properties": {"webmercator": [159.60571022222223,136.76611627067086], "names": ["Comoros","com","KM","Com.","COM","Comoros","Union of the Comoros","KM","COM","174","Comoros","Comoros","Comoros"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-159.78516,-21.24842]}, "type": "Feature", "properties": {"webmercator": [14.37499733333334,143.468748294261], "names": ["Cook Is","cok"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-84,10]}, "type": "Feature", "properties": {"webmercator": [68.26666666666667,120.85250868861858], "names": ["Costa Rica","cri","CR","C.R.","CRI","Costa Rica","Republic of Costa Rica","CR","CRI","188","Costa Rica","Costa Rica","Costa Rica"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-5.5,8]}, "type": "Feature", "properties": {"webmercator": [124.08888888888889,122.29253586957215], "names": ["Cote d'Ivoire","civ","CI","I.C.","CIV","Ivory Coast","Republic of Ivory Coast","CI","CIV","384","C\u00f4te d'Ivoire","C\u00f4te d'Ivoire","C\u00f4te d'Ivoire"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [15.5,45.16667]}, "type": "Feature", "properties": {"webmercator": [139.0222222222222,91.92175110139956], "names": ["Croatia","hrv","HR","Cro.","HRV","Croatia","Republic of Croatia","HR","HRV","191","Croatia","Croatia","Croatia"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [15.5,-1]}, "type": "Feature", "properties": {"webmercator": [139.0222222222222,128.71114721666606], "names": ["Congo, Rep.","cog","Rep. Congo","COG","Republic of Congo","Republic of Congo","CG","COG","178","Congo","Republic of Congo","Congo, Rep."]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-79.5,22]}, "type": "Feature", "properties": {"webmercator": [71.46666666666667,111.95632707616872], "names": ["Cuba","cub","CU","Cuba","CUB","Cuba","Republic of Cuba","CU","CUB","192","Cuba","Cuba","Cuba"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-68.96667,12.16667]}, "type": "Feature", "properties": {"webmercator": [78.95703466666667,119.28238168180488], "names": ["Cura\u00e7ao","nld_curacao","Cur.","CUW","Cura\u00e7ao","Cura\u00e7ao","CW","CUW","531","Cura\u00e7ao","Cura\u00e7ao","Cura\u00e7ao"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": ["",""]}, "type": "Feature", "properties": {"webmercator": ["",""], "names": ["Czechoslovakia","cheslo"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [10,56]}, "type": "Feature", "properties": {"webmercator": [135.11111111111111,79.71669114605123], "names": ["Denmark","dnk","DK","Den.","DNK","Denmark","Kingdom of Denmark","DK","DNK","208","Denmark","Denmark","Denmark"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [15,49.75]}, "type": "Feature", "properties": {"webmercator": [138.66666666666666,87.09691969194691], "names": ["Czech Republic","cze","CZ","Cz. Rep.","CZE","Czech Republic","Czech Republic","CZ","CZE","203","Czech Rep.","Czech Republic","Czech Republic"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [33,35]}, "type": "Feature", "properties": {"webmercator": [151.46666666666667,101.40104481443534], "names": ["Cyprus","cyp","CY","Cyp.","CYP","Cyprus","Republic of Cyprus","CY","CYP","196","Cyprus","Cyprus","Cyprus"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-61.33333,15.5]}, "type": "Feature", "properties": {"webmercator": [84.38518755555556,116.84082214812342], "names": ["Dominica","dma","DM","D'inca","DMA","Dominica","Commonwealth of Dominica","DM","DMA","212","Dominica","Dominica","Dominica"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [43.14503,11.58901]}, "type": "Feature", "properties": {"webmercator": [158.68091022222222,119.70215186012297], "names": ["Djibouti","dji","DJ","Dji.","DJI","Djibouti","Republic of Djibouti","DJ","DJI","262","Djibouti","Djibouti","Djibouti"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [30,27]}, "type": "Feature", "properties": {"webmercator": [149.33333333333334,108.04720062765387], "names": ["Egypt","egy","EG","Egypt","EGY","Egypt","Arab Republic of Egypt","EG","EGY","818","Egypt","Egypt","Egypt, Arab Rep."]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": ["",""]}, "type": "Feature", "properties": {"webmercator": ["",""], "names": ["East Germany","deu_east"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-70.66667,19]}, "type": "Feature", "properties": {"webmercator": [77.74814577777778,114.23422671061515], "names": ["Dominican Republic","dom","DO","Dom. Rep.","DOM","Dominican Republic","Dominican Republic","DO","DOM","214","Dominican Rep.","Dominican Republic","Dominican Republic"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-78.25,-1.25]}, "type": "Feature", "properties": {"webmercator": [72.35555555555555,128.8889594105721], "names": ["Ecuador","ecu","EC","Ecu.","ECU","Ecuador","Republic of Ecuador","EC","ECU","218","Ecuador","Ecuador","Ecuador"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-88.91667,13.83333]}, "type": "Feature", "properties": {"webmercator": [64.770368,118.06597866447105], "names": ["El Salvador","slv","SV","El. S.","SLV","El Salvador","Republic of El Salvador","SV","SLV","222","El Salvador","El Salvador","El Salvador"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [10.5,1.7]}, "type": "Feature", "properties": {"webmercator": [135.46666666666667,126.7909336989813], "names": ["Equatorial Guinea","gnq","GQ","Eq. G.","GNQ","Equatorial Guinea","Republic of Equatorial Guinea","GQ","GNQ","226","Eq. Guinea","Equatorial Guinea","Equatorial Guinea"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [26,59]}, "type": "Feature", "properties": {"webmercator": [146.48888888888888,75.74352661584689], "names": ["Estonia","est","EE","Est.","EST","Estonia","Republic of Estonia","EE","EST","233","Estonia","Estonia","Estonia"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [39,15]}, "type": "Feature", "properties": {"webmercator": [155.73333333333332,117.20935606509084], "names": ["Eritrea","eri","ER","Erit.","ERI","Eritrea","State of Eritrea","ER","ERI","232","Eritrea","Eritrea","Eritrea"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": ["",""]}, "type": "Feature", "properties": {"webmercator": ["",""], "names": ["Eritrea and Ethiopia","eri_a_eth"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-7,62]}, "type": "Feature", "properties": {"webmercator": [123.02222222222223,71.40762039505364], "names": ["Faeroe Islands","fro","Faeroe Is.","FRO","Faroe Islands","F\u00f8royar Is. (Faeroe Is.)","FO","FRO","234","Faeroe Is.","Faeroe Islands","Faeroe Islands"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-59.16667,-51.75]}, "type": "Feature", "properties": {"webmercator": [85.92592355555554,171.15137948673964], "names": ["Falkland Is (Malvinas)","flk"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [39.5,9]}, "type": "Feature", "properties": {"webmercator": [156.0888888888889,121.57351753373084], "names": ["Ethiopia","eth","ET","Eth.","ETH","Ethiopia","Federal Democratic Republic of Ethiopia","ET","ETH","231","Ethiopia","Ethiopia","Ethiopia"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [26,64]}, "type": "Feature", "properties": {"webmercator": [146.48888888888888,68.27352134720488], "names": ["Finland","fin","FI","Fin.","FIN","Finland","Republic of Finland","FI","FIN","246","Finland","Finland","Finland"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [178,-18]}, "type": "Feature", "properties": {"webmercator": [254.57777777777778,141.01590044362635], "names": ["Fiji","fji","FJ","Fiji","FJI","Fiji","Republic of Fiji","FJ","FJI","242","Fiji","Fiji","Fiji"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": ["",""]}, "type": "Feature", "properties": {"webmercator": ["",""], "names": ["French Southern and Antarctic Lands","fra_antarc","TF","Fr. S.A.L.","ATF","French Southern and Antarctic Lands","Territory of the French Southern and Antarctic Lands","TF","ATF","260","Fr. S. Antarctic Lands","French Southern and Antarctic Lands","French Southern and Antarctic Lands"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [2,46]}, "type": "Feature", "properties": {"webmercator": [129.42222222222222,91.07501474058921], "names": ["France","fra","FR","Fr.","FRA","France","French Republic","FR","FRA","250","France","France","France"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-15.5,13.5]}, "type": "Feature", "properties": {"webmercator": [116.97777777777777,118.30992049103556], "names": ["Gambia","gmb","GM","Gambia","GMB","Gambia","Republic of the Gambia","GM","GMB","270","Gambia","The Gambia","Gambia, The"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-53,4]}, "type": "Feature", "properties": {"webmercator": [90.31111111111112,125.15324215665274], "names": ["French Guiana","guf","GF"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": ["",""]}, "type": "Feature", "properties": {"webmercator": ["",""], "names": ["Gaza Strip","pse_gaza","PS","Pal.","PSX","Palestine","West Bank and Gaza","PS","PSE","275","Palestine","Palestine","Palestine (West Bank and Gaza)"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-140,-15]}, "type": "Feature", "properties": {"webmercator": [28.444444444444443,138.79064393490916], "names": ["French Polynesia","pyf","PF","Fr. Poly.","PYF","French Polynesia","French Polynesia","PF","PYF","258","Fr. Polynesia","French Polynesia","French Polynesia"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [11.75,-1]}, "type": "Feature", "properties": {"webmercator": [136.35555555555555,128.71114721666606], "names": ["Gabon","gab","GA","Gabon","GAB","Gabon","Gabonese Republic","GA","GAB","266","Gabon","Gabon","Gabon"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [10.5,51.5]}, "type": "Feature", "properties": {"webmercator": [135.46666666666667,85.13498764623876], "names": ["Germany","deu","DE","Ger.","DEU","Germany","Federal Republic of Germany","DE","DEU","276","Germany","Germany","Germany"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [43.4999,41.99998]}, "type": "Feature", "properties": {"webmercator": [158.93326222222223,95.03158027127785], "names": ["Georgia","geo","GE","Geo.","GEO","Georgia","Georgia","GE","GEO","268","Georgia","Georgia","Georgia"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [22,39]}, "type": "Feature", "properties": {"webmercator": [143.64444444444445,97.83786851383917], "names": ["Greece","grc","GR","Greece","GRC","Greece","Hellenic Republic","GR","GRC","300","Greece","Greece","Greece"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-1.2,8.1]}, "type": "Feature", "properties": {"webmercator": [127.14666666666668,122.22071706381672], "names": ["Ghana","gha","GH","Ghana","GHA","Ghana","Republic of Ghana","GH","GHA","288","Ghana","Ghana","Ghana"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-40,72]}, "type": "Feature", "properties": {"webmercator": [99.55555555555556,52.92042398551503], "names": ["Greenland","grl","GL","Grlnd.","GRL","Greenland","Greenland","GL","GRL","304","Greenland","Greenland","Greenland"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-5.35257,36.14474]}, "type": "Feature", "properties": {"webmercator": [124.193728,100.40020469259652], "names": ["Gibraltar","gib","GI"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-61.66667,12.11667]}, "type": "Feature", "properties": {"webmercator": [84.14814577777777,119.31875079652039], "names": ["Grenada","grd","GD","Gren.","GRD","Grenada","Grenada","GD","GRD","308","Grenada","Grenada","Grenada"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-90.51327,14.64072]}, "type": "Feature", "properties": {"webmercator": [63.635008,117.47363647628401], "names": ["Guatemala","gtm","GT","Guat.","GTM","Guatemala","Republic of Guatemala","GT","GTM","320","Guatemala","Guatemala","Guatemala"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-61.58333,16.25]}, "type": "Feature", "properties": {"webmercator": [84.20740977777778,116.28633673628092], "names": ["Guadeloupe","glp","GP"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-2.57629,49.45474]}, "type": "Feature", "properties": {"webmercator": [126.16797155555555,87.4208933051215], "names": ["Guernsey","gbg","GG","Guern.","GGY","Guernsey","Bailiwick of Guernsey","GG","GGY","831","Guernsey","Guernsey","Guernsey"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [144.81834,13.47861]}, "type": "Feature", "properties": {"webmercator": [230.9819306666667,118.32556267112939], "names": ["Guam","gum","GU","Guam","GUM","Guam","Territory of Guam","GU","GUM","316","Guam","Guam","Guam"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-10.66667,10.83333]}, "type": "Feature", "properties": {"webmercator": [120.41481244444444,120.24998261181113], "names": ["Guinea","gin","GN","Gin.","GIN","Guinea","Republic of Guinea","GN","GIN","324","Guinea","Guinea","Guinea"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-15,12]}, "type": "Feature", "properties": {"webmercator": [117.33333333333333,119.40358804450094], "names": ["Guinea-Bissau","gnb","GW","GnB.","GNB","Guinea Bissau","Republic of Guinea-Bissau","GW","GNB","624","Guinea-Bissau","Guinea-Bissau","Guinea-Bissau"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-72.41667,19]}, "type": "Feature", "properties": {"webmercator": [76.50370133333334,114.23422671061515], "names": ["Haiti","hti","HT","Haiti","HTI","Haiti","Republic of Haiti","HT","HTI","332","Haiti","Haiti","Haiti"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": ["",""]}, "type": "Feature", "properties": {"webmercator": ["",""], "names": ["Heard and McDonald Islands","heard_a_mcd"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [12.45332,41.90236]}, "type": "Feature", "properties": {"webmercator": [136.8556942222222,95.1249207385203], "names": ["Holy See","hos"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-59,5]}, "type": "Feature", "properties": {"webmercator": [86.04444444444445,124.43992298289838], "names": ["Guyana","guy","GY","Guy.","GUY","Guyana","Co-operative Republic of Guyana","GY","GUY","328","Guyana","Guyana","Guyana"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-86.5,15]}, "type": "Feature", "properties": {"webmercator": [66.4888888888889,117.20935606509084], "names": ["Honduras","hnd","HN","Hond.","HND","Honduras","Republic of Honduras","HN","HND","340","Honduras","Honduras","Honduras"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [20,47]}, "type": "Feature", "properties": {"webmercator": [142.22222222222223,90.04191318303863], "names": ["Hungary","hun","HU","Hun.","HUN","Hungary","Republic of Hungary","HU","HUN","348","Hungary","Hungary","Hungary"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [120,-5]}, "type": "Feature", "properties": {"webmercator": [213.33333333333334,131.5600770171016], "names": ["Indonesia","idn","ID","Indo.","IDN","Indonesia","Republic of Indonesia","ID","IDN","360","Indonesia","Indonesia","Indonesia"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-18,65]}, "type": "Feature", "properties": {"webmercator": [115.2,66.62153256624377], "names": ["Iceland","isl","IS","Iceland","ISL","Iceland","Republic of Iceland","IS","ISL","352","Iceland","Iceland","Iceland"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [79,22]}, "type": "Feature", "properties": {"webmercator": [184.17777777777778,111.95632707616872], "names": ["India","ind","IN","India","IND","India","Republic of India","IN","IND","356","India","India","India"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [114.15769,22.28552]}, "type": "Feature", "properties": {"webmercator": [209.17880177777778,111.73712356616237], "names": ["Hong Kong, China","hkg"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [53,32]}, "type": "Feature", "properties": {"webmercator": [165.6888888888889,103.9598972070865], "names": ["Iran","irn","IR","Iran","IRN","Iran","Islamic Republic of Iran","IR","IRN","364","Iran","Iran","Iran, Islamic Rep."]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-8,53]}, "type": "Feature", "properties": {"webmercator": [122.31111111111112,83.39247103387747], "names": ["Ireland","irl","IE","Ire.","IRL","Ireland","Ireland","IE","IRL","372","Ireland","Ireland","Ireland"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [34.75,31.5]}, "type": "Feature", "properties": {"webmercator": [152.7111111111111,104.37802693898524], "names": ["Israel","isr","IL","Isr.","ISR","Israel","State of Israel","IL","ISR","376","Israel","Israel","Israel"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [12.83333,42.83333]}, "type": "Feature", "properties": {"webmercator": [137.12592355555554,94.22885636466282], "names": ["Italy","ita","IT","Italy","ITA","Italy","Italian Republic","IT","ITA","380","Italy","Italy","Italy"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [44,33]}, "type": "Feature", "properties": {"webmercator": [159.2888888888889,103.11672116189807], "names": ["Iraq","irq","IQ","Iraq","IRQ","Iraq","Republic of Iraq","IQ","IRQ","368","Iraq","Iraq","Iraq"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-77.25,18.16667]}, "type": "Feature", "properties": {"webmercator": [73.06666666666666,114.85942021204605], "names": ["Jamaica","jam","JM","Jam.","JAM","Jamaica","Jamaica","JM","JAM","388","Jamaica","Jamaica","Jamaica"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-4.48333,54.15]}, "type": "Feature", "properties": {"webmercator": [124.81185422222222,82.01509951488987], "names": ["Isle of Man","gbm","IM","IoMan","IMN","Isle of Man","IM","IMN","833","Isle of Man","Isle of Man","Isle of Man"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [139.75309,35.68536]}, "type": "Feature", "properties": {"webmercator": [227.3799751111111,100.8035594540489], "names": ["Japan","jpn","JP","Japan","JPN","Japan","Japan","JP","JPN","392","Japan","Japan","Japan"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [68,48]}, "type": "Feature", "properties": {"webmercator": [176.35555555555555,88.98929041012298], "names": ["Kazakhstan","kaz","KZ","Kaz.","KAZ","Kazakhstan","Republic of Kazakhstan","KZ","KAZ","398","Kazakhstan","Kazakhstan","Kazakhstan"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [38,1]}, "type": "Feature", "properties": {"webmercator": [155.0222222222222,127.28885278333395], "names": ["Kenya","ken","KE","Ken.","KEN","Kenya","Republic of Kenya","KE","KEN","404","Kenya","Kenya","Kenya"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-2.11667,49.21667]}, "type": "Feature", "properties": {"webmercator": [126.49481244444445,87.68069680900254], "names": ["Jersey","jey","JE","Jey.","JEY","Jersey","Bailiwick of Jersey","JE","JEY","832","Jersey","Jersey","Jersey"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [36,31]}, "type": "Feature", "properties": {"webmercator": [153.6,104.793926550227], "names": ["Jordan","jor","JO","Jord.","JOR","Jordan","Hashemite Kingdom of Jordan","JO","JOR","400","Jordan","Jordan","Jordan"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [172.984,1.421]}, "type": "Feature", "properties": {"webmercator": [251.01084444444447,126.9894075039025], "names": ["Kiribati","kir","KI","Kir.","KIR","Kiribati","Republic of Kiribati","KI","KIR","296","Kiribati","Kiribati","Kiribati"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [105,18]}, "type": "Feature", "properties": {"webmercator": [202.66666666666666,114.98409955637366], "names": ["Lao","lao"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": ["",""]}, "type": "Feature", "properties": {"webmercator": ["",""], "names": ["Kosovo","kos","","Kos.","KOS","Kosovo","Republic of Kosovo","-99","-99","-99","Kosovo","Kosovo","Kosovo"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [47.97833,29.36972]}, "type": "Feature", "properties": {"webmercator": [162.11792355555556,106.13516380649217], "names": ["Kuwait","kwt","KW","Kwt.","KWT","Kuwait","State of Kuwait","KW","KWT","414","Kuwait","Kuwait","Kuwait"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [75,41.5]}, "type": "Feature", "properties": {"webmercator": [181.33333333333334,95.50814442739468], "names": ["Kyrgyz Republic","kgz","Kgz.","KGZ","Kyrgyzstan","Kyrgyz Republic","KG","KGZ","417","Kyrgyzstan","Kyrgyzstan","Kyrgyz Republic"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-9.5,6.5]}, "type": "Feature", "properties": {"webmercator": [121.24444444444444,123.3678310242578], "names": ["Liberia","lbr","LR","Liberia","LBR","Liberia","Republic of Liberia","LR","LBR","430","Liberia","Liberia","Liberia"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [25,57]}, "type": "Feature", "properties": {"webmercator": [145.77777777777777,78.42820828124746], "names": ["Latvia","lva","LV","Lat.","LVA","Latvia","Republic of Latvia","LV","LVA","428","Latvia","Latvia","Latvia"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [35.83333,33.83333]}, "type": "Feature", "properties": {"webmercator": [153.4814791111111,102.4067550486147], "names": ["Lebanon","lbn","LB","Leb.","LBN","Lebanon","Lebanese Republic","LB","LBN","422","Lebanon","Lebanon","Lebanon"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [17,28]}, "type": "Feature", "properties": {"webmercator": [140.0888888888889,107.24549110793109], "names": ["Libya","lby","LY","Libya","LBY","Libya","Libya","LY","LBY","434","Libya","Libya","Libya"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [6.13,49.61167]}, "type": "Feature", "properties": {"webmercator": [132.3591111111111,87.24894638720653], "names": ["Luxembourg","lux","LU","Lux.","LUX","Luxembourg","Grand Duchy of Luxembourg","LU","LUX","442","Luxembourg","Luxembourg","Luxembourg"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [28.25,-29.5]}, "type": "Feature", "properties": {"webmercator": [148.0888888888889,149.97121120261593], "names": ["Lesotho","lso","LS","Les.","LSO","Lesotho","Kingdom of Lesotho","LS","LSO","426","Lesotho","Lesotho","Lesotho"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [9.53333,47.16667]}, "type": "Feature", "properties": {"webmercator": [134.77925688888888,89.86785660259596], "names": ["Liechtenstein","lie","LI","Liech.","LIE","Liechtenstein","Principality of Liechtenstein","LI","LIE","438","Liechtenstein","Liechtenstein","Liechtenstein"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [24,55.41667]}, "type": "Feature", "properties": {"webmercator": [145.06666666666666,80.45296665340192], "names": ["Lithuania","ltu","LT","Lith.","LTU","Lithuania","Republic of Lithuania","LT","LTU","440","Lithuania","Lithuania","Lithuania"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [113.54611,22.20056]}, "type": "Feature", "properties": {"webmercator": [208.74390044444445,111.80239678245395], "names": ["Macao, China","mac"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [47,-20]}, "type": "Feature", "properties": {"webmercator": [161.42222222222222,142.52016656348022], "names": ["Madagascar","mdg","MG","Mad.","MDG","Madagascar","Republic of Madagascar","MG","MDG","450","Madagascar","Madagascar","Madagascar"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [34,-13.5]}, "type": "Feature", "properties": {"webmercator": [152.17777777777778,137.69007950896446], "names": ["Malawi","mwi","MW","Mal.","MWI","Malawi","Republic of Malawi","MW","MWI","454","Malawi","Malawi","Malawi"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [112.5,2.5]}, "type": "Feature", "properties": {"webmercator": [208.0,126.22165784724601], "names": ["Malaysia","mys","MY","Malay.","MYS","Malaysia","Malaysia","MY","MYS","458","Malaysia","Malaysia","Malaysia"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [21.75,41.66667]}, "type": "Feature", "properties": {"webmercator": [143.46666666666667,95.34969202638634], "names": ["Macedonia, FYR","mkd","Mkd.","MKD","Macedonia","Former Yugoslav Republic of Macedonia","MK","MKD","807","Macedonia","Macedonia","Macedonia, FYR"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-2,18]}, "type": "Feature", "properties": {"webmercator": [126.57777777777778,114.98409955637366], "names": ["Mali","mli","ML","Mali","MLI","Mali","Republic of Mali","ML","MLI","466","Mali","Mali","Mali"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [73,3.2]}, "type": "Feature", "properties": {"webmercator": [179.9111111111111,125.72326050434258], "names": ["Maldives","mdv","MV","Mald.","MDV","Maldives","Republic of Maldives","MV","MDV","462","Maldives","Maldives","Maldives"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [14.43333,35.91667]}, "type": "Feature", "properties": {"webmercator": [138.26370133333333,100.60075242849939], "names": ["Malta","mlt","MT","Malta","MLT","Malta","Republic of Malta","MT","MLT","470","Malta","Malta","Malta"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-10.5,20.25]}, "type": "Feature", "properties": {"webmercator": [120.53333333333333,113.29049529029005], "names": ["Mauritania","mrt","MR","Mrt.","MRT","Mauritania","Islamic Republic of Mauritania","MR","MRT","478","Mauritania","Mauritania","Mauritania"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-61,14.66667]}, "type": "Feature", "properties": {"webmercator": [84.62222222222222,117.45456272155043], "names": ["Martinique","mtq","MQ"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [171.236,7.113]}, "type": "Feature", "properties": {"webmercator": [249.7678222222222,122.9288236814887], "names": ["Marshall Islands","mhl","MH","M. Is.","MHL","Marshall Islands","Republic of the Marshall Islands","MH","MHL","584","Marshall Is.","Marshall Islands","Marshall Islands"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [45.16667,-12.83333]}, "type": "Feature", "properties": {"webmercator": [160.1185208888889,137.2032008331014], "names": ["Mayotte","myt","YT"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [57.58333,-20.3]}, "type": "Feature", "properties": {"webmercator": [168.94814577777777,142.74740879533516], "names": ["Mauritius","mus","MU","Mus.","MUS","Mauritius","Republic of Mauritius","MU","MUS","480","Mauritius","Mauritius","Mauritius"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-99.12766,19.42847]}, "type": "Feature", "properties": {"webmercator": [57.50921955555555,113.91156188869667], "names": ["Mexico","mex","MX","Mex.","MEX","Mexico","United Mexican States","MX","MEX","484","Mexico","Mexico","Mexico"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [28.58333,47.25]}, "type": "Feature", "properties": {"webmercator": [148.32592355555556,89.78062873304258], "names": ["Moldova","mda","MD","Mda.","MDA","Moldova","Republic of Moldova","MD","MDA","498","Moldova","Moldova","Moldova"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [158.162,6.924]}, "type": "Feature", "properties": {"webmercator": [240.47075555555557,123.06423844091569], "names": ["Micronesia, Fed. Sts.","fsm"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-62.2,16.75]}, "type": "Feature", "properties": {"webmercator": [83.76888888888888,115.9155090730293], "names": ["Montserrat","msr","MS","Monts.","MSR","Montserrat","MS","MSR","500","Montserrat","Montserrat","Montserrat"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [7.41667,43.73333]}, "type": "Feature", "properties": {"webmercator": [133.27407644444446,93.34967691591004], "names": ["Monaco","mco","MC","Mco.","MCO","Monaco","Principality of Monaco","MC","MCO","492","Monaco","Monaco","Monaco"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [105,46]}, "type": "Feature", "properties": {"webmercator": [202.66666666666666,91.07501474058921], "names": ["Mongolia","mng","MN","Mong.","MNG","Mongolia","Mongolia","MN","MNG","496","Mongolia","Mongolia","Mongolia"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [35,-18.25]}, "type": "Feature", "properties": {"webmercator": [152.88888888888889,141.2029602865342], "names": ["Mozambique","moz","MZ","Moz.","MOZ","Mozambique","Republic of Mozambique","MZ","MOZ","508","Mozambique","Mozambique","Mozambique"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [19.25,42.75]}, "type": "Feature", "properties": {"webmercator": [141.6888888888889,94.30960668593835], "names": ["Montenegro","mne","ME","Mont.","MNE","Montenegro","Montenegro","ME","MNE","499","Montenegro","Montenegro","Montenegro"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-6,32]}, "type": "Feature", "properties": {"webmercator": [123.73333333333333,103.9598972070865], "names": ["Morocco","mar","MA","Mor.","MAR","Morocco","Kingdom of Morocco","MA","MAR","504","Morocco","Morocco","Morocco"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [166.933,-0.517]}, "type": "Feature", "properties": {"webmercator": [246.70791111111112,128.36764943353535], "names": ["Nauru","nru","NR","Nauru","NRU","Nauru","Republic of Nauru","NR","NRU","520","Nauru","Nauru","Nauru"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [17,-22]}, "type": "Feature", "properties": {"webmercator": [140.0888888888889,144.04367292383128], "names": ["Namibia","nam","NA","Nam.","NAM","Namibia","Republic of Namibia","NA","NAM","516","Namibia","Namibia","Namibia"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [5.75,52.25]}, "type": "Feature", "properties": {"webmercator": [132.0888888888889,84.27109472233107], "names": ["Netherlands","nld","NL","Neth.","NLD","Netherlands","Kingdom of the Netherlands","NL","NLD","528","Netherlands","Netherlands","Netherlands"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [96,21]}, "type": "Feature", "properties": {"webmercator": [196.26666666666668,112.72063222536109], "names": ["Myanmar","mmr","Myan.","MMR","Myanmar","Republic of the Union of Myanmar","MM","MMR","104","Myanmar","Myanmar","Myanmar"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": ["",""]}, "type": "Feature", "properties": {"webmercator": ["",""], "names": ["Netherlands Antilles","ant"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [174,-42]}, "type": "Feature", "properties": {"webmercator": [251.73333333333332,160.96843886660687], "names": ["New Zealand","nzl","NZ","N.Z.","NZL","New Zealand","New Zealand","NZ","NZL","554","New Zealand","New Zealand","New Zealand"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [84,28]}, "type": "Feature", "properties": {"webmercator": [187.73333333333332,107.24549110793109], "names": ["Nepal","npl","NP","Nepal","NPL","Nepal","Nepal","NP","NPL","524","Nepal","Nepal","Nepal"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [165.5,-21.5]}, "type": "Feature", "properties": {"webmercator": [245.6888888888889,143.66086350737777], "names": ["New Caledonia","ncl","NC","New C.","NCL","New Caledonia","New Caledonia","NC","NCL","540","New Caledonia","New Caledonia","New Caledonia"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": ["",""]}, "type": "Feature", "properties": {"webmercator": ["",""], "names": ["Ngorno-Karabakh","ngokar"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-85,13]}, "type": "Feature", "properties": {"webmercator": [67.55555555555556,118.67520134718035], "names": ["Nicaragua","nic","NI","Nic.","NIC","Nicaragua","Republic of Nicaragua","NI","NIC","558","Nicaragua","Nicaragua","Nicaragua"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [9,18]}, "type": "Feature", "properties": {"webmercator": [134.4,114.98409955637366], "names": ["Niger","ner","NE","Niger","NER","Niger","Republic of Niger","NE","NER","562","Niger","Niger","Niger"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-169.86667,-19.03333]}, "type": "Feature", "properties": {"webmercator": [7.2059235555555565,141.7908428219221], "names": ["Niue","niu","NU","Niue","NIU","Niue","NU","NIU","570","Niue","Niue","Niue"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [167.95,-29.03333]}, "type": "Feature", "properties": {"webmercator": [247.4311111111111,149.59079709013417], "names": ["Norfolk Island","nfk","NF","Nfk. I.","NFK","Norfolk Island","Territory of Norfolk Island","NF","NFK","574","Norfolk Island","Norfolk Island","Norfolk Island"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [8,10]}, "type": "Feature", "properties": {"webmercator": [133.6888888888889,120.85250868861858], "names": ["Nigeria","nga","NG","Nigeria","NGA","Nigeria","Federal Republic of Nigeria","NG","NGA","566","Nigeria","Nigeria","Nigeria"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [127,40]}, "type": "Feature", "properties": {"webmercator": [218.3111111111111,96.91626438171672], "names": ["North Korea","prk","KP","N.K.","PRK","North Korea","Democratic People's Republic of Korea","KP","PRK","408","Dem. Rep. Korea","Dem. Rep. Korea","Korea, Dem. Rep."]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": ["",""]}, "type": "Feature", "properties": {"webmercator": ["",""], "names": ["Northern Cyprus","cyp_nor","N. Cy.","CYN","Northern Cyprus","Turkish Republic of Northern Cyprus","-99","-99","-99","N. Cyprus","Northern Cyprus","Cyprus, Northern"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [145.756,15.214]}, "type": "Feature", "properties": {"webmercator": [231.64871111111108,117.05173078180997], "names": ["Northern Mariana Islands","mnp","MP","N.M.I.","MNP","Northern Mariana Islands","Commonwealth of the Northern Mariana Islands","MP","MNP","580","N. Mariana Is.","Northern Mariana Islands","Northern Mariana Islands"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [134.621,7.503]}, "type": "Feature", "properties": {"webmercator": [223.73048888888889,122.64921847576221], "names": ["Palau","plw","PW","Palau","PLW","Palau","Republic of Palau","PW","PLW","585","Palau","Palau","Palau"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [10,62]}, "type": "Feature", "properties": {"webmercator": [135.11111111111111,71.40762039505364], "names": ["Norway","nor","NO","Nor.","NOR","Norway","Kingdom of Norway","NO","NOR","578","Norway","Norway","Norway"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [57,21]}, "type": "Feature", "properties": {"webmercator": [168.53333333333333,112.72063222536109], "names": ["Oman","omn","OM","Oman","OMN","Oman","Sultanate of Oman","OM","OMN","512","Oman","Oman","Oman"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [35.20329,31.92157]}, "type": "Feature", "properties": {"webmercator": [153.03345066666668,104.02563477897334], "names": ["Palestine","pse","Pal.","PSX","Palestine","West Bank and Gaza","PS","PSE","275","Palestine","Palestine","Palestine (West Bank and Gaza)"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-79.51973,8.9936]}, "type": "Feature", "properties": {"webmercator": [71.45263644444445,121.5781253342642], "names": ["Panama","pan","PA","Pan.","PAN","Panama","Republic of Panama","PA","PAN","591","Panama","Panama","Panama"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [147,-6]}, "type": "Feature", "properties": {"webmercator": [232.53333333333333,132.27448632017592], "names": ["Papua New Guinea","png","PG","P.N.G.","PNG","Papua New Guinea","Independent State of Papua New Guinea","PG","PNG","598","Papua New Guinea","Papua New Guinea","Papua New Guinea"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-75.25,-10]}, "type": "Feature", "properties": {"webmercator": [74.4888888888889,135.14749131138143], "names": ["Peru","per","PE","Peru","PER","Peru","Republic of Peru","PE","PER","604","Peru","Peru","Peru"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": ["",""]}, "type": "Feature", "properties": {"webmercator": ["",""], "names": ["North Yemen (former)","yem_north"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [70,30]}, "type": "Feature", "properties": {"webmercator": [177.77777777777777,105.61925423577219], "names": ["Pakistan","pak","PK","Pak.","PAK","Pakistan","Islamic Republic of Pakistan","PK","PAK","586","Pakistan","Pakistan","Pakistan"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-58,-23.33333]}, "type": "Feature", "properties": {"webmercator": [86.75555555555556,145.07121216800874], "names": ["Paraguay","pry","PY","Para.","PRY","Paraguay","Republic of Paraguay","PY","PRY","600","Paraguay","Paraguay","Paraguay"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [122,13]}, "type": "Feature", "properties": {"webmercator": [214.75555555555556,118.67520134718035], "names": ["Philippines","phl","PH","Phil.","PHL","Philippines","Republic of the Philippines","PH","PHL","608","Philippines","Philippines","Philippines"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-130.1,-25.06667]}, "type": "Feature", "properties": {"webmercator": [35.48444444444445,146.42263870573942], "names": ["Pitcairn","pcn"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-66.10572,18.46633]}, "type": "Feature", "properties": {"webmercator": [80.99148799999999,114.6349558782766], "names": ["Puerto Rico","pri","PR","P.R.","PRI","Puerto Rico","Commonwealth of Puerto Rico","PR","PRI","630","Puerto Rico","Puerto Rico","Puerto Rico"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [51.52245,25.27932]}, "type": "Feature", "properties": {"webmercator": [164.63818666666666,109.41027479057948], "names": ["Qatar","qat","QA","Qatar","QAT","Qatar","State of Qatar","QA","QAT","634","Qatar","Qatar","Qatar"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [20,52]}, "type": "Feature", "properties": {"webmercator": [142.22222222222223,84.56066396718006], "names": ["Poland","pol","PL","Pol.","POL","Poland","Republic of Poland","PL","POL","616","Poland","Poland","Poland"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [100,60]}, "type": "Feature", "properties": {"webmercator": [199.11111111111111,74.34230806029021], "names": ["Russia","rus","RU","Rus.","RUS","Russia","Russian Federation","RU","RUS","643","Russia","Russian Federation","Russian Federation"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-8.13057,39.6945]}, "type": "Feature", "properties": {"webmercator": [122.21826133333333,97.19922567993041], "names": ["Portugal","prt","PT","Port.","PRT","Portugal","Portuguese Republic","PT","PRT","620","Portugal","Portugal","Portugal"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [30,-2]}, "type": "Feature", "properties": {"webmercator": [149.33333333333334,129.4225111326762], "names": ["Rwanda","rwa","RW","Rwa.","RWA","Rwanda","Republic of Rwanda","RW","RWA","646","Rwanda","Rwanda","Rwanda"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-172.13333,-13.8]}, "type": "Feature", "properties": {"webmercator": [5.594076444444444,137.90961376534105], "names": ["Samoa","wsm","WS","Samoa","WSM","Samoa","Independent State of Samoa","WS","WSM","882","Samoa","Samoa","Samoa"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [55.4504,-20.88231]}, "type": "Feature", "properties": {"webmercator": [167.43139555555555,143.18975819636128], "names": ["Reunion","reu","RE"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [45,25]}, "type": "Feature", "properties": {"webmercator": [160.0,109.62968640511879], "names": ["Saudi Arabia","sau","SA","Saud.","SAU","Saudi Arabia","Kingdom of Saudi Arabia","SA","SAU","682","Saudi Arabia","Saudi Arabia","Saudi Arabia"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [12.44639,43.93667]}, "type": "Feature", "properties": {"webmercator": [136.85076622222223,93.14921930518868], "names": ["San Marino","smr","SM","S.M.","SMR","San Marino","Republic of San Marino","SM","SMR","674","San Marino","San Marino","San Marino"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-14.25,14.5]}, "type": "Feature", "properties": {"webmercator": [117.86666666666666,117.57702922918061], "names": ["Senegal","sen","SN","Sen.","SEN","Senegal","Republic of Senegal","SN","SEN","686","Senegal","Senegal","Senegal"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [25,46]}, "type": "Feature", "properties": {"webmercator": [145.77777777777777,91.07501474058921], "names": ["Romania","rou","RO","Rom.","ROU","Romania","Romania","RO","ROU","642","Romania","Romania","Romania"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [20.45998,44.81892]}, "type": "Feature", "properties": {"webmercator": [142.54931911111112,92.27142804225798], "names": ["Serbia","srb","RS","Serb.","SRB","Republic of Serbia","Republic of Serbia","RS","SRB","688","Serbia","Serbia","Serbia"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [7,1]}, "type": "Feature", "properties": {"webmercator": [132.9777777777778,127.28885278333395], "names": ["Sao Tome and Principe","stp","ST","S.T.P.","STP","Sao Tome and Principe","Democratic Republic of S\u00e3o Tom\u00e9 and Principe","ST","STP","678","S\u00e3o Tom\u00e9 and Principe","S\u00e3o Tom\u00e9 and Principe","S\u00e3o Tom\u00e9 and Principe"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": ["",""]}, "type": "Feature", "properties": {"webmercator": ["",""], "names": ["Serbia and Montenegro","scg"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [55.66667,-4.58333]}, "type": "Feature", "properties": {"webmercator": [167.58518755555556,131.26273849663042], "names": ["Seychelles","syc","SC","Syc.","SYC","Seychelles","Republic of Seychelles","SC","SYC","690","Seychelles","Seychelles","Seychelles"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [103.85007,1.28967]}, "type": "Feature", "properties": {"webmercator": [201.84893866666667,127.08282388149046], "names": ["Singapore","sgp","SG","Sing.","SGP","Singapore","Republic of Singapore","SG","SGP","702","Singapore","Singapore","Singapore"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": ["",""]}, "type": "Feature", "properties": {"webmercator": ["",""], "names": ["Serbia excluding Kosovo","scg_ex_kos"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-11.5,8.5]}, "type": "Feature", "properties": {"webmercator": [119.82222222222222,121.93326114319231], "names": ["Sierra Leone","sle","SL","S.L.","SLE","Sierra Leone","Republic of Sierra Leone","SL","SLE","694","Sierra Leone","Sierra Leone","Sierra Leone"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [19.5,48.66667]}, "type": "Feature", "properties": {"webmercator": [141.86666666666667,88.2761603911597], "names": ["Slovak Republic","svk","Svk.","SVK","Slovakia","Slovak Republic","SK","SVK","703","Slovakia","Slovakia","Slovak Republic"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-63.06667,18.04167]}, "type": "Feature", "properties": {"webmercator": [83.15259022222222,114.95293894311463], "names": ["Sint Maarten (Dutch part)","sxm","St. M.","SXM","Sint Maarten","Sint Maarten (Dutch part)","SX","SXM","534","Sint Maarten","Sint Maarten","St. Maarten (Dutch part)"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [48,6]}, "type": "Feature", "properties": {"webmercator": [162.13333333333333,123.72551367982409], "names": ["Somalia","som","SO","Som.","SOM","Somalia","Federal Republic of Somalia","SO","SOM","706","Somalia","Somalia","Somalia"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [15,46.08333]}, "type": "Feature", "properties": {"webmercator": [138.66666666666666,90.98964676787662], "names": ["Slovenia","svn","SI","Slo.","SVN","Slovenia","Republic of Slovenia","SI","SVN","705","Slovenia","Slovenia","Slovenia"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [159,-8]}, "type": "Feature", "properties": {"webmercator": [241.06666666666666,133.70746413042787], "names": ["Solomon Islands","slb","SB","S. Is.","SLB","Solomon Islands","SB","SLB","090","Solomon Is.","Solomon Islands","Solomon Islands"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": ["",""]}, "type": "Feature", "properties": {"webmercator": ["",""], "names": ["Somaliland","som_somland","Solnd.","SOL","Somaliland","Republic of Somaliland","-99","-99","-99","Somaliland","Somaliland","Somaliland"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [127.75,36.5]}, "type": "Feature", "properties": {"webmercator": [218.84444444444443,100.08664990702526], "names": ["South Korea","kor","KR","S.K.","KOR","South Korea","Republic of Korea","KR","KOR","410","Korea","Republic of Korea","Korea, Rep."]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": ["",""]}, "type": "Feature", "properties": {"webmercator": ["",""], "names": ["South Ossetia","sosset"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [24,-29]}, "type": "Feature", "properties": {"webmercator": [145.06666666666666,149.56369370272338], "names": ["South Africa","zaf","ZA","S.Af.","ZAF","South Africa","Republic of South Africa","ZA","ZAF","710","South Africa","South Africa","South Africa"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": ["",""]}, "type": "Feature", "properties": {"webmercator": ["",""], "names": ["South Georgia and the South Sandwich Islands","sgero_a_ssandw"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [30,7.5]}, "type": "Feature", "properties": {"webmercator": [149.33333333333334,122.65137022496212], "names": ["South Sudan","ssd","SS","S. Sud.","SDS","South Sudan","Republic of South Sudan","SS","SSD","728","S. Sudan","South Sudan","South Sudan"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": ["",""]}, "type": "Feature", "properties": {"webmercator": ["",""], "names": ["South Yemen (former)","yem_south"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": ["",""]}, "type": "Feature", "properties": {"webmercator": ["",""], "names": ["St. Barth\u00e9lemy","stbar"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-5.7,-15.95]}, "type": "Feature", "properties": {"webmercator": [123.94666666666667,139.4916209590863], "names": ["St. Helena","shn","St.H.","SHN","Saint Helena","SH","SHN","654","Saint Helena","Saint Helena","St. Helena"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-4,40]}, "type": "Feature", "properties": {"webmercator": [125.15555555555555,96.91626438171672], "names": ["Spain","esp","ES","Sp.","ESP","Spain","Kingdom of Spain","ES","ESP","724","Spain","Spain","Spain"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-62.75,17.33333]}, "type": "Feature", "properties": {"webmercator": [83.37777777777778,115.48164432036697], "names": ["St. Kitts and Nevis","kna","St.K.N.","KNA","Saint Kitts and Nevis","Federation of Saint Kitts and Nevis","KN","KNA","659","St. Kitts and Nevis","Saint Kitts and Nevis","St. Kitts and Nevis"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": ["",""]}, "type": "Feature", "properties": {"webmercator": ["",""], "names": ["St. Martin","stmar"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-60.96667,13.88333]}, "type": "Feature", "properties": {"webmercator": [84.64592355555556,118.02935708789133], "names": ["St. Lucia","lca","S.L.","LCA","Saint Lucia","Saint Lucia","LC","LCA","662","Saint Lucia","Saint Lucia","St. Lucia"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [80.75,7.75]}, "type": "Feature", "properties": {"webmercator": [185.42222222222222,122.47200631847684], "names": ["Sri Lanka","lka","LK","Sri L.","LKA","Sri Lanka","Democratic Socialist Republic of Sri Lanka","LK","LKA","144","Sri Lanka","Sri Lanka","Sri Lanka"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": ["",""]}, "type": "Feature", "properties": {"webmercator": ["",""], "names": ["St. Martin (French part)","maf","St. M.","MAF","Saint Martin","Saint-Martin (French part)","MF","MAF","663","St-Martin","Saint-Martin","St. Martin (French part)"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-61.2,13.08333]}, "type": "Feature", "properties": {"webmercator": [84.48,118.61437552491611], "names": ["St. Vincent and the Grenadines","vct","St.V.G.","VCT","Saint Vincent and the Grenadines","Saint Vincent and the Grenadines","VC","VCT","670","St. Vin. and Gren.","Saint Vincent and the Grenadines","St. Vincent and the Grenadines"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [20,78]}, "type": "Feature", "properties": {"webmercator": [142.22222222222223,36.212560327626775], "names": ["Svalbard","sjm","SJ"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-56.33333,46.83333]}, "type": "Feature", "properties": {"webmercator": [87.94074311111112,90.21542764507811], "names": ["St.-Pierre-et-Miquelon","spm"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [15,62]}, "type": "Feature", "properties": {"webmercator": [138.66666666666666,71.40762039505364], "names": ["Sweden","swe","SE","Swe.","SWE","Sweden","Kingdom of Sweden","SE","SWE","752","Sweden","Sweden","Sweden"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [30,16]}, "type": "Feature", "properties": {"webmercator": [149.33333333333334,116.47139523891636], "names": ["Sudan","sdn","SD","Sudan","SDN","Sudan","Republic of the Sudan","SD","SDN","729","Sudan","Sudan","Sudan"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [31.5,-26.5]}, "type": "Feature", "properties": {"webmercator": [150.4,147.55462956143526], "names": ["Swaziland","swz","SZ","Swz.","SWZ","Swaziland","Kingdom of Swaziland","SZ","SWZ","748","Swaziland","Swaziland","Swaziland"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-56,4]}, "type": "Feature", "properties": {"webmercator": [88.17777777777778,125.15324215665274], "names": ["Suriname","sur","SR","Sur.","SUR","Suriname","Republic of Suriname","SR","SUR","740","Suriname","Suriname","Suriname"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [8.01427,47.00016]}, "type": "Feature", "properties": {"webmercator": [133.69903644444446,90.0417463528015], "names": ["Switzerland","che","CH","Switz.","CHE","Switzerland","Swiss Confederation","CH","CHE","756","Switzerland","Switzerland","Switzerland"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [121,24]}, "type": "Feature", "properties": {"webmercator": [214.04444444444445,110.41117448489817], "names": ["Taiwan","twn","TW","Taiwan","TWN","Taiwan","TW","TWN","158","Taiwan","Taiwan","Taiwan"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [38,35]}, "type": "Feature", "properties": {"webmercator": [155.0222222222222,101.40104481443534], "names": ["Syria","syr","SY","Syria","SYR","Syria","Syrian Arab Republic","SY","SYR","760","Syria","Syria","Syrian Arab Republic"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-171.83,-9.167]}, "type": "Feature", "properties": {"webmercator": [5.809777777777769,134.54674625667664], "names": ["Tokelau","tkl","TK"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [71,39]}, "type": "Feature", "properties": {"webmercator": [178.48888888888888,97.83786851383917], "names": ["Tajikistan","tjk","TJ","Tjk.","TJK","Tajikistan","Republic of Tajikistan","TJ","TJK","762","Tajikistan","Tajikistan","Tajikistan"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [125.75,-8.83333]}, "type": "Feature", "properties": {"webmercator": [217.42222222222222,134.306511665418], "names": ["Timor-Leste","tls","TL","T.L.","TLS","East Timor","Democratic Republic of Timor-Leste","TL","TLS","626","Timor-Leste","Timor-Leste","Timor-Leste"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [1.08333,8.66667]}, "type": "Feature", "properties": {"webmercator": [128.770368,121.81339772024995], "names": ["Togo","tgo","TG","Togo","TGO","Togo","Togolese Republic","TG","TGO","768","Togo","Togo","Togo"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [35,-6]}, "type": "Feature", "properties": {"webmercator": [152.88888888888889,132.27448632017592], "names": ["Tanzania","tza","TZ","Tanz.","TZA","United Republic of Tanzania","United Republic of Tanzania","TZ","TZA","834","Tanzania","Tanzania","Tanzania"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [101,15.5]}, "type": "Feature", "properties": {"webmercator": [199.82222222222222,116.84082214812342], "names": ["Thailand","tha","TH","Thai.","THA","Thailand","Kingdom of Thailand","TH","THA","764","Thailand","Thailand","Thailand"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": ["",""]}, "type": "Feature", "properties": {"webmercator": ["",""], "names": ["Transnistria","transn"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-175,-20]}, "type": "Feature", "properties": {"webmercator": [3.5555555555555554,142.52016656348022], "names": ["Tonga","ton","TO","Tongo","TON","Tonga","Kingdom of Tonga","TO","TON","776","Tonga","Tonga","Tonga"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-61,11]}, "type": "Feature", "properties": {"webmercator": [84.62222222222222,120.12927735600724], "names": ["Trinidad and Tobago","tto","TT","Tr.T.","TTO","Trinidad and Tobago","Republic of Trinidad and Tobago","TT","TTO","780","Trinidad and Tobago","Trinidad and Tobago","Trinidad and Tobago"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [35,39]}, "type": "Feature", "properties": {"webmercator": [152.88888888888889,97.83786851383917], "names": ["Turkey","tur","TR","Tur.","TUR","Turkey","Republic of Turkey","TR","TUR","792","Turkey","Turkey","Turkey"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [59.66667,39.75]}, "type": "Feature", "properties": {"webmercator": [170.429632,97.14791371683184], "names": ["Turkmenistan","tkm","TM","Turkm.","TKM","Turkmenistan","Turkmenistan","TM","TKM","795","Turkmenistan","Turkmenistan","Turkmenistan"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-71.58333,21.73333]}, "type": "Feature", "properties": {"webmercator": [77.09629866666667,112.16066045498248], "names": ["Turks and Caicos Islands","tca","TC","T.C. Is.","TCA","Turks and Caicos Islands","Turks and Caicos Islands","TC","TCA","796","Turks and Caicos Is.","Turks and Caicos Islands","Turks and Caicos Islands"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [9,34]}, "type": "Feature", "properties": {"webmercator": [134.4,102.26393289409256], "names": ["Tunisia","tun","TN","Tun.","TUN","Tunisia","Republic of Tunisia","TN","TUN","788","Tunisia","Tunisia","Tunisia"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [179.14478,-8.51719]}, "type": "Feature", "properties": {"webmercator": [255.39184355555554,134.07909889540565], "names": ["Tuvalu","tuv","TV"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [54.5,23.75]}, "type": "Feature", "properties": {"webmercator": [166.75555555555556,110.60558832603377], "names": ["United Arab Emirates","are","AE","U.A.E.","ARE","United Arab Emirates","United Arab Emirates","AE","ARE","784","United Arab Emirates","United Arab Emirates","United Arab Emirates"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-2.69531,54.75844]}, "type": "Feature", "properties": {"webmercator": [126.08333511111111,81.27083871243272], "names": ["United Kingdom","gbr","GB","U.K.","GBR","United Kingdom","United Kingdom of Great Britain and Northern Ireland","GB","GBR","826","United Kingdom","United Kingdom","United Kingdom"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [32.5,1.25]}, "type": "Feature", "properties": {"webmercator": [151.11111111111111,127.11104058942787], "names": ["Uganda","uga","UG","Uga.","UGA","Uganda","Republic of Uganda","UG","UGA","800","Uganda","Uganda","Uganda"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": ["",""]}, "type": "Feature", "properties": {"webmercator": ["",""], "names": ["United Korea (former)","korea_union"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-56,-33]}, "type": "Feature", "properties": {"webmercator": [88.17777777777778,152.88327883810194], "names": ["Uruguay","ury","UY","Ury.","URY","Uruguay","Oriental Republic of Uruguay","UY","URY","858","Uruguay","Uruguay","Uruguay"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [32,49]}, "type": "Feature", "properties": {"webmercator": [150.75555555555556,87.91606118423016], "names": ["Ukraine","ukr","UA","Ukr.","UKR","Ukraine","Ukraine","UA","UKR","804","Ukraine","Ukraine","Ukraine"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-98.5,39.76]}, "type": "Feature", "properties": {"webmercator": [57.955555555555556,97.13866392446096], "names": ["United States","usa","US","U.S.A.","USA","United States of America","United States of America","US","USA","840","United States","United States","United States of America"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [63.83333,41.66667]}, "type": "Feature", "properties": {"webmercator": [173.39259022222222,95.34969202638634], "names": ["Uzbekistan","uzb","UZ","Uzb.","UZB","Uzbekistan","Republic of Uzbekistan","UZ","UZB","860","Uzbekistan","Uzbekistan","Uzbekistan"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": ["",""]}, "type": "Feature", "properties": {"webmercator": ["",""], "names": ["US Minor Outlying Islands","usa_minor_out_isl","UM"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": ["",""]}, "type": "Feature", "properties": {"webmercator": ["",""], "names": ["West Bank","pse_west_bank","PS","Pal.","PSX","Palestine","West Bank and Gaza","PS","PSE","275","Palestine","Palestine","Palestine (West Bank and Gaza)"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [167,-16]}, "type": "Feature", "properties": {"webmercator": [246.75555555555556,139.52860476108364], "names": ["Vanuatu","vut","VU","Van.","VUT","Vanuatu","Republic of Vanuatu","VU","VUT","548","Vanuatu","Vanuatu","Vanuatu"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-66,8]}, "type": "Feature", "properties": {"webmercator": [81.06666666666666,122.29253586957215], "names": ["Venezuela","ven","VE","Ven.","VEN","Venezuela","Bolivarian Republic of Venezuela","VE","VEN","862","Venezuela","Venezuela","Venezuela, RB"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [107.83333,16.16667]}, "type": "Feature", "properties": {"webmercator": [204.68147911111112,116.34804639972711], "names": ["Vietnam","vnm","VN","Viet.","VNM","Vietnam","Socialist Republic of Vietnam","VN","VNM","704","Vietnam","Vietnam","Vietnam"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-176.2,-13.3]}, "type": "Feature", "properties": {"webmercator": [2.7022222222222303,137.54387697063078], "names": ["Wallis et Futuna","wlf"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": ["",""]}, "type": "Feature", "properties": {"webmercator": ["",""], "names": ["West Germany","deu_west"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": ["",""]}, "type": "Feature", "properties": {"webmercator": ["",""], "names": ["Yugoslavia","yug"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-12.65625,24.49215]}, "type": "Feature", "properties": {"webmercator": [119.0,110.02734182864413], "names": ["Western Sahara","esh","EH","W. Sah.","SAH","Western Sahara","Sahrawi Arab Democratic Republic","EH","ESH","732","W. Sahara","Western Sahara","Western Sahara"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": ["",""]}, "type": "Feature", "properties": {"webmercator": ["",""], "names": ["USSR","ussr"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [-64.98348,18.34829]}, "type": "Feature", "properties": {"webmercator": [81.78952533333333,114.72342174315888], "names": ["Virgin Islands (U.S.)","vir","V.I. (U.S.)","VIR","United States Virgin Islands","Virgin Islands of the United States","VI","VIR","850","U.S. Virgin Is.","United States Virgin Islands","Virgin Islands (U.S.)"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [47.5,15.5]}, "type": "Feature", "properties": {"webmercator": [161.77777777777777,116.84082214812342], "names": ["Yemen","yem","YE","Yem.","YEM","Yemen","Republic of Yemen","YE","YEM","887","Yemen","Yemen","Yemen, Rep."]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [28.5,-14.33333]}, "type": "Feature", "properties": {"webmercator": [148.26666666666668,138.30059636068398], "names": ["Zambia","zmb","ZM","Zambia","ZMB","Zambia","Republic of Zambia","ZM","ZMB","894","Zambia","Zambia","Zambia"]}
+        }, 
+        {"geometry": {"type": "Point", "coordinates": [29.75,-19]}, "type": "Feature", "properties": {"webmercator": [149.15555555555557,141.76577328938487], "names": ["Zimbabwe","zwe","ZW","Zimb.","ZWE","Zimbabwe","Republic of Zimbabwe","ZW","ZWE","716","Zimbabwe","Zimbabwe","Zimbabwe"]}
+        }
+    ]
+}
