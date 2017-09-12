@@ -183,7 +183,7 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
 
   for (var i =  0; i < that.layersData['data'].length; i++) {
     var layer = that.layersData['data'][i];
-    if (layer["Enabled"]) {
+    if (layer["Enabled"] == "TRUE") {
       var layerIdentifier = layer["Share link identifier"].replace(/\W+/g, '_');
 
       var scalingFunction = layer["Scaling"].trim();
