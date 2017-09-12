@@ -57,4 +57,5 @@ var EARTH_TIMELAPSE_CONFIG = {
   "showOmiNo2": true,
   "showChinaInfrastructure": true,
   "showBePm25": true,
+  "showIrena": true
 };
