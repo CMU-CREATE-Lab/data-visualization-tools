@@ -125,7 +125,12 @@ WebglMapTile.r2 = function(x) {
 };
 
 
-WebglMapTile.prototype._draw = function(transform) {
+WebglMapTile.prototype._draw = function(transform, opts) {
+  var opts = opts || {};
+  var showTile = true;
+  if (opts.showTile === false) {
+    showTile = false;
+  }
   var gl = this.gl;
   var tileTransform = new Float32Array(transform);
   translateMatrix(tileTransform, this._bounds.min.x, this._bounds.min.y);
@@ -138,6 +143,7 @@ WebglMapTile.prototype._draw = function(transform) {
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.uniformMatrix4fv(this._textureProgram.uTransform, false, tileTransform);
+    gl.uniform1f(this._textureProgram.uShowTile, showTile);
     gl.bindBuffer(gl.ARRAY_BUFFER, this._triangles);
     gl.vertexAttribPointer(this._textureProgram.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(this._textureProgram.aTextureCoord);
@@ -248,9 +254,14 @@ WebglMapTile.textureFragmentShader =
   'precision mediump float;\n' +
   'varying vec2 vTextureCoord;\n' +
   'uniform sampler2D uSampler;\n' +
+  'uniform bool uShowTile;\n' +
   'void main(void) {\n' +
   '  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));\n' +
-  '  gl_FragColor = vec4(textureColor.rgb, textureColor.a);\n' +
+  '  if (uShowTile) {\n' +
+  '    gl_FragColor = vec4(textureColor.rgb, textureColor.a);\n' +
+  '  } else {\n' +
+  '    gl_FragColor = vec4(textureColor.rgb, 0.);\n' +
+  '  }\n' + 
   '}\n';
 
 WebglMapTile.seaLevelRiseTextureFragmentShader =
