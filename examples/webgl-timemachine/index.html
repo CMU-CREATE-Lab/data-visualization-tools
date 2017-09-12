@@ -149,6 +149,8 @@
     var showBePm25 = !!EARTH_TIMELAPSE_CONFIG.showBePm25;
     var showExpandingCities = !!EARTH_TIMELAPSE_CONFIG.showExpandingCities;
 
+    var showTile = true;
+
     var enableThemeHamburgerButton = !!EARTH_TIMELAPSE_CONFIG.enableThemeHamburgerButton;
     var useJumpToButtons = false;
     var showShareButton = !!EARTH_TIMELAPSE_CONFIG.showShareButton;
@@ -2125,6 +2127,7 @@
           $("#expanding-cities-legend").show();
           if (visibleBaseMapLayer != "dark") {
             $("#dark-base").click();
+            showTile = false;
           }
 
         } else {
@@ -2132,6 +2135,8 @@
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
           $("#expanding-cities-legend").hide();
+          showTile = true;
+
         }
       }).prop('checked', showExpandingCitiesLayer);
 
@@ -5038,7 +5043,8 @@
           lightBaseMapLayer.draw(lightBaseMapView);
         } else if (visibleBaseMapLayer == "dark") { // Draw Dark Map
           var darkBaseMapView = getLayerView(darkBaseMapLayer, landsatBaseMapLayer);
-          darkBaseMapLayer.draw(darkBaseMapView);
+          var options = {showTile: showTile};
+          darkBaseMapLayer.draw(darkBaseMapView, options);
         }
 
         // Layers to draw above the base layer (or planet-wide static layers)
