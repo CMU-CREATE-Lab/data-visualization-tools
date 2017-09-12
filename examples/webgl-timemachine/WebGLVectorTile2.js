@@ -3302,6 +3302,7 @@ WebGLVectorTile2.timeSeriesPointDataVertexShader =
 '      uniform float u_epoch;\n' +
 '      uniform mat4 u_map_matrix;\n' +
 '      varying float v_val;\n' +
+'      varying float v_val1;\n' +
 '      void main() {\n' +
 '        vec4 position;\n' +
 '        if (a_epoch1 > u_epoch || a_epoch2 <= u_epoch) {\n' +
@@ -3312,17 +3313,26 @@ WebGLVectorTile2.timeSeriesPointDataVertexShader =
 '        gl_Position = position;\n' +
 '        float delta = (u_epoch - a_epoch1)/(a_epoch2 - a_epoch1);\n' +
 '        v_val = (a_val2 - a_val1) * delta + a_val1;\n' +
-'        gl_PointSize = 25.0;\n' + 
-'        gl_PointSize = 140. * smoothstep(10.0, u_max_value, sqrt(v_val)) + 10.;\n' +
+'        v_val1 = a_val1;\n' + 
+'        if (a_val1 > 0.) {\n'+
+'          gl_PointSize = 140. * smoothstep(10.0, u_max_value, sqrt(v_val)) + 10.;\n' +
+'        } else {\n' + 
+'          gl_PointSize = 100.;\n' +
+'        }\n' + 
 '      }\n';
 
 WebGLVectorTile2.timeSeriesPointDataFragmentShader =
 '      //WebGLVectorTile2.timeSeriesPointDataFragmentShader\n' + 
   'precision mediump float;\n' +
-
+  'varying float v_val;\n' +
+  'varying float v_val1;\n' +
   'void main() {\n' +
   '  vec3 color;\n' +
-  '  color = vec3(212./255., 212./255., 212./255.);\n' +
+  '  if (v_val1 == 0.) {\n' +
+  '    color = vec3(12./255., 12./255., 232./255.);\n' +
+  '  } else { \n' + 
+  '    color = vec3(212./255., 212./255., 212./255.);\n' +
+  '  }\n' + 
   '  float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
   '  dist = 1. - (dist * 2.);\n' +
   '  dist = max(0., dist);\n' +
