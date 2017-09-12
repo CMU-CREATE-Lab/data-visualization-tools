@@ -113,7 +113,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
 
   // Create and insert legend
   var legend='<tr id="' + nickname + '-legend" style="display: none"><td>';
-  legend += '<div style="font-size: 18px">' + name
+  legend += '<div style="font-size: 16px">' + name
   if (credit) legend += '<span class="credit">(' + credit + ')</span>';
   legend += '</div>';
   legend += legendContent;
