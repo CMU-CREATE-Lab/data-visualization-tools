@@ -3326,11 +3326,7 @@ WebGLVectorTile2.timeSeriesPointDataFragmentShader =
   'varying float v_val1;\n' +
   'void main() {\n' +
   '  vec3 color;\n' +
-  '  if (v_val1 == 0.) {\n' +
-  '    color = vec3(12./255., 12./255., 232./255.);\n' +
-  '  } else { \n' + 
-  '    color = vec3(212./255., 212./255., 212./255.);\n' +
-  '  }\n' + 
+  '  color = vec3(212./255., 212./255., 212./255.);\n' +
   '  float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
   '  dist = 1. - (dist * 2.);\n' +
   '  dist = max(0., dist);\n' +
