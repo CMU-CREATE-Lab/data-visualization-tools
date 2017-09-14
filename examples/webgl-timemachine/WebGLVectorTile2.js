@@ -554,36 +554,6 @@ WebGLVectorTile2.prototype._setIomIdpData = function(data) {
   }
 }
 
-// UCDP Database: a_centroid[2]  a_val a_start_epoch a_end_epoch
-WebGLVectorTile2.prototype._setUppsalaConflictData = function(arrayBuffer) {
-  var gl = this.gl;
-  this._pointCount = arrayBuffer.length / 5;
-  if (this._pointCount > 0) {
-    this._data = arrayBuffer;
-    this._arrayBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);
-
-    var attributeLoc = gl.getAttribLocation(this.program, 'a_centroid');
-    gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 20, 0);
-
-    var attributeLoc = gl.getAttribLocation(this.program, 'a_val');
-    gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 20, 8);
-
-    var attributeLoc = gl.getAttribLocation(this.program, 'a_start_epoch');
-    gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 20, 12);
-
-    var attributeLoc = gl.getAttribLocation(this.program, 'a_end_epoch');
-    gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 20, 16);
-
-    this._ready = true;
-  }
-}
-
 // Ebola: a_Centroid[2] a_Epoch1 a_Deaths1 a_Epoch2 a_Deaths2
 WebGLVectorTile2.prototype._setEbolaData = function(arrayBuffer) {
   var gl = this.gl;

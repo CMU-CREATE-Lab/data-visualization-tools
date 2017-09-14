@@ -4229,10 +4229,11 @@
         tileWidth: 256,
         tileHeight: 256,
         nLevels: 0,
-        setDataFunction: WebGLVectorTile2.prototype._setUppsalaConflictData,
+        setDataFunction: WebGLVectorTile2.prototype._setBufferData,
         drawFunction: WebGLVectorTile2.prototype._drawUppsalaConflict,
         fragmentShader: WebGLVectorTile2.uppsalaConflictFragmentShader,
-        vertexShader: WebGLVectorTile2.uppsalaConflictVertexShader
+        vertexShader: WebGLVectorTile2.uppsalaConflictVertexShader,
+        numAttributes: 5
       };
       uppsalaConflictLayer = new WebglVectorLayer2(glb, canvasLayer, uppsalaConflictUrl, uppsalaConflictLayerOptions);
 
