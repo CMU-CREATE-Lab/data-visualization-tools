@@ -1175,7 +1175,6 @@ WebGLVectorTile2.prototype._setVaccineConfidenceData = function(data) {
 }
 
 WebGLVectorTile2.prototype._setBufferData  = function(data) {
-    console.log('_setBufferData');
     var gl = this.gl;
     this._pointCount = data.length / this._numAttributes;
     if (this._pointCount > 0) {
