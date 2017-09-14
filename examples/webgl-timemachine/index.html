@@ -4034,10 +4034,11 @@
         tileWidth: 256,
         tileHeight: 256,
         nLevels: 0,
-        setDataFunction: WebGLVectorTile2.prototype._setViirsData,
+        setDataFunction: WebGLVectorTile2.prototype._setBufferData,        
         drawFunction: WebGLVectorTile2.prototype._drawViirs,
         fragmentShader: WebGLVectorTile2.viirsFragmentShader,
-        vertexShader: WebGLVectorTile2.viirsVertexShader
+        vertexShader: WebGLVectorTile2.viirsVertexShader,
+        numAttributes: 4
       };
       viirsLayer = new WebglVectorLayer2(glb, canvasLayer, viirsUrl, viirsLayerOptions);
 
