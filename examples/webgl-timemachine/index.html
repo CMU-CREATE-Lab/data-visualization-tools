@@ -4353,10 +4353,11 @@
         nLevels: 0,
         scalingFunction: 'd3.scaleSqrt().domain([0,100000]).range([0, 100])',
         loadDataFunction: WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv,
-        setDataFunction: WebGLVectorTile2.prototype._setBubbleMapData,
+        setDataFunction: WebGLVectorTile2.prototype._setBufferData,
         drawFunction: WebGLVectorTile2.prototype._drawBubbleMap,
         fragmentShader: WebGLVectorTile2.bubbleMapFragmentShader,
         vertexShader: WebGLVectorTile2.bubbleMapVertexShader,
+        numAttributes: 6        
       };
       irenaSolarLayer = new WebglVectorLayer2(glb, canvasLayer, irenaSolarUrl, irenaSolarLayerOptions);
 
@@ -4366,10 +4367,12 @@
         nLevels: 0,
         scalingFunction: 'd3.scaleSqrt().domain([0,100000]).range([0, 100])',
         loadDataFunction: WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv,
-        setDataFunction: WebGLVectorTile2.prototype._setBubbleMapData,
         drawFunction: WebGLVectorTile2.prototype._drawBubbleMap,
+        setDataFunction: WebGLVectorTile2.prototype._setBufferData,
         fragmentShader: WebGLVectorTile2.bubbleMapFragmentShader,
         vertexShader: WebGLVectorTile2.bubbleMapVertexShader,
+        numAttributes: 6        
+
       };
       irenaWindLayer = new WebglVectorLayer2(glb, canvasLayer, irenaWindUrl, irenaWindLayerOptions);
 

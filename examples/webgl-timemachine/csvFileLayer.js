@@ -63,11 +63,12 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
     layerId: nickname,
     loadDataFunction: WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv,
     dataLoadedFunction: this.dataLoadedFromCsv.bind(this),
-    setDataFunction: WebGLVectorTile2.prototype._setBubbleMapData,
+    setDataFunction: WebGLVectorTile2.prototype._setBufferData,
     drawFunction: WebGLVectorTile2.prototype._drawBubbleMap,
     fragmentShader: WebGLVectorTile2.bubbleMapFragmentShader,
     vertexShader: WebGLVectorTile2.bubbleMapVertexShader,
-    externalGeojson: externalGeojson
+    externalGeojson: externalGeojson,
+    numAttributes: 6
   };
   if (mapType == "choropleth") {
     layerOptions.loadDataFunction = WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv;
