@@ -4046,10 +4046,11 @@
         tileWidth: 256,
         tileHeight: 256,
         nLevels: 11,
-        setDataFunction: WebGLVectorTile2.prototype._setWdpaData,
+        setDataFunction: WebGLVectorTile2.prototype._setBufferData,        
         drawFunction: WebGLVectorTile2.prototype._drawWdpa,
         fragmentShader: WebGLVectorTile2.wdpaFragmentShader,
-        vertexShader: WebGLVectorTile2.wdpaVertexShader
+        vertexShader: WebGLVectorTile2.wdpaVertexShader,
+        numAttributes: 3
       };
       wdpaLayer = new WebglVectorLayer2(glb, canvasLayer, wdpaUrl, wdpaLayerOptions);
 

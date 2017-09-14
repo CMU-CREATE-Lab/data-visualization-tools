@@ -555,28 +555,6 @@ WebGLVectorTile2.prototype._setIomIdpData = function(data) {
 }
 
 
-// WDPA: worldCoord[2]  time
-WebGLVectorTile2.prototype._setWdpaData = function(arrayBuffer) {
-  var gl = this.gl;
-  this._pointCount = arrayBuffer.length / 3;
-  if (this._pointCount > 0) {
-    this._data = arrayBuffer;
-    this._arrayBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);
-
-    var attributeLoc = gl.getAttribLocation(this.program, 'worldCoord');
-    gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 12, 0);
-
-    var timeLoc = gl.getAttribLocation(this.program, 'time');
-    gl.enableVertexAttribArray(timeLoc);
-    gl.vertexAttribPointer(timeLoc, 1, gl.FLOAT, false, 12, 8);
-
-    this._ready = true;
-  }
-}
-
 // Global Terrorism Database: a_WorldCoord[2]  a_Epoch  a_NCasualties
 WebGLVectorTile2.prototype._setGtdData = function(arrayBuffer) {
   var gl = this.gl;
