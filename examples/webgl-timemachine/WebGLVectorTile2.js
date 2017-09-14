@@ -1024,8 +1024,8 @@ WebGLVectorTile2.prototype._setObesityData = function(data) {
     if (this._pointCount > 0) {
       this._data = new Float32Array(verts);
 
-      this.arrayBuffer = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.arrayBuffer);
+      this._arrayBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
       gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);
 
       var attributeLoc = gl.getAttribLocation(this.program, 'a_Vertex');
@@ -1132,8 +1132,8 @@ WebGLVectorTile2.prototype._setVaccineConfidenceData = function(data) {
     if (this._pointCount > 0) {
       this._data = new Float32Array(verts);
 
-      this.arrayBuffer = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.arrayBuffer);
+      this._arrayBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
       gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);
 
       var attributeLoc = gl.getAttribLocation(this.program, 'a_Vertex');
@@ -1179,8 +1179,8 @@ WebGLVectorTile2.prototype._setBufferData  = function(data) {
     this._pointCount = data.length / this._numAttributes;
     if (this._pointCount > 0) {
       this._data = data;    
-      this.arrayBuffer = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.arrayBuffer);
+      this._arrayBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
       gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);      
       this._ready = true;
     }
@@ -2162,7 +2162,7 @@ WebGLVectorTile2.prototype._drawObesity = function(transform, options) {
     gl.useProgram(this.program);
     gl.enable(gl.BLEND);
     gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.arrayBuffer);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
     var tileTransform = new Float32Array(transform);
 
@@ -2220,7 +2220,7 @@ WebGLVectorTile2.prototype._drawTimeSeriesPointData = function(transform, option
     gl.enable(gl.BLEND);
     //gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
     gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.arrayBuffer);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
     var tileTransform = new Float32Array(transform);
 
@@ -2274,7 +2274,7 @@ WebGLVectorTile2.prototype._drawVaccineConfidence = function(transform, options)
     gl.useProgram(this.program);
     gl.enable(gl.BLEND);
     gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.arrayBuffer);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
     var tileTransform = new Float32Array(transform);
 
