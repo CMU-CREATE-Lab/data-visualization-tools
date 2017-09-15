@@ -155,6 +155,7 @@
 
     var enableThemeHamburgerButton = !!EARTH_TIMELAPSE_CONFIG.enableThemeHamburgerButton;
     var enableMinimalUIMode = window.location.hash.split("enableMinimalUIMode=")[1] || !!EARTH_TIMELAPSE_CONFIG.enableMinimalUIMode;
+    var disablePresentationSlider = window.location.hash.split("disablePresentationSlider=")[1] || enableRecordingMode || !!EARTH_TIMELAPSE_CONFIG.disablePresentationSlider || false;
     var extraContributors = EARTH_TIMELAPSE_CONFIG.extraContributors ? EARTH_TIMELAPSE_CONFIG.extraContributors.replace(",", " |") : "";
     var useJumpToButtons = false;
     var showShareButton = !!EARTH_TIMELAPSE_CONFIG.showShareButton;
@@ -508,10 +509,6 @@
     var irenaWindUrl = 'https://data.cmucreatelab.org/earthtime/IRENA/Wind.Electricity_capacity_MW.csv';
 
     function init() {
-      var enablePresentationSlider = true;
-      if (enableRecordingMode || window.location.hash.split("disablePresentationSlider=")[1]) {
-        enablePresentationSlider = false;
-      }
       var settings = {
         loopDwell: {
           startDwell: 1.5,
@@ -521,7 +518,7 @@
         viewerType: "webgl",
         url: landsatUrl,
         apiKeys: googleMapsAPIKey ? {'googleMaps': googleMapsAPIKey} : undefined,
-        enablePresentationSlider: enablePresentationSlider,
+        enablePresentationSlider: !disablePresentationSlider,
         enableEditor: enableRecordingMode ? true : false,
         showEditorOnLoad: enableRecordingMode ? true : false,
         // Using "https" will casue the thumbnail loading from the server to fail
@@ -2348,7 +2345,7 @@
 
         // 'page up' key
         // Quick way to step forward through waypoints
-        if (e.keyCode === 33) {
+        if (!disablePresentationSlider && e.keyCode === 33) {
           var selectedIdx = 0;
           var $selectedWaypoint = $(".snaplapse_keyframe_list .thumbnail_highlight");
           if ($selectedWaypoint.length > 0) {
@@ -2363,7 +2360,7 @@
 
         // 'page down' key
         // Quick way to step backwards through waypoints
-        if (e.keyCode === 34) {
+        if (!disablePresentationSlider && e.keyCode === 34) {
           var lastWaypointIdx = selectedIdx = $(".snaplapse_keyframe_list").children().last().index();
           var $selectedWaypoint = $(".snaplapse_keyframe_list .thumbnail_highlight");
           if ($selectedWaypoint.length > 0) {
@@ -4084,7 +4081,7 @@
         tileWidth: 256,
         tileHeight: 256,
         nLevels: 0,
-        setDataFunction: WebGLVectorTile2.prototype._setBufferData,        
+        setDataFunction: WebGLVectorTile2.prototype._setBufferData,
         drawFunction: WebGLVectorTile2.prototype._drawViirs,
         fragmentShader: WebGLVectorTile2.viirsFragmentShader,
         vertexShader: WebGLVectorTile2.viirsVertexShader,
@@ -4096,7 +4093,7 @@
         tileWidth: 256,
         tileHeight: 256,
         nLevels: 11,
-        setDataFunction: WebGLVectorTile2.prototype._setBufferData,        
+        setDataFunction: WebGLVectorTile2.prototype._setBufferData,
         drawFunction: WebGLVectorTile2.prototype._drawWdpa,
         fragmentShader: WebGLVectorTile2.wdpaFragmentShader,
         vertexShader: WebGLVectorTile2.wdpaVertexShader,
@@ -4419,7 +4416,7 @@
         drawFunction: WebGLVectorTile2.prototype._drawBubbleMap,
         fragmentShader: WebGLVectorTile2.bubbleMapFragmentShader,
         vertexShader: WebGLVectorTile2.bubbleMapVertexShader,
-        numAttributes: 6        
+        numAttributes: 6
       };
       irenaSolarLayer = new WebglVectorLayer2(glb, canvasLayer, irenaSolarUrl, irenaSolarLayerOptions);
 
@@ -4433,7 +4430,7 @@
         setDataFunction: WebGLVectorTile2.prototype._setBufferData,
         fragmentShader: WebGLVectorTile2.bubbleMapFragmentShader,
         vertexShader: WebGLVectorTile2.bubbleMapVertexShader,
-        numAttributes: 6        
+        numAttributes: 6
 
       };
       irenaWindLayer = new WebglVectorLayer2(glb, canvasLayer, irenaWindUrl, irenaWindLayerOptions);
