@@ -4191,10 +4191,11 @@
         tileWidth: 256,
         tileHeight: 256,
         nLevels: 0,
-        setDataFunction: WebGLVectorTile2.prototype._setHealthImpactData,
+        setDataFunction: WebGLVectorTile2.prototype._setBufferData,
         drawFunction: WebGLVectorTile2.prototype._drawHealthImpact,
         fragmentShader: WebGLVectorTile2.healthImpactFragmentShader,
-        vertexShader: WebGLVectorTile2.healthImpactVertexShader
+        vertexShader: WebGLVectorTile2.healthImpactVertexShader,
+        numAttributes: 6
       };
       healthImpactLayer = new WebglVectorLayer2(glb, canvasLayer, healthImpactUrl, healthImpactLayerOptions);
 

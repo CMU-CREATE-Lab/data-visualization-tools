@@ -690,39 +690,6 @@ WebGLVectorTile2.prototype._setAnnualRefugeesData = function(arrayBuffer) {
   }
 }
 
-WebGLVectorTile2.prototype._setHealthImpactData = function(arrayBuffer) {
-  var gl = this.gl;
-  this._pointCount = arrayBuffer.length / 6;
-  if (this._pointCount > 0) {
-    this._data = arrayBuffer;
-    this._arrayBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);
-
-    var attributeLoc = gl.getAttribLocation(this.program, 'a_Centroid');
-    gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 24, 0);
-
-    var attributeLoc = gl.getAttribLocation(this.program, 'a_Year');
-    gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 8);
-
-    var attributeLoc = gl.getAttribLocation(this.program, 'a_Val1');
-    gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 12);
-
-    var attributeLoc = gl.getAttribLocation(this.program, 'a_Val2');
-    gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 16);
-
-    var attributeLoc = gl.getAttribLocation(this.program, 'a_Rcp');
-    gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 20);
-
-    this._ready = true;
-  }
-}
-
 WebGLVectorTile2.prototype._setUrbanFragilityData = function(arrayBuffer) {
   var gl = this.gl;
   this._pointCount = arrayBuffer.length / 5;
