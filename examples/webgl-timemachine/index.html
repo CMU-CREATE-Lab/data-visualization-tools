@@ -4328,10 +4328,11 @@
         tileWidth: 256,
         tileHeight: 256,
         nLevels: 0,
-        setDataFunction: WebGLVectorTile2.prototype._setEbolaData,
+        setDataFunction: WebGLVectorTile2.prototype._setBufferData,
         drawFunction: WebGLVectorTile2.prototype._drawEbola,
         fragmentShader: WebGLVectorTile2.ebolaFragmentShader,
-        vertexShader: WebGLVectorTile2.ebolaVertexShader
+        vertexShader: WebGLVectorTile2.ebolaVertexShader,
+        numAttributes: 6
       };
       ebolaDeathsLayer = new WebglVectorLayer2(glb, canvasLayer, ebolaDeathsUrl, ebolaLayerOptions);
       ebolaCasesLayer = new WebglVectorLayer2(glb, canvasLayer, ebolaCasesUrl, ebolaLayerOptions);
