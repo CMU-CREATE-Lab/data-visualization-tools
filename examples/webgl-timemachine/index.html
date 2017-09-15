@@ -4153,10 +4153,11 @@
         tileWidth: 256,
         tileHeight: 256,
         nLevels: 0,
-        setDataFunction: WebGLVectorTile2.prototype._setMonthlyRefugeesData,
+        setDataFunction: WebGLVectorTile2.prototype._setBufferData,
         drawFunction: WebGLVectorTile2.prototype._drawMonthlyRefugees,
         fragmentShader: WebGLVectorTile2.monthlyRefugeesFragmentShader,
-        vertexShader: WebGLVectorTile2.monthlyRefugeesVertexShader
+        vertexShader: WebGLVectorTile2.monthlyRefugeesVertexShader,
+        numAttributes: 10
       };
       monthlyRefugeesLayer = new WebglVectorLayer2(glb, canvasLayer, monthlyRefugeesUrl, monthlyRefugeesLayerOptions);
 

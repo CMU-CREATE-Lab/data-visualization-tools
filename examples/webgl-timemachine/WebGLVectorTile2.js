@@ -645,51 +645,6 @@ WebGLVectorTile2.prototype._setColorDotmapData = function(arrayBuffer) {
   }
 }
 
-// Monthly Refugees aStartPoint[2] aEndPoint[2] aMidPoint[2] aEpoch aEndTime aSpan aTimeOffset
-WebGLVectorTile2.prototype._setMonthlyRefugeesData = function(arrayBuffer) {
-  var gl = this.gl;
-  this._pointCount = arrayBuffer.length / 10;
-
-  if (this._pointCount > 0) {
-    this._data = arrayBuffer;
-    this._arrayBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);
-
-    var attributeLoc = gl.getAttribLocation(this.program, 'aStartPoint');
-    gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 40, 0);
-
-    var attributeLoc = gl.getAttribLocation(this.program, 'aEndPoint');
-    gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 40, 8);
-
-    var attributeLoc = gl.getAttribLocation(this.program, 'aMidPoint');
-    gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 40, 16);
-
-    var attributeLoc = gl.getAttribLocation(this.program, 'aEpoch');
-    gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 40, 24);
-
-
-    var attributeLoc = gl.getAttribLocation(this.program, 'aEndTime');
-    gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 40, 28);
-
-
-    var attributeLoc = gl.getAttribLocation(this.program, 'aSpan');
-    gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 40, 32);
-
-    var attributeLoc = gl.getAttribLocation(this.program, 'aTimeOffset');
-    gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 40, 36);
-
-    this._ready = true;
-  }
-}
-
 // Annual Refugees aStartPoint[2] aEndPoint[2] aMidPoint[2] aEpoch
 WebGLVectorTile2.prototype._setAnnualRefugeesData = function(arrayBuffer) {
   var gl = this.gl;
