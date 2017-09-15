@@ -127,12 +127,12 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
   $('#' + id).on("click", function() {
     if ($(this).prop('checked')) {
       // Turn on layer
-      setActiveLayersWithTimeline(1);
-      timelineType = "defaultUI";
-      requestNewTimeline(nickname + ".json", timelineType);
       if (visibleBaseMapLayer != "dark") {
         $("#dark-base").click();
       }
+      setActiveLayersWithTimeline(1);
+      timelineType = "defaultUI";
+      requestNewTimeline(nickname + ".json", timelineType);
       layer.visible = true;
       $("#" + nickname + "-legend").show();
       if (mapType == "choropleth") {
@@ -140,11 +140,11 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
       }
 
     } else {
-      // Turn off layer
-      layer.visible = false;
       $("#" + nickname + "-legend").hide();
       setActiveLayersWithTimeline(-1);
       doSwitchToLandsat();
+      // Turn off layer
+      layer.visible = false;
       if (mapType == "choropleth") {
         showCountryLabelMapLayer = false;
       }

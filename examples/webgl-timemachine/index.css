@@ -48,19 +48,38 @@ html, body {
   position: absolute;
   font-size: 40px;
   text-shadow: -1px 0 #000, 0 1px #000, 1px 0 #000, 0 -1px #000, 2px 2px 3px rgba(0, 0, 0, 0.3);
-  font-family: Arial, Helvetica, sans-serif;
   color: white;
   font-weight: normal;
   z-index: 50;
   left: 92px;
   top: 18px;
 }
-.googleLogo {
+#productLogo {
+  font-size: 22px;
+  padding-bottom: 2px;
+}
+#contributors {
+  font-size: 11px;
+}
+#baseLayerCreditContainer {
   color: white;
-  font-size: 40px;
-  width: 382px;
+  font-size: 12px;
   background-image: none;
   text-shadow: -1px 0 #656565, 0 1px #656565, 1px 0 #656565, 0 -1px #656565;
+  height: 19px;
+  position: absolute;
+  bottom: -9px;
+  background: rgba(123, 123, 123, 0.2);
+  padding-left: 2px;
+  left: 50%;
+  opacity: 0.50;
+  transform: translate(-50%, -50%);
+  margin: 0 auto;
+  cursor: default;
+  z-index: 9001;
+}
+.googleLogo {
+  display: none;
 }
 ::-webkit-input-placeholder {
   color: rgba(50,50,50,1.0);
@@ -97,6 +116,9 @@ html, body {
 }
 .customHelpLabel-touchFriendly.ui-button {
   top: -26px;
+}
+.customHelpLabel {
+  display: none !important;
 }
 .extras-content-video {
   position: absolute !important;
@@ -142,7 +164,6 @@ html, body {
 .top-panel {
   border-radius: 0px;
   outline: none;
-  font-family: Arial, Helvetica, sans-serif;
   font-size: 19px;
   padding: 0;
   -webkit-touch-callout: none;
@@ -253,7 +274,6 @@ html, body {
   background: rgba(255,255,255,1);
   margin-left: -140px;
   border: 1px solid #656565;
-  font-family: Arial, Helvetica, sans-serif;
   font-size: 17px;
   height: 13px;
   outline: none;
@@ -301,7 +321,7 @@ fieldset {
 
 #layers-list.right-panel {
   height: 100%;
-  max-height: 455px;
+  max-height: 355px;
   position: absolute;
   top: 20px;
   right: 20px;
@@ -313,7 +333,6 @@ fieldset {
   border: 1px solid #656565;
   box-shadow: 2px 2px 3px rgba(0,0,0,0.3);
   outline: none;
-  font-family: Arial, Helvetica, sans-serif;
   font-size: 14px;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -355,6 +374,9 @@ fieldset {
 .current-location-text.layerGraphs {
   bottom: 135px;
 }
+.current-location-text.noTimeline {
+  bottom: 173px;
+}
 #letterbox-bottom {
   position: relative;
   width: 100%;
@@ -383,7 +405,7 @@ fieldset {
   bottom: 230px;
   left: 20px;
   z-index: 10;
-  max-width: 283px;
+  max-width: 285px;
   border: 1px solid #656565;
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
@@ -406,9 +428,8 @@ fieldset {
 }
 .current-location-text h3 {
   margin-bottom: 0.35em;
-  font-family: 'franklin-gothic-urw-comp', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-size: 19px;
-  font-weight: 400;
+  font-weight: 600;
   -webkit-font-smoothing: antialiased;
   margin-top: 0px;
   -webkit-backface-visibility: hidden;
@@ -418,8 +439,8 @@ fieldset {
 }
 .current-location-text p {
   margin: 0;
-  font-size: 14px;
-  line-height: 16px;
+  font-size: 15px;
+  line-height: 17px;
   -webkit-font-smoothing: antialiased;
   -webkit-backface-visibility: hidden;
   -ms-transform: translateZ(0); /* IE 9 */
@@ -484,7 +505,6 @@ fieldset {
   border: 1px solid #656565;
   box-shadow: 2px 2px 3px rgba(0,0,0,0.3);
   outline: none;
-  font-family: Arial, Helvetica, sans-serif;
   font-size: 15px;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -890,7 +910,7 @@ a:focus { outline:0; }
   color: white;
   position: sticky;
   left: 0px;
-  z-index: 99999;
+  z-index: 100;
   display: none;
   cursor: pointer;
 }
@@ -1074,4 +1094,50 @@ a:focus { outline:0; }
   text-align: left;
   font-size: 17px;
   color: #555;
+}
+
+.ui-corner-all, .ui-corner-bottom, .ui-corner-top, .ui-corner-right, .ui-corner-br {
+  border-bottom-right-radius: 0px;
+  border-bottom-left-radius: 0px;
+  border-top-right-radius: 0px;
+  border-top-left-radius: 0px;
+}
+
+.customControl {
+  bottom: 6px !important;
+}
+
+#productLogo a, #contributors a {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#logosContainer {
+  bottom: 82px;
+  position: absolute;
+  right: 20px;
+  text-align: right;
+  color: white;
+  -webkit-font-smoothing: antialiased;
+  text-shadow: -1px 0 #656565, 0 1px #656565, 1px 0 #656565, 0 -1px #656565;
+  cursor: default;
+  z-index: 9001;
+}
+
+#logosContainer.noTimeline {
+  bottom: 20px;
+}
+
+.unselectable {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.scaleBarContainer.noTimeline {
+  bottom: 20px !important;
 }
