@@ -1141,3 +1141,7 @@ a:focus { outline:0; }
 .scaleBarContainer.noTimeline {
   bottom: 20px !important;
 }
+
+.customTimeline, .timelineSliderFiller {
+  right: 15px !important;
+}
