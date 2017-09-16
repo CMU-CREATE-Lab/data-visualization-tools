@@ -778,10 +778,12 @@
           showHansenLayer2 = true;
           timelineType = "none";
           $("#forest-loss-gain-legend").show();
+          $("#baseLayerCreditContainer").hide();
         } else {
           showHansenLayer2 = false;
           timelineType = "customUI";
           $("#forest-loss-gain-legend").hide();
+          $("#baseLayerCreditContainer").show();
         }
       }).prop('checked', showHansenLayer2);
 
@@ -1015,6 +1017,7 @@
               }
             );
           }
+          $("#baseLayerCreditContainer").hide();
         } else {
           showHimawariTimeMachineLayer = false;
           setActiveLayersWithTimeline(-1);
@@ -1039,6 +1042,7 @@
           }
         }
         timelapse.warpTo(timelapse.getHomeView());
+        $("#baseLayerCreditContainer").show();
       }).prop('checked', showHimawariTimeMachineLayer);
 
       $("#show-berkeley-earth-temperature-anomaly").on("click", function() {
@@ -1052,8 +1056,8 @@
           timelapse.setDoDwell(false);
           WebglVideoTile.useGreenScreen = false;
           timelapse.setMasterPlaybackRate(1.0);
-
           $("#berkeley-earth-temperature-anomaly-legend").show();
+          $("#baseLayerCreditContainer").hide();
         } else {
           showBerkeleyEarthTemperatureAnomalyTimeMachineLayer = false;
           setActiveLayersWithTimeline(-1);
@@ -1062,6 +1066,7 @@
           v.setFps(10);
           $("#berkeley-earth-temperature-anomaly-legend").hide();
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          $("#baseLayerCreditContainer").show();
         }
       }).prop('checked', showBerkeleyEarthTemperatureAnomalyTimeMachineLayer);
 
@@ -1155,10 +1160,12 @@
           showLightsAtNight2012Layer = true;
           timelineType = "none";
           $("#lights-at-night-2012-legend").show();
+          $("#baseLayerCreditContainer").hide();
         } else {
           showLightsAtNight2012Layer = false;
           timelineType = "customUI";
           $("#lights-at-night-2012-legend").hide();
+          $("#baseLayerCreditContainer").show();
         }
       }).prop('checked', showLightsAtNight2012Layer);
 
@@ -1173,10 +1180,12 @@
           showLightsAtNight2016Layer = true;
           timelineType = "none";
           $("#lights-at-night-2016-legend").show();
+          $("#baseLayerCreditContainer").hide();
         } else {
           showLightsAtNight2016Layer = false;
           timelineType = "customUI";
           $("#lights-at-night-2016-legend").hide();
+          $("#baseLayerCreditContainer").show();
         }
       }).prop('checked', showLightsAtNight2016Layer);
 
@@ -2136,15 +2145,15 @@
           if (visibleBaseMapLayer != "dark") {
             $("#dark-base").click();
           }
-            showTile = false;
-
+          showTile = false;
+          $("#baseLayerCreditContainer").hide();
         } else {
           showExpandingCitiesLayer = false;
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
           $("#expanding-cities-legend").hide();
           showTile = true;
-
+          $("#baseLayerCreditContainer").show();
         }
       }).prop('checked', showExpandingCitiesLayer);
 
