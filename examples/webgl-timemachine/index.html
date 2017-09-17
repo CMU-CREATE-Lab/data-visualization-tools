@@ -699,11 +699,9 @@
             $("#show-water-change").click();
           }
           showWaterOccurrenceLayer = true;
-          timelineType = "none";
           $("#water-occurrence-legend").show();
         } else {
           showWaterOccurrenceLayer = false;
-          timelineType = "customUI";
           $("#water-occurrence-legend").hide();
         }
       }).prop('checked', showWaterOccurrenceLayer);
@@ -715,11 +713,9 @@
             $("#show-water-occurrence").click();
           }
           showWaterChangeLayer = true;
-          timelineType = "none";
           $("#water-change-legend").show();
         } else {
           showWaterChangeLayer = false;
-          timelineType = "customUI";
           $("#water-change-legend").hide();
         }
       }).prop('checked', showWaterChangeLayer);
@@ -728,11 +724,9 @@
         var $this = $(this);
         if ($this.is(':checked')) {
           showWdpaLayer = true;
-          timelineType = "none";
           $("#wdpa-legend").show();
         } else {
           showWdpaLayer = false;
-          timelineType = "customUI";
           $("#wdpa-legend").hide();
         }
       }).prop('checked', showWdpaLayer);
@@ -752,11 +746,9 @@
             $("#show-forest-alerts-no-overlay").click();
           }
           showHansenLayer = true;
-          timelineType = "none";
           $("#forest-loss-year-legend").show();
         } else {
           showHansenLayer = false;
-          timelineType = "customUI";
           $("#forest-loss-year-legend").hide();
         }
       }).prop('checked', showHansenLayer);
