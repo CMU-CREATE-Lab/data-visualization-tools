@@ -3,6 +3,7 @@
 
 <head>
   <title>Earth Timelapse</title>
+  <meta name="keywords" content="Earth Time,EarthTime,Earth Timelapse,Global Situation Space">
   <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 
   <link href="../../timemachine/css/snaplapse.css" rel="stylesheet" type="text/css" />
@@ -4919,6 +4920,12 @@
       });
 
       if (extraContributors) {
+        if (extraContributors == "Igarape Institute") {
+          var idx = extraContributors.indexOf('e');
+          extraContributors = extraContributors.substr(0, idx) + '&eacute;' + extraContributors.substr(idx + 1);
+          $("#productLogo").css("font-size", "30px");
+          $("#contributors").css("font-size", "20px");
+        }
         $("#contributors").html($("#contributors").html() + " | " + extraContributors);
       }
 
@@ -6175,7 +6182,7 @@
   <div id="extras-content" title=""></div>
   <div id="logosContainer" class="unselectable">
     <div id="productLogo">EarthTime</div>
-    <div id="contributors"><a href="http://cmucreatelab.org" target="_blank">CREATE Lab</a></div>
+    <div id="contributors">CREATE Lab</div>
   </div>
   <div id="baseLayerCreditContainer" class="unselectable">
     <table>
