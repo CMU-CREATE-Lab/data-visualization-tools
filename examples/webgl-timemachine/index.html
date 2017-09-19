@@ -4168,11 +4168,12 @@
         tileWidth: 256,
         tileHeight: 256,
         nLevels: 0,
-        setDataFunction: WebGLVectorTile2.prototype._setAnnualRefugeesData,
+        setDataFunction: WebGLVectorTile2.prototype._setBufferData,
         drawFunction: WebGLVectorTile2.prototype._drawAnnualRefugees,
         fragmentShader: WebGLVectorTile2.annualRefugeesFragmentShader,
         vertexShader: WebGLVectorTile2.annualRefugeesVertexShader,
-        imageSrc: "annual-refugees-color-map.png"
+        imageSrc: "annual-refugees-color-map.png",
+        numAttributes: 7
 
       };
       annualRefugeesLayer = new WebglVectorLayer2(glb, canvasLayer, annualRefugeesUrl, annualRefugeesLayerOptions);

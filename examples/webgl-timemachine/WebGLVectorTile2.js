@@ -611,51 +611,6 @@ WebGLVectorTile2.prototype._setColorDotmapData = function(arrayBuffer) {
   }
 }
 
-// Annual Refugees aStartPoint[2] aEndPoint[2] aMidPoint[2] aEpoch
-WebGLVectorTile2.prototype._setAnnualRefugeesData = function(arrayBuffer) {
-  var gl = this.gl;
-  this._pointCount = arrayBuffer.length / 7;
-
-  if (this._pointCount > 0) {
-    this._data = arrayBuffer;
-    this._arrayBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);
-
-    var attributeLoc = gl.getAttribLocation(this.program, 'aStartPoint');
-    gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 28, 0);
-
-    var attributeLoc = gl.getAttribLocation(this.program, 'aEndPoint');
-    gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 28, 8);
-
-    var attributeLoc = gl.getAttribLocation(this.program, 'aMidPoint');
-    gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 28, 16);
-
-    var attributeLoc = gl.getAttribLocation(this.program, 'aEpoch');
-    gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 28, 24);
-
-    this._texture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, this._texture);
-
-    // Set the parameters so we can render any size image.
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-
-    // Upload the image into the texture.
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._image);
-
-    gl.bindTexture(gl.TEXTURE_2D, null);
-
-    this._ready = true;
-  }
-}
-
 WebGLVectorTile2.prototype._setUrbanFragilityData = function(arrayBuffer) {
   var gl = this.gl;
   this._pointCount = arrayBuffer.length / 5;
@@ -910,6 +865,24 @@ WebGLVectorTile2.prototype._setBufferData  = function(data) {
       this._arrayBuffer = gl.createBuffer();
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
       gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);      
+
+      // Bind option image to texture
+      if (typeof this._image !== "undefined") {
+        this._texture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, this._texture);
+
+        // Set the parameters so we can render any size image.
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+        // Upload the image into the texture.
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._image);
+
+        gl.bindTexture(gl.TEXTURE_2D, null);
+      }
+
       this._ready = true;
     }
 }
