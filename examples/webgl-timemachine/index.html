@@ -4645,7 +4645,11 @@
           // Set playback rate based on the waypoint.
           if (typeof(waypointPlaybackSpeed) !== undefined) {
             if (waypointPlaybackSpeed == 0) {
-              timelapse.pause();
+              if (timelapse.isDoingLoopingDwell()) {
+                timelapse.handlePlayPause();
+              } else {
+                timelapse.pause();
+              }
             } else {
               var waypointPlaybackRate = timelapse.getMaxPlaybackRate() * (waypointPlaybackSpeed / 100);
               timelapse.setPlaybackRate(waypointPlaybackRate);
