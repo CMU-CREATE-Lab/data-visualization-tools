@@ -207,6 +207,7 @@
     var previousActiveLayersWithTimeline = 0;
     var keysDown = [];
     var $lastSelectedExtra;
+    var defaultAnnotationBoxWidth = 283;
 
     // This is necessary because waypoint thumbnails are generated from the Landsat set and thus the best we can show is just a solid black thumbnail
     // instead of some random location that a himawari bounds corresponds to in Landsat.
@@ -4553,7 +4554,7 @@
                     $current_location_text_picture.attr("src", annotationPicturePaths[currentWaypointTheme][waypointIndex].path);
                   } else {
                     $current_location_text_picture.attr("src", "");
-                    $current_location_text.css("max-width", 283);
+                    $current_location_text.css("max-width", defaultAnnotationBoxWidth);
                   }
                   $current_location_text.find("p").text(waypoint.description);
                   previousWaypoint.scale = waypointScale;
@@ -4939,8 +4940,11 @@
         if (extraContributors == "Igarape Institute") {
           var idx = extraContributors.indexOf('e');
           extraContributors = extraContributors.substr(0, idx) + '&eacute;' + extraContributors.substr(idx + 1);
-          $("#productLogo").css("font-size", "30px");
-          $("#contributors").css("font-size", "20px");
+          $("#productLogo").css("font-size", "32px");
+          $("#contributors").css("font-size", "22px");
+          defaultAnnotationBoxWidth = 360;
+          $(".current-location-text p").css({"font-size" : "24px", "line-height" : "30px"});
+          $(".current-location-text h3").css("font-size", "34px");
           $("#timeMachine .presentationSlider").addClass("offscreen");
           $("#timeMachine .player").addClass("presentationSliderOffscreen");
         }
