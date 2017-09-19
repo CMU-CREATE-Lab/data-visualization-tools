@@ -571,32 +571,6 @@ WebGLVectorTile2.prototype._setCoralReefData = function(arrayBuffer) {
   this._ready = true;
 }
 
-// LODES   centroid[4]  aDist  aColor
-WebGLVectorTile2.prototype._setLodesData = function(arrayBuffer) {
-  var gl = this.gl;
-  this._pointCount = arrayBuffer.length / 6;
-  if (this._pointCount > 0) {
-    this._data = arrayBuffer;
-    this._arrayBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);
-
-    var attributeLoc = gl.getAttribLocation(this.program, 'centroid');
-    gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 4, gl.FLOAT, false, 24, 0);
-
-    var attributeLoc = gl.getAttribLocation(this.program, 'aDist');
-    gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 16);
-
-    var attributeLoc = gl.getAttribLocation(this.program, 'aColor');
-    gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 20);
-
-    this._ready = true;
-  }
-}
-
 // Color Dotmap (not animated)  aWorldCoord[2]  aColor
 WebGLVectorTile2.prototype._setColorDotmapData = function(arrayBuffer) {
   var gl = this.gl;

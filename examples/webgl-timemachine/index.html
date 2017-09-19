@@ -4349,10 +4349,11 @@
         tileWidth: 256,
         tileHeight: 256,
         nLevels: 10,
-        setDataFunction: WebGLVectorTile2.prototype._setLodesData,
+        setDataFunction: WebGLVectorTile2.prototype._setBufferData,
         drawFunction: WebGLVectorTile2.prototype._drawLodes,
         fragmentShader: WebGLVectorTile2.lodesFragmentShader,
-        vertexShader: WebGLVectorTile2.lodesVertexShader
+        vertexShader: WebGLVectorTile2.lodesVertexShader,
+        numAttributes: 6
       };
       lodesLayer = new WebglVectorLayer2(glb, canvasLayer, lodesUrl, lodesLayerOptions);
       initLodesGui();
