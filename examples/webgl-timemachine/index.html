@@ -2376,6 +2376,14 @@
           $(".snaplapse_keyframe_list").children().eq(selectedIdx).children()[0].click();
         }
 
+        // 'tab' or 'enter' key
+        // Quick way to toggle play/pause
+        // TODO: This is necessary for the currently used presentation clicker,
+        // but probably not something we want all the time?
+        if (e.keyCode === 9 || e.keyCode === 13) {
+          timelapse.handlePlayPause();
+        }
+
         // 'a' key
         // Quick way to stop animating and go to the beginning
         if (e.keyCode === 65) {
@@ -2477,8 +2485,9 @@
       });
 
       $('#layers-list, .ui-multiselect-checkboxes').on("click", "input", function(e) {
-        if (e.originalEvent && event.pageX != 0 && event.pageY != 0)
+        if (e.originalEvent && event.pageX != 0 && event.pageY != 0 && $(this).prop('checked')) {
           UTIL.addGoogleAnalyticEvent('button', 'click', 'layer=' + $(this).prop("id"));
+        }
       });
 
       var timelineUIHandler = function(e) {
@@ -4689,8 +4698,9 @@
             };
             //}
             timelapse.setNewView(view);
-            if (ui.item.properties)
+            if (ui.item.properties) {
               UTIL.addGoogleAnalyticEvent('textbox', 'search', 'go-to-searched-place=' + ui.item.properties.name + "," + ui.item.properties.country);
+            }
           }
         }).autocomplete("instance")._renderItem = function(ul, item) {
           var tmpLocationString = (item.properties.name || "") + ", " + (item.properties.state || "") + item.properties.country;
@@ -4931,6 +4941,8 @@
           extraContributors = extraContributors.substr(0, idx) + '&eacute;' + extraContributors.substr(idx + 1);
           $("#productLogo").css("font-size", "30px");
           $("#contributors").css("font-size", "20px");
+          $("#timeMachine .presentationSlider").addClass("offscreen");
+          $("#timeMachine .player").addClass("presentationSliderOffscreen");
         }
         $("#contributors").html($("#contributors").html() + " | " + extraContributors);
       }

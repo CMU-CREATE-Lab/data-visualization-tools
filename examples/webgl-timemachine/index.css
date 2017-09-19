@@ -1145,3 +1145,12 @@ a:focus { outline:0; }
 .customTimeline, .timelineSliderFiller {
   right: 15px !important;
 }
+
+.offscreen {
+  left: -9000px !important;
+  display: none !important;
+}
+
+.player.presentationSliderOffscreen {
+  bottom: 0px !important;
+}
