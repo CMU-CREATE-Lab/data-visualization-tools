@@ -4295,11 +4295,12 @@
         tileWidth: 256,
         tileHeight: 256,
         nLevels: 0,
-        setDataFunction: WebGLVectorTile2.prototype._setUrbanFragilityData,
+        setDataFunction: WebGLVectorTile2.prototype._setBufferData,
         drawFunction: WebGLVectorTile2.prototype._drawUrbanFragility,
         fragmentShader: WebGLVectorTile2.hivFragmentShader,
         vertexShader: WebGLVectorTile2.hivVertexShader,
-        imageSrc: "hiv-color-map.png"
+        imageSrc: "hiv-color-map.png",
+        numAttributes: 5
       };
       hivLayer = new WebglVectorLayer2(glb, canvasLayer, hivUrl, hivLayerOptions);
 
