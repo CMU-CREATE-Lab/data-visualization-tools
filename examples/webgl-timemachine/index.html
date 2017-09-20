@@ -4040,7 +4040,6 @@
       darkBaseMapLayer = new WebglMapLayer(glb, canvasLayer, darkMapUrl, defaultBaseMapLayerOptions);
       hansenMapLayer = new WebglMapLayer(glb, canvasLayer, gfcTransUrl, defaultMapLayerOptions);
       hansenMapLayer2 = new WebglMapLayer(glb, canvasLayer, gfcLossGainUrl, defaultMapLayerOptions);
-      mcrmVectorLayer = new WebglVectorLayer2(glb, canvasLayer, mcrmUrl, defaultBaseMapLayerOptions);
       waterOccurrenceLayer = new WebglMapLayer(glb, canvasLayer, waterOccurrenceUrl, defaultBaseMapLayerOptions);
       waterChangeLayer = new WebglMapLayer(glb, canvasLayer, waterChangeUrl, defaultBaseMapLayerOptions);
 
@@ -4049,6 +4048,14 @@
 
       vsiLayer = new WebglMapLayer(glb, canvasLayer, vsiUrl, defaultMapLayerOptions);
 
+
+      var mcrmVectorLayerOptions = {
+        tileWidth: 256,
+        tileHeight: 256,
+        nLevels: 0,
+        numAttributes: 2
+      };
+      mcrmVectorLayer = new WebglVectorLayer2(glb, canvasLayer, mcrmUrl, mcrmVectorLayerOptions);
 
       var coralBleachingLayerOptions = {
         tileWidth: 256,
