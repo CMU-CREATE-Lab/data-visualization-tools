@@ -22,7 +22,7 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
   this._ready = false;
 
   var opt_options = opt_options || {};
-  this._setData = opt_options.setDataFunction || this._setCoralReefData;
+  this._setData = opt_options.setDataFunction || this._setBufferData;
   this._load = opt_options.loadDataFunction || this._loadData;
   this._dataLoaded = opt_options.dataLoadedFunction || this._defaultDataLoaded;
   this.draw = opt_options.drawFunction || this._drawLines;
@@ -552,23 +552,6 @@ WebGLVectorTile2.prototype._setIomIdpData = function(data) {
     this._ready = true;
 
   }
-}
-
-// Coral Reef outlines worldCoord[2]
-WebGLVectorTile2.prototype._setCoralReefData = function(arrayBuffer) {
-  var gl = this.gl;
-  this._pointCount = arrayBuffer.length / 2;
-
-  this._data = arrayBuffer;
-  this._arrayBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);
-
-  var attributeLoc = gl.getAttribLocation(this.program, 'worldCoord');
-  gl.enableVertexAttribArray(attributeLoc);
-  gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 8, 0);
-
-  this._ready = true;
 }
 
 // Color Dotmap (not animated)  aWorldCoord[2]  aColor
