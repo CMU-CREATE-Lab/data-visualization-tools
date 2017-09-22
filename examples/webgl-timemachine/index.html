@@ -207,7 +207,6 @@
     var previousActiveLayersWithTimeline = 0;
     var keysDown = [];
     var $lastSelectedExtra;
-    var defaultAnnotationBoxWidth = 283;
 
     // This is necessary because waypoint thumbnails are generated from the Landsat set and thus the best we can show is just a solid black thumbnail
     // instead of some random location that a himawari bounds corresponds to in Landsat.
@@ -2272,11 +2271,6 @@
         appendTo: appendTarget
       });
 
-      $("#current-location-text-picture").on('load', function() {
-        var $current_location_text = $(".current-location-text");
-        $(".current-location-text").css("max-width", $(this).width());
-      })
-
       // Use click event rather than selectmenu 'change' since that event is not registered on the touch screen.
       $(".ui-selectmenu-menu").on("click", "li", function(e) {
         $lastSelectedExtra = $(e.currentTarget);
@@ -2822,7 +2816,9 @@
                        columnDefs);
       }
       // New layers have been added, so refresh the layer panel
-      $(".map-layer-div").accordion("refresh");
+      if ($(".map-layer-div").is(':visible')) {
+        $(".map-layer-div").accordion("refresh");
+      }
     }
 
     function loadDotmapLayers(docTabId) {
@@ -3750,9 +3746,8 @@
       if (enableLetterboxMode) {
         $(layer_html).appendTo($("#content"));
         $(legend_html).appendTo($("#content"));
-        $("#presentation-slider-selection, .base-map-radio, .map-layer-checkbox, .extras-selector, .presentationSlider, #layers-legend, .customInstructions, .player, .share, #presentation-slider-selection").addClass("letterbox");
+        $("#presentation-slider-selection, .base-map-radio, .map-layer-checkbox, .extras-selector, .presentationSlider, #layers-legend, .customInstructions, .player, .share, #presentation-slider-selection, .current-location-text, #layers-list").addClass("letterbox");
         $(".base-map-div, .map-layer-div, .extras-selector-div").addClass("top-panel letterbox");
-        $(".current-location-text").addClass("letterbox");
         $(".clear-theme").on("click", function() {
           var selectedTheme = $(this).prev().prop('id').replace("_ms", "-selection");
           var selectedLayers = $("#" + selectedTheme).find("input:checked");
@@ -3904,7 +3899,7 @@
       }
 
       if (isHyperwall) {
-        $("#layers-list, .sideToolBar, #layers-legend, #presentation-slider-selection, .base-map-div, .current-location-text, .customZoomhelp").addClass("hyperwall");
+        $("#layers-list, .sideToolBar, #layers-legend, #presentation-slider-selection, .base-map-div, .current-location-text, .customZoomhelp, #logosContainer").addClass("hyperwall");
       }
 
 
@@ -4470,10 +4465,6 @@
           $(".snaplapse_keyframe_container").scrollLeft(0);
         });
 
-        $('.current-location-text').click(function() {
-          $(this).hide();
-        });
-
         snaplapseViewerForPresentationSlider.addEventListener('automode-start', function() {
           if (timelapse.isPaused() && !timelapse.isDoingLoopingDwell()) {
             timelapse.handlePlayPause();
@@ -4532,12 +4523,12 @@
                   $current_location_text.show();
                   timelapse.seek(waypointStartTime);
                   $current_location_text.find("h3").text(waypoint.annotationBoxTitle);
-                  var $current_location_text_picture = $current_location_text.find("img");
+                  var $current_location_text_picture = $("#current-location-text-picture");
                   if (annotationPicturePaths[currentWaypointTheme] && annotationPicturePaths[currentWaypointTheme][waypointIndex].path) {
-                    $current_location_text_picture.attr("src", annotationPicturePaths[currentWaypointTheme][waypointIndex].path);
+                    $current_location_text_picture.show();
+                    $current_location_text_picture.css('background-image', 'url("' + annotationPicturePaths[currentWaypointTheme][waypointIndex].path + '")');
                   } else {
-                    $current_location_text_picture.attr("src", "");
-                    $current_location_text.css("max-width", defaultAnnotationBoxWidth);
+                    $current_location_text_picture.hide();
                   }
                   $current_location_text.find("p").text(waypoint.description);
                   previousWaypoint.scale = waypointScale;
@@ -4719,15 +4710,6 @@
       $(".toggleContextMapBtn").click();
       $(".contextMapContainer").hide();
 
-      // Display info box for the waypoints
-      if (enableWaypointText) {
-        var $current_location_text = $(".current-location-text");
-        $current_location_text.appendTo($("#timeMachine"));
-        if (enableRecordingMode) {
-          $current_location_text.find(".close").remove();
-          $current_location_text.addClass("recording");
-        }
-      }
 
       $("#presentation-slider-selection").on("click", "td", function() {
         var sectionId = $(this).get(0).id;
@@ -4895,7 +4877,17 @@
 
       $(window).trigger("resize");
       $(window).on('hashchange', hashChange).trigger('hashchange');
-      $(".share").appendTo($(".location_search_div"));
+
+      $('.sideToolBar').append('<button class="sharing" title="Share"></button>');
+      $(".sharing").button({
+        icons: {
+          primary: "ui-icon-custom-share"
+        },
+        text: false
+      }).click(function() {
+        $(".share").trigger("click");
+      });
+
       $("#logosContainer, #baseLayerCreditContainer").appendTo("#timeMachine .player");
 
       $("#presentation-slider-hamburger-wrapper").on("click", function() {
@@ -4929,7 +4921,6 @@
           extraContributors = extraContributors.substr(0, idx) + '&eacute;' + extraContributors.substr(idx + 1);
           $("#productLogo").css("font-size", "32px");
           $("#contributors").css("font-size", "22px");
-          defaultAnnotationBoxWidth = 360;
           $(".current-location-text p").css({"font-size" : "24px", "line-height" : "30px"});
           $(".current-location-text h3").css("font-size", "34px");
           $("#timeMachine .presentationSlider").addClass("offscreen");
@@ -5118,7 +5109,7 @@
       var windowHeight = $(window).height();
 
       var scale = Math.min(1, Math.min((windowWidth * 2.2) / 1920, (windowHeight * 1.14) / 1080));
-      $('.current-location-text').css({'transform': 'scale(' + scale + ')'});
+      $('.current-location-text, #layers-legend, #layers-list').css({'transform': 'scale(' + scale + ')'});
 
       if (useJumpToButtons && !enableThemeHamburgerButton && !enableLetterboxMode) {
         var presentationSliderSelection = $("#presentation-slider-selection");
@@ -6241,8 +6232,8 @@
   <div id="timeMachine"></div>
   <div class="current-location-text">
     <h3></h3>
+    <div id="current-location-text-picture"></div>
     <p></p>
-    <img id="current-location-text-picture" src="">
   </div>
   <div id="extras-content" title=""></div>
   <div id="logosContainer" class="unselectable">
