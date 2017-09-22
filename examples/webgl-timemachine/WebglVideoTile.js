@@ -142,9 +142,18 @@ WebglVideoTile.averageSeekFrameCount = function() {
 WebglVideoTile.prototype.
 delete = function() {
   // TODO: recycle texture
-  this._video.pause();
-  this._video.src = '';
-  this._video = null;
+  if (this._videoPlayPromise !== undefined) {
+    this._videoPlayPromise.then(_ => {
+      if (!this._video) return;
+      if (!this._video.paused) {
+        this._video.pause();
+      }
+      this._video.src = '';
+      this._video = null;
+    }).catch(error => {
+      console.log(error);
+    });
+  }
   WebglVideoTile._frameOffsetUsed[this._frameOffsetIndex] = false;
   this._frameOffsetIndex = null;
   WebglVideoTile.activeTileCount--;
@@ -437,7 +446,7 @@ updatePhase2 = function(displayFrame) {
   if (speed < 0) speed = 0;
   if (speed > 5) speed = 5;
   if (speed > 0 && this._video.paused) {
-    this._video.play();
+    this._videoPlayPromise = this._video.play();
   } else if (speed == 0 && !this._video.paused) {
     this._video.pause();
   }
