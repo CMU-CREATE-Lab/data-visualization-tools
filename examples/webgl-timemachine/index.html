@@ -4819,7 +4819,7 @@
           });
           var layerIdx = layerIds.indexOf(layerId);
           var layerProps = csvFileLayers.layersData.data[layerIdx];
-          if (!layerProps['Show Graph']) return;
+          if (!layerProps || !layerProps['Show Graph']) return;
         }
 
         if (doShow) {
