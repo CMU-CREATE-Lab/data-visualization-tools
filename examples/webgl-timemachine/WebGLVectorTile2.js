@@ -163,6 +163,7 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
   var noValue = this._noValue;
   var uncertainValue = this._uncertainValue;
 
+
   this.xhr = new XMLHttpRequest();
 
   this.xhr.open('GET', that._url);
@@ -182,6 +183,25 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
       var points = [];
       var maxValue = 0;
       var minValue = 1e6; //TODO Is this an ok value?
+
+      function getValue(rawVal) {
+        var val = rawVal;
+        if (val == noValue || val == uncertainValue) {
+          val = 0.0;
+        } else {
+          val = parseFloat(val);
+        }
+        return val;
+      }
+
+      function setMinMaxValue(val) {
+        if (val > maxValue) {
+          maxValue = val;
+        }
+        if (val < minValue) {
+          minValue = val;
+        }
+      }
 
       for (var i = first_data_col; i < header.length; i++) {
         var date = header[i];
@@ -225,51 +245,23 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
             var k = idx[j];
             points.push(epochs[k]);
             var val = country[k];
-            if (val == noValue || val == uncertainValue) {
-              val = 0.0;
-            } else {
-              val = parseFloat(val);
-            }
+            val = getValue(val);
             points.push(val);
-            if (val > maxValue) {
-              maxValue = val;
-            }
-            if (val < minValue) {
-              minValue = val;
-            }
+            setMinMaxValue(val);
             if (idx.length > 1) {
               var k = idx[j+1];
               points.push(epochs[k]);
               var val = country[k];
-              if (val == noValue || val == uncertainValue) {
-                val = 0.0;
-              } else {
-                val = parseFloat(val);
-              }
+              val = getValue(val);
               points.push(val);
-              if (val > maxValue) {
-                maxValue = val;
-              }
-              if (val < minValue) {
-                minValue = val;
-              }
-
+              setMinMaxValue(val);
             } else {
               var k = idx[j];
               points.push(epochs[k]);
               var val = country[k];
-              if (val == noValue || val == uncertainValue) {
-                val = 0.0;
-              } else {
-                val = parseFloat(val);
-              }
+              val = getValue(val);
               points.push(val);
-              if (val > maxValue) {
-                maxValue = val;
-              }
-              if (val < minValue) {
-                minValue = val;
-              }
+              setMinMaxValue(val);
             }
           }
           if (idx.length > 1) {
@@ -278,19 +270,9 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
             var k = idx[j];
             points.push(epochs[k]);
             var val = country[k];
-            if (val == noValue || val == uncertainValue) {
-              val = 0.0;
-            } else {
-              val = parseFloat(val);
-            }
+            val = getValue(val);
             points.push(val);
-            if (val > maxValue) {
-              maxValue = val;
-            }
-            if (val < minValue) {
-              minValue = val;
-            }
-
+            setMinMaxValue(val);
             var span = epochs[k] - epochs[k-1];
             points.push(epochs[k] + span);
             points.push(val);
@@ -305,7 +287,7 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
         points[i+3] = radius(points[i+3]);
         points[i+5] = radius(points[i+5]);
       }
-    }
+    }    
     that._setData(new Float32Array(points));
     that._dataLoaded(that.layerId);
   }
