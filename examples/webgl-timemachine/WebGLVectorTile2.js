@@ -240,40 +240,40 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
             }
           }
           for (var j = 0; j < idx.length - 1; j++) {
-            points.push(centroid[0]);
-            points.push(centroid[1]);
             var k = idx[j];
-            points.push(epochs[k]);
             var val = country[k];
             val = getValue(val);
-            points.push(val);
             setMinMaxValue(val);
+            points.push(centroid[0]);
+            points.push(centroid[1]);
+            points.push(epochs[k]);
+            points.push(val);
             if (idx.length > 1) {
               var k = idx[j+1];
-              points.push(epochs[k]);
               var val = country[k];
               val = getValue(val);
-              points.push(val);
               setMinMaxValue(val);
+              points.push(epochs[k]);
+              points.push(val);
             } else {
               var k = idx[j];
-              points.push(epochs[k]);
               var val = country[k];
               val = getValue(val);
-              points.push(val);
               setMinMaxValue(val);
+              points.push(epochs[k]);
+              points.push(val);
             }
           }
           if (idx.length > 1) {
-            points.push(centroid[0]);
-            points.push(centroid[1]);
             var k = idx[j];
             points.push(epochs[k]);
             var val = country[k];
             val = getValue(val);
-            points.push(val);
             setMinMaxValue(val);
             var span = epochs[k] - epochs[k-1];
+            points.push(centroid[0]);
+            points.push(centroid[1]);
+            points.push(val);
             points.push(epochs[k] + span);
             points.push(val);
           }
