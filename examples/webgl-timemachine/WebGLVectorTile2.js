@@ -244,38 +244,42 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
             var val = country[k];
             val = getValue(val);
             setMinMaxValue(val);
-            points.push(centroid[0]);
-            points.push(centroid[1]);
-            points.push(epochs[k]);
-            points.push(val);
+            var point = {
+              "centroid": centroid,
+              "epoch1": epochs[k],
+              "val1": val
+            };
             if (idx.length > 1) {
               var k = idx[j+1];
               var val = country[k];
               val = getValue(val);
               setMinMaxValue(val);
-              points.push(epochs[k]);
-              points.push(val);
+              point["epoch2"] = epochs[k];
+              point["val2"] = val;
             } else {
               var k = idx[j];
               var val = country[k];
               val = getValue(val);
               setMinMaxValue(val);
-              points.push(epochs[k]);
-              points.push(val);
+              point["epoch2"] = epochs[k];
+              point["val2"] = val;
             }
+            points.push(point);
           }
           if (idx.length > 1) {
             var k = idx[j];
-            points.push(epochs[k]);
             var val = country[k];
             val = getValue(val);
             setMinMaxValue(val);
             var span = epochs[k] - epochs[k-1];
-            points.push(centroid[0]);
-            points.push(centroid[1]);
-            points.push(val);
-            points.push(epochs[k] + span);
-            points.push(val);
+            var point = {
+              "centroid": centroid,
+              "epoch1": epochs[k],
+              "val1": val,
+              "epoch2": epochs[k] + span,
+              "val2": val
+            };
+            points.push(point);
           }
         }
       }
@@ -283,12 +287,26 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
       that._minValue = minValue;
       var radius = eval(that.scalingFunction);
       that._radius = radius;
-      for (var i = 0; i < points.length; i+=6) {
-        points[i+3] = radius(points[i+3]);
-        points[i+5] = radius(points[i+5]);
+      for (var i = 0; i < points.length; i++) {
+        points[i]["val1"] = radius(points[i]["val1"]);
+        points[i]["val2"] = radius(points[i]["val2"]);
       }
-    }    
-    that._setData(new Float32Array(points));
+    }
+
+    points.sort(function (a, b) {
+      return b["val2"] - a["val2"];
+    });
+    var flatPoints = [];
+    for (var i =0 ; i < points.length; i++) {
+      flatPoints.push(points[i]["centroid"][0]);
+      flatPoints.push(points[i]["centroid"][1]);
+      flatPoints.push(points[i]["epoch1"]);
+      flatPoints.push(points[i]["val1"]);
+      flatPoints.push(points[i]["epoch2"]);
+      flatPoints.push(points[i]["val2"]);
+    }
+    that._setData(new Float32Array(flatPoints));
+    //that._setData([]);
     that._dataLoaded(that.layerId);
   }
 
