@@ -421,16 +421,6 @@ var CHOROPLETH_LEGEND_TMPL =
   '<text font-size="11px" fill="rgba(0, 0, 0, 1.0)" y="35" x="203">MAX_CLT</text>\n' +
   '</svg>\n';
 
-/*
-var COUNTRY_CENTROIDS = null;
-var xhr = new XMLHttpRequest();
-xhr.open('GET', "gapminder.geojson");
-xhr.onload = function() {
-    COUNTRY_CENTROIDS = JSON.parse(this.responseText);
-}
-xhr.send();
-*/
-
 var COUNTRY_POLYGONS = null;
 var xhr = new XMLHttpRequest();
 xhr.open('GET', "country_polygons.geojson");
