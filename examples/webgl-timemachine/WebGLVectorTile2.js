@@ -1128,6 +1128,9 @@ WebGLVectorTile2.prototype._drawBubbleMap = function(transform, options) {
     var currentTime = options.currentTime.getTime()/1000.;
     var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
     var color = options.color || [.1, .1, .5, 1.0];
+    if (color.length == 3) {
+      color.push(1.0);
+    }
     var mode = options.mode || 1.0; // 1.0 == full circle, 2.0 == left half, 3.0 == right half
 
     //console.log(currentTime);
