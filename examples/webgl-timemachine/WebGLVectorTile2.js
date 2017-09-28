@@ -1121,7 +1121,7 @@ WebGLVectorTile2.prototype._drawBubbleMap = function(transform, options) {
   if (this._ready) {
     gl.useProgram(this.program);
     gl.enable(gl.BLEND);
-    gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
+    gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
 
     var tileTransform = new Float32Array(transform);
     var zoom = options.zoom;
