@@ -11,7 +11,7 @@ var CsvFileLayer = function CsvFileLayer() {
     }
     else if (absValue < 1000000) {
         value = value / 1000;
-        suffix = "k";
+        suffix = "K";
     }
     else if (absValue < 1000000000 && (absValue / 1000000) != 1000) {
         value = value / 1000000;
