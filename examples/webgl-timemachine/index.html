@@ -6160,36 +6160,35 @@
           expandingCitiesLayer.draw(layerView, options);
         }
 
-        if (showIrenaSolarLayer) {
-          var layer = irenaSolarLayer;
-            var view = getLayerView(layer, landsatBaseMapLayer);
-            var options = {};
-            options.zoom = timelapse.getCurrentZoom();
-            var currentTime = timelapse.getCurrentTime();
-            var currentTimes = getCurrentTimes(timelapse);
-            var dates = getDates(timelapse);
-            var delta = getCurrentTimesDelta(currentTime, currentTimes);
-            var currentDate = getCurrentDate(currentTime, currentTimes, dates);
-            options.currentTime = currentDate;
-            options.pointSize = 500.;
-            options.color = [0.5,0.05,0.5,1.0];
-            layer.draw(view, options);
-        }
         if (showIrenaWindLayer) {
           var layer  = irenaWindLayer;
-            var view = getLayerView(layer, landsatBaseMapLayer);
-            var options = {};
-            options.zoom = timelapse.getCurrentZoom();
-            var currentTime = timelapse.getCurrentTime();
-            var currentTimes = getCurrentTimes(timelapse);
-            var dates = getDates(timelapse);
-            var delta = getCurrentTimesDelta(currentTime, currentTimes);
-            var currentDate = getCurrentDate(currentTime, currentTimes, dates);
-            options.currentTime = currentDate;
-            options.pointSize = 500.;
-            //options.color = [0.1, 0.5, 0.1, 1.0];
-            layer.draw(view, options);
-      }
+          var view = getLayerView(layer, landsatBaseMapLayer);
+          var options = {};
+          options.zoom = timelapse.getCurrentZoom();
+          var currentTime = timelapse.getCurrentTime();
+          var currentTimes = getCurrentTimes(timelapse);
+          var dates = getDates(timelapse);
+          var delta = getCurrentTimesDelta(currentTime, currentTimes);
+          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
+          options.currentTime = currentDate;
+          options.pointSize = 500.;
+          layer.draw(view, options);
+        }
+        if (showIrenaSolarLayer) {
+          var layer = irenaSolarLayer;
+          var view = getLayerView(layer, landsatBaseMapLayer);
+          var options = {};
+          options.zoom = timelapse.getCurrentZoom();
+          var currentTime = timelapse.getCurrentTime();
+          var currentTimes = getCurrentTimes(timelapse);
+          var dates = getDates(timelapse);
+          var delta = getCurrentTimesDelta(currentTime, currentTimes);
+          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
+          options.currentTime = currentDate;
+          options.pointSize = 500.;
+          options.color = [0.5,0.05,0.5,1.0];
+          layer.draw(view, options);
+        }
 
       }
     }
