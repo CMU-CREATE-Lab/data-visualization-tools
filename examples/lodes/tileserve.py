@@ -512,18 +512,6 @@ def show_datasets():
     html += '</body></html>'
     return html
 
-@app.route('/data/census2010_block2010')
-def show_dataset_columns_2010():
-    return open('show-2010-hierarchy.html').read()
-
-@app.route('/data/census2000_block2010')
-def show_dataset_columns_2000():
-    return open('show-2000-hierarchy.html').read()
-
-@app.route('/data/census1990_block2010')
-def show_dataset_columns_1990():
-    return open('show-1990-hierarchy.html').read()
-
 @app.route('/data/<dataset>')
 def show_dataset_columns(dataset):
     description = '{cache_dir}/{dataset}/description.html'.format(cache_dir=cache_dir, **locals())
