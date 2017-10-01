@@ -11,9 +11,9 @@ Legend.prototype.toString = function legendToString() {
 
 var BubbleMapLegend = function BubbleMapLegend(opts) {
     this.width = 240;
-    this.height = 170;
+    this.height = 110;
     this.keyY = 10;
-    this.keyOffset = 60;.0
+    this.keyOffset = 0;.0
     this.id = opts["id"];
     this.str = opts["str"] || this.setStr(opts);
     Legend.call(this, this.id, this.str);
@@ -29,18 +29,18 @@ BubbleMapLegend.prototype.setStr = function setStr(opts) {
     }
 
     function getCircle(value, radius) {
-        var circle = '<circle r="' + radius + '" cx="120.0" cy=" ' +  (that.height - (that.keyOffset + parseFloat(radius))) + '" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle>';
-        var text =  '<text text-anchor="middle" x="120.0" y="' + (3.5 + that.height - (that.keyOffset + parseFloat(radius)) - parseFloat(radius)) + '" dy="13" style="font-size: 10px; fill: #666">' + value + '</text>';
+        var text =  '<text text-anchor="middle" x="120.0" y="' + (that.height - 2.0*parseFloat(radius)) + '" dy="10" style="font-size: 10px; fill: #666">' + value + '</text>';
+        var circle = '<circle r="' + radius + '" cx="120.0" cy=" ' + (that.height - parseFloat(radius) - 5.0) + '" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle>';
         return circle + text;
     }
 
+    this.height += opts["keys"] ? opts["keys"].length * 20.0 : 0.0;
     var div = '<div style="font-size: 15px">' + opts["title"] + '<span class="credit"> ('+ opts["credit"] +')</span></div>';
-    var svg = '<svg class="svg-legend" width="240" height="170">';
+    var svg = '<svg class="svg-legend" width="240" height="'+ this.height + '">';
     var keys = '';
     if (opts["keys"]) {
         for (var i = 0; i < opts["keys"].length; i++) {
             keys += getKey(opts["keys"][i]['color'], opts["keys"][i]['str']);
-            this.keyOffset -= 20.0;
             that.keyY += 25.0;
         }
 
