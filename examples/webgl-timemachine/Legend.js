@@ -37,10 +37,13 @@ BubbleMapLegend.prototype.setStr = function setStr(opts) {
     var div = '<div style="font-size: 15px">' + opts["title"] + '<span class="credit"> ('+ opts["credit"] +')</span></div>';
     var svg = '<svg class="svg-legend" width="240" height="170">';
     var keys = '';
-    for (var i = 0; i < opts["keys"].length; i++) {
-        keys += getKey(opts["keys"][i]['color'], opts["keys"][i]['str']);
-        this.keyOffset -= 20.0;
-        that.keyY += 25.0;;
+    if (opts["keys"]) {
+        for (var i = 0; i < opts["keys"].length; i++) {
+            keys += getKey(opts["keys"][i]['color'], opts["keys"][i]['str']);
+            this.keyOffset -= 20.0;
+            that.keyY += 25.0;;
+        }
+        
     }
     var circles = '';
     for (var i = 0; i < opts["circles"].length; i++) {
