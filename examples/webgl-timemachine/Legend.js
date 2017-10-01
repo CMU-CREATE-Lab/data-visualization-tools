@@ -30,7 +30,7 @@ BubbleMapLegend.prototype.setStr = function setStr(opts) {
 
     function getCircle(value, radius) {
         var circle = '<circle r="' + radius + '" cx="120.0" cy=" ' +  (that.height - (that.keyOffset + parseFloat(radius))) + '" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle>';
-        var text =  '<text text-anchor="middle" x="120.0" y="' + (that.height - (that.keyOffset + parseFloat(radius)) - parseFloat(radius)) + '" dy="13" style="font-size: 10px; fill: #666">' + value + '</text>';
+        var text =  '<text text-anchor="middle" x="120.0" y="' + (3.5 + that.height - (that.keyOffset + parseFloat(radius)) - parseFloat(radius)) + '" dy="13" style="font-size: 10px; fill: #666">' + value + '</text>';
         return circle + text;
     }
 
@@ -41,9 +41,9 @@ BubbleMapLegend.prototype.setStr = function setStr(opts) {
         for (var i = 0; i < opts["keys"].length; i++) {
             keys += getKey(opts["keys"][i]['color'], opts["keys"][i]['str']);
             this.keyOffset -= 20.0;
-            that.keyY += 25.0;;
+            that.keyY += 25.0;
         }
-        
+
     }
     var circles = '';
     for (var i = 0; i < opts["circles"].length; i++) {
