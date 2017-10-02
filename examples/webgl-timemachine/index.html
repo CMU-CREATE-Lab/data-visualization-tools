@@ -2622,6 +2622,7 @@
   <script type="text/javascript" src="../../js/base.js"></script>
   <script type="text/javascript" src="../../js/io.js"></script>
   <script type="text/javascript" src="../../js/polyfills.js"></script>
+  <script src="Legend.js"></script>
   <script src="csvFileLayer.js"></script>
   <script src="csvDataGrapher.js"></script>
 
@@ -4851,7 +4852,7 @@
         showHideCsvGrapher(true, layerId);
       });
       csvFileLayers.addDataLoadedListener(function(layerId) {
-        csvFileLayers.updateCsvFileLayerLegend(layerId);
+        csvFileLayers.setLegend(layerId);
       });
       csvDataGrapher.initialize();
       $("#csvlayers_table, .csvlayer").on("click", "input", function(e) {
