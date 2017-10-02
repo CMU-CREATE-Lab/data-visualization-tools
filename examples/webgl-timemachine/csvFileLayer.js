@@ -111,6 +111,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
   $('#' + category_id).append(row);
 
   // Create and insert legend
+  /*
   var legend='<tr id="' + nickname + '-legend" style="display: none"><td>';
   legend += '<div style="font-size: 16px">' + name
   if (credit) legend += '<span class="credit">(' + credit + ')</span>';
@@ -120,6 +121,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
   legend += '</div>';
   legend += '</td></tr>';
   $('#legend-content table tr:last').after(legend);
+  */
 
   // Handle click event to turn on and off layer
   $('#' + id).on("click", function() {
@@ -203,14 +205,17 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
       var legendContent = "";
       if (typeof layer["Legend Content"] != "undefined") {
         legendContent = layer["Legend Content"].trim();
-        if (legendContent == "auto") {
+/*        if (legendContent == "auto") {
           if (mapType == "bubble") {
             legendContent = BUBBLE_MAP_LEGEND_TMPL.replace(/TMPL_ID/,layerIdentifier + '-svg' );
           } else {
             legendContent = CHOROPLETH_LEGEND_TMPL.replace(/TMPL_ID/,layerIdentifier + '-svg' );
           }
         }
+        */
       }
+
+      var legendKey = typeof layer["Legend Key"] != 'undefined' ? layer["Legend Key"].trim() : '';
 
       var externalGeojson = "";
       if (typeof layer["External GeoJSON"] != "undefined") {
@@ -227,6 +232,7 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
         mapType: mapType,
         color: optionalColor,
         legendContent: legendContent,
+        legendKey: legendKey,
         externalGeojson: externalGeojson
       }
 
@@ -333,7 +339,52 @@ CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate,
   cached_ajax[identifier + '.json'] = {"capture-times":  captureTimes};
 };
 
-CsvFileLayer.prototype.updateCsvFileLayerLegend = function updateCsvFileLayerLegend(layerId) {
+CsvFileLayer.prototype.setLegend = function setLegend(id) {
+  var layer;
+  for (var i = 0; i < this.layers.length; i++) {
+    if (this.layers[i]['_layerId'] == id) {
+      layer = this.layers[i];
+      break;
+    }  
+  }  
+  if (typeof layer != 'undefined') {
+    if (layer['opts']['mapType'] == 'bubble') {
+      if (layer['opts']['legendContent'] == 'auto') {
+        var radius = layer['_tileView']['_tiles']['000000000000000']['_radius'];
+        var opts = {
+          'id' : id,
+          'title': layer['opts']['name'],
+          'credit': layer['opts']['credit'],
+          'keys': [],
+          'circles': [{'value': this.formatValue(radius.invert(50.0)), 'radius': '25.0'},{'value': this.formatValue(radius.invert(80.0)), 'radius': '40.0'},{'value': this.formatValue(radius.invert(100.0)), 'radius': '50.0'}]
+        };
+        if (layer['opts']['legendKey'] != '') {
+          var rgba = layer['opts']['color'].map(function(x) {
+            return x * 255.;
+          });
+          opts["keys"].push({'color': 'rgb('+ rgba[0] +',' + rgba[1] +',' + rgba[2] + ')', 'str': layer['opts']['legendKey']});
+        }
+        var legend = new BubbleMapLegend(opts);
+        $('#legend-content table tr:last').after(legend.toString());
+        $("#" + id + "-legend").show();
+      } else {
+        var div = '<div style="font-size: 15px">' + layer['opts']["name"] + '<span class="credit"> ('+ layer['opts']["credit"] +')</span></div>';
+        var str = div + layer['opts']['legendContent'];
+        var opts = {
+          'id' : id,
+          'str': str 
+        }
+        var legend = new BubbleMapLegend(opts);
+        $('#legend-content table tr:last').after(legend.toString());
+        $("#" + id + "-legend").show();
+
+      }
+
+    }        
+  }
+}
+
+CsvFileLayer.prototype.updateCsvFileLayerLegend = function updateCsvFileLayerLegend(layerId) {  
   for (var i = 0; i < this.layers.length; i++) {
     if (this.layers[i]['_layerId'] == layerId) {
       if (this.layers[i]['opts']['mapType'] == 'bubble' && this.layers[i]['opts']['legendContent'] != '') {
