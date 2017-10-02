@@ -110,19 +110,6 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
 
   $('#' + category_id).append(row);
 
-  // Create and insert legend
-  /*
-  var legend='<tr id="' + nickname + '-legend" style="display: none"><td>';
-  legend += '<div style="font-size: 16px">' + name
-  if (credit) legend += '<span class="credit">(' + credit + ')</span>';
-  legend += '</div>';
-  legend += legendContent;
-  legend += '<div style="float: left; padding-right:8px">';
-  legend += '</div>';
-  legend += '</td></tr>';
-  $('#legend-content table tr:last').after(legend);
-  */
-
   // Handle click event to turn on and off layer
   $('#' + id).on("click", function() {
     if ($(this).prop('checked')) {
@@ -205,14 +192,6 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
       var legendContent = "";
       if (typeof layer["Legend Content"] != "undefined") {
         legendContent = layer["Legend Content"].trim();
-/*        if (legendContent == "auto") {
-          if (mapType == "bubble") {
-            legendContent = BUBBLE_MAP_LEGEND_TMPL.replace(/TMPL_ID/,layerIdentifier + '-svg' );
-          } else {
-            legendContent = CHOROPLETH_LEGEND_TMPL.replace(/TMPL_ID/,layerIdentifier + '-svg' );
-          }
-        }
-        */
       }
 
       var legendKey = typeof layer["Legend Key"] != 'undefined' ? layer["Legend Key"].trim() : '';
@@ -408,94 +387,6 @@ CsvFileLayer.prototype.setLegend = function setLegend(id) {
     }        
   }
 }
-
-CsvFileLayer.prototype.updateCsvFileLayerLegend = function updateCsvFileLayerLegend(layerId) {  
-  for (var i = 0; i < this.layers.length; i++) {
-    if (this.layers[i]['_layerId'] == layerId) {
-      if (this.layers[i]['opts']['mapType'] == 'bubble' && this.layers[i]['opts']['legendContent'] != '') {
-        var radius = this.layers[i]['_tileView']['_tiles']['000000000000000']['_radius'];
-        var values = {
-          '50PX_BMLT': this.formatValue(radius.invert(50)),
-          '80PX_BMLT': this.formatValue(radius.invert(80)),
-          '100PX_BMLT': this.formatValue(radius.invert(100))
-        }
-
-
-        var el = document.getElementById(layerId + '-svg');
-        if (el) {
-          for (var j = 0; j < el.children.length;j++) {
-            var child = el.children[j];
-            if (child.innerHTML == "50PX_BMLT") {
-              child.innerHTML = child.innerHTML.replace(/50PX_BMLT/,values['50PX_BMLT']);
-            }
-            if (child.innerHTML == "80PX_BMLT") {
-              child.innerHTML = child.innerHTML.replace(/80PX_BMLT/,values['80PX_BMLT']);
-            }
-            if (child.innerHTML == "100PX_BMLT") {
-              child.innerHTML = child.innerHTML.replace(/100PX_BMLT/,values['100PX_BMLT']);
-            }
-          }
-        }
-      }
-
-      if (this.layers[i]['opts']['mapType'] == 'choropleth' && this.layers[i]['opts']['legendContent'] != '') {
-        var radius = this.layers[i]['_tileView']['_tiles']['000000000000000']['_radius'];
-        var values = {
-          'MIN_CLT': this.formatValue(radius.invert(0)),
-          'MID_CLT': this.formatValue(radius.invert(0.5)),
-          'MAX_CLT': this.formatValue(radius.invert(1))
-        }
-        var el = document.getElementById(layerId + '-svg');
-        if (el) {
-          for (var j = 0; j < el.children.length;j++) {
-            var child = el.children[j];
-            if (child.innerHTML == "MIN_CLT") {
-              child.innerHTML = child.innerHTML.replace(/MIN_CLT/,values['MIN_CLT']);
-            }
-            if (child.innerHTML == "MID_CLT") {
-              child.innerHTML = child.innerHTML.replace(/MID_CLT/,values['MID_CLT']);
-            }
-            if (child.innerHTML == "MAX_CLT") {
-              child.innerHTML = child.innerHTML.replace(/MAX_CLT/,values['MAX_CLT']);
-            }
-          }
-        }
-      }
-
-      break;
-    }
-
-  }
-};
-
-var BUBBLE_MAP_LEGEND_TMPL =
-  '<svg id="TMPL_ID" class="svg-legend" width="200" height="180">\n' +
-  '<!--<circle class="gain" r="10" cx="15" cy="10" style="fill: green; stroke: #fff;"></circle> \n' +
-  '<text x="30" y="15">Total population</text>--> \n' +
-  '<circle r="25.0" cx="120.0" cy="115.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle>\n' +
-  '<circle r="40.0" cx="120.0" cy="100.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle>\n' +
-  '<circle r="50.0" cx="120.0" cy="90.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle>\n' +
-  '<text text-anchor="middle" x="120.0" y="105.0" dy="13" style="font-size: 12px; fill: #666">50PX_BMLT</text>\n' +
-  '<text text-anchor="middle" x="120.0" y="70.0" dy="13" style="font-size: 12px; fill: #666">80PX_BMLT</text>\n' +
-  '<text text-anchor="middle" x="120.0" y="45.0" dy="13" style="font-size: 12px; fill: #666">100PX_BMLT</text>\n' +
-  '</svg>\n';
-
-var CHOROPLETH_LEGEND_TMPL =
-  '<svg id="TMPL_ID" class="svg-legend" width="240" height="40">\n' +
-  '<!--<text x="30" y="12">Total capacity in GWh</text>-->\n' +
-  '<rect fill="#ffffff" x="0"   y="15" height="10" width="25"></rect>\n' +
-  '<rect fill="#fff18e" x="25"  y="15" height="10" width="25"></rect>\n' +
-  '<rect fill="#ffdc5b" x="50"  y="15" height="10" width="25"></rect>\n' +
-  '<rect fill="#ffc539" x="75"  y="15" height="10" width="25"></rect>\n' +
-  '<rect fill="#ffad21" x="100"  y="15" height="10" width="25"></rect>\n' +
-  '<rect fill="#ff920c" x="125" y="15" height="10" width="25"></rect>\n' +
-  '<rect fill="#ff7500" x="150" y="15" height="10" width="25"></rect>\n' +
-  '<rect fill="#ff5000" x="175" y="15" height="10" width="25"></rect>\n' +
-  '<rect fill="#ff0000" x="200" y="15" height="10" width="25"></rect>\n' +
-  '<text font-size="11px" fill="rgba(0, 0, 0, 1.0)" y="35" x="12">MIN_CLT</text>\n' +
-  '<text font-size="11px" fill="rgba(0, 0, 0, 1.0)" y="35" x="103">MID_CLT</text>\n' +
-  '<text font-size="11px" fill="rgba(0, 0, 0, 1.0)" y="35" x="203">MAX_CLT</text>\n' +
-  '</svg>\n';
 
 var COUNTRY_POLYGONS = null;
 var xhr = new XMLHttpRequest();
