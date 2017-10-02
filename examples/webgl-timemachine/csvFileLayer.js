@@ -380,6 +380,31 @@ CsvFileLayer.prototype.setLegend = function setLegend(id) {
 
       }
 
+    } else { // Assume choropleth
+      if (layer['opts']['legendContent'] == 'auto') {
+        var radius = this.layers[i]['_tileView']['_tiles']['000000000000000']['_radius'];
+        var opts = {
+            'id': id,
+            'title': layer['opts']['name'],
+            'credit': layer['opts']['credit'],
+            'colors': ["#ffffff", "#fff18e", "#ffdc5b", "#ffc539", "#ffad21", "#ff920c", "#ff7500", "#ff5000", "#ff0000"],
+            'values': [this.formatValue(radius.invert(0)), this.formatValue(radius.invert(0.5)), this.formatValue(radius.invert(1))]
+        }
+        var legend = new ChoroplethLegend(opts)
+        $('#legend-content table tr:last').after(legend.toString());
+        $("#" + id + "-legend").show();
+      } else {
+        var div = '<div style="font-size: 15px">' + layer['opts']["name"] + '<span class="credit"> ('+ layer['opts']["credit"] +')</span></div>';
+        var str = div + layer['opts']['legendContent'];
+        var opts = {
+          'id' : id,
+          'str': str 
+        }
+        var legend = new ChoroplethLegend(opts);
+        $('#legend-content table tr:last').after(legend.toString());
+        $("#" + id + "-legend").show();
+
+      }
     }        
   }
 }
