@@ -6,14 +6,14 @@
   if ("performance" in window == false) {
     window.performance = {};
   }
-  
+
   Date.now = (Date.now || function () {  // thanks IE8
     return new Date().getTime();
   });
 
   if ("now" in window.performance == false){
     var nowOffset = Date.now();
-    
+
     if (performance.timing && performance.timing.navigationStart){
       nowOffset = performance.timing.navigationStart
     }
@@ -23,4 +23,10 @@
     }
   }
 
+  if (!String.prototype.startsWith) {
+      String.prototype.startsWith = function(searchString, position){
+        position = position || 0;
+        return this.substr(position, searchString.length) === searchString;
+    };
+  }
 })();

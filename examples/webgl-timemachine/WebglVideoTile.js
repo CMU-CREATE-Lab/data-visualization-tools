@@ -143,14 +143,15 @@ WebglVideoTile.prototype.
 delete = function() {
   // TODO: recycle texture
   if (this._videoPlayPromise !== undefined) {
-    this._videoPlayPromise.then(_ => {
-      if (!this._video) return;
-      if (!this._video.paused) {
-        this._video.pause();
+    var that = this;
+    this._videoPlayPromise.then(function (_) {
+      if (!that._video) return;
+      if (!that._video.paused) {
+        that._video.pause();
       }
-      this._video.src = '';
-      this._video = null;
-    }).catch(error => {
+      that._video.src = '';
+      that._video = null;
+    }).catch(function (error) {
       console.log(error);
     });
   }

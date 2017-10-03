@@ -41,6 +41,7 @@
   <script src="../../js/dat.gui.min.js"></script>
   <script src="../../js/papaparse.min.js"></script>
   <script src="../../js/d3.min.js"></script>
+  <script src="../../js/promise.min.js"></script>
 
   <script src="config-local.js" type="text/javascript"></script>
   <script src="../../../../config.js" type="text/javascript"></script>
@@ -195,8 +196,8 @@
     var landsatMaxScale = (landsatVersion == "2015") ? 1.25 : 0.45;
     var himawariMaxScale = 0.02;
     var isAutoModeRunning = false;
-    var visibleBaseMapLayer = "landsat";
-    var previousVisibleBaseMapLayer = visibleBaseMapLayer;
+    var visibleBaseMapLayer = org.gigapan.Util.isIE() ? "dark" : "landsat";
+    var previousVisibleBaseMapLayer = "landsat";
     WebglVideoTile.useFaderShader = useFaderShader;
     var timelapse, snaplapseViewerForPresentationSlider, previousWaypoint = {}, waypointViewChangeListener, hideWaypointListener, waypointTimeChangeListener, snaplapseForPresentationSlider;
     var currentWaypointTheme;
@@ -2213,11 +2214,6 @@
         previousVisibleBaseMapLayer = visibleBaseMapLayer;
       });
 
-
-
-      // Set the starting base layer
-      $('input:radio[name=base-layers][id=' + visibleBaseMapLayer + '-base]').prop('checked', true);
-
       // Initially set activeLayersWithTimeline to 1 if we first load with landsat enabled.
       // Also set the custom scale.
       if (visibleBaseMapLayer == "landsat") {
@@ -2587,6 +2583,9 @@
       } catch (e) {
         // Error creating touch event
       }
+
+      // Set the starting base layer
+      $('input:radio[name=base-layers][id=' + visibleBaseMapLayer + '-base]').trigger("click");
 
       // TODO: Do we need this?
       //timelapse.addTimelineUIChangeListener(timelineUIHandler);
@@ -4618,7 +4617,7 @@
           // End Himawari
 
           // Set playback rate based on the waypoint.
-          if (typeof(waypointPlaybackSpeed) !== undefined) {
+          if (typeof(waypointPlaybackSpeed) !== undefined && waypointPlaybackSpeed != null) {
             if (waypointPlaybackSpeed == 0) {
               if (timelapse.isDoingLoopingDwell()) {
                 timelapse.handlePlayPause();
@@ -4829,7 +4828,9 @@
           if (useJumpToButtons) {
             $("#presentation-slider-selection").hide();
           }
-          $(".presentationSlider").hide();
+          if (!disablePresentationSlider) {
+            $(".controls, .customControl, .scaleBarContainer, #logosContainer, #baseLayerCreditContainer").addClass("layerGraphs");
+          }
           $("#timeMachine").addClass("layerGraphs");
         } else {
           $("#csvChartLegend").hide();
@@ -4837,7 +4838,9 @@
           if (useJumpToButtons) {
             $("#presentation-slider-selection").show();
           }
-          $(".presentationSlider").show();
+          if (!disablePresentationSlider) {
+            $(".controls, .customControl, .scaleBarContainer, #logosContainer, #baseLayerCreditContainer").removeClass("layerGraphs");
+          }
           $("#timeMachine").removeClass("layerGraphs");
         }
         var snaplapse = timelapse.getSnaplapseForPresentationSlider();

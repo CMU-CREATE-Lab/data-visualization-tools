@@ -385,6 +385,22 @@ fieldset {
 #timeMachine.layerGraphs {
   height: calc(100% - 225px) !important;
 }
+
+#baseLayerCreditContainer.layerGraphs {
+  bottom: 85px;
+}
+.controls.layerGraphs {
+  bottom: 93px;
+}
+.customControl.layerGraphs {
+  bottom: 93px;
+}
+.scaleBarContainer.layerGraphs {
+  bottom: 163px !important;
+}
+#logosContainer.layerGraphs {
+  bottom: 175px;
+}
 .current-location-text.layerGraphs {
   bottom: 135px;
 }
