@@ -2468,7 +2468,7 @@
           }
         });
         if (!continueState) return;
-        if (numLayersOn == 0) {
+        if (numLayersOn <= 0) {
           $("#layers-legend").hide();
         } else {
           $("#layers-legend").show();
