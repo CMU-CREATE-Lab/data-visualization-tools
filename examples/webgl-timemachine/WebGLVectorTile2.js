@@ -1051,69 +1051,6 @@ WebGLVectorTile2.prototype._drawUppsalaConflict = function(transform, options) {
   }
 }
 
-WebGLVectorTile2.prototype._drawEbola = function(transform, options) {
-  var gl = this.gl;
-  if (this._ready) {
-    gl.useProgram(this.program);
-    gl.enable(gl.BLEND);
-    gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
-
-    var tileTransform = new Float32Array(transform);
-    var zoom = options.zoom;
-    var currentTime = options.currentTime.getTime()/1000.;
-    var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-    var color = options.color || [.1, .1, .5, 1.0];
-
-    scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
-
-    translateMatrix(tileTransform, (this._bounds.max.x - this._bounds.min.x)/256., (this._bounds.max.y - this._bounds.min.y)/256.);
-    scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
-
-    pointSize *= Math.floor((zoom + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
-    // Passing a NaN value to the shader with a large number of points is very bad
-    if (isNaN(pointSize)) {
-      pointSize = 1.0;
-    }
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
-
-    var attributeLoc = gl.getAttribLocation(this.program, 'a_Centroid');
-    gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 24, 0);
-
-    var timeLocation = gl.getAttribLocation(this.program, "a_Epoch1");
-    gl.enableVertexAttribArray(timeLocation);
-    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 24, 8);
-
-    var timeLocation = gl.getAttribLocation(this.program, "a_Deaths1");
-    gl.enableVertexAttribArray(timeLocation);
-    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 24, 12);
-
-    var timeLocation = gl.getAttribLocation(this.program, "a_Epoch2");
-    gl.enableVertexAttribArray(timeLocation);
-    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 24, 16);
-
-    var timeLocation = gl.getAttribLocation(this.program, "a_Deaths2");
-    gl.enableVertexAttribArray(timeLocation);
-    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 24, 20);
-
-    var colorLoc = gl.getUniformLocation(this.program, 'u_Color');
-    gl.uniform4fv(colorLoc, color);
-
-    var matrixLoc = gl.getUniformLocation(this.program, 'u_MapMatrix');
-    gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
-
-    var sliderTime = gl.getUniformLocation(this.program, 'u_Epoch');
-    gl.uniform1f(sliderTime, currentTime);
-
-    var sliderTime = gl.getUniformLocation(this.program, 'u_Size');
-    gl.uniform1f(sliderTime, pointSize);
-
-    gl.drawArrays(gl.POINTS, 0, this._pointCount);
-    perf_draw_points(this._pointCount);
-    gl.disable(gl.BLEND);
-  }
-}
 
 WebGLVectorTile2.prototype._drawBubbleMap = function(transform, options) {
 
@@ -2630,49 +2567,6 @@ WebGLVectorTile2.vaccineConfidenceFragmentShader =
 '        vec4 color = texture2D(u_Image, vec2(v_Val,v_Val));\n' +
 '        gl_FragColor = vec4(color.r, color.g, color.b, 1.);\n' +
 '      }\n';
-
-WebGLVectorTile2.ebolaVertexShader =
-'      attribute vec4 a_Centroid;\n' +
-'      attribute float a_Epoch1;\n' +
-'      attribute float a_Deaths1;\n' +
-'      attribute float a_Epoch2;\n' +
-'      attribute float a_Deaths2;\n' +
-'      uniform float u_Epoch;\n' +
-'      uniform float u_Size;\n' +
-'      uniform mat4 u_MapMatrix;\n' +
-'      varying float v_Val;\n' +
-'      void main() {\n' +
-'        vec4 position;\n' +
-'        if (a_Epoch1 > u_Epoch || a_Epoch2 <= u_Epoch) {\n' +
-'          position = vec4(-1,-1,-1,-1);\n' +
-'        } else {\n' +
-'          position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);\n' +
-'        }\n' +
-'          //position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);\n' +
-
-'        gl_Position = position;\n' +
-'        float delta = (u_Epoch - a_Epoch1)/(a_Epoch2 - a_Epoch1);\n' +
-'        float size = (a_Deaths2 - a_Deaths1) * delta + a_Deaths1;\n' +
-'        gl_PointSize = u_Size * size;\n' +
-'      }\n';
-
-WebGLVectorTile2.ebolaFragmentShader =
-'      #extension GL_OES_standard_derivatives : enable\n' +
-'      precision mediump float;\n' +
-'      varying float v_Val;\n' +
-'      uniform vec4 u_Color;\n' +
-'      void main() {\n' +
-'          float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
-'          dist = 1. - (dist * 2.);\n' +
-'          dist = max(0., dist);\n' +
-'          float delta = fwidth(dist);\n' +
-'          float alpha = smoothstep(0.45-delta, 0.45, dist);\n' +
-'          vec4 circleColor = u_Color;\n' +
-'          vec4 outlineColor = vec4(1.0,1.0,1.0,1.0);\n' +
-'          float outerEdgeCenter = 0.5 - .01;\n' +
-'          float stroke = smoothstep(outerEdgeCenter - delta, outerEdgeCenter + delta, dist);\n' +
-'          gl_FragColor = vec4( mix(outlineColor.rgb, circleColor.rgb, stroke), alpha*.75 );\n' +
-'      }';
 
 WebGLVectorTile2.bubbleMapVertexShader =
 '      attribute vec4 a_Centroid;\n' +
