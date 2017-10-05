@@ -61,7 +61,7 @@ if %SHOW_GFW% == true (
 )
 
 set LAUNCH_PATH=%cd%/app/data-visualization-tools/examples/webgl-timemachine/index.html
-set ARGS="--video-threads=%NUMBER_OF_PROCESSORS% --allow-file-access-from-files %LAUNCH_MODE% --device-scale-factor=%BROWSER_SCALE_FACTOR% --user-data-dir=%tmp%/et --no-first-run %EXTENSION_ARGS% %GFW_ARGS%"
+set ARGS="--video-threads=%NUMBER_OF_PROCESSORS% --allow-file-access-from-files %LAUNCH_MODE% --device-scale-factor=%BROWSER_SCALE_FACTOR% --user-data-dir=%tmp%/et --no-first-run %EXTENSION_ARGS% %GFW_ARGS% --ignore-gpu-blacklist"
 
 echo Launching user installed Chrome.
 start "Chrome" %CHROME_LAUNCH_PATH% --app="%LAUNCH_PATH%" "%ARGS%" || goto :USER_DOES_NOT_HAVE_CHROME
