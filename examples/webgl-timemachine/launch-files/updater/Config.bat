@@ -41,6 +41,7 @@ goto :UPDATE_CANCEL
 
 :UPDATE_CONFIG
   SET /P "WAYPOINT_PATH=Please paste in the Google Spreadsheet link: "
+  call :CLEAR_READ_ONLY_STATE
   :: Remove leading and trailing whitespaces
   set WAYPOINT_PATH=%WAYPOINT_PATH: =%
   echo(
@@ -52,7 +53,6 @@ goto :UPDATE_CANCEL
   )
   :: Escape slashes
   SET "WAYPOINT_PATH=%WAYPOINT_PATH:/=\/%"
-  call :CLEAR_READ_ONLY_STATE
   :: String replace using SSED
   %SSED_PATH% -ie "s/\"waypointSliderContentPath\".*\"/\"waypointSliderContentPath\" : \"%WAYPOINT_PATH%\"/g" %CONFIG_PATH%
   if %errorlevel% neq 0 goto :UPDATE_FAILED /b %errorlevel%
