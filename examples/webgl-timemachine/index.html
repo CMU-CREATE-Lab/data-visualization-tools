@@ -119,6 +119,11 @@
     var showCustomDotmaps = typeof(EARTH_TIMELAPSE_CONFIG.showCustomDotmaps) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showCustomDotmaps;
     var showCsvLayers = !!EARTH_TIMELAPSE_CONFIG.showCsvLayers;
     var showForestAlerts = !!EARTH_TIMELAPSE_CONFIG.showForestAlerts;
+    var showCoral = typeof(EARTH_TIMELAPSE_CONFIG.showCoral) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showCoral;
+    var showCoralBleaching = typeof(EARTH_TIMELAPSE_CONFIG.showCoralBleaching) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showCoralBleaching;
+    var showHimawari8 = typeof(EARTH_TIMELAPSE_CONFIG.showHimawari8) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showHimawari8;
+    var showUSDrilling = typeof(EARTH_TIMELAPSE_CONFIG.showUSDrilling) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showUSDrilling;
+    var showViirs = typeof(EARTH_TIMELAPSE_CONFIG.showViirs) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showViirs;
     var showMonthlyRefugees = !!EARTH_TIMELAPSE_CONFIG.showMonthlyRefugees;
     var showAnnualRefugees = !!EARTH_TIMELAPSE_CONFIG.showAnnualRefugees;
     var subsampleAnnualRefugees = !!EARTH_TIMELAPSE_CONFIG.subsampleAnnualRefugees;
@@ -145,6 +150,7 @@
     var showIomIdp = !!EARTH_TIMELAPSE_CONFIG.showIomIdp;
     var showBerkeleyEarthTemperatureAnomaly = !!EARTH_TIMELAPSE_CONFIG.showBerkeleyEarthTemperatureAnomaly;
     var showUppsalaConflict = !!EARTH_TIMELAPSE_CONFIG.showUppsalaConflict;
+    var showLightsAtNight = typeof(EARTH_TIMELAPSE_CONFIG.showLightsAtNight) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showLightsAtNight;
     var showLightsAtNight2012 = !!EARTH_TIMELAPSE_CONFIG.showLightsAtNight2012;
     var showLightsAtNight2016 = !!EARTH_TIMELAPSE_CONFIG.showLightsAtNight2016;
     var showOmiNo2 = !!EARTH_TIMELAPSE_CONFIG.showOmiNo2;
@@ -159,7 +165,7 @@
     var enableMinimalUIMode = window.location.hash.split("enableMinimalUIMode=")[1] || !!EARTH_TIMELAPSE_CONFIG.enableMinimalUIMode;
     var disablePresentationSlider = window.location.hash.split("disablePresentationSlider=")[1] || enableRecordingMode || !!EARTH_TIMELAPSE_CONFIG.disablePresentationSlider || false;
     var extraContributors = EARTH_TIMELAPSE_CONFIG.extraContributors ? EARTH_TIMELAPSE_CONFIG.extraContributors.replace(",", " |") : "";
-    var useJumpToButtons = false;
+    var useJumpToButtons = typeof(EARTH_TIMELAPSE_CONFIG.useJumpToButtons) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.useJumpToButtons;
     var showShareButton = !!EARTH_TIMELAPSE_CONFIG.showShareButton;
     var showShareButtonHash = window.location.hash.split("showShareButton=")[1];
     if (showShareButtonHash)
@@ -2898,7 +2904,7 @@
           jumpToButtons[keyframe.unsafe_string_frameTitle] = i;
         }
       }
-      if (Object.keys(jumpToButtons).length > 0) {
+      if (useJumpToButtons && Object.keys(jumpToButtons).length > 0) {
         useJumpToButtons = true;
       } else {
         useJumpToButtons = false;
@@ -3358,12 +3364,16 @@
         /* CORAL CATEGORY */
         layer_html += '  <h3>Coral</h3>';
         layer_html += '  <table id="category-coral">';
-        layer_html += '    <tr>';
-        layer_html += show_coral;
-        layer_html += '    </tr>';
-        layer_html += '    <tr>';
-        layer_html += show_coral_bleaching_alerts;
-        layer_html += '    </tr>';
+        if (showCoral) {
+          layer_html += '    <tr>';
+          layer_html += show_coral;
+          layer_html += '    </tr>';
+        }
+        if (showCoralBleaching) {
+          layer_html += '    <tr>';
+          layer_html += show_coral_bleaching_alerts;
+          layer_html += '    </tr>';
+        }
         layer_html += '  </table>';
         /* END CORAL CATEGORY */
 
@@ -3381,12 +3391,16 @@
           layer_html += show_global_wind_power;
           layer_html += '    </tr>';
         }
-        layer_html += '    <tr>';
-        layer_html += show_drilling;
-        layer_html += '    </tr>';
-        layer_html += '    <tr>';
-        layer_html += show_viirs;
-        layer_html += '    </tr>';
+        if (showUSDrilling) {
+          layer_html += '    <tr>';
+          layer_html += show_drilling;
+          layer_html += '    </tr>';
+        }
+        if (showViirs) {
+          layer_html += '    <tr>';
+          layer_html += show_viirs;
+          layer_html += '    </tr>';
+        }
         if (showIrena) {
           layer_html += '    <tr>';
           layer_html += show_irena_solar;
@@ -3525,9 +3539,11 @@
         /* URBANIZATION CATEGORY */
         layer_html += '  <h3>Urbanization</h3>';
         layer_html += '  <table id="category-urbanization">';
-        layer_html += '    <tr>';
-        layer_html += show_lights_at_night;
-        layer_html += '    </tr>';
+        if (showLightsAtNight) {
+          layer_html += '    <tr>';
+          layer_html += show_lights_at_night;
+          layer_html += '    </tr>';
+        }
         if (showLightsAtNight2012) {
           layer_html += '    <tr>';
           layer_html += show_lights_at_night_2012;
@@ -3600,13 +3616,16 @@
           layer_html += show_cumulative_active_mining_layer;
           layer_html += '    </tr>';
         }
-        layer_html += '    <tr>';
-        layer_html += show_himawari;
-        layer_html += '    </tr>';
-        // Custom CSV Layers
-        layer_html += '  <tbody id="csvlayers_table">';
-        layer_html += '  </tbody>';
-
+        if (showHimawari8) {
+          layer_html += '    <tr>';
+          layer_html += show_himawari;
+          layer_html += '    </tr>';
+        }
+        if (showCsvLayers) {
+          // Custom CSV Layers
+          layer_html += '  <tbody id="csvlayers_table">';
+          layer_html += '  </tbody>';
+        }
         layer_html += '  </table>';
         /* END MISC CATEGORY */
 
