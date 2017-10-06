@@ -23,8 +23,11 @@ set DISKPART3="%tmp%\dp3.txt"
 :: Globals ::
 set UPDATER_PATH=%~dp0
 set SSED_PATH=%UPDATER_PATH%..\app\libs\ssed\ssed.exe
+set WGET_PATH=%UPDATER_PATH%..\app\libs\wget\wget.exe
 set CONFIG_PATH=%UPDATER_PATH%..\config.js
 set TMP_CONFIG_PATH=%UPDATER_PATH%..\config.jse
+set APP_PATH=%UPDATER_PATH%..\app\data-visualization-tools
+set LOCAL_WAYPOINT_PATH=%APP_PATH%\examples\webgl-timemachine
 set WAYPOINT_COLLECTION=""
 
 echo This program allows you to change the waypoint Google Spreadsheet link.
@@ -42,6 +45,13 @@ goto :UPDATE_CANCEL
   SET "WAYPOINT_PATH=%WAYPOINT_PATH:/=\/%"
   :: Remove leading and trailing whitespaces
   set WAYPOINT_PATH=%WAYPOINT_PATH: =%
+  echo(
+  SET /P "STORE_LOCALLY=Store spreadsheet locally rather than pull from online? [Y/N]? "
+  if /I "%STORE_LOCALLY%" equ "y" (
+    set "DOWNLOAD_WAYPOINT_PATH=%WAYPOINT_PATH:edit#gid=export?format=tsv&gid%"
+    %WGET_PATH% -q --no-check-certificate !DOWNLOAD_WAYPOINT_PATH! -O %LOCAL_WAYPOINT_PATH%\waypoints.tsv
+    set WAYPOINT_PATH=waypoints.tsv
+  )
   call :CLEAR_READ_ONLY_STATE
   :: String replace using SSED
   %SSED_PATH% -ie "s/\"waypointSliderContentPath\".*\"/\"waypointSliderContentPath\" : \"%WAYPOINT_PATH%\"/g" %CONFIG_PATH%
