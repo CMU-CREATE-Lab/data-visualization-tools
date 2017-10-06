@@ -41,17 +41,17 @@ goto :UPDATE_CANCEL
 
 :UPDATE_CONFIG
   SET /P "WAYPOINT_PATH=Please paste in the Google Spreadsheet link: "
-  :: Escape slashes
-  SET "WAYPOINT_PATH=%WAYPOINT_PATH:/=\/%"
   :: Remove leading and trailing whitespaces
   set WAYPOINT_PATH=%WAYPOINT_PATH: =%
   echo(
   SET /P "STORE_LOCALLY=Store spreadsheet locally rather than pull from online? [Y/N]? "
   if /I "%STORE_LOCALLY%" equ "y" (
     set "DOWNLOAD_WAYPOINT_PATH=%WAYPOINT_PATH:edit#gid=export?format=tsv&gid%"
-    %WGET_PATH% -q --no-check-certificate !DOWNLOAD_WAYPOINT_PATH! -O %LOCAL_WAYPOINT_PATH%\waypoints.tsv
+    %WGET_PATH% -q --no-check-certificate "!DOWNLOAD_WAYPOINT_PATH!" -O "%LOCAL_WAYPOINT_PATH%\waypoints.tsv"
     set WAYPOINT_PATH=waypoints.tsv
   )
+  :: Escape slashes
+  SET "WAYPOINT_PATH=%WAYPOINT_PATH:/=\/%"
   call :CLEAR_READ_ONLY_STATE
   :: String replace using SSED
   %SSED_PATH% -ie "s/\"waypointSliderContentPath\".*\"/\"waypointSliderContentPath\" : \"%WAYPOINT_PATH%\"/g" %CONFIG_PATH%
