@@ -47,6 +47,11 @@ goto :UPDATE_CANCEL
   SET /P "STORE_LOCALLY=Store spreadsheet locally rather than pull from online? [Y/N]? "
   call :CLEAR_READ_ONLY_STATE
   if /I "%STORE_LOCALLY%" equ "y" (
+    echo (
+    echo Remember that if you make changes to the online spreadsheet, you need to run
+    echo this program again. And if you want to revert back to using the online version
+    echo of the spreadsheet, run this program again but choose NOT to store locally.
+    echo (
     set "DOWNLOAD_WAYPOINT_PATH=%WAYPOINT_PATH:edit#gid=export?format=tsv&gid%"
     %WGET_PATH% -q --no-check-certificate "!DOWNLOAD_WAYPOINT_PATH!" -O "%LOCAL_WAYPOINT_PATH%\waypoints.tsv"
     set WAYPOINT_PATH=waypoints.tsv
