@@ -4766,6 +4766,9 @@
             waypointsPath = docTabToGoogleSheetUrl(vals.waypoints);
           }
           waypointsPath = waypointsPath || waypointSliderContentPath;
+          // If for some reason the waypoints cannot load, the controls need to be manually
+          // pushed up by changing the player to where it would be had the waypoints loaded.
+          $("#timeMachine .player").css("bottom", "93px");
           loadWaypointsFromPath(waypointsPath);
         }
 
