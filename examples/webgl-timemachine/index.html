@@ -2722,15 +2722,33 @@
         fragmentShader: WebGLVectorTile2.colorDotmapFragmentShader,
         vertexShader: WebGLVectorTile2.colorDotmapVertexShader
       };
+      
+      var useLocalTiles = false;
 
-      var tileUrl = 'http://dotmaptiles.createlab.org/tilesv1/';
-      var layerTokens = [];
-      for (var i = 0; i < columnDefs.length; i++) {
-        layerTokens.push(encodeURIComponent(columnDefs[i].color) + ';' +
-                         encodeURIComponent(columnDefs[i].expression.replace(/\s/g, '')));
+      if (EARTH_TIMELAPSE_CONFIG.localDotmaps) {
+        for (var i = 0; i < EARTH_TIMELAPSE_CONFIG.localDotmaps.length; i++) {
+          if (nickname == EARTH_TIMELAPSE_CONFIG.localDotmaps[i]) {
+            useLocalTiles = true;
+            break;
+          }
+        }
       }
-      tileUrl += layerTokens.join(';;');
+
+      var tileUrl;
+
+      if (useLocalTiles) {
+        tileUrl = rootTilePath + '/dotmaptiles/' + nickname; 
+      } else {
+        tileUrl = 'http://dotmaptiles.createlab.org/tilesv1/';
+        var layerTokens = [];
+        for (var i = 0; i < columnDefs.length; i++) {
+          layerTokens.push(encodeURIComponent(columnDefs[i].color) + ';' +
+                           encodeURIComponent(columnDefs[i].expression.replace(/\s/g, '')));
+        }
+        tileUrl += layerTokens.join(';;');
+      }
       tileUrl += "/{z}/{x}/{y}.bin";
+
       var layer = new WebglVectorLayer2(glb, canvasLayer, tileUrl, layerOptions);
       dotmapLayers.push(layer);
 
