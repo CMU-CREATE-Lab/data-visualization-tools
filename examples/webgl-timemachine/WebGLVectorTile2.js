@@ -57,6 +57,16 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
         that._load();
       }
     }
+  } else if (typeof(this._externalGeojson) != "undefined" && this._externalGeojson != "") {
+    var that = this;
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', that._externalGeojson);
+    xhr.onload = function() {
+      that.geojsonData = JSON.parse(this.responseText);
+      console.log(that.geojsonData);
+      that._load();
+    };
+    xhr.send();    
   } else {
     this._load();
   }
@@ -216,7 +226,10 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
 
       for (var i = 1; i < that.jsondata.data.length; i++) {
         var country = that.jsondata.data[i];
-        var feature = searchCountryList(COUNTRY_CENTROIDS,country[0]);
+        if (that.geojsonData == null) {
+          that.geojsonData = COUNTRY_CENTROIDS;
+        }
+        var feature = searchCountryList(that.geojsonData,country[0]);
         var centroid = ["",""];
         // Extract centroids
         if (has_lat_lon && country[1] != '') {
@@ -226,6 +239,11 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
         } else if (! feature.hasOwnProperty("geometry")) {
           console.log('ERROR: Could not find ' + country[0]);
           continue;
+        } else if (!feature['properties'].hasOwnProperty('webmercator')) {
+          var latlng = {lat:feature['geometry']['coordinates'][1], lng:feature['geometry']['coordinates'][0]};
+          var xy = proj.latlngToPoint(latlng);
+          centroid = [xy.x, xy.y];
+
         } else {
           centroid = feature['properties']['webmercator'];
         }
