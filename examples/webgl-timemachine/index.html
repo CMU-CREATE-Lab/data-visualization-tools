@@ -4904,17 +4904,20 @@
           return props['Share link identifier'];
         });
         var layerIdx = layerIds.indexOf(layerId);
-        var tiles = csvFileLayers.layers[layerIdx]._tileView._tiles;
-        var key = Object.keys(tiles)[0];
-        var dataLoaded = key && tiles[key]._ready;
-        if (activeCsvLayers.length > 0 && dataLoaded) {
-          var layerId = tiles[key].layerId;
-          csvDataGrapher.graphDataForLayer(layerId);
-          showHideCsvGrapher(true, layerId);
-        }
-        if (activeCsvLayers.length == 0) {
-          showHideCsvGrapher(false, layerId);
-          csvDataGrapher.activeLayer = {};
+        if (typeof csvFileLayers.layers[layerIdx] != "undefined") { // TODO: Why is this ever undefined?
+          var tiles = csvFileLayers.layers[layerIdx]._tileView._tiles;
+          var key = Object.keys(tiles)[0];
+          var dataLoaded = key && tiles[key]._ready;
+          if (activeCsvLayers.length > 0 && dataLoaded) {
+            var layerId = tiles[key].layerId;
+            csvDataGrapher.graphDataForLayer(layerId);
+            showHideCsvGrapher(true, layerId);
+          }
+          if (activeCsvLayers.length == 0) {
+            showHideCsvGrapher(false, layerId);
+            csvDataGrapher.activeLayer = {};
+          }
+
         }
       });
 
