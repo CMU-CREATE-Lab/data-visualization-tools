@@ -312,7 +312,7 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
     }
 
     points.sort(function (a, b) {
-      return b["val2"] - a["val2"];
+      return Math.abs(b["val2"]) - Math.abs(a["val2"]);
     });
     var flatPoints = [];
     for (var i =0 ; i < points.length; i++) {
