@@ -261,7 +261,7 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
             var k = idx[j];
             var val = country[k];
             val = getValue(val);
-            setMinMaxValue(val);
+            setMinMaxValue(Math.abs(val));
             var point = {
               "centroid": centroid,
               "epoch1": epochs[k],
@@ -271,14 +271,14 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
               var k = idx[j+1];
               var val = country[k];
               val = getValue(val);
-              setMinMaxValue(val);
+              setMinMaxValue(Math.abs(val));
               point["epoch2"] = epochs[k];
               point["val2"] = val;
             } else {
               var k = idx[j];
               var val = country[k];
               val = getValue(val);
-              setMinMaxValue(val);
+              setMinMaxValue(Math.abs(val));
               point["epoch2"] = epochs[k];
               point["val2"] = val;
             }
@@ -288,7 +288,7 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
             var k = idx[j];
             var val = country[k];
             val = getValue(val);
-            setMinMaxValue(val);
+            setMinMaxValue(Math.abs(val));
             var span = epochs[k] - epochs[k-1];
             var point = {
               "centroid": centroid,
