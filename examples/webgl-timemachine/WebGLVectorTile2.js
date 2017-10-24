@@ -1105,23 +1105,23 @@ WebGLVectorTile2.prototype._drawBubbleMap = function(transform, options) {
 
     var attributeLoc = gl.getAttribLocation(this.program, 'a_Centroid');
     gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 24, 0);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this._numAttributes * 4, 0);
 
     var timeLocation = gl.getAttribLocation(this.program, "a_Epoch1");
     gl.enableVertexAttribArray(timeLocation);
-    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 24, 8);
+    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, this._numAttributes * 4, 8);
 
     var timeLocation = gl.getAttribLocation(this.program, "a_Val1");
     gl.enableVertexAttribArray(timeLocation);
-    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 24, 12);
+    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, this._numAttributes * 4, 12);
 
     var timeLocation = gl.getAttribLocation(this.program, "a_Epoch2");
     gl.enableVertexAttribArray(timeLocation);
-    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 24, 16);
+    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, this._numAttributes * 4, 16);
 
     var timeLocation = gl.getAttribLocation(this.program, "a_Val2");
     gl.enableVertexAttribArray(timeLocation);
-    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 24, 20);
+    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, this._numAttributes * 4, 20);
 
     var colorLoc = gl.getUniformLocation(this.program, 'u_Color');
     gl.uniform4fv(colorLoc, color);
