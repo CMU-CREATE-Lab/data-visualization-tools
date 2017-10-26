@@ -60,6 +60,7 @@
   <script src="WebglMapTile.js"></script>
   <script src="WebglMapTile2.js"></script>
   <script src="WebglMapLayer2.js"></script>
+  <script src="CarbonPriceRisk.js"></script>
   <script src="gapminder.json"></script>
   <script src="perf.js"></script>
   <script src="../../js/utils.js"></script>
@@ -157,6 +158,7 @@
     var showBePm25 = !!EARTH_TIMELAPSE_CONFIG.showBePm25;
     var showExpandingCities = !!EARTH_TIMELAPSE_CONFIG.showExpandingCities;
     var showIrena = !!EARTH_TIMELAPSE_CONFIG.showIrena;
+    var showCarbonPriceRisk = !!EARTH_TIMELAPSE_CONFIG.showCarbonPriceRisk;
 
     var showTile = true;
 
@@ -273,6 +275,8 @@
     setTimeLine('irena-solar-times', 2000, 2016, 1);
     var irenaWindLayer;
     setTimeLine('irena-wind-times', 2000, 2016, 1);
+    var carbonPriceRiskLayer;
+    setTimeLine('carbon-price-risk-times', 2017, 2050, 1);
 
 
     // LODES interface
@@ -515,6 +519,8 @@
 
     var irenaSolarUrl = 'https://data.cmucreatelab.org/earthtime/IRENA/Solar.Electricity_capacity_MW.csv';
     var irenaWindUrl = 'https://data.cmucreatelab.org/earthtime/IRENA/Wind.Electricity_capacity_MW.csv';
+
+    var carbonPriceRiskUrl = 'https://data.cmucreatelab.org/msc/carbon-price-risk.csv';
 
     function init() {
       var settings = {
@@ -2196,6 +2202,25 @@
           }
         }
       }).prop('checked', showIrenaWindLayer);
+
+      $("#show-carbon-price-risk").on("click", function() {
+        if ($(this).prop('checked')) {
+          showCarbonPriceRiskLayer = true;
+          setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
+          requestNewTimeline("carbon-price-risk-times.json", timelineType);
+          $("#carbon-price-risk-legend").show();
+          if (visibleBaseMapLayer != "dark") {
+            $("#dark-base").click();
+          }
+        } else {
+          showCarbonPriceRiskLayer = false;
+          setActiveLayersWithTimeline(-1);
+          doSwitchToLandsat();
+          $("#carbon-price-risk-legend").hide();
+        }
+      }).prop('checked', showCarbonPriceRiskLayer);
+
       // Base layers
       $("input:radio[name=base-layers]").on("click", function() {
         visibleBaseMapLayer = $(this).val();
@@ -2697,6 +2722,8 @@
     var showIrenaSolarLayer = false;
     var showIrenaWindLayer = false;
 
+    var showCarbonPriceRiskLayer = false;
+
     // Default Time Machine visibility
     var tileViewVisibility = {
       videoTile: true,
@@ -3114,6 +3141,9 @@
       var show_expanding_cities = '<td class="expanding-cities-select"><label for="show-expanding-cities" name="expanding-cities"><input type="checkbox" id="show-expanding-cities" />Expanding Cities</label></td>';
       var show_irena_solar = '<td class="irena-solar-select"><label for="show-irena-solar" name="IRENA_Solar"><input type="checkbox" id="show-irena-solar" />Solar electric capacity per country</label></td>';
       var show_irena_wind = '<td class="irena-wind-select"><label for="show-irena-wind" name="IRENA_Wind"><input type="checkbox" id="show-irena-wind" />Wind electric capacity per country</label></td>';
+
+      var show_carbon_price_risk = '<td class="carbon-price-risk-select"><label for="show-carbon-price-risk" name="carbon_price_risk"><input type="checkbox" id="show-carbon-price-risk" />Carbon price risk</label></td>';
+
 
       if (enableLetterboxMode) {
         layer_html += '<div class="base-map-div">';
@@ -3615,6 +3645,17 @@
         }
         /* END US DEMOGRAPHICS CATEGORY */
 
+        /* CARBON PRICE RISK CATEGORY */
+        if (showLodes) {
+          layer_html += '  <h3>Carbon Price Risk</h3>';
+          layer_html += '  <table id="category-carbon-price-risk">';
+          layer_html += '    <tr>';
+          layer_html += show_carbon_price_risk;
+          layer_html += '    </tr>';
+          layer_html += '  </table>';
+        }
+        /* END CARBON PRICE CATEGORY */
+
         /* MISC CATEGORY */
         layer_html += '  <h3>Other</h3>';
         layer_html += '  <table id="other_table">';
@@ -3772,6 +3813,9 @@
 
       legend_html += '<tr id="expanding-cities-legend" style="display: none"><td><div style="background-color:silver; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -16px; font-size: 17px">Expanding Cities <span class="credit"> (Igarapé)</span></div></div></td></tr>';
       legend_html += '<tr id="irena-legend" style="display: none"><td><div style="font-size: 15px">Electric Capacity per Country<span class="credit"> (IRENA)</span></div><svg class="svg-legend" width="240" height="170"><circle class="gain" r="10" cx="15" cy="10" style="fill: blue; stroke: #fff;"></circle> <text x="30" y="15" style="font-size: 12px; fill: #666">Wind power (GWh)</text> <circle class="gain" r="10" cx="15" cy="35" style="fill: purple; stroke: #fff;"></circle><text x="30" y="40" style="font-size: 12px; fill: #666">Solar power (GWh)</text> <circle r="25.0" cx="120.0" cy="122.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle><circle r="40.0" cx="120.0" cy="107.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle><circle r="50.0" cx="120.0" cy="97.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle><text text-anchor="middle" x="120.0" y="112.0" dy="13" style="font-size: 10px; fill: #666">25K</text><text text-anchor="middle" x="120.0" y="77.0" dy="13" style="font-size: 10px; fill: #666">64K</text><text text-anchor="middle" x="120.0" y="52.0" dy="13" style="font-size: 10px; fill: #666">100K</text></svg></td></tr>';
+
+      legend_html += '<tr id="carbon-price-risk-legend" style="display: none"><td><div style="font-size: 15px">Carbon Price Risk<span class="credit"> (S&P)</span></div><svg class="svg-legend" width="240" height="170"><circle class="gain" r="10" cx="15" cy="10" style="fill: blue; stroke: #fff;"></circle> <text x="30" y="15" style="font-size: 12px; fill: #666">Wind power (GWh)</text> <circle class="gain" r="10" cx="15" cy="35" style="fill: purple; stroke: #fff;"></circle><text x="30" y="40" style="font-size: 12px; fill: #666">Solar power (GWh)</text> <circle r="25.0" cx="120.0" cy="122.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle><circle r="40.0" cx="120.0" cy="107.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle><circle r="50.0" cx="120.0" cy="97.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle><text text-anchor="middle" x="120.0" y="112.0" dy="13" style="font-size: 10px; fill: #666">25K</text><text text-anchor="middle" x="120.0" y="77.0" dy="13" style="font-size: 10px; fill: #666">64K</text><text text-anchor="middle" x="120.0" y="52.0" dy="13" style="font-size: 10px; fill: #666">100K</text></svg></td></tr>';
+
       // ## 5b ##
       //// Add to layer legend ////
       //
@@ -4469,6 +4513,18 @@
 
       };
       irenaWindLayer = new WebglVectorLayer2(glb, canvasLayer, irenaWindUrl, irenaWindLayerOptions);
+
+      var layerOptions = {
+        tileWidth: 256,
+        tileHeight: 256,
+        nLevels: 0,
+        loadDataFunction: WebGLVectorTile2.prototype._loadCarbonPriceRiskDataFromCsv,
+        drawFunction: WebGLVectorTile2.prototype._drawCarbonPriceRisk,
+        fragmentShader: WebGLVectorTile2.carbonPriceRiskFragmentShader,
+        vertexShader: WebGLVectorTile2.carbonPriceRiskVertexShader,
+        numAttributes: 6
+      };
+      carbonPriceRiskLayer = new WebglVectorLayer2(glb, canvasLayer, carbonPriceRiskUrl, layerOptions);
 
       // Layer Toggle UI
       initLayerToggleUI();
@@ -6235,6 +6291,20 @@
           options.currentTime = currentDate;
           options.pointSize = 500.;
           options.color = [0.5,0.05,0.5,1.0];
+          layer.draw(view, options);
+        }
+
+        if (showCarbonPriceRiskLayer) {
+          var layer = carbonPriceRiskLayer;
+          var view = getLayerView(layer, landsatBaseMapLayer);
+          var options = {};
+          options.zoom = timelapse.getCurrentZoom();
+          var currentTime = timelapse.getCurrentTime();
+          var currentTimes = getCurrentTimes(timelapse);
+          var dates = getDates(timelapse);
+          var delta = getCurrentTimesDelta(currentTime, currentTimes);
+          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
+          options.currentTime = currentDate;
           layer.draw(view, options);
         }
 
