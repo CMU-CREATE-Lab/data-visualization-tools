@@ -1149,7 +1149,7 @@ WebGLVectorTile2.prototype._drawCarbonPriceRisk = function(transform, options) {
 
     gl.uniform1f(this.program.u_Epoch, currentTime);
 
-    gl.uniform1f(this.program.u_Size, 2.0 * window.devicePixelRatio);
+    gl.uniform1f(this.program.u_Size, 2.0 * window.devicePixelRatio);    
 
     gl.drawArrays(gl.POINTS, 0, this._pointCount);
     perf_draw_points(this._pointCount);
@@ -2720,6 +2720,51 @@ WebGLVectorTile2.bubbleMapFragmentShader =
 '            }\n' +
 '          }\n' +
 '          vec4 circleColor = u_Color;\n' +
+'          if (v_Val < 0.0) { circleColor[0] = 1.0; circleColor[1]=0.0; circleColor[2]=0.0; };\n' +
+'          vec4 outlineColor = vec4(1.0,1.0,1.0,1.0);\n' +
+'          float outerEdgeCenter = 0.5 - .01;\n' +
+'          float stroke = smoothstep(outerEdgeCenter - delta, outerEdgeCenter + delta, dist);\n' +
+'          gl_FragColor = vec4( mix(outlineColor.rgb, circleColor.rgb, stroke), alpha*.75 );\n' +
+'      }';
+
+WebGLVectorTile2.carbonPriceRiskVertexShader =
+'      attribute vec4 a_Centroid;\n' +
+'      attribute float a_Epoch1;\n' +
+'      attribute float a_Val1;\n' +
+'      attribute float a_Epoch2;\n' +
+'      attribute float a_Val2;\n' +
+'      attribute float a_Level;\n' +
+'      attribute float a_Region;\n' +
+'      attribute float a_Sector;\n' +
+'      uniform float u_Epoch;\n' +
+'      uniform float u_Size;\n' +
+'      uniform mat4 u_MapMatrix;\n' +
+'      varying float v_Val;\n' +
+'      void main() {\n' +
+'        vec4 position;\n' +
+'        if (a_Epoch1 > u_Epoch || a_Epoch2 <= u_Epoch) {\n' +
+'          position = vec4(-1,-1,-1,-1);\n' +
+'        } else {\n' +
+'          position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);\n' +
+'        }\n' +
+'        gl_Position = position;\n' +
+'        float delta = (u_Epoch - a_Epoch1)/(a_Epoch2 - a_Epoch1);\n' +
+'        float size = (a_Val2 - a_Val1) * delta + a_Val1;\n' +
+'        v_Val = size;\n' +
+'        gl_PointSize = abs(u_Size * size);\n' +
+'      }\n';
+
+WebGLVectorTile2.carbonPriceRiskFragmentShader =
+'      #extension GL_OES_standard_derivatives : enable\n' +
+'      precision mediump float;\n' +
+'      varying float v_Val;\n' +
+'      void main() {\n' +
+'          float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
+'          dist = 1. - (dist * 2.);\n' +
+'          dist = max(0., dist);\n' +
+'          float delta = fwidth(dist);\n' +
+'          float alpha = smoothstep(0.45-delta, 0.45, dist);\n' +
+'          vec4 circleColor = vec4(1.,0.,0.,1.);\n' +
 '          if (v_Val < 0.0) { circleColor[0] = 1.0; circleColor[1]=0.0; circleColor[2]=0.0; };\n' +
 '          vec4 outlineColor = vec4(1.0,1.0,1.0,1.0);\n' +
 '          float outerEdgeCenter = 0.5 - .01;\n' +
