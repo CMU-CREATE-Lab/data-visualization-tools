@@ -163,6 +163,29 @@ WebGLVectorTile2.prototype._loadGeojsonData = function() {
   this.xhr.send();
 }
 
+WebGLVectorTile2.prototype._loadCarbonPriceRiskDataFromCsv = function() {
+  console.log('_loadCarbonPriceRiskDataFromCsv');
+  var that = this;
+  this.xhr = new XMLHttpRequest();
+  this.xhr.open('GET', that._url);
+  this.xhr.onload = function() {
+    if (this.status == 404) {
+      data = "";
+    } else {
+      var csvdata = this.responseText;
+      that.jsondata = Papa.parse(csvdata, {header: true});
+      var points = carbonPriceRisk.getPoints(that.jsondata, that.geojsonData);
+      that._setData(new Float32Array(carbonPriceRisk.flattenPoints(points)));
+      that._dataLoaded(that.layerId);
+    }
+  }
+  this.xhr.onerror = function() {
+    that._setData('');
+  }
+  this.xhr.send();
+}
+
+
 WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
   var proj = new org.gigapan.timelapse.MercatorProjection(
     -180, 85.05112877980659, 180, -85.05112877980659,
@@ -1069,9 +1092,73 @@ WebGLVectorTile2.prototype._drawUppsalaConflict = function(transform, options) {
   }
 }
 
+WebGLVectorTile2.prototype._drawCarbonPriceRisk = function(transform, options) {
+  var gl = this.gl;
+  if (this._ready) {
+    gl.useProgram(this.program);
+    gl.enable(gl.BLEND);
+    gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
+
+    var tileTransform = new Float32Array(transform);
+    var zoom = options.zoom;
+    var currentTime = options.currentTime.getTime()/1000.;
+    var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
+    var color = options.color || [.1, .1, .5, 1.0];
+    if (color.length == 3) {
+      color.push(1.0);
+    }
+    var mode = options.mode || 1.0; // 1.0 == full circle, 2.0 == left half, 3.0 == right half
+
+    scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
+    translateMatrix(tileTransform, (this._bounds.max.x - this._bounds.min.x)/256., (this._bounds.max.y - this._bounds.min.y)/256.);
+    scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+
+    pointSize *= Math.floor((zoom + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+    // Passing a NaN value to the shader with a large number of points is very bad
+    if (isNaN(pointSize)) {
+      pointSize = 1.0;
+    }
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+
+    gl.enableVertexAttribArray(this.program.a_Centroid);
+    gl.vertexAttribPointer(this.program.a_Centroid, 2, gl.FLOAT, false, this._numAttributes * 4, 0);
+
+    gl.enableVertexAttribArray(this.program.a_Epoch1);
+    gl.vertexAttribPointer(this.program.a_Epoch1, 1, gl.FLOAT, false, this._numAttributes * 4, 8);
+
+    gl.enableVertexAttribArray(this.program.a_Val1);
+    gl.vertexAttribPointer(this.program.a_Val1, 1, gl.FLOAT, false, this._numAttributes * 4, 12);
+
+    gl.enableVertexAttribArray(this.program.a_Epoch2);
+    gl.vertexAttribPointer(this.program.a_Epoch2, 1, gl.FLOAT, false, this._numAttributes * 4, 16);
+
+    gl.enableVertexAttribArray(this.program.a_Val2);
+    gl.vertexAttribPointer(this.program.a_Val2, 1, gl.FLOAT, false, this._numAttributes * 4, 20);
+
+    gl.enableVertexAttribArray(this.program.a_Level);
+    gl.vertexAttribPointer(this.program.a_Level, 1, gl.FLOAT, false, this._numAttributes * 4, 24);
+
+    gl.enableVertexAttribArray(this.program.a_Sector);
+    gl.vertexAttribPointer(this.program.a_Sector, 1, gl.FLOAT, false, this._numAttributes * 4, 28);
+
+    gl.enableVertexAttribArray(this.program.a_Region);
+    gl.vertexAttribPointer(this.program.a_Region, 1, gl.FLOAT, false, this._numAttributes * 4, 32);
+
+    gl.uniformMatrix4fv(this.program.u_MapMatrix, false, tileTransform);
+
+    gl.uniform1f(this.program.u_Epoch, currentTime);
+
+    gl.uniform1f(this.program.u_Size, 2.0 * window.devicePixelRatio);
+
+    gl.drawArrays(gl.POINTS, 0, this._pointCount);
+    perf_draw_points(this._pointCount);
+    gl.disable(gl.BLEND);
+  }
+}
+
 
 WebGLVectorTile2.prototype._drawBubbleMap = function(transform, options) {
-
   var gl = this.gl;
   if (this._ready) {
     gl.useProgram(this.program);
