@@ -1,6 +1,8 @@
 //CarbonPriceRisk.js
 console.log("CarbonPriceRisk.js");
 function CarbonPriceRisk() {
+    this.scalingFunction = 'd3.scaleSqrt().domain([0, this.values["max"]]).range([0, 100])';
+
     this.values = {
         'max' : 0,
         'min' : 1e6
@@ -57,29 +59,83 @@ CarbonPriceRisk.prototype.getIndexByKey = function(arr, key) {
     return  -1;
 }
 
+CarbonPriceRisk.prototype.setRadius = function(points) {
+    this._radius = eval(this.scalingFunction);
+    for (var i = 0; i < points.length; i++) {
+        points[i]["val1"] = this._radius(points[i]["val1"]);
+        points[i]["val2"] = this._radius(points[i]["val2"]);
+    }
+}
+
 CarbonPriceRisk.prototype.getPoints = function(jsondata, geojsondata) {
     // Assumes data contains "Name", "2017", ..., "2050", "Sector", "Level", "Region"
     // Sector, Level and Region are idx coded. E.g. 'Low' == 0, 'Chemicals' == 1, etc...
     var that = this;
-    var points = jsondata['data'].map(function(row) {
+    var points = [];
+    for (var i = 0; i < jsondata['data'].length; i++) {
+        var row = jsondata['data'][i];
         var name = row['Name'];
         if (name != '') {
             var centroid = that.getCentroid(name, geojsondata);
             var level = row['Level'];
             var sector = row['Sector'];
             var region = row['Region'];
-            for (var i = that.years['start']; i < that.years['end'] - 1; i++) {
-                var val1 = that.getValue(row[i]);
-                var val2 = that.getValue(row[i + 1]);
+            for (var j = that.years['start']; j < that.years['end'] - 1; j++) {
+                var val1 = that.getValue(row[j]);
+                var val2 = that.getValue(row[j + 1]);
                 that.setMinMaxValue(Math.abs(val1));
                 that.setMinMaxValue(Math.abs(val2));
-                var epoch1 = new Date(i.toString());
-                var epoch2 = new Date((i+1).toString());
+                var epoch1 = new Date(j.toString()).getTime()/1000.;
+                var epoch2 = new Date((j+1).toString()).getTime()/1000.;
+                points.push({
+                    'centroid': centroid,
+                    'level': level,
+                    'sector': sector,
+                    'region': region,
+                    'val1': val1,
+                    'epoch1': epoch1,
+                    'val2': val2,
+                    'epoch2': epoch2             
+                });
             }
-            
+            var span = epoch2 - epoch1;
+            points.push({
+                'centroid': centroid,
+                'level': level,
+                'sector': sector,
+                'region': region,
+                'val1': val2,
+                'epoch1': epoch2,
+                'val2': val2,
+                'epoch2': epoch2 + span          
+            });
         }
+    };
+    this.setRadius(points);
+    this.sortPoints(points);
+    return points;
+}
+
+CarbonPriceRisk.prototype.flattenPoints = function(points) {
+    var flatPoints = [];
+    for (var i = 0; i < points.length; i++) {
+      flatPoints.push(points[i]["centroid"][0]);
+      flatPoints.push(points[i]["centroid"][1]);
+      flatPoints.push(points[i]["epoch1"]);
+      flatPoints.push(points[i]["val1"]);
+      flatPoints.push(points[i]["epoch2"]);
+      flatPoints.push(points[i]["val2"]);
+      flatPoints.push(points[i]["level"]);
+      flatPoints.push(points[i]["sector"]);
+      flatPoints.push(points[i]["region"]);
+    }
+    return flatPoints;
+}
+
+CarbonPriceRisk.prototype.sortPoints = function(points) {
+    points.sort(function (a, b) {
+        return Math.abs(b["val2"]) - Math.abs(a["val2"]);
     });
-    //return points;
 }
 
 CarbonPriceRisk.prototype.getCentroid = function(name, geojsondata) {
