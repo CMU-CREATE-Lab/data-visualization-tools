@@ -1148,7 +1148,6 @@ WebGLVectorTile2.prototype._drawCarbonPriceRisk = function(transform, options) {
     gl.uniformMatrix4fv(this.program.u_MapMatrix, false, tileTransform);
 
     gl.uniform1f(this.program.u_Epoch, currentTime);
-
     gl.uniform1f(this.program.u_Size, 2.0 * window.devicePixelRatio);    
 
     gl.drawArrays(gl.POINTS, 0, this._pointCount);
@@ -2750,7 +2749,7 @@ WebGLVectorTile2.carbonPriceRiskVertexShader =
 '        gl_Position = position;\n' +
 '        float delta = (u_Epoch - a_Epoch1)/(a_Epoch2 - a_Epoch1);\n' +
 '        float size = (a_Val2 - a_Val1) * delta + a_Val1;\n' +
-'        v_Val = size;\n' +
+'        v_Val = size * a_Level * a_Region * a_Sector;\n' +
 '        gl_PointSize = abs(u_Size * size);\n' +
 '      }\n';
 
