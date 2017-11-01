@@ -1,7 +1,7 @@
 //CarbonPriceRisk.js
 console.log("CarbonPriceRisk.js");
 function CarbonPriceRisk() {
-    this.scalingFunction = 'd3.scaleSqrt().domain([0, this.values["max"]]).range([0, 100])';
+    this.scalingFunction = 'd3.scaleSqrt().domain([0, this.values["max"]*.5]).range([0, 100])';
 
     this.values = {
         'max' : 0,
