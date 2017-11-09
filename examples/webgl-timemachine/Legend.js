@@ -34,7 +34,7 @@ BubbleMapLegend.prototype.setStr = function setStr(opts) {
         return circle + text;
     }
 
-    this.height += opts["keys"] ? opts["keys"].length * 20.0 : 0.0;
+    this.height += opts["keys"] ? opts["keys"].length * 25.0 : 0.0;
     var div = '<div style="font-size: 15px">' + opts["title"] + '<span class="credit"> ('+ opts["credit"] +')</span></div>';
     var svg = '<svg class="svg-legend" width="240" height="'+ this.height + '">';
     var keys = '';
