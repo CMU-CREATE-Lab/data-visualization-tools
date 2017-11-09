@@ -2739,6 +2739,7 @@ WebGLVectorTile2.carbonPriceRiskVertexShader =
 '      uniform float u_Size;\n' +
 '      uniform mat4 u_MapMatrix;\n' +
 '      varying float v_Val;\n' +
+'      varying float v_Sector;\n' +
 '      void main() {\n' +
 '        vec4 position;\n' +
 '        if (a_Epoch1 > u_Epoch || a_Epoch2 <= u_Epoch) {\n' +
@@ -2749,7 +2750,8 @@ WebGLVectorTile2.carbonPriceRiskVertexShader =
 '        gl_Position = position;\n' +
 '        float delta = (u_Epoch - a_Epoch1)/(a_Epoch2 - a_Epoch1);\n' +
 '        float size = (a_Val2 - a_Val1) * delta + a_Val1;\n' +
-'        v_Val = size * a_Level * a_Region * a_Sector;\n' +
+'        v_Val = size * a_Level * a_Region;\n' +
+'        v_Sector = a_Sector;\n' + 
 '        gl_PointSize = abs(u_Size * size);\n' +
 '      }\n';
 
@@ -2757,13 +2759,39 @@ WebGLVectorTile2.carbonPriceRiskFragmentShader =
 '      #extension GL_OES_standard_derivatives : enable\n' +
 '      precision mediump float;\n' +
 '      varying float v_Val;\n' +
+'      varying float v_Sector;\n' +
+'      vec4 getColor(float sector) {\n' +
+'        vec4 color;\n' +
+'        if (sector == 0.0) {\n' +
+'           color = vec4(228,26,28,255);' + 
+'        }\n' +
+'        if (sector == 1.0) {\n' +
+'           color = vec4(55,126,184,255);' + 
+'        }\n' +
+'        if (sector == 2.0) {\n' +
+'           color = vec4(77,175,74,255);' + 
+'        }\n' +
+'        if (sector == 3.0) {\n' +
+'           color = vec4(152,78,163,255);' + 
+'        }\n' +
+'        if (sector == 4.0) {\n' +
+'           color = vec4(255,127,0,255);' + 
+'        }\n' +
+'        if (sector == 5.0) {\n' +
+'           color = vec4(255,255,51,255);' + 
+'        }\n' +
+'        if (sector == 6.0) {\n' +
+'           color = vec4(166,86,40,255);' + 
+'        }\n' +
+'        return color/255.;\n' +
+'      }\n' +
 '      void main() {\n' +
 '          float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
 '          dist = 1. - (dist * 2.);\n' +
 '          dist = max(0., dist);\n' +
 '          float delta = fwidth(dist);\n' +
 '          float alpha = smoothstep(0.45-delta, 0.45, dist);\n' +
-'          vec4 circleColor = vec4(1.,0.,0.,1.);\n' +
+'          vec4 circleColor = getColor(v_Sector);\n' +
 '          if (v_Val < 0.0) { circleColor[0] = 1.0; circleColor[1]=0.0; circleColor[2]=0.0; };\n' +
 '          vec4 outlineColor = vec4(1.0,1.0,1.0,1.0);\n' +
 '          float outerEdgeCenter = 0.5 - .01;\n' +
