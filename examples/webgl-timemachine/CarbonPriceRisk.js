@@ -36,6 +36,27 @@ function CarbonPriceRisk() {
     ];
 };
 
+CarbonPriceRisk.prototype.getLegend = function() {
+    var opts = {
+        'id' : 'carbon-price-risk',
+        'title': 'Carbon Price Risk',
+        'credit': 'S&P',
+        'keys': [
+            {'color': 'red', 'str': 'Automobile manufacturing'}, 
+            {'color': 'blue', 'str': 'Chemicals'},
+            {'color': 'green', 'str': 'Construction Materials'},        
+            {'color': 'purple', 'str': 'Electric Utilities'},        
+            {'color': 'orange', 'str': 'Mining'},        
+            {'color': 'yellow', 'str': 'Pharmaceuticals'},        
+            {'color': 'brown', 'str': 'Telecommunications'}
+        ],
+        'circles': [{'value': '25K', 'radius': '25.0'},{'value': '64K', 'radius': '40.0'},{'value': '100K', 'radius': '50.0'}]
+    };
+
+    var legend = new BubbleMapLegend(opts);
+    return legend;
+}
+
 CarbonPriceRisk.prototype.layerSelected = function() {
     for (var i = 0; i < this.sectors.length; i++) {
         if (this.sectors[i]['selected'] == true) {
