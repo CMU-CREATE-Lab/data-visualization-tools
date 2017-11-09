@@ -2224,6 +2224,9 @@
         }
       }).prop('checked', showCarbonPriceRiskLayer);
 
+      for (var i = 0; i < carbonPriceRisk.sectors.length; i++) {
+        carbonPriceRisk.enableSelect(i);
+      }
       // Base layers
       $("input:radio[name=base-layers]").on("click", function() {
         visibleBaseMapLayer = $(this).val();
@@ -3655,6 +3658,11 @@
           layer_html += '    <tr>';
           layer_html += show_carbon_price_risk;
           layer_html += '    </tr>';
+          for (var i = 0; i < carbonPriceRisk.sectors.length; i++) {
+            layer_html += '    <tr>';
+            layer_html += carbonPriceRisk.getSelect(i);
+            layer_html += '    </tr>';            
+          }
           layer_html += '  </table>';
         }
         /* END CARBON PRICE CATEGORY */
@@ -6316,6 +6324,7 @@
           var delta = getCurrentTimesDelta(currentTime, currentTimes);
           var currentDate = getCurrentDate(currentTime, currentTimes, dates);
           options.currentTime = currentDate;
+          options.sectors = carbonPriceRisk.sectors;
           layer.draw(view, options);
         }
 

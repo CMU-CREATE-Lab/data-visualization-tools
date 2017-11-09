@@ -14,13 +14,13 @@ function CarbonPriceRisk() {
     };
 
     this.sectors = [
-        { key: 'automobiles', value: 'Automobile manufacturing' },
-        { key: 'chemicals', value: 'Chemicals' },
-        { key: 'construction', value: 'Construction Materials' },
-        { key: 'electric', value: 'Electric Utilities' },
-        { key: 'mining', value: 'Mining' },
-        { key: 'pharmaceuticals', value: 'Pharmaceuticals' },
-        { key: 'telecommunications', value: 'Telecommunications' }
+        { key: 'automobiles', value: 'Automobile manufacturing', selected: false },
+        { key: 'chemicals', value: 'Chemicals', selected: false },
+        { key: 'construction', value: 'Construction Materials', selected: false },
+        { key: 'electric', value: 'Electric Utilities', selected: false },
+        { key: 'mining', value: 'Mining', selected: false },
+        { key: 'pharmaceuticals', value: 'Pharmaceuticals', selected: false },
+        { key: 'telecommunications', value: 'Telecommunications', selected: false }
     ];            
 
     this.levels = [
@@ -35,6 +35,52 @@ function CarbonPriceRisk() {
         { key: 'emea', value: 'EMEA' }
     ];
 };
+
+CarbonPriceRisk.prototype.layerSelected = function() {
+    for (var i = 0; i < this.sectors.length; i++) {
+        if (this.sectors[i]['selected'] == true) {
+            return true;
+        }
+    }
+    return false;
+}
+
+CarbonPriceRisk.prototype.enableSelect = function(idx) {
+    var key = this.sectors[idx]['key'];
+    var that = this;
+    $("#show-carbon-price-risk-" + key).on("click", function() {
+        console.log(key);
+        if ($(this).prop('checked')) {
+          that.sectors[idx]['selected'] = true;
+          showCarbonPriceRiskLayer = true;
+          setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
+          requestNewTimeline("carbon-price-risk-times.json", timelineType);
+          $("#carbon-price-risk-legend").show();
+          if (visibleBaseMapLayer != "dark") {
+            $("#dark-base").click();
+          }
+        } else {
+          that.sectors[idx]['selected'] = false;
+          if (!that.layerSelected()) {
+            showCarbonPriceRiskLayer = false;
+            setActiveLayersWithTimeline(-1);
+            doSwitchToLandsat();
+            $("#carbon-price-risk-legend").hide();
+           }
+         
+        }
+    }).prop('checked', showCarbonPriceRiskLayer);
+}
+
+CarbonPriceRisk.prototype.getSelect = function(idx) {
+    var str = '<td class="carbon-price-risk-select-'+ this.sectors[idx]['key'] + '">' +
+              '<label for="show-carbon-price-risk-'+ this.sectors[idx]['key'] + 
+              '" name="carbon_price_risk"><input type="checkbox" id="show-carbon-price-risk-' + 
+              this.sectors[idx]['key'] +
+              '" />' + this.sectors[idx]['value'] + '</label></td>';
+    return str;
+}
 
 CarbonPriceRisk.prototype.getValue = function(rawVal) {
    return parseFloat(rawVal);

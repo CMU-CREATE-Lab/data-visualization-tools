@@ -1108,6 +1108,7 @@ WebGLVectorTile2.prototype._drawCarbonPriceRisk = function(transform, options) {
       color.push(1.0);
     }
     var mode = options.mode || 1.0; // 1.0 == full circle, 2.0 == left half, 3.0 == right half
+    var sectors = options.sectors;
 
     scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
     translateMatrix(tileTransform, (this._bounds.max.x - this._bounds.min.x)/256., (this._bounds.max.y - this._bounds.min.y)/256.);
@@ -1149,6 +1150,13 @@ WebGLVectorTile2.prototype._drawCarbonPriceRisk = function(transform, options) {
 
     gl.uniform1f(this.program.u_Epoch, currentTime);
     gl.uniform1f(this.program.u_Size, 2.0 * window.devicePixelRatio);    
+    gl.uniform1f(this.program.u_Sector_0, sectors[0].selected);
+    gl.uniform1f(this.program.u_Sector_1, sectors[1].selected);
+    gl.uniform1f(this.program.u_Sector_2, sectors[2].selected);
+    gl.uniform1f(this.program.u_Sector_3, sectors[3].selected);
+    gl.uniform1f(this.program.u_Sector_4, sectors[4].selected);
+    gl.uniform1f(this.program.u_Sector_5, sectors[5].selected);
+    gl.uniform1f(this.program.u_Sector_6, sectors[6].selected);
 
     gl.drawArrays(gl.POINTS, 0, this._pointCount);
     perf_draw_points(this._pointCount);
@@ -2737,6 +2745,13 @@ WebGLVectorTile2.carbonPriceRiskVertexShader =
 '      attribute float a_Sector;\n' +
 '      uniform float u_Epoch;\n' +
 '      uniform float u_Size;\n' +
+'      uniform float u_Sector_0;\n' +
+'      uniform float u_Sector_1;\n' +
+'      uniform float u_Sector_2;\n' +
+'      uniform float u_Sector_3;\n' +
+'      uniform float u_Sector_4;\n' +
+'      uniform float u_Sector_5;\n' +
+'      uniform float u_Sector_6;\n' +
 '      uniform mat4 u_MapMatrix;\n' +
 '      varying float v_Val;\n' +
 '      varying float v_Sector;\n' +
@@ -2750,6 +2765,30 @@ WebGLVectorTile2.carbonPriceRiskVertexShader =
 '        gl_Position = position;\n' +
 '        float delta = (u_Epoch - a_Epoch1)/(a_Epoch2 - a_Epoch1);\n' +
 '        float size = (a_Val2 - a_Val1) * delta + a_Val1;\n' +
+'        if (a_Sector == 0.) {\n' +
+'           size = size * u_Sector_0;\n' +
+'        }\n' +
+'        if (a_Sector == 0.) {\n' +
+'           size = size * u_Sector_0;\n' +
+'        }\n' +
+'        if (a_Sector == 1.) {\n' +
+'           size = size * u_Sector_1;\n' +
+'        }\n' +
+'        if (a_Sector == 2.) {\n' +
+'           size = size * u_Sector_2;\n' +
+'        }\n' +
+'        if (a_Sector == 3.) {\n' +
+'           size = size * u_Sector_3;\n' +
+'        }\n' +
+'        if (a_Sector == 4.) {\n' +
+'           size = size * u_Sector_4;\n' +
+'        }\n' +
+'        if (a_Sector == 5.) {\n' +
+'           size = size * u_Sector_5;\n' +
+'        }\n' +
+'        if (a_Sector == 6.) {\n' +
+'           size = size * u_Sector_6;\n' +
+'        }\n' +
 '        v_Val = size * a_Level * a_Region;\n' +
 '        v_Sector = a_Sector;\n' + 
 '        gl_PointSize = abs(u_Size * size);\n' +
