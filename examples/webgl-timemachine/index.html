@@ -188,7 +188,7 @@
     var useFaderShader = (typeof(EARTH_TIMELAPSE_CONFIG.useFaderShader) == "undefined") ? true : !!EARTH_TIMELAPSE_CONFIG.useFaderShader;
     var enableWaypointText = (typeof(EARTH_TIMELAPSE_CONFIG.enableWaypointText) == "undefined") ? true : !!EARTH_TIMELAPSE_CONFIG.enableWaypointText;
     var enableRecordingMode = !!EARTH_TIMELAPSE_CONFIG.enableRecordingMode;
-    var trackingId = EARTH_TIMELAPSE_CONFIG.trackingId || "UA-4157572-7";
+    var trackingId = EARTH_TIMELAPSE_CONFIG.trackingId || "UA-10682694-21";
     var rootTilePath = (typeof(EARTH_TIMELAPSE_CONFIG.rootTilePath) == "undefined") ? "../../../data/" : EARTH_TIMELAPSE_CONFIG.rootTilePath;
 
     // TODO: Until we decide to force everyone to latest landsat, pull the version corresponding to the config above.
@@ -2754,7 +2754,7 @@
         fragmentShader: WebGLVectorTile2.colorDotmapFragmentShader,
         vertexShader: WebGLVectorTile2.colorDotmapVertexShader
       };
-      
+
       var useLocalTiles = false;
 
       if (EARTH_TIMELAPSE_CONFIG.localDotmaps) {
@@ -2769,7 +2769,7 @@
       var tileUrl;
 
       if (useLocalTiles) {
-        tileUrl = rootTilePath + '/dotmaptiles/' + nickname; 
+        tileUrl = rootTilePath + '/dotmaptiles/' + nickname;
       } else {
         tileUrl = 'http://dotmaptiles.createlab.org/tilesv1/';
         var layerTokens = [];
@@ -3661,7 +3661,7 @@
           for (var i = 0; i < carbonPriceRisk.sectors.length; i++) {
             layer_html += '    <tr>';
             layer_html += carbonPriceRisk.getSelect(i);
-            layer_html += '    </tr>';            
+            layer_html += '    </tr>';
           }
           layer_html += '  </table>';
         }
@@ -5457,7 +5457,7 @@
           '201708': {'count': 299079, 'first': 6534512},
           '201709': {'count': 298956, 'first': 6833591},
           '201710': {'count': 53789, 'first': 7132547}
-        }        
+        }
         if (showViirsLayer) {
           var viirsLayerView = getLayerView(viirsLayer, landsatBaseMapLayer);
           var options = {};
@@ -6182,9 +6182,9 @@
 
           if (showCityLabelMap) {
             var cityLabelView = getLayerView(cityLabelMapLayer, landsatBaseMapLayer);
-            cityLabelMapLayer.draw(cityLabelView);       
+            cityLabelMapLayer.draw(cityLabelView);
           }
- 
+
         }
 
         if (showOmiNo2Layer) {
