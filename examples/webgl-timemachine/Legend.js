@@ -53,7 +53,7 @@ BubbleMapLegend.prototype.setStr = function setStr(opts) {
 }
 
 var ChoroplethLegend = function ChoroplethLegend(opts) {
-    this.width = 240;
+    this.width = 280;
     this.height = 80;
     this.xOffset = 0;
     this.xValueOffset = 0;
@@ -68,7 +68,7 @@ ChoroplethLegend.prototype.setStr = function setStr(opts) {
     var that = this;
 
     function getKey(str) {
-        var text = '<text x="120" y="10" text-anchor="middle" style="font-size: 12px; fill: #333">' + str + '</text>';
+        var text = '<text x="140" y="10" text-anchor="middle" style="font-size: 12px; fill: #333">' + str + '</text>';
         return text;
     }
     function getColor(color) {
@@ -81,7 +81,7 @@ ChoroplethLegend.prototype.setStr = function setStr(opts) {
     }
 
     var div = '<div style="font-size: 15px">' + opts["title"] + '<span class="credit"> ('+ opts["credit"] +')</span></div>';
-    var svg = '<svg class="svg-legend" width="240" height="60">';
+    var svg = '<svg class="svg-legend" width="280" height="60">';
     var keys = '';
     if (opts["keys"]) {
         for (var i = 0; i < opts["keys"].length; i++) {

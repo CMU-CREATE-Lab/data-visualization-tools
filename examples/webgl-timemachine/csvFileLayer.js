@@ -366,10 +366,16 @@ CsvFileLayer.prototype.setLegend = function setLegend(id) {
             'id': id,
             'title': layer['opts']['name'],
             'credit': layer['opts']['credit'],
+            'keys': [],
             'colors': ["#ffffff", "#fff18e", "#ffdc5b", "#ffc539", "#ffad21", "#ff920c", "#ff7500", "#ff5000", "#ff0000"],
             'values': [this.formatValue(radius.invert(0)), this.formatValue(radius.invert(0.5)), this.formatValue(radius.invert(1))]
         }
+        if (layer['opts']['legendKey'] != '') {
+          opts["keys"].push({'str': layer['opts']['legendKey']});
+        }
+
         var legend = new ChoroplethLegend(opts)
+        console.log(legend);
         $('#legend-content table tr:last').after(legend.toString());
         $("#" + id + "-legend").show();
       } else {
