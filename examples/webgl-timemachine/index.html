@@ -160,6 +160,7 @@
     var showIrena = !!EARTH_TIMELAPSE_CONFIG.showIrena;
     var showCarbonPriceRisk = !!EARTH_TIMELAPSE_CONFIG.showCarbonPriceRisk;
     var showCityLabelMap = !!EARTH_TIMELAPSE_CONFIG.showCityLabelMap;
+    var showTsip = !!EARTH_TIMELAPSE_CONFIG.showTsip;
 
     var showTile = true;
 
@@ -278,6 +279,8 @@
     setTimeLine('irena-wind-times', 2000, 2016, 1);
     var carbonPriceRiskLayer;
     setTimeLine('carbon-price-risk-times', 2017, 2050, 1);
+    var tsipLayer;
+    setTimeLine('carbon-price-risk-times', 2000, 2017, 1);
 
 
     // LODES interface
@@ -524,6 +527,8 @@
     var irenaWindUrl = 'https://data.cmucreatelab.org/earthtime/IRENA/Wind.Electricity_capacity_MW.csv';
 
     var carbonPriceRiskUrl = 'https://data.cmucreatelab.org/msc/carbon-price-risk.csv';
+
+    var tsipUrl = "/tsip/data/tsip.bin";
 
     function init() {
       var settings = {
@@ -2227,6 +2232,27 @@
       for (var i = 0; i < carbonPriceRisk.sectors.length; i++) {
         carbonPriceRisk.enableSelect(i);
       }
+
+      $("#show-tsip").on("click", function() {
+        if ($(this).prop('checked')) {
+          showTsipLayer = true;
+          setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
+          requestNewTimeline("tsip-times.json", timelineType);
+          $("#tsip-legend").show();
+          if (visibleBaseMapLayer != "dark") {
+            $("#dark-base").click();
+          }
+        } else {
+          showTsipLayer = false;
+          setActiveLayersWithTimeline(-1);
+          doSwitchToLandsat();
+          if (!$("#show-tsip").prop('checked')) {
+            $("#tsip-legend").hide();
+          }
+        }
+      }).prop('checked', showTsipLayer);
+
       // Base layers
       $("input:radio[name=base-layers]").on("click", function() {
         visibleBaseMapLayer = $(this).val();
@@ -2727,8 +2753,9 @@
     var showExpandingCitiesLayer = false;
     var showIrenaSolarLayer = false;
     var showIrenaWindLayer = false;
-
     var showCarbonPriceRiskLayer = false;
+    var showTsipLayer = false;
+
 
     // Default Time Machine visibility
     var tileViewVisibility = {
@@ -3147,8 +3174,8 @@
       var show_expanding_cities = '<td class="expanding-cities-select"><label for="show-expanding-cities" name="expanding-cities"><input type="checkbox" id="show-expanding-cities" />Expanding Cities</label></td>';
       var show_irena_solar = '<td class="irena-solar-select"><label for="show-irena-solar" name="IRENA_Solar"><input type="checkbox" id="show-irena-solar" />Solar electric capacity per country</label></td>';
       var show_irena_wind = '<td class="irena-wind-select"><label for="show-irena-wind" name="IRENA_Wind"><input type="checkbox" id="show-irena-wind" />Wind electric capacity per country</label></td>';
-
       var show_carbon_price_risk = '<td class="carbon-price-risk-select"><label for="show-carbon-price-risk" name="carbon_price_risk"><input type="checkbox" id="show-carbon-price-risk" />Carbon price risk</label></td>';
+      var show_tsip = '<td class="tsip-select"><label for="show-tsip" name="tsip"><input type="checkbox" id="show-tsip" />Toxic Sites</label></td>';
 
 
       if (enableLetterboxMode) {
@@ -3680,6 +3707,11 @@
           layer_html += show_uppsala_conflict;
           layer_html += '    </tr>';
         }
+        if (showTsip) {
+          layer_html += '    <tr>';
+          layer_html += show_tsip;
+          layer_html += '    </tr>';
+        }
         if (showCumulativeActiveMining) {
           layer_html += '    <tr>';
           layer_html += show_cumulative_active_mining_layer;
@@ -3827,6 +3859,11 @@
 
 
       legend_html += '<tr id="carbon-price-risk-legend" style="display: none"><td>' + carbonPriceRisk.getLegend().str + '</td></tr>';
+
+
+      var tsipStr = '<div style="font-size: 15px">Toxic Sites Identification Program<span class="credit"> (PlanetEarth)</span></div><svg class="svg-legend" width="240" height="65"><circle class="gain" r="10" cx="15" cy="10" style="fill: brown; stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #666">Sites (Blacksmith Index)</text><circle r="10.0" cx="120.0" cy="50" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle><text text-anchor="middle" x="120.0" y="45" dy="10" style="font-size: 10px; fill: #666">5</text><circle r="20.0" cx="120.0" cy="40" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle><text text-anchor="middle" x="120.0" y="25" dy="10" style="font-size: 10px; fill: #666">10</text></svg>';
+      var tsipLegend = new BubbleMapLegend({"id" : "tsip", "str": tsipStr});
+      legend_html += '<tr id="expanding-cities-legend" style="display: none"><td>' +  tsipLegend.toString() + '</td></tr>';
 
       // ## 5b ##
       //// Add to layer legend ////
@@ -4539,6 +4576,17 @@
         numAttributes: 9
       };
       carbonPriceRiskLayer = new WebglVectorLayer2(glb, canvasLayer, carbonPriceRiskUrl, layerOptions);
+
+      var layerOptions = {
+        tileWidth: 256,
+        tileHeight: 256,
+        nLevels: 0,
+        drawFunction: WebGLVectorTile2.prototype._drawTsip,
+        fragmentShader: WebGLVectorTile2.tsipFragmentShader,
+        vertexShader: WebGLVectorTile2.tsipVertexShader,
+        numAttributes: 4
+      };
+      tsipLayer = new WebglVectorLayer2(glb, canvasLayer, tsipUrl, layerOptions);
 
       // Layer Toggle UI
       initLayerToggleUI();
@@ -6326,6 +6374,22 @@
           var currentDate = getCurrentDate(currentTime, currentTimes, dates);
           options.currentTime = currentDate;
           options.sectors = carbonPriceRisk.sectors;
+          layer.draw(view, options);
+        }
+
+        if (showTsipLayer) {
+          var layer = tsipLayer;
+          var view = getLayerView(layer, landsatBaseMapLayer);
+          var options = {};
+          options.zoom = timelapse.getCurrentZoom();
+          var currentTime = timelapse.getCurrentTime();
+          var currentTimes = getCurrentTimes(timelapse);
+          var dates = getDates(timelapse);
+          var delta = getCurrentTimesDelta(currentTime, currentTimes);
+          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
+          options.currentTime = currentDate;
+          options.pointSize = 2.;
+          options.color = [0.5,0.05,0.5,1.0];
           layer.draw(view, options);
         }
 
