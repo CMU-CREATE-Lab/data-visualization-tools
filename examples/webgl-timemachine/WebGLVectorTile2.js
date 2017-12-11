@@ -1587,6 +1587,59 @@ WebGLVectorTile2.prototype._drawAnnualRefugees = function(transform, options) {
   }
 }
 
+WebGLVectorTile2.prototype._drawPointFlow = function(transform, options) {
+  var gl = this.gl;
+  if (this._ready) {
+
+    gl.useProgram(this.program);
+    gl.enable( gl.BLEND );
+    gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+
+    var zoom = options.zoom || (2.0 * window.devicePixelRatio);
+    var pointSize = Math.floor( ((20-5) * (zoom - 0) / (21 - 0)) + 5 );
+    if (isNaN(pointSize)) {
+      pointSize = 1.0;
+    }
+    var sizeLoc = gl.getUniformLocation(this.program, 'u_size');
+    gl.uniform1f(sizeLoc, pointSize);
+
+    var tileTransform = new Float32Array(transform);
+    scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
+    scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+    var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
+    gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+
+    var currentTime = options.currentTime;
+    var epochLoc = gl.getUniformLocation(this.program, 'u_epoch');
+    gl.uniform1f(epochLoc, currentTime/1000.);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_p0');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this._numAttributes * 4, 0);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_p1');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this._numAttributes * 4, 8);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_p2');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this._numAttributes * 4, 16);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch0');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._numAttributes * 4, 24);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch1');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._numAttributes * 4, 28);
+
+    gl.drawArrays(gl.POINTS, 0, this._pointCount);
+    gl.disable(gl.BLEND);
+  }
+}
+
 
 WebGLVectorTile2.prototype._drawHealthImpact = function(transform, options) {
   var gl = this.gl;
@@ -3069,4 +3122,44 @@ WebGLVectorTile2.colorDotmapFragmentShader =
   'void main() {\n' +
   '  gl_FragColor = vec4(0.0,1.0,0.0,1.0);\n' +
   '}\n';
+
+WebGLVectorTile2.pointFlowVertexShader =
+'      //WebGLVectorTile2.pointFlowVertexShader\n' + 
+'      attribute vec4 a_p0;\n' +
+'      attribute vec4 a_p1;\n' +
+'      attribute vec4 a_p2;\n' +
+'      attribute float a_epoch0;\n' +
+'      attribute float a_epoch1;\n' +
+'      uniform float u_epoch;\n' +
+'      uniform float u_size;\n' +
+'      uniform mat4 u_map_matrix;\n' +
+'      varying float v_t\n;' + 
+'      vec4 bezier(float t, vec4 p0, vec4 p1, vec4 p2) {\n' +
+'        return (1.0-t)*(1.0-t)*p0 + 2.0*(1.0-t)*t*p1 + t*t*p2;\n' +
+'      }\n' +
+'      void main() {\n' +
+'        vec4 position;\n' +
+'        if (a_epoch0 > u_epoch || a_epoch1 < u_epoch) {\n' +
+'          position = vec4(-1,-1,-1,-1);\n' +
+'        } else {\n' +
+'          float t = 1.0 - (a_epoch1 - u_epoch)/(a_epoch1 - a_epoch0);\n' + 
+'        v_t = t;\n' + 
+'          position = u_map_matrix * bezier(t, a_p0, a_p1, a_p2);\n' +
+'        }\n' +
+'        gl_Position = position;\n' + 
+'        gl_PointSize = u_size;\n' +
+'      }\n';
+
+WebGLVectorTile2.pointFlowFragmentShader =
+  'precision mediump float;\n' +
+'  varying float v_t;\n' + 
+'  void main() {\n' +
+'    float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
+'    dist = 1. - (dist * 2.);\n' +
+'    dist = max(0., dist);\n' +
+'    vec4 colorStart = vec4(.94,.94,.94,1.0);\n' +
+'    vec4 colorEnd = vec4(.71,0.09,0.05,1.0);\n' +
+'    gl_FragColor = mix(colorStart, colorEnd, v_t) * dist;\n' +
+'  }\n';
+
 
