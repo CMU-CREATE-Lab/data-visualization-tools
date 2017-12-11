@@ -75,8 +75,13 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
     layerOptions.fragmentShader = WebGLVectorTile2.choroplethMapFragmentShader;
     layerOptions.vertexShader = WebGLVectorTile2.choroplethMapVertexShader;
     layerOptions.imageSrc =  "obesity-color-map.png";
-  } else {
-    console.log(mapType);    
+  } else if (mapType == "point-flow") {
+    layerOptions.loadDataFunction = WebGLVectorTile2.prototype._loadData;
+    layerOptions.drawFunction = eval(opts["drawFunction"]);
+    layerOptions.numAttributes = opts["numAttributes"];
+    layerOptions.vertexShader = eval(opts["vertexShader"]);
+    layerOptions.fragmentShader = eval(opts["fragmentShader"]);
+    console.log(layerOptions);
   }
 
   var layer = new WebglVectorLayer2(glb, canvasLayer, url, layerOptions);
@@ -203,6 +208,12 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
         externalGeojson = layer["External GeoJSON"].trim()
       }
 
+      var loadDataFunction = layer["Load Data Function"];
+      var numAttributes = layer["Number of Attributes"];  
+      var vertexShader = layer["Vertex Shader"]; 
+      var fragmentShader = layer["Fragment Shader"]; 
+      var drawFunction = layer["Draw Function"];
+
       var opts = {
         nickname: layerIdentifier,
         url: layer["URL"],
@@ -214,7 +225,11 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
         color: optionalColor,
         legendContent: legendContent,
         legendKey: legendKey,
-        externalGeojson: externalGeojson
+        externalGeojson: externalGeojson,
+        numAttributes: numAttributes,
+        vertexShader: vertexShader,
+        fragmentShader: fragmentShader,
+        drawFunction: drawFunction
       }
 
       this.addLayer(opts);
