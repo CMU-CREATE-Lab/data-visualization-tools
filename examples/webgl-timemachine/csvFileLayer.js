@@ -75,6 +75,8 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
     layerOptions.fragmentShader = WebGLVectorTile2.choroplethMapFragmentShader;
     layerOptions.vertexShader = WebGLVectorTile2.choroplethMapVertexShader;
     layerOptions.imageSrc =  "obesity-color-map.png";
+  } else {
+    console.log(mapType);    
   }
 
   var layer = new WebglVectorLayer2(glb, canvasLayer, url, layerOptions);
@@ -180,7 +182,7 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
       }
 
       var mapType = layer["Map Type"].trim();
-      if (mapType != "bubble" && mapType != "choropleth") {
+      if (mapType == "") {
         mapType = "bubble";
       }
 
