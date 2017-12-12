@@ -54,6 +54,8 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
   var externalGeojson = opts["externalGeojson"];
   var category = opts["category"];
   var category_id = category ? "category-" + category.trim().replace(/ /g,"-").toLowerCase() : "csvlayers_table";
+  var playbackRate = typeof opts["playbackRate"] == "undefined" ? null : opts["playbackRate"];
+  var masterPlaybackRate = typeof opts["masterPlaybackRate"] == "undefined" ? null : opts["masterPlaybackRate"];
 
   var layerOptions = {
     tileWidth: 256,
@@ -132,6 +134,10 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
       if (mapType == "choropleth") {
         showCountryLabelMapLayer = true;
       }
+      if (masterPlaybackRate && playbackRate) {
+        timelapse.setMasterPlaybackRate(masterPlaybackRate);
+        timelapse.setPlaybackRate(playbackRate);
+      }
 
     } else {
       $("#" + nickname + "-legend").hide();
@@ -142,6 +148,12 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
       if (mapType == "choropleth") {
         showCountryLabelMapLayer = false;
       }
+      if (masterPlaybackRate && playbackRate) {
+        timelapse.setMasterPlaybackRate(1);
+        timelapse.setPlaybackRate(defaultPlaybackSpeed);
+        timelapse.setMaxScale(landsatMaxScale);
+      }
+
     }
   }).prop('checked', layer.visible);
 }
@@ -213,6 +225,8 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
       var vertexShader = layer["Vertex Shader"]; 
       var fragmentShader = layer["Fragment Shader"]; 
       var drawFunction = layer["Draw Function"];
+      var playbackRate = layer["Playback Rate"];
+      var masterPlaybackRate = layer["Master Playback Rate"];
 
       var opts = {
         nickname: layerIdentifier,
@@ -229,7 +243,9 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
         numAttributes: numAttributes,
         vertexShader: vertexShader,
         fragmentShader: fragmentShader,
-        drawFunction: drawFunction
+        drawFunction: drawFunction,
+        playbackRate: playbackRate,
+        masterPlaybackRate: masterPlaybackRate
       }
 
       this.addLayer(opts);
