@@ -83,7 +83,6 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
     layerOptions.numAttributes = opts["numAttributes"];
     layerOptions.vertexShader = eval(opts["vertexShader"]);
     layerOptions.fragmentShader = eval(opts["fragmentShader"]);
-    console.log(layerOptions);
   }
 
   var layer = new WebglVectorLayer2(glb, canvasLayer, url, layerOptions);
@@ -392,7 +391,7 @@ CsvFileLayer.prototype.setLegend = function setLegend(id) {
 
       }
 
-    } else { // Assume choropleth
+    } else if (layer['opts']['mapType'] == 'choropleth') { // Assume choropleth
       if (layer['opts']['legendContent'] == 'auto') {
         var radius = this.layers[i]['_tileView']['_tiles']['000000000000000']['_radius'];
         var opts = {
@@ -408,7 +407,6 @@ CsvFileLayer.prototype.setLegend = function setLegend(id) {
         }
 
         var legend = new ChoroplethLegend(opts)
-        console.log(legend);
         $('#legend-content table tr:last').after(legend.toString());
         $("#" + id + "-legend").show();
       } else {
@@ -423,6 +421,22 @@ CsvFileLayer.prototype.setLegend = function setLegend(id) {
         $("#" + id + "-legend").show();
 
       }
+    } else {
+        var str = '';
+        if (layer['opts']['legendContent'] == '') {
+          var div = '<div style="font-size: 15px">' + layer['opts']["name"] + '<span class="credit"> ('+ layer['opts']["credit"] +')</span></div>';
+          str = div;
+        } else {
+          str = layer['opts']['legendContent'];
+        }
+        var opts = {
+          'id' : id,
+          'str': str 
+        }
+        var legend = new Legend(id, str);
+        $('#legend-content table tr:last').after(legend.toString());
+        $("#" + id + "-legend").show();
+
     }        
   }
 }
