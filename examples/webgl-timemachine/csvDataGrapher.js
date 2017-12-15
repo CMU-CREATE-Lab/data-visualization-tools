@@ -102,6 +102,7 @@ CsvDataGrapher.prototype.graphDataForLayer = function graphDataForLayer(layerNam
     if (csvFileLayers.layers[i]._layerId == layerName) {
       var tiles = csvFileLayers.layers[i]._tileView._tiles;
       var key = Object.keys(tiles)[0];
+      if (!tiles[key].jsondata) return;      
       var data = tiles[key].jsondata.data;
       var layerProps = csvFileLayers.layersData.data[i];
       var showGraph = layerProps['Show Graph'];
