@@ -137,6 +137,9 @@ WebGLVectorTile2.prototype._loadData = function() {
       perf_receive(float32Array.length * 4, new Date().getTime() - that.startTime);
     }
     that._setData(float32Array);
+    if (that.layerId) {
+      that._dataLoaded(that.layerId);
+    }
   }
   this.xhr.onerror = function() {
     that._setData(new Float32Array([]));
