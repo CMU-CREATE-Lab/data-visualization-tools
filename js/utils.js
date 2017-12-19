@@ -430,3 +430,120 @@ function getUrlParameter(name) {
   var results = regex.exec(location.search);
   return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
 }
+
+function LngLatToPixelXY(longitude, latitude) {
+  var pi_180 = Math.PI / 180.0;
+  var pi_4 = Math.PI * 4;
+  var sinLatitude = Math.sin(latitude * pi_180);
+  var pixelY = (0.5 - Math.log((1 + sinLatitude) / (1 - sinLatitude)) / (pi_4)) * 256;
+  var pixelX = ((longitude + 180) / 360) * 256;
+  var pixel = [pixelX, pixelY];
+  return pixel;
+}
+
+function GetNormals(points) {
+  var currentNormal = null;
+  var out = [];
+
+  var lineA = [0, 0]
+  var lineB = [0, 0]
+  var tangent = [0, 0]
+  var miter = [0, 0]
+
+  var total = points.length;
+  for (var i = 1; i < total; i++) {
+      var last = points[i - 1];
+      var current = points[i];
+      var next = i < points.length - 1 ? points[i+1] : null;        
+
+      lineA  = GetDirection(current, last);
+
+      if (!currentNormal) {
+          currentNormal = [0,0];
+          currentNormal = GetNormal(lineA);
+      }
+
+      if (i == 1) {
+          out.push([[currentNormal[0], currentNormal[1]], 1]);
+      }
+
+      if (!next) {
+          currentNormal = GetNormal(lineA);
+          out.push([[currentNormal[0], currentNormal[1]], 1]);
+      } else {
+          lineB = GetDirection(next, current);
+          var miterLen = ComputeMiter(tangent, miter, lineA, lineB, 1);
+          out.push([[miter[0], miter[1]], miterLen]);
+      }
+
+  }
+  return out;
+}
+
+function GetDirection (a, b) {
+  //get unit dir of two lines
+  var out = [];
+  vec2.subtract(out, a, b);
+  vec2.normalize(out, out);
+  return out;
+}
+
+function ComputeMiter(tangent, miter, lineA, lineB, halfThick) {
+  var tmp = [0,0];
+  vec2.add(tangent, lineA, lineB);
+  vec2.normalize(tangent, tangent);
+  vec2.set(miter, -tangent[1], tangent[0]);
+  vec2.set(tmp, -lineA[1], lineA[0]);
+  return halfThick / vec2.dot(miter, tmp);
+
+}
+
+function GetNormal(a) {
+  var out = [];
+  vec2.set(out, -a[1], a[0]);
+  return out;
+}
+
+function Duplicate(nestedArray, mirror) {
+  var out = []
+  nestedArray.forEach(x => {
+    let x1 = mirror ? -x : x
+    out.push(x1, x)
+  })
+  return out
+}
+
+function CreateIndices (length, offset) {
+  var indices = new Uint16Array(length * 6);
+  var c = 0; 
+  var index = offset ? offset: 0;
+  for (var j=0; j<length; j++) {
+    var i = index;
+    indices[c++] = i + 0; 
+    indices[c++] = i + 1; 
+    indices[c++] = i + 2; 
+    indices[c++] = i + 2; 
+    indices[c++] = i + 1; 
+    indices[c++] = i + 3; 
+    index += 2;
+  }
+  return indices
+}
+
+function PackArray(arr) {
+    if (!arr[0] || !arr[0].length) {
+        return arr
+    }
+
+    var dim = arr[0].length;
+    var out = new Array(arr.length * dim);
+    var k = 0;
+
+    for (var i = 0; i < arr.length; i++) {
+        for (var j = 0; j < dim; j++) {
+            out[k++] = arr[i][j];
+        }
+    }
+    return out
+}
+
