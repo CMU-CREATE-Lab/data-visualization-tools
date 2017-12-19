@@ -83,6 +83,13 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
     layerOptions.numAttributes = opts["numAttributes"];
     layerOptions.vertexShader = eval(opts["vertexShader"]);
     layerOptions.fragmentShader = eval(opts["fragmentShader"]);
+  } else {
+    layerOptions.loadDataFunction = eval(opts["loadDataFunction"]);
+    layerOptions.setDataFunction = eval(opts["setDataFunction"]);
+    layerOptions.drawFunction = eval(opts["drawFunction"]);
+    layerOptions.numAttributes = opts["numAttributes"];
+    layerOptions.vertexShader = eval(opts["vertexShader"]);
+    layerOptions.fragmentShader = eval(opts["fragmentShader"]);
   }
 
   var layer = new WebglVectorLayer2(glb, canvasLayer, url, layerOptions);
@@ -220,6 +227,7 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
       }
 
       var loadDataFunction = layer["Load Data Function"];
+      var setDataFunction = layer["Set Data Function"];
       var numAttributes = layer["Number of Attributes"];  
       var vertexShader = layer["Vertex Shader"]; 
       var fragmentShader = layer["Fragment Shader"]; 
@@ -239,6 +247,8 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
         legendContent: legendContent,
         legendKey: legendKey,
         externalGeojson: externalGeojson,
+        loadDataFunction: loadDataFunction,
+        setDataFunction: setDataFunction,
         numAttributes: numAttributes,
         vertexShader: vertexShader,
         fragmentShader: fragmentShader,
