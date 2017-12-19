@@ -480,6 +480,73 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
   this.xhr.send();
 }
 
+WebGLVectorTile2.prototype._setLineStringData = function(data) {
+  // Assumes GeoJSON data
+  function processLineString(lineString) {
+    var out =[];
+    for (var i = 0; i < lineString.length*0.9; i++) {
+      var p = LngLatToPixelXY(lineString[i][0], lineString[i][1]);
+      out.push(p);
+    }
+    return out;
+  }
+  var paths = [];
+  for (var i = 0; i < data["features"].length; i++) {
+    var path = [];
+    var feature = data["features"][i];
+    if (feature["geometry"]["type"] == "MultiLineString") {
+      for (var j = 0; j < feature["geometry"]["coordinates"].length; j++) {
+        path = path.concat(processLineString(feature["geometry"]["coordinates"][j]));
+      }
+    } else {
+      path = path.concat(processLineString(feature["geometry"]["coordinates"]));
+    }
+    paths.push(path);
+  }
+  var normalCollection = [];
+  var miterCollection = [];
+  var vertexCollection = [];
+  var indexCollection = [];
+
+  var offset = 0;
+  for (var i = 0; i < paths.length; i++) {
+    var points = paths[i];    
+    var tags = GetNormals(points);
+    var normals = tags.map(x => x[0]);
+    var miters = tags.map(x => x[1]);
+    var count = (points.length - 1) * 6;
+    normals = Duplicate(normals);
+    miters = Duplicate(miters, true);
+    var positions = Duplicate(points);
+    var indices = CreateIndices(points.length-1, offset);
+    normalCollection = normalCollection.concat(PackArray(normals));   
+    miterCollection = miterCollection.concat(PackArray(miters));   
+    vertexCollection = vertexCollection.concat(PackArray(positions));   
+    indexCollection = indexCollection.concat(indices);   
+    offset += positions.length;
+  }
+  var idx = 0;
+  var indexBuffer = [];
+  for (var i = 0; i < indexCollection.length; i++) {
+    for (var j = 0; j < indexCollection[i].length; j++) {
+      indexBuffer[idx] = indexCollection[i][j];
+      idx++;
+    }
+  }    
+
+  console.log(vertexCollection);
+  console.log(normalCollection);
+  console.log(miterCollection);
+  console.log(indexCollection.length);
+  console.log(indexBuffer.length);
+  this._setBuffers([new Float32Array(vertexCollection), 
+                    new Float32Array(normalCollection), 
+                    new Float32Array(miterCollection)],
+                    new Uint16Array(indexBuffer));
+
+}
+
+
 WebGLVectorTile2.prototype._setIomIdpData = function(data) {
   var maxValue = 905835.0;
   var radius = d3.scaleSqrt().domain([0, maxValue]).range([0, 60]);
@@ -838,6 +905,24 @@ WebGLVectorTile2.prototype._setBufferData  = function(data) {
 
       this._ready = true;
     }
+}
+
+WebGLVectorTile2.prototype._setBuffers  = function(buffers, indices) {
+  var gl = this.gl;
+  this._pointCount = indices.length;
+  console.log(this._pointCount);
+  this._arrayBuffers = [];
+  if (this._pointCount > 0) {
+    for (var i = 0; i < buffers.length; i++) {
+      this._arrayBuffers[i] = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffers[i]);
+      gl.bufferData(gl.ARRAY_BUFFER, buffers[i], gl.STATIC_DRAW);              
+    }
+    this._indexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
+    this._ready = true;
+  }
 }
 
 WebGLVectorTile2.prototype.isReady = function() {
@@ -2139,6 +2224,62 @@ WebGLVectorTile2.prototype._drawTsip = function(transform, options) {
   }
 }
 
+
+WebGLVectorTile2.prototype._drawLineString = function(transform, options) {
+  var gl = this.gl;
+  if (this._ready) {
+    gl.useProgram(this.program);
+    gl.enable(gl.BLEND);
+    gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
+
+    var tileTransform = new Float32Array(transform);
+    var zoom = options.zoom;
+    var currentTime = options.currentTime/1000.;
+    var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
+    var color = options.color || [.1, .1, .5, 1.0];
+
+    scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
+    scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+
+    pointSize *= Math.floor((zoom + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+    // Passing a NaN value to the shader with a large number of points is very bad
+    if (isNaN(pointSize)) {
+      pointSize = 1.0;
+    }
+
+    var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
+    gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+    var colorLoc = gl.getUniformLocation(this.program, 'u_color');
+    gl.uniform3fv(colorLoc, [1.,0.,0.]);
+    var thicknessLoc = gl.getUniformLocation(this.program, 'u_thickness');
+    gl.uniform1f(thicknessLoc, .5);
+    var innerLoc = gl.getUniformLocation(this.program, 'u_inner');
+    gl.uniform1f(innerLoc, .0);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffers[0]);
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_coord');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 8, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffers[1]);
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_normal');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 8, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffers[2]);
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_miter');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer);
+
+    gl.drawElements(gl.TRIANGLES, this._pointCount, gl.UNSIGNED_SHORT, 0);
+    //gl.drawElements(gl.TRIANGLES, 170840, gl.UNSIGNED_SHORT, 0);
+    perf_draw_points(this._pointCount);
+    gl.disable(gl.BLEND);
+  }
+}
+
 // Update and draw tiles
 WebGLVectorTile2.update = function(tiles, transform, options) {
   for (var i = 0; i < tiles.length; i++) {
@@ -3120,12 +3261,6 @@ WebGLVectorTile2.tsipFragmentShader =
 '  gl_FragColor = vec4(153./256., 101./256., 21./256., 1.) * dist;\n' +
 '}';
 
-WebGLVectorTile2.colorDotmapFragmentShader =
-  'precision lowp float;\n' +
-  'void main() {\n' +
-  '  gl_FragColor = vec4(0.0,1.0,0.0,1.0);\n' +
-  '}\n';
-
 WebGLVectorTile2.pointFlowVertexShader =
 '      //WebGLVectorTile2.pointFlowVertexShader\n' + 
 '      attribute vec4 a_p0;\n' +
@@ -3163,6 +3298,32 @@ WebGLVectorTile2.pointFlowFragmentShader =
 '    vec4 colorStart = vec4(.94,.94,.94,1.0);\n' +
 '    vec4 colorEnd = vec4(.71,0.09,0.05,1.0);\n' +
 '    gl_FragColor = mix(colorStart, colorEnd, v_t) * dist;\n' +
+'  }\n';
+
+WebGLVectorTile2.lineStringVertexShader = 
+'attribute vec2 a_coord;\n' +
+'attribute vec2 a_normal;\n' +
+'attribute float a_miter;\n' +
+'uniform mat4 u_map_matrix;\n' +
+'uniform float u_thickness;\n' +
+'varying float v_edge;\n' +
+'void main() {\n' +
+'    v_edge = sign(a_miter);\n' +
+'    vec2 position = a_coord + vec2(a_normal * u_thickness/2.0 * a_miter);\n' +
+'    gl_Position = u_map_matrix * vec4(position, 0., 1.);\n' +
+'    gl_PointSize = 25.0;\n' +
+'}\n';
+
+
+WebGLVectorTile2.lineStringFragmentShader = 
+'  precision mediump float;\n' +
+'  uniform vec3 u_color;\n' +
+'  uniform float u_inner;\n' +
+'  varying float v_edge;\n' +
+'  void main() {\n' +
+'    float v = 1.0 - abs(v_edge);\n' +
+'    v = smoothstep(0.65, 0.7, v*u_inner); \n' +
+'    gl_FragColor = mix(vec4(u_color, 1.0), vec4(0.0), v);\n' +
 '  }\n';
 
 
