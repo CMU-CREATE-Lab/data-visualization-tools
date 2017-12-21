@@ -967,6 +967,7 @@ a:focus { outline:0; }
   width: 20px;
   color: white;
   position: sticky;
+  position: -webkit-sticky;
   left: 0px;
   z-index: 100;
   display: none;
@@ -1041,7 +1042,7 @@ a:focus { outline:0; }
   display: none;
   box-shadow: 2px 0px 3px rgba(0,0,0,0.3);
   bottom: 94px;
-  width: 355px;
+  width: 294px;
   background:#e0e0e0;
   position: absolute;
   text-align: center;
@@ -1114,7 +1115,7 @@ a:focus { outline:0; }
   transform: rotate(45deg);
   position: relative;
   margin-right: -6px;
-  left: 285px;
+  left: 225px;
 }
 
 #layers-list .ui-accordion .ui-accordion-header {

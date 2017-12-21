@@ -44,23 +44,31 @@ function WebglVideoTile(glb, tileidx, bounds, url, defaultUrl, numFrames, fps, g
                                                        0, 1,
                                                        1, 1]));
 
-  this._video = document.createElement('video');
+  if (org.gigapan.Util.isMobileDevice()) {
+    this._video = {};
+  } else {
+    this._video = document.createElement('video');
+    // If tile 404's, replace with defaultUrl.  This lets us remove e.g. all the
+    // sea tiles and replace with a single default tile.
+    this._video.addEventListener('error', function(event) {
+      if (self._video) {
+        if (self._video.networkState == HTMLVideoElement.NETWORK_NO_SOURCE &&
+            self._video.src != defaultUrl) {
+          self._video.src = defaultUrl;
+        }
+      }
+    });
+  }
   this._video.crossOrigin = "anonymous";
+  this._video.muted = true;
+  this._video.playsinline = true;
+  // The attribute should be all lowercase per the Apple docs, but apparently it needs to be camelcase.
+  // Leaving both in just in case.
+  this._video.playsInline = true;
 
   this._useGreenScreen = greenScreen;
 
   var self = this;
-
-  // If tile 404's, replace with defaultUrl.  This lets us remove e.g. all the
-  // sea tiles and replace with a single default tile.
-  this._video.addEventListener('error', function(event) {
-    if (self._video) {
-      if (self._video.networkState == HTMLVideoElement.NETWORK_NO_SOURCE &&
-          self._video.src != defaultUrl) {
-        self._video.src = defaultUrl;
-      }
-    }
-  });
 
   this._video.src = url;
   this._pipeline = [];
