@@ -1,5 +1,4 @@
 //CarbonPriceRisk.js
-console.log("CarbonPriceRisk.js");
 function CarbonPriceRisk() {
     this.scalingFunction = 'd3.scaleSqrt().domain([0, this.values["max"]*.5]).range([0, 100])';
 
@@ -7,7 +6,7 @@ function CarbonPriceRisk() {
         'max' : 0,
         'min' : 1e6
     }
-   
+
     this.years = {
         'start': 2017,
         'end': 2050
@@ -21,7 +20,7 @@ function CarbonPriceRisk() {
         { key: 'mining', value: 'Mining', selected: false },
         { key: 'pharmaceuticals', value: 'Pharmaceuticals', selected: false },
         { key: 'telecommunications', value: 'Telecommunications', selected: false }
-    ];            
+    ];
 
     this.levels = [
         { key: 'low', value: 'Low' },
@@ -30,7 +29,7 @@ function CarbonPriceRisk() {
     ];
 
     this.regions = [
-        { key: 'americas', value:'Americas' }, 
+        { key: 'americas', value:'Americas' },
         { key: 'asia', value: 'Asia-Pacific' },
         { key: 'emea', value: 'EMEA' }
     ];
@@ -42,12 +41,12 @@ CarbonPriceRisk.prototype.getLegend = function() {
         'title': 'Carbon Price Risk',
         'credit': 'S&P',
         'keys': [
-            {'color': 'red', 'str': 'Automobile manufacturing'}, 
+            {'color': 'red', 'str': 'Automobile manufacturing'},
             {'color': 'blue', 'str': 'Chemicals'},
-            {'color': 'green', 'str': 'Construction Materials'},        
-            {'color': 'purple', 'str': 'Electric Utilities'},        
-            {'color': 'orange', 'str': 'Mining'},        
-            {'color': 'yellow', 'str': 'Pharmaceuticals'},        
+            {'color': 'green', 'str': 'Construction Materials'},
+            {'color': 'purple', 'str': 'Electric Utilities'},
+            {'color': 'orange', 'str': 'Mining'},
+            {'color': 'yellow', 'str': 'Pharmaceuticals'},
             {'color': 'brown', 'str': 'Telecommunications'}
         ],
         'circles': [{'value': '25K', 'radius': '25.0'},{'value': '64K', 'radius': '40.0'},{'value': '100K', 'radius': '50.0'}]
@@ -70,7 +69,7 @@ CarbonPriceRisk.prototype.enableSelect = function(idx) {
     var key = this.sectors[idx]['key'];
     var that = this;
     $("#show-carbon-price-risk-" + key).on("click", function() {
-        console.log(key);
+        //console.log(key);
         if ($(this).prop('checked')) {
           that.sectors[idx]['selected'] = true;
           showCarbonPriceRiskLayer = true;
@@ -89,15 +88,15 @@ CarbonPriceRisk.prototype.enableSelect = function(idx) {
             doSwitchToLandsat();
             $("#carbon-price-risk-legend").hide();
            }
-         
+
         }
     }).prop('checked', showCarbonPriceRiskLayer);
 }
 
 CarbonPriceRisk.prototype.getSelect = function(idx) {
     var str = '<td class="carbon-price-risk-select-'+ this.sectors[idx]['key'] + '">' +
-              '<label for="show-carbon-price-risk-'+ this.sectors[idx]['key'] + 
-              '" name="carbon_price_risk"><input type="checkbox" id="show-carbon-price-risk-' + 
+              '<label for="show-carbon-price-risk-'+ this.sectors[idx]['key'] +
+              '" name="carbon_price_risk"><input type="checkbox" id="show-carbon-price-risk-' +
               this.sectors[idx]['key'] +
               '" />' + this.sectors[idx]['value'] + '</label></td>';
     return str;
@@ -162,7 +161,7 @@ CarbonPriceRisk.prototype.getPoints = function(jsondata, geojsondata) {
                     'val1': val1,
                     'epoch1': epoch1,
                     'val2': val2,
-                    'epoch2': epoch2             
+                    'epoch2': epoch2
                 });
             }
             var span = epoch2 - epoch1;
@@ -174,7 +173,7 @@ CarbonPriceRisk.prototype.getPoints = function(jsondata, geojsondata) {
                 'val1': val2,
                 'epoch1': epoch2,
                 'val2': val2,
-                'epoch2': epoch2 + span          
+                'epoch2': epoch2 + span
             });
         }
     };
@@ -210,8 +209,8 @@ CarbonPriceRisk.prototype.getCentroid = function(name, geojsondata) {
         -180, 85.05112877980659, 180, -85.05112877980659,
         256, 256);
     var feature = searchCountryList(geojsondata, name);
-    var latlng = { 
-        lat: feature['geometry']['coordinates'][1], 
+    var latlng = {
+        lat: feature['geometry']['coordinates'][1],
         lng:feature['geometry']['coordinates'][0]
     };
     var xy = proj.latlngToPoint(latlng);
@@ -219,4 +218,4 @@ CarbonPriceRisk.prototype.getCentroid = function(name, geojsondata) {
 }
 
 var carbonPriceRisk = new CarbonPriceRisk();
-console.log(carbonPriceRisk);
+//console.log(carbonPriceRisk);

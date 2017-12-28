@@ -454,7 +454,7 @@ function GetNormals(points) {
   for (var i = 1; i < total; i++) {
       var last = points[i - 1];
       var current = points[i];
-      var next = i < points.length - 1 ? points[i+1] : null;        
+      var next = i < points.length - 1 ? points[i+1] : null;
 
       lineA  = GetDirection(current, last);
 
@@ -515,16 +515,16 @@ function Duplicate(nestedArray, mirror) {
 
 function CreateIndices (length, offset) {
   var indices = new Uint16Array(length * 6);
-  var c = 0; 
+  var c = 0;
   var index = offset ? offset: 0;
   for (var j=0; j<length; j++) {
     var i = index;
-    indices[c++] = i + 0; 
-    indices[c++] = i + 1; 
-    indices[c++] = i + 2; 
-    indices[c++] = i + 2; 
-    indices[c++] = i + 1; 
-    indices[c++] = i + 3; 
+    indices[c++] = i + 0;
+    indices[c++] = i + 1;
+    indices[c++] = i + 2;
+    indices[c++] = i + 2;
+    indices[c++] = i + 1;
+    indices[c++] = i + 3;
     index += 2;
   }
   return indices

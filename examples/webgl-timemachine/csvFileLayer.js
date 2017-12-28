@@ -79,17 +79,37 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
     layerOptions.imageSrc =  "obesity-color-map.png";
   } else if (mapType == "point-flow") {
     layerOptions.loadDataFunction = WebGLVectorTile2.prototype._loadData;
-    layerOptions.drawFunction = eval(opts["drawFunction"]);
-    layerOptions.numAttributes = opts["numAttributes"];
-    layerOptions.vertexShader = eval(opts["vertexShader"]);
-    layerOptions.fragmentShader = eval(opts["fragmentShader"]);
+    if (opts["drawFunction"]) {
+      layerOptions.drawFunction = eval(opts["drawFunction"]);
+    }
+    if (opts["numAttributes"]) {
+      layerOptions.numAttributes = opts["numAttributes"];
+    }
+    if (opts["vertexShader"]) {
+      layerOptions.vertexShader = eval(opts["vertexShader"]);
+    }
+    if (opts["fragmentShader"]) {
+      layerOptions.fragmentShader = eval(opts["fragmentShader"]);
+    }
   } else {
-    layerOptions.loadDataFunction = eval(opts["loadDataFunction"]);
-    layerOptions.setDataFunction = eval(opts["setDataFunction"]);
-    layerOptions.drawFunction = eval(opts["drawFunction"]);
-    layerOptions.numAttributes = opts["numAttributes"];
-    layerOptions.vertexShader = eval(opts["vertexShader"]);
-    layerOptions.fragmentShader = eval(opts["fragmentShader"]);
+    if (opts["loadDataFunction"]) {
+      layerOptions.loadDataFunction = eval(opts["loadDataFunction"]);
+    }
+    if (opts["setDataFunction"]) {
+      layerOptions.setDataFunction = eval(opts["setDataFunction"]);
+    }
+    if (opts["drawFunction"]) {
+      layerOptions.drawFunction = eval(opts["drawFunction"]);
+    }
+    if (opts["numAttributes"]) {
+      layerOptions.numAttributes = opts["numAttributes"];
+    }
+    if (opts["vertexShader"]) {
+      layerOptions.vertexShader = eval(opts["vertexShader"]);
+    }
+    if (opts["fragmentShader"]) {
+      layerOptions.fragmentShader = eval(opts["fragmentShader"]);
+    }
   }
 
   var layer = new WebglVectorLayer2(glb, canvasLayer, url, layerOptions);
@@ -109,7 +129,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
   this.layers.push(layer);
 
   var id = 'show-csv-' + nickname;
-  var row = '<tr><td><label name="' + nickname + '">';
+  var row = '<tr class="csvlayer"><td><label name="' + nickname + '">';
   row += '<input type="checkbox" id="' + id + '">';
   row += name;
   row += '</label></td></tr>';
@@ -120,7 +140,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
   }
 
   if ($('#' + category_id).length == 0) {
-    $(".map-layer-div #other_table").prev("h3").before("<h3 class='csvlayer'>" + category + "</h3><table class=csvlayer' id='" + category_id + "'></table>");
+    $(".map-layer-div #other_table").prev("h3").before("<h3>" + category + "</h3><table id='" + category_id + "'></table>");
   }
 
   $('#' + category_id).append(row);
@@ -228,9 +248,9 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
 
       var loadDataFunction = layer["Load Data Function"];
       var setDataFunction = layer["Set Data Function"];
-      var numAttributes = layer["Number of Attributes"];  
-      var vertexShader = layer["Vertex Shader"]; 
-      var fragmentShader = layer["Fragment Shader"]; 
+      var numAttributes = layer["Number of Attributes"];
+      var vertexShader = layer["Vertex Shader"];
+      var fragmentShader = layer["Fragment Shader"];
       var drawFunction = layer["Draw Function"];
       var playbackRate = layer["Playback Rate"];
       var masterPlaybackRate = layer["Master Playback Rate"];
@@ -366,8 +386,8 @@ CsvFileLayer.prototype.setLegend = function setLegend(id) {
     if (this.layers[i]['_layerId'] == id) {
       layer = this.layers[i];
       break;
-    }  
-  }  
+    }
+  }
   if (typeof layer != 'undefined') {
     if (layer['opts']['mapType'] == 'bubble') {
       if (layer['opts']['legendContent'] == 'auto') {
@@ -393,7 +413,7 @@ CsvFileLayer.prototype.setLegend = function setLegend(id) {
         var str = div + layer['opts']['legendContent'];
         var opts = {
           'id' : id,
-          'str': str 
+          'str': str
         }
         var legend = new BubbleMapLegend(opts);
         $('#legend-content table tr:last').after(legend.toString());
@@ -424,7 +444,7 @@ CsvFileLayer.prototype.setLegend = function setLegend(id) {
         var str = div + layer['opts']['legendContent'];
         var opts = {
           'id' : id,
-          'str': str 
+          'str': str
         }
         var legend = new ChoroplethLegend(opts);
         $('#legend-content table tr:last').after(legend.toString());
@@ -441,13 +461,13 @@ CsvFileLayer.prototype.setLegend = function setLegend(id) {
         }
         var opts = {
           'id' : id,
-          'str': str 
+          'str': str
         }
         var legend = new Legend(id, str);
         $('#legend-content table tr:last').after(legend.toString());
         $("#" + id + "-legend").show();
 
-    }        
+    }
   }
 }
 

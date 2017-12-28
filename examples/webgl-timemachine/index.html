@@ -42,6 +42,7 @@
   <script src="../../js/dat.gui.min.js"></script>
   <script src="../../js/papaparse.min.js"></script>
   <script src="../../js/d3.min.js"></script>
+  <script src="earthtime.js"></script>
   <script src="../../js/promise.min.js"></script>
   <script src="../../js/gl-matrix-min.js"></script>
   <script src="config-local.js" type="text/javascript"></script>
@@ -553,7 +554,7 @@
         enablePresentationSlider: !disablePresentationSlider,
         enableEditor: enableRecordingMode ? true : false,
         showEditorOnLoad: enableRecordingMode ? true : false,
-        // Using "https" will casue the thumbnail loading from the server to fail
+        // Using "https" will cause the thumbnail loading from the server to fail
         thumbnailServerRootTileUrl: (landsatVersion == "2015") ? "http://earthengine.google.org/timelapse/data/20130507" : "http://storage.googleapis.com/earthengine-timelapse/herwig/earthtime_annual_1984_2016/v05",
         showFullScreenBtn: false,
         showShareBtn: showShareButton,
@@ -3104,7 +3105,7 @@
         resizeHandler: resize,
         animate: true,
         updateHandler: update,
-        resolutionScale: window.devicePixelRatio || 1
+        resolutionScale: 1
       };
       canvasLayer = new TimeMachineCanvasLayer(timeMachineCanvasLayerOptions);
 
@@ -4060,7 +4061,8 @@
       var defaultTimeMachineLayerOptions = {
         mediaType: ".mp4",
         numFrames: cached_ajax[cachedLandsatTimeJsonPath]['capture-times'].length,
-        fps: 10
+        fps: 10,
+        startYear: 1984
       };
       landsatBaseMapLayer = new WebglTimeMachineLayer(glb, canvasLayer, landsatUrl, defaultTimeMachineLayerOptions);
 
@@ -4987,73 +4989,41 @@
       }
 
       // CSV Data Grapher
-      var showHideCsvGrapher = function(doShow, layerId) {
-        if (doShow && layerId) {
-          var layerIds = csvFileLayers.layersData.data.map(function(props) {
-            return props['Share link identifier'];
-          });
-          var layerIdx = layerIds.indexOf(layerId);
-          var layerProps = csvFileLayers.layersData.data[layerIdx];
-          if (!layerProps || !layerProps['Show Graph']) return;
-        }
-
-        if (doShow) {
-          $("#csvChartLegend").show();
-          $("#csvChartContainer").show();
-          if (useJumpToButtons) {
-            $("#presentation-slider-selection").hide();
-          }
-          if (!disablePresentationSlider) {
-            $(".controls, .customControl, .scaleBarContainer, #logosContainer, #baseLayerCreditContainer").addClass("layerGraphs");
-          }
-          $("#timeMachine").addClass("layerGraphs");
-        } else {
-          $("#csvChartLegend").hide();
-          $("#csvChartContainer").hide();
-          if (useJumpToButtons) {
-            $("#presentation-slider-selection").show();
-          }
-          if (!disablePresentationSlider) {
-            $(".controls, .customControl, .scaleBarContainer, #logosContainer, #baseLayerCreditContainer").removeClass("layerGraphs");
-          }
-          $("#timeMachine").removeClass("layerGraphs");
-        }
-        var snaplapse = timelapse.getSnaplapseForPresentationSlider();
-        if (snaplapse) {
-          snaplapse.getSnaplapseViewer().showHideSnaplapseContainer(!doShow);
-        }
-        resize();
-        csvDataGrapher.chart.render();
-      };
       csvFileLayers.addDataLoadedListener(function(layerId) {
         csvDataGrapher.graphDataForLayer(layerId);
-        showHideCsvGrapher(true, layerId);
-      });
-      csvFileLayers.addDataLoadedListener(function(layerId) {
-        csvFileLayers.setLegend(layerId);
+        showHideCsvGrapher(true, layerId, true);
       });
       csvDataGrapher.initialize();
-      $("#csvlayers_table, .csvlayer").on("click", "input", function(e) {
-        var activeCsvLayers = $("#csvlayers_table, .csvlayer").find("input:checked");
-        var layerId = $(e.target).parent().attr("name");
-        var layerIds = csvFileLayers.layersData.data.map(function(props) {
-          return props['Share link identifier'];
-        });
+      $("#layers-list").on("click", ".csvlayer input, input[data-has-graph='true']", function(e) {
+        var activeGraphableLayers = $(".csvlayer input, tr input[data-has-graph='true']").closest("input:checked");
+        var $target = $(e.target);
+        var layerId = $target.parent().attr("name");
+        var layerIds = csvFileLayers.layersData.data.reduce(function(result, props) {
+          if (props['Enabled'] == "TRUE") {
+            result.push(props['Share link identifier']);
+          }
+          return result;
+        }, []);
         var layerIdx = layerIds.indexOf(layerId);
-        if (typeof csvFileLayers.layers[layerIdx] != "undefined") { // TODO: Why is this ever undefined?
+        var dataLoaded = $target.data("has-graph") ? true : false;
+        if (layerIdx >= 0 && typeof csvFileLayers.layers[layerIdx] != "undefined") {
           var tiles = csvFileLayers.layers[layerIdx]._tileView._tiles;
           var key = Object.keys(tiles)[0];
-          var dataLoaded = key && tiles[key]._ready;
-          if (activeCsvLayers.length > 0 && dataLoaded) {
-            var layerId = tiles[key].layerId;
-            csvDataGrapher.graphDataForLayer(layerId);
-            showHideCsvGrapher(true, layerId);
-          }
-          if (activeCsvLayers.length == 0) {
-            showHideCsvGrapher(false, layerId);
-            csvDataGrapher.activeLayer = {};
-          }
-
+          dataLoaded = key && tiles[key]._ready;
+        }
+        if (dataLoaded && $target.is(':checked') && !$target.data("has-graph")) {
+          var layerId = tiles[key].layerId;
+          csvDataGrapher.graphDataForLayer(layerId);
+        }
+        var isCsvLayer = $(this).closest("tr").hasClass("csvlayer");
+        if ($target.is(':checked') && dataLoaded) {
+          showHideCsvGrapher(true, layerId, isCsvLayer);
+        } else {
+          csvDataGrapher.removePlot($target.data("graph-name"));
+        }
+        if (activeGraphableLayers.length == 0) {
+          showHideCsvGrapher(false, layerId, isCsvLayer);
+          csvDataGrapher.removeAllPlots();
         }
       });
 
@@ -5117,8 +5087,47 @@
         $("#layers-legend").css({"top" : "20px", "left" : "20px"});
         $(".toggleLayerPanelBtn").click();
       }
-
     }
+
+    // CSV Data Grapher
+    var showHideCsvGrapher = function(doShow, layerId, isCSV) {
+      if (doShow && layerId && isCSV) {
+        var layerIds = csvFileLayers.layersData.data.map(function(props) {
+          return props['Share link identifier'];
+        });
+        var layerIdx = layerIds.indexOf(layerId);
+        var layerProps = csvFileLayers.layersData.data[layerIdx];
+        var showGraph = layerProps['Show Graph'] == "TRUE";
+        if (!showGraph) return;
+      }
+      if (doShow) {
+        $("#csvChartLegend").show();
+        $("#csvChartContainer").show();
+        if (useJumpToButtons) {
+          $("#presentation-slider-selection").hide();
+        }
+        if (!disablePresentationSlider) {
+          $(".controls, .customControl, .scaleBarContainer, #logosContainer, #baseLayerCreditContainer").addClass("layerGraphs");
+        }
+        $("#timeMachine").addClass("layerGraphs");
+      } else {
+        $("#csvChartLegend").hide();
+        $("#csvChartContainer").hide();
+        if (useJumpToButtons) {
+          $("#presentation-slider-selection").show();
+        }
+        if (!disablePresentationSlider) {
+          $(".controls, .customControl, .scaleBarContainer, #logosContainer, #baseLayerCreditContainer").removeClass("layerGraphs");
+        }
+        $("#timeMachine").removeClass("layerGraphs");
+      }
+      var snaplapse = timelapse.getSnaplapseForPresentationSlider();
+      if (snaplapse) {
+        snaplapse.getSnaplapseViewer().showHideSnaplapseContainer(!doShow);
+      }
+      resize();
+      csvDataGrapher.chart.render();
+    };
 
     function docTabToGoogleSheetUrl(doctab) {
       var docId = doctab.split('.')[0];

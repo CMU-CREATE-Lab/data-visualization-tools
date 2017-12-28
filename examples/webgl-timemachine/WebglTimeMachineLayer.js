@@ -10,6 +10,19 @@ function WebglTimeMachineLayer(glb, canvasLayer, rootUrl, opt_options) {
   this._numFrames = opt_options.numFrames || 32;
   this._fps = opt_options.fps || 10;
   this._greenScreen = opt_options.greenScreen || false;
+  this._projection = opt_options.projection || null;
+
+  this._ready = true;
+  if (opt_options.colormap) {
+    var that = this;
+    this._ready = false;
+    this._colormap = this._createTexture();
+    this._image = new Image();
+    this._image.crossOrigin = "anonymous";
+    this._image.onload = function() { that._handleLoadedColormap(); };
+    this._image.addEventListener('error', function(event) { console.log('ERROR:  cannot load colormap ' + that._image.src); });
+    this._image.src = opt_options.colormap;
+  }
 
   var r = canvasLayer.timelapse.getMetadata();
 
@@ -25,7 +38,9 @@ function WebglTimeMachineLayer(glb, canvasLayer, rootUrl, opt_options) {
 
   function createTile(ti, bounds) {
     var url = rootUrl + '/' + ti.l + '/' + (ti.r * 4) + '/' + (ti.c * 4) + that._mediaType;
-    return new WebglVideoTile(glb, ti, bounds, url, that._defaultUrl, that._numFrames, that._fps, that._greenScreen);
+    var tile = new WebglVideoTile(glb, ti, bounds, url, that._defaultUrl, that._numFrames, that._fps, that._greenScreen, that);
+    tile.options = opt_options;
+    return tile;
   }
 
   this._tileView = new TileView({
@@ -35,12 +50,33 @@ function WebglTimeMachineLayer(glb, canvasLayer, rootUrl, opt_options) {
       tileHeight: video_height,
       createTile: createTile,
       deleteTile: function(tile) {},
-      updateTile: WebglVideoTile.update
-    });
+      updateTile: WebglVideoTile.update,
+      timelapse: this._canvasLayer.timelapse,
+      projection: this._projection
+  });
 
   this.destroy = function() {
     this._tileView._destroy();
   };
+}
+
+WebglTimeMachineLayer.prototype._createTexture = function() {
+  var gl = this.gl;
+  var texture = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.bindTexture(gl.TEXTURE_2D, null);
+  return texture;
+}
+
+WebglTimeMachineLayer.prototype._handleLoadedColormap = function() {
+  gl.bindTexture(gl.TEXTURE_2D, this._colormap);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._image);
+  gl.bindTexture(gl.TEXTURE_2D, null);
+  this._ready = true;
 }
 
 WebglTimeMachineLayer.prototype.resetDimensions = function(json) {

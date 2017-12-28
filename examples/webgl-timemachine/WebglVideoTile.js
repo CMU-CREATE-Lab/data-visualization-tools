@@ -13,10 +13,11 @@
 // Or maybe compress the range and go with say 1.6 to 2.1?  That lets us better use
 // the flexibility of being able to capture the video across a range of times
 
-function WebglVideoTile(glb, tileidx, bounds, url, defaultUrl, numFrames, fps, greenScreen) {
+function WebglVideoTile(glb, tileidx, bounds, url, defaultUrl, numFrames, fps, greenScreen, layer) {
   if (!WebglVideoTile._initted) {
     WebglVideoTile._init();
   }
+  this.layer = layer;
   this._tileidx = tileidx;
   this.glb = glb;
   this.gl = glb.gl;
@@ -27,6 +28,9 @@ function WebglVideoTile(glb, tileidx, bounds, url, defaultUrl, numFrames, fps, g
 
   this._textureFaderProgram = glb.programFromSources(WebglVideoTile.textureVertexShader,
                                                 WebglVideoTile.textureFragmentFaderShader);
+
+  this._textureColormapFaderProgram = glb.programFromSources(WebglVideoTile.textureVertexShader,
+                                                WebglVideoTile.textureColormapFragmentFaderShader);
 
   this._textureGreenScreenProgram = glb.programFromSources(WebglVideoTile.textureVertexShader,
                                                 WebglVideoTile.textureGreenScreenFragmentShader);
@@ -569,7 +573,9 @@ draw = function(transform) {
     var activeProgram;
 
     if (WebglVideoTile.useFaderShader) {
-      if (this._useGreenScreen) {
+      if (this.layer._colormap) {
+        activeProgram = this._textureColormapFaderProgram;
+      } else if (this._useGreenScreen) {
         activeProgram = this._textureGreenScreenFaderProgram;
       } else {
         activeProgram = this._textureFaderProgram;
@@ -587,6 +593,12 @@ draw = function(transform) {
 
       gl.uniform1i(u_image0Location, 0);  // texture unit 0
       gl.uniform1i(u_image1Location, 1);  // texture unit 1
+
+      if (this.layer._colormap) {
+        gl.uniform1i(gl.getUniformLocation(activeProgram, "uColormap"), 2); // texture unit 2
+        gl.activeTexture(gl.TEXTURE2);
+        gl.bindTexture(gl.TEXTURE_2D, this.layer._colormap);
+      }
 
       gl.uniformMatrix4fv(activeProgram.uTransform, false, tileTransform);
       gl.bindBuffer(gl.ARRAY_BUFFER, this._triangles);
@@ -659,7 +671,7 @@ draw = function(transform) {
 
 // Update and draw tiles
 WebglVideoTile.update = function(tiles, transform) {
-  if (si) return;
+  if (si || tiles.length == 0) return;
   //WebglTimeMachinePerf.instance.startFrame();
 
   var canvas = document.getElementById('webgl');
@@ -670,50 +682,35 @@ WebglVideoTile.update = function(tiles, transform) {
 
   var numTimelapseFrames = tiles[0]._nframes;
 
-  //console.log(numTimelapseFrames);
-  // Start at 2000 (frame 16) for Urban Fragility
-  // TODO: Like with the other layer hacks, we should have a way to pass in these values
-  if (typeof showUrbanFragilityLayer != "undefined" && showUrbanFragilityLayer) {
-    displayFrame = Math.min(numTimelapseFrames, displayFrame + 16);
+  // A layer may start at a different year than when Landsat starts. Tweak accordingly.
+  var appliedOffset = false;
+  if (tiles[0].options.startYear) {
+    var layerStartYear = tiles[0].options.startYear;
+    var timelineStartDate = timelapse.getCaptureTimes()[0];
+    // Assumes YYYY
+    if (timelineStartDate.length == 4) {
+      var timelineStartYear = parseInt(timelineStartDate);
+      var yearOffset = timelineStartYear - layerStartYear;
+      if (yearOffset > 0) {
+        displayFrame = Math.min(numTimelapseFrames, displayFrame + yearOffset);
+        appliedOffset = true;
+      }
+    // Assumes YYYY-MM-DD
+    } else if (timelineStartDate.length == 10) {
+      var yearString = timelapse.getCurrentCaptureTime().substring(0,4);
+      var year = parseInt(yearString);
+      if (year > 0) {
+        displayFrame = Math.max(0, year - layerStartYear);
+        appliedOffset = true;
+      }
+    }
   }
 
-  // Start at 2000 (frame 16) for Annual Refugees
-  // TODO: Like with the other layer hacks, we should have a way to pass in these values
-  if (typeof showAnnualRefugeesLayer != "undefined" && showAnnualRefugeesLayer) {
-    displayFrame = Math.min(numTimelapseFrames, displayFrame + 16);
-  }
-
-  // Start at 2000 (frame 16) for Animated Forest Loss/Gain
-  // TODO: Like with the other layer hacks, we should have a way to pass in these values
-  if (typeof showAnimatedHansenLayer != "undefined" && showAnimatedHansenLayer) {
-    displayFrame = Math.min(numTimelapseFrames, displayFrame + 16);
-  }
-
-  // Start at 1988 (frame 4) for Uppsala Conflict
-  // TODO: Like with the other layer hacks, we should have a way to pass in these values
-  if (typeof showUppsalaConflictLayer != "undefined" && showUppsalaConflictLayer) {
-    displayFrame = Math.min(numTimelapseFrames, displayFrame + 4);
-  }
-
-  // Show Landsat year depending upon what year is being shown for the VIIRS timeline
-  // TODO: Like with the other layer hacks, we should have a way to pass in these values
-  if (typeof showViirsLayer != "undefined" && showViirsLayer) {
-    var yearString = timelapse.getCurrentCaptureTime().substring(0,4);
-    var year = parseInt(yearString);
-    displayFrame = Math.max(0, year - 1984);
-  }
-
-  // Show Landsat year depending upon what year is being shown for Drilling timeline
-  // TODO: Like with the other layer hacks, we should have a way to pass in these values
-  if (typeof showDrillingLayer != "undefined" && showDrillingLayer) {
-    var yearString = timelapse.getCurrentCaptureTime().substring(0,4);
-    var year = parseInt(yearString);
-    displayFrame = Math.max(0, year - 1984);
-  }
-
-  // TODO: This hacks timelapse to always show the last Landsat frame if SLR is showing
-  if (typeof showSeaLevelRiseLayer != "undefined" && showSeaLevelRiseLayer) {
-    displayFrame = numTimelapseFrames - 1;
+  if (!appliedOffset) {
+    // TODO: Hack for future facing layers that require the last year of Landsat
+    if (typeof showSeaLevelRiseLayer != "undefined" && showSeaLevelRiseLayer) {
+      displayFrame = numTimelapseFrames - 1;
+    }
   }
 
   for (var i = 0; i < tiles.length; i++) {
@@ -790,6 +787,20 @@ WebglVideoTile.textureFragmentFaderShader =
   '  gl_FragColor = textureColor * (1.0 - uAlpha) + textureColor2 * uAlpha;\n' +
   '}\n';
 
+WebglVideoTile.textureColormapFragmentFaderShader =
+  'precision mediump float;\n' +
+  'varying vec2 vTextureCoord;\n' +
+  'uniform sampler2D uSampler;\n' +
+  'uniform sampler2D uSampler2;\n' +
+  'uniform sampler2D uColormap;\n' +
+  'uniform float uAlpha;\n' +
+  'void main(void) {\n' +
+  '  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t)); \n' +
+  '  vec4 textureColor2 = texture2D(uSampler2, vec2(vTextureCoord.s, vTextureCoord.t));\n' +
+  '  vec4 mixed = textureColor * (1.0 - uAlpha) + textureColor2 * uAlpha;\n' +
+  '  gl_FragColor = texture2D(uColormap, vec2(mixed.g, 0.0));\n' +
+  '}\n';
+
 WebglVideoTile.textureGreenScreenFragmentShader =
   'precision mediump float;\n' +
   'varying vec2 vTextureCoord;\n' +
@@ -818,7 +829,6 @@ WebglVideoTile.textureGreenScreenFragmentFaderShader =
   '  } else { \n' +
   '    gl_FragColor = fragColor;\n' +
   '  }\n' +
-
   '}\n';
 
 

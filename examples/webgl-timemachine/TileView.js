@@ -30,8 +30,8 @@ function TileView(settings) {
   this._tiles = {};
   this._updateTileCallback = settings.updateTile;
   this._zoomlock = settings.zoomlock;
-  this._cache = settings.cache || false;
-  this._tilecache = {};
+  this._timelapse = settings.timelapse;
+  this._projection = settings.projection;
 
   // levelThreshold sets the quality of display by deciding what level of tile to show for a given level of zoom:
   //
@@ -61,7 +61,6 @@ resetDimensions = function (json) {
   this._tileHeight = json.video_height;
   this._destroy();
   this._tiles = {};
-  this._tilecache = {};
   for (this._maxLevel = 0;
        (this._tileWidth << this._maxLevel) < this._panoWidth ||
        (this._tileHeight << this._maxLevel) < this._panoHeight;
@@ -98,7 +97,15 @@ _tileGeometry = function(tileidx) {
   var top = tileidx.r * this._tileHeight * levelScale;
   var bottom = top + this._tileHeight * levelScale;
 
-  return { min: {x: left, y: top}, max: {x: right, y: bottom} };
+  var bbox = { min: {x: left, y: top}, max: {x: right, y: bottom} };
+
+  if (this._projection) {
+    var timelapseProjection = this._timelapse.getProjection();
+    bbox.min = timelapseProjection.latlngToPoint(this._projection.pointToLatlng(bbox.min));
+    bbox.max = timelapseProjection.latlngToPoint(this._projection.pointToLatlng(bbox.max));
+  }
+
+  return bbox;
 };
 
 TileView.prototype.
@@ -147,10 +154,25 @@ _tileidxCenter = function(ti) {
 TileView.prototype.
 _computeVisibleTileRange = function(view, level) {
   var bbox = this._computeBoundingBox(view);
+  // if TileView has projection, calculate TileView pixel coords directly
+  // from projection instead of requiring prescaling in draw
+  if (this._projection) {
+    var timelapseProjection = this._timelapse.getProjection();
+    var nw = timelapseProjection.pointToLatlng({x: bbox.xmin, y: bbox.ymin});
+    var nwPixel = this._projection.latlngToPoint(nw);
+    var se = timelapseProjection.pointToLatlng({x: bbox.xmax, y: bbox.ymax});
+    var sePixel = this._projection.latlngToPoint(se);
+    bbox.xmin = nwPixel.x;
+    bbox.ymin = nwPixel.y;
+    bbox.xmax = sePixel.x;
+    bbox.ymax = sePixel.y;
+  }
   var tilemin = this._tileidxAt(level, Math.max(0, bbox.xmin), Math.max(0, bbox.ymin));
   var tilemax = this._tileidxAt(level, Math.min(this._panoWidth - 1, bbox.xmax),
                                 Math.min(this._panoHeight - 1, bbox.ymax));
-  return {min: tilemin, max: tilemax}
+  var ret = {min: tilemin, max: tilemax}
+
+  return ret;
 }
 
 TileView.prototype.
@@ -325,7 +347,6 @@ setView = function(view, viewportWidth, viewportHeight, scale) {
     this._lastStatus = status;
   }
 };
-
 
 // Return ordered list of tiles to draw, from low-res to high res.  Draw in that order
 // so that high-res can cover low-res, for opaque tiles.

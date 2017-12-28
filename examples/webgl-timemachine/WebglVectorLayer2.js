@@ -1,5 +1,9 @@
 "use strict";
 
+// confusingly, nLevels is really max level #.  the actual number of levels is nLevels+1
+
+// nLevels=0 means levels [0].  nLevels=1 means levels [0, 1]
+
 function WebglVectorLayer2(glb, canvasLayer, tileUrl, opt_options) {
   this.glb = glb;
   this.gl = glb.gl;
@@ -24,8 +28,9 @@ function WebglVectorLayer2(glb, canvasLayer, tileUrl, opt_options) {
       createTile: function(ti, bounds) { return that._createTile(ti, bounds); },
       deleteTile: function(tile) {},
       updateTile: WebGLVectorTile2.update,
-      zoomlock: 11
-    });
+      zoomlock: 11,
+      timelapse: this._canvasLayer.timelapse
+  });
 
   // TODO: experiment with this
   this._tileView.levelThreshold = 0;

@@ -1,3 +1,4 @@
 [submodule "timemachine"]
 	path = timemachine
 	url = https://github.com/CMU-CREATE-Lab/timemachine-viewer.git
+	branch = master

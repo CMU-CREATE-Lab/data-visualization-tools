@@ -51,7 +51,6 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
           that._load();
         };
         xhr.send();
-
       } else {
         that.geojsonData = null;
         that._load();
@@ -66,7 +65,7 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
       console.log(that.geojsonData);
       that._load();
     };
-    xhr.send();    
+    xhr.send();
   } else {
     this._load();
   }
@@ -510,7 +509,7 @@ WebGLVectorTile2.prototype._setLineStringData = function(data) {
 
   var offset = 0;
   for (var i = 0; i < paths.length; i++) {
-    var points = paths[i];    
+    var points = paths[i];
     var tags = GetNormals(points);
     var normals = tags.map(x => x[0]);
     var miters = tags.map(x => x[1]);
@@ -519,10 +518,10 @@ WebGLVectorTile2.prototype._setLineStringData = function(data) {
     miters = Duplicate(miters, true);
     var positions = Duplicate(points);
     var indices = CreateIndices(points.length-1, offset);
-    normalCollection = normalCollection.concat(PackArray(normals));   
-    miterCollection = miterCollection.concat(PackArray(miters));   
-    vertexCollection = vertexCollection.concat(PackArray(positions));   
-    indexCollection = indexCollection.concat(indices);   
+    normalCollection = normalCollection.concat(PackArray(normals));
+    miterCollection = miterCollection.concat(PackArray(miters));
+    vertexCollection = vertexCollection.concat(PackArray(positions));
+    indexCollection = indexCollection.concat(indices);
     offset += positions.length;
   }
   var idx = 0;
@@ -532,15 +531,15 @@ WebGLVectorTile2.prototype._setLineStringData = function(data) {
       indexBuffer[idx] = indexCollection[i][j];
       idx++;
     }
-  }    
+  }
 
   console.log(vertexCollection);
   console.log(normalCollection);
   console.log(miterCollection);
   console.log(indexCollection.length);
   console.log(indexBuffer.length);
-  this._setBuffers([new Float32Array(vertexCollection), 
-                    new Float32Array(normalCollection), 
+  this._setBuffers([new Float32Array(vertexCollection),
+                    new Float32Array(normalCollection),
                     new Float32Array(miterCollection)],
                     new Uint16Array(indexBuffer));
 
@@ -881,10 +880,10 @@ WebGLVectorTile2.prototype._setBufferData  = function(data) {
     var gl = this.gl;
     this._pointCount = data.length / this._numAttributes;
     if (this._pointCount > 0) {
-      this._data = data;    
+      this._data = data;
       this._arrayBuffer = gl.createBuffer();
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
-      gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);      
+      gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);
 
       // Bind option image to texture
       if (typeof this._image !== "undefined") {
@@ -916,7 +915,7 @@ WebGLVectorTile2.prototype._setBuffers  = function(buffers, indices) {
     for (var i = 0; i < buffers.length; i++) {
       this._arrayBuffers[i] = gl.createBuffer();
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffers[i]);
-      gl.bufferData(gl.ARRAY_BUFFER, buffers[i], gl.STATIC_DRAW);              
+      gl.bufferData(gl.ARRAY_BUFFER, buffers[i], gl.STATIC_DRAW);
     }
     this._indexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer);
@@ -1225,7 +1224,7 @@ WebGLVectorTile2.prototype._drawCarbonPriceRisk = function(transform, options) {
     gl.uniformMatrix4fv(this.program.u_MapMatrix, false, tileTransform);
 
     gl.uniform1f(this.program.u_Epoch, currentTime);
-    gl.uniform1f(this.program.u_Size, 2.0 * window.devicePixelRatio);    
+    gl.uniform1f(this.program.u_Size, 2.0 * window.devicePixelRatio);
     gl.uniform1f(this.program.u_Sector_0, sectors[0].selected);
     gl.uniform1f(this.program.u_Sector_1, sectors[1].selected);
     gl.uniform1f(this.program.u_Sector_2, sectors[2].selected);
@@ -2741,9 +2740,9 @@ WebGLVectorTile2.gtdVertexShader =
 '          float pointSize = 5.0;\n' +
 '          if (a_NCasualties > 5.0) {\n' +
 '            pointSize = a_NCasualties;\n' +
-'          } else {\n' + 
+'          } else {\n' +
 '            pointSize = 5.0;\n' +
-'          }\n' + 
+'          }\n' +
 '          gl_PointSize = max(10.0,300.0*smoothstep(5., 94., sqrt(pointSize)));\n' +
 "        }\n";
 
@@ -3008,7 +3007,7 @@ WebGLVectorTile2.carbonPriceRiskVertexShader =
 '           size = size * u_Sector_6;\n' +
 '        }\n' +
 '        v_Val = size * a_Level * a_Region;\n' +
-'        v_Sector = a_Sector;\n' + 
+'        v_Sector = a_Sector;\n' +
 '        gl_PointSize = abs(u_Size * size);\n' +
 '      }\n';
 
@@ -3020,25 +3019,25 @@ WebGLVectorTile2.carbonPriceRiskFragmentShader =
 '      vec4 getColor(float sector) {\n' +
 '        vec4 color;\n' +
 '        if (sector == 0.0) {\n' +
-'           color = vec4(228,26,28,255);' + 
+'           color = vec4(228,26,28,255);' +
 '        }\n' +
 '        if (sector == 1.0) {\n' +
-'           color = vec4(55,126,184,255);' + 
+'           color = vec4(55,126,184,255);' +
 '        }\n' +
 '        if (sector == 2.0) {\n' +
-'           color = vec4(77,175,74,255);' + 
+'           color = vec4(77,175,74,255);' +
 '        }\n' +
 '        if (sector == 3.0) {\n' +
-'           color = vec4(152,78,163,255);' + 
+'           color = vec4(152,78,163,255);' +
 '        }\n' +
 '        if (sector == 4.0) {\n' +
-'           color = vec4(255,127,0,255);' + 
+'           color = vec4(255,127,0,255);' +
 '        }\n' +
 '        if (sector == 5.0) {\n' +
-'           color = vec4(255,255,51,255);' + 
+'           color = vec4(255,255,51,255);' +
 '        }\n' +
 '        if (sector == 6.0) {\n' +
-'           color = vec4(166,86,40,255);' + 
+'           color = vec4(166,86,40,255);' +
 '        }\n' +
 '        return color/255.;\n' +
 '      }\n' +
@@ -3190,7 +3189,7 @@ WebGLVectorTile2.choroplethMapFragmentShader =
 
 
 WebGLVectorTile2.timeSeriesPointDataVertexShader =
-'      //WebGLVectorTile2.timeSeriesPointDataVertexShader\n' + 
+'      //WebGLVectorTile2.timeSeriesPointDataVertexShader\n' +
 '      attribute vec4 a_centroid;\n' +
 '      attribute float a_epoch1;\n' +
 '      attribute float a_val1;\n' +
@@ -3211,16 +3210,16 @@ WebGLVectorTile2.timeSeriesPointDataVertexShader =
 '        gl_Position = position;\n' +
 '        float delta = (u_epoch - a_epoch1)/(a_epoch2 - a_epoch1);\n' +
 '        v_val = (a_val2 - a_val1) * delta + a_val1;\n' +
-'        v_val1 = a_val1;\n' + 
+'        v_val1 = a_val1;\n' +
 '        if (a_val1 > 0.) {\n'+
 '          gl_PointSize = 140. * smoothstep(10.0, u_max_value, sqrt(v_val)) + 10.;\n' +
-'        } else {\n' + 
+'        } else {\n' +
 '          gl_PointSize = 100.;\n' +
-'        }\n' + 
+'        }\n' +
 '      }\n';
 
 WebGLVectorTile2.timeSeriesPointDataFragmentShader =
-'      //WebGLVectorTile2.timeSeriesPointDataFragmentShader\n' + 
+'      //WebGLVectorTile2.timeSeriesPointDataFragmentShader\n' +
   'precision mediump float;\n' +
   'varying float v_val;\n' +
   'varying float v_val1;\n' +
@@ -3248,10 +3247,10 @@ WebGLVectorTile2.tsipVertexShader =
   '        position = u_map_matrix * vec4(a_coord, 0, 1);\n' +
   '    }\n' +
   '    gl_Position = position;\n' +
-  '    gl_PointSize = 10.0 * a_val;\n' + 
+  '    gl_PointSize = 10.0 * a_val;\n' +
   '}\n';
 
-WebGLVectorTile2.tsipFragmentShader = 
+WebGLVectorTile2.tsipFragmentShader =
 '#extension GL_OES_standard_derivatives : enable\n' +
 'precision mediump float;\n' +
 'void main() {\n' +
@@ -3262,7 +3261,7 @@ WebGLVectorTile2.tsipFragmentShader =
 '}';
 
 WebGLVectorTile2.pointFlowVertexShader =
-'      //WebGLVectorTile2.pointFlowVertexShader\n' + 
+'      //WebGLVectorTile2.pointFlowVertexShader\n' +
 '      attribute vec4 a_p0;\n' +
 '      attribute vec4 a_p1;\n' +
 '      attribute vec4 a_p2;\n' +
@@ -3271,7 +3270,7 @@ WebGLVectorTile2.pointFlowVertexShader =
 '      uniform float u_epoch;\n' +
 '      uniform float u_size;\n' +
 '      uniform mat4 u_map_matrix;\n' +
-'      varying float v_t\n;' + 
+'      varying float v_t\n;' +
 '      vec4 bezier(float t, vec4 p0, vec4 p1, vec4 p2) {\n' +
 '        return (1.0-t)*(1.0-t)*p0 + 2.0*(1.0-t)*t*p1 + t*t*p2;\n' +
 '      }\n' +
@@ -3280,17 +3279,17 @@ WebGLVectorTile2.pointFlowVertexShader =
 '        if (a_epoch0 > u_epoch || a_epoch1 < u_epoch) {\n' +
 '          position = vec4(-1,-1,-1,-1);\n' +
 '        } else {\n' +
-'          float t = 1.0 - (a_epoch1 - u_epoch)/(a_epoch1 - a_epoch0);\n' + 
-'        v_t = t;\n' + 
+'          float t = 1.0 - (a_epoch1 - u_epoch)/(a_epoch1 - a_epoch0);\n' +
+'        v_t = t;\n' +
 '          position = u_map_matrix * bezier(t, a_p0, a_p1, a_p2);\n' +
 '        }\n' +
-'        gl_Position = position;\n' + 
+'        gl_Position = position;\n' +
 '        gl_PointSize = u_size;\n' +
 '      }\n';
 
 WebGLVectorTile2.pointFlowFragmentShader =
   'precision mediump float;\n' +
-'  varying float v_t;\n' + 
+'  varying float v_t;\n' +
 '  void main() {\n' +
 '    float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
 '    dist = 1. - (dist * 2.);\n' +
@@ -3300,7 +3299,7 @@ WebGLVectorTile2.pointFlowFragmentShader =
 '    gl_FragColor = mix(colorStart, colorEnd, v_t) * dist;\n' +
 '  }\n';
 
-WebGLVectorTile2.lineStringVertexShader = 
+WebGLVectorTile2.lineStringVertexShader =
 'attribute vec2 a_coord;\n' +
 'attribute vec2 a_normal;\n' +
 'attribute float a_miter;\n' +
@@ -3315,7 +3314,7 @@ WebGLVectorTile2.lineStringVertexShader =
 '}\n';
 
 
-WebGLVectorTile2.lineStringFragmentShader = 
+WebGLVectorTile2.lineStringFragmentShader =
 '  precision mediump float;\n' +
 '  uniform vec3 u_color;\n' +
 '  uniform float u_inner;\n' +

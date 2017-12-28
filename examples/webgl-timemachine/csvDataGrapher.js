@@ -45,7 +45,8 @@ CsvDataGrapher.prototype.initialize = function initialize() {
       labelFontSize: 14,
       gridColor: "silver",
       tickColor: "silver",
-      title: "Value"
+      title: "Value",
+      includeZero: false
     },
     data: [],
     legend: {
@@ -56,6 +57,11 @@ CsvDataGrapher.prototype.initialize = function initialize() {
   $("#csvChartLegendList").on("click", $("li"), function (e) {
     var index = $(e.target).closest("li").index();
     var $entry = $("#csv-entry-" + index);
+    var $selectedPlots = $("#csvChartLegendList").find(".chartEntrySelected");
+    // Ensure the user can cannot hide the last visible plot
+    if ($selectedPlots.length == 1 && $selectedPlots[0] == $entry[0]) {
+      return;
+    }
     if (typeof (that.chart.options.data[index].visible) === "undefined" || that.chart.options.data[index].visible) {
       that.chart.options.data[index].visible = false;
       // Setting to null will prevent the name from showing in the tooltip on hover.
@@ -67,6 +73,16 @@ CsvDataGrapher.prototype.initialize = function initialize() {
       that.chart.options.data[index].toolTipContent = undefined;
       $entry.addClass("chartEntrySelected");
     }
+    $selectedPlots = $("#csvChartLegendList").find(".chartEntrySelected");
+    var title;
+    if ($selectedPlots.length == 1) {
+      var idx = parseInt($selectedPlots.attr("id").split("csv-entry-")[1]);
+      title = that.chart.options.data[idx].layerTitle;
+    } else {
+      title = that.chart.options.graphGroupName;
+    }
+    that.activeLayer.title = title;
+    that.chart.options.title.text = title;
     that.chart.render();
   });
 
@@ -76,7 +92,7 @@ CsvDataGrapher.prototype.initialize = function initialize() {
     if (that.chart.options.axisX.valueFormatString == "YYYY-MM") {
       that.chart.options.axisX.stripLines[0].value = new Date(captureTimeSplit[0], parseInt(captureTimeSplit[1]) - 1, 1);
     } else {
-      that.chart.options.axisX.stripLines[0].value = new Date(captureTimeSplit[0], 1, 0);
+      that.chart.options.axisX.stripLines[0].value = new Date(captureTimeSplit[0], 0, 1);
     }
     that.chart.render();
   };
@@ -91,45 +107,108 @@ CsvDataGrapher.prototype.initialize = function initialize() {
 
 };
 
-
-CsvDataGrapher.prototype.graphDataForLayer = function graphDataForLayer(layerName) {
+CsvDataGrapher.prototype.graphDataForLayer = function graphDataForLayer(layerName, opt) {
   var that = this;
   var layerNameMatch = false;
-  this.activeLayer = {};
+  if (typeof(that.activeLayer) === "undefined") {
+    this.activeLayer = {};
+  }
+  if (opt) {
+    // This is the non-csv layer case
+    that.chart.options.axisX.valueFormatString = opt.dateFormat || "YYYY";
+    that.activeLayer.title = opt.graphTitle;
+    that.chart.options.axisY.title = opt.yAxisTitle;
+    that.chart.options.graphGroupName = opt.graphGroupName;
+    if (that.chart.options.axisX.valueFormatString == "YYYY") {
+      that.chart.options.axisX.interval = 1;
+      that.chart.options.axisX.intervalType = "year";
+    }
+    if (typeof(that.activeLayer.entries) === "undefined") {
+      that.activeLayer.entries = {};
+    }
+    var entry = [];
 
-  // NOTE: We rely on the global csvFileLayers variable as defined in index.html
-  for (var i = 0; i < csvFileLayers.layers.length; i++) {
-    if (csvFileLayers.layers[i]._layerId == layerName) {
-      var tiles = csvFileLayers.layers[i]._tileView._tiles;
-      var key = Object.keys(tiles)[0];
-      if (!tiles[key].jsondata) return;      
-      var data = tiles[key].jsondata.data;
-      var layerProps = csvFileLayers.layersData.data[i];
-      var showGraph = layerProps['Show Graph'];
-      if (!showGraph) return;
-      that.activeLayer.title = layerProps['Graph Title'] || layerProps['Name'];
-      that.getDataForLayer(data);
-      layerNameMatch = true;
-      break;
+    if (opt.hasTimelineChange) {
+      var timelineUIChangeListener = function() {
+        timelapse.removeTimelineUIChangeListener(timelineUIChangeListener);
+        var dates = timelapse.getCaptureTimes();
+        for (var i = 0; i < dates.length; i++) {
+          entry.push({
+            x: new Date(dates[i], 0, 1),
+            y: opt.data[i]
+          });
+        }
+        that.chart.render();
+      }
+      timelapse.addTimelineUIChangeListener(timelineUIChangeListener);
+    }
+    that.activeLayer.entries[layerName] = entry;
+  } else {
+    // NOTE: We rely on the global csvFileLayers variable as defined in index.html
+    for (var i = 0; i < csvFileLayers.layers.length; i++) {
+      if (csvFileLayers.layers[i]._layerId == layerName) {
+        var tiles = csvFileLayers.layers[i]._tileView._tiles;
+        var key = Object.keys(tiles)[0];
+        if (!tiles[key].jsondata) return;
+        var data = tiles[key].jsondata.data;
+        var layerProps = {};
+        for (var j = 0; j < csvFileLayers.layersData.data.length; j++) {
+          if (csvFileLayers.layersData.data[j]['Share link identifier'] == layerName) {
+            layerProps = csvFileLayers.layersData.data[j];
+            break;
+          }
+        }
+        var showGraph = layerProps['Show Graph'] == "TRUE";
+        if (!showGraph) return;
+        that.activeLayer.title = layerProps['Graph Title'] || layerProps['Name'];
+        that.chart.options.graphGroupName = that.activeLayer.title;
+        that.chart.options.axisY.title = "Value";
+        that.chart.options.axisX.interval = undefined;
+        that.getDataForLayer(data);
+        layerNameMatch = true;
+        break;
+      }
+    }
+
+    if (!layerNameMatch) {
+      console.log("Warning. Graphing unavailable for this layer: " + layerName + " Check layer name.");
+      return;
     }
   }
-
-  if (!layerNameMatch) {
-    console.log("Warning. Graphing unavailable for this layer: " + layerName + " Check layer name.");
-    return;
+  if (!opt || opt && !opt.graphGroupName) {
+    this.chart.options.data = [];
+    $("#csvChartLegendList").empty();
   }
-
-  this.chart.options.data = [];
-  $("#csvChartLegendList").empty();
-  var idx = 0;
+  var idx = this.chart.options.data.length;
+  var visibleCount = 0;
   for (var entryName in that.activeLayer.entries) {
-    if (!entryName) continue;
+    var alreadyAdded = false;
+    for (var i = 0; i < idx; i++) {
+      if (that.chart.options.data[i].name == entryName) {
+        alreadyAdded = true;
+        break;
+      }
+    }
+    if (!entryName || alreadyAdded) continue;
     var markerType = "circle";
-    var initialVisibility = idx == 0 ? true : false;
+    var initialVisibility = idx == 0 || opt && opt.startVisible ? true : false;
+    visibleCount = $("#csvChartLegendList").find(".chartEntrySelected").length;
     var initialToolTipContent  = idx == 0 ? undefined : null;
     // Fallback to black if we run out of colors
-    var markerColor = that.colors[idx] || "black";
-
+    var markerColor = opt ? opt.markerColor : that.colors[idx] || "black";
+    var usedColors = [];
+    for (var i = 0; i < that.chart.options.data.length; i++) {
+      usedColors.push(that.chart.options.data[i].color);
+    }
+    var count = 0;
+    while(usedColors.indexOf(markerColor) >= 0) {
+      markerColor = that.colors[count];
+      count++;
+      if (count == that.colors.length) {
+        markerColor = "black";
+        break;
+      }
+    }
     // TODO: How to handle special cases?
     // TODO: Allow for different marker types in spreadsheet?
     if (entryName == "National") {
@@ -141,11 +220,12 @@ CsvDataGrapher.prototype.graphDataForLayer = function graphDataForLayer(layerNam
     that.chart.options.data.push({
       type: "line",
       click: function(e) {
-        timelapse.seekToFrame(timelapse.findExactOrClosestCaptureTime(String(e.dataPoint.x)));
+        timelapse.seekToFrame(timelapse.findExactOrClosestCaptureTime(String(e.dataPoint.x), "down"));
       },
       showInLegend: true,
       toolTipContent: initialToolTipContent,
       name: entryName,
+      layerTitle: opt ? opt.layerTitle : that.activeLayer.title,
       markerType: markerType,
       color: markerColor,
       dataPoints: that.activeLayer.entries[entryName],
@@ -159,8 +239,65 @@ CsvDataGrapher.prototype.graphDataForLayer = function graphDataForLayer(layerNam
     idx++;
   }
 
-  this.chart.options.title.text = this.activeLayer.title;
+  this.chart.options.title.text = visibleCount >= 1 ? that.chart.options.graphGroupName : this.activeLayer.title;
   this.chart.render();
+};
+
+CsvDataGrapher.prototype.removePlot = function removePlot(layerId) {
+  if (this.activeLayer.entries) {
+    delete this.activeLayer.entries[layerId];
+  }
+  for (var i = 0; i < this.chart.options.data.length; i++) {
+    if (this.chart.options.data[i].name == layerId) {
+      this.chart.options.data.splice(i, 1);
+      $("#csvChartLegendList li").eq(i).remove();
+      var $selectedPlots = $("#csvChartLegendList").find(".chartEntrySelected");
+      var title;
+      if ($selectedPlots.length == 1) {
+        var idx = $($selectedPlots).first().closest("li").index();
+        title = this.chart.options.data[idx].layerTitle;
+      } else {
+        title = this.chart.options.graphGroupName;
+      }
+      this.activeLayer.title = title;
+      this.chart.options.title.text = title;
+      this.chart.render();;
+      break;
+    }
+  }
+  var $legendEntries = $("#csvChartLegendList").find("li");
+
+  $legendEntries.each(function(index, elem) {
+    $(elem).attr("id", "csv-entry-" + index);
+  });
+  if ($legendEntries.length == 0) {
+    this.chart.options.data = [];
+    $("#csvChartLegendList").empty();
+  }
+};
+
+CsvDataGrapher.prototype.removeAllPlots = function removeAllPlots() {
+  for (var key in this.activeLayer.entries) {
+    this.removePlot(key);
+  }
+};
+
+CsvDataGrapher.prototype.updateGraphData = function updateGraphData(layerId, data) {
+  for (var entryName in this.activeLayer.entries) {
+    if (entryName == layerId) {
+      var plotData = this.activeLayer.entries[entryName];
+      for (var i = 0; i < plotData.length; i++) {
+        plotData[i].y = data[i];
+      }
+      for (var i = 0; i < this.chart.options.data.length; i++) {
+        if (this.chart.options.data[i].name == layerId) {
+          this.chart.options.data[i].dataPoints = plotData;
+        }
+      }
+      this.chart.render();
+      break;
+    }
+  }
 };
 
 CsvDataGrapher.prototype.getDataForLayer = function getDataForLayer(layerData) {
@@ -183,10 +320,12 @@ CsvDataGrapher.prototype.getDataForLayer = function getDataForLayer(layerData) {
       var m = date.match(yyyymm_re);
       if (m) {
         that.chart.options.axisX.valueFormatString = "YYYY-MM";
+        that.chart.options.axisX.intervalType = "YYYY-MM";
         date = new Date(m[1], m[2] - 1, 1);
       } else {
         that.chart.options.axisX.valueFormatString = "YYYY";
-        date = new Date(header[j], 1, 0);
+        that.chart.options.axisX.intervalType = "YYYY";
+        date = new Date(header[j], 0, 1);
       }
       var val = parseFloat(layerData[i][j]);
       if (isNaN(val)) {
