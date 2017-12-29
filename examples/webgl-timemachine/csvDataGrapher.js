@@ -127,10 +127,8 @@ CsvDataGrapher.prototype.graphDataForLayer = function graphDataForLayer(layerNam
       that.activeLayer.entries = {};
     }
     var entry = [];
-
     if (opt.hasTimelineChange) {
       var timelineUIChangeListener = function() {
-        timelapse.removeTimelineUIChangeListener(timelineUIChangeListener);
         var dates = timelapse.getCaptureTimes();
         for (var i = 0; i < dates.length; i++) {
           entry.push({
@@ -139,6 +137,17 @@ CsvDataGrapher.prototype.graphDataForLayer = function graphDataForLayer(layerNam
           });
         }
         that.chart.render();
+        var deleteListener = true;
+        for (var entryName in that.activeLayer.entries) {
+          if (that.activeLayer.entries[entryName].length == 0) {
+            deleteListener = false;
+            break;
+          }
+        }
+        if (deleteListener) {
+          timelapse.removeTimelineUIChangeListener(timelineUIChangeListener);
+        }
+
       }
       timelapse.addTimelineUIChangeListener(timelineUIChangeListener);
     }
@@ -195,7 +204,7 @@ CsvDataGrapher.prototype.graphDataForLayer = function graphDataForLayer(layerNam
     visibleCount = $("#csvChartLegendList").find(".chartEntrySelected").length;
     var initialToolTipContent  = idx == 0 ? undefined : null;
     // Fallback to black if we run out of colors
-    var markerColor = opt ? opt.markerColor : that.colors[idx] || "black";
+    var markerColor = opt && opt.markerColor ? opt.markerColor : that.colors[idx] || "black";
     var usedColors = [];
     for (var i = 0; i < that.chart.options.data.length; i++) {
       usedColors.push(that.chart.options.data[i].color);

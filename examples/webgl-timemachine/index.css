@@ -387,22 +387,22 @@ fieldset {
 }
 
 #baseLayerCreditContainer.layerGraphs {
-  bottom: 85px;
+  bottom: 85px !important;
 }
 .controls.layerGraphs {
-  bottom: 93px;
+  bottom: 93px !important;
 }
 .customControl.layerGraphs {
-  bottom: 93px;
+  bottom: 93px !important;
 }
 .scaleBarContainer.layerGraphs {
   bottom: 163px !important;
 }
 #logosContainer.layerGraphs {
-  bottom: 175px;
+  bottom: 175px !important;
 }
 .current-location-text.layerGraphs {
-  bottom: 135px;
+  bottom: 450px !important;
 }
 .current-location-text.noTimeline {
   bottom: 173px;

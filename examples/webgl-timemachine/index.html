@@ -4755,12 +4755,7 @@
           if (himawariIdx > -1) waypointLayers.splice(himawariIdx, 1);
 
           // Clear out layers if they were already checked
-          // If himawari waypoint, clear out everything
-          if (himawariWaypoint) {
-            $(".map-layer-div, .ui-multiselect-checkboxes").find("input:checked").not("#show-himawari").trigger("click");
-          } else {
-            $(".map-layer-div, .ui-multiselect-checkboxes").find("input:checked").trigger("click");
-          }
+          $(".map-layer-div, .ui-multiselect-checkboxes").find("input:checked").trigger("click");
 
           // Handle layers
           waypointLayers.forEach(function(layer) {
@@ -5107,7 +5102,7 @@
           $("#presentation-slider-selection").hide();
         }
         if (!disablePresentationSlider) {
-          $(".controls, .customControl, .scaleBarContainer, #logosContainer, #baseLayerCreditContainer").addClass("layerGraphs");
+          $(".current-location-text, .controls, .customControl, .scaleBarContainer, #logosContainer, #baseLayerCreditContainer").addClass("layerGraphs");
         }
         $("#timeMachine").addClass("layerGraphs");
       } else {
@@ -5117,7 +5112,7 @@
           $("#presentation-slider-selection").show();
         }
         if (!disablePresentationSlider) {
-          $(".controls, .customControl, .scaleBarContainer, #logosContainer, #baseLayerCreditContainer").removeClass("layerGraphs");
+          $(".current-location-text, .controls, .customControl, .scaleBarContainer, #logosContainer, #baseLayerCreditContainer").removeClass("layerGraphs");
         }
         $("#timeMachine").removeClass("layerGraphs");
       }
