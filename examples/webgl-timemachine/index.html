@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-  <title>Earth Timelapse</title>
-  <meta name="keywords" content="Earth Time,EarthTime,Earth Timelapse,Global Situation Space">
+  <title>EarthTime</title>
+  <meta name="keywords" content="Earth Time,EarthTime,Earth Timelapse,EarthTimelapse,Global Situation Space,Climate">
   <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
   <meta name="viewport" content="width=device-width, user-scalable=no" />
 
@@ -78,6 +78,7 @@
     //
 
     var EARTH_TIMELAPSE_CONFIG = EARTH_TIMELAPSE_CONFIG || {};
+    var enableStoryMode = !!EARTH_TIMELAPSE_CONFIG.enableStoryMode;
     // Deprecated externally but still used internally. Instead use waypointSliderContentPath, which points to an online or exported spreadsheet.
     var waypointSliderContent = EARTH_TIMELAPSE_CONFIG.waypointCollection;
     var waypointSliderContentPath = EARTH_TIMELAPSE_CONFIG.waypointSliderContentPath || "default-waypoints.tsv";
@@ -166,12 +167,13 @@
 
     var showTile = true;
 
+    var usePresentationClicker = !!EARTH_TIMELAPSE_CONFIG.usePresentationClicker;
     var enableThemeHamburgerButton = !!EARTH_TIMELAPSE_CONFIG.enableThemeHamburgerButton;
     var enableMinimalUIMode = window.location.hash.split("enableMinimalUIMode=")[1] || !!EARTH_TIMELAPSE_CONFIG.enableMinimalUIMode;
     var disablePresentationSlider = window.location.hash.split("disablePresentationSlider=")[1] || enableRecordingMode || !!EARTH_TIMELAPSE_CONFIG.disablePresentationSlider || false;
     var extraContributors = EARTH_TIMELAPSE_CONFIG.extraContributors ? EARTH_TIMELAPSE_CONFIG.extraContributors.replace(",", " |") : "";
     var useJumpToButtons = typeof(EARTH_TIMELAPSE_CONFIG.useJumpToButtons) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.useJumpToButtons;
-    var showShareButton = !!EARTH_TIMELAPSE_CONFIG.showShareButton;
+    var showShareButton = typeof(EARTH_TIMELAPSE_CONFIG.showShareButton) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showShareButton;
     var showShareButtonHash = window.location.hash.split("showShareButton=")[1];
     if (showShareButtonHash)
       showShareButton = showShareButtonHash === "true";
@@ -208,8 +210,14 @@
       }
     }
 
+    // TODO:
+    // We start crashing phones with a ratio > 1 and in general retina is
+    // quite taxing for our videos and layers, so force it pixelRatio to 1.
+    window.devicePixelRatio = 1;
+
     var NORTH = 85.05113006405742; // Latitude for Northern most extent
     var landsatMaxScale = (landsatVersion == "2015") ? 1.25 : 0.45;
+    landsatMaxScale -= (window.devicePixelRatio > 1) * 0.21;
     var himawariMaxScale = 0.02;
     var isAutoModeRunning = false;
     var visibleBaseMapLayer = UTIL.isIE() ? "dark" : "landsat";
@@ -221,9 +229,13 @@
     var annotationPicturePaths = {};
     var timelineType = "customUI";
     var activeLayersWithTimeline = 0;
+    var timelineHidden = false;
     var previousActiveLayersWithTimeline = 0;
+    var lastAutomodeWaypointIndex = 0;
     var keysDown = [];
     var $lastSelectedExtra;
+    var loadedInitialWaypointList = false;
+    var timeInMsSinceLastWaypointLoop = 0;
 
     // This is necessary because waypoint thumbnails are generated from the Landsat set and thus the best we can show is just a solid black thumbnail
     // instead of some random location that a himawari bounds corresponds to in Landsat.
@@ -440,8 +452,6 @@
     var landsatUrl = (landsatVersion == "2015") ? rootTilePath + "/earthtime-annual-2015-v2/1068x600" : rootTilePath + "/earthtime-annual-2016-v14/1068x600";
     if (isMobileDevice) {
       landsatUrl = "https://earthengine.google.com/timelapse/data/20161025/";
-      // We start crashing phones with a ratio > 1, so we force it to be 1.
-      window.devicePixelRatio = 1;
     } else if (EARTH_TIMELAPSE_CONFIG.landsatUrl) {
       landsatUrl = EARTH_TIMELAPSE_CONFIG.landsatUrl;
     }
@@ -593,7 +603,7 @@
         $("#timeMachine").addClass("letterbox");
         $("#letterbox-middle").replaceWith($("#timeMachine"));
       } else {
-        $("#content").remove();
+        $("#letterbox-content").remove();
       }
 
       if (enableRecordingMode) {
@@ -615,21 +625,6 @@
       }
     );
 
-    function verticalTouchScroll(selector){
-      var el = $(selector)[0];
-      var scrollStartPos = 0;
-
-      el.addEventListener("touchstart", function(event) {
-        scrollStartPos = this.scrollTop+event.touches[0].pageY;
-        event.preventDefault();
-      },false);
-
-      el.addEventListener("touchmove", function(event) {
-        this.scrollTop = scrollStartPos-event.touches[0].pageY;
-        event.preventDefault();
-      },false);
-    }
-
     function googleMapsLoadedCallback() {
       if (useGoogleSearch) {
         var autocomplete = new google.maps.places.Autocomplete($("#location_search").get(0));
@@ -644,6 +639,15 @@
             locationName: searchText
           });
           $('.pac-container').hide();
+        });
+
+        $("#location_search").on("keydown", function(e) {
+          if (e.keyCode == 13) {
+            google.maps.event.trigger(e.target, 'focus')
+            google.maps.event.trigger(e.target, 'keydown', {
+              keyCode: 13
+            });
+          }
         });
 
         google.maps.event.addListener(autocomplete, 'place_changed', function(options) {
@@ -735,6 +739,7 @@
           $("#water-occurrence-legend").show();
         } else {
           showWaterOccurrenceLayer = false;
+          waterOccurrenceLayer.destroy();
           $("#water-occurrence-legend").hide();
         }
       }).prop('checked', showWaterOccurrenceLayer);
@@ -749,6 +754,7 @@
           $("#water-change-legend").show();
         } else {
           showWaterChangeLayer = false;
+          waterChangeLayer.destroy();
           $("#water-change-legend").hide();
         }
       }).prop('checked', showWaterChangeLayer);
@@ -760,6 +766,7 @@
           $("#wdpa-legend").show();
         } else {
           showWdpaLayer = false;
+          wdpaLayer.destroy();
           $("#wdpa-legend").hide();
         }
       }).prop('checked', showWdpaLayer);
@@ -782,6 +789,7 @@
           $("#forest-loss-year-legend").show();
         } else {
           showHansenLayer = false;
+          hansenMapLayer.destroy();
           $("#forest-loss-year-legend").hide();
         }
       }).prop('checked', showHansenLayer);
@@ -806,6 +814,7 @@
           $("#baseLayerCreditContainer").hide();
         } else {
           showHansenLayer2 = false;
+          hansenMapLayer2.destroy();
           timelineType = "customUI";
           $("#forest-loss-gain-legend").hide();
           $("#baseLayerCreditContainer").show();
@@ -835,6 +844,7 @@
           $("#forest-loss-gain-legend").show();
         } else {
           showAnimatedHansenLayer = false;
+          animatedHansenLayer.destroy();
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
           $("#forest-loss-gain-legend").hide();
@@ -869,6 +879,7 @@
           visibleBaseMapLayer = "forest-alarms";
         } else {
           showForestAlertsTimeMachineLayer = false;
+          forestAlertsTimeMachineLayer.destroy();
           setActiveLayersWithTimeline(-1);
           if (!showForestAlertsNoOverlayTimeMachineLayer && !showForestAlertsTimeMachineLayer) {
             timelineType = "customUI";
@@ -912,6 +923,7 @@
           visibleBaseMapLayer = "forest-alarms-no-overlay";
         } else {
           showForestAlertsNoOverlayTimeMachineLayer = false;
+          forestAlertsNoOverlayTimeMachineLayer.destroy();
           setActiveLayersWithTimeline(-1);
           if (!showForestAlertsNoOverlayTimeMachineLayer && !showForestAlertsTimeMachineLayer) {
             timelineType = "customUI";
@@ -939,6 +951,7 @@
           $("#fires-at-night-legend").show();
         } else {
           showViirsLayer = false;
+          viirsLayer.destroy();
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
           $("#fires-at-night-legend").hide();
@@ -957,7 +970,9 @@
           $("#coral-bleaching-legend").show();
         } else {
           showCoralBleachingLayer = false;
+          coralBleachingLayer.destroy();
           showMcrmLayer = false;
+          mcrmVectorLayer.destroy();
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
           if (!$("#show-coral-bleaching-alerts").prop('checked')) {
@@ -984,7 +999,9 @@
           $("#coral-bleaching-legend").show();
         } else {
           showCrwTimemachineLayer = false;
+          crwTimemachineLayer.destroy();
           showMcrmLayer = false;
+          mcrmVectorLayer.destroy();
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
           $("#coral-bleaching-alerts-legend").hide();
@@ -1007,6 +1024,7 @@
           $("#ndvi-anomaly-legend").show();
         } else {
           showNdviAnomalyTimemachineLayer = false;
+          ndviAnomalyTimemachineLayer.destroy();
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
           $("#ndvi-anomaly-legend").hide();
@@ -1045,6 +1063,7 @@
           $("#baseLayerCreditContainer").hide();
         } else {
           showHimawariTimeMachineLayer = false;
+          himawariTimemachineLayer.destroy();
           setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
           visibleBaseMapLayer = previousVisibleBaseMapLayer;
@@ -1085,6 +1104,7 @@
           $("#baseLayerCreditContainer").hide();
         } else {
           showBerkeleyEarthTemperatureAnomalyTimeMachineLayer = false;
+          berkeleyEarthTemperatureAnomalyTimeMachineLayer.destroy();
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
           var v = timelapse.getVideoset();
@@ -1104,6 +1124,7 @@
           $("#wind-installs-legend").show();
         } else {
           showUsgsWindTurbineLayer = false;
+          usgsWindTurbineLayer.destroy();
           setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
           $("#wind-installs-legend").hide();
@@ -1119,6 +1140,7 @@
           $("#global-wind-power-legend").show();
         } else {
           showGlobalWindPowerLayer = false;
+          globalWindPowerLayer.destroy();
           setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
           $("#global-wind-power-legend").hide();
@@ -1134,6 +1156,7 @@
           $("#solar-installs-legend").show();
         } else {
           showSolarInstallsLayer = false;
+          solarInstallsLayer.destroy();
           setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
           $("#solar-installs-legend").hide();
@@ -1149,6 +1172,7 @@
           $("#drilling-legend").show();
         } else {
           showDrillingLayer = false;
+          drillingLayer.destroy();
           setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
@@ -1169,6 +1193,7 @@
           $("#lights-at-night-legend").show();
         } else {
           showLightsAtNightLayer = false;
+          lightsAtNightMapLayer.destroy();
           timelineType = "customUI";
           $("#lights-at-night-legend").hide();
         }
@@ -1188,6 +1213,7 @@
           $("#baseLayerCreditContainer").hide();
         } else {
           showLightsAtNight2012Layer = false;
+          lightsAtNight2012MapLayer.destroy();
           timelineType = "customUI";
           $("#lights-at-night-2012-legend").hide();
           $("#baseLayerCreditContainer").show();
@@ -1208,6 +1234,7 @@
           $("#baseLayerCreditContainer").hide();
         } else {
           showLightsAtNight2016Layer = false;
+          lightsAtNight2016MapLayer.destroy();
           timelineType = "customUI";
           $("#lights-at-night-2016-legend").hide();
           $("#baseLayerCreditContainer").show();
@@ -1229,6 +1256,7 @@
           $("#monthly-refugees-legend").show();
         } else {
           showMonthlyRefugeesLayer = false;
+          monthlyRefugeesLayer.destroy();
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
           $("#monthly-refugees-legend").hide();
@@ -1250,6 +1278,7 @@
           $("#annual-refugees-legend").show();
         } else {
           showAnnualRefugeesLayer = false;
+          annualRefugeesLayer.destroy();
           setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
@@ -1274,6 +1303,7 @@
           $("#annual-returns-legend").show();
         } else {
           showAnnualReturnsLayer = false;
+          annualReturnsLayer.destroy();
           setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
@@ -1291,6 +1321,7 @@
           $("#vsi-legend").show();
         } else {
           showVsiLayer = false;
+          vsiLayer.destroy();
           timelineType = "customUI";
           $("#vsi-legend").hide();
         }
@@ -1315,6 +1346,7 @@
           setActiveLayersWithTimeline(-1);
           if (!showHealthImpactRcp[1] && !showHealthImpactRcp[2] && !showHealthImpactRcp[3]) {
             showHealthImpactLayer = false;
+            healthImpactLayer.destroy();
             timelineType = "customUI";
             requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
             timelapse.setMasterPlaybackRate(1);
@@ -1345,6 +1377,7 @@
           setActiveLayersWithTimeline(-1);
           if (!showHealthImpactRcp[0] && !showHealthImpactRcp[2] && !showHealthImpactRcp[3]) {
             showHealthImpactLayer = false;
+            healthImpactLayer.destroy();
             timelineType = "customUI";
             requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
             timelapse.setMasterPlaybackRate(1);
@@ -1375,6 +1408,7 @@
           setActiveLayersWithTimeline(-1);
           if (!showHealthImpactRcp[0] && !showHealthImpactRcp[1] && !showHealthImpactRcp[3]) {
             showHealthImpactLayer = false;
+            healthImpactLayer.destroy();
             timelineType = "customUI";
             requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
             timelapse.setMasterPlaybackRate(1);
@@ -1404,6 +1438,7 @@
           setActiveLayersWithTimeline(-1);
           if (!showHealthImpactRcp[0] && !showHealthImpactRcp[1] && !showHealthImpactRcp[2]) {
             showHealthImpactLayer = false;
+            healthImpactLayer.destroy();
             timelineType = "customUI";
             requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
             timelapse.setMasterPlaybackRate(1);
@@ -1425,6 +1460,7 @@
           $("#zika-legend").show();
         } else {
           showZikaLayer = false;
+          zikaLayer.destroy();
           setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
@@ -1442,6 +1478,7 @@
           $("#dengue-legend").show();
         } else {
           showDengueLayer = false;
+          dengueLayer.destroy();
           setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
           timelapse.setMasterPlaybackRate(1);
@@ -1458,6 +1495,7 @@
           $("#chiku-legend").show();
         } else {
           showChikuLayer = false;
+          chikuLayer.destroy();
           setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
           timelapse.setMasterPlaybackRate(1);
@@ -1487,9 +1525,9 @@
           $("#sea-level-rise-legend").show();
         } else {
           showSeaLevelRiseLayer = false;
+          seaLevelRiseLayer.destroy();
           setActiveLayersWithTimeline(-1);
-          timelineType = "customUI";
-          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+          doSwitchToLandsat();
           $("#sea-level-rise-legend").hide();
         }
       }).prop('checked', showSeaLevelRiseLayer);
@@ -1516,8 +1554,7 @@
         } else {
           showSeaLevelRiseLayer = false;
           setActiveLayersWithTimeline(-1);
-          timelineType = "customUI";
-          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+          doSwitchToLandsat();
           $("#sea-level-rise-legend").hide();
         }
       }).prop('checked', showSeaLevelRiseLayer);
@@ -1544,8 +1581,7 @@
         } else {
           showSeaLevelRiseLayer = false;
           setActiveLayersWithTimeline(-1);
-          timelineType = "customUI";
-          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+          doSwitchToLandsat();
           $("#sea-level-rise-legend").hide();
         }
       }).prop('checked', showSeaLevelRiseLayer);
@@ -1572,8 +1608,7 @@
         } else {
           showSeaLevelRiseLayer = false;
           setActiveLayersWithTimeline(-1);
-          timelineType = "customUI";
-          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+          doSwitchToLandsat();
           $("#sea-level-rise-legend").hide();
         }
       }).prop('checked', showSeaLevelRiseLayer);
@@ -1587,6 +1622,7 @@
           $("#urban-fragility-legend").show();
         } else {
           showUrbanFragilityLayer = false;
+          urbanFragilityLayer.destroy();
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           $("#urban-fragility-legend").hide();
@@ -1601,6 +1637,7 @@
           $("#gtd-legend").show();
         } else {
           showGtdLayer = false;
+          gtdLayer.destroy();
           setActiveLayersWithTimeline(-1);
           $("#gtd-legend").hide();
         }
@@ -1615,6 +1652,7 @@
           $("#uppsala-conflict-legend").show();
         } else {
           showUppsalaConflictLayer = false;
+          uppsalaConflictLayer.destroy();
           setActiveLayersWithTimeline(-1);
           $("#uppsala-conflict-legend").hide();
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
@@ -1634,6 +1672,7 @@
           $("#hiv-legend").show();
         } else {
           showHivLayer = false;
+          hivLayer.destroy();
           setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
@@ -1656,6 +1695,7 @@
           $("#obesity-legend").show();
         } else {
           showObesityLayer = false;
+          obesityLayer.destroy();
           setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
@@ -1687,6 +1727,7 @@
           $("#vaccine-confidence-q1-legend").show();
         } else {
           showVaccineConfidenceLayer = false;
+          vaccineConfidenceLayer.destroy();
           timelineType = "customUI";
           $("#vaccine-confidence-q1-legend").hide();
         }
@@ -1714,6 +1755,7 @@
           $("#vaccine-confidence-q2-legend").show();
         } else {
           showVaccineConfidenceLayer = false;
+          vaccineConfidenceLayer.destroy();
           timelineType = "customUI";
           $("#vaccine-confidence-q2-legend").hide();
         }
@@ -1741,6 +1783,7 @@
           $("#vaccine-confidence-q3-legend").show();
         } else {
           showVaccineConfidenceLayer = false;
+          vaccineConfidenceLayer.destroy();
           timelineType = "customUI";
           $("#vaccine-confidence-q3-legend").hide();
         }
@@ -1768,6 +1811,7 @@
           $("#vaccine-confidence-q4-legend").show();
         } else {
           showVaccineConfidenceLayer = false;
+          vaccineConfidenceLayer.destroy();
           timelineType = "customUI";
           $("#vaccine-confidence-q4-legend").hide();
         }
@@ -1783,6 +1827,7 @@
           $("#ebola-deaths-legend").show();
         } else {
           showEbolaDeathsLayer = false;
+          ebolaDeathsLayer.destroy();
           setActiveLayersWithTimeline(-1);
           if (!$("#show-ebola-cases").prop('checked') && !$("#show-ebola-new-cases").prop('checked')) {
             timelineType = "customUI";
@@ -1803,6 +1848,7 @@
           $("#ebola-cases-legend").show();
         } else {
           showEbolaCasesLayer = false;
+          ebolaCasesLayer.destroy();
           setActiveLayersWithTimeline(-1);
           if (!$("#show-ebola-deaths").prop('checked') && !$("#show-ebola-new-cases").prop('checked')) {
             timelineType = "customUI";
@@ -1823,6 +1869,7 @@
           $("#ebola-new-cases-legend").show();
         } else {
           showEbolaNewCasesLayer = false;
+          ebolaNewCasesLayer.destroy();
           setActiveLayersWithTimeline(-1);
           if (!$("#show-ebola-deaths").prop('checked') && !$("#show-ebola-cases").prop('checked')) {
             timelineType = "customUI";
@@ -1845,6 +1892,7 @@
           $("#lodes-legend").show();
         } else {
           showLodesLayer = false;
+          lodesLayer.destroy();
           dg["style"]["display"] = "none";
           doSwitchToLandsat();
           $("#lodes-legend").hide();
@@ -1859,6 +1907,7 @@
           $("#cumulative-active-mining-legend").show();
         } else {
           showCumulativeActiveMiningLayer = false;
+          cumulativeActiveMiningLayer.destroy();
           setActiveLayersWithTimeline(-1);
           $("#cumulative-active-mining-legend").hide();
         }
@@ -1884,6 +1933,9 @@
           timelapse.setMasterPlaybackRate(1);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
           iomIdpLayer.options['showIrqIdps'] = false;
+          if (Object.values(iomIdpLayer.options).indexOf(true) == -1) {
+            iomIdpLayer.destroy();
+          }
         }
       }).prop('checked', showIomIdpLayer);
 
@@ -1907,6 +1959,9 @@
           timelapse.setMasterPlaybackRate(1);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
           iomIdpLayer.options['showSyrIdps'] = false;
+          if (Object.values(iomIdpLayer.options).indexOf(true) == -1) {
+            iomIdpLayer.destroy();
+          }
         }
       }).prop('checked', showIomIdpLayer);
 
@@ -1930,6 +1985,9 @@
           timelapse.setMasterPlaybackRate(1);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
           iomIdpLayer.options['showYemIdps'] = false;
+          if (Object.values(iomIdpLayer.options).indexOf(true) == -1) {
+            iomIdpLayer.destroy();
+          }
         }
       }).prop('checked', showIomIdpLayer);
 
@@ -1953,6 +2011,9 @@
           timelapse.setMasterPlaybackRate(1);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
           iomIdpLayer.options['showLbyIdps'] = false;
+          if (Object.values(iomIdpLayer.options).indexOf(true) == -1) {
+            iomIdpLayer.destroy();
+          }
         }
       }).prop('checked', showIomIdpLayer);
 
@@ -1976,6 +2037,9 @@
           timelapse.setMasterPlaybackRate(1);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
           iomIdpLayer.options['showIrqReturns'] = false;
+          if (Object.values(iomIdpLayer.options).indexOf(true) == -1) {
+            iomIdpLayer.destroy();
+          }
         }
       }).prop('checked', showIomIdpLayer);
 
@@ -1999,6 +2063,9 @@
           timelapse.setMasterPlaybackRate(1);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
           iomIdpLayer.options['showSyrReturns'] = false;
+          if (Object.values(iomIdpLayer.options).indexOf(true) == -1) {
+            iomIdpLayer.destroy();
+          }
         }
       }).prop('checked', showIomIdpLayer);
 
@@ -2022,6 +2089,9 @@
           timelapse.setMasterPlaybackRate(1);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
           iomIdpLayer.options['showYemReturns'] = false;
+          if (Object.values(iomIdpLayer.options).indexOf(true) == -1) {
+            iomIdpLayer.destroy();
+          }
         }
       }).prop('checked', showIomIdpLayer);
 
@@ -2045,6 +2115,9 @@
           timelapse.setMasterPlaybackRate(1);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
           iomIdpLayer.options['showLbyReturns'] = false;
+          if (Object.values(iomIdpLayer.options).indexOf(true) == -1) {
+            iomIdpLayer.destroy();
+          }
         }
       }).prop('checked', showIomIdpLayer);
 
@@ -2061,6 +2134,7 @@
           $("#omi-no2-legend").show();
         } else {
           showOmiNo2Layer = false;
+          omiNo2Layer.destroy();
           setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
@@ -2086,6 +2160,7 @@
           $("#be-pm25-legend").show();
         } else {
           showBePm25Layer = false;
+          bePm25Layer.destroy();
           setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
@@ -2106,6 +2181,7 @@
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
         } else {
           showChinaAviationLayer = false;
+          chinaAviationLayer.destroy();
           $("#china-aviation-legend").hide();
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
@@ -2122,6 +2198,7 @@
           $("#china-power-plants-legend").show();
         } else {
           showChinaPowerPlantsLayer = false;
+          chinaPowerPlantsLayer.destroy();
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           $("#china-power-plants-legend").hide();
@@ -2137,6 +2214,7 @@
           $("#china-reservoirs-legend").show();
         } else {
           showChinaReservoirsLayer = false;
+          chinaReservoirsLayer.destroy();
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           $("#china-reservoirs-legend").hide();
@@ -2154,6 +2232,7 @@
           $("#china-waste-treatment-plants-legend").show();
         } else {
           showChinaWasteTreatmentPlantsLayer = false;
+          chinaWasteTreatmentPlantsLayer.destroy();
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           $("#china-waste-treatment-plants-legend").hide();
@@ -2174,6 +2253,7 @@
           $("#baseLayerCreditContainer").hide();
         } else {
           showExpandingCitiesLayer = false;
+          expandingCitiesLayer.destroy();
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
           $("#expanding-cities-legend").hide();
@@ -2194,6 +2274,7 @@
           }
         } else {
           showIrenaSolarLayer = false;
+          irenaSolarLayer.destroy();
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
           if (!$("#show-irena-wind").prop('checked')) {
@@ -2214,6 +2295,7 @@
           }
         } else {
           showIrenaWindLayer = false;
+          irenaWindLayer.destroy();
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
           if (!$("#show-irena-solar").prop('checked')) {
@@ -2234,6 +2316,7 @@
           }
         } else {
           showCarbonPriceRiskLayer = false;
+          carbonPriceRiskLayer.destroy();
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
           $("#carbon-price-risk-legend").hide();
@@ -2256,6 +2339,7 @@
           }
         } else {
           showTsipLayer = false;
+          tsipLayer.destroy();
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
           if (!$("#show-tsip").prop('checked')) {
@@ -2315,8 +2399,6 @@
       }
       $("#extras-selector").selectmenu({
         close: function() {
-          // Chrome css workaround...
-          $("#layers-list.right-panel").hide().show(0);
           $lastSelectedExtra = null;
         },
         position: {
@@ -2389,8 +2471,6 @@
             $extrasVideo[0].src = "";
           }
           $("#extras-selector").val("select").selectmenu('refresh');
-          // Chrome css workaround...
-          $("#layers-list.right-panel").hide().show(0);
           if (!enableThemeHamburgerButton && !enableLetterboxMode && useJumpToButtons) {
             var presentationSliderSelectionHasScroll = $("#presentation-slider-selection")[0].scrollWidth > $("#presentation-slider-selection")[0].clientWidth;
             if (presentationSliderSelectionHasScroll) {
@@ -2442,10 +2522,10 @@
 
         // 'tab' or 'enter' key
         // Quick way to toggle play/pause
-        // TODO: This is necessary for the currently used presentation clicker,
-        // but probably not something we want all the time?
-        if (e.keyCode === 9 || e.keyCode === 13) {
-          timelapse.handlePlayPause();
+        if (usePresentationClicker) {
+          if (e.keyCode === 9 || e.keyCode === 13) {
+            timelapse.handlePlayPause();
+          }
         }
 
         // 'a' key
@@ -2475,6 +2555,8 @@
             var openIndex = availableCategories.index(openCategories[index]);
             $(".map-layer-div").accordion("option", "active", openIndex);
           });
+          $(".current-location-text").hide();
+          $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight").removeClass("thumbnail_highlight");
         }
         // 'h' key
         // Quick way to toggle the layer panel
@@ -2635,12 +2717,13 @@
           timelineType = "none"
         }
 
-        if (timelineType == "none") {
-          $(".scaleBarContainer, #logosContainer, .current-location-text").addClass("noTimeline");
+        if (activeLayersWithTimeline <= 1 && timelineType == "none") {
+          $(".scaleBarContainer, #logosContainer, .current-location-text, #layers-legend").addClass("noTimeline");
         } else {
-          $(".scaleBarContainer, #logosContainer, .current-location-text").removeClass("noTimeline");
+          $(".scaleBarContainer, #logosContainer, .current-location-text, #layers-legend").removeClass("noTimeline");
         }
 
+        timelineHidden = $(".noTimeline").length != 0;
       };
 
       $('#layers-list, .ui-multiselect-checkboxes').on('click', 'input', timelineUIHandler);
@@ -2654,9 +2737,9 @@
       // Make right layers panel vertically touch scrollable.
       try {
         if (document.createEvent("TouchEvent")) {
-          verticalTouchScroll(".layers-scroll-vertical");
-          verticalTouchScroll("#csvChartLegend");
-          verticalTouchScroll("#theme-list");
+          UTIL.verticalTouchScroll($(".layers-scroll-vertical"));
+          UTIL.verticalTouchScroll($("#csvChartLegend"));
+          UTIL.verticalTouchScroll($("#theme-list"));
         }
       } catch (e) {
         // Error creating touch event
@@ -2665,8 +2748,11 @@
       // Set the starting base layer
       $('input:radio[name=base-layers][id=' + visibleBaseMapLayer + '-base]').trigger("click");
 
-      // TODO: Do we need this?
-      //timelapse.addTimelineUIChangeListener(timelineUIHandler);
+      timelapse.addTimelineUIChangeListener(function() {
+        if (visibleBaseMapLayer != "landsat" && activeLayersWithTimeline == 0) {
+          $(".customControl").hide().children().hide();
+        }
+      });
     }
     function setActiveLayersWithTimeline (modifier) {
       previousActiveLayersWithTimeline = activeLayersWithTimeline;
@@ -2876,6 +2962,7 @@
         } else {
           // Turn off layer
           layer.visible = false;
+          layer.destroy();
           timelineType = "customUI";
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           $("#" + nickname + "-legend").hide();
@@ -3105,7 +3192,7 @@
         resizeHandler: resize,
         animate: true,
         updateHandler: update,
-        resolutionScale: 1
+        resolutionScale: window.devicePixelRatio || 1
       };
       canvasLayer = new TimeMachineCanvasLayer(timeMachineCanvasLayerOptions);
 
@@ -3818,14 +3905,14 @@
       legend_html += '<div id="legend-content">';
       legend_html += '<table cellpadding=5>';
       legend_html += '<tr id="wdpa-legend" style="display: none"><td><div style="background-color:#33da4f; width:17px; height: 5px;"></div><div style="margin-left: 29px; margin-top: -11px; font-size: 17px">Protected Areas<span class="credit"> (UNEP-WCMC)</span></div></td></tr>';
-      legend_html += '<tr id="forest-loss-year-legend" style="display: none"><td><div style="font-size: 17px">Forest Loss By Year <span class="credit"> (Hansen et al)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">2000</div><div style="margin-top: 3px; float: left; background-image: -webkit-linear-gradient(left, yellow, orange 65%, red 100%);background-image: linear-gradient(left, yellow, orange 65%, red 100%); width: 45px; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">2014</div></div></td></tr>';
+      legend_html += '<tr id="forest-loss-year-legend" style="display: none"><td><div style="font-size: 17px">Forest Loss By Year <span class="credit"> (Hansen et al)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">2000</div><div style="margin-top: 3px; float: left; background-image: -webkit-linear-gradient(left, yellow, orange 65%, red 100%);background-image: linear-gradient(left, yellow, orange 65%, red 100%); width: 68%; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">2014</div></div></td></tr>';
       legend_html += '<tr id="forest-loss-gain-legend" style="display: none; font-size: 14px;"><td><div style="font-size: 17px">Forest Loss/Gain 2000-2014 <span class="credit"> (Hansen et al)</span></div><div style="float: left; padding-right:8px"><div style="background-color:#00e000; width: 12px; height: 12px; float: left; margin-top: 2px; margin-left: 8px;"></div>&nbsp;Extent</div><div style="float: left; padding-right:8px"><div style="background-color:#ff0000; width: 12px; height: 12px; float: left; margin-top: 2px"></div>&nbsp;Loss</div><div style="float: left; padding-right:8px"><div style="background-color:#0000ff; width: 12px; height: 12px; float: left; margin-top: 2px"></div>&nbsp;Gain</div><div><div style="background-color:#ff00ff; width: 12px; height: 12px; float: left; margin-top: 2px"></div>&nbsp;Both</div></td></tr>';
       legend_html += '<tr id="fires-at-night-legend" style="display: none"><td><div style="background-color:#eda46a; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Fires At Night <span class="credit"> (NOAA)</span></div></td></tr>';
-      legend_html += '<tr id="lights-at-night-legend" style="display: none"><td><div style="font-size: 17px">Lights at Night over 25 Years <span class="credit"> (NOAA, Google)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">Decrease</div><div style="margin-top: 4px; float: left; background-image: -webkit-linear-gradient(left, #4848FD, green 50%, red 100%);background-image: linear-gradient(left, #4848FD, green 50%, red 100%); width: 45px; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">Increase</div></td></tr>';
+      legend_html += '<tr id="lights-at-night-legend" style="display: none"><td><div style="font-size: 17px">Lights at Night over 25 Years <span class="credit"> (NOAA, Google)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">Decrease</div><div style="margin-top: 4px; float: left; background-image: -webkit-linear-gradient(left, #4848FD, green 50%, red 100%);background-image: linear-gradient(left, #4848FD, green 50%, red 100%); width: 59%; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">Increase</div></td></tr>';
       legend_html += '<tr id="lights-at-night-2012-legend" style="display: none"><td><div style="font-size: 17px">Lights at Night 2012 <span class="credit"> (NASA)</span></div></td></tr>';
       legend_html += '<tr id="lights-at-night-2016-legend" style="display: none"><td><div style="font-size: 17px">Lights at Night 2016 <span class="credit"> (NASA)</span></div></td></tr>';
       legend_html += '<tr id="coral-bleaching-legend" style="display: none"><td><div style="float:left; background-color:#fa13ab; width:17px; height: 5px;"></div><div style="margin-left: 29px; margin-top: -5px; font-size: 17px">Coral Reefs <span class="credit"> (NOAA, UNEP-WCMC)</span></div></td></tr>';
-      legend_html += '<tr id="coral-bleaching-alerts-legend" style="display: none"><td><div style="font-size: 17px">Coral Reef Watch <span class="credit"> (NOAA, UNEP-WCMC)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">Watch</div><div style="margin-top: 4px; float: left; background-image: -webkit-linear-gradient(left, #ffff00, #fbb404 65%, #a00200 100%);background-image: linear-gradient(left, #ffff00, #fbb404 65%, #a00200 100%); width: 45px; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">Alert</div></td></tr>';
+      legend_html += '<tr id="coral-bleaching-alerts-legend" style="display: none"><td><div style="font-size: 17px">Coral Reef Watch <span class="credit"> (NOAA, UNEP-WCMC)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">Watch</div><div style="margin-top: 4px; float: left; background-image: -webkit-linear-gradient(left, #ffff00, #fbb404 65%, #a00200 100%);background-image: linear-gradient(left, #ffff00, #fbb404 65%, #a00200 100%); width: 70%; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">Alert</div></td></tr>';
       legend_html += '<tr id="wind-installs-legend" style="display: none"><td><div style="background-color:#a0fe8f; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -16px; font-size: 17px">US Wind Power <span class="credit"> (USGS)</span></div></div></td></tr>';
       legend_html += '<tr id="global-wind-power-legend" style="display: none"><td><div style="background-color:#a0fe8f; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -16px; font-size: 17px">Global Wind Power <span class="credit"> (TheWindPower.net)</span></div></div></td></tr>';
       legend_html += '<tr id="solar-installs-legend" style="display: none"><td><div style="background-color:#7376b2; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -16px; font-size: 17px">US Solar Photovoltaic <span class="credit"> (NREL)</span></div></td></tr>';
@@ -3841,7 +3928,7 @@
         legend_html += '<tr id="annual-returns-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(right, lightyellow 25%, navy 100%);background: -webkit-linear-gradient(left, lightyellow 25%,navy 100%); background: linear-gradient(to right, lightyellow 25%,navy 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Global Refugee Return Flow: 2000 - 2015 <span class="credit"> (UNHCR) <br> 1 dot = ~17 refugees </span></div></td></tr>';
       else
         legend_html += '<tr id="annual-returns-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(right, lightyellow 25%, navy 100%);background: -webkit-linear-gradient(left, lightyellow 25%,navy 100%); background: linear-gradient(to right, lightyellow 25%,navy 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Global Refugee Return Flow: 2000 - 2015 <span class="credit"> (UNHCR) <br> 1 dot = 1 refugee </span></div></td></tr>';
-      legend_html += '<tr id="vsi-legend" style="display: none"><td><div style="font-size: 17px">Vegetation Sensitivity Index 2000-2013 <span class="credit"> (USGS)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">0</div><div style="margin-top: 4px; float: left; background-image: -webkit-linear-gradient(left, rgb(0, 139, 0), rgb(92, 182, 69) 17%, rgb(163, 221, 99) 33%, rgb(255, 255, 0) 50%, rgb(255, 205, 0) 67%, rgb(255, 144, 0) 83%, rgb(255, 4, 0) 100%);background-image: linear-gradient(left, rgb(0, 139, 0), rgb(92, 182, 69) 17%, rgb(163, 221, 99) 33%, rgb(255, 255, 0) 50%, rgb(255, 205, 0) 67%, rgb(255, 144, 0) 83%, rgb(255, 4, 0) 100%); width: 45px; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">100</div></td></tr>';
+      legend_html += '<tr id="vsi-legend" style="display: none"><td><div style="font-size: 17px">Vegetation Sensitivity Index 2000-2013 <span class="credit"> (USGS)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">0</div><div style="margin-top: 4px; float: left; background-image: -webkit-linear-gradient(left, rgb(0, 139, 0), rgb(92, 182, 69) 17%, rgb(163, 221, 99) 33%, rgb(255, 255, 0) 50%, rgb(255, 205, 0) 67%, rgb(255, 144, 0) 83%, rgb(255, 4, 0) 100%);background-image: linear-gradient(left, rgb(0, 139, 0), rgb(92, 182, 69) 17%, rgb(163, 221, 99) 33%, rgb(255, 255, 0) 50%, rgb(255, 205, 0) 67%, rgb(255, 144, 0) 83%, rgb(255, 4, 0) 100%); width: 86%; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">100</div></td></tr>';
       legend_html += '<tr id="health-impact-legend" style="display: none"><td><div style="font-size: 17px">Nutritional Deficiencies<span class="credit"> (Oxford Martin)</span></div><svg class="svg-legend" width="242" height="180"><rect width="240" height="160" fill="white" opacity="0"></rect> <g transform="translate(2,10)"> <circle class="gain" r="5" cx="5" cy="10" style="fill: #8b0000; stroke: #fff;"></circle> <circle class="loss" r="5" cx="5" cy="30" style="fill: #00008b; stroke: #fff;"></circle> <text x="15" y="13">Mean deaths per capita</text> <text x="15" y="33">Mean lives per capita</text> <circle r="10.0" cx="160.0" cy="160.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="152.0" dy="13" style="font-size: 10px; fill: #666">5K</text><circle r="30.0" cx="160.0" cy="140.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="130.0" dy="13" style="font-size: 10px; fill: #666">15K</text><circle r="60.0" cx="160.0" cy="110.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="80.0" dy="13" style="font-size: 10px; fill: #666">30K</text></g> </svg></td></tr>';
       legend_html += '<tr id="sea-level-rise-legend" style="display: none"><td><div style="font-size: 17px">Global Temperature Rise <span id="slr-degree"></span> &#x2103;<span class="credit"> (Climate Central)</span></div><div style="font-size: 15px">Future Sea Level<span id="slr-feet" style="width:25px;"></span>&nbsp;<span id="slr-meters" style="width:25px; color: red;"></span></div></td></tr>';
       legend_html += '<tr id="urban-fragility-legend" style="display: none"><td><div style="font-size: 17px">Fragile Score <span class="credit"> (Igarape Institute)</span></div></div><svg class="svg-legend" width="200" height="30"> <rect fill="#313695" x="0" height="9" width="20"></rect><rect fill="#4575b4" x="20" height="9" width="20"></rect><rect fill="#74add1" x="40" height="9" width="20"></rect><rect fill="#abd9e9" x="60" height="9" width="20"></rect><rect fill="#e0f3f8" x="80" height="9" width="20"></rect><rect fill="#ffffbf" x="100" height="9" width="20"></rect><rect fill="#fee090" x="120" height="9" width="20"></rect><rect fill="#fdae61" x="140" height="9" width="20"></rect><rect fill="#f46d43" x="160" height="9" width="20"></rect><rect fill="#d73027" x="180" height="9" width="20"></rect><rect fill="#a50026" x="200" height="9" width="20"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">1.0</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="100">2.25</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="185">3.5</text></svg></td></tr>';
@@ -3861,7 +3948,7 @@
       legend_html += '<tr id="ebola-cases-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Ebola Cases <span class="credit"> (LSHTM)</span></div></td></tr>';
       legend_html += '<tr id="ebola-new-cases-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Ebola New Cases <span class="credit"> (LSHTM)</span></div></td></tr>';
       legend_html += '<tr id="lodes-legend" style="display: none"><td><div>LODES<span class="credit"> (US Census)</span></div></td></tr>';
-      legend_html += '<tr id="cumulative-active-mining-legend" style="display: none"><td><div>Active Mining<span class="credit"> (SkyTruth)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">1984</div><div style="margin-top: 3px; float: left; background-image: -webkit-linear-gradient( to right, rgb(255,255,255),rgb(128,0,0));background-image: linear-gradient(to right, rgb(255,255,255),rgb(128,0,0)); width: 45px; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">2016</div></td></tr>';
+      legend_html += '<tr id="cumulative-active-mining-legend" style="display: none"><td><div>Active Mining<span class="credit"> (SkyTruth)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">1984</div><div style="margin-top: 3px; float: left; background-image: -webkit-linear-gradient( to right, rgb(255,255,255),rgb(128,0,0));background-image: linear-gradient(to right, rgb(255,255,255),rgb(128,0,0)); width: 50%; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">2016</div></td></tr>';
       legend_html += '<tr id="iraq-iom-idp-legend" style="display: none"><td><div>IRAQ IDPS<span class="credit"> (IOM)</span></div></td></tr>';
       legend_html += '<tr id="syria-iom-idp-legend" style="display: none"><td><div>Syria IDPS<span class="credit"> (IOM)</span></div></td></tr>';
       legend_html += '<tr id="yemen-iom-idp-legend" style="display: none"><td><div>Yemen IDPS<span class="credit"> (IOM)</span></div></td></tr>';
@@ -4021,8 +4108,6 @@
               text: false
             });
           }
-          // Chrome css workaround...
-          $("#layers-list.right-panel").hide().show(0);
         });
       }
 
@@ -4329,7 +4414,6 @@
         vertexShader: WebGLVectorTile2.annualRefugeesVertexShader,
         imageSrc: "annual-refugees-color-map.png",
         numAttributes: 7
-
       };
       annualRefugeesLayer = new WebglVectorLayer2(glb, canvasLayer, annualRefugeesUrl, annualRefugeesLayerOptions);
 
@@ -4342,7 +4426,6 @@
         vertexShader: WebGLVectorTile2.annualRefugeesVertexShader,
         imageSrc: "annual-returns-color-map.png",
         numAttributes: 7
-
       };
       annualReturnsLayer = new WebglVectorLayer2(glb, canvasLayer, annualReturnsUrl, annualReturnsLayerOptions);
 
@@ -4397,11 +4480,8 @@
         tileHeight: 256,
         fragmentShader: WebglMapTile.seaLevelRiseTextureFragmentShader,
         drawFunction: WebglMapTile.prototype._drawSeaLevelRise,
-
       };
-
       seaLevelRiseLayer = new WebglMapLayer(glb, canvasLayer, seaLevelRiseUrl, seaLevelRiseLayerOptions);
-
 
       var urbanFragilityLayerOptions = {
         tileWidth: 256,
@@ -4412,7 +4492,6 @@
         vertexShader: WebGLVectorTile2.urbanFragilityVertexShader,
         imageSrc: "urban-fragility-color-map.png",
         numAttributes: 5
-
       };
       urbanFragilityLayer = new WebglVectorLayer2(glb, canvasLayer, urbanFragilityUrl, urbanFragilityLayerOptions);
 
@@ -4449,7 +4528,6 @@
         numAttributes: 5
       };
       hivLayer = new WebglVectorLayer2(glb, canvasLayer, hivUrl, hivLayerOptions);
-
 
       var obesityLayerOptions = {
         tileWidth: 256,
@@ -4508,7 +4586,6 @@
         tileHeight: 256,
         fragmentShader: WebglMapTile.animatedTextureFragmentShader,
         drawFunction: WebglMapTile.prototype._drawAnimatedTexture,
-
       };
       cumulativeActiveMiningLayer = new WebglMapLayer(glb, canvasLayer, cumulativeActiveMiningUrl, cumulativeActiveMiningLayerOptions);
 
@@ -4639,6 +4716,15 @@
 
         snaplapseViewerForPresentationSlider.addEventListener('snaplapse-loaded', function() {
           $(".snaplapse_keyframe_container").scrollLeft(0);
+          isAutoModeRunning = snaplapseViewerForPresentationSlider.isAutoModeRunning();
+          if (isAutoModeRunning) {
+            var snaplapseForPresentationSlider = timelapse.getSnaplapseForPresentationSlider();
+            snaplapseForPresentationSlider.getSnaplapseViewer().initializeAndRunAutoMode();
+          }
+          if (loadedInitialWaypointList) {
+            $(".snaplapse_keyframe_list").children().first().children().click()
+          }
+          loadedInitialWaypointList = true;
         });
 
         snaplapseViewerForPresentationSlider.addEventListener('automode-start', function() {
@@ -4652,8 +4738,20 @@
           var waypointIndex = waypoint.index;
           var waypointBounds = waypoint.bounds;
           isAutoModeRunning = snaplapseViewerForPresentationSlider.isAutoModeRunning();
+
           if (himawariWaypoints[currentWaypointTheme][waypointIndex]) timelapse.setMaxScale(himawariMaxScale);
           else timelapse.setMaxScale(landsatMaxScale);
+
+          if (enableThemeHamburgerButton && isAutoModeRunning && lastAutomodeWaypointIndex > waypointIndex) {
+            var nextWaypointThemeCollection = $("#theme-list li.checkmark").next();
+            if (nextWaypointThemeCollection.length == 0) {
+              nextWaypointThemeCollection = $("#theme-list li").first();
+            }
+            nextWaypointThemeCollection.trigger("click");
+          }
+          if (isAutoModeRunning) {
+            lastAutomodeWaypointIndex = waypointIndex;
+          }
         });
 
         snaplapseViewerForPresentationSlider.addEventListener('slide-changed', function(waypoint) {
@@ -4679,6 +4777,11 @@
           if (waypointEndTime >= 0 && waypointStartTime != waypointEndTime) {
             waypointTimeChangeListener = function(t) {
               if (t >= waypointEndTime) {
+                var currentTimeInMs = (new Date()).getTime();
+                if ((currentTimeInMs - timeInMsSinceLastWaypointLoop) < 500) {
+                  timelapse.removeTimeChangeListener(waypointTimeChangeListener);
+                }
+                timeInMsSinceLastWaypointLoop = (new Date()).getTime();
                 timelapse.seek(waypointStartTime);
               }
             }
@@ -4697,7 +4800,11 @@
               if (currentView.scale * 2.5 > waypointScale && (currentView.x >= waypointBounds.xmin && currentView.x <= waypointBounds.xmax && currentView.y >= waypointBounds.ymin && currentView.y <= waypointBounds.ymax)) {
                 if (waypoint.annotationBoxTitle || waypoint.description) {
                   $current_location_text.show();
-                  $current_location_text.find("h3").text(waypoint.annotationBoxTitle);
+                  if (waypoint.annotationBoxTitle) {
+                    $current_location_text.find(".current-location-text-title").show().text(waypoint.annotationBoxTitle);
+                  } else {
+                    $current_location_text.find(".current-location-text-title").hide();
+                  }
                   var $current_location_text_picture = $("#current-location-text-picture");
                   if (annotationPicturePaths[currentWaypointTheme] && annotationPicturePaths[currentWaypointTheme][waypointIndex].path) {
                     $current_location_text_picture.show();
@@ -4705,7 +4812,11 @@
                   } else {
                     $current_location_text_picture.hide();
                   }
-                  $current_location_text.find("p").text(waypoint.description);
+                  if (waypoint.description) {
+                    $current_location_text.find("p").show().text(waypoint.description);
+                  } else {
+                    $current_location_text.find("p").hide();
+                  }
                   previousWaypoint.scale = waypointScale;
                   previousWaypoint.bounds = waypointBounds;
                   hideWaypointListener = function() {
@@ -4713,6 +4824,7 @@
                     var previousWaypointBounds = previousWaypoint.bounds;
                     if ((previousWaypoint.scale / 2.5 > currentView.scale || !(currentView.x >= previousWaypointBounds.xmin && currentView.x <= previousWaypointBounds.xmax && currentView.y >= previousWaypointBounds.ymin && currentView.y <= previousWaypointBounds.ymax))) {
                       $(".current-location-text").hide();
+                      $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight").removeClass("thumbnail_highlight");
                       timelapse.removeViewChangeListener(hideWaypointListener);
                       timelapse.removeTimeChangeListener(waypointTimeChangeListener);
                     }
@@ -5056,6 +5168,7 @@
 
       $("body").on("click", function(e) {
         var $target = $(e.target).parent().closest("div");
+        if (!e.originalEvent) return;
         if ($target.attr('id') == "presentation-slider-hamburger-wrapper" || $target.attr('id') == "theme-title-container") return;
         if ($("#presentation-slider-hamburger-wrapper .hamburger").hasClass("is-active")) {
           $("#presentation-slider-hamburger-wrapper").trigger("click");
@@ -6448,14 +6561,14 @@
 </head>
 
 <body>
-  <div id="content">
+  <div id="letterbox-content">
     <div id="letterbox-top"></div>
     <div id="letterbox-middle"></div>
     <div id="letterbox-bottom"></div>
   </div>
   <div id="timeMachine"></div>
   <div class="current-location-text">
-    <h3></h3>
+    <div class="current-location-text-title"></div>
     <div id="current-location-text-picture"></div>
     <p></p>
   </div>
@@ -6480,7 +6593,7 @@
     <ul id="theme-list">
     </ul>
   </div>
-  <div id="presentation-slider-hamburger-wrapper">
+  <div id="presentation-slider-hamburger-wrapper" title="Select a theme">
     <button class="hamburger" type="button">
       <span class="hamburger-box">
         <span class="hamburger-inner"></span>

@@ -499,7 +499,7 @@ fieldset {
   font-size: 80px;
   line-height: 85px;
 }
-#content {
+#letterbox-content {
   position: relative;
   width: 100%;
   height: 100%;
@@ -510,7 +510,7 @@ fieldset {
   width: 1330px;
   height: 1076px;
 }
-#content.recording {
+#letterbox-content.recording {
   /* For recording in different heights, change the height of #timeMachine.recording and #content.recording */
   width: 1330px;
   height: 1284px;
