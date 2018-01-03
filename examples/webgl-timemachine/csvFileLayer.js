@@ -56,11 +56,13 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
   var category_id = category ? "category-" + category.trim().replace(/ /g,"-").toLowerCase() : "csvlayers_table";
   var playbackRate = typeof opts["playbackRate"] == "undefined" ? null : opts["playbackRate"];
   var masterPlaybackRate = typeof opts["masterPlaybackRate"] == "undefined" ? null : opts["masterPlaybackRate"];
+  var nLevels = typeof opts["nLevels"] == "undefined" ? 0 : parseInt(opts["nLevels"]);
+
 
   var layerOptions = {
     tileWidth: 256,
     tileHeight: 256,
-    nLevels: 0,
+    nLevels: nLevels,
     scalingFunction: scalingFunction,
     layerId: nickname,
     loadDataFunction: WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv,
@@ -71,7 +73,17 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
     externalGeojson: externalGeojson,
     numAttributes: 6
   };
-  if (mapType == "choropleth") {
+  var WebglLayer = WebglVectorLayer2;
+  if (mapType == 'raster') {
+    console.log('raster');
+    WebglLayer = WebglMapLayer;
+    url = eval(url);
+    layerOptions['fragmentShader'] = null;
+    layerOptions['vertexShader'] = null;
+    layerOptions['drawFunction'] = null;
+    layerOptions["loadDataFunction"] = null;
+  }
+  else if (mapType == "choropleth") {
     layerOptions.loadDataFunction = WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv;
     layerOptions.drawFunction = WebGLVectorTile2.prototype._drawChoroplethMap;
     layerOptions.fragmentShader = WebGLVectorTile2.choroplethMapFragmentShader;
@@ -112,7 +124,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
     }
   }
 
-  var layer = new WebglVectorLayer2(glb, canvasLayer, url, layerOptions);
+  var layer = new WebglLayer(glb, canvasLayer, url, layerOptions);
   layer.options = layer.options || {};
   if (color) {
     layer.options.color = color;
@@ -254,6 +266,7 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
       var drawFunction = layer["Draw Function"];
       var playbackRate = layer["Playback Rate"];
       var masterPlaybackRate = layer["Master Playback Rate"];
+      var nLevels = layer["Number of Levels"];
 
       var opts = {
         nickname: layerIdentifier,
@@ -274,7 +287,8 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
         fragmentShader: fragmentShader,
         drawFunction: drawFunction,
         playbackRate: playbackRate,
-        masterPlaybackRate: masterPlaybackRate
+        masterPlaybackRate: masterPlaybackRate,
+        nLevels: nLevels
       }
 
       this.addLayer(opts);
