@@ -5100,6 +5100,9 @@
         csvDataGrapher.graphDataForLayer(layerId);
         showHideCsvGrapher(true, layerId, true);
       });
+      csvFileLayers.addDataLoadedListener(function(layerId) {
+        csvFileLayers.setLegend(layerId);
+      });
       csvDataGrapher.initialize();
       $("#layers-list").on("click", ".csvlayer input, input[data-has-graph='true']", function(e) {
         var activeGraphableLayers = $(".csvlayer input, tr input[data-has-graph='true']").closest("input:checked");
