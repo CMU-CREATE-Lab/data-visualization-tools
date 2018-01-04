@@ -57,8 +57,6 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
   var playbackRate = typeof opts["playbackRate"] == "undefined" ? null : opts["playbackRate"];
   var masterPlaybackRate = typeof opts["masterPlaybackRate"] == "undefined" ? null : opts["masterPlaybackRate"];
   var nLevels = typeof opts["nLevels"] == "undefined" ? 0 : parseInt(opts["nLevels"]);
-
-
   var layerOptions = {
     tileWidth: 256,
     tileHeight: 256,
@@ -75,7 +73,6 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
   };
   var WebglLayer = WebglVectorLayer2;
   if (mapType == 'raster') {
-    console.log('raster');
     WebglLayer = WebglMapLayer;
     url = eval(url);
     layerOptions['fragmentShader'] = null;
@@ -258,6 +255,14 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
         externalGeojson = layer["External GeoJSON"].trim()
       }
 
+      var nLevels = 0;
+      if (typeof layer["Number of Levels"] != "undefined") {
+        nLevels = layer["Number of Levels"].trim();
+        if (nLevels == "") {
+          nLevels = 0;
+        }
+      }
+
       var loadDataFunction = layer["Load Data Function"];
       var setDataFunction = layer["Set Data Function"];
       var numAttributes = layer["Number of Attributes"];
@@ -266,7 +271,6 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
       var drawFunction = layer["Draw Function"];
       var playbackRate = layer["Playback Rate"];
       var masterPlaybackRate = layer["Master Playback Rate"];
-      var nLevels = layer["Number of Levels"];
 
       var opts = {
         nickname: layerIdentifier,
