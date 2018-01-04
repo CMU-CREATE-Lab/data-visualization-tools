@@ -5208,7 +5208,7 @@
         });
         var layerIdx = layerIds.indexOf(layerId);
         var layerProps = csvFileLayers.layersData.data[layerIdx];
-        var showGraph = layerProps['Show Graph'] == "TRUE";
+        var showGraph = layerProps ? layerProps['Show Graph'] == "TRUE" : false;
         if (!showGraph) return;
       }
       if (doShow) {
