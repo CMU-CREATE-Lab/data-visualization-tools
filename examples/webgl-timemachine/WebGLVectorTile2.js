@@ -533,11 +533,6 @@ WebGLVectorTile2.prototype._setLineStringData = function(data) {
     }
   }
 
-  console.log(vertexCollection);
-  console.log(normalCollection);
-  console.log(miterCollection);
-  console.log(indexCollection.length);
-  console.log(indexBuffer.length);
   this._setBuffers([new Float32Array(vertexCollection),
                     new Float32Array(normalCollection),
                     new Float32Array(miterCollection)],
