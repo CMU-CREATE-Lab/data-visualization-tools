@@ -483,7 +483,59 @@ WebGLVectorTile2.prototype._setLineStringData = function(data) {
   // Assumes GeoJSON data
   function processLineString(lineString) {
     var out =[];
-    for (var i = 0; i < lineString.length*0.9; i++) {
+    for (var i = 0; i < lineString.length; i++) {
+      var p = LngLatToPixelXY(lineString[i][0], lineString[i][1]);
+      out.push(p);
+    }
+    return out;
+  }
+  var paths = [];
+  for (var i = 0; i < data["features"].length; i++) {
+    var path = [];
+    var positions = [];
+    var feature = data["features"][i];
+    if (feature["geometry"]) {
+      if (feature["geometry"]["type"] == "MultiLineString") {
+        for (var j = 0; j < feature["geometry"]["coordinates"].length; j++) {
+          path = path.concat(processLineString(feature["geometry"]["coordinates"][j]));        
+        }
+      } else {
+        path = path.concat(processLineString(feature["geometry"]["coordinates"]));
+      }
+      paths.push(path);
+    }
+  }
+  var vertexCollection = [];
+  for (var i = 0; i < paths.length; i++) {
+    var points = paths[i];
+    //var positions = Duplicate(points);
+    var positions = [];
+    for (var j = 0; j < points.length; j++) {
+      if (j + 1 < points.length && points[j][0] > 80 && points[j+1][0] < 10) {
+        positions.push(points[j]);
+      } else if (j + 1 < points.length && points[j][0] < 10 && points[j+1][0] > 80) {
+        positions.push(points[j]);
+      } else if (j > 0 && points[j][0] < 10 && points[j-1][0] > 80) {
+        positions.push(points[j]);
+      } else if (j > 0 && points[j][0] > 80 && points[j-1][0] < 10) {
+        positions.push(points[j]);
+      } else {
+        positions.push(points[j], points[j]);        
+      }
+    }
+    positions.shift();
+    positions.pop();
+    vertexCollection = vertexCollection.concat(PackArray(positions));
+  }
+  this._setBufferData(new Float32Array(vertexCollection));
+
+}
+
+WebGLVectorTile2.prototype._setExpandedLineStringData = function(data) {
+  // Assumes GeoJSON data
+  function processLineString(lineString) {
+    var out =[];
+    for (var i = 0; i < lineString.length; i++) {
       var p = LngLatToPixelXY(lineString[i][0], lineString[i][1]);
       out.push(p);
     }
@@ -2218,8 +2270,41 @@ WebGLVectorTile2.prototype._drawTsip = function(transform, options) {
   }
 }
 
-
 WebGLVectorTile2.prototype._drawLineString = function(transform, options) {
+  var gl = this.gl;
+  if (this._ready) {
+    gl.useProgram(this.program);
+    gl.enable(gl.BLEND);
+    gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
+
+    var tileTransform = new Float32Array(transform);
+    var zoom = options.zoom;
+    var currentTime = options.currentTime/1000.;
+    var color = options.color || [.1, .1, .5, 1.0];
+
+    scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
+    scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+
+    var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
+    gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+
+    var colorLoc = gl.getUniformLocation(this.program, 'u_color');
+    gl.uniform4fv(colorLoc, [1.,0.,0., 1.0]);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_coord');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 8, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+
+    gl.drawArrays(gl.LINES, 0, this._pointCount);
+    //gl.drawElements(gl.TRIANGLES, 170840, gl.UNSIGNED_SHORT, 0);
+    perf_draw_points(this._pointCount);
+    gl.disable(gl.BLEND);
+  }
+}
+
+
+WebGLVectorTile2.prototype._drawExpandedLineString = function(transform, options) {
   var gl = this.gl;
   if (this._ready) {
     gl.useProgram(this.program);
@@ -3296,6 +3381,21 @@ WebGLVectorTile2.pointFlowFragmentShader =
 
 WebGLVectorTile2.lineStringVertexShader =
 'attribute vec2 a_coord;\n' +
+'uniform mat4 u_map_matrix;\n' +
+'void main() {\n' +
+'    gl_Position = u_map_matrix * vec4(a_coord, 0., 1.);\n' +
+'}';
+
+
+WebGLVectorTile2.lineStringFragmentShader =
+'precision mediump float;\n' +
+'uniform vec4 u_color;\n' +
+'void main() {\n' +
+'  gl_FragColor = u_color;\n' +
+'}\n';
+
+WebGLVectorTile2.expandedLineStringVertexShader =
+'attribute vec2 a_coord;\n' +
 'attribute vec2 a_normal;\n' +
 'attribute float a_miter;\n' +
 'uniform mat4 u_map_matrix;\n' +
@@ -3309,7 +3409,7 @@ WebGLVectorTile2.lineStringVertexShader =
 '}\n';
 
 
-WebGLVectorTile2.lineStringFragmentShader =
+WebGLVectorTile2.expandedLineStringFragmentShader =
 '  precision mediump float;\n' +
 '  uniform vec3 u_color;\n' +
 '  uniform float u_inner;\n' +
@@ -3319,5 +3419,4 @@ WebGLVectorTile2.lineStringFragmentShader =
 '    v = smoothstep(0.65, 0.7, v*u_inner); \n' +
 '    gl_FragColor = mix(vec4(u_color, 1.0), vec4(0.0), v);\n' +
 '  }\n';
-
 
