@@ -2280,7 +2280,7 @@ WebGLVectorTile2.prototype._drawLineString = function(transform, options) {
     var tileTransform = new Float32Array(transform);
     var zoom = options.zoom;
     var currentTime = options.currentTime/1000.;
-    var color = options.color || [.1, .1, .5, 1.0];
+    var color = options.color || [1.0, 0.0, 0.0, 1.0];
 
     scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
     scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
@@ -2289,7 +2289,7 @@ WebGLVectorTile2.prototype._drawLineString = function(transform, options) {
     gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
 
     var colorLoc = gl.getUniformLocation(this.program, 'u_color');
-    gl.uniform4fv(colorLoc, [1.,0.,0., 1.0]);
+    gl.uniform4fv(colorLoc, color);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
     var attributeLoc = gl.getAttribLocation(this.program, 'a_coord');
