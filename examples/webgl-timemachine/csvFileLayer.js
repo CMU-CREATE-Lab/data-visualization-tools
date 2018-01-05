@@ -227,6 +227,7 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
     var layer = that.layersData['data'][i];
     if (layer["Enabled"] == "TRUE") {
       var layerIdentifier = layer["Share link identifier"].replace(/\W+/g, '_');
+      var promotedUrl = layer["URL"].replace("http://", "https://");
 
       var scalingFunction = layer["Scaling"].trim();
       if (scalingFunction == '') {
@@ -274,7 +275,7 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
 
       var opts = {
         nickname: layerIdentifier,
-        url: layer["URL"],
+        url: promotedUrl,
         name: layer["Name"],
         credit: layer["Credits"],
         category: layer["Category"],
