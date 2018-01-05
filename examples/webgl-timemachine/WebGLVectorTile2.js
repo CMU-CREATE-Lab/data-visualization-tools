@@ -491,18 +491,19 @@ WebGLVectorTile2.prototype._setLineStringData = function(data) {
   }
   var paths = [];
   for (var i = 0; i < data["features"].length; i++) {
-    var path = [];
-    var positions = [];
     var feature = data["features"][i];
     if (feature["geometry"]) {
       if (feature["geometry"]["type"] == "MultiLineString") {
         for (var j = 0; j < feature["geometry"]["coordinates"].length; j++) {
-          path = path.concat(processLineString(feature["geometry"]["coordinates"][j]));        
+          var path = [];
+          var path = path.concat(processLineString(feature["geometry"]["coordinates"][j]));        
+          paths.push(path);
         }
       } else {
+        var path = [];
         path = path.concat(processLineString(feature["geometry"]["coordinates"]));
+        paths.push(path);
       }
-      paths.push(path);
     }
   }
   var vertexCollection = [];
@@ -511,17 +512,7 @@ WebGLVectorTile2.prototype._setLineStringData = function(data) {
     //var positions = Duplicate(points);
     var positions = [];
     for (var j = 0; j < points.length; j++) {
-      if (j + 1 < points.length && points[j][0] > 80 && points[j+1][0] < 10) {
-        positions.push(points[j]);
-      } else if (j + 1 < points.length && points[j][0] < 10 && points[j+1][0] > 80) {
-        positions.push(points[j]);
-      } else if (j > 0 && points[j][0] < 10 && points[j-1][0] > 80) {
-        positions.push(points[j]);
-      } else if (j > 0 && points[j][0] > 80 && points[j-1][0] < 10) {
-        positions.push(points[j]);
-      } else {
         positions.push(points[j], points[j]);        
-      }
     }
     positions.shift();
     positions.pop();
