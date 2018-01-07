@@ -2362,7 +2362,6 @@ WebGLVectorTile2.prototype._drawPointColorStartEpochEndEpoch = function(transfor
     var zoom = options.zoom;
     var currentTime = options.currentTime/1000.;
     var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-    console.log(pointSize);
     var color = options.color || [.1, .1, .5, 1.0];
 
     scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
@@ -2373,7 +2372,6 @@ WebGLVectorTile2.prototype._drawPointColorStartEpochEndEpoch = function(transfor
     if (isNaN(pointSize)) {
       pointSize = 1.0;
     }
-    console.log(pointSize);
 
     var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
     gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
@@ -3487,7 +3485,7 @@ WebGLVectorTile2.PointColorStartEpochEndEpochVertexShader =
 '        position = u_map_matrix * a_coord;\n' + 
 '    }\n' + 
 '    gl_Position = position;\n' +
-'    gl_PointSize = u_size;\n' +
+'    gl_PointSize = u_size*2.0;\n' +
 '    v_color = a_color;\n' + 
 '}\n';
 
@@ -3503,15 +3501,10 @@ WebGLVectorTile2.PointColorStartEpochEndEpochFragmentShader =
 '      color.a = 255.;\n' + 
 '      return color / 256.0;\n' +
 '    }\n' +
-'  float getAlpha(vec2 xy) {\n' +
-'    float r = 0.0, delta = 0.0, alpha = 1.0;\n' + 
-'    vec2 cxy = 2.0 * xy - 1.0;\n' + 
-'    r = dot(cxy, cxy);\n' + 
-'    delta = fwidth(r);\n' + 
-'    alpha = 1.0 - smoothstep(1.0 - delta, 1.0 + delta, r);\n' + 
-'    return alpha;\n' + 
-'  }\n' +    
 '  void main() {\n' +
-'    gl_FragColor = unpackColor(v_color) * getAlpha(gl_PointCoord);\n' +
+'    float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
+'    dist = 1. - (dist * 2.);\n' +
+'    dist = max(0., dist);\n' +
+'    gl_FragColor = unpackColor(v_color) * dist;\n' +
 '  }\n';
 
