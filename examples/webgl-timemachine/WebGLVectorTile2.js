@@ -2350,6 +2350,64 @@ WebGLVectorTile2.prototype._drawExpandedLineString = function(transform, options
   }
 }
 
+
+WebGLVectorTile2.prototype._drawPointColorStartEpochEndEpoch = function(transform, options) {
+  var gl = this.gl;
+  if (this._ready) {
+    gl.useProgram(this.program);
+    gl.enable(gl.BLEND);
+    gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
+
+    var tileTransform = new Float32Array(transform);
+    var zoom = options.zoom;
+    var currentTime = options.currentTime/1000.;
+    var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
+    console.log(pointSize);
+    var color = options.color || [.1, .1, .5, 1.0];
+
+    scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
+    scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+
+    pointSize *= Math.floor((zoom + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+    // Passing a NaN value to the shader with a large number of points is very bad
+    if (isNaN(pointSize)) {
+      pointSize = 1.0;
+    }
+    console.log(pointSize);
+
+    var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
+    gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+
+    var sliderTime = gl.getUniformLocation(this.program, 'u_epoch');
+    gl.uniform1f(sliderTime, currentTime);
+
+    var uniformLoc = gl.getUniformLocation(this.program, 'u_size');
+    gl.uniform1f(uniformLoc, pointSize);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_coord');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this._numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_color');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._numAttributes * 4, 8);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch0');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._numAttributes * 4, 12);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch1');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._numAttributes * 4, 16);
+
+    gl.drawArrays(gl.POINTS, 0, this._pointCount);
+
+    perf_draw_points(this._pointCount);
+    gl.disable(gl.BLEND);
+  }
+}
+
 // Update and draw tiles
 WebGLVectorTile2.update = function(tiles, transform, options) {
   for (var i = 0; i < tiles.length; i++) {
@@ -3409,5 +3467,51 @@ WebGLVectorTile2.expandedLineStringFragmentShader =
 '    float v = 1.0 - abs(v_edge);\n' +
 '    v = smoothstep(0.65, 0.7, v*u_inner); \n' +
 '    gl_FragColor = mix(vec4(u_color, 1.0), vec4(0.0), v);\n' +
+'  }\n';
+
+
+WebGLVectorTile2.PointColorStartEpochEndEpochVertexShader = 
+'attribute vec4 a_coord;\n' +
+'attribute float a_color;\n' +
+'attribute float a_epoch0;\n' +
+'attribute float a_epoch1;\n' +
+'uniform mat4 u_map_matrix;\n' +
+'uniform float u_epoch;\n' +
+'uniform float u_size;\n' +
+'varying float v_color;\n' +
+'void main() {\n' +
+'    vec4 position;\n' +
+'    if (a_epoch0 > u_epoch || a_epoch1 < u_epoch) {\n' +
+'        position = vec4(-1.,-1.,-1.,-1.);\n' + 
+'    } else {\n' + 
+'        position = u_map_matrix * a_coord;\n' + 
+'    }\n' + 
+'    gl_Position = position;\n' +
+'    gl_PointSize = u_size;\n' +
+'    v_color = a_color;\n' + 
+'}\n';
+
+WebGLVectorTile2.PointColorStartEpochEndEpochFragmentShader = 
+'#extension GL_OES_standard_derivatives : enable\n' +
+'  precision mediump float;\n' +
+'  varying float v_color;\n' + 
+'  vec4 unpackColor(float f) {\n' +
+'      vec4 color;\n' +
+'      color.b = floor(f / 256.0 / 256.0);\n' +
+'      color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);\n' +
+'      color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);\n' +
+'      color.a = 255.;\n' + 
+'      return color / 256.0;\n' +
+'    }\n' +
+'  float getAlpha(vec2 xy) {\n' +
+'    float r = 0.0, delta = 0.0, alpha = 1.0;\n' + 
+'    vec2 cxy = 2.0 * xy - 1.0;\n' + 
+'    r = dot(cxy, cxy);\n' + 
+'    delta = fwidth(r);\n' + 
+'    alpha = 1.0 - smoothstep(1.0 - delta, 1.0 + delta, r);\n' + 
+'    return alpha;\n' + 
+'  }\n' +    
+'  void main() {\n' +
+'    gl_FragColor = unpackColor(v_color) * getAlpha(gl_PointCoord);\n' +
 '  }\n';
 
