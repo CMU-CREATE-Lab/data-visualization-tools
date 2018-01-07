@@ -479,6 +479,40 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
   this.xhr.send();
 }
 
+
+WebGLVectorTile2.prototype._setPolygonData = function(data) {
+  // Assumes GeoJSON data
+  var verts = [];
+  var rawVerts = [];
+
+  if (typeof data.features != "undefined") {
+    for (var f = 0; f < data.features.length ; f++) {
+      var feature = data.features[f];
+      var packedColor = feature.properties.packed_color;
+        if (feature.geometry.type != "MultiPolygon") {
+          var mydata = earcut.flatten(feature.geometry.coordinates);
+          var triangles = earcut(mydata.vertices, mydata.holes, mydata.dimensions);
+          for (var i = 0; i < triangles.length; i++) {
+            var pixel = LngLatToPixelXY(mydata.vertices[triangles[i]*2], mydata.vertices[triangles[i]*2 + 1]);
+            verts.push(pixel[0], pixel[1], packedColor);
+          }
+        } else {
+          for ( var j = 0; j < feature.geometry.coordinates.length; j++) {
+            var mydata = earcut.flatten(feature.geometry.coordinates[j]);
+            var triangles = earcut(mydata.vertices, mydata.holes, mydata.dimensions);
+            for (var i = 0; i < triangles.length; i++) {
+              var pixel = LngLatToPixelXY(mydata.vertices[triangles[i]*2], mydata.vertices[triangles[i]*2 + 1]);
+              verts.push(pixel[0], pixel[1], packedColor);
+            }
+          }
+        }
+      
+    }
+    this._setBufferData(new Float32Array(verts));
+    this._dataLoaded(this.layerId);
+  }
+}
+
 WebGLVectorTile2.prototype._setLineStringData = function(data) {
   // Assumes GeoJSON data
   function processLineString(lineString) {
@@ -2261,6 +2295,40 @@ WebGLVectorTile2.prototype._drawTsip = function(transform, options) {
   }
 }
 
+WebGLVectorTile2.prototype._drawPolygon = function(transform, options) {
+  var gl = this.gl;
+  if (this._ready) {
+    gl.useProgram(this.program);
+    gl.enable(gl.BLEND);
+    gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
+
+    var tileTransform = new Float32Array(transform);
+    var zoom = options.zoom;
+    var currentTime = options.currentTime/1000.;
+    var color = options.color || [1.0, 0.0, 0.0, 1.0];
+
+    scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
+    scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+
+    var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
+    gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_coord');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 12, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_color');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 12, 8); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+
+    gl.drawArrays(gl.TRIANGLES, 0, this._pointCount);
+    //gl.drawElements(gl.TRIANGLES, 170840, gl.UNSIGNED_SHORT, 0);
+    perf_draw_points(this._pointCount);
+    gl.disable(gl.BLEND);
+  }
+}
+
 WebGLVectorTile2.prototype._drawLineString = function(transform, options) {
   var gl = this.gl;
   if (this._ready) {
@@ -3425,6 +3493,36 @@ WebGLVectorTile2.pointFlowFragmentShader =
 '    vec4 colorEnd = vec4(.71,0.09,0.05,1.0);\n' +
 '    gl_FragColor = mix(colorStart, colorEnd, v_t) * dist;\n' +
 '  }\n';
+
+
+WebGLVectorTile2.polygonVertexShader = 
+'attribute vec4 a_coord;\n' +
+'attribute float a_color;\n' +
+'uniform mat4 u_map_matrix;\n' +
+'varying float v_color;\n' +
+'void main() {\n' +
+'    vec4 position;\n' +
+'    position = u_map_matrix * a_coord;\n' + 
+'    gl_Position = position;\n' +
+'    v_color = a_color;\n' + 
+'}\n';
+
+WebGLVectorTile2.polygonFragmentShader = 
+'#extension GL_OES_standard_derivatives : enable\n' +
+'  precision mediump float;\n' +
+'  varying float v_color;\n' + 
+'  vec4 unpackColor(float f) {\n' +
+'      vec4 color;\n' +
+'      color.b = floor(f / 256.0 / 256.0);\n' +
+'      color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);\n' +
+'      color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);\n' +
+'      color.a = 255.;\n' + 
+'      return color / 256.0;\n' +
+'    }\n' +
+'  void main() {\n' +
+'    gl_FragColor = unpackColor(v_color);\n' +
+'  }\n';
+
 
 WebGLVectorTile2.lineStringVertexShader =
 'attribute vec2 a_coord;\n' +
