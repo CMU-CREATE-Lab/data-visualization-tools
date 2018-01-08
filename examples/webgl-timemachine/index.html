@@ -164,6 +164,7 @@
     var showCarbonPriceRisk = !!EARTH_TIMELAPSE_CONFIG.showCarbonPriceRisk;
     var showCityLabelMap = !!EARTH_TIMELAPSE_CONFIG.showCityLabelMap;
     var showTsip = !!EARTH_TIMELAPSE_CONFIG.showTsip;
+    var showSpCrude = !!EARTH_TIMELAPSE_CONFIG.showSpCrude;
 
     var showTile = true;
 
@@ -300,7 +301,8 @@
     setTimeLine('carbon-price-risk-times', 2017, 2050, 1);
     var tsipLayer;
     setTimeLine('carbon-price-risk-times', 2000, 2017, 1);
-
+    var spCrudeLayer;
+    setTimeLine('sp-crude-times', 2012, 2018, 1);
 
     // LODES interface
     var lodesGui;
@@ -551,6 +553,7 @@
 
     var tsipUrl = "/tsip/data/tsip.bin";
 
+    var spCrudeUrl = rootTilePath + "/sp-crude/0-crude-flows.bin"
     function init() {
       var settings = {
         loopDwell: {
@@ -2348,6 +2351,31 @@
         }
       }).prop('checked', showTsipLayer);
 
+      $("#show-sp-crude").on("click", function() {
+        if ($(this).prop('checked')) {
+          showSpCrudeLayer = true;
+          setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
+          requestNewTimeline("sp-crude-times.json", timelineType);
+          timelapse.setMasterPlaybackRate(.045);
+          timelapse.setPlaybackRate(.0225);
+          $("#sp-crude-legend").show();
+          if (visibleBaseMapLayer != "dark") {
+            $("#dark-base").click();
+          }
+        } else {
+          showSpCrudeLayer = false;
+          spCrudeLayer.destroy();
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          setActiveLayersWithTimeline(-1);
+          doSwitchToLandsat();
+          if (!$("#show-sp-crude").prop('checked')) {
+            $("#sp-crude-legend").hide();
+          }
+        }
+      }).prop('checked', showTsipLayer);
+
       // Base layers
       $("input:radio[name=base-layers]").on("click", function() {
         visibleBaseMapLayer = $(this).val();
@@ -2857,7 +2885,7 @@
     var showIrenaWindLayer = false;
     var showCarbonPriceRiskLayer = false;
     var showTsipLayer = false;
-
+    var showSpCrudeLayer = false;
 
     // Default Time Machine visibility
     var tileViewVisibility = {
@@ -3285,6 +3313,7 @@
       var show_carbon_price_risk = '<td class="carbon-price-risk-select"><label for="show-carbon-price-risk" name="carbon_price_risk"><input type="checkbox" id="show-carbon-price-risk" />Carbon price risk</label></td>';
       var show_tsip = '<td class="tsip-select"><label for="show-tsip" name="tsip"><input type="checkbox" id="show-tsip" />Toxic Sites</label></td>';
 
+      var show_sp_crude = '<td class="sp-crude-select"><label for="show-sp-crude" name="sp-crude"><input type="checkbox" id="show-sp-crude" />Crude Oil flows</label></td>';
 
       if (enableLetterboxMode) {
         layer_html += '<div class="base-map-div">';
@@ -3595,6 +3624,11 @@
           layer_html += '    </tr>';
           layer_html += '    <tr>';
           layer_html += show_irena_wind;
+          layer_html += '    </tr>';
+        }
+        if (showSpCrude) {
+          layer_html += '    <tr>';
+          layer_html += show_sp_crude;
           layer_html += '    </tr>';
         }
 
@@ -3972,6 +4006,8 @@
       var tsipStr = '<div style="font-size: 15px">Toxic Sites Identification Program<span class="credit"> (PlanetEarth)</span></div><svg class="svg-legend" width="240" height="65"><circle class="gain" r="10" cx="15" cy="10" style="fill: brown; stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #666">Sites (Blacksmith Index)</text><circle r="10.0" cx="120.0" cy="50" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle><text text-anchor="middle" x="120.0" y="45" dy="10" style="font-size: 10px; fill: #666">5</text><circle r="20.0" cx="120.0" cy="40" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle><text text-anchor="middle" x="120.0" y="25" dy="10" style="font-size: 10px; fill: #666">10</text></svg>';
       var tsipLegend = new BubbleMapLegend({"id" : "tsip", "str": tsipStr});
       legend_html += '<tr id="expanding-cities-legend" style="display: none"><td>' +  tsipLegend.toString() + '</td></tr>';
+
+      legend_html += '<tr id="sp-crude-legend" style="display: none"><td><div style="font-size: 15px">Crude Oil Flows<span> (S&P Global)</div></td></tr>';
 
       // ## 5b ##
       //// Add to layer legend ////
@@ -4686,6 +4722,17 @@
         numAttributes: 4
       };
       tsipLayer = new WebglVectorLayer2(glb, canvasLayer, tsipUrl, layerOptions);
+
+      var layerOptions = {
+        tileWidth: 256,
+        tileHeight: 256,
+        nLevels: 0,
+        drawFunction: WebGLVectorTile2.prototype._drawSpCrude,
+        fragmentShader: WebGLVectorTile2.spCrudeFragmentShader,
+        vertexShader: WebGLVectorTile2.spCrudeVertexShader,
+        numAttributes: 7
+      };
+      spCrudeLayer = new WebglVectorLayer2(glb, canvasLayer, spCrudeUrl, layerOptions);
 
       // Layer Toggle UI
       initLayerToggleUI();
@@ -6529,6 +6576,23 @@
           options.pointSize = 2.;
           options.color = [0.5,0.05,0.5,1.0];
           layer.draw(view, options);
+        }
+
+        if (showSpCrudeLayer) {
+          var layer = spCrudeLayer;
+          var view = getLayerView(layer, landsatBaseMapLayer);
+          var options = {};
+          options.zoom = timelapse.getCurrentZoom();
+          var currentTime = timelapse.getCurrentTime();
+          var currentTimes = getCurrentTimes(timelapse);
+          var dates = getDates(timelapse);
+          var delta = getCurrentTimesDelta(currentTime, currentTimes);
+          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
+          options.currentTime = currentDate;
+          options.pointSize = 2.;
+          options.color = [0.5,0.05,0.5,1.0];
+          layer.draw(view, options);
+
         }
 
       }
