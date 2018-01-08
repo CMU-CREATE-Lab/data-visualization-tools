@@ -213,7 +213,9 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
       var has_lat_lon = (
         header[1].substr(0,3).toLowerCase() == 'lat' &&
         header[2].substr(0,3).toLowerCase() == 'lon');
+      var has_packedColor = (header[3].substr(0,11).toLowerCase() == 'packedcolor');
       var first_data_col = has_lat_lon ? 3 : 1;
+      var first_data_col = has_packedColor ? 4 : 1;
       var epochs = [];
       var points = [];
       var maxValue = 0;
@@ -256,11 +258,15 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
         }
         var feature = searchCountryList(that.geojsonData,country[0]);
         var centroid = ["",""];
+        var packedColor = null;
         // Extract centroids
         if (has_lat_lon && country[1] != '') {
           var latlng = {lat:country[1], lng:country[2]};
           var xy = proj.latlngToPoint(latlng);
           centroid = [xy.x, xy.y];
+          if (has_packedColor) {
+            packedColor = country[3];
+          }
         } else if (! feature.hasOwnProperty("geometry")) {
           console.log('ERROR: Could not find ' + country[0]);
           continue;
@@ -307,6 +313,9 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
               point["epoch2"] = epochs[k];
               point["val2"] = val;
             }
+            if (has_packedColor) {
+              point['packedColor'] = packedColor;
+            }
             points.push(point);
           }
           if (idx.length > 1) {
@@ -322,6 +331,9 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
               "epoch2": epochs[k] + span,
               "val2": val
             };
+            if (has_packedColor) {
+              point['packedColor'] = packedColor;
+            }
             points.push(point);
           }
         }
@@ -347,6 +359,10 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
       flatPoints.push(points[i]["val1"]);
       flatPoints.push(points[i]["epoch2"]);
       flatPoints.push(points[i]["val2"]);
+      if (has_packedColor) {
+        flatPoints.push(points[i]["packedColor"]);
+      }
+
     }
     that._setData(new Float32Array(flatPoints));
     //that._setData([]);
@@ -1361,6 +1377,12 @@ WebGLVectorTile2.prototype._drawBubbleMap = function(transform, options) {
     var timeLocation = gl.getAttribLocation(this.program, "a_Val2");
     gl.enableVertexAttribArray(timeLocation);
     gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, this._numAttributes * 4, 20);
+
+    if (this._numAttributes == 7) {
+      var timeLocation = gl.getAttribLocation(this.program, "a_color");
+      gl.enableVertexAttribArray(timeLocation);
+      gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, this._numAttributes * 4, 24);
+    }
 
     var colorLoc = gl.getUniformLocation(this.program, 'u_Color');
     gl.uniform4fv(colorLoc, color);
@@ -3139,6 +3161,73 @@ WebGLVectorTile2.bubbleMapFragmentShader =
 '            }\n' +
 '          }\n' +
 '          vec4 circleColor = u_Color;\n' +
+'          if (v_Val < 0.0) { circleColor[0] = 1.0; circleColor[1]=0.0; circleColor[2]=0.0; };\n' +
+'          vec4 outlineColor = vec4(1.0,1.0,1.0,1.0);\n' +
+'          float outerEdgeCenter = 0.5 - .01;\n' +
+'          float stroke = smoothstep(outerEdgeCenter - delta, outerEdgeCenter + delta, dist);\n' +
+'          gl_FragColor = vec4( mix(outlineColor.rgb, circleColor.rgb, stroke), alpha*.75 );\n' +
+'      }';
+
+
+WebGLVectorTile2.bubbleMapWithPackedColorVertexShader =
+'      attribute vec4 a_Centroid;\n' +
+'      attribute float a_Epoch1;\n' +
+'      attribute float a_Val1;\n' +
+'      attribute float a_Epoch2;\n' +
+'      attribute float a_Val2;\n' +
+'      attribute float a_color;\n' +
+'      uniform float u_Epoch;\n' +
+'      uniform float u_Size;\n' +
+'      uniform mat4 u_MapMatrix;\n' +
+'      varying float v_Val;\n' +
+'      varying float v_color;\n' +
+'      void main() {\n' +
+'        vec4 position;\n' +
+'        if (a_Epoch1 > u_Epoch || a_Epoch2 <= u_Epoch) {\n' +
+'          position = vec4(-1,-1,-1,-1);\n' +
+'        } else {\n' +
+'          position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);\n' +
+'        }\n' +
+'        gl_Position = position;\n' +
+'        float delta = (u_Epoch - a_Epoch1)/(a_Epoch2 - a_Epoch1);\n' +
+'        float size = (a_Val2 - a_Val1) * delta + a_Val1;\n' +
+'        v_Val = size;\n' +
+'        gl_PointSize = abs(u_Size * size);\n' +
+'        v_color = a_color;\n' + 
+'      }\n';
+
+WebGLVectorTile2.bubbleMapWithPackedColorFragmentShader =
+'      #extension GL_OES_standard_derivatives : enable\n' +
+'      precision mediump float;\n' +
+'      varying float v_Val;\n' +
+'      varying float v_color;\n' +
+'      uniform vec4 u_Color;\n' +
+'      uniform float u_Mode;\n' +
+'  vec4 unpackColor(float f) {\n' +
+'      vec4 color;\n' +
+'      color.b = floor(f / 256.0 / 256.0);\n' +
+'      color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);\n' +
+'      color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);\n' +
+'      color.a = 255.;\n' + 
+'      return color / 256.0;\n' +
+'    }\n' +
+'      void main() {\n' +
+'          float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
+'          dist = 1. - (dist * 2.);\n' +
+'          dist = max(0., dist);\n' +
+'          float delta = fwidth(dist);\n' +
+'          float alpha = smoothstep(0.45-delta, 0.45, dist);\n' +
+'          if (u_Mode == 2.0) {\n' +
+'            if (gl_PointCoord.x > 0.5) {\n' +
+'              alpha = 0.0;\n' +
+'            }\n' +
+'          }\n' +
+'          if (u_Mode == 3.0) {\n' +
+'            if (gl_PointCoord.x < 0.5) {\n' +
+'              alpha = 0.0;\n' +
+'            }\n' +
+'          }\n' +
+'          vec4 circleColor = unpackColor(v_color);\n' +
 '          if (v_Val < 0.0) { circleColor[0] = 1.0; circleColor[1]=0.0; circleColor[2]=0.0; };\n' +
 '          vec4 outlineColor = vec4(1.0,1.0,1.0,1.0);\n' +
 '          float outerEdgeCenter = 0.5 - .01;\n' +
