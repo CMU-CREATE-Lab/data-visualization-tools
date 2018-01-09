@@ -307,6 +307,13 @@
     var spCrudeLayerWAF;
     setTimeLine('sp-crude-times', 2013, 2018, 1);
 
+    var spCrudeLayerNAF;
+    setTimeLine('sp-crude-times', 2013, 2018, 1);
+    var spCrudeLayerME;
+    setTimeLine('sp-crude-times', 2013, 2018, 1);
+    var spCrudeLayerUS;
+    setTimeLine('sp-crude-times', 2013, 2018, 1);
+
     var  shipsWorker = new Worker('ships-worker.js');
     shipsWorker.onmessage = function(e) {
       if (typeof e.data["idx"] != "undefined") {
@@ -335,6 +342,51 @@
         spCrudeLayerWAF.gl.bindBuffer(spCrudeLayerWAF.gl.ARRAY_BUFFER, spCrudeLayerWAF.buffers[idx].buffer);
         gl.bufferData(spCrudeLayerWAF.gl.ARRAY_BUFFER, data, spCrudeLayerWAF.gl.STATIC_DRAW);
         spCrudeLayerWAF.buffers[idx].ready = true;
+      }
+    };
+
+    var  shipsWorkerNAF = new Worker('ships-worker.js');
+    shipsWorkerNAF.onmessage = function(e) {
+      if (typeof e.data["idx"] != "undefined") {
+        var idx = e.data.idx;
+        var array = e.data["array"];
+        //spCrudeLayer.setBuffer(idx, new Float32Array(array));    
+        var data = new Float32Array(array);
+        spCrudeLayerNAF.buffers[idx].count = data.length / spCrudeLayerNAF.buffers[idx].numAttributes;
+        spCrudeLayerNAF.buffers[idx].buffer = spCrudeLayerNAF.gl.createBuffer(); 
+        spCrudeLayerNAF.gl.bindBuffer(spCrudeLayerNAF.gl.ARRAY_BUFFER, spCrudeLayerNAF.buffers[idx].buffer);
+        gl.bufferData(spCrudeLayerNAF.gl.ARRAY_BUFFER, data, spCrudeLayerNAF.gl.STATIC_DRAW);
+        spCrudeLayerNAF.buffers[idx].ready = true;
+      }
+    };
+
+    var  shipsWorkerME = new Worker('ships-worker.js');
+    shipsWorkerME.onmessage = function(e) {
+      if (typeof e.data["idx"] != "undefined") {
+        var idx = e.data.idx;
+        var array = e.data["array"];
+        //spCrudeLayer.setBuffer(idx, new Float32Array(array));    
+        var data = new Float32Array(array);
+        spCrudeLayerME.buffers[idx].count = data.length / spCrudeLayerME.buffers[idx].numAttributes;
+        spCrudeLayerME.buffers[idx].buffer = spCrudeLayerME.gl.createBuffer(); 
+        spCrudeLayerME.gl.bindBuffer(spCrudeLayerME.gl.ARRAY_BUFFER, spCrudeLayerME.buffers[idx].buffer);
+        gl.bufferData(spCrudeLayerME.gl.ARRAY_BUFFER, data, spCrudeLayerME.gl.STATIC_DRAW);
+        spCrudeLayerME.buffers[idx].ready = true;
+      }
+    };
+
+    var  shipsWorkerUS = new Worker('ships-worker.js');
+    shipsWorkerUS.onmessage = function(e) {
+      if (typeof e.data["idx"] != "undefined") {
+        var idx = e.data.idx;
+        var array = e.data["array"];
+        //spCrudeLayer.setBuffer(idx, new Float32Array(array));    
+        var data = new Float32Array(array);
+        spCrudeLayerUS.buffers[idx].count = data.length / spCrudeLayerUS.buffers[idx].numAttributes;
+        spCrudeLayerUS.buffers[idx].buffer = spCrudeLayerUS.gl.createBuffer(); 
+        spCrudeLayerUS.gl.bindBuffer(spCrudeLayerUS.gl.ARRAY_BUFFER, spCrudeLayerUS.buffers[idx].buffer);
+        gl.bufferData(spCrudeLayerUS.gl.ARRAY_BUFFER, data, spCrudeLayerUS.gl.STATIC_DRAW);
+        spCrudeLayerUS.buffers[idx].ready = true;
       }
     };
 
@@ -589,6 +641,9 @@
 
     var spCrudeUrl = rootTilePath + "/sp-crude/0-crude-flows.bin";
     var spCrudeUrlWAF = rootTilePath + "/sp-crude/0-crude-flows_WAF.bin"
+    var spCrudeUrlNAF = rootTilePath + "/sp-crude/0-crude-flows_NAF.bin"
+    var spCrudeUrlME = rootTilePath + "/sp-crude/0-crude-flows_ME.bin"
+    var spCrudeUrlUS = rootTilePath + "/sp-crude/0-crude-flows_US.bin"
 
 
     function init() {
@@ -2438,6 +2493,81 @@
         }
       }).prop('checked', showSpCrudeLayerWAF);
 
+      $("#show-sp-crude_NAF").on("click", function() {
+        if ($(this).prop('checked')) {
+          showSpCrudeLayerNAF = true;
+          setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
+          requestNewTimeline("sp-crude-times.json", timelineType);
+          timelapse.setMasterPlaybackRate(.005);
+          timelapse.setPlaybackRate(.00225);
+          $("#sp-crude-legend_NAF").show();
+          if (visibleBaseMapLayer != "dark") {
+            $("#dark-base").click();
+          }
+        } else {
+          showSpCrudeLayerNAF = false;
+          spCrudeLayerNAF.destroy();
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          setActiveLayersWithTimeline(-1);
+          doSwitchToLandsat();
+          if (!$("#show-sp-crude_NAF").prop('checked')) {
+            $("#sp-crude-legend_NAF").hide();
+          }
+        }
+      }).prop('checked', showSpCrudeLayerNAF);
+
+      $("#show-sp-crude_ME").on("click", function() {
+        if ($(this).prop('checked')) {
+          showSpCrudeLayerME = true;
+          setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
+          requestNewTimeline("sp-crude-times.json", timelineType);
+          timelapse.setMasterPlaybackRate(.005);
+          timelapse.setPlaybackRate(.00225);
+          $("#sp-crude-legend_ME").show();
+          if (visibleBaseMapLayer != "dark") {
+            $("#dark-base").click();
+          }
+        } else {
+          showSpCrudeLayerME = false;
+          spCrudeLayerME.destroy();
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          setActiveLayersWithTimeline(-1);
+          doSwitchToLandsat();
+          if (!$("#show-sp-crude_ME").prop('checked')) {
+            $("#sp-crude-legend_ME").hide();
+          }
+        }
+      }).prop('checked', showSpCrudeLayerME);
+
+      $("#show-sp-crude_US").on("click", function() {
+        if ($(this).prop('checked')) {
+          showSpCrudeLayerUS = true;
+          setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
+          requestNewTimeline("sp-crude-times.json", timelineType);
+          timelapse.setMasterPlaybackRate(.005);
+          timelapse.setPlaybackRate(.00225);
+          $("#sp-crude-legend_US").show();
+          if (visibleBaseMapLayer != "dark") {
+            $("#dark-base").click();
+          }
+        } else {
+          showSpCrudeLayerUS = false;
+          spCrudeLayerUS.destroy();
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          setActiveLayersWithTimeline(-1);
+          doSwitchToLandsat();
+          if (!$("#show-sp-crude_US").prop('checked')) {
+            $("#sp-crude-legend_US").hide();
+          }
+        }
+      }).prop('checked', showSpCrudeLayerUS);
+
       // Base layers
       $("input:radio[name=base-layers]").on("click", function() {
         visibleBaseMapLayer = $(this).val();
@@ -2949,6 +3079,9 @@
     var showTsipLayer = false;
     var showSpCrudeLayer = false;
     var showSpCrudeLayerWAF = false;
+    var showSpCrudeLayerNAF = false;
+    var showSpCrudeLayerME = false;
+    var showSpCrudeLayerUS = false;
 
     // Default Time Machine visibility
     var tileViewVisibility = {
@@ -3379,6 +3512,10 @@
       var show_sp_crude = '<td class="sp-crude-select"><label for="show-sp-crude" name="sp-crude"><input type="checkbox" id="show-sp-crude" />Crude Oil flows</label></td>';
       var show_sp_crude_WAF = '<td class="sp-crude-select_WAF"><label for="show-sp-crude_WAF" name="sp-crude_WAF"><input type="checkbox" id="show-sp-crude_WAF" />WAF Crude Oil flows</label></td>';
 
+      var show_sp_crude_NAF = '<td class="sp-crude-select_NAF"><label for="show-sp-crude_WAF" name="sp-crude_NAF"><input type="checkbox" id="show-sp-crude_NAF" />NAF Crude Oil flows</label></td>';
+      var show_sp_crude_ME = '<td class="sp-crude-select_ME"><label for="show-sp-crude_ME" name="sp-crude_ME"><input type="checkbox" id="show-sp-crude_ME" />ME Crude Oil flows</label></td>';
+      var show_sp_crude_US = '<td class="sp-crude-select_US"><label for="show-sp-crude_US" name="sp-crude_US"><input type="checkbox" id="show-sp-crude_US" />US Crude Oil flows</label></td>';
+
       if (enableLetterboxMode) {
         layer_html += '<div class="base-map-div">';
         layer_html += ' <table class="base-map-radio" cellspacing="3">';
@@ -3696,6 +3833,15 @@
           layer_html += '    </tr>';
           layer_html += '    <tr>';
           layer_html += show_sp_crude_WAF;
+          layer_html += '    </tr>';
+          layer_html += '    <tr>';
+          layer_html += show_sp_crude_NAF;
+          layer_html += '    </tr>';
+          layer_html += '    <tr>';
+          layer_html += show_sp_crude_ME;
+          layer_html += '    </tr>';
+          layer_html += '    <tr>';
+          layer_html += show_sp_crude_US;
           layer_html += '    </tr>';
         }
 
@@ -4077,6 +4223,10 @@
       legend_html += '<tr id="sp-crude-legend" style="display: none"><td><div style="font-size: 15px">Crude Oil Flows<span> (S&P Global)</div></td></tr>';
 
       legend_html += '<tr id="sp-crude-legend_WAF" style="display: none"><td><div style="font-size: 15px">WAF Crude Oil Flows<span> (S&P Global)</div></td></tr>';
+
+      legend_html += '<tr id="sp-crude-legend_NAF" style="display: none"><td><div style="font-size: 15px">NAF Crude Oil Flows<span> (S&P Global)</div></td></tr>';
+      legend_html += '<tr id="sp-crude-legend_ME" style="display: none"><td><div style="font-size: 15px">ME Crude Oil Flows<span> (S&P Global)</div></td></tr>';
+      legend_html += '<tr id="sp-crude-legend_US" style="display: none"><td><div style="font-size: 15px">US Crude Oil Flows<span> (S&P Global)</div></td></tr>';
 
       // ## 5b ##
       //// Add to layer legend ////
@@ -4815,6 +4965,42 @@
       };
       spCrudeLayerWAF = new WebglVectorLayer2(glb, canvasLayer, spCrudeUrlWAF, layerOptions);
       spCrudeLayerWAF.buffers = [];
+
+      var layerOptions = {
+        tileWidth: 256,
+        tileHeight: 256,
+        nLevels: 0,
+        drawFunction: WebGLVectorTile2.prototype._drawSpCrude,
+        fragmentShader: WebGLVectorTile2.spCrudeFragmentShader,
+        vertexShader: WebGLVectorTile2.spCrudeVertexShader,
+        numAttributes: 7
+      };
+      spCrudeLayerNAF = new WebglVectorLayer2(glb, canvasLayer, spCrudeUrlNAF, layerOptions);
+      spCrudeLayerNAF.buffers = [];
+
+      var layerOptions = {
+        tileWidth: 256,
+        tileHeight: 256,
+        nLevels: 0,
+        drawFunction: WebGLVectorTile2.prototype._drawSpCrude,
+        fragmentShader: WebGLVectorTile2.spCrudeFragmentShader,
+        vertexShader: WebGLVectorTile2.spCrudeVertexShader,
+        numAttributes: 7
+      };
+      spCrudeLayerME = new WebglVectorLayer2(glb, canvasLayer, spCrudeUrlME, layerOptions);
+      spCrudeLayerME.buffers = [];
+
+      var layerOptions = {
+        tileWidth: 256,
+        tileHeight: 256,
+        nLevels: 0,
+        drawFunction: WebGLVectorTile2.prototype._drawSpCrude,
+        fragmentShader: WebGLVectorTile2.spCrudeFragmentShader,
+        vertexShader: WebGLVectorTile2.spCrudeVertexShader,
+        numAttributes: 7
+      };
+      spCrudeLayerUS = new WebglVectorLayer2(glb, canvasLayer, spCrudeUrlUS, layerOptions);
+      spCrudeLayerUS.buffers = [];
 
       // Layer Toggle UI
       initLayerToggleUI();
@@ -6764,6 +6950,126 @@
             }
           }
         }
+
+        var crude_flows_index_NAF = [{'max_epoch': 1402557561.9763887, 'filename': '0-crude-flows_NAF.bin', 'min_epoch': 1350131820.0}, {'max_epoch': 1455292489.386771, 'filename': '1-crude-flows_NAF.bin', 'min_epoch': 1401966511.1666017}, {'max_epoch': 1507487079.960867, 'filename': '2-crude-flows_NAF.bin', 'min_epoch': 1454764526.9634578}, {'max_epoch': 1509555600.0, 'filename': '3-crude-flows_NAF.bin', 'min_epoch': 1506902637.9816375}];
+        function showIndexNAF(idx, epoch) {
+          return crude_flows_index_NAF[idx]['min_epoch'] < epoch && crude_flows_index_NAF[idx]['max_epoch'] > epoch;
+        }
+
+        if (showSpCrudeLayerNAF) {
+          var layer = spCrudeLayerNAF;
+          var view = getLayerView(layer, landsatBaseMapLayer);
+          var options = {};
+          options.zoom = timelapse.getCurrentZoom();
+          var currentTime = timelapse.getCurrentTime();
+          var currentTimes = getCurrentTimes(timelapse);
+          var dates = getDates(timelapse);
+          var delta = getCurrentTimesDelta(currentTime, currentTimes);
+          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
+          options.currentTime = currentDate;
+          options.pointSize = 2.;
+          options.color = [0.5,0.05,0.5,1.0];
+          var currentEpoch = currentDate/1000.;
+          for (var i = 0; i < crude_flows_index_NAF.length; i++) {
+            if (showIndexNAF(i, currentEpoch)) {
+              if (typeof spCrudeLayerNAF.buffers[i] == "undefined") {
+                spCrudeLayerNAF.buffers[i] = {
+                  "numAttributes": 7,
+                  "count": 0,
+                  "buffer": null,
+                  "ready": false
+                };
+
+                var dataUrl = rootTilePath + '/sp-crude/' + crude_flows_index_NAF[i]["filename"];
+                shipsWorkerNAF.postMessage({'idx': i, 'url': dataUrl});
+              }
+              options.idx = i;
+              options.buffers = spCrudeLayerNAF.buffers;
+              layer.draw(view, options);
+            }
+          }
+        }
+
+
+        var crude_flows_index_ME = [{'max_epoch': 1415424600.0, 'filename': '0-crude-flows_ME.bin', 'min_epoch': 1344196740.0}, {'max_epoch': 1400006506.1465456, 'filename': '1-crude-flows_ME.bin', 'min_epoch': 1365473760.0}, {'max_epoch': 1422349278.8764045, 'filename': '2-crude-flows_ME.bin', 'min_epoch': 1392063240.0}, {'max_epoch': 1442046780.0, 'filename': '3-crude-flows_ME.bin', 'min_epoch': 1415990828.6783042}, {'max_epoch': 1463993410.909091, 'filename': '4-crude-flows_ME.bin', 'min_epoch': 1425812640.0}, {'max_epoch': 1489005420.0, 'filename': '5-crude-flows_ME.bin', 'min_epoch': 1455601487.2727273}, {'max_epoch': 1503923820.0, 'filename': '6-crude-flows_ME.bin', 'min_epoch': 1475608320.0}, {'max_epoch': 1509998634.1951625, 'filename': '7-crude-flows_ME.bin', 'min_epoch': 1497173880.0}];
+        function showIndexME(idx, epoch) {
+          return crude_flows_index_ME[idx]['min_epoch'] < epoch && crude_flows_index_ME[idx]['max_epoch'] > epoch;
+        }
+
+        if (showSpCrudeLayerME) {
+          var layer = spCrudeLayerME;
+          var view = getLayerView(layer, landsatBaseMapLayer);
+          var options = {};
+          options.zoom = timelapse.getCurrentZoom();
+          var currentTime = timelapse.getCurrentTime();
+          var currentTimes = getCurrentTimes(timelapse);
+          var dates = getDates(timelapse);
+          var delta = getCurrentTimesDelta(currentTime, currentTimes);
+          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
+          options.currentTime = currentDate;
+          options.pointSize = 2.;
+          options.color = [0.5,0.05,0.5,1.0];
+          var currentEpoch = currentDate/1000.;
+          for (var i = 0; i < crude_flows_index_ME.length; i++) {
+            if (showIndexME(i, currentEpoch)) {
+              if (typeof spCrudeLayerME.buffers[i] == "undefined") {
+                spCrudeLayerME.buffers[i] = {
+                  "numAttributes": 7,
+                  "count": 0,
+                  "buffer": null,
+                  "ready": false
+                };
+
+                var dataUrl = rootTilePath + '/sp-crude/' + crude_flows_index_ME[i]["filename"];
+                shipsWorkerME.postMessage({'idx': i, 'url': dataUrl});
+              }
+              options.idx = i;
+              options.buffers = spCrudeLayerME.buffers;
+              layer.draw(view, options);
+            }
+          }
+        }
+
+        var crude_flows_index_US = [{'max_epoch': 1509999661.1631804, 'filename': '0-crude-flows_US.bin', 'min_epoch': 1452364440.0}];
+        function showIndexUS(idx, epoch) {
+          return crude_flows_index_US[idx]['min_epoch'] < epoch && crude_flows_index_US[idx]['max_epoch'] > epoch;
+        }
+
+        if (showSpCrudeLayerUS) {
+          var layer = spCrudeLayerUS;
+          var view = getLayerView(layer, landsatBaseMapLayer);
+          var options = {};
+          options.zoom = timelapse.getCurrentZoom();
+          var currentTime = timelapse.getCurrentTime();
+          var currentTimes = getCurrentTimes(timelapse);
+          var dates = getDates(timelapse);
+          var delta = getCurrentTimesDelta(currentTime, currentTimes);
+          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
+          options.currentTime = currentDate;
+          options.pointSize = 2.;
+          options.color = [0.5,0.05,0.5,1.0];
+          var currentEpoch = currentDate/1000.;
+          for (var i = 0; i < crude_flows_index_US.length; i++) {
+            if (showIndexUS(i, currentEpoch)) {
+              if (typeof spCrudeLayerUS.buffers[i] == "undefined") {
+                spCrudeLayerUS.buffers[i] = {
+                  "numAttributes": 7,
+                  "count": 0,
+                  "buffer": null,
+                  "ready": false
+                };
+
+                var dataUrl = rootTilePath + '/sp-crude/' + crude_flows_index_US[i]["filename"];
+                shipsWorkerUS.postMessage({'idx': i, 'url': dataUrl});
+              }
+              options.idx = i;
+              options.buffers = spCrudeLayerUS.buffers;
+              layer.draw(view, options);
+            }
+          }
+        }
+
+
 
       }
     }
