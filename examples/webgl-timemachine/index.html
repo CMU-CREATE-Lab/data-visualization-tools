@@ -312,7 +312,7 @@
     var spCrudeLayerME;
     setTimeLine('sp-crude-times', 2013, 2018, 1);
     var spCrudeLayerUS;
-    setTimeLine('sp-crude-times', 2013, 2018, 1);
+    setTimeLine('sp-crude-us-times', 2016, 2018, 1);
 
     var  shipsWorker = new Worker('ships-worker.js');
     shipsWorker.onmessage = function(e) {
@@ -2548,7 +2548,7 @@
           showSpCrudeLayerUS = true;
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
-          requestNewTimeline("sp-crude-times.json", timelineType);
+          requestNewTimeline("sp-crude-us-times.json", timelineType);
           timelapse.setMasterPlaybackRate(.005);
           timelapse.setPlaybackRate(.00225);
           $("#sp-crude-legend_US").show();
