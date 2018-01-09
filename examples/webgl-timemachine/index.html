@@ -6650,8 +6650,8 @@
                   "buffer": null,
                   "ready": false
                 };
-                var rootTilePath = "http://projects.local/sp-trade-flows/data/";
-                var dataUrl = rootTilePath + crude_flows_index[i]["filename"];
+
+                var dataUrl = rootTilePath + '/sp-crude/' + crude_flows_index[i]["filename"];
                 shipsWorker.postMessage({'idx': i, 'url': dataUrl});
               }
               options.idx = i;
