@@ -4220,13 +4220,13 @@
       var tsipLegend = new BubbleMapLegend({"id" : "tsip", "str": tsipStr});
       legend_html += '<tr id="expanding-cities-legend" style="display: none"><td>' +  tsipLegend.toString() + '</td></tr>';
 
-      legend_html += '<tr id="sp-crude-legend" style="display: none"><td><div style="font-size: 15px">Crude Oil Flows<span> (S&P Global)</div></td></tr>';
+      legend_html += '<tr id="sp-crude-legend" style="display: none"><td><div style="font-size: 15px">Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="220"><circle class="gain" r="10" cx="15" cy="10" style="fill: red; stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #666">Middle East</text><circle class="gain" r="10" cx="15" cy="35" style="fill: blue; stroke: #fff;"></circle><text x="30" y="40" style="font-size: 12px; fill: #666">North Africa</text><circle class="gain" r="10" cx="15" cy="60" style="fill: green; stroke: #fff;"></circle><text x="30" y="65" style="font-size: 12px; fill: #666">North Sea</text><circle class="gain" r="10" cx="15" cy="85" style="fill: yellow; stroke: #fff;"></circle><text x="30" y="90" style="font-size: 12px; fill: #666">Urals</text><circle class="gain" r="10" cx="15" cy="110" style="fill: purple; stroke: #fff;"></circle><text x="30" y="115" style="font-size: 12px; fill: #666">US Golf Coast</text><circle class="gain" r="10" cx="15" cy="135" style="fill: orange; stroke: #fff;"></circle><text x="30" y="140" style="font-size: 12px; fill: #666">West Africa</text></svg></td></tr>';
 
-      legend_html += '<tr id="sp-crude-legend_WAF" style="display: none"><td><div style="font-size: 15px">WAF Crude Oil Flows<span> (S&P Global)</div></td></tr>';
+      legend_html += '<tr id="sp-crude-legend_WAF" style="display: none"><td><div style="font-size: 15px">WAF Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: orange; stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #666">West Africa</text></svg></td></tr>';
 
-      legend_html += '<tr id="sp-crude-legend_NAF" style="display: none"><td><div style="font-size: 15px">NAF Crude Oil Flows<span> (S&P Global)</div></td></tr>';
-      legend_html += '<tr id="sp-crude-legend_ME" style="display: none"><td><div style="font-size: 15px">ME Crude Oil Flows<span> (S&P Global)</div></td></tr>';
-      legend_html += '<tr id="sp-crude-legend_US" style="display: none"><td><div style="font-size: 15px">US Crude Oil Flows<span> (S&P Global)</div></td></tr>';
+      legend_html += '<tr id="sp-crude-legend_NAF" style="display: none"><td><div style="font-size: 15px">NAF Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: blue; stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #666">North Africa</text></svg></td></tr>';
+      legend_html += '<tr id="sp-crude-legend_ME" style="display: none"><td><div style="font-size: 15px">ME Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: red; stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #666">Middle East</text></svg></td></tr>';
+      legend_html += '<tr id="sp-crude-legend_US" style="display: none"><td><div style="font-size: 15px">US Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: purple; stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #666">US Golf Coast</text></svg></td></tr>';
 
       // ## 5b ##
       //// Add to layer legend ////
