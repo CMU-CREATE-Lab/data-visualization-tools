@@ -304,6 +304,9 @@
     var spCrudeLayer;
     setTimeLine('sp-crude-times', 2013, 2018, 1);
 
+    var spCrudeLayerWAF;
+    setTimeLine('sp-crude-times', 2013, 2018, 1);
+
     var  shipsWorker = new Worker('ships-worker.js');
     shipsWorker.onmessage = function(e) {
       if (typeof e.data["idx"] != "undefined") {
@@ -319,6 +322,21 @@
       }
     };
 
+
+    var  shipsWorkerWAF = new Worker('ships-worker.js');
+    shipsWorkerWAF.onmessage = function(e) {
+      if (typeof e.data["idx"] != "undefined") {
+        var idx = e.data.idx;
+        var array = e.data["array"];
+        //spCrudeLayer.setBuffer(idx, new Float32Array(array));    
+        var data = new Float32Array(array);
+        spCrudeLayerWAF.buffers[idx].count = data.length / spCrudeLayerWAF.buffers[idx].numAttributes;
+        spCrudeLayerWAF.buffers[idx].buffer = spCrudeLayerWAF.gl.createBuffer(); 
+        spCrudeLayerWAF.gl.bindBuffer(spCrudeLayerWAF.gl.ARRAY_BUFFER, spCrudeLayerWAF.buffers[idx].buffer);
+        gl.bufferData(spCrudeLayerWAF.gl.ARRAY_BUFFER, data, spCrudeLayerWAF.gl.STATIC_DRAW);
+        spCrudeLayerWAF.buffers[idx].ready = true;
+      }
+    };
 
     // LODES interface
     var lodesGui;
@@ -569,7 +587,10 @@
 
     var tsipUrl = "/tsip/data/tsip.bin";
 
-    var spCrudeUrl = rootTilePath + "/sp-crude/0-crude-flows.bin"
+    var spCrudeUrl = rootTilePath + "/sp-crude/0-crude-flows.bin";
+    var spCrudeUrlWAF = rootTilePath + "/sp-crude/0-crude-flows_WAF.bin"
+
+
     function init() {
       var settings = {
         loopDwell: {
@@ -2390,7 +2411,32 @@
             $("#sp-crude-legend").hide();
           }
         }
-      }).prop('checked', showTsipLayer);
+      }).prop('checked', showSpCrudeLayer);
+
+      $("#show-sp-crude_WAF").on("click", function() {
+        if ($(this).prop('checked')) {
+          showSpCrudeLayerWAF = true;
+          setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
+          requestNewTimeline("sp-crude-times.json", timelineType);
+          timelapse.setMasterPlaybackRate(.005);
+          timelapse.setPlaybackRate(.00225);
+          $("#sp-crude-legend_WAF").show();
+          if (visibleBaseMapLayer != "dark") {
+            $("#dark-base").click();
+          }
+        } else {
+          showSpCrudeLayerWAF = false;
+          spCrudeLayerWAF.destroy();
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          setActiveLayersWithTimeline(-1);
+          doSwitchToLandsat();
+          if (!$("#show-sp-crude_WAF").prop('checked')) {
+            $("#sp-crude-legend_WAF").hide();
+          }
+        }
+      }).prop('checked', showSpCrudeLayerWAF);
 
       // Base layers
       $("input:radio[name=base-layers]").on("click", function() {
@@ -2902,6 +2948,7 @@
     var showCarbonPriceRiskLayer = false;
     var showTsipLayer = false;
     var showSpCrudeLayer = false;
+    var showSpCrudeLayerWAF = false;
 
     // Default Time Machine visibility
     var tileViewVisibility = {
@@ -3330,6 +3377,7 @@
       var show_tsip = '<td class="tsip-select"><label for="show-tsip" name="tsip"><input type="checkbox" id="show-tsip" />Toxic Sites</label></td>';
 
       var show_sp_crude = '<td class="sp-crude-select"><label for="show-sp-crude" name="sp-crude"><input type="checkbox" id="show-sp-crude" />Crude Oil flows</label></td>';
+      var show_sp_crude_WAF = '<td class="sp-crude-select_WAF"><label for="show-sp-crude_WAF" name="sp-crude_WAF"><input type="checkbox" id="show-sp-crude_WAF" />WAF Crude Oil flows</label></td>';
 
       if (enableLetterboxMode) {
         layer_html += '<div class="base-map-div">';
@@ -3645,6 +3693,9 @@
         if (showSpCrude) {
           layer_html += '    <tr>';
           layer_html += show_sp_crude;
+          layer_html += '    </tr>';
+          layer_html += '    <tr>';
+          layer_html += show_sp_crude_WAF;
           layer_html += '    </tr>';
         }
 
@@ -4024,6 +4075,8 @@
       legend_html += '<tr id="expanding-cities-legend" style="display: none"><td>' +  tsipLegend.toString() + '</td></tr>';
 
       legend_html += '<tr id="sp-crude-legend" style="display: none"><td><div style="font-size: 15px">Crude Oil Flows<span> (S&P Global)</div></td></tr>';
+
+      legend_html += '<tr id="sp-crude-legend_WAF" style="display: none"><td><div style="font-size: 15px">WAF Crude Oil Flows<span> (S&P Global)</div></td></tr>';
 
       // ## 5b ##
       //// Add to layer legend ////
@@ -4750,6 +4803,18 @@
       };
       spCrudeLayer = new WebglVectorLayer2(glb, canvasLayer, spCrudeUrl, layerOptions);
       spCrudeLayer.buffers = [];
+
+      var layerOptions = {
+        tileWidth: 256,
+        tileHeight: 256,
+        nLevels: 0,
+        drawFunction: WebGLVectorTile2.prototype._drawSpCrude,
+        fragmentShader: WebGLVectorTile2.spCrudeFragmentShader,
+        vertexShader: WebGLVectorTile2.spCrudeVertexShader,
+        numAttributes: 7
+      };
+      spCrudeLayerWAF = new WebglVectorLayer2(glb, canvasLayer, spCrudeUrlWAF, layerOptions);
+      spCrudeLayerWAF.buffers = [];
 
       // Layer Toggle UI
       initLayerToggleUI();
@@ -6660,6 +6725,46 @@
             }
           }
         }
+
+        var crude_flows_index_WAF = [{'max_epoch': 1369546545.6904259, 'filename': '0-crude-flows_WAF.bin', 'min_epoch': 1347827400.0}, {'max_epoch': 1384000997.8468745, 'filename': '1-crude-flows_WAF.bin', 'min_epoch': 1369093660.059511}, {'max_epoch': 1396544528.6240265, 'filename': '2-crude-flows_WAF.bin', 'min_epoch': 1383678100.2283463}, {'max_epoch': 1410039827.8139706, 'filename': '3-crude-flows_WAF.bin', 'min_epoch': 1396060055.4910874}, {'max_epoch': 1423672531.5875943, 'filename': '4-crude-flows_WAF.bin', 'min_epoch': 1409234220.2338972}, {'max_epoch': 1436901233.9274275, 'filename': '5-crude-flows_WAF.bin', 'min_epoch': 1423151910.5033143}, {'max_epoch': 1450586973.7042205, 'filename': '6-crude-flows_WAF.bin', 'min_epoch': 1436261673.157122}, {'max_epoch': 1463406015.2056491, 'filename': '7-crude-flows_WAF.bin', 'min_epoch': 1449455367.8838174}, {'max_epoch': 1478352738.4460068, 'filename': '8-crude-flows_WAF.bin', 'min_epoch': 1462474804.3018286}, {'max_epoch': 1491694036.1037672, 'filename': '9-crude-flows_WAF.bin', 'min_epoch': 1477808692.3018827}, {'max_epoch': 1504780096.800775, 'filename': '10-crude-flows_WAF.bin', 'min_epoch': 1490631133.5920255}, {'max_epoch': 1509999352.4567816, 'filename': '11-crude-flows_WAF.bin', 'min_epoch': 1504415956.08952}];
+        function showIndexWAF(idx, epoch) {
+          return crude_flows_index_WAF[idx]['min_epoch'] < epoch && crude_flows_index_WAF[idx]['max_epoch'] > epoch;
+        }
+
+        if (showSpCrudeLayerWAF) {
+          var layer = spCrudeLayerWAF;
+          var view = getLayerView(layer, landsatBaseMapLayer);
+          var options = {};
+          options.zoom = timelapse.getCurrentZoom();
+          var currentTime = timelapse.getCurrentTime();
+          var currentTimes = getCurrentTimes(timelapse);
+          var dates = getDates(timelapse);
+          var delta = getCurrentTimesDelta(currentTime, currentTimes);
+          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
+          options.currentTime = currentDate;
+          options.pointSize = 2.;
+          options.color = [0.5,0.05,0.5,1.0];
+          var currentEpoch = currentDate/1000.;
+          for (var i = 0; i < crude_flows_index_WAF.length; i++) {
+            if (showIndexWAF(i, currentEpoch)) {
+              if (typeof spCrudeLayerWAF.buffers[i] == "undefined") {
+                spCrudeLayerWAF.buffers[i] = {
+                  "numAttributes": 7,
+                  "count": 0,
+                  "buffer": null,
+                  "ready": false
+                };
+
+                var dataUrl = rootTilePath + '/sp-crude/' + crude_flows_index_WAF[i]["filename"];
+                shipsWorkerWAF.postMessage({'idx': i, 'url': dataUrl});
+              }
+              options.idx = i;
+              options.buffers = spCrudeLayerWAF.buffers;
+              layer.draw(view, options);
+            }
+          }
+        }
+
       }
     }
   </script>
