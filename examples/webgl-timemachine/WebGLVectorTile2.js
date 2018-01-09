@@ -2495,40 +2495,14 @@ WebGLVectorTile2.prototype._drawPointColorStartEpochEndEpoch = function(transfor
   }
 }
 
-        var crude_flows_index = [
-          {'filename': '0-crude-flows.bin', 'max_epoch': 1362803764.439162, 'min_epoch': 1344196740.0},
-          {'filename': '1-crude-flows.bin', 'max_epoch': 1368630850.6254642, 'min_epoch': 1356352440.0},
-          {'filename': '2-crude-flows.bin', 'max_epoch': 1375477977.755611, 'min_epoch': 1363526454.6067417},
-          {'filename': '3-crude-flows.bin', 'max_epoch': 1382008440.0, 'min_epoch': 1365473760.0},
-          {'filename': '4-crude-flows.bin', 'max_epoch': 1392493649.7164462, 'min_epoch': 1371392040.0},
-          {'filename': '5-crude-flows.bin', 'max_epoch': 1393598774.858223, 'min_epoch': 1382677171.011236},
-          {'filename': '6-crude-flows.bin', 'max_epoch': 1399832731.587473, 'min_epoch': 1385223928.5822306},
-          {'filename': '7-crude-flows.bin', 'max_epoch': 1406034129.6090713, 'min_epoch': 1392063240.0},
-          {'filename': '8-crude-flows.bin', 'max_epoch': 1413160440.0, 'min_epoch': 1400939343.3707864},
-          {'filename': '9-crude-flows.bin', 'max_epoch': 1418089195.8662152, 'min_epoch': 1404994380.0},
-          {'filename': '10-crude-flows.bin', 'max_epoch': 1424125799.774436, 'min_epoch': 1413165780.0},
-          {'filename': '11-crude-flows.bin', 'max_epoch': 1442046780.0, 'min_epoch': 1417092012.1348314},
-          {'filename': '12-crude-flows.bin', 'max_epoch': 1437058019.1022444, 'min_epoch': 1421189963.6363637},
-          {'filename': '13-crude-flows.bin', 'max_epoch': 1443465644.3032672, 'min_epoch': 1425812640.0},
-          {'filename': '14-crude-flows.bin', 'max_epoch': 1448988823.6228287, 'min_epoch': 1436904887.2727273},
-          {'filename': '15-crude-flows.bin', 'max_epoch': 1455260843.3774915, 'min_epoch': 1445261237.9165041},
-          {'filename': '16-crude-flows.bin', 'max_epoch': 1463993410.909091, 'min_epoch': 1450881160.140802},
-          {'filename': '17-crude-flows.bin', 'max_epoch': 1467755612.9371564, 'min_epoch': 1457289194.0186915},
-          {'filename': '18-crude-flows.bin', 'max_epoch': 1474374616.3636363, 'min_epoch': 1463748721.8181818},
-          {'filename': '19-crude-flows.bin', 'max_epoch': 1481250173.6283185, 'min_epoch': 1469280227.0160873},
-          {'filename': '20-crude-flows.bin', 'max_epoch': 1487025440.549273, 'min_epoch': 1474853520.0},
-          {'filename': '21-crude-flows.bin', 'max_epoch': 1492642858.041543, 'min_epoch': 1483774740.0},
-          {'filename': '22-crude-flows.bin', 'max_epoch': 1503923820.0, 'min_epoch': 1482323820.0},
-          {'filename': '23-crude-flows.bin', 'max_epoch': 1508006340.0, 'min_epoch': 1492941696.4485981},
-          {'filename': '24-crude-flows.bin', 'max_epoch': 1509999715.9048486, 'min_epoch': 1497947778.504673}
-         ];
-        function showIndex(idx, epoch) {
-          return crude_flows_index[idx]['min_epoch'] < epoch && crude_flows_index[idx]['max_epoch'] > epoch;
-        }
 
 WebGLVectorTile2.prototype._drawSpCrude = function(transform, options) {
   var gl = this.gl;
-  if (this._ready) {
+    var buffers = options.buffers;
+    var idx  = options.idx;
+    var buffer = buffers[idx];
+
+  if (buffer && buffer.ready) {
     gl.useProgram(this.program);
     gl.enable(gl.BLEND);
     gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
@@ -2542,24 +2516,12 @@ WebGLVectorTile2.prototype._drawSpCrude = function(transform, options) {
     scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
     scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-    pointSize *= Math.floor((zoom + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+    pointSize *= Math.floor((zoom + 1.0) / (23.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
     // Passing a NaN value to the shader with a large number of points is very bad
     if (isNaN(pointSize)) {
       pointSize = 1.0;
     }
 
-    var currentEpoch = currentTime/1000.;
-    for (var i = 0; i < crude_flows_index.length; i++) {
-      if (showIndex(i, currentEpoch)) {
-        console.log(i);
-        //if (typeof shipsGl.buffers[i] == "undefined") {
-          //shipsGl.buffers[i] = new Buffer(7);
-          //var dataUrl = "../data/" + crude_flows_index[i]["filename"];
-          //shipsWorker.postMessage({'idx': i, 'url': dataUrl});
-        //}
-        //shipsGl.draw(i, mapMatrix, {'epoch': currentTime/1000., 'pointSize': pointSize});
-      }
-    }
 
     var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
     gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
@@ -2570,31 +2532,31 @@ WebGLVectorTile2.prototype._drawSpCrude = function(transform, options) {
     var uniformLoc = gl.getUniformLocation(this.program, 'u_size');
     gl.uniform1f(uniformLoc, pointSize);
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer.buffer);
     var attributeLoc = gl.getAttribLocation(this.program, 'a_coord_0');
     gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this._numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, buffer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
 
     var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch_0');
     gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._numAttributes * 4, 8);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, buffer.numAttributes * 4, 8);
 
     var attributeLoc = gl.getAttribLocation(this.program, 'a_coord_1');
     gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this._numAttributes * 4, 12); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, buffer.numAttributes * 4, 12); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
 
     var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch_1');
     gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._numAttributes * 4, 20);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, buffer.numAttributes * 4, 20);
 
     var attributeLoc = gl.getAttribLocation(this.program, 'a_color');
     gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._numAttributes * 4, 24);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, buffer.numAttributes * 4, 24);
 
 
-    gl.drawArrays(gl.POINTS, 0, this._pointCount);
+    gl.drawArrays(gl.POINTS, 0, buffer.count);
 
-    perf_draw_points(this._pointCount);
+    //perf_draw_points(this._pointCount);
     gl.disable(gl.BLEND);
   }
 }
@@ -3819,7 +3781,7 @@ WebGLVectorTile2.spCrudeVertexShader =
 '          position = u_map_matrix * ((a_coord_1 - a_coord_0) * t + a_coord_0);\n' + 
 '    }\n' + 
 '    gl_Position = position;\n' +
-'    gl_PointSize = u_size;\n' +
+'    gl_PointSize = u_size*3.;\n' +
 '    v_color = a_color;\n' + 
 '}\n';
 
