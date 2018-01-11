@@ -637,7 +637,7 @@
 
     var carbonPriceRiskUrl = 'https://data.cmucreatelab.org/msc/carbon-price-risk.csv';
 
-    var tsipUrl = "/tsip/data/tsip.bin";
+    var tsipUrl = rootTilePath + "/tsip/tsip.bin";
 
     var spCrudeUrl = rootTilePath + "/sp-crude/0-crude-flows.bin";
     var spCrudeUrlWAF = rootTilePath + "/sp-crude/0-crude-flows_WAF.bin"
@@ -2427,7 +2427,7 @@
           showTsipLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
-          requestNewTimeline("tsip-times.json", timelineType);
+          //requestNewTimeline("tsip-times.json", timelineType);
           $("#tsip-legend").show();
           if (visibleBaseMapLayer != "dark") {
             $("#dark-base").click();
@@ -4216,7 +4216,7 @@
       legend_html += '<tr id="carbon-price-risk-legend" style="display: none"><td>' + carbonPriceRisk.getLegend().str + '</td></tr>';
 
 
-      var tsipStr = '<div style="font-size: 15px">Toxic Sites Identification Program<span class="credit"> (PlanetEarth)</span></div><svg class="svg-legend" width="240" height="65"><circle class="gain" r="10" cx="15" cy="10" style="fill: brown; stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #666">Sites (Blacksmith Index)</text><circle r="10.0" cx="120.0" cy="50" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle><text text-anchor="middle" x="120.0" y="45" dy="10" style="font-size: 10px; fill: #666">5</text><circle r="20.0" cx="120.0" cy="40" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle><text text-anchor="middle" x="120.0" y="25" dy="10" style="font-size: 10px; fill: #666">10</text></svg>';
+      var tsipStr = '<div style="font-size: 15px">Toxic Sites Identification Program<span class="credit"> (PlanetEarth)</span></div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: brown; stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #666">Sites (size relative to Blacksmith Index)</text><!--<circle r="10.0" cx="120.0" cy="50" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle><text text-anchor="middle" x="120.0" y="45" dy="10" style="font-size: 10px; fill: #666">5</text><circle r="20.0" cx="120.0" cy="40" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle><text text-anchor="middle" x="120.0" y="25" dy="10" style="font-size: 10px; fill: #666">10</text>--></svg>';
       var tsipLegend = new BubbleMapLegend({"id" : "tsip", "str": tsipStr});
       legend_html += '<tr id="expanding-cities-legend" style="display: none"><td>' +  tsipLegend.toString() + '</td></tr>';
 
@@ -4938,7 +4938,7 @@
         drawFunction: WebGLVectorTile2.prototype._drawTsip,
         fragmentShader: WebGLVectorTile2.tsipFragmentShader,
         vertexShader: WebGLVectorTile2.tsipVertexShader,
-        numAttributes: 4
+        numAttributes: 5
       };
       tsipLayer = new WebglVectorLayer2(glb, canvasLayer, tsipUrl, layerOptions);
 

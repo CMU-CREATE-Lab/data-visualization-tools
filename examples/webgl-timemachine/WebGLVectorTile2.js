@@ -2297,18 +2297,25 @@ WebGLVectorTile2.prototype._drawTsip = function(transform, options) {
 
     var attributeLoc = gl.getAttribLocation(this.program, 'a_coord');
     gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 16, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 20, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+
+    var timeLocation = gl.getAttribLocation(this.program, "a_color");
+    gl.enableVertexAttribArray(timeLocation);
+    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 20, 8); // 8 byte offset
 
     var timeLocation = gl.getAttribLocation(this.program, "a_epoch");
     gl.enableVertexAttribArray(timeLocation);
-    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 16, 8); // 8 byte offset
+    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 20, 12); // 8 byte offset
 
     var timeLocation = gl.getAttribLocation(this.program, "a_val");
     gl.enableVertexAttribArray(timeLocation);
-    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 16, 12); // 8 byte offset
+    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 20, 16); // 8 byte offset
 
     var sliderTime = gl.getUniformLocation(this.program, 'u_epoch');
     gl.uniform1f(sliderTime, currentTime);
+
+    var sliderTime = gl.getUniformLocation(this.program, 'u_size');
+    gl.uniform1f(sliderTime, pointSize);
 
     gl.drawArrays(gl.POINTS, 0, this._pointCount);
     perf_draw_points(this._pointCount);
@@ -3585,29 +3592,43 @@ WebGLVectorTile2.timeSeriesPointDataFragmentShader =
 
 WebGLVectorTile2.tsipVertexShader =
   'attribute vec2 a_coord;\n' +
+  'attribute float a_color;\n' +
   'attribute float a_epoch;\n' +
   'attribute float a_val;\n' +
   'uniform mat4 u_map_matrix;\n' +
   'uniform float u_epoch;\n' +
+  'uniform float u_size;\n' +
+  'varying float v_color;\n' +
   'void main() {\n' +
   '    vec4 position;\n' +
   '    if (a_epoch > u_epoch) {\n' +
-  '        position = vec4(-1,-1,-1,-1);\n' +
+  '        //position = vec4(-1,-1,-1,-1);\n' +
+  '        position = u_map_matrix * vec4(a_coord, 0, 1);\n' +
   '    } else {\n' +
   '        position = u_map_matrix * vec4(a_coord, 0, 1);\n' +
   '    }\n' +
   '    gl_Position = position;\n' +
-  '    gl_PointSize = 10.0 * a_val;\n' +
+  '    gl_PointSize = u_size * a_val;\n' +
+  '    v_color = a_color;\n' +
   '}\n';
 
 WebGLVectorTile2.tsipFragmentShader =
 '#extension GL_OES_standard_derivatives : enable\n' +
 'precision mediump float;\n' +
+'varying float v_color;\n' + 
+'  vec4 unpackColor(float f) {\n' +
+'      vec4 color;\n' +
+'      color.b = floor(f / 256.0 / 256.0);\n' +
+'      color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);\n' +
+'      color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);\n' +
+'      color.a = 255.;\n' + 
+'      return color / 255.0;\n' +
+'    }\n' +
 'void main() {\n' +
 '  float dist = length(gl_PointCoord.xy - vec2(0.5, 0.5));\n' +
 '  dist = 1.0 - (dist * 2.);\n' +
 '  dist = max(0.0, dist);\n' +
-'  gl_FragColor = vec4(153./256., 101./256., 21./256., 1.) * dist;\n' +
+'  gl_FragColor =  unpackColor(v_color) * dist;\n' +
 '}';
 
 WebGLVectorTile2.pointFlowVertexShader =
