@@ -166,6 +166,12 @@ delete = function() {
     }).catch(function (error) {
       console.log(error);
     });
+  } else {
+    if (!this._video.paused) {
+      this._video.pause();
+    }
+    this._video.src = '';
+    this._video = null;
   }
   WebglVideoTile._frameOffsetUsed[this._frameOffsetIndex] = false;
   this._frameOffsetIndex = null;
