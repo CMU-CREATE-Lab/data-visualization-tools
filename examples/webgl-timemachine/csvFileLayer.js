@@ -1,6 +1,7 @@
 var CsvFileLayer = function CsvFileLayer() {
   this.layers = [];
   this.dataLoadedListeners = [];
+  this.layersLoadedListeners = [];
   this.layersData = {};
 
   this.formatValue = function(value) {
@@ -211,6 +212,23 @@ CsvFileLayer.prototype.removeDataLoadedListener = function removeDataLoadedListe
 };
 
 
+CsvFileLayer.prototype.addLayersLoadedListener = function addLayersLoadedListener(listener) {
+  if (typeof(listener) === "function") {
+    this.layersLoadedListeners.push(listener);
+  }
+};
+
+
+CsvFileLayer.prototype.removeLayersLoadedListener = function removeLayersLoadedListener(listener) {
+  for (var i = 0; i < this.layersLoadedListeners.length; i++) {
+    if (this.layersLoadedListeners[i] == listener) {
+      this.layersLoadedListeners.splice(i, 1);
+      break;
+    }
+  }
+};
+
+
 CsvFileLayer.prototype.dataLoadedFromCsv = function dataLoadedFromCsv(layerId) {
   for (var i = 0; i < this.dataLoadedListeners.length; i++) {
     this.dataLoadedListeners[i](layerId);
@@ -279,6 +297,7 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
         name: layer["Name"],
         credit: layer["Credits"],
         category: layer["Category"],
+        showGraph: layer["Show Graph"],
         scalingFunction: scalingFunction,
         mapType: mapType,
         color: optionalColor,
@@ -302,10 +321,10 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
         layer["End date"], // end date
         layer["Step"]); // step size
     }
-
   }
-  // New layers have been added, so refresh the layer panel
-  $(".map-layer-div").accordion("refresh");
+  for (var i = 0; i < this.layersLoadedListeners.length; i++) {
+    this.layersLoadedListeners[i]();
+  }
 };
 
 CsvFileLayer.prototype.loadLayers = function loadLayers(path) {

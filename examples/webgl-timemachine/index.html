@@ -73,6 +73,11 @@
     jQuery.support.cors = true;
     var UTIL = org.gigapan.Util;
 
+    var isMobileDevice = UTIL.isMobileDevice();
+    var isBrowserSupported = UTIL.browserSupported();
+    var isIE = UTIL.isIE();
+    var isIEButNotEdge = isIE && !UTIL.isIEEdge();
+
     //
     //// Config ////
     //
@@ -178,7 +183,7 @@
     var showShareButtonHash = window.location.hash.split("showShareButton=")[1];
     if (showShareButtonHash)
       showShareButton = showShareButtonHash === "true";
-    var showSettingsButton = typeof(EARTH_TIMELAPSE_CONFIG.showSettingsButton) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showSettingsButton;
+    var showSettingsButton = isMobileDevice ? false : (typeof(EARTH_TIMELAPSE_CONFIG.showSettingsButton) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showSettingsButton);
     var isHyperwall = !!EARTH_TIMELAPSE_CONFIG.isHyperwall;
     var useGoogleMaps = !!EARTH_TIMELAPSE_CONFIG.useGoogleMaps;
     var useGoogleSearch = (typeof(EARTH_TIMELAPSE_CONFIG.useGoogleSearch) == "undefined") ? true : !!EARTH_TIMELAPSE_CONFIG.useGoogleSearch;
@@ -196,8 +201,6 @@
     var enableRecordingMode = !!EARTH_TIMELAPSE_CONFIG.enableRecordingMode;
     var trackingId = EARTH_TIMELAPSE_CONFIG.trackingId || "UA-10682694-21";
     var rootTilePath = (typeof(EARTH_TIMELAPSE_CONFIG.rootTilePath) == "undefined") ? "../../../data/" : EARTH_TIMELAPSE_CONFIG.rootTilePath;
-    var isMobileDevice = UTIL.isMobileDevice();
-    var isBrowserSupported = UTIL.browserSupported();
 
     // TODO: Until we decide to force everyone to latest landsat, pull the version corresponding to the config above.
     if (landsatVersion == "2015"){
@@ -206,7 +209,7 @@
     } else {
       var cachedLandsatTimeJsonPath = "landsat-times-2016.json";
       var landsatAjaxIncludesPath = "landsat_ajax_includes_2016.js";
-      if (isMobileDevice) {
+      if (isMobileDevice || isIEButNotEdge) {
         landsatAjaxIncludesPath = "https://earthengine.google.com/timelapse/data/20161025/ajax_includes.js";
       }
     }
@@ -214,14 +217,16 @@
     // TODO:
     // We start crashing phones with a ratio > 1 and in general retina is
     // quite taxing for our videos and layers, so force it pixelRatio to 1.
-    window.devicePixelRatio = 1;
+    if (!isIE) {
+      window.devicePixelRatio = 1;
+    }
 
     var NORTH = 85.05113006405742; // Latitude for Northern most extent
     var landsatMaxScale = (landsatVersion == "2015") ? 1.25 : 0.45;
     landsatMaxScale -= (window.devicePixelRatio > 1) * 0.21;
     var himawariMaxScale = 0.02;
     var isAutoModeRunning = false;
-    var visibleBaseMapLayer = UTIL.isIE() ? "dark" : "landsat";
+    var visibleBaseMapLayer = "landsat";
     var previousVisibleBaseMapLayer = "landsat";
     WebglVideoTile.useFaderShader = useFaderShader;
     var timelapse, snaplapseViewerForPresentationSlider, previousWaypoint = {}, waypointViewChangeListener, hideWaypointListener, waypointTimeChangeListener, snaplapseForPresentationSlider;
@@ -236,7 +241,12 @@
     var keysDown = [];
     var $lastSelectedExtra;
     var loadedInitialWaypointList = false;
+    var loadedInitialCsvLayers = false;
     var timeInMsSinceLastWaypointLoop = 0;
+    var $nextAnnotationLocationButton;
+    var $previousAnnotationLocationButton;
+    var timelapseWasPlaying = false;
+    var lastLayerMenuScrollPos = 0;
 
     // This is necessary because waypoint thumbnails are generated from the Landsat set and thus the best we can show is just a solid black thumbnail
     // instead of some random location that a himawari bounds corresponds to in Landsat.
@@ -301,6 +311,8 @@
     setTimeLine('carbon-price-risk-times', 2017, 2050, 1);
     var tsipLayer;
     setTimeLine('carbon-price-risk-times', 2000, 2017, 1);
+
+    // S&P Shipping
     var spCrudeLayer;
     setTimeLine('sp-crude-times', 2013, 2018, 1);
 
@@ -319,71 +331,70 @@
       if (typeof e.data["idx"] != "undefined") {
         var idx = e.data.idx;
         var array = e.data["array"];
-        //spCrudeLayer.setBuffer(idx, new Float32Array(array));    
+        //spCrudeLayer.setBuffer(idx, new Float32Array(array));
         var data = new Float32Array(array);
         spCrudeLayer.buffers[idx].count = data.length / spCrudeLayer.buffers[idx].numAttributes;
-        spCrudeLayer.buffers[idx].buffer = spCrudeLayer.gl.createBuffer(); 
+        spCrudeLayer.buffers[idx].buffer = spCrudeLayer.gl.createBuffer();
         spCrudeLayer.gl.bindBuffer(spCrudeLayer.gl.ARRAY_BUFFER, spCrudeLayer.buffers[idx].buffer);
         gl.bufferData(spCrudeLayer.gl.ARRAY_BUFFER, data, spCrudeLayer.gl.STATIC_DRAW);
         spCrudeLayer.buffers[idx].ready = true;
       }
     };
 
-
-    var  shipsWorkerWAF = new Worker('ships-worker.js');
+    var shipsWorkerWAF = new Worker('ships-worker.js');
     shipsWorkerWAF.onmessage = function(e) {
       if (typeof e.data["idx"] != "undefined") {
         var idx = e.data.idx;
         var array = e.data["array"];
-        //spCrudeLayer.setBuffer(idx, new Float32Array(array));    
+        //spCrudeLayer.setBuffer(idx, new Float32Array(array));
         var data = new Float32Array(array);
         spCrudeLayerWAF.buffers[idx].count = data.length / spCrudeLayerWAF.buffers[idx].numAttributes;
-        spCrudeLayerWAF.buffers[idx].buffer = spCrudeLayerWAF.gl.createBuffer(); 
+        spCrudeLayerWAF.buffers[idx].buffer = spCrudeLayerWAF.gl.createBuffer();
         spCrudeLayerWAF.gl.bindBuffer(spCrudeLayerWAF.gl.ARRAY_BUFFER, spCrudeLayerWAF.buffers[idx].buffer);
         gl.bufferData(spCrudeLayerWAF.gl.ARRAY_BUFFER, data, spCrudeLayerWAF.gl.STATIC_DRAW);
         spCrudeLayerWAF.buffers[idx].ready = true;
       }
     };
 
-    var  shipsWorkerNAF = new Worker('ships-worker.js');
+    var shipsWorkerNAF = new Worker('ships-worker.js');
     shipsWorkerNAF.onmessage = function(e) {
       if (typeof e.data["idx"] != "undefined") {
         var idx = e.data.idx;
         var array = e.data["array"];
-        //spCrudeLayer.setBuffer(idx, new Float32Array(array));    
+        //spCrudeLayer.setBuffer(idx, new Float32Array(array));
         var data = new Float32Array(array);
         spCrudeLayerNAF.buffers[idx].count = data.length / spCrudeLayerNAF.buffers[idx].numAttributes;
-        spCrudeLayerNAF.buffers[idx].buffer = spCrudeLayerNAF.gl.createBuffer(); 
+        spCrudeLayerNAF.buffers[idx].buffer = spCrudeLayerNAF.gl.createBuffer();
         spCrudeLayerNAF.gl.bindBuffer(spCrudeLayerNAF.gl.ARRAY_BUFFER, spCrudeLayerNAF.buffers[idx].buffer);
         gl.bufferData(spCrudeLayerNAF.gl.ARRAY_BUFFER, data, spCrudeLayerNAF.gl.STATIC_DRAW);
         spCrudeLayerNAF.buffers[idx].ready = true;
       }
     };
 
-    var  shipsWorkerME = new Worker('ships-worker.js');
+    var shipsWorkerME = new Worker('ships-worker.js');
     shipsWorkerME.onmessage = function(e) {
       if (typeof e.data["idx"] != "undefined") {
         var idx = e.data.idx;
         var array = e.data["array"];
-        //spCrudeLayer.setBuffer(idx, new Float32Array(array));    
+        //spCrudeLayer.setBuffer(idx, new Float32Array(array));
         var data = new Float32Array(array);
         spCrudeLayerME.buffers[idx].count = data.length / spCrudeLayerME.buffers[idx].numAttributes;
-        spCrudeLayerME.buffers[idx].buffer = spCrudeLayerME.gl.createBuffer(); 
+        spCrudeLayerME.buffers[idx].buffer = spCrudeLayerME.gl.createBuffer();
         spCrudeLayerME.gl.bindBuffer(spCrudeLayerME.gl.ARRAY_BUFFER, spCrudeLayerME.buffers[idx].buffer);
         gl.bufferData(spCrudeLayerME.gl.ARRAY_BUFFER, data, spCrudeLayerME.gl.STATIC_DRAW);
         spCrudeLayerME.buffers[idx].ready = true;
       }
     };
 
-    var  shipsWorkerUS = new Worker('ships-worker.js');
+    var shipsWorkerUS = new Worker('ships-worker.js');
     shipsWorkerUS.onmessage = function(e) {
       if (typeof e.data["idx"] != "undefined") {
         var idx = e.data.idx;
         var array = e.data["array"];
-        //spCrudeLayer.setBuffer(idx, new Float32Array(array));    
+        //spCrudeLayer.setBuffer(idx, new Float32Array(array));
         var data = new Float32Array(array);
         spCrudeLayerUS.buffers[idx].count = data.length / spCrudeLayerUS.buffers[idx].numAttributes;
-        spCrudeLayerUS.buffers[idx].buffer = spCrudeLayerUS.gl.createBuffer(); 
+        spCrudeLayerUS.buffers[idx].buffer = spCrudeLayerUS.gl.createBuffer();
         spCrudeLayerUS.gl.bindBuffer(spCrudeLayerUS.gl.ARRAY_BUFFER, spCrudeLayerUS.buffers[idx].buffer);
         gl.bufferData(spCrudeLayerUS.gl.ARRAY_BUFFER, data, spCrudeLayerUS.gl.STATIC_DRAW);
         spCrudeLayerUS.buffers[idx].ready = true;
@@ -399,7 +410,7 @@
       this.totalTime = 1000;
       this.dwellTime = 1000;
       this.filter = true;
-      this.distance = 50.;
+      this.distance = 50.0;
       this.animate = 'animate';
       this.speed = 1;
       this.se01 = true;
@@ -413,7 +424,7 @@
       inStartDwell: true,
       inEndDwell: false,
       pulse: false
-    }
+    };
 
     function getLayerInfo(layer) {
       var readyTileCount = 0;
@@ -451,7 +462,7 @@
         'pointCount': pointCount,
         'zoomLevel': zoomLevel,
         'mapLevel': mapLevel
-      }
+      };
     }
 
     function initLodesGui() {
@@ -484,7 +495,7 @@
               el2.style['display'] = 'block';
               el3.style['display'] = 'block';
           }
-      }
+      };
       gui.onResize = function() {
           if (gui.closed) {
               var el1 = document.getElementById("se01-color");
@@ -496,7 +507,7 @@
               el3.style['display'] = 'none';
 
           }
-      }
+      };
       var dg = document.getElementsByClassName("dg ac")[0];
       var el = document.createElement("div");
       el["id"] = "se01-color";
@@ -538,7 +549,7 @@
     //
 
     var landsatUrl = (landsatVersion == "2015") ? rootTilePath + "/earthtime-annual-2015-v2/1068x600" : rootTilePath + "/earthtime-annual-2016-v14/1068x600";
-    if (isMobileDevice) {
+    if (isMobileDevice || isIEButNotEdge) {
       landsatUrl = "https://earthengine.google.com/timelapse/data/20161025/";
     } else if (EARTH_TIMELAPSE_CONFIG.landsatUrl) {
       landsatUrl = EARTH_TIMELAPSE_CONFIG.landsatUrl;
@@ -552,6 +563,8 @@
     var osmDefaultUrl = rootTilePath + "/openstreetmap/default/";
     var osmLightRetinaUrl = rootTilePath + "/openstreetmap/light_all_retina/{default}/{z}/{x}/{y}.png";
     var osmDarkRetinaUrl = rootTilePath + "/openstreetmap/dark_all_retina/{default}/{z}/{x}/{y}.png";
+    var omtDarkUrl = "https://tiles.earthtime.org/openmaptiles/dark/{z}/{x}/{y}.png";
+    var omtLightUrl = "https://tiles.earthtime.org/openmaptiles/light/{z}/{x}/{y}.png";
     var gfcTransUrl = rootTilePath + "/global-forest-change/loss_year_transparent/{default}/{z}/{x}/{y}.png";
     var gfcLossGainUrl = rootTilePath + "/global-forest-change/loss_tree_gain/{default}/{z}/{x}/{y}.png";
     //var googleMapsDefaultUrl = "https://mts0.googleapis.com/vt?pb=!1m5!1m4!1i{z}!2i{x}!3i{y}!4i256!2m3!1e0!2sm!3i323305239!3m9!2sen-US!3sUS!5e18!12m1!1e47!12m3!1e37!2m1!1ssmartmaps!4e0";
@@ -653,7 +666,7 @@
           endDwell: 1.5
         },
         playbackSpeed: defaultPlaybackSpeed,
-        viewerType: isMobileDevice ? undefined : "webgl",
+        viewerType: isMobileDevice || isIEButNotEdge ? undefined : "webgl",
         url: landsatUrl,
         apiKeys: googleMapsAPIKey ? {'googleMaps': googleMapsAPIKey} : undefined,
         enablePresentationSlider: !disablePresentationSlider,
@@ -673,22 +686,13 @@
           waypointDelayTime: waypointDelayInMilliseconds,
           height: 94
         },
-        useTouchFriendlyUI: isHyperwall,
+        useTouchFriendlyUI: isHyperwall || isMobileDevice,
         datasetType: "landsat",
         playOnLoad: enableRecordingMode ? false : true,
         mediaType: (landsatVersion == "2015") ? ".webm" : ".mp4",
         onTimeMachinePlayerReady: function(viewerDivId) {},
         scaleBarOptions: {
           scaleBarDiv: "scaleBar1"
-        },
-        contextMapOptions: {
-          contextMapDiv: "contextMap1",
-          tileType: useGoogleMaps ? "Google" : "OpenStreetMap",
-          tileUrl: osmDefaultUrl,
-          geometry: {
-            width: 270,
-            height: 200
-          }
         },
         isGoogleAnalyticEventTrackingEnabled: true,
         startEditorFromPresentationMode: true
@@ -708,14 +712,11 @@
 
       timelapse = new org.gigapan.timelapse.Timelapse("timeMachine", settings);
       onTimeMachinePlayerReady();
-      if (showSettingsButton) {
-        initSettingsUI();
-      }
     }
 
     $.getScript(landsatAjaxIncludesPath)
       .done(function(script, status) {
-        eval(script)
+        eval(script);
         $(init);
       }
     );
@@ -738,7 +739,7 @@
 
         $("#location_search").on("keydown", function(e) {
           if (e.keyCode == 13) {
-            google.maps.event.trigger(e.target, 'focus')
+            google.maps.event.trigger(e.target, 'focus');
             google.maps.event.trigger(e.target, 'keydown', {
               keyCode: 13
             });
@@ -1345,8 +1346,8 @@
           setActiveLayersWithTimeline(1);
           timelineType = "defaultUI";
           requestNewTimeline("monthly-refugees-times.json", timelineType);
-          timelapse.setMasterPlaybackRate(.85);
-          timelapse.setPlaybackRate(.425);
+          timelapse.setMasterPlaybackRate(0.85);
+          timelapse.setPlaybackRate(0.425);
           timelapse.setDoDwell(false);
           $("#monthly-refugees-legend").show();
         } else {
@@ -1368,8 +1369,8 @@
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
           requestNewTimeline("annual-refugees-times.json", timelineType);
-          timelapse.setMasterPlaybackRate(.045);
-          timelapse.setPlaybackRate(.0225);
+          timelapse.setMasterPlaybackRate(0.045);
+          timelapse.setPlaybackRate(0.0225);
           $("#annual-refugees-legend").show();
         } else {
           showAnnualRefugeesLayer = false;
@@ -1393,8 +1394,8 @@
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
           requestNewTimeline("annual-refugees-times.json", timelineType);
-          timelapse.setMasterPlaybackRate(.045);
-          timelapse.setPlaybackRate(.0225);
+          timelapse.setMasterPlaybackRate(0.045);
+          timelapse.setPlaybackRate(0.0225);
           $("#annual-returns-legend").show();
         } else {
           showAnnualReturnsLayer = false;
@@ -1431,8 +1432,8 @@
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
           requestNewTimeline("health-impact-times.json", timelineType);
-          timelapse.setMasterPlaybackRate(.05);
-          timelapse.setPlaybackRate(.05);
+          timelapse.setMasterPlaybackRate(0.05);
+          timelapse.setPlaybackRate(0.05);
           timelapse.setDoDwell(false);
           $("#health-impact-legend").show();
           showHealthImpactRcp[0] = true;
@@ -1462,8 +1463,8 @@
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
           requestNewTimeline("health-impact-times.json", timelineType);
-          timelapse.setMasterPlaybackRate(.05);
-          timelapse.setPlaybackRate(.05);
+          timelapse.setMasterPlaybackRate(0.05);
+          timelapse.setPlaybackRate(0.05);
           timelapse.setDoDwell(false);
           $("#health-impact-legend").show();
           showHealthImpactRcp[1] = true;
@@ -1493,8 +1494,8 @@
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
           requestNewTimeline("health-impact-times.json", timelineType);
-          timelapse.setMasterPlaybackRate(.05);
-          timelapse.setPlaybackRate(.05);
+          timelapse.setMasterPlaybackRate(0.05);
+          timelapse.setPlaybackRate(0.05);
           timelapse.setDoDwell(false);
           $("#health-impact-legend").show();
           showHealthImpactRcp[2] = true;
@@ -1524,8 +1525,8 @@
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
           requestNewTimeline("health-impact-times.json", timelineType);
-          timelapse.setMasterPlaybackRate(.05);
-          timelapse.setPlaybackRate(.05);
+          timelapse.setMasterPlaybackRate(0.05);
+          timelapse.setPlaybackRate(0.05);
           $("#health-impact-legend").show();
           showHealthImpactRcp[3] = true;
         } else {
@@ -2016,8 +2017,8 @@
           requestNewTimeline("iraq-iom-idp-times.json", timelineType);
           $("#iom-idp-legend").show();
           iomIdpLayer.options['showIrqIdps'] = true;
-          timelapse.setMasterPlaybackRate(.5);
-          timelapse.setPlaybackRate(.1);
+          timelapse.setMasterPlaybackRate(0.5);
+          timelapse.setPlaybackRate(0.1);
         } else {
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
@@ -2042,8 +2043,8 @@
           requestNewTimeline("syria-iom-idp-times.json", timelineType);
           $("#iom-idp-legend").show();
           iomIdpLayer.options['showSyrIdps'] = true;
-          timelapse.setMasterPlaybackRate(.5);
-          timelapse.setPlaybackRate(.1);
+          timelapse.setMasterPlaybackRate(0.5);
+          timelapse.setPlaybackRate(0.1);
         } else {
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
@@ -2068,8 +2069,8 @@
           requestNewTimeline("yemen-iom-idp-times.json", timelineType);
           $("#iom-idp-legend").show();
           iomIdpLayer.options['showYemIdps'] = true;
-          timelapse.setMasterPlaybackRate(.5);
-          timelapse.setPlaybackRate(.1);
+          timelapse.setMasterPlaybackRate(0.5);
+          timelapse.setPlaybackRate(0.1);
         } else {
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
@@ -2094,8 +2095,8 @@
           requestNewTimeline("libya-iom-idp-times.json", timelineType);
           $("#iom-idp-legend").show();
           iomIdpLayer.options['showLbyIdps'] = true;
-          timelapse.setMasterPlaybackRate(.5);
-          timelapse.setPlaybackRate(.1);
+          timelapse.setMasterPlaybackRate(0.5);
+          timelapse.setPlaybackRate(0.1);
         } else {
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
@@ -2120,8 +2121,8 @@
           requestNewTimeline("iraq-iom-idp-times.json", timelineType);
           $("#iom-idp-legend").show();
           iomIdpLayer.options['showIrqReturns'] = true;
-          timelapse.setMasterPlaybackRate(.5);
-          timelapse.setPlaybackRate(.1);
+          timelapse.setMasterPlaybackRate(0.5);
+          timelapse.setPlaybackRate(0.1);
         } else {
           showIomIdpLayer = false;
           setActiveLayersWithTimeline(-1);
@@ -2146,8 +2147,8 @@
           requestNewTimeline("syria-iom-idp-times.json", timelineType);
           $("#iom-idp-legend").show();
           iomIdpLayer.options['showSyrReturns'] = true;
-          timelapse.setMasterPlaybackRate(.5);
-          timelapse.setPlaybackRate(.1);
+          timelapse.setMasterPlaybackRate(0.5);
+          timelapse.setPlaybackRate(0.1);
         } else {
           showIomIdpLayer = false;
           timelineType = "customUI";
@@ -2172,8 +2173,8 @@
           requestNewTimeline("yemen-iom-idp-times.json", timelineType);
           $("#iom-idp-legend").show();
           iomIdpLayer.options['showYemReturns'] = true;
-          timelapse.setMasterPlaybackRate(.5);
-          timelapse.setPlaybackRate(.1);
+          timelapse.setMasterPlaybackRate(0.5);
+          timelapse.setPlaybackRate(0.1);
         } else {
           showIomIdpLayer = false;
           timelineType = "customUI";
@@ -2198,8 +2199,8 @@
           requestNewTimeline("libya-iom-idp-times.json", timelineType);
           $("#iom-idp-legend").show();
           iomIdpLayer.options['showLbyReturns'] = true;
-          timelapse.setMasterPlaybackRate(.5);
-          timelapse.setPlaybackRate(.1);
+          timelapse.setMasterPlaybackRate(0.5);
+          timelapse.setPlaybackRate(0.1);
         } else {
           showIomIdpLayer = false;
           timelineType = "customUI";
@@ -2224,8 +2225,8 @@
           requestNewTimeline("omi-no2-times.json", timelineType);
           var v = timelapse.getVideoset();
           v.setFps(12);
-          timelapse.setMasterPlaybackRate(.5);
-          timelapse.setPlaybackRate(.1);
+          timelapse.setMasterPlaybackRate(0.5);
+          timelapse.setPlaybackRate(0.1);
           $("#omi-no2-legend").show();
         } else {
           showOmiNo2Layer = false;
@@ -2250,8 +2251,8 @@
           requestNewTimeline("be-pm25-times.json", timelineType);
           var v = timelapse.getVideoset();
           v.setFps(22);
-          timelapse.setMasterPlaybackRate(.5);
-          timelapse.setPlaybackRate(.1);
+          timelapse.setMasterPlaybackRate(0.5);
+          timelapse.setPlaybackRate(0.1);
           $("#be-pm25-legend").show();
         } else {
           showBePm25Layer = false;
@@ -2722,7 +2723,7 @@
               selectedIdx = 0;
             }
           }
-          $(".snaplapse_keyframe_list").children().eq(selectedIdx).children()[0].click();
+          $(".snaplapse_keyframe_list").children().eq(selectedIdx).children().first().trigger("click");
         }
 
         // 'page down' key
@@ -2730,14 +2731,14 @@
         if (!disablePresentationSlider && e.keyCode === 34) {
           var lastWaypointIdx = selectedIdx = $(".snaplapse_keyframe_list").children().last().index();
           var $selectedWaypoint = $(".snaplapse_keyframe_list .thumbnail_highlight");
-          if ($selectedWaypoint.length > 0) {
+          if ($selectedWaypoint.length) {
             selectedIdx = $selectedWaypoint.parents(".snaplapse_keyframe_list_item").index();
             selectedIdx--;
             if (selectedIdx < 0) {
               selectedIdx = lastWaypointIdx;
             }
           }
-          $(".snaplapse_keyframe_list").children().eq(selectedIdx).children()[0].click();
+          $(".snaplapse_keyframe_list").children().eq(selectedIdx).children().first().trigger("click");
         }
 
         // 'tab' or 'enter' key
@@ -2775,19 +2776,23 @@
             var openIndex = availableCategories.index(openCategories[index]);
             $(".map-layer-div").accordion("option", "active", openIndex);
           });
-          $(".current-location-text").hide();
+          $(".current-location-text-container, .current-location-text").hide();
           $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight").removeClass("thumbnail_highlight");
         }
         // 'h' key
         // Quick way to toggle the layer panel
         if (e.keyCode === 72) {
-          $(".toggleLayerPanelBtn").click();
+          $("#presentation-slider-hamburger-wrapper").trigger("click");
         }
         // 'l' key (lowercase L)
         // Quick way to turn on automode
         if (e.keyCode === 76) {
-          var snaplapseForPresentationSlider = timelapse.getSnaplapseForPresentationSlider();
-          snaplapseForPresentationSlider.getSnaplapseViewer().initializeAndRunAutoMode();
+          if (enableStoryMode) {
+            EarthlapseUI.Modes.revertToDefault();
+          } else {
+            var snaplapseForPresentationSlider = timelapse.getSnaplapseForPresentationSlider();
+            snaplapseForPresentationSlider.getSnaplapseViewer().initializeAndRunAutoMode();
+          }
         }
         // up/down arrows (but only if a select menu option has already been clicked)
         // Quick way to toggle between the various items under the extras menu
@@ -2848,10 +2853,12 @@
         } else {
           $("#layers-legend").show();
         }
-        if (isMobileDevice && (visibleBaseMapLayer != "landsat" || showLightsAtNightLayer || showLightsAtNight2012Layer || showLightsAtNight2016Layer || showHansenLayer2 || showVsiLayer)) {
-          UTIL.setDrawState(false)
-        } else {
-          UTIL.setDrawState(true);
+        if (isMobileDevice || isIEButNotEdge) {
+          if (visibleBaseMapLayer != "landsat" || showLightsAtNightLayer || showLightsAtNight2012Layer || showLightsAtNight2016Layer || showHansenLayer2 || showVsiLayer) {
+            UTIL.setDrawState(false);
+          } else {
+            UTIL.setDrawState(true);
+          }
         }
       });
 
@@ -2866,6 +2873,14 @@
         var $layerContainerHeader = $layerContainer.prev();
         var $firstlayerContainerHeader = $('.map-layer-div').find("h3").first();
         var numLayersActiveInCurrentContainer = $layerContainer.find("input:checked").length;
+
+        if ($('.map-layer-div').find("input:checked").length > 1) {
+          $(".clearLayers").show();
+          $("#layers-list").css("height", "calc(100% - " + ($(".clearLayers").outerHeight() -1) + "px)");
+        } else {
+          $(".clearLayers").hide();
+          $("#layers-list").css("height", "100%");
+        }
 
         // Add indicator that a layer is on in a category but ignore the first category (base layers)
         if (numLayersActiveInCurrentContainer > 0 && $layerContainerHeader[0].id != $firstlayerContainerHeader[0].id) {
@@ -2900,13 +2915,11 @@
           }
         }
 
-        if (e)
+        if (e && e.originalEvent) {
           var originalEvent = e.originalEvent;
-
-        if (originalEvent) {
           // If true, event came from user interaction, otherwise it came from javascript
           if (!originalEvent.isTrusted)
-            isFromUser = false
+            isFromUser = false;
           // Browsers without isTrusted property
           if (originalEvent.x == 0 && originalEvent.y == 0)
             isFromUser = false;
@@ -2933,14 +2946,21 @@
           $(".customHelpLabel-touchFriendly").css("top", "-26px");
         }
 
-        if (timelineType != "none" & activeLayersWithTimeline == 0) {
-          timelineType = "none"
+        if (timelineType != "none" && activeLayersWithTimeline == 0) {
+          timelineType = "none";
         }
 
         if (activeLayersWithTimeline <= 1 && timelineType == "none") {
-          $(".scaleBarContainer, #logosContainer, .current-location-text, #layers-legend").addClass("noTimeline");
+          $(".current-location-text-container, .scaleBarContainer, #logosContainer, .current-location-text, #layers-legend").addClass("noTimeline");
+          if (!timelapse.isPaused()) {
+            timelapse.handlePlayPause();
+            timelapseWasPlaying = true;
+          }
         } else {
-          $(".scaleBarContainer, #logosContainer, .current-location-text, #layers-legend").removeClass("noTimeline");
+          $(".current-location-text-container, .scaleBarContainer, #logosContainer, .current-location-text, #layers-legend").removeClass("noTimeline");
+          if (timelapseWasPlaying) {
+            timelapse.play();
+          }
         }
 
         timelineHidden = $(".noTimeline").length != 0;
@@ -2949,8 +2969,9 @@
       $('#layers-list, .ui-multiselect-checkboxes').on('click', 'input', timelineUIHandler);
 
       $("body").on("click", "#layers-list .ui-accordion-header", function() {
+        lastLayerMenuScrollPos = $(this)[0].offsetTop - 120;
         $('.layers-scroll-vertical').animate({
-          scrollTop: $(this)[0].offsetTop
+          scrollTop: lastLayerMenuScrollPos
         });
       });
 
@@ -3083,6 +3104,7 @@
     var showSpCrudeLayerME = false;
     var showSpCrudeLayerUS = false;
 
+
     // Default Time Machine visibility
     var tileViewVisibility = {
       videoTile: true,
@@ -3153,15 +3175,15 @@
 
       // Create and insert legend
       var legend='<tr id="' + nickname + '-legend" style="display: none"><td>';
-      legend += '<div style="font-size: 17px">' + name
+      legend += '<div style="font-size: 17px">' + name;
       if (credit) legend += '<span class="credit">(' + credit + ')</span>';
-      legend += '</div>'
+      legend += '</div>';
 
       legend += '<div style="float: left; padding-right:8px">';
       for (var i = 0; i < columnDefs.length; i++) {
-        legend += '<div style="float: left; padding-right:8px">'
+        legend += '<div style="float: left; padding-right:8px">';
         legend += '<div style="background-color:' + columnDefs[i].color + '; width: 12px; height: 12px; float: left; margin-top: 2px; margin-left: 8px;"></div>';
-        legend += '&nbsp;' + columnDefs[i].name + '</div>'
+        legend += '&nbsp;' + columnDefs[i].name + '</div>';
       }
       legend += '</div>';
       legend += '</tr>';
@@ -3354,7 +3376,9 @@
       if (enableThemeHamburgerButton) {
         $(".snaplapse_keyframe_container").prepend($("#presentation-slider-hamburger-wrapper"));
         $(".snaplapse_keyframe_list").addClass("has-hamburger");
-        $("#presentation-slider-hamburger-wrapper .hamburger, #presentation-slider-hamburger-wrapper #theme-title-container").height($(".snaplapse_keyframe_list").height());
+        if (!isHyperwall && !isMobileDevice) {
+          $("#presentation-slider-hamburger-wrapper .hamburger, #presentation-slider-hamburger-wrapper #theme-title-container").height($(".snaplapse_keyframe_list").height() + 1);
+        }
         $("#presentation-slider-hamburger-wrapper").show();
       } else if (useJumpToButtons) {
         $("#presentation-slider-selection").show();
@@ -3426,7 +3450,7 @@
 
       var layer_html = '';
 
-      layer_html += '<div id="layers-list">';
+      layer_html += '<ul id="layers-list">';
 
       var landsat_base_str = '<label class="landsat-select" for="landsat-base" name="blsat"><input type="radio" id="landsat-base" name="base-layers" value="landsat"/>Google Earth Engine Timelapse</label>';
       var landsat_base = '<td colspan="2">' + landsat_base_str + '</td>';
@@ -3508,13 +3532,12 @@
       var show_irena_wind = '<td class="irena-wind-select"><label for="show-irena-wind" name="IRENA_Wind"><input type="checkbox" id="show-irena-wind" />Wind electric capacity per country</label></td>';
       var show_carbon_price_risk = '<td class="carbon-price-risk-select"><label for="show-carbon-price-risk" name="carbon_price_risk"><input type="checkbox" id="show-carbon-price-risk" />Carbon price risk</label></td>';
       var show_tsip = '<td class="tsip-select"><label for="show-tsip" name="tsip"><input type="checkbox" id="show-tsip" />Toxic Sites</label></td>';
-
       var show_sp_crude = '<td class="sp-crude-select"><label for="show-sp-crude" name="sp-crude"><input type="checkbox" id="show-sp-crude" />Crude Oil flows</label></td>';
       var show_sp_crude_WAF = '<td class="sp-crude-select_WAF"><label for="show-sp-crude_WAF" name="sp-crude_WAF"><input type="checkbox" id="show-sp-crude_WAF" />WAF Crude Oil flows</label></td>';
-
       var show_sp_crude_NAF = '<td class="sp-crude-select_NAF"><label for="show-sp-crude_WAF" name="sp-crude_NAF"><input type="checkbox" id="show-sp-crude_NAF" />NAF Crude Oil flows</label></td>';
       var show_sp_crude_ME = '<td class="sp-crude-select_ME"><label for="show-sp-crude_ME" name="sp-crude_ME"><input type="checkbox" id="show-sp-crude_ME" />ME Crude Oil flows</label></td>';
       var show_sp_crude_US = '<td class="sp-crude-select_US"><label for="show-sp-crude_US" name="sp-crude_US"><input type="checkbox" id="show-sp-crude_US" />US Crude Oil flows</label></td>';
+
 
       if (enableLetterboxMode) {
         layer_html += '<div class="base-map-div">';
@@ -3678,7 +3701,6 @@
         layer_html += '  </table>';
         layer_html += '</div>';
       } else {
-        layer_html += '<button class="toggleLayerPanelBtn" title="Toggle layer panel">Toggle</button>';
         layer_html += '<div class="layers-scroll-vertical">';
         layer_html += '<div class="map-layer-div map-layer-checkbox">';
 
@@ -3688,7 +3710,7 @@
         layer_html += '    <tr>';
         layer_html += landsat_base;
         layer_html += '    </tr>';
-        layer_html += '    <tr>'
+        layer_html += '    <tr>';
         layer_html += light_base;
         layer_html += dark_base;
         layer_html += '    </tr>';
@@ -4146,7 +4168,8 @@
         layer_html += '</div>';
       }
       layer_html += '</div>';
-      layer_html += '</div>';
+      layer_html += '<div class="clearLayers"></div>';
+      layer_html += '</ul>';
 
       var legend_html = '<div id="layers-legend">';
       legend_html += '<div id="legend-content">';
@@ -4201,7 +4224,7 @@
       legend_html += '<tr id="yemen-iom-idp-legend" style="display: none"><td><div>Yemen IDPS<span class="credit"> (IOM)</span></div></td></tr>';
       legend_html += '<tr id="libya-iom-idp-legend" style="display: none"><td><div>Libya IDPS<span class="credit"> (IOM)</span></div></td></tr>';
       legend_html += '<tr id="iom-idp-legend" style="display: none"><td><div style="font-size: 17px">Internally Displaced Persons (IDPs) <br/>and Returnees<span class="credit"> (IOM)</span></div><svg class="svg-legend" width="242" height="130"><rect width="240" height="110" fill="white" opacity="0"></rect> <g transform="translate(2,10)"> <circle class="gain" r="5" cx="5" cy="10" style="fill: #8b0000; stroke: #fff;"></circle> <circle class="loss" r="5" cx="5" cy="30" style="fill: #00008b; stroke: #fff;"></circle> <text x="15" y="13">Individuals displaced</text> <text x="15" y="33">Indivdual returnees</text> <circle r="10.0" cx="160.0" cy="110.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="102.0" dy="13" style="font-size: 10px; fill: #666">18K</text><circle r="30.0" cx="160.0" cy="90.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="80.0" dy="13" style="font-size: 10px; fill: #666">900K</text><!--<circle r="60.0" cx="160.0" cy="110.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="80.0" dy="13" style="font-size: 10px; fill: #666">900K</text>--></g> </svg></td></tr>';
-      legend_html += '<tr id="berkeley-earth-temperature-anomaly-legend" style="display: none"><td><div style="font-size: 13px">Average Temperature Annual Anomaly 1850-2017<span class="credit"> (Berkeley Earth)</span></div><svg class="svg-legend" width="220" height="40"><text font-size="12px" fill="rgba(0, 0, 0, 1.0)" y="10" x="40">Temperature Anomaly (&#8451)</text><rect fill="#00008b" y="20" x="0" height="10" width="20.0"></rect><rect fill="#3031c9" y="20" x="20" height="10" width="20.0"></rect><rect fill="#5768e6" y="20" x="40" height="10" width="20.0"></rect><rect fill="#799ef6" y="20" x="60" height="10" width="20.0"></rect><rect fill="#a1d4fe" y="20" x="80" height="10" width="20.0"></rect><rect fill="#ffffff" y="20" x="100" height="10" width="20.0"></rect><rect fill="#ffd130" y="20" x="120" height="10" width="20.0"></rect><rect fill="#ff9500" y="20" x="140" height="10" width="20.0"></rect><rect fill="#ed5700" y="20" x="160" height="10" width="20.0"></rect><rect fill="#c42102" y="20" x="180" height="10" width="20.0"></rect><rect fill="#8b0000" y="20" x="200" height="10" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="40" x="0">-10</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="40" x="25">-8</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="40" x="45">-6</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="40" x="65">-4</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="40" x="85">-2</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="40" x="107">0</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="40" x="127">2</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="40" x="147">4</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="40" x="167">6</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="40" x="187">8</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="40" x="205">10</text></svg></td></tr>'
+      legend_html += '<tr id="berkeley-earth-temperature-anomaly-legend" style="display: none"><td><div style="font-size: 13px">Average Temperature Annual Anomaly 1850-2017<span class="credit"> (Berkeley Earth)</span></div><svg class="svg-legend" width="220" height="40"><text font-size="12px" fill="rgba(0, 0, 0, 1.0)" y="10" x="40">Temperature Anomaly (&#8451)</text><rect fill="#00008b" y="20" x="0" height="10" width="20.0"></rect><rect fill="#3031c9" y="20" x="20" height="10" width="20.0"></rect><rect fill="#5768e6" y="20" x="40" height="10" width="20.0"></rect><rect fill="#799ef6" y="20" x="60" height="10" width="20.0"></rect><rect fill="#a1d4fe" y="20" x="80" height="10" width="20.0"></rect><rect fill="#ffffff" y="20" x="100" height="10" width="20.0"></rect><rect fill="#ffd130" y="20" x="120" height="10" width="20.0"></rect><rect fill="#ff9500" y="20" x="140" height="10" width="20.0"></rect><rect fill="#ed5700" y="20" x="160" height="10" width="20.0"></rect><rect fill="#c42102" y="20" x="180" height="10" width="20.0"></rect><rect fill="#8b0000" y="20" x="200" height="10" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="40" x="0">-10</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="40" x="25">-8</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="40" x="45">-6</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="40" x="65">-4</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="40" x="85">-2</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="40" x="107">0</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="40" x="127">2</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="40" x="147">4</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="40" x="167">6</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="40" x="187">8</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="40" x="205">10</text></svg></td></tr>';
       legend_html += '<tr id="china-aviation-legend" style="display: none"><td><div style="background-color:red; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">China Aviation <span class="credit"> (Oxford & Harvard)</span></div></td></tr>';
       legend_html += '<tr id="china-power-plants-legend" style="display: none"><td><div style="background-color:green; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">China Power Plants <span class="credit"> (Oxford & Harvard)</span></div></td></tr>';
       legend_html += '<tr id="china-reservoirs-legend" style="display: none"><td><div style="background-color:blue; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">China Reservoirs <span class="credit"> (Oxford & Harvard)</span></div></td></tr>';
@@ -4212,18 +4235,14 @@
       legend_html += '<tr id="expanding-cities-legend" style="display: none"><td><div style="background-color:silver; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -16px; font-size: 17px">Expanding Cities <span class="credit"> (Igarapé)</span></div></div></td></tr>';
       legend_html += '<tr id="irena-legend" style="display: none"><td><div style="font-size: 15px">Electric Capacity per Country<span class="credit"> (IRENA)</span></div><svg class="svg-legend" width="240" height="170"><circle class="gain" r="10" cx="15" cy="10" style="fill: blue; stroke: #fff;"></circle> <text x="30" y="15" style="font-size: 12px; fill: #666">Wind power (GWh)</text> <circle class="gain" r="10" cx="15" cy="35" style="fill: purple; stroke: #fff;"></circle><text x="30" y="40" style="font-size: 12px; fill: #666">Solar power (GWh)</text> <circle r="25.0" cx="120.0" cy="122.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle><circle r="40.0" cx="120.0" cy="107.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle><circle r="50.0" cx="120.0" cy="97.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle><text text-anchor="middle" x="120.0" y="112.0" dy="13" style="font-size: 10px; fill: #666">25K</text><text text-anchor="middle" x="120.0" y="77.0" dy="13" style="font-size: 10px; fill: #666">64K</text><text text-anchor="middle" x="120.0" y="52.0" dy="13" style="font-size: 10px; fill: #666">100K</text></svg></td></tr>';
 
-
       legend_html += '<tr id="carbon-price-risk-legend" style="display: none"><td>' + carbonPriceRisk.getLegend().str + '</td></tr>';
-
 
       var tsipStr = '<div style="font-size: 15px">Toxic Sites Identification Program<span class="credit"> (PlanetEarth)</span></div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: brown; stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #666">Sites (size relative to Blacksmith Index)</text><!--<circle r="10.0" cx="120.0" cy="50" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle><text text-anchor="middle" x="120.0" y="45" dy="10" style="font-size: 10px; fill: #666">5</text><circle r="20.0" cx="120.0" cy="40" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle><text text-anchor="middle" x="120.0" y="25" dy="10" style="font-size: 10px; fill: #666">10</text>--></svg>';
       var tsipLegend = new BubbleMapLegend({"id" : "tsip", "str": tsipStr});
       legend_html += '<tr id="expanding-cities-legend" style="display: none"><td>' +  tsipLegend.toString() + '</td></tr>';
 
       legend_html += '<tr id="sp-crude-legend" style="display: none"><td><div style="font-size: 15px">Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="220"><circle class="gain" r="10" cx="15" cy="10" style="fill: red; stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #666">Middle East</text><circle class="gain" r="10" cx="15" cy="35" style="fill: blue; stroke: #fff;"></circle><text x="30" y="40" style="font-size: 12px; fill: #666">North Africa</text><circle class="gain" r="10" cx="15" cy="60" style="fill: green; stroke: #fff;"></circle><text x="30" y="65" style="font-size: 12px; fill: #666">North Sea</text><circle class="gain" r="10" cx="15" cy="85" style="fill: yellow; stroke: #fff;"></circle><text x="30" y="90" style="font-size: 12px; fill: #666">Urals</text><circle class="gain" r="10" cx="15" cy="110" style="fill: purple; stroke: #fff;"></circle><text x="30" y="115" style="font-size: 12px; fill: #666">US Golf Coast</text><circle class="gain" r="10" cx="15" cy="135" style="fill: orange; stroke: #fff;"></circle><text x="30" y="140" style="font-size: 12px; fill: #666">West Africa</text></svg></td></tr>';
-
       legend_html += '<tr id="sp-crude-legend_WAF" style="display: none"><td><div style="font-size: 15px">WAF Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: orange; stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #666">West Africa</text></svg></td></tr>';
-
       legend_html += '<tr id="sp-crude-legend_NAF" style="display: none"><td><div style="font-size: 15px">NAF Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: blue; stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #666">North Africa</text></svg></td></tr>';
       legend_html += '<tr id="sp-crude-legend_ME" style="display: none"><td><div style="font-size: 15px">ME Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: red; stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #666">Middle East</text></svg></td></tr>';
       legend_html += '<tr id="sp-crude-legend_US" style="display: none"><td><div style="font-size: 15px">US Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: purple; stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #666">US Golf Coast</text></svg></td></tr>';
@@ -4321,11 +4340,82 @@
             colType: "double"
         });
       } else {
-        $(layer_html).appendTo($("#timeMachine .player"));
+        $(layer_html).appendTo($("#layers-menu"));
         $(legend_html).appendTo($("#timeMachine .player"));
-        $("#layers-list").addClass("right-panel");
 
-        // Hide any fieldsets that have all their children
+        $nextAnnotationLocationButton = $('.next-annotation-location');
+        $nextAnnotationLocationButton.button({
+          icons: {
+            primary: "ui-icon-right-arrow"
+          },
+          text: false
+        }).click(function() {
+          var e = jQuery.Event("keydown");
+          e.which = 33;
+          e.keyCode = 33;
+          $(document).trigger(e);
+        });
+
+        $previousAnnotationLocationButton = $('.previous-annotation-location');
+        $previousAnnotationLocationButton.button({
+          icons: {
+            primary: "ui-icon-left-arrow"
+          },
+          text: false
+        }).click(function() {
+          var e = jQuery.Event("keydown");
+          e.which = 34;
+          e.keyCode = 34;
+          $(document).trigger(e);
+        });
+
+        var $controlsContainer = $("<div id='controlsContainer' />");
+
+        var $appControls = $("<div id='appControls' />");
+        $appControls.appendTo($controlsContainer);
+
+        if (showShareButton) {
+          var $shareBtn = $('<button class="sharing controlButton" title="Share"></button>');
+          $shareBtn.button({
+            icons: {
+              primary: "ui-icon-custom-share"
+            },
+            text: false
+          }).click(function() {
+            $(".share").trigger("click");
+          });
+          $shareBtn.appendTo($appControls);
+        }
+
+        if (showSettingsButton) {
+          var $settingsBtn = $('<button class="settings controlButton" title="Settings"></button>');
+          $settingsBtn.button({
+            icons: {
+              primary: "ui-icon-custom-gear"
+            },
+            text: false
+          }).click(function() {
+            if (settingsDialog && settingsDialog.is(":visible")) {
+              settingsDialog.dialog("close");
+            } else {
+              showSettingsDialog();
+            }
+          });
+          $settingsBtn.appendTo($appControls);
+        }
+
+        var $navigationControls = $("<div id='navControls' />");
+
+        $navigationControls.appendTo($controlsContainer);
+
+        var $zoomControls = $($(".zoom > *").not(".zoomSlider, .zoomall")).addClass("controlButton");
+        $zoomControls.appendTo($navigationControls);
+
+        $controlsContainer.appendTo($("#timeMachine .player"));
+
+        $appControls.css("top", ($navigationControls.height() + 20) + "px");
+
+        // Hide any tables that have all their children
         // hidden (i.e. all layers of that topic are hidden)
         $("#layers-list").find('table').each(function() {
           if ($($(this)[0]).children().length == 0) {
@@ -4333,36 +4423,21 @@
           }
         });
 
-        var toggleIconClose = "ui-icon-arrowthick-1-ne";
-        var toggleIconOpen = "ui-icon-arrowthick-1-sw";
-        var $toggleLayerPanelBtn = $(".toggleLayerPanelBtn");
-        $toggleLayerPanelBtn.button({
+        // Add clear active layer button
+        var $clearLayersBtn = $(".clearLayers");
+        $clearLayersBtn.button({
           icons: {
-            primary: toggleIconClose
+            primary: "clearLayersIcon"
           },
-          text: false
+          showLabel: true,
+          label: "Clear Active Layers",
+          text: "Clear Active Layers"
         }).click(function() {
-          if ($("#layers-list").hasClass("hide-layers-list")) {
-            $("#layers-list").removeClass("hide-layers-list");
-          } else {
-            $("#layers-list").addClass("hide-layers-list");
-          }
-          var $icon = $(this).children(".ui-icon");
-          if ($icon.hasClass(toggleIconOpen)) {
-            $toggleLayerPanelBtn.button({
-              icons: {
-                primary: toggleIconClose
-              },
-              text: false
-            });
-          } else if ($icon.hasClass(toggleIconClose)) {
-            $toggleLayerPanelBtn.button({
-              icons: {
-                primary: toggleIconOpen
-              },
-              text: false
-            });
-          }
+          var e = jQuery.Event("keydown");
+          e.which = 67;
+          e.keyCode = 67;
+          $("body").trigger(e);
+          UTIL.addGoogleAnalyticEvent('button', 'click', 'viewer-clear-active-layers');
         });
       }
 
@@ -4389,7 +4464,7 @@
       }
 
       if (isHyperwall) {
-        $("#layers-list, .sideToolBar, #layers-legend, #presentation-slider-selection, .base-map-div, .current-location-text, .customZoomhelp, #logosContainer").addClass("hyperwall");
+        $("#layers-list, #layers-legend, #presentation-slider-selection, .base-map-div, .current-location-text, .customZoomhelp, #logosContainer").addClass("hyperwall");
       }
 
 
@@ -4863,8 +4938,8 @@
         'showIrqReturns': false,
         'showSyrReturns': false,
         'showYemReturns': false,
-        'showLbyReturns': false      }
-
+        'showLbyReturns': false
+      };
 
       var chinaLayerOptions = {
         tileWidth: 256,
@@ -4942,7 +5017,7 @@
       };
       tsipLayer = new WebglVectorLayer2(glb, canvasLayer, tsipUrl, layerOptions);
 
-      var layerOptions = {
+var layerOptions = {
         tileWidth: 256,
         tileHeight: 256,
         nLevels: 0,
@@ -5002,6 +5077,7 @@
       spCrudeLayerUS = new WebglVectorLayer2(glb, canvasLayer, spCrudeUrlUS, layerOptions);
       spCrudeLayerUS.buffers = [];
 
+
       // Layer Toggle UI
       initLayerToggleUI();
       $(".googleLogo").remove();
@@ -5037,7 +5113,7 @@
             snaplapseForPresentationSlider.getSnaplapseViewer().initializeAndRunAutoMode();
           }
           if (loadedInitialWaypointList) {
-            $(".snaplapse_keyframe_list").children().first().children().click()
+            $(".snaplapse_keyframe_list").children().first().children().click();
           }
           loadedInitialWaypointList = true;
         });
@@ -5067,6 +5143,19 @@
           if (isAutoModeRunning) {
             lastAutomodeWaypointIndex = waypointIndex;
           }
+          var parabolicMotionStoppedListener = function() {
+            timelapse.removeParabolicMotionStoppedListener(parabolicMotionStoppedListener);
+            timelapse.removeViewChangeListener(waypointViewChangeListener);
+
+            var waypointScale = timelapse.pixelBoundingBoxToPixelCenter(waypointBounds).scale;
+            var currentView = timelapse.getView();
+
+            if ((waypoint.scale / 2.5 > currentView.scale || !(currentView.x >= waypointBounds.xmin && currentView.x <= waypointBounds.xmax && currentView.y >= waypointBounds.ymin && currentView.y <= waypointBounds.ymax))) {
+              $(".current-location-text-container").hide();
+              $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight").removeClass("thumbnail_highlight");
+            }
+          };
+          timelapse.addParabolicMotionStoppedListener(parabolicMotionStoppedListener);
         });
 
         snaplapseViewerForPresentationSlider.addEventListener('slide-changed', function(waypoint) {
@@ -5078,6 +5167,17 @@
           var waypointEndTime = waypoint.endTime;
           var waypointPlaybackSpeed = waypoint.speed;
           var himawariWaypoint = himawariWaypoints[currentWaypointTheme][waypointIndex];
+          var lastAvailableWaypointIdx = $(".snaplapse_keyframe_list").children().last().index();
+          var selectedWaypointIdx = $(".snaplapse_keyframe_list .thumbnail_highlight").closest(".snaplapse_keyframe_list_item").index();
+
+          $previousAnnotationLocationButton.button("enable");
+          $nextAnnotationLocationButton.button("enable");
+
+          if (selectedWaypointIdx == 0) {
+            $previousAnnotationLocationButton.button("disable");
+          } else if (selectedWaypointIdx == lastAvailableWaypointIdx) {
+            $nextAnnotationLocationButton.button("disable");
+          }
 
           // We are still technically using Landsat projections for any dataset being drawn,
           // so the bounds that slide-change returns is not valid for our use. But we already
@@ -5099,7 +5199,7 @@
                 timeInMsSinceLastWaypointLoop = (new Date()).getTime();
                 timelapse.seek(waypointStartTime);
               }
-            }
+            };
             timelapse.addTimeChangeListener(waypointTimeChangeListener);
           }
 
@@ -5107,73 +5207,76 @@
           if (enableWaypointText) {
             var waypointScale = timelapse.pixelBoundingBoxToPixelCenter(waypointBounds).scale;
             var $current_location_text = $(".current-location-text");
+            var $current_location_text_container = $(".current-location-text-container");
 
             timelapse.removeViewChangeListener(waypointViewChangeListener);
             timelapse.removeViewChangeListener(hideWaypointListener);
-            waypointViewChangeListener = function() {
-              var currentView = timelapse.getView();
-              if (currentView.scale * 2.5 > waypointScale && (currentView.x >= waypointBounds.xmin && currentView.x <= waypointBounds.xmax && currentView.y >= waypointBounds.ymin && currentView.y <= waypointBounds.ymax)) {
-                if (waypoint.annotationBoxTitle || waypoint.description) {
-                  $current_location_text.show();
-                  if (waypoint.annotationBoxTitle) {
-                    $current_location_text.find(".current-location-text-title").show().text(waypoint.annotationBoxTitle);
-                  } else {
-                    $current_location_text.find(".current-location-text-title").hide();
-                  }
-                  var $current_location_text_picture = $("#current-location-text-picture");
-                  if (annotationPicturePaths[currentWaypointTheme] && annotationPicturePaths[currentWaypointTheme][waypointIndex].path) {
-                    $current_location_text_picture.show();
-                    $current_location_text_picture.css('background-image', 'url("' + annotationPicturePaths[currentWaypointTheme][waypointIndex].path + '")');
-                  } else {
-                    $current_location_text_picture.hide();
-                  }
-                  if (waypoint.description) {
-                    $current_location_text.find("p").show().text(waypoint.description);
-                  } else {
-                    $current_location_text.find("p").hide();
-                  }
-                  previousWaypoint.scale = waypointScale;
-                  previousWaypoint.bounds = waypointBounds;
+
+            var currentView = timelapse.getView();
+            if (waypoint.annotationBoxTitle || waypoint.description) {
+              $current_location_text_container.show();
+              if (waypoint.annotationBoxTitle) {
+                $current_location_text.find(".current-location-text-title").show().text(waypoint.annotationBoxTitle);
+              } else {
+                $current_location_text.find(".current-location-text-title").hide();
+              }
+              var $current_location_text_picture = $("#current-location-text-picture");
+              if (annotationPicturePaths[currentWaypointTheme] && annotationPicturePaths[currentWaypointTheme][waypointIndex].path) {
+                $current_location_text_picture.show();
+                $current_location_text_picture.css('background-image', 'url("' + annotationPicturePaths[currentWaypointTheme][waypointIndex].path + '")');
+              } else {
+                $current_location_text_picture.hide();
+              }
+              if (waypoint.description) {
+                $current_location_text.find("p").show().text(waypoint.description);
+              } else {
+                $current_location_text.find("p").hide();
+              }
+
+              waypointViewChangeListener = function() {
+                var currentView = timelapse.getView();
+                previousWaypoint.scale = waypointScale;
+                previousWaypoint.bounds = waypointBounds;
+
+                if (currentView.scale * 2.5 > waypointScale && (currentView.x >= waypointBounds.xmin && currentView.x <= waypointBounds.xmax && currentView.y >= waypointBounds.ymin && currentView.y <= waypointBounds.ymax)) {
                   hideWaypointListener = function() {
                     var currentView = timelapse.getView();
                     var previousWaypointBounds = previousWaypoint.bounds;
                     if ((previousWaypoint.scale / 2.5 > currentView.scale || !(currentView.x >= previousWaypointBounds.xmin && currentView.x <= previousWaypointBounds.xmax && currentView.y >= previousWaypointBounds.ymin && currentView.y <= previousWaypointBounds.ymax))) {
-                      $(".current-location-text").hide();
+                      $current_location_text_container.hide();
                       $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight").removeClass("thumbnail_highlight");
                       timelapse.removeViewChangeListener(hideWaypointListener);
                       timelapse.removeTimeChangeListener(waypointTimeChangeListener);
                     }
                   };
                   timelapse.addViewChangeListener(hideWaypointListener);
-                } else {
-                  $(".current-location-text").hide();
+                  timelapse.removeViewChangeListener(waypointViewChangeListener);
                 }
-                timelapse.removeViewChangeListener(waypointViewChangeListener);
-                // Set playback rate based on the waypoint.
-                if (typeof(waypointPlaybackSpeed) !== undefined && waypointPlaybackSpeed != null) {
-                  if (waypointPlaybackSpeed == 0) {
-                    if (timelapse.isDoingLoopingDwell()) {
-                      timelapse.handlePlayPause();
-                    } else {
-                      timelapse.pause();
-                    }
-                  } else {
-                    var waypointPlaybackRate = timelapse.getMaxPlaybackRate() * (waypointPlaybackSpeed / 100);
-                    timelapse.setPlaybackRate(waypointPlaybackRate);
-                    if (timelapse.isPaused() && !timelapse.isDoingLoopingDwell()) {
-                      timelapse.handlePlayPause();
-                    }
-                  }
+              };
+              timelapse.addViewChangeListener(waypointViewChangeListener);
+            } else {
+              $current_location_text_container.hide();
+            }
+
+            // Set playback rate based on the waypoint.
+            if (waypointPlaybackSpeed != null) {
+              if (waypointPlaybackSpeed == 0) {
+                if (timelapse.isDoingLoopingDwell()) {
+                  timelapse.handlePlayPause();
+                } else {
+                  timelapse.pause();
                 }
               } else {
-                $(".current-location-text").hide();
+                var waypointPlaybackRate = timelapse.getMaxPlaybackRate() * (waypointPlaybackSpeed / 100);
+                timelapse.setPlaybackRate(waypointPlaybackRate);
+                if (timelapse.isPaused() && !timelapse.isDoingLoopingDwell()) {
+                  timelapse.handlePlayPause();
+                }
               }
-            };
+            }
 
             // Close the extra content pop-up if a waypoint is clicked.
             $('#extras-content').dialog('close');
-
-            timelapse.addViewChangeListener(waypointViewChangeListener);
           }
 
           // Remove himawari since we do special cases further below
@@ -5229,6 +5332,7 @@
           }
           // End Himawari
         });
+        // End snaplapseViewerForPresentationSlider check
       }
 
 
@@ -5328,6 +5432,15 @@
             layersToShowOnCreation[layer] = true;
             var $layerToggle = $("#layers-list label[name='" + layer + "'] input, .ui-multiselect-checkboxes label[name='" + layer + "'] input");
             if (!$layerToggle.prop('checked')) {
+              // The time in a share link may correspond to a layer that has a different timeline than the default one.
+              // Re-run corresponding sharelink code once the timeline has changed.
+              // Note that this may be unncessary because of the callback for CSV layers, but it's possible not to have CSV layers
+              // and CSV layers are async (and could be loaded very fast) so we keep this in.
+              var onloadView = function() {
+                timelapse.loadSharedViewFromUnsafeURL(UTIL.getUnsafeHashString());
+                timelapse.removeTimelineUIChangeListener(onloadView);
+              };
+              timelapse.addTimelineUIChangeListener(onloadView);
               $layerToggle.trigger("click");
             }
           });
@@ -5394,7 +5507,7 @@
             currHeader.children('.ui-icon').toggleClass('ui-icon-triangle-1-e', isPanelSelected).toggleClass('ui-icon-triangle-1-s', !isPanelSelected);
 
             // Toggle the panel's content
-            currContent.toggleClass('accordion-content-active', !isPanelSelected)
+            currContent.toggleClass('accordion-content-active', !isPanelSelected);
             if (isPanelSelected) {
               currContent.slideUp(0);
             } else {
@@ -5405,30 +5518,35 @@
             return false;
           }
         });
-        // Fit the layer panel to its conents but also restrict to a fixed max height
-        var extraHeight = 20 + (showExtrasMenu * 41);
-        $("#layers-list").css("max-height", Math.min(($(".map-layer-div").height() + extraHeight), parseInt($("#layers-list").css('max-height'), 10)) + "px");
       }
 
-      // CSV Data Grapher
+      // Callback when data for a specific CSV layer has loaded.
       csvFileLayers.addDataLoadedListener(function(layerId) {
         csvDataGrapher.graphDataForLayer(layerId);
         showHideCsvGrapher(true, layerId, true);
-      });
-      csvFileLayers.addDataLoadedListener(function(layerId) {
         csvFileLayers.setLegend(layerId);
       });
+
+      // Callback when a CSV file has been loaded and layers added to the DOM.
+      csvFileLayers.addLayersLoadedListener(function() {
+        // New layers have been added, so refresh the layer panel
+        $(".map-layer-div").accordion("refresh");
+        if (!loadedInitialCsvLayers) {
+          loadedInitialCsvLayers = true;
+          // CSV layers are loaded asynchronously, so trigger another hash change if we just loaded the page
+          $(window).on('hashchange', hashChange).trigger('hashchange');
+        }
+      });
+
       csvDataGrapher.initialize();
+
       $("#layers-list").on("click", ".csvlayer input, input[data-has-graph='true']", function(e) {
         var activeGraphableLayers = $(".csvlayer input, tr input[data-has-graph='true']").closest("input:checked");
         var $target = $(e.target);
         var layerId = $target.parent().attr("name");
-        var layerIds = csvFileLayers.layersData.data.reduce(function(result, props) {
-          if (props['Enabled'] == "TRUE") {
-            result.push(props['Share link identifier']);
-          }
-          return result;
-        }, []);
+        var layerIds = csvFileLayers.layers.map(function(props) {
+          return props['_layerId']
+        });
         var layerIdx = layerIds.indexOf(layerId);
         var dataLoaded = $target.data("has-graph") ? true : false;
         if (layerIdx >= 0 && typeof csvFileLayers.layers[layerIdx] != "undefined") {
@@ -5452,24 +5570,44 @@
         }
       });
 
-      $(window).trigger("resize");
-      $(window).on('hashchange', hashChange).trigger('hashchange');
-
-      $('.sideToolBar').append('<button class="sharing" title="Share"></button>');
-      $(".sharing").button({
-        icons: {
-          primary: "ui-icon-custom-share"
-        },
-        text: false
-      }).click(function() {
-        $(".share").trigger("click");
-      });
-
       $("#logosContainer, #baseLayerCreditContainer").appendTo("#timeMachine .player");
 
-      $("#presentation-slider-hamburger-wrapper").on("click", function() {
-        $(".menu").slideToggle();
-        $(this).find(".hamburger").toggleClass("is-active");
+      $("#main-hamburger-menu .selection-heading").on("click", function(e) {
+        var selectionButton = $(this).siblings("input:radio");
+        if (selectionButton.prop("checked")) {
+          e.preventDefault();
+          selectionButton.prop("checked", false);
+        }
+        setTimeout(function() {
+          fixThemeMenuHeight();
+        }, 20);
+      });
+
+      $("#presentation-slider-hamburger-wrapper").on("click", function(e) {
+        $('#main-hamburger-menu').toggle("slide", { direction: "left" }, 150);
+        var $hamburgerButtonSelector = $(this).find(".hamburger");
+        $hamburgerButtonSelector.toggleClass("is-active");
+        if ($(e.target).closest("#theme-title-container").length && $hamburgerButtonSelector.hasClass("is-active")) {
+          $("#theme-menu #theme-selection").prop("checked", true);
+        } else {
+          $("#theme-menu #theme-selection").prop("checked", false);
+        }
+
+        if ($hamburgerButtonSelector.hasClass("is-active")) {
+          $("#controlsContainer").animate({"left": $("#main-hamburger-menu").css("width")}, 150);
+          //UTIL.addGoogleAnalyticEvent('button', 'click', 'viewer-show-panel');
+        } else {
+          $("#controlsContainer").animate({"left" : "0px"}, 150);
+        }
+
+        $('.layers-scroll-vertical').animate({
+          scrollTop: lastLayerMenuScrollPos
+        }, 250);
+
+        setTimeout(function() {
+          fixThemeMenuHeight();
+        }, 20);
+
       });
 
       $("#theme-menu").on("click", function(e) {
@@ -5482,15 +5620,17 @@
         $("#theme-title").text($selectedThemeElement.text());
         var waypointSliderContent = "#presentation=" + $selectedThemeElement.data("waypoint-url");
         timelapse.loadSharedDataFromUnsafeURL(waypointSliderContent);
+        UTIL.addGoogleAnalyticEvent('button', 'click', 'viewer-select-theme=' + currentWaypointTheme);
+        if ($("#presentation-slider-hamburger-wrapper .hamburger").hasClass("is-active")) {
+          $("#presentation-slider-hamburger-wrapper").click();
+        }
       });
 
       $("body").on("click", function(e) {
-        var $target = $(e.target).parent().closest("div");
-        if (!e.originalEvent) return;
-        if ($target.attr('id') == "presentation-slider-hamburger-wrapper" || $target.attr('id') == "theme-title-container") return;
-        if ($("#presentation-slider-hamburger-wrapper .hamburger").hasClass("is-active")) {
-          $("#presentation-slider-hamburger-wrapper").trigger("click");
-        }
+        if (!e.originalEvent && !e.detail) return;
+        var ignoredElms = $(e.target).closest("#main-hamburger-menu, #presentation-slider-hamburger-wrapper");
+        if (ignoredElms.attr("id") == "main-hamburger-menu" || ignoredElms.attr("id") == "presentation-slider-hamburger-wrapper" || !$(".hamburger").hasClass("is-active")) return;
+        $("#presentation-slider-hamburger-wrapper").trigger("click");
       });
 
       if (extraContributors) {
@@ -5509,21 +5649,25 @@
 
       if (enableMinimalUIMode) {
         $(".customHelpLabel").remove();
-        $(".location_search_div, .share, .sideToolBar").hide();
+        $(".location_search_div, .share").hide();
         $("#layers-legend").css({"top" : "20px", "left" : "20px"});
-        $(".toggleLayerPanelBtn").click();
       }
+
+      $(window).on('hashchange', hashChange).trigger('hashchange');
+
+      // End of onReady
     }
 
     // CSV Data Grapher
     var showHideCsvGrapher = function(doShow, layerId, isCSV) {
       if (doShow && layerId && isCSV) {
-        var layerIds = csvFileLayers.layersData.data.map(function(props) {
-          return props['Share link identifier'];
+        var layerIds = csvFileLayers.layers.map(function(props) {
+          return props['_layerId']
         });
         var layerIdx = layerIds.indexOf(layerId);
-        var layerProps = csvFileLayers.layersData.data[layerIdx];
-        var showGraph = layerProps ? layerProps['Show Graph'] == "TRUE" : false;
+        if (layerIdx < 0) return;
+        var layerOpts = csvFileLayers.layers[layerIdx].opts;
+        var showGraph = layerOpts.showGraph == "TRUE";
         if (!showGraph) return;
       }
       if (doShow) {
@@ -5533,7 +5677,7 @@
           $("#presentation-slider-selection").hide();
         }
         if (!disablePresentationSlider) {
-          $(".current-location-text, .controls, .customControl, .scaleBarContainer, #logosContainer, #baseLayerCreditContainer").addClass("layerGraphs");
+          $("#main-hamburger-menu, .controls, .customControl, .scaleBarContainer, #logosContainer, #baseLayerCreditContainer").addClass("layerGraphs");
         }
         $("#timeMachine").addClass("layerGraphs");
       } else {
@@ -5543,7 +5687,7 @@
           $("#presentation-slider-selection").show();
         }
         if (!disablePresentationSlider) {
-          $(".current-location-text, .controls, .customControl, .scaleBarContainer, #logosContainer, #baseLayerCreditContainer").removeClass("layerGraphs");
+          $("#main-hamburger-menu, .controls, .customControl, .scaleBarContainer, #logosContainer, #baseLayerCreditContainer").removeClass("layerGraphs");
         }
         $("#timeMachine").removeClass("layerGraphs");
       }
@@ -5609,7 +5753,7 @@
               alert('URL entered is not a valid Google Spreadsheet link.');
             }
           },
-          Cancel: function() { $(this).dialog("close") }
+          Cancel: function() { $(this).dialog("close"); }
         }
       });
     }
@@ -5632,6 +5776,8 @@
         }
       }
       window.location.hash = newHash;
+      // The above should automatically trigger a hash change but we manually trigger it to be sure.
+      //$(window).on('hashchange', hashChange).trigger('hashchange');
     }
 
     function getSpreadsheetDownloadPath(path) {
@@ -5692,21 +5838,9 @@
       d.dialog({
         minWidth: 350,
         buttons: {
-          Ok: function() { d.dialog("close") },
-          Cancel: function() { d.dialog("close") }
+          Ok: function() { d.dialog("close"); },
+          Cancel: function() { d.dialog("close"); }
         }
-      });
-    }
-
-    function initSettingsUI() {
-      $('.sideToolBar').append('<button class="settings" title="Settings"></button>');
-      $(".settings").button({
-        icons: {
-          primary: "ui-icon-custom-gear"
-        },
-        text: false
-      }).click(function() {
-        showSettingsDialog();
       });
     }
 
@@ -5717,16 +5851,26 @@
       return performance.now() - startOfRedraw > maximumUpdateTime;
     }
 
+    function fixThemeMenuHeight() {
+      var $themeList = $("#theme-list");
+      if ($themeList.is(':visible')) {
+        var sectionHeadingHeight = parseInt($(".selection-heading").outerHeight());
+        var $children = $themeList.children();
+        var numThemes = $children.length;
+        var themeEntryHeight = parseInt($children.first().outerHeight());
+        var themeListHeight = numThemes * themeEntryHeight;
+        var newThemeListHeight = parseInt($("#main-hamburger-menu").outerHeight()) - themeListHeight;
+        if (newThemeListHeight < sectionHeadingHeight) {
+          newThemeListHeight = sectionHeadingHeight;
+        }
+        $themeList.css("height", "calc(100% - " + newThemeListHeight + "px)");
+      }
+    }
+
     function resize() {
       var width = canvasLayer.canvas.width;
       var height = canvasLayer.canvas.height;
       gl.viewport(0, 0, width, height);
-
-      var windowWidth = $(window).width();
-      var windowHeight = $(window).height();
-
-      var scale = Math.min(1, Math.min((windowWidth * 2.2) / 1920, (windowHeight * 1.14) / 1080));
-      $('.current-location-text, #layers-legend, #layers-list').css({'transform': 'scale(' + scale + ')'});
 
       if (useJumpToButtons && !enableThemeHamburgerButton && !enableLetterboxMode) {
         var presentationSliderSelection = $("#presentation-slider-selection");
@@ -5737,6 +5881,9 @@
           $("#timeMachine").addClass("presentationSliderSelection").removeClass("presentationSliderSelectionOverflow");
         }
       }
+
+      fixThemeMenuHeight();
+
       canvasLayer.resize_();
     }
 
@@ -5916,7 +6063,6 @@
         }
 
         // Draw Fires at Night (VIIRS)
-
         var viirsIndex = {
           '201408': {'count': 115909, 'first': 0},
           '201409': {'count': 213165, 'first': 115909},
@@ -5955,10 +6101,9 @@
           '201706': {'count': 132268, 'first': 6230682},
           '201707': {'count': 171562, 'first': 6362950},
           '201708': {'count': 299079, 'first': 6534512},
-          '201708': {'count': 299079, 'first': 6534512},
           '201709': {'count': 298956, 'first': 6833591},
           '201710': {'count': 53789, 'first': 7132547}
-        }
+        };
         if (showViirsLayer) {
           var viirsLayerView = getLayerView(viirsLayer, landsatBaseMapLayer);
           var options = {};
@@ -5998,7 +6143,7 @@
           var delta = getCurrentTimesDelta(currentTime, currentTimes);
           var currentDate = getCurrentDate(currentTime, currentTimes, dates);
           options.currentTime = currentDate;
-          options.color = [.82, .22, .07, 1.0];
+          options.color = [0.82, 0.22, 0.07, 1.0];
           options.pointSize = 8.0;
           coralBleachingLayer.draw(coralBleachingLayerView, options);
         }
@@ -6636,7 +6781,7 @@
             var delta = getCurrentTimesDelta(currentTime, currentTimes);
             var currentDate = getCurrentDate(currentTime, currentTimes, dates);
             options.currentTime = currentDate;
-            options.pointSize = 2.;
+            options.pointSize = 2.0;
             if (visibleCsvLayers.length >= 2) {
               if (visibleCsvLayers[0] == i) {
                 options.mode = 2.0;
@@ -6846,7 +6991,6 @@
           layer.draw(view, options);
         }
 
-
         var crude_flows_index = [
           {'filename': '0-crude-flows.bin', 'max_epoch': 1362803764.439162, 'min_epoch': 1344196740.0},
           {'filename': '1-crude-flows.bin', 'max_epoch': 1368630850.6254642, 'min_epoch': 1356352440.0},
@@ -6990,7 +7134,6 @@
           }
         }
 
-
         var crude_flows_index_ME = [{'max_epoch': 1415424600.0, 'filename': '0-crude-flows_ME.bin', 'min_epoch': 1344196740.0}, {'max_epoch': 1400006506.1465456, 'filename': '1-crude-flows_ME.bin', 'min_epoch': 1365473760.0}, {'max_epoch': 1422349278.8764045, 'filename': '2-crude-flows_ME.bin', 'min_epoch': 1392063240.0}, {'max_epoch': 1442046780.0, 'filename': '3-crude-flows_ME.bin', 'min_epoch': 1415990828.6783042}, {'max_epoch': 1463993410.909091, 'filename': '4-crude-flows_ME.bin', 'min_epoch': 1425812640.0}, {'max_epoch': 1489005420.0, 'filename': '5-crude-flows_ME.bin', 'min_epoch': 1455601487.2727273}, {'max_epoch': 1503923820.0, 'filename': '6-crude-flows_ME.bin', 'min_epoch': 1475608320.0}, {'max_epoch': 1509998634.1951625, 'filename': '7-crude-flows_ME.bin', 'min_epoch': 1497173880.0}];
         function showIndexME(idx, epoch) {
           return crude_flows_index_ME[idx]['min_epoch'] < epoch && crude_flows_index_ME[idx]['max_epoch'] > epoch;
@@ -7068,9 +7211,7 @@
             }
           }
         }
-
-
-
+        // END LAYER DRAWS
       }
     }
   </script>
@@ -7110,10 +7251,14 @@
     <div id="letterbox-bottom"></div>
   </div>
   <div id="timeMachine"></div>
-  <div class="current-location-text">
-    <div class="current-location-text-title"></div>
-    <div id="current-location-text-picture"></div>
-    <p></p>
+  <div class="current-location-text-container">
+    <div class="previous-annotation-location" title="Previous story"></div>
+    <div class="current-location-text">
+      <div class="current-location-text-title"></div>
+      <div id="current-location-text-picture"></div>
+      <p></p>
+    </div>
+    <div class="next-annotation-location" title="Next story"></div>
   </div>
   <div id="extras-content" title=""></div>
   <div id="logosContainer" class="unselectable">
@@ -7131,18 +7276,26 @@
     </tr>
     </table>
   </div>
-  <div id="theme-menu" class="menu">
-    <div id="theme-list-caption">Themes:</div>
-    <ul id="theme-list">
+  <div id="main-hamburger-menu" class="menu">
+    <ul class="accordion-menu">
+      <li id="theme-menu" class="has-children">
+        <input type="radio" name="main-hamburger-selection" id="theme-selection" class="main-hamburger-selection">
+        <label for="theme-selection" class="selection-heading">Themes</label>
+        <ul id="theme-list"></ul>
+      </li>
+      <li id="layers-menu" class="has-children">
+        <input type="radio" name="main-hamburger-selection" id="layer-selection" class="main-hamburger-selection">
+        <label for="layer-selection" class="selection-heading">Layers</label>
+      </li>
     </ul>
   </div>
-  <div id="presentation-slider-hamburger-wrapper" title="Select a theme">
-    <button class="hamburger" type="button">
+  <div id="presentation-slider-hamburger-wrapper">
+    <button class="hamburger" type="button" title="More">
       <span class="hamburger-box">
         <span class="hamburger-inner"></span>
       </span>
     </button>
-    <div id="theme-title-container">
+    <div id="theme-title-container" title="Select a theme">
       <div id="theme-title"></div>
     </div>
   </div>

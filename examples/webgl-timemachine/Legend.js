@@ -24,13 +24,13 @@ BubbleMapLegend.prototype.setStr = function setStr(opts) {
     var that = this;
     function getKey(color, str) {
         var circle = '<circle class="gain" r="10" cx="15" cy="' + that.keyY + '" style="fill: ' + color + '; stroke: #fff;"></circle>';
-        var text = '<text x="30" y="' + (that.keyY + 5.0) + '" style="font-size: 12px; fill: #666">' + str + '</text>';
+        var text = '<text x="30" y="' + (that.keyY + 5.0) + '" style="font-size: 12px; fill: #fff">' + str + '</text>';
         return circle + text;
     }
 
     function getCircle(value, radius) {
-        var text =  '<text text-anchor="middle" x="120.0" y="' + (that.height - 2.0*parseFloat(radius)) + '" dy="10" style="font-size: 10px; fill: #666">' + value + '</text>';
-        var circle = '<circle r="' + radius + '" cx="120.0" cy=" ' + (that.height - parseFloat(radius) - 5.0) + '" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle>';
+        var text =  '<text text-anchor="middle" x="120.0" y="' + (that.height - 2.0*parseFloat(radius)) + '" dy="10" style="font-size: 10px; fill: #fff">' + value + '</text>';
+        var circle = '<circle r="' + radius + '" cx="120.0" cy="' + (that.height - parseFloat(radius) - 5.0) + '" vector-effect="non-scaling-stroke" style="fill: none; stroke: #a7a7a7"></circle>';
         return circle + text;
     }
 
@@ -59,7 +59,7 @@ var ChoroplethLegend = function ChoroplethLegend(opts) {
     this.xValueOffset = 0;
     this.id = opts["id"];
     this.str = opts["str"] || this.setStr(opts);
-    Legend.call(this, this.id, this.str);    
+    Legend.call(this, this.id, this.str);
 }
 
 ChoroplethLegend.prototype = Object.create(Legend.prototype);
@@ -115,7 +115,7 @@ ChoroplethLegend.prototype.setStr = function setStr(opts) {
         for (var i = 0; i < opts["values"].length; i++) {
             values += getValue(opts["values"][i]);
             this.xOffset += this.valueWidth;
-        }    
+        }
 
     }
     return div + svg + keys + colors + values + '</svg>';
