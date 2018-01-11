@@ -506,11 +506,11 @@ function GetNormal(a) {
 
 function Duplicate(nestedArray, mirror) {
   var out = []
-  nestedArray.forEach(x => {
-    let x1 = mirror ? -x : x
-    out.push(x1, x)
-  })
-  return out
+  nestedArray.forEach(function(x) {
+    var x1 = mirror ? -x : x;
+    out.push(x1,x);
+  });
+  return out;
 }
 
 function CreateIndices (length, offset) {
