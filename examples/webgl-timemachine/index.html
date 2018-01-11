@@ -3776,6 +3776,11 @@
           layer_html += show_be_pm25;
           layer_html += '   </tr>';
         }
+        if (showTsip) {
+          layer_html += '    <tr>';
+          layer_html += show_tsip;
+          layer_html += '    </tr>';
+        }
         layer_html += '  </table>';
         /* END POLLUTION CATEGORY */
 
@@ -4060,11 +4065,6 @@
         if (showUppsalaConflict) {
           layer_html += '    <tr>';
           layer_html += show_uppsala_conflict;
-          layer_html += '    </tr>';
-        }
-        if (showTsip) {
-          layer_html += '    <tr>';
-          layer_html += show_tsip;
           layer_html += '    </tr>';
         }
         if (showCumulativeActiveMining) {
