@@ -96,7 +96,7 @@ WebglMapLayer.prototype._createTile = function(ti, bounds) {
   }
 
   var url = this._tileUrl.replace("{z}", ti.l).replace("{x}", ti.c).replace("{y}", ti.r);
-  url = url.replace("{yflip}", (2**ti.l)-1-ti.r);
+  url = url.replace("{yflip}", Math.pow(2,ti.l)-1-ti.r);
   return new WebglMapTile(glb, ti, bounds, url, this._defaultUrl, opt_options);
 }
 

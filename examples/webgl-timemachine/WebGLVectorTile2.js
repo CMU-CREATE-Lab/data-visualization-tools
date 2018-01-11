@@ -62,7 +62,7 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
     xhr.open('GET', that._externalGeojson);
     xhr.onload = function() {
       that.geojsonData = JSON.parse(this.responseText);
-      console.log(that.geojsonData);
+      //console.log(that.geojsonData);
       that._load();
     };
     xhr.send();
@@ -91,8 +91,8 @@ WebGLVectorTile2.prototype._showErrorOnce = function(msg) {
   if (!WebGLVectorTile2.errorsAlreadyShown[msg]) {
     WebGLVectorTile2.errorsAlreadyShown[msg] = true;
 
-    console.log(tileUrl);
-    console.log(msg);
+    //console.log(tileUrl);
+    //console.log(msg);
 
     if (!WebGLVectorTile2.errorDialog) {
       WebGLVectorTile2.errorDialog = $(document.createElement('div'));
@@ -166,7 +166,6 @@ WebGLVectorTile2.prototype._loadGeojsonData = function() {
 }
 
 WebGLVectorTile2.prototype._loadCarbonPriceRiskDataFromCsv = function() {
-  console.log('_loadCarbonPriceRiskDataFromCsv');
   var that = this;
   this.xhr = new XMLHttpRequest();
   this.xhr.open('GET', that._url);
@@ -521,7 +520,7 @@ WebGLVectorTile2.prototype._setPolygonData = function(data) {
             }
           }
         }
-      
+
     }
     this._setBufferData(new Float32Array(verts));
     this._dataLoaded(this.layerId);
@@ -545,7 +544,7 @@ WebGLVectorTile2.prototype._setLineStringData = function(data) {
       if (feature["geometry"]["type"] == "MultiLineString") {
         for (var j = 0; j < feature["geometry"]["coordinates"].length; j++) {
           var path = [];
-          var path = path.concat(processLineString(feature["geometry"]["coordinates"][j]));        
+          var path = path.concat(processLineString(feature["geometry"]["coordinates"][j]));
           paths.push(path);
         }
       } else {
@@ -561,7 +560,7 @@ WebGLVectorTile2.prototype._setLineStringData = function(data) {
     //var positions = Duplicate(points);
     var positions = [];
     for (var j = 0; j < points.length; j++) {
-        positions.push(points[j], points[j]);        
+        positions.push(points[j], points[j]);
     }
     positions.shift();
     positions.pop();
@@ -603,8 +602,12 @@ WebGLVectorTile2.prototype._setExpandedLineStringData = function(data) {
   for (var i = 0; i < paths.length; i++) {
     var points = paths[i];
     var tags = GetNormals(points);
-    var normals = tags.map(x => x[0]);
-    var miters = tags.map(x => x[1]);
+    var normals = tags.map(function(x) {
+      return x[0];
+    });
+    var miters = tags.map(function(x) {
+      return x[1];
+    });
     var count = (points.length - 1) * 6;
     normals = Duplicate(normals);
     miters = Duplicate(miters, true);
@@ -996,7 +999,7 @@ WebGLVectorTile2.prototype._setBufferData  = function(data) {
 WebGLVectorTile2.prototype._setBuffers  = function(buffers, indices) {
   var gl = this.gl;
   this._pointCount = indices.length;
-  console.log(this._pointCount);
+  //console.log(this._pointCount);
   this._arrayBuffers = [];
   if (this._pointCount > 0) {
     for (var i = 0; i < buffers.length; i++) {
@@ -2022,8 +2025,8 @@ WebGLVectorTile2.prototype._drawUrbanFragility = function(transform, options) {
 }
 
 WebGLVectorTile2.prototype._drawObesity = function(transform, options) {
-  console.log(options);
-  console.log(this._pointCount);
+  //console.log(options);
+  //console.log(this._pointCount);
   var gl = this.gl;
   if (this._ready && this._pointCount > 0) {
     gl.useProgram(this.program);
@@ -3266,7 +3269,7 @@ WebGLVectorTile2.bubbleMapWithPackedColorVertexShader =
 '        float size = (a_Val2 - a_Val1) * delta + a_Val1;\n' +
 '        v_Val = size;\n' +
 '        gl_PointSize = abs(u_Size * size);\n' +
-'        v_color = a_color;\n' + 
+'        v_color = a_color;\n' +
 '      }\n';
 
 WebGLVectorTile2.bubbleMapWithPackedColorFragmentShader =
@@ -3281,7 +3284,7 @@ WebGLVectorTile2.bubbleMapWithPackedColorFragmentShader =
 '      color.b = floor(f / 256.0 / 256.0);\n' +
 '      color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);\n' +
 '      color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);\n' +
-'      color.a = 255.;\n' + 
+'      color.a = 255.;\n' +
 '      return color / 256.0;\n' +
 '    }\n' +
 '      void main() {\n' +
@@ -3615,13 +3618,13 @@ WebGLVectorTile2.tsipVertexShader =
 WebGLVectorTile2.tsipFragmentShader =
 '#extension GL_OES_standard_derivatives : enable\n' +
 'precision mediump float;\n' +
-'varying float v_color;\n' + 
+'varying float v_color;\n' +
 '  vec4 unpackColor(float f) {\n' +
 '      vec4 color;\n' +
 '      color.b = floor(f / 256.0 / 256.0);\n' +
 '      color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);\n' +
 '      color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);\n' +
-'      color.a = 255.;\n' + 
+'      color.a = 255.;\n' +
 '      return color / 255.0;\n' +
 '    }\n' +
 'void main() {\n' +
@@ -3671,28 +3674,28 @@ WebGLVectorTile2.pointFlowFragmentShader =
 '  }\n';
 
 
-WebGLVectorTile2.polygonVertexShader = 
+WebGLVectorTile2.polygonVertexShader =
 'attribute vec4 a_coord;\n' +
 'attribute float a_color;\n' +
 'uniform mat4 u_map_matrix;\n' +
 'varying float v_color;\n' +
 'void main() {\n' +
 '    vec4 position;\n' +
-'    position = u_map_matrix * a_coord;\n' + 
+'    position = u_map_matrix * a_coord;\n' +
 '    gl_Position = position;\n' +
-'    v_color = a_color;\n' + 
+'    v_color = a_color;\n' +
 '}\n';
 
-WebGLVectorTile2.polygonFragmentShader = 
+WebGLVectorTile2.polygonFragmentShader =
 '#extension GL_OES_standard_derivatives : enable\n' +
 '  precision mediump float;\n' +
-'  varying float v_color;\n' + 
+'  varying float v_color;\n' +
 '  vec4 unpackColor(float f) {\n' +
 '      vec4 color;\n' +
 '      color.b = floor(f / 256.0 / 256.0);\n' +
 '      color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);\n' +
 '      color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);\n' +
-'      color.a = 255.;\n' + 
+'      color.a = 255.;\n' +
 '      return color / 256.0;\n' +
 '    }\n' +
 '  void main() {\n' +
@@ -3742,7 +3745,7 @@ WebGLVectorTile2.expandedLineStringFragmentShader =
 '  }\n';
 
 
-WebGLVectorTile2.PointColorStartEpochEndEpochVertexShader = 
+WebGLVectorTile2.PointColorStartEpochEndEpochVertexShader =
 'attribute vec4 a_coord;\n' +
 'attribute float a_color;\n' +
 'attribute float a_epoch0;\n' +
@@ -3754,25 +3757,25 @@ WebGLVectorTile2.PointColorStartEpochEndEpochVertexShader =
 'void main() {\n' +
 '    vec4 position;\n' +
 '    if (a_epoch0 > u_epoch || a_epoch1 < u_epoch) {\n' +
-'        position = vec4(-1.,-1.,-1.,-1.);\n' + 
-'    } else {\n' + 
-'        position = u_map_matrix * a_coord;\n' + 
-'    }\n' + 
+'        position = vec4(-1.,-1.,-1.,-1.);\n' +
+'    } else {\n' +
+'        position = u_map_matrix * a_coord;\n' +
+'    }\n' +
 '    gl_Position = position;\n' +
 '    gl_PointSize = u_size*2.0;\n' +
-'    v_color = a_color;\n' + 
+'    v_color = a_color;\n' +
 '}\n';
 
-WebGLVectorTile2.PointColorStartEpochEndEpochFragmentShader = 
+WebGLVectorTile2.PointColorStartEpochEndEpochFragmentShader =
 '#extension GL_OES_standard_derivatives : enable\n' +
 '  precision mediump float;\n' +
-'  varying float v_color;\n' + 
+'  varying float v_color;\n' +
 '  vec4 unpackColor(float f) {\n' +
 '      vec4 color;\n' +
 '      color.b = floor(f / 256.0 / 256.0);\n' +
 '      color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);\n' +
 '      color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);\n' +
-'      color.a = 255.;\n' + 
+'      color.a = 255.;\n' +
 '      return color / 256.0;\n' +
 '    }\n' +
 '  void main() {\n' +
@@ -3783,38 +3786,38 @@ WebGLVectorTile2.PointColorStartEpochEndEpochFragmentShader =
 '  }\n';
 
 
-WebGLVectorTile2.spCrudeVertexShader = 
+WebGLVectorTile2.spCrudeVertexShader =
 'attribute vec4 a_coord_0;\n' +
 'attribute float a_epoch_0;\n' +
 'attribute vec4 a_coord_1;\n' +
 'attribute float a_epoch_1;\n' +
-'attribute float a_color;\n' + 
+'attribute float a_color;\n' +
 'uniform mat4 u_map_matrix;\n' +
 'uniform float u_epoch;\n' +
 'uniform float u_size;\n' +
-'varying float v_color;\n' + 
+'varying float v_color;\n' +
 'void main() {\n' +
 '    vec4 position;\n' +
 '    if (a_epoch_0 > u_epoch || a_epoch_1 < u_epoch) {\n' +
-'        position = vec4(-1.,-1.,-1.,-1.);\n' + 
-'    } else {\n' + 
-'          float t = (u_epoch - a_epoch_0)/(a_epoch_1 - a_epoch_0);\n' + 
-'          position = u_map_matrix * ((a_coord_1 - a_coord_0) * t + a_coord_0);\n' + 
-'    }\n' + 
+'        position = vec4(-1.,-1.,-1.,-1.);\n' +
+'    } else {\n' +
+'          float t = (u_epoch - a_epoch_0)/(a_epoch_1 - a_epoch_0);\n' +
+'          position = u_map_matrix * ((a_coord_1 - a_coord_0) * t + a_coord_0);\n' +
+'    }\n' +
 '    gl_Position = position;\n' +
 '    gl_PointSize = u_size*3.;\n' +
-'    v_color = a_color;\n' + 
+'    v_color = a_color;\n' +
 '}\n';
 
-WebGLVectorTile2.spCrudeFragmentShader = 
+WebGLVectorTile2.spCrudeFragmentShader =
 '  precision mediump float;\n' +
-'  varying float v_color;\n' + 
+'  varying float v_color;\n' +
 '  vec4 unpackColor(float f) {\n' +
 '      vec4 color;\n' +
 '      color.b = floor(f / 256.0 / 256.0);\n' +
 '      color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);\n' +
 '      color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);\n' +
-'      color.a = 255.;\n' + 
+'      color.a = 255.;\n' +
 '      return color / 256.0;\n' +
 '    }\n' +
 '  void main() {\n' +
