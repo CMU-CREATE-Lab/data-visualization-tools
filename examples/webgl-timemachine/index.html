@@ -3361,6 +3361,9 @@
           $themeEntry.data("waypoint-url", currentWaypointSliderContentUrl);
           $("#theme-list").append($themeEntry);
         }
+        if (loadedInitialWaypointList) {
+          changeHash({theme : ""});
+        }
         var hashVals = UTIL.getUnsafeHashVars();
         var $selectedThemeElement = waypointJSONList[hashVals.theme] ? $("#" + hashVals.theme) : $("#theme-list").children().first();
         $selectedThemeElement.click();
@@ -5218,19 +5221,19 @@ var layerOptions = {
               if (waypoint.annotationBoxTitle) {
                 $current_location_text.find(".current-location-text-title").show().text(waypoint.annotationBoxTitle);
               } else {
-                $current_location_text.find(".current-location-text-title").hide();
+                $current_location_text.find(".current-location-text-title").empty().hide();
               }
               var $current_location_text_picture = $("#current-location-text-picture");
               if (annotationPicturePaths[currentWaypointTheme] && annotationPicturePaths[currentWaypointTheme][waypointIndex].path) {
                 $current_location_text_picture.show();
                 $current_location_text_picture.css('background-image', 'url("' + annotationPicturePaths[currentWaypointTheme][waypointIndex].path + '")');
               } else {
-                $current_location_text_picture.hide();
+                $current_location_text_picture.empty().hide();
               }
               if (waypoint.description) {
                 $current_location_text.find("p").show().text(waypoint.description);
               } else {
-                $current_location_text.find("p").hide();
+                $current_location_text.find("p").empty().hide();
               }
 
               waypointViewChangeListener = function() {
@@ -7251,14 +7254,14 @@ var layerOptions = {
     <div id="letterbox-bottom"></div>
   </div>
   <div id="timeMachine"></div>
-  <div class="current-location-text-container">
-    <div class="previous-annotation-location" title="Previous story"></div>
+  <div class="current-location-text-container unselectable">
+    <div class="previous-annotation-location annotation-nav" title="Previous story"></div>
     <div class="current-location-text">
       <div class="current-location-text-title"></div>
       <div id="current-location-text-picture"></div>
       <p></p>
     </div>
-    <div class="next-annotation-location" title="Next story"></div>
+    <div class="next-annotation-location annotation-nav" title="Next story"></div>
   </div>
   <div id="extras-content" title=""></div>
   <div id="logosContainer" class="unselectable">

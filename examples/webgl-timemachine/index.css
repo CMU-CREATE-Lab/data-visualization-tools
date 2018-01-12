@@ -475,6 +475,7 @@ html, body {
   bottom: 180px;
   right: calc(50% - 220px);
   z-index: 99;
+  pointer-events: none;
 }
 .current-location-text-container.noTimeline {
   /*bottom: 125px;*/
@@ -491,6 +492,7 @@ html, body {
   position: absolute;
   left: 471px;
   bottom: 1px;
+  pointer-events: auto;
 }
 .previous-annotation-location {
   width: 50px;
@@ -503,6 +505,7 @@ html, body {
   position: absolute;
   left: -71px;
   bottom: 1px;
+  pointer-events: auto;
 }
 .current-location-text {
   background: rgba(0, 0, 0, 0.65);
@@ -543,6 +546,15 @@ html, body {
   text-align: left;
   display: inline-block;
 }
+
+.current-location-text-title ~ p:empty {
+  margin-top: 0;
+}
+
+.current-location-text-title:empty ~ p {
+  margin-top: 0;
+}
+
 .current-location-text p {
   margin: 0;
   margin-top: 0.35em;
@@ -1213,6 +1225,11 @@ a:focus { outline:0; }
   border-bottom: #999 1px solid;
 }
 
+.annotation-nav.ui-state-disabled {
+  background-color: #7a7a7a;
+  border-color: #7a7a7a;
+  opacity: 0.9;
+}
 
 .checkmark:before {
   /* Add another block-level blank space */
