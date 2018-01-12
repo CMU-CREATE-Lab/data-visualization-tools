@@ -454,7 +454,7 @@
         spCrudeLayerNS.buffers[idx].ready = true;
       }
     };
-    
+
 /*
     var shipsWorkerWAF = new Worker('ships-worker.js');
     shipsWorkerWAF.onmessage = function(e) {
@@ -769,14 +769,14 @@
     var tsipUrl = rootTilePath + "/tsip/tsip.bin";
 
     var spCrudeUrl = rootTilePath + "/sp-crude/0-crude-flows.bin";
-    var spCrudeUrlOceania = rootTilePath + "/sp-crude/Oceania/0-crude-flows_Oceania.bin"
-    var spCrudeUrlAG = rootTilePath + "/sp-crude/AG/0-crude-flows_AG.bin"
-    var spCrudeUrlWAF = rootTilePath + "/sp-crude/WAF/0-crude-flows_WAF.bin"
-    var spCrudeUrlMedNAF = rootTilePath + "/sp-crude/MedNAF/0-crude-flows_MedNAF.bin"
-    var spCrudeUrlUrals = rootTilePath + "/sp-crude/Urals/0-crude-flows_Urals.bin"
-    var spCrudeUrlUSGC = rootTilePath + "/sp-crude/USGC/0-crude-flows_USGC.bin"
-    var spCrudeUrlLatAM = rootTilePath + "/sp-crude/LatAM/0-crude-flows_LatAM.bin"
-    var spCrudeUrlNS = rootTilePath + "/sp-crude/NS/0-crude-flows_NS.bin"    
+    var spCrudeUrlOceania = rootTilePath + "/sp-crude/Oceania/0-crude-flows_Oceania.bin";
+    var spCrudeUrlAG = rootTilePath + "/sp-crude/AG/0-crude-flows_AG.bin";
+    var spCrudeUrlWAF = rootTilePath + "/sp-crude/WAF/0-crude-flows_WAF.bin";
+    var spCrudeUrlMedNAF = rootTilePath + "/sp-crude/MedNAF/0-crude-flows_MedNAF.bin";
+    var spCrudeUrlUrals = rootTilePath + "/sp-crude/Urals/0-crude-flows_Urals.bin";
+    var spCrudeUrlUSGC = rootTilePath + "/sp-crude/USGC/0-crude-flows_USGC.bin";
+    var spCrudeUrlLatAM = rootTilePath + "/sp-crude/LatAM/0-crude-flows_LatAM.bin";
+    var spCrudeUrlNS = rootTilePath + "/sp-crude/NS/0-crude-flows_NS.bin";
     /*
     var spCrudeUrlWAF = rootTilePath + "/sp-crude/0-crude-flows_WAF.bin"
     var spCrudeUrlNAF = rootTilePath + "/sp-crude/0-crude-flows_NAF.bin"
@@ -4608,7 +4608,7 @@
       legend_html += '<tr id="sp-crude-legend_Urals" style="display: none"><td><div style="font-size: 15px">Urals Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: rgb(255, 255, 51); stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">Urals</text></svg></td></tr>';
       legend_html += '<tr id="sp-crude-legend_USGC" style="display: none"><td><div style="font-size: 15px">USGC Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: rgb(152, 78, 163); stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">USGC</text></svg></td></tr>';
       legend_html += '<tr id="sp-crude-legend_LatAM" style="display: none"><td><div style="font-size: 15px">LatAM Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: rgb(247, 129, 191); stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">LatAM</text></svg></td></tr>';
-      legend_html += '<tr id="sp-crude-legend_NS" style="display: none"><td><div style="font-size: 15px">NS Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: rgb(77, 175, 74); stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">NS</text></svg></td></tr>';      
+      legend_html += '<tr id="sp-crude-legend_NS" style="display: none"><td><div style="font-size: 15px">NS Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: rgb(77, 175, 74); stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">NS</text></svg></td></tr>';
       /*
       legend_html += '<tr id="sp-crude-legend_WAF" style="display: none"><td><div style="font-size: 15px">WAF Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: orange; stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">West Africa</text></svg></td></tr>';
       legend_html += '<tr id="sp-crude-legend_NAF" style="display: none"><td><div style="font-size: 15px">NAF Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: blue; stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">North Africa</text></svg></td></tr>';
@@ -5693,23 +5693,6 @@ var layerOptions = {
               $current_location_text_container.hide();
             }
 
-            // Set playback rate based on the waypoint.
-            if (waypointPlaybackSpeed != null) {
-              if (waypointPlaybackSpeed == 0) {
-                if (timelapse.isDoingLoopingDwell()) {
-                  timelapse.handlePlayPause();
-                } else {
-                  timelapse.pause();
-                }
-              } else {
-                var waypointPlaybackRate = timelapse.getMaxPlaybackRate() * (waypointPlaybackSpeed / 100);
-                timelapse.setPlaybackRate(waypointPlaybackRate);
-                if (timelapse.isPaused() && !timelapse.isDoingLoopingDwell()) {
-                  timelapse.handlePlayPause();
-                }
-              }
-            }
-
             // Close the extra content pop-up if a waypoint is clicked.
             $('#extras-content').dialog('close');
           }
@@ -5766,6 +5749,33 @@ var layerOptions = {
             setHimawariView(himawariWaypoint.bounds, himawariWaypoint.time, 0.5);
           }
           // End Himawari
+
+          // Set playback rate based on the waypoint.
+          if (waypointPlaybackSpeed != null) {
+            if (waypointPlaybackSpeed == 0) {
+              if (timelapse.isDoingLoopingDwell()) {
+                timelapse.handlePlayPause();
+              } else {
+                timelapse.pause();
+              }
+            } else {
+              var waypointPlaybackRate = timelapse.getMaxPlaybackRate() * (waypointPlaybackSpeed / 100);
+              timelapse.setPlaybackRate(waypointPlaybackRate);
+              if (timelapse.isPaused() && !timelapse.isDoingLoopingDwell()) {
+                timelapse.handlePlayPause();
+              }
+            }
+            var onWaypointChangeListener = function() {
+              timelapse.removeTimelineUIChangeListener(onWaypointChangeListener);
+              timelapse.setPlaybackRate(waypointPlaybackRate);
+            };
+            timelapse.addTimelineUIChangeListener(onWaypointChangeListener);
+            // In the event a waypoint does not have a timeline change, be sure the above listener is removed.
+            setTimeout(function() {
+              timelapse.removeTimelineUIChangeListener(onWaypointChangeListener);
+            }, 500);
+          }
+
         });
         // End snaplapseViewerForPresentationSlider check
       }
