@@ -316,7 +316,16 @@
     var spCrudeLayer;
     setTimeLine('sp-crude-times', 2013, 2018, 1);
 
+    var spCrudeLayerOceania;
+    var spCrudeLayerAG;
     var spCrudeLayerWAF;
+    var spCrudeLayerMedNAF;
+    var spCrudeLayerUrals;
+    var spCrudeLayerUSGC;
+    var spCrudeLayerLatAM;
+    var spCrudeLayerNS;
+
+/*    var spCrudeLayerWAF;
     setTimeLine('sp-crude-times', 2013, 2018, 1);
 
     var spCrudeLayerNAF;
@@ -325,7 +334,7 @@
     setTimeLine('sp-crude-times', 2013, 2018, 1);
     var spCrudeLayerUS;
     setTimeLine('sp-crude-us-times', 2016, 2018, 1);
-
+*/
     var  shipsWorker = new Worker('ships-worker.js');
     shipsWorker.onmessage = function(e) {
       if (typeof e.data["idx"] != "undefined") {
@@ -341,6 +350,112 @@
       }
     };
 
+    var shipsWorkerOceania = new Worker('ships-worker.js');
+    shipsWorkerOceania.onmessage = function(e) {
+      if (typeof e.data["idx"] != "undefined") {
+        var idx = e.data.idx;
+        var array = e.data["array"];
+        var data = new Float32Array(array);
+        spCrudeLayerOceania.buffers[idx].count = data.length / spCrudeLayerOceania.buffers[idx].numAttributes;
+        spCrudeLayerOceania.buffers[idx].buffer = spCrudeLayerOceania.gl.createBuffer();
+        spCrudeLayerOceania.gl.bindBuffer(spCrudeLayerOceania.gl.ARRAY_BUFFER, spCrudeLayerOceania.buffers[idx].buffer);
+        gl.bufferData(spCrudeLayerOceania.gl.ARRAY_BUFFER, data, spCrudeLayerOceania.gl.STATIC_DRAW);
+        spCrudeLayerOceania.buffers[idx].ready = true;
+      }
+    };
+    var shipsWorkerAG = new Worker('ships-worker.js');
+    shipsWorkerAG.onmessage = function(e) {
+      if (typeof e.data["idx"] != "undefined") {
+        var idx = e.data.idx;
+        var array = e.data["array"];
+        var data = new Float32Array(array);
+        spCrudeLayerAG.buffers[idx].count = data.length / spCrudeLayerAG.buffers[idx].numAttributes;
+        spCrudeLayerAG.buffers[idx].buffer = spCrudeLayerAG.gl.createBuffer();
+        spCrudeLayerAG.gl.bindBuffer(spCrudeLayerAG.gl.ARRAY_BUFFER, spCrudeLayerAG.buffers[idx].buffer);
+        gl.bufferData(spCrudeLayerAG.gl.ARRAY_BUFFER, data, spCrudeLayerAG.gl.STATIC_DRAW);
+        spCrudeLayerAG.buffers[idx].ready = true;
+      }
+    };
+    var shipsWorkerWAF = new Worker('ships-worker.js');
+    shipsWorkerWAF.onmessage = function(e) {
+      if (typeof e.data["idx"] != "undefined") {
+        var idx = e.data.idx;
+        var array = e.data["array"];
+        var data = new Float32Array(array);
+        spCrudeLayerWAF.buffers[idx].count = data.length / spCrudeLayerWAF.buffers[idx].numAttributes;
+        spCrudeLayerWAF.buffers[idx].buffer = spCrudeLayerWAF.gl.createBuffer();
+        spCrudeLayerWAF.gl.bindBuffer(spCrudeLayerWAF.gl.ARRAY_BUFFER, spCrudeLayerWAF.buffers[idx].buffer);
+        gl.bufferData(spCrudeLayerWAF.gl.ARRAY_BUFFER, data, spCrudeLayerWAF.gl.STATIC_DRAW);
+        spCrudeLayerWAF.buffers[idx].ready = true;
+      }
+    };
+    var shipsWorkerMedNAF = new Worker('ships-worker.js');
+    shipsWorkerMedNAF.onmessage = function(e) {
+      if (typeof e.data["idx"] != "undefined") {
+        var idx = e.data.idx;
+        var array = e.data["array"];
+        var data = new Float32Array(array);
+        spCrudeLayerMedNAF.buffers[idx].count = data.length / spCrudeLayerMedNAF.buffers[idx].numAttributes;
+        spCrudeLayerMedNAF.buffers[idx].buffer = spCrudeLayerMedNAF.gl.createBuffer();
+        spCrudeLayerMedNAF.gl.bindBuffer(spCrudeLayerMedNAF.gl.ARRAY_BUFFER, spCrudeLayerMedNAF.buffers[idx].buffer);
+        gl.bufferData(spCrudeLayerMedNAF.gl.ARRAY_BUFFER, data, spCrudeLayerMedNAF.gl.STATIC_DRAW);
+        spCrudeLayerMedNAF.buffers[idx].ready = true;
+      }
+    };
+    var shipsWorkerUrals = new Worker('ships-worker.js');
+    shipsWorkerUrals.onmessage = function(e) {
+      if (typeof e.data["idx"] != "undefined") {
+        var idx = e.data.idx;
+        var array = e.data["array"];
+        var data = new Float32Array(array);
+        spCrudeLayerUrals.buffers[idx].count = data.length / spCrudeLayerUrals.buffers[idx].numAttributes;
+        spCrudeLayerUrals.buffers[idx].buffer = spCrudeLayerUrals.gl.createBuffer();
+        spCrudeLayerUrals.gl.bindBuffer(spCrudeLayerUrals.gl.ARRAY_BUFFER, spCrudeLayerUrals.buffers[idx].buffer);
+        gl.bufferData(spCrudeLayerUrals.gl.ARRAY_BUFFER, data, spCrudeLayerUrals.gl.STATIC_DRAW);
+        spCrudeLayerUrals.buffers[idx].ready = true;
+      }
+    };
+    var shipsWorkerUSGC = new Worker('ships-worker.js');
+    shipsWorkerUSGC.onmessage = function(e) {
+      if (typeof e.data["idx"] != "undefined") {
+        var idx = e.data.idx;
+        var array = e.data["array"];
+        var data = new Float32Array(array);
+        spCrudeLayerUSGC.buffers[idx].count = data.length / spCrudeLayerUSGC.buffers[idx].numAttributes;
+        spCrudeLayerUSGC.buffers[idx].buffer = spCrudeLayerUSGC.gl.createBuffer();
+        spCrudeLayerUSGC.gl.bindBuffer(spCrudeLayerUSGC.gl.ARRAY_BUFFER, spCrudeLayerUSGC.buffers[idx].buffer);
+        gl.bufferData(spCrudeLayerUSGC.gl.ARRAY_BUFFER, data, spCrudeLayerUSGC.gl.STATIC_DRAW);
+        spCrudeLayerUSGC.buffers[idx].ready = true;
+      }
+    };
+    var shipsWorkerLatAM = new Worker('ships-worker.js');
+    shipsWorkerLatAM.onmessage = function(e) {
+      if (typeof e.data["idx"] != "undefined") {
+        var idx = e.data.idx;
+        var array = e.data["array"];
+        var data = new Float32Array(array);
+        spCrudeLayerLatAM.buffers[idx].count = data.length / spCrudeLayerLatAM.buffers[idx].numAttributes;
+        spCrudeLayerLatAM.buffers[idx].buffer = spCrudeLayerLatAM.gl.createBuffer();
+        spCrudeLayerLatAM.gl.bindBuffer(spCrudeLayerLatAM.gl.ARRAY_BUFFER, spCrudeLayerLatAM.buffers[idx].buffer);
+        gl.bufferData(spCrudeLayerLatAM.gl.ARRAY_BUFFER, data, spCrudeLayerLatAM.gl.STATIC_DRAW);
+        spCrudeLayerLatAM.buffers[idx].ready = true;
+      }
+    };
+    var shipsWorkerNS = new Worker('ships-worker.js');
+    shipsWorkerNS.onmessage = function(e) {
+      if (typeof e.data["idx"] != "undefined") {
+        var idx = e.data.idx;
+        var array = e.data["array"];
+        var data = new Float32Array(array);
+        spCrudeLayerNS.buffers[idx].count = data.length / spCrudeLayerNS.buffers[idx].numAttributes;
+        spCrudeLayerNS.buffers[idx].buffer = spCrudeLayerNS.gl.createBuffer();
+        spCrudeLayerNS.gl.bindBuffer(spCrudeLayerNS.gl.ARRAY_BUFFER, spCrudeLayerNS.buffers[idx].buffer);
+        gl.bufferData(spCrudeLayerNS.gl.ARRAY_BUFFER, data, spCrudeLayerNS.gl.STATIC_DRAW);
+        spCrudeLayerNS.buffers[idx].ready = true;
+      }
+    };
+    
+/*
     var shipsWorkerWAF = new Worker('ships-worker.js');
     shipsWorkerWAF.onmessage = function(e) {
       if (typeof e.data["idx"] != "undefined") {
@@ -400,6 +515,7 @@
         spCrudeLayerUS.buffers[idx].ready = true;
       }
     };
+*/
 
     // LODES interface
     var lodesGui;
@@ -653,11 +769,20 @@
     var tsipUrl = rootTilePath + "/tsip/tsip.bin";
 
     var spCrudeUrl = rootTilePath + "/sp-crude/0-crude-flows.bin";
+    var spCrudeUrlOceania = rootTilePath + "/sp-crude/Oceania/0-crude-flows_Oceania.bin"
+    var spCrudeUrlAG = rootTilePath + "/sp-crude/AG/0-crude-flows_AG.bin"
+    var spCrudeUrlWAF = rootTilePath + "/sp-crude/WAF/0-crude-flows_WAF.bin"
+    var spCrudeUrlMedNAF = rootTilePath + "/sp-crude/MedNAF/0-crude-flows_MedNAF.bin"
+    var spCrudeUrlUrals = rootTilePath + "/sp-crude/Urals/0-crude-flows_Urals.bin"
+    var spCrudeUrlUSGC = rootTilePath + "/sp-crude/USGC/0-crude-flows_USGC.bin"
+    var spCrudeUrlLatAM = rootTilePath + "/sp-crude/LatAM/0-crude-flows_LatAM.bin"
+    var spCrudeUrlNS = rootTilePath + "/sp-crude/NS/0-crude-flows_NS.bin"    
+    /*
     var spCrudeUrlWAF = rootTilePath + "/sp-crude/0-crude-flows_WAF.bin"
     var spCrudeUrlNAF = rootTilePath + "/sp-crude/0-crude-flows_NAF.bin"
     var spCrudeUrlME = rootTilePath + "/sp-crude/0-crude-flows_ME.bin"
     var spCrudeUrlUS = rootTilePath + "/sp-crude/0-crude-flows_US.bin"
-
+    */
 
     function init() {
       var settings = {
@@ -2469,6 +2594,200 @@
         }
       }).prop('checked', showSpCrudeLayer);
 
+      $("#show-sp-crude_Oceania").on("click", function() {
+        if ($(this).prop('checked')) {
+          showSpCrudeLayerOceania = true;
+          setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
+          requestNewTimeline("sp-crude-times.json", timelineType);
+          timelapse.setMasterPlaybackRate(.005);
+          timelapse.setPlaybackRate(.00225);
+          $("#sp-crude-legend_Oceania").show();
+          if (visibleBaseMapLayer != "dark") {
+            $("#dark-base").click();
+          }
+        } else {
+          showSpCrudeLayerOceania = false;
+          spCrudeLayerOceania.destroy();
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          setActiveLayersWithTimeline(-1);
+          doSwitchToLandsat();
+          if (!$("#show-sp-crude_Oceania").prop('checked')) {
+            $("#sp-crude-legend_Oceania").hide();
+          }
+        }
+      }).prop('checked', showSpCrudeLayerOceania);
+      $("#show-sp-crude_AG").on("click", function() {
+        if ($(this).prop('checked')) {
+          showSpCrudeLayerAG = true;
+          setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
+          requestNewTimeline("sp-crude-times.json", timelineType);
+          timelapse.setMasterPlaybackRate(.005);
+          timelapse.setPlaybackRate(.00225);
+          $("#sp-crude-legend_AG").show();
+          if (visibleBaseMapLayer != "dark") {
+            $("#dark-base").click();
+          }
+        } else {
+          showSpCrudeLayerAG = false;
+          spCrudeLayerAG.destroy();
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          setActiveLayersWithTimeline(-1);
+          doSwitchToLandsat();
+          if (!$("#show-sp-crude_AG").prop('checked')) {
+            $("#sp-crude-legend_AG").hide();
+          }
+        }
+      }).prop('checked', showSpCrudeLayerAG);
+      $("#show-sp-crude_WAF").on("click", function() {
+        if ($(this).prop('checked')) {
+          showSpCrudeLayerWAF = true;
+          setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
+          requestNewTimeline("sp-crude-times.json", timelineType);
+          timelapse.setMasterPlaybackRate(.005);
+          timelapse.setPlaybackRate(.00225);
+          $("#sp-crude-legend_WAF").show();
+          if (visibleBaseMapLayer != "dark") {
+            $("#dark-base").click();
+          }
+        } else {
+          showSpCrudeLayerWAF = false;
+          spCrudeLayerWAF.destroy();
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          setActiveLayersWithTimeline(-1);
+          doSwitchToLandsat();
+          if (!$("#show-sp-crude_WAF").prop('checked')) {
+            $("#sp-crude-legend_WAF").hide();
+          }
+        }
+      }).prop('checked', showSpCrudeLayerWAF);
+      $("#show-sp-crude_MedNAF").on("click", function() {
+        if ($(this).prop('checked')) {
+          showSpCrudeLayerMedNAF = true;
+          setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
+          requestNewTimeline("sp-crude-times.json", timelineType);
+          timelapse.setMasterPlaybackRate(.005);
+          timelapse.setPlaybackRate(.00225);
+          $("#sp-crude-legend_MedNAF").show();
+          if (visibleBaseMapLayer != "dark") {
+            $("#dark-base").click();
+          }
+        } else {
+          showSpCrudeLayerMedNAF = false;
+          spCrudeLayerMedNAF.destroy();
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          setActiveLayersWithTimeline(-1);
+          doSwitchToLandsat();
+          if (!$("#show-sp-crude_MedNAF").prop('checked')) {
+            $("#sp-crude-legend_MedNAF").hide();
+          }
+        }
+      }).prop('checked', showSpCrudeLayerMedNAF);
+      $("#show-sp-crude_Urals").on("click", function() {
+        if ($(this).prop('checked')) {
+          showSpCrudeLayerUrals = true;
+          setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
+          requestNewTimeline("sp-crude-times.json", timelineType);
+          timelapse.setMasterPlaybackRate(.005);
+          timelapse.setPlaybackRate(.00225);
+          $("#sp-crude-legend_Urals").show();
+          if (visibleBaseMapLayer != "dark") {
+            $("#dark-base").click();
+          }
+        } else {
+          showSpCrudeLayerUrals = false;
+          spCrudeLayerUrals.destroy();
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          setActiveLayersWithTimeline(-1);
+          doSwitchToLandsat();
+          if (!$("#show-sp-crude_Urals").prop('checked')) {
+            $("#sp-crude-legend_Urals").hide();
+          }
+        }
+      }).prop('checked', showSpCrudeLayerUrals);
+      $("#show-sp-crude_USGC").on("click", function() {
+        if ($(this).prop('checked')) {
+          showSpCrudeLayerUSGC = true;
+          setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
+          requestNewTimeline("sp-crude-times.json", timelineType);
+          timelapse.setMasterPlaybackRate(.005);
+          timelapse.setPlaybackRate(.00225);
+          $("#sp-crude-legend_USGC").show();
+          if (visibleBaseMapLayer != "dark") {
+            $("#dark-base").click();
+          }
+        } else {
+          showSpCrudeLayerUSGC = false;
+          spCrudeLayerUSGC.destroy();
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          setActiveLayersWithTimeline(-1);
+          doSwitchToLandsat();
+          if (!$("#show-sp-crude_USGC").prop('checked')) {
+            $("#sp-crude-legend_USGC").hide();
+          }
+        }
+      }).prop('checked', showSpCrudeLayerUSGC);
+      $("#show-sp-crude_LatAM").on("click", function() {
+        if ($(this).prop('checked')) {
+          showSpCrudeLayerLatAM = true;
+          setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
+          requestNewTimeline("sp-crude-times.json", timelineType);
+          timelapse.setMasterPlaybackRate(.005);
+          timelapse.setPlaybackRate(.00225);
+          $("#sp-crude-legend_LatAM").show();
+          if (visibleBaseMapLayer != "dark") {
+            $("#dark-base").click();
+          }
+        } else {
+          showSpCrudeLayerLatAM = false;
+          spCrudeLayerLatAM.destroy();
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          setActiveLayersWithTimeline(-1);
+          doSwitchToLandsat();
+          if (!$("#show-sp-crude_LatAM").prop('checked')) {
+            $("#sp-crude-legend_LatAM").hide();
+          }
+        }
+      }).prop('checked', showSpCrudeLayerLatAM);
+      $("#show-sp-crude_NS").on("click", function() {
+        if ($(this).prop('checked')) {
+          showSpCrudeLayerNS = true;
+          setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
+          requestNewTimeline("sp-crude-times.json", timelineType);
+          timelapse.setMasterPlaybackRate(.005);
+          timelapse.setPlaybackRate(.00225);
+          $("#sp-crude-legend_NS").show();
+          if (visibleBaseMapLayer != "dark") {
+            $("#dark-base").click();
+          }
+        } else {
+          showSpCrudeLayerNS = false;
+          spCrudeLayerNS.destroy();
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          setActiveLayersWithTimeline(-1);
+          doSwitchToLandsat();
+          if (!$("#show-sp-crude_NS").prop('checked')) {
+            $("#sp-crude-legend_NS").hide();
+          }
+        }
+      }).prop('checked', showSpCrudeLayerNS);
+
+/*
       $("#show-sp-crude_WAF").on("click", function() {
         if ($(this).prop('checked')) {
           showSpCrudeLayerWAF = true;
@@ -2568,7 +2887,7 @@
           }
         }
       }).prop('checked', showSpCrudeLayerUS);
-
+*/
       // Base layers
       $("input:radio[name=base-layers]").on("click", function() {
         visibleBaseMapLayer = $(this).val();
@@ -3099,11 +3418,20 @@
     var showCarbonPriceRiskLayer = false;
     var showTsipLayer = false;
     var showSpCrudeLayer = false;
+    var showSpCrudeLayerOceania = false;
+    var showSpCrudeLayerAG = false;
+    var showSpCrudeLayerWAF = false;
+    var showSpCrudeLayerMedNAF = false;
+    var showSpCrudeLayerUrals = false;
+    var showSpCrudeLayerUSGC = false;
+    var showSpCrudeLayerLatAM = false;
+    var showSpCrudeLayerNS = false;
+    /*
     var showSpCrudeLayerWAF = false;
     var showSpCrudeLayerNAF = false;
     var showSpCrudeLayerME = false;
     var showSpCrudeLayerUS = false;
-
+  */
 
     // Default Time Machine visibility
     var tileViewVisibility = {
@@ -3530,11 +3858,20 @@
       var show_carbon_price_risk = '<td class="carbon-price-risk-select"><label for="show-carbon-price-risk" name="carbon_price_risk"><input type="checkbox" id="show-carbon-price-risk" />Carbon price risk</label></td>';
       var show_tsip = '<td class="tsip-select"><label for="show-tsip" name="tsip"><input type="checkbox" id="show-tsip" />Toxic Sites</label></td>';
       var show_sp_crude = '<td class="sp-crude-select"><label for="show-sp-crude" name="sp-crude"><input type="checkbox" id="show-sp-crude" />Crude Oil flows</label></td>';
+      var show_sp_crude_Oceania = '<td class="sp-crude-select_Oceania"><label for="show-sp-crude_Oceania" name="sp-crude_Oceania"><input type="checkbox" id="show-sp-crude_Oceania" />Oceania Crude Oil flows</label></td>';
+      var show_sp_crude_AG = '<td class="sp-crude-select_AG"><label for="show-sp-crude_AG" name="sp-crude_AG"><input type="checkbox" id="show-sp-crude_AG" />AG Crude Oil flows</label></td>';
+      var show_sp_crude_WAF = '<td class="sp-crude-select_WAF"><label for="show-sp-crude_WAF" name="sp-crude_WAF"><input type="checkbox" id="show-sp-crude_WAF" />WAF Crude Oil flows</label></td>';
+      var show_sp_crude_MedNAF = '<td class="sp-crude-select_MedNAF"><label for="show-sp-crude_MedNAF" name="sp-crude_MedNAF"><input type="checkbox" id="show-sp-crude_MedNAF" />MedNAF Crude Oil flows</label></td>';
+      var show_sp_crude_Urals = '<td class="sp-crude-select_Urals"><label for="show-sp-crude_Urals" name="sp-crude_Urals"><input type="checkbox" id="show-sp-crude_Urals" />Urals Crude Oil flows</label></td>';
+      var show_sp_crude_USGC = '<td class="sp-crude-select_USGC"><label for="show-sp-crude_USGC" name="sp-crude_USGC"><input type="checkbox" id="show-sp-crude_USGC" />USGC Crude Oil flows</label></td>';
+      var show_sp_crude_LatAM = '<td class="sp-crude-select_LatAM"><label for="show-sp-crude_LatAM" name="sp-crude_LatAM"><input type="checkbox" id="show-sp-crude_LatAM" />LatAM Crude Oil flows</label></td>';
+      var show_sp_crude_NS = '<td class="sp-crude-select_NS"><label for="show-sp-crude_NS" name="sp-crude_NS"><input type="checkbox" id="show-sp-crude_NS" />NS Crude Oil flows</label></td>';
+/*
       var show_sp_crude_WAF = '<td class="sp-crude-select_WAF"><label for="show-sp-crude_WAF" name="sp-crude_WAF"><input type="checkbox" id="show-sp-crude_WAF" />WAF Crude Oil flows</label></td>';
       var show_sp_crude_NAF = '<td class="sp-crude-select_NAF"><label for="show-sp-crude_WAF" name="sp-crude_NAF"><input type="checkbox" id="show-sp-crude_NAF" />NAF Crude Oil flows</label></td>';
       var show_sp_crude_ME = '<td class="sp-crude-select_ME"><label for="show-sp-crude_ME" name="sp-crude_ME"><input type="checkbox" id="show-sp-crude_ME" />ME Crude Oil flows</label></td>';
       var show_sp_crude_US = '<td class="sp-crude-select_US"><label for="show-sp-crude_US" name="sp-crude_US"><input type="checkbox" id="show-sp-crude_US" />US Crude Oil flows</label></td>';
-
+*/
 
       if (enableLetterboxMode) {
         layer_html += '<div class="base-map-div">';
@@ -3856,6 +4193,30 @@
           layer_html += show_sp_crude;
           layer_html += '    </tr>';
           layer_html += '    <tr>';
+          layer_html += show_sp_crude_Oceania;
+          layer_html += '    </tr>';
+          layer_html += '    <tr>';
+          layer_html += show_sp_crude_AG;
+          layer_html += '    </tr>';
+          layer_html += '    <tr>';
+          layer_html += show_sp_crude_WAF;
+          layer_html += '    </tr>';
+          layer_html += '    <tr>';
+          layer_html += show_sp_crude_MedNAF;
+          layer_html += '    </tr>';
+          layer_html += '    <tr>';
+          layer_html += show_sp_crude_Urals;
+          layer_html += '    </tr>';
+          layer_html += '    <tr>';
+          layer_html += show_sp_crude_USGC;
+          layer_html += '    </tr>';
+          layer_html += '    <tr>';
+          layer_html += show_sp_crude_LatAM;
+          layer_html += '    </tr>';
+          layer_html += '    <tr>';
+          layer_html += show_sp_crude_NS;
+          layer_html += '    </tr>';          /*
+          layer_html += '    <tr>';
           layer_html += show_sp_crude_WAF;
           layer_html += '    </tr>';
           layer_html += '    <tr>';
@@ -3867,6 +4228,7 @@
           layer_html += '    <tr>';
           layer_html += show_sp_crude_US;
           layer_html += '    </tr>';
+          */
         }
 
         layer_html += '  </table>';
@@ -4239,11 +4601,20 @@
       legend_html += '<tr id="expanding-cities-legend" style="display: none"><td>' +  tsipLegend.toString() + '</td></tr>';
 
       legend_html += '<tr id="sp-crude-legend" style="display: none"><td><div style="font-size: 15px">Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="220"><circle class="gain" r="10" cx="15" cy="10" style="fill: red; stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">Middle East</text><circle class="gain" r="10" cx="15" cy="35" style="fill: blue; stroke: #fff;"></circle><text x="30" y="40" style="font-size: 12px; fill: #fff">North Africa</text><circle class="gain" r="10" cx="15" cy="60" style="fill: green; stroke: #fff;"></circle><text x="30" y="65" style="font-size: 12px; fill: #fff">North Sea</text><circle class="gain" r="10" cx="15" cy="85" style="fill: yellow; stroke: #fff;"></circle><text x="30" y="90" style="font-size: 12px; fill: #fff">Urals</text><circle class="gain" r="10" cx="15" cy="110" style="fill: purple; stroke: #fff;"></circle><text x="30" y="115" style="font-size: 12px; fill: #fff">US Golf Coast</text><circle class="gain" r="10" cx="15" cy="135" style="fill: orange; stroke: #fff;"></circle><text x="30" y="140" style="font-size: 12px; fill: #fff">West Africa</text></svg></td></tr>';
+      legend_html += '<tr id="sp-crude-legend_Oceania" style="display: none"><td><div style="font-size: 15px">Oceania Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: rgb(166, 86, 40); stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">Oceania</text></svg></td></tr>';
+      legend_html += '<tr id="sp-crude-legend_AG" style="display: none"><td><div style="font-size: 15px">AG Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: rgb(228, 26, 28); stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">AG</text></svg></td></tr>';
+      legend_html += '<tr id="sp-crude-legend_WAF" style="display: none"><td><div style="font-size: 15px">WAF Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: rgb(255, 127, 0); stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">WAF</text></svg></td></tr>';
+      legend_html += '<tr id="sp-crude-legend_MedNAF" style="display: none"><td><div style="font-size: 15px">MedNAF Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: rgb(55, 126, 184); stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">MedNAF</text></svg></td></tr>';
+      legend_html += '<tr id="sp-crude-legend_Urals" style="display: none"><td><div style="font-size: 15px">Urals Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: rgb(255, 255, 51); stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">Urals</text></svg></td></tr>';
+      legend_html += '<tr id="sp-crude-legend_USGC" style="display: none"><td><div style="font-size: 15px">USGC Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: rgb(152, 78, 163); stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">USGC</text></svg></td></tr>';
+      legend_html += '<tr id="sp-crude-legend_LatAM" style="display: none"><td><div style="font-size: 15px">LatAM Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: rgb(247, 129, 191); stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">LatAM</text></svg></td></tr>';
+      legend_html += '<tr id="sp-crude-legend_NS" style="display: none"><td><div style="font-size: 15px">NS Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: rgb(77, 175, 74); stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">NS</text></svg></td></tr>';      
+      /*
       legend_html += '<tr id="sp-crude-legend_WAF" style="display: none"><td><div style="font-size: 15px">WAF Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: orange; stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">West Africa</text></svg></td></tr>';
       legend_html += '<tr id="sp-crude-legend_NAF" style="display: none"><td><div style="font-size: 15px">NAF Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: blue; stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">North Africa</text></svg></td></tr>';
       legend_html += '<tr id="sp-crude-legend_ME" style="display: none"><td><div style="font-size: 15px">ME Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: red; stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">Middle East</text></svg></td></tr>';
       legend_html += '<tr id="sp-crude-legend_US" style="display: none"><td><div style="font-size: 15px">US Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: purple; stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">US Golf Coast</text></svg></td></tr>';
-
+*/
       // ## 5b ##
       //// Add to layer legend ////
       //
@@ -5013,6 +5384,95 @@ var layerOptions = {
         vertexShader: WebGLVectorTile2.spCrudeVertexShader,
         numAttributes: 7
       };
+      spCrudeLayerOceania = new WebglVectorLayer2(glb, canvasLayer, spCrudeUrlOceania, layerOptions);
+      spCrudeLayerOceania.buffers = [];
+      var layerOptions = {
+        tileWidth: 256,
+        tileHeight: 256,
+        nLevels: 0,
+        drawFunction: WebGLVectorTile2.prototype._drawSpCrude,
+        fragmentShader: WebGLVectorTile2.spCrudeFragmentShader,
+        vertexShader: WebGLVectorTile2.spCrudeVertexShader,
+        numAttributes: 7
+      };
+      spCrudeLayerAG = new WebglVectorLayer2(glb, canvasLayer, spCrudeUrlAG, layerOptions);
+      spCrudeLayerAG.buffers = [];
+      var layerOptions = {
+        tileWidth: 256,
+        tileHeight: 256,
+        nLevels: 0,
+        drawFunction: WebGLVectorTile2.prototype._drawSpCrude,
+        fragmentShader: WebGLVectorTile2.spCrudeFragmentShader,
+        vertexShader: WebGLVectorTile2.spCrudeVertexShader,
+        numAttributes: 7
+      };
+      spCrudeLayerWAF = new WebglVectorLayer2(glb, canvasLayer, spCrudeUrlWAF, layerOptions);
+      spCrudeLayerWAF.buffers = [];
+      var layerOptions = {
+        tileWidth: 256,
+        tileHeight: 256,
+        nLevels: 0,
+        drawFunction: WebGLVectorTile2.prototype._drawSpCrude,
+        fragmentShader: WebGLVectorTile2.spCrudeFragmentShader,
+        vertexShader: WebGLVectorTile2.spCrudeVertexShader,
+        numAttributes: 7
+      };
+      spCrudeLayerMedNAF = new WebglVectorLayer2(glb, canvasLayer, spCrudeUrlMedNAF, layerOptions);
+      spCrudeLayerMedNAF.buffers = [];
+      var layerOptions = {
+        tileWidth: 256,
+        tileHeight: 256,
+        nLevels: 0,
+        drawFunction: WebGLVectorTile2.prototype._drawSpCrude,
+        fragmentShader: WebGLVectorTile2.spCrudeFragmentShader,
+        vertexShader: WebGLVectorTile2.spCrudeVertexShader,
+        numAttributes: 7
+      };
+      spCrudeLayerUrals = new WebglVectorLayer2(glb, canvasLayer, spCrudeUrlUrals, layerOptions);
+      spCrudeLayerUrals.buffers = [];
+      var layerOptions = {
+        tileWidth: 256,
+        tileHeight: 256,
+        nLevels: 0,
+        drawFunction: WebGLVectorTile2.prototype._drawSpCrude,
+        fragmentShader: WebGLVectorTile2.spCrudeFragmentShader,
+        vertexShader: WebGLVectorTile2.spCrudeVertexShader,
+        numAttributes: 7
+      };
+      spCrudeLayerUSGC = new WebglVectorLayer2(glb, canvasLayer, spCrudeUrlUSGC, layerOptions);
+      spCrudeLayerUSGC.buffers = [];
+      var layerOptions = {
+        tileWidth: 256,
+        tileHeight: 256,
+        nLevels: 0,
+        drawFunction: WebGLVectorTile2.prototype._drawSpCrude,
+        fragmentShader: WebGLVectorTile2.spCrudeFragmentShader,
+        vertexShader: WebGLVectorTile2.spCrudeVertexShader,
+        numAttributes: 7
+      };
+      spCrudeLayerLatAM = new WebglVectorLayer2(glb, canvasLayer, spCrudeUrlLatAM, layerOptions);
+      spCrudeLayerLatAM.buffers = [];
+      var layerOptions = {
+        tileWidth: 256,
+        tileHeight: 256,
+        nLevels: 0,
+        drawFunction: WebGLVectorTile2.prototype._drawSpCrude,
+        fragmentShader: WebGLVectorTile2.spCrudeFragmentShader,
+        vertexShader: WebGLVectorTile2.spCrudeVertexShader,
+        numAttributes: 7
+      };
+      spCrudeLayerNS = new WebglVectorLayer2(glb, canvasLayer, spCrudeUrlNS, layerOptions);
+      spCrudeLayerNS.buffers = [];
+/*
+      var layerOptions = {
+        tileWidth: 256,
+        tileHeight: 256,
+        nLevels: 0,
+        drawFunction: WebGLVectorTile2.prototype._drawSpCrude,
+        fragmentShader: WebGLVectorTile2.spCrudeFragmentShader,
+        vertexShader: WebGLVectorTile2.spCrudeVertexShader,
+        numAttributes: 7
+      };
       spCrudeLayerWAF = new WebglVectorLayer2(glb, canvasLayer, spCrudeUrlWAF, layerOptions);
       spCrudeLayerWAF.buffers = [];
 
@@ -5051,7 +5511,7 @@ var layerOptions = {
       };
       spCrudeLayerUS = new WebglVectorLayer2(glb, canvasLayer, spCrudeUrlUS, layerOptions);
       spCrudeLayerUS.buffers = [];
-
+*/
 
       // Layer Toggle UI
       initLayerToggleUI();
@@ -7031,7 +7491,343 @@ var layerOptions = {
           }
         }
 
-        var crude_flows_index_WAF = [{'max_epoch': 1369546545.6904259, 'filename': '0-crude-flows_WAF.bin', 'min_epoch': 1347827400.0}, {'max_epoch': 1384000997.8468745, 'filename': '1-crude-flows_WAF.bin', 'min_epoch': 1369093660.059511}, {'max_epoch': 1396544528.6240265, 'filename': '2-crude-flows_WAF.bin', 'min_epoch': 1383678100.2283463}, {'max_epoch': 1410039827.8139706, 'filename': '3-crude-flows_WAF.bin', 'min_epoch': 1396060055.4910874}, {'max_epoch': 1423672531.5875943, 'filename': '4-crude-flows_WAF.bin', 'min_epoch': 1409234220.2338972}, {'max_epoch': 1436901233.9274275, 'filename': '5-crude-flows_WAF.bin', 'min_epoch': 1423151910.5033143}, {'max_epoch': 1450586973.7042205, 'filename': '6-crude-flows_WAF.bin', 'min_epoch': 1436261673.157122}, {'max_epoch': 1463406015.2056491, 'filename': '7-crude-flows_WAF.bin', 'min_epoch': 1449455367.8838174}, {'max_epoch': 1478352738.4460068, 'filename': '8-crude-flows_WAF.bin', 'min_epoch': 1462474804.3018286}, {'max_epoch': 1491694036.1037672, 'filename': '9-crude-flows_WAF.bin', 'min_epoch': 1477808692.3018827}, {'max_epoch': 1504780096.800775, 'filename': '10-crude-flows_WAF.bin', 'min_epoch': 1490631133.5920255}, {'max_epoch': 1509999352.4567816, 'filename': '11-crude-flows_WAF.bin', 'min_epoch': 1504415956.08952}];
+        var crude_flows_index_Oceania = [{'max_epoch': 1.5083176e+09, 'filename': 'Oceania/0-crude-flows_Oceania.bin', 'min_epoch': 1.3435715e+09}];
+        var crude_flows_index_AG = [{'max_epoch': 1.3617048e+09, 'filename': 'AG/0-crude-flows_AG.bin', 'min_epoch': 1.3441967e+09}, {'max_epoch': 1.3771071e+09, 'filename': 'AG/1-crude-flows_AG.bin', 'min_epoch': 1.3594772e+09}, {'max_epoch': 1.3706697e+09, 'filename': 'AG/2-crude-flows_AG.bin', 'min_epoch': 1.3597724e+09}, {'max_epoch': 1.3761761e+09, 'filename': 'AG/3-crude-flows_AG.bin', 'min_epoch': 1.3693578e+09}, {'max_epoch': 1.3799291e+09, 'filename': 'AG/4-crude-flows_AG.bin', 'min_epoch': 1.3730234e+09}, {'max_epoch': 1.3835629e+09, 'filename': 'AG/5-crude-flows_AG.bin', 'min_epoch': 1.376452e+09}, {'max_epoch': 1.3884915e+09, 'filename': 'AG/6-crude-flows_AG.bin', 'min_epoch': 1.3797737e+09}, {'max_epoch': 1.3922216e+09, 'filename': 'AG/7-crude-flows_AG.bin', 'min_epoch': 1.3842066e+09}, {'max_epoch': 1.3967419e+09, 'filename': 'AG/8-crude-flows_AG.bin', 'min_epoch': 1.3880942e+09}, {'max_epoch': 1.4022243e+09, 'filename': 'AG/9-crude-flows_AG.bin', 'min_epoch': 1.3932987e+09}, {'max_epoch': 1.4059923e+09, 'filename': 'AG/10-crude-flows_AG.bin', 'min_epoch': 1.398294e+09}, {'max_epoch': 1.4106575e+09, 'filename': 'AG/11-crude-flows_AG.bin', 'min_epoch': 1.4030985e+09}, {'max_epoch': 1.4146995e+09, 'filename': 'AG/12-crude-flows_AG.bin', 'min_epoch': 1.408361e+09}, {'max_epoch': 1.4204237e+09, 'filename': 'AG/13-crude-flows_AG.bin', 'min_epoch': 1.4105153e+09}, {'max_epoch': 1.4244887e+09, 'filename': 'AG/14-crude-flows_AG.bin', 'min_epoch': 1.416967e+09}, {'max_epoch': 1.4297343e+09, 'filename': 'AG/15-crude-flows_AG.bin', 'min_epoch': 1.4202262e+09}, {'max_epoch': 1.4338424e+09, 'filename': 'AG/16-crude-flows_AG.bin', 'min_epoch': 1.4269531e+09}, {'max_epoch': 1.438222e+09, 'filename': 'AG/17-crude-flows_AG.bin', 'min_epoch': 1.4312159e+09}, {'max_epoch': 1.4429395e+09, 'filename': 'AG/18-crude-flows_AG.bin', 'min_epoch': 1.4354159e+09}, {'max_epoch': 1.4478618e+09, 'filename': 'AG/19-crude-flows_AG.bin', 'min_epoch': 1.4417828e+09}, {'max_epoch': 1.4529947e+09, 'filename': 'AG/20-crude-flows_AG.bin', 'min_epoch': 1.4457651e+09}, {'max_epoch': 1.458193e+09, 'filename': 'AG/21-crude-flows_AG.bin', 'min_epoch': 1.4514196e+09}, {'max_epoch': 1.4634623e+09, 'filename': 'AG/22-crude-flows_AG.bin', 'min_epoch': 1.4557041e+09}, {'max_epoch': 1.4669064e+09, 'filename': 'AG/23-crude-flows_AG.bin', 'min_epoch': 1.4613379e+09}, {'max_epoch': 1.4730853e+09, 'filename': 'AG/24-crude-flows_AG.bin', 'min_epoch': 1.4639675e+09}, {'max_epoch': 1.4782132e+09, 'filename': 'AG/25-crude-flows_AG.bin', 'min_epoch': 1.4703533e+09}, {'max_epoch': 1.480319e+09, 'filename': 'AG/26-crude-flows_AG.bin', 'min_epoch': 1.4711836e+09}, {'max_epoch': 1.4862049e+09, 'filename': 'AG/27-crude-flows_AG.bin', 'min_epoch': 1.47741e+09}, {'max_epoch': 1.4903073e+09, 'filename': 'AG/28-crude-flows_AG.bin', 'min_epoch': 1.4828404e+09}, {'max_epoch': 1.4943535e+09, 'filename': 'AG/29-crude-flows_AG.bin', 'min_epoch': 1.4861729e+09}, {'max_epoch': 1.4983288e+09, 'filename': 'AG/30-crude-flows_AG.bin', 'min_epoch': 1.4919392e+09}, {'max_epoch': 1.5031058e+09, 'filename': 'AG/31-crude-flows_AG.bin', 'min_epoch': 1.4967662e+09}, {'max_epoch': 1.5120396e+09, 'filename': 'AG/32-crude-flows_AG.bin', 'min_epoch': 1.5002131e+09}];
+        var crude_flows_index_WAF = [{'max_epoch': 1.3656445e+09, 'filename': 'WAF/0-crude-flows_WAF.bin', 'min_epoch': 1.3473725e+09}, {'max_epoch': 1.3747565e+09, 'filename': 'WAF/1-crude-flows_WAF.bin', 'min_epoch': 1.3650022e+09}, {'max_epoch': 1.3842788e+09, 'filename': 'WAF/2-crude-flows_WAF.bin', 'min_epoch': 1.3740604e+09}, {'max_epoch': 1.3929523e+09, 'filename': 'WAF/3-crude-flows_WAF.bin', 'min_epoch': 1.3833535e+09}, {'max_epoch': 1.4025202e+09, 'filename': 'WAF/4-crude-flows_WAF.bin', 'min_epoch': 1.3921147e+09}, {'max_epoch': 1.411857e+09, 'filename': 'WAF/5-crude-flows_WAF.bin', 'min_epoch': 1.4018527e+09}, {'max_epoch': 1.4214098e+09, 'filename': 'WAF/6-crude-flows_WAF.bin', 'min_epoch': 1.4116553e+09}, {'max_epoch': 1.4311532e+09, 'filename': 'WAF/7-crude-flows_WAF.bin', 'min_epoch': 1.4210131e+09}, {'max_epoch': 1.4404055e+09, 'filename': 'WAF/8-crude-flows_WAF.bin', 'min_epoch': 1.4305885e+09}, {'max_epoch': 1.4499501e+09, 'filename': 'WAF/9-crude-flows_WAF.bin', 'min_epoch': 1.4388869e+09}, {'max_epoch': 1.458926e+09, 'filename': 'WAF/10-crude-flows_WAF.bin', 'min_epoch': 1.4490766e+09}, {'max_epoch': 1.468358e+09, 'filename': 'WAF/11-crude-flows_WAF.bin', 'min_epoch': 1.458066e+09}, {'max_epoch': 1.4786161e+09, 'filename': 'WAF/12-crude-flows_WAF.bin', 'min_epoch': 1.4664877e+09}, {'max_epoch': 1.4881251e+09, 'filename': 'WAF/13-crude-flows_WAF.bin', 'min_epoch': 1.4772301e+09}, {'max_epoch': 1.4974886e+09, 'filename': 'WAF/14-crude-flows_WAF.bin', 'min_epoch': 1.4877286e+09}, {'max_epoch': 1.507764e+09, 'filename': 'WAF/15-crude-flows_WAF.bin', 'min_epoch': 1.496261e+09}, {'max_epoch': 1.511334e+09, 'filename': 'WAF/16-crude-flows_WAF.bin', 'min_epoch': 1.5044224e+09}];
+        var crude_flows_index_MedNAF = [{'max_epoch': 1.3762028e+09, 'filename': 'MedNAF/0-crude-flows_MedNAF.bin', 'min_epoch': 1.3501318e+09}, {'max_epoch': 1.4003267e+09, 'filename': 'MedNAF/1-crude-flows_MedNAF.bin', 'min_epoch': 1.3754286e+09}, {'max_epoch': 1.4250889e+09, 'filename': 'MedNAF/2-crude-flows_MedNAF.bin', 'min_epoch': 1.3960728e+09}, {'max_epoch': 1.4498509e+09, 'filename': 'MedNAF/3-crude-flows_MedNAF.bin', 'min_epoch': 1.4244504e+09}, {'max_epoch': 1.4743622e+09, 'filename': 'MedNAF/4-crude-flows_MedNAF.bin', 'min_epoch': 1.4464378e+09}, {'max_epoch': 1.4972628e+09, 'filename': 'MedNAF/5-crude-flows_MedNAF.bin', 'min_epoch': 1.4736177e+09}, {'max_epoch': 1.5095916e+09, 'filename': 'MedNAF/6-crude-flows_MedNAF.bin', 'min_epoch': 1.4953752e+09}];
+        var crude_flows_index_Urals = [{'max_epoch': 1.3944883e+09, 'filename': 'Urals/0-crude-flows_Urals.bin', 'min_epoch': 1.3512047e+09}, {'max_epoch': 1.435146e+09, 'filename': 'Urals/1-crude-flows_Urals.bin', 'min_epoch': 1.3944666e+09}, {'max_epoch': 1.47633e+09, 'filename': 'Urals/2-crude-flows_Urals.bin', 'min_epoch': 1.4350828e+09}, {'max_epoch': 1.5092532e+09, 'filename': 'Urals/3-crude-flows_Urals.bin', 'min_epoch': 1.4763123e+09}];
+        var crude_flows_index_USGC = [{'max_epoch': 1.5122628e+09, 'filename': 'USGC/0-crude-flows_USGC.bin', 'min_epoch': 1.3621992e+09}];
+        var crude_flows_index_LatAM = [{'max_epoch': 1.3680512e+09, 'filename': 'LatAM/0-crude-flows_LatAM.bin', 'min_epoch': 1.3474893e+09}, {'max_epoch': 1.3785563e+09, 'filename': 'LatAM/1-crude-flows_LatAM.bin', 'min_epoch': 1.3666175e+09}, {'max_epoch': 1.3898134e+09, 'filename': 'LatAM/2-crude-flows_LatAM.bin', 'min_epoch': 1.3767935e+09}, {'max_epoch': 1.4000607e+09, 'filename': 'LatAM/3-crude-flows_LatAM.bin', 'min_epoch': 1.3878431e+09}, {'max_epoch': 1.4103395e+09, 'filename': 'LatAM/4-crude-flows_LatAM.bin', 'min_epoch': 1.3986446e+09}, {'max_epoch': 1.4202254e+09, 'filename': 'LatAM/5-crude-flows_LatAM.bin', 'min_epoch': 1.408922e+09}, {'max_epoch': 1.43073e+09, 'filename': 'LatAM/6-crude-flows_LatAM.bin', 'min_epoch': 1.4186223e+09}, {'max_epoch': 1.4399827e+09, 'filename': 'LatAM/7-crude-flows_LatAM.bin', 'min_epoch': 1.4289676e+09}, {'max_epoch': 1.4490721e+09, 'filename': 'LatAM/8-crude-flows_LatAM.bin', 'min_epoch': 1.4386007e+09}, {'max_epoch': 1.4587574e+09, 'filename': 'LatAM/9-crude-flows_LatAM.bin', 'min_epoch': 1.4481128e+09}, {'max_epoch': 1.4689476e+09, 'filename': 'LatAM/10-crude-flows_LatAM.bin', 'min_epoch': 1.4563868e+09}, {'max_epoch': 1.4796142e+09, 'filename': 'LatAM/11-crude-flows_LatAM.bin', 'min_epoch': 1.4676618e+09}, {'max_epoch': 1.4914527e+09, 'filename': 'LatAM/12-crude-flows_LatAM.bin', 'min_epoch': 1.4776771e+09}, {'max_epoch': 1.5010688e+09, 'filename': 'LatAM/13-crude-flows_LatAM.bin', 'min_epoch': 1.4883502e+09}, {'max_epoch': 1.511766e+09, 'filename': 'LatAM/14-crude-flows_LatAM.bin', 'min_epoch': 1.498359e+09}];
+        var crude_flows_index_NS = [{'max_epoch': 1.4191127e+09, 'filename': 'NS/0-crude-flows_NS.bin', 'min_epoch': 1.3472122e+09}, {'max_epoch': 1.4766056e+09, 'filename': 'NS/1-crude-flows_NS.bin', 'min_epoch': 1.4182052e+09}, {'max_epoch': 1.5126084e+09, 'filename': 'NS/2-crude-flows_NS.bin', 'min_epoch': 1.4763096e+09}];
+
+  /** START Oceania LAYER */
+        function showIndexOceania(idx, epoch) {
+          return crude_flows_index_Oceania[idx]['min_epoch'] < epoch && crude_flows_index_Oceania[idx]['max_epoch'] > epoch;
+        }
+
+        if (showSpCrudeLayerOceania) {
+          var layer = spCrudeLayerOceania;
+          var view = getLayerView(layer, landsatBaseMapLayer);
+          var options = {};
+          options.zoom = timelapse.getCurrentZoom();
+          var currentTime = timelapse.getCurrentTime();
+          var currentTimes = getCurrentTimes(timelapse);
+          var dates = getDates(timelapse);
+          var delta = getCurrentTimesDelta(currentTime, currentTimes);
+          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
+          options.currentTime = currentDate;
+          options.pointSize = 2.;
+          options.color = [0.5,0.05,0.5,1.0];
+          var currentEpoch = currentDate/1000.;
+          for (var i = 0; i < crude_flows_index_Oceania.length; i++) {
+            if (showIndexOceania(i, currentEpoch)) {
+              if (typeof spCrudeLayerOceania.buffers[i] == "undefined") {
+                spCrudeLayerOceania.buffers[i] = {
+                  "numAttributes": 7,
+                  "count": 0,
+                  "buffer": null,
+                  "ready": false
+                };
+
+                var dataUrl = rootTilePath + '/sp-crude/' + crude_flows_index_Oceania[i]["filename"];
+                shipsWorkerOceania.postMessage({'idx': i, 'url': dataUrl});
+              }
+              options.idx = i;
+              options.buffers = spCrudeLayerOceania.buffers;
+              layer.draw(view, options);
+            }
+          }
+        }
+ /** END Oceania LAYER */
+
+
+ /** START AG LAYER */
+        function showIndexAG(idx, epoch) {
+          return crude_flows_index_AG[idx]['min_epoch'] < epoch && crude_flows_index_AG[idx]['max_epoch'] > epoch;
+        }
+
+        if (showSpCrudeLayerAG) {
+          var layer = spCrudeLayerAG;
+          var view = getLayerView(layer, landsatBaseMapLayer);
+          var options = {};
+          options.zoom = timelapse.getCurrentZoom();
+          var currentTime = timelapse.getCurrentTime();
+          var currentTimes = getCurrentTimes(timelapse);
+          var dates = getDates(timelapse);
+          var delta = getCurrentTimesDelta(currentTime, currentTimes);
+          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
+          options.currentTime = currentDate;
+          options.pointSize = 2.;
+          options.color = [0.5,0.05,0.5,1.0];
+          var currentEpoch = currentDate/1000.;
+          for (var i = 0; i < crude_flows_index_AG.length; i++) {
+            if (showIndexAG(i, currentEpoch)) {
+              if (typeof spCrudeLayerAG.buffers[i] == "undefined") {
+                spCrudeLayerAG.buffers[i] = {
+                  "numAttributes": 7,
+                  "count": 0,
+                  "buffer": null,
+                  "ready": false
+                };
+
+                var dataUrl = rootTilePath + '/sp-crude/' + crude_flows_index_AG[i]["filename"];
+                shipsWorkerAG.postMessage({'idx': i, 'url': dataUrl});
+              }
+              options.idx = i;
+              options.buffers = spCrudeLayerAG.buffers;
+              layer.draw(view, options);
+            }
+          }
+        }
+ /** END AG LAYER */
+
+
+ /** START WAF LAYER */
+        function showIndexWAF(idx, epoch) {
+          return crude_flows_index_WAF[idx]['min_epoch'] < epoch && crude_flows_index_WAF[idx]['max_epoch'] > epoch;
+        }
+
+        if (showSpCrudeLayerWAF) {
+          var layer = spCrudeLayerWAF;
+          var view = getLayerView(layer, landsatBaseMapLayer);
+          var options = {};
+          options.zoom = timelapse.getCurrentZoom();
+          var currentTime = timelapse.getCurrentTime();
+          var currentTimes = getCurrentTimes(timelapse);
+          var dates = getDates(timelapse);
+          var delta = getCurrentTimesDelta(currentTime, currentTimes);
+          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
+          options.currentTime = currentDate;
+          options.pointSize = 2.;
+          options.color = [0.5,0.05,0.5,1.0];
+          var currentEpoch = currentDate/1000.;
+          for (var i = 0; i < crude_flows_index_WAF.length; i++) {
+            if (showIndexWAF(i, currentEpoch)) {
+              if (typeof spCrudeLayerWAF.buffers[i] == "undefined") {
+                spCrudeLayerWAF.buffers[i] = {
+                  "numAttributes": 7,
+                  "count": 0,
+                  "buffer": null,
+                  "ready": false
+                };
+
+                var dataUrl = rootTilePath + '/sp-crude/' + crude_flows_index_WAF[i]["filename"];
+                shipsWorkerWAF.postMessage({'idx': i, 'url': dataUrl});
+              }
+              options.idx = i;
+              options.buffers = spCrudeLayerWAF.buffers;
+              layer.draw(view, options);
+            }
+          }
+        }
+ /** END WAF LAYER */
+
+
+ /** START MedNAF LAYER */
+        function showIndexMedNAF(idx, epoch) {
+          return crude_flows_index_MedNAF[idx]['min_epoch'] < epoch && crude_flows_index_MedNAF[idx]['max_epoch'] > epoch;
+        }
+
+        if (showSpCrudeLayerMedNAF) {
+          var layer = spCrudeLayerMedNAF;
+          var view = getLayerView(layer, landsatBaseMapLayer);
+          var options = {};
+          options.zoom = timelapse.getCurrentZoom();
+          var currentTime = timelapse.getCurrentTime();
+          var currentTimes = getCurrentTimes(timelapse);
+          var dates = getDates(timelapse);
+          var delta = getCurrentTimesDelta(currentTime, currentTimes);
+          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
+          options.currentTime = currentDate;
+          options.pointSize = 2.;
+          options.color = [0.5,0.05,0.5,1.0];
+          var currentEpoch = currentDate/1000.;
+          for (var i = 0; i < crude_flows_index_MedNAF.length; i++) {
+            if (showIndexMedNAF(i, currentEpoch)) {
+              if (typeof spCrudeLayerMedNAF.buffers[i] == "undefined") {
+                spCrudeLayerMedNAF.buffers[i] = {
+                  "numAttributes": 7,
+                  "count": 0,
+                  "buffer": null,
+                  "ready": false
+                };
+
+                var dataUrl = rootTilePath + '/sp-crude/' + crude_flows_index_MedNAF[i]["filename"];
+                shipsWorkerMedNAF.postMessage({'idx': i, 'url': dataUrl});
+              }
+              options.idx = i;
+              options.buffers = spCrudeLayerMedNAF.buffers;
+              layer.draw(view, options);
+            }
+          }
+        }
+ /** END MedNAF LAYER */
+
+
+ /** START Urals LAYER */
+        function showIndexUrals(idx, epoch) {
+          return crude_flows_index_Urals[idx]['min_epoch'] < epoch && crude_flows_index_Urals[idx]['max_epoch'] > epoch;
+        }
+
+        if (showSpCrudeLayerUrals) {
+          var layer = spCrudeLayerUrals;
+          var view = getLayerView(layer, landsatBaseMapLayer);
+          var options = {};
+          options.zoom = timelapse.getCurrentZoom();
+          var currentTime = timelapse.getCurrentTime();
+          var currentTimes = getCurrentTimes(timelapse);
+          var dates = getDates(timelapse);
+          var delta = getCurrentTimesDelta(currentTime, currentTimes);
+          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
+          options.currentTime = currentDate;
+          options.pointSize = 2.;
+          options.color = [0.5,0.05,0.5,1.0];
+          var currentEpoch = currentDate/1000.;
+          for (var i = 0; i < crude_flows_index_Urals.length; i++) {
+            if (showIndexUrals(i, currentEpoch)) {
+              if (typeof spCrudeLayerUrals.buffers[i] == "undefined") {
+                spCrudeLayerUrals.buffers[i] = {
+                  "numAttributes": 7,
+                  "count": 0,
+                  "buffer": null,
+                  "ready": false
+                };
+
+                var dataUrl = rootTilePath + '/sp-crude/' + crude_flows_index_Urals[i]["filename"];
+                shipsWorkerUrals.postMessage({'idx': i, 'url': dataUrl});
+              }
+              options.idx = i;
+              options.buffers = spCrudeLayerUrals.buffers;
+              layer.draw(view, options);
+            }
+          }
+        }
+ /** END Urals LAYER */
+
+
+ /** START USGC LAYER */
+        function showIndexUSGC(idx, epoch) {
+          return crude_flows_index_USGC[idx]['min_epoch'] < epoch && crude_flows_index_USGC[idx]['max_epoch'] > epoch;
+        }
+
+        if (showSpCrudeLayerUSGC) {
+          var layer = spCrudeLayerUSGC;
+          var view = getLayerView(layer, landsatBaseMapLayer);
+          var options = {};
+          options.zoom = timelapse.getCurrentZoom();
+          var currentTime = timelapse.getCurrentTime();
+          var currentTimes = getCurrentTimes(timelapse);
+          var dates = getDates(timelapse);
+          var delta = getCurrentTimesDelta(currentTime, currentTimes);
+          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
+          options.currentTime = currentDate;
+          options.pointSize = 2.;
+          options.color = [0.5,0.05,0.5,1.0];
+          var currentEpoch = currentDate/1000.;
+          for (var i = 0; i < crude_flows_index_USGC.length; i++) {
+            if (showIndexUSGC(i, currentEpoch)) {
+              if (typeof spCrudeLayerUSGC.buffers[i] == "undefined") {
+                spCrudeLayerUSGC.buffers[i] = {
+                  "numAttributes": 7,
+                  "count": 0,
+                  "buffer": null,
+                  "ready": false
+                };
+
+                var dataUrl = rootTilePath + '/sp-crude/' + crude_flows_index_USGC[i]["filename"];
+                shipsWorkerUSGC.postMessage({'idx': i, 'url': dataUrl});
+              }
+              options.idx = i;
+              options.buffers = spCrudeLayerUSGC.buffers;
+              layer.draw(view, options);
+            }
+          }
+        }
+ /** END USGC LAYER */
+
+
+ /** START LatAM LAYER */
+        function showIndexLatAM(idx, epoch) {
+          return crude_flows_index_LatAM[idx]['min_epoch'] < epoch && crude_flows_index_LatAM[idx]['max_epoch'] > epoch;
+        }
+
+        if (showSpCrudeLayerLatAM) {
+          var layer = spCrudeLayerLatAM;
+          var view = getLayerView(layer, landsatBaseMapLayer);
+          var options = {};
+          options.zoom = timelapse.getCurrentZoom();
+          var currentTime = timelapse.getCurrentTime();
+          var currentTimes = getCurrentTimes(timelapse);
+          var dates = getDates(timelapse);
+          var delta = getCurrentTimesDelta(currentTime, currentTimes);
+          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
+          options.currentTime = currentDate;
+          options.pointSize = 2.;
+          options.color = [0.5,0.05,0.5,1.0];
+          var currentEpoch = currentDate/1000.;
+          for (var i = 0; i < crude_flows_index_LatAM.length; i++) {
+            if (showIndexLatAM(i, currentEpoch)) {
+              if (typeof spCrudeLayerLatAM.buffers[i] == "undefined") {
+                spCrudeLayerLatAM.buffers[i] = {
+                  "numAttributes": 7,
+                  "count": 0,
+                  "buffer": null,
+                  "ready": false
+                };
+
+                var dataUrl = rootTilePath + '/sp-crude/' + crude_flows_index_LatAM[i]["filename"];
+                shipsWorkerLatAM.postMessage({'idx': i, 'url': dataUrl});
+              }
+              options.idx = i;
+              options.buffers = spCrudeLayerLatAM.buffers;
+              layer.draw(view, options);
+            }
+          }
+        }
+ /** END LatAM LAYER */
+
+
+ /** START NS LAYER */
+        function showIndexNS(idx, epoch) {
+          return crude_flows_index_NS[idx]['min_epoch'] < epoch && crude_flows_index_NS[idx]['max_epoch'] > epoch;
+        }
+
+        if (showSpCrudeLayerNS) {
+          var layer = spCrudeLayerNS;
+          var view = getLayerView(layer, landsatBaseMapLayer);
+          var options = {};
+          options.zoom = timelapse.getCurrentZoom();
+          var currentTime = timelapse.getCurrentTime();
+          var currentTimes = getCurrentTimes(timelapse);
+          var dates = getDates(timelapse);
+          var delta = getCurrentTimesDelta(currentTime, currentTimes);
+          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
+          options.currentTime = currentDate;
+          options.pointSize = 2.;
+          options.color = [0.5,0.05,0.5,1.0];
+          var currentEpoch = currentDate/1000.;
+          for (var i = 0; i < crude_flows_index_NS.length; i++) {
+            if (showIndexNS(i, currentEpoch)) {
+              if (typeof spCrudeLayerNS.buffers[i] == "undefined") {
+                spCrudeLayerNS.buffers[i] = {
+                  "numAttributes": 7,
+                  "count": 0,
+                  "buffer": null,
+                  "ready": false
+                };
+
+                var dataUrl = rootTilePath + '/sp-crude/' + crude_flows_index_NS[i]["filename"];
+                shipsWorkerNS.postMessage({'idx': i, 'url': dataUrl});
+              }
+              options.idx = i;
+              options.buffers = spCrudeLayerNS.buffers;
+              layer.draw(view, options);
+            }
+          }
+        }
+ /** END NS LAYER */
+
+/*        var crude_flows_index_WAF = [{'max_epoch': 1369546545.6904259, 'filename': '0-crude-flows_WAF.bin', 'min_epoch': 1347827400.0}, {'max_epoch': 1384000997.8468745, 'filename': '1-crude-flows_WAF.bin', 'min_epoch': 1369093660.059511}, {'max_epoch': 1396544528.6240265, 'filename': '2-crude-flows_WAF.bin', 'min_epoch': 1383678100.2283463}, {'max_epoch': 1410039827.8139706, 'filename': '3-crude-flows_WAF.bin', 'min_epoch': 1396060055.4910874}, {'max_epoch': 1423672531.5875943, 'filename': '4-crude-flows_WAF.bin', 'min_epoch': 1409234220.2338972}, {'max_epoch': 1436901233.9274275, 'filename': '5-crude-flows_WAF.bin', 'min_epoch': 1423151910.5033143}, {'max_epoch': 1450586973.7042205, 'filename': '6-crude-flows_WAF.bin', 'min_epoch': 1436261673.157122}, {'max_epoch': 1463406015.2056491, 'filename': '7-crude-flows_WAF.bin', 'min_epoch': 1449455367.8838174}, {'max_epoch': 1478352738.4460068, 'filename': '8-crude-flows_WAF.bin', 'min_epoch': 1462474804.3018286}, {'max_epoch': 1491694036.1037672, 'filename': '9-crude-flows_WAF.bin', 'min_epoch': 1477808692.3018827}, {'max_epoch': 1504780096.800775, 'filename': '10-crude-flows_WAF.bin', 'min_epoch': 1490631133.5920255}, {'max_epoch': 1509999352.4567816, 'filename': '11-crude-flows_WAF.bin', 'min_epoch': 1504415956.08952}];
         function showIndexWAF(idx, epoch) {
           return crude_flows_index_WAF[idx]['min_epoch'] < epoch && crude_flows_index_WAF[idx]['max_epoch'] > epoch;
         }
@@ -7186,6 +7982,7 @@ var layerOptions = {
             }
           }
         }
+        */
         // END LAYER DRAWS
       }
     }
