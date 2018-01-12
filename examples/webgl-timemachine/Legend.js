@@ -24,12 +24,12 @@ BubbleMapLegend.prototype.setStr = function setStr(opts) {
     var that = this;
     function getKey(color, str) {
         var circle = '<circle class="gain" r="10" cx="15" cy="' + that.keyY + '" style="fill: ' + color + '; stroke: #fff;"></circle>';
-        var text = '<text x="30" y="' + (that.keyY + 5.0) + '" style="font-size: 12px; fill: #fff">' + str + '</text>';
+        var text = '<text x="30" y="' + (that.keyY + 5.0) + '" style="font-size: 12px; fill: #e6e6e6">' + str + '</text>';
         return circle + text;
     }
 
     function getCircle(value, radius) {
-        var text =  '<text text-anchor="middle" x="120.0" y="' + (that.height - 2.0*parseFloat(radius)) + '" dy="10" style="font-size: 10px; fill: #fff">' + value + '</text>';
+        var text =  '<text text-anchor="middle" x="120.0" y="' + (that.height - 2.0*parseFloat(radius)) + '" dy="10" style="font-size: 10px; fill: #e6e6e6">' + value + '</text>';
         var circle = '<circle r="' + radius + '" cx="120.0" cy="' + (that.height - parseFloat(radius) - 5.0) + '" vector-effect="non-scaling-stroke" style="fill: none; stroke: #a7a7a7"></circle>';
         return circle + text;
     }
@@ -68,7 +68,7 @@ ChoroplethLegend.prototype.setStr = function setStr(opts) {
     var that = this;
 
     function getKey(str) {
-        var text = '<text x="140" y="10" text-anchor="middle" style="font-size: 12px; fill: #333">' + str + '</text>';
+        var text = '<text x="140" y="10" text-anchor="middle" style="font-size: 12px; fill: #dcdbdb">' + str + '</text>';
         return text;
     }
     function getColor(color) {
@@ -76,7 +76,7 @@ ChoroplethLegend.prototype.setStr = function setStr(opts) {
         return rect;
     }
     function getValue(value) {
-        var text = '<text font-size="10px" fill="#666" y="40" x="' + that.xOffset  + '" text-anchor="middle">' + value + '</text>';
+        var text = '<text font-size="10px" fill="#e6e6e6" y="40" x="' + that.xOffset  + '" text-anchor="middle">' + value + '</text>';
         return text;
     }
 
