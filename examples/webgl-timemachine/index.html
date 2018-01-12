@@ -3253,23 +3253,10 @@
       }
     }
 
-    function loadDotmapLayers(docTabId) {
-      // docTabId DOCID.TABID, e.g. 1hFpDXOyjvjTpad7HpB0K-3thuYqSOlDJ4oExCTcscUk.358696896,
-      // which would translate into https://docs.google.com/spreadsheets/d/1hFpDXOyjvjTpad7HpB0K-3thuYqSOlDJ4oExCTcscUk/edit#gid=358696896
-      var docId = docTabId.split('.')[0];
-      var tabId = docTabId.split('.')[1];
-      var url = 'https://docs.google.com/spreadsheets/d/' + docId + '/edit';
-      if (tabId) {
-          url += '#gid=' + tabId;
-      }
-      UTIL.gdocToJSON(url, function(tsvdata) {
-        loadDotmapLayersFromTsv(tsvdata);
-      });
-    }
-
-    function loadDotmapsFromPath(path) {
+    function loadDotmapLayers(path) {
       if (path == dotlayersLoadedPath) return;
       dotlayersLoadedPath = path;
+      var url = path;
 
       // Clear out any dot map layers that have already been loaded
       $("#dotmaps_table, .dotmap").find("input:checked").trigger("click");
@@ -3285,10 +3272,21 @@
             loadDotmapLayersFromTsv(csvdata);
           }
         });
-      } else {
-        // Load dotmaps from Google Docs
-        loadDotmapLayers(path);
+        return;
+      } else if (path.indexOf("http") != 0) {
+        // docTabId DOCID.TABID, e.g. 1hFpDXOyjvjTpad7HpB0K-3thuYqSOlDJ4oExCTcscUk.358696896,
+        // which would translate into https://docs.google.com/spreadsheets/d/1hFpDXOyjvjTpad7HpB0K-3thuYqSOlDJ4oExCTcscUk/edit#gid=358696896
+        var docId = path.split('.')[0];
+        var tabId = path.split('.')[1];
+        url = 'https://docs.google.com/spreadsheets/d/' + docId + '/edit';
+        if (tabId) {
+          url += '#gid=' + tabId;
+        }
       }
+      // Load dotmaps from Google Docs
+      UTIL.gdocToJSON(url, function(tsvdata) {
+        loadDotmapLayersFromTsv(tsvdata);
+      });
     }
 
     function modifyWaypointSliderContent(keyframes, theme) {
@@ -3406,19 +3404,15 @@
 
     }
 
-    function loadWaypointsFromGdoc(waypointSliderContentPath) {
-      UTIL.gdocToJSON(waypointSliderContentPath, function(csvdata) {
-        loadWaypointSliderContentFromCSV(csvdata);
-      });
-    }
-
-    function loadWaypointsFromPath(path) {
+    function loadWaypoints(path) {
       if (path == waypointsLoadedPath) return;
       waypointsLoadedPath = path;
 
       if (path.indexOf("http") >= 0) {
         // Load waypoints from Google Docs
-        loadWaypointsFromGdoc(path);
+        UTIL.gdocToJSON(path, function(csvdata) {
+          loadWaypointSliderContentFromCSV(csvdata);
+        });
       } else {
         // Load local version of the waypoints .tsv file
         $.ajax({
@@ -4444,28 +4438,6 @@
         });
       }
 
-      // Check URL layer verification tokens only if on http or https
-      if (window.location.href.indexOf("http") == 0) {
-        $.ajax({
-          url: "http://verify.createlab.org:1337/et-china-infrastructure",
-          data: {
-            token: getUrlParameter("cit")
-          }
-        }).done(function(res) {
-          if (res.response) {
-            $("#category-ci").show();
-            $("#category-ci").prev().show();
-          } else {
-            showChinaInfrastructure = false;
-            $("#category-ci").prev().remove();
-            $("#category-ci").remove();
-          }
-        });
-      } else {
-        $("#category-ci").show();
-        $("#category-ci").prev().show();
-      }
-
       if (isHyperwall) {
         $("#layers-list, #layers-legend, #presentation-slider-selection, .base-map-div, .current-location-text, .customZoomhelp, #logosContainer").addClass("hyperwall");
       }
@@ -5462,7 +5434,7 @@ var layerOptions = {
           // If for some reason the waypoints cannot load, the controls need to be manually
           // pushed up by changing the player to where it would be had the waypoints loaded.
           $("#timeMachine .player").css("bottom", "93px");
-          loadWaypointsFromPath(waypointsPath);
+          loadWaypoints(waypointsPath);
         }
 
         if (showCustomDotmaps) {
@@ -5471,7 +5443,7 @@ var layerOptions = {
             dotmapsPath = vals.dotlayers;
           }
           dotmapsPath = dotmapsPath || dotmapsContentPath;
-          loadDotmapsFromPath(dotmapsPath);
+          loadDotmapLayers(dotmapsPath);
         }
 
         if (showCsvLayers) {
