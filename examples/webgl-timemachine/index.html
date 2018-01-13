@@ -84,8 +84,8 @@
 
     var EARTH_TIMELAPSE_CONFIG = EARTH_TIMELAPSE_CONFIG || {};
     var enableStoryMode = !!EARTH_TIMELAPSE_CONFIG.enableStoryMode;
-    // Deprecated externally but still used internally. Instead use waypointSliderContentPath, which points to an online or exported spreadsheet.
-    var waypointSliderContent = EARTH_TIMELAPSE_CONFIG.waypointCollection;
+    // Deprecated. Instead use waypointSliderContentPath, which points to an online or exported spreadsheet.
+    var waypointCollection = EARTH_TIMELAPSE_CONFIG.waypointCollection;
     var waypointSliderContentPath = EARTH_TIMELAPSE_CONFIG.waypointSliderContentPath || "default-waypoints.tsv";
     var dotmapsContentPath;
     if (typeof(EARTH_TIMELAPSE_CONFIG.dotmapsContentPath) === "undefined") {
@@ -3709,7 +3709,7 @@
         var waypointJSON = JSON.parse(snaplapseForPresentationSlider.CSVToJSON(csvdata));
         modifyWaypointSliderContent(waypointJSON.snaplapse.keyframes, currentWaypointTheme);
         currentWaypointSliderContentUrl = snaplapseForPresentationSlider.getAsUrlString(waypointJSON.snaplapse.keyframes);
-        waypointSliderContent = "#presentation=" + currentWaypointSliderContentUrl;
+        var waypointSliderContent = "#presentation=" + currentWaypointSliderContentUrl;
         timelapse.loadSharedDataFromUnsafeURL(waypointSliderContent);
       }
 
@@ -3747,7 +3747,10 @@
       if (path == waypointsLoadedPath) return;
       waypointsLoadedPath = path;
 
-      if (path.indexOf("http") >= 0) {
+      // Legacy waypoint format (output of snaplapse editor)
+      if (waypointCollection) {
+        timelapse.loadSharedDataFromUnsafeURL(waypointCollection);
+      } else if (path.indexOf("http") >= 0) {
         // Load waypoints from Google Docs
         UTIL.gdocToJSON(path, function(csvdata) {
           loadWaypointSliderContentFromCSV(csvdata);
