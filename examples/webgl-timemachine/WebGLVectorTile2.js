@@ -165,6 +165,56 @@ WebGLVectorTile2.prototype._loadGeojsonData = function() {
   this.xhr.send();
 }
 
+WebGLVectorTile.prototype._loadSitc4r2Data = function () {
+  console.log('_loadSitc4r2Data');
+
+  var parseQueryString = function( queryString ) {
+      var params = {}, queries, temp, i, l;
+      // Split into key/value pairs
+      queries = queryString.split("&");
+      // Convert the array of strings into an object
+      for ( i = 0, l = queries.length; i < l; i++ ) {
+          temp = queries[i].split('=');
+          params[temp[0]] = temp[1];
+      }
+      return params;
+  };
+
+  var re=/([0-9]{2,})\/([0-9]{4}).json/g;
+  var myArray = re.exec(this._url);
+  console.log(this._url);
+  this._sitc4r2Code = myArray[1].toString();
+
+  var queryString = undefined;
+  this._exporters = [];
+  this._importers = [];
+
+  var parts = this._url.split("?");
+  if (parts.length > 1) {
+    queryString = parts[1];
+    var qsa = parseQueryString(queryString);
+    this._exporters = typeof qsa['exporters'] == "undefined" || qsa['exporters'] == "" ? [] : qsa['exporters'].split(",");
+    this._importers = typeof qsa['importers'] == "undefined"  || qsa['importers'] == "" ? [] : qsa['importers'].split(",");
+  }
+
+
+  this.buffers = {};
+  var that = this;
+  if  (typeof this.worker == "undefined") {
+    this.worker = new Worker('sitc4r2-worker.js');
+    this.worker.onmessage = function(e) {
+      if (typeof e.data["year"] != "undefined") {
+        var year = e.data.year;
+        var code = e.data.code;
+        var array = e.data["array"];
+        that._setSitc4r2Buffer(code, year, new Float32Array(array));    
+      }
+    };
+  }
+  this._ready = true;
+
+}
+
 WebGLVectorTile2.prototype._loadCarbonPriceRiskDataFromCsv = function() {
   var that = this;
   this.xhr = new XMLHttpRequest();
@@ -493,6 +543,29 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
   this.xhr.send();
 }
 
+WebGLVectorTile2.prototype._setSitc4r2Buffer = function(sitc4r2Code, year, data) {
+  if (typeof this.buffers[sitc4r2Code] == "undefined") {
+    this.buffers[sitc4r2Code] = {}; 
+  }
+
+  this.buffers[sitc4r2Code][year] = {
+    "numAttributes": this._numAttributes,
+    "pointCount": 0,
+    "buffer": null,
+    "ready": false
+  };
+  var gl = this.gl;
+  this.buffers[sitc4r2Code][year].pointCount = data.length / this._numAttributes;
+  if (this.buffers[sitc4r2Code][year].pointCount > 0) {
+    this.buffers[sitc4r2Code][year].buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers[sitc4r2Code][year].buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+
+    this.buffers[sitc4r2Code][year].ready = true;
+  }
+
+
+}
 
 WebGLVectorTile2.prototype._setPolygonData = function(data) {
   // Assumes GeoJSON data
@@ -1025,6 +1098,7 @@ WebGLVectorTile2.prototype.delete = function() {
     }
   }
  }
+
 
 WebGLVectorTile2.prototype._drawWdpa = function(transform, options) {
   var gl = this.gl;
@@ -2506,6 +2580,174 @@ WebGLVectorTile2.prototype._drawPointColorStartEpochEndEpoch = function(transfor
 }
 
 
+WebGLVectorTile2.prototype._drawSitc4r2 = function(transform, options) {
+  var gl = this.gl;
+  if (this._ready) {
+  var code = this._sitc4r2Code;
+  var currentTime = options.currentTime;
+  var currentYear = new Date(currentTime).getUTCFullYear();
+  var start = new Date(currentYear + '-01-01');
+  var end = new Date(currentYear + '-12-31');
+  var t = 1.0 - (end.getTime() - currentTime) / (end.getTime() - start.getTime());
+  //centroidGl.draw(mapMatrix, {'t': t});
+  if (typeof this.buffers[code] == "undefined") {
+    this.buffers[code] = {}    
+  }  
+  if (typeof this.buffers[code][currentYear.toString()] == "undefined" && currentYear >= 2000 && currentYear <= 2014) {
+    this.buffers[code][currentYear.toString()] = {
+      "numAttributes": this._numAttributes,
+      "pointCount": 8,
+      "buffer":null,
+      "ready": false
+    }   
+    this.worker.postMessage({'year': currentYear, 'code': code, 'exporters': this._exporters, "importers": this._importers});
+  }
+  if (typeof this.buffers[code][(currentYear+1).toString()] == "undefined" && currentYear >= 2000 && currentYear < 2014) {
+    this.buffers[code][(currentYear+1).toString()] = {
+      "numAttributes": this._numAttributes,
+      "pointCount": 8,
+      "buffer":null,
+      "ready": false
+    }   
+    this.worker.postMessage({'year': currentYear+1, 'code': code, 'exporters': this._exporters, "importers": this._importers});
+  }
+
+  if (this.buffers[code][currentYear.toString()] && this.buffers[code][currentYear.toString()].ready ) {
+    var buffer = this.buffers[code][currentYear.toString()];
+
+    gl.useProgram(this.program);
+    gl.enable(gl.BLEND);
+    gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
+
+    var tileTransform = new Float32Array(transform);
+    var zoom = options.zoom;
+    var currentTime = options.currentTime/1000.;
+    var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
+    var color = options.color || [.1, .1, .5, 1.0];
+
+    scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
+    scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+
+    pointSize *= Math.floor((zoom + 1.0) / (23.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+    // Passing a NaN value to the shader with a large number of points is very bad
+    if (isNaN(pointSize)) {
+      pointSize = 1.0;
+    }
+
+
+    var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
+    gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+
+    var sliderTime = gl.getUniformLocation(this.program, 'u_epoch');
+    gl.uniform1f(sliderTime, currentTime);
+
+    var uniformLoc = gl.getUniformLocation(this.program, 'u_size');
+    gl.uniform1f(uniformLoc, pointSize);
+
+    var uniformLoc = gl.getUniformLocation(this.program, 'u_color');
+    gl.uniform3fv(uniformLoc, [1.0,0.0,1.0]);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer.buffer);
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_p0');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, buffer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer.buffer);
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_p2');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, buffer.numAttributes * 4, 8); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_p1');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, buffer.numAttributes * 4, 16);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch0');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, buffer.numAttributes * 4, 24);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch1');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, buffer.numAttributes * 4, 28);
+
+
+    gl.drawArrays(gl.POINTS, 0, buffer.pointCount);
+
+    //perf_draw_points(this._pointCount);
+    gl.disable(gl.BLEND);
+
+
+  }
+
+
+  if (this.buffers[code][(currentYear+1).toString()] && this.buffers[code][(currentYear+1).toString()].ready ) {
+    var buffer = this.buffers[code][(currentYear+1).toString()];
+
+    gl.useProgram(this.program);
+    gl.enable(gl.BLEND);
+    gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
+
+    var tileTransform = new Float32Array(transform);
+    var zoom = options.zoom;
+    var currentTime = options.currentTime/1000.;
+    var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
+    var color = options.color || [.1, .1, .5, 1.0];
+
+    scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
+    scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+
+    pointSize *= Math.floor((zoom + 1.0) / (23.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+    // Passing a NaN value to the shader with a large number of points is very bad
+    if (isNaN(pointSize)) {
+      pointSize = 1.0;
+    }
+
+
+    var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
+    gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+
+    var sliderTime = gl.getUniformLocation(this.program, 'u_epoch');
+    gl.uniform1f(sliderTime, currentTime);
+
+    var uniformLoc = gl.getUniformLocation(this.program, 'u_size');
+    gl.uniform1f(uniformLoc, pointSize);
+
+    var uniformLoc = gl.getUniformLocation(this.program, 'u_end_color');
+    gl.uniform3fv(uniformLoc, [1.0,0.0,0.0]);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer.buffer);
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_p0');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, buffer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer.buffer);
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_p2');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, buffer.numAttributes * 4, 8); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_p1');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, buffer.numAttributes * 4, 16);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch0');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, buffer.numAttributes * 4, 24);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch1');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, buffer.numAttributes * 4, 28);
+
+
+    gl.drawArrays(gl.POINTS, 0, buffer.pointCount);
+
+    //perf_draw_points(this._pointCount);
+    gl.disable(gl.BLEND);
+
+
+  }
+
+  }
+}
+
 WebGLVectorTile2.prototype._drawSpCrude = function(transform, options) {
   var gl = this.gl;
     var buffers = options.buffers;
@@ -3822,5 +4064,39 @@ WebGLVectorTile2.spCrudeFragmentShader =
 '    }\n' +
 '  void main() {\n' +
 '    gl_FragColor = unpackColor(v_color);\n' +
+'  }\n';
+
+WebGLVectorTile2.sitc4r2VertexShader = '' +
+'  attribute vec4 a_p0;\n' +
+'  attribute vec4 a_p2;\n' +
+'  attribute vec4 a_p1;\n' +
+'  attribute float a_epoch0;\n' +
+'  attribute float a_epoch1;\n' +
+'  uniform float u_epoch;\n' +
+'  uniform mat4 u_map_matrix;\n' +
+'  varying float v_t;\n' + 
+'  vec2 bezier(float t, vec2 p0, vec2 p1, vec2 p2) {\n' +
+'    return (1.0-t)*(1.0-t)*p0 + 2.0*(1.0-t)*t*p1 + t*t*p2;\n' +
+'  }\n' +
+'  void main() {\n' +
+'    vec4 position = vec4(-1,-1,-1,-1);\n' +
+'    if (a_epoch0 <= u_epoch && u_epoch <= a_epoch1) {\n' +
+'      float t = (u_epoch - a_epoch0)/(a_epoch1 - a_epoch0);\n' + 
+'      vec2 pos = bezier(t, a_p0.xy, a_p1.xy, a_p2.xy);\n' +
+'      position = u_map_matrix * vec4(pos.x, pos.y, 0.0, 1.0);\n' +
+'      v_t = t;\n' +
+'    }\n' +
+'    gl_Position = position;\n' +
+'    gl_PointSize = 1.0;\n' +
+'  }\n';
+
+WebGLVectorTile2.sitc4r2FragmentShader = '' + 
+'  precision mediump float;\n' +
+'  varying float v_t;\n' + 
+'  uniform vec3 u_end_color;\n' + 
+'  void main() {\n' +
+'    vec4 colorStart = vec4(.94,.76,.61,1.0);\n' +
+'    vec4 colorEnd = vec4(u_end_color,1.0);\n' +
+'    gl_FragColor = mix(colorStart, colorEnd, v_t);\n' +
 '  }\n';
 
