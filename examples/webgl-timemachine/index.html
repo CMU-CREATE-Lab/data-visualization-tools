@@ -3004,6 +3004,9 @@
         open: function(event, ui) {
           $("#timeMachine").removeClass("presentationSliderSelection presentationSliderSelectionOverflow");
         },
+        close: function(event, ui) {
+          $lastSelectedExtra = null;
+        },
         beforeClose: function(event, ui) {
           var $extrasVideo = $("#extras-video");
           if ($extrasVideo && $extrasVideo[0]) {
@@ -3113,38 +3116,46 @@
             snaplapseForPresentationSlider.getSnaplapseViewer().initializeAndRunAutoMode();
           }
         }
-        // up/down arrows (but only if a select menu option has already been clicked)
-        // Quick way to toggle between the various items under the extras menu
-        if ((e.keyCode === 38 || e.keyCode === 40) && $lastSelectedExtra) {
-          // up arrow
-          if (e.keyCode === 38) {
+        // up arrow
+        // Quick way to toggle between the various items whether under the extras menu (if just selected) or a layer
+        if (e.keyCode === 38) {
+          if ($lastSelectedExtra) {
             $lastSelectedExtra.prev().click();
           } else {
-            $lastSelectedExtra.next().click();
-          }
-        } else if (e.keyCode === 38) {
-          var dotmaps = $("[id^='show-dotmap']");
-          for (var i = 0; i < dotmaps.length; i++) {
-            if ($(dotmaps[i]).prop('checked')) {
-              $(dotmaps[i-1]).click();
-              e.preventDefault();
-              break;
-            }
-          }
-        } else if (e.keyCode === 40) {
-          var dotmaps = $("[id^='show-dotmap']");
-          for (var i = 0; i < dotmaps.length; i++) {
-            if ($(dotmaps[i]).prop('checked')) {
-              $(dotmaps[i+1]).click();
-              e.preventDefault();
-              break;
+            var $layerTopic = $(document.activeElement).closest($(".ui-accordion-content"));
+            var $layers = $layerTopic.find("input");
+            if ($layers.filter(":checked").length > 1) return;
+            for (var i = 0; i < $layers.length; i++) {
+              if ($($layers[i]).prop('checked')) {
+                $layers[i-1].click();
+                e.preventDefault();
+                break;
+              }
             }
           }
         }
-        // Bring up share view dialog
+        // down arrow
+        // Quick way to toggle between the various items whether under the extras menu (if just selected) or a layer
+        if (e.keyCode === 40) {
+          if ($lastSelectedExtra) {
+            $lastSelectedExtra.next().click();
+          } else {
+            var $layerTopic = $(document.activeElement).closest($(".ui-accordion-content"));
+            var $layers = $layerTopic.find("input");
+            if ($layers.filter(":checked").length > 1) return;
+            for (var i = 0; i < $layers.length; i++) {
+              if ($($layers[i]).prop('checked')) {
+                $layers[i+1].click();
+                e.preventDefault();
+                break;
+              }
+            }
+          }
+        }
         if (keysDown.indexOf(e.keyCode) < 0) {
           keysDown.push(e.keyCode);
           // SHIFT + S + V
+          // Shortcut to bring up share view dialog
           if (keysDown[0] === 16 && keysDown[1] === 83 && keysDown[2] === 86) {
             $(".share").trigger("click");
           }
