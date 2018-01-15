@@ -1452,9 +1452,7 @@ a:focus { outline:0; }
   padding-left: 118px;
 }
 
-
-
-.accordion-menu label::before {
+.selection-heading::before {
   /* icons */
   content: '';
   display: inline-block;

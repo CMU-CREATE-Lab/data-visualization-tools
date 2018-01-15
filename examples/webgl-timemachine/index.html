@@ -170,6 +170,9 @@
     var showCityLabelMap = !!EARTH_TIMELAPSE_CONFIG.showCityLabelMap;
     var showTsip = !!EARTH_TIMELAPSE_CONFIG.showTsip;
     var showSpCrude = !!EARTH_TIMELAPSE_CONFIG.showSpCrude;
+    var showGoes16 = !!EARTH_TIMELAPSE_CONFIG.showGoes16;
+    var showDscovr = !!EARTH_TIMELAPSE_CONFIG.showDscovr;
+    var showAnnualGlobalPm25 = !!EARTH_TIMELAPSE_CONFIG.showAnnualGlobalPm25;
 
     var showTile = true;
 
@@ -225,6 +228,8 @@
     var landsatMaxScale = (landsatVersion == "2015") ? 1.25 : 0.45;
     landsatMaxScale -= (window.devicePixelRatio > 1) * 0.21;
     var himawariMaxScale = 0.02;
+    var goes16MaxScale = 0.017;
+    var dscovrMaxScale = 0.004;
     var isAutoModeRunning = false;
     var visibleBaseMapLayer = "landsat";
     var previousVisibleBaseMapLayer = "landsat";
@@ -267,8 +272,9 @@
     //
 
     var forestAlertsTimeMachineLayer, forestAlertsNoOverlayTimeMachineLayer, landsatBaseMapLayer, darkBaseMapLayer, lightBaseMapLayer, mcrmVectorLayer, countryLabelMapLayer, cityLabelMapLayer;
-    var hansenMapLayer, hansenMapLayer2, lightsAtNightMapLayer, lightsAtNight2012MapLayer, lightsAtNight2016MapLayer, crwTimemachineLayer, animatedHansenLayer, himawariTimemachineLayer, ndviAnomalyTimemachineLayer;
+    var hansenMapLayer, hansenMapLayer2, lightsAtNightMapLayer, lightsAtNight2012MapLayer, lightsAtNight2016MapLayer, crwTimeMachineLayer, animatedHansenLayer, himawariTimeMachineLayer, ndviAnomalyTimeMachineLayer;
     var waterOccurrenceLayer, waterChangeLayer, usgsWindTurbineLayer, solarInstallsLayer, drillingLayer;
+    var goes16TimeMachineLayer, dscovrTimeMachineLayer, annualGlobalPm25TimeMachineLayer;
     var globalWindPowerLayer;
     var annualRefugeesLayer;
     var annualReturnsLayer;
@@ -670,9 +676,12 @@
     } else if (EARTH_TIMELAPSE_CONFIG.landsatUrl) {
       landsatUrl = EARTH_TIMELAPSE_CONFIG.landsatUrl;
     }
-    var crwTimemachineUrl = rootTilePath + "/coral/coralreefwatch-3.timemachine/crf20-22fps-1424x800";
-    var ndviAnomalyTimemachineUrl = rootTilePath + "/ndvi_anomaly_1000v01/1068x600";
-    var himawariTimemachineUrl = rootTilePath + "/himawari8/himawari8-nov-2015.timemachine/crf26-12fps-1424x800";
+    var crwTimeMachineUrl = rootTilePath + "/coral/coralreefwatch-3.timemachine/crf20-22fps-1424x800";
+    var ndviAnomalyTimeMachineUrl = rootTilePath + "/ndvi_anomaly_1000v01/1068x600";
+    var himawariTimeMachineUrl = rootTilePath + "/himawari8/himawari8-nov-2015.timemachine/crf26-12fps-1424x800";
+    var goes16TimeMachineUrl = rootTilePath + "goes16/2017-09-01.timemachine/crf26-12fps-1424x800";
+    var dscovrTimeMachineUrl = rootTilePath + "/dscovr/dscovr.timemachine/crf26-6fps-1424x800";
+    var annualGlobalPm25TimeMachineUrl = rootTilePath + "/annual-global-pm25/pm2_5v1.timemachine/crf26-6fps-1424x800";
     var forestAlertsTimeMachineUrl = rootTilePath + "/global-forest-alerts/ForestAlarms2016v2/1068x600";
     var forestAlertsNoOverlayTimeMachineUrl = rootTilePath + "/global-forest-alerts/ForestAlarmsNoOverlay2016v1/1068x600";
     var berkeleyEarthTemperatureAnomalyTimeMachineUrl = rootTilePath + "/berkeley-earth/berkeley-earth.timemachine/crf24-12fps-1424x800";
@@ -777,6 +786,7 @@
     var spCrudeUrlUSGC = rootTilePath + "/sp-crude/USGC/0-crude-flows_USGC.bin";
     var spCrudeUrlLatAM = rootTilePath + "/sp-crude/LatAM/0-crude-flows_LatAM.bin";
     var spCrudeUrlNS = rootTilePath + "/sp-crude/NS/0-crude-flows_NS.bin";
+
     /*
     var spCrudeUrlWAF = rootTilePath + "/sp-crude/0-crude-flows_WAF.bin"
     var spCrudeUrlNAF = rootTilePath + "/sp-crude/0-crude-flows_NAF.bin"
@@ -1207,7 +1217,7 @@
           if ($("#show-coral").prop('checked')) {
             $("#show-coral").click();
           }
-          showCrwTimemachineLayer = true;
+          showCrwTimeMachineLayer = true;
           showMcrmLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "defaultUI";
@@ -1219,8 +1229,8 @@
           $("#coral-bleaching-alerts-legend").show();
           $("#coral-bleaching-legend").show();
         } else {
-          showCrwTimemachineLayer = false;
-          crwTimemachineLayer.destroy();
+          showCrwTimeMachineLayer = false;
+          crwTimeMachineLayer.destroy();
           showMcrmLayer = false;
           mcrmVectorLayer.destroy();
           setActiveLayersWithTimeline(-1);
@@ -1230,11 +1240,11 @@
             $("#coral-bleaching-legend").hide();
           }
         }
-      }).prop('checked', showCrwTimemachineLayer);
+      }).prop('checked', showCrwTimeMachineLayer);
 
       $("#show-ndvi-anomaly").on("click", function() {
         if ($(this).prop('checked')) {
-          showNdviAnomalyTimemachineLayer = true;
+          showNdviAnomalyTimeMachineLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
           requestNewTimeline("ndvi-anomaly-times.json", timelineType);
@@ -1244,20 +1254,20 @@
           WebglVideoTile.useGreenScreen = true;
           $("#ndvi-anomaly-legend").show();
         } else {
-          showNdviAnomalyTimemachineLayer = false;
-          ndviAnomalyTimemachineLayer.destroy();
+          showNdviAnomalyTimeMachineLayer = false;
+          ndviAnomalyTimeMachineLayer.destroy();
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
           $("#ndvi-anomaly-legend").hide();
         }
-      }).prop('checked', showNdviAnomalyTimemachineLayer);
+      }).prop('checked', showNdviAnomalyTimeMachineLayer);
 
       $("#show-himawari").on("click", function() {
         if ($(this).prop('checked')) {
           // Clear out non-himawari8 layers if they were already active.
-          var $activeLayersNotIncludingHimawari = $(".map-layer-div, .ui-multiselect-checkboxes").find("input:checked").not("#show-himawari");
-          if ($activeLayersNotIncludingHimawari.length > 1) {
-            $activeLayersNotIncludingHimawari.trigger("click");
+          var $activeLayersNotIncludingClickedLayer = $(".map-layer-div, .ui-multiselect-checkboxes").find("input:checked").not($(this));
+          if ($activeLayersNotIncludingClickedLayer.length > 1) {
+            $activeLayersNotIncludingClickedLayer.trigger("click");
           }
           showHimawariTimeMachineLayer = true;
           setActiveLayersWithTimeline(1);
@@ -1284,7 +1294,130 @@
           $("#baseLayerCreditContainer").hide();
         } else {
           showHimawariTimeMachineLayer = false;
-          himawariTimemachineLayer.destroy();
+          himawariTimeMachineLayer.destroy();
+          setActiveLayersWithTimeline(-1);
+          timelineType = "customUI";
+          visibleBaseMapLayer = previousVisibleBaseMapLayer;
+          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+          var v = timelapse.getVideoset();
+          v.setFps(10);
+          timelapse.seek(0);
+          timelapse.setMaxScale(landsatMaxScale);
+          timelapse.setDoDwell(true);
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          $("#layers-legend").hide();
+          // Handle Landsat 2016 bounds.
+          if (!$("#show-goes16").prop('checked') && !$("#show-dscovr").prop('checked')) {
+            if (landsatVersion == "2016") {
+              $.getScript(landsatAjaxIncludesPath)
+                .done(function(script, status) {
+                  eval(script);
+                  landsatBaseMapLayer.resetDimensions(cached_ajax["./1068x600/r.json"]);
+                }
+              );
+            }
+          }
+          $("#baseLayerCreditContainer").show();
+        }
+        timelapse.warpTo(timelapse.getHomeView());
+      }).prop('checked', showHimawariTimeMachineLayer);
+
+      $("#show-goes16").on("click", function() {
+        if ($(this).prop('checked')) {
+          // Clear out non-goes16 layers if they were already active.
+          var $activeLayersNotIncludingClickedLayer = $(".map-layer-div, .ui-multiselect-checkboxes").find("input:checked").not($(this));
+          if ($activeLayersNotIncludingClickedLayer.length > 1) {
+            $activeLayersNotIncludingClickedLayer.trigger("click");
+          }
+          showGoes16TimeMachineLayer = true;
+          setActiveLayersWithTimeline(1);
+          timelineType = "defaultUI";
+          previousVisibleBaseMapLayer = visibleBaseMapLayer;
+          visibleBaseMapLayer = "goes16";
+          requestNewTimeline("goes16-times.json", timelineType);
+          var v = timelapse.getVideoset();
+          v.setFps(12);
+          timelapse.setMaxScale(goes16MaxScale);
+          timelapse.setDoDwell(false);
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(1);
+          $("#layers-legend").hide();
+          // Handle Landsat 2016 bounds.
+          if (landsatVersion == "2016") {
+            $.getScript("himawari_landsat_ajax_includes.js")
+              .done(function(script, status) {
+                eval(script);
+                landsatBaseMapLayer.resetDimensions(cached_ajax["./1068x600/r.json"]);
+              }
+            );
+          }
+          $("#baseLayerCreditContainer").hide();
+        } else {
+          showGoes16TimeMachineLayer = false;
+          goes16TimeMachineLayer.destroy();
+          setActiveLayersWithTimeline(-1);
+          timelineType = "customUI";
+          visibleBaseMapLayer = previousVisibleBaseMapLayer;
+          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+          var v = timelapse.getVideoset();
+          v.setFps(10);
+          timelapse.seek(0);
+          timelapse.setMaxScale(landsatMaxScale);
+          timelapse.setDoDwell(true);
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          $("#layers-legend").hide();
+          // Handle Landsat 2016 bounds.
+          if (!$("#show-himawari").prop('checked') && !$("#show-dscovr").prop('checked')) {
+            if (landsatVersion == "2016") {
+              $.getScript(landsatAjaxIncludesPath)
+                .done(function(script, status) {
+                  eval(script);
+                  landsatBaseMapLayer.resetDimensions(cached_ajax["./1068x600/r.json"]);
+                }
+              );
+            }
+          }
+          $("#baseLayerCreditContainer").show();
+        }
+        timelapse.warpTo(timelapse.getHomeView());
+      }).prop('checked', showGoes16TimeMachineLayer);
+
+      $("#show-dscovr").on("click", function() {
+        if ($(this).prop('checked')) {
+          // Clear out non-dscovr layers if they were already active.
+          var $activeLayersNotIncludingClickedLayer = $(".map-layer-div, .ui-multiselect-checkboxes").find("input:checked").not($(this));
+          if ($activeLayersNotIncludingClickedLayer.length > 1) {
+            $activeLayersNotIncludingClickedLayer.trigger("click");
+          }
+          showDscovrTimeMachineLayer = true;
+          setActiveLayersWithTimeline(1);
+          timelineType = "defaultUI";
+          previousVisibleBaseMapLayer = visibleBaseMapLayer;
+          visibleBaseMapLayer = "dscovr";
+          requestNewTimeline("dscovr-times.json", timelineType);
+          var v = timelapse.getVideoset();
+          v.setFps(6);
+          timelapse.seek(0);
+          timelapse.setMaxScale(dscovrMaxScale);
+          timelapse.setDoDwell(false);
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(1);
+          $("#layers-legend").hide();
+          // Handle Landsat 2016 bounds.
+          if (landsatVersion == "2016") {
+            $.getScript("himawari_landsat_ajax_includes.js")
+              .done(function(script, status) {
+                eval(script);
+                landsatBaseMapLayer.resetDimensions(cached_ajax["./1068x600/r.json"]);
+              }
+            );
+          }
+          $("#baseLayerCreditContainer").hide();
+        } else {
+          showDscovrTimeMachineLayer = false;
+          dscovrTimeMachineLayer.destroy();
           setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
           visibleBaseMapLayer = previousVisibleBaseMapLayer;
@@ -1297,18 +1430,46 @@
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
           $("#layers-legend").hide();
           // Handle Landsat 2016 bounds.
-          if (landsatVersion == "2016") {
-            $.getScript(landsatAjaxIncludesPath)
-              .done(function(script, status) {
-                eval(script);
-                landsatBaseMapLayer.resetDimensions(cached_ajax["./1068x600/r.json"]);
-              }
-            );
+          if (!$("#show-goes16").prop('checked') && !$("#show-himawari").prop('checked')) {
+            if (landsatVersion == "2016") {
+              $.getScript(landsatAjaxIncludesPath)
+                .done(function(script, status) {
+                  eval(script);
+                  landsatBaseMapLayer.resetDimensions(cached_ajax["./1068x600/r.json"]);
+                }
+              );
+            }
           }
           $("#baseLayerCreditContainer").show();
         }
         timelapse.warpTo(timelapse.getHomeView());
-      }).prop('checked', showHimawariTimeMachineLayer);
+      }).prop('checked', showDscovrTimeMachineLayer);
+
+      $("#show-annual-pm25").on("click", function() {
+        if ($(this).prop('checked')) {
+          showAnnualGlobalPm25TimeMachineLayer = true;
+          setActiveLayersWithTimeline(1);
+          visibleBaseMapLayer = "annual-pm25";
+          timelineType = "defaultUI";
+          requestNewTimeline("annual-global-pm25-times.json", timelineType);
+          var v = timelapse.getVideoset();
+          v.setFps(6);
+          timelapse.setDoDwell(true);
+          WebglVideoTile.useGreenScreen = false;
+          timelapse.setMasterPlaybackRate(1.0);
+          $("#baseLayerCreditContainer").hide();
+        } else {
+          showAnnualGlobalPm25TimeMachineLayer = false;
+          annualGlobalPm25TimeMachineLayer.destroy();
+          setActiveLayersWithTimeline(-1);
+          doSwitchToLandsat();
+          visibleBaseMapLayer = previousVisibleBaseMapLayer;
+          var v = timelapse.getVideoset();
+          v.setFps(10);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          $("#baseLayerCreditContainer").show();
+        }
+      }).prop('checked', showAnnualGlobalPm25TimeMachineLayer);
 
       $("#show-berkeley-earth-temperature-anomaly").on("click", function() {
         if ($(this).prop('checked')) {
@@ -2367,7 +2528,6 @@
         }
       }).prop('checked', showOmiNo2Layer);
 
-
       $("#show-be-pm25").on("click", function() {
         if ($(this).prop('checked')) {
           showBePm25Layer = true;
@@ -2890,6 +3050,7 @@
 */
       // Base layers
       $("input:radio[name=base-layers]").on("click", function() {
+        previousVisibleBaseMapLayer = visibleBaseMapLayer;
         visibleBaseMapLayer = $(this).val();
         if (visibleBaseMapLayer == "landsat") {
           $("#baselayerCreditText").html("&copy; Google");
@@ -2908,7 +3069,6 @@
             setActiveLayersWithTimeline(-1);
           timelineType = "none";
         }
-        previousVisibleBaseMapLayer = visibleBaseMapLayer;
       });
 
       // Initially set activeLayersWithTimeline to 1 if we first load with landsat enabled.
@@ -3127,7 +3287,7 @@
             if ($layers.filter(":checked").length > 1) return;
             for (var i = 0; i < $layers.length; i++) {
               if ($($layers[i]).prop('checked')) {
-                $layers[i-1].click();
+                $($layers[i-1]).trigger('click');
                 e.preventDefault();
                 break;
               }
@@ -3145,7 +3305,7 @@
             if ($layers.filter(":checked").length > 1) return;
             for (var i = 0; i < $layers.length; i++) {
               if ($($layers[i]).prop('checked')) {
-                $layers[i+1].click();
+                $($layers[i+1]).trigger('click');
                 e.preventDefault();
                 break;
               }
@@ -3225,10 +3385,16 @@
           timelineType = "defaultUI";
         }
 
-        // Toggle off Himawari if any other layer is selected when it is up. Himawari is a special mode.
+        // Toggle off Himawari/GOES16/DSCOVR if any other layer is selected when it is up. These layers are a special mode.
         // Base layer is part of the checkbox total, hence the > 1 check.
-        if (showHimawariTimeMachineLayer && $('.map-layer-checkbox, .ui-multiselect-checkboxes').find("input:checked").not("#show-himawari").length > 1) {
-          $("#show-himawari").click();
+        if ((showHimawariTimeMachineLayer || showGoes16TimeMachineLayer || showDscovrTimeMachineLayer) && $('.map-layer-checkbox, .ui-multiselect-checkboxes').find("input:checked").not("#show-himawari, #show-goes16, #show-dscovr").length > 1) {
+          if ($("#show-himawari").prop('checked')) {
+            $("#show-himawari").click();
+          } else if ($("#show-goes16").prop('checked')) {
+            $("#show-goes16").click();
+          } else if ($("#show-dscovr").prop('checked')) {
+            $("#show-dscovr").click();
+          }
         }
 
         // Hide any timelines that are visible if we have no layers up that require a timeline or we are a static layer that fully covers the entire globe
@@ -3333,7 +3499,7 @@
 
     function doSwitchToLandsat() {
       // Special case for layers with defaultUI timeline.
-      if ((timelineType == "defaultUI" && (showViirsLayer || showMonthlyRefugeesLayer || showCrwTimemachineLayer)) ||  $(".csvlayer").find("input:checked").length > 0) {
+      if ((timelineType == "defaultUI" && (showViirsLayer || showMonthlyRefugeesLayer || showCrwTimeMachineLayer)) ||  $(".csvlayer").find("input:checked").length > 0) {
         return false;
       } else {
         timelineType = "customUI";
@@ -3381,10 +3547,13 @@
     var showLightsAtNightLayer = false;
     var showLightsAtNight2012Layer = false;
     var showLightsAtNight2016Layer = false;
-    var showCrwTimemachineLayer = false;
-    var showNdviAnomalyTimemachineLayer = false;
+    var showCrwTimeMachineLayer = false;
+    var showNdviAnomalyTimeMachineLayer = false;
     var showAnimatedHansenLayer = false;
     var showHimawariTimeMachineLayer = false;
+    var showGoes16TimeMachineLayer = false;
+    var showDscovrTimeMachineLayer = false;
+    var showAnnualGlobalPm25TimeMachineLayer = false;
     var showForestAlertsTimeMachineLayer = false;
     var showForestAlertsNoOverlayTimeMachineLayer = false;
     var showWaterOccurrenceLayer = false;
@@ -3655,8 +3824,8 @@
               bounds: keyframe.bounds,
               time: keyframe.time
             };
+            // Fake bounds for thumbnail generating
             keyframe.bounds = himawariWaypointThumbnailBounds;
-            keyframe.time = 0;
             break;
           }
         }
@@ -3880,6 +4049,10 @@
       var show_sp_crude_USGC = '<td class="sp-crude-select_USGC"><label for="show-sp-crude_USGC" name="sp-crude_USGC"><input type="checkbox" id="show-sp-crude_USGC" />USGC Crude Oil flows</label></td>';
       var show_sp_crude_LatAM = '<td class="sp-crude-select_LatAM"><label for="show-sp-crude_LatAM" name="sp-crude_LatAM"><input type="checkbox" id="show-sp-crude_LatAM" />LatAM Crude Oil flows</label></td>';
       var show_sp_crude_NS = '<td class="sp-crude-select_NS"><label for="show-sp-crude_NS" name="sp-crude_NS"><input type="checkbox" id="show-sp-crude_NS" />NS Crude Oil flows</label></td>';
+      var show_goes16 = '<td class="goes16-select"><label for="show-goes16" name="goes16"><input type="checkbox" id="show-goes16" />GOES16</label></td>';
+      var show_dscovr = '<td class="dscovr-select"><label for="show-dscovr" name="dscovr"><input type="checkbox" id="show-dscovr" />DSCOVR</label></td>';
+      var show_annual_global_pm25 = '<td class="annual-pm25-select"><label for="show-annual-pm25" name="annual-pm25"><input type="checkbox" id="show-annual-pm25" />Annual Global PM 2.5</label></td>';
+
 /*
       var show_sp_crude_WAF = '<td class="sp-crude-select_WAF"><label for="show-sp-crude_WAF" name="sp-crude_WAF"><input type="checkbox" id="show-sp-crude_WAF" />WAF Crude Oil flows</label></td>';
       var show_sp_crude_NAF = '<td class="sp-crude-select_NAF"><label for="show-sp-crude_WAF" name="sp-crude_NAF"><input type="checkbox" id="show-sp-crude_NAF" />NAF Crude Oil flows</label></td>';
@@ -4149,6 +4322,11 @@
         if (showTsip) {
           layer_html += '    <tr>';
           layer_html += show_tsip;
+          layer_html += '    </tr>';
+        }
+        if (showAnnualGlobalPm25) {
+          layer_html += '    <tr>';
+          layer_html += show_annual_global_pm25;
           layer_html += '    </tr>';
         }
         layer_html += '  </table>';
@@ -4470,6 +4648,16 @@
         if (showHimawari8) {
           layer_html += '    <tr>';
           layer_html += show_himawari;
+          layer_html += '    </tr>';
+        }
+        if (showGoes16) {
+          layer_html += '    <tr>';
+          layer_html += show_goes16;
+          layer_html += '    </tr>';
+        }
+        if (showDscovr) {
+          layer_html += '    <tr>';
+          layer_html += show_dscovr;
           layer_html += '    </tr>';
         }
         if (showCsvLayers) {
@@ -4842,7 +5030,7 @@
       landsatBaseMapLayer = new WebglTimeMachineLayer(glb, canvasLayer, landsatUrl, defaultTimeMachineLayerOptions);
 
       // NDVI Anomaly
-      var ndviAnomalyTimemachineLayerOptions = {
+      var ndviAnomalyTimeMachineLayerOptions = {
         mediaType: ".mp4",
         numFrames: cached_ajax['ndvi-anomaly-times.json']['capture-times'].length,
         fps: 1,
@@ -4852,7 +5040,7 @@
         height: 40076,
         greenScreen: true
       };
-      ndviAnomalyTimemachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, ndviAnomalyTimemachineUrl, ndviAnomalyTimemachineLayerOptions);
+      ndviAnomalyTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, ndviAnomalyTimeMachineUrl, ndviAnomalyTimeMachineLayerOptions);
 
       // Coral Bleaching Alerts
       var crwTimemacineLayerOptions = {
@@ -4865,7 +5053,7 @@
         height: 7200,
         greenScreen: true
       };
-      crwTimemachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, crwTimemachineUrl, crwTimemacineLayerOptions);
+      crwTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, crwTimeMachineUrl, crwTimemacineLayerOptions);
 
       // Himawari-8
       var himawariTimeMachineLayerOptions = {
@@ -4878,7 +5066,46 @@
         width: 11000,
         height: 11000
       };
-      himawariTimemachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, himawariTimemachineUrl, himawariTimeMachineLayerOptions);
+      himawariTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, himawariTimeMachineUrl, himawariTimeMachineLayerOptions);
+
+      // GOES16
+      var goes16TimeMachineLayerOptions = {
+        mediaType: ".mp4",
+        numFrames: cached_ajax['goes16-times.json']['capture-times'].length,
+        fps: 12,
+        nLevels: 4,
+        video_width: 1424,
+        video_height: 800,
+        width: 10848,
+        height: 10848
+      };
+      goes16TimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, goes16TimeMachineUrl, goes16TimeMachineLayerOptions);
+
+      // DSCOVR
+      var dscovrTimeMachineLayerOptions = {
+        mediaType: ".mp4",
+        numFrames: cached_ajax['dscovr-times.json']['capture-times'].length,
+        fps: 6,
+        nLevels: 3,
+        video_width: 1424,
+        video_height: 800,
+        width: 2048,
+        height: 2048
+      };
+      dscovrTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, dscovrTimeMachineUrl, dscovrTimeMachineLayerOptions);
+
+      // Annual Global PM 2.5
+      var annualGlobalPm25TimeMachineLayerOptions = {
+        mediaType: ".mp4",
+        numFrames: cached_ajax['annual-global-pm25-times.json']['capture-times'].length,
+        fps: 6,
+        nLevels: 4,
+        video_width: 1424,
+        video_height: 800,
+        width: 3600,
+        height: 3600
+      };
+      annualGlobalPm25TimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, annualGlobalPm25TimeMachineUrl, annualGlobalPm25TimeMachineLayerOptions);
 
       // Forest Alerts
       var forestAlertsTimeMachineLayerOptions = {
@@ -4894,7 +5121,7 @@
       forestAlertsTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, forestAlertsTimeMachineUrl, forestAlertsTimeMachineLayerOptions);
       forestAlertsNoOverlayTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, forestAlertsNoOverlayTimeMachineUrl, forestAlertsTimeMachineLayerOptions);
 
-      // Himawari-8
+      // Berkeley Earth Temperature Anomaly
       var berkeleyEarthTemperatureAnomalyTimeMachineLayerOptions = {
         mediaType: ".mp4",
         numFrames: cached_ajax['berkeley-earth-temperature-anomaly-times.json']['capture-times'].length,
@@ -5576,11 +5803,21 @@ var layerOptions = {
         snaplapseViewerForPresentationSlider.addEventListener('slide-before-changed', function(waypoint) {
           var waypointTitle = waypoint.title;
           var waypointIndex = waypoint.index;
+          var waypointStartTime = waypoint.time;
           var waypointBounds = waypoint.bounds;
+          var himawariWaypoint = himawariWaypoints[currentWaypointTheme][waypointIndex];
           isAutoModeRunning = snaplapseViewerForPresentationSlider.isAutoModeRunning();
 
-          if (himawariWaypoints[currentWaypointTheme][waypointIndex]) timelapse.setMaxScale(himawariMaxScale);
-          else timelapse.setMaxScale(landsatMaxScale);
+          // We are still technically using Landsat (web mercator) projections for any dataset being drawn,
+          // so the bounds that slide-change returns is not valid for our use. But we already
+          // know the bounds each himawari waypoints should be, so use that instead.
+          if (himawariWaypoint) {
+            waypointBounds = himawariWaypoint.bounds;
+            waypointStartTime = himawariWaypoint.time;
+            timelapse.setMaxScale(himawariMaxScale);
+          } else {
+            timelapse.setMaxScale(landsatMaxScale);
+          }
 
           if (enableThemeHamburgerButton && isAutoModeRunning && lastAutomodeWaypointIndex > waypointIndex) {
             var nextWaypointThemeCollection = $("#theme-list li.checkmark").next();
@@ -5626,9 +5863,9 @@ var layerOptions = {
             $previousAnnotationLocationButton.button("disable");
           } else if (selectedWaypointIdx == lastAvailableWaypointIdx) {
             $nextAnnotationLocationButton.button("disable");
-          }
 
-          // We are still technically using Landsat projections for any dataset being drawn,
+          }
+          // We are still technically using Landsat (web mercator) projections for any dataset being drawn,
           // so the bounds that slide-change returns is not valid for our use. But we already
           // know the bounds each himawari waypoints should be, so use that instead.
           if (himawariWaypoint) {
@@ -5652,72 +5889,20 @@ var layerOptions = {
             timelapse.addTimeChangeListener(waypointTimeChangeListener);
           }
 
-          // Display info box for the waypoints
-          if (enableWaypointText) {
-            var waypointScale = timelapse.pixelBoundingBoxToPixelCenter(waypointBounds).scale;
-            var $current_location_text = $(".current-location-text");
-            var $current_location_text_container = $(".current-location-text-container");
+          var waypointListNameString = waypointLayers.map(function(waypointName) {
+            // Legacy Himawari
+            if (waypointName == "h8") waypointName = "h8_16";
+            return "[name=" + waypointName + "]";
+          }).join(',');
 
-            timelapse.removeViewChangeListener(waypointViewChangeListener);
-            timelapse.removeViewChangeListener(hideWaypointListener);
 
-            var currentView = timelapse.getView();
-            if (waypoint.annotationBoxTitle || waypoint.description) {
-              $current_location_text_container.show();
-              if (waypoint.annotationBoxTitle) {
-                $current_location_text.find(".current-location-text-title").show().text(waypoint.annotationBoxTitle);
-              } else {
-                $current_location_text.find(".current-location-text-title").empty().hide();
-              }
-              var $current_location_text_picture = $("#current-location-text-picture");
-              if (annotationPicturePaths[currentWaypointTheme] && annotationPicturePaths[currentWaypointTheme][waypointIndex].path) {
-                $current_location_text_picture.show();
-                $current_location_text_picture.css('background-image', 'url("' + annotationPicturePaths[currentWaypointTheme][waypointIndex].path + '")');
-              } else {
-                $current_location_text_picture.empty().hide();
-              }
-              if (waypoint.description) {
-                $current_location_text.find("p").show().text(waypoint.description);
-              } else {
-                $current_location_text.find("p").empty().hide();
-              }
-
-              waypointViewChangeListener = function() {
-                var currentView = timelapse.getView();
-                previousWaypoint.scale = waypointScale;
-                previousWaypoint.bounds = waypointBounds;
-
-                if (currentView.scale * 2.5 > waypointScale && (currentView.x >= waypointBounds.xmin && currentView.x <= waypointBounds.xmax && currentView.y >= waypointBounds.ymin && currentView.y <= waypointBounds.ymax)) {
-                  hideWaypointListener = function() {
-                    var currentView = timelapse.getView();
-                    var previousWaypointBounds = previousWaypoint.bounds;
-                    if ((previousWaypoint.scale / 2.5 > currentView.scale || !(currentView.x >= previousWaypointBounds.xmin && currentView.x <= previousWaypointBounds.xmax && currentView.y >= previousWaypointBounds.ymin && currentView.y <= previousWaypointBounds.ymax))) {
-                      $current_location_text_container.hide();
-                      $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight").removeClass("thumbnail_highlight");
-                      timelapse.removeViewChangeListener(hideWaypointListener);
-                      timelapse.removeTimeChangeListener(waypointTimeChangeListener);
-                    }
-                  };
-                  timelapse.addViewChangeListener(hideWaypointListener);
-                  timelapse.removeViewChangeListener(waypointViewChangeListener);
-                }
-              };
-              timelapse.addViewChangeListener(waypointViewChangeListener);
-            } else {
-              $current_location_text_container.hide();
-            }
-
-            // Close the extra content pop-up if a waypoint is clicked.
-            $('#extras-content').dialog('close');
-          }
+          // Clear out layers if they were checked and not needed again
+          $(".map-layer-div, .ui-multiselect-checkboxes").find("input:checked").parent().not($(waypointListNameString)).children().trigger("click");
 
           // Remove himawari since we do special cases further below
           var himawariIdx = waypointLayers.indexOf("h8");
           himawariIdx = himawariIdx > -1 ? himawariIdx : waypointLayers.indexOf("h8_16");
           if (himawariIdx > -1) waypointLayers.splice(himawariIdx, 1);
-
-          // Clear out layers if they were already checked
-          $(".map-layer-div, .ui-multiselect-checkboxes").find("input:checked").trigger("click");
 
           // Handle layers
           waypointLayers.forEach(function(layer) {
@@ -5732,6 +5917,7 @@ var layerOptions = {
 
           // Handle Himawari
           // Note: Must be run after other layers
+          // Note: Needed because does not use mercator projection
           if (himawariWaypoint) {
             var initialHimawariViewChangeHack = function() {
               if (isAutoModeRunning) {
@@ -5739,6 +5925,7 @@ var layerOptions = {
               } else {
                 snaplapseViewerForPresentationSlider.startAutoModeIdleTimeout();
               }
+              timelapse.seek(himawariWaypoint.time);
             };
 
             var setHimawariView = function(himawariBoundingBox, himawariTime, himawariPlaybackSpeed) {
@@ -5746,18 +5933,15 @@ var layerOptions = {
                 bbox: himawariBoundingBox
               };
               if (showHimawariTimeMachineLayer) {
-                timelapse.stopParabolicMotion();
+                //timelapse.stopParabolicMotion({doCallback : false});
                 timelapse.setNewView(himawariView);
               } else {
                 $("#show-himawari").click();
-                timelapse.stopParabolicMotion();
+                timelapse.stopParabolicMotion({doCallback : false});
                 timelapse.setNewView(himawariView, true, null, initialHimawariViewChangeHack);
               }
-              timelapse.setMasterPlaybackRate(himawariPlaybackSpeed);
+              timelapse.setMasterPlaybackRate(1);
               timelapse.setPlaybackRate(himawariPlaybackSpeed);
-              setTimeout(function() {
-                timelapse.seek(himawariTime);
-              }, 150);
             };
 
             setHimawariView(himawariWaypoint.bounds, himawariWaypoint.time, 0.5);
@@ -5788,6 +5972,67 @@ var layerOptions = {
             setTimeout(function() {
               timelapse.removeTimelineUIChangeListener(onWaypointChangeListener);
             }, 500);
+          }
+
+          // Display info box for the waypoints
+          if (enableWaypointText) {
+            var waypointScale = timelapse.pixelBoundingBoxToPixelCenter(waypointBounds).scale;
+            var $current_location_text = $(".current-location-text");
+            var $current_location_text_container = $(".current-location-text-container");
+
+            timelapse.removeViewChangeListener(waypointViewChangeListener);
+            timelapse.removeViewChangeListener(hideWaypointListener);
+
+            var currentView = timelapse.getView();
+            if (waypoint.annotationBoxTitle || waypoint.description) {
+              $current_location_text_container.show();
+              $(".snaplapse_keyframe_list .snaplapse_keyframe_list_item_thumbnail_overlay_presentation").eq(selectedWaypointIdx).addClass("thumbnail_highlight");
+              if (waypoint.annotationBoxTitle) {
+                $current_location_text.find(".current-location-text-title").show().text(waypoint.annotationBoxTitle);
+              } else {
+                $current_location_text.find(".current-location-text-title").empty().hide();
+              }
+              var $current_location_text_picture = $("#current-location-text-picture");
+              if (annotationPicturePaths[currentWaypointTheme] && annotationPicturePaths[currentWaypointTheme][waypointIndex].path) {
+                $current_location_text_picture.show();
+                $current_location_text_picture.css('background-image', 'url("' + annotationPicturePaths[currentWaypointTheme][waypointIndex].path + '")');
+              } else {
+                $current_location_text_picture.empty().hide();
+              }
+              if (waypoint.description) {
+                $current_location_text.find("p").show().text(waypoint.description);
+              } else {
+                $current_location_text.find("p").empty().hide();
+              }
+
+              waypointViewChangeListener = function() {
+                var currentView = timelapse.getView();
+                previousWaypoint.scale = waypointScale;
+                previousWaypoint.bounds = waypointBounds;
+
+
+                if (currentView.scale * 2.5 > waypointScale && (currentView.x >= waypointBounds.xmin && currentView.x <= waypointBounds.xmax && currentView.y >= waypointBounds.ymin && currentView.y <= waypointBounds.ymax)) {
+                  hideWaypointListener = function() {
+                    var currentView = timelapse.getView();
+                    var previousWaypointBounds = previousWaypoint.bounds;
+                    if ((previousWaypoint.scale / 2.5 > currentView.scale || !(currentView.x >= previousWaypointBounds.xmin && currentView.x <= previousWaypointBounds.xmax && currentView.y >= previousWaypointBounds.ymin && currentView.y <= previousWaypointBounds.ymax))) {
+                      $current_location_text_container.hide();
+                      $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight").removeClass("thumbnail_highlight");
+                      timelapse.removeViewChangeListener(hideWaypointListener);
+                      timelapse.removeTimeChangeListener(waypointTimeChangeListener);
+                    }
+                  };
+                  timelapse.addViewChangeListener(hideWaypointListener);
+                  timelapse.removeViewChangeListener(waypointViewChangeListener);
+                }
+              };
+              timelapse.addViewChangeListener(waypointViewChangeListener);
+            } else {
+              $current_location_text_container.hide();
+            }
+
+            // Close the extra content pop-up if a waypoint is clicked.
+            $('#extras-content').dialog('close');
           }
 
         });
@@ -6434,8 +6679,14 @@ var layerOptions = {
 
       // Draw Himawari8. This is a special case that does not play with any of the other layers.
       if (showHimawariTimeMachineLayer) {
-        var himawariView = getLayerView(himawariTimemachineLayer, landsatBaseMapLayer);
-        himawariTimemachineLayer.draw(himawariView, tileViewVisibility);
+        var himawariView = getLayerView(himawariTimeMachineLayer, landsatBaseMapLayer);
+        himawariTimeMachineLayer.draw(himawariView, tileViewVisibility);
+      } else if (showGoes16TimeMachineLayer) {
+        var goes16View = getLayerView(goes16TimeMachineLayer, landsatBaseMapLayer);
+        goes16TimeMachineLayer.draw(goes16View, tileViewVisibility);
+      } else if (showDscovrTimeMachineLayer) {
+        var dscovrView = getLayerView(dscovrTimeMachineLayer, landsatBaseMapLayer);
+        dscovrTimeMachineLayer.draw(dscovrView, tileViewVisibility);
       } else {
         // Static layers that cover the entire planet should be placed before the base layers in this manner.
         if (showLightsAtNightLayer) { // Draw lightsAtNightMapLayer
@@ -6464,15 +6715,15 @@ var layerOptions = {
         // Layers to draw above the base layer (or planet-wide static layers)
 
         // Draw Coral Reef Watch
-        if (showCrwTimemachineLayer) {
-          var crwView = getLayerView(crwTimemachineLayer, landsatBaseMapLayer);
-          crwTimemachineLayer.draw(crwView, tileViewVisibility);
+        if (showCrwTimeMachineLayer) {
+          var crwView = getLayerView(crwTimeMachineLayer, landsatBaseMapLayer);
+          crwTimeMachineLayer.draw(crwView, tileViewVisibility);
         }
 
         // Draw NDVI Anomaly
-        if (showNdviAnomalyTimemachineLayer) {
-          var ndviView = getLayerView(ndviAnomalyTimemachineLayer, landsatBaseMapLayer);
-          ndviAnomalyTimemachineLayer.draw(ndviView, tileViewVisibility);
+        if (showNdviAnomalyTimeMachineLayer) {
+          var ndviView = getLayerView(ndviAnomalyTimeMachineLayer, landsatBaseMapLayer);
+          ndviAnomalyTimeMachineLayer.draw(ndviView, tileViewVisibility);
         }
 
         // Draw Forest Loss by Year (Transparent)
@@ -7212,10 +7463,15 @@ var layerOptions = {
             "2015": [128,0,38],
             "2016": [128,0,0]
           }
-
           var currentBValue = colorRamp[times[currentIndex]][2]/255;
           options.currentBValue = currentBValue;
           cumulativeActiveMiningLayer.draw(cumulativeActiveMiningLayerView, options);
+        }
+
+        // Draw Annual Global PM 2.5
+        if (showAnnualGlobalPm25TimeMachineLayer) {
+          var view = getLayerView(annualGlobalPm25TimeMachineLayer, landsatBaseMapLayer);
+          annualGlobalPm25TimeMachineLayer.draw(view, tileViewVisibility);
         }
 
         // ## 7 ##
@@ -7289,7 +7545,6 @@ var layerOptions = {
             var cityLabelView = getLayerView(cityLabelMapLayer, landsatBaseMapLayer);
             cityLabelMapLayer.draw(cityLabelView);
           }
-
         }
 
         if (showOmiNo2Layer) {
