@@ -252,6 +252,7 @@
     var $previousAnnotationLocationButton;
     var timelapseWasPlaying = false;
     var lastLayerMenuScrollPos = 0;
+    var $lastActiveLayerTopic = $();
 
     // This is necessary because waypoint thumbnails are generated from the Landsat set and thus the best we can show is just a solid black thumbnail
     // instead of some random location that a himawari bounds corresponds to in Landsat.
@@ -3282,8 +3283,9 @@
           if ($lastSelectedExtra) {
             $lastSelectedExtra.prev().click();
           } else {
-            var $layerTopic = $(document.activeElement).closest($(".ui-accordion-content"));
-            var $layers = $layerTopic.find("input");
+            var $newActiveTopic = $(document.activeElement).closest($(".ui-accordion-content"));
+            $lastActiveLayerTopic = $newActiveTopic.length ? $newActiveTopic : $lastActiveLayerTopic;
+            var $layers = $lastActiveLayerTopic.find("input");
             if ($layers.filter(":checked").length > 1) return;
             for (var i = 0; i < $layers.length; i++) {
               if ($($layers[i]).prop('checked')) {
@@ -3300,8 +3302,9 @@
           if ($lastSelectedExtra) {
             $lastSelectedExtra.next().click();
           } else {
-            var $layerTopic = $(document.activeElement).closest($(".ui-accordion-content"));
-            var $layers = $layerTopic.find("input");
+            var $newActiveTopic = $(document.activeElement).closest($(".ui-accordion-content"));
+            $lastActiveLayerTopic = $newActiveTopic.length ? $newActiveTopic : $lastActiveLayerTopic;
+            var $layers = $lastActiveLayerTopic.find("input");
             if ($layers.filter(":checked").length > 1) return;
             for (var i = 0; i < $layers.length; i++) {
               if ($($layers[i]).prop('checked')) {
@@ -3469,6 +3472,7 @@
         $('.layers-scroll-vertical').animate({
           scrollTop: lastLayerMenuScrollPos
         });
+        $lastActiveLayerTopic = $(this).next();
       });
 
       // Make right layers panel vertically touch scrollable.
