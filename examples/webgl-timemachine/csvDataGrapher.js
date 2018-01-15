@@ -13,7 +13,6 @@ var CsvDataGrapher = function CsvDataGrapher() {
   this.activeLayer = {};
 
   // 100 distinct colors
-  // TODO: Perhaps instead have colors pulled from the spreadsheet?
   this.colors = ["#610045","#8100c4","#397300","#01bc8e","#ffb363","#00c9df","#9b8100","#d2005c","#9ee2ba","#00692b","#005dd1","#9200a8","#d6f000","#605700","#fb6a00","#bfffce","#467aff","#650085","#452c00","#9a0006","#ff5b52","#66006b","#faffb2","#fffc88","#008c5d","#ffffc7","#00d75f","#00a21a","#900087","#003c6f","#004f46","#baffe3","#53eeff","#ff65f9","#ff4e7f","#a1fff7","#7d0057","#ca0031","#5b0056","#ff9dd7","#ffeeee","#ff984f","#0179bd","#acffc0","#8d8b00","#52ffbb","#ff76ef","#6acdff","#02a5fe","#ffbacb","#ff677d","#c0ffef","#a3ff96","#ff918b","#9eff6f","#0033bb","#ff468f","#7fa4ff","#a9ff5b","#abc7ff","#ff5c3b","#94004d","#d996ff","#1f2c00","#004758","#eaffe8","#681100","#01caf9","#005039","#01e08f","#01a9b5","#32ff65","#ffadfe","#ff3db8","#9e0024","#320049","#0f0011","#240024","#02c184","#ff78c8","#ff9232","#00545d","#bac800","#ffaa87","#72ff9e","#00163d","#733a00","#002669","#dbff90","#0255ff","#290016","#2a1800","#b10049","#befd06","#004208","#00600a","#e4f4ff","#b89d00","#2f4400","#490013"];
 };
 
@@ -59,7 +58,7 @@ CsvDataGrapher.prototype.initialize = function initialize() {
     var $entry = $("#csv-entry-" + index);
     var $selectedPlots = $("#csvChartLegendList").find(".chartEntrySelected");
     // Ensure the user can cannot hide the last visible plot
-    if ($selectedPlots.length == 1 && $selectedPlots[0] == $entry[0]) {
+    if (index == -1 || $selectedPlots.length == 1 && $selectedPlots[0] == $entry[0]) {
       return;
     }
     if (typeof (that.chart.options.data[index].visible) === "undefined" || that.chart.options.data[index].visible) {
@@ -189,6 +188,8 @@ CsvDataGrapher.prototype.graphDataForLayer = function graphDataForLayer(layerNam
     $("#csvChartLegendList").empty();
   }
   var idx = this.chart.options.data.length;
+  var availableColors = layerProps['Graph Plot Colors'] ? JSON.parse(layerProps['Graph Plot Colors']).concat(that.colors) : that.colors;
+  var plotsInitiallyActive = layerProps['Graph Plots First Visible'] ? JSON.parse(layerProps['Graph Plots First Visible']) : [];
   var visibleCount = 0;
   for (var entryName in that.activeLayer.entries) {
     var alreadyAdded = false;
@@ -204,22 +205,13 @@ CsvDataGrapher.prototype.graphDataForLayer = function graphDataForLayer(layerNam
     visibleCount = $("#csvChartLegendList").find(".chartEntrySelected").length;
     var initialToolTipContent  = idx == 0 ? undefined : null;
     // Fallback to black if we run out of colors
-    var markerColor = opt && opt.markerColor ? opt.markerColor : that.colors[idx] || "black";
-    var usedColors = [];
-    for (var i = 0; i < that.chart.options.data.length; i++) {
-      usedColors.push(that.chart.options.data[i].color);
+    var markerColor = opt && opt.markerColor ? opt.markerColor : availableColors[idx] || "black";
+    if (plotsInitiallyActive.indexOf(idx) >= 0) {
+      initialVisibility = true;
+      initialToolTipContent = undefined;
     }
-    var count = 0;
-    while(usedColors.indexOf(markerColor) >= 0) {
-      markerColor = that.colors[count];
-      count++;
-      if (count == that.colors.length) {
-        markerColor = "black";
-        break;
-      }
-    }
-    // TODO: How to handle special cases?
     // TODO: Allow for different marker types in spreadsheet?
+    // TODO: Remove legacy case for 'National'
     if (entryName == "National") {
       markerType = "square";
       markerColor = "black";
