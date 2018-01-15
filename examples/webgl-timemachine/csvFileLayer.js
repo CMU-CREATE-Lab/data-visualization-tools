@@ -58,6 +58,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
   var playbackRate = typeof opts["playbackRate"] == "undefined" ? null : opts["playbackRate"];
   var masterPlaybackRate = typeof opts["masterPlaybackRate"] == "undefined" ? null : opts["masterPlaybackRate"];
   var nLevels = typeof opts["nLevels"] == "undefined" ? 0 : parseInt(opts["nLevels"]);
+  var colorMapSrc = opts["colorMapSrc"];
   var layerOptions = {
     tileWidth: 256,
     tileHeight: 256,
@@ -86,7 +87,11 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
     layerOptions.drawFunction = WebGLVectorTile2.prototype._drawChoroplethMap;
     layerOptions.fragmentShader = WebGLVectorTile2.choroplethMapFragmentShader;
     layerOptions.vertexShader = WebGLVectorTile2.choroplethMapVertexShader;
-    layerOptions.imageSrc =  "obesity-color-map.png";
+    if (colorMapSrc) {
+      layerOptions.imageSrc = colorMapSrc;
+    } else {
+      layerOptions.imageSrc =  "obesity-color-map.png";    
+    }
   } else if (mapType == "point-flow") {
     layerOptions.loadDataFunction = WebGLVectorTile2.prototype._loadData;
     if (opts["drawFunction"]) {
@@ -282,6 +287,14 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
         }
       }
 
+      var colorMapSrc = null;
+      if (typeof layer["Colormap Src"] != "undefined") {
+        colorMapSrc = layer["Colormap Src"].trim();
+        if (colorMapSrc == "") {
+          colorMapSrc = null;
+        }
+      }
+
       var loadDataFunction = layer["Load Data Function"];
       var setDataFunction = layer["Set Data Function"];
       var numAttributes = layer["Number of Attributes"];
@@ -312,7 +325,8 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
         drawFunction: drawFunction,
         playbackRate: playbackRate,
         masterPlaybackRate: masterPlaybackRate,
-        nLevels: nLevels
+        nLevels: nLevels,
+        colorMapSrc: colorMapSrc
       }
 
       this.addLayer(opts);
