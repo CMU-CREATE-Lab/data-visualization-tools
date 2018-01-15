@@ -3784,7 +3784,7 @@ WebGLVectorTile2.choroplethMapFragmentShader =
 '      uniform sampler2D u_Image;\n' +
 '      varying float v_Val;\n' +
 '      void main() {\n' +
-'        vec4 color = texture2D(u_Image, vec2(v_Val,v_Val));\n' +
+'        vec4 color = texture2D(u_Image, vec2(v_Val,0.));\n' +
 '        gl_FragColor = vec4(color.r, color.g, color.b, 1.);\n' +
 '        //gl_FragColor = vec4(1.0, 0.0, 0.0, 1.);\n' +
 '      }\n';
