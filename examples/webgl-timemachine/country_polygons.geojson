@@ -13702,7 +13702,8 @@
                     "384", 
                     "C\u00f4te d'Ivoire", 
                     "C\u00f4te d'Ivoire", 
-                    "C\u00f4te d'Ivoire"
+                    "C\u00f4te d'Ivoire", 
+                    "Ivory Coast"
                 ]
             }
         }, 
@@ -14482,7 +14483,8 @@
                     "180", 
                     "Dem. Rep. Congo", 
                     "Democratic Republic of the Congo", 
-                    "Congo, Dem. Rep."
+                    "Congo, Dem. Rep.", 
+                    "DR Congo (Zaire)"
                 ]
             }
         }, 
@@ -25630,7 +25632,8 @@
                     "116", 
                     "Cambodia", 
                     "Cambodia", 
-                    "Cambodia"
+                    "Cambodia", 
+                    "Cambodia (Kampuchea)"
                 ]
             }
         }, 
@@ -27550,7 +27553,10 @@
                     "450", 
                     "Madagascar", 
                     "Madagascar", 
-                    "Madagascar"
+                    "Madagascar", 
+                    "Madagascar (Malagasy)", 
+                    "Madagascar (Malagasy)", 
+                    "Madagascar (Malagasy)"
                 ]
             }
         }, 
@@ -28978,7 +28984,8 @@
                     "104", 
                     "Myanmar", 
                     "Myanmar", 
-                    "Myanmar"
+                    "Myanmar", 
+                    "Myanmar (Burma)"
                 ]
             }
         }, 
@@ -35234,7 +35241,8 @@
                     "642", 
                     "Romania", 
                     "Romania", 
-                    "Romania"
+                    "Romania", 
+                    "Rumania"
                 ]
             }
         }, 
@@ -37700,7 +37708,8 @@
                     "643", 
                     "Russia", 
                     "Russian Federation", 
-                    "Russian Federation"
+                    "Russian Federation", 
+                    "Russia (Soviet Union)"
                 ]
             }
         }, 
@@ -39957,7 +39966,8 @@
                     "688", 
                     "Serbia", 
                     "Serbia", 
-                    "Serbia"
+                    "Serbia", 
+                    "Serbia (Yugoslavia)"
                 ]
             }
         }, 
@@ -45960,7 +45970,9 @@
                     "704", 
                     "Vietnam", 
                     "Vietnam", 
-                    "Vietnam"
+                    "Vietnam", 
+                    "South Vietnam", 
+                    "Vietnam (North Vietnam)"
                 ]
             }
         }, 
@@ -46238,7 +46250,9 @@
                     "887", 
                     "Yemen", 
                     "Yemen", 
-                    "Yemen, Rep."
+                    "Yemen, Rep.", 
+                    "Yemen (North Yemen)", 
+                    "South Yemen"
                 ]
             }
         }, 
@@ -47080,7 +47094,8 @@
                     "716", 
                     "Zimbabwe", 
                     "Zimbabwe", 
-                    "Zimbabwe"
+                    "Zimbabwe", 
+                    "Zimbabwe (Rhodesia)"
                 ]
             }
         }
