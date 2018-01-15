@@ -6260,7 +6260,8 @@ var layerOptions = {
         if (layerIdx >= 0 && typeof csvFileLayers.layers[layerIdx] != "undefined") {
           var tiles = csvFileLayers.layers[layerIdx]._tileView._tiles;
           var key = Object.keys(tiles)[0];
-          dataLoaded = key && tiles[key]._ready;
+          // Checking point count is a special case when we are only displaying a chart and nothing on the main map
+          dataLoaded = key && (tiles[key]._ready || tiles[key]._pointCount == 0);
         }
         if (dataLoaded && $target.is(':checked') && !$target.data("has-graph")) {
           var layerId = tiles[key].layerId;
@@ -6385,7 +6386,7 @@ var layerOptions = {
           $("#presentation-slider-selection").hide();
         }
         if (!disablePresentationSlider) {
-          $("#main-hamburger-menu, .controls, .customControl, .scaleBarContainer, #logosContainer, #baseLayerCreditContainer").addClass("layerGraphs");
+          $("#main-hamburger-menu, .controls, .customControl, .scaleBarContainer, #logosContainer, #baseLayerCreditContainer, .current-location-text-container").addClass("layerGraphs");
         }
         $("#timeMachine").addClass("layerGraphs");
       } else {
@@ -6395,7 +6396,7 @@ var layerOptions = {
           $("#presentation-slider-selection").show();
         }
         if (!disablePresentationSlider) {
-          $("#main-hamburger-menu, .controls, .customControl, .scaleBarContainer, #logosContainer, #baseLayerCreditContainer").removeClass("layerGraphs");
+          $("#main-hamburger-menu, .controls, .customControl, .scaleBarContainer, #logosContainer, #baseLayerCreditContainer, .current-location-text-container").removeClass("layerGraphs");
         }
         $("#timeMachine").removeClass("layerGraphs");
       }

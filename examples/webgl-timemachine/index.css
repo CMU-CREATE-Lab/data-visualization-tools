@@ -477,8 +477,8 @@ html, body {
   z-index: 99;
   pointer-events: none;
 }
-.current-location-text-container.noTimeline {
-  /*bottom: 125px;*/
+.current-location-text-container.layerGraphs {
+  bottom: 405px;
 }
 
 .next-annotation-location {
