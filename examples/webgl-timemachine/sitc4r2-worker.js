@@ -2,28 +2,30 @@
 self.addEventListener('message', function(e) {
     var year = e.data['year'];
     var code = e.data["code"];
+    var scale = e.data["scale"];
     var exporters = e.data["exporters"];
     var importers = e.data["importers"];
-    getJson(code, year, exporters, importers, function(code, year, exporters, importers, data) {
-        var float32Array = setData(code, year, exporters, importers, data);
-        self.postMessage({'array': float32Array.buffer, 'year': year, 'code': code}, [float32Array.buffer]);        
+    getJson(code, year, exporters, importers, scale, function(code, year, exporters, importers, scale, data) {
+        var float32Array = setData(code, year, exporters, importers, scale, data);
+        self.postMessage({'array': float32Array.buffer, 'year': year, 'code': code, 'scale': scale}, [float32Array.buffer]);        
     });
 
 }, false);
 
-var getJson = function(code, year, exporters, importers, callback) {
+var getJson = function(code, year, exporters, importers, scale, callback) {
     var url = "https://tiles.earthtime.org" + '/sitc4r2/'+ code + '/' + year + '.json';    
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url);
     xhr.onload = function() {
         var data = JSON.parse(this.responseText);
-        callback(code, year, exporters, importers, data);
+        callback(code, year, exporters, importers, scale, data);
     }
     xhr.send();
 
 }
 
-var setData = function(code, year, exporters, importers, data) {
+var setData = function(code, year, exporters, importers, scale, data) {
+    console.log(scale); 
     function shuffle (array) {
         var i = 0
         , j = 0
@@ -64,7 +66,7 @@ var setData = function(code, year, exporters, importers, data) {
         }
 
     }
-    function doSomething(year, data) {
+    function doSomething(year, scale, data) {
         var points = [];
         var startDateMin = new Date((year - 1).toString() + '-1-1').getTime()/1000.;
         //var startDateMin = new Date(year.toString() + '-1-1').getTime()/1000.;
@@ -74,7 +76,7 @@ var setData = function(code, year, exporters, importers, data) {
 
         for (var i = 0; i < data.length; i++) {
             if (conditionCheck(data[i])) {
-                for (var j = 0; j < data[i]['export_val']/10000.; j++) {
+                for (var j = 0; j < data[i]['export_val']/scale; j++) {
                     var start_epoch = getRandomIntInclusive(startDateMin, startDateMax);
                     var end_epoch = getRandomIntInclusive(endDateMin, endDateMax);
                     if (start_epoch > end_epoch) {
@@ -83,7 +85,7 @@ var setData = function(code, year, exporters, importers, data) {
                         start_epoch = temp;
                     }
 
-                    var val = data[i]['export_val']/10000.;
+                    var val = data[i]['export_val']/scale;
                     var max_offset = Math.log(val);
 
                     var offset = getRandomArbitrary(0.5,max_offset);
@@ -118,7 +120,7 @@ var setData = function(code, year, exporters, importers, data) {
     }
 
     var t0 = performance.now();
-    var points = doSomething(year, data);
+    var points = doSomething(year, scale, data);
     var float32Array = new Float32Array(points);
     var t1 = performance.now();
     console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.");

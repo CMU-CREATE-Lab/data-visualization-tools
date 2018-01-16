@@ -188,6 +188,7 @@ WebGLVectorTile.prototype._loadSitc4r2Data = function () {
   var queryString = undefined;
   this._exporters = [];
   this._importers = [];
+  this._scale = 10000.;
 
   var parts = this._url.split("?");
   if (parts.length > 1) {
@@ -195,6 +196,9 @@ WebGLVectorTile.prototype._loadSitc4r2Data = function () {
     var qsa = parseQueryString(queryString);
     this._exporters = typeof qsa['exporters'] == "undefined" || qsa['exporters'] == "" ? [] : qsa['exporters'].split(",");
     this._importers = typeof qsa['importers'] == "undefined"  || qsa['importers'] == "" ? [] : qsa['importers'].split(",");
+    if (typeof qsa['scale'] != "undefined") {
+      this._scale =  parseFloat(qsa['scale']);
+    }
   }
 
 
@@ -206,6 +210,7 @@ WebGLVectorTile.prototype._loadSitc4r2Data = function () {
       if (typeof e.data["year"] != "undefined") {
         var year = e.data.year;
         var code = e.data.code;
+        var scale = e.data.scale;
         var array = e.data["array"];
         that._setSitc4r2Buffer(code, year, new Float32Array(array));    
       }
@@ -2600,7 +2605,7 @@ WebGLVectorTile2.prototype._drawSitc4r2 = function(transform, options) {
       "buffer":null,
       "ready": false
     }   
-    this.worker.postMessage({'year': currentYear, 'code': code, 'exporters': this._exporters, "importers": this._importers});
+    this.worker.postMessage({'year': currentYear, 'code': code, 'exporters': this._exporters, "importers": this._importers, "scale": this._scale});
   }
   if (typeof this.buffers[code][(currentYear+1).toString()] == "undefined" && currentYear >= 2000 && currentYear < 2014) {
     this.buffers[code][(currentYear+1).toString()] = {
@@ -2609,7 +2614,7 @@ WebGLVectorTile2.prototype._drawSitc4r2 = function(transform, options) {
       "buffer":null,
       "ready": false
     }   
-    this.worker.postMessage({'year': currentYear+1, 'code': code, 'exporters': this._exporters, "importers": this._importers});
+    this.worker.postMessage({'year': currentYear+1, 'code': code, 'exporters': this._exporters, "importers": this._importers, "scale": this._scale});
   }
 
   if (this.buffers[code][currentYear.toString()] && this.buffers[code][currentYear.toString()].ready ) {
