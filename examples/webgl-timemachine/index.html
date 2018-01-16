@@ -5900,8 +5900,12 @@ var layerOptions = {
           }).join(',');
 
 
+          // TODO: This breaks our timelines sometimes
           // Clear out layers if they were checked and not needed again
-          $(".map-layer-div, .ui-multiselect-checkboxes").find("input:checked").parent().not($(waypointListNameString)).children().trigger("click");
+          //$(".map-layer-div, .ui-multiselect-checkboxes").find("input:checked").parent().not($(waypointListNameString)).children().trigger("click");
+
+          // Clear out all layers that were checked
+          $(".map-layer-div, .ui-multiselect-checkboxes").find("input:checked").trigger("click");
 
           // Remove himawari since we do special cases further below
           var himawariIdx = waypointLayers.indexOf("h8");
