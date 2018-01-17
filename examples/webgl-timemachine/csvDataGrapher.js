@@ -32,8 +32,7 @@ CsvDataGrapher.prototype.initialize = function initialize() {
       }],
       gridColor: "silver",
       tickColor: "silver",
-      labelFontSize: 14,
-      title: "Time"
+      labelFontSize: 14
     },
     toolTip: {
       shared: true,
@@ -44,7 +43,6 @@ CsvDataGrapher.prototype.initialize = function initialize() {
       labelFontSize: 14,
       gridColor: "silver",
       tickColor: "silver",
-      title: "Value",
       includeZero: false
     },
     data: [],
@@ -170,7 +168,14 @@ CsvDataGrapher.prototype.graphDataForLayer = function graphDataForLayer(layerNam
         if (!showGraph) return;
         that.activeLayer.title = layerProps['Graph Title'] || layerProps['Name'];
         that.chart.options.graphGroupName = that.activeLayer.title;
-        that.chart.options.axisY.title = "Value";
+        that.chart.options.axisY.title = layerProps['Graph Y-Axis Label'] || "Value";
+        that.chart.options.axisX.title = layerProps['Graph X-Axis Label'] || "Time";
+        if (layerProps['Graph Y-Axis Min']) {
+          that.chart.options.axisY.minimum = layerProps['Graph Y-Axis Min'];
+        }
+        if (layerProps['Graph Y-Axis Max']) {
+          that.chart.options.axisY.maximum = layerProps['Graph Y-Axis Max'];
+        }
         that.chart.options.axisX.interval = undefined;
         that.getDataForLayer(data);
         layerNameMatch = true;
