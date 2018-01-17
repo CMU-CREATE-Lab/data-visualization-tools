@@ -42,7 +42,9 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
 
   if (opt_options.imageSrc) {
     this._image = new Image();
-    this._image.src = opt_options.imageSrc;
+   this._image.crossOrigin = "anonymous";
+   this._image.src = opt_options.imageSrc;
+    
     var that = this;
     this._image.onload = function() {
       if (typeof(that._externalGeojson) != "undefined" && that._externalGeojson != "") {
