@@ -5975,6 +5975,9 @@
         }
       }
 
+      // TODO: Why is this element of TimeMachine outside the controls container?
+      $(".captureTime").prependTo(".controls");
+
       snaplapseForPresentationSlider = timelapse.getSnaplapseForPresentationSlider();
       if (snaplapseForPresentationSlider) {
         snaplapseViewerForPresentationSlider = snaplapseForPresentationSlider.getSnaplapseViewer();
