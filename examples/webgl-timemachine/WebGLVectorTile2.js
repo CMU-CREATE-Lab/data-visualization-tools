@@ -2598,7 +2598,7 @@ WebGLVectorTile2.prototype._drawSitc4r2 = function(transform, options) {
   if (typeof this.buffers[code] == "undefined") {
     this.buffers[code] = {}    
   }  
-  if (typeof this.buffers[code][currentYear.toString()] == "undefined" && currentYear >= 2000 && currentYear <= 2014) {
+  if (typeof this.buffers[code][currentYear.toString()] == "undefined") {
     this.buffers[code][currentYear.toString()] = {
       "numAttributes": this._numAttributes,
       "pointCount": 8,
@@ -2607,7 +2607,7 @@ WebGLVectorTile2.prototype._drawSitc4r2 = function(transform, options) {
     }   
     this.worker.postMessage({'year': currentYear, 'code': code, 'exporters': this._exporters, "importers": this._importers, "scale": this._scale});
   }
-  if (typeof this.buffers[code][(currentYear+1).toString()] == "undefined" && currentYear >= 2000 && currentYear < 2014) {
+  if (typeof this.buffers[code][(currentYear+1).toString()] == "undefined" && currentYear >= 2000) {
     this.buffers[code][(currentYear+1).toString()] = {
       "numAttributes": this._numAttributes,
       "pointCount": 8,
