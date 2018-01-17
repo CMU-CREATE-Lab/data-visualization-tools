@@ -253,6 +253,8 @@
     var timelapseWasPlaying = false;
     var lastLayerMenuScrollPos = 0;
     var $lastActiveLayerTopic = $();
+    var lastActiveLayers = [];
+    var maxCachedLayers = 8;
 
     // This is necessary because waypoint thumbnails are generated from the Landsat set and thus the best we can show is just a solid black thumbnail
     // instead of some random location that a himawari bounds corresponds to in Landsat.
@@ -589,6 +591,7 @@
     }
 
     function initLodesGui() {
+      if (lodesOptions) return;
       lodesOptions = new LodesOptions();
       var gui = new dat.GUI();
       var f1 = gui.addFolder('Animation');
@@ -753,7 +756,7 @@
 
     var lodesUrl = rootTilePath + "/lodes/lodes-10/{z}/{x}/{y}.bin";
 
-    var cumulativeActiveMiningUrl = "http://storage.googleapis.com/skytruth-data/color_test_cumulativeActiveMining-FOOTPRINT/{z}/{x}/{y}.png";
+    var cumulativeActiveMiningUrl = "https://storage.googleapis.com/skytruth-data/color_test_cumulativeActiveMining-FOOTPRINT/{z}/{x}/{y}.png";
 
     var iomIdpUrl = rootTilePath + "/iom-idp/idp-returns.geojson";
     var landBorderUrl = rootTilePath + "/land-borders2/{default}/{z}/{x}/{y}.png";
@@ -942,6 +945,20 @@
       }, 0);
     }
 
+    function cacheLastUsedLayer(layer) {
+      if (lastActiveLayers.length == maxCachedLayers) {
+        lastActiveLayers.shift().destroy();
+      }
+
+      // May not do anything if tiles have all loaded for this layer
+      layer.abortLoading();
+
+      var tiles = Object.keys(layer.getTiles());
+
+      if (lastActiveLayers.indexOf(layer) == -1 && tiles.length > 0) {
+        lastActiveLayers.push(layer);
+      }
+    }
 
     function setTimeLine(identifier, startDate, endDate, step) {
       var captureTimes = [];
@@ -963,7 +980,8 @@
 
       $("#show-water-occurrence").on("click", function() {
         var $this = $(this);
-        if ($this.is(':checked')) {
+        if ($this.prop('checked')) {
+          waterOccurrenceLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           if ($("#show-water-change").prop('checked')) {
             $("#show-water-change").click();
           }
@@ -971,14 +989,15 @@
           $("#water-occurrence-legend").show();
         } else {
           showWaterOccurrenceLayer = false;
-          waterOccurrenceLayer.destroy();
+          cacheLastUsedLayer(waterOccurrenceLayer);
           $("#water-occurrence-legend").hide();
         }
       }).prop('checked', showWaterOccurrenceLayer);
 
       $("#show-water-change").on("click", function() {
         var $this = $(this);
-        if ($this.is(':checked')) {
+        if ($this.prop('checked')) {
+          waterChangeLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           if ($("#show-water-occurrence").prop('checked')) {
             $("#show-water-occurrence").click();
           }
@@ -986,25 +1005,28 @@
           $("#water-change-legend").show();
         } else {
           showWaterChangeLayer = false;
-          waterChangeLayer.destroy();
+          cacheLastUsedLayer(waterChangeLayer);
           $("#water-change-legend").hide();
         }
       }).prop('checked', showWaterChangeLayer);
 
       $("#show-wdpa").on("click", function() {
         var $this = $(this);
-        if ($this.is(':checked')) {
+        if ($this.prop('checked')) {
+          wdpaLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showWdpaLayer = true;
           $("#wdpa-legend").show();
         } else {
           showWdpaLayer = false;
-          wdpaLayer.destroy();
+          cacheLastUsedLayer(wdpaLayer);
           $("#wdpa-legend").hide();
         }
       }).prop('checked', showWdpaLayer);
 
       $("#show-forest-change").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          hansenMapLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           if ($("#show-forest-loss-gain").prop('checked')) {
             $("#show-forest-loss-gain").click();
           }
@@ -1021,13 +1043,15 @@
           $("#forest-loss-year-legend").show();
         } else {
           showHansenLayer = false;
-          hansenMapLayer.destroy();
+          cacheLastUsedLayer(hansenMapLayer);
           $("#forest-loss-year-legend").hide();
         }
       }).prop('checked', showHansenLayer);
 
       $("#show-forest-loss-gain").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          hansenMapLayer2.getTileView().handleTileLoading({layerDomId: $this[0].id});
           if ($("#show-forest-change").prop('checked')) {
             $("#show-forest-change").click();
           }
@@ -1046,7 +1070,7 @@
           $("#baseLayerCreditContainer").hide();
         } else {
           showHansenLayer2 = false;
-          hansenMapLayer2.destroy();
+          cacheLastUsedLayer(hansenMapLayer2);
           timelineType = "customUI";
           $("#forest-loss-gain-legend").hide();
           $("#baseLayerCreditContainer").show();
@@ -1054,7 +1078,9 @@
       }).prop('checked', showHansenLayer2);
 
       $("#show-animated-forest-loss-gain").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          //animatedHansenLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           if ($("#show-forest-change").prop('checked')) {
             $("#show-forest-change").click();
           }
@@ -1076,7 +1102,7 @@
           $("#forest-loss-gain-legend").show();
         } else {
           showAnimatedHansenLayer = false;
-          animatedHansenLayer.destroy();
+          cacheLastUsedLayer(animatedHansenLayer);
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
           $("#forest-loss-gain-legend").hide();
@@ -1084,7 +1110,9 @@
       }).prop('checked', showAnimatedHansenLayer);
 
       $("#show-forest-alerts").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          forestAlertsTimeMachineLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           if ($("#show-forest-change").prop('checked')) {
             $("#show-forest-change").click();
           }
@@ -1111,7 +1139,7 @@
           visibleBaseMapLayer = "forest-alarms";
         } else {
           showForestAlertsTimeMachineLayer = false;
-          forestAlertsTimeMachineLayer.destroy();
+          cacheLastUsedLayer(forestAlertsTimeMachineLayer);
           setActiveLayersWithTimeline(-1);
           if (!showForestAlertsNoOverlayTimeMachineLayer && !showForestAlertsTimeMachineLayer) {
             timelineType = "customUI";
@@ -1128,7 +1156,9 @@
       }).prop('checked', showForestAlertsTimeMachineLayer);
 
       $("#show-forest-alerts-no-overlay").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          forestAlertsNoOverlayTimeMachineLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           if ($("#show-forest-change").prop('checked')) {
             $("#show-forest-change").click();
           }
@@ -1155,7 +1185,7 @@
           visibleBaseMapLayer = "forest-alarms-no-overlay";
         } else {
           showForestAlertsNoOverlayTimeMachineLayer = false;
-          forestAlertsNoOverlayTimeMachineLayer.destroy();
+          cacheLastUsedLayer(forestAlertsNoOverlayTimeMachineLayer);
           setActiveLayersWithTimeline(-1);
           if (!showForestAlertsNoOverlayTimeMachineLayer && !showForestAlertsTimeMachineLayer) {
             timelineType = "customUI";
@@ -1172,7 +1202,9 @@
       }).prop('checked', showForestAlertsNoOverlayTimeMachineLayer);
 
       $("#show-viirs").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          viirsLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showViirsLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "defaultUI";
@@ -1183,7 +1215,7 @@
           $("#fires-at-night-legend").show();
         } else {
           showViirsLayer = false;
-          viirsLayer.destroy();
+          cacheLastUsedLayer(viirsLayer);
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
           $("#fires-at-night-legend").hide();
@@ -1191,7 +1223,10 @@
       }).prop('checked', showViirsLayer);
 
       $("#show-coral").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          coralBleachingLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
+          mcrmVectorLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           if ($("#show-coral-bleaching-alerts").prop('checked')) {
             $("#show-coral-bleaching-alerts").click();
           }
@@ -1202,9 +1237,9 @@
           $("#coral-bleaching-legend").show();
         } else {
           showCoralBleachingLayer = false;
-          coralBleachingLayer.destroy();
+          cacheLastUsedLayer(coralBleachingLayer);
           showMcrmLayer = false;
-          mcrmVectorLayer.destroy();
+          cacheLastUsedLayer(mcrmVectorLayer);
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
           if (!$("#show-coral-bleaching-alerts").prop('checked')) {
@@ -1214,7 +1249,10 @@
       }).prop('checked', showCoralBleachingLayer);
 
       $("#show-coral-bleaching-alerts").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          crwTimeMachineLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
+          mcrmVectorLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           if ($("#show-coral").prop('checked')) {
             $("#show-coral").click();
           }
@@ -1231,9 +1269,9 @@
           $("#coral-bleaching-legend").show();
         } else {
           showCrwTimeMachineLayer = false;
-          crwTimeMachineLayer.destroy();
+          cacheLastUsedLayer(crwTimeMachineLayer);
           showMcrmLayer = false;
-          mcrmVectorLayer.destroy();
+          cacheLastUsedLayer(mcrmVectorLayer);
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
           $("#coral-bleaching-alerts-legend").hide();
@@ -1244,7 +1282,9 @@
       }).prop('checked', showCrwTimeMachineLayer);
 
       $("#show-ndvi-anomaly").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          ndviAnomalyTimeMachineLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showNdviAnomalyTimeMachineLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
@@ -1256,7 +1296,7 @@
           $("#ndvi-anomaly-legend").show();
         } else {
           showNdviAnomalyTimeMachineLayer = false;
-          ndviAnomalyTimeMachineLayer.destroy();
+          cacheLastUsedLayer(ndviAnomalyTimeMachineLayer);
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
           $("#ndvi-anomaly-legend").hide();
@@ -1264,7 +1304,9 @@
       }).prop('checked', showNdviAnomalyTimeMachineLayer);
 
       $("#show-himawari").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          himawariTimeMachineLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           // Clear out non-himawari8 layers if they were already active.
           var $activeLayersNotIncludingClickedLayer = $(".map-layer-div, .ui-multiselect-checkboxes").find("input:checked").not($(this));
           if ($activeLayersNotIncludingClickedLayer.length > 1) {
@@ -1295,7 +1337,7 @@
           $("#baseLayerCreditContainer").hide();
         } else {
           showHimawariTimeMachineLayer = false;
-          himawariTimeMachineLayer.destroy();
+          cacheLastUsedLayer(himawariTimeMachineLayer);
           setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
           visibleBaseMapLayer = previousVisibleBaseMapLayer;
@@ -1325,7 +1367,9 @@
       }).prop('checked', showHimawariTimeMachineLayer);
 
       $("#show-goes16").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          goes16TimeMachineLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           // Clear out non-goes16 layers if they were already active.
           var $activeLayersNotIncludingClickedLayer = $(".map-layer-div, .ui-multiselect-checkboxes").find("input:checked").not($(this));
           if ($activeLayersNotIncludingClickedLayer.length > 1) {
@@ -1356,7 +1400,7 @@
           $("#baseLayerCreditContainer").hide();
         } else {
           showGoes16TimeMachineLayer = false;
-          goes16TimeMachineLayer.destroy();
+          cacheLastUsedLayer(goes16TimeMachineLayer);
           setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
           visibleBaseMapLayer = previousVisibleBaseMapLayer;
@@ -1386,7 +1430,9 @@
       }).prop('checked', showGoes16TimeMachineLayer);
 
       $("#show-dscovr").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          dscovrTimeMachineLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           // Clear out non-dscovr layers if they were already active.
           var $activeLayersNotIncludingClickedLayer = $(".map-layer-div, .ui-multiselect-checkboxes").find("input:checked").not($(this));
           if ($activeLayersNotIncludingClickedLayer.length > 1) {
@@ -1418,7 +1464,7 @@
           $("#baseLayerCreditContainer").hide();
         } else {
           showDscovrTimeMachineLayer = false;
-          dscovrTimeMachineLayer.destroy();
+          cacheLastUsedLayer(dscovrTimeMachineLayer);
           setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
           visibleBaseMapLayer = previousVisibleBaseMapLayer;
@@ -1447,7 +1493,9 @@
       }).prop('checked', showDscovrTimeMachineLayer);
 
       $("#show-annual-pm25").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          annualGlobalPm25TimeMachineLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showAnnualGlobalPm25TimeMachineLayer = true;
           setActiveLayersWithTimeline(1);
           visibleBaseMapLayer = "annual-pm25";
@@ -1461,7 +1509,7 @@
           $("#baseLayerCreditContainer").hide();
         } else {
           showAnnualGlobalPm25TimeMachineLayer = false;
-          annualGlobalPm25TimeMachineLayer.destroy();
+          cacheLastUsedLayer(annualGlobalPm25TimeMachineLayer);
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
           visibleBaseMapLayer = previousVisibleBaseMapLayer;
@@ -1473,7 +1521,9 @@
       }).prop('checked', showAnnualGlobalPm25TimeMachineLayer);
 
       $("#show-berkeley-earth-temperature-anomaly").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          berkeleyEarthTemperatureAnomalyTimeMachineLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showBerkeleyEarthTemperatureAnomalyTimeMachineLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "defaultUI";
@@ -1487,7 +1537,7 @@
           $("#baseLayerCreditContainer").hide();
         } else {
           showBerkeleyEarthTemperatureAnomalyTimeMachineLayer = false;
-          berkeleyEarthTemperatureAnomalyTimeMachineLayer.destroy();
+          cacheLastUsedLayer(berkeleyEarthTemperatureAnomalyTimeMachineLayer);
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
           var v = timelapse.getVideoset();
@@ -1499,7 +1549,9 @@
       }).prop('checked', showBerkeleyEarthTemperatureAnomalyTimeMachineLayer);
 
       $("#show-usgs-windturbine").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          usgsWindTurbineLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showUsgsWindTurbineLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
@@ -1507,7 +1559,7 @@
           $("#wind-installs-legend").show();
         } else {
           showUsgsWindTurbineLayer = false;
-          usgsWindTurbineLayer.destroy();
+          cacheLastUsedLayer(usgsWindTurbineLayer);
           setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
           $("#wind-installs-legend").hide();
@@ -1515,7 +1567,9 @@
       }).prop('checked', showUsgsWindTurbineLayer);
 
       $("#show-global-wind-power").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          globalWindPowerLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showGlobalWindPowerLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
@@ -1523,7 +1577,7 @@
           $("#global-wind-power-legend").show();
         } else {
           showGlobalWindPowerLayer = false;
-          globalWindPowerLayer.destroy();
+          cacheLastUsedLayer(globalWindPowerLayer);
           setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
           $("#global-wind-power-legend").hide();
@@ -1531,7 +1585,9 @@
       }).prop('checked', showGlobalWindPowerLayer);
 
       $("#show-solar-installs").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          solarInstallsLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showSolarInstallsLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
@@ -1539,7 +1595,7 @@
           $("#solar-installs-legend").show();
         } else {
           showSolarInstallsLayer = false;
-          solarInstallsLayer.destroy();
+          cacheLastUsedLayer(solarInstallsLayer);
           setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
           $("#solar-installs-legend").hide();
@@ -1547,7 +1603,9 @@
       }).prop('checked', showSolarInstallsLayer);
 
       $("#show-drilling").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          drillingLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showDrillingLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "defaultUI";
@@ -1555,7 +1613,7 @@
           $("#drilling-legend").show();
         } else {
           showDrillingLayer = false;
-          drillingLayer.destroy();
+          cacheLastUsedLayer(drillingLayer);
           setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
@@ -1564,7 +1622,9 @@
       }).prop('checked', showDrillingLayer);
 
       $("#show-lights-at-night").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          lightsAtNightMapLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           if ($("#show-lights-at-night-2016").prop('checked')) {
             $("#show-lights-at-night-2016").click();
           }
@@ -1576,14 +1636,16 @@
           $("#lights-at-night-legend").show();
         } else {
           showLightsAtNightLayer = false;
-          lightsAtNightMapLayer.destroy();
+          cacheLastUsedLayer(lightsAtNightMapLayer);
           timelineType = "customUI";
           $("#lights-at-night-legend").hide();
         }
       }).prop('checked', showLightsAtNightLayer);
 
       $("#show-lights-at-night-2012").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          lightsAtNight2012MapLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           if ($("#show-lights-at-night").prop('checked')) {
             $("#show-lights-at-night").click();
           }
@@ -1596,7 +1658,7 @@
           $("#baseLayerCreditContainer").hide();
         } else {
           showLightsAtNight2012Layer = false;
-          lightsAtNight2012MapLayer.destroy();
+          cacheLastUsedLayer(lightsAtNight2012MapLayer);
           timelineType = "customUI";
           $("#lights-at-night-2012-legend").hide();
           $("#baseLayerCreditContainer").show();
@@ -1604,7 +1666,9 @@
       }).prop('checked', showLightsAtNight2012Layer);
 
       $("#show-lights-at-night-2016").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          lightsAtNight2016MapLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           if ($("#show-lights-at-night").prop('checked')) {
             $("#show-lights-at-night").click();
           }
@@ -1617,7 +1681,7 @@
           $("#baseLayerCreditContainer").hide();
         } else {
           showLightsAtNight2016Layer = false;
-          lightsAtNight2016MapLayer.destroy();
+          cacheLastUsedLayer(lightsAtNight2016MapLayer);
           timelineType = "customUI";
           $("#lights-at-night-2016-legend").hide();
           $("#baseLayerCreditContainer").show();
@@ -1625,7 +1689,9 @@
       }).prop('checked', showLightsAtNight2016Layer);
 
       $("#show-monthly-refugees").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          monthlyRefugeesLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           if ($("#show-annual-refugees").prop('checked')) {
             $("#show-annual-refugees").click();
           }
@@ -1639,7 +1705,7 @@
           $("#monthly-refugees-legend").show();
         } else {
           showMonthlyRefugeesLayer = false;
-          monthlyRefugeesLayer.destroy();
+          cacheLastUsedLayer(monthlyRefugeesLayer);
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
           $("#monthly-refugees-legend").hide();
@@ -1648,7 +1714,9 @@
 
 
       $("#show-annual-refugees").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          annualRefugeesLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           if ($("#show-monthly-refugees").prop('checked')) {
             $("#show-monthly-refugees").click();
           }
@@ -1661,7 +1729,7 @@
           $("#annual-refugees-legend").show();
         } else {
           showAnnualRefugeesLayer = false;
-          annualRefugeesLayer.destroy();
+          cacheLastUsedLayer(annualRefugeesLayer);
           setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
@@ -1673,7 +1741,9 @@
       }).prop('checked', showAnnualRefugeesLayer);
 
       $("#show-annual-returns").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          annualReturnsLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           if ($("#show-monthly-refugees").prop('checked')) {
             $("#show-monthly-refugees").click();
           }
@@ -1686,7 +1756,7 @@
           $("#annual-returns-legend").show();
         } else {
           showAnnualReturnsLayer = false;
-          annualReturnsLayer.destroy();
+          cacheLastUsedLayer(annualReturnsLayer);
           setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
@@ -1698,20 +1768,24 @@
       }).prop('checked', showAnnualReturnsLayer);
 
       $("#show-vsi").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          vsiLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showVsiLayer = true;
           timelineType = "none";
           $("#vsi-legend").show();
         } else {
           showVsiLayer = false;
-          vsiLayer.destroy();
+          cacheLastUsedLayer(vsiLayer);
           timelineType = "customUI";
           $("#vsi-legend").hide();
         }
       }).prop('checked', showVsiLayer);
 
       $("#show-health-impact-rcp2p6").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          healthImpactLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           if (visibleBaseMapLayer != "dark") {
             $("#dark-base").click();
           }
@@ -1729,7 +1803,7 @@
           setActiveLayersWithTimeline(-1);
           if (!showHealthImpactRcp[1] && !showHealthImpactRcp[2] && !showHealthImpactRcp[3]) {
             showHealthImpactLayer = false;
-            healthImpactLayer.destroy();
+            cacheLastUsedLayer(healthImpactLayer);
             timelineType = "customUI";
             requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
             timelapse.setMasterPlaybackRate(1);
@@ -1742,7 +1816,9 @@
       }).prop('checked', showHealthImpactLayer);
 
       $("#show-health-impact-rcp4p5").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          healthImpactLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           if (visibleBaseMapLayer != "dark") {
             $("#dark-base").click();
           }
@@ -1760,7 +1836,7 @@
           setActiveLayersWithTimeline(-1);
           if (!showHealthImpactRcp[0] && !showHealthImpactRcp[2] && !showHealthImpactRcp[3]) {
             showHealthImpactLayer = false;
-            healthImpactLayer.destroy();
+            cacheLastUsedLayer(showHealthImpactLayer);
             timelineType = "customUI";
             requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
             timelapse.setMasterPlaybackRate(1);
@@ -1773,7 +1849,9 @@
       }).prop('checked', showHealthImpactLayer);
 
       $("#show-health-impact-rcp6p0").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          healthImpactLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           if (visibleBaseMapLayer != "dark") {
             $("#dark-base").click();
           }
@@ -1791,7 +1869,7 @@
           setActiveLayersWithTimeline(-1);
           if (!showHealthImpactRcp[0] && !showHealthImpactRcp[1] && !showHealthImpactRcp[3]) {
             showHealthImpactLayer = false;
-            healthImpactLayer.destroy();
+            cacheLastUsedLayer(showHealthImpactLayer);
             timelineType = "customUI";
             requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
             timelapse.setMasterPlaybackRate(1);
@@ -1804,7 +1882,9 @@
       }).prop('checked', showHealthImpactLayer);
 
       $("#show-health-impact-rcp8p5").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          healthImpactLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           if (visibleBaseMapLayer != "dark") {
             $("#dark-base").click();
           }
@@ -1821,7 +1901,7 @@
           setActiveLayersWithTimeline(-1);
           if (!showHealthImpactRcp[0] && !showHealthImpactRcp[1] && !showHealthImpactRcp[2]) {
             showHealthImpactLayer = false;
-            healthImpactLayer.destroy();
+            cacheLastUsedLayer(showHealthImpactLayer);
             timelineType = "customUI";
             requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
             timelapse.setMasterPlaybackRate(1);
@@ -1834,7 +1914,9 @@
       }).prop('checked', showHealthImpactLayer);
 
       $("#show-zika").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          zikaLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showZikaLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
@@ -1843,7 +1925,7 @@
           $("#zika-legend").show();
         } else {
           showZikaLayer = false;
-          zikaLayer.destroy();
+          cacheLastUsedLayer(showZikaLayer);
           setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
@@ -1854,14 +1936,16 @@
       }).prop('checked', showZikaLayer);
 
       $("#show-dengue").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          dengueLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showDengueLayer = true;
           timelineType = "customUI";
           setActiveLayersWithTimeline(1);
           $("#dengue-legend").show();
         } else {
           showDengueLayer = false;
-          dengueLayer.destroy();
+          cacheLastUsedLayer(dengueLayer);
           setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
           timelapse.setMasterPlaybackRate(1);
@@ -1871,14 +1955,16 @@
       }).prop('checked', showDengueLayer);
 
       $("#show-chiku").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          chikuLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showChikuLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
           $("#chiku-legend").show();
         } else {
           showChikuLayer = false;
-          chikuLayer.destroy();
+          cacheLastUsedLayer(chikuLayer);
           setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
           timelapse.setMasterPlaybackRate(1);
@@ -1888,7 +1974,9 @@
       }).prop('checked', showChikuLayer);
 
       $("#show-sea-level-rise-1p0").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          seaLevelRiseLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           if ($("#show-sea-level-rise-1p5").prop('checked')) {
             $("#show-sea-level-rise-1p5").prop('checked', false);
             setActiveLayersWithTimeline(-1);
@@ -1908,7 +1996,7 @@
           $("#sea-level-rise-legend").show();
         } else {
           showSeaLevelRiseLayer = false;
-          seaLevelRiseLayer.destroy();
+          cacheLastUsedLayer(seaLevelRiseLayer);
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
           $("#sea-level-rise-legend").hide();
@@ -1916,7 +2004,9 @@
       }).prop('checked', showSeaLevelRiseLayer);
 
       $("#show-sea-level-rise-1p5").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          seaLevelRiseLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           if ($("#show-sea-level-rise-1p0").prop('checked')) {
             $("#show-sea-level-rise-1p0").prop('checked', false);
             setActiveLayersWithTimeline(-1);
@@ -1936,6 +2026,7 @@
           $("#sea-level-rise-legend").show();
         } else {
           showSeaLevelRiseLayer = false;
+          cacheLastUsedLayer(seaLevelRiseLayer);
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
           $("#sea-level-rise-legend").hide();
@@ -1943,7 +2034,9 @@
       }).prop('checked', showSeaLevelRiseLayer);
 
       $("#show-sea-level-rise-2p0").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          seaLevelRiseLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           if ($("#show-sea-level-rise-1p0").prop('checked')) {
             $("#show-sea-level-rise-1p0").prop('checked', false);
             setActiveLayersWithTimeline(-1);
@@ -1963,6 +2056,7 @@
           $("#sea-level-rise-legend").show();
         } else {
           showSeaLevelRiseLayer = false;
+          cacheLastUsedLayer(seaLevelRiseLayer);
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
           $("#sea-level-rise-legend").hide();
@@ -1970,7 +2064,9 @@
       }).prop('checked', showSeaLevelRiseLayer);
 
       $("#show-sea-level-rise-4p0").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          seaLevelRiseLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           if ($("#show-sea-level-rise-1p0").prop('checked')) {
             $("#show-sea-level-rise-1p0").prop('checked', false);
             setActiveLayersWithTimeline(-1);
@@ -1990,6 +2086,7 @@
           $("#sea-level-rise-legend").show();
         } else {
           showSeaLevelRiseLayer = false;
+          cacheLastUsedLayer(seaLevelRiseLayer);
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
           $("#sea-level-rise-legend").hide();
@@ -1997,7 +2094,9 @@
       }).prop('checked', showSeaLevelRiseLayer);
 
       $("#show-urban-fragility").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          urbanFragilityLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showUrbanFragilityLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
@@ -2005,7 +2104,7 @@
           $("#urban-fragility-legend").show();
         } else {
           showUrbanFragilityLayer = false;
-          urbanFragilityLayer.destroy();
+          cacheLastUsedLayer(urbanFragilityLayer);
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           $("#urban-fragility-legend").hide();
@@ -2013,21 +2112,25 @@
       }).prop('checked', showUrbanFragilityLayer);
 
       $("#show-gtd").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          gtdLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showGtdLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
           $("#gtd-legend").show();
         } else {
           showGtdLayer = false;
-          gtdLayer.destroy();
+          cacheLastUsedLayer(gtdLayer);
           setActiveLayersWithTimeline(-1);
           $("#gtd-legend").hide();
         }
       }).prop('checked', showGtdLayer);
 
       $("#show-uppsala-conflict").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          uppsalaConflictLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showUppsalaConflictLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
@@ -2035,7 +2138,7 @@
           $("#uppsala-conflict-legend").show();
         } else {
           showUppsalaConflictLayer = false;
-          uppsalaConflictLayer.destroy();
+          cacheLastUsedLayer(uppsalaConflictLayer);
           setActiveLayersWithTimeline(-1);
           $("#uppsala-conflict-legend").hide();
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
@@ -2043,7 +2146,9 @@
       }).prop('checked', showUppsalaConflictLayer);
 
       $("#show-hiv").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          hivLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           if (visibleBaseMapLayer != "dark") {
             $("#dark-base").click();
           }
@@ -2055,7 +2160,7 @@
           $("#hiv-legend").show();
         } else {
           showHivLayer = false;
-          hivLayer.destroy();
+          cacheLastUsedLayer(hivLayer);
           setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
@@ -2065,7 +2170,9 @@
       }).prop('checked', showHivLayer);
 
       $("#show-obesity").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          obesityLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           if (visibleBaseMapLayer != "dark") {
             $("#dark-base").click();
           }
@@ -2078,7 +2185,7 @@
           $("#obesity-legend").show();
         } else {
           showObesityLayer = false;
-          obesityLayer.destroy();
+          cacheLastUsedLayer(obesityLayer);
           setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
@@ -2089,7 +2196,9 @@
       }).prop('checked', showObesityLayer);
 
       $("#show-vaccine-confidence-q1").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          vaccineConfidenceLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           if ($("#show-vaccine-confidence-q2").prop('checked')) {
             $("#show-vaccine-confidence-q2").prop('checked', false);
             $("#vaccine-confidence-q2-legend").hide();
@@ -2110,14 +2219,16 @@
           $("#vaccine-confidence-q1-legend").show();
         } else {
           showVaccineConfidenceLayer = false;
-          vaccineConfidenceLayer.destroy();
+          cacheLastUsedLayer(vaccineConfidenceLayer);
           timelineType = "customUI";
           $("#vaccine-confidence-q1-legend").hide();
         }
       }).prop('checked', showVaccineConfidenceLayer);
 
       $("#show-vaccine-confidence-q2").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          vaccineConfidenceLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           if ($("#show-vaccine-confidence-q1").prop('checked')) {
             $("#show-vaccine-confidence-q1").prop('checked', false);
             $("#vaccine-confidence-q1-legend").hide();
@@ -2138,14 +2249,16 @@
           $("#vaccine-confidence-q2-legend").show();
         } else {
           showVaccineConfidenceLayer = false;
-          vaccineConfidenceLayer.destroy();
+          cacheLastUsedLayer(vaccineConfidenceLayer);
           timelineType = "customUI";
           $("#vaccine-confidence-q2-legend").hide();
         }
       }).prop('checked', showVaccineConfidenceLayer);
 
       $("#show-vaccine-confidence-q3").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          vaccineConfidenceLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           if ($("#show-vaccine-confidence-q1").prop('checked')) {
             $("#show-vaccine-confidence-q1").prop('checked', false);
             $("#vaccine-confidence-q1-legend").hide();
@@ -2166,14 +2279,16 @@
           $("#vaccine-confidence-q3-legend").show();
         } else {
           showVaccineConfidenceLayer = false;
-          vaccineConfidenceLayer.destroy();
+          cacheLastUsedLayer(vaccineConfidenceLayer);
           timelineType = "customUI";
           $("#vaccine-confidence-q3-legend").hide();
         }
       }).prop('checked', showVaccineConfidenceLayer);
 
       $("#show-vaccine-confidence-q4").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          vaccineConfidenceLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           if ($("#show-vaccine-confidence-q1").prop('checked')) {
             $("#show-vaccine-confidence-q1").prop('checked', false);
             $("#vaccine-confidence-q1-legend").hide();
@@ -2194,14 +2309,16 @@
           $("#vaccine-confidence-q4-legend").show();
         } else {
           showVaccineConfidenceLayer = false;
-          vaccineConfidenceLayer.destroy();
+          cacheLastUsedLayer(vaccineConfidenceLayer);
           timelineType = "customUI";
           $("#vaccine-confidence-q4-legend").hide();
         }
       }).prop('checked', showVaccineConfidenceLayer);
 
       $("#show-ebola-deaths").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          ebolaDeathsLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showEbolaDeathsLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "defaultUI";
@@ -2210,7 +2327,7 @@
           $("#ebola-deaths-legend").show();
         } else {
           showEbolaDeathsLayer = false;
-          ebolaDeathsLayer.destroy();
+          cacheLastUsedLayer(ebolaDeathsLayer);
           setActiveLayersWithTimeline(-1);
           if (!$("#show-ebola-cases").prop('checked') && !$("#show-ebola-new-cases").prop('checked')) {
             timelineType = "customUI";
@@ -2222,7 +2339,9 @@
       }).prop('checked', showEbolaDeathsLayer);
 
       $("#show-ebola-cases").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          ebolaCasesLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showEbolaCasesLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "defaultUI";
@@ -2231,7 +2350,7 @@
           $("#ebola-cases-legend").show();
         } else {
           showEbolaCasesLayer = false;
-          ebolaCasesLayer.destroy();
+          cacheLastUsedLayer(ebolaCasesLayer);
           setActiveLayersWithTimeline(-1);
           if (!$("#show-ebola-deaths").prop('checked') && !$("#show-ebola-new-cases").prop('checked')) {
             timelineType = "customUI";
@@ -2243,7 +2362,9 @@
       }).prop('checked', showEbolaCasesLayer);
 
       $("#show-ebola-new-cases").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          ebolaNewCasesLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showEbolaNewCasesLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "defaultUI";
@@ -2252,7 +2373,7 @@
           $("#ebola-new-cases-legend").show();
         } else {
           showEbolaNewCasesLayer = false;
-          ebolaNewCasesLayer.destroy();
+          cacheLastUsedLayer(ebolaNewCasesLayer);
           setActiveLayersWithTimeline(-1);
           if (!$("#show-ebola-deaths").prop('checked') && !$("#show-ebola-cases").prop('checked')) {
             timelineType = "customUI";
@@ -2264,8 +2385,11 @@
       }).prop('checked', showEbolaNewCasesLayer);
 
       $("#show-lodes").on("click", function() {
+        initLodesGui();
         var dg = document.getElementsByClassName("dg ac")[0];
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          lodesLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           if (visibleBaseMapLayer != "light") {
             $("#light-base").click();
           }
@@ -2275,7 +2399,7 @@
           $("#lodes-legend").show();
         } else {
           showLodesLayer = false;
-          lodesLayer.destroy();
+          cacheLastUsedLayer(lodesLayer);
           dg["style"]["display"] = "none";
           doSwitchToLandsat();
           $("#lodes-legend").hide();
@@ -2283,21 +2407,25 @@
       }).prop('checked', showLodesLayer);
 
       $("#show-cumulative-active-mining").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          cumulativeActiveMiningLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showCumulativeActiveMiningLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
           $("#cumulative-active-mining-legend").show();
         } else {
           showCumulativeActiveMiningLayer = false;
-          cumulativeActiveMiningLayer.destroy();
+          cacheLastUsedLayer(cumulativeActiveMiningLayer);
           setActiveLayersWithTimeline(-1);
           $("#cumulative-active-mining-legend").hide();
         }
       }).prop('checked', showCumulativeActiveMiningLayer);
 
       $("#show-iraq-iom-idp").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          iomIdpLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showIomIdpLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "defaultUI";
@@ -2323,7 +2451,9 @@
       }).prop('checked', showIomIdpLayer);
 
       $("#show-syria-iom-idp").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          iomIdpLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showIomIdpLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "defaultUI";
@@ -2349,7 +2479,9 @@
       }).prop('checked', showIomIdpLayer);
 
       $("#show-yemen-iom-idp").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          iomIdpLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showIomIdpLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "defaultUI";
@@ -2375,7 +2507,9 @@
       }).prop('checked', showIomIdpLayer);
 
       $("#show-libya-iom-idp").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          iomIdpLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showIomIdpLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "defaultUI";
@@ -2401,7 +2535,9 @@
       }).prop('checked', showIomIdpLayer);
 
       $("#show-iraq-iom-return").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          iomIdpLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showIomIdpLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "defaultUI";
@@ -2427,7 +2563,9 @@
       }).prop('checked', showIomIdpLayer);
 
       $("#show-syria-iom-return").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          iomIdpLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showIomIdpLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "defaultUI";
@@ -2453,7 +2591,9 @@
       }).prop('checked', showIomIdpLayer);
 
       $("#show-yemen-iom-return").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          iomIdpLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showIomIdpLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "defaultUI";
@@ -2479,7 +2619,9 @@
       }).prop('checked', showIomIdpLayer);
 
       $("#show-libya-iom-return").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          iomIdpLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showIomIdpLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "defaultUI";
@@ -2505,7 +2647,9 @@
       }).prop('checked', showIomIdpLayer);
 
       $("#show-omi-no2").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          omiNo2Layer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showOmiNo2Layer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
@@ -2517,7 +2661,7 @@
           $("#omi-no2-legend").show();
         } else {
           showOmiNo2Layer = false;
-          omiNo2Layer.destroy();
+          cacheLastUsedLayer(omiNo2Layer);
           setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
@@ -2530,7 +2674,9 @@
       }).prop('checked', showOmiNo2Layer);
 
       $("#show-be-pm25").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          bePm25Layer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showBePm25Layer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "defaultUI";
@@ -2542,7 +2688,7 @@
           $("#be-pm25-legend").show();
         } else {
           showBePm25Layer = false;
-          bePm25Layer.destroy();
+          cacheLastUsedLayer(bePm25Layer);
           setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
@@ -2555,7 +2701,9 @@
       }).prop('checked', showBePm25Layer);
 
       $("#show-china-aviation").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          chinaAviationLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showChinaAviationLayer = true;
           $("#china-aviation-legend").show();
           setActiveLayersWithTimeline(1);
@@ -2563,7 +2711,7 @@
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
         } else {
           showChinaAviationLayer = false;
-          chinaAviationLayer.destroy();
+          cacheLastUsedLayer(chinaAviationLayer);
           $("#china-aviation-legend").hide();
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
@@ -2571,7 +2719,9 @@
       }).prop('checked', showChinaAviationLayer);
 
       $("#show-china-power-plants").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          chinaPowerPlantsLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showChinaPowerPlantsLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
@@ -2580,7 +2730,7 @@
           $("#china-power-plants-legend").show();
         } else {
           showChinaPowerPlantsLayer = false;
-          chinaPowerPlantsLayer.destroy();
+          cacheLastUsedLayer(chinaPowerPlantsLayer);
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           $("#china-power-plants-legend").hide();
@@ -2588,7 +2738,9 @@
       }).prop('checked', showChinaPowerPlantsLayer);
 
       $("#show-china-reservoirs").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          chinaReservoirsLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showChinaReservoirsLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
@@ -2596,7 +2748,7 @@
           $("#china-reservoirs-legend").show();
         } else {
           showChinaReservoirsLayer = false;
-          chinaReservoirsLayer.destroy();
+          cacheLastUsedLayer(chinaReservoirsLayer);
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           $("#china-reservoirs-legend").hide();
@@ -2604,7 +2756,9 @@
       }).prop('checked', showChinaReservoirsLayer);
 
       $("#show-china-waste-treatment-plants").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          chinaWasteTreatmentPlantsLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showChinaWasteTreatmentPlantsLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
@@ -2614,7 +2768,7 @@
           $("#china-waste-treatment-plants-legend").show();
         } else {
           showChinaWasteTreatmentPlantsLayer = false;
-          chinaWasteTreatmentPlantsLayer.destroy();
+          cacheLastUsedLayer(chinaWasteTreatmentPlantsLayer);
           setActiveLayersWithTimeline(-1);
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           $("#china-waste-treatment-plants-legend").hide();
@@ -2622,7 +2776,9 @@
       }).prop('checked', showChinaWasteTreatmentPlantsLayer);
 
       $("#show-expanding-cities").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          expandingCitiesLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showExpandingCitiesLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
@@ -2635,7 +2791,7 @@
           $("#baseLayerCreditContainer").hide();
         } else {
           showExpandingCitiesLayer = false;
-          expandingCitiesLayer.destroy();
+          cacheLastUsedLayer(expandingCitiesLayer);
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
           $("#expanding-cities-legend").hide();
@@ -2645,7 +2801,9 @@
       }).prop('checked', showExpandingCitiesLayer);
 
       $("#show-irena-solar").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          irenaSolarLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showIrenaSolarLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
@@ -2656,7 +2814,7 @@
           }
         } else {
           showIrenaSolarLayer = false;
-          irenaSolarLayer.destroy();
+          cacheLastUsedLayer(irenaSolarLayer);
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
           if (!$("#show-irena-wind").prop('checked')) {
@@ -2666,7 +2824,9 @@
       }).prop('checked', showIrenaSolarLayer);
 
       $("#show-irena-wind").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          irenaWindLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showIrenaWindLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
@@ -2677,7 +2837,7 @@
           }
         } else {
           showIrenaWindLayer = false;
-          irenaWindLayer.destroy();
+          cacheLastUsedLayer(irenaWindLayer);
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
           if (!$("#show-irena-solar").prop('checked')) {
@@ -2687,7 +2847,9 @@
       }).prop('checked', showIrenaWindLayer);
 
       $("#show-carbon-price-risk").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          carbonPriceRiskLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showCarbonPriceRiskLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
@@ -2698,7 +2860,7 @@
           }
         } else {
           showCarbonPriceRiskLayer = false;
-          carbonPriceRiskLayer.destroy();
+          cacheLastUsedLayer(carbonPriceRiskLayer);
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
           $("#carbon-price-risk-legend").hide();
@@ -2710,7 +2872,9 @@
       }
 
       $("#show-tsip").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          tsipLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showTsipLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
@@ -2721,7 +2885,7 @@
           }
         } else {
           showTsipLayer = false;
-          tsipLayer.destroy();
+          cacheLastUsedLayer(tsipLayer);
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
           if (!$("#show-tsip").prop('checked')) {
@@ -2731,7 +2895,9 @@
       }).prop('checked', showTsipLayer);
 
       $("#show-sp-crude").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          spCrudeLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showSpCrudeLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
@@ -2744,7 +2910,7 @@
           }
         } else {
           showSpCrudeLayer = false;
-          spCrudeLayer.destroy();
+          cacheLastUsedLayer(spCrudeLayer);
           timelapse.setMasterPlaybackRate(1);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
           setActiveLayersWithTimeline(-1);
@@ -2756,7 +2922,9 @@
       }).prop('checked', showSpCrudeLayer);
 
       $("#show-sp-crude_Oceania").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          spCrudeLayerOceania.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showSpCrudeLayerOceania = true;
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
@@ -2769,7 +2937,7 @@
           }
         } else {
           showSpCrudeLayerOceania = false;
-          spCrudeLayerOceania.destroy();
+          cacheLastUsedLayer(spCrudeLayerOceania);
           timelapse.setMasterPlaybackRate(1);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
           setActiveLayersWithTimeline(-1);
@@ -2779,8 +2947,11 @@
           }
         }
       }).prop('checked', showSpCrudeLayerOceania);
+
       $("#show-sp-crude_AG").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          spCrudeLayerAG.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showSpCrudeLayerAG = true;
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
@@ -2793,7 +2964,7 @@
           }
         } else {
           showSpCrudeLayerAG = false;
-          spCrudeLayerAG.destroy();
+          cacheLastUsedLayer(spCrudeLayerAG);
           timelapse.setMasterPlaybackRate(1);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
           setActiveLayersWithTimeline(-1);
@@ -2803,8 +2974,11 @@
           }
         }
       }).prop('checked', showSpCrudeLayerAG);
+
       $("#show-sp-crude_WAF").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          spCrudeLayerWAF.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showSpCrudeLayerWAF = true;
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
@@ -2817,7 +2991,7 @@
           }
         } else {
           showSpCrudeLayerWAF = false;
-          spCrudeLayerWAF.destroy();
+          cacheLastUsedLayer(spCrudeLayerWAF);
           timelapse.setMasterPlaybackRate(1);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
           setActiveLayersWithTimeline(-1);
@@ -2827,8 +3001,11 @@
           }
         }
       }).prop('checked', showSpCrudeLayerWAF);
+
       $("#show-sp-crude_MedNAF").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          spCrudeLayerMedNAF.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showSpCrudeLayerMedNAF = true;
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
@@ -2841,7 +3018,7 @@
           }
         } else {
           showSpCrudeLayerMedNAF = false;
-          spCrudeLayerMedNAF.destroy();
+          cacheLastUsedLayer(spCrudeLayerMedNAF);
           timelapse.setMasterPlaybackRate(1);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
           setActiveLayersWithTimeline(-1);
@@ -2851,8 +3028,11 @@
           }
         }
       }).prop('checked', showSpCrudeLayerMedNAF);
+
       $("#show-sp-crude_Urals").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          spCrudeLayerUrals.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showSpCrudeLayerUrals = true;
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
@@ -2865,7 +3045,7 @@
           }
         } else {
           showSpCrudeLayerUrals = false;
-          spCrudeLayerUrals.destroy();
+          cacheLastUsedLayer(spCrudeLayerUrals);
           timelapse.setMasterPlaybackRate(1);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
           setActiveLayersWithTimeline(-1);
@@ -2875,8 +3055,11 @@
           }
         }
       }).prop('checked', showSpCrudeLayerUrals);
+
       $("#show-sp-crude_USGC").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          spCrudeLayerUSGC.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showSpCrudeLayerUSGC = true;
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
@@ -2889,7 +3072,7 @@
           }
         } else {
           showSpCrudeLayerUSGC = false;
-          spCrudeLayerUSGC.destroy();
+          cacheLastUsedLayer(spCrudeLayerUSGC);
           timelapse.setMasterPlaybackRate(1);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
           setActiveLayersWithTimeline(-1);
@@ -2899,8 +3082,11 @@
           }
         }
       }).prop('checked', showSpCrudeLayerUSGC);
+
       $("#show-sp-crude_LatAM").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          spCrudeLayerLatAM.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showSpCrudeLayerLatAM = true;
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
@@ -2913,7 +3099,7 @@
           }
         } else {
           showSpCrudeLayerLatAM = false;
-          spCrudeLayerLatAM.destroy();
+          cacheLastUsedLayer(spCrudeLayerLatAM);
           timelapse.setMasterPlaybackRate(1);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
           setActiveLayersWithTimeline(-1);
@@ -2923,8 +3109,11 @@
           }
         }
       }).prop('checked', showSpCrudeLayerLatAM);
+
       $("#show-sp-crude_NS").on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          spCrudeLayerNS.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showSpCrudeLayerNS = true;
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
@@ -2937,7 +3126,7 @@
           }
         } else {
           showSpCrudeLayerNS = false;
-          spCrudeLayerNS.destroy();
+          cacheLastUsedLayer(spCrudeLayerNS);
           timelapse.setMasterPlaybackRate(1);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
           setActiveLayersWithTimeline(-1);
@@ -3327,25 +3516,18 @@
         keysDown.length = 0;
       });
 
-      // Legend container toggling
-      $('.map-layer-checkbox, .ui-multiselect-checkboxes').on("click", function() {
-        var selectedLayers = $('.map-layer-checkbox, .ui-multiselect-checkboxes').find("input:checked");
+      $('#layers-list, .ui-multiselect-checkboxes').on("click", "input", function(e) {
+        var selectedLayers = $('.map-layer-checkbox, .ui-multiselect-checkboxes').find("input:checked").not("#show-forest-alerts, show-forest-alerts-no-overlay, #show-himawari, #show-goes16, #show-dscovr");
         // Subtract one, since base layers are included in this count but they don't use the legend.
         var numLayersOn = selectedLayers.size() - 1;
-        var continueState = true;
-        selectedLayers.each(function() {
-          if (this.id.indexOf("himawari") > 0) {
-            continueState = false;
-          } else if (this.id.indexOf("forest-alerts") > 0) {
-            continueState = false;
-          }
-        });
-        if (!continueState) return;
+
+        // Legend container toggling
         if (numLayersOn <= 0) {
           $("#layers-legend").hide();
         } else {
           $("#layers-legend").show();
         }
+
         if (isMobileDevice || isIEButNotEdge) {
           if (visibleBaseMapLayer != "landsat" || showLightsAtNightLayer || showLightsAtNight2012Layer || showLightsAtNight2016Layer || showHansenLayer2 || showVsiLayer) {
             UTIL.setDrawState(false);
@@ -3353,9 +3535,7 @@
             UTIL.setDrawState(true);
           }
         }
-      });
 
-      $('#layers-list, .ui-multiselect-checkboxes').on("click", "input", function(e) {
         if (e.originalEvent && event.pageX != 0 && event.pageY != 0 && $(this).prop('checked')) {
           UTIL.addGoogleAnalyticEvent('button', 'click', 'layer=' + $(this).prop("id"));
         }
@@ -3639,7 +3819,7 @@
         setDataFunction: WebGLVectorTile2.prototype._setColorDotmapData,
         drawFunction: WebGLVectorTile2.prototype._drawColorDotmap,
         fragmentShader: WebGLVectorTile2.colorDotmapFragmentShader,
-        vertexShader: WebGLVectorTile2.colorDotmapVertexShader
+        vertexShader: WebGLVectorTile2.colorDotmapVertexShader,
       };
 
       var useLocalTiles = false;
@@ -3704,7 +3884,9 @@
 
       // Handle click event to turn on and off layer
       $('#' + id).on("click", function() {
-        if ($(this).prop('checked')) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          layer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           // Turn off other dotmap layers
           $('#' + id).prop('checked', false);
           $("[id^='show-dotmap']:checked").click();
@@ -3720,7 +3902,7 @@
         } else {
           // Turn off layer
           layer.visible = false;
-          layer.destroy();
+          cacheLastUsedLayer(layer);
           timelineType = "customUI";
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           $("#" + nickname + "-legend").hide();
@@ -5025,13 +5207,13 @@
       //
 
       // Landsat
-      var defaultTimeMachineLayerOptions = {
+      var landsatTimeMachineLayerOptions = {
         mediaType: ".mp4",
         numFrames: cached_ajax[cachedLandsatTimeJsonPath]['capture-times'].length,
         fps: 10,
         startYear: 1984
       };
-      landsatBaseMapLayer = new WebglTimeMachineLayer(glb, canvasLayer, landsatUrl, defaultTimeMachineLayerOptions);
+      landsatBaseMapLayer = new WebglTimeMachineLayer(glb, canvasLayer, landsatUrl, landsatTimeMachineLayerOptions);
 
       // NDVI Anomaly
       var ndviAnomalyTimeMachineLayerOptions = {
@@ -5123,6 +5305,18 @@
         height: 156136
       };
       forestAlertsTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, forestAlertsTimeMachineUrl, forestAlertsTimeMachineLayerOptions);
+
+      // Forest Alerts No Overlay
+      var forestAlertsNoOverlayTimeMachineLayerOptions = {
+        mediaType: ".mp4",
+        numFrames: cached_ajax['forest-alerts-times.json']['capture-times'].length,
+        fps: 10,
+        nLevels: 11,
+        video_width: 1424,
+        video_height: 800,
+        width: 750836,
+        height: 156136
+      };
       forestAlertsNoOverlayTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, forestAlertsNoOverlayTimeMachineUrl, forestAlertsTimeMachineLayerOptions);
 
       // Berkeley Earth Temperature Anomaly
@@ -5138,7 +5332,7 @@
       };
       berkeleyEarthTemperatureAnomalyTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, berkeleyEarthTemperatureAnomalyTimeMachineUrl, berkeleyEarthTemperatureAnomalyTimeMachineLayerOptions);
 
-
+      // OMI NO2
       var omiNo2LayerOptions = {
         mediaType: ".mp4",
         numFrames: cached_ajax['omi-no2-times.json']['capture-times'].length,
@@ -5152,6 +5346,7 @@
       };
       omiNo2Layer = new WebglTimeMachineLayer(glb, canvasLayer, omiNo2Url, omiNo2LayerOptions);
 
+      // Berkeley Earth PM 2.5
       var bePm25LayerOptions = {
         mediaType: ".mp4",
         numFrames: cached_ajax['be-pm25-times.json']['capture-times'].length,
@@ -5199,9 +5394,10 @@
       countryLabelMapLayer = new WebglMapLayer(glb, canvasLayer, countryLabelMapUrl, defaultBaseMapLayerOptions);
       cityLabelMapLayer = new WebglMapLayer(glb, canvasLayer, cityLabelMapUrl, defaultBaseMapLayerOptions);
 
+      // Vegetation Sensitivity Index
       vsiLayer = new WebglMapLayer(glb, canvasLayer, vsiUrl, defaultMapLayerOptions);
 
-
+      // Coral Reefs (in pink)
       var mcrmVectorLayerOptions = {
         tileWidth: 256,
         tileHeight: 256,
@@ -5210,6 +5406,7 @@
       };
       mcrmVectorLayer = new WebglVectorLayer2(glb, canvasLayer, mcrmUrl, mcrmVectorLayerOptions);
 
+      // Coral Bleaching Events
       var coralBleachingLayerOptions = {
         tileWidth: 256,
         tileHeight: 256,
@@ -5361,7 +5558,6 @@
       };
       healthImpactLayer = new WebglVectorLayer2(glb, canvasLayer, healthImpactUrl, healthImpactLayerOptions);
 
-
       var zikaLayerOptions = {
         tileWidth: 256,
         tileHeight: 256,
@@ -5400,7 +5596,7 @@
         tileWidth: 256,
         tileHeight: 256,
         fragmentShader: WebglMapTile.seaLevelRiseTextureFragmentShader,
-        drawFunction: WebglMapTile.prototype._drawSeaLevelRise,
+        drawFunction: WebglMapTile.prototype._drawSeaLevelRise
       };
       seaLevelRiseLayer = new WebglMapLayer(glb, canvasLayer, seaLevelRiseUrl, seaLevelRiseLayerOptions);
 
@@ -5499,14 +5695,13 @@
         numAttributes: 6
       };
       lodesLayer = new WebglVectorLayer2(glb, canvasLayer, lodesUrl, lodesLayerOptions);
-      initLodesGui();
 
       var cumulativeActiveMiningLayerOptions = {
         nLevels: 12,
         tileWidth: 256,
         tileHeight: 256,
         fragmentShader: WebglMapTile.animatedTextureFragmentShader,
-        drawFunction: WebglMapTile.prototype._drawAnimatedTexture,
+        drawFunction: WebglMapTile.prototype._drawAnimatedTexture
       };
       cumulativeActiveMiningLayer = new WebglMapLayer(glb, canvasLayer, cumulativeActiveMiningUrl, cumulativeActiveMiningLayerOptions);
 
@@ -5580,7 +5775,6 @@
         fragmentShader: WebGLVectorTile2.bubbleMapFragmentShader,
         vertexShader: WebGLVectorTile2.bubbleMapVertexShader,
         numAttributes: 6
-
       };
       irenaWindLayer = new WebglVectorLayer2(glb, canvasLayer, irenaWindUrl, irenaWindLayerOptions);
 
@@ -5592,7 +5786,7 @@
         drawFunction: WebGLVectorTile2.prototype._drawCarbonPriceRisk,
         fragmentShader: WebGLVectorTile2.carbonPriceRiskFragmentShader,
         vertexShader: WebGLVectorTile2.carbonPriceRiskVertexShader,
-        externalGeojson: "http://data.cmucreatelab.org/msc/carbon-price-risk.geojson",
+        externalGeojson: "https://data.cmucreatelab.org/msc/carbon-price-risk.geojson",
         numAttributes: 9
       };
       carbonPriceRiskLayer = new WebglVectorLayer2(glb, canvasLayer, carbonPriceRiskUrl, layerOptions);
@@ -5608,7 +5802,7 @@
       };
       tsipLayer = new WebglVectorLayer2(glb, canvasLayer, tsipUrl, layerOptions);
 
-var layerOptions = {
+      var layerOptions = {
         tileWidth: 256,
         tileHeight: 256,
         nLevels: 0,
@@ -5631,6 +5825,7 @@ var layerOptions = {
       };
       spCrudeLayerOceania = new WebglVectorLayer2(glb, canvasLayer, spCrudeUrlOceania, layerOptions);
       spCrudeLayerOceania.buffers = [];
+
       var layerOptions = {
         tileWidth: 256,
         tileHeight: 256,
@@ -5642,6 +5837,7 @@ var layerOptions = {
       };
       spCrudeLayerAG = new WebglVectorLayer2(glb, canvasLayer, spCrudeUrlAG, layerOptions);
       spCrudeLayerAG.buffers = [];
+
       var layerOptions = {
         tileWidth: 256,
         tileHeight: 256,
@@ -5653,6 +5849,7 @@ var layerOptions = {
       };
       spCrudeLayerWAF = new WebglVectorLayer2(glb, canvasLayer, spCrudeUrlWAF, layerOptions);
       spCrudeLayerWAF.buffers = [];
+
       var layerOptions = {
         tileWidth: 256,
         tileHeight: 256,
@@ -5664,6 +5861,7 @@ var layerOptions = {
       };
       spCrudeLayerMedNAF = new WebglVectorLayer2(glb, canvasLayer, spCrudeUrlMedNAF, layerOptions);
       spCrudeLayerMedNAF.buffers = [];
+
       var layerOptions = {
         tileWidth: 256,
         tileHeight: 256,
@@ -5675,6 +5873,7 @@ var layerOptions = {
       };
       spCrudeLayerUrals = new WebglVectorLayer2(glb, canvasLayer, spCrudeUrlUrals, layerOptions);
       spCrudeLayerUrals.buffers = [];
+
       var layerOptions = {
         tileWidth: 256,
         tileHeight: 256,
@@ -5686,6 +5885,7 @@ var layerOptions = {
       };
       spCrudeLayerUSGC = new WebglVectorLayer2(glb, canvasLayer, spCrudeUrlUSGC, layerOptions);
       spCrudeLayerUSGC.buffers = [];
+
       var layerOptions = {
         tileWidth: 256,
         tileHeight: 256,
@@ -5697,6 +5897,7 @@ var layerOptions = {
       };
       spCrudeLayerLatAM = new WebglVectorLayer2(glb, canvasLayer, spCrudeUrlLatAM, layerOptions);
       spCrudeLayerLatAM.buffers = [];
+
       var layerOptions = {
         tileWidth: 256,
         tileHeight: 256,
@@ -5760,7 +5961,6 @@ var layerOptions = {
 
       // Layer Toggle UI
       initLayerToggleUI();
-      $(".googleLogo").remove();
 
       if (enableRecordingMode) {
         var snaplapse = timelapse.getSnaplapse();
@@ -5769,7 +5969,6 @@ var layerOptions = {
         }
       }
 
-      // Toggle layers off when auto mode begins
       snaplapseForPresentationSlider = timelapse.getSnaplapseForPresentationSlider();
       if (snaplapseForPresentationSlider) {
         snaplapseViewerForPresentationSlider = snaplapseForPresentationSlider.getSnaplapseViewer();
@@ -5894,7 +6093,7 @@ var layerOptions = {
           }
 
           var waypointListNameString = waypointLayers.map(function(waypointName) {
-            // Legacy Himawari
+            // Legacy Himawari ID
             if (waypointName == "h8") waypointName = "h8_16";
             return "[name=" + waypointName + "]";
           }).join(',');
@@ -5941,7 +6140,6 @@ var layerOptions = {
                 bbox: himawariBoundingBox
               };
               if (showHimawariTimeMachineLayer) {
-                //timelapse.stopParabolicMotion({doCallback : false});
                 timelapse.setNewView(himawariView);
               } else {
                 $("#show-himawari").click();
@@ -6368,7 +6566,7 @@ var layerOptions = {
 
       $(window).on('hashchange', hashChange).trigger('hashchange');
 
-      // End of onReady
+      // End of onTimeMachinePlayerReady
     }
 
     // CSV Data Grapher

@@ -90,7 +90,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
     if (colorMapSrc) {
       layerOptions.imageSrc = colorMapSrc;
     } else {
-      layerOptions.imageSrc =  "obesity-color-map.png";    
+      layerOptions.imageSrc =  "obesity-color-map.png";
     }
   } else if (mapType == "point-flow") {
     layerOptions.loadDataFunction = WebGLVectorTile2.prototype._loadData;
@@ -162,8 +162,10 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
 
   // Handle click event to turn on and off layer
   $('#' + id).on("click", function() {
-    if ($(this).prop('checked')) {
+    var $this = $(this);
+    if ($this.prop('checked')) {
       // Turn on layer
+      layer.getTileView().handleTileLoading({layerDomId: $this[0].id});
       if (visibleBaseMapLayer != "dark") {
         $("#dark-base").click();
       }
@@ -186,6 +188,8 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
       doSwitchToLandsat();
       // Turn off layer
       layer.visible = false;
+      // cacheLastUsedLayer is a global data struct from index.html
+      cacheLastUsedLayer(layer);
       if (mapType == "choropleth") {
         showCountryLabelMapLayer = false;
       }

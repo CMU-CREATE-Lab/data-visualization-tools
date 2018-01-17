@@ -32,6 +32,8 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
   this._numAttributes = opt_options.numAttributes;
   this._noValue = opt_options.noValue || 'xxx';
   this._uncertainValue = opt_options.uncertainValue || '. .';
+  this._layerDomId = opt_options.layerDomId;
+  this._loadingSpinnerTimer = null;
 
   this.gl.getExtension("OES_standard_derivatives");
 
@@ -118,12 +120,19 @@ WebGLVectorTile2.prototype._defaultDataLoaded = function() {
 
 WebGLVectorTile2.prototype._loadData = function() {
   var that = this;
+  var float32Array;
+
   this.startTime = new Date().getTime();
+
+  this._handleLoading();
+
   this.xhr = new XMLHttpRequest();
   this.xhr.open('GET', that._url);
   this.xhr.responseType = 'arraybuffer';
-  var float32Array;
+
   this.xhr.onload = function() {
+    that._removeLoadingSpinner();
+
     if (this.status == 404) {
       float32Array = new Float32Array([]);
     } else if (this.status == 400) {
@@ -141,17 +150,29 @@ WebGLVectorTile2.prototype._loadData = function() {
     }
   }
   this.xhr.onerror = function() {
+    that._removeLoadingSpinner();
+
     that._setData(new Float32Array([]));
+  }
+
+  this.xhr.onabort = function() {
+    that._removeLoadingSpinner();
   }
   this.xhr.send();
 }
 
 WebGLVectorTile2.prototype._loadGeojsonData = function() {
   var that = this;
+  var data;
+
+  this._handleLoading();
+
   this.xhr = new XMLHttpRequest();
   this.xhr.open('GET', that._url);
-  var data;
+
   this.xhr.onload = function() {
+    that._removeLoadingSpinner();
+
     if (this.status == 404) {
       data = "";
     } else {
@@ -160,13 +181,15 @@ WebGLVectorTile2.prototype._loadGeojsonData = function() {
     that._setData(data);
   }
   this.xhr.onerror = function() {
+    that._removeLoadingSpinner();
+
     that._setData('');
   }
   this.xhr.send();
 }
 
 WebGLVectorTile.prototype._loadSitc4r2Data = function () {
-  console.log('_loadSitc4r2Data');
+  //console.log('_loadSitc4r2Data');
 
   var parseQueryString = function( queryString ) {
       var params = {}, queries, temp, i, l;
@@ -182,7 +205,7 @@ WebGLVectorTile.prototype._loadSitc4r2Data = function () {
 
   var re=/([0-9]{2,})\/([0-9]{4}).json/g;
   var myArray = re.exec(this._url);
-  console.log(this._url);
+  //console.log(this._url);
   this._sitc4r2Code = myArray[1].toString();
 
   var queryString = undefined;
@@ -201,7 +224,6 @@ WebGLVectorTile.prototype._loadSitc4r2Data = function () {
     }
   }
 
-
   this.buffers = {};
   var that = this;
   if  (typeof this.worker == "undefined") {
@@ -212,7 +234,7 @@ WebGLVectorTile.prototype._loadSitc4r2Data = function () {
         var code = e.data.code;
         var scale = e.data.scale;
         var array = e.data["array"];
-        that._setSitc4r2Buffer(code, year, new Float32Array(array));    
+        that._setSitc4r2Buffer(code, year, new Float32Array(array));
       }
     };
   }
@@ -222,9 +244,15 @@ WebGLVectorTile.prototype._loadSitc4r2Data = function () {
 
 WebGLVectorTile2.prototype._loadCarbonPriceRiskDataFromCsv = function() {
   var that = this;
+
+  this._handleLoading();
+
   this.xhr = new XMLHttpRequest();
   this.xhr.open('GET', that._url);
+
   this.xhr.onload = function() {
+    that._removeLoadingSpinner();
+
     if (this.status == 404) {
       data = "";
     } else {
@@ -236,6 +264,8 @@ WebGLVectorTile2.prototype._loadCarbonPriceRiskDataFromCsv = function() {
     }
   }
   this.xhr.onerror = function() {
+    that._removeLoadingSpinner();
+
     that._setData('');
   }
   this.xhr.send();
@@ -243,21 +273,24 @@ WebGLVectorTile2.prototype._loadCarbonPriceRiskDataFromCsv = function() {
 
 
 WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
+  var that = this;
+
   var proj = new org.gigapan.timelapse.MercatorProjection(
     -180, 85.05112877980659, 180, -85.05112877980659,
     256, 256);
 
-  var that = this;
   var data;
   var noValue = this._noValue;
   var uncertainValue = this._uncertainValue;
 
+  this._handleLoading();
 
   this.xhr = new XMLHttpRequest();
-
   this.xhr.open('GET', that._url);
 
   this.xhr.onload = function() {
+    that._removeLoadingSpinner();
+
     if (this.status == 404) {
       data = "";
     } else {
@@ -423,6 +456,8 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
   }
 
   this.xhr.onerror = function() {
+    that._removeLoadingSpinner();
+
     that._setData('');
   }
 
@@ -430,6 +465,8 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
 }
 
 WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
+  var that = this;
+
   function LatLongToPixelXY(latitude, longitude) {
     var pi_180 = Math.PI / 180.0;
     var pi_4 = Math.PI * 4;
@@ -440,11 +477,15 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
     return pixel;
   }
 
-  var that = this;
+  this._handleLoading();
+
   this.xhr = new XMLHttpRequest();
   this.xhr.open('GET', that._url);
+
   var data;
   this.xhr.onload = function() {
+    that._removeLoadingSpinner();
+
     if (this.status == 404) {
       data = "";
     } else {
@@ -508,7 +549,6 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
               minValue = val_2;
             }
 
-
             if (feature.geometry.type != "MultiPolygon") {
               var mydata = earcut.flatten(feature.geometry.coordinates);
               var triangles = earcut(mydata.vertices, mydata.holes, mydata.dimensions);
@@ -537,12 +577,13 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
         verts[i+3] = radius(verts[i+3]);
         verts[i+5] = radius(verts[i+5]);
       }
-    that._setData(new Float32Array(verts));
-    that._dataLoaded(that.layerId);
-
+      that._setData(new Float32Array(verts));
+      that._dataLoaded(that.layerId);
     }
   }
   this.xhr.onerror = function() {
+    that._removeLoadingSpinner();
+
     that._setData('');
   }
   this.xhr.send();
@@ -550,7 +591,7 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
 
 WebGLVectorTile2.prototype._setSitc4r2Buffer = function(sitc4r2Code, year, data) {
   if (typeof this.buffers[sitc4r2Code] == "undefined") {
-    this.buffers[sitc4r2Code] = {}; 
+    this.buffers[sitc4r2Code] = {};
   }
 
   this.buffers[sitc4r2Code][year] = {
@@ -568,8 +609,6 @@ WebGLVectorTile2.prototype._setSitc4r2Buffer = function(sitc4r2Code, year, data)
 
     this.buffers[sitc4r2Code][year].ready = true;
   }
-
-
 }
 
 WebGLVectorTile2.prototype._setPolygonData = function(data) {
@@ -1102,7 +1141,7 @@ WebGLVectorTile2.prototype.delete = function() {
       this.xhr.abort();
     }
   }
- }
+}
 
 
 WebGLVectorTile2.prototype._drawWdpa = function(transform, options) {
@@ -2596,15 +2635,15 @@ WebGLVectorTile2.prototype._drawSitc4r2 = function(transform, options) {
   var t = 1.0 - (end.getTime() - currentTime) / (end.getTime() - start.getTime());
   //centroidGl.draw(mapMatrix, {'t': t});
   if (typeof this.buffers[code] == "undefined") {
-    this.buffers[code] = {}    
-  }  
+    this.buffers[code] = {}
+  }
   if (typeof this.buffers[code][currentYear.toString()] == "undefined") {
     this.buffers[code][currentYear.toString()] = {
       "numAttributes": this._numAttributes,
       "pointCount": 8,
       "buffer":null,
       "ready": false
-    }   
+    }
     this.worker.postMessage({'year': currentYear, 'code': code, 'exporters': this._exporters, "importers": this._importers, "scale": this._scale});
   }
   if (typeof this.buffers[code][(currentYear+1).toString()] == "undefined" && currentYear >= 2000) {
@@ -2613,7 +2652,7 @@ WebGLVectorTile2.prototype._drawSitc4r2 = function(transform, options) {
       "pointCount": 8,
       "buffer":null,
       "ready": false
-    }   
+    }
     this.worker.postMessage({'year': currentYear+1, 'code': code, 'exporters': this._exporters, "importers": this._importers, "scale": this._scale});
   }
 
@@ -2824,6 +2863,23 @@ WebGLVectorTile2.update = function(tiles, transform, options) {
   for (var i = 0; i < tiles.length; i++) {
     tiles[i].draw(transform, options);
   }
+}
+
+WebGLVectorTile2.prototype._handleLoading = function() {
+  var that = this;
+  clearTimeout(this._loadingSpinnerTimer);
+  // Wait 300ms to prevent small datasets from flashing up a spinner.
+  this._loadingSpinnerTimer = setTimeout(function() {
+    that._removeLoadingSpinner();
+    var $loadingSpinner = $("<td class='loading-layer-spinner-small' data-loading-layer='" + that._layerDomId + "'></td>");
+    $(".map-layer-div input#" + that._layerDomId).closest("td").after($loadingSpinner);
+  }, 300);
+}
+
+WebGLVectorTile2.prototype._removeLoadingSpinner = function() {
+  clearTimeout(this._loadingSpinnerTimer);
+  var $loadingSpinner = $('.loading-layer-spinner-small[data-loading-layer="' + this._layerDomId + '"]');
+  $loadingSpinner.remove();
 }
 
 
@@ -4079,14 +4135,14 @@ WebGLVectorTile2.sitc4r2VertexShader = '' +
 '  attribute float a_epoch1;\n' +
 '  uniform float u_epoch;\n' +
 '  uniform mat4 u_map_matrix;\n' +
-'  varying float v_t;\n' + 
+'  varying float v_t;\n' +
 '  vec2 bezier(float t, vec2 p0, vec2 p1, vec2 p2) {\n' +
 '    return (1.0-t)*(1.0-t)*p0 + 2.0*(1.0-t)*t*p1 + t*t*p2;\n' +
 '  }\n' +
 '  void main() {\n' +
 '    vec4 position = vec4(-1,-1,-1,-1);\n' +
 '    if (a_epoch0 <= u_epoch && u_epoch <= a_epoch1) {\n' +
-'      float t = (u_epoch - a_epoch0)/(a_epoch1 - a_epoch0);\n' + 
+'      float t = (u_epoch - a_epoch0)/(a_epoch1 - a_epoch0);\n' +
 '      vec2 pos = bezier(t, a_p0.xy, a_p1.xy, a_p2.xy);\n' +
 '      position = u_map_matrix * vec4(pos.x, pos.y, 0.0, 1.0);\n' +
 '      v_t = t;\n' +
@@ -4095,10 +4151,10 @@ WebGLVectorTile2.sitc4r2VertexShader = '' +
 '    gl_PointSize = 1.0;\n' +
 '  }\n';
 
-WebGLVectorTile2.sitc4r2FragmentShader = '' + 
+WebGLVectorTile2.sitc4r2FragmentShader = '' +
 '  precision mediump float;\n' +
-'  varying float v_t;\n' + 
-'  uniform vec3 u_end_color;\n' + 
+'  varying float v_t;\n' +
+'  uniform vec3 u_end_color;\n' +
 '  void main() {\n' +
 '    vec4 colorStart = vec4(.94,.76,.61,1.0);\n' +
 '    vec4 colorEnd = vec4(u_end_color,1.0);\n' +

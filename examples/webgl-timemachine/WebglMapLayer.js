@@ -30,7 +30,7 @@ function WebglMapLayer(glb, canvasLayer, tileUrl, opt_options) {
 
   // TODO: experiment with this
   this._tileView.levelThreshold = opt_options.levelThreshold || 0;
-}
+};
 
 
 WebglMapLayer.prototype.setOptions = function(options) {
@@ -56,54 +56,54 @@ WebglMapLayer.prototype.setOptions = function(options) {
   if (options.drawFunction != undefined) {
     this._drawFunction = options.drawFunction;
   }
-
-}
+};
 
 WebglMapLayer.prototype.setNLevels = function(nLevels) {
   this._nLevels = nLevels;
-}
+};
 
 WebglMapLayer.prototype.setTileWidth = function(width) {
   this._tileWidth = width;
-}
+};
 
 WebglMapLayer.prototype.setTileHeight = function(height) {
   this._tileHeight = height;
-}
+};
 
 WebglMapLayer.prototype.
 getWidth = function() {
     return this._tileView.getWidth();
-}
+};
 
 WebglMapLayer.prototype.
 getHeight = function() {
     return this._tileView.getHeight();
-}
+};
 
 WebglMapLayer.prototype._createTile = function(ti, bounds) {
-  var opt_options = {};
+  var url = this._tileUrl.replace("{z}", ti.l).replace("{x}", ti.c).replace("{y}", ti.r);
+  url = url.replace("{yflip}", Math.pow(2,ti.l)-1-ti.r);
 
+  var opt_options = {};
   if (this._drawFunction) {
     opt_options.drawFunction = this._drawFunction;
   }
-
   if (this._fragmentShader) {
     opt_options.fragmentShader = this._fragmentShader;
   }
   if (this._vertexShader) {
     opt_options.vertexShader = this._vertexShader;
   }
-
-  var url = this._tileUrl.replace("{z}", ti.l).replace("{x}", ti.c).replace("{y}", ti.r);
-  url = url.replace("{yflip}", Math.pow(2,ti.l)-1-ti.r);
+  if (this._tileView) {
+    opt_options.layerDomId = this._tileView._layerDomId;
+  }
   return new WebglMapTile(glb, ti, bounds, url, this._defaultUrl, opt_options);
-}
+};
 
 WebglMapLayer.prototype.
 destroy = function() {
   this._tileView._destroy();
-}
+};
 
 // viewBounds:  xmin, xmax, ymin, ymax all in coords 0-256
 WebglMapLayer.prototype.draw = function(view, opt_options) {
@@ -124,4 +124,16 @@ WebglMapLayer.prototype.draw = function(view, opt_options) {
   // TODO: Refactor how tile views are initialized and drawn
   this._tileView.setView(view, width, height, this._canvasLayer.resolutionScale_);
   this._tileView.update(transform, options);
-}
+};
+
+WebglMapLayer.prototype.getTileView = function() {
+  return this._tileView;
+};
+
+WebglMapLayer.prototype.getTiles = function() {
+  return this._tileView._tiles;
+};
+
+WebglMapLayer.prototype.abortLoading = function() {
+  this._tileView._abort();
+};

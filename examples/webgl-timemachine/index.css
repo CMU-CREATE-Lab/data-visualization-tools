@@ -44,6 +44,9 @@ html, body {
   margin-bottom: 4px;
   color: #656565;
 }
+.googleLogo {
+  display: none !important;
+}
 #productLogo {
   font-size: 24px;
   padding-bottom: 2px;
@@ -1495,4 +1498,19 @@ a:focus { outline:0; }
   /* use label:nth-of-type(n) to fix a bug on safari (<= 8.0.8) with multiple adjacent-sibling selectors*/
   /* show children when item is checked */
   display: block;
+}
+
+.loading-layer-spinner-small {
+  background-image: url(../../images/loading.gif);
+  width: 32px;
+  height: 32px;
+  background-size: 18px auto;
+  /*float: right;*/
+  background-repeat: no-repeat;
+  background-position: 10px 10px;
+}
+
+.dg.ac {
+  z-index: 1000 !important;
+  top: 60px !important;
 }

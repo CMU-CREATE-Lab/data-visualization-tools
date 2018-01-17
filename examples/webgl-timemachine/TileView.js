@@ -205,9 +205,22 @@ _destroy = function() {
   var keys = Object.keys(this._tiles);
   for (var i = 0; i < keys.length; i++) {
     var key = keys[i];
-    var tile = this._tiles[key];
     this._deleteTile(this._tiles[key]);
     delete this._tiles[key];
+  }
+}
+
+TileView.prototype.
+_abort = function() {
+  var keys = Object.keys(this._tiles);
+  for (var i = 0; i < keys.length; i++) {
+    var key = keys[i];
+    var tile = this._tiles[key];
+    if (tile.xhr && tile.xhr.readyState < 4) {
+      tile.xhr.abort();
+      this._deleteTile(this._tiles[key]);
+      delete this._tiles[key];
+    }
   }
 }
 
@@ -359,4 +372,8 @@ update = function(transform, options) {
     tiles.push(this._tiles[keys[i]]);
   }
   this._updateTileCallback(tiles, transform, options);
+}
+
+TileView.prototype.handleTileLoading = function(options) {
+  this._layerDomId = options.layerDomId;
 }

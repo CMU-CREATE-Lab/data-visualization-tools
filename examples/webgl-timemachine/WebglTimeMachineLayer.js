@@ -13,8 +13,10 @@ function WebglTimeMachineLayer(glb, canvasLayer, rootUrl, opt_options) {
   this._projection = opt_options.projection || null;
 
   this._ready = true;
+
+  var that = this;
+
   if (opt_options.colormap) {
-    var that = this;
     this._ready = false;
     this._colormap = this._createTexture();
     this._image = new Image();
@@ -32,9 +34,6 @@ function WebglTimeMachineLayer(glb, canvasLayer, rootUrl, opt_options) {
   var height = opt_options.height || r.height;
   var video_width = opt_options.video_width || r.video_width;
   var video_height = opt_options.video_height || r.video_height;
-
-
-  var that = this;
 
   function createTile(ti, bounds) {
     var url = rootUrl + '/' + ti.l + '/' + (ti.r * 4) + '/' + (ti.c * 4) + that._mediaType;
@@ -70,14 +69,14 @@ WebglTimeMachineLayer.prototype._createTexture = function() {
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
   gl.bindTexture(gl.TEXTURE_2D, null);
   return texture;
-}
+};
 
 WebglTimeMachineLayer.prototype._handleLoadedColormap = function() {
   gl.bindTexture(gl.TEXTURE_2D, this._colormap);
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._image);
   gl.bindTexture(gl.TEXTURE_2D, null);
   this._ready = true;
-}
+};
 
 WebglTimeMachineLayer.prototype.resetDimensions = function(json) {
     this._tileView.resetDimensions(json);
@@ -118,4 +117,16 @@ WebglTimeMachineLayer.prototype.draw = function(view, tileViewVisibility) {
     this._tileView.setView(view, width, height, this._canvasLayer.resolutionScale_);
     this._tileView.update(transform);
   }
+};
+
+WebglTimeMachineLayer.prototype.getTileView = function() {
+  return this._tileView;
+};
+
+WebglTimeMachineLayer.prototype.getTiles = function() {
+  return this._tileView._tiles;
+};
+
+WebglTimeMachineLayer.prototype.abortLoading = function() {
+  this._tileView._abort();
 };

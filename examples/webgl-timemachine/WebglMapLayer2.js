@@ -105,3 +105,15 @@ draw = function(view) {
   this._tileView.setView(view, width, height, this._canvasLayer.resolutionScale_);
   this._tileView.update(transform, {alpha: view.alpha});
 }
+
+WebglMapLayer2.prototype.getTileView = function() {
+  return this._tileView;
+};
+
+WebglMapLayer2.prototype.getTiles = function() {
+  return this._tileView._tiles;
+};
+
+WebglMapLayer2.prototype.abortLoading = function() {
+  this._tileView._abort();
+};

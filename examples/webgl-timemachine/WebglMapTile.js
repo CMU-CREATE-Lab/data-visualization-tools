@@ -12,7 +12,8 @@ function WebglMapTile(glb, tileidx, bounds, url, defaultUrl, opt_options) {
   this._fragmentShader = opt_options.fragmentShader || WebglMapTile.textureFragmentShader;
   this._vertexShader = opt_options.vertexShader || WebglMapTile.textureVertexShader;
   this.draw = opt_options.drawFunction || this._draw;
-
+  this._layerDomId = opt_options.layerDomId;
+  this._loadingSpinnerTimer = null;
 
   this._textureProgram = glb.programFromSources(this._vertexShader,
                                                 this._fragmentShader);
@@ -23,22 +24,31 @@ function WebglMapTile(glb, tileidx, bounds, url, defaultUrl, opt_options) {
                                                        0, 1,
                                                        1, 1]));
 
+  this._handleLoading();
+
   this._image = new Image();
   this._image.crossOrigin = "anonymous";
   var that = this;
+
   this._image.onload = function() {
+    that._removeLoadingSpinner();
     that._handleLoadedTexture();
   }
 
   // If tile 404's, replace with defaultUrl.  This lets us remove e.g. all the
   // sea tiles and replace with a single default tile.
   this._image.addEventListener('error', function(event) {
+    that._removeLoadingSpinner();
     if (that._image) {
       if (that._image.src != defaultUrl) {
         that._image.src = defaultUrl;
       }
     }
   });
+
+  this._image.onabort = function() {
+    that._removeLoadingSpinner();
+  }
 
   this._image.src = url;
   this._ready = false;
@@ -238,6 +248,23 @@ WebglMapTile.update = function(tiles, transform, options) {
   //WebglTimeMachinePerf.instance.endFrame();
 }
 
+WebglMapTile.prototype._handleLoading = function() {
+  var that = this;
+  clearTimeout(this._loadingSpinnerTimer);
+  // Wait 300ms to prevent small datasets from flashing up a spinner.
+  this._loadingSpinnerTimer = setTimeout(function() {
+    that._removeLoadingSpinner();
+    var $loadingSpinner = $("<td class='loading-layer-spinner-small' data-loading-layer='" + that._layerDomId + "'></td>");
+    $(".map-layer-div input#" + that._layerDomId).closest("td").after($loadingSpinner);
+  }, 300);
+}
+
+WebglMapTile.prototype._removeLoadingSpinner = function() {
+  clearTimeout(this._loadingSpinnerTimer);
+  var $loadingSpinner = $('.loading-layer-spinner-small[data-loading-layer="' + this._layerDomId + '"]');
+  $loadingSpinner.remove();
+}
+
 
 WebglMapTile.textureVertexShader =
   'attribute vec2 aTextureCoord;\n' +
@@ -261,7 +288,7 @@ WebglMapTile.textureFragmentShader =
   '    gl_FragColor = vec4(textureColor.rgb, textureColor.a);\n' +
   '  } else {\n' +
   '    gl_FragColor = vec4(textureColor.rgb, 0.);\n' +
-  '  }\n' + 
+  '  }\n' +
   '}\n';
 
 WebglMapTile.seaLevelRiseTextureFragmentShader =

@@ -92,35 +92,33 @@ WebglVectorLayer2.prototype.setOptions = function(options) {
   if (options.numAttributes != undefined) {
     this._numAttributes = options.numAttributes;
   }
-
-}
-
+};
 
 WebglVectorLayer2.prototype.setNLevels = function(nLevels) {
   this._nLevels = nLevels;
-}
+};
 
 WebglVectorLayer2.prototype.setTileWidth = function(width) {
   this._tileWidth = width;
-}
+};
 
 WebglVectorLayer2.prototype.setTileHeight = function(height) {
   this._tileHeight = height;
-}
+};
 
 WebglVectorLayer2.prototype.getWidth = function() {
     return this._tileView.getWidth();
-}
+};
 
 WebglVectorLayer2.prototype.getHeight = function() {
     return this._tileView.getHeight();
-}
+};
 
 WebglVectorLayer2.prototype._createTile = function(ti, bounds) {
   var url = this._tileUrl.replace("{z}", ti.l).replace("{x}", ti.c).replace("{y}", ti.r);
   url = url.replace("{yflip}", Math.pow(2,ti.l)-1-ti.r);
 
-  var opt_options = {}
+  var opt_options = {};
   if (this._setDataFunction) {
     opt_options.setDataFunction = this._setDataFunction;
   }
@@ -154,12 +152,15 @@ WebglVectorLayer2.prototype._createTile = function(ti, bounds) {
   if (this._numAttributes) {
     opt_options.numAttributes = this._numAttributes;
   }
+  if (this._tileView) {
+    opt_options.layerDomId = this._tileView._layerDomId;
+  }
   return new WebGLVectorTile2(glb, ti, bounds, url, opt_options);
-}
+};
 
 WebglVectorLayer2.prototype.destroy = function() {
   this._tileView._destroy();
-}
+};
 
 // viewBounds:  xmin, xmax, ymin, ymax all in coords 0-256
 // TODO: Fix this for 900913 coords
@@ -180,4 +181,16 @@ WebglVectorLayer2.prototype.draw = function(view, opt_options) {
   // TODO: Refactor how tile views are initialized and drawn
   this._tileView.setView(view, width, height, this._canvasLayer.resolutionScale_);
   this._tileView.update(transform, options);
-}
+};
+
+WebglVectorLayer2.prototype.getTileView = function() {
+  return this._tileView;
+};
+
+WebglVectorLayer2.prototype.getTiles = function() {
+  return this._tileView._tiles;
+};
+
+WebglVectorLayer2.prototype.abortLoading = function() {
+  this._tileView._abort();
+};
