@@ -946,17 +946,23 @@
     }
 
     function cacheLastUsedLayer(layer) {
-      if (lastActiveLayers.length == maxCachedLayers) {
-        lastActiveLayers.shift().destroy();
-      }
+      var cacheIdx = lastActiveLayers.indexOf(layer);
 
-      // May not do anything if tiles have all loaded for this layer
-      layer.abortLoading();
+      if (cacheIdx >= 0) {
+        lastActiveLayers.push(lastActiveLayers.splice(cacheIdx, 1)[0]);
+      } else {
+        if (lastActiveLayers.length == maxCachedLayers) {
+          lastActiveLayers.shift().destroy();
+        }
 
-      var tiles = Object.keys(layer.getTiles());
+        // May not do anything if tiles have all loaded for this layer or have been deleted
+        layer.abortLoading();
 
-      if (lastActiveLayers.indexOf(layer) == -1 && tiles.length > 0) {
-        lastActiveLayers.push(layer);
+        var tiles = Object.keys(layer.getTiles());
+
+        if (tiles && tiles.length > 0) {
+          lastActiveLayers.push(layer);
+        }
       }
     }
 
