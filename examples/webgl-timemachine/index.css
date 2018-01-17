@@ -453,12 +453,31 @@ html, body {
 .customControl.hyperwall {
   bottom: -7px;
 }
+
+.scaleBarContainer.hyperwall {
+  bottom: 120px !important;
+}
+
+.scaleBarContainer.noTimeline {
+  bottom: 20px !important;
+}
+
 .scaleBarContainer.layerGraphs {
-  bottom: 163px !important;
+  bottom: 200px !important;
 }
+
+#logosContainer.hyperwall {
+  bottom: 110px;
+}
+
 #logosContainer.layerGraphs {
-  bottom: 175px !important;
+  bottom: 190px !important;
 }
+
+#logosContainer.noTimeline {
+  bottom: 20px;
+}
+
 #letterbox-bottom {
   position: relative;
   width: 100%;
@@ -1335,14 +1354,6 @@ a:focus { outline:0; }
   pointer-events: none;
 }
 
-#logosContainer.hyperwall {
-  bottom: 90px;
-}
-
-#logosContainer.noTimeline {
-  bottom: 20px;
-}
-
 #layers-legend.noTimeline {
   -webkit-transition: bottom 0.40s;
   -ms-transition: bottom 0.40s;
@@ -1358,14 +1369,6 @@ a:focus { outline:0; }
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-}
-
-.scaleBarContainer.noTimeline {
-  bottom: 20px !important;
-}
-
-.scaleBarContainer.hyperwall {
-  bottom: 104px !important;
 }
 
 .timelineSliderFiller {
