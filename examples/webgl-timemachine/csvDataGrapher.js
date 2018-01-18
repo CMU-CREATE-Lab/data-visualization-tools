@@ -173,9 +173,15 @@ CsvDataGrapher.prototype.graphDataForLayer = function graphDataForLayer(layerNam
 
         if (layerProps['Graph Y-Axis Min']) {
           that.chart.options.axisY.minimum = layerProps['Graph Y-Axis Min'];
+        } else {
+          // Set to null to auto scale
+          that.chart.options.axisY.minimum = null;
         }
         if (layerProps['Graph Y-Axis Max']) {
           that.chart.options.axisY.maximum = layerProps['Graph Y-Axis Max'];
+        } else {
+          // Set to null to auto scale
+          that.chart.options.axisY.maximum = null;
         }
         that.chart.options.axisX.interval = undefined;
         that.getDataForLayer(data);
