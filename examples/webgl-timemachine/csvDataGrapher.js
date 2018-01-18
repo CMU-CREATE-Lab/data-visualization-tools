@@ -184,7 +184,7 @@ CsvDataGrapher.prototype.graphDataForLayer = function graphDataForLayer(layerNam
           that.chart.options.axisY.maximum = null;
         }
         that.chart.options.axisX.interval = undefined;
-        that.getDataForLayer(data);
+        that.getDataForLayer(data, layerProps);
         layerNameMatch = true;
         break;
       }
@@ -313,7 +313,7 @@ CsvDataGrapher.prototype.updateGraphData = function updateGraphData(layerId, dat
   }
 };
 
-CsvDataGrapher.prototype.getDataForLayer = function getDataForLayer(layerData) {
+CsvDataGrapher.prototype.getDataForLayer = function getDataForLayer(layerData, layerProps) {
   var that = this;
   this.activeLayer.entries = {};
 
@@ -334,14 +334,15 @@ CsvDataGrapher.prototype.getDataForLayer = function getDataForLayer(layerData) {
       if (m) {
         that.chart.options.axisX.valueFormatString = "YYYY-MM";
         that.chart.options.axisX.intervalType = "month";
-        that.chart.options.axisX.interval = 2;
+        that.chart.options.axisX.interval = layerProps['Graph X-Axis Label Interval'] || 4;
         date = new Date(m[1], m[2] - 1, 1);
       } else {
         that.chart.options.axisX.valueFormatString = "YYYY";
         that.chart.options.axisX.intervalType = "year";
-        that.chart.options.axisX.interval = 1;
+        that.chart.options.axisX.interval = layerProps['Graph X-Axis Label Interval'] || 1;
         date = new Date(header[j], 0, 1);
       }
+
       var val = parseFloat(layerData[i][j]);
       if (isNaN(val)) {
         val = 0;
