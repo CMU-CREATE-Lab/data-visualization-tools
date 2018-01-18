@@ -170,6 +170,7 @@ CsvDataGrapher.prototype.graphDataForLayer = function graphDataForLayer(layerNam
         that.chart.options.graphGroupName = that.activeLayer.title;
         that.chart.options.axisY.title = layerProps['Graph Y-Axis Label'] || "Value";
         that.chart.options.axisX.title = layerProps['Graph X-Axis Label'] || "Time";
+
         if (layerProps['Graph Y-Axis Min']) {
           that.chart.options.axisY.minimum = layerProps['Graph Y-Axis Min'];
         }
@@ -326,11 +327,13 @@ CsvDataGrapher.prototype.getDataForLayer = function getDataForLayer(layerData) {
       var m = date.match(yyyymm_re);
       if (m) {
         that.chart.options.axisX.valueFormatString = "YYYY-MM";
-        that.chart.options.axisX.intervalType = "YYYY-MM";
+        that.chart.options.axisX.intervalType = "month";
+        that.chart.options.axisX.interval = 2;
         date = new Date(m[1], m[2] - 1, 1);
       } else {
         that.chart.options.axisX.valueFormatString = "YYYY";
-        that.chart.options.axisX.intervalType = "YYYY";
+        that.chart.options.axisX.intervalType = "year";
+        that.chart.options.axisX.interval = 1;
         date = new Date(header[j], 0, 1);
       }
       var val = parseFloat(layerData[i][j]);
