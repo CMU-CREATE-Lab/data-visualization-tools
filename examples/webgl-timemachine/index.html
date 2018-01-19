@@ -319,7 +319,7 @@
     var carbonPriceRiskLayer;
     setTimeLine('carbon-price-risk-times', 2017, 2050, 1);
     var tsipLayer;
-    setTimeLine('carbon-price-risk-times', 2000, 2017, 1);
+    setTimeLine('tsip-times', 2000, 2017, 1);
 
     // S&P Shipping
     var spCrudeLayer;
@@ -2899,7 +2899,7 @@
           showTsipLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
-          //requestNewTimeline("tsip-times.json", timelineType);
+          requestNewTimeline("tsip-times.json", timelineType);
           $("#tsip-legend").show();
           if (visibleBaseMapLayer != "dark") {
             $("#dark-base").click();
