@@ -457,7 +457,7 @@ CsvFileLayer.prototype.setLegend = function setLegend(id) {
         };
         if (layer['opts']['legendKey'] != '') {
           var rgba = layer['opts']['color'].map(function(x) {
-            return x * 255.;
+            return Math.floor(x * 255.);
           });
           opts["keys"].push({'color': 'rgb('+ rgba[0] +',' + rgba[1] +',' + rgba[2] + ')', 'str': layer['opts']['legendKey']});
         }
