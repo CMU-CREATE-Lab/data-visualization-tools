@@ -664,9 +664,13 @@ html, body {
 }
 
 .current-location-text-container.letterbox {
-  bottom: 190px;
+  bottom: 155px;
   left: 20px;
   right: initial;
+}
+
+.current-location-text-container.hyperwall.letterbox {
+  bottom: 190px;
 }
 
 .current-location-text-container.letterbox.layerGraphs {
@@ -716,7 +720,7 @@ html, body {
   width: 110px;
   font-size: 20px;
   cursor: pointer;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
   padding-top: 9px;
   padding-bottom: 9px;
 }
@@ -725,6 +729,7 @@ html, body {
   width: 110px;
   font-size: 20px;
   cursor: pointer;
+  margin-bottom: 12px;
   padding-top: 9px;
   padding-bottom: 9px;
 }
@@ -785,11 +790,11 @@ html, body {
 
 #letterbox-control-buttons {
   position: relative;
-  float: right;
   text-align: right;
   right: 5px;
   height: 100%;
   top: 8px;
+  float: right;
 }
 
 #letterbox-bottom-picker-results-content {
