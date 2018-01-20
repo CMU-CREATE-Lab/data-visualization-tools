@@ -5872,6 +5872,7 @@ function setTimeLine(identifier, startDate, endDate, step) {
             }
           };
           timelapse.addParabolicMotionStoppedListener(parabolicMotionStoppedListener);
+          $(".map-layer-div").find("input:checked").trigger("click");
         });
 
         snaplapseViewerForPresentationSlider.addEventListener('slide-changed', function(waypoint) {
