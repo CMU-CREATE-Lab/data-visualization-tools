@@ -686,6 +686,7 @@ WebGLVectorTile2.prototype._setLineStringData = function(data) {
     vertexCollection = vertexCollection.concat(PackArray(positions));
   }
   this._setBufferData(new Float32Array(vertexCollection));
+  this._dataLoaded(this.layerId);
 
 }
 

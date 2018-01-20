@@ -513,7 +513,8 @@ CsvFileLayer.prototype.setLegend = function setLegend(id) {
           var div = '<div style="font-size: 15px">' + layer['opts']["name"] + '<span class="credit"> ('+ layer['opts']["credit"] +')</span></div>';
           str = div;
         } else {
-          str = layer['opts']['legendContent'];
+          var div = '<div style="font-size: 15px">' + layer['opts']["name"] + '<span class="credit"> ('+ layer['opts']["credit"] +')</span></div>';
+          str = div + layer['opts']['legendContent'];
         }
         var opts = {
           'id' : id,
