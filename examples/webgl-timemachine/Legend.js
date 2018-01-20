@@ -59,10 +59,30 @@ var ChoroplethLegend = function ChoroplethLegend(opts) {
     this.xValueOffset = 0;
     this.id = opts["id"];
     this.str = opts["str"] || this.setStr(opts);
+    this.keys = opts["keys"] || [];
     Legend.call(this, this.id, this.str);
 }
 
 ChoroplethLegend.prototype = Object.create(Legend.prototype);
+ChoroplethLegend.prototype.safe = function(templateData) {
+        var entityMap = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;',
+            '/': '&#x2F;',
+            '`': '&#x60;',
+            '=': '&#x3D;'
+        };
+  
+        var s = templateData[0];
+        for (var i = 1; i < arguments.length; i++) {
+            s += String(arguments[i]).replace(/[&<>"'`=\/]/g, function (s) { return entityMap[s]; });
+            s += templateData[i];
+        }
+        return s;
+    }
 
 ChoroplethLegend.prototype.setStr = function setStr(opts) {
     var that = this;
@@ -80,45 +100,59 @@ ChoroplethLegend.prototype.setStr = function setStr(opts) {
         return text;
     }
 
-    var div = '<div style="font-size: 15px">' + opts["title"] + '<span class="credit"> ('+ opts["credit"] +')</span></div>';
-    var svg = '<svg class="svg-legend" width="280" height="60">';
-    var keys = '';
-    if (opts["keys"]) {
-        for (var i = 0; i < opts["keys"].length; i++) {
-            keys += getKey(opts["keys"][i]['str']);
+    if (opts["colorMap"]) {
+        var legend = '';
+        legend += this.safe`<div style="font-size: 15px">${opts["title"]}<span class="credit">(${opts["credit"]})</span></div>`;
+        if (opts["keys"].length > 0) {
+          legend += this.safe`<div style="font-size: 11px; text-align: center;">${opts["keys"][0]['str']}</div>`;            
         }
-
-    }
-
-   var colors = '';
-   this.colorWidth = this.width/opts["colors"].length;
-    for (var i = 0; i < opts["colors"].length; i++) {
-        colors += getColor(opts["colors"][i]);
-        this.xOffset += this.colorWidth;
-    }
-    var values = '';
-    this.xOffset = 0 + this.colorWidth*0.5;
-    if (opts["values"].length == 2) {
-        values += getValue(opts["values"][0]);
-        this.xOffset += this.colorWidth*(opts["colors"].length - 1.);
-        values += getValue(opts["values"][1]);
-    } else if (opts["values"].length == 3) {
-        values += getValue(opts["values"][0]);
-        this.xOffset = this.width / 2;
-        values += getValue(opts["values"][1]);
-    this.xOffset = 0 + this.colorWidth*0.5;
-
-        this.xOffset += this.colorWidth*(opts["colors"].length - 1.);
-        values += getValue(opts["values"][2]);
+        legend += this.safe`<div style="font-size: 11px">${opts["values"][0]} `;
+        legend += this.safe`<img src="${opts["colorMap"]}" style="border:1px solid grey; width:200px; height:10px; margin-top:2px; position:relative; top:3px; background-color:black">`;
+        legend += this.safe` ${opts["values"][opts["values"].length - 1]}</div>`;
+        return legend;
+        //legend += safe` ${layerJson.legendMax} ${layerJson.legendUnits}</div>`;
     } else {
-        this.valueWidth = this.width/opts["values"].length;
-        for (var i = 0; i < opts["values"].length; i++) {
-            values += getValue(opts["values"][i]);
-            this.xOffset += this.valueWidth;
+        var div = '<div style="font-size: 15px">' + opts["title"] + '<span class="credit"> ('+ opts["credit"] +')</span></div>';
+        var svg = '<svg class="svg-legend" width="280" height="60">';
+        var keys = '';
+        if (opts["keys"]) {
+            for (var i = 0; i < opts["keys"].length; i++) {
+                keys += getKey(opts["keys"][i]['str']);
+            }
+
         }
 
+       var colors = '';
+       this.colorWidth = this.width/opts["colors"].length;
+        for (var i = 0; i < opts["colors"].length; i++) {
+            colors += getColor(opts["colors"][i]);
+            this.xOffset += this.colorWidth;
+        }
+        var values = '';
+        this.xOffset = 0 + this.colorWidth*0.5;
+        if (opts["values"].length == 2) {
+            values += getValue(opts["values"][0]);
+            this.xOffset += this.colorWidth*(opts["colors"].length - 1.);
+            values += getValue(opts["values"][1]);
+        } else if (opts["values"].length == 3) {
+            values += getValue(opts["values"][0]);
+            this.xOffset = this.width / 2;
+            values += getValue(opts["values"][1]);
+        this.xOffset = 0 + this.colorWidth*0.5;
+
+            this.xOffset += this.colorWidth*(opts["colors"].length - 1.);
+            values += getValue(opts["values"][2]);
+        } else {
+            this.valueWidth = this.width/opts["values"].length;
+            for (var i = 0; i < opts["values"].length; i++) {
+                values += getValue(opts["values"][i]);
+                this.xOffset += this.valueWidth;
+            }
+
+        }
+        return div + svg + keys + colors + values + '</svg>';
+
     }
-    return div + svg + keys + colors + values + '</svg>';
 
 
 }
