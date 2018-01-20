@@ -5,10 +5,8 @@ html, body {
 .player {
   border: 0px !important;
 }
-.player.letterbox {
-  height: 100% !important;
-}
-.snaplapse_keyframe_list_item.letterbox:not(.recording) .snaplapse_keyframe_list_item_title {
+
+.snaplapse_keyframe_list_item.letterbox .snaplapse_keyframe_list_item_title {
   font-size: 15px;
 }
 .presentationSlider .snaplapse_keyframe_container {
@@ -204,51 +202,11 @@ html, body {
 .top-panel label .credit {
   color: #A1A1A1 !important;
 }
-.map-layer-div.letterbox {
-  height: 152px;
-  position: absolute;
-  left: 525px;
-  bottom: auto;
-  top: 4px;
-}
-.map-layer-checkbox.letterbox {
-  position: relative;
-  top: 7px;
-  left: 50px;
-  margin-right: 5px;
-}
-.base-map-div.letterbox {
-  width: 234px;
-  height: 152px;
-  position: absolute;
-  left: 248px;
-  bottom: auto;
-  top: 0px;
-}
-.base-map-div.letterbox.hyperwall {
-  left: 235px;
-}
+
 .base-map-radio {
   width: 100%;
 }
-.base-map-radio.letterbox {
-  position: relative;
-  top: 7px;
-}
-.extras-selector-div.letterbox {
-  position: absolute;
-  top: 78px;
-  width: 220px;
-  height: 74px;
-  padding: 0;
-}
-.extras-selector-div.letterbox .ui-selectmenu-button {
-  position: relative;
-  top: 14px;
-  left: 20px;
-  width: 197px !important;
-  outline: none;
-}
+
 #location_search {
   position: absolute;
   top: 20px;
@@ -267,30 +225,6 @@ html, body {
   box-shadow: 2px 2px 3px rgba(0,0,0,0.3);
   z-index: 90;
 }
-.location_search_div.letterbox {
-  width: 177px;
-  position: absolute;
-  bottom: auto;
-  top: -12px;
-  height: 74px;
-}
-#location_search.letterbox {
-  position: relative;
-  top: 32px;
-  left: 23px !important;
-  width: 177px;
-  margin: 0;
-  padding-bottom: 7px;
-  padding-top: 7px;
-  padding-left: 10px;
-  padding-right: 10px;
-  box-shadow: 0px 0px 0px rgba(0,0,0,0);
-}
-
-#layers-list.letterbox {
-  top: 0px;
-  position: absolute;
-}
 
 #layers-list {
   z-index: 99;
@@ -304,7 +238,6 @@ html, body {
 #theme-menu {
   display: inline;
 }
-
 
 .layers-scroll-vertical {
   overflow-y: auto;
@@ -409,47 +342,33 @@ html, body {
   z-index: 100;
 }
 
-#letterbox-top {
-  position: relative;
-  width: 100%;
-  top: 0px;
-  left: 0px;
-  height: 156px;
-  background: black;
-}
 #timeMachine {
-  position: absolute;
+  position: relative;
   background-color: black !important;
   overflow: hidden !important;
   width: 100% !important;
   height: 100%;
 }
-#timeMachine.letterbox {
-  height: calc(100% - 312px) !important;
+#timeMachine.layerGraphs {
+  height: calc(100% - 225px) !important;
 }
+
 #timeMachine.presentationSliderSelection {
   height: calc(100% - 35px) !important;
 }
 #timeMachine.presentationSliderSelectionOverflow {
   height: calc(100% - 52px) !important;
 }
-
-#timeMachine.layerGraphs {
-  height: calc(100% - 225px) !important;
-}
-
 #baseLayerCreditContainer.layerGraphs {
   bottom: 85px !important;
 }
 .controls.layerGraphs {
-  bottom: 93px !important;
+  bottom: 95px !important;
 }
 .customControl.layerGraphs {
-  bottom: 93px !important;
+  bottom: 95px !important;
 }
-.customControl.recording {
-  bottom: 118px;
-}
+
 .customControl.hyperwall {
   bottom: -7px;
 }
@@ -471,7 +390,11 @@ html, body {
 }
 
 #logosContainer.layerGraphs {
-  bottom: 190px !important;
+  bottom: 175px !important;
+}
+
+#logosContainer.hyperwall.layerGraphs {
+  bottom: 200px !important;
 }
 
 #logosContainer.noTimeline {
@@ -483,8 +406,9 @@ html, body {
   width: 100%;
   bottom: 0px;
   left: 0px;
-  height: 156px;
+  height: 312px;
   background: black;
+  z-index: 100;
 }
 .customToggleSpeed-touchFriendly.ui-button {
   height: 33px;
@@ -494,13 +418,18 @@ html, body {
 .current-location-text-container {
   display: none;
   position: absolute;
-  bottom: 180px;
+  bottom: 94px;
   right: calc(50% - 220px);
   z-index: 99;
   pointer-events: none;
 }
+
+.current-location-text-container.hyperwall {
+  bottom: 105px;
+}
+
 .current-location-text-container.layerGraphs {
-  bottom: 405px;
+  bottom: 188px;
 }
 
 .next-annotation-location {
@@ -549,12 +478,7 @@ html, body {
   color: #e6e6e6;
   text-align: center;
 }
-.current-location-text.letterbox {
-  bottom: 295px !important;
-}
-.current-location-text.letterbox.hyperwall {
-  bottom: 320px !important;
-}
+
 .current-location-text-title {
   font-size: 19px;
   font-weight: 600;
@@ -590,50 +514,14 @@ html, body {
   transform: translateZ(0);
   text-align: left;
 }
-.current-location-text.recording {
-  background: transparent;
-  border: 0px solid #656565;
-  color: white;
-  box-shadow: 0px 0px 0px rgba(0, 0, 0, 0);
-  text-shadow: -1px 0 1px black, 0 1px 1px black, 1px 0 1px black, 0 -1px 1px black, 2px 2px 4px #3A3A3A;
-  white-space: nowrap;
-  bottom: 0px;
-  left: auto;
-  right: 23px;
-  max-width: 98%;
-  padding: 14px;
-}
-.current-location-text.recording p {
-  font-size: 80px;
-  line-height: 85px;
-}
+
 #letterbox-content {
   position: relative;
   width: 100%;
   height: 100%;
   overflow: hidden;
 }
-#timeMachine.recording {
-  /* For recording in different heights, change the height of #timeMachine.recording and #content.recording */
-  width: 1330px;
-  height: 1076px;
-}
-#letterbox-content.recording {
-  /* For recording in different heights, change the height of #timeMachine.recording and #content.recording */
-  width: 1330px;
-  height: 1284px;
-}
-#letterbox-bottom.recording {
-  height: 236px;
-}
-.customControl.recording {
-  bottom: 118px;
-}
-.snaplapse-annotation-description .recording {
-  font-size: 60px !important;
-  padding-bottom: 70px !important;
-  padding-right: 45px !important;
-}
+
 #layers-legend {
   z-index: 90;
   display: none;
@@ -697,10 +585,6 @@ html, body {
   background-image: linear-gradient(left, #ffffff 0%, #ff4c0c 100%);
 }
 
-.presentationSlider.letterbox {
-  bottom: 62px !important;
-}
-
 #presentation-slider-selection {
   display: none;
   position: absolute;
@@ -721,10 +605,6 @@ html, body {
   height: 36px;
 }
 
-#presentation-slider-selection.letterbox table {
-  height: 62px;
-}
-
 #presentation-slider-selection div {
   color: white;
   white-space:nowrap;
@@ -738,6 +618,191 @@ html, body {
   border-right: 1px solid white;
   padding-left: 10px;
   padding-right: 10px;
+}
+
+.player.letterbox {
+  height: 100% !important;
+}
+
+.player.letterbox.layerGraphs {
+  height: calc(100% - 140px) !important;
+}
+
+#csvChartContainer.letterbox {
+  z-index: 100;
+}
+
+.location_search_div.letterbox {
+  width: 177px;
+  position: absolute;
+  bottom: auto;
+  top: -21px;
+  height: 74px;
+  left: -13px;
+}
+#location_search.letterbox {
+  position: relative;
+  top: 32px;
+  left: 23px !important;
+  width: 177px;
+  margin: 0;
+  padding-bottom: 7px;
+  padding-top: 7px;
+  padding-left: 10px;
+  padding-right: 10px;
+  box-shadow: 0px 0px 0px rgba(0,0,0,0);
+}
+
+.letterbox-bottom-picker-table, .letterbox-bottom-picker-results-table, .letterbox-base-layers-table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  height: 100%;
+}
+
+.letterbox-base-layers-table {
+  width: 100%;
+}
+
+.current-location-text-container.letterbox {
+  bottom: 190px;
+  left: 20px;
+  right: initial;
+}
+
+.current-location-text-container.letterbox.layerGraphs {
+  bottom: 268px;
+}
+
+.current-location-text-container.hyperwall.layerGraphs {
+  bottom: 206px;
+}
+
+.scaleBarContainer.hyperwall.layerGraphs {
+  bottom: 215px !important;
+}
+
+.current-location-text-container.letterbox.noTimeline {
+  bottom: 91px;
+}
+
+.annotation-nav.letterbox {
+  display: none;
+}
+
+#letterbox-bottom-picker-content-wrapper,  #letterbox-bottom-picker-results-content-wrapper {
+  height: 100%;
+  width: 100%;
+}
+
+.presentationSlider.letterbox {
+  top: 0px;
+  position: relative !important;
+}
+
+#presentation-slider-selection.letterbox table {
+  height: 62px;
+}
+
+#letterbox-bottom-controls-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  color: white;
+  table-layout: fixed;
+  border-top: 1px solid #525252;
+}
+
+#letterbox-list-themes-button {
+  width: 110px;
+  font-size: 20px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  padding-top: 9px;
+  padding-bottom: 9px;
+}
+
+#letterbox-list-layers-button {
+  width: 110px;
+  font-size: 20px;
+  cursor: pointer;
+  padding-top: 9px;
+  padding-bottom: 9px;
+}
+
+#letterbox-clear-layers-button {
+  width: 80px;
+  font-size: 15px;
+  cursor: pointer;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+#letterbox-bottom-controls-container th {
+  text-align: left;
+  padding-left: 8px;
+  text-decoration: underline;
+  vertical-align: top;
+}
+
+#letterbox-bottom-controls-container caption {
+  text-decoration: underline;
+  padding-bottom:5px;
+  padding-left: 5px;
+  font-weight: bold;
+  text-align: left;
+}
+
+#letterbox-base-layers {
+  position: relative;
+  top: 60px;
+  height: calc(100% - 175px);
+  width: 60%;
+  float: left;
+}
+
+.letterbox-bottom-picker-table label, .letterbox-bottom-picker-results-table label {
+  display: flex;
+  white-space: nowrap;
+  cursor: pointer;
+  margin-right: 20px;
+}
+
+#letterbox-bottom-picker {
+  padding-right: 5px;
+  border-left: 1px solid #525252;
+  vertical-align: top;
+}
+
+#letterbox-bottom-picker-results {
+  vertical-align: top;
+}
+
+#letterbox-bottom-picker-content {
+  border-right: 1px solid #525252;
+  height: calc(100% - 90px);
+  overflow-x: auto;
+}
+
+#letterbox-control-buttons {
+  position: relative;
+  float: right;
+  text-align: right;
+  right: 5px;
+  height: 100%;
+  top: 8px;
+}
+
+#letterbox-bottom-picker-results-content {
+  height: calc(100% - 90px);
+  overflow-x: auto;
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+#letterbox-bottom input[type='checkbox'], letterbox-bottom-picker-table input[type='radio'] {
+  cursor: pointer;
 }
 
 .clickable {
@@ -1102,6 +1167,7 @@ a:focus { outline:0; }
   -ms-user-select: none;
   user-select: none;
   display: none;
+  z-index: 100;
 }
 
 #csvChartLegendList {
@@ -1160,7 +1226,7 @@ a:focus { outline:0; }
   cursor: pointer;
 }
 
-.hamburger:hover, #theme-title-container:hover {
+.hamburger:hover, #theme-title-container:hover:not(.letterbox)  {
   background-color: #252525;
 }
 
@@ -1294,6 +1360,12 @@ a:focus { outline:0; }
   z-index: 99999;
   border-left: 1px solid #424242;
   padding-left: 15px;
+}
+
+#theme-title-container.letterbox {
+  cursor: default;
+  left: -1px;
+  width: 160px;
 }
 
 #theme-title {
@@ -1516,4 +1588,25 @@ a:focus { outline:0; }
 .dg.ac {
   z-index: 1000 !important;
   top: 60px !important;
+}
+
+.captureTime-touchFriendly {
+  bottom: 32px;
+}
+
+.controls-touchFriendly .toggleSpeed.ui-button {
+  height: 24px;
+  bottom: 32px;
+}
+
+.controls-touchFriendly .timelineSliderFiller {
+  bottom: 67px;
+}
+
+.timelineSelectorFiller {
+  bottom: 67px;
+}
+
+.playbackButton-touchFriendly.ui-button {
+  bottom: 36px
 }

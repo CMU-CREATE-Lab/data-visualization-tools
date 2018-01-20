@@ -179,7 +179,7 @@
     var usePresentationClicker = !!EARTH_TIMELAPSE_CONFIG.usePresentationClicker;
     var enableThemeHamburgerButton = !!EARTH_TIMELAPSE_CONFIG.enableThemeHamburgerButton;
     var enableMinimalUIMode = window.location.hash.split("enableMinimalUIMode=")[1] || !!EARTH_TIMELAPSE_CONFIG.enableMinimalUIMode;
-    var disablePresentationSlider = window.location.hash.split("disablePresentationSlider=")[1] || enableRecordingMode || !!EARTH_TIMELAPSE_CONFIG.disablePresentationSlider || false;
+    var disablePresentationSlider = window.location.hash.split("disablePresentationSlider=")[1] || !!EARTH_TIMELAPSE_CONFIG.disablePresentationSlider || false;
     var extraContributors = EARTH_TIMELAPSE_CONFIG.extraContributors ? EARTH_TIMELAPSE_CONFIG.extraContributors.replace(",", " |") : "";
     var useJumpToButtons = typeof(EARTH_TIMELAPSE_CONFIG.useJumpToButtons) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.useJumpToButtons;
     var showShareButton = typeof(EARTH_TIMELAPSE_CONFIG.showShareButton) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showShareButton;
@@ -195,13 +195,13 @@
     var waypointDelayInMilliseconds = parseInt(EARTH_TIMELAPSE_CONFIG.waypointDelayInMilliseconds) || 1 * 15 * 1000;
     var defaultPlaybackSpeed = parseFloat(EARTH_TIMELAPSE_CONFIG.defaultPlaybackSpeed) || 0.5;
     var enableLetterboxMode = !!EARTH_TIMELAPSE_CONFIG.enableLetterboxMode;
+    var letterboxBottomOffset = parseInt(EARTH_TIMELAPSE_CONFIG.letterboxBottomOffset) || 312;
     var letterboxModeHash = window.location.hash.split("enableLetterboxMode=")[1];
     if (letterboxModeHash)
       enableLetterboxMode = letterboxModeHash === "true";
     var landsatVersion = EARTH_TIMELAPSE_CONFIG.landsatVersion || "2015";
     var useFaderShader = (typeof(EARTH_TIMELAPSE_CONFIG.useFaderShader) == "undefined") ? true : !!EARTH_TIMELAPSE_CONFIG.useFaderShader;
     var enableWaypointText = (typeof(EARTH_TIMELAPSE_CONFIG.enableWaypointText) == "undefined") ? true : !!EARTH_TIMELAPSE_CONFIG.enableWaypointText;
-    var enableRecordingMode = !!EARTH_TIMELAPSE_CONFIG.enableRecordingMode;
     var trackingId = EARTH_TIMELAPSE_CONFIG.trackingId || "UA-10682694-21";
     var rootTilePath = (typeof(EARTH_TIMELAPSE_CONFIG.rootTilePath) == "undefined") ? "../../../data/" : EARTH_TIMELAPSE_CONFIG.rootTilePath;
 
@@ -809,13 +809,13 @@
         url: landsatUrl,
         apiKeys: googleMapsAPIKey ? {'googleMaps': googleMapsAPIKey} : undefined,
         enablePresentationSlider: !disablePresentationSlider,
-        enableEditor: enableRecordingMode ? true : false,
-        showEditorOnLoad: enableRecordingMode ? true : false,
+        enableEditor: false,
+        showEditorOnLoad: false,
         // Using "https" will cause the thumbnail loading from the server to fail
         thumbnailServerRootTileUrl: (landsatVersion == "2015") ? "http://earthengine.google.org/timelapse/data/20130507" : "http://storage.googleapis.com/earthengine-timelapse/herwig/earthtime_annual_1984_2016/v05",
         showFullScreenBtn: false,
         showShareBtn: showShareButton,
-        presentationSliderSettings: enableRecordingMode ? {} : {
+        presentationSliderSettings: {
           onLoadAnimation: "none",
           playAfterAnimation: false,
           initialWaypointIndex: 0,
@@ -825,9 +825,18 @@
           waypointDelayTime: waypointDelayInMilliseconds,
           height: 94
         },
+        contextMapOptions: {
+          contextMapDiv: "contextMap1",
+          tileType: useGoogleMaps ? "Google" : "OpenStreetMap",
+          tileUrl: osmDefaultUrl,
+          geometry: {
+            width: 270,
+            height: 200
+          }
+        },
         useTouchFriendlyUI: isHyperwall || isMobileDevice,
         datasetType: "landsat",
-        playOnLoad: enableRecordingMode ? false : true,
+        playOnLoad: true,
         mediaType: (landsatVersion == "2015") ? ".webm" : ".mp4",
         onTimeMachinePlayerReady: function(viewerDivId) {},
         scaleBarOptions: {
@@ -839,14 +848,11 @@
 
       if (enableLetterboxMode) {
         $("#timeMachine").addClass("letterbox");
-        $("#letterbox-middle").replaceWith($("#timeMachine"));
+        $("#letterbox-main").replaceWith($("#timeMachine"));
+        $("#letterbox-bottom").css("height", letterboxBottomOffset);
+        $("#timeMachine").css("height", "calc(100% - " + letterboxBottomOffset + "px)");
       } else {
         $("#letterbox-content").remove();
-      }
-
-      if (enableRecordingMode) {
-        $("#timeMachine, #content").addClass("recording");
-        $("#letterbox-bottom").remove();
       }
 
       timelapse = new org.gigapan.timelapse.Timelapse("timeMachine", settings);
@@ -1310,11 +1316,14 @@
       }).prop('checked', showNdviAnomalyTimeMachineLayer);
 
       $("#show-himawari").on("click", function() {
+        $(".current-location-text-container").hide();
+        $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight").removeClass("thumbnail_highlight");
+
         var $this = $(this);
         if ($this.prop('checked')) {
           himawariTimeMachineLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           // Clear out non-himawari8 layers if they were already active.
-          var $activeLayersNotIncludingClickedLayer = $(".map-layer-div, .ui-multiselect-checkboxes").find("input:checked").not($(this));
+          var $activeLayersNotIncludingClickedLayer = $(".map-layer-div").find("input:checked").not($(this));
           if ($activeLayersNotIncludingClickedLayer.length > 1) {
             $activeLayersNotIncludingClickedLayer.trigger("click");
           }
@@ -1373,11 +1382,14 @@
       }).prop('checked', showHimawariTimeMachineLayer);
 
       $("#show-goes16").on("click", function() {
+        $(".current-location-text-container").hide();
+        $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight").removeClass("thumbnail_highlight");
+
         var $this = $(this);
         if ($this.prop('checked')) {
           goes16TimeMachineLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           // Clear out non-goes16 layers if they were already active.
-          var $activeLayersNotIncludingClickedLayer = $(".map-layer-div, .ui-multiselect-checkboxes").find("input:checked").not($(this));
+          var $activeLayersNotIncludingClickedLayer = $(".map-layer-div").find("input:checked").not($(this));
           if ($activeLayersNotIncludingClickedLayer.length > 1) {
             $activeLayersNotIncludingClickedLayer.trigger("click");
           }
@@ -1436,11 +1448,14 @@
       }).prop('checked', showGoes16TimeMachineLayer);
 
       $("#show-dscovr").on("click", function() {
+        $(".current-location-text-container").hide();
+        $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight").removeClass("thumbnail_highlight");
+
         var $this = $(this);
         if ($this.prop('checked')) {
           dscovrTimeMachineLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           // Clear out non-dscovr layers if they were already active.
-          var $activeLayersNotIncludingClickedLayer = $(".map-layer-div, .ui-multiselect-checkboxes").find("input:checked").not($(this));
+          var $activeLayersNotIncludingClickedLayer = $(".map-layer-div").find("input:checked").not($(this));
           if ($activeLayersNotIncludingClickedLayer.length > 1) {
             $activeLayersNotIncludingClickedLayer.trigger("click");
           }
@@ -3291,7 +3306,7 @@
 
       var appendTarget = "#timeMachine";
       if (enableLetterboxMode) {
-        appendTarget = "#content";
+        appendTarget = "#letterbox-content";
       }
       $("#extras-selector").selectmenu({
         close: function() {
@@ -3446,7 +3461,7 @@
         // 'c' key and share view dialog is not visible
         // Quick way to clear all layers
         if (e.keyCode === 67 && !$(".shareView").is(":visible")) {
-          $(".map-layer-div, .ui-multiselect-checkboxes").find("input:checked").trigger("click");
+          $(".map-layer-div").find("input:checked").trigger("click");
           var openCategories = $("h3.ui-accordion-header.ui-state-active");
           var availableCategories = $(".map-layer-div").children("h3");
           $.each(openCategories, function(index, value) {
@@ -3456,6 +3471,7 @@
           });
           $(".current-location-text-container").hide();
           $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight").removeClass("thumbnail_highlight");
+          $("#category-base-layers").find("input:checked").click();
         }
         // 'h' key
         // Quick way to toggle the layer panel
@@ -3522,8 +3538,11 @@
         keysDown.length = 0;
       });
 
-      $('#layers-list, .ui-multiselect-checkboxes').on("click", "input", function(e) {
-        var selectedLayers = $('.map-layer-checkbox, .ui-multiselect-checkboxes').find("input:checked").not("#show-forest-alerts, show-forest-alerts-no-overlay, #show-himawari, #show-goes16, #show-dscovr");
+      $('#layers-list').on("change", "input", function(e) {
+        if (enableLetterboxMode) {
+          updateLetterboxSelections($(this));
+        }
+        var selectedLayers = $('.map-layer-checkbox').find("input:checked").not("#show-forest-alerts, show-forest-alerts-no-overlay, #show-himawari, #show-goes16, #show-dscovr");
         // Subtract one, since base layers are included in this count but they don't use the legend.
         var numLayersOn = selectedLayers.size() - 1;
 
@@ -3562,10 +3581,12 @@
         }
 
         // Add indicator that a layer is on in a category but ignore the first category (base layers)
-        if (numLayersActiveInCurrentContainer > 0 && $layerContainerHeader[0].id != $firstlayerContainerHeader[0].id) {
-          $layerContainerHeader.append("<span class='.ui-accordion-header-icon ui-icon ui-icon-bullet active-layers-in-category'>");
-        } else {
-          $layerContainerHeader.find(".active-layers-in-category").remove();
+        if ($firstlayerContainerHeader.length && $layerContainerHeader.length) {
+          if (numLayersActiveInCurrentContainer > 0 && $layerContainerHeader[0].id != $firstlayerContainerHeader[0].id) {
+            $layerContainerHeader.append("<span class='.ui-accordion-header-icon ui-icon ui-icon-bullet active-layers-in-category'>");
+          } else {
+            $layerContainerHeader.find(".active-layers-in-category").remove();
+          }
         }
 
         var isFromUser = true;
@@ -3576,7 +3597,7 @@
 
         // Toggle off Himawari/GOES16/DSCOVR if any other layer is selected when it is up. These layers are a special mode.
         // Base layer is part of the checkbox total, hence the > 1 check.
-        if ((showHimawariTimeMachineLayer || showGoes16TimeMachineLayer || showDscovrTimeMachineLayer) && $('.map-layer-checkbox, .ui-multiselect-checkboxes').find("input:checked").not("#show-himawari, #show-goes16, #show-dscovr").length > 1) {
+        if ((showHimawariTimeMachineLayer || showGoes16TimeMachineLayer || showDscovrTimeMachineLayer) && $('.map-layer-checkbox').find("input:checked").not("#show-himawari, #show-goes16, #show-dscovr").length > 1) {
           if ($("#show-himawari").prop('checked')) {
             $("#show-himawari").click();
           } else if ($("#show-goes16").prop('checked')) {
@@ -3651,7 +3672,7 @@
         timelineHidden = $(".noTimeline").length != 0;
       };
 
-      $('#layers-list, .ui-multiselect-checkboxes').on('click', 'input', timelineUIHandler);
+      $('#layers-list').on('click', 'input', timelineUIHandler);
 
       $("body").on("click", "#layers-list .ui-accordion-header", function() {
         lastLayerMenuScrollPos = $(this)[0].offsetTop - 120;
@@ -3667,6 +3688,8 @@
           UTIL.verticalTouchScroll($(".layers-scroll-vertical"));
           UTIL.verticalTouchScroll($("#csvChartLegend"));
           UTIL.verticalTouchScroll($("#theme-list"));
+          UTIL.touchHorizontalScroll($("#letterbox-bottom-picker-content"));
+          UTIL.touchHorizontalScroll($("#letterbox-bottom-picker-results-content"));
         }
       } catch (e) {
         // Error creating touch event
@@ -3950,6 +3973,10 @@
       // New layers have been added, so refresh the layer panel
       if ($(".map-layer-div").is(':visible')) {
         $(".map-layer-div").accordion("refresh");
+        sortLayerCategories();
+        if (enableLetterboxMode) {
+          updateLetterboxContent();
+        }
       }
     }
 
@@ -4058,6 +4085,9 @@
           currentWaypointSliderContentUrl = snaplapseForPresentationSlider.getAsUrlString(waypointJSON.snaplapse.keyframes);
           $themeEntry.data("waypoint-url", currentWaypointSliderContentUrl);
           $("#theme-list").append($themeEntry);
+          if (enableLetterboxMode) {
+            updateLetterboxContent();
+          }
         }
         if (loadedInitialWaypointList) {
           changeHash({theme : ""});
@@ -4252,620 +4282,457 @@
       var show_sp_crude_US = '<td class="sp-crude-select_US"><label for="show-sp-crude_US" name="sp-crude_US"><input type="checkbox" id="show-sp-crude_US" />US Crude Oil flows</label></td>';
 */
 
-      if (enableLetterboxMode) {
-        layer_html += '<div class="base-map-div">';
-        layer_html += ' <table class="base-map-radio" cellspacing="3">';
-        layer_html += '   <tr>';
-        layer_html += landsat_base;
-        layer_html += '   </tr>';
-        layer_html += '   <tr>';
-        layer_html += light_base;
-        layer_html += '   </tr>';
-        layer_html += '   <tr>';
-        layer_html += dark_base;
-        layer_html += '   </tr>';
-        layer_html += ' </table>';
-        layer_html += '</div>';
-        layer_html += '<div class="map-layer-div" style="color: white">';
-        layer_html += '  <table class="map-layer-checkbox" cellspacing="3">';
+      layer_html += '<div class="layers-scroll-vertical">';
+      layer_html += '<div class="map-layer-div map-layer-checkbox">';
 
+      /* BASE LAYERS */
+      layer_html += '  <h3>Base Layers</h3>';
+      layer_html += '  <table id="category-base-layers">';
+      layer_html += '    <tr>';
+      layer_html += landsat_base;
+      layer_html += '    </tr>';
+      layer_html += '    <tr>';
+      layer_html += light_base;
+      layer_html += dark_base;
+      layer_html += '    </tr>';
+      layer_html += '  </table>';
+      /* END BASE LAYERS */
+
+      /* FOREST CATEGORY */
+      layer_html += '  <h3>Forests</h3>';
+      layer_html += '  <table id="category-forests">';
+      layer_html += '    <tr>';
+      layer_html += show_wdpa;
+      layer_html += '    </tr>';
+      layer_html += '    <tr>';
+      layer_html += show_forest_change;
+      layer_html += '    </tr>';
+      layer_html += '    <tr>';
+      layer_html += show_forest_loss_gain;
+      layer_html += '    </tr>';
+      layer_html += '    <tr>';
+      layer_html += show_animated_forest_loss_gain;
+      layer_html += '    </tr>';
+      if (showForestAlerts) {
         layer_html += '    <tr>';
-        layer_html += '      <td style="padding-bottom:16px; padding-right: 10px; text-align: right">';
-        layer_html += '        Forests:';
-        layer_html += '      </td>';
-        layer_html += '      <td style="padding-bottom:16px; padding-right: 70px;">';
-        layer_html += '        <select id="forest-theme" multiple="multiple" size="6">';
-        layer_html += '          <option value="option1" data-id="show-forest-change" data-name="fly" data-credit="Hansen et al">Forest Loss By Year</option>';
-        layer_html += '          <option value="option2" data-id="show-forest-alerts" data-name="fla" data-credit="Hansen et al">Forest Alerts (Overlay)</option>';
-        layer_html += '          <option value="option3" data-id="show-forest-loss-gain" data-name="flg" data-credit="Hansen et al">Forest Loss/Gain</option>';
-        layer_html += '          <option value="option4" data-id="show-forest-alerts-no-overlay" data-name="flano" data-credit="Hansen et al">Forest Alerts (No Overlay)</option>';
-        layer_html += '          <option value="option5" data-id="show-animated-forest-loss-gain" data-name="aflg" data-credit="Hansen et al">Animated Loss/Gain</option>';
-        layer_html += '          <option value="option6" data-id="show-wdpa" data-name="wdpa" data-credit="UNEP-WCMC">Protected Areas</option>';
-        layer_html += '        </select>';
-        layer_html += '        <button class="clear-theme" type="button">Clear <br>Theme</button>';
-        layer_html += '      </td>';
-        layer_html += '      <td style="padding-bottom:16px; padding-right: 10px; text-align: right">';
-        layer_html += '        Energy:';
-        layer_html += '      </td>';
-        layer_html += '      <td style="padding-bottom:16px; padding-right: 70px;">';
-        layer_html += '        <select id="energy-theme" multiple="multiple" size="5">';
-        layer_html += '          <option value="option1" data-id="show-solar-installs" data-name="sp" data-credit="NREL">US Solar PV</option>';
-        layer_html += '          <option value="option2" data-id="show-usgs-windturbine" data-name="wp" data-credit="USGS">US Wind Power</option>';
-        layer_html += '          <option value="option3" data-id="show-drilling" data-name="drl" data-credit="FracTracker, CREATE Lab">US Oil/Gas Drilling</option>';
-        layer_html += '          <option value="option4" data-id="show-global-wind-power" data-name="gwp" data-credit="TheWindPower.net">Global Wind Power</option>';
-        layer_html += '          <option value="option5" data-id="show-viirs" data-name="viirs" data-credit="NOAA">Fires at Night</option>';
-        layer_html += '        </select>';
-        layer_html += '        <button class="clear-theme" type="button">Clear <br>Theme</button>';
-        layer_html += '      </td>';
-        layer_html += '      <td style="padding-bottom:16px; padding-right: 10px; text-align: right">';
-        layer_html += '        Pandemics:';
-        layer_html += '      </td>';
-        layer_html += '      <td style="padding-bottom:16px; padding-right: 70px;">';
-        layer_html += '        <select id="pandemic-theme" multiple="multiple" size="10">';
-        layer_html += '          <option value="option1" data-id="show-zika" data-name="zv" data-credit="LSHTM">Zika</option>';
-        layer_html += '          <option value="option2" data-id="show-dengue" data-name="dv" data-credit="LSHTM">Dengue</option>';
-        layer_html += '          <option value="option3" data-id="show-chiku" data-name="cv" data-credit="LSHTM">Chikungunya</option>';
-        layer_html += '          <option value="option4" data-id="show-ebola-deaths" data-name="ed" data-credit="LSHTM">Ebola Deaths</option>';
-        layer_html += '          <option value="option5" data-id="show-hiv" data-name="hiv" data-credit="LSHTM">HIV Infections</option>';
-        layer_html += '          <option value="option6" data-id="show-obesity" data-name="obesity" data-credit="LSHTM">Obesity</option>';
-        layer_html += '          <option value="option7" data-id="show-vaccine-confidence-q1" data-name="vc1" data-credit="LSHTM">Vaccines & Children</option>';
-        layer_html += '          <option value="option8" data-id="show-vaccine-confidence-q2" data-name="vc2" data-credit="LSHTM">Vaccine Safety</option>';
-        layer_html += '          <option value="option9" data-id="show-vaccine-confidence-q3" data-name="vc3" data-credit="LSHTM">Vaccine Effectiveness</option>';
-        layer_html += '          <option value="option10" data-id="show-vaccine-confidence-q4" data-name="vc4" data-credit="LSHTM">Vaccines & Religion</option>';
-        layer_html += '        </select>';
-        layer_html += '        <button class="clear-theme" type="button">Clear <br>Theme</button>';
-        layer_html += '      </td>';
-        layer_html += '      <td style="position: absolute; margin-top: -7px">';
-        layer_html += '        <label for="show-himawari" name="h8_16">';
-        layer_html += '          <input type="checkbox" id="show-himawari" style=" top: 2px" />Himawari-8';
-        layer_html += '          <span class="credit"> (JMA)</span>';
-        layer_html += '        </label>';
-        layer_html += '      </td>';
-        layer_html += '    </tr>';
-
-        layer_html += '    <tr>';
-        layer_html += '      </td>';
-        layer_html += '      <td style="padding-bottom:16px; padding-right: 10px; text-align: right">';
-        layer_html += '        Climate:';
-        layer_html += '      </td>';
-        layer_html += '      <td style="padding-bottom:16px; padding-right: 70px;">';
-        layer_html += '        <select id="resilience-theme" multiple="multiple" size="6">';
-        layer_html += '          <option value="option1" data-id="show-sea-level-rise-1p0" data-name="slr1" data-credit="Climate Central">Sea Level Rise 2m (1.0 &deg;C)</option>';
-        layer_html += '          <option value="option2" data-id="show-sea-level-rise-1p5" data-name="slr15" data-credit="Climate Central">Sea Level Rise 1.5 &deg;C</option>';
-        layer_html += '          <option value="option3" data-id="show-sea-level-rise-2p0" data-name="slr2" data-credit="Climate Central">Sea Level Rise 2.0 &deg;C</option>';
-        layer_html += '          <option value="option4" data-id="show-sea-level-rise-4p0" data-name="slr4" data-credit="Climate Central">Sea Level Rise 4.0 &deg;C</option>';
-        layer_html += '          <option value="option5" data-id="show-ndvi-anomaly" data-name="ndvia" data-credit="USGS">Vegetation Index Reduction</option>';
-        layer_html += '          <option value="option6" data-id="show-vsi" data-name="vsi" data-credit="Oxford Martin">Vegetation Sensitivity Index</option>';
-        layer_html += '        </select>';
-        layer_html += '        <button class="clear-theme" type="button">Clear <br>Theme</button>';
-        layer_html += '      </td>';
-        layer_html += '      <td style="padding-bottom:16px; padding-right: 10px; text-align: right">';
-        layer_html += '        Nutrition:';
-        layer_html += '      </td>';
-        layer_html += '      <td style="padding-bottom:16px; padding-right: 70px;">';
-        layer_html += '        <select id="nutrition-theme" multiple="multiple" size="4">';
-        layer_html += '          <option value="option1" data-id="show-health-impact-rcp2p6" data-name="hi-rcp2p6" data-credit="Oxford Martin">Nutritional Deficiency RCP2.6</option>';
-        layer_html += '          <option value="option2" data-id="show-health-impact-rcp4p5" data-name="hi-rcp4p5" data-credit="Oxford Martin">Nutritional Deficiency RCP4.5</option>';
-        layer_html += '          <option value="option3" data-id="show-health-impact-rcp6p0" data-name="hi-rcp6p0" data-credit="Oxford Martin">Nutritional Deficiency RCP6.0</option>';
-        layer_html += '          <option value="option4" data-id="show-health-impact-rcp8p5" data-name="hi-rcp8p5" data-credit="Oxford Martin">Nutritional Deficiency RCP8.5</option>';
-        layer_html += '        </select>';
-        layer_html += '        <button class="clear-theme" type="button">Clear <br>Theme</button>';
-        layer_html += '      <td style="padding-bottom:16px; padding-right: 10px; text-align: right">';
-        layer_html += '        Water:';
-        layer_html += '      </td>';
-        layer_html += '      <td style="padding-bottom:16px; padding-right: 70px;">';
-        layer_html += '        <select id="water-theme" multiple="multiple" size="2">';
-        layer_html += '          <option value="option1" data-id="show-water-occurrence" data-name="wo" data-credit="JRC">Water Occurrence</option>';
-        layer_html += '          <option value="option2" data-id="show-water-change" data-name="wc" data-credit="JRC">Water Change</option>';
-        layer_html += '        </select>';
-        layer_html += '        <button class="clear-theme" type="button">Clear <br>Theme</button>';
-        layer_html += '      </td>';
-        layer_html += '      <td style="position: absolute; margin-top: -7px">';
-        layer_html += '        <label for="show-gtd" name="gtd">';
-        layer_html += '          <input type="checkbox" id="show-gtd" style=" top: 2px" />Global Terrorism <br> Database';
-        layer_html += '          <span class="credit"> (UMD)</span>';
-        layer_html += '        </label>';
-        layer_html += '      </td>';
-        layer_html += '    </tr>';
-
-        layer_html += '    <tr>';
-        layer_html += '      <td style="padding-bottom:16px; padding-right: 10px; text-align: right">';
-        layer_html += '        Coral:';
-        layer_html += '      </td>';
-        layer_html += '      <td style="padding-bottom:16px; padding-right: 70px;">';
-        layer_html += '        <select id="coral-theme" multiple="multiple" size="2">';
-        layer_html += '          <option value="option1" data-id="show-coral" data-name="cb" data-credit="NOAA, UNEP-WCMC">Coral Bleaching</option>';
-        layer_html += '          <option value="option2" data-id="show-coral-bleaching-alerts" data-name="crw" data-credit="NOAA, UNEP-WCMC">Coral Reef Watch</option>';
-        layer_html += '        </select>';
-        layer_html += '        <button class="clear-theme" type="button">Clear <br>Theme</button>';
-        layer_html += '      </td>';
-        layer_html += '      <td style="padding-bottom:16px; padding-right: 10px; text-align: right">';
-        layer_html += '        Refugees:';
-        layer_html += '      </td>';
-        layer_html += '      <td style="padding-bottom:16px; padding-right: 70px;">';
-        layer_html += '        <select id="refugee-theme" multiple="multiple" size="2">';
-        layer_html += '          <option value="option1" data-id="show-monthly-refugees" data-name="mmr" data-credit="UNHCR">Monthly Mediterranean Refugees</option>';
-        layer_html += '          <option value="option2" data-id="show-annual-refugees" data-name="ar" data-credit="UNHCR">Annual Refugees</option>';
-        layer_html += '          <option value="option3" data-id="show-annual-returns" data-name="arr" data-credit="UNHCR">Annual Returns</option>';
-        layer_html += '        </select>';
-        layer_html += '        <button class="clear-theme" type="button">Clear <br>Theme</button>';
-        layer_html += '      </td>';
-        layer_html += '      <td style="padding-bottom:16px; padding-right: 10px; text-align: right">';
-        layer_html += '        Urbanization:';
-        layer_html += '      </td>';
-        layer_html += '      <td style="padding-bottom:16px; padding-right: 70px;">';
-        layer_html += '        <select id="urbanization-theme" multiple="multiple" size="2">';
-        layer_html += '          <option value="option1" data-id="show-lights-at-night" data-name="lan" data-credit="NOAA, Google">Lights at Night</option>';
-        layer_html += '          <option value="option2" data-id="show-urban-fragility" data-name="uf" data-credit="Igarape Institute">Urban Fragility</option>';
-        layer_html += '        </select>';
-        layer_html += '        <button class="clear-theme" type="button">Clear <br>Theme</button>';
-        layer_html += '      </td>';
-        layer_html += '      <td style="position: absolute; margin-top: -7px">';
-        layer_html += '        <label for="show-lodes" name="lodes">';
-        layer_html += '          <input type="checkbox" id="show-lodes" style=" top: 2px" />LODES';
-        layer_html += '          <span class="credit"> (US Census)</span>';
-        layer_html += '        </label>';
-        layer_html += '      </td>';
-        layer_html += '    </tr>';
-
-        // ## 5 ##
-        //// Add layers to letterbox UI panel ////
-        //
-        layer_html += '  </table>';
-        layer_html += '</div>';
-      } else {
-        layer_html += '<div class="layers-scroll-vertical">';
-        layer_html += '<div class="map-layer-div map-layer-checkbox">';
-
-        /* BASE LAYERS */
-        layer_html += '  <h3>Base Layers</h3>';
-        layer_html += '  <table id="category-base-layers">';
-        layer_html += '    <tr>';
-        layer_html += landsat_base;
+        layer_html += show_forest_alerts;
         layer_html += '    </tr>';
         layer_html += '    <tr>';
-        layer_html += light_base;
-        layer_html += dark_base;
+        layer_html += show_forest_alert_no_overlay;
         layer_html += '    </tr>';
-        layer_html += '  </table>';
-        /* END BASE LAYERS */
-
-        /* FOREST CATEGORY */
-        layer_html += '  <h3>Forests</h3>';
-        layer_html += '  <table id="category-forests">';
-        layer_html += '    <tr>';
-        layer_html += show_wdpa;
-        layer_html += '    </tr>';
-        layer_html += '    <tr>';
-        layer_html += show_forest_change;
-        layer_html += '    </tr>';
-        layer_html += '    <tr>';
-        layer_html += show_forest_loss_gain;
-        layer_html += '    </tr>';
-        layer_html += '    <tr>';
-        layer_html += show_animated_forest_loss_gain;
-        layer_html += '    </tr>';
-        if (showForestAlerts) {
-          layer_html += '    <tr>';
-          layer_html += show_forest_alerts;
-          layer_html += '    </tr>';
-          layer_html += '    <tr>';
-          layer_html += show_forest_alert_no_overlay;
-          layer_html += '    </tr>';
-        }
-        layer_html += '  </table>';
-        /* END FOREST CATEGORY */
-
-        /* WATER CATEGORY */
-        layer_html += '  <h3>Water</h3>';
-        layer_html += '  <table id="category-water">';
-        if (showWaterOccurrence) {
-          layer_html += '   <tr>';
-          layer_html += show_water_occurrence;
-          layer_html += '   </tr>';
-        }
-        if (showWaterChange) {
-          layer_html += '   <tr>';
-          layer_html += show_water_change;
-          layer_html += '   </tr>';
-        }
-        layer_html += '  </table>';
-        /* END WATER CATEGORY */
-
-        /* CLIMATE CATEGORY */
-        layer_html += '  <h3>Climate</h3>';
-        layer_html += '  <table id="category-climate">';
-        if (showSeaLevelRise) {
-          layer_html += '    <tr>';
-          layer_html += show_sea_level_rise_4p0;
-          layer_html += '    </tr>';
-        }
-        if (showNdviAnomaly) {
-          layer_html += '    <tr>';
-          layer_html += show_ndvi_anomaly;
-          layer_html += '    </tr>';
-        }
-        if (showVsi) {
-          layer_html += '   <tr>';
-          layer_html += show_vsi;
-          layer_html += '   </tr>';
-        }
-        if (showBerkeleyEarthTemperatureAnomaly) {
-          layer_html += '    <tr>';
-          layer_html += show_berkeley_earth_temperature_anomaly;
-          layer_html += '    </tr>';
-        }
-        layer_html += '  </table>';
-        /* END CLIMATE CATEGORY */
-
-        /* POLLUTION CATEGORY */
-        layer_html += '  <h3>Pollution</h3>';
-        layer_html += '  <table id="category-pollution">';
-        if (showOmiNo2) {
-          layer_html += '   <tr>';
-          layer_html += show_omi_no2;
-          layer_html += '   </tr>';
-        }
-        if (showBePm25) {
-          layer_html += '   <tr>';
-          layer_html += show_be_pm25;
-          layer_html += '   </tr>';
-        }
-        if (showTsip) {
-          layer_html += '    <tr>';
-          layer_html += show_tsip;
-          layer_html += '    </tr>';
-        }
-        if (showAnnualGlobalPm25) {
-          layer_html += '    <tr>';
-          layer_html += show_annual_global_pm25;
-          layer_html += '    </tr>';
-        }
-        layer_html += '  </table>';
-        /* END POLLUTION CATEGORY */
-
-        /* CORAL CATEGORY */
-        layer_html += '  <h3>Coral</h3>';
-        layer_html += '  <table id="category-coral">';
-        if (showCoral) {
-          layer_html += '    <tr>';
-          layer_html += show_coral;
-          layer_html += '    </tr>';
-        }
-        if (showCoralBleaching) {
-          layer_html += '    <tr>';
-          layer_html += show_coral_bleaching_alerts;
-          layer_html += '    </tr>';
-        }
-        layer_html += '  </table>';
-        /* END CORAL CATEGORY */
-
-        /* ENERGY CATEGORY */
-        layer_html += '  <h3>Energy</h3>';
-        layer_html += '  <table id="category-energy">';
-        layer_html += '    <tr>';
-        layer_html += show_solar_installs;
-        layer_html += '    </tr>';
-        layer_html += '    <tr>';
-        layer_html += show_usgs_windturbine;
-        layer_html += '    </tr>';
-        if (showGlobalWindPower) {
-          layer_html += '    <tr>';
-          layer_html += show_global_wind_power;
-          layer_html += '    </tr>';
-        }
-        if (showUSDrilling) {
-          layer_html += '    <tr>';
-          layer_html += show_drilling;
-          layer_html += '    </tr>';
-        }
-        if (showViirs) {
-          layer_html += '    <tr>';
-          layer_html += show_viirs;
-          layer_html += '    </tr>';
-        }
-        if (showIrena) {
-          layer_html += '    <tr>';
-          layer_html += show_irena_solar;
-          layer_html += '    </tr>';
-          layer_html += '    <tr>';
-          layer_html += show_irena_wind;
-          layer_html += '    </tr>';
-        }
-        if (showSpCrude) {
-          layer_html += '    <tr>';
-          layer_html += show_sp_crude;
-          layer_html += '    </tr>';
-          layer_html += '    <tr>';
-          layer_html += show_sp_crude_Oceania;
-          layer_html += '    </tr>';
-          layer_html += '    <tr>';
-          layer_html += show_sp_crude_AG;
-          layer_html += '    </tr>';
-          layer_html += '    <tr>';
-          layer_html += show_sp_crude_WAF;
-          layer_html += '    </tr>';
-          layer_html += '    <tr>';
-          layer_html += show_sp_crude_MedNAF;
-          layer_html += '    </tr>';
-          layer_html += '    <tr>';
-          layer_html += show_sp_crude_Urals;
-          layer_html += '    </tr>';
-          layer_html += '    <tr>';
-          layer_html += show_sp_crude_USGC;
-          layer_html += '    </tr>';
-          layer_html += '    <tr>';
-          layer_html += show_sp_crude_LatAM;
-          layer_html += '    </tr>';
-          layer_html += '    <tr>';
-          layer_html += show_sp_crude_NS;
-          layer_html += '    </tr>';          /*
-          layer_html += '    <tr>';
-          layer_html += show_sp_crude_WAF;
-          layer_html += '    </tr>';
-          layer_html += '    <tr>';
-          layer_html += show_sp_crude_NAF;
-          layer_html += '    </tr>';
-          layer_html += '    <tr>';
-          layer_html += show_sp_crude_ME;
-          layer_html += '    </tr>';
-          layer_html += '    <tr>';
-          layer_html += show_sp_crude_US;
-          layer_html += '    </tr>';
-          */
-        }
-
-        layer_html += '  </table>';
-        /* END ENERGY CATEGORY */
-
-        /* NUTRITION CATEGORY */
-        layer_html += '  <h3>Nutrition</h3>';
-        layer_html += '  <table id="category-nutrition">';
-        if (showHealthImpact) {
-          layer_html += '    <tr>';
-          layer_html += show_health_impact_rcp2p6;
-          layer_html += '    </tr>';
-          layer_html += '    <tr>';
-          layer_html += show_health_impact_rcp4p5;
-          layer_html += '    </tr>';
-          layer_html += '    <tr>';
-          layer_html += show_health_impact_rcp6p0;
-          layer_html += '    </tr>';
-          layer_html += '    <tr>';
-          layer_html += show_health_impact_rcp8p5;
-          layer_html += '    </tr>';
-        }
-        layer_html += '  </table>';
-        /* END NUTRITION CATEGORY */
-
-        /* REFUGEE CATEGORY */
-        layer_html += '  <h3>Forced Displacement</h3>';
-        layer_html += '  <table id="category-forced-displacement">';
-        if (showMonthlyRefugees) {
-          layer_html += '    <tr>';
-          layer_html += show_monthly_refugees;
-          layer_html += '    </tr>';
-        }
-        if (showAnnualRefugees) {
-          layer_html += '    <tr>';
-          layer_html += show_annual_refugees;
-          layer_html += '    </tr>';
-        }
-        if (showAnnualReturns) {
-          layer_html += '    <tr>';
-          layer_html += show_annual_returns;
-          layer_html += '    </tr>';
-        }
-        if (showIomIdp) {
-          layer_html += '   <tr>';
-          layer_html += show_iraq_iom_idp;
-          layer_html += '   </tr>';
-          layer_html += '   <tr>';
-          layer_html += show_syria_iom_idp;
-          layer_html += '   </tr>';
-          layer_html += '   <tr>';
-          layer_html += show_libya_iom_idp;
-          layer_html += '   </tr>';
-          layer_html += '   <tr>';
-          layer_html += show_yemen_iom_idp;
-          layer_html += '   </tr>';
-          layer_html += '   <tr>';
-          layer_html += show_iraq_iom_return;
-          layer_html += '   </tr>';
-          layer_html += '   <tr>';
-          layer_html += show_syria_iom_return;
-          layer_html += '   </tr>';
-          layer_html += '   <tr>';
-          layer_html += show_libya_iom_return;
-          layer_html += '   </tr>';
-          layer_html += '   <tr>';
-          layer_html += show_yemen_iom_return;
-          layer_html += '   </tr>';
-        }
-        layer_html += '  </table>';
-        /* END REFUGEE CATEGORY */
-
-        /* PANDEMICS CATEGORY */
-        layer_html += '  <h3>Pandemics</h3>';
-        layer_html += '  <table id="category-pandemics">';
-        if (showZika) {
-          layer_html += '    <tr>';
-          layer_html += show_zika;
-          layer_html += '    </tr>';
-        }
-        if (showDengue) {
-          layer_html += '    <tr>';
-          layer_html += show_dengue;
-          layer_html += '    </tr>';
-        }
-        if (showChiku) {
-          layer_html += '    <tr>';
-          layer_html += show_chiku;
-          layer_html += '    </tr>';
-        }
-        if (showEbola) {
-          layer_html += '    <tr>';
-          layer_html += show_ebola_deaths;
-          layer_html += '    </tr>';
-          layer_html += '    <tr>';
-          layer_html += show_ebola_cases;
-          layer_html += '    </tr>';
-          layer_html += '    <tr>';
-          layer_html += show_ebola_new_cases;
-          layer_html += '    </tr>';
-        }
-        if (showHiv) {
-          layer_html += '    <tr>';
-          layer_html += show_hiv;
-          layer_html += '    </tr>';
-        }
-        if (showObesity) {
-          layer_html += '    <tr>';
-          layer_html += show_obesity;
-          layer_html += '    </tr>';
-        }
-        if (showVaccineConfidence) {
-          layer_html += '    <tr>';
-          layer_html += show_vaccine_confidence_q1;
-          layer_html += '    </tr>';
-          layer_html += '    <tr>';
-          layer_html += show_vaccine_confidence_q2;
-          layer_html += '    </tr>';
-          layer_html += '    <tr>';
-          layer_html += show_vaccine_confidence_q3;
-          layer_html += '    </tr>';
-          layer_html += '    <tr>';
-          layer_html += show_vaccine_confidence_q4;
-          layer_html += '    </tr>';
-        }
-        layer_html += '  </table>';
-        /* END PANDEMICS CATEGORY */
-
-        /* URBANIZATION CATEGORY */
-        layer_html += '  <h3>Urbanization</h3>';
-        layer_html += '  <table id="category-urbanization">';
-        if (showLightsAtNight) {
-          layer_html += '    <tr>';
-          layer_html += show_lights_at_night;
-          layer_html += '    </tr>';
-        }
-        if (showLightsAtNight2012) {
-          layer_html += '    <tr>';
-          layer_html += show_lights_at_night_2012;
-          layer_html += '    </tr>';
-        }
-        if (showLightsAtNight2016) {
-          layer_html += '    <tr>';
-          layer_html += show_lights_at_night_2016;
-          layer_html += '    </tr>';
-        }
-        if (showUrbanFragility) {
-          layer_html += '    <tr>';
-          layer_html += show_urban_fragility;
-          layer_html += '    </tr>';
-        }
-        if (showExpandingCities) {
-          layer_html += '    <tr>';
-          layer_html += show_expanding_cities;
-          layer_html += '    </tr>';
-        }
-        layer_html += '  </table>';
-        /* END URBANIZATION CATEGORY */
-
-        /* CHINA INFRASTRUCTURE CATEGORY */
-        if (showChinaInfrastructure) {
-          layer_html += '  <h3 style="display: none">China Infrastructure</h3>';
-          layer_html += '  <table id="category-ci" style="display: none">';
-          layer_html += '    <tr>';
-          layer_html += show_china_aviation;
-          layer_html += '    </tr>';
-          layer_html += '    <tr>';
-          layer_html += show_china_power_plants;
-          layer_html += '    </tr>';
-          layer_html += '    <tr>';
-          layer_html += show_china_reservoirs;
-          layer_html += '    </tr>';
-          layer_html += '    <tr>';
-          layer_html += show_china_waste_treatment_plants;
-          layer_html += '    </tr>';
-          layer_html += '  </table>';
-        }
-        /* END CHINA INFRASTRUCTURE CATEGORY */
-
-        /* US DEMOGRAPHICS CATEGORY */
-        if (showLodes) {
-          layer_html += '  <h3>US Demographics</h3>';
-          layer_html += '  <table id="category-us-demographics">';
-          layer_html += '    <tr>';
-          layer_html += show_lodes;
-          layer_html += '    </tr>';
-          layer_html += '  </table>';
-        }
-        /* END US DEMOGRAPHICS CATEGORY */
-
-        /* CARBON PRICE RISK CATEGORY */
-        if (showCarbonPriceRisk) {
-          layer_html += '  <h3>Carbon Price Risk</h3>';
-          layer_html += '  <table id="category-carbon-price-risk">';
-          layer_html += '    <tr>';
-          layer_html += show_carbon_price_risk;
-          layer_html += '    </tr>';
-          for (var i = 0; i < carbonPriceRisk.sectors.length; i++) {
-            layer_html += '    <tr>';
-            layer_html += carbonPriceRisk.getSelect(i);
-            layer_html += '    </tr>';
-          }
-          layer_html += '  </table>';
-        }
-        /* END CARBON PRICE CATEGORY */
-
-        /* MISC CATEGORY */
-        layer_html += '  <h3>Other</h3>';
-        layer_html += '  <table id="other_table">';
-        if (showGtd) {
-          layer_html += '    <tr>';
-          layer_html += show_gtd;
-          layer_html += '    </tr>';
-        }
-        if (showUppsalaConflict) {
-          layer_html += '    <tr>';
-          layer_html += show_uppsala_conflict;
-          layer_html += '    </tr>';
-        }
-        if (showCumulativeActiveMining) {
-          layer_html += '    <tr>';
-          layer_html += show_cumulative_active_mining_layer;
-          layer_html += '    </tr>';
-        }
-        if (showHimawari8) {
-          layer_html += '    <tr>';
-          layer_html += show_himawari;
-          layer_html += '    </tr>';
-        }
-        if (showGoes16) {
-          layer_html += '    <tr>';
-          layer_html += show_goes16;
-          layer_html += '    </tr>';
-        }
-        if (showDscovr) {
-          layer_html += '    <tr>';
-          layer_html += show_dscovr;
-          layer_html += '    </tr>';
-        }
-        if (showCsvLayers) {
-          // Custom CSV Layers
-          layer_html += '  <tbody id="csvlayers_table">';
-          layer_html += '  </tbody>';
-        }
-        layer_html += '  </table>';
-        /* END MISC CATEGORY */
-
-        // ## 5 ##
-        //// Add additional layers to side UI panel ////
-        //
-
-        layer_html += '</div>';
       }
+      layer_html += '  </table>';
+      /* END FOREST CATEGORY */
+
+      /* WATER CATEGORY */
+      layer_html += '  <h3>Water</h3>';
+      layer_html += '  <table id="category-water">';
+      if (showWaterOccurrence) {
+        layer_html += '   <tr>';
+        layer_html += show_water_occurrence;
+        layer_html += '   </tr>';
+      }
+      if (showWaterChange) {
+        layer_html += '   <tr>';
+        layer_html += show_water_change;
+        layer_html += '   </tr>';
+      }
+      layer_html += '  </table>';
+      /* END WATER CATEGORY */
+
+      /* CLIMATE CATEGORY */
+      layer_html += '  <h3>Climate</h3>';
+      layer_html += '  <table id="category-climate">';
+      if (showSeaLevelRise) {
+        layer_html += '    <tr>';
+        layer_html += show_sea_level_rise_4p0;
+        layer_html += '    </tr>';
+      }
+      if (showNdviAnomaly) {
+        layer_html += '    <tr>';
+        layer_html += show_ndvi_anomaly;
+        layer_html += '    </tr>';
+      }
+      if (showVsi) {
+        layer_html += '   <tr>';
+        layer_html += show_vsi;
+        layer_html += '   </tr>';
+      }
+      if (showBerkeleyEarthTemperatureAnomaly) {
+        layer_html += '    <tr>';
+        layer_html += show_berkeley_earth_temperature_anomaly;
+        layer_html += '    </tr>';
+      }
+      layer_html += '  </table>';
+      /* END CLIMATE CATEGORY */
+
+      /* POLLUTION CATEGORY */
+      layer_html += '  <h3>Pollution</h3>';
+      layer_html += '  <table id="category-pollution">';
+      if (showOmiNo2) {
+        layer_html += '   <tr>';
+        layer_html += show_omi_no2;
+        layer_html += '   </tr>';
+      }
+      if (showBePm25) {
+        layer_html += '   <tr>';
+        layer_html += show_be_pm25;
+        layer_html += '   </tr>';
+      }
+      if (showTsip) {
+        layer_html += '    <tr>';
+        layer_html += show_tsip;
+        layer_html += '    </tr>';
+      }
+      if (showAnnualGlobalPm25) {
+        layer_html += '    <tr>';
+        layer_html += show_annual_global_pm25;
+        layer_html += '    </tr>';
+      }
+      layer_html += '  </table>';
+      /* END POLLUTION CATEGORY */
+
+      /* CORAL CATEGORY */
+      layer_html += '  <h3>Coral</h3>';
+      layer_html += '  <table id="category-coral">';
+      if (showCoral) {
+        layer_html += '    <tr>';
+        layer_html += show_coral;
+        layer_html += '    </tr>';
+      }
+      if (showCoralBleaching) {
+        layer_html += '    <tr>';
+        layer_html += show_coral_bleaching_alerts;
+        layer_html += '    </tr>';
+      }
+      layer_html += '  </table>';
+      /* END CORAL CATEGORY */
+
+      /* ENERGY CATEGORY */
+      layer_html += '  <h3>Energy</h3>';
+      layer_html += '  <table id="category-energy">';
+      layer_html += '    <tr>';
+      layer_html += show_solar_installs;
+      layer_html += '    </tr>';
+      layer_html += '    <tr>';
+      layer_html += show_usgs_windturbine;
+      layer_html += '    </tr>';
+      if (showGlobalWindPower) {
+        layer_html += '    <tr>';
+        layer_html += show_global_wind_power;
+        layer_html += '    </tr>';
+      }
+      if (showUSDrilling) {
+        layer_html += '    <tr>';
+        layer_html += show_drilling;
+        layer_html += '    </tr>';
+      }
+      if (showViirs) {
+        layer_html += '    <tr>';
+        layer_html += show_viirs;
+        layer_html += '    </tr>';
+      }
+      if (showIrena) {
+        layer_html += '    <tr>';
+        layer_html += show_irena_solar;
+        layer_html += '    </tr>';
+        layer_html += '    <tr>';
+        layer_html += show_irena_wind;
+        layer_html += '    </tr>';
+      }
+      if (showSpCrude) {
+        layer_html += '    <tr>';
+        layer_html += show_sp_crude;
+        layer_html += '    </tr>';
+        layer_html += '    <tr>';
+        layer_html += show_sp_crude_Oceania;
+        layer_html += '    </tr>';
+        layer_html += '    <tr>';
+        layer_html += show_sp_crude_AG;
+        layer_html += '    </tr>';
+        layer_html += '    <tr>';
+        layer_html += show_sp_crude_WAF;
+        layer_html += '    </tr>';
+        layer_html += '    <tr>';
+        layer_html += show_sp_crude_MedNAF;
+        layer_html += '    </tr>';
+        layer_html += '    <tr>';
+        layer_html += show_sp_crude_Urals;
+        layer_html += '    </tr>';
+        layer_html += '    <tr>';
+        layer_html += show_sp_crude_USGC;
+        layer_html += '    </tr>';
+        layer_html += '    <tr>';
+        layer_html += show_sp_crude_LatAM;
+        layer_html += '    </tr>';
+        layer_html += '    <tr>';
+        layer_html += show_sp_crude_NS;
+        layer_html += '    </tr>';          /*
+        layer_html += '    <tr>';
+        layer_html += show_sp_crude_WAF;
+        layer_html += '    </tr>';
+        layer_html += '    <tr>';
+        layer_html += show_sp_crude_NAF;
+        layer_html += '    </tr>';
+        layer_html += '    <tr>';
+        layer_html += show_sp_crude_ME;
+        layer_html += '    </tr>';
+        layer_html += '    <tr>';
+        layer_html += show_sp_crude_US;
+        layer_html += '    </tr>';
+        */
+      }
+
+      layer_html += '  </table>';
+      /* END ENERGY CATEGORY */
+
+      /* NUTRITION CATEGORY */
+      layer_html += '  <h3>Nutrition</h3>';
+      layer_html += '  <table id="category-nutrition">';
+      if (showHealthImpact) {
+        layer_html += '    <tr>';
+        layer_html += show_health_impact_rcp2p6;
+        layer_html += '    </tr>';
+        layer_html += '    <tr>';
+        layer_html += show_health_impact_rcp4p5;
+        layer_html += '    </tr>';
+        layer_html += '    <tr>';
+        layer_html += show_health_impact_rcp6p0;
+        layer_html += '    </tr>';
+        layer_html += '    <tr>';
+        layer_html += show_health_impact_rcp8p5;
+        layer_html += '    </tr>';
+      }
+      layer_html += '  </table>';
+      /* END NUTRITION CATEGORY */
+
+      /* REFUGEE CATEGORY */
+      layer_html += '  <h3>Forced Displacement</h3>';
+      layer_html += '  <table id="category-forced-displacement">';
+      if (showMonthlyRefugees) {
+        layer_html += '    <tr>';
+        layer_html += show_monthly_refugees;
+        layer_html += '    </tr>';
+      }
+      if (showAnnualRefugees) {
+        layer_html += '    <tr>';
+        layer_html += show_annual_refugees;
+        layer_html += '    </tr>';
+      }
+      if (showAnnualReturns) {
+        layer_html += '    <tr>';
+        layer_html += show_annual_returns;
+        layer_html += '    </tr>';
+      }
+      if (showIomIdp) {
+        layer_html += '   <tr>';
+        layer_html += show_iraq_iom_idp;
+        layer_html += '   </tr>';
+        layer_html += '   <tr>';
+        layer_html += show_syria_iom_idp;
+        layer_html += '   </tr>';
+        layer_html += '   <tr>';
+        layer_html += show_libya_iom_idp;
+        layer_html += '   </tr>';
+        layer_html += '   <tr>';
+        layer_html += show_yemen_iom_idp;
+        layer_html += '   </tr>';
+        layer_html += '   <tr>';
+        layer_html += show_iraq_iom_return;
+        layer_html += '   </tr>';
+        layer_html += '   <tr>';
+        layer_html += show_syria_iom_return;
+        layer_html += '   </tr>';
+        layer_html += '   <tr>';
+        layer_html += show_libya_iom_return;
+        layer_html += '   </tr>';
+        layer_html += '   <tr>';
+        layer_html += show_yemen_iom_return;
+        layer_html += '   </tr>';
+      }
+      layer_html += '  </table>';
+      /* END REFUGEE CATEGORY */
+
+      /* PANDEMICS CATEGORY */
+      layer_html += '  <h3>Pandemics</h3>';
+      layer_html += '  <table id="category-pandemics">';
+      if (showZika) {
+        layer_html += '    <tr>';
+        layer_html += show_zika;
+        layer_html += '    </tr>';
+      }
+      if (showDengue) {
+        layer_html += '    <tr>';
+        layer_html += show_dengue;
+        layer_html += '    </tr>';
+      }
+      if (showChiku) {
+        layer_html += '    <tr>';
+        layer_html += show_chiku;
+        layer_html += '    </tr>';
+      }
+      if (showEbola) {
+        layer_html += '    <tr>';
+        layer_html += show_ebola_deaths;
+        layer_html += '    </tr>';
+        layer_html += '    <tr>';
+        layer_html += show_ebola_cases;
+        layer_html += '    </tr>';
+        layer_html += '    <tr>';
+        layer_html += show_ebola_new_cases;
+        layer_html += '    </tr>';
+      }
+      if (showHiv) {
+        layer_html += '    <tr>';
+        layer_html += show_hiv;
+        layer_html += '    </tr>';
+      }
+      if (showObesity) {
+        layer_html += '    <tr>';
+        layer_html += show_obesity;
+        layer_html += '    </tr>';
+      }
+      if (showVaccineConfidence) {
+        layer_html += '    <tr>';
+        layer_html += show_vaccine_confidence_q1;
+        layer_html += '    </tr>';
+        layer_html += '    <tr>';
+        layer_html += show_vaccine_confidence_q2;
+        layer_html += '    </tr>';
+        layer_html += '    <tr>';
+        layer_html += show_vaccine_confidence_q3;
+        layer_html += '    </tr>';
+        layer_html += '    <tr>';
+        layer_html += show_vaccine_confidence_q4;
+        layer_html += '    </tr>';
+      }
+      layer_html += '  </table>';
+      /* END PANDEMICS CATEGORY */
+
+      /* URBANIZATION CATEGORY */
+      layer_html += '  <h3>Urbanization</h3>';
+      layer_html += '  <table id="category-urbanization">';
+      if (showLightsAtNight) {
+        layer_html += '    <tr>';
+        layer_html += show_lights_at_night;
+        layer_html += '    </tr>';
+      }
+      if (showLightsAtNight2012) {
+        layer_html += '    <tr>';
+        layer_html += show_lights_at_night_2012;
+        layer_html += '    </tr>';
+      }
+      if (showLightsAtNight2016) {
+        layer_html += '    <tr>';
+        layer_html += show_lights_at_night_2016;
+        layer_html += '    </tr>';
+      }
+      if (showUrbanFragility) {
+        layer_html += '    <tr>';
+        layer_html += show_urban_fragility;
+        layer_html += '    </tr>';
+      }
+      if (showExpandingCities) {
+        layer_html += '    <tr>';
+        layer_html += show_expanding_cities;
+        layer_html += '    </tr>';
+      }
+      layer_html += '  </table>';
+      /* END URBANIZATION CATEGORY */
+
+      /* CHINA INFRASTRUCTURE CATEGORY */
+      if (showChinaInfrastructure) {
+        layer_html += '  <h3 style="display: none">China Infrastructure</h3>';
+        layer_html += '  <table id="category-ci" style="display: none">';
+        layer_html += '    <tr>';
+        layer_html += show_china_aviation;
+        layer_html += '    </tr>';
+        layer_html += '    <tr>';
+        layer_html += show_china_power_plants;
+        layer_html += '    </tr>';
+        layer_html += '    <tr>';
+        layer_html += show_china_reservoirs;
+        layer_html += '    </tr>';
+        layer_html += '    <tr>';
+        layer_html += show_china_waste_treatment_plants;
+        layer_html += '    </tr>';
+        layer_html += '  </table>';
+      }
+      /* END CHINA INFRASTRUCTURE CATEGORY */
+
+      /* US DEMOGRAPHICS CATEGORY */
+      if (showLodes) {
+        layer_html += '  <h3>US Demographics</h3>';
+        layer_html += '  <table id="category-us-demographics">';
+        layer_html += '    <tr>';
+        layer_html += show_lodes;
+        layer_html += '    </tr>';
+        layer_html += '  </table>';
+      }
+      /* END US DEMOGRAPHICS CATEGORY */
+
+      /* CARBON PRICE RISK CATEGORY */
+      if (showCarbonPriceRisk) {
+        layer_html += '  <h3>Carbon Price Risk</h3>';
+        layer_html += '  <table id="category-carbon-price-risk">';
+        layer_html += '    <tr>';
+        layer_html += show_carbon_price_risk;
+        layer_html += '    </tr>';
+        for (var i = 0; i < carbonPriceRisk.sectors.length; i++) {
+          layer_html += '    <tr>';
+          layer_html += carbonPriceRisk.getSelect(i);
+          layer_html += '    </tr>';
+        }
+        layer_html += '  </table>';
+      }
+      /* END CARBON PRICE CATEGORY */
+
+      /* MISC CATEGORY */
+      layer_html += '  <h3>Other</h3>';
+      layer_html += '  <table id="other_table">';
+      if (showGtd) {
+        layer_html += '    <tr>';
+        layer_html += show_gtd;
+        layer_html += '    </tr>';
+      }
+      if (showUppsalaConflict) {
+        layer_html += '    <tr>';
+        layer_html += show_uppsala_conflict;
+        layer_html += '    </tr>';
+      }
+      if (showCumulativeActiveMining) {
+        layer_html += '    <tr>';
+        layer_html += show_cumulative_active_mining_layer;
+        layer_html += '    </tr>';
+      }
+      if (showHimawari8) {
+        layer_html += '    <tr>';
+        layer_html += show_himawari;
+        layer_html += '    </tr>';
+      }
+      if (showGoes16) {
+        layer_html += '    <tr>';
+        layer_html += show_goes16;
+        layer_html += '    </tr>';
+      }
+      if (showDscovr) {
+        layer_html += '    <tr>';
+        layer_html += show_dscovr;
+        layer_html += '    </tr>';
+      }
+      if (showCsvLayers) {
+        // Custom CSV Layers
+        layer_html += '  <tbody id="csvlayers_table">';
+        layer_html += '  </tbody>';
+      }
+      layer_html += '  </table>';
+      /* END MISC CATEGORY */
+
+      // ## 5 ##
+      //// Add additional layers to side UI panel ////
+      //
+
+      layer_html += '</div>';
 
       // Extras menu
       if (showExtrasMenu) {
@@ -5016,95 +4883,12 @@
       legend_html += '</div>';
       legend_html += '</div>';
 
-      if (enableLetterboxMode) {
-        $(layer_html).appendTo($("#content"));
-        $(legend_html).appendTo($("#content"));
-        $("#presentation-slider-selection, .base-map-radio, .map-layer-checkbox, .extras-selector, .presentationSlider, #layers-legend, .customInstructions, .player, .share, #presentation-slider-selection, .current-location-text, #layers-list").addClass("letterbox");
-        $(".base-map-div, .map-layer-div, .extras-selector-div").addClass("top-panel letterbox");
-        $(".clear-theme").on("click", function() {
-          var selectedTheme = $(this).prev().prop('id').replace("_ms", "-selection");
-          var selectedLayers = $("#" + selectedTheme).find("input:checked");
-          selectedLayers.each(function() {
-            if ($(this).prop('checked')) $(this).trigger("click");
-          });
-        });
-        // Theme dropdowns
-        $("#forest-theme").multiselect({
-            header: false,
-            noneSelectedText: "Select layers...",
-            selectedText: "# layer(s) selected",
-            menuWidth: 630,
-            height: 116,
-            colType: "double"
-        });
-        $("#water-theme").multiselect({
-            header: false,
-            noneSelectedText: "Select layers...",
-            selectedText: "# layer(s) selected",
-            menuWidth: 425,
-            height: 32,
-            colType: "double"
-        });
-        $("#energy-theme").multiselect({
-            header: false,
-            noneSelectedText: "Select layers...",
-            selectedText: "# layer(s) selected",
-            menuWidth: 620,
-            height: 116,
-            colType: "double"
-        });
-        $("#coral-theme").multiselect({
-            header: false,
-            noneSelectedText: "Select layers...",
-            selectedText: "# layer(s) selected",
-            menuWidth: 600,
-            height: 32,
-            colType: "double"
-        });
-        $("#pandemic-theme").multiselect({
-            header: false,
-            noneSelectedText: "Select layers...",
-            selectedText: "# layer(s) selected",
-            menuWidth: 520,
-            height: 194,
-            colType: "double"
-        });
-        $("#refugee-theme").multiselect({
-            header: false,
-            noneSelectedText: "Select layers...",
-            selectedText: "# layer(s) selected",
-            menuWidth: 730,
-            height: 32,
-            colType: "double"
-        });
-        $("#nutrition-theme").multiselect({
-            header: false,
-            noneSelectedText: "Select layers...",
-            selectedText: "# layer(s) selected",
-            menuWidth: 733,
-            height: 72,
-            colType: "double"
-        });
-        $("#resilience-theme").multiselect({
-            header: false,
-            noneSelectedText: "Select layers...",
-            selectedText: "# layer(s) selected",
-            menuWidth: 1032,
-            height: 72,
-            colType: "triple"
-        });
-        $("#urbanization-theme").multiselect({
-            header: false,
-            noneSelectedText: "Select layers...",
-            selectedText: "# layer(s) selected",
-            menuWidth: 480,
-            height: 32,
-            colType: "double"
-        });
-      } else {
-        $(layer_html).appendTo($("#layers-menu"));
-        $(legend_html).appendTo($("#timeMachine .player"));
+      $(layer_html).appendTo($("#layers-menu"));
+      $(legend_html).appendTo($("#timeMachine .player"));
 
+      if (enableLetterboxMode) {
+        $(".presentationSlider, .current-location-text-container, .annotation-nav, .player, #csvChartContainer, #presentation-slider-selection").addClass("letterbox");
+      } else {
         $nextAnnotationLocationButton = $('.next-annotation-location');
         $nextAnnotationLocationButton.button({
           icons: {
@@ -5204,7 +4988,7 @@
       }
 
       if (isHyperwall) {
-        $("#layers-list, #layers-legend, #presentation-slider-selection, .base-map-div, .current-location-text, .customZoomhelp, #logosContainer").addClass("hyperwall");
+        $("#layers-list, #layers-legend, #presentation-slider-selection, .base-map-div, .customZoomhelp, #logosContainer").addClass("hyperwall");
       }
 
 
@@ -5968,13 +5752,6 @@
       // Layer Toggle UI
       initLayerToggleUI();
 
-      if (enableRecordingMode) {
-        var snaplapse = timelapse.getSnaplapse();
-        if (snaplapse) {
-          snaplapse.getSnaplapseViewer().setToRecordingMode();
-        }
-      }
-
       // TODO: Why is this element of TimeMachine outside the controls container?
       $(".captureTime").prependTo(".controls");
 
@@ -5985,13 +5762,11 @@
 
       if (snaplapseViewerForPresentationSlider) {
         $('.presentationSlider').show();
-        var $elements = $('.presentationSlider, .customControl, .controls, .captureTime, .scaleBarContainer, .snaplapse_keyframe_container, .keyframeSubtitleBoxForHovering, .snaplapse_keyframe_list_item_presentation, .snaplapse_keyframe_list_item_thumbnail_overlay_presentation');
+        var $elements = $('#theme-title-container, .current-location-text-container, .presentationSlider, .customControl, .controls, .captureTime, .scaleBarContainer, .snaplapse_keyframe_container, .keyframeSubtitleBoxForHovering, .snaplapse_keyframe_list_item_presentation, .snaplapse_keyframe_list_item_thumbnail_overlay_presentation');
         if (isHyperwall)
           $elements.addClass('hyperwall');
         if (enableLetterboxMode)
           $elements.addClass('letterbox');
-        if (enableRecordingMode)
-          $elements.addClass('recording');
 
         snaplapseViewerForPresentationSlider.addEventListener('snaplapse-loaded', function() {
           $(".snaplapse_keyframe_container").scrollLeft(0);
@@ -6068,12 +5843,16 @@
           var lastAvailableWaypointIdx = $(".snaplapse_keyframe_list").children().last().index();
           var selectedWaypointIdx = $(".snaplapse_keyframe_list .thumbnail_highlight").closest(".snaplapse_keyframe_list_item").index();
 
-          $previousAnnotationLocationButton.button("enable");
-          $nextAnnotationLocationButton.button("enable");
+          if ($previousAnnotationLocationButton) {
+            $previousAnnotationLocationButton.button("enable");
+          }
+          if ($nextAnnotationLocationButton) {
+            $nextAnnotationLocationButton.button("enable");
+          }
 
-          if (selectedWaypointIdx == 0) {
+          if (selectedWaypointIdx == 0 && $previousAnnotationLocationButton) {
             $previousAnnotationLocationButton.button("disable");
-          } else if (selectedWaypointIdx == lastAvailableWaypointIdx) {
+          } else if (selectedWaypointIdx == lastAvailableWaypointIdx && $nextAnnotationLocationButton) {
             $nextAnnotationLocationButton.button("disable");
 
           }
@@ -6110,10 +5889,10 @@
 
           // TODO: This breaks our timelines sometimes
           // Clear out layers if they were checked and not needed again
-          //$(".map-layer-div, .ui-multiselect-checkboxes").find("input:checked").parent().not($(waypointListNameString)).children().trigger("click");
+          //$(".map-layer-div").find("input:checked").parent().not($(waypointListNameString)).children().trigger("click");
 
           // Clear out all layers that were checked
-          $(".map-layer-div, .ui-multiselect-checkboxes").find("input:checked").trigger("click");
+          $(".map-layer-div").find("input:checked").trigger("click");
 
           // Remove himawari since we do special cases further below
           var himawariIdx = waypointLayers.indexOf("h8");
@@ -6126,7 +5905,7 @@
               $("#extras-selector").selectmenu("open");
               $('#extras-selector-menu li[data-name="' + layer + '"]')[0].click();
             } else {
-              var $layerToggle = $("#layers-list label[name='" + layer + "'] input, .ui-multiselect-checkboxes label[name='" + layer + "'] input");
+              var $layerToggle = $("#layers-list label[name='" + layer + "'] input");
               if (!$layerToggle.prop('checked')) $layerToggle.trigger("click");
             }
           });
@@ -6258,11 +6037,13 @@
       // Location search box, with autocomplete.
       var $locationSearchDiv = $('<div class="location_search_div"><input id="location_search" type="text" placeholder="Search for a location...">');
       if (enableLetterboxMode) {
-        $locationSearchDiv.addClass("top-panel letterbox").appendTo($("#content"));
+        $locationSearchDiv.addClass("top-panel letterbox").appendTo($("#letterbox-bottom-controls"));
         $("#location_search").addClass("letterbox");
       } else {
         $locationSearchDiv.appendTo($("#timeMachine .player"));
       }
+
+      $(".current-location-text-container").appendTo($("#timeMachine .player"));
 
       if (isHyperwall) {
         $("#location_search").addClass("hyperwall");
@@ -6317,12 +6098,15 @@
       }
 
       // Set the letterbox mode
-      if (enableLetterboxMode && !enableRecordingMode) {
-        // Resize the viewer
-        timelapse.addViewerBottomMargin(-2);
+      if (enableLetterboxMode) {
         // Move the presentation slider out
         var $presentationSlider = $("#" + timelapse.getTimeMachineDivId() + " .presentationSlider");
-        $presentationSlider.appendTo("#content");
+        $presentationSlider.prependTo("#letterbox-bottom");
+        var $chartContainer = $("#csvChartContainer");
+        $chartContainer.appendTo("#timeMachine");
+        var $chartLegend = $("#csvChartLegend");
+        $chartLegend.appendTo("#timeMachine");
+        $(".hamburger").hide();
       }
 
       // Toggle the context map and hide it
@@ -6330,6 +6114,8 @@
       $(".contextMapContainer").hide();
 
 
+      // Jump to buttons
+      // TODO: Remove?
       $("#presentation-slider-selection").on("click", "td", function() {
         var sectionId = $(this).get(0).id;
         var waypointContainer = $(".snaplapse_keyframe_container");
@@ -6349,7 +6135,7 @@
           var layers = vals.l.split(",");
           layers.forEach(function(layer) {
             layersToShowOnCreation[layer] = true;
-            var $layerToggle = $("#layers-list label[name='" + layer + "'] input, .ui-multiselect-checkboxes label[name='" + layer + "'] input");
+            var $layerToggle = $("#layers-list label[name='" + layer + "'] input");
             if (!$layerToggle.prop('checked')) {
               // The time in a share link may correspond to a layer that has a different timeline than the default one.
               // Re-run corresponding sharelink code once the timeline has changed.
@@ -6400,44 +6186,47 @@
         }
       };
 
-      if (!enableLetterboxMode) {
-        $(".map-layer-div").accordion({
-          collapsible: true,
-          active: false,
-          animate: false,
-          heightStyle: 'content',
-          beforeActivate: function(event, ui) {
-            // The accordion believes a panel is being opened
-            if (ui.newHeader[0]) {
-                var currHeader  = ui.newHeader;
-                var currContent = currHeader.next('.ui-accordion-content');
-            // The accordion believes a panel is being closed
-            } else {
-                var currHeader  = ui.oldHeader;
-                var currContent = currHeader.next('.ui-accordion-content');
-            }
-            // Since we've changed the default behavior, this detects the actual status
-            var isPanelSelected = currHeader.attr('aria-selected') == 'true';
-
-            // Toggle the panel's header
-            currHeader.toggleClass('ui-corner-all',isPanelSelected).toggleClass('accordion-header-active ui-state-active ui-corner-top', !isPanelSelected).attr('aria-selected', ((!isPanelSelected).toString()));
-
-            // Toggle the panel's icon
-            currHeader.children('.ui-icon').toggleClass('ui-icon-triangle-1-e', isPanelSelected).toggleClass('ui-icon-triangle-1-s', !isPanelSelected);
-
-            // Toggle the panel's content
-            currContent.toggleClass('accordion-content-active', !isPanelSelected);
-            if (isPanelSelected) {
-              currContent.slideUp(0);
-            } else {
-              currContent.slideDown(0);
-            }
-
-            // Cancel the default action
-            return false;
+      $(".map-layer-div").accordion({
+        collapsible: true,
+        active: false,
+        animate: false,
+        heightStyle: 'content',
+        create: function() {
+          updateLetterboxContent();
+        },
+        beforeActivate: function(event, ui) {
+          // The accordion believes a panel is being opened
+          if (ui.newHeader[0]) {
+              var currHeader  = ui.newHeader;
+              var currContent = currHeader.next('.ui-accordion-content');
+          // The accordion believes a panel is being closed
+          } else {
+              var currHeader  = ui.oldHeader;
+              var currContent = currHeader.next('.ui-accordion-content');
           }
-        });
-      }
+          // Since we've changed the default behavior, this detects the actual status
+          var isPanelSelected = currHeader.attr('aria-selected') == 'true';
+
+          // Toggle the panel's header
+          currHeader.toggleClass('ui-corner-all',isPanelSelected).toggleClass('accordion-header-active ui-state-active ui-corner-top', !isPanelSelected).attr('aria-selected', ((!isPanelSelected).toString()));
+
+          // Toggle the panel's icon
+          currHeader.children('.ui-icon').toggleClass('ui-icon-triangle-1-e', isPanelSelected).toggleClass('ui-icon-triangle-1-s', !isPanelSelected);
+
+          // Toggle the panel's content
+          currContent.toggleClass('accordion-content-active', !isPanelSelected);
+          if (isPanelSelected) {
+            currContent.slideUp(0);
+          } else {
+            currContent.slideDown(0);
+          }
+
+          // Cancel the default action
+          return false;
+        }
+      });
+
+      sortLayerCategories();
 
       // Callback when data for a specific CSV layer has loaded.
       csvFileLayers.addDataLoadedListener(function(layerId) {
@@ -6450,6 +6239,10 @@
       csvFileLayers.addLayersLoadedListener(function() {
         // New layers have been added, so refresh the layer panel
         $(".map-layer-div").accordion("refresh");
+        sortLayerCategories();
+        if (enableLetterboxMode) {
+          updateLetterboxContent();
+        }
         if (!loadedInitialCsvLayers) {
           loadedInitialCsvLayers = true;
           // CSV layers are loaded asynchronously, so trigger another hash change if we just loaded the page
@@ -6504,6 +6297,9 @@
       });
 
       $("#presentation-slider-hamburger-wrapper").on("click", function(e) {
+        if (enableLetterboxMode) {
+          return;
+        }
         $('#main-hamburger-menu').toggle("slide", { direction: "left" }, 150);
         var $hamburgerButtonSelector = $(this).find(".hamburger");
         $hamburgerButtonSelector.toggleClass("is-active");
@@ -6537,7 +6333,7 @@
         $selectedThemeElement.addClass("checkmark");
         changeHash({theme: $selectedThemeElement.attr("id")});
         currentWaypointTheme = $selectedThemeElement.attr("id");
-        $("#theme-title").text($selectedThemeElement.text());
+        $("#theme-title").attr("data-theme-id", $selectedThemeElement[0].id).text($selectedThemeElement.text());
         var waypointSliderContent = "#presentation=" + $selectedThemeElement.data("waypoint-url");
         timelapse.loadSharedDataFromUnsafeURL(waypointSliderContent);
         UTIL.addGoogleAnalyticEvent('button', 'click', 'viewer-select-theme=' + currentWaypointTheme);
@@ -6575,7 +6371,220 @@
 
       $(window).on('hashchange', hashChange).trigger('hashchange');
 
+      if (enableLetterboxMode) {
+        $("#letterbox-list-themes-button").on("click", function() {
+          updateLetterboxContent("themes");
+        });
+        $("#letterbox-list-layers-button").on("click", function() {
+          updateLetterboxContent("layers");
+        });
+        $("#letterbox-clear-layers-button").on("click", function() {
+          var e = jQuery.Event("keydown");
+          e.which = 67;
+          e.keyCode = 67;
+          $("body").trigger(e);
+        });
+        updateLetterboxSelections();
+      }
+
       // End of onTimeMachinePlayerReady
+    }
+
+    var sortLayerCategories = function() {
+      var accordion = $(".map-layer-div");
+
+      var entries = $.map(accordion.children("h3").get(), function(entry) {
+        var $entry = $(entry);
+        return $entry.add($entry.next());
+      });
+
+      entries.sort(function(a, b) {
+        return a.filter("h3").text().localeCompare(b.filter("h3").text());
+      });
+
+      $.each(entries, function() {
+        // Ensure 'Base Layers' is always the first entry
+        if (this.filter("h3").text() == "Base Layers") {
+          this.detach().prependTo(accordion);
+        } else {
+          this.detach().appendTo(accordion);
+        }
+      });
+    }
+
+    var updateLetterboxContent = function(newSectionChoice) {
+      var sectionChoice = newSectionChoice || "themes";
+      var numRows = 3;
+
+      // Create letterbox base layers table
+      if (!$(".letterbox-base-layers-table").length) {
+        var baseLayers = $("#category-base-layers").find("td").map(function() {
+          return $(this);
+        }).get();
+
+        var baselayerRowHeight = Math.floor(100 / baseLayers.length);
+
+        var html = "<table class='letterbox-base-layers-table'><caption>Base Layers:</caption>";
+
+        for (var i = 0; i < baseLayers.length; i++) {
+          var labelName = $(baseLayers[i]).parent().attr('name');
+          var inputId = $(baseLayers[i]).find("input")[0].id;
+          var textName = baseLayers[i].text();
+
+          if (textName.indexOf("Earth Engine") >= 0) {
+            textName = "Timelapse";
+          }
+
+          html += "<tr height='" + baselayerRowHeight + "%'><td><div><label class='pointer' for='letterbox-" + inputId + "'><input type='radio' class='pointer' id='letterbox-" + inputId + "' data-base-layer-id='" + inputId + "' name='letterbox-base-layers'/>" + textName + "</label></div></td></tr>"
+        }
+        html += "</table>";
+
+        $("#letterbox-base-layers").children().remove();
+        $("#letterbox-base-layers").html(html);
+
+        // Handle letterbox base layer selection
+        $('.letterbox-base-layers-table').on("click", "td", function(e) {
+          // Clicking a span will cause this to run twice, so we ignore element a user did not physically click
+          if (!e.detail) return;
+          var $input = $(this).find("input");
+          // Special case since this is a radio button
+          $input.prop("checked", true);
+          $("#" + $input.data("base-layer-id")).trigger("click");
+        });
+      }
+
+      if (sectionChoice == "themes") {
+        // Create letterbox theme table
+        var layerThemes = $("#theme-list").find("li").map(function() {
+          return $(this);
+        }).get();
+
+        var numThemesPerRow = Math.ceil(layerThemes.length / numRows);
+
+        var html = "<table class='letterbox-bottom-picker-table'><tr><th>Themes:</th></tr><tr height='33%'>";
+        for (var i = 0; i < layerThemes.length; i++) {
+          if ((i % numThemesPerRow == 0) && i > 0) {
+            html += "</tr><tr height='33%'>";
+          }
+          var themeId = layerThemes[i][0].id;
+          html += "<td><div><label class='pointer' for='letterbox-" + themeId + "'><input type='radio' class='pointer' id='letterbox-" + themeId + "' data-theme-id='" + themeId + "' name='letterbox-layer-themes'/>" + layerThemes[i].text() + "</label></div></td>"
+        }
+        html += "</tr></table>";
+        $("#letterbox-bottom-picker-results-content").children().remove();
+        $("#letterbox-bottom-picker-content").children().remove();
+        $("#letterbox-bottom-picker-content").html(html);
+
+        // Handle letterbox theme selection
+        $('.letterbox-bottom-picker-table').on("click", "td", function(e) {
+          // Clicking a span will cause this to run twice, so we ignore element a user did not physically click
+          if (!e.detail) return;
+          var $input = $(this).find("input");
+          // Special case since this is a radio button
+          $input.prop("checked", true);
+          $("#" + $input.data("theme-id")).trigger("click");
+        });
+
+        $("#letterbox-bottom-picker-content").find("input#letterbox-" + $("#theme-title").attr("data-theme-id")).prop("checked", true);
+
+      } else if (sectionChoice == "layers") {
+        // Create letterbox layer categories table, sorted alphabetically top down, left to right
+        var layerCategories = $("#layers-list").find("h3").map(function() {
+          if ($(this).text() != "Base Layers") {
+            return $(this);
+          }
+        }).get();
+
+        var numCategoriesPerRow = Math.ceil(layerCategories.length / numRows);
+
+        var html = "<table class='letterbox-bottom-picker-table'><tr><th colspan='2'>Layer Categories:</th></tr><tr height='33%'>";
+        var k = 0;
+        var j = 0;
+        var doSwap = false;
+        for (var i = 0; i < layerCategories.length; i++) {
+          if ((i % numCategoriesPerRow == 0) && i > 0) {
+            html += "</tr><tr height='33%'>";
+            j = 0;
+            k += 1;
+          }
+          var idx = (j*numRows + k);
+          if (idx >= layerCategories.length) {
+            idx -= (k + 1)
+            doSwap = true;
+          }
+          var categoryId = layerCategories[idx][0].id;
+          var category = layerCategories[idx].text();
+          html += "<td><label class='pointer' for='letterbox-" + categoryId + "'><input type='radio' class='pointer' id='letterbox-" + categoryId + "' data-category-id='" + categoryId + "' name='letterbox-layer-categories'/>" + category + "</label></td>"
+          j++;
+        }
+        html += "</tr></table>";
+
+        $("#letterbox-bottom-picker-content").children().remove();
+        $("#letterbox-bottom-picker-content").html(html);
+
+        if (doSwap) {
+          var foo = $('.letterbox-bottom-picker-table tr > td:last-child');
+          var tmp = $(foo[0]).html();
+          $(foo[0]).html($(foo[1]).html());
+          $(foo[1]).html(tmp)
+        }
+
+        // Handle letterbox layer category selection
+        $('.letterbox-bottom-picker-table').on("click", "td", function(e) {
+          // Clicking a span will cause this to run twice, so we ignore element a user did not physically click
+          if (!e.detail) return;
+
+          var $input = $(this).find("input");
+          // Special case since this is a radio button
+          $input.prop("checked", true);
+
+          // Create latterbox layers table
+          var categoryLayers = $("#" + $input.data("category-id")).next().find("td").not(".loading-layer-spinner-small");
+          var numLayersPerRow = Math.ceil(categoryLayers.length / numRows);
+
+          var html = "<table class='letterbox-bottom-picker-results-table'><tr style='height: 1%'><th>" + $(this).text() + " Layers:</th></tr><tr height='33%'>";
+
+          for (var i = 0; i < categoryLayers.length; i++) {
+            if ((i % numLayersPerRow == 0) && i > 0) {
+              html += "</tr><tr height='33%'>";
+            }
+
+            var labelName = $(categoryLayers[i]).find("label").attr('name');
+            var inputId = $(categoryLayers[i]).find("input")[0].id;
+
+            html += "<td><label class='pointer' name='letterbox-" + labelName + "'><input type='checkbox' class='pointer' id='letterbox-" + inputId + "' data-layer-id='" + inputId + "'/>" + $(categoryLayers[i]).text() + "</label></td>";
+
+          }
+          html += "</tr></table>";
+
+          $("#letterbox-bottom-picker-results-content").children().remove();
+          $("#letterbox-bottom-picker-results-content").html(html);
+
+          // Handle letterbox specific layer selection
+          $(".letterbox-bottom-picker-results-table").on("click", "td", function(e) {
+            if (e.toElement.tagName.toLowerCase() == "label") return;
+            var $input = $(this).find("input");
+            $("#" + $input.data("layer-id")).trigger("click");
+          });
+
+          updateLetterboxSelections();
+        });
+      }
+    }
+
+    var updateLetterboxSelections = function(elemClicked) {
+      var $letterboxContainers = $("#letterbox-base-layers, #letterbox-bottom-picker-results-content");
+      if (elemClicked) {
+        $letterboxContainers.find("input#letterbox-" + elemClicked[0].id).prop("checked", elemClicked.prop("checked"));
+      } else {
+        $letterboxContainers.find("input:checked").prop("checked", false);
+        var activeLayers = $(".map-layer-div").find("input:checked").map(function() {
+          return $(this);
+        }).get();
+        for (var i = 0; i < activeLayers.length; i++) {
+          var activeSelection = $letterboxContainers.find("input#letterbox-" + activeLayers[i][0].id);
+          activeSelection.prop("checked", true);
+        }
+      }
     }
 
     // CSV Data Grapher
@@ -6597,7 +6606,7 @@
           $("#presentation-slider-selection").hide();
         }
         if (!disablePresentationSlider) {
-          $("#main-hamburger-menu, .controls, .customControl, .scaleBarContainer, #logosContainer, #baseLayerCreditContainer, .current-location-text-container").addClass("layerGraphs");
+          $("#main-hamburger-menu, .controls, .customControl, #baseLayerCreditContainer, .current-location-text-container, .player, .scaleBarContainer, #logosContainer").addClass("layerGraphs");
         }
         $("#timeMachine").addClass("layerGraphs");
       } else {
@@ -6607,7 +6616,7 @@
           $("#presentation-slider-selection").show();
         }
         if (!disablePresentationSlider) {
-          $("#main-hamburger-menu, .controls, .customControl, .scaleBarContainer, #logosContainer, #baseLayerCreditContainer, .current-location-text-container").removeClass("layerGraphs");
+          $("#main-hamburger-menu, .controls, .customControl, #baseLayerCreditContainer, .current-location-text-container, .player, .scaleBarContainer, #logosContainer").removeClass("layerGraphs");
         }
         $("#timeMachine").removeClass("layerGraphs");
       }
@@ -8512,10 +8521,34 @@
 </head>
 
 <body>
-  <div id="letterbox-content">
-    <div id="letterbox-top"></div>
-    <div id="letterbox-middle"></div>
-    <div id="letterbox-bottom"></div>
+  <div id="letterbox-content" class="unselectable">
+    <div id="letterbox-main"></div>
+    <div id="letterbox-bottom">
+      <table id="letterbox-bottom-controls-container">
+        <tr>
+          <td id="letterbox-bottom-controls" width="20%">
+          <div id="letterbox-base-layers"></div>
+          <div id="letterbox-control-buttons">
+            <button type="button" id="letterbox-list-themes-button">Themes</button><br/>
+            <button type="button" id="letterbox-list-layers-button">Layers</button><br/><br/><br/>
+            <button type="button" id="letterbox-clear-layers-button">Clear Layers</button>
+          </div>
+          </td>
+          <td id="letterbox-bottom-picker" width="40%">
+            <div id="letterbox-bottom-picker-content-wrapper">
+              <div id="letterbox-bottom-picker-content">
+              </div>
+            </div>
+          </td>
+          <td id="letterbox-bottom-picker-results" width="40%">
+            <div id="letterbox-bottom-picker-results-content-wrapper">
+              <div id="letterbox-bottom-picker-results-content">
+              </div>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
   </div>
   <div id="timeMachine"></div>
   <div class="current-location-text-container unselectable">
