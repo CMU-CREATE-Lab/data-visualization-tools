@@ -2964,8 +2964,8 @@ function setTimeLine(identifier, startDate, endDate, step) {
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
           requestNewTimeline("sp-crude-times.json", timelineType);
-          timelapse.setMasterPlaybackRate(.005);
-          timelapse.setPlaybackRate(.00225);
+          timelapse.setMasterPlaybackRate(0.005);
+          timelapse.setPlaybackRate(0.00225);
           $("#sp-crude-legend").show();
           if (visibleBaseMapLayer != "dark") {
             $("#dark-base").click();
@@ -2991,8 +2991,8 @@ function setTimeLine(identifier, startDate, endDate, step) {
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
           requestNewTimeline("sp-crude-times.json", timelineType);
-          timelapse.setMasterPlaybackRate(.005);
-          timelapse.setPlaybackRate(.00225);
+          timelapse.setMasterPlaybackRate(0.005);
+          timelapse.setPlaybackRate(0.00225);
           $("#sp-crude-legend_Oceania").show();
           if (visibleBaseMapLayer != "dark") {
             $("#dark-base").click();
@@ -3018,8 +3018,8 @@ function setTimeLine(identifier, startDate, endDate, step) {
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
           requestNewTimeline("sp-crude-times.json", timelineType);
-          timelapse.setMasterPlaybackRate(.005);
-          timelapse.setPlaybackRate(.00225);
+          timelapse.setMasterPlaybackRate(0.005);
+          timelapse.setPlaybackRate(0.00225);
           $("#sp-crude-legend_AG").show();
           if (visibleBaseMapLayer != "dark") {
             $("#dark-base").click();
@@ -3045,8 +3045,8 @@ function setTimeLine(identifier, startDate, endDate, step) {
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
           requestNewTimeline("sp-crude-times.json", timelineType);
-          timelapse.setMasterPlaybackRate(.005);
-          timelapse.setPlaybackRate(.00225);
+          timelapse.setMasterPlaybackRate(0.005);
+          timelapse.setPlaybackRate(0.00225);
           $("#sp-crude-legend_WAF").show();
           if (visibleBaseMapLayer != "dark") {
             $("#dark-base").click();
@@ -3072,8 +3072,8 @@ function setTimeLine(identifier, startDate, endDate, step) {
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
           requestNewTimeline("sp-crude-times.json", timelineType);
-          timelapse.setMasterPlaybackRate(.005);
-          timelapse.setPlaybackRate(.00225);
+          timelapse.setMasterPlaybackRate(0.005);
+          timelapse.setPlaybackRate(0.00225);
           $("#sp-crude-legend_MedNAF").show();
           if (visibleBaseMapLayer != "dark") {
             $("#dark-base").click();
@@ -3099,8 +3099,8 @@ function setTimeLine(identifier, startDate, endDate, step) {
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
           requestNewTimeline("sp-crude-times.json", timelineType);
-          timelapse.setMasterPlaybackRate(.005);
-          timelapse.setPlaybackRate(.00225);
+          timelapse.setMasterPlaybackRate(0.005);
+          timelapse.setPlaybackRate(0.00225);
           $("#sp-crude-legend_Urals").show();
           if (visibleBaseMapLayer != "dark") {
             $("#dark-base").click();
@@ -3126,8 +3126,8 @@ function setTimeLine(identifier, startDate, endDate, step) {
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
           requestNewTimeline("sp-crude-times.json", timelineType);
-          timelapse.setMasterPlaybackRate(.005);
-          timelapse.setPlaybackRate(.00225);
+          timelapse.setMasterPlaybackRate(0.005);
+          timelapse.setPlaybackRate(0.00225);
           $("#sp-crude-legend_USGC").show();
           if (visibleBaseMapLayer != "dark") {
             $("#dark-base").click();
@@ -3153,8 +3153,8 @@ function setTimeLine(identifier, startDate, endDate, step) {
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
           requestNewTimeline("sp-crude-times.json", timelineType);
-          timelapse.setMasterPlaybackRate(.005);
-          timelapse.setPlaybackRate(.00225);
+          timelapse.setMasterPlaybackRate(0.005);
+          timelapse.setPlaybackRate(0.00225);
           $("#sp-crude-legend_LatAM").show();
           if (visibleBaseMapLayer != "dark") {
             $("#dark-base").click();
@@ -3180,8 +3180,8 @@ function setTimeLine(identifier, startDate, endDate, step) {
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
           requestNewTimeline("sp-crude-times.json", timelineType);
-          timelapse.setMasterPlaybackRate(.005);
-          timelapse.setPlaybackRate(.00225);
+          timelapse.setMasterPlaybackRate(0.005);
+          timelapse.setPlaybackRate(0.00225);
           $("#sp-crude-legend_NS").show();
           if (visibleBaseMapLayer != "dark") {
             $("#dark-base").click();
@@ -3463,7 +3463,8 @@ function setTimeLine(identifier, startDate, endDate, step) {
         // 'page down' key
         // Quick way to step backwards through waypoints
         if (!disablePresentationSlider && e.keyCode === 34) {
-          var lastWaypointIdx = selectedIdx = $(".snaplapse_keyframe_list").children().last().index();
+          var lastWaypointIdx, selectedIdx;
+          lastWaypointIdx = selectedIdx = $(".snaplapse_keyframe_list").children().last().index();
           var $selectedWaypoint = $(".snaplapse_keyframe_list .thumbnail_highlight");
           if ($selectedWaypoint.length) {
             selectedIdx = $selectedWaypoint.parents(".snaplapse_keyframe_list_item").index();
@@ -5948,7 +5949,7 @@ function setTimeLine(identifier, startDate, endDate, step) {
               // Need to delay some amount of time for the selectmenu to refresh.
               setTimeout(function() {
                 $('#extras-selector-menu li[data-name="' + layer + '"]').click();
-              }, 5)
+              }, 5);
             } else {
               var $layerToggle = $("#layers-list label[name='" + layer + "'] input");
               if (!$layerToggle.prop('checked')) $layerToggle.trigger("click");
@@ -6297,7 +6298,7 @@ function setTimeLine(identifier, startDate, endDate, step) {
         var $target = $(e.target);
         var layerId = $target.parent().attr("name");
         var layerIds = csvFileLayers.layers.map(function(props) {
-          return props['_layerId']
+          return props['_layerId'];
         });
         var layerIdx = layerIds.indexOf(layerId);
         var dataLoaded = $target.data("has-graph") ? true : false;
@@ -6563,10 +6564,10 @@ function setTimeLine(identifier, startDate, endDate, step) {
         $("#letterbox-bottom-picker-content").html(html);
 
         if (doSwap) {
-          var foo = $('.letterbox-bottom-picker-table tr > td:last-child');
-          var tmp = $(foo[0]).html();
-          $(foo[0]).html($(foo[1]).html());
-          $(foo[1]).html(tmp)
+          var lastColumns = $('.letterbox-bottom-picker-table tr > td:last-child');
+          var tmp = $(lastColumns[0]).html();
+          $(lastColumns[0]).html($(lastColumns[1]).html());
+          $(lastColumns[1]).html(tmp);
         }
 
         // Handle letterbox layer category selection
