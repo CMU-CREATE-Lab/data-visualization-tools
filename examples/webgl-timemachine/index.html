@@ -5903,8 +5903,11 @@
           // Handle layers
           waypointLayers.forEach(function(layer) {
             if (layer.indexOf("e-") == 0) {
-              $("#extras-selector").selectmenu("open");
-              $('#extras-selector-menu li[data-name="' + layer + '"]')[0].click();
+              $("#extras-selector").selectmenu("refresh");
+              // Need to delay some amount of time for the selectmenu to refresh.
+              setTimeout(function() {
+                $('#extras-selector-menu li[data-name="' + layer + '"]').click();
+              }, 5)
             } else {
               var $layerToggle = $("#layers-list label[name='" + layer + "'] input");
               if (!$layerToggle.prop('checked')) $layerToggle.trigger("click");
@@ -6109,11 +6112,6 @@
         $chartLegend.appendTo("#timeMachine");
         $(".hamburger").hide();
       }
-
-      // Toggle the context map and hide it
-      $(".toggleContextMapBtn").click();
-      $(".contextMapContainer").hide();
-
 
       // Jump to buttons
       // TODO: Remove?
@@ -6365,6 +6363,7 @@
       }
 
       if (enableMinimalUIMode) {
+        // TODO
         $(".customHelpLabel").remove();
         $(".location_search_div, .share").hide();
         $("#layers-legend").css({"top" : "20px", "left" : "20px"});

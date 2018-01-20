@@ -1633,3 +1633,7 @@ a:focus { outline:0; }
 .playbackButton-touchFriendly.ui-button {
   bottom: 36px
 }
+
+.toggleContextMapBtn, .contextMapContainer {
+  display: none;
+}
