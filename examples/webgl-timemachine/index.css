@@ -349,7 +349,8 @@ html, body {
   width: 100% !important;
   height: 100%;
 }
-#timeMachine.layerGraphs {
+
+#timeMachine:not(.letterbox).layerGraphs {
   height: calc(100% - 225px) !important;
 }
 
@@ -493,6 +494,10 @@ html, body {
   display: inline-block;
 }
 
+.current-location-text-container.letterbox .current-location-text-title {
+  font-size: 20px;
+}
+
 .current-location-text-title ~ p:empty {
   margin-top: 0;
 }
@@ -513,6 +518,10 @@ html, body {
   -webkit-transform: translateZ(0); /* Chrome, Safari, Opera */
   transform: translateZ(0);
   text-align: left;
+}
+
+.current-location-text-container.letterbox .current-location-text p {
+  font-size: 16px;
 }
 
 #letterbox-content {
@@ -664,17 +673,9 @@ html, body {
 }
 
 .current-location-text-container.letterbox {
-  bottom: 155px;
-  left: 20px;
+  top: 20px !important;
+  left: 20px !important;
   right: initial;
-}
-
-.current-location-text-container.hyperwall.letterbox {
-  bottom: 190px;
-}
-
-.current-location-text-container.letterbox.layerGraphs {
-  bottom: 268px;
 }
 
 .current-location-text-container.hyperwall.layerGraphs {
@@ -683,10 +684,6 @@ html, body {
 
 .scaleBarContainer.hyperwall.layerGraphs {
   bottom: 215px !important;
-}
-
-.current-location-text-container.letterbox.noTimeline {
-  bottom: 91px;
 }
 
 .annotation-nav.letterbox {
@@ -1437,6 +1434,27 @@ a:focus { outline:0; }
   -moz-transition: bottom 0.40s;
   -khtml-transition: bottom 0.40s;
   transition: bottom 0.40s;
+}
+
+#layers-legend.letterbox {
+  bottom: 143px;
+  top: initial;
+}
+
+#layers-legend.hyperwall.letterbox {
+  bottom: 170px;
+}
+
+#layers-legend.letterbox.layerGraphs {
+  bottom: 235px;
+}
+
+#layers-legend.hyperwall.letterbox.layerGraphs {
+  bottom: 260px;
+}
+
+#layers-legend.letterbox.noTimeline {
+  bottom: 80px;
 }
 
 .unselectable {

@@ -5763,7 +5763,7 @@
 
       if (snaplapseViewerForPresentationSlider) {
         $('.presentationSlider').show();
-        var $elements = $('#theme-title-container, .current-location-text-container, .presentationSlider, .customControl, .controls, .captureTime, .scaleBarContainer, .snaplapse_keyframe_container, .keyframeSubtitleBoxForHovering, .snaplapse_keyframe_list_item_presentation, .snaplapse_keyframe_list_item_thumbnail_overlay_presentation');
+        var $elements = $('#layers-legend, #theme-title-container, .current-location-text-container, .presentationSlider, .customControl, .controls, .captureTime, .scaleBarContainer, .snaplapse_keyframe_container, .keyframeSubtitleBoxForHovering, .snaplapse_keyframe_list_item_presentation, .snaplapse_keyframe_list_item_thumbnail_overlay_presentation');
         if (isHyperwall)
           $elements.addClass('hyperwall');
         if (enableLetterboxMode)
@@ -6607,7 +6607,7 @@
           $("#presentation-slider-selection").hide();
         }
         if (!disablePresentationSlider) {
-          $("#main-hamburger-menu, .controls, .customControl, #baseLayerCreditContainer, .current-location-text-container, .player, .scaleBarContainer, #logosContainer").addClass("layerGraphs");
+          $("#layers-legend, #main-hamburger-menu, .controls, .customControl, #baseLayerCreditContainer, .current-location-text-container, .player, .scaleBarContainer, #logosContainer").addClass("layerGraphs");
         }
         $("#timeMachine").addClass("layerGraphs");
       } else {
@@ -6617,7 +6617,7 @@
           $("#presentation-slider-selection").show();
         }
         if (!disablePresentationSlider) {
-          $("#main-hamburger-menu, .controls, .customControl, #baseLayerCreditContainer, .current-location-text-container, .player, .scaleBarContainer, #logosContainer").removeClass("layerGraphs");
+          $("#layers-legend, #main-hamburger-menu, .controls, .customControl, #baseLayerCreditContainer, .current-location-text-container, .player, .scaleBarContainer, #logosContainer").removeClass("layerGraphs");
         }
         $("#timeMachine").removeClass("layerGraphs");
       }
