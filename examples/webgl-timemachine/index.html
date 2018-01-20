@@ -685,7 +685,7 @@
     var himawariTimeMachineUrl = rootTilePath + "/himawari8/himawari8-nov-2015.timemachine/crf26-12fps-1424x800";
     var goes16TimeMachineUrl = rootTilePath + "/goes16/2017-09-01.timemachine/crf26-12fps-1424x800";
     var dscovrTimeMachineUrl = rootTilePath + "/dscovr/dscovr.timemachine/crf26-6fps-1424x800";
-    var annualGlobalPm25TimeMachineUrl = rootTilePath + "/annual-global-pm25/pm2_5v1.timemachine/crf26-6fps-1424x800";
+    var annualGlobalPm25TimeMachineUrl = rootTilePath + "/annual-global-pm25/pm2_5v2.timemachine/crf26-6fps-1424x800";
     var forestAlertsTimeMachineUrl = rootTilePath + "/global-forest-alerts/ForestAlarms2016v2/1068x600";
     var forestAlertsNoOverlayTimeMachineUrl = rootTilePath + "/global-forest-alerts/ForestAlarmsNoOverlay2016v1/1068x600";
     var berkeleyEarthTemperatureAnomalyTimeMachineUrl = rootTilePath + "/berkeley-earth/berkeley-earth.timemachine/crf24-12fps-1424x800";
@@ -5075,11 +5075,11 @@
         mediaType: ".mp4",
         numFrames: cached_ajax['annual-global-pm25-times.json']['capture-times'].length,
         fps: 6,
-        nLevels: 4,
+        nLevels: 5,
         video_width: 1424,
         video_height: 800,
-        width: 3600,
-        height: 3600
+        width: 7200,
+        height: 7200
       };
       annualGlobalPm25TimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, annualGlobalPm25TimeMachineUrl, annualGlobalPm25TimeMachineLayerOptions);
 
