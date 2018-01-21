@@ -169,9 +169,11 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
       if (visibleBaseMapLayer != "dark") {
         $("#dark-base").click();
       }
-      setActiveLayersWithTimeline(1);
-      timelineType = "defaultUI";
-      requestNewTimeline(nickname + ".json", timelineType);
+      if (mapType != "raster") {
+        setActiveLayersWithTimeline(1);
+        timelineType = "defaultUI";
+        requestNewTimeline(nickname + ".json", timelineType);
+      }
       layer.visible = true;
       $("#" + nickname + "-legend").show();
       if (mapType == "choropleth") {
@@ -184,8 +186,10 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
 
     } else {
       $("#" + nickname + "-legend").hide();
-      setActiveLayersWithTimeline(-1);
-      doSwitchToLandsat();
+      if (mapType != "raster") {
+        setActiveLayersWithTimeline(-1);
+        doSwitchToLandsat();
+      }
       // Turn off layer
       layer.visible = false;
       // cacheLastUsedLayer is a global data struct from index.html
