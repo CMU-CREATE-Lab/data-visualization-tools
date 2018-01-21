@@ -4010,12 +4010,10 @@ function setTimeLine(identifier, startDate, endDate, step) {
                        columnDefs);
       }
       // New layers have been added, so refresh the layer panel
-      if ($(".map-layer-div").is(':visible')) {
-        $(".map-layer-div").accordion("refresh");
-        sortLayerCategories();
-        if (enableLetterboxMode) {
-          updateLetterboxContent();
-        }
+      $(".map-layer-div").accordion("refresh");
+      sortLayerCategories();
+      if (enableLetterboxMode) {
+        updateLetterboxContent();
       }
     }
 
@@ -4124,9 +4122,6 @@ function setTimeLine(identifier, startDate, endDate, step) {
           currentWaypointSliderContentUrl = snaplapseForPresentationSlider.getAsUrlString(waypointJSON.snaplapse.keyframes);
           $themeEntry.data("waypoint-url", currentWaypointSliderContentUrl);
           $("#theme-list").append($themeEntry);
-          if (enableLetterboxMode) {
-            updateLetterboxContent();
-          }
         }
         if (loadedInitialWaypointList) {
           changeHash({theme : ""});
@@ -4171,6 +4166,10 @@ function setTimeLine(identifier, startDate, endDate, step) {
         resize();
       }
 
+      sortThemes();
+      if (enableLetterboxMode) {
+        updateLetterboxContent();
+      }
     }
 
     function loadWaypoints(path) {
@@ -6432,9 +6431,9 @@ function setTimeLine(identifier, startDate, endDate, step) {
     }
 
     var sortLayerCategories = function() {
-      var accordion = $(".map-layer-div");
+      var layerAccordion = $(".map-layer-div");
 
-      var entries = $.map(accordion.children("h3").get(), function(entry) {
+      var entries = $.map(layerAccordion.children("h3").get(), function(entry) {
         var $entry = $(entry);
         return $entry.add($entry.next());
       });
@@ -6446,16 +6445,36 @@ function setTimeLine(identifier, startDate, endDate, step) {
       $.each(entries, function() {
         // Ensure 'Base Layers' is always the first entry
         if (this.filter("h3").text() == "Base Layers") {
-          this.detach().prependTo(accordion);
+          this.detach().prependTo(layerAccordion);
         } else {
-          this.detach().appendTo(accordion);
+          this.detach().appendTo(layerAccordion);
         }
+      });
+    }
+
+    var sortThemes = function() {
+      var $themeList = $("#theme-list");
+      var themes = $themeList.children("li");
+
+      themes.sort(function(a, b) {
+        return $(a).text().localeCompare($(b).text());
+      });
+
+      $.each(themes, function() {
+        $(this).detach().appendTo($themeList);
       });
     }
 
     var updateLetterboxContent = function(newSectionChoice) {
       var sectionChoice = newSectionChoice || "themes";
       var numRows = 3;
+
+      $("#letterbox-control-buttons .letterbox-list-button-highlight").removeClass("letterbox-list-button-highlight");
+      if (sectionChoice == "themes") {
+        $("#letterbox-list-themes-button").addClass("letterbox-list-button-highlight");
+      } else if (sectionChoice == "layers") {
+        $("#letterbox-list-layers-button").addClass("letterbox-list-button-highlight");
+      }
 
       // Create letterbox base layers table
       if (!$(".letterbox-base-layers-table").length) {
@@ -6503,17 +6522,38 @@ function setTimeLine(identifier, startDate, endDate, step) {
         var numThemesPerRow = Math.ceil(layerThemes.length / numRows);
 
         var html = "<table class='letterbox-bottom-picker-table'><tr><th>Themes:</th></tr><tr height='33%'>";
+
+        var k = 0;
+        var j = 0;
+        var doSwap = false;
         for (var i = 0; i < layerThemes.length; i++) {
           if ((i % numThemesPerRow == 0) && i > 0) {
             html += "</tr><tr height='33%'>";
+            j = 0;
+            k += 1;
           }
-          var themeId = layerThemes[i][0].id;
-          html += "<td><div><label class='pointer' for='letterbox-" + themeId + "'><input type='radio' class='pointer' id='letterbox-" + themeId + "' data-theme-id='" + themeId + "' name='letterbox-layer-themes'/>" + layerThemes[i].text() + "</label></div></td>"
+          var idx = (j*numRows + k);
+          if (idx >= layerThemes.length) {
+            idx -= (k + 1)
+            doSwap = true;
+          }
+          var themeId = layerThemes[idx][0].id;
+          var theme = layerThemes[idx].text();
+          html += "<td><label class='pointer' for='letterbox-" + themeId + "'><input type='radio' class='pointer' id='letterbox-" + themeId + "' data-theme-id='" + themeId + "' name='letterbox-layer-theme'/>" + theme + "</label></td>"
+          j++;
         }
         html += "</tr></table>";
+
         $("#letterbox-bottom-picker-results-content").children().remove();
         $("#letterbox-bottom-picker-content").children().remove();
         $("#letterbox-bottom-picker-content").html(html);
+
+        if (doSwap) {
+          var lastColumns = $('.letterbox-bottom-picker-table tr > td:last-child');
+          var tmp = $(lastColumns[0]).html();
+          $(lastColumns[0]).html($(lastColumns[1]).html());
+          $(lastColumns[1]).html(tmp);
+        }
 
         // Handle letterbox theme selection
         $('.letterbox-bottom-picker-table').on("click", "td", function(e) {

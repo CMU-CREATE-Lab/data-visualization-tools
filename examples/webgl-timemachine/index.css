@@ -713,6 +713,12 @@ html, body {
   border-top: 1px solid #525252;
 }
 
+.letterbox-list-button-highlight {
+  -webkit-box-shadow: 0 0 20px 5px #efefef;
+          box-shadow: 0 0 20px 5px #efefef;
+  font-weight: bold;
+}
+
 #letterbox-list-themes-button {
   width: 110px;
   font-size: 20px;
