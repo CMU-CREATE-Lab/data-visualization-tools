@@ -85,6 +85,7 @@ CsvDataGrapher.prototype.initialize = function initialize() {
 
   var handleStripLines = function() {
     var currentCaptureTime = timelapse.getCurrentCaptureTime();
+    if (!currentCaptureTime) return;
     var captureTimeSplit = currentCaptureTime.split("-");
     if (that.chart.options.axisX.valueFormatString == "YYYY-MM") {
       that.chart.options.axisX.stripLines[0].value = new Date(captureTimeSplit[0], parseInt(captureTimeSplit[1]) - 1, 1);

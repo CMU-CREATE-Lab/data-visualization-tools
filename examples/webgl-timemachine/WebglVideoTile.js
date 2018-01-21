@@ -462,6 +462,8 @@ updatePhase2 = function(displayFrame) {
   }
   // Set speed so that in one webgl frame, we'll be exactly at the right time
   var speed = (futureTargetVideoFrame - actualVideoFrame) / future;
+
+  if (isNaN(speed)) speed = 0.5;
   if (speed < 0) speed = 0;
   if (speed > 5) speed = 5;
   if (speed > 0 && this._video.paused) {
