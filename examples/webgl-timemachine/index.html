@@ -1369,7 +1369,8 @@ function setTimeLine(identifier, startDate, endDate, step) {
             $activeLayersNotIncludingClickedLayer.trigger("click");
           }
           showHimawariTimeMachineLayer = true;
-          setActiveLayersWithTimeline(1);
+          activeLayersWithTimeline = 1;
+          previousActiveLayersWithTimeline = activeLayersWithTimeline;
           timelineType = "defaultUI";
           previousVisibleBaseMapLayer = visibleBaseMapLayer;
           visibleBaseMapLayer = "himawari";
@@ -1395,9 +1396,7 @@ function setTimeLine(identifier, startDate, endDate, step) {
           showHimawariTimeMachineLayer = false;
           cacheLastUsedLayer(himawariTimeMachineLayer);
           setActiveLayersWithTimeline(-1);
-          timelineType = "customUI";
-          visibleBaseMapLayer = previousVisibleBaseMapLayer;
-          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+          doSwitchToLandsat();
           var v = timelapse.getVideoset();
           v.setFps(10);
           timelapse.seek(0);
@@ -1435,7 +1434,8 @@ function setTimeLine(identifier, startDate, endDate, step) {
             $activeLayersNotIncludingClickedLayer.trigger("click");
           }
           showGoes16TimeMachineLayer = true;
-          setActiveLayersWithTimeline(1);
+          activeLayersWithTimeline = 1;
+          previousActiveLayersWithTimeline = activeLayersWithTimeline;
           timelineType = "defaultUI";
           previousVisibleBaseMapLayer = visibleBaseMapLayer;
           visibleBaseMapLayer = "goes16";
@@ -1461,9 +1461,7 @@ function setTimeLine(identifier, startDate, endDate, step) {
           showGoes16TimeMachineLayer = false;
           cacheLastUsedLayer(goes16TimeMachineLayer);
           setActiveLayersWithTimeline(-1);
-          timelineType = "customUI";
-          visibleBaseMapLayer = previousVisibleBaseMapLayer;
-          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+          doSwitchToLandsat();
           var v = timelapse.getVideoset();
           v.setFps(10);
           timelapse.seek(0);
@@ -1501,7 +1499,8 @@ function setTimeLine(identifier, startDate, endDate, step) {
             $activeLayersNotIncludingClickedLayer.trigger("click");
           }
           showDscovrTimeMachineLayer = true;
-          setActiveLayersWithTimeline(1);
+          activeLayersWithTimeline = 1;
+          previousActiveLayersWithTimeline = activeLayersWithTimeline;
           timelineType = "defaultUI";
           previousVisibleBaseMapLayer = visibleBaseMapLayer;
           visibleBaseMapLayer = "dscovr";
@@ -1528,9 +1527,7 @@ function setTimeLine(identifier, startDate, endDate, step) {
           showDscovrTimeMachineLayer = false;
           cacheLastUsedLayer(dscovrTimeMachineLayer);
           setActiveLayersWithTimeline(-1);
-          timelineType = "customUI";
-          visibleBaseMapLayer = previousVisibleBaseMapLayer;
-          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+          doSwitchToLandsat();
           var v = timelapse.getVideoset();
           v.setFps(10);
           timelapse.setMaxScale(landsatMaxScale);
