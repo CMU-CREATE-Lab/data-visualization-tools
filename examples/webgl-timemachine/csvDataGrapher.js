@@ -95,11 +95,13 @@ CsvDataGrapher.prototype.initialize = function initialize() {
     that.chart.render();
   };
 
-  timelapse.addTimeChangeListener(function(t) {
+  timelapse.addTimeChangeListener(function() {
+    if ($("#csvChartContainer").css("display") == 'none') return;
     handleStripLines();
   });
 
   timelapse.addTimelineUIChangeListener(function() {
+    if ($("#csvChartContainer").css("display") == 'none') return;
     handleStripLines();
   });
 
