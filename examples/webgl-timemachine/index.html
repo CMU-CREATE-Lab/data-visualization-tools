@@ -3312,13 +3312,15 @@ function setTimeLine(identifier, startDate, endDate, step) {
           $("#baselayerCreditText").html("&copy; Google");
         } else if (visibleBaseMapLayer == "light") {
           if (useGoogleMaps) {
-            $("#baselayerCreditText").html("&copy; Google (Dashed gray line indicates disputed borders)");
+            $("#baselayerCreditText").html("&copy; Google");
+            //$("#baselayerCreditText").html("&copy; Google (Dashed gray line indicates disputed borders)");
           } else {
             $("#baselayerCreditText").html("&copy; OpenMapTiles, &copy; OpenStreetMap");
           }
         } else if (visibleBaseMapLayer == "dark") {
           if (useGoogleMaps) {
-            $("#baselayerCreditText").html("&copy; Google (Dashed gray line indicates disputed borders)");
+            $("#baselayerCreditText").html("&copy; Google");
+            //$("#baselayerCreditText").html("&copy; Google (Dashed gray line indicates disputed borders)");
           } else {
             $("#baselayerCreditText").html("&copy; OpenMapTiles, &copy; OpenStreetMap");
           }
