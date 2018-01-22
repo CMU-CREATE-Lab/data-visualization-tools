@@ -4105,9 +4105,7 @@ function setTimeLine(identifier, startDate, endDate, step) {
       annotationPicturePaths = {};
       himawariWaypoints = {};
       $("#theme-list").empty();
-      $('#presentation-slider-selection table').css("min-width", "0px");
       $("#timeMachine").removeClass("presentationSliderSelection");
-      $("#presentation-slider-selection").hide();
       var currentWaypointSliderContentUrl;
 
       if (enableThemeHamburgerButton) {
@@ -4909,7 +4907,7 @@ function setTimeLine(identifier, startDate, endDate, step) {
       $(legend_html).appendTo($("#timeMachine .player"));
 
       if (enableLetterboxMode) {
-        $(".presentationSlider, .current-location-text-container, .annotation-nav, .player, #csvChartContainer, #presentation-slider-selection").addClass("letterbox");
+        $(".presentationSlider, .current-location-text-container, .annotation-nav, .player, #csvChartContainer").addClass("letterbox");
       } else {
         $nextAnnotationLocationButton = $('.next-annotation-location');
         $nextAnnotationLocationButton.button({
@@ -5010,7 +5008,7 @@ function setTimeLine(identifier, startDate, endDate, step) {
       }
 
       if (isHyperwall) {
-        $("#layers-list, #layers-legend, #presentation-slider-selection, .base-map-div, .customZoomhelp, #logosContainer").addClass("hyperwall");
+        $("#layers-list, #layers-legend, .base-map-div, .customZoomhelp, #logosContainer").addClass("hyperwall");
       }
 
 
@@ -6135,21 +6133,6 @@ function setTimeLine(identifier, startDate, endDate, step) {
         $chartLegend.appendTo("#timeMachine");
         $(".hamburger").hide();
       }
-
-      // Jump to buttons
-      // TODO: Remove?
-      $("#presentation-slider-selection").on("click", "td", function() {
-        var sectionId = $(this).get(0).id;
-        var waypointContainer = $(".snaplapse_keyframe_container");
-        if (sectionId == "automode-section") {
-          var snaplapseForPresentationSlider = timelapse.getSnaplapseForPresentationSlider();
-          snaplapseForPresentationSlider.getSnaplapseViewer().initializeAndRunAutoMode();
-        } else {
-          var scrollTo = $($(".snaplapse_keyframe_list").children().children().get($(this).data("section-idx")));
-          var scrollAmount = scrollTo.offset().left - waypointContainer.offset().left + waypointContainer.scrollLeft();
-          $(".snaplapse_keyframe_container").scrollLeft(scrollAmount);
-        }
-      });
 
       var hashChange = function() {
         var vals = UTIL.getUnsafeHashVars();
@@ -8646,13 +8629,6 @@ function setTimeLine(identifier, startDate, endDate, step) {
     <div id="theme-title-container" title="Select a theme">
       <div id="theme-title"></div>
     </div>
-  </div>
-  <div id="presentation-slider-selection">
-    <table>
-      <tr>
-        <td style="color: white; padding-left: 5px !important"><div>Jump To:</div></td>
-      </tr>
-    </table>
   </div>
   <div id="csvChartContainer"></div>
   <div id="csvChartLegend">
