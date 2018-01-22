@@ -692,8 +692,8 @@
     var osmDefaultUrl = rootTilePath + "/openstreetmap/default/";
     var osmLightRetinaUrl = rootTilePath + "/openstreetmap/light_all_retina/{default}/{z}/{x}/{y}.png";
     var osmDarkRetinaUrl = rootTilePath + "/openstreetmap/dark_all_retina/{default}/{z}/{x}/{y}.png";
-    var omtDarkUrl = "https://tiles.earthtime.org/openmaptiles/dark/{z}/{x}/{y}.png";
-    var omtLightUrl = "https://tiles.earthtime.org/openmaptiles/light/{z}/{x}/{y}.png";
+    var omtDarkUrl = rootTilePath + "/openmaptiles/dark/{default}/{z}/{x}/{y}.png";
+    var omtLightUrl = rootTilePath + "/openmaptiles/light/{default}/{z}/{x}/{y}.png";
     var gfcTransUrl = rootTilePath + "/global-forest-change/loss_year_transparent/{default}/{z}/{x}/{y}.png";
     var gfcLossGainUrl = rootTilePath + "/global-forest-change/loss_tree_gain/{default}/{z}/{x}/{y}.png";
     //var googleMapsDefaultUrl = "https://mts0.googleapis.com/vt?pb=!1m5!1m4!1i{z}!2i{x}!3i{y}!4i256!2m3!1e0!2sm!3i323305239!3m9!2sen-US!3sUS!5e18!12m1!1e47!12m3!1e37!2m1!1ssmartmaps!4e0";
@@ -704,10 +704,11 @@
     var googleMapsDarkStyleRetinaUrl = "https://maps.googleapis.com/maps/vt?pb=!1m5!1m4!1i{z}!2i{x}!3i{y}!4i256!2m3!1e0!2sm!3i386081408!3m14!2sen-US!3sUS!5e18!12m1!1e47!12m3!1e37!2m1!1ssmartmaps!12m4!1e26!2m2!1sstyles!2zcy5lOmd8cC5jOiNmZjAwMDAwMCxzLmU6bHxwLnY6b2ZmLHMuZTpsLml8cC52Om9mZixzLmU6bC50LmZ8cC5jOiNmZjc1NzU3NSxzLmU6bC50LnN8cC5jOiNmZjIxMjEyMSxzLnQ6MXxzLmU6Z3xwLmM6I2ZmNzU3NTc1fHAudjpvZmYscy50OjE3fHAudjpvbixzLnQ6MTd8cy5lOmwudC5mfHAuYzojZmZjY2NjY2Mscy50OjE3fHMuZTpsLnQuc3xwLmM6I2ZmMDAwMDAwLHMudDoyMXxwLnY6b2ZmLHMudDoxOXxzLmU6bC50LmZ8cC5jOiNmZmJkYmRiZCxzLnQ6MjB8cC52Om9mZixzLnQ6MTh8cC52Om9uLHMudDoxOHxzLmU6bC50LmZ8cC5jOiNmZjdmN2Y3ZixzLnQ6MTh8cy5lOmwudC5zfHAuYzojZmYwMDAwMDAscy50OjJ8cC52Om9mZixzLnQ6MnxzLmU6bC50LmZ8cC5jOiNmZjc1NzU3NSxzLnQ6NDB8cy5lOmd8cC5jOiNmZjE4MTgxOCxzLnQ6NDB8cy5lOmwudC5mfHAuYzojZmY2MTYxNjEscy50OjQwfHMuZTpsLnQuc3xwLmM6I2ZmMWIxYjFiLHMudDozfHAudjpvZmYscy50OjN8cy5lOmcuZnxwLmM6I2ZmMmMyYzJjLHMudDozfHMuZTpsLml8cC52Om9mZixzLnQ6M3xzLmU6bC50LmZ8cC5jOiNmZjhhOGE4YSxzLnQ6NTB8cy5lOmd8cC5jOiNmZjM3MzczNyxzLnQ6NDl8cy5lOmd8cC5jOiNmZjNjM2MzYyxzLnQ6Nzg1fHMuZTpnfHAuYzojZmY0ZTRlNGUscy50OjUxfHMuZTpsLnQuZnxwLmM6I2ZmNjE2MTYxLHMudDo0fHAudjpvZmYscy50OjR8cy5lOmwudC5mfHAuYzojZmY3NTc1NzUscy50OjZ8cC5jOiNmZjRjNGM0YyxzLnQ6NnxzLmU6Z3xwLmM6I2ZmMzMzMzMzLHMudDo2fHMuZTpsLnQuZnxwLmM6I2ZmM2QzZDNk!4e0!5m1!5f2";
     var googleMapsCountryLabelUrl = 'https://maps.googleapis.com/maps/vt?pb=!1m5!1m4!1i{z}!2i{x}!3i{y}!4i256!2m3!1e0!2sm!3i388084864!3m14!2sen-US!3sUS!5e18!12m1!1e68!12m3!1e37!2m1!1ssmartmaps!12m4!1e26!2m2!1sstyles!2zcy5lOmd8cC5jOiNmZjIxMjEyMSxzLmU6bC5pfHAudjpvZmYscy5lOmwudC5mfHAuYzojZmY3NTc1NzUscy5lOmwudC5zfHAuYzojZmYyMTIxMjEscy50OjF8cy5lOmd8cC5jOiNmZjc1NzU3NXxwLnY6b2ZmLHMudDoxN3xzLmU6bC50LmZ8cC5jOiNmZjllOWU5ZSxzLnQ6MjF8cC52Om9mZixzLnQ6MTl8cC52Om9mZixzLnQ6MTl8cy5lOmwudC5mfHAuYzojZmZiZGJkYmQscy50OjIwfHAudjpvZmYscy50OjE4fHAudjpvZmYscy50OjV8cC52Om9mZixzLnQ6MnxwLnY6b2ZmLHMudDoyfHMuZTpsLnR8cC52Om9mZixzLnQ6MnxzLmU6bC50LmZ8cC5jOiNmZjc1NzU3NSxzLnQ6NDB8cy5lOmd8cC5jOiNmZjE4MTgxOCxzLnQ6NDB8cy5lOmwudC5mfHAuYzojZmY2MTYxNjEscy50OjQwfHMuZTpsLnQuc3xwLmM6I2ZmMWIxYjFiLHMudDozfHAudjpvZmYscy50OjN8cy5lOmcuZnxwLmM6I2ZmMmMyYzJjLHMudDozfHMuZTpsfHAudjpvZmYscy50OjN8cy5lOmwuaXxwLnY6b2ZmLHMudDozfHMuZTpsLnQuZnxwLmM6I2ZmOGE4YThhLHMudDo1MHxzLmU6Z3xwLmM6I2ZmMzczNzM3LHMudDo0OXxzLmU6Z3xwLmM6I2ZmM2MzYzNjLHMudDo3ODV8cy5lOmd8cC5jOiNmZjRlNGU0ZSxzLnQ6NTF8cy5lOmwudC5mfHAuYzojZmY2MTYxNjEscy50OjR8cC52Om9mZixzLnQ6NHxzLmU6bC50LmZ8cC5jOiNmZjc1NzU3NSxzLnQ6NnxwLnY6b2ZmLHMudDo2fHMuZTpnfHAuYzojZmYwMDAwMDAscy50OjZ8cy5lOmwudHxwLnY6b2ZmLHMudDo2fHMuZTpsLnQuZnxwLmM6I2ZmM2QzZDNk!4e0';
     var googleMapsCountryLabelUrl = 'https://maps.googleapis.com/maps/vt?pb=!1m5!1m4!1i{z}!2i{x}!3i{y}!4i256!2m3!1e0!2sm!3i388083592!3m14!2sen-US!3sUS!5e18!12m1!1e68!12m3!1e37!2m1!1ssmartmaps!12m4!1e26!2m2!1sstyles!2zcy5lOmd8cC5jOiNmZjIxMjEyMSxzLmU6bC5pfHAudjpvZmYscy5lOmwudC5mfHAuYzojZmY3NTc1NzUscy5lOmwudC5zfHAuYzojZmYyMTIxMjEscy50OjF8cy5lOmd8cC5jOiNmZjc1NzU3NXxwLnY6b2ZmLHMudDoxN3xzLmU6bC50LmZ8cC5jOiNmZmZmZmZmZixzLnQ6MTd8cy5lOmwudC5zfHAuYzojZmYwMDAwMDAscy50OjIxfHAudjpvZmYscy50OjE5fHAudjpvZmYscy50OjE5fHMuZTpsLnQuZnxwLmM6I2ZmYmRiZGJkLHMudDoyMHxwLnY6b2ZmLHMudDoxOHxwLnY6b2ZmLHMudDo1fHAudjpvZmYscy50OjJ8cC52Om9mZixzLnQ6MnxzLmU6bC50fHAudjpvZmYscy50OjJ8cy5lOmwudC5mfHAuYzojZmY3NTc1NzUscy50OjQwfHMuZTpnfHAuYzojZmYxODE4MTgscy50OjQwfHMuZTpsLnQuZnxwLmM6I2ZmNjE2MTYxLHMudDo0MHxzLmU6bC50LnN8cC5jOiNmZjFiMWIxYixzLnQ6M3xwLnY6b2ZmLHMudDozfHMuZTpnLmZ8cC5jOiNmZjJjMmMyYyxzLnQ6M3xzLmU6bHxwLnY6b2ZmLHMudDozfHMuZTpsLml8cC52Om9mZixzLnQ6M3xzLmU6bC50LmZ8cC5jOiNmZjhhOGE4YSxzLnQ6NTB8cy5lOmd8cC5jOiNmZjM3MzczNyxzLnQ6NDl8cy5lOmd8cC5jOiNmZjNjM2MzYyxzLnQ6Nzg1fHMuZTpnfHAuYzojZmY0ZTRlNGUscy50OjUxfHMuZTpsLnQuZnxwLmM6I2ZmNjE2MTYxLHMudDo0fHAudjpvZmYscy50OjR8cy5lOmwudC5mfHAuYzojZmY3NTc1NzUscy50OjZ8cC52Om9mZixzLnQ6NnxzLmU6Z3xwLmM6I2ZmMDAwMDAwLHMudDo2fHMuZTpsLnR8cC52Om9mZixzLnQ6NnxzLmU6bC50LmZ8cC5jOiNmZjNkM2QzZA!4e0&token=52457';
+    var omtCountryLabelUrl = rootTilePath + "/labels/dark-map-country-labels/{default}/{z}/{x}/{y}.png";
     var googleMapsCityLabelUrl = 'https://maps.googleapis.com/maps/vt?pb=!1m5!1m4!1i{z}!2i{x}!3i{y}!4i256!2m3!1e0!2sm!3i397094607!3m14!2sen-US!3sUS!5e18!12m1!1e68!12m3!1e37!2m1!1ssmartmaps!12m4!1e26!2m2!1sstyles!2zcy50OjV8cC52Om9mZixzLnQ6MnxwLnY6b2ZmLHMudDozfHAudjpvZmYscy50OjN8cy5lOmx8cC52Om9mZixzLnQ6NHxwLnY6b2ZmLHMudDo2fHAudjpvZmY!4e0!5m1!5f2&token=118514';
-    var lightMapUrl = useGoogleMaps ? googleMapsDefaultRetinaUrl : osmLightRetinaUrl;
-    var darkMapUrl = useGoogleMaps ? googleMapsDarkStyleRetinaUrl : osmDarkRetinaUrl;
-    var countryLabelMapUrl = useGoogleMaps ? googleMapsCountryLabelUrl : googleMapsCountryLabelUrl;
+    var lightMapUrl = useGoogleMaps ? googleMapsDefaultRetinaUrl : omtLightUrl;
+    var darkMapUrl = useGoogleMaps ? googleMapsDarkStyleRetinaUrl : omtDarkUrl;
+    var countryLabelMapUrl = useGoogleMaps ? googleMapsCountryLabelUrl : omtCountryLabelUrl;
     var cityLabelMapUrl = useGoogleMaps ? googleMapsCityLabelUrl : googleMapsCityLabelUrl;
     var lightsAtNightUrl = rootTilePath + "/lights-at-night/{default}/{z}/{x}/{y}.png";
     // Note that x/y are swapped for these two lights at night data sets
@@ -3304,9 +3305,17 @@ function setTimeLine(identifier, startDate, endDate, step) {
         if (visibleBaseMapLayer == "landsat") {
           $("#baselayerCreditText").html("&copy; Google");
         } else if (visibleBaseMapLayer == "light") {
-          $("#baselayerCreditText").html("&copy; Mapbox, &copy; OpenStreetMap");
+          if (useGoogleMaps) {
+            $("#baselayerCreditText").html("&copy; Google");
+          } else {
+            $("#baselayerCreditText").html("&copy; OpenMapTiles, &copy; OpenStreetMap");
+          }
         } else if (visibleBaseMapLayer == "dark") {
-          $("#baselayerCreditText").html("&copy; OpenStreetMap");
+          if (useGoogleMaps) {
+            $("#baselayerCreditText").html("&copy; Google");
+          } else {
+            $("#baselayerCreditText").html("&copy; OpenMapTiles, &copy; OpenStreetMap");
+          }
         }
         if (visibleBaseMapLayer == "landsat" && previousVisibleBaseMapLayer != "landsat") {
           setActiveLayersWithTimeline(1);
@@ -3600,7 +3609,7 @@ function setTimeLine(identifier, startDate, endDate, step) {
           }
         }
 
-        if (e.originalEvent && event.pageX != 0 && event.pageY != 0 && $(this).prop('checked')) {
+        if (e.originalEvent && e.pageX != 0 && e.pageY != 0 && $(this).prop('checked')) {
           UTIL.addGoogleAnalyticEvent('button', 'click', 'layer=' + $(this).prop("id"));
         }
       });
