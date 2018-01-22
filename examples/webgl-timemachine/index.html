@@ -181,7 +181,6 @@
     var enableMinimalUIMode = window.location.hash.split("enableMinimalUIMode=")[1] || !!EARTH_TIMELAPSE_CONFIG.enableMinimalUIMode;
     var disablePresentationSlider = window.location.hash.split("disablePresentationSlider=")[1] || !!EARTH_TIMELAPSE_CONFIG.disablePresentationSlider || false;
     var extraContributors = EARTH_TIMELAPSE_CONFIG.extraContributors ? EARTH_TIMELAPSE_CONFIG.extraContributors.replace(",", " |") : "";
-    var useJumpToButtons = typeof(EARTH_TIMELAPSE_CONFIG.useJumpToButtons) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.useJumpToButtons;
     var showShareButton = typeof(EARTH_TIMELAPSE_CONFIG.showShareButton) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showShareButton;
     var showShareButtonHash = window.location.hash.split("showShareButton=")[1];
     if (showShareButtonHash)
@@ -265,9 +264,6 @@
       ymax: 1253113.3077389232,
       ymin: 1218442.2616483232
     };
-
-    // Mapping of spreadsheet entry title to jump point in waypoint slider
-    var jumpToButtons = {};
 
 
     // ## 1 ##
@@ -3441,15 +3437,6 @@ function setTimeLine(identifier, startDate, endDate, step) {
             $extrasVideo[0].src = "";
           }
           $("#extras-selector").val("select").selectmenu('refresh');
-          if (!enableThemeHamburgerButton && !enableLetterboxMode && useJumpToButtons) {
-            var presentationSliderSelectionHasScroll = $("#presentation-slider-selection")[0].scrollWidth > $("#presentation-slider-selection")[0].clientWidth;
-            if (presentationSliderSelectionHasScroll) {
-              $("#timeMachine").removeClass("presentationSliderSelection").addClass("presentationSliderSelectionOverflow");
-            } else {
-              $("#timeMachine").addClass("presentationSliderSelection").removeClass("presentationSliderSelectionOverflow");
-            }
-          }
-
         }
       }).css({
         'z-index': '2000',
@@ -4109,19 +4096,12 @@ function setTimeLine(identifier, startDate, endDate, step) {
         // Sections in the spreadsheet to jump to are flagged by having the title start with a #
         if (keyframe.unsafe_string_frameTitle.indexOf("#") == 0) {
           keyframe.unsafe_string_frameTitle = keyframe.unsafe_string_frameTitle.slice(1);
-          jumpToButtons[keyframe.unsafe_string_frameTitle] = i;
         }
-      }
-      if (useJumpToButtons && Object.keys(jumpToButtons).length > 0) {
-        useJumpToButtons = true;
-      } else {
-        useJumpToButtons = false;
       }
     }
 
     function loadWaypointSliderContentFromCSV(csvdata) {
       // Clear out internal data stores and relevant dom elements
-      jumpToButtons = {};
       annotationPicturePaths = {};
       himawariWaypoints = {};
       $("#theme-list").empty();
@@ -4165,25 +4145,6 @@ function setTimeLine(identifier, startDate, endDate, step) {
           $("#presentation-slider-hamburger-wrapper .hamburger, #presentation-slider-hamburger-wrapper #theme-title-container").height($(".snaplapse_keyframe_list").height() + 1);
         }
         $("#presentation-slider-hamburger-wrapper").show();
-      } else if (useJumpToButtons) {
-        $("#presentation-slider-selection").show();
-        // Clear out quick selection bar
-        $('#presentation-slider-selection table td:not(:first-child)').remove();
-        // Add to quick selection bar
-        $.each(jumpToButtons, function(sectionTitle, sectionIdx) {
-          $("#presentation-slider-selection > table td:last").after($('<td class="clickable" data-section-idx=' + sectionIdx + '><div>' + sectionTitle + '</div></td>'));
-        });
-        // Set width on quick selection bar to properly handle page resizes
-        $('#presentation-slider-selection table').css("min-width", $('#presentation-slider-selection table').width() + "px");
-        if (!enableLetterboxMode) {
-          var presentationSliderSelectionHasScroll = $("#presentation-slider-selection")[0].scrollWidth > $("#presentation-slider-selection")[0].clientWidth;
-          if (presentationSliderSelectionHasScroll) {
-            $("#timeMachine").removeClass("presentationSliderSelection").addClass("presentationSliderSelectionOverflow");
-          } else {
-            $("#timeMachine").addClass("presentationSliderSelection").removeClass("presentationSliderSelectionOverflow");
-          }
-        }
-        resize();
       }
 
       sortThemes();
@@ -6704,9 +6665,6 @@ function setTimeLine(identifier, startDate, endDate, step) {
       if (doShow) {
         $("#csvChartLegend").show();
         $("#csvChartContainer").show();
-        if (useJumpToButtons) {
-          $("#presentation-slider-selection").hide();
-        }
         if (!disablePresentationSlider) {
           $("#layers-legend, #main-hamburger-menu, .controls, .customControl, #baseLayerCreditContainer, .current-location-text-container, .player, .scaleBarContainer, #logosContainer").addClass("layerGraphs");
         }
@@ -6714,9 +6672,6 @@ function setTimeLine(identifier, startDate, endDate, step) {
       } else {
         $("#csvChartLegend").hide();
         $("#csvChartContainer").hide();
-        if (useJumpToButtons) {
-          $("#presentation-slider-selection").show();
-        }
         if (!disablePresentationSlider) {
           $("#layers-legend, #main-hamburger-menu, .controls, .customControl, #baseLayerCreditContainer, .current-location-text-container, .player, .scaleBarContainer, #logosContainer").removeClass("layerGraphs");
         }
@@ -6902,16 +6857,6 @@ function setTimeLine(identifier, startDate, endDate, step) {
       var width = canvasLayer.canvas.width;
       var height = canvasLayer.canvas.height;
       gl.viewport(0, 0, width, height);
-
-      if (useJumpToButtons && !enableThemeHamburgerButton && !enableLetterboxMode) {
-        var presentationSliderSelection = $("#presentation-slider-selection");
-        var presentationSliderSelectionHasScroll = presentationSliderSelection[0].scrollWidth > presentationSliderSelection[0].clientWidth;
-        if (presentationSliderSelectionHasScroll) {
-          $("#timeMachine").removeClass("presentationSliderSelection").addClass("presentationSliderSelectionOverflow");
-        } else {
-          $("#timeMachine").addClass("presentationSliderSelection").removeClass("presentationSliderSelectionOverflow");
-        }
-      }
 
       fixThemeMenuHeight();
 
