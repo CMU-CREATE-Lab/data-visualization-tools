@@ -241,6 +241,9 @@ WebGLVectorTile.prototype._loadSitc4r2Data = function () {
     };
   }
   this._ready = true;
+  var layerId = this._layerDomId.split('-')[2];
+  this.layerId = layerId;
+  this._dataLoaded(layerId);
 
 }
 
