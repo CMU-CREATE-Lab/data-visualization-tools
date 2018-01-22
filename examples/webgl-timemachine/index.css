@@ -1661,5 +1661,5 @@ a:focus { outline:0; }
 
 /* For IE 11 */
 .timeText {
-  width: 62px !important;
+  min-width: 62px !important;
 }
