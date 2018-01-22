@@ -854,6 +854,7 @@
       };
 
       if (enableLetterboxMode) {
+        $("#letterbox-content").show();
         $("#timeMachine").addClass("letterbox");
         $("#letterbox-main").replaceWith($("#timeMachine"));
         $("#letterbox-bottom").css("height", letterboxBottomOffset);
@@ -4829,6 +4830,7 @@ function setTimeLine(identifier, startDate, endDate, step) {
         layer_html += '   <option data-type="img" data-link-path="nation-states.jpg" data-name="e-nationstates">Nation States</option>';
         layer_html += '   <option data-type="img" data-link-path="Doughnut-classic.png" data-name="e-doughnut_classic">Doughnut Classic</option>';
         layer_html += '   <option data-type="img" data-link-path="Doughnut-transgressing.png" data-name="e-doughnut_transgressing">Doughnut Transgressing</option>';
+        layer_html += '   <option data-file-playback-rate="1" data-type="video" data-file-name="Global Cyber Centre.mp4" data-name="e-globalcyber">Global Cyber Centre</option>';
         if (showEVA)
           layer_html += '   <option data-type="link" data-link-path="http://localhost:8080/?uid=history-1436384863961-Vyxt6PIO" data-name="e-eva">EVA - Explorable Visual Analytics</option>';
         if (showGFW)
