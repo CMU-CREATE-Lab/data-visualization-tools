@@ -3586,6 +3586,16 @@ function setTimeLine(identifier, startDate, endDate, step) {
         keysDown.length = 0;
       });
 
+      $('#layers-list').on("click", "input", function() {
+        if (isMobileDevice || isIEButNotEdge) {
+          if (visibleBaseMapLayer != "landsat" || showLightsAtNightLayer || showLightsAtNight2012Layer || showLightsAtNight2016Layer || showHansenLayer2 || showVsiLayer) {
+            UTIL.setDrawState(false);
+          } else {
+            UTIL.setDrawState(true);
+          }
+        }
+      });
+
       $('#layers-list').on("change", "input", function(e) {
         if (enableLetterboxMode) {
           updateLetterboxSelections($(this));
@@ -3599,14 +3609,6 @@ function setTimeLine(identifier, startDate, endDate, step) {
           $("#layers-legend").hide();
         } else {
           $("#layers-legend").show();
-        }
-
-        if (isMobileDevice || isIEButNotEdge) {
-          if (visibleBaseMapLayer != "landsat" || showLightsAtNightLayer || showLightsAtNight2012Layer || showLightsAtNight2016Layer || showHansenLayer2 || showVsiLayer) {
-            UTIL.setDrawState(false);
-          } else {
-            UTIL.setDrawState(true);
-          }
         }
 
         if (e.originalEvent && e.pageX != 0 && e.pageY != 0 && $(this).prop('checked')) {
