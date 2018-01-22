@@ -1,23 +1,36 @@
 //Legend.js
+
+"use strict";
+
+// Template literals (strings) are not supported in IE 11 (and other browsers that don't support ES6)
+// We work around by doing the following.
+var _legendTemplateObject = _legendTaggedTemplateLiteral(['<div style="font-size: 15px">', '<span class="credit">(', ')</span></div>'], ['<div style="font-size: 15px">', '<span class="credit">(', ')</span></div>']),
+    _legendTemplateObject2 = _legendTaggedTemplateLiteral(['<div style="font-size: 11px; text-align: center;">', '</div>'], ['<div style="font-size: 11px; text-align: center;">', '</div>']),
+    _legendTemplateObject3 = _legendTaggedTemplateLiteral(['<div style="font-size: 11px">', ' '], ['<div style="font-size: 11px">', ' ']),
+    _legendTemplateObject4 = _legendTaggedTemplateLiteral(['<img src="', '" style="border:1px solid grey; width:200px; height:10px; margin-top:2px; position:relative; top:3px; background-color:black">'], ['<img src="', '" style="border:1px solid grey; width:200px; height:10px; margin-top:2px; position:relative; top:3px; background-color:black">']),
+    _legendTemplateObject5 = _legendTaggedTemplateLiteral([' ', '</div>'], [' ', '</div>']);
+
+function _legendTaggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
+
 var Legend = function Legend(id, str) {
     this.id = id;
     this.str = str;
-}
+};
 
 Legend.prototype.toString = function legendToString() {
-  var ret = '<tr id="' + this.id +'-legend" style="display: none"><td>'+ this.str +'</td></tr>';
+  var ret = '<tr id="' + this.id + '-legend" style="display: none"><td>' + this.str +'</td></tr>';
   return ret;
-}
+};
 
 var BubbleMapLegend = function BubbleMapLegend(opts) {
     this.width = 240;
     this.height = 110;
     this.keyY = 10;
-    this.keyOffset = 0;.0
+    this.keyOffset = 0.0;
     this.id = opts["id"];
     this.str = opts["str"] || this.setStr(opts);
     Legend.call(this, this.id, this.str);
-}
+};
 BubbleMapLegend.prototype = Object.create(Legend.prototype);
 
 BubbleMapLegend.prototype.setStr = function setStr(opts) {
@@ -50,7 +63,7 @@ BubbleMapLegend.prototype.setStr = function setStr(opts) {
         circles += getCircle(opts["circles"][i]['value'], opts["circles"][i]['radius']);
     }
     return div + svg + keys + circles + '</svg>';
-}
+};
 
 var ChoroplethLegend = function ChoroplethLegend(opts) {
     this.width = 280;
@@ -61,28 +74,28 @@ var ChoroplethLegend = function ChoroplethLegend(opts) {
     this.str = opts["str"] || this.setStr(opts);
     this.keys = opts["keys"] || [];
     Legend.call(this, this.id, this.str);
-}
+};
 
 ChoroplethLegend.prototype = Object.create(Legend.prototype);
 ChoroplethLegend.prototype.safe = function(templateData) {
-        var entityMap = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#39;',
-            '/': '&#x2F;',
-            '`': '&#x60;',
-            '=': '&#x3D;'
-        };
-  
-        var s = templateData[0];
-        for (var i = 1; i < arguments.length; i++) {
-            s += String(arguments[i]).replace(/[&<>"'`=\/]/g, function (s) { return entityMap[s]; });
-            s += templateData[i];
-        }
-        return s;
+    var entityMap = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+        '/': '&#x2F;',
+        '`': '&#x60;',
+        '=': '&#x3D;'
+    };
+
+    var s = templateData[0];
+    for (var i = 1; i < arguments.length; i++) {
+        s += String(arguments[i]).replace(/[&<>"'`=\/]/g, function (s) { return entityMap[s]; });
+        s += templateData[i];
     }
+    return s;
+};
 
 ChoroplethLegend.prototype.setStr = function setStr(opts) {
     var that = this;
@@ -102,13 +115,13 @@ ChoroplethLegend.prototype.setStr = function setStr(opts) {
 
     if (opts["colorMap"]) {
         var legend = '';
-        legend += this.safe`<div style="font-size: 15px">${opts["title"]}<span class="credit">(${opts["credit"]})</span></div>`;
+        legend += this.safe(_legendTemplateObject, opts["title"], opts["credit"]);
         if (opts["keys"].length > 0) {
-          legend += this.safe`<div style="font-size: 11px; text-align: center;">${opts["keys"][0]['str']}</div>`;            
+            legend += this.safe(_legendTemplateObject2, opts["keys"][0]['str']);
         }
-        legend += this.safe`<div style="font-size: 11px">${opts["values"][0]} `;
-        legend += this.safe`<img src="${opts["colorMap"]}" style="border:1px solid grey; width:200px; height:10px; margin-top:2px; position:relative; top:3px; background-color:black">`;
-        legend += this.safe` ${opts["values"][opts["values"].length - 1]}</div>`;
+        legend += this.safe(_legendTemplateObject3, opts["values"][0]);
+        legend += this.safe(_legendTemplateObject4, opts["colorMap"]);
+        legend += this.safe(_legendTemplateObject5, opts["values"][opts["values"].length - 1]);
         return legend;
         //legend += safe` ${layerJson.legendMax} ${layerJson.legendUnits}</div>`;
     } else {
@@ -151,8 +164,5 @@ ChoroplethLegend.prototype.setStr = function setStr(opts) {
 
         }
         return div + svg + keys + colors + values + '</svg>';
-
     }
-
-
-}
+};
