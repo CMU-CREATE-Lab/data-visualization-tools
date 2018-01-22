@@ -4128,7 +4128,7 @@ function setTimeLine(identifier, startDate, endDate, step) {
           changeHash({theme : ""});
         }
         var hashVals = UTIL.getUnsafeHashVars();
-        if (hashVals.theme) {
+        if (hashVals.theme && !hashVals.v) {
           loadedInitialWaypointList = true;
         }
         var $selectedThemeElement = waypointJSONList[hashVals.theme] ? $("#" + hashVals.theme) : $("#theme-list").children().first();
