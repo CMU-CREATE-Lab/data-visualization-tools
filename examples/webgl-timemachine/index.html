@@ -1401,7 +1401,7 @@ function setTimeLine(identifier, startDate, endDate, step) {
               }
             );
           }
-          $("#baseLayerCreditContainer").hide();
+          $("#baselayerCreditText").html("&copy; JMA");
         } else {
           showHimawariTimeMachineLayer = false;
           cacheLastUsedLayer(himawariTimeMachineLayer);
@@ -1426,7 +1426,6 @@ function setTimeLine(identifier, startDate, endDate, step) {
               );
             }
           }
-          $("#baseLayerCreditContainer").show();
         }
         timelapse.warpTo(timelapse.getHomeView());
       }).prop('checked', showHimawariTimeMachineLayer);
@@ -1466,7 +1465,7 @@ function setTimeLine(identifier, startDate, endDate, step) {
               }
             );
           }
-          $("#baseLayerCreditContainer").hide();
+          $("#baselayerCreditText").html("&copy; NOOA");
         } else {
           showGoes16TimeMachineLayer = false;
           cacheLastUsedLayer(goes16TimeMachineLayer);
@@ -1491,7 +1490,6 @@ function setTimeLine(identifier, startDate, endDate, step) {
               );
             }
           }
-          $("#baseLayerCreditContainer").show();
         }
         timelapse.warpTo(timelapse.getHomeView());
       }).prop('checked', showGoes16TimeMachineLayer);
@@ -1532,7 +1530,7 @@ function setTimeLine(identifier, startDate, endDate, step) {
               }
             );
           }
-          $("#baseLayerCreditContainer").hide();
+          $("#baselayerCreditText").html("&copy; NOOA");
         } else {
           showDscovrTimeMachineLayer = false;
           cacheLastUsedLayer(dscovrTimeMachineLayer);
@@ -1556,7 +1554,6 @@ function setTimeLine(identifier, startDate, endDate, step) {
               );
             }
           }
-          $("#baseLayerCreditContainer").show();
         }
         timelapse.warpTo(timelapse.getHomeView());
       }).prop('checked', showDscovrTimeMachineLayer);
