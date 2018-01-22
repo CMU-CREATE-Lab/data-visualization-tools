@@ -1624,7 +1624,6 @@ a:focus { outline:0; }
   height: 32px;
   -webkit-background-size: 18px auto;
           background-size: 18px auto;
-  /*float: right;*/
   background-repeat: no-repeat;
   background-position: 10px 10px;
 }
@@ -1657,4 +1656,9 @@ a:focus { outline:0; }
 
 .toggleContextMapBtn, .contextMapContainer {
   display: none;
+}
+
+/* For IE 11 */
+.timeText {
+  width: 62px !important;
 }
