@@ -1663,3 +1663,11 @@ a:focus { outline:0; }
 .timeText {
   min-width: 62px !important;
 }
+
+/* Override CSS from TimeMachine */
+#browser_not_supported {
+  display: none;
+  width: 582px;
+  top: calc(50% - 106px);
+  left: calc(50% - 291px);
+}
