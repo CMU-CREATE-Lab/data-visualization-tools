@@ -329,8 +329,10 @@ CsvDataGrapher.prototype.getDataForLayer = function getDataForLayer(layerData, l
 
   // Times are contained in the first array
   for (var i = 1; i < layerData.length; i++) {
-    that.activeLayer.entries[layerData[i][0]] = [];
-    var entry = that.activeLayer.entries[layerData[i][0]];
+    var plotName = layerData[i][0].trim();
+    if (!plotName) continue;
+    that.activeLayer.entries[plotName] = [];
+    var entry = that.activeLayer.entries[plotName];
     for (var j = first_data_col; j < layerData[i].length; j++) {
       var date = header[j];
       var yyyymm_re = /(\d{4})(\d{2})$/;
