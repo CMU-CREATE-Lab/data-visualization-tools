@@ -48,6 +48,7 @@ function WebglVideoTile(glb, tileidx, bounds, url, defaultUrl, numFrames, fps, g
                                                        0, 1,
                                                        1, 1]));
 
+  // Mobile uses TimeMachine canvas to render the videos
   if (org.gigapan.Util.isMobileDevice()) {
     this._video = {};
   } else {
@@ -153,6 +154,9 @@ WebglVideoTile.averageSeekFrameCount = function() {
 
 WebglVideoTile.prototype.
 delete = function() {
+  // Mobile uses TimeMachine canvas to render the videos
+  if (org.gigapan.Util.isMobileDevice()) return;
+
   // TODO: recycle texture
   if (this._videoPlayPromise !== undefined) {
     var that = this;
