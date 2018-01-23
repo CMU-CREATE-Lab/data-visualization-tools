@@ -328,7 +328,7 @@ CsvDataGrapher.prototype.getDataForLayer = function getDataForLayer(layerData, l
   var first_data_col = has_lat_lon ? 3 : 1;
 
   // Times are contained in the first array
-  for (var i = 1; i < layerData.length - 1; i++) {
+  for (var i = 1; i < layerData.length; i++) {
     that.activeLayer.entries[layerData[i][0]] = [];
     var entry = that.activeLayer.entries[layerData[i][0]];
     for (var j = first_data_col; j < layerData[i].length; j++) {
