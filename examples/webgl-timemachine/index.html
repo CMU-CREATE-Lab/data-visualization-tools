@@ -5787,6 +5787,11 @@ function setTimeLine(identifier, startDate, endDate, step) {
         snaplapseViewerForPresentationSlider = snaplapseForPresentationSlider.getSnaplapseViewer();
       }
 
+      if (isMobileDevice) {
+        $(".current-location-text-container").addClass("current-location-text-container-touchFriendly");
+        $("#logosContainer").addClass("logosContainer-touchFriendly");
+      }
+
       if (snaplapseViewerForPresentationSlider) {
         $('.presentationSlider').show();
         var $elements = $('#layers-legend, #theme-title-container, .current-location-text-container, .presentationSlider, .customControl, .controls, .captureTime, .scaleBarContainer, .snaplapse_keyframe_container, .keyframeSubtitleBoxForHovering, .snaplapse_keyframe_list_item_presentation, .snaplapse_keyframe_list_item_thumbnail_overlay_presentation');

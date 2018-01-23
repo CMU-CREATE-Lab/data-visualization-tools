@@ -1671,3 +1671,11 @@ a:focus { outline:0; }
   top: calc(50% - 106px);
   left: calc(50% - 291px);
 }
+
+.current-location-text-container-touchFriendly {
+  bottom: 96px !important;
+}
+
+.logosContainer-touchFriendly {
+  bottom: 94px !important;
+}
