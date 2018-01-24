@@ -234,7 +234,7 @@
     var visibleBaseMapLayer = "landsat";
     var previousVisibleBaseMapLayer = "landsat";
     WebglVideoTile.useFaderShader = useFaderShader;
-    var timelapse, snaplapseViewerForPresentationSlider, previousWaypoint = {}, waypointViewChangeListener, hideWaypointListener, waypointTimeChangeListener, snaplapseForPresentationSlider;
+    var timelapse, snaplapseViewerForPresentationSlider, previousWaypoint = {}, waypointViewChangeListener, hideWaypointListener, waypointTimeChangeListenerInterval, snaplapseForPresentationSlider;
     var currentWaypointTheme;
     var himawariWaypoints = {};
     var annotationPicturePaths = {};
@@ -5897,20 +5897,25 @@ function setTimeLine(identifier, startDate, endDate, step) {
             waypointStartTime = himawariWaypoint.time;
           }
 
-          timelapse.removeTimeChangeListener(waypointTimeChangeListener);
+          clearInterval(waypointTimeChangeListenerInterval);
+          waypointTimeChangeListenerInterval = null;
 
           if (waypointEndTime >= 0 && waypointStartTime != waypointEndTime) {
-            waypointTimeChangeListener = function(t) {
-              if (t >= waypointEndTime) {
+            waypointTimeChangeListenerInterval = setInterval(function() {
+              var t = timelapse.getCurrentTime();
+              if (t > waypointEndTime) {
+                // If the user ends up scrubbing past the desired 'end time' of this waypoint,
+                // remove this loopback check and let the animation loop through the entire time range.
                 var currentTimeInMs = (new Date()).getTime();
                 if ((currentTimeInMs - timeInMsSinceLastWaypointLoop) < 500) {
-                  timelapse.removeTimeChangeListener(waypointTimeChangeListener);
+                  clearInterval(waypointTimeChangeListenerInterval);
+                  waypointTimeChangeListenerInterval = null;
                 }
-                timeInMsSinceLastWaypointLoop = (new Date()).getTime();
+                timeInMsSinceLastWaypointLoop = currentTimeInMs;
+                // Seek back to the desired 'begin time' of this waypoint.
                 timelapse.seek(waypointStartTime);
               }
-            };
-            timelapse.addTimeChangeListener(waypointTimeChangeListener);
+            }, 1);
           }
 
           var waypointListNameString = waypointLayers.map(function(waypointName) {
@@ -6049,7 +6054,8 @@ function setTimeLine(identifier, startDate, endDate, step) {
                       $current_location_text_container.hide();
                       $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight").removeClass("thumbnail_highlight");
                       timelapse.removeViewChangeListener(hideWaypointListener);
-                      timelapse.removeTimeChangeListener(waypointTimeChangeListener);
+                      clearInterval(waypointTimeChangeListenerInterval);
+                      waypointTimeChangeListenerInterval = null;
                     }
                   };
                   timelapse.addViewChangeListener(hideWaypointListener);
