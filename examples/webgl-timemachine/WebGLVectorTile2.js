@@ -205,7 +205,7 @@ WebGLVectorTile.prototype._loadSitc4r2Data = function () {
       return params;
   };
 
-  var re=/([0-9]{2,})\/([0-9]{4}).json/g;
+  var re=/([0-9]{1,})\/([0-9]{4}).json/g;
   var myArray = re.exec(this._url);
   //console.log(this._url);
   this._sitc4r2Code = myArray[1].toString();
