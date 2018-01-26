@@ -84,9 +84,14 @@ function WebglVideoTile(glb, tileidx, bounds, url, defaultUrl, numFrames, fps, g
     });
   }
   this._ready = false;
+  // TODO: Are these hardcoded dimensions still being used?
   this._width = 1424;
   this._height = 800;
   this._bounds = bounds;
+  // This min/max playback rate is specified by Chrome/FireFox and clamping to it has
+  // become a requirement with latest browser updates or we suffer video playback glitches.
+  this._minPlaybackRate = 0.0625;
+  this._maxPlaybackRate = 16.0;
   this._frameOffsetIndex = WebglVideoTile.getUnusedFrameOffsetIndex();
   this._frameOffset = WebglVideoTile._frameOffsets[this._frameOffsetIndex];
   this._fps = fps;
@@ -494,7 +499,7 @@ updatePhase2 = function(displayFrame) {
                   ', seeking to=' + r2(seekTime));
     }
   } else {
-    this._video.playbackRate = speed;
+    this._video.playbackRate = Math.min(Math.max(speed, this._minPlaybackRate), this._maxPlaybackRate);
     if (WebglVideoTile.verbose) {
       console.log(this._id + ': onscreen=' + this._pipeline[0].frameno +
                   ', display=' + r2(displayFrame) +
