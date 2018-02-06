@@ -178,8 +178,11 @@
 
     var usePresentationClicker = !!EARTH_TIMELAPSE_CONFIG.usePresentationClicker;
     var enableThemeHamburgerButton = !!EARTH_TIMELAPSE_CONFIG.enableThemeHamburgerButton;
-    var enableMinimalUIMode = window.location.hash.split("enableMinimalUIMode=")[1] || !!EARTH_TIMELAPSE_CONFIG.enableMinimalUIMode;
+    var minimalUI = window.location.hash.split("minimalUI=")[1] || !!EARTH_TIMELAPSE_CONFIG.minimalUI;
+    var disableUI = window.location.hash.split("disableUI=")[1] || !!EARTH_TIMELAPSE_CONFIG.disableUI;
     var disablePresentationSlider = window.location.hash.split("disablePresentationSlider=")[1] || !!EARTH_TIMELAPSE_CONFIG.disablePresentationSlider || false;
+    if (disableUI)
+      disablePresentationSlider = true;
     var extraContributors = EARTH_TIMELAPSE_CONFIG.extraContributors ? EARTH_TIMELAPSE_CONFIG.extraContributors.replace(",", " |") : "";
     var showShareButton = typeof(EARTH_TIMELAPSE_CONFIG.showShareButton) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showShareButton;
     var showShareButtonHash = window.location.hash.split("showShareButton=")[1];
@@ -5994,6 +5997,7 @@ function setTimeLine(identifier, startDate, endDate, step) {
             } else {
               var waypointPlaybackRate = timelapse.getMaxPlaybackRate() * (waypointPlaybackSpeed / 100);
               timelapse.setPlaybackRate(waypointPlaybackRate);
+              // TODO: We shouldn't force playing here
               if (timelapse.isPaused() && !timelapse.isDoingLoopingDwell()) {
                 timelapse.handlePlayPause();
               }
@@ -6385,11 +6389,22 @@ function setTimeLine(identifier, startDate, endDate, step) {
         $("#contributors").html($("#contributors").html() + " | " + extraContributors);
       }
 
-      if (enableMinimalUIMode) {
-        // TODO
-        $(".customHelpLabel").remove();
-        $(".location_search_div, .share").hide();
-        $("#layers-legend").css({"top" : "20px", "left" : "20px"});
+      if (minimalUI) {
+        // Move capture time outside of the timeline controls
+        $(".captureTime").insertBefore(".controls");
+        $(".captureTime, .scaleBarContainer, #logosContainer, #baseLayerCreditContainer").addClass("minimalUIMode");
+        // Move annotation to top left
+        $(".current-location-text-container, .annotation-nav").addClass("letterbox");
+        // Remove side control panel, search box, and timelines
+        $("#controlsContainer, .location_search_div, .customControl, .controls").remove();
+        // Hide presentation slider so that it's still usable via keyboard/clicker but not shown on screen
+        $("#timeMachine .presentationSlider").addClass("offscreen");
+        $("#timeMachine .player").addClass("presentationSliderOffscreen");
+      }
+
+      if (disableUI) {
+        // Remove side control panel, search box, timelines, scalebar, logos and legend
+        $("#controlsContainer, .location_search_div, .customControl, .controls, .scaleBarContainer, .captureTime, #baseLayerCreditContainer, #logosContainer, #layers-legend").remove();
       }
 
       $(window).on('hashchange', hashChange).trigger('hashchange');
