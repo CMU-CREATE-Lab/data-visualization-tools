@@ -230,6 +230,7 @@
     var NORTH = 85.05113006405742; // Latitude for Northern most extent
     var landsatMaxScale = (landsatVersion == "2015") ? 1.25 : 0.45;
     landsatMaxScale -= (window.devicePixelRatio > 1) * 0.21;
+    var rasterMapTileMaxScale = 80 * landsatMaxScale;
     var himawariMaxScale = 0.02;
     var goes16MaxScale = 0.017;
     var dscovrMaxScale = 0.004;
@@ -3329,11 +3330,13 @@ function setTimeLine(identifier, startDate, endDate, step) {
           }
         }
         if (visibleBaseMapLayer == "landsat" && previousVisibleBaseMapLayer != "landsat") {
+          timelapse.setMaxScale(landsatMaxScale);
           setActiveLayersWithTimeline(1);
           if (!showViirsLayer) {
             timelineType = "customUI";
           }
         } else if (visibleBaseMapLayer != "landsat") {
+          timelapse.setMaxScale(rasterMapTileMaxScale);
           if (previousVisibleBaseMapLayer == "landsat")
             setActiveLayersWithTimeline(-1);
           timelineType = "none";
