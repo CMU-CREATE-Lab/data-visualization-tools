@@ -1661,9 +1661,9 @@ a:focus { outline:0; }
   z-index: 9;
   border-radius: 3px;
   cursor: default;
-  text-align: left;
+  text-align: center;
   width: auto;
-  min-width: 74.16px;
+  min-width: 83.73px;
   height: 36px;
   font-size: 25pt;
   display: block !important;

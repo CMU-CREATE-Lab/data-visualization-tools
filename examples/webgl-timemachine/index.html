@@ -7461,7 +7461,7 @@ function setTimeLine(identifier, startDate, endDate, step) {
           }
           degree.innerHTML = (currentIndex / 2).toFixed(1);
           seaLevelRiseLayer.draw(seaLevelRiseLayerView, options);
-          $(".timeText").html(timelapse.getCurrentCaptureTime() + "&degC");
+          $(".timeText, .captureTimeMain").html(timelapse.getCurrentCaptureTime() + "&degC");
         }
 
         if (showUrbanFragilityLayer) {
