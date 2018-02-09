@@ -7457,9 +7457,9 @@ function setTimeLine(identifier, startDate, endDate, step) {
           }
           //feet.innerHTML = sea_level_heights[currentIndex][0] + "ft";
           if (sea_level_heights[currentIndex]) {
-            meters.innerHTML = "+" + sea_level_heights[currentIndex][1].toFixed(1) + "m";
+            $(meters).html("+" + sea_level_heights[currentIndex][1].toFixed(1) + "m");
           }
-          degree.innerHTML = (currentIndex / 2).toFixed(1);
+          $(degree).html((currentIndex / 2).toFixed(1));
           seaLevelRiseLayer.draw(seaLevelRiseLayerView, options);
           $(".timeText, .captureTimeMain").html(timelapse.getCurrentCaptureTime() + "&degC");
         }
