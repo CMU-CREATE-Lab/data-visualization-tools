@@ -6160,6 +6160,7 @@ function setTimeLine(identifier, startDate, endDate, step) {
 
       var hashChange = function() {
         var vals = UTIL.getUnsafeHashVars();
+        $(".map-layer-div").find("input:checked").trigger("click");
         if (vals.l) {
           var layers = vals.l.split(",");
           layers.forEach(function(layer) {
@@ -6617,7 +6618,7 @@ function setTimeLine(identifier, startDate, endDate, step) {
           // Special case since this is a radio button
           $input.prop("checked", true);
 
-          // Create latterbox layers table
+          // Create letterbox layers table
           var categoryLayers = $("#" + $input.data("category-id")).next().find("td").not(".loading-layer-spinner-small");
           var numLayersPerRow = Math.ceil(categoryLayers.length / numRows);
 
