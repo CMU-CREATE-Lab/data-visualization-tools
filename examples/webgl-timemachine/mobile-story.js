@@ -87,7 +87,7 @@ function ShareLinkToThumbnailUrl(shareLink, opts) {
     var tileFormat = opts.tileFormat || "mp4";
     var format = opts.format || "mp4";
     var fps = opts.fps || 6;
-    var url = "http://thumbnails.cmucreatelab.org/thumbnail?";
+    var url = "https://thumbnails-staging.cmucreatelab.org/thumbnail?";
     url += "root=" + root;
     url += "&width=" + width;
     url += "&height=" + height;
