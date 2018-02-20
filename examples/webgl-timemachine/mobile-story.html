@@ -1,0 +1,189 @@
+<!doctype html>
+<html>
+<head> 
+  <link href="mobile-story.css" rel="stylesheet"/>
+  <script type="text/javascript" src="../../js/papaparse.min.js"></script>  
+  <script type="text/javascript" src="../../js/d3.min.js"></script>
+  <script type="text/javascript" src="../../js/handlebars-v4.0.11.js"></script>
+  <script type="text/javascript" src="../../js/blazy.min.js"></script>
+  <script type="text/javascript" src="../../js/noframework.waypoints.min.js"></script>
+</head>
+<body>
+  <script id="video-template" type="text/x-handlebars-template">
+    <span class="gi-card__media no-tint" data-media="{{idx}}"> 
+      <span class="gi-card__bg"> 
+        <span class="gi-card__video-parent" data-video-autoplay="true" data-video-contain="false" data-video-filename="{{filename}}" data-video-loop="true" data-video-portrait="true" data-video-poster="{{filename}}"> </span>  
+      </span>  
+    </span> 
+  </script>
+  <script id="title-video-template" type="text/x-handlebars-template">
+    <span class="gi-card__media light-tint active showing" data-media="{{idx}}"> 
+      <span class="gi-card__bg"> 
+        <span class="gi-card__video-parent" data-video-autoplay="true" data-video-contain="false" data-video-filename="{{filename}}" data-video-loop="true" data-video-portrait="true" data-video-poster="{{filename}}"> </span>  
+      </span>  
+    </span> 
+  </script>
+
+  <script id="video-caption-template" type="text/x-handlebars-template">
+    <div class="gi-card__content js-gi-media" data-media-target="{{idx}}" data-media-type="{{data_media_type}}"> 
+      <div class="gi-card__caption gi-lazy--inner gi-card__caption--left gi-card__caption--lg "> 
+        <p class=" gi-card__caption--parent">
+          <span class="gi-card__caption--bg">{{caption}}</span> 
+        </p> 
+      </div> 
+    </div>
+  </script>
+
+  <script id="title-video-caption-template" type="text/x-handlebars-template">
+    <div class="gi-card__content-title"> 
+      <div class="gi-card__content-title__block"> 
+        <h1 class="gi-card__content-title__headline">
+          <span>{{title}}</span> 
+        </h1> 
+        <div class="gi-card__content-title__rule"> </div>
+        <p class="gi-card__content-title_deck">{{caption}}</p>
+      </div> 
+    </div>
+    <div class="gi-card__content js-gi-media" data-media-target="{{idx}}" data-media-type="video"> 
+      <div class="gi-card__caption gi-lazy--inner gi-card__caption-trigger "> 
+        <p class=" "> </p> 
+      </div> 
+    </div>
+
+  </script>
+
+  <script id="picture-template" type="text/x-handlebars-template">
+    <span class="gi-card__media no-tint" data-media="{{idx}}"> 
+      <picture> 
+        <source data-srcset="{{filename_landscape}}" media="(min-width: 1024px) and (orientation: landscape)"> 
+        <source data-srcset="{{filename_landscape}}" media="(orientation: landscape)"> 
+        <source data-srcset="{{filename_portrait}}" media="(min-width: 768px) and (orientation: portrait)"> 
+        <source data-srcset="{{filename_portrait}}" media="(orientation: portrait)"> 
+        <img class="gi-card__asset no-tint b-lazy-manual" data-src="{{filename_landscape}}" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==">  
+      </picture>  
+    </span> 
+  </script>
+
+<div class="element element-rawhtml"> 
+  <article class="gi-article"> 
+    <header class="gi-header">
+      <div class="gi-header__content">
+        <div id="gi-header">
+         </div>
+       </div>
+      <div class="gi-header__logo">
+        <a href="https://earthime.org"> 
+          <!--<img src="https://www.theglobeandmail.com/files/interactive/assets/images/tgam-logo-boxed-transparent.svg"> -->
+          <img src="logo.png">
+         </a> 
+       </div>
+      <div class="gi-share" id="gi-share"> </div> 
+    </header> 
+    <main class="gi-body active"> 
+      <div class="gi-body__wrapper"> 
+        <div class="gi-body__content" itemprop="articleBody"> 
+          <span id="gi-body"> 
+            <div class="gi-asset gi-asset--fb gi-asset--fixed gi-asset--overlay gi-asset--gallery gi-asset--fade no-margin-top "> 
+              <div class="gi-fixed-wrapper" id="parent-media-list"> 
+                <div class="gi-card gi-card--fixed gi-card--title" id="media-list"> 
+                </div> 
+              </div>
+
+            </div>
+          </span>  
+        </div> 
+      </div> 
+    </main> 
+  </article>
+</div> 
+  <script type="text/javascript" src="mobile-story.js"></script>
+  <script>
+    var source  = document.getElementById("video-template").innerHTML;
+    var videoTemplate = Handlebars.compile(source);    
+    var source  = document.getElementById("video-caption-template").innerHTML;
+    var videoCaptionTemplate = Handlebars.compile(source);    
+    var source  = document.getElementById("title-video-template").innerHTML;
+    var titleVideoTemplate = Handlebars.compile(source);    
+    var source  = document.getElementById("title-video-caption-template").innerHTML;
+    var titleVideoCaptionTemplate = Handlebars.compile(source);    
+    var source  = document.getElementById("picture-template").innerHTML;
+    var pictureTemplate = Handlebars.compile(source);    
+
+    var url = "https://docs-proxy.cmucreatelab.org/spreadsheets/d/1SVMGlB3cfocLEcf3UOdsBX2xvtmNZmDbpL6O2ajmoic/export?format=csv&id=1SVMGlB3cfocLEcf3UOdsBX2xvtmNZmDbpL6O2ajmoic&gid=0";
+    var storyName = "#Big Picture on US Cities";
+    var parsedUrl = new URL(window.location.href);
+    if (parsedUrl.searchParams.get("storyName")  && parsedUrl.searchParams.get("storyName") != '') {
+      storyName = '#' + parsedUrl.searchParams.get("storyName");
+    }     
+    Papa.parse(url, {
+      download: true,
+      complete: function(results, file) {
+        var story = [];
+        //console.log("Parsing complete:", results, file);
+        var data = results["data"];
+        var append = false;
+        for (var i = 0; i < data.length; i++) {
+          if (data[i][0][0] == "#" && append) {
+            append = false;            
+          }
+          if (data[i][0] == storyName) {
+            append = true;
+          }
+          //if (append && data[i][0] != '' && data[i][1] != '') {
+          if (append) {
+            if (data[i][0] != '') {
+              story.push(data[i]);
+            }
+          }
+        }
+
+        var el = document.getElementById("media-list");
+        var f = story[0][3];
+        var videoContext = {idx: 0, filename: f};
+        var html = titleVideoTemplate(videoContext);          
+
+        el.insertAdjacentHTML('beforeend', html);
+
+        for (var i = 1; i < story.length; i++) {
+          var f = ShareLinkToThumbnailUrl(story[i][3]);
+          var f = story[i][3];
+          var videoContext = {idx: i, filename: f};
+          var html = videoTemplate(videoContext);          
+          if (isPicture(f)) {
+            var portraitOptions = {'orientation': 'portrait',
+                                   'nframes':1,
+                                   'format': 'png'};
+            var landscapeOptions = {'orientation': 'landscape',
+                                   'nframes':1,
+                                   'format': 'png'};
+
+            var f_portrait = ShareLinkToThumbnailUrl(f, portraitOptions);
+            var f_landscape = ShareLinkToThumbnailUrl(f, landscapeOptions);
+            var pictureContext = {idx: i, filename_portrait: f_portrait, filename_landscape: f_landscape};
+            html = pictureTemplate(pictureContext);          
+          }
+          el.insertAdjacentHTML('beforeend', html);
+        }
+
+        var el2 = document.getElementById("parent-media-list");
+        for (var i = story.length - 1; i > 0; i--) {
+          var videoCaptionContext = {idx: i, caption: story[i][2], data_media_type: 'video'};
+          var f = story[i][3];
+          if (isPicture(f)) {
+            videoCaptionContext['data_media_type'] = 'photo';
+          }
+          var html = videoCaptionTemplate(videoCaptionContext);          
+          el2.insertAdjacentHTML('afterend', html);
+        }
+
+        var videoCaptionContext = {idx: 0, title: story[0][0], caption: story[0][2]};
+        var html = titleVideoCaptionTemplate(videoCaptionContext);          
+        el2.insertAdjacentHTML('afterend', html);
+
+        giProject();
+      }      
+      // rest of config ...
+    })    
+  </script>
+</body>
+</html>
