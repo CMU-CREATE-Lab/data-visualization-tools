@@ -6167,18 +6167,22 @@ function setTimeLine(identifier, startDate, endDate, step) {
             layersToShowOnCreation[layer] = true;
             var $layerToggle = $("#layers-list label[name='" + layer + "'] input");
             if (!$layerToggle.prop('checked')) {
-              // The time in a share link may correspond to a layer that has a different timeline than the default one.
-              // Re-run corresponding sharelink code once the timeline has changed.
-              // Note that this may be unncessary because of the callback for CSV layers, but it's possible not to have CSV layers
-              // and CSV layers are async (and could be loaded very fast) so we keep this in.
-              var onloadView = function() {
-                timelapse.loadSharedViewFromUnsafeURL(UTIL.getUnsafeHashString());
-                timelapse.removeTimelineUIChangeListener(onloadView);
-              };
-              timelapse.addTimelineUIChangeListener(onloadView);
               $layerToggle.trigger("click");
             }
           });
+          // The time in a share link may correspond to a layer that has a different timeline than the default one.
+          // Re-run corresponding sharelink code once the timeline has changed.
+          // Note that this may be unncessary because of the callback for CSV layers, but it's possible not to have CSV layers
+          // and CSV layers are async (and could be loaded very fast) so we keep this in.
+          var onloadView = function() {
+            timelapse.loadSharedViewFromUnsafeURL(UTIL.getUnsafeHashString());
+            timelapse.removeTimelineUIChangeListener(onloadView);
+          };
+          timelapse.addTimelineUIChangeListener(onloadView);
+          // In the event a sharelink layer does not have a timeline change, be sure the above listener is removed.
+          setTimeout(function() {
+            timelapse.removeTimelineUIChangeListener(onloadView);
+          }, 500);
         }
 
         if (vals.theme) {
