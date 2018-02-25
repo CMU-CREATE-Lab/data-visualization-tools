@@ -3454,7 +3454,7 @@ function setTimeLine(identifier, startDate, endDate, step) {
       });
 
       $(document).keydown(function(e) {
-        if (e.target.id == 'location_search') return;
+        if (e.target.id == 'location_search' || $(".ui-dialog").is(":visible")) return;
 
         // 'page up' key
         // Quick way to step forward through waypoints
