@@ -34,6 +34,7 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
   this._uncertainValue = opt_options.uncertainValue || '. .';
   this._layerDomId = opt_options.layerDomId;
   this._loadingSpinnerTimer = null;
+  this._wasPlayingBeforeDataLoad = false;
 
   this.gl.getExtension("OES_standard_derivatives");
 
@@ -42,9 +43,8 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
 
   if (opt_options.imageSrc) {
     this._image = new Image();
-   this._image.crossOrigin = "anonymous";
-   this._image.src = opt_options.imageSrc;
-    
+    this._image.crossOrigin = "anonymous";
+    this._image.src = opt_options.imageSrc;
     var that = this;
     this._image.onload = function() {
       if (typeof(that._externalGeojson) != "undefined" && that._externalGeojson != "") {
@@ -2877,15 +2877,27 @@ WebGLVectorTile2.prototype._handleLoading = function() {
   // Wait 300ms to prevent small datasets from flashing up a spinner.
   this._loadingSpinnerTimer = setTimeout(function() {
     that._removeLoadingSpinner();
+    if (!timelapse.isPaused()) {
+      that._wasPlayingBeforeDataLoad = true;
+      timelapse.handlePlayPause();
+    }
     var $loadingSpinner = $("<td class='loading-layer-spinner-small' data-loading-layer='" + that._layerDomId + "'></td>");
     $(".map-layer-div input#" + that._layerDomId).closest("td").after($loadingSpinner);
+    timelapse.showSpinner("timeMachine");
   }, 300);
 }
 
 WebGLVectorTile2.prototype._removeLoadingSpinner = function() {
+  if (this._wasPlayingBeforeDataLoad) {
+    this._wasPlayingBeforeDataLoad = null;
+    timelapse.play();
+  }
   clearTimeout(this._loadingSpinnerTimer);
   var $loadingSpinner = $('.loading-layer-spinner-small[data-loading-layer="' + this._layerDomId + '"]');
   $loadingSpinner.remove();
+  if ($(".loading-layer-spinner-small").length == 0) {
+    timelapse.hideSpinner("timeMachine");
+  }
 }
 
 
