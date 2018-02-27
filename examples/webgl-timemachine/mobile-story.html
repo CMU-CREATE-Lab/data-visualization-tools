@@ -14,6 +14,9 @@
       <span class="gi-card__bg"> 
         <span class="gi-card__video-parent" data-video-autoplay="true" data-video-contain="false" data-video-filename="{{filename}}" data-video-loop="true" data-video-portrait="true" data-video-poster="{{filename}}"> </span>  
       </span>  
+      {{#if credit}}
+        <div class="gi-card__attribution">{{credit}}</div> 
+      {{/if}}
     </span> 
   </script>
   <script id="title-video-template" type="text/x-handlebars-template">
@@ -47,6 +50,21 @@
         </h1> 
         <div class="gi-card__content-title__rule"> </div>
         <p class="gi-card__content-title_deck">{{caption}}</p>
+        <div class="gi-card__content-title__meta"> 
+        {{#if author}}
+          <div class="gi-card__content-title__meta-author">
+            <span>
+              {{{author}}}
+            </span> 
+          </div>
+        {{/if}}
+        {{#if dateline}}
+          <div class="gi-card__content-title__meta-dateline">
+            <span>Published </span> <time itemprop="dateCreated">{{{dateline}}} </time> 
+          </div> 
+        {{/if}}
+        </div> 
+
       </div> 
     </div>
     <div class="gi-card__content js-gi-media" data-media-target="{{idx}}" data-media-type="video"> 
@@ -66,6 +84,9 @@
         <source data-srcset="{{filename_portrait}}" media="(orientation: portrait)"> 
         <img class="gi-card__asset no-tint b-lazy-manual" data-src="{{filename_landscape}}" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==">  
       </picture>  
+      {{#if credit}}
+        <div class="gi-card__attribution">{{credit}}</div> 
+      {{/if}}
     </span> 
   </script>
 
@@ -152,7 +173,8 @@
         for (var i = 1; i < story.length; i++) {
           var f = ShareLinkToThumbnailUrl(story[i][3]);
           var f = story[i][3];
-          var videoContext = {idx: i, filename: f};
+          var credit = story[i][5];
+          var videoContext = {idx: i, filename: f, credit: credit};
           var html = videoTemplate(videoContext);          
           if (isPicture(f)) {
             var portraitOptions = {'orientation': 'portrait',
@@ -164,7 +186,7 @@
 
             var f_portrait = ShareLinkToThumbnailUrl(f, portraitOptions);
             var f_landscape = ShareLinkToThumbnailUrl(f, landscapeOptions);
-            var pictureContext = {idx: i, filename_portrait: f_portrait, filename_landscape: f_landscape};
+            var pictureContext = {idx: i, filename_portrait: f_portrait, filename_landscape: f_landscape, credit: credit};
             html = pictureTemplate(pictureContext);          
           }
           el.insertAdjacentHTML('beforeend', html);
@@ -184,7 +206,7 @@
           el2.insertAdjacentHTML('afterend', html);
         }
 
-        var videoCaptionContext = {idx: 0, title: story[0][0], caption: story[0][2]};
+        var videoCaptionContext = {idx: 0, title: story[0][0], caption: story[0][2], author: story[0][6], dateline: story[0][7]};
         var html = titleVideoCaptionTemplate(videoCaptionContext);          
         el2.insertAdjacentHTML('afterend', html);
 
