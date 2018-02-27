@@ -28,7 +28,12 @@
     <div class="gi-card__content js-gi-media" data-media-target="{{idx}}" data-media-type="{{data_media_type}}"> 
       <div class="gi-card__caption gi-lazy--inner gi-card__caption--left gi-card__caption--lg "> 
         <p class=" gi-card__caption--parent">
-          <span class="gi-card__caption--bg">{{caption}}</span> 
+          <span class="gi-card__caption--bg">
+          {{#if title}}
+              <strong>{{title}}</strong><br/>
+          {{/if}}
+          {{caption}}
+          </span> 
         </p> 
       </div> 
     </div>
@@ -166,8 +171,11 @@
         }
 
         var el2 = document.getElementById("parent-media-list");
-        for (var i = story.length - 1; i > 0; i--) {
-          var videoCaptionContext = {idx: i, caption: story[i][2], data_media_type: 'video'};
+        for (var i = story.length - 1; i > 0; i--) {          
+          var videoCaptionContext = {idx: i, 
+            title: story[i][1],
+            caption: story[i][2], 
+            data_media_type: 'video'};
           var f = story[i][3];
           if (isPicture(f)) {
             videoCaptionContext['data_media_type'] = 'photo';
