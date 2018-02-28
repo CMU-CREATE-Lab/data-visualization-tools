@@ -186,16 +186,9 @@ template{
 .b-lazy-manual.b-loaded{
     opacity:1
 }
-@font-face{
-    font-family:'PrattFineBoldItalic';
-    src:url("https://www.theglobeandmail.com/legacy/media/www/fonts/prattfine_bolditalic-webfont.eot");
-    src:local("?"),url("https://www.theglobeandmail.com/legacy/media/www/fonts/prattfine_bolditalic-webfont.woff") format("woff"),url("https://www.theglobeandmail.com/legacy/media/www/fonts/prattfine_bolditalic-webfont.ttf") format("truetype"),url("https://www.theglobeandmail.com/legacy/media/www/fonts/prattfine_bolditalic-webfont.svg#prattfine_bold") format("svg");
-    font-weight:normal;
-    font-style:normal
-}
 body{
     color:#111;
-    font-family:"PrattRegular",Georgia,"Times New Roman",Times,serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size:16px;
     line-height:1.5;
     background-color:#fff;
@@ -253,16 +246,16 @@ a:hover{
     border-bottom:0.0625rem solid #DA161F
 }
 em,i{
-    font-family:"PrattItalic",Georgia,"Times New Roman",Times,serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-style:normal
 }
 .gi-card__caption em,.gi-card__caption i{
-    font-family:"PrattBoldItalic",Georgia,"Times New Roman",Times,serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-style:normal
 }
 h1,h2,h3,h4,h5{
     margin:0 auto;
-    font-family:"PrattBold",Georgia,"Times New Roman",Times,serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-weight:normal;
     letter-spacing:-0.005rem
 }
@@ -562,25 +555,25 @@ mark{
     transition:all 2s ease
 }
 .gi-stack__head{
-    font-family:"GMSansCBold","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size:1.3rem;
     line-height:1.2;
     margin-bottom:.8rem
 }
 .gi-stack__name{
-    font-family:"GMSansCBold","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size:1rem;
     line-height:1.2;
     margin-bottom:.1rem
 }
 .gi-stack__title{
-    font-family:"GMSansC","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size:.95rem;
     line-height:1.3;
     color:#666
 }
 .gi-stack__text{
-    font-family:"GMSansC","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size:.75rem;
     line-height:1.5;
     margin-top:.3rem
@@ -610,7 +603,7 @@ mark{
     transform:translateY(0px)
 }
 .gi-stack__label{
-    font-family:"PrattRegular",Georgia,"Times New Roman",Times,serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size:1rem;
     line-height:1.5;
     letter-spacing:0.005rem;
@@ -625,7 +618,7 @@ mark{
     background-color:#DA161F;
     color:#fff;
     border-radius:10px;
-    font-family:"GMSansCBold","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size:.9rem;
     line-height:1.1;
     padding:2px 0.2rem
@@ -702,29 +695,8 @@ mark{
         transform:scale(1)
     }
 }
-@font-face{
-    font-family:'GMSansMedium';
-    src:url("https://www.theglobeandmail.com/legacy/media/www/fonts/gmsans_medium-webfont.eot");
-    src:local("?"),url("https://www.theglobeandmail.com/legacy/media/www/fonts/gmsans_medium-webfont.woff") format("woff"),url("https://www.theglobeandmail.com/legacy/media/www/fonts/gmsans_medium-webfont.ttf") format("truetype"),url("https://www.theglobeandmail.com/legacy/media/www/fonts/gmsans_medium-webfont.svg#prattfine") format("svg");
-    font-weight:normal;
-    font-style:normal
-}
-@font-face{
-    font-family:'PrattFine';
-    src:url("https://www.theglobeandmail.com/legacy/media/www/fonts/prattfine-webfont.eot");
-    src:local("?"),url("https://www.theglobeandmail.com/legacy/media/www/fonts/prattfine-webfont.woff") format("woff"),url("https://www.theglobeandmail.com/legacy/media/www/fonts/prattfine-webfont.ttf") format("truetype"),url("https://www.theglobeandmail.com/legacy/media/www/fonts/prattfine-webfont.svg#prattfine") format("svg");
-    font-weight:normal;
-    font-style:normal
-}
-@font-face{
-    font-family:'PrattFineBold';
-    src:url("https://www.theglobeandmail.com/legacy/media/www/fonts/prattfine_bold-webfont.eot");
-    src:local("?"),url("https://www.theglobeandmail.com/legacy/media/www/fonts/prattfine_bold-webfont.woff") format("woff"),url("https://www.theglobeandmail.com/legacy/media/www/fonts/prattfine_bold-webfont.ttf") format("truetype"),url("https://www.theglobeandmail.com/legacy/media/www/fonts/prattfine_bold-webfont.svg#prattfine_bold") format("svg");
-    font-weight:normal;
-    font-style:normal
-}
 .gi-header__headline{
-    font-family:"PrattFine",Georgia,"Times New Roman",Times,serif;
+    font-family: Arial, Helvetica, sans-serif;
     text-transform:uppercase;
     font-size:3rem;
     line-height:.95
@@ -753,7 +725,7 @@ mark{
 .gi-head{
     margin-top:4rem;
     margin-bottom:3rem;
-    font-family:"PrattRegular",Georgia,"Times New Roman",Times,serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size:3.4rem;
     line-height:.95
 }
@@ -770,7 +742,7 @@ mark{
 .gi-subhead{
     margin-top:3rem;
     margin-bottom:1.2rem;
-    font-family:"GMSansCBold","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size:1.4rem;
     line-height:1.2
 }
@@ -783,7 +755,7 @@ mark{
     margin-top:3rem;
     margin-bottom:.2rem;
     font-size:1.2rem;
-    font-family:"GMSansCBold","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     color:#DA161F
 }
 .gi-label.gi-label--block{
@@ -909,7 +881,7 @@ mark{
 }
 .gi-asset__caption{
     margin-top:1rem;
-    font-family:"GMSansC","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     color:#666;
     font-size:.8rem;
     line-height:1.35;
@@ -988,7 +960,7 @@ mark{
 .gi-card__title{
     z-index:2;
     padding:0 15%;
-    font-family:"PrattItalic",Georgia,"Times New Roman",Times,serif;
+    font-family: Arial, Helvetica, sans-serif;
     text-transform:uppercase;
     text-align:center;
     font-size:1rem
@@ -1009,7 +981,7 @@ mark{
     padding-right:calc(50vw - 40%)
 }
 .gi-asset.gi-asset--split .gi-card__title{
-    font-family:"PrattRegular",Georgia,"Times New Roman",Times,serif;
+    font-family: Arial, Helvetica, sans-serif;
     text-align:left;
     text-transform:none
 }
@@ -1035,8 +1007,8 @@ mark{
     width:100%;
     height:calc(100% + 1px);
     object-fit:cover;
-    font-family:'object-fit: cover;
-    '
+    font-family:Arial, Helvetica, sans-serif;
+    object-fit: cover;
 }
 .gi-card__asset.gi-card__asset--inline{
     object-fit:unset;
@@ -1066,15 +1038,17 @@ mark{
 @media (orientation: portrait){
     .gi-card__asset.portrait-contain{
         object-fit:contain;
-        font-family:'object-fit: contain;
-        '
+        font-family:Arial, Helvetica, sans-serif;
+        object-fit: contain;
+        
     }
 }
 @media (orientation: landscape){
     .gi-card__asset.landscape-contain{
         object-fit:contain;
-        font-family:'object-fit: contain;
-        '
+        font-family:Arial, Helvetica, sans-serif;
+        object-fit: contain;
+        
     }
 }
 .gi-card__asset.gi-card__map{
@@ -1103,7 +1077,7 @@ mark{
     bottom:0;
     right:0;
     padding:.35rem .7rem .35rem .7rem;
-    font-family:"GMSansC","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size:.55rem;
     line-height:1.5;
     text-align:right;
@@ -1201,7 +1175,7 @@ video.portrait-contain,video.landscape-contain{
 }
 .gi-card__content-title__headline{
     display:inline-block;
-    font-family:"PrattFineBoldItalic",Georgia,"Times New Roman",Times,serif;
+    font-family: Arial, Helvetica, sans-serif;
     text-align:left
 }
 .gi-card__content-title__headline span{
@@ -1260,7 +1234,7 @@ video.portrait-contain,video.landscape-contain{
     }
 }
 .gi-card__content-title_deck{
-    font-family:"PrattRegular",Georgia,"Times New Roman",Times,serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size:.85rem;
     line-height:1.35;
     margin-top:1rem;
@@ -1289,12 +1263,12 @@ video.portrait-contain,video.landscape-contain{
 .gi-card__content-title__meta-author,.gi-card__content-title__meta-placeline{
     margin-top:1.5rem;
     margin-bottom:.5rem;
-    font-family:"GMSansC","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size:.75rem;
     line-height:1.45
 }
 .gi-card__content-title__meta-author strong,.gi-card__content-title__meta-placeline strong{
-    font-family:"GMSansCBold","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-weight:normal
 }
 @media (min-width: 768px){
@@ -1303,7 +1277,7 @@ video.portrait-contain,video.landscape-contain{
     }
 }
 .gi-card__content-title__meta-dateline{
-    font-family:"GMSansC","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size:.6rem;
     line-height:1.2;
     text-transform:uppercase
@@ -1372,7 +1346,7 @@ video.portrait-contain,video.landscape-contain{
     }
 }
 .gi-card__caption p.small{
-    font-family:"GMSansC","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size:.9rem;
     line-height:1.4rem
 }
@@ -1427,7 +1401,7 @@ video.portrait-contain,video.landscape-contain{
     font-size:1rem;
     line-height:1.45;
     margin-top:20px;
-    font-family:"PrattBold",Georgia,"Times New Roman",Times,serif
+    font-family: Arial, Helvetica, sans-serif
 }
 @media (min-width: 768px){
     .gi-card__caption.gi-card__caption--lg p{
@@ -1466,7 +1440,7 @@ video.portrait-contain,video.landscape-contain{
     font-size:1rem;
     line-height:1.45;
     margin-top:20px;
-    font-family:"PrattBold",Georgia,"Times New Roman",Times,serif
+    font-family: Arial, Helvetica, sans-serif
 }
 @media (min-width: 768px){
     .gi-card__caption.gi-card__caption--xl p{
@@ -1585,7 +1559,7 @@ video.portrait-contain,video.landscape-contain{
 .gi-card__caption.gi-card__caption--centre p{
     font-size:1.4rem;
     line-height:1.25;
-    font-family:"PrattBold",Georgia,"Times New Roman",Times,serif
+    font-family: Arial, Helvetica, sans-serif
 }
 @media (min-width: 768px){
     .gi-card__caption.gi-card__caption--centre p{
@@ -1629,8 +1603,8 @@ video.portrait-contain,video.landscape-contain{
     font-size:1rem;
     line-height:1.4;
     margin-top:20px;
-    font-family:"GMSansCBold","Helvetica Neue",Helvetica,Arial,sans-serif;
-    font-family:"PrattBold",Georgia,"Times New Roman",Times,serif
+    font-family: Arial, Helvetica, sans-serif;
+    font-family: Arial, Helvetica, sans-serif
 }
 @media (min-width: 768px){
     .gi-card__caption.gi-card__caption--story p{
@@ -1660,7 +1634,7 @@ video.portrait-contain,video.landscape-contain{
 .gi-card__caption.gi-card__caption--quote p{
     font-size:1.5rem;
     line-height:1.25;
-    font-family:"PrattBold",Georgia,"Times New Roman",Times,serif;
+    font-family: Arial, Helvetica, sans-serif;
     margin-bottom:2rem
 }
 @media (min-width: 768px){
@@ -1699,7 +1673,7 @@ video.portrait-contain,video.landscape-contain{
     font-size:.8rem;
     line-height:1.15;
     text-transform:uppercase;
-    font-family:"GMSansCBold","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     color:#DA161F;
     margin-bottom:1.2rem
 }
@@ -1710,7 +1684,7 @@ video.portrait-contain,video.landscape-contain{
     }
 }
 .gi-card__caption.gi-card__caption--link h2{
-    font-family:"PrattRegular",Georgia,"Times New Roman",Times,serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size:1.4rem;
     line-height:1.2;
     margin-top:.8rem;
@@ -1728,7 +1702,7 @@ video.portrait-contain,video.landscape-contain{
     }
 }
 .gi-card__caption.gi-card__caption--link h5{
-    font-family:"GMSansC","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size:.75rem;
     line-height:1.5
 }
@@ -1740,7 +1714,7 @@ video.portrait-contain,video.landscape-contain{
 .gi-card__caption.gi-card__caption--head p{
     font-size:2.7rem;
     line-height:.95;
-    font-family:"PrattFineBoldItalic",Georgia,"Times New Roman",Times,serif;
+    font-family: Arial, Helvetica, sans-serif;
     text-transform:uppercase
 }
 @media (min-width: 768px){
@@ -1764,7 +1738,7 @@ video.portrait-contain,video.landscape-contain{
     top:-5rem;
     margin-left:-.2rem;
     content:'â€œ';
-    font-family:"PrattBold",Georgia,"Times New Roman",Times,serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size:8rem;
     line-height:1;
     color:#798f78
@@ -1784,7 +1758,7 @@ video.portrait-contain,video.landscape-contain{
 p.gi-card__timestamp{
     margin-top:.9rem;
     margin-bottom:0;
-    font-family:"GMSansCBold","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size:.75rem;
     text-transform:uppercase;
     color:#DA161F
@@ -1831,8 +1805,8 @@ p.gi-card__timestamp{
     }
 }
 .gi-card__section-part{
-    font-family:"PrattBold",Georgia,"Times New Roman",Times,serif;
-    font-family:"GMSansC","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size:.8rem;
     line-height:1.4;
     text-transform:uppercase
@@ -1847,7 +1821,7 @@ p.gi-card__timestamp{
     width:100%
 }
 .gi-card__sub{
-    font-family:"PrattRegular",Georgia,"Times New Roman",Times,serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size:1rem;
     line-height:1.4;
     text-align:center;
@@ -1992,7 +1966,7 @@ p.gi-card__timestamp{
     -moz-appearance:none;
     appearance:none;
     display:block;
-    font-family:"GMSansCBold","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-weight:normal;
     font-style:normal;
     padding:.5625rem 2rem;
@@ -2099,7 +2073,7 @@ p.gi-card__timestamp{
     display:block
 }
 .gi-button--video__time{
-    font-family:"GMSansC","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-style:normal;
     font-size:.8rem;
     line-height:1
@@ -2207,19 +2181,19 @@ p.gi-card__timestamp{
     transition-delay:0s
 }
 .gi-header__label-section{
-    font-family:"GMSansC","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size:.7rem;
     line-height:1.1rem;
     text-transform:uppercase
 }
 .gi-header__label-headline{
-    font-family:"GMSansCBold","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size:.85rem;
     line-height:1rem;
     text-transform:uppercase
 }
 .gi-header__subhead{
-    font-family:"PrattItalic",Georgia,"Times New Roman",Times,serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size:1.3rem;
     line-height:1.1;
     letter-spacing:-0.04rem;
@@ -2234,7 +2208,7 @@ p.gi-card__timestamp{
 .gi-header__meta{
     display:inline-block;
     overflow:hidden;
-    font-family:"GMSansC","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size:.6rem;
     line-height:1.225;
     letter-spacing:0.002rem;
@@ -2247,7 +2221,7 @@ p.gi-card__timestamp{
     }
 }
 .gi-header__meta-author{
-    font-family:"GMSansCBold","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size:.8rem;
     line-height:1.2;
     margin-bottom:5px;
@@ -2291,8 +2265,8 @@ p.gi-card__timestamp{
     width:100%;
     transition:all .2s ease;
     object-fit:cover;
-    font-family:'object-fit: cover;
-    ';
+    font-family: Arial, Helvetica, sans-serif;
+    object-fit: cover;
     overflow:hidden
 }
 .gi-header__img.hide{
@@ -2347,7 +2321,7 @@ p.gi-card__timestamp{
     counter-increment:gi-li-counter;
     margin-right:1.25rem;
     width:1.5rem;
-    font-family:"PrattBoldItalic",Georgia,"Times New Roman",Times,serif;
+    font-family: Arial, Helvetica, sans-serif;
     color:#DA161F
 }
 @media (min-width: 768px){
@@ -2387,7 +2361,7 @@ p.gi-card__timestamp{
     }
 }
 .gi-header__intro-question{
-    font-family:"PrattRegular",Georgia,"Times New Roman",Times,serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size:2rem;
     line-height:1.15
 }
@@ -2484,7 +2458,7 @@ p.gi-card__timestamp{
 .gi-header__sequence h2{
     font-size:1.55rem;
     line-height:1.15;
-    font-family:"PrattRegular",Georgia,"Times New Roman",Times,serif;
+    font-family: Arial, Helvetica, sans-serif;
     max-width:95%;
     text-align:center;
     transition:all .8s ease;
@@ -2579,7 +2553,7 @@ footer.gi-footer .gi-footer__legal ul{
     padding:0
 }
 footer.gi-footer .gi-footer__legal li{
-    font-family:"GMSansCBold","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     display:inline-block;
     list-style:none;
     padding:0 6px
@@ -2593,7 +2567,7 @@ footer.gi-footer .gi-footer__copyright{
     width:100%;
     padding:0 0 14px 0;
     color:#fff;
-    font-family:"GMSansC","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size:0.55rem;
     line-height:0.9rem;
     text-align:center;
@@ -2616,7 +2590,7 @@ footer.gi-footer .gi-footer__copyright abbr{
 }
 footer.gi-footer .gi-footer__credits{
     padding:.8em 30px 2rem;
-    font-family:"GMSansC","Helvetica Neue",Helvetica,Arial,sans-serif
+    font-family: Arial, Helvetica, sans-serif
 }
 footer.gi-footer .gi-footer__credits .gi-subhead{
     margin-top:20px;
@@ -2783,7 +2757,7 @@ footer.gi-footer .gi-footer__leaf{
     width:100%
 }
 .gi-related__item h5{
-    font-family:"GMSansC","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size:1rem;
     line-height:1.4;
     letter-spacing:0
@@ -2814,7 +2788,7 @@ footer.gi-footer .gi-footer__leaf{
 .gi-related__subhead{
     margin-top:12px;
     margin-bottom:3px;
-    font-family:"GMSansCBold","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size:.8rem;
     line-height:1.3;
     text-transform:uppercase;
@@ -2886,7 +2860,7 @@ video{
     max-width:500px;
     font-size:1.3rem;
     line-height:1.3;
-    font-family:"PrattBold",Georgia,"Times New Roman",Times,serif;
+    font-family: Arial, Helvetica, sans-serif;
     margin:.6rem auto 0;
     transition:all .2s ease;
     opacity:1;
@@ -2930,7 +2904,7 @@ video{
     top:-.95rem;
     margin-left:-.2rem;
     content:'â€œ';
-    font-family:"PrattBold",Georgia,"Times New Roman",Times,serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size:7rem;
     line-height:1;
     color:#789271;
