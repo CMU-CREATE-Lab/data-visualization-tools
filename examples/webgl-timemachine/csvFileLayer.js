@@ -338,6 +338,9 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
       }
 
       this.addLayer(opts);
+      if (mapType == 'raster') {
+        this.setLegend(layerIdentifier);
+      }      
       this.setTimeLine(layerIdentifier,
         layer["Start date"], // start date
         layer["End date"], // end date
@@ -527,8 +530,9 @@ CsvFileLayer.prototype.setLegend = function setLegend(id) {
         }
         var legend = new Legend(id, str);
         $('#legend-content table tr:last').after(legend.toString());
-        $("#" + id + "-legend").show();
-
+        if (layer['opts']['mapType'] != 'raster') {
+          $("#" + id + "-legend").show();
+        }
     }
   }
 }
