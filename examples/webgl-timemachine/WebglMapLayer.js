@@ -56,6 +56,11 @@ WebglMapLayer.prototype.setOptions = function(options) {
   if (options.drawFunction != undefined) {
     this._drawFunction = options.drawFunction;
   }
+
+  if (options.layerId != undefined) {
+    this._layerId = options.layerId;
+  }
+  
 };
 
 WebglMapLayer.prototype.setNLevels = function(nLevels) {
