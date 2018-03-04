@@ -1714,6 +1714,8 @@ WebGLVectorTile2.prototype._drawColorDotmap = function(transform, options) {
     gl.blendFuncSeparate( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA );
 
     var tileTransform = new Float32Array(transform);
+    var pixelScale = - transform[5];
+    console.log('_drawColorDotmap ' + pixelScale);
     var zoom = options.zoom || (2.0 * window.devicePixelRatio);
     scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
     scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
@@ -1725,7 +1727,8 @@ WebGLVectorTile2.prototype._drawColorDotmap = function(transform, options) {
         throttle = options.throttle
     }
 
-    var pointSize = 2.0;
+    // Beyond a certain zoom level, increase dot size
+    var pointSize = Math.max(0.5, pixelScale * 38);
     gl.uniform1f(this.program.uSize, pointSize);
 
     gl.uniform1f(this.program.uZoom, zoom);
@@ -3011,8 +3014,8 @@ WebGLVectorTile2.colorDotmapVertexShader =
   '  //gl_Position = mapMatrix * vec4(aWorldCoord.x, aWorldCoord.y, 0, 1);\n' +
   '  //gl_Position = vec4(300.0*(aWorldCoord.x+mapMatrix[3][0]), 300.0*(-aWorldCoord.y+mapMatrix[3][1]), 0.0, 300.0);\n' +
   '  gl_Position = vec4(aWorldCoord.x * mapMatrix[0][0] + mapMatrix[3][0], aWorldCoord.y * mapMatrix[1][1] + mapMatrix[3][1],0,1);\n' +
-  '  //gl_PointSize = uSize;\n' +
-  '  gl_PointSize = 0.5;\n' +
+  '  gl_PointSize = uSize;\n' +
+  '  //gl_PointSize = 0.5;\n' +
   '  vColor = aColor;\n' +
   '}\n';
 
