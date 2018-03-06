@@ -2631,162 +2631,102 @@ WebGLVectorTile2.prototype._drawPointColorStartEpochEndEpoch = function(transfor
 }
 
 
+WebGLVectorTile2.prototype._drawSitc4rcBuffer = function (code, year, transform, options) {
+  var gl = this.gl;
+  var buffer = this.buffers[code][year];
+  gl.useProgram(this.program);
+  gl.enable(gl.BLEND);
+  gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
+
+  var tileTransform = new Float32Array(transform);
+  var zoom = options.zoom;
+  var currentTime = options.currentTime/1000.;
+  var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
+  var color = options.color || [1.0, 0.0, 0.0];
+
+  scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
+  scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+
+  pointSize *= Math.floor((zoom + 1.0) / (23.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+  if (isNaN(pointSize)) {
+    pointSize = 1.0;
+  }
+
+  var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
+  gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+
+  var sliderTime = gl.getUniformLocation(this.program, 'u_epoch');
+  gl.uniform1f(sliderTime, currentTime);
+
+  var uniformLoc = gl.getUniformLocation(this.program, 'u_size');
+  gl.uniform1f(uniformLoc, pointSize);
+
+  var uniformLoc = gl.getUniformLocation(this.program, 'u_end_color');
+  gl.uniform3fv(uniformLoc, color);
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffer.buffer);
+  var attributeLoc = gl.getAttribLocation(this.program, 'a_p0');
+  gl.enableVertexAttribArray(attributeLoc);
+  gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, buffer.numAttributes * 4, 0); 
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffer.buffer);
+  var attributeLoc = gl.getAttribLocation(this.program, 'a_p2');
+  gl.enableVertexAttribArray(attributeLoc);
+  gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, buffer.numAttributes * 4, 8); 
+
+  var attributeLoc = gl.getAttribLocation(this.program, 'a_p1');
+  gl.enableVertexAttribArray(attributeLoc);
+  gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, buffer.numAttributes * 4, 16);
+
+  var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch0');
+  gl.enableVertexAttribArray(attributeLoc);
+  gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, buffer.numAttributes * 4, 24);
+
+  var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch1');
+  gl.enableVertexAttribArray(attributeLoc);
+  gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, buffer.numAttributes * 4, 28);
+
+  gl.drawArrays(gl.POINTS, 0, buffer.pointCount);
+
+  gl.disable(gl.BLEND);
+
+}
+
+WebGLVectorTile2.prototype._initSitc4rcBuffer = function(code, year) {
+  this.buffers[code][year] = {
+    "numAttributes": this._numAttributes,
+    "pointCount": 8,
+    "buffer":null,
+    "ready": false
+  }
+  this.worker.postMessage({'year': year, 'code': code, 'exporters': this._exporters, "importers": this._importers, "scale": this._scale});
+}
+
 WebGLVectorTile2.prototype._drawSitc4r2 = function(transform, options) {
   var gl = this.gl;
   if (this._ready) {
     var code = this._sitc4r2Code;
-    var currentTime = opt ions.currentTime;
+    var currentTime = options.currentTime;
     var currentYear = new Date(currentTime).getUTCFullYear();
     var start = new Date(currentYear + '-01-01');
     var end = new Date(currentYear + '-12-31');
     var t = 1.0 - (end.getTime() - currentTime) / (end.getTime() - start.getTime());
-    //centroidGl.draw(mapMatrix, {'t': t});
     if (typeof this.buffers[code] == "undefined") {
       this.buffers[code] = {}
     }
     if (typeof this.buffers[code][currentYear.toString()] == "undefined") {
-      this.buffers[code][currentYear.toString()] = {
-        "numAttributes": this._numAttributes,
-        "pointCount": 8,
-        "buffer":null,
-        "ready": false
-      }
-      this.worker.postMessage({'year': currentYear, 'code': code, 'exporters': this._exporters, "importers": this._importers, "scale": this._scale});
+      this._initSitc4rcBuffer(code, currentYear.toString());
     }
     if (typeof this.buffers[code][(currentYear+1).toString()] == "undefined" && currentYear >= 2000) {
-      this.buffers[code][(currentYear+1).toString()] = {
-        "numAttributes": this._numAttributes,
-        "pointCount": 8,
-        "buffer":null,
-        "ready": false
-      }
-      this.worker.postMessage({'year': currentYear+1, 'code': code, 'exporters': this._exporters, "importers": this._importers, "scale": this._scale});
+      this._initSitc4rcBuffer(code, (currentYear+1).toString());
     }
 
     if (this.buffers[code][currentYear.toString()] && this.buffers[code][currentYear.toString()].ready ) {
-      var buffer = this.buffers[code][currentYear.toString()];
-      gl.useProgram(this.program);
-      gl.enable(gl.BLEND);
-      gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
-
-      var tileTransform = new Float32Array(transform);
-      var zoom = options.zoom;
-      var currentTime = options.currentTime/1000.;
-      var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-      var color = options.color || [.1, .1, .5, 1.0];
-
-      scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
-      scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
-
-      pointSize *= Math.floor((zoom + 1.0) / (23.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
-      // Passing a NaN value to the shader with a large number of points is very bad
-      if (isNaN(pointSize)) {
-        pointSize = 1.0;
-      }
-
-
-      var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
-      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
-
-      var sliderTime = gl.getUniformLocation(this.program, 'u_epoch');
-      gl.uniform1f(sliderTime, currentTime);
-
-      var uniformLoc = gl.getUniformLocation(this.program, 'u_size');
-      gl.uniform1f(uniformLoc, pointSize);
-
-      var uniformLoc = gl.getUniformLocation(this.program, 'u_color');
-      gl.uniform3fv(uniformLoc, [1.0,0.0,1.0]);
-
-      gl.bindBuffer(gl.ARRAY_BUFFER, buffer.buffer);
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_p0');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, buffer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-
-      gl.bindBuffer(gl.ARRAY_BUFFER, buffer.buffer);
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_p2');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, buffer.numAttributes * 4, 8); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_p1');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, buffer.numAttributes * 4, 16);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch0');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, buffer.numAttributes * 4, 24);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch1');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, buffer.numAttributes * 4, 28);
-
-      gl.drawArrays(gl.POINTS, 0, buffer.pointCount);
-
-      //perf_draw_points(this._pointCount);
-      gl.disable(gl.BLEND);
+      this._drawSitc4rcBuffer(code, currentYear.toString(), transform, options);
     }
 
-
     if (this.buffers[code][(currentYear+1).toString()] && this.buffers[code][(currentYear+1).toString()].ready ) {
-      var buffer = this.buffers[code][(currentYear+1).toString()];
-
-      gl.useProgram(this.program);
-      gl.enable(gl.BLEND);
-      gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
-
-      var tileTransform = new Float32Array(transform);
-      var zoom = options.zoom;
-      var currentTime = options.currentTime/1000.;
-      var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-      var color = options.color || [.1, .1, .5, 1.0];
-
-      scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
-      scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
-
-      pointSize *= Math.floor((zoom + 1.0) / (23.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
-      // Passing a NaN value to the shader with a large number of points is very bad
-      if (isNaN(pointSize)) {
-        pointSize = 1.0;
-      }
-
-
-      var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
-      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
-
-      var sliderTime = gl.getUniformLocation(this.program, 'u_epoch');
-      gl.uniform1f(sliderTime, currentTime);
-
-      var uniformLoc = gl.getUniformLocation(this.program, 'u_size');
-      gl.uniform1f(uniformLoc, pointSize);
-
-      var uniformLoc = gl.getUniformLocation(this.program, 'u_end_color');
-      gl.uniform3fv(uniformLoc, [1.0,0.0,0.0]);
-
-      gl.bindBuffer(gl.ARRAY_BUFFER, buffer.buffer);
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_p0');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, buffer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-
-      gl.bindBuffer(gl.ARRAY_BUFFER, buffer.buffer);
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_p2');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, buffer.numAttributes * 4, 8); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_p1');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, buffer.numAttributes * 4, 16);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch0');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, buffer.numAttributes * 4, 24);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch1');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, buffer.numAttributes * 4, 28);
-
-      gl.drawArrays(gl.POINTS, 0, buffer.pointCount);
-
-      //perf_draw_points(this._pointCount);
-      gl.disable(gl.BLEND);
+      this._drawSitc4rcBuffer(code, (currentYear+1).toString(), transform, options);
     }
   }
 }
