@@ -2704,6 +2704,7 @@ WebGLVectorTile2.prototype._initSitc4rcBuffer = function(code, year) {
 
 WebGLVectorTile2.prototype._drawSitc4r2 = function(transform, options) {
   var gl = this.gl;
+  var returnValues = [false, false];
   if (this._ready) {
     var code = this._sitc4r2Code;
     var currentTime = options.currentTime;
@@ -2714,21 +2715,24 @@ WebGLVectorTile2.prototype._drawSitc4r2 = function(transform, options) {
     if (typeof this.buffers[code] == "undefined") {
       this.buffers[code] = {}
     }
+    /* Init Buffers */
     if (typeof this.buffers[code][currentYear.toString()] == "undefined") {
       this._initSitc4rcBuffer(code, currentYear.toString());
     }
     if (typeof this.buffers[code][(currentYear+1).toString()] == "undefined" && currentYear >= 2000) {
       this._initSitc4rcBuffer(code, (currentYear+1).toString());
     }
-
+    /* Draw buffers */
     if (this.buffers[code][currentYear.toString()] && this.buffers[code][currentYear.toString()].ready ) {
       this._drawSitc4rcBuffer(code, currentYear.toString(), transform, options);
+      returnValues[0] = true;
     }
-
     if (this.buffers[code][(currentYear+1).toString()] && this.buffers[code][(currentYear+1).toString()].ready ) {
       this._drawSitc4rcBuffer(code, (currentYear+1).toString(), transform, options);
+      returnValues[1] = true;
     }
   }
+  return returnValues[0] && returnValues[1];
 }
 
 WebGLVectorTile2.prototype._drawSpCrude = function(transform, options) {
