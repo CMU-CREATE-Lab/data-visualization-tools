@@ -190,9 +190,7 @@ WebGLVectorTile2.prototype._loadGeojsonData = function() {
   this.xhr.send();
 }
 
-WebGLVectorTile.prototype._loadSitc4r2Data = function () {
-  //console.log('_loadSitc4r2Data');
-
+WebGLVectorTile2.prototype._loadSitc4r2Data = function () {
   var parseQueryString = function( queryString ) {
       var params = {}, queries, temp, i, l;
       // Split into key/value pairs
