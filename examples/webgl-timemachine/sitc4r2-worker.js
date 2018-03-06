@@ -25,7 +25,6 @@ var getJson = function(code, year, exporters, importers, scale, callback) {
 }
 
 var setData = function(code, year, exporters, importers, scale, data) {
-    console.log(scale); 
     function shuffle (array) {
         var i = 0
         , j = 0
@@ -123,6 +122,6 @@ var setData = function(code, year, exporters, importers, scale, data) {
     var points = doSomething(year, scale, data);
     var float32Array = new Float32Array(points);
     var t1 = performance.now();
-    console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.");
+    //console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.");
     return float32Array;
 }
