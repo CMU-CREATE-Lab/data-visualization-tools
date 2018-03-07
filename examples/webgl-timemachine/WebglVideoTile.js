@@ -426,7 +426,8 @@ updatePhase2 = function(displayFrame) {
   }
 
   if (readyState == 0) {
-    return false;
+    timelapse.lastFrameCompletelyDrawn = false;
+    return;
   }
 
   if (this._video.seeking) {
@@ -434,7 +435,8 @@ updatePhase2 = function(displayFrame) {
     if (WebglVideoTile.verbose) {
       console.log(this._id + ': seeking for ' + this._seekingFrameCount + ' frames');
     }
-    return false;
+    timelapse.lastFrameCompletelyDrawn = false;
+    return;
   }
 
   if (this._seekingFrameCount != 0) {
@@ -453,18 +455,17 @@ updatePhase2 = function(displayFrame) {
     if (Math.abs(this._video.currentTime - videoTime) > epsilon) {
       //console.log('Wrong spot (' + this._video.currentTime + ' so seeking source to ' + videoTime);
       this._video.currentTime = videoTime;
-      return false;
+      timelapse.lastFrameCompletelyDrawn = false;
     } else if (this._pipeline[0].frameno != displayFrameDiscrete ||
                Math.abs(this._pipeline[0].texture.before - videoTime) > epsilon ||
                Math.abs(this._pipeline[0].texture.after - videoTime) > epsilon) {
       //console.log('Need the frame, grabbing ' + videoTime);
       this._captureFrame(displayFrameDiscrete, 0);
       this._ready = true;
-      return true;
     } else {
       // We're currently displaying the correct frame
-      return true;
     }
+    return;
   }
 
   var actualVideoFrame = this._video.currentTime * this._fps;
@@ -533,7 +534,9 @@ updatePhase2 = function(displayFrame) {
                   ', future error=' + r2(futureFrameError));
     }
   }
-  return this._ready;
+  if (!this._ready) {
+    timelapse.lastFrameCompletelyDrawn = false;
+  }
 }
 
 WebglVideoTile.prototype.
@@ -763,17 +766,13 @@ WebglVideoTile.update = function(tiles, transform) {
 
   // TODO(rsargent): draw tiles low to high-res, or clip and don't draw the overlapping portions
   // of the low-res tiles
-  var allReady = true;
   for (var i = 0; i < tiles.length; i++) {
     // Frame being displayed on screen
-    if (!tiles[i].updatePhase2(displayFrame)) {
-      allReady = false;
-    }
+    tiles[i].updatePhase2(displayFrame);
     tiles[i].draw(transform);
   }
   
   //WebglTimeMachinePerf.instance.endFrame();
-  return allReady;
 }
 
 

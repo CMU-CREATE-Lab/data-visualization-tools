@@ -372,7 +372,7 @@ update = function(transform, options) {
   for (var i = 0; i < keys.length; i++) {
     tiles.push(this._tiles[keys[i]]);
   }
-  return this._updateTileCallback(tiles, transform, options);
+  this._updateTileCallback(tiles, transform, options);
 }
 
 TileView.prototype.handleTileLoading = function(options) {

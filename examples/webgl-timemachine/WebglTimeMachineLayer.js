@@ -13,7 +13,6 @@ function WebglTimeMachineLayer(glb, canvasLayer, rootUrl, opt_options) {
   this._projection = opt_options.projection || null;
 
   this._ready = true;
-  this.lastDrawAllReady = false;
 
   var that = this;
 
@@ -116,7 +115,7 @@ WebglTimeMachineLayer.prototype.draw = function(view, tileViewVisibility) {
       this._tileView.levelThreshold += EARTH_TIMELAPSE_CONFIG.videoLevelThresholdModifier;
     }
     this._tileView.setView(view, width, height, this._canvasLayer.resolutionScale_);
-    this.lastDrawAllReady = this._tileView.update(transform);
+    this._tileView.update(transform);
   }
 };
 
