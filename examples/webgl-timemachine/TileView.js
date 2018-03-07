@@ -300,6 +300,7 @@ setView = function(view, viewportWidth, viewportHeight, scale) {
       required[ti.key] = true;
       // If tile isn't ready, hold onto its first ready ancestor
       if (!this._tiles[ti.key].isReady()) {
+        timelapse.lastFrameCompletelyDrawn = false;
         var ancestor = this._findReadyAncestor(ti);
         if (ancestor != null) {
           required[ancestor.key] = true;

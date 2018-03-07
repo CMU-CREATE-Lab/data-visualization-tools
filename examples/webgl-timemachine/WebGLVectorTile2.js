@@ -829,8 +829,8 @@ WebGLVectorTile2.prototype._setIomIdpData = function(data) {
   var gl = this.gl;
   var arrayBuffer = new Float32Array(arr);
   this._pointCount = arrayBuffer.length / 8;
+  this._ready = true;
   if (this._pointCount > 0) {
-
     this._data = arrayBuffer;
     this._arrayBuffer = gl.createBuffer();
 
@@ -864,9 +864,6 @@ WebGLVectorTile2.prototype._setIomIdpData = function(data) {
     var attributeLoc = gl.getAttribLocation(this.program, 'a_val2')
     gl.enableVertexAttribArray(attributeLoc);
     gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 32, 28);
-
-    this._ready = true;
-
   }
 }
 
@@ -874,13 +871,12 @@ WebGLVectorTile2.prototype._setIomIdpData = function(data) {
 WebGLVectorTile2.prototype._setColorDotmapData = function(arrayBuffer) {
   var gl = this.gl;
   this._pointCount = arrayBuffer.length / 3;
+  this._ready = true;
   if (this._pointCount > 0) {
     this._data = arrayBuffer;
     this._arrayBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);
-
-    this._ready = true;
   }
 }
 
@@ -934,6 +930,7 @@ WebGLVectorTile2.prototype._setObesityData = function(data) {
       }
     }
     this._pointCount = verts.length / 5;
+    this._ready = true;
     if (this._pointCount > 0) {
       this._data = new Float32Array(verts);
 
@@ -969,8 +966,6 @@ WebGLVectorTile2.prototype._setObesityData = function(data) {
 
       // Upload the image into the texture.
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._image);
-
-      this._ready = true;
     }
   }
 }
@@ -1042,6 +1037,7 @@ WebGLVectorTile2.prototype._setVaccineConfidenceData = function(data) {
     }
 
     this._pointCount = verts.length / 6;
+    this._ready = true;
     if (this._pointCount > 0) {
       this._data = new Float32Array(verts);
 
@@ -1081,8 +1077,6 @@ WebGLVectorTile2.prototype._setVaccineConfidenceData = function(data) {
 
       // Upload the image into the texture.
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._image);
-
-      this._ready = true;
     }
   }
 }
@@ -1090,6 +1084,7 @@ WebGLVectorTile2.prototype._setVaccineConfidenceData = function(data) {
 WebGLVectorTile2.prototype._setBufferData  = function(data) {
     var gl = this.gl;
     this._pointCount = data.length / this._numAttributes;
+    this._ready = true;
     if (this._pointCount > 0) {
       this._data = data;
       this._arrayBuffer = gl.createBuffer();
@@ -1112,8 +1107,6 @@ WebGLVectorTile2.prototype._setBufferData  = function(data) {
 
         gl.bindTexture(gl.TEXTURE_2D, null);
       }
-
-      this._ready = true;
     }
 }
 
@@ -1122,6 +1115,7 @@ WebGLVectorTile2.prototype._setBuffers  = function(buffers, indices) {
   this._pointCount = indices.length;
   //console.log(this._pointCount);
   this._arrayBuffers = [];
+  this._ready = true;
   if (this._pointCount > 0) {
     for (var i = 0; i < buffers.length; i++) {
       this._arrayBuffers[i] = gl.createBuffer();
@@ -1131,7 +1125,6 @@ WebGLVectorTile2.prototype._setBuffers  = function(buffers, indices) {
     this._indexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
-    this._ready = true;
   }
 }
 
@@ -2804,7 +2797,9 @@ WebGLVectorTile2.prototype._drawSpCrude = function(transform, options) {
 // Update and draw tiles
 WebGLVectorTile2.update = function(tiles, transform, options) {
   for (var i = 0; i < tiles.length; i++) {
-    tiles[i].draw(transform, options);
+    if (tiles[i]._ready && tiles[i]._pointCount > 0) {
+      tiles[i].draw(transform, options);
+    }
   }
 }
 
