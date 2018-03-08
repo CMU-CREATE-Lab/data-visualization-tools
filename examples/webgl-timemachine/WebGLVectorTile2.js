@@ -2797,7 +2797,7 @@ WebGLVectorTile2.prototype._drawSpCrude = function(transform, options) {
 // Update and draw tiles
 WebGLVectorTile2.update = function(tiles, transform, options) {
   for (var i = 0; i < tiles.length; i++) {
-    if (tiles[i]._ready && tiles[i]._pointCount > 0) {
+    if (tiles[i]._ready && tiles[i]._pointCount != 0) {
       tiles[i].draw(transform, options);
     }
   }
