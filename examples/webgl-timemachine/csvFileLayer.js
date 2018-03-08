@@ -39,6 +39,15 @@ var CsvFileLayer = function CsvFileLayer() {
   }
 }
 
+CsvFileLayer.prototype.lookupFunctionFromTable = function (functionName, lookupTable) {
+  if (functionName.trim() in lookupTable) {
+    return lookupTable[functionName.trim()];    
+  } else {
+    console.log("ERROR: CsvFileLayer.prototype.lookupFunctionFromTable");
+    console.log("       " + functionName + " not in lookupTable");
+    return undefined;
+  }
+}
 
 CsvFileLayer.prototype.addLayer = function addLayer(opts) {
   // (someday) Use csv.createlab.org as translation gateway
@@ -108,10 +117,10 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
     }
   } else {
     if (opts["loadDataFunction"]) {
-      layerOptions.loadDataFunction = eval(opts["loadDataFunction"]);
+      layerOptions.loadDataFunction = this.lookupFunctionFromTable(opts["loadDataFunction"], LOAD_DATA_FUNCTION_LOOKUP_TABLE);
     }
     if (opts["setDataFunction"]) {
-      layerOptions.setDataFunction = eval(opts["setDataFunction"]);
+      layerOptions.setDataFunction = this.lookupFunctionFromTable(opts["setDataFunction"], SET_DATA_FUNCTION_LOOKUP_TABLE);
     }
     if (opts["drawFunction"]) {
       layerOptions.drawFunction = eval(opts["drawFunction"]);
@@ -559,3 +568,26 @@ function searchCountryList(feature_collection, name) {
   }
   return {};
 };
+
+const LOAD_DATA_FUNCTION_LOOKUP_TABLE = {
+  "WebGLVectorTile2.prototype._loadData": WebGLVectorTile2.prototype._loadData,
+  "WebGLVectorTile2.prototype._loadGeojsonData": WebGLVectorTile2.prototype._loadGeojsonData,
+  "WebGLVectorTile2.prototype._loadSitc4r2Data": WebGLVectorTile2.prototype._loadSitc4r2Data,
+  "WebGLVectorTile.prototype._loadSitc4r2Data": WebGLVectorTile2.prototype._loadSitc4r2Data, // Supporting typos 4evah
+  "WebGLVectorTile2.prototype._loadCarbonPriceRiskDataFromCsv": WebGLVectorTile2.prototype._loadCarbonPriceRiskDataFromCsv,
+  "WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv": WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv,
+  "WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv": WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv  
+};
+
+const SET_DATA_FUNCTION_LOOKUP_TABLE = {
+  "WebGLVectorTile2.prototype._setSitc4r2Buffer": WebGLVectorTile2.prototype._setSitc4r2Buffer,
+  "WebGLVectorTile2.prototype._setPolygonData": WebGLVectorTile2.prototype._setPolygonData,
+  "WebGLVectorTile2.prototype._setLineStringData": WebGLVectorTile2.prototype._setLineStringData,
+  "WebGLVectorTile2.prototype._setExpandedLineStringData": WebGLVectorTile2.prototype._setExpandedLineStringData,
+  "WebGLVectorTile2.prototype._setIomIdpData": WebGLVectorTile2.prototype._setIomIdpData,
+  "WebGLVectorTile2.prototype._setColorDotmapData": WebGLVectorTile2.prototype._setColorDotmapData,
+  "WebGLVectorTile2.prototype._setObesityData": WebGLVectorTile2.prototype._setObesityData,
+  "WebGLVectorTile2.prototype._setVaccineConfidenceData": WebGLVectorTile2.prototype._setVaccineConfidenceData,
+  "WebGLVectorTile2.prototype._setBufferData": WebGLVectorTile2.prototype._setBufferData,
+  "WebGLVectorTile2.prototype._setBuffers": WebGLVectorTile2.prototype._setBuffers  
+}
