@@ -2697,7 +2697,6 @@ WebGLVectorTile2.prototype._initSitc4rcBuffer = function(code, year) {
 
 WebGLVectorTile2.prototype._drawSitc4r2 = function(transform, options) {
   var gl = this.gl;
-  var returnValues = [false, false];
   if (this._ready) {
     var code = this._sitc4r2Code;
     var currentTime = options.currentTime;
@@ -2718,14 +2717,15 @@ WebGLVectorTile2.prototype._drawSitc4r2 = function(transform, options) {
     /* Draw buffers */
     if (this.buffers[code][currentYear.toString()] && this.buffers[code][currentYear.toString()].ready ) {
       this._drawSitc4rcBuffer(code, currentYear.toString(), transform, options);
-      returnValues[0] = true;
+    } else {
+      timelapse.lastFrameCompletelyDrawn = false;
     }
     if (this.buffers[code][(currentYear+1).toString()] && this.buffers[code][(currentYear+1).toString()].ready ) {
       this._drawSitc4rcBuffer(code, (currentYear+1).toString(), transform, options);
-      returnValues[1] = true;
+    } else {
+      timelapse.lastFrameCompletelyDrawn = false;
     }
   }
-  return returnValues[0] && returnValues[1];
 }
 
 WebGLVectorTile2.prototype._drawSpCrude = function(transform, options) {
