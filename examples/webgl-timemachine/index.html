@@ -6887,6 +6887,7 @@ function setTimeLine(identifier, startDate, endDate, step) {
     // Draws to canvas.
     // Called by TimeMachineCanavasLayer during animation and/or view changes
     function update() {
+      timelapse.frameno = (timelapse.frameno || 0) + 1;
       perf_drawframe();
       gl.clear(gl.COLOR_BUFFER_BIT);
 
