@@ -1,3 +1,119 @@
+function Thumbnailer(sharelink) {
+    this.sharelink = sharelink;
+    this.hash = sharelink.split("#")[1];
+    this.setArgs(this.hash);
+} 
+
+Thumbnailer.prototype.setArgs = function(hash) {
+    this.args = [];
+    var argList = hash.split("&");
+    for (var arg in argList) {
+        var kv = argList[arg].split("=");
+        if (kv.length  == 2) {
+            var k = kv[0];
+            var v = kv[1];
+            this.args[k] = v;            
+        } else {
+            this.args[kv[0]] = kv[0];                        
+        }
+    }        
+}
+
+Thumbnailer.prototype.isPicture = function() {
+    var ps = this.args['ps'];
+    if (typeof ps != "undefined") {
+        if (parseFloat(ps) == 0.0) {
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        return false;        
+    }
+}
+
+Thumbnailer.prototype.getNWSE = function(orientation) {
+    var orientation = orientation || "portrait";
+    var regex = /v\=(.*),(.*),(.*),latLng/;
+    var arr = this.hash.match(regex);
+    var lat = parseFloat(arr[1]);
+    var lng = parseFloat(arr[2]);
+    var scale = parseFloat(arr[3]);
+    var scale2zoom = d3.scaleLinear().domain([-1, 12]).range([0, 12]);
+    var wm = this._latLonToWebMercator(lat,lng);
+    var xy = this._webMercatorToPixel(wm, scale2zoom(scale));
+    var width = orientation == "portrait" ? 540 : 1280;
+    var height = 720;
+    var pixelBoundingBox = [xy[1] - height*0.5, xy[0] - width*0.5, xy[1] + height*0.5, xy[0] + width*0.5]; //tlbr
+    var tl = this._pixelToWebMercator([pixelBoundingBox[1], pixelBoundingBox[0]], scale2zoom(scale));
+    var br = this._pixelToWebMercator([pixelBoundingBox[3], pixelBoundingBox[2]], scale2zoom(scale));
+    var nwse = [];
+    nwse  = this._webMercatorToLatLon(tl).concat(this._webMercatorToLatLon(br));
+    return nwse;   
+}
+
+Thumbnailer.prototype.getMp4 = function(orientation) {
+    var orientation = orientation || "portrait";
+    var width = orientation == "portrait" ? 540 : 1280;
+    var height = 720;    
+    var url = "https://thumbnails-staging.cmucreatelab.org/thumbnail?";
+    var root = "root=https://headless.earthtime.org/";
+    root += encodeURIComponent('#' + this.hash);
+    var boundsNWSE = "boundsNWSE=" + this.getNWSE(orientation).join(",");
+    var width = "width=" + width;
+    var height = "height=" + height;
+    var format = "format=" + "mp4";
+    var fps = "fps=" + "30";
+    var tileFormat = "tileFormat=" + "mp4";
+    var startDwell = "startDwell=" + "1.5";
+    var endDwell = "endDwell=" + "1.5";
+    var fromScreenshot = "fromScreenshot";
+    return url + [root,boundsNWSE,width,height,format,fps,tileFormat,startDwell,endDwell,fromScreenshot].join("&");
+}
+
+Thumbnailer.prototype.getPng = function(orientation) {
+    var orientation = orientation || "portrait";
+    var width = orientation == "portrait" ? 540 : 1280;
+    var height = 720;    
+    var url = "https://thumbnails-staging.cmucreatelab.org/thumbnail?";
+    var root = "root=https://headless.earthtime.org/";
+    root += encodeURIComponent('#' + this.hash);
+    var boundsNWSE = "boundsNWSE=" + this.getNWSE(orientation).join(",");
+    var width = "width=" + width;
+    var height = "height=" + height;
+    var format = "format=" + "png";
+    var fps = "fps=" + "30";
+    var tileFormat = "tileFormat=" + "mp4";
+    var fromScreenshot = "fromScreenshot";
+    return url + [root,boundsNWSE,width,height,format,fps,tileFormat,fromScreenshot].join("&");
+}
+
+Thumbnailer.prototype._latLonToWebMercator = function(latitude, longitude) {
+  var x = (longitude + 180) * 256 / 360;
+  var y = 128 - Math.log(Math.tan((latitude + 90) * Math.PI / 360)) * 128 / Math.PI;
+  return [x, y];
+}
+
+Thumbnailer.prototype._webMercatorToLatLon = function(xy) {
+  var lat = Math.atan(Math.exp((128 - xy[1]) * Math.PI / 128)) * 360 / Math.PI - 90;
+  var lng = xy[0] * 360 / 256 - 180;
+  return [lat, lng];
+};
+
+Thumbnailer.prototype._webMercatorToPixel = function(xy, zoom) {
+    var scale = 1 << zoom;
+    return [Math.floor(xy[0] * scale), Math.floor(xy[1] * scale)]
+}
+
+
+Thumbnailer.prototype._pixelToWebMercator = function(xy, zoom) {
+    var scale = 1 << zoom;
+    return [xy[0] / scale, xy[1] / scale];    
+}
+
+// 
+
+/*
 function ShareLinkToObject(shareLink) {
     var obj = {};
     var hash = shareLink.split("#")[1];
@@ -99,6 +215,30 @@ function ShareLinkToThumbnailUrl(shareLink, opts) {
     url += "&fps=" + fps;
     return url;
 }
+
+function ShareLinkToThumbnailUrl2(shareLink) {
+    var nwse = ShareLinkToNWSE(shareLink);
+    var hash = shareLink.split("#")[1];
+    var url = "https://thumbnails-staging.cmucreatelab.org/thumbnail?";
+    var root = "root=https://headless.earthtime.org/";
+    root += encodeURIComponent('#' + hash);
+    var boundsNWSE = "boundsNWSE=" + nwse.join(",");
+    var width = "width=" + "540";
+    var height = "height=" + "720";
+    //var startFrame = "startFrame=" + "0";
+    var format = "format=" + "mp4";
+    var fps = "fps=" + "30";
+    var tileFormat = "tileFormat=" + "mp4";
+    var startDwell = "startDwell=" + "1.5";
+    var endDwell = "endDwell=" + "1.5";
+    var fromScreenshot = "fromScreenshot";
+    //var minimalUI = "minimalUI";
+    //var nframes = "nframes=10;"
+    //return url + [root,boundsNWSE,width,height,startFrame,format,fps,tileFormat,startDwell,endDwell,fromScreenshot,minimalUI,nframes].join("&");
+    //return url + [root,boundsNWSE,width,height,startFrame,format,fps,tileFormat,startDwell,endDwell,fromScreenshot,nframes].join("&");
+    return url + [root,boundsNWSE,width,height,format,fps,tileFormat,startDwell,endDwell,fromScreenshot].join("&");
+}
+*/
 
 var objectFitImages = function() {
         "use strict";
@@ -772,7 +912,8 @@ giapp.waypoints = function() {
                             "_landscape.mp4" + e, c.load());
                             */
                             void 0 != e ? "?token=" + e :
-                            "", d.src = "true" == g ? ShareLinkToThumbnailUrl(f, {'orientation': 'portrait'}) + e : ShareLinkToThumbnailUrl(f, {'orientation': 'landscape'}) + e, c.load());
+                            "", d.src = "true" == g ? new Thumbnailer(f).getMp4("portrait") + e : new Thumbnailer(f).getMp4('landscape') + e, c.load());
+//                            "", d.src = "true" == g ? ShareLinkToThumbnailUrl(f, {'orientation': 'portrait'}) + e : ShareLinkToThumbnailUrl(f, {'orientation': 'landscape'}) + e, c.load());
                     giapp.curSlide = b
                 },
                 offset: "100%"
@@ -868,10 +1009,17 @@ giapp.setVideo = function() {
         var pngOptions = {'orientation': c,
                           'nframes':1,
                            'format': 'png'};
+        var thumbnail = new Thumbnailer(f);
+        /*
         "true" == q ? (d.src = ShareLinkToThumbnailUrl(f, mp4Options) + l, 
                        h.setAttribute("poster", ShareLinkToThumbnailUrl(k,pngOptions) + l)) : 
                       (d.src = ShareLinkToThumbnailUrl(f,mp4Options) + l, 
                        h.setAttribute("poster", ShareLinkToThumbnailUrl(k,pngOptions) + l));
+        */
+        "true" == q ? (d.src = thumbnail.getMp4(c) + l, 
+                       h.setAttribute("poster", thumbnail.getPng(c) + l)) : 
+                      (d.src = thumbnail.getMp4(c) + l, 
+                       h.setAttribute("poster", thumbnail.getPng(c) + l));
 
         "true" != n && b[a].querySelector(".gi-video__button").addEventListener(
             "click",

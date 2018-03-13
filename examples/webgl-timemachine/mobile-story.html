@@ -172,21 +172,26 @@
         el.insertAdjacentHTML('beforeend', html);
 
         for (var i = 1; i < story.length; i++) {
-          var f = ShareLinkToThumbnailUrl(story[i][3]);
-          var f = story[i][3];
+          //var f = ShareLinkToThumbnailUrl(story[i][3]);
+          //var f = story[i][3];
+          var thumbnail = new Thumbnailer(story[i][3]);
           var credit = story[i][5];
-          var videoContext = {idx: i, filename: f, credit: credit};
+//          var videoContext = {idx: i, filename: f, credit: credit};
+          var videoContext = {idx: i, filename: thumbnail.sharelink, credit: credit};
           var html = videoTemplate(videoContext);          
-          if (isPicture(f)) {
-            var portraitOptions = {'orientation': 'portrait',
+//          if (isPicture(f)) {
+          if (thumbnail.isPicture()) {
+/*            var portraitOptions = {'orientation': 'portrait',
                                    'nframes':1,
                                    'format': 'png'};
             var landscapeOptions = {'orientation': 'landscape',
                                    'nframes':1,
                                    'format': 'png'};
-
             var f_portrait = ShareLinkToThumbnailUrl(f, portraitOptions);
             var f_landscape = ShareLinkToThumbnailUrl(f, landscapeOptions);
+            */
+            var f_portrait = thumbnail.getPng("portrait");
+            var f_landscape = thumbnail.getPng("landscape");
             var pictureContext = {idx: i, filename_portrait: f_portrait, filename_landscape: f_landscape, credit: credit};
             html = pictureTemplate(pictureContext);          
           }
@@ -199,8 +204,12 @@
             title: story[i][1],
             caption: story[i][2], 
             data_media_type: 'video'};
+/*
           var f = story[i][3];
           if (isPicture(f)) {
+            */
+          var thumbnail = new Thumbnailer(story[i][3]);
+          if (thumbnail.isPicture()) {
             videoCaptionContext['data_media_type'] = 'photo';
           }
           var html = videoCaptionTemplate(videoCaptionContext);          
