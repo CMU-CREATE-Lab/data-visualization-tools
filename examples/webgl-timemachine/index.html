@@ -14,6 +14,7 @@
   <link href="../../timemachine/css/scaleBar.css" rel="stylesheet" type="text/css" />
   <link href="../../timemachine/css/customUI.css" rel="stylesheet" type="text/css" />
   <link href="../../timemachine/css/leaflet/leaflet.css" rel="stylesheet" type="text/css" />
+  <link href="../../timemachine/libs/change-detect/css/change.css" media="screen" rel="stylesheet" type="text/css" />
   <link href="../../js/customVideoTagControls/customVideoTagControls.css" rel="stylesheet" type="text/css" />
   <link href="../../css/jquery.multiselect.css" rel="stylesheet" type="text/css" />
   <link href="index.css" rel="stylesheet" type="text/css" />
@@ -21,6 +22,8 @@
   <script src="../../timemachine/js/jquery/jquery.min.js" type="text/javascript"></script>
   <script src="../../timemachine/js/jquery/jquery-ui.custom.min.js" type="text/javascript"></script>
   <script src="../../timemachine/js/jquery/plugins/mouse/jquery.mousewheel.min.js" type="text/javascript"></script>
+  <script src="../../timemachine/js/jquery/plugins/dialogExtend/jquery.dialogextend.min.js" type="text/javascript"></script>
+
   <script src="../../timemachine/js/org/gigapan/util.js" type="text/javascript"></script>
   <script src="../../timemachine/js/org/gigapan/timelapse/videoset.js" type="text/javascript"></script>
   <script src="../../timemachine/js/org/gigapan/timelapse/parabolicMotion.js" type="text/javascript"></script>
@@ -36,6 +39,13 @@
   <script src="../../timemachine/js/org/gigapan/timelapse/urlEncoder.js" type="text/javascript"></script>
   <script src="../../timemachine/template_includes.js" type="text/javascript"></script>
   <script src="../../timemachine/js/leaflet/leaflet.min.js" type="text/javascript"></script>
+
+  <script src="../../timemachine/libs/change-detect/js/ThumbnailServiceAPI.js" type="text/javascript"></script>
+  <script src="../../timemachine/libs/change-detect/js/TimeMachineCanvasLayer.js" type="text/javascript"></script>
+  <script src="../../timemachine/libs/change-detect/js/ThumbnailTool.js" type="text/javascript"></script>
+  <script src="../../timemachine/libs/change-detect/js/BoxEventHandler.js" type="text/javascript"></script>
+  <script src="../../timemachine/libs/change-detect/js/ChangeDetectionTool.js" type="text/javascript"></script>
+
   <script src="../../js/customVideoTagControls/customVideoTagControls.js" type="text/javascript"></script>
   <script src="../../js/jquery.multiselect.js" type="text/javascript"></script>
   <script src="../../js/earcut.min.js" type="text/javascript"></script>
@@ -65,6 +75,7 @@
   <script src="gapminder.json"></script>
   <script src="perf.js"></script>
   <script src="../../js/utils.js"></script>
+  <script src="../../js/download.min.js"></script>
 
   <script type="text/javascript">
     "use strict";
@@ -120,6 +131,8 @@
     var googleMapsAPIKey = EARTH_TIMELAPSE_CONFIG.googleMapsAPIKey;
 
     var showExtrasMenu = typeof(EARTH_TIMELAPSE_CONFIG.showExtrasMenu) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showExtrasMenu;
+    var showFullScreenButton = typeof(EARTH_TIMELAPSE_CONFIG.showFullScreenButton) === "undefined" ? false : !!EARTH_TIMELAPSE_CONFIG.showFullScreenButton;
+    var showThumbnailTool = typeof(EARTH_TIMELAPSE_CONFIG.showThumbnailTool) === "undefined" ? false : !!EARTH_TIMELAPSE_CONFIG.showThumbnailTool;
     var showEVA = !!EARTH_TIMELAPSE_CONFIG.showEVA;
     var showGFW = !!EARTH_TIMELAPSE_CONFIG.showGFW;
     var showLodes = !!EARTH_TIMELAPSE_CONFIG.showLodes;
@@ -825,7 +838,8 @@
         showEditorOnLoad: false,
         // Using "https" will cause the thumbnail loading from the server to fail
         thumbnailServerRootTileUrl: (landsatVersion == "2015") ? "http://earthengine.google.org/timelapse/data/20130507" : "http://storage.googleapis.com/earthengine-timelapse/herwig/earthtime_annual_1984_2016/v05",
-        showFullScreenBtn: false,
+        showFullScreenBtn: showFullScreenButton,
+        showThumbnailTool: showThumbnailTool,
         showShareBtn: showShareButton,
         presentationSliderSettings: {
           onLoadAnimation: "none",
@@ -3453,7 +3467,8 @@ function setTimeLine(identifier, startDate, endDate, step) {
       });
 
       $(document).keydown(function(e) {
-        if (e.target.id == 'location_search' || $(".ui-dialog").is(":visible")) return;
+        var fromRealKeydown = e.originalEvent && e.pageX != 0 && e.pageY != 0;
+        if ((e.target.id == 'location_search' || ($(".ui-dialog").is(":visible") && $("#dialog-extend-fixed-container").children().length == 0)) && !!fromRealKeydown) return;
 
         // 'page up' key
         // Quick way to step forward through waypoints
@@ -3512,7 +3527,7 @@ function setTimeLine(identifier, startDate, endDate, step) {
         }
         // 'c' key and share view dialog is not visible
         // Quick way to clear all layers
-        if (e.keyCode === 67 && !$(".shareView").is(":visible")) {
+        if (e.keyCode === 67) {
           $(".map-layer-div").find("input:checked").trigger("click");
           var openCategories = $("h3.ui-accordion-header.ui-state-active");
           var availableCategories = $(".map-layer-div").children("h3");
@@ -4151,7 +4166,7 @@ function setTimeLine(identifier, startDate, endDate, step) {
         $(".snaplapse_keyframe_container").prepend($("#presentation-slider-hamburger-wrapper"));
         $(".snaplapse_keyframe_list").addClass("has-hamburger");
         if (!isHyperwall && !isMobileDevice) {
-          $("#presentation-slider-hamburger-wrapper .hamburger, #presentation-slider-hamburger-wrapper #theme-title-container").height($(".snaplapse_keyframe_list").height() + 1);
+          $("#presentation-slider-hamburger-wrapper #theme-title-container").height($(".snaplapse_keyframe_list").height() + 1);
         }
         $("#presentation-slider-hamburger-wrapper").show();
       }
@@ -6105,7 +6120,7 @@ function setTimeLine(identifier, startDate, endDate, step) {
           source: function(request, response) {
             locationList = [];
             //http://nominatim.openstreetmap.org/search?format=json&limit=5&addressdetails=1
-            $.getJSON("http://photon.komoot.de/api/?limit=5", {
+            $.getJSON("https://photon.komoot.de/api/?limit=5", {
               q: request.term
             }, function(data, status, xhr) {
               response(data.features);
@@ -6429,6 +6444,12 @@ function setTimeLine(identifier, startDate, endDate, step) {
         });
         updateLetterboxSelections();
       }
+
+      // Workaround for issue that came with Chrome 65. Rot in hell browsers.
+      // Force redraw of the sticky positioned menus in bottom left.
+      $(".snaplapse_keyframe_container").scroll(function() {
+        $("#presentation-slider-hamburger-wrapper").hide().show(0);
+      });
 
       // End of onTimeMachinePlayerReady
     }
@@ -8636,7 +8657,7 @@ function setTimeLine(identifier, startDate, endDate, step) {
   <div id="extras-content" title=""></div>
   <div id="logosContainer" class="unselectable">
     <div id="productLogo">EarthTime</div>
-    <div id="contributors">CREATE Lab</div>
+    <div id="contributors">CMU CREATE Lab</div>
   </div>
   <div id="baseLayerCreditContainer" class="unselectable">
     <table>

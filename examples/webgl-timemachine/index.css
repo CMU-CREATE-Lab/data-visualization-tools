@@ -88,9 +88,14 @@ html, body {
 .ui-dialog-titlebar-close {
   width: 25px !important;
   height: 25px !important;
-  top: 12px !important;
+  top: 16px !important;
   background: #EFEFEF !important;
 }
+
+.ui-dialog-titlebar-buttonpane > .ui-dialog-titlebar-close {
+  top: 12px !important;
+}
+
 .ui-selectmenu-button {
   font-size: 14px !important;
   background: #EFEFEF !important;
@@ -1000,7 +1005,7 @@ a:focus { outline:0; }
   margin-top: -12px;
 }
 
-.ui-icon.ui-icon-minus, .ui-button .ui-icon.ui-icon-custom-minus {
+.zoomout .ui-icon.ui-icon-minus, .zoomout .ui-button .ui-icon.ui-icon-custom-minus {
   background: url(../../images/minus.png) !important;
   width: 25px;
   height: 25px;
@@ -1013,6 +1018,34 @@ a:focus { outline:0; }
 
 .zoomall.ui-button {
   margin-top: 0px !important;
+}
+
+.ui-dialog-titlebar-close {
+  margin-top: -14px !important;
+}
+
+.ui-dialog .ui-dialog-titlebar-minimize, .ui-dialog .ui-dialog-titlebar-restore {
+  width: 25px !important;
+  height: 25px !important;
+}
+
+.ui-dialog .ui-dialog-titlebar-buttonpane>a {
+  margin-top: -2px !important;
+  border-radius: 2px !important;
+  background: #EFEFEF !important;
+  border: none !important;
+  margin-right: 2px !important;
+}
+
+.ui-dialog .ui-dialog-titlebar-minimize span {
+  margin: 1px !important;
+  margin-top: 4px !important;
+  margin-left: 5px !important;
+}
+
+.ui-dialog .ui-dialog-titlebar-restore span {
+  margin-top: 5px !important;
+  margin-left: 4px !important;
 }
 
 .controlButton.ui-button {
@@ -1243,12 +1276,12 @@ a:focus { outline:0; }
 
 .hamburger {
   width: 70px;
-  height: 100%;
+  height: 75px;
   display: inline-block;
   font: inherit;
   color: inherit;
   text-transform: none;
-  background-color: black;
+  background-color: #3c823c;
   border: 0;
   margin: 0;
   padding-top: 1px;
@@ -1256,8 +1289,12 @@ a:focus { outline:0; }
   cursor: pointer;
 }
 
-.hamburger:hover, #theme-title-container:hover:not(.letterbox)  {
-  background-color: #252525;
+.hamburger:hover {
+  background-color: #469646;
+}
+
+#theme-title-container:hover:not(.letterbox)  {
+  background-color: #383737
 }
 
 .hamburger-box {
@@ -1265,6 +1302,7 @@ a:focus { outline:0; }
   height: 24px;
   display: inline-block;
   position: relative;
+  margin-top: 5px;
 }
 
 .hamburger-inner {
@@ -1386,12 +1424,13 @@ a:focus { outline:0; }
   left: 70px;
   position: absolute;
   top: 0px;
-  background: black;
+  background: #252525;
   height: 100%;
   width: 90px;
   z-index: 99999;
   border-left: 1px solid #424242;
   padding-left: 15px;
+  box-shadow: 3px 0px 8px 0px #0e0e0e;
 }
 
 #theme-title-container.letterbox {
