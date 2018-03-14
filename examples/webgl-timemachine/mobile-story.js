@@ -32,6 +32,21 @@ Thumbnailer.prototype.isPicture = function() {
     }
 }
 
+Thumbnailer.prototype._setBt = function() {
+    // Old sharelinks ommitted bt & et
+    // Thumbnail server requires at least bt set
+    var bt = this.args['bt'];
+    if (typeof bt == "undefined") {
+        var t = this.args['t'];
+        if (typeof t == "undefined") {
+            this.args["t"] = 0.0;
+            this.args["bt"] = 0.0;
+        } else {
+            this.args["bt"] = t;
+        }
+    }
+}
+
 Thumbnailer.prototype.getNWSE = function(orientation) {
     var orientation = orientation || "portrait";
     var regex = /v\=(.*),(.*),(.*),latLng/;
@@ -58,6 +73,10 @@ Thumbnailer.prototype.getMp4 = function(orientation) {
     var height = 720;    
     var url = "https://thumbnails-staging.cmucreatelab.org/thumbnail?";
     var root = "root=https://headless.earthtime.org/";
+    if (!('bt' in this.args)) {
+        this._setBt();
+        this.hash += "&bt=" + this.args['bt'];
+    }
     root += encodeURIComponent('#' + this.hash);
     var boundsNWSE = "boundsNWSE=" + this.getNWSE(orientation).join(",");
     var width = "width=" + width;
@@ -77,6 +96,10 @@ Thumbnailer.prototype.getPng = function(orientation) {
     var height = 720;    
     var url = "https://thumbnails-staging.cmucreatelab.org/thumbnail?";
     var root = "root=https://headless.earthtime.org/";
+    if (!('bt' in this.args)) {
+        this._setBt();
+        this.hash += "&bt=" + this.args['bt'];
+    }
     root += encodeURIComponent('#' + this.hash);
     var boundsNWSE = "boundsNWSE=" + this.getNWSE(orientation).join(",");
     var width = "width=" + width;
