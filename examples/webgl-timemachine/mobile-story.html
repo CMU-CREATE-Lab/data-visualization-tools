@@ -101,7 +101,7 @@
 <!--      <div class="gi-header__logo">
         <a href="https://earthime.org"> 
           <img src="logo.png">
-         </a> 
+         </a>
        </div>
      -->
       <div class="gi-share" id="gi-share"> </div> 
@@ -216,7 +216,7 @@
           el2.insertAdjacentHTML('afterend', html);
         }
 
-        var videoCaptionContext = {idx: 0, title: story[0][0], caption: story[0][2], author: story[0][6], dateline: story[0][7]};
+        var videoCaptionContext = {idx: 0, title: story[0][0].split("#")[1], caption: story[0][2], author: story[0][6], dateline: story[0][7]};
         var html = titleVideoCaptionTemplate(videoCaptionContext);          
         el2.insertAdjacentHTML('afterend', html);
 
