@@ -4171,7 +4171,8 @@ function setTimeLine(identifier, startDate, endDate, step) {
         $(".snaplapse_keyframe_container").prepend($("#presentation-slider-hamburger-wrapper"));
         $(".snaplapse_keyframe_list").addClass("has-hamburger");
         if (!isHyperwall && !isMobileDevice) {
-          $("#presentation-slider-hamburger-wrapper #theme-title-container").height($(".snaplapse_keyframe_list").height() + 1);
+          $("#presentation-slider-hamburger-wrapper .hamburger").height($(".snaplapse_keyframe_list").height() - 2);
+          $("#presentation-slider-hamburger-wrapper #theme-title-container").height($(".snaplapse_keyframe_list").height());
         }
         $("#presentation-slider-hamburger-wrapper").show();
       }
