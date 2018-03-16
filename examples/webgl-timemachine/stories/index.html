@@ -137,6 +137,7 @@
     var pictureTemplate = Handlebars.compile(source);    
 
     var url = "https://docs-proxy.cmucreatelab.org/spreadsheets/d/1SVMGlB3cfocLEcf3UOdsBX2xvtmNZmDbpL6O2ajmoic/export?format=csv&id=1SVMGlB3cfocLEcf3UOdsBX2xvtmNZmDbpL6O2ajmoic&gid=0";
+    url = 'https://docs-proxy.cmucreatelab.org/spreadsheets/d/1TcX5esf4YG8BKtYm-FGyfTr55RMMZsaklXHjUCYfhhM/export?format=csv&id=1TcX5esf4YG8BKtYm-FGyfTr55RMMZsaklXHjUCYfhhM&gid=0'
     var storyName = "#Big Picture on US Cities";
     var parsedUrl = new URL(window.location.href);
     if (parsedUrl.searchParams.get("storyName")  && parsedUrl.searchParams.get("storyName") != '') {
@@ -149,7 +150,6 @@
       }
     }    
 
-    console.log(storyName);
     Papa.parse(url, {
       download: true,
       complete: function(results, file) {
@@ -173,7 +173,7 @@
         }
 
         var el = document.getElementById("media-list");
-        var f = story[0][3];
+        var f = story[0][4];
         var videoContext = {idx: 0, filename: f};
         var html = titleVideoTemplate(videoContext);          
 
@@ -182,8 +182,8 @@
         for (var i = 1; i < story.length; i++) {
           //var f = ShareLinkToThumbnailUrl(story[i][3]);
           //var f = story[i][3];
-          var thumbnail = new Thumbnailer(story[i][3]);
-          var credit = story[i][5];
+          var thumbnail = new Thumbnailer(story[i][4]);
+          var credit = story[i][6];
 //          var videoContext = {idx: i, filename: f, credit: credit};
           var videoContext = {idx: i, filename: thumbnail.sharelink, credit: credit};
           var html = videoTemplate(videoContext);          
@@ -209,14 +209,15 @@
         var el2 = document.getElementById("parent-media-list");
         for (var i = story.length - 1; i > 0; i--) {          
           var videoCaptionContext = {idx: i, 
-            title: story[i][1],
-            caption: story[i][2], 
+            title: story[i][2],
+            caption: story[i][3], 
             data_media_type: 'video'};
 /*
           var f = story[i][3];
           if (isPicture(f)) {
             */
-          var thumbnail = new Thumbnailer(story[i][3]);
+            console.log(story[i][4]);
+          var thumbnail = new Thumbnailer(story[i][4]);
           if (thumbnail.isPicture()) {
             videoCaptionContext['data_media_type'] = 'photo';
           }
@@ -224,7 +225,7 @@
           el2.insertAdjacentHTML('afterend', html);
         }
 
-        var videoCaptionContext = {idx: 0, title: story[0][0].split("#")[1], caption: story[0][2], author: story[0][6], dateline: story[0][7]};
+        var videoCaptionContext = {idx: 0, title: story[0][0].split("#")[1], caption: story[0][3], author: story[0][7], dateline: story[0][8]};
         var html = titleVideoCaptionTemplate(videoCaptionContext);          
         el2.insertAdjacentHTML('afterend', html);
 
