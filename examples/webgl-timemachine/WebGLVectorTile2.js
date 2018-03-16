@@ -1706,7 +1706,6 @@ WebGLVectorTile2.prototype._drawColorDotmap = function(transform, options) {
 
     var tileTransform = new Float32Array(transform);
     var pixelScale = - transform[5];
-    console.log('_drawColorDotmap ' + pixelScale);
     var zoom = options.zoom || (2.0 * window.devicePixelRatio);
     scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
     scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
