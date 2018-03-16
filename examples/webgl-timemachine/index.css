@@ -1276,7 +1276,7 @@ a:focus { outline:0; }
 
 .hamburger {
   width: 70px;
-  height: 75px;
+  height: 100%;
   display: inline-block;
   font: inherit;
   color: inherit;
