@@ -42,12 +42,7 @@ function TileView(settings) {
   // -1.0: select a tile that's shown between 200% and 400% size (always supersample)
   this.levelThreshold = -0.5;
 
-  // Compute max level #
-  for (this._maxLevel = 0;
-       (this._tileWidth << this._maxLevel) < this._panoWidth ||
-       (this._tileHeight << this._maxLevel) < this._panoHeight;
-       this._maxLevel++) {
-  }
+  this._computeMaxLevel();
   this._readyList = [];
 
   //console.log(this.toString());
@@ -61,10 +56,24 @@ resetDimensions = function (json) {
   this._tileHeight = json.video_height;
   this._destroy();
   this._tiles = {};
+  this._computeMaxLevel();
+}
+
+
+TileView.prototype.
+_computeMaxLevel = function() {
+  // Compute max level #
   for (this._maxLevel = 0;
        (this._tileWidth << this._maxLevel) < this._panoWidth ||
        (this._tileHeight << this._maxLevel) < this._panoHeight;
        this._maxLevel++) {
+  }
+  if (this._panoWidth == 2097152 && this._panoHeight == 1881298 && this._tileWidth == 1424 && this._tileHeight == 800) {
+    // v14 missing the highest resolution layer;  override _maxLevel to 11 instead of the correct 12
+    // TODO: override this in the layer constructor, stop using the landsat layer as the coordinate system, and stop calling resetDimensions
+    this._maxLevelOverride = 11;
+  } else {
+    this._maxLevelOverride = undefined;
   }
 }
 
@@ -288,6 +297,7 @@ setView = function(view, viewportWidth, viewportHeight, scale) {
 
   // Require tiles in view from optimal level of detail
   var level = this._scale2level(view.scale * this._scale);
+  if (level > this._maxLevelOverride) level = this._maxLevelOverride;
   var visibleRange = this._computeVisibleTileRange(view, level);
 
   for (var r = visibleRange.min.r; r <= visibleRange.max.r; r++) {
@@ -315,6 +325,7 @@ setView = function(view, viewportWidth, viewportHeight, scale) {
   // Sort ready, higher-level tiles according to level
   var highLevelTileidxs = [];
   var currentLevel = this._scale2level(view.scale);
+  if (currentLevel > this._maxLevelOverride) currentLevel = this._maxLevelOverride;
   for (var key in this._tiles) {
     var tileidx = this._tiles[key].index;
     if (tileidx.l > currentLevel) {
