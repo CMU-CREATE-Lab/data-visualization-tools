@@ -141,7 +141,15 @@
     var parsedUrl = new URL(window.location.href);
     if (parsedUrl.searchParams.get("storyName")  && parsedUrl.searchParams.get("storyName") != '') {
       storyName = '#' + parsedUrl.searchParams.get("storyName");
-    }     
+    } else {
+      var slug = window.location.href.substr(window.location.href.lastIndexOf('/') + 1);
+      slug = slug.replace(/_/g,' ');
+      if (slug != '') {
+        storyName = '#' + slug.trim();
+      }
+    }    
+
+    console.log(storyName);
     Papa.parse(url, {
       download: true,
       complete: function(results, file) {
