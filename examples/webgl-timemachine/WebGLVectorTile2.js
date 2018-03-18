@@ -1697,53 +1697,8 @@ WebGLVectorTile2.prototype._drawLodes = function(transform, options) {
 }
 
 
-WebGLVectorTile2.genericDrawPoints = function(instance_options) {
-  return function(transform, options) {
-    if (!this._ready) return;
-    var gl = this.gl;
-    gl.useProgram(this.program);
-    gl.enable( gl.BLEND );
-    gl.blendEquationSeparate( gl.FUNC_ADD, gl.FUNC_ADD );
-    gl.blendFuncSeparate( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA );
-    
-    var tileTransform = new Float32Array(transform);
 
-    var pointSize = 1; // default
-    if (typeof instance_options.pointSize == 'number') {
-      pointSize = instance_options.pointSize;
-    } else if (typeof instance_options.pointSize == 'object') {
-      var zoomScale = Math.log2(-transform[5]);
-      var countryLevelZoomScale = -3;
-      var blockLevelZoomScale = 9;
-      var countryPointSizePixels = instance_options.pointSize[0];
-      var blockPointSizePixels = instance_options.pointSize[1];
-    
-      pointSize = countryPointSizePixels * Math.pow(blockPointSizePixels / countryPointSizePixels, (zoomScale - countryLevelZoomScale) / (blockLevelZoomScale - countryLevelZoomScale));
-    }
-    
-    var zoom = options.zoom || (2.0 * window.devicePixelRatio);
-    scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
-    scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
-    
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
-    
-    // Beyond a certain zoom level, increase dot size
-    //pointSize = instance_options.pointSize == undefined ? 1.0 : instance_options.pointSize;
-    gl.uniform1f(this.program.uSize, pointSize);
-    gl.uniform1f(this.program.uZoom, zoom);
-    gl.uniformMatrix4fv(this.program.mapMatrix, false, tileTransform);
-    gl.enableVertexAttribArray(this.program.aWorldCoord);
-    gl.vertexAttribPointer(this.program.aWorldCoord, 2, gl.FLOAT, false, 12, 0);
-    
-    gl.enableVertexAttribArray(this.program.aColor);
-    gl.vertexAttribPointer(this.program.aColor, 1, gl.FLOAT, false, 12, 8);
-    
-    var npoints = Math.floor(this._pointCount);
-    gl.drawArrays(gl.POINTS, 0, npoints);
-    perf_draw_points(npoints);
-    gl.disable(gl.BLEND);
-  }
-}
+
 
 WebGLVectorTile2.prototype._drawColorDotmap = function(transform, options) {
   var gl = this.gl;
@@ -4158,4 +4113,119 @@ WebGLVectorTile2.sitc4r2FragmentShader = '' +
 '    vec4 colorEnd = vec4(u_end_color,1.0);\n' +
 '    gl_FragColor = mix(colorStart, colorEnd, v_t);\n' +
 '  }\n';
+
+//////////////////////
+
+WebGLVectorTile2.basicDrawPoints = function(instance_options) {
+  return function(transform, options) {
+    if (!this._ready) return;
+    var gl = this.gl;
+    gl.useProgram(this.program);
+    gl.enable( gl.BLEND );
+    gl.blendEquationSeparate( gl.FUNC_ADD, gl.FUNC_ADD );
+    gl.blendFuncSeparate( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA );
+    
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+
+    var tileTransform = new Float32Array(transform);
+
+    // Set u_size, if present
+    if (this.program.u_size != undefined) {
+      var pointSize = 1; // default
+      if (typeof instance_options.pointSize == 'number') {
+	pointSize = instance_options.pointSize;
+      } else if (typeof instance_options.pointSize == 'object') {
+	var zoomScale = Math.log2(-transform[5]);
+	var countryLevelZoomScale = -3;
+	var blockLevelZoomScale = 9;
+	var countryPointSizePixels = instance_options.pointSize[0];
+	var blockPointSizePixels = instance_options.pointSize[1];
+	
+	pointSize = countryPointSizePixels * Math.pow(blockPointSizePixels / countryPointSizePixels, (zoomScale - countryLevelZoomScale) / (blockLevelZoomScale - countryLevelZoomScale));
+	gl.uniform1f(this.program.u_size, pointSize);
+      }
+    }
+
+    // Set u_epoch, if present
+    if (this.program.u_epoch != undefined) {
+      gl.uniform1f(this.program.u_epoch, options.currentTime/1000.);
+    }
+    
+    scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
+    scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+    gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
+
+    var attrib_offset = 0;
+    var num_attributes = this._numAttributes - 0;
+
+    var candidate_attribs = [
+      {name: 'a_coord', size: 2},
+      {name: 'a_color', size: 1},
+      {name: 'a_start_epoch', size: 1},
+      {name: 'a_end_epoch', size: 1}
+    ];
+
+    for (var i = 0; i < candidate_attribs.length; i++) {
+      var attrib_name = candidate_attribs[i].name;
+      var attrib_size = candidate_attribs[i].size;
+      if (this.program[attrib_name] != undefined) {
+	gl.enableVertexAttribArray(this.program[attrib_name]);
+	gl.vertexAttribPointer(this.program[attrib_name], attrib_size, gl.FLOAT, false, num_attributes * 4, attrib_offset);
+	attrib_offset += attrib_size * 4;
+      }
+    }
+    
+    console.assert(num_attributes == attrib_offset / 4);
+
+    var npoints = Math.floor(this._pointCount);
+    gl.drawArrays(gl.POINTS, 0, npoints);
+    perf_draw_points(npoints);
+    gl.disable(gl.BLEND);
+  }
+}
+
+WebGLVectorTile2.basicVertexColorStartEpochEndEpochShader =
+  'attribute vec2 a_coord;\n' +
+  'attribute float a_color;\n' +
+  'attribute float a_start_epoch; /* inclusive */\n' +
+  'attribute float a_end_epoch; /* exclusive */\n' +
+  'uniform float u_size;\n' +
+  'uniform mat4 u_map_matrix;\n' +
+  'uniform float u_epoch;\n' +
+  'varying float v_color;\n' +
+  'void main() {\n' +
+  '  if (a_start_epoch <= u_epoch && u_epoch < a_end_epoch) {\n' +
+  '    gl_Position = vec4(a_coord.x * u_map_matrix[0][0] + u_map_matrix[3][0], a_coord.y * u_map_matrix[1][1] + u_map_matrix[3][1],0,1);\n' +
+  '  } else {\n' +
+  '    gl_Position = vec4(-1,-1,-1,-1);\n' +
+  '  }\n' +
+  '  gl_PointSize = u_size;\n' +
+  '  v_color = a_color;\n' +
+  '}\n';
+
+WebGLVectorTile2.basicVertexColorShader =
+  'attribute vec2 a_coord;\n' +
+  'attribute float a_color;\n' +
+  'uniform float u_size;\n' +
+  'uniform mat4 u_map_matrix;\n' +
+  'varying float v_color;\n' +
+  'void main() {\n' +
+  '  gl_Position = vec4(a_coord.x * u_map_matrix[0][0] + u_map_matrix[3][0], a_coord.y * u_map_matrix[1][1] + u_map_matrix[3][1],0,1);\n' +
+  '  gl_PointSize = u_size;\n' +
+  '  v_color = a_color;\n' +
+  '}\n';
+
+WebGLVectorTile2.basicSquareFragmentShader = 
+  'precision lowp float;\n' +
+  'varying float v_color;\n' +
+  'vec3 unpackColor(float f) {\n' +
+  '  vec3 color;\n' +
+  '  color.b = floor(f / 256.0 / 256.0);\n' +
+  '  color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);\n' +
+  '  color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);\n' +
+  '  return color / 256.0;\n' +
+  '}\n' +
+  'void main() {\n' +
+  '  gl_FragColor = vec4(unpackColor(v_color),1.0);\n' +
+  '}\n';
 
