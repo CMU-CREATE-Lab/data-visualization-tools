@@ -1696,6 +1696,55 @@ WebGLVectorTile2.prototype._drawLodes = function(transform, options) {
   }
 }
 
+
+WebGLVectorTile2.genericDrawPoints = function(instance_options) {
+  return function(transform, options) {
+    if (!this._ready) return;
+    var gl = this.gl;
+    gl.useProgram(this.program);
+    gl.enable( gl.BLEND );
+    gl.blendEquationSeparate( gl.FUNC_ADD, gl.FUNC_ADD );
+    gl.blendFuncSeparate( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA );
+    
+    var tileTransform = new Float32Array(transform);
+
+    var pointSize = 1; // default
+    if (typeof instance_options.pointSize == 'number') {
+      pointSize = instance_options.pointSize;
+    } else if (typeof instance_options.pointSize == 'object') {
+      var zoomScale = Math.log2(-transform[5]);
+      var countryLevelZoomScale = -3;
+      var blockLevelZoomScale = 9;
+      var countryPointSizePixels = instance_options.pointSize[0];
+      var blockPointSizePixels = instance_options.pointSize[1];
+    
+      pointSize = countryPointSizePixels * Math.pow(blockPointSizePixels / countryPointSizePixels, (zoomScale - countryLevelZoomScale) / (blockLevelZoomScale - countryLevelZoomScale));
+    }
+    
+    var zoom = options.zoom || (2.0 * window.devicePixelRatio);
+    scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
+    scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+    
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+    
+    // Beyond a certain zoom level, increase dot size
+    //pointSize = instance_options.pointSize == undefined ? 1.0 : instance_options.pointSize;
+    gl.uniform1f(this.program.uSize, pointSize);
+    gl.uniform1f(this.program.uZoom, zoom);
+    gl.uniformMatrix4fv(this.program.mapMatrix, false, tileTransform);
+    gl.enableVertexAttribArray(this.program.aWorldCoord);
+    gl.vertexAttribPointer(this.program.aWorldCoord, 2, gl.FLOAT, false, 12, 0);
+    
+    gl.enableVertexAttribArray(this.program.aColor);
+    gl.vertexAttribPointer(this.program.aColor, 1, gl.FLOAT, false, 12, 8);
+    
+    var npoints = Math.floor(this._pointCount);
+    gl.drawArrays(gl.POINTS, 0, npoints);
+    perf_draw_points(npoints);
+    gl.disable(gl.BLEND);
+  }
+}
+
 WebGLVectorTile2.prototype._drawColorDotmap = function(transform, options) {
   var gl = this.gl;
   if (this._ready) {
