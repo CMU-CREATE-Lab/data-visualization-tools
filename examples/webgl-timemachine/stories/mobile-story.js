@@ -77,7 +77,8 @@ Thumbnailer.prototype.getMp4 = function(orientation) {
         this._setBt();
         this.hash += "&bt=" + this.args['bt'];
     }
-    root += encodeURIComponent('#' + this.hash);
+    root += encodeURIComponent('#' + this.hash + "&timestampOnlyUI=true");
+
     //var boundsNWSE = "boundsNWSE=" + this.getNWSE(orientation).join(",");
     var width = "width=" + width;
     var height = "height=" + height;
@@ -100,7 +101,9 @@ Thumbnailer.prototype.getPng = function(orientation) {
         this._setBt();
         this.hash += "&bt=" + this.args['bt'];
     }
-    root += encodeURIComponent('#' + this.hash);
+    //root += encodeURIComponent('#' + this.hash);
+    root += encodeURIComponent('#' + this.hash + "&timestampOnlyUI=true");
+
     //var boundsNWSE = "boundsNWSE=" + this.getNWSE(orientation).join(",");
     var width = "width=" + width;
     var height = "height=" + height;
