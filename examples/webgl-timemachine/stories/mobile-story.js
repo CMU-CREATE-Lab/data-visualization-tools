@@ -78,7 +78,7 @@ Thumbnailer.prototype.getMp4 = function(orientation) {
         this.hash += "&bt=" + this.args['bt'];
     }
     root += encodeURIComponent('#' + this.hash);
-    var boundsNWSE = "boundsNWSE=" + this.getNWSE(orientation).join(",");
+    //var boundsNWSE = "boundsNWSE=" + this.getNWSE(orientation).join(",");
     var width = "width=" + width;
     var height = "height=" + height;
     var format = "format=" + "mp4";
@@ -87,7 +87,7 @@ Thumbnailer.prototype.getMp4 = function(orientation) {
     var startDwell = "startDwell=" + "1.5";
     var endDwell = "endDwell=" + "1.5";
     var fromScreenshot = "fromScreenshot";
-    return url + [root,boundsNWSE,width,height,format,fps,tileFormat,startDwell,endDwell,fromScreenshot].join("&");
+    return url + [root,width,height,format,fps,tileFormat,startDwell,endDwell,fromScreenshot].join("&");
 }
 
 Thumbnailer.prototype.getPng = function(orientation) {
@@ -101,14 +101,14 @@ Thumbnailer.prototype.getPng = function(orientation) {
         this.hash += "&bt=" + this.args['bt'];
     }
     root += encodeURIComponent('#' + this.hash);
-    var boundsNWSE = "boundsNWSE=" + this.getNWSE(orientation).join(",");
+    //var boundsNWSE = "boundsNWSE=" + this.getNWSE(orientation).join(",");
     var width = "width=" + width;
     var height = "height=" + height;
     var format = "format=" + "png";
     var fps = "fps=" + "30";
     var tileFormat = "tileFormat=" + "mp4";
     var fromScreenshot = "fromScreenshot";
-    return url + [root,boundsNWSE,width,height,format,fps,tileFormat,fromScreenshot].join("&");
+    return url + [root,width,height,format,fps,tileFormat,fromScreenshot].join("&");
 }
 
 Thumbnailer.prototype._latLonToWebMercator = function(latitude, longitude) {
