@@ -1355,10 +1355,12 @@ video.portrait-contain,video.landscape-contain{
     opacity:0
 }
 .gi-card__caption span.gi-card__caption--bg{
-    display:inline;
-    background:#111;
-    padding:0.4rem 0.3rem 0.4rem 0.3rem;
-    box-shadow:0.3rem 0 0 #111, -0.3rem 0 0 #111;
+    display:block;
+    background:#2228;
+    padding:0.3rem 0.2rem 0.3rem 0.5rem;
+    font-size: .9rem;
+    border-radius: .4rem;
+    
     -webkit-box-decoration-break:clone;
     -ms-box-decoration-break:clone;
     -o-box-decoration-break:clone;
