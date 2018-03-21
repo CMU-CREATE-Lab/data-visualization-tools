@@ -1,7 +1,13 @@
 function Thumbnailer(sharelink) {
     this.sharelink = sharelink;
-    this.hash = sharelink.split("#")[1];
-    this.setArgs(this.hash);
+    var hash = sharelink.split("#")[1];
+    if (typeof hash !== "undefined") { // we passed a sharelink
+        this.hash = hash;
+        this.setArgs(this.hash);
+    } else { // we passed a thumbnail server link
+        var qsa = sharelink.split("?")[1];
+        this.setArgs(qsa);
+    }
 } 
 
 Thumbnailer.prototype.setArgs = function(hash) {
@@ -21,13 +27,22 @@ Thumbnailer.prototype.setArgs = function(hash) {
 
 Thumbnailer.prototype.isPicture = function() {
     var ps = this.args['ps'];
+    var format = this.args['format'];
+
     if (typeof ps != "undefined") {
         if (parseFloat(ps) == 0.0) {
             return true;
         } else {
             return false;
         }
-    } else {
+    } else if (typeof format !== "undefined") {
+        if (format == "png") {
+            return true;
+        } else {
+            return false;
+        }
+    }
+     else {
         return false;        
     }
 }
@@ -47,48 +62,70 @@ Thumbnailer.prototype._setBt = function() {
     }
 }
 
-Thumbnailer.prototype.getNWSE = function(orientation) {
-    var orientation = orientation || "portrait";
-    var regex = /v\=(.*),(.*),(.*),latLng/;
-    var arr = this.hash.match(regex);
-    var lat = parseFloat(arr[1]);
-    var lng = parseFloat(arr[2]);
-    var scale = parseFloat(arr[3]);
-    var scale2zoom = d3.scaleLinear().domain([-1, 12]).range([0, 12]);
-    var wm = this._latLonToWebMercator(lat,lng);
-    var xy = this._webMercatorToPixel(wm, scale2zoom(scale));
-    var width = orientation == "portrait" ? 540 : 1280;
-    var height = 720;
-    var pixelBoundingBox = [xy[1] - height*0.5, xy[0] - width*0.5, xy[1] + height*0.5, xy[0] + width*0.5]; //tlbr
-    var tl = this._pixelToWebMercator([pixelBoundingBox[1], pixelBoundingBox[0]], scale2zoom(scale));
-    var br = this._pixelToWebMercator([pixelBoundingBox[3], pixelBoundingBox[2]], scale2zoom(scale));
-    var nwse = [];
-    nwse  = this._webMercatorToLatLon(tl).concat(this._webMercatorToLatLon(br));
-    return nwse;   
-}
-
 Thumbnailer.prototype.getMp4 = function(orientation) {
     var orientation = orientation || "portrait";
     var width = orientation == "portrait" ? 540 : 1280;
     var height = 720;    
     var url = "https://thumbnails-staging.cmucreatelab.org/thumbnail?";
+
+    /*
     var root = "root=https://headless.earthtime.org/";
     if (!('bt' in this.args)) {
         this._setBt();
         this.hash += "&bt=" + this.args['bt'];
     }
     root += encodeURIComponent('#' + this.hash);
+    */
+    var root = "root=";
+    if (typeof this.args["root"] == "undefined") {
+        root += "https://headless.earthtime.org/";
+        if (!('bt' in this.args)) {
+            this._setBt();
+            this.hash += "&bt=" + this.args['bt'];
+        }
+        root += encodeURIComponent('#' + this.hash);        
+    } else {
+        root += this.args["root"];
+    }
+
     //var boundsNWSE = "boundsNWSE=" + this.getNWSE(orientation).join(",");
     var width = "width=" + width;
     var height = "height=" + height;
     var format = "format=" + "mp4";
-    var fps = "fps=" + "30";
+    var fps = "fps=";
+    if (typeof this.args["fps"] == "undefined") {
+        fps += "30";
+    } else {
+        fps += this.args["fps"];
+    }
     var tileFormat = "tileFormat=" + "mp4";
-    var startDwell = "startDwell=" + "1.5";
-    var endDwell = "endDwell=" + "1.5";
+
+    var startDwell = "startDwell=";
+    if (typeof this.args["startDwell"] == "undefined") {
+        startDwell += "1.5";
+    } else {
+        startDwell += this.args["startDwell"];
+    }
+    var endDwell = "endDwell=";
+    if (typeof this.args["endDwell"] == "undefined") {
+        endDwell += "1.5";
+    } else {
+        endDwell += this.args["endDwell"];
+    }
+
     var fromScreenshot = "fromScreenshot";
-    var timestampOnlyUI = "timestampOnlyUI=" + "true";    
-    return url + [root,width,height,format,fps,tileFormat,startDwell,endDwell,fromScreenshot, timestampOnlyUI].join("&");
+    var UI = '';
+    if (typeof this.hash != "undefined") {
+        UI += "timestampOnlyUI=" + "true";    
+    } else {
+        if (typeof this.args['minimalUI'] != 'undefined') {
+            UI = "minimalUI";
+        } 
+        if (typeof this.args['timestampOnlyUI'] != 'undefined') {
+            UI = "timestampOnlyUI=true";
+        } 
+    }
+    return url + [root,width,height,format,fps,tileFormat,startDwell,endDwell,fromScreenshot, UI].join("&");
 }
 
 Thumbnailer.prototype.getPng = function(orientation) {
@@ -96,21 +133,43 @@ Thumbnailer.prototype.getPng = function(orientation) {
     var width = orientation == "portrait" ? 540 : 1280;
     var height = 720;    
     var url = "https://thumbnails-staging.cmucreatelab.org/thumbnail?";
-    var root = "root=https://headless.earthtime.org/";
-    if (!('bt' in this.args)) {
-        this._setBt();
-        this.hash += "&bt=" + this.args['bt'];
+    var root = "root=";
+    if (typeof this.args["root"] == "undefined") {
+        root += "https://headless.earthtime.org/";
+        if (!('bt' in this.args)) {
+            this._setBt();
+            this.hash += "&bt=" + this.args['bt'];
+        }
+        root += encodeURIComponent('#' + this.hash);        
+    } else {
+        root += this.args["root"];
     }
-    root += encodeURIComponent('#' + this.hash);
     //var boundsNWSE = "boundsNWSE=" + this.getNWSE(orientation).join(",");
     var width = "width=" + width;
     var height = "height=" + height;
-    var format = "format=" + "png";
+
+    var format = "format="
+    if (typeof this.args["format"] == "undefined") {
+        format += "png";
+    } else {
+        format += this.args["format"];
+    }
+    //var format = "format=" + "png";
     var fps = "fps=" + "30";
     var tileFormat = "tileFormat=" + "mp4";
     var fromScreenshot = "fromScreenshot";
-    var timestampOnlyUI = "timestampOnlyUI=" + "true";    
-    return url + [root,width,height,format,fps,tileFormat,fromScreenshot,timestampOnlyUI].join("&");
+    var UI = '';
+    if (typeof this.hash != "undefined") {
+        UI += "timestampOnlyUI=" + "true";    
+    } else {
+        if (typeof this.args['minimalUI'] != 'undefined') {
+            UI = "minimalUI";
+        } 
+        if (typeof this.args['timestampOnlyUI'] != 'undefined') {
+            UI = "timestampOnlyUI=true";
+        } 
+    }
+    return url + [root,width,height,format,fps,tileFormat,fromScreenshot,UI].join("&");
 }
 
 Thumbnailer.prototype._latLonToWebMercator = function(latitude, longitude) {
@@ -135,135 +194,6 @@ Thumbnailer.prototype._pixelToWebMercator = function(xy, zoom) {
     var scale = 1 << zoom;
     return [xy[0] / scale, xy[1] / scale];    
 }
-
-// 
-
-/*
-function ShareLinkToObject(shareLink) {
-    var obj = {};
-    var hash = shareLink.split("#")[1];
-    var args = hash.split("&");
-    for (var arg in args) {
-      var k = args[arg].split("=")[0];
-      var v = args[arg].split("=")[1];
-      obj[k] = v;
-    }        
-    return obj;
-}
-
-function isPicture(shareLink) {
-    var returnValue = false;
-    var hash = shareLink.split("#")[1];
-    var args = hash.split("&");
-    for (var arg in args) {
-      var k = args[arg].split("=")[0];
-      var v = args[arg].split("=")[1];
-      if (k == "ps") {
-        v = parseFloat(v);
-        if (v == 0.0) {
-            returnValue = true;          
-        }
-      }
-    }        
-    return returnValue;
-}
-
-function LatLonToWebMercator(latitude, longitude) {
-  var x = (longitude + 180) * 256 / 360;
-  var y = 128 - Math.log(Math.tan((latitude + 90) * Math.PI / 360)) * 128 / Math.PI;
-  return [x, y];
-}
-
-function WebMercatorToLatLon(xy) {
-  var lat = Math.atan(Math.exp((128 - xy[1]) * Math.PI / 128)) * 360 / Math.PI - 90;
-  var lng = xy[0] * 360 / 256 - 180;
-  return [lat, lng];
-};
-
-function WebMercatorToPixel(xy, zoom) {
-    var scale = 1 << zoom;
-    return [Math.floor(xy[0] * scale), Math.floor(xy[1] * scale)]
-}
-
-
-function PixelToWebMercator(xy, zoom) {
-    var scale = 1 << zoom;
-    return [xy[0] / scale, xy[1] / scale];    
-}
-
-function ShareLinkToNWSE(shareLink, orientation) {
-    var orientation = orientation || "portrait";
-    var hash = shareLink.split("#")[1];
-    var regex = /v\=(.*),(.*),(.*),latLng/;
-    var arr = hash.match(regex);
-    var lat = parseFloat(arr[1]);
-    var lng = parseFloat(arr[2]);
-    var scale = parseFloat(arr[3]);
-    var scale2zoom = d3.scaleLinear().domain([-1, 12]).range([0, 12]);
-    var wm = LatLonToWebMercator(lat,lng);
-    var xy = WebMercatorToPixel(wm, scale2zoom(scale));
-    var width = orientation == "portrait" ? 540 : 1280;
-    var height = 720;
-    var pixelBoundingBox = [xy[1] - height*0.5, xy[0] - width*0.5, xy[1] + height*0.5, xy[0] + width*0.5]; //tlbr
-    var tl = PixelToWebMercator([pixelBoundingBox[1], pixelBoundingBox[0]], scale2zoom(scale));
-    var br = PixelToWebMercator([pixelBoundingBox[3], pixelBoundingBox[2]], scale2zoom(scale));
-    var nwse = [];
-    nwse  = WebMercatorToLatLon(tl).concat(WebMercatorToLatLon(br));
-    return nwse;   
-}
-
-function ShareLinkToThumbnailUrl(shareLink, opts) {
-    var obj = ShareLinkToObject(shareLink);
-    var opts = opts || {};
-    var orientation = opts.orientation || "portrait";
-    var nwse = ShareLinkToNWSE(shareLink);
-    var width = orientation == "portrait" ? 540 : 1280;
-    var height = 720;
-    var root = opts.root || "http://storage.googleapis.com/earthengine-timelapse/herwig/earthtime_annual_1984_2016/v05";    
-    var nframes = opts.nframes || 33;
-    var frameTime = opts.frameTime || 0.0; 
-    if (typeof obj["t"] !== "undefined") {
-        frameTime = obj["t"];
-    }
-    var tileFormat = opts.tileFormat || "mp4";
-    var format = opts.format || "mp4";
-    var fps = opts.fps || 6;
-    var url = "https://thumbnails-staging.cmucreatelab.org/thumbnail?";
-    url += "root=" + root;
-    url += "&width=" + width;
-    url += "&height=" + height;
-    url += "&nframes=" + nframes;
-    url += "&frameTime=" + frameTime;
-    url += "&tileFormat=" + tileFormat;
-    url += "&format=" + format;
-    url += "&boundsNWSE=" + nwse.join(",");
-    url += "&fps=" + fps;
-    return url;
-}
-
-function ShareLinkToThumbnailUrl2(shareLink) {
-    var nwse = ShareLinkToNWSE(shareLink);
-    var hash = shareLink.split("#")[1];
-    var url = "https://thumbnails-staging.cmucreatelab.org/thumbnail?";
-    var root = "root=https://headless.earthtime.org/";
-    root += encodeURIComponent('#' + hash);
-    var boundsNWSE = "boundsNWSE=" + nwse.join(",");
-    var width = "width=" + "540";
-    var height = "height=" + "720";
-    //var startFrame = "startFrame=" + "0";
-    var format = "format=" + "mp4";
-    var fps = "fps=" + "30";
-    var tileFormat = "tileFormat=" + "mp4";
-    var startDwell = "startDwell=" + "1.5";
-    var endDwell = "endDwell=" + "1.5";
-    var fromScreenshot = "fromScreenshot";
-    //var minimalUI = "minimalUI";
-    //var nframes = "nframes=10;"
-    //return url + [root,boundsNWSE,width,height,startFrame,format,fps,tileFormat,startDwell,endDwell,fromScreenshot,minimalUI,nframes].join("&");
-    //return url + [root,boundsNWSE,width,height,startFrame,format,fps,tileFormat,startDwell,endDwell,fromScreenshot,nframes].join("&");
-    return url + [root,boundsNWSE,width,height,format,fps,tileFormat,startDwell,endDwell,fromScreenshot].join("&");
-}
-*/
 
 var objectFitImages = function() {
         "use strict";
