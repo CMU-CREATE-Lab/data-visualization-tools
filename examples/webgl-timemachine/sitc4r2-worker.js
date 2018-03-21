@@ -1,4 +1,6 @@
 //worker.js
+importScripts("../../js/seedrandom.min.js");
+
 self.addEventListener('message', function(e) {
     var year = e.data['year'];
     var code = e.data["code"];
@@ -25,13 +27,14 @@ var getJson = function(code, year, exporters, importers, scale, callback) {
 }
 
 var setData = function(code, year, exporters, importers, scale, data) {
+    var prng = new Math.seedrandom('sitc4r2.');
     function shuffle (array) {
         var i = 0
         , j = 0
         , temp = null
 
         for (i = array.length - 1; i > 0; i -= 1) {
-            j = Math.floor(Math.random() * (i + 1))
+            j = Math.floor(prng() * (i + 1))
             temp = array[i]
             array[i] = array[j]
             array[j] = temp
@@ -41,10 +44,10 @@ var setData = function(code, year, exporters, importers, scale, data) {
     function getRandomIntInclusive(min, max) {
         min = Math.ceil(min);
         max = Math.floor(max);
-        return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive 
+        return Math.floor(prng() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive 
     }
     function getRandomArbitrary(min, max) {
-        return Math.random() * (max - min) + min;
+        return prng() * (max - min) + min;
     }
     function conditionCheck(row) {
         // Show all exporters and importers
