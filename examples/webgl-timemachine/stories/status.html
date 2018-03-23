@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Status</title>
+        <script type="text/javascript" src="../../../js/papaparse.min.js"></script>  
+        <script type="text/javascript" src="../../../js/d3.min.js"></script>
+        <script type="text/javascript" src="../../../js/handlebars-v4.0.11.js"></script>
+        <script type="text/javascript" src="../../../js/blazy.min.js"></script>
+        <script type="text/javascript" src="../../../js/noframework.waypoints.min.js"></script>
+    </head>
+    <body>
+        <div id="out">
+        </div>        
+
+        <script type="text/javascript" src="mobile-story.js"></script>
+        <script id="story-template" type="text/x-handlebars-template">
+          <div class="story">
+            <h1><a href="./{{title}}">{{title}}</a></h1>
+          </div>
+        </script>        
+        <script type="text/javascript">
+
+            var source   = document.getElementById("story-template").innerHTML;
+            var storyTemplate = Handlebars.compile(source);
+
+            const url = "https://docs-proxy.cmucreatelab.org/spreadsheets/d/1SVMGlB3cfocLEcf3UOdsBX2xvtmNZmDbpL6O2ajmoic/export?format=csv&id=1SVMGlB3cfocLEcf3UOdsBX2xvtmNZmDbpL6O2ajmoic&gid=0";
+
+            var storyTitles = [];
+            var data;
+            Papa.parse(url, {
+                download: true,
+                complete: function(results, file) {
+                    data = results["data"];
+                    for (var i = 0; i < data.length; i++) {                        
+                        if (data[i][0][0] == "#") {
+                            storyTitles.push(data[i][0]);
+                            var context = {title: data[i][0].replace("#","").replace(/ /g, "_")};
+                            var html = storyTemplate(context);                            
+                            var el = document.getElementById("out");
+                            el.insertAdjacentHTML('beforeend', html);
+                        } 
+                    }
+                    console.log(storyTitles);
+                }
+            });
+
+    </script>        
+    </body>
+</html>
