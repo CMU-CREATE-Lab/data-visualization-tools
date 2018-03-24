@@ -1,0 +1,113 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Status</title>
+        <style type="text/css">
+            div.video {
+                border: 1px solid black;
+                width: fit-content;
+                background:#2228;
+            }
+        </style>
+        <script type="text/javascript" src="../../../../js/papaparse.min.js"></script>  
+        <script type="text/javascript" src="../../../../js/d3.min.js"></script>
+        <script type="text/javascript" src="../../../../js/handlebars-v4.0.11.js"></script>
+        <script type="text/javascript" src="../../../../js/blazy.min.js"></script>
+        <script type="text/javascript" src="../../../../js/noframework.waypoints.min.js"></script>
+    </head>
+    <body>
+        <div id="out">
+        </div>        
+
+        <script type="text/javascript" src="../mobile-story.js"></script>
+        <script id="story-template" type="text/x-handlebars-template">
+          <div class="story" id="{{id}}">
+            <h1><a href="./{{title}}">{{title}}</a></h1>
+          </div>
+        </script>        
+        <script id="portrait-video-template" type="text/x-handlebars-template">
+          <div class="video">
+            <video preload="none" autoplay="" loop="" muted="" playsinline="" class="" width="270" height="360" onclick="this.paused?this.play():this.pause();">
+                <source type="video/mp4" src="{{src}}">
+            </video>
+          </div>
+        </script>        
+
+        <script id="landscape-video-template" type="text/x-handlebars-template">
+          <div class="video">
+            <video preload="none" autoplay="" loop="" muted="" playsinline="" class="" width="640" height="360" onclick="this.paused?this.play():this.pause();">
+                <source type="video/mp4" src="{{src}}">
+            </video>
+          </div>
+        </script>        
+
+        <script type="text/javascript">
+
+            var source   = document.getElementById("story-template").innerHTML;
+            var storyTemplate = Handlebars.compile(source);
+
+            var source   = document.getElementById("portrait-video-template").innerHTML;
+            var portraitVideoTemplate = Handlebars.compile(source);
+
+            var source   = document.getElementById("landscape-video-template").innerHTML;
+            var landscapeVideoTemplate = Handlebars.compile(source);
+
+            const url = "https://docs-proxy.cmucreatelab.org/spreadsheets/d/1SVMGlB3cfocLEcf3UOdsBX2xvtmNZmDbpL6O2ajmoic/export?format=csv&id=1SVMGlB3cfocLEcf3UOdsBX2xvtmNZmDbpL6O2ajmoic&gid=0";
+
+            var storyTitles = [];
+            var story = [];
+            var data;
+            var storyName = '';
+            var slug = window.location.href.substr(window.location.href.lastIndexOf('/') + 1);
+            slug = slug.replace(/_/g,' ');
+            if (slug != '') {
+                storyName = '#' + slug.trim();
+            }
+
+            Papa.parse(url, {
+                download: true,
+                complete: function(results, file) {
+                    data = results["data"];
+                    var append = false;
+                    for (var i = 0; i < data.length; i++) {                        
+                         if (data[i][0][0] == "#" && append) {
+                            append = false;            
+                        }
+                       
+                        if (data[i][0][0] == "#") {
+                            storyTitles.push(data[i][0]);
+                            var context = {title: data[i][0].replace("#","").replace(/ /g, "_"), id: data[i][0].replace("#","").replace(/ /g, "_")};
+                            var html = storyTemplate(context);                            
+                            var el = document.getElementById("out");
+                            el.insertAdjacentHTML('beforeend', html);
+                        } 
+                        if (data[i][0] == storyName) {
+                            append = true;
+                        }
+                        if (append) {
+                            if (data[i][0] != '') {
+                                story.push(data[i]);
+                            }
+                        }
+
+                    }
+                    if (storyName != '') {
+                        var el = document.getElementById(storyName.replace("#","").replace(/ /g, "_"));
+                          for (var i = 0; i < story.length; i++) {
+                                var t = new Thumbnailer(story[i][4]);
+                                var context = {poster: t.getPng("portrait"), src: t.getMp4("portrait")};
+                                var html = portraitVideoTemplate(context);                            
+                                el.insertAdjacentHTML('beforeend', html);
+
+                                var context = {poster: t.getPng("landscape"), src: t.getMp4("landscape")};
+                                var html = landscapeVideoTemplate(context);                            
+                                el.insertAdjacentHTML('beforeend', html);
+                            }
+
+                    }
+                }
+            });
+
+    </script>        
+    </body>
+</html>
