@@ -4,9 +4,14 @@
         <title>Status</title>
         <style type="text/css">
             div.video {
-                border: 1px solid black;
+                border: 1px solid red;
                 width: fit-content;
                 background:#2228;
+            }
+            div.video {
+                border: 1px solid green;
+                width: fit-content;
+                background:#4448;
             }
         </style>
         <script type="text/javascript" src="../../../../js/papaparse.min.js"></script>  
@@ -41,6 +46,22 @@
           </div>
         </script>        
 
+        <script id="portrait-picture-template" type="text/x-handlebars-template">
+          <div class="image">
+            <picture width="270" height="360">
+                <img src="{{src}}">
+            </picture>
+          </div>
+        </script>        
+
+        <script id="landscape-picture-template" type="text/x-handlebars-template">
+         <div class="image">
+            <picture width="640" height="360">
+                <img src="{{src}}">
+            </picture>
+          </div>
+         </script>        
+
         <script type="text/javascript">
 
             var source   = document.getElementById("story-template").innerHTML;
@@ -51,6 +72,12 @@
 
             var source   = document.getElementById("landscape-video-template").innerHTML;
             var landscapeVideoTemplate = Handlebars.compile(source);
+
+            var source   = document.getElementById("portrait-picture-template").innerHTML;
+            var portraitPictureTemplate = Handlebars.compile(source);
+
+            var source   = document.getElementById("landscape-picture-template").innerHTML;
+            var landscapePictureTemplate = Handlebars.compile(source);
 
             const url = "https://docs-proxy.cmucreatelab.org/spreadsheets/d/1SVMGlB3cfocLEcf3UOdsBX2xvtmNZmDbpL6O2ajmoic/export?format=csv&id=1SVMGlB3cfocLEcf3UOdsBX2xvtmNZmDbpL6O2ajmoic&gid=0";
 
@@ -95,13 +122,23 @@
                         var el = document.getElementById(storyName.replace("#","").replace(/ /g, "_"));
                           for (var i = 0; i < story.length; i++) {
                                 var t = new Thumbnailer(story[i][4]);
-                                var context = {poster: t.getPng("portrait"), src: t.getMp4("portrait")};
-                                var html = portraitVideoTemplate(context);                            
-                                el.insertAdjacentHTML('beforeend', html);
+                                if (t.isPicture()) {
+                                    var context = {src: t.getPng("portrait")};
+                                    var html = portraitPictureTemplate(context);                            
+                                    el.insertAdjacentHTML('beforeend', html);
 
-                                var context = {poster: t.getPng("landscape"), src: t.getMp4("landscape")};
-                                var html = landscapeVideoTemplate(context);                            
-                                el.insertAdjacentHTML('beforeend', html);
+                                    var context = {src: t.getPng("landscape")};
+                                    var html = landscapePictureTemplate(context);                            
+                                    el.insertAdjacentHTML('beforeend', html);    
+                                } else {
+                                    var context = {poster: t.getPng("portrait"), src: t.getMp4("portrait")};
+                                    var html = portraitVideoTemplate(context);                            
+                                    el.insertAdjacentHTML('beforeend', html);
+
+                                    var context = {poster: t.getPng("landscape"), src: t.getMp4("landscape")};
+                                    var html = landscapeVideoTemplate(context);                            
+                                    el.insertAdjacentHTML('beforeend', html);
+                                    }
                             }
 
                     }
