@@ -28,8 +28,12 @@ Thumbnailer.prototype.setArgs = function(hash) {
 Thumbnailer.prototype.isPicture = function() {
     var ps = this.args['ps'];
     var format = this.args['format'];
+    var bt = this.args['bt'];
+    var et = this.args['et'];
 
-    if (typeof ps != "undefined") {
+    if (typeof bt !== 'undefined' && typeof et !== 'undefined' && bt == et) {
+        return true;
+    } else if (typeof ps != "undefined") {
         if (parseFloat(ps) == 0.0) {
             return true;
         } else {
@@ -41,8 +45,7 @@ Thumbnailer.prototype.isPicture = function() {
         } else {
             return false;
         }
-    }
-     else {
+    } else {
         return false;        
     }
 }
