@@ -184,28 +184,20 @@
         for (var i = 1; i < story.length; i++) {
           //var f = ShareLinkToThumbnailUrl(story[i][3]);
           //var f = story[i][3];
-          var thumbnail = new Thumbnailer(story[i][4]);
-          var credit = story[i][6];
-//          var videoContext = {idx: i, filename: f, credit: credit};
-          var videoContext = {idx: i, filename: thumbnail.sharelink, credit: credit};
-          var html = videoTemplate(videoContext);          
-//          if (isPicture(f)) {
-          if (thumbnail.isPicture()) {
-/*            var portraitOptions = {'orientation': 'portrait',
-                                   'nframes':1,
-                                   'format': 'png'};
-            var landscapeOptions = {'orientation': 'landscape',
-                                   'nframes':1,
-                                   'format': 'png'};
-            var f_portrait = ShareLinkToThumbnailUrl(f, portraitOptions);
-            var f_landscape = ShareLinkToThumbnailUrl(f, landscapeOptions);
-            */
-            var f_portrait = thumbnail.getPng("portrait");
-            var f_landscape = thumbnail.getPng("landscape");
-            var pictureContext = {idx: i, filename_portrait: f_portrait, filename_landscape: f_landscape, credit: credit};
-            html = pictureTemplate(pictureContext);          
+          if (story[i][4].trim() != '') {
+
+            var thumbnail = new Thumbnailer(story[i][4]);
+            var credit = story[i][6];
+            var videoContext = {idx: i, filename: thumbnail.sharelink, credit: credit};
+            var html = videoTemplate(videoContext);          
+            if (thumbnail.isPicture()) {
+              var f_portrait = thumbnail.getPng("portrait");
+              var f_landscape = thumbnail.getPng("landscape");
+              var pictureContext = {idx: i, filename_portrait: f_portrait, filename_landscape: f_landscape, credit: credit};
+              html = pictureTemplate(pictureContext);          
+            }
+            el.insertAdjacentHTML('beforeend', html);
           }
-          el.insertAdjacentHTML('beforeend', html);
         }
 
         var el2 = document.getElementById("parent-media-list");
@@ -214,16 +206,14 @@
             title: story[i][2],
             caption: story[i][3], 
             data_media_type: 'video'};
-/*
-          var f = story[i][3];
-          if (isPicture(f)) {
-            */
-          var thumbnail = new Thumbnailer(story[i][4]);
-          if (thumbnail.isPicture()) {
-            videoCaptionContext['data_media_type'] = 'photo';
-          }
-          var html = videoCaptionTemplate(videoCaptionContext);          
-          el2.insertAdjacentHTML('afterend', html);
+            if (story[i][4].trim() != '') {
+              var thumbnail = new Thumbnailer(story[i][4]);
+              if (thumbnail.isPicture()) {
+                videoCaptionContext['data_media_type'] = 'photo';
+              }
+              var html = videoCaptionTemplate(videoCaptionContext);          
+              el2.insertAdjacentHTML('afterend', html);
+            }
         }
 
         var videoCaptionContext = {idx: 0, title: story[0][0].split("#")[1], caption: story[0][3], author: story[0][7], dateline: story[0][8]};
