@@ -3553,7 +3553,7 @@ function setTimeLine(identifier, startDate, endDate, step) {
         // 'l' key (lowercase L)
         // Quick way to turn on automode
         if (e.keyCode === 76) {
-          if (EarthlapseUI && enableStoryMode) {
+          if (typeof(EarthlapseUI) !== "undefined" && enableStoryMode) {
             EarthlapseUI.Modes.revertToDefault();
           } else {
             var snaplapseForPresentationSlider = timelapse.getSnaplapseForPresentationSlider();
