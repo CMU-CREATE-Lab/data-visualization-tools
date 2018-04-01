@@ -274,6 +274,7 @@
     var $lastActiveLayerTopic = $();
     var lastActiveLayers = [];
     var maxCachedLayers = 8;
+    var lastSelectedAnnotationBeforeHidden;
 
     // This is necessary because waypoint thumbnails are generated from the Landsat set and thus the best we can show is just a solid black thumbnail
     // instead of some random location that a himawari bounds corresponds to in Landsat.
@@ -3778,6 +3779,33 @@ function setTimeLine(identifier, startDate, endDate, step) {
         }
       });
     }
+    // END of initLayerToggleUI()
+
+    function hideAnnotations() {
+      $(".current-location-text-container").hide();
+      lastSelectedAnnotationBeforeHidden = $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight");
+      lastSelectedAnnotationBeforeHidden.removeClass("thumbnail_highlight");
+    }
+
+    function showAnnotations(fromResume) {
+      $(".annotations-resume-exit-container").hide();
+      $(".current-location-text-container, .current-location-text, .next-annotation-location, .previous-annotation-location").show();
+      $(".current-location-text-container").removeClass("annotation-resume-exit");
+      if (lastSelectedAnnotationBeforeHidden && fromResume) {
+        lastSelectedAnnotationBeforeHidden.trigger("click");
+      }
+    }
+
+    function showAnnotationResumeExit() {
+      $(".annotations-resume-exit-container").show();
+      $(".current-location-text-container").addClass("annotation-resume-exit");
+      $(".current-location-text").hide();
+      lastSelectedAnnotationBeforeHidden = $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight");
+      lastSelectedAnnotationBeforeHidden.removeClass("thumbnail_highlight");
+      $(".annotations-resume-exit-container").show();
+      $(".next-annotation-location, .previous-annotation-location").hide();
+    }
+
     function setActiveLayersWithTimeline (modifier) {
       previousActiveLayersWithTimeline = activeLayersWithTimeline;
       activeLayersWithTimeline += modifier;
@@ -5877,13 +5905,10 @@ function setTimeLine(identifier, startDate, endDate, step) {
           var parabolicMotionStoppedListener = function() {
             timelapse.removeParabolicMotionStoppedListener(parabolicMotionStoppedListener);
             timelapse.removeViewChangeListener(waypointViewChangeListener);
-
             var waypointScale = timelapse.pixelBoundingBoxToPixelCenter(waypointBounds).scale;
             var currentView = timelapse.getView();
-
             if ((waypoint.scale / 2.5 > currentView.scale || !(currentView.x >= waypointBounds.xmin && currentView.x <= waypointBounds.xmax && currentView.y >= waypointBounds.ymin && currentView.y <= waypointBounds.ymax))) {
-              $(".current-location-text-container").hide();
-              $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight").removeClass("thumbnail_highlight");
+              showAnnotationResumeExit();
             }
           };
           timelapse.addParabolicMotionStoppedListener(parabolicMotionStoppedListener);
@@ -6047,7 +6072,7 @@ function setTimeLine(identifier, startDate, endDate, step) {
 
             var currentView = timelapse.getView();
             if (waypoint.annotationBoxTitle || waypoint.description) {
-              $current_location_text_container.show();
+              showAnnotations();
               $(".snaplapse_keyframe_list .snaplapse_keyframe_list_item_thumbnail_overlay_presentation").eq(selectedWaypointIdx).addClass("thumbnail_highlight");
               if (waypoint.annotationBoxTitle) {
                 $current_location_text.find(".current-location-text-title").show().text(waypoint.annotationBoxTitle);
@@ -6071,15 +6096,12 @@ function setTimeLine(identifier, startDate, endDate, step) {
                 var currentView = timelapse.getView();
                 previousWaypoint.scale = waypointScale;
                 previousWaypoint.bounds = waypointBounds;
-
-
                 if (currentView.scale * 2.5 > waypointScale && (currentView.x >= waypointBounds.xmin && currentView.x <= waypointBounds.xmax && currentView.y >= waypointBounds.ymin && currentView.y <= waypointBounds.ymax)) {
                   hideWaypointListener = function() {
                     var currentView = timelapse.getView();
                     var previousWaypointBounds = previousWaypoint.bounds;
-                    if ((previousWaypoint.scale / 2.5 > currentView.scale || !(currentView.x >= previousWaypointBounds.xmin && currentView.x <= previousWaypointBounds.xmax && currentView.y >= previousWaypointBounds.ymin && currentView.y <= previousWaypointBounds.ymax))) {
-                      $current_location_text_container.hide();
-                      $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight").removeClass("thumbnail_highlight");
+                    if (((previousWaypoint.scale * 3.0 < currentView.scale && !timelapse.isMovingToWaypoint()) || (previousWaypoint.scale / 2.5 > currentView.scale && !timelapse.isMovingToWaypoint()) || !(currentView.x >= previousWaypointBounds.xmin && currentView.x <= previousWaypointBounds.xmax && currentView.y >= previousWaypointBounds.ymin && currentView.y <= previousWaypointBounds.ymax))) {
+                      showAnnotationResumeExit();
                       timelapse.removeViewChangeListener(hideWaypointListener);
                       clearInterval(waypointTimeChangeListenerInterval);
                       waypointTimeChangeListenerInterval = null;
@@ -6091,6 +6113,7 @@ function setTimeLine(identifier, startDate, endDate, step) {
               };
               timelapse.addViewChangeListener(waypointViewChangeListener);
             } else {
+              // No waypoint title or description given; really should never happen.
               $current_location_text_container.hide();
             }
 
@@ -6181,6 +6204,12 @@ function setTimeLine(identifier, startDate, endDate, step) {
       var hashChange = function() {
         var vals = UTIL.getUnsafeHashVars();
         $(".map-layer-div").find("input:checked").trigger("click");
+        // Another hashChange call may happen later from csvFileLayers.addLayersLoadedListener() which will end up clearing out
+        // any layers a waypoint may have up. So if we are looking at a waypoint, we need to trigger its layers again.
+        var activeWaypoint = $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight");
+        if (activeWaypoint.length) {
+          activeWaypoint.trigger("click");
+        }
         if (vals.l) {
           var layers = vals.l.split(",");
           layers.forEach(function(layer) {
@@ -6432,6 +6461,14 @@ function setTimeLine(identifier, startDate, endDate, step) {
         // Remove side control panel, search box, timelines, scalebar, logos and legend
         $("#controlsContainer, .location_search_div, .customControl, .controls, .scaleBarContainer, .captureTime, #baseLayerCreditContainer, #logosContainer, #layers-legend").remove();
       }
+
+      $(".annotations-resume-button").on("click", function() {
+        showAnnotations(true);
+      });
+
+      $(".annotations-exit-button").on("click", function() {
+        hideAnnotations();
+      });
 
       $(window).on('hashchange', hashChange).trigger('hashchange');
 
@@ -6810,8 +6847,6 @@ function setTimeLine(identifier, startDate, endDate, step) {
         }
       }
       window.location.hash = newHash;
-      // The above should automatically trigger a hash change but we manually trigger it to be sure.
-      //$(window).on('hashchange', hashChange).trigger('hashchange');
     }
 
     function getSpreadsheetDownloadPath(path) {
@@ -8653,6 +8688,13 @@ function setTimeLine(identifier, startDate, endDate, step) {
   <div id="timeMachine"></div>
   <div class="current-location-text-container unselectable">
     <div class="previous-annotation-location annotation-nav" title="Previous story"></div>
+    <table class="annotations-resume-exit-container">
+      <tr>
+        <td class="annotations-resume-button">Resume Story</td>
+        <td class="annotations-button-separator"></td>
+        <td class="annotations-exit-button">Exit Story</td>
+      </tr>
+    </table>
     <div class="current-location-text">
       <div class="current-location-text-title"></div>
       <div id="current-location-text-picture"></div>

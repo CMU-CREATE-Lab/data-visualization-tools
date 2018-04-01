@@ -448,6 +448,47 @@ html, body {
   bottom: 188px;
 }
 
+.annotation-resume-exit {
+  right: calc(50% - 75px);
+  pointer-events: all;
+}
+
+.annotations-resume-exit-container {
+  display: none;
+  background: rgba(0, 0, 0, 0.65);
+  border: 1px solid #6f6f6f;
+  border-radius: 2px !important;
+  -webkit-box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
+          box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
+  -webkit-transform-origin: 100% 0%;
+  -ms-transform-origin: 100% 0%;
+  transform-origin: 100% 0%;
+  color: #e6e6e6;
+  text-align: center;
+  width: 150px;
+  height: 44px;
+  padding: 4px;
+}
+
+.annotations-resume-button {
+  max-width: 62px;
+  cursor: pointer;
+}
+
+.annotations-resume-button:hover, .annotations-exit-button:hover {
+  color: #848484;
+}
+
+.annotations-exit-button {
+  max-width: 62px;
+  cursor: pointer;
+}
+
+.annotations-button-separator {
+  border-right: 1px solid white;
+  padding-right: 6px;
+}
+
 .next-annotation-location {
   width: 50px;
   height: 50px;
