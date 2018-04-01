@@ -1005,59 +1005,56 @@
       }
     }
 
-function setTimeLine(identifier, startDate, endDate, step) {
-  var captureTimes = [];
+    function setTimeLine(identifier, startDate, endDate, step) {
+      var captureTimes = [];
 
-  var yyyymm_re = /(\d{4})(\d{2})$/;
-  var sm = String(startDate).match(yyyymm_re);
-  var em = String(endDate).match(yyyymm_re);
-  if (sm && em) {
-    var startYear = sm[1];
-    var startMonth = sm[2];
-    var endYear = em[1];
-    var endMonth = em[2];
-    startYear = parseInt(startYear, 10);
-    startMonth = parseInt(startMonth, 10);
-    endYear = parseInt(endYear, 10);
-    endMonth = parseInt(endMonth, 10);
+      var yyyymm_re = /(\d{4})(\d{2})$/;
+      var sm = String(startDate).match(yyyymm_re);
+      var em = String(endDate).match(yyyymm_re);
+      if (sm && em) {
+        var startYear = sm[1];
+        var startMonth = sm[2];
+        var endYear = em[1];
+        var endMonth = em[2];
+        startYear = parseInt(startYear, 10);
+        startMonth = parseInt(startMonth, 10);
+        endYear = parseInt(endYear, 10);
+        endMonth = parseInt(endMonth, 10);
 
-
-    if (isNaN(startYear) || isNaN(endYear) || isNaN(startMonth) || isNaN(endMonth) ) {
-      captureTimes = cached_ajax['landsat-times.json']['capture-times'];
-    } else {
-      function pad(n) {
-        return (n < 10) ? ("0" + n) : n;
+        if (isNaN(startYear) || isNaN(endYear) || isNaN(startMonth) || isNaN(endMonth) ) {
+          captureTimes = cached_ajax['landsat-times.json']['capture-times'];
+        } else {
+          function pad(n) {
+            return (n < 10) ? ("0" + n) : n;
+          }
+          for (var i = startYear; i <= endYear; i++) {
+            var beginMonth = 1;
+            var stopMonth = 12;
+            if (i == startYear) {
+              beginMonth = startMonth;
+            }
+            if (i == endYear) {
+              stopMonth = endMonth;
+            }
+            for (var j = beginMonth; j <= stopMonth; j++) {
+              captureTimes.push(pad(i.toString()) + "-" + pad(j.toString()));
+            }
+          }
+        }
+      } else  {
+        startDate = parseInt(startDate,10);
+        endDate = parseInt(endDate,10);
+        step = parseInt(step,10);
+        if (isNaN(startDate) || isNaN(endDate) || isNaN(step) ) {
+          captureTimes = cached_ajax['landsat-times.json']['capture-times'];
+        } else {
+          for (var i = startDate; i < endDate + 1; i+=step) {
+            captureTimes.push(i.toString());
+          }
+        }
       }
-      for (var i = startYear; i <= endYear; i++) {
-        var beginMonth = 1;
-        var stopMonth = 12;
-        if (i == startYear) {
-          beginMonth = startMonth;
-        }
-        if (i == endYear) {
-          stopMonth = endMonth;
-        }
-        for (var j = beginMonth; j <= stopMonth; j++) {
-          captureTimes.push(pad(i.toString()) + "-" + pad(j.toString()));
-        }
-      }
+      cached_ajax[identifier + '.json'] = {"capture-times":  captureTimes};
     }
-  } else  {
-    startDate = parseInt(startDate,10);
-    endDate = parseInt(endDate,10);
-    step = parseInt(step,10);
-    if (isNaN(startDate) || isNaN(endDate) || isNaN(step) ) {
-      captureTimes = cached_ajax['landsat-times.json']['capture-times'];
-    } else {
-      for (var i = startDate; i < endDate + 1; i+=step) {
-        captureTimes.push(i.toString());
-      }
-
-    }
-
-  }
-  cached_ajax[identifier + '.json'] = {"capture-times":  captureTimes};
-};
 
     function initLayerToggleUI() {
       // ## 3 ##
@@ -4950,12 +4947,7 @@ function setTimeLine(identifier, startDate, endDate, step) {
       legend_html += '<tr id="sp-crude-legend_LatAM" style="display: none"><td><div style="font-size: 15px">Latin America Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: rgb(247, 129, 191); stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">Latin America</text></svg></td></tr>';
       legend_html += '<tr id="sp-crude-legend_Oceania" style="display: none"><td><div style="font-size: 15px">Oceania Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: rgb(166, 86, 40); stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">Oceania</text></svg></td></tr>';
       legend_html += '<tr id="sp-crude-legend_Urals" style="display: none"><td><div style="font-size: 15px">Urals Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: rgb(255, 255, 51); stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">Urals</text></svg></td></tr>';
-      /*
-      legend_html += '<tr id="sp-crude-legend_WAF" style="display: none"><td><div style="font-size: 15px">WAF Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: orange; stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">West Africa</text></svg></td></tr>';
-      legend_html += '<tr id="sp-crude-legend_NAF" style="display: none"><td><div style="font-size: 15px">NAF Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: blue; stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">North Africa</text></svg></td></tr>';
-      legend_html += '<tr id="sp-crude-legend_ME" style="display: none"><td><div style="font-size: 15px">ME Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: red; stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">Middle East</text></svg></td></tr>';
-      legend_html += '<tr id="sp-crude-legend_US" style="display: none"><td><div style="font-size: 15px">US Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: purple; stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">US Golf Coast</text></svg></td></tr>';
-*/
+
       // ## 5b ##
       //// Add to layer legend ////
       //
@@ -5780,55 +5772,7 @@ function setTimeLine(identifier, startDate, endDate, step) {
       };
       spCrudeLayerNS = new WebglVectorLayer2(glb, canvasLayer, spCrudeUrlNS, layerOptions);
       spCrudeLayerNS.buffers = [];
-/*
-      var layerOptions = {
-        tileWidth: 256,
-        tileHeight: 256,
-        nLevels: 0,
-        drawFunction: WebGLVectorTile2.prototype._drawSpCrude,
-        fragmentShader: WebGLVectorTile2.spCrudeFragmentShader,
-        vertexShader: WebGLVectorTile2.spCrudeVertexShader,
-        numAttributes: 7
-      };
-      spCrudeLayerWAF = new WebglVectorLayer2(glb, canvasLayer, spCrudeUrlWAF, layerOptions);
-      spCrudeLayerWAF.buffers = [];
 
-      var layerOptions = {
-        tileWidth: 256,
-        tileHeight: 256,
-        nLevels: 0,
-        drawFunction: WebGLVectorTile2.prototype._drawSpCrude,
-        fragmentShader: WebGLVectorTile2.spCrudeFragmentShader,
-        vertexShader: WebGLVectorTile2.spCrudeVertexShader,
-        numAttributes: 7
-      };
-      spCrudeLayerNAF = new WebglVectorLayer2(glb, canvasLayer, spCrudeUrlNAF, layerOptions);
-      spCrudeLayerNAF.buffers = [];
-
-      var layerOptions = {
-        tileWidth: 256,
-        tileHeight: 256,
-        nLevels: 0,
-        drawFunction: WebGLVectorTile2.prototype._drawSpCrude,
-        fragmentShader: WebGLVectorTile2.spCrudeFragmentShader,
-        vertexShader: WebGLVectorTile2.spCrudeVertexShader,
-        numAttributes: 7
-      };
-      spCrudeLayerME = new WebglVectorLayer2(glb, canvasLayer, spCrudeUrlME, layerOptions);
-      spCrudeLayerME.buffers = [];
-
-      var layerOptions = {
-        tileWidth: 256,
-        tileHeight: 256,
-        nLevels: 0,
-        drawFunction: WebGLVectorTile2.prototype._drawSpCrude,
-        fragmentShader: WebGLVectorTile2.spCrudeFragmentShader,
-        vertexShader: WebGLVectorTile2.spCrudeVertexShader,
-        numAttributes: 7
-      };
-      spCrudeLayerUS = new WebglVectorLayer2(glb, canvasLayer, spCrudeUrlUS, layerOptions);
-      spCrudeLayerUS.buffers = [];
-*/
 
       // Layer Toggle UI
       initLayerToggleUI();
@@ -8139,7 +8083,7 @@ function setTimeLine(identifier, startDate, endDate, step) {
         var crude_flows_index_LatAM = [{'max_epoch': 1.3680512e+09, 'filename': 'LatAM/0-crude-flows_LatAM.bin', 'min_epoch': 1.3474893e+09}, {'max_epoch': 1.3785563e+09, 'filename': 'LatAM/1-crude-flows_LatAM.bin', 'min_epoch': 1.3666175e+09}, {'max_epoch': 1.3898134e+09, 'filename': 'LatAM/2-crude-flows_LatAM.bin', 'min_epoch': 1.3767935e+09}, {'max_epoch': 1.4000607e+09, 'filename': 'LatAM/3-crude-flows_LatAM.bin', 'min_epoch': 1.3878431e+09}, {'max_epoch': 1.4103395e+09, 'filename': 'LatAM/4-crude-flows_LatAM.bin', 'min_epoch': 1.3986446e+09}, {'max_epoch': 1.4202254e+09, 'filename': 'LatAM/5-crude-flows_LatAM.bin', 'min_epoch': 1.408922e+09}, {'max_epoch': 1.43073e+09, 'filename': 'LatAM/6-crude-flows_LatAM.bin', 'min_epoch': 1.4186223e+09}, {'max_epoch': 1.4399827e+09, 'filename': 'LatAM/7-crude-flows_LatAM.bin', 'min_epoch': 1.4289676e+09}, {'max_epoch': 1.4490721e+09, 'filename': 'LatAM/8-crude-flows_LatAM.bin', 'min_epoch': 1.4386007e+09}, {'max_epoch': 1.4587574e+09, 'filename': 'LatAM/9-crude-flows_LatAM.bin', 'min_epoch': 1.4481128e+09}, {'max_epoch': 1.4689476e+09, 'filename': 'LatAM/10-crude-flows_LatAM.bin', 'min_epoch': 1.4563868e+09}, {'max_epoch': 1.4796142e+09, 'filename': 'LatAM/11-crude-flows_LatAM.bin', 'min_epoch': 1.4676618e+09}, {'max_epoch': 1.4914527e+09, 'filename': 'LatAM/12-crude-flows_LatAM.bin', 'min_epoch': 1.4776771e+09}, {'max_epoch': 1.5010688e+09, 'filename': 'LatAM/13-crude-flows_LatAM.bin', 'min_epoch': 1.4883502e+09}, {'max_epoch': 1.511766e+09, 'filename': 'LatAM/14-crude-flows_LatAM.bin', 'min_epoch': 1.498359e+09}];
         var crude_flows_index_NS = [{'max_epoch': 1.4191127e+09, 'filename': 'NS/0-crude-flows_NS.bin', 'min_epoch': 1.3472122e+09}, {'max_epoch': 1.4766056e+09, 'filename': 'NS/1-crude-flows_NS.bin', 'min_epoch': 1.4182052e+09}, {'max_epoch': 1.5126084e+09, 'filename': 'NS/2-crude-flows_NS.bin', 'min_epoch': 1.4763096e+09}];
 
-  /** START Oceania LAYER */
+        /** START Oceania LAYER */
         function showIndexOceania(idx, epoch) {
           return crude_flows_index_Oceania[idx]['min_epoch'] < epoch && crude_flows_index_Oceania[idx]['max_epoch'] > epoch;
         }
@@ -8177,10 +8121,10 @@ function setTimeLine(identifier, startDate, endDate, step) {
             }
           }
         }
- /** END Oceania LAYER */
+        /** END Oceania LAYER */
 
 
- /** START AG LAYER */
+        /** START AG LAYER */
         function showIndexAG(idx, epoch) {
           return crude_flows_index_AG[idx]['min_epoch'] < epoch && crude_flows_index_AG[idx]['max_epoch'] > epoch;
         }
@@ -8218,10 +8162,10 @@ function setTimeLine(identifier, startDate, endDate, step) {
             }
           }
         }
- /** END AG LAYER */
+        /** END AG LAYER */
 
 
- /** START WAF LAYER */
+        /** START WAF LAYER */
         function showIndexWAF(idx, epoch) {
           return crude_flows_index_WAF[idx]['min_epoch'] < epoch && crude_flows_index_WAF[idx]['max_epoch'] > epoch;
         }
@@ -8259,10 +8203,10 @@ function setTimeLine(identifier, startDate, endDate, step) {
             }
           }
         }
- /** END WAF LAYER */
+        /** END WAF LAYER */
 
 
- /** START MedNAF LAYER */
+        /** START MedNAF LAYER */
         function showIndexMedNAF(idx, epoch) {
           return crude_flows_index_MedNAF[idx]['min_epoch'] < epoch && crude_flows_index_MedNAF[idx]['max_epoch'] > epoch;
         }
@@ -8300,10 +8244,10 @@ function setTimeLine(identifier, startDate, endDate, step) {
             }
           }
         }
- /** END MedNAF LAYER */
+        /** END MedNAF LAYER */
 
 
- /** START Urals LAYER */
+        /** START Urals LAYER */
         function showIndexUrals(idx, epoch) {
           return crude_flows_index_Urals[idx]['min_epoch'] < epoch && crude_flows_index_Urals[idx]['max_epoch'] > epoch;
         }
@@ -8341,10 +8285,10 @@ function setTimeLine(identifier, startDate, endDate, step) {
             }
           }
         }
- /** END Urals LAYER */
+        /** END Urals LAYER */
 
 
- /** START USGC LAYER */
+        /** START USGC LAYER */
         function showIndexUSGC(idx, epoch) {
           return crude_flows_index_USGC[idx]['min_epoch'] < epoch && crude_flows_index_USGC[idx]['max_epoch'] > epoch;
         }
@@ -8382,10 +8326,10 @@ function setTimeLine(identifier, startDate, endDate, step) {
             }
           }
         }
- /** END USGC LAYER */
+        /** END USGC LAYER */
 
 
- /** START LatAM LAYER */
+        /** START LatAM LAYER */
         function showIndexLatAM(idx, epoch) {
           return crude_flows_index_LatAM[idx]['min_epoch'] < epoch && crude_flows_index_LatAM[idx]['max_epoch'] > epoch;
         }
@@ -8423,10 +8367,10 @@ function setTimeLine(identifier, startDate, endDate, step) {
             }
           }
         }
- /** END LatAM LAYER */
+        /** END LatAM LAYER */
 
 
- /** START NS LAYER */
+        /** START NS LAYER */
         function showIndexNS(idx, epoch) {
           return crude_flows_index_NS[idx]['min_epoch'] < epoch && crude_flows_index_NS[idx]['max_epoch'] > epoch;
         }
@@ -8464,164 +8408,8 @@ function setTimeLine(identifier, startDate, endDate, step) {
             }
           }
         }
- /** END NS LAYER */
+        /** END NS LAYER */
 
-/*        var crude_flows_index_WAF = [{'max_epoch': 1369546545.6904259, 'filename': '0-crude-flows_WAF.bin', 'min_epoch': 1347827400.0}, {'max_epoch': 1384000997.8468745, 'filename': '1-crude-flows_WAF.bin', 'min_epoch': 1369093660.059511}, {'max_epoch': 1396544528.6240265, 'filename': '2-crude-flows_WAF.bin', 'min_epoch': 1383678100.2283463}, {'max_epoch': 1410039827.8139706, 'filename': '3-crude-flows_WAF.bin', 'min_epoch': 1396060055.4910874}, {'max_epoch': 1423672531.5875943, 'filename': '4-crude-flows_WAF.bin', 'min_epoch': 1409234220.2338972}, {'max_epoch': 1436901233.9274275, 'filename': '5-crude-flows_WAF.bin', 'min_epoch': 1423151910.5033143}, {'max_epoch': 1450586973.7042205, 'filename': '6-crude-flows_WAF.bin', 'min_epoch': 1436261673.157122}, {'max_epoch': 1463406015.2056491, 'filename': '7-crude-flows_WAF.bin', 'min_epoch': 1449455367.8838174}, {'max_epoch': 1478352738.4460068, 'filename': '8-crude-flows_WAF.bin', 'min_epoch': 1462474804.3018286}, {'max_epoch': 1491694036.1037672, 'filename': '9-crude-flows_WAF.bin', 'min_epoch': 1477808692.3018827}, {'max_epoch': 1504780096.800775, 'filename': '10-crude-flows_WAF.bin', 'min_epoch': 1490631133.5920255}, {'max_epoch': 1509999352.4567816, 'filename': '11-crude-flows_WAF.bin', 'min_epoch': 1504415956.08952}];
-        function showIndexWAF(idx, epoch) {
-          return crude_flows_index_WAF[idx]['min_epoch'] < epoch && crude_flows_index_WAF[idx]['max_epoch'] > epoch;
-        }
-
-        if (showSpCrudeLayerWAF) {
-          var layer = spCrudeLayerWAF;
-          var view = getLayerView(layer, landsatBaseMapLayer);
-          var options = {};
-          options.zoom = timelapse.getCurrentZoom();
-          var currentTime = timelapse.getCurrentTime();
-          var currentTimes = getCurrentTimes(timelapse);
-          var dates = getDates(timelapse);
-          var delta = getCurrentTimesDelta(currentTime, currentTimes);
-          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
-          options.currentTime = currentDate;
-          options.pointSize = 2.;
-          options.color = [0.5,0.05,0.5,1.0];
-          var currentEpoch = currentDate/1000.;
-          for (var i = 0; i < crude_flows_index_WAF.length; i++) {
-            if (showIndexWAF(i, currentEpoch)) {
-              if (typeof spCrudeLayerWAF.buffers[i] == "undefined") {
-                spCrudeLayerWAF.buffers[i] = {
-                  "numAttributes": 7,
-                  "count": 0,
-                  "buffer": null,
-                  "ready": false
-                };
-
-                var dataUrl = rootTilePath + '/sp-crude/' + crude_flows_index_WAF[i]["filename"];
-                shipsWorkerWAF.postMessage({'idx': i, 'url': dataUrl});
-              }
-              options.idx = i;
-              options.buffers = spCrudeLayerWAF.buffers;
-              layer.draw(view, options);
-            }
-          }
-        }
-
-        var crude_flows_index_NAF = [{'max_epoch': 1402557561.9763887, 'filename': '0-crude-flows_NAF.bin', 'min_epoch': 1350131820.0}, {'max_epoch': 1455292489.386771, 'filename': '1-crude-flows_NAF.bin', 'min_epoch': 1401966511.1666017}, {'max_epoch': 1507487079.960867, 'filename': '2-crude-flows_NAF.bin', 'min_epoch': 1454764526.9634578}, {'max_epoch': 1509555600.0, 'filename': '3-crude-flows_NAF.bin', 'min_epoch': 1506902637.9816375}];
-        function showIndexNAF(idx, epoch) {
-          return crude_flows_index_NAF[idx]['min_epoch'] < epoch && crude_flows_index_NAF[idx]['max_epoch'] > epoch;
-        }
-
-        if (showSpCrudeLayerNAF) {
-          var layer = spCrudeLayerNAF;
-          var view = getLayerView(layer, landsatBaseMapLayer);
-          var options = {};
-          options.zoom = timelapse.getCurrentZoom();
-          var currentTime = timelapse.getCurrentTime();
-          var currentTimes = getCurrentTimes(timelapse);
-          var dates = getDates(timelapse);
-          var delta = getCurrentTimesDelta(currentTime, currentTimes);
-          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
-          options.currentTime = currentDate;
-          options.pointSize = 2.;
-          options.color = [0.5,0.05,0.5,1.0];
-          var currentEpoch = currentDate/1000.;
-          for (var i = 0; i < crude_flows_index_NAF.length; i++) {
-            if (showIndexNAF(i, currentEpoch)) {
-              if (typeof spCrudeLayerNAF.buffers[i] == "undefined") {
-                spCrudeLayerNAF.buffers[i] = {
-                  "numAttributes": 7,
-                  "count": 0,
-                  "buffer": null,
-                  "ready": false
-                };
-
-                var dataUrl = rootTilePath + '/sp-crude/' + crude_flows_index_NAF[i]["filename"];
-                shipsWorkerNAF.postMessage({'idx': i, 'url': dataUrl});
-              }
-              options.idx = i;
-              options.buffers = spCrudeLayerNAF.buffers;
-              layer.draw(view, options);
-            }
-          }
-        }
-
-        var crude_flows_index_ME = [{'max_epoch': 1415424600.0, 'filename': '0-crude-flows_ME.bin', 'min_epoch': 1344196740.0}, {'max_epoch': 1400006506.1465456, 'filename': '1-crude-flows_ME.bin', 'min_epoch': 1365473760.0}, {'max_epoch': 1422349278.8764045, 'filename': '2-crude-flows_ME.bin', 'min_epoch': 1392063240.0}, {'max_epoch': 1442046780.0, 'filename': '3-crude-flows_ME.bin', 'min_epoch': 1415990828.6783042}, {'max_epoch': 1463993410.909091, 'filename': '4-crude-flows_ME.bin', 'min_epoch': 1425812640.0}, {'max_epoch': 1489005420.0, 'filename': '5-crude-flows_ME.bin', 'min_epoch': 1455601487.2727273}, {'max_epoch': 1503923820.0, 'filename': '6-crude-flows_ME.bin', 'min_epoch': 1475608320.0}, {'max_epoch': 1509998634.1951625, 'filename': '7-crude-flows_ME.bin', 'min_epoch': 1497173880.0}];
-        function showIndexME(idx, epoch) {
-          return crude_flows_index_ME[idx]['min_epoch'] < epoch && crude_flows_index_ME[idx]['max_epoch'] > epoch;
-        }
-
-        if (showSpCrudeLayerME) {
-          var layer = spCrudeLayerME;
-          var view = getLayerView(layer, landsatBaseMapLayer);
-          var options = {};
-          options.zoom = timelapse.getCurrentZoom();
-          var currentTime = timelapse.getCurrentTime();
-          var currentTimes = getCurrentTimes(timelapse);
-          var dates = getDates(timelapse);
-          var delta = getCurrentTimesDelta(currentTime, currentTimes);
-          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
-          options.currentTime = currentDate;
-          options.pointSize = 2.;
-          options.color = [0.5,0.05,0.5,1.0];
-          var currentEpoch = currentDate/1000.;
-          for (var i = 0; i < crude_flows_index_ME.length; i++) {
-            if (showIndexME(i, currentEpoch)) {
-              if (typeof spCrudeLayerME.buffers[i] == "undefined") {
-                spCrudeLayerME.buffers[i] = {
-                  "numAttributes": 7,
-                  "count": 0,
-                  "buffer": null,
-                  "ready": false
-                };
-
-                var dataUrl = rootTilePath + '/sp-crude/' + crude_flows_index_ME[i]["filename"];
-                shipsWorkerME.postMessage({'idx': i, 'url': dataUrl});
-              }
-              options.idx = i;
-              options.buffers = spCrudeLayerME.buffers;
-              layer.draw(view, options);
-            }
-          }
-        }
-
-        var crude_flows_index_US = [{'max_epoch': 1509999661.1631804, 'filename': '0-crude-flows_US.bin', 'min_epoch': 1452364440.0}];
-        function showIndexUS(idx, epoch) {
-          return crude_flows_index_US[idx]['min_epoch'] < epoch && crude_flows_index_US[idx]['max_epoch'] > epoch;
-        }
-
-        if (showSpCrudeLayerUS) {
-          var layer = spCrudeLayerUS;
-          var view = getLayerView(layer, landsatBaseMapLayer);
-          var options = {};
-          options.zoom = timelapse.getCurrentZoom();
-          var currentTime = timelapse.getCurrentTime();
-          var currentTimes = getCurrentTimes(timelapse);
-          var dates = getDates(timelapse);
-          var delta = getCurrentTimesDelta(currentTime, currentTimes);
-          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
-          options.currentTime = currentDate;
-          options.pointSize = 2.;
-          options.color = [0.5,0.05,0.5,1.0];
-          var currentEpoch = currentDate/1000.;
-          for (var i = 0; i < crude_flows_index_US.length; i++) {
-            if (showIndexUS(i, currentEpoch)) {
-              if (typeof spCrudeLayerUS.buffers[i] == "undefined") {
-                spCrudeLayerUS.buffers[i] = {
-                  "numAttributes": 7,
-                  "count": 0,
-                  "buffer": null,
-                  "ready": false
-                };
-
-                var dataUrl = rootTilePath + '/sp-crude/' + crude_flows_index_US[i]["filename"];
-                shipsWorkerUS.postMessage({'idx': i, 'url': dataUrl});
-              }
-              options.idx = i;
-              options.buffers = spCrudeLayerUS.buffers;
-              layer.draw(view, options);
-            }
-          }
-        }
-        */
         // END LAYER DRAWS
       }
     }
