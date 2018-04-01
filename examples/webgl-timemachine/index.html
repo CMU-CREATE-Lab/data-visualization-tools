@@ -5851,10 +5851,11 @@
             timelapse.removeViewChangeListener(waypointViewChangeListener);
             var waypointScale = timelapse.pixelBoundingBoxToPixelCenter(waypointBounds).scale;
             var currentView = timelapse.getView();
-            if ((waypoint.scale / 2.5 > currentView.scale || !(currentView.x >= waypointBounds.xmin && currentView.x <= waypointBounds.xmax && currentView.y >= waypointBounds.ymin && currentView.y <= waypointBounds.ymax))) {
+            if ((waypointScale / 2.5 > currentView.scale || !(currentView.x >= waypointBounds.xmin && currentView.x <= waypointBounds.xmax && currentView.y >= waypointBounds.ymin && currentView.y <= waypointBounds.ymax))) {
               showAnnotationResumeExit();
             }
           };
+
           timelapse.addParabolicMotionStoppedListener(parabolicMotionStoppedListener);
           $(".map-layer-div").find("input:checked").trigger("click");
         });
@@ -6147,13 +6148,25 @@
 
       var hashChange = function() {
         var vals = UTIL.getUnsafeHashVars();
-        $(".map-layer-div").find("input:checked").trigger("click");
         // Another hashChange call may happen later from csvFileLayers.addLayersLoadedListener() which will end up clearing out
-        // any layers a waypoint may have up. So if we are looking at a waypoint, we need to trigger its layers again.
+        // any layers a waypoint may have up. So if we are looking at a waypoint, we need to filter out its layers.
         var activeWaypoint = $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight");
         if (activeWaypoint.length) {
-          activeWaypoint.trigger("click");
+          var waypointLayersSelectors = "";
+          var waypointIdx = activeWaypoint.closest(".snaplapse_keyframe_list_item").index();
+          if (snaplapseForPresentationSlider) {
+            var waypointLayerIds = snaplapseForPresentationSlider.getKeyframes()[waypointIdx].layers;
+            for (i = 0; i < waypointLayerIds.length; i++) {
+              waypointLayersSelectors += "label[name='" + waypointLayerIds[i] + "']";
+              // Need to comma separate each selector
+              if (i < waypointLayerIds.length - 1) {
+                waypointLayersSelectors += ",";
+              }
+            }
+          }
         }
+        // Turn off any layers that are active except ones related to current waypoint
+        $(".map-layer-div").find("input:checked").parent().not(waypointLayersSelectors).children().trigger("click");
         if (vals.l) {
           var layers = vals.l.split(",");
           layers.forEach(function(layer) {
