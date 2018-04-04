@@ -3608,7 +3608,11 @@
         keysDown.length = 0;
       });
 
-      $('#layers-list').on("click", "input", function() {
+      $('#layers-list').on("click", "input", function(e) {
+        var fromRealKeydown = e.originalEvent && e.pageX != 0 && e.pageY != 0;
+        if (fromRealKeydown && $(".current-location-text-container").is(':visible')) {
+          showAnnotationResumeExit();
+        }
         if (isMobileDevice || isIEButNotEdge) {
           if (visibleBaseMapLayer != "landsat" || showLightsAtNightLayer || showLightsAtNight2012Layer || showLightsAtNight2016Layer || showHansenLayer2 || showVsiLayer) {
             UTIL.setDrawState(false);
