@@ -440,21 +440,21 @@ html, body {
   pointer-events: none;
 }
 
-.current-location-text-container.hyperwall {
+.current-location-text-container.hyperwall, .annotations-resume-exit-container.hyperwall {
   bottom: 105px;
 }
 
-.current-location-text-container.layerGraphs {
+.current-location-text-container.layerGraphs, .annotations-resume-exit-container.layerGraphs {
   bottom: 188px;
-}
-
-.annotation-resume-exit {
-  right: calc(50% - 75px);
-  pointer-events: all;
 }
 
 .annotations-resume-exit-container {
   display: none;
+  position: absolute;
+  bottom: 94px;
+  z-index: 99;
+  right: calc(50% - 75px);
+  pointer-events: all;
   background: rgba(0, 0, 0, 0.65);
   border: 1px solid #6f6f6f;
   border-radius: 2px !important;
@@ -726,13 +726,13 @@ html, body {
   width: 100%;
 }
 
-.current-location-text-container.letterbox {
+.current-location-text-container.letterbox, .annotations-resume-exit-container.letterbox {
   top: 20px !important;
   left: 20px !important;
   right: initial;
 }
 
-.current-location-text-container.hyperwall.layerGraphs {
+.current-location-text-container.hyperwall.layerGraphs, .annotations-resume-exit-container.hyperwall.layerGraphs {
   bottom: 206px;
 }
 
@@ -1798,7 +1798,7 @@ a:focus { outline:0; }
   left: calc(50% - 291px);
 }
 
-.current-location-text-container-touchFriendly {
+.current-location-text-container-touchFriendly, .annotations-resume-exit-container-touchFriendly {
   bottom: 96px !important;
 }
 

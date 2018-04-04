@@ -3729,13 +3729,13 @@
         }
 
         if (activeLayersWithTimeline <= 1 && timelineType == "none") {
-          $(".current-location-text-container, .scaleBarContainer, #logosContainer, .current-location-text, #layers-legend").addClass("noTimeline");
+          $(".current-location-text-container, .annotations-resume-exit-container, .scaleBarContainer, #logosContainer, .current-location-text, #layers-legend").addClass("noTimeline");
           if (!timelapse.isPaused()) {
             timelapse.handlePlayPause();
             timelapseWasPlaying = true;
           }
         } else {
-          $(".current-location-text-container, .scaleBarContainer, #logosContainer, .current-location-text, #layers-legend").removeClass("noTimeline");
+          $(".current-location-text-container, .annotations-resume-exit-container, .scaleBarContainer, #logosContainer, .current-location-text, #layers-legend").removeClass("noTimeline");
           if (timelapseWasPlaying) {
             timelapse.play();
           }
@@ -3786,21 +3786,17 @@
 
     function showAnnotations(fromResume) {
       $(".annotations-resume-exit-container").hide();
-      $(".current-location-text-container, .current-location-text, .next-annotation-location, .previous-annotation-location").show();
-      $(".current-location-text-container").removeClass("annotation-resume-exit");
+      $(".current-location-text-container").show();
       if (lastSelectedAnnotationBeforeHidden && fromResume) {
         lastSelectedAnnotationBeforeHidden.trigger("click");
       }
     }
 
     function showAnnotationResumeExit() {
+      $(".current-location-text-container").hide();
       $(".annotations-resume-exit-container").show();
-      $(".current-location-text-container").addClass("annotation-resume-exit");
-      $(".current-location-text").hide();
       lastSelectedAnnotationBeforeHidden = $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight");
       lastSelectedAnnotationBeforeHidden.removeClass("thumbnail_highlight");
-      $(".annotations-resume-exit-container").show();
-      $(".next-annotation-location, .previous-annotation-location").hide();
     }
 
     function setActiveLayersWithTimeline (modifier) {
@@ -4959,7 +4955,7 @@
       $(legend_html).appendTo($("#timeMachine .player"));
 
       if (enableLetterboxMode) {
-        $(".presentationSlider, .current-location-text-container, .annotation-nav, .player, #csvChartContainer").addClass("letterbox");
+        $(".presentationSlider, .current-location-text-container, .annotations-resume-exit-container, .annotation-nav, .player, #csvChartContainer").addClass("letterbox");
       } else {
         $nextAnnotationLocationButton = $('.next-annotation-location');
         $nextAnnotationLocationButton.button({
@@ -5787,12 +5783,13 @@
 
       if (isMobileDevice) {
         $(".current-location-text-container").addClass("current-location-text-container-touchFriendly");
+        $(".annotations-resume-exit-container").addClass("annotations-resume-exit-container-touchFriendly");
         $("#logosContainer").addClass("logosContainer-touchFriendly");
       }
 
       if (snaplapseViewerForPresentationSlider) {
         $('.presentationSlider').show();
-        var $elements = $('#layers-legend, #theme-title-container, .current-location-text-container, .presentationSlider, .customControl, .controls, .captureTime, .scaleBarContainer, .snaplapse_keyframe_container, .keyframeSubtitleBoxForHovering, .snaplapse_keyframe_list_item_presentation, .snaplapse_keyframe_list_item_thumbnail_overlay_presentation');
+        var $elements = $('#layers-legend, #theme-title-container, .current-location-text-container, .annotations-resume-exit-container, .presentationSlider, .customControl, .controls, .captureTime, .scaleBarContainer, .snaplapse_keyframe_container, .keyframeSubtitleBoxForHovering, .snaplapse_keyframe_list_item_presentation, .snaplapse_keyframe_list_item_thumbnail_overlay_presentation');
         if (isHyperwall)
           $elements.addClass('hyperwall');
         if (enableLetterboxMode)
@@ -6080,7 +6077,7 @@
         $locationSearchDiv.appendTo($("#timeMachine .player"));
       }
 
-      $(".current-location-text-container").appendTo($("#timeMachine .player"));
+      $(".current-location-text-container, .annotations-resume-exit-container").appendTo($("#timeMachine .player"));
 
       if (isHyperwall) {
         $("#location_search").addClass("hyperwall");
@@ -6708,14 +6705,14 @@
         $("#csvChartLegend").show();
         $("#csvChartContainer").show();
         if (!disablePresentationSlider) {
-          $("#layers-legend, #main-hamburger-menu, .controls, .customControl, #baseLayerCreditContainer, .current-location-text-container, .player, .scaleBarContainer, #logosContainer").addClass("layerGraphs");
+          $("#layers-legend, #main-hamburger-menu, .controls, .customControl, #baseLayerCreditContainer, .current-location-text-container, .annotations-resume-exit-container, .player, .scaleBarContainer, #logosContainer").addClass("layerGraphs");
         }
         $("#timeMachine").addClass("layerGraphs");
       } else {
         $("#csvChartLegend").hide();
         $("#csvChartContainer").hide();
         if (!disablePresentationSlider) {
-          $("#layers-legend, #main-hamburger-menu, .controls, .customControl, #baseLayerCreditContainer, .current-location-text-container, .player, .scaleBarContainer, #logosContainer").removeClass("layerGraphs");
+          $("#layers-legend, #main-hamburger-menu, .controls, .customControl, #baseLayerCreditContainer, .current-location-text-container, .annotations-resume-exit-container, .player, .scaleBarContainer, #logosContainer").removeClass("layerGraphs");
         }
         $("#timeMachine").removeClass("layerGraphs");
       }
@@ -8487,15 +8484,17 @@
     </div>
   </div>
   <div id="timeMachine"></div>
-  <div class="current-location-text-container unselectable">
-    <div class="previous-annotation-location annotation-nav" title="Previous story"></div>
-    <table class="annotations-resume-exit-container">
+  <div class="annotations-resume-exit-container unselectable">
+    <table>
       <tr>
         <td class="annotations-resume-button">Resume Story</td>
         <td class="annotations-button-separator"></td>
         <td class="annotations-exit-button">Exit Story</td>
       </tr>
     </table>
+  </div>
+  <div class="current-location-text-container unselectable">
+    <div class="previous-annotation-location annotation-nav" title="Previous story"></div>
     <div class="current-location-text">
       <div class="current-location-text-title"></div>
       <div id="current-location-text-picture"></div>
