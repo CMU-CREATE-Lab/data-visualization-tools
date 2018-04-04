@@ -401,37 +401,55 @@ CsvFileLayer.prototype.loadLayers = function loadLayers(path) {
 CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate, endDate, step) {
   var captureTimes = [];
 
-  var yyyymm_re = /(\d{4})(\d{2})$/;
-  var sm = startDate.match(yyyymm_re);
-  var em = endDate.match(yyyymm_re);
-  if (sm && em) {
+  var yyyymmdd_re = /(\d{4})(\d{2})(\d{2})?$/;
+  var sm = startDate.match(yyyymmdd_re);
+  var em = endDate.match(yyyymmdd_re);
+  if (sm && em) { // both dates parsed
     var startYear = sm[1];
     var startMonth = sm[2];
+    var startDay = sm[3];
     var endYear = em[1];
     var endMonth = em[2];
+    var endDay = em[3];
     startYear = parseInt(startYear, 10);
     startMonth = parseInt(startMonth, 10);
     endYear = parseInt(endYear, 10);
     endMonth = parseInt(endMonth, 10);
 
-
     if (isNaN(startYear) || isNaN(endYear) || isNaN(startMonth) || isNaN(endMonth) ) {
+      console.log('ERROR: CsvFileLayer.prototype.setTimeLine unable to parse startDate or endDate');
       captureTimes = cached_ajax['landsat-times.json']['capture-times'];
     } else {
-      function pad(n) {
-        return (n < 10) ? ("0" + n) : n;
-      }
-      for (var i = startYear; i <= endYear; i++) {
-        var beginMonth = 1;
-        var stopMonth = 12;
-        if (i == startYear) {
-          beginMonth = startMonth;
+      if (typeof startDay != "undefined" && typeof endDay != "undefined") {
+        function pad(n) {
+          return (n < 10) ? ("0" + n) : n;
         }
-        if (i == endYear) {
-          stopMonth = endMonth;
+
+        console.log("Generate days by step");
+        var m = new Date(startYear + '-' + startMonth + '-' + startDay);
+        var n = new Date(endYear + '-' + endMonth + '-' + endDay);
+        var tomorrow = m;
+        //tomorrow.setDate(tomorrow.getDate() + 1);
+        while (tomorrow.getTime() <= n.getTime()) {
+          captureTimes.push(tomorrow.getUTCFullYear() + '-' + pad((tomorrow.getUTCMonth() + 1).toString()) + '-' + pad(tomorrow.getUTCDate().toString()));
+          tomorrow.setDate(tomorrow.getDate() + 1);
+        }        
+      } else {
+        function pad(n) {
+          return (n < 10) ? ("0" + n) : n;
         }
-        for (var j = beginMonth; j <= stopMonth; j++) {
-          captureTimes.push(pad(i.toString()) + "-" + pad(j.toString()));
+        for (var i = startYear; i <= endYear; i++) {
+          var beginMonth = 1;
+          var stopMonth = 12;
+          if (i == startYear) {
+            beginMonth = startMonth;
+          }
+          if (i == endYear) {
+            stopMonth = endMonth;
+          }
+          for (var j = beginMonth; j <= stopMonth; j++) {
+            captureTimes.push(pad(i.toString()) + "-" + pad(j.toString()));
+          }
         }
       }
     }
