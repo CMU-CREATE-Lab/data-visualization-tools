@@ -14,17 +14,8 @@ html, body {
   border: 0px !important;
   z-index: 100;
 }
-.keyframeSubtitleBoxForHovering.hyperwall {
-  font-size: 20px;
-  line-height: 29px;
-  color: rgb(60, 60, 60);
-}
-.keyframeSubtitleBoxForHovering.hyperwall p {
-  max-width: 550px;
-  padding-top: 18px;
-  padding-bottom: 26px;
-  padding-left: 27px;
-  padding-right: 27px;
+.keyframeSubtitleBoxForHovering {
+  display: none !important;
 }
 #legend {
   font-size: 30px;
