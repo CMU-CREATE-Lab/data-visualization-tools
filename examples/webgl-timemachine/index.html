@@ -3782,6 +3782,10 @@
     }
     // END of initLayerToggleUI()
 
+    function hideAnnotationResumeExit() {
+      $(".annotations-resume-exit-container").hide();
+    }
+
     function hideAnnotations() {
       $(".current-location-text-container").hide();
       lastSelectedAnnotationBeforeHidden = $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight");
@@ -6434,7 +6438,7 @@
       });
 
       $(".annotations-exit-button").on("click", function() {
-        hideAnnotations();
+        hideAnnotationResumeExit();
       });
 
       $(window).on('hashchange', hashChange).trigger('hashchange');
