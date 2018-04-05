@@ -1922,7 +1922,7 @@
           setActiveLayersWithTimeline(-1);
           if (!showHealthImpactRcp[0] && !showHealthImpactRcp[2] && !showHealthImpactRcp[3]) {
             showHealthImpactLayer = false;
-            cacheLastUsedLayer(showHealthImpactLayer);
+            cacheLastUsedLayer(healthImpactLayer);
             timelineType = "customUI";
             requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
             timelapse.setMasterPlaybackRate(1);
@@ -1955,7 +1955,7 @@
           setActiveLayersWithTimeline(-1);
           if (!showHealthImpactRcp[0] && !showHealthImpactRcp[1] && !showHealthImpactRcp[3]) {
             showHealthImpactLayer = false;
-            cacheLastUsedLayer(showHealthImpactLayer);
+            cacheLastUsedLayer(healthImpactLayer);
             timelineType = "customUI";
             requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
             timelapse.setMasterPlaybackRate(1);
@@ -1987,7 +1987,7 @@
           setActiveLayersWithTimeline(-1);
           if (!showHealthImpactRcp[0] && !showHealthImpactRcp[1] && !showHealthImpactRcp[2]) {
             showHealthImpactLayer = false;
-            cacheLastUsedLayer(showHealthImpactLayer);
+            cacheLastUsedLayer(healthImpactLayer);
             timelineType = "customUI";
             requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
             timelapse.setMasterPlaybackRate(1);
@@ -2011,7 +2011,7 @@
           $("#zika-legend").show();
         } else {
           showZikaLayer = false;
-          cacheLastUsedLayer(showZikaLayer);
+          cacheLastUsedLayer(zikaLayer);
           setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
