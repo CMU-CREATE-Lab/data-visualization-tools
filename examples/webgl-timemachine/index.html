@@ -6049,7 +6049,9 @@
                     var currentView = timelapse.getView();
                     var previousWaypointBounds = previousWaypoint.bounds;
                     if (((previousWaypoint.scale * 3.0 < currentView.scale && !timelapse.isMovingToWaypoint()) || (previousWaypoint.scale / 2.5 > currentView.scale && !timelapse.isMovingToWaypoint()) || !(currentView.x >= previousWaypointBounds.xmin && currentView.x <= previousWaypointBounds.xmax && currentView.y >= previousWaypointBounds.ymin && currentView.y <= previousWaypointBounds.ymax))) {
-                      showAnnotationResumeExit();
+                      if ($(".thumbnail_highlight").length) {
+                        showAnnotationResumeExit();
+                      }
                       timelapse.removeViewChangeListener(hideWaypointListener);
                       clearInterval(waypointTimeChangeListenerInterval);
                       waypointTimeChangeListenerInterval = null;
