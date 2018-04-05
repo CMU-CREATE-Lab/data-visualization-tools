@@ -23,6 +23,12 @@ html, body {
   border-bottom: 1px solid #656565;
   padding-bottom: 6px;
 }
+
+.snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight,
+.snaplapse_keyframe_list_item_thumbnail_overlay_presentation:not(.snaplapse_keyframe_list_item_thumbnail_overlay_presentation-touchFriendly):hover {
+  z-index: 9000;
+}
+
 .legendColor {
   width: 22px;
   height: 22px;
@@ -1298,7 +1304,7 @@ a:focus { outline:0; }
   z-index: 100;
   display: none;
   cursor: pointer;
-  top: 1px;
+  top: 2px;
 }
 
 .snaplapse_keyframe_list.has-hamburger {

@@ -5856,18 +5856,7 @@
           if (isAutoModeRunning) {
             lastAutomodeWaypointIndex = waypointIndex;
           }
-          var parabolicMotionStoppedListener = function() {
-            timelapse.removeParabolicMotionStoppedListener(parabolicMotionStoppedListener);
-            timelapse.removeViewChangeListener(waypointViewChangeListener);
-            var waypointScale = timelapse.pixelBoundingBoxToPixelCenter(waypointBounds).scale;
-            var currentView = timelapse.getView();
-            if ((waypointScale / 2.5 > currentView.scale || !(currentView.x >= waypointBounds.xmin && currentView.x <= waypointBounds.xmax && currentView.y >= waypointBounds.ymin && currentView.y <= waypointBounds.ymax))) {
-              showAnnotationResumeExit();
-            }
-          };
-
-          timelapse.addParabolicMotionStoppedListener(parabolicMotionStoppedListener);
-          $(".map-layer-div").find("input:checked").trigger("click");
+          //$(".map-layer-div").find("input:checked").trigger("click");
         });
 
         snaplapseViewerForPresentationSlider.addEventListener('slide-changed', function(waypoint) {
@@ -6075,6 +6064,17 @@
             // Close the extra content pop-up if a waypoint is clicked.
             $('#extras-content').dialog('close');
           }
+
+          var parabolicMotionStoppedListener = function() {
+            timelapse.removeParabolicMotionStoppedListener(parabolicMotionStoppedListener);
+            timelapse.removeViewChangeListener(waypointViewChangeListener);
+            var waypointScale = timelapse.pixelBoundingBoxToPixelCenter(waypointBounds).scale;
+            var currentView = timelapse.getView();
+            if ((waypointScale / 2.5 > currentView.scale || !(currentView.x >= waypointBounds.xmin && currentView.x <= waypointBounds.xmax && currentView.y >= waypointBounds.ymin && currentView.y <= waypointBounds.ymax))) {
+              showAnnotationResumeExit();
+            }
+          };
+          timelapse.addParabolicMotionStoppedListener(parabolicMotionStoppedListener);
 
         });
         // End snaplapseViewerForPresentationSlider check
