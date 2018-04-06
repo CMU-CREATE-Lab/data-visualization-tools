@@ -253,7 +253,7 @@
     var visibleBaseMapLayer = "landsat";
     var previousVisibleBaseMapLayer = "landsat";
     WebglVideoTile.useFaderShader = useFaderShader;
-    var timelapse, snaplapseViewerForPresentationSlider, previousWaypoint = {}, waypointViewChangeListener, hideWaypointListener, waypointTimeChangeListenerInterval, snaplapseForPresentationSlider;
+    var timelapse, snaplapseViewerForPresentationSlider, previousWaypoint = {}, waypointViewChangeListener, hideWaypointListener, waypointTimeChangeListenerInterval, snaplapseForPresentationSlider, parabolicMotionStoppedListener;
     var currentWaypointTheme;
     var himawariWaypoints = {};
     var annotationPicturePaths = {};
@@ -1387,8 +1387,8 @@
       }).prop('checked', showNdviAnomalyTimeMachineLayer);
 
       $("#show-himawari").on("click", function() {
-        $(".current-location-text-container").hide();
-        $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight").removeClass("thumbnail_highlight");
+        //$(".current-location-text-container").hide();
+        //$(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight").removeClass("thumbnail_highlight");
 
         var $this = $(this);
         if ($this.prop('checked')) {
@@ -1451,8 +1451,8 @@
       }).prop('checked', showHimawariTimeMachineLayer);
 
       $("#show-goes16").on("click", function() {
-        $(".current-location-text-container").hide();
-        $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight").removeClass("thumbnail_highlight");
+        //$(".current-location-text-container").hide();
+        //$(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight").removeClass("thumbnail_highlight");
 
         var $this = $(this);
         if ($this.prop('checked')) {
@@ -1515,8 +1515,8 @@
       }).prop('checked', showGoes16TimeMachineLayer);
 
       $("#show-dscovr").on("click", function() {
-        $(".current-location-text-container").hide();
-        $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight").removeClass("thumbnail_highlight");
+        //$(".current-location-text-container").hide();
+        //$(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight").removeClass("thumbnail_highlight");
 
         var $this = $(this);
         if ($this.prop('checked')) {
@@ -3788,7 +3788,6 @@
 
     function hideAnnotations() {
       $(".current-location-text-container").hide();
-      lastSelectedAnnotationBeforeHidden = $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight");
       lastSelectedAnnotationBeforeHidden.removeClass("thumbnail_highlight");
     }
 
@@ -3803,7 +3802,6 @@
     function showAnnotationResumeExit() {
       $(".current-location-text-container").hide();
       $(".annotations-resume-exit-container").show();
-      lastSelectedAnnotationBeforeHidden = $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight");
       lastSelectedAnnotationBeforeHidden.removeClass("thumbnail_highlight");
     }
 
@@ -5838,6 +5836,7 @@
           var waypointBounds = waypoint.bounds;
           var himawariWaypoint = himawariWaypoints[currentWaypointTheme][waypointIndex];
           isAutoModeRunning = snaplapseViewerForPresentationSlider.isAutoModeRunning();
+          lastSelectedAnnotationBeforeHidden = $("#" + waypointTitle.replace(/\W+/g, "_") + " .snaplapse_keyframe_list_item_thumbnail_overlay_presentation");
 
           // We are still technically using Landsat (web mercator) projections for any dataset being drawn,
           // so the bounds that slide-change returns is not valid for our use. But we already
@@ -5860,6 +5859,9 @@
           if (isAutoModeRunning) {
             lastAutomodeWaypointIndex = waypointIndex;
           }
+
+          timelapse.removeParabolicMotionStoppedListener(parabolicMotionStoppedListener);
+
           //$(".map-layer-div").find("input:checked").trigger("click");
         });
 
@@ -6014,11 +6016,11 @@
             var waypointScale = timelapse.pixelBoundingBoxToPixelCenter(waypointBounds).scale;
             var $current_location_text = $(".current-location-text");
             var $current_location_text_container = $(".current-location-text-container");
+            var currentView = timelapse.getView();
 
             timelapse.removeViewChangeListener(waypointViewChangeListener);
             timelapse.removeViewChangeListener(hideWaypointListener);
 
-            var currentView = timelapse.getView();
             if (waypoint.annotationBoxTitle || waypoint.description) {
               showAnnotations();
               $(".snaplapse_keyframe_list .snaplapse_keyframe_list_item_thumbnail_overlay_presentation").eq(selectedWaypointIdx).addClass("thumbnail_highlight");
@@ -6039,49 +6041,48 @@
               } else {
                 $current_location_text.find("p").empty().hide();
               }
-
-              waypointViewChangeListener = function() {
-                var currentView = timelapse.getView();
-                previousWaypoint.scale = waypointScale;
-                previousWaypoint.bounds = waypointBounds;
-                if (currentView.scale * 2.5 > waypointScale && (currentView.x >= waypointBounds.xmin && currentView.x <= waypointBounds.xmax && currentView.y >= waypointBounds.ymin && currentView.y <= waypointBounds.ymax)) {
-                  hideWaypointListener = function() {
-                    var currentView = timelapse.getView();
-                    var previousWaypointBounds = previousWaypoint.bounds;
-                    if (((previousWaypoint.scale * 3.0 < currentView.scale && !timelapse.isMovingToWaypoint()) || (previousWaypoint.scale / 2.5 > currentView.scale && !timelapse.isMovingToWaypoint()) || !(currentView.x >= previousWaypointBounds.xmin && currentView.x <= previousWaypointBounds.xmax && currentView.y >= previousWaypointBounds.ymin && currentView.y <= previousWaypointBounds.ymax))) {
-                      if ($(".thumbnail_highlight").length) {
-                        showAnnotationResumeExit();
-                      }
-                      timelapse.removeViewChangeListener(hideWaypointListener);
-                      clearInterval(waypointTimeChangeListenerInterval);
-                      waypointTimeChangeListenerInterval = null;
-                    }
-                  };
-                  timelapse.addViewChangeListener(hideWaypointListener);
-                  timelapse.removeViewChangeListener(waypointViewChangeListener);
-                }
-              };
-              timelapse.addViewChangeListener(waypointViewChangeListener);
             } else {
-              // No waypoint title or description given; really should never happen.
+              // No waypoint title or description given; really should never happen since to be useful every waypoint should have accompanying text.
               $current_location_text_container.hide();
             }
+
+            waypointViewChangeListener = function() {
+              var currentView = timelapse.getView();
+              previousWaypoint.scale = waypointScale;
+              previousWaypoint.bounds = waypointBounds;
+              if (currentView.scale * 2.5 > waypointScale && (currentView.x >= waypointBounds.xmin && currentView.x <= waypointBounds.xmax && currentView.y >= waypointBounds.ymin && currentView.y <= waypointBounds.ymax)) {
+                hideWaypointListener = function() {
+                  var currentView = timelapse.getView();
+                  var previousWaypointBounds = previousWaypoint.bounds;
+                  if (((previousWaypoint.scale * 3.0 < currentView.scale && !timelapse.isMovingToWaypoint()) || (previousWaypoint.scale / 2.5 > currentView.scale && !timelapse.isMovingToWaypoint()) || !(currentView.x >= previousWaypointBounds.xmin && currentView.x <= previousWaypointBounds.xmax && currentView.y >= previousWaypointBounds.ymin && currentView.y <= previousWaypointBounds.ymax))) {
+                    if ($(".thumbnail_highlight").length) {
+                      showAnnotationResumeExit();
+                    }
+                    timelapse.removeViewChangeListener(hideWaypointListener);
+                    clearInterval(waypointTimeChangeListenerInterval);
+                    waypointTimeChangeListenerInterval = null;
+                  }
+                };
+                timelapse.addViewChangeListener(hideWaypointListener);
+                timelapse.removeViewChangeListener(waypointViewChangeListener);
+              }
+            };
+            timelapse.addViewChangeListener(waypointViewChangeListener);
+
+            parabolicMotionStoppedListener = function() {
+              timelapse.removeParabolicMotionStoppedListener(parabolicMotionStoppedListener);
+              timelapse.removeViewChangeListener(waypointViewChangeListener);
+              var waypointScale = timelapse.pixelBoundingBoxToPixelCenter(waypointBounds).scale;
+              var currentView = timelapse.getView();
+              if ((waypointScale / 2.5 > currentView.scale || !(currentView.x >= waypointBounds.xmin && currentView.x <= waypointBounds.xmax && currentView.y >= waypointBounds.ymin && currentView.y <= waypointBounds.ymax))) {
+                showAnnotationResumeExit();
+              }
+            };
+            timelapse.addParabolicMotionStoppedListener(parabolicMotionStoppedListener);
 
             // Close the extra content pop-up if a waypoint is clicked.
             $('#extras-content').dialog('close');
           }
-
-          var parabolicMotionStoppedListener = function() {
-            timelapse.removeParabolicMotionStoppedListener(parabolicMotionStoppedListener);
-            timelapse.removeViewChangeListener(waypointViewChangeListener);
-            var waypointScale = timelapse.pixelBoundingBoxToPixelCenter(waypointBounds).scale;
-            var currentView = timelapse.getView();
-            if ((waypointScale / 2.5 > currentView.scale || !(currentView.x >= waypointBounds.xmin && currentView.x <= waypointBounds.xmax && currentView.y >= waypointBounds.ymin && currentView.y <= waypointBounds.ymax))) {
-              showAnnotationResumeExit();
-            }
-          };
-          timelapse.addParabolicMotionStoppedListener(parabolicMotionStoppedListener);
-
         });
         // End snaplapseViewerForPresentationSlider check
       }
