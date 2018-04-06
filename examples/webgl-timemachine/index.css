@@ -458,7 +458,7 @@ html, body {
   color: #e6e6e6;
   text-align: center;
   width: 150px;
-  height: 44px;
+  height: 68px;
   padding: 4px;
 }
 
@@ -467,13 +467,33 @@ html, body {
   cursor: pointer;
 }
 
+.annotations-resume-button-icon {
+  width: 20px;
+  height: 20px
+}
+
+.annotations-resume-button-icon {
+  width: 20px;
+  height: 20px
+}
+
+.annotations-exit-button-icon {
+  width: 16px;
+  height: 16px;
+  padding-bottom: 2px;
+}
+
 .annotations-resume-button:hover, .annotations-exit-button:hover {
-  color: #848484;
+  filter: invert(55%);
+  -webkit-filter: invert(55%);
+  color: #727273;
 }
 
 .annotations-exit-button {
   max-width: 62px;
   cursor: pointer;
+  padding-left: 6px;
+  padding-top: 3px;
 }
 
 .annotations-button-separator {
