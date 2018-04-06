@@ -24,11 +24,6 @@ html, body {
   padding-bottom: 6px;
 }
 
-.snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight,
-.snaplapse_keyframe_list_item_thumbnail_overlay_presentation:not(.snaplapse_keyframe_list_item_thumbnail_overlay_presentation-touchFriendly):hover {
-  z-index: 9000;
-}
-
 .legendColor {
   width: 22px;
   height: 22px;
