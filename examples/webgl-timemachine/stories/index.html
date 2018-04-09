@@ -154,35 +154,39 @@
 
     Papa.parse(url, {
       download: true,
+      header: true,
       complete: function(results, file) {
         var story = [];
         var data = results["data"];
         var append = false;
         for (var i = 0; i < data.length; i++) {
-          if (data[i][0][0] == "#" && append) {
+          var title = data[i]['Title'];
+
+          if (title[0] == "#" && append) {
             append = false;            
           }
-          if (data[i][0] == storyName) {
+          if (title == storyName) {
             append = true;
           }
           if (append) {
-            if (data[i][0] != '') {
+            if (title != '') {
               story.push(data[i]);
             }
           }
         }
 
         var el = document.getElementById("media-list");
-        var f = story[0][4];
+        var f = story[0]["Share View"];
         var videoContext = {idx: 0, filename: f};
         var html = titleVideoTemplate(videoContext);          
 
         el.insertAdjacentHTML('beforeend', html);
 
         for (var i = 1; i < story.length; i++) {
-          if (story[i][4].trim() != '') {
-            var thumbnail = new Thumbnailer(story[i][4]);
-            var credit = story[i][6];
+          var shareView = story[i]["Share View"];
+          if (shareView.trim() != '') {
+            var thumbnail = new Thumbnailer(shareView);
+            var credit = story[i]["Credits"];
             var videoContext = {idx: i, filename: thumbnail.sharelink, credit: credit};
             var html = videoTemplate(videoContext);          
             if (thumbnail.isPicture()) {
@@ -198,11 +202,11 @@
         var el2 = document.getElementById("parent-media-list");
         for (var i = story.length - 1; i > 0; i--) {          
           var videoCaptionContext = {idx: i, 
-            title: story[i][2],
-            caption: story[i][3], 
+            title: story[i]["Annotation Title"],
+            caption: story[i]["Annotation Text"], 
             data_media_type: 'video'};
-            if (story[i][4].trim() != '') {
-              var thumbnail = new Thumbnailer(story[i][4]);
+            if (story[i]["Share View"].trim() != '') {
+              var thumbnail = new Thumbnailer(story[i]["Share View"]);
               if (thumbnail.isPicture()) {
                 videoCaptionContext['data_media_type'] = 'photo';
               }
@@ -211,7 +215,7 @@
             }
         }
 
-        var videoCaptionContext = {idx: 0, title: story[0][0].split("#")[1], caption: story[0][3], author: story[0][7], dateline: story[0][8]};
+        var videoCaptionContext = {idx: 0, title: story[0]["Title"].split("#")[1], caption: story[0]["Annotation Text"], author: story[0]["Author"], dateline: story[0]["Dateline"]};
         var html = titleVideoCaptionTemplate(videoCaptionContext);          
         el2.insertAdjacentHTML('afterend', html);
 
