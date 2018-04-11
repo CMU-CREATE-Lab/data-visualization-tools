@@ -296,6 +296,7 @@
     var waterOccurrenceLayer, waterChangeLayer, usgsWindTurbineLayer, solarInstallsLayer, drillingLayer;
     var goes16TimeMachineLayer, dscovrTimeMachineLayer, annualGlobalPm25TimeMachineLayer;
     var globalWindPowerLayer;
+    setTimeLine('global-wind-power-times', 1984, 2018, 1);
     var annualRefugeesLayer;
     var annualReturnsLayer;
     var vsiLayer;
@@ -747,7 +748,7 @@
     var coralBleachingUrl = rootTilePath + "/coral/{z}/{x}/{y}.bin";
     var usgsWindTurbineUrl = rootTilePath + "/energy/wind-installs-usgs/{z}/{x}/{y}.bin";
     var solarInstallsUrl = rootTilePath + "/energy/solar-installs/{z}/{x}/{y}.bin";
-    var globalWindPowerUrl = rootTilePath + "/energy/global-wind-power/{z}/{x}/{y}.bin";
+    var globalWindPowerUrl = rootTilePath + "/energy/global-wind-power/windfarms-world_20180330.bin";
     var drillingUrl = rootTilePath + "/energy/drilling/{z}/{x}/{y}.bin";
     var animatedHansenUrls = [gfcTransUrl, gfcLossGainUrl];
     var monthlyRefugeesUrl = rootTilePath + '/monthly-mediterranean-refugees/{z}/{x}/{y}.bin';
@@ -1659,13 +1660,14 @@
           showGlobalWindPowerLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
-          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+          requestNewTimeline("global-wind-power-times.json", timelineType);
           $("#global-wind-power-legend").show();
         } else {
           showGlobalWindPowerLayer = false;
           cacheLastUsedLayer(globalWindPowerLayer);
           setActiveLayersWithTimeline(-1);
           timelineType = "customUI";
+          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           $("#global-wind-power-legend").hide();
         }
       }).prop('checked', showGlobalWindPowerLayer);
