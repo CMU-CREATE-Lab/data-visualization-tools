@@ -58,7 +58,6 @@ var EARTH_TIMELAPSE_CONFIG = {
   "showChinaInfrastructure": true,
   "showBePm25": true,
   "showIrena": true,
-  "showCarbonPriceRisk": true,
   "showCityLabelMap": true,
   "showTsip": false
 };
