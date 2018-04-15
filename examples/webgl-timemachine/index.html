@@ -95,7 +95,7 @@
     //
 
     var EARTH_TIMELAPSE_CONFIG = EARTH_TIMELAPSE_CONFIG || {};
-    var enableStoryMode = !!EARTH_TIMELAPSE_CONFIG.enableStoryMode;
+    var enableMuseumMode = !!EARTH_TIMELAPSE_CONFIG.enableMuseumMode;
     // Deprecated. Instead use waypointSliderContentPath, which points to an online or exported spreadsheet.
     var waypointCollection = EARTH_TIMELAPSE_CONFIG.waypointCollection;
     var waypointSliderContentPath = EARTH_TIMELAPSE_CONFIG.waypointSliderContentPath || "default-waypoints.tsv";
@@ -202,6 +202,7 @@
     if (showShareButtonHash)
       showShareButton = showShareButtonHash === "true";
     var showSettingsButton = isMobileDevice ? false : (typeof(EARTH_TIMELAPSE_CONFIG.showSettingsButton) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showSettingsButton);
+    var showZoomControls = typeof(EARTH_TIMELAPSE_CONFIG.showZoomControls) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showZoomControls;
     var isHyperwall = !!EARTH_TIMELAPSE_CONFIG.isHyperwall;
     var useGoogleMaps = !!EARTH_TIMELAPSE_CONFIG.useGoogleMaps;
     var useGoogleSearch = (typeof(EARTH_TIMELAPSE_CONFIG.useGoogleSearch) == "undefined") ? true : !!EARTH_TIMELAPSE_CONFIG.useGoogleSearch;
@@ -235,10 +236,13 @@
 
     // TODO:
     // We start crashing phones with a ratio > 1 and in general retina is
-    // quite taxing for our videos and layers, so force it pixelRatio to 1.
+    // quite taxing for our videos and layers, so force pixelRatio to 1.
+    // And why not IE? Because errors are thrown if we try to modify this window value.
     if (!isIE) {
       window.devicePixelRatio = 1;
     }
+
+    WebglVideoTile.useFaderShader = useFaderShader;
 
     var NORTH = 85.05113006405742; // Latitude for Northern most extent
     var landsatMaxScale = (landsatVersion == "2015") ? 1.25 : 0.45;
@@ -250,11 +254,12 @@
     var isAutoModeRunning = false;
     var visibleBaseMapLayer = "landsat";
     var previousVisibleBaseMapLayer = "landsat";
-    WebglVideoTile.useFaderShader = useFaderShader;
     var timelapse, snaplapseViewerForPresentationSlider, previousWaypoint = {}, waypointViewChangeListener, hideWaypointListener, waypointTimeChangeListenerInterval, snaplapseForPresentationSlider, parabolicMotionStoppedListener;
     var currentWaypointTheme;
+    var currentWaypointStory;
     var himawariWaypoints = {};
     var annotationPicturePaths = {};
+    var waypointJSONList = {};
     var timelineType = "customUI";
     var activeLayersWithTimeline = 0;
     var timelineHidden = false;
@@ -269,6 +274,7 @@
     var $previousAnnotationLocationButton;
     var timelapseWasPlaying = false;
     var lastLayerMenuScrollPos = 0;
+    var lastThemeMenuScrollPos = 0;
     var $lastActiveLayerTopic = $();
     var lastActiveLayers = [];
     var maxCachedLayers = 8;
@@ -1319,7 +1325,9 @@
           showMcrmLayer = false;
           cacheLastUsedLayer(mcrmVectorLayer);
           setActiveLayersWithTimeline(-1);
-          doSwitchToLandsat();
+          if (!enableMuseumMode || EarthlapseUI.Modes.getCurrentMode() == "explore") {
+            doSwitchToLandsat();
+          }
           if (!$("#show-coral-bleaching-alerts").prop('checked')) {
             $("#coral-bleaching-legend").hide();
           }
@@ -2002,7 +2010,7 @@
           showZikaLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "customUI";
-          // TODO: Hack timeline to show all of 2016 for Zika
+          // Use special timeline (goes up to 2017) to show all of 2016 for Zika
           requestNewTimeline("zika-times.json", timelineType);
           $("#zika-legend").show();
         } else {
@@ -3522,7 +3530,7 @@
         // 'l' key (lowercase L)
         // Quick way to turn on automode
         if (e.keyCode === 76) {
-          if (typeof(EarthlapseUI) !== "undefined" && enableStoryMode) {
+          if (typeof(EarthlapseUI) !== "undefined" && enableMuseumMode) {
             EarthlapseUI.Modes.revertToDefault();
           } else {
             var snaplapseForPresentationSlider = timelapse.getSnaplapseForPresentationSlider();
@@ -3690,8 +3698,9 @@
           }
         }
 
-        if (isFromUser && visibleBaseMapLayer != "landsat" && activeLayersWithTimeline == 0)
+        if (isFromUser && visibleBaseMapLayer != "landsat" && activeLayersWithTimeline == 0) {
           $(".customControl").hide().children().hide();
+        }
 
         if (timelineType == "defaultUI") {
           $(".customHelpLabel-touchFriendly").css("top", "-8px");
@@ -3712,6 +3721,7 @@
         } else {
           $(".current-location-text-container, .annotations-resume-exit-container, .scaleBarContainer, #logosContainer, .current-location-text, #layers-legend").removeClass("noTimeline");
           if (timelapseWasPlaying) {
+            timelapseWasPlaying = false;
             timelapse.play();
           }
         }
@@ -3729,10 +3739,19 @@
         $lastActiveLayerTopic = $(this).next();
       });
 
+      $("body").on("click", "#theme-list .ui-accordion-header", function() {
+        lastThemeMenuScrollPos = $(this)[0].offsetTop - 60;
+        $('.themes-scroll-vertical').animate({
+          scrollTop: lastThemeMenuScrollPos
+        });
+        fixThemeMenuHeight();
+      });
+
       // Make right layers panel vertically touch scrollable.
       try {
         if (document.createEvent("TouchEvent")) {
           UTIL.verticalTouchScroll($(".layers-scroll-vertical"));
+          UTIL.verticalTouchScroll($(".themes-scroll-vertical"));
           UTIL.verticalTouchScroll($("#csvChartLegend"));
           UTIL.verticalTouchScroll($("#theme-list"));
           UTIL.touchHorizontalScroll($("#letterbox-bottom-picker-content"));
@@ -3788,6 +3807,10 @@
         return false;
       } else {
         timelineType = "customUI";
+        $("#landsat-base").click();
+        if (activeLayersWithTimeline <= 0) {
+          setActiveLayersWithTimeline(1);
+        }
         requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
         timelapse.setMasterPlaybackRate(1);
         timelapse.setPlaybackRate(defaultPlaybackSpeed);
@@ -4085,12 +4108,20 @@
       });
     }
 
-    function modifyWaypointSliderContent(keyframes, theme) {
-      himawariWaypoints[theme] = {};
-      annotationPicturePaths[theme] = {};
+    function modifyWaypointSliderContent(keyframes, theme, story) {
+      if (!himawariWaypoints[theme]) {
+        himawariWaypoints[theme] = {};
+      }
+      himawariWaypoints[theme][story] = {};
+      if (!annotationPicturePaths[theme]) {
+        annotationPicturePaths[theme] = {};
+      }
+      annotationPicturePaths[theme][story] = {};
       for (var i = 0; i < keyframes.length; i++) {
         var keyframe = keyframes[i];
-        annotationPicturePaths[theme][i] = { path : keyframe.unsafe_string_annotationPicPath };
+        // TODO: Force to only work with absolute image paths. One day we can figure out how to support paths from the internet with the wrath of trolls.
+        var annotationPicturePath = keyframe.unsafe_string_annotationPicPath && keyframe.unsafe_string_annotationPicPath.indexOf("thumbnails/") == 0 ? keyframe.unsafe_string_annotationPicPath : undefined;
+        annotationPicturePaths[theme][story][i] = { path : annotationPicturePath };
         // Himawari is a special case.
         // We need to store the bounds and times and then replace them with a default view.
         // The default view allows for a black thumbnail to be used on the waypoint slider instead of some random position in Landsat
@@ -4108,7 +4139,7 @@
               tmp.scale *= 2;
               keyframe.bounds = timelapse.pixelCenterToPixelBoundingBoxView(tmp).bbox;
             }
-            himawariWaypoints[theme][i] = {
+            himawariWaypoints[theme][story][i] = {
               bounds: keyframe.bounds,
               time: keyframe.time
             };
@@ -4126,45 +4157,89 @@
     }
 
     function loadWaypointSliderContentFromCSV(csvdata) {
+      var parsed = Papa.parse(csvdata, {delimiter: '\t', header: true});
+      var waypointdefs = parsed['data'];
+
       // Clear out internal data stores and relevant dom elements
       annotationPicturePaths = {};
       himawariWaypoints = {};
-      $("#theme-list").empty();
+      waypointJSONList = {};
+      var story_count;
+      var theme_html = "";
+      $(".themes-div").empty();
       $("#timeMachine").removeClass("presentationSliderSelection");
       var currentWaypointSliderContentUrl;
 
       if (enableThemeHamburgerButton) {
         // May just be a single item if there is only only one or zero themes designated
-        var waypointJSONList = snaplapseForPresentationSlider.CSVToJSONList(csvdata);
+        waypointJSONList = snaplapseForPresentationSlider.CSVToJSONList(waypointdefs);
         for (var themeId in waypointJSONList) {
-          var waypointJSON = JSON.parse(waypointJSONList[themeId].waypoints);
-          var $themeEntry = $("<li>");
-          $themeEntry.attr("id", themeId);
-          $themeEntry.text(waypointJSONList[themeId].themeTitle);
-          modifyWaypointSliderContent(waypointJSON.snaplapse.keyframes, themeId);
-          currentWaypointSliderContentUrl = snaplapseForPresentationSlider.getAsUrlString(waypointJSON.snaplapse.keyframes);
-          $themeEntry.data("waypoint-url", currentWaypointSliderContentUrl);
-          $("#theme-list").append($themeEntry);
+          var themeTitle = waypointJSONList[themeId].themeTitle;
+          var stories = waypointJSONList[themeId].stories;
+          var numStories = Object.keys(stories).length;
+          // Handle legacy case where we treat theme as a story
+          if (numStories == 1 && stories['default']) {
+            theme_html += "<li class='theme-selection-heading-no-accordion' id='story_" + themeId + "'>" + themeTitle + "</li>";
+            continue;
+          }
+          story_count = 0;
+          for (var storyId in stories) {
+            if (story_count == 0) {
+              theme_html += "<h3>" + themeTitle + "</h3>";
+              theme_html += "<table id=theme_" + themeId + ">";
+            }
+            var storyTitle = stories[storyId].storyTitle;
+            theme_html += "<tr id=story_" + storyId + ">";
+            var thumbnailURL = timelapse.getThumbnailOfShareView(stories[storyId].mainShareView, 128, 74) || "http://placehold.it/128x74";
+            theme_html += "<td width='50%'><div style='width: 128px; height: 74px; overflow:hidden; border: 1px solid #232323'><img src='" + thumbnailURL + "'/></div></td>";
+            theme_html += "<td width='10%'><input type='radio'></td>";
+            theme_html += "<td width='40%' style='word-break: break-word;padding-right: 10px;'>" + storyTitle + "</td>";
+            theme_html += "</tr>";
+            story_count++;
+          }
+          theme_html += "</table>";
         }
+        $(".themes-div").append(theme_html);
+        for (var themeId in waypointJSONList) {
+          var stories = waypointJSONList[themeId].stories
+          for (var storyId in stories) {
+            var waypointJSON = JSON.parse(stories[storyId].waypoints);
+            // TODO: Do we still need this for himawari now that we have real thumbnails?
+            modifyWaypointSliderContent(waypointJSON.snaplapse.keyframes, themeId, storyId);
+            currentWaypointSliderContentUrl = snaplapseForPresentationSlider.getAsUrlString(waypointJSON.snaplapse.keyframes);
+            // Handle legacy case where we treat theme as a story
+            if (storyId == 'default') {
+              storyId = themeId;
+            }
+            $("#theme-list #story_" + storyId).data("waypoint-url", currentWaypointSliderContentUrl);
+          }
+        }
+
         if (loadedInitialWaypointList) {
-          changeHash({theme : ""});
+          changeHash({theme : "", story: ""});
         }
+
+        $(".themes-div").accordion("refresh");
+
         var hashVals = UTIL.getUnsafeHashVars();
         if (hashVals.theme && !hashVals.v) {
           loadedInitialWaypointList = true;
         }
-        var $selectedThemeElement = waypointJSONList[hashVals.theme] ? $("#" + hashVals.theme) : $("#theme-list").children().first();
-        $selectedThemeElement.click();
-      } else {
-        currentWaypointTheme = "default";
-        var waypointJSON = JSON.parse(snaplapseForPresentationSlider.CSVToJSON(csvdata));
-        modifyWaypointSliderContent(waypointJSON.snaplapse.keyframes, currentWaypointTheme);
-        currentWaypointSliderContentUrl = snaplapseForPresentationSlider.getAsUrlString(waypointJSON.snaplapse.keyframes);
-        var waypointSliderContent = "#presentation=" + currentWaypointSliderContentUrl;
-        timelapse.loadSharedDataFromUnsafeURL(waypointSliderContent);
-      }
+        var $selectedStoryElement;
+        var themeLoaded = waypointJSONList[hashVals.theme];
+        var storyEqualsTheme = themeLoaded && waypointJSONList[hashVals.theme].stories['default']
+        var storyLoaded = themeLoaded && waypointJSONList[hashVals.theme].stories[hashVals.story];
 
-      if (enableThemeHamburgerButton) {
+        if (storyEqualsTheme) {
+          $selectedStoryElement = $("#story_" + hashVals.theme);
+        } else if (storyLoaded) {
+          $selectedStoryElement = $("#story_" + hashVals.story);
+        } else {
+          $selectedStoryElement = $(".themes-div").find("[id^=story_]").first();
+        }
+
+        $selectedStoryElement.click();
+
         $(".snaplapse_keyframe_container").prepend($("#presentation-slider-hamburger-wrapper"));
         $(".snaplapse_keyframe_list").addClass("has-hamburger");
         if (!isHyperwall && !isMobileDevice) {
@@ -4172,8 +4247,16 @@
           $("#presentation-slider-hamburger-wrapper #theme-title-container").height($(".snaplapse_keyframe_list").height());
         }
         $("#presentation-slider-hamburger-wrapper").show();
+      } else {
+        // Even older legacy case where we load only a single set of waypoints, no theme ever designated
+        currentWaypointTheme = "default";
+        currentWaypointStory = "default";
+        var waypointJSON = JSON.parse(snaplapseForPresentationSlider.CSVToJSON(waypointdefs));
+        modifyWaypointSliderContent(waypointJSON.snaplapse.keyframes, currentWaypointTheme, currentWaypointStory);
+        currentWaypointSliderContentUrl = snaplapseForPresentationSlider.getAsUrlString(waypointJSON.snaplapse.keyframes);
+        var waypointSliderContent = "#presentation=" + currentWaypointSliderContentUrl;
+        timelapse.loadSharedDataFromUnsafeURL(waypointSliderContent);
       }
-
       sortThemes();
       if (enableLetterboxMode) {
         updateLetterboxContent();
@@ -4205,7 +4288,6 @@
     }
 
     function onTimeMachinePlayerReady() {
-
       if (!isBrowserSupported) {
         $("#baseLayerCreditContainer").hide();
       }
@@ -4985,11 +5067,12 @@
         }
 
         var $navigationControls = $("<div id='navControls' />");
-
         $navigationControls.appendTo($controlsContainer);
 
-        var $zoomControls = $($(".zoom > *").not(".zoomSlider, .zoomall")).addClass("controlButton");
-        $zoomControls.appendTo($navigationControls);
+        if (showZoomControls) {
+          var $zoomControls = $($(".zoom > *").not(".zoomSlider, .zoomall")).addClass("controlButton");
+          $zoomControls.appendTo($navigationControls);
+        }
 
         $controlsContainer.appendTo($("#timeMachine .player"));
 
@@ -5726,7 +5809,7 @@
       // Layer Toggle UI
       initLayerToggleUI();
 
-      // TODO: Why is this element of TimeMachine outside the controls container?
+      // TODO: Why is this element of TimeMachine initially outside the controls container?
       $(".captureTime").prependTo(".controls");
 
       snaplapseForPresentationSlider = timelapse.getSnaplapseForPresentationSlider();
@@ -5772,7 +5855,8 @@
           var waypointIndex = waypoint.index;
           var waypointStartTime = waypoint.time;
           var waypointBounds = waypoint.bounds;
-          var himawariWaypoint = himawariWaypoints[currentWaypointTheme][waypointIndex];
+          // TODO: Do we still need this for himawari now that we have real thumbnails?
+          var himawariWaypoint = himawariWaypoints[currentWaypointTheme][currentWaypointStory] ? himawariWaypoints[currentWaypointTheme][currentWaypointStory][waypointIndex] : null;
           isAutoModeRunning = snaplapseViewerForPresentationSlider.isAutoModeRunning();
           lastSelectedAnnotationBeforeHidden = $("#" + waypointTitle.replace(/\W+/g, "_") + " .snaplapse_keyframe_list_item_thumbnail_overlay_presentation");
 
@@ -5788,19 +5872,26 @@
           }
 
           if (enableThemeHamburgerButton && isAutoModeRunning && autoModeFullThemeCycle && lastAutomodeWaypointIndex > waypointIndex) {
-            var nextWaypointThemeCollection = $("#theme-list li.checkmark").next();
-            if (nextWaypointThemeCollection.length == 0) {
-              nextWaypointThemeCollection = $("#theme-list li").first();
+            var $availableStories = $("#theme-list [id^=story_]");
+            var nextWaypointCollectionIdx;
+            var availableStoriesArray = $availableStories.toArray();
+            for (var i = 0; i < availableStoriesArray.length; i++) {
+              if ($(availableStoriesArray[i]).hasClass("activeStory")) {
+                nextWaypointCollectionIdx = i + 1;
+                break;
+              }
             }
-            nextWaypointThemeCollection.trigger("click");
+            var nextWaypointCollection = $($availableStories.get(nextWaypointCollectionIdx));
+            if (nextWaypointCollection.length == 0) {
+              nextWaypointCollection = $availableStories.first();
+            }
+            nextWaypointCollection.trigger("click");
           }
           if (isAutoModeRunning) {
             lastAutomodeWaypointIndex = waypointIndex;
           }
 
           timelapse.removeParabolicMotionStoppedListener(parabolicMotionStoppedListener);
-
-          //$(".map-layer-div").find("input:checked").trigger("click");
         });
 
         snaplapseViewerForPresentationSlider.addEventListener('slide-changed', function(waypoint) {
@@ -5811,7 +5902,8 @@
           var waypointStartTime = waypoint.time;
           var waypointEndTime = waypoint.endTime;
           var waypointPlaybackSpeed = waypoint.speed;
-          var himawariWaypoint = himawariWaypoints[currentWaypointTheme][waypointIndex];
+          // TODO: Do we still need this for himawari now that we have real thumbnails?
+          var himawariWaypoint = himawariWaypoints[currentWaypointTheme][currentWaypointStory] ? himawariWaypoints[currentWaypointTheme][currentWaypointStory][waypointIndex] : null;
           var lastAvailableWaypointIdx = $(".snaplapse_keyframe_list").children().last().index();
           var selectedWaypointIdx = $(".snaplapse_keyframe_list .thumbnail_highlight").closest(".snaplapse_keyframe_list_item").index();
 
@@ -5839,6 +5931,7 @@
           clearInterval(waypointTimeChangeListenerInterval);
           waypointTimeChangeListenerInterval = null;
 
+          // TODO: Should be part of timemachine library
           if (waypointEndTime >= 0 && waypointStartTime != waypointEndTime) {
             waypointTimeChangeListenerInterval = setInterval(function() {
               var t = timelapse.getCurrentTime();
@@ -5863,9 +5956,8 @@
             return "[name=" + waypointName + "]";
           }).join(',');
 
-
-          // TODO: This breaks our timelines sometimes
-          // Clear out layers if they were checked and not needed again
+          // TODO: This breaks our timelines sometimes, despite being more efficient.
+          // Clear out layers only if they were checked and not needed again
           //$(".map-layer-div").find("input:checked").parent().not($(waypointListNameString)).children().trigger("click");
 
           // Clear out all layers that were checked
@@ -5922,9 +6014,11 @@
           }
           // End Himawari
 
+          // TODO: Should be part of timemachine library
           // Set playback rate based on the waypoint.
           if (waypointPlaybackSpeed != null) {
             if (waypointPlaybackSpeed == 0) {
+              timelapseWasPlaying = false;
               if (timelapse.isDoingLoopingDwell()) {
                 timelapse.handlePlayPause();
               } else {
@@ -5968,9 +6062,9 @@
                 $current_location_text.find(".current-location-text-title").empty().hide();
               }
               var $current_location_text_picture = $("#current-location-text-picture");
-              if (annotationPicturePaths[currentWaypointTheme] && annotationPicturePaths[currentWaypointTheme][waypointIndex].path) {
+              if (annotationPicturePaths[currentWaypointTheme][currentWaypointStory] && annotationPicturePaths[currentWaypointTheme][currentWaypointStory][waypointIndex].path) {
                 $current_location_text_picture.show();
-                $current_location_text_picture.css('background-image', 'url("' + annotationPicturePaths[currentWaypointTheme][waypointIndex].path + '")');
+                $current_location_text_picture.css('background-image', 'url("' + annotationPicturePaths[currentWaypointTheme][currentWaypointStory][waypointIndex].path + '")');
               } else {
                 $current_location_text_picture.empty().hide();
               }
@@ -6111,7 +6205,7 @@
           var waypointIdx = activeWaypoint.closest(".snaplapse_keyframe_list_item").index();
           if (snaplapseForPresentationSlider) {
             var waypointLayerIds = snaplapseForPresentationSlider.getKeyframes()[waypointIdx].layers;
-            for (i = 0; i < waypointLayerIds.length; i++) {
+            for (var i = 0; i < waypointLayerIds.length; i++) {
               waypointLayersSelectors += "label[name='" + waypointLayerIds[i] + "']";
               // Need to comma separate each selector
               if (i < waypointLayerIds.length - 1) {
@@ -6181,7 +6275,7 @@
         }
       };
 
-      $(".map-layer-div").accordion({
+      $(".map-layer-div, .themes-div").accordion({
         collapsible: true,
         active: false,
         animate: false,
@@ -6315,21 +6409,48 @@
           scrollTop: lastLayerMenuScrollPos
         }, 250);
 
+        $('.themes-scroll-vertical').animate({
+          scrollTop: lastThemeMenuScrollPos
+        }, 250);
+
         setTimeout(function() {
           fixThemeMenuHeight();
         }, 20);
 
       });
 
-      $("#theme-menu").on("click", function(e) {
-        var $selectedThemeElement = $(e.target);
-        if (currentWaypointTheme == $selectedThemeElement.attr("id") || !$selectedThemeElement.data("waypoint-url")) return;
-        $(this).find("li").removeClass("checkmark");
-        $selectedThemeElement.addClass("checkmark");
-        changeHash({theme: $selectedThemeElement.attr("id")});
-        currentWaypointTheme = $selectedThemeElement.attr("id");
-        $("#theme-title").attr("data-theme-id", $selectedThemeElement[0].id).text($selectedThemeElement.text());
-        var waypointSliderContent = "#presentation=" + $selectedThemeElement.data("waypoint-url");
+      $("#theme-menu").on("click", "[id^=story_]", function(e) {
+        // Note that a story can also be a theme (old way)
+        var $selectedStoryElement = $(e.currentTarget);
+        // Uncheck any selected stories
+        $("#theme-menu").find("input").prop("checked", false);
+        // Add selection indicator to currently selected story
+        $selectedStoryElement.find("input").prop("checked", true);
+        // Remove active class from all stories
+        $("#theme-menu .activeStory").removeClass('activeStory');
+        // Add active class to currently selected story
+        $selectedStoryElement.addClass('activeStory');
+
+        $("#theme-menu .active-story-in-theme").remove();
+        var $storyGroup = $selectedStoryElement.parents("table");
+        var $themeHeading;
+        if ($storyGroup.length == 0) {
+          // Old way where theme = story
+          $themeHeading = $selectedStoryElement;
+          currentWaypointTheme = $selectedStoryElement.attr("id").replace("story_","");
+          currentWaypointStory = "default";
+        } else {
+          $themeHeading = $storyGroup.prev();
+          currentWaypointTheme = $storyGroup.attr("id").replace("theme_","");
+          currentWaypointStory = $selectedStoryElement.attr("id").replace("story_","");
+        }
+        $themeHeading.append("<span class='.ui-accordion-header-icon ui-icon ui-icon-bullet active-story-in-theme' style='float:right;'>");
+
+        if (!enableMuseumMode) {
+          changeHash({theme: currentWaypointTheme, story: currentWaypointStory});
+        }
+        $("#theme-title").attr("data-theme-id", $selectedStoryElement[0].id).text($selectedStoryElement.text());
+        var waypointSliderContent = "#presentation=" + $selectedStoryElement.data("waypoint-url");
         timelapse.loadSharedDataFromUnsafeURL(waypointSliderContent);
         UTIL.addGoogleAnalyticEvent('button', 'click', 'viewer-select-theme=' + currentWaypointTheme);
         if ($("#presentation-slider-hamburger-wrapper .hamburger").hasClass("is-active")) {
@@ -6406,13 +6527,17 @@
         $("#presentation-slider-hamburger-wrapper").hide().show(0);
       });
 
+      if (enableMuseumMode) {
+        EarthlapseUI.init();
+      }
+
       // End of onTimeMachinePlayerReady
     }
 
     var sortLayerCategories = function() {
-      var layerAccordion = $(".map-layer-div");
+      var $layerAccordion = $(".map-layer-div");
 
-      var entries = $.map(layerAccordion.children("h3").get(), function(entry) {
+      var entries = $.map($layerAccordion.children("h3").get(), function(entry) {
         var $entry = $(entry);
         return $entry.add($entry.next());
       });
@@ -6424,24 +6549,43 @@
       $.each(entries, function() {
         // Ensure 'Base Layers' is always the first entry
         if (this.filter("h3").text() == "Base Layers") {
-          this.detach().prependTo(layerAccordion);
+          this.detach().prependTo($layerAccordion);
         } else {
-          this.detach().appendTo(layerAccordion);
+          this.detach().appendTo($layerAccordion);
         }
       });
     }
 
     var sortThemes = function() {
-      var $themeList = $("#theme-list");
-      var themes = $themeList.children("li");
+      // TODO: Do we ever want users to actually set an order in the spreadsheet as opposed to force sorting here?
 
-      themes.sort(function(a, b) {
-        return $(a).text().localeCompare($(b).text());
-      });
+      var $themeList = $(".themes-div");
+      var $themes = $themeList.children("li");
 
-      $.each(themes, function() {
-        $(this).detach().appendTo($themeList);
-      });
+      // Theme is the same as a story
+      if ($themes.length) {
+        $themes.sort(function(a, b) {
+          return $(a).text().localeCompare($(b).text());
+        });
+
+        $.each($themes, function() {
+          $(this).detach().appendTo($themeList);
+        });
+
+      } else { // Stories fall under a theme
+        var entries = $.map($themeList.children("h3").get(), function(entry) {
+          var $entry = $(entry);
+          return $entry.add($entry.next());
+        });
+
+        entries.sort(function(a, b) {
+          return a.filter("h3").text().localeCompare(b.filter("h3").text());
+        });
+
+        $.each(entries, function() {
+          this.detach().appendTo($themeList);
+        });
+      }
     }
 
     var updateLetterboxContent = function(newSectionChoice) {
@@ -6494,7 +6638,7 @@
 
       if (sectionChoice == "themes") {
         // Create letterbox theme table
-        var layerThemes = $("#theme-list").find("li").map(function() {
+        var layerThemes = $(".themes-div").find("li").map(function() {
           return $(this);
         }).get();
 
@@ -6836,14 +6980,13 @@
       var $themeList = $("#theme-list");
       if ($themeList.is(':visible')) {
         var sectionHeadingHeight = parseInt($(".selection-heading").outerHeight());
-        var $children = $themeList.children();
-        var numThemes = $children.length;
-        var themeEntryHeight = parseInt($children.first().outerHeight());
-        var themeListHeight = numThemes * themeEntryHeight;
+
+        var themeListHeight = parseInt($(".themes-div").outerHeight());
         var newThemeListHeight = parseInt($("#main-hamburger-menu").outerHeight()) - themeListHeight;
         if (newThemeListHeight < sectionHeadingHeight) {
           newThemeListHeight = sectionHeadingHeight;
         }
+        newThemeListHeight = Math.max(119, newThemeListHeight);
         $themeList.css("height", "calc(100% - " + newThemeListHeight + "px)");
       }
     }
@@ -6889,7 +7032,8 @@
         return view;
       };
 
-      // Extracting dates from timelapse -- TODO: Refactor and put in timemachine?
+      // Extracting dates from timelapse
+      // TODO: Refactor and put in timemachine codebase?
       function getDates(timelapse) {
         var dates = [];
         for (var i = 0; i < timelapse.getNumFrames(); i++) {
@@ -8466,7 +8610,7 @@
       <li id="theme-menu" class="has-children">
         <input type="radio" name="main-hamburger-selection" id="theme-selection" class="main-hamburger-selection">
         <label for="theme-selection" class="selection-heading">Themes</label>
-        <ul id="theme-list"></ul>
+        <ul id="theme-list"><div class="themes-scroll-vertical"><div class="themes-div"></div></div></ul>
       </li>
       <li id="layers-menu" class="has-children">
         <input type="radio" name="main-hamburger-selection" id="layer-selection" class="main-hamburger-selection">
