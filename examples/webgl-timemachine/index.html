@@ -191,7 +191,11 @@
 
     var usePresentationClicker = !!EARTH_TIMELAPSE_CONFIG.usePresentationClicker;
     var enableThemeHamburgerButton = !!EARTH_TIMELAPSE_CONFIG.enableThemeHamburgerButton;
+    // Show timestamp, legend, logos
     var minimalUI = window.location.hash.split("minimalUI=")[1] || !!EARTH_TIMELAPSE_CONFIG.minimalUI;
+    // Show only timestamp
+    var timestampOnlyUI = window.location.hash.split("timestampOnlyUI=")[1] || !!EARTH_TIMELAPSE_CONFIG.timestampOnlyUI;
+    // Only show visualization
     var disableUI = window.location.hash.split("disableUI=")[1] || !!EARTH_TIMELAPSE_CONFIG.disableUI;
     var disablePresentationSlider = window.location.hash.split("disablePresentationSlider=")[1] || !!EARTH_TIMELAPSE_CONFIG.disablePresentationSlider || false;
     if (disableUI)
