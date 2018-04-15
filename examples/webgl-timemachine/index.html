@@ -6519,6 +6519,12 @@
         // Hide presentation slider so that it's still usable via keyboard/clicker but not shown on screen
         $("#timeMachine .presentationSlider").addClass("offscreen");
         $("#timeMachine .player").addClass("presentationSliderOffscreen");
+      } else if (timestampOnlyUI) {
+        // Move capture time outside of the timeline controls
+        $(".captureTime").insertBefore(".controls");
+        $(".captureTime, .scaleBarContainer, #logosContainer, #baseLayerCreditContainer").addClass("minimalUIMode");
+        // Remove side control panel, search box, timelines, scalebar, logos and legend
+        $("#controlsContainer, .location_search_div, .customControl, .controls, .scaleBarContainer, #baseLayerCreditContainer, #logosContainer, #layers-legend").remove();
       }
 
       if (disableUI) {
