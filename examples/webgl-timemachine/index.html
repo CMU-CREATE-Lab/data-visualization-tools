@@ -221,6 +221,11 @@
     var trackingId = EARTH_TIMELAPSE_CONFIG.trackingId || "UA-10682694-21";
     var rootTilePath = (typeof(EARTH_TIMELAPSE_CONFIG.rootTilePath) == "undefined") ? "../../../data/" : EARTH_TIMELAPSE_CONFIG.rootTilePath;
     var autoModeFullThemeCycle = (typeof(EARTH_TIMELAPSE_CONFIG.autoModeFullThemeCycle) == "undefined") ? true : !!EARTH_TIMELAPSE_CONFIG.autoModeFullThemeCycle;
+    var baseMapsNoLabels = window.location.hash.split("baseMapsNoLabels=")[1] || !!EARTH_TIMELAPSE_CONFIG.baseMapsNoLabels;
+    var useRetinaLightBaseMap = (typeof(EARTH_TIMELAPSE_CONFIG.useRetinaLightBaseMap) == "undefined") ? false : !!EARTH_TIMELAPSE_CONFIG.useRetinaLightBaseMap;
+    var useRetinaLightNoLabelsBaseMap = baseMapsNoLabels ? true : (typeof(EARTH_TIMELAPSE_CONFIG.useRetinaLightNoLabelsBaseMap) == "undefined") ? false : !!EARTH_TIMELAPSE_CONFIG.useRetinaLightNoLabelsBaseMap;
+    var useRetinaDarkBaseMap = (typeof(EARTH_TIMELAPSE_CONFIG.useRetinaDarkBaseMap) == "undefined") ? false : !!EARTH_TIMELAPSE_CONFIG.useRetinaDarkBaseMap;
+    var useRetinaDarkNoLabelsBaseMap = baseMapsNoLabels ? true : (typeof(EARTH_TIMELAPSE_CONFIG.useRetinaDarkNoLabelsBaseMap) == "undefined") ? false : !!EARTH_TIMELAPSE_CONFIG.useRetinaDarkNoLabelsBaseMap;
 
     // TODO: Until we decide to force everyone to latest landsat, pull the version corresponding to the config above.
     if (landsatVersion == "2015"){
@@ -710,10 +715,12 @@
     var forestAlertsNoOverlayTimeMachineUrl = rootTilePath + "/global-forest-alerts/ForestAlarmsNoOverlay2016v1/1068x600";
     var berkeleyEarthTemperatureAnomalyTimeMachineUrl = rootTilePath + "/berkeley-earth/berkeley-earth.timemachine/crf24-12fps-1424x800";
     var osmDefaultUrl = rootTilePath + "/openstreetmap/default/";
-    var osmLightRetinaUrl = rootTilePath + "/openstreetmap/light_all_retina/{default}/{z}/{x}/{y}.png";
-    var osmDarkRetinaUrl = rootTilePath + "/openstreetmap/dark_all_retina/{default}/{z}/{x}/{y}.png";
     var omtDarkUrl = rootTilePath + "/openmaptiles/dark-map/{default}/{z}/{x}/{y}.png";
+    var omtDarkRetinaUrl = rootTilePath + "/openmaptiles/dark-map-retina/{default}/{z}/{x}/{y}.png";
+    var omtDarkRetinaNoLabelsUrl = rootTilePath + "/openmaptiles/dark-map-retina-no-labels/{default}/{z}/{x}/{y}.png";
     var omtLightUrl = rootTilePath + "/openmaptiles/light-map/{default}/{z}/{x}/{y}.png";
+    var omtLightRetinaUrl = rootTilePath + "/openmaptiles/light-map-retina/{default}/{z}/{x}/{y}.png";
+    var omtLightRetinaNoLabelsUrl = rootTilePath + "/openmaptiles/light-map-retina-no-labels/{default}/{z}/{x}/{y}.png";
     var gfcTransUrl = rootTilePath + "/global-forest-change/loss_year_transparent/{default}/{z}/{x}/{y}.png";
     var gfcLossGainUrl = rootTilePath + "/global-forest-change/loss_tree_gain/{default}/{z}/{x}/{y}.png";
     //var googleMapsDefaultUrl = "https://mts0.googleapis.com/vt?pb=!1m5!1m4!1i{z}!2i{x}!3i{y}!4i256!2m3!1e0!2sm!3i323305239!3m9!2sen-US!3sUS!5e18!12m1!1e47!12m3!1e37!2m1!1ssmartmaps!4e0";
@@ -721,20 +728,40 @@
     var googleMapsDarkStyleUrl = "https://mts0.googleapis.com/vt?pb=!1m4!1m3!1i{z}!2i{x}!3i{y}!2m3!1e0!2sm!3i323305239!3m14!2sen-US!3sUS!5e18!12m1!1e47!12m3!1e37!2m1!1ssmartmaps!12m4!1e26!2m2!1sstyles!2zcC5oOiMwMDAwYjB8cC5pbDp0cnVlfHAuczotMzAscy50OjJ8cC52Om9mZg!4e0";
     var googleMapsDefaultRetinaUrl = "https://mts1.googleapis.com/vt?pb=!1m5!1m4!1i{z}!2i{x}!3i{y}!4i256!2m3!1e0!2sm!3i323305239!3m9!2sen-US!3sUS!5e18!12m1!1e47!12m3!1e37!2m1!1ssmartmaps!4e0!5m1!5f2";
 
-
     //var googleMapsDarkStyleRetinaUrl = "https://mts0.googleapis.com/vt?pb=!1m4!1m3!1i{z}!2i{x}!3i{y}!2m3!1e0!2sm!3i323305239!3m14!2sen-US!3sUS!5e18!12m1!1e47!12m3!1e37!2m1!1ssmartmaps!12m4!1e26!2m2!1sstyles!2zcC5oOiMwMDAwYjB8cC5pbDp0cnVlfHAuczotMzAscy50OjJ8cC52Om9mZg!4e0!5m1!5f2";
     var googleMapsDarkStyleRetinaUrl = "https://maps.googleapis.com/maps/vt?pb=!1m5!1m4!1i{z}!2i{x}!3i{y}!4i256!2m3!1e0!2sm!3i386081408!3m14!2sen-US!3sUS!5e18!12m1!1e47!12m3!1e37!2m1!1ssmartmaps!12m4!1e26!2m2!1sstyles!2zcy5lOmd8cC5jOiNmZjAwMDAwMCxzLmU6bHxwLnY6b2ZmLHMuZTpsLml8cC52Om9mZixzLmU6bC50LmZ8cC5jOiNmZjc1NzU3NSxzLmU6bC50LnN8cC5jOiNmZjIxMjEyMSxzLnQ6MXxzLmU6Z3xwLmM6I2ZmNzU3NTc1fHAudjpvZmYscy50OjE3fHAudjpvbixzLnQ6MTd8cy5lOmwudC5mfHAuYzojZmZjY2NjY2Mscy50OjE3fHMuZTpsLnQuc3xwLmM6I2ZmMDAwMDAwLHMudDoyMXxwLnY6b2ZmLHMudDoxOXxzLmU6bC50LmZ8cC5jOiNmZmJkYmRiZCxzLnQ6MjB8cC52Om9mZixzLnQ6MTh8cC52Om9uLHMudDoxOHxzLmU6bC50LmZ8cC5jOiNmZjdmN2Y3ZixzLnQ6MTh8cy5lOmwudC5zfHAuYzojZmYwMDAwMDAscy50OjJ8cC52Om9mZixzLnQ6MnxzLmU6bC50LmZ8cC5jOiNmZjc1NzU3NSxzLnQ6NDB8cy5lOmd8cC5jOiNmZjE4MTgxOCxzLnQ6NDB8cy5lOmwudC5mfHAuYzojZmY2MTYxNjEscy50OjQwfHMuZTpsLnQuc3xwLmM6I2ZmMWIxYjFiLHMudDozfHAudjpvZmYscy50OjN8cy5lOmcuZnxwLmM6I2ZmMmMyYzJjLHMudDozfHMuZTpsLml8cC52Om9mZixzLnQ6M3xzLmU6bC50LmZ8cC5jOiNmZjhhOGE4YSxzLnQ6NTB8cy5lOmd8cC5jOiNmZjM3MzczNyxzLnQ6NDl8cy5lOmd8cC5jOiNmZjNjM2MzYyxzLnQ6Nzg1fHMuZTpnfHAuYzojZmY0ZTRlNGUscy50OjUxfHMuZTpsLnQuZnxwLmM6I2ZmNjE2MTYxLHMudDo0fHAudjpvZmYscy50OjR8cy5lOmwudC5mfHAuYzojZmY3NTc1NzUscy50OjZ8cC5jOiNmZjRjNGM0YyxzLnQ6NnxzLmU6Z3xwLmM6I2ZmMzMzMzMzLHMudDo2fHMuZTpsLnQuZnxwLmM6I2ZmM2QzZDNk!4e0!5m1!5f2";
         googleMapsDarkStyleRetinaUrl = 'https://maps.googleapis.com/maps/vt?pb=!1m5!1m4!1i{z}!2i{x}!3i{y}!4i256!2m3!1e0!2sm!3i408105841!3m14!2sen-US!3sUS!5e18!12m1!1e68!12m3!1e37!2m1!1ssmartmaps!12m4!1e26!2m2!1sstyles!2zcy5lOmd8cC5jOiNmZjIxMjEyMSxzLmU6bC5pfHAudjpvZmYscy5lOmwudC5mfHAuYzojZmY3NTc1NzUscy5lOmwudC5zfHAuYzojZmYyMTIxMjEscy50OjF8cy5lOmd8cC5jOiNmZjc1NzU3NSxzLnQ6MTd8cy5lOmcuc3xwLnY6b2ZmLHMudDoxN3xzLmU6bC50LmZ8cC5jOiNmZjllOWU5ZSxzLnQ6MjF8cC52Om9mZixzLnQ6MTl8cy5lOmcuc3xwLnY6b2ZmLHMudDoxOXxzLmU6bC50LmZ8cC5jOiNmZmJkYmRiZCxzLnQ6MTh8cy5lOmcuc3xwLnY6b2ZmLHMudDoxMzEzfHAuYzojZmYwMDAwMDAscy50OjJ8cy5lOmwudC5mfHAuYzojZmY3NTc1NzUscy50OjQwfHMuZTpnfHAuYzojZmYxODE4MTgscy50OjQwfHMuZTpsLnQuZnxwLmM6I2ZmNjE2MTYxLHMudDo0MHxzLmU6bC50LnN8cC5jOiNmZjFiMWIxYixzLnQ6M3xzLmU6Zy5mfHAuYzojZmYyYzJjMmMscy50OjN8cy5lOmwudC5mfHAuYzojZmY4YThhOGEscy50OjUwfHMuZTpnfHAuYzojZmYzNzM3Mzcscy50OjQ5fHMuZTpnfHAuYzojZmYzYzNjM2Mscy50Ojc4NXxzLmU6Z3xwLmM6I2ZmNGU0ZTRlLHMudDo1MXxzLmU6bC50LmZ8cC5jOiNmZjYxNjE2MSxzLnQ6NHxzLmU6bC50LmZ8cC5jOiNmZjc1NzU3NSxzLnQ6NnxzLmU6Z3xwLmM6I2ZmMDAwMDAwLHMudDo2fHMuZTpnLmZ8cC5jOiNmZjMyMzIzMixzLnQ6NnxzLmU6bC50LmZ8cC5jOiNmZjNkM2QzZA!4e0!5m1!5f2';
 
-
     var googleMapsCountryLabelUrl = 'https://maps.googleapis.com/maps/vt?pb=!1m5!1m4!1i{z}!2i{x}!3i{y}!4i256!2m3!1e0!2sm!3i388084864!3m14!2sen-US!3sUS!5e18!12m1!1e68!12m3!1e37!2m1!1ssmartmaps!12m4!1e26!2m2!1sstyles!2zcy5lOmd8cC5jOiNmZjIxMjEyMSxzLmU6bC5pfHAudjpvZmYscy5lOmwudC5mfHAuYzojZmY3NTc1NzUscy5lOmwudC5zfHAuYzojZmYyMTIxMjEscy50OjF8cy5lOmd8cC5jOiNmZjc1NzU3NXxwLnY6b2ZmLHMudDoxN3xzLmU6bC50LmZ8cC5jOiNmZjllOWU5ZSxzLnQ6MjF8cC52Om9mZixzLnQ6MTl8cC52Om9mZixzLnQ6MTl8cy5lOmwudC5mfHAuYzojZmZiZGJkYmQscy50OjIwfHAudjpvZmYscy50OjE4fHAudjpvZmYscy50OjV8cC52Om9mZixzLnQ6MnxwLnY6b2ZmLHMudDoyfHMuZTpsLnR8cC52Om9mZixzLnQ6MnxzLmU6bC50LmZ8cC5jOiNmZjc1NzU3NSxzLnQ6NDB8cy5lOmd8cC5jOiNmZjE4MTgxOCxzLnQ6NDB8cy5lOmwudC5mfHAuYzojZmY2MTYxNjEscy50OjQwfHMuZTpsLnQuc3xwLmM6I2ZmMWIxYjFiLHMudDozfHAudjpvZmYscy50OjN8cy5lOmcuZnxwLmM6I2ZmMmMyYzJjLHMudDozfHMuZTpsfHAudjpvZmYscy50OjN8cy5lOmwuaXxwLnY6b2ZmLHMudDozfHMuZTpsLnQuZnxwLmM6I2ZmOGE4YThhLHMudDo1MHxzLmU6Z3xwLmM6I2ZmMzczNzM3LHMudDo0OXxzLmU6Z3xwLmM6I2ZmM2MzYzNjLHMudDo3ODV8cy5lOmd8cC5jOiNmZjRlNGU0ZSxzLnQ6NTF8cy5lOmwudC5mfHAuYzojZmY2MTYxNjEscy50OjR8cC52Om9mZixzLnQ6NHxzLmU6bC50LmZ8cC5jOiNmZjc1NzU3NSxzLnQ6NnxwLnY6b2ZmLHMudDo2fHMuZTpnfHAuYzojZmYwMDAwMDAscy50OjZ8cy5lOmwudHxwLnY6b2ZmLHMudDo2fHMuZTpsLnQuZnxwLmM6I2ZmM2QzZDNk!4e0';
-    var googleMapsCountryLabelUrl = 'https://maps.googleapis.com/maps/vt?pb=!1m5!1m4!1i{z}!2i{x}!3i{y}!4i256!2m3!1e0!2sm!3i388083592!3m14!2sen-US!3sUS!5e18!12m1!1e68!12m3!1e37!2m1!1ssmartmaps!12m4!1e26!2m2!1sstyles!2zcy5lOmd8cC5jOiNmZjIxMjEyMSxzLmU6bC5pfHAudjpvZmYscy5lOmwudC5mfHAuYzojZmY3NTc1NzUscy5lOmwudC5zfHAuYzojZmYyMTIxMjEscy50OjF8cy5lOmd8cC5jOiNmZjc1NzU3NXxwLnY6b2ZmLHMudDoxN3xzLmU6bC50LmZ8cC5jOiNmZmZmZmZmZixzLnQ6MTd8cy5lOmwudC5zfHAuYzojZmYwMDAwMDAscy50OjIxfHAudjpvZmYscy50OjE5fHAudjpvZmYscy50OjE5fHMuZTpsLnQuZnxwLmM6I2ZmYmRiZGJkLHMudDoyMHxwLnY6b2ZmLHMudDoxOHxwLnY6b2ZmLHMudDo1fHAudjpvZmYscy50OjJ8cC52Om9mZixzLnQ6MnxzLmU6bC50fHAudjpvZmYscy50OjJ8cy5lOmwudC5mfHAuYzojZmY3NTc1NzUscy50OjQwfHMuZTpnfHAuYzojZmYxODE4MTgscy50OjQwfHMuZTpsLnQuZnxwLmM6I2ZmNjE2MTYxLHMudDo0MHxzLmU6bC50LnN8cC5jOiNmZjFiMWIxYixzLnQ6M3xwLnY6b2ZmLHMudDozfHMuZTpnLmZ8cC5jOiNmZjJjMmMyYyxzLnQ6M3xzLmU6bHxwLnY6b2ZmLHMudDozfHMuZTpsLml8cC52Om9mZixzLnQ6M3xzLmU6bC50LmZ8cC5jOiNmZjhhOGE4YSxzLnQ6NTB8cy5lOmd8cC5jOiNmZjM3MzczNyxzLnQ6NDl8cy5lOmd8cC5jOiNmZjNjM2MzYyxzLnQ6Nzg1fHMuZTpnfHAuYzojZmY0ZTRlNGUscy50OjUxfHMuZTpsLnQuZnxwLmM6I2ZmNjE2MTYxLHMudDo0fHAudjpvZmYscy50OjR8cy5lOmwudC5mfHAuYzojZmY3NTc1NzUscy50OjZ8cC52Om9mZixzLnQ6NnxzLmU6Z3xwLmM6I2ZmMDAwMDAwLHMudDo2fHMuZTpsLnR8cC52Om9mZixzLnQ6NnxzLmU6bC50LmZ8cC5jOiNmZjNkM2QzZA!4e0&token=52457';
+        googleMapsCountryLabelUrl = 'https://maps.googleapis.com/maps/vt?pb=!1m5!1m4!1i{z}!2i{x}!3i{y}!4i256!2m3!1e0!2sm!3i388083592!3m14!2sen-US!3sUS!5e18!12m1!1e68!12m3!1e37!2m1!1ssmartmaps!12m4!1e26!2m2!1sstyles!2zcy5lOmd8cC5jOiNmZjIxMjEyMSxzLmU6bC5pfHAudjpvZmYscy5lOmwudC5mfHAuYzojZmY3NTc1NzUscy5lOmwudC5zfHAuYzojZmYyMTIxMjEscy50OjF8cy5lOmd8cC5jOiNmZjc1NzU3NXxwLnY6b2ZmLHMudDoxN3xzLmU6bC50LmZ8cC5jOiNmZmZmZmZmZixzLnQ6MTd8cy5lOmwudC5zfHAuYzojZmYwMDAwMDAscy50OjIxfHAudjpvZmYscy50OjE5fHAudjpvZmYscy50OjE5fHMuZTpsLnQuZnxwLmM6I2ZmYmRiZGJkLHMudDoyMHxwLnY6b2ZmLHMudDoxOHxwLnY6b2ZmLHMudDo1fHAudjpvZmYscy50OjJ8cC52Om9mZixzLnQ6MnxzLmU6bC50fHAudjpvZmYscy50OjJ8cy5lOmwudC5mfHAuYzojZmY3NTc1NzUscy50OjQwfHMuZTpnfHAuYzojZmYxODE4MTgscy50OjQwfHMuZTpsLnQuZnxwLmM6I2ZmNjE2MTYxLHMudDo0MHxzLmU6bC50LnN8cC5jOiNmZjFiMWIxYixzLnQ6M3xwLnY6b2ZmLHMudDozfHMuZTpnLmZ8cC5jOiNmZjJjMmMyYyxzLnQ6M3xzLmU6bHxwLnY6b2ZmLHMudDozfHMuZTpsLml8cC52Om9mZixzLnQ6M3xzLmU6bC50LmZ8cC5jOiNmZjhhOGE4YSxzLnQ6NTB8cy5lOmd8cC5jOiNmZjM3MzczNyxzLnQ6NDl8cy5lOmd8cC5jOiNmZjNjM2MzYyxzLnQ6Nzg1fHMuZTpnfHAuYzojZmY0ZTRlNGUscy50OjUxfHMuZTpsLnQuZnxwLmM6I2ZmNjE2MTYxLHMudDo0fHAudjpvZmYscy50OjR8cy5lOmwudC5mfHAuYzojZmY3NTc1NzUscy50OjZ8cC52Om9mZixzLnQ6NnxzLmU6Z3xwLmM6I2ZmMDAwMDAwLHMudDo2fHMuZTpsLnR8cC52Om9mZixzLnQ6NnxzLmU6bC50LmZ8cC5jOiNmZjNkM2QzZA!4e0&token=52457';
     var omtCountryLabelUrl = rootTilePath + "/labels/dark-map-country-labels/{default}/{z}/{x}/{y}.png";
     var googleMapsCityLabelUrl = 'https://maps.googleapis.com/maps/vt?pb=!1m5!1m4!1i{z}!2i{x}!3i{y}!4i256!2m3!1e0!2sm!3i397094607!3m14!2sen-US!3sUS!5e18!12m1!1e68!12m3!1e37!2m1!1ssmartmaps!12m4!1e26!2m2!1sstyles!2zcy50OjV8cC52Om9mZixzLnQ6MnxwLnY6b2ZmLHMudDozfHAudjpvZmYscy50OjN8cy5lOmx8cC52Om9mZixzLnQ6NHxwLnY6b2ZmLHMudDo2fHAudjpvZmY!4e0!5m1!5f2&token=118514';
-    var lightMapUrl = useGoogleMaps ? googleMapsDefaultRetinaUrl : omtLightUrl;
-    var darkMapUrl = useGoogleMaps ? googleMapsDarkStyleRetinaUrl : omtDarkUrl;
+
+    var lightMapUrl;
+    if (useGoogleMaps) {
+      lightMapUrl = googleMapsDefaultRetinaUrl;
+    } else if (useRetinaLightNoLabelsBaseMap) {
+      lightMapUrl = omtLightRetinaNoLabelsUrl;
+    } else if (useRetinaLightBaseMap) {
+      lightMapUrl = omtLightRetinaUrl;
+    } else {
+      lightMapUrl = omtLightUrl;
+    }
+
+    var darkMapUrl;
+    if (useGoogleMaps) {
+      darkMapUrl = googleMapsDarkStyleRetinaUrl;
+    } else if (useRetinaDarkNoLabelsBaseMap) {
+      darkMapUrl = omtDarkRetinaNoLabelsUrl;
+    } else if (useRetinaDarkBaseMap) {
+      darkMapUrl = omtDarkRetinaUrl;
+    } else {
+      darkMapUrl = omtDarkUrl;
+    }
+
     var countryLabelMapUrl = useGoogleMaps ? googleMapsCountryLabelUrl : omtCountryLabelUrl;
     var cityLabelMapUrl = useGoogleMaps ? googleMapsCityLabelUrl : googleMapsCityLabelUrl;
+
     var lightsAtNightUrl = rootTilePath + "/lights-at-night/{default}/{z}/{x}/{y}.png";
     // Note that x/y are swapped for these two lights at night data sets
     var lightsAtNight2012Url = rootTilePath + "/lights-at-night-2012/{default}/{z}/{y}/{x}.jpg";
