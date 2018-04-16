@@ -160,7 +160,7 @@
         var data = results["data"];
         var append = false;
         for (var i = 0; i < data.length; i++) {
-          var title = data[i]['Title'];
+          var title = data[i]['Waypoint Title'];
 
           if (title[0] == "#" && append) {
             append = false;            
@@ -215,7 +215,7 @@
             }
         }
 
-        var videoCaptionContext = {idx: 0, title: story[0]["Title"].split("#")[1], caption: story[0]["Annotation Text"], author: story[0]["Author"], dateline: story[0]["Dateline"]};
+        var videoCaptionContext = {idx: 0, title: story[0]["Waypoint Title"].split("#")[1], caption: story[0]["Annotation Text"], author: story[0]["Author"], dateline: story[0]["Dateline"]};
         var html = titleVideoCaptionTemplate(videoCaptionContext);          
         el2.insertAdjacentHTML('afterend', html);
 
