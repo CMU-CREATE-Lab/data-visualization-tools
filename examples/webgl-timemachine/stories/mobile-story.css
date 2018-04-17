@@ -2110,15 +2110,26 @@ p.gi-card__timestamp{
     width:55px;
     height:55px;
     z-index:2;
-    background-color:#DA161F;
-    transition:all .4s ease
+    background-color:#333;
+    transition:all .4s ease;
+    text-align: center;
 }
+.gi-header__logo a{
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+    border: none;
+}    
+
 @media (min-width: 768px){
     .gi-header__logo{
         position:fixed;
         width:85px;
         height:85px
     }
+    .gi-header__logo a{
+        font-size: 1.5em;
+    }    
     .gi-header.gi-header--active .gi-header__logo{
         top:5px;
         left:5px;
