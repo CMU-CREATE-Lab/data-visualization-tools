@@ -1,4 +1,5 @@
 function Thumbnailer(sharelink) {
+    this.thumbnailServerUrl = "https://thumbnails-earthtime.cmucreatelab.org/thumbnail?";
     this.sharelink = sharelink;
     var hash = sharelink.split("#")[1];
     if (typeof hash !== "undefined") { // we passed a sharelink
@@ -69,7 +70,7 @@ Thumbnailer.prototype.getMp4 = function(orientation) {
     var orientation = orientation || "portrait";
     var width = orientation == "portrait" ? 540 : 1280;
     var height = 720;    
-    var url = "https://thumbnails-staging.cmucreatelab.org/thumbnail?";
+    var url = this.thumbnailServerUrl;
 
     /*
     var root = "root=https://headless.earthtime.org/";
@@ -135,7 +136,7 @@ Thumbnailer.prototype.getPng = function(orientation) {
     var orientation = orientation || "portrait";
     var width = orientation == "portrait" ? 540 : 1280;
     var height = 720;    
-    var url = "https://thumbnails-staging.cmucreatelab.org/thumbnail?";
+    var url = this.thumbnailServerUrl;
     var root = "root=";
     if (typeof this.args["root"] == "undefined") {
         root += "https://headless.earthtime.org/";
