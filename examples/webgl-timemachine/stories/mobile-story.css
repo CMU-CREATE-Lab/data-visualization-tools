@@ -2773,7 +2773,8 @@ footer.gi-footer .gi-footer__leaf{
     font-family: Arial, Helvetica, sans-serif;
     font-size:1rem;
     line-height:1.4;
-    letter-spacing:0
+    letter-spacing:0;
+    color: #fff;
 }
 @media (min-width: 768px){
     .gi-related__item h5{

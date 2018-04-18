@@ -10,6 +10,19 @@
   <script type="text/javascript" src="../../../js/noframework.waypoints.min.js"></script>
 </head>
 <body>
+  <script id="related-item-template" type="text/x-handlebars-template">
+    <div class="gi-related__item"> 
+      <a href="{{url}}"> 
+        <img class="b-lazy" data-src="{{filename}}" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="> 
+<!--
+        {{#if author}}
+          <div class="gi-related__subhead">{{author}}</div>
+        {{/if}}
+      -->
+        <h5>{{title}}</h5>
+      </a>  
+    </div>
+  </script>
   <script id="video-template" type="text/x-handlebars-template">
     <span class="gi-card__media no-tint" data-media="{{idx}}"> 
       <span class="gi-card__bg"> 
@@ -120,6 +133,23 @@
         </div> 
       </div> 
     </main> 
+    <footer class="gi-footer"> 
+      <div class="gi-footer__related"> 
+        <div class="gi-related"> 
+          <h3 class="gi-subhead">More related to this story </h3> 
+          <div class="gi-related__items"> 
+          </div> 
+        </div>
+        <div class="gi-footer__leaf"> 
+          <img height="40" src="https://upload.wikimedia.org/wikipedia/commons/2/26/Blank_globe.svg" title="theglobeandmail.com" width="40">  
+        </div>
+        <div class="gi-footer__credits"> 
+          <h3 class="gi-subhead">About</h3> 
+          <p>EarthTime is a partnership with Carnegie Mellon University's CREATE Lab and the World Economic Forum. The Forum draws on its expert network to provide data, author EarthTime stories, and present in its meetings.</p>
+          <p>EarthTime is underpinned by CREATE Lab's vision to promote data literacy, inspire meaningful dialogue, and democratize access to data for everyone in an inclusive and transparent way.</p>
+        </div>        
+      </div>
+    </footer>
   </article>
 </div> 
   <script type="text/javascript" src="mobile-story.js"></script>
@@ -135,10 +165,12 @@
     var titleVideoCaptionTemplate = Handlebars.compile(source);    
     var source  = document.getElementById("picture-template").innerHTML;
     var pictureTemplate = Handlebars.compile(source);    
+    var source  = document.getElementById("related-item-template").innerHTML;
+    var relatedItemTemplate = Handlebars.compile(source);    
 
     var url = "https://docs-proxy.cmucreatelab.org/spreadsheets/d/1SVMGlB3cfocLEcf3UOdsBX2xvtmNZmDbpL6O2ajmoic/export?format=csv&id=1SVMGlB3cfocLEcf3UOdsBX2xvtmNZmDbpL6O2ajmoic&gid=0";
 
-    //url = 'https://docs-proxy.cmucreatelab.org/spreadsheets/d/1MrHqrqUcgDlPfRrgZkcJc0SP6G7xb3m_Hhei4jhr7Cg/export?format=csv&id=1TcX5esf4YG8BKtYm-FGyfTr55RMMZsaklXHjUCYfhhM&gid=0'
+    //url = 'https://docs-proxy.cmucreatelab.org/spreadsheets/d/1MrHqrqUcgDlPfRrgZkcJc0SP6G7xb3m_Hhei4jhr7Cg/export?format=csv&id=1MrHqrqUcgDlPfRrgZkcJc0SP6G7xb3m_Hhei4jhr7Cg&gid=0'
     //url = "https://docs-proxy.cmucreatelab.org/spreadsheets/d/1TcX5esf4YG8BKtYm-FGyfTr55RMMZsaklXHjUCYfhhM/export?format=csv&id=1TcX5esf4YG8BKtYm-FGyfTr55RMMZsaklXHjUCYfhhM&gid=0";
 
     var storyName = "#Big Picture on US Cities";
@@ -153,7 +185,13 @@
       }
     }    
 
+    var themes = [];
+    var themeIdx;
+    var storyIdx;
+    var currentThemeIdx;
+    var currentStoryIdx;
     var storyMode = false; // 'Matching title begins with ##'
+
     Papa.parse(url, {
       download: true,
       header: true,
@@ -162,7 +200,30 @@
         var data = results["data"];
         var append = false;
         for (var i = 0; i < data.length; i++) {
+
           var title = data[i]['Waypoint Title'];
+          if (title[0] == "#" && title[1] != "#") {
+            var theme = {
+              'url': './' + title.replace(/ /g,'_').replace(/#/g,''),
+              'title': title.replace(/#/g,''),
+              'author': data[i]["Author"],
+              'filename': data[i]["Share View"].trim() != '' ? new Thumbnailer(data[i]["Share View"]).getPng('landscape') : new Thumbnailer(DEFAULT_SHARE_VIEW).getPng('landscape'),
+              'stories': []
+            };
+            themeIdx = themes.length;
+            themes.push(theme);
+            storyIdx = null;
+          }
+          if (title[0] == "#" && title[1] == "#") {
+            var s = {
+              'url': './' + title.replace(/ /g,'_').replace(/#/g,''),
+              'author': data[i]["Author"],
+              'title': title.replace(/#/g,''),
+              'filename': data[i]["Share View"].trim() != '' ? new Thumbnailer(data[i]["Share View"]).getPng('landscape') : new Thumbnailer(DEFAULT_SHARE_VIEW).getPng('landscape'),
+            };
+            themes[themeIdx]['stories'].push(s);
+            storyIdx = themes[themeIdx]['stories'].length - 1;
+          }
 
           // Stop appending?
           if (append) {
@@ -178,9 +239,12 @@
           // Start appending?
           if (title == storyName) {
             append = true;            
+            currentThemeIdx = themeIdx;
           } else if (title == '#' + storyName) {
             append = true;
             storyMode = true;
+            currentThemeIdx = themeIdx;
+            currentStoryIdx = storyIdx;
           }
 
           if (append) {
@@ -238,6 +302,46 @@
         var videoCaptionContext = {idx: 0, title: story[0]["Waypoint Title"].split("#")[1], caption: story[0]["Annotation Text"], author: story[0]["Author"], dateline: story[0]["Dateline"]};
         var html = titleVideoCaptionTemplate(videoCaptionContext);          
         el2.insertAdjacentHTML('afterend', html);
+
+        var htmlCollection = document.getElementsByClassName("gi-related__items");
+        if (themes[currentThemeIdx]['stories'].length > 0) {
+          var relatedItems = [];
+          while (relatedItems.length < 2) {
+            var choice = Math.floor(Math.random() * themes[currentThemeIdx]['stories'].length);
+            if (choice != currentStoryIdx && !(relatedItems.includes(choice))) {
+              console.log(choice);
+              console.log(relatedItems);
+              relatedItems.push(choice);
+            }
+          }
+          for (var i = 0; i < relatedItems.length; i++) {
+            var html = relatedItemTemplate(themes[currentThemeIdx]['stories'][relatedItems[i]]);          
+            htmlCollection[0].insertAdjacentHTML('afterend', html);              
+          }
+
+        } else {
+          if (themes.length == 2) { //there is at least 1 more theme
+            var i = 0;
+            if (currentThemeIdx == 0) {
+              i = 1;
+            }
+            var html = relatedItemTemplate(themes[i]);          
+            htmlCollection[0].insertAdjacentHTML('afterend', html);
+          }
+          else if (themes.length > 2) { // there is >= 2 more themes   
+            var relatedItems = [];
+            while (relatedItems.length < 2) {
+              var choice = Math.floor(Math.random() * themes.length);
+              if (choice != currentThemeIdx && !(relatedItems.includes(choice))) {
+                relatedItems.push(choice);
+              }
+            }
+            for (var i = 0; i < relatedItems.length; i++) {
+              var html = relatedItemTemplate(themes[relatedItems[i]]);          
+              htmlCollection[0].insertAdjacentHTML('beforeend', html);              
+            }
+          } 
+        }
 
         giProject();
       }      
