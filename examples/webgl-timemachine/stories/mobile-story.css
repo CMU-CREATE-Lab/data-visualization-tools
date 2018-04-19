@@ -2814,6 +2814,22 @@ footer.gi-footer .gi-footer__leaf{
         margin-top:10px
     }
 }
+
+.gi-footer__logos {
+    /*background-color: #fff; */
+    text-align: center;
+}
+
+.gi-footer__logos img{
+    margin: 5px;
+    padding: 5px;
+    border: 1px solid #666;
+    background-color: #fff;
+}
+
+.gi-footer__logos:first-child {
+    border: 2px solid darkred;
+}
 .gi-map{
     border:none;
     margin:0 auto 20px !important
