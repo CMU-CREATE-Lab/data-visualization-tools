@@ -121,6 +121,7 @@
                     if (storyName != '') {
                         var el = document.getElementById(storyName.replace("#","").replace(/ /g, "_"));
                           for (var i = 0; i < story.length; i++) {
+                            if (story[i][4] != '') {
                                 var t = new Thumbnailer(story[i][4]);
                                 if (t.isPicture()) {
                                     var context = {src: t.getPng("portrait")};
@@ -140,7 +141,7 @@
                                     el.insertAdjacentHTML('beforeend', html);
                                     }
                             }
-
+}
                     }
                 }
             });
