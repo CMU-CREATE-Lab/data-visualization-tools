@@ -2175,9 +2175,9 @@ a:focus { outline:0; }
 /* Override CSS from TimeMachine */
 #browser_not_supported {
   display: none;
-  width: 582px;
+  width: 285px;
   top: calc(50% - 106px);
-  left: calc(50% - 291px);
+  left: calc(50% - 142px);
 }
 
 .current-location-text-container-touchFriendly, .annotations-resume-exit-container-touchFriendly {

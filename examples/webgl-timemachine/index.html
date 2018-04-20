@@ -90,6 +90,11 @@
     var isBrowserSupported = UTIL.browserSupported();
     var isIE = UTIL.isIE();
     var isIEButNotEdge = isIE && !UTIL.isIEEdge();
+    var ETNotSupported = !UTIL.isWebGLSupported() || isMobileDevice;
+
+    if (ETNotSupported && window.location.href.indexOf("/stories/") >= 0) {
+      window.location.href = window.location.href.replace("/stories/", "/m/stories/");
+    }
 
     var md = window.markdownit({ breaks: true, html: true });
 
@@ -879,15 +884,9 @@
     */
 
     function init() {
-      var isNotSupported = !UTIL.isWebGLSupported() || (UTIL.isMobileDevice() && !UTIL.isMobileSupported());
-
-      if (isNotSupported) {
-        if (window.location.href.indexOf("/stories/")) {
-          window.location.href = window.location.href.replace("/stories/", "/m/stories/");
-        } else {
-          $("#baseLayerCreditContainer, #logosContainer").hide();
-          $("#browser_not_supported").show();
-        }
+      if (ETNotSupported) {
+        $("#baseLayerCreditContainer, #logosContainer, #top-nav").hide();
+        $("#browser_not_supported").show();
         return;
       }
 
