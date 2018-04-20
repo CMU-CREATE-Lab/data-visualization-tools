@@ -329,6 +329,8 @@ html, body {
 #layers-list {
   z-index: 99;
   text-align: left;
+  height: calc(50% - 4px);
+  margin-top: -40px;
 }
 
 #layers-menu {
@@ -346,11 +348,14 @@ html, body {
   height: calc(100% - 115px);
   overflow-x: hidden;
 }
-
+#layers-list-featured {
+  height: calc(50% - 88px);
+}
 .featured-layers-scroll-vertical {
   overflow-y: auto;
-  height: calc(100% - 115px);
+  height: calc(100% - 88px);
   overflow-x: hidden;
+  margin-bottom: 10px;
 }
 
 .themes-scroll-vertical {
@@ -1041,32 +1046,32 @@ html, body {
   display: none;
 }
 
-.layers-scroll-vertical::-webkit-scrollbar, #csvChartLegend::-webkit-scrollbar, .themes-scroll-vertical::-webkit-scrollbar {
+.featured-layers-scroll-vertical::-webkit-scrollbar, .layers-scroll-vertical::-webkit-scrollbar, #csvChartLegend::-webkit-scrollbar, .themes-scroll-vertical::-webkit-scrollbar {
   -webkit-appearance: none;
   background: transparent;
   overflow: visible;
   width: 14px;
 }
 
-.layers-scroll-vertical::-webkit-scrollbar:vertical, #csvChartLegend::-webkit-scrollbar:vertical, , .themes-scroll-vertical::-webkit-scrollbar:vertical {
+.featured-layers-scroll-vertical::-webkit-scrollbar:vertical, .layers-scroll-vertical::-webkit-scrollbar:vertical, #csvChartLegend::-webkit-scrollbar:vertical, , .themes-scroll-vertical::-webkit-scrollbar:vertical {
   border-width: 6px 4px;
   min-height: 40px;
 }
 
-.layers-scroll-vertical::-webkit-scrollbar-track-piece, #csvChartLegend::-webkit-scrollbar-track-piece,, .themes-scroll-vertical::-webkit-scrollbar-track-piece {
+.featured-layers-scroll-vertical::-webkit-scrollbar-track-piece, .layers-scroll-vertical::-webkit-scrollbar-track-piece, #csvChartLegend::-webkit-scrollbar-track-piece,, .themes-scroll-vertical::-webkit-scrollbar-track-piece {
   background-color: #f1f1f1;
 }
 
-.layers-scroll-vertical::-webkit-scrollbar-corner, #csvChartLegend::-webkit-scrollbar-corner, .themes-scroll-vertical::-webkit-scrollbar-corner {
+.featured-layers-scroll-vertical::-webkit-scrollbar-corner, .layers-scroll-vertical::-webkit-scrollbar-corner, #csvChartLegend::-webkit-scrollbar-corner, .themes-scroll-vertical::-webkit-scrollbar-corner {
   background: transparent;
 }
 
-.layers-scroll-vertical::-webkit-scrollbar-thumb, #csvChartLegend::-webkit-scrollbar-thumb, .themes-scroll-vertical::-webkit-scrollbar-thumb {
+.featured-layers-scroll-vertical::-webkit-scrollbar-thumb, .layers-scroll-vertical::-webkit-scrollbar-thumb, #csvChartLegend::-webkit-scrollbar-thumb, .themes-scroll-vertical::-webkit-scrollbar-thumb {
   background-color: #ADADAD;
   -webkit-box-shadow: inset 1px 1px 0 rgba(0,0,0,0.10),inset 0 -1px 0 rgba(0,0,0,0.07);
 }
 
-.layers-scroll-vertical::-webkit-scrollbar-thumb:hover, #csvChartLegend::-webkit-scrollbar-thumb:hover, .themes-scroll-vertical::-webkit-scrollbar-thumb:hover {
+.featured-layers-scroll-vertical::-webkit-scrollbar-thumb:hover, .layers-scroll-vertical::-webkit-scrollbar-thumb:hover, #csvChartLegend::-webkit-scrollbar-thumb:hover, .themes-scroll-vertical::-webkit-scrollbar-thumb:hover {
   background-color: #999;
 }
 
@@ -1396,7 +1401,6 @@ a:focus { outline:0; }
 #featured-layers {
   text-align:left;
   border-bottom: 1px solid #a9a9a9;
-  margin-bottom: 10px;
 }
 
 #featured-layers-title {

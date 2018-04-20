@@ -3698,10 +3698,10 @@
         // Note: >1 because we ignore Base layers
         if ($('.map-layer-div').find("input:checked").length > 1) {
           $(".clearLayers").show();
-          $("#layers-list").css("height", "calc(100% - " + (($(".clearLayers").outerHeight() * $(".clearLayers").is(":visible")) + layersListTopPos - 11) + "px)");
+          //$("#layers-list").css("height", "calc(100% - " + (($(".clearLayers").outerHeight() * $(".clearLayers").is(":visible")) + layersListTopPos - 11) + "px)");
         } else {
           $(".clearLayers").hide();
-          $("#layers-list").css("height", "calc(100% - " + (layersListTopPos - 11) + "px)");
+          //$("#layers-list").css("height", "calc(100% - " + (layersListTopPos - 11) + "px)");
         }
 
         // Add indicator that a layer is on in a category but ignore the first category (base layers)
@@ -3842,6 +3842,7 @@
       try {
         if (document.createEvent("TouchEvent")) {
           UTIL.verticalTouchScroll($(".layers-scroll-vertical"));
+          UTIL.verticalTouchScroll($(".featured-layers-scroll-vertical"));
           UTIL.verticalTouchScroll($(".themes-scroll-vertical"));
           UTIL.verticalTouchScroll($("#csvChartLegend"));
           UTIL.verticalTouchScroll($("#theme-list"));
@@ -6480,7 +6481,7 @@
         }
 
         if (featuredTheme) {
-          $("<div id='featured-layers-title'>Featured Data for: <br>" + featuredTheme + "</div><div id='featured-layers'></div><div id='show-more-layers'>Show More</div>").insertBefore($("#layers-list"));
+          $("<div id='featured-layers-title'>Featured Data for: <br>" + featuredTheme + "</div><div id='layers-list-featured'><div class='featured-layers-scroll-vertical'><div id='featured-layers'></div></div><div id='show-more-layers'>Show More</div>").insertBefore($("#layers-list"));
         } else {
           $(".map-layer-div").show();
           $(".layers-scroll-vertical").css("height", "calc(100% - 66px)");
@@ -6507,8 +6508,8 @@
                 var inputGroup = $clonedLayer.find("input");
                 inputGroup.attr("name", inputGroup.attr("name") + "-featured");
               }
+              // TODO: If the layer to clone is not in the DOM errors be through
               var clonedLayerCategory = $layer.closest("table").attr("id");
-              console.log($layer);
               if ($('#featured-layers #' + clonedLayerCategory + "-featured").length == 0) {
                 $("#featured-layers").append($("<h3>" + clonedLayerCategory.split("category-")[1].replace('-',' ') + "</h3><table id='" + clonedLayerCategory + "-featured'></table>"));
               }
@@ -6540,7 +6541,7 @@
             $(this).html("Show Less");
           }
           $(this).toggleClass("active");
-          $("#layers-list").css("height", "calc(100% - " + ($("#layers-list").position().top - 11) + "px)");
+          //$("#layers-list").css("height", "calc(100% - " + ($("#layers-list").position().top - 11) + "px)");
         });
 
         $("#featured-layers").accordion({
