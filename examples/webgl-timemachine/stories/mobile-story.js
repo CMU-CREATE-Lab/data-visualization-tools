@@ -106,7 +106,7 @@ Thumbnailer.prototype.getMp4 = function(orientation) {
 
     var startDwell = "startDwell=";
     if (typeof this.args["startDwell"] == "undefined") {
-        startDwell += "1.5";
+        startDwell += "0";
     } else {
         startDwell += this.args["startDwell"];
     }
