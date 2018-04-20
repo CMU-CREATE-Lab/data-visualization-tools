@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>EarthTime</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1">
+  <link rel="stylesheet" type="text/css" href="/landing/landing.css">
+  <link rel="stylesheet" type="text/css" href="/landing/slick/slick.css"/>
+  <link rel="stylesheet" type="text/css" href="/landing/slick/slick-theme.css"/>
+  <link rel="stylesheet" type="text/css" href="/landing/video-js.min.css">
+</head>
+<body>
+  <ul id="nav">
+    <li class="logo"><a href="#">EarthTime</a></li>
+    <div id="menu-icon"></div>
+    <li class="menu-option" id="menu-intro"><a href="#intro">INTRO</a></li>
+    <li class="menu-option" id="menu-stories"><a href="#stories">STORIES</a></li>
+    <li class="menu-option" id="menu-about"><a href="#media">MEDIA</a></li>
+    <li class="menu-option" id="menu-about"><a href="#about">ABOUT</a></li>
+    <li class="menu-option" id="menu-faq"><a href="#faq">FAQ</a></li>
+    <li class="menu-option" id="menu-contact"><a href="#contact">CONTACT</a></li>
+    <li class="menu-option" id="menu-explore"><a href="/explore">EXPLORE</a></li>
+    <div class="social-media">
+      <div class="fb-like" data-href="https://earthtime.org" data-layout="button" data-action="like" data-size="large" data-show-faces="false" data-share="true"></div>
+      <div id='twitter-button'><a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-size="large" data-text="Check out EarthTime, an amazing tool to visualize our changing planet." data-url="https://earthtime.org" data-hashtags="earthtime" data-dnt="true" data-show-count="false">Tweet</a></div>
+    </div>
+  </ul>
+  <div id="container">
+    <div class="section-wrapper" id="intro">
+      <div class="section">
+        <p class="section-title">UNLOCKING THE POWER OF DATA</p>
+        <div class="section-text">
+          <p style="text-align: center">
+            EarthTime enables users to interact with visualizations of the Earth's transformation over time.
+            Combining huge data sets with images captured by NASA satellites between 1984 and 2016, EarthTime
+            brings to life patterns of natural change and human impact.
+          </p>
+        </div>
+        <br><br>
+        <div class="intro-banner-wrapper noselect">
+          <video disableRemotePlayback loop autoplay muted playsinline preload="auto" id="video-loop">
+            <source src="https://thumbnails-staging.cmucreatelab.org/thumbnail?root=https://headless.earthtime.org/%23theme%3Dbig_picture_on_nature%26v%3D3309.246719995048%2C506003.5537152563%2C1995164.5116581267%2C1394039.0260001733%2Cpts%26t%3D35.75%26ps%3D100%26bt%3D20151102140000%26et%3D20151103140000%26l%3Dblsat%2Ch8_16&boundsLTRB=3309.246719995048,506003.5537152563,1995164.5116581267,1394039.0260001733&width=1280&height=720&startFrame=225&format=mp4&fps=60&tileFormat=mp4&startDwell=0&endDwell=0&fromScreenshot&nframes=10" type="video/mp4">
+          </video>
+          <div class="video-overlay-left">
+            <p>Experts and journalists from all over the world use EarthTime to create interactive, data-driven stories.</p>
+            <span class="video-overlay-left-button">
+              VIEW STORIES
+            </span>
+          </div>
+          <div class="video-overlay-right">
+            <p>
+              EarthTime is completely open-source. Dive into the datasets to reveal connections and patterns of change.
+            </p>
+            <span class="video-overlay-right-button">
+              EXPLORE EARTHTIME
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="section-wrapper" id="stories">
+      <div class="section odd-section">
+        <p class="section-title">EARTHTIME STORIES</p>
+        <div class="section-text">
+          <p style="text-align: center">
+            Users of EarthTime can view compelling animations accompanied by fact-based narratives from international experts.
+            Drawing upon EarthTime's vast data library, the stories below are curated in honor of Earth Day 2018.
+            Explore these stories to learn more about our collective impact on the planet.
+          </p>
+        </div>
+        <br><br>
+        <div id="story-container">
+          <div class="story-wrapper">
+            <div class="story" data-story-name="deforestation">
+              <img src="https://thumbnails-staging.cmucreatelab.org/thumbnail?root=https://headless.earthtime.org/%23theme%3Dbig_picture_on_nature%26v%3D681554.8384824352%2C1026258.3132139172%2C692698.2983965208%2C1038413.3237090164%2Cpts%26t%3D3.20%26ps%3D50%26bt%3D20160101000000%26et%3D20160101000000%26l%3Dblsat&boundsLTRB=681554.8384824352,1026258.3132139172,692698.2983965208,1038413.3237090164&width=278&height=203&startFrame=32&format=png&fps=30&tileFormat=mp4&startDwell=1.5&endDwell=1.5&fromScreenshot&nframes=10">
+              <hgroup>
+                <h3>Deforestation</h3>
+                <h4>Author: Expert Foo</h4>
+              </hgroup>
+            </div>
+            <div class="story-description">Deforestation occurs when forestland has been converted to non-forest use, and it often appears on satellite footage. Explore deforestation with trade data and how government protected areas can help in conservation efforts.</div>
+          </div>
+          <div class="story-wrapper">
+            <div class="story" data-story-name="glaciers">
+              <img src="https://thumbnails-staging.cmucreatelab.org/thumbnail?root=https://headless.earthtime.org/%23theme%3Dbig_picture_on_nature%26v%3D681554.8384824352%2C1026258.3132139172%2C692698.2983965208%2C1038413.3237090164%2Cpts%26t%3D3.20%26ps%3D50%26bt%3D20160101000000%26et%3D20160101000000%26l%3Dblsat&boundsLTRB=681554.8384824352,1026258.3132139172,692698.2983965208,1038413.3237090164&width=278&height=203&startFrame=32&format=png&fps=30&tileFormat=mp4&startDwell=1.5&endDwell=1.5&fromScreenshot&nframes=10">
+              <hgroup>
+                <h3>Glaciers</h3>
+                <h4>Author: Expert Foo</h4>
+              </hgroup>
+            </div>
+            <div class="story-description">Glacier retreat occurs when ice melts more quickly than snowfall can accumulate and form new glacial ice. Observe different areas of glacial retreat and accelerated ice melting across Earth from satellite images.</div>
+          </div>
+          <div class="story-wrapper">
+            <div class="story" data-story-name="coral_bleaching">
+              <img src="https://thumbnails-staging.cmucreatelab.org/thumbnail?root=https://headless.earthtime.org/%23theme%3Dbig_picture_on_nature%26v%3D681554.8384824352%2C1026258.3132139172%2C692698.2983965208%2C1038413.3237090164%2Cpts%26t%3D3.20%26ps%3D50%26bt%3D20160101000000%26et%3D20160101000000%26l%3Dblsat&boundsLTRB=681554.8384824352,1026258.3132139172,692698.2983965208,1038413.3237090164&width=278&height=203&startFrame=32&format=png&fps=30&tileFormat=mp4&startDwell=1.5&endDwell=1.5&fromScreenshot&nframes=10">
+              <hgroup>
+                <h3>Coral Bleaching</h3>
+                <h4>Author: Expert Foo</h4>
+              </hgroup>
+            </div>
+            <div class="story-description">Bleaching events occur when corals lose their main source of food, the algae that lives inside their tissues. Explore areas where rising ocean temperatures have caused stressed coral and algae abandoning coral tissue.</div>
+          </div>
+          <div class="story-wrapper">
+            <div class="story" data-story-name="renewables">
+              <img src="https://thumbnails-staging.cmucreatelab.org/thumbnail?root=https://headless.earthtime.org/%23theme%3Dbig_picture_on_nature%26v%3D681554.8384824352%2C1026258.3132139172%2C692698.2983965208%2C1038413.3237090164%2Cpts%26t%3D3.20%26ps%3D50%26bt%3D20160101000000%26et%3D20160101000000%26l%3Dblsat&boundsLTRB=681554.8384824352,1026258.3132139172,692698.2983965208,1038413.3237090164&width=278&height=203&startFrame=32&format=png&fps=30&tileFormat=mp4&startDwell=1.5&endDwell=1.5&fromScreenshot&nframes=10">
+              <hgroup>
+                <h3>Renewables</h3>
+                <h4>Author: Expert Foo</h4>
+              </hgroup>
+            </div>
+            <div class="story-description">Explore the rise of renewable energy sources such as wind and solar photovoltaic (PV). Many renewable energy installations have occurred in the last 10 years, resulting in energy security and climate change mitigation.</div>
+          </div>
+          <div class="story-wrapper">
+            <div class="story" data-story-name="city_growth">
+              <img src="https://thumbnails-staging.cmucreatelab.org/thumbnail?root=https://headless.earthtime.org/%23theme%3Dbig_picture_on_nature%26v%3D681554.8384824352%2C1026258.3132139172%2C692698.2983965208%2C1038413.3237090164%2Cpts%26t%3D3.20%26ps%3D50%26bt%3D20160101000000%26et%3D20160101000000%26l%3Dblsat&boundsLTRB=681554.8384824352,1026258.3132139172,692698.2983965208,1038413.3237090164&width=278&height=203&startFrame=32&format=png&fps=30&tileFormat=mp4&startDwell=1.5&endDwell=1.5&fromScreenshot&nframes=10">
+              <hgroup>
+                <h3>City Growth</h3>
+                <h4>Author: Expert Foo</h4>
+              </hgroup>
+            </div>
+            <div class="story-description">City growth can be studied with land imagery and lights visible from space at night. Compare how cities across the world accommodate for rapid urbanization by growing both outward and upward.</div>
+          </div>
+          <div class="story-wrapper">
+            <div class="story" data-story-name="sea_level_rise">
+              <img src="https://thumbnails-staging.cmucreatelab.org/thumbnail?root=https://headless.earthtime.org/%23theme%3Dbig_picture_on_nature%26v%3D681554.8384824352%2C1026258.3132139172%2C692698.2983965208%2C1038413.3237090164%2Cpts%26t%3D3.20%26ps%3D50%26bt%3D20160101000000%26et%3D20160101000000%26l%3Dblsat&boundsLTRB=681554.8384824352,1026258.3132139172,692698.2983965208,1038413.3237090164&width=278&height=203&startFrame=32&format=png&fps=30&tileFormat=mp4&startDwell=1.5&endDwell=1.5&fromScreenshot&nframes=10">
+              <hgroup>
+                <h3>Sea Level Rise</h3>
+                <h4>Author: Expert Foo</h4>
+              </hgroup>
+            </div>
+            <div class="story-description">Observe the projected impact of sea level rise as a result of increase in average global temperature. Many coastal areas are dramatically impacted and the Paris Climate Agreement aims to limit the rise in global temperature to 2&#8451;.</div>
+          </div>
+          <div class="story-wrapper">
+            <div class="story" data-story-name="fires_at_night">
+              <img src="https://thumbnails-staging.cmucreatelab.org/thumbnail?root=https://headless.earthtime.org/%23theme%3Dbig_picture_on_nature%26v%3D681554.8384824352%2C1026258.3132139172%2C692698.2983965208%2C1038413.3237090164%2Cpts%26t%3D3.20%26ps%3D50%26bt%3D20160101000000%26et%3D20160101000000%26l%3Dblsat&boundsLTRB=681554.8384824352,1026258.3132139172,692698.2983965208,1038413.3237090164&width=278&height=203&startFrame=32&format=png&fps=30&tileFormat=mp4&startDwell=1.5&endDwell=1.5&fromScreenshot&nframes=10">
+              <hgroup>
+                <h3>Fires at Night</h3>
+                <h4>Author: Expert Foo</h4>
+              </hgroup>
+            </div>
+            <div class="story-description">This story features a global map of active fires that are visible from space at night. Fire sources include agricultural burning, flaring around oil fields, and forest fires.</div>
+          </div>
+          <div class="story-wrapper">
+            <div class="story" data-story-name="surface_water">
+              <img src="https://thumbnails-staging.cmucreatelab.org/thumbnail?root=https://headless.earthtime.org/%23theme%3Dbig_picture_on_nature%26v%3D681554.8384824352%2C1026258.3132139172%2C692698.2983965208%2C1038413.3237090164%2Cpts%26t%3D3.20%26ps%3D50%26bt%3D20160101000000%26et%3D20160101000000%26l%3Dblsat&boundsLTRB=681554.8384824352,1026258.3132139172,692698.2983965208,1038413.3237090164&width=278&height=203&startFrame=32&format=png&fps=30&tileFormat=mp4&startDwell=1.5&endDwell=1.5&fromScreenshot&nframes=10">
+              <hgroup>
+                <h3>Surface Water</h3>
+                <h4>Author: Expert Foo</h4>
+              </hgroup>
+            </div>
+            <div class="story-description">Changes to Earth’s rivers, lakes, and other surface water can come from many sources, including agriculture diversion or sediment transport. This story features different areas of surface water change.</div>
+          </div>
+          <div class="story-wrapper">
+            <div class="story" data-story-name="urban_fragility">
+              <img src="https://thumbnails-staging.cmucreatelab.org/thumbnail?root=https://headless.earthtime.org/%23theme%3Dbig_picture_on_nature%26v%3D681554.8384824352%2C1026258.3132139172%2C692698.2983965208%2C1038413.3237090164%2Cpts%26t%3D3.20%26ps%3D50%26bt%3D20160101000000%26et%3D20160101000000%26l%3Dblsat&boundsLTRB=681554.8384824352,1026258.3132139172,692698.2983965208,1038413.3237090164&width=278&height=203&startFrame=32&format=png&fps=30&tileFormat=mp4&startDwell=1.5&endDwell=1.5&fromScreenshot&nframes=10">
+              <hgroup>
+                <h3>Urban Fragility</h3>
+                <h4>Author: Expert Foo</h4>
+              </hgroup>
+            </div>
+            <div class="story-description">Cities play an extremely important role in human prosperity. This story presents threats to cities, such as poverty, inequality and fragility, and challenges each city to develop a long-term plan.</div>
+          </div>
+        </div>
+      </div>
+      <div class="section-wrapper" id="media">
+        <div class="section">
+          <p class="section-title">EARTHTIME IN ACTION</p>
+          <div class="section-text">
+            <p style="text-align: center">
+              From schools to global events, EarthTime is regularly used to share data-driven stories with the public. It has been featured at the World Economic Forum's global meetings
+              since 2015 in sessions lead by respected policy-makers, NGOs, and business leaders. It has also been used in TEDS talks and museum installations, by international organizations
+              and innovative educators. EarthTime's flexibility and evolving data library provide unrivaled access to relevant and verified data for all users.
+            </p>
+            <br><br>
+            <div class="slider media-slider" id="image-slider">
+              <div class="media-item-wrapper">
+                <img class="media-item" src="/landing/media/images/gss2.jpg">
+              </div>
+              <div class="media-item-wrapper">
+                <img class="media-item" src="/landing/media/images/gss1.jpg">
+              </div>
+              <div class="media-item-wrapper">
+                <img class="media-item" src="/landing/media/images/gss11.jpg">
+              </div>
+              <div class="media-item-wrapper">
+                <img class="media-item" src="/landing/media/images/gss3.jpg">
+              </div>
+              <div class="media-item-wrapper">
+                <img class="media-item" src="/landing/media/images/gss4.jpg">
+              </div>
+              <div class="media-item-wrapper">
+                <img class="media-item" src="/landing/media/images/gss12.jpg">
+              </div>
+              <div class="media-item-wrapper">
+                <img class="media-item" src="/landing/media/images/et1.jpg">
+              </div>
+              <div class="media-item-wrapper">
+                <img class="media-item" src="/landing/media/images/et2.jpg">
+              </div>
+              <div class="media-item-wrapper">
+                <img class="media-item" src="/landing/media/images/gss5.jpg">
+              </div>
+              <div class="media-item-wrapper">
+                <img class="media-item" src="/landing/media/images/gss6.jpg">
+              </div>
+              <div class="media-item-wrapper">
+                <img class="media-item" src="/landing/media/images/gss7.jpg">
+              </div>
+              <div class="media-item-wrapper">
+                <img class="media-item" src="/landing/media/images/gss8.jpg">
+              </div>
+              <div class="media-item-wrapper">
+                <img class="media-item" src="/landing/media/images/gss9.jpg">
+              </div>
+              <div class="media-item-wrapper">
+                <img class="media-item" src="/landing/media/images/gss10.jpg">
+              </div>
+            </div>
+            <br><br><br>
+            <div class="slider media-slider" id="video-slider">
+              <div class="media-item-wrapper">
+                <video class="video-js vjs-default-skin owl-video vjs-big-play-centered media-item-video" controls data-setup='{ "techOrder": ["youtube"], "sources": [{ "type": "video/youtube", "src": "https://www.youtube.com/watch?v=VlM7--9l6Ng?rel=0"}] , "youtube": { "customVars": { "wmode": "transparent" } } }'></video>
+              </div>
+              <div class="media-item-wrapper">
+                <video class="video-js vjs-default-skin owl-video vjs-big-play-centered media-item-video" controls data-setup='{ "techOrder": ["youtube"], "sources": [{ "type": "video/youtube", "src": "https://www.youtube.com/watch?v=YL0pE-eOyLQ?rel=0"}] , "youtube": { "customVars": { "wmode": "transparent" } } }'></video>
+              </div>
+              <div class="media-item-wrapper">
+                <video class="video-js vjs-default-skin owl-video vjs-big-play-centered media-item-video" controls data-setup='{ "techOrder": ["youtube"], "sources": [{ "type": "video/youtube", "src": "https://www.youtube.com/watch?v=TMyygI9HR5c?rel=0"}] , "youtube": { "customVars": { "wmode": "transparent" } } }'></video>
+              </div>
+              <div class="media-item-wrapper">
+                <video class="video-js vjs-default-skin owl-video vjs-big-play-centered media-item-video" controls data-setup='{ "techOrder": ["youtube"], "sources": [{ "type": "video/youtube", "src": "https://www.youtube.com/watch?v=pZuq1KroAEc?rel=0"}] , "youtube": { "customVars": { "wmode": "transparent" } } }'></video>
+              </div>
+              <div class="media-item-wrapper">
+                <video class="video-js vjs-default-skin owl-video vjs-big-play-centered media-item-video" controls data-setup='{ "techOrder": ["youtube"], "sources": [{ "type": "video/youtube", "src": "https://www.youtube.com/watch?v=NDiMGZX6P50?rel=0"}] , "youtube": { "customVars": { "wmode": "transparent" } } }'></video>
+              </div>
+              <div class="media-item-wrapper">
+                <video class="video-js vjs-default-skin owl-video vjs-big-play-centered media-item-video" controls data-setup='{ "techOrder": ["youtube"], "sources": [{ "type": "video/youtube", "src": "https://www.youtube.com/watch?v=BpNGT-vYSWk?rel=0"}] , "youtube": { "customVars": { "wmode": "transparent" } } }'></video>
+              </div>
+              <div class="media-item-wrapper">
+                <video class="video-js vjs-default-skin owl-video vjs-big-play-centered media-item-video" controls data-setup='{ "techOrder": ["youtube"], "sources": [{ "type": "video/youtube", "src": "https://www.youtube.com/watch?v=bxRwYiwb88Q?rel=0"}] , "youtube": { "customVars": { "wmode": "transparent" } } }'></video>
+              </div>
+              <div class="media-item-wrapper">
+                <video class="video-js vjs-default-skin owl-video vjs-big-play-centered media-item-video" controls data-setup='{ "techOrder": ["youtube"], "sources": [{ "type": "video/youtube", "src": "https://www.youtube.com/watch?v=3yFQm_nSKW0?rel=0"}] , "youtube": { "customVars": { "wmode": "transparent" } } }'></video>
+              </div>
+            </div>
+            <br>
+          </div>
+        </div>
+      </div>
+      <div class="section-wrapper" id="about">
+        <div class="section odd-section">
+          <p class="section-title">ABOUT EARTHTIME</p>
+          <div class="section-text">
+            <section class="content">
+              <div class="left">
+                <h4>Who We Are</h4>
+                <p>
+                  The Community Robotics, Education and Technology Empowerment Lab (CREATE Lab) explores socially meaningful innovation and deployment of robotic technologies.
+                </p>
+                <br>
+                <p>
+                  We aim to empower a technologically fluent generation by fostering experiential learning opportunities.
+                  From environmental sensing to data visualization, our work encourages authentic learning opportunities, evidence-based public discourse, and collective action.
+                </p>
+                <br>
+                <p>
+                  EarthTime was launched in partnership with the World Economic Forum. The Forum draws on its expert network to provide data, author EarthTime stories, and present in its meetings.
+                </p>
+                <br>
+              </div>
+              <div class="right">
+                <h4>Misson and Values</h4>
+                <p>
+                  EarthTime is underpinned by CREATE Lab's vision to promote data literacy, inspire meaningful dialogue, and democratize access to data for everyone in an inclusive and transparent way.
+                </p>
+                <br>
+                <p>
+                  By showing the results of our past decisions with visual evidence through time, we create the scaffolding that supports positive future decision-making.
+                  We can empower our decision makers in public and private spheres to make more informed, forward-facing choices.
+                </p>
+                <br>
+                <p>
+                  Together, we can move from "Is this happening?" to "What do we do about it"?
+                </p>
+              </div>
+            </section>
+            <br>
+            <div>
+              <p style="text-align: center">We wish to personally thank the following sponsors of EarthTime:</p>
+              <ul style="margin-left: calc(50% - 60px); padding-top: 10px;">
+                <li>JP Morgan Chase</li>
+                <li>S&P Global</li>
+                <li>Heinz Endowments</li>
+              </ul>
+            </div>
+            <br>
+            <a href="#"><p id="presskit-link">Download Press Kit</p></a>
+            <br>
+          </div>
+        </div>
+      </div>
+      <div class="section-wrapper" id="faq">
+        <div class="section">
+          <p class="section-title">FAQ</p>
+          <div class="section-text">
+            <button class="accordion">Where do you get your data?</button>
+            <div class="panel">
+              <p>Our data comes from respected sources around the world that are dedicated to collecting, researching, and publishing information about human and Earth change over time.
+              Our partners range from government agencies like NASA and the US Census, to non-governmental agencies like the Igarape Institute and the United Nations, and to university
+              research programs at Oxford, Harvard, University of Maryland. In each case, we have forged relationships with data providers that give us the right to freely share their
+              data with you through EarthTime visualizations. Our data sources vary dramatically, and share one common thread: a desire to understand our one home.</p>
+            </div>
+            <button class="accordion">How far back does your data go?</button>
+            <div class="panel">
+              <p>Our data comes from many sources and might therefore have its own unique timespan. In some cases, such as certain trade flows and financial numbers, our data precedes 1900.
+              In other cases, such as Landsat satellite imagery, our data starts with Landsat 5's launch in 1984, up until the present. We try our best to ensure that the most recent data
+              will be added to our visualizations as soon as possible.
+              </p>
+            </div>
+            <button class="accordion">How do you make your animations?</button>
+            <div class="panel">
+              <p>We pre-process massive data sets using new big-data techniques to create animated visualizations of high-resolution information at different time scales.
+              Relying on many of the same strategies used by video game designers, EarthTime uses GPU's in your computer to create a new capability for interactively
+              exploring extreme-sized data.</p>
+            </div>
+            <br><br>
+          </div>
+        </div>
+      </div>
+      <div class="section-wrapper" id="contact">
+        <div class="section odd-section">
+          <p class="section-title">CONTACT</p>
+          <div class="section-text">
+            <form id="contact-form" onsubmit="return false;">
+              <label for="contact-name">Name:</label>
+              <input id="contact-name" type="text" autocomplete="off" aria-label="Name" name="entry.2115553325" placeholder="Your name...">
+              <br><br>
+              <label for="contact-email">Email:</label>
+              <input id="contact-email" type="email" autocomplete="email" aria-label="Your email" name="emailAddress" value="" required="" placeholder="Your email...">
+              <br><br>
+              <label for="contact-reason">What best describes why you are contacting us:</label>
+              <select id="contact-reason" name="entry.2081203153">
+                <option disabled selected value>Select...</option>
+                <option value="Education">Education</option>
+                <option value="Partnership">Partnership</option>
+                <option value="Technical">Technical</option>
+                <option value="Data">Data</option>
+                <option value="Financial Support">Financial Support</option>
+                <option value="General Inquiry">General Inquiry</option>
+              </select>
+              <br><br>
+              <label for="contact-thoughts">Tell us your thoughts:</label>
+              <textarea id="contact-thoughts" aria-label="Your thoughts" name="entry.1785158141" value="" required="" placeholder="What's on your mind about EarthTime..."></textarea>
+              <br><br>
+              <input id="contact-submit" type="submit" value="Submit">
+            </form>
+            <div id="contact-form-confirmation">Thanks for reaching out to us! If you had a specific question, we hope to be in contact soon.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">
+    <div class="footer-logo-wrapper-left">
+      <a href="https://cmu.edu" target="_blank"><img class="cmu-logo"  src="/landing/cmu-logo-small3.png"></a><br>
+      <a href="http://cmucreatelab.org" target="_blank"><img class="createlab-logo" src="/landing/createlab-logo-small3.png"></a>
+    </div>
+    <div class="footer-logo-wrapper-right">
+      <a href="https://www.weforum.org" target="_blank"><img class="wef-logo"  src="/landing/wef-logo.svg"></a><br>
+    </div>
+  </div>
+
+  <div id="fb-root"></div>
+
+  <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+  <script>(function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = 'https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.12';
+    fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+  </script>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script type="text/javascript" src="/landing/slick/slick.min.js"></script>
+  <script src="/landing/video.min.js"></script>
+  <script src="/landing/youtube.min.js"></script>
+  <script src="/landing/jquery.nav.js"></script>
+  <script src="../../timemachine/js/org/gigapan/util.js" type="text/javascript"></script>
+  <script>
+    $(document).ready(function() {
+
+      var UTIL = org.gigapan.Util;
+      var doMobileExperience = !UTIL.isWebGLSupported() || org.gigapan.Util.isMobileDevice();
+
+      if (doMobileExperience) {
+        $("#menu-explore, .video-overlay-right").remove();
+      }
+
+      $(".story").on("click", function() {
+        var storyName = $(this).attr("data-story-name");
+        var storyPath = doMobileExperience ? "/m/stories/" + storyName : "/stories/" + storyName;
+        window.location.href = window.location.protocol + "//" + window.location.host + storyPath;
+      });
+
+      $('#nav').onePageNav({
+        changeHash: true,
+        scrollChange: function($currentListItem) {
+          if ($($currentListItem[0]).find("a").attr("href") == "#intro") {
+            history.replaceState(null,null,"#");
+          } else {
+            history.replaceState(null,null,$($currentListItem[0]).find("a").attr("href"));
+          }
+        }
+      });
+
+      var tag = document.createElement('script');
+      tag.src = "//www.youtube.com/player_api";
+      var firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+      $('#contact-form').on("submit", function() {
+        $.ajax({
+          url: 'https://docs.google.com/forms/d/e/1FAIpQLScw3pIsBrKmOdLW8KogRH021k5ziQPGKWa38RmRV2tI5LuOWQ/formResponse',
+          type: 'post',
+          dataType: 'json',
+          crossDomain: true,
+          data: $('form#contact-form').serialize()
+        }).always(function() {
+          $('#contact-form-confirmation').fadeIn("slow").delay(6000).fadeOut("slow");
+          $('#contact-form')[0].reset();
+        });
+      });
+
+      $(document).on("click touchmove", function(e) {
+        if ((e.target).id == "menu-icon") return;
+        if ($("#menu-icon").is(":visible")) {
+          $("#nav li.menu-option").hide();
+        }
+      });
+
+      $("#menu-icon").on("click", function() {
+        if ($("#nav li.menu-option").is(":visible")) {
+          $("#nav li.menu-option").hide();
+        } else {
+          $("#nav li.menu-option").show();
+        }
+      });
+
+      $(".video-overlay-left").on("click", function() {
+        $('html,body').animate({
+           scrollTop: $("#stories").offset().top
+        });
+      });
+
+      $(".video-overlay-right").on("click", function() {
+        window.location.href = window.location.protocol + "//" + window.location.host + "/explore";
+      });
+
+      $('.media-slider').slick({
+        dots: true,
+        arrows: true,
+        prevArrow:"<img class='a-left control-c prev slick-prev' src='/landing/back-icon.png'>",
+        nextArrow:"<img class='a-right control-c next slick-next' src='/landing/forward-icon.png'>"
+      });
+
+      $(".media-slider").on("beforeChange", function(event, slick) {
+        var currentSlide, slideType, player, command;
+
+        // Find the current slide element and decide which player API we need to use.
+        currentSlide = $(slick.$slider).find(".slick-current");
+
+        // Determine which type of slide this, via a class on the slide container.
+        // This reads the second class, you could change this to get a data attribute or something similar if you don't want to use classes.
+        slideType = currentSlide.attr("class").split(" ")[1];
+
+        // Get the iframe inside this slide.
+        player = currentSlide.find("iframe").get(0);
+
+        if (slideType == "vimeo") {
+          command = {
+            "method": "stop",
+            "value": "true"
+          };
+        } else {
+          command = {
+            "event": "command",
+            "func": "stopVideo"
+          };
+        }
+
+        // Check if the player exists.
+        if (player != undefined) {
+          // Post our command to the iframe.
+          player.contentWindow.postMessage(JSON.stringify(command), "*");
+        }
+      });
+
+      $(".accordion").on("click", function() {
+        //T oggle between adding and removing the "active" class, to highlight the button that controls the panel
+        this.classList.toggle("active");
+
+        // Toggle between hiding and showing the active panel
+        var panel = this.nextElementSibling;
+        if (panel.style.display === "block") {
+            panel.style.display = "none";
+        } else {
+            panel.style.display = "block";
+        }
+      });
+    });
+
+    if (window.location.hash) {
+      $('html,body').animate({
+         scrollTop: $(window.location.hash).offset().top
+      });
+    }
+  </script>
+</body>
+</html>
