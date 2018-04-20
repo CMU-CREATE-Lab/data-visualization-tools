@@ -41,7 +41,7 @@ var CsvFileLayer = function CsvFileLayer() {
 
 CsvFileLayer.prototype.lookupFunctionFromTable = function (functionName, lookupTable) {
   if (functionName.trim() in lookupTable) {
-    return lookupTable[functionName.trim()];    
+    return lookupTable[functionName.trim()];
   } else {
     console.log("ERROR: CsvFileLayer.prototype.lookupFunctionFromTable");
     console.log("       " + functionName + " not in lookupTable");
@@ -162,9 +162,8 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
   if (category_id == "category-other") {
     category_id = "csvlayers_table";
   }
-
   if ($('#' + category_id).length == 0) {
-    $(".map-layer-div #other_table").prev("h3").before("<h3>" + category + "</h3><table id='" + category_id + "'></table>");
+    $(".map-layer-div #category-other").prev("h3").before("<h3>" + category + "</h3><table id='" + category_id + "'></table>");
   }
 
   $('#' + category_id).append(row);
@@ -349,7 +348,7 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
       this.addLayer(opts);
       if (mapType == 'raster') {
         this.setLegend(layerIdentifier);
-      }      
+      }
       this.setTimeLine(layerIdentifier,
         layer["Start date"], // start date
         layer["End date"], // end date
@@ -433,7 +432,7 @@ CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate,
         while (tomorrow.getTime() <= n.getTime()) {
           captureTimes.push(tomorrow.getUTCFullYear() + '-' + pad((tomorrow.getUTCMonth() + 1).toString()) + '-' + pad(tomorrow.getUTCDate().toString()));
           tomorrow.setDate(tomorrow.getDate() + 1);
-        }        
+        }
       } else {
         function pad(n) {
           return (n < 10) ? ("0" + n) : n;
@@ -594,7 +593,7 @@ const LOAD_DATA_FUNCTION_LOOKUP_TABLE = {
   "WebGLVectorTile.prototype._loadSitc4r2Data": WebGLVectorTile2.prototype._loadSitc4r2Data, // Supporting typos 4evah
   "WebGLVectorTile2.prototype._loadCarbonPriceRiskDataFromCsv": WebGLVectorTile2.prototype._loadCarbonPriceRiskDataFromCsv,
   "WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv": WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv,
-  "WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv": WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv  
+  "WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv": WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv
 };
 
 const SET_DATA_FUNCTION_LOOKUP_TABLE = {
@@ -607,5 +606,5 @@ const SET_DATA_FUNCTION_LOOKUP_TABLE = {
   "WebGLVectorTile2.prototype._setObesityData": WebGLVectorTile2.prototype._setObesityData,
   "WebGLVectorTile2.prototype._setVaccineConfidenceData": WebGLVectorTile2.prototype._setVaccineConfidenceData,
   "WebGLVectorTile2.prototype._setBufferData": WebGLVectorTile2.prototype._setBufferData,
-  "WebGLVectorTile2.prototype._setBuffers": WebGLVectorTile2.prototype._setBuffers  
+  "WebGLVectorTile2.prototype._setBuffers": WebGLVectorTile2.prototype._setBuffers
 }

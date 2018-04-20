@@ -78,6 +78,7 @@
   <script src="perf.js"></script>
   <script src="../../js/utils.js"></script>
   <script src="../../js/download.min.js"></script>
+  <script src="../../js/markdown-it.min.js"></script>
 
   <script type="text/javascript">
     "use strict";
@@ -90,11 +91,33 @@
     var isIE = UTIL.isIE();
     var isIEButNotEdge = isIE && !UTIL.isIEEdge();
 
+    var md = window.markdownit({ breaks: true, html: true });
+
+    // Remember old renderer, if overriden, or proxy to default renderer
+    var defaultRender = md.renderer.rules.link_open || function(tokens, idx, options, env, self) {
+      return self.renderToken(tokens, idx, options);
+    };
+
+    md.renderer.rules.link_open = function (tokens, idx, options, env, self) {
+      // If you are sure other plugins can't add `target` - drop check below
+      var aIndex = tokens[idx].attrIndex('target');
+
+      if (aIndex < 0) {
+        tokens[idx].attrPush(['target', '_blank']); // add new attribute
+      } else {
+        tokens[idx].attrs[aIndex][1] = '_blank';    // replace value of existing attr
+      }
+
+      // pass token to default renderer.
+      return defaultRender(tokens, idx, options, env, self);
+    };
+
     //
     //// Config ////
     //
 
     var EARTH_TIMELAPSE_CONFIG = EARTH_TIMELAPSE_CONFIG || {};
+    var featuredTheme = EARTH_TIMELAPSE_CONFIG.featuredTheme
     var enableMuseumMode = !!EARTH_TIMELAPSE_CONFIG.enableMuseumMode;
     // Deprecated. Instead use waypointSliderContentPath, which points to an online or exported spreadsheet.
     var waypointCollection = EARTH_TIMELAPSE_CONFIG.waypointCollection;
@@ -276,7 +299,7 @@
     var lastAutomodeWaypointIndex = 0;
     var keysDown = [];
     var $lastSelectedExtra;
-    var loadedInitialWaypointList = false;
+    //var loadedInitialWaypointList = false;
     var loadedInitialCsvLayers = false;
     var timeInMsSinceLastWaypointLoop = 0;
     var $nextAnnotationLocationButton;
@@ -288,6 +311,8 @@
     var lastActiveLayers = [];
     var maxCachedLayers = 8;
     var lastSelectedAnnotationBeforeHidden;
+    var initialTopNavWrapperElm;
+    var $activeLayerDescriptionTooltip;
 
     // This is necessary because waypoint thumbnails are generated from the Landsat set and thus the best we can show is just a solid black thumbnail
     // instead of some random location that a himawari bounds corresponds to in Landsat.
@@ -854,9 +879,15 @@
     */
 
     function init() {
-      if (!UTIL.isWebGLSupported()) {
-        $("#baseLayerCreditContainer, #logosContainer").hide();
-        $("#browser_not_supported").show();
+      var isNotSupported = !UTIL.isWebGLSupported() || (UTIL.isMobileDevice() && !UTIL.isMobileSupported());
+
+      if (isNotSupported) {
+        if (window.location.href.indexOf("/stories/")) {
+          window.location.href = window.location.href.replace("/stories/", "/m/stories/");
+        } else {
+          $("#baseLayerCreditContainer, #logosContainer").hide();
+          $("#browser_not_supported").show();
+        }
         return;
       }
 
@@ -872,8 +903,6 @@
         enablePresentationSlider: !disablePresentationSlider,
         enableEditor: false,
         showEditorOnLoad: false,
-        // Using "https" will cause the thumbnail loading from the server to fail
-        thumbnailServerRootTileUrl: (landsatVersion == "2015") ? "http://earthengine.google.org/timelapse/data/20130507" : "http://storage.googleapis.com/earthengine-timelapse/herwig/earthtime_annual_1984_2016/v05",
         showFullScreenBtn: showFullScreenButton,
         showThumbnailTool: showThumbnailTool,
         showShareBtn: showShareButton,
@@ -949,7 +978,7 @@
 
         $("#location_search").on("keydown", function(e) {
           if (e.keyCode == 13) {
-            google.maps.event.trigger(e.target, 'focus');
+            //google.maps.event.trigger(e.target, 'focus');
             google.maps.event.trigger(e.target, 'keydown', {
               keyCode: 13
             });
@@ -3549,7 +3578,9 @@
             var openIndex = availableCategories.index(openCategories[index]);
             $(".map-layer-div").accordion("option", "active", openIndex);
           });
-          $(".current-location-text-container").hide();
+          if ($(".current-location-text-container").is(":visible")) {
+            showAnnotationResumeExit();
+          }
           $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight").removeClass("thumbnail_highlight");
           $("#category-base-layers").find("input:checked").click();
         }
@@ -3618,7 +3649,9 @@
         keysDown.length = 0;
       });
 
-      $('#layers-list').on("click", "input", function(e) {
+      $('#layers-menu').on("click", "input", function(e) {
+        var selectedLayerName = $(this).parent().attr("name");
+        $('#layers-menu label[name=' + selectedLayerName + ']').find("input").prop("checked", $(this).prop("checked"));
         var fromRealKeydown = e.originalEvent && e.pageX != 0 && e.pageY != 0;
         if (fromRealKeydown && $(".current-location-text-container").is(':visible')) {
           showAnnotationResumeExit();
@@ -3655,23 +3688,30 @@
       var timelineUIHandler = function(e) {
         var $layerContainer = $(e.target).parents("table");
         var $layerContainerHeader = $layerContainer.prev();
-        var $firstlayerContainerHeader = $('.map-layer-div').find("h3").first();
+        var layerCategory = $layerContainerHeader.attr("aria-controls")
+        if (layerCategory) {
+          layerCategory = layerCategory.replace('-featured', '');
+        }
+        var ignoredLayerCategory = 'category-base-layers';
         var numLayersActiveInCurrentContainer = $layerContainer.find("input:checked").length;
-
+        var layersListTopPos = ($("#layers-list").position().top * !!featuredTheme);
+        // Note: >1 because we ignore Base layers
         if ($('.map-layer-div').find("input:checked").length > 1) {
           $(".clearLayers").show();
-          $("#layers-list").css("height", "calc(100% - " + ($(".clearLayers").outerHeight() -1) + "px)");
+          $("#layers-list").css("height", "calc(100% - " + (($(".clearLayers").outerHeight() * $(".clearLayers").is(":visible")) + layersListTopPos - 11) + "px)");
         } else {
           $(".clearLayers").hide();
-          $("#layers-list").css("height", "100%");
+          $("#layers-list").css("height", "calc(100% - " + (layersListTopPos - 11) + "px)");
         }
 
         // Add indicator that a layer is on in a category but ignore the first category (base layers)
-        if ($firstlayerContainerHeader.length && $layerContainerHeader.length) {
-          if (numLayersActiveInCurrentContainer > 0 && $layerContainerHeader[0].id != $firstlayerContainerHeader[0].id) {
-            $layerContainerHeader.append("<span class='.ui-accordion-header-icon ui-icon ui-icon-bullet active-layers-in-category'>");
+        if ($layerContainerHeader.length && layerCategory && layerCategory.indexOf(ignoredLayerCategory) == -1) {
+          // Note the plural because we have a featured section of layers that uses the same names
+          var $layerContainerHeaders = $("#layers-menu h3[aria-controls*='" + layerCategory + "']");
+          if (numLayersActiveInCurrentContainer > 0) {
+            $layerContainerHeaders.append("<span class='ui-icon ui-icon-bullet active-layers-in-category'>");
           } else {
-            $layerContainerHeader.find(".active-layers-in-category").remove();
+            $layerContainerHeaders.find(".active-layers-in-category").remove();
           }
         }
 
@@ -3760,23 +3800,43 @@
         timelineHidden = $(".noTimeline").length != 0;
       };
 
-      $('#layers-list').on('click', 'input', timelineUIHandler);
+      $('#layers-menu').on('click', 'input', timelineUIHandler);
 
       $("body").on("click", "#layers-list .ui-accordion-header", function() {
-        lastLayerMenuScrollPos = $(this)[0].offsetTop - 120;
+        lastLayerMenuScrollPos = $(this)[0].offsetTop - $("#layers-list").position().top - 51;
         $('.layers-scroll-vertical').animate({
           scrollTop: lastLayerMenuScrollPos
         });
         $lastActiveLayerTopic = $(this).next();
       });
 
+      $(document).on("click touchmove", function(e) {
+        if ($activeLayerDescriptionTooltip && $activeLayerDescriptionTooltip.length && !$(e.target).hasClass("layer-description") && !$(e.target).closest("div").hasClass("ui-tooltip-content")) {
+          $activeLayerDescriptionTooltip.tooltip("disable");
+          $activeLayerDescriptionTooltip = null;
+        }
+        if ((e.target).id == "menu-icon") return;
+        if ($("#menu-icon").is(":visible")) {
+          $("#top-nav li.menu-option").hide();
+        }
+      });
+
+      $("#menu-icon").on("click", function() {
+        if ($("#top-nav li.menu-option").is(":visible")) {
+          $("#top-nav li.menu-option").hide();
+        } else {
+          $("#top-nav li.menu-option").show();
+        }
+      });
+
+    /*
       $("body").on("click", "#theme-list .ui-accordion-header", function() {
         lastThemeMenuScrollPos = $(this)[0].offsetTop - 60;
         $('.themes-scroll-vertical').animate({
           scrollTop: lastThemeMenuScrollPos
         });
         fixThemeMenuHeight();
-      });
+      });*/
 
       // Make right layers panel vertically touch scrollable.
       try {
@@ -3823,7 +3883,9 @@
     function showAnnotationResumeExit() {
       $(".current-location-text-container").hide();
       $(".annotations-resume-exit-container").show();
-      lastSelectedAnnotationBeforeHidden.removeClass("thumbnail_highlight");
+      if (lastSelectedAnnotationBeforeHidden) {
+        lastSelectedAnnotationBeforeHidden.removeClass("thumbnail_highlight");
+      }
     }
 
     function setActiveLayersWithTimeline (modifier) {
@@ -4014,7 +4076,7 @@
       row += '</label></tr>';
 
       if ($('#' + category_id).length == 0) {
-        $(".map-layer-div #other_table").prev("h3").before("<h3 class='dotmap'>" + category + "</h3><table class=dotmap' id='" + category_id + "'></table>");
+        $(".map-layer-div #category-other").prev("h3").before("<h3 class='dotmap'>" + category + "</h3><table class='dotmap' id='" + category_id + "'></table>");
       }
 
       $('#' + category_id).append(row);
@@ -4150,7 +4212,7 @@
       annotationPicturePaths[theme][story] = {};
       for (var i = 0; i < keyframes.length; i++) {
         var keyframe = keyframes[i];
-        // TODO: Force to only work with absolute image paths. One day we can figure out how to support paths from the internet with the wrath of trolls.
+        // TODO: Force to only work with absolute image paths. One day we can figure out how to support paths from the internet without the wrath of trolls.
         var annotationPicturePath = keyframe.unsafe_string_annotationPicPath && keyframe.unsafe_string_annotationPicPath.indexOf("thumbnails/") == 0 ? keyframe.unsafe_string_annotationPicPath : undefined;
         annotationPicturePaths[theme][story][i] = { path : annotationPicturePath };
         // Himawari is a special case.
@@ -4218,9 +4280,10 @@
             if (story_count == 0) {
               theme_html += "<h3>" + themeTitle + "</h3>";
               theme_html += "<table id=theme_" + themeId + ">";
+              theme_html += "<tr id='theme_description'><td colspan='3'><p style='padding-right: 10px; text-transform: none !important;'>" + waypointJSONList[themeId].mainThemeDescription + "</p></td></tr>";
             }
             var storyTitle = stories[storyId].storyTitle;
-            theme_html += "<tr id=story_" + storyId + ">";
+            theme_html += "<tr id='story_" + storyId + "'>";
             var thumbnailURL = timelapse.getThumbnailOfShareView(stories[storyId].mainShareView, 128, 74) || "http://placehold.it/128x74";
             theme_html += "<td width='50%'><div style='width: 128px; height: 74px; overflow:hidden; border: 1px solid #232323'><img src='" + thumbnailURL + "'/></div></td>";
             theme_html += "<td width='10%'><input type='radio'></td>";
@@ -4246,31 +4309,31 @@
           }
         }
 
-        if (loadedInitialWaypointList) {
-          changeHash({theme : "", story: ""});
-        }
+        //if (loadedInitialWaypointList) {
+        //  changeHash({theme : "", story: ""});
+        //}
 
         $(".themes-div").accordion("refresh");
 
-        var hashVals = UTIL.getUnsafeHashVars();
-        if (hashVals.theme && !hashVals.v) {
-          loadedInitialWaypointList = true;
-        }
+        var storyAndTheme = getStoryAndThemeFromUrl();
+        //if (hashVals.theme && !hashVals.v) {
+        //  loadedInitialWaypointList = true;
+        //}
         var $selectedStoryElement;
-        var themeLoaded = waypointJSONList[hashVals.theme];
-        var storyEqualsTheme = themeLoaded && waypointJSONList[hashVals.theme].stories['default']
-        var storyLoaded = themeLoaded && waypointJSONList[hashVals.theme].stories[hashVals.story];
+        var themeLoaded = waypointJSONList[storyAndTheme.theme];
+        var storyEqualsTheme = themeLoaded && waypointJSONList[storyAndTheme.theme].stories['default']
+        var storyLoaded = themeLoaded && waypointJSONList[storyAndTheme.theme].stories[storyAndTheme.story];
 
         if (storyEqualsTheme) {
-          $selectedStoryElement = $("#story_" + hashVals.theme);
+          $selectedStoryElement = $("#story_" + storyAndTheme.theme);
         } else if (storyLoaded) {
-          $selectedStoryElement = $("#story_" + hashVals.story);
-        } else {
+          $selectedStoryElement = $("#story_" + storyAndTheme.story);
+        } /*else {
           $selectedStoryElement = $(".themes-div").find("[id^=story_]").first();
+        }*/
+        if ($selectedStoryElement) {
+          $selectedStoryElement.click();
         }
-
-        $selectedStoryElement.click();
-
         $(".snaplapse_keyframe_container").prepend($("#presentation-slider-hamburger-wrapper"));
         $(".snaplapse_keyframe_list").addClass("has-hamburger");
         if (!isHyperwall && !isMobileDevice) {
@@ -4440,6 +4503,7 @@
       var show_sp_crude_US = '<td class="sp-crude-select_US"><label for="show-sp-crude_US" name="sp-crude_US"><input type="checkbox" id="show-sp-crude_US" />US Crude Oil flows</label></td>';
 */
 
+      layer_html += '<div id="all-data-layers-title">All Data</div>';
       layer_html += '<div class="layers-scroll-vertical">';
       layer_html += '<div class="map-layer-div map-layer-checkbox">';
 
@@ -4840,7 +4904,7 @@
 
       /* MISC CATEGORY */
       layer_html += '  <h3>Other</h3>';
-      layer_html += '  <table id="other_table">';
+      layer_html += '  <table id="category-other">';
       if (showGtd) {
         layer_html += '    <tr>';
         layer_html += show_gtd;
@@ -4956,7 +5020,7 @@
       legend_html += '<tr id="lights-at-night-2012-legend" style="display: none"><td><div style="font-size: 17px">Lights at Night 2012 <span class="credit"> (NASA)</span></div></td></tr>';
       legend_html += '<tr id="lights-at-night-2016-legend" style="display: none"><td><div style="font-size: 17px">Lights at Night 2016 <span class="credit"> (NASA)</span></div></td></tr>';
       legend_html += '<tr id="coral-bleaching-legend" style="display: none"><td><div style="float:left; background-color:#fa13ab; width:17px; height: 5px;"></div><div style="margin-left: 29px; margin-top: -5px; font-size: 17px">Coral Reefs <span class="credit"> (NOAA, UNEP-WCMC)</span></div></td></tr>';
-      legend_html += '<tr id="coral-bleaching-alerts-legend" style="display: none"><td><div style="font-size: 17px">Coral Reef Watch <span class="credit"> (NOAA, UNEP-WCMC)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">Watch</div><div style="margin-top: 4px; float: left; background-image: -webkit-linear-gradient(left, #ffff00, #fbb404 65%, #a00200 100%);background-image: linear-gradient(left, #ffff00, #fbb404 65%, #a00200 100%); width: 70%; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">Alert</div></td></tr>';
+      legend_html += '<tr id="coral-bleaching-alerts-legend" style="display: none"><td><div style="font-size: 17px">Coral Reef Watch <span class="credit"> (NOAA, UNEP-WCMC)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">Watch</div><div style="margin-top: 4px; float: left; background-image: -webkit-linear-gradient(left, #ffff00, #fbb404 65%, #a00200 100%);background-image: linear-gradient(left, #ffff00, #fbb404 65%, #a00200 100%); width: 68%; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">Alert</div></td></tr>';
       legend_html += '<tr id="wind-installs-legend" style="display: none"><td><div style="background-color:#a0fe8f; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -16px; font-size: 17px">US Wind Power <span class="credit"> (USGS)</span></div></div></td></tr>';
       legend_html += '<tr id="global-wind-power-legend" style="display: none"><td><div style="background-color:#a0fe8f; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -16px; font-size: 17px">Global Wind Power <span class="credit"> (TheWindPower.net)</span></div></div></td></tr>';
       legend_html += '<tr id="solar-installs-legend" style="display: none"><td><div style="background-color:#7376b2; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -16px; font-size: 17px">US Solar Photovoltaic <span class="credit"> (NREL)</span></div></td></tr>';
@@ -5043,10 +5107,18 @@
           },
           text: false
         }).click(function() {
-          var e = jQuery.Event("keydown");
-          e.which = 33;
-          e.keyCode = 33;
-          $(document).trigger(e);
+          $('.current-location-text').removeClass("allow-pointer-events");
+          if ($(this).hasClass("annotation-story-end-button")) {
+            $nextAnnotationLocationButton.button("disable");
+            $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight").removeClass("thumbnail_highlight");
+            $('.current-location-text').children().empty().addClass("allow-pointer-events");
+            $('.current-location-text-title').html('<div id="annotation-choose-another-story">Choose another story?</div><div id="annotation-start-story-over">Restart from the beginning?</div>')
+          } else {
+            var e = jQuery.Event("keydown");
+            e.which = 33;
+            e.keyCode = 33;
+            $(document).trigger(e);
+          }
         });
 
         $previousAnnotationLocationButton = $('.previous-annotation-location');
@@ -5056,51 +5128,54 @@
           },
           text: false
         }).click(function() {
-          var e = jQuery.Event("keydown");
-          e.which = 34;
-          e.keyCode = 34;
-          $(document).trigger(e);
+          $('.current-location-text').removeClass("allow-pointer-events");
+          //if ($(this).hasClass("annotation-story-start-button")) {
+          //  var story = waypointJSONList[currentWaypointTheme].stories[currentWaypointStory];
+          //  if (story && story.storyDescription) {
+          //    $previousAnnotationLocationButton.button("disable");
+          //    $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight").removeClass("thumbnail_highlight");
+          //    $(".current-location-text-container").show();
+          //    $(".current-location-text-title").text(story.storyTitle);
+          //    $(".current-location-text p").text(story.storyDescription);
+          //  }
+          //} else {
+            var e = jQuery.Event("keydown");
+            e.which = 34;
+            e.keyCode = 34;
+            $(document).trigger(e);
+          //}
         });
 
         var $controlsContainer = $("<div id='controlsContainer' />");
 
         var $appControls = $("<div id='appControls' />");
+        var $topNav = $("#top-nav ul");
         $appControls.appendTo($controlsContainer);
 
         if (showShareButton) {
-          var $shareBtn = $('<button class="sharing controlButton" title="Share"></button>');
-          $shareBtn.button({
-            icons: {
-              primary: "ui-icon-custom-share"
-            },
-            text: false
-          }).click(function() {
+          var $shareBtn = $("<li id='share-menu-choice' class='menu-option'>Share</li>");
+          $shareBtn.on("click", function() {
             $(".share").trigger("click");
           });
-          $shareBtn.appendTo($appControls);
+          $shareBtn.appendTo($topNav);
         }
 
         if (showSettingsButton) {
-          var $settingsBtn = $('<button class="settings controlButton" title="Settings"></button>');
-          $settingsBtn.button({
-            icons: {
-              primary: "ui-icon-custom-gear"
-            },
-            text: false
-          }).click(function() {
+          var $shareBtn = $("<li id='settings-menu-choice' class='menu-option'>Settings</li>");
+          $shareBtn.on("click", function() {
             if (settingsDialog && settingsDialog.is(":visible")) {
               settingsDialog.dialog("close");
             } else {
               showSettingsDialog();
             }
           });
-          $settingsBtn.appendTo($appControls);
+          $shareBtn.appendTo($topNav);
         }
 
         var $navigationControls = $("<div id='navControls' />");
         $navigationControls.appendTo($controlsContainer);
 
-        if (showZoomControls) {
+        if (showZoomControls && !isMobileDevice) {
           var $zoomControls = $($(".zoom > *").not(".zoomSlider, .zoomall")).addClass("controlButton");
           $zoomControls.appendTo($navigationControls);
         }
@@ -5869,10 +5944,20 @@
             var snaplapseForPresentationSlider = timelapse.getSnaplapseForPresentationSlider();
             snaplapseForPresentationSlider.getSnaplapseViewer().initializeAndRunAutoMode();
           }
-          if (loadedInitialWaypointList) {
+
+          var theme = waypointJSONList[currentWaypointTheme];
+          if (!theme) return;
+          var story = theme.stories[currentWaypointStory];
+          //if (!story || !story.storyDescription) {
             $(".snaplapse_keyframe_list").children().first().children().click();
-          }
-          loadedInitialWaypointList = true;
+          //} else {
+          //  $previousAnnotationLocationButton.button("disable");
+          //  $(".current-location-text-container").show();
+          //  $(".current-location-text-title").text(story.storyTitle);
+          //  $(".current-location-text p").text(story.storyDescription);
+          //}
+
+          //loadedInitialWaypointList = true;
         });
 
         snaplapseViewerForPresentationSlider.addEventListener('automode-start', function() {
@@ -5939,18 +6024,24 @@
           var selectedWaypointIdx = $(".snaplapse_keyframe_list .thumbnail_highlight").closest(".snaplapse_keyframe_list_item").index();
 
           if ($previousAnnotationLocationButton) {
-            $previousAnnotationLocationButton.button("enable");
+            $previousAnnotationLocationButton.button("enable").removeClass("annotation-story-start-button");
           }
           if ($nextAnnotationLocationButton) {
-            $nextAnnotationLocationButton.button("enable");
+            $nextAnnotationLocationButton.button("enable").removeClass("annotation-story-end-button");
           }
 
           if (selectedWaypointIdx == 0 && $previousAnnotationLocationButton) {
-            $previousAnnotationLocationButton.button("disable");
+            //var story = waypointJSONList[currentWaypointTheme].stories[currentWaypointStory];
+            //if (story && !story.storyDescription) {
+              $previousAnnotationLocationButton.button("disable");
+            //} else {
+            //  $previousAnnotationLocationButton.addClass("annotation-story-start-button");
+            //}
           } else if (selectedWaypointIdx == lastAvailableWaypointIdx && $nextAnnotationLocationButton) {
-            $nextAnnotationLocationButton.button("disable");
-
+            //$nextAnnotationLocationButton.button("disable");
+            $nextAnnotationLocationButton.addClass("annotation-story-end-button");
           }
+
           // We are still technically using Landsat (web mercator) projections for any dataset being drawn,
           // so the bounds that slide-change returns is not valid for our use. But we already
           // know the bounds each himawari waypoints should be, so use that instead.
@@ -6118,7 +6209,7 @@
                   var currentView = timelapse.getView();
                   var previousWaypointBounds = previousWaypoint.bounds;
                   if (((previousWaypoint.scale * 3.0 < currentView.scale && !timelapse.isMovingToWaypoint()) || (previousWaypoint.scale / 2.5 > currentView.scale && !timelapse.isMovingToWaypoint()) || !(currentView.x >= previousWaypointBounds.xmin && currentView.x <= previousWaypointBounds.xmax && currentView.y >= previousWaypointBounds.ymin && currentView.y <= previousWaypointBounds.ymax))) {
-                    if ($(".thumbnail_highlight").length) {
+                    if ($(".thumbnail_highlight").length || $(".current-location-text-container").is(":visible")) {
                       showAnnotationResumeExit();
                     }
                     timelapse.removeViewChangeListener(hideWaypointListener);
@@ -6152,12 +6243,12 @@
 
 
       // Location search box, with autocomplete.
-      var $locationSearchDiv = $('<div class="location_search_div"><input id="location_search" type="text" placeholder="Search for a location...">');
+      var $locationSearchDiv = $('<div class="location_search_div"><span id="location_search_icon"></span><input id="location_search" type="text" placeholder="Search for a location...">');
       if (enableLetterboxMode) {
         $locationSearchDiv.addClass("top-panel letterbox").appendTo($("#letterbox-bottom-controls"));
         $("#location_search").addClass("letterbox");
       } else {
-        $locationSearchDiv.appendTo($("#timeMachine .player"));
+        $locationSearchDiv.appendTo($("#top-nav"));
       }
 
       $(".current-location-text-container, .annotations-resume-exit-container").appendTo($("#timeMachine .player"));
@@ -6228,6 +6319,9 @@
 
       var hashChange = function() {
         var vals = UTIL.getUnsafeHashVars();
+        var storyTheme = getStoryAndThemeFromUrl();
+        //vals = $.extend({}, storyTheme, vals);
+
         // Another hashChange call may happen later from csvFileLayers.addLayersLoadedListener() which will end up clearing out
         // any layers a waypoint may have up. So if we are looking at a waypoint, we need to filter out its layers.
         var activeWaypoint = $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight");
@@ -6251,6 +6345,10 @@
           var layers = vals.l.split(",");
           layers.forEach(function(layer) {
             layersToShowOnCreation[layer] = true;
+            // Legacy Himawari8 support
+            if (layer == 'h8') {
+              layer = 'h8_16';
+            }
             var $layerToggle = $("#layers-list label[name='" + layer + "'] input");
             if (!$layerToggle.prop('checked')) {
               $layerToggle.trigger("click");
@@ -6271,8 +6369,11 @@
           }, 500);
         }
 
+        // TODO(Earth Day 2018): Unclear legacy handling of story links
         if (vals.theme) {
           $("#" + vals.theme).click();
+        } else if (storyTheme.story) {
+          $("#story_" + storyTheme.story).click();
         }
 
         if (timelapse.isPresentationSliderEnabled()) {
@@ -6312,9 +6413,12 @@
         animate: false,
         heightStyle: 'content',
         create: function() {
-          updateLetterboxContent();
+          if (enableLetterboxMode) {
+            updateLetterboxContent();
+          }
         },
         beforeActivate: function(event, ui) {
+          if ($(this).hasClass('themes-div')) return;
           // The accordion believes a panel is being opened
           if (ui.newHeader[0]) {
               var currHeader  = ui.newHeader;
@@ -6368,6 +6472,115 @@
           // CSV layers are loaded asynchronously, so trigger another hash change if we just loaded the page
           $(window).on('hashchange', hashChange).trigger('hashchange');
         }
+
+        var hashVars = UTIL.getUnsafeHashVars();
+        // Cancel featured theme if loading custom waypoints
+        if (hashVars.waypoints) {
+          featuredTheme = "";
+        }
+
+        if (featuredTheme) {
+          $("<div id='featured-layers-title'>Featured Data for: <br>" + featuredTheme + "</div><div id='featured-layers'></div><div id='show-more-layers'>Show More</div>").insertBefore($("#layers-list"));
+        } else {
+          $(".map-layer-div").show();
+          $(".layers-scroll-vertical").css("height", "calc(100% - 66px)");
+        }
+
+        var layerDefs = csvFileLayers.layersData.data;
+        for (var i = 0; i < layerDefs.length; i++) {
+          var layerDef = layerDefs[i];
+          var shareLinkIdentifier = layerDef['Share link identifier'];
+          var $layer = $("#layers-list label[name='" + shareLinkIdentifier + "']");
+          // Add layer description buttons
+          if (layerDef['Layer Description']) {
+            var $layerDescriptionElm = $("<td colspan='3'><div class='layer-description'></div></td>");
+            $layer.closest("tr").append($layerDescriptionElm);
+            $layerDescriptionElm.find(".layer-description").attr("data-layer-description", layerDef['Layer Description']);
+          }
+          // Featured layers
+          if (featuredTheme) {
+            var possibleFeaturedThemes = layerDef['Featured Themes'] ? JSON.parse(layerDef['Featured Themes']) : [];
+            if (possibleFeaturedThemes.indexOf(featuredTheme) != -1 || possibleFeaturedThemes.indexOf("All") != -1) {
+              var $clonedLayer = $layer.closest("tr").clone(true, true);
+              var inputGroup;
+              if (shareLinkIdentifier == "blsat" || shareLinkIdentifier == "bdrk") {
+                var inputGroup = $clonedLayer.find("input");
+                inputGroup.attr("name", inputGroup.attr("name") + "-featured");
+              }
+              var clonedLayerCategory = $layer.closest("table").attr("id");
+              console.log($layer);
+              if ($('#featured-layers #' + clonedLayerCategory + "-featured").length == 0) {
+                $("#featured-layers").append($("<h3>" + clonedLayerCategory.split("category-")[1].replace('-',' ') + "</h3><table id='" + clonedLayerCategory + "-featured'></table>"));
+              }
+              $('#featured-layers #' + clonedLayerCategory + "-featured").append($clonedLayer);
+            }
+          }
+        }
+        $("body").on("click", "#annotation-choose-another-story", function() {
+          if (!$("#theme-menu").is(":visible")) {
+            $('#stories-menu-choice').trigger("click");
+          }
+        });
+
+        $("body").on("click", "#annotation-start-story-over", function() {
+          var e = jQuery.Event("keydown");
+          e.which = 33;
+          e.keyCode = 33;
+          $(document).trigger(e);
+        });
+
+        $("#show-more-layers").on("click", function() {
+          if ($(this).hasClass("active")) {
+            $(".clearLayers").css("visibility", "hidden");
+            $(".map-layer-div, #all-data-layers-title").hide();
+            $(this).text("Show More")
+          } else {
+            $(".clearLayers").css("visibility", "visible");
+            $(".map-layer-div, #all-data-layers-title").show();
+            $(this).html("Show Less");
+          }
+          $(this).toggleClass("active");
+          $("#layers-list").css("height", "calc(100% - " + ($("#layers-list").position().top - 11) + "px)");
+        });
+
+        $("#featured-layers").accordion({
+          collapsible: true,
+          active: false,
+          animate: false,
+          heightStyle: 'content',
+          beforeActivate: function(event, ui) {
+            // The accordion believes a panel is being opened
+            if (ui.newHeader[0]) {
+                var currHeader  = ui.newHeader;
+                var currContent = currHeader.next('.ui-accordion-content');
+            // The accordion believes a panel is being closed
+            } else {
+                var currHeader  = ui.oldHeader;
+                var currContent = currHeader.next('.ui-accordion-content');
+            }
+            // Since we've changed the default behavior, this detects the actual status
+            var isPanelSelected = currHeader.attr('aria-selected') == 'true';
+
+            // Toggle the panel's header
+            currHeader.toggleClass('ui-corner-all',isPanelSelected).toggleClass('accordion-header-active ui-state-active ui-corner-top', !isPanelSelected).attr('aria-selected', ((!isPanelSelected).toString()));
+
+            // Toggle the panel's icon
+            currHeader.children('.ui-icon').toggleClass('ui-icon-triangle-1-e', isPanelSelected).toggleClass('ui-icon-triangle-1-s', !isPanelSelected);
+
+            // Toggle the panel's content
+            currContent.toggleClass('accordion-content-active', !isPanelSelected);
+            if (isPanelSelected) {
+              currContent.slideUp(0);
+            } else {
+              currContent.slideDown(0);
+            }
+
+            // Cancel the default action
+            return false;
+          }
+        });
+
+
       });
 
       csvDataGrapher.initialize();
@@ -6403,9 +6616,62 @@
         }
       });
 
+      $("#location_search_icon").on("click", function() {
+          var e = jQuery.Event("keydown");
+          e.which = 13;
+          e.keyCode = 13;
+          $("#location_search").trigger(e);
+      });
+
       $("#logosContainer, #baseLayerCreditContainer").appendTo("#timeMachine .player");
 
-      $("#main-hamburger-menu .selection-heading").on("click", function(e) {
+      $("#theme-title-container").on("click", function() {
+        $('#stories-menu-choice').click();
+      });
+
+      $("#menu-logo").on("click", function() {
+        window.location.href = window.location.protocol + "//" + window.location.host + getUrlPathName();
+      });
+
+      $("#stories-menu-choice").on("click", function() {
+        if (!$("#layers-menu").is(":visible")) {
+          $('#main-hamburger-menu').toggle("slide", { direction: "left" }, 150);
+          $('#main-hamburger-menu').toggleClass("is-active");
+          $("#top-nav").toggleClass("menu-active");
+        }
+        $("#theme-menu").show();
+        $("#layers-menu").hide();
+
+        // Ensure at least one theme is always open
+        var $activeStoryMenu = $("#theme-menu").find("h3").children(".ui-icon-bullet");
+        if ($activeStoryMenu.length) {
+          if (!$activeStoryMenu.closest("h3").hasClass("ui-accordion-header-active")) {
+            $activeStoryMenu.click();
+          }
+        } else if ($("#theme-menu").find(".ui-accordion-header-active").length == 0) {
+          $("#theme-menu").find("h3").first().click();
+        }
+        //if ($("#theme-menu").find("h3").length == 1) {
+          //var $firstOption = $("#theme-menu").find("h3").first();
+          //if (!$firstOption.hasClass("ui-state-active")) {
+          //  $("#theme-menu").find("h3").first().click();
+          //}
+        //}
+        //$("#controlsContainer").animate({"left": $("#main-hamburger-menu").css("width")}, 150);
+      });
+
+      $("#layers-menu-choice").on("click", function() {
+        if (!$("#theme-menu").is(":visible")) {
+          $('#main-hamburger-menu').toggle("slide", { direction: "left" }, 150);
+          $('#main-hamburger-menu').toggleClass("is-active");
+          $("#top-nav").toggleClass("menu-active");
+        }
+        $("#layers-menu").show();
+        $("#theme-menu").hide();
+        //$("#controlsContainer").animate({"left": $("#main-hamburger-menu").css("width")}, 150);
+      });
+
+      /*$("#main-hamburger-menu .selection-heading").on("click", function(e) {
         var selectionButton = $(this).siblings("input:radio");
         if (selectionButton.prop("checked")) {
           e.preventDefault();
@@ -6448,11 +6714,14 @@
           fixThemeMenuHeight();
         }, 20);
 
-      });
+      });*/
 
       $("#theme-menu").on("click", "[id^=story_]", function(e) {
         // Note that a story can also be a theme (old way)
         var $selectedStoryElement = $(e.currentTarget);
+
+        if ($('#theme-title').attr('data-theme-id') == $selectedStoryElement[0].id) return;
+
         // Uncheck any selected stories
         $("#theme-menu").find("input").prop("checked", false);
         // Add selection indicator to currently selected story
@@ -6461,6 +6730,8 @@
         $("#theme-menu .activeStory").removeClass('activeStory');
         // Add active class to currently selected story
         $selectedStoryElement.addClass('activeStory');
+
+        handleStoryToggle(true);
 
         $("#theme-menu .active-story-in-theme").remove();
         var $storyGroup = $selectedStoryElement.parents("table");
@@ -6475,25 +6746,29 @@
           currentWaypointTheme = $storyGroup.attr("id").replace("theme_","");
           currentWaypointStory = $selectedStoryElement.attr("id").replace("story_","");
         }
-        $themeHeading.append("<span class='.ui-accordion-header-icon ui-icon ui-icon-bullet active-story-in-theme' style='float:right;'>");
+        $themeHeading.append("<span class='ui-icon ui-icon-bullet active-story-in-theme' style='float:right;'>");
 
         if (!enableMuseumMode) {
-          changeHash({theme: currentWaypointTheme, story: currentWaypointStory});
+          setNewStoryAndThemeUrl(currentWaypointTheme, currentWaypointStory);
         }
         $("#theme-title").attr("data-theme-id", $selectedStoryElement[0].id).text($selectedStoryElement.text());
         var waypointSliderContent = "#presentation=" + $selectedStoryElement.data("waypoint-url");
         timelapse.loadSharedDataFromUnsafeURL(waypointSliderContent);
         UTIL.addGoogleAnalyticEvent('button', 'click', 'viewer-select-theme=' + currentWaypointTheme);
-        if ($("#presentation-slider-hamburger-wrapper .hamburger").hasClass("is-active")) {
-          $("#presentation-slider-hamburger-wrapper").click();
+        if ($('#main-hamburger-menu').hasClass("is-active")) {
+          $("#stories-menu-choice").click();
         }
+        //$selectedStoryElement.click();
       });
 
       $("body").on("click", function(e) {
         if (!e.originalEvent && !e.detail) return;
-        var ignoredElms = $(e.target).closest("#main-hamburger-menu, #presentation-slider-hamburger-wrapper");
-        if (ignoredElms.attr("id") == "main-hamburger-menu" || ignoredElms.attr("id") == "presentation-slider-hamburger-wrapper" || !$(".hamburger").hasClass("is-active")) return;
-        $("#presentation-slider-hamburger-wrapper").trigger("click");
+        var ignoreElemIds = ["stories-menu-choice", "layers-menu-choice", "main-hamburger-menu", "theme-title-container", "annotation-choose-another-story"];
+        var $ignoredElms = $(e.target).closest("#stories-menu-choice, #layers-menu-choice, #main-hamburger-menu, #theme-title-container, #annotation-choose-another-story");
+        if (ignoreElemIds.indexOf($ignoredElms.attr("id")) != -1 || !$('#main-hamburger-menu').hasClass("is-active") || $(e.target).closest("div").hasClass("ui-tooltip-content")) return;
+        $('#main-hamburger-menu').toggle("slide", { direction: "left" }, 150);
+        $("#top-nav").toggleClass("menu-active");
+        $('#main-hamburger-menu').toggleClass("is-active");
       });
 
       if (extraContributors) {
@@ -6517,8 +6792,7 @@
         // Remove side control panel, search box, and timelines
         $("#controlsContainer, .location_search_div, .customControl, .controls").remove();
         // Hide presentation slider so that it's still usable via keyboard/clicker but not shown on screen
-        $("#timeMachine .presentationSlider").addClass("offscreen");
-        $("#timeMachine .player").addClass("presentationSliderOffscreen");
+        handleStoryToggle(false);
       } else if (timestampOnlyUI) {
         // Move capture time outside of the timeline controls
         $(".captureTime").insertBefore(".controls");
@@ -6538,6 +6812,13 @@
 
       $(".annotations-exit-button").on("click", function() {
         hideAnnotationResumeExit();
+        $("#theme-menu").find("input").prop("checked", false);
+        $("#theme-menu .activeStory").removeClass('activeStory');
+        $("#theme-menu .active-story-in-theme").remove();
+        setNewStoryAndThemeUrl("","");
+        handleStoryToggle(false);
+        window.history.replaceState('explore', 'Title', window.location.protocol + "//" + window.location.host + getUrlPathName() + "explore");
+        $('#theme-title').attr('data-theme-id', '');
       });
 
       $(window).on('hashchange', hashChange).trigger('hashchange');
@@ -6558,11 +6839,79 @@
         updateLetterboxSelections();
       }
 
+      handleStoryToggle(false);
+
+      /*var navbarTimeout;
+      $("body").on("mousemove click", function(e) {
+        var fromRealKeydown = e.originalEvent && e.pageX != 0 && e.pageY != 0;
+        if (e.keyCode && (e.keyCode == 187 || e.keyCode == 107 || e.keyCode == 189 || e.keyCode == 109)) return;
+        $("#top-nav").stop(true, true).slideDown();
+        clearTimeout(navbarTimeout);
+        navbarTimeout = setTimeout(function() {
+          if (!$("#main-hamburger-menu, .ui-autocomplete").is(':visible')) {
+            $("#top-nav").stop(true, true).slideUp("slow");
+          }
+        }, 5000);
+      }).trigger("mousemove");*/
+
       // Workaround for issue that came with Chrome 65. Rot in hell browsers.
       // Force redraw of the sticky positioned menus in bottom left.
       $(".snaplapse_keyframe_container").scroll(function() {
         $("#presentation-slider-hamburger-wrapper").hide().show(0);
       });
+
+      $(".layers-scroll-vertical").scroll(function() {
+        if ($(".ui-tooltip").length && $activeLayerDescriptionTooltip) {
+          $activeLayerDescriptionTooltip.tooltip("disable");
+          $activeLayerDescriptionTooltip = null;
+          return;
+        }
+      });
+
+      $("#layers-menu").on("mouseenter", ".layer-description", function (e) {
+          e.stopImmediatePropagation();
+      });
+
+      $.ui.position.custom = {
+        left: function(position, data) {
+          var initPos = position.left;
+          $.ui.position.flip.left(position, data);
+        },
+        top: function(position, data) {
+          var initPos = position.top;
+          $.ui.position.flip.top(position, data);
+          if (initPos != position.top) {
+            $(".ui-tooltip-content").addClass('flip-bottom');
+          } else {
+            $(".ui-tooltip-content").removeClass('flip-bottom');
+          }
+        }
+      };
+
+      $("#layers-menu").on("click", ".layer-description", function (e) {
+        if ($(".ui-tooltip").length) {
+          $activeLayerDescriptionTooltip.tooltip("disable");
+          $activeLayerDescriptionTooltip = null;
+          return;
+        }
+
+        $activeLayerDescriptionTooltip = $(this);
+        $(this).tooltip({
+          items: $(this),
+          position: { my: 'left top', at: 'right+15 top-18', collision: "custom" },
+          tooltipClass: "right",
+          content: md.render($(this).attr("data-layer-description"))
+        });
+        $(this).tooltip("open");
+        $(this).off("mouseleave");
+      });
+
+      var tmpElm = $("#top-nav-wrapper")[0];
+      initialTopNavWrapperElm = {};
+      initialTopNavWrapperElm.offsetLeft = tmpElm.offsetLeft;
+      initialTopNavWrapperElm.offsetTop = tmpElm.offsetTop;
+      initialTopNavWrapperElm.offsetHeight = tmpElm.offsetHeight;
+      initialTopNavWrapperElm.offsetWidth = tmpElm.offsetWidth;
 
       if (enableMuseumMode) {
         EarthlapseUI.init();
@@ -6572,24 +6921,26 @@
     }
 
     var sortLayerCategories = function() {
-      var $layerAccordion = $(".map-layer-div");
+      var $layerAccordions = $(".map-layer-div, #featured-layers");
+      $layerAccordions.each(function(i, layerAccordion) {
+        var $layerAccordion = $(layerAccordion);
+        var entries = $.map($layerAccordion.children("h3").get(), function(entry) {
+          var $entry = $(entry);
+          return $entry.add($entry.next());
+        });
 
-      var entries = $.map($layerAccordion.children("h3").get(), function(entry) {
-        var $entry = $(entry);
-        return $entry.add($entry.next());
-      });
+        entries.sort(function(a, b) {
+          return a.filter("h3").text().localeCompare(b.filter("h3").text());
+        });
 
-      entries.sort(function(a, b) {
-        return a.filter("h3").text().localeCompare(b.filter("h3").text());
-      });
-
-      $.each(entries, function() {
-        // Ensure 'Base Layers' is always the first entry
-        if (this.filter("h3").text() == "Base Layers") {
-          this.detach().prependTo($layerAccordion);
-        } else {
-          this.detach().appendTo($layerAccordion);
-        }
+        $.each(entries, function() {
+          // Ensure 'Base Layers' is always the first entry
+          if (this.filter("h3").text() == "Base Layers") {
+            this.detach().prependTo($layerAccordion);
+          } else {
+            this.detach().appendTo($layerAccordion);
+          }
+        });
       });
     }
 
@@ -6832,7 +7183,7 @@
     var showHideCsvGrapher = function(doShow, layerId, isCSV) {
       if (doShow && layerId && isCSV) {
         var layerIds = csvFileLayers.layers.map(function(props) {
-          return props['_layerId']
+          return props['_layerId'];
         });
         var layerIdx = layerIds.indexOf(layerId);
         if (layerIdx < 0) return;
@@ -6922,6 +7273,56 @@
       });
     }
 
+    function getStoryAndThemeFromUrl() {
+      var returnVals = {};
+      var currentUrl = window.location.href;
+      var hashVars = UTIL.getUnsafeHashVars();
+      // legacy support
+      if (hashVars.theme) {
+        returnVals.theme = hashVars.theme;
+      }
+      if (hashVars.story) {
+        returnVals.story = hashVars.story;
+      }
+      // new format
+      if (!returnVals.story) {
+        var matchResult = currentUrl.match(/stories\/(\w*)\/?/);
+        if (matchResult) {
+          returnVals.story = matchResult[1];
+        }
+      }
+      if (!returnVals.theme) {
+        var matchResult = currentUrl.match(/themes\/(\w*)\/?/);
+        // TODO(Earth Day 2018): We are assuming a default theme here. We MUST revist this after launch.
+        returnVals.theme = matchResult ? matchResult[1] : featuredTheme;
+      }
+      return returnVals;
+    }
+
+    function getUrlPathName() {
+      var pathName = location.pathname;
+      pathName = pathName.replace("/explore","");
+      var indexOfStoryTheme = pathName.indexOf("/stories");
+      if (indexOfStoryTheme != -1) {
+        pathName = pathName.substring(0, indexOfStoryTheme);
+      }
+      if (pathName == "") {
+        pathName = "/";
+      }
+      return pathName;
+    }
+
+    function setNewStoryAndThemeUrl(newTheme, newStory) {
+      var hashVars = UTIL.getUnsafeHashVars();
+      // legacy support
+      if (hashVars.theme || window.location.protocol.indexOf("file:") != -1 || window.location.host.indexOf("localhost") != -1 || newStory == "default") {
+        changeHash({theme: newTheme, story: newStory});
+      } else {
+        // TODO(Earth Day 2018): We are not including a theme here until after Earth Day
+        window.history.replaceState('themeStory', 'Title', window.location.protocol + "//" + window.location.host + getUrlPathName() + "stories/" + newStory);
+      }
+    }
+
     // Modify window.location.hash to include all fields from object newFields.
     // If a field in newFields isn't already in window.location.hash, add it.
     // If a field in newFields isn already in window.location.hash, overwrite it.
@@ -6931,6 +7332,7 @@
       var newHash;
       for (var prop in fields) {
         if (fields.hasOwnProperty(prop)) {
+          if (fields[prop] == "") continue;
           if (newHash) {
             newHash += '&';
           } else {
@@ -7013,7 +7415,22 @@
       return performance.now() - startOfRedraw > maximumUpdateTime;
     }
 
-    function fixThemeMenuHeight() {
+
+    $(document).tooltip({
+      items: "#show-more-layers",
+      position: { my: 'left top', at: 'right+15 top-18' },
+      tooltipClass: "right",
+      content: function() {
+        var $element = $(this);
+        if ($element.attr("id") == "show-more-layers") {
+          return "Clicking this will toggle access to the full EarthTime data library. Some layers are a work in progress and will be expanded as time goes on.";
+        }
+      }
+    });
+
+
+
+    /*function fixThemeMenuHeight() {
       var $themeList = $("#theme-list");
       if ($themeList.is(':visible')) {
         var sectionHeadingHeight = parseInt($(".selection-heading").outerHeight());
@@ -7026,6 +7443,22 @@
         newThemeListHeight = Math.max(119, newThemeListHeight);
         $themeList.css("height", "calc(100% - " + newThemeListHeight + "px)");
       }
+    }*/
+
+    function handleStoryToggle(doShow) {
+      if (doShow) {
+        $("#timeMachine .presentationSlider").removeClass("offscreen");
+        $("#timeMachine .player").removeClass("presentationSliderOffscreen");
+        $("#main-hamburger-menu").removeClass("presentationSliderOffscreen");
+      } else {
+        $("#timeMachine .presentationSlider").addClass("offscreen");
+        $("#timeMachine .player").addClass("presentationSliderOffscreen");
+        $("#main-hamburger-menu").addClass("presentationSliderOffscreen");
+      }
+      timelapse.onresize();
+      $("body").trigger('resize');
+      $("#timeMachine").hide().show(0);
+
     }
 
     function resize() {
@@ -7033,7 +7466,21 @@
       var height = canvasLayer.canvas.height;
       gl.viewport(0, 0, width, height);
 
-      fixThemeMenuHeight();
+      //fixThemeMenuHeight();
+
+      var el1 = $("#location_search")[0];
+      var el2 = initialTopNavWrapperElm;
+      el1.offsetRight = el1.offsetLeft + el1.offsetWidth;
+      el2.offsetRight = el2.offsetLeft + el2.offsetWidth;
+
+      var needHamburgerNav = !((el1.offsetRight <= el2.offsetLeft) || (el1.offsetLeft >= el2.offsetRight));
+      if (needHamburgerNav) {
+        $(".menu-option, #top-nav-wrapper, #menu-icon").addClass("shrink-nav");
+        $("#top-nav li.menu-option").hide();
+      } else {
+        $(".menu-option, #top-nav-wrapper, #menu-icon").removeClass("shrink-nav");
+        $("#top-nav li.menu-option").show();
+      }
 
       canvasLayer.resize_();
     }
@@ -8618,13 +9065,13 @@
     </table>
   </div>
   <div class="current-location-text-container unselectable">
-    <div class="previous-annotation-location annotation-nav" title="Previous story"></div>
+    <div class="previous-annotation-location annotation-nav" title="Previous slide"></div>
     <div class="current-location-text">
       <div class="current-location-text-title"></div>
       <div id="current-location-text-picture"></div>
       <p></p>
     </div>
-    <div class="next-annotation-location annotation-nav" title="Next story"></div>
+    <div class="next-annotation-location annotation-nav" title="Next slide"></div>
   </div>
   <div id="extras-content" title=""></div>
   <div id="logosContainer" class="unselectable">
@@ -8642,26 +9089,29 @@
     </tr>
     </table>
   </div>
+
+  <div id="top-nav" class="unselectable" style="position: fixed; top: 0; left: 0; width: 100%; height: 50px; background-color: rgba(31, 31, 31, 0.9); color: white; z-index: 9000">
+    <ul id="top-nav-wrapper">
+      <div id='menu-icon'></div>
+      <li id='menu-logo'>EarthTime</li>
+      <li id='stories-menu-choice' title="Select a story" class="menu-option">Stories</li>
+      <li id='layers-menu-choice' title="Select data to visualize" class="menu-option">Data Library</li>
+    </ul>
+  </div>
+
   <div id="main-hamburger-menu" class="menu">
-    <ul class="accordion-menu">
+    <ul>
       <li id="theme-menu" class="has-children">
-        <input type="radio" name="main-hamburger-selection" id="theme-selection" class="main-hamburger-selection">
-        <label for="theme-selection" class="selection-heading">Themes</label>
+        <label for="theme-selection" class="menu-selection-heading">Stories</label>
         <ul id="theme-list"><div class="themes-scroll-vertical"><div class="themes-div"></div></div></ul>
       </li>
       <li id="layers-menu" class="has-children">
-        <input type="radio" name="main-hamburger-selection" id="layer-selection" class="main-hamburger-selection">
-        <label for="layer-selection" class="selection-heading">Layers</label>
+        <label for="layer-selection" class="menu-selection-heading">Data Library</label>
       </li>
     </ul>
   </div>
   <div id="presentation-slider-hamburger-wrapper">
-    <button class="hamburger" type="button" title="More">
-      <span class="hamburger-box">
-        <span class="hamburger-inner"></span>
-      </span>
-    </button>
-    <div id="theme-title-container" title="Select a theme">
+    <div id="theme-title-container" title="Select a story">
       <div id="theme-title"></div>
     </div>
   </div>
