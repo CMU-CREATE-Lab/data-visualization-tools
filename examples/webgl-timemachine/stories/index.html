@@ -208,7 +208,7 @@
           var title = data[i]['Waypoint Title'];
           if (title[0] == "#" && title[1] != "#") {
             var theme = {
-              'url': './' + title.replace(/ /g,'_').replace(/#/g,''),
+              'url': './' + title.replace(/ /g,'_').replace(/#/g,'').toLowerCase(),
               'title': title.replace(/#/g,''),
               'author': data[i]["Author"],
               'filename': data[i]["Share View"].trim() != '' ? new Thumbnailer(data[i]["Share View"]).getPng('landscape') : new Thumbnailer(DEFAULT_SHARE_VIEW).getPng('landscape'),
@@ -220,7 +220,7 @@
           }
           if (title[0] == "#" && title[1] == "#") {
             var s = {
-              'url': './' + title.replace(/ /g,'_').replace(/#/g,''),
+              'url': './' + title.replace(/ /g,'_').replace(/#/g,'').toLowerCase(),
               'author': data[i]["Author"],
               'title': title.replace(/#/g,''),
               'filename': data[i]["Share View"].trim() != '' ? new Thumbnailer(data[i]["Share View"]).getPng('landscape') : new Thumbnailer(DEFAULT_SHARE_VIEW).getPng('landscape'),
@@ -241,10 +241,10 @@
           }
 
           // Start appending?
-          if (title == storyName) {
+          if (title.toLowerCase() == storyName.toLowerCase()) {
             append = true;            
             currentThemeIdx = themeIdx;
-          } else if (title == '#' + storyName) {
+          } else if (title.toLowerCase() == '#' + storyName.toLowerCase()) {
             append = true;
             storyMode = true;
             currentThemeIdx = themeIdx;
@@ -313,8 +313,6 @@
           while (relatedItems.length < 2) {
             var choice = Math.floor(Math.random() * themes[currentThemeIdx]['stories'].length);
             if (choice != currentStoryIdx && !(relatedItems.includes(choice))) {
-              console.log(choice);
-              console.log(relatedItems);
               relatedItems.push(choice);
             }
           }

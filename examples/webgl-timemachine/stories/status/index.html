@@ -90,7 +90,7 @@
             if (slug != '') {
                 storyName = '#' + slug.trim();
             }
-
+            console.log(slug);
             Papa.parse(url, {
                 download: true,
                 complete: function(results, file) {
@@ -108,7 +108,7 @@
                             var el = document.getElementById("out");
                             el.insertAdjacentHTML('beforeend', html);
                         } 
-                        if (data[i][0] == storyName) {
+                        if (data[i][0].toLowerCase() == storyName.toLowerCase()) {
                             append = true;
                         }
                         if (append) {
