@@ -2800,18 +2800,18 @@ footer.gi-footer .gi-footer__leaf{
     }
 }
 .gi-related__subhead{
-    margin-top:12px;
+    margin-top:3px;
     margin-bottom:3px;
     font-family: Arial, Helvetica, sans-serif;
     font-size:.8rem;
     line-height:1.3;
     text-transform:uppercase;
-    color:#DA161F
+    color:#d87f16;
 }
 @media (min-width: 768px){
     .gi-related__subhead{
         font-size:.75rem;
-        margin-top:10px
+        margin-top:3px
     }
 }
 

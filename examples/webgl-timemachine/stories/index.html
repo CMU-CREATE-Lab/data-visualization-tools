@@ -22,12 +22,10 @@
     <div class="gi-related__item"> 
       <a href="{{url}}"> 
         <img class="b-lazy" data-src="{{filename}}" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="> 
-<!--
-        {{#if author}}
-          <div class="gi-related__subhead">{{author}}</div>
-        {{/if}}
-      -->
         <h5>{{title}}</h5>
+        {{#if author}}
+          <div class="gi-related__subhead">{{{author}}}</div>
+        {{/if}}
       </a>  
     </div>
   </script>
