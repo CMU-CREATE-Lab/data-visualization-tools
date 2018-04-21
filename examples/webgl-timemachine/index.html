@@ -7504,10 +7504,11 @@
 
       var el1 = $("#location_search")[0];
       var el2 = initialTopNavWrapperElm;
-      el1.offsetRight = el1.offsetLeft + el1.offsetWidth;
-      el2.offsetRight = el2.offsetLeft + el2.offsetWidth;
-
-      var needHamburgerNav = !((el1.offsetRight <= el2.offsetLeft) || (el1.offsetLeft >= el2.offsetRight));
+      if (el1 && el2) {
+        el1.offsetRight = el1.offsetLeft + el1.offsetWidth;
+        el2.offsetRight = el2.offsetLeft + el2.offsetWidth;
+        var needHamburgerNav = !((el1.offsetRight <= el2.offsetLeft) || (el1.offsetLeft >= el2.offsetRight));
+      }
       if (needHamburgerNav) {
         $(".menu-option, #top-nav-wrapper, #menu-icon").addClass("shrink-nav");
         $("#top-nav li.menu-option").hide();
