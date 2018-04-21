@@ -304,7 +304,7 @@
             }
         }
 
-        var videoCaptionContext = {idx: 0, title: story[0]["Waypoint Title"].split("#")[1], caption: story[0]["Annotation Text"], author: story[0]["Author"], dateline: story[0]["Dateline"]};
+        var videoCaptionContext = {idx: 0, title: story[0]["Waypoint Title"].replace(/#/g,''), caption: story[0]["Annotation Text"], author: story[0]["Author"], dateline: story[0]["Dateline"]};
         var html = titleVideoCaptionTemplate(videoCaptionContext);          
         el2.insertAdjacentHTML('afterend', html);
 
