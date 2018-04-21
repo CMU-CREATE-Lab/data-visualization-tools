@@ -1833,6 +1833,13 @@ a:focus { outline:0; }
 #theme-menu .ui-accordion-header-active {
   -webkit-box-shadow: 0px 0px 10px 0px #676767;
   box-shadow: 0px 0px 10px 0px #676767;
+  z-index: 9000;
+}
+
+.story-author-text {
+  text-align: center;
+  padding-top: 10px;
+  font-size: 11px;
 }
 
 #layers-menu .ui-selectmenu-button, #theme-list .ui-selectmenu-button {

@@ -6206,7 +6206,15 @@
                 $current_location_text_picture.empty().hide();
               }
               if (waypoint.description) {
-                $current_location_text.find("p").show().text(waypoint.description);
+                var waypointBoxText = waypoint.description;
+                if (selectedWaypointIdx == 0 && $previousAnnotationLocationButton) {
+                  var story = waypointJSONList[currentWaypointTheme].stories[currentWaypointStory];
+                  if (story && story.storyDescription && story.storyAuthor) {
+                    waypointBoxText += "<div class='story-author-text'>" + story.storyAuthor + "</div>";
+                    $(".current-location-text p").css("text-align", "center");
+                  }
+                }
+                $current_location_text.find("p").show().html(waypointBoxText);
               } else {
                 $current_location_text.find("p").empty().hide();
               }
