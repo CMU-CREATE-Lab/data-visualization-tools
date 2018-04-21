@@ -287,21 +287,27 @@ body, html {
 
 .cmu-logo {
   margin-top: 20px;
-  margin-left: 20px;
+  margin-left: 15px;
+  width: 255px;
 }
 
 .createlab-logo {
-  margin-left: -75px;
+  margin-left: -80px;
+  width: 160px;
 }
 
 .wef-logo {
-  margin-right: 20px;
+  margin-right: 15px;
   margin-top: 20px;
 }
 
 #contact-form-confirmation {
   color: green;
   display: none;
+}
+
+.fb-like {
+  float: left;
 }
 
 #twitter-button {
