@@ -5127,7 +5127,7 @@
             $nextAnnotationLocationButton.button("disable");
             $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight").removeClass("thumbnail_highlight");
             $('.current-location-text').children().empty().addClass("allow-pointer-events");
-            $('.current-location-text-title').html('<div id="annotation-choose-another-story">Choose another story?</div><div id="annotation-start-story-over">Restart from the beginning?</div>')
+            $('.current-location-text-title').show().html('<div id="annotation-choose-another-story">Choose another story?</div><div id="annotation-start-story-over">Restart from the beginning?</div>')
           } else {
             var e = jQuery.Event("keydown");
             e.which = 33;
