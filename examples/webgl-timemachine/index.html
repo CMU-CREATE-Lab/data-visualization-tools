@@ -5171,6 +5171,7 @@
           var $shareBtn = $("<li id='share-menu-choice' class='menu-option'>Share</li>");
           $shareBtn.on("click", function() {
             $(".share").trigger("click");
+            UTIL.addGoogleAnalyticEvent('button', 'click', 'viewer-show-share-panel');
           });
           $shareBtn.appendTo($topNav);
         }
@@ -6664,6 +6665,7 @@
           $('#main-hamburger-menu').toggle("slide", { direction: "left" }, 150);
           $('#main-hamburger-menu').toggleClass("is-active");
           $("#top-nav").toggleClass("menu-active");
+          UTIL.addGoogleAnalyticEvent('button', 'click', 'viewer-show-story-panel');
         }
         $("#theme-menu").show();
         $("#layers-menu").hide();
@@ -6691,6 +6693,7 @@
           $('#main-hamburger-menu').toggle("slide", { direction: "left" }, 150);
           $('#main-hamburger-menu').toggleClass("is-active");
           $("#top-nav").toggleClass("menu-active");
+          UTIL.addGoogleAnalyticEvent('button', 'click', 'viewer-show-layer-panel');
         }
         $("#layers-menu").show();
         $("#theme-menu").hide();
@@ -6781,6 +6784,7 @@
         var waypointSliderContent = "#presentation=" + $selectedStoryElement.data("waypoint-url");
         timelapse.loadSharedDataFromUnsafeURL(waypointSliderContent);
         UTIL.addGoogleAnalyticEvent('button', 'click', 'viewer-select-theme=' + currentWaypointTheme);
+        UTIL.addGoogleAnalyticEvent('button', 'click', 'viewer-select-story=' + currentWaypointStory);
         if ($('#main-hamburger-menu').hasClass("is-active")) {
           $("#stories-menu-choice").click();
         }
