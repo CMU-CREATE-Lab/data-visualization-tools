@@ -408,6 +408,7 @@ html, body {
   text-align: center;
   z-index: 99;
   display: block;
+  cursor: default;
 }
 
 #main-hamburger-menu.layerGraphs {
