@@ -1,4 +1,13 @@
 /*! normalize.css v6.0.0 | MIT License | github.com/necolas/normalize.css */
+@font-face {
+  font-family: 'Exo2-Regular';
+  src: url('../../../css/fonts/Exo2-Regular.woff') format('woff');
+}
+
+* {
+  font-family: 'Exo2-Regular', sans-serif !important;
+}
+
 html{
     line-height:1.15;
     -ms-text-size-adjust:100%;
