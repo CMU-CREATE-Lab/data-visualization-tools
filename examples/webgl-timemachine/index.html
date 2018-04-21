@@ -122,7 +122,7 @@
     //
 
     var EARTH_TIMELAPSE_CONFIG = EARTH_TIMELAPSE_CONFIG || {};
-    var featuredTheme = EARTH_TIMELAPSE_CONFIG.featuredTheme
+    var featuredTheme = EARTH_TIMELAPSE_CONFIG.featuredTheme;
     var enableMuseumMode = !!EARTH_TIMELAPSE_CONFIG.enableMuseumMode;
     // Deprecated. Instead use waypointSliderContentPath, which points to an online or exported spreadsheet.
     var waypointCollection = EARTH_TIMELAPSE_CONFIG.waypointCollection;
@@ -311,8 +311,10 @@
     var $previousAnnotationLocationButton;
     var timelapseWasPlaying = false;
     var lastLayerMenuScrollPos = 0;
+    var lastFeaturedLayerMenuScrollPos = 0;
     var lastThemeMenuScrollPos = 0;
     var $lastActiveLayerTopic = $();
+    var $lastActiveFeaturedLayerTopic = $();
     var lastActiveLayers = [];
     var maxCachedLayers = 8;
     var lastSelectedAnnotationBeforeHidden;
@@ -3802,11 +3804,19 @@
       $('#layers-menu').on('click', 'input', timelineUIHandler);
 
       $("body").on("click", "#layers-list .ui-accordion-header", function() {
-        lastLayerMenuScrollPos = $(this)[0].offsetTop - $("#layers-list").position().top - 51;
+        lastLayerMenuScrollPos = $(this)[0].offsetTop - $("#layers-list").position().top - 15;
         $('.layers-scroll-vertical').animate({
           scrollTop: lastLayerMenuScrollPos
         });
         $lastActiveLayerTopic = $(this).next();
+      });
+
+      $("body").on("click", "#layers-list-featured .ui-accordion-header", function() {
+        lastFeaturedLayerMenuScrollPos = $(this)[0].offsetTop - $("#layers-list-featured").position().top;
+        $('.featured-layers-scroll-vertical').animate({
+          scrollTop: lastFeaturedLayerMenuScrollPos
+        });
+        $lastActiveFeaturedLayerTopic = $(this).next();
       });
 
       $(document).on("click touchmove", function(e) {
@@ -6480,6 +6490,7 @@
         }
 
         if (featuredTheme) {
+          $("#layers-list").addClass("featured");
           $("<div id='featured-layers-title'>Featured Data for: <br>" + featuredTheme + "</div><div id='layers-list-featured'><div class='featured-layers-scroll-vertical'><div id='featured-layers'></div></div><div id='show-more-layers'>Show More</div>").insertBefore($("#layers-list"));
         } else {
           $(".map-layer-div").show();
@@ -6532,11 +6543,11 @@
 
         $("#show-more-layers").on("click", function() {
           if ($(this).hasClass("active")) {
-            $(".clearLayers").css("visibility", "hidden");
+            //$(".clearLayers").css("visibility", "hidden");
             $(".map-layer-div, #all-data-layers-title").hide();
             $(this).text("Show More")
           } else {
-            $(".clearLayers").css("visibility", "visible");
+            //$(".clearLayers").css("visibility", "visible");
             $(".map-layer-div, #all-data-layers-title").show();
             $(this).html("Show Less");
           }
@@ -7295,7 +7306,7 @@
       if (!returnVals.theme) {
         var matchResult = currentUrl.match(/themes\/(\w*)\/?/);
         // TODO(Earth Day 2018): We are assuming a default theme here. We MUST revist this after launch.
-        returnVals.theme = matchResult ? matchResult[1] : featuredTheme;
+        returnVals.theme = matchResult ? matchResult[1] : featuredTheme.toLowerCase().replace(/ /g, '_');
       }
       return returnVals;
     }
@@ -7451,10 +7462,14 @@
         $("#timeMachine .presentationSlider").removeClass("offscreen");
         $("#timeMachine .player").removeClass("presentationSliderOffscreen");
         $("#main-hamburger-menu").removeClass("presentationSliderOffscreen");
+        $(".layers-scroll-vertical").css("height", "calc(100% - 65px)");
+        $(".themes-scroll-vertical").css("height", "calc(100% - 0px)");
       } else {
         $("#timeMachine .presentationSlider").addClass("offscreen");
         $("#timeMachine .player").addClass("presentationSliderOffscreen");
         $("#main-hamburger-menu").addClass("presentationSliderOffscreen");
+        $(".layers-scroll-vertical").css("height", "calc(100% - 115px)");
+        $(".themes-scroll-vertical").css("height", "calc(100% - 49px)");
       }
       timelapse.onresize();
       $("body").trigger('resize');
