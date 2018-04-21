@@ -79,8 +79,9 @@
             var source   = document.getElementById("landscape-picture-template").innerHTML;
             var landscapePictureTemplate = Handlebars.compile(source);
 
-            const url = "https://docs-proxy.cmucreatelab.org/spreadsheets/d/1SVMGlB3cfocLEcf3UOdsBX2xvtmNZmDbpL6O2ajmoic/export?format=csv&id=1SVMGlB3cfocLEcf3UOdsBX2xvtmNZmDbpL6O2ajmoic&gid=0";
+            //const url = "https://docs-proxy.cmucreatelab.org/spreadsheets/d/1SVMGlB3cfocLEcf3UOdsBX2xvtmNZmDbpL6O2ajmoic/export?format=csv&id=1SVMGlB3cfocLEcf3UOdsBX2xvtmNZmDbpL6O2ajmoic&gid=0";
 
+            const url = "https://docs-proxy.cmucreatelab.org/spreadsheets/d/1rCiksJv4aXi1usI0_9zdl4v5vuOfiHgMRidiDPt1WfE/export?format=csv&id=1rCiksJv4aXi1usI0_9zdl4v5vuOfiHgMRidiDPt1WfE&gid=1596808134";
             var storyTitles = [];
             var story = [];
             var data;
@@ -88,7 +89,7 @@
             var slug = window.location.href.substr(window.location.href.lastIndexOf('/') + 1);
             slug = slug.replace(/_/g,' ');
             if (slug != '') {
-                storyName = '#' + slug.trim();
+                storyName = '##' + slug.trim();
             }
             console.log(slug);
             Papa.parse(url, {
@@ -97,13 +98,13 @@
                     data = results["data"];
                     var append = false;
                     for (var i = 0; i < data.length; i++) {                        
-                         if (data[i][0][0] == "#" && append) {
+                         if (data[i][0][1] == "#" && append) {
                             append = false;            
                         }
                        
-                        if (data[i][0][0] == "#") {
+                        if (data[i][0][1] == "#") {
                             storyTitles.push(data[i][0]);
-                            var context = {title: data[i][0].replace("#","").replace(/ /g, "_"), id: data[i][0].replace("#","").replace(/ /g, "_")};
+                            var context = {title: data[i][0].replace(/#/g,"").replace(/ /g, "_"), id: data[i][0].replace("#","").replace(/ /g, "_")};
                             var html = storyTemplate(context);                            
                             var el = document.getElementById("out");
                             el.insertAdjacentHTML('beforeend', html);
