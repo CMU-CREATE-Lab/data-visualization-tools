@@ -3399,6 +3399,12 @@
         }
       });
 
+      $("input:radio[name=base-layers]").on("change", function(e) {
+        if (featuredTheme) {
+          $("#layers-list-featured #" + e.currentTarget.id).prop("checked", $("#layers-list #" + e.currentTarget.id).prop("checked"));
+        }
+      });
+
       // Initially set activeLayersWithTimeline to 1 if we first load with landsat enabled.
       // Also set the custom scale.
       if (visibleBaseMapLayer == "landsat") {
@@ -4333,7 +4339,6 @@
         var themeLoaded = waypointJSONList[storyAndTheme.theme];
         var storyEqualsTheme = themeLoaded && waypointJSONList[storyAndTheme.theme].stories['default']
         var storyLoaded = themeLoaded && waypointJSONList[storyAndTheme.theme].stories[storyAndTheme.story];
-
         if (storyEqualsTheme) {
           $selectedStoryElement = $("#story_" + storyAndTheme.theme);
         } else if (storyLoaded) {
@@ -6378,7 +6383,6 @@
             timelapse.removeTimelineUIChangeListener(onloadView);
           }, 500);
         }
-
         // TODO(Earth Day 2018): Unclear legacy handling of story links
         if (vals.theme) {
           $("#" + vals.theme).click();

@@ -1861,8 +1861,10 @@ a:focus { outline:0; }
 
 #theme-title {
   top: 50%;
+  left: calc(50% - 52px);
+  text-align: center;
   position: absolute;
-  width: inherit;
+  width: 100px;
   -o-text-overflow: ellipsis;
      text-overflow: ellipsis;
   -webkit-transform: translateY(-50%);
