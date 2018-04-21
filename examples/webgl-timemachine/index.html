@@ -122,7 +122,7 @@
     //
 
     var EARTH_TIMELAPSE_CONFIG = EARTH_TIMELAPSE_CONFIG || {};
-    var featuredTheme = EARTH_TIMELAPSE_CONFIG.featuredTheme;
+    var featuredTheme = EARTH_TIMELAPSE_CONFIG.featuredTheme || "";
     var enableMuseumMode = !!EARTH_TIMELAPSE_CONFIG.enableMuseumMode;
     // Deprecated. Instead use waypointSliderContentPath, which points to an online or exported spreadsheet.
     var waypointCollection = EARTH_TIMELAPSE_CONFIG.waypointCollection;
@@ -6548,10 +6548,12 @@
         $("#show-more-layers").on("click", function() {
           if ($(this).hasClass("active")) {
             //$(".clearLayers").css("visibility", "hidden");
+            $("#layers-list-featured").css("height", "67%");
             $(".map-layer-div, #all-data-layers-title").hide();
-            $(this).text("Show More")
+            $(this).text("Show More");
           } else {
             //$(".clearLayers").css("visibility", "visible");
+            $("#layers-list-featured").css("height", "calc(50% - 88px)");
             $(".map-layer-div, #all-data-layers-title").show();
             $(this).html("Show Less");
           }
@@ -7434,7 +7436,7 @@
 
     $(document).tooltip({
       items: "#show-more-layers",
-      position: { my: 'left top', at: 'right+15 top-18' },
+      position: { my: 'left top', at: 'right+15 top-18', collision: "custom" },
       tooltipClass: "right",
       content: function() {
         var $element = $(this);
@@ -7472,7 +7474,7 @@
         $("#timeMachine .presentationSlider").addClass("offscreen");
         $("#timeMachine .player").addClass("presentationSliderOffscreen");
         $("#main-hamburger-menu").addClass("presentationSliderOffscreen");
-        $(".layers-scroll-vertical").css("height", "calc(100% - 115px)");
+        $(".layers-scroll-vertical").css("height", "calc(100% - 85px)");
         $(".themes-scroll-vertical").css("height", "calc(100% - 49px)");
       }
       timelapse.onresize();
