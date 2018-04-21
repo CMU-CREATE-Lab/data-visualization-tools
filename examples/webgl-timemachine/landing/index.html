@@ -5,10 +5,10 @@
   <title>EarthTime</title>
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1">
-  <link rel="stylesheet" type="text/css" href="/landing/landing.css">
   <link rel="stylesheet" type="text/css" href="/landing/slick/slick.css"/>
   <link rel="stylesheet" type="text/css" href="/landing/slick/slick-theme.css"/>
   <link rel="stylesheet" type="text/css" href="/landing/video-js.min.css">
+  <link rel="stylesheet" type="text/css" href="/landing/landing.css">
 
   <script>
     if (window.location.hash && (window.location.hash.indexOf("#theme") >= 0 || window.location.hash.indexOf("#v=") >= 0 || window.location.hash.indexOf("#waypoints=") >= 0 || window.location.hash.indexOf("#csvlayers=") >= 0 || window.location.hash.indexOf("#dotlayers=") >= 0)) {
@@ -501,7 +501,7 @@
         } else {
           command = {
             "event": "command",
-            "func": "pauseVideo"
+            "func": "stopVideo"
           };
         }
 

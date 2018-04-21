@@ -301,6 +301,14 @@ body, html {
   margin-top: 20px;
 }
 
+.vjs-big-play-button {
+  display: inline-block !important;
+}
+
+.vjs-has-started .vjs-big-play-button {
+  display: none !important;
+}
+
 #contact-form-confirmation {
   color: green;
   display: none;
