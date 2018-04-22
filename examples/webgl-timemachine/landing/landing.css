@@ -367,12 +367,12 @@ body, html {
   vertical-align: baseline;
   overflow: hidden;
   height: 203px;
+  cursor: pointer;
 }
 
 .story-wrapper {
   width: 278px;
   height: 400px;
-  cursor: pointer;
   margin-bottom: 20px;
 }
 
@@ -406,15 +406,20 @@ body, html {
 .story h3, .story h4 {
   font-size: .55em;
   line-height: 1;
-  letter-spacing: .15em;
+}
+
+.story h3 {
+  letter-spacing: .10em;
+  font-size: .62em;
 }
 
 .story h4 {
   font-weight: 400;
   margin-top: .4em;
+  letter-spacing: .05em;
 }
 
-.story-wrapper:hover img, .story-wrapper:active img, .story-wrapper:focus img {
+.story:hover img, .story:active img, .story:focus img {
   transform: scale(1.05);
 }
 
