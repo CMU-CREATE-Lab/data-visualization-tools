@@ -1,13 +1,13 @@
 * {
-	-moz-box-sizing: border-box;
-	-webkit-box-sizing: border-box;
-	box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 html,
 body {
-	margin: 0;
-	padding: 0;
+  margin: 0;
+  padding: 0;
 }
 
 h1,
@@ -16,75 +16,75 @@ h3,
 p,
 pre,
 ul {
-	margin: 0;
-	padding: 0;
+  margin: 0;
+  padding: 0;
 }
 
 h1 {
-	font-size: 48px;
-	line-height: 1;
-	margin-bottom: 1em;
+  font-size: 48px;
+  line-height: 1;
+  margin-bottom: 1em;
 }
 
 h2 {
-	font-size: 24px;
-	line-height: 1;
-	margin-bottom: 1em;
+  font-size: 24px;
+  line-height: 1;
+  margin-bottom: 1em;
 }
 
 h3 {
-	font-size: 16px;
-	line-height: 1;
-	margin-bottom: 1em;
+  font-size: 16px;
+  line-height: 1;
+  margin-bottom: 1em;
 }
 
 
 pre {
-	background: #fefefe;
-	border: 1px solid #dedede;
-	overflow-x: auto;
-	padding: 2em;
+  background: #fefefe;
+  border: 1px solid #dedede;
+  overflow-x: auto;
+  padding: 2em;
 }
 
 ul {
-	margin-left: 1em;
+  margin-left: 1em;
 }
 
 #nav {
-	left: 20px;
-	list-style: none;
-	margin: 0;
-	position: fixed;
-	top: 20px;
+  left: 20px;
+  list-style: none;
+  margin: 0;
+  position: fixed;
+  top: 20px;
 }
 
 #nav li {
-	margin-bottom: 2px;
+  margin-bottom: 2px;
 }
 
 #nav a {
-	background: #ededed;
-	color: #666;
-	display: block;
-	font-size: 14px;
-	padding: 5px 10px;
-	text-decoration: none;
-	text-transform: uppercase;
+  background: #ededed;
+  color: #666;
+  display: block;
+  font-size: 14px;
+  padding: 5px 10px;
+  text-decoration: none;
+  text-transform: uppercase;
 }
 
 #nav a:hover {
-	background: #dedede;
+  background: #dedede;
 }
 
 #container {
-	margin: 0 auto;
-	max-width: 972px;
+  margin: 0 auto;
+  max-width: 972px;
 }
 
 .section {
-	/*border-bottom: 5px solid #ccc;*/
-	min-height: 45vh;
-	padding: 30px 20px;
+  /*border-bottom: 5px solid #ccc;*/
+  min-height: 45vh;
+  padding: 30px 20px;
   text-align: center;
 }
 
@@ -93,7 +93,7 @@ ul {
 }
 
 .section p:last-child {
-	margin-bottom: 0;
+  margin-bottom: 0;
 }
 
 @font-face {
@@ -281,24 +281,25 @@ body, html {
   color: white;
   text-align: center;
   position: relative;
-  height: 115px;
+  height: 90px;
   margin-top: 50px
 }
 
 .cmu-logo {
   margin-top: 20px;
   margin-left: 15px;
-  width: 255px;
+  width: 203px;
 }
 
 .createlab-logo {
-  margin-left: -80px;
-  width: 160px;
+  margin-left: -68px;
+  width: 120px;
 }
 
 .wef-logo {
   margin-right: 15px;
   margin-top: 20px;
+  width: 80px;
 }
 
 .vjs-big-play-button {
