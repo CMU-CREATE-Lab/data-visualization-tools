@@ -6162,6 +6162,7 @@
               } else {
                 timelapse.pause();
               }
+              timelapse.seek(waypoint.time);
             } else {
               var waypointPlaybackRate = timelapse.getMaxPlaybackRate() * (waypointPlaybackSpeed / 100);
               timelapse.setPlaybackRate(waypointPlaybackRate);
@@ -7509,6 +7510,7 @@
         el2.offsetRight = el2.offsetLeft + el2.offsetWidth;
         var needHamburgerNav = !((el1.offsetRight <= el2.offsetLeft) || (el1.offsetLeft >= el2.offsetRight));
       }
+
       if (needHamburgerNav) {
         $(".menu-option, #top-nav-wrapper, #menu-icon").addClass("shrink-nav");
         $("#top-nav li.menu-option").hide();
