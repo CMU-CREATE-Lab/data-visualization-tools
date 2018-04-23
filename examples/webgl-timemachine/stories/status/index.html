@@ -14,6 +14,7 @@
                 background:#4448;
             }
         </style>
+        <script type="text/javascript" src="../../config-local.js"></script>
         <script type="text/javascript" src="../../../../js/papaparse.min.js"></script>  
         <script type="text/javascript" src="../../../../js/d3.min.js"></script>
         <script type="text/javascript" src="../../../../js/handlebars-v4.0.11.js"></script>
@@ -79,9 +80,15 @@
             var source   = document.getElementById("landscape-picture-template").innerHTML;
             var landscapePictureTemplate = Handlebars.compile(source);
 
-            //const url = "https://docs-proxy.cmucreatelab.org/spreadsheets/d/1SVMGlB3cfocLEcf3UOdsBX2xvtmNZmDbpL6O2ajmoic/export?format=csv&id=1SVMGlB3cfocLEcf3UOdsBX2xvtmNZmDbpL6O2ajmoic&gid=0";
+            var EARTH_TIMELAPSE_CONFIG = EARTH_TIMELAPSE_CONFIG || {};
+            var rawUrl = EARTH_TIMELAPSE_CONFIG["waypointSliderContentPath"] || "https://docs.google.com/spreadsheets/d/1rCiksJv4aXi1usI0_9zdl4v5vuOfiHgMRidiDPt1WfE/edit#gid=1596808134";
+            var regexp = /d\/(.*)\/edit\#gid=(.*)/;
+            var matchesArray = rawUrl.match(regexp);
+            var urlSrc = "https://docs-proxy.cmucreatelab.org/spreadsheets/d/{{id}}/export?format=csv&id={{id}}&gid={{gid}}";
 
-            const url = "https://docs-proxy.cmucreatelab.org/spreadsheets/d/1rCiksJv4aXi1usI0_9zdl4v5vuOfiHgMRidiDPt1WfE/export?format=csv&id=1rCiksJv4aXi1usI0_9zdl4v5vuOfiHgMRidiDPt1WfE&gid=1596808134";
+            var urlTemplate = Handlebars.compile(urlSrc);
+            var url = urlTemplate({'id': matchesArray[1], 'gid': matchesArray[2]});
+
             var storyTitles = [];
             var story = [];
             var data;

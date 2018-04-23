@@ -11,6 +11,7 @@
   </script>
   <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">   
   <link href="mobile-story.css" rel="stylesheet"/>
+  <script type="text/javascript" src="../config-local.js"></script>
   <script type="text/javascript" src="../../../js/papaparse.min.js"></script>  
   <script type="text/javascript" src="../../../js/d3.min.js"></script>
   <script type="text/javascript" src="../../../js/handlebars-v4.0.11.js"></script>
@@ -178,11 +179,14 @@
     var source  = document.getElementById("related-item-template").innerHTML;
     var relatedItemTemplate = Handlebars.compile(source);    
 
-    var url = "https://docs-proxy.cmucreatelab.org/spreadsheets/d/1SVMGlB3cfocLEcf3UOdsBX2xvtmNZmDbpL6O2ajmoic/export?format=csv&id=1SVMGlB3cfocLEcf3UOdsBX2xvtmNZmDbpL6O2ajmoic&gid=0";
-    url = "https://docs-proxy.cmucreatelab.org/spreadsheets/d/1rCiksJv4aXi1usI0_9zdl4v5vuOfiHgMRidiDPt1WfE/export?format=csv&id=1rCiksJv4aXi1usI0_9zdl4v5vuOfiHgMRidiDPt1WfE&gid=1596808134";
-    //url = 'https://docs-proxy.cmucreatelab.org/spreadsheets/d/1MrHqrqUcgDlPfRrgZkcJc0SP6G7xb3m_Hhei4jhr7Cg/export?format=csv&id=1MrHqrqUcgDlPfRrgZkcJc0SP6G7xb3m_Hhei4jhr7Cg&gid=0'
-    //url = "https://docs-proxy.cmucreatelab.org/spreadsheets/d/1TcX5esf4YG8BKtYm-FGyfTr55RMMZsaklXHjUCYfhhM/export?format=csv&id=1TcX5esf4YG8BKtYm-FGyfTr55RMMZsaklXHjUCYfhhM&gid=0";
+    var EARTH_TIMELAPSE_CONFIG = EARTH_TIMELAPSE_CONFIG || {};
+    var rawUrl = EARTH_TIMELAPSE_CONFIG["waypointSliderContentPath"] || "https://docs.google.com/spreadsheets/d/1rCiksJv4aXi1usI0_9zdl4v5vuOfiHgMRidiDPt1WfE/edit#gid=1596808134";
+    var regexp = /d\/(.*)\/edit\#gid=(.*)/;
+    var matchesArray = rawUrl.match(regexp);
+    var urlSrc = "https://docs-proxy.cmucreatelab.org/spreadsheets/d/{{id}}/export?format=csv&id={{id}}&gid={{gid}}";
 
+    var urlTemplate = Handlebars.compile(urlSrc);
+    var url = urlTemplate({'id': matchesArray[1], 'gid': matchesArray[2]});
     var storyName = "#Big Picture on US Cities";
     var parsedUrl = new URL(window.location.href);
     if (parsedUrl.searchParams.get("storyName")  && parsedUrl.searchParams.get("storyName") != '') {
