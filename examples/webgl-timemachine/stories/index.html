@@ -179,14 +179,20 @@
     var source  = document.getElementById("related-item-template").innerHTML;
     var relatedItemTemplate = Handlebars.compile(source);    
 
+    var lochash = location.hash.substr(1);
+    var mylocation = lochash.substr(lochash.indexOf('waypoints=')).split('&')[0].split('=')[1];
+
     var EARTH_TIMELAPSE_CONFIG = EARTH_TIMELAPSE_CONFIG || {};
     var rawUrl = EARTH_TIMELAPSE_CONFIG["waypointSliderContentPath"] || "https://docs.google.com/spreadsheets/d/1rCiksJv4aXi1usI0_9zdl4v5vuOfiHgMRidiDPt1WfE/edit#gid=1596808134";
     var regexp = /d\/(.*)\/edit\#gid=(.*)/;
     var matchesArray = rawUrl.match(regexp);
     var urlSrc = "https://docs-proxy.cmucreatelab.org/spreadsheets/d/{{id}}/export?format=csv&id={{id}}&gid={{gid}}";
-
     var urlTemplate = Handlebars.compile(urlSrc);
     var url = urlTemplate({'id': matchesArray[1], 'gid': matchesArray[2]});
+
+    if (mylocation) {
+      url =urlTemplate({'id': mylocation.split('.')[0], 'gid': mylocation.split('.')[1]});      
+    }
     var storyName = "#Big Picture on US Cities";
     var parsedUrl = new URL(window.location.href);
     if (parsedUrl.searchParams.get("storyName")  && parsedUrl.searchParams.get("storyName") != '') {
