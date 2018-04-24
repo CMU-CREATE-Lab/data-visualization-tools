@@ -28,7 +28,7 @@
         <script type="text/javascript" src="../mobile-story.js"></script>
         <script id="story-template" type="text/x-handlebars-template">
           <div class="story" id="{{id}}">
-            <h1><a href="./{{title}}">{{title}}</a></h1>
+            <h1><a href="./{{url}}">{{title}}</a></h1>
           </div>
         </script>        
         <script id="portrait-video-template" type="text/x-handlebars-template">
@@ -80,6 +80,9 @@
             var source   = document.getElementById("landscape-picture-template").innerHTML;
             var landscapePictureTemplate = Handlebars.compile(source);
 
+            var lochash = location.hash.substr(1);
+            var mylocation = lochash.substr(lochash.indexOf('waypoints=')).split('&')[0].split('=')[1];
+
             var EARTH_TIMELAPSE_CONFIG = EARTH_TIMELAPSE_CONFIG || {};
             var rawUrl = EARTH_TIMELAPSE_CONFIG["waypointSliderContentPath"] || "https://docs.google.com/spreadsheets/d/1rCiksJv4aXi1usI0_9zdl4v5vuOfiHgMRidiDPt1WfE/edit#gid=1596808134";
             var regexp = /d\/(.*)\/edit\#gid=(.*)/;
@@ -89,48 +92,66 @@
             var urlTemplate = Handlebars.compile(urlSrc);
             var url = urlTemplate({'id': matchesArray[1], 'gid': matchesArray[2]});
 
+            if (mylocation) {
+                url =urlTemplate({'id': mylocation.split('.')[0], 'gid': mylocation.split('.')[1]});      
+            }
+
             var storyTitles = [];
             var story = [];
             var data;
             var storyName = '';
             var slug = window.location.href.substr(window.location.href.lastIndexOf('/') + 1);
+            slug = slug.split('#')[0];
             slug = slug.replace(/_/g,' ');
             if (slug != '') {
-                storyName = '##' + slug.trim();
+                storyName = '#' + slug.trim();
             }
             console.log(slug);
+            var storyMode = false;
             Papa.parse(url, {
                 download: true,
+                header: true,
                 complete: function(results, file) {
                     data = results["data"];
                     var append = false;
                     for (var i = 0; i < data.length; i++) {                        
-                         if (data[i][0][1] == "#" && append) {
+                        if (storyMode && data[i]['Waypoint Title'][1] == "#" && append) {
                             append = false;            
+                        } else if (!storyMode && data[i]['Waypoint Title'][0] == "#" && append) {
+                            append = false;
                         }
                        
-                        if (data[i][0][1] == "#") {
+                        if ((storyMode && data[i]['Waypoint Title'][1] == "#") || (!storyMode && data[i]['Waypoint Title'][0] == "#")) {
                             storyTitles.push(data[i][0]);
-                            var context = {title: data[i][0].replace(/#/g,"").replace(/ /g, "_"), id: data[i][0].replace("#","").replace(/ /g, "_")};
+                            var context = {
+                                title: data[i]['Waypoint Title'].replace(/#/g,"").replace(/ /g, "_"), 
+                                id: data[i]['Waypoint Title'].replace(/#/g,"").replace(/ /g, "_").toLowerCase(),
+                                url: data[i]['Waypoint Title'].replace(/#/g,"").replace(/ /g, "_").toLowerCase()                       
+                            };
                             var html = storyTemplate(context);                            
                             var el = document.getElementById("out");
                             el.insertAdjacentHTML('beforeend', html);
                         } 
-                        if (data[i][0].toLowerCase() == storyName.toLowerCase()) {
+                        if (data[i]['Waypoint Title'].toLowerCase() == storyName.toLowerCase() || data[i]['Waypoint Title'].toLowerCase() == '#' + storyName.toLowerCase()) {
+                            if (data[i]['Waypoint Title'][1] == "#") {
+                                storyMode = true;
+                            }
                             append = true;
+                            console.log('matched');
                         }
                         if (append) {
-                            if (data[i][0] != '') {
+                            if (data[i]['Waypoint Title'] != '') {
                                 story.push(data[i]);
                             }
                         }
 
                     }
                     if (storyName != '') {
-                        var el = document.getElementById(storyName.replace("#","").replace(/ /g, "_"));
-                          for (var i = 0; i < story.length; i++) {
-                            if (story[i][4] != '') {
-                                var t = new Thumbnailer(story[i][4]);
+                        var el = document.getElementById(storyName.replace(/#/g,"").replace(/ /g, "_"));
+                        console.log(el);
+                        for (var i = 0; i < story.length; i++) {
+                            if (story[i]['Share View'] != '') {
+                                var t = new Thumbnailer(story[i]['Share View']);
                                 if (t.isPicture()) {
                                     var context = {src: t.getPng("portrait")};
                                     var html = portraitPictureTemplate(context);                            
@@ -147,9 +168,9 @@
                                     var context = {poster: t.getPng("landscape"), src: t.getMp4("landscape")};
                                     var html = landscapeVideoTemplate(context);                            
                                     el.insertAdjacentHTML('beforeend', html);
-                                    }
+                                }
                             }
-}
+                        }
                     }
                 }
             });
