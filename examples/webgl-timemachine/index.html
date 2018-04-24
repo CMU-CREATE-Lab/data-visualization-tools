@@ -6004,8 +6004,10 @@
             waypointBounds = himawariWaypoint.bounds;
             waypointStartTime = himawariWaypoint.time;
             timelapse.setMaxScale(himawariMaxScale);
-          } else {
+          } else if (waypoint.layers.indexOf("blsat") >= 0) {
             timelapse.setMaxScale(landsatMaxScale);
+          } else {
+            timelapse.setMaxScale(rasterMapTileMaxScale);
           }
 
           if (enableThemeHamburgerButton && isAutoModeRunning && autoModeFullThemeCycle && lastAutomodeWaypointIndex > waypointIndex) {
