@@ -161,7 +161,7 @@
     var googleMapsAPIKey = EARTH_TIMELAPSE_CONFIG.googleMapsAPIKey;
 
     var showExtrasMenu = typeof(EARTH_TIMELAPSE_CONFIG.showExtrasMenu) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showExtrasMenu;
-    var showFullScreenButton = typeof(EARTH_TIMELAPSE_CONFIG.showFullScreenButton) === "undefined" ? false : !!EARTH_TIMELAPSE_CONFIG.showFullScreenButton;
+    var showFullScreenButton = window.location.hash.split("showFullScreenButton=")[1] || !!EARTH_TIMELAPSE_CONFIG.showFullScreenButton;
     var showThumbnailTool = typeof(EARTH_TIMELAPSE_CONFIG.showThumbnailTool) === "undefined" ? false : !!EARTH_TIMELAPSE_CONFIG.showThumbnailTool;
     var showEVA = !!EARTH_TIMELAPSE_CONFIG.showEVA;
     var showGFW = !!EARTH_TIMELAPSE_CONFIG.showGFW;
@@ -228,6 +228,7 @@
     var disablePresentationSlider = window.location.hash.split("disablePresentationSlider=")[1] || !!EARTH_TIMELAPSE_CONFIG.disablePresentationSlider || false;
     if (disableUI)
       disablePresentationSlider = true;
+    var presentationMode = window.location.hash.split("presentationMode=")[1] || !!EARTH_TIMELAPSE_CONFIG.presentationMode;
     var extraContributors = EARTH_TIMELAPSE_CONFIG.extraContributors ? EARTH_TIMELAPSE_CONFIG.extraContributors.replace(",", " |") : "";
     var showShareButton = typeof(EARTH_TIMELAPSE_CONFIG.showShareButton) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showShareButton;
     var showShareButtonHash = window.location.hash.split("showShareButton=")[1];
@@ -962,7 +963,7 @@
     );
 
     function googleMapsLoadedCallback() {
-      if (useGoogleSearch) {
+      if (useGoogleSearch && $("#location_search").length) {
         var autocomplete = new google.maps.places.Autocomplete($("#location_search").get(0));
         var geocoder = new google.maps.Geocoder();
 
@@ -5198,6 +5199,10 @@
 
         $controlsContainer.appendTo($("#timeMachine .player"));
 
+        if (showFullScreenButton) {
+          $("#timeMachine .fullScreen").appendTo($navigationControls);
+        }
+
         $appControls.css("top", ($navigationControls.height() + 20) + "px");
 
         // Hide any tables that have all their children
@@ -6820,21 +6825,26 @@
         $(".captureTime, .scaleBarContainer, #logosContainer, #baseLayerCreditContainer").addClass("minimalUIMode");
         // Move annotation to top left
         $(".current-location-text-container, .annotation-nav").addClass("letterbox");
-        // Remove side control panel, search box, and timelines
-        $("#controlsContainer, .location_search_div, .customControl, .controls").remove();
+        // Remove top nav, side control panel, search box, and timelines
+        $("#top-nav, #controlsContainer, .location_search_div, .customControl, .controls").remove();
         // Hide presentation slider so that it's still usable via keyboard/clicker but not shown on screen
         handleStoryToggle(false);
       } else if (timestampOnlyUI) {
         // Move capture time outside of the timeline controls
         $(".captureTime").insertBefore(".controls");
         $(".captureTime, .scaleBarContainer, #logosContainer, #baseLayerCreditContainer").addClass("minimalUIMode");
-        // Remove side control panel, search box, timelines, scalebar, logos and legend
-        $("#controlsContainer, .location_search_div, .customControl, .controls, .scaleBarContainer, #baseLayerCreditContainer, #logosContainer, #layers-legend").remove();
+        // Remove top-nav, side control panel, search box, timelines, scalebar, logos and legend
+        $("#top-nav, #controlsContainer, .location_search_div, .customControl, .controls, .scaleBarContainer, #baseLayerCreditContainer, #logosContainer, #layers-legend").remove();
+      }
+
+      if (presentationMode) {
+        $("#top-nav, .current-location-text-container, .annotation-nav, .annotations-resume-exit-container").remove();
+        $("#controlsContainer, #layers-legend").css("top", "20px");
       }
 
       if (disableUI) {
-        // Remove side control panel, search box, timelines, scalebar, logos and legend
-        $("#controlsContainer, .location_search_div, .customControl, .controls, .scaleBarContainer, .captureTime, #baseLayerCreditContainer, #logosContainer, #layers-legend").remove();
+        // Remove top nav, side control panel, search box, timelines, scalebar, logos and legend
+        $("#top-nav, #controlsContainer, .location_search_div, .customControl, .controls, .scaleBarContainer, .captureTime, #baseLayerCreditContainer, #logosContainer, #layers-legend").remove();
       }
 
       $(".annotations-resume-button").on("click", function() {
@@ -6938,11 +6948,13 @@
       });
 
       var tmpElm = $("#top-nav-wrapper")[0];
-      initialTopNavWrapperElm = {};
-      initialTopNavWrapperElm.offsetLeft = tmpElm.offsetLeft;
-      initialTopNavWrapperElm.offsetTop = tmpElm.offsetTop;
-      initialTopNavWrapperElm.offsetHeight = tmpElm.offsetHeight;
-      initialTopNavWrapperElm.offsetWidth = tmpElm.offsetWidth;
+      if (tmpElm) {
+        initialTopNavWrapperElm = {};
+        initialTopNavWrapperElm.offsetLeft = tmpElm.offsetLeft;
+        initialTopNavWrapperElm.offsetTop = tmpElm.offsetTop;
+        initialTopNavWrapperElm.offsetHeight = tmpElm.offsetHeight;
+        initialTopNavWrapperElm.offsetWidth = tmpElm.offsetWidth;
+      }
 
       if (enableMuseumMode) {
         EarthlapseUI.init();

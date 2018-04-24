@@ -32,6 +32,29 @@ html, body {
   top: -24px;
 }
 
+.fullScreen {
+  bottom: initial;
+  right: initial;
+  margin-top: 15px;
+  display: block;
+  width: 38px;
+  height: 38px;
+  background: white;
+  border-bottom-right-radius: 2px !important;
+  border-top-right-radius: 2px !important;
+  -webkit-box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
+  box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.fullScreen .ui-icon.ui-icon-custom-fullScreenOn, .fullScreen .ui-icon.ui-icon-custom-fullScreenOff {
+  opacity: 0.7;
+}
+
+.fullScreen.ui-button.ui-state-hover .ui-icon.ui-icon-custom-fullScreenOn, .fullScreen.ui-button.ui-state-hover .ui-icon.ui-icon-custom-fullScreenOff {
+  opacity: 1.0;
+}
+
 .player {
   border: 0px !important;
 }
