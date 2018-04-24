@@ -325,7 +325,7 @@
         el2.insertAdjacentHTML('afterend', html);
 
         var htmlCollection = document.getElementsByClassName("gi-related__items");
-        if (themes[currentThemeIdx]['stories'].length > 0) {
+        if (themes[currentThemeIdx]['stories'].length > 1) {
           var relatedItems = [];
           while (relatedItems.length < 2) {
             var choice = Math.floor(Math.random() * themes[currentThemeIdx]['stories'].length);
@@ -344,8 +344,10 @@
             if (currentThemeIdx == 0) {
               i = 1;
             }
-            var html = relatedItemTemplate(themes[i]);          
-            htmlCollection[0].insertAdjacentHTML('afterend', html);
+            for (var j = 0; j < 2; j++) {
+              var html = relatedItemTemplate(themes[i]['stories'][j]);          
+              htmlCollection[0].insertAdjacentHTML('afterend', html);              
+            }
           }
           else if (themes.length > 2) { // there is >= 2 more themes   
             var relatedItems = [];
