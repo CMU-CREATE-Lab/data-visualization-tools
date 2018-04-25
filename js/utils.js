@@ -548,6 +548,9 @@ function PackArray(arr) {
 }
 
 function capitalize_each_word_in_string(str) {
+  if (str == "") {
+    return "";    
+  }
   str = str.split(" ");
 
   for (var i = 0, x = str.length; i < x; i++) {
