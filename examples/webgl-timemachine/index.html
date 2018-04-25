@@ -3706,10 +3706,8 @@
         // Note: >1 because we ignore Base layers
         if ($('.map-layer-div').find("input:checked").length > 1) {
           $(".clearLayers").show();
-          //$("#layers-list").css("height", "calc(100% - " + (($(".clearLayers").outerHeight() * $(".clearLayers").is(":visible")) + layersListTopPos - 11) + "px)");
         } else {
           $(".clearLayers").hide();
-          //$("#layers-list").css("height", "calc(100% - " + (layersListTopPos - 11) + "px)");
         }
 
         // Add indicator that a layer is on in a category but ignore the first category (base layers)
@@ -3811,7 +3809,7 @@
       $('#layers-menu').on('click', 'input', timelineUIHandler);
 
       $("body").on("click", "#layers-list .ui-accordion-header", function() {
-        lastLayerMenuScrollPos = $(this)[0].offsetTop - $("#layers-list").position().top - 15;
+        lastLayerMenuScrollPos = $(this)[0].offsetTop - $("#layers-list").position().top - 25;
         $('.layers-scroll-vertical').animate({
           scrollTop: lastLayerMenuScrollPos
         });
@@ -6515,7 +6513,6 @@
           $("<div id='featured-layers-title'>Featured Data for: <br>" + featuredTheme + "</div><div id='layers-list-featured'><div class='featured-layers-scroll-vertical'><div id='featured-layers'></div></div><div id='show-more-layers'>Show More</div>").insertBefore($("#layers-list"));
         } else {
           $(".map-layer-div").show();
-          $(".layers-scroll-vertical").css("height", "calc(100% - 66px)");
         }
 
         var layerDefs = csvFileLayers.layersData.data;
@@ -6565,17 +6562,16 @@
         $("#show-more-layers").on("click", function() {
           if ($(this).hasClass("active")) {
             //$(".clearLayers").css("visibility", "hidden");
-            $("#layers-list-featured").css("height", "67%");
+            $("#layers-list-featured").removeClass("shrink");
             $(".map-layer-div, #all-data-layers-title").hide();
             $(this).text("Show More");
           } else {
             //$(".clearLayers").css("visibility", "visible");
-            $("#layers-list-featured").css("height", "calc(50% - 88px)");
+            $("#layers-list-featured").addClass("shrink");
             $(".map-layer-div, #all-data-layers-title").show();
             $(this).html("Show Less");
           }
           $(this).toggleClass("active");
-          //$("#layers-list").css("height", "calc(100% - " + ($("#layers-list").position().top - 11) + "px)");
         });
 
         $("#featured-layers").accordion({
@@ -6687,13 +6683,7 @@
         } else if ($("#theme-menu").find(".ui-accordion-header-active").length == 0) {
           $("#theme-menu").find("h3").first().click();
         }
-        //if ($("#theme-menu").find("h3").length == 1) {
-          //var $firstOption = $("#theme-menu").find("h3").first();
-          //if (!$firstOption.hasClass("ui-state-active")) {
-          //  $("#theme-menu").find("h3").first().click();
-          //}
-        //}
-        //$("#controlsContainer").animate({"left": $("#main-hamburger-menu").css("width")}, 150);
+
       });
 
       $("#layers-menu-choice").on("click", function() {
@@ -6705,7 +6695,6 @@
         }
         $("#layers-menu").show();
         $("#theme-menu").hide();
-        //$("#controlsContainer").animate({"left": $("#main-hamburger-menu").css("width")}, 150);
       });
 
       /*$("#main-hamburger-menu .selection-heading").on("click", function(e) {
@@ -7474,48 +7463,27 @@
     });
 
 
-
-    /*function fixThemeMenuHeight() {
-      var $themeList = $("#theme-list");
-      if ($themeList.is(':visible')) {
-        var sectionHeadingHeight = parseInt($(".selection-heading").outerHeight());
-
-        var themeListHeight = parseInt($(".themes-div").outerHeight());
-        var newThemeListHeight = parseInt($("#main-hamburger-menu").outerHeight()) - themeListHeight;
-        if (newThemeListHeight < sectionHeadingHeight) {
-          newThemeListHeight = sectionHeadingHeight;
-        }
-        newThemeListHeight = Math.max(119, newThemeListHeight);
-        $themeList.css("height", "calc(100% - " + newThemeListHeight + "px)");
-      }
-    }*/
-
     function handleStoryToggle(doShow) {
       if (doShow) {
         $("#timeMachine .presentationSlider").removeClass("offscreen");
         $("#timeMachine .player").removeClass("presentationSliderOffscreen");
         $("#main-hamburger-menu").removeClass("presentationSliderOffscreen");
-        $(".layers-scroll-vertical").css("height", "calc(100% - 65px)");
-        $(".themes-scroll-vertical").css("height", "calc(100% - 0px)");
+        $("#layers-list, .themes-scroll-vertical").addClass("waypoints");
       } else {
         $("#timeMachine .presentationSlider").addClass("offscreen");
         $("#timeMachine .player").addClass("presentationSliderOffscreen");
         $("#main-hamburger-menu").addClass("presentationSliderOffscreen");
-        $(".layers-scroll-vertical").css("height", "calc(100% - 85px)");
-        $(".themes-scroll-vertical").css("height", "calc(100% - 49px)");
+        $("#layers-list, .themes-scroll-vertical").removeClass("waypoints");
       }
       timelapse.onresize();
       $("body").trigger('resize');
       $("#timeMachine").hide().show(0);
-
     }
 
     function resize() {
       var width = canvasLayer.canvas.width;
       var height = canvasLayer.canvas.height;
       gl.viewport(0, 0, width, height);
-
-      //fixThemeMenuHeight();
 
       var el1 = $("#location_search")[0];
       var el2 = initialTopNavWrapperElm;

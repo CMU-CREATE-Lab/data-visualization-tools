@@ -348,16 +348,30 @@ html, body {
   display: inline-block;
 }
 
-#layers-list.featured {
-  height: calc(50% - 20px);
-  margin-top: -18px;
-}
 
 #layers-list {
   z-index: 99;
   text-align: left;
-  height: calc(100% - 40px);
+  height: calc(100% - 108px);
 }
+
+#layers-list.featured {
+  height: calc(50% - 66px);
+  margin-top: -18px;
+}
+
+#layers-list.waypoints {
+  height: calc(100% - 58px);
+}
+
+#layers-list.featured.waypoints {
+  height: calc(50% - 16px);
+}
+
+#layers-list.featured .layers-scroll-vertical {
+  height: calc(100% - 42px);
+}
+
 
 #layers-menu {
   height: 100%;
@@ -371,11 +385,14 @@ html, body {
 
 .layers-scroll-vertical {
   overflow-y: auto;
-  height: calc(100% - 53px);
+  height: 100%;
   overflow-x: hidden;
 }
 #layers-list-featured {
   height: 67%;
+}
+#layers-list-featured.shrink {
+  height: calc(50% - 88px);
 }
 .featured-layers-scroll-vertical {
   overflow-y: auto;
@@ -387,7 +404,7 @@ html, body {
 
 .themes-scroll-vertical {
   overflow-y: auto;
-  height: calc(100% - 49px);
+  height: 100%;
   overflow-x: hidden;
 }
 
@@ -1908,7 +1925,7 @@ a:focus { outline:0; }
 
 #theme-list {
   overflow-y: auto;
-  height: calc(100% - 61px);
+  height: calc(100% - 58px);
   text-align: left;
 }
 
