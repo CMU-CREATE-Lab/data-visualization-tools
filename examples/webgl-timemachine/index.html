@@ -293,7 +293,7 @@
     var visibleBaseMapLayer = "landsat";
     var previousVisibleBaseMapLayer = "landsat";
     var timelapse, snaplapseViewerForPresentationSlider, previousWaypoint = {}, waypointViewChangeListener, hideWaypointListener, waypointTimeChangeListenerInterval, snaplapseForPresentationSlider, parabolicMotionStoppedListener;
-    var currentWaypointTheme;
+    var currentWaypointTheme = featuredTheme.replace(/ /g, '_').toLowerCase();
     var currentWaypointStory;
     var himawariWaypoints = {};
     var annotationPicturePaths = {};
@@ -305,7 +305,6 @@
     var lastAutomodeWaypointIndex = 0;
     var keysDown = [];
     var $lastSelectedExtra;
-    //var loadedInitialWaypointList = false;
     var loadedInitialCsvLayers = false;
     var timeInMsSinceLastWaypointLoop = 0;
     var $nextAnnotationLocationButton;
@@ -3401,6 +3400,7 @@
       });
 
       $("input:radio[name=base-layers]").on("change", function(e) {
+        // If we have a featured layers section, set listener to mirror checked behavior for base layer radio buttons
         if (featuredTheme) {
           $("#layers-list-featured #" + e.currentTarget.id).prop("checked", $("#layers-list #" + e.currentTarget.id).prop("checked"));
         }
@@ -3848,15 +3848,6 @@
         }
       });
 
-    /*
-      $("body").on("click", "#theme-list .ui-accordion-header", function() {
-        lastThemeMenuScrollPos = $(this)[0].offsetTop - 60;
-        $('.themes-scroll-vertical').animate({
-          scrollTop: lastThemeMenuScrollPos
-        });
-        fixThemeMenuHeight();
-      });*/
-
       // Make right layers panel vertically touch scrollable.
       try {
         if (document.createEvent("TouchEvent")) {
@@ -3882,6 +3873,100 @@
       });
     }
     // END of initLayerToggleUI()
+
+    function createFeaturedLayersSection() {
+      $("#featured-layers-title, #layers-list-featured").remove();
+
+      $("<div id='featured-layers-title'>Featured Data for: <br>" + featuredTheme + "</div><div id='layers-list-featured'><div class='featured-layers-scroll-vertical'><div id='featured-layers'></div></div><div id='show-more-layers'>Show More</div>").insertBefore($("#layers-list"));
+
+      var layerDefs = csvFileLayers.layersData.data;
+      var featuredLayerCount = 0;
+      for (var i = 0; i < layerDefs.length; i++) {
+        var layerDef = layerDefs[i];
+        var shareLinkIdentifier = layerDef['Share link identifier'];
+        var $layer = $("#layers-list label[name='" + shareLinkIdentifier + "']");
+        // Featured layers section
+        if (featuredTheme) {
+          var possibleFeaturedThemes = layerDef['Featured Themes'] ? JSON.parse(layerDef['Featured Themes']) : [];
+          if (possibleFeaturedThemes.indexOf(featuredTheme) != -1 || possibleFeaturedThemes.indexOf("All") != -1) {
+            featuredLayerCount++;
+            var $clonedLayer = $layer.closest("tr").clone(true, true);
+            var inputGroup;
+            if (shareLinkIdentifier == "blsat" || shareLinkIdentifier == "bdrk") {
+              var inputGroup = $clonedLayer.find("input");
+              inputGroup.attr("name", inputGroup.attr("name") + "-featured");
+            }
+            // TODO: If the layer to clone is not in the DOM, errors be thrown
+            var clonedLayerCategory = $layer.closest("table").attr("id");
+            if (!clonedLayerCategory) continue;
+            if ($('#featured-layers #' + clonedLayerCategory + "-featured").length == 0) {
+              $("#featured-layers").append($("<h3>" + clonedLayerCategory.split("category-")[1].replace('-',' ') + "</h3><table id='" + clonedLayerCategory + "-featured'></table>"));
+            }
+            $('#featured-layers #' + clonedLayerCategory + "-featured").append($clonedLayer);
+          }
+        }
+      }
+
+      // If we don't find any layers that match the selected theme or we just have base layers, remove the featured section and show all layers
+      if (featuredLayerCount == 0 || $("#featured-layers").find("h3").length == 1) {
+        $("#featured-layers-title, #layers-list-featured").remove();
+        $(".map-layer-div").show();
+        $("#layers-list").removeClass("featured");
+        featuredTheme = "";
+      } else {
+        $("#layers-list").addClass("featured");
+
+        $("#show-more-layers").on("click", function() {
+          if ($(this).hasClass("active")) {
+            $("#layers-list-featured").removeClass("shrink");
+            $(".map-layer-div, #all-data-layers-title").hide();
+            $(this).text("Show More");
+          } else {
+            $("#layers-list-featured").addClass("shrink");
+            $(".map-layer-div, #all-data-layers-title").show();
+            $(this).html("Show Less");
+          }
+          $(this).toggleClass("active");
+        });
+
+        $("#featured-layers").accordion({
+          collapsible: true,
+          active: false,
+          animate: false,
+          heightStyle: 'content',
+          beforeActivate: function(event, ui) {
+            // The accordion believes a panel is being opened
+            if (ui.newHeader[0]) {
+                var currHeader  = ui.newHeader;
+                var currContent = currHeader.next('.ui-accordion-content');
+            // The accordion believes a panel is being closed
+            } else {
+                var currHeader  = ui.oldHeader;
+                var currContent = currHeader.next('.ui-accordion-content');
+            }
+            // Since we've changed the default behavior, this detects the actual status
+            var isPanelSelected = currHeader.attr('aria-selected') == 'true';
+
+            // Toggle the panel's header
+            currHeader.toggleClass('ui-corner-all',isPanelSelected).toggleClass('accordion-header-active ui-state-active ui-corner-top', !isPanelSelected).attr('aria-selected', ((!isPanelSelected).toString()));
+
+            // Toggle the panel's icon
+            currHeader.children('.ui-icon').toggleClass('ui-icon-triangle-1-e', isPanelSelected).toggleClass('ui-icon-triangle-1-s', !isPanelSelected);
+
+            // Toggle the panel's content
+            currContent.toggleClass('accordion-content-active', !isPanelSelected);
+            if (isPanelSelected) {
+              currContent.slideUp(0);
+            } else {
+              currContent.slideDown(0);
+            }
+
+            // Cancel the default action
+            return false;
+          }
+        });
+      }
+    }
 
     function hideAnnotationResumeExit() {
       $(".annotations-resume-exit-container").hide();
@@ -4329,16 +4414,9 @@
           }
         }
 
-        //if (loadedInitialWaypointList) {
-        //  changeHash({theme : "", story: ""});
-        //}
-
         $(".themes-div").accordion("refresh");
 
         var storyAndTheme = getStoryAndThemeFromUrl();
-        //if (hashVals.theme && !hashVals.v) {
-        //  loadedInitialWaypointList = true;
-        //}
         var $selectedStoryElement;
         var themeLoaded = waypointJSONList[storyAndTheme.theme];
         var storyEqualsTheme = themeLoaded && waypointJSONList[storyAndTheme.theme].stories['default']
@@ -4347,9 +4425,8 @@
           $selectedStoryElement = $("#story_" + storyAndTheme.theme);
         } else if (storyLoaded) {
           $selectedStoryElement = $("#story_" + storyAndTheme.story);
-        } /*else {
-          $selectedStoryElement = $(".themes-div").find("[id^=story_]").first();
-        }*/
+        }
+
         if ($selectedStoryElement) {
           $selectedStoryElement.click();
         }
@@ -5148,21 +5225,10 @@
           text: false
         }).click(function() {
           $('.current-location-text').removeClass("allow-pointer-events");
-          //if ($(this).hasClass("annotation-story-start-button")) {
-          //  var story = waypointJSONList[currentWaypointTheme].stories[currentWaypointStory];
-          //  if (story && story.storyDescription) {
-          //    $previousAnnotationLocationButton.button("disable");
-          //    $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight").removeClass("thumbnail_highlight");
-          //    $(".current-location-text-container").show();
-          //    $(".current-location-text-title").text(story.storyTitle);
-          //    $(".current-location-text p").text(story.storyDescription);
-          //  }
-          //} else {
-            var e = jQuery.Event("keydown");
-            e.which = 34;
-            e.keyCode = 34;
-            $(document).trigger(e);
-          //}
+          var e = jQuery.Event("keydown");
+          e.which = 34;
+          e.keyCode = 34;
+          $(document).trigger(e);
         });
 
         var $controlsContainer = $("<div id='controlsContainer' />");
@@ -5968,20 +6034,7 @@
             var snaplapseForPresentationSlider = timelapse.getSnaplapseForPresentationSlider();
             snaplapseForPresentationSlider.getSnaplapseViewer().initializeAndRunAutoMode();
           }
-
-          var theme = waypointJSONList[currentWaypointTheme];
-          if (!theme) return;
-          var story = theme.stories[currentWaypointStory];
-          //if (!story || !story.storyDescription) {
-            $(".snaplapse_keyframe_list").children().first().children().click();
-          //} else {
-          //  $previousAnnotationLocationButton.button("disable");
-          //  $(".current-location-text-container").show();
-          //  $(".current-location-text-title").text(story.storyTitle);
-          //  $(".current-location-text p").text(story.storyDescription);
-          //}
-
-          //loadedInitialWaypointList = true;
+          $(".snaplapse_keyframe_list").children().first().children().click();
         });
 
         snaplapseViewerForPresentationSlider.addEventListener('automode-start', function() {
@@ -6498,26 +6551,18 @@
         // New layers have been added, so refresh the layer panel
         $(".map-layer-div").accordion("refresh");
         sortLayerCategories();
+
         if (enableLetterboxMode) {
           updateLetterboxContent();
         }
+
+        featuredTheme = currentWaypointTheme ? currentWaypointTheme : featuredTheme;
+        featuredTheme = capitalize_each_word_in_string(featuredTheme.replace(/_/g, " "));
+
         if (!loadedInitialCsvLayers) {
           loadedInitialCsvLayers = true;
           // CSV layers are loaded asynchronously, so trigger another hash change if we just loaded the page
           $(window).on('hashchange', hashChange).trigger('hashchange');
-        }
-
-        var hashVars = UTIL.getUnsafeHashVars();
-        // Cancel featured theme if loading custom waypoints
-        if (hashVars.waypoints) {
-          featuredTheme = "";
-        }
-
-        if (featuredTheme) {
-          $("#layers-list").addClass("featured");
-          $("<div id='featured-layers-title'>Featured Data for: <br>" + featuredTheme + "</div><div id='layers-list-featured'><div class='featured-layers-scroll-vertical'><div id='featured-layers'></div></div><div id='show-more-layers'>Show More</div>").insertBefore($("#layers-list"));
-        } else {
-          $(".map-layer-div").show();
         }
 
         var layerDefs = csvFileLayers.layersData.data;
@@ -6531,92 +6576,13 @@
             $layer.closest("tr").append($layerDescriptionElm);
             $layerDescriptionElm.find(".layer-description").attr("data-layer-description", layerDef['Layer Description']);
           }
-          // Featured layers
-          if (featuredTheme) {
-            var possibleFeaturedThemes = layerDef['Featured Themes'] ? JSON.parse(layerDef['Featured Themes']) : [];
-            if (possibleFeaturedThemes.indexOf(featuredTheme) != -1 || possibleFeaturedThemes.indexOf("All") != -1) {
-              var $clonedLayer = $layer.closest("tr").clone(true, true);
-              var inputGroup;
-              if (shareLinkIdentifier == "blsat" || shareLinkIdentifier == "bdrk") {
-                var inputGroup = $clonedLayer.find("input");
-                inputGroup.attr("name", inputGroup.attr("name") + "-featured");
-              }
-              // TODO: If the layer to clone is not in the DOM errors be through
-              var clonedLayerCategory = $layer.closest("table").attr("id");
-              if ($('#featured-layers #' + clonedLayerCategory + "-featured").length == 0) {
-                $("#featured-layers").append($("<h3>" + clonedLayerCategory.split("category-")[1].replace('-',' ') + "</h3><table id='" + clonedLayerCategory + "-featured'></table>"));
-              }
-              $('#featured-layers #' + clonedLayerCategory + "-featured").append($clonedLayer);
-            }
-          }
         }
+
+        if (featuredTheme) {
+          createFeaturedLayersSection();
+        }
+        // Sort all the newly added layers
         sortLayerCategories();
-        $("body").on("click", "#annotation-choose-another-story", function() {
-          if (!$("#theme-menu").is(":visible")) {
-            $('#stories-menu-choice').trigger("click");
-          }
-        });
-
-        $("body").on("click", "#annotation-start-story-over", function() {
-          var e = jQuery.Event("keydown");
-          e.which = 33;
-          e.keyCode = 33;
-          $(document).trigger(e);
-        });
-
-        $("#show-more-layers").on("click", function() {
-          if ($(this).hasClass("active")) {
-            //$(".clearLayers").css("visibility", "hidden");
-            $("#layers-list-featured").removeClass("shrink");
-            $(".map-layer-div, #all-data-layers-title").hide();
-            $(this).text("Show More");
-          } else {
-            //$(".clearLayers").css("visibility", "visible");
-            $("#layers-list-featured").addClass("shrink");
-            $(".map-layer-div, #all-data-layers-title").show();
-            $(this).html("Show Less");
-          }
-          $(this).toggleClass("active");
-        });
-
-        $("#featured-layers").accordion({
-          collapsible: true,
-          active: false,
-          animate: false,
-          heightStyle: 'content',
-          beforeActivate: function(event, ui) {
-            // The accordion believes a panel is being opened
-            if (ui.newHeader[0]) {
-                var currHeader  = ui.newHeader;
-                var currContent = currHeader.next('.ui-accordion-content');
-            // The accordion believes a panel is being closed
-            } else {
-                var currHeader  = ui.oldHeader;
-                var currContent = currHeader.next('.ui-accordion-content');
-            }
-            // Since we've changed the default behavior, this detects the actual status
-            var isPanelSelected = currHeader.attr('aria-selected') == 'true';
-
-            // Toggle the panel's header
-            currHeader.toggleClass('ui-corner-all',isPanelSelected).toggleClass('accordion-header-active ui-state-active ui-corner-top', !isPanelSelected).attr('aria-selected', ((!isPanelSelected).toString()));
-
-            // Toggle the panel's icon
-            currHeader.children('.ui-icon').toggleClass('ui-icon-triangle-1-e', isPanelSelected).toggleClass('ui-icon-triangle-1-s', !isPanelSelected);
-
-            // Toggle the panel's content
-            currContent.toggleClass('accordion-content-active', !isPanelSelected);
-            if (isPanelSelected) {
-              currContent.slideUp(0);
-            } else {
-              currContent.slideDown(0);
-            }
-
-            // Cancel the default action
-            return false;
-          }
-        });
-
-
       });
 
       csvDataGrapher.initialize();
@@ -6688,7 +6654,6 @@
         } else if ($("#theme-menu").find(".ui-accordion-header-active").length == 0) {
           $("#theme-menu").find("h3").first().click();
         }
-
       });
 
       $("#layers-menu-choice").on("click", function() {
@@ -6701,51 +6666,6 @@
         $("#layers-menu").show();
         $("#theme-menu").hide();
       });
-
-      /*$("#main-hamburger-menu .selection-heading").on("click", function(e) {
-        var selectionButton = $(this).siblings("input:radio");
-        if (selectionButton.prop("checked")) {
-          e.preventDefault();
-          selectionButton.prop("checked", false);
-        }
-        setTimeout(function() {
-          fixThemeMenuHeight();
-        }, 20);
-      });
-
-      $("#presentation-slider-hamburger-wrapper").on("click", function(e) {
-        if (enableLetterboxMode) {
-          return;
-        }
-        $('#main-hamburger-menu').toggle("slide", { direction: "left" }, 150);
-        var $hamburgerButtonSelector = $(this).find(".hamburger");
-        $hamburgerButtonSelector.toggleClass("is-active");
-        if ($(e.target).closest("#theme-title-container").length && $hamburgerButtonSelector.hasClass("is-active")) {
-          $("#theme-menu #theme-selection").prop("checked", true);
-        } else {
-          $("#theme-menu #theme-selection").prop("checked", false);
-        }
-
-        if ($hamburgerButtonSelector.hasClass("is-active")) {
-          $("#controlsContainer").animate({"left": $("#main-hamburger-menu").css("width")}, 150);
-          //UTIL.addGoogleAnalyticEvent('button', 'click', 'viewer-show-panel');
-        } else {
-          $("#controlsContainer").animate({"left" : "0px"}, 150);
-        }
-
-        $('.layers-scroll-vertical').animate({
-          scrollTop: lastLayerMenuScrollPos
-        }, 250);
-
-        $('.themes-scroll-vertical').animate({
-          scrollTop: lastThemeMenuScrollPos
-        }, 250);
-
-        setTimeout(function() {
-          fixThemeMenuHeight();
-        }, 20);
-
-      });*/
 
       $("#theme-menu").on("click", "[id^=story_]", function(e) {
         // Note that a story can also be a theme (old way)
@@ -6767,16 +6687,26 @@
         $("#theme-menu .active-story-in-theme").remove();
         var $storyGroup = $selectedStoryElement.parents("table");
         var $themeHeading;
+
+        var selectedWaypointTheme;
+
         if ($storyGroup.length == 0) {
           // Old way where theme = story
           $themeHeading = $selectedStoryElement;
-          currentWaypointTheme = $selectedStoryElement.attr("id").replace("story_","");
+          selectedWaypointTheme = $selectedStoryElement.attr("id").replace("story_","");
           currentWaypointStory = "default";
         } else {
           $themeHeading = $storyGroup.prev();
-          currentWaypointTheme = $storyGroup.attr("id").replace("theme_","");
+          selectedWaypointTheme = $storyGroup.attr("id").replace("theme_","");
           currentWaypointStory = $selectedStoryElement.attr("id").replace("story_","");
         }
+
+        if (currentWaypointTheme != selectedWaypointTheme) {
+          currentWaypointTheme = selectedWaypointTheme;
+          featuredTheme = capitalize_each_word_in_string(currentWaypointTheme.replace(/_/g, " "));;
+          createFeaturedLayersSection();
+        }
+
         $themeHeading.append("<span class='ui-icon ui-icon-bullet active-story-in-theme' style='float:right;'>");
 
         if (!enableMuseumMode) {
@@ -6790,7 +6720,19 @@
         if ($('#main-hamburger-menu').hasClass("is-active")) {
           $("#stories-menu-choice").click();
         }
-        //$selectedStoryElement.click();
+      });
+
+      $("body").on("click", "#annotation-choose-another-story", function() {
+        if (!$("#theme-menu").is(":visible")) {
+          $('#stories-menu-choice').trigger("click");
+        }
+      });
+
+      $("body").on("click", "#annotation-start-story-over", function() {
+        var e = jQuery.Event("keydown");
+        e.which = 33;
+        e.keyCode = 33;
+        $(document).trigger(e);
       });
 
       $("body").on("click", function(e) {
@@ -7332,8 +7274,8 @@
       }
       if (!returnVals.theme) {
         var matchResult = currentUrl.match(/themes\/(\w*)\/?/);
-        // TODO(Earth Day 2018): We are assuming a default theme here. We MUST revist this after launch.
-        returnVals.theme = matchResult ? matchResult[1] : featuredTheme.toLowerCase().replace(/ /g, '_');
+        // Pull theme from URL or pull from internally tracked theme
+        returnVals.theme = matchResult ? matchResult[1] : currentWaypointTheme;
       }
       return returnVals;
     }
@@ -7473,12 +7415,12 @@
         $("#timeMachine .presentationSlider").removeClass("offscreen");
         $("#timeMachine .player").removeClass("presentationSliderOffscreen");
         $("#main-hamburger-menu").removeClass("presentationSliderOffscreen");
-        $("#layers-list, .themes-scroll-vertical").addClass("waypoints");
+        $("#layers-list, #theme-list, .themes-scroll-vertical").addClass("waypoints");
       } else {
         $("#timeMachine .presentationSlider").addClass("offscreen");
         $("#timeMachine .player").addClass("presentationSliderOffscreen");
         $("#main-hamburger-menu").addClass("presentationSliderOffscreen");
-        $("#layers-list, .themes-scroll-vertical").removeClass("waypoints");
+        $("#layers-list, #theme-list, .themes-scroll-vertical").removeClass("waypoints");
       }
       timelapse.onresize();
       $("body").trigger('resize');
