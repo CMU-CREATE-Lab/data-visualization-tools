@@ -3652,6 +3652,11 @@
           if (keysDown[0] === 16 && keysDown[1] === 83 && keysDown[2] === 86) {
             $(".share").trigger("click");
           }
+          // SHIFT + J
+          // Shortcut to bring up settings dialog
+          if (keysDown[0] === 16 && keysDown[1] === 74) {
+            showSettingsDialog();
+          }
         }
       }).keyup(function(e) {
         keysDown.length = 0;
