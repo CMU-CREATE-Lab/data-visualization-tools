@@ -474,20 +474,20 @@ CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate,
         while (tomorrow.getTime() <= n.getTime()) {
           var captureTimeStr = tomorrow.getUTCFullYear() + '-' + pad((tomorrow.getUTCMonth() + 1).toString()) + '-' + pad(tomorrow.getUTCDate().toString());
           if (typeof startHour != "undefined") {
-            captureTimeStr += ' ' + pad(tomorrow.getHours());
+            captureTimeStr += ' ' + pad(tomorrow.getUTCHours());
             if (typeof startMinute != "undefined") {
-              captureTimeStr += ':' + pad(tomorrow.getMinutes());
+              captureTimeStr += ':' + pad(tomorrow.getUTCMinutes());
             } else {
               captureTimeStr += ':' + '00';
             }
           }
           captureTimes.push(captureTimeStr);
           if (typeof startMinute != "undefined") {
-            tomorrow.setMinutes(tomorrow.getMinutes() + parseInt(step));
+            tomorrow.setUTCMinutes(tomorrow.getUTCMinutes() + parseInt(step));
           } else if (typeof startHour != "undefined") {
-            tomorrow.setHours(tomorrow.getHours() + parseInt(step));
+            tomorrow.setUTCHours(tomorrow.getUTCHours() + parseInt(step));
           } else {
-            tomorrow.setDate(tomorrow.getDate() + parseInt(step));
+            tomorrow.setUTCDate(tomorrow.getUTCDate() + parseInt(step));
           }
         }
       } else { // generate yyyy-mm
