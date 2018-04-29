@@ -4205,14 +4205,15 @@
       $('#legend-content table tr:last').after(legend);
 
       // Handle click event to turn on and off layer
-      $('#' + id).on("click", function() {
+      $('#' + id).on("click", function(e) {
         var $this = $(this);
         if ($this.prop('checked')) {
           layer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-          // Turn off other dotmap layers
-          $('#' + id).prop('checked', false);
-          $("[id^='show-dotmap']:checked").click();
-          $('#' + id).prop('checked', true);
+          // Turn off other dotmap layers if main layer list and the event was
+          // initiated by the user.
+          if (e.originalEvent && e.pageX != 0 && e.pageY != 0) {
+            $("#layers-list input[id^='show-dotmap']:checked").not(this).click();
+          }
           // Use dark basemap
           if (visibleBaseMapLayer != "dark") {
             $("#dark-base").click();
