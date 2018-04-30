@@ -331,7 +331,7 @@ html, body {
 #location_search {
   position: absolute;
   top: 9px;
-  right: 9px;
+  right: 20px;
   width: 200px;
   height: 28px;
   padding-left: 15px;
@@ -896,7 +896,7 @@ html, body {
   height:20px;
   z-index: 100;
   position: absolute;
-  right: 17px;
+  right: 28px;
   top: 15px;
   cursor: text;
 }
@@ -1519,13 +1519,11 @@ a:focus { outline:0; }
 
 #top-nav ul, #top-nav li {
     margin: 0;
-    padding: 6px 15px;
+    padding: 6px 11px;
     cursor: pointer;
     font-size: 18px;
     display: inline-block;
 }
-
-
 
 #top-nav ul > li {
     float: left;

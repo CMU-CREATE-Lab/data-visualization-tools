@@ -6669,6 +6669,9 @@
         }
         $("#layers-menu").show();
         $("#theme-menu").hide();
+        if ($("#show-more-layers").length && !$("#show-more-layers").hasClass("active")) {
+          $(".map-layer-div").hide();
+        }
       });
 
       $("#theme-menu").on("click", "[id^=story_]", function(e) {
@@ -6889,18 +6892,12 @@
         $(this).off("mouseleave");
       });
 
-      var tmpElm = $("#top-nav-wrapper")[0];
-      if (tmpElm) {
-        initialTopNavWrapperElm = {};
-        initialTopNavWrapperElm.offsetLeft = tmpElm.offsetLeft;
-        initialTopNavWrapperElm.offsetTop = tmpElm.offsetTop;
-        initialTopNavWrapperElm.offsetHeight = tmpElm.offsetHeight;
-        initialTopNavWrapperElm.offsetWidth = tmpElm.offsetWidth;
-      }
-
       if (enableMuseumMode) {
         EarthlapseUI.init();
       }
+
+      initialTopNavWrapperElm = {};
+      initialTopNavWrapperElm.outerWidth = $("#top-nav-wrapper").outerWidth();
 
       // End of onTimeMachinePlayerReady
     }
@@ -7436,12 +7433,14 @@
       var height = canvasLayer.canvas.height;
       gl.viewport(0, 0, width, height);
 
-      var el1 = $("#location_search")[0];
-      var el2 = initialTopNavWrapperElm;
-      if (el1 && el2) {
-        el1.offsetRight = el1.offsetLeft + el1.offsetWidth;
-        el2.offsetRight = el2.offsetLeft + el2.offsetWidth;
-        var needHamburgerNav = !((el1.offsetRight <= el2.offsetLeft) || (el1.offsetLeft >= el2.offsetRight));
+      var $el1 = $("#location_search");
+      var $el2 = $("#top-nav-wrapper");
+      if (!$el2.hasClass("shrink-nav")) {
+        initialTopNavWrapperElm.outerWidth = $el2.outerWidth();
+      }
+
+      if ($el1 && initialTopNavWrapperElm) {
+        var needHamburgerNav = ($el1[0].offsetLeft <= initialTopNavWrapperElm.outerWidth);
       }
 
       if (needHamburgerNav) {
