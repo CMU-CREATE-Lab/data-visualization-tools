@@ -8185,103 +8185,6 @@
           ebolaNewCasesLayer.draw(ebolaLayerView, options);
         }
 
-        if (showLodesLayer) {
-          var lodesLayerView = getLayerView(lodesLayer, landsatBaseMapLayer);
-          var options = {};
-          options.zoom = timelapse.getCurrentZoom();
-          options.se01 = lodesOptions.se01;
-          options.se02 = lodesOptions.se02;
-          options.se03 = lodesOptions.se03;
-
-          options.filter = lodesOptions.filter;
-          options.distance = lodesOptions.distance;
-
-          if (lodesOptions.animate == 'animate') {
-            var now = new Date();
-            var deltaTime = now.getTime() - lodesAnimationState.then.getTime();
-            var step = deltaTime/(lodesOptions.totalTime*lodesOptions.speed);
-            if (lodesAnimationState.inMainLoop) {
-              if (lodesOptions.doPulse) {
-                if (lodesAnimationState.pulse) {
-                  step = 1. - step;
-                }
-              } else if (lodesAnimationState.pulse) {
-                lodesAnimationState.pulse = false;
-              }
-
-              if (deltaTime >= lodesOptions.totalTime*lodesOptions.speed) {
-                lodesAnimationState.then = new Date();
-                lodesAnimationState.inMainLoop = false;
-                if (lodesOptions.doPulse && lodesAnimationState.pulse) {
-                  lodesAnimationState.inStartDwell = true;
-                } else {
-                  lodesAnimationState.inEndDwell = true;
-                }
-              }
-            }
-            else if (lodesAnimationState.inStartDwell) {
-              step = 0.;
-              if (deltaTime >= lodesOptions.dwellTime) {
-                lodesAnimationState.inStartDwell = false;
-                lodesAnimationState.inMainLoop = true;
-                lodesAnimationState.then = new Date();
-                if (lodesOptions.doPulse) {
-                  lodesAnimationState.pulse = false;
-                }
-              }
-            }
-            else {
-              step = 1.;
-              if (deltaTime >= lodesOptions.dwellTime) {
-                lodesAnimationState.inEndDwell = false;
-                lodesAnimationState.then = new Date();
-                if (lodesOptions.doPulse) {
-                  lodesAnimationState.inMainLoop = true;
-                  lodesAnimationState.pulse = true;
-                } else {
-                  lodesAnimationState.inStartDwell = true;
-                }
-              }
-            }
-            step = Math.min(Math.max(step, 0.),1.);
-
-          } else if (lodesOptions.animate == 'home'){
-              step = 0.;
-          } else {
-            step = 1.;
-          }
-
-          options.step = step;
-
-          var info = getLayerInfo(lodesLayer);
-          var throttle = 1.0;
-          if (info.zoomLevel >= 5 && info.mapLevel >= 5 && info.mapLevel < 11) {
-            throttle = Math.min(1000000/info.pointCount, 1.0);
-          }
-
-          options.throttle = throttle;
-          lodesLayer.draw(lodesLayerView, options);
-        }
-
-        // Show dotmaps loaded from spreadsheet
-        for (var i = 0; i < dotmapLayers.length; i++) {
-          var layer = dotmapLayers[i];
-          if (layer.visible) {
-            var view = getLayerView(layer, landsatBaseMapLayer);
-            var options = {};
-            options.zoom = timelapse.getCurrentZoom();
-
-            // Throttle number of pixels if we're drawing "too many"
-            var maxPoints = canvasLayer.canvas.width * canvasLayer.canvas.height;
-            var info = getLayerInfo(layer);
-            var drawFraction = 0.125;
-            drawFraction = Math.min(maxPoints/info.pointCount, 1.0);
-
-            options.throttle = drawFraction;
-            layer.draw(view, options);
-          }
-        }
-
         if (showCumulativeActiveMiningLayer) {
           var cumulativeActiveMiningLayerView = getLayerView(cumulativeActiveMiningLayer, landsatBaseMapLayer);
           var options = {};
@@ -8557,6 +8460,103 @@
           options.pointSize = 2.;
           options.color = [0.5,0.05,0.5,1.0];
           layer.draw(view, options);
+        }
+
+        if (showLodesLayer) {
+          var lodesLayerView = getLayerView(lodesLayer, landsatBaseMapLayer);
+          var options = {};
+          options.zoom = timelapse.getCurrentZoom();
+          options.se01 = lodesOptions.se01;
+          options.se02 = lodesOptions.se02;
+          options.se03 = lodesOptions.se03;
+
+          options.filter = lodesOptions.filter;
+          options.distance = lodesOptions.distance;
+
+          if (lodesOptions.animate == 'animate') {
+            var now = new Date();
+            var deltaTime = now.getTime() - lodesAnimationState.then.getTime();
+            var step = deltaTime/(lodesOptions.totalTime*lodesOptions.speed);
+            if (lodesAnimationState.inMainLoop) {
+              if (lodesOptions.doPulse) {
+                if (lodesAnimationState.pulse) {
+                  step = 1. - step;
+                }
+              } else if (lodesAnimationState.pulse) {
+                lodesAnimationState.pulse = false;
+              }
+
+              if (deltaTime >= lodesOptions.totalTime*lodesOptions.speed) {
+                lodesAnimationState.then = new Date();
+                lodesAnimationState.inMainLoop = false;
+                if (lodesOptions.doPulse && lodesAnimationState.pulse) {
+                  lodesAnimationState.inStartDwell = true;
+                } else {
+                  lodesAnimationState.inEndDwell = true;
+                }
+              }
+            }
+            else if (lodesAnimationState.inStartDwell) {
+              step = 0.;
+              if (deltaTime >= lodesOptions.dwellTime) {
+                lodesAnimationState.inStartDwell = false;
+                lodesAnimationState.inMainLoop = true;
+                lodesAnimationState.then = new Date();
+                if (lodesOptions.doPulse) {
+                  lodesAnimationState.pulse = false;
+                }
+              }
+            }
+            else {
+              step = 1.;
+              if (deltaTime >= lodesOptions.dwellTime) {
+                lodesAnimationState.inEndDwell = false;
+                lodesAnimationState.then = new Date();
+                if (lodesOptions.doPulse) {
+                  lodesAnimationState.inMainLoop = true;
+                  lodesAnimationState.pulse = true;
+                } else {
+                  lodesAnimationState.inStartDwell = true;
+                }
+              }
+            }
+            step = Math.min(Math.max(step, 0.),1.);
+
+          } else if (lodesOptions.animate == 'home'){
+              step = 0.;
+          } else {
+            step = 1.;
+          }
+
+          options.step = step;
+
+          var info = getLayerInfo(lodesLayer);
+          var throttle = 1.0;
+          if (info.zoomLevel >= 5 && info.mapLevel >= 5 && info.mapLevel < 11) {
+            throttle = Math.min(1000000/info.pointCount, 1.0);
+          }
+
+          options.throttle = throttle;
+          lodesLayer.draw(lodesLayerView, options);
+        }
+
+        // Show dotmaps loaded from spreadsheet
+        for (var i = 0; i < dotmapLayers.length; i++) {
+          var layer = dotmapLayers[i];
+          if (layer.visible) {
+            var view = getLayerView(layer, landsatBaseMapLayer);
+            var options = {};
+            options.zoom = timelapse.getCurrentZoom();
+
+            // Throttle number of pixels if we're drawing "too many"
+            var maxPoints = canvasLayer.canvas.width * canvasLayer.canvas.height;
+            var info = getLayerInfo(layer);
+            var drawFraction = 0.125;
+            drawFraction = Math.min(maxPoints/info.pointCount, 1.0);
+
+            options.throttle = drawFraction;
+            layer.draw(view, options);
+          }
         }
 
         var crude_flows_index = [
