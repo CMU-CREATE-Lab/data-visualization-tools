@@ -175,7 +175,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
       // Turn on layer
       layer.getTileView().handleTileLoading({layerDomId: $this[0].id});
       if (visibleBaseMapLayer != "dark") {
-        $("#dark-base").click();
+        $("#layers-list #dark-base").click();
       }
       if (mapType != "raster") {
         setActiveLayersWithTimeline(1);
