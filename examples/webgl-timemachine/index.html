@@ -7261,22 +7261,22 @@
       var hashVars = UTIL.getUnsafeHashVars();
       // legacy support
       if (hashVars.theme) {
-        returnVals.theme = hashVars.theme;
+        returnVals.theme = hashVars.theme.toLowerCase();
       }
       if (hashVars.story) {
-        returnVals.story = hashVars.story;
+        returnVals.story = hashVars.story.toLowerCase();
       }
       // new format
       if (!returnVals.story) {
         var matchResult = currentUrl.match(/stories\/(\w*)\/?/);
         if (matchResult) {
-          returnVals.story = matchResult[1];
+          returnVals.story = matchResult[1].toLowerCase();
         }
       }
       if (!returnVals.theme) {
         var matchResult = currentUrl.match(/themes\/(\w*)\/?/);
         // Pull theme from URL or pull from internally tracked theme
-        returnVals.theme = matchResult ? matchResult[1] : currentWaypointTheme;
+        returnVals.theme = matchResult ? matchResult[1].toLowerCase() : currentWaypointTheme;
       }
       return returnVals;
     }
