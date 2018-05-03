@@ -350,16 +350,16 @@
               <label for="contact-reason">What best describes why you are contacting us:</label>
               <select id="contact-reason" name="entry.2081203153">
                 <option disabled selected value>Select...</option>
-                <option value="Education">Education</option>
-                <option value="Partnership">Partnership</option>
-                <option value="Technical">Technical</option>
-                <option value="Data">Data</option>
-                <option value="Financial Support">Financial Support</option>
+                <option value="Education: Are you a school looking to use EarthTime in the classroom?">Education: Are you a school looking to use EarthTime in the classroom?</option>
+                <option value="Partnership: Are you a museum or organization interested in an EarthTime installation?">Partnership: Are you a museum or organization interested in an EarthTime installation?</option>
+                <option value="Technical: Did you find a bug that you'd like to report?">Technical: Did you find a bug that you'd like to report?</option>
+                <option value="Data: Are you an organization that has global datasets?">Data: Are you an organization that has global datasets?</option>
+                <option value="Financial: Interested in supporting us?">Financial: Interested in supporting us?</option>
                 <option value="General Inquiry">General Inquiry</option>
               </select>
               <br><br>
-              <label for="contact-thoughts">Tell us your thoughts:</label>
-              <textarea id="contact-thoughts" aria-label="Your thoughts" name="entry.1785158141" value="" required="" placeholder="What's on your mind about EarthTime..."></textarea>
+              <label for="contact-thoughts">Additional Information:</label>
+              <textarea id="contact-thoughts" aria-label="Additional Information" name="entry.1785158141" value="" required="" placeholder="More information about you, your organization, link to website, etc..."></textarea>
               <br><br>
               <input id="contact-submit" type="submit" value="Submit">
             </form>
@@ -446,6 +446,9 @@
         }).always(function() {
           $('#contact-form-confirmation').fadeIn("slow").delay(10000).fadeOut("slow");
           $('#contact-form')[0].reset();
+          $("html, body").animate({
+            scrollTop: $('.footer').offset().top + $('.footer').outerHeight(true) - $(window).height()
+          }, 0);
         });
       });
 
