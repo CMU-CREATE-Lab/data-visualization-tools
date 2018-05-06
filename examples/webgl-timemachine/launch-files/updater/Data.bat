@@ -22,7 +22,7 @@ set DISKPART3="%tmp%\dp3.txt"
 
 :: Globals ::
 set UPDATER_PATH=%~dp0
-set LFTP_PATH=%UPDATER_PATH%..\app\libs\lftp\bin\lftp.exe
+set LFTP_PATH=%UPDATER_PATH%..\app\libs\lftp\lftp.exe
 set LFTP_DOWNLOAD_SCRIPT=et-download.lftp
 set LFTP_DOWNLOAD_SCRIPT_PATH=%UPDATER_PATH%%LFTP_DOWNLOAD_SCRIPT%
 set DATA_PATH=%UPDATER_PATH%..\app\data
