@@ -1,5 +1,5 @@
 set ssl:verify-certificate no
 set sftp:auto-confirm yes
-set sftp:connect-program '../libs/lftp/bin/ssh.exe'
+set sftp:connect-program '../libs/lftp/ssh.exe'
 open sftp://earthtime_downloader:download4all@timemachine2.gc.cs.cmu.edu
 mirror --verbose -c --use-pget-n=8 --exclude . --include sitc4r2/ --include tsip
