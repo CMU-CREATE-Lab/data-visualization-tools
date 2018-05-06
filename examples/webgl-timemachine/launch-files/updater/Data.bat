@@ -1,6 +1,6 @@
 @echo off
 
-:: Earth Timelapse Data Upadter ::
+:: Earth Timelapse Data Downloader ::
 :: Version 1.0 ::
 
 SETLOCAL EnableExtensions
