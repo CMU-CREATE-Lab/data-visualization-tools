@@ -86,6 +86,7 @@
     jQuery.support.cors = true;
     var UTIL = org.gigapan.Util;
 
+    var isOffline = false;
     var isMobileDevice = UTIL.isMobileDevice();
     var isBrowserSupported = UTIL.browserSupported();
     var isIE = UTIL.isIE();
@@ -94,6 +95,11 @@
 
     if (ETNotSupported && window.location.href.indexOf("/stories/") >= 0) {
       window.location.href = window.location.href.replace("/stories/", "/m/stories/");
+    }
+
+    // If we have no internet connection (i.e. using an offline drive) show full list of local layers)
+    if (!navigator.onLine && navigator.connection && navigator.connection.rtt <= 0) {
+      isOffline = true;
     }
 
     var md = window.markdownit({ breaks: true, html: true });
@@ -6589,6 +6595,12 @@
         sortLayerCategories();
       });
 
+      if (isOffline) {
+        $(".map-layer-div").show();
+        // Sort all the newly added layers
+        sortLayerCategories();
+      }
+
       csvDataGrapher.initialize();
 
       $("#layers-list").on("click", ".csvlayer input, input[data-has-graph='true']", function(e) {
@@ -6708,7 +6720,7 @@
           currentWaypointStory = $selectedStoryElement.attr("id").replace("story_","");
         }
 
-        if (currentWaypointTheme != selectedWaypointTheme) {
+        if (!isOffline && currentWaypointTheme != selectedWaypointTheme) {
           currentWaypointTheme = selectedWaypointTheme;
           featuredTheme = capitalize_each_word_in_string(currentWaypointTheme.replace(/_/g, " "));;
           createFeaturedLayersSection();
