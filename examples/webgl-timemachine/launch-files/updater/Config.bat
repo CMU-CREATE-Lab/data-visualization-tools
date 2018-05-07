@@ -1,7 +1,7 @@
 @echo off
 
 :: Earth Timelapse Config Changer ::
-:: Version 1.1 ::
+:: Version 1.2 ::
 
 SETLOCAL EnableExtensions
 SETLOCAL EnableDelayedExpansion
@@ -27,11 +27,9 @@ set WGET_PATH=%UPDATER_PATH%..\app\libs\wget\wget.exe
 set CONFIG_PATH=%UPDATER_PATH%..\config.js
 set TMP_CONFIG_PATH=%UPDATER_PATH%..\config.jse
 set APP_PATH=%UPDATER_PATH%..\app\data-visualization-tools
-set LOCAL_WAYPOINT_PATH=%APP_PATH%\examples\webgl-timemachine
-set WAYPOINT_COLLECTION=""
+set LOCAL_SPREADSHEET_PATH=%APP_PATH%\examples\webgl-timemachine
 
-echo This program allows you to change the waypoint Google Spreadsheet link.
-
+echo This program allows you to change EarthTime spreadsheets.
 echo(
 set /P "c=Are you sure you want to continue [Y/N]? "
 echo(
@@ -40,28 +38,53 @@ if /I "%c%" equ "yes" goto :UPDATE_CONFIG
 goto :UPDATE_CANCEL
 
 :UPDATE_CONFIG
-  SET /P "WAYPOINT_PATH=Please paste in the Google Spreadsheet link: "
+  SET /P "WAYPOINT_PATH=Please paste in the *WAYPOINTS* Google Spreadsheet link. Leave blank to skip: "
   :: Remove leading and trailing whitespaces
   set WAYPOINT_PATH=%WAYPOINT_PATH: =%
+  echo(
+  SET /P "CSVLAYERS_PATH=Please paste in the *CSVLAYERS* Google Spreadsheet link. Leave blank to skip: "
+  :: Remove leading and trailing whitespaces
+  set CSVLAYERS_PATH=%CSVLAYERS_PATH: =%
   echo(
   SET /P "STORE_LOCALLY=Store spreadsheet locally rather than pull from online? [Y/N]? "
   call :CLEAR_READ_ONLY_STATE
   if /I "%STORE_LOCALLY%" equ "y" (
     echo(
-    echo Remember that if you make changes to the online spreadsheet, you need to run
+    echo Remember that if you make changes to the online spreadsheets, you need to run
     echo this program again. And if you want to revert back to using the online version
-    echo of the spreadsheet, run this program again but choose NOT to store locally.
+    echo of the spreadsheets, run this program again but choose NOT to store locally.
     echo(
-    set "DOWNLOAD_WAYPOINT_PATH=%WAYPOINT_PATH:edit#gid=export?format=tsv&gid%"
-    %WGET_PATH% -q --no-check-certificate "!DOWNLOAD_WAYPOINT_PATH!" -O "%LOCAL_WAYPOINT_PATH%\waypoints.tsv"
-    set WAYPOINT_PATH=waypoints.tsv
+    if not "%WAYPOINT_PATH%" == " =" (
+      set "DOWNLOAD_WAYPOINT_PATH=%WAYPOINT_PATH:edit#gid=export?format=tsv&gid%"
+      %WGET_PATH% -q --no-check-certificate "!DOWNLOAD_WAYPOINT_PATH!" -O "%LOCAL_SPREADSHEET_PATH%\waypoints.tsv"
+      set WAYPOINT_PATH=waypoints.tsv
+    )
+    if not "%CSVLAYERS_PATH%" == " =" (
+      set "DOWNLOAD_CSVLAYERS_PATH=%CSVLAYERS_PATH:edit#gid=export?format=tsv&gid%"
+      %WGET_PATH% -q --no-check-certificate "!DOWNLOAD_CSVLAYERS_PATH!" -O "%LOCAL_SPREADSHEET_PATH%\csvlayers.tsv"
+      set CSVLAYERS_PATH=csvlayers.tsv
+    )
   )
-  :: Escape slashes
   SET "WAYPOINT_PATH=%WAYPOINT_PATH:/=\/%"
-  :: String replace using SSED
-  %SSED_PATH% -ie "s/\"waypointSliderContentPath\".*\"/\"waypointSliderContentPath\" : \"%WAYPOINT_PATH%\"/g" %CONFIG_PATH%
+  SET "CSVLAYERS_PATH=%CSVLAYERS_PATH:/=\/%"
+  :: String replace waypoint config entry using SSED
+  if not "%WAYPOINT_PATH%" == " =" (
+    :: Escape slashes
+    %SSED_PATH% -ie "s/\"waypointSliderContentPath\".*\"/\"waypointSliderContentPath\" : \"%WAYPOINT_PATH%\"/g" %CONFIG_PATH%
+    del %TMP_CONFIG_PATH%
+  )
+  :: String replace csvlayers config entry using SSED
+  if not "%CSVLAYERS_PATH%" == " =" (
+    :: Escape slashes
+    >nul find "csvLayersContentPath" %CONFIG_PATH% && (
+      %SSED_PATH% -ie "s/\"csvLayersContentPath\".*\"/\"csvLayersContentPath\" : \"%CSVLAYERS_PATH%\"/g" %CONFIG_PATH%
+    ) || (
+      :: If csvLayersContentPath is not found, add it to the config file on the arbitrarily chosen third line
+      %SSED_PATH% -ie "3a\  \"csvLayersContentPath\" : \"%CSVLAYERS_PATH%\"," %CONFIG_PATH%
+    )
+    del %TMP_CONFIG_PATH%
+  )
   if %errorlevel% neq 0 goto :UPDATE_FAILED /b %errorlevel%
-  del %TMP_CONFIG_PATH%
   call :SET_READ_ONLY_STATE
   goto :UPDATE_SUCCESSFUL
 
