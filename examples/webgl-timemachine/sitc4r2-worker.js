@@ -7,15 +7,16 @@ self.addEventListener('message', function(e) {
     var scale = e.data["scale"];
     var exporters = e.data["exporters"];
     var importers = e.data["importers"];
-    getJson(code, year, exporters, importers, scale, function(code, year, exporters, importers, scale, data) {
+    var rootUrl = e.data['rootUrl'];
+    getJson(rootUrl, code, year, exporters, importers, scale, function(code, year, exporters, importers, scale, data) {
         var float32Array = setData(code, year, exporters, importers, scale, data);
-        self.postMessage({'array': float32Array.buffer, 'year': year, 'code': code, 'scale': scale}, [float32Array.buffer]);        
+        self.postMessage({'array': float32Array.buffer, 'year': year, 'code': code, 'scale': scale}, [float32Array.buffer]);
     });
 
 }, false);
 
-var getJson = function(code, year, exporters, importers, scale, callback) {
-    var url = "https://tiles.earthtime.org" + '/sitc4r2/'+ code + '/' + year + '.json';    
+var getJson = function(rootUrl, code, year, exporters, importers, scale, callback) {
+    var url = rootUrl + '/sitc4r2/'+ code + '/' + year + '.json';
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url);
     xhr.onload = function() {
@@ -44,7 +45,7 @@ var setData = function(code, year, exporters, importers, scale, data) {
     function getRandomIntInclusive(min, max) {
         min = Math.ceil(min);
         max = Math.floor(max);
-        return Math.floor(prng() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive 
+        return Math.floor(prng() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive
     }
     function getRandomArbitrary(min, max) {
         return prng() * (max - min) + min;
@@ -102,9 +103,9 @@ var setData = function(code, year, exporters, importers, scale, data) {
                     points.push(data[i]['dst_wm'][0]);
                     points.push(data[i]['dst_wm'][1]);
                     if (j < 10) {
-                        offset = getRandomArbitrary(0.01, 1.00);                        
+                        offset = getRandomArbitrary(0.01, 1.00);
                     } else if (i < 100) {
-                        offset = getRandomArbitrary(1.0, 2.00);                        
+                        offset = getRandomArbitrary(1.0, 2.00);
                     } else {
                         offset = getRandomArbitrary(2.0, 5.0);
                     }

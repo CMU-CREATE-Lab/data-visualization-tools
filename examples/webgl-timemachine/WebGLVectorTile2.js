@@ -2576,12 +2576,12 @@ WebGLVectorTile2.prototype._drawSitc4rcBuffer = function (code, year, transform,
   gl.bindBuffer(gl.ARRAY_BUFFER, buffer.buffer);
   var attributeLoc = gl.getAttribLocation(this.program, 'a_p0');
   gl.enableVertexAttribArray(attributeLoc);
-  gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, buffer.numAttributes * 4, 0); 
+  gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, buffer.numAttributes * 4, 0);
 
   gl.bindBuffer(gl.ARRAY_BUFFER, buffer.buffer);
   var attributeLoc = gl.getAttribLocation(this.program, 'a_p2');
   gl.enableVertexAttribArray(attributeLoc);
-  gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, buffer.numAttributes * 4, 8); 
+  gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, buffer.numAttributes * 4, 8);
 
   var attributeLoc = gl.getAttribLocation(this.program, 'a_p1');
   gl.enableVertexAttribArray(attributeLoc);
@@ -2608,7 +2608,7 @@ WebGLVectorTile2.prototype._initSitc4rcBuffer = function(code, year) {
     "buffer":null,
     "ready": false
   }
-  this.worker.postMessage({'year': year, 'code': code, 'exporters': this._exporters, "importers": this._importers, "scale": this._scale});
+  this.worker.postMessage({'year': year, 'code': code, 'exporters': this._exporters, "importers": this._importers, "scale": this._scale, "rootUrl": window.rootTilePath});
 }
 
 WebGLVectorTile2.prototype._drawSitc4r2 = function(transform, options) {
@@ -3932,7 +3932,7 @@ WebGLVectorTile2.basicDrawPoints = function(instance_options) {
     gl.enable( gl.BLEND );
     gl.blendEquationSeparate( gl.FUNC_ADD, gl.FUNC_ADD );
     gl.blendFuncSeparate( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA );
-    
+
     gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
     var tileTransform = new Float32Array(transform);
@@ -3948,7 +3948,7 @@ WebGLVectorTile2.basicDrawPoints = function(instance_options) {
 	var blockLevelZoomScale = 9;
 	var countryPointSizePixels = instance_options.pointSize[0];
 	var blockPointSizePixels = instance_options.pointSize[1];
-	
+
 	pointSize = countryPointSizePixels * Math.pow(blockPointSizePixels / countryPointSizePixels, (zoomScale - countryLevelZoomScale) / (blockLevelZoomScale - countryLevelZoomScale));
 	gl.uniform1f(this.program.u_size, pointSize);
       }
@@ -3958,7 +3958,7 @@ WebGLVectorTile2.basicDrawPoints = function(instance_options) {
     if (this.program.u_epoch != undefined) {
       gl.uniform1f(this.program.u_epoch, options.currentTime/1000.);
     }
-    
+
     scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
     scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
     gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
@@ -3982,7 +3982,7 @@ WebGLVectorTile2.basicDrawPoints = function(instance_options) {
 	attrib_offset += attrib_size * 4;
       }
     }
-    
+
     console.assert(num_attributes == attrib_offset / 4);
 
     var npoints = Math.floor(this._pointCount);
@@ -4023,7 +4023,7 @@ WebGLVectorTile2.basicVertexColorShader =
   '  v_color = a_color;\n' +
   '}\n';
 
-WebGLVectorTile2.basicSquareFragmentShader = 
+WebGLVectorTile2.basicSquareFragmentShader =
   'precision lowp float;\n' +
   'varying float v_color;\n' +
   'vec3 unpackColor(float f) {\n' +
