@@ -378,7 +378,7 @@ CsvFileLayer.prototype.loadLayers = function loadLayers(path) {
     $.ajax({
       url: path,
       dataType: "text",
-      success: function(csvdata) {
+      success: function(tsvdata) {
         that.loadLayersFromTsv(tsvdata);
       }
     });
@@ -425,7 +425,7 @@ CsvFileLayer.prototype.setDateStr = function setDateStr(yearStr, monthStr, daySt
 
   if (typeof minuteStr !== "undefined") {
     out += ':' + minuteStr;
-    return out;    
+    return out;
   } else {
     out += ':00';
     return out;
