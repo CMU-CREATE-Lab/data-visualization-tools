@@ -6720,10 +6720,12 @@
           currentWaypointStory = $selectedStoryElement.attr("id").replace("story_","");
         }
 
-        if (!isOffline && currentWaypointTheme != selectedWaypointTheme) {
+        if (currentWaypointTheme != selectedWaypointTheme) {
           currentWaypointTheme = selectedWaypointTheme;
-          featuredTheme = capitalize_each_word_in_string(currentWaypointTheme.replace(/_/g, " "));;
-          createFeaturedLayersSection();
+          featuredTheme = capitalize_each_word_in_string(currentWaypointTheme.replace(/_/g, " "));
+          if (!isOffline) {
+            createFeaturedLayersSection();
+          }
         }
 
         $themeHeading.append("<span class='ui-icon ui-icon-bullet active-story-in-theme' style='float:right;'>");
