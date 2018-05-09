@@ -8,6 +8,10 @@ set LAUNCH_MODE=""
 set USE_FROZEN_CHROME=0
 set SHOW_GFW=0
 
+:: When you run a batch file as administrator under windows vista+, the current directory gets set to C:\windows\system32.
+:: This will change the current directory to the location of the .bat file.
+cd /d "%~dp0"
+
 for /f "tokens=2 delims=:, " %%a in (' find "browserScaleFactor" ^< "config.js" ') do (
   set BROWSER_SCALE_FACTOR=%%~a
 )
