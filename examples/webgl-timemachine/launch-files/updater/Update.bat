@@ -46,6 +46,7 @@ call :UPDATE_PROMPT
   echo(
   call :CLEAR_READ_ONLY_STATE
   cd /D %APP_PATH%
+  %GIT_PATH% config --system http.sslCAPath ../mingw32/ssl/certs
   %GIT_PATH% fetch --all
   %GIT_PATH% reset --hard origin/master
   %GIT_PATH% submodule foreach --recursive git fetch --all
