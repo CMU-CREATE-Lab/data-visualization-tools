@@ -29,7 +29,9 @@ html, body {
 }
 
 .timeText-touchFriendly {
-  top: -24px;
+  top: -30px;
+  font-size: 23pt;
+  padding-bottom: 12px;
 }
 
 .fullScreen {
@@ -344,7 +346,7 @@ html, body {
   border-radius: 3px;
   -webkit-box-shadow: 2px 2px 3px rgba(0,0,0,0.3);
           box-shadow: 2px 2px 3px rgba(0,0,0,0.3);
-  z-index: 90;
+  z-index: 90000;
   display: inline-block;
 }
 
@@ -894,7 +896,7 @@ html, body {
   image-rendering: -webkit-optimize-contrast;
   width:20px;
   height:20px;
-  z-index: 100;
+  z-index: 90001;
   position: absolute;
   right: 28px;
   top: 15px;

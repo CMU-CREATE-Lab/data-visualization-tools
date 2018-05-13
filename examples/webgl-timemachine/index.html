@@ -235,13 +235,24 @@
     if (disableUI)
       disablePresentationSlider = true;
     var presentationMode = window.location.hash.split("presentationMode=")[1] || !!EARTH_TIMELAPSE_CONFIG.presentationMode;
+    var initiallyShowPresentationSlider = window.location.hash.split("initiallyShowPresentationSlider=")[1] || !!EARTH_TIMELAPSE_CONFIG.initiallyShowPresentationSlider;
     var extraContributors = EARTH_TIMELAPSE_CONFIG.extraContributors ? EARTH_TIMELAPSE_CONFIG.extraContributors.replace(",", " |") : "";
+    var showCredits = (typeof(EARTH_TIMELAPSE_CONFIG.showCredits) == "undefined") ? true : !!EARTH_TIMELAPSE_CONFIG.showCredits;
     var showShareButton = typeof(EARTH_TIMELAPSE_CONFIG.showShareButton) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showShareButton;
     var showShareButtonHash = window.location.hash.split("showShareButton=")[1];
     if (showShareButtonHash)
       showShareButton = showShareButtonHash === "true";
     var showSettingsButton = isMobileDevice ? false : (typeof(EARTH_TIMELAPSE_CONFIG.showSettingsButton) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showSettingsButton);
     var showZoomControls = typeof(EARTH_TIMELAPSE_CONFIG.showZoomControls) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showZoomControls;
+    var showStoriesButton = typeof(EARTH_TIMELAPSE_CONFIG.showStoriesButton) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showStoriesButton;
+    var showLayersButton = typeof(EARTH_TIMELAPSE_CONFIG.showLayersButton) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showLayersButton;
+    var showHomeLogo = typeof(EARTH_TIMELAPSE_CONFIG.showHomeLogo) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showHomeLogo;
+    var showSearchBox = typeof(EARTH_TIMELAPSE_CONFIG.showSearchBox) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showSearchBox;
+    var disableTopNav = typeof(EARTH_TIMELAPSE_CONFIG.disableTopNav) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.disableTopNav;
+    var disableTopNavHash = window.location.hash.split("disableTopNav=")[1];
+    if (disableTopNavHash)
+      disableTopNav = disableTopNavHash === "true";
+    var disableResumeExitAnnotationPrompt = typeof(EARTH_TIMELAPSE_CONFIG.disableResumeExitAnnotationPrompt) === "undefined" ? false : !!EARTH_TIMELAPSE_CONFIG.disableResumeExitAnnotationPrompt;
     var isHyperwall = !!EARTH_TIMELAPSE_CONFIG.isHyperwall;
     var useGoogleMaps = !!EARTH_TIMELAPSE_CONFIG.useGoogleMaps;
     var useGoogleSearch = (typeof(EARTH_TIMELAPSE_CONFIG.useGoogleSearch) == "undefined") ? true : !!EARTH_TIMELAPSE_CONFIG.useGoogleSearch;
@@ -985,7 +996,7 @@
 
         $("#location_search").on("keydown", function(e) {
           if (e.keyCode == 13) {
-            //google.maps.event.trigger(e.target, 'focus');
+            google.maps.event.trigger(e.target, 'focus', {});
             google.maps.event.trigger(e.target, 'keydown', {
               keyCode: 13
             });
@@ -3994,13 +4005,15 @@
 
     function showAnnotationResumeExit() {
       $(".current-location-text-container").hide();
-      $(".annotations-resume-exit-container").show();
+      if (!disableResumeExitAnnotationPrompt) {
+        $(".annotations-resume-exit-container").show();
+      }
       if (lastSelectedAnnotationBeforeHidden) {
         lastSelectedAnnotationBeforeHidden.removeClass("thumbnail_highlight");
       }
     }
 
-    function setActiveLayersWithTimeline (modifier) {
+    function setActiveLayersWithTimeline(modifier) {
       previousActiveLayersWithTimeline = activeLayersWithTimeline;
       activeLayersWithTimeline += modifier;
       if (activeLayersWithTimeline < 0) activeLayersWithTimeline = 0;
@@ -5269,7 +5282,7 @@
         var $navigationControls = $("<div id='navControls' />");
         $navigationControls.appendTo($controlsContainer);
 
-        if (showZoomControls && !isMobileDevice) {
+        if (showZoomControls && !isMobileDevice && !isHyperwall) {
           var $zoomControls = $($(".zoom > *").not(".zoomSlider, .zoomall")).addClass("controlButton");
           $zoomControls.appendTo($navigationControls);
         }
@@ -5278,6 +5291,26 @@
 
         if (showFullScreenButton) {
           $("#timeMachine .fullScreen").appendTo($navigationControls);
+        }
+
+        if (!showHomeLogo) {
+          $("#menu-logo").remove();
+        }
+
+        if (!showStoriesButton) {
+          $("#stories-menu-choice").remove();
+        }
+
+        if (!showLayersButton) {
+          $("#layers-menu-choice").remove();
+        }
+
+        if (!showSearchBox) {
+          $("#location_search_div").remove();
+        }
+
+        if (disableTopNav) {
+          $("#top-nav").remove();
         }
 
         $appControls.css("top", ($navigationControls.height() + 20) + "px");
@@ -6057,7 +6090,9 @@
           var waypointStartTime = waypoint.time;
           var waypointBounds = waypoint.bounds;
           // TODO: Do we still need this for himawari now that we have real thumbnails?
-          var himawariWaypoint = himawariWaypoints[currentWaypointTheme][currentWaypointStory] ? himawariWaypoints[currentWaypointTheme][currentWaypointStory][waypointIndex] : null;
+          if (Object.keys(himawariWaypoints).length) {
+            var himawariWaypoint = himawariWaypoints[currentWaypointTheme][currentWaypointStory] ? himawariWaypoints[currentWaypointTheme][currentWaypointStory][waypointIndex] : null;
+          }
           isAutoModeRunning = snaplapseViewerForPresentationSlider.isAutoModeRunning();
           lastSelectedAnnotationBeforeHidden = $("#" + waypointTitle.replace(/\W+/g, "_") + " .snaplapse_keyframe_list_item_thumbnail_overlay_presentation");
 
@@ -6068,9 +6103,9 @@
             waypointBounds = himawariWaypoint.bounds;
             waypointStartTime = himawariWaypoint.time;
             timelapse.setMaxScale(himawariMaxScale);
-          } else if (waypoint.layers.indexOf("blsat") >= 0) {
+          } else if (waypoint.layers && waypoint.layers.indexOf("blsat") >= 0) {
             timelapse.setMaxScale(landsatMaxScale);
-          } else {
+          } else if (waypoint.layers) {
             timelapse.setMaxScale(rasterMapTileMaxScale);
           }
 
@@ -6106,7 +6141,9 @@
           var waypointEndTime = waypoint.endTime;
           var waypointPlaybackSpeed = waypoint.speed;
           // TODO: Do we still need this for himawari now that we have real thumbnails?
-          var himawariWaypoint = himawariWaypoints[currentWaypointTheme][currentWaypointStory] ? himawariWaypoints[currentWaypointTheme][currentWaypointStory][waypointIndex] : null;
+          if (Object.keys(himawariWaypoints).length) {
+            var himawariWaypoint = himawariWaypoints[currentWaypointTheme][currentWaypointStory] ? himawariWaypoints[currentWaypointTheme][currentWaypointStory][waypointIndex] : null;
+          }
           var lastAvailableWaypointIdx = $(".snaplapse_keyframe_list").children().last().index();
           var selectedWaypointIdx = $(".snaplapse_keyframe_list .thumbnail_highlight").closest(".snaplapse_keyframe_list_item").index();
 
@@ -6272,15 +6309,17 @@
                 $current_location_text.find(".current-location-text-title").empty().hide();
               }
               var $current_location_text_picture = $("#current-location-text-picture");
-              if (annotationPicturePaths[currentWaypointTheme][currentWaypointStory] && annotationPicturePaths[currentWaypointTheme][currentWaypointStory][waypointIndex].path) {
-                $current_location_text_picture.show();
-                $current_location_text_picture.css('background-image', 'url("' + annotationPicturePaths[currentWaypointTheme][currentWaypointStory][waypointIndex].path + '")');
-              } else {
-                $current_location_text_picture.empty().hide();
+              if (Object.keys(annotationPicturePaths).length) {
+                if (annotationPicturePaths[currentWaypointTheme][currentWaypointStory] && annotationPicturePaths[currentWaypointTheme][currentWaypointStory][waypointIndex].path) {
+                  $current_location_text_picture.show();
+                  $current_location_text_picture.css('background-image', 'url("' + annotationPicturePaths[currentWaypointTheme][currentWaypointStory][waypointIndex].path + '")');
+                } else {
+                  $current_location_text_picture.empty().hide();
+                }
               }
               if (waypoint.description) {
                 var waypointBoxText = waypoint.description;
-                if (selectedWaypointIdx == 0 && $previousAnnotationLocationButton) {
+                if (Object.keys(waypointJSONList).length && selectedWaypointIdx == 0 && $previousAnnotationLocationButton) {
                   var story = waypointJSONList[currentWaypointTheme].stories[currentWaypointStory];
                   if (story && story.storyDescription && story.storyAuthor) {
                     waypointBoxText += "<div class='story-author-text'>" + story.storyAuthor + "</div>";
@@ -6339,12 +6378,14 @@
 
 
       // Location search box, with autocomplete.
-      var $locationSearchDiv = $('<div class="location_search_div"><span id="location_search_icon"></span><input id="location_search" type="text" placeholder="Search for a location...">');
-      if (enableLetterboxMode) {
-        $locationSearchDiv.addClass("top-panel letterbox").appendTo($("#letterbox-bottom-controls"));
-        $("#location_search").addClass("letterbox");
-      } else {
-        $locationSearchDiv.appendTo($("#top-nav"));
+      if (showSearchBox) {
+        var $locationSearchDiv = $('<div class="location_search_div"><span id="location_search_icon"></span><input id="location_search" type="text" placeholder="Search for a location...">');
+        if (enableLetterboxMode) {
+          $locationSearchDiv.addClass("top-panel letterbox").appendTo($("#letterbox-bottom-controls"));
+          $("#location_search").addClass("letterbox");
+        } else {
+          $locationSearchDiv.prependTo($("#timeMachine"));
+        }
       }
 
       $(".current-location-text-container, .annotations-resume-exit-container").appendTo($("#timeMachine .player"));
@@ -6796,6 +6837,10 @@
         $("#top-nav, #controlsContainer, .location_search_div, .customControl, .controls, .scaleBarContainer, #baseLayerCreditContainer, #logosContainer, #layers-legend").remove();
       }
 
+      if (!showCredits) {
+        $("#logosContainer").remove();
+      }
+
       if (presentationMode) {
         $("#top-nav, .current-location-text-container, .annotation-nav, .annotations-resume-exit-container").remove();
         $("#controlsContainer, #layers-legend").css("top", "20px");
@@ -6839,7 +6884,7 @@
         updateLetterboxSelections();
       }
 
-      handleStoryToggle(false);
+      handleStoryToggle(initiallyShowPresentationSlider);
 
       /*var navbarTimeout;
       $("body").on("mousemove click", function(e) {
@@ -7453,7 +7498,7 @@
         initialTopNavWrapperElm.outerWidth = $el2.outerWidth();
       }
 
-      if ($el1 && initialTopNavWrapperElm) {
+      if ($el1.length > 0 && initialTopNavWrapperElm) {
         var needHamburgerNav = ($el1[0].offsetLeft <= initialTopNavWrapperElm.outerWidth);
       }
 
