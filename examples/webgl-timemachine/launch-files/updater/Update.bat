@@ -120,8 +120,9 @@ call :UPDATE_PROMPT
   goto :DONE
 
 :DRIVE_NOT_DETECTED
-  set FAILED_MSG=Drive not found in diskpart list.
-  goto :UPDATE_FAILED
+  echo Drive not found in diskpart list.
+  echo Maybe you are not using a CREATE Lab external EarthTime drive?
+  goto :EOF
 
 :CANNOT_WRITE_TO_TMP
   set FAILED_MSG=Cannot write to Windows TMP directory.
