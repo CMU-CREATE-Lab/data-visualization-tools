@@ -43,7 +43,7 @@ for /f "tokens=2 delims=:, " %%a in (' find "clearProfile" ^< "config.js" ') do 
 )
 
 if %LAUNCH_MODE% == kiosk (
-  set EXTENSION_ARGS=--load-extension=%cd%/app/libs/virtual-keyboard/1.11.1_0
+  set EXTENSION_ARGS=--load-extension="%cd%/app/libs/virtual-keyboard/1.11.1_0"
   set LAUNCH_MODE=--kiosk
 ) else (
   set EXTENSION_ARGS=
@@ -51,7 +51,7 @@ if %LAUNCH_MODE% == kiosk (
 )
 
 if %USE_FROZEN_CHROME% == true (
-  set CHROME_LAUNCH_PATH=%cd%\app\libs\GoogleChromePortable57\GoogleChromePortable.exe
+  set CHROME_LAUNCH_PATH="%cd%\app\libs\GoogleChromePortable57\GoogleChromePortable.exe"
 ) else (
   set CHROME_LAUNCH_PATH=chrome
 )
