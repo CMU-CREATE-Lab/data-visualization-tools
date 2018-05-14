@@ -905,7 +905,7 @@ html, body {
   position: absolute;
   right: 28px;
   top: 15px;
-  cursor: text;
+  cursor: pointer;
 }
 
 #location_search_icon.topNavDisabled {

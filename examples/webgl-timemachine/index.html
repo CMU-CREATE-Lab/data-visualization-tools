@@ -6380,13 +6380,15 @@
 
       // Location search box, with autocomplete.
       if (showSearchBox) {
-        var $locationSearchDiv = $('<div class="location_search_div"><span id="location_search_icon"></span><input id="location_search" type="text" placeholder="Search for a location...">');
+        var $locationSearchDiv = $('<div class="location_search_div"><span id="location_search_icon" title="Submit search"></span><input id="location_search" type="text" placeholder="Search for a location...">');
         if (enableLetterboxMode) {
           $locationSearchDiv.addClass("top-panel letterbox").appendTo($("#letterbox-bottom-controls"));
           $("#location_search").addClass("letterbox");
         } else {
           $locationSearchDiv.prependTo($("#timeMachine"));
-          $("#location_search, #location_search_icon").addClass("topNavDisabled");
+          if (disableTopNav) {
+            $("#location_search, #location_search_icon").addClass("topNavDisabled");
+          }
         }
       }
 
@@ -6427,6 +6429,12 @@
             if (ui.item.properties) {
               UTIL.addGoogleAnalyticEvent('textbox', 'search', 'go-to-searched-place=' + ui.item.properties.name + "," + ui.item.properties.country);
             }
+          }
+        }).on("keydown", function(e) {
+          if (e.keyCode == 13) {
+            $(e.target).trigger("focus");
+            // TODO: jQuery seems to not have a unique identifier to this. So what happens if we have more than one autocomplete element on the page?
+            $('.ui-autocomplete').find("li").first().trigger("click");
           }
         }).autocomplete("instance")._renderItem = function(ul, item) {
           var tmpLocationString = (item.properties.name || "") + ", " + (item.properties.state || "") + item.properties.country;
