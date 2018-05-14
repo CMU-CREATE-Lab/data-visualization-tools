@@ -248,7 +248,7 @@
     var showLayersButton = typeof(EARTH_TIMELAPSE_CONFIG.showLayersButton) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showLayersButton;
     var showHomeLogo = typeof(EARTH_TIMELAPSE_CONFIG.showHomeLogo) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showHomeLogo;
     var showSearchBox = typeof(EARTH_TIMELAPSE_CONFIG.showSearchBox) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showSearchBox;
-    var disableTopNav = typeof(EARTH_TIMELAPSE_CONFIG.disableTopNav) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.disableTopNav;
+    var disableTopNav = typeof(EARTH_TIMELAPSE_CONFIG.disableTopNav) === "undefined" ? false : !!EARTH_TIMELAPSE_CONFIG.disableTopNav;
     var disableTopNavHash = window.location.hash.split("disableTopNav=")[1];
     if (disableTopNavHash)
       disableTopNav = disableTopNavHash === "true";
