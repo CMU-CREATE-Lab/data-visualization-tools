@@ -5311,6 +5311,7 @@
 
         if (disableTopNav) {
           $("#top-nav").remove();
+          $controlsContainer.addClass("topNavDisabled");
         }
 
         $appControls.css("top", ($navigationControls.height() + 20) + "px");
@@ -6385,6 +6386,7 @@
           $("#location_search").addClass("letterbox");
         } else {
           $locationSearchDiv.prependTo($("#timeMachine"));
+          $("#location_search, #location_search_icon").addClass("topNavDisabled");
         }
       }
 

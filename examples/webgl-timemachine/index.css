@@ -350,6 +350,9 @@ html, body {
   display: inline-block;
 }
 
+#location_search.topNavDisabled {
+  top: 20px;
+}
 
 #layers-list {
   z-index: 99;
@@ -410,7 +413,6 @@ html, body {
   overflow-x: hidden;
 }
 
-
 #controlsContainer {
   width: 52px;
   height: 100px;
@@ -420,8 +422,11 @@ html, body {
   display: block;
   left: 20px;
   top: 70px;
-  /*top: calc(47% - 120px);*/
   height: 100%;
+}
+
+#controlsContainer.topNavDisabled {
+  top: 20px;
 }
 
 #appControls, #navControls {
@@ -901,6 +906,10 @@ html, body {
   right: 28px;
   top: 15px;
   cursor: text;
+}
+
+#location_search_icon.topNavDisabled {
+  top: 25px;
 }
 
 #top-nav.menu-active {
