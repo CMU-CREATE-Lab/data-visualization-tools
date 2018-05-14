@@ -43,7 +43,7 @@ for /f "tokens=2 delims=:, " %%a in (' find "clearProfile" ^< "config.js" ') do 
 )
 
 if %LAUNCH_MODE% == kiosk (
-  set EXTENSION_ARGS=--load-extension="%cd%/app/libs/virtual-keyboard/1.11.1_0"
+  set EXTENSION_ARGS=--load-extension="%cd%/app/libs/virtual-keyboard/1.12.8_1,%cd%/app/libs/ohnoyoudidnt/1.0.3"
   set LAUNCH_MODE=--kiosk
 ) else (
   set EXTENSION_ARGS=
@@ -65,7 +65,7 @@ if %SHOW_GFW% == true (
 )
 
 set LAUNCH_PATH=%cd%/app/data-visualization-tools/examples/webgl-timemachine/index.html
-set ARGS="--video-threads=%NUMBER_OF_PROCESSORS% --allow-file-access-from-files %LAUNCH_MODE% --device-scale-factor=%BROWSER_SCALE_FACTOR% --user-data-dir=%tmp%/et --no-first-run %EXTENSION_ARGS% %GFW_ARGS% --ignore-gpu-blacklist"
+set ARGS="--video-threads=%NUMBER_OF_PROCESSORS% --allow-file-access-from-files %LAUNCH_MODE% --device-scale-factor=%BROWSER_SCALE_FACTOR% --user-data-dir=%tmp%/et --no-first-run %EXTENSION_ARGS% %GFW_ARGS% --ignore-gpu-blacklist --enable-font-antialiasing"
 
 echo Launching user installed Chrome.
 start "Chrome" %CHROME_LAUNCH_PATH% --app="%LAUNCH_PATH%" "%ARGS%" || goto :USER_DOES_NOT_HAVE_CHROME
