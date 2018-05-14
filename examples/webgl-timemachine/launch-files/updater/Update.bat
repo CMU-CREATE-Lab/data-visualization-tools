@@ -92,6 +92,7 @@ call :UPDATE_PROMPT
   echo Checking integrity of files...
   cd /D %APP_PATH%
   cacls "%CD%" /t /e /c /g Everyone:F
+  echo(
   echo Integrity of files checked.
   goto :EOF
 
