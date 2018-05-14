@@ -7,7 +7,7 @@ SETLOCAL EnableExtensions
 SETLOCAL EnableDelayedExpansion
 
 :: Check that we have proper permissions
->nul 2>&1 "%SYSTEMROOT%\system32\cacls.exe" "%SYSTEMROOT%\system32\config\system"
+>nul 2>&1 "%SYSTEMROOT%\system32\icacls.exe" "%SYSTEMROOT%\system32\config\system"
 
 if '%errorlevel%' neq '0' (
   echo The program needs to be run as Administrator.
@@ -29,9 +29,9 @@ set LANDSAT_TILE_LIST_LOC="https://www.googleapis.com/drive/v3/files/1m00QXyJ0l8
 echo This will download the lastest Landsat tiles for Timelapse.
 echo A fast Internet connection (wired preferred) is required to proceed.
 
-call :UPDATE_PROMPT
+call :DOWNLOAD_PROMPT
 
-:UPDATE_PROMPT
+:DOWNLOAD_PROMPT
   echo(
   set /P "c=Are you sure you want to continue [Y/N]? "
   if /I "%c%" equ "y" goto :DOWNLOAD
@@ -53,7 +53,7 @@ call :UPDATE_PROMPT
 :UAC_PROMPT
   echo set UAC = CreateObject^("Shell.Application"^) > "%temp%\getadmin.vbs"
   set params = %*:"=""
-  echo UAC.ShellExecute "cmd.exe", "/c %~s0 %params%", "", "runas", 1 >> "%temp%\getadmin.vbs"
+  echo UAC.ShellExecute "cmd.exe", "/c ""%~s0"" %params%", "", "runas", 1 >> "%temp%\getadmin.vbs"
 
   "%temp%\getadmin.vbs"
   del "%temp%\getadmin.vbs"

@@ -7,7 +7,7 @@ SETLOCAL EnableExtensions
 SETLOCAL EnableDelayedExpansion
 
 :: Check that we have proper permissions
->nul 2>&1 "%SYSTEMROOT%\system32\cacls.exe" "%SYSTEMROOT%\system32\config\system"
+>nul 2>&1 "%SYSTEMROOT%\system32\icacls.exe" "%SYSTEMROOT%\system32\config\system"
 
 if '%errorlevel%' neq '0' (
   echo The program needs to be run as Administrator.
@@ -91,7 +91,7 @@ call :UPDATE_PROMPT
   echo(
   echo Checking integrity of files...
   cd /D %APP_PATH%
-  cacls "%CD%" /t /e /c /g Everyone:F
+  echo Y| icacls "%CD%" /grant Everyone:F /c /t
   echo(
   echo Integrity of files checked.
   goto :EOF
@@ -152,7 +152,7 @@ call :UPDATE_PROMPT
 :UAC_PROMPT
   echo set UAC = CreateObject^("Shell.Application"^) > "%temp%\getadmin.vbs"
   set params = %*:"=""
-  echo UAC.ShellExecute "cmd.exe", "/c %~s0 %params%", "", "runas", 1 >> "%temp%\getadmin.vbs"
+  echo UAC.ShellExecute "cmd.exe", "/c ""%~s0"" %params%", "", "runas", 1 >> "%temp%\getadmin.vbs"
 
   "%temp%\getadmin.vbs"
   del "%temp%\getadmin.vbs"

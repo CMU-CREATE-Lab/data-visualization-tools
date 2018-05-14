@@ -7,7 +7,7 @@ SETLOCAL EnableExtensions
 SETLOCAL EnableDelayedExpansion
 
 :: Check that we have proper permissions
->nul 2>&1 "%SYSTEMROOT%\system32\cacls.exe" "%SYSTEMROOT%\system32\config\system"
+>nul 2>&1 "%SYSTEMROOT%\system32\icacls.exe" "%SYSTEMROOT%\system32\config\system"
 
 if '%errorlevel%' neq '0' (
   echo The program needs to be run as Administrator.
@@ -30,19 +30,22 @@ set TMP_LFTP_DOWNLOAD_SCRIPT_PATH=%DATA_PATH%\%LFTP_DOWNLOAD_SCRIPT%
 
 echo This program downloads the latest EarthTime data to be stored locally.
 
-echo(
-set /P "c=Are you sure you want to continue [Y/N]? "
-echo(
-if /I "%c%" equ "y" goto :DOWNLOAD_DATA
-if /I "%c%" equ "yes" goto :DOWNLOAD_DATA
-goto :UPDATE_CANCEL
+call :DOWNLOAD_PROMPT
+
+:DOWNLOAD_PROMPT
+  echo(
+  set /P "c=Are you sure you want to continue [Y/N]? "
+  echo(
+  if /I "%c%" equ "y" goto :DOWNLOAD_DATA
+  if /I "%c%" equ "yes" goto :DOWNLOAD_DATA
+  goto :UPDATE_CANCEL
 
 :DOWNLOAD_DATA
   call :CLEAR_READ_ONLY_STATE
   cd /D %DATA_PATH%
   takeown /F ..
   takeown /F .
-  echo Y| cacls . /c /g Everyone:F
+  echo Y| icacls . /grant Everyone:F /c
   copy %LFTP_DOWNLOAD_SCRIPT_PATH% %DATA_PATH%
   %LFTP_PATH% -f %LFTP_DOWNLOAD_SCRIPT%
   call :SET_READ_ONLY_STATE
@@ -102,6 +105,15 @@ goto :UPDATE_CANCEL
   pause
   goto :DONE
 
+:DRIVE_NOT_DETECTED
+  echo Drive not found in diskpart list.
+  echo Maybe you are not using a CREATE Lab external EarthTime drive?
+  goto :EOF
+
+:CANNOT_WRITE_TO_TMP
+  set FAILED_MSG=Cannot write to Windows TMP directory.
+  goto :UPDATE_FAILED
+
 :DONE
   goto CLEANUP
 
@@ -115,7 +127,7 @@ goto :UPDATE_CANCEL
 :UAC_PROMPT
   echo set UAC = CreateObject^("Shell.Application"^) > "%temp%\getadmin.vbs"
   set params = %*:"=""
-  echo UAC.ShellExecute "cmd.exe", "/c %~s0 %params%", "", "runas", 1 >> "%temp%\getadmin.vbs"
+  echo UAC.ShellExecute "cmd.exe", "/c ""%~s0"" %params%", "", "runas", 1 >> "%temp%\getadmin.vbs"
 
   "%temp%\getadmin.vbs"
   del "%temp%\getadmin.vbs"

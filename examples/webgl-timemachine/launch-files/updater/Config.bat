@@ -7,7 +7,7 @@ SETLOCAL EnableExtensions
 SETLOCAL EnableDelayedExpansion
 
 :: Check that we have proper permissions
->nul 2>&1 "%SYSTEMROOT%\system32\cacls.exe" "%SYSTEMROOT%\system32\config\system"
+>nul 2>&1 "%SYSTEMROOT%\system32\icacls.exe" "%SYSTEMROOT%\system32\config\system"
 
 if '%errorlevel%' neq '0' (
   echo The program needs to be run as Administrator.
@@ -165,7 +165,7 @@ goto :UPDATE_CANCEL
 :UAC_PROMPT
   echo set UAC = CreateObject^("Shell.Application"^) > "%temp%\getadmin.vbs"
   set params = %*:"=""
-  echo UAC.ShellExecute "cmd.exe", "/c %~s0 %params%", "", "runas", 1 >> "%temp%\getadmin.vbs"
+  echo UAC.ShellExecute "cmd.exe", "/c ""%~s0"" %params%", "", "runas", 1 >> "%temp%\getadmin.vbs"
 
   "%temp%\getadmin.vbs"
   del "%temp%\getadmin.vbs"
