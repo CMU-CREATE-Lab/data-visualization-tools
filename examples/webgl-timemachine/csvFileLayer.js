@@ -633,13 +633,20 @@ function searchCountryList(feature_collection, name) {
   for (var i = 0; i < feature_collection['features'].length; i++) {
     var feature = feature_collection['features'][i];
     var names = feature['properties']['names'];
-    for (var j = 0; j < names.length; j++) {
-      if (name == names[j]) {
-        //return feature['properties']['webmercator'];
+    if (typeof names == "undefined") {
+      if (name == feature["properties"]["GEOID10"]) {
         return feature;
       }
+    } else {
+      for (var j = 0; j < names.length; j++) {
+        if (name == names[j]) {
+          //return feature['properties']['webmercator'];
+          return feature;
+        }
+      }
+
     }
-  }
+  }  
   return {};
 };
 
