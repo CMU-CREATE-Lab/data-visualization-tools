@@ -51,7 +51,21 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
         var xhr = new XMLHttpRequest();
         xhr.open('GET', that._externalGeojson);
         xhr.onload = function() {
+          var t0 = performance.now();
           that.geojsonData = JSON.parse(this.responseText);
+          var t1 = performance.now();
+          console.log("Parsing GeoJSON took " + (t1 - t0) + "ms");
+          var hash = {};
+          var t0 = performance.now();
+          for (var i = 0; i < that.geojsonData["features"].length; i++) {
+            hash[that.geojsonData["features"][i]["properties"]["GEOID10"]] = i;
+            if (i < 10) {
+              console.log(hash);
+            }
+          }
+          var t1 = performance.now();
+          console.log("Indexing GeoJSON took " + (t1 - t0) + "ms");
+          that.geojsonData["hash"] = hash;
           that._load();
         };
         xhr.send();
@@ -482,7 +496,10 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
       // header row Country,      year_0, ..., year_N
       // data row   country_name, value_0,..., value_N
       // ...
+      var t0 = performance.now();
       that.jsondata = Papa.parse(csvdata, {header: false});
+      var t1 = performance.now();
+      console.log("Parsed csv data in " + (t1 - t0) + "ms");
       var header = that.jsondata.data[0];
       var epochs = [];
       var points = [];
@@ -490,6 +507,8 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
       var minValue = 1e6; //TODO Is this an ok value?
       var verts = [];
       var rawVerts = [];
+      var t0 = performance.now();
+      var totalSearchTime = 0;
       for (var i = 1; i < header.length; i++) {
         epochs[i] = new Date(header[i]).getTime()/1000.;
       }
@@ -498,9 +517,15 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
         if (that.geojsonData == null) {
           that.geojsonData = COUNTRY_POLYGONS;
         }
+        var t3 = performance.now();
         var feature = searchCountryList(that.geojsonData,country[0]);
-        if (!feature.hasOwnProperty("geometry")) {
-          console.log('ERROR: Could not find ' + country[0]);
+        var t4 = performance.now();
+        totalSearchTime += (t4 - t3);
+        if (typeof feature == "undefined") {
+          //
+        }
+        else if (!feature.hasOwnProperty("geometry")) {
+          //console.log('ERROR: Could not find ' + country[0]);
         } else {
           var idx = [];
           for (var j = 1; j < country.length; j++) {
@@ -557,6 +582,10 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
           }
         }
       }
+      console.log("Total time searching is " + totalSearchTime + "ms");
+      var t1 = performance.now();
+      console.log("Generated vertices data in " + (t1 - t0) + "ms");
+      var t0 = performance.now();
       that._maxValue = maxValue;
       that._minValue = minValue;
       var radius = eval(that.scalingFunction);
@@ -565,6 +594,9 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
         verts[i+3] = radius(verts[i+3]);
         verts[i+5] = radius(verts[i+5]);
       }
+      var t1 = performance.now();
+      console.log("Scale data in " + (t1 - t0) + "ms");
+
       that._setData(new Float32Array(verts));
       that._dataLoaded(that.layerId);
     }
