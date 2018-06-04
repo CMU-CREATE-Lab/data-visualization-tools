@@ -185,7 +185,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
       layer.visible = true;
       $("#" + nickname + "-legend").show();
       if (mapType == "choropleth") {
-        showCountryLabelMapLayer = true;
+        showCountryLabelMapLayer = false;
       }
       if (masterPlaybackRate && playbackRate) {
         timelapse.setMasterPlaybackRate(masterPlaybackRate);
@@ -630,6 +630,13 @@ xhr.send();
 
 
 function searchCountryList(feature_collection, name) {
+  if (typeof feature_collection["hash"] !== "undefined") {
+    if (name == "15218") {
+      console.log(feature_collection["features"][feature_collection["hash"][name]]); 
+    }
+    return feature_collection["features"][feature_collection["hash"][name]];
+  }
+
   for (var i = 0; i < feature_collection['features'].length; i++) {
     var feature = feature_collection['features'][i];
     var names = feature['properties']['names'];
