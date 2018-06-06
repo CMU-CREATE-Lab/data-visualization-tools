@@ -3633,9 +3633,9 @@
             var $newActiveTopic = $(document.activeElement).closest($(".ui-accordion-content"));
             $lastActiveLayerTopic = $newActiveTopic.length ? $newActiveTopic : $lastActiveLayerTopic;
             var $layers = $lastActiveLayerTopic.find("input");
-            if ($layers.filter(":checked").length > 1) return;
             for (var i = 0; i < $layers.length; i++) {
               if ($($layers[i]).prop('checked')) {
+                $layers.filter(":checked").click();
                 $($layers[i-1]).trigger('click');
                 e.preventDefault();
                 break;
@@ -3652,9 +3652,9 @@
             var $newActiveTopic = $(document.activeElement).closest($(".ui-accordion-content"));
             $lastActiveLayerTopic = $newActiveTopic.length ? $newActiveTopic : $lastActiveLayerTopic;
             var $layers = $lastActiveLayerTopic.find("input");
-            if ($layers.filter(":checked").length > 1) return;
             for (var i = 0; i < $layers.length; i++) {
               if ($($layers[i]).prop('checked')) {
+                $layers.filter(":checked").click();
                 $($layers[i+1]).trigger('click');
                 e.preventDefault();
                 break;
