@@ -510,9 +510,33 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
       var t0 = performance.now();
       var totalSearchTime = 0;
       for (var i = 1; i < header.length; i++) {
-        epochs[i] = new Date(header[i]).getTime()/1000.;
+        var date = header[i];
+        // Date can be YYYY or YYYYMM or YYYYMMDD or YYYYMMDDHHMM or YYYYMMDDHHMMSS
+        var yyyymmddhhmmss_re = /(\d{4})(\d{2})?(\d{2})?(\d{2})?(\d{2})?(\d{2})?$/;
+        var m = date.match(yyyymmddhhmmss_re);
+        if (!m) {
+          console.log('Cannot parse date ' + date);
+          return;
+        }
+        var to_parse = m[1]; // YYYY
+        if (m[2] !== undefined) {
+          to_parse += '-' + m[2]; // MM
+          if (m[3] != undefined) {
+            to_parse += '-' + m[3]; // DD
+            if (m[4] != undefined && m[5] != undefined) {
+              to_parse += ' ' + m[4] + ':' + m[5]; // HH:MM
+              if (m[6] != undefined) {
+                to_parse += ':' + m[6]; // SS
+              }
+            }
+          }
+        }
+        to_parse += ' GMT'
+        epochs[i] = new Date(to_parse).getTime()/1000;
       }
+      console.log(that.jsondata.data.length);
       for (var ii = 1; ii < that.jsondata.data.length; ii++) {
+//      for (var ii = 1; ii < 30000; ii++) {
         var country = that.jsondata.data[ii];
         if (that.geojsonData == null) {
           that.geojsonData = COUNTRY_POLYGONS;
