@@ -631,9 +631,6 @@ xhr.send();
 
 function searchCountryList(feature_collection, name) {
   if (typeof feature_collection["hash"] !== "undefined") {
-    if (name == "15218") {
-      console.log(feature_collection["features"][feature_collection["hash"][name]]); 
-    }
     return feature_collection["features"][feature_collection["hash"][name]];
   }
 

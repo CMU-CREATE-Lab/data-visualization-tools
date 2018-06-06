@@ -59,9 +59,6 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
           var t0 = performance.now();
           for (var i = 0; i < that.geojsonData["features"].length; i++) {
             hash[that.geojsonData["features"][i]["properties"]["GEOID10"]] = i;
-            if (i < 10) {
-              console.log(hash);
-            }
           }
           var t1 = performance.now();
           console.log("Indexing GeoJSON took " + (t1 - t0) + "ms");
@@ -534,9 +531,7 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
         to_parse += ' GMT'
         epochs[i] = new Date(to_parse).getTime()/1000;
       }
-      console.log(that.jsondata.data.length);
       for (var ii = 1; ii < that.jsondata.data.length; ii++) {
-//      for (var ii = 1; ii < 30000; ii++) {
         var country = that.jsondata.data[ii];
         if (that.geojsonData == null) {
           that.geojsonData = COUNTRY_POLYGONS;
