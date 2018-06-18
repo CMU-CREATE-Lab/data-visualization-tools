@@ -327,7 +327,7 @@
         var htmlCollection = document.getElementsByClassName("gi-related__items");
         if (themes[currentThemeIdx]['stories'].length > 1) {
           var relatedItems = [];
-          while (relatedItems.length < 2) {
+          while (relatedItems.length < Math.min(themes[currentThemeIdx]['stories'].length - 1, 2)) {
             var choice = Math.floor(Math.random() * themes[currentThemeIdx]['stories'].length);
             if (choice != currentStoryIdx && !(relatedItems.includes(choice))) {
               relatedItems.push(choice);
@@ -363,10 +363,10 @@
             }
           } 
         }
-
         giProject();
       }      
     })    
+    
   </script>
 </body>
 </html>
