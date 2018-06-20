@@ -309,7 +309,7 @@
     var isAutoModeRunning = false;
     var visibleBaseMapLayer = "landsat";
     var previousVisibleBaseMapLayer = visibleBaseMapLayer;
-    var timelapse, snaplapseViewerForPresentationSlider, previousWaypoint = {}, waypointViewChangeListener, hideWaypointListener, waypointTimeChangeListenerInterval, snaplapseForPresentationSlider, parabolicMotionStoppedListener;
+    var timelapse, thumbnailTool, snaplapseViewerForPresentationSlider, previousWaypoint = {}, waypointViewChangeListener, hideWaypointListener, waypointTimeChangeListenerInterval, snaplapseForPresentationSlider, parabolicMotionStoppedListener;
     var currentWaypointTheme = featuredTheme.replace(/ /g, '_').toLowerCase();
     var currentWaypointStory;
     var himawariWaypoints = {};
@@ -3897,6 +3897,8 @@
         }
         resize();
       });
+
+      thumbnailTool = timelapse.getThumbnailTool();
     }
     // END of initLayerToggleUI()
 
@@ -6728,14 +6730,11 @@
         $("#theme-menu").show();
         $("#layers-menu").hide();
 
-        // Ensure at least one theme is always open
         var $activeStoryMenu = $("#theme-menu").find("h3").children(".ui-icon-bullet");
         if ($activeStoryMenu.length) {
           if (!$activeStoryMenu.closest("h3").hasClass("ui-accordion-header-active")) {
             $activeStoryMenu.click();
           }
-        } else if ($("#theme-menu").find(".ui-accordion-header-active").length == 0) {
-          $("#theme-menu").find("h3").first().click();
         }
       });
 
@@ -7522,6 +7521,9 @@
       }
       timelapse.onresize();
       $("body").trigger('resize');
+      if (thumbnailTool) {
+        thumbnailTool.resizeCanvas();
+      }
       $("#timeMachine").hide().show(0);
     }
 
