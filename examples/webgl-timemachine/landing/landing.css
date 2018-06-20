@@ -348,7 +348,7 @@ body, html {
   padding-top: 40px;
 }
 
-#story-container {
+.story-container {
   display: -webkit-box;
   display: -moz-box;
   display: -ms-flexbox;
@@ -458,7 +458,7 @@ body, html {
 
 .panel {
     padding: 10px 30px;
-    background-color: white;
+    background-color: transparent;
     display: none;
     overflow: hidden;
     font-size: 18px;
@@ -668,6 +668,19 @@ select option {
   #image-slider .slick-dots {
     bottom: -57px;
   }
+}
+
+#donate-link {
+  display: block;
+  width: 45%;
+  height: auto;
+  background: rgb(144, 30, 30);
+  padding: 15px;
+  text-align: center;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  margin: 20px auto;
 }
 
 #presskit-link {
