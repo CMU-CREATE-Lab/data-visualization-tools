@@ -362,7 +362,7 @@ html, body {
 
 #layers-list.featured {
   height: calc(50% - 66px);
-  margin-top: -18px;
+  margin-top: 53px;
 }
 
 #layers-list.waypoints {
@@ -374,7 +374,7 @@ html, body {
 }
 
 #layers-list.featured .layers-scroll-vertical {
-  height: calc(100% - 42px);
+  height: calc(100% - 113px);
 }
 
 
@@ -397,7 +397,7 @@ html, body {
   height: 67%;
 }
 #layers-list-featured.shrink {
-  height: calc(50% - 88px);
+  height: calc(50% - 88px) !important;
 }
 .featured-layers-scroll-vertical {
   overflow-y: auto;
@@ -614,18 +614,18 @@ html, body {
 .current-location-text-container {
   display: none;
   position: absolute;
-  bottom: 94px;
+  bottom: 88px;
   right: calc(50% - 220px);
   z-index: 99;
   pointer-events: none;
 }
 
 .current-location-text-container.hyperwall, .annotations-resume-exit-container.hyperwall {
-  bottom: 105px;
+  bottom: 99px;
 }
 
 .current-location-text-container.layerGraphs, .annotations-resume-exit-container.layerGraphs {
-  bottom: 188px;
+  bottom: 182px;
 }
 
 .annotations-resume-exit-container {
@@ -690,8 +690,8 @@ html, body {
 }
 
 .next-annotation-location {
-  width: 50px;
-  height: 50px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: white;
   border-bottom-right-radius: 2px !important;
@@ -699,13 +699,13 @@ html, body {
   -webkit-box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
           box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
   position: absolute;
-  left: 471px;
-  bottom: 1px;
+  left: 480px;
+  bottom: 0px;
   pointer-events: auto;
 }
 .previous-annotation-location {
-  width: 50px;
-  height: 50px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: white;
   border-bottom-right-radius: 2px !important;
@@ -713,8 +713,8 @@ html, body {
   -webkit-box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
           box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
   position: absolute;
-  left: -71px;
-  bottom: 1px;
+  left: -56px;
+  bottom: 0px;
   pointer-events: auto;
 }
 .current-location-text {
@@ -723,7 +723,7 @@ html, body {
   padding-left: 18px;
   padding-right: 18px;
   padding-bottom: 15px;
-  width: 414px;
+  width: 432px;
   border: 1px solid #6f6f6f;
   border-radius: 2px !important;
   -webkit-box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
@@ -916,6 +916,18 @@ html, body {
   background-color: rgb(31, 31, 31, 1) !important;
 }
 
+#top-nav.right-panel-active {
+  width: calc(100% - 418px) !important;
+}
+
+#location_search.right-panel-active {
+  right: 425px !important;
+}
+
+#location_search_icon.right-panel-active {
+  right: 430px !important;
+}
+
 .location_search_div.letterbox {
   width: 177px;
   position: absolute;
@@ -955,7 +967,7 @@ html, body {
 }
 
 .current-location-text-container.hyperwall.layerGraphs, .annotations-resume-exit-container.hyperwall.layerGraphs {
-  bottom: 206px;
+  bottom: 200px;
 }
 
 .scaleBarContainer.hyperwall.layerGraphs {
@@ -1947,6 +1959,10 @@ a:focus { outline:0; }
   cursor: pointer;
 }
 
+#theme_description * {
+  cursor: default !important;
+}
+
 #theme-list h3.ui-state-active {
   position: sticky;
   position: -webkit-sticky;
@@ -2254,7 +2270,7 @@ a:focus { outline:0; }
 }
 
 .current-location-text-container-touchFriendly, .annotations-resume-exit-container-touchFriendly {
-  bottom: 96px !important;
+  bottom: 90px !important;
 }
 
 .logosContainer-touchFriendly {

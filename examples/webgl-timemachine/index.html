@@ -308,7 +308,7 @@
     var dscovrMaxScale = 0.004;
     var isAutoModeRunning = false;
     var visibleBaseMapLayer = "landsat";
-    var previousVisibleBaseMapLayer = "landsat";
+    var previousVisibleBaseMapLayer = visibleBaseMapLayer;
     var timelapse, snaplapseViewerForPresentationSlider, previousWaypoint = {}, waypointViewChangeListener, hideWaypointListener, waypointTimeChangeListenerInterval, snaplapseForPresentationSlider, parabolicMotionStoppedListener;
     var currentWaypointTheme = featuredTheme.replace(/ /g, '_').toLowerCase();
     var currentWaypointStory;
@@ -3888,6 +3888,15 @@
           $(".customControl").hide().children().hide();
         }
       });
+
+      timelapse.addResizeListener(function() {
+        if ($(".player").hasClass("right-panel-active")) {
+          $("#top-nav, #location_search, #location_search_icon, #csvChartContainer, #timeMachine .presentationSlider").addClass("right-panel-active");
+        } else {
+          $("#top-nav, #location_search, #location_search_icon, #csvChartContainer, #timeMachine .presentationSlider").removeClass("right-panel-active");
+        }
+        resize();
+      });
     }
     // END of initLayerToggleUI()
 
@@ -4151,6 +4160,7 @@
     var dotlayersLoadedPath;
     var csvlayersLoadedPath;
     var layersToShowOnCreation = {};
+    var waypointJSONListReadyInterval;
 
     function addDotmapLayer(nickname, name, credit, category, columnDefs) {
       var layerOptions = {
@@ -6138,8 +6148,6 @@
           var waypointIndex = waypoint.index;
           var waypointBounds = waypoint.bounds;
           var waypointLayers = waypoint.layers || [];
-          var waypointStartTime = waypoint.time;
-          var waypointEndTime = waypoint.endTime;
           var waypointPlaybackSpeed = waypoint.speed;
           // TODO: Do we still need this for himawari now that we have real thumbnails?
           if (Object.keys(himawariWaypoints).length) {
@@ -6165,36 +6173,6 @@
           } else if (selectedWaypointIdx == lastAvailableWaypointIdx && $nextAnnotationLocationButton) {
             //$nextAnnotationLocationButton.button("disable");
             $nextAnnotationLocationButton.addClass("annotation-story-end-button");
-          }
-
-          // We are still technically using Landsat (web mercator) projections for any dataset being drawn,
-          // so the bounds that slide-change returns is not valid for our use. But we already
-          // know the bounds each himawari waypoints should be, so use that instead.
-          if (himawariWaypoint) {
-            waypointBounds = himawariWaypoint.bounds;
-            waypointStartTime = himawariWaypoint.time;
-          }
-
-          clearInterval(waypointTimeChangeListenerInterval);
-          waypointTimeChangeListenerInterval = null;
-
-          // TODO: Should be part of timemachine library
-          if (waypointEndTime >= 0 && waypointStartTime != waypointEndTime) {
-            waypointTimeChangeListenerInterval = setInterval(function() {
-              var t = timelapse.getCurrentTime();
-              if (t > waypointEndTime) {
-                // If the user ends up scrubbing past the desired 'end time' of this waypoint,
-                // remove this loopback check and let the animation loop through the entire time range.
-                var currentTimeInMs = (new Date()).getTime();
-                if ((currentTimeInMs - timeInMsSinceLastWaypointLoop) < 500) {
-                  clearInterval(waypointTimeChangeListenerInterval);
-                  waypointTimeChangeListenerInterval = null;
-                }
-                timeInMsSinceLastWaypointLoop = currentTimeInMs;
-                // Seek back to the desired 'begin time' of this waypoint.
-                timelapse.seek(waypointStartTime);
-              }
-            }, 1);
           }
 
           var waypointListNameString = waypointLayers.map(function(waypointName) {
@@ -6281,6 +6259,38 @@
               }
             }
             var onWaypointChangeListener = function() {
+              var waypointStartTime = timelapse.playbackTimeFromShareDate(waypoint.beginTime) || waypoint.time;
+              var waypointEndTime = timelapse.playbackTimeFromShareDate(waypoint.endTime);
+
+              // We are still technically using Landsat (web mercator) projections for any dataset being drawn,
+              // so the bounds that slide-change returns is not valid for our use. But we already
+              // know the bounds each himawari waypoints should be, so use that instead.
+              if (himawariWaypoint) {
+                waypointBounds = himawariWaypoint.bounds;
+                waypointStartTime = himawariWaypoint.time;
+              }
+
+              clearInterval(waypointTimeChangeListenerInterval);
+              waypointTimeChangeListenerInterval = null;
+
+              // TODO: Should be part of timemachine library
+              if (waypointEndTime >= 0 && waypointStartTime != waypointEndTime) {
+                waypointTimeChangeListenerInterval = setInterval(function() {
+                  var t = timelapse.getCurrentTime();
+                  if (t > waypointEndTime) {
+                    // If the user ends up scrubbing past the desired 'end time' of this waypoint,
+                    // remove this loopback check and let the animation loop through the entire time range.
+                    var currentTimeInMs = (new Date()).getTime();
+                    if ((currentTimeInMs - timeInMsSinceLastWaypointLoop) < 500) {
+                      clearInterval(waypointTimeChangeListenerInterval);
+                      waypointTimeChangeListenerInterval = null;
+                    }
+                    timeInMsSinceLastWaypointLoop = currentTimeInMs;
+                    // Seek back to the desired 'begin time' of this waypoint.
+                    timelapse.seek(waypointStartTime);
+                  }
+                }, 1);
+              }
               timelapse.removeTimelineUIChangeListener(onWaypointChangeListener);
               timelapse.setPlaybackRate(waypointPlaybackRate);
             };
@@ -6615,35 +6625,41 @@
           updateLetterboxContent();
         }
 
-        featuredTheme = currentWaypointTheme ? currentWaypointTheme : featuredTheme;
-        featuredTheme = capitalize_each_word_in_string(featuredTheme.replace(/_/g, " "));
+        waypointJSONListReadyInterval = setInterval(function() {
+          if (waypointJSONList) {
+            window.clearInterval(waypointJSONListReadyInterval);
+            var storyTheme = getStoryAndThemeFromUrl();
+            featuredTheme = currentWaypointTheme || featuredTheme || storyTheme.theme;
+            featuredTheme = capitalize_each_word_in_string(featuredTheme.replace(/_/g, " "));
 
-        if (!loadedInitialCsvLayers) {
-          loadedInitialCsvLayers = true;
-          // CSV layers are loaded asynchronously, so trigger another hash change if we just loaded the page
-          $(window).on('hashchange', hashChange).trigger('hashchange');
-        }
+            if (!loadedInitialCsvLayers) {
+              loadedInitialCsvLayers = true;
+              // CSV layers are loaded asynchronously, so trigger another hash change if we just loaded the page
+              $(window).on('hashchange', hashChange).trigger('hashchange');
+            }
 
-        var layerDefs = csvFileLayers.layersData.data;
-        for (var i = 0; i < layerDefs.length; i++) {
-          var layerDef = layerDefs[i];
-          var shareLinkIdentifier = layerDef['Share link identifier'];
-          var $layer = $("#layers-list label[name='" + shareLinkIdentifier + "']");
-          // Add layer description buttons
-          if (layerDef['Layer Description']) {
-            var $layerDescriptionElm = $("<td colspan='3'><div class='layer-description'></div></td>");
-            $layer.closest("tr").append($layerDescriptionElm);
-            $layerDescriptionElm.find(".layer-description").attr("data-layer-description", layerDef['Layer Description']);
+            var layerDefs = csvFileLayers.layersData.data;
+            for (var i = 0; i < layerDefs.length; i++) {
+              var layerDef = layerDefs[i];
+              var shareLinkIdentifier = layerDef['Share link identifier'];
+              var $layer = $("#layers-list label[name='" + shareLinkIdentifier + "']");
+              // Add layer description buttons
+              if (layerDef['Layer Description']) {
+                var $layerDescriptionElm = $("<td colspan='3'><div class='layer-description'></div></td>");
+                $layer.closest("tr").append($layerDescriptionElm);
+                $layerDescriptionElm.find(".layer-description").attr("data-layer-description", layerDef['Layer Description']);
+              }
+            }
+
+            if (featuredTheme) {
+              createFeaturedLayersSection();
+            } else {
+              $(".map-layer-div").show();
+            }
+            // Sort all the newly added layers
+            sortLayerCategories();
           }
-        }
-
-        if (featuredTheme) {
-          createFeaturedLayersSection();
-        } else {
-          $(".map-layer-div").show();
-        }
-        // Sort all the newly added layers
-        sortLayerCategories();
+        }, 50);
       });
 
       if (isOffline) {
@@ -6733,8 +6749,9 @@
         $("#layers-menu").show();
         $("#theme-menu").hide();
         if ($("#show-more-layers").length && !$("#show-more-layers").hasClass("active")) {
-          $(".map-layer-div").hide();
+          $(".map-layer-div, #all-data-layers-title").hide();
         }
+        resize()
       });
 
       $("#theme-menu").on("click", "[id^=story_]", function(e) {
@@ -7347,6 +7364,15 @@
       if (!returnVals.theme) {
         var matchResult = currentUrl.match(/themes\/(\w*)\/?/);
         // Pull theme from URL or pull from internally tracked theme
+        if (!matchResult) {
+          var availableThemes = Object.keys(waypointJSONList);
+          for (var i = 0; i < availableThemes.length; i++) {
+            if (waypointJSONList[availableThemes[i]].stories[returnVals.story]) {
+              currentWaypointTheme = availableThemes[i];
+              break;
+            }
+          }
+        }
         returnVals.theme = matchResult ? matchResult[1].toLowerCase() : currentWaypointTheme;
       }
       return returnVals;
@@ -7512,6 +7538,12 @@
 
       if ($el1.length > 0 && initialTopNavWrapperElm) {
         var needHamburgerNav = ($el1[0].offsetLeft <= initialTopNavWrapperElm.outerWidth);
+      }
+
+      if ($("#layers-menu").is(":visible")) {
+        var layersInnerMenuHeight = Math.min($("#featured-layers").outerHeight(true), $("#layers-menu").height() - $("#layers-menu .menu-selection-heading").outerHeight(true) - $("#layers-menu #featured-layers-title").outerHeight(true) - $("#layers-menu #show-more-layers").outerHeight(true) - 6);
+        $("#layers-list-featured").css("height", layersInnerMenuHeight + "px");
+        $(".featured-layers-scroll-vertical").css("height", "100%");
       }
 
       if (needHamburgerNav) {
