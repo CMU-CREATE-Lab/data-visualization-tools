@@ -85,6 +85,10 @@ WebglVectorLayer2.prototype.setOptions = function(options) {
     this._externalGeojson = options.externalGeojson;
   }
 
+  if (options.nameKey != undefined) {
+    this._nameKey = options.nameKey;
+  }
+
   if (options.layerId != undefined) {
     this._layerId = options.layerId;
   }
@@ -145,6 +149,9 @@ WebglVectorLayer2.prototype._createTile = function(ti, bounds) {
   }
   if (this._externalGeojson) {
     opt_options.externalGeojson = this._externalGeojson;
+  }
+  if (this._nameKey) {
+    opt_options.nameKey = this._nameKey;
   }
   if (this._layerId) {
     opt_options.layerId = this._layerId;
