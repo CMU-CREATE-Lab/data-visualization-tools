@@ -28,7 +28,8 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
   this.draw = opt_options.drawFunction || this._drawLines;
   this._fragmentShader = opt_options.fragmentShader || WebGLVectorTile2.vectorTileFragmentShader;
   this._vertexShader = opt_options.vertexShader || WebGLVectorTile2.vectorTileVertexShader;
-  this._externalGeojson = opt_options.externalGeojson;
+  this._externalGeojson = opt_options.externalGeojson;  
+  this._nameKey = opt_options.nameKey;
   this._numAttributes = opt_options.numAttributes;
   this._noValue = opt_options.noValue || 'xxx';
   this._uncertainValue = opt_options.uncertainValue || '. .';
@@ -53,16 +54,19 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
         xhr.onload = function() {
           var t0 = performance.now();
           that.geojsonData = JSON.parse(this.responseText);
+          if (typeof that._nameKey != "undefined") {
+
           var t1 = performance.now();
           console.log("Parsing GeoJSON took " + (t1 - t0) + "ms");
           var hash = {};
           var t0 = performance.now();
           for (var i = 0; i < that.geojsonData["features"].length; i++) {
-            hash[that.geojsonData["features"][i]["properties"]["GEOID10"]] = i;
+            hash[that.geojsonData["features"][i]["properties"][that._nameKey]] = i;
           }
           var t1 = performance.now();
           console.log("Indexing GeoJSON took " + (t1 - t0) + "ms");
           that.geojsonData["hash"] = hash;
+          }
           that._load();
         };
         xhr.send();
@@ -537,11 +541,12 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
           that.geojsonData = COUNTRY_POLYGONS;
         }
         var t3 = performance.now();
-        var feature = searchCountryList(that.geojsonData,country[0]);
+        var feature = searchCountryList(that.geojsonData,country[0], that._nameKey);
         var t4 = performance.now();
         totalSearchTime += (t4 - t3);
         if (typeof feature == "undefined") {
           //
+          console.log("undefined feature");
         }
         else if (!feature.hasOwnProperty("geometry")) {
           //console.log('ERROR: Could not find ' + country[0]);
