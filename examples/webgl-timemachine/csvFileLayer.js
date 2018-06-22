@@ -62,6 +62,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
   var color = opts["color"];
   var legendContent = opts["legendContent"];
   var externalGeojson = opts["externalGeojson"];
+  var nameKey = opts["nameKey"];
   var category = opts["category"];
   var category_id = category ? "category-" + category.trim().replace(/ /g,"-").toLowerCase() : "csvlayers_table";
   var playbackRate = typeof opts["playbackRate"] == "undefined" ? null : opts["playbackRate"];
@@ -80,6 +81,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
     fragmentShader: WebGLVectorTile2.bubbleMapFragmentShader,
     vertexShader: WebGLVectorTile2.bubbleMapVertexShader,
     externalGeojson: externalGeojson,
+    nameKey: nameKey,
     numAttributes: 6
   };
   var WebglLayer = WebglVectorLayer2;
@@ -311,6 +313,14 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
         }
       }
 
+      var nameKey = undefined;
+      if (typeof layer["Name Key"] != "undefined") {
+        var t = layer["Name Key"].trim();
+        if (t != "") {
+          nameKey = t;
+        }
+      }
+
       var loadDataFunction = layer["Load Data Function"];
       var setDataFunction = layer["Set Data Function"];
       var numAttributes = layer["Number of Attributes"];
@@ -333,6 +343,7 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
         legendContent: legendContent,
         legendKey: legendKey,
         externalGeojson: externalGeojson,
+        nameKey: nameKey,
         loadDataFunction: loadDataFunction,
         setDataFunction: setDataFunction,
         numAttributes: numAttributes,
@@ -629,26 +640,30 @@ xhr.onload = function() {
 xhr.send();
 
 
-function searchCountryList(feature_collection, name) {
+function searchCountryList(feature_collection, name, name_key) {
   if (typeof feature_collection["hash"] !== "undefined") {
     return feature_collection["features"][feature_collection["hash"][name]];
   }
-
   for (var i = 0; i < feature_collection['features'].length; i++) {
     var feature = feature_collection['features'][i];
-    var names = feature['properties']['names'];
-    if (typeof names == "undefined") {
-      if (name == feature["properties"]["GEOID10"]) {
-        return feature;
-      }
-    } else {
-      for (var j = 0; j < names.length; j++) {
-        if (name == names[j]) {
-          //return feature['properties']['webmercator'];
+    if (typeof name_key != "undefined") {
+        if (name == feature["properties"][name_key]) {
           return feature;
         }
+    } else {
+      var names = feature['properties']['names'];
+      if (typeof names == "undefined") {
+        if (name == feature["properties"]["GEOID10"]) {
+          return feature;
+        }
+      } else {
+        for (var j = 0; j < names.length; j++) {
+          if (name == names[j]) {
+            //return feature['properties']['webmercator'];
+            return feature;
+          }
+        }
       }
-
     }
   }  
   return {};
