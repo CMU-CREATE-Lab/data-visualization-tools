@@ -321,7 +321,7 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
 	var m = date.match(yyyymmddhhmmss_re);
 	if (!m) {
 	  console.log('Cannot parse date ' + date);
-	  return;
+	  break;
 	}
 	var to_parse = m[1]; // YYYY
 	if (m[2] !== undefined) {
@@ -517,7 +517,7 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
         var m = date.match(yyyymmddhhmmss_re);
         if (!m) {
           console.log('Cannot parse date ' + date);
-          return;
+          break;
         }
         var to_parse = m[1]; // YYYY
         if (m[2] !== undefined) {
