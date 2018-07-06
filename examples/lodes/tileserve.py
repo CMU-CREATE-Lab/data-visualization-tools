@@ -172,7 +172,7 @@ class InvalidUsage(Exception):
 cache_dir = 'columncache'
 
 def list_datasets():
-    return sorted(os.listdir(cache_dir))
+    return [x for x in sorted(os.listdir(cache_dir)) if not '_hidden' in x]
 
 # Compute relative path from request to /data
 def dataroot():
@@ -183,7 +183,7 @@ def list_columns(dataset):
     if not os.path.exists(dir):
         msg = 'Dataset named "{dataset}" not found.<br><br><a href="{dataroot}">List valid datasets</a>'.format(dataroot=dataroot(), **locals())
         raise InvalidUsage(msg)
-    return sorted([os.path.basename(c).replace('.numpy', '') for c in glob.glob(dir + '/*.numpy')])
+    return sorted([os.path.basename(os.path.splitext(c)[0]) for c in (glob.glob(dir + '/*.float32') + glob.glob(dir + '/*.numpy'))])
 
 # Removing the least recent takes O(N) time;  could be make more efficient if needed for larger dicts
 
