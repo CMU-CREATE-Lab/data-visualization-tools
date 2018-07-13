@@ -4022,6 +4022,8 @@
       if (lastSelectedAnnotationBeforeHidden) {
         lastSelectedAnnotationBeforeHidden.removeClass("thumbnail_highlight");
       }
+      $("#timeMachine .player .presentation-mode-share-input").hide();
+      $("#timeMachine .player .shareView .ui-dialog-title").text("Share a View");
     }
 
     function setActiveLayersWithTimeline(modifier) {
@@ -6088,7 +6090,14 @@
             var snaplapseForPresentationSlider = timelapse.getSnaplapseForPresentationSlider();
             snaplapseForPresentationSlider.getSnaplapseViewer().initializeAndRunAutoMode();
           }
-          $(".snaplapse_keyframe_list").children().first().children().click();
+          var vals = UTIL.getUnsafeHashVars();
+          var waypointId;
+          if (vals.waypointIdx) {
+            waypointId = $("#timeMachine .snaplapse_keyframe_list").children().eq(vals.waypointIdx).children()[0].id;
+          } else {
+            waypointId = $("#timeMachine .snaplapse_keyframe_list").children().first().children()[0].id;
+          }
+          $("#" + waypointId).click();
         });
 
         snaplapseViewerForPresentationSlider.addEventListener('automode-start', function() {
@@ -6879,6 +6888,8 @@
 
       $(".annotations-resume-button").on("click", function() {
         showAnnotations(true);
+        $("#timeMachine .player .presentation-mode-share-input").show();
+        $("#timeMachine .player .shareView .ui-dialog-title").text("Share a Story");
       });
 
       $(".annotations-exit-button").on("click", function() {
@@ -6888,7 +6899,11 @@
         $("#theme-menu .active-story-in-theme").remove();
         setNewStoryAndThemeUrl("","");
         handleStoryToggle(false);
-        window.history.replaceState('explore', 'Title', window.location.protocol + "//" + window.location.host + getUrlPathName() + "explore");
+        if (window.location.host.indexOf("localhost") == -1) {
+          window.history.replaceState('explore', 'Title', window.location.protocol + "//" + window.location.host + getUrlPathName() + "explore");
+        } else {
+          window.history.replaceState('explore', 'Title', window.location.protocol + "//" + window.location.host + getUrlPathName());
+        }
         $('#theme-title').attr('data-theme-id', '');
       });
 
@@ -7419,7 +7434,9 @@
           newHash += prop + '=' + fields[prop];
         }
       }
-      window.location.hash = newHash;
+      if (newHash) {
+        window.location.hash = newHash;
+      }
     }
 
     function getSpreadsheetDownloadPath(path) {
@@ -7510,14 +7527,18 @@
     function handleStoryToggle(doShow) {
       if (doShow) {
         $("#timeMachine .presentationSlider").removeClass("offscreen");
-        $("#timeMachine .player").removeClass("presentationSliderOffscreen");
-        $("#main-hamburger-menu").removeClass("presentationSliderOffscreen");
+        $("#timeMachine .player, #main-hamburger-menu").removeClass("presentationSliderOffscreen");
         $("#layers-list, #theme-list, .themes-scroll-vertical").addClass("waypoints");
+        $("#timeMachine .shareView").css("height", "calc(100% + " + $(".player").css("bottom") + ")");
+        $("#timeMachine .player .presentation-mode-share-input").show();
+        $("#timeMachine .player .shareView .ui-dialog-title").text("Share a Story");
       } else {
         $("#timeMachine .presentationSlider").addClass("offscreen");
-        $("#timeMachine .player").addClass("presentationSliderOffscreen");
-        $("#main-hamburger-menu").addClass("presentationSliderOffscreen");
+        $("#timeMachine .player, #main-hamburger-menu").addClass("presentationSliderOffscreen");
         $("#layers-list, #theme-list, .themes-scroll-vertical").removeClass("waypoints");
+        $("#timeMachine .shareView").css("height", "100%");
+        $("#timeMachine .player .presentation-mode-share-input").hide();
+        $("#timeMachine .player .shareView .ui-dialog-title").text("Share a View");
       }
       timelapse.onresize();
       $("body").trigger('resize');
