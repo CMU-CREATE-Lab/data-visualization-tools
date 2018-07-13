@@ -6165,6 +6165,13 @@
           var waypointBounds = waypoint.bounds;
           var waypointLayers = waypoint.layers || [];
           var waypointPlaybackSpeed = waypoint.speed;
+
+          if (window.location.href.indexOf("/stories") == -1 && window.location.href.indexOf("story=") == -1) {
+            $("#timeMachine .player .presentation-mode-share-input").show();
+            $("#timeMachine .player .shareView .ui-dialog-title").text("Share a Story");
+            setNewStoryAndThemeUrl(currentWaypointTheme, currentWaypointStory);
+          }
+
           // TODO: Do we still need this for himawari now that we have real thumbnails?
           if (Object.keys(himawariWaypoints).length) {
             var himawariWaypoint = himawariWaypoints[currentWaypointTheme][currentWaypointStory] ? himawariWaypoints[currentWaypointTheme][currentWaypointStory][waypointIndex] : null;
@@ -6895,13 +6902,7 @@
         showAnnotations(true);
         $("#timeMachine .player .presentation-mode-share-input").show();
         $("#timeMachine .player .shareView .ui-dialog-title").text("Share a Story");
-        if (window.location.protocol.indexOf("file:") != -1 || window.location.host.indexOf("localhost") != -1) {
-          changeHash({theme: currentWaypointTheme, story: currentWaypointStory});
-        } else {
-          var hashVars = UTIL.getUnsafeHashVars();
-          var hashParamsToInclude = typeof(hashVars.waypointIdx) === "undefined" ? "" : "#waypointIdx=" + hashVars.waypointIdx;
-          window.history.replaceState('themeStory', 'Title', window.location.protocol + "//" + window.location.host + getUrlPathName() + "stories/" + currentWaypointStory + hashParamsToInclude);
-        }
+        setNewStoryAndThemeUrl(currentWaypointTheme, currentWaypointStory);
       });
 
       $(".annotations-exit-button").on("click", function() {
