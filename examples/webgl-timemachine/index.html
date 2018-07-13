@@ -3535,7 +3535,7 @@
 
       $(document).keydown(function(e) {
         var fromRealKeydown = e.originalEvent && e.pageX != 0 && e.pageY != 0;
-        if ((e.target.id == 'location_search' || ($(".ui-dialog").is(":visible") && $("#dialog-extend-fixed-container").children().length == 0)) && !!fromRealKeydown) return;
+        if (e.target.tagName == "INPUT" && !!fromRealKeydown) return;
 
         // 'page up' key
         // Quick way to step forward through waypoints
@@ -4024,6 +4024,11 @@
       }
       $("#timeMachine .player .presentation-mode-share-input").hide();
       $("#timeMachine .player .shareView .ui-dialog-title").text("Share a View");
+      if (window.location.protocol.indexOf("file:") != -1 || window.location.host.indexOf("localhost") != -1) {
+        window.history.replaceState('explore', 'Title', window.location.protocol + "//" + window.location.host + getUrlPathName());
+      } else {
+        window.history.replaceState('explore', 'Title', window.location.protocol + "//" + window.location.host + getUrlPathName() + "explore");
+      }
     }
 
     function setActiveLayersWithTimeline(modifier) {
@@ -6890,6 +6895,13 @@
         showAnnotations(true);
         $("#timeMachine .player .presentation-mode-share-input").show();
         $("#timeMachine .player .shareView .ui-dialog-title").text("Share a Story");
+        if (window.location.protocol.indexOf("file:") != -1 || window.location.host.indexOf("localhost") != -1) {
+          changeHash({theme: currentWaypointTheme, story: currentWaypointStory});
+        } else {
+          var hashVars = UTIL.getUnsafeHashVars();
+          var hashParamsToInclude = typeof(hashVars.waypointIdx) === "undefined" ? "" : "#waypointIdx=" + hashVars.waypointIdx;
+          window.history.replaceState('themeStory', 'Title', window.location.protocol + "//" + window.location.host + getUrlPathName() + "stories/" + currentWaypointStory + hashParamsToInclude);
+        }
       });
 
       $(".annotations-exit-button").on("click", function() {
@@ -6899,10 +6911,10 @@
         $("#theme-menu .active-story-in-theme").remove();
         setNewStoryAndThemeUrl("","");
         handleStoryToggle(false);
-        if (window.location.host.indexOf("localhost") == -1) {
-          window.history.replaceState('explore', 'Title', window.location.protocol + "//" + window.location.host + getUrlPathName() + "explore");
-        } else {
+        if (window.location.protocol.indexOf("file:") != -1 || window.location.host.indexOf("localhost") != -1) {
           window.history.replaceState('explore', 'Title', window.location.protocol + "//" + window.location.host + getUrlPathName());
+        } else {
+          window.history.replaceState('explore', 'Title', window.location.protocol + "//" + window.location.host + getUrlPathName() + "explore");
         }
         $('#theme-title').attr('data-theme-id', '');
       });
@@ -7407,12 +7419,12 @@
 
     function setNewStoryAndThemeUrl(newTheme, newStory) {
       var hashVars = UTIL.getUnsafeHashVars();
-      // legacy support
       if (hashVars.theme || window.location.protocol.indexOf("file:") != -1 || window.location.host.indexOf("localhost") != -1 || newStory == "default") {
         changeHash({theme: newTheme, story: newStory});
       } else {
         // TODO(Earth Day 2018): We are not including a theme here until after Earth Day
-        window.history.replaceState('themeStory', 'Title', window.location.protocol + "//" + window.location.host + getUrlPathName() + "stories/" + newStory);
+        var hashParamsToInclude = typeof(hashVars.waypointIdx) === "undefined" ? "" : "#waypointIdx=" + hashVars.waypointIdx;
+        window.history.replaceState('themeStory', 'Title', window.location.protocol + "//" + window.location.host + getUrlPathName() + "stories/" + newStory + hashParamsToInclude);
       }
     }
 
