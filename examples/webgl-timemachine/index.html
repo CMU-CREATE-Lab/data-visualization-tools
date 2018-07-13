@@ -4022,13 +4022,7 @@
       if (lastSelectedAnnotationBeforeHidden) {
         lastSelectedAnnotationBeforeHidden.removeClass("thumbnail_highlight");
       }
-      $("#timeMachine .player .presentation-mode-share-input").hide();
-      $("#timeMachine .player .shareView .ui-dialog-title").text("Share a View");
-      if (window.location.protocol.indexOf("file:") != -1 || window.location.host.indexOf("localhost") != -1) {
-        window.history.replaceState('explore', 'Title', window.location.protocol + "//" + window.location.host + getUrlPathName());
-      } else {
-        window.history.replaceState('explore', 'Title', window.location.protocol + "//" + window.location.host + getUrlPathName() + "explore");
-      }
+      setExploreModeUrl();
     }
 
     function setActiveLayersWithTimeline(modifier) {
@@ -6167,8 +6161,6 @@
           var waypointPlaybackSpeed = waypoint.speed;
 
           if (window.location.href.indexOf("/stories") == -1 && window.location.href.indexOf("story=") == -1) {
-            $("#timeMachine .player .presentation-mode-share-input").show();
-            $("#timeMachine .player .shareView .ui-dialog-title").text("Share a Story");
             setNewStoryAndThemeUrl(currentWaypointTheme, currentWaypointStory);
           }
 
@@ -6900,8 +6892,6 @@
 
       $(".annotations-resume-button").on("click", function() {
         showAnnotations(true);
-        $("#timeMachine .player .presentation-mode-share-input").show();
-        $("#timeMachine .player .shareView .ui-dialog-title").text("Share a Story");
         setNewStoryAndThemeUrl(currentWaypointTheme, currentWaypointStory);
       });
 
@@ -6910,13 +6900,7 @@
         $("#theme-menu").find("input").prop("checked", false);
         $("#theme-menu .activeStory").removeClass('activeStory');
         $("#theme-menu .active-story-in-theme").remove();
-        setNewStoryAndThemeUrl("","");
         handleStoryToggle(false);
-        if (window.location.protocol.indexOf("file:") != -1 || window.location.host.indexOf("localhost") != -1) {
-          window.history.replaceState('explore', 'Title', window.location.protocol + "//" + window.location.host + getUrlPathName());
-        } else {
-          window.history.replaceState('explore', 'Title', window.location.protocol + "//" + window.location.host + getUrlPathName() + "explore");
-        }
         $('#theme-title').attr('data-theme-id', '');
       });
 
@@ -7427,6 +7411,18 @@
         var hashParamsToInclude = typeof(hashVars.waypointIdx) === "undefined" ? "" : "#waypointIdx=" + hashVars.waypointIdx;
         window.history.replaceState('themeStory', 'Title', window.location.protocol + "//" + window.location.host + getUrlPathName() + "stories/" + newStory + hashParamsToInclude);
       }
+      $("#timeMachine .player .presentation-mode-share-input").show();
+      $("#timeMachine .player .shareView .ui-dialog-title").text("Share a Story");
+    }
+
+    function setExploreModeUrl() {
+      if (window.location.protocol.indexOf("file:") != -1 || window.location.host.indexOf("localhost") != -1) {
+        window.history.replaceState('explore', 'Title', window.location.protocol + "//" + window.location.host + getUrlPathName());
+      } else {
+        window.history.replaceState('explore', 'Title', window.location.protocol + "//" + window.location.host + getUrlPathName() + "explore");
+      }
+      $("#timeMachine .player .presentation-mode-share-input").hide();
+      $("#timeMachine .player .shareView .ui-dialog-title").text("Share a View");
     }
 
     // Modify window.location.hash to include all fields from object newFields.
