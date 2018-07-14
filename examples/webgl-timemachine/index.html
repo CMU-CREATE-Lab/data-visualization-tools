@@ -6112,7 +6112,7 @@
           var waypointBounds = waypoint.bounds;
           // TODO: Do we still need this for himawari now that we have real thumbnails?
           if (Object.keys(himawariWaypoints).length) {
-            var himawariWaypoint = himawariWaypoints[currentWaypointTheme][currentWaypointStory] ? himawariWaypoints[currentWaypointTheme][currentWaypointStory][waypointIndex] : null;
+            var himawariWaypoint = (himawariWaypoints[currentWaypointTheme] && himawariWaypoints[currentWaypointTheme][currentWaypointStory]) ? himawariWaypoints[currentWaypointTheme][currentWaypointStory][waypointIndex] : null;
           }
           isAutoModeRunning = snaplapseViewerForPresentationSlider.isAutoModeRunning();
           lastSelectedAnnotationBeforeHidden = $("#" + waypointTitle.replace(/\W+/g, "_") + " .snaplapse_keyframe_list_item_thumbnail_overlay_presentation");
@@ -6166,7 +6166,7 @@
 
           // TODO: Do we still need this for himawari now that we have real thumbnails?
           if (Object.keys(himawariWaypoints).length) {
-            var himawariWaypoint = himawariWaypoints[currentWaypointTheme][currentWaypointStory] ? himawariWaypoints[currentWaypointTheme][currentWaypointStory][waypointIndex] : null;
+            var himawariWaypoint = (himawariWaypoints[currentWaypointTheme] && himawariWaypoints[currentWaypointTheme][currentWaypointStory]) ? himawariWaypoints[currentWaypointTheme][currentWaypointStory][waypointIndex] : null;
           }
           var lastAvailableWaypointIdx = $(".snaplapse_keyframe_list").children().last().index();
           var selectedWaypointIdx = $(".snaplapse_keyframe_list .thumbnail_highlight").closest(".snaplapse_keyframe_list_item").index();
