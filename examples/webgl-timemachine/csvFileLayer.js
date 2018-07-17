@@ -136,6 +136,9 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
     if (opts["fragmentShader"]) {
       layerOptions.fragmentShader = eval(opts["fragmentShader"]);
     }
+    if (colorMapSrc) {
+      layerOptions.imageSrc = colorMapSrc;
+    }    
   }
 
   var layer = new WebglLayer(glb, canvasLayer, url, layerOptions);
