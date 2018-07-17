@@ -1485,6 +1485,20 @@ WebGLVectorTile2.prototype._drawBubbleMap = function(transform, options) {
     var sliderTime = gl.getUniformLocation(this.program, 'u_Mode');
     gl.uniform1f(sliderTime, mode);
 
+    if (this._texture) {
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, this._texture);
+      gl.uniform1i(gl.getUniformLocation(this.program, "u_Image"), 0);
+
+      var colorLoc = gl.getUniformLocation(this.program, 'u_Min');
+      gl.uniform1f(colorLoc, this._radius(this._minValue));
+
+      var colorLoc = gl.getUniformLocation(this.program, 'u_Max');
+      gl.uniform1f(colorLoc, this._radius(this._maxValue));
+
+
+    }
+
 
     gl.drawArrays(gl.POINTS, 0, this._pointCount);
     perf_draw_points(this._pointCount);
@@ -3530,6 +3544,40 @@ WebGLVectorTile2.bubbleMapWithPackedColorFragmentShader =
 '          }\n' +
 '          vec4 circleColor = unpackColor(v_color);\n' +
 '          if (v_Val < 0.0) { circleColor[0] = 1.0; circleColor[1]=0.0; circleColor[2]=0.0; };\n' +
+'          vec4 outlineColor = vec4(1.0,1.0,1.0,1.0);\n' +
+'          float outerEdgeCenter = 0.5 - .01;\n' +
+'          float stroke = smoothstep(outerEdgeCenter - delta, outerEdgeCenter + delta, dist);\n' +
+'          gl_FragColor = vec4( mix(outlineColor.rgb, circleColor.rgb, stroke), alpha*.75 );\n' +
+'      }';
+
+WebGLVectorTile2.bubbleMapWithColorMapFragmentShader =
+'      #extension GL_OES_standard_derivatives : enable\n' +
+'      precision mediump float;\n' +
+'      varying float v_Val;\n' +
+'      uniform sampler2D u_Image;\n' +
+'      uniform float u_Min;\n' +
+'      uniform float u_Max;\n' +
+'      uniform float u_Mode;\n' +
+'      float scale(float v, float min, float max) {\n' +
+'          return (v - min)/(max - min);\n' +
+'      }\n' +
+'      void main() {\n' +
+'          float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
+'          dist = 1. - (dist * 2.);\n' +
+'          dist = max(0., dist);\n' +
+'          float delta = fwidth(dist);\n' +
+'          float alpha = smoothstep(0.45-delta, 0.45, dist);\n' +
+'          if (u_Mode == 2.0) {\n' +
+'            if (gl_PointCoord.x > 0.5) {\n' +
+'              alpha = 0.0;\n' +
+'            }\n' +
+'          }\n' +
+'          if (u_Mode == 3.0) {\n' +
+'            if (gl_PointCoord.x < 0.5) {\n' +
+'              alpha = 0.0;\n' +
+'            }\n' +
+'          }\n' +
+'          vec4 circleColor = texture2D(u_Image, vec2(scale(v_Val, u_Min, u_Max),scale(v_Val, u_Min, u_Max)));\n' +
 '          vec4 outlineColor = vec4(1.0,1.0,1.0,1.0);\n' +
 '          float outerEdgeCenter = 0.5 - .01;\n' +
 '          float stroke = smoothstep(outerEdgeCenter - delta, outerEdgeCenter + delta, dist);\n' +
