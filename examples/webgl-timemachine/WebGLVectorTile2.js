@@ -93,6 +93,10 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
     this.scalingFunction = opt_options.scalingFunction;
   }
 
+  if (opt_options.colorScalingFunction) {
+    this.colorScalingFunction = opt_options.colorScalingFunction;
+  }
+
 //  if (opt_options.geojsonData) {
 //    this.geojsonData = opt_options.geojsonData;
 //  }
@@ -259,6 +263,221 @@ WebGLVectorTile2.prototype._loadSitc4r2Data = function () {
   this._dataLoaded(layerId);
 
 }
+
+WebGLVectorTile2.prototype._loadBivalentBubbleMapDataFromCsv = function() {
+  var that = this;
+  var data;
+
+  this._maxPointValue = null;
+  this._minPointValue = null;
+
+  this._maxColorValue = null;
+  this._minColorValue = null;
+
+  var proj = new org.gigapan.timelapse.MercatorProjection(
+    -180, 85.05112877980659, 180, -85.05112877980659,
+    256, 256);
+
+
+  function scaleValues(fnc, arr) {
+    var ret = [];
+    arr.forEach(function(x) {
+      var scaled = [];
+      x.forEach(function(y) {
+        scaled.push(fnc(y));
+      });
+      ret.push(scaled);
+    });
+    return ret;    
+  }
+
+  function setMinMaxPointValue(arr) {
+    arr.forEach(function(xx) {
+      var x = Math.abs(xx);
+      if (that._maxPointValue == null || that._maxPointValue < x) {
+        that._maxPointValue = x;
+      } 
+      if (that._minPointValue == null || that._minPointValue > x) {
+        that._minPointValue = x;
+      } 
+    });
+  }
+
+  function setMinMaxColorValue(arr) {
+    arr.forEach(function(xx) {
+      var x = Math.abs(xx);
+      if (that._maxColorValue == null || that._maxColorValue < x) {
+        that._maxColorValue = x;
+      } 
+      if (that._minColorValue == null || that._minColorValue > x) {
+        that._minColorValue = x;
+      } 
+    });
+  }
+
+  function setRow(arr) {
+    var ret = [];
+    var lastValue = 0.0;
+    for (var i = 0; i < arr.length; i++) {
+      if (arr[i] != "") {
+        ret.push(parseFloat(arr[i]));
+        lastValue = parseFloat(arr[i]);
+      } else {
+        ret.push(lastValue);
+      }
+    }
+    ret.push(lastValue);
+    return ret;
+  }
+
+  function duplicateRow(offset, arr) {
+    var dup = [];
+    arr.slice(offset).forEach(function(x) {
+      var x1 = x;
+      dup.push(x1,x);
+    });
+    return dup.slice(1,-1);
+  }
+
+  function getCentroidFromCsvData(row) {
+    var latlng = {lat:row[1], lng:row[2]};
+    var xy = proj.latlngToPoint(latlng);
+    return [xy.x, xy.y];
+  }
+
+  function getEpochs(offset, arr) {
+    var ret = [];
+    for (var i = offset; i < arr.length; i++) {
+      var date = arr[i];
+      // Date can be YYYY or YYYYMM or YYYYMMDD or YYYYMMDDHHMM or YYYYMMDDHHMMSS
+      var yyyymmddhhmmss_re = /(\d{4})(\d{2})?(\d{2})?(\d{2})?(\d{2})?(\d{2})?$/;
+      var m = date.match(yyyymmddhhmmss_re);
+      if (!m) {
+        console.log('Cannot parse date ' + date);
+        break;
+      }
+      var to_parse = m[1]; // YYYY
+      if (m[2] !== undefined) {
+        to_parse += '-' + m[2]; // MM
+        if (m[3] != undefined) {
+          to_parse += '-' + m[3]; // DD
+          if (m[4] != undefined && m[5] != undefined) {
+            to_parse += ' ' + m[4] + ':' + m[5]; // HH:MM
+            if (m[6] != undefined) {
+              to_parse += ':' + m[6]; // SS
+            }
+          }
+        }
+      }
+      to_parse += ' GMT'
+      ret.push(new Date(to_parse).getTime()/1000);
+    }
+    ret.push(ret[ret.length - 1] + ret[ret.length - 1] - ret[ret.length - 2]);
+    return ret;
+  };
+
+  this._handleLoading();
+
+  this.xhr = new XMLHttpRequest();
+  this.xhr.open('GET', that._url);
+  this.xhr.onload = function() {
+    that._removeLoadingSpinner();
+
+    if (this.status == 404) {
+      data = "";
+    } else {
+      var csvdata = this.responseText;
+      that.jsondata = Papa.parse(csvdata, {header: false});
+      var header = that.jsondata.data[0];
+      var has_lat_lon = (
+        header[1].substr(0,3).toLowerCase() == 'lat' &&
+        header[2].substr(0,3).toLowerCase() == 'lon');
+      var has_packedColor = (header[3].substr(0,11).toLowerCase() == 'packedcolor');
+      var first_data_col = has_packedColor ? 4 : (has_lat_lon ? 3 : 1);
+
+      var epochs = duplicateRow(0, getEpochs(first_data_col, header));
+      var pointValues = [];
+      var colorValues = [];
+      var centroids = [];
+      for (var i = 1; i < that.jsondata.data.length; i+=2) {
+        if (that.jsondata.data[i] == "") {
+          break;
+        }
+        var pointRow = that.jsondata.data[i];
+        var colorRow = that.jsondata.data[i+1];
+        // Make sure that the rows Name values match
+        if (pointRow[0] != colorRow[0]) {
+          break;
+        }
+        // Extract centroids
+        if (has_lat_lon && pointRow[1] != '') {
+          var centroid = getCentroidFromCsvData(pointRow); 
+          centroids.push(centroid);
+          pointRow = setRow(duplicateRow(first_data_col, pointRow));
+          setMinMaxPointValue(pointRow);
+          colorRow = setRow(duplicateRow(first_data_col, colorRow));
+          setMinMaxColorValue(colorRow);          
+          pointValues.push(pointRow);
+          colorValues.push(colorRow);
+        }
+      }
+    }
+
+    var radius = eval(that.scalingFunction);
+    var colorScalingFunction = eval(that.colorScalingFunction);
+    that._radius = radius;
+    that._colorScalingFunction = colorScalingFunction;
+
+    var scaledPointValues = scaleValues(that._radius, pointValues);
+    var scaledColorValues = scaleValues(that._colorScalingFunction, colorValues);
+    var points = [];
+    for (var i = 0; i < centroids.length; i++) {
+      for (var j = 0; j < epochs.length; j+= 2) {
+        var point = {}; 
+        point["centroid"] = centroids[i];
+        point["pointVal1"] = scaledPointValues[i][j];
+        point["pointVal2"] = scaledPointValues[i][j+1];
+        point["colorVal1"] = scaledColorValues[i][j];
+        point["colorVal2"] = scaledColorValues[i][j+1];
+        point["epoch1"] = epochs[j];
+        point["epoch2"] = epochs[j+1];
+        points.push(point);
+      }
+    }
+
+    points.sort(function (a, b) {
+      return Math.abs(b["pointVal2"]) - Math.abs(a["pointVal2"]);
+    });
+
+    var flatPoints = [];
+    for (var i =0 ; i < points.length; i++) {
+      flatPoints.push(points[i]["centroid"][0]);
+      flatPoints.push(points[i]["centroid"][1]);
+      flatPoints.push(points[i]["epoch1"]);
+      flatPoints.push(points[i]["pointVal1"]);
+      flatPoints.push(points[i]["colorVal1"]);
+      flatPoints.push(points[i]["epoch2"]);
+      flatPoints.push(points[i]["pointVal2"]);
+      flatPoints.push(points[i]["colorVal2"]);
+      if (has_packedColor) {
+        flatPoints.push(points[i]["packedColor"]);
+      }
+    }
+
+    that._setData(new Float32Array(flatPoints));
+    //that._setData([]);
+    that._dataLoaded(that.layerId);
+  }
+
+  this.xhr.onerror = function() {
+    that._removeLoadingSpinner();
+
+    that._setData('');
+  }
+
+  this.xhr.send();
+}
+
 
 WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
   var that = this;
@@ -1497,6 +1716,87 @@ WebGLVectorTile2.prototype._drawBubbleMap = function(transform, options) {
       gl.uniform1f(colorLoc, this._radius(this._maxValue));
 
 
+    }
+
+
+    gl.drawArrays(gl.POINTS, 0, this._pointCount);
+    perf_draw_points(this._pointCount);
+    gl.disable(gl.BLEND);
+  }
+}
+
+WebGLVectorTile2.prototype._drawBivalentBubbleMap = function(transform, options) {
+  var gl = this.gl;
+  if (this._ready) {
+    gl.useProgram(this.program);
+    gl.enable(gl.BLEND);
+    gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
+
+    var tileTransform = new Float32Array(transform);
+    var zoom = options.zoom;
+    var currentTime = options.currentTime.getTime()/1000.;
+    var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
+    var color = options.color || [.1, .1, .5, 1.0];
+    if (color.length == 3) {
+      color.push(1.0);
+    }
+    var mode = options.mode || 1.0; // 1.0 == full circle, 2.0 == left half, 3.0 == right half
+
+    //console.log(currentTime);
+
+    scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
+    scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+
+    pointSize *= Math.floor((zoom + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+    // Passing a NaN value to the shader with a large number of points is very bad
+    if (isNaN(pointSize)) {
+      pointSize = 1.0;
+    }
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_Centroid');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this._numAttributes * 4, 0);
+
+    var timeLocation = gl.getAttribLocation(this.program, "a_Epoch1");
+    gl.enableVertexAttribArray(timeLocation);
+    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, this._numAttributes * 4, 8);
+
+    var timeLocation = gl.getAttribLocation(this.program, "a_PointVal1");
+    gl.enableVertexAttribArray(timeLocation);
+    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, this._numAttributes * 4, 12);
+
+    var timeLocation = gl.getAttribLocation(this.program, "a_ColorVal1");
+    gl.enableVertexAttribArray(timeLocation);
+    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, this._numAttributes * 4, 16);
+
+    var timeLocation = gl.getAttribLocation(this.program, "a_Epoch2");
+    gl.enableVertexAttribArray(timeLocation);
+    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, this._numAttributes * 4, 20);
+
+    var timeLocation = gl.getAttribLocation(this.program, "a_PointVal2");
+    gl.enableVertexAttribArray(timeLocation);
+    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, this._numAttributes * 4, 24);
+
+    var timeLocation = gl.getAttribLocation(this.program, "a_ColorVal2");
+    gl.enableVertexAttribArray(timeLocation);
+    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, this._numAttributes * 4, 28);
+
+
+    var matrixLoc = gl.getUniformLocation(this.program, 'u_MapMatrix');
+    gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+
+    var sliderTime = gl.getUniformLocation(this.program, 'u_Epoch');
+    gl.uniform1f(sliderTime, currentTime);
+
+    var sliderTime = gl.getUniformLocation(this.program, 'u_Size');
+    gl.uniform1f(sliderTime, 2.0 * window.devicePixelRatio);
+
+    if (this._texture) {
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, this._texture);
+      gl.uniform1i(gl.getUniformLocation(this.program, "u_Image"), 0);
     }
 
 
@@ -3578,6 +3878,53 @@ WebGLVectorTile2.bubbleMapWithColorMapFragmentShader =
 '            }\n' +
 '          }\n' +
 '          vec4 circleColor = texture2D(u_Image, vec2(scale(v_Val, u_Min, u_Max),scale(v_Val, u_Min, u_Max)));\n' +
+'          vec4 outlineColor = vec4(1.0,1.0,1.0,1.0);\n' +
+'          float outerEdgeCenter = 0.5 - .01;\n' +
+'          float stroke = smoothstep(outerEdgeCenter - delta, outerEdgeCenter + delta, dist);\n' +
+'          gl_FragColor = vec4( mix(outlineColor.rgb, circleColor.rgb, stroke), alpha*.75 );\n' +
+'      }';
+
+WebGLVectorTile2.bivalentBubbleMapWithColorMapVertexShader =
+'      attribute vec4 a_Centroid;\n' +
+'      attribute float a_Epoch1;\n' +
+'      attribute float a_PointVal1;\n' +
+'      attribute float a_ColorVal1;\n' +
+'      attribute float a_Epoch2;\n' +
+'      attribute float a_PointVal2;\n' +
+'      attribute float a_ColorVal2;\n' +
+'      uniform float u_Epoch;\n' +
+'      uniform float u_Size;\n' +
+'      uniform mat4 u_MapMatrix;\n' +
+'      varying float v_PointVal;\n' +
+'      varying float v_ColorVal;\n' +
+'      void main() {\n' +
+'        vec4 position;\n' +
+'        if (a_Epoch1 > u_Epoch || a_Epoch2 <= u_Epoch) {\n' +
+'          position = vec4(-1,-1,-1,-1);\n' +
+'        } else {\n' +
+'          position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);\n' +
+'        }\n' +
+'        gl_Position = position;\n' +
+'        float delta = (u_Epoch - a_Epoch1)/(a_Epoch2 - a_Epoch1);\n' +
+'        float size = (a_PointVal2 - a_PointVal1) * delta + a_PointVal1;\n' +
+'        v_PointVal = size;\n' +
+'        v_ColorVal = (a_ColorVal2 - a_ColorVal1) * delta + a_ColorVal1;\n' +
+'        gl_PointSize = abs(u_Size * size);\n' +
+'      }\n';
+
+WebGLVectorTile2.bivalentBubbleMapWithColorMapFragmentShader =
+'      #extension GL_OES_standard_derivatives : enable\n' +
+'      precision mediump float;\n' +
+'      varying float v_PointVal;\n' +
+'      varying float v_ColorVal;\n' +
+'      uniform sampler2D u_Image;\n' +
+'      void main() {\n' +
+'          float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
+'          dist = 1. - (dist * 2.);\n' +
+'          dist = max(0., dist);\n' +
+'          float delta = fwidth(dist);\n' +
+'          float alpha = smoothstep(0.45-delta, 0.45, dist);\n' +
+'          vec4 circleColor = texture2D(u_Image, vec2(v_ColorVal,v_ColorVal));\n' +
 '          vec4 outlineColor = vec4(1.0,1.0,1.0,1.0);\n' +
 '          float outerEdgeCenter = 0.5 - .01;\n' +
 '          float stroke = smoothstep(outerEdgeCenter - delta, outerEdgeCenter + delta, dist);\n' +

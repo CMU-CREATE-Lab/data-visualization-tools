@@ -58,6 +58,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
   var name = opts["name"];
   var credit = opts["credit"];
   var scalingFunction = opts["scalingFunction"];
+  var colorScalingFunction = opts["colorScalingFunction"];
   var mapType = opts["mapType"];
   var color = opts["color"];
   var legendContent = opts["legendContent"];
@@ -139,6 +140,9 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
     if (colorMapSrc) {
       layerOptions.imageSrc = colorMapSrc;
     }    
+    if (colorScalingFunction) {
+      layerOptions.colorScalingFunction = colorScalingFunction;
+    }
   }
 
   var layer = new WebglLayer(glb, canvasLayer, url, layerOptions);
@@ -278,6 +282,11 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
         scalingFunction = 'd3.scaleSqrt().domain([minValue, maxValue]).range([0, 100])';
       }
 
+      var colorScalingFunction = layer["Color Scaling"].trim();
+      if (colorScalingFunction == '') {
+        colorScalingFunction = 'd3.scaleLinear().domain([minColorValue, maxColorValue]).range([0, 1])';
+      }
+
       var mapType = layer["Map Type"].trim();
       if (mapType == "") {
         mapType = "bubble";
@@ -341,6 +350,7 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
         category: layer["Category"],
         showGraph: layer["Show Graph"],
         scalingFunction: scalingFunction,
+        colorScalingFunction: colorScalingFunction,
         mapType: mapType,
         color: optionalColor,
         legendContent: legendContent,
@@ -679,7 +689,8 @@ const LOAD_DATA_FUNCTION_LOOKUP_TABLE = {
   "WebGLVectorTile.prototype._loadSitc4r2Data": WebGLVectorTile2.prototype._loadSitc4r2Data, // Supporting typos 4evah
   "WebGLVectorTile2.prototype._loadCarbonPriceRiskDataFromCsv": WebGLVectorTile2.prototype._loadCarbonPriceRiskDataFromCsv,
   "WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv": WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv,
-  "WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv": WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv
+  "WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv": WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv,
+  "WebGLVectorTile2.prototype._loadBivalentBubbleMapDataFromCsv": WebGLVectorTile2.prototype._loadBivalentBubbleMapDataFromCsv,
 };
 
 const SET_DATA_FUNCTION_LOOKUP_TABLE = {

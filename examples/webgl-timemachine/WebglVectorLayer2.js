@@ -81,6 +81,10 @@ WebglVectorLayer2.prototype.setOptions = function(options) {
     this._scalingFunction = options.scalingFunction;
   }
 
+  if (options.colorScalingFunction != undefined) {
+    this._colorScalingFunction = options.colorScalingFunction;
+  }
+
   if (options.externalGeojson != undefined) {
     this._externalGeojson = options.externalGeojson;
   }
@@ -146,6 +150,9 @@ WebglVectorLayer2.prototype._createTile = function(ti, bounds) {
   }
   if (this._scalingFunction) {
     opt_options.scalingFunction = this._scalingFunction;
+  }
+  if (this._colorScalingFunction) {
+    opt_options.colorScalingFunction = this._colorScalingFunction;
   }
   if (this._externalGeojson) {
     opt_options.externalGeojson = this._externalGeojson;
