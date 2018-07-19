@@ -282,7 +282,10 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
         scalingFunction = 'd3.scaleSqrt().domain([minValue, maxValue]).range([0, 100])';
       }
 
-      var colorScalingFunction = layer["Color Scaling"].trim();
+      var colorScalingFunction = '';
+      if (typeof layer["Color Scaling"] != "undefined") {
+        colorScalingFunction = layer["Color Scaling"].trim();
+      }
       if (colorScalingFunction == '') {
         colorScalingFunction = 'd3.scaleLinear().domain([minColorValue, maxColorValue]).range([0, 1])';
       }
