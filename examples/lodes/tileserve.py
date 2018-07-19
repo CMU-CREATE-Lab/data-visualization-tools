@@ -4,8 +4,8 @@ import sys, traceback
 
 from urllib2 import parse_http_list as _parse_list_header
 
-import ast, datetime, flask, functools, glob, gzip, hashlib, json, md5, numpy, os, psycopg2, random, resource, re
-import struct, sys, tempfile, threading, time, urlparse
+import ast, datetime, flask, functools, glob, gzip, hashlib, json, math, md5, numpy, os, psycopg2, random, resource, re
+import scipy.misc, StringIO, struct, sys, tempfile, threading, time, urlparse
 
 from dateutil import tz
 from flask import after_this_request, request
@@ -94,10 +94,14 @@ def unpack_color(f):
     r = floor(f - b * 256.0 * 256.0 - g * 256.0)
     return {'r':r,'g':g,'b':b}
 
-def pack_color(color):
-    return color['r'] + color['g'] * 256.0 + color['b'] * 256.0 * 256.0;
+def pack_color(color, encoding=numpy.float32):
+    if encoding == numpy.float32:
+        return color['r'] + color['g'] * 256.0 + color['b'] * 256.0 * 256.0;
+    else:
+        # Return with alpha = 255
+        return 0xff000000 + color['b'] * 0x10000 + color['g'] * 0x100 + color['r']
 
-def parse_color(color):
+def parse_color(color, encoding=numpy.float32):
     color = color.strip()
     c = color
     try:
@@ -106,18 +110,20 @@ def parse_color(color):
         if len(c) == 3:
             return pack_color({'r': 17 * int(c[0:1], 16),
                                'g': 17 * int(c[1:2], 16),
-                               'b': 17 * int(c[2:3], 16)})
+                               'b': 17 * int(c[2:3], 16)},
+                               encoding)
         if len(c) == 6:
             return pack_color({'r': int(c[0:2], 16),
                                'g': int(c[2:4], 16),
-                               'b': int(c[4:6], 16)})
+                               'b': int(c[4:6], 16)},
+                               encoding)
     except:
         pass
     raise InvalidUsage('Cannot parse color <code><b>%s</b></code> from spreadsheet.<br><br>Color must be in standard web form, <code><b>#RRGGBB</b></code>, where RR, GG, and BB are each two-digit hexadecimal numbers between 00 and FF.<br><br>See <a href="https://www.w3schools.com/colors/colors_picker.asp">HTML Color Picker</a>' % color)
 
-def parse_colors(colors):
-    packed = [parse_color(color) for color in colors]
-    return numpy.array(packed, dtype = numpy.float32)
+def parse_colors(colors, encoding=numpy.float32):
+    packed = [parse_color(color, encoding) for color in colors]
+    return numpy.array(packed, dtype = encoding)
 
 color3dark1 = parse_colors(['#1b9e77','#d95f02','#7570b3'])
 color3dark2 = parse_colors(['#66c2a5','#fc8d62','#8da0cb'])
@@ -361,6 +367,12 @@ typedef struct {
   float color;
 } __attribute__ ((packed)) TileRecord;
 
+typedef struct {
+  unsigned char r, g, b, a;
+} __attribute__ ((packed)) RGBA8;
+
+RGBA8 black = {0,0,0,0};
+
 int compute_tile_data(
     const char *prototile_path,
     int incount,
@@ -404,6 +416,97 @@ int compute_tile_data(
     close(fd);
     return outcount;
 }
+
+inline int min(int x, int y) { return x < y ? x : y; }
+inline int max(int x, int y) { return x > y ? x : y; }
+
+float sumsq(float a, float b) { return a*a + b*b; }
+
+// Negative on fail
+int compute_tile_data_png(
+    const char *prototile_path,
+    int incount,
+    RGBA8 *tile_pixels,
+    int tile_width_in_pixels, // width=height
+    float **populations,
+    unsigned int pop_rows,
+    unsigned int pop_cols,
+    RGBA8 *colors,
+    float min_x, float min_y, float max_x, float max_y,
+    float radius)
+{
+    if (incount == 0) return 0;
+    int fd = open(prototile_path, O_RDONLY);
+    if (fd < 0) return -1;
+
+    PrototileRecord *p = mmap (0, incount*sizeof(PrototileRecord),
+                               PROT_READ, MAP_SHARED, fd, 0);
+    if (p == MAP_FAILED) return -2;
+
+    unsigned outcount = 0;
+
+    for (unsigned i = 0; i < incount; i++) {
+        PrototileRecord rec = p[i];
+        double seq = rec.seq;
+        seq += 0.5;
+        for (unsigned c = 0; c < pop_cols; c++) {
+            // Loop until we find the right color, if any
+            seq -= populations[c][rec.blockIdx];
+            if (seq < 0) {
+                if (outcount >= incount) return -4;  // Illegal
+
+                // render the point so long as we're within the pixel range of the tile
+                // x and y are in original projection space (0-256 defines the world)
+                // row and col are in pixel space for the returned tile (0 to tile_width_in_pixels-1)
+
+                // Transform from prototile x,y which are 0.0-255.999999... web mercator coords
+                // Transform to pixel coords for this tile which are row, col
+
+                // center_row, col are increased by 0.5 so that (int) behaves like round instead of floor
+                float center_col = (rec.x - min_x) / (max_x - min_x) * tile_width_in_pixels + 0.5;
+                float center_row = (rec.y - min_y) / (max_y - min_y) * tile_width_in_pixels + 0.5;
+
+                // For more details, see below
+
+                int min_col = max((int) (center_col - radius), 0);
+                int min_row = max((int) (center_row - radius), 0);  
+                int max_col = min((int) (center_col + radius), tile_width_in_pixels);
+                int max_row = min((int) (center_row + radius), tile_width_in_pixels);
+                for (int col = min_col; col < max_col; col++) {
+                    for (int row = min_row; row < max_row; row++) {
+                        tile_pixels[row * tile_width_in_pixels + col] = colors[c];
+                    }
+                }
+                break;
+            }
+        }
+    }
+    munmap(p, incount*sizeof(PrototileRecord));
+    close(fd);
+    return 0;
+}
+
+                // Leftmost pixel stretches from 0 <= col < 1
+                // Center of the leftmost pixel is col=0.5
+
+                // Rightmost pixel stretch from tile_width_in_pixels-1 <= col < tile_width_in_pixels
+                // Center of the rightmost pixel is col=tile_width_in_pixels-0.5
+
+                // Test case, generating tile 0/0/0:  rec.x = 0, min_x = 0, max_x = 512
+                // center_col = (0 - 0) / (256 - 0) * 512 + 0.5 = 0.5
+                // min_col = int(0.5-0.5) = 0;  max_col = int(0.5+0.5) = 1
+                // colors pixel 0, good
+
+                // Test case, generating tile 0/0/0:  rec.x = .499, min_x = 0, max_x = 512
+                // center_col = (.499 - 0) / (256 - 0) * 512 + 0.5 = 1.498
+                // min_col = int(1.498 - 0.5) = 0;  max_col = int(1.498 + 0.5) = 1
+                // colors pixel 0, good
+
+                // Test case, generating tile 0/0/0:  rec.x = 255.99, min_x = 0, max_x = 512
+                // center_col = (255.99 - 0) / (256 - 0) * 512 + 0.5 = 512.48
+                // min_col = int(512.48 - 0.5) = 511
+                // max_col = int(512.48 + 0.5) = 512
+                // colors pixel 511, good
 """)
 
 def compute_tile_data_c(prototile_path, incount, tile, populations, colors):
@@ -418,12 +521,89 @@ def compute_tile_data_c(prototile_path, incount, tile, populations, colors):
         populations[0].size, len(populations),
         to_ctype_reference(colors))
 
+def compute_tile_data_png(prototile_path, incount, tile_pixels, tile_width_in_pixels, populations, colors_rgba8,
+                          min_x, min_y, max_x, max_y, radius):
+    assert(populations[0].dtype == numpy.float32)
+    assert(colors_rgba8.dtype == numpy.uint32)
+    return compute_tile_data_ext.compute_tile_data_png(
+        prototile_path,
+        int(incount),
+        to_ctype_reference(tile_pixels),
+        tile_width_in_pixels,
+        to_ctype_reference(populations),
+        populations[0].size, len(populations),
+        to_ctype_reference(colors_rgba8),
+        ctypes.c_float(min_x),
+        ctypes.c_float(min_y),
+        ctypes.c_float(max_x),
+        ctypes.c_float(max_y),
+        ctypes.c_float(radius))
+
+def generate_tile_data_png(layer, z, x, y):
+    z = int(z)
+    x = int(x)
+    y = int(y)
+    start_time = time.time()
+    tile_width_in_pixels = 512 # width=height
+    max_prototile_level = 10
+    if z <= max_prototile_level:
+        pz = z
+        px = x
+        py = y
+    else:
+        pz = max_prototile_level
+        px = int(x / (2 ** (z - max_prototile_level)))
+        py = int(y / (2 ** (z - max_prototile_level)))
+        
+    # remove block # and seq #, add color
+    
+    prototile_path = 'prototiles/%d/%d/%d.bin' % (pz, px, py)
+    incount = os.path.getsize(prototile_path) / prototile_record_len
+
+    if z < 5:
+        # Further subsample the points
+        subsample = 2 ** (5 - z)  # z=4, subsample=2;  z=3, subsample=4 ...
+        incount = int(incount / subsample)
+    
+    # Preallocate output array for returned tile
+    bytes_per_pixel = 4 # RGBA x 8-bit
+    #tile_pixels = bytearray(tile_width_in_pixels * tile_width_in_pixels * bytes_per_pixel)
+    tile_pixels = numpy.zeros((tile_width_in_pixels, tile_width_in_pixels, 4), dtype=numpy.uint8)
+
+    local_tile_width = 256.0 / 2 ** int(z)
+    min_x = int(x) * local_tile_width
+    max_x = min_x + local_tile_width
+    min_y = int(y) * local_tile_width
+    max_y = min_y + local_tile_width
+
+    if z <= 10:
+        radius = 0.5
+    else:
+        #radius = 2 ** (z-11)  # radius 1 for z=11.  radius 2 for z=12.  radius 4 for z=13
+        radius = 2 ** ((z-11)/2.0)  # radius 1 for z=11.  radius 2 for z=12.  radius 4 for z=13
+    
+    status = compute_tile_data_png(prototile_path, incount, tile_pixels, tile_width_in_pixels,
+                                   layer['populations'], layer['colors_rgba8'],
+                                   min_x, min_y, max_x, max_y, radius)
+    if status < 0:
+        raise Exception('compute_tile_data returned error %d.  path %s %d' % (status, prototile_path, incount))
+
+    duration = int(1000 * (time.time() - start_time))
+    log('{z}/{x}/{y}: {duration}ms to create PNG tile from prototile'.format(**locals()))
+
+    out = StringIO.StringIO()
+    scipy.misc.imsave(out, tile_pixels, format='png')
+    png = out.getvalue()
+    return png
+
 def generate_tile_data(layer, z, x, y, use_c=False):
     start_time = time.time()
     # remove block # and seq #, add color
     
     prototile_path = 'prototiles/{z}/{x}/{y}.bin'.format(**locals())
     incount = os.path.getsize(prototile_path) / prototile_record_len
+    
+    # Preallocate output array for returned tile
     tile = bytearray(tile_record_len * incount)
     if use_c:
         ctd = compute_tile_data_c
@@ -458,13 +638,30 @@ def find_or_generate_layer(layerdef):
         colors.append(color)
         populations.append(eval_layer_column(expression))
 
-    layer = {'populations':populations,
-             'colors':parse_colors(colors)}
+    layer = {'populations': populations,
+             'colors': parse_colors(colors, encoding=numpy.float32),
+             'colors_rgba8': parse_colors(colors, encoding=numpy.uint32)}
     layer_cache.insert(layerdef, layer)
     duration = int(1000 * (time.time() - start_time))
     cpu = cputime_ms() - start_cputime_ms
     log('{layerdef_hash}: {duration}ms ({cpu}ms CPU) to create'.format(**locals()))
     return layer
+
+@app.route('/tilesv1/<layerdef>/<z>/<x>/<y>.png')
+def serve_tile_v1_png(layerdef, z, x, y):
+    try:
+        layer = find_or_generate_layer(layerdef)
+        tile = generate_tile_data_png(layer, z, x, y)
+        outcount = len(tile) / tile_record_len
+        
+        response = flask.Response(tile, mimetype='image/png')
+    except InvalidUsage, e:
+        response = flask.Response('<h2>400 Invalid Usage</h2>' + e.message, status=400)
+    except:
+        print traceback.format_exc()
+        raise
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
 
 @app.route('/tilesv1/<layerdef>/<z>/<x>/<y>.<suffix>')
 @gzipped
