@@ -327,6 +327,7 @@ WebGLVectorTile2.prototype._loadBivalentBubbleMapDataFromCsv = function() {
       }
     }
     ret.push(lastValue);
+    ret.push(lastValue);
     return ret;
   }
 
