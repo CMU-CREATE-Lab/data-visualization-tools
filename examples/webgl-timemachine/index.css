@@ -1695,26 +1695,27 @@ a:focus { outline:0; }
 }
 
 #csvChartLegendList {
-  line-height: 18px;
-  margin-left: -11px;
+  margin-top: -22px;
 }
 
 #csvChartLegendList li {
   font-size: 34px;
-  left: 7px;
+  height: 0px;
+  margin-bottom: 28px;
+  margin-top: 28px;
   position: relative;
 }
 
 #csvChartLegendList li span{
   color: #8e8e8e;
   font-size: 14px;
-  left: -10px;
   position: relative;
   top: -5px;
 }
 
 .chartEntrySelected span {
   color: black !important;
+  font-weight: bold !important;
 }
 
 #presentation-slider-hamburger-wrapper {
