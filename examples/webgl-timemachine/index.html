@@ -19,6 +19,8 @@
   <link href="../../css/jquery.multiselect.css" rel="stylesheet" type="text/css" />
   <link href="index.css" rel="stylesheet" type="text/css" />
 
+  <script src="../../js/touchpolyfill.js" type="text/javascript"></script>
+
   <script src="../../timemachine/js/jquery/jquery.min.js" type="text/javascript"></script>
   <script src="../../timemachine/js/jquery/jquery-ui.custom.min.js" type="text/javascript"></script>
   <script src="../../timemachine/js/jquery/plugins/mouse/jquery.mousewheel.min.js" type="text/javascript"></script>
@@ -3413,13 +3415,6 @@
           if (previousVisibleBaseMapLayer == "landsat")
             setActiveLayersWithTimeline(-1);
           timelineType = "none";
-        }
-      });
-
-      $("input:radio[name=base-layers]").on("change", function(e) {
-        // If we have a featured layers section, set listener to mirror checked behavior for base layer radio buttons
-        if (featuredTheme) {
-          $("#layers-list-featured #" + e.currentTarget.id).prop("checked", $("#layers-list #" + e.currentTarget.id).prop("checked"));
         }
       });
 

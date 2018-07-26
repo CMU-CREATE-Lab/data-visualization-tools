@@ -16,6 +16,9 @@
 html, body {
   height: 100%;
   overflow: hidden;
+  -ms-content-zooming: none;
+  -ms-touch-action: none;
+  touch-action: none;
 }
 
 * {
