@@ -7001,7 +7001,7 @@
       // Initialize the story editor
       var $viewer_container = $("#viewerContainer");
       storyEditor = new StoryEditor(timelapse, {
-        story_container_id: "editorContainer",
+        container_id: "sidePanel",
         on_hide_callback: function() {
           // TODO: find a way to hide unusable menu buttons
           $viewer_container.css("right", "0");
@@ -9252,7 +9252,7 @@
       </div>
     </div>
   </div>
-  <div id="editorContainer"></div>
+  <div id="sidePanel"></div>
 </body>
 
 </html>

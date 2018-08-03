@@ -1,11 +1,11 @@
-.story_editor {
+.story-editor {
   position: relative;
   height: 100%;
   width: 100%;
   background-color: white;
 }
 
-.story_editor_head {
+.story-editor-head {
   position: absolute;
   top: 0;
   left: 0;
@@ -16,7 +16,7 @@
   background-color: #555960;
 }
 
-.story_editor_head p {
+.story-editor-head p {
   width: 100%;
   height: 48px;
   margin: 0;
@@ -28,4 +28,132 @@
   justify-content: center;
   flex-direction: column;
   color: white;
+}
+
+.story-editor-content {
+  position: absolute;
+  top: 50px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: auto;
+  height: auto;
+  margin: 10px 25px 5px 25px;
+}
+
+.story-editor-content p {
+  font-size: 14px;
+  line-height: 20px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.custom-button {
+  padding: 12px 25px;
+  text-align: center;
+  color: white;
+  font-size: 14px;
+  line-height: 14px;
+  outline: none;
+  border: 0;
+  border-radius: 2px;
+  cursor: pointer;
+  box-shadow: none;
+  transition: background-color 0.1s, box-shadow 0.1s;
+  text-decoration: none;
+  display: block;
+  box-sizing: border-box;
+}
+
+.custom-button:hover {
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.3);
+}
+
+.custom-button:active {
+  box-shadow: none;
+}
+
+.custom-button-primary {
+  color: white;
+  background-color: #007bff;
+}
+
+.custom-button-primary:hover {
+  background-color: #005cbf;
+}
+
+.custom-button-primary:active {
+  background-color: #005cbf;
+}
+
+.custom-button-secondary {
+  color: white;
+  background-color: #7d7d7d;
+}
+
+.custom-button-secondary:hover {
+  background-color: #4d4d4d;
+}
+
+.custom-button-secondary:active {
+  background-color: #4d4d4d;
+}
+
+.story-editor-create-button {
+  margin-bottom: 25px;
+}
+
+.story-editor-metadata {
+  display: none;
+}
+
+.story-editor-load {
+  display: none;
+}
+
+.story-editor-nav-buttons {
+  text-align: center;
+}
+
+.story-editor-left-button {
+  width: 47%;
+  float: left;
+}
+
+.story-editor-right-button {
+  width: 47%;
+  float: right;
+}
+
+.story-editor-center-button {
+  display: inline-block;
+}
+
+.custom-textbox {
+  box-sizing: border-box;
+  padding: 10px 10px;
+  background: rgba(255, 255, 255, 1);
+  border: 1px solid #656565;
+  font-size: 14px;
+  outline: none;
+  border-radius: 2px;
+  display: block;
+  width: 100%;
+}
+
+.sheet-url-textbox {
+  margin-bottom: 25px;
+}
+
+.theme-textbox {
+  margin-bottom: 25px;
+}
+
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Chrome/Safari/Opera */
+  -khtml-user-select: none; /* Konqueror */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently not supported by any browser */
 }
