@@ -13,6 +13,11 @@
   src: url('../../css/fonts/Exo2-Bold.woff') format('woff');
 }
 
+@font-face {
+  font-family: 'Exo2-BoldItalic';
+  src: url('../../css/fonts/Exo2-BoldItalic.woff') format('woff');
+}
+
 html, body {
   height: 100%;
   overflow: hidden;

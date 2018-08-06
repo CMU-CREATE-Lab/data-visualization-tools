@@ -1,30 +1,91 @@
+<link rel="stylesheet" href="index.css">
 <div class="story-editor noselect">
   <div class="story-editor-head">
     <p>Story Editor</p>
   </div>
   <div class="story-editor-content">
     <div class="story-editor-intro">
-      <p>The story editor is a tool for creating and sharing stories on EarthTime. The created story can be downloaded and imported into the EarthTime viewer.</p>
-      <div class="custom-button custom-button-primary story-editor-create-button">Create a story from scratch</div>
-      <p>You can also add and edit stories to a spreadsheet. The edited sheet can be downloaded. A publicly viewable Google spreadsheet link is required.</p>
-      <div class="custom-button custom-button-primary story-editor-edit-button">Add or edit stories from a sheet</div>
+      <p>The <span class="highlight-text">story editor</span> is a tool for creating and sharing stories on EarthTime. The created story can be downloaded and imported into the EarthTime viewer.</p>
+      <div class="custom-button custom-button-primary story-editor-create-button add-bottom-margin">Create a New Story</div>
+      <p>You can also add and edit stories that were created before. A public link to the stories is required.</p>
+      <div class="custom-button custom-button-primary story-editor-edit-button">Add or Edit Stories</div>
     </div>
-    <div class="story-editor-load">
-      <p>Enter the spreadsheet link below to load stories that were created. The link needs to be publicly viewable.</p>
-      <input type="text" class="sheet-url-textbox custom-textbox" placeholder="https//:">
-      <p>Click the "Next" button to add or edit stories in the spreadsheet.</p>
-      <div class="story-editor-nav-buttons">
-        <div class="custom-button custom-button-secondary story-editor-left-button">Back</div>
-        <div class="custom-button custom-button-primary story-editor-right-button">Next</div>
+    <div class="story-editor-theme-metadata hide">
+      <div class="story-editor-action">
+        <p>Every story belongs to a theme (e.g., Earth Day 2018). Provide the <span class="highlight-text">theme title</span> for your story:</p>
+        <input type="text" class="theme-title-textbox custom-textbox add-bottom-margin" maxlength="40" placeholder="theme title (max 40 characters)">
+        <p>Provide the <span class="highlight-text">description</span> for the theme:</p>
+        <textarea type="text" class="theme-content-textbox custom-textbox large-textbox add-bottom-margin" maxlength="300" placeholder="theme description (max 300 characters)"></textarea>
+      </div>
+      <div class="story-editor-nav">
+        <p>Click the "Next" button to add a story to this theme.</p>
+        <div class="story-editor-buttons">
+          <div class="custom-button custom-button-secondary story-editor-back-button">Back</div>
+          <div class="custom-button custom-button-primary story-editor-next-button">Next</div>
+        </div>
       </div>
     </div>
-    <div class="story-editor-metadata">
-      <p>Enter the theme for the story:</p>
-      <input type="text" class="theme-textbox custom-textbox">
-      <p>Click the "Next" button to add waypoints and content to the story.</p>
-      <div class="story-editor-nav-buttons">
-        <div class="custom-button custom-button-secondary story-editor-left-button">Back</div>
-        <div class="custom-button custom-button-primary story-editor-right-button">Next</div>
+    <div class="story-editor-story-metadata hide">
+      <div class="story-editor-action">
+        <p>Provide the <span class="highlight-text">short title</span> for the story:</p>
+        <input type="text" class="story-short-title-textbox custom-textbox add-bottom-margin" maxlength="20" placeholder="short title (max 20 characters)">
+        <p>An optional <span class="highlight-text">long title</span> will be displayed on the main page of the story.</p>
+        <input type="text" class="story-long-title-textbox custom-textbox add-bottom-margin" maxlength="40" placeholder="long title (max 40 characters)">
+        <p>Provide the <span class="highlight-text">description</span> for the story:</p>
+        <textarea type="text" class="story-content-textbox custom-textbox large-textbox add-bottom-margin" maxlength="300" placeholder="story description (max 300 characters)"></textarea>
+        <p>Provide a list of <span class="highlight-text">authors</span> for the story:</p>
+        <input type="text" class="story-authors-textbox custom-textbox add-bottom-margin" maxlength="300" placeholder="(max 300 characters)">
+      </div>
+      <div class="story-editor-nav">
+        <p>Click the "Next" button to add waypoints to this story.</p>
+        <div class="story-editor-buttons">
+          <div class="custom-button custom-button-secondary story-editor-back-button">Back</div>
+          <div class="custom-button custom-button-primary story-editor-next-button">Next</div>
+        </div>
+      </div>
+    </div>
+    <div class="story-editor-waypoints hide">
+      <div class="story-editor-action">
+        <p>Use the following buttons to add a new <span class="highlight-text">waypoint</span> or delete a selected waypoint (an expanded tab).</p>
+        <div class="story-editor-buttons add-bottom-margin">
+          <div class="custom-button custom-button-primary story-editor-normal-button">Add</div>
+          <div class="custom-button custom-button-danger story-editor-normal-button">Delete</div>
+        </div>
+        <p>Click on the following tabs to choose and edit waypoints. To reorder waypoints, drag and drop the tabs.</p>
+        <div class="story-editor-accordion add-bottom-margin">
+          <div class="story-editor-accordion-tab">
+            <h3>Section 1</h3>
+            <div>
+              <p>Mauris mauris ante, blandit et, ultrices a, suscipit eget, quam. Integer ut neque. Vivamus nisi metus, molestie vel, gravida in.</p>
+            </div>
+          </div>
+          <div class="story-editor-accordion-tab">
+            <h3>Section 2</h3>
+            <div>
+              <p>Sed non urna. Donec et ante. Phasellus eu ligula. Vestibulum sit amet purus. Vivamus hendrerit, dolor at aliquet laoreet, mauris turpis porttitor velit, faucibus interdum tellus libero ac justo. Vivamus non quam. In suscipit faucibus urna.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="story-editor-nav">
+        <p>Click the "Save" button to save this story as a spreadsheet.</p>
+        <div class="story-editor-buttons">
+          <div class="custom-button custom-button-secondary story-editor-back-button">Back</div>
+          <div class="custom-button custom-button-primary story-editor-next-button">Save</div>
+        </div>
+      </div>
+    </div>
+    <div class="story-editor-load hide">
+      <div class="story-editor-action">
+        <p>Provide the <span class="highlight-text">public link</span> below to load stories that were created.</p>
+        <input type="text" class="sheet-url-textbox custom-textbox add-bottom-margin" placeholder="https//:">
+      </div>
+      <div class="story-editor-nav">
+        <p>Click the "Next" button to add or edit stories retrieved from the link.</p>
+        <div class="story-editor-buttons">
+          <div class="custom-button custom-button-secondary story-editor-back-button">Back</div>
+          <div class="custom-button custom-button-primary story-editor-next-button">Next</div>
+        </div>
       </div>
     </div>
   </div>

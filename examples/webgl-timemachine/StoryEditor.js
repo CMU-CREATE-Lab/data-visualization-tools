@@ -14,7 +14,8 @@
     var on_show_callback = settings["on_show_callback"];
     var on_hide_callback = settings["on_hide_callback"];
     var $container = $("#" + container_id);
-    var $editor, $content, $intro, $metadata, $load;
+    var $intro;
+    var $theme_metadata, $story_metadata, $waypoints, $load;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -24,10 +25,11 @@
       $.ajax({
         dataType: "html",
         url: "StoryEditor.html",
-        success: function(html_template) {
+        success: function (html_template) {
           creatUI(html_template);
+          //show();
         },
-        error: function() {
+        error: function () {
           console.log("Error reading the story editor html template.");
         }
       });
@@ -36,43 +38,80 @@
     function creatUI(html_template) {
       $container.html(html_template);
 
-      // Main UI
-      $editor = $("#" + container_id + " .story-editor");
-      $content = $("#" + container_id + " .story-editor-content");
-
-      // The introduction
+      // The introduction page
       $intro = $("#" + container_id + " .story-editor-intro");
-      $("#" + container_id + " .story-editor-create-button").on("click", function() {
-        transition($intro, $metadata);
+      $intro.find(".story-editor-create-button").on("click", function () {
+        transition($intro, $theme_metadata);
       });
-      $("#" + container_id + " .story-editor-edit-button").on("click", function() {
+      $intro.find(".story-editor-edit-button").on("click", function () {
         transition($intro, $load);
       });
 
-      // For creating a story
-      $metadata = $("#" + container_id + " .story-editor-metadata");
-      $("#" + container_id + " .story-editor-metadata .story-editor-left-button").on("click", function(){
-        transition($metadata, $intro);
+      // For creating a theme
+      $theme_metadata = $("#" + container_id + " .story-editor-theme-metadata");
+      $theme_metadata.find(".story-editor-back-button").on("click", function () {
+        transition($theme_metadata, $intro);
       });
-      $("#" + container_id + " .story-editor-metadata .story-editor-right-button").on("click", function(){
+      $theme_metadata.find(".story-editor-next-button").on("click", function () {
+        transition($theme_metadata, $story_metadata);
+      });
 
+      // For creating a story
+      $story_metadata = $("#" + container_id + " .story-editor-story-metadata");
+      $story_metadata.find(".story-editor-back-button").on("click", function () {
+        transition($story_metadata, $theme_metadata);
+      });
+      $story_metadata.find(".story-editor-next-button").on("click", function () {
+        transition($story_metadata, $waypoints);
+      });
+
+      // For adding waypoints
+      $waypoints = $("#" + container_id + " .story-editor-waypoints");
+      $waypoints.find(".story-editor-back-button").on("click", function () {
+        transition($waypoints, $story_metadata);
+      });
+      $waypoints.find(".story-editor-next-button").on("click", function () {
+        //transition($waypoints, );
+      });
+      $waypoints.find(".story-editor-accordion").accordion({
+        header: "> div > h3",
+        heightStyle: "content"
+      }).sortable({
+        axis: "y",
+        handle: "h3",
+        stop: function (event, ui) {
+          // IE doesn't register the blur when sorting
+          // so trigger focusout handlers to remove .ui-state-focus
+          ui.item.children("h3").triggerHandler("focusout");
+          // Refresh accordion to handle new order
+          $(this).accordion("refresh");
+        }
       });
 
       // For loading a Google spreadsheet
       $load = $("#" + container_id + " .story-editor-load");
-      $("#" + container_id + " .story-editor-load .story-editor-left-button").on("click", function(){
+      $load.find(".story-editor-back-button").on("click", function () {
         transition($load, $intro);
       });
-      $("#" + container_id + " .story-editor-load .story-editor-right-button").on("click", function(){
-
+      $load.find(".story-editor-next-button").on("click", function () {
+        //transition($load, );
       });
-
     }
 
+
+    // Make a transition from one DOM element to another
     function transition($from, $to) {
-      $from.fadeOut(300, function() {
-        $to.fadeIn(300);
-      });
+      if (typeof $from !== "undefined") {
+        $from.fadeOut(300, function () {
+          if (typeof $to !== "undefined") {
+            $to.fadeIn(300);
+          }
+        });
+      } else {
+        if (typeof $to !== "undefined") {
+          $to.fadeIn(300);
+        }
+      }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
