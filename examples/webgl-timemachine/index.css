@@ -1700,19 +1700,14 @@ a:focus { outline:0; }
   user-select: none;
   display: none;
   z-index: 100;
-  word-break: break-all;
-}
-
-#csvChartLegendList {
-  margin-top: -22px;
 }
 
 #csvChartLegendList li {
   font-size: 34px;
-  height: 0px;
-  margin-bottom: 28px;
-  margin-top: 28px;
+  height: auto;
+  margin-bottom: 10px;
   position: relative;
+  line-height: 9pt;
 }
 
 #csvChartLegendList li span{
