@@ -1700,6 +1700,7 @@ a:focus { outline:0; }
   user-select: none;
   display: none;
   z-index: 100;
+  word-break: break-all;
 }
 
 #csvChartLegendList {
