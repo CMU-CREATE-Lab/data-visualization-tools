@@ -19,6 +19,7 @@
   <link href="../../css/jquery.multiselect.css" rel="stylesheet" type="text/css" />
   <link href="index.css" rel="stylesheet" type="text/css" />
   <link href="StoryEditor.css" rel="stylesheet" type="text/css" />
+  <link href="SetViewTool.css" rel="stylesheet" type="text/css" />
 
   <script src="../../js/touchpolyfill.js" type="text/javascript"></script>
 
@@ -82,8 +83,8 @@
   <script src="../../js/utils.js"></script>
   <script src="../../js/download.min.js"></script>
   <script src="../../js/markdown-it.min.js"></script>
-
   <script src="StoryEditor.js"></script>
+  <script src="SetViewTool.js"></script>
 
   <script type="text/javascript">
     "use strict";
@@ -6999,17 +7000,20 @@
       timelapse.setContextMapEnableStatus(false);
 
       // Initialize the story editor
-      var $viewer_container = $("#viewerContainer");
+      var $viewerContainer = $("#viewerContainer");
+      var $sidePanel = $("#sidePanel");
       storyEditor = new StoryEditor(timelapse, {
         container_id: "sidePanel",
         on_hide_callback: function() {
           // TODO: find a way to hide unusable menu buttons
-          $viewer_container.css("right", "0");
+          $viewerContainer.css("right", "0");
+          $sidePanel.hide();
           timelapse.onresize();
         },
         on_show_callback: function() {
           // TODO: find a way to show hided menu buttons
-          $viewer_container.css("right", "301px");
+          $viewerContainer.css("right", "301px");
+          $sidePanel.show();
           timelapse.onresize();
         }
       });

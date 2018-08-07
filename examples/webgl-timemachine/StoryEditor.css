@@ -50,6 +50,10 @@
   margin-bottom: 10px;
 }
 
+.story-editor-content span {
+  font-size: 14px;
+}
+
 .story-editor-nav {
   position: absolute;
   top: auto;
@@ -57,7 +61,7 @@
   right: 0;
   bottom: 0;
   width: auto;
-  height: 119px;
+  height: 106px;
   border-top: 1px solid black;
   margin: 0;
   padding: 10px 25px 0 25px;
@@ -78,13 +82,89 @@
 }
 
 .custom-button {
-  padding: 12px 25px;
+  padding: 5px 10px;
   text-align: center;
-  color: white;
   font-size: 14px;
   line-height: 14px;
   outline: none;
-  border: 0;
+  border-radius: 2px;
+  cursor: pointer;
+  box-shadow: none;
+  transition: background-color 0.1s, box-shadow 0.1s, border 0.1s;
+  text-decoration: none;
+  display: block;
+  box-sizing: border-box;
+  border: 1px solid #7d7d7d;
+  color: white;
+  background-color: #7d7d7d;
+  height: 26px;
+}
+
+.custom-button:hover {
+  /*box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.3);*/
+  background-color: #4d4d4d;
+  border: 1px solid #4d4d4d;
+  box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.3);
+}
+
+.custom-button:active {
+  background-color: #4d4d4d;
+  border: 1px solid #4d4d4d;
+  box-shadow: none;
+}
+
+.custom-button-primary {
+  background-color: #007bff;
+  border: 1px solid #007bff;
+}
+
+.custom-button-primary:hover {
+  background-color: #005cbf;
+  border: 1px solid #005cbf;
+}
+
+.custom-button-primary:active {
+  background-color: #005cbf;
+  border: 1px solid #005cbf;
+}
+
+.custom-button-danger {
+  background-color: #dc3545;
+  border: 1px solid #dc3545;
+}
+
+.custom-button-danger:hover {
+  background-color: #a71120;
+  border: 1px solid #a71120;
+}
+
+.custom-button-danger:active {
+  background-color: #a71120;
+  border: 1px solid #a71120;
+}
+
+.custom-button-info {
+  background-color: #17a2b8;
+  border: 1px solid #17a2b8;
+}
+
+.custom-button-info:hover {
+  background-color: #007082;
+  border: 1px solid #007082;
+}
+
+.custom-button-info:active {
+  background-color: #007082;
+  border: 1px solid #007082;
+}
+
+.custom-radio {
+  padding: 5px 10px;
+  text-align: center;
+  color: #666666;
+  font-size: 14px;
+  line-height: 14px;
+  outline: none;
   border-radius: 2px;
   cursor: pointer;
   box-shadow: none;
@@ -92,95 +172,84 @@
   text-decoration: none;
   display: block;
   box-sizing: border-box;
+  background-color: white;
+  border: 1px solid #bbbbbb;
+  height: 26px;
 }
 
-.custom-button:hover {
-  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.3);
+.custom-radio:hover {
+  color: #333333;
+  background-color: #eeeeee;
 }
 
-.custom-button:active {
-  box-shadow: none;
+.custom-radio-active {
+  color: white !important;
+  background-color: #007bff !important;
+  border: 1px solid #007bff;
 }
 
-.custom-button-primary {
-  color: white;
-  background-color: #007bff;
+.custom-radio-left {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  border-right: none !important;
 }
 
-.custom-button-primary:hover {
-  background-color: #005cbf;
+.custom-radio-right {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
 }
 
-.custom-button-primary:active {
-  background-color: #005cbf;
-}
-
-.custom-button-secondary {
-  color: white;
-  background-color: #7d7d7d;
-}
-
-.custom-button-secondary:hover {
-  background-color: #4d4d4d;
-}
-
-.custom-button-secondary:active {
-  background-color: #4d4d4d;
-}
-
-.custom-button-danger {
-  color: white;
-  background-color: #dc3545;
-}
-
-.custom-button-danger:hover {
-  background-color: #a71120;
-}
-
-.custom-button-danger:active {
-  background-color: #a71120;
+.custom-radio-middle {
+  border-radius: 0 !important;
+  border-right: none !important;
 }
 
 .hide {
   display: none;
 }
 
-.story-editor-buttons {
+.even-space-buttons {
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
 
-.story-editor-back-button {
+.back-button {
   width: 47%;
 }
 
-.story-editor-next-button {
+.next-button {
   width: 47%;
 }
 
-.story-editor-normal-button {
+.normal-button {
   width: 47%;
 }
 
 .custom-textbox {
   box-sizing: border-box;
-  padding: 10px 10px;
+  padding: 5px 10px;
   background: rgba(255, 255, 255, 1);
-  border: 1px solid #656565;
+  border: 1px solid #7d7d7d;
   font-size: 14px;
   outline: none;
   border-radius: 2px;
   display: block;
   width: 100%;
   resize: none;
+  height: 26px;
 }
 
 .large-textbox {
-  height: 100px;
+  height: 65px;
 }
 
 .add-bottom-margin {
-  margin-bottom: 15px;
+  margin-bottom: 20px;
+}
+
+.add-bottom-margin-small {
+  margin-bottom: 5px;
 }
 
 .noselect {
@@ -198,6 +267,8 @@
 }
 
 .story-editor-accordion .ui-accordion-header {
+  padding-top: 5px;
+  padding-bottom: 4px;
   font-size: 14px !important;
 }
 

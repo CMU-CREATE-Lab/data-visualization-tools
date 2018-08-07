@@ -1,5 +1,4 @@
-<link rel="stylesheet" href="index.css">
-<div class="story-editor noselect">
+<div class="story-editor noselect hide">
   <div class="story-editor-head">
     <p>Story Editor</p>
   </div>
@@ -19,9 +18,9 @@
       </div>
       <div class="story-editor-nav">
         <p>Click the "Next" button to add a story to this theme.</p>
-        <div class="story-editor-buttons">
-          <div class="custom-button custom-button-secondary story-editor-back-button">Back</div>
-          <div class="custom-button custom-button-primary story-editor-next-button">Next</div>
+        <div class="even-space-buttons">
+          <div class="custom-button back-button">Back</div>
+          <div class="custom-button custom-button-primary next-button">Next</div>
         </div>
       </div>
     </div>
@@ -35,21 +34,23 @@
         <textarea type="text" class="story-content-textbox custom-textbox large-textbox add-bottom-margin" maxlength="300" placeholder="story description (max 300 characters)"></textarea>
         <p>Provide a list of <span class="highlight-text">authors</span> for the story:</p>
         <input type="text" class="story-authors-textbox custom-textbox add-bottom-margin" maxlength="300" placeholder="(max 300 characters)">
+        <p>Set a <span class="highlight-text">cover view</span> for the story:</p>
+        <div class="custom-button custom-button-primary story-editor-set-cover-view-button">Set Cover View</div>
       </div>
       <div class="story-editor-nav">
         <p>Click the "Next" button to add waypoints to this story.</p>
-        <div class="story-editor-buttons">
-          <div class="custom-button custom-button-secondary story-editor-back-button">Back</div>
-          <div class="custom-button custom-button-primary story-editor-next-button">Next</div>
+        <div class="even-space-buttons">
+          <div class="custom-button back-button">Back</div>
+          <div class="custom-button custom-button-primary next-button">Next</div>
         </div>
       </div>
     </div>
     <div class="story-editor-waypoints hide">
       <div class="story-editor-action">
         <p>Use the following buttons to add a new <span class="highlight-text">waypoint</span> or delete a selected waypoint (an expanded tab).</p>
-        <div class="story-editor-buttons add-bottom-margin">
-          <div class="custom-button custom-button-primary story-editor-normal-button">Add</div>
-          <div class="custom-button custom-button-danger story-editor-normal-button">Delete</div>
+        <div class="even-space-buttons add-bottom-margin">
+          <div class="custom-button custom-button-primary normal-button">Add</div>
+          <div class="custom-button custom-button-danger normal-button">Delete</div>
         </div>
         <p>Click on the following tabs to choose and edit waypoints. To reorder waypoints, drag and drop the tabs.</p>
         <div class="story-editor-accordion add-bottom-margin">
@@ -69,9 +70,9 @@
       </div>
       <div class="story-editor-nav">
         <p>Click the "Save" button to save this story as a spreadsheet.</p>
-        <div class="story-editor-buttons">
-          <div class="custom-button custom-button-secondary story-editor-back-button">Back</div>
-          <div class="custom-button custom-button-primary story-editor-next-button">Save</div>
+        <div class="even-space-buttons">
+          <div class="custom-button back-button">Back</div>
+          <div class="custom-button custom-button-primary next-button">Save</div>
         </div>
       </div>
     </div>
@@ -82,9 +83,9 @@
       </div>
       <div class="story-editor-nav">
         <p>Click the "Next" button to add or edit stories retrieved from the link.</p>
-        <div class="story-editor-buttons">
-          <div class="custom-button custom-button-secondary story-editor-back-button">Back</div>
-          <div class="custom-button custom-button-primary story-editor-next-button">Next</div>
+        <div class="even-space-buttons">
+          <div class="custom-button back-button">Back</div>
+          <div class="custom-button custom-button-primary next-button">Next</div>
         </div>
       </div>
     </div>
