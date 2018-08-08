@@ -139,7 +139,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
     }
     if (colorMapSrc) {
       layerOptions.imageSrc = colorMapSrc;
-    }    
+    }
     if (colorScalingFunction) {
       layerOptions.colorScalingFunction = colorScalingFunction;
     }
@@ -217,7 +217,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
       if (masterPlaybackRate && playbackRate) {
         timelapse.setMasterPlaybackRate(1);
         timelapse.setPlaybackRate(defaultPlaybackSpeed);
-        timelapse.setMaxScale(landsatMaxScale);
+        //timelapse.setMaxScale(landsatMaxScale);
       }
 
     }
@@ -681,7 +681,7 @@ function searchCountryList(feature_collection, name, name_key) {
         }
       }
     }
-  }  
+  }
   return {};
 };
 
