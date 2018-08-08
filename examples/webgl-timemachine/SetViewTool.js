@@ -84,6 +84,7 @@
     // Privileged methods
     //
     var show = function () {
+      timelapse.getThumbnailTool().forceAspectRatio(16, 9);
       timelapse.getThumbnailTool().centerAndDrawCropBox();
       $this.show();
     };
