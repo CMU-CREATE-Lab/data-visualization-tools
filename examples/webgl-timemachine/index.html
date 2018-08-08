@@ -6337,7 +6337,7 @@
               }
               var $current_location_text_picture = $("#current-location-text-picture");
               if (Object.keys(annotationPicturePaths).length) {
-                if (annotationPicturePaths[currentWaypointTheme][currentWaypointStory] && annotationPicturePaths[currentWaypointTheme][currentWaypointStory][waypointIndex].path) {
+                if (annotationPicturePaths[currentWaypointTheme] && annotationPicturePaths[currentWaypointTheme][currentWaypointStory] && annotationPicturePaths[currentWaypointTheme][currentWaypointStory][waypointIndex].path) {
                   $current_location_text_picture.show();
                   $current_location_text_picture.css('background-image', 'url("' + annotationPicturePaths[currentWaypointTheme][currentWaypointStory][waypointIndex].path + '")');
                 } else {
@@ -6346,7 +6346,7 @@
               }
               if (waypoint.description) {
                 var waypointBoxText = waypoint.description;
-                if (Object.keys(waypointJSONList).length && selectedWaypointIdx == 0 && $previousAnnotationLocationButton) {
+                if (Object.keys(waypointJSONList).length && selectedWaypointIdx == 0 && $previousAnnotationLocationButton && waypointJSONList[currentWaypointTheme]) {
                   var story = waypointJSONList[currentWaypointTheme].stories[currentWaypointStory];
                   if (story && story.storyDescription && story.storyAuthor) {
                     waypointBoxText += "<div class='story-author-text'>" + story.storyAuthor + "</div>";
@@ -7428,7 +7428,7 @@
         changeHash({theme: newTheme, story: newStory});
       } else {
         // TODO(Earth Day 2018): We are not including a theme here until after Earth Day
-        var hashParamsToInclude = typeof(hashVars.waypointIdx) === "undefined" ? "" : "#waypointIdx=" + hashVars.waypointIdx;
+        var hashParamsToInclude = location.hash; //typeof(hashVars.waypointIdx) === "undefined" ? "" : "#waypointIdx=" + hashVars.waypointIdx;
         window.history.replaceState('themeStory', 'Title', window.location.protocol + "//" + window.location.host + getUrlPathName() + "stories/" + newStory + hashParamsToInclude);
       }
       $("#timeMachine .player .presentation-mode-share-input").show();
@@ -7436,22 +7436,22 @@
     }
 
     function setExploreModeUrl() {
+      var unsafeHashVars = UTIL.getUnsafeHashVars()
+      delete unsafeHashVars.theme;
+      delete unsafeHashVars.story;
+      var hashParamsToInclude = generateHashString(unsafeHashVars);
+
       if (window.location.protocol.indexOf("file:") != -1 || window.location.host.indexOf("localhost") != -1) {
-        window.history.replaceState('explore', 'Title', window.location.protocol + "//" + window.location.host + getUrlPathName());
+        window.history.replaceState('explore', 'Title', window.location.protocol + "//" + window.location.host + getUrlPathName() + hashParamsToInclude);
       } else {
-        window.history.replaceState('explore', 'Title', window.location.protocol + "//" + window.location.host + getUrlPathName() + "explore");
+        window.history.replaceState('explore', 'Title', window.location.protocol + "//" + window.location.host + getUrlPathName() + "explore" + hashParamsToInclude);
       }
       $("#timeMachine .player .presentation-mode-share-input").hide();
       $("#timeMachine .player .shareView .ui-dialog-title").text("Share a View");
     }
 
-    // Modify window.location.hash to include all fields from object newFields.
-    // If a field in newFields isn't already in window.location.hash, add it.
-    // If a field in newFields isn already in window.location.hash, overwrite it.
-    function changeHash(newFields) {
-      var fields = UTIL.getUnsafeHashVars();
-      $.extend(fields, newFields);
-      var newHash;
+    function generateHashString(fields) {
+      var newHash = "";
       for (var prop in fields) {
         if (fields.hasOwnProperty(prop)) {
           if (fields[prop] == "") continue;
@@ -7463,6 +7463,16 @@
           newHash += prop + '=' + fields[prop];
         }
       }
+      return newHash;
+    }
+
+    // Modify window.location.hash to include all fields from object newFields.
+    // If a field in newFields isn't already in window.location.hash, add it.
+    // If a field in newFields isn already in window.location.hash, overwrite it.
+    function changeHash(newFields) {
+      var fields = UTIL.getUnsafeHashVars();
+      $.extend(fields, newFields);
+      var newHash = generateHashString(fields);
       if (newHash) {
         window.location.hash = newHash;
       }
