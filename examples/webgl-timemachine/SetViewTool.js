@@ -13,8 +13,9 @@
     var container_id = settings["container_id"];
     var on_view_set_callback = settings["on_view_set_callback"];
     var $container = $("#" + container_id);
-    var $tool;
-    var $speed_slow_button, $speed_medium_button, $speed_fast_button;
+    var $this;
+    var $speed_slow_button, $speed_medium_button, $speed_fast_button
+    var thumbnail_tool;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -35,9 +36,9 @@
 
     function creatUI(html_template) {
       $container.append($(html_template));
-      $tool = $("#" + container_id + " .set-view-tool");
+      $this = $("#" + container_id + " .set-view-tool");
 
-      // Select type (image or video)
+      // Select playback speed
       var c = "custom-radio-active";
       $speed_slow_button = $("#" + container_id + " .set-view-tool-speed-slow-button");
       $speed_medium_button = $("#" + container_id + " .set-view-tool-speed-medium-button");
@@ -82,10 +83,17 @@
     //
     // Privileged methods
     //
-    var getDOM = function () {
-      return $tool;
+    var show = function () {
+      timelapse.getThumbnailTool().centerAndDrawCropBox();
+      $this.show();
     };
-    this.getDOM = getDOM;
+    this.show = show;
+
+    var hide = function () {
+      timelapse.getThumbnailTool().hideCropBox();
+      $this.hide();
+    };
+    this.hide = hide;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

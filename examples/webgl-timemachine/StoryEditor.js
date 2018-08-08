@@ -15,7 +15,7 @@
     var on_hide_callback = settings["on_hide_callback"];
     var set_view_tool;
     var $container = $("#" + container_id);
-    var $editor;
+    var $this;
     var $intro, $theme_metadata, $story_metadata, $waypoints, $load;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -28,8 +28,8 @@
         url: "StoryEditor.html",
         success: function (html_template) {
           creatUI(html_template);
-          //show();
-          //timelapse.pause();
+          show();
+          timelapse.pause();
         },
         error: function () {
           console.log("Error loading the story editor html template.");
@@ -39,13 +39,14 @@
 
     function creatUI(html_template) {
       $container.append($(html_template));
-      $editor = $("#" + container_id + " .story-editor");
+      $this = $("#" + container_id + " .story-editor");
 
       // For setting a view from the timelapse viewer
       set_view_tool = new SetViewTool(timelapse, {
         container_id: container_id,
         on_view_set_callback: function() {
-          transition(set_view_tool.getDOM(), $editor);
+          $this.show();
+          set_view_tool.hide();
         }
       });
 
@@ -76,7 +77,8 @@
         transition($story_metadata, $waypoints);
       });
       $story_metadata.find(".story-editor-set-cover-view-button").on("click", function () {
-        transition($editor, set_view_tool.getDOM());
+        set_view_tool.show();
+        $this.hide();
       });
 
       // For adding waypoints
@@ -114,15 +116,16 @@
 
     // Make a transition from one DOM element to another
     function transition($from, $to) {
+      var d = 0;
       if (typeof $from !== "undefined") {
-        $from.fadeOut(300, function () {
+        $from.fadeOut(d, function () {
           if (typeof $to !== "undefined") {
-            $to.fadeIn(300);
+            $to.fadeIn(d);
           }
         });
       } else {
         if (typeof $to !== "undefined") {
-          $to.fadeIn(300);
+          $to.fadeIn(d);
         }
       }
     }
@@ -132,8 +135,8 @@
     // Privileged methods
     //
     var show = function () {
-      if ($editor.is(":visible")) return;
-      $editor.show();
+      if ($this.is(":visible")) return;
+      $this.show();
       if (typeof on_show_callback === "function") {
         on_show_callback();
       }
@@ -141,18 +144,13 @@
     this.show = show;
 
     var hide = function () {
-      if (!$editor.is(":visible")) return;
-      $editor.hide();
+      if (!$this.is(":visible")) return;
+      $this.hide();
       if (typeof on_hide_callback === "function") {
         on_hide_callback();
       }
     };
     this.hide = hide;
-
-    var getDOM = function() {
-      return $editor;
-    };
-    this.getDOM = getDOM;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
