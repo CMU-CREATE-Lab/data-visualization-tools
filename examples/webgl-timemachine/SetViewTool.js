@@ -15,7 +15,6 @@
     var $container = $("#" + container_id);
     var $this;
     var $speed_slow_button, $speed_medium_button, $speed_fast_button
-    var thumbnail_tool;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -37,6 +36,10 @@
     function creatUI(html_template) {
       $container.append($(html_template));
       $this = $("#" + container_id + " .set-view-tool");
+
+      // Thumbnail tool
+      // TODO: find a way to generate a new one correctly, currently there is a bug that the newly created one will be placed below the video tiles
+      //thumbnail_tool = new ThumbnailTool(timelapse, {});
 
       // Select playback speed
       var c = "custom-radio-active";
@@ -85,7 +88,8 @@
     //
     var show = function () {
       timelapse.getThumbnailTool().forceAspectRatio(16, 9);
-      timelapse.getThumbnailTool().centerAndDrawCropBox();
+      timelapse.getThumbnailTool().showCropBox();
+      timelapse.getThumbnailTool().removeCropHandleEvents();
       $this.show();
     };
     this.show = show;
