@@ -14,7 +14,9 @@
     var on_view_set_callback = settings["on_view_set_callback"];
     var $container = $("#" + container_id);
     var $this;
-    var $speed_slow_button, $speed_medium_button, $speed_fast_button
+    var $speed_slow_button, $speed_medium_button, $speed_fast_button;
+    var $speed_slow_button_radio, $speed_medium_button_radio, $speed_fast_button_radio;
+    var thumbnail_tool;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -39,27 +41,40 @@
 
       // Thumbnail tool
       // TODO: find a way to generate a new one correctly, currently there is a bug that the newly created one will be placed below the video tiles
+      thumbnail_tool = timelapse.getThumbnailTool();
       //thumbnail_tool = new ThumbnailTool(timelapse, {});
 
       // Select playback speed
       var c = "custom-radio-active";
       $speed_slow_button = $("#" + container_id + " .set-view-tool-speed-slow-button");
+      $speed_slow_button_radio = $speed_slow_button.find("input[type='radio']");
       $speed_medium_button = $("#" + container_id + " .set-view-tool-speed-medium-button");
+      $speed_medium_button_radio = $speed_medium_button.find("input[type='radio']");
       $speed_fast_button = $("#" + container_id + " .set-view-tool-speed-fast-button");
+      $speed_fast_button_radio = $speed_fast_button.find("input[type='radio']");
       $speed_slow_button.on("click", function () {
-        removeClass($speed_medium_button, c)
-        removeClass($speed_fast_button, c)
-        addClass($speed_slow_button, c)
+        removeClass($speed_medium_button, c);
+        removeClass($speed_fast_button, c);
+        addClass($speed_slow_button, c);
+        $speed_medium_button_radio.prop("checked", false);
+        $speed_fast_button_radio.prop("checked", false);
+        $speed_slow_button_radio.prop("checked", true);
       });
       $speed_medium_button.on("click", function () {
-        removeClass($speed_slow_button, c)
-        removeClass($speed_fast_button, c)
-        addClass($speed_medium_button, c)
+        removeClass($speed_slow_button, c);
+        removeClass($speed_fast_button, c);
+        addClass($speed_medium_button, c);
+        $speed_slow_button_radio.prop("checked", false);
+        $speed_fast_button_radio.prop("checked", false);
+        $speed_medium_button_radio.prop("checked", true);
       });
       $speed_fast_button.on("click", function () {
-        removeClass($speed_slow_button, c)
-        removeClass($speed_medium_button, c)
-        addClass($speed_fast_button, c)
+        removeClass($speed_slow_button, c);
+        removeClass($speed_medium_button, c);
+        addClass($speed_fast_button, c);
+        $speed_slow_button_radio.prop("checked", false);
+        $speed_medium_button_radio.prop("checked", false);
+        $speed_fast_button_radio.prop("checked", true);
       });
 
       // Set view and return
@@ -87,15 +102,15 @@
     // Privileged methods
     //
     var show = function () {
-      timelapse.getThumbnailTool().forceAspectRatio(16, 9);
-      timelapse.getThumbnailTool().showCropBox();
-      timelapse.getThumbnailTool().removeCropHandleEvents();
+      thumbnail_tool.forceAspectRatio(16, 9);
+      thumbnail_tool.showCropBox();
+      thumbnail_tool.removeCropHandleEvents();
       $this.show();
     };
     this.show = show;
 
     var hide = function () {
-      timelapse.getThumbnailTool().hideCropBox();
+      thumbnail_tool.hideCropBox();
       $this.hide();
     };
     this.hide = hide;

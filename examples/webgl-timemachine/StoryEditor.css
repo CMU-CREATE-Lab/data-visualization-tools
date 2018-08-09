@@ -73,7 +73,7 @@
   top: 0;
   left: 0;
   right: 0;
-  bottom: 130px;
+  bottom: 117px;
   width: auto;
   height: auto;
   margin: 0;
@@ -82,7 +82,7 @@
 }
 
 .custom-button {
-  padding: 5px 10px;
+  padding: 5px 8px;
   text-align: center;
   font-size: 14px;
   line-height: 14px;
@@ -159,7 +159,7 @@
 }
 
 .custom-radio {
-  padding: 5px 10px;
+  padding: 5px 8px;
   text-align: center;
   color: #666666;
   font-size: 14px;
@@ -170,11 +170,22 @@
   box-shadow: none;
   transition: background-color 0.1s, box-shadow 0.1s;
   text-decoration: none;
-  display: block;
   box-sizing: border-box;
   background-color: white;
   border: 1px solid #bbbbbb;
   height: 26px;
+  display: block;
+}
+
+.custom-radio input[type="radio"] {
+  margin: 0;
+  padding: 0;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+.custom-radio span {
+  margin-left: 2px;
 }
 
 .custom-radio:hover {
@@ -228,7 +239,7 @@
 
 .custom-textbox {
   box-sizing: border-box;
-  padding: 5px 10px;
+  padding: 5px 8px;
   background: rgba(255, 255, 255, 1);
   border: 1px solid #7d7d7d;
   font-size: 14px;
@@ -246,6 +257,10 @@
 
 .add-bottom-margin {
   margin-bottom: 20px;
+}
+
+.add-bottom-margin-medium {
+  margin-bottom: 10px;
 }
 
 .add-bottom-margin-small {
@@ -268,7 +283,7 @@
 
 .story-editor-accordion .ui-accordion-header {
   padding-top: 5px;
-  padding-bottom: 4px;
+  padding-bottom: 5px;
   font-size: 14px !important;
 }
 

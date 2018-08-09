@@ -87,11 +87,12 @@
         transition($waypoints, $story_metadata);
       });
       $waypoints.find(".next-button").on("click", function () {
-        //transition($waypoints, );
+        // download the story as a spreadsheet
       });
       $waypoints.find(".story-editor-accordion").accordion({
         header: "> div > h3",
-        heightStyle: "content"
+        heightStyle: "content",
+        animate: false
       }).sortable({
         axis: "y",
         handle: "h3",
@@ -102,6 +103,11 @@
           // Refresh accordion to handle new order
           $(this).accordion("refresh");
         }
+      });
+      $waypoints.find("[role=tab]").off("keydown"); // needed for typing space in the title textbox
+      $waypoints.find(".story-editor-set-waypoint-view").on("click", function(){
+        set_view_tool.show();
+        $this.hide();
       });
 
       // For loading a Google spreadsheet

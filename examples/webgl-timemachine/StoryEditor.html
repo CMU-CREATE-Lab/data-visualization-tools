@@ -47,23 +47,22 @@
     </div>
     <div class="story-editor-waypoints hide">
       <div class="story-editor-action">
-        <p>Use the following buttons to add a new <span class="highlight-text">waypoint</span> or delete a selected waypoint (an expanded tab).</p>
-        <div class="even-space-buttons add-bottom-margin">
-          <div class="custom-button custom-button-primary normal-button">Add</div>
-          <div class="custom-button custom-button-danger normal-button">Delete</div>
-        </div>
-        <p>Click on the following tabs to choose and edit waypoints. To reorder waypoints, drag and drop the tabs.</p>
+        <p>Click on the following tabs to <span class="highlight-text">choose</span> and <span class="highlight-text">edit</span> waypoints. To <span class="highlight-text">reorder</span> waypoints, drag and drop the tabs.</p>
         <div class="story-editor-accordion add-bottom-margin">
           <div class="story-editor-accordion-tab">
-            <h3>Section 1</h3>
-            <div>
-              <p>Mauris mauris ante, blandit et, ultrices a, suscipit eget, quam. Integer ut neque. Vivamus nisi metus, molestie vel, gravida in.</p>
-            </div>
-          </div>
-          <div class="story-editor-accordion-tab">
-            <h3>Section 2</h3>
-            <div>
-              <p>Sed non urna. Donec et ante. Phasellus eu ligula. Vestibulum sit amet purus. Vivamus hendrerit, dolor at aliquet laoreet, mauris turpis porttitor velit, faucibus interdum tellus libero ac justo. Vivamus non quam. In suscipit faucibus urna.</p>
+            <h3>Title</h3>
+            <div class="story-editor-waypoint-content">
+              <span>Waypoint title:</span>
+              <input type="text" class="custom-textbox story-editor-waypoint-title add-bottom-margin-small" maxlength="20" value="Title" placeholder="(max 20 characters)">
+              <span>Annotation title:</span>
+              <input type="text" class="custom-textbox story-editor-annotation-title add-bottom-margin-small" maxlength="40" placeholder="(max 40 characters)">
+              <span>Annotation text:</span>
+              <textarea type="text" class="story-editor-annotation-text custom-textbox large-textbox add-bottom-margin-medium" maxlength="300" placeholder="(max 300 characters)"></textarea>
+              <div class="story-editor-set-waypoint-view custom-button custom-button-primary add-bottom-margin-medium">Set View</div>
+              <div class="even-space-buttons add-bottom-margin-medium">
+                <div class="custom-button custom-button-primary normal-button story-editor-add-waypoint">Add</div>
+                <div class="custom-button custom-button-danger normal-button story-editor-delete-waypoint">Delete</div>
+              </div>
             </div>
           </div>
         </div>

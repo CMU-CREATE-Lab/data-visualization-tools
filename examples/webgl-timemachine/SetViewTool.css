@@ -41,6 +41,7 @@
   height: auto;
   margin: 0;
   padding: 10px 25px 20px 25px;
+  overflow-y: scroll;
 }
 
 .set-view-tool-content p {
@@ -55,7 +56,7 @@
 }
 
 .set-view-tool-speed-slow-button {
-  width: 34%;
+  width: 33%;
 }
 
 .set-view-tool-speed-medium-button {
@@ -63,25 +64,33 @@
 }
 
 .set-view-tool-speed-fast-button {
-  width: 34%;
+  width: 33%;
 }
 
 .set-view-tool-start-time-button {
-  width: 67%;
+  width: 33%;
 }
 
 .set-view-tool-end-time-button {
-  width: 67%;
+  width: 33%;
 }
 
 .set-view-tool-start-time {
-  width: 33%;
-  border-left: none;
+  width: 34%;
+  cursor: default;
 }
 
 .set-view-tool-end-time {
+  width: 34%;
+  cursor: default;
+}
+
+.set-view-tool-start-time-text {
   width: 33%;
-  border-left: none;
+}
+
+.set-view-tool-end-time-text {
+  width: 33%;
 }
 
 .set-view-tool-start-delay-time {
