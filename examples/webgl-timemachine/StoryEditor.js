@@ -28,8 +28,8 @@
         url: "StoryEditor.html",
         success: function (html_template) {
           creatUI(html_template);
-          //show();
-          //timelapse.pause();
+          show();
+          timelapse.pause();
         },
         error: function () {
           console.log("Error loading the story editor html template.");

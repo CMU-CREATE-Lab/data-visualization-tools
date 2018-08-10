@@ -284,6 +284,7 @@
     var useRetinaLightNoLabelsBaseMap = baseMapsNoLabels ? true : (typeof(EARTH_TIMELAPSE_CONFIG.useRetinaLightNoLabelsBaseMap) == "undefined") ? false : !!EARTH_TIMELAPSE_CONFIG.useRetinaLightNoLabelsBaseMap;
     var useRetinaDarkBaseMap = (typeof(EARTH_TIMELAPSE_CONFIG.useRetinaDarkBaseMap) == "undefined") ? false : !!EARTH_TIMELAPSE_CONFIG.useRetinaDarkBaseMap;
     var useRetinaDarkNoLabelsBaseMap = baseMapsNoLabels ? true : (typeof(EARTH_TIMELAPSE_CONFIG.useRetinaDarkNoLabelsBaseMap) == "undefined") ? false : !!EARTH_TIMELAPSE_CONFIG.useRetinaDarkNoLabelsBaseMap;
+    var enableStoryEditor = false;
 
     // TODO: Until we decide to force everyone to latest landsat, pull the version corresponding to the config above.
     if (landsatVersion == "2015"){
@@ -7000,23 +7001,25 @@
       timelapse.setContextMapEnableStatus(false);
 
       // Initialize the story editor
-      var $viewerContainer = $("#viewerContainer");
-      var $sidePanel = $("#sidePanel");
-      storyEditor = new StoryEditor(timelapse, {
-        container_id: "sidePanel",
-        on_hide_callback: function() {
-          // TODO: find a way to hide unusable menu buttons
-          $viewerContainer.css("right", "0");
-          $sidePanel.hide();
-          timelapse.onresize();
-        },
-        on_show_callback: function() {
-          // TODO: find a way to show hided menu buttons
-          $viewerContainer.css("right", "301px");
-          $sidePanel.show();
-          timelapse.onresize();
-        }
-      });
+      if(enableStoryEditor) {
+        var $viewerContainer = $("#viewerContainer");
+        var $sidePanel = $("#sidePanel");
+        storyEditor = new StoryEditor(timelapse, {
+          container_id: "sidePanel",
+          on_hide_callback: function () {
+            // TODO: find a way to hide unusable menu buttons
+            $viewerContainer.css("right", "0");
+            $sidePanel.hide();
+            timelapse.onresize();
+          },
+          on_show_callback: function () {
+            // TODO: find a way to show hided menu buttons
+            $viewerContainer.css("right", "301px");
+            $sidePanel.show();
+            timelapse.onresize();
+          }
+        });
+      }
 
       // End of onTimeMachinePlayerReady
     }

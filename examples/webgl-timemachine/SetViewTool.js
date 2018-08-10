@@ -44,6 +44,11 @@
       thumbnail_tool = timelapse.getThumbnailTool();
       //thumbnail_tool = new ThumbnailTool(timelapse, {});
 
+      // Toggle view
+      $("#" + container_id + " .set-view-tool-toggle-view-button").on("click", function () {
+        thumbnail_tool.swapBoxWidthHeight();
+      });
+
       // Select playback speed
       var c = "custom-radio-active";
       $speed_slow_button = $("#" + container_id + " .set-view-tool-speed-slow-button");
