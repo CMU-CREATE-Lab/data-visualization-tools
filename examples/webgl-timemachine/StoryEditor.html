@@ -5,9 +5,9 @@
   <div class="story-editor-content">
     <div class="story-editor-intro">
       <p>The <span class="highlight-text">story editor</span> is a tool for creating and sharing stories on EarthTime. The created story can be downloaded and imported into the EarthTime viewer.</p>
-      <div class="custom-button custom-button-primary story-editor-create-button add-bottom-margin">Create a New Story</div>
+      <button class="custom-button full-width-button custom-button-primary story-editor-create-button add-bottom-margin">Create a New Story</button>
       <p>You can also add and edit stories that were created before. A public link to the stories is required.</p>
-      <div class="custom-button custom-button-primary story-editor-edit-button">Add or Edit Stories</div>
+      <button class="custom-button full-width-button custom-button-primary story-editor-edit-button">Add or Edit Stories</button>
     </div>
     <div class="story-editor-theme-metadata hide">
       <div class="story-editor-action">
@@ -19,8 +19,8 @@
       <div class="story-editor-nav">
         <p>Click the "Next" button to add a story to this theme.</p>
         <div class="even-space-buttons">
-          <div class="custom-button back-button">Back</div>
-          <div class="custom-button custom-button-primary next-button">Next</div>
+          <button class="custom-button back-button">Back</button>
+          <button class="custom-button custom-button-primary next-button">Next</button>
         </div>
       </div>
     </div>
@@ -35,13 +35,13 @@
         <p>Provide a list of <span class="highlight-text">authors</span> for the story:</p>
         <input type="text" class="story-authors-textbox custom-textbox add-bottom-margin" maxlength="300" placeholder="(max 300 characters)">
         <p>Set a <span class="highlight-text">cover view</span> for the story:</p>
-        <div class="custom-button custom-button-primary story-editor-set-cover-view-button">Set Cover View</div>
+        <button class="custom-button full-width-button custom-button-primary story-editor-set-cover-view-button">Set Cover View</button>
       </div>
       <div class="story-editor-nav">
         <p>Click the "Next" button to add waypoints to this story.</p>
         <div class="even-space-buttons">
-          <div class="custom-button back-button">Back</div>
-          <div class="custom-button custom-button-primary next-button">Next</div>
+          <button class="custom-button back-button">Back</button>
+          <button class="custom-button custom-button-primary next-button">Next</button>
         </div>
       </div>
     </div>
@@ -50,18 +50,18 @@
         <p>Click on the following tabs to <span class="highlight-text">choose</span> and <span class="highlight-text">edit</span> waypoints. To <span class="highlight-text">reorder</span> waypoints, drag and drop the tabs.</p>
         <div class="story-editor-accordion add-bottom-margin">
           <div class="story-editor-accordion-tab">
-            <h3>Title</h3>
+            <h3 class="story-editor-waypoint-title">Title</h3>
             <div class="story-editor-waypoint-content">
               <span>Waypoint title:</span>
-              <input type="text" class="custom-textbox story-editor-waypoint-title add-bottom-margin-small" maxlength="20" value="Title" placeholder="(max 20 characters)">
+              <input type="text" class="custom-textbox story-editor-set-waypoint-title add-bottom-margin-small" maxlength="20" value="Title" placeholder="(max 20 characters)">
               <span>Annotation title:</span>
-              <input type="text" class="custom-textbox story-editor-annotation-title add-bottom-margin-small" maxlength="40" placeholder="(max 40 characters)">
+              <input type="text" class="custom-textbox story-editor-set-annotation-title add-bottom-margin-small" maxlength="40" placeholder="(max 40 characters)">
               <span>Annotation text:</span>
-              <textarea type="text" class="story-editor-annotation-text custom-textbox large-textbox add-bottom-margin-medium" maxlength="300" placeholder="(max 300 characters)"></textarea>
-              <div class="story-editor-set-waypoint-view custom-button custom-button-primary add-bottom-margin-medium">Set View</div>
-              <div class="even-space-buttons add-bottom-margin-medium">
-                <div class="custom-button custom-button-primary normal-button story-editor-add-waypoint">Add</div>
-                <div class="custom-button custom-button-danger normal-button story-editor-delete-waypoint">Delete</div>
+              <textarea type="text" class="custom-textbox large-textbox story-editor-set-annotation-text add-bottom-margin-medium" maxlength="300" placeholder="(max 300 characters)"></textarea>
+              <div class="even-space-buttons add-bottom-margin-small">
+                <button class="custom-button custom-button-primary story-editor-set-waypoint-view">Set View</button>
+                <button class="custom-button custom-button-primary story-editor-add-waypoint">Add</button>
+                <button class="custom-button custom-button-danger story-editor-delete-waypoint">Delete</button>
               </div>
             </div>
           </div>
@@ -70,8 +70,8 @@
       <div class="story-editor-nav">
         <p>Click the "Save" button to save this story as a spreadsheet.</p>
         <div class="even-space-buttons">
-          <div class="custom-button back-button">Back</div>
-          <div class="custom-button custom-button-primary next-button">Save</div>
+          <button class="custom-button back-button">Back</button>
+          <button class="custom-button custom-button-primary next-button">Save</button>
         </div>
       </div>
     </div>
@@ -83,8 +83,8 @@
       <div class="story-editor-nav">
         <p>Click the "Next" button to add or edit stories retrieved from the link.</p>
         <div class="even-space-buttons">
-          <div class="custom-button back-button">Back</div>
-          <div class="custom-button custom-button-primary next-button">Next</div>
+          <button class="custom-button back-button">Back</button>
+          <buttton class="custom-button custom-button-primary next-button">Next</buttton>
         </div>
       </div>
     </div>

@@ -84,8 +84,8 @@
 .custom-button {
   padding: 5px 8px;
   text-align: center;
-  font-size: 14px;
-  line-height: 15px;
+  font-size: 14px !important;
+  line-height: 14px;
   outline: none;
   border-radius: 2px;
   cursor: pointer;
@@ -94,23 +94,29 @@
   text-decoration: none;
   display: block;
   box-sizing: border-box;
-  border: 1px solid #7d7d7d;
   color: white;
-  background-color: #7d7d7d;
   height: 28px;
+  border: 1px solid #7d7d7d;
+  background-color: #7d7d7d;
 }
 
-.custom-button:hover {
-  /*box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.3);*/
+.custom-button:not(:disabled):hover {
   background-color: #4d4d4d;
   border: 1px solid #4d4d4d;
   box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.3);
 }
 
-.custom-button:active {
+.custom-button:not(:disabled):active {
   background-color: #4d4d4d;
   border: 1px solid #4d4d4d;
   box-shadow: none;
+}
+
+.custom-button:disabled {
+  opacity: 0.4;
+  cursor: default;
+  border: 1px solid #7d7d7d;
+  background-color: #7d7d7d;
 }
 
 .custom-button-primary {
@@ -118,12 +124,12 @@
   border: 1px solid #007bff;
 }
 
-.custom-button-primary:hover {
+.custom-button-primary:not(:disabled):hover {
   background-color: #005cbf;
   border: 1px solid #005cbf;
 }
 
-.custom-button-primary:active {
+.custom-button-primary:not(:disabled):active {
   background-color: #005cbf;
   border: 1px solid #005cbf;
 }
@@ -133,12 +139,12 @@
   border: 1px solid #dc3545;
 }
 
-.custom-button-danger:hover {
+.custom-button-danger:not(:disabled):hover {
   background-color: #a71120;
   border: 1px solid #a71120;
 }
 
-.custom-button-danger:active {
+.custom-button-danger:not(:disabled):active {
   background-color: #a71120;
   border: 1px solid #a71120;
 }
@@ -148,12 +154,12 @@
   border: 1px solid #17a2b8;
 }
 
-.custom-button-info:hover {
+.custom-button-info:not(:disabled):hover {
   background-color: #007082;
   border: 1px solid #007082;
 }
 
-.custom-button-info:active {
+.custom-button-info:not(:disabled):active {
   background-color: #007082;
   border: 1px solid #007082;
 }
@@ -176,8 +182,8 @@
   width: 47%;
 }
 
-.normal-button {
-  width: 47%;
+.full-width-button {
+  width: 100%;
 }
 
 .custom-textbox {
@@ -185,7 +191,7 @@
   padding: 5px 8px;
   background: rgba(255, 255, 255, 1);
   border: 1px solid #7d7d7d;
-  font-size: 14px;
+  font-size: 14px !important;
   outline: none;
   border-radius: 2px;
   display: block;
@@ -240,6 +246,22 @@
   background-image: url(../../images/ui-icons_ffffff_256x240.png) !important;
 }
 
+.story-editor-accordion .ui-accordion-content {
+  padding: 1em 1.5em;
+}
+
+.story-editor-set-waypoint-view {
+  width: 36%;
+}
+
+.story-editor-add-waypoint {
+  width: 24%;
+}
+
+.story-editor-delete-waypoint {
+  width: 30%;
+}
+
 .custom-radio {
   padding: 5px 8px;
   text-align: center;
@@ -255,13 +277,17 @@
   border: 1px solid #bbbbbb;
   height: 28px;
   display: block;
-  font-size: 14px;
-  line-height: 15px;
+  font-size: 14px !important;
+  line-height: 14px;
 }
 
-.custom-radio:hover {
+.custom-radio:not(:disabled):hover {
   color: #333333;
   background-color: #eeeeee;
+}
+
+.custom-radio:disabled {
+  opacity: 0.4;
 }
 
 .custom-radio-active {
