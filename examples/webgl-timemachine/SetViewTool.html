@@ -19,9 +19,18 @@
     </div>
     <p>Set the playback <span class="highlight-text">speed</span> and <span class="highlight-text">delays</span>:</p>
     <div class="even-space-buttons add-bottom-margin-small">
-      <div class="custom-radio custom-radio-left set-view-tool-speed-slow-button"><input type="radio" name="playback_speed" value="slow"><span>Slow</span></div>
-      <div class="custom-radio custom-radio-middle custom-radio-active set-view-tool-speed-medium-button"><input type="radio" name="playback_speed" value="medium" checked><span>Medium</span></div>
-      <div class="custom-radio custom-radio-right set-view-tool-speed-fast-button"><input type="radio" name="playback_speed" value="fast"><span>Fast</span></div>
+      <div class="custom-radio custom-radio-left set-view-tool-speed-slow-button">
+        <input type="radio" name="playback_speed" value="slow" id="set-view-tool-speed-slow-input">
+        <label for="set-view-tool-speed-slow-input">Slow</label>
+      </div>
+      <div class="custom-radio custom-radio-middle custom-radio-active set-view-tool-speed-medium-button">
+        <input type="radio" name="playback_speed" value="medium" id="set-view-tool-speed-medium-input" checked>
+        <label for="set-view-tool-speed-medium-input">Medium</label>
+      </div>
+      <div class="custom-radio custom-radio-right set-view-tool-speed-fast-button">
+        <input type="radio" name="playback_speed" value="fast" id="set-view-tool-speed-fast-input">
+        <label for="set-view-tool-speed-fast-input">Fast</label>
+      </div>
     </div>
     <div class="even-space-buttons add-bottom-margin-small">
       <span>Delay at start (seconds):</span>
