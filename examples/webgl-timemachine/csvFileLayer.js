@@ -72,8 +72,9 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts, layerDef) {
   layerOptions.showGraph = layerDef["Show Graph"].toLowerCase() == 'true';
   layerOptions.mapType = layerDef["Map Type"] || "bubble";
   layerOptions.color = layerDef["Color"] ? JSON.parse(layerDef["Color"]) : null;
-  layerOptions.legendContent = opts.legendContent;
-  layerOptions.legendKey = opts.legendKey;
+
+  layerOptions.legendContent = layerDef["Legend Content"];
+  layerOptions.legendKey = layerDef["Legend Key"];
   
   var url = layerDef["URL"].replace("http://", "https://");
   layerOptions.name = layerDef["Name"];
@@ -81,8 +82,6 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts, layerDef) {
 
   layerOptions.scalingFunction = layerDef["Scaling"] || 'd3.scaleSqrt().domain([minValue, maxValue]).range([0, 100])';
   layerOptions.colorScalingFunction = layerDef["Color Scaling"] || 'd3.scaleLinear().domain([minColorValue, maxColorValue]).range([0, 1])';
-  var color = opts["color"];
-  var legendContent = opts["legendContent"];
   var externalGeojson = layerOptions.externalGeojson = opts["externalGeojson"];
   var nameKey = layerOptions.nameKey = opts["nameKey"];
   var category_id = layerOptions.category ? "category-" + layerOptions.category.replace(/ /g,"-").toLowerCase() : "csvlayers_table";
@@ -293,12 +292,6 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
 
     if (layerDef["Enabled"].toLowerCase() != "true") continue;
     
-    var legendContent = "";
-    if (typeof layerDef["Legend Content"] != "undefined") {
-      legendContent = layerDef["Legend Content"].trim();
-    }
-    
-    var legendKey = typeof layerDef["Legend Key"] != 'undefined' ? layerDef["Legend Key"].trim() : '';
     
     var externalGeojson = "";
     if (typeof layerDef["External GeoJSON"] != "undefined") {
@@ -339,8 +332,6 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
     var masterPlaybackRate = layerDef["Master Playback Rate"];
     
     var opts = {
-      legendContent: legendContent,
-      legendKey: legendKey,
       externalGeojson: externalGeojson,
       nameKey: nameKey,
       loadDataFunction: loadDataFunction,
