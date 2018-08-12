@@ -6270,14 +6270,16 @@
             } else {
               var waypointPlaybackRate = timelapse.getMaxPlaybackRate() * (waypointPlaybackSpeed / 100);
               timelapse.setPlaybackRate(waypointPlaybackRate);
-              // TODO: We shouldn't force playing here
-              if (timelapse.isPaused() && !timelapse.isDoingLoopingDwell()) {
-                timelapse.handlePlayPause();
-              }
             }
             var onWaypointChangeListener = function() {
-              var waypointStartTime = timelapse.playbackTimeFromShareDate(waypoint.beginTime) || waypoint.time;
+              var waypointStartTime = timelapse.playbackTimeFromShareDate(waypoint.beginTime);
+              if (typeof(waypointStartTime) === "undefined") {
+                waypointStartTime = 0;
+              }
               var waypointEndTime = timelapse.playbackTimeFromShareDate(waypoint.endTime);
+              if (typeof(waypointEndTime) === "undefined" || waypointEndTime == ((timelapse.getNumFrames() - 1) / timelapse.getFps().toFixed(1))) {
+                waypointEndTime = timelapse.getDuration();
+              }
 
               // We are still technically using Landsat (web mercator) projections for any dataset being drawn,
               // so the bounds that slide-change returns is not valid for our use. But we already
@@ -6291,7 +6293,7 @@
               waypointTimeChangeListenerInterval = null;
 
               // TODO: Should be part of timemachine library
-              if (waypointEndTime >= 0 && waypointStartTime != waypointEndTime) {
+              if (waypointEndTime >= 0 && waypointStartTime != waypointEndTime && !(waypointStartTime == 0 && waypointEndTime == timelapse.getDuration())) {
                 waypointTimeChangeListenerInterval = setInterval(function() {
                   var t = timelapse.getCurrentTime();
                   if (t > waypointEndTime) {
