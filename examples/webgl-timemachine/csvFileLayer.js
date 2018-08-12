@@ -1,5 +1,6 @@
 var CsvFileLayer = function CsvFileLayer() {
   this.layers = [];
+  this.layerById = {};
   this.dataLoadedListeners = [];
   this.layersLoadedListeners = [];
   this.layersData = {};
@@ -61,13 +62,14 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts, layerDef) {
     drawFunction: WebGLVectorTile2.prototype._drawBubbleMap,
     fragmentShader: WebGLVectorTile2.bubbleMapFragmentShader,
     vertexShader: WebGLVectorTile2.bubbleMapVertexShader,
-    numAttributes: 6
+    numAttributes: 6,
+    layerDef: layerDef
   };
 
-  layerOptions.layerId = opts.layerId = layerDef["Share link identifier"].replace(/\W+/g, '_');
-  layerOptions.category = opts.category = layerDef["Category"],
+  layerOptions.layerId = layerDef["Share link identifier"].replace(/\W+/g, '_');
+  layerOptions.category = layerDef["Category"];
 
-  layerOptions.showGraph = opts.showGraph;
+  layerOptions.showGraph = layerDef["Show Graph"];
   layerOptions.mapType = opts.mapType = layerDef["Map Type"] || "bubble";
   layerOptions.color = opts.color;
   layerOptions.legendContent = opts.legendContent;
@@ -83,8 +85,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts, layerDef) {
   var legendContent = opts["legendContent"];
   var externalGeojson = layerOptions.externalGeojson = opts["externalGeojson"];
   var nameKey = layerOptions.nameKey = opts["nameKey"];
-  var category = opts["category"];
-  var category_id = category ? "category-" + category.trim().replace(/ /g,"-").toLowerCase() : "csvlayers_table";
+  var category_id = layerOptions.category ? "category-" + layerOptions.category.replace(/ /g,"-").toLowerCase() : "csvlayers_table";
   var playbackRate = typeof opts["playbackRate"] == "undefined" ? null : opts["playbackRate"];
   var masterPlaybackRate = typeof opts["masterPlaybackRate"] == "undefined" ? null : opts["masterPlaybackRate"];
   var nLevels = layerOptions.nLevels = typeof opts["nLevels"] == "undefined" ? 0 : parseInt(opts["nLevels"]);
@@ -161,7 +162,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts, layerDef) {
     layer.options.color = color;
   }
   var re = /_paired/;
-  var m = opts.layerId.match(re)
+  var m = layerOptions.layerId.match(re)
   if (m) {
     layer.paired = true;
   } else {
@@ -170,9 +171,10 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts, layerDef) {
 
   layer.opts = opts;
   this.layers.push(layer);
+  this.layerById[layer.layerId] = layer;
 
-  var id = 'show-csv-' + opts.layerId;
-  var row = '<tr class="csvlayer"><td><label name="' + opts.layerId + '">';
+  var id = 'show-csv-' + layerOptions.layerId;
+  var row = '<tr class="csvlayer"><td><label name="' + layerOptions.layerId + '">';
   row += '<input type="checkbox" id="' + id + '">';
   row += opts.name;
   row += '</label></td></tr>';
@@ -182,7 +184,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts, layerDef) {
     category_id = "csvlayers_table";
   }
   if ($('#' + category_id).length == 0) {
-    $(".map-layer-div #category-other").prev("h3").before("<h3>" + category + "</h3><table id='" + category_id + "'></table>");
+    $(".map-layer-div #category-other").prev("h3").before("<h3>" + layerOptions.category + "</h3><table id='" + category_id + "'></table>");
   }
 
   $('#' + category_id).append(row);
@@ -199,10 +201,10 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts, layerDef) {
       if (opts.mapType != "raster") {
         setActiveLayersWithTimeline(1);
         timelineType = "defaultUI";
-        requestNewTimeline(opts.layerId + ".json", timelineType);
+        requestNewTimeline(layer.layerId + ".json", timelineType);
       }
       layer.visible = true;
-      $("#" + opts.layerId + "-legend").show();
+      $("#" + layer.layerId + "-legend").show();
       if (opts.mapType == "choropleth") {
         showCountryLabelMapLayer = false;
       }
@@ -212,7 +214,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts, layerDef) {
       }
 
     } else {
-      $("#" + opts.layerId + "-legend").hide();
+      $("#" + layer.layerId + "-legend").hide();
       if (opts.mapType != "raster") {
         setActiveLayersWithTimeline(-1);
         doSwitchToLandsat();
@@ -342,7 +344,6 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
     var masterPlaybackRate = layerDef["Master Playback Rate"];
     
     var opts = {
-      showGraph: layerDef["Show Graph"],
       color: optionalColor,
       legendContent: legendContent,
       legendKey: legendKey,

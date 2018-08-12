@@ -107,9 +107,9 @@ CsvDataGrapher.prototype.initialize = function initialize() {
 
 };
 
-CsvDataGrapher.prototype.graphDataForLayer = function graphDataForLayer(layerName, opt) {
+CsvDataGrapher.prototype.graphDataForLayer = function graphDataForLayer(layerId, opt) {
   var that = this;
-  var layerNameMatch = false;
+  var layerIdMatch = false;
   if (typeof(that.activeLayer) === "undefined") {
     this.activeLayer = {};
   }
@@ -151,51 +151,44 @@ CsvDataGrapher.prototype.graphDataForLayer = function graphDataForLayer(layerNam
       }
       timelapse.addTimelineUIChangeListener(timelineUIChangeListener);
     }
-    that.activeLayer.entries[layerName] = entry;
+    that.activeLayer.entries[layerId] = entry;
   } else {
-    // NOTE: We rely on the global csvFileLayers variable as defined in index.html
-    for (var i = 0; i < csvFileLayers.layers.length; i++) {
-      if (csvFileLayers.layers[i].layerId == layerName) {
-        var tiles = csvFileLayers.layers[i]._tileView._tiles;
-        var key = Object.keys(tiles)[0];
-        if (typeof key == "undefined") return;
-        if (!tiles[key].jsondata) return;
-        var data = tiles[key].jsondata.data;
-        var layerProps = {};
-        for (var j = 0; j < csvFileLayers.layersData.data.length; j++) {
-          if (csvFileLayers.layersData.data[j]['Share link identifier'] == layerName) {
-            layerProps = csvFileLayers.layersData.data[j];
-            break;
-          }
-        }
-        var showGraph = layerProps['Show Graph'] == "TRUE";
-        if (!showGraph) return;
-        that.activeLayer.title = layerProps['Graph Title'] || layerProps['Name'];
-        that.chart.options.graphGroupName = that.activeLayer.title;
-        that.chart.options.axisY.title = layerProps['Graph Y-Axis Label'] || "Value";
-        that.chart.options.axisX.title = layerProps['Graph X-Axis Label'] || "Time";
-
-        if (layerProps['Graph Y-Axis Min']) {
-          that.chart.options.axisY.minimum = layerProps['Graph Y-Axis Min'];
-        } else {
-          // Set to null to auto scale
-          that.chart.options.axisY.minimum = null;
-        }
-        if (layerProps['Graph Y-Axis Max']) {
-          that.chart.options.axisY.maximum = layerProps['Graph Y-Axis Max'];
-        } else {
-          // Set to null to auto scale
-          that.chart.options.axisY.maximum = null;
-        }
-        that.chart.options.axisX.interval = undefined;
-        that.getDataForLayer(data, layerProps);
-        layerNameMatch = true;
-        break;
+    var layer = csvFileLayers.layerById[layerId];
+    if (layer) {
+      if (!layer.showGraph) return;
+      layerIdMatch = true;
+      
+      // NOTE: We rely on the global csvFileLayers variable as defined in index.html
+      var tiles = layer._tileView._tiles;
+      var key = Object.keys(tiles)[0];
+      if (typeof key == "undefined") return;
+      if (!tiles[key].jsondata) return;
+      var data = tiles[key].jsondata.data;
+      var layerProps = layer.layerDef;
+      that.activeLayer.title = layerProps['Graph Title'] || layerProps['Name'];
+      that.chart.options.graphGroupName = that.activeLayer.title;
+      that.chart.options.axisY.title = layerProps['Graph Y-Axis Label'] || "Value";
+      that.chart.options.axisX.title = layerProps['Graph X-Axis Label'] || "Time";
+      
+      if (layerProps['Graph Y-Axis Min']) {
+        that.chart.options.axisY.minimum = layerProps['Graph Y-Axis Min'];
+      } else {
+        // Set to null to auto scale
+        that.chart.options.axisY.minimum = null;
       }
+      if (layerProps['Graph Y-Axis Max']) {
+        that.chart.options.axisY.maximum = layerProps['Graph Y-Axis Max'];
+      } else {
+        // Set to null to auto scale
+        that.chart.options.axisY.maximum = null;
+      }
+      that.chart.options.axisX.interval = undefined;
+      that.getDataForLayer(data, layerProps);
+      layerIdMatch = true;
     }
-
-    if (!layerNameMatch) {
-      console.log("Warning. Graphing unavailable for this layer: " + layerName + " Check layer name.");
+    
+    if (!layerIdMatch) {
+      console.log("Warning. Graphing unavailable for this layer: " + layerId + " Check layer name.");
       return;
     }
   }

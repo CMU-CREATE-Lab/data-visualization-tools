@@ -6628,6 +6628,7 @@
 
       // Callback when data for a specific CSV layer has loaded.
       csvFileLayers.addDataLoadedListener(function(layerId) {
+        console.log('data loaded ' + layerId);
         csvDataGrapher.graphDataForLayer(layerId);
         showHideCsvGrapher(true, layerId, true);
         csvFileLayers.setLegend(layerId);
@@ -7284,17 +7285,17 @@
       }
     }
 
+    function findCsvLayer(layerId) {
+      for (var i = 0; i < csvFileLayers.layers.length; i++) {
+	if (csvFileLayers.layers[i].layerId == layerId) return csvFileLayers.layers[i];
+      }
+      return null;
+    }
+
     // CSV Data Grapher
     var showHideCsvGrapher = function(doShow, layerId, isCSV) {
       if (doShow && layerId && isCSV) {
-        var layerIds = csvFileLayers.layers.map(function(props) {
-          return props['_layerId'];
-        });
-        var layerIdx = layerIds.indexOf(layerId);
-        if (layerIdx < 0) return;
-        var layerOpts = csvFileLayers.layers[layerIdx].opts;
-        var showGraph = layerOpts.showGraph == "TRUE";
-        if (!showGraph) return;
+        if (!csvFileLayers.layerById[layerId].showGraph) return;
       }
       if (doShow) {
         $("#csvChartLegend").show();
