@@ -49,44 +49,51 @@ CsvFileLayer.prototype.lookupFunctionFromTable = function (functionName, lookupT
   }
 }
 
-CsvFileLayer.prototype.addLayer = function addLayer(opts) {
+CsvFileLayer.prototype.addLayer = function addLayer(opts, layerDef) {
   // (someday) Use csv.createlab.org as translation gateway
   // url = 'http://csv.createlab.org/' + url.replace(/^https?:\/\//,'')
 
-  var nickname = opts["nickname"];
-  var url = opts["url"];
-  var name = opts["name"];
-  var credit = opts["credit"];
-  var scalingFunction = opts["scalingFunction"];
-  var colorScalingFunction = opts["colorScalingFunction"];
-  var mapType = opts["mapType"];
-  var color = opts["color"];
-  var legendContent = opts["legendContent"];
-  var externalGeojson = opts["externalGeojson"];
-  var nameKey = opts["nameKey"];
-  var category = opts["category"];
-  var category_id = category ? "category-" + category.trim().replace(/ /g,"-").toLowerCase() : "csvlayers_table";
-  var playbackRate = typeof opts["playbackRate"] == "undefined" ? null : opts["playbackRate"];
-  var masterPlaybackRate = typeof opts["masterPlaybackRate"] == "undefined" ? null : opts["masterPlaybackRate"];
-  var nLevels = typeof opts["nLevels"] == "undefined" ? 0 : parseInt(opts["nLevels"]);
-  var colorMapSrc = opts["colorMapSrc"];
   var layerOptions = {
     tileWidth: 256,
     tileHeight: 256,
-    nLevels: nLevels,
-    scalingFunction: scalingFunction,
-    layerId: nickname,
     loadDataFunction: WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv,
     dataLoadedFunction: this.dataLoadedFromCsv.bind(this),
     drawFunction: WebGLVectorTile2.prototype._drawBubbleMap,
     fragmentShader: WebGLVectorTile2.bubbleMapFragmentShader,
     vertexShader: WebGLVectorTile2.bubbleMapVertexShader,
-    externalGeojson: externalGeojson,
-    nameKey: nameKey,
     numAttributes: 6
   };
+
+  layerOptions.layerId = opts.layerId = layerDef["Share link identifier"].replace(/\W+/g, '_');
+  layerOptions.category = opts.category = layerDef["Category"],
+
+  layerOptions.showGraph = opts.showGraph;
+  layerOptions.mapType = opts.mapType = layerDef["Map Type"] || "bubble";
+  layerOptions.color = opts.color;
+  layerOptions.legendContent = opts.legendContent;
+  layerOptions.legendKey = opts.legendKey;
+  
+  var url = layerDef["URL"].replace("http://", "https://");
+  opts.name = layerDef["Name"];
+  opts.credit = layerDef["Credits"];
+
+  layerOptions.scalingFunction = layerDef["Scaling"] || 'd3.scaleSqrt().domain([minValue, maxValue]).range([0, 100])';
+  layerOptions.colorScalingFunction = layerDef["Color Scaling"] || 'd3.scaleLinear().domain([minColorValue, maxColorValue]).range([0, 1])';
+  var color = opts["color"];
+  var legendContent = opts["legendContent"];
+  var externalGeojson = layerOptions.externalGeojson = opts["externalGeojson"];
+  var nameKey = layerOptions.nameKey = opts["nameKey"];
+  var category = opts["category"];
+  var category_id = category ? "category-" + category.trim().replace(/ /g,"-").toLowerCase() : "csvlayers_table";
+  var playbackRate = typeof opts["playbackRate"] == "undefined" ? null : opts["playbackRate"];
+  var masterPlaybackRate = typeof opts["masterPlaybackRate"] == "undefined" ? null : opts["masterPlaybackRate"];
+  var nLevels = layerOptions.nLevels = typeof opts["nLevels"] == "undefined" ? 0 : parseInt(opts["nLevels"]);
+  var colorMapSrc = opts["colorMapSrc"];
+  // By default, most CSV layers draw at z=400.  Raster and choropleths by default will draw at z=200.
+  var z = 400;
   var WebglLayer = WebglVectorLayer2;
-  if (mapType == 'raster') {
+  if (opts.mapType == 'raster') {
+    z = 200;
     WebglLayer = WebglMapLayer;
     url = eval(url);
     layerOptions['fragmentShader'] = null;
@@ -94,7 +101,8 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
     layerOptions['drawFunction'] = null;
     layerOptions["loadDataFunction"] = null;
   }
-  else if (mapType == "choropleth") {
+  else if (opts.mapType == "choropleth") {
+    z = 200;
     layerOptions.loadDataFunction = WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv;
     layerOptions.drawFunction = WebGLVectorTile2.prototype._drawChoroplethMap;
     layerOptions.fragmentShader = WebGLVectorTile2.choroplethMapFragmentShader;
@@ -104,7 +112,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
     } else {
       layerOptions.imageSrc =  "obesity-color-map.png";
     }
-  } else if (mapType == "point-flow") {
+  } else if (opts.mapType == "point-flow") {
     layerOptions.loadDataFunction = WebGLVectorTile2.prototype._loadData;
     if (opts["drawFunction"]) {
       layerOptions.drawFunction = eval(opts["drawFunction"]);
@@ -140,18 +148,20 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
     if (colorMapSrc) {
       layerOptions.imageSrc = colorMapSrc;
     }
-    if (colorScalingFunction) {
-      layerOptions.colorScalingFunction = colorScalingFunction;
-    }
   }
 
+  // Override layer z
+  if (opts.z !== undefined) {
+    z = opts.z
+  }
+  layerOptions.z = z;
   var layer = new WebglLayer(glb, canvasLayer, url, layerOptions);
   layer.options = layer.options || {};
   if (color) {
     layer.options.color = color;
   }
   var re = /_paired/;
-  var m = nickname.match(re)
+  var m = opts.layerId.match(re)
   if (m) {
     layer.paired = true;
   } else {
@@ -161,10 +171,10 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
   layer.opts = opts;
   this.layers.push(layer);
 
-  var id = 'show-csv-' + nickname;
-  var row = '<tr class="csvlayer"><td><label name="' + nickname + '">';
+  var id = 'show-csv-' + opts.layerId;
+  var row = '<tr class="csvlayer"><td><label name="' + opts.layerId + '">';
   row += '<input type="checkbox" id="' + id + '">';
-  row += name;
+  row += opts.name;
   row += '</label></td></tr>';
 
   // Default category
@@ -186,14 +196,14 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
       if (visibleBaseMapLayer != "dark") {
         $("#layers-list #dark-base").click();
       }
-      if (mapType != "raster") {
+      if (opts.mapType != "raster") {
         setActiveLayersWithTimeline(1);
         timelineType = "defaultUI";
-        requestNewTimeline(nickname + ".json", timelineType);
+        requestNewTimeline(opts.layerId + ".json", timelineType);
       }
       layer.visible = true;
-      $("#" + nickname + "-legend").show();
-      if (mapType == "choropleth") {
+      $("#" + opts.layerId + "-legend").show();
+      if (opts.mapType == "choropleth") {
         showCountryLabelMapLayer = false;
       }
       if (masterPlaybackRate && playbackRate) {
@@ -202,8 +212,8 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
       }
 
     } else {
-      $("#" + nickname + "-legend").hide();
-      if (mapType != "raster") {
+      $("#" + opts.layerId + "-legend").hide();
+      if (opts.mapType != "raster") {
         setActiveLayersWithTimeline(-1);
         doSwitchToLandsat();
       }
@@ -211,7 +221,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
       layer.visible = false;
       // cacheLastUsedLayer is a global data struct from index.html
       cacheLastUsedLayer(layer);
-      if (mapType == "choropleth") {
+      if (opts.mapType == "choropleth") {
         showCountryLabelMapLayer = false;
       }
       if (masterPlaybackRate && playbackRate) {
@@ -222,6 +232,8 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts) {
 
     }
   }).prop('checked', layer.visible);
+
+  return layer;
 }
 
 
@@ -272,115 +284,90 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
   that.layersData = Papa.parse(layerDefinitions, {delimiter: "\t", header: true});
 
   for (var i =  0; i < that.layersData['data'].length; i++) {
-    var layer = that.layersData['data'][i];
-    if (layer["Enabled"] == "TRUE") {
-      var layerIdentifier = layer["Share link identifier"].replace(/\W+/g, '_');
-      var promotedUrl = layer["URL"].replace("http://", "https://");
-
-      var scalingFunction = layer["Scaling"].trim();
-      if (scalingFunction == '') {
-        scalingFunction = 'd3.scaleSqrt().domain([minValue, maxValue]).range([0, 100])';
-      }
-
-      var colorScalingFunction = '';
-      if (typeof layer["Color Scaling"] != "undefined") {
-        colorScalingFunction = layer["Color Scaling"].trim();
-      }
-      if (colorScalingFunction == '') {
-        colorScalingFunction = 'd3.scaleLinear().domain([minColorValue, maxColorValue]).range([0, 1])';
-      }
-
-      var mapType = layer["Map Type"].trim();
-      if (mapType == "") {
-        mapType = "bubble";
-      }
-
-      var optionalColor = layer["Color"].trim();
-      if (optionalColor) {
-        optionalColor = JSON.parse(optionalColor);
-      }
-
-      var legendContent = "";
-      if (typeof layer["Legend Content"] != "undefined") {
-        legendContent = layer["Legend Content"].trim();
-      }
-
-      var legendKey = typeof layer["Legend Key"] != 'undefined' ? layer["Legend Key"].trim() : '';
-
-      var externalGeojson = "";
-      if (typeof layer["External GeoJSON"] != "undefined") {
-        externalGeojson = layer["External GeoJSON"].trim()
-      }
-
-      var nLevels = 0;
-      if (typeof layer["Number of Levels"] != "undefined") {
-        nLevels = layer["Number of Levels"].trim();
-        if (nLevels == "") {
-          nLevels = 0;
-        }
-      }
-
-      var colorMapSrc = null;
-      if (typeof layer["Colormap Src"] != "undefined") {
-        colorMapSrc = layer["Colormap Src"].trim();
-        if (colorMapSrc == "") {
-          colorMapSrc = null;
-        }
-      }
-
-      var nameKey = undefined;
-      if (typeof layer["Name Key"] != "undefined") {
-        var t = layer["Name Key"].trim();
-        if (t != "") {
-          nameKey = t;
-        }
-      }
-
-      var loadDataFunction = layer["Load Data Function"];
-      var setDataFunction = layer["Set Data Function"];
-      var numAttributes = layer["Number of Attributes"];
-      var vertexShader = layer["Vertex Shader"];
-      var fragmentShader = layer["Fragment Shader"];
-      var drawFunction = layer["Draw Function"];
-      var playbackRate = layer["Playback Rate"];
-      var masterPlaybackRate = layer["Master Playback Rate"];
-
-      var opts = {
-        nickname: layerIdentifier,
-        url: promotedUrl,
-        name: layer["Name"],
-        credit: layer["Credits"],
-        category: layer["Category"],
-        showGraph: layer["Show Graph"],
-        scalingFunction: scalingFunction,
-        colorScalingFunction: colorScalingFunction,
-        mapType: mapType,
-        color: optionalColor,
-        legendContent: legendContent,
-        legendKey: legendKey,
-        externalGeojson: externalGeojson,
-        nameKey: nameKey,
-        loadDataFunction: loadDataFunction,
-        setDataFunction: setDataFunction,
-        numAttributes: numAttributes,
-        vertexShader: vertexShader,
-        fragmentShader: fragmentShader,
-        drawFunction: drawFunction,
-        playbackRate: playbackRate,
-        masterPlaybackRate: masterPlaybackRate,
-        nLevels: nLevels,
-        colorMapSrc: colorMapSrc
-      }
-
-      this.addLayer(opts);
-      if (mapType == 'raster') {
-        this.setLegend(layerIdentifier);
-      }
-      this.setTimeLine(layerIdentifier,
-        layer["Start date"], // start date
-        layer["End date"], // end date
-        layer["Step"]); // step size
+    var layerDef = that.layersData['data'][i];
+    for (var key in layerDef) {
+      if (layerDef.hasOwnProperty(key)) layerDef[key] = layerDef[key].trim();
     }
+
+    if (layerDef["Enabled"].toLowerCase() != "true") continue;
+    
+    var optionalColor = layerDef["Color"].trim();
+    if (optionalColor) {
+      optionalColor = JSON.parse(optionalColor);
+    }
+    
+    var legendContent = "";
+    if (typeof layerDef["Legend Content"] != "undefined") {
+      legendContent = layerDef["Legend Content"].trim();
+    }
+    
+    var legendKey = typeof layerDef["Legend Key"] != 'undefined' ? layerDef["Legend Key"].trim() : '';
+    
+    var externalGeojson = "";
+    if (typeof layerDef["External GeoJSON"] != "undefined") {
+      externalGeojson = layerDef["External GeoJSON"].trim()
+    }
+    
+    var nLevels = 0;
+    if (typeof layerDef["Number of Levels"] != "undefined") {
+      nLevels = layerDef["Number of Levels"].trim();
+      if (nLevels == "") {
+        nLevels = 0;
+      }
+    }
+    
+    var colorMapSrc = null;
+    if (typeof layerDef["Colormap Src"] != "undefined") {
+      colorMapSrc = layerDef["Colormap Src"].trim();
+      if (colorMapSrc == "") {
+        colorMapSrc = null;
+      }
+    }
+    
+    var nameKey = undefined;
+    if (typeof layerDef["Name Key"] != "undefined") {
+      var t = layerDef["Name Key"].trim();
+      if (t != "") {
+        nameKey = t;
+      }
+    }
+    
+    var loadDataFunction = layerDef["Load Data Function"];
+    var setDataFunction = layerDef["Set Data Function"];
+    var numAttributes = layerDef["Number of Attributes"];
+    var vertexShader = layerDef["Vertex Shader"];
+    var fragmentShader = layerDef["Fragment Shader"];
+    var drawFunction = layerDef["Draw Function"];
+    var playbackRate = layerDef["Playback Rate"];
+    var masterPlaybackRate = layerDef["Master Playback Rate"];
+    
+    var opts = {
+      showGraph: layerDef["Show Graph"],
+      color: optionalColor,
+      legendContent: legendContent,
+      legendKey: legendKey,
+      externalGeojson: externalGeojson,
+      nameKey: nameKey,
+      loadDataFunction: loadDataFunction,
+      setDataFunction: setDataFunction,
+      numAttributes: numAttributes,
+      vertexShader: vertexShader,
+      fragmentShader: fragmentShader,
+      drawFunction: drawFunction,
+      playbackRate: playbackRate,
+      masterPlaybackRate: masterPlaybackRate,
+      nLevels: nLevels,
+      colorMapSrc: colorMapSrc
+    }
+    
+    var layer = this.addLayer(opts, layerDef);
+    if (layer.mapType == 'raster') {
+      this.setLegend(layer.layerId);
+    }
+    this.setTimeLine(layer.layerId,
+		     layerDef["Start date"], // start date
+		     layerDef["End date"], // end date
+		     layerDef["Step"]); // step size
   }
   for (var i = 0; i < this.layersLoadedListeners.length; i++) {
     this.layersLoadedListeners[i]();
@@ -556,7 +543,7 @@ CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate,
 CsvFileLayer.prototype.setLegend = function setLegend(id) {
   var layer;
   for (var i = 0; i < this.layers.length; i++) {
-    if (this.layers[i]['_layerId'] == id) {
+    if (this.layers[i].layerId == id) {
       layer = this.layers[i];
       break;
     }

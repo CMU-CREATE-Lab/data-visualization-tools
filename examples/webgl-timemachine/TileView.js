@@ -23,8 +23,8 @@
 function TileView(settings) {
   this._panoWidth = settings.panoWidth;
   this._panoHeight = settings.panoHeight;
-  this._tileWidth = settings.tileWidth;
-  this._tileHeight = settings.tileHeight;
+  this.tileWidth = settings.tileWidth;
+  this.tileHeight = settings.tileHeight;
   this._createTileCallback = settings.createTile;
   this._deleteTileCallback = settings.deleteTile;
   this._tiles = {};
@@ -52,8 +52,8 @@ TileView.prototype.
 resetDimensions = function (json) {
   this._panoWidth = json.width;
   this._panoHeight = json.height;
-  this._tileWidth = json.video_width;
-  this._tileHeight = json.video_height;
+  this.tileWidth = json.video_width;
+  this.tileHeight = json.video_height;
   this._destroy();
   this._tiles = {};
   this._computeMaxLevel();
@@ -64,11 +64,11 @@ TileView.prototype.
 _computeMaxLevel = function() {
   // Compute max level #
   for (this._maxLevel = 0;
-       (this._tileWidth << this._maxLevel) < this._panoWidth ||
-       (this._tileHeight << this._maxLevel) < this._panoHeight;
+       (this.tileWidth << this._maxLevel) < this._panoWidth ||
+       (this.tileHeight << this._maxLevel) < this._panoHeight;
        this._maxLevel++) {
   }
-  if (this._panoWidth == 2097152 && this._panoHeight == 1881298 && this._tileWidth == 1424 && this._tileHeight == 800) {
+  if (this._panoWidth == 2097152 && this._panoHeight == 1881298 && this.tileWidth == 1424 && this.tileHeight == 800) {
     // v14 missing the highest resolution layer;  override _maxLevel to 11 instead of the correct 12
     // TODO: override this in the layer constructor, stop using the landsat layer as the coordinate system, and stop calling resetDimensions
     this._maxLevelOverride = 11;
@@ -91,7 +91,7 @@ TileView.prototype.
 toString = function() {
   var msg = 'TileView: ';
   msg += 'Size: ' + this._panoWidth + 'x' + this._panoHeight + ',  ';
-  msg += 'Tile size: ' + this._tileWidth + 'x' + this._tileHeight + ',  ';
+  msg += 'Tile size: ' + this.tileWidth + 'x' + this.tileHeight + ',  ';
   msg += 'nlevels: ' + (this._maxLevel + 1);
   return msg;
 }
@@ -100,11 +100,11 @@ TileView.prototype.
 _tileGeometry = function(tileidx) {
   var levelScale = Math.pow(2, this._maxLevel - tileidx.l);
 
-  var left = tileidx.c * this._tileWidth * levelScale;
-  var right = left + this._tileWidth * levelScale;
+  var left = tileidx.c * this.tileWidth * levelScale;
+  var right = left + this.tileWidth * levelScale;
 
-  var top = tileidx.r * this._tileHeight * levelScale;
-  var bottom = top + this._tileHeight * levelScale;
+  var top = tileidx.r * this.tileHeight * levelScale;
+  var bottom = top + this.tileHeight * levelScale;
 
   var bbox = { min: {x: left, y: top}, max: {x: right, y: bottom} };
 
@@ -146,8 +146,8 @@ TileView.prototype.
 _tileidxAt = function(level, x, y) {
   var ret = new TileIdx(
     level,
-    Math.floor(x / (this._tileWidth << (this._maxLevel - level))),
-    Math.floor(y / (this._tileHeight << (this._maxLevel - level))));
+    Math.floor(x / (this.tileWidth << (this._maxLevel - level))),
+    Math.floor(y / (this.tileHeight << (this._maxLevel - level))));
   return ret;
 };
 
@@ -155,8 +155,8 @@ TileView.prototype.
 _tileidxCenter = function(ti) {
   var levelShift = this._maxLevel - ti.l;
   return {
-    x: (ti.c + .5) * (this._tileWidth << levelShift),
-    y: (ti.r + .5) * (this._tileHeight << levelShift)
+    x: (ti.c + .5) * (this.tileWidth << levelShift),
+    y: (ti.r + .5) * (this.tileHeight << levelShift)
   };
 };
 

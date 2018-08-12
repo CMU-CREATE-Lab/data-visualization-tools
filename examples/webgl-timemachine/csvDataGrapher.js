@@ -155,7 +155,7 @@ CsvDataGrapher.prototype.graphDataForLayer = function graphDataForLayer(layerNam
   } else {
     // NOTE: We rely on the global csvFileLayers variable as defined in index.html
     for (var i = 0; i < csvFileLayers.layers.length; i++) {
-      if (csvFileLayers.layers[i]._layerId == layerName) {
+      if (csvFileLayers.layers[i].layerId == layerName) {
         var tiles = csvFileLayers.layers[i]._tileView._tiles;
         var key = Object.keys(tiles)[0];
         if (typeof key == "undefined") return;

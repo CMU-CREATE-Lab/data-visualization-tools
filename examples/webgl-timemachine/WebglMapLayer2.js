@@ -1,30 +1,34 @@
 "use strict";
 
+// WebglMapLayer2 is a modification of WebglMapLayer which can load multiple data from multiple URLs per tile
+// Currently only used for Animated Forest Loss/Gain
+
 function WebglMapLayer2(glb, canvasLayer, tileUrls, opt_options) {
   this.glb = glb;
   this.gl = glb.gl;
   this._canvasLayer = canvasLayer;
-  this._fileExtension = opt_options.fileExtension || "png";
-  this._defaultUrl = opt_options.defaultUrl || tileUrls[0].split("{default}")[0] + "default." + this._fileExtension;
+  this.nLevels = 21;
+  this.tileWidth = 256;
+  this.tileHeight = 256;
+
+  if (opt_options) {
+    $.extend(this, opt_options);
+  }
+
+  this.fileExtension = this.fileExtension || "png";
+  this.defaultUrl = this.defaultUrl || tileUrls[0].split("{default}")[0] + "default." + this.fileExtension;
   this._tileUrls = [];
   for (var i = 0; i < tileUrls.length; i++) {
     this._tileUrls[i] = tileUrls[i].replace("{default}/", "");
-  }
-  this._nLevels = 21;
-  this._tileWidth = 256;
-  this._tileHeight = 256;
-
-  if (opt_options) {
-    this.setOptions(opt_options);
   }
 
   var that = this;
 
   this._tileView = new TileView({
-    panoWidth: 256 * Math.pow(2, this._nLevels),
-    panoHeight: 256 * Math.pow(2, this._nLevels),
-    tileWidth: this._tileWidth,
-    tileHeight: this._tileHeight,
+    panoWidth: 256 * Math.pow(2, this.nLevels),
+    panoHeight: 256 * Math.pow(2, this.nLevels),
+    tileWidth: this.tileWidth,
+    tileHeight: this.tileHeight,
     createTile: function(ti, bounds) { return that._createTile(ti, bounds); },
     deleteTile: function(tile) {},
     updateTile: WebglMapTile2.update,
@@ -33,34 +37,6 @@ function WebglMapLayer2(glb, canvasLayer, tileUrls, opt_options) {
 
   // TODO: experiment with this
   this._tileView.levelThreshold = opt_options.levelThreshold || 0;
-}
-
-
-WebglMapLayer2.prototype.setOptions = function(options) {
-  if (options.nLevels !== undefined) {
-    this.setNLevels(options.nLevels);
-  }
-
-  if (options.tileWidth !== undefined) {
-    this.setTileWidth(options.tileWidth);
-  }
-
-  if (options.tileHeight !== undefined) {
-    this.setTileHeight(options.tileHeight);
-  }
-
-}
-
-WebglMapLayer2.prototype.setNLevels = function(nLevels) {
-  this._nLevels = nLevels;
-}
-
-WebglMapLayer2.prototype.setTileWidth = function(width) {
-  this._tileWidth = width;
-}
-
-WebglMapLayer2.prototype.setTileHeight = function(height) {
-  this._tileHeight = height;
 }
 
 WebglMapLayer2.prototype.

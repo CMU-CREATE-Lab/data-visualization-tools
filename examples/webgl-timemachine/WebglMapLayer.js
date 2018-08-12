@@ -4,24 +4,24 @@ function WebglMapLayer(glb, canvasLayer, tileUrl, opt_options) {
   this.glb = glb;
   this.gl = glb.gl;
   this._canvasLayer = canvasLayer;
-  this._fileExtension = opt_options.fileExtension || "png";
-  this._defaultUrl = relUrlToAbsUrl(opt_options.defaultUrl || tileUrl.split("{default}")[0] + "default." + this._fileExtension);
   this._tileUrl = tileUrl.replace("{default}/", "");
-  this._nLevels = 21;
-  this._tileWidth = 256;
-  this._tileHeight = 256;
+  this.nLevels = 21;
+  this.tileWidth = 256;
+  this.tileHeight = 256;
 
   if (opt_options) {
-    this.setOptions(opt_options);
+    $.extend(this, opt_options);
   }
+  this.fileExtension = this.fileExtension || "png";
+  this.defaultUrl = relUrlToAbsUrl(this.defaultUrl || tileUrl.split("{default}")[0] + "default." + this.fileExtension);
 
   var that = this;
 
   this._tileView = new TileView({
-    panoWidth: 256 * Math.pow(2, this._nLevels),
-    panoHeight: 256 * Math.pow(2, this._nLevels),
-    tileWidth: this._tileWidth,
-    tileHeight: this._tileHeight,
+    panoWidth: 256 * Math.pow(2, this.nLevels),
+    panoHeight: 256 * Math.pow(2, this.nLevels),
+    tileWidth: this.tileWidth,
+    tileHeight: this.tileHeight,
     createTile: function(ti, bounds) { return that._createTile(ti, bounds); },
     deleteTile: function(tile) {},
     updateTile: WebglMapTile.update,
@@ -30,49 +30,6 @@ function WebglMapLayer(glb, canvasLayer, tileUrl, opt_options) {
 
   // TODO: experiment with this
   this._tileView.levelThreshold = opt_options.levelThreshold || 0;
-};
-
-
-WebglMapLayer.prototype.setOptions = function(options) {
-  if (options.nLevels !== undefined) {
-    this.setNLevels(options.nLevels);
-  }
-
-  if (options.tileWidth !== undefined) {
-    this.setTileWidth(options.tileWidth);
-  }
-
-  if (options.tileHeight !== undefined) {
-    this.setTileHeight(options.tileHeight);
-  }
-  if (options.fragmentShader != undefined) {
-    this._fragmentShader = options.fragmentShader;
-  }
-
-  if (options.vertexShader != undefined) {
-    this._vertexShader = options.vertexShader;
-  }
-
-  if (options.drawFunction != undefined) {
-    this._drawFunction = options.drawFunction;
-  }
-
-  if (options.layerId != undefined) {
-    this._layerId = options.layerId;
-  }
-  
-};
-
-WebglMapLayer.prototype.setNLevels = function(nLevels) {
-  this._nLevels = nLevels;
-};
-
-WebglMapLayer.prototype.setTileWidth = function(width) {
-  this._tileWidth = width;
-};
-
-WebglMapLayer.prototype.setTileHeight = function(height) {
-  this._tileHeight = height;
 };
 
 WebglMapLayer.prototype.
@@ -90,19 +47,19 @@ WebglMapLayer.prototype._createTile = function(ti, bounds) {
   url = url.replace("{yflip}", Math.pow(2,ti.l)-1-ti.r);
 
   var opt_options = {};
-  if (this._drawFunction) {
-    opt_options.drawFunction = this._drawFunction;
+  if (this.drawFunction) {
+    opt_options.drawFunction = this.drawFunction;
   }
-  if (this._fragmentShader) {
-    opt_options.fragmentShader = this._fragmentShader;
+  if (this.fragmentShader) {
+    opt_options.fragmentShader = this.fragmentShader;
   }
-  if (this._vertexShader) {
-    opt_options.vertexShader = this._vertexShader;
+  if (this.vertexShader) {
+    opt_options.vertexShader = this.vertexShader;
   }
   if (this._tileView) {
     opt_options.layerDomId = this._tileView._layerDomId;
   }
-  return new WebglMapTile(glb, ti, bounds, url, this._defaultUrl, opt_options);
+  return new WebglMapTile(glb, ti, bounds, url, this.defaultUrl, opt_options);
 };
 
 WebglMapLayer.prototype.

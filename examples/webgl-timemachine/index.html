@@ -8416,44 +8416,53 @@
           annualGlobalPm25TimeMachineLayer.draw(view, tileViewVisibility);
         }
 
-        // ## 7 ##
-        //// Layers to draw on top go here
-        //
-        var visibleCsvLayers = [];
-        for (var i = 0; i < csvFileLayers.layers.length; i++) {
-          var layer = csvFileLayers.layers[i];
-          if (layer.visible && layer.paired) {
-            visibleCsvLayers.push(i);
+        function drawCsvLayer(layer, options) {
+          var view = getLayerView(layer, landsatBaseMapLayer);
+	  if (options) {
+	    options = $.extend({}, options); // shallow-copy options
+	  } else {
+	    options = {};
+	  }
+          options.zoom = timelapse.getCurrentZoom();
+          var currentTime = timelapse.getCurrentTime();
+          var currentTimes = getCurrentTimes(timelapse);
+          var dates = getDates(timelapse);
+          var delta = getCurrentTimesDelta(currentTime, currentTimes);
+          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
+          options.currentTime = currentDate;
+          options.pointSize = 2.0;
+          if (layer.options) {
+            $.extend(options, layer.options);
           }
-        }
-        for (var i = 0; i < csvFileLayers.layers.length; i++) {
-          var layer = csvFileLayers.layers[i];
-          if (layer.visible) {
-            var view = getLayerView(layer, landsatBaseMapLayer);
-            var options = {};
-            options.zoom = timelapse.getCurrentZoom();
-            var currentTime = timelapse.getCurrentTime();
-            var currentTimes = getCurrentTimes(timelapse);
-            var dates = getDates(timelapse);
-            var delta = getCurrentTimesDelta(currentTime, currentTimes);
-            var currentDate = getCurrentDate(currentTime, currentTimes, dates);
-            options.currentTime = currentDate;
-            options.pointSize = 2.0;
-            if (visibleCsvLayers.length >= 2) {
-              if (visibleCsvLayers[0] == i) {
-                options.mode = 2.0;
-              }
-              if (visibleCsvLayers[1] == i) {
-                options.mode = 3.0;
-              }
-            }
-            if (layer.options) {
-              $.extend(options, layer.options);
-            }
-            layer.draw(view, options);
-          }
+          layer.draw(view, options);
         }
 
+        // Draw CSV z=200 (typically raster+choropleths)
+        for (var i = 0; i < csvFileLayers.layers.length; i++) {
+          var layer = csvFileLayers.layers[i];
+	  if (layer.visible && layer.z == 200) {
+	    drawCsvLayer(layer);
+	  }
+	}
+
+	// bubble-maps half-circle hack
+        // Create list of visible CSV Layers
+        //var visibleCsvLayers = [];
+        //for (var i = 0; i < csvFileLayers.layers.length; i++) {
+        //  var layer = csvFileLayers.layers[i];
+        //  if (layer.visible && layer.paired) {
+        //    visibleCsvLayers.push(i);
+        //  }
+        //}
+	//if (visibleCsvLayers.length >= 2) {
+        //  if (visibleCsvLayers[0] == i) {
+        //    options.mode = 2.0;
+        //  }
+        //  if (visibleCsvLayers[1] == i) {
+        //    options.mode = 3.0;
+        //  }
+        //}
+			    
         if (showIomIdpLayer) {
           var iomIdpLayerView = getLayerView(iomIdpLayer, landsatBaseMapLayer);
           var options = {};
@@ -8759,6 +8768,14 @@
         function showIndex(idx, epoch) {
           return crude_flows_index[idx]['min_epoch'] < epoch && crude_flows_index[idx]['max_epoch'] > epoch;
         }
+
+        // Draw CSV z=400 (most CSV layers, by default)
+        for (var i = 0; i < csvFileLayers.layers.length; i++) {
+          var layer = csvFileLayers.layers[i];
+	  if (layer.visible && layer.z == 400) {
+	    drawCsvLayer(layer);
+	  }
+	}
 
         if (showSpCrudeLayer) {
           var layer = spCrudeLayer;

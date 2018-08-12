@@ -9,14 +9,14 @@ function WebglMapTile(glb, tileidx, bounds, url, defaultUrl, opt_options) {
   this.gl = glb.gl;
 
   var opt_options = opt_options || {};
-  this._fragmentShader = opt_options.fragmentShader || WebglMapTile.textureFragmentShader;
-  this._vertexShader = opt_options.vertexShader || WebglMapTile.textureVertexShader;
+  this.fragmentShader = opt_options.fragmentShader || WebglMapTile.textureFragmentShader;
+  this.vertexShader = opt_options.vertexShader || WebglMapTile.textureVertexShader;
   this.draw = opt_options.drawFunction || this._draw;
   this._layerDomId = opt_options.layerDomId;
   this._loadingSpinnerTimer = null;
 
-  this._textureProgram = glb.programFromSources(this._vertexShader,
-                                                this._fragmentShader);
+  this._textureProgram = glb.programFromSources(this.vertexShader,
+                                                this.fragmentShader);
   this._texture = this._createTexture();
 
   this._triangles = glb.createBuffer(new Float32Array([0, 0,

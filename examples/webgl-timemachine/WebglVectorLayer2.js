@@ -9,20 +9,20 @@ function WebglVectorLayer2(glb, canvasLayer, tileUrl, opt_options) {
   this.gl = glb.gl;
   this._canvasLayer = canvasLayer;
   this._tileUrl = tileUrl;
-  this._nLevels = 21;
-  this._tileWidth = 256;
-  this._tileHeight = 256;
+  this.nLevels = 21;
+  this.tileWidth = 256;
+  this.tileHeight = 256;
 
   if (opt_options) {
-    this.setOptions(opt_options);
+    $.extend(this, opt_options);
   }
 
   var r = canvasLayer.timelapse.getMetadata();
   var that = this;
 
   this._tileView = new TileView({
-      panoWidth: 256 * Math.pow(2, this._nLevels),
-      panoHeight: 256 * Math.pow(2, this._nLevels),
+      panoWidth: 256 * Math.pow(2, this.nLevels),
+      panoHeight: 256 * Math.pow(2, this.nLevels),
       tileWidth: 256,
       tileHeight: 256,
       createTile: function(ti, bounds) { return that._createTile(ti, bounds); },
@@ -36,84 +36,6 @@ function WebglVectorLayer2(glb, canvasLayer, tileUrl, opt_options) {
   this._tileView.levelThreshold = 0;
 }
 
-WebglVectorLayer2.prototype.setOptions = function(options) {
-  if (options.nLevels !== undefined) {
-    this.setNLevels(options.nLevels);
-  }
-
-  if (options.tileWidth !== undefined) {
-    this.setTileWidth(options.tileWidth);
-  }
-
-  if (options.tileHeight !== undefined) {
-    this.setTileHeight(options.tileHeight);
-  }
-
-  if (options.setDataFunction != undefined) {
-    this._setDataFunction = options.setDataFunction;
-  }
-
-  if (options.loadDataFunction != undefined) {
-    this._loadDataFunction = options.loadDataFunction;
-  }
-
-  if (options.dataLoadedFunction != undefined) {
-    this._dataLoadedFunction = options.dataLoadedFunction;
-  }
-
-  if (options.drawFunction != undefined) {
-    this._drawFunction = options.drawFunction;
-  }
-
-  if (options.fragmentShader != undefined) {
-    this._fragmentShader = options.fragmentShader;
-  }
-
-  if (options.vertexShader != undefined) {
-    this._vertexShader = options.vertexShader;
-  }
-
-  if (options.imageSrc != undefined) {
-    this._imageSrc = options.imageSrc;
-  }
-
-  if (options.scalingFunction != undefined) {
-    this._scalingFunction = options.scalingFunction;
-  }
-
-  if (options.colorScalingFunction != undefined) {
-    this._colorScalingFunction = options.colorScalingFunction;
-  }
-
-  if (options.externalGeojson != undefined) {
-    this._externalGeojson = options.externalGeojson;
-  }
-
-  if (options.nameKey != undefined) {
-    this._nameKey = options.nameKey;
-  }
-
-  if (options.layerId != undefined) {
-    this._layerId = options.layerId;
-  }
-
-  if (options.numAttributes != undefined) {
-    this._numAttributes = options.numAttributes;
-  }
-};
-
-WebglVectorLayer2.prototype.setNLevels = function(nLevels) {
-  this._nLevels = nLevels;
-};
-
-WebglVectorLayer2.prototype.setTileWidth = function(width) {
-  this._tileWidth = width;
-};
-
-WebglVectorLayer2.prototype.setTileHeight = function(height) {
-  this._tileHeight = height;
-};
-
 WebglVectorLayer2.prototype.getWidth = function() {
     return this._tileView.getWidth();
 };
@@ -126,45 +48,47 @@ WebglVectorLayer2.prototype._createTile = function(ti, bounds) {
   var url = this._tileUrl.replace("{z}", ti.l).replace("{x}", ti.c).replace("{y}", ti.r);
   url = url.replace("{yflip}", Math.pow(2,ti.l)-1-ti.r);
 
+  // Consider not copying these layer-scope settings to individual tiles and instead
+  // accessing from the layer?
   var opt_options = {};
-  if (this._setDataFunction) {
-    opt_options.setDataFunction = this._setDataFunction;
+  if (this.setDataFunction) {
+    opt_options.setDataFunction = this.setDataFunction;
   }
-  if (this._loadDataFunction) {
-    opt_options.loadDataFunction = this._loadDataFunction;
+  if (this.loadDataFunction) {
+    opt_options.loadDataFunction = this.loadDataFunction;
   }
-  if (this._dataLoadedFunction) {
-    opt_options.dataLoadedFunction = this._dataLoadedFunction;
+  if (this.dataLoadedFunction) {
+    opt_options.dataLoadedFunction = this.dataLoadedFunction;
   }
-  if (this._drawFunction) {
-    opt_options.drawFunction = this._drawFunction;
+  if (this.drawFunction) {
+    opt_options.drawFunction = this.drawFunction;
   }
-  if (this._fragmentShader) {
-    opt_options.fragmentShader = this._fragmentShader;
+  if (this.fragmentShader) {
+    opt_options.fragmentShader = this.fragmentShader;
   }
-  if (this._vertexShader) {
-    opt_options.vertexShader = this._vertexShader;
+  if (this.vertexShader) {
+    opt_options.vertexShader = this.vertexShader;
   }
-  if (this._imageSrc) {
-    opt_options.imageSrc = this._imageSrc;
+  if (this.imageSrc) {
+    opt_options.imageSrc = this.imageSrc;
   }
-  if (this._scalingFunction) {
-    opt_options.scalingFunction = this._scalingFunction;
+  if (this.scalingFunction) {
+    opt_options.scalingFunction = this.scalingFunction;
   }
-  if (this._colorScalingFunction) {
-    opt_options.colorScalingFunction = this._colorScalingFunction;
+  if (this.colorScalingFunction) {
+    opt_options.colorScalingFunction = this.colorScalingFunction;
   }
-  if (this._externalGeojson) {
-    opt_options.externalGeojson = this._externalGeojson;
+  if (this.externalGeojson) {
+    opt_options.externalGeojson = this.externalGeojson;
   }
-  if (this._nameKey) {
-    opt_options.nameKey = this._nameKey;
+  if (this.nameKey) {
+    opt_options.nameKey = this.nameKey;
   }
-  if (this._layerId) {
-    opt_options.layerId = this._layerId;
+  if (this.layerId) {
+    opt_options.layerId = this.layerId;
   }
-  if (this._numAttributes) {
-    opt_options.numAttributes = this._numAttributes;
+  if (this.numAttributes) {
+    opt_options.numAttributes = this.numAttributes;
   }
   if (this._tileView) {
     opt_options.layerDomId = this._tileView._layerDomId;
