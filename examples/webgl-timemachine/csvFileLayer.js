@@ -82,11 +82,13 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts, layerDef) {
 
   layerOptions.scalingFunction = layerDef["Scaling"] || 'd3.scaleSqrt().domain([minValue, maxValue]).range([0, 100])';
   layerOptions.colorScalingFunction = layerDef["Color Scaling"] || 'd3.scaleLinear().domain([minColorValue, maxColorValue]).range([0, 1])';
-  var externalGeojson = layerOptions.externalGeojson = opts["externalGeojson"];
-  var nameKey = layerOptions.nameKey = opts["nameKey"];
+
+  layerOptions.externalGeojson = layerDef["External GeoJSON"];
+
+  layerOptions.nameKey = layerDef["Name Key"];
   var category_id = layerOptions.category ? "category-" + layerOptions.category.replace(/ /g,"-").toLowerCase() : "csvlayers_table";
-  var playbackRate = typeof opts["playbackRate"] == "undefined" ? null : opts["playbackRate"];
-  var masterPlaybackRate = typeof opts["masterPlaybackRate"] == "undefined" ? null : opts["masterPlaybackRate"];
+  var playbackRate = layerDef["Playback Rate"] || null;
+  var masterPlaybackRate = layerDef["Master Playback Rate"] || null;
   var nLevels = layerOptions.nLevels = typeof opts["nLevels"] == "undefined" ? 0 : parseInt(opts["nLevels"]);
   var colorMapSrc = opts["colorMapSrc"];
   // By default, most CSV layers draw at z=400.  Raster and choropleths by default will draw at z=200.
@@ -293,11 +295,6 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
     if (layerDef["Enabled"].toLowerCase() != "true") continue;
     
     
-    var externalGeojson = "";
-    if (typeof layerDef["External GeoJSON"] != "undefined") {
-      externalGeojson = layerDef["External GeoJSON"].trim()
-    }
-    
     var nLevels = 0;
     if (typeof layerDef["Number of Levels"] != "undefined") {
       nLevels = layerDef["Number of Levels"].trim();
@@ -314,34 +311,20 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
       }
     }
     
-    var nameKey = undefined;
-    if (typeof layerDef["Name Key"] != "undefined") {
-      var t = layerDef["Name Key"].trim();
-      if (t != "") {
-        nameKey = t;
-      }
-    }
-    
     var loadDataFunction = layerDef["Load Data Function"];
     var setDataFunction = layerDef["Set Data Function"];
     var numAttributes = layerDef["Number of Attributes"];
     var vertexShader = layerDef["Vertex Shader"];
     var fragmentShader = layerDef["Fragment Shader"];
     var drawFunction = layerDef["Draw Function"];
-    var playbackRate = layerDef["Playback Rate"];
-    var masterPlaybackRate = layerDef["Master Playback Rate"];
     
     var opts = {
-      externalGeojson: externalGeojson,
-      nameKey: nameKey,
       loadDataFunction: loadDataFunction,
       setDataFunction: setDataFunction,
       numAttributes: numAttributes,
       vertexShader: vertexShader,
       fragmentShader: fragmentShader,
       drawFunction: drawFunction,
-      playbackRate: playbackRate,
-      masterPlaybackRate: masterPlaybackRate,
       nLevels: nLevels,
       colorMapSrc: colorMapSrc
     }
