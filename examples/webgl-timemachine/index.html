@@ -8418,6 +8418,17 @@
           annualGlobalPm25TimeMachineLayer.draw(view, tileViewVisibility);
         }
 
+	function isPairCandidate(layer) {
+	  return layer.visible && layer.paired;
+	}		      
+
+	// Set up to draw half-circles if we have exactly two visible paired layers
+	var pairCount = 0;
+        for (var i = 0; i < csvFileLayers.layers.length; i++) {
+          if (isPairCandidate(csvFileLayers.layers[i])) pairCount++;
+	}
+	if (pairCount != 2) pairCount = 0;
+
         function drawCsvLayer(layer, options) {
           var view = getLayerView(layer, landsatBaseMapLayer);
 	  if (options) {
@@ -8433,6 +8444,10 @@
           var currentDate = getCurrentDate(currentTime, currentTimes, dates);
           options.currentTime = currentDate;
           options.pointSize = 2.0;
+	  if (pairCount && isPairCandidate(layer)) {
+	    options.mode = pairCount + 1; // 2 or 3 for left or right
+	    pairCount--;
+	  }
           if (layer.options) {
             $.extend(options, layer.options);
           }

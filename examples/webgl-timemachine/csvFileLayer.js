@@ -54,9 +54,6 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
   // (someday) Use csv.createlab.org as translation gateway
   // url = 'http://csv.createlab.org/' + url.replace(/^https?:\/\//,'')
 
-
-
-
   var layerOptions = {
     tileWidth: 256,
     tileHeight: 256,
@@ -87,8 +84,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
   layerOptions.colorScalingFunction = layerDef["Color Scaling"] || 'd3.scaleLinear().domain([minColorValue, maxColorValue]).range([0, 1])';
 
   layerOptions.externalGeojson = layerDef["External GeoJSON"];
-
-  layerOptions.nameKey = layerDef["Name Key"];
+  layerOptions.nameKey = layerDef["Name Key"]; // Optional GeoJSON property name with which to join features with first column of data
   var category_id = layerOptions.category ? "category-" + layerOptions.category.replace(/ /g,"-").toLowerCase() : "csvlayers_table";
   layerOptions.playbackRate = layerDef["Playback Rate"] || null;
   layerOptions.masterPlaybackRate = layerDef["Master Playback Rate"] || null;
@@ -147,6 +143,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
   if (layerOptions.color) {
     layer.options.color = layerOptions.color;
   }
+  // Comparison-mode, left and right half-circles
   var re = /_paired/;
   var m = layerOptions.layerId.match(re)
   if (m) {
@@ -197,7 +194,6 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
         timelapse.setMasterPlaybackRate(layer.masterPlaybackRate);
         timelapse.setPlaybackRate(layer.playbackRate);
       }
-
     } else {
       $("#" + layer.layerId + "-legend").hide();
       if (layer.mapType != "raster") {
@@ -216,7 +212,6 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
         timelapse.setPlaybackRate(defaultPlaybackSpeed);
         //timelapse.setMaxScale(landsatMaxScale);
       }
-
     }
   }).prop('checked', layer.visible);
 
