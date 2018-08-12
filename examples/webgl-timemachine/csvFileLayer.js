@@ -71,13 +71,13 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts, layerDef) {
 
   layerOptions.showGraph = layerDef["Show Graph"].toLowerCase() == 'true';
   layerOptions.mapType = layerDef["Map Type"] || "bubble";
-  layerOptions.color = opts.color;
+  layerOptions.color = layerDef["Color"] ? JSON.parse(layerDef["Color"]) : null;
   layerOptions.legendContent = opts.legendContent;
   layerOptions.legendKey = opts.legendKey;
   
   var url = layerDef["URL"].replace("http://", "https://");
-  opts.name = layerDef["Name"];
-  opts.credit = layerDef["Credits"];
+  layerOptions.name = layerDef["Name"];
+  layerOptions.credit = layerDef["Credits"];
 
   layerOptions.scalingFunction = layerDef["Scaling"] || 'd3.scaleSqrt().domain([minValue, maxValue]).range([0, 100])';
   layerOptions.colorScalingFunction = layerDef["Color Scaling"] || 'd3.scaleLinear().domain([minColorValue, maxColorValue]).range([0, 1])';
@@ -158,8 +158,8 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts, layerDef) {
   layerOptions.z = z;
   var layer = new WebglLayer(glb, canvasLayer, url, layerOptions);
   layer.options = layer.options || {};
-  if (color) {
-    layer.options.color = color;
+  if (layerOptions.color) {
+    layer.options.color = layerOptions.color;
   }
   var re = /_paired/;
   var m = layerOptions.layerId.match(re)
@@ -293,11 +293,6 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
 
     if (layerDef["Enabled"].toLowerCase() != "true") continue;
     
-    var optionalColor = layerDef["Color"].trim();
-    if (optionalColor) {
-      optionalColor = JSON.parse(optionalColor);
-    }
-    
     var legendContent = "";
     if (typeof layerDef["Legend Content"] != "undefined") {
       legendContent = layerDef["Legend Content"].trim();
@@ -344,7 +339,6 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
     var masterPlaybackRate = layerDef["Master Playback Rate"];
     
     var opts = {
-      color: optionalColor,
       legendContent: legendContent,
       legendKey: legendKey,
       externalGeojson: externalGeojson,
@@ -534,9 +528,7 @@ CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate,
       for (var i = startDate; i < endDate + 1; i+=step) {
         captureTimes.push(i.toString());
       }
-
     }
-
   }
   cached_ajax[identifier + '.json'] = {"capture-times":  captureTimes};
 };
@@ -551,27 +543,27 @@ CsvFileLayer.prototype.setLegend = function setLegend(id) {
   }
   if (typeof layer != 'undefined') {
     if (layer.mapType == 'bubble') {
-      if (layer['opts']['legendContent'] == 'auto') {
+      if (layer.legendContent == 'auto') {
         var radius = layer['_tileView']['_tiles']['000000000000000']['_radius'];
         var opts = {
           'id' : id,
-          'title': layer['opts']['name'],
-          'credit': layer['opts']['credit'],
+          'title': layer.name,
+          'credit': layer.credit,
           'keys': [],
           'circles': [{'value': this.formatValue(radius.invert(50.0)), 'radius': '25.0'},{'value': this.formatValue(radius.invert(80.0)), 'radius': '40.0'},{'value': this.formatValue(radius.invert(100.0)), 'radius': '50.0'}]
         };
-        if (layer['opts']['legendKey'] != '') {
-          var rgba = layer['opts']['color'].map(function(x) {
+        if (layer.legendKey) {
+          var rgba = layer.color.map(function(x) {
             return Math.floor(x * 255.);
           });
-          opts["keys"].push({'color': 'rgb('+ rgba[0] +',' + rgba[1] +',' + rgba[2] + ')', 'str': layer['opts']['legendKey']});
+          opts.keys.push({'color': 'rgb('+ rgba[0] +',' + rgba[1] +',' + rgba[2] + ')', 'str': layer.legendKey});
         }
         var legend = new BubbleMapLegend(opts);
         $('#legend-content table tr:last').after(legend.toString());
         $("#" + id + "-legend").show();
       } else {
-        var div = '<div style="font-size: 15px">' + layer['opts']["name"] + '<span class="credit"> ('+ layer['opts']["credit"] +')</span></div>';
-        var str = div + layer['opts']['legendContent'];
+        var div = '<div style="font-size: 15px">' + layer.name + '<span class="credit"> ('+ layer.credit +')</span></div>';
+        var str = div + layer.legendContent;
         var opts = {
           'id' : id,
           'str': str
@@ -583,27 +575,27 @@ CsvFileLayer.prototype.setLegend = function setLegend(id) {
       }
 
     } else if (layer.mapType == 'choropleth') { // Assume choropleth
-      if (layer['opts']['legendContent'] == 'auto') {
+      if (layer.legendContent == 'auto') {
         var radius = this.layers[i]['_tileView']['_tiles']['000000000000000']['_radius'];
         var opts = {
             'id': id,
-            'title': layer['opts']['name'],
-            'credit': layer['opts']['credit'],
+            'title': layer.name,
+            'credit': layer.credit,
             'keys': [],
             'colors': ["#ffffff", "#fff18e", "#ffdc5b", "#ffc539", "#ffad21", "#ff920c", "#ff7500", "#ff5000", "#ff0000"],
             'values': [this.formatValue(radius.invert(0)), this.formatValue(radius.invert(0.5)), this.formatValue(radius.invert(1))],
-            'colorMap': layer['opts']['colorMapSrc']
+            'colorMap': layer.colorMapSrc
         }
-        if (layer['opts']['legendKey'] != '') {
-          opts["keys"].push({'str': layer['opts']['legendKey']});
+        if (layer.legendKey) {
+          opts.keys.push({'str': layer.legendKey});
         }
 
         var legend = new ChoroplethLegend(opts)
         $('#legend-content table tr:last').after(legend.toString());
         $("#" + id + "-legend").show();
       } else {
-        var div = '<div style="font-size: 15px">' + layer['opts']["name"] + '<span class="credit"> ('+ layer['opts']["credit"] +')</span></div>';
-        var str = div + layer['opts']['legendContent'];
+        var div = '<div style="font-size: 15px">' + layer.name + '<span class="credit"> ('+ layer.credit +')</span></div>';
+        var str = div + layer.legendContent;
         var opts = {
           'id' : id,
           'str': str
@@ -615,12 +607,12 @@ CsvFileLayer.prototype.setLegend = function setLegend(id) {
       }
     } else {
         var str = '';
-        if (layer['opts']['legendContent'] == '') {
-          var div = '<div style="font-size: 15px">' + layer['opts']["name"] + '<span class="credit"> ('+ layer['opts']["credit"] +')</span></div>';
+        if (layer.legendContent == '') {
+          var div = '<div style="font-size: 15px">' + layer.name + '<span class="credit"> ('+ layer.credit +')</span></div>';
           str = div;
         } else {
-          var div = '<div style="font-size: 15px">' + layer['opts']["name"] + '<span class="credit"> ('+ layer['opts']["credit"] +')</span></div>';
-          str = div + layer['opts']['legendContent'];
+          var div = '<div style="font-size: 15px">' + layer.name + '<span class="credit"> ('+ layer.credit +')</span></div>';
+          str = div + layer.legendContent;
         }
         var opts = {
           'id' : id,
