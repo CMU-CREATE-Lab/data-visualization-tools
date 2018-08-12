@@ -6628,7 +6628,6 @@
 
       // Callback when data for a specific CSV layer has loaded.
       csvFileLayers.addDataLoadedListener(function(layerId) {
-        console.log('data loaded ' + layerId);
         csvDataGrapher.graphDataForLayer(layerId);
         showHideCsvGrapher(true, layerId, true);
         csvFileLayers.setLegend(layerId);

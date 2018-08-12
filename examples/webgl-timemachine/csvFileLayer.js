@@ -50,9 +50,12 @@ CsvFileLayer.prototype.lookupFunctionFromTable = function (functionName, lookupT
   }
 }
 
-CsvFileLayer.prototype.addLayer = function addLayer(opts, layerDef) {
+CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
   // (someday) Use csv.createlab.org as translation gateway
   // url = 'http://csv.createlab.org/' + url.replace(/^https?:\/\//,'')
+
+
+
 
   var layerOptions = {
     tileWidth: 256,
@@ -90,73 +93,55 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts, layerDef) {
   layerOptions.playbackRate = layerDef["Playback Rate"] || null;
   layerOptions.masterPlaybackRate = layerDef["Master Playback Rate"] || null;
   layerOptions.nLevels = layerDef["Number of Levels"] ? parseInt(layerDef["Number of Levels"]) : 0;
-  var colorMapSrc = opts["colorMapSrc"];
+  layerOptions.imageSrc = layerDef["Colormap Src"] || null;
+  
+  function overrideDrawingFns() {
+    if (layerDef["Draw Function"]) {
+      layerOptions.drawFunction = eval(layerDef["Draw Function"]);
+    }
+    if (layerDef["Number of Attributes"]) {
+      layerOptions.numAttributes = parseInt(layerDef["Number of Attributes"]);
+    }
+    if (layerDef["Vertex Shader"]) {
+      layerOptions.vertexShader = eval(layerDef["Vertex Shader"]);
+    }
+    if (layerDef["Fragment Shader"]) {
+      layerOptions.fragmentShader = eval(layerDef["Fragment Shader"]);
+    }
+  }
+
   // By default, most CSV layers draw at z=400.  Raster and choropleths by default will draw at z=200.
-  var z = 400;
+  layerOptions.z = 400;
   var WebglLayer = WebglVectorLayer2;
+
   if (layerOptions.mapType == 'raster') {
-    z = 200;
+    layerOptions.z = 200;
     WebglLayer = WebglMapLayer;
     url = eval(url);
-    layerOptions['fragmentShader'] = null;
-    layerOptions['vertexShader'] = null;
-    layerOptions['drawFunction'] = null;
-    layerOptions["loadDataFunction"] = null;
-  }
-  else if (layerOptions.mapType == "choropleth") {
-    z = 200;
+    layerOptions.fragmentShader = null;
+    layerOptions.vertexShader = null;
+    layerOptions.drawFunction = null;
+    layerOptions.loadDataFunction = null;
+  } else if (layerOptions.mapType == "choropleth") {
+    layerOptions.imageSrc = layerOptions.imageSrc || "obesity-color-map.png";
+    layerOptions.z = 200;
     layerOptions.loadDataFunction = WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv;
     layerOptions.drawFunction = WebGLVectorTile2.prototype._drawChoroplethMap;
     layerOptions.fragmentShader = WebGLVectorTile2.choroplethMapFragmentShader;
     layerOptions.vertexShader = WebGLVectorTile2.choroplethMapVertexShader;
-    if (colorMapSrc) {
-      layerOptions.imageSrc = colorMapSrc;
-    } else {
-      layerOptions.imageSrc =  "obesity-color-map.png";
-    }
   } else if (layerOptions.mapType == "point-flow") {
     layerOptions.loadDataFunction = WebGLVectorTile2.prototype._loadData;
-    if (opts["drawFunction"]) {
-      layerOptions.drawFunction = eval(opts["drawFunction"]);
-    }
-    if (opts["numAttributes"]) {
-      layerOptions.numAttributes = opts["numAttributes"];
-    }
-    if (opts["vertexShader"]) {
-      layerOptions.vertexShader = eval(opts["vertexShader"]);
-    }
-    if (opts["fragmentShader"]) {
-      layerOptions.fragmentShader = eval(opts["fragmentShader"]);
-    }
+    overrideDrawingFns();
   } else {
-    if (opts["loadDataFunction"]) {
-      layerOptions.loadDataFunction = this.lookupFunctionFromTable(opts["loadDataFunction"], LOAD_DATA_FUNCTION_LOOKUP_TABLE);
+    if (layerDef["Load Data Function"]) {
+      layerOptions.loadDataFunction = this.lookupFunctionFromTable(layerDef["Load Data Function"], LOAD_DATA_FUNCTION_LOOKUP_TABLE);
     }
-    if (opts["setDataFunction"]) {
-      layerOptions.setDataFunction = this.lookupFunctionFromTable(opts["setDataFunction"], SET_DATA_FUNCTION_LOOKUP_TABLE);
+    if (layerDef["Set Data Function"]) {
+      layerOptions.setDataFunction = this.lookupFunctionFromTable(layerDef["Set Data Function"], SET_DATA_FUNCTION_LOOKUP_TABLE);
     }
-    if (opts["drawFunction"]) {
-      layerOptions.drawFunction = eval(opts["drawFunction"]);
-    }
-    if (opts["numAttributes"]) {
-      layerOptions.numAttributes = opts["numAttributes"];
-    }
-    if (opts["vertexShader"]) {
-      layerOptions.vertexShader = eval(opts["vertexShader"]);
-    }
-    if (opts["fragmentShader"]) {
-      layerOptions.fragmentShader = eval(opts["fragmentShader"]);
-    }
-    if (colorMapSrc) {
-      layerOptions.imageSrc = colorMapSrc;
-    }
+    overrideDrawingFns();
   }
 
-  // Override layer z
-  if (opts.z !== undefined) {
-    z = opts.z
-  }
-  layerOptions.z = z;
   var layer = new WebglLayer(glb, canvasLayer, url, layerOptions);
   layer.options = layer.options || {};
   if (layerOptions.color) {
@@ -170,14 +155,13 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts, layerDef) {
     layer.paired = false;
   }
 
-  layer.opts = opts;
   this.layers.push(layer);
   this.layerById[layer.layerId] = layer;
 
   var id = 'show-csv-' + layerOptions.layerId;
   var row = '<tr class="csvlayer"><td><label name="' + layerOptions.layerId + '">';
   row += '<input type="checkbox" id="' + id + '">';
-  row += opts.name;
+  row += layerOptions.name;
   row += '</label></td></tr>';
 
   // Default category
@@ -288,40 +272,14 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
 
   for (var i =  0; i < that.layersData['data'].length; i++) {
     var layerDef = that.layersData['data'][i];
+    // Trim whitespace for all columns
     for (var key in layerDef) {
       if (layerDef.hasOwnProperty(key)) layerDef[key] = layerDef[key].trim();
     }
 
     if (layerDef["Enabled"].toLowerCase() != "true") continue;
     
-    
-    
-    var colorMapSrc = null;
-    if (typeof layerDef["Colormap Src"] != "undefined") {
-      colorMapSrc = layerDef["Colormap Src"].trim();
-      if (colorMapSrc == "") {
-        colorMapSrc = null;
-      }
-    }
-    
-    var loadDataFunction = layerDef["Load Data Function"];
-    var setDataFunction = layerDef["Set Data Function"];
-    var numAttributes = layerDef["Number of Attributes"];
-    var vertexShader = layerDef["Vertex Shader"];
-    var fragmentShader = layerDef["Fragment Shader"];
-    var drawFunction = layerDef["Draw Function"];
-    
-    var opts = {
-      loadDataFunction: loadDataFunction,
-      setDataFunction: setDataFunction,
-      numAttributes: numAttributes,
-      vertexShader: vertexShader,
-      fragmentShader: fragmentShader,
-      drawFunction: drawFunction,
-      colorMapSrc: colorMapSrc
-    }
-    
-    var layer = this.addLayer(opts, layerDef);
+    var layer = this.addLayer(layerDef);
     if (layer.mapType == 'raster') {
       this.setLegend(layer.layerId);
     }
@@ -550,7 +508,7 @@ CsvFileLayer.prototype.setLegend = function setLegend(id) {
             'keys': [],
             'colors': ["#ffffff", "#fff18e", "#ffdc5b", "#ffc539", "#ffad21", "#ff920c", "#ff7500", "#ff5000", "#ff0000"],
             'values': [this.formatValue(radius.invert(0)), this.formatValue(radius.invert(0.5)), this.formatValue(radius.invert(1))],
-            'colorMap': layer.colorMapSrc
+            'colorMap': layer.imageSrc
         }
         if (layer.legendKey) {
           opts.keys.push({'str': layer.legendKey});
