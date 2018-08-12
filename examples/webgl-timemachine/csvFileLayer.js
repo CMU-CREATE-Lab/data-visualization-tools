@@ -69,8 +69,8 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts, layerDef) {
   layerOptions.layerId = layerDef["Share link identifier"].replace(/\W+/g, '_');
   layerOptions.category = layerDef["Category"];
 
-  layerOptions.showGraph = layerDef["Show Graph"];
-  layerOptions.mapType = opts.mapType = layerDef["Map Type"] || "bubble";
+  layerOptions.showGraph = layerDef["Show Graph"].toLowerCase() == 'true';
+  layerOptions.mapType = layerDef["Map Type"] || "bubble";
   layerOptions.color = opts.color;
   layerOptions.legendContent = opts.legendContent;
   layerOptions.legendKey = opts.legendKey;
@@ -93,7 +93,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts, layerDef) {
   // By default, most CSV layers draw at z=400.  Raster and choropleths by default will draw at z=200.
   var z = 400;
   var WebglLayer = WebglVectorLayer2;
-  if (opts.mapType == 'raster') {
+  if (layerOptions.mapType == 'raster') {
     z = 200;
     WebglLayer = WebglMapLayer;
     url = eval(url);
@@ -102,7 +102,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts, layerDef) {
     layerOptions['drawFunction'] = null;
     layerOptions["loadDataFunction"] = null;
   }
-  else if (opts.mapType == "choropleth") {
+  else if (layerOptions.mapType == "choropleth") {
     z = 200;
     layerOptions.loadDataFunction = WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv;
     layerOptions.drawFunction = WebGLVectorTile2.prototype._drawChoroplethMap;
@@ -113,7 +113,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts, layerDef) {
     } else {
       layerOptions.imageSrc =  "obesity-color-map.png";
     }
-  } else if (opts.mapType == "point-flow") {
+  } else if (layerOptions.mapType == "point-flow") {
     layerOptions.loadDataFunction = WebGLVectorTile2.prototype._loadData;
     if (opts["drawFunction"]) {
       layerOptions.drawFunction = eval(opts["drawFunction"]);
@@ -198,14 +198,14 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts, layerDef) {
       if (visibleBaseMapLayer != "dark") {
         $("#layers-list #dark-base").click();
       }
-      if (opts.mapType != "raster") {
+      if (layerOptions.mapType != "raster") {
         setActiveLayersWithTimeline(1);
         timelineType = "defaultUI";
         requestNewTimeline(layer.layerId + ".json", timelineType);
       }
       layer.visible = true;
       $("#" + layer.layerId + "-legend").show();
-      if (opts.mapType == "choropleth") {
+      if (layerOptions.mapType == "choropleth") {
         showCountryLabelMapLayer = false;
       }
       if (masterPlaybackRate && playbackRate) {
@@ -215,7 +215,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts, layerDef) {
 
     } else {
       $("#" + layer.layerId + "-legend").hide();
-      if (opts.mapType != "raster") {
+      if (layerOptions.mapType != "raster") {
         setActiveLayersWithTimeline(-1);
         doSwitchToLandsat();
       }
@@ -223,7 +223,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts, layerDef) {
       layer.visible = false;
       // cacheLastUsedLayer is a global data struct from index.html
       cacheLastUsedLayer(layer);
-      if (opts.mapType == "choropleth") {
+      if (layerOptions.mapType == "choropleth") {
         showCountryLabelMapLayer = false;
       }
       if (masterPlaybackRate && playbackRate) {
@@ -550,7 +550,7 @@ CsvFileLayer.prototype.setLegend = function setLegend(id) {
     }
   }
   if (typeof layer != 'undefined') {
-    if (layer['opts']['mapType'] == 'bubble') {
+    if (layer.mapType == 'bubble') {
       if (layer['opts']['legendContent'] == 'auto') {
         var radius = layer['_tileView']['_tiles']['000000000000000']['_radius'];
         var opts = {
@@ -582,7 +582,7 @@ CsvFileLayer.prototype.setLegend = function setLegend(id) {
 
       }
 
-    } else if (layer['opts']['mapType'] == 'choropleth') { // Assume choropleth
+    } else if (layer.mapType == 'choropleth') { // Assume choropleth
       if (layer['opts']['legendContent'] == 'auto') {
         var radius = this.layers[i]['_tileView']['_tiles']['000000000000000']['_radius'];
         var opts = {
@@ -628,7 +628,7 @@ CsvFileLayer.prototype.setLegend = function setLegend(id) {
         }
         var legend = new Legend(id, str);
         $('#legend-content table tr:last').after(legend.toString());
-        if (layer['opts']['mapType'] != 'raster') {
+        if (layer.mapType != 'raster') {
           $("#" + id + "-legend").show();
         }
     }

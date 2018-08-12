@@ -6702,7 +6702,7 @@
           var tiles = csvFileLayers.layers[layerIdx]._tileView._tiles;
           var key = Object.keys(tiles)[0];
           // Checking point count is a special case when we are only displaying a chart and nothing on the main map
-          dataLoaded = key && csvFileLayers.layers[layerIdx].opts.showGraph == "TRUE" && (tiles[key]._ready || tiles[key]._pointCount == 0);
+          dataLoaded = key && csvFileLayers.layers[layerIdx].showGraph && (tiles[key]._ready || tiles[key]._pointCount == 0);
         }
         if (dataLoaded && $target.is(':checked') && !$target.data("has-graph")) {
           var layerId = tiles[key].layerId;
