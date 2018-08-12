@@ -266,13 +266,11 @@ CsvFileLayer.prototype.dataLoadedFromCsv = function dataLoadedFromCsv(layerId) {
 
 
 CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefinitions) {
-  var that = this;
+  this.layersData = Papa.parse(layerDefinitions, {delimiter: "\t", header: true});
 
-  that.layersData = Papa.parse(layerDefinitions, {delimiter: "\t", header: true});
-
-  for (var i =  0; i < that.layersData['data'].length; i++) {
-    var layerDef = that.layersData['data'][i];
-    // Trim whitespace for all columns
+  for (var i =  0; i < this.layersData.data.length; i++) {
+    var layerDef = this.layersData.data[i];
+    // Trim whitespace for all fields
     for (var key in layerDef) {
       if (layerDef.hasOwnProperty(key)) layerDef[key] = layerDef[key].trim();
     }
@@ -284,9 +282,9 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
       this.setLegend(layer.layerId);
     }
     this.setTimeLine(layer.layerId,
-		     layerDef["Start date"], // start date
-		     layerDef["End date"], // end date
-		     layerDef["Step"]); // step size
+		     layerDef["Start date"],
+		     layerDef["End date"],
+		     layerDef["Step"]);
   }
   for (var i = 0; i < this.layersLoadedListeners.length; i++) {
     this.layersLoadedListeners[i]();
