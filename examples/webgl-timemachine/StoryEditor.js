@@ -52,9 +52,10 @@
       // For setting a view from the timelapse viewer
       set_view_tool = new SetViewTool(timelapse, {
         container_id: container_id,
-        on_view_set_callback: function () {
+        on_view_set_callback: function (url) {
           $this.show();
           set_view_tool.hide();
+          console.log(url);
         }
       });
     }
@@ -106,7 +107,8 @@
       $waypoints_accordion = $waypoints.find(".story-editor-accordion").accordion({
         header: "> div > h3",
         heightStyle: "content",
-        animate: false
+        animate: false,
+        collapsible: true
       }).sortable({
         axis: "y",
         handle: "h3",
@@ -139,14 +141,9 @@
         if (n == 1) $current_tab.find(".story-editor-delete-waypoint").prop("disabled", false);
       });
       $waypoint_tab.find(".story-editor-delete-waypoint").on("click", function () {
-        // Activate the previous tab (if the deleted one is the first tab, activate the next tab instead)
-        var active = $waypoints_accordion.accordion("option", "active");
-        var target = active - 1;
-        if (target < 0) target = 0;
-        $waypoints_accordion.accordion("option", "active", target);
         // Delete the current tab
         $(this).closest(".story-editor-accordion-tab").remove();
-        $waypoints_accordion.accordion("refresh");
+        $waypoints_accordion.accordion("option", "active", false);
         // Disable the delete button of the active tab if there is only one tab left
         var $tabs = $waypoints_accordion.find(".story-editor-accordion-tab");
         if ($tabs.length == 1) $tabs.find(".story-editor-delete-waypoint").prop("disabled", true);

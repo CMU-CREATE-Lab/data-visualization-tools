@@ -356,8 +356,8 @@
   top: 3px;
   left: 3px;
   border-radius: 100%;
-  -webkit-transition: all 0.2s ease;
-  transition: all 0.2s ease;
+  -webkit-transition: all 0.1s ease;
+  transition: all 0.1s ease;
 }
 
 .custom-radio [type="radio"]:not(:checked) + label:after {
