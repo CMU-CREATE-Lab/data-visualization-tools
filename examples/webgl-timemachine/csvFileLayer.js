@@ -87,9 +87,9 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts, layerDef) {
 
   layerOptions.nameKey = layerDef["Name Key"];
   var category_id = layerOptions.category ? "category-" + layerOptions.category.replace(/ /g,"-").toLowerCase() : "csvlayers_table";
-  var playbackRate = layerDef["Playback Rate"] || null;
-  var masterPlaybackRate = layerDef["Master Playback Rate"] || null;
-  var nLevels = layerOptions.nLevels = typeof opts["nLevels"] == "undefined" ? 0 : parseInt(opts["nLevels"]);
+  layerOptions.playbackRate = layerDef["Playback Rate"] || null;
+  layerOptions.masterPlaybackRate = layerDef["Master Playback Rate"] || null;
+  layerOptions.nLevels = layerDef["Number of Levels"] ? parseInt(layerDef["Number of Levels"]) : 0;
   var colorMapSrc = opts["colorMapSrc"];
   // By default, most CSV layers draw at z=400.  Raster and choropleths by default will draw at z=200.
   var z = 400;
@@ -199,24 +199,24 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts, layerDef) {
       if (visibleBaseMapLayer != "dark") {
         $("#layers-list #dark-base").click();
       }
-      if (layerOptions.mapType != "raster") {
+      if (layer.mapType != "raster") {
         setActiveLayersWithTimeline(1);
         timelineType = "defaultUI";
         requestNewTimeline(layer.layerId + ".json", timelineType);
       }
       layer.visible = true;
       $("#" + layer.layerId + "-legend").show();
-      if (layerOptions.mapType == "choropleth") {
+      if (layer.mapType == "choropleth") {
         showCountryLabelMapLayer = false;
       }
-      if (masterPlaybackRate && playbackRate) {
-        timelapse.setMasterPlaybackRate(masterPlaybackRate);
-        timelapse.setPlaybackRate(playbackRate);
+      if (layer.masterPlaybackRate && layer.playbackRate) {
+        timelapse.setMasterPlaybackRate(layer.masterPlaybackRate);
+        timelapse.setPlaybackRate(layer.playbackRate);
       }
 
     } else {
       $("#" + layer.layerId + "-legend").hide();
-      if (layerOptions.mapType != "raster") {
+      if (layer.mapType != "raster") {
         setActiveLayersWithTimeline(-1);
         doSwitchToLandsat();
       }
@@ -224,10 +224,10 @@ CsvFileLayer.prototype.addLayer = function addLayer(opts, layerDef) {
       layer.visible = false;
       // cacheLastUsedLayer is a global data struct from index.html
       cacheLastUsedLayer(layer);
-      if (layerOptions.mapType == "choropleth") {
+      if (layer.mapType == "choropleth") {
         showCountryLabelMapLayer = false;
       }
-      if (masterPlaybackRate && playbackRate) {
+      if (layer.masterPlaybackRate && layer.playbackRate) {
         timelapse.setMasterPlaybackRate(1);
         timelapse.setPlaybackRate(defaultPlaybackSpeed);
         //timelapse.setMaxScale(landsatMaxScale);
@@ -295,13 +295,6 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
     if (layerDef["Enabled"].toLowerCase() != "true") continue;
     
     
-    var nLevels = 0;
-    if (typeof layerDef["Number of Levels"] != "undefined") {
-      nLevels = layerDef["Number of Levels"].trim();
-      if (nLevels == "") {
-        nLevels = 0;
-      }
-    }
     
     var colorMapSrc = null;
     if (typeof layerDef["Colormap Src"] != "undefined") {
@@ -325,7 +318,6 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
       vertexShader: vertexShader,
       fragmentShader: fragmentShader,
       drawFunction: drawFunction,
-      nLevels: nLevels,
       colorMapSrc: colorMapSrc
     }
     

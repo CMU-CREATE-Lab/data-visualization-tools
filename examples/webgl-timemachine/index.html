@@ -6693,16 +6693,18 @@
         var activeGraphableLayers = $(".csvlayer input, tr input[data-has-graph='true']").closest("input:checked");
         var $target = $(e.target);
         var layerId = $target.parent().attr("name");
-        var layerIds = csvFileLayers.layers.map(function(props) {
-          return props['_layerId'];
-        });
-        var layerIdx = layerIds.indexOf(layerId);
+        //var layerIds = csvFileLayers.layers.map(function(props) {
+        //  return props['_layerId'];
+        //});
+        //var layerIdx = layerIds.indexOf(layerId);
         var dataLoaded = $target.data("has-graph") ? true : false;
-        if (layerIdx >= 0 && typeof csvFileLayers.layers[layerIdx] != "undefined") {
-          var tiles = csvFileLayers.layers[layerIdx]._tileView._tiles;
+        var layer = csvFileLayers.layerById[layerId];
+
+        if (layer) {
+          var tiles = layer._tileView._tiles;
           var key = Object.keys(tiles)[0];
           // Checking point count is a special case when we are only displaying a chart and nothing on the main map
-          dataLoaded = key && csvFileLayers.layers[layerIdx].showGraph && (tiles[key]._ready || tiles[key]._pointCount == 0);
+          dataLoaded = key && layer.showGraph && (tiles[key]._ready || tiles[key]._pointCount == 0);
         }
         if (dataLoaded && $target.is(':checked') && !$target.data("has-graph")) {
           var layerId = tiles[key].layerId;
