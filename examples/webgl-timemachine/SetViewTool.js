@@ -44,8 +44,8 @@
 
       // Thumbnail tool
       // TODO: find a way to generate a new one correctly, currently there is a bug that the newly created one will be placed below the video tiles
-      thumbnail_tool = timelapse.getThumbnailTool();
-      //thumbnail_tool = new ThumbnailTool(timelapse, {});
+      //thumbnail_tool = timelapse.getThumbnailTool();
+      thumbnail_tool = new ThumbnailTool(timelapse, {paneZindex: 15, id: "set-view-thumbnail-tool"});
 
       // Toggle view
       $("#" + container_id + " .set-view-tool-toggle-view-button").on("click", function () {
