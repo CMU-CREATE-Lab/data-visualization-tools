@@ -103,13 +103,11 @@
 .custom-button:not(:disabled):hover {
   background-color: #4d4d4d;
   border: 1px solid #4d4d4d;
-  box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.3);
 }
 
 .custom-button:not(:disabled):active {
   background-color: #4d4d4d;
   border: 1px solid #4d4d4d;
-  box-shadow: none;
 }
 
 .custom-button:disabled {
@@ -262,6 +260,13 @@
   width: 30%;
 }
 
+.story-editor .ui-widget-overlay {
+  background: black none;
+  opacity: 0.8;
+  position: absolute;
+  border: 1px solid black;
+}
+
 .custom-radio {
   padding: 5px 8px;
   text-align: center;
@@ -370,4 +375,92 @@
   opacity: 1;
   -webkit-transform: scale(1);
   transform: scale(1);
+}
+
+.custom-dialog {
+  background: white;
+  padding: 0;
+  margin: 0;
+  border-radius: 2px;
+}
+
+.custom-dialog .ui-dialog-titlebar {
+  background: white;
+  border: 0;
+  border-bottom: 1px solid #aaaaaa;
+  padding: 1.1em 1.2em 1.2em 1.2em;
+}
+
+.custom-dialog .ui-dialog-titlebar .ui-button.ui-dialog-titlebar-close {
+  background: white none !important;
+  border: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  position: absolute !important;
+  right: 0.7em !important;
+  top: 1em !important;
+}
+
+.custom-dialog .ui-dialog-titlebar .ui-button.ui-dialog-titlebar-close:hover {
+  background: white none !important;
+  border: 0 !important;
+}
+
+.custom-dialog .ui-dialog-titlebar .ui-button.ui-dialog-titlebar-close:active {
+  background: white none !important;
+  border: 0 !important;
+}
+
+.custom-dialog .ui-dialog-title {
+  font-size: 16px;
+}
+
+.custom-dialog .ui-dialog-content {
+  padding: 0.7em 1.2em 0.7em 1.2em;
+}
+
+.custom-dialog .ui-dialog-buttonpane {
+  margin: 0;
+  padding: 1em 1em 1em 1em;
+}
+
+.custom-dialog .ui-dialog-buttonpane .ui-button {
+  margin: 0 0 0 0.7em;
+}
+
+.custom-dialog .ui-button {
+  border: 1px solid #7d7d7d;
+  background: #7d7d7d none;
+  color: white;
+  border-radius: 2px;
+}
+
+.custom-dialog .ui-button:not(:disabled):hover {
+  background-color: #4d4d4d;
+  border: 1px solid #4d4d4d;
+}
+
+.custom-dialog .ui-button:not(:disabled):active {
+  background-color: #4d4d4d;
+  border: 1px solid #4d4d4d;
+}
+
+.custom-dialog .ui-dialog-buttonpane .ui-button.ui-delete-button {
+  background-color: #dc3545;
+  border: 1px solid #dc3545;
+}
+
+.custom-dialog .ui-dialog-buttonpane .ui-button.ui-delete-button:not(:disabled):hover {
+  background-color: #a71120;
+  border: 1px solid #a71120;
+}
+
+.custom-dialog .ui-dialog-buttonpane .ui-button.ui-delete-button:not(:disabled):active {
+  background-color: #a71120;
+  border: 1px solid #a71120;
+}
+
+.custom-dialog .ui-dialog-content .ui-icon-alert {
+  float: left;
+  margin: 1px 5px 0 0;
 }

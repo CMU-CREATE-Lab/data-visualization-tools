@@ -17,7 +17,8 @@
     var $container = $("#" + container_id);
     var $this;
     var $intro, $theme_metadata, $story_metadata, $waypoints, $load;
-    var $waypoints_accordion, $waypoint_template;
+    var $waypoints_accordion, $waypoint_template, $waypoint_delete_dialog;
+    var $want_to_delete_tab;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -141,21 +142,56 @@
         if (n == 1) $current_tab.find(".story-editor-delete-waypoint").prop("disabled", false);
       });
       $waypoint_tab.find(".story-editor-delete-waypoint").on("click", function () {
-        // Delete the current tab
-        $(this).closest(".story-editor-accordion-tab").remove();
-        $waypoints_accordion.accordion("option", "active", false);
-        // Disable the delete button of the active tab if there is only one tab left
-        var $tabs = $waypoints_accordion.find(".story-editor-accordion-tab");
-        if ($tabs.length == 1) $tabs.find(".story-editor-delete-waypoint").prop("disabled", true);
+        $waypoint_delete_dialog.dialog("open");
+        $want_to_delete_tab = $(this).closest(".story-editor-accordion-tab");
       });
       $waypoint_tab.find(".story-editor-set-waypoint-title").on("change", function () {
         // Set the title text of the tab
         var $ui = $(this);
         var $tab = $ui.closest(".story-editor-accordion-tab");
-        $tab.find(".story-editor-waypoint-title").text($ui.val());
+        $tab.find(".story-editor-waypoint-title-text").text($ui.val());
       });
       $waypoint_template = $waypoint_tab.clone(true, true);
       $waypoint_tab.find(".story-editor-delete-waypoint").prop("disabled", true);
+
+      // The confirm dialog when deleting a waypoint
+      $waypoint_delete_dialog = $("#" + container_id + " .story-editor-delete-waypoint-confirm-dialog")
+      $waypoint_delete_dialog.dialog({
+        appendTo: $this,
+        autoOpen: false,
+        resizable: false,
+        height: "auto",
+        draggable: false,
+        width: 245,
+        modal: true,
+        position: {my: "center", at: "center", of: $this},
+        classes: {"ui-dialog": "custom-dialog"}, // this is for jquery 1.12 and after
+        dialogClass: "custom-dialog", // this is for before jquery 1.12
+        buttons: {
+          "Delete": {
+            class: "ui-delete-button",
+            text: "Delete",
+            click: function () {
+              $(this).dialog("close");
+              // Delete the current tab
+              $want_to_delete_tab.remove();
+              $waypoints_accordion.accordion("option", "active", false);
+              $want_to_delete_tab = null;
+              // Disable the delete button of the active tab if there is only one tab left
+              var $tabs = $waypoints_accordion.find(".story-editor-accordion-tab");
+              if ($tabs.length == 1) $tabs.find(".story-editor-delete-waypoint").prop("disabled", true);
+            }
+          },
+          "Cancel": {
+            class: "ui-cancel-button",
+            text: "Cancel",
+            click: function () {
+              $(this).dialog("close");
+              $want_to_delete_tab = null;
+            }
+          }
+        }
+      });
     }
 
     function createLoadUI() {

@@ -50,7 +50,7 @@
         <p>Click on the following tabs to <span class="highlight-text">choose</span> and <span class="highlight-text">edit</span> waypoints. To <span class="highlight-text">reorder</span> waypoints, drag and drop the tabs.</p>
         <div class="story-editor-accordion add-bottom-margin">
           <div class="story-editor-accordion-tab">
-            <h3 class="story-editor-waypoint-title">Title</h3>
+            <h3 class="story-editor-waypoint-title"><span class="story-editor-waypoint-title-text">Title</span></h3>
             <div class="story-editor-waypoint-content">
               <span>Waypoint title:</span>
               <input type="text" class="custom-textbox story-editor-set-waypoint-title add-bottom-margin-small" maxlength="20" value="Title" placeholder="(max 20 characters)">
@@ -74,6 +74,9 @@
           <button class="custom-button custom-button-primary next-button">Save</button>
         </div>
       </div>
+    </div>
+    <div class="story-editor-delete-waypoint-confirm-dialog custom-dialog hide" title="Delete waypoint?">
+      <p><span class="ui-icon ui-icon-alert"></span>This waypoint will be deleted.</p>
     </div>
     <div class="story-editor-load hide">
       <div class="story-editor-action">
