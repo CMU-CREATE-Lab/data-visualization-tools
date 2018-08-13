@@ -25,7 +25,7 @@ var EARTH_TIMELAPSE_CONFIG = {
   "enableRecordingMode" : false,
   "launchMode" : "maximized",
   "clearProfile" : true,
-  "rootTilePath" : "http://tiles.cmucreatelab.org/earthtimelapse/data/",
+  "rootTilePath" : "https://tiles.earthtime.org",
   "waypointSliderContentPath" : "",
   "showMonthlyRefugees": false,
   "showAnnualRefugees": false,
