@@ -55,34 +55,46 @@
   font-size: 14px;
 }
 
-.set-view-tool-speed-slow-button {
+.set-view-tool-speed-slow-button label {
   width: 33%;
 }
 
-.set-view-tool-speed-medium-button {
-  width: 34%;
+.set-view-tool-speed-medium-button label {
+  width: 35%;
 }
 
-.set-view-tool-speed-fast-button {
+.set-view-tool-speed-fast-button label {
   width: 33%;
 }
 
 .set-view-tool-start-time-button {
   width: 33%;
+  border-left: 0;
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
 }
 
 .set-view-tool-end-time-button {
   width: 33%;
+  border-left: 0;
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
 }
 
 .set-view-tool-start-time {
   width: 34%;
   cursor: default;
+  border-right: 0;
+  border-bottom-right-radius: 0;
+  border-top-right-radius: 0;
 }
 
 .set-view-tool-end-time {
   width: 34%;
   cursor: default;
+  border-right: 0;
+  border-bottom-right-radius: 0;
+  border-top-right-radius: 0;
 }
 
 .set-view-tool-start-time-text {
@@ -94,9 +106,9 @@
 }
 
 .set-view-tool-start-delay-time {
-  width: 33%;
+  width: 31%;
 }
 
 .set-view-tool-end-delay-time {
-  width: 33%;
+  width: 31%;
 }

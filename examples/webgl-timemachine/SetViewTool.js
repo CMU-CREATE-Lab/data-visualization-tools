@@ -12,6 +12,7 @@
     //
     var container_id = settings["container_id"];
     var on_view_set_callback = settings["on_view_set_callback"];
+    var on_hide_callback = settings["on_hide_callback"];
     var $container = $("#" + container_id);
     var $this;
     var $start_time, $end_time, $start_time_button, $end_time_button;
@@ -64,7 +65,6 @@
       });
 
       // Select playback speed
-      var c = "custom-radio-active";
       $speed_slow_button = $("#" + container_id + " .set-view-tool-speed-slow-button");
       $speed_slow_button_radio = $speed_slow_button.find("input[type='radio']");
       $speed_medium_button = $("#" + container_id + " .set-view-tool-speed-medium-button");
@@ -72,25 +72,16 @@
       $speed_fast_button = $("#" + container_id + " .set-view-tool-speed-fast-button");
       $speed_fast_button_radio = $speed_fast_button.find("input[type='radio']");
       $speed_slow_button.on("click", function () {
-        removeClass($speed_medium_button, c);
-        removeClass($speed_fast_button, c);
-        addClass($speed_slow_button, c);
         $speed_medium_button_radio.prop("checked", false);
         $speed_fast_button_radio.prop("checked", false);
         $speed_slow_button_radio.prop("checked", true);
       });
       $speed_medium_button.on("click", function () {
-        removeClass($speed_slow_button, c);
-        removeClass($speed_fast_button, c);
-        addClass($speed_medium_button, c);
         $speed_slow_button_radio.prop("checked", false);
         $speed_fast_button_radio.prop("checked", false);
         $speed_medium_button_radio.prop("checked", true);
       });
       $speed_fast_button.on("click", function () {
-        removeClass($speed_slow_button, c);
-        removeClass($speed_medium_button, c);
-        addClass($speed_fast_button, c);
         $speed_slow_button_radio.prop("checked", false);
         $speed_medium_button_radio.prop("checked", false);
         $speed_fast_button_radio.prop("checked", true);
@@ -162,6 +153,9 @@
     var hide = function () {
       thumbnail_tool.hideCropBox();
       $this.hide();
+      if (typeof on_hide_callback === "function") {
+        on_hide_callback();
+      }
     };
     this.hide = hide;
 

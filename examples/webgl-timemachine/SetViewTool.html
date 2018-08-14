@@ -8,30 +8,30 @@
     <p>Record the waypoint <span class="highlight-text">start time</span> that corresponds to the EarthTime viewer:</p>
     <div class="even-space-buttons add-bottom-margin">
       <span class="set-view-tool-start-time-text">Start time:</span>
-      <input type="text" readonly class="custom-textbox custom-radio-left set-view-tool-start-time">
-      <button class="custom-button custom-button-primary custom-radio-right set-view-tool-start-time-button">Record</button>
+      <input type="text" readonly class="custom-textbox set-view-tool-start-time">
+      <button class="custom-button custom-button-primary set-view-tool-start-time-button">Record</button>
     </div>
     <p>You can also record a different <span class="highlight-text">end time</span> to make the view a video.</p>
     <div class="even-space-buttons add-bottom-margin">
       <span class="set-view-tool-end-time-text">End Time:</span>
-      <input type="text" readonly class="custom-textbox custom-radio-left set-view-tool-end-time">
-      <button class="custom-button custom-button-primary custom-radio-right set-view-tool-end-time-button">Record</button>
+      <input type="text" readonly class="custom-textbox set-view-tool-end-time">
+      <button class="custom-button custom-button-primary set-view-tool-end-time-button">Record</button>
     </div>
     <div class="set-view-tool-set-speed-container">
       <p>Set the playback <span class="highlight-text">speed</span> and <span class="highlight-text">delays</span>:</p>
       <div class="even-space-buttons add-bottom-margin-small">
-        <button class="custom-radio custom-radio-left set-view-tool-speed-slow-button">
-          <input type="radio" name="playback_speed" value="slow" id="set-view-tool-speed-slow-input">
-          <label for="set-view-tool-speed-slow-input">Slow</label>
-        </button>
-        <button class="custom-radio custom-radio-middle custom-radio-active set-view-tool-speed-medium-button">
-          <input type="radio" name="playback_speed" value="medium" id="set-view-tool-speed-medium-input" checked>
-          <label for="set-view-tool-speed-medium-input">Medium</label>
-        </button>
-        <button class="custom-radio custom-radio-right set-view-tool-speed-fast-button">
-          <input type="radio" name="playback_speed" value="fast" id="set-view-tool-speed-fast-input">
-          <label for="set-view-tool-speed-fast-input">Fast</label>
-        </button>
+        <div class="custom-radio custom-radio-left set-view-tool-speed-slow-button">
+          <input type="radio" name="playback-speed" value="slow" id="set-view-tool-speed-slow-input">
+          <label for="set-view-tool-speed-slow-input" class="noselect">Slow</label>
+        </div>
+        <div class="custom-radio custom-radio-middle set-view-tool-speed-medium-button">
+          <input type="radio" name="playback-speed" value="medium" id="set-view-tool-speed-medium-input" checked>
+          <label for="set-view-tool-speed-medium-input" class="noselect">Medium</label>
+        </div>
+        <div class="custom-radio custom-radio-right set-view-tool-speed-fast-button">
+          <input type="radio" name="playback-speed" value="fast" id="set-view-tool-speed-fast-input">
+          <label for="set-view-tool-speed-fast-input" class="noselect">Fast</label>
+        </div>
       </div>
       <div class="even-space-buttons add-bottom-margin-small">
         <span>Delay at start (seconds):</span>

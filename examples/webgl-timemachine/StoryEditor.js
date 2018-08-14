@@ -19,6 +19,7 @@
     var $intro, $theme_metadata, $story_metadata, $waypoints, $load;
     var $waypoints_accordion, $waypoint_template, $waypoint_delete_dialog;
     var $want_to_delete_tab;
+    var $current_thumbnail_preview;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -54,9 +55,12 @@
       set_view_tool = new SetViewTool(timelapse, {
         container_id: container_id,
         on_view_set_callback: function (url) {
+          setThumbnailPreview(url);
           $this.show();
           set_view_tool.hide();
-          console.log(url);
+        },
+        on_hide_callback: function () {
+          $current_thumbnail_preview = null;
         }
       });
     }
@@ -92,8 +96,16 @@
       });
       $story_metadata.find(".story-editor-set-cover-view-button").on("click", function () {
         set_view_tool.show();
+        $current_thumbnail_preview = $story_metadata.find(".story-editor-thumbnail-preview");
         $this.hide();
       });
+      $story_metadata.find(".story-editor-thumbnail-preview").hide();
+    }
+
+    function setThumbnailPreview(url) {
+      $current_thumbnail_preview.show();
+      $current_thumbnail_preview.prop("href", url);
+      $current_thumbnail_preview.find("img").prop("src", url);
     }
 
     function createWaypointUI() {
@@ -126,6 +138,8 @@
       var $waypoint_tab = $waypoints_accordion.find(".story-editor-accordion-tab");
       $waypoint_tab.find(".story-editor-set-waypoint-view").on("click", function () {
         set_view_tool.show();
+        var $current_tab = $(this).closest(".story-editor-accordion-tab");
+        $current_thumbnail_preview = $current_tab.find(".story-editor-thumbnail-preview");
         $this.hide();
       });
       $waypoint_tab.find(".story-editor-add-waypoint").on("click", function () {
@@ -151,6 +165,7 @@
         var $tab = $ui.closest(".story-editor-accordion-tab");
         $tab.find(".story-editor-waypoint-title-text").text($ui.val());
       });
+      $waypoint_tab.find(".story-editor-thumbnail-preview").hide();
       $waypoint_template = $waypoint_tab.clone(true, true);
       $waypoint_tab.find(".story-editor-delete-waypoint").prop("disabled", true);
 
