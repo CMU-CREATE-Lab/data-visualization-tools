@@ -59,6 +59,10 @@
           $this.show();
           set_view_tool.hide();
         },
+        on_cancel_callback: function () {
+          $this.show();
+          set_view_tool.hide();
+        },
         on_hide_callback: function () {
           $current_thumbnail_preview = null;
         }

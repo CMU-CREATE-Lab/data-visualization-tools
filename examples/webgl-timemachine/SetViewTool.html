@@ -1,48 +1,67 @@
-<div class="set-view-tool noselect hide">
-  <div class="set-view-tool-head">
+<div class="set-view-tool story-editor noselect hide">
+  <div class="story-editor-head">
     <p>Set View</p>
   </div>
-  <div class="set-view-tool-content">
-    <p><span class="highlight-text">Pan and zoom</span> on the EarthTime viewer to set the waypoint view. You can also toggle landscape and portrait views.</p>
-    <button class="custom-button full-width-button custom-button-primary set-view-tool-toggle-view-button add-bottom-margin">Toggle Views</button>
-    <p>Record the waypoint <span class="highlight-text">start time</span> that corresponds to the EarthTime viewer:</p>
-    <div class="even-space-buttons add-bottom-margin">
-      <span class="set-view-tool-start-time-text">Start time:</span>
-      <input type="text" readonly class="custom-textbox set-view-tool-start-time">
-      <button class="custom-button custom-button-primary set-view-tool-start-time-button">Record</button>
-    </div>
-    <p>You can also record a different <span class="highlight-text">end time</span> to make the view a video.</p>
-    <div class="even-space-buttons add-bottom-margin">
-      <span class="set-view-tool-end-time-text">End Time:</span>
-      <input type="text" readonly class="custom-textbox set-view-tool-end-time">
-      <button class="custom-button custom-button-primary set-view-tool-end-time-button">Record</button>
-    </div>
-    <div class="set-view-tool-set-speed-container">
-      <p>Set the playback <span class="highlight-text">speed</span> and <span class="highlight-text">delays</span>:</p>
-      <div class="even-space-buttons add-bottom-margin-small">
-        <div class="custom-radio custom-radio-left set-view-tool-speed-slow-button">
-          <input type="radio" name="playback-speed" value="slow" id="set-view-tool-speed-slow-input">
-          <label for="set-view-tool-speed-slow-input" class="noselect">Slow</label>
+  <div class="story-editor-content">
+      <div class="story-editor-action">
+        <p>1. <span class="highlight-text">Pan and zoom</span> on the EarthTime viewer to set the view. You can also <span class="highlight-text">toggle</span> landscape and portrait views.</p>
+        <button class="custom-button full-width-button custom-button-primary set-view-tool-toggle-view-button add-bottom-margin">Toggle Views</button>
+        <p>2. Set the waypoint <span class="highlight-text">start time</span> that corresponds to the EarthTime viewer:</p>
+        <div class="even-space-content add-bottom-margin">
+          <span class="set-view-tool-start-time-text">Start:</span>
+          <input type="text" class="custom-textbox set-view-tool-start-time" readonly>
+          <button class="custom-button custom-button-primary set-view-tool-start-time-button">Set</button>
         </div>
-        <div class="custom-radio custom-radio-middle set-view-tool-speed-medium-button">
-          <input type="radio" name="playback-speed" value="medium" id="set-view-tool-speed-medium-input" checked>
-          <label for="set-view-tool-speed-medium-input" class="noselect">Medium</label>
+        <p>3. You can click on the "Animate" button to enable animation settings.</p>
+        <div class="left-align-content add-bottom-margin">
+          <div class="custom-radio custom-radio-left set-view-tool-set-to-image-button">
+            <input type="radio" name="setting" value="image" id="set-view-tool-set-to-image-input" checked>
+            <label for="set-view-tool-set-to-image-input" class="noselect">Static</label>
+          </div>
+          <div class="custom-radio custom-radio-right set-view-tool-set-to-video-button">
+            <input type="radio" name="setting" value="video" id="set-view-tool-set-to-video-input">
+            <label for="set-view-tool-set-to-video-input" class="noselect">Animated</label>
+          </div>
         </div>
-        <div class="custom-radio custom-radio-right set-view-tool-speed-fast-button">
-          <input type="radio" name="playback-speed" value="fast" id="set-view-tool-speed-fast-input">
-          <label for="set-view-tool-speed-fast-input" class="noselect">Fast</label>
+        <div class="set-view-tool-video-settings hide">
+          <p>4. Set the waypoint <span class="highlight-text">end time</span> that corresponds to the EarthTime viewer:</p>
+          <div class="even-space-content add-bottom-margin">
+            <span class="set-view-tool-end-time-text">End:</span>
+            <input type="text" class="custom-textbox set-view-tool-end-time" readonly>
+            <button class="custom-button custom-button-primary set-view-tool-end-time-button">Set</button>
+          </div>
+          <p>5. Set the playback <span class="highlight-text">speed</span> of the view:</p>
+          <div class="even-space-content add-bottom-margin">
+            <div class="custom-radio custom-radio-left set-view-tool-speed-slow-button">
+              <input type="radio" name="playback-speed" value="slow" id="set-view-tool-speed-slow-input">
+              <label for="set-view-tool-speed-slow-input" class="noselect">Slow</label>
+            </div>
+            <div class="custom-radio custom-radio-middle set-view-tool-speed-medium-button">
+              <input type="radio" name="playback-speed" value="medium" id="set-view-tool-speed-medium-input" checked>
+              <label for="set-view-tool-speed-medium-input" class="noselect">Medium</label>
+            </div>
+            <div class="custom-radio custom-radio-right set-view-tool-speed-fast-button">
+              <input type="radio" name="playback-speed" value="fast" id="set-view-tool-speed-fast-input">
+              <label for="set-view-tool-speed-fast-input" class="noselect">Fast</label>
+            </div>
+          </div>
+          <p>6. Set the playback <span class="highlight-text">delays</span> of the view:</p>
+          <div class="even-space-content add-bottom-margin-small">
+            <span>Delay at start (seconds):</span>
+            <input type="text" class="custom-textbox custom-radio-right set-view-tool-start-delay-time" value="0">
+          </div>
+          <div class="even-space-content add-bottom-margin">
+            <span>Delay at end (seconds):</span>
+            <input type="text" class="custom-textbox custom-radio-right set-view-tool-end-delay-time" value="1">
+          </div>
         </div>
       </div>
-      <div class="even-space-buttons add-bottom-margin-small">
-        <span>Delay at start (seconds):</span>
-        <input type="text" class="custom-textbox custom-radio-right set-view-tool-start-delay-time" value="0">
+      <div class="story-editor-nav">
+        <p>Click "Set View" to set the view and return to the story editor.</p>
+        <div class="even-space-content">
+          <button class="custom-button set-view-tool-cancel-button back-button">Cancel</button>
+          <button class="custom-button custom-button-primary set-view-tool-set-view-button next-button">Set View</button>
+        </div>
       </div>
-      <div class="even-space-buttons add-bottom-margin">
-        <span>Delay at end (seconds):</span>
-        <input type="text" class="custom-textbox custom-radio-right set-view-tool-end-delay-time" value="1">
-      </div>
-    </div>
-    <p>Click the following button to <span class="highlight-text">set the view</span> and return to the story editor.</p>
-    <button class="custom-button full-width-button custom-button-primary set-view-tool-set-view-button">Set View and Return</button>
   </div>
 </div>
