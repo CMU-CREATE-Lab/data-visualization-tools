@@ -11,28 +11,29 @@
 }
 
 .set-view-tool-start-time-button {
-  width: 21%;
+  width: 27%;
   border-left: 0;
   border-bottom-left-radius: 0;
   border-top-left-radius: 0;
 }
 
+
 .set-view-tool-end-time-button {
-  width: 21%;
+  width: 27%;
   border-left: 0;
   border-bottom-left-radius: 0;
   border-top-left-radius: 0;
 }
 
 .set-view-tool-start-time {
-  width: 62%;
+  width: 56%;
   border-right: 0;
   border-bottom-right-radius: 0;
   border-top-right-radius: 0;
 }
 
 .set-view-tool-end-time {
-  width: 62%;
+  width: 56%;
   border-right: 0;
   border-bottom-right-radius: 0;
   border-top-right-radius: 0;
