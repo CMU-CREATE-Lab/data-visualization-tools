@@ -17,9 +17,8 @@
     var $container = $("#" + container_id);
     var $this;
     var $start_time, $end_time, $start_time_button, $end_time_button;
-    var $speed_slow_button, $speed_medium_button, $speed_fast_button;
-    var $speed_slow_button_radio, $speed_medium_button_radio, $speed_fast_button_radio;
-    var $video_settings;
+    var $speed_slow_radio, $speed_medium_radio, $speed_fast_radio;
+    var $video_settings, $set_to_image_radio, $set_to_video_radio;
     var thumbnail_tool;
     var start_frame_number, end_frame_number;
 
@@ -57,15 +56,15 @@
 
       // Video settings
       $video_settings = $("#" + container_id + " .set-view-tool-video-settings");
-      $("#" + container_id + " .set-view-tool-set-to-image-button").on("click", function () {
-        console.log("image");
-        $video_settings.hide();
-      });
-      $("#" + container_id + " .set-view-tool-set-to-video-button").on("click", function () {
-        console.log("video");
-        $video_settings.show();
-        // TODO: Check the corresponding box based on the current setting of the viewer
-        // timelapse.getPlaybackRate()
+      $set_to_image_radio = $("#" + container_id + " #set-view-tool-set-to-image-input");
+      $set_to_video_radio = $("#" + container_id + " #set-view-tool-set-to-video-input");
+      $("#" + container_id + " .set-view-tool-type input:radio[name='type']").change(function () {
+        var val = $(this).val();
+        if (val == "video") {
+          $video_settings.show();
+        } else {
+          $video_settings.hide();
+        }
       });
 
       // Set start time and end time
@@ -79,23 +78,18 @@
       });
 
       // Select playback speed
-      $speed_slow_button = $("#" + container_id + " .set-view-tool-speed-slow-button");
-      $speed_slow_button_radio = $speed_slow_button.find("input[type='radio']");
-      $speed_medium_button = $("#" + container_id + " .set-view-tool-speed-medium-button");
-      $speed_medium_button_radio = $speed_medium_button.find("input[type='radio']");
-      $speed_fast_button = $("#" + container_id + " .set-view-tool-speed-fast-button");
-      $speed_fast_button_radio = $speed_fast_button.find("input[type='radio']");
-      $speed_slow_button.on("click", function () {
-        console.log("slow");
-        // set speed to slow
-      });
-      $speed_medium_button.on("click", function () {
-        console.log("medium");
-        // set speed to medium
-      });
-      $speed_fast_button.on("click", function () {
-        console.log("fast");
-        // set speed to fast
+      $speed_slow_radio = $("#" + container_id + " #set-view-tool-speed-slow-input");
+      $speed_medium_radio = $("#" + container_id + " #set-view-tool-speed-medium-input");
+      $speed_fast_radio = $("#" + container_id + " #set-view-tool-speed-fast-input");
+      $("#" + container_id + " .set-view-tool-speed input:radio[name='playback-speed']").change(function () {
+        var val = $(this).val();
+        if (val == "slow") {
+          // set speed to slow
+        } else if (val == "fast") {
+          // set speed to fast
+        } else {
+          // set speed to medium
+        }
       });
 
       // Set view
@@ -107,6 +101,19 @@
       $("#" + container_id + " .set-view-tool-cancel-button").on("click", function () {
         cancel();
       });
+    }
+
+    function syncSettingsToViewer() {
+      var ps = timelapse.getPlaybackRate();
+      if (ps == 0.25) {
+        $speed_slow_radio.prop("checked", true).trigger("change");
+      } else if (ps == 1) {
+        $speed_fast_radio.prop("checked", true).trigger("change");
+      } else {
+        $speed_medium_radio.prop("checked", true).trigger("change");
+      }
+      setStartTime();
+      setEndTime();
     }
 
     function cancel() {
@@ -142,9 +149,18 @@
     }
 
     function setView() {
-      var url = thumbnail_tool.getURL()["url"]; // TODO: not sure why this url does not work
+      var url_landscape = thumbnail_tool.getURL();
+      toggleView();
+      var url_portrait = thumbnail_tool.getURL();
+      toggleView();
+      if (url_landscape["args"]["width"] < url_landscape["args"]["height"]) {
+        var tmp = url_landscape;
+        url_landscape = url_portrait;
+        url_portrait = tmp;
+      }
+      // Check which one is the landscape view
       if (typeof on_view_set_callback === "function") {
-        on_view_set_callback(url);
+        on_view_set_callback(url_landscape["url"], url_portrait["url"]);
       }
     }
 
@@ -156,13 +172,6 @@
       if (!$e.hasClass(c)) $e.addClass(c)
     }
 
-    function reset() {
-      setStartTime();
-      setEndTime();
-    }
-
-    //timelapse.getShareView()
-
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Privileged methods
@@ -170,7 +179,7 @@
     var show = function () {
       thumbnail_tool.forceAspectRatio(16, 9);
       thumbnail_tool.showCropBox();
-      reset();
+      syncSettingsToViewer();
       $this.show();
     };
     this.show = show;

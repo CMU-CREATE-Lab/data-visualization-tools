@@ -19,7 +19,7 @@
     var $intro, $theme_metadata, $story_metadata, $waypoints, $load;
     var $waypoints_accordion, $waypoint_template, $waypoint_delete_dialog;
     var $want_to_delete_tab;
-    var $current_thumbnail_preview;
+    var $current_thumbnail_preview_container;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -54,8 +54,8 @@
       // For setting a view from the timelapse viewer
       set_view_tool = new SetViewTool(timelapse, {
         container_id: container_id,
-        on_view_set_callback: function (url) {
-          setThumbnailPreview(url);
+        on_view_set_callback: function (url_landscape, url_portrait) {
+          setThumbnailPreview(url_landscape, url_portrait);
           $this.show();
           set_view_tool.hide();
         },
@@ -64,7 +64,7 @@
           set_view_tool.hide();
         },
         on_hide_callback: function () {
-          $current_thumbnail_preview = null;
+          $current_thumbnail_preview_container = null;
         }
       });
     }
@@ -100,16 +100,20 @@
       });
       $story_metadata.find(".story-editor-set-cover-view-button").on("click", function () {
         set_view_tool.show();
-        $current_thumbnail_preview = $story_metadata.find(".story-editor-thumbnail-preview");
+        $current_thumbnail_preview_container = $story_metadata.find(".story-editor-thumbnail-preview-container");
         $this.hide();
       });
-      $story_metadata.find(".story-editor-thumbnail-preview").hide();
+      $story_metadata.find(".story-editor-thumbnail-preview-container").hide();
     }
 
-    function setThumbnailPreview(url) {
-      $current_thumbnail_preview.show();
-      $current_thumbnail_preview.prop("href", url);
-      $current_thumbnail_preview.find("img").prop("src", url);
+    function setThumbnailPreview(url_landscape, url_portrait) {
+      $current_thumbnail_preview_container.show();
+      var $l = $current_thumbnail_preview_container.find(".story-editor-thumbnail-preview-landscape");
+      var $p = $current_thumbnail_preview_container.find(".story-editor-thumbnail-preview-portrait");
+      $l.prop("href", url_landscape);
+      $l.find("img").prop("src", url_landscape);
+      $p.prop("href", url_portrait);
+      $p.find("img").prop("src", url_portrait);
     }
 
     function createWaypointUI() {
@@ -143,7 +147,7 @@
       $waypoint_tab.find(".story-editor-set-waypoint-view").on("click", function () {
         set_view_tool.show();
         var $current_tab = $(this).closest(".story-editor-accordion-tab");
-        $current_thumbnail_preview = $current_tab.find(".story-editor-thumbnail-preview");
+        $current_thumbnail_preview_container = $current_tab.find(".story-editor-thumbnail-preview-container");
         $this.hide();
       });
       $waypoint_tab.find(".story-editor-add-waypoint").on("click", function () {
@@ -169,12 +173,12 @@
         var $tab = $ui.closest(".story-editor-accordion-tab");
         $tab.find(".story-editor-waypoint-title-text").text($ui.val());
       });
-      $waypoint_tab.find(".story-editor-thumbnail-preview").hide();
+      $waypoint_tab.find(".story-editor-thumbnail-preview-container").hide();
       $waypoint_template = $waypoint_tab.clone(true, true);
       $waypoint_tab.find(".story-editor-delete-waypoint").prop("disabled", true);
 
       // The confirm dialog when deleting a waypoint
-      $waypoint_delete_dialog = $("#" + container_id + " .story-editor-delete-waypoint-confirm-dialog")
+      $waypoint_delete_dialog = $("#" + container_id + " .story-editor-delete-waypoint-confirm-dialog");
       $waypoint_delete_dialog.dialog({
         appendTo: $this,
         autoOpen: false,

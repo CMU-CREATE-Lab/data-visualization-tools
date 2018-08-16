@@ -9,17 +9,17 @@
         <p>2. Set the waypoint <span class="highlight-text">start time</span> that corresponds to the EarthTime viewer:</p>
         <div class="even-space-content add-bottom-margin">
           <span class="set-view-tool-start-time-text">Start:</span>
-          <input type="text" class="custom-textbox set-view-tool-start-time" readonly>
+          <input type="text" class="custom-textbox set-view-tool-start-time" placeholder="Start time" readonly>
           <button class="custom-button custom-button-primary set-view-tool-start-time-button">Set</button>
         </div>
         <p>3. You can click on the "Animate" button to enable animation settings.</p>
-        <div class="left-align-content add-bottom-margin">
+        <div class="left-align-content add-bottom-margin set-view-tool-type">
           <div class="custom-radio custom-radio-left set-view-tool-set-to-image-button">
-            <input type="radio" name="setting" value="image" id="set-view-tool-set-to-image-input" checked>
+            <input type="radio" name="type" value="image" id="set-view-tool-set-to-image-input" checked>
             <label for="set-view-tool-set-to-image-input" class="noselect">Static</label>
           </div>
           <div class="custom-radio custom-radio-right set-view-tool-set-to-video-button">
-            <input type="radio" name="setting" value="video" id="set-view-tool-set-to-video-input">
+            <input type="radio" name="type" value="video" id="set-view-tool-set-to-video-input">
             <label for="set-view-tool-set-to-video-input" class="noselect">Animated</label>
           </div>
         </div>
@@ -27,11 +27,11 @@
           <p>4. Set the waypoint <span class="highlight-text">end time</span> that corresponds to the EarthTime viewer:</p>
           <div class="even-space-content add-bottom-margin">
             <span class="set-view-tool-end-time-text">End:</span>
-            <input type="text" class="custom-textbox set-view-tool-end-time" readonly>
+            <input type="text" class="custom-textbox set-view-tool-end-time" placeholder="End time" readonly>
             <button class="custom-button custom-button-primary set-view-tool-end-time-button">Set</button>
           </div>
           <p>5. Set the playback <span class="highlight-text">speed</span> of the view:</p>
-          <div class="even-space-content add-bottom-margin">
+          <div class="even-space-content add-bottom-margin set-view-tool-speed">
             <div class="custom-radio custom-radio-left set-view-tool-speed-slow-button">
               <input type="radio" name="playback-speed" value="slow" id="set-view-tool-speed-slow-input">
               <label for="set-view-tool-speed-slow-input" class="noselect">Slow</label>
@@ -48,11 +48,11 @@
           <p>6. Set the playback <span class="highlight-text">delays</span> of the view:</p>
           <div class="even-space-content add-bottom-margin-small">
             <span>Delay at start (seconds):</span>
-            <input type="text" class="custom-textbox custom-radio-right set-view-tool-start-delay-time" value="0">
+            <input type="text" class="custom-textbox custom-radio-right set-view-tool-start-delay-time" placeholder="Delay at start (seconds)" value="0">
           </div>
           <div class="even-space-content add-bottom-margin">
             <span>Delay at end (seconds):</span>
-            <input type="text" class="custom-textbox custom-radio-right set-view-tool-end-delay-time" value="1">
+            <input type="text" class="custom-textbox custom-radio-right set-view-tool-end-delay-time" placeholder="Delay at end (seconds)" value="1">
           </div>
         </div>
       </div>

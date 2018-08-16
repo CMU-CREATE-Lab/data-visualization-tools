@@ -91,6 +91,12 @@
   align-items: center;
 }
 
+.even-space-content-align-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
 .back-button {
   width: 47%;
 }
@@ -145,26 +151,6 @@
   color: black;
 }
 
-.story-editor-accordion .ui-accordion-header {
-  padding-top: 5px;
-  padding-bottom: 5px;
-  font-size: 14px !important;
-}
-
-.story-editor-accordion .ui-accordion-header-active {
-  border: 1px solid #005cbf !important;
-  background-color: #007bff !important;
-  color: white !important;
-}
-
-.story-editor-accordion .ui-accordion-header-active .ui-icon {
-  background-image: url(../../images/ui-icons_ffffff_256x240.png) !important;
-}
-
-.story-editor-accordion .ui-accordion-content {
-  padding: 1em 1.5em;
-}
-
 .story-editor-set-waypoint-view {
   width: 36%;
 }
@@ -174,7 +160,7 @@
 }
 
 .story-editor-delete-waypoint {
-  width: 30%;
+  width: 31%;
 }
 
 .story-editor .ui-widget-overlay {
@@ -184,26 +170,53 @@
   border: 1px solid black;
 }
 
-.story-editor-thumbnail-preview {
-  width: 100%;
+.left-align-content {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.story-editor-thumbnail-preview-container {
+  position: relative;
+}
+
+.story-editor-thumbnail-preview-text {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 60%;
+}
+
+.story-editor-story-metadata .story-editor-thumbnail-preview-landscape {
+  min-height: 83px;
+}
+
+.story-editor-story-metadata .story-editor-thumbnail-preview-portrait {
+  min-height: 156px;
+}
+
+.story-editor-waypoints .story-editor-thumbnail-preview-landscape {
+  min-height: 69px;
+}
+
+.story-editor-waypoints .story-editor-thumbnail-preview-portrait {
+  min-height: 129px;
+}
+
+.story-editor-thumbnail-preview-landscape {
+  width: 60%;
   height: auto;
   border: 1px solid #4d4d4d;
   background: url(../../images/loading.gif) #000 center no-repeat;
   box-sizing: border-box;
 }
 
-.story-editor-story-metadata .story-editor-thumbnail-preview {
-  min-height: 141px;
-}
-
-.story-editor-waypoints .story-editor-thumbnail-preview {
-  min-height: 118px;
-}
-
-.left-align-content {
-  display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
+.story-editor-thumbnail-preview-portrait {
+  width: 36%;
+  height: auto;
+  border: 1px solid #4d4d4d;
+  background: url(../../images/loading.gif) #000 center no-repeat;
+  box-sizing: border-box;
 }
 
 .image {
@@ -219,6 +232,26 @@
   display: table-cell;
   overflow: hidden;
   border-radius: 2px;
+}
+
+.custom-accordion .ui-accordion-header {
+  padding-top: 5px;
+  padding-bottom: 5px;
+  font-size: 14px !important;
+}
+
+.custom-accordion .ui-accordion-header-active {
+  border: 1px solid #005cbf !important;
+  background-color: #007bff !important;
+  color: white !important;
+}
+
+.custom-accordion .ui-accordion-header-active .ui-icon {
+  background-image: url(../../images/ui-icons_ffffff_256x240.png) !important;
+}
+
+.custom-accordion .ui-accordion-content {
+  padding: 15px 20px 17px 20px;
 }
 
 .custom-textbox {
