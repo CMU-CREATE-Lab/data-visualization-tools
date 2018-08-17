@@ -1,107 +1,107 @@
-<div class="story-editor noselect hide">
-  <div class="story-editor-head">
+<div class="wizard noselect hide story-editor">
+  <div class="wizard-head">
     <p>Story Editor</p>
   </div>
-  <div class="story-editor-content">
+  <div class="wizard-body">
     <div class="story-editor-intro">
       <p>The <span class="highlight-text">story editor</span> is a tool for creating and sharing stories on EarthTime. The created story can be downloaded and imported into the EarthTime viewer.</p>
-      <button class="custom-button full-width-button custom-button-primary story-editor-create-button add-bottom-margin">Create a New Story</button>
+      <button class="custom-button full-width-button custom-button-primary add-bottom-margin story-editor-create-button">Create a New Story</button>
       <p>You can also add and edit stories that were created before. A public link to the stories is required.</p>
       <button class="custom-button full-width-button custom-button-primary story-editor-edit-button">Add or Edit Stories</button>
     </div>
-    <div class="story-editor-theme-metadata hide">
-      <div class="story-editor-action">
+    <div class="hide story-editor-theme-metadata">
+      <div class="wizard-body-top">
         <p>1. Each story belongs to a theme (e.g., Earth Day). Enter the theme <span class="highlight-text">title</span>:</p>
-        <input type="text" class="theme-title-textbox custom-textbox add-bottom-margin" maxlength="40" placeholder="theme title (max 40 characters)">
+        <input type="text" class="custom-textbox add-bottom-margin theme-title-textbox" maxlength="40" placeholder="theme title (max 40 characters)">
         <p>2. Enter the <span class="highlight-text">description</span> for the theme:</p>
-        <textarea class="theme-content-textbox custom-textbox large-textbox add-bottom-margin" maxlength="300" placeholder="theme description (max 300 characters)"></textarea>
+        <textarea class="custom-textbox large-textbox add-bottom-margin theme-content-textbox" maxlength="300" placeholder="theme description (max 300 characters)"></textarea>
       </div>
-      <div class="story-editor-nav">
+      <div class="wizard-body-bottom">
         <p>Click the "Next" button to add a story to this theme.</p>
         <div class="even-space-content">
-          <button class="custom-button back-button">Back</button>
-          <button class="custom-button custom-button-primary next-button">Next</button>
+          <button class="custom-button half-width-button back-button">Back</button>
+          <button class="custom-button custom-button-primary half-width-button next-button">Next</button>
         </div>
       </div>
     </div>
-    <div class="story-editor-story-metadata hide">
-      <div class="story-editor-action">
+    <div class="hide story-editor-story-metadata">
+      <div class="wizard-body-top">
         <p>3. Enter the <span class="highlight-text">short title</span> for the story:</p>
-        <input type="text" class="story-short-title-textbox custom-textbox add-bottom-margin" maxlength="20" placeholder="story short title (max 20 characters)">
+        <input type="text" class="custom-textbox add-bottom-margin story-short-title-textbox" maxlength="20" placeholder="story short title (max 20 characters)">
         <p>4. An optional <span class="highlight-text">long title</span> can be shown on the main page of the story.</p>
-        <input type="text" class="story-long-title-textbox custom-textbox add-bottom-margin" maxlength="40" placeholder="story long title (max 40 characters)">
+        <input type="text" class="custom-textbox add-bottom-margin story-long-title-textbox" maxlength="40" placeholder="story long title (max 40 characters)">
         <p>5. Enter the <span class="highlight-text">description</span> for the story:</p>
-        <textarea class="story-content-textbox custom-textbox large-textbox add-bottom-margin" maxlength="300" placeholder="story description (max 300 characters)"></textarea>
+        <textarea class="custom-textbox large-textbox add-bottom-margin story-content-textbox" maxlength="300" placeholder="story description (max 300 characters)"></textarea>
         <p>6. Enter a list of <span class="highlight-text">authors</span> for the story:</p>
-        <input type="text" class="story-authors-textbox custom-textbox add-bottom-margin" maxlength="300" placeholder="authors (max 300 characters)">
+        <input type="text" class="custom-textbox add-bottom-margin story-authors-textbox" maxlength="300" placeholder="authors (max 300 characters)">
         <p>7. Set a <span class="highlight-text">cover view</span> for the story:</p>
         <button class="custom-button full-width-button custom-button-primary story-editor-set-cover-view-button">Set Cover View</button>
-        <div class="story-editor-thumbnail-preview-container add-top-margin">
+        <div class="add-top-margin story-editor-thumbnail-preview-container">
           <span class="story-editor-thumbnail-preview-text">8. Preview <span class="highlight-text">landscape</span> and <span class="highlight-text">portrait</span> views.</span>
           <div class="even-space-content-align-bottom">
-            <a href="javascript:void(0)" target="_blank" class="story-editor-thumbnail-preview-landscape image"><img src=""></a>
-            <a href="javascript:void(0)" target="_blank" class="story-editor-thumbnail-preview-portrait image"><img src=""></a>
+            <a href="javascript:void(0)" target="_blank" class="image story-editor-thumbnail-preview-landscape"><img src=""></a>
+            <a href="javascript:void(0)" target="_blank" class="image story-editor-thumbnail-preview-portrait"><img src=""></a>
           </div>
         </div>
       </div>
-      <div class="story-editor-nav">
+      <div class="wizard-body-bottom">
         <p>Click the "Next" button to add waypoints to this story.</p>
         <div class="even-space-content">
-          <button class="custom-button back-button">Back</button>
-          <button class="custom-button custom-button-primary next-button">Next</button>
+          <button class="custom-button half-width-button back-button">Back</button>
+          <button class="custom-button custom-button-primary half-width-button next-button">Next</button>
         </div>
       </div>
     </div>
-    <div class="story-editor-waypoints hide">
-      <div class="story-editor-action">
+    <div class="hide story-editor-waypoints">
+      <div class="wizard-body-top">
         <p>8. Click on the following tabs to <span class="highlight-text">choose</span> and <span class="highlight-text">edit</span> waypoints. To <span class="highlight-text">reorder</span> waypoints, drag and drop the tabs.</p>
-        <div class="story-editor-accordion custom-accordion add-bottom-margin">
+        <div class="custom-accordion add-bottom-margin story-editor-accordion">
           <div class="story-editor-accordion-tab">
             <h3 class="story-editor-waypoint-title"><span class="story-editor-waypoint-title-text">Title</span></h3>
             <div class="story-editor-waypoint-content">
               <span>Waypoint title:</span>
-              <input type="text" class="custom-textbox story-editor-set-waypoint-title add-bottom-margin-small" maxlength="20" value="Title" placeholder="(max 20 characters)">
+              <input type="text" class="custom-textbox add-bottom-margin-small story-editor-set-waypoint-title" maxlength="20" value="Title" placeholder="(max 20 characters)">
               <span>Annotation title:</span>
-              <input type="text" class="custom-textbox story-editor-set-annotation-title add-bottom-margin-small" maxlength="40" placeholder="(max 40 characters)">
+              <input type="text" class="custom-textbox add-bottom-margin-small story-editor-set-annotation-title" maxlength="40" placeholder="(max 40 characters)">
               <span>Annotation text:</span>
-              <textarea class="custom-textbox large-textbox story-editor-set-annotation-text add-bottom-margin-medium" maxlength="300" placeholder="(max 300 characters)"></textarea>
+              <textarea class="custom-textbox large-textbox add-bottom-margin-medium story-editor-set-annotation-text" maxlength="300" placeholder="(max 300 characters)"></textarea>
               <div class="even-space-content">
                 <button class="custom-button custom-button-primary story-editor-add-waypoint">Add</button>
                 <button class="custom-button custom-button-danger story-editor-delete-waypoint">Delete</button>
                 <button class="custom-button custom-button-primary story-editor-set-waypoint-view">Set View</button>
               </div>
-              <div class="story-editor-thumbnail-preview-container add-top-margin-medium">
+              <div class="add-top-margin-medium story-editor-thumbnail-preview-container">
                 <span class="story-editor-thumbnail-preview-text">Preview <span class="highlight-text">landscape</span> and <span class="highlight-text">portrait</span> views.</span>
                 <div class="even-space-content-align-bottom">
-                  <a href="javascript:void(0)" target="_blank" class="story-editor-thumbnail-preview-landscape image"><img src=""></a>
-                  <a href="javascript:void(0)" target="_blank" class="story-editor-thumbnail-preview-portrait image"><img src=""></a>
+                  <a href="javascript:void(0)" target="_blank" class="image story-editor-thumbnail-preview-landscape"><img src=""></a>
+                  <a href="javascript:void(0)" target="_blank" class="image story-editor-thumbnail-preview-portrait"><img src=""></a>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div class="story-editor-nav">
+      <div class="wizard-body-bottom">
         <p>Click the "Save" button to save this story as a spreadsheet.</p>
         <div class="even-space-content">
-          <button class="custom-button back-button">Back</button>
-          <button class="custom-button custom-button-primary next-button">Save</button>
+          <button class="custom-button half-width-button back-button">Back</button>
+          <button class="custom-button custom-button-primary half-width-button next-button">Save</button>
         </div>
       </div>
     </div>
-    <div class="story-editor-delete-waypoint-confirm-dialog custom-dialog hide" title="Delete waypoint?">
+    <div class="custom-dialog hide story-editor-delete-waypoint-confirm-dialog" title="Delete waypoint?">
       <p><span class="ui-icon ui-icon-alert"></span>This waypoint will be deleted.</p>
     </div>
-    <div class="story-editor-load hide">
-      <div class="story-editor-action">
+    <div class="hide story-editor-load">
+      <div class="wizard-body-top">
         <p>Provide the <span class="highlight-text">public link</span> below to load stories that were created.</p>
-        <input type="text" class="sheet-url-textbox custom-textbox add-bottom-margin" placeholder="https//:">
+        <input type="text" class="custom-textbox add-bottom-margin sheet-url-textbox" placeholder="https//:">
       </div>
-      <div class="story-editor-nav">
+      <div class="wizard-body-bottom">
         <p>Click the "Next" button to add or edit stories retrieved from the link.</p>
         <div class="even-space-content">
-          <button class="custom-button back-button">Back</button>
-          <button class="custom-button custom-button-primary next-button">Next</button>
+          <button class="custom-button half-width-button back-button">Back</button>
+          <button class="custom-button custom-button-primary half-width-button next-button">Next</button>
         </div>
       </div>
     </div>

@@ -13,13 +13,12 @@
     var container_id = settings["container_id"];
     var on_show_callback = settings["on_show_callback"];
     var on_hide_callback = settings["on_hide_callback"];
-    var set_view_tool;
-    var $container = $("#" + container_id);
     var $this;
     var $intro, $theme_metadata, $story_metadata, $waypoints, $load;
     var $waypoints_accordion, $waypoint_template, $waypoint_delete_dialog;
     var $want_to_delete_tab;
     var $current_thumbnail_preview_container;
+    var set_view_tool;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -41,7 +40,7 @@
     }
 
     function creatUI(html_template) {
-      $container.append($(html_template));
+      $("#" + container_id).append($(html_template));
       $this = $("#" + container_id + " .story-editor");
       createSetViewTool();
       createIntroductionUI();
@@ -71,7 +70,7 @@
 
     function createIntroductionUI() {
       // The introduction page
-      $intro = $("#" + container_id + " .story-editor-intro");
+      $intro = $this.find(".story-editor-intro");
       $intro.find(".story-editor-create-button").on("click", function () {
         transition($intro, $theme_metadata);
       });
@@ -82,7 +81,7 @@
 
     function createThemeUI() {
       // For creating a theme
-      $theme_metadata = $("#" + container_id + " .story-editor-theme-metadata");
+      $theme_metadata = $this.find(".story-editor-theme-metadata");
       $theme_metadata.find(".back-button").on("click", function () {
         transition($theme_metadata, $intro);
       });
@@ -91,7 +90,7 @@
       });
 
       // For creating a story
-      $story_metadata = $("#" + container_id + " .story-editor-story-metadata");
+      $story_metadata = $this.find(".story-editor-story-metadata");
       $story_metadata.find(".back-button").on("click", function () {
         transition($story_metadata, $theme_metadata);
       });
@@ -118,7 +117,7 @@
 
     function createWaypointUI() {
       // For displaying waypoints
-      $waypoints = $("#" + container_id + " .story-editor-waypoints");
+      $waypoints = $this.find(".story-editor-waypoints");
       $waypoints.find(".back-button").on("click", function () {
         transition($waypoints, $story_metadata);
       });
@@ -178,7 +177,7 @@
       $waypoint_tab.find(".story-editor-delete-waypoint").prop("disabled", true);
 
       // The confirm dialog when deleting a waypoint
-      $waypoint_delete_dialog = $("#" + container_id + " .story-editor-delete-waypoint-confirm-dialog");
+      $waypoint_delete_dialog = $this.find(".story-editor-delete-waypoint-confirm-dialog");
       $waypoint_delete_dialog.dialog({
         appendTo: $this,
         autoOpen: false,
@@ -219,7 +218,7 @@
 
     function createLoadUI() {
       // For loading a Google spreadsheet
-      $load = $("#" + container_id + " .story-editor-load");
+      $load = $this.find(".story-editor-load");
       $load.find(".back-button").on("click", function () {
         transition($load, $intro);
       });
