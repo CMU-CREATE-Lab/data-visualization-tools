@@ -16,8 +16,9 @@
     var on_hide_callback = settings["on_hide_callback"];
     var $this;
     var $start_time, $end_time;
-    var $speed_slow_radio, $speed_medium_radio, $speed_fast_radio;
-    var $video_settings;
+    var $speed, $speed_slow_radio, $speed_medium_radio, $speed_fast_radio;
+    var $video_settings, $type;
+    var $delay_start, $delay_end;
     var thumbnail_tool;
     var start_frame_number, end_frame_number;
 
@@ -53,7 +54,8 @@
 
       // Video settings
       $video_settings = $this.find(".set-view-tool-video-settings");
-      $this.find(".set-view-tool-type input:radio[name='type']").on("change", changeViewType);
+      $type = $this.find(".set-view-tool-type");
+      $type.find("input:radio[name='type']").on("change", changeViewType);
 
       // Start and end time
       $start_time = $this.find(".set-view-tool-start-time");
@@ -62,9 +64,14 @@
       $this.find(".set-view-tool-end-time-button").on("click", setEndTime);
 
       // Playback speed
+      $speed = $this.find(".set-view-tool-speed");
       $speed_slow_radio = $this.find("#set-view-tool-speed-slow-input");
       $speed_medium_radio = $this.find("#set-view-tool-speed-medium-input");
       $speed_fast_radio = $this.find("#set-view-tool-speed-fast-input");
+
+      // Delays
+      $delay_start = $this.find(".set-view-tool-start-delay-time");
+      $delay_end = $this.find(".set-view-tool-end-delay-time");
 
       // Set view or cancel
       $this.find(".set-view-tool-set-view-button").on("click", setView);
@@ -138,20 +145,73 @@
       }
     }
 
+    // Parse the capture time string to the format for the thumbnail server
+    function parseCaptureTime(capture_time, flag) {
+      var default_month = (flag == "end") ? 12 : 1;
+      var default_day = (flag == "end") ? 31 : 1;
+      var split = capture_time.replace("UTC", "").replace(/[ T:]/g, "-").replace(".00Z", "").split("-");
+      var Y = parseInt(split[0]);
+      var M = parseInt(split[1]) || default_month;
+      var D = parseInt(split[2]) || default_day;
+      var h = parseInt(split[3]) || 0;
+      var m = parseInt(split[4]) || 0;
+      var s = parseInt(split[5]) || 0;
+      var len = (h == 0 && m == 0 && s == 0) ? 10 : 19;
+      return new Date(Date.UTC(Y, (M - 1), D, h, m, s)).toISOString().substr(0, len).replace(/[-T:]/g, "");
+    }
+
     // Collect the parameters from the user interface
     function collectParameters() {
-      // Playback speed (slow, medium, fast)
-      var speed = $this.find(".set-view-tool-speed input:radio[name='playback-speed']:checked").val();
-      // View type (image, video)
-      var type = $this.find(".set-view-tool-type input:radio[name='type']:checked").val();
+      // View type
+      var type = $type.find("input:radio[name='type']:checked").val();
+
+      // Start time
+      var start_time = parseCaptureTime($start_time.val(), "start");
+
+      // Return settings for image
+      if (type == "image") {
+        return {
+          bt: start_time,
+          et: start_time,
+          embedTime: true,
+          format: "png"
+        };
+      }
+
+      // End time
+      var end_time = parseCaptureTime($end_time.val(), "end");
+
+      // Playback speed
+      var speed = $speed.find("input:radio[name='playback-speed']:checked").val();
+      var speed = parseFloat(speed) * 100;
+
+      // Delays
+      var delay_start = parseFloat($delay_start.val());
+      var delay_end = parseFloat($delay_end.val());
+
+      // Return settings for video
+      return {
+        ps: speed,
+        bt: start_time,
+        et: end_time,
+        fps: 30,
+        embedTime: true,
+        startDwell: delay_start,
+        endDwell: delay_end,
+        format: "mp4"
+      }
     }
 
     // Set the view and pass in the url to the callback function
     function setView() {
+      // Collect parameters
+      var para = collectParameters();
+      console.log(para);
+
       // Get landscape and portrait urls from the thumbnail tool
-      var url_landscape = thumbnail_tool.getURL();
+      var url_landscape = thumbnail_tool.getURL(para);
       toggleView();
-      var url_portrait = thumbnail_tool.getURL();
+      var url_portrait = thumbnail_tool.getURL(para);
       toggleView();
 
       // Check which one is the landscape view
