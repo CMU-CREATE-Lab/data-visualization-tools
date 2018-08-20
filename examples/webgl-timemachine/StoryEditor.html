@@ -14,9 +14,9 @@
         <h3>Step 1:&nbsp; Theme</h3>
         <p class="add-bottom-margin">Each story belongs to a broader theme. Specify the theme metadata.</p>
         <p><span class="highlight-text">1.1</span>&nbsp;&nbsp; Enter the theme <span class="highlight-text">title</span>:</p>
-        <input type="text" class="custom-textbox add-bottom-margin theme-title-textbox" maxlength="30" placeholder="theme title (max 30 characters)">
+        <input type="text" class="custom-textbox add-bottom-margin story-editor-theme-title-textbox" maxlength="30" placeholder="theme title (max 30 characters)">
         <p><span class="highlight-text">2.1</span>&nbsp;&nbsp; Enter the theme <span class="highlight-text">description</span>:</p>
-        <textarea class="custom-textbox large-textbox add-bottom-margin theme-content-textbox" maxlength="300" placeholder="theme description (max 300 characters)"></textarea>
+        <textarea class="custom-textbox large-textbox add-bottom-margin story-editor-theme-description-textbox" maxlength="300" placeholder="theme description (max 300 characters)"></textarea>
       </div>
       <div class="wizard-body-bottom">
         <p>Click the "Next" button to add a story to this theme.</p>
@@ -30,15 +30,15 @@
       <div class="wizard-body-top">
         <h3>Step 2:&nbsp; Story</h3>
         <p class="add-bottom-margin">Specify the metadata for the story.</p>
-        <p><span class="highlight-text">2.1</span>&nbsp;&nbsp; Enter the story <span class="highlight-text">title</span>:</p>
-        <input type="text" class="custom-textbox add-bottom-margin story-title-textbox" maxlength="20" placeholder="story title (max 20 characters)">
-        <!--<p>An optional <span class="highlight-text">long title</span> can be shown on the main page of the story.</p>
-        <input type="text" class="custom-textbox add-bottom-margin story-long-title-textbox" maxlength="40" placeholder="long story title (max 40 characters)">-->
-        <p><span class="highlight-text">2.2</span>&nbsp;&nbsp; Enter the story <span class="highlight-text">description</span>:</p>
-        <textarea class="custom-textbox large-textbox add-bottom-margin story-content-textbox" maxlength="300" placeholder="story description (max 300 characters)"></textarea>
-        <p><span class="highlight-text">2.3</span>&nbsp;&nbsp; Enter the story <span class="highlight-text">authors</span>:</p>
-        <input type="text" class="custom-textbox add-bottom-margin story-authors-textbox" maxlength="300" placeholder="authors (max 300 characters)">
-        <p><span class="highlight-text">2.4</span>&nbsp;&nbsp; Set a <span class="highlight-text">cover view</span> for the story:</p>
+        <p><span class="highlight-text">2.1</span>&nbsp;&nbsp; Enter the story <span class="highlight-text">short title</span>:</p>
+        <input type="text" class="custom-textbox add-bottom-margin story-editor-story-title-textbox" maxlength="20" placeholder="story short title (max 20 characters)">
+        <p><span class="highlight-text">2.2</span>&nbsp;&nbsp; Enter the story <span class="highlight-text">long title</span>:</p>
+        <input type="text" class="custom-textbox add-bottom-margin story-editor-story-long-title-textbox" maxlength="40" placeholder="story long title (max 40 characters)">
+        <p><span class="highlight-text">2.3</span>&nbsp;&nbsp; Enter the story <span class="highlight-text">description</span>:</p>
+        <textarea class="custom-textbox large-textbox add-bottom-margin story-editor-story-description-textbox" maxlength="300" placeholder="story description (max 300 characters)"></textarea>
+        <p><span class="highlight-text">2.4</span>&nbsp;&nbsp; Enter the story <span class="highlight-text">authors</span>:</p>
+        <input type="text" class="custom-textbox add-bottom-margin story-editor-story-authors-textbox" maxlength="300" placeholder="authors (max 300 characters)">
+        <p><span class="highlight-text">2.5</span>&nbsp;&nbsp; Set a <span class="highlight-text">cover view</span> for the story:</p>
         <button class="custom-button full-width-button custom-button-primary story-editor-set-cover-view-button">Set Cover View</button>
         <div class="add-top-margin story-editor-thumbnail-preview-container">
           <span class="story-editor-thumbnail-preview-text">8. Preview <span class="highlight-text">landscape</span> and <span class="highlight-text">portrait</span> views.</span>
@@ -62,14 +62,14 @@
         <p>Click on the following tabs to <span class="highlight-text">choose</span> and <span class="highlight-text">edit</span> waypoints. To <span class="highlight-text">reorder</span> waypoints, drag and drop the tabs.</p>
         <div class="custom-accordion add-top-margin story-editor-accordion">
           <div class="story-editor-accordion-tab">
-            <h3 class="story-editor-waypoint-title"><span class="story-editor-waypoint-title-text">&nbsp;</span></h3>
-            <div class="story-editor-waypoint-content">
+            <h3><span class="story-editor-waypoint-title-text">&nbsp;</span></h3>
+            <div>
               <span>Waypoint title:</span>
-              <input type="text" class="custom-textbox add-bottom-margin-small story-editor-set-waypoint-title" maxlength="20" placeholder="(max 20 characters)">
+              <input type="text" class="custom-textbox add-bottom-margin-small story-editor-waypoint-title-textbox" maxlength="20" placeholder="(max 20 characters)">
               <span>Annotation title:</span>
-              <input type="text" class="custom-textbox add-bottom-margin-small story-editor-set-annotation-title" maxlength="40" placeholder="(max 40 characters)">
+              <input type="text" class="custom-textbox add-bottom-margin-small story-editor-waypoint-long-title-textbox" maxlength="40" placeholder="(max 40 characters)">
               <span>Annotation text:</span>
-              <textarea class="custom-textbox large-textbox add-bottom-margin-medium story-editor-set-annotation-text" maxlength="300" placeholder="(max 300 characters)"></textarea>
+              <textarea class="custom-textbox large-textbox add-bottom-margin-medium story-editor-waypoint-description-textbox" maxlength="300" placeholder="(max 300 characters)"></textarea>
               <div class="even-space-content">
                 <button class="custom-button custom-button-primary story-editor-add-waypoint">Add</button>
                 <button class="custom-button custom-button-danger story-editor-delete-waypoint">Delete</button>

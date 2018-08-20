@@ -238,14 +238,8 @@
       // Callback
       if (typeof on_view_set_callback === "function") {
         on_view_set_callback({
-          landscape: {
-            preview: url_landscape["preview"]["url"],
-            render: url_landscape["render"]["url"]
-          },
-          portrait: {
-            preview: url_portrait["preview"]["url"],
-            render: url_portrait["render"]["url"]
-          }
+          landscape: url_landscape,
+          portrait: url_portrait
         });
       }
     }

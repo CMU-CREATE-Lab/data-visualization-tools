@@ -19,7 +19,8 @@
     var $want_to_delete_tab;
     var $current_thumbnail_preview_container;
     var set_view_tool;
-    var $theme_title, $theme_content, $story_title, $story_content, $story_authors;
+    var $theme_title, $theme_description;
+    var $story_title, $story_long_title, $story_description, $story_authors, $story_view;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -91,8 +92,8 @@
       $theme_metadata.find(".next-button").on("click", function () {
         transition($theme_metadata, $story_metadata);
       });
-      $theme_title = $theme_metadata.find(".theme-title-textbox");
-      $theme_content = $theme_metadata.find(".theme-content-textbox");
+      $theme_title = $theme_metadata.find(".story-editor-theme-title-textbox");
+      $theme_description = $theme_metadata.find(".story-editor-theme-description-textbox");
     }
 
     // For creating a story
@@ -110,19 +111,23 @@
         $this.hide();
       });
       $story_metadata.find(".story-editor-thumbnail-preview-container").hide();
-      $story_title = $story_metadata.find(".story-title-textbox");
-      $story_content = $story_metadata.find(".story-content-textbox");
-      $story_authors = $story_metadata.find(".story-authors-textbox");
+      $story_title = $story_metadata.find(".story-editor-story-title-textbox");
+      $story_long_title = $story_metadata.find(".story-editor-story-long-title-textbox");
+      $story_description = $story_metadata.find(".story-editor-story-description-textbox");
+      $story_authors = $story_metadata.find(".story-editor-story-authors-textbox");
+      $story_view = $story_metadata.find(".story-editor-thumbnail-preview-landscape");
     }
 
     function setThumbnailPreview(urls) {
       $current_thumbnail_preview_container.show();
       var $l = $current_thumbnail_preview_container.find(".story-editor-thumbnail-preview-landscape");
       var $p = $current_thumbnail_preview_container.find(".story-editor-thumbnail-preview-portrait");
-      $l.prop("href", urls["landscape"]["render"]);
-      $l.find("img").prop("src", urls["landscape"]["preview"]);
-      $p.prop("href", urls["portrait"]["render"]);
-      $p.find("img").prop("src", urls["portrait"]["preview"]);
+      $l.prop("href", urls["landscape"]["render"]["url"]);
+      $l.data("view", urls["landscape"]["render"]["orignialRootUrl"]);
+      $l.find("img").prop("src", urls["landscape"]["preview"]["url"]);
+      $p.prop("href", urls["portrait"]["render"]["url"]);
+      $p.data("view", urls["portrait"]["render"]["orignialRootUrl"]);
+      $p.find("img").prop("src", urls["portrait"]["preview"]["url"]);
     }
 
     // For waypoints
@@ -133,10 +138,8 @@
         transition($waypoints, $story_metadata);
       });
       $waypoints.find(".next-button").on("click", function () {
-        // Collect data
-        var data = collectData();
-        console.log(data);
-        // download the story as a spreadsheet
+        // Download data as a spreadsheet
+        download(getDataAsSheet());
       });
       $waypoints_accordion = $waypoints.find(".story-editor-accordion").accordion({
         header: "> div > h3",
@@ -180,7 +183,7 @@
         $waypoint_delete_dialog.dialog("open");
         $want_to_delete_tab = $(this).closest(".story-editor-accordion-tab");
       });
-      $waypoint_tab.find(".story-editor-set-waypoint-title").on("change", function () {
+      $waypoint_tab.find(".story-editor-waypoint-title-textbox").on("change", function () {
         // Set the title text of the tab
         var $ui = $(this);
         var $tab = $ui.closest(".story-editor-accordion-tab");
@@ -241,35 +244,76 @@
       });
     }
 
-    // Collect data for the story from the user interface
+    // Collect story data from the user interface
     function collectData() {
-      var story_title = $story_title.val();
-      var story_key = stringToKey(story_title);
-      var story_content = $story_content.val();
-      var story_authors = $story_authors.val();
-      var story = {};
-      story[story_key] = {
-        storyTitle: story_title,
-        storyDescription: story_content,
-        storyAuthor: story_authors
-      };
-
-      var waypoint_json_list = {};
+      // Theme
       var theme_title = $theme_title.val();
-      var theme_key = stringToKey(theme_title);
-      var theme_content = $theme_content.val();
-      waypoint_json_list[theme_key] = {
-        themeTitle: theme_title,
-        mainThemeDescription: theme_content,
-        stories: story
-      };
+      var theme_description = $theme_description.val();
 
-      return waypoint_json_list;
+      // Story
+      var story_title = $story_title.val();
+      var story_long_title = $story_long_title.val();
+      var story_description = $story_description.val();
+      var story_authors = $story_authors.val();
+      var story_view = $story_view.data("view");
+
+      // Waypoints
+      var waypoints = [];
+      $waypoints_accordion.find(".story-editor-accordion-tab").each(function () {
+        var $ui = $(this);
+        var waypoint_title = $ui.find(".story-editor-waypoint-title-textbox").val();
+        var waypoint_long_title = $ui.find(".story-editor-waypoint-long-title-textbox").val();
+        var waypoint_description = $ui.find(".story-editor-waypoint-description-textbox").val();
+        var waypoint_view = $ui.find(".story-editor-thumbnail-preview-landscape").data("view");
+        waypoints.push({
+          waypoint_title: waypoint_title,
+          waypoint_long_title: waypoint_long_title,
+          waypoint_description: waypoint_description,
+          waypoint_view: waypoint_view
+        });
+      });
+
+      // Return
+      return [{
+        theme_title: theme_title,
+        theme_description: theme_description,
+        stories: [{
+          story_title: story_title,
+          story_long_title: story_long_title,
+          story_description: story_description,
+          story_view: story_view,
+          story_authors: story_authors,
+          waypoints: waypoints
+        }]
+      }]
     }
 
-    // Turn a string into a key for a dictionary
-    function stringToKey(s) {
-      return s.replace(/ /g, "_").replace(/[^a-zA-Z0-9-_]/g, "").toLowerCase();
+    // Download text as spreadsheet
+    function download(text) {
+      var a = document.createElement("a");
+      a.href = "data:attachment/text," + encodeURI(text);
+      a.target = "_blank";
+      a.download = "story.tsv";
+      a.click();
+    }
+
+    // Format the story data from the UI into a tsv spreadsheet
+    function getDataAsSheet() {
+      var sheet = "Waypoint Title\tAnnotation Title\tAnnotation Text\tShare View\tAuthor\n";
+      var data = collectData();
+      for (var i = 0; i < data.length; i++) {
+        var t = data[i]; // theme
+        sheet += "#" + t.theme_title + "\t" + t.theme_title + "\t" + t.theme_description + "\t\t\n";
+        for (var j = 0; j < t["stories"].length; j++) {
+          var s = t["stories"][j]; // story
+          sheet += "##" + s.story_title + "\t" + s.story_long_title + "\t" + s.story_description + "\t" + s.story_view + "\t" + s.story_authors + "\n";
+          for (var k = 0; k < s["waypoints"].length; k++) {
+            var w = s["waypoints"][k]; // waypoints
+            sheet += w.waypoint_title + "\t" + w.waypoint_long_title + "\t" + w.waypoint_description + "\t" + w.waypoint_view + "\t\n";
+          }
+        }
+      }
+      return sheet;
     }
 
     // Make a transition from one DOM element to another
