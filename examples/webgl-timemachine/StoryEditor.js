@@ -19,6 +19,7 @@
     var $want_to_delete_tab;
     var $current_thumbnail_preview_container;
     var set_view_tool;
+    var $theme_title, $theme_content, $story_title, $story_content, $story_authors;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -44,13 +45,15 @@
       $this = $("#" + container_id + " .story-editor");
       createSetViewTool();
       createIntroductionUI();
-      createThemeUI();
+      createThemeMetadataUI();
+      createStoryMetadataUI();
       createWaypointUI();
       createLoadUI();
+      // TODO: need to prevent the keyboard from firing events that control the viewer
     }
 
+    // For setting a view from the timelapse viewer
     function createSetViewTool() {
-      // For setting a view from the timelapse viewer
       set_view_tool = new SetViewTool(timelapse, {
         container_id: container_id,
         on_view_set_callback: function (urls) {
@@ -68,8 +71,8 @@
       });
     }
 
+    // The introduction page
     function createIntroductionUI() {
-      // The introduction page
       $intro = $this.find(".story-editor-intro");
       $intro.find(".story-editor-create-button").on("click", function () {
         transition($intro, $theme_metadata);
@@ -79,8 +82,8 @@
       });
     }
 
-    function createThemeUI() {
-      // For creating a theme
+    // For creating a theme
+    function createThemeMetadataUI() {
       $theme_metadata = $this.find(".story-editor-theme-metadata");
       $theme_metadata.find(".back-button").on("click", function () {
         transition($theme_metadata, $intro);
@@ -88,8 +91,12 @@
       $theme_metadata.find(".next-button").on("click", function () {
         transition($theme_metadata, $story_metadata);
       });
+      $theme_title = $theme_metadata.find(".theme-title-textbox");
+      $theme_content = $theme_metadata.find(".theme-content-textbox");
+    }
 
-      // For creating a story
+    // For creating a story
+    function createStoryMetadataUI() {
       $story_metadata = $this.find(".story-editor-story-metadata");
       $story_metadata.find(".back-button").on("click", function () {
         transition($story_metadata, $theme_metadata);
@@ -103,6 +110,9 @@
         $this.hide();
       });
       $story_metadata.find(".story-editor-thumbnail-preview-container").hide();
+      $story_title = $story_metadata.find(".story-title-textbox");
+      $story_content = $story_metadata.find(".story-content-textbox");
+      $story_authors = $story_metadata.find(".story-authors-textbox");
     }
 
     function setThumbnailPreview(urls) {
@@ -115,6 +125,7 @@
       $p.find("img").prop("src", urls["portrait"]["preview"]);
     }
 
+    // For waypoints
     function createWaypointUI() {
       // For displaying waypoints
       $waypoints = $this.find(".story-editor-waypoints");
@@ -122,6 +133,9 @@
         transition($waypoints, $story_metadata);
       });
       $waypoints.find(".next-button").on("click", function () {
+        // Collect data
+        var data = collectData();
+        console.log(data);
         // download the story as a spreadsheet
       });
       $waypoints_accordion = $waypoints.find(".story-editor-accordion").accordion({
@@ -216,8 +230,8 @@
       });
     }
 
+    // For loading a Google spreadsheet
     function createLoadUI() {
-      // For loading a Google spreadsheet
       $load = $this.find(".story-editor-load");
       $load.find(".back-button").on("click", function () {
         transition($load, $intro);
@@ -229,7 +243,33 @@
 
     // Collect data for the story from the user interface
     function collectData() {
+      var story_title = $story_title.val();
+      var story_key = stringToKey(story_title);
+      var story_content = $story_content.val();
+      var story_authors = $story_authors.val();
+      var story = {};
+      story[story_key] = {
+        storyTitle: story_title,
+        storyDescription: story_content,
+        storyAuthor: story_authors
+      };
 
+      var waypoint_json_list = {};
+      var theme_title = $theme_title.val();
+      var theme_key = stringToKey(theme_title);
+      var theme_content = $theme_content.val();
+      waypoint_json_list[theme_key] = {
+        themeTitle: theme_title,
+        mainThemeDescription: theme_content,
+        stories: story
+      };
+
+      return waypoint_json_list;
+    }
+
+    // Turn a string into a key for a dictionary
+    function stringToKey(s) {
+      return s.replace(/ /g, "_").replace(/[^a-zA-Z0-9-_]/g, "").toLowerCase();
     }
 
     // Make a transition from one DOM element to another
