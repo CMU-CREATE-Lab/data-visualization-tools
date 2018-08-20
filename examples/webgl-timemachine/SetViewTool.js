@@ -168,14 +168,20 @@
       // Start time
       var start_time = parseCaptureTime($start_time.val(), "start");
 
+      // Collect the preview settings
+      var preview = {
+        bt: start_time,
+        et: start_time,
+        embedTime: false,
+        format: "png"
+      };
+
       // Return settings for image
       if (type == "image") {
         return {
-          bt: start_time,
-          et: start_time,
-          embedTime: true,
-          format: "png"
-        };
+          preview: preview,
+          render: preview
+        }
       }
 
       // End time
@@ -191,31 +197,39 @@
 
       // Return settings for video
       return {
-        ps: speed,
-        bt: start_time,
-        et: end_time,
-        fps: 30,
-        embedTime: true,
-        startDwell: delay_start,
-        endDwell: delay_end,
-        format: "mp4"
+        preview: preview,
+        render: {
+          ps: speed,
+          bt: start_time,
+          et: end_time,
+          fps: 30,
+          embedTime: false,
+          startDwell: delay_start,
+          endDwell: delay_end,
+          format: "mp4"
+        }
       }
     }
 
     // Set the view and pass in the url to the callback function
     function setView() {
       // Collect parameters
-      var para = collectParameters();
-      console.log(para);
+      var p = collectParameters();
 
       // Get landscape and portrait urls from the thumbnail tool
-      var url_landscape = thumbnail_tool.getURL(para);
+      var url_landscape = {
+        preview: thumbnail_tool.getURL(p["preview"]),
+        render: thumbnail_tool.getURL(p["render"])
+      };
       toggleView();
-      var url_portrait = thumbnail_tool.getURL(para);
+      var url_portrait = {
+        preview: thumbnail_tool.getURL(p["preview"]),
+        render: thumbnail_tool.getURL(p["render"])
+      };
       toggleView();
 
       // Check which one is the landscape view
-      if (url_landscape["args"]["width"] < url_landscape["args"]["height"]) {
+      if (url_landscape["preview"]["args"]["width"] < url_landscape["preview"]["args"]["height"]) {
         var tmp = url_landscape;
         url_landscape = url_portrait;
         url_portrait = tmp;
@@ -223,7 +237,16 @@
 
       // Callback
       if (typeof on_view_set_callback === "function") {
-        on_view_set_callback(url_landscape["url"], url_portrait["url"]);
+        on_view_set_callback({
+          landscape: {
+            preview: url_landscape["preview"]["url"],
+            render: url_landscape["render"]["url"]
+          },
+          portrait: {
+            preview: url_portrait["preview"]["url"],
+            render: url_portrait["render"]["url"]
+          }
+        });
       }
     }
 

@@ -53,8 +53,8 @@
       // For setting a view from the timelapse viewer
       set_view_tool = new SetViewTool(timelapse, {
         container_id: container_id,
-        on_view_set_callback: function (url_landscape, url_portrait) {
-          setThumbnailPreview(url_landscape, url_portrait);
+        on_view_set_callback: function (urls) {
+          setThumbnailPreview(urls);
           $this.show();
           set_view_tool.hide();
         },
@@ -105,14 +105,14 @@
       $story_metadata.find(".story-editor-thumbnail-preview-container").hide();
     }
 
-    function setThumbnailPreview(url_landscape, url_portrait) {
+    function setThumbnailPreview(urls) {
       $current_thumbnail_preview_container.show();
       var $l = $current_thumbnail_preview_container.find(".story-editor-thumbnail-preview-landscape");
       var $p = $current_thumbnail_preview_container.find(".story-editor-thumbnail-preview-portrait");
-      $l.prop("href", url_landscape);
-      $l.find("img").prop("src", url_landscape);
-      $p.prop("href", url_portrait);
-      $p.find("img").prop("src", url_portrait);
+      $l.prop("href", urls["landscape"]["render"]);
+      $l.find("img").prop("src", urls["landscape"]["preview"]);
+      $p.prop("href", urls["portrait"]["render"]);
+      $p.find("img").prop("src", urls["portrait"]["preview"]);
     }
 
     function createWaypointUI() {
@@ -225,6 +225,11 @@
       $load.find(".next-button").on("click", function () {
         //transition($load, );
       });
+    }
+
+    // Collect data for the story from the user interface
+    function collectData() {
+
     }
 
     // Make a transition from one DOM element to another

@@ -22,19 +22,19 @@
 }
 
 .story-editor-story-metadata .story-editor-thumbnail-preview-landscape {
-  min-height: 83px;
+  min-height: 85px;
 }
 
 .story-editor-story-metadata .story-editor-thumbnail-preview-portrait {
-  min-height: 156px;
+  min-height: 159px;
 }
 
 .story-editor-waypoints .story-editor-thumbnail-preview-landscape {
-  min-height: 69px;
+  min-height: 71px;
 }
 
 .story-editor-waypoints .story-editor-thumbnail-preview-portrait {
-  min-height: 129px;
+  min-height: 132px;
 }
 
 .story-editor-thumbnail-preview-landscape {
