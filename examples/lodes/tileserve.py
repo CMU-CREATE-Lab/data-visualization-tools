@@ -5,7 +5,7 @@ import sys, traceback
 from urllib2 import parse_http_list as _parse_list_header
 
 import ast, datetime, flask, functools, glob, gzip, hashlib, json, math, md5, numpy, os, psycopg2, random, resource, re
-import scipy.misc, StringIO, struct, sys, tempfile, threading, time, urlparse
+import scipy.misc, StringIO, struct, subprocess, sys, tempfile, threading, time, urlparse
 
 from dateutil import tz
 from flask import after_this_request, request
@@ -84,9 +84,6 @@ def gzipped(f):
     
     return view_func
 
-def pack_color(color):
-    return color['r'] + color['g'] * 256.0 + color['b'] * 256.0 * 256.0;
-
 # packs to the range 0 ... 256^3-1
 def unpack_color(f):
     b = floor(f / 256.0 / 256.0)
@@ -99,7 +96,10 @@ def pack_color(color, encoding=numpy.float32):
         return color['r'] + color['g'] * 256.0 + color['b'] * 256.0 * 256.0;
     else:
         # Return with alpha = 255
+        # Correct for PNG
         return 0xff000000 + color['b'] * 0x10000 + color['g'] * 0x100 + color['r']
+        # Trying for MP4
+        #return 0xff000000 + color['r'] * 0x10000 + color['g'] * 0x100 + color['b']
 
 def parse_color(color, encoding=numpy.float32):
     color = color.strip()
@@ -297,6 +297,7 @@ def eval_layer_column(expr):
     
     if not os.path.exists(cache_filename):
         try:
+            expr = expr.replace(' DIV ', '/')
             data = eval_(ast.parse(expr, mode='eval').body).astype(numpy.float32)
         except SyntaxError,e:
             raise InvalidUsage('<pre>' + traceback.format_exc(0) + '</pre>')
@@ -420,6 +421,8 @@ int compute_tile_data(
 inline int min(int x, int y) { return x < y ? x : y; }
 inline int max(int x, int y) { return x > y ? x : y; }
 
+#include <math.h>
+
 float sumsq(float a, float b) { return a*a + b*b; }
 
 // Negative on fail
@@ -433,7 +436,10 @@ int compute_tile_data_png(
     unsigned int pop_cols,
     RGBA8 *colors,
     float min_x, float min_y, float max_x, float max_y,
-    float radius)
+    float radius,
+    float level,
+    float *block_areas,
+    float prototile_subsample)
 {
     if (incount == 0) return 0;
     int fd = open(prototile_path, O_RDONLY);
@@ -444,15 +450,45 @@ int compute_tile_data_png(
     if (p == MAP_FAILED) return -2;
 
     unsigned outcount = 0;
+    int first = 1;
 
     for (unsigned i = 0; i < incount; i++) {
+        // rec is a single prototile dot.  We need to figure out which population it belongs to, if any, and
+        // assign color accordingly
         PrototileRecord rec = p[i];
-        double seq = rec.seq;
-        seq += 0.5;
+
+        double block_population = 0.0; // Total population in this block, across all colors/columns
         for (unsigned c = 0; c < pop_cols; c++) {
-            // Loop until we find the right color, if any
+            block_population += populations[c][rec.blockIdx];
+        }
+        // This is the total # of pixels to draw, across all prototiles at this Z level
+        double block_uncorrected_pixels_to_draw = block_population * prototile_subsample * (radius * 2) * (radius * 2);
+
+        // level 0 pixels are 156543 meters across
+        double level_0_pixel_size = 156543; // meters
+        double size_of_block_in_pixels = block_areas[rec.blockIdx] * pow(4.0, level) / (level_0_pixel_size * level_0_pixel_size) * 40;
+
+        // blockSubsample of 0.5 means show half the points
+        //double blockSubsample = 1.0 / (1.0 + block_uncorrected_pixels_to_draw / size_of_block_in_pixels);
+        double blockSubsample = 1.0 / (1.0 + sqrt(block_uncorrected_pixels_to_draw / size_of_block_in_pixels));
+
+        //blockSubsample = 1.0;
+
+        if (/*rec.blockIdx == 9501143 &&*/ first) {
+            fprintf(stderr, "ctdp z=%f, seq=%d, prototile_subsample=%f, blockSubsample=%lf, b_uncorrected_pix_to_draw=%lf, size_of_block_pixels=%lf, radius=%f\\n", 
+                    level, rec.blockIdx, prototile_subsample, blockSubsample, 
+                    block_uncorrected_pixels_to_draw, size_of_block_in_pixels, radius);
+            first = 0;
+        }
+
+        //double seq = rec.seq / blockSubsample + 0.5;
+        double seq = rec.seq / blockSubsample + 0.999;
+
+        for (unsigned c = 0; c < pop_cols; c++) {
+            // Loop until we find the right population column for rec (if any)
             seq -= populations[c][rec.blockIdx];
             if (seq < 0) {
+                // Prototile dot belongs in population column "c".  Draw with appropriate color
                 if (outcount >= incount) return -4;  // Illegal
 
                 // render the point so long as we're within the pixel range of the tile
@@ -522,7 +558,7 @@ def compute_tile_data_c(prototile_path, incount, tile, populations, colors):
         to_ctype_reference(colors))
 
 def compute_tile_data_png(prototile_path, incount, tile_pixels, tile_width_in_pixels, populations, colors_rgba8,
-                          min_x, min_y, max_x, max_y, radius):
+                          min_x, min_y, max_x, max_y, radius, level, block_areas, prototile_subsample):
     assert(populations[0].dtype == numpy.float32)
     assert(colors_rgba8.dtype == numpy.uint32)
     return compute_tile_data_ext.compute_tile_data_png(
@@ -537,14 +573,19 @@ def compute_tile_data_png(prototile_path, incount, tile_pixels, tile_width_in_pi
         ctypes.c_float(min_y),
         ctypes.c_float(max_x),
         ctypes.c_float(max_y),
-        ctypes.c_float(radius))
+        ctypes.c_float(radius),
+        ctypes.c_float(level),
+        to_ctype_reference(block_areas),
+        ctypes.c_float(prototile_subsample))
 
-def generate_tile_data_png(layer, z, x, y):
+def generate_tile_data_pixmap(layer, z, x, y, tile_width_in_pixels):
+    # Load block area column
+    block_areas = load_column('geometry_block2010', 'area_web_mercator_sqm')
+
     z = int(z)
     x = int(x)
     y = int(y)
     start_time = time.time()
-    tile_width_in_pixels = 512 # width=height
     max_prototile_level = 10
     if z <= max_prototile_level:
         pz = z
@@ -560,9 +601,30 @@ def generate_tile_data_png(layer, z, x, y):
     prototile_path = 'prototiles/%d/%d/%d.bin' % (pz, px, py)
     incount = os.path.getsize(prototile_path) / prototile_record_len
 
+    # subsampling factors already baked into prototiles, from C02 Generate prototiles.ipynb
+
+    prototile_subsamples = [
+        0.001, # level 0
+        0.001,
+        0.001,
+        0.001,
+        0.001,
+        0.001,
+        0.004,
+        0.016,
+        0.064,
+        0.256,
+        1.0    # level 10
+    ]
+    prototile_subsample = 1
+    if z < len(prototile_subsamples):
+        prototile_subsample = prototile_subsamples[z]
+
     if z < 5:
         # Further subsample the points
-        subsample = 2 ** (5 - z)  # z=4, subsample=2;  z=3, subsample=4 ...
+        subsample = 2.0 ** ((5.0 - z) / 2.0)  # z=4, subsample=2;  z=3, subsample=4 ...
+        # We're further subsampling the prototile
+        prototile_subsample /= subsample
         incount = int(incount / subsample)
     
     # Preallocate output array for returned tile
@@ -576,26 +638,83 @@ def generate_tile_data_png(layer, z, x, y):
     min_y = int(y) * local_tile_width
     max_y = min_y + local_tile_width
 
+
+    # z=10, r=0.5, area=1
+    # z=11, r=sqrt(2)/2, area=2
+    # z=12, 1, area=4
+    # z=13, sqrt(2), area=8
+    
     if z <= 10:
         radius = 0.5
     else:
         #radius = 2 ** (z-11)  # radius 1 for z=11.  radius 2 for z=12.  radius 4 for z=13
-        radius = 2 ** ((z-11)/2.0)  # radius 1 for z=11.  radius 2 for z=12.  radius 4 for z=13
-    
+        radius = 2 ** ((z-12)/2.0)  # radius 1 for z=11.  radius 2 for z=12.  radius 4 for z=13
+
+    print('in generate pixmap ', layer['colors_rgba8'])
     status = compute_tile_data_png(prototile_path, incount, tile_pixels, tile_width_in_pixels,
                                    layer['populations'], layer['colors_rgba8'],
-                                   min_x, min_y, max_x, max_y, radius)
+                                   min_x, min_y, max_x, max_y, radius,
+                                   z, block_areas, prototile_subsample)
     if status < 0:
         raise Exception('compute_tile_data returned error %d.  path %s %d' % (status, prototile_path, incount))
 
     duration = int(1000 * (time.time() - start_time))
-    log('{z}/{x}/{y}: {duration}ms to create PNG tile from prototile'.format(**locals()))
+    log('{z}/{x}/{y}: {duration}ms to create pixmap tile from prototile'.format(**locals()))
 
+    return tile_pixels
+
+def generate_tile_data_png(layer, z, x, y, tile_width_in_pixels):
+    tile_pixels = generate_tile_data_pixmap(layer, z, x, y, tile_width_in_pixels)
     out = StringIO.StringIO()
     scipy.misc.imsave(out, tile_pixels, format='png')
     png = out.getvalue()
     return png
+    
+def generate_tile_data_mp4(layers, z, x, y, tile_width_in_pixels):
+    # make ffmpeg
 
+    cmd = ['/usr/bin/ffmpeg']
+    # input from stdin, rgb24
+    cmd += ['-pix_fmt', 'rgba', '-f', 'rawvideo', '-s', '%dx%d' % (tile_width_in_pixels, tile_width_in_pixels), '-i', 'pipe:0', '-r', '10']
+    # output encoding
+    #cmd += ['-vcodec', 'libx264', '-preset', 'slow', '-pix_fmt', 'yuv420p', '-crf', '20', '-g', '10', '-bf', '0']
+    cmd += ['-vcodec', 'libx264', '-preset', 'slow', '-pix_fmt', 'yuv420p', '-crf', '20']
+    #cmd += ['-vcodec', 'libx264', '-preset', 'slow', '-pix_fmt', 'yuv444p', '-crf', '20']
+
+    #cmd += ['-c:v', 'libvpx-vp9', '-crf', '35', '-threads', '8', '-b:v', '10000k', '-pix_fmt', 'yuv444p']
+
+    
+    cmd += ['-movflags',  'faststart'] # move TOC to beginning for fast streaming
+
+    video_path = '/tmp/tile.%d.%s.mp4' % (os.getpid(), threading.current_thread().name)
+    #video_path = '/tmp/tile.%d.%s.webm' % (os.getpid(), threading.current_thread().name)
+    
+    cmd += ['-y', video_path]
+
+    log('about to start ffmpeg')
+    before_time = time.time()
+    p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=sys.stderr, stderr=sys.stderr)
+    log('started ffmpeg')
+
+    for frameno in range(0, len(layers)):
+        layer = layers[frameno]
+        tile_pixels = generate_tile_data_pixmap(layer, z, x, y, tile_width_in_pixels)
+        log('about to spoot frame %d of len %d' % (frameno, len(tile_pixels)))
+        p.stdin.write(tile_pixels)
+        log('done')
+        #(out, err) = p.communicate(tile_pixels)
+        #log('saw out:%s err:%s' % (out, err))
+
+    p.stdin.flush()
+    p.stdin.close()
+    ret = p.wait()
+    encoding_time = time.time() - before_time
+    video_contents = open(video_path).read()
+    os.unlink(video_path)
+    log('%s/%s/%s VIDSIZE %dKB TIME %.1fs CMD %s' % (z, x, y, int(len(video_contents)/1024), encoding_time, ' '.join(cmd)))
+    
+    return video_contents
+    
 def generate_tile_data(layer, z, x, y, use_c=False):
     start_time = time.time()
     # remove block # and seq #, add color
@@ -647,11 +766,32 @@ def find_or_generate_layer(layerdef):
     log('{layerdef_hash}: {duration}ms ({cpu}ms CPU) to create'.format(**locals()))
     return layer
 
+@app.route('/tilesv1/<layersdef>/512x512/<z>/<x>/<y>.mp4')
+def serve_video_tile_v1_mp4(layersdef, z, x, y):
+    x = int(int(x) / 4)
+    y = int(int(y) / 4)
+    (x,y)=(y,x)
+    try:
+        layers = [find_or_generate_layer(layer) for layer in layersdef.split(';;;')]
+        tile_width_in_pixels = 1024
+        tile = generate_tile_data_mp4(layers, z, x, y, tile_width_in_pixels)
+        
+        #response = flask.Response(tile, mimetype='video/mp4')
+        response = flask.Response(tile, mimetype='video/webm')
+    except InvalidUsage, e:
+        response = flask.Response('<h2>400 Invalid Usage</h2>' + e.message, status=400)
+    except:
+        print traceback.format_exc()
+        raise
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
+
 @app.route('/tilesv1/<layerdef>/<z>/<x>/<y>.png')
 def serve_tile_v1_png(layerdef, z, x, y):
     try:
         layer = find_or_generate_layer(layerdef)
-        tile = generate_tile_data_png(layer, z, x, y)
+        tile_width_in_pixels = 512
+        tile = generate_tile_data_png(layer, z, x, y, tile_width_in_pixels)
         outcount = len(tile) / tile_record_len
         
         response = flask.Response(tile, mimetype='image/png')
