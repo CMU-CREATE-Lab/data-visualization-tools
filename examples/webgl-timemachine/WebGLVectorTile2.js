@@ -508,7 +508,7 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
       var has_lat_lon = (
         header[1].substr(0,3).toLowerCase() == 'lat' &&
         header[2].substr(0,3).toLowerCase() == 'lon');
-      var has_packedColor = (header[3].substr(0,11).toLowerCase() == 'packedcolor');
+      var has_packedColor = (header[3] && header[3].substr(0,11).toLowerCase() == 'packedcolor');
       var first_data_col = has_packedColor ? 4 : (has_lat_lon ? 3 : 1);
       var epochs = [];
       var points = [];
