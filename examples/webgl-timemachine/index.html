@@ -18,6 +18,7 @@
   <link href="../../js/customVideoTagControls/customVideoTagControls.css" rel="stylesheet" type="text/css" />
   <link href="../../css/jquery.multiselect.css" rel="stylesheet" type="text/css" />
   <link href="index.css" rel="stylesheet" type="text/css" />
+  <link href="Wizard.css" rel="stylesheet" type="text/css" />
   <link href="StoryEditor.css" rel="stylesheet" type="text/css" />
   <link href="SetViewTool.css" rel="stylesheet" type="text/css" />
 
@@ -285,7 +286,7 @@
     var useRetinaLightNoLabelsBaseMap = baseMapsNoLabels ? true : (typeof(EARTH_TIMELAPSE_CONFIG.useRetinaLightNoLabelsBaseMap) == "undefined") ? false : !!EARTH_TIMELAPSE_CONFIG.useRetinaLightNoLabelsBaseMap;
     var useRetinaDarkBaseMap = (typeof(EARTH_TIMELAPSE_CONFIG.useRetinaDarkBaseMap) == "undefined") ? false : !!EARTH_TIMELAPSE_CONFIG.useRetinaDarkBaseMap;
     var useRetinaDarkNoLabelsBaseMap = baseMapsNoLabels ? true : (typeof(EARTH_TIMELAPSE_CONFIG.useRetinaDarkNoLabelsBaseMap) == "undefined") ? false : !!EARTH_TIMELAPSE_CONFIG.useRetinaDarkNoLabelsBaseMap;
-    var enableStoryEditor = false;
+    var enableStoryEditor = true;
 
     // TODO: Until we decide to force everyone to latest landsat, pull the version corresponding to the config above.
     if (landsatVersion == "2015"){
@@ -4442,6 +4443,7 @@
       if (enableThemeHamburgerButton) {
         // May just be a single item if there is only only one or zero themes designated
         waypointJSONList = snaplapseForPresentationSlider.CSVToJSONList(waypointdefs);
+        console.log(waypointJSONList);
         for (var themeId in waypointJSONList) {
           var themeTitle = waypointJSONList[themeId].themeTitle;
           var stories = waypointJSONList[themeId].stories;
@@ -8488,7 +8490,7 @@
 
 	function isPairCandidate(layer) {
 	  return layer.visible && layer.paired;
-	}		      
+	}
 
 	// Set up to draw half-circles if we have exactly two visible paired layers
 	var pairCount = 0;
@@ -8547,7 +8549,7 @@
         //    options.mode = 3.0;
         //  }
         //}
-			    
+
         if (showIomIdpLayer) {
           var iomIdpLayerView = getLayerView(iomIdpLayer, landsatBaseMapLayer);
           var options = {};

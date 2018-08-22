@@ -60,20 +60,20 @@
       <div class="wizard-body-top">
         <h3>Step 3:&nbsp; Waypoints</h3>
         <p>Click on the following tabs to <span class="highlight-text">choose</span> and <span class="highlight-text">edit</span> waypoints. To <span class="highlight-text">reorder</span> waypoints, drag and drop the tabs.</p>
-        <div class="custom-accordion add-top-margin story-editor-waypoints-accordion">
+        <div class="custom-accordion add-top-margin">
           <div class="custom-accordion-tab">
             <h3><span class="custom-accordion-tab-header-text">&nbsp;</span></h3>
             <div>
               <span>Waypoint title:</span>
-              <input type="text" class="custom-textbox add-bottom-margin-small story-editor-waypoint-title-textbox" maxlength="20" placeholder="(max 20 characters)">
+              <input type="text" class="custom-textbox add-bottom-margin-small story-editor-title-textbox" maxlength="20" placeholder="(max 20 characters)">
               <span>Annotation title:</span>
-              <input type="text" class="custom-textbox add-bottom-margin-small story-editor-waypoint-long-title-textbox" maxlength="40" placeholder="(max 40 characters)">
+              <input type="text" class="custom-textbox add-bottom-margin-small story-editor-long-title-textbox" maxlength="40" placeholder="(max 40 characters)">
               <span>Annotation text:</span>
-              <textarea class="custom-textbox large-textbox add-bottom-margin-medium story-editor-waypoint-description-textbox" maxlength="300" placeholder="(max 300 characters)"></textarea>
+              <textarea class="custom-textbox large-textbox add-bottom-margin-medium story-editor-description-textbox" maxlength="300" placeholder="(max 300 characters)"></textarea>
               <div class="even-space-content">
-                <button class="custom-button custom-button-primary story-editor-add-waypoint">Add</button>
-                <button class="custom-button custom-button-danger story-editor-delete-waypoint">Delete</button>
-                <button class="custom-button custom-button-primary story-editor-set-waypoint-view">Set View</button>
+                <button class="custom-button custom-button-primary story-editor-add-button">Add</button>
+                <button class="custom-button custom-button-danger story-editor-delete-button">Delete</button>
+                <button class="custom-button custom-button-primary story-editor-set-view-button">Set View</button>
               </div>
               <div class="add-top-margin-medium story-editor-thumbnail-preview">
                 <span class="story-editor-thumbnail-preview-text">Preview <span class="highlight-text">landscape</span> and <span class="highlight-text">portrait</span> views.</span>
@@ -86,6 +86,9 @@
           </div>
         </div>
       </div>
+      <div class="custom-dialog hide" title="Delete waypoint?">
+        <p><span class="ui-icon ui-icon-alert"></span>This waypoint will be deleted.</p>
+      </div>
       <div class="wizard-body-bottom">
         <p>Click the "Save" button to save this story as a spreadsheet.</p>
         <div class="even-space-content">
@@ -93,9 +96,6 @@
           <button class="custom-button custom-button-primary half-width-button next-button">Save</button>
         </div>
       </div>
-    </div>
-    <div class="custom-dialog hide story-editor-delete-waypoint-confirm-dialog" title="Delete waypoint?">
-      <p><span class="ui-icon ui-icon-alert"></span>This waypoint will be deleted.</p>
     </div>
     <div class="hide story-editor-load">
       <div class="wizard-body-top">
@@ -115,21 +115,24 @@
       <div class="wizard-body-top">
         <h3>Step 2:&nbsp; Theme</h3>
         <p class="add-bottom-margin">Use the following tabs to <span class="highlight-text">edit</span> themes retrieved from the link. You can also <span class="highlight-text">add or delete</span> new themes.</p>
-        <div class="custom-accordion add-top-margin story-editor-edit-theme-accordion">
+        <div class="custom-accordion add-top-margin">
           <div class="custom-accordion-tab">
             <h3><span class="custom-accordion-tab-header-text">&nbsp;</span></h3>
             <div>
               <span>Theme title:</span>
-              <input type="text" class="custom-textbox add-bottom-margin-small story-editor-edit-theme-title-textbox" maxlength="30" placeholder="(max 30 characters)">
+              <input type="text" class="custom-textbox add-bottom-margin-small story-editor-title-textbox" maxlength="30" placeholder="(max 30 characters)">
               <span>Theme description:</span>
-              <textarea class="custom-textbox large-textbox add-bottom-margin-medium story-editor-edit-theme-description-textbox" maxlength="300" placeholder="(max 300 characters)"></textarea>
+              <textarea class="custom-textbox large-textbox add-bottom-margin-medium story-editor-description-textbox" maxlength="300" placeholder="(max 300 characters)"></textarea>
               <div class="even-space-content">
-                <button class="custom-button custom-button-primary half-width-button story-editor-edit-add-theme">Add</button>
-                <button class="custom-button custom-button-danger half-width-button story-editor-edit-delete-theme">Delete</button>
+                <button class="custom-button custom-button-primary half-width-button story-editor-add-button">Add</button>
+                <button class="custom-button custom-button-danger half-width-button story-editor-delete-button">Delete</button>
               </div>
             </div>
           </div>
         </div>
+      </div>
+      <div class="custom-dialog hide" title="Delete theme?">
+        <p><span class="ui-icon ui-icon-alert"></span>This theme will be deleted.</p>
       </div>
       <div class="wizard-body-bottom">
         <p>Click the "Next" button to add or edit a story in the selected theme.</p>

@@ -28,14 +28,14 @@
     var on_show_callback = settings["on_show_callback"];
     var on_hide_callback = settings["on_hide_callback"];
     var $this;
-    var $intro, $theme_metadata, $story_metadata;
-    var $waypoints, waypoints_accordion, $waypoints_accordion, $waypoint_delete_dialog;
+    var $intro;
+    var $theme_metadata, $theme_title, $theme_description;
+    var $story_metadata, $story_title, $story_description, $story_authors, $story_view;
+    var $waypoints, waypoints_accordion;
     var $current_thumbnail_preview;
     var set_view_tool;
-    var $theme_title, $theme_description;
-    var $story_title, $story_description, $story_authors, $story_view;
     var $load, $sheet_url;
-    var $edit_theme, edit_theme_accordion, $edit_theme_accordion;
+    var $edit_theme, edit_theme_accordion;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -155,70 +155,9 @@
       $waypoints.find(".next-button").on("click", function () {
         download(dataToTsv(collectData()));
       });
-      waypoints_accordion = new CustomAccordion("#" + container_id + " .story-editor-waypoints-accordion", {
-        on_tab_add_callback: function ($old_tab) {
-          // Enable the delete button of the old tab if it was the only one tab in the accordion
-          if (waypoints_accordion.getNumOfTabs() == 2) {
-            $old_tab.find(".story-editor-delete-waypoint").prop("disabled", false);
-          }
-        },
-        on_tab_delete_callback: function () {
-          // Disable the delete button of the active tab if there is only one tab left
-          if (waypoints_accordion.getNumOfTabs() == 1) {
-            $waypoints_accordion.find(".story-editor-delete-waypoint").prop("disabled", true);
-          }
-        },
-        before_tab_clone_callback: function ($tab_template) {
-          $tab_template.find(".story-editor-set-waypoint-view").on("click", function () {
-            $current_thumbnail_preview = waypoints_accordion.getActiveTab().find(".story-editor-thumbnail-preview");
-            set_view_tool.show();
-            $this.hide();
-          });
-          $tab_template.find(".story-editor-add-waypoint").on("click", function () {
-            waypoints_accordion.addEmptyTab();
-          });
-          $tab_template.find(".story-editor-delete-waypoint").on("click", function () {
-            $waypoint_delete_dialog.dialog("open");
-          });
-          $tab_template.find(".story-editor-waypoint-title-textbox").on("input", function () {
-            waypoints_accordion.setActiveTabHeaderText($(this).val());
-          });
-          $tab_template.find(".story-editor-thumbnail-preview").hide();
-        }
-      });
-      $waypoints_accordion = waypoints_accordion.getUI();
-      $waypoints_accordion.find(".story-editor-delete-waypoint").prop("disabled", true);
-
-      // The confirm dialog when deleting a waypoint
-      $waypoint_delete_dialog = $this.find(".story-editor-delete-waypoint-confirm-dialog");
-      $waypoint_delete_dialog.dialog({
-        appendTo: $this,
-        autoOpen: false,
-        resizable: false,
-        height: "auto",
-        draggable: false,
-        width: 245,
-        modal: true,
-        position: {my: "center", at: "center", of: $this},
-        classes: {"ui-dialog": "custom-dialog"}, // this is for jquery 1.12 and after
-        dialogClass: "custom-dialog", // this is for before jquery 1.12
-        buttons: {
-          "Delete": {
-            class: "ui-delete-button",
-            text: "Delete",
-            click: function () {
-              $(this).dialog("close");
-              waypoints_accordion.deleteActiveTab();
-            }
-          },
-          "Cancel": {
-            class: "ui-cancel-button",
-            text: "Cancel",
-            click: function () {
-              $(this).dialog("close");
-            }
-          }
-        }
+      waypoints_accordion = createAccordion({
+        accordion: "#" + container_id + " .story-editor-waypoints .custom-accordion",
+        delete_confirm_dialog: "#" + container_id + " .story-editor-waypoints .custom-dialog"
       });
     }
 
@@ -248,44 +187,89 @@
       $edit_theme.find(".next-button").on("click", function () {
         //transition($edit_theme, );
       });
-      edit_theme_accordion = new CustomAccordion("#" + container_id + " .story-editor-edit-theme-accordion",{
+      edit_theme_accordion = createAccordion({
+        accordion: "#" + container_id + " .story-editor-edit-theme .custom-accordion",
+        delete_confirm_dialog: "#" + container_id + " .story-editor-edit-theme .custom-dialog"
+      });
+    }
+
+    // Create a generalizable jQuery accordion for different editing purposes
+    // Also a dialog for deleting tabs in the accordion
+    function createAccordion(selector) {
+      var $delete_confirm_dialog;
+      var accordion = new CustomAccordion(selector["accordion"], {
         on_tab_add_callback: function ($old_tab) {
           // Enable the delete button of the old tab if it was the only one tab in the accordion
-          if (edit_theme_accordion.getNumOfTabs() == 2) {
-            $old_tab.find(".story-editor-edit-delete-theme").prop("disabled", false);
-          }
+          var $tabs = accordion.getTabs();
+          if ($tabs.length == 2) $old_tab.find(".story-editor-delete-button").prop("disabled", false);
         },
         on_tab_delete_callback: function () {
           // Disable the delete button of the active tab if there is only one tab left
-          if (edit_theme_accordion.getNumOfTabs() == 1) {
-            $edit_theme_accordion.find(".story-editor-edit-delete-theme").prop("disabled", true);
-          }
+          var $tabs = accordion.getTabs();
+          if ($tabs.length == 1) $tabs.find(".story-editor-delete-button").prop("disabled", true);
         },
         before_tab_clone_callback: function ($tab_template) {
-          $tab_template.find(".story-editor-edit-add-theme").on("click", function () {
-            edit_theme_accordion.addEmptyTab();
+          $tab_template.find(".story-editor-set-view-button").on("click", function () {
+            $current_thumbnail_preview = accordion.getActiveTab().find(".story-editor-thumbnail-preview");
+            set_view_tool.show();
+            $this.hide();
           });
-          $tab_template.find(".story-editor-edit-delete-theme").on("click", function () {
-            edit_theme_accordion.deleteActiveTab();
+          $tab_template.find(".story-editor-add-button").on("click", function () {
+            accordion.addEmptyTab();
           });
-          $tab_template.find(".story-editor-edit-theme-title-textbox").on("input", function () {
-            edit_theme_accordion.setActiveTabHeaderText($(this).val());
+          $tab_template.find(".story-editor-delete-button").on("click", function () {
+            $delete_confirm_dialog.dialog("open");
           });
+          $tab_template.find(".story-editor-title-textbox").on("input", function () {
+            accordion.setActiveTabHeaderText($(this).val());
+          });
+          $tab_template.find(".story-editor-thumbnail-preview").hide();
         }
       });
-      $edit_theme_accordion = edit_theme_accordion.getUI();
-      $edit_theme_accordion.find(".story-editor-edit-delete-theme").prop("disabled", true);
+      accordion.getUI().find(".story-editor-delete-button").prop("disabled", true);
+
+      // The confirm dialog when deleting a tab
+      $delete_confirm_dialog = $(selector["delete_confirm_dialog"]).dialog({
+        appendTo: $this,
+        autoOpen: false,
+        resizable: false,
+        height: "auto",
+        draggable: false,
+        width: 245,
+        modal: true,
+        position: {my: "center", at: "center", of: $this},
+        classes: {"ui-dialog": "custom-dialog"}, // this is for jquery 1.12 and after
+        dialogClass: "custom-dialog", // this is for before jquery 1.12
+        buttons: {
+          "Delete": {
+            class: "ui-delete-button",
+            text: "Delete",
+            click: function () {
+              $(this).dialog("close");
+              accordion.deleteActiveTab();
+            }
+          },
+          "Cancel": {
+            class: "ui-cancel-button",
+            text: "Cancel",
+            click: function () {
+              $(this).dialog("close");
+            }
+          }
+        }
+      });
+      return accordion;
     }
 
-    // Collect story data from the user interface
+    // Collect story data from the user interface (this is for starting a story from scratch)
     function collectData() {
       var waypoints = [];
-      $waypoints_accordion.find(".custom-accordion-tab").each(function () {
+      waypoints_accordion.getTabs().each(function () {
         var $ui = $(this);
         waypoints.push({
-          waypoint_title: $ui.find(".story-editor-waypoint-title-textbox").val(),
-          waypoint_long_title: $ui.find(".story-editor-waypoint-long-title-textbox").val(),
-          waypoint_description: $ui.find(".story-editor-waypoint-description-textbox").val(),
+          waypoint_title: $ui.find(".story-editor-title-textbox").val(),
+          waypoint_long_title: $ui.find(".story-editor-long-title-textbox").val(),
+          waypoint_description: $ui.find(".story-editor-description-textbox").val(),
           waypoint_view: $ui.find(".story-editor-thumbnail-preview-landscape").data("view")
         });
       });
@@ -483,7 +467,7 @@
     var addEmptyTab = function () {
       // Add a new tab after the current active tab (if it exists)
       var active_index = $ui.accordion("option", "active");
-      var $old_tab = $($ui.find(".custom-accordion-tab")[active_index]);
+      var $old_tab = $(getTabs()[active_index]);
       var $new_tab = $tab_template.clone(true, true);
       $old_tab.after($new_tab);
       $ui.accordion("refresh");
@@ -515,7 +499,7 @@
 
     var getActiveTab = function () {
       var active_index = $ui.accordion("option", "active");
-      return $($ui.find(".custom-accordion-tab")[active_index]);
+      return $(getTabs()[active_index]);
     };
     this.getActiveTab = getActiveTab;
 
@@ -525,7 +509,7 @@
     this.setActiveTabHeaderText = setActiveTabHeaderText;
 
     var getNumOfTabs = function () {
-      return $ui.find(".custom-accordion-tab").length;
+      return getTabs().length;
     };
     this.getNumOfTabs = getNumOfTabs;
 
@@ -533,6 +517,11 @@
       return $ui;
     };
     this.getUI = getUI;
+
+    var getTabs = function() {
+      return $ui.find(".custom-accordion-tab");
+    };
+    this.getTabs = getTabs;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

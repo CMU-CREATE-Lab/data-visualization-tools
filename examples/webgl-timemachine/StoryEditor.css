@@ -1,12 +1,12 @@
-.story-editor-set-waypoint-view {
+.story-editor-waypoints .story-editor-set-view-button {
   width: 36%;
 }
 
-.story-editor-add-waypoint {
+.story-editor-waypoints .story-editor-add-button {
   width: 24%;
 }
 
-.story-editor-delete-waypoint {
+.story-editor-waypoints .story-editor-delete-button {
   width: 31%;
 }
 
