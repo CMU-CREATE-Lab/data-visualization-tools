@@ -1,3 +1,14 @@
+// This is the set view tool for the EarthTime project
+// [https://github.com/CMU-CREATE-Lab/data-visualization-tools]
+// Files:
+// - SetViewTool.js
+// - SetViewTool.html
+// - SetViewTool.css
+// Dependencies:
+// - jQuery [https://jquery.com/]
+// - time machine [https://github.com/CMU-CREATE-Lab/timemachine-viewer]
+// - the wizard template [wizard.css]
+
 (function () {
   "use strict";
 
@@ -10,6 +21,7 @@
     //
     // Variables
     //
+    settings = (typeof settings === "undefined") ? {} : settings;
     var container_id = settings["container_id"];
     var on_view_set_callback = settings["on_view_set_callback"];
     var on_cancel_callback = settings["on_cancel_callback"];

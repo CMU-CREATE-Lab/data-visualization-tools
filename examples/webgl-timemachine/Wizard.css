@@ -207,6 +207,16 @@ This is the main template of the wizard (step by step guides)
   padding: 15px 20px 17px 20px;
 }
 
+.custom-accordion .custom-accordion-header-active {
+  border: 1px solid #005cbf !important;
+  background-color: #007bff !important;
+  color: white !important;
+}
+
+.custom-accordion .custom-accordion-header-active .ui-icon {
+  background-image: url(../../images/ui-icons_ffffff_256x240.png) !important;
+}
+
 .custom-textbox {
   box-sizing: border-box;
   padding: 5px 7px;

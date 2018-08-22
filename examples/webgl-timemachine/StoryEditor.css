@@ -10,7 +10,7 @@
   width: 31%;
 }
 
-.story-editor-thumbnail-preview-container {
+.story-editor-thumbnail-preview {
   position: relative;
 }
 
@@ -26,7 +26,7 @@
 }
 
 .story-editor-story-metadata .story-editor-thumbnail-preview-portrait {
-  min-height: 159px;
+  min-height: 158px;
 }
 
 .story-editor-waypoints .story-editor-thumbnail-preview-landscape {
@@ -34,7 +34,7 @@
 }
 
 .story-editor-waypoints .story-editor-thumbnail-preview-portrait {
-  min-height: 132px;
+  min-height: 131px;
 }
 
 .story-editor-thumbnail-preview-landscape {
