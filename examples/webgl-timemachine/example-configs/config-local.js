@@ -59,5 +59,6 @@ var EARTH_TIMELAPSE_CONFIG = {
   "showBePm25": true,
   "showIrena": true,
   "showCityLabelMap": true,
-  "showTsip": false
+  "showTsip": false,
+  "showEcco2": false
 };

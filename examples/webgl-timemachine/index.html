@@ -228,6 +228,7 @@
     var showGoes16 = !!EARTH_TIMELAPSE_CONFIG.showGoes16;
     var showDscovr = !!EARTH_TIMELAPSE_CONFIG.showDscovr;
     var showAnnualGlobalPm25 = !!EARTH_TIMELAPSE_CONFIG.showAnnualGlobalPm25;
+    var showEcco2 = !!EARTH_TIMELAPSE_CONFIG.showEcco2;
 
     var showTile = true;
 
@@ -420,6 +421,8 @@
     var spCrudeLayerUSGC;
     var spCrudeLayerLatAM;
     var spCrudeLayerNS;
+
+    var ecco2Layer;
 
 /*    var spCrudeLayerWAF;
     setTimeLine('sp-crude-times', 2013, 2018, 1);
@@ -903,6 +906,7 @@
     var spCrudeUrlUSGC = rootTilePath + "/sp-crude/USGC/0-crude-flows_USGC.bin";
     var spCrudeUrlLatAM = rootTilePath + "/sp-crude/LatAM/0-crude-flows_LatAM.bin";
     var spCrudeUrlNS = rootTilePath + "/sp-crude/NS/0-crude-flows_NS.bin";
+    var ecco2Url = rootTilePath + "/oceans/ecco2.timemachine/crf24-10fps-2560x1440";
 
     /*
     var spCrudeUrlWAF = rootTilePath + "/sp-crude/0-crude-flows_WAF.bin"
@@ -3289,6 +3293,36 @@
         }
       }).prop('checked', showSpCrudeLayerNS);
 
+
+      $("#show-ecco2").on("click", function() {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          ecco2Layer.getTileView().handleTileLoading({layerDomId: $this[0].id});
+          showEcco2Layer = true;
+          setActiveLayersWithTimeline(1);
+          visibleBaseMapLayer = "ecco2";
+          timelineType = "defaultUI";
+          requestNewTimeline("ecco2-times.json", timelineType);
+          var v = timelapse.getVideoset();
+          v.setFps(10);
+          timelapse.setDoDwell(true);
+          WebglVideoTile.useGreenScreen = false;
+          timelapse.setMasterPlaybackRate(1.0);
+          $("#baseLayerCreditContainer").hide();
+        } else {
+          showEcco2Layer = false;
+          cacheLastUsedLayer(ecco2Layer);
+          setActiveLayersWithTimeline(-1);
+          doSwitchToLandsat();
+          visibleBaseMapLayer = previousVisibleBaseMapLayer;
+          var v = timelapse.getVideoset();
+          v.setFps(10);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          $("#baseLayerCreditContainer").show();
+        }
+      }).prop('checked', showEcco2Layer);
+
+
 /*
       $("#show-sp-crude_WAF").on("click", function() {
         if ($(this).prop('checked')) {
@@ -4144,6 +4178,8 @@
     var showSpCrudeLayerUSGC = false;
     var showSpCrudeLayerLatAM = false;
     var showSpCrudeLayerNS = false;
+    var showEcco2Layer = false;
+
     /*
     var showSpCrudeLayerWAF = false;
     var showSpCrudeLayerNAF = false;
@@ -4626,6 +4662,7 @@
       var show_goes16 = '<td class="goes16-select"><label for="show-goes16" name="goes16"><input type="checkbox" id="show-goes16" />GOES16</label></td>';
       var show_dscovr = '<td class="dscovr-select"><label for="show-dscovr" name="dscovr"><input type="checkbox" id="show-dscovr" />DSCOVR</label></td>';
       var show_annual_global_pm25 = '<td class="annual-pm25-select"><label for="show-annual-pm25" name="annual-pm25"><input type="checkbox" id="show-annual-pm25" />Annual Global PM 2.5</label></td>';
+      var show_ecco2 = '<td class="ecco2-select"><label for="show-ecco2" name="ecco2"><input type="checkbox" id="show-ecco2" />ECCO2</label></td>';
 
 /*
       var show_sp_crude_WAF = '<td class="sp-crude-select_WAF"><label for="show-sp-crude_WAF" name="sp-crude_WAF"><input type="checkbox" id="show-sp-crude_WAF" />WAF Crude Oil flows</label></td>';
@@ -4676,6 +4713,17 @@
       }
       layer_html += '  </table>';
       /* END FOREST CATEGORY */
+
+      /* OCEANS CATEGORY */
+      layer_html += '  <h3>Oceans</h3>';
+      layer_html += '  <table id="category-oceans">';
+      if (showEcco2) {
+        layer_html += '   <tr>';
+        layer_html += show_ecco2;
+        layer_html += '   </tr>';
+      }
+      layer_html += '  </table>';
+      /* END OCEANS CATEGORY */
 
       /* WATER CATEGORY */
       layer_html += '  <h3>Water</h3>';
@@ -6057,6 +6105,20 @@
       spCrudeLayerNS = new WebglVectorLayer2(glb, canvasLayer, spCrudeUrlNS, layerOptions);
       spCrudeLayerNS.buffers = [];
 
+
+      // ECCO2
+      csvFileLayers.setTimeLine("ecco2-times", "19920102", "20000317", 3);
+      var ecco2Options = {
+        mediaType: ".mp4",
+        numFrames: cached_ajax['ecco2-times.json']['capture-times'].length,
+        fps: 10,
+        nLevels: 1,
+        video_width: 2560,
+        video_height: 1440,
+        width: 1440,
+        height: 1440
+      };
+      ecco2Layer = new WebglTimeMachineLayer(glb, canvasLayer, ecco2Url, ecco2Options);
 
       // Layer Toggle UI
       initLayerToggleUI();
@@ -8416,6 +8478,12 @@
         if (showAnnualGlobalPm25TimeMachineLayer) {
           var view = getLayerView(annualGlobalPm25TimeMachineLayer, landsatBaseMapLayer);
           annualGlobalPm25TimeMachineLayer.draw(view, tileViewVisibility);
+        }
+
+        // Draw ECCO2
+        if (showEcco2Layer) {
+          var view = getLayerView(ecco2Layer, landsatBaseMapLayer);
+          ecco2Layer.draw(view, tileViewVisibility);
         }
 
 	function isPairCandidate(layer) {
