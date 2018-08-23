@@ -286,7 +286,7 @@
     var useRetinaLightNoLabelsBaseMap = baseMapsNoLabels ? true : (typeof(EARTH_TIMELAPSE_CONFIG.useRetinaLightNoLabelsBaseMap) == "undefined") ? false : !!EARTH_TIMELAPSE_CONFIG.useRetinaLightNoLabelsBaseMap;
     var useRetinaDarkBaseMap = (typeof(EARTH_TIMELAPSE_CONFIG.useRetinaDarkBaseMap) == "undefined") ? false : !!EARTH_TIMELAPSE_CONFIG.useRetinaDarkBaseMap;
     var useRetinaDarkNoLabelsBaseMap = baseMapsNoLabels ? true : (typeof(EARTH_TIMELAPSE_CONFIG.useRetinaDarkNoLabelsBaseMap) == "undefined") ? false : !!EARTH_TIMELAPSE_CONFIG.useRetinaDarkNoLabelsBaseMap;
-    var enableStoryEditor = true;
+    var enableStoryEditor = false;
 
     // TODO: Until we decide to force everyone to latest landsat, pull the version corresponding to the config above.
     if (landsatVersion == "2015"){
@@ -4443,7 +4443,6 @@
       if (enableThemeHamburgerButton) {
         // May just be a single item if there is only only one or zero themes designated
         waypointJSONList = snaplapseForPresentationSlider.CSVToJSONList(waypointdefs);
-        console.log(waypointJSONList);
         for (var themeId in waypointJSONList) {
           var themeTitle = waypointJSONList[themeId].themeTitle;
           var stories = waypointJSONList[themeId].stories;
