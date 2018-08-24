@@ -67,7 +67,7 @@
       // Video settings
       $video_settings = $this.find(".set-view-tool-video-settings");
       $type = $this.find(".set-view-tool-type");
-      $type.find("input:radio[name='type']").on("change", changeViewType);
+      $type.find("input:radio[name='set-view-tool-type-input']").on("change", changeViewType);
 
       // Start and end time
       $start_time = $this.find(".set-view-tool-start-time");
@@ -175,7 +175,7 @@
     // Collect the parameters from the user interface
     function collectParameters() {
       // View type
-      var type = $type.find("input:radio[name='type']:checked").val();
+      var type = $type.find("input:radio[name='set-view-tool-type-input']:checked").val();
 
       // Start time
       var start_time = parseCaptureTime($start_time.val(), "start");
@@ -200,7 +200,7 @@
       var end_time = parseCaptureTime($end_time.val(), "end");
 
       // Playback speed
-      var speed = $speed.find("input:radio[name='playback-speed']:checked").val();
+      var speed = $speed.find("input:radio[name='set-view-tool-speed-input']:checked").val();
       var speed = parseFloat(speed) * 100;
 
       // Delays

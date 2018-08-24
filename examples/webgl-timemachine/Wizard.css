@@ -116,11 +116,11 @@ This is the main template of the wizard (step by step guides)
 }
 
 .full-width-button {
-  width: 100%;
+  width: 100% !important;
 }
 
 .half-width-button {
-  width: 47%;
+  width: 47% !important;
 }
 
 .large-textbox {
@@ -187,10 +187,95 @@ This is the main template of the wizard (step by step guides)
   border-radius: 2px;
 }
 
+.custom-dropdown {
+  position: relative;
+  display: block;
+}
+
+.custom-dropdown > button {
+  padding: 5px 26px 5px 8px;
+  outline: none;
+  border-radius: 2px;
+  cursor: pointer;
+  box-shadow: none;
+  transition: background-color 0.1s, box-shadow 0.1s, border 0.1s;
+  text-decoration: none;
+  display: block;
+  box-sizing: border-box;
+  color: black;
+  height: 28px;
+  border: 1px solid #7d7d7d;
+  background-color: white;
+  width: 100%;
+}
+
+.custom-dropdown > button > span {
+  text-align: left;
+  font-size: 14px !important;
+  line-height: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  display: block;
+  text-overflow: ellipsis;
+}
+
+.custom-dropdown > button:after {
+  position: absolute;
+  content: "";
+  top: 13px;
+  right: 10px;
+  width: 0;
+  height: 0;
+  border: 4px solid transparent;
+  border-top-color: black;
+}
+
+.custom-dropdown > button:hover {
+  background-color: #4d4d4d;
+  border-color: #4d4d4d;
+}
+
+.custom-dropdown > div {
+  display: none;
+  position: absolute;
+  top: 0;
+  border: 1px solid #7d7d7d;
+  background-color: white;
+  z-index: 1;
+  box-sizing: border-box;
+  border-radius: 2px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.custom-dropdown:hover > div {
+  display: block;
+}
+
+.custom-dropdown > div > a {
+  color: black;
+  padding: 5px 8px;
+  text-decoration: none;
+  text-align: left;
+  display: block;
+  outline: none;
+  font-size: 14px !important;
+  line-height: 16px;
+  white-space: nowrap;
+  border-left: 0;
+  border-top: 0;
+  border-right: 0;
+}
+
+.custom-dropdown > div > a:hover {
+  background-color: #e1e1e1;
+  color: black;
+}
+
 .custom-accordion .ui-accordion-header {
   padding-top: 5px;
   padding-bottom: 5px;
   font-size: 14px !important;
+  min-height: 20px;
 }
 
 .custom-accordion .ui-accordion-header-active {
@@ -205,6 +290,7 @@ This is the main template of the wizard (step by step guides)
 
 .custom-accordion .ui-accordion-content {
   padding: 15px 20px 17px 20px;
+  overflow: visible;
 }
 
 .custom-accordion .custom-accordion-header-active {
@@ -321,7 +407,16 @@ This is the main template of the wizard (step by step guides)
 
 .custom-dialog .ui-dialog-content .ui-icon-alert {
   float: left;
-  margin: 1px 5px 0 0;
+  margin: 1px 0 0 0;
+  padding: 0;
+}
+
+.custom-dialog .ui-dialog-content p {
+  display: grid;
+  grid-template-areas: "a b";
+  grid-template-columns: 20px auto;
+  align-items: center;
+  grid-gap: 5px;
 }
 
 .custom-radio {

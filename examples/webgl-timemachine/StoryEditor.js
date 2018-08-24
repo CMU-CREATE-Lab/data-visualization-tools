@@ -29,13 +29,15 @@
     var on_hide_callback = settings["on_hide_callback"];
     var $this;
     var $intro;
-    var $theme_metadata, $theme_title, $theme_description;
-    var $story_metadata, $story_title, $story_description, $story_authors, $story_view;
+    var $theme, $theme_title, $theme_description;
+    var $story, $story_title, $story_description, $story_authors, $story_view;
     var $waypoints, waypoints_accordion;
     var $current_thumbnail_preview;
     var set_view_tool;
     var $load, $sheet_url;
     var $edit_theme, edit_theme_accordion;
+    var $edit_story, edit_story_accordion, $edit_story_select_theme;
+    var $edit_waypoints, edit_waypoints_accordion;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -66,6 +68,8 @@
       createWaypointUI();
       createLoadUI();
       createEditThemeUI();
+      creatEditStoryUI();
+      createEditWaypointUI();
       // TODO: need to prevent the keyboard from firing events that control the viewer
     }
 
@@ -92,7 +96,7 @@
     function createIntroductionUI() {
       $intro = $this.find(".story-editor-intro");
       $intro.find(".story-editor-create-button").on("click", function () {
-        transition($intro, $theme_metadata);
+        transition($intro, $theme);
       });
       $intro.find(".story-editor-edit-button").on("click", function () {
         transition($intro, $load);
@@ -101,48 +105,36 @@
 
     // For creating a theme
     function createThemeMetadataUI() {
-      $theme_metadata = $this.find(".story-editor-theme-metadata");
-      $theme_metadata.find(".back-button").on("click", function () {
-        transition($theme_metadata, $intro);
+      $theme = $this.find(".story-editor-theme");
+      $theme.find(".back-button").on("click", function () {
+        transition($theme, $intro);
       });
-      $theme_metadata.find(".next-button").on("click", function () {
-        transition($theme_metadata, $story_metadata);
+      $theme.find(".next-button").on("click", function () {
+        transition($theme, $story);
       });
-      $theme_title = $theme_metadata.find(".story-editor-theme-title-textbox");
-      $theme_description = $theme_metadata.find(".story-editor-theme-description-textbox");
+      $theme_title = $theme.find(".story-editor-theme-title-textbox");
+      $theme_description = $theme.find(".story-editor-theme-description-textbox");
     }
 
     // For creating a story
     function createStoryMetadataUI() {
-      $story_metadata = $this.find(".story-editor-story-metadata");
-      $story_metadata.find(".back-button").on("click", function () {
-        transition($story_metadata, $theme_metadata);
+      $story = $this.find(".story-editor-story");
+      $story.find(".back-button").on("click", function () {
+        transition($story, $theme);
       });
-      $story_metadata.find(".next-button").on("click", function () {
-        transition($story_metadata, $waypoints);
+      $story.find(".next-button").on("click", function () {
+        transition($story, $waypoints);
       });
-      $story_metadata.find(".story-editor-set-cover-view-button").on("click", function () {
-        $current_thumbnail_preview = $story_metadata.find(".story-editor-thumbnail-preview");
+      $story.find(".story-editor-set-cover-view-button").on("click", function () {
+        $current_thumbnail_preview = $story.find(".story-editor-thumbnail-preview");
         set_view_tool.show();
         $this.hide();
       });
-      $story_metadata.find(".story-editor-thumbnail-preview").hide();
-      $story_title = $story_metadata.find(".story-editor-story-title-textbox");
-      $story_description = $story_metadata.find(".story-editor-story-description-textbox");
-      $story_authors = $story_metadata.find(".story-editor-story-authors-textbox");
-      $story_view = $story_metadata.find(".story-editor-thumbnail-preview-landscape");
-    }
-
-    function setThumbnailPreview(urls) {
-      $current_thumbnail_preview.show();
-      var $l = $current_thumbnail_preview.find(".story-editor-thumbnail-preview-landscape");
-      var $p = $current_thumbnail_preview.find(".story-editor-thumbnail-preview-portrait");
-      $l.prop("href", urls["landscape"]["render"]["url"]);
-      $l.data("view", urls["landscape"]["render"]["orignialRootUrl"]);
-      $l.find("img").prop("src", urls["landscape"]["preview"]["url"]);
-      $p.prop("href", urls["portrait"]["render"]["url"]);
-      $p.data("view", urls["portrait"]["render"]["orignialRootUrl"]);
-      $p.find("img").prop("src", urls["portrait"]["preview"]["url"]);
+      $story.find(".story-editor-thumbnail-preview").hide();
+      $story_title = $story.find(".story-editor-story-title-textbox");
+      $story_description = $story.find(".story-editor-story-description-textbox");
+      $story_authors = $story.find(".story-editor-story-authors-textbox");
+      $story_view = $story.find(".story-editor-thumbnail-preview-landscape");
     }
 
     // For waypoints
@@ -150,7 +142,7 @@
       // For displaying waypoints
       $waypoints = $this.find(".story-editor-waypoints");
       $waypoints.find(".back-button").on("click", function () {
-        transition($waypoints, $story_metadata);
+        transition($waypoints, $story);
       });
       $waypoints.find(".next-button").on("click", function () {
         download(dataToTsv(collectData()));
@@ -168,12 +160,13 @@
         transition($load, $intro);
       });
       $load.find(".next-button").on("click", function () {
+        transition($load, $edit_theme);
         // This util function name is misleading, it converts spreadsheet into csv, not json
-        util.gdocToJSON($sheet_url.val(), function (tsv) {
-          var data = tsvToData(tsv);
-          console.log(data);
-          transition($load, $edit_theme);
-        });
+        //util.gdocToJSON($sheet_url.val(), function (tsv) {
+        //  var data = tsvToData(tsv);
+        //  console.log(data);
+        //  transition($load, $edit_theme);
+        //});
       });
       $sheet_url = $load.find(".sheet-url-textbox");
     }
@@ -185,12 +178,56 @@
         transition($edit_theme, $load);
       });
       $edit_theme.find(".next-button").on("click", function () {
-        //transition($edit_theme, );
+        transition($edit_theme, $edit_story);
       });
       edit_theme_accordion = createAccordion({
         accordion: "#" + container_id + " .story-editor-edit-theme .custom-accordion",
         delete_confirm_dialog: "#" + container_id + " .story-editor-edit-theme .custom-dialog"
       });
+    }
+
+    // For editing a story in a selected theme
+    function creatEditStoryUI() {
+      $edit_story = $this.find(".story-editor-edit-story");
+      $edit_story.find(".back-button").on("click", function () {
+        transition($edit_story, $edit_theme);
+      });
+      $edit_story.find(".next-button").on("click", function () {
+        transition($edit_story, $edit_waypoints);
+      });
+      $edit_story_select_theme = $edit_story.find(".story-editor-selected-theme");
+      edit_story_accordion = createAccordion({
+        accordion: "#" + container_id + " .story-editor-edit-story .custom-accordion",
+        delete_confirm_dialog: "#" + container_id + " .story-editor-edit-story .custom-dialog"
+      });
+    }
+
+    // For editing waypoints in a story
+    function createEditWaypointUI() {
+      $edit_waypoints = $this.find(".story-editor-edit-waypoints");
+      $edit_waypoints.find(".back-button").on("click", function () {
+        transition($edit_waypoints, $edit_story);
+      });
+      $edit_waypoints.find(".next-button").on("click", function () {
+        //download
+      });
+      edit_waypoints_accordion = createAccordion({
+        accordion: "#" + container_id + " .story-editor-edit-waypoints .custom-accordion",
+        delete_confirm_dialog: "#" + container_id + " .story-editor-edit-waypoints .custom-dialog"
+      });
+    }
+
+    // Set thumbnail preview images (also put the video or image url inside href)
+    function setThumbnailPreview(urls) {
+      $current_thumbnail_preview.show();
+      var $l = $current_thumbnail_preview.find(".story-editor-thumbnail-preview-landscape");
+      var $p = $current_thumbnail_preview.find(".story-editor-thumbnail-preview-portrait");
+      $l.prop("href", urls["landscape"]["render"]["url"]);
+      $l.data("view", urls["landscape"]["render"]["orignialRootUrl"]);
+      $l.find("img").prop("src", urls["landscape"]["preview"]["url"]);
+      $p.prop("href", urls["portrait"]["render"]["url"]);
+      $p.data("view", urls["portrait"]["render"]["orignialRootUrl"]);
+      $p.find("img").prop("src", urls["portrait"]["preview"]["url"]);
     }
 
     // Create a generalizable jQuery accordion for different editing purposes
@@ -518,7 +555,7 @@
     };
     this.getUI = getUI;
 
-    var getTabs = function() {
+    var getTabs = function () {
       return $ui.find(".custom-accordion-tab");
     };
     this.getTabs = getTabs;

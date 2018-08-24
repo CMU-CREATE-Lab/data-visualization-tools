@@ -9,7 +9,7 @@
       <p>You can also <span class="highlight-text">add and edit</span> stories that were created before. A public link to the stories is required.</p>
       <button class="custom-button full-width-button custom-button-primary story-editor-edit-button">Add or Edit Stories</button>
     </div>
-    <div class="hide story-editor-theme-metadata">
+    <div class="hide story-editor-theme">
       <div class="wizard-body-top">
         <h3>Step 1:&nbsp; Theme</h3>
         <p class="add-bottom-margin">Each story belongs to a broader theme. Specify the theme metadata.</p>
@@ -26,7 +26,7 @@
         </div>
       </div>
     </div>
-    <div class="hide story-editor-story-metadata">
+    <div class="hide story-editor-story">
       <div class="wizard-body-top">
         <h3>Step 2:&nbsp; Story</h3>
         <p class="add-bottom-margin">Specify the metadata for the story.</p>
@@ -59,10 +59,10 @@
     <div class="hide story-editor-waypoints">
       <div class="wizard-body-top">
         <h3>Step 3:&nbsp; Waypoints</h3>
-        <p>Click on the following tabs to <span class="highlight-text">choose</span> and <span class="highlight-text">edit</span> waypoints. To <span class="highlight-text">reorder</span> waypoints, drag and drop the tabs.</p>
+        <p>Click on the tabs to <span class="highlight-text">choose</span> and <span class="highlight-text">edit</span> waypoints. To <span class="highlight-text">reorder</span> waypoints, drag and drop the tabs.</p>
         <div class="custom-accordion add-top-margin">
           <div class="custom-accordion-tab">
-            <h3><span class="custom-accordion-tab-header-text">&nbsp;</span></h3>
+            <h3><span class="custom-accordion-tab-header-text"></span></h3>
             <div>
               <span>Waypoint title:</span>
               <input type="text" class="custom-textbox add-bottom-margin-small story-editor-title-textbox" maxlength="20" placeholder="(max 20 characters)">
@@ -104,7 +104,7 @@
         <input type="text" class="custom-textbox add-bottom-margin sheet-url-textbox" placeholder="https//:">
       </div>
       <div class="wizard-body-bottom">
-        <p>Click the "Next" button to add or edit themes retrieved from the link.</p>
+        <p>Click the "Next" button to add or edit themes loaded from the link.</p>
         <div class="even-space-content">
           <button class="custom-button half-width-button back-button" type="button">Back</button>
           <button class="custom-button custom-button-primary half-width-button next-button" type="submit">Next</button>
@@ -114,10 +114,10 @@
     <div class="hide story-editor-edit-theme">
       <div class="wizard-body-top">
         <h3>Step 2:&nbsp; Theme</h3>
-        <p class="add-bottom-margin">Use the following tabs to <span class="highlight-text">edit</span> themes retrieved from the link. You can also <span class="highlight-text">add or delete</span> new themes.</p>
+        <p class="add-bottom-margin">Use the tabs to <span class="highlight-text">select</span> and <span class="highlight-text">edit</span> themes. You can also <span class="highlight-text">add</span> or <span class="highlight-text">delete</span> themes.</p>
         <div class="custom-accordion add-top-margin">
           <div class="custom-accordion-tab">
-            <h3><span class="custom-accordion-tab-header-text">&nbsp;</span></h3>
+            <h3><span class="custom-accordion-tab-header-text"></span></h3>
             <div>
               <span>Theme title:</span>
               <input type="text" class="custom-textbox add-bottom-margin-small story-editor-title-textbox" maxlength="30" placeholder="(max 30 characters)">
@@ -132,10 +132,101 @@
         </div>
       </div>
       <div class="custom-dialog hide" title="Delete theme?">
-        <p><span class="ui-icon ui-icon-alert"></span>This theme will be deleted.</p>
+        <p><span class="ui-icon ui-icon-alert"></span>This theme and the stories in this theme will be deleted.</p>
       </div>
       <div class="wizard-body-bottom">
-        <p>Click the "Next" button to add or edit a story in the selected theme.</p>
+        <p>Click the "Next" button to add or edit stories in the selected theme.</p>
+        <div class="even-space-content">
+          <button class="custom-button half-width-button back-button">Back</button>
+          <button class="custom-button custom-button-primary half-width-button next-button">Next</button>
+        </div>
+      </div>
+    </div>
+    <div class="hide story-editor-edit-story">
+      <div class="wizard-body-top">
+        <h3>Step 3:&nbsp; Story</h3>
+        <p class="add-bottom-margin">Use the tabs to <span class="highlight-text">select</span> and <span class="highlight-text">edit</span> stories. You can also <span class="highlight-text">add</span> or <span class="highlight-text">delete</span> stories. Use the dropdown menu to <span class="highlight-text">move</span> stories to another theme.</p>
+        <div class="custom-accordion add-top-margin">
+          <div class="custom-accordion-tab">
+            <h3><span class="custom-accordion-tab-header-text"></span></h3>
+            <div>
+              <span>Story theme:</span>
+              <div class="custom-dropdown add-bottom-margin-small story-editor-selected-theme">
+                <button><span>Theme Theme Theme Theme Theme</span></button>
+                <div>
+                  <a href="javascript:void(0)">Theme Theme Theme Theme Theme</a>
+                  <a href="javascript:void(0)">Theme2</a>
+                  <a href="javascript:void(0)">Theme3</a>
+                  <a href="javascript:void(0)">Theme4</a>
+                  <a href="javascript:void(0)">Theme5</a>
+                </div>
+              </div>
+              <span>Story title:</span>
+              <input type="text" class="custom-textbox add-bottom-margin-small story-editor-title-textbox" maxlength="20" placeholder="(max 20 characters)">
+              <span>Story description:</span>
+              <textarea class="custom-textbox large-textbox add-bottom-margin-medium story-editor-description-textbox" maxlength="300" placeholder="(max 300 characters)"></textarea>
+              <div class="even-space-content">
+                <button class="custom-button custom-button-primary story-editor-add-button">Add</button>
+                <button class="custom-button custom-button-danger story-editor-delete-button">Delete</button>
+                <button class="custom-button custom-button-primary story-editor-set-view-button">Set View</button>
+              </div>
+              <div class="add-top-margin-medium story-editor-thumbnail-preview">
+                <span class="story-editor-thumbnail-preview-text">Preview <span class="highlight-text">landscape</span> and <span class="highlight-text">portrait</span> views.</span>
+                <div class="even-space-content-align-bottom">
+                  <a href="javascript:void(0)" target="_blank" class="image story-editor-thumbnail-preview-landscape"><img src=""></a>
+                  <a href="javascript:void(0)" target="_blank" class="image story-editor-thumbnail-preview-portrait"><img src=""></a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="custom-dialog hide" title="Delete story?">
+        <p><span class="ui-icon ui-icon-alert"></span>This story and the waypoints in this story will be deleted.</p>
+      </div>
+      <div class="wizard-body-bottom">
+        <p>Click the "Next" button to add or edit waypoints in the selected story.</p>
+        <div class="even-space-content">
+          <button class="custom-button half-width-button back-button">Back</button>
+          <button class="custom-button custom-button-primary half-width-button next-button">Next</button>
+        </div>
+      </div>
+    </div>
+    <div class="hide story-editor-edit-waypoints">
+      <div class="wizard-body-top">
+        <h3>Step 4:&nbsp; Waypoints</h3>
+        <p>Click on the tabs to <span class="highlight-text">choose</span> and <span class="highlight-text">edit</span> waypoints. To <span class="highlight-text">reorder</span> waypoints, drag and drop the tabs.</p>
+        <div class="custom-accordion add-top-margin">
+          <div class="custom-accordion-tab">
+            <h3><span class="custom-accordion-tab-header-text"></span></h3>
+            <div>
+              <span>Waypoint title:</span>
+              <input type="text" class="custom-textbox add-bottom-margin-small story-editor-title-textbox" maxlength="20" placeholder="(max 20 characters)">
+              <span>Annotation title:</span>
+              <input type="text" class="custom-textbox add-bottom-margin-small story-editor-long-title-textbox" maxlength="40" placeholder="(max 40 characters)">
+              <span>Annotation description:</span>
+              <textarea class="custom-textbox large-textbox add-bottom-margin-medium story-editor-description-textbox" maxlength="300" placeholder="(max 300 characters)"></textarea>
+              <div class="even-space-content">
+                <button class="custom-button custom-button-primary story-editor-add-button">Add</button>
+                <button class="custom-button custom-button-danger story-editor-delete-button">Delete</button>
+                <button class="custom-button custom-button-primary story-editor-set-view-button">Set View</button>
+              </div>
+              <div class="add-top-margin-medium story-editor-thumbnail-preview">
+                <span class="story-editor-thumbnail-preview-text">Preview <span class="highlight-text">landscape</span> and <span class="highlight-text">portrait</span> views.</span>
+                <div class="even-space-content-align-bottom">
+                  <a href="javascript:void(0)" target="_blank" class="image story-editor-thumbnail-preview-landscape"><img src=""></a>
+                  <a href="javascript:void(0)" target="_blank" class="image story-editor-thumbnail-preview-portrait"><img src=""></a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="custom-dialog hide" title="Delete story?">
+        <p><span class="ui-icon ui-icon-alert"></span>This waypoint will be deleted.</p>
+      </div>
+      <div class="wizard-body-bottom">
+        <p>Click the "Next" button to save this spreadsheet.</p>
         <div class="even-space-content">
           <button class="custom-button half-width-button back-button">Back</button>
           <button class="custom-button custom-button-primary half-width-button next-button">Next</button>

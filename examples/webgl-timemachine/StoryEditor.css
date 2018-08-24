@@ -1,12 +1,12 @@
-.story-editor-waypoints .story-editor-set-view-button {
+.story-editor-set-view-button {
   width: 36%;
 }
 
-.story-editor-waypoints .story-editor-add-button {
+.story-editor-add-button {
   width: 24%;
 }
 
-.story-editor-waypoints .story-editor-delete-button {
+.story-editor-delete-button {
   width: 31%;
 }
 
@@ -21,20 +21,20 @@
   width: 60%;
 }
 
-.story-editor-story-metadata .story-editor-thumbnail-preview-landscape {
-  min-height: 85px;
-}
-
-.story-editor-story-metadata .story-editor-thumbnail-preview-portrait {
-  min-height: 158px;
-}
-
-.story-editor-waypoints .story-editor-thumbnail-preview-landscape {
+.story-editor-thumbnail-preview-landscape {
   min-height: 71px;
 }
 
-.story-editor-waypoints .story-editor-thumbnail-preview-portrait {
+.story-editor-thumbnail-preview-portrait {
   min-height: 131px;
+}
+
+.story-editor-story .story-editor-thumbnail-preview-landscape {
+  min-height: 85px !important;
+}
+
+.story-editor-story .story-editor-thumbnail-preview-portrait {
+  min-height: 158px !important;
 }
 
 .story-editor-thumbnail-preview-landscape {
