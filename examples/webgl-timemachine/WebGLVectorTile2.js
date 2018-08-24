@@ -536,28 +536,28 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
 
       for (var i = first_data_col; i < header.length; i++) {
         var date = header[i];
-	// Date can be YYYY or YYYYMM or YYYYMMDD or YYYYMMDDHHMM or YYYYMMDDHHMMSS
-	var yyyymmddhhmmss_re = /(\d{4})(\d{2})?(\d{2})?(\d{2})?(\d{2})?(\d{2})?$/;
-	var m = date.match(yyyymmddhhmmss_re);
-	if (!m) {
-	  console.log('Cannot parse date ' + date);
-	  break;
-	}
-	var to_parse = m[1]; // YYYY
-	if (m[2] !== undefined) {
-	  to_parse += '-' + m[2]; // MM
-	  if (m[3] != undefined) {
-	    to_parse += '-' + m[3]; // DD
-	    if (m[4] != undefined && m[5] != undefined) {
-	      to_parse += ' ' + m[4] + ':' + m[5]; // HH:MM
-	      if (m[6] != undefined) {
-		to_parse += ':' + m[6]; // SS
+	      // Date can be YYYY or YYYYMM or YYYYMMDD or YYYYMMDDHHMM or YYYYMMDDHHMMSS
+        var yyyymmddhhmmss_re = /(\d{4})(\d{2})?(\d{2})?(\d{2})?(\d{2})?(\d{2})?$/;
+	      var m = date.match(yyyymmddhhmmss_re);
+	      if (!m) {
+	        console.log('Cannot parse date ' + date);
+	        break;
 	      }
-	    }
-	  }
-	}
-	to_parse += ' GMT'
-	epochs[i] = new Date(to_parse).getTime()/1000;
+	      var to_parse = m[1]; // YYYY
+	      if (m[2] !== undefined) {
+	        to_parse += '-' + m[2]; // MM
+	        if (m[3] != undefined) {
+	          to_parse += '-' + m[3]; // DD
+	          if (m[4] != undefined && m[5] != undefined) {
+	            to_parse += ' ' + m[4] + ':' + m[5]; // HH:MM
+	            if (m[6] != undefined) {
+		            to_parse += ':' + m[6]; // SS
+	            }
+	          }
+	        }
+	      }
+	      to_parse += ' GMT'
+	      epochs[i] = new Date(to_parse).getTime()/1000;
       }
 
       for (var i = 1; i < that.jsondata.data.length; i++) {
@@ -721,7 +721,14 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
       that.jsondata = Papa.parse(csvdata, {header: false});
       var t1 = performance.now();
       console.log("Parsed csv data in " + (t1 - t0) + "ms");
+
       var header = that.jsondata.data[0];
+      var has_lat_lon = (
+        header[1].substr(0,3).toLowerCase() == 'lat' &&
+        header[2].substr(0,3).toLowerCase() == 'lon');
+      var has_packedColor = (header[3] && header[3].substr(0,11).toLowerCase() == 'packedcolor');
+      var first_data_col = has_packedColor ? 4 : (has_lat_lon ? 3 : 1);
+
       var epochs = [];
       var points = [];
       var maxValue = 0;
@@ -730,7 +737,7 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
       var rawVerts = [];
       var t0 = performance.now();
       var totalSearchTime = 0;
-      for (var i = 1; i < header.length; i++) {
+      for (var i = first_data_col; i < header.length; i++) {
         var date = header[i];
         // Date can be YYYY or YYYYMM or YYYYMMDD or YYYYMMDDHHMM or YYYYMMDDHHMMSS
         var yyyymmddhhmmss_re = /(\d{4})(\d{2})?(\d{2})?(\d{2})?(\d{2})?(\d{2})?$/;
@@ -772,7 +779,7 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
           //console.log('ERROR: Could not find ' + country[0]);
         } else {
           var idx = [];
-          for (var j = 1; j < country.length; j++) {
+          for (var j = first_data_col; j < country.length; j++) {
             country[j] = country[j].replace(/,/g , "");
             if (country[j] != "") {
               idx.push(j);
