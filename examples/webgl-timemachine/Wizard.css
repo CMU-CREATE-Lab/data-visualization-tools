@@ -390,17 +390,17 @@ This is the main template of the wizard (step by step guides)
   border: 1px solid #4d4d4d;
 }
 
-.custom-dialog .ui-dialog-buttonpane .ui-button.ui-delete-button {
+.custom-dialog .ui-dialog-buttonpane .ui-button.ui-action-button {
   background-color: #dc3545;
   border: 1px solid #dc3545;
 }
 
-.custom-dialog .ui-dialog-buttonpane .ui-button.ui-delete-button:not(:disabled):hover {
+.custom-dialog .ui-dialog-buttonpane .ui-button.ui-action-button:not(:disabled):hover {
   background-color: #a71120;
   border: 1px solid #a71120;
 }
 
-.custom-dialog .ui-dialog-buttonpane .ui-button.ui-delete-button:not(:disabled):active {
+.custom-dialog .ui-dialog-buttonpane .ui-button.ui-action-button:not(:disabled):active {
   background-color: #a71120;
   border: 1px solid #a71120;
 }

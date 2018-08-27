@@ -30,8 +30,9 @@
     var $this;
     var $intro;
     var $theme, $theme_title, $theme_description;
-    var $story, $story_title, $story_description, $story_authors, $story_view;
+    var $story, $story_title, $story_description, $story_authors, $story_view, $story_thumbnail_preview;
     var $waypoints, waypoints_accordion;
+    var $save;
     var $current_thumbnail_preview;
     var set_view_tool;
     var $load, $sheet_url;
@@ -66,6 +67,7 @@
       createThemeMetadataUI();
       createStoryMetadataUI();
       createWaypointUI();
+      createSaveUI();
       createLoadUI();
       createEditThemeUI();
       creatEditStoryUI();
@@ -130,7 +132,7 @@
         set_view_tool.show();
         $this.hide();
       });
-      $story.find(".story-editor-thumbnail-preview").hide();
+      $story_thumbnail_preview = $story.find(".story-editor-thumbnail-preview").hide();
       $story_title = $story.find(".story-editor-story-title-textbox");
       $story_description = $story.find(".story-editor-story-description-textbox");
       $story_authors = $story.find(".story-editor-story-authors-textbox");
@@ -139,18 +141,53 @@
 
     // For waypoints
     function createWaypointUI() {
-      // For displaying waypoints
       $waypoints = $this.find(".story-editor-waypoints");
       $waypoints.find(".back-button").on("click", function () {
         transition($waypoints, $story);
       });
       $waypoints.find(".next-button").on("click", function () {
-        download(dataToTsv(collectData()));
+        transition($waypoints, $save);
       });
       waypoints_accordion = createAccordion({
         accordion: "#" + container_id + " .story-editor-waypoints .custom-accordion",
-        delete_confirm_dialog: "#" + container_id + " .story-editor-waypoints .custom-dialog"
+        delete_confirm_dialog: "#" + container_id + " .story-editor-waypoints .delete-confirm-dialog"
       });
+    }
+
+    // For saving a newly created story
+    function createSaveUI() {
+      var $next_confirm_dialog;
+      $save = $this.find(".story-editor-save");
+      $save.find(".back-button").on("click", function () {
+        transition($save, $waypoints);
+      });
+      $save.find(".next-button").on("click", function () {
+        $next_confirm_dialog.dialog("open");
+      });
+      $save.find(".story-editor-download-button").on("click", function () {
+        download(dataToTsv(collectData()));
+      });
+      $next_confirm_dialog = createConfirmDialog({
+        selector: "#" + container_id + " .story-editor-save .next-confirm-dialog",
+        action_text: "Finish",
+        action_callback: function () {
+          resetCreateStoryUI();
+          transition($save, $intro);
+        }
+      });
+    }
+
+    // Reset the user interface for creating a story
+    function resetCreateStoryUI() {
+      $theme_title.val("");
+      $theme_description.val("");
+      $story_title.val("");
+      $story_description.val("");
+      $story_authors.val("");
+      $story_thumbnail_preview.find("a").prop("href", "javascript:void(0)");
+      $story_thumbnail_preview.find("img").prop("src", "");
+      $story_thumbnail_preview.hide();
+      waypoints_accordion.reset();
     }
 
     // For loading a Google spreadsheet
@@ -182,7 +219,7 @@
       });
       edit_theme_accordion = createAccordion({
         accordion: "#" + container_id + " .story-editor-edit-theme .custom-accordion",
-        delete_confirm_dialog: "#" + container_id + " .story-editor-edit-theme .custom-dialog"
+        delete_confirm_dialog: "#" + container_id + " .story-editor-edit-theme .delete-confirm-dialog"
       });
     }
 
@@ -198,7 +235,7 @@
       $edit_story_select_theme = $edit_story.find(".story-editor-selected-theme");
       edit_story_accordion = createAccordion({
         accordion: "#" + container_id + " .story-editor-edit-story .custom-accordion",
-        delete_confirm_dialog: "#" + container_id + " .story-editor-edit-story .custom-dialog"
+        delete_confirm_dialog: "#" + container_id + " .story-editor-edit-story .delete-confirm-dialog"
       });
     }
 
@@ -213,7 +250,7 @@
       });
       edit_waypoints_accordion = createAccordion({
         accordion: "#" + container_id + " .story-editor-edit-waypoints .custom-accordion",
-        delete_confirm_dialog: "#" + container_id + " .story-editor-edit-waypoints .custom-dialog"
+        delete_confirm_dialog: "#" + container_id + " .story-editor-edit-waypoints .delete-confirm-dialog"
       });
     }
 
@@ -228,6 +265,43 @@
       $p.prop("href", urls["portrait"]["render"]["url"]);
       $p.data("view", urls["portrait"]["render"]["orignialRootUrl"]);
       $p.find("img").prop("src", urls["portrait"]["preview"]["url"]);
+    }
+
+    // Create a confirmation dialog
+    function createConfirmDialog(settings) {
+      settings = typeof settings === "undefined" ? {} : settings;
+      var $dialog = $(settings["selector"]).dialog({
+        appendTo: $this,
+        autoOpen: false,
+        resizable: false,
+        height: "auto",
+        draggable: false,
+        width: 245,
+        modal: true,
+        position: {my: "center", at: "center", of: $this},
+        classes: {"ui-dialog": "custom-dialog"}, // this is for jquery 1.12 and after
+        dialogClass: "custom-dialog", // this is for before jquery 1.12
+        buttons: {
+          "Action": {
+            class: "ui-action-button",
+            text: settings["action_text"],
+            click: function () {
+              $(this).dialog("close");
+              if (typeof settings["action_callback"] === "function") {
+                settings["action_callback"]();
+              }
+            }
+          },
+          "Cancel": {
+            class: "ui-cancel-button",
+            text: "Cancel",
+            click: function () {
+              $(this).dialog("close");
+            }
+          }
+        }
+      });
+      return $dialog;
     }
 
     // Create a generalizable jQuery accordion for different editing purposes
@@ -266,33 +340,11 @@
       accordion.getUI().find(".story-editor-delete-button").prop("disabled", true);
 
       // The confirm dialog when deleting a tab
-      $delete_confirm_dialog = $(selector["delete_confirm_dialog"]).dialog({
-        appendTo: $this,
-        autoOpen: false,
-        resizable: false,
-        height: "auto",
-        draggable: false,
-        width: 245,
-        modal: true,
-        position: {my: "center", at: "center", of: $this},
-        classes: {"ui-dialog": "custom-dialog"}, // this is for jquery 1.12 and after
-        dialogClass: "custom-dialog", // this is for before jquery 1.12
-        buttons: {
-          "Delete": {
-            class: "ui-delete-button",
-            text: "Delete",
-            click: function () {
-              $(this).dialog("close");
-              accordion.deleteActiveTab();
-            }
-          },
-          "Cancel": {
-            class: "ui-cancel-button",
-            text: "Cancel",
-            click: function () {
-              $(this).dialog("close");
-            }
-          }
+      $delete_confirm_dialog = createConfirmDialog({
+        selector: selector["delete_confirm_dialog"],
+        action_text: "Delete",
+        action_callback: function () {
+          accordion.deleteActiveTab();
         }
       });
       return accordion;
@@ -501,6 +553,14 @@
     //
     // Privileged methods
     //
+    var reset = function() {
+      // Reset the user interface
+      getTabs().remove();
+      $ui.append($tab_template.clone(true, true));
+      $ui.accordion("refresh");
+    };
+    this.reset = reset;
+
     var addEmptyTab = function () {
       // Add a new tab after the current active tab (if it exists)
       var active_index = $ui.accordion("option", "active");

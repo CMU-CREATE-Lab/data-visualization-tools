@@ -9,6 +9,17 @@
       <p>You can also <span class="highlight-text">add and edit</span> stories that were created before. A public link to the stories is required.</p>
       <button class="custom-button full-width-button custom-button-primary story-editor-edit-button">Add or Edit Stories</button>
     </div>
+    <!--    <div class="hide story-editor-empty">
+          <div class="wizard-body-top">
+          </div>
+          <div class="wizard-body-bottom">
+            <p></p>
+            <div class="even-space-content">
+              <button class="custom-button half-width-button back-button">Back</button>
+              <button class="custom-button custom-button-primary half-width-button next-button">Next</button>
+            </div>
+          </div>
+        </div>-->
     <div class="hide story-editor-theme">
       <div class="wizard-body-top">
         <h3>Step 1:&nbsp; Theme</h3>
@@ -86,14 +97,32 @@
           </div>
         </div>
       </div>
-      <div class="custom-dialog hide" title="Delete waypoint?">
+      <div class="custom-dialog hide delete-confirm-dialog" title="Delete waypoint?">
         <p><span class="ui-icon ui-icon-alert"></span>This waypoint will be deleted.</p>
       </div>
       <div class="wizard-body-bottom">
-        <p>Click the "Save" button to save this story as a spreadsheet.</p>
+        <p>Click the "Next" button to save or download this story.</p>
         <div class="even-space-content">
           <button class="custom-button half-width-button back-button">Back</button>
-          <button class="custom-button custom-button-primary half-width-button next-button">Save</button>
+          <button class="custom-button custom-button-primary half-width-button next-button">Next</button>
+        </div>
+      </div>
+    </div>
+    <div class="hide story-editor-save">
+      <h3>Step 4:&nbsp; Save</h3>
+      <p class="add-bottom-margin">Save the story as a Google Sheet or download it to your local machine.</p>
+      <p><span class="highlight-text">4.1</span>&nbsp;&nbsp; <span class="highlight-text">Save</span> the story as a publicly viewable Google Sheet. Authentication of Google Drive is required.</p>
+      <button class="custom-button full-width-button custom-button-primary add-bottom-margin story-editor-save-button" disabled>Save the Story in Google Sheet</button>
+      <p><span class="highlight-text">4.2</span>&nbsp;&nbsp; <span class="highlight-text">Download</span> the story. You can manually import the downloaded file into a Google Sheet later.</p>
+      <button class="custom-button full-width-button custom-button-primary add-bottom-margin story-editor-download-button">Download the Story</button>
+      <div class="custom-dialog hide next-confirm-dialog" title="Finish creating the story?">
+        <p><span class="ui-icon ui-icon-alert"></span>Once you proceed, any unsaved data will be lost.</p>
+      </div>
+      <div class="wizard-body-bottom">
+        <p>Click the "Finish" button to return to the front page.</p>
+        <div class="even-space-content">
+          <button class="custom-button half-width-button back-button">Back</button>
+          <button class="custom-button custom-button-danger half-width-button next-button">Finish</button>
         </div>
       </div>
     </div>
@@ -131,7 +160,7 @@
           </div>
         </div>
       </div>
-      <div class="custom-dialog hide" title="Delete theme?">
+      <div class="custom-dialog hide delete-confirm-dialog" title="Delete theme?">
         <p><span class="ui-icon ui-icon-alert"></span>This theme and the stories in this theme will be deleted.</p>
       </div>
       <div class="wizard-body-bottom">
@@ -181,7 +210,7 @@
           </div>
         </div>
       </div>
-      <div class="custom-dialog hide" title="Delete story?">
+      <div class="custom-dialog hide delete-confirm-dialog" title="Delete story?">
         <p><span class="ui-icon ui-icon-alert"></span>This story and the waypoints in this story will be deleted.</p>
       </div>
       <div class="wizard-body-bottom">
@@ -222,11 +251,11 @@
           </div>
         </div>
       </div>
-      <div class="custom-dialog hide" title="Delete story?">
+      <div class="custom-dialog hide delete-confirm-dialog" title="Delete story?">
         <p><span class="ui-icon ui-icon-alert"></span>This waypoint will be deleted.</p>
       </div>
       <div class="wizard-body-bottom">
-        <p>Click the "Next" button to save this spreadsheet.</p>
+        <p>Click the "Next" button to save or download the edited stories.</p>
         <div class="even-space-content">
           <button class="custom-button half-width-button back-button">Back</button>
           <button class="custom-button custom-button-primary half-width-button next-button">Next</button>
