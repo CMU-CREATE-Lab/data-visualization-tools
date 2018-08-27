@@ -30,7 +30,7 @@
     var $this;
     var $intro;
     var $theme, $theme_title, $theme_description;
-    var $story, $story_title, $story_description, $story_authors, $story_view, $story_thumbnail_preview;
+    var $story, $story_title, $story_description, $story_author, $story_view, $story_thumbnail_preview;
     var $waypoints, waypoints_accordion;
     var $save;
     var $current_thumbnail_preview;
@@ -137,7 +137,7 @@
       $story_thumbnail_preview = $story.find(".story-editor-thumbnail-preview").hide();
       $story_title = $story.find(".story-editor-story-title-textbox");
       $story_description = $story.find(".story-editor-story-description-textbox");
-      $story_authors = $story.find(".story-editor-story-authors-textbox");
+      $story_author = $story.find(".story-editor-story-author-textbox");
       $story_view = $story.find(".story-editor-thumbnail-preview-landscape");
     }
 
@@ -164,6 +164,7 @@
         transition($save, $waypoints);
       });
       $save.find(".next-button").on("click", function () {
+        // Check if the user truely wants to finish
         $next_confirm_dialog.dialog("open");
       });
       $save.find(".story-editor-download-button").on("click", function () {
@@ -171,7 +172,6 @@
       });
       $next_confirm_dialog = createConfirmDialog({
         selector: "#" + container_id + " .story-editor-save .next-confirm-dialog",
-        action_text: "Finish",
         action_callback: function () {
           resetCreateStoryUI();
           transition($save, $intro);
@@ -185,7 +185,7 @@
       $theme_description.val("");
       $story_title.val("");
       $story_description.val("");
-      $story_authors.val("");
+      $story_author.val("");
       $story_thumbnail_preview.find("a").prop("href", "javascript:void(0)");
       $story_thumbnail_preview.find("img").prop("src", "");
       $story_thumbnail_preview.hide();
@@ -199,29 +199,49 @@
         transition($load, $intro);
       });
       $load.find(".next-button").on("click", function () {
-        transition($load, $edit_theme);
+        $load.find(".next-button").prop("disabled", true);
         // This util function name is misleading, it converts spreadsheet into csv, not json
-        //util.gdocToJSON($sheet_url.val(), function (tsv) {
-        //  var data = tsvToData(tsv);
-        //  console.log(data);
-        //  transition($load, $edit_theme);
-        //});
+        util.gdocToJSON($sheet_url.val(), function (tsv) {
+          var data = tsvToData(tsv);
+          updateEditThemeUI(data);
+          transition($load, $edit_theme);
+          $load.find(".next-button").prop("disabled", false);
+        });
       });
       $sheet_url = $load.find(".sheet-url-textbox");
+      $sheet_url.val("https://docs.google.com/spreadsheets/d/1dn6nDMFevqPBdibzGvo9qC7CxwxdfZkDyd_ys6r-ODE/edit#gid=145707723");
     }
 
     // For edit themes loaded from a spreadsheet
     function createEditThemeUI() {
+      var $back_confirm_dialog;
+      var $next_confirm_dialog;
       $edit_theme = $this.find(".story-editor-edit-theme");
       $edit_theme.find(".back-button").on("click", function () {
-        transition($edit_theme, $load);
+        // Check if the user truely wants to load another sheet
+        $back_confirm_dialog.dialog("open");
       });
       $edit_theme.find(".next-button").on("click", function () {
-        transition($edit_theme, $edit_story);
+        // Check if the user selects a tab
+        if (edit_theme_accordion.getActiveTab().length > 0) {
+          transition($edit_theme, $edit_story);
+          updateEditStoryUI();
+        } else {
+          $next_confirm_dialog.dialog("open");
+        }
       });
       edit_theme_accordion = createAccordion({
         accordion: "#" + container_id + " .story-editor-edit-theme .custom-accordion",
         delete_confirm_dialog: "#" + container_id + " .story-editor-edit-theme .delete-confirm-dialog"
+      });
+      $back_confirm_dialog = createConfirmDialog({
+        selector: "#" + container_id + " .story-editor-edit-theme .back-confirm-dialog",
+        action_callback: function () {
+          transition($edit_theme, $load);
+        }
+      });
+      $next_confirm_dialog = createConfirmDialog({
+        selector: "#" + container_id + " .story-editor-edit-theme .next-confirm-dialog"
       });
     }
 
@@ -230,9 +250,11 @@
       $edit_story = $this.find(".story-editor-edit-story");
       $edit_story.find(".back-button").on("click", function () {
         transition($edit_story, $edit_theme);
+        updateEditStoryData();
       });
       $edit_story.find(".next-button").on("click", function () {
         transition($edit_story, $edit_waypoints);
+        updateEditStoryData();
       });
       $edit_story_select_theme = $edit_story.find(".story-editor-selected-theme");
       edit_story_accordion = createAccordion({
@@ -271,7 +293,6 @@
       });
       $next_confirm_dialog = createConfirmDialog({
         selector: "#" + container_id + " .story-editor-edit-save .next-confirm-dialog",
-        action_text: "Finish",
         action_callback: function () {
           resetEditStoryUI();
           transition($edit_save, $intro);
@@ -282,6 +303,50 @@
     // Reset the user interface for editing and adding stories
     function resetEditStoryUI() {
       //TODO
+    }
+
+    // Update the user interface of edting themes by using the loaded data
+    function updateEditThemeUI(data) {
+      edit_theme_accordion.reset();
+      for (var i = 0; i < data.length; i++) {
+        var $t = (i == 0) ? edit_theme_accordion.getActiveTab() : edit_theme_accordion.addEmptyTab();
+        var d = data[i];
+        $t.find(".custom-accordion-tab-header-text").text(d["theme_title"]);
+        $t.find(".story-editor-title-textbox").val(d["theme_title"]);
+        $t.find(".story-editor-description-textbox").val(d["theme_description"]);
+        $t.data("stories", d["stories"]);
+      }
+    }
+
+    // Update the user interface of edting stories by using the loaded data
+    function updateEditStoryUI() {
+      edit_story_accordion.reset();
+      var stories = edit_theme_accordion.getActiveTab().data("stories");
+      for (var i = 0; i < stories.length; i++) {
+        var $t = (i == 0) ? edit_story_accordion.getActiveTab() : edit_story_accordion.addEmptyTab();
+        var s = stories[i];
+        $t.find(".custom-accordion-tab-header-text").text(s["story_title"]);
+        $t.find(".story-editor-title-textbox").val(s["story_title"]);
+        $t.find(".story-editor-description-textbox").val(s["story_description"]);
+        $t.find(".story-editor-author-textbox").val(s["story_author"]);
+        $t.data("waypoints", s["waypoints"]);
+      }
+    }
+
+    // Update the loaded data by using the user interface of editing stories
+    function updateEditStoryData() {
+      var stories = [];
+      edit_story_accordion.getTabs().each(function () {
+        var $ui = $(this);
+        var waypoints = $ui.data("waypoints");
+        stories.push({
+          story_title: $ui.find(".story-editor-title-textbox").val(),
+          story_description: $ui.find(".story-editor-description-textbox").val(),
+          story_author: $ui.find(".story-editor-author-textbox").val(),
+          waypoints: (typeof waypoints === "undefined") ? [] : waypoints
+        });
+      });
+      edit_theme_accordion.getActiveTab().data("stories", stories);
     }
 
     // Set thumbnail preview images (also put the video or image url inside href)
@@ -300,6 +365,29 @@
     // Create a confirmation dialog
     function createConfirmDialog(settings) {
       settings = typeof settings === "undefined" ? {} : settings;
+      var has_action = (typeof settings["action_callback"] === "function");
+      var action_text = (typeof settings["action_text"] === "undefined") ? "Confirm" : settings["action_text"];
+      var cancel_text = has_action ? "Cancel" : "Ok";
+      cancel_text = (typeof settings["cancel_text"] === "undefined") ? cancel_text : settings["cancel_text"];
+      var buttons = {
+        "Cancel": {
+          class: "ui-cancel-button",
+          text: cancel_text,
+          click: function () {
+            $(this).dialog("close");
+          }
+        }
+      };
+      if (has_action) {
+        buttons["Action"] = {
+          class: "ui-action-button",
+          text: action_text,
+          click: function () {
+            $(this).dialog("close");
+            settings["action_callback"]();
+          }
+        }
+      }
       var $dialog = $(settings["selector"]).dialog({
         appendTo: $this,
         autoOpen: false,
@@ -311,25 +399,7 @@
         position: {my: "center", at: "center", of: $this},
         classes: {"ui-dialog": "custom-dialog"}, // this is for jquery 1.12 and after
         dialogClass: "custom-dialog", // this is for before jquery 1.12
-        buttons: {
-          "Action": {
-            class: "ui-action-button",
-            text: settings["action_text"],
-            click: function () {
-              $(this).dialog("close");
-              if (typeof settings["action_callback"] === "function") {
-                settings["action_callback"]();
-              }
-            }
-          },
-          "Cancel": {
-            class: "ui-cancel-button",
-            text: "Cancel",
-            click: function () {
-              $(this).dialog("close");
-            }
-          }
-        }
+        buttons: buttons
       });
       return $dialog;
     }
@@ -339,6 +409,9 @@
     function createAccordion(selector) {
       var $delete_confirm_dialog;
       var accordion = new CustomAccordion(selector["accordion"], {
+        on_reset_callback: function () {
+          accordion.getTabs().find(".story-editor-delete-button").prop("disabled", true);
+        },
         on_tab_add_callback: function ($old_tab) {
           // Enable the delete button of the old tab if it was the only one tab in the accordion
           var $tabs = accordion.getTabs();
@@ -372,7 +445,6 @@
       // The confirm dialog when deleting a tab
       $delete_confirm_dialog = createConfirmDialog({
         selector: selector["delete_confirm_dialog"],
-        action_text: "Delete",
         action_callback: function () {
           accordion.deleteActiveTab();
         }
@@ -399,7 +471,7 @@
           story_title: $story_title.val(),
           story_description: $story_description.val(),
           story_view: $story_view.data("view"),
-          story_authors: $story_authors.val(),
+          story_author: $story_author.val(),
           waypoints: waypoints
         }]
       }];
@@ -424,7 +496,7 @@
         tsv += "#" + t.theme_title + "\t" + t.theme_title + "\t" + t.theme_description + "\t\t\n";
         for (var j = 0; j < t["stories"].length; j++) {
           var s = t["stories"][j]; // story
-          tsv += "##" + s.story_title + "\t" + s.story_title + "\t" + s.story_description + "\t" + s.story_view + "\t" + s.story_authors + "\n";
+          tsv += "##" + s.story_title + "\t" + s.story_title + "\t" + s.story_description + "\t" + s.story_view + "\t" + s.story_author + "\n";
           for (var k = 0; k < s["waypoints"].length; k++) {
             var w = s["waypoints"][k]; // waypoints
             tsv += w.waypoint_title + "\t" + w.waypoint_long_title + "\t" + w.waypoint_description + "\t" + w.waypoint_view + "\t\n";
@@ -446,7 +518,7 @@
         var long_title = row["Annotation Title"];
         var description = row["Annotation Text"];
         var view = row["Share View"];
-        var authors = row["Author"];
+        var author = row["Author"];
         if (title.charAt(0) == "#" && title.charAt(1) != "#") {
           // This row indicates a theme
           current_theme = {
@@ -461,7 +533,7 @@
             story_title: title.replace("##", ""),
             story_description: description,
             story_view: view,
-            story_authors: authors,
+            story_author: author,
             waypoints: []
           };
           current_theme["stories"].push(current_story);
@@ -538,6 +610,7 @@
     var before_tab_clone_callback = settings["before_tab_clone_callback"];
     var on_tab_add_callback = settings["on_tab_add_callback"];
     var on_tab_delete_callback = settings["on_tab_delete_callback"];
+    var on_reset_callback = settings["on_reset_callback"];
     var $tab_template;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -551,6 +624,7 @@
         animate: false,
         collapsible: true,
         activate: function (event, ui) {
+          /*
           if (ui.newHeader.length == 0 && ui.newPanel.length == 0) {
             // This means that the tab is collapsed
             $(ui.oldHeader[0]).addClass("custom-accordion-header-active");
@@ -559,6 +633,7 @@
             // This means that a tab is activated from the collapsed state
             $(this).find(".custom-accordion-header-active").removeClass("custom-accordion-header-active");
           }
+          */
         }
       }).sortable({
         axis: "y",
@@ -584,17 +659,22 @@
     //
     // Privileged methods
     //
-    var reset = function() {
+    var reset = function () {
       // Reset the user interface
       getTabs().remove();
       $ui.append($tab_template.clone(true, true));
       $ui.accordion("refresh");
+
+      // Call back
+      if (typeof on_reset_callback === "function") {
+        on_reset_callback();
+      }
     };
     this.reset = reset;
 
     var addEmptyTab = function () {
       // Add a new tab after the current active tab (if it exists)
-      var active_index = $ui.accordion("option", "active");
+      var active_index = getActiveIndex();
       var $old_tab = $(getTabs()[active_index]);
       var $new_tab = $tab_template.clone(true, true);
       $old_tab.after($new_tab);
@@ -607,6 +687,7 @@
       if (typeof on_tab_add_callback === "function") {
         on_tab_add_callback($old_tab);
       }
+      return $new_tab;
     };
     this.addEmptyTab = addEmptyTab;
 
@@ -626,10 +707,14 @@
     this.deleteActiveTab = deleteActiveTab;
 
     var getActiveTab = function () {
-      var active_index = $ui.accordion("option", "active");
-      return $(getTabs()[active_index]);
+      return $(getTabs()[getActiveIndex()]);
     };
     this.getActiveTab = getActiveTab;
+
+    var getActiveIndex = function () {
+      return $ui.accordion("option", "active");
+    };
+    this.getActiveIndex = getActiveIndex;
 
     var setActiveTabHeaderText = function (txt) {
       getActiveTab().find(".custom-accordion-tab-header-text").text(txt);

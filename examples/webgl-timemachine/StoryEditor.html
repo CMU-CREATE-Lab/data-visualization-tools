@@ -48,7 +48,7 @@
         <p><span class="highlight-text">2.3</span>&nbsp;&nbsp; Enter the story <span class="highlight-text">description</span>:</p>
         <textarea class="custom-textbox large-textbox add-bottom-margin story-editor-story-description-textbox" maxlength="300" placeholder="story description (max 300 characters)"></textarea>
         <p><span class="highlight-text">2.4</span>&nbsp;&nbsp; Enter the story <span class="highlight-text">authors</span>:</p>
-        <input type="text" class="custom-textbox add-bottom-margin story-editor-story-authors-textbox" maxlength="300" placeholder="authors (max 300 characters)">
+        <input type="text" class="custom-textbox add-bottom-margin story-editor-story-author-textbox" maxlength="300" placeholder="authors (max 300 characters)">
         <p><span class="highlight-text">2.5</span>&nbsp;&nbsp; Set a <span class="highlight-text">cover view</span> for the story:</p>
         <button class="custom-button full-width-button custom-button-primary story-editor-set-cover-view-button">Set Cover View</button>
         <div class="add-top-margin story-editor-thumbnail-preview">
@@ -165,10 +165,16 @@
       <div class="custom-dialog hide delete-confirm-dialog" title="Delete theme?">
         <p><span class="ui-icon ui-icon-alert"></span>This theme and the stories in this theme will be deleted.</p>
       </div>
+      <div class="custom-dialog hide back-confirm-dialog" title="Load another sheet?">
+        <p><span class="ui-icon ui-icon-alert"></span>Once you go back, any unsaved data will be lost.</p>
+      </div>
+      <div class="custom-dialog hide next-confirm-dialog" title="No theme is selected!">
+        <p><span class="ui-icon ui-icon-alert"></span>Please click on a tab to select a theme before proceeding.</p>
+      </div>
       <div class="wizard-body-bottom">
         <p>Click the "Next" button to add or edit stories in the selected theme.</p>
         <div class="even-space-content">
-          <button class="custom-button half-width-button back-button">Back</button>
+          <button class="custom-button custom-button-danger half-width-button back-button">Back</button>
           <button class="custom-button custom-button-primary half-width-button next-button">Next</button>
         </div>
       </div>
@@ -183,19 +189,18 @@
             <div>
               <span>Story theme:</span>
               <div class="custom-dropdown add-bottom-margin-small story-editor-selected-theme">
-                <button><span>Theme Theme Theme Theme Theme</span></button>
+                <button><span>Theme</span></button>
                 <div>
-                  <a href="javascript:void(0)">Theme Theme Theme Theme Theme</a>
-                  <a href="javascript:void(0)">Theme2</a>
-                  <a href="javascript:void(0)">Theme3</a>
-                  <a href="javascript:void(0)">Theme4</a>
-                  <a href="javascript:void(0)">Theme5</a>
+                  <a href="javascript:void(0)">Theme</a>
+                  <a href="javascript:void(0)">Theme</a>
                 </div>
               </div>
               <span>Story title:</span>
               <input type="text" class="custom-textbox add-bottom-margin-small story-editor-title-textbox" maxlength="20" placeholder="(max 20 characters)">
               <span>Story description:</span>
               <textarea class="custom-textbox large-textbox add-bottom-margin-medium story-editor-description-textbox" maxlength="300" placeholder="(max 300 characters)"></textarea>
+              <span>Story authors:</span>
+              <input type="text" class="custom-textbox add-bottom-margin story-editor-author-textbox" maxlength="300" placeholder="authors (max 300 characters)">
               <div class="even-space-content">
                 <button class="custom-button custom-button-primary story-editor-add-button">Add</button>
                 <button class="custom-button custom-button-danger story-editor-delete-button">Delete</button>
