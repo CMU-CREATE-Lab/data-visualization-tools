@@ -39,6 +39,7 @@
     var $edit_theme, edit_theme_accordion;
     var $edit_story, edit_story_accordion, $edit_story_select_theme;
     var $edit_waypoints, edit_waypoints_accordion;
+    var $edit_save;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -72,6 +73,7 @@
       createEditThemeUI();
       creatEditStoryUI();
       createEditWaypointUI();
+      createEditSaveUI();
       // TODO: need to prevent the keyboard from firing events that control the viewer
     }
 
@@ -246,12 +248,40 @@
         transition($edit_waypoints, $edit_story);
       });
       $edit_waypoints.find(".next-button").on("click", function () {
-        //download
+        transition($edit_waypoints, $edit_save);
       });
       edit_waypoints_accordion = createAccordion({
         accordion: "#" + container_id + " .story-editor-edit-waypoints .custom-accordion",
         delete_confirm_dialog: "#" + container_id + " .story-editor-edit-waypoints .delete-confirm-dialog"
       });
+    }
+
+    // For saving edited stories
+    function createEditSaveUI() {
+      var $next_confirm_dialog;
+      $edit_save = $this.find(".story-editor-edit-save");
+      $edit_save.find(".back-button").on("click", function () {
+        transition($edit_save, $edit_waypoints);
+      });
+      $edit_save.find(".next-button").on("click", function () {
+        $next_confirm_dialog.dialog("open");
+      });
+      $edit_save.find(".story-editor-download-button").on("click", function () {
+        //download
+      });
+      $next_confirm_dialog = createConfirmDialog({
+        selector: "#" + container_id + " .story-editor-edit-save .next-confirm-dialog",
+        action_text: "Finish",
+        action_callback: function () {
+          resetEditStoryUI();
+          transition($edit_save, $intro);
+        }
+      });
+    }
+
+    // Reset the user interface for editing and adding stories
+    function resetEditStoryUI() {
+      //TODO
     }
 
     // Set thumbnail preview images (also put the video or image url inside href)
@@ -377,6 +407,7 @@
     }
 
     // Download tsv as spreadsheet
+    // TODO: this does not work on Firefox
     function download(tsv) {
       var a = document.createElement("a");
       a.href = "data:attachment/text," + encodeURI(tsv);
