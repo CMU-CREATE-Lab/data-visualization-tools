@@ -33,6 +33,8 @@
     var $delay_start, $delay_end;
     var thumbnail_tool;
     var start_frame_number, end_frame_number;
+    var DEFAULT_PREVIEW_WIDTH = 320;
+    var DEFAULT_PREVIEW_HEIGHT = 180;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -173,7 +175,9 @@
     }
 
     // Collect the parameters from the user interface
-    function collectParameters() {
+    function collectParameters(direction) {
+      var swap_width_height = (direction == "portrait") ? true : false;
+
       // View type
       var type = $type.find("input:radio[name='set-view-tool-type-input']:checked").val();
 
@@ -185,7 +189,11 @@
         bt: start_time,
         et: start_time,
         embedTime: false,
-        format: "png"
+        format: "png",
+        width: DEFAULT_PREVIEW_WIDTH,
+        height: DEFAULT_PREVIEW_HEIGHT,
+        fps: 30,
+        swapWidthHeight: swap_width_height
       };
 
       // Return settings for image
@@ -218,27 +226,29 @@
           embedTime: false,
           startDwell: delay_start,
           endDwell: delay_end,
-          format: "mp4"
+          format: "mp4",
+          width: DEFAULT_PREVIEW_WIDTH,
+          height: DEFAULT_PREVIEW_HEIGHT,
+          swapWidthHeight: swap_width_height
         }
       }
     }
 
-    // Set the view and pass in the url to the callback function
+    // Set the view and pass in the urls to the callback function
     function setView() {
-      // Collect parameters
-      var p = collectParameters();
-
-      // Get landscape and portrait urls from the thumbnail tool
+      // Get landscape urls from the thumbnail tool
+      var p = collectParameters("landscape");
       var url_landscape = {
         preview: thumbnail_tool.getURL(p["preview"]),
         render: thumbnail_tool.getURL(p["render"])
       };
-      toggleView();
+
+      // Get portrait urls from the thumbnail tool
+      p = collectParameters("portrait");
       var url_portrait = {
         preview: thumbnail_tool.getURL(p["preview"]),
         render: thumbnail_tool.getURL(p["render"])
       };
-      toggleView();
 
       // Check which one is the landscape view
       if (url_landscape["preview"]["args"]["width"] < url_landscape["preview"]["args"]["height"]) {
@@ -284,6 +294,43 @@
       }
     };
     this.hide = hide;
+
+    // Extract the landscape and portrait view from the share view
+    var extractView = function (share_view) {
+      var url_landscape = {
+        preview: thumbnail_tool.getUrlFromShareView({
+          shareView: share_view,
+          width: DEFAULT_PREVIEW_WIDTH,
+          height: DEFAULT_PREVIEW_HEIGHT,
+          format: "png"
+        }),
+        render: thumbnail_tool.getUrlFromShareView({
+          shareView: share_view,
+          width: DEFAULT_PREVIEW_WIDTH,
+          height: DEFAULT_PREVIEW_HEIGHT
+        })
+      };
+      var url_portrait = {
+        preview: thumbnail_tool.getUrlFromShareView({
+          shareView: share_view,
+          width: DEFAULT_PREVIEW_WIDTH,
+          height: DEFAULT_PREVIEW_HEIGHT,
+          format: "png",
+          swapWidthHeight: true
+        }),
+        render: thumbnail_tool.getUrlFromShareView({
+          shareView: share_view,
+          width: DEFAULT_PREVIEW_WIDTH,
+          height: DEFAULT_PREVIEW_HEIGHT,
+          swapWidthHeight: true
+        })
+      }
+      return {
+        landscape: url_landscape,
+        portrait: url_portrait
+      };
+    };
+    this.extractView = extractView;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

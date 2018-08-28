@@ -82,7 +82,7 @@
       set_view_tool = new SetViewTool(timelapse, {
         container_id: container_id,
         on_view_set_callback: function (urls) {
-          setThumbnailPreview(urls);
+          setThumbnailPreview(urls, $current_thumbnail_preview);
           $this.show();
           set_view_tool.hide();
         },
@@ -253,7 +253,7 @@
         updateEditStoryData();
       });
       $edit_story.find(".next-button").on("click", function () {
-        // Check if the user selects a tab
+        // Check if the user selec ts a tab
         if (edit_story_accordion.getActiveTab().length > 0) {
           transition($edit_story, $edit_waypoints);
           updateEditStoryData();
@@ -339,6 +339,8 @@
         $t.find(".story-editor-description-textbox").val(d["story_description"]);
         $t.find(".story-editor-author-textbox").val(d["story_author"]);
         $t.data("waypoints", d["waypoints"]);
+        var urls = set_view_tool.extractView(d["story_view"]);
+        setThumbnailPreview(urls, $t.find(".story-editor-thumbnail-preview"));
       }
     }
 
@@ -352,6 +354,7 @@
           story_title: $ui.find(".story-editor-title-textbox").val(),
           story_description: $ui.find(".story-editor-description-textbox").val(),
           story_author: $ui.find(".story-editor-author-textbox").val(),
+          story_view: $ui.find(".story-editor-thumbnail-preview-landscape").data("view"),
           waypoints: (typeof waypoints === "undefined") ? [] : waypoints
         });
       });
@@ -359,15 +362,15 @@
     }
 
     // Set thumbnail preview images (also put the video or image url inside href)
-    function setThumbnailPreview(urls) {
-      $current_thumbnail_preview.show();
-      var $l = $current_thumbnail_preview.find(".story-editor-thumbnail-preview-landscape");
-      var $p = $current_thumbnail_preview.find(".story-editor-thumbnail-preview-portrait");
+    function setThumbnailPreview(urls, $thumbnail_preview) {
+      $thumbnail_preview.show();
+      var $l = $thumbnail_preview.find(".story-editor-thumbnail-preview-landscape");
+      var $p = $thumbnail_preview.find(".story-editor-thumbnail-preview-portrait");
       $l.prop("href", urls["landscape"]["render"]["url"]);
-      $l.data("view", urls["landscape"]["render"]["orignialRootUrl"]);
+      $l.data("view", urls["landscape"]["render"]["args"]["root"]);
       $l.find("img").prop("src", urls["landscape"]["preview"]["url"]);
       $p.prop("href", urls["portrait"]["render"]["url"]);
-      $p.data("view", urls["portrait"]["render"]["orignialRootUrl"]);
+      $p.data("view", urls["portrait"]["render"]["args"]["root"]);
       $p.find("img").prop("src", urls["portrait"]["preview"]["url"]);
     }
 
