@@ -198,9 +198,9 @@
               <span>Story title:</span>
               <input type="text" class="custom-textbox add-bottom-margin-small story-editor-title-textbox" maxlength="20" placeholder="(max 20 characters)">
               <span>Story description:</span>
-              <textarea class="custom-textbox large-textbox add-bottom-margin-medium story-editor-description-textbox" maxlength="300" placeholder="(max 300 characters)"></textarea>
+              <textarea class="custom-textbox large-textbox add-bottom-margin-small story-editor-description-textbox" maxlength="300" placeholder="(max 300 characters)"></textarea>
               <span>Story authors:</span>
-              <input type="text" class="custom-textbox add-bottom-margin story-editor-author-textbox" maxlength="300" placeholder="authors (max 300 characters)">
+              <input type="text" class="custom-textbox add-bottom-margin-medium story-editor-author-textbox" maxlength="300" placeholder="authors (max 300 characters)">
               <div class="even-space-content">
                 <button class="custom-button custom-button-primary story-editor-add-button">Add</button>
                 <button class="custom-button custom-button-danger story-editor-delete-button">Delete</button>
@@ -219,6 +219,9 @@
       </div>
       <div class="custom-dialog hide delete-confirm-dialog" title="Delete story?">
         <p><span class="ui-icon ui-icon-alert"></span>This story and the waypoints in this story will be deleted.</p>
+      </div>
+      <div class="custom-dialog hide next-confirm-dialog" title="No story is selected!">
+        <p><span class="ui-icon ui-icon-alert"></span>Please click on a tab to select a story before proceeding.</p>
       </div>
       <div class="wizard-body-bottom">
         <p>Click the "Next" button to add or edit waypoints in the selected story.</p>

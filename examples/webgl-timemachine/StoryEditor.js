@@ -214,8 +214,7 @@
 
     // For edit themes loaded from a spreadsheet
     function createEditThemeUI() {
-      var $back_confirm_dialog;
-      var $next_confirm_dialog;
+      var $back_confirm_dialog, $next_confirm_dialog;
       $edit_theme = $this.find(".story-editor-edit-theme");
       $edit_theme.find(".back-button").on("click", function () {
         // Check if the user truely wants to load another sheet
@@ -247,19 +246,28 @@
 
     // For editing a story in a selected theme
     function creatEditStoryUI() {
+      var $next_confirm_dialog;
       $edit_story = $this.find(".story-editor-edit-story");
       $edit_story.find(".back-button").on("click", function () {
         transition($edit_story, $edit_theme);
         updateEditStoryData();
       });
       $edit_story.find(".next-button").on("click", function () {
-        transition($edit_story, $edit_waypoints);
-        updateEditStoryData();
+        // Check if the user selects a tab
+        if (edit_story_accordion.getActiveTab().length > 0) {
+          transition($edit_story, $edit_waypoints);
+          updateEditStoryData();
+        } else {
+          $next_confirm_dialog.dialog("open");
+        }
       });
       $edit_story_select_theme = $edit_story.find(".story-editor-selected-theme");
       edit_story_accordion = createAccordion({
         accordion: "#" + container_id + " .story-editor-edit-story .custom-accordion",
         delete_confirm_dialog: "#" + container_id + " .story-editor-edit-story .delete-confirm-dialog"
+      });
+      $next_confirm_dialog = createConfirmDialog({
+        selector: "#" + container_id + " .story-editor-edit-story .next-confirm-dialog"
       });
     }
 
@@ -322,14 +330,15 @@
     function updateEditStoryUI() {
       edit_story_accordion.reset();
       var stories = edit_theme_accordion.getActiveTab().data("stories");
+      if (typeof stories === "undefined") return;
       for (var i = 0; i < stories.length; i++) {
         var $t = (i == 0) ? edit_story_accordion.getActiveTab() : edit_story_accordion.addEmptyTab();
-        var s = stories[i];
-        $t.find(".custom-accordion-tab-header-text").text(s["story_title"]);
-        $t.find(".story-editor-title-textbox").val(s["story_title"]);
-        $t.find(".story-editor-description-textbox").val(s["story_description"]);
-        $t.find(".story-editor-author-textbox").val(s["story_author"]);
-        $t.data("waypoints", s["waypoints"]);
+        var d = stories[i];
+        $t.find(".custom-accordion-tab-header-text").text(d["story_title"]);
+        $t.find(".story-editor-title-textbox").val(d["story_title"]);
+        $t.find(".story-editor-description-textbox").val(d["story_description"]);
+        $t.find(".story-editor-author-textbox").val(d["story_author"]);
+        $t.data("waypoints", d["waypoints"]);
       }
     }
 
@@ -413,9 +422,9 @@
           accordion.getTabs().find(".story-editor-delete-button").prop("disabled", true);
         },
         on_tab_add_callback: function ($old_tab) {
+          if (typeof $old_tab === "undefined") return;
           // Enable the delete button of the old tab if it was the only one tab in the accordion
-          var $tabs = accordion.getTabs();
-          if ($tabs.length == 2) $old_tab.find(".story-editor-delete-button").prop("disabled", false);
+          if (accordion.getTabs().length == 2) $old_tab.find(".story-editor-delete-button").prop("disabled", false);
         },
         on_tab_delete_callback: function () {
           // Disable the delete button of the active tab if there is only one tab left
@@ -664,6 +673,7 @@
       getTabs().remove();
       $ui.append($tab_template.clone(true, true));
       $ui.accordion("refresh");
+      $ui.accordion("option", "active", 0); // expand the new tab
 
       // Call back
       if (typeof on_reset_callback === "function") {
@@ -673,15 +683,25 @@
     this.reset = reset;
 
     var addEmptyTab = function () {
-      // Add a new tab after the current active tab (if it exists)
-      var active_index = getActiveIndex();
-      var $old_tab = $(getTabs()[active_index]);
       var $new_tab = $tab_template.clone(true, true);
-      $old_tab.after($new_tab);
-      $ui.accordion("refresh");
+      var $old_tab;
+      var $tabs = getTabs();
 
-      // Expand the newly added tab
-      $ui.accordion("option", "active", active_index + 1);
+      // Check if there are tabs
+      var active_index = -1;
+      if ($tabs.length == 0) {
+        // No tabs, append one tab
+        $ui.append($tab_template.clone(true, true));
+      } else {
+        // Has tab, check if has active tab
+        active_index = getActiveIndex();
+        // If no active tab, add the tab to the end
+        if (active_index == false) active_index = $tabs.length - 1;
+        $old_tab = $($tabs[active_index]);
+        $old_tab.after($new_tab);
+      }
+      $ui.accordion("refresh");
+      $ui.accordion("option", "active", active_index + 1); // expand the new tab
 
       // Call back
       if (typeof on_tab_add_callback === "function") {
