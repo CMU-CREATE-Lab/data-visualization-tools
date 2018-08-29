@@ -8,6 +8,7 @@
 // - jQuery [https://jquery.com/]
 // - time machine [https://github.com/CMU-CREATE-Lab/timemachine-viewer]
 // - the wizard template [wizard.css]
+// TODO: allow people to set two different views
 
 (function () {
   "use strict";
@@ -88,7 +89,7 @@
       $delay_end = $this.find(".set-view-tool-end-delay-time");
 
       // Set view or cancel
-      $this.find(".set-view-tool-set-view-button").on("click", setView);
+      $this.find(".set-view-tool-save-view-button").on("click", saveView);
       $this.find(".set-view-tool-cancel-button").on("click", cancel);
     }
 
@@ -234,8 +235,8 @@
       }
     }
 
-    // Set the view and pass in the urls to the callback function
-    function setView() {
+    // Save the view and pass in the urls to the callback function
+    function saveView() {
       // Get landscape urls from the thumbnail tool
       var p = collectParameters("landscape");
       var url_landscape = {
@@ -297,6 +298,7 @@
 
     // Extract the landscape and portrait view from the share view
     var extractView = function (share_view) {
+      if (typeof share_view === "undefined" || share_view.trim() == "") return;
       var url_landscape = {
         preview: thumbnail_tool.getUrlFromShareView({
           shareView: share_view,

@@ -9,6 +9,9 @@
 // - Papa Parse [https://www.papaparse.com/]
 // - time machine [https://github.com/CMU-CREATE-Lab/timemachine-viewer]
 // - the wizard template [wizard.css]
+// TODO: need to prevent the keyboard from firing events that control the viewer
+// TODO: download() function does not work for Firefox
+// TODO: load the themes for the story tab and make the switching theme function work
 
 (function () {
   "use strict";
@@ -22,20 +25,24 @@
     //
     // Variables
     //
-    settings = (typeof settings === "undefined") ? {} : settings;
+    settings = safeGet(settings, {});
     var util = timelapse.getUtil();
     var container_id = settings["container_id"];
     var on_show_callback = settings["on_show_callback"];
     var on_hide_callback = settings["on_hide_callback"];
     var $this;
     var $intro;
+    var $current_thumbnail_preview;
+    var set_view_tool;
+
+    // For creating new stories
     var $theme, $theme_title, $theme_description;
     var $story, $story_title, $story_description, $story_author, $story_view, $story_thumbnail_preview;
     var $waypoints, waypoints_accordion;
     var $save;
-    var $current_thumbnail_preview;
-    var set_view_tool;
-    var $load, $sheet_url;
+
+    // For editing stories
+    var $edit_load, $sheet_url;
     var $edit_theme, edit_theme_accordion;
     var $edit_story, edit_story_accordion, $edit_story_select_theme;
     var $edit_waypoints, edit_waypoints_accordion;
@@ -65,16 +72,19 @@
       $this = $("#" + container_id + " .story-editor");
       createSetViewTool();
       createIntroductionUI();
-      createThemeMetadataUI();
-      createStoryMetadataUI();
-      createWaypointUI();
-      createSaveUI();
-      createLoadUI();
+
+      // For creating new stories
+      createNewThemeUI();
+      createNewStoryUI();
+      createNewWaypointUI();
+      createNewSaveUI();
+
+      // For editing stories
+      createEditLoadUI();
       createEditThemeUI();
       creatEditStoryUI();
       createEditWaypointUI();
       createEditSaveUI();
-      // TODO: need to prevent the keyboard from firing events that control the viewer
     }
 
     // For setting a view from the timelapse viewer
@@ -103,12 +113,12 @@
         transition($intro, $theme);
       });
       $intro.find(".story-editor-edit-button").on("click", function () {
-        transition($intro, $load);
+        transition($intro, $edit_load);
       });
     }
 
-    // For creating a theme
-    function createThemeMetadataUI() {
+    // For creating a new theme
+    function createNewThemeUI() {
       $theme = $this.find(".story-editor-theme");
       $theme.find(".back-button").on("click", function () {
         transition($theme, $intro);
@@ -120,8 +130,8 @@
       $theme_description = $theme.find(".story-editor-theme-description-textbox");
     }
 
-    // For creating a story
-    function createStoryMetadataUI() {
+    // For creating a new story
+    function createNewStoryUI() {
       $story = $this.find(".story-editor-story");
       $story.find(".back-button").on("click", function () {
         transition($story, $theme);
@@ -141,8 +151,8 @@
       $story_view = $story.find(".story-editor-thumbnail-preview-landscape");
     }
 
-    // For waypoints
-    function createWaypointUI() {
+    // For creating new waypoints
+    function createNewWaypointUI() {
       $waypoints = $this.find(".story-editor-waypoints");
       $waypoints.find(".back-button").on("click", function () {
         transition($waypoints, $story);
@@ -157,30 +167,29 @@
     }
 
     // For saving a newly created story
-    function createSaveUI() {
+    function createNewSaveUI() {
       var $next_confirm_dialog;
       $save = $this.find(".story-editor-save");
       $save.find(".back-button").on("click", function () {
         transition($save, $waypoints);
       });
       $save.find(".next-button").on("click", function () {
-        // Check if the user truely wants to finish
-        $next_confirm_dialog.dialog("open");
+        $next_confirm_dialog.dialog("open"); // check if the user truely wants to finish
       });
       $save.find(".story-editor-download-button").on("click", function () {
-        download(dataToTsv(collectData()));
+        download(dataToTsv(collectNewStoryData()));
       });
       $next_confirm_dialog = createConfirmDialog({
         selector: "#" + container_id + " .story-editor-save .next-confirm-dialog",
         action_callback: function () {
-          resetCreateStoryUI();
+          resetNewStoryUI();
           transition($save, $intro);
         }
       });
     }
 
-    // Reset the user interface for creating a story
-    function resetCreateStoryUI() {
+    // Reset the user interface for creating new stories
+    function resetNewStoryUI() {
       $theme_title.val("");
       $theme_description.val("");
       $story_title.val("");
@@ -192,39 +201,76 @@
       waypoints_accordion.reset();
     }
 
-    // For loading a Google spreadsheet
-    function createLoadUI() {
-      $load = $this.find(".story-editor-load");
-      $load.find(".back-button").on("click", function () {
-        transition($load, $intro);
+    // Collect newly created story data from the user interface
+    function collectNewStoryData() {
+      // For waypoints
+      var waypoints = [];
+      waypoints_accordion.getTabs().each(function () {
+        var $ui = $(this);
+        var d = {
+          waypoint_title: $ui.find(".story-editor-title-textbox").val().trim(),
+          waypoint_long_title: $ui.find(".story-editor-long-title-textbox").val().trim(),
+          waypoint_description: $ui.find(".story-editor-description-textbox").val().trim(),
+          waypoint_view: safeGet($ui.find(".story-editor-thumbnail-preview-landscape").data("view"))
+        };
+        if (hasContent(d)) waypoints.push(d);
       });
-      $load.find(".next-button").on("click", function () {
-        $load.find(".next-button").prop("disabled", true);
+
+      // For stories
+      var stories = [];
+      var d = {
+        story_title: $story_title.val().trim(),
+        story_description: $story_description.val().trim(),
+        story_author: $story_author.val().trim(),
+        story_view: safeGet($story_view.data("view")),
+        waypoints: waypoints
+      };
+      if (hasContent(d)) stories.push(d);
+
+      // For theme
+      var data = [];
+      var d = {
+        theme_title: $theme_title.val().trim(),
+        theme_description: $theme_description.val().trim(),
+        stories: stories
+      };
+      if (hasContent(d)) data.push(d);
+      return data;
+    }
+
+    // For loading a Google spreadsheet
+    function createEditLoadUI() {
+      $edit_load = $this.find(".story-editor-load");
+      $edit_load.find(".back-button").on("click", function () {
+        transition($edit_load, $intro);
+      });
+      $edit_load.find(".next-button").on("click", function () {
+        $edit_load.find(".next-button").prop("disabled", true);
         // This util function name is misleading, it converts spreadsheet into csv, not json
         util.gdocToJSON($sheet_url.val(), function (tsv) {
           var data = tsvToData(tsv);
-          updateEditThemeUI(data);
-          transition($load, $edit_theme);
-          $load.find(".next-button").prop("disabled", false);
+          updateEditThemeUI(data); // forward update UI
+          transition($edit_load, $edit_theme);
+          $edit_load.find(".next-button").prop("disabled", false);
         });
       });
-      $sheet_url = $load.find(".sheet-url-textbox");
+      $sheet_url = $edit_load.find(".sheet-url-textbox");
       $sheet_url.val("https://docs.google.com/spreadsheets/d/1dn6nDMFevqPBdibzGvo9qC7CxwxdfZkDyd_ys6r-ODE/edit#gid=145707723");
     }
 
-    // For edit themes loaded from a spreadsheet
+    // For editing themes loaded from a spreadsheet
     function createEditThemeUI() {
       var $back_confirm_dialog, $next_confirm_dialog;
       $edit_theme = $this.find(".story-editor-edit-theme");
       $edit_theme.find(".back-button").on("click", function () {
-        // Check if the user truely wants to load another sheet
-        $back_confirm_dialog.dialog("open");
+        // We do not have to update data backward here, since all unsaved data will be lost
+        $back_confirm_dialog.dialog("open"); // check if the user truely wants to load another sheet
       });
       $edit_theme.find(".next-button").on("click", function () {
         // Check if the user selects a tab
         if (edit_theme_accordion.getActiveTab().length > 0) {
+          updateEditStoryUI(); // forward update UI
           transition($edit_theme, $edit_story);
-          updateEditStoryUI();
         } else {
           $next_confirm_dialog.dialog("open");
         }
@@ -236,7 +282,7 @@
       $back_confirm_dialog = createConfirmDialog({
         selector: "#" + container_id + " .story-editor-edit-theme .back-confirm-dialog",
         action_callback: function () {
-          transition($edit_theme, $load);
+          transition($edit_theme, $edit_load);
         }
       });
       $next_confirm_dialog = createConfirmDialog({
@@ -249,14 +295,14 @@
       var $next_confirm_dialog;
       $edit_story = $this.find(".story-editor-edit-story");
       $edit_story.find(".back-button").on("click", function () {
+        updateEditStoryData(); // backward update data
         transition($edit_story, $edit_theme);
-        updateEditStoryData();
       });
       $edit_story.find(".next-button").on("click", function () {
         // Check if the user selec ts a tab
         if (edit_story_accordion.getActiveTab().length > 0) {
+          updateEditWaypointUI(); // forward update UI
           transition($edit_story, $edit_waypoints);
-          updateEditStoryData();
         } else {
           $next_confirm_dialog.dialog("open");
         }
@@ -275,6 +321,7 @@
     function createEditWaypointUI() {
       $edit_waypoints = $this.find(".story-editor-edit-waypoints");
       $edit_waypoints.find(".back-button").on("click", function () {
+        updateEditWaypointData(); // backward update data
         transition($edit_waypoints, $edit_story);
       });
       $edit_waypoints.find(".next-button").on("click", function () {
@@ -297,7 +344,7 @@
         $next_confirm_dialog.dialog("open");
       });
       $edit_save.find(".story-editor-download-button").on("click", function () {
-        //download
+        download(dataToTsv(collectEditStoryData()));
       });
       $next_confirm_dialog = createConfirmDialog({
         selector: "#" + container_id + " .story-editor-edit-save .next-confirm-dialog",
@@ -308,14 +355,10 @@
       });
     }
 
-    // Reset the user interface for editing and adding stories
-    function resetEditStoryUI() {
-      //TODO
-    }
-
-    // Update the user interface of edting themes by using the loaded data
+    // Forward update the user interface of edting themes by using the loaded data
     function updateEditThemeUI(data) {
       edit_theme_accordion.reset();
+      if (typeof data === "undefined") return;
       for (var i = 0; i < data.length; i++) {
         var $t = (i == 0) ? edit_theme_accordion.getActiveTab() : edit_theme_accordion.addEmptyTab();
         var d = data[i];
@@ -326,10 +369,26 @@
       }
     }
 
-    // Update the user interface of edting stories by using the loaded data
+    // Backward update the loaded data by using the user interface of editing themes
+    function updateEditThemeData() {
+      var data = [];
+      edit_theme_accordion.getTabs().each(function () {
+        var $ui = $(this);
+        var d = {
+          theme_title: $ui.find(".story-editor-title-textbox").val().trim(),
+          theme_description: $ui.find(".story-editor-description-textbox").val().trim(),
+          stories: safeGet($ui.data("stories"), [])
+        };
+        if (hasContent(d)) data.push(d);
+      });
+      return data;
+    }
+
+    // Forward update the user interface of edting stories by using the loaded data
     function updateEditStoryUI() {
       edit_story_accordion.reset();
-      var stories = edit_theme_accordion.getActiveTab().data("stories");
+      var $theme_active_tab = edit_theme_accordion.getActiveTab();
+      var stories = $theme_active_tab.data("stories");
       if (typeof stories === "undefined") return;
       for (var i = 0; i < stories.length; i++) {
         var $t = (i == 0) ? edit_story_accordion.getActiveTab() : edit_story_accordion.addEmptyTab();
@@ -342,27 +401,76 @@
         var urls = set_view_tool.extractView(d["story_view"]);
         setThumbnailPreview(urls, $t.find(".story-editor-thumbnail-preview"));
       }
+      $theme_active_tab.removeData("stories"); // remove stored data
     }
 
-    // Update the loaded data by using the user interface of editing stories
+    // Backward update the loaded data by using the user interface of editing stories
     function updateEditStoryData() {
       var stories = [];
       edit_story_accordion.getTabs().each(function () {
         var $ui = $(this);
-        var waypoints = $ui.data("waypoints");
-        stories.push({
-          story_title: $ui.find(".story-editor-title-textbox").val(),
-          story_description: $ui.find(".story-editor-description-textbox").val(),
-          story_author: $ui.find(".story-editor-author-textbox").val(),
-          story_view: $ui.find(".story-editor-thumbnail-preview-landscape").data("view"),
-          waypoints: (typeof waypoints === "undefined") ? [] : waypoints
-        });
+        var d = {
+          story_title: $ui.find(".story-editor-title-textbox").val().trim(),
+          story_description: $ui.find(".story-editor-description-textbox").val().trim(),
+          story_author: $ui.find(".story-editor-author-textbox").val().trim(),
+          story_view: safeGet($ui.find(".story-editor-thumbnail-preview-landscape").data("view")),
+          waypoints: safeGet($ui.data("waypoints"), [])
+        };
+        if (hasContent(d)) stories.push(d);
       });
-      edit_theme_accordion.getActiveTab().data("stories", stories);
+      edit_theme_accordion.getActiveTab().data("stories", stories); // save data back
+    }
+
+    // Forward update the user interface of edting waypoints by using the loaded data
+    function updateEditWaypointUI() {
+      edit_waypoints_accordion.reset();
+      var $story_active_tab = edit_story_accordion.getActiveTab();
+      var waypoints = $story_active_tab.data("waypoints");
+      if (typeof waypoints === "undefined") return;
+      for (var i = 0; i < waypoints.length; i++) {
+        var $t = (i == 0) ? edit_waypoints_accordion.getActiveTab() : edit_waypoints_accordion.addEmptyTab();
+        var d = waypoints[i];
+        $t.find(".custom-accordion-tab-header-text").text(d["waypoint_title"]);
+        $t.find(".story-editor-title-textbox").val(d["waypoint_title"]);
+        $t.find(".story-editor-long-title-textbox").val(d["waypoint_long_title"]);
+        $t.find(".story-editor-description-textbox").val(d["waypoint_description"]);
+        var urls = set_view_tool.extractView(d["waypoint_view"]);
+        setThumbnailPreview(urls, $t.find(".story-editor-thumbnail-preview"));
+      }
+      $story_active_tab.removeData("waypoints"); // remove stored data
+    }
+
+    // Backward update the loaded data by using the user interface of editing waypoints
+    function updateEditWaypointData() {
+      var waypoints = [];
+      edit_waypoints_accordion.getTabs().each(function () {
+        var $ui = $(this);
+        var d = {
+          waypoint_title: $ui.find(".story-editor-title-textbox").val().trim(),
+          waypoint_long_title: $ui.find(".story-editor-long-title-textbox").val().trim(),
+          waypoint_description: $ui.find(".story-editor-description-textbox").val().trim(),
+          waypoint_view: safeGet($ui.find(".story-editor-thumbnail-preview-landscape").data("view"))
+        };
+        if (hasContent(d)) waypoints.push(d);
+      });
+      edit_story_accordion.getActiveTab().data("waypoints", waypoints); // save data back
+    }
+
+    // Collect edited story data from the user interface
+    function collectEditStoryData() {
+      // Perform three backward data updates
+      updateEditWaypointData();
+      updateEditStoryData();
+      return updateEditThemeData();
+    }
+
+    // Reset the user interface for editing stories
+    function resetEditStoryUI() {
     }
 
     // Set thumbnail preview images (also put the video or image url inside href)
     function setThumbnailPreview(urls, $thumbnail_preview) {
+      if (typeof urls === "undefined") return;
       $thumbnail_preview.show();
       var $l = $thumbnail_preview.find(".story-editor-thumbnail-preview-landscape");
       var $p = $thumbnail_preview.find(".story-editor-thumbnail-preview-portrait");
@@ -376,11 +484,11 @@
 
     // Create a confirmation dialog
     function createConfirmDialog(settings) {
-      settings = typeof settings === "undefined" ? {} : settings;
+      settings = safeGet(settings, {});
       var has_action = (typeof settings["action_callback"] === "function");
-      var action_text = (typeof settings["action_text"] === "undefined") ? "Confirm" : settings["action_text"];
+      var action_text = safeGet(settings["action_text"], "Confirm");
       var cancel_text = has_action ? "Cancel" : "Ok";
-      cancel_text = (typeof settings["cancel_text"] === "undefined") ? cancel_text : settings["cancel_text"];
+      cancel_text = safeGet(settings["cancel_text"], cancel_text);
       var buttons = {
         "Cancel": {
           class: "ui-cancel-button",
@@ -464,34 +572,7 @@
       return accordion;
     }
 
-    // Collect story data from the user interface (this is for starting a story from scratch)
-    function collectData() {
-      var waypoints = [];
-      waypoints_accordion.getTabs().each(function () {
-        var $ui = $(this);
-        waypoints.push({
-          waypoint_title: $ui.find(".story-editor-title-textbox").val(),
-          waypoint_long_title: $ui.find(".story-editor-long-title-textbox").val(),
-          waypoint_description: $ui.find(".story-editor-description-textbox").val(),
-          waypoint_view: $ui.find(".story-editor-thumbnail-preview-landscape").data("view")
-        });
-      });
-      var data = [{
-        theme_title: $theme_title.val(),
-        theme_description: $theme_description.val(),
-        stories: [{
-          story_title: $story_title.val(),
-          story_description: $story_description.val(),
-          story_view: $story_view.data("view"),
-          story_author: $story_author.val(),
-          waypoints: waypoints
-        }]
-      }];
-      return data;
-    }
-
     // Download tsv as spreadsheet
-    // TODO: this does not work on Firefox
     function download(tsv) {
       var a = document.createElement("a");
       a.href = "data:attachment/text," + encodeURI(tsv);
@@ -503,6 +584,7 @@
     // Format the story data from the UI into a tsv spreadsheet
     function dataToTsv(data) {
       var tsv = "Waypoint Title\tAnnotation Title\tAnnotation Text\tShare View\tAuthor\n";
+      data = safeGet(data, []);
       for (var i = 0; i < data.length; i++) {
         var t = data[i]; // theme
         tsv += "#" + t.theme_title + "\t" + t.theme_title + "\t" + t.theme_description + "\t\t\n";
@@ -579,6 +661,20 @@
       }
     }
 
+    // Safely get the value from a variable, return a default value if undefined
+    function safeGet(v, default_val) {
+      if (typeof default_val === "undefined") default_val = "";
+      return (typeof v === "undefined") ? default_val : v;
+    }
+
+    // Check if there are things inside every key of a dictionary
+    function hasContent(dict) {
+      for (var key in dict) {
+        if (!$.isEmptyObject(dict[key])) return true;
+      }
+      return false;
+    }
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Privileged methods
@@ -617,7 +713,7 @@
     //
     // Variables
     //
-    settings = (typeof settings === "undefined") ? {} : settings;
+    settings = safeGet(settings, {});
     var $ui = $(selector);
     var before_tab_clone_callback = settings["before_tab_clone_callback"];
     var on_tab_add_callback = settings["on_tab_add_callback"];
@@ -665,6 +761,12 @@
         before_tab_clone_callback($tab_template);
       }
       $tab_template = $tab_template.clone(true, true);
+    }
+
+    // Safely get the value from a variable, return a default value if undefined
+    function safeGet(v, default_val) {
+      if (typeof default_val === "undefined") default_val = "";
+      return (typeof v === "undefined") ? default_val : v;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
