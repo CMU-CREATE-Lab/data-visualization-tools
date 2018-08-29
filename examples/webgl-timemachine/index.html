@@ -3572,7 +3572,7 @@
 
       $(document).keydown(function(e) {
         var fromRealKeydown = e.originalEvent && e.pageX != 0 && e.pageY != 0;
-        if (e.target.tagName == "INPUT" && !!fromRealKeydown) return;
+        if ((e.target.tagName == "INPUT" || e.target.tagName == "TEXTAREA") && !!fromRealKeydown) return;
 
         // 'page up' key
         // Quick way to step forward through waypoints
