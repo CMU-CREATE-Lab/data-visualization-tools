@@ -9,9 +9,9 @@
 // - Papa Parse [https://www.papaparse.com/]
 // - time machine [https://github.com/CMU-CREATE-Lab/timemachine-viewer]
 // - the wizard template [wizard.css]
-// TODO: need to prevent the keyboard from firing events that control the viewer
 // TODO: download() function does not work for Firefox
 // TODO: load the themes for the story tab and make the switching theme function work
+// TODO: view in the testing function does not work
 
 (function () {
   "use strict";
@@ -36,13 +36,13 @@
     var set_view_tool;
 
     // For creating new stories
-    var $theme, $theme_title, $theme_description;
-    var $story, $story_title, $story_description, $story_author, $story_view, $story_thumbnail_preview;
+    var $theme;
+    var $story;
     var $waypoints, waypoints_accordion;
     var $save;
 
     // For editing stories
-    var $edit_load, $sheet_url;
+    var $edit_load;
     var $edit_theme, edit_theme_accordion;
     var $edit_story, edit_story_accordion, $edit_story_select_theme;
     var $edit_waypoints, edit_waypoints_accordion;
@@ -85,6 +85,9 @@
       creatEditStoryUI();
       createEditWaypointUI();
       createEditSaveUI();
+
+      // for testing the function of the user interface
+      test();
     }
 
     // For setting a view from the timelapse viewer
@@ -92,7 +95,7 @@
       set_view_tool = new SetViewTool(timelapse, {
         container_id: container_id,
         on_view_set_callback: function (urls) {
-          setThumbnailPreview(urls, $current_thumbnail_preview);
+          setThumbnailPreviewUI($current_thumbnail_preview, urls);
           $this.show();
           set_view_tool.hide();
         },
@@ -126,8 +129,6 @@
       $theme.find(".next-button").on("click", function () {
         transition($theme, $story);
       });
-      $theme_title = $theme.find(".story-editor-theme-title-textbox");
-      $theme_description = $theme.find(".story-editor-theme-description-textbox");
     }
 
     // For creating a new story
@@ -144,11 +145,6 @@
         set_view_tool.show();
         $this.hide();
       });
-      $story_thumbnail_preview = $story.find(".story-editor-thumbnail-preview").hide();
-      $story_title = $story.find(".story-editor-story-title-textbox");
-      $story_description = $story.find(".story-editor-story-description-textbox");
-      $story_author = $story.find(".story-editor-story-author-textbox");
-      $story_view = $story.find(".story-editor-thumbnail-preview-landscape");
     }
 
     // For creating new waypoints
@@ -182,60 +178,21 @@
       $next_confirm_dialog = createConfirmDialog({
         selector: "#" + container_id + " .story-editor-save .next-confirm-dialog",
         action_callback: function () {
-          resetNewStoryUI();
+          resetTabUI($theme);
+          resetTabUI($story);
+          waypoints_accordion.reset();
           transition($save, $intro);
         }
       });
     }
 
-    // Reset the user interface for creating new stories
-    function resetNewStoryUI() {
-      $theme_title.val("");
-      $theme_description.val("");
-      $story_title.val("");
-      $story_description.val("");
-      $story_author.val("");
-      $story_thumbnail_preview.find("a").prop("href", "javascript:void(0)");
-      $story_thumbnail_preview.find("img").prop("src", "");
-      $story_thumbnail_preview.hide();
-      waypoints_accordion.reset();
-    }
-
     // Collect newly created story data from the user interface
     function collectNewStoryData() {
-      // For waypoints
-      var waypoints = [];
-      waypoints_accordion.getTabs().each(function () {
-        var $ui = $(this);
-        var d = {
-          waypoint_title: $ui.find(".story-editor-title-textbox").val().trim(),
-          waypoint_long_title: $ui.find(".story-editor-long-title-textbox").val().trim(),
-          waypoint_description: $ui.find(".story-editor-description-textbox").val().trim(),
-          waypoint_view: safeGet($ui.find(".story-editor-thumbnail-preview-landscape").data("view"))
-        };
-        if (hasContent(d)) waypoints.push(d);
-      });
-
-      // For stories
-      var stories = [];
-      var d = {
-        story_title: $story_title.val().trim(),
-        story_description: $story_description.val().trim(),
-        story_author: $story_author.val().trim(),
-        story_view: safeGet($story_view.data("view")),
-        waypoints: waypoints
-      };
-      if (hasContent(d)) stories.push(d);
-
-      // For theme
-      var data = [];
-      var d = {
-        theme_title: $theme_title.val().trim(),
-        theme_description: $theme_description.val().trim(),
-        stories: stories
-      };
-      if (hasContent(d)) data.push(d);
-      return data;
+      var story = collectTabData($story);
+      story["data"] = collectAccordionData(waypoints_accordion);
+      var theme = collectTabData($theme);
+      theme["data"] = [story];
+      return [theme];
     }
 
     // For loading a Google spreadsheet
@@ -247,15 +204,12 @@
       $edit_load.find(".next-button").on("click", function () {
         $edit_load.find(".next-button").prop("disabled", true);
         // This util function name is misleading, it converts spreadsheet into csv, not json
-        util.gdocToJSON($sheet_url.val(), function (tsv) {
-          var data = tsvToData(tsv);
-          updateEditThemeUI(data); // forward update UI
+        util.gdocToJSON($edit_load.find(".sheet-url-textbox").val(), function (tsv) {
+          setAccordionUI(edit_theme_accordion, tsvToData(tsv));
           transition($edit_load, $edit_theme);
           $edit_load.find(".next-button").prop("disabled", false);
         });
       });
-      $sheet_url = $edit_load.find(".sheet-url-textbox");
-      $sheet_url.val("https://docs.google.com/spreadsheets/d/1dn6nDMFevqPBdibzGvo9qC7CxwxdfZkDyd_ys6r-ODE/edit#gid=145707723");
     }
 
     // For editing themes loaded from a spreadsheet
@@ -269,7 +223,7 @@
       $edit_theme.find(".next-button").on("click", function () {
         // Check if the user selects a tab
         if (edit_theme_accordion.getActiveTab().length > 0) {
-          updateEditStoryUI(); // forward update UI
+          forward(edit_story_accordion, edit_theme_accordion);
           transition($edit_theme, $edit_story);
         } else {
           $next_confirm_dialog.dialog("open");
@@ -295,13 +249,13 @@
       var $next_confirm_dialog;
       $edit_story = $this.find(".story-editor-edit-story");
       $edit_story.find(".back-button").on("click", function () {
-        updateEditStoryData(); // backward update data
+        backward(edit_story_accordion, edit_theme_accordion); // backward propagate data
         transition($edit_story, $edit_theme);
       });
       $edit_story.find(".next-button").on("click", function () {
-        // Check if the user selec ts a tab
+        // Check if the user selects a tab
         if (edit_story_accordion.getActiveTab().length > 0) {
-          updateEditWaypointUI(); // forward update UI
+          forward(edit_waypoints_accordion, edit_story_accordion);
           transition($edit_story, $edit_waypoints);
         } else {
           $next_confirm_dialog.dialog("open");
@@ -321,7 +275,7 @@
     function createEditWaypointUI() {
       $edit_waypoints = $this.find(".story-editor-edit-waypoints");
       $edit_waypoints.find(".back-button").on("click", function () {
-        updateEditWaypointData(); // backward update data
+        backward(edit_waypoints_accordion, edit_story_accordion); // backward propagate data
         transition($edit_waypoints, $edit_story);
       });
       $edit_waypoints.find(".next-button").on("click", function () {
@@ -349,137 +303,158 @@
       $next_confirm_dialog = createConfirmDialog({
         selector: "#" + container_id + " .story-editor-edit-save .next-confirm-dialog",
         action_callback: function () {
-          resetEditStoryUI();
           transition($edit_save, $intro);
         }
       });
     }
 
-    // Forward update the user interface of edting themes by using the loaded data
-    function updateEditThemeUI(data) {
-      edit_theme_accordion.reset();
-      if (typeof data === "undefined") return;
-      for (var i = 0; i < data.length; i++) {
-        var $t = (i == 0) ? edit_theme_accordion.getActiveTab() : edit_theme_accordion.addEmptyTab();
-        var d = data[i];
-        $t.find(".custom-accordion-tab-header-text").text(d["theme_title"]);
-        $t.find(".story-editor-title-textbox").val(d["theme_title"]);
-        $t.find(".story-editor-description-textbox").val(d["theme_description"]);
-        $t.data("stories", d["stories"]);
+    // Set the user interface of a tab (one row in the tsv file)
+    function setTabUI($ui, d) {
+      if (typeof $ui === "undefined" || d === "undefined") return;
+      if (typeof d["title"] !== "undefined") {
+        $ui.find(".story-editor-title-text").text(d["title"]);
+        $ui.find(".story-editor-title-textbox").val(d["title"]);
+      }
+      if (typeof d["long_title"] !== "undefined") {
+        $ui.find(".story-editor-long-title-textbox").val(d["long_title"]);
+      }
+      if (typeof d["description"] !== "undefined") {
+        $ui.find(".story-editor-description-textbox").val(d["description"]);
+      }
+      if (typeof d["author"] !== "undefined") {
+        $ui.find(".story-editor-author-textbox").val(d["author"]);
+      }
+      if (typeof d["view"] !== "undefined") {
+        setThumbnailPreviewUI($ui.find(".story-editor-thumbnail-preview"), set_view_tool.extractView(d["view"]));
+      }
+      if (typeof d["data"] !== "undefined") {
+        $ui.data("data", d["data"]);
       }
     }
 
-    // Backward update the loaded data by using the user interface of editing themes
-    function updateEditThemeData() {
+    // Reset the user interface of a tab (one row in the tsv file)
+    function resetTabUI($ui) {
+      if (typeof $ui === "undefined") return;
+      $ui.find(".story-editor-title-text").text(d["title"]);
+      $ui.find(".story-editor-title-textbox").val(d["title"]);
+      $ui.find(".story-editor-long-title-textbox").val(d["long_title"]);
+      $ui.find(".story-editor-description-textbox").val(d["description"]);
+      $ui.find(".story-editor-author-textbox").val(d["author"]);
+      $ui.removeData("data");
+      resetThumbnailPreviewUI($ui.find(".story-editor-thumbnail-preview"));
+    }
+
+    // Set the user interface of an accordion (theme, story, waypoints)
+    function setAccordionUI(accordion, data) {
+      if (typeof accordion === "undefined" || data === "undefined") return;
+      accordion.reset();
+      for (var i = 0; i < data.length; i++) {
+        var $t = (i == 0) ? accordion.getActiveTab() : accordion.addEmptyTab();
+        setTabUI($t, data[i]);
+      }
+    }
+
+    // Propagate data forward from an accordion to another accordion
+    function forward(to_accordion, from_accordion) {
+      if (typeof from_accordion === "undefined") return;
+      var $active_tab = from_accordion.getActiveTab();
+      if ($active_tab.length > 0) {
+        setAccordionUI(to_accordion, $active_tab.data("data"));
+        $active_tab.removeData("data"); // remove stored data
+      }
+    }
+
+    // Collect data from the user interface of a tab (one row in the tsv file)
+    function collectTabData($ui) {
+      if (typeof $ui === "undefined") return;
+      var d = {};
+      var $title = $ui.find(".story-editor-title-textbox");
+      if ($title.length > 0) {
+        d["title"] = safeGet($title.val().trim());
+      }
+      var $long_title = $ui.find(".story-editor-long-title-textbox");
+      if ($long_title.length > 0) {
+        d["long_title"] = safeGet($long_title.val().trim());
+      }
+      var $description = $ui.find(".story-editor-description-textbox");
+      if ($description.length > 0) {
+        d["description"] = safeGet($description.val().trim());
+      }
+      var $author = $ui.find(".story-editor-author-textbox");
+      if ($author.length > 0) {
+        d["author"] = safeGet($author.val().trim());
+      }
+      var $view = $ui.find(".story-editor-thumbnail-preview-landscape");
+      if ($view.length > 0) {
+        d["view"] = safeGet($view.data("view"));
+      }
+      var data = $ui.data("data");
+      if (typeof data !== "undefined") {
+        d["data"] = safeGet(data, []);
+      }
+      return d;
+    }
+
+    // Collect data from the user interface of an accordion (theme, story, waypoints)
+    function collectAccordionData(accordion) {
       var data = [];
-      edit_theme_accordion.getTabs().each(function () {
-        var $ui = $(this);
-        var d = {
-          theme_title: $ui.find(".story-editor-title-textbox").val().trim(),
-          theme_description: $ui.find(".story-editor-description-textbox").val().trim(),
-          stories: safeGet($ui.data("stories"), [])
-        };
+      accordion.getTabs().each(function () {
+        var d = collectTabData($(this));
         if (hasContent(d)) data.push(d);
       });
       return data;
     }
 
-    // Forward update the user interface of edting stories by using the loaded data
-    function updateEditStoryUI() {
-      edit_story_accordion.reset();
-      var $theme_active_tab = edit_theme_accordion.getActiveTab();
-      var stories = $theme_active_tab.data("stories");
-      if (typeof stories === "undefined") return;
-      for (var i = 0; i < stories.length; i++) {
-        var $t = (i == 0) ? edit_story_accordion.getActiveTab() : edit_story_accordion.addEmptyTab();
-        var d = stories[i];
-        $t.find(".custom-accordion-tab-header-text").text(d["story_title"]);
-        $t.find(".story-editor-title-textbox").val(d["story_title"]);
-        $t.find(".story-editor-description-textbox").val(d["story_description"]);
-        $t.find(".story-editor-author-textbox").val(d["story_author"]);
-        $t.data("waypoints", d["waypoints"]);
-        var urls = set_view_tool.extractView(d["story_view"]);
-        setThumbnailPreview(urls, $t.find(".story-editor-thumbnail-preview"));
+    // Propagate data backward from an accordion to another one
+    function backward(from_accordion, to_accordion) {
+      var data = collectAccordionData(from_accordion);
+      if (typeof to_accordion !== "undefined") {
+        to_accordion.getActiveTab().data("data", data);
       }
-      $theme_active_tab.removeData("stories"); // remove stored data
-    }
-
-    // Backward update the loaded data by using the user interface of editing stories
-    function updateEditStoryData() {
-      var stories = [];
-      edit_story_accordion.getTabs().each(function () {
-        var $ui = $(this);
-        var d = {
-          story_title: $ui.find(".story-editor-title-textbox").val().trim(),
-          story_description: $ui.find(".story-editor-description-textbox").val().trim(),
-          story_author: $ui.find(".story-editor-author-textbox").val().trim(),
-          story_view: safeGet($ui.find(".story-editor-thumbnail-preview-landscape").data("view")),
-          waypoints: safeGet($ui.data("waypoints"), [])
-        };
-        if (hasContent(d)) stories.push(d);
-      });
-      edit_theme_accordion.getActiveTab().data("stories", stories); // save data back
-    }
-
-    // Forward update the user interface of edting waypoints by using the loaded data
-    function updateEditWaypointUI() {
-      edit_waypoints_accordion.reset();
-      var $story_active_tab = edit_story_accordion.getActiveTab();
-      var waypoints = $story_active_tab.data("waypoints");
-      if (typeof waypoints === "undefined") return;
-      for (var i = 0; i < waypoints.length; i++) {
-        var $t = (i == 0) ? edit_waypoints_accordion.getActiveTab() : edit_waypoints_accordion.addEmptyTab();
-        var d = waypoints[i];
-        $t.find(".custom-accordion-tab-header-text").text(d["waypoint_title"]);
-        $t.find(".story-editor-title-textbox").val(d["waypoint_title"]);
-        $t.find(".story-editor-long-title-textbox").val(d["waypoint_long_title"]);
-        $t.find(".story-editor-description-textbox").val(d["waypoint_description"]);
-        var urls = set_view_tool.extractView(d["waypoint_view"]);
-        setThumbnailPreview(urls, $t.find(".story-editor-thumbnail-preview"));
-      }
-      $story_active_tab.removeData("waypoints"); // remove stored data
-    }
-
-    // Backward update the loaded data by using the user interface of editing waypoints
-    function updateEditWaypointData() {
-      var waypoints = [];
-      edit_waypoints_accordion.getTabs().each(function () {
-        var $ui = $(this);
-        var d = {
-          waypoint_title: $ui.find(".story-editor-title-textbox").val().trim(),
-          waypoint_long_title: $ui.find(".story-editor-long-title-textbox").val().trim(),
-          waypoint_description: $ui.find(".story-editor-description-textbox").val().trim(),
-          waypoint_view: safeGet($ui.find(".story-editor-thumbnail-preview-landscape").data("view"))
-        };
-        if (hasContent(d)) waypoints.push(d);
-      });
-      edit_story_accordion.getActiveTab().data("waypoints", waypoints); // save data back
+      return data;
     }
 
     // Collect edited story data from the user interface
     function collectEditStoryData() {
-      // Perform three backward data updates
-      updateEditWaypointData();
-      updateEditStoryData();
-      return updateEditThemeData();
-    }
-
-    // Reset the user interface for editing stories
-    function resetEditStoryUI() {
+      // Propagate data backward three times
+      backward(edit_waypoints_accordion, edit_story_accordion);
+      backward(edit_story_accordion, edit_theme_accordion);
+      return backward(edit_theme_accordion);
     }
 
     // Set thumbnail preview images (also put the video or image url inside href)
-    function setThumbnailPreview(urls, $thumbnail_preview) {
-      if (typeof urls === "undefined") return;
-      $thumbnail_preview.show();
-      var $l = $thumbnail_preview.find(".story-editor-thumbnail-preview-landscape");
-      var $p = $thumbnail_preview.find(".story-editor-thumbnail-preview-portrait");
+    function setThumbnailPreviewUI($ui, urls) {
+      if (typeof $ui === "undefined" || typeof urls === "undefined") return;
+      $ui.show();
+      var $l = $ui.find(".story-editor-thumbnail-preview-landscape");
+      var $p = $ui.find(".story-editor-thumbnail-preview-portrait");
       $l.prop("href", urls["landscape"]["render"]["url"]);
       $l.data("view", urls["landscape"]["render"]["args"]["root"]);
       $l.find("img").prop("src", urls["landscape"]["preview"]["url"]);
       $p.prop("href", urls["portrait"]["render"]["url"]);
       $p.data("view", urls["portrait"]["render"]["args"]["root"]);
       $p.find("img").prop("src", urls["portrait"]["preview"]["url"]);
+    }
+
+    // Reset thumbnail preview images (also put the video or image url inside href)
+    function resetThumbnailPreviewUI($ui) {
+      if (typeof $ui === "undefined") return;
+      $ui.find("a").prop("href", "javascript:void(0)");
+      $ui.find("img").prop("src", "");
+      $ui.removeData("view");
+      $ui.hide();
+    }
+
+    // Set the custom dropdown
+    //var themes = getValues(edit_theme_accordion.getTabs().find(".story-editor-title-textbox"));
+    //var active_theme_index = edit_theme_accordion.getActiveIndex();
+    function setCustomDropdown($ui, options, active_index) {
+      var $button_text = $ui.find("button > span");
+      var $menu = $ui.find("div");
+      options.forEach(function (x) {
+        $menu.append($("<a href=\"javascript:void(0)\">" + x + "</a>"));
+      });
+      $button_text.text(options[active_index]);
     }
 
     // Create a confirmation dialog
@@ -557,7 +532,6 @@
           $tab_template.find(".story-editor-title-textbox").on("input", function () {
             accordion.setActiveTabHeaderText($(this).val());
           });
-          $tab_template.find(".story-editor-thumbnail-preview").hide();
         }
       });
       accordion.getUI().find(".story-editor-delete-button").prop("disabled", true);
@@ -586,14 +560,14 @@
       var tsv = "Waypoint Title\tAnnotation Title\tAnnotation Text\tShare View\tAuthor\n";
       data = safeGet(data, []);
       for (var i = 0; i < data.length; i++) {
-        var t = data[i]; // theme
-        tsv += "#" + t.theme_title + "\t" + t.theme_title + "\t" + t.theme_description + "\t\t\n";
-        for (var j = 0; j < t["stories"].length; j++) {
-          var s = t["stories"][j]; // story
-          tsv += "##" + s.story_title + "\t" + s.story_title + "\t" + s.story_description + "\t" + s.story_view + "\t" + s.story_author + "\n";
-          for (var k = 0; k < s["waypoints"].length; k++) {
-            var w = s["waypoints"][k]; // waypoints
-            tsv += w.waypoint_title + "\t" + w.waypoint_long_title + "\t" + w.waypoint_description + "\t" + w.waypoint_view + "\t\n";
+        var theme = data[i];
+        tsv += "#" + theme.title + "\t" + theme.title + "\t" + theme.description + "\t\t\n";
+        for (var j = 0; j < theme["data"].length; j++) {
+          var story = theme["data"][j];
+          tsv += "##" + story.title + "\t" + story.title + "\t" + story.description + "\t" + story.view + "\t" + story.author + "\n";
+          for (var k = 0; k < story["data"].length; k++) {
+            var waypoint = story["data"][k];
+            tsv += waypoint.title + "\t" + waypoint.long_title + "\t" + waypoint.description + "\t" + waypoint.view + "\t\n";
           }
         }
       }
@@ -604,9 +578,7 @@
     function tsvToData(tsv) {
       var parsed = Papa.parse(tsv, {delimiter: '\t', header: true});
       var data = [];
-      var current_theme;
-      var current_story;
-      var current_waypoint;
+      var theme, story, waypoint;
       parsed["data"].forEach(function (row) {
         var title = row["Waypoint Title"];
         var long_title = row["Annotation Title"];
@@ -614,32 +586,29 @@
         var view = row["Share View"];
         var author = row["Author"];
         if (title.charAt(0) == "#" && title.charAt(1) != "#") {
-          // This row indicates a theme
-          current_theme = {
-            theme_title: title.replace("#", ""),
-            theme_description: description,
-            stories: []
+          theme = {
+            title: title.replace("#", ""),
+            description: description,
+            data: [] // for storing stories
           };
-          data.push(current_theme);
+          data.push(theme);
         } else if (title.substring(0, 2) == "##") {
-          // This row indicates a story
-          current_story = {
-            story_title: title.replace("##", ""),
-            story_description: description,
-            story_view: view,
-            story_author: author,
-            waypoints: []
+          story = {
+            title: title.replace("##", ""),
+            description: description,
+            view: view,
+            author: author,
+            data: [] // for storing waypoints
           };
-          current_theme["stories"].push(current_story);
+          theme["data"].push(story);
         } else {
-          // This row indicates a waypoint
-          current_waypoint = {
-            waypoint_title: title,
-            waypoint_long_title: long_title,
-            waypoint_description: description,
-            waypoint_view: view
+          waypoint = {
+            title: title,
+            long_title: long_title,
+            description: description,
+            view: view
           };
-          current_story["waypoints"].push(current_waypoint);
+          story["data"].push(waypoint);
         }
       });
       return data;
@@ -673,6 +642,51 @@
         if (!$.isEmptyObject(dict[key])) return true;
       }
       return false;
+    }
+
+    // Get all values of the found dom elements and return an array
+    function getValues($elements) {
+      return $elements.map(function () {
+        return $(this).val();
+      }).get();
+    }
+
+    // For testing the function of the user interface
+    function test() {
+      // For creating a new story
+      setTabUI($theme, {
+        title: "City",
+        description: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis"
+      });
+      setTabUI($story, {
+        title: "Las Vegas",
+        description: "Las Vegas is growing",
+        //view: "https://headless.earthtime.org/#v=376619,739989,381095,742507,pts&t=0&ps=0&l=blsat&bt=19840101&et=19840101&startDwell=0&endDwell=0&fps=30",
+        author: "Yen-Chia Hsu"
+      });
+      setAccordionUI(waypoints_accordion, [{
+        title: "City blocks 1984",
+        long_title: "City blocks 1984 Las Vegas",
+        description: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis",
+        //view: "https://headless.earthtime.org/#v=376528,740349,379214,741860,pts&t=0&ps=0&l=blsat&bt=19840101&et=19840101&startDwell=0&endDwell=0&fps=30"
+      }, {
+        title: "City blocks 2016",
+        long_title: "City blocks 2016 Las Vegas",
+        description: "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt",
+        //view: "https://headless.earthtime.org/#v=376528,740349,379214,741860,pts&t=0&ps=0&l=blsat&bt=20160101&et=20160101&startDwell=0&endDwell=0&fps=30"
+      }, {
+        title: "City blocks animate",
+        long_title: "City blocks animate Las Vegas",
+        description: "Li Europan lingues es membres del sam familie. Lor separat existentie es un myth. Por scientie, musica, sport etc, litot Europa usa li sam vocabular. Li lingues differe solmen in",
+        //view: "https://headless.earthtime.org/#v=375724,739821,379748,742085,pts&t=0&ps=50&l=blsat&bt=19840101&et=20161231&startDwell=0&endDwell=1&fps=30"
+      }, {
+        title: "City blocks fast",
+        long_title: "City blocks fast Las Vegas",
+        description: "abc def ghi jkl mno pqrs tuv wxyz ABC DEF GHI JKL MNO PQRS TUV WXYZ !\"§ $%& /() =?* '<> #|; ²³~ @`´ ©«» ¤¼× {}abc def ghi",
+        //view: "https://headless.earthtime.org/#v=375528,739686,381435,743009,pts&t=0&ps=100&l=blsat&bt=19930101&et=20041231&startDwell=0&endDwell=1&fps=30"
+      }]);
+      // For editing a story
+      $edit_load.find(".sheet-url-textbox").val("https://docs.google.com/spreadsheets/d/1dn6nDMFevqPBdibzGvo9qC7CxwxdfZkDyd_ys6r-ODE/edit#gid=145707723");
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////

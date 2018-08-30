@@ -25,9 +25,9 @@
         <h3>Step 1:&nbsp; Theme</h3>
         <p class="add-bottom-margin">Each story belongs to a broader theme. Specify the theme metadata.</p>
         <p><span class="highlight-text">1.1</span>&nbsp;&nbsp; Enter the theme <span class="highlight-text">title</span>:</p>
-        <input type="text" class="custom-textbox add-bottom-margin story-editor-theme-title-textbox" maxlength="30" placeholder="theme title (max 30 characters)">
+        <input type="text" class="custom-textbox add-bottom-margin story-editor-title-textbox" maxlength="30" placeholder="theme title (max 30 characters)">
         <p><span class="highlight-text">2.1</span>&nbsp;&nbsp; Enter the theme <span class="highlight-text">description</span>:</p>
-        <textarea class="custom-textbox large-textbox add-bottom-margin story-editor-theme-description-textbox" maxlength="300" placeholder="theme description (max 300 characters)"></textarea>
+        <textarea class="custom-textbox large-textbox add-bottom-margin story-editor-description-textbox" maxlength="300" placeholder="theme description (max 300 characters)"></textarea>
       </div>
       <div class="wizard-body-bottom">
         <p>Click the "Next" button to add a story to this theme.</p>
@@ -42,13 +42,11 @@
         <h3>Step 2:&nbsp; Story</h3>
         <p class="add-bottom-margin">Specify the metadata for the story.</p>
         <p><span class="highlight-text">2.1</span>&nbsp;&nbsp; Enter the story <span class="highlight-text">title</span>:</p>
-        <input type="text" class="custom-textbox add-bottom-margin story-editor-story-title-textbox" maxlength="20" placeholder="story title (max 20 characters)">
-        <!--<p><span class="highlight-text">2.2</span>&nbsp;&nbsp; Enter the story <span class="highlight-text">long title</span>:</p>
-        <input type="text" class="custom-textbox add-bottom-margin story-editor-story-long-title-textbox" maxlength="40" placeholder="story long title (max 40 characters)">-->
+        <input type="text" class="custom-textbox add-bottom-margin story-editor-title-textbox" maxlength="20" placeholder="story title (max 20 characters)">
         <p><span class="highlight-text">2.3</span>&nbsp;&nbsp; Enter the story <span class="highlight-text">description</span>:</p>
-        <textarea class="custom-textbox large-textbox add-bottom-margin story-editor-story-description-textbox" maxlength="300" placeholder="story description (max 300 characters)"></textarea>
+        <textarea class="custom-textbox large-textbox add-bottom-margin story-editor-description-textbox" maxlength="300" placeholder="story description (max 300 characters)"></textarea>
         <p><span class="highlight-text">2.4</span>&nbsp;&nbsp; Enter the story <span class="highlight-text">authors</span>:</p>
-        <input type="text" class="custom-textbox add-bottom-margin story-editor-story-author-textbox" maxlength="300" placeholder="authors (max 300 characters)">
+        <input type="text" class="custom-textbox add-bottom-margin story-editor-author-textbox" maxlength="300" placeholder="authors (max 300 characters)">
         <p><span class="highlight-text">2.5</span>&nbsp;&nbsp; Set a <span class="highlight-text">cover view</span> for the story:</p>
         <button class="custom-button full-width-button custom-button-primary story-editor-set-cover-view-button">Set Cover View</button>
         <div class="add-top-margin story-editor-thumbnail-preview">
@@ -73,7 +71,7 @@
         <p>Click on the tabs to <span class="highlight-text">select</span> and <span class="highlight-text">edit</span> waypoints. To <span class="highlight-text">reorder</span> waypoints, drag and drop the tabs.</p>
         <div class="custom-accordion add-top-margin">
           <div class="custom-accordion-tab">
-            <h3><span class="custom-accordion-tab-header-text"></span></h3>
+            <h3><span class="custom-accordion-tab-header-text story-editor-title-text"></span></h3>
             <div>
               <span>Waypoint title:</span>
               <input type="text" class="custom-textbox add-bottom-margin-small story-editor-title-textbox" maxlength="20" placeholder="(max 20 characters)">
@@ -148,7 +146,7 @@
         <p class="add-bottom-margin">Use the tabs to <span class="highlight-text">select</span> and <span class="highlight-text">edit</span> themes. You can also <span class="highlight-text">add</span> or <span class="highlight-text">delete</span> themes.</p>
         <div class="custom-accordion add-top-margin">
           <div class="custom-accordion-tab">
-            <h3><span class="custom-accordion-tab-header-text"></span></h3>
+            <h3><span class="custom-accordion-tab-header-text story-editor-title-text"></span></h3>
             <div>
               <span>Theme title:</span>
               <input type="text" class="custom-textbox add-bottom-margin-small story-editor-title-textbox" maxlength="30" placeholder="(max 30 characters)">
@@ -185,15 +183,12 @@
         <p class="add-bottom-margin">Use the tabs to <span class="highlight-text">select</span> and <span class="highlight-text">edit</span> stories. You can <span class="highlight-text">move</span> stories to other themes.</p>
         <div class="custom-accordion add-top-margin">
           <div class="custom-accordion-tab">
-            <h3><span class="custom-accordion-tab-header-text"></span></h3>
+            <h3><span class="custom-accordion-tab-header-text story-editor-title-text"></span></h3>
             <div>
               <span>Story theme:</span>
               <div class="custom-dropdown add-bottom-margin-small story-editor-selected-theme">
-                <button><span>Theme</span></button>
-                <div>
-                  <a href="javascript:void(0)">Theme</a>
-                  <a href="javascript:void(0)">Theme</a>
-                </div>
+                <button><span></span></button>
+                <div></div>
               </div>
               <span>Story title:</span>
               <input type="text" class="custom-textbox add-bottom-margin-small story-editor-title-textbox" maxlength="20" placeholder="(max 20 characters)">
@@ -237,7 +232,7 @@
         <p>Click on the tabs to <span class="highlight-text">select</span> and <span class="highlight-text">edit</span> waypoints. To <span class="highlight-text">reorder</span> waypoints, drag and drop the tabs.</p>
         <div class="custom-accordion add-top-margin">
           <div class="custom-accordion-tab">
-            <h3><span class="custom-accordion-tab-header-text"></span></h3>
+            <h3><span class="custom-accordion-tab-header-text story-editor-title-text"></span></h3>
             <div>
               <span>Waypoint title:</span>
               <input type="text" class="custom-textbox add-bottom-margin-small story-editor-title-textbox" maxlength="20" placeholder="(max 20 characters)">

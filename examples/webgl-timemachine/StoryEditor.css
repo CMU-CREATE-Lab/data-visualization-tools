@@ -12,6 +12,7 @@
 
 .story-editor-thumbnail-preview {
   position: relative;
+  display: none;
 }
 
 .story-editor-thumbnail-preview-text {
