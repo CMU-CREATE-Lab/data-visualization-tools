@@ -11,7 +11,6 @@
 // - the wizard template [wizard.css]
 // TODO: download() function does not work for Firefox
 // TODO: load the themes for the story tab and make the switching theme function work
-// TODO: view in the testing function does not work
 
 (function () {
   "use strict";
@@ -34,6 +33,7 @@
     var $intro;
     var $current_thumbnail_preview;
     var set_view_tool;
+    var enable_testing = true;
 
     // For creating new stories
     var $theme;
@@ -87,7 +87,7 @@
       createEditSaveUI();
 
       // for testing the function of the user interface
-      test();
+      if(enable_testing) test();
     }
 
     // For setting a view from the timelapse viewer
@@ -661,29 +661,29 @@
       setTabUI($story, {
         title: "Las Vegas",
         description: "Las Vegas is growing",
-        //view: "https://headless.earthtime.org/#v=376619,739989,381095,742507,pts&t=0&ps=0&l=blsat&bt=19840101&et=19840101&startDwell=0&endDwell=0&fps=30",
+        view: "https://headless.earthtime.org/#v=376619,739989,381095,742507,pts&t=0&ps=0&l=blsat&bt=19840101&et=19840101&startDwell=0&endDwell=0&fps=30",
         author: "Yen-Chia Hsu"
       });
       setAccordionUI(waypoints_accordion, [{
         title: "City blocks 1984",
         long_title: "City blocks 1984 Las Vegas",
         description: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis",
-        //view: "https://headless.earthtime.org/#v=376528,740349,379214,741860,pts&t=0&ps=0&l=blsat&bt=19840101&et=19840101&startDwell=0&endDwell=0&fps=30"
+        view: "https://headless.earthtime.org/#v=376528,740349,379214,741860,pts&t=0&ps=0&l=blsat&bt=19840101&et=19840101&startDwell=0&endDwell=0&fps=30"
       }, {
         title: "City blocks 2016",
         long_title: "City blocks 2016 Las Vegas",
         description: "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt",
-        //view: "https://headless.earthtime.org/#v=376528,740349,379214,741860,pts&t=0&ps=0&l=blsat&bt=20160101&et=20160101&startDwell=0&endDwell=0&fps=30"
+        view: "https://headless.earthtime.org/#v=376528,740349,379214,741860,pts&t=0&ps=0&l=blsat&bt=20160101&et=20160101&startDwell=0&endDwell=0&fps=30"
       }, {
         title: "City blocks animate",
         long_title: "City blocks animate Las Vegas",
         description: "Li Europan lingues es membres del sam familie. Lor separat existentie es un myth. Por scientie, musica, sport etc, litot Europa usa li sam vocabular. Li lingues differe solmen in",
-        //view: "https://headless.earthtime.org/#v=375724,739821,379748,742085,pts&t=0&ps=50&l=blsat&bt=19840101&et=20161231&startDwell=0&endDwell=1&fps=30"
+        view: "https://headless.earthtime.org/#v=375724,739821,379748,742085,pts&t=0&ps=50&l=blsat&bt=19840101&et=20161231&startDwell=0&endDwell=1&fps=30"
       }, {
         title: "City blocks fast",
         long_title: "City blocks fast Las Vegas",
         description: "abc def ghi jkl mno pqrs tuv wxyz ABC DEF GHI JKL MNO PQRS TUV WXYZ !\"§ $%& /() =?* '<> #|; ²³~ @`´ ©«» ¤¼× {}abc def ghi",
-        //view: "https://headless.earthtime.org/#v=375528,739686,381435,743009,pts&t=0&ps=100&l=blsat&bt=19930101&et=20041231&startDwell=0&endDwell=1&fps=30"
+        view: "https://headless.earthtime.org/#v=375528,739686,381435,743009,pts&t=0&ps=100&l=blsat&bt=19930101&et=20041231&startDwell=0&endDwell=1&fps=30"
       }]);
       // For editing a story
       $edit_load.find(".sheet-url-textbox").val("https://docs.google.com/spreadsheets/d/1dn6nDMFevqPBdibzGvo9qC7CxwxdfZkDyd_ys6r-ODE/edit#gid=145707723");

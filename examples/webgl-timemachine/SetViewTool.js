@@ -42,6 +42,13 @@
     // Private methods
     //
     function init() {
+      // Create the thumbnail tool
+      thumbnail_tool = new ThumbnailTool(timelapse, {
+        paneZindex: 15,
+        id: "set-view-thumbnail-tool"
+      });
+
+      // Load the html template
       $.ajax({
         dataType: "html",
         url: "SetViewTool.html",
@@ -58,14 +65,8 @@
       $("#" + container_id).append($(html_template));
       $this = $("#" + container_id + " .set-view-tool");
 
-      // Thumbnail tool
-      thumbnail_tool = new ThumbnailTool(timelapse, {
-        paneZindex: 15,
-        id: "set-view-thumbnail-tool"
-      });
-
       // Toggle view
-      $this.find(".set-view-tool-toggle-view-button").on("click", toggleView);
+      $this.find(".set-view-tool-toggle-view").find("input:radio[name='set-view-tool-toggle-view-input']").on("change", toggleView);
 
       // Video settings
       $video_settings = $this.find(".set-view-tool-video-settings");
@@ -130,6 +131,12 @@
     // Swap the width and height of the thumbnail tool crop box
     function toggleView() {
       thumbnail_tool.swapBoxWidthHeight();
+      var val = $(this).val();
+      if (val == "video") {
+        $video_settings.show();
+      } else {
+        $video_settings.hide();
+      }
     }
 
     // Set the waypoint starting time

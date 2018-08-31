@@ -4,8 +4,17 @@
   </div>
   <div class="wizard-body">
     <div class="story-editor-action">
-      <p><span class="highlight-text">1</span>&nbsp;&nbsp; <span class="highlight-text">Pan and zoom</span> on the EarthTime viewer to set the view. You can also <span class="highlight-text">toggle</span> landscape and portrait views.</p>
-      <button class="custom-button full-width-button custom-button-primary add-bottom-margin set-view-tool-toggle-view-button">Toggle Views</button>
+      <p><span class="highlight-text">1</span>&nbsp;&nbsp; <span class="highlight-text">Pan and zoom</span> on the EarthTime viewer to set the view. You can set both landscape and portrait views.</p>
+      <div class="left-align-content add-bottom-margin set-view-tool-toggle-view">
+        <div class="custom-radio custom-radio-left set-view-tool-toggle-landscape-view-button">
+          <input type="radio" name="set-view-tool-toggle-view-input" value="landscape" id="set-view-tool-toggle-landscape-view-input" checked>
+          <label for="set-view-tool-toggle-landscape-view-input" class="noselect">Landscape</label>
+        </div>
+        <div class="custom-radio custom-radio-right set-view-tool-toggle-portrait-view-button">
+          <input type="radio" name="set-view-tool-toggle-view-input" value="portrait" id="set-view-tool-toggle-portrait-view-input">
+          <label for="set-view-tool-toggle-portrait-view-input" class="noselect">Portrait</label>
+        </div>
+      </div>
       <p><span class="highlight-text">2</span>&nbsp;&nbsp; Update the <span class="highlight-text">start time</span> using the EarthTime viewer:</p>
       <div class="even-space-content add-bottom-margin">
         <span class="set-view-tool-start-time-text">Start:</span>
