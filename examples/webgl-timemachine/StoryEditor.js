@@ -88,9 +88,9 @@
       createEditSaveUI();
 
       // for testing the function of the user interface
-      if(enable_testing) test();
+      if (enable_testing) test();
 
-      addGoogleSignedInStateChangeListener(function(isSignedIn) {
+      addGoogleSignedInStateChangeListener(function (isSignedIn) {
         if (isSignedIn) {
           if ($("#load-from-drive-list").is(":visible")) {
             $("#load-from-drive-list").trigger("click");
@@ -215,29 +215,29 @@
     function createEditLoadUI() {
       $edit_load = $this.find(".story-editor-load");
       $edit_load.find(".next-button").prop("disabled", true);
-      $edit_load.find(".sheet-url-textbox").on("change", function() {
+      $edit_load.find(".sheet-url-textbox").on("change", function () {
         if ($(this).val().search(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/) >= 0) {
           $edit_load.find(".next-button").prop("disabled", false);
         } else {
           $edit_load.find(".next-button").prop("disabled", true);
         }
       });
-      $edit_load.find(".google-authenticate-button").on("click", function() {
+      $edit_load.find(".google-authenticate-button").on("click", function () {
         handleAuthClick();
       });
       // TODO: Should we save state and have a refresh button if they click back in the same session?
       // It will save us Drive API quota calls if we do this.
-      $edit_load.find("#load-from-drive-list").on("click", function() {
+      $edit_load.find("#load-from-drive-list").on("click", function () {
         $edit_load.find(".load-story-from-direct-link-content").hide();
         $edit_load.find(".load-story-from-drive-list-content").show();
         $edit_load.find(".sheet-url-textbox").val("").trigger('change');
-        $edit_load.find(".available-stories-on-drive").on("click", "input", function() {
+        $edit_load.find(".available-stories-on-drive").on("click", "input", function () {
           $edit_load.find(".sheet-url-textbox").val($(this).data("google-sheets-url")).trigger('change');
         });
         if (isAuthenticatedWithGoogle()) {
           $edit_load.find(".google-authenticate-load-prompt").hide();
           $edit_load.find(".loading-stories-list").show();
-          listSpreadsheets().then(function(files) {
+          listSpreadsheets().then(function (files) {
             $edit_load.find(".loading-stories-list").hide();
             $edit_load.find(".available-stories-on-drive-container").show();
             if (files && files.length > 0) {
@@ -246,9 +246,9 @@
                 var file = files[i];
                 var storyDomId = "story_" + i;
                 html += "<div class='custom-radio custom-radio-right align-text-left'>" +
-                          "<input type='radio' name='story-list-choices' id='" + storyDomId + "' data-google-sheets-url='https://docs.google.com/spreadsheets/d/" + file.id + "'>" +
-                          "<label for='" + storyDomId + "' class='noselect'>" + file.name + "</label>" +
-                        "</div>"
+                  "<input type='radio' name='story-list-choices' id='" + storyDomId + "' data-google-sheets-url='https://docs.google.com/spreadsheets/d/" + file.id + "'>" +
+                  "<label for='" + storyDomId + "' class='noselect'>" + file.name + "</label>" +
+                  "</div>"
               }
               $edit_load.find(".available-stories-on-drive").empty().show().html(html);
             } else {
@@ -259,7 +259,7 @@
           $edit_load.find(".google-authenticate-load-prompt").show();
         }
       });
-      $edit_load.find("#load-from-direct-link").on("click", function() {
+      $edit_load.find("#load-from-direct-link").on("click", function () {
         $edit_load.find(".load-story-from-drive-list-content, .available-stories-on-drive").hide();
         $edit_load.find(".load-story-from-direct-link-content").show();
         if (enable_testing) {
@@ -740,9 +740,9 @@
         // TODO: Deal with success/failure responses
         // TODO: How do we name these spreadsheets so that the listing is useful to the user
         // Do we make use of the hidden developer fields in the spreadsheet?
-        createNewSpreadSheetWithContent(file_name, tsvToSheetsDataArray(tsv).then(function(response) {
+        createNewSpreadSheetWithContent(file_name, tsvToSheetsDataArray(tsv)).then(function (response) {
           console.log(response);
-        }).catch(function(errorResponse) {
+        }).catch(function (errorResponse) {
           console.log(errorResponse);
         });
       } else {
