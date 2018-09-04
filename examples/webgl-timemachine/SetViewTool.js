@@ -8,7 +8,6 @@
 // - jQuery [https://jquery.com/]
 // - time machine [https://github.com/CMU-CREATE-Lab/timemachine-viewer]
 // - the wizard template [wizard.css]
-// TODO: allow people to set two different views
 
 (function () {
   "use strict";
@@ -29,6 +28,7 @@
     var on_hide_callback = settings["on_hide_callback"];
     var $this;
     var $start_time, $end_time;
+    var $toggle_view;
     var $speed, $speed_slow_radio, $speed_medium_radio, $speed_fast_radio;
     var $video_settings, $type;
     var $delay_start, $delay_end;
@@ -36,6 +36,7 @@
     var start_frame_number, end_frame_number;
     var DEFAULT_PREVIEW_WIDTH = 320;
     var DEFAULT_PREVIEW_HEIGHT = 180;
+    var bound = {};
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -66,7 +67,8 @@
       $this = $("#" + container_id + " .set-view-tool");
 
       // Toggle view
-      $this.find(".set-view-tool-toggle-view").find("input:radio[name='set-view-tool-toggle-view-input']").on("change", toggleView);
+      $toggle_view = $this.find(".set-view-tool-toggle-view");
+      $toggle_view.find("input:radio[name='set-view-tool-toggle-view-input']").on("change", toggleView);
 
       // Video settings
       $video_settings = $this.find(".set-view-tool-video-settings");
@@ -130,13 +132,15 @@
 
     // Swap the width and height of the thumbnail tool crop box
     function toggleView() {
-      thumbnail_tool.swapBoxWidthHeight();
+      // Save current bound (need to use the previous state of the value)
       var val = $(this).val();
-      if (val == "video") {
-        $video_settings.show();
+      if (val == "portrait") {
+        bound["landscape"] = thumbnail_tool.cropBoxToViewBox();
       } else {
-        $video_settings.hide();
+        bound["portrait"] = thumbnail_tool.cropBoxToViewBox();
       }
+      // Swap width and height
+      thumbnail_tool.swapBoxWidthHeight();
     }
 
     // Set the waypoint starting time
@@ -184,7 +188,12 @@
 
     // Collect the parameters from the user interface
     function collectParameters(direction) {
-      var swap_width_height = (direction == "portrait") ? true : false;
+      // It is OK to have undefined value for desired_bound, the thumbnail tool will handle this
+      var desired_bound = (direction == "portrait") ? bound["portrait"] : bound["landscape"];
+
+      // Width and height
+      var width = (direction == "portrait") ? DEFAULT_PREVIEW_HEIGHT : DEFAULT_PREVIEW_WIDTH;
+      var height = (direction == "portrait") ? DEFAULT_PREVIEW_WIDTH : DEFAULT_PREVIEW_HEIGHT;
 
       // View type
       var type = $type.find("input:radio[name='set-view-tool-type-input']:checked").val();
@@ -198,10 +207,10 @@
         et: start_time,
         embedTime: false,
         format: "png",
-        width: DEFAULT_PREVIEW_WIDTH,
-        height: DEFAULT_PREVIEW_HEIGHT,
+        width: width,
+        height: height,
         fps: 30,
-        swapWidthHeight: swap_width_height
+        bound: desired_bound
       };
 
       // Return settings for image
@@ -235,15 +244,25 @@
           startDwell: delay_start,
           endDwell: delay_end,
           format: "mp4",
-          width: DEFAULT_PREVIEW_WIDTH,
-          height: DEFAULT_PREVIEW_HEIGHT,
-          swapWidthHeight: swap_width_height
+          width: width,
+          height: height,
+          bound: desired_bound
         }
       }
     }
 
     // Save the view and pass in the urls to the callback function
     function saveView() {
+      // Set bounds
+      var current_bound_type = $toggle_view.find("input:radio[name='set-view-tool-toggle-view-input']:checked").val();
+      bound[current_bound_type] = thumbnail_tool.cropBoxToViewBox();
+      if (typeof bound["portrait"] === "undefined") {
+        bound["portrait"] = thumbnail_tool.getRotatedBox(bound["landscape"]);
+      }
+      if (typeof bound["landscape"] === "undefined") {
+        bound["landscape"] = thumbnail_tool.getRotatedBox(bound["portrait"]);
+      }
+
       // Get landscape urls from the thumbnail tool
       var p = collectParameters("landscape");
       var url_landscape = {
@@ -272,6 +291,7 @@
           portrait: url_portrait
         });
       }
+      reset();
     }
 
     function removeClass($e, c) {
@@ -280,6 +300,11 @@
 
     function addClass($e, c) {
       if (!$e.hasClass(c)) $e.addClass(c)
+    }
+
+    function reset() {
+      // We only want to clear the view, not the settings
+      bound = {};
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
