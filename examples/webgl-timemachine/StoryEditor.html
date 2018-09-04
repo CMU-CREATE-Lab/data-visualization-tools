@@ -4,9 +4,9 @@
   </div>
   <div class="wizard-body">
     <div class="story-editor-intro">
-      <p>The <span class="highlight-text">story editor</span> is a tool for <span class="highlight-text">creating and sharing</span> stories on EarthTime. The created story can be downloaded and imported into the EarthTime viewer.</p>
+      <p>The <span class="highlight-text">story editor</span> is a tool for <span class="highlight-text">creating and sharing</span> stories on EarthTime.</p>
       <button class="custom-button full-width-button custom-button-primary add-bottom-margin story-editor-create-button">Create a New Story</button>
-      <p>You can also <span class="highlight-text">add and edit</span> stories that were created before. A public link to the stories is required.</p>
+      <p>You can also <span class="highlight-text">add and edit</span> stories that were created before.</p>
       <button class="custom-button full-width-button custom-button-primary story-editor-edit-button">Add or Edit Stories</button>
     </div>
     <!--    <div class="hide story-editor-empty">
@@ -111,7 +111,7 @@
         <h3>Step 4:&nbsp; Save</h3>
         <p class="add-bottom-margin">Save the story as a Google Sheet or download it to your local machine.</p>
         <p><span class="highlight-text">4.1</span>&nbsp;&nbsp; <span class="highlight-text">Save</span> the story as a publicly viewable Google Sheet. Authentication of Google Drive is required.</p>
-        <button class="custom-button full-width-button custom-button-primary add-bottom-margin story-editor-save-button" disabled>Save the Story in Google Sheet</button>
+        <button class="custom-button full-width-button custom-button-primary add-bottom-margin story-editor-save-button">Save the story to Google Drive</button>
         <p><span class="highlight-text">4.2</span>&nbsp;&nbsp; <span class="highlight-text">Download</span> the story. You can manually import the downloaded file into a Google Sheet later.</p>
         <button class="custom-button full-width-button custom-button-primary add-bottom-margin story-editor-download-button">Download the Story</button>
       </div>
@@ -129,8 +129,31 @@
     <div class="hide story-editor-load">
       <div class="wizard-body-top">
         <h3>Step 1:&nbsp; Load</h3>
-        <p class="add-bottom-margin">Provide the <span class="highlight-text">public link</span> below to <span class="highlight-text">load</span> stories that were created.</p>
-        <input type="text" class="custom-textbox add-bottom-margin sheet-url-textbox" placeholder="https//:">
+        <div class="add-top-margin set-view-tool-type">
+          <div class="custom-radio custom-radio-right align-text-left">
+            <input type="radio" name="load-type-input" value="image" id="load-from-drive-list">
+            <label for="load-from-drive-list" class="noselect">Load from a list of stories saved to your Google Drive</label>
+          </div>
+          <div class="custom-radio custom-radio-right align-text-left">
+            <input type="radio" name="load-type-input" value="video" id="load-from-direct-link">
+            <label for="load-from-direct-link" class="noselect">Load from a direct Google Sheets link</label>
+          </div>
+        </div>
+        <div class="hide load-story-from-drive-list-content add-top-margin">
+          <div class="hide google-authenticate-load-prompt">
+            <p class="authenticate-message">You need to first authenticate with Google to see your available stories.</p>
+            <button class="google-authenticate-button">Authenticate Now</button>
+          </div>
+          <div class="hide loading-stories-list">Loading...</div>
+          <div class="hide available-stories-on-drive-container add-top-margin">
+            <p class="add-bottom-margin-medium">Choose from the list of available stories you already created.</p>
+            <div class="available-stories-on-drive"></div>
+          </div>
+        </div>
+        <div class="hide load-story-from-direct-link-content add-top-margin">
+          <p class="add-bottom-margin">Provide the <span class="highlight-text">public link</span> below to <span class="highlight-text">load</span> stories that were created.</p>
+          <input type="text" class="custom-textbox add-bottom-margin sheet-url-textbox" placeholder="https//:">
+        </div>
       </div>
       <div class="wizard-body-bottom">
         <p>Click the "Next" button to add or edit themes loaded from the link.</p>
@@ -270,11 +293,11 @@
     <div class="hide story-editor-edit-save">
       <div class="wizard-body-top">
         <h3>Step 5:&nbsp; Save</h3>
-        <p class="add-bottom-margin">Save the stories as a Google Sheet or download them to your local machine.</p>
-        <p><span class="highlight-text">4.1</span>&nbsp;&nbsp; <span class="highlight-text">Save</span> the stories as a publicly viewable Google Sheet. Authentication of Google Drive is required.</p>
-        <button class="custom-button full-width-button custom-button-primary add-bottom-margin story-editor-save-button" disabled>Save the Stories in Google Sheet</button>
-        <p><span class="highlight-text">4.2</span>&nbsp;&nbsp; <span class="highlight-text">Download</span> the stories. You can manually import the downloaded file into a Google Sheet later.</p>
-        <button class="custom-button full-width-button custom-button-primary add-bottom-margin story-editor-download-button">Download the Stories</button>
+        <p class="add-bottom-margin">Save the story as a Google Sheet or download it to your local machine.</p>
+        <p><span class="highlight-text">4.1</span>&nbsp;&nbsp; <span class="highlight-text">Save</span> the story as a publicly viewable Google Sheet. Authentication of Google Drive is required.</p>
+        <button class="custom-button full-width-button custom-button-primary add-bottom-margin story-editor-save-button">Save the story to Google Drive</button>
+        <p><span class="highlight-text">4.2</span>&nbsp;&nbsp; <span class="highlight-text">Download</span> the story. You can manually import the downloaded file into a Google Sheet later.</p>
+        <button class="custom-button full-width-button custom-button-primary add-bottom-margin story-editor-download-button">Download the Story</button>
       </div>
       <div class="custom-dialog hide next-confirm-dialog" title="Finish editing the stories?">
         <p><span class="ui-icon ui-icon-alert"></span>Once you proceed, any unsaved data will be lost.</p>

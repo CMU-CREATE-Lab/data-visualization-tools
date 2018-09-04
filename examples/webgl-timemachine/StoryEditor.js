@@ -57,7 +57,7 @@
         dataType: "html",
         url: "StoryEditor.html",
         success: function (html_template) {
-          creatUI(html_template);
+          createUI(html_template);
           show();
           timelapse.pause();
         },
@@ -67,7 +67,7 @@
       });
     }
 
-    function creatUI(html_template) {
+    function createUI(html_template) {
       $("#" + container_id).append($(html_template));
       $this = $("#" + container_id + " .story-editor");
       createSetViewTool();
@@ -88,6 +88,18 @@
 
       // for testing the function of the user interface
       if(enable_testing) test();
+
+      addGoogleSignedInStateChangeListener(function(isSignedIn) {
+        if (isSignedIn) {
+          if ($("#load-from-drive-list").is(":visible")) {
+            $("#load-from-drive-list").trigger("click");
+          } else if ($(".story-editor-save-button").is(":visible")) {
+            $(".story-editor-save-button").trigger("click");
+          }
+        } else {
+          console.log('not logged in...');
+        }
+      });
     }
 
     // For setting a view from the timelapse viewer
@@ -173,7 +185,25 @@
         $next_confirm_dialog.dialog("open"); // check if the user truely wants to finish
       });
       $save.find(".story-editor-download-button").on("click", function () {
-        download(dataToTsv(collectNewStoryData()));
+        // download.js library is used
+        // TODO: If loaded from Drive, use the same file name?
+        download(dataToTsv(collectNewStoryData()), null, null, "story.tsv");
+      });
+      $save.find(".story-editor-save-button").on("click", function () {
+        if (isAuthenticatedWithGoogle()) {
+          // TODO: We don't want multiple clicks so we disable the button. Perhaps we do something else?
+          $save.find(".story-editor-save-button").prop("disabled", true);
+          // TODO: Deal with success/failure responses
+          // TODO: How do we name these spreadsheets so that the listing is useful to the user
+          // Do we make use of the hidden developer fields in the spreadsheet?
+          createNewSpreadSheetWithContent(null, tsvToSheetsDataArray(dataToTsv(collectNewStoryData()))).then(function(response) {
+            console.log(response);
+          }).catch(function(errorResponse) {
+            console.log(errorResponse);
+          });
+        } else {
+          handleAuthClick();
+        }
       });
       $next_confirm_dialog = createConfirmDialog({
         selector: "#" + container_id + " .story-editor-save .next-confirm-dialog",
@@ -198,6 +228,60 @@
     // For loading a Google spreadsheet
     function createEditLoadUI() {
       $edit_load = $this.find(".story-editor-load");
+      $edit_load.find(".next-button").prop("disabled", true);
+      $edit_load.find(".sheet-url-textbox").on("change", function() {
+        if ($(this).val().search(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/) >= 0) {
+          $edit_load.find(".next-button").prop("disabled", false);
+        } else {
+          $edit_load.find(".next-button").prop("disabled", true);
+        }
+      });
+      $edit_load.find(".google-authenticate-button").on("click", function() {
+        handleAuthClick();
+      });
+      // TODO: Should we save state and have a refresh button if they click back in the same session?
+      // It will save us Drive API quota calls if we do this.
+      $edit_load.find("#load-from-drive-list").on("click", function() {
+        $edit_load.find(".load-story-from-direct-link-content").hide();
+        $edit_load.find(".load-story-from-drive-list-content").show();
+        $edit_load.find(".sheet-url-textbox").val("").trigger('change');
+        $edit_load.find(".available-stories-on-drive").on("click", "input", function() {
+          $edit_load.find(".sheet-url-textbox").val($(this).data("google-sheets-url")).trigger('change');
+        });
+        if (isAuthenticatedWithGoogle()) {
+          $edit_load.find(".google-authenticate-load-prompt").hide();
+          $edit_load.find(".loading-stories-list").show();
+          listSpreadsheets().then(function(files) {
+            $edit_load.find(".loading-stories-list").hide();
+            $edit_load.find(".available-stories-on-drive-container").show();
+            if (files && files.length > 0) {
+              var html = "";
+              for (var i = 0; i < files.length; i++) {
+                var file = files[i];
+                var storyDomId = "story_" + i;
+                html += "<div class='custom-radio custom-radio-right align-text-left'>" +
+                          "<input type='radio' name='story-list-choices' id='" + storyDomId + "' data-google-sheets-url='https://docs.google.com/spreadsheets/d/" + file.id + "'>" +
+                          "<label for='" + storyDomId + "' class='noselect'>" + file.name + "</label>" +
+                        "</div>"
+              }
+              $edit_load.find(".available-stories-on-drive").empty().show().html(html);
+            } else {
+              $edit_load.find(".available-stories-on-drive").show().html("<p>You haven't created any stories yet with the Story Editor.</p>");
+            }
+          });
+        } else {
+          $edit_load.find(".google-authenticate-load-prompt").show();
+        }
+      });
+      $edit_load.find("#load-from-direct-link").on("click", function() {
+        $edit_load.find(".load-story-from-drive-list-content, .available-stories-on-drive").hide();
+        $edit_load.find(".load-story-from-direct-link-content").show();
+        if (enable_testing) {
+          $edit_load.find(".sheet-url-textbox").val("https://docs.google.com/spreadsheets/d/1dn6nDMFevqPBdibzGvo9qC7CxwxdfZkDyd_ys6r-ODE/edit#gid=145707723").trigger('change');
+        } else {
+          $edit_load.find(".sheet-url-textbox").val("").trigger('change');
+        }
+      });
       $edit_load.find(".back-button").on("click", function () {
         transition($edit_load, $intro);
       });
@@ -298,7 +382,25 @@
         $next_confirm_dialog.dialog("open");
       });
       $edit_save.find(".story-editor-download-button").on("click", function () {
-        download(dataToTsv(collectEditStoryData()));
+        // download.js library is used
+        // TODO: If loaded from Drive, use the same file name?
+        download(dataToTsv(collectEditStoryData()), null, null, "story.tsv");
+      });
+      $edit_save.find(".story-editor-save-button").on("click", function () {
+        if (isAuthenticatedWithGoogle()) {
+          // TODO: We don't want multiple clicks so we disable the button. Perhaps we do something else?
+          $save.find(".story-editor-save-button").prop("disabled", true);
+          // TODO: Deal with success/failure responses
+          // TODO: How do we name these spreadsheets so that the listing is useful to the user
+          // Do we make use of the hidden developer fields in the spreadsheet?
+          createNewSpreadSheetWithContent(null, tsvToSheetsDataArray(dataToTsv(collectNewStoryData()))).then(function(response) {
+            console.log(response);
+          }).catch(function(errorResponse) {
+            console.log(errorResponse);
+          });
+        } else {
+          handleAuthClick();
+        }
       });
       $next_confirm_dialog = createConfirmDialog({
         selector: "#" + container_id + " .story-editor-edit-save .next-confirm-dialog",
@@ -546,15 +648,6 @@
       return accordion;
     }
 
-    // Download tsv as spreadsheet
-    function download(tsv) {
-      var a = document.createElement("a");
-      a.href = "data:attachment/text," + encodeURI(tsv);
-      a.target = "_blank";
-      a.download = "story.tsv";
-      a.click();
-    }
-
     // Format the story data from the UI into a tsv spreadsheet
     function dataToTsv(data) {
       var tsv = "Waypoint Title\tAnnotation Title\tAnnotation Text\tShare View\tAuthor\n";
@@ -572,6 +665,17 @@
         }
       }
       return tsv;
+    }
+
+    // Convert from a tsv spreadsheet to a 2d array of data that will be written to a Google Sheet
+    function tsvToSheetsDataArray(data) {
+      var sheetsDataArray = [];
+      data = safeGet(data, []);
+      var tsvRows = data.split("\n");
+      for (var i = 0; i < tsvRows.length; i++) {
+        sheetsDataArray.push(tsvRows[i].split("\t"));
+      }
+      return sheetsDataArray;
     }
 
     // Recover the story data from a tsv spreadsheet
