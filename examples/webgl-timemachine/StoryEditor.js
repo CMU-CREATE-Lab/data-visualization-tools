@@ -9,7 +9,6 @@
 // - Papa Parse [https://www.papaparse.com/]
 // - time machine [https://github.com/CMU-CREATE-Lab/timemachine-viewer]
 // - the wizard template [wizard.css]
-// TODO: download() function does not work for Firefox
 // TODO: load the themes for the story tab and make the switching theme function work
 // TODO: load the views back when user clicks on set view
 // TODO: detect if "Mobile Share View Landscape" and "Mobile Share View Portrait" exists (if not, show error msg to users)
@@ -187,23 +186,10 @@
         $next_confirm_dialog.dialog("open"); // check if the user truely wants to finish
       });
       $save.find(".story-editor-download-button").on("click", function () {
-        // download.js library is used
-        // TODO: If loaded from Drive, use the same file name?
-        download(dataToTsv(collectNewStoryData()), null, null, "story.tsv");
+        downloadDataAsTsv(collectNewStoryData());
       });
       $save.find(".story-editor-save-button").on("click", function () {
-        if (isAuthenticatedWithGoogle()) {
-          // TODO: Deal with success/failure responses
-          // TODO: How do we name these spreadsheets so that the listing is useful to the user
-          // Do we make use of the hidden developer fields in the spreadsheet?
-          createNewSpreadSheetWithContent(null, tsvToSheetsDataArray(dataToTsv(collectNewStoryData()))).then(function(response) {
-            console.log(response);
-          }).catch(function(errorResponse) {
-            console.log(errorResponse);
-          });
-        } else {
-          handleAuthClick();
-        }
+        saveDataAsTsv(collectNewStoryData());
       });
       $next_confirm_dialog = createConfirmDialog({
         selector: "#" + container_id + " .story-editor-save .next-confirm-dialog",
@@ -382,25 +368,10 @@
         $next_confirm_dialog.dialog("open");
       });
       $edit_save.find(".story-editor-download-button").on("click", function () {
-        // download.js library is used
-        // TODO: If loaded from Drive, use the same file name?
-        download(dataToTsv(collectEditStoryData()), null, null, "story.tsv");
+        downloadDataAsTsv(collectEditStoryData());
       });
       $edit_save.find(".story-editor-save-button").on("click", function () {
-        if (isAuthenticatedWithGoogle()) {
-          // TODO: We don't want multiple clicks so we disable the button. Perhaps we do something else?
-          $save.find(".story-editor-save-button").prop("disabled", true);
-          // TODO: Deal with success/failure responses
-          // TODO: How do we name these spreadsheets so that the listing is useful to the user
-          // Do we make use of the hidden developer fields in the spreadsheet?
-          createNewSpreadSheetWithContent(null, tsvToSheetsDataArray(dataToTsv(collectNewStoryData()))).then(function(response) {
-            console.log(response);
-          }).catch(function(errorResponse) {
-            console.log(errorResponse);
-          });
-        } else {
-          handleAuthClick();
-        }
+        saveDataAsTsv(collectEditStoryData());
       });
       $next_confirm_dialog = createConfirmDialog({
         selector: "#" + container_id + " .story-editor-edit-save .next-confirm-dialog",
@@ -753,6 +724,30 @@
       return $elements.map(function () {
         return $(this).val();
       }).get();
+    }
+
+    // Download the tsv (download.js library is used)
+    function downloadDataAsTsv(data, file_name) {
+      file_name = safeGet(file_name, "story.tsv");
+      var tsv = dataToTsv(data);
+      download(tsv, null, null, file_name);
+    }
+
+    // Save the tsv to a Google Sheet
+    function saveDataAsTsv(data, file_name) {
+      var tsv = dataToTsv(data);
+      if (isAuthenticatedWithGoogle()) {
+        // TODO: Deal with success/failure responses
+        // TODO: How do we name these spreadsheets so that the listing is useful to the user
+        // Do we make use of the hidden developer fields in the spreadsheet?
+        createNewSpreadSheetWithContent(file_name, tsvToSheetsDataArray(tsv).then(function(response) {
+          console.log(response);
+        }).catch(function(errorResponse) {
+          console.log(errorResponse);
+        });
+      } else {
+        handleAuthClick();
+      }
     }
 
     // For testing the function of the user interface
