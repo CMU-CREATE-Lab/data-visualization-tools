@@ -30,7 +30,7 @@
     var $start_time, $end_time;
     var $toggle_view;
     var $speed, $speed_slow_radio, $speed_medium_radio, $speed_fast_radio;
-    var $video_settings, $type;
+    var $video_settings;
     var $delay_start, $delay_end;
     var thumbnail_tool;
     var start_frame_number, end_frame_number;
@@ -72,8 +72,7 @@
 
       // Video settings
       $video_settings = $this.find(".set-view-tool-video-settings");
-      $type = $this.find(".set-view-tool-type");
-      $type.find("input:radio[name='set-view-tool-type-input']").on("change", changeViewType);
+      $this.find("input:radio[name='set-view-tool-type-input']").on("change", changeViewType);
 
       // Start and end time
       $start_time = $this.find(".set-view-tool-start-time");
@@ -194,7 +193,7 @@
       var height = (direction == "portrait") ? DEFAULT_PREVIEW_WIDTH : DEFAULT_PREVIEW_HEIGHT;
 
       // View type
-      var type = $type.find("input:radio[name='set-view-tool-type-input']:checked").val();
+      var type = $this.find("input:radio[name='set-view-tool-type-input']:checked").val();
 
       // Start time
       var start_time = parseCaptureTime($start_time.val(), "start");
