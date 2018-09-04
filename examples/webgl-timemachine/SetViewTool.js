@@ -28,8 +28,7 @@
     var on_hide_callback = settings["on_hide_callback"];
     var $this;
     var $start_time, $end_time;
-    var $toggle_view;
-    var $speed, $speed_slow_radio, $speed_medium_radio, $speed_fast_radio;
+    var $speed_slow_radio, $speed_medium_radio, $speed_fast_radio;
     var $video_settings;
     var $delay_start, $delay_end;
     var thumbnail_tool;
@@ -67,8 +66,7 @@
       $this = $("#" + container_id + " .set-view-tool");
 
       // Toggle view
-      $toggle_view = $this.find(".set-view-tool-toggle-view");
-      $toggle_view.find("input:radio[name='set-view-tool-toggle-view-input']").on("change", toggleView);
+      $this.find("input:radio[name='set-view-tool-toggle-view-input']").on("change", toggleView);
 
       // Video settings
       $video_settings = $this.find(".set-view-tool-video-settings");
@@ -81,7 +79,6 @@
       $this.find(".set-view-tool-end-time-button").on("click", setEndTime);
 
       // Playback speed
-      $speed = $this.find(".set-view-tool-speed");
       $speed_slow_radio = $this.find("#set-view-tool-speed-slow-input");
       $speed_medium_radio = $this.find("#set-view-tool-speed-medium-input");
       $speed_fast_radio = $this.find("#set-view-tool-speed-fast-input");
@@ -222,7 +219,7 @@
       var end_time = parseCaptureTime($end_time.val(), "end");
 
       // Playback speed
-      var speed = $speed.find("input:radio[name='set-view-tool-speed-input']:checked").val();
+      var speed = $this.find("input:radio[name='set-view-tool-speed-input']:checked").val();
       var speed = parseFloat(speed) * 100;
 
       // Delays
@@ -251,7 +248,7 @@
     // Save the view and pass in the urls to the callback function
     function saveView() {
       // Set bounds
-      var current_bound_type = $toggle_view.find("input:radio[name='set-view-tool-toggle-view-input']:checked").val();
+      var current_bound_type = $this.find("input:radio[name='set-view-tool-toggle-view-input']:checked").val();
       bound[current_bound_type] = thumbnail_tool.cropBoxToViewBox();
       if (typeof bound["portrait"] === "undefined") {
         bound["portrait"] = thumbnail_tool.getRotatedBox(bound["landscape"]);

@@ -1,15 +1,3 @@
-.set-view-tool-speed-slow-button label {
-  width: 33%;
-}
-
-.set-view-tool-speed-medium-button label {
-  width: 35%;
-}
-
-.set-view-tool-speed-fast-button label {
-  width: 33%;
-}
-
 .set-view-tool-start-time-button {
   width: 27%;
   border-left: 0;

@@ -111,11 +111,11 @@
         <h3>Save Story</h3>
         <p>Choose whether to save the story to Google Drive or your local machine.</p>
         <div class="left-align-content add-bottom-margin">
-          <div class="custom-radio custom-radio-left story-editor-save-to-google-radio">
+          <div class="custom-radio custom-radio-left">
             <input type="radio" name="story-editor-save-options" value="google" id="story-editor-save-to-google-input">
             <label for="story-editor-save-to-google-input" class="noselect">Google Drive</label>
           </div>
-          <div class="custom-radio custom-radio-right set-view-tool-set-to-video-button">
+          <div class="custom-radio custom-radio-right">
             <input type="radio" name="story-editor-save-options" value="local" id="story-editor-save-to-local-input">
             <label for="story-editor-save-to-local-input" class="noselect">Local Machine</label>
           </div>
@@ -149,20 +149,21 @@
     <div class="hide story-editor-load">
       <div class="wizard-body-top">
         <h3>Load Story</h3>
-        <div class="add-top-margin">
-          <div class="custom-radio custom-radio-right align-text-left">
+        <p>Choose whether to load the story from Google Drive or a direct link.</p>
+        <div class="left-align-content add-bottom-margin">
+          <div class="custom-radio custom-radio-left">
             <input type="radio" name="load-type-input" value="image" id="load-from-drive-list">
-            <label for="load-from-drive-list" class="noselect">Load from a list of stories saved to your Google Drive</label>
+            <label for="load-from-drive-list" class="noselect">Google Drive</label>
           </div>
-          <div class="custom-radio custom-radio-right align-text-left">
+          <div class="custom-radio custom-radio-right">
             <input type="radio" name="load-type-input" value="video" id="load-from-direct-link">
-            <label for="load-from-direct-link" class="noselect">Load from a direct Google Sheets link</label>
+            <label for="load-from-direct-link" class="noselect">Direct Link</label>
           </div>
         </div>
-        <div class="hide load-story-from-drive-list-content add-top-margin">
+        <div class="hide load-story-from-drive-list-content">
           <div class="hide google-authenticate-load-prompt">
             <p class="authenticate-message">You need to first authenticate with Google to see your available stories.</p>
-            <button class="google-authenticate-button">Authenticate Now</button>
+            <button class="custom-button custom-button-primary full-width-button google-authenticate-button">Authenticate Now</button>
           </div>
           <div class="hide loading-stories-list">Loading...</div>
           <div class="hide available-stories-on-drive-container add-top-margin">
@@ -170,8 +171,8 @@
             <div class="available-stories-on-drive"></div>
           </div>
         </div>
-        <div class="hide load-story-from-direct-link-content add-top-margin">
-          <p class="add-bottom-margin">Provide the <span class="highlight-text">public link</span> below to <span class="highlight-text">load</span> stories that were created.</p>
+        <div class="hide load-story-from-direct-link-content">
+          <p>Provide the <span class="highlight-text">public link</span> below to <span class="highlight-text">load</span> stories that were created.</p>
           <input type="text" class="custom-textbox add-bottom-margin sheet-url-textbox" placeholder="https//:">
         </div>
       </div>

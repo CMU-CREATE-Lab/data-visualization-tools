@@ -191,6 +191,7 @@
           listSpreadsheets().then(function (files) {
             $load.find(".loading-stories-list").hide();
             $load.find(".available-stories-on-drive-container").show();
+            // TODO: make this a dropdown menu, instead of radio buttons
             if (files && files.length > 0) {
               var html = "";
               for (var i = 0; i < files.length; i++) {
