@@ -164,7 +164,7 @@ function createEmptySpreadsheet(spreadsheetTitle) {
 /**
   * Create a spreadsheet and write content to it
   */
-function createNewSpreadSheetWithContent(spreadsheetTitle, content) {
+function createNewSpreadsheetWithContent(spreadsheetTitle, content) {
   return createEmptySpreadsheet(spreadsheetTitle).then(function(response) {
     response.content = content;
     return response;
@@ -175,7 +175,6 @@ function createNewSpreadSheetWithContent(spreadsheetTitle, content) {
       throw errorResponse;
     });
   }).catch(function(errorResponse) {
-    console.log(errorResponse);
     throw {status: "error", message: errorResponse.result.error.message};
   });
 }

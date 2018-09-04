@@ -764,7 +764,7 @@
         // TODO: Deal with success/failure responses
         // TODO: How do we name these spreadsheets so that the listing is useful to the user
         // Do we make use of the hidden developer fields in the spreadsheet?
-        createNewSpreadSheetWithContent(file_name, tsvToSheetsDataArray(tsv)).then(function (response) {
+        createNewSpreadsheetWithContent(file_name, tsvToSheetsDataArray(tsv)).then(function (response) {
           if (typeof callback["success"] === "function") callback["success"](response);
           console.log(response);
         }).catch(function (errorResponse) {
