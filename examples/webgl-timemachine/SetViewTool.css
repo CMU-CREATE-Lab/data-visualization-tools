@@ -1,43 +1,43 @@
 .set-view-tool-start-time-button {
-  width: 27%;
+  width: 27% !important;
   border-left: 0;
   border-bottom-left-radius: 0;
   border-top-left-radius: 0;
 }
 
 .set-view-tool-end-time-button {
-  width: 27%;
+  width: 27% !important;
   border-left: 0;
   border-bottom-left-radius: 0;
   border-top-left-radius: 0;
 }
 
 .set-view-tool-start-time {
-  width: 56%;
+  width: 56% !important;
   border-right: 0;
   border-bottom-right-radius: 0;
   border-top-right-radius: 0;
 }
 
 .set-view-tool-end-time {
-  width: 56%;
+  width: 56% !important;
   border-right: 0;
   border-bottom-right-radius: 0;
   border-top-right-radius: 0;
 }
 
 .set-view-tool-start-time-text {
-  width: 17%;
+  width: 17% !important;
 }
 
 .set-view-tool-end-time-text {
-  width: 17%;
+  width: 17% !important;
 }
 
 .set-view-tool-start-delay-time {
-  width: 31%;
+  width: 31% !important;
 }
 
 .set-view-tool-end-delay-time {
-  width: 31%;
+  width: 31% !important;
 }
