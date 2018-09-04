@@ -6,8 +6,8 @@
     <div class="story-editor-intro">
       <p>The <span class="highlight-text">story editor</span> is a tool for <span class="highlight-text">creating and sharing</span> stories on EarthTime.</p>
       <button class="custom-button full-width-button custom-button-primary add-bottom-margin story-editor-create-button">Create a New Story</button>
-      <p>You can also <span class="highlight-text">add and edit</span> stories that were created before.</p>
-      <button class="custom-button full-width-button custom-button-primary story-editor-edit-button">Add or Edit Stories</button>
+      <p>You can also <span class="highlight-text">load and edit</span> stories that were created before.</p>
+      <button class="custom-button full-width-button custom-button-primary story-editor-edit-button">Load and Edit Stories</button>
     </div>
     <!--    <div class="hide story-editor-empty">
           <div class="wizard-body-top">
@@ -22,11 +22,11 @@
         </div>-->
     <div class="hide story-editor-theme">
       <div class="wizard-body-top">
-        <h3>Step 1:&nbsp; Theme</h3>
+        <h3>Create a Theme</h3>
         <p class="add-bottom-margin">Each story belongs to a broader theme. Specify the theme metadata.</p>
-        <p><span class="highlight-text">1.1</span>&nbsp;&nbsp; Enter the theme <span class="highlight-text">title</span>:</p>
+        <p><span class="highlight-text">1</span>&nbsp;&nbsp; Enter the theme <span class="highlight-text">title</span>:</p>
         <input type="text" class="custom-textbox add-bottom-margin story-editor-title-textbox" maxlength="30" placeholder="theme title (max 30 characters)">
-        <p><span class="highlight-text">2.1</span>&nbsp;&nbsp; Enter the theme <span class="highlight-text">description</span>:</p>
+        <p><span class="highlight-text">2</span>&nbsp;&nbsp; Enter the theme <span class="highlight-text">description</span>:</p>
         <textarea class="custom-textbox large-textbox add-bottom-margin story-editor-description-textbox" maxlength="300" placeholder="theme description (max 300 characters)"></textarea>
       </div>
       <div class="wizard-body-bottom">
@@ -39,18 +39,18 @@
     </div>
     <div class="hide story-editor-story">
       <div class="wizard-body-top">
-        <h3>Step 2:&nbsp; Story</h3>
+        <h3>Create a Story</h3>
         <p class="add-bottom-margin">Specify the metadata for the story.</p>
-        <p><span class="highlight-text">2.1</span>&nbsp;&nbsp; Enter the story <span class="highlight-text">title</span>:</p>
+        <p><span class="highlight-text">1</span>&nbsp;&nbsp; Enter the story <span class="highlight-text">title</span>:</p>
         <input type="text" class="custom-textbox add-bottom-margin story-editor-title-textbox" maxlength="20" placeholder="story title (max 20 characters)">
-        <p><span class="highlight-text">2.3</span>&nbsp;&nbsp; Enter the story <span class="highlight-text">description</span>:</p>
+        <p><span class="highlight-text">2</span>&nbsp;&nbsp; Enter the story <span class="highlight-text">description</span>:</p>
         <textarea class="custom-textbox large-textbox add-bottom-margin story-editor-description-textbox" maxlength="300" placeholder="story description (max 300 characters)"></textarea>
-        <p><span class="highlight-text">2.4</span>&nbsp;&nbsp; Enter the story <span class="highlight-text">authors</span>:</p>
+        <p><span class="highlight-text">3</span>&nbsp;&nbsp; Enter the story <span class="highlight-text">authors</span>:</p>
         <input type="text" class="custom-textbox add-bottom-margin story-editor-author-textbox" maxlength="300" placeholder="authors (max 300 characters)">
-        <p><span class="highlight-text">2.5</span>&nbsp;&nbsp; Set a <span class="highlight-text">cover view</span> for the story:</p>
-        <button class="custom-button full-width-button custom-button-primary story-editor-set-cover-view-button">Set Cover View</button>
+        <p><span class="highlight-text">4</span>&nbsp;&nbsp; Set a <span class="highlight-text">view</span> for the story:</p>
+        <button class="custom-button full-width-button custom-button-primary story-editor-set-cover-view-button">Set View</button>
         <div class="add-top-margin story-editor-thumbnail-preview">
-          <span class="story-editor-thumbnail-preview-text"><span class="highlight-text">2.6</span>&nbsp;&nbsp; Landscape and portrait views:</span>
+          <span class="story-editor-thumbnail-preview-text"><span class="highlight-text">5</span>&nbsp;&nbsp; Landscape and portrait views:</span>
           <div class="even-space-content-align-bottom">
             <a href="javascript:void(0)" target="_blank" class="image story-editor-thumbnail-preview-landscape"><img src=""></a>
             <a href="javascript:void(0)" target="_blank" class="image story-editor-thumbnail-preview-portrait"><img src=""></a>
@@ -67,7 +67,7 @@
     </div>
     <div class="hide story-editor-waypoints">
       <div class="wizard-body-top">
-        <h3>Step 3:&nbsp; Waypoints</h3>
+        <h3>Create Waypoints</h3>
         <p>Click on the tabs to <span class="highlight-text">select</span> and <span class="highlight-text">edit</span> waypoints. To <span class="highlight-text">reorder</span> waypoints, drag and drop the tabs.</p>
         <div class="custom-accordion add-top-margin">
           <div class="custom-accordion-tab">
@@ -108,12 +108,32 @@
     </div>
     <div class="hide story-editor-save">
       <div class="wizard-body-top">
-        <h3>Step 4:&nbsp; Save</h3>
-        <p class="add-bottom-margin">Save the story as a Google Sheet or download it to your local machine.</p>
-        <p><span class="highlight-text">4.1</span>&nbsp;&nbsp; <span class="highlight-text">Save</span> the story as a publicly viewable Google Sheet. Authentication of Google Drive is required.</p>
-        <button class="custom-button full-width-button custom-button-primary add-bottom-margin story-editor-save-button">Save the story to Google Drive</button>
-        <p><span class="highlight-text">4.2</span>&nbsp;&nbsp; <span class="highlight-text">Download</span> the story. You can manually import the downloaded file into a Google Sheet later.</p>
-        <button class="custom-button full-width-button custom-button-primary add-bottom-margin story-editor-download-button">Download the Story</button>
+        <h3>Save Story</h3>
+        <p>Choose whether to save the story to Google Drive or your local machine.</p>
+        <div class="left-align-content add-bottom-margin story-editor-save">
+          <div class="custom-radio custom-radio-left story-editor-save-to-google-radio">
+            <input type="radio" name="story-editor-save-options" value="google" id="story-editor-save-to-google-input">
+            <label for="story-editor-save-to-google-input" class="noselect">Google Drive</label>
+          </div>
+          <div class="custom-radio custom-radio-right set-view-tool-set-to-video-button">
+            <input type="radio" name="story-editor-save-options" value="local" id="story-editor-save-to-local-input">
+            <label for="story-editor-save-to-local-input" class="noselect">Local Machine</label>
+          </div>
+        </div>
+        <div class="hide story-editor-save-file-name">
+          <p><span class="highlight-text">1</span>&nbsp;&nbsp; Enter the file name:</p>
+          <input type="text" class="custom-textbox add-bottom-margin story-editor-save-file-name-textbox" maxlength="100" placeholder="(max 100 characters)">
+        </div>
+        <div class="hide story-editor-save-to-google">
+          <p><span class="highlight-text">2</span>&nbsp;&nbsp; Save the story as a publicly viewable Google Sheet. Authentication of Google Drive is required.</p>
+          <button class="custom-button full-width-button custom-button-primary add-bottom-margin story-editor-save-to-google-button">Save the Story to Google Drive</button>
+          <div class="story-editor-save-to-google-message"></div>
+        </div>
+        <div class="hide story-editor-save-to-local">
+          <p><span class="highlight-text">2</span>&nbsp;&nbsp; Save the story as a tsv file in your local machine. You can manually import the downloaded file into a Google Sheet later.</p>
+          <button class="custom-button full-width-button custom-button-primary add-bottom-margin story-editor-save-to-local-button">Save the Story to Local Machine</button>
+          <div class="story-editor-save-to-local-message"></div>
+        </div>
       </div>
       <div class="custom-dialog hide next-confirm-dialog" title="Finish creating the story?">
         <p><span class="ui-icon ui-icon-alert"></span>Once you proceed, any unsaved data will be lost.</p>
@@ -128,7 +148,7 @@
     </div>
     <div class="hide story-editor-load">
       <div class="wizard-body-top">
-        <h3>Step 1:&nbsp; Load</h3>
+        <h3>Load</h3>
         <div class="add-top-margin set-view-tool-type">
           <div class="custom-radio custom-radio-right align-text-left">
             <input type="radio" name="load-type-input" value="image" id="load-from-drive-list">
@@ -165,7 +185,7 @@
     </div>
     <div class="hide story-editor-edit-theme">
       <div class="wizard-body-top">
-        <h3>Step 2:&nbsp; Theme</h3>
+        <h3>Edit Theme</h3>
         <p class="add-bottom-margin">Use the tabs to <span class="highlight-text">select</span> and <span class="highlight-text">edit</span> themes. You can also <span class="highlight-text">add</span> or <span class="highlight-text">delete</span> themes.</p>
         <div class="custom-accordion add-top-margin">
           <div class="custom-accordion-tab">
@@ -202,7 +222,7 @@
     </div>
     <div class="hide story-editor-edit-story">
       <div class="wizard-body-top">
-        <h3>Step 3:&nbsp; Story</h3>
+        <h3>Edit Story</h3>
         <p class="add-bottom-margin">Use the tabs to <span class="highlight-text">select</span> and <span class="highlight-text">edit</span> stories. You can <span class="highlight-text">move</span> stories to other themes.</p>
         <div class="custom-accordion add-top-margin">
           <div class="custom-accordion-tab">
@@ -251,7 +271,7 @@
     </div>
     <div class="hide story-editor-edit-waypoints">
       <div class="wizard-body-top">
-        <h3>Step 4:&nbsp; Waypoints</h3>
+        <h3>Edit Waypoints</h3>
         <p>Click on the tabs to <span class="highlight-text">select</span> and <span class="highlight-text">edit</span> waypoints. To <span class="highlight-text">reorder</span> waypoints, drag and drop the tabs.</p>
         <div class="custom-accordion add-top-margin">
           <div class="custom-accordion-tab">
@@ -287,26 +307,6 @@
         <div class="even-space-content">
           <button class="custom-button half-width-button back-button">Back</button>
           <button class="custom-button custom-button-primary half-width-button next-button">Next</button>
-        </div>
-      </div>
-    </div>
-    <div class="hide story-editor-edit-save">
-      <div class="wizard-body-top">
-        <h3>Step 5:&nbsp; Save</h3>
-        <p class="add-bottom-margin">Save the story as a Google Sheet or download it to your local machine.</p>
-        <p><span class="highlight-text">5.1</span>&nbsp;&nbsp; <span class="highlight-text">Save</span> the story as a publicly viewable Google Sheet. Authentication of Google Drive is required.</p>
-        <button class="custom-button full-width-button custom-button-primary add-bottom-margin story-editor-save-button">Save the story to Google Drive</button>
-        <p><span class="highlight-text">5.2</span>&nbsp;&nbsp; <span class="highlight-text">Download</span> the story. You can manually import the downloaded file into a Google Sheet later.</p>
-        <button class="custom-button full-width-button custom-button-primary add-bottom-margin story-editor-download-button">Download the Story</button>
-      </div>
-      <div class="custom-dialog hide next-confirm-dialog" title="Finish editing the stories?">
-        <p><span class="ui-icon ui-icon-alert"></span>Once you proceed, any unsaved data will be lost.</p>
-      </div>
-      <div class="wizard-body-bottom">
-        <p>Click the "Finish" button to return to the front page.</p>
-        <div class="even-space-content">
-          <button class="custom-button half-width-button back-button">Back</button>
-          <button class="custom-button custom-button-danger half-width-button next-button">Finish</button>
         </div>
       </div>
     </div>

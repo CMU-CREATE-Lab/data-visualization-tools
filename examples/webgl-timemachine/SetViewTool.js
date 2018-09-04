@@ -115,8 +115,7 @@
 
     // Change the view type to image or video
     function changeViewType() {
-      var val = $(this).val();
-      if (val == "video") {
+      if ($(this).val() == "video") {
         $video_settings.show();
       } else {
         $video_settings.hide();
@@ -133,8 +132,7 @@
     // Swap the width and height of the thumbnail tool crop box
     function toggleView() {
       // Save current bound (need to use the previous state of the value)
-      var val = $(this).val();
-      if (val == "portrait") {
+      if ($(this).val() == "portrait") {
         bound["landscape"] = thumbnail_tool.cropBoxToViewBox();
       } else {
         bound["portrait"] = thumbnail_tool.cropBoxToViewBox();
