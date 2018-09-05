@@ -3557,24 +3557,24 @@
         if (snaplapseViewerForPresentationSlider) {
           snaplapseViewerForPresentationSlider.startAutoModeIdleTimeout();
         }
-        var filePath = $(e.currentTarget).data("filepath");
+        var relativePath = "../../../extras/";
+        var filePath = relativePath + $(e.currentTarget).data("filepath");
         var fileType = $(e.currentTarget).data("type");
         var playbackRate = $(e.currentTarget).data("playbackrate");
-
         $("#extras-content").dialog('option', 'title', $(e.currentTarget).text());
         var $extrasHtml = "";
         if (fileType == "image") {
-          $extrasHtml = '<img id="extras-image" src="../../../extras/' + filePath + '">';
+          $extrasHtml = '<img id="extras-image" src="' + filePath + '">';
           $("#extras-content").html($extrasHtml).dialog("open");
         } else if (fileType == "video") {
-          $extrasHtml = '<video id="extras-video" src="../../../extras/' + filePath + '" controls autoplay></video>';
+          $extrasHtml = '<video id="extras-video" src="' + filePath + '" controls autoplay></video>';
           $("#extras-content").html($extrasHtml).dialog("open");
           $("#extras-video")[0].playbackRate = playbackRate;
           $("#extras-video").gVideo({
             childtheme: 'smalldark'
           });
         } else if (fileType == "iframe") {
-          $extrasHtml = '<iframe id="extras-iframe" src="../../../extras/' + filePath + '"></iframe>';
+          $extrasHtml = '<iframe id="extras-iframe" src="' + filePath + '"></iframe>';
           $("#extras-content").html($extrasHtml).dialog("open");
         } else if (fileType == "link") {
           window.location.href = filePath;
