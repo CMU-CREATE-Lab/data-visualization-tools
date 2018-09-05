@@ -65,7 +65,7 @@ CsvFileLayer.prototype.addExtrasContent = function addExtrasContent(layerDef) {
   str += ' data-name="' + shareLinkIdentifier + '"'; 
   str += '>' + dataName + '</option>';
 
-  $('#extras-selector').append(row);
+  $('#extras-selector').append(str);
 
 }
 
