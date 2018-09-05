@@ -3574,7 +3574,7 @@
             childtheme: 'smalldark'
           });
         } else if (fileType == "iframe") {
-          $extrasHtml = '<iframe id="extras-iframe" src="' + filePath + '"></iframe>';
+          $extrasHtml = '<iframe id="extras-iframe" src="../../../extras/' + filePath + '"></iframe>';
           $("#extras-content").html($extrasHtml).dialog("open");
         } else if (fileType == "link") {
           window.location.href = filePath;
