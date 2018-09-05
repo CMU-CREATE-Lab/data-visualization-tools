@@ -207,6 +207,17 @@ html, body {
   width: 100% !important;
   height: 100% !important;
 }
+#extras-image {
+  height: 100% !important;
+  display: block !important;
+  margin: 0 auto !important;
+}
+#extras-iframe {
+  border: 0px !important;
+  scrolling: no !important;
+  width: 100% !important;
+  height: 100% !important;
+}
 .ui-selectmenu-menu {
   border-bottom-right-radius: 2px;
   border-bottom-left-radius: 2px;
