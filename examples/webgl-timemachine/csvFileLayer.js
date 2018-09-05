@@ -50,6 +50,26 @@ CsvFileLayer.prototype.lookupFunctionFromTable = function (functionName, lookupT
   }
 }
 
+CsvFileLayer.prototype.addExtrasContent = function addExtrasContent(layerDef) {
+  var playbackRate = layerDef["Playback Rate"].trim() == '' ? 0 : layerDef["Playback Rate"].trim(); 
+  var dataType;
+  if (layerDef["Map Type"] == "extras-video") {
+    dataType = "video";
+  }
+  var dataFilePath = layerDef["URL"];
+  var shareLinkIdentifier = layerDef["Share link identifier"].replace(/\W+/g, '_');
+  var dataName = layerDef["Name"];
+  var str = '<option data-playback-rate="' + playbackRate + '"';
+  str += ' data-type="' + dataType + '"';
+  str += ' data-file-path="' + dataFilePath +'"';
+  str += ' data-name="' + shareLinkIdentifier + '"'; 
+  str += '>' + dataName + '</option>';
+
+  $('#extras-selector').append(row);
+
+}
+
+
 CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
   // (someday) Use csv.createlab.org as translation gateway
   // url = 'http://csv.createlab.org/' + url.replace(/^https?:\/\//,'')
@@ -271,15 +291,20 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
     }
 
     if (layerDef["Enabled"].toLowerCase() != "true") continue;
-    
-    var layer = this.addLayer(layerDef);
-    if (layer.mapType == 'raster') {
-      this.setLegend(layer.layerId);
+
+    if (layerDef["Map Type"].split("-")[0] == "extras") {
+      this.addExtrasContent(layerDef);
+    } else {
+      var layer = this.addLayer(layerDef);
+      if (layer.mapType == 'raster') {
+        this.setLegend(layer.layerId);
+      }
+      this.setTimeLine(layer.layerId,
+           layerDef["Start date"],
+           layerDef["End date"],
+           layerDef["Step"]);
+
     }
-    this.setTimeLine(layer.layerId,
-		     layerDef["Start date"],
-		     layerDef["End date"],
-		     layerDef["Step"]);
   }
   for (var i = 0; i < this.layersLoadedListeners.length; i++) {
     this.layersLoadedListeners[i]();
