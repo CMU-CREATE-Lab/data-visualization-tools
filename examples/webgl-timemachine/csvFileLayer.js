@@ -52,10 +52,7 @@ CsvFileLayer.prototype.lookupFunctionFromTable = function (functionName, lookupT
 
 CsvFileLayer.prototype.addExtrasContent = function addExtrasContent(layerDef) {
   var playbackRate = layerDef["Playback Rate"].trim() == '' ? 0 : layerDef["Playback Rate"].trim(); 
-  var dataType;
-  if (layerDef["Map Type"] == "extras-video") {
-    dataType = "video";
-  }
+  var dataType = layerDef["Map Type"].split("-")[1];
   var dataFilePath = layerDef["URL"];
   var shareLinkIdentifier = layerDef["Share link identifier"].replace(/\W+/g, '_');
   var dataName = layerDef["Name"];
