@@ -103,6 +103,11 @@
         },
         on_hide_callback: function () {
           $current_thumbnail_preview = null;
+        },
+        on_show_callback: function () {
+          var $l = $current_thumbnail_preview.find(".story-editor-thumbnail-preview-landscape");
+          var $p = $current_thumbnail_preview.find(".story-editor-thumbnail-preview-portrait");
+          set_view_tool.setUI($l.data("view"), $p.data("view"));
         }
       });
     }
@@ -183,7 +188,7 @@
         $load.find(".load-story-from-drive-list-content").show();
         $load.find(".sheet-url-textbox").val("").trigger('change');
         $load.find(".available-stories-on-drive").on("click", "input", function () {
-          $load.find(".sheet-url-textbox").val($(this).data("google-sheets-url")).trigger('change');
+          $load.find(".sheet-url-textbox").val($(this).data("google-sheets-url")).trigger("change");
         });
         if (isAuthenticatedWithGoogle()) {
           $load.find(".google-authenticate-load-prompt").hide();
@@ -215,9 +220,9 @@
         $load.find(".load-story-from-drive-list-content, .available-stories-on-drive").hide();
         $load.find(".load-story-from-direct-link-content").show();
         if (enable_testing) {
-          $load.find(".sheet-url-textbox").val("https://docs.google.com/spreadsheets/d/1dn6nDMFevqPBdibzGvo9qC7CxwxdfZkDyd_ys6r-ODE/edit#gid=145707723").trigger('change');
+          $load.find(".sheet-url-textbox").val("https://docs.google.com/spreadsheets/d/1dn6nDMFevqPBdibzGvo9qC7CxwxdfZkDyd_ys6r-ODE/edit#gid=145707723").trigger("change");
         } else {
-          $load.find(".sheet-url-textbox").val("").trigger('change');
+          $load.find(".sheet-url-textbox").val("").trigger("change");
         }
       });
       $load.find(".back-button").on("click", function () {
@@ -408,8 +413,9 @@
       if (typeof d["author"] !== "undefined") {
         $ui.find(".story-editor-author-textbox").val(d["author"]);
       }
-      if (typeof d["view"] !== "undefined") {
-        setThumbnailPreviewUI($ui.find(".story-editor-thumbnail-preview"), set_view_tool.extractView(d["view"]));
+      if (typeof d["view_landscape"] !== "undefined" && d["view_portrait"] !== "undefined") {
+        var urls = set_view_tool.extractThumbnailUrls(d["view_landscape"], d["view_portrait"]);
+        setThumbnailPreviewUI($ui.find(".story-editor-thumbnail-preview"), urls);
       }
       if (typeof d["data"] !== "undefined") {
         $ui.data("data", d["data"]);
@@ -468,9 +474,11 @@
       if ($author.length > 0) {
         d["author"] = safeGet($author.val().trim());
       }
-      var $view = $ui.find(".story-editor-thumbnail-preview-landscape");
-      if ($view.length > 0) {
-        d["view"] = safeGet($view.data("view"));
+      var $view_landscape = $ui.find(".story-editor-thumbnail-preview-landscape");
+      var $view_portrait = $ui.find(".story-editor-thumbnail-preview-portrait");
+      if ($view_landscape.length > 0 && $view_portrait.length > 0) {
+        d["view_landscape"] = safeGet($view_landscape.data("view"));
+        d["view_portrait"] = safeGet($view_portrait.data("view"));
       }
       var data = $ui.data("data");
       if (typeof data !== "undefined") {
@@ -524,9 +532,11 @@
       var $p = $ui.find(".story-editor-thumbnail-preview-portrait");
       $l.prop("href", urls["landscape"]["render"]["url"]);
       $l.data("view", urls["landscape"]["render"]["args"]["root"]);
+      $l.find("img").prop("src", ""); // make the loading gif appear
       $l.find("img").prop("src", urls["landscape"]["preview"]["url"]);
       $p.prop("href", urls["portrait"]["render"]["url"]);
       $p.data("view", urls["portrait"]["render"]["args"]["root"]);
+      $p.find("img").prop("src", ""); // make the loading gif appear
       $p.find("img").prop("src", urls["portrait"]["preview"]["url"]);
     }
 
@@ -642,17 +652,17 @@
 
     // Format the story data from the UI into a tsv spreadsheet
     function dataToTsv(data) {
-      var tsv = "Waypoint Title\tAnnotation Title\tAnnotation Text\tShare View\tAuthor\n";
+      var tsv = "Waypoint Title\tAnnotation Title\tAnnotation Text\tShare View\tAuthor\tMobile Share View Landscape\tMobile Share View Portrait\n";
       data = safeGet(data, []);
       for (var i = 0; i < data.length; i++) {
         var theme = data[i];
-        tsv += "#" + theme.title + "\t" + theme.title + "\t" + theme.description + "\t\t\n";
+        tsv += "#" + theme.title + "\t" + theme.title + "\t" + theme.description + "\n";
         for (var j = 0; j < theme["data"].length; j++) {
           var story = theme["data"][j];
-          tsv += "##" + story.title + "\t" + story.title + "\t" + story.description + "\t" + story.view + "\t" + story.author + "\n";
+          tsv += "##" + story.title + "\t" + story.title + "\t" + story.description + "\t" + story.view_landscape + "\t" + story.author + "\t" + story.view_landscape + "\t" + story.view_portrait + "\n";
           for (var k = 0; k < story["data"].length; k++) {
             var waypoint = story["data"][k];
-            tsv += waypoint.title + "\t" + waypoint.long_title + "\t" + waypoint.description + "\t" + waypoint.view + "\t\n";
+            tsv += waypoint.title + "\t" + waypoint.long_title + "\t" + waypoint.description + "\t" + waypoint.view_landscape + "\t\t" + waypoint.view_landscape + "\t" + waypoint.view_portrait + "\n";
           }
         }
       }
@@ -679,7 +689,8 @@
         var title = row["Waypoint Title"];
         var long_title = row["Annotation Title"];
         var description = row["Annotation Text"];
-        var view = row["Share View"];
+        var view_landscape = row["Mobile Share View Landscape"];
+        var view_portrait = row["Mobile Share View Portrait"];
         var author = row["Author"];
         if (title.charAt(0) == "#" && title.charAt(1) != "#") {
           theme = {
@@ -692,8 +703,9 @@
           story = {
             title: title.replace("##", ""),
             description: description,
-            view: view,
             author: author,
+            view_landscape: view_landscape,
+            view_portrait: view_portrait,
             data: [] // for storing waypoints
           };
           theme["data"].push(story);
@@ -702,7 +714,8 @@
             title: title,
             long_title: long_title,
             description: description,
-            view: view
+            view_landscape: view_landscape,
+            view_portrait: view_portrait
           };
           story["data"].push(waypoint);
         }
@@ -753,7 +766,7 @@
       if (typeof file_name === "undefined" || file_name == "") {
         file_name = "story";
       }
-      download(tsv, null, null, file_name + ".tsv");
+      download(tsv, file_name + ".tsv", "text/plain");
     }
 
     // Save the tsv to a Google Sheet
@@ -782,34 +795,39 @@
       // For creating a new story
       setTabUI($theme, {
         title: "City",
-        description: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis"
+        description: "A city is a large human settlement. Cities generally have extensive systems for housing, transportation, sanitation, utilities, land use, and communication."
       });
       setTabUI($story, {
         title: "Las Vegas",
-        description: "Las Vegas is growing",
-        view: "https://headless.earthtime.org/#v=376619,739989,381095,742507,pts&t=0&ps=0&l=blsat&bt=19840101&et=19840101&startDwell=0&endDwell=0&fps=30",
-        author: "Yen-Chia Hsu"
+        description: "Las Vegas, officially the City of Las Vegas and often known simply as Vegas, is the 28th-most populated city in the United States, the most populated city in the state of Nevada, and the county seat of Clark County.",
+        author: "Yen-Chia Hsu",
+        view_landscape: "https://headless.earthtime.org/#v=376423,740061,380719,742478,pts&t=0&ps=0&l=blsat&bt=20010101&et=20010101&startDwell=0&endDwell=0&fps=30",
+        view_portrait: "https://headless.earthtime.org/#v=376537,738962,379195,743683,pts&t=0&ps=0&l=blsat&bt=20010101&et=20010101&startDwell=0&endDwell=0&fps=30"
       });
       setAccordionUI(waypoints_accordion, [{
-        title: "City blocks 1984",
-        long_title: "City blocks 1984 Las Vegas",
+        title: "1984",
+        long_title: "Las Vegas 1984",
         description: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis",
-        view: "https://headless.earthtime.org/#v=376528,740349,379214,741860,pts&t=0&ps=0&l=blsat&bt=19840101&et=19840101&startDwell=0&endDwell=0&fps=30"
+        view_landscape: "https://headless.earthtime.org/#v=375528,739600,381100,742737,pts&t=0&ps=0&l=blsat&bt=19840101&et=19840101&startDwell=0&endDwell=0&fps=30",
+        view_portrait: "https://headless.earthtime.org/#v=376379,738333,379516,743905,pts&t=0&ps=0&l=blsat&bt=19840101&et=19840101&startDwell=0&endDwell=0&fps=30"
       }, {
-        title: "City blocks 2016",
-        long_title: "City blocks 2016 Las Vegas",
+        title: "2016",
+        long_title: "Las Vegas 2016",
         description: "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt",
-        view: "https://headless.earthtime.org/#v=376528,740349,379214,741860,pts&t=0&ps=0&l=blsat&bt=20160101&et=20160101&startDwell=0&endDwell=0&fps=30"
+        view_landscape: "https://headless.earthtime.org/#v=375162,739550,380734,742687,pts&t=0&ps=0&l=blsat&bt=20160101&et=20160101&startDwell=0&endDwell=0&fps=30",
+        view_portrait: "https://headless.earthtime.org/#v=376379,738333,379516,743905,pts&t=0&ps=0&l=blsat&bt=20160101&et=20160101&startDwell=0&endDwell=0&fps=30"
       }, {
-        title: "City blocks animate",
-        long_title: "City blocks animate Las Vegas",
+        title: "1984-2016",
+        long_title: "Las Vegas 1984-2016 (Medium Speed)",
         description: "Li Europan lingues es membres del sam familie. Lor separat existentie es un myth. Por scientie, musica, sport etc, litot Europa usa li sam vocabular. Li lingues differe solmen in",
-        view: "https://headless.earthtime.org/#v=375724,739821,379748,742085,pts&t=0&ps=50&l=blsat&bt=19840101&et=20161231&startDwell=0&endDwell=1&fps=30"
+        view_landscape: "https://headless.earthtime.org/#v=374578,739513,381264,743277,pts&t=0&ps=50&l=blsat&bt=19840101&et=20161231&startDwell=0&endDwell=1&fps=30",
+        view_portrait: "https://headless.earthtime.org/#v=375825,738017,379589,744702,pts&t=0&ps=50&l=blsat&bt=19840101&et=20161231&startDwell=0&endDwell=1&fps=30"
       }, {
-        title: "City blocks fast",
-        long_title: "City blocks fast Las Vegas",
+        title: "1991-2009",
+        long_title: "Las Vegas 1991-2009 (Fast Speed)",
         description: "abc def ghi jkl mno pqrs tuv wxyz ABC DEF GHI JKL MNO PQRS TUV WXYZ !\"§ $%& /() =?* '<> #|; ²³~ @`´ ©«» ¤¼× {}abc def ghi",
-        view: "https://headless.earthtime.org/#v=375528,739686,381435,743009,pts&t=0&ps=100&l=blsat&bt=19930101&et=20041231&startDwell=0&endDwell=1&fps=30"
+        view_landscape: "https://headless.earthtime.org/#v=375567,739964,379848,742375,pts&t=0&ps=100&l=blsat&bt=19910101&et=20091231&startDwell=1&endDwell=2&fps=30",
+        view_portrait: "https://headless.earthtime.org/#v=376502,739029,378913,743310,pts&t=0&ps=100&l=blsat&bt=19910101&et=20091231&startDwell=1&endDwell=2&fps=30"
       }]);
       // For editing a story
       $load.find(".sheet-url-textbox").val("https://docs.google.com/spreadsheets/d/1dn6nDMFevqPBdibzGvo9qC7CxwxdfZkDyd_ys6r-ODE/edit#gid=145707723");

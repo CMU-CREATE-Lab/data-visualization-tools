@@ -23,19 +23,19 @@
 }
 
 .story-editor-thumbnail-preview-landscape {
-  min-height: 71px;
+  min-height: 78px;
 }
 
 .story-editor-thumbnail-preview-portrait {
-  min-height: 131px;
+  min-height: 144px;
 }
 
 .story-editor-story .story-editor-thumbnail-preview-landscape {
-  min-height: 85px !important;
+  min-height: 92px !important;
 }
 
 .story-editor-story .story-editor-thumbnail-preview-portrait {
-  min-height: 158px !important;
+  min-height: 171px !important;
 }
 
 .story-editor-thumbnail-preview-landscape {

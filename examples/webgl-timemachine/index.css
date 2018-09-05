@@ -2370,3 +2370,7 @@ a:focus { outline:0; }
   width: 320px;
   border-left: 1px solid #000000;
 }
+
+.ui-autocomplete {
+  z-index: 99999;
+}

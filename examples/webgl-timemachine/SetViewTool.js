@@ -26,10 +26,11 @@
     var on_view_set_callback = settings["on_view_set_callback"];
     var on_cancel_callback = settings["on_cancel_callback"];
     var on_hide_callback = settings["on_hide_callback"];
+    var on_show_callback = settings["on_show_callback"];
     var $this;
     var $start_time, $end_time;
     var $speed_slow_radio, $speed_medium_radio, $speed_fast_radio;
-    var $video_settings;
+    var $type_image_radio, $type_video_radio, $video_settings;
     var $delay_start, $delay_end;
     var thumbnail_tool;
     var start_frame_number, end_frame_number;
@@ -70,13 +71,15 @@
 
       // Video settings
       $video_settings = $this.find(".set-view-tool-video-settings");
+      $type_image_radio = $this.find("#set-view-tool-set-to-image-input");
+      $type_video_radio = $this.find("#set-view-tool-set-to-video-input");
       $this.find("input:radio[name='set-view-tool-type-input']").on("change", changeViewType);
 
       // Start and end time
       $start_time = $this.find(".set-view-tool-start-time");
       $end_time = $this.find(".set-view-tool-end-time");
-      $this.find(".set-view-tool-start-time-button").on("click", setStartTime);
-      $this.find(".set-view-tool-end-time-button").on("click", setEndTime);
+      $this.find(".set-view-tool-start-time-button").on("click", syncStartTime);
+      $this.find(".set-view-tool-end-time-button").on("click", syncEndTime);
 
       // Playback speed
       $speed_slow_radio = $this.find("#set-view-tool-speed-slow-input");
@@ -94,19 +97,9 @@
 
     // Update the settings to match the ones on the time machine viewer
     function syncSettingsToViewer() {
-      // Playback speed
-      var ps = timelapse.getPlaybackRate();
-      if (ps == 0.25) {
-        $speed_slow_radio.prop("checked", true).trigger("change");
-      } else if (ps == 1) {
-        $speed_fast_radio.prop("checked", true).trigger("change");
-      } else {
-        $speed_medium_radio.prop("checked", true).trigger("change");
-      }
-
-      // Start and end time
-      setStartTime();
-      setEndTime();
+      setPlaybackSpeed(timelapse.getPlaybackRate());
+      syncStartTime();
+      syncEndTime();
     }
 
     // Change the view type to image or video
@@ -137,31 +130,51 @@
       thumbnail_tool.swapBoxWidthHeight();
     }
 
-    // Set the waypoint starting time
-    function setStartTime() {
-      var captureTimes = timelapse.getCaptureTimes();
+    // Set the playback speed
+    function setPlaybackSpeed(ps) {
+      if (ps == 0.25) {
+        $speed_slow_radio.prop("checked", true).trigger("change");
+      } else if (ps == 1) {
+        $speed_fast_radio.prop("checked", true).trigger("change");
+      } else {
+        $speed_medium_radio.prop("checked", true).trigger("change");
+      }
+    }
+
+    // Set the view type (image or video)
+    function setViewType(view_type) {
+      if (view_type == "image") {
+        $type_image_radio.prop("checked", true).trigger("change");
+      } else {
+        $type_video_radio.prop("checked", true).trigger("change");
+      }
+    }
+
+    // Sync the waypoint starting time
+    function syncStartTime() {
       var n = timelapse.getCurrentFrameNumber();
+      var ct = timelapse.getCaptureTimeByFrameNumber(n);
       start_frame_number = n;
-      $start_time.val(captureTimes[n]);
+      $start_time.val(ct);
 
       // Sanity check, start_frame_number should <= end_frame_number
       if (typeof end_frame_number !== "undefined" && n > end_frame_number) {
         end_frame_number = n;
-        $end_time.val(captureTimes[n]);
+        $end_time.val(ct);
       }
     }
 
-    // Set the waypoint ending time
-    function setEndTime() {
-      var captureTimes = timelapse.getCaptureTimes();
+    // Sync the waypoint ending time
+    function syncEndTime() {
       var n = timelapse.getCurrentFrameNumber();
+      var ct = timelapse.getCaptureTimeByFrameNumber(n);
       end_frame_number = n;
-      $end_time.val(captureTimes[n]);
+      $end_time.val(ct);
 
       // Sanity check, end_frame_number should >= start_frame_number
       if (typeof start_frame_number !== "undefined" && n < start_frame_number) {
         start_frame_number = n;
-        $start_time.val(captureTimes[n]);
+        $start_time.val(ct);
       }
     }
 
@@ -181,14 +194,7 @@
     }
 
     // Collect the parameters from the user interface
-    function collectParameters(direction) {
-      // It is OK to have undefined value for desired_bound, the thumbnail tool will handle this
-      var desired_bound = (direction == "portrait") ? bound["portrait"] : bound["landscape"];
-
-      // Width and height
-      var width = (direction == "portrait") ? DEFAULT_PREVIEW_HEIGHT : DEFAULT_PREVIEW_WIDTH;
-      var height = (direction == "portrait") ? DEFAULT_PREVIEW_WIDTH : DEFAULT_PREVIEW_HEIGHT;
-
+    function collectParameters(desired_bound, desired_width, desired_height) {
       // View type
       var type = $this.find("input:radio[name='set-view-tool-type-input']:checked").val();
 
@@ -199,11 +205,11 @@
       var preview = {
         bt: start_time,
         et: start_time,
+        fps: 30,
         embedTime: false,
         format: "png",
-        width: width,
-        height: height,
-        fps: 30,
+        width: desired_width,
+        height: desired_height,
         bound: desired_bound
       };
 
@@ -238,8 +244,8 @@
           startDwell: delay_start,
           endDwell: delay_end,
           format: "mp4",
-          width: width,
-          height: height,
+          width: desired_width,
+          height: desired_height,
           bound: desired_bound
         }
       }
@@ -247,9 +253,11 @@
 
     // Save the view and pass in the urls to the callback function
     function saveView() {
-      // Set bounds
+      // Set bound
       var current_bound_type = $this.find("input:radio[name='set-view-tool-toggle-view-input']:checked").val();
       bound[current_bound_type] = thumbnail_tool.cropBoxToViewBox();
+
+      // Automatically compute another bounding box if not defined
       if (typeof bound["portrait"] === "undefined") {
         bound["portrait"] = thumbnail_tool.getRotatedBox(bound["landscape"]);
       }
@@ -258,25 +266,18 @@
       }
 
       // Get landscape urls from the thumbnail tool
-      var p = collectParameters("landscape");
+      var p = collectParameters(bound["landscape"], DEFAULT_PREVIEW_WIDTH, DEFAULT_PREVIEW_HEIGHT);
       var url_landscape = {
         preview: thumbnail_tool.getURL(p["preview"]),
         render: thumbnail_tool.getURL(p["render"])
       };
 
       // Get portrait urls from the thumbnail tool
-      p = collectParameters("portrait");
+      p = collectParameters(bound["portrait"], DEFAULT_PREVIEW_HEIGHT, DEFAULT_PREVIEW_WIDTH);
       var url_portrait = {
         preview: thumbnail_tool.getURL(p["preview"]),
         render: thumbnail_tool.getURL(p["render"])
       };
-
-      // Check which one is the landscape view
-      if (url_landscape["preview"]["args"]["width"] < url_landscape["preview"]["args"]["height"]) {
-        var tmp = url_landscape;
-        url_landscape = url_portrait;
-        url_portrait = tmp;
-      }
 
       // Callback
       if (typeof on_view_set_callback === "function") {
@@ -306,10 +307,13 @@
     // Privileged methods
     //
     var show = function () {
-      thumbnail_tool.forceAspectRatio(16, 9);
+      thumbnail_tool.forceAspectRatio(16, 9); // default to landscape view
       thumbnail_tool.showCropBox();
       syncSettingsToViewer();
       $this.show();
+      if (typeof on_show_callback === "function") {
+        on_show_callback();
+      }
     };
     this.show = show;
 
@@ -322,43 +326,70 @@
     };
     this.hide = hide;
 
-    // Extract the landscape and portrait view from the share view
-    var extractView = function (share_view) {
-      if (typeof share_view === "undefined" || share_view.trim() == "") return;
+    // Set the user interface based on parameters saved in the share view
+    var setUI = function (share_view_landscape, share_view_portrait) {
+      if (typeof share_view_landscape === "undefined" || share_view_landscape.trim() == "") return;
+      if (typeof share_view_portrait === "undefined" || share_view_portrait.trim() == "") return;
+
+      // Currently the editor does not allow different arguments except the view bounding box
+      // Use the arguments from the landscape share view url as default
+      var urls = extractThumbnailUrls(share_view_landscape, share_view_portrait);
+      var args_landscape = urls["landscape"]["render"]["args"];
+      var args_portrait = urls["portrait"]["render"]["args"];
+
+      // Set the user interface of the set view tool
+      var bt = timelapse.playbackTimeFromShareDate(args_landscape["bt"]);
+      var et = timelapse.playbackTimeFromShareDate(args_landscape["et"]);
+      setViewType(args_landscape["format"] == "png" ? "image" : "video");
+      setPlaybackSpeed(parseFloat(args_landscape["ps"]) / 100);
+      $start_time.val(timelapse.getCaptureTimeByTime(bt));
+      $end_time.val(timelapse.getCaptureTimeByTime(et));
+      $delay_start.val(args_landscape["startDwell"]);
+      $delay_end.val(args_landscape["endDwell"]);
+
+      // Sync the timelapse viewer
+      timelapse.seek(bt);
+      timelapse.setNewView({bbox: args_landscape["bound"]}, true, false);
+      // TODO: need to fit the view to the green box of the thumbnail tool
+    };
+    this.setUI = setUI;
+
+    // Extract the landscape and portrait thumbnail urls from the share view urls
+    var extractThumbnailUrls = function (share_view_landscape, share_view_portrait) {
+      if (typeof share_view_landscape === "undefined" || share_view_landscape.trim() == "") return;
+      if (typeof share_view_portrait === "undefined" || share_view_portrait.trim() == "") return;
       var url_landscape = {
         preview: thumbnail_tool.getUrlFromShareView({
-          shareView: share_view,
+          shareView: share_view_landscape,
           width: DEFAULT_PREVIEW_WIDTH,
           height: DEFAULT_PREVIEW_HEIGHT,
           format: "png"
         }),
         render: thumbnail_tool.getUrlFromShareView({
-          shareView: share_view,
+          shareView: share_view_landscape,
           width: DEFAULT_PREVIEW_WIDTH,
           height: DEFAULT_PREVIEW_HEIGHT
         })
       };
       var url_portrait = {
         preview: thumbnail_tool.getUrlFromShareView({
-          shareView: share_view,
-          width: DEFAULT_PREVIEW_WIDTH,
-          height: DEFAULT_PREVIEW_HEIGHT,
-          format: "png",
-          swapWidthHeight: true
+          shareView: share_view_portrait,
+          width: DEFAULT_PREVIEW_HEIGHT,
+          height: DEFAULT_PREVIEW_WIDTH,
+          format: "png"
         }),
         render: thumbnail_tool.getUrlFromShareView({
-          shareView: share_view,
-          width: DEFAULT_PREVIEW_WIDTH,
-          height: DEFAULT_PREVIEW_HEIGHT,
-          swapWidthHeight: true
+          shareView: share_view_portrait,
+          width: DEFAULT_PREVIEW_HEIGHT,
+          height: DEFAULT_PREVIEW_WIDTH
         })
-      }
+      };
       return {
         landscape: url_landscape,
         portrait: url_portrait
       };
     };
-    this.extractView = extractView;
+    this.extractThumbnailUrls = extractThumbnailUrls;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
