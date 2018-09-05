@@ -3539,10 +3539,11 @@
               top: coords.top,
               left: coords.left
             });
+            var initialEntry = '<option id="default-extras-select" selected="selected" value="select">Select extra content...</option>';
             if (feedback.vertical == "top")
-              $("#extras-selector").prepend('<option id="default-extras-select" selected="selected" value="select">Select extra content...</option>');
+              $("#extras-selector").prepend(initialEntry);
             else
-              $("#extras-selector").append('<option id="default-extras-select" selected="selected" value="select">Select extra content...</option>');
+              $("#extras-selector").append(initialEntry);
             $("#extras-selector").selectmenu("refresh");
           }
         },
@@ -3556,17 +3557,17 @@
         if (snaplapseViewerForPresentationSlider) {
           snaplapseViewerForPresentationSlider.startAutoModeIdleTimeout();
         }
-        var fileName = $(e.currentTarget).data("filename");
+        var filePath = $(e.currentTarget).data("filepath") || $(e.currentTarget).data("filename");
         var fileType = $(e.currentTarget).data("type");
         $("#extras-content").dialog('option', 'title', $(e.currentTarget).text());
         var $extrasHtml = "";
         if (fileType == "image") {
-          $extrasHtml = '<img src="../../../extras/' + fileName + '">';
+          $extrasHtml = '<img src="../../../extras/' + filePath + '">';
           $("#extras-content").html($extrasHtml).dialog("open");
         } else if (fileType == "video") {
-          $extrasHtml = '<video id="extras-video" src="../../../extras/' + fileName + '" controls autoplay></video>';
+          $extrasHtml = '<video id="extras-video" src="../../../extras/' + filePath + '" controls autoplay></video>';
           $("#extras-content").html($extrasHtml).dialog("open");
-          $("#extras-video")[0].playbackRate = $(e.currentTarget).data("fileplaybackrate");
+          $("#extras-video")[0].playbackRate = $(e.currentTarget).data("playbackrate") || $(e.currentTarget).data("fileplaybackrate");
           $("#extras-video").gVideo({
             childtheme: 'smalldark'
           });
@@ -6344,7 +6345,7 @@
 
           // Handle layers
           waypointLayers.forEach(function(layer) {
-            if (layer.indexOf("e-") == 0) {
+            if (layer.indexOf("extras-") == 0 || layer.indexOf("e-") == 0) {
               $("#extras-selector").selectmenu("refresh");
               // Need to delay some amount of time for the selectmenu to refresh.
               setTimeout(function() {
