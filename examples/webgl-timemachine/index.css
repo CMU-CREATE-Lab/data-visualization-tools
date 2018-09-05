@@ -210,6 +210,9 @@ html, body {
 .ui-selectmenu-menu {
   border-bottom-right-radius: 2px;
   border-bottom-left-radius: 2px;
+  z-index: 9001;
+  height: 100%;
+  overflow-y: auto;
 }
 .top-panel {
   border-radius: 0px;
