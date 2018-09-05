@@ -60,5 +60,6 @@ var EARTH_TIMELAPSE_CONFIG = {
   "showIrena": true,
   "showCityLabelMap": true,
   "showTsip": false,
-  "showEcco2": false
+  "showEcco2": false,
+  "showGdpPpp": false
 };

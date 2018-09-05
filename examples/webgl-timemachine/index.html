@@ -236,6 +236,7 @@
     var showDscovr = !!EARTH_TIMELAPSE_CONFIG.showDscovr;
     var showAnnualGlobalPm25 = !!EARTH_TIMELAPSE_CONFIG.showAnnualGlobalPm25;
     var showEcco2 = !!EARTH_TIMELAPSE_CONFIG.showEcco2;
+    var showGdpPpp = !!EARTH_TIMELAPSE_CONFIG.showGdpPpp;
 
     var showTile = true;
 
@@ -430,6 +431,8 @@
     var spCrudeLayerNS;
 
     var ecco2Layer;
+
+    var gdpPppLayer;
 
 /*    var spCrudeLayerWAF;
     setTimeLine('sp-crude-times', 2013, 2018, 1);
@@ -914,6 +917,7 @@
     var spCrudeUrlLatAM = rootTilePath + "/sp-crude/LatAM/0-crude-flows_LatAM.bin";
     var spCrudeUrlNS = rootTilePath + "/sp-crude/NS/0-crude-flows_NS.bin";
     var ecco2Url = rootTilePath + "/oceans/ecco2.timemachine/crf24-10fps-2560x1440";
+    var gdpPppUrl = rootTilePath + "/economics/gdp_ppp.timemachine/crf24-10fps-2560x1440";
 
     /*
     var spCrudeUrlWAF = rootTilePath + "/sp-crude/0-crude-flows_WAF.bin"
@@ -3330,6 +3334,34 @@
       }).prop('checked', showEcco2Layer);
 
 
+      $("#show-gdpPpp").on("click", function() {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          gdpPppLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
+          showGdpPppLayer = true;
+          setActiveLayersWithTimeline(1);
+          visibleBaseMapLayer = "gdpPpp";
+          timelineType = "defaultUI";
+          requestNewTimeline("gdpPpp-times.json", timelineType);
+          var v = timelapse.getVideoset();
+          v.setFps(10);
+          timelapse.setDoDwell(true);
+          WebglVideoTile.useGreenScreen = false;
+          timelapse.setMasterPlaybackRate(1.0);
+          $("#baseLayerCreditContainer").hide();
+        } else {
+          showGdpPppLayer = false;
+          cacheLastUsedLayer(gdpPppLayer);
+          setActiveLayersWithTimeline(-1);
+          doSwitchToLandsat();
+          visibleBaseMapLayer = previousVisibleBaseMapLayer;
+          var v = timelapse.getVideoset();
+          v.setFps(10);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          $("#baseLayerCreditContainer").show();
+        }
+      }).prop('checked', showGdpPppLayer);
+
 /*
       $("#show-sp-crude_WAF").on("click", function() {
         if ($(this).prop('checked')) {
@@ -4186,6 +4218,7 @@
     var showSpCrudeLayerLatAM = false;
     var showSpCrudeLayerNS = false;
     var showEcco2Layer = false;
+    var showGdpPppLayer = false;
 
     /*
     var showSpCrudeLayerWAF = false;
@@ -4670,6 +4703,7 @@
       var show_dscovr = '<td class="dscovr-select"><label for="show-dscovr" name="dscovr"><input type="checkbox" id="show-dscovr" />DSCOVR</label></td>';
       var show_annual_global_pm25 = '<td class="annual-pm25-select"><label for="show-annual-pm25" name="annual-pm25"><input type="checkbox" id="show-annual-pm25" />Annual Global PM 2.5</label></td>';
       var show_ecco2 = '<td class="ecco2-select"><label for="show-ecco2" name="ecco2"><input type="checkbox" id="show-ecco2" />ECCO2</label></td>';
+      var show_gpd_ppp = '<td class="gdpPpp-select"><label for="show-gdpPpp" name="gdpPpp"><input type="checkbox" id="show-gdpPpp" />GDP PPP</label></td>';
 
 /*
       var show_sp_crude_WAF = '<td class="sp-crude-select_WAF"><label for="show-sp-crude_WAF" name="sp-crude_WAF"><input type="checkbox" id="show-sp-crude_WAF" />WAF Crude Oil flows</label></td>';
@@ -4731,6 +4765,17 @@
       }
       layer_html += '  </table>';
       /* END OCEANS CATEGORY */
+
+      /* ECONOMICS CATEGORY */
+      layer_html += '  <h3>Economics</h3>';
+      layer_html += '  <table id="category-economics">';
+      if (showGdpPpp) {
+        layer_html += '   <tr>';
+        layer_html += show_gpd_ppp;
+        layer_html += '   </tr>';
+      }
+      layer_html += '  </table>';
+      /* END ECONOMICS CATEGORY */
 
       /* WATER CATEGORY */
       layer_html += '  <h3>Water</h3>';
@@ -5272,6 +5317,7 @@
       legend_html += '<tr id="sp-crude-legend_LatAM" style="display: none"><td><div style="font-size: 15px">Latin America Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: rgb(247, 129, 191); stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">Latin America</text></svg></td></tr>';
       legend_html += '<tr id="sp-crude-legend_Oceania" style="display: none"><td><div style="font-size: 15px">Oceania Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: rgb(166, 86, 40); stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">Oceania</text></svg></td></tr>';
       legend_html += '<tr id="sp-crude-legend_Urals" style="display: none"><td><div style="font-size: 15px">Urals Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: rgb(255, 255, 51); stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">Urals</text></svg></td></tr>';
+      legend_html += '<tr id="gdp_ppp" style="display: none"><td><div style="font-size: 15px">GDP PPP<span> (????)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: rgb(255, 255, 51); stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">Urals</text></svg></td></tr>';
 
       // ## 5b ##
       //// Add to layer legend ////
@@ -6126,6 +6172,23 @@
         height: 1440
       };
       ecco2Layer = new WebglTimeMachineLayer(glb, canvasLayer, ecco2Url, ecco2Options);
+
+
+      // GDP PPP
+      csvFileLayers.setTimeLine("gdpPpp-times", "1990", "2015", 1);
+      var gdpPppOptions = {
+        mediaType: ".mp4",
+        numFrames: cached_ajax['gdpPpp-times.json']['capture-times'].length,
+        fps: 10,
+        nLevels: 2,
+        video_width: 2560,
+        video_height: 1440,
+        width: 2880,
+        height: 2880,
+        colormap: rootTilePath + '/colormaps/spectral.png'
+
+      };
+      gdpPppLayer = new WebglTimeMachineLayer(glb, canvasLayer, gdpPppUrl, gdpPppOptions);
 
       // Layer Toggle UI
       initLayerToggleUI();
@@ -8491,6 +8554,12 @@
         if (showEcco2Layer) {
           var view = getLayerView(ecco2Layer, landsatBaseMapLayer);
           ecco2Layer.draw(view, tileViewVisibility);
+        }
+
+        // Draw GDP PPP
+        if (showGdpPppLayer) {
+          var view = getLayerView(gdpPppLayer, landsatBaseMapLayer);
+          gdpPppLayer.draw(view, tileViewVisibility);
         }
 
 	function isPairCandidate(layer) {
