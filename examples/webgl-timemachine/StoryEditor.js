@@ -9,9 +9,9 @@
 // - Papa Parse [https://www.papaparse.com/]
 // - time machine [https://github.com/CMU-CREATE-Lab/timemachine-viewer]
 // - the wizard template [wizard.css]
-// TODO: load the themes for the story tab and make the switching theme function work
-// TODO: load the views back when user clicks on set view
-// TODO: detect if "Mobile Share View Landscape" and "Mobile Share View Portrait" exists (if not, show error msg to users)
+// TODO: re-think about the design of the "add" and "delete" button
+// TODO: add a replace/new option for saving the story
+// TODO: bug, when loading a sheet with two themes to the viewer, the author of the first story does not show on the screen
 
 (function () {
   "use strict";
@@ -41,13 +41,13 @@
     // For creating new stories
     var $theme;
     var $story;
-    var $waypoints, waypoints_accordion;
+    var $waypoint, waypoint_accordion;
 
     // For editing stories
     var $load;
     var $edit_theme, edit_theme_accordion;
     var $edit_story, edit_story_accordion, $edit_story_select_theme;
-    var $edit_waypoints, edit_waypoints_accordion;
+    var $edit_waypoint, edit_waypoint_accordion;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -83,9 +83,6 @@
       createEditWaypointUI();
       createSaveUI();
       initGoogleDriveAPI();
-
-      // for testing the function of the user interface
-      if (enable_testing) test();
     }
 
     // For setting a view from the timelapse viewer
@@ -118,6 +115,7 @@
       $intro.find(".story-editor-create-button").on("click", function () {
         mode = "create";
         transition($intro, $theme);
+        if (enable_testing) testCreateStory(); // for testing the function of creating a story
       });
       $intro.find(".story-editor-edit-button").on("click", function () {
         mode = "edit";
@@ -143,7 +141,7 @@
         transition($story, $theme);
       });
       $story.find(".next-button").on("click", function () {
-        transition($story, $waypoints);
+        transition($story, $waypoint);
       });
       $story.find(".story-editor-set-cover-view-button").on("click", function () {
         $current_thumbnail_preview = $story.find(".story-editor-thumbnail-preview");
@@ -152,18 +150,18 @@
       });
     }
 
-    // For creating new waypoints
+    // For creating new waypoint
     function createNewWaypointUI() {
-      $waypoints = $this.find(".story-editor-waypoints");
-      $waypoints.find(".back-button").on("click", function () {
-        transition($waypoints, $story);
+      $waypoint = $this.find(".story-editor-waypoint");
+      $waypoint.find(".back-button").on("click", function () {
+        transition($waypoint, $story);
       });
-      $waypoints.find(".next-button").on("click", function () {
-        transition($waypoints, $save);
+      $waypoint.find(".next-button").on("click", function () {
+        transition($waypoint, $save);
       });
-      waypoints_accordion = createAccordion({
-        accordion: "#" + container_id + " .story-editor-waypoints .custom-accordion",
-        delete_confirm_dialog: "#" + container_id + " .story-editor-waypoints .delete-confirm-dialog"
+      waypoint_accordion = createAccordion({
+        accordion: "#" + container_id + " .story-editor-waypoint .custom-accordion",
+        delete_confirm_dialog: "#" + container_id + " .story-editor-waypoint .delete-confirm-dialog"
       });
     }
 
@@ -235,6 +233,7 @@
           setAccordionUI(edit_theme_accordion, tsvToData(tsv));
           transition($load, $edit_theme);
           $load.find(".next-button").prop("disabled", false);
+          if (enable_testing) testEditStory(); // for testing editing stories
         });
       });
     }
@@ -282,8 +281,8 @@
       $edit_story.find(".next-button").on("click", function () {
         // Check if the user selects a tab
         if (edit_story_accordion.getActiveTab().length > 0) {
-          forward(edit_waypoints_accordion, edit_story_accordion);
-          transition($edit_story, $edit_waypoints);
+          forward(edit_waypoint_accordion, edit_story_accordion);
+          transition($edit_story, $edit_waypoint);
         } else {
           $next_confirm_dialog.dialog("open");
         }
@@ -298,19 +297,19 @@
       });
     }
 
-    // For editing waypoints in a story
+    // For editing waypoint in a story
     function createEditWaypointUI() {
-      $edit_waypoints = $this.find(".story-editor-edit-waypoints");
-      $edit_waypoints.find(".back-button").on("click", function () {
-        backward(edit_waypoints_accordion, edit_story_accordion); // backward propagate data
-        transition($edit_waypoints, $edit_story);
+      $edit_waypoint = $this.find(".story-editor-edit-waypoint");
+      $edit_waypoint.find(".back-button").on("click", function () {
+        backward(edit_waypoint_accordion, edit_story_accordion); // backward propagate data
+        transition($edit_waypoint, $edit_story);
       });
-      $edit_waypoints.find(".next-button").on("click", function () {
-        transition($edit_waypoints, $save);
+      $edit_waypoint.find(".next-button").on("click", function () {
+        transition($edit_waypoint, $save);
       });
-      edit_waypoints_accordion = createAccordion({
-        accordion: "#" + container_id + " .story-editor-edit-waypoints .custom-accordion",
-        delete_confirm_dialog: "#" + container_id + " .story-editor-edit-waypoints .delete-confirm-dialog"
+      edit_waypoint_accordion = createAccordion({
+        accordion: "#" + container_id + " .story-editor-edit-waypoint .custom-accordion",
+        delete_confirm_dialog: "#" + container_id + " .story-editor-edit-waypoint .delete-confirm-dialog"
       });
     }
 
@@ -327,7 +326,7 @@
       var $save_file_name = $save.find(".story-editor-save-file-name");
       var $save_file_name_textbox = $save.find(".story-editor-save-file-name-textbox");
       $save.find(".back-button").on("click", function () {
-        transition($save, mode == "create" ? $waypoints : $edit_waypoints);
+        transition($save, mode == "create" ? $waypoint : $edit_waypoint);
         $save_to_local_button.prop("disabled", false);
         $save_to_local_message.empty();
         $save_to_google_button.prop("disabled", false);
@@ -370,7 +369,7 @@
           if (mode == "create") {
             resetTabUI($theme);
             resetTabUI($story);
-            waypoints_accordion.reset();
+            waypoint_accordion.reset();
           }
           mode = undefined;
           $save_to_local_button.prop("disabled", false);
@@ -399,7 +398,7 @@
 
     // Set the user interface of a tab (one row in the tsv file)
     function setTabUI($ui, d) {
-      if (typeof $ui === "undefined" || d === "undefined") return;
+      if (typeof $ui === "undefined" || typeof d === "undefined") return;
       if (typeof d["title"] !== "undefined") {
         $ui.find(".story-editor-title-text").text(d["title"]);
         $ui.find(".story-editor-title-textbox").val(d["title"]);
@@ -434,9 +433,9 @@
       resetThumbnailPreviewUI($ui.find(".story-editor-thumbnail-preview"));
     }
 
-    // Set the user interface of an accordion (theme, story, waypoints)
+    // Set the user interface of an accordion (theme, story, waypoint)
     function setAccordionUI(accordion, data) {
-      if (typeof accordion === "undefined" || data === "undefined") return;
+      if (typeof accordion === "undefined" || typeof data === "undefined") return;
       accordion.reset();
       for (var i = 0; i < data.length; i++) {
         var $t = (i == 0) ? accordion.getActiveTab() : accordion.addEmptyTab();
@@ -487,7 +486,7 @@
       return d;
     }
 
-    // Collect data from the user interface of an accordion (theme, story, waypoints)
+    // Collect data from the user interface of an accordion (theme, story, waypoint)
     function collectAccordionData(accordion) {
       var data = [];
       accordion.getTabs().each(function () {
@@ -511,14 +510,14 @@
       if (mode == "create") {
         // Collect newly created story data from the user interface
         var story = collectTabData($story);
-        story["data"] = collectAccordionData(waypoints_accordion);
+        story["data"] = collectAccordionData(waypoint_accordion);
         var theme = collectTabData($theme);
         theme["data"] = [story];
         return [theme];
       } else {
         // Collect edited story data from the user interface
         // Propagate data backward three times
-        backward(edit_waypoints_accordion, edit_story_accordion);
+        backward(edit_waypoint_accordion, edit_story_accordion);
         backward(edit_story_accordion, edit_theme_accordion);
         return backward(edit_theme_accordion);
       }
@@ -549,6 +548,7 @@
       $ui.hide();
     }
 
+    // TODO: load the themes for the story tab and make the switching theme function work
     // Set the custom dropdown
     //var themes = getValues(edit_theme_accordion.getTabs().find(".story-editor-title-textbox"));
     //var active_theme_index = edit_theme_accordion.getActiveIndex();
@@ -680,6 +680,7 @@
       return sheetsDataArray;
     }
 
+    // TODO: detect if "Mobile Share View Landscape" and "Mobile Share View Portrait" exists (if not, show error msg to users)
     // Recover the story data from a tsv spreadsheet
     function tsvToData(tsv) {
       var parsed = Papa.parse(tsv, {delimiter: '\t', header: true});
@@ -706,7 +707,7 @@
             author: author,
             view_landscape: view_landscape,
             view_portrait: view_portrait,
-            data: [] // for storing waypoints
+            data: [] // for storing waypoint
           };
           theme["data"].push(story);
         } else {
@@ -790,21 +791,22 @@
       }
     }
 
-    // For testing the function of the user interface
-    function test() {
-      // For creating a new story
+    // For testing the function of creating a story
+    function testCreateStory() {
       setTabUI($theme, {
         title: "City",
         description: "A city is a large human settlement. Cities generally have extensive systems for housing, transportation, sanitation, utilities, land use, and communication."
       });
+      $this.find(".story-editor-theme .next-button").click();
       setTabUI($story, {
         title: "Las Vegas",
         description: "Las Vegas, officially the City of Las Vegas and often known simply as Vegas, is the 28th-most populated city in the United States, the most populated city in the state of Nevada, and the county seat of Clark County.",
-        author: "Yen-Chia Hsu",
+        author: "Harry Potter and Ginny Weasley",
         view_landscape: "https://headless.earthtime.org/#v=376423,740061,380719,742478,pts&t=0&ps=0&l=blsat&bt=20010101&et=20010101&startDwell=0&endDwell=0&fps=30",
         view_portrait: "https://headless.earthtime.org/#v=376537,738962,379195,743683,pts&t=0&ps=0&l=blsat&bt=20010101&et=20010101&startDwell=0&endDwell=0&fps=30"
       });
-      setAccordionUI(waypoints_accordion, [{
+      $this.find(".story-editor-story .next-button").click();
+      setAccordionUI(waypoint_accordion, [{
         title: "1984",
         long_title: "Las Vegas 1984",
         description: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis",
@@ -829,8 +831,53 @@
         view_landscape: "https://headless.earthtime.org/#v=375567,739964,379848,742375,pts&t=0&ps=100&l=blsat&bt=19910101&et=20091231&startDwell=1&endDwell=2&fps=30",
         view_portrait: "https://headless.earthtime.org/#v=376502,739029,378913,743310,pts&t=0&ps=100&l=blsat&bt=19910101&et=20091231&startDwell=1&endDwell=2&fps=30"
       }]);
-      // For editing a story
-      $load.find(".sheet-url-textbox").val("https://docs.google.com/spreadsheets/d/1dn6nDMFevqPBdibzGvo9qC7CxwxdfZkDyd_ys6r-ODE/edit#gid=145707723");
+      $this.find(".story-editor-waypoint .next-button").click();
+      $this.find(".story-editor-save .back-button").click();
+      $this.find(".story-editor-waypoint .back-button").click();
+      $this.find(".story-editor-story .back-button").click();
+    }
+
+    // For testing the function of editing stories
+    function testEditStory() {
+      edit_theme_accordion.addEmptyTab();
+      setTabUI(edit_theme_accordion.getActiveTab(), {
+        title: "Deforestation",
+        description: "Deforestation, clearance, or clearing is the removal of a forest or stand of trees where the land is thereafter converted to a non-forest use. Examples of deforestation include conversion of forestland to farms, ranches, or urban use."
+      });
+      $this.find(".story-editor-edit-theme .next-button").click();
+      setAccordionUI(edit_story_accordion, [{
+        title: "Rondonia",
+        description: "Rondonia is a state in Brazil, located in the north part of the country. To the west is a short border with the state of Acre, to the north is the state of Amazonas, in the east is Mato Grosso, and in the south and southwest is Bolivia.",
+        author: "Hermione Granger and Ron Weasley",
+        view_landscape: "https://headless.earthtime.org/#v=678007,1027451,699007,1039263,pts&t=0&ps=0&l=blsat&bt=19860101&et=19860101&startDwell=0&endDwell=0&fps=30",
+        view_portrait: "https://headless.earthtime.org/#v=682601,1022857,694413,1043857,pts&t=0&ps=0&l=blsat&bt=19860101&et=19860101&startDwell=0&endDwell=0&fps=30"
+      }]);
+      $this.find(".story-editor-edit-story .next-button").click();
+      setAccordionUI(edit_waypoint_accordion, [{
+        title: "1984",
+        long_title: "Rondonia 1984",
+        view_landscape: "https://headless.earthtime.org/#v=678007,1027451,699007,1039263,pts&t=0&ps=0&l=blsat&bt=19840101&et=19840101&startDwell=0&endDwell=0&fps=30",
+        view_portrait: "https://headless.earthtime.org/#v=682601,1022857,694413,1043857,pts&t=0&ps=0&l=blsat&bt=19840101&et=19840101&startDwell=0&endDwell=0&fps=30"
+      }, {
+        title: "2016",
+        long_title: "Rondonia 2016",
+        view_landscape: "https://headless.earthtime.org/#v=676359,1027340,700549,1040942,pts&t=0&ps=0&l=blsat&bt=20160101&et=20160101&startDwell=0&endDwell=0&fps=30",
+        view_portrait: "https://headless.earthtime.org/#v=681653,1022046,695255,1046236,pts&t=0&ps=0&l=blsat&bt=20160101&et=20160101&startDwell=0&endDwell=0&fps=30"
+      }, {
+        title: "1984-2016",
+        long_title: "Rondonia 1984-2016 (Medium Speed)",
+        view_landscape: "https://headless.earthtime.org/#v=676359,1027340,700549,1040942,pts&t=0&ps=50&l=blsat&bt=19840101&et=20161231&startDwell=0&endDwell=1&fps=30",
+        view_portrait: "https://headless.earthtime.org/#v=681653,1022046,695255,1046236,pts&t=0&ps=50&l=blsat&bt=19840101&et=20161231&startDwell=0&endDwell=1&fps=30"
+      }, {
+        title: "1993-2007",
+        long_title: "Rondonia 1993-2007 (Slow Speed)",
+        view_landscape: "https://headless.earthtime.org/#v=676359,1027340,700549,1040942,pts&t=0&ps=25&l=blsat&bt=19930101&et=20071231&startDwell=1&endDwell=2&fps=30",
+        view_portrait: "https://headless.earthtime.org/#v=681653,1022046,695255,1046236,pts&t=0&ps=25&l=blsat&bt=19930101&et=20071231&startDwell=1&endDwell=2&fps=30"
+      }]);
+      $this.find(".story-editor-edit-waypoint .next-button").click();
+      $this.find(".story-editor-save .back-button").click();
+      $this.find(".story-editor-edit-waypoint .back-button").click();
+      $this.find(".story-editor-edit-story .back-button").click();
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -890,6 +937,7 @@
         animate: false,
         collapsible: true,
         activate: function (event, ui) {
+          // TODO: allow users to go next in the editor without opening a tab
           /*
           if (ui.newHeader.length == 0 && ui.newPanel.length == 0) {
             // This means that the tab is collapsed
