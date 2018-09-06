@@ -355,7 +355,7 @@ html, body {
 #location_search {
   position: absolute;
   top: 9px;
-  right: 20px;
+  right: 9px;
   width: 200px;
   height: 28px;
   padding-left: 15px;
@@ -379,7 +379,7 @@ html, body {
 #layers-list {
   z-index: 99;
   text-align: left;
-  height: calc(100% - 108px);
+  height: calc(100% - 58px);
 }
 
 #layers-list.featured {
@@ -396,7 +396,7 @@ html, body {
 }
 
 #layers-list.featured .layers-scroll-vertical {
-  height: calc(100% - 113px);
+  height: calc(100% - 63px);
 }
 
 
@@ -443,7 +443,7 @@ html, body {
   z-index: 90;
   display: block;
   left: 20px;
-  top: 70px;
+  top: 20px;
   height: 100%;
 }
 
@@ -459,7 +459,7 @@ html, body {
 #main-hamburger-menu::after {
   content: "";
   display: block;
-  top: 0px;
+  top: 0;
   position: absolute;
   right: -10px;
   opacity: 0;
@@ -814,7 +814,7 @@ html, body {
   display: none;
   position: absolute;
   right: 19px;
-  top: 70px;
+  top: 20px;
   width: auto;
   padding-left: 4px;
   padding-right: 8px;
@@ -925,7 +925,7 @@ html, body {
   height:20px;
   z-index: 90001;
   position: absolute;
-  right: 28px;
+  right: 19px;
   top: 15px;
   cursor: pointer;
 }
@@ -1372,11 +1372,13 @@ a:focus { outline:0; }
 #appControls .controlButton:last-child, #navControls .controlButton:last-child {
   border-bottom: 1px solid #656565;
   border-bottom-right-radius: 4px !important;
+  border-bottom-left-radius: 4px !important;
 }
 
 #appControls .controlButton:first-child, #navControls .controlButton:first-child {
   border-top: 1px solid #656565;
   border-top-right-radius: 4px !important;
+  border-top-left-radius: 4px !important;
 }
 
 .ui-icon.ui-icon-home, .ui-button .ui-icon.ui-icon-custom-home {
@@ -1816,7 +1818,7 @@ a:focus { outline:0; }
   display: none;
   -webkit-box-shadow: 4px 0px 3px rgba(0,0,0,0.3);
           box-shadow: 4px 0px 3px rgba(0,0,0,0.3);
-  top: 50px;
+  top: 0;
   width: 305px;
   background:#e0e0e0;
   position: absolute;
@@ -1828,7 +1830,7 @@ a:focus { outline:0; }
   -ms-user-select: none;
   user-select: none;
   text-transform:capitalize;
-  height: calc(100% - 143px);
+  height: calc(100% - 94px);
   z-index: 9000;
 }
 
@@ -1966,7 +1968,7 @@ a:focus { outline:0; }
 
 #theme-list {
   overflow-y: auto;
-  height: calc(100% - 108px);
+  height: calc(100% - 58px);
   text-align: left;
 }
 
@@ -2342,18 +2344,19 @@ a:focus { outline:0; }
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
+  right: 0;
   height: 50px;
-  background-color: rgba(31, 31, 31, 0.9);
+  background-color: rgb(31, 31, 31);
   color: white;
   z-index: 9000;
+  width: auto;
 }
 
 #viewerContainer {
   position: absolute;
   left: 0;
   right: 0;
-  top: 0;
+  top: 50px;
   bottom: 0;
   height: auto;
   width: auto;
@@ -2373,4 +2376,5 @@ a:focus { outline:0; }
 
 .ui-autocomplete {
   z-index: 99999;
+  border-color: #666666;
 }

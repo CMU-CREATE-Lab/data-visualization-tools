@@ -10,7 +10,6 @@
 // - time machine [https://github.com/CMU-CREATE-Lab/timemachine-viewer]
 // - the wizard template [wizard.css]
 // TODO: re-think about the design of the "add" and "delete" button
-// TODO: add a replace/new option for saving the story
 // TODO: bug, when loading a sheet with two themes to the viewer, the author of the first story does not show on the screen
 
 (function () {
@@ -229,6 +228,7 @@
       $load.find(".next-button").on("click", function () {
         $load.find(".next-button").prop("disabled", true);
         // This util function name is misleading, it converts spreadsheet into csv, not json
+        // TODO: tell people the error messages when the sheet does not work (e.g. wrong permission, wrong file, wrong format)
         util.gdocToJSON($load.find(".sheet-url-textbox").val(), function (tsv) {
           setAccordionUI(edit_theme_accordion, tsvToData(tsv));
           transition($load, $edit_theme);
@@ -313,6 +313,7 @@
       });
     }
 
+    // TODO: add a replace/new option for saving the story
     // For saving stories
     function createSaveUI() {
       $save = $this.find(".story-editor-save");
@@ -938,16 +939,14 @@
         collapsible: true,
         activate: function (event, ui) {
           // TODO: allow users to go next in the editor without opening a tab
-          /*
-          if (ui.newHeader.length == 0 && ui.newPanel.length == 0) {
+          /*if (ui.newHeader.length == 0 && ui.newPanel.length == 0) {
             // This means that the tab is collapsed
             $(ui.oldHeader[0]).addClass("custom-accordion-header-active");
           }
           if (ui.oldHeader.length == 0 && ui.oldPanel.length == 0) {
             // This means that a tab is activated from the collapsed state
             $(this).find(".custom-accordion-header-active").removeClass("custom-accordion-header-active");
-          }
-          */
+          }*/
         }
       }).sortable({
         axis: "y",

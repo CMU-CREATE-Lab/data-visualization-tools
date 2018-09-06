@@ -293,7 +293,7 @@
     var useRetinaLightNoLabelsBaseMap = baseMapsNoLabels ? true : (typeof(EARTH_TIMELAPSE_CONFIG.useRetinaLightNoLabelsBaseMap) == "undefined") ? false : !!EARTH_TIMELAPSE_CONFIG.useRetinaLightNoLabelsBaseMap;
     var useRetinaDarkBaseMap = (typeof(EARTH_TIMELAPSE_CONFIG.useRetinaDarkBaseMap) == "undefined") ? false : !!EARTH_TIMELAPSE_CONFIG.useRetinaDarkBaseMap;
     var useRetinaDarkNoLabelsBaseMap = baseMapsNoLabels ? true : (typeof(EARTH_TIMELAPSE_CONFIG.useRetinaDarkNoLabelsBaseMap) == "undefined") ? false : !!EARTH_TIMELAPSE_CONFIG.useRetinaDarkNoLabelsBaseMap;
-    var enableStoryEditor = false;
+    var enableStoryEditor = (typeof(EARTH_TIMELAPSE_CONFIG.enableStoryEditor) == "undefined") ? false : !!EARTH_TIMELAPSE_CONFIG.enableStoryEditor;
 
     // TODO: Until we decide to force everyone to latest landsat, pull the version corresponding to the config above.
     if (landsatVersion == "2015"){
@@ -6546,7 +6546,7 @@
           $locationSearchDiv.addClass("top-panel letterbox").appendTo($("#letterbox-bottom-controls"));
           $("#location_search").addClass("letterbox");
         } else {
-          $locationSearchDiv.prependTo($("#timeMachine"));
+          $locationSearchDiv.prependTo($("#top-nav"));
           if (disableTopNav) {
             $("#location_search, #location_search_icon").addClass("topNavDisabled");
           }
@@ -7140,17 +7140,20 @@
       if(enableStoryEditor) {
         var $viewerContainer = $("#viewerContainer");
         var $sidePanel = $("#sidePanel");
+        var $topNav = $("#top-nav");
         storyEditor = new StoryEditor(timelapse, {
           container_id: "sidePanel",
           on_hide_callback: function () {
             // TODO: find a way to hide unusable menu buttons
             $viewerContainer.css("right", "0");
+            $topNav.css("right", "0");
             $sidePanel.hide();
             timelapse.onresize();
           },
           on_show_callback: function () {
             // TODO: find a way to show hided menu buttons
             $viewerContainer.css("right", "321px");
+            $topNav.css("right", "321px");
             $sidePanel.show();
             timelapse.onresize();
           }
@@ -9408,16 +9411,6 @@
       </tr>
       </table>
     </div>
-
-    <div id="top-nav" class="unselectable">
-      <ul id="top-nav-wrapper">
-        <div id='menu-icon'></div>
-        <li id='menu-logo'>EarthTime</li>
-        <li id='stories-menu-choice' title="Select a story" class="menu-option">Stories</li>
-        <li id='layers-menu-choice' title="Select data to visualize" class="menu-option">Data Library</li>
-      </ul>
-    </div>
-
     <div id="main-hamburger-menu" class="menu">
       <ul>
         <li id="theme-menu" class="has-children">
@@ -9448,6 +9441,14 @@
         <br><br>If you have questions, please email us at: <a href="mailto:earthtime@cmucreatelab.org?Subject=EarthTime%20Questions" target="_top">earthtime@cmucreatelab.org</a>
       </div>
     </div>
+  </div>
+  <div id="top-nav" class="unselectable">
+    <ul id="top-nav-wrapper">
+      <div id='menu-icon'></div>
+      <li id='menu-logo'>EarthTime</li>
+      <li id='stories-menu-choice' title="Select a story" class="menu-option">Stories</li>
+      <li id='layers-menu-choice' title="Select data to visualize" class="menu-option">Data Library</li>
+    </ul>
   </div>
   <div id="sidePanel"></div>
 </body>

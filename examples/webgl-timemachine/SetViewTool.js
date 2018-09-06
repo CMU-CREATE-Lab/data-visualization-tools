@@ -36,6 +36,7 @@
     var start_frame_number, end_frame_number;
     var DEFAULT_PREVIEW_WIDTH = 320;
     var DEFAULT_PREVIEW_HEIGHT = 180;
+    var DEFAULT_ASPECT_RATIO = {width: 16, height: 9};
     var bound = {};
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -46,7 +47,13 @@
       // Create the thumbnail tool
       thumbnail_tool = new ThumbnailTool(timelapse, {
         paneZindex: 15,
-        id: "set-view-thumbnail-tool"
+        id: "set-view-thumbnail-tool",
+        defaultBoxPadding: {
+          top: 0,
+          bottom: 0,
+          left: 0,
+          right: 0
+        }
       });
 
       // Load the html template
@@ -67,7 +74,7 @@
       $this = $("#" + container_id + " .set-view-tool");
 
       // Toggle view
-      $this.find("input:radio[name='set-view-tool-toggle-view-input']").on("change", toggleView);
+      $this.find("input:radio[name='set-view-tool-toggle-view-input']").on("change", toggleViewDirection);
 
       // Video settings
       $video_settings = $this.find(".set-view-tool-video-settings");
@@ -119,15 +126,26 @@
     }
 
     // Swap the width and height of the thumbnail tool crop box
-    function toggleView() {
+    function toggleViewDirection() {
       // Save current bound (need to use the previous state of the value)
       if ($(this).val() == "portrait") {
         bound["landscape"] = thumbnail_tool.cropBoxToViewBox();
+        // Sync the view if has data
+        // TODO: have a lock button to set and lock this view
+        if (typeof bound["portrait"] !== "undefined") timelapse.setNewView({bbox: bound["portrait"]}, true, false);
       } else {
         bound["portrait"] = thumbnail_tool.cropBoxToViewBox();
+        // Sync the view if has data
+        // TODO: have a lock button to set and lock this view
+        if (typeof bound["landscape"] !== "undefined") timelapse.setNewView({bbox: bound["landscape"]}, true, false);
       }
       // Swap width and height
       thumbnail_tool.swapBoxWidthHeight();
+    }
+
+    // Get the view direction
+    function getViewDirection() {
+      return $this.find("input:radio[name='set-view-tool-toggle-view-input']:checked").val();
     }
 
     // Set the playback speed
@@ -148,6 +166,11 @@
       } else {
         $type_video_radio.prop("checked", true).trigger("change");
       }
+    }
+
+    // Get the view type (image or video)
+    function getViewType() {
+      return $this.find("input:radio[name='set-view-tool-type-input']:checked").val();
     }
 
     // Sync the waypoint starting time
@@ -195,9 +218,6 @@
 
     // Collect the parameters from the user interface
     function collectParameters(desired_bound, desired_width, desired_height) {
-      // View type
-      var type = $this.find("input:radio[name='set-view-tool-type-input']:checked").val();
-
       // Start time
       var start_time = parseCaptureTime($start_time.val(), "start");
 
@@ -214,7 +234,7 @@
       };
 
       // Return settings for image
-      if (type == "image") {
+      if (getViewType() == "image") {
         return {
           preview: preview,
           render: preview
@@ -251,6 +271,7 @@
       }
     }
 
+    // TODO: when the url has other hash informations, we only want the clean url as root url
     // Save the view and pass in the urls to the callback function
     function saveView() {
       // Set bound
@@ -286,7 +307,6 @@
           portrait: url_portrait
         });
       }
-      reset();
     }
 
     function removeClass($e, c) {
@@ -307,8 +327,13 @@
     // Privileged methods
     //
     var show = function () {
-      thumbnail_tool.forceAspectRatio(16, 9); // default to landscape view
+      if (getViewDirection() == "landscape") {
+        thumbnail_tool.forceAspectRatio(DEFAULT_ASPECT_RATIO["width"], DEFAULT_ASPECT_RATIO["height"]);
+      } else {
+        thumbnail_tool.forceAspectRatio(DEFAULT_ASPECT_RATIO["height"], DEFAULT_ASPECT_RATIO["width"]);
+      }
       thumbnail_tool.showCropBox();
+      thumbnail_tool.centerAndDrawCropBox();
       syncSettingsToViewer();
       $this.show();
       if (typeof on_show_callback === "function") {
@@ -320,6 +345,7 @@
     var hide = function () {
       thumbnail_tool.hideCropBox();
       $this.hide();
+      reset();
       if (typeof on_hide_callback === "function") {
         on_hide_callback();
       }
@@ -346,11 +372,13 @@
       $end_time.val(timelapse.getCaptureTimeByTime(et));
       $delay_start.val(args_landscape["startDwell"]);
       $delay_end.val(args_landscape["endDwell"]);
+      bound["landscape"] = args_landscape["bound"];
+      bound["portrait"] = args_portrait["bound"];
 
       // Sync the timelapse viewer
       timelapse.seek(bt);
-      timelapse.setNewView({bbox: args_landscape["bound"]}, true, false);
-      // TODO: need to fit the view to the green box of the thumbnail tool
+      var bbox = (getViewDirection() == "landscape") ? args_landscape["bound"] : args_portrait["bound"];
+      timelapse.setNewView({bbox: bbox}, true, false);
     };
     this.setUI = setUI;
 

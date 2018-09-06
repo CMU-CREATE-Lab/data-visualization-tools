@@ -123,10 +123,6 @@ This is the main template of the wizard (step by step guides)
   width: 47% !important;
 }
 
-.large-textbox {
-  height: 90px !important;
-}
-
 .add-top-margin {
   margin-top: 20px !important;
 }
@@ -309,8 +305,14 @@ This is the main template of the wizard (step by step guides)
   border-radius: 2px;
   display: block;
   width: 100%;
-  resize: none;
-  height: 28px;
+  min-height: 28px;
+  max-height: 28px;
+  resize: vertical;
+}
+
+textarea.custom-textbox {
+  min-height: 60px !important;
+  max-height: 200px !important;
 }
 
 .custom-textbox:read-only {
