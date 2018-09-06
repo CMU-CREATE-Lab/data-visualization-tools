@@ -66,6 +66,10 @@ This is the main template of the wizard (step by step guides)
   font-size: 14px;
 }
 
+.wizard-body label {
+  font-size: 14px;
+}
+
 .wizard-body-top {
   position: absolute;
   top: 0;
@@ -115,6 +119,12 @@ This is the main template of the wizard (step by step guides)
   align-items: flex-start;
 }
 
+.vertical-align-content {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
 .full-width-button {
   width: 100% !important;
 }
@@ -145,6 +155,14 @@ This is the main template of the wizard (step by step guides)
 
 .add-bottom-margin-small {
   margin-bottom: 5px !important;
+}
+
+.add-left-margin-medium {
+  margin-left: 10px !important;
+}
+
+.add-left-margin-small {
+  margin-left: 5px !important;
 }
 
 .noselect {
@@ -420,7 +438,7 @@ textarea.custom-textbox {
 .custom-radio {
   padding: 0;
   margin: 0;
-  text-align: center;
+  text-align: left;
   outline: none;
   cursor: pointer;
   box-shadow: none;
@@ -468,7 +486,7 @@ textarea.custom-textbox {
 
 .custom-radio [type="radio"] + label {
   position: relative;
-  padding: 7px 13px 6px 29px;
+  padding: 7px 13px 6px 32px;
   cursor: pointer;
   font-size: 14px;
   line-height: 14px;

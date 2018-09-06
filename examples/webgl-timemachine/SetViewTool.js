@@ -31,6 +31,7 @@
     var $start_time, $end_time;
     var $speed_slow_radio, $speed_medium_radio, $speed_fast_radio;
     var $type_image_radio, $type_video_radio, $video_settings;
+    var $save_landscape_view, $save_portrait_view;
     var $delay_start, $delay_end;
     var thumbnail_tool;
     var start_frame_number, end_frame_number;
@@ -74,6 +75,8 @@
       $this = $("#" + container_id + " .set-view-tool");
 
       // Toggle view
+      $save_landscape_view = $this.find(".set-view-tool-save-landscape-view-checkbox");
+      $save_portrait_view = $this.find(".set-view-tool-save-portrait-view-checkbox");
       $this.find("input:radio[name='set-view-tool-toggle-view-input']").on("change", toggleViewDirection);
 
       // Video settings
@@ -131,13 +134,18 @@
       if ($(this).val() == "portrait") {
         bound["landscape"] = thumbnail_tool.cropBoxToViewBox();
         // Sync the view if has data
-        // TODO: have a lock button to set and lock this view
-        if (typeof bound["portrait"] !== "undefined") timelapse.setNewView({bbox: bound["portrait"]}, true, false);
+        // TODO: have a save button to set and save this view
+        console.log($save_portrait_view.prop("checked"));
+        if ($save_portrait_view.prop("checked") && typeof bound["portrait"] !== "undefined") {
+          timelapse.setNewView({bbox: bound["portrait"]}, true, false);
+        }
       } else {
         bound["portrait"] = thumbnail_tool.cropBoxToViewBox();
         // Sync the view if has data
-        // TODO: have a lock button to set and lock this view
-        if (typeof bound["landscape"] !== "undefined") timelapse.setNewView({bbox: bound["landscape"]}, true, false);
+        // TODO: have a save button to set and save this view
+        if ($save_landscape_view.prop("checked") && typeof bound["landscape"] !== "undefined") {
+          timelapse.setNewView({bbox: bound["landscape"]}, true, false);
+        }
       }
       // Swap width and height
       thumbnail_tool.swapBoxWidthHeight();
