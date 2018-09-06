@@ -6344,7 +6344,7 @@
 
           // Handle layers
           waypointLayers.forEach(function(layer) {
-            if (layer.indexOf("extras-") == 0 || layer.indexOf("e-") == 0) {
+            if (layer.indexOf("extras_") == 0 || layer.indexOf("e-") == 0) {
               $("#extras-selector").selectmenu("refresh");
               // Need to delay some amount of time for the selectmenu to refresh.
               setTimeout(function() {
