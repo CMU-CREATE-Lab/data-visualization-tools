@@ -240,18 +240,18 @@ function formatCellsInSpreadsheet(spreadsheetId) {
 /**
   * Read the contents of a specific spreadsheet based on its ID
   * UNUSED: It is left here as an API call example but in the context
-  * of the story editor, this specific function has bitrotted.
+  * of the story editor, this specific function is not used and potentially bitrotted.
   */
 function readSpreadsheet(spreadsheetId) {
   return gapi.client.sheets.spreadsheets.values.get({
     spreadsheetId: spreadsheetId,
-    range: 'A1:H',
+    range: 'A:Z',
   }).then(function(response) {
     var range = response.result;
     if (range.values.length > 0) {
       for (i = 0; i < range.values.length; i++) {
         var row = range.values[i];
-        // Print columns A and E, which correspond to indices 0 and 4.
+        // Print columns A through D, which correspond to indices 0 and 3.
         console.log(row[0] + ' | ' + row[1] + ' | ' + row[2] + ' | ' + row[3]);
       }
     } else {
@@ -259,6 +259,24 @@ function readSpreadsheet(spreadsheetId) {
     }
   }, function(errorResponse) {
     throw errorResponse;
+  });
+}
+
+/**
+  * Update the contents of spreadsheet by first clearing out all the values and then writing new ones
+  */
+function updateSpreadsheet(spreadsheetId, content) {
+  return clearSpreadsheet(spreadsheetId).then(function(response) {
+    response.content = content;
+    return response;
+  }).then(function(initialResult) {
+    return writeContentToSpreadsheet(initialResult.spreadsheetId, initialResult.content).then(function(response) {
+      return initialResult;
+    }).catch(function(errorResponse) {
+      throw errorResponse;
+    });
+  }).catch(function(errorResponse) {
+    throw {status: "error", message: errorResponse.result.error.message};
   });
 }
 
@@ -271,8 +289,23 @@ function writeContentToSpreadsheet(spreadsheetId, content) {
     "values": content
   };
   return gapi.client.sheets.spreadsheets.values.update({
-    spreadsheetId: spreadsheetId, valueInputOption: 'USER_ENTERED', range: "A:H"}, updateBody
+    spreadsheetId: spreadsheetId, valueInputOption: 'USER_ENTERED', range: "A:Z"}, updateBody
   ).then(function(response) {
+    var result = {status: "success", spreadsheetId: response.result.spreadsheetId};
+    return result;
+  }, function(errorResponse) {
+    throw errorResponse;
+  });
+}
+
+/**
+  * Clear out the contents of a spreadsheet
+  */
+function clearSpreadsheet(spreadsheetId) {
+  return gapi.client.sheets.spreadsheets.values.clear({
+    spreadsheetId: spreadsheetId,
+    range: 'A:Z',
+  }).then(function(response) {
     var result = {status: "success", spreadsheetId: response.result.spreadsheetId};
     return result;
   }, function(errorResponse) {
