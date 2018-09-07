@@ -628,3 +628,11 @@ textarea.custom-textbox {
   background-color: #007082;
   border-color: #007082;
 }
+
+.custom-checkbox {
+  cursor: pointer;
+}
+
+.custom-checkbox input[type="checkbox"] {
+  cursor: pointer;
+}
