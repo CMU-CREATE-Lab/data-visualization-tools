@@ -36,6 +36,7 @@
     var set_view_tool;
     var enable_testing = true;
     var mode;
+    var spreadsheet_id;
 
     // For creating new stories
     var $theme;
@@ -199,10 +200,10 @@
               for (var i = 0; i < files.length; i++) {
                 var file = files[i];
                 var storyDomId = "story_" + i;
-                html += "<div class='custom-radio custom-radio-right align-text-left'>" +
-                  "<input type='radio' name='story-list-choices' id='" + storyDomId + "' data-google-sheets-url='https://docs.google.com/spreadsheets/d/" + file.id + "'>" +
-                  "<label for='" + storyDomId + "' class='noselect'>" + file.name + "</label>" +
-                  "</div>"
+                html += "<div class='custom-radio custom-radio-right'>";
+                html += "<input type='radio' name='story-list-choices' id='" + storyDomId + "' data-google-sheets-url='https://docs.google.com/spreadsheets/d/" + file.id + "'>";
+                html += "<label for='" + storyDomId + "' class='noselect'>" + file.name + "</label>";
+                html += "</div>";
               }
               $load.find(".available-stories-on-drive").empty().show().html(html);
             } else {
@@ -249,8 +250,9 @@
       $edit_theme.find(".next-button").on("click", function () {
         // Check if the user selects a tab
         if (edit_theme_accordion.getActiveTab().length > 0) {
-          forward(edit_story_accordion, edit_theme_accordion);
+          forward(edit_theme_accordion, edit_story_accordion);
           transition($edit_theme, $edit_story);
+          //setThemeDropdown(); // this is a special case besides forward
         } else {
           $next_confirm_dialog.dialog("open");
         }
@@ -270,6 +272,21 @@
       });
     }
 
+    // Set the theme dropdown for all story tabs
+    function setThemeDropdown() {
+      edit_story_accordion.getTabs().each(function () {
+        setCustomDropdown({
+          selector: "#" + container_id + " .story-editor-theme-dropdown",
+          menu_items: getValues(edit_theme_accordion.getTabs().find(".story-editor-title-textbox")),
+          current_index: edit_theme_accordion.getActiveIndex(),
+          on_menu_item_click_callback: function (desired_theme) {
+            //console.log(desired_theme);
+            // TODO: move the story to the desired theme
+          }
+        });
+      });
+    }
+
     // For editing a story in a selected theme
     function creatEditStoryUI() {
       var $next_confirm_dialog;
@@ -281,7 +298,7 @@
       $edit_story.find(".next-button").on("click", function () {
         // Check if the user selects a tab
         if (edit_story_accordion.getActiveTab().length > 0) {
-          forward(edit_waypoint_accordion, edit_story_accordion);
+          forward(edit_story_accordion, edit_waypoint_accordion);
           transition($edit_story, $edit_waypoint);
         } else {
           $next_confirm_dialog.dialog("open");
@@ -313,7 +330,6 @@
       });
     }
 
-    // TODO: add a replace/new option for saving the story
     // For saving stories
     function createSaveUI() {
       $save = $this.find(".story-editor-save");
@@ -346,7 +362,8 @@
         $save_to_google_message.empty().append($("<p>Currently saving story...</p>"));
         saveDataAsTsv(collectStoryData(), $save_file_name_textbox.val(), {
           success: function (response) {
-            $save_to_google_message.empty().append($("<p>The story is saved successfully as a <a target='_blank' href='" + response["spreadsheetUrl"] + "'>publicly viewable link</a>.</p>"));
+            var spreadsheet_url = "https://docs.google.com/spreadsheets/d/" + response["spreadsheetId"];
+            $save_to_google_message.empty().append($("<p>The story is saved successfully as a <a target='_blank' href='" + spreadsheet_url + "'>publicly viewable link</a>.</p>"));
           },
           error: function (response) {
             $save_to_google_message.empty().append($("<p>Error saving the story with response: " + response["error"] + "</p>"));
@@ -383,6 +400,7 @@
     }
 
     // For initializing the Google Drive API
+    // TODO: race condition bug on Firefox and Safari
     function initGoogleDriveAPI() {
       addGoogleSignedInStateChangeListener(function (isSignedIn) {
         if (isSignedIn) {
@@ -436,8 +454,9 @@
 
     // Set the user interface of an accordion (theme, story, waypoint)
     function setAccordionUI(accordion, data) {
-      if (typeof accordion === "undefined" || typeof data === "undefined") return;
+      if (typeof accordion === "undefined") return;
       accordion.reset();
+      data = safeGet(data, []);
       for (var i = 0; i < data.length; i++) {
         var $t = (i == 0) ? accordion.getActiveTab() : accordion.addEmptyTab();
         setTabUI($t, data[i]);
@@ -445,7 +464,7 @@
     }
 
     // Propagate data forward from an accordion to another accordion
-    function forward(to_accordion, from_accordion) {
+    function forward(from_accordion, to_accordion) {
       if (typeof from_accordion === "undefined") return;
       var $active_tab = from_accordion.getActiveTab();
       if ($active_tab.length > 0) {
@@ -549,17 +568,51 @@
       $ui.hide();
     }
 
-    // TODO: load the themes for the story tab and make the switching theme function work
     // Set the custom dropdown
-    //var themes = getValues(edit_theme_accordion.getTabs().find(".story-editor-title-textbox"));
-    //var active_theme_index = edit_theme_accordion.getActiveIndex();
-    function setCustomDropdown($ui, options, active_index) {
-      var $button_text = $ui.find("button > span");
-      var $menu = $ui.find("div");
-      options.forEach(function (x) {
-        $menu.append($("<a href=\"javascript:void(0)\">" + x + "</a>"));
+    // TODO: make this a class
+    function setCustomDropdown(settings) {
+      resetCustomDropdown(settings);
+      var $ui = $(settings["selector"]);
+      var menu_items = settings["menu_items"];
+      var current_index = safeGet(settings["current_index"], 0);
+      var on_menu_item_click_callback = settings["on_menu_item_click_callback"];
+      var $menu = $ui.find("div").hide();
+
+      // Add event for the button
+      $ui.find("button").on("click", function () {
+        if ($menu.is(":visible")) {
+          $menu.hide();
+        } else {
+          $menu.show();
+        }
       });
-      $button_text.text(options[active_index]);
+
+      // Set text on the button
+      var $button_text = $ui.find("button > span");
+      $button_text.text(menu_items[current_index]);
+
+      // Add events for menu items
+      menu_items.forEach(function (x) {
+        var $item = $("<a href=\"javascript:void(0)\">" + x + "</a>");
+        $item.on("click", function () {
+          var item_text = $(this).text();
+          $button_text.text(item_text); // update the text on the button
+          $menu.hide(); // hide the menu when clicked
+          if (typeof on_menu_item_click_callback === "function") {
+            on_menu_item_click_callback(item_text);
+          }
+        });
+        $menu.append($item);
+      });
+
+      return $ui;
+    }
+
+    // Reset the custom dropdown
+    function resetCustomDropdown(settings) {
+      var $ui = $(settings["selector"]);
+      $ui.find("div").empty();
+      $ui.find("button > span").text("");
     }
 
     // Create a confirmation dialog
@@ -778,9 +831,19 @@
       if (isAuthenticatedWithGoogle()) {
         // TODO: Deal with success/failure responses
         // TODO: How do we name these spreadsheets so that the listing is useful to the user
+        // TODO: If users load a sheet that is not created by the editor, remind users that we cannot replace the file
         // Do we make use of the hidden developer fields in the spreadsheet?
-        createNewSpreadsheetWithContent(file_name, tsvToSheetsDataArray(tsv)).then(function (response) {
+        var want_to_replace = $this.find(".story-editor-save-to-google-replace").prop("checked");
+        var data_array = tsvToSheetsDataArray(tsv);
+        var promise;
+        if (want_to_replace && typeof spreadsheet_id !== "undefined") {
+          promise = updateSpreadsheet(spreadsheet_id, data_array);
+        } else {
+          promise = createNewSpreadsheetWithContent(file_name, data_array);
+        }
+        promise.then(function (response) {
           if (typeof callback["success"] === "function") callback["success"](response);
+          spreadsheet_id = response["spreadsheetId"];
           console.log(response);
         }).catch(function (errorResponse) {
           // TODO: unable to catch the error of "popup_closed_by_user"
@@ -1006,7 +1069,7 @@
         // Has tab, check if has active tab
         active_index = getActiveIndex();
         // If no active tab, add the tab to the end
-        if (active_index == false) active_index = $tabs.length - 1;
+        if (active_index === false) active_index = $tabs.length - 1;
         $old_tab = $($tabs[active_index]);
         $old_tab.after($new_tab);
       }

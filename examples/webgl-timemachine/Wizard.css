@@ -563,10 +563,6 @@ textarea.custom-textbox {
   background-color: #7d7d7d;
 }
 
-.align-text-left {
-  text-align: left;
-}
-
 .custom-button:not(:disabled):hover {
   background-color: #4d4d4d;
   border-color: #4d4d4d;
