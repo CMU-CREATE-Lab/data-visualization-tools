@@ -24,7 +24,7 @@ function isAuthenticatedWithGoogle() {
 }
 
 function addGoogleSignedInStateChangeListener(listener) {
-  if (gapi.auth2 && gapi.auth2.getAuthInstance()) {
+  if (gapi && gapi.auth2 && gapi.auth2.getAuthInstance()) {
     gapi.auth2.getAuthInstance().isSignedIn.listen(listener);
   } else {
     tmpListeners.push(listener);
