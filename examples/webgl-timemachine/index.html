@@ -3350,6 +3350,7 @@
           WebglVideoTile.useGreenScreen = false;
           timelapse.setMasterPlaybackRate(1.0);
           $("#baseLayerCreditContainer").hide();
+          $("#gdpPpp").show();
         } else {
           showGdpPppLayer = false;
           cacheLastUsedLayer(gdpPppLayer);
@@ -3359,6 +3360,7 @@
           var v = timelapse.getVideoset();
           v.setFps(10);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          $("#gdpPpp").hide();
           $("#baseLayerCreditContainer").show();
         }
       }).prop('checked', showGdpPppLayer);
@@ -5319,7 +5321,7 @@
       legend_html += '<tr id="sp-crude-legend_LatAM" style="display: none"><td><div style="font-size: 15px">Latin America Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: rgb(247, 129, 191); stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">Latin America</text></svg></td></tr>';
       legend_html += '<tr id="sp-crude-legend_Oceania" style="display: none"><td><div style="font-size: 15px">Oceania Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: rgb(166, 86, 40); stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">Oceania</text></svg></td></tr>';
       legend_html += '<tr id="sp-crude-legend_Urals" style="display: none"><td><div style="font-size: 15px">Urals Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: rgb(255, 255, 51); stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">Urals</text></svg></td></tr>';
-      legend_html += '<tr id="gdp_ppp" style="display: none"><td><div style="font-size: 15px">GDP PPP<span> (????)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: rgb(255, 255, 51); stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">Urals</text></svg></td></tr>';
+      legend_html += '<tr id="gdpPpp" style="display: none"><td><div style="font-size: 15px">GDP PPP<span> (Kummu et al.)</div><div><img src="https://tiles.earthtime.org/colormaps/spectral.png" style="border:1px solid grey; width:200px; height:10px; margin-top:2px; position:relative; top:3px; background-color:black"></div><div style="width: 200px; font-size: 9px"><span>0</span><span style="padding-left: 30px">25x10<sup>6</sup><span style="padding-left: 20px">50x10<sup>6</sup><span style="padding-left: 20px">75x10<sup>6</sup></span><span style="padding-left: 20px">100x10<sup>6</sup></span></div></td></tr>';
 
       // ## 5b ##
       //// Add to layer legend ////
