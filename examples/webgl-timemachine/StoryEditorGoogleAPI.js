@@ -85,7 +85,7 @@ function makeFilePublicViewable(fileId) {
   };
   var request = gapi.client.drive.permissions.create({'fileId': fileId}, filePermissionBody);
   return request.then(function(response) {
-    var result = {status: "success"}
+    var result = {status: "success", fileId: fileId}
     return result;
   }, function(errorResponse) {
     throw errorResponse;
@@ -230,7 +230,7 @@ function formatCellsInSpreadsheet(spreadsheetId) {
   return gapi.client.sheets.spreadsheets.batchUpdate({
     spreadsheetId: spreadsheetId}, updateBody
   ).then(function(response) {
-    var result = {status: "success"};
+    var result = {status: "success", spreadsheetId: spreadsheetId};
     return result;
   }, function(errorResponse) {
     throw errorResponse;
@@ -273,7 +273,7 @@ function writeContentToSpreadsheet(spreadsheetId, content) {
   return gapi.client.sheets.spreadsheets.values.update({
     spreadsheetId: spreadsheetId, valueInputOption: 'USER_ENTERED', range: "A:H"}, updateBody
   ).then(function(response) {
-    var result = {status: "success"};
+    var result = {status: "success", spreadsheetId: spreadsheetId};
     return result;
   }, function(errorResponse) {
     throw errorResponse;
