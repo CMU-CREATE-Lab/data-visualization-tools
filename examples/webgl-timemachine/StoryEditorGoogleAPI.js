@@ -230,7 +230,7 @@ function formatCellsInSpreadsheet(spreadsheetId) {
   return gapi.client.sheets.spreadsheets.batchUpdate({
     spreadsheetId: spreadsheetId}, updateBody
   ).then(function(response) {
-    var result = {status: "success", spreadsheetId: spreadsheetId};
+    var result = {status: "success", spreadsheetId: response.result.spreadsheetId};
     return result;
   }, function(errorResponse) {
     throw errorResponse;
@@ -273,7 +273,7 @@ function writeContentToSpreadsheet(spreadsheetId, content) {
   return gapi.client.sheets.spreadsheets.values.update({
     spreadsheetId: spreadsheetId, valueInputOption: 'USER_ENTERED', range: "A:H"}, updateBody
   ).then(function(response) {
-    var result = {status: "success", spreadsheetId: spreadsheetId};
+    var result = {status: "success", spreadsheetId: response.result.spreadsheetId};
     return result;
   }, function(errorResponse) {
     throw errorResponse;
