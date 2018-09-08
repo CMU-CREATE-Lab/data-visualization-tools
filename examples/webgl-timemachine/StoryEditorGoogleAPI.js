@@ -264,10 +264,12 @@ function readSpreadsheet(spreadsheetId) {
 
 /**
   * Update the contents of spreadsheet by first clearing out all the values and then writing new ones
+  * If a new title is provided, update that as well.
   */
-function updateSpreadsheet(spreadsheetId, content) {
+function updateSpreadsheet(spreadsheetId, content, newTitle) {
   return clearSpreadsheet(spreadsheetId).then(function(response) {
     response.content = content;
+    response.newTitle = newTitle;
     return response;
   }).then(function(initialResult) {
     return writeContentToSpreadsheet(initialResult.spreadsheetId, initialResult.content).then(function(response) {
@@ -275,6 +277,16 @@ function updateSpreadsheet(spreadsheetId, content) {
     }).catch(function(errorResponse) {
       throw errorResponse;
     });
+  }).then(function(initialResult) {
+    if (initialResult.newTitle) {
+      return updateSpreadsheetTitle(initialResult.spreadsheetId, initialResult.newTitle).then(function(response) {
+        return initialResult;
+      }).catch(function(errorResponse) {
+        throw errorResponse;
+      });
+    } else {
+      return initialResult;
+    }
   }).catch(function(errorResponse) {
     throw {status: "error", message: errorResponse.result.error.message};
   });
@@ -306,6 +318,30 @@ function clearSpreadsheet(spreadsheetId) {
     spreadsheetId: spreadsheetId,
     range: 'A:Z',
   }).then(function(response) {
+    var result = {status: "success", spreadsheetId: response.result.spreadsheetId};
+    return result;
+  }, function(errorResponse) {
+    throw errorResponse;
+  });
+}
+
+/**
+  * Change the title of a spreadsheet
+  */
+function updateSpreadsheetTitle(spreadsheetId, spreadsheetTitle) {
+  var updateBody = {
+    "requests": [
+      {
+        "updateSpreadsheetProperties": {
+          "properties": {"title": spreadsheetTitle},
+          "fields": "title"
+        }
+      }
+    ]
+  };
+  return gapi.client.sheets.spreadsheets.batchUpdate({
+    spreadsheetId: spreadsheetId}, updateBody
+  ).then(function(response) {
     var result = {status: "success", spreadsheetId: response.result.spreadsheetId};
     return result;
   }, function(errorResponse) {
