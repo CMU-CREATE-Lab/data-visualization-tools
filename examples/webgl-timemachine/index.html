@@ -4375,20 +4375,21 @@
     var csvFileLayers = new CsvFileLayer();
     var csvDataGrapher = new CsvDataGrapher();
     var dotmapLayers = [];
+    var dotmapLayerByName = {};
     var dotlayersLoadedPath;
     var csvlayersLoadedPath;
     var waypointJSONListReadyInterval;
 
-    function addDotmapLayer(nickname, name, credit, category, columnDefs) {
-      var layerOptions = {
-        tileWidth: 256,
-        tileHeight: 256,
-        nLevels: 10,
-        setDataFunction: WebGLVectorTile2.prototype._setColorDotmapData,
-        drawFunction: WebGLVectorTile2.prototype._drawColorDotmap,
-        fragmentShader: WebGLVectorTile2.colorDotmapFragmentShader,
-        vertexShader: WebGLVectorTile2.colorDotmapVertexShader,
-      };
+    function parse_and_encode_webgl_color(colorspec) {
+      console.assert(colorspec.length == 7);
+      var r = parseInt(colorspec.substr(1,2),16);
+      var g = parseInt(colorspec.substr(3,2),16);
+      var b = parseInt(colorspec.substr(5,2),16);
+      return r + g * 256 + b * 65536;
+    }
+
+    // Pass columnDefs for a static layer, or animationLayers for animation
+    function addDotmapLayer(nickname, name, credit, category, date, columnDefs, animationLayers) {
 
       var useLocalTiles = false;
 
@@ -4406,18 +4407,63 @@
       if (useLocalTiles) {
         tileUrl = rootTilePath + '/dotmaptiles/' + nickname;
       } else {
-        tileUrl = 'https://dotmaptiles.createlab.org/tilesv1/';
-        var layerTokens = [];
-        for (var i = 0; i < columnDefs.length; i++) {
-          layerTokens.push(encodeURIComponent(columnDefs[i].color) + ';' +
-                           encodeURIComponent(columnDefs[i].expression.replace(/\s/g, '')));
-        }
-        tileUrl += layerTokens.join(';;');
-      }
-      tileUrl += "/{z}/{x}/{y}.bin";
+        tileUrl = 'https://dotmaptiles-staging.createlab.org/tilesv1/';
+	if (columnDefs) {
+          var layerTokens = [];
+          for (var i = 0; i < columnDefs.length; i++) {
+            layerTokens.push(encodeURIComponent(columnDefs[i].color) + ';' +
+                             encodeURIComponent(columnDefs[i].expression.replace(/\s/g, '').replace('/',' DIV ')));
+          }
+	  var expressionUrl = layerTokens.join(';;');
+          tileUrl += expressionUrl + '/{z}/{x}/{y}.box';
+	} else {
+	  // TODO fix this
+          var layerTokens = [];
+	  for (var i = 0; i < animationLayers.length; i++) {
+	    layerTokens.push(dotmapLayerByName[animationLayers[i]].expressionUrl);
+	  }
+	  tileUrl += layerTokens.join(';;;');
+	  tileUrl += '/512x512';
 
-      var layer = new WebglVectorLayer2(glb, canvasLayer, tileUrl, layerOptions);
+	  console.log(tileUrl);
+	  
+	  //tileUrl = "https://dotmaptiles-staging.createlab.org/tilesv1/%23ffb300;census1990_block2010.P0080001;;%236eaaf1;census1990_block2010.P0100001;;%235eff00;census1990_block2010.P0100002;;%23ff0400;census1990_block2010.P0100004;;%2388533e;census1990_block2010.P0100003%2Bcensus1990_block2010.P0100005;;;%23ffb300;census2000_block2010.P0080010;;%236eaaf1;census2000_block2010.P0080003;;%235eff00;census2000_block2010.P0080004;;%23ff0400;census2000_block2010.P0080006%2Bcensus2000_block2010.P0080007;;%2388533e;census2000_block2010.P0080005%2Bcensus2000_block2010.P0080008%2Bcensus2000_block2010.P0080009;;;%23ffb300;census2010_block2010.P0090002;;%236eaaf1;census2010_block2010.P0090005;;%235eff00;census2010_block2010.P0090006;;%23ff0400;census2010_block2010.P0090008%2Bcensus2010_block2010.P0090009;;%2388533e;census2010_block2010.P0090007%2Bcensus2010_block2010.P0090010%2Bcensus2010_block2010.P0090009/512x512";
+	  //console.log(tileUrl);
+	  //tileUrl += 'foo';
+	}
+      }
+
+      var layerOptions = {
+        // In reality the tiles are served as 512x512, but by claiming 256x256 we load an
+        // extra level of detail, and the additional resolution looks nicer, at least on a retina display...
+        nLevels: 14,
+      };
+      
+      if (columnDefs) {
+	layerOptions.tileWidth = layerOptions.tileHeight = 256;
+        layerOptions.date = date;
+        layerOptions.expressionUrl = expressionUrl;
+
+        layerOptions.setDataFunction = WebGLVectorTile2.prototype._setColorDotmapDataFromBox;
+        layerOptions.drawFunction = WebGLVectorTile2.prototype._drawColorDotmap;
+        layerOptions.fragmentShader = WebGLVectorTile2.colorDotmapFragmentShader;
+        layerOptions.vertexShader = WebGLVectorTile2.colorDotmapVertexShader;
+        layerOptions.dotmapColors = [];
+	for (var i = 0; i < columnDefs.length; i++) {
+          layerOptions.dotmapColors.push(parse_and_encode_webgl_color(columnDefs[i].color));
+	}
+	var layer = new WebglVectorLayer2(glb, canvasLayer, tileUrl, layerOptions);
+      } else {
+	layerOptions.mediaType = '.mp4';
+        layerOptions.numFrames = animationLayers.length;
+        layerOptions.fps = 10;
+        layerOptions.video_width = layerOptions.video_height = 512;
+	var layer = new WebglTimeMachineLayer(glb, canvasLayer, tileUrl, layerOptions);
+	console.log('added WebglTimeMachineLayer ' + nickname);
+      }
+
       dotmapLayers.push(layer);
+      dotmapLayerByName[nickname] = layer;
 
       var id = 'show-dotmap-' + nickname;
       var category_id = category ? "category-" + category.trim().replace(/ /g,"-").toLowerCase() : "category-us-demographics";
@@ -4439,13 +4485,18 @@
       if (credit) legend += '<span class="credit">(' + credit + ')</span>';
       legend += '</div>';
 
-      legend += '<div style="float: left; padding-right:8px">';
-      for (var i = 0; i < columnDefs.length; i++) {
-        legend += '<div style="float: left; padding-right:8px">';
-        legend += '<div style="background-color:' + columnDefs[i].color + '; width: 12px; height: 12px; float: left; margin-top: 2px; margin-left: 8px;"></div>';
-        legend += '&nbsp;' + columnDefs[i].name + '</div>';
+      if (animationLayers) {
+	// Use colors from first layer
+	legend += $('#' + animationLayers[0] + '-legend #colors').html();
+      } else {
+	legend += '<div id="colors" style="float: left; padding-right:8px">';
+	for (var i = 0; i < columnDefs.length; i++) {
+          legend += '<div style="float: left; padding-right:8px">';
+          legend += '<div style="background-color:' + columnDefs[i].color + '; width: 12px; height: 12px; float: left; margin-top: 2px; margin-left: 8px;"></div>';
+          legend += '&nbsp;' + columnDefs[i].name + '</div>';
+	}
+	legend += '</div>';
       }
-      legend += '</div>';
       legend += '</tr>';
 
       $('#legend-content table tr:last').after(legend);
@@ -4466,7 +4517,22 @@
           }
           // Turn on layer
           layer.visible = true;
-          timelineType = "none";
+	  if (animationLayers) {
+	    console.log('setting annual-global timeline');
+
+            setActiveLayersWithTimeline(1);
+            visibleBaseMapLayer = "annual-pm25"; //?
+            timelineType = "defaultUI";
+            requestNewTimeline("annual-global-pm25-times.json", timelineType);
+            var v = timelapse.getVideoset();
+            v.setFps(6);
+            timelapse.setDoDwell(true);
+            WebglVideoTile.useGreenScreen = false;
+            timelapse.setMasterPlaybackRate(1.0);
+            $("#baseLayerCreditContainer").hide();
+	  } else {
+            timelineType = "none";
+	  }
           $("#" + nickname + "-legend").show();
         } else {
           // Turn off layer
@@ -4492,19 +4558,27 @@
         if (layerdef['Enabled'].toLowerCase() == 'false') continue;
         var layerIdentifier = layerdef['Share link identifier'].replace(/\W+/g, '_'); // sanitize non-word chars
 
-        var columnDefs = [];
-        for (var c = 1; 1; c++) {
-          var name = layerdef['PopName' + c];
-          if (!name) break;
-          var color = layerdef['Color' + c];
-          var expression = layerdef['Definition' + c];
-          columnDefs.push({name: name, color: color, expression: expression});
-        }
+	var date=null, columnDefs=null, animationLayers=null;
+	if (layerdef['AnimationLayers']) {
+	  animationLayers = layerdef['AnimationLayers'].replace(/\s/g, '').split('|');
+	} else {
+          columnDefs = [];
+          for (var c = 1; 1; c++) {
+            var name = layerdef['PopName' + c];
+            if (!name) break;
+            var color = layerdef['Color' + c];
+            var expression = layerdef['Definition' + c];
+            columnDefs.push({name: name, color: color, expression: expression});
+          }
+	  date = layerdef['date'];
+	}
         addDotmapLayer(layerIdentifier, // identifier
                        layerdef['Name'], // name
                        layerdef['Credits'], // credit
                        layerdef['Category'], // layer category
-                       columnDefs);
+		       date,
+                       columnDefs,
+		       animationLayers);
       }
       // New layers have been added, so refresh the layer panel
       $(".map-layer-div").accordion("refresh");

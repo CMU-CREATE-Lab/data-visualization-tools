@@ -36,6 +36,7 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
   this._layerDomId = opt_options.layerDomId;
   this._loadingSpinnerTimer = null;
   this._wasPlayingBeforeDataLoad = false;
+  this.dotmapColors = opt_options.dotmapColors;
 
   this.gl.getExtension("OES_standard_derivatives");
 
@@ -1148,6 +1149,67 @@ WebGLVectorTile2.prototype._setColorDotmapData = function(arrayBuffer) {
   }
 }
 
+var gtileData;
+
+// Color Dotmap (not animated)  aWorldCoord[2]  aColor
+WebGLVectorTile2.prototype._setColorDotmapDataFromBox = function(tileDataF32) {
+  // Create uint8 view on data.  Unfortunately we're called with Float32Array, which isn't correct for
+  // this particular function
+  
+  var tileData = new Uint8Array(tileDataF32.buffer);
+  // Iterate through the raster, creating dots on the fly
+  
+  var gl = this.gl;
+  gtileData = tileData;
+
+  this._pointCount = tileData.reduce(function(a,b) { return a+b;})
+  this._ready = true;
+
+  if (this._pointCount > 0) {
+    this._data = new Float32Array(this._pointCount * 3);
+    var input_idx = 0;
+    var output_idx = 0;
+    var numColors = this.dotmapColors.length;
+    var tileDim = 256;
+    console.assert(numColors == tileData.length / (tileDim * tileDim));
+
+    // Find location of tile
+    var projectedTileSize = 256 / 2 ** this._tileidx.l; // 256 for level 0, 128 for level 1 ...
+    var projectedXMin = projectedTileSize * this._tileidx.c;
+    var projectedYMin = projectedTileSize * this._tileidx.r;
+
+    // Loop through the rasters, creating points within each box
+    for (var c = 0; c < numColors; c++) {
+      for (var y = 0; y < tileDim; y++) {
+	for (var x = 0; x < tileDim; x++) {
+	  for (var p = 0; p < tileData[input_idx]; p++) {
+	    this._data[output_idx * 3 + 0] = projectedXMin + (x + Math.random()) * projectedTileSize / 256;
+	    this._data[output_idx * 3 + 1] = projectedYMin + (y + Math.random()) * projectedTileSize / 256;
+	    this._data[output_idx * 3 + 2] = this.dotmapColors[c];
+	    output_idx++;
+	  }
+	  input_idx++;
+	}
+      }
+    }
+    console.assert(input_idx == tileData.length);
+    console.assert(output_idx == this._data.length / 3);
+
+    // Randomly permute the order of points
+    for (var i = this._pointCount - 1; i >= 1; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp;
+      tmp = this._data[i * 3 + 0]; this._data[i * 3 + 0] = this._data[j * 3 + 0]; this._data[j * 3 + 0] = tmp;
+      tmp = this._data[i * 3 + 1]; this._data[i * 3 + 1] = this._data[j * 3 + 1]; this._data[j * 3 + 1] = tmp;
+      tmp = this._data[i * 3 + 2]; this._data[i * 3 + 2] = this._data[j * 3 + 2]; this._data[j * 3 + 2] = tmp;
+    }
+
+    this._arrayBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);
+  }
+}
+
 WebGLVectorTile2.prototype._setObesityData = function(data) {
   function LatLongToPixelXY(latitude, longitude) {
     var pi_180 = Math.PI / 180.0;
@@ -1999,9 +2061,17 @@ WebGLVectorTile2.prototype._drawColorDotmap = function(transform, options) {
     gl.blendEquationSeparate( gl.FUNC_ADD, gl.FUNC_ADD );
     gl.blendFuncSeparate( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA );
 
-    var tileTransform = new Float32Array(transform);
     var pixelScale = - transform[5];
     var zoom = options.zoom || (2.0 * window.devicePixelRatio);
+    // Start scaling pixels extra for tiles beyond level 10
+    if (this._tileidx.l > 10) {
+      pixelScale *= 2 ** (this._tileidx.l - 10);
+    }
+
+    // transform maps 0-256 input coords to the tile's pixel space on the screen.
+    // But color dotmaps treat 0-256 input coords to map to the entire planet, not the current tile's extents.
+    // Scale tileTransform so that it would map 0-256 input coords to the entire planet.
+    var tileTransform = new Float32Array(transform);
     scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
     scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 

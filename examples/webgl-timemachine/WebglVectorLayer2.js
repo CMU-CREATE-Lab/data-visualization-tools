@@ -93,6 +93,8 @@ WebglVectorLayer2.prototype._createTile = function(ti, bounds) {
   if (this._tileView) {
     opt_options.layerDomId = this._tileView._layerDomId;
   }
+  opt_options.dotmapColors = this.dotmapColors;
+
   return new WebGLVectorTile2(glb, ti, bounds, url, opt_options);
 };
 
