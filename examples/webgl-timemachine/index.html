@@ -328,7 +328,7 @@
     var isAutoModeRunning = false;
     var visibleBaseMapLayer = "landsat";
     var previousVisibleBaseMapLayer = visibleBaseMapLayer;
-    var timelapse, thumbnailTool, snaplapseViewerForPresentationSlider, previousWaypoint = {}, waypointViewChangeListener, hideWaypointListener, waypointTimeChangeListenerInterval, snaplapseForPresentationSlider, parabolicMotionStoppedListener;
+    var timelapse, thumbnailTool, snaplapseViewerForPresentationSlider, previousWaypoint = {}, waypointViewChangeListener, hideWaypointListener, snaplapseForPresentationSlider, parabolicMotionStoppedListener;
     var currentWaypointTheme = featuredTheme.replace(/ /g, '_').toLowerCase();
     var currentWaypointStory;
     var himawariWaypoints = {};
@@ -345,7 +345,6 @@
     var timeInMsSinceLastWaypointLoop = 0;
     var $nextAnnotationLocationButton;
     var $previousAnnotationLocationButton;
-    var timelapseWasPlaying = false;
     var lastLayerMenuScrollPos = 0;
     var lastFeaturedLayerMenuScrollPos = 0;
     var lastThemeMenuScrollPos = 0;
@@ -3876,13 +3875,7 @@
         }
 
         if (isFromUser && visibleBaseMapLayer != "landsat" && activeLayersWithTimeline == 0) {
-          $(".customControl").hide().children().hide();
-        }
-
-        if (timelineType == "defaultUI") {
-          $(".customHelpLabel-touchFriendly").css("top", "-8px");
-        } else {
-          $(".customHelpLabel-touchFriendly").css("top", "-26px");
+          $(".customControl").hide();
         }
 
         if (timelineType != "none" && activeLayersWithTimeline == 0) {
@@ -3891,16 +3884,12 @@
 
         if (activeLayersWithTimeline <= 1 && timelineType == "none") {
           $(".current-location-text-container, .annotations-resume-exit-container, .scaleBarContainer, #logosContainer, .current-location-text, #layers-legend").addClass("noTimeline");
-          if (!timelapse.isPaused()) {
-            timelapse.handlePlayPause();
-            timelapseWasPlaying = true;
-          }
         } else {
           $(".current-location-text-container, .annotations-resume-exit-container, .scaleBarContainer, #logosContainer, .current-location-text, #layers-legend").removeClass("noTimeline");
-          if (timelapseWasPlaying) {
-            timelapseWasPlaying = false;
-            timelapse.play();
-          }
+        }
+
+        if (timelineType == "defaultUI" && visibleBaseMapLayer == "landsat" && activeLayersWithTimeline == 1 && $(".csvlayer").find("input:checked").length == 0) {
+          timelineType = "customUI";
         }
 
         timelineHidden = $(".noTimeline").length != 0;
@@ -3963,7 +3952,7 @@
 
       timelapse.addTimelineUIChangeListener(function() {
         if (visibleBaseMapLayer != "landsat" && activeLayersWithTimeline == 0) {
-          $(".customControl").hide().children().hide();
+          $(".customControl").hide();
         }
       });
 
@@ -4111,7 +4100,7 @@
 
     function doSwitchToLandsat() {
       // Special case for layers with defaultUI timeline.
-      if ((timelineType == "defaultUI" && (showViirsLayer || showMonthlyRefugeesLayer || showCrwTimeMachineLayer)) ||  $(".csvlayer").find("input:checked").length > 0) {
+      if (timelineType == "defaultUI" && (showViirsLayer || showMonthlyRefugeesLayer || showCrwTimeMachineLayer)) {
         return false;
       } else {
         timelineType = "customUI";
@@ -4119,7 +4108,7 @@
         if (activeLayersWithTimeline <= 0) {
           setActiveLayersWithTimeline(1);
         }
-        requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+        requestNewTimeline(cachedLandsatTimeJsonPath, "customUI");
         timelapse.setMasterPlaybackRate(1);
         timelapse.setPlaybackRate(defaultPlaybackSpeed);
         timelapse.setDoDwell(true);
@@ -6391,70 +6380,6 @@
           }
           // End Himawari
 
-          // TODO: Should be part of timemachine library
-          // Set playback rate based on the waypoint.
-          if (waypointPlaybackSpeed != null) {
-            if (waypointPlaybackSpeed == 0) {
-              timelapseWasPlaying = false;
-              if (timelapse.isDoingLoopingDwell()) {
-                timelapse.handlePlayPause();
-              } else {
-                timelapse.pause();
-              }
-              timelapse.seek(waypoint.time);
-            } else {
-              var waypointPlaybackRate = timelapse.getMaxPlaybackRate() * (waypointPlaybackSpeed / 100);
-              timelapse.setPlaybackRate(waypointPlaybackRate);
-            }
-            var onWaypointChangeListener = function() {
-              var waypointStartTime = timelapse.playbackTimeFromShareDate(waypoint.beginTime);
-              if (typeof(waypointStartTime) === "undefined") {
-                waypointStartTime = 0;
-              }
-              var waypointEndTime = timelapse.playbackTimeFromShareDate(waypoint.endTime);
-              if (typeof(waypointEndTime) === "undefined" || waypointEndTime == ((timelapse.getNumFrames() - 1) / timelapse.getFps().toFixed(1))) {
-                waypointEndTime = timelapse.getDuration();
-              }
-
-              // We are still technically using Landsat (web mercator) projections for any dataset being drawn,
-              // so the bounds that slide-change returns is not valid for our use. But we already
-              // know the bounds each himawari waypoints should be, so use that instead.
-              if (himawariWaypoint) {
-                waypointBounds = himawariWaypoint.bounds;
-                waypointStartTime = himawariWaypoint.time;
-              }
-
-              clearInterval(waypointTimeChangeListenerInterval);
-              waypointTimeChangeListenerInterval = null;
-
-              // TODO: Should be part of timemachine library
-              if (waypointEndTime >= 0 && waypointStartTime != waypointEndTime && !(waypointStartTime == 0 && waypointEndTime == timelapse.getDuration())) {
-                waypointTimeChangeListenerInterval = setInterval(function() {
-                  var t = timelapse.getCurrentTime();
-                  if (t > waypointEndTime) {
-                    // If the user ends up scrubbing past the desired 'end time' of this waypoint,
-                    // remove this loopback check and let the animation loop through the entire time range.
-                    var currentTimeInMs = (new Date()).getTime();
-                    if ((currentTimeInMs - timeInMsSinceLastWaypointLoop) < 500) {
-                      clearInterval(waypointTimeChangeListenerInterval);
-                      waypointTimeChangeListenerInterval = null;
-                    }
-                    timeInMsSinceLastWaypointLoop = currentTimeInMs;
-                    // Seek back to the desired 'begin time' of this waypoint.
-                    timelapse.seek(waypointStartTime);
-                  }
-                }, 1);
-              }
-              timelapse.removeTimelineUIChangeListener(onWaypointChangeListener);
-              timelapse.setPlaybackRate(waypointPlaybackRate);
-            };
-            timelapse.addTimelineUIChangeListener(onWaypointChangeListener);
-            // In the event a waypoint does not have a timeline change, be sure the above listener is removed.
-            setTimeout(function() {
-              timelapse.removeTimelineUIChangeListener(onWaypointChangeListener);
-            }, 500);
-          }
-
           // Display info box for the waypoints
           if (enableWaypointText) {
             var waypointScale = timelapse.pixelBoundingBoxToPixelCenter(waypointBounds).scale;
@@ -6513,8 +6438,7 @@
                       showAnnotationResumeExit();
                     }
                     timelapse.removeViewChangeListener(hideWaypointListener);
-                    clearInterval(waypointTimeChangeListenerInterval);
-                    waypointTimeChangeListenerInterval = null;
+                    timelapse.clearShareViewTimeLoop();
                   }
                 };
                 timelapse.addViewChangeListener(hideWaypointListener);
@@ -6540,7 +6464,6 @@
         });
         // End snaplapseViewerForPresentationSlider check
       }
-
 
       // Location search box, with autocomplete.
       if (showSearchBox) {
@@ -7725,6 +7648,7 @@
         $("#timeMachine .player .shareView .ui-dialog-title").text("Share a View");
       }
       timelapse.onresize();
+      timelapse.clearShareViewTimeLoop();
       $("body").trigger('resize');
       if (thumbnailTool) {
         thumbnailTool.resizeCanvas();
