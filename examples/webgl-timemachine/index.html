@@ -6370,7 +6370,7 @@
               } else {
                 $("#show-himawari").click();
                 timelapse.stopParabolicMotion({doCallback : false});
-                timelapse.setNewView(himawariView, true, null, initialHimawariViewChangeHack);
+                timelapse.setNewView(himawariView, true, !!waypointPlaybackSpeed, initialHimawariViewChangeHack);
               }
               timelapse.setMasterPlaybackRate(1);
               timelapse.setPlaybackRate(himawariPlaybackSpeed);
