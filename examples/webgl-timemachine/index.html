@@ -3770,6 +3770,7 @@
             UTIL.setDrawState(true);
           }
         }
+        timelapse.updateShareViewTextbox();
       });
 
       $('#layers-menu').on("change", "input", function(e) {
@@ -6178,7 +6179,7 @@
         video_height: 1440,
         width: 2880,
         height: 2880,
-        colormap: rootTilePath + '/colormaps/spectral.png'
+        colormap: 'https://tiles.earthtime.org/colormaps/spectral.png'
 
       };
       gdpPppLayer = new WebglTimeMachineLayer(glb, canvasLayer, gdpPppUrl, gdpPppOptions);
@@ -7649,6 +7650,7 @@
       }
       timelapse.onresize();
       timelapse.clearShareViewTimeLoop();
+      timelapse.updateShareViewTextbox();
       $("body").trigger('resize');
       if (thumbnailTool) {
         thumbnailTool.resizeCanvas();
