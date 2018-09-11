@@ -101,6 +101,10 @@ This is the main template of the wizard (step by step guides)
   display: none;
 }
 
+.force-hide {
+  display: none !important;
+}
+
 .even-space-content {
   display: flex;
   justify-content: space-between;
@@ -204,13 +208,13 @@ This is the main template of the wizard (step by step guides)
 .custom-dropdown {
   position: relative;
   display: block;
+  cursor: pointer;
 }
 
-.custom-dropdown > button {
+.custom-dropdown > a {
   padding: 5px 26px 5px 8px;
   outline: none;
   border-radius: 2px;
-  cursor: pointer;
   box-shadow: none;
   transition: background-color 0.1s, box-shadow 0.1s, border 0.1s;
   text-decoration: none;
@@ -221,9 +225,10 @@ This is the main template of the wizard (step by step guides)
   border: 1px solid #7d7d7d;
   background-color: white;
   width: 100%;
+  cursor: pointer;
 }
 
-.custom-dropdown > button > span {
+.custom-dropdown > a > span {
   text-align: left;
   font-size: 14px !important;
   line-height: 16px;
@@ -233,7 +238,7 @@ This is the main template of the wizard (step by step guides)
   text-overflow: ellipsis;
 }
 
-.custom-dropdown > button:after {
+.custom-dropdown > a:after {
   position: absolute;
   content: "";
   top: 13px;
@@ -257,13 +262,12 @@ This is the main template of the wizard (step by step guides)
   min-width: 100%;
 }
 
-.custom-dropdown > button:focus {
+.custom-dropdown > a:focus {
   pointer-events: none;
 }
 
-.custom-dropdown > button:focus + div {
+.custom-dropdown > a:focus + div {
   display: block;
-  pointer-events: auto;
 }
 
 .custom-dropdown > div:hover {

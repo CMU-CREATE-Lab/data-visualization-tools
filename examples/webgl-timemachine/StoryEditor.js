@@ -252,7 +252,7 @@
         if (edit_theme_accordion.getActiveTab().length > 0) {
           forward(edit_theme_accordion, edit_story_accordion);
           transition($edit_theme, $edit_story);
-          //setThemeDropdown(); // this is a special case besides forward
+          setThemeDropdown(); // this is a special case besides forward
         } else {
           $next_confirm_dialog.dialog("open");
         }
@@ -279,8 +279,8 @@
           selector: "#" + container_id + " .story-editor-theme-dropdown",
           menu_items: getValues(edit_theme_accordion.getTabs().find(".story-editor-title-textbox")),
           current_index: edit_theme_accordion.getActiveIndex(),
-          on_menu_item_click_callback: function (desired_theme) {
-            //console.log(desired_theme);
+          on_menu_item_click_callback: function ($ui) {
+            console.log($ui.text());
             // TODO: move the story to the desired theme
           }
         });
@@ -569,40 +569,55 @@
 
     // Set the custom dropdown
     function setCustomDropdown(settings) {
-      resetCustomDropdown(settings);
       var $ui = $(settings["selector"]);
       var menu_items = settings["menu_items"];
       var current_index = safeGet(settings["current_index"], 0);
       var on_menu_item_click_callback = settings["on_menu_item_click_callback"];
-      var $menu = $ui.find("div");
+      var $menu = $ui.find("div").empty();
+      var $button_text = $ui.find("a > span").text("").text(menu_items[current_index]);
+      var $selected_item;
 
-      // Set text on the button
-      var $button_text = $ui.find("button > span");
-      $button_text.text(menu_items[current_index]);
+      // Set button event
+      // Note that the button is designed to use focusout and focus to determine its state
+      // "focusout" indicates that the menu is currently opened and should be closed
+      // "focus" indicates that the menu is currently closed and should be opened
+      $ui.find("a").off("focusout").on("focusout", function() {
+        // Find which item is hovered
+        if (typeof $selected_item !== "undefined") {
+          $button_text.text($selected_item.text()); // update the text on the button
+          if (typeof on_menu_item_click_callback === "function") {
+            on_menu_item_click_callback($selected_item);
+          }
+          $selected_item = undefined;
+        }
+        // Close the menu
+        if ($menu.is(":visible")) {
+          $menu.addClass("force-hide");
+        }
+      }).off("focus").on("focus", function() {
+        // Open the menu
+        if (!$menu.is(":visible")) {
+          $menu.removeClass("force-hide");
+        }
+      });
 
       // Add events for menu items
       menu_items.forEach(function (x) {
         var $item = $("<a href=\"javascript:void(0)\">" + x + "</a>");
-        $item.on("click", function () {
-          console.log("click");
-          var item_text = $(this).text();
-          $button_text.text(item_text); // update the text on the button
-          //$menu.hide();
-          if (typeof on_menu_item_click_callback === "function") {
-            on_menu_item_click_callback(item_text);
-          }
+        // We need to let the focusout button event know which item is selected
+        // Note that we cannot use the click event to find this,
+        // because as soon as the item is clicked,
+        // the focusout event of the button is triggered,
+        // this closes the menu and we never get the click event from the items
+        $item.on("mouseover", function () {
+          $selected_item = $(this);
+        }).on("mouseout", function() {
+          $selected_item = undefined;
         });
         $menu.append($item);
       });
 
       return $ui;
-    }
-
-    // Reset the custom dropdown
-    function resetCustomDropdown(settings) {
-      var $ui = $(settings["selector"]);
-      $ui.find("div").empty();
-      $ui.find("button > span").text("");
     }
 
     // Create a confirmation dialog
