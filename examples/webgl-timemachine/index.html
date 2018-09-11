@@ -6911,12 +6911,18 @@
         $('#main-hamburger-menu').toggleClass("is-active");
       });
 
+      // Special case when we are running locally, which means we probably are running from a dedicated EarthTime installion or local drive for a presentation.
+      if (rootTilePath.indexOf("../") == 0) {
+        $("#productLogo").html("EarthTime.org");
+        $("#contributors").html("Carnegie Mellon University | CREATE Lab");
+      }
+
       if (extraContributors) {
         if (extraContributors == "Igarape Institute") {
           var idx = extraContributors.indexOf('e');
           extraContributors = extraContributors.substr(0, idx) + '&eacute;' + extraContributors.substr(idx + 1);
-          $("#productLogo").css("font-size", "32px");
-          $("#contributors").css("font-size", "22px");
+          $("#productLogo").css("font-size", "30px");
+          $("#contributors").css("font-size", "20px");
           $(".current-location-text p").css({"font-size" : "24px", "line-height" : "30px"});
           $(".current-location-text h3").css("font-size", "34px");
         }
