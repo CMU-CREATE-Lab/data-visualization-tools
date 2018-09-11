@@ -35,7 +35,8 @@
     var set_view_tool;
     var enable_testing = true;
     var mode;
-    var spreadsheet_id;
+    var sheet_id;
+    var sheet_url;
 
     // For creating new stories
     var $theme;
@@ -113,11 +114,15 @@
       $intro = $this.find(".story-editor-intro");
       $intro.find(".story-editor-create-button").on("click", function () {
         mode = "create";
+        sheet_url = undefined;
+        sheet_id = undefined;
         transition($intro, $theme);
         if (enable_testing) testCreateStory(); // for testing the function of creating a story
       });
       $intro.find(".story-editor-edit-button").on("click", function () {
         mode = "edit";
+        sheet_url = undefined;
+        sheet_id = undefined;
         transition($intro, $load);
       });
     }
@@ -176,29 +181,43 @@
       var $google_authenticate_load_prompt = $load.find(".google-authenticate-load-prompt");
       var $loading_story_from_drive_text = $load.find(".loading-story-from-drive-text");
       var $no_story_from_drive_text = $load.find(".no-story-from-drive-text");
+      var $available_stories_on_drive = $load.find(".available-stories-on-drive");
+      var $next_confirm_dialog;
+
+      $next_confirm_dialog = createConfirmDialog({
+        selector: "#" + container_id + " .story-editor-load .next-confirm-dialog"
+      });
 
       $load.find(".back-button").on("click", function () {
         transition($load, $intro);
       });
 
-      $next_button.prop("disabled", true);
       $next_button.on("click", function () {
-        $next_button.prop("disabled", true);
-        // This util function name is misleading, it converts spreadsheet into csv, not json
-        // TODO: tell people the error messages when the sheet does not work (e.g. wrong permission, wrong file, wrong format)
-        util.gdocToJSON($sheet_url_textbox.val(), function (tsv) {
-          setAccordionUI(edit_theme_accordion, tsvToData(tsv));
-          transition($load, $edit_theme);
-          $next_button.prop("disabled", false);
-          if (enable_testing) testEditStory(); // for testing editing stories
-        });
+        if (typeof sheet_url === "undefined") {
+          $next_confirm_dialog.dialog("open");
+        } else {
+          $next_button.prop("disabled", true);
+          // This util function name is misleading, it converts spreadsheet into csv, not json
+          // TODO: tell people the error messages when the sheet does not work (e.g. wrong permission, wrong file, wrong format)
+          util.gdocToJSON(sheet_url, function (tsv) {
+            setAccordionUI(edit_theme_accordion, tsvToData(tsv));
+            transition($load, $edit_theme);
+            $next_button.prop("disabled", false);
+            if (enable_testing) testEditStory(); // for testing editing stories
+          }, function(xhr, status, error) {
+            $next_button.prop("disabled", false);
+            console.log("Error with message: "  + error);
+          });
+        }
       });
 
       $sheet_url_textbox.on("change", function () {
-        if ($sheet_url_textbox.val().search(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/) >= 0) {
-          $next_button.prop("disabled", false);
+        var unsafe_sheet_url = $sheet_url_textbox.val();
+        var res = unsafe_sheet_url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+        if (res != null) {
+          sheet_url = unsafe_sheet_url;
         } else {
-          $next_button.prop("disabled", true);
+          sheet_url = undefined;
         }
       });
 
@@ -209,9 +228,11 @@
       // TODO: Should we save state and have a refresh button if they click back in the same session?
       // It will save us Drive API quota calls if we do this.
       $load_from_google_drive_radio.on("click", function () {
+        sheet_id = undefined;
+        sheet_url = undefined;
         $load_story_from_link_container.hide();
+        $available_stories_on_drive_container.hide();
         $load_story_from_google_container.show();
-        $sheet_url_textbox.val("").trigger("change");
         if (isAuthenticatedWithGoogle()) {
           $google_authenticate_load_prompt.hide();
           $loading_story_from_drive_text.show();
@@ -219,16 +240,20 @@
             $loading_story_from_drive_text.hide();
             if (files && files.length > 0) {
               $no_story_from_drive_text.hide();
-              var menu_items = files.map(function (x) {
-                return x["name"];
+              var sheet_name_list = [];
+              var sheet_id_list = [];
+              files.forEach(function (x) {
+                sheet_name_list.push(x["name"]);
+                sheet_id_list.push(x["id"]);
               });
-              setCustomDropdown($load.find(".available-stories-on-drive"), {
-                menu_items: menu_items,
-                on_menu_item_create_callback: function ($ui, i) {
-                  $ui.data("url", "https://docs.google.com/spreadsheets/d/" + files[i]["id"]);
+              setCustomDropdown($available_stories_on_drive, {
+                menu_items: sheet_name_list,
+                on_menu_item_create_callback: function ($ui, index) {
+                  $ui.data("sheet_id", sheet_id_list[index]);
                 },
                 on_menu_item_click_callback: function ($ui) {
-                  $sheet_url_textbox.val($ui.data("url")).trigger("change");
+                  sheet_id = $ui.data("sheet_id");
+                  sheet_url = getSheetUrlById(sheet_id);
                 }
               });
               $available_stories_on_drive_container.show();
@@ -242,6 +267,8 @@
       });
 
       $load.find("#load-from-direct-link-radio").on("click", function () {
+        sheet_id = undefined;
+        sheet_url = undefined;
         $load_story_from_google_container.hide();
         $available_stories_on_drive_container.hide();
         $load_story_from_link_container.show();
@@ -360,8 +387,7 @@
         $save_to_google_message.empty().append($("<p>Currently saving story...</p>"));
         saveDataAsTsv(collectStoryData(), $save_file_name_textbox.val(), {
           success: function (response) {
-            var spreadsheet_url = "https://docs.google.com/spreadsheets/d/" + response["spreadsheetId"];
-            $save_to_google_message.empty().append($("<p>The story is saved successfully as a <a target='_blank' href='" + spreadsheet_url + "'>publicly viewable link</a>.</p>"));
+            $save_to_google_message.empty().append($("<p>The story is saved successfully as a <a target='_blank' href='" + getSheetUrlById(response["spreadsheetId"]) + "'>publicly viewable link</a>.</p>"));
           },
           error: function (response) {
             $save_to_google_message.empty().append($("<p>Error saving the story with response: " + response["error"] + "</p>"));
@@ -388,6 +414,8 @@
             waypoint_accordion.removeAllTabs();
           }
           mode = undefined;
+          sheet_id = undefined;
+          sheet_url = undefined;
           $save_to_local_button.prop("disabled", false);
           $save_to_local_message.empty();
           $save_to_google_button.prop("disabled", false);
@@ -577,7 +605,8 @@
 
     // Set the custom dropdown
     function setCustomDropdown($ui, settings) {
-      var menu_items = settings["menu_items"];
+      var menu_items = settings["menu_items"]; // the text that will appear for each item
+      if (typeof menu_items === "undefined") return;
       var current_index = settings["current_index"];
       var on_menu_item_click_callback = settings["on_menu_item_click_callback"];
       var on_menu_item_create_callback = settings["on_menu_item_create_callback"];
@@ -593,7 +622,7 @@
       // "focusout" indicates that the menu is currently opened and should be closed
       // "focus" indicates that the menu is currently closed and should be opened
       $ui.find("a").off("focusout").on("focusout", function () {
-        // Find which item is hovered
+        // Find which item is hovered, and then simulate the click
         if (typeof $selected_item !== "undefined") {
           $button_text.text($selected_item.text()); // update the text on the button
           if (typeof on_menu_item_click_callback === "function") {
@@ -614,8 +643,7 @@
 
       // Add events for menu items
       for (var i = 0; i < menu_items.length; i++) {
-        var item = menu_items[i];
-        var $item = $("<a href=\"javascript:void(0)\">" + item + "</a>");
+        var $item = $("<a href=\"javascript:void(0)\">" + menu_items[i] + "</a>");
         // We need to let the focusout button event know which item is selected
         // Note that we cannot use the click event to find this,
         // because as soon as the item is clicked,
@@ -874,15 +902,15 @@
         var want_to_replace = $this.find(".story-editor-save-to-google-replace").prop("checked");
         var data_array = tsvToSheetsDataArray(tsv);
         var promise;
-        if (want_to_replace && typeof spreadsheet_id !== "undefined") {
-          // TODO: if we have to create a new file because of no spreadsheet_id, inform the user
-          promise = updateSpreadsheet(spreadsheet_id, data_array, file_name);
+        if (want_to_replace && typeof sheet_id !== "undefined") {
+          // TODO: if we have to create a new file because of no sheet_id, inform the user
+          promise = updateSpreadsheet(sheet_id, data_array, file_name);
         } else {
           promise = createNewSpreadsheetWithContent(file_name, data_array);
         }
         promise.then(function (response) {
           if (typeof callback["success"] === "function") callback["success"](response);
-          spreadsheet_id = response["spreadsheetId"];
+          sheet_id = response["spreadsheetId"];
           console.log(response);
         }).catch(function (errorResponse) {
           // TODO: unable to catch the error of "popup_closed_by_user"
@@ -892,6 +920,11 @@
       } else {
         handleAuthClick();
       }
+    }
+
+    // Get google spreadsheet url by id
+    function getSheetUrlById(sheet_id) {
+      return "https://docs.google.com/spreadsheets/d/" + sheet_id;
     }
 
     // For testing the function of creating a story
@@ -1086,7 +1119,7 @@
     };
     this.removeAllTabs = removeAllTabs;
 
-    var removeTab = function($tab) {
+    var removeTab = function ($tab) {
       $tab.remove();
       $ui.accordion("refresh");
     };
@@ -1166,7 +1199,7 @@
     };
     this.getTabs = getTabs;
 
-    var getTabByIndex = function(index) {
+    var getTabByIndex = function (index) {
       return $(getTabs()[index]);
     };
     this.getTabByIndex = getTabByIndex;
