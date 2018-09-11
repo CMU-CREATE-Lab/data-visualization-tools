@@ -31,7 +31,7 @@
     var on_hide_callback = settings["on_hide_callback"];
     var $this;
     var $intro;
-    var $save;
+    var $save, $save_to_google_button;
     var $current_thumbnail_preview;
     var set_view_tool;
     var enable_testing = true;
@@ -44,7 +44,7 @@
     var $waypoint, waypoint_accordion;
 
     // For editing stories
-    var $load;
+    var $load, $load_from_google_drive_radio;
     var $edit_theme, edit_theme_accordion;
     var $edit_story, edit_story_accordion, $edit_story_select_theme;
     var $edit_waypoint, edit_waypoint_accordion;
@@ -168,74 +168,90 @@
     // For loading a Google spreadsheet
     function createLoadUI() {
       $load = $this.find(".story-editor-load");
-      $load.find(".next-button").prop("disabled", true);
-      $load.find(".sheet-url-textbox").on("change", function () {
-        if ($(this).val().search(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/) >= 0) {
-          $load.find(".next-button").prop("disabled", false);
-        } else {
-          $load.find(".next-button").prop("disabled", true);
-        }
-      });
-      $load.find(".google-authenticate-button").on("click", function () {
-        handleAuthClick();
-      });
-      // TODO: Should we save state and have a refresh button if they click back in the same session?
-      // It will save us Drive API quota calls if we do this.
-      $load.find("#load-from-drive-list").on("click", function () {
-        $load.find(".load-story-from-direct-link-content").hide();
-        $load.find(".load-story-from-drive-list-content").show();
-        $load.find(".sheet-url-textbox").val("").trigger('change');
-        $load.find(".available-stories-on-drive").on("click", "input", function () {
-          $load.find(".sheet-url-textbox").val($(this).data("google-sheets-url")).trigger("change");
-        });
-        if (isAuthenticatedWithGoogle()) {
-          $load.find(".google-authenticate-load-prompt").hide();
-          $load.find(".loading-stories-list").show();
-          listSpreadsheets().then(function (files) {
-            $load.find(".loading-stories-list").hide();
-            $load.find(".available-stories-on-drive-container").show();
-            // TODO: make this a dropdown menu, instead of radio buttons
-            if (files && files.length > 0) {
-              var html = "";
-              for (var i = 0; i < files.length; i++) {
-                var file = files[i];
-                var storyDomId = "story_" + i;
-                html += "<div class='custom-radio custom-radio-right'>";
-                html += "<input type='radio' name='story-list-choices' id='" + storyDomId + "' data-google-sheets-url='https://docs.google.com/spreadsheets/d/" + file.id + "'>";
-                html += "<label for='" + storyDomId + "' class='noselect'>" + file.name + "</label>";
-                html += "</div>";
-              }
-              $load.find(".available-stories-on-drive").empty().show().html(html);
-            } else {
-              $load.find(".available-stories-on-drive").show().html("<p>You haven't created any stories yet with the Story Editor.</p>");
-            }
-          });
-        } else {
-          $load.find(".google-authenticate-load-prompt").show();
-        }
-      });
-      $load.find("#load-from-direct-link").on("click", function () {
-        $load.find(".load-story-from-drive-list-content, .available-stories-on-drive").hide();
-        $load.find(".load-story-from-direct-link-content").show();
-        if (enable_testing) {
-          $load.find(".sheet-url-textbox").val("https://docs.google.com/spreadsheets/d/1dn6nDMFevqPBdibzGvo9qC7CxwxdfZkDyd_ys6r-ODE/edit#gid=145707723").trigger("change");
-        } else {
-          $load.find(".sheet-url-textbox").val("").trigger("change");
-        }
-      });
+      var $next_button = $load.find(".next-button");
+      var $sheet_url_textbox = $load.find(".sheet-url-textbox");
+      $load_from_google_drive_radio = $load.find("#load-from-google-drive-radio");
+      var $load_story_from_link_container = $load.find(".load-story-from-link-container");
+      var $load_story_from_google_container = $load.find(".load-story-from-google-container");
+      var $available_stories_on_drive_container = $load.find(".available-stories-on-drive-container");
+      var $google_authenticate_load_prompt = $load.find(".google-authenticate-load-prompt");
+      var $loading_story_from_drive_text = $load.find(".loading-story-from-drive-text");
+      var $no_story_from_drive_text = $load.find(".no-story-from-drive-text");
+
       $load.find(".back-button").on("click", function () {
         transition($load, $intro);
       });
-      $load.find(".next-button").on("click", function () {
-        $load.find(".next-button").prop("disabled", true);
+
+      $next_button.prop("disabled", true);
+      $next_button.on("click", function () {
+        $next_button.prop("disabled", true);
         // This util function name is misleading, it converts spreadsheet into csv, not json
         // TODO: tell people the error messages when the sheet does not work (e.g. wrong permission, wrong file, wrong format)
-        util.gdocToJSON($load.find(".sheet-url-textbox").val(), function (tsv) {
+        util.gdocToJSON($sheet_url_textbox.val(), function (tsv) {
           setAccordionUI(edit_theme_accordion, tsvToData(tsv));
           transition($load, $edit_theme);
-          $load.find(".next-button").prop("disabled", false);
+          $next_button.prop("disabled", false);
           if (enable_testing) testEditStory(); // for testing editing stories
         });
+      });
+
+      $sheet_url_textbox.on("change", function () {
+        if ($sheet_url_textbox.val().search(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/) >= 0) {
+          $next_button.prop("disabled", false);
+        } else {
+          $next_button.prop("disabled", true);
+        }
+      });
+
+      $load.find(".google-authenticate-button").on("click", function () {
+        handleAuthClick();
+      });
+
+      // TODO: Should we save state and have a refresh button if they click back in the same session?
+      // It will save us Drive API quota calls if we do this.
+      $load_from_google_drive_radio.on("click", function () {
+        $load_story_from_link_container.hide();
+        $load_story_from_google_container.show();
+        $sheet_url_textbox.val("").trigger("change");
+        if (isAuthenticatedWithGoogle()) {
+          $google_authenticate_load_prompt.hide();
+          $loading_story_from_drive_text.show();
+          listSpreadsheets().then(function (files) {
+            $loading_story_from_drive_text.hide();
+            if (files && files.length > 0) {
+              $no_story_from_drive_text.hide();
+              var menu_items = files.map(function (x) {
+                return x["name"];
+              });
+              setCustomDropdown({
+                selector: "#" + container_id + " .available-stories-on-drive",
+                menu_items: menu_items,
+                on_menu_item_create_callback: function ($ui, i) {
+                  $ui.data("url", "https://docs.google.com/spreadsheets/d/" + files[i]["id"]);
+                },
+                on_menu_item_click_callback: function ($ui) {
+                  $sheet_url_textbox.val($ui.data("url")).trigger("change");
+                }
+              });
+              $available_stories_on_drive_container.show();
+            } else {
+              $no_story_from_drive_text.show();
+            }
+          });
+        } else {
+          $google_authenticate_load_prompt.show();
+        }
+      });
+
+      $load.find("#load-from-direct-link-radio").on("click", function () {
+        $load_story_from_google_container.hide();
+        $available_stories_on_drive_container.hide();
+        $load_story_from_link_container.show();
+        if (enable_testing) {
+          $sheet_url_textbox.val("https://docs.google.com/spreadsheets/d/1dn6nDMFevqPBdibzGvo9qC7CxwxdfZkDyd_ys6r-ODE/edit#gid=145707723").trigger("change");
+        } else {
+          $sheet_url_textbox.val("").trigger("change");
+        }
       });
     }
 
@@ -280,7 +296,8 @@
           menu_items: getValues(edit_theme_accordion.getTabs().find(".story-editor-title-textbox")),
           current_index: edit_theme_accordion.getActiveIndex(),
           on_menu_item_click_callback: function ($ui) {
-            console.log($ui.text());
+            var desired_theme = $ui.text();
+            console.log(desired_theme);
             // TODO: move the story to the desired theme
           }
         });
@@ -335,7 +352,7 @@
       $save = $this.find(".story-editor-save");
       var $next_confirm_dialog;
       var $save_to_google = $save.find(".story-editor-save-to-google");
-      var $save_to_google_button = $save.find(".story-editor-save-to-google-button");
+      $save_to_google_button = $save.find(".story-editor-save-to-google-button");
       var $save_to_google_message = $save.find(".story-editor-save-to-google-message");
       var $save_to_local = $save.find(".story-editor-save-to-local");
       var $save_to_local_button = $save.find(".story-editor-save-to-local-button");
@@ -403,10 +420,10 @@
     function initGoogleDriveAPI() {
       addGoogleSignedInStateChangeListener(function (isSignedIn) {
         if (isSignedIn) {
-          if ($("#load-from-drive-list").is(":visible")) {
-            $("#load-from-drive-list").trigger("click");
-          } else if ($(".story-editor-save-to-google-button").is(":visible")) {
-            $(".story-editor-save-to-google-button").trigger("click");
+          if ($load_from_google_drive_radio.is(":visible")) {
+            $load_from_google_drive_radio.trigger("click");
+          } else if ($save_to_google_button.is(":visible")) {
+            $save_to_google_button.trigger("click");
           }
         } else {
           console.log('not logged in...');
@@ -571,17 +588,21 @@
     function setCustomDropdown(settings) {
       var $ui = $(settings["selector"]);
       var menu_items = settings["menu_items"];
-      var current_index = safeGet(settings["current_index"], 0);
+      var current_index = settings["current_index"];
       var on_menu_item_click_callback = settings["on_menu_item_click_callback"];
+      var on_menu_item_create_callback = settings["on_menu_item_create_callback"];
       var $menu = $ui.find("div").empty();
-      var $button_text = $ui.find("a > span").text("").text(menu_items[current_index]);
+      var $button_text = $ui.find("a > span").text("");
+      if (typeof current_index !== "undefined") {
+        $button_text.text(menu_items[current_index]);
+      }
       var $selected_item;
 
       // Set button event
       // Note that the button is designed to use focusout and focus to determine its state
       // "focusout" indicates that the menu is currently opened and should be closed
       // "focus" indicates that the menu is currently closed and should be opened
-      $ui.find("a").off("focusout").on("focusout", function() {
+      $ui.find("a").off("focusout").on("focusout", function () {
         // Find which item is hovered
         if (typeof $selected_item !== "undefined") {
           $button_text.text($selected_item.text()); // update the text on the button
@@ -594,7 +615,7 @@
         if ($menu.is(":visible")) {
           $menu.addClass("force-hide");
         }
-      }).off("focus").on("focus", function() {
+      }).off("focus").on("focus", function () {
         // Open the menu
         if (!$menu.is(":visible")) {
           $menu.removeClass("force-hide");
@@ -602,8 +623,9 @@
       });
 
       // Add events for menu items
-      menu_items.forEach(function (x) {
-        var $item = $("<a href=\"javascript:void(0)\">" + x + "</a>");
+      for (var i=0; i<menu_items.length; i++) {
+        var item = menu_items[i];
+        var $item = $("<a href=\"javascript:void(0)\">" + item + "</a>");
         // We need to let the focusout button event know which item is selected
         // Note that we cannot use the click event to find this,
         // because as soon as the item is clicked,
@@ -611,12 +633,14 @@
         // this closes the menu and we never get the click event from the items
         $item.on("mouseover", function () {
           $selected_item = $(this);
-        }).on("mouseout", function() {
+        }).on("mouseout", function () {
           $selected_item = undefined;
         });
         $menu.append($item);
-      });
-
+        if (typeof on_menu_item_create_callback === "function") {
+          on_menu_item_create_callback($item, i);
+        }
+      }
       return $ui;
     }
 

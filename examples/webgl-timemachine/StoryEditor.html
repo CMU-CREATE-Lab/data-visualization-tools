@@ -112,12 +112,12 @@
         <p>Choose whether to save the story to Google Drive or your local machine.</p>
         <div class="left-align-content add-bottom-margin">
           <div class="custom-radio custom-radio-left">
-            <input type="radio" name="story-editor-save-options" value="google" id="story-editor-save-to-google-input">
-            <label for="story-editor-save-to-google-input" class="noselect">Google Drive</label>
+            <input type="radio" name="story-editor-save-options" value="google" id="story-editor-save-to-google-radio">
+            <label for="story-editor-save-to-google-radio" class="noselect">Google Drive</label>
           </div>
           <div class="custom-radio custom-radio-right">
-            <input type="radio" name="story-editor-save-options" value="local" id="story-editor-save-to-local-input">
-            <label for="story-editor-save-to-local-input" class="noselect">Local Machine</label>
+            <input type="radio" name="story-editor-save-options" value="local" id="story-editor-save-to-local-radio">
+            <label for="story-editor-save-to-local-radio" class="noselect">Local Machine</label>
           </div>
         </div>
         <div class="hide story-editor-save-file-name">
@@ -153,27 +153,31 @@
         <p>Choose whether to load the story from Google Drive or a direct link.</p>
         <div class="left-align-content add-bottom-margin">
           <div class="custom-radio custom-radio-left">
-            <input type="radio" name="load-type-input" value="image" id="load-from-drive-list">
-            <label for="load-from-drive-list" class="noselect">Google Drive</label>
+            <input type="radio" name="load-type-input" value="image" id="load-from-google-drive-radio">
+            <label for="load-from-google-drive-radio" class="noselect">Google Drive</label>
           </div>
           <div class="custom-radio custom-radio-right">
-            <input type="radio" name="load-type-input" value="video" id="load-from-direct-link">
-            <label for="load-from-direct-link" class="noselect">Direct Link</label>
+            <input type="radio" name="load-type-input" value="video" id="load-from-direct-link-radio">
+            <label for="load-from-direct-link-radio" class="noselect">Direct Link</label>
           </div>
         </div>
-        <div class="hide load-story-from-drive-list-content">
+        <div class="hide load-story-from-google-container">
           <div class="hide google-authenticate-load-prompt">
             <p class="authenticate-message">You need to first authenticate with Google to see your available stories.</p>
             <button class="custom-button custom-button-primary full-width-button google-authenticate-button">Authenticate Now</button>
           </div>
-          <div class="hide loading-stories-list">Loading...</div>
+          <p class="hide loading-story-from-drive-text">Loading stories from Google Drive...</p>
+          <p class="hide no-story-from-drive-text">You haven't created any stories yet with the Story Editor.</p>
           <div class="hide available-stories-on-drive-container add-top-margin">
             <p class="add-bottom-margin-medium">Choose from the list of available stories you already created.</p>
-            <div class="available-stories-on-drive"></div>
+            <div class="custom-dropdown add-bottom-margin-small available-stories-on-drive">
+              <a tabindex="0" href="javascript:void(0)"><span></span></a>
+              <div></div>
+            </div>
           </div>
         </div>
-        <div class="hide load-story-from-direct-link-content">
-          <p>Provide the <span class="highlight-text">public link</span> below to <span class="highlight-text">load</span> stories that were created.</p>
+        <div class="hide load-story-from-link-container">
+          <p>Provide the direct link below to load stories that were created. The link needs to be <span class="highlight-text">publicly viewable</span>.</p>
           <input type="text" class="custom-textbox add-bottom-margin sheet-url-textbox" placeholder="https//:">
         </div>
       </div>
