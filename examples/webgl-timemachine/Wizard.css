@@ -283,10 +283,12 @@ This is the main template of the wizard (step by step guides)
   outline: none;
   font-size: 14px !important;
   line-height: 16px;
+  height: 26px;
   white-space: nowrap;
   border-left: 0;
   border-top: 0;
   border-right: 0;
+  box-sizing: border-box;
 }
 
 .custom-dropdown > div > a:hover {

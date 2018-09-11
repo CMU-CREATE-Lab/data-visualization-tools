@@ -10,7 +10,6 @@
 // - time machine [https://github.com/CMU-CREATE-Lab/timemachine-viewer]
 // - the wizard template [wizard.css]
 // TODO: re-think about the design of the "add" and "delete" button
-// TODO: bug, when loading a sheet with two themes to the viewer, the author of the first story does not show on the screen
 
 (function () {
   "use strict";
@@ -223,8 +222,7 @@
               var menu_items = files.map(function (x) {
                 return x["name"];
               });
-              setCustomDropdown({
-                selector: "#" + container_id + " .available-stories-on-drive",
+              setCustomDropdown($load.find(".available-stories-on-drive"), {
                 menu_items: menu_items,
                 on_menu_item_create_callback: function ($ui, i) {
                   $ui.data("url", "https://docs.google.com/spreadsheets/d/" + files[i]["id"]);
@@ -268,7 +266,6 @@
         if (edit_theme_accordion.getActiveTab().length > 0) {
           forward(edit_theme_accordion, edit_story_accordion);
           transition($edit_theme, $edit_story);
-          setThemeDropdown(); // this is a special case besides forward
         } else {
           $next_confirm_dialog.dialog("open");
         }
@@ -285,22 +282,6 @@
       });
       $next_confirm_dialog = createConfirmDialog({
         selector: "#" + container_id + " .story-editor-edit-theme .next-confirm-dialog"
-      });
-    }
-
-    // Set the theme dropdown for all story tabs
-    function setThemeDropdown() {
-      edit_story_accordion.getTabs().each(function () {
-        setCustomDropdown({
-          selector: "#" + container_id + " .story-editor-theme-dropdown",
-          menu_items: getValues(edit_theme_accordion.getTabs().find(".story-editor-title-textbox")),
-          current_index: edit_theme_accordion.getActiveIndex(),
-          on_menu_item_click_callback: function ($ui) {
-            var desired_theme = $ui.text();
-            console.log(desired_theme);
-            // TODO: move the story to the desired theme
-          }
-        });
       });
     }
 
@@ -404,7 +385,7 @@
           if (mode == "create") {
             resetTabUI($theme);
             resetTabUI($story);
-            waypoint_accordion.reset();
+            waypoint_accordion.removeAllTabs();
           }
           mode = undefined;
           $save_to_local_button.prop("disabled", false);
@@ -471,11 +452,14 @@
     // Set the user interface of an accordion (theme, story, waypoint)
     function setAccordionUI(accordion, data) {
       if (typeof accordion === "undefined") return;
-      accordion.reset();
+      accordion.removeAllTabs();
       data = safeGet(data, []);
-      for (var i = 0; i < data.length; i++) {
-        var $t = (i == 0) ? accordion.getActiveTab() : accordion.addEmptyTab();
-        setTabUI($t, data[i]);
+      if (data.length == 0) {
+        accordion.addEmptyTab();
+      } else {
+        for (var i = 0; i < data.length; i++) {
+          setTabUI(accordion.addEmptyTab(), data[i]);
+        }
       }
     }
 
@@ -487,6 +471,13 @@
         setAccordionUI(to_accordion, $active_tab.data("data"));
         $active_tab.removeData("data"); // remove stored data
       }
+    }
+
+    // Append a new data instance to the tab data
+    function appendTabData($ui, d) {
+      var data = $ui.data("data");
+      data.push(d);
+      $ui.data("data", data);
     }
 
     // Collect data from the user interface of a tab (one row in the tsv file)
@@ -585,8 +576,7 @@
     }
 
     // Set the custom dropdown
-    function setCustomDropdown(settings) {
-      var $ui = $(settings["selector"]);
+    function setCustomDropdown($ui, settings) {
       var menu_items = settings["menu_items"];
       var current_index = settings["current_index"];
       var on_menu_item_click_callback = settings["on_menu_item_click_callback"];
@@ -607,7 +597,7 @@
         if (typeof $selected_item !== "undefined") {
           $button_text.text($selected_item.text()); // update the text on the button
           if (typeof on_menu_item_click_callback === "function") {
-            on_menu_item_click_callback($selected_item);
+            on_menu_item_click_callback($selected_item, $selected_item.index());
           }
           $selected_item = undefined;
         }
@@ -623,7 +613,7 @@
       });
 
       // Add events for menu items
-      for (var i=0; i<menu_items.length; i++) {
+      for (var i = 0; i < menu_items.length; i++) {
         var item = menu_items[i];
         var $item = $("<a href=\"javascript:void(0)\">" + item + "</a>");
         // We need to let the focusout button event know which item is selected
@@ -691,13 +681,14 @@
     function createAccordion(selector) {
       var $delete_confirm_dialog;
       var accordion = new CustomAccordion(selector["accordion"], {
-        on_reset_callback: function () {
-          accordion.getTabs().find(".story-editor-delete-button").prop("disabled", true);
-        },
-        on_tab_add_callback: function ($old_tab) {
-          if (typeof $old_tab === "undefined") return;
+        on_tab_add_callback: function ($old_tab, $new_tab) {
+          var tab_length = accordion.getTabs().length;
           // Enable the delete button of the old tab if it was the only one tab in the accordion
-          if (accordion.getTabs().length == 2) $old_tab.find(".story-editor-delete-button").prop("disabled", false);
+          if (tab_length == 2) $old_tab.find(".story-editor-delete-button").prop("disabled", false);
+          // Disable the delete button of the new tab if there is only one tab
+          if (tab_length == 1) $new_tab.find(".story-editor-delete-button").prop("disabled", true);
+          // Set the theme dropdown menu
+          setThemeDropdown($new_tab);
         },
         on_tab_delete_callback: function () {
           // Disable the delete button of the active tab if there is only one tab left
@@ -727,10 +718,28 @@
       $delete_confirm_dialog = createConfirmDialog({
         selector: selector["delete_confirm_dialog"],
         action_callback: function () {
-          accordion.deleteActiveTab();
+          accordion.removeActiveTab();
         }
       });
       return accordion;
+    }
+
+    // Set the theme dropdown for a story tab
+    function setThemeDropdown($tab) {
+      var $dropdown = $tab.find(".story-editor-theme-dropdown");
+      if (typeof $tab === "undefined" || $dropdown.length == 0) return;
+      setCustomDropdown($dropdown, {
+        menu_items: getValues(edit_theme_accordion.getTabs().find(".story-editor-title-textbox")), // all themes
+        current_index: edit_theme_accordion.getActiveIndex(), // current theme index
+        on_menu_item_click_callback: function ($ui, index) {
+          // Move the story from the original theme to the desired theme
+          if (edit_theme_accordion.getActiveIndex() === index) return; // return if same theme
+          var d = collectTabData($tab); // collect tab data
+          edit_story_accordion.removeTab($tab); // remove tab from the accordion
+          backward(edit_story_accordion, edit_theme_accordion); // backward update data
+          appendTabData(edit_theme_accordion.getTabByIndex(index), d); // add data back to the desired theme tab
+        }
+      });
     }
 
     // Format the story data from the UI into a tsv spreadsheet
@@ -866,7 +875,8 @@
         var data_array = tsvToSheetsDataArray(tsv);
         var promise;
         if (want_to_replace && typeof spreadsheet_id !== "undefined") {
-          promise = updateSpreadsheet(spreadsheet_id, data_array);
+          // TODO: if we have to create a new file because of no spreadsheet_id, inform the user
+          promise = updateSpreadsheet(spreadsheet_id, data_array, file_name);
         } else {
           promise = createNewSpreadsheetWithContent(file_name, data_array);
         }
@@ -1070,19 +1080,17 @@
     //
     // Privileged methods
     //
-    var reset = function () {
-      // Reset the user interface
+    var removeAllTabs = function () {
       getTabs().remove();
-      $ui.append($tab_template.clone(true, true));
       $ui.accordion("refresh");
-      $ui.accordion("option", "active", 0); // expand the new tab
-
-      // Call back
-      if (typeof on_reset_callback === "function") {
-        on_reset_callback();
-      }
     };
-    this.reset = reset;
+    this.removeAllTabs = removeAllTabs;
+
+    var removeTab = function($tab) {
+      $tab.remove();
+      $ui.accordion("refresh");
+    };
+    this.removeTab = removeTab;
 
     var addEmptyTab = function () {
       var $new_tab = $tab_template.clone(true, true);
@@ -1093,7 +1101,7 @@
       var active_index = -1;
       if ($tabs.length == 0) {
         // No tabs, append one tab
-        $ui.append($tab_template.clone(true, true));
+        $ui.append($new_tab);
       } else {
         // Has tab, check if has active tab
         active_index = getActiveIndex();
@@ -1107,13 +1115,13 @@
 
       // Call back
       if (typeof on_tab_add_callback === "function") {
-        on_tab_add_callback($old_tab);
+        on_tab_add_callback($old_tab, $new_tab);
       }
       return $new_tab;
     };
     this.addEmptyTab = addEmptyTab;
 
-    var deleteActiveTab = function () {
+    var removeActiveTab = function () {
       // Delete active tab
       getActiveTab().remove();
 
@@ -1126,10 +1134,10 @@
         on_tab_delete_callback();
       }
     };
-    this.deleteActiveTab = deleteActiveTab;
+    this.removeActiveTab = removeActiveTab;
 
     var getActiveTab = function () {
-      return $(getTabs()[getActiveIndex()]);
+      return getTabByIndex(getActiveIndex());
     };
     this.getActiveTab = getActiveTab;
 
@@ -1157,6 +1165,11 @@
       return $ui.find(".custom-accordion-tab");
     };
     this.getTabs = getTabs;
+
+    var getTabByIndex = function(index) {
+      return $(getTabs()[index]);
+    };
+    this.getTabByIndex = getTabByIndex;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
