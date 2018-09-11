@@ -257,7 +257,16 @@ This is the main template of the wizard (step by step guides)
   min-width: 100%;
 }
 
-.custom-dropdown:hover > div {
+.custom-dropdown > button:focus {
+  pointer-events: none;
+}
+
+.custom-dropdown > button:focus + div {
+  display: block;
+  pointer-events: auto;
+}
+
+.custom-dropdown > div:hover {
   display: block;
 }
 

@@ -400,7 +400,6 @@
     }
 
     // For initializing the Google Drive API
-    // TODO: race condition bug on Firefox and Safari
     function initGoogleDriveAPI() {
       addGoogleSignedInStateChangeListener(function (isSignedIn) {
         if (isSignedIn) {
@@ -569,23 +568,13 @@
     }
 
     // Set the custom dropdown
-    // TODO: make this a class
     function setCustomDropdown(settings) {
       resetCustomDropdown(settings);
       var $ui = $(settings["selector"]);
       var menu_items = settings["menu_items"];
       var current_index = safeGet(settings["current_index"], 0);
       var on_menu_item_click_callback = settings["on_menu_item_click_callback"];
-      var $menu = $ui.find("div").hide();
-
-      // Add event for the button
-      $ui.find("button").on("click", function () {
-        if ($menu.is(":visible")) {
-          $menu.hide();
-        } else {
-          $menu.show();
-        }
-      });
+      var $menu = $ui.find("div");
 
       // Set text on the button
       var $button_text = $ui.find("button > span");
@@ -595,9 +584,10 @@
       menu_items.forEach(function (x) {
         var $item = $("<a href=\"javascript:void(0)\">" + x + "</a>");
         $item.on("click", function () {
+          console.log("click");
           var item_text = $(this).text();
           $button_text.text(item_text); // update the text on the button
-          $menu.hide(); // hide the menu when clicked
+          //$menu.hide();
           if (typeof on_menu_item_click_callback === "function") {
             on_menu_item_click_callback(item_text);
           }
