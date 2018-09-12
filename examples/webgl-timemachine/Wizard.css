@@ -647,3 +647,27 @@ textarea.custom-textbox {
 .custom-checkbox input[type="checkbox"] {
   cursor: pointer;
 }
+
+.custom-text-info, .custom-text-info p, .custom-text-info a {
+  color: #17a2b8;
+}
+
+.custom-text-info a:hover {
+  color: #007082;
+}
+
+.custom-text-primary, .custom-text-primary p, .custom-text-primary a {
+  color: #007bff;
+}
+
+.custom-text-primary a:hover {
+  color: #005cbf;
+}
+
+.custom-text-danger, .custom-text-danger p, .custom-text-danger a {
+  color: #dc3545;
+}
+
+.custom-text-danger a:hover {
+  color: #a71120;
+}

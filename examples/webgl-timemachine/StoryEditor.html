@@ -128,12 +128,12 @@
           <p><span class="highlight-text">2.</span>&nbsp;&nbsp; Save the story as a publicly viewable Google Sheet. Authentication of Google Drive is required.</p>
           <button class="custom-button full-width-button custom-button-primary add-bottom-margin-small story-editor-save-to-google-button">Save the Story to Google Drive</button>
           <label class="custom-checkbox"><input type="checkbox" name="" value="" class="add-bottom-margin story-editor-save-to-google-replace" checked/>Replace the original file</label>
-          <div class="story-editor-save-to-google-message"></div>
+          <div class="custom-text-primary story-editor-save-to-google-message"></div>
         </div>
         <div class="hide story-editor-save-to-local">
           <p><span class="highlight-text">2.</span>&nbsp;&nbsp; Save the story as a tsv file in your local machine. You can manually import the downloaded file into a Google Sheet later.</p>
           <button class="custom-button full-width-button custom-button-primary add-bottom-margin story-editor-save-to-local-button">Save the Story to Local Machine</button>
-          <div class="story-editor-save-to-local-message"></div>
+          <div class="custom-text-primary story-editor-save-to-local-message"></div>
         </div>
       </div>
       <div class="custom-dialog hide next-confirm-dialog" title="Finish creating the story?">
@@ -161,24 +161,23 @@
             <label for="load-from-direct-link-radio" class="noselect">Direct Link</label>
           </div>
         </div>
-        <div class="hide load-story-from-google-container">
+        <div class="hide add-bottom-margin load-from-google-drive">
           <div class="hide google-authenticate-load-prompt">
-            <p class="authenticate-message">You need to first authenticate with Google to see your available stories.</p>
+            <p>You need to first authenticate with Google to see your stories.</p>
             <button class="custom-button custom-button-primary full-width-button google-authenticate-button">Authenticate Now</button>
           </div>
-          <p class="hide loading-story-from-drive-text">Loading stories from Google Drive...</p>
-          <p class="hide no-story-from-drive-text">You haven't created any stories yet with the Story Editor.</p>
-          <div class="hide available-stories-on-drive-container add-top-margin">
-            <p class="add-bottom-margin-medium">Choose from the list of available stories you already created.</p>
-            <div class="custom-dropdown add-bottom-margin-small available-stories-on-drive">
+          <div class="custom-text-primary load-from-google-drive-message"></div>
+          <div class="hide stories-on-drive-container add-top-margin">
+            <p>Choose a story in the Google Drive from the dropdown menu below.</p>
+            <div class="custom-dropdown stories-on-drive-dropdown">
               <a tabindex="0" href="javascript:void(0)"><span></span></a>
               <div></div>
             </div>
           </div>
         </div>
-        <div class="hide load-story-from-link-container">
-          <p>Provide the direct link below to load stories that were created. The link needs to be <span class="highlight-text">publicly viewable</span>.</p>
-          <input type="text" class="custom-textbox add-bottom-margin sheet-url-textbox" placeholder="https//:">
+        <div class="hide add-bottom-margin load-from-direct-link">
+          <p>Provide the <span class="highlight-text">publicly viewable</span> link below to load stories that were created.</p>
+          <input type="text" class="custom-textbox sheet-url-textbox" placeholder="https//:">
         </div>
       </div>
       <div class="custom-dialog hide next-confirm-dialog" title="No spreadsheet!">

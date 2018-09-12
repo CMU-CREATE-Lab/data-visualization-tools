@@ -33,10 +33,11 @@
     var $save, $save_to_google_button;
     var $current_thumbnail_preview;
     var set_view_tool;
-    var enable_testing = true;
+    var enable_testing = false;
     var mode;
     var sheet_id;
     var sheet_url;
+    var want_to_refresh_story_from_drive = true;
 
     // For creating new stories
     var $theme;
@@ -46,7 +47,7 @@
     // For editing stories
     var $load, $load_from_google_drive_radio;
     var $edit_theme, edit_theme_accordion;
-    var $edit_story, edit_story_accordion, $edit_story_select_theme;
+    var $edit_story, edit_story_accordion;
     var $edit_waypoint, edit_waypoint_accordion;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -114,15 +115,11 @@
       $intro = $this.find(".story-editor-intro");
       $intro.find(".story-editor-create-button").on("click", function () {
         mode = "create";
-        sheet_url = undefined;
-        sheet_id = undefined;
         transition($intro, $theme);
         if (enable_testing) testCreateStory(); // for testing the function of creating a story
       });
       $intro.find(".story-editor-edit-button").on("click", function () {
         mode = "edit";
-        sheet_url = undefined;
-        sheet_id = undefined;
         transition($intro, $load);
       });
     }
@@ -172,47 +169,41 @@
     // For loading a Google spreadsheet
     function createLoadUI() {
       $load = $this.find(".story-editor-load");
-      var $next_button = $load.find(".next-button");
-      var $sheet_url_textbox = $load.find(".sheet-url-textbox");
-      $load_from_google_drive_radio = $load.find("#load-from-google-drive-radio");
-      var $load_story_from_link_container = $load.find(".load-story-from-link-container");
-      var $load_story_from_google_container = $load.find(".load-story-from-google-container");
-      var $available_stories_on_drive_container = $load.find(".available-stories-on-drive-container");
+      var $load_from_direct_link = $load.find(".load-from-direct-link");
+      var $load_from_google_drive = $load.find(".load-from-google-drive");
       var $google_authenticate_load_prompt = $load.find(".google-authenticate-load-prompt");
-      var $loading_story_from_drive_text = $load.find(".loading-story-from-drive-text");
-      var $no_story_from_drive_text = $load.find(".no-story-from-drive-text");
-      var $available_stories_on_drive = $load.find(".available-stories-on-drive");
-      var $next_confirm_dialog;
-
-      $next_confirm_dialog = createConfirmDialog({
+      var $stories_on_drive_container = $load.find(".stories-on-drive-container");
+      var $stories_on_drive_dropdown = $load.find(".stories-on-drive-dropdown");
+      var $load_from_google_drive_message = $load.find(".load-from-google-drive-message");
+      var $load_from_direct_link_radio = $load.find("#load-from-direct-link-radio");
+      $load_from_google_drive_radio = $load.find("#load-from-google-drive-radio");
+      var $next_confirm_dialog = createConfirmDialog({
         selector: "#" + container_id + " .story-editor-load .next-confirm-dialog"
       });
-
       $load.find(".back-button").on("click", function () {
         transition($load, $intro);
       });
-
-      $next_button.on("click", function () {
+      $load.find(".next-button").on("click", function () {
+        var $ui = $(this);
         if (typeof sheet_url === "undefined") {
           $next_confirm_dialog.dialog("open");
         } else {
-          $next_button.prop("disabled", true);
+          $ui.prop("disabled", true);
           // This util function name is misleading, it converts spreadsheet into csv, not json
           // TODO: tell people the error messages when the sheet does not work (e.g. wrong permission, wrong file, wrong format)
           util.gdocToJSON(sheet_url, function (tsv) {
             setAccordionUI(edit_theme_accordion, tsvToData(tsv));
             transition($load, $edit_theme);
-            $next_button.prop("disabled", false);
+            $ui.prop("disabled", false);
             if (enable_testing) testEditStory(); // for testing editing stories
-          }, function(xhr, status, error) {
-            $next_button.prop("disabled", false);
-            console.log("Error with message: "  + error);
+          }, function (xhr, status, error) {
+            $ui.prop("disabled", false);
+            console.log("Error with message: " + error);
           });
         }
       });
-
-      $sheet_url_textbox.on("change", function () {
-        var unsafe_sheet_url = $sheet_url_textbox.val();
+      $load.find(".sheet-url-textbox").on("change", function () {
+        var unsafe_sheet_url = $(this).val();
         var res = unsafe_sheet_url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
         if (res != null) {
           sheet_url = unsafe_sheet_url;
@@ -220,33 +211,31 @@
           sheet_url = undefined;
         }
       });
-
       $load.find(".google-authenticate-button").on("click", function () {
         handleAuthClick();
       });
-
-      // TODO: Should we save state and have a refresh button if they click back in the same session?
-      // It will save us Drive API quota calls if we do this.
+      // TODO: save state and have a refresh button if they click back in the same session (can save Drive API quota)
       $load_from_google_drive_radio.on("click", function () {
+        $load_from_direct_link.hide();
+        $load_from_google_drive.show();
+        if (!want_to_refresh_story_from_drive) return;
         sheet_id = undefined;
         sheet_url = undefined;
-        $load_story_from_link_container.hide();
-        $available_stories_on_drive_container.hide();
-        $load_story_from_google_container.show();
+        $stories_on_drive_container.hide();
         if (isAuthenticatedWithGoogle()) {
           $google_authenticate_load_prompt.hide();
-          $loading_story_from_drive_text.show();
-          listSpreadsheets().then(function (files) {
-            $loading_story_from_drive_text.hide();
+          $load_from_google_drive_message.empty().append($("<p>Loading stories from Google Drive...</p>"));
+          var promise = listSpreadsheets();
+          promise.then(function (files) {
+            $load_from_google_drive_message.empty();
             if (files && files.length > 0) {
-              $no_story_from_drive_text.hide();
               var sheet_name_list = [];
               var sheet_id_list = [];
               files.forEach(function (x) {
                 sheet_name_list.push(x["name"]);
                 sheet_id_list.push(x["id"]);
               });
-              setCustomDropdown($available_stories_on_drive, {
+              setCustomDropdown($stories_on_drive_dropdown, {
                 menu_items: sheet_name_list,
                 on_menu_item_create_callback: function ($ui, index) {
                   $ui.data("sheet_id", sheet_id_list[index]);
@@ -256,27 +245,25 @@
                   sheet_url = getSheetUrlById(sheet_id);
                 }
               });
-              $available_stories_on_drive_container.show();
+              $stories_on_drive_container.show();
+              want_to_refresh_story_from_drive = false;
             } else {
-              $no_story_from_drive_text.show();
+              $load_from_google_drive_message.append($("<p>You have not created stories yet with the Story Editor.</p>"));
             }
+          }).catch(function (errorResponse) {
+            // TODO: unable to catch the error of "popup_closed_by_user"
+            if (typeof callback["error"] === "function") callback["error"](errorResponse);
+            console.log(errorResponse);
           });
         } else {
           $google_authenticate_load_prompt.show();
         }
       });
-
-      $load.find("#load-from-direct-link-radio").on("click", function () {
+      $load_from_direct_link_radio.on("click", function () {
         sheet_id = undefined;
         sheet_url = undefined;
-        $load_story_from_google_container.hide();
-        $available_stories_on_drive_container.hide();
-        $load_story_from_link_container.show();
-        if (enable_testing) {
-          $sheet_url_textbox.val("https://docs.google.com/spreadsheets/d/1dn6nDMFevqPBdibzGvo9qC7CxwxdfZkDyd_ys6r-ODE/edit#gid=145707723").trigger("change");
-        } else {
-          $sheet_url_textbox.val("").trigger("change");
-        }
+        $load_from_google_drive.hide();
+        $load_from_direct_link.show();
       });
     }
 
@@ -314,7 +301,9 @@
 
     // For editing a story in a selected theme
     function creatEditStoryUI() {
-      var $next_confirm_dialog;
+      var $next_confirm_dialog = createConfirmDialog({
+        selector: "#" + container_id + " .story-editor-edit-story .next-confirm-dialog"
+      });
       $edit_story = $this.find(".story-editor-edit-story");
       $edit_story.find(".back-button").on("click", function () {
         backward(edit_story_accordion, edit_theme_accordion); // backward propagate data
@@ -329,13 +318,9 @@
           $next_confirm_dialog.dialog("open");
         }
       });
-      $edit_story_select_theme = $edit_story.find(".story-editor-selected-theme");
       edit_story_accordion = createAccordion({
         accordion: "#" + container_id + " .story-editor-edit-story .custom-accordion",
         delete_confirm_dialog: "#" + container_id + " .story-editor-edit-story .delete-confirm-dialog"
-      });
-      $next_confirm_dialog = createConfirmDialog({
-        selector: "#" + container_id + " .story-editor-edit-story .next-confirm-dialog"
       });
     }
 
@@ -361,6 +346,7 @@
       var $next_confirm_dialog;
       var $save_to_google = $save.find(".story-editor-save-to-google");
       $save_to_google_button = $save.find(".story-editor-save-to-google-button");
+      var $save_to_google_replace = $save.find(".story-editor-save-to-google-replace");
       var $save_to_google_message = $save.find(".story-editor-save-to-google-message");
       var $save_to_local = $save.find(".story-editor-save-to-local");
       var $save_to_local_button = $save.find(".story-editor-save-to-local-button");
@@ -378,16 +364,22 @@
         $next_confirm_dialog.dialog("open"); // check if the user truely wants to finish
       });
       $save_to_local_button.on("click", function () {
-        downloadDataAsTsv(collectStoryData(), $save_file_name_textbox.val());
+        downloadDataAsTsv({data: collectStoryData(), file_name: $save_file_name_textbox.val()});
         $save_to_local_button.prop("disabled", true);
         $save_to_local_message.empty().append($("<p>The story is saved successfully on your local machine.</p>"));
       });
       $save_to_google_button.on("click", function () {
         $save_to_google_button.prop("disabled", true);
         $save_to_google_message.empty().append($("<p>Currently saving story...</p>"));
-        saveDataAsTsv(collectStoryData(), $save_file_name_textbox.val(), {
+        saveDataAsTsv({
+          data: collectStoryData(),
+          want_to_replace: $save_to_google_replace.prop("checked"),
+          sheet_id_to_replace: sheet_id,
+          file_name: $save_file_name_textbox.val(),
           success: function (response) {
-            $save_to_google_message.empty().append($("<p>The story is saved successfully as a <a target='_blank' href='" + getSheetUrlById(response["spreadsheetId"]) + "'>publicly viewable link</a>.</p>"));
+            sheet_id = response["spreadsheetId"];
+            want_to_refresh_story_from_drive = true;
+            $save_to_google_message.empty().append($("<p>The story is saved successfully as a <a target='_blank' href='" + getSheetUrlById(sheet_id) + "'>publicly viewable link</a>.</p>"));
           },
           error: function (response) {
             $save_to_google_message.empty().append($("<p>Error saving the story with response: " + response["error"] + "</p>"));
@@ -412,6 +404,7 @@
             resetTabUI($theme);
             resetTabUI($story);
             waypoint_accordion.removeAllTabs();
+            waypoint_accordion.addEmptyTab();
           }
           mode = undefined;
           sheet_id = undefined;
@@ -429,9 +422,9 @@
     function initGoogleDriveAPI() {
       addGoogleSignedInStateChangeListener(function (isSignedIn) {
         if (isSignedIn) {
-          if ($load_from_google_drive_radio.is(":visible")) {
+          if ($load_from_google_drive_radio.is(":checked")) {
             $load_from_google_drive_radio.trigger("click");
-          } else if ($save_to_google_button.is(":visible")) {
+          } else if ($save_to_google_button.is(":checked")) {
             $save_to_google_button.trigger("click");
           }
         } else {
@@ -882,44 +875,47 @@
     }
 
     // Download the tsv (download.js library is used)
-    function downloadDataAsTsv(data, file_name) {
-      var tsv = dataToTsv(data);
-      if (typeof file_name === "undefined" || file_name == "") {
-        file_name = "story";
-      }
+    function downloadDataAsTsv(settings) {
+      var tsv = dataToTsv(settings["data"]);
+      var file_name = safeGet(settings["file_name"], "");
+      if (file_name == "") file_name = "story";
       download(tsv, file_name + ".tsv", "text/plain");
     }
 
     // Save the tsv to a Google Sheet
-    function saveDataAsTsv(data, file_name, callback) {
-      callback = safeGet(callback, {});
-      var tsv = dataToTsv(data);
+    function saveDataAsTsv(settings) {
+      settings = safeGet(settings, {});
+      var file_name = settings["file_name"];
+      var success = settings["success"];
+      var error = settings["error"];
+      var tsv = dataToTsv(settings["data"]);
+      var sheet_id_to_replace = settings["sheet_id_to_replace"];
+      var want_to_replace = safeGet(settings["want_to_replace"], false);
       if (isAuthenticatedWithGoogle()) {
         // TODO: Deal with success/failure responses
         // TODO: How do we name these spreadsheets so that the listing is useful to the user
         // TODO: If users load a sheet that is not created by the editor, remind users that we cannot replace the file
         // Do we make use of the hidden developer fields in the spreadsheet?
-        var want_to_replace = $this.find(".story-editor-save-to-google-replace").prop("checked");
         var data_array = tsvToSheetsDataArray(tsv);
         var promise;
         if (want_to_replace && typeof sheet_id !== "undefined") {
           // TODO: if we have to create a new file because of no sheet_id, inform the user
-          promise = updateSpreadsheet(sheet_id, data_array, file_name);
+          promise = updateSpreadsheet(sheet_id_to_replace, data_array, file_name);
         } else {
           promise = createNewSpreadsheetWithContent(file_name, data_array);
         }
         promise.then(function (response) {
-          if (typeof callback["success"] === "function") callback["success"](response);
-          sheet_id = response["spreadsheetId"];
-          console.log(response);
+          if (typeof success === "function") success(response);
         }).catch(function (errorResponse) {
-          // TODO: unable to catch the error of "popup_closed_by_user"
-          if (typeof callback["error"] === "function") callback["error"](errorResponse);
-          console.log(errorResponse);
+          if (typeof error === "function") error(errorResponse);
         });
       } else {
         handleAuthClick();
       }
+    }
+
+    // Load available stories in the form of spreadsheets from a Google Drive
+    function loadStoryListFromGoogleDrive() {
     }
 
     // Get google spreadsheet url by id
