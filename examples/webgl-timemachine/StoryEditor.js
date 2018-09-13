@@ -33,7 +33,7 @@
     var $save, $save_to_google_button;
     var $current_thumbnail_preview;
     var set_view_tool;
-    var enable_testing = true;
+    var enable_testing = false;
     var mode;
     var current_sheet_id;
     var want_to_refresh_story_from_drive = true;
