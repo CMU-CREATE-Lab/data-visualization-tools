@@ -280,8 +280,8 @@
       }
     }
 
-    // TODO: when the url has other hash informations, we only want the clean url as root url
     // Save the view and pass in the urls to the callback function
+    // TODO: we need to save the view as center view, not bounding box
     function saveView() {
       // Set bound
       var current_bound_type = $this.find("input:radio[name='set-view-tool-toggle-view-input']:checked").val();
