@@ -785,7 +785,7 @@
       data = safeGet(data, []);
       for (var i = 0; i < data.length; i++) {
         var theme = data[i];
-        tsv += "#" + theme.title + "\t" + theme.title + "\t" + theme.description + "\n";
+        tsv += "#" + strToKey(theme.title) + "\t" + theme.title + "\t" + theme.description + "\n";
         for (var j = 0; j < theme["data"].length; j++) {
           var story = theme["data"][j];
           tsv += "##" + strToKey(story.title) + "\t" + story.title + "\t" + story.description + "\t" + story.view_landscape + "\t" + story.author + "\t" + story.view_landscape + "\t" + story.view_portrait + "\n";
@@ -829,14 +829,14 @@
         var author = row["Author"];
         if (title.charAt(0) == "#" && title.charAt(1) != "#") {
           theme = {
-            title: title.replace("#", ""),
+            title: long_title,
             description: description,
             data: [] // for storing stories
           };
           data.push(theme);
         } else if (title.substring(0, 2) == "##") {
           story = {
-            title: title.replace("##", ""),
+            title: long_title,
             description: description,
             author: author,
             view_landscape: view_landscape,

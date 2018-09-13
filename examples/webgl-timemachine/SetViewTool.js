@@ -31,7 +31,6 @@
     var $start_time, $end_time;
     var $speed_slow_radio, $speed_medium_radio, $speed_fast_radio;
     var $type_image_radio, $type_video_radio, $video_settings;
-    var $save_landscape_view, $save_portrait_view;
     var $delay_start, $delay_end;
     var thumbnail_tool;
     var start_frame_number, end_frame_number;
@@ -75,8 +74,6 @@
       $this = $("#" + container_id + " .set-view-tool");
 
       // Toggle view
-      $save_landscape_view = $this.find(".set-view-tool-save-landscape-view-checkbox");
-      $save_portrait_view = $this.find(".set-view-tool-save-portrait-view-checkbox");
       $this.find("input:radio[name='set-view-tool-toggle-view-input']").on("change", toggleViewDirection);
 
       // Video settings
@@ -130,23 +127,13 @@
 
     // Swap the width and height of the thumbnail tool crop box
     function toggleViewDirection() {
-      // Save current bound and load new ones(need to use the previous state of the value)
-      var want_to_save_landscape = $save_landscape_view.prop("checked");
-      var want_to_save_portrait = $save_portrait_view.prop("checked");
+      // Save current bound and load new ones (need to use the previous state of the value)
       if ($(this).val() == "portrait") {
-        if (want_to_save_landscape) {
-          bound["landscape"] = thumbnail_tool.cropBoxToViewBox();
-        }
-        if (want_to_save_portrait && typeof bound["portrait"] !== "undefined") {
-          timelapse.setNewView({bbox: bound["portrait"]}, true, false);
-        }
+        bound["landscape"] = thumbnail_tool.cropBoxToViewBox();
+        if (typeof bound["portrait"] !== "undefined") timelapse.setNewView({bbox: bound["portrait"]}, true, false);
       } else {
-        if (want_to_save_portrait) {
-          bound["portrait"] = thumbnail_tool.cropBoxToViewBox();
-        }
-        if (want_to_save_landscape && typeof bound["landscape"] !== "undefined") {
-          timelapse.setNewView({bbox: bound["landscape"]}, true, false);
-        }
+        bound["portrait"] = thumbnail_tool.cropBoxToViewBox();
+        if (typeof bound["landscape"] !== "undefined") timelapse.setNewView({bbox: bound["landscape"]}, true, false);
       }
       // Swap width and height
       thumbnail_tool.swapBoxWidthHeight();
@@ -287,15 +274,11 @@
       var current_bound_type = $this.find("input:radio[name='set-view-tool-toggle-view-input']:checked").val();
       bound[current_bound_type] = thumbnail_tool.cropBoxToViewBox();
 
-      // Automatically compute another bounding box if not defined or do not want to be saved
+      // Automatically compute another bounding box if not defined
       if (current_bound_type == "portrait") {
-        if (!$save_landscape_view.prop("checked") || typeof bound["landscape"] === "undefined") {
-          bound["landscape"] = thumbnail_tool.getRotatedBox(bound["portrait"]);
-        }
+        bound["landscape"] = safeGet(bound["landscape"], thumbnail_tool.getRotatedBox(bound["portrait"]));
       } else {
-        if (!$save_portrait_view.prop("checked") || typeof bound["portrait"] === "undefined") {
-          bound["portrait"] = thumbnail_tool.getRotatedBox(bound["landscape"]);
-        }
+        bound["portrait"] = safeGet(bound["portrait"], thumbnail_tool.getRotatedBox(bound["landscape"]));
       }
 
       // Get landscape urls from the thumbnail tool
@@ -332,6 +315,12 @@
     function reset() {
       // We only want to clear the view, not the settings
       bound = {};
+    }
+
+    // Safely get the value from a variable, return a default value if undefined
+    function safeGet(v, default_val) {
+      if (typeof default_val === "undefined") default_val = "";
+      return (typeof v === "undefined") ? default_val : v;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -384,14 +373,8 @@
       $end_time.val(timelapse.getCaptureTimeByTime(et));
       $delay_start.val(args_landscape["startDwell"]);
       $delay_end.val(args_landscape["endDwell"]);
-      if(!$.isEmptyObject(args_landscape["bound"])) {
-        bound["landscape"] = args_landscape["bound"];
-        $save_landscape_view.prop("checked", true);
-      }
-      if(!$.isEmptyObject(args_portrait["bound"])) {
-        bound["portrait"] = args_portrait["bound"];
-        $save_portrait_view.prop("checked", true);
-      }
+      if (!$.isEmptyObject(args_landscape["bound"])) bound["landscape"] = args_landscape["bound"];
+      if (!$.isEmptyObject(args_portrait["bound"])) bound["portrait"] = args_portrait["bound"];
 
       // Sync the timelapse viewer
       timelapse.seek(bt);
