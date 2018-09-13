@@ -375,7 +375,7 @@
       });
       $save_to_local_button.on("click", function () {
         downloadDataAsTsv({data: collectStoryData(), file_name: $save_file_name_textbox.val()});
-        $save_to_local_message.empty().append($("<p>The story is saved successfully on your local machine.</p>"));
+        $save_to_local_message.empty().append($("<p>The story was saved successfully on your local machine.</p>"));
       });
       $save_to_google_button.on("click", function () {
         $save_to_google_button.prop("disabled", true);
@@ -386,7 +386,8 @@
           file_name: $save_file_name_textbox.val(),
           success: function (response) {
             current_sheet_id = response["spreadsheetId"];
-            $save_to_google_message.empty().append($("<p>The story is saved successfully as a <a target='_blank' href='" + getSheetUrlById(sheet_id) + "'>publicly viewable link</a>.</p>"));
+            var sheet_url = getSheetUrlById(current_sheet_id);
+            $save_to_google_message.empty().append($("<p>The story was saved successfully as a <a target='_blank' href='" + sheet_url + "'>publicly viewable link</a>.</p>"));
             if ($load_from_google_drive_radio.is(":checked")) {
               want_to_refresh_story_from_drive = true;
               $load_from_google_drive_radio.trigger("click");
@@ -425,7 +426,7 @@
       $this.find(".story-editor-save-to-local-message").empty();
       $save_to_google_button.prop("disabled", false);
       $this.find(".story-editor-save-to-google-message").empty();
-      $this.find(".story-editor-save-file-name-textbox").text("");
+      $this.find(".story-editor-save-file-name-textbox").val("");
       $this.find("input:radio[name='story-editor-save-options']").prop("checked", false);
       $this.find(".story-editor-save-file-name").hide();
       $this.find(".story-editor-save-to-local").hide();
