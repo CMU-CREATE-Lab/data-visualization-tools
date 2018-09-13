@@ -33,10 +33,9 @@
     var $save, $save_to_google_button;
     var $current_thumbnail_preview;
     var set_view_tool;
-    var enable_testing = false;
+    var enable_testing = true;
     var mode;
     var sheet_id;
-    var sheet_url;
     var want_to_refresh_story_from_drive = true;
 
     // For creating new stories
@@ -177,6 +176,7 @@
       var $load_from_google_drive_message = $load.find(".load-from-google-drive-message");
       var $load_from_direct_link_radio = $load.find("#load-from-direct-link-radio");
       $load_from_google_drive_radio = $load.find("#load-from-google-drive-radio");
+      var sheet_url_textbox = $load.find(".sheet-url-textbox");
       var $next_confirm_dialog = createConfirmDialog({
         selector: "#" + container_id + " .story-editor-load .next-confirm-dialog"
       });
@@ -184,6 +184,17 @@
         transition($load, $intro);
       });
       $load.find(".next-button").on("click", function () {
+        // Set sheet url
+        var sheet_url;
+        if ($load_from_google_drive_radio.is(":checked")) {
+          sheet_id = $stories_on_drive_dropdown.data("sheet_id");
+          if (typeof sheet_id !== "undefined") sheet_url = getSheetUrlById(sheet_id);
+        } else {
+          var unsafe_sheet_url = sheet_url_textbox.val();
+          var res = unsafe_sheet_url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+          if (res != null) sheet_url = unsafe_sheet_url;
+        }
+        // Load data or not
         var $ui = $(this);
         if (typeof sheet_url === "undefined") {
           $next_confirm_dialog.dialog("open");
@@ -202,68 +213,60 @@
           });
         }
       });
-      $load.find(".sheet-url-textbox").on("change", function () {
-        var unsafe_sheet_url = $(this).val();
-        var res = unsafe_sheet_url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
-        if (res != null) {
-          sheet_url = unsafe_sheet_url;
-        } else {
-          sheet_url = undefined;
-        }
-      });
       $load.find(".google-authenticate-button").on("click", function () {
         handleAuthClick();
       });
-      // TODO: save state and have a refresh button if they click back in the same session (can save Drive API quota)
       $load_from_google_drive_radio.on("click", function () {
         $load_from_direct_link.hide();
         $load_from_google_drive.show();
         if (!want_to_refresh_story_from_drive) return;
-        sheet_id = undefined;
-        sheet_url = undefined;
         $stories_on_drive_container.hide();
-        if (isAuthenticatedWithGoogle()) {
-          $google_authenticate_load_prompt.hide();
-          $load_from_google_drive_message.empty().append($("<p>Loading stories from Google Drive...</p>"));
-          var promise = listSpreadsheets();
-          promise.then(function (files) {
+        loadStoryListFromGoogleDrive({
+          authenticated: function () {
+            $google_authenticate_load_prompt.hide();
+            $load_from_google_drive_message.empty().append($("<p>Loading stories from Google Drive...</p>"));
+          },
+          not_authenticated: function () {
+            $google_authenticate_load_prompt.show();
+          },
+          success: function (files) {
             $load_from_google_drive_message.empty();
             if (files && files.length > 0) {
-              var sheet_name_list = [];
-              var sheet_id_list = [];
-              files.forEach(function (x) {
-                sheet_name_list.push(x["name"]);
-                sheet_id_list.push(x["id"]);
-              });
-              setCustomDropdown($stories_on_drive_dropdown, {
-                menu_items: sheet_name_list,
-                on_menu_item_create_callback: function ($ui, index) {
-                  $ui.data("sheet_id", sheet_id_list[index]);
-                },
-                on_menu_item_click_callback: function ($ui) {
-                  sheet_id = $ui.data("sheet_id");
-                  sheet_url = getSheetUrlById(sheet_id);
-                }
-              });
+              setGoogleSheetListDropdown($stories_on_drive_dropdown, files);
               $stories_on_drive_container.show();
               want_to_refresh_story_from_drive = false;
             } else {
               $load_from_google_drive_message.append($("<p>You have not created stories yet with the Story Editor.</p>"));
             }
-          }).catch(function (errorResponse) {
-            // TODO: unable to catch the error of "popup_closed_by_user"
-            if (typeof callback["error"] === "function") callback["error"](errorResponse);
-            console.log(errorResponse);
-          });
-        } else {
-          $google_authenticate_load_prompt.show();
-        }
+          },
+          error: function (response) {
+            $load_from_google_drive_message.empty().append($("<p>Error loading the list of stories with response: " + response["error"] + "</p>"));
+          }
+        });
       });
       $load_from_direct_link_radio.on("click", function () {
-        sheet_id = undefined;
-        sheet_url = undefined;
         $load_from_google_drive.hide();
         $load_from_direct_link.show();
+      });
+    }
+
+    // Set the dropdown menu for showing the list of google sheets
+    function setGoogleSheetListDropdown($dropdown, files) {
+      var sheet_name_list = [];
+      var sheet_id_list = [];
+      files.forEach(function (x) {
+        sheet_name_list.push(x["name"]);
+        sheet_id_list.push(x["id"]);
+      });
+      $dropdown.removeData("sheet_id");
+      setCustomDropdown($dropdown, {
+        items: sheet_name_list,
+        on_item_create_callback: function ($ui, index) {
+          $ui.data("sheet_id", sheet_id_list[index]);
+        },
+        on_item_click_callback: function ($ui) {
+          $dropdown.data("sheet_id", $ui.data("sheet_id"));
+        }
       });
     }
 
@@ -273,6 +276,7 @@
       $edit_theme = $this.find(".story-editor-edit-theme");
       $edit_theme.find(".back-button").on("click", function () {
         // We do not have to update data backward here, since all unsaved data will be lost
+        // We also do not need to reset the UI, since we update the UI when loading story data
         $back_confirm_dialog.dialog("open"); // check if the user truely wants to load another sheet
       });
       $edit_theme.find(".next-button").on("click", function () {
@@ -353,19 +357,20 @@
       var $save_to_local_message = $save.find(".story-editor-save-to-local-message");
       var $save_file_name = $save.find(".story-editor-save-file-name");
       var $save_file_name_textbox = $save.find(".story-editor-save-file-name-textbox");
-      $save.find(".back-button").on("click", function () {
-        transition($save, mode == "create" ? $waypoint : $edit_waypoint);
-        $save_to_local_button.prop("disabled", false);
+      var reset_save_ui = function () {
         $save_to_local_message.empty();
         $save_to_google_button.prop("disabled", false);
         $save_to_google_message.empty();
+      };
+      $save.find(".back-button").on("click", function () {
+        transition($save, mode == "create" ? $waypoint : $edit_waypoint);
+        reset_save_ui();
       });
       $save.find(".next-button").on("click", function () {
         $next_confirm_dialog.dialog("open"); // check if the user truely wants to finish
       });
       $save_to_local_button.on("click", function () {
         downloadDataAsTsv({data: collectStoryData(), file_name: $save_file_name_textbox.val()});
-        $save_to_local_button.prop("disabled", true);
         $save_to_local_message.empty().append($("<p>The story is saved successfully on your local machine.</p>"));
       });
       $save_to_google_button.on("click", function () {
@@ -373,17 +378,22 @@
         $save_to_google_message.empty().append($("<p>Currently saving story...</p>"));
         saveDataAsTsv({
           data: collectStoryData(),
-          want_to_replace: $save_to_google_replace.prop("checked"),
-          sheet_id_to_replace: sheet_id,
+          sheet_id: $save_to_google_replace.prop("checked") ? sheet_id : undefined,
           file_name: $save_file_name_textbox.val(),
           success: function (response) {
             sheet_id = response["spreadsheetId"];
-            want_to_refresh_story_from_drive = true;
             $save_to_google_message.empty().append($("<p>The story is saved successfully as a <a target='_blank' href='" + getSheetUrlById(sheet_id) + "'>publicly viewable link</a>.</p>"));
+            if ($load_from_google_drive_radio.is(":checked")) {
+              want_to_refresh_story_from_drive = true;
+              $load_from_google_drive_radio.trigger("click");
+            }
           },
           error: function (response) {
             $save_to_google_message.empty().append($("<p>Error saving the story with response: " + response["error"] + "</p>"));
             $save_to_google_button.prop("disabled", false);
+          },
+          not_authenticated: function () {
+            handleAuthClick();
           }
         });
       });
@@ -400,20 +410,9 @@
       $next_confirm_dialog = createConfirmDialog({
         selector: "#" + container_id + " .story-editor-save .next-confirm-dialog",
         action_callback: function () {
-          if (mode == "create") {
-            resetTabUI($theme);
-            resetTabUI($story);
-            waypoint_accordion.removeAllTabs();
-            waypoint_accordion.addEmptyTab();
-          }
-          mode = undefined;
-          sheet_id = undefined;
-          sheet_url = undefined;
-          $save_to_local_button.prop("disabled", false);
-          $save_to_local_message.empty();
-          $save_to_google_button.prop("disabled", false);
-          $save_to_google_message.empty();
           transition($save, $intro);
+          reset();
+          reset_save_ui();
         }
       });
     }
@@ -431,6 +430,18 @@
           console.log('not logged in...');
         }
       });
+    }
+
+    // Reset the story editor
+    function reset() {
+      if (mode == "create") {
+        resetTabUI($theme);
+        resetTabUI($story);
+        waypoint_accordion.removeAllTabs();
+        waypoint_accordion.addEmptyTab();
+      }
+      mode = undefined;
+      sheet_id = undefined;
     }
 
     // Set the user interface of a tab (one row in the tsv file)
@@ -598,18 +609,15 @@
 
     // Set the custom dropdown
     function setCustomDropdown($ui, settings) {
-      var menu_items = settings["menu_items"]; // the text that will appear for each item
-      if (typeof menu_items === "undefined") return;
-      var current_index = settings["current_index"];
-      var on_menu_item_click_callback = settings["on_menu_item_click_callback"];
-      var on_menu_item_create_callback = settings["on_menu_item_create_callback"];
+      var items = settings["items"]; // the text that will appear for each item
+      var init_index = settings["init_index"];
+      var on_item_click_callback = settings["on_item_click_callback"];
+      var on_item_create_callback = settings["on_item_create_callback"];
       var $menu = $ui.find("div").empty();
       var $button_text = $ui.find("a > span").text("");
-      if (typeof current_index !== "undefined") {
-        $button_text.text(menu_items[current_index]);
-      }
       var $selected_item;
-
+      // Set initial button text
+      if (typeof init_index !== "undefined" && typeof items !== "undefined") $button_text.text(items[init_index]);
       // Set button event
       // Note that the button is designed to use focusout and focus to determine its state
       // "focusout" indicates that the menu is currently opened and should be closed
@@ -618,25 +626,16 @@
         // Find which item is hovered, and then simulate the click
         if (typeof $selected_item !== "undefined") {
           $button_text.text($selected_item.text()); // update the text on the button
-          if (typeof on_menu_item_click_callback === "function") {
-            on_menu_item_click_callback($selected_item, $selected_item.index());
-          }
+          if (typeof on_item_click_callback === "function") on_item_click_callback($selected_item, $selected_item.index());
           $selected_item = undefined;
         }
-        // Close the menu
-        if ($menu.is(":visible")) {
-          $menu.addClass("force-hide");
-        }
+        if ($menu.is(":visible")) $menu.addClass("force-hide"); // close the menu
       }).off("focus").on("focus", function () {
-        // Open the menu
-        if (!$menu.is(":visible")) {
-          $menu.removeClass("force-hide");
-        }
+        if (!$menu.is(":visible")) $menu.removeClass("force-hide"); // open the menu
       });
-
       // Add events for menu items
-      for (var i = 0; i < menu_items.length; i++) {
-        var $item = $("<a href=\"javascript:void(0)\">" + menu_items[i] + "</a>");
+      for (var i = 0; i < items.length; i++) {
+        var $item = $("<a href=\"javascript:void(0)\">" + items[i] + "</a>");
         // We need to let the focusout button event know which item is selected
         // Note that we cannot use the click event to find this,
         // because as soon as the item is clicked,
@@ -648,9 +647,7 @@
           $selected_item = undefined;
         });
         $menu.append($item);
-        if (typeof on_menu_item_create_callback === "function") {
-          on_menu_item_create_callback($item, i);
-        }
+        if (typeof on_item_create_callback === "function") on_item_create_callback($item, i);
       }
       return $ui;
     }
@@ -709,7 +706,7 @@
           // Disable the delete button of the new tab if there is only one tab
           if (tab_length == 1) $new_tab.find(".story-editor-delete-button").prop("disabled", true);
           // Set the theme dropdown menu
-          setThemeDropdown($new_tab);
+          setThemeListDropdown($new_tab);
         },
         on_tab_delete_callback: function () {
           // Disable the delete button of the active tab if there is only one tab left
@@ -745,14 +742,15 @@
       return accordion;
     }
 
-    // Set the theme dropdown for a story tab
-    function setThemeDropdown($tab) {
+    // Set the theme list dropdown for a story tab
+    function setThemeListDropdown($tab) {
+      if (typeof $tab === "undefined") return;
       var $dropdown = $tab.find(".story-editor-theme-dropdown");
-      if (typeof $tab === "undefined" || $dropdown.length == 0) return;
+      if ($dropdown.length == 0) return;
       setCustomDropdown($dropdown, {
-        menu_items: getValues(edit_theme_accordion.getTabs().find(".story-editor-title-textbox")), // all themes
-        current_index: edit_theme_accordion.getActiveIndex(), // current theme index
-        on_menu_item_click_callback: function ($ui, index) {
+        items: getValues(edit_theme_accordion.getTabs().find(".story-editor-title-textbox")), // all themes
+        init_index: edit_theme_accordion.getActiveIndex(), // current theme index
+        on_item_click_callback: function ($ui, index) {
           // Move the story from the original theme to the desired theme
           if (edit_theme_accordion.getActiveIndex() === index) return; // return if same theme
           var d = collectTabData($tab); // collect tab data
@@ -772,7 +770,7 @@
         tsv += "#" + theme.title + "\t" + theme.title + "\t" + theme.description + "\n";
         for (var j = 0; j < theme["data"].length; j++) {
           var story = theme["data"][j];
-          tsv += "##" + story.title + "\t" + story.title + "\t" + story.description + "\t" + story.view_landscape + "\t" + story.author + "\t" + story.view_landscape + "\t" + story.view_portrait + "\n";
+          tsv += "##" + strToKey(story.title) + "\t" + story.title + "\t" + story.description + "\t" + story.view_landscape + "\t" + story.author + "\t" + story.view_landscape + "\t" + story.view_portrait + "\n";
           for (var k = 0; k < story["data"].length; k++) {
             var waypoint = story["data"][k];
             tsv += waypoint.title + "\t" + waypoint.long_title + "\t" + waypoint.description + "\t" + waypoint.view_landscape + "\t\t" + waypoint.view_landscape + "\t" + waypoint.view_portrait + "\n";
@@ -780,6 +778,11 @@
         }
       }
       return tsv;
+    }
+
+    // Convert string to a valid key for a dictionary
+    function strToKey(str) {
+      return str.replace(/ /g, "_").replace(/[^a-zA-Z0-9-_]/g, '').toLowerCase();
     }
 
     // Convert from a tsv spreadsheet to a 2d array of data that will be written to a Google Sheet
@@ -886,21 +889,20 @@
     function saveDataAsTsv(settings) {
       settings = safeGet(settings, {});
       var file_name = settings["file_name"];
+      var data_array = tsvToSheetsDataArray(dataToTsv(settings["data"]));
+      var sheet_id = settings["sheet_id"];
       var success = settings["success"];
       var error = settings["error"];
-      var tsv = dataToTsv(settings["data"]);
-      var sheet_id_to_replace = settings["sheet_id_to_replace"];
-      var want_to_replace = safeGet(settings["want_to_replace"], false);
+      var authenticated = settings["authenticated"];
+      var not_authenticated = settings["not_authenticated"];
+      // Authentication
       if (isAuthenticatedWithGoogle()) {
-        // TODO: Deal with success/failure responses
-        // TODO: How do we name these spreadsheets so that the listing is useful to the user
-        // TODO: If users load a sheet that is not created by the editor, remind users that we cannot replace the file
-        // Do we make use of the hidden developer fields in the spreadsheet?
-        var data_array = tsvToSheetsDataArray(tsv);
+        if (typeof authenticated === "function") authenticated();
         var promise;
-        if (want_to_replace && typeof sheet_id !== "undefined") {
+        if (typeof sheet_id !== "undefined") {
+          // TODO: If users load a sheet that is not created by the editor, remind users that we cannot replace the file
           // TODO: if we have to create a new file because of no sheet_id, inform the user
-          promise = updateSpreadsheet(sheet_id_to_replace, data_array, file_name);
+          promise = updateSpreadsheet(sheet_id, data_array, file_name);
         } else {
           promise = createNewSpreadsheetWithContent(file_name, data_array);
         }
@@ -910,12 +912,29 @@
           if (typeof error === "function") error(errorResponse);
         });
       } else {
-        handleAuthClick();
+        if (typeof not_authenticated === "function") not_authenticated();
       }
     }
 
     // Load available stories in the form of spreadsheets from a Google Drive
-    function loadStoryListFromGoogleDrive() {
+    function loadStoryListFromGoogleDrive(settings) {
+      settings = safeGet(settings, {});
+      var success = settings["success"];
+      var error = settings["error"];
+      var authenticated = settings["authenticated"];
+      var not_authenticated = settings["not_authenticated"];
+      // Authentication
+      if (isAuthenticatedWithGoogle()) {
+        if (typeof authenticated === "function") authenticated();
+        var promise = listSpreadsheets();
+        promise.then(function (files) {
+          if (typeof success === "function") success(files);
+        }).catch(function (errorResponse) {
+          if (typeof error === "function") error(errorResponse);
+        });
+      } else {
+        if (typeof not_authenticated === "function") not_authenticated();
+      }
     }
 
     // Get google spreadsheet url by id
@@ -1055,7 +1074,6 @@
     var before_tab_clone_callback = settings["before_tab_clone_callback"];
     var on_tab_add_callback = settings["on_tab_add_callback"];
     var on_tab_delete_callback = settings["on_tab_delete_callback"];
-    var on_reset_callback = settings["on_reset_callback"];
     var $tab_template;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
