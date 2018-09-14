@@ -70,6 +70,15 @@ This is the main template of the wizard (step by step guides)
   font-size: 14px;
 }
 
+.wizard-body ul {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.wizard-body li {
+  font-size: 14px;
+}
+
 .wizard-body-top {
   position: absolute;
   top: 0;

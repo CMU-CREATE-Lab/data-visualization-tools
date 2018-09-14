@@ -374,20 +374,29 @@
         $next_confirm_dialog.dialog("open"); // check if the user truely wants to finish
       });
       $save_to_local_button.on("click", function () {
-        downloadDataAsTsv({data: collectStoryData(), file_name: $save_file_name_textbox.val()});
+        downloadDataAsTsv({
+          data: collectStoryData(),
+          file_name: $save_file_name_textbox.val()
+        });
         $save_to_local_message.empty().append($("<p>The story was saved successfully on your local machine.</p>"));
       });
       $save_to_google_button.on("click", function () {
         $save_to_google_button.prop("disabled", true);
         $save_to_google_message.empty().append($("<p>Currently saving story...</p>"));
+        var story_data = collectStoryData();
         saveDataAsTsv({
-          data: collectStoryData(),
+          data: story_data,
           sheet_id: $save_to_google_replace.prop("checked") ? current_sheet_id : undefined,
           file_name: $save_file_name_textbox.val(),
           success: function (response) {
             current_sheet_id = response["spreadsheetId"];
-            var sheet_url = getSheetUrlById(current_sheet_id);
-            $save_to_google_message.empty().append($("<p>The story was saved successfully as a <a target='_blank' href='" + sheet_url + "'>publicly viewable link</a>.</p>"));
+            var message = "";
+            message += "<p>The stories was saved successfully as a <a target='_blank' href='" + getShareLink(current_sheet_id) + "'>publicly viewable link</a>. The following share links point to each story:<ul>";
+            getDesktopStoryLinks(current_sheet_id, story_data).forEach(function (x) {
+              message += "<li><a target='_blank' href='" + x["url"] + "'>" + x["title"] + "</a></li>";
+            });
+            message += "</ul></p>";
+            $save_to_google_message.empty().append($(message));
             if ($load_from_google_drive_radio.is(":checked")) {
               want_to_refresh_story_from_drive = true;
               $load_from_google_drive_radio.trigger("click");
@@ -419,6 +428,57 @@
           reset();
         }
       });
+    }
+
+    // Get the desktop share link of each story of the EarthTime viewer
+    function getDesktopStoryLinks(sheet_id, data) {
+      var urls = [];
+      for (var i = 0; i < data.length; i++) {
+        var story = data[i]["data"];
+        for (var j = 0; j < story.length; j++) {
+          var story_title = story[j]["title"];
+          var story_id = strToKey(story_title);
+          urls.push({
+            title: story_title,
+            url: getStoryLink(sheet_id, story_id)
+          });
+        }
+      }
+      return urls;
+    }
+
+    // Get the share link of one story
+    function getStoryLink(sheet_id, story_id) {
+      var root = getRootUrl();
+      if (root.includes("localhost")) {
+        return getShareLink(sheet_id) + "&story=" + story_id;
+      } else {
+        // The correct link currently has loading bugs
+        //return getRootUrl() + "/stories/" + story_id + "#waypoints=" + sheet_id + ".0";
+        return getShareLink(sheet_id) + "&story=" + story_id;
+      }
+    }
+
+    // Get the share link of the EarthTime viewer with stories by google sheet id
+    function getShareLink(sheet_id) {
+      var root = getRootUrl();
+      var hash = "#waypoints=" + sheet_id + ".0";
+      if (root.includes("localhost")) {
+        return getRootUrl() + hash;
+      } else {
+        return getRootUrl() + "/explore" + hash;
+      }
+    }
+
+    // Get the root url of the share link
+    function getRootUrl() {
+      var host = window.location.host;
+      var base = window.location.protocol + "//" + window.location.host;
+      if (host.includes("localhost")) {
+        return base + window.location.pathname;
+      } else {
+        return base;
+      }
     }
 
     // Reset the save UI
@@ -785,10 +845,10 @@
       data = safeGet(data, []);
       for (var i = 0; i < data.length; i++) {
         var theme = data[i];
-        tsv += "#" + strToKey(theme.title) + "\t" + theme.title + "\t" + theme.description + "\n";
+        tsv += "#" + theme.title + "\t" + theme.title + "\t" + theme.description + "\n";
         for (var j = 0; j < theme["data"].length; j++) {
           var story = theme["data"][j];
-          tsv += "##" + strToKey(story.title) + "\t" + story.title + "\t" + story.description + "\t" + story.view_landscape + "\t" + story.author + "\t" + story.view_landscape + "\t" + story.view_portrait + "\n";
+          tsv += "##" + story.title + "\t" + story.title + "\t" + story.description + "\t" + story.view_landscape + "\t" + story.author + "\t" + story.view_landscape + "\t" + story.view_portrait + "\n";
           for (var k = 0; k < story["data"].length; k++) {
             var waypoint = story["data"][k];
             tsv += waypoint.title + "\t" + waypoint.long_title + "\t" + waypoint.description + "\t" + waypoint.view_landscape + "\t\t" + waypoint.view_landscape + "\t" + waypoint.view_portrait + "\n";
