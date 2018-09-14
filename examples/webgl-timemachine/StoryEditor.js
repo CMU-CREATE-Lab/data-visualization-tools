@@ -9,7 +9,12 @@
 // - Papa Parse [https://www.papaparse.com/]
 // - time machine [https://github.com/CMU-CREATE-Lab/timemachine-viewer]
 // - the wizard template [wizard.css]
-// TODO: re-think about the design of the "add" and "delete" button
+// TODO: we need to save the view as center view (in the set view tool), not bounding box
+// TODO: add a "editor" button to the viewer to enable the editor
+// TODO: move the "add" button out from the tab
+// TODO: add the function for copying themes, stories, and waypoints
+// TODO: add the icon to prompt users that they can drag the tabs
+// TODO: hide and show stories (publish and unpublish)
 
 (function () {
   "use strict";
@@ -209,15 +214,18 @@
         } else {
           $ui.prop("disabled", true);
           // This util function name is misleading, it converts spreadsheet into csv, not json
-          // TODO: tell people the error messages when the sheet does not work (e.g. wrong permission, wrong file, wrong format)
           util.gdocToJSON(sheet_url, function (tsv) {
+            // TODO: check if the file format is correct, if not, display the error message
             setAccordionUI(edit_theme_accordion, tsvToData(tsv));
             transition($load, $edit_theme);
             $ui.prop("disabled", false);
             if (enable_testing) testEditStory(); // for testing editing stories
-          }, function (xhr, status, error) {
+          }, function (xhr) {
             $ui.prop("disabled", false);
-            console.log("Error with message: " + error);
+            // TODO: Check if xhr.status = 404, if yes, display the message of invalid url
+            // TODO: Check if xhr.status = 0, if yes, display the message of permission denied
+            // TODO: Else, say something that the server has problems
+            console.log(xhr.status);
           });
         }
       });
@@ -378,7 +386,7 @@
           data: collectStoryData(),
           file_name: $save_file_name_textbox.val()
         });
-        $save_to_local_message.empty().append($("<p>The story was saved successfully on your local machine.</p>"));
+        $save_to_local_message.empty().append($("<p>The stories were saved successfully on your local machine.</p>"));
       });
       $save_to_google_button.on("click", function () {
         $save_to_google_button.prop("disabled", true);
@@ -390,12 +398,17 @@
           file_name: $save_file_name_textbox.val(),
           success: function (response) {
             current_sheet_id = response["spreadsheetId"];
-            var message = "";
-            message += "<p>The stories was saved successfully as a <a target='_blank' href='" + getShareLink(current_sheet_id) + "'>publicly viewable link</a>. The following share links point to each story:<ul>";
-            getDesktopStoryLinks(current_sheet_id, story_data).forEach(function (x) {
-              message += "<li><a target='_blank' href='" + x["url"] + "'>" + x["title"] + "</a></li>";
-            });
-            message += "</ul></p>";
+            var story_links = getDesktopStoryLinks(current_sheet_id, story_data);
+            var message = "<p>";
+            message += "The stories were saved successfully as a <a target='_blank' href='" + getShareLink(current_sheet_id) + "'>publicly viewable link</a>.";
+            if (story_links.length > 0) {
+              message += " The following share links point to each story:<ul>";
+              story_links.forEach(function (x) {
+                message += "<li><a target='_blank' href='" + x["url"] + "'>" + x["title"] + "</a></li>";
+              });
+              message += "</ul>";
+            }
+            message += "</p>";
             $save_to_google_message.empty().append($(message));
             if ($load_from_google_drive_radio.is(":checked")) {
               want_to_refresh_story_from_drive = true;
@@ -881,6 +894,7 @@
       var data = [];
       var theme, story, waypoint;
       parsed["data"].forEach(function (row) {
+        if (typeof row === "undefined") return;
         var title = row["Waypoint Title"];
         var long_title = row["Annotation Title"];
         var description = row["Annotation Text"];
