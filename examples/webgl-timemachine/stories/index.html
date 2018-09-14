@@ -1,6 +1,6 @@
 <!doctype html>
 <html>
-<head> 
+<head>
   <!-- Global site tag (gtag.js) - Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=UA-10682694-21"></script>
   <script>
@@ -9,175 +9,176 @@
     gtag('js', new Date());
     gtag('config', 'UA-10682694-21');
   </script>
-  <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">   
+  <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
   <link href="mobile-story.css" rel="stylesheet"/>
   <script type="text/javascript" src="/config-local.js"></script>
-  <script type="text/javascript" src="../../../js/papaparse.min.js"></script>  
+  <script type="text/javascript" src="../../../js/papaparse.min.js"></script>
   <script type="text/javascript" src="../../../js/d3.min.js"></script>
   <script type="text/javascript" src="../../../js/handlebars-v4.0.11.js"></script>
   <script type="text/javascript" src="../../../js/blazy.min.js"></script>
   <script type="text/javascript" src="../../../js/noframework.waypoints.min.js"></script>
+  <script type="text/javascript" src="../../../timemachine/js/org/gigapan/util.js"></script>
 </head>
 <body>
   <script id="related-item-template" type="text/x-handlebars-template">
-    <div class="gi-related__item"> 
-      <a href="{{url}}"> 
-        <img class="b-lazy" data-src="{{filename}}" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="> 
+    <div class="gi-related__item">
+      <a href="{{url}}">
+        <img class="b-lazy" data-src="{{filename}}" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==">
         <h5>{{title}}</h5>
         {{#if author}}
           <div class="gi-related__subhead">{{{author}}}</div>
         {{/if}}
-      </a>  
+      </a>
     </div>
   </script>
   <script id="video-template" type="text/x-handlebars-template">
-    <span class="gi-card__media no-tint" data-media="{{idx}}"> 
-      <span class="gi-card__bg"> 
-        <span class="gi-card__video-parent" data-video-autoplay="true" data-video-contain="false" data-video-filename="{{filename}}" data-video-loop="true" data-video-portrait="true" data-video-poster="{{filename}}"> </span>  
-      </span>  
+    <span class="gi-card__media no-tint" data-media="{{idx}}">
+      <span class="gi-card__bg">
+        <span class="gi-card__video-parent" data-video-autoplay="true" data-video-contain="false" data-video-filename="{{filename}}" data-video-loop="true" data-video-portrait="true" data-video-poster="{{filename}}"> </span>
+      </span>
       {{#if credit}}
-        <div class="gi-card__attribution">{{credit}}</div> 
+        <div class="gi-card__attribution">{{credit}}</div>
       {{/if}}
-    </span> 
+    </span>
   </script>
   <script id="title-video-template" type="text/x-handlebars-template">
-    <span class="gi-card__media light-tint active showing" data-media="{{idx}}"> 
-      <span class="gi-card__bg"> 
-        <span class="gi-card__video-parent" data-video-autoplay="true" data-video-contain="false" data-video-filename="{{filename}}" data-video-loop="true" data-video-portrait="true" data-video-poster="{{filename}}"> </span>  
-      </span>  
-    </span> 
+    <span class="gi-card__media light-tint active showing" data-media="{{idx}}">
+      <span class="gi-card__bg">
+        <span class="gi-card__video-parent" data-video-autoplay="true" data-video-contain="false" data-video-filename="{{filename}}" data-video-loop="true" data-video-portrait="true" data-video-poster="{{filename}}"> </span>
+      </span>
+    </span>
   </script>
 
   <script id="video-caption-template" type="text/x-handlebars-template">
-    <div class="gi-card__content js-gi-media" data-media-target="{{idx}}" data-media-type="{{data_media_type}}"> 
-      <div class="gi-card__caption gi-lazy--inner gi-card__caption--left gi-card__caption--lg "> 
+    <div class="gi-card__content js-gi-media" data-media-target="{{idx}}" data-media-type="{{data_media_type}}">
+      <div class="gi-card__caption gi-lazy--inner gi-card__caption--left gi-card__caption--lg ">
         <p class=" gi-card__caption--parent">
           <span class="gi-card__caption--bg">
           {{#if title}}
               <strong>{{title}}</strong><br/>
           {{/if}}
           {{caption}}
-          </span> 
-        </p> 
-      </div> 
+          </span>
+        </p>
+      </div>
     </div>
   </script>
 
   <script id="title-video-caption-template" type="text/x-handlebars-template">
-    <div class="gi-card__content-title"> 
-      <div class="gi-card__content-title__block"> 
+    <div class="gi-card__content-title">
+      <div class="gi-card__content-title__block">
         <h1 class="gi-card__content-title__headline">
-          <span>{{title}}</span> 
-        </h1> 
+          <span>{{title}}</span>
+        </h1>
         <div class="gi-card__content-title__rule"> </div>
         <p class="gi-card__content-title_deck">{{caption}}</p>
-        <div class="gi-card__content-title__meta"> 
+        <div class="gi-card__content-title__meta">
         {{#if author}}
           <div class="gi-card__content-title__meta-author">
             <span>
               {{{author}}}
-            </span> 
+            </span>
           </div>
         {{/if}}
         {{#if dateline}}
           <div class="gi-card__content-title__meta-dateline">
-            <span>Published </span> <time itemprop="dateCreated">{{{dateline}}} </time> 
-          </div> 
+            <span>Published </span> <time itemprop="dateCreated">{{{dateline}}} </time>
+          </div>
         {{/if}}
-        </div> 
+        </div>
 
-      </div> 
+      </div>
     </div>
-    <div class="gi-card__content js-gi-media" data-media-target="{{idx}}" data-media-type="video"> 
-      <div class="gi-card__caption gi-lazy--inner gi-card__caption-trigger "> 
-        <p class=" "> </p> 
-      </div> 
+    <div class="gi-card__content js-gi-media" data-media-target="{{idx}}" data-media-type="video">
+      <div class="gi-card__caption gi-lazy--inner gi-card__caption-trigger ">
+        <p class=" "> </p>
+      </div>
     </div>
 
   </script>
 
   <script id="picture-template" type="text/x-handlebars-template">
-    <span class="gi-card__media no-tint" data-media="{{idx}}"> 
-      <picture> 
-        <source data-srcset="{{filename_landscape}}" media="(min-width: 1024px) and (orientation: landscape)"> 
-        <source data-srcset="{{filename_landscape}}" media="(orientation: landscape)"> 
-        <source data-srcset="{{filename_portrait}}" media="(min-width: 768px) and (orientation: portrait)"> 
-        <source data-srcset="{{filename_portrait}}" media="(orientation: portrait)"> 
-        <img class="gi-card__asset no-tint b-lazy-manual" data-src="{{filename_landscape}}" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==">  
-      </picture>  
+    <span class="gi-card__media no-tint" data-media="{{idx}}">
+      <picture>
+        <source data-srcset="{{filename_landscape}}" media="(min-width: 1024px) and (orientation: landscape)">
+        <source data-srcset="{{filename_landscape}}" media="(orientation: landscape)">
+        <source data-srcset="{{filename_portrait}}" media="(min-width: 768px) and (orientation: portrait)">
+        <source data-srcset="{{filename_portrait}}" media="(orientation: portrait)">
+        <img class="gi-card__asset no-tint b-lazy-manual" data-src="{{filename_landscape}}" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==">
+      </picture>
       {{#if credit}}
-        <div class="gi-card__attribution">{{credit}}</div> 
+        <div class="gi-card__attribution">{{credit}}</div>
       {{/if}}
-    </span> 
+    </span>
   </script>
 
-<div class="element element-rawhtml"> 
-  <article class="gi-article"> 
+<div class="element element-rawhtml">
+  <article class="gi-article">
     <header class="gi-header">
       <div class="gi-header__content">
         <div id="gi-header">
          </div>
        </div>
       <div class="gi-header__logo">
-        <a href="https://earthtime.org"> 
+        <a href="https://earthtime.org">
           Earth<br/>Time
         </a>
        </div>
-      <div class="gi-share" id="gi-share"> </div> 
-    </header> 
-    <main class="gi-body active"> 
-      <div class="gi-body__wrapper"> 
-        <div class="gi-body__content" itemprop="articleBody"> 
-          <span id="gi-body"> 
-            <div class="gi-asset gi-asset--fb gi-asset--fixed gi-asset--overlay gi-asset--gallery gi-asset--fade no-margin-top "> 
-              <div class="gi-fixed-wrapper" id="parent-media-list"> 
-                <div class="gi-card gi-card--fixed gi-card--title" id="media-list"> 
-                </div> 
+      <div class="gi-share" id="gi-share"> </div>
+    </header>
+    <main class="gi-body active">
+      <div class="gi-body__wrapper">
+        <div class="gi-body__content" itemprop="articleBody">
+          <span id="gi-body">
+            <div class="gi-asset gi-asset--fb gi-asset--fixed gi-asset--overlay gi-asset--gallery gi-asset--fade no-margin-top ">
+              <div class="gi-fixed-wrapper" id="parent-media-list">
+                <div class="gi-card gi-card--fixed gi-card--title" id="media-list">
+                </div>
               </div>
 
             </div>
-          </span>  
-        </div> 
-      </div> 
-    </main> 
-    <footer class="gi-footer"> 
-      <div class="gi-footer__related"> 
-        <div class="gi-related"> 
-          <h3 class="gi-subhead">More related to this story </h3> 
-          <div class="gi-related__items"> 
-          </div> 
+          </span>
         </div>
-        <div class="gi-footer__leaf"> 
-          <img height="40" src="../../../images/Blank_globe.svg" title="theglobeandmail.com" width="40">  
+      </div>
+    </main>
+    <footer class="gi-footer">
+      <div class="gi-footer__related">
+        <div class="gi-related">
+          <h3 class="gi-subhead">More related to this story </h3>
+          <div class="gi-related__items">
+          </div>
         </div>
-        <div class="gi-footer__credits"> 
+        <div class="gi-footer__leaf">
+          <img height="40" src="../../../images/Blank_globe.svg" title="theglobeandmail.com" width="40">
+        </div>
+        <div class="gi-footer__credits">
           <h3 class="gi-subhead">About</h3>
           <div class="gi-footer__logos">
-            <img height="150" width="210" src="../../../images/CMU-CREATELab.svg"> 
-            <img height="150" width="150" src="../../../images/World_Economic_Forum_logo.svg"> 
+            <img height="150" width="210" src="../../../images/CMU-CREATELab.svg">
+            <img height="150" width="150" src="../../../images/World_Economic_Forum_logo.svg">
           </div>
           <p>EarthTime is a partnership with Carnegie Mellon University's CREATE Lab and the World Economic Forum. The Forum draws on its expert network to provide data, author EarthTime stories, and present in its meetings.</p>
           <p>EarthTime is underpinned by CREATE Lab's vision to promote data literacy, inspire meaningful dialogue, and democratize access to data for everyone in an inclusive and transparent way.</p>
-        </div>        
+        </div>
       </div>
     </footer>
   </article>
-</div> 
+</div>
   <script type="text/javascript" src="mobile-story.js"></script>
   <script>
     var DEFAULT_SHARE_VIEW = "https://earthtime.org/#theme=big_picture_on_nature&story=default&v=4.56342,0,0.183,latLng&t=2.20&ps=50&l=blsat&bt=19840101&et=20161231";
     var source  = document.getElementById("video-template").innerHTML;
-    var videoTemplate = Handlebars.compile(source);    
+    var videoTemplate = Handlebars.compile(source);
     var source  = document.getElementById("video-caption-template").innerHTML;
-    var videoCaptionTemplate = Handlebars.compile(source);    
+    var videoCaptionTemplate = Handlebars.compile(source);
     var source  = document.getElementById("title-video-template").innerHTML;
-    var titleVideoTemplate = Handlebars.compile(source);    
+    var titleVideoTemplate = Handlebars.compile(source);
     var source  = document.getElementById("title-video-caption-template").innerHTML;
-    var titleVideoCaptionTemplate = Handlebars.compile(source);    
+    var titleVideoCaptionTemplate = Handlebars.compile(source);
     var source  = document.getElementById("picture-template").innerHTML;
-    var pictureTemplate = Handlebars.compile(source);    
+    var pictureTemplate = Handlebars.compile(source);
     var source  = document.getElementById("related-item-template").innerHTML;
-    var relatedItemTemplate = Handlebars.compile(source);    
+    var relatedItemTemplate = Handlebars.compile(source);
 
     var lochash = location.hash.substr(1);
     var mylocation = lochash.substr(lochash.indexOf('waypoints=')).split('&')[0].split('=')[1];
@@ -191,12 +192,12 @@
     var url = urlTemplate({'id': matchesArray[1], 'gid': matchesArray[2]});
 
     if (mylocation) {
-      url =urlTemplate({'id': mylocation.split('.')[0], 'gid': mylocation.split('.')[1]});      
+      url = urlTemplate({'id': mylocation.split('.')[0], 'gid': mylocation.split('.')[1]});
     }
     var storyName = "#Big Picture on US Cities";
-    var parsedUrl = new URL(window.location.href);
-    if (parsedUrl.searchParams.get("storyName")  && parsedUrl.searchParams.get("storyName") != '') {
-      storyName = '#' + parsedUrl.searchParams.get("storyName");
+    var urlParams = org.gigapan.Util.unpackVars(window.location.href);
+    if (urlParams.storyName) {
+      storyName = '#' + urlParams.storyName;
     } else {
       var slug = window.location.href.substr(window.location.href.lastIndexOf('/') + 1);
       slug = slug.split('#')[0];
@@ -204,7 +205,7 @@
       if (slug != '') {
         storyName = '#' + slug.trim();
       }
-    }    
+    }
 
     var themes = [];
     var themeIdx;
@@ -249,17 +250,17 @@
           // Stop appending?
           if (append) {
             if (!storyMode && title[0] == "#" && title[1] != '#') {
-              append = false;            
+              append = false;
             }
             if (storyMode && title[0] == "#") {
-              append = false;            
+              append = false;
             }
-            
+
           }
 
           // Start appending?
           if (title.toLowerCase() == storyName.toLowerCase()) {
-            append = true;            
+            append = true;
             currentThemeIdx = themeIdx;
           } else if (title.toLowerCase() == '#' + storyName.toLowerCase()) {
             append = true;
@@ -283,7 +284,7 @@
         }
 
         var videoContext = {idx: 0, filename: f};
-        var html = titleVideoTemplate(videoContext);          
+        var html = titleVideoTemplate(videoContext);
 
         el.insertAdjacentHTML('beforeend', html);
 
@@ -293,35 +294,35 @@
             var thumbnail = new Thumbnailer(shareView);
             var credit = story[i]["Credits"];
             var videoContext = {idx: i, filename: thumbnail.sharelink, credit: credit};
-            var html = videoTemplate(videoContext);          
+            var html = videoTemplate(videoContext);
             if (thumbnail.isPicture()) {
               var f_portrait = thumbnail.getPng("portrait");
               var f_landscape = thumbnail.getPng("landscape");
               var pictureContext = {idx: i, filename_portrait: f_portrait, filename_landscape: f_landscape, credit: credit};
-              html = pictureTemplate(pictureContext);          
+              html = pictureTemplate(pictureContext);
             }
             el.insertAdjacentHTML('beforeend', html);
           }
         }
 
         var el2 = document.getElementById("parent-media-list");
-        for (var i = story.length - 1; i > 0; i--) {          
-          var videoCaptionContext = {idx: i, 
+        for (var i = story.length - 1; i > 0; i--) {
+          var videoCaptionContext = {idx: i,
             title: story[i]["Annotation Title"],
-            caption: story[i]["Annotation Text"], 
+            caption: story[i]["Annotation Text"],
             data_media_type: 'video'};
             if (story[i]["Share View"].trim() != '') {
               var thumbnail = new Thumbnailer(story[i]["Share View"]);
               if (thumbnail.isPicture()) {
                 videoCaptionContext['data_media_type'] = 'photo';
               }
-              var html = videoCaptionTemplate(videoCaptionContext);          
+              var html = videoCaptionTemplate(videoCaptionContext);
               el2.insertAdjacentHTML('afterend', html);
             }
         }
 
         var videoCaptionContext = {idx: 0, title: story[0]["Annotation Title"].replace(/#/g,''), caption: story[0]["Annotation Text"], author: story[0]["Author"], dateline: story[0]["Dateline"]};
-        var html = titleVideoCaptionTemplate(videoCaptionContext);          
+        var html = titleVideoCaptionTemplate(videoCaptionContext);
         el2.insertAdjacentHTML('afterend', html);
 
         var htmlCollection = document.getElementsByClassName("gi-related__items");
@@ -329,13 +330,13 @@
           var relatedItems = [];
           while (relatedItems.length < Math.min(themes[currentThemeIdx]['stories'].length - 1, 2)) {
             var choice = Math.floor(Math.random() * themes[currentThemeIdx]['stories'].length);
-            if (choice != currentStoryIdx && !(relatedItems.includes(choice))) {
+            if (choice != currentStoryIdx && !(relatedItems.indexOf(choice) >= 0)) {
               relatedItems.push(choice);
             }
           }
           for (var i = 0; i < relatedItems.length; i++) {
-            var html = relatedItemTemplate(themes[currentThemeIdx]['stories'][relatedItems[i]]);          
-            htmlCollection[0].insertAdjacentHTML('afterend', html);              
+            var html = relatedItemTemplate(themes[currentThemeIdx]['stories'][relatedItems[i]]);
+            htmlCollection[0].insertAdjacentHTML('afterend', html);
           }
 
         } else {
@@ -345,28 +346,28 @@
               i = 1;
             }
             for (var j = 0; j < 2; j++) {
-              var html = relatedItemTemplate(themes[i]['stories'][j]);          
-              htmlCollection[0].insertAdjacentHTML('afterend', html);              
+              var html = relatedItemTemplate(themes[i]['stories'][j]);
+              htmlCollection[0].insertAdjacentHTML('afterend', html);
             }
           }
-          else if (themes.length > 2) { // there is >= 2 more themes   
+          else if (themes.length > 2) { // there is >= 2 more themes
             var relatedItems = [];
             while (relatedItems.length < 2) {
               var choice = Math.floor(Math.random() * themes.length);
-              if (choice != currentThemeIdx && !(relatedItems.includes(choice))) {
+              if (choice != currentThemeIdx && !(relatedItems.indexOf(choice) >= 0)) {
                 relatedItems.push(choice);
               }
             }
             for (var i = 0; i < relatedItems.length; i++) {
-              var html = relatedItemTemplate(themes[relatedItems[i]]);          
-              htmlCollection[0].insertAdjacentHTML('beforeend', html);              
+              var html = relatedItemTemplate(themes[relatedItems[i]]);
+              htmlCollection[0].insertAdjacentHTML('beforeend', html);
             }
-          } 
+          }
         }
         giProject();
-      }      
-    })    
-    
+      }
+    })
+
   </script>
 </body>
 </html>

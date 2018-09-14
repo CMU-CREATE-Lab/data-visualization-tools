@@ -1049,7 +1049,7 @@ mark{
         object-fit:contain;
         font-family:Arial, Helvetica, sans-serif;
         object-fit: contain;
-        
+
     }
 }
 @media (orientation: landscape){
@@ -1057,7 +1057,7 @@ mark{
         object-fit:contain;
         font-family:Arial, Helvetica, sans-serif;
         object-fit: contain;
-        
+
     }
 }
 .gi-card__asset.gi-card__map{
@@ -1365,11 +1365,11 @@ video.portrait-contain,video.landscape-contain{
 }
 .gi-card__caption span.gi-card__caption--bg{
     display:block;
-    background:#2228;
+    background:rgba(34, 34, 34, 0.53);
     padding:0.3rem 0.2rem 0.3rem 0.5rem;
     font-size: .9rem;
     border-radius: .4rem;
-    
+
     -webkit-box-decoration-break:clone;
     -ms-box-decoration-break:clone;
     -o-box-decoration-break:clone;
@@ -2128,7 +2128,7 @@ p.gi-card__timestamp{
     text-decoration: none;
     font-weight: bold;
     border: none;
-}    
+}
 
 @media (min-width: 768px){
     .gi-header__logo{
@@ -2138,7 +2138,7 @@ p.gi-card__timestamp{
     }
     .gi-header__logo a{
         font-size: 1.5em;
-    }    
+    }
     .gi-header.gi-header--active .gi-header__logo{
         top:5px;
         left:5px;
