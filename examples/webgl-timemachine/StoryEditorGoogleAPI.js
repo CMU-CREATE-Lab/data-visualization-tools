@@ -104,7 +104,7 @@ function makeFilePublicViewable(fileId) {
   * such an id.
   */
 function createEmptySpreadsheet(spreadsheetTitle) {
-  spreadsheetTitle = spreadsheetTitle ? spreadsheetTitle : "EarthTime Waypoints - " + (new Date()).getTime();
+  spreadsheetTitle = spreadsheetTitle ? spreadsheetTitle : "EarthTime Stories - " + (new Date()).getTime();
   var spreadsheetBody = {
     properties: {
       title: spreadsheetTitle

@@ -41,6 +41,7 @@
     var enable_testing = false;
     var mode;
     var current_sheet_id;
+    var original_sheet_name;
     var want_to_refresh_story_from_drive = true;
 
     // For creating new stories
@@ -201,6 +202,7 @@
         var sheet_url;
         if ($load_from_google_drive_radio.is(":checked")) {
           current_sheet_id = $stories_on_drive_dropdown.data("sheet_id");
+          original_sheet_name = $stories_on_drive_dropdown.data("sheet_name");
           if (typeof current_sheet_id !== "undefined") sheet_url = getSheetUrlById(current_sheet_id);
         } else {
           var unsafe_sheet_url = sheet_url_textbox.val();
@@ -274,14 +276,20 @@
         sheet_name_list.push(x["name"]);
         sheet_id_list.push(x["id"]);
       });
-      $dropdown.removeData("sheet_id");
+      $dropdown.removeData(["sheet_id", "sheet_name"]);
       setCustomDropdown($dropdown, {
         items: sheet_name_list,
         on_item_create_callback: function ($ui, index) {
-          $ui.data("sheet_id", sheet_id_list[index]);
+          $ui.data({
+            "sheet_id" : sheet_id_list[index],
+            "sheet_name" : sheet_name_list[index]
+          });
         },
         on_item_click_callback: function ($ui) {
-          $dropdown.data("sheet_id", $ui.data("sheet_id"));
+          $dropdown.data({
+            "sheet_id" : $ui.data("sheet_id"),
+            "sheet_name" : $ui.data("sheet_name")
+          });
         }
       });
     }
@@ -427,12 +435,18 @@
       $save.find("input:radio[name='story-editor-save-options']").on("change", function () {
         $save_file_name.show();
         if ($(this).val() == "google") {
+          if ($save_file_name_textbox.val() == "") {
+            $save_file_name_textbox.val(original_sheet_name)
+          }
           $save_to_local.hide();
           $save_to_google.show();
         } else {
           $save_to_google.hide();
           $save_to_local.show();
         }
+      });
+      $save_to_google_replace.on("change", function() {
+        $save_file_name_textbox.val($(this).prop("checked") ? original_sheet_name : "");
       });
       $next_confirm_dialog = createConfirmDialog({
         selector: "#" + container_id + " .story-editor-save .next-confirm-dialog",
@@ -532,6 +546,7 @@
       }
       mode = undefined;
       current_sheet_id = undefined;
+      original_sheet_name = undefined;
       resetSaveUI();
     }
 
@@ -980,7 +995,7 @@
     // Save the tsv to a Google Sheet
     function saveDataAsTsv(settings) {
       settings = safeGet(settings, {});
-      var file_name = settings["file_name"];
+      var file_name = (settings["file_name"] == original_sheet_name) ? "" : settings["file_name"];
       var data_array = tsvToSheetsDataArray(dataToTsv(settings["data"]));
       var sheet_id = settings["sheet_id"];
       var success = settings["success"];
