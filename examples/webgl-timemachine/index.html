@@ -6157,11 +6157,11 @@
       csvFileLayers.setTimeLine("ecco2-times", "19920102", "20000317", 3);
       var ecco2Options = {
         mediaType: ".mp4",
-        numFrames: cached_ajax['ecco2-times.json']['capture-times'].length,
-        fps: 10,
+        numFrames: 1000,
+        fps: 16,
         nLevels: 1,
-        video_width: 2560,
-        video_height: 1440,
+        video_width: 1424,
+        video_height: 800,
         width: 1440,
         height: 1440
       };
@@ -6172,11 +6172,11 @@
       csvFileLayers.setTimeLine("gdpPpp-times", "1990", "2015", 1);
       var gdpPppOptions = {
         mediaType: ".mp4",
-        numFrames: cached_ajax['gdpPpp-times.json']['capture-times'].length,
+        numFrames: 26,
         fps: 10,
         nLevels: 2,
-        video_width: 2560,
-        video_height: 1440,
+        video_width: 1424,
+        video_height: 800,
         width: 2880,
         height: 2880,
         colormap: 'https://tiles.earthtime.org/colormaps/black-no-value-blue-cyan-green-yellow-red.png'
