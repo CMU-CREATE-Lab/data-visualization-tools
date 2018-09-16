@@ -52,7 +52,13 @@ function initClient() {
  *  Sign in the user upon button click.
  */
 function handleAuthClick(event) {
-  gapi.auth2.getAuthInstance().signIn();
+  return gapi.auth2.getAuthInstance().signIn().then(function(response) {
+    return {userId: response.getId()};
+  }).catch(function(errorResponse) {
+    // TODO: Maybe throw to get caught further up?
+    // Right now the only known error that gets caught is if the login pop-up is closed.
+    // There might be more though if authentication fails for whatever reason.
+  });
 }
 
 /**
