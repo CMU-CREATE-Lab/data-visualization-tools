@@ -477,7 +477,7 @@
     // Get the share link of one story
     function getStoryLink(sheet_id, story_id) {
       var root = getRootUrl();
-      if (root.includes("localhost")) {
+      if (root.indexOf("localhost") >= 0 || root.indexOf("file:") >= 0) {
         return getShareLink(sheet_id) + "&story=" + story_id;
       } else {
         // The correct link currently has loading bugs
@@ -490,7 +490,7 @@
     function getShareLink(sheet_id) {
       var root = getRootUrl();
       var hash = "#waypoints=" + sheet_id + ".0";
-      if (root.includes("localhost")) {
+      if (root.indexOf("localhost") >= 0 || root.indexOf("file:") >= 0) {
         return getRootUrl() + hash;
       } else {
         return getRootUrl() + "/explore" + hash;
@@ -501,7 +501,7 @@
     function getRootUrl() {
       var host = window.location.host;
       var base = window.location.protocol + "//" + window.location.host;
-      if (host.includes("localhost")) {
+      if (host.indexOf("localhost") >= 0 || host.indexOf("file:") >= 0) {
         return base + window.location.pathname;
       } else {
         return base;
