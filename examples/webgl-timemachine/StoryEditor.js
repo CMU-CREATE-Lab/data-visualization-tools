@@ -28,7 +28,6 @@
     // Variables
     //
     settings = safeGet(settings, {});
-    var util = timelapse.getUtil();
     var container_id = settings["container_id"];
     var on_show_callback = settings["on_show_callback"];
     var on_hide_callback = settings["on_hide_callback"];
@@ -224,7 +223,7 @@
         } else {
           $ui.prop("disabled", true);
           // This util function name is misleading, it converts spreadsheet into csv, not json
-          util.gdocToJSON(sheet_url, function (tsv) {
+          timelapse.getUtil().gdocToJSON(sheet_url, function (tsv) {
             $ui.prop("disabled", false);
             tsvToData({
               tsv: tsv,
