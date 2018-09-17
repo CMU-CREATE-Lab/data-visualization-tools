@@ -10,7 +10,6 @@
 // - time machine [https://github.com/CMU-CREATE-Lab/timemachine-viewer]
 // - the wizard template [wizard.css]
 // TODO: we need to save both the bounding box and center view
-// TODO: add a "editor" button to the viewer to enable the editor
 // TODO: move the "add" button out from the tab
 // TODO: add the function for copying themes, stories, and waypoints
 // TODO: add the icon to prompt users that they can drag the tabs
@@ -65,8 +64,6 @@
         url: "StoryEditor.html",
         success: function (html_template) {
           createUI(html_template);
-          show();
-          timelapse.pause();
         },
         error: function () {
           console.log("Error loading the story editor html template.");
@@ -77,7 +74,9 @@
     function createUI(html_template) {
       $("#" + container_id).append($(html_template));
       $this = $("#" + container_id + " .story-editor");
-
+      $this.find(".close").on("click", function () {
+        hide();
+      });
       createSetViewTool();
       createIntroductionUI();
       createNewThemeUI();
@@ -445,7 +444,7 @@
               message += " The following links point to each story:<ul>";
               story_links.forEach(function (x) {
                 var title = x["title"];
-                if(title == "") title = "[empty title]";
+                if (title == "") title = "[empty title]";
                 message += "<li><a target='_blank' href='" + x["url"] + "'>" + title + "</a></li>";
               });
               message += "</ul>";
@@ -508,9 +507,9 @@
       if (root.indexOf("localhost") >= 0 || root.indexOf("file:") >= 0) {
         return getShareLink(sheet_id) + "&story=" + story_id;
       } else {
-        // The correct link currently has loading bugs
-        //return getRootUrl() + "/stories/" + story_id + "#waypoints=" + sheet_id + ".0";
-        return getShareLink(sheet_id) + "&story=" + story_id;
+        // TODO: the correct link currently has loading bugs
+        return getRootUrl() + "/stories/" + story_id + "#waypoints=" + sheet_id + ".0";
+        //return getShareLink(sheet_id) + "&story=" + story_id;
       }
     }
 
@@ -1070,8 +1069,6 @@
         if (typeof authenticated === "function") authenticated();
         var promise;
         if (typeof sheet_id !== "undefined") {
-          // TODO: If users load a sheet that is not created by the editor, remind users that we cannot replace the file
-          // TODO: if we have to create a new file because of no sheet_id, inform the user
           promise = updateSpreadsheet(sheet_id, data_array, file_name);
         } else {
           promise = createNewSpreadsheetWithContent(file_name, data_array);
@@ -1206,7 +1203,7 @@
     // Privileged methods
     //
     var show = function () {
-      if ($this.is(":visible")) return;
+      if (isVisible()) return;
       $this.show();
       if (typeof on_show_callback === "function") {
         on_show_callback();
@@ -1215,13 +1212,27 @@
     this.show = show;
 
     var hide = function () {
-      if (!$this.is(":visible")) return;
+      if (!isVisible()) return;
       $this.hide();
       if (typeof on_hide_callback === "function") {
         on_hide_callback();
       }
     };
     this.hide = hide;
+
+    var isVisible = function () {
+      return $this.is(":visible");
+    };
+    this.isVisible = isVisible;
+
+    var toggle = function () {
+      if (isVisible()) {
+        hide();
+      } else {
+        show();
+      }
+    };
+    this.toggle = toggle;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

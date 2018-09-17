@@ -34,6 +34,51 @@ This is the main template of the wizard (step by step guides)
   color: white;
 }
 
+.wizard-head .close {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  right: 0;
+  top: 0;
+  box-sizing: border-box;
+  cursor: pointer;
+  border-radius: 25px;
+  width: 50px;
+  height: 50px;
+  color: white;
+}
+
+.wizard-head .close span {
+  font-family: sans-serif !important;
+  font-size: 20px;
+  line-height: 1;
+  color: white;
+  z-index: 2;
+}
+
+.wizard-head .close:before {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: white;
+  width: 30px;
+  height: 30px;
+  content: "";
+  z-index: 1;
+  border-radius: 20px;
+  opacity: 0;
+  -webkit-transition: opacity 0.2s ease;
+  -moz-transition: opacity 0.2s ease;
+  -ms-transition: opacity 0.2s ease;
+  -o-transition: opacity 0.2s ease;
+  transition:  opacity 0.2s ease;
+}
+
+.wizard-head .close:hover:before {
+  opacity: 0.1;
+}
+
 .wizard-body {
   position: absolute;
   top: 50px;

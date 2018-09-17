@@ -943,11 +943,11 @@ html, body {
 }
 
 #location_search.right-panel-active {
-  right: 425px !important;
+  right: 9px !important;
 }
 
 #location_search_icon.right-panel-active {
-  right: 430px !important;
+  right: 19px !important;
 }
 
 .location_search_div.letterbox {
@@ -1643,6 +1643,15 @@ a:focus { outline:0; }
     height:20px;
 }
 
+#story-editor-menu-choice:before {
+  background: url('../../images/story-editor-icon-white.png') CENTER CENTER NO-REPEAT;
+  background-size: contain;
+  padding-right:15px;
+  content:url('../../images/transparent.png'); /* 21x21 transparent pixels */
+  image-rendering: -webkit-optimize-contrast;
+  width:20px;
+  height:20px;
+}
 
 #menu-logo {
   padding-top: 4px !important;

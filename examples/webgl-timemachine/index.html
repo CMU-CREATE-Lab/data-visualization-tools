@@ -295,6 +295,7 @@
     var useRetinaDarkBaseMap = (typeof(EARTH_TIMELAPSE_CONFIG.useRetinaDarkBaseMap) == "undefined") ? false : !!EARTH_TIMELAPSE_CONFIG.useRetinaDarkBaseMap;
     var useRetinaDarkNoLabelsBaseMap = baseMapsNoLabels ? true : (typeof(EARTH_TIMELAPSE_CONFIG.useRetinaDarkNoLabelsBaseMap) == "undefined") ? false : !!EARTH_TIMELAPSE_CONFIG.useRetinaDarkNoLabelsBaseMap;
     var enableStoryEditor = (typeof(EARTH_TIMELAPSE_CONFIG.enableStoryEditor) == "undefined") ? false : !!EARTH_TIMELAPSE_CONFIG.enableStoryEditor;
+    var pauseWhenInitialized = (typeof(EARTH_TIMELAPSE_CONFIG.pauseWhenInitialized) == "undefined") ? false : !!EARTH_TIMELAPSE_CONFIG.pauseWhenInitialized;
 
     // TODO: Until we decide to force everyone to latest landsat, pull the version corresponding to the config above.
     if (landsatVersion == "2015"){
@@ -4582,6 +4583,8 @@
     }
 
     function onTimeMachinePlayerReady() {
+      if (pauseWhenInitialized) timelapse.pause();
+
       if (!isBrowserSupported) {
         $("#baseLayerCreditContainer").hide();
       }
@@ -5376,16 +5379,23 @@
           $shareBtn.appendTo($topNav);
         }
 
+        if(enableStoryEditor) {
+          $("<li id='story-editor-menu-choice' class='menu-option' title='Story Editor'>Story Editor</li>").on("click", function() {
+            storyEditor.toggle();
+            UTIL.addGoogleAnalyticEvent('button', 'click', 'viewer-show-story-editor-panel');
+          }).appendTo($topNav);
+        }
+
         if (showSettingsButton) {
-          var $shareBtn = $("<li id='settings-menu-choice' class='menu-option' title='Show settings'>Settings</li>");
-          $shareBtn.on("click", function() {
+          var $settingBtn = $("<li id='settings-menu-choice' class='menu-option' title='Show settings'>Settings</li>");
+          $settingBtn.on("click", function() {
             if (settingsDialog && settingsDialog.is(":visible")) {
               settingsDialog.dialog("close");
             } else {
               showSettingsDialog();
             }
           });
-          $shareBtn.appendTo($topNav);
+          $settingBtn.appendTo($topNav);
         }
 
         var $navigationControls = $("<div id='navControls' />");
@@ -7067,14 +7077,12 @@
         storyEditor = new StoryEditor(timelapse, {
           container_id: "sidePanel",
           on_hide_callback: function () {
-            // TODO: find a way to hide unusable menu buttons
             $viewerContainer.css("right", "0");
             $topNav.css("right", "0");
             $sidePanel.hide();
             timelapse.onresize();
           },
           on_show_callback: function () {
-            // TODO: find a way to show hided menu buttons
             $viewerContainer.css("right", "321px");
             $topNav.css("right", "321px");
             $sidePanel.show();
