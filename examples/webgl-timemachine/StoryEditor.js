@@ -9,6 +9,7 @@
 // - Papa Parse [https://www.papaparse.com/]
 // - time machine [https://github.com/CMU-CREATE-Lab/timemachine-viewer]
 // - the wizard template [wizard.css]
+// TODO: the scroll bar will make the thumbnail preview have black bars at the bottom
 // TODO: we need to save both the bounding box and center view
 // TODO: move the "add" button out from the tab
 // TODO: add the function for copying themes, stories, and waypoints

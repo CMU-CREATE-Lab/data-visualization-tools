@@ -98,6 +98,7 @@ This is the main template of the wizard (step by step guides)
   margin-bottom: 7px;
   color: black;
   font-family: "Exo2-Bold", sans-serif !important;
+  font-weight: normal;
 }
 
 .wizard-body p {
@@ -402,8 +403,9 @@ textarea.custom-textbox {
   max-height: 200px !important;
 }
 
-.custom-textbox:read-only {
+input[readonly].custom-textbox {
   cursor: default;
+  pointer-events: none;
   background: rgb(230, 230, 230);
 }
 
@@ -443,6 +445,7 @@ textarea.custom-textbox {
 
 .custom-dialog .ui-dialog-title {
   font-size: 16px;
+  font-weight: normal;
 }
 
 .custom-dialog .ui-dialog-content {
