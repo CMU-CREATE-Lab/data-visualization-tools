@@ -130,7 +130,7 @@
         <div class="hide story-editor-save-to-google">
           <p><span class="highlight-text">2.</span>&nbsp;&nbsp; Save the story as a publicly viewable Google Sheet. Authentication of Google Drive is required.</p>
           <button class="custom-button full-width-button custom-button-primary add-bottom-margin-small story-editor-save-to-google-button">Save the Story to Google Drive</button>
-          <label class="custom-checkbox"><input type="checkbox" name="" value="" class="add-bottom-margin story-editor-save-to-google-replace" checked/>Replace the original file</label>
+          <label class="custom-checkbox"><input type="checkbox" name="" value="" class="add-bottom-margin story-editor-save-to-google-replace" checked/>Replace the original file if possible</label>
           <div class="custom-text-primary story-editor-save-to-google-message"></div>
         </div>
         <div class="hide story-editor-save-to-local">
@@ -183,8 +183,17 @@
           <input type="text" class="custom-textbox sheet-url-textbox" placeholder="https//:">
         </div>
       </div>
-      <div class="custom-dialog hide next-confirm-dialog" title="No spreadsheet!">
+      <div class="custom-dialog hide url-confirm-dialog" title="No valid spreadsheet url!">
         <p><span class="ui-icon ui-icon-alert"></span>Please select a spreadsheet or enter a valid spreadsheet url.</p>
+      </div>
+      <div class="custom-dialog hide permission-confirm-dialog" title="Permission denied!">
+        <p><span class="ui-icon ui-icon-alert"></span>Please check if the spreadsheet is publicly viewable.</p>
+      </div>
+      <div class="custom-dialog hide server-confirm-dialog" title="Server error!">
+        <p><span class="ui-icon ui-icon-alert"></span>An error is encountered during connecting to the Google Drive. Please try again later.</p>
+      </div>
+      <div class="custom-dialog hide format-confirm-dialog" title="Invalid file format!">
+        <p><span class="ui-icon ui-icon-alert"></span>The file format is invalid. Please load a spreadsheet that is created by the editor.</p>
       </div>
       <div class="wizard-body-bottom">
         <p>Click the "Next" button to add or edit themes loaded from the link.</p>

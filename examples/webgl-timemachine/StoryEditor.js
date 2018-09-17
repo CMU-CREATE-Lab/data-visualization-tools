@@ -9,7 +9,7 @@
 // - Papa Parse [https://www.papaparse.com/]
 // - time machine [https://github.com/CMU-CREATE-Lab/timemachine-viewer]
 // - the wizard template [wizard.css]
-// TODO: we need to save the view as center view (in the set view tool), not bounding box
+// TODO: we need to save both the bounding box and center view
 // TODO: add a "editor" button to the viewer to enable the editor
 // TODO: move the "add" button out from the tab
 // TODO: add the function for copying themes, stories, and waypoints
@@ -191,8 +191,17 @@
       var $load_from_direct_link_radio = $load.find("#load-from-direct-link-radio");
       $load_from_google_drive_radio = $load.find("#load-from-google-drive-radio");
       var sheet_url_textbox = $load.find(".sheet-url-textbox");
-      var $next_confirm_dialog = createConfirmDialog({
-        selector: "#" + container_id + " .story-editor-load .next-confirm-dialog"
+      var $url_confirm_dialog = createConfirmDialog({
+        selector: "#" + container_id + " .story-editor-load .url-confirm-dialog"
+      });
+      var $permission_confirm_dialog = createConfirmDialog({
+        selector: "#" + container_id + " .story-editor-load .permission-confirm-dialog"
+      });
+      var $server_confirm_dialog = createConfirmDialog({
+        selector: "#" + container_id + " .story-editor-load .server-confirm-dialog"
+      });
+      var $format_confirm_dialog = createConfirmDialog({
+        selector: "#" + container_id + " .story-editor-load .format-confirm-dialog"
       });
       $load.find(".back-button").on("click", function () {
         transition($load, $intro);
@@ -212,22 +221,33 @@
         // Load data or not
         var $ui = $(this);
         if (typeof sheet_url === "undefined") {
-          $next_confirm_dialog.dialog("open");
+          $url_confirm_dialog.dialog("open");
         } else {
           $ui.prop("disabled", true);
           // This util function name is misleading, it converts spreadsheet into csv, not json
           util.gdocToJSON(sheet_url, function (tsv) {
-            // TODO: check if the file format is correct, if not, display the error message
-            setAccordionUI(edit_theme_accordion, tsvToData(tsv));
-            transition($load, $edit_theme);
             $ui.prop("disabled", false);
-            if (enable_testing) testEditStory(); // for testing editing stories
+            tsvToData({
+              tsv: tsv,
+              error: function () {
+                $format_confirm_dialog.dialog("open");
+              },
+              success: function (data) {
+                setAccordionUI(edit_theme_accordion, data);
+                transition($load, $edit_theme);
+                if (enable_testing) testEditStory(); // for testing editing stories
+              }
+            });
           }, function (xhr) {
             $ui.prop("disabled", false);
-            // TODO: Check if xhr.status = 404, if yes, display the message of invalid url
-            // TODO: Check if xhr.status = 0, if yes, display the message of permission denied
-            // TODO: Else, say something that the server has problems
-            console.log(xhr.status);
+            var s = xhr.status;
+            if (s == 0) {
+              $permission_confirm_dialog.dialog("open");
+            } else if (s == 404 || s == 400) {
+              $url_confirm_dialog.dialog("open");
+            } else {
+              $server_confirm_dialog.dialog("open");
+            }
           });
         }
       });
@@ -281,14 +301,14 @@
         items: sheet_name_list,
         on_item_create_callback: function ($ui, index) {
           $ui.data({
-            "sheet_id" : sheet_id_list[index],
-            "sheet_name" : sheet_name_list[index]
+            "sheet_id": sheet_id_list[index],
+            "sheet_name": sheet_name_list[index]
           });
         },
         on_item_click_callback: function ($ui) {
           $dropdown.data({
-            "sheet_id" : $ui.data("sheet_id"),
-            "sheet_name" : $ui.data("sheet_name")
+            "sheet_id": $ui.data("sheet_id"),
+            "sheet_name": $ui.data("sheet_name")
           });
         }
       });
@@ -372,7 +392,6 @@
     // For saving stories
     function createSaveUI() {
       $save = $this.find(".story-editor-save");
-      var $next_confirm_dialog;
       var $save_to_google = $save.find(".story-editor-save-to-google");
       $save_to_google_button = $save.find(".story-editor-save-to-google-button");
       var $save_to_google_replace = $save.find(".story-editor-save-to-google-replace");
@@ -382,6 +401,13 @@
       var $save_to_local_message = $save.find(".story-editor-save-to-local-message");
       var $save_file_name = $save.find(".story-editor-save-file-name");
       var $save_file_name_textbox = $save.find(".story-editor-save-file-name-textbox");
+      var $next_confirm_dialog = createConfirmDialog({
+        selector: "#" + container_id + " .story-editor-save .next-confirm-dialog",
+        action_callback: function () {
+          transition($save, $intro);
+          reset();
+        }
+      });
       $save.find(".back-button").on("click", function () {
         transition($save, mode == "create" ? $waypoint : $edit_waypoint);
         $save_to_google_button.prop("disabled", false);
@@ -400,19 +426,27 @@
         $save_to_google_button.prop("disabled", true);
         $save_to_google_message.empty().append($("<p>Currently saving story...</p>"));
         var story_data = collectStoryData();
+        var desired_sheet_id = $save_to_google_replace.prop("checked") ? current_sheet_id : undefined;
         saveDataAsTsv({
           data: story_data,
-          sheet_id: $save_to_google_replace.prop("checked") ? current_sheet_id : undefined,
+          sheet_id: desired_sheet_id,
           file_name: $save_file_name_textbox.val(),
           success: function (response) {
             current_sheet_id = response["spreadsheetId"];
             var story_links = getDesktopStoryLinks(current_sheet_id, story_data);
+            var link_html = "<a target='_blank' href='" + getShareLink(current_sheet_id) + "'>publicly viewable link</a>";
             var message = "<p>";
-            message += "The stories were saved successfully as a <a target='_blank' href='" + getShareLink(current_sheet_id) + "'>publicly viewable link</a>.";
+            if (typeof desired_sheet_id !== "undefined") {
+              message += "The " + link_html + " with updated stories was successfully replaced.";
+            } else {
+              message += "The stories were successfully saved as a new " + link_html + ".";
+            }
             if (story_links.length > 0) {
-              message += " The following share links point to each story:<ul>";
+              message += " The following links point to each story:<ul>";
               story_links.forEach(function (x) {
-                message += "<li><a target='_blank' href='" + x["url"] + "'>" + x["title"] + "</a></li>";
+                var title = x["title"];
+                if(title == "") title = "[empty title]";
+                message += "<li><a target='_blank' href='" + x["url"] + "'>" + title + "</a></li>";
               });
               message += "</ul>";
             }
@@ -424,7 +458,7 @@
             }
           },
           error: function (response) {
-            $save_to_google_message.empty().append($("<p>Error saving the story with response: " + response["error"] + "</p>"));
+            $save_to_google_message.empty().append($("<p>An error is encountered when saving the story to Google Drive. Please try again later.</p>"));
             $save_to_google_button.prop("disabled", false);
           },
           not_authenticated: function () {
@@ -445,15 +479,9 @@
           $save_to_local.show();
         }
       });
-      $save_to_google_replace.on("change", function() {
+      $save_to_google_replace.on("change", function () {
         $save_file_name_textbox.val($(this).prop("checked") ? original_sheet_name : "");
-      });
-      $next_confirm_dialog = createConfirmDialog({
-        selector: "#" + container_id + " .story-editor-save .next-confirm-dialog",
-        action_callback: function () {
-          transition($save, $intro);
-          reset();
-        }
+        $save_to_google_button.prop("disabled", false);
       });
     }
 
@@ -674,11 +702,16 @@
     function collectStoryData() {
       if (mode == "create") {
         // Collect newly created story data from the user interface
+        var waypoint = collectAccordionData(waypoint_accordion);
         var story = collectTabData($story);
-        story["data"] = collectAccordionData(waypoint_accordion);
         var theme = collectTabData($theme);
-        theme["data"] = [story];
-        return [theme];
+        if (hasContent(waypoint) || hasContent(story) || hasContent(theme)) {
+          story["data"] = waypoint;
+          theme["data"] = [story];
+          return [theme];
+        } else {
+          return [];
+        }
       } else {
         // Collect edited story data from the user interface
         // Propagate data backward three times
@@ -902,10 +935,18 @@
       return sheetsDataArray;
     }
 
-    // TODO: detect if "Mobile Share View Landscape" and "Mobile Share View Portrait" exists (if not, show error msg to users)
     // Recover the story data from a tsv spreadsheet
-    function tsvToData(tsv) {
-      var parsed = Papa.parse(tsv, {delimiter: '\t', header: true});
+    function tsvToData(settings) {
+      if (typeof settings["tsv"] === "undefined") return;
+      var success = settings["success"];
+      var error = settings["error"];
+      var parsed = Papa.parse(settings["tsv"], {delimiter: '\t', header: true});
+      var is_valid_csv = isValidTsv(parsed);
+      if (!is_valid_csv && typeof error === "function") {
+        error();
+        return;
+      }
+      // Parse data
       var data = [];
       var theme, story, waypoint;
       parsed["data"].forEach(function (row) {
@@ -944,7 +985,28 @@
           story["data"].push(waypoint);
         }
       });
+      if (is_valid_csv && typeof success === "function") {
+        success(data);
+      }
       return data;
+    }
+
+    // Check if the tsv is a valid file that generated by the story editor
+    // The input is the parsed tsv, using Papa Parse library
+    function isValidTsv(parsed_tsv) {
+      var fields = parsed_tsv["meta"]["fields"];
+      var checks = [];
+      checks.push(fields.indexOf("Waypoint Title"));
+      checks.push(fields.indexOf("Annotation Title"));
+      checks.push(fields.indexOf("Annotation Text"));
+      checks.push(fields.indexOf("Share View"));
+      checks.push(fields.indexOf("Author"));
+      checks.push(fields.indexOf("Mobile Share View Landscape"));
+      checks.push(fields.indexOf("Mobile Share View Portrait"));
+      for (var i = 0; i < checks.length; i++) {
+        if (checks[i] < 0) return false;
+      }
+      return true;
     }
 
     // Make a transition from one DOM element to another
@@ -1000,6 +1062,7 @@
       var sheet_id = settings["sheet_id"];
       var success = settings["success"];
       var error = settings["error"];
+      var warning = settings["warning"];
       var authenticated = settings["authenticated"];
       var not_authenticated = settings["not_authenticated"];
       // Authentication
@@ -1015,8 +1078,8 @@
         }
         promise.then(function (response) {
           if (typeof success === "function") success(response);
-        }).catch(function (errorResponse) {
-          if (typeof error === "function") error(errorResponse);
+        }).catch(function (response) {
+          if (typeof error === "function") error(response);
         });
       } else {
         if (typeof not_authenticated === "function") not_authenticated();
@@ -1192,18 +1255,7 @@
         header: "> div > h3",
         heightStyle: "content",
         animate: false,
-        collapsible: true,
-        activate: function (event, ui) {
-          // TODO: allow users to go next in the editor without opening a tab
-          /*if (ui.newHeader.length == 0 && ui.newPanel.length == 0) {
-            // This means that the tab is collapsed
-            $(ui.oldHeader[0]).addClass("custom-accordion-header-active");
-          }
-          if (ui.oldHeader.length == 0 && ui.oldPanel.length == 0) {
-            // This means that a tab is activated from the collapsed state
-            $(this).find(".custom-accordion-header-active").removeClass("custom-accordion-header-active");
-          }*/
-        }
+        collapsible: true
       }).sortable({
         axis: "y",
         handle: "h3",
