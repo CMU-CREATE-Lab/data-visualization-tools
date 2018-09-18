@@ -2,12 +2,12 @@
   width: 37%;
 }
 
-.story-editor-add-button {
-  width: 24%;
-}
-
 .story-editor-delete-button {
   width: 30%;
+}
+
+.story-editor-copy-button {
+  width: 24%;
 }
 
 .story-editor-thumbnail-preview {

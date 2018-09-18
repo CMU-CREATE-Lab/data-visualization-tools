@@ -9,9 +9,9 @@
 // - Papa Parse [https://www.papaparse.com/]
 // - time machine [https://github.com/CMU-CREATE-Lab/timemachine-viewer]
 // - the wizard template [wizard.css]
-// TODO: move the "add" button out from the tab
 // TODO: add the function for copying themes, stories, and waypoints
-// TODO: add the icon to prompt users that they can drag the tabs
+// TODO: add the the function to move a waypoint to another story
+// TODO: add buttons for moving tabs up and down in the accordion
 // TODO: hide and show stories (publish and unpublish)
 
 (function () {
@@ -175,6 +175,9 @@
       $waypoint.find(".next-button").on("click", function () {
         transition($waypoint, $save);
       });
+      $waypoint.find(".story-editor-add-button").on("click", function () {
+        waypoint_accordion.addEmptyTab();
+      });
       waypoint_accordion = createAccordion({
         accordion: "#" + container_id + " .story-editor-waypoint .custom-accordion",
         delete_confirm_dialog: "#" + container_id + " .story-editor-waypoint .delete-confirm-dialog"
@@ -334,6 +337,9 @@
           $next_confirm_dialog.dialog("open");
         }
       });
+      $edit_theme.find(".story-editor-add-button").on("click", function () {
+        edit_theme_accordion.addEmptyTab();
+      });
       edit_theme_accordion = createAccordion({
         accordion: "#" + container_id + " .story-editor-edit-theme .custom-accordion",
         delete_confirm_dialog: "#" + container_id + " .story-editor-edit-theme .delete-confirm-dialog"
@@ -369,6 +375,9 @@
           $next_confirm_dialog.dialog("open");
         }
       });
+      $edit_story.find(".story-editor-add-button").on("click", function () {
+        edit_story_accordion.addEmptyTab();
+      });
       edit_story_accordion = createAccordion({
         accordion: "#" + container_id + " .story-editor-edit-story .custom-accordion",
         delete_confirm_dialog: "#" + container_id + " .story-editor-edit-story .delete-confirm-dialog"
@@ -384,6 +393,9 @@
       });
       $edit_waypoint.find(".next-button").on("click", function () {
         transition($edit_waypoint, $save);
+      });
+      $edit_waypoint.find(".story-editor-add-button").on("click", function () {
+        edit_waypoint_accordion.addEmptyTab();
       });
       edit_waypoint_accordion = createAccordion({
         accordion: "#" + container_id + " .story-editor-edit-waypoint .custom-accordion",
@@ -869,8 +881,8 @@
             set_view_tool.show();
             $this.hide();
           });
-          $tab_template.find(".story-editor-add-button").on("click", function () {
-            accordion.addEmptyTab();
+          $this.find(".story-editor-copy-button").on("click", function () {
+            // TODO: need to implement copy
           });
           $tab_template.find(".story-editor-delete-button").on("click", function () {
             $delete_confirm_dialog.dialog("open");
