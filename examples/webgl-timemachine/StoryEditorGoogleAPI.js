@@ -87,7 +87,7 @@
       return gapi.client.drive.files.list({
         'pageSize': 1000,
         'fields': "nextPageToken, files(id, name)",
-        'q': "(mimeType='application/vnd.google-apps.spreadsheet')",
+        'q': "(mimeType='application/vnd.google-apps.spreadsheet') and trashed=false",
       }).then(function(response) {
         return response.result.files;
       });
