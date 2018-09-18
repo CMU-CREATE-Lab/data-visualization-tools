@@ -129,10 +129,12 @@
           <input type="text" class="custom-textbox add-bottom-margin story-editor-save-file-name-textbox" maxlength="100" placeholder="(max 100 characters)">
         </div>
         <div class="hide story-editor-save-to-google">
-          <p><span class="highlight-text">2.</span>&nbsp;&nbsp; Save the story as a publicly viewable Google Sheet. Authentication of Google Drive is required.</p>
+          <p><span class="highlight-text">2.</span>&nbsp;&nbsp; Save the story as a publicly viewable Google Sheet. Authentication with Google Drive is required.</p>
           <button class="custom-button full-width-button custom-button-primary add-bottom-margin-small story-editor-save-to-google-button">Save the Story to Google Drive</button>
-          <label class="custom-checkbox"><input type="checkbox" name="" value="" class="add-bottom-margin story-editor-save-to-google-replace" checked/>Replace the original file if possible</label>
-          <div class="custom-text-primary story-editor-save-to-google-message"></div>
+          <div id="story-editor-save-to-google-replace-container">
+            <label class="custom-checkbox"><input type="checkbox" name="" value="" class="add-bottom-margin story-editor-save-to-google-replace" checked/>Replace the original file if possible</label>
+            <div class="custom-text-primary story-editor-save-to-google-message"></div>
+          </div>
         </div>
         <div class="hide story-editor-save-to-local">
           <p><span class="highlight-text">2.</span>&nbsp;&nbsp; Save the story as a tsv file in your local machine. You can manually import the downloaded file into a Google Sheet later.</p>

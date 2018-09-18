@@ -55,11 +55,11 @@
           right: 0
         }
       });
-
+      var absolute_path_to_html = document.querySelector('script[src*="SetViewTool.js"]').src.replace(".js", ".html");
       // Load the html template
       $.ajax({
         dataType: "html",
-        url: timelapse.getUtil().getRootAppURL() + "/" + "SetViewTool.html",
+        url: absolute_path_to_html,
         success: function (html_template) {
           createUI(html_template);
         },

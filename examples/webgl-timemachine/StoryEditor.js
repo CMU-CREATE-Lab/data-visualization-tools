@@ -43,6 +43,7 @@
     var original_sheet_name;
     var want_to_refresh_story_from_drive = true;
     var UTIL;
+    var GOOGLE_API;
 
     // For creating new stories
     var $theme;
@@ -61,9 +62,11 @@
     //
     function init() {
       UTIL = timelapse.getUtil();
+      GOOGLE_API = new StoryEditorGoogleAPI();
+      var absolute_path_to_html = document.querySelector('script[src*="StoryEditor.js"]').src.replace(".js", ".html");
       $.ajax({
         dataType: "html",
-        url: UTIL.getRootAppURL() + "/" + "StoryEditor.html",
+        url: absolute_path_to_html,
         success: function (html_template) {
           createUI(html_template);
         },
@@ -253,7 +256,7 @@
         }
       });
       $load.find(".google-authenticate-button").on("click", function () {
-        handleAuthClick();
+        GOOGLE_API.handleAuthClick();
       });
       $load_from_google_drive_radio.on("click", function () {
         $load_from_direct_link.hide();
@@ -463,13 +466,18 @@
             $save_to_google_button.prop("disabled", false);
           },
           not_authenticated: function () {
-            handleAuthClick();
+            GOOGLE_API.handleAuthClick();
           }
         });
       });
       $save.find("input:radio[name='story-editor-save-options']").on("change", function () {
         $save_file_name.show();
         if ($(this).val() == "google") {
+          if (mode == "create") {
+            $save.find("#story-editor-save-to-google-replace-container").hide();
+          } else {
+            $save.find("#story-editor-save-to-google-replace-container").show();
+          }
           if ($save_file_name_textbox.val() == "") {
             $save_file_name_textbox.val(original_sheet_name)
           }
@@ -552,7 +560,7 @@
 
     // For initializing the Google Drive API
     function initGoogleDriveAPI() {
-      addGoogleSignedInStateChangeListener(function (isSignedIn) {
+      GOOGLE_API.addGoogleSignedInStateChangeListener(function (isSignedIn) {
         if (isSignedIn) {
           if ($load_from_google_drive_radio.is(":checked")) {
             $load_from_google_drive_radio.trigger("click");
@@ -1067,13 +1075,13 @@
       var authenticated = settings["authenticated"];
       var not_authenticated = settings["not_authenticated"];
       // Authentication
-      if (isAuthenticatedWithGoogle()) {
+      if (GOOGLE_API.isAuthenticatedWithGoogle()) {
         if (typeof authenticated === "function") authenticated();
         var promise;
         if (typeof sheet_id !== "undefined") {
-          promise = updateSpreadsheet(sheet_id, data_array, file_name);
+          promise = GOOGLE_API.updateSpreadsheet(sheet_id, data_array, file_name);
         } else {
-          promise = createNewSpreadsheetWithContent(file_name, data_array);
+          promise = GOOGLE_API.createNewSpreadsheetWithContent(file_name, data_array);
         }
         promise.then(function (response) {
           if (typeof success === "function") success(response);
@@ -1093,9 +1101,9 @@
       var authenticated = settings["authenticated"];
       var not_authenticated = settings["not_authenticated"];
       // Authentication
-      if (isAuthenticatedWithGoogle()) {
+      if (GOOGLE_API.isAuthenticatedWithGoogle()) {
         if (typeof authenticated === "function") authenticated();
-        var promise = listSpreadsheets();
+        var promise = GOOGLE_API.listSpreadsheets();
         promise.then(function (files) {
           if (typeof success === "function") success(files);
         }).catch(function (errorResponse) {

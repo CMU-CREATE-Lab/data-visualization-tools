@@ -89,11 +89,6 @@
   <script src="StoryEditor.js"></script>
   <script src="SetViewTool.js"></script>
 
-  <script async defer src="https://apis.google.com/js/api.js"
-    onload="this.onload=function(){};handleGoogleAPILoad()"
-    onreadystatechange="if (this.readyState === 'complete') this.onload()">
-  </script>
-
   <script type="text/javascript">
     "use strict";
 
@@ -5379,7 +5374,7 @@
           $shareBtn.appendTo($topNav);
         }
 
-        if(enableStoryEditor) {
+        if (enableStoryEditor) {
           $("<li id='story-editor-menu-choice' class='menu-option' title='Story Editor'>Story Editor</li>").on("click", function() {
             storyEditor.toggle();
             UTIL.addGoogleAnalyticEvent('button', 'click', 'viewer-show-story-editor-panel');
@@ -7068,7 +7063,7 @@
       timelapse.setContextMapEnableStatus(false);
 
       // Initialize the story editor
-      if(enableStoryEditor) {
+      if (enableStoryEditor) {
         var $viewerContainer = $("#viewerContainer");
         var $sidePanel = $("#sidePanel");
         var $topNav = $("#top-nav");
