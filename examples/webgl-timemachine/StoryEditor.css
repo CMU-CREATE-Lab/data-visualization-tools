@@ -1,5 +1,5 @@
 .story-editor-set-view-button {
-  width: 36%;
+  width: 37%;
 }
 
 .story-editor-add-button {
@@ -7,7 +7,7 @@
 }
 
 .story-editor-delete-button {
-  width: 31%;
+  width: 30%;
 }
 
 .story-editor-thumbnail-preview {
@@ -19,37 +19,29 @@
   position: absolute;
   top: 0;
   left: 0;
-  width: 60%;
+  width: 57%;
 }
 
 .story-editor-thumbnail-preview-landscape {
-  min-height: 78px;
-}
-
-.story-editor-thumbnail-preview-portrait {
-  min-height: 144px;
-}
-
-.story-editor-story .story-editor-thumbnail-preview-landscape {
-  min-height: 92px !important;
-}
-
-.story-editor-story .story-editor-thumbnail-preview-portrait {
-  min-height: 171px !important;
-}
-
-.story-editor-thumbnail-preview-landscape {
-  width: 60%;
-  height: auto;
+  width: 57%;
+  height: 0;
   border: 1px solid #4d4d4d;
   background: url(../../images/loading.gif) #000 center no-repeat;
-  box-sizing: border-box;
+  padding-top: 16%;
+  padding-bottom: 16%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .story-editor-thumbnail-preview-portrait {
   width: 36%;
-  height: auto;
+  height: 0;
   border: 1px solid #4d4d4d;
   background: url(../../images/loading.gif) #000 center no-repeat;
-  box-sizing: border-box;
+  padding-top: 32%;
+  padding-bottom: 32%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
