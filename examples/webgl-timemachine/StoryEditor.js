@@ -42,6 +42,7 @@
     var current_sheet_id;
     var original_sheet_name;
     var want_to_refresh_story_from_drive = true;
+    var UTIL;
 
     // For creating new stories
     var $theme;
@@ -59,9 +60,10 @@
     // Private methods
     //
     function init() {
+      UTIL = timelapse.getUtil();
       $.ajax({
         dataType: "html",
-        url: "StoryEditor.html",
+        url: UTIL.getRootAppURL() + "/" + "StoryEditor.html",
         success: function (html_template) {
           createUI(html_template);
         },
@@ -224,7 +226,7 @@
         } else {
           $ui.prop("disabled", true);
           // This util function name is misleading, it converts spreadsheet into csv, not json
-          timelapse.getUtil().gdocToJSON(sheet_url, function (tsv) {
+          UTIL.gdocToJSON(sheet_url, function (tsv) {
             $ui.prop("disabled", false);
             tsvToData({
               tsv: tsv,

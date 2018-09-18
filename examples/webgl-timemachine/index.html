@@ -6975,8 +6975,6 @@
         $('#theme-title').attr('data-theme-id', '');
       });
 
-      $(window).on('hashchange', hashChange).trigger('hashchange');
-
       if (enableLetterboxMode) {
         $("#letterbox-list-themes-button").on("click", function() {
           updateLetterboxContent("themes");
@@ -7090,6 +7088,9 @@
           }
         });
       }
+
+      // Keep this last
+      $(window).on('hashchange', hashChange).trigger('hashchange');
 
       // End of onTimeMachinePlayerReady
     }

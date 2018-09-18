@@ -59,9 +59,9 @@
       // Load the html template
       $.ajax({
         dataType: "html",
-        url: "SetViewTool.html",
+        url: timelapse.getUtil().getRootAppURL() + "/" + "SetViewTool.html",
         success: function (html_template) {
-          creatUI(html_template);
+          createUI(html_template);
         },
         error: function () {
           console.log("Error loading the set view tool html template.");
@@ -69,7 +69,7 @@
       });
     }
 
-    function creatUI(html_template) {
+    function createUI(html_template) {
       $("#" + container_id).append($(html_template));
       $this = $("#" + container_id + " .set-view-tool");
 
