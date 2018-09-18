@@ -10,7 +10,6 @@
 // - time machine [https://github.com/CMU-CREATE-Lab/timemachine-viewer]
 // - the wizard template [wizard.css]
 // TODO: the scroll bar will make the thumbnail preview have black bars at the bottom
-// TODO: we need to save both the bounding box and center view
 // TODO: move the "add" button out from the tab
 // TODO: add the function for copying themes, stories, and waypoints
 // TODO: add the icon to prompt users that they can drag the tabs
@@ -34,13 +33,13 @@
     var on_hide_callback = settings["on_hide_callback"];
     var $this;
     var $intro;
-    var $save, $save_to_google_button;
+    var $save, $save_to_google_button, $save_to_google_replace_container;
     var $current_thumbnail_preview;
     var set_view_tool;
     var enable_testing = false;
     var mode;
     var current_sheet_id;
-    var original_sheet_name;
+    var current_sheet_name;
     var want_to_refresh_story_from_drive = true;
     var UTIL;
     var GOOGLE_API;
@@ -215,7 +214,7 @@
         var sheet_url;
         if ($load_from_google_drive_radio.is(":checked")) {
           current_sheet_id = $stories_on_drive_dropdown.data("sheet_id");
-          original_sheet_name = $stories_on_drive_dropdown.data("sheet_name");
+          current_sheet_name = $stories_on_drive_dropdown.data("sheet_name");
           if (typeof current_sheet_id !== "undefined") sheet_url = getSheetUrlById(current_sheet_id);
         } else {
           var unsafe_sheet_url = sheet_url_textbox.val();
@@ -398,7 +397,8 @@
       $save = $this.find(".story-editor-save");
       var $save_to_google = $save.find(".story-editor-save-to-google");
       $save_to_google_button = $save.find(".story-editor-save-to-google-button");
-      var $save_to_google_replace = $save.find(".story-editor-save-to-google-replace");
+      $save_to_google_replace_container = $save.find(".story-editor-save-to-google-replace-container");
+      var $save_to_google_replace_checkbox = $save.find(".story-editor-save-to-google-replace-checkbox");
       var $save_to_google_message = $save.find(".story-editor-save-to-google-message");
       var $save_to_local = $save.find(".story-editor-save-to-local");
       var $save_to_local_button = $save.find(".story-editor-save-to-local-button");
@@ -430,13 +430,17 @@
         $save_to_google_button.prop("disabled", true);
         $save_to_google_message.empty().append($("<p>Currently saving story...</p>"));
         var story_data = collectStoryData();
-        var desired_sheet_id = $save_to_google_replace.prop("checked") ? current_sheet_id : undefined;
+        var desired_sheet_id = $save_to_google_replace_checkbox.prop("checked") ? current_sheet_id : undefined;
+        var desired_file_name = $save_file_name_textbox.val();
         saveDataAsTsv({
           data: story_data,
           sheet_id: desired_sheet_id,
-          file_name: $save_file_name_textbox.val(),
+          file_name: desired_file_name === current_sheet_name ? "" : desired_file_name, // prevent unnecessary API calls
           success: function (response) {
+            $save_to_google_replace_container.show();
             current_sheet_id = response["spreadsheetId"];
+            if (desired_file_name !== "") current_sheet_name = desired_file_name;
+            $save_file_name_textbox.val(current_sheet_name);
             var story_links = getDesktopStoryLinks(current_sheet_id, story_data);
             var link_html = "<a target='_blank' href='" + getShareLink(current_sheet_id) + "'>publicly viewable link</a>";
             var message = "<p>";
@@ -473,23 +477,21 @@
       $save.find("input:radio[name='story-editor-save-options']").on("change", function () {
         $save_file_name.show();
         if ($(this).val() == "google") {
-          if (mode == "create") {
-            $save.find("#story-editor-save-to-google-replace-container").hide();
-          } else {
-            $save.find("#story-editor-save-to-google-replace-container").show();
-          }
           if ($save_file_name_textbox.val() == "") {
-            $save_file_name_textbox.val(original_sheet_name)
+            $save_file_name_textbox.val(current_sheet_name)
           }
           $save_to_local.hide();
           $save_to_google.show();
+          if (mode == "edit" && $load_from_google_drive_radio.is(":checked")) {
+            $save_to_google_replace_container.show();
+          }
         } else {
           $save_to_google.hide();
           $save_to_local.show();
         }
       });
-      $save_to_google_replace.on("change", function () {
-        $save_file_name_textbox.val($(this).prop("checked") ? original_sheet_name : "");
+      $save_to_google_replace_checkbox.on("change", function () {
+        $save_file_name_textbox.val($(this).prop("checked") ? current_sheet_name : "");
         $save_to_google_button.prop("disabled", false);
       });
     }
@@ -552,6 +554,7 @@
       $this.find(".story-editor-save-to-google-message").empty();
       $this.find(".story-editor-save-file-name-textbox").val("");
       $this.find("input:radio[name='story-editor-save-options']").prop("checked", false);
+      $save_to_google_replace_container.hide();
       $this.find(".story-editor-save-file-name").hide();
       $this.find(".story-editor-save-to-local").hide();
       $this.find(".story-editor-save-to-google").hide();
@@ -583,7 +586,7 @@
       }
       mode = undefined;
       current_sheet_id = undefined;
-      original_sheet_name = undefined;
+      current_sheet_name = undefined;
       resetSaveUI();
     }
 
@@ -1066,12 +1069,11 @@
     // Save the tsv to a Google Sheet
     function saveDataAsTsv(settings) {
       settings = safeGet(settings, {});
-      var file_name = (settings["file_name"] == original_sheet_name) ? "" : settings["file_name"];
+      var file_name = settings["file_name"];
       var data_array = tsvToSheetsDataArray(dataToTsv(settings["data"]));
       var sheet_id = settings["sheet_id"];
       var success = settings["success"];
       var error = settings["error"];
-      var warning = settings["warning"];
       var authenticated = settings["authenticated"];
       var not_authenticated = settings["not_authenticated"];
       // Authentication
