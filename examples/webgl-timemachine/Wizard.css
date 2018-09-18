@@ -55,15 +55,16 @@ This is the main template of the wizard (step by step guides)
   line-height: 1;
   color: white;
   z-index: 2;
+  margin-bottom: 1px;
 }
 
 .wizard-head .close:before {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 8px;
+  right: 8px;
   background-color: white;
-  width: 30px;
-  height: 30px;
+  width: 34px;
+  height: 34px;
   content: "";
   z-index: 1;
   border-radius: 20px;
