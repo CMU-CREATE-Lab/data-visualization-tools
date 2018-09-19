@@ -216,12 +216,18 @@
     function collectParameters(desired_bound, desired_width, desired_height) {
       // Start time
       var start_time = parseCaptureTime($start_time.val(), "start");
+      // Start Time in playback time
+      var start_time_in_playback_time = timelapse.playbackTimeFromShareDate(start_time);
+      // Layers
+      var layers = safeGet(timelapse.getUtil().unpackVars(timelapse.getShareView()).l, "");
 
       // Collect the preview settings
       var preview = {
         bt: start_time,
         et: start_time,
+        t: start_time_in_playback_time,
         fps: 30,
+        l: layers,
         embedTime: false,
         format: "png",
         width: desired_width,
@@ -255,7 +261,9 @@
           ps: speed,
           bt: start_time,
           et: end_time,
+          t: start_time_in_playback_time,
           fps: 30,
+          l: layers,
           embedTime: false,
           startDwell: delay_start,
           endDwell: delay_end,
