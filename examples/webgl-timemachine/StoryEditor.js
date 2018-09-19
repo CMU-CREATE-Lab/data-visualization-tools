@@ -845,7 +845,7 @@
         resizable: false,
         height: "auto",
         draggable: false,
-        width: 245,
+        width: 285,
         modal: true,
         position: {my: "center", at: "center", of: $this},
         classes: {"ui-dialog": "custom-dialog"}, // this is for jquery 1.12 and after
