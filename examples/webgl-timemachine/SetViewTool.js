@@ -29,6 +29,7 @@
     var on_show_callback = settings["on_show_callback"];
     var $this;
     var $start_time, $end_time;
+    var $landscape_view_radio, $portrait_view_radio;
     var $speed_slow_radio, $speed_medium_radio, $speed_fast_radio;
     var $type_image_radio, $type_video_radio, $video_settings;
     var $delay_start, $delay_end;
@@ -74,7 +75,9 @@
       $this = $("#" + container_id + " .set-view-tool");
 
       // Toggle view
-      $this.find("input:radio[name='set-view-tool-toggle-view-input']").on("change", toggleViewDirection);
+      $landscape_view_radio = $this.find(".set-view-tool-toggle-landscape-view-radio");
+      $portrait_view_radio = $this.find(".set-view-tool-toggle-portrait-view-radio");
+      $this.find("input:radio[name='set-view-tool-toggle-view-radio']").on("change", toggleViewDirection);
 
       // Video settings
       $video_settings = $this.find(".set-view-tool-video-settings");
@@ -141,7 +144,7 @@
 
     // Get the view direction
     function getViewDirection() {
-      return $this.find("input:radio[name='set-view-tool-toggle-view-input']:checked").val();
+      return $this.find("input:radio[name='set-view-tool-toggle-view-radio']:checked").val();
     }
 
     // Set the playback speed
@@ -278,7 +281,7 @@
     // Save the view and pass in the urls to the callback function
     function saveView() {
       // Set bound
-      var current_bound_type = $this.find("input:radio[name='set-view-tool-toggle-view-input']:checked").val();
+      var current_bound_type = $this.find("input:radio[name='set-view-tool-toggle-view-radio']:checked").val();
       bound[current_bound_type] = thumbnail_tool.cropBoxToViewBox();
 
       // Automatically compute another bounding box if not defined
@@ -371,22 +374,33 @@
       var args_landscape = urls["landscape"]["render"]["args"];
       var args_portrait = urls["portrait"]["render"]["args"];
 
-      // Set the user interface of the set view tool
-      var bt = timelapse.playbackTimeFromShareDate(args_landscape["bt"]);
-      var et = timelapse.playbackTimeFromShareDate(args_landscape["et"]);
-      setViewType(args_landscape["format"] == "png" ? "image" : "video");
-      setPlaybackSpeed(parseFloat(args_landscape["ps"]) / 100);
-      $start_time.val(timelapse.getCaptureTimeByTime(bt));
-      $end_time.val(timelapse.getCaptureTimeByTime(et));
-      $delay_start.val(args_landscape["startDwell"]);
-      $delay_end.val(args_landscape["endDwell"]);
-      if (!$.isEmptyObject(args_landscape["bound"])) bound["landscape"] = args_landscape["bound"];
-      if (!$.isEmptyObject(args_portrait["bound"])) bound["portrait"] = args_portrait["bound"];
+      var set_view_and_ui = function() {
+        // Set the view
+        var share_view = (getViewDirection() == "landscape") ? share_view_landscape : share_view_portrait;
+        timelapse.loadSharedViewFromUnsafeURL(share_view);
+        // Set the user interface of the set view tool
+        var start_playback_time = timelapse.playbackTimeFromShareDate(args_landscape["bt"]);
+        var end_playback_time = timelapse.playbackTimeFromShareDate(args_landscape["et"]);
+        setViewType(args_landscape["format"] == "png" ? "image" : "video");
+        setPlaybackSpeed(parseFloat(args_landscape["ps"]) / 100);
+        $start_time.val(timelapse.getCaptureTimeByTime(start_playback_time));
+        $end_time.val(timelapse.getCaptureTimeByTime(end_playback_time));
+        $delay_start.val(args_landscape["startDwell"]);
+        $delay_end.val(args_landscape["endDwell"]);
+        if (!$.isEmptyObject(args_landscape["bound"])) bound["landscape"] = args_landscape["bound"];
+        if (!$.isEmptyObject(args_portrait["bound"])) bound["portrait"] = args_portrait["bound"];
+      };
 
-      // Sync the timelapse viewer
-      timelapse.seek(bt);
-      var bbox = (getViewDirection() == "landscape") ? args_landscape["bound"] : args_portrait["bound"];
-      timelapse.setNewView({bbox: bbox}, true, false);
+      // Load the dataset back and sync the timelapse viewer
+      var timeline_change_callback = function () {
+        set_view_and_ui();
+        timelapse.removeTimelineUIChangeListener(timeline_change_callback);
+      };
+      timelapse.addTimelineUIChangeListener(timeline_change_callback);
+      handleLayers(args_landscape["l"].split(","));
+
+      // We need to call this function because the timeline change listener does not always fire
+      set_view_and_ui();
     };
     this.setUI = setUI;
 

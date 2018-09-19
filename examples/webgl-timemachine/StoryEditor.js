@@ -9,7 +9,6 @@
 // - Papa Parse [https://www.papaparse.com/]
 // - time machine [https://github.com/CMU-CREATE-Lab/timemachine-viewer]
 // - the wizard template [wizard.css]
-// TODO: add the function for copying themes, stories, and waypoints
 // TODO: add the the function to move a waypoint to another story
 // TODO: add buttons for moving tabs up and down in the accordion
 // TODO: hide and show stories (publish and unpublish)
@@ -882,7 +881,8 @@
             $this.hide();
           });
           $this.find(".story-editor-copy-button").on("click", function () {
-            // TODO: need to implement copy
+            //var d = collectTabData(accordion.getActiveTab());
+            //setTabUI(accordion.addEmptyTab(), d);
           });
           $tab_template.find(".story-editor-delete-button").on("click", function () {
             $delete_confirm_dialog.dialog("open");
@@ -1143,8 +1143,8 @@
         title: "Las Vegas",
         description: "Las Vegas, officially the City of Las Vegas and often known simply as Vegas, is the 28th-most populated city in the United States, the most populated city in the state of Nevada, and the county seat of Clark County.",
         author: "Harry Potter and Ginny Weasley",
-        view_landscape: "https://headless.earthtime.org/#v=376423,740061,380719,742478,pts&t=0&ps=0&l=blsat&bt=20010101&et=20010101&startDwell=0&endDwell=0&fps=30",
-        view_portrait: "https://headless.earthtime.org/#v=376537,738962,379195,743683,pts&t=0&ps=0&l=blsat&bt=20010101&et=20010101&startDwell=0&endDwell=0&fps=30"
+        view_landscape: "https://headless.earthtime.org/#v=376423,740061,380719,742478,pts&t=1.7&ps=0&l=blsat&bt=20010101&et=20010101&startDwell=0&endDwell=0&fps=30",
+        view_portrait: "https://headless.earthtime.org/#v=376537,738962,379195,743683,pts&t=1.7&ps=0&l=blsat&bt=20010101&et=20010101&startDwell=0&endDwell=0&fps=30"
       });
       $this.find(".story-editor-story .next-button").click();
       setAccordionUI(waypoint_accordion, [{
@@ -1157,8 +1157,8 @@
         title: "2016",
         long_title: "Las Vegas 2016",
         description: "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt",
-        view_landscape: "https://headless.earthtime.org/#v=375162,739550,380734,742687,pts&t=0&ps=0&l=blsat&bt=20160101&et=20160101&startDwell=0&endDwell=0&fps=30",
-        view_portrait: "https://headless.earthtime.org/#v=376379,738333,379516,743905,pts&t=0&ps=0&l=blsat&bt=20160101&et=20160101&startDwell=0&endDwell=0&fps=30"
+        view_landscape: "https://headless.earthtime.org/#v=375162,739550,380734,742687,pts&t=3.2&ps=0&l=blsat&bt=20160101&et=20160101&startDwell=0&endDwell=0&fps=30",
+        view_portrait: "https://headless.earthtime.org/#v=376379,738333,379516,743905,pts&t=3.2&ps=0&l=blsat&bt=20160101&et=20160101&startDwell=0&endDwell=0&fps=30"
       }, {
         title: "1984-2016",
         long_title: "Las Vegas 1984-2016 (Medium Speed)",
@@ -1169,8 +1169,8 @@
         title: "1991-2009",
         long_title: "Las Vegas 1991-2009 (Fast Speed)",
         description: "abc def ghi jkl mno pqrs tuv wxyz ABC DEF GHI JKL MNO PQRS TUV WXYZ !\"§ $%& /() =?* '<> #|; ²³~ @`´ ©«» ¤¼× {}abc def ghi",
-        view_landscape: "https://headless.earthtime.org/#v=375567,739964,379848,742375,pts&t=0&ps=100&l=blsat&bt=19910101&et=20091231&startDwell=1&endDwell=2&fps=30",
-        view_portrait: "https://headless.earthtime.org/#v=376502,739029,378913,743310,pts&t=0&ps=100&l=blsat&bt=19910101&et=20091231&startDwell=1&endDwell=2&fps=30"
+        view_landscape: "https://headless.earthtime.org/#v=375567,739964,379848,742375,pts&t=0.7&ps=100&l=blsat&bt=19910101&et=20091231&startDwell=1&endDwell=2&fps=30",
+        view_portrait: "https://headless.earthtime.org/#v=376502,739029,378913,743310,pts&t=0.7&ps=100&l=blsat&bt=19910101&et=20091231&startDwell=1&endDwell=2&fps=30"
       }]);
       $this.find(".story-editor-waypoint .next-button").click();
       $this.find(".story-editor-save .back-button").click();
@@ -1180,8 +1180,7 @@
 
     // For testing the function of editing stories
     function testEditStory() {
-      edit_theme_accordion.addEmptyTab();
-      setTabUI(edit_theme_accordion.getActiveTab(), {
+      setTabUI(edit_theme_accordion.addEmptyTab(), {
         title: "Deforestation",
         description: "Deforestation, clearance, or clearing is the removal of a forest or stand of trees where the land is thereafter converted to a non-forest use. Examples of deforestation include conversion of forestland to farms, ranches, or urban use."
       });
@@ -1190,8 +1189,8 @@
         title: "Rondonia",
         description: "Rondonia is a state in Brazil, located in the north part of the country. To the west is a short border with the state of Acre, to the north is the state of Amazonas, in the east is Mato Grosso, and in the south and southwest is Bolivia.",
         author: "Hermione Granger and Ron Weasley",
-        view_landscape: "https://headless.earthtime.org/#v=678007,1027451,699007,1039263,pts&t=0&ps=0&l=blsat&bt=19860101&et=19860101&startDwell=0&endDwell=0&fps=30",
-        view_portrait: "https://headless.earthtime.org/#v=682601,1022857,694413,1043857,pts&t=0&ps=0&l=blsat&bt=19860101&et=19860101&startDwell=0&endDwell=0&fps=30"
+        view_landscape: "https://headless.earthtime.org/#v=678007,1027451,699007,1039263,pts&t=0.2&ps=0&l=blsat&bt=19860101&et=19860101&startDwell=0&endDwell=0&fps=30",
+        view_portrait: "https://headless.earthtime.org/#v=682601,1022857,694413,1043857,pts&t=0.2&ps=0&l=blsat&bt=19860101&et=19860101&startDwell=0&endDwell=0&fps=30"
       }]);
       $this.find(".story-editor-edit-story .next-button").click();
       setAccordionUI(edit_waypoint_accordion, [{
@@ -1202,8 +1201,8 @@
       }, {
         title: "2016",
         long_title: "Rondonia 2016",
-        view_landscape: "https://headless.earthtime.org/#v=676359,1027340,700549,1040942,pts&t=0&ps=0&l=blsat&bt=20160101&et=20160101&startDwell=0&endDwell=0&fps=30",
-        view_portrait: "https://headless.earthtime.org/#v=681653,1022046,695255,1046236,pts&t=0&ps=0&l=blsat&bt=20160101&et=20160101&startDwell=0&endDwell=0&fps=30"
+        view_landscape: "https://headless.earthtime.org/#v=676359,1027340,700549,1040942,pts&t=3.2&ps=0&l=blsat&bt=20160101&et=20160101&startDwell=0&endDwell=0&fps=30",
+        view_portrait: "https://headless.earthtime.org/#v=681653,1022046,695255,1046236,pts&t=3.2&ps=0&l=blsat&bt=20160101&et=20160101&startDwell=0&endDwell=0&fps=30"
       }, {
         title: "1984-2016",
         long_title: "Rondonia 1984-2016 (Medium Speed)",
@@ -1212,8 +1211,65 @@
       }, {
         title: "1993-2007",
         long_title: "Rondonia 1993-2007 (Slow Speed)",
-        view_landscape: "https://headless.earthtime.org/#v=676359,1027340,700549,1040942,pts&t=0&ps=25&l=blsat&bt=19930101&et=20071231&startDwell=1&endDwell=2&fps=30",
-        view_portrait: "https://headless.earthtime.org/#v=681653,1022046,695255,1046236,pts&t=0&ps=25&l=blsat&bt=19930101&et=20071231&startDwell=1&endDwell=2&fps=30"
+        view_landscape: "https://headless.earthtime.org/#v=676359,1027340,700549,1040942,pts&t=0.9&ps=25&l=blsat&bt=19930101&et=20071231&startDwell=1&endDwell=2&fps=30",
+        view_portrait: "https://headless.earthtime.org/#v=681653,1022046,695255,1046236,pts&t=0.9&ps=25&l=blsat&bt=19930101&et=20071231&startDwell=1&endDwell=2&fps=30"
+      }]);
+      $this.find(".story-editor-edit-waypoint .next-button").click();
+      $this.find(".story-editor-save .back-button").click();
+      $this.find(".story-editor-edit-waypoint .back-button").click();
+      $this.find(".story-editor-edit-story .back-button").click();
+      setTabUI(edit_theme_accordion.addEmptyTab(), {
+        title: "Forced Displacement",
+        description: "Forced displacement or forced immigration is the coerced movement of a person or people away from their home or home region and it often connotes violent coercion."
+      });
+      $this.find(".story-editor-edit-theme .next-button").click();
+      setAccordionUI(edit_story_accordion, [{
+        title: "Refugee",
+        description: "A refugee, generally speaking, is a displaced person who has been forced to cross national boundaries and who cannot return home safely.",
+        author: "Luna Lovegood",
+        view_landscape: "https://headless.earthtime.org/#v=812158,604912,1444623,960674,pts&t=0.6&ps=0&l=bdrk,ar&bt=0.6&et=0.6&startDwell=0&endDwell=0&fps=30",
+        view_portrait: "https://headless.earthtime.org/#v=950510,466561,1306272,1099026,pts&t=0.6&ps=0&l=bdrk,ar&bt=0.6&et=0.6&startDwell=0&endDwell=0&fps=30"
+      }]);
+      $this.find(".story-editor-edit-story .next-button").click();
+      setAccordionUI(edit_waypoint_accordion, [{
+        title: "Middle East",
+        long_title: "Middle East 2007",
+        view_landscape: "https://headless.earthtime.org/#v=1229254,734461,1327079,789488,pts&t=0.7&ps=0&l=bdrk,ar&bt=0.7&et=0.7&startDwell=0&endDwell=0&fps=30",
+        view_portrait: "https://headless.earthtime.org/#v=1268126,719764,1313244,799974,pts&t=0.7&ps=0&l=bdrk,ar&bt=0.7&et=0.7&startDwell=0&endDwell=0&fps=30"
+      }, {
+        title: "Africa",
+        long_title: "Africa 2005 to 2007",
+        view_landscape: "https://headless.earthtime.org/#v=694151,570697,1598232,1079242,pts&t=0.5&ps=50&l=bdrk,ar&bt=20050101&et=20071231&startDwell=0&endDwell=0&fps=30",
+        view_portrait: "https://headless.earthtime.org/#v=891919,372929,1400464,1277010,pts&t=0.5&ps=50&l=bdrk,ar&bt=20050101&et=20071231&startDwell=0&endDwell=0&fps=30"
+      }]);
+      $this.find(".story-editor-edit-waypoint .next-button").click();
+      $this.find(".story-editor-save .back-button").click();
+      $this.find(".story-editor-edit-waypoint .back-button").click();
+      $this.find(".story-editor-edit-story .back-button").click();
+      setTabUI(edit_theme_accordion.addEmptyTab(), {
+        title: "Cloud",
+        description: "In meteorology, a cloud is an aerosol consisting of a visible mass of minute liquid droplets, frozen crystals, or other particles suspended in the atmosphere of a planetary body."
+      });
+      $this.find(".story-editor-edit-theme .next-button").click();
+      setAccordionUI(edit_story_accordion, [{
+        title: "Himawari",
+        description: "The Himawari geostationary satellites, operated by the Japan Meteorological Agency (JMA), support weather forecasting, tropical cyclone tracking, and meteorology research.",
+        author: "Albus Dumbledore",
+        view_landscape: "https://headless.earthtime.org/#v=-988195,-148041,2788731,1976479,pts&t=1.3333333333333333&ps=0&l=bdrk,h8_16&bt=1.3333333333333333&et=1.3333333333333333&startDwell=0&endDwell=0&fps=30",
+        view_portrait: "https://headless.earthtime.org/#v=-161992,-974244,1962528,2802682,pts&t=1.3333333333333333&ps=0&l=bdrk,h8_16&bt=1.3333333333333333&et=1.3333333333333333&startDwell=0&endDwell=0&fps=30"
+      }]);
+      $this.find(".story-editor-edit-story .next-button").click();
+      setAccordionUI(edit_waypoint_accordion, [{
+        title: "Japan",
+        long_title: "Japan 2015-11-02 04:10",
+        view_landscape: "https://headless.earthtime.org/#v=458642,166597,1111869,534037,pts&t=13.833333333333334&ps=0&l=bdrk,h8_16&bt=13.833333333333334&et=13.833333333333334&startDwell=0&endDwell=0&fps=30",
+        view_portrait: "https://headless.earthtime.org/#v=594818,11761,975694,688874,pts&t=13.833333333333334&ps=0&l=bdrk,h8_16&bt=13.833333333333334&et=13.833333333333334&startDwell=0&endDwell=0&fps=30"
+      }, {
+        title: "Australia",
+        long_title: "Australia Animation",
+        description: "from 2015-11-04 12:40 to 2015-11-05 05:10",
+        view_landscape: "https://headless.earthtime.org/#v=106682,1094517,1576768,1921441,pts&t=41.75&ps=50&l=bdrk,h8_16&bt=20151104124000&et=20151105051000&startDwell=0&endDwell=1&fps=30",
+        view_portrait: "https://headless.earthtime.org/#v=-7241,214674,1035176,2067859,pts&t=41.75&ps=50&l=bdrk,h8_16&bt=20151104124000&et=20151105051000&startDwell=0&endDwell=1&fps=30"
       }]);
       $this.find(".story-editor-edit-waypoint .next-button").click();
       $this.find(".story-editor-save .back-button").click();
