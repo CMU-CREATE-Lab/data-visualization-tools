@@ -698,7 +698,7 @@
       if (typeof data !== "undefined") {
         d["data"] = safeGet(data, []);
       }
-      return d;
+      return deepCopy(d, {});
     }
 
     // Collect data from the user interface of an accordion (theme, story, waypoint)
@@ -708,7 +708,7 @@
         var d = collectTabData($(this));
         if (hasContent(d)) data.push(d);
       });
-      return data;
+      return deepCopy(data, []);
     }
 
     // Propagate data backward from an accordion to another one
@@ -880,9 +880,20 @@
             set_view_tool.show();
             $this.hide();
           });
-          $this.find(".story-editor-copy-button").on("click", function () {
-            //var d = collectTabData(accordion.getActiveTab());
-            //setTabUI(accordion.addEmptyTab(), d);
+          $tab_template.find(".story-editor-copy-button").on("click", function () {
+            var d = collectTabData(accordion.getActiveTab());
+            d["title"] += " Copy";
+            if (typeof d["data"] !== "undefined") {
+              d["data"].forEach(function (x) {
+                x["title"] += " Copy";
+                if (typeof x["data"] !== "undefined") {
+                  x["data"].forEach(function (y) {
+                    y["title"] += " Copy";
+                  });
+                }
+              });
+            }
+            setTabUI(accordion.addEmptyTab(), d);
           });
           $tab_template.find(".story-editor-delete-button").on("click", function () {
             $delete_confirm_dialog.dialog("open");
@@ -1052,6 +1063,12 @@
     function safeGet(v, default_val) {
       if (typeof default_val === "undefined") default_val = "";
       return (typeof v === "undefined") ? default_val : v;
+    }
+
+    // Deep copy of an object
+    // new_obj should be "[]" or "{}", depending on the type of obj
+    function deepCopy(obj, new_obj) {
+      return $.extend(true, new_obj, obj);
     }
 
     // Check if there are things inside every key of a dictionary
