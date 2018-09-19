@@ -1155,6 +1155,23 @@
       cached_ajax[identifier + '.json'] = {"capture-times":  captureTimes};
     }
 
+    function handleLayers(layers) {
+      // Clear out all layers that were checked
+      $(".map-layer-div").find("input:checked").trigger("click");
+      layers.forEach(function(layer) {
+        if (layer.indexOf("extras_") == 0 || layer.indexOf("e-") == 0) {
+          $("#extras-selector").selectmenu("refresh");
+          // Need to delay some amount of time for the selectmenu to refresh.
+          setTimeout(function() {
+            $('#extras-selector-menu li[data-name="' + layer + '"]').click();
+          }, 5);
+        } else {
+          var $layerToggle = $("#layers-list label[name='" + layer + "'] input");
+          if (!$layerToggle.prop('checked')) $layerToggle.trigger("click");
+        }
+      });
+    }
+
     function initLayerToggleUI() {
       // ## 3 ##
       //// Layer toggle event handlers ////
@@ -6322,27 +6339,13 @@
             $nextAnnotationLocationButton.addClass("annotation-story-end-button");
           }
 
-          // Clear out all layers that were checked
-          $(".map-layer-div").find("input:checked").trigger("click");
-
           // Remove himawari since we do special cases further below
           var himawariIdx = waypointLayers.indexOf("h8");
           himawariIdx = himawariIdx > -1 ? himawariIdx : waypointLayers.indexOf("h8_16");
           if (himawariIdx > -1) waypointLayers.splice(himawariIdx, 1);
 
           // Handle layers
-          waypointLayers.forEach(function(layer) {
-            if (layer.indexOf("extras_") == 0 || layer.indexOf("e-") == 0) {
-              $("#extras-selector").selectmenu("refresh");
-              // Need to delay some amount of time for the selectmenu to refresh.
-              setTimeout(function() {
-                $('#extras-selector-menu li[data-name="' + layer + '"]').click();
-              }, 5);
-            } else {
-              var $layerToggle = $("#layers-list label[name='" + layer + "'] input");
-              if (!$layerToggle.prop('checked')) $layerToggle.trigger("click");
-            }
-          });
+          handleLayers(waypointLayers);
 
           // Handle Himawari
           // Note: Must be run after other layers
