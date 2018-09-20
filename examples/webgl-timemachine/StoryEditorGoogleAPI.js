@@ -65,9 +65,7 @@
       return gapi.auth2.getAuthInstance().signIn().then(function(response) {
         return {userId: response.getId()};
       }).catch(function(errorResponse) {
-        // TODO: Maybe throw to get caught further up?
-        // Right now the only known error that gets caught is if the login pop-up is closed.
-        // There might be more though if authentication fails for whatever reason.
+        throw {status: "error", message: errorResponse.result.error.message};
       });
     };
     this.handleAuthClick = handleAuthClick;
