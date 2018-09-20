@@ -2383,3 +2383,7 @@ a:focus { outline:0; }
   z-index: 99999;
   border-color: #666666;
 }
+
+.pac-container {
+  z-index: 99999;
+}
