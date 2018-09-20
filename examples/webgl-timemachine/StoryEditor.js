@@ -256,7 +256,18 @@
         }
       });
       $load.find(".google-authenticate-button").on("click", function () {
-        GOOGLE_API.handleAuthClick();
+        var promise = GOOGLE_API.handleAuthClick();
+        promise.then(function (response) {
+          // A user id is returned, ignore for now
+        }).catch(function (response) {
+          var msg = "An error is encountered when logging in to the Google Drive.";
+          if (response["message"]["error"] == "popup_closed_by_user") {
+            msg += " Please log in to proceed."
+          } else {
+            msg += " Please try again later."
+          }
+          $load_from_google_drive_message.empty().append($("<p>" + msg + "</p>"));
+        });
       });
       $load_from_google_drive_radio.on("click", function () {
         $load_from_direct_link.hide();
@@ -480,7 +491,19 @@
             $save_to_google_button.prop("disabled", false);
           },
           not_authenticated: function () {
-            GOOGLE_API.handleAuthClick();
+            var promise = GOOGLE_API.handleAuthClick();
+            promise.then(function (response) {
+              // A user id is returned, ignore for now
+            }).catch(function (response) {
+              var msg = "An error is encountered when logging in to the Google Drive.";
+              if (response["message"]["error"] == "popup_closed_by_user") {
+                msg += " Please log in to proceed."
+              } else {
+                msg += " Please try again later."
+              }
+              $save_to_google_message.empty().append($("<p>" + msg + "</p>"));
+              $save_to_google_button.prop("disabled", false);
+            });
           }
         });
       });
@@ -501,7 +524,6 @@
         }
       });
       $save_to_google_replace_checkbox.on("change", function () {
-        $save_file_name_textbox.val($(this).prop("checked") ? current_sheet_name : "");
         $save_to_google_button.prop("disabled", false);
       });
     }
@@ -974,7 +996,13 @@
       if (typeof settings["tsv"] === "undefined") return;
       var success = settings["success"];
       var error = settings["error"];
-      var parsed = Papa.parse(settings["tsv"], {delimiter: '\t', header: true});
+      var parsed = Papa.parse(settings["tsv"], {
+        delimiter: "\t",
+        header: true,
+        beforeFirstChunk: function (chunk) {
+          return chunk.trim();
+        }
+      });
       var is_valid_csv = isValidTsv(parsed);
       if (!is_valid_csv && typeof error === "function") {
         error();
