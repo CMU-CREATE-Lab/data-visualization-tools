@@ -3626,8 +3626,6 @@
       $(document).keydown(function(e) {
         var fromRealKeydown = e.originalEvent && e.pageX != 0 && e.pageY != 0;
         if ((e.target.tagName == "INPUT" || e.target.tagName == "TEXTAREA") && !!fromRealKeydown) return;
-        e.preventDefault();
-        e.stopImmediatePropagation();
 
         // 'page up' key
         // Quick way to step forward through waypoints
@@ -3664,6 +3662,8 @@
         // Quick way to toggle play/pause
         if (usePresentationClicker) {
           if (e.keyCode === 9 || e.keyCode === 13) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
             timelapse.handlePlayPause();
           }
         }
