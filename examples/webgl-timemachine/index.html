@@ -4576,6 +4576,9 @@
       if (path == waypointsLoadedPath) return;
       waypointsLoadedPath = path;
 
+      // Keep track of spreadsheet path
+      UTIL.addGoogleAnalyticEvent('javascript', 'load-waypoints', 'spreadsheet-path=' + path);
+
       // Legacy waypoint format (output of snaplapse editor)
       if (waypointCollection) {
         timelapse.loadSharedDataFromUnsafeURL(waypointCollection);
