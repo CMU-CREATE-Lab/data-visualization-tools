@@ -65,7 +65,7 @@
       return gapi.auth2.getAuthInstance().signIn().then(function(response) {
         return {userId: response.getId()};
       }).catch(function(errorResponse) {
-        throw {status: "error", message: errorResponse.result.error.message};
+        throw {status: "error", message: errorResponse};
       });
     };
     this.handleAuthClick = handleAuthClick;
