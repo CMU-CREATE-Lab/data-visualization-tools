@@ -359,7 +359,7 @@ html, body {
   width: 200px;
   height: 28px;
   padding-left: 15px;
-  padding-right: 15px;
+  padding-right: 40px;
   background: rgba(255,255,255,1);
   margin-left: -140px;
   border: 1px solid #656565;
@@ -714,10 +714,8 @@ html, body {
 .next-annotation-location {
   width: 44px;
   height: 44px;
-  border-radius: 50%;
   background: white;
-  border-bottom-right-radius: 2px !important;
-  border-top-right-radius: 2px !important;
+  border-radius: 2px !important;
   -webkit-box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
           box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
   position: absolute;
@@ -728,10 +726,8 @@ html, body {
 .previous-annotation-location {
   width: 44px;
   height: 44px;
-  border-radius: 50%;
   background: white;
-  border-bottom-right-radius: 2px !important;
-  border-top-right-radius: 2px !important;
+  border-radius: 2px !important;
   -webkit-box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
           box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
   position: absolute;
