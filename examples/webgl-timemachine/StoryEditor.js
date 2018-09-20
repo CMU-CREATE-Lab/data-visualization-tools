@@ -460,7 +460,11 @@
           success: function (response) {
             $save_to_google_replace_container.show();
             current_sheet_id = response["spreadsheetId"];
-            if (desired_file_name !== "") current_sheet_name = desired_file_name;
+            if (typeof response["spreadsheetTitle"] !== "undefined") {
+              current_sheet_name = response["spreadsheetTitle"];
+            } else {
+              if (desired_file_name !== "") current_sheet_name = desired_file_name;
+            }
             $save_file_name_textbox.val(current_sheet_name);
             var story_links = getDesktopStoryLinks(current_sheet_id, story_data);
             var link_html = "<a target='_blank' href='" + getShareLink(current_sheet_id) + "'>publicly viewable link</a>";
@@ -618,6 +622,10 @@
       current_sheet_id = undefined;
       current_sheet_name = undefined;
       resetSaveUI();
+      if ($load_from_google_drive_radio.is(":checked")) {
+        want_to_refresh_story_from_drive = true;
+        $load_from_google_drive_radio.trigger("click");
+      }
     }
 
     // Set the user interface of a tab (one row in the tsv file)
