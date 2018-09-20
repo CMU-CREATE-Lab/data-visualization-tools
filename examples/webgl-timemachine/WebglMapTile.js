@@ -251,8 +251,12 @@ WebglMapTile.update = function(tiles, transform, options) {
 WebglMapTile.prototype._handleLoading = function() {
   var that = this;
   clearTimeout(this._loadingSpinnerTimer);
+  this._spinnerNeeded = true;
   // Wait 300ms to prevent small datasets from flashing up a spinner.
   this._loadingSpinnerTimer = setTimeout(function() {
+    if (!that._spinnerNeeded) {
+      return;
+    }
     that._removeLoadingSpinner();
     var $loadingSpinner = $("<td class='loading-layer-spinner-small' data-loading-layer='" + that._layerDomId + "'></td>");
     $(".map-layer-div input#" + that._layerDomId).closest("td").after($loadingSpinner);
@@ -260,6 +264,7 @@ WebglMapTile.prototype._handleLoading = function() {
 }
 
 WebglMapTile.prototype._removeLoadingSpinner = function() {
+  this._spinnerNeeded = false;
   clearTimeout(this._loadingSpinnerTimer);
   var $loadingSpinner = $('.loading-layer-spinner-small[data-loading-layer="' + this._layerDomId + '"]');
   $loadingSpinner.remove();

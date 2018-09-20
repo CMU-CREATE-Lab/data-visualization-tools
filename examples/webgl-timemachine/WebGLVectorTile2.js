@@ -28,7 +28,7 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
   this.draw = opt_options.drawFunction || this._drawLines;
   this.fragmentShader = opt_options.fragmentShader || WebGLVectorTile2.vectorTileFragmentShader;
   this.vertexShader = opt_options.vertexShader || WebGLVectorTile2.vectorTileVertexShader;
-  this.externalGeojson = opt_options.externalGeojson;  
+  this.externalGeojson = opt_options.externalGeojson;
   this.nameKey = opt_options.nameKey;
   this.numAttributes = opt_options.numAttributes;
   this._noValue = opt_options.noValue || 'xxx';
@@ -288,7 +288,7 @@ WebGLVectorTile2.prototype._loadBivalentBubbleMapDataFromCsv = function() {
       });
       ret.push(scaled);
     });
-    return ret;    
+    return ret;
   }
 
   function setMinMaxPointValue(arr) {
@@ -296,10 +296,10 @@ WebGLVectorTile2.prototype._loadBivalentBubbleMapDataFromCsv = function() {
       var x = Math.abs(xx);
       if (that._maxPointValue == null || that._maxPointValue < x) {
         that._maxPointValue = x;
-      } 
+      }
       if (that._minPointValue == null || that._minPointValue > x) {
         that._minPointValue = x;
-      } 
+      }
     });
   }
 
@@ -308,10 +308,10 @@ WebGLVectorTile2.prototype._loadBivalentBubbleMapDataFromCsv = function() {
       var x = Math.abs(xx);
       if (that._maxColorValue == null || that._maxColorValue < x) {
         that._maxColorValue = x;
-      } 
+      }
       if (that._minColorValue == null || that._minColorValue > x) {
         that._minColorValue = x;
-      } 
+      }
     });
   }
 
@@ -412,12 +412,12 @@ WebGLVectorTile2.prototype._loadBivalentBubbleMapDataFromCsv = function() {
         }
         // Extract centroids
         if (has_lat_lon && pointRow[1] != '') {
-          var centroid = getCentroidFromCsvData(pointRow); 
+          var centroid = getCentroidFromCsvData(pointRow);
           centroids.push(centroid);
           pointRow = setRow(duplicateRow(first_data_col, pointRow));
           setMinMaxPointValue(pointRow);
           colorRow = setRow(duplicateRow(first_data_col, colorRow));
-          setMinMaxColorValue(colorRow);          
+          setMinMaxColorValue(colorRow);
           pointValues.push(pointRow);
           colorValues.push(colorRow);
         }
@@ -434,7 +434,7 @@ WebGLVectorTile2.prototype._loadBivalentBubbleMapDataFromCsv = function() {
     var points = [];
     for (var i = 0; i < centroids.length; i++) {
       for (var j = 0; j < epochs.length; j+= 2) {
-        var point = {}; 
+        var point = {};
         point["centroid"] = centroids[i];
         point["pointVal1"] = scaledPointValues[i][j];
         point["pointVal2"] = scaledPointValues[i][j+1];
@@ -3100,10 +3100,14 @@ WebGLVectorTile2.update = function(tiles, transform, options) {
 WebGLVectorTile2.prototype._handleLoading = function() {
   var that = this;
   clearTimeout(this._loadingSpinnerTimer);
+  this._spinnerNeeded = true;
   // Wait 300ms to prevent small datasets from flashing up a spinner.
   this._loadingSpinnerTimer = setTimeout(function() {
+    if (!that._spinnerNeeded) {
+      return;
+    }
     that._removeLoadingSpinner();
-    if (!timelapse.isPaused()) {
+    if (!timelapse.isPaused() || timelapse.isDoingLoopingDwell()) {
       that._wasPlayingBeforeDataLoad = true;
       timelapse.handlePlayPause();
     }
@@ -3114,11 +3118,12 @@ WebGLVectorTile2.prototype._handleLoading = function() {
 }
 
 WebGLVectorTile2.prototype._removeLoadingSpinner = function() {
+  this._spinnerNeeded = false;
+  clearTimeout(this._loadingSpinnerTimer);
   if (this._wasPlayingBeforeDataLoad) {
     this._wasPlayingBeforeDataLoad = null;
     timelapse.play();
   }
-  clearTimeout(this._loadingSpinnerTimer);
   var $loadingSpinner = $('.loading-layer-spinner-small[data-loading-layer="' + this._layerDomId + '"]');
   $loadingSpinner.remove();
   if ($(".loading-layer-spinner-small").length == 0) {
