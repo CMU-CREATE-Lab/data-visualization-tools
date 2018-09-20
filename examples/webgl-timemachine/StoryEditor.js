@@ -551,9 +551,7 @@
       if (root.indexOf("localhost") >= 0 || root.indexOf("file:") >= 0) {
         return getShareLink(sheet_id) + "&story=" + story_id;
       } else {
-        // TODO: the correct link currently has loading bugs
         return getRootUrl() + "/stories/" + story_id + "#waypoints=" + sheet_id + ".0";
-        //return getShareLink(sheet_id) + "&story=" + story_id;
       }
     }
 
@@ -575,7 +573,7 @@
       if (host.indexOf("localhost") >= 0 || host.indexOf("file:") >= 0) {
         return base + window.location.pathname;
       } else {
-        return base;
+        return "https://earthtime.org";
       }
     }
 
