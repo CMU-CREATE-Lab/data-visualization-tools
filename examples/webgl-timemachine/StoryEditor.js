@@ -498,6 +498,7 @@
             var promise = GOOGLE_API.handleAuthClick();
             promise.then(function (response) {
               // A user id is returned, ignore for now
+              $save_to_google_button.trigger("click");
             }).catch(function (response) {
               var msg = "An error is encountered when logging in to the Google Drive.";
               if (response["message"]["error"] == "popup_closed_by_user") {
