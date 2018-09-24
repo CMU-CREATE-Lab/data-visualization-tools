@@ -495,6 +495,7 @@
             $save_to_google_button.prop("disabled", false);
           },
           not_authenticated: function () {
+            $save_to_google_message.empty().append($("<p>Please log in to proceed.</p>"));
             var promise = GOOGLE_API.handleAuthClick();
             promise.then(function (response) {
               // A user id is returned, ignore for now
