@@ -480,10 +480,6 @@ html, body {
   cursor: default;
 }
 
-#main-hamburger-menu.layerGraphs {
-  height: calc(100% - 369px) !important;
-}
-
 #layers-list-title {
   font-size: 17px;
   padding-left: 15px;
@@ -1249,7 +1245,7 @@ a:focus { outline:0; }
   vertical-align: middle;
   display: block;
   right: -123px;
-  top: calc(50% - 5px);
+  top: calc(50% - 13px);
   font-size: 14px;
   text-align: center;
 }
@@ -1835,12 +1831,8 @@ a:focus { outline:0; }
   -ms-user-select: none;
   user-select: none;
   text-transform:capitalize;
-  height: calc(100% - 94px);
-  z-index: 9000;
-}
-
-#main-hamburger-menu.presentationSliderOffscreen {
   height: 100%;
+  z-index: 9000;
 }
 
 /*.themes-div > h3:first-child {

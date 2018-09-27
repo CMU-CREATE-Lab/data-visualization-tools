@@ -6996,19 +6996,6 @@
 
       handleStoryToggle(initiallyShowPresentationSlider);
 
-      /*var navbarTimeout;
-      $("body").on("mousemove click", function(e) {
-        var fromRealKeydown = e.originalEvent && e.pageX != 0 && e.pageY != 0;
-        if (e.keyCode && (e.keyCode == 187 || e.keyCode == 107 || e.keyCode == 189 || e.keyCode == 109)) return;
-        $("#top-nav").stop(true, true).slideDown();
-        clearTimeout(navbarTimeout);
-        navbarTimeout = setTimeout(function() {
-          if (!$("#main-hamburger-menu, .ui-autocomplete").is(':visible')) {
-            $("#top-nav").stop(true, true).slideUp("slow");
-          }
-        }, 5000);
-      }).trigger("mousemove");*/
-
       // Workaround for issue that came with Chrome 65. Rot in hell browsers.
       // Force redraw of the sticky positioned menus in bottom left.
       $(".snaplapse_keyframe_container").scroll(function() {
@@ -7373,14 +7360,14 @@
         $("#csvChartLegend").show();
         $("#csvChartContainer").show();
         if (!disablePresentationSlider) {
-          $("#layers-legend, #main-hamburger-menu, .controls, .customControl, #baseLayerCreditContainer, .current-location-text-container, .annotations-resume-exit-container, .player, .scaleBarContainer, #logosContainer").addClass("layerGraphs");
+          $("#layers-legend, .controls, .customControl, #baseLayerCreditContainer, .current-location-text-container, .annotations-resume-exit-container, .player, .scaleBarContainer, #logosContainer").addClass("layerGraphs");
         }
         $("#timeMachine").addClass("layerGraphs");
       } else {
         $("#csvChartLegend").hide();
         $("#csvChartContainer").hide();
         if (!disablePresentationSlider) {
-          $("#layers-legend, #main-hamburger-menu, .controls, .customControl, #baseLayerCreditContainer, .current-location-text-container, .annotations-resume-exit-container, .player, .scaleBarContainer, #logosContainer").removeClass("layerGraphs");
+          $("#layers-legend, .controls, .customControl, #baseLayerCreditContainer, .current-location-text-container, .annotations-resume-exit-container, .player, .scaleBarContainer, #logosContainer").removeClass("layerGraphs");
         }
         $("#timeMachine").removeClass("layerGraphs");
       }
@@ -7643,14 +7630,14 @@
     function handleStoryToggle(doShow) {
       if (doShow) {
         $("#timeMachine .presentationSlider").removeClass("offscreen");
-        $("#timeMachine .player, #main-hamburger-menu").removeClass("presentationSliderOffscreen");
+        $("#timeMachine .player").removeClass("presentationSliderOffscreen");
         $("#layers-list, #theme-list, .themes-scroll-vertical").addClass("waypoints");
         $("#timeMachine .shareView").css("height", "calc(100% + " + $(".player").css("bottom") + ")");
         $("#timeMachine .player .presentation-mode-share-input").show();
         $("#timeMachine .player .shareView .ui-dialog-title").text("Share a Story");
       } else {
         $("#timeMachine .presentationSlider").addClass("offscreen");
-        $("#timeMachine .player, #main-hamburger-menu").addClass("presentationSliderOffscreen");
+        $("#timeMachine .player").addClass("presentationSliderOffscreen");
         $("#layers-list, #theme-list, .themes-scroll-vertical").removeClass("waypoints");
         $("#timeMachine .shareView").css("height", "100%");
         $("#timeMachine .player .presentation-mode-share-input").hide();
