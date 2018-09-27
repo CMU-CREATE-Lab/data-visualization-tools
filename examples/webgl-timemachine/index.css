@@ -383,22 +383,9 @@ html, body {
 }
 
 #layers-list.featured {
-  height: calc(50% - 66px);
+  height: 100%;
   margin-top: 53px;
 }
-
-#layers-list.waypoints {
-  height: calc(100% - 58px);
-}
-
-#layers-list.featured.waypoints {
-  height: calc(50% - 16px);
-}
-
-#layers-list.featured .layers-scroll-vertical {
-  height: calc(100% - 63px);
-}
-
 
 #layers-menu {
   height: 100%;
@@ -419,7 +406,7 @@ html, body {
   height: 67%;
 }
 #layers-list-featured.shrink {
-  height: calc(50% - 88px) !important;
+  height: calc(50% - 110px) !important;
 }
 .featured-layers-scroll-vertical {
   overflow-y: auto;
