@@ -4186,7 +4186,7 @@ WebGLVectorTile2.pointFlowVertexShader =
 '          position = u_map_matrix * bezier(t, a_p0, a_p1, a_p2);\n' +
 '        }\n' +
 '        gl_Position = position;\n' +
-'        gl_PointSize = 2.0;\n' +
+'        gl_PointSize = u_size;\n' +
 '      }\n';
 
 WebGLVectorTile2.pointFlowFragmentShader =
