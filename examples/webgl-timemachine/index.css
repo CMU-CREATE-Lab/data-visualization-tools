@@ -380,10 +380,14 @@ html, body {
   z-index: 99;
   text-align: left;
   height: calc(100% - 58px);
+  margin-top: 0px;
 }
 
 #layers-list.featured {
   height: 100%;
+}
+
+#layers-list.shrink {
   margin-top: 53px;
 }
 
@@ -403,12 +407,17 @@ html, body {
   overflow-x: hidden;
 }
 
+#layers-list-featured {
+  height: auto;
+}
+
 #layers-list-featured.shrink {
   height: calc(50% - 110px) !important;
 }
+
 .featured-layers-scroll-vertical {
   overflow-y: auto;
-  height: calc(100% - 53px);
+  height: 100%;
   overflow-x: hidden;
   margin-bottom: 10px;
   border-bottom: 1px solid #a5a5a5;
