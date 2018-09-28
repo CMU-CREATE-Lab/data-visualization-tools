@@ -402,9 +402,7 @@ html, body {
   height: 100%;
   overflow-x: hidden;
 }
-#layers-list-featured {
-  height: 67%;
-}
+
 #layers-list-featured.shrink {
   height: calc(50% - 110px) !important;
 }
