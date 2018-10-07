@@ -836,7 +836,8 @@
     var cityLabelMapUrl = useGoogleMaps ? googleMapsCityLabelUrl : googleMapsCityLabelUrl;
 
     var lightsAtNightUrl = rootTilePath + "/lights-at-night/{default}/{z}/{x}/{y}.png";
-    var lightsAtNightAnimUrl = rootTilePath + "/lan-anim.timemachine/crf18-4fps-1424x800";
+    // TODO: Change to rootTilePath once it is uploaded to Google Storage
+    var lightsAtNightAnimUrl = "https://tiles.earthtime.org/lan-anim.timemachine/crf18-4fps-1424x800";
     // Note that x/y are swapped for these two lights at night data sets
     var lightsAtNight2012Url = rootTilePath + "/lights-at-night-2012/{default}/{z}/{y}/{x}.jpg";
     var lightsAtNight2016Url = rootTilePath + "/lights-at-night-2016/{default}/{z}/{y}/{x}.jpg";
