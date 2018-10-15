@@ -106,6 +106,10 @@
 
     if (ETNotSupported && window.location.href.indexOf("/stories/") >= 0) {
       window.location.href = window.location.href.replace("/stories/", "/m/stories/");
+    } else if (ETNotSupported && window.location.href.indexOf("explore#waypoints=") >= 0) {
+      var urlParams = UTIL.getUnsafeHashVars();
+      var storyName = urlParams.story == "default" ? urlParams.theme : urlParams.story;
+      window.location.href = window.location.href.replace("explore", "m/stories/" + storyName);
     }
 
     // If we have no internet connection (i.e. using an offline drive) show full list of local layers)
