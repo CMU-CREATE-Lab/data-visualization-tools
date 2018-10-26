@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -3982,7 +3982,7 @@
 
       // Make right layers panel vertically touch scrollable.
       try {
-        if (document.createEvent("TouchEvent")) {
+        if (UTIL.isTouchDevice()) {
           UTIL.verticalTouchScroll($(".layers-scroll-vertical"));
           UTIL.verticalTouchScroll($(".featured-layers-scroll-vertical"));
           UTIL.verticalTouchScroll($(".themes-scroll-vertical"));

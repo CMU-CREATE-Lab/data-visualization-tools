@@ -286,7 +286,7 @@
         };
 
         // Fire event
-        console.log("dispatching!");
+        log("dispatching!");
         sourceEvent.target.dispatchEvent(evObj);
 
         lastHwTimestamp = event.hwTimestamp;
@@ -614,6 +614,11 @@
     }
 
     (function () {
+
+        if (typeof(window.TouchEvent) !== "undefined") {
+          return;
+        }
+
         // Returns true if and only if the event should be ignored.
         function ignorePointerEvent(event) {
             // Don't interpret mouse pointers as touches
