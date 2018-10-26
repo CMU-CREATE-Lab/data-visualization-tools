@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -5494,15 +5494,6 @@
           $("#layers-menu-choice").remove();
         }
 
-        if (!showSearchBox) {
-          $("#location_search_div").remove();
-        }
-
-        if (disableTopNav) {
-          $("#top-nav").remove();
-          $controlsContainer.addClass("topNavDisabled");
-        }
-
         $appControls.css("top", ($navigationControls.height() + 20) + "px");
 
         // Hide any tables that have all their children
@@ -6544,11 +6535,17 @@
           $locationSearchDiv.addClass("top-panel letterbox").appendTo($("#letterbox-bottom-controls"));
           $("#location_search").addClass("letterbox");
         } else {
-          $locationSearchDiv.prependTo($("#top-nav"));
           if (disableTopNav) {
-            $("#location_search, #location_search_icon").addClass("topNavDisabled");
+            $locationSearchDiv.appendTo("#viewerContainer");
+          } else {
+            $locationSearchDiv.appendTo("#top-nav");
           }
         }
+      }
+
+      if (disableTopNav) {
+        $("#top-nav").remove();
+        $("#viewerContainer").addClass("topNavDisabled");
       }
 
       $(".current-location-text-container, .annotations-resume-exit-container").appendTo($("#timeMachine .player"));
@@ -7727,14 +7724,16 @@
       var height = canvasLayer.canvas.height;
       gl.viewport(0, 0, width, height);
 
-      var $el1 = $("#location_search");
-      var $el2 = $("#top-nav-wrapper");
-      if (!$el2.hasClass("shrink-nav")) {
-        initialTopNavWrapperElm.outerWidth = $el2.outerWidth();
-      }
+      if (!disableTopNav) {
+        var $el1 = $("#location_search");
+        var $el2 = $("#top-nav-wrapper");
+        if (!$el2.hasClass("shrink-nav")) {
+          initialTopNavWrapperElm.outerWidth = $el2.outerWidth();
+        }
 
-      if ($el1.length > 0 && initialTopNavWrapperElm) {
-        var needHamburgerNav = ($el1[0].offsetLeft <= initialTopNavWrapperElm.outerWidth);
+        if ($el1.length > 0 && initialTopNavWrapperElm) {
+          var needHamburgerNav = ($el1[0].offsetLeft <= initialTopNavWrapperElm.outerWidth);
+        }
       }
 
       resizeLayersMenu();

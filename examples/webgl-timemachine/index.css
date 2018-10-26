@@ -372,10 +372,6 @@ html, body {
   display: inline-block;
 }
 
-#location_search.topNavDisabled {
-  top: 20px;
-}
-
 #layers-list {
   z-index: 99;
   text-align: left;
@@ -439,10 +435,6 @@ html, body {
   left: 20px;
   top: 20px;
   height: 100%;
-}
-
-#controlsContainer.topNavDisabled {
-  top: 20px;
 }
 
 #appControls, #navControls {
@@ -914,10 +906,6 @@ html, body {
   right: 19px;
   top: 15px;
   cursor: pointer;
-}
-
-#location_search_icon.topNavDisabled {
-  top: 25px;
 }
 
 #top-nav.menu-active {
@@ -2351,6 +2339,10 @@ a:focus { outline:0; }
   bottom: 0;
   height: auto;
   width: auto;
+}
+
+#viewerContainer.topNavDisabled {
+  top: 0px;
 }
 
 #sidePanel {
