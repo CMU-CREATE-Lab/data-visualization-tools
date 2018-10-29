@@ -51,7 +51,7 @@ CsvFileLayer.prototype.lookupFunctionFromTable = function (functionName, lookupT
 }
 
 CsvFileLayer.prototype.addExtrasContent = function addExtrasContent(layerDef) {
-  var playbackRate = layerDef["Playback Rate"].trim() == '' ? 0 : layerDef["Playback Rate"].trim(); 
+  var playbackRate = layerDef["Playback Rate"].trim() == '' ? 0 : layerDef["Playback Rate"].trim();
   var dataType = layerDef["Map Type"].split("-")[1];
   var dataFilePath = layerDef["URL"];
   var shareLinkIdentifier = layerDef["Share link identifier"].replace(/\W+/g, '_');
@@ -59,7 +59,7 @@ CsvFileLayer.prototype.addExtrasContent = function addExtrasContent(layerDef) {
   var str = '<option data-playback-rate="' + playbackRate + '"';
   str += ' data-type="' + dataType + '"';
   str += ' data-file-path="' + dataFilePath +'"';
-  str += ' data-name="' + shareLinkIdentifier + '"'; 
+  str += ' data-name="' + shareLinkIdentifier + '"';
   str += '>' + dataName + '</option>';
 
   $('#extras-selector').append(str);
@@ -92,8 +92,30 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
 
   layerOptions.legendContent = layerDef["Legend Content"];
   layerOptions.legendKey = layerDef["Legend Key"];
-  
-  var url = layerDef["URL"].replace("http://", "https://");
+
+  var url;
+  var useLocalData = false;
+  var relativeLocalDataPath;
+  if (EARTH_TIMELAPSE_CONFIG.localCsvLayers) {
+    for (var i = 0; i < EARTH_TIMELAPSE_CONFIG.localCsvLayers.length; i++) {
+      relativeLocalDataPath = EARTH_TIMELAPSE_CONFIG.localCsvLayers[i];
+      var tmp = relativeLocalDataPath.split("/");
+      // Remove file extension if present
+      // Remove the z/x/y path if present
+      var idFromRelativePath = tmp[tmp.length - 1].replace(/\.[^/.]+$/, "").replace(/\/{z}|\/{x}|\/{y}/g,"");
+      if (layerOptions.layerId == idFromRelativePath) {
+        useLocalData = true;
+        break;
+      }
+    }
+  }
+
+  if (useLocalData) {
+    url = tileUrl = getRootTilePath() + relativeLocalDataPath;
+  } else {
+    url = layerDef["URL"].replace("http://", "https://");
+  }
+
   layerOptions.name = layerDef["Name"];
   layerOptions.credit = layerDef["Credits"];
 
@@ -107,7 +129,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
   layerOptions.masterPlaybackRate = layerDef["Master Playback Rate"] || null;
   layerOptions.nLevels = layerDef["Number of Levels"] ? parseInt(layerDef["Number of Levels"]) : 0;
   layerOptions.imageSrc = layerDef["Colormap Src"] || null;
-  
+
   function overrideDrawingFns() {
     if (layerDef["Draw Function"]) {
       layerOptions.drawFunction = eval(layerDef["Draw Function"]);
