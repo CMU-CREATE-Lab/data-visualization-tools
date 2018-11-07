@@ -12,6 +12,7 @@ const scriptDependencies = [
 ];
 
 const handlebarsTemplates = {
+   'url-src' : 'https://docs-proxy.cmucreatelab.org/spreadsheets/d/{{id}}/export?format=csv&id={{id}}&gid={{gid}}',
    'related-item-template' : '<div class="gi-related__item">' +
                              '  <a href="{{url}}">' +
                              '    <img class="b-lazy" data-src="{{filename}}" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==">' +
@@ -88,13 +89,13 @@ const handlebarsTemplates = {
                         '</span>'
 };
 
-const insertHandlebarsTemplates = function() {
-   Object.keys(handlebarsTemplates).forEach(function(templateId) {
-      const script = document.createElement('script');
-      script.setAttribute('id', templateId);
-      script.setAttribute('type', 'text/x-handlebars-template');
-      script.innerHTML = handlebarsTemplates[templateId];
-      document.head.appendChild(script);
+const compileHandlebarsTemplates = function() {
+   console.log("Compiling handlebars templates:");
+   const templateIds = Object.keys(handlebarsTemplates);
+   templateIds.forEach(function(templateId, index) {
+      // overwrite the template with the compiled version
+      handlebarsTemplates[templateId] = Handlebars.compile(handlebarsTemplates[templateId]);
+      console.log("   (" + (index + 1) + "/" + templateIds.length + "): " + templateId);
    });
 };
 
@@ -167,20 +168,9 @@ const dynamicallyLoadScript = function(url, onloadCallback) {
 };
 
 const loadStory = function(storyName) {
-   var DEFAULT_SHARE_VIEW = "https://earthtime.org/#theme=big_picture_on_nature&story=default&v=4.56342,0,0.183,latLng&t=2.20&ps=50&l=blsat&bt=19840101&et=20161231";
-   var source = document.getElementById("video-template").innerHTML;
-   var videoTemplate = Handlebars.compile(source);
-   var source = document.getElementById("video-caption-template").innerHTML;
-   var videoCaptionTemplate = Handlebars.compile(source);
-   var source = document.getElementById("title-video-template").innerHTML;
-   var titleVideoTemplate = Handlebars.compile(source);
-   var source = document.getElementById("title-video-caption-template").innerHTML;
-   var titleVideoCaptionTemplate = Handlebars.compile(source);
-   var source = document.getElementById("picture-template").innerHTML;
-   var pictureTemplate = Handlebars.compile(source);
-   var source = document.getElementById("related-item-template").innerHTML;
-   var relatedItemTemplate = Handlebars.compile(source);
+   console.log("Loading story [" + storyName + "]");
 
+   var DEFAULT_SHARE_VIEW = "https://earthtime.org/#theme=big_picture_on_nature&story=default&v=4.56342,0,0.183,latLng&t=2.20&ps=50&l=blsat&bt=19840101&et=20161231";
    var lochash = location.hash.substr(1);
    var mylocation = lochash.substr(lochash.indexOf('waypoints=')).split('&')[0].split('=')[1];
 
@@ -188,12 +178,9 @@ const loadStory = function(storyName) {
    var rawUrl = EARTH_TIMELAPSE_CONFIG["waypointSliderContentPath"] || "https://docs.google.com/spreadsheets/d/1rCiksJv4aXi1usI0_9zdl4v5vuOfiHgMRidiDPt1WfE/edit#gid=1596808134";
    var regexp = /d\/(.*)\/edit\#gid=(.*)/;
    var matchesArray = rawUrl.match(regexp);
-   var urlSrc = "https://docs-proxy.cmucreatelab.org/spreadsheets/d/{{id}}/export?format=csv&id={{id}}&gid={{gid}}";
-   var urlTemplate = Handlebars.compile(urlSrc);
-   var url = urlTemplate({ 'id' : matchesArray[1], 'gid' : matchesArray[2] });
-
+   var url = handlebarsTemplates['url-src']({ 'id' : matchesArray[1], 'gid' : matchesArray[2] });
    if (mylocation) {
-      url = urlTemplate({ 'id' : mylocation.split('.')[0], 'gid' : mylocation.split('.')[1] });
+      url = handlebarsTemplates['url-src']({ 'id' : mylocation.split('.')[0], 'gid' : mylocation.split('.')[1] });
    }
 
    Papa.parse(url, {
@@ -212,7 +199,6 @@ const loadStory = function(storyName) {
 
          for (let i = 0; i < data.length; i++) {
             const title = data[i]['Waypoint Title'];
-            console.log(title);
 
             if (title[0] === '#') {
                const sharelink = data[i]["Share View"].trim() === '' ? DEFAULT_SHARE_VIEW : data[i]["Share View"];
@@ -263,7 +249,7 @@ const loadStory = function(storyName) {
          // get the shareview: Old waypoint spreadsheets sometimes have no shareview specified for the theme
          const shareviewFilename = (story[0]["Share View"].trim() === '') ? DEFAULT_SHARE_VIEW : story[0]["Share View"];
 
-         var html = titleVideoTemplate({ idx : 0, filename : shareviewFilename });
+         var html = handlebarsTemplates["title-video-template"]({ idx : 0, filename : shareviewFilename });
 
          el.insertAdjacentHTML('beforeend', html);
 
@@ -282,9 +268,14 @@ const loadStory = function(storyName) {
                      filename_landscape : f_landscape,
                      credit : credit
                   };
-                  html = pictureTemplate(pictureContext);
-               } else {
-                  html = videoTemplate({ idx : i, filename : thumbnail.sharelink, credit : credit })
+                  html = handlebarsTemplates["picture-template"](pictureContext);
+               }
+               else {
+                  html = handlebarsTemplates["video-template"]({
+                                                                  idx : i,
+                                                                  filename : thumbnail.sharelink,
+                                                                  credit : credit
+                                                               })
                }
                el.insertAdjacentHTML('beforeend', html);
             }
@@ -303,7 +294,7 @@ const loadStory = function(storyName) {
                if (thumbnail.isPicture()) {
                   videoCaptionContext['data_media_type'] = 'photo';
                }
-               var html = videoCaptionTemplate(videoCaptionContext);
+               var html = handlebarsTemplates["video-caption-template"](videoCaptionContext);
                el2.insertAdjacentHTML('afterend', html);
             }
          }
@@ -315,7 +306,7 @@ const loadStory = function(storyName) {
             author : story[0]["Author"],
             dateline : story[0]["Dateline"]
          };
-         var html = titleVideoCaptionTemplate(videoCaptionContext);
+         var html = handlebarsTemplates["title-video-caption-template"](videoCaptionContext);
          el2.insertAdjacentHTML('afterend', html);
 
          var htmlCollection = document.getElementsByClassName("gi-related__items");
@@ -328,7 +319,7 @@ const loadStory = function(storyName) {
                }
             }
             for (var i = 0; i < relatedItems.length; i++) {
-               var html = relatedItemTemplate(themes[currentThemeIdx]['stories'][relatedItems[i]]);
+               var html = handlebarsTemplates["related-item-template"](themes[currentThemeIdx]['stories'][relatedItems[i]]);
                htmlCollection[0].insertAdjacentHTML('afterend', html);
             }
 
@@ -340,7 +331,7 @@ const loadStory = function(storyName) {
                   i = 1;
                }
                for (var j = 0; j < 2; j++) {
-                  var html = relatedItemTemplate(themes[i]['stories'][j]);
+                  var html = handlebarsTemplates["related-item-template"](themes[i]['stories'][j]);
                   htmlCollection[0].insertAdjacentHTML('afterend', html);
                }
             }
@@ -353,7 +344,7 @@ const loadStory = function(storyName) {
                   }
                }
                for (var i = 0; i < relatedItems.length; i++) {
-                  var html = relatedItemTemplate(themes[relatedItems[i]]);
+                  var html = handlebarsTemplates["related-item-template"](themes[relatedItems[i]]);
                   htmlCollection[0].insertAdjacentHTML('beforeend', html);
                }
             }
@@ -366,9 +357,10 @@ const loadStory = function(storyName) {
 export function embed(storyName, elementId, earthtimeDomain = EARTHTIME_DOMAIN) {
    console.log("Will embed story [" + storyName + "] into element [" + elementId + "]");
 
-   const loadStoryProcessor = function(){
+   const loadStoryProcessor = function() {
       dynamicallyLoadScript(earthtimeDomain + '/m/stories/mobile-story.js', function(url) {
-         console.log("Done loading [" + url + "], now loading the story...");
+         compileHandlebarsTemplates();
+         insertHtml(elementId, earthtimeDomain);
          loadStory('#' + storyName);
       });
    };
@@ -376,17 +368,14 @@ export function embed(storyName, elementId, earthtimeDomain = EARTHTIME_DOMAIN) 
    let numLoaded = 0;
    const onDependenciesLoaded = function(url) {
       numLoaded++;
-      console.log("Done loading [" + url + "] (loaded " + numLoaded + "/" + scriptDependencies.length + ")");
+      console.log("   (" + numLoaded + "/" + scriptDependencies.length + "): " + url);
 
       if (numLoaded === scriptDependencies.length) {
          loadStoryProcessor();
       }
    };
 
-   insertHandlebarsTemplates();
-
-   insertHtml(elementId, earthtimeDomain);
-
+   console.log("Loading script dependencies:");
    scriptDependencies.forEach(function(scriptUrl) {
       dynamicallyLoadScript(earthtimeDomain + scriptUrl, onDependenciesLoaded)
    });
