@@ -1,0 +1,23 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+   <title>Mobile Embedded Story Full Screen Example</title>
+   <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+   <link href="http://earthtime.local/m/stories/mobile-story.css" rel="stylesheet"/>
+   <style type="text/css">
+      body {
+         margin: 0;
+         padding: 0;
+      }
+   </style>
+</head>
+<body>
+<div id="story_container"></div>
+</body>
+<script type="module">
+   import * as earthtime from 'http://earthtime.local/m/stories/mobile-embed-fullscreen.js';
+
+   earthtime.embed('deforestation', 'story_container', 'http://earthtime.local');
+   // earthtime.embed('deforestation', 'story_container');
+</script>
+</html>
