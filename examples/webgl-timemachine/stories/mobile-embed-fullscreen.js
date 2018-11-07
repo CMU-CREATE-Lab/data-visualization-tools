@@ -196,55 +196,48 @@ const loadStory = function(storyName) {
       url = urlTemplate({ 'id' : mylocation.split('.')[0], 'gid' : mylocation.split('.')[1] });
    }
 
-   var themes = [];
-   var themeIdx;
-   var storyIdx;
-   var currentThemeIdx;
-   var currentStoryIdx;
-   var storyMode = false; // 'Matching title begins with ##'
-
    Papa.parse(url, {
       download : true,
       header : true,
       complete : function(results, file) {
-         var story = [];
-         var data = results["data"];
-         var append = false;
-         for (var i = 0; i < data.length; i++) {
+         const themes = [];
+         let themeIdx;
+         let storyIdx;
+         let currentThemeIdx;
+         let currentStoryIdx;
+         let storyMode = false; // 'Matching title begins with ##'
+         const story = [];
+         const data = results["data"];
+         let append = false;
 
-            var title = data[i]['Waypoint Title'];
-            if (title[0] == "#" && title[1] != "#") {
-               var theme = {
+         for (let i = 0; i < data.length; i++) {
+            const title = data[i]['Waypoint Title'];
+            console.log(title);
+
+            if (title[0] === '#') {
+               const sharelink = data[i]["Share View"].trim() === '' ? DEFAULT_SHARE_VIEW : data[i]["Share View"];
+               const item = {
                   'url' : './' + title.replace(/ /g, '_').replace(/#/g, '').toLowerCase(),
                   'title' : title.replace(/#/g, ''),
                   'author' : data[i]["Author"],
-                  'filename' : data[i]["Share View"].trim() != '' ? new Thumbnailer(data[i]["Share View"]).getPng('landscape') : new Thumbnailer(DEFAULT_SHARE_VIEW).getPng('landscape'),
-                  'stories' : []
+                  'filename' : new Thumbnailer(sharelink).getPng('landscape')
                };
-               themeIdx = themes.length;
-               themes.push(theme);
-               storyIdx = null;
-            }
-            if (title[0] == "#" && title[1] == "#") {
-               var s = {
-                  'url' : './' + title.replace(/ /g, '_').replace(/#/g, '').toLowerCase(),
-                  'author' : data[i]["Author"],
-                  'title' : title.replace(/#/g, ''),
-                  'filename' : data[i]["Share View"].trim() != '' ? new Thumbnailer(data[i]["Share View"]).getPng('landscape') : new Thumbnailer(DEFAULT_SHARE_VIEW).getPng('landscape'),
-               };
-               themes[themeIdx]['stories'].push(s);
-               storyIdx = themes[themeIdx]['stories'].length - 1;
+
+               if (title[1] == '#') {
+                  themes[themeIdx]['stories'].push(item);
+                  storyIdx = themes[themeIdx]['stories'].length - 1;
+               }
+               else {
+                  item['stories'] = [];
+                  themeIdx = themes.length;
+                  themes.push(item);
+                  storyIdx = null;
+               }
             }
 
             // Stop appending?
-            if (append) {
-               if (!storyMode && title[0] == "#" && title[1] != '#') {
-                  append = false;
-               }
-               if (storyMode && title[0] == "#") {
-                  append = false;
-               }
-
+            if (append && title[0] == '#' && (storyMode || title[1] != '#')) {
+               append = false;
             }
 
             // Start appending?
@@ -260,21 +253,17 @@ const loadStory = function(storyName) {
             }
 
             if (append) {
-               if (title != '') {
+               if (title !== '') {
                   story.push(data[i]);
                }
             }
          }
 
          var el = document.getElementById("media-list");
-         var f = story[0]["Share View"];
-         // Old waypoint spreadsheets sometimes have no shareview specified for the theme
-         if (f.trim() == '') {
-            f = DEFAULT_SHARE_VIEW;
-         }
+         // get the shareview: Old waypoint spreadsheets sometimes have no shareview specified for the theme
+         const shareviewFilename = (story[0]["Share View"].trim() === '') ? DEFAULT_SHARE_VIEW : story[0]["Share View"];
 
-         var videoContext = { idx : 0, filename : f };
-         var html = titleVideoTemplate(videoContext);
+         var html = titleVideoTemplate({ idx : 0, filename : shareviewFilename });
 
          el.insertAdjacentHTML('beforeend', html);
 
