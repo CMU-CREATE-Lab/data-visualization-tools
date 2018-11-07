@@ -7,7 +7,8 @@ const scriptDependencies = [
    '/js/handlebars-v4.0.11.js',
    '/js/blazy.min.js',
    '/js/noframework.waypoints.min.js',
-   '/timemachine/js/org/gigapan/util.js'
+   '/timemachine/js/org/gigapan/util.js',
+   '/m/stories/Thumbnailer.js'
 ];
 
 const handlebarsTemplates = {
