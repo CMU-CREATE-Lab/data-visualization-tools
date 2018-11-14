@@ -320,6 +320,35 @@ WebglMapTile.seaLevelRiseTextureFragmentShader =
   '  }\n' +
   '}\n';
 
+WebglMapTile.seaLevelRiseTintedTextureFragmentShader =
+  'precision mediump float;\n' +
+  'varying vec2 vTextureCoord;\n' +
+  'uniform sampler2D uSampler;\n' +
+  'uniform float u_C;\n' +
+  'uniform vec4 u_Color;\n' +
+  'void main(void) {\n' +
+  '  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));\n' +
+  '  if (textureColor.r == 0. && textureColor.g == 0. && textureColor.b == 0.) {\n' +
+  '    gl_FragColor = vec4(u_Color.rgb, 0.);\n' +
+  '  } else if (textureColor.r == textureColor.g && textureColor.b == textureColor.r) {\n' +
+  '    gl_FragColor = vec4(textureColor.rgb, 0.);\n' +
+  '  } else {\n' +
+  '   float currentC = u_C*2.0 / 255.0;\n' +
+  '   if (textureColor.b <= currentC) {\n' +
+  '     //vec3 colorA = vec3(240.,248.,255.)/255.;\n' +
+  '     //vec3 colorB = vec3(100.,149.,237.)/255.;\n' +
+  '     vec3 colorA = vec3(65.,105.,225.)/255.;\n' +
+  '     vec3 colorB = vec3(100.,149.,237.)/255.;\n' +
+  '     float pct = textureColor.b / (8.0 / 255.0);\n' + 
+  '     gl_FragColor = vec4(mix(colorA, colorB, pct), 1.0);\n'+
+  '   }\n'+
+  '   else {\n' +
+  '      gl_FragColor = vec4(textureColor.rgb, 0.0);\n'+
+  '   }\n'+
+
+  '  }\n' +
+  '}\n';
+
 WebglMapTile.animatedTextureFragmentShader =
   'precision mediump float;\n' +
   'varying vec2 vTextureCoord;\n' +

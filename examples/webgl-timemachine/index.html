@@ -207,6 +207,7 @@
     var showDengue = !!EARTH_TIMELAPSE_CONFIG.showDengue;
     var showChiku = !!EARTH_TIMELAPSE_CONFIG.showChiku;
     var showSeaLevelRise = !!EARTH_TIMELAPSE_CONFIG.showSeaLevelRise;
+    var showTintedSeaLevelRise = !!EARTH_TIMELAPSE_CONFIG.showTintedSeaLevelRise;
     var showUrbanFragility = !!EARTH_TIMELAPSE_CONFIG.showUrbanFragility;
     var showGtd = !!EARTH_TIMELAPSE_CONFIG.showGtd;
     var showHiv = !!EARTH_TIMELAPSE_CONFIG.showHiv;
@@ -238,6 +239,7 @@
     var showAnnualGlobalPm25 = !!EARTH_TIMELAPSE_CONFIG.showAnnualGlobalPm25;
     var showEcco2 = !!EARTH_TIMELAPSE_CONFIG.showEcco2;
     var showGdpPpp = !!EARTH_TIMELAPSE_CONFIG.showGdpPpp;
+    var showTintedLandsat = !!EARTH_TIMELAPSE_CONFIG.showTintedLandsat;
 
     var showTile = true;
 
@@ -386,6 +388,7 @@
     var viirsLayer;
     var wdpaLayer;
     var seaLevelRiseLayer;
+    var tintedSeaLevelRiseLayer;
     var urbanFragilityLayer;
     var coralBleachingLayer;
     var monthlyRefugeesLayer;
@@ -435,6 +438,8 @@
     var ecco2Layer;
 
     var gdpPppLayer;
+
+    var tintedLandsatLayer;
 
 /*    var spCrudeLayerWAF;
     setTimeLine('sp-crude-times', 2013, 2018, 1);
@@ -2328,6 +2333,24 @@
           $("#sea-level-rise-legend").hide();
         }
       }).prop('checked', showSeaLevelRiseLayer);
+
+      $("#show-tinted-sea-level-rise-4p0").on("click", function() {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          tintedSeaLevelRiseLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
+          showTintedSeaLevelRiseLayer = true;
+          setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
+          requestNewTimeline("sea-level-rise-times.json", timelineType);
+          $("#tinted-sea-level-rise-legend").show();
+        } else {
+          showTintedSeaLevelRiseLayer = false;
+          cacheLastUsedLayer(tintedSeaLevelRiseLayer);
+          setActiveLayersWithTimeline(-1);
+          doSwitchToLandsat();
+          $("#tinted-sea-level-rise-legend").hide();
+        }
+      }).prop('checked', showTintedSeaLevelRiseLayer);
 
       $("#show-urban-fragility").on("click", function() {
         var $this = $(this);
@@ -4238,6 +4261,7 @@
     var showDengueLayer = false;
     var showChikuLayer = false;
     var showSeaLevelRiseLayer = false;
+    var showTintedSeaLevelRiseLayer = false;
     var showUrbanFragilityLayer = false;
     var showGtdLayer = false;
     var showUppsalaConflictLayer = false;
@@ -4673,6 +4697,7 @@
 
       var landsat_base_str = '<label class="landsat-select" for="landsat-base" name="blsat"><input type="radio" id="landsat-base" name="base-layers" value="landsat"/>Google Earth Engine Timelapse</label>';
       var landsat_base = '<td colspan="2">' + landsat_base_str + '</td>';
+      var tinted_landsat = '<td colspan="2"><label class="tinted_landsat-select" for="tinted_landsat" name="tinted_landsat"><input type="radio" id="tinted_landsat" name="base-layers" value="tinted_landsat"/>Google Earth Engine Timelapse (tinted)</label></td>'
       var light_base = '<td><label for="light-base" name="blte"><input type="radio" id="light-base" name="base-layers" value="light"/><span>Light Map</span></label></td>';
       var dark_base = '<td><label for="dark-base" name="bdrk"><input type="radio" id="dark-base" name="base-layers" value="dark"/><span>Dark Map</span></label></td>';
 
@@ -4717,6 +4742,8 @@
       var show_sea_level_rise_1p5 = '<td class="sea-level-rise-1p5-select"><label for="show-sea-level-rise-1p5" name="slr15"><input type="checkbox" id="show-sea-level-rise-1p5" />Sea Level Rise Due to 1.5&deg;C Increase</label></td>';
       var show_sea_level_rise_2p0 = '<td class="sea-level-rise-2p0-select"><label for="show-sea-level-rise-2p0" name="slr2"><input type="checkbox" id="show-sea-level-rise-2p0" />Sea Level Rise Due to 2.0&deg;C Increase</label></td>';
       var show_sea_level_rise_4p0 = '<td class="sea-level-rise-4p0-select"><label for="show-sea-level-rise-4p0" name="slr4"><input type="checkbox" id="show-sea-level-rise-4p0" />Sea Level Rise Due to 4.0&deg;C Increase</label></td>';
+      var show_tinted_sea_level_rise_4p0 = '<td class="tinted-sea-level-rise-4p0-select"><label for="show-tinted-sea-level-rise-4p0" name="tinted_slr4"><input type="checkbox" id="show-tinted-sea-level-rise-4p0" />Tinted Sea Level Rise Due to 4.0&deg;C Increase</label></td>';
+
       var show_urban_fragility = '<td class="urban-fragility-select"><label for="show-urban-fragility" name="uf"><input type="checkbox" id="show-urban-fragility" />Urban Fragility</label></td>';
       var show_gtd = '<td class="gtd-select"><label for="show-gtd" name="gtd"><input type="checkbox" id="show-gtd" />Global Terrorism Database</label></td>';
       var show_uppsala_conflict = '<td class="uppsala-conflict-select"><label for="show-uppsala-conflict" name="uppsala-conflict"><input type="checkbox" id="show-uppsala-conflict" />Organized Violence Fatalities</label></td>';
@@ -4782,6 +4809,11 @@
       layer_html += '  <table id="category-base-layers">';
       layer_html += '    <tr>';
       layer_html += landsat_base;
+      layer_html += '    </tr>';
+      layer_html += '    <tr>';
+      if (showTintedLandsat) {
+        layer_html += tinted_landsat;
+      }
       layer_html += '    </tr>';
       layer_html += '    <tr>';
       layer_html += light_base;
@@ -4869,6 +4901,11 @@
         layer_html += '    </tr>';
         layer_html += '    <tr>';
         layer_html += show_sea_level_rise_4p0;
+        layer_html += '    </tr>';
+      }
+      if (showTintedSeaLevelRise) {
+        layer_html += '    <tr>';
+        layer_html += show_tinted_sea_level_rise_4p0;
         layer_html += '    </tr>';
       }
       if (showNdviAnomaly) {
@@ -5338,6 +5375,7 @@
       legend_html += '<tr id="vsi-legend" style="display: none"><td><div style="font-size: 17px">Vegetation Sensitivity Index 2000-2013 <span class="credit"> (USGS)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">0</div><div style="margin-top: 4px; float: left; background-image: -webkit-linear-gradient(left, rgb(0, 139, 0), rgb(92, 182, 69) 17%, rgb(163, 221, 99) 33%, rgb(255, 255, 0) 50%, rgb(255, 205, 0) 67%, rgb(255, 144, 0) 83%, rgb(255, 4, 0) 100%);background-image: linear-gradient(left, rgb(0, 139, 0), rgb(92, 182, 69) 17%, rgb(163, 221, 99) 33%, rgb(255, 255, 0) 50%, rgb(255, 205, 0) 67%, rgb(255, 144, 0) 83%, rgb(255, 4, 0) 100%); width: 86%; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">100</div></td></tr>';
       legend_html += '<tr id="health-impact-legend" style="display: none"><td><div style="font-size: 17px">Nutritional Deficiencies<span class="credit"> (Oxford Martin)</span></div><svg class="svg-legend" width="242" height="180"><rect width="240" height="160" fill="white" opacity="0"></rect> <g transform="translate(2,10)"> <circle class="gain" r="5" cx="5" cy="10" style="fill: #8b0000; stroke: #fff;"></circle> <circle class="loss" r="5" cx="5" cy="30" style="fill: #00008b; stroke: #fff;"></circle> <text x="15" y="13" style="font-size: 12px; fill: #fff">Mean deaths per capita</text> <text x="15" y="33" style="font-size: 12px; fill: #fff">Mean lives per capita</text> <circle r="10.0" cx="160.0" cy="160.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="152.0" dy="13" style="font-size: 10px; fill: #fff">5K</text><circle r="30.0" cx="160.0" cy="140.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="130.0" dy="13" style="font-size: 10px; fill: #fff">15K</text><circle r="60.0" cx="160.0" cy="110.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="80.0" dy="13" style="font-size: 10px; fill: #fff">30K</text></g> </svg></td></tr>';
       legend_html += '<tr id="sea-level-rise-legend" style="display: none"><td><div style="font-size: 17px">Global Temperature Rise <span id="slr-degree"></span> &#x2103;<span class="credit"> (Climate Central)</span></div><div style="font-size: 15px">Multi-century Sea Level Increase:<span id="slr-feet" style="width:25px;"></span>&nbsp;<span id="slr-meters" style="width:25px; color: red;"></span></div></td></tr>';
+      legend_html += '<tr id="tibnted-sea-level-rise-legend" style="display: none"><td><div style="font-size: 17px">Global Temperature Rise <span id="slr-degree"></span> &#x2103;<span class="credit"> (Climate Central)</span></div><div style="font-size: 15px">Multi-century Sea Level Increase:<span id="slr-feet" style="width:25px;"></span>&nbsp;<span id="slr-meters" style="width:25px; color: red;"></span></div></td></tr>';
       legend_html += '<tr id="urban-fragility-legend" style="display: none"><td><div style="font-size: 17px">Fragile Score <span class="credit"> (Igarape Institute)</span></div></div><svg class="svg-legend" width="200" height="30"> <rect fill="#313695" x="0" height="9" width="20"></rect><rect fill="#4575b4" x="20" height="9" width="20"></rect><rect fill="#74add1" x="40" height="9" width="20"></rect><rect fill="#abd9e9" x="60" height="9" width="20"></rect><rect fill="#e0f3f8" x="80" height="9" width="20"></rect><rect fill="#ffffbf" x="100" height="9" width="20"></rect><rect fill="#fee090" x="120" height="9" width="20"></rect><rect fill="#fdae61" x="140" height="9" width="20"></rect><rect fill="#f46d43" x="160" height="9" width="20"></rect><rect fill="#d73027" x="180" height="9" width="20"></rect><rect fill="#a50026" x="200" height="9" width="20"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">1.0</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="100">2.25</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="185">3.5</text></svg></td></tr>';
       legend_html += '<tr id="zika-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Zika Virus <span class="credit"> (LSHTM)</span></div></td></tr>';
       legend_html += '<tr id="chiku-legend" style="display: none"><td><div style="background-color:#6070ff; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Chikungunya Virus <span class="credit"> (LSHTM)</span></div></td></tr>';
@@ -5539,6 +5577,16 @@
         startYear: 1984
       };
       landsatBaseMapLayer = new WebglTimeMachineLayer(glb, canvasLayer, landsatUrl, landsatTimeMachineLayerOptions);
+
+      var tintedLandsatLayerOptions = {
+        mediaType: ".mp4",
+        numFrames: cached_ajax[cachedLandsatTimeJsonPath]['capture-times'].length,
+        fps: 10,
+        startYear: 1984,
+        program: 'textureTintFaderProgram',
+        colormap: 'https://tiles.earthtime.org/colormaps/white_aliceblue_cornflowerblue_royalblue_blue.png'
+      };
+      tintedLandsatLayer = new WebglTimeMachineLayer(glb, canvasLayer, landsatUrl, tintedLandsatLayerOptions);
 
       // NDVI Anomaly
       var ndviAnomalyTimeMachineLayerOptions = {
@@ -5940,6 +5988,15 @@
         drawFunction: WebglMapTile.prototype._drawSeaLevelRise
       };
       seaLevelRiseLayer = new WebglMapLayer(glb, canvasLayer, seaLevelRiseUrl, seaLevelRiseLayerOptions);
+
+      var seaLevelRiseLayerOptions = {
+        nLevels: 9,
+        tileWidth: 256,
+        tileHeight: 256,
+        fragmentShader: WebglMapTile.seaLevelRiseTintedTextureFragmentShader,
+        drawFunction: WebglMapTile.prototype._drawSeaLevelRise
+      };
+      tintedSeaLevelRiseLayer = new WebglMapLayer(glb, canvasLayer, seaLevelRiseUrl, seaLevelRiseLayerOptions);
 
       var urbanFragilityLayerOptions = {
         tileWidth: 256,
@@ -7878,6 +7935,8 @@
           hansenMapLayer2.draw(hansenMapLayerView2);
         } else if (visibleBaseMapLayer == "landsat") { // Draw Landsat
           landsatBaseMapLayer.draw(timelapse.getView(), tileViewVisibility);
+        } else if (visibleBaseMapLayer == "tinted_landsat") { // Draw Landsat
+          tintedLandsatLayer.draw(timelapse.getView(), tileViewVisibility);
         } else if (visibleBaseMapLayer == "light") { // Draw Light Map
           var lightBaseMapView = getLayerView(lightBaseMapLayer, landsatBaseMapLayer);
           lightBaseMapLayer.draw(lightBaseMapView);
@@ -8347,6 +8406,54 @@
           }
           $(degree).html((currentIndex / 2).toFixed(1));
           seaLevelRiseLayer.draw(seaLevelRiseLayerView, options);
+          $(".timeText, .captureTimeMain").html(timelapse.getCurrentCaptureTime() + "&degC");
+        }
+
+        if (showTintedSeaLevelRiseLayer) {
+          var sea_level_heights = [
+            [0.0, 0.0],
+            [2.4, 0.7],
+            [7.0, 2.1],
+            [9.4, 2.9],
+            [15, 4.7],
+            [18, 5.6],
+            [21, 6.4],
+            [26, 7.9],
+            [29, 8.9]
+          ]; // [feet,meters]
+          var feet = document.getElementById("slr-feet");
+          var meters = document.getElementById("slr-meters");
+          var degree = document.getElementById("slr-degree");
+          var seaLevelRiseLayerView = getLayerView(seaLevelRiseLayer, landsatBaseMapLayer);
+          var options = {};
+          var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
+          var times = timelapse.getCaptureTimes();
+          var start = parseFloat(times[0]);
+          var end = parseFloat(times[times.length - 1]) + 0.5;
+          var range = end - start;
+          var current = ratio * range + start;
+          options.currentC = Math.min(current, times[times.length - 1]);
+          if (visibleBaseMapLayer == "landsat") {
+            options.color = [0.1, 0.1, 0.1, 1.0];
+          } else if (visibleBaseMapLayer == "light") {
+            options.color = [0.4921875, 0.7421875, 0.91015625, 1.0];
+          } else if (visibleBaseMapLayer == "dark") {
+            options.color = [0.203125, 0.203125, 0.203125, 1.0];
+          } else if (showLightsAtNightLayer || showLightsAtNight2012Layer || showLightsAtNight2016Layer) {
+            options.color = [0.0, 0.0, 0.0, 1.0];
+          }
+          var currentIndex = 0;
+          for (var i = 0; i < times.length; i++) {
+            if (timelapse.getCurrentCaptureTime() == times[i]) {
+              currentIndex = i;
+            }
+          }
+          //feet.innerHTML = sea_level_heights[currentIndex][0] + "ft";
+          if (sea_level_heights[currentIndex]) {
+            $(meters).html("+" + sea_level_heights[currentIndex][1].toFixed(1) + "m");
+          }
+          $(degree).html((currentIndex / 2).toFixed(1));
+          tintedSeaLevelRiseLayer.draw(seaLevelRiseLayerView, options);
           $(".timeText, .captureTimeMain").html(timelapse.getCurrentCaptureTime() + "&degC");
         }
 

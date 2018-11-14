@@ -29,6 +29,9 @@ function WebglVideoTile(glb, tileidx, bounds, url, defaultUrl, numFrames, fps, g
   this._textureFaderProgram = glb.programFromSources(WebglVideoTile.textureVertexShader,
                                                 WebglVideoTile.textureFragmentFaderShader);
 
+  this._textureTintFaderProgram = glb.programFromSources(WebglVideoTile.textureVertexShader,
+                                                WebglVideoTile.textureFragmentTintFaderShader);
+
   this._textureColormapFaderProgram = glb.programFromSources(WebglVideoTile.textureVertexShader,
                                                 WebglVideoTile.textureColormapFragmentFaderShader);
 
@@ -590,7 +593,9 @@ draw = function(transform) {
     var activeProgram;
 
     if (WebglVideoTile.useFaderShader) {
-      if (this.layer._colormap) {
+      if (this.layer._program == "textureTintFaderProgram") {
+        activeProgram = this._textureTintFaderProgram;
+      } else if (this.layer._colormap) {
         activeProgram = this._textureColormapFaderProgram;
       } else if (this._useGreenScreen) {
         activeProgram = this._textureGreenScreenFaderProgram;
@@ -802,6 +807,47 @@ WebglVideoTile.textureFragmentFaderShader =
   '  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t)); \n' +
   '  vec4 textureColor2 = texture2D(uSampler2, vec2(vTextureCoord.s, vTextureCoord.t));\n' +
   '  gl_FragColor = textureColor * (1.0 - uAlpha) + textureColor2 * uAlpha;\n' +
+  '}\n';
+
+
+WebglVideoTile.textureFragmentGrayScaleFaderShader =
+  'precision mediump float;\n' +
+  'varying vec2 vTextureCoord;\n' +
+  'uniform sampler2D uSampler;\n' +
+  'uniform sampler2D uSampler2;\n' +
+  'uniform float uAlpha;\n' +
+  'vec4 to_grayscale(vec4 color) {\n' +
+  '  float avg = (color.r + color.g + color.b) / 3.0;\n' +
+  '  return vec4(avg, avg, avg, 1.0);\n' +
+  '}\n' +
+  'void main(void) {\n' +
+  '  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t)); \n' +
+  '  vec4 textureColor2 = texture2D(uSampler2, vec2(vTextureCoord.s, vTextureCoord.t));\n' +
+  '  gl_FragColor = to_grayscale(textureColor * (1.0 - uAlpha) + textureColor2 * uAlpha);\n' +
+  '}\n';
+
+WebglVideoTile.textureFragmentTintFaderShader =
+  'precision mediump float;\n' +
+  'varying vec2 vTextureCoord;\n' +
+  'uniform sampler2D uSampler;\n' +
+  'uniform sampler2D uSampler2;\n' +
+  'uniform sampler2D uColormap;\n' +
+  'uniform float uAlpha;\n' +
+  'vec4 to_grayscale(vec4 color) {\n' +
+  '  float avg = (color.r + color.g + color.b) / 3.0;\n' +
+  '  return vec4(avg, avg, avg, 1.0);\n' +
+  '}\n' +
+  'vec4 tint(vec4 grayscale, vec4 color) {\n' +
+  '  return vec4(grayscale * color);\n' +
+  '}\n' +
+  'void main(void) {\n' +
+  '  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t)); \n' +
+  '  vec4 textureColor2 = texture2D(uSampler2, vec2(vTextureCoord.s, vTextureCoord.t));\n' +
+  '  //vec4 color = vec4(0.0,0.0,0.8039, 1.0);\n' + 
+  '  vec4 color = vec4(0.,0.0,0.44, 1.);\n' + 
+  '  //gl_FragColor = tint(to_grayscale(textureColor * (1.0 - uAlpha) + textureColor2 * uAlpha), color);\n' +
+  '  vec4 mixed = textureColor * (1.0 - uAlpha) + textureColor2 * uAlpha;\n' +
+  '  gl_FragColor = texture2D(uColormap, vec2(mixed.g, 0.0));\n' +
   '}\n';
 
 WebglVideoTile.textureColormapFragmentFaderShader =

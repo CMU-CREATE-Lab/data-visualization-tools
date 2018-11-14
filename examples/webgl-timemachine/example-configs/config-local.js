@@ -38,6 +38,7 @@ var EARTH_TIMELAPSE_CONFIG = {
   "showDengue": false,
   "showChiku": false,
   "showSeaLevelRise": false,
+  "showTintedSeaLevelRise": false,
   "showUrbanFragility": false,
   "showGtd": false,
   "showHiv": false,
@@ -61,5 +62,6 @@ var EARTH_TIMELAPSE_CONFIG = {
   "showCityLabelMap": true,
   "showTsip": false,
   "showEcco2": false,
-  "showGdpPpp": false
+  "showGdpPpp": false,
+  "showTintedLandsat": false
 };

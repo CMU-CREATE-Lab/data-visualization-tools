@@ -11,7 +11,8 @@ function WebglTimeMachineLayer(glb, canvasLayer, rootUrl, opt_options) {
   this._fps = opt_options.fps || 10;
   this._greenScreen = opt_options.greenScreen || false;
   this._projection = opt_options.projection || null;
-
+  this._program = opt_options.program || null;
+  
   this._ready = true;
 
   var that = this;
