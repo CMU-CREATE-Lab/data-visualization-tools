@@ -1,0 +1,90 @@
+.earthtime-story {
+   position: relative;
+   height: auto;
+   min-height: 100px;
+   font-family: 'EarthTime', sans-serif !important;
+}
+
+.earthtime-logo {
+   position: absolute;
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
+   top: 10px;
+   left: 10px;
+   width: 55px;
+   height: 55px;
+   z-index: 2;
+   background-color: #333;
+   transition: all .4s ease;
+   text-align: center;
+}
+
+.earthtime-title {
+   position: absolute;
+   top: 40vh;
+   left: 0;
+   right: 0;
+   z-index: 2;
+   color: white;
+   margin: 0 30px;
+   text-align: center;
+}
+
+.earthtime-title-rule {
+   width: 7rem;
+   margin: .8rem auto 1rem;
+   border-top: 2px solid #d87f16;
+}
+
+.earthtime-title-caption {
+   font-size: .95rem;
+   line-height: 1.35;
+   margin-top: 1rem;
+   text-align: center;
+}
+
+.earthtime-title-author {
+   margin-top: 1.5rem;
+   margin-bottom: .5rem;
+   font-size: .75rem;
+   line-height: 1.45;
+}
+
+.earthtime-logo > a {
+   color: #fff;
+   text-decoration: none;
+   font-weight: bold;
+   border: none;
+}
+
+.earthtime-story-frame {
+   position: relative;
+   width: 100vw;
+   height: 100vh;
+}
+
+.earthtime-story-frame-content-container {
+   position: relative;
+   width: 100vw;
+   height: 100vh;
+   overflow: hidden;
+}
+
+.earthtime-story-frame-content {
+   height: 100vh;
+
+   margin-left: 50%;
+   transform: translateX(-50%);
+}
+
+.earthtime-caption {
+   z-index: 1;
+   color: white;
+   background-color: rgba(34, 34, 34, 0.53);
+   margin: 0 30px;
+   padding: 0.3rem 0.2rem 0.3rem 0.5rem;
+   font-size: 0.9rem;
+   border-radius: .4rem;
+}
