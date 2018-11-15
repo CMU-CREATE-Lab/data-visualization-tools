@@ -6600,11 +6600,6 @@
         }
       }
 
-      if (disableTopNav) {
-        $("#top-nav").remove();
-        $("#viewerContainer").addClass("topNavDisabled");
-      }
-
       $(".current-location-text-container, .annotations-resume-exit-container").appendTo($("#timeMachine .player"));
 
       if (isHyperwall) {
@@ -7063,6 +7058,7 @@
         $(".current-location-text-container, .annotation-nav").addClass("letterbox");
         // Remove top nav, side control panel, search box, and timelines
         $("#top-nav, #controlsContainer, .location_search_div, .customControl, .controls").remove();
+        disableTopNav = true;
         // Hide presentation slider so that it's still usable via keyboard/clicker but not shown on screen
         handleStoryToggle(false);
       } else if (timestampOnlyUI) {
@@ -7085,6 +7081,7 @@
       if (disableUI) {
         // Remove top nav, side control panel, search box, timelines, scalebar, logos and legend
         $("#top-nav, #controlsContainer, .location_search_div, .customControl, .controls, .scaleBarContainer, .captureTime, #baseLayerCreditContainer, #logosContainer, #layers-legend").remove();
+        disableTopNav = true;
       }
 
       $(".annotations-resume-button").on("click", function() {
@@ -7115,6 +7112,11 @@
           $("body").trigger(e);
         });
         updateLetterboxSelections();
+      }
+
+      if (disableTopNav) {
+        $("#top-nav").remove();
+        $("#viewerContainer").addClass("topNavDisabled");
       }
 
       handleStoryToggle(initiallyShowPresentationSlider);
