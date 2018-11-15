@@ -14,7 +14,7 @@ const handlebarsTemplates = {
    'url-src' : 'https://docs-proxy.cmucreatelab.org/spreadsheets/d/{{id}}/export?format=csv&id={{id}}&gid={{gid}}',
    'video-template' : '<div class="earthtime-story-frame">' +
                       '   <div class="earthtime-story-frame-content-container" style="z-index:-{{idx}}">' +
-                      '      <video class="earthtime-story-frame-content" loop muted playsinline ' +
+                      '      <video class="earthtime-story-frame-content earthtime-orientable" loop muted playsinline ' +
                       '             poster="{{poster_src}}"' +
                       '             data-src-portrait="{{poster_src_portrait}}"' +
                       '             data-src-landscape="{{poster_src_landscape}}"' +
@@ -23,8 +23,7 @@ const handlebarsTemplates = {
                       '                 type="video/mp4" ' +
                       '                 src="{{video_src}}"' +
                       '                 data-src-portrait="{{video_src_portrait}}"' +
-                      '                 data-src-landscape="{{video_src_landscape}}"' +
-                      '                 data-orientable-attribute="src"/>' +
+                      '                 data-src-landscape="{{video_src_landscape}}"/>' +
                       '      </video>' +
                       '      {{#if credit}}' +
                       '         <div class="earthtime-credit">{{credit}}</div>' +
@@ -36,8 +35,7 @@ const handlebarsTemplates = {
                         '      <img class="earthtime-story-frame-content earthtime-orientable" ' +
                         '           src="{{src}}" ' +
                         '           data-src-portrait="{{src_portrait}}" ' +
-                        '           data-src-landscape="{{src_landscape}}"' +
-                        '           data-orientable-attribute="src">' +
+                        '           data-src-landscape="{{src_landscape}}">' +
                         '      {{#if credit}}' +
                         '         <div class="earthtime-credit">{{credit}}</div>' +
                         '      {{/if}}' +
@@ -59,10 +57,20 @@ const handlebarsTemplates = {
                               '</div>'
 };
 
+/**
+ * Returns '<code>landscape</code>' if <code>window.orientation</code> is undefined or equal to 90 or -90; returns
+ * '<code>portrait</code>' otherwise.
+ *
+ * @return {string} string describing the current window orientation, will be one of '<code>landscape</code>' or '<code>portrait</code>'
+ */
 const getOrientationName = function() {
-   return (Math.abs(window.orientation) === 90 ? 'landscape' : 'portrait');
+   return (typeof window.orientation === 'undefined' || Math.abs(window.orientation) === 90 ? 'landscape' : 'portrait');
 };
 
+/**
+ * Compiles the Handlebars templates defined in <code>handlebarsTemplates</code>.  This simply overwrites the string
+ * value of each template with the compiled version.
+ */
 const compileHandlebarsTemplates = function() {
    console.log("Compiling handlebars templates:");
    const templateIds = Object.keys(handlebarsTemplates);
@@ -73,10 +81,18 @@ const compileHandlebarsTemplates = function() {
    });
 };
 
-// got this from https://stackoverflow.com/a/950146/703200
+/**
+ * Dynamically load the script from the given <code>url</code>, and called the given <code>onloadCallback</code>
+ * function once loaded (if defined).
+ *
+ * Based on code from https://stackoverflow.com/a/950146/703200
+ *
+ * @param {string} url The URL of the script to be loaded
+ * @param {function} [onloadCallback] optional callback function to be called once the script is loaded
+ */
 const dynamicallyLoadScript = function(url, onloadCallback) {
-   const script = document.createElement('script');  // create a script DOM node
-   script.src = url;  // set its src to the provided URL
+   const script = document.createElement('script');
+   script.src = url;
 
    if (typeof onloadCallback === 'function') {
       script.onload = function() {
@@ -84,12 +100,40 @@ const dynamicallyLoadScript = function(url, onloadCallback) {
       };
    }
 
-   document.head.appendChild(script);  // add it to the end of the head section of the page (could change 'head' to 'body' to add it to the end of the body section instead)
+   document.head.appendChild(script);
 };
 
-const loadStory = function(storyName, containerElement, earthtimeDomain, config = {}) {
-   console.log("Loading story [" + storyName + "]");
+/**
+ * Dynamically load the stylesheet from the given <code>url</code>, and called the given <code>onloadCallback</code>
+ * function once loaded (if defined).
+ *
+ * Based on code from https://stackoverflow.com/a/950146/703200
+ *
+ * @param {string} url The URL of the stylesheet to be loaded
+ * @param {function} [onloadCallback] optional callback function to be called once the stylesheet is loaded
+ */
+const dynamicallyLoadStylesheet = function(url, onloadCallback) {
+   const element = document.createElement('link');
+   element.setAttribute('href', url);
+   element.setAttribute('rel', 'stylesheet');
 
+   if (typeof onloadCallback === 'function') {
+      element.onload = function() {
+         onloadCallback(url);
+      };
+   }
+
+   document.head.appendChild(element);
+};
+
+/**
+ * Loads the story specified by the given <code>storyName</code> into the given <code>containerElement</code>.
+ *
+ * @param {string} storyName the story name
+ * @param containerElement the DOM element into which the story will be inserted
+ * @param {object} [config] the story config object
+ */
+const loadStory = function(storyName, containerElement, config = {}) {
    const DEFAULT_SHARE_VIEW = "https://earthtime.org/#theme=big_picture_on_nature&story=default&v=4.56342,0,0.183,latLng&t=2.20&ps=50&l=blsat&bt=19840101&et=20161231";
 
    // get the spreadsheet url
@@ -103,7 +147,7 @@ const loadStory = function(storyName, containerElement, earthtimeDomain, config 
       header : true,
       complete : function(results) {
          const themes = [];
-         let themeIdx;
+         let themeIdx = -1; // initialize to a bogus index to help catch bugs
          let storyIdx;
          let currentThemeIdx;
          let currentStoryIdx;
@@ -160,15 +204,8 @@ const loadStory = function(storyName, containerElement, earthtimeDomain, config 
             }
          }
 
-         // now insert story elements into the DOM
-         containerElement.innerHTML = '<style type="text/css">' +
-                                      '   @font-face {' +
-                                      '      font-family: "EarthTime";' +
-                                      '      src: url("' + earthtimeDomain + '/css/fonts/Exo2-Regular.woff") format("woff");' +
-                                      '   }' +
-                                      '</style>' +
-                                      '<link href="' + earthtimeDomain + '/m/stories/mobile-embed.css?cache-bust=' + Date.now() + '" rel="stylesheet"/>' +
-                                      '<div class="earthtime-story">' +
+         // now insert story elements into the DOM, starting with the logo
+         containerElement.innerHTML = '<div class="earthtime-story">' +
                                       '   <div class="earthtime-logo">' +
                                       '      <a href="https://earthtime.org">Earth<br/>Time</a>' +
                                       '   </div>' +
@@ -279,6 +316,53 @@ const createScrollHandler = function(storyContainerElement) {
    };
 };
 
+/**
+ * Creates and returns a function to handle window orientation changes for story in the given
+ * <code>storyContainerElement</code>.
+ *
+ * @param storyContainerElement the DOM element containing the story
+ * @return {Function} the event handler function
+ */
+const createOrientationChangeHandler = function(storyContainerElement) {
+   return function() {
+      // get the new orientation name
+      const newOrientationName = getOrientationName();
+
+      // pause all the videos (not sure I need to do this, but whatever)
+      const videos = storyContainerElement.querySelectorAll('video');
+      for (let i = 0; i < videos.length; i++) {
+         videos[i].pause();
+      }
+
+      // get an array of all orientable elements
+      const orientableElements = storyContainerElement.querySelectorAll('.earthtime-orientable');
+      orientableElements.forEach(function(element) {
+         // Get the name of the attribute we're going to modify, if defined.  Here's the deal: for <img> and <source>,
+         // we need to modify the "src" attribute, so we'll just assume that as the default unless this element has an
+         // attribute named "data-orientable-attribute" defined.  If it does, get the value of that attribute, which
+         // specifies the name of the attribute we want to set here.  This allows us to set the "poster" attribute of
+         // the <video> element.
+         const orientableAttributeName = element.hasAttribute('data-orientable-attribute') ? element.getAttribute('data-orientable-attribute') : "src";
+         const newSrc = element.getAttribute('data-src-' + newOrientationName);
+         element.setAttribute(orientableAttributeName, newSrc);
+      });
+
+      // load and play all the videos
+      for (let i = 0; i < videos.length; i++) {
+         videos[i].load();
+         videos[i].play();
+      }
+   };
+};
+
+/**
+ * Registers the story specified by the given <code>storyName</code> for insertion into the DOM element specified by the
+ * given <code>elementId</code>.  This function merely takes note of the desire for the story to be loaded.  You must
+ * call <code>embedStories()</code> (once and only once!) to actually load the stories into the page.
+ *
+ * @param {string} storyName the name of the story
+ * @param {string} elementId the ID of the DOM element into which the story should be inserted
+ */
 export function registerStory(storyName, elementId) {
    console.log("Registering story [" + storyName + "] into element [" + elementId + "]");
    storyRegistrations.push({
@@ -286,27 +370,47 @@ export function registerStory(storyName, elementId) {
                               containerElementId : elementId,
                               containerElement : document.getElementById(elementId)
                            });
-};
+}
 
+/**
+ * Loads all stylesheet and script dependencies into the page and then loads all stories which have previously been
+ * registered for embedding via calls to the <code>registerStory</code> function.  This function must only be called
+ * once.
+ *
+ * @param {string} [earthtimeDomain] optional URL of the Earthtime domain, defaults to the production server if not
+ * specified
+ */
 export function embedStories(earthtimeDomain = EARTHTIME_DOMAIN) {
-   // initialize, then once that's done, create the scroll handler for this story and load the story
-   let numLoaded = 0;
-   const onDependenciesLoaded = function(url) {
-      numLoaded++;
-      console.log("   (" + numLoaded + "/" + scriptDependencies.length + "): " + url);
-      if (numLoaded === scriptDependencies.length) {
+   let numScriptsLoaded = 0;
+   const onScriptDependenciesLoaded = function(url) {
+      numScriptsLoaded++;
+      console.log("   (" + numScriptsLoaded + "/" + scriptDependencies.length + "): " + url);
+
+      // if we're done loading all the script dependencies, then compile the templates then load the stories
+      if (numScriptsLoaded === scriptDependencies.length) {
          compileHandlebarsTemplates();
 
-         console.log("Loading stories...");
-         storyRegistrations.forEach(function(story) {
+         console.log("Loading stories:");
+         storyRegistrations.forEach(function(story, i) {
+            // create scroll and orientation change handlers for the story
             window.addEventListener('scroll', createScrollHandler(story.containerElement));
-            loadStory('#' + story.name, story.containerElement, earthtimeDomain, EARTH_TIMELAPSE_CONFIG);
+            window.addEventListener('orientationchange', createOrientationChangeHandler(story.containerElement));
+
+            // load it
+            loadStory('#' + story.name, story.containerElement, EARTH_TIMELAPSE_CONFIG);
+            console.log("   (" + (i + 1) + "/" + storyRegistrations.length + "): " + story.name);
          });
       }
    };
 
-   console.log("Loading script dependencies:");
-   scriptDependencies.forEach(function(scriptUrl) {
-      dynamicallyLoadScript(earthtimeDomain + scriptUrl, onDependenciesLoaded)
+   // load the stylesheet first, then script dependencies
+   console.log("Loading stylesheets:");
+   dynamicallyLoadStylesheet(earthtimeDomain + '/m/stories/mobile-embed.css', function(url) {
+      console.log("   (1/1): " + url);
+
+      console.log("Loading script dependencies:");
+      scriptDependencies.forEach(function(scriptUrl) {
+         dynamicallyLoadScript(earthtimeDomain + scriptUrl, onScriptDependenciesLoaded);
+      });
    });
 }

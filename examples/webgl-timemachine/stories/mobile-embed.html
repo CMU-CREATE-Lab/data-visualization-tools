@@ -117,9 +117,14 @@
 </body>
 <script type="module">
    import * as earthtime from 'http://earthtime.local/m/stories/mobile-embed.js';
+   // import * as earthtime from 'https://earthtime.org/m/stories/mobile-embed.js';
 
+   // register the stories
    earthtime.registerStory('deforestation', 'story_container1');
    earthtime.registerStory('glaciers', 'story_container2');
-   earthtime.embedStories('http://earthtime.local');   // call this with no args to default to using earthtime.org
+
+   // Emped the stories.  Call this with no args to use the default of earthtime.org
+   earthtime.embedStories('http://earthtime.local');
+   // earthtime.embedStories();
 </script>
 </html>
