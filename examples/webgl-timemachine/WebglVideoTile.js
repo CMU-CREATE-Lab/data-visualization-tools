@@ -73,6 +73,7 @@ function WebglVideoTile(glb, tileidx, bounds, url, defaultUrl, numFrames, fps, g
   // The attribute should be all lowercase per the Apple docs, but apparently it needs to be camelcase.
   // Leaving both in just in case.
   this._video.playsInline = true;
+  this._video.preload = 'auto';
 
   this._useGreenScreen = greenScreen;
 
@@ -403,7 +404,18 @@ updatePhase2 = function(displayFrame) {
   var r2 = WebglVideoTile.r2;
   var displayFrameDiscrete = Math.min(Math.floor(displayFrame), this._nframes - 1);
   var readyState = this._video.readyState;
-  var isPaused = timelapse.isPaused();
+  // Set isPaused true if:
+  //    Timelapse is actually paused (as in play/pause button)
+  //    We're playing, but within the start dwell period (not end dwell period)
+  //    (hack) we're showing some layers that make landsat playback especially slow
+  //           TODO: we should measure the speed, instead of naming layers that cause playback to be slow
+  var isPaused = timelapse.isPaused() && !timelapse.isDuringEndDwell();
+
+  if (timelapse.isPaused()) {
+    timelapse.isDuringStartDwell();
+    console.log('isPaused', timelapse.isDuringStartDwell(), timelapse.isDuringEndDwell());
+  }
+    
 
   // TODO: Hack for frames with fixed year or range of Landsat years to be shown.
   // Any layer where we set a fixed frame (or range of frames) needs to set isPaused or no new tiles are brought in until you pause.
@@ -428,23 +440,17 @@ updatePhase2 = function(displayFrame) {
   }
 
   if (readyState == 0) {
+    timelapse.lastFrameCompletelyDrawn = false;
     return;
   }
-
-  var actualVideoFrame = this._video.currentTime * this._fps;
-  var actualVideoFrameDiscrete = Math.min(Math.floor(actualVideoFrame), this._nframes - 1);
-
-  if (readyState > 1 && !redrawTakingTooLong()) {
-    this._tryCaptureFrame(displayFrameDiscrete, actualVideoFrame, actualVideoFrameDiscrete, isPaused);
-  }
-  this._checkForMissedFrame(displayFrameDiscrete);
 
   if (this._video.seeking) {
     this._seekingFrameCount++;
     if (WebglVideoTile.verbose) {
       console.log(this._id + ': seeking for ' + this._seekingFrameCount + ' frames');
     }
-    return false;
+    timelapse.lastFrameCompletelyDrawn = false;
+    return;
   }
 
   if (this._seekingFrameCount != 0) {
@@ -452,6 +458,44 @@ updatePhase2 = function(displayFrame) {
     WebglVideoTile.totalSeekCount++;
     this._seekingFrameCount = 0;
   }
+
+  // If paused, carefully seek and advertise whether we successfully got the correct frame or not, 
+  // and return to caller
+  if (isPaused) {
+    //console.log('isPaused dude', timelapse.isDoingLoopingDwell());
+    var videoTime = (displayFrameDiscrete + 0.25) / this._fps;
+    var epsilon = .02 / this._fps; // 2% of a frame
+    if (!this._video.paused) {
+      //console.log('Paused so pausing source');
+      this._video.pause();
+    }
+    if (Math.abs(this._video.currentTime - videoTime) > epsilon) {
+      //console.log('Wrong spot (' + this._video.currentTime + ' so seeking source to ' + videoTime);
+      this._video.currentTime = videoTime;
+      timelapse.lastFrameCompletelyDrawn = false;
+    } else if (this._pipeline[0].frameno != displayFrameDiscrete ||
+               Math.abs(this._pipeline[0].texture.before - videoTime) > epsilon ||
+               Math.abs(this._pipeline[0].texture.after - videoTime) > epsilon) {
+      //console.log('Need the frame, grabbing ' + videoTime);
+      this._captureFrame(displayFrameDiscrete, 0);
+      this._ready = true;
+    } else {
+      // We're currently displaying the correct frame
+    }
+    return;
+  }
+  //console.log('not Paused', timelapse.isDoingLoopingDwell());
+
+  // Not paused case
+  // Try to adapt video playback speed to sync up, or seek source video when too far out of sync
+  
+  var actualVideoFrame = this._video.currentTime * this._fps;
+  var actualVideoFrameDiscrete = Math.min(Math.floor(actualVideoFrame), this._nframes - 1);
+
+  if (readyState > 1 && !redrawTakingTooLong()) {
+    this._tryCaptureFrame(displayFrameDiscrete, actualVideoFrame, actualVideoFrameDiscrete, isPaused);
+  }
+  this._checkForMissedFrame(displayFrameDiscrete);
 
   var nextNeededFrame = this._computeNextCaptureFrame(displayFrameDiscrete, isPaused);
 
@@ -464,14 +508,10 @@ updatePhase2 = function(displayFrame) {
 
   var futureTargetVideoFrame = (targetVideoFrame + future) % this._nframes;
 
-  if (isPaused && nextNeededFrame == displayFrameDiscrete) {
-    // Paused and we need the current frame
-    futureTargetVideoFrame = displayFrameDiscrete + 0.5;
-  } else {
-    // Slow down by up to half a frame to make sure to get the next requested frame
-    futureTargetVideoFrame = Math.min(futureTargetVideoFrame,
-                                      nextNeededFrame + 0.5);
-  }
+  // Slow down by up to half a frame to make sure to get the next requested frame
+  futureTargetVideoFrame = Math.min(futureTargetVideoFrame,
+                                    nextNeededFrame + 0.5);
+
   // Set speed so that in one webgl frame, we'll be exactly at the right time
   var speed = (futureTargetVideoFrame - actualVideoFrame) / future;
 
@@ -515,6 +555,9 @@ updatePhase2 = function(displayFrame) {
                   ', future error=' + r2(futureFrameError));
     }
   }
+  if (!this._ready) {
+    timelapse.lastFrameCompletelyDrawn = false;
+  }
 }
 
 WebglVideoTile.prototype.
@@ -537,12 +580,17 @@ _captureFrame = function(captureFrameno, destIndex) {
   var currentTime = this._video.currentTime;
   var before = performance.now();
 
+  this._pipeline[destIndex].texture.ready = readyState;
+  this._pipeline[destIndex].texture.before = currentTime;
+  this._pipeline[destIndex].texture.rate = this._video.playbackRate;
+
   gl.bindTexture(gl.TEXTURE_2D, this._pipeline[destIndex].texture);
 
   //console.time("gl.texImage2D");
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._video);
   //console.timeEnd("gl.texImage2D");
   gl.bindTexture(gl.TEXTURE_2D, null);
+  this._pipeline[destIndex].texture.after = this._video.currentTime;
   var elapsed = performance.now() - before;
   //WebglTimeMachinePerf.instance.recordVideoFrameCapture(elapsed);
   if (WebglVideoTile.verbose) {
