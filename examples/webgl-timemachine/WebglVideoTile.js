@@ -413,9 +413,11 @@ updatePhase2 = function(displayFrame) {
 
   if (timelapse.isPaused()) {
     timelapse.isDuringStartDwell();
-    console.log('isPaused', timelapse.isDuringStartDwell(), timelapse.isDuringEndDwell());
+    if (WebglVideoTile.verbose) {
+      console.log('isPaused', timelapse.isDuringStartDwell(), timelapse.isDuringEndDwell());
+    }
   }
-    
+
 
   // TODO: Hack for frames with fixed year or range of Landsat years to be shown.
   // Any layer where we set a fixed frame (or range of frames) needs to set isPaused or no new tiles are brought in until you pause.
@@ -459,7 +461,7 @@ updatePhase2 = function(displayFrame) {
     this._seekingFrameCount = 0;
   }
 
-  // If paused, carefully seek and advertise whether we successfully got the correct frame or not, 
+  // If paused, carefully seek and advertise whether we successfully got the correct frame or not,
   // and return to caller
   if (isPaused) {
     //console.log('isPaused dude', timelapse.isDoingLoopingDwell());
@@ -488,7 +490,7 @@ updatePhase2 = function(displayFrame) {
 
   // Not paused case
   // Try to adapt video playback speed to sync up, or seek source video when too far out of sync
-  
+
   var actualVideoFrame = this._video.currentTime * this._fps;
   var actualVideoFrameDiscrete = Math.min(Math.floor(actualVideoFrame), this._nframes - 1);
 
@@ -891,8 +893,8 @@ WebglVideoTile.textureFragmentTintFaderShader =
   'void main(void) {\n' +
   '  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t)); \n' +
   '  vec4 textureColor2 = texture2D(uSampler2, vec2(vTextureCoord.s, vTextureCoord.t));\n' +
-  '  //vec4 color = vec4(0.0,0.0,0.8039, 1.0);\n' + 
-  '  vec4 color = vec4(0.,0.0,0.44, 1.);\n' + 
+  '  //vec4 color = vec4(0.0,0.0,0.8039, 1.0);\n' +
+  '  vec4 color = vec4(0.,0.0,0.44, 1.);\n' +
   '  //gl_FragColor = tint(to_grayscale(textureColor * (1.0 - uAlpha) + textureColor2 * uAlpha), color);\n' +
   '  vec4 mixed = textureColor * (1.0 - uAlpha) + textureColor2 * uAlpha;\n' +
   '  gl_FragColor = texture2D(uColormap, vec2(mixed.g, 0.0));\n' +
