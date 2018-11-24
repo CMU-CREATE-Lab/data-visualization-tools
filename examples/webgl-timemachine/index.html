@@ -298,7 +298,9 @@
     var useRetinaDarkNoLabelsBaseMap = baseMapsNoLabels ? true : (typeof(EARTH_TIMELAPSE_CONFIG.useRetinaDarkNoLabelsBaseMap) == "undefined") ? false : !!EARTH_TIMELAPSE_CONFIG.useRetinaDarkNoLabelsBaseMap;
     var enableStoryEditor = (typeof(EARTH_TIMELAPSE_CONFIG.enableStoryEditor) == "undefined") ? false : !!EARTH_TIMELAPSE_CONFIG.enableStoryEditor;
     var pauseWhenInitialized = (typeof(EARTH_TIMELAPSE_CONFIG.pauseWhenInitialized) == "undefined") ? false : !!EARTH_TIMELAPSE_CONFIG.pauseWhenInitialized;
-
+    if (window.location.hash.search('startPaused=true') >= 0) {
+      pauseWhenInitialized = true;
+    }
     // TODO: Until we decide to force everyone to latest landsat, pull the version corresponding to the config above.
     if (landsatVersion == "2015"){
       var cachedLandsatTimeJsonPath = "landsat-times.json";
