@@ -95,8 +95,6 @@
     jQuery.support.cors = true;
     var UTIL = org.gigapan.Util;
 
-    var storyEditor;
-
     var isOffline = false;
     var isMobileDevice = UTIL.isMobileDevice();
     var isBrowserSupported = UTIL.browserSupported();
@@ -117,26 +115,32 @@
       isOffline = true;
     }
 
-    var md = window.markdownit({ breaks: true, html: true });
+    // TODO:
+    // We start crashing phones with a ratio > 1 and in general retina is
+    // quite taxing for our videos and layers, so force pixelRatio to 1.
+    // And why not IE? Because errors are thrown if we try to modify this window value.
+    if (!isIE) {
+      window.devicePixelRatio = 1;
+    }
 
+    /* Set up markdown used for layer info bubbles */
+    var md = window.markdownit({ breaks: true, html: true });
     // Remember old renderer, if overriden, or proxy to default renderer
     var defaultRender = md.renderer.rules.link_open || function(tokens, idx, options, env, self) {
       return self.renderToken(tokens, idx, options);
     };
-
     md.renderer.rules.link_open = function (tokens, idx, options, env, self) {
-      // If you are sure other plugins can't add `target` - drop check below
+      // Ensure all links open in new window
       var aIndex = tokens[idx].attrIndex('target');
-
       if (aIndex < 0) {
-        tokens[idx].attrPush(['target', '_blank']); // add new attribute
+        tokens[idx].attrPush(['target', '_blank']);
       } else {
-        tokens[idx].attrs[aIndex][1] = '_blank';    // replace value of existing attr
+        tokens[idx].attrs[aIndex][1] = '_blank';
       }
-
-      // pass token to default renderer.
+      // Pass token to default renderer.
       return defaultRender(tokens, idx, options, env, self);
     };
+
 
     //
     //// Config ////
@@ -145,7 +149,7 @@
     var EARTH_TIMELAPSE_CONFIG = EARTH_TIMELAPSE_CONFIG || {};
     var featuredTheme = EARTH_TIMELAPSE_CONFIG.featuredTheme || "";
     var enableMuseumMode = !!EARTH_TIMELAPSE_CONFIG.enableMuseumMode;
-    // Deprecated. Instead use waypointSliderContentPath, which points to an online or exported spreadsheet.
+    // Deprecated. Was json output of snaplapse editor. Instead use waypointSliderContentPath, which points to an online or exported spreadsheet.
     var waypointCollection = EARTH_TIMELAPSE_CONFIG.waypointCollection;
     var waypointSliderContentPath = EARTH_TIMELAPSE_CONFIG.waypointSliderContentPath || "default-waypoints.tsv";
     var dotmapsContentPath;
@@ -176,14 +180,7 @@
         csvLayersContentPath = localStorage.csvLayersContentPath;
       }
     }
-    var useUrbanFragilityWaypoints = window.location.hash.split("useUrbanFragilityWaypoints=")[1];
-    if (useUrbanFragilityWaypoints === "true")
-      waypointSliderContentPath = "https://docs.google.com/spreadsheets/d/1hFpDXOyjvjTpad7HpB0K-3thuYqSOlDJ4oExCTcscUk/edit#gid=1757433978";
-    var googleMapsAPIKey = EARTH_TIMELAPSE_CONFIG.googleMapsAPIKey;
 
-    var showExtrasMenu = typeof(EARTH_TIMELAPSE_CONFIG.showExtrasMenu) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showExtrasMenu;
-    var showFullScreenButton = window.location.hash.split("showFullScreenButton=")[1] || !!EARTH_TIMELAPSE_CONFIG.showFullScreenButton;
-    var showThumbnailTool = typeof(EARTH_TIMELAPSE_CONFIG.showThumbnailTool) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showThumbnailTool;
     var showEVA = !!EARTH_TIMELAPSE_CONFIG.showEVA;
     var showGFW = !!EARTH_TIMELAPSE_CONFIG.showGFW;
     var showLodes = !!EARTH_TIMELAPSE_CONFIG.showLodes;
@@ -241,67 +238,61 @@
     var showGdpPpp = !!EARTH_TIMELAPSE_CONFIG.showGdpPpp;
     var showTintedLandsat = !!EARTH_TIMELAPSE_CONFIG.showTintedLandsat;
 
-    var showTile = true;
 
-    var usePresentationClicker = !!EARTH_TIMELAPSE_CONFIG.usePresentationClicker;
-    var enableThemeHamburgerButton = !!EARTH_TIMELAPSE_CONFIG.enableThemeHamburgerButton;
+    var googleMapsAPIKey = parseConfigOption({optionName: "googleMapsAPIKey", optionDefaultValue: "", exposeOptionToUrlHash: false});
+    var showExtrasMenu = parseConfigOption({optionName: "showExtrasMenu", optionDefaultValue: true, exposeOptionToUrlHash: false});
+    var showFullScreenButton = parseConfigOption({optionName: "showFullScreenButton", optionDefaultValue: false, exposeOptionToUrlHash: true});
+    var showThumbnailTool = parseConfigOption({optionName: "showThumbnailTool", optionDefaultValue: true, exposeOptionToUrlHash: false});
+    var usePresentationClicker = parseConfigOption({optionName: "usePresentationClicker", optionDefaultValue: false, exposeOptionToUrlHash: false});
+    var enableThemeHamburgerButton = parseConfigOption({optionName: "enableThemeHamburgerButton", optionDefaultValue: false, exposeOptionToUrlHash: false});
     // Show timestamp, legend, logos
-    var minimalUI = window.location.hash.split("minimalUI=")[1] || !!EARTH_TIMELAPSE_CONFIG.minimalUI;
+    var minimalUI = parseConfigOption({optionName: "minimalUI", optionDefaultValue: false, exposeOptionToUrlHash: true});
     // Show only timestamp
-    var timestampOnlyUI = window.location.hash.split("timestampOnlyUI=")[1] || !!EARTH_TIMELAPSE_CONFIG.timestampOnlyUI;
+    var timestampOnlyUI = parseConfigOption({optionName: "timestampOnlyUI", optionDefaultValue: false, exposeOptionToUrlHash: true});
     // Only show visualization
-    var disableUI = window.location.hash.split("disableUI=")[1] || !!EARTH_TIMELAPSE_CONFIG.disableUI;
-    var disablePresentationSlider = window.location.hash.split("disablePresentationSlider=")[1] || !!EARTH_TIMELAPSE_CONFIG.disablePresentationSlider || false;
-    if (disableUI)
-      disablePresentationSlider = true;
-    var presentationMode = window.location.hash.split("presentationMode=")[1] || !!EARTH_TIMELAPSE_CONFIG.presentationMode;
-    var initiallyShowPresentationSlider = window.location.hash.split("initiallyShowPresentationSlider=")[1] || !!EARTH_TIMELAPSE_CONFIG.initiallyShowPresentationSlider;
-    var extraContributors = EARTH_TIMELAPSE_CONFIG.extraContributors ? EARTH_TIMELAPSE_CONFIG.extraContributors.replace(",", " |") : "";
-    var showCredits = (typeof(EARTH_TIMELAPSE_CONFIG.showCredits) == "undefined") ? true : !!EARTH_TIMELAPSE_CONFIG.showCredits;
-    var showShareButton = typeof(EARTH_TIMELAPSE_CONFIG.showShareButton) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showShareButton;
-    var showShareButtonHash = window.location.hash.split("showShareButton=")[1];
-    if (showShareButtonHash)
-      showShareButton = showShareButtonHash === "true";
-    var showSettingsButton = isMobileDevice ? false : (typeof(EARTH_TIMELAPSE_CONFIG.showSettingsButton) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showSettingsButton);
-    var showZoomControls = typeof(EARTH_TIMELAPSE_CONFIG.showZoomControls) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showZoomControls;
-    var showStoriesButton = typeof(EARTH_TIMELAPSE_CONFIG.showStoriesButton) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showStoriesButton;
-    var showLayersButton = typeof(EARTH_TIMELAPSE_CONFIG.showLayersButton) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showLayersButton;
-    var showHomeLogo = typeof(EARTH_TIMELAPSE_CONFIG.showHomeLogo) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showHomeLogo;
-    var showSearchBox = typeof(EARTH_TIMELAPSE_CONFIG.showSearchBox) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showSearchBox;
-    var disableTopNav = typeof(EARTH_TIMELAPSE_CONFIG.disableTopNav) === "undefined" ? false : !!EARTH_TIMELAPSE_CONFIG.disableTopNav;
-    var disableTopNavHash = window.location.hash.split("disableTopNav=")[1];
-    if (disableTopNavHash)
-      disableTopNav = disableTopNavHash === "true";
-    var disableResumeExitAnnotationPrompt = typeof(EARTH_TIMELAPSE_CONFIG.disableResumeExitAnnotationPrompt) === "undefined" ? false : !!EARTH_TIMELAPSE_CONFIG.disableResumeExitAnnotationPrompt;
-    var isHyperwall = !!EARTH_TIMELAPSE_CONFIG.isHyperwall;
-    var useGoogleMaps = !!EARTH_TIMELAPSE_CONFIG.useGoogleMaps;
-    var useGoogleSearch = (typeof(EARTH_TIMELAPSE_CONFIG.useGoogleSearch) == "undefined") ? true : !!EARTH_TIMELAPSE_CONFIG.useGoogleSearch;
-    var enableAutoMode = !!EARTH_TIMELAPSE_CONFIG.enableAutoMode;
-    var screenTimeoutInMilliseconds = parseInt(EARTH_TIMELAPSE_CONFIG.screenTimeoutInMilliseconds) || 8 * 60 * 1000;
-    var waypointDelayInMilliseconds = parseInt(EARTH_TIMELAPSE_CONFIG.waypointDelayInMilliseconds) || 1 * 15 * 1000;
-    var defaultPlaybackSpeed = parseFloat(EARTH_TIMELAPSE_CONFIG.defaultPlaybackSpeed) || 0.5;
-    var enableLetterboxMode = !!EARTH_TIMELAPSE_CONFIG.enableLetterboxMode;
-    var letterboxBottomOffset = parseInt(EARTH_TIMELAPSE_CONFIG.letterboxBottomOffset) || 312;
-    var letterboxModeHash = window.location.hash.split("enableLetterboxMode=")[1];
-    if (letterboxModeHash)
-      enableLetterboxMode = letterboxModeHash === "true";
-    var landsatVersion = EARTH_TIMELAPSE_CONFIG.landsatVersion || "2015";
-    var useFaderShader = (typeof(EARTH_TIMELAPSE_CONFIG.useFaderShader) == "undefined") ? true : !!EARTH_TIMELAPSE_CONFIG.useFaderShader;
-    var enableWaypointText = (typeof(EARTH_TIMELAPSE_CONFIG.enableWaypointText) == "undefined") ? true : !!EARTH_TIMELAPSE_CONFIG.enableWaypointText;
-    var trackingId = EARTH_TIMELAPSE_CONFIG.trackingId || "UA-10682694-21";
-    var rootTilePath = (typeof(EARTH_TIMELAPSE_CONFIG.rootTilePath) == "undefined") ? "../../../data/" : EARTH_TIMELAPSE_CONFIG.rootTilePath;
-    var autoModeFullThemeCycle = (typeof(EARTH_TIMELAPSE_CONFIG.autoModeFullThemeCycle) == "undefined") ? true : !!EARTH_TIMELAPSE_CONFIG.autoModeFullThemeCycle;
-    var baseMapsNoLabels = window.location.hash.split("baseMapsNoLabels=")[1] || !!EARTH_TIMELAPSE_CONFIG.baseMapsNoLabels;
-    var useRetinaLightBaseMap = (typeof(EARTH_TIMELAPSE_CONFIG.useRetinaLightBaseMap) == "undefined") ? false : !!EARTH_TIMELAPSE_CONFIG.useRetinaLightBaseMap;
-    var useRetinaLightNoLabelsBaseMap = baseMapsNoLabels ? true : (typeof(EARTH_TIMELAPSE_CONFIG.useRetinaLightNoLabelsBaseMap) == "undefined") ? false : !!EARTH_TIMELAPSE_CONFIG.useRetinaLightNoLabelsBaseMap;
-    var useRetinaDarkBaseMap = (typeof(EARTH_TIMELAPSE_CONFIG.useRetinaDarkBaseMap) == "undefined") ? false : !!EARTH_TIMELAPSE_CONFIG.useRetinaDarkBaseMap;
-    var useRetinaDarkNoLabelsBaseMap = baseMapsNoLabels ? true : (typeof(EARTH_TIMELAPSE_CONFIG.useRetinaDarkNoLabelsBaseMap) == "undefined") ? false : !!EARTH_TIMELAPSE_CONFIG.useRetinaDarkNoLabelsBaseMap;
-    var enableStoryEditor = (typeof(EARTH_TIMELAPSE_CONFIG.enableStoryEditor) == "undefined") ? false : !!EARTH_TIMELAPSE_CONFIG.enableStoryEditor;
-    var pauseWhenInitialized = (typeof(EARTH_TIMELAPSE_CONFIG.pauseWhenInitialized) == "undefined") ? false : !!EARTH_TIMELAPSE_CONFIG.pauseWhenInitialized;
-    if (window.location.hash.search('startPaused=true') >= 0) {
-      pauseWhenInitialized = true;
+    var disableUI = parseConfigOption({optionName: "disableUI", optionDefaultValue: false, exposeOptionToUrlHash: true});
+    // Hide waypoint/bookmark slider
+    var disablePresentationSlider = disableUI ? true : parseConfigOption({optionName: "disablePresentationSlider", optionDefaultValue: false, exposeOptionToUrlHash: true});
+    var presentationMode = parseConfigOption({optionName: "presentationMode", optionDefaultValue: false, exposeOptionToUrlHash: true});
+    var initiallyShowPresentationSlider = parseConfigOption({optionName: "initiallyShowPresentationSlider", optionDefaultValue: false, exposeOptionToUrlHash: true});
+    var extraContributors = parseConfigOption({optionName: "extraContributors", optionDefaultValue: "", exposeOptionToUrlHash: false});
+    if (extraContributors) {
+      extraContributors = extraContributors.replace(",", " |");
     }
-    // TODO: Until we decide to force everyone to latest landsat, pull the version corresponding to the config above.
+    var showCredits = parseConfigOption({optionName: "showCredits", optionDefaultValue: true, exposeOptionToUrlHash: false});
+    var showShareButton = parseConfigOption({optionName: "showShareButton", optionDefaultValue: true, exposeOptionToUrlHash: true});
+    var showSettingsButton = isMobileDevice ? false : parseConfigOption({optionName: "showSettingsButton", optionDefaultValue: true, exposeOptionToUrlHash: false});
+    var showZoomControls = parseConfigOption({optionName: "showZoomControls", optionDefaultValue: true, exposeOptionToUrlHash: false});
+    var showStoriesButton = parseConfigOption({optionName: "showStoriesButton", optionDefaultValue: true, exposeOptionToUrlHash: false});
+    var showLayersButton = parseConfigOption({optionName: "showLayersButton", optionDefaultValue: true, exposeOptionToUrlHash: false});
+    var showHomeLogo = parseConfigOption({optionName: "showHomeLogo", optionDefaultValue: true, exposeOptionToUrlHash: false});
+    var showSearchBox = parseConfigOption({optionName: "showSearchBox", optionDefaultValue: true, exposeOptionToUrlHash: false});
+    var letterboxBottomOffset = parseInt(parseConfigOption({optionName: "letterboxBottomOffset", optionDefaultValue: 312, exposeOptionToUrlHash: false}));
+    var enableLetterboxMode = parseConfigOption({optionName: "enableLetterboxMode", optionDefaultValue: false, exposeOptionToUrlHash: true});
+    var disableTopNav = enableLetterboxMode ? true : parseConfigOption({optionName: "disableTopNav", optionDefaultValue: false, exposeOptionToUrlHash: true});
+    var disableResumeExitAnnotationPrompt = parseConfigOption({optionName: "disableResumeExitAnnotationPrompt", optionDefaultValue: false, exposeOptionToUrlHash: false});
+    var isHyperwall = parseConfigOption({optionName: "isHyperwall", optionDefaultValue: false, exposeOptionToUrlHash: false});
+    var useGoogleMaps = parseConfigOption({optionName: "useGoogleMaps", optionDefaultValue: false, exposeOptionToUrlHash: false});
+    var useGoogleSearch = parseConfigOption({optionName: "useGoogleSearch", optionDefaultValue: true, exposeOptionToUrlHash: false});
+    var enableAutoMode = parseConfigOption({optionName: "enableAutoMode", optionDefaultValue: false, exposeOptionToUrlHash: false});
+    var screenTimeoutInMilliseconds = parseInt(parseConfigOption({optionName: "screenTimeoutInMilliseconds", optionDefaultValue: (8 * 60 * 1000), exposeOptionToUrlHash: false}));
+    var waypointDelayInMilliseconds = parseInt(parseConfigOption({optionName: "waypointDelayInMilliseconds", optionDefaultValue: (1 * 15 * 1000), exposeOptionToUrlHash: false}));
+    var defaultPlaybackSpeed = parseFloat(parseConfigOption({optionName: "defaultPlaybackSpeed", optionDefaultValue: 0.5, exposeOptionToUrlHash: false}));
+    var useFaderShader = parseConfigOption({optionName: "useFaderShader", optionDefaultValue: true, exposeOptionToUrlHash: false});
+    var enableWaypointText = parseConfigOption({optionName: "enableWaypointText", optionDefaultValue: true, exposeOptionToUrlHash: false});
+    var trackingId = parseConfigOption({optionName: "trackingId", optionDefaultValue: "UA-10682694-21", exposeOptionToUrlHash: false});
+    var rootTilePath = parseConfigOption({optionName: "rootTilePath", optionDefaultValue: "../../../data/", exposeOptionToUrlHash: false});
+    var autoModeFullThemeCycle = parseConfigOption({optionName: "autoModeFullThemeCycle", optionDefaultValue: true, exposeOptionToUrlHash: false});
+    var baseMapsNoLabels = parseConfigOption({optionName: "autoModeFullThemeCycle", optionDefaultValue: false, exposeOptionToUrlHash: true});
+    var useRetinaLightBaseMap = parseConfigOption({optionName: "useRetinaLightBaseMap", optionDefaultValue: false, exposeOptionToUrlHash: false});
+    var useRetinaLightNoLabelsBaseMap = baseMapsNoLabels ? true : parseConfigOption({optionName: "useRetinaLightNoLabelsBaseMap", optionDefaultValue: false, exposeOptionToUrlHash: false});
+    var useRetinaDarkBaseMap = parseConfigOption({optionName: "useRetinaDarkBaseMap", optionDefaultValue: false, exposeOptionToUrlHash: false});
+    var useRetinaDarkNoLabelsBaseMap = baseMapsNoLabels ? true : parseConfigOption({optionName: "useRetinaDarkNoLabelsBaseMap", optionDefaultValue: false, exposeOptionToUrlHash: false});
+    var enableStoryEditor = parseConfigOption({optionName: "enableStoryEditor", optionDefaultValue: false, exposeOptionToUrlHash: false});
+    var pauseWhenInitialized = parseConfigOption({optionName: "pauseWhenInitialized", optionDefaultValue: false, exposeOptionToUrlHash: true});
+    var landsatVersion = parseConfigOption({optionName: "landsatVersion", optionDefaultValue: "2015", exposeOptionToUrlHash: false});
+    // TODO:
+    // Until we decide to force everyone to latest landsat, pull the version corresponding to the config above.
     if (landsatVersion == "2015"){
       var cachedLandsatTimeJsonPath = "landsat-times.json";
       var landsatAjaxIncludesPath = "landsat_ajax_includes.js";
@@ -313,16 +304,13 @@
       }
     }
 
-    // TODO:
-    // We start crashing phones with a ratio > 1 and in general retina is
-    // quite taxing for our videos and layers, so force pixelRatio to 1.
-    // And why not IE? Because errors are thrown if we try to modify this window value.
-    if (!isIE) {
-      window.devicePixelRatio = 1;
-    }
+
+    //
+    //// App variables ////
+    //
 
     WebglVideoTile.useFaderShader = useFaderShader;
-
+    var showTile = true;
     var NORTH = 85.05113006405742; // Latitude for Northern most extent
     var landsatMaxScale = (landsatVersion == "2015") ? 1.25 : 0.45;
     landsatMaxScale -= (window.devicePixelRatio > 1) * 0.21;
@@ -333,7 +321,14 @@
     var isAutoModeRunning = false;
     var visibleBaseMapLayer = "landsat";
     var previousVisibleBaseMapLayer = visibleBaseMapLayer;
-    var timelapse, thumbnailTool, snaplapseViewerForPresentationSlider, previousWaypoint = {}, waypointViewChangeListener, hideWaypointListener, snaplapseForPresentationSlider, parabolicMotionStoppedListener;
+    var timelapse;
+    var thumbnailTool;
+    var snaplapseViewerForPresentationSlider;
+    var previousWaypoint = {};
+    var waypointViewChangeListener;
+    var hideWaypointListener;
+    var snaplapseForPresentationSlider;
+    var parabolicMotionStoppedListener;
     var currentWaypointTheme = featuredTheme.replace(/ /g, '_').toLowerCase();
     var currentWaypointStory;
     var himawariWaypoints = {};
@@ -360,7 +355,6 @@
     var lastSelectedAnnotationBeforeHidden;
     var initialTopNavWrapperElm;
     var $activeLayerDescriptionTooltip;
-
     // This is necessary because waypoint thumbnails are generated from the Landsat set and thus the best we can show is just a solid black thumbnail
     // instead of some random location that a himawari bounds corresponds to in Landsat.
     var himawariWaypointThumbnailBounds = {
@@ -369,6 +363,8 @@
       ymax: 1253113.3077389232,
       ymin: 1218442.2616483232
     };
+    var storyEditor;
+
 
 
     // ## 1 ##
@@ -453,7 +449,7 @@
     var spCrudeLayerUS;
     setTimeLine('sp-crude-us-times', 2016, 2018, 1);
 */
-    var  shipsWorker = new Worker('ships-worker.js');
+    var shipsWorker = new Worker('ships-worker.js');
     shipsWorker.onmessage = function(e) {
       if (typeof e.data["idx"] != "undefined") {
         var idx = e.data.idx;
@@ -659,6 +655,17 @@
       inEndDwell: false,
       pulse: false
     };
+
+    function parseConfigOption(settings) {
+      var val = (typeof(EARTH_TIMELAPSE_CONFIG[settings.optionName]) === "undefined" && typeof(settings.optionDefaultValue) !== "undefined") ? settings.optionDefaultValue : EARTH_TIMELAPSE_CONFIG[settings.optionName];
+      if (settings.exposeOptionToUrlHash) {
+        var urlHash = window.location.hash.split(settings.optionName + "=")[1];
+        if (urlHash) {
+          val = !!(parseInt(urlHash) || urlHash === "true");
+        }
+      }
+      return val;
+    }
 
     function getLayerInfo(layer) {
       var readyTileCount = 0;
@@ -980,7 +987,7 @@
         },
         useTouchFriendlyUI: isHyperwall || isMobileDevice,
         datasetType: "landsat",
-        playOnLoad: true,
+        playOnLoad: !pauseWhenInitialized,
         mediaType: (landsatVersion == "2015") ? ".webm" : ".mp4",
         onTimeMachinePlayerReady: function(viewerDivId) {
           setupPostMessageHandlers();
@@ -4673,8 +4680,6 @@
     }
 
     function onTimeMachinePlayerReady() {
-      if (pauseWhenInitialized) timelapse.pause();
-
       if (!isBrowserSupported) {
         $("#baseLayerCreditContainer").hide();
       }
@@ -7069,6 +7074,7 @@
         $(".captureTime, .scaleBarContainer, #logosContainer, #baseLayerCreditContainer").addClass("minimalUIMode");
         // Remove top-nav, side control panel, search box, timelines, scalebar, logos and legend
         $("#top-nav, #controlsContainer, .location_search_div, .customControl, .controls, .scaleBarContainer, #baseLayerCreditContainer, #logosContainer, #layers-legend").remove();
+        disableTopNav = true;
       }
 
       if (!showCredits) {
@@ -7473,7 +7479,7 @@
 
     function findCsvLayer(layerId) {
       for (var i = 0; i < csvFileLayers.layers.length; i++) {
-	if (csvFileLayers.layers[i].layerId == layerId) return csvFileLayers.layers[i];
+        if (csvFileLayers.layers[i].layerId == layerId) return csvFileLayers.layers[i];
       }
       return null;
     }
