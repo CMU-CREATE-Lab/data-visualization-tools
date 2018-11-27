@@ -4326,7 +4326,6 @@
     var dotmapLayers = [];
     var dotlayersLoadedPath;
     var csvlayersLoadedPath;
-    var layersToShowOnCreation = {};
     var waypointJSONListReadyInterval;
 
     function addDotmapLayer(nickname, name, credit, category, columnDefs) {
@@ -4427,10 +4426,6 @@
           $("#" + nickname + "-legend").hide();
         }
       }).prop('checked', layer.visible);
-
-      if (layersToShowOnCreation[nickname]) {
-        $('#' + id).click();
-      }
     }
 
     function loadDotmapLayersFromTsv(tsvLayerDefinitions) {
@@ -6704,17 +6699,7 @@
         $(".map-layer-div").find("input:checked").parent().not(waypointLayersSelectors).children().trigger("click");
         if (vals.l) {
           var layers = vals.l.split(",");
-          layers.forEach(function(layer) {
-            layersToShowOnCreation[layer] = true;
-            // Legacy Himawari8 support
-            if (layer == 'h8') {
-              layer = 'h8_16';
-            }
-            var $layerToggle = $("#layers-list label[name='" + layer + "'] input");
-            if (!$layerToggle.prop('checked')) {
-              $layerToggle.trigger("click");
-            }
-          });
+          handleLayers(layers);
           // The time in a share link may correspond to a layer that has a different timeline than the default one.
           // Re-run corresponding sharelink code once the timeline has changed.
           // Note that this may be unncessary because of the callback for CSV layers, but it's possible not to have CSV layers
