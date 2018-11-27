@@ -4097,7 +4097,7 @@
             $(".map-layer-div, #all-data-layers-title").hide();
             $(this).text("Show More");
           } else {
-            if ($("#featured-layers").height() >= $("#layers-menu").height() / 2) {
+            if ($("#featured-layers").height() >= Math.floor($("#layers-menu").height() / 2)) {
               $("#layers-list-featured, #layers-list").addClass("shrink");
             }
             $(".map-layer-div, #all-data-layers-title").show();
