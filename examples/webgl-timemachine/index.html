@@ -237,6 +237,7 @@
     var showEcco2 = !!EARTH_TIMELAPSE_CONFIG.showEcco2;
     var showGdpPpp = !!EARTH_TIMELAPSE_CONFIG.showGdpPpp;
     var showTintedLandsat = !!EARTH_TIMELAPSE_CONFIG.showTintedLandsat;
+    var showGfsTimemachine = !!EARTH_TIMELAPSE_CONFIG.showGfsTimemachine;
 
 
     var googleMapsAPIKey = parseConfigOption({optionName: "googleMapsAPIKey", optionDefaultValue: "", exposeOptionToUrlHash: false});
@@ -438,6 +439,8 @@
     var gdpPppLayer;
 
     var tintedLandsatLayer;
+
+    var gfsTimemachineLayer;
 
 /*    var spCrudeLayerWAF;
     setTimeLine('sp-crude-times', 2013, 2018, 1);
@@ -949,6 +952,8 @@
     var spCrudeUrlNS = rootTilePath + "/sp-crude/NS/0-crude-flows_NS.bin";
     var ecco2Url = rootTilePath + "/oceans/ecco2.timemachine/crf26-16fps-1424x800";
     var gdpPppUrl = rootTilePath + "/economics/gdp_ppp.timemachine/crf26-10fps-1424x800";
+
+    var gfsTimemachineUrl = rootTilePath + "/gfs-timemachine.timemachine/crf24-12fps-1424x800";
 
     /*
     var spCrudeUrlWAF = rootTilePath + "/sp-crude/0-crude-flows_WAF.bin"
@@ -3452,6 +3457,35 @@
         }
       }).prop('checked', showGdpPppLayer);
 
+
+      $("#show-gfs-timemachine").on("click", function() {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          gfsTimemachineLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
+          showGfsTimemachineLayer = true;
+          setActiveLayersWithTimeline(1);
+          //visibleBaseMapLayer = "ecco2";
+          timelineType = "defaultUI";
+          requestNewTimeline("gfs-timemachine-times.json", timelineType);
+          var v = timelapse.getVideoset();
+          v.setFps(12);
+          timelapse.setDoDwell(false);
+          WebglVideoTile.useGreenScreen = true;
+          timelapse.setMasterPlaybackRate(1.0);
+          $("#baseLayerCreditContainer").hide();
+        } else {
+          showGfsTimemachineLayer = false;
+          cacheLastUsedLayer(gfsTimemachineLayer);
+          setActiveLayersWithTimeline(-1);
+          doSwitchToLandsat();
+          visibleBaseMapLayer = previousVisibleBaseMapLayer;
+          var v = timelapse.getVideoset();
+          v.setFps(10);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          $("#baseLayerCreditContainer").show();
+        }
+      }).prop('checked', showGfsTimemachineLayer);
+
 /*
       $("#show-sp-crude_WAF").on("click", function() {
         if ($(this).prop('checked')) {
@@ -4319,6 +4353,7 @@
     var showSpCrudeLayerNS = false;
     var showEcco2Layer = false;
     var showGdpPppLayer = false;
+    var showGfsTimemachineLayer = false;
 
     /*
     var showSpCrudeLayerWAF = false;
@@ -4806,6 +4841,7 @@
       var show_annual_global_pm25 = '<td class="annual-pm25-select"><label for="show-annual-pm25" name="annual-pm25"><input type="checkbox" id="show-annual-pm25" />Annual Global PM 2.5</label></td>';
       var show_ecco2 = '<td class="ecco2-select"><label for="show-ecco2" name="ecco2"><input type="checkbox" id="show-ecco2" />ECCO2</label></td>';
       var show_gpd_ppp = '<td class="gdpPpp-select"><label for="show-gdpPpp" name="gdpPpp"><input type="checkbox" id="show-gdpPpp" />GDP pc PPP</label></td>';
+      var show_gfs_timemachine = '<td class="gfs-timemachine-select"><label for="show-gfs-timemachine" name="gfs-timemachine"><input type="checkbox" id="show-gfs-timemachine" />GFS</label></td>';
 
 /*
       var show_sp_crude_WAF = '<td class="sp-crude-select_WAF"><label for="show-sp-crude_WAF" name="sp-crude_WAF"><input type="checkbox" id="show-sp-crude_WAF" />WAF Crude Oil flows</label></td>';
@@ -4872,6 +4908,17 @@
       }
       layer_html += '  </table>';
       /* END OCEANS CATEGORY */
+
+      /* WIND CATEGORY */
+      layer_html += '  <h3>Wind</h3>';
+      layer_html += '  <table id="category-wind">';
+      if (showGfsTimemachine) {
+        layer_html += '   <tr>';
+        layer_html += show_gfs_timemachine;
+        layer_html += '   </tr>';
+      }
+      layer_html += '  </table>';
+      /* END WIND CATEGORY */
 
       /* ECONOMICS CATEGORY */
       layer_html += '  <h3>Economics</h3>';
@@ -6325,6 +6372,7 @@
       ecco2Layer = new WebglTimeMachineLayer(glb, canvasLayer, ecco2Url, ecco2Options);
 
 
+
       // GDP PPP
       csvFileLayers.setTimeLine("gdpPpp-times", "1990", "2015", 1);
       var gdpPppOptions = {
@@ -6340,6 +6388,20 @@
 
       };
       gdpPppLayer = new WebglTimeMachineLayer(glb, canvasLayer, gdpPppUrl, gdpPppOptions);
+
+      var gfsTimemachineOptions = {
+        mediaType: ".mp4",
+        numFrames: 36,
+        fps: 12,
+        nLevels: 3,
+        video_width: 1424,
+        video_height: 800,
+        width: 2880,
+        height: 2880
+        //colormap: 'https://tiles.earthtime.org/colormaps/black-no-value-darkblue-cyan-green-lightyellow-orange-deeppink-darkred.png'
+
+      };
+      gfsTimemachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, gfsTimemachineUrl, gfsTimemachineOptions);
 
       // Layer Toggle UI
       initLayerToggleUI();
@@ -8673,6 +8735,13 @@
         if (showGdpPppLayer) {
           var view = getLayerView(gdpPppLayer, landsatBaseMapLayer);
           gdpPppLayer.draw(view, tileViewVisibility);
+        }
+
+
+        // Draw GFS
+        if (showGfsTimemachineLayer) {
+          var view = getLayerView(gfsTimemachineLayer, landsatBaseMapLayer);
+          gfsTimemachineLayer.draw(view, tileViewVisibility);
         }
 
 	function isPairCandidate(layer) {
