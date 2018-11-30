@@ -2200,9 +2200,8 @@ a:focus { outline:0; }
 .captureTime.minimalUIMode {
   position: absolute;
   box-shadow: 2px 2px 3px rgba(0,0,0,0.3);
-  padding-top: 5px;
-  padding-bottom: 5px;
-  padding-left: 38px;
+  padding-bottom: 7px;
+  padding-left: 8px;
   padding-right: 6px;
   color: #656565;
   font-weight: normal;
@@ -2220,8 +2219,6 @@ a:focus { outline:0; }
   z-index: 100;
   bottom: 20px;
   left: 20px;
-  padding-left: 16px;
-  padding-right: 16px;
   top: initial;
   text-shadow: initial;
 }
