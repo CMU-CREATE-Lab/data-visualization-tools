@@ -1,6 +1,10 @@
 const EARTHTIME_DOMAIN = 'https://earthtime.org';
+const DEFAULT_EARTHTIME_SPREADSHEET = "https://docs.google.com/spreadsheets/d/1rCiksJv4aXi1usI0_9zdl4v5vuOfiHgMRidiDPt1WfE/edit#gid=1596808134";
+const DEFAULT_SHARE_VIEW = "https://earthtime.org/#v=4.56342,0,0.183,latLng&t=2.20&ps=50&l=blsat&bt=19840101&et=20161231";
 
 const storyRegistrations = [];
+
+const verboseLogging = false;
 
 const scriptDependencies = [
    '/config-local.js',
@@ -58,6 +62,15 @@ const handlebarsTemplates = {
 };
 
 /**
+ * Wrapper to console.log to make logging easy to turn on/off
+ */
+const printLogging = function(str) {
+  if (verboseLogging) {
+    console.log(str);
+  }
+};
+
+/**
  * Returns '<code>landscape</code>' if <code>window.orientation</code> is undefined or equal to 90 or -90; returns
  * '<code>portrait</code>' otherwise.
  *
@@ -72,12 +85,12 @@ const getOrientationName = function() {
  * value of each template with the compiled version.
  */
 const compileHandlebarsTemplates = function() {
-   console.log("Compiling handlebars templates:");
+   printLogging("Compiling handlebars templates:");
    const templateIds = Object.keys(handlebarsTemplates);
    templateIds.forEach(function(templateId, index) {
       // overwrite the template with the compiled version
       handlebarsTemplates[templateId] = Handlebars.compile(handlebarsTemplates[templateId]);
-      console.log("   (" + (index + 1) + "/" + templateIds.length + "): " + templateId);
+      printLogging("   (" + (index + 1) + "/" + templateIds.length + "): " + templateId);
    });
 };
 
@@ -131,14 +144,17 @@ const dynamicallyLoadStylesheet = function(url, onloadCallback) {
  *
  * @param {string} storyName the story name
  * @param containerElement the DOM element into which the story will be inserted
- * @param {object} [config] the story config object
+ * @param {string} [waypointsIdentifierUrl] a link that contains information for a unique google spreadsheet
  */
-const loadStory = function(storyName, containerElement, config = {}) {
-   const DEFAULT_SHARE_VIEW = "https://earthtime.org/#theme=big_picture_on_nature&story=default&v=4.56342,0,0.183,latLng&t=2.20&ps=50&l=blsat&bt=19840101&et=20161231";
-
-   // get the spreadsheet url
-   const rawUrl = config["waypointSliderContentPath"] || "https://docs.google.com/spreadsheets/d/1rCiksJv4aXi1usI0_9zdl4v5vuOfiHgMRidiDPt1WfE/edit#gid=1596808134";
-   const regexp = /d\/(.*)\/edit\#gid=(.*)/;
+const loadStory = function(storyName, containerElement, waypointsIdentifierUrl) {
+   let regexp;
+   const rawUrl = waypointsIdentifierUrl;
+   const urlParams = org.gigapan.Util.unpackVars(rawUrl);
+   if (urlParams.waypoints) {
+      regexp = /waypoints=(.*)\.(.*)/;
+   } else {
+      regexp = /d\/(.*)\/edit\#gid=(.*)/;
+   }
    const matchesArray = rawUrl.match(regexp);
    const url = handlebarsTemplates['url-src']({ 'id' : matchesArray[1], 'gid' : matchesArray[2] });
 
@@ -364,7 +380,8 @@ const createOrientationChangeHandler = function(storyContainerElement) {
  * @param {string} elementId the ID of the DOM element into which the story should be inserted
  */
 export function registerStory(storyName, elementId) {
-   console.log("Registering story [" + storyName + "] into element [" + elementId + "]");
+   storyName = storyName.replace(/_/g,' ');
+   printLogging("Registering story [" + storyName + "] into element [" + elementId + "]");
    storyRegistrations.push({
                               name : storyName,
                               containerElementId : elementId,
@@ -377,38 +394,42 @@ export function registerStory(storyName, elementId) {
  * registered for embedding via calls to the <code>registerStory</code> function.  This function must only be called
  * once.
  *
- * @param {string} [earthtimeDomain] optional URL of the Earthtime domain, defaults to the production server if not
- * specified
+ * @param {object} [config] optional config params that will set to default values if not specified
  */
-export function embedStories(earthtimeDomain = EARTHTIME_DOMAIN) {
+export function embedStories(config = {}) {
    let numScriptsLoaded = 0;
+   const earthtimeDomain = config.earthtimeDomain ? config.earthtimeDomain : EARTHTIME_DOMAIN;
+
    const onScriptDependenciesLoaded = function(url) {
       numScriptsLoaded++;
-      console.log("   (" + numScriptsLoaded + "/" + scriptDependencies.length + "): " + url);
+      printLogging("   (" + numScriptsLoaded + "/" + scriptDependencies.length + "): " + url);
 
       // if we're done loading all the script dependencies, then compile the templates then load the stories
       if (numScriptsLoaded === scriptDependencies.length) {
          compileHandlebarsTemplates();
 
-         console.log("Loading stories:");
+         // Precedence is story editor public link, config-local.js/config.js on ET server specified by earthtimeDomain, or lastly default spreadsheet
+         const waypointsIdentifierUrl = config.earthtimeSpreadsheet ? config.earthtimeSpreadsheet : EARTH_TIMELAPSE_CONFIG["waypointSliderContentPath"] || DEFAULT_EARTHTIME_SPREADSHEET;
+
+         printLogging("Loading stories:");
          storyRegistrations.forEach(function(story, i) {
             // create scroll and orientation change handlers for the story
             window.addEventListener('scroll', createScrollHandler(story.containerElement));
             window.addEventListener('orientationchange', createOrientationChangeHandler(story.containerElement));
 
             // load it
-            loadStory('#' + story.name, story.containerElement, EARTH_TIMELAPSE_CONFIG);
-            console.log("   (" + (i + 1) + "/" + storyRegistrations.length + "): " + story.name);
+            loadStory('#' + story.name, story.containerElement, waypointsIdentifierUrl);
+            printLogging("   (" + (i + 1) + "/" + storyRegistrations.length + "): " + story.name);
          });
       }
    };
 
    // load the stylesheet first, then script dependencies
-   console.log("Loading stylesheets:");
+   printLogging("Loading stylesheets:");
    dynamicallyLoadStylesheet(earthtimeDomain + '/m/stories/mobile-embed.css', function(url) {
-      console.log("   (1/1): " + url);
+      printLogging("   (1/1): " + url);
 
-      console.log("Loading script dependencies:");
+      printLogging("Loading script dependencies:");
       scriptDependencies.forEach(function(scriptUrl) {
          dynamicallyLoadScript(earthtimeDomain + scriptUrl, onScriptDependenciesLoaded);
       });
