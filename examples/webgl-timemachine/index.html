@@ -267,7 +267,7 @@
     var showLayersButton = parseConfigOption({optionName: "showLayersButton", optionDefaultValue: true, exposeOptionToUrlHash: false});
     var showHomeLogo = parseConfigOption({optionName: "showHomeLogo", optionDefaultValue: true, exposeOptionToUrlHash: false});
     var showSearchBox = parseConfigOption({optionName: "showSearchBox", optionDefaultValue: true, exposeOptionToUrlHash: false});
-    var letterboxBottomOffset = parseInt(parseConfigOption({optionName: "letterboxBottomOffset", optionDefaultValue: 312, exposeOptionToUrlHash: false}));
+    var letterboxBottomOffset = parseConfigOption({optionName: "letterboxBottomOffset", optionDefaultValue: 312, exposeOptionToUrlHash: false});
     var enableLetterboxMode = parseConfigOption({optionName: "enableLetterboxMode", optionDefaultValue: false, exposeOptionToUrlHash: true});
     var disableTopNav = enableLetterboxMode ? true : parseConfigOption({optionName: "disableTopNav", optionDefaultValue: false, exposeOptionToUrlHash: true});
     var disableResumeExitAnnotationPrompt = parseConfigOption({optionName: "disableResumeExitAnnotationPrompt", optionDefaultValue: false, exposeOptionToUrlHash: false});
@@ -275,9 +275,9 @@
     var useGoogleMaps = parseConfigOption({optionName: "useGoogleMaps", optionDefaultValue: false, exposeOptionToUrlHash: false});
     var useGoogleSearch = parseConfigOption({optionName: "useGoogleSearch", optionDefaultValue: true, exposeOptionToUrlHash: false});
     var enableAutoMode = parseConfigOption({optionName: "enableAutoMode", optionDefaultValue: false, exposeOptionToUrlHash: false});
-    var screenTimeoutInMilliseconds = parseInt(parseConfigOption({optionName: "screenTimeoutInMilliseconds", optionDefaultValue: (8 * 60 * 1000), exposeOptionToUrlHash: false}));
-    var waypointDelayInMilliseconds = parseInt(parseConfigOption({optionName: "waypointDelayInMilliseconds", optionDefaultValue: (1 * 15 * 1000), exposeOptionToUrlHash: false}));
-    var defaultPlaybackSpeed = parseFloat(parseConfigOption({optionName: "defaultPlaybackSpeed", optionDefaultValue: 0.5, exposeOptionToUrlHash: false}));
+    var screenTimeoutInMilliseconds = parseConfigOption({optionName: "screenTimeoutInMilliseconds", optionDefaultValue: (8 * 60 * 1000), exposeOptionToUrlHash: false});
+    var waypointDelayInMilliseconds = parseConfigOption({optionName: "waypointDelayInMilliseconds", optionDefaultValue: (1 * 15 * 1000), exposeOptionToUrlHash: false});
+    var defaultPlaybackSpeed = parseConfigOption({optionName: "defaultPlaybackSpeed", optionDefaultValue: 0.5, exposeOptionToUrlHash: false});
     var useFaderShader = parseConfigOption({optionName: "useFaderShader", optionDefaultValue: true, exposeOptionToUrlHash: false});
     var enableWaypointText = parseConfigOption({optionName: "enableWaypointText", optionDefaultValue: true, exposeOptionToUrlHash: false});
     var trackingId = parseConfigOption({optionName: "trackingId", optionDefaultValue: "UA-10682694-21", exposeOptionToUrlHash: false});
@@ -657,14 +657,27 @@
     };
 
     function parseConfigOption(settings) {
-      var val = (typeof(EARTH_TIMELAPSE_CONFIG[settings.optionName]) === "undefined" && typeof(settings.optionDefaultValue) !== "undefined") ? settings.optionDefaultValue : EARTH_TIMELAPSE_CONFIG[settings.optionName];
+      var returnVal = (typeof(EARTH_TIMELAPSE_CONFIG[settings.optionName]) === "undefined" && typeof(settings.optionDefaultValue) !== "undefined") ? settings.optionDefaultValue : EARTH_TIMELAPSE_CONFIG[settings.optionName];
+
       if (settings.exposeOptionToUrlHash) {
-        var urlHash = window.location.hash.split(settings.optionName + "=")[1];
-        if (urlHash) {
-          val = !!(parseInt(urlHash) || urlHash === "true");
+        var hashVars = UTIL.getUnsafeHashVars(true);
+        var configOptionInHash = hashVars.hasOwnProperty(settings.optionName);
+        if (configOptionInHash) {
+          returnVal = hashVars[settings.optionName];
+          // If option in hash but no value set, assume value is true and return early
+          if (typeof(returnVal) === "undefined") {
+            return true;
+          }
         }
       }
-      return val;
+
+      if (typeof(settings.optionDefaultValue) === "number") {
+        returnVal = parseFloat(returnVal);
+      } else if (typeof(settings.optionDefaultValue) === "boolean") {
+        returnVal = String(returnVal) === "true";
+      }
+
+      return returnVal;
     }
 
     function getLayerInfo(layer) {
