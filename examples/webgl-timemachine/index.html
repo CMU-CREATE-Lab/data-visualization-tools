@@ -4226,6 +4226,9 @@
       if (!disableResumeExitAnnotationPrompt) {
         $(".annotations-resume-exit-container").show();
       }
+      if (disableTopNav) {
+        $(".annotations-button-separator, .annotations-exit-button").hide();
+      }
       if (lastSelectedAnnotationBeforeHidden) {
         lastSelectedAnnotationBeforeHidden.removeClass("thumbnail_highlight");
       }

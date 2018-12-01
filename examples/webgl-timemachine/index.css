@@ -652,6 +652,13 @@ html, body {
   width: 150px;
   height: 68px;
   padding: 4px;
+  margin: 0 auto;
+  left: 0;
+  right: 0;
+}
+
+.annotations-resume-exit-container > table {
+  margin: 0 auto;
 }
 
 .annotations-resume-button {
