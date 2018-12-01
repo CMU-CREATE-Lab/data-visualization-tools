@@ -6608,7 +6608,11 @@
                 if (Object.keys(waypointJSONList).length && selectedWaypointIdx == 0 && $previousAnnotationLocationButton && waypointJSONList[currentWaypointTheme]) {
                   var story = waypointJSONList[currentWaypointTheme].stories[currentWaypointStory];
                   if (story && story.storyDescription && story.storyAuthor) {
-                    waypointBoxText += "<div class='story-author-text'>" + story.storyAuthor + "</div>";
+                    var storyAuthorText = story.storyAuthor;
+                    if (storyAuthorText.toLowerCase().indexOf("story by:") != 0) {
+                      storyAuthorText = "Story by: " + storyAuthorText;
+                    }
+                    waypointBoxText += "<div class='story-author-text'>" + storyAuthorText + "</div>";
                     $(".current-location-text p").css("text-align", "center");
                   }
                 }

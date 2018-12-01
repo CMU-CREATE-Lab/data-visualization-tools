@@ -1,6 +1,7 @@
 const EARTHTIME_DOMAIN = 'https://earthtime.org';
 const DEFAULT_EARTHTIME_SPREADSHEET = "https://docs.google.com/spreadsheets/d/1rCiksJv4aXi1usI0_9zdl4v5vuOfiHgMRidiDPt1WfE/edit#gid=1596808134";
 const DEFAULT_SHARE_VIEW = "https://earthtime.org/#v=4.56342,0,0.183,latLng&t=2.20&ps=50&l=blsat&bt=19840101&et=20161231";
+const STORY_AUTHOR_PRECEDING_TEXT = "Story by: ";
 
 const storyRegistrations = [];
 
@@ -180,7 +181,7 @@ const loadStory = function(storyName, containerElement, waypointsIdentifierUrl) 
                const item = {
                   'url' : './' + title.replace(/ /g, '_').replace(/#/g, '').toLowerCase(),
                   'title' : title.replace(/#/g, ''),
-                  'author' : data[i]["Author"],
+                  'author' : generateAuthorText(data[i]["Author"]),
                   'filename' : new Thumbnailer(sharelink).getPng()
                };
 
@@ -244,7 +245,7 @@ const loadStory = function(storyName, containerElement, waypointsIdentifierUrl) 
                };
                let captionTemplate;
                if (isTitleItem) {
-                  captionContext['author'] = story[i]["Author"];
+                  captionContext['author'] = generateAuthorText(story[i]["Author"]);
                   captionContext['dateline'] = story[i]["Dateline"];
                   captionTemplate = handlebarsTemplates['title-caption-template']
                }
@@ -305,6 +306,10 @@ const loadStory = function(storyName, containerElement, waypointsIdentifierUrl) 
          }
       }
    });
+};
+
+const generateAuthorText = function(author) {
+  return (author && author.toLowerCase().indexOf("story by:") != 0 ? STORY_AUTHOR_PRECEDING_TEXT + author : author);
 };
 
 const createScrollHandler = function(storyContainerElement) {
