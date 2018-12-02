@@ -224,7 +224,7 @@
         var append = false;
         for (var i = 0; i < data.length; i++) {
 
-          var title = data[i]['Waypoint Title'];
+          var title = data[i]['Waypoint Title'].replace(/[^a-zA-Z0-9-_# ]/g, '');
           if (title[0] == "#" && title[1] != "#") {
             var theme = {
               'url': './' + title.replace(/ /g,'_').replace(/#/g,'').toLowerCase(),
