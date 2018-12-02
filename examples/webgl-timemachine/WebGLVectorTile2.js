@@ -1155,59 +1155,30 @@ var gtileData;
 WebGLVectorTile2.prototype._setColorDotmapDataFromBox = function(tileDataF32) {
   // Create uint8 view on data.  Unfortunately we're called with Float32Array, which isn't correct for
   // this particular function
-  
-  var tileData = new Uint8Array(tileDataF32.buffer);
-  // Iterate through the raster, creating dots on the fly
-  
-  var gl = this.gl;
-  gtileData = tileData;
+  var tile = this;
 
-  this._pointCount = tileData.reduce(function(a,b) { return a+b;})
-  this._ready = true;
+  var requestArgs = {
+    tileDataF32: tileDataF32,
+    dotmapColors: tile.dotmapColors,
+    tileidx: tile._tileidx
+  };
 
-  if (this._pointCount > 0) {
-    this._data = new Float32Array(this._pointCount * 3);
-    var input_idx = 0;
-    var output_idx = 0;
-    var numColors = this.dotmapColors.length;
-    var tileDim = 256;
-    console.assert(numColors == tileData.length / (tileDim * tileDim));
-
-    // Find location of tile
-    var projectedTileSize = 256 / 2 ** this._tileidx.l; // 256 for level 0, 128 for level 1 ...
-    var projectedXMin = projectedTileSize * this._tileidx.c;
-    var projectedYMin = projectedTileSize * this._tileidx.r;
-
-    // Loop through the rasters, creating points within each box
-    for (var c = 0; c < numColors; c++) {
-      for (var y = 0; y < tileDim; y++) {
-	for (var x = 0; x < tileDim; x++) {
-	  for (var p = 0; p < tileData[input_idx]; p++) {
-	    this._data[output_idx * 3 + 0] = projectedXMin + (x + Math.random()) * projectedTileSize / 256;
-	    this._data[output_idx * 3 + 1] = projectedYMin + (y + Math.random()) * projectedTileSize / 256;
-	    this._data[output_idx * 3 + 2] = this.dotmapColors[c];
-	    output_idx++;
-	  }
-	  input_idx++;
-	}
-      }
+  Workers.call('WebGLVectorTile2Worker.js', 'computeColorDotmapFromBox', requestArgs, function(response) {
+    var tileData = new Uint8Array(tileDataF32.buffer);
+    // Iterate through the raster, creating dots on the fly
+    
+    var gl = tile.gl;
+    
+    tile._pointCount = response.pointCount;
+    tile._ready = true;
+    
+    if (tile._pointCount > 0) {
+      tile._data = response.data;
+      tile._arrayBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, tile._arrayBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, tile._data, gl.STATIC_DRAW);
     }
-    console.assert(input_idx == tileData.length);
-    console.assert(output_idx == this._data.length / 3);
-
-    // Randomly permute the order of points
-    for (var i = this._pointCount - 1; i >= 1; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var tmp;
-      tmp = this._data[i * 3 + 0]; this._data[i * 3 + 0] = this._data[j * 3 + 0]; this._data[j * 3 + 0] = tmp;
-      tmp = this._data[i * 3 + 1]; this._data[i * 3 + 1] = this._data[j * 3 + 1]; this._data[j * 3 + 1] = tmp;
-      tmp = this._data[i * 3 + 2]; this._data[i * 3 + 2] = this._data[j * 3 + 2]; this._data[j * 3 + 2] = tmp;
-    }
-
-    this._arrayBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);
-  }
+  });
 }
 
 WebGLVectorTile2.prototype._setObesityData = function(data) {

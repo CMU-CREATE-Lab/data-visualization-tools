@@ -4408,7 +4408,7 @@
       if (useLocalTiles) {
         tileUrl = rootTilePath + '/dotmaptiles/' + nickname;
       } else {
-        tileUrl = 'https://dotmaptiles-staging.createlab.org/tilesv1/';
+        tileUrl = 'https://dotmaptiles.createlab.org/tilesv1/';
 	if (columnDefs) {
           var layerTokens = [];
           for (var i = 0; i < columnDefs.length; i++) {
@@ -4427,10 +4427,6 @@
 	  tileUrl += '/512x512';
 
 	  console.log(tileUrl);
-	  
-	  //tileUrl = "https://dotmaptiles-staging.createlab.org/tilesv1/%23ffb300;census1990_block2010.P0080001;;%236eaaf1;census1990_block2010.P0100001;;%235eff00;census1990_block2010.P0100002;;%23ff0400;census1990_block2010.P0100004;;%2388533e;census1990_block2010.P0100003%2Bcensus1990_block2010.P0100005;;;%23ffb300;census2000_block2010.P0080010;;%236eaaf1;census2000_block2010.P0080003;;%235eff00;census2000_block2010.P0080004;;%23ff0400;census2000_block2010.P0080006%2Bcensus2000_block2010.P0080007;;%2388533e;census2000_block2010.P0080005%2Bcensus2000_block2010.P0080008%2Bcensus2000_block2010.P0080009;;;%23ffb300;census2010_block2010.P0090002;;%236eaaf1;census2010_block2010.P0090005;;%235eff00;census2010_block2010.P0090006;;%23ff0400;census2010_block2010.P0090008%2Bcensus2010_block2010.P0090009;;%2388533e;census2010_block2010.P0090007%2Bcensus2010_block2010.P0090010%2Bcensus2010_block2010.P0090009/512x512";
-	  //console.log(tileUrl);
-	  //tileUrl += 'foo';
 	}
       }
 
