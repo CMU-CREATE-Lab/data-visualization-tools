@@ -1,3 +1,7 @@
+get_random_census_block_points_from_prototiles: get_random_census_block_points_from_prototiles.cpp
+	g++ -Wall get_random_census_block_points_from_prototiles.cpp -o get_random_census_block_points_from_prototiles
+	time ./get_random_census_block_points_from_prototiles
+
 test2000cols:
 	./tileserve.py 'http://dotmaptiles.createlab.org:8888/data/census2000_block2010'
 
