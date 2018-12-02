@@ -223,8 +223,12 @@
         var data = results["data"];
         var append = false;
         for (var i = 0; i < data.length; i++) {
-
-          var title = data[i]['Waypoint Title'].replace(/[^a-zA-Z0-9-_# ]/g, '');
+          // Further down we will compare this title to the storyName in the URL that brought us here.
+          // Since storyName had underscores replaced by spaces (line 205 above), we do the same to the title being read in.
+          // We then remove any non-alphanumeric characters, except dashes, spaces or '#'. We leave in spaces because of
+          // previously stated, and '#' are left in because they are prepended to storyName (line 201 or 207 above).
+          // Lastly, we ensure any trailing spaces are removed.
+          var title = data[i]['Waypoint Title'].replace(/_/g," ").replace(/[^a-zA-Z0-9-# ]/g, '').trim();
           if (title[0] == "#" && title[1] != "#") {
             var theme = {
               'url': './' + title.replace(/ /g,'_').replace(/#/g,'').toLowerCase(),
