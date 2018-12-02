@@ -354,6 +354,7 @@ compute_tile_data_ext = compile_and_load("""
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <stdio.h>
+#include <errno.h>
 
 typedef struct {
   float x;
@@ -394,7 +395,7 @@ int compute_tile_data(
 
     PrototileRecord *p = mmap (0, incount*sizeof(PrototileRecord),
                                PROT_READ, MAP_SHARED, fd, 0);
-    if (p == MAP_FAILED) return -2;
+    if (p == MAP_FAILED) return -2000 + errno;
 
     unsigned outcount = 0;
     for (unsigned i = 0; i < incount; i++) {
@@ -425,6 +426,103 @@ inline int max(int x, int y) { return x > y ? x : y; }
 
 float sumsq(float a, float b) { return a*a + b*b; }
 
+
+// Negative on fail
+int compute_tile_data_box(
+    const char *prototile_path,
+    int incount,
+    unsigned char *tile_box_pops, // [x * y * colors]
+    int tile_width_in_boxes, // width=height
+    float **populations,
+    unsigned int pop_rows,
+    unsigned int pop_cols,
+    float min_x, float min_y, float max_x, float max_y,
+    float level,
+    float *block_areas,
+    float prototile_subsample)
+{
+    unsigned char *tile_box_sums = NULL;
+    int fd = open(prototile_path, O_RDONLY);
+    if (fd < 0) return -1;
+
+    PrototileRecord *p = mmap (0, incount*sizeof(PrototileRecord),
+                               PROT_READ, MAP_SHARED, fd, 0);
+    if (p == MAP_FAILED) return -2000 + errno;
+
+    unsigned outcount = 0;
+    int first = 1;
+
+    tile_box_sums = calloc(tile_width_in_boxes * tile_width_in_boxes, 1);
+    for (unsigned i = 0; i < incount; i++) {
+        // rec is a single prototile dot.  We need to figure out which population it belongs to, if any, and
+        // assign color accordingly
+        PrototileRecord rec = p[i];
+
+        double block_population = 0.0; // Total population in this block, across all colors/columns
+        for (unsigned c = 0; c < pop_cols; c++) {
+            block_population += populations[c][rec.blockIdx];
+        }
+        //// This is the total # of pixels to draw, across all prototiles at this Z level
+        //double block_uncorrected_pixels_to_draw = block_population * prototile_subsample * (radius * 2) * (radius * 2);
+        //
+        //// level 0 pixels are 156543 meters across
+        //double level_0_pixel_size = 156543; // meters
+        //double size_of_block_in_pixels = block_areas[rec.blockIdx] * pow(4.0, level) / (level_0_pixel_size * level_0_pixel_size) * 40;
+        //
+        //// blockSubsample of 0.5 means show half the points
+        ////double blockSubsample = 1.0 / (1.0 + block_uncorrected_pixels_to_draw / size_of_block_in_pixels);
+        //double blockSubsample = 1.0 / (1.0 + sqrt(block_uncorrected_pixels_to_draw / size_of_block_in_pixels));
+        //
+        ////blockSubsample = 1.0;
+        //
+        //if (/*rec.blockIdx == 9501143 &&*/ first) {
+        //    fprintf(stderr, "ctdp z=%f, seq=%d, prototile_subsample=%f, blockSubsample=%lf, b_uncorrected_pix_to_draw=%lf, size_of_block_pixels=%lf, radius=%f\\n", 
+        //            level, rec.blockIdx, prototile_subsample, blockSubsample, 
+        //            block_uncorrected_pixels_to_draw, size_of_block_in_pixels, radius);
+        //    first = 0;
+        //}
+        //double seq = rec.seq / blockSubsample + 0.5;
+        
+        double seq = rec.seq + 0.5;
+
+        for (unsigned c = 0; c < pop_cols; c++) {
+            // Loop until we find the right population column for rec (if any)
+            seq -= populations[c][rec.blockIdx];
+            if (seq < 0) {
+                // Prototile dot belongs in population column "c".  Draw with appropriate color
+                if (outcount >= incount) {
+                  free(tile_box_sums);
+                  return -4;  // Illegal
+                }
+
+                // x and y are in original projection space (0-256 defines the world)
+                // row and col are in box space for the returned tile (0 to tile_width_in_boxes-1)
+
+                // Transform from prototile x,y which are 0.0-255.999999... web mercator coords
+                // Transform to box coords for this tile which are row, col
+
+                int col = (rec.x - min_x) / (max_x - min_x) * tile_width_in_boxes;
+                int row = (rec.y - min_y) / (max_y - min_y) * tile_width_in_boxes;
+                if (0 <= col && col < tile_width_in_boxes && 
+                    0 <= row && row < tile_width_in_boxes) {
+                    int sums_idx = row * tile_width_in_boxes + col;
+                    // Only increment until the overall population in a box sums to 255
+                    if (tile_box_sums[sums_idx] < 255) {
+                        tile_box_sums[sums_idx]++;
+                        int idx = (c * tile_width_in_boxes * tile_width_in_boxes) + sums_idx;
+                        tile_box_pops[idx]++;
+                    }
+                }
+                break;
+            }
+        }
+    }
+    munmap(p, incount*sizeof(PrototileRecord));
+    close(fd);
+    free(tile_box_sums);
+    return 0;
+}
+
 // Negative on fail
 int compute_tile_data_png(
     const char *prototile_path,
@@ -447,7 +545,7 @@ int compute_tile_data_png(
 
     PrototileRecord *p = mmap (0, incount*sizeof(PrototileRecord),
                                PROT_READ, MAP_SHARED, fd, 0);
-    if (p == MAP_FAILED) return -2;
+    if (p == MAP_FAILED) return -2000 + errno;
 
     unsigned outcount = 0;
     int first = 1;
@@ -578,7 +676,25 @@ def compute_tile_data_png(prototile_path, incount, tile_pixels, tile_width_in_pi
         to_ctype_reference(block_areas),
         ctypes.c_float(prototile_subsample))
 
-def generate_tile_data_pixmap(layer, z, x, y, tile_width_in_pixels):
+def compute_tile_data_box(prototile_path, incount, tile_box_pops, tile_width_in_boxes, populations,
+                          min_x, min_y, max_x, max_y, level, block_areas, prototile_subsample):
+    assert(populations[0].dtype == numpy.float32)
+    return compute_tile_data_ext.compute_tile_data_box(
+        prototile_path,
+        int(incount),
+        to_ctype_reference(tile_box_pops),
+        tile_width_in_boxes,
+        to_ctype_reference(populations),
+        populations[0].size, len(populations),
+        ctypes.c_float(min_x),
+        ctypes.c_float(min_y),
+        ctypes.c_float(max_x),
+        ctypes.c_float(max_y),
+        ctypes.c_float(level),
+        to_ctype_reference(block_areas),
+        ctypes.c_float(prototile_subsample))
+
+def generate_tile_data_pixmap(layer, z, x, y, tile_width_in_pixels, format):
     # Load block area column
     block_areas = load_column('geometry_block2010', 'area_web_mercator_sqm')
 
@@ -627,10 +743,6 @@ def generate_tile_data_pixmap(layer, z, x, y, tile_width_in_pixels):
         prototile_subsample /= subsample
         incount = int(incount / subsample)
     
-    # Preallocate output array for returned tile
-    bytes_per_pixel = 4 # RGBA x 8-bit
-    #tile_pixels = bytearray(tile_width_in_pixels * tile_width_in_pixels * bytes_per_pixel)
-    tile_pixels = numpy.zeros((tile_width_in_pixels, tile_width_in_pixels, 4), dtype=numpy.uint8)
 
     local_tile_width = 256.0 / 2 ** int(z)
     min_x = int(x) * local_tile_width
@@ -650,25 +762,52 @@ def generate_tile_data_pixmap(layer, z, x, y, tile_width_in_pixels):
         #radius = 2 ** (z-11)  # radius 1 for z=11.  radius 2 for z=12.  radius 4 for z=13
         radius = 2 ** ((z-12)/2.0)  # radius 1 for z=11.  radius 2 for z=12.  radius 4 for z=13
 
-    print('in generate pixmap ', layer['colors_rgba8'])
-    status = compute_tile_data_png(prototile_path, incount, tile_pixels, tile_width_in_pixels,
-                                   layer['populations'], layer['colors_rgba8'],
-                                   min_x, min_y, max_x, max_y, radius,
-                                   z, block_areas, prototile_subsample)
+    if format == 'box':
+        tile_data = numpy.zeros((len(layer['colors_rgba8']), tile_width_in_pixels, tile_width_in_pixels), dtype=numpy.uint8)
+        print('about to compute_tile_data_box ', layer['colors_rgba8'])
+        if incount > 0:
+            status = compute_tile_data_box(prototile_path, incount, tile_data, tile_width_in_pixels,
+                                           layer['populations'],
+                                           min_x, min_y, max_x, max_y, 
+                                           z, block_areas, prototile_subsample)
+        else:
+            status = 0
+    else:
+        bytes_per_pixel = 4 # RGBA x 8-bit
+        tile_data = numpy.zeros((tile_width_in_pixels, tile_width_in_pixels, bytes_per_pixel), dtype=numpy.uint8)
+        print('about to compute_tile_data_png ', layer['colors_rgba8'])
+        if incount > 0:
+            status = compute_tile_data_png(prototile_path, incount, tile_data, tile_width_in_pixels,
+                                           layer['populations'], layer['colors_rgba8'],
+                                           min_x, min_y, max_x, max_y, radius,
+                                           z, block_areas, prototile_subsample)
+        else:
+            status = 0
     if status < 0:
         raise Exception('compute_tile_data returned error %d.  path %s %d' % (status, prototile_path, incount))
 
     duration = int(1000 * (time.time() - start_time))
     log('{z}/{x}/{y}: {duration}ms to create pixmap tile from prototile'.format(**locals()))
 
-    return tile_pixels
+    return tile_data
 
-def generate_tile_data_png(layer, z, x, y, tile_width_in_pixels):
-    tile_pixels = generate_tile_data_pixmap(layer, z, x, y, tile_width_in_pixels)
-    out = StringIO.StringIO()
-    scipy.misc.imsave(out, tile_pixels, format='png')
-    png = out.getvalue()
-    return png
+
+def gzip_buffer(buf, compresslevel=1):
+    str = StringIO.StringIO()
+    out = gzip.GzipFile(fileobj=str, mode='wb', compresslevel=compresslevel)
+    out.write(buf)
+    out.flush()
+    return str.getvalue()
+
+def generate_tile_data_png_or_box(layer, z, x, y, tile_width_in_pixels, format):
+    tile_data = generate_tile_data_pixmap(layer, z, x, y, tile_width_in_pixels, format)
+    if format == 'png':
+        out = StringIO.StringIO()
+        scipy.misc.imsave(out, tile_data, format='png')
+        png = out.getvalue()
+        return png
+    else:
+        return tile_data.tobytes()
     
 def generate_tile_data_mp4(layers, z, x, y, tile_width_in_pixels):
     # make ffmpeg
@@ -698,7 +837,7 @@ def generate_tile_data_mp4(layers, z, x, y, tile_width_in_pixels):
 
     for frameno in range(0, len(layers)):
         layer = layers[frameno]
-        tile_pixels = generate_tile_data_pixmap(layer, z, x, y, tile_width_in_pixels)
+        tile_pixels = generate_tile_data_pixmap(layer, z, x, y, tile_width_in_pixels, 'mp4')
         log('about to spoot frame %d of len %d' % (frameno, len(tile_pixels)))
         p.stdin.write(tile_pixels)
         log('done')
@@ -724,12 +863,17 @@ def generate_tile_data(layer, z, x, y, use_c=False):
     
     # Preallocate output array for returned tile
     tile = bytearray(tile_record_len * incount)
-    if use_c:
-        ctd = compute_tile_data_c
-    else:
-        ctd = compute_tile_data_python
+
+    if incount > 0:
+        if use_c:
+            ctd = compute_tile_data_c
+        else:
+            ctd = compute_tile_data_python
         
-    outcount = ctd(prototile_path, incount, tile, layer['populations'], layer['colors'])
+        outcount = ctd(prototile_path, incount, tile, layer['populations'], layer['colors'])
+    else:
+        outcount = 0
+
     if outcount < 0:
         raise Exception('compute_tile_data returned error %d' % outcount)
 
@@ -737,7 +881,6 @@ def generate_tile_data(layer, z, x, y, use_c=False):
     log('{z}/{x}/{y}: {duration}ms to create tile from prototile'.format(**locals()))
 
     return tile[0 : outcount * tile_record_len]
-
 
 layer_cache = LruDict(50) # max entries
 
@@ -791,7 +934,7 @@ def serve_tile_v1_png(layerdef, z, x, y):
     try:
         layer = find_or_generate_layer(layerdef)
         tile_width_in_pixels = 512
-        tile = generate_tile_data_png(layer, z, x, y, tile_width_in_pixels)
+        tile = generate_tile_data_png_or_box(layer, z, x, y, tile_width_in_pixels, 'png')
         outcount = len(tile) / tile_record_len
         
         response = flask.Response(tile, mimetype='image/png')
@@ -803,13 +946,35 @@ def serve_tile_v1_png(layerdef, z, x, y):
     response.headers['Access-Control-Allow-Origin'] = '*'
     return response
 
+# .box is the new tile format
+@app.route('/tilesv1/<layerdef>/<z>/<x>/<y>.box')
+@gzipped
+def serve_tile_v1_box(layerdef, z, x, y):
+    try:
+        layer = find_or_generate_layer(layerdef)
+        tile_width_in_pixels = 256
+        tile = generate_tile_data_png_or_box(layer, z, x, y, tile_width_in_pixels, 'box')
+        
+        response = flask.Response(tile, mimetype='application/octet-stream')
+    except InvalidUsage, e:
+        response = flask.Response('<h2>400 Invalid Usage</h2>' + e.message, status=400)
+    except:
+        print traceback.format_exc()
+        raise
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
+
+# .bin is the first tile format, with every point enumerated, vector-style
 @app.route('/tilesv1/<layerdef>/<z>/<x>/<y>.<suffix>')
 @gzipped
 def serve_tile_v1(layerdef, z, x, y, suffix):
     try:
         layer = find_or_generate_layer(layerdef)
-        tile = generate_tile_data(layer, z, x, y, use_c=True)
-        outcount = len(tile) / tile_record_len
+        if suffix == 'box':
+            tile = generate_tile_data_box(layer, z, x, y)
+        else:
+            tile = generate_tile_data(layer, z, x, y, use_c=True)
+            outcount = len(tile) / tile_record_len
         
         if suffix == 'debug':
             html = '<html><head></head><body>'
