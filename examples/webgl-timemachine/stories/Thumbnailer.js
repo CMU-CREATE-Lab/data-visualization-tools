@@ -1,5 +1,5 @@
 function Thumbnailer(sharelink) {
-    this.thumbnailServerUrl = "https://thumbnails-earthtime.cmucreatelab.org/thumbnail?";
+    this.thumbnailServerUrl = "https://thumbnails-v2.createlab.org/thumbnail?";
     this.sharelink = sharelink;
     var hash = sharelink.split("#")[1];
     if (typeof hash !== "undefined") { // we passed a sharelink
