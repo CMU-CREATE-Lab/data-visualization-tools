@@ -2,46 +2,10 @@
   <html>
     <head>
       <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1">
-      <title>EarthTime Mobile Story Example</title>
-      <style type="text/css">
-        body {
-          margin: 0;
-          font-family: sans-serif;
-          /* Remove the annoying bounce effect at the top/bottom when scrolling on phones/tablets */
-          overscroll-behavior: none;
-        }
-
-        /* If you don't want fullscreen, change this css to fit your site's layout */
-        #story_container1 {
-          position: absolute;
-          width: 100vw;
-          height: 100vw;
-        }
-      </style>
+      <title>EarthTime Mobile Story Examples</title>
   </head>
   <body>
-    <div id="story_container1"></div>
+    <a href="mobile-embed-inline-example">Scrolling embed inlined with content before and after</a><p>
+    <a href="mobile-embed-fullscreen-example">Fixed position embed</a>
   </body>
-  <script type="module">
-    import * as earthtime from 'https://earthtime.org/mobile-embed.js';
-
-    // Current options include:
-    // earthtimeDomain -> Defaults to https://earthtime.org but other domains running the EarthTime client can be used.
-    // earthtimeSpreadsheet -> Defaults to https://docs.google.com/spreadsheets/d/1rCiksJv4aXi1usI0_9zdl4v5vuOfiHgMRidiDPt1WfE/edit#gid=1596808134
-    //    but a different one can be passed in. The format of this can either be a docs.google.com link or a 'publicly viewable link' produced from
-    //    the EarthTime Story Editor. The example here uses a link from the Story Editor.
-    var settings = {
-      "earthtimeSpreadsheet" : "https://earthtime.org/explore#waypoints=1Ua4MpiPs2A79p9SdFRBiXmiOcMVG6Oze6tMU_ReEs8k.0"
-    }
-
-    // Register the stories. Include more registerStory calls (with different story names from the spreadsheet) to add multiple stories to this page.
-    // First parameter is the name of the story, obtained from the 'Waypoint Title' column of the waypoint spreadsheet. It is case insensitive and
-    // the leading '##' characters must be removed.
-    // Second parameter is the id of the HTML element (usually a div) that you want to insert the story into.
-    earthtime.registerStory('Deforestation', 'story_container1');
-
-    // Embed the stories.
-    // Call this with no args to use the default settings or pass in a settings hash, like the one defined above.
-    earthtime.embedStories(settings);
-  </script>
 </html>
