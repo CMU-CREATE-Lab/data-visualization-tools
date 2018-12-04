@@ -210,6 +210,116 @@ WebGLVectorTile2.prototype._loadGeojsonData = function() {
   this.xhr.send();
 }
 
+WebGLVectorTile2.prototype._setWindVectorsData = function(data) {
+  console.log("_setWindVectorsData");
+  var that = this;
+  var gl = this.gl;
+  var glb = this.glb;
+  this.windData = data;
+
+  var windImage = new Image();
+  windImage.crossOrigin = "anonymous";
+  this.windData.image = windImage;
+  windImage.src = this._url.replace("json", "png");
+
+  var emptyPixels = new Uint8Array(gl.canvas.width * gl.canvas.height * 4);
+  this.backgroundTexture = glb.createTexture(gl.NEAREST, emptyPixels, gl.canvas.width, gl.canvas.height);
+  this.screenTexture = glb.createTexture(gl.NEAREST, emptyPixels, gl.canvas.width, gl.canvas.height);
+
+  windImage.onload = function () {
+    that.windTexture = that.glb.createTexture(that.gl.LINEAR, that.windData.image);
+    that.currentWindTexture = that.glb.createTexture(that.gl.LINEAR, that.windData.image);
+    that._dataLoaded(that.layerId);
+    that._ready = true;
+
+  };
+
+
+}
+
+
+function getColorRamp(colors) {
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
+
+    canvas.width = 256;
+    canvas.height = 1;
+
+    var gradient = ctx.createLinearGradient(0, 0, 256, 0);
+    for (var stop in colors) {
+        gradient.addColorStop(+stop, colors[stop]);
+    }
+
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 256, 1);
+
+    return new Uint8Array(ctx.getImageData(0, 0, 256, 1).data);
+}
+var defaultRampColors = {
+    0.0: '#3288bd',
+    0.1: '#66c2a5',
+    0.2: '#abdda4',
+    0.3: '#e6f598',
+    0.4: '#fee08b',
+    0.5: '#fdae61',
+    0.6: '#f46d43',
+    1.0: '#d53e4f'
+};
+
+WebGLVectorTile2.prototype._loadWindVectorsData = function() {
+  console.log('_loadWindVectorsData');
+  this.fadeOpacity = 0.996; // how fast the particle trails fade on each frame
+  this.speedFactor = 0.25; // how fast the particles move
+  this.dropRate = 0.003; // how often the particles move to a random place
+  this.dropRateBump = 0.01; // drop rate increase relative to individual particle speed
+
+
+  var glb = this.glb;
+
+  this.drawProgram = glb.programFromSources(WebGLVectorTile2.WindVectorsShaders.drawVertexShader, WebGLVectorTile2.WindVectorsShaders.drawFragmentShader);
+  this.screenProgram = glb.programFromSources(WebGLVectorTile2.WindVectorsShaders.quadVertexShader, WebGLVectorTile2.WindVectorsShaders.screenFragmentShader);
+  this.updateProgram = glb.programFromSources(WebGLVectorTile2.WindVectorsShaders.quadVertexShader, WebGLVectorTile2.WindVectorsShaders.updateFragmentShader);
+  this.mapProgram = glb.programFromSources(WebGLVectorTile2.WindVectorsShaders.mapVertexShader, WebGLVectorTile2.WindVectorsShaders.mapFragmentShader);
+
+  //this.quadBuffer = createBuffer(gl, new Float32Array([0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1]));
+
+  this.quadBuffer = glb.createBuffer(new Float32Array([0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1]));
+  this.framebuffer = gl.createFramebuffer();
+
+  //this.numParticles = 16384;
+  this.numParticles = 8192;
+
+
+  this.colorRampTexture = glb.createTexture(this.gl.LINEAR, getColorRamp(defaultRampColors), 16, 16);
+
+  var that = this;
+  var data;
+
+  this._handleLoading();
+
+  this.xhr = new XMLHttpRequest();
+  this.xhr.open('GET', that._url);
+
+  this.xhr.onload = function() {
+    that._removeLoadingSpinner();
+
+    if (this.status == 404) {
+      data = "";
+    } else {
+      data = JSON.parse(this.responseText);
+    }
+    that._setData(data);
+  }
+  this.xhr.onerror = function() {
+    that._removeLoadingSpinner();
+
+    that._setData('');
+  }
+  this.xhr.send();
+
+}
+
+
 WebGLVectorTile2.prototype._loadSitc4r2Data = function () {
   var parseQueryString = function( queryString ) {
       var params = {}, queries, temp, i, l;
@@ -3237,6 +3347,204 @@ WebGLVectorTile2.prototype._drawSpCrude = function(transform, options) {
   }
 }
 
+WebGLVectorTile2.prototype._drawWindVectors = function(transform, options) {
+  var gl = this.gl;
+  if (this._ready) {
+    //gl.disable(gl.DEPTH_TEST);
+    //gl.disable(gl.STENCIL_TEST);
+
+    this.glb.bindTexture(this.windTexture, 0);
+    this.glb.bindTexture(this.particleStateTexture0, 1);
+
+    //this.drawMap(transform);
+    //bindTexture(gl, this.currentWindTexture, 0);
+
+    var tileTransform = new Float32Array(transform);
+
+
+    translateMatrix(tileTransform, this._bounds.min.x, this._bounds.min.y);
+    scaleMatrix(tileTransform,
+              this._bounds.max.x - this._bounds.min.x,
+              this._bounds.max.y - this._bounds.min.y);
+
+    
+    var tl = LngLatToPixelXY(options.bbox.tl.lng, options.bbox.tl.lat);
+    var br = LngLatToPixelXY(options.bbox.br.lng, options.bbox.br.lat);
+
+    this.tl = new Float32Array([tl[0]/256., tl[1]/256.]);
+    this.br = new Float32Array([br[0]/256., br[1]/256.]);
+
+
+    //this.drawWindVectorsMap(tileTransform);
+
+    this.drawWindVectorsScreen(tileTransform);
+    this.updateWindVectorsParticles(tileTransform);
+
+  }
+}
+
+
+WebGLVectorTile2.prototype.drawWindVectorsScreen = function drawWindVectorsScreen (transform) {
+    var gl = this.gl;
+    // draw the screen into a temporary framebuffer to retain it as the background on the next frame
+    this.glb.bindFramebuffer(this.framebuffer, this.screenTexture);
+    //gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    this.drawWindVectorsTexture(this.backgroundTexture, this.fadeOpacity, transform);
+    this.drawWindVectorsParticles(transform);
+
+    this.glb.bindFramebuffer(null);
+    // enable blending to support drawing on top of an existing background (e.g. a map)
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    this.drawWindVectorsTexture(this.screenTexture, 1.0, transform);
+    gl.disable(gl.BLEND);
+
+    // save the current screen as the background for the next frame
+    var temp = this.backgroundTexture;
+    this.backgroundTexture = this.screenTexture;
+    this.screenTexture = temp;
+};
+
+
+WebGLVectorTile2.prototype.drawWindVectorsTexture = function drawWindVectorsTexture (texture, opacity, transform) {
+    var gl = this.gl;
+    var program = this.screenProgram;
+    //gl.useProgram(program.program);
+    gl.useProgram(program);
+
+    this.glb.bindAttribute(this.quadBuffer, program.a_pos, 2);
+    this.glb.bindTexture(texture, 2);
+    gl.uniform1i(program.u_screen, 2);
+    gl.uniform1f(program.u_opacity, opacity);
+    //gl.uniform2f(program.u_scale, transform.scale[0], transform.scale[1]);
+    //gl.uniform2f(program.u_scale, 0.1, 0.9);
+
+    //gl.uniform2f(program.u_translate, transform.translate[0], transform.translate[1]);
+    //var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
+    //gl.uniformMatrix4fv(program.u_transform, false, transform);
+    gl.uniformMatrix4fv(program.u_transform, false, transform);
+
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+};
+
+WebGLVectorTile2.prototype.drawWindVectorsParticles = function drawWindVectorsParticles (transform) {
+    var gl = this.gl;
+    var program = this.drawProgram;
+    gl.useProgram(program);
+
+    this.glb.bindAttribute(this.particleIndexBuffer, program.a_index, 1);
+    this.glb.bindTexture(this.colorRampTexture, 2);
+
+    gl.uniform1i(program.u_wind, 0);
+    gl.uniform1i(program.u_particles, 1);
+    gl.uniform1i(program.u_color_ramp, 2);
+
+    gl.uniform1f(program.u_particles_res, this.particleStateResolution);
+    gl.uniform2f(program.u_wind_min, this.windData.uMin, this.windData.vMin);
+    gl.uniform2f(program.u_wind_max, this.windData.uMax, this.windData.vMax);
+    //gl.uniform2f(program.u_scale, transform.scale[0], transform.scale[1]);
+    //gl.uniform2f(program.u_translate, transform.translate[0], transform.translate[1]);
+    gl.uniformMatrix4fv(program.u_transform, false, transform);
+
+    //console.log(transform.scale);
+    gl.drawArrays(gl.POINTS, 0, this._numParticles);
+};
+
+
+WebGLVectorTile2.prototype.updateWindVectorsParticles = function updateWindVectorsParticles (transform) {
+    var gl = this.gl;
+    this.glb.bindFramebuffer(this.framebuffer, this.particleStateTexture1);
+    var oldViewPort = gl.getParameter(gl.VIEWPORT);
+    gl.viewport(0, 0, this.particleStateResolution, this.particleStateResolution);
+    var program = this.updateProgram;
+    gl.useProgram(program);
+
+    this.glb.bindAttribute(this.quadBuffer, program.a_pos, 2);
+
+    gl.uniform1i(program.u_wind, 0);
+    gl.uniform1i(program.u_particles, 1);
+
+    gl.uniform1f(program.u_rand_seed, Math.random());
+    gl.uniform2f(program.u_wind_res, this.windData.width, this.windData.height);
+    gl.uniform2f(program.u_wind_min, this.windData.uMin, this.windData.vMin);
+    gl.uniform2f(program.u_wind_max, this.windData.uMax, this.windData.vMax);
+    gl.uniform1f(program.u_speed_factor, this.speedFactor);
+    gl.uniform1f(program.u_drop_rate, this.dropRate);
+    gl.uniform1f(program.u_drop_rate_bump, this.dropRateBump);
+    //gl.uniform2f(program.u_scale, transform.scale[0], transform.scale[1]);
+    //gl.uniform2f(program.u_translate, transform.translate[0], transform.translate[1]);
+    gl.uniformMatrix4fv(program.u_transform, false, transform);
+    //gl.uniform2f(program.u_topLeftBound, transform.topLeft[0], transform.topLeft[1]);
+    //gl.uniform2f(program.u_bottomRightBound, transform.bottomRight[0], transform.bottomRight[1]);
+
+
+    //console.log(this.tl, this.br);
+    gl.uniform2f(program.u_topLeftBound, this.tl[0], this.tl[1]);
+    gl.uniform2f(program.u_bottomRightBound, this.br[0], this.br[1]);
+
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+    this.glb.bindFramebuffer(null);
+
+    // swap the particle state textures so the new one becomes the current one
+    var temp = this.particleStateTexture0;
+    this.particleStateTexture0 = this.particleStateTexture1;
+    this.particleStateTexture1 = temp;
+
+    gl.viewport(0, 0, oldViewPort[2], oldViewPort[3]);
+
+};
+
+WebGLVectorTile2.prototype.drawWindVectorsMap = function drawWindVectorsMap (transform) {
+    var gl = this.gl;
+    // draw the screen into a temporary framebuffer to retain it as the background on the next frame
+    this.glb.bindFramebuffer(this.framebuffer, this.currentWindTexture);
+    //gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+    var gl = this.gl;
+    var program = this.mapProgram;
+    gl.useProgram(program);
+
+    this.glb.bindAttribute(this.quadBuffer, program.a_pos, 2);
+    //gl.uniform2f(program.u_scale, transform.scale[0], transform.scale[1]);
+    //gl.uniform2f(program.u_translate, transform.translate[0], transform.translate[1]);
+    gl.uniformMatrix4fv(program.u_transform, false, transform);
+
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+    this.glb.bindFramebuffer(null);
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+};
+
+
+var prototypeAccessors = { numParticles: {} };
+
+
+prototypeAccessors.numParticles.set = function (numParticles) {
+    var gl = this.gl;
+
+    // we create a square texture where each pixel will hold a particle position encoded as RGBA
+    var particleRes = this.particleStateResolution = Math.ceil(Math.sqrt(numParticles));
+    this._numParticles = particleRes * particleRes;
+
+    var particleState = new Uint8Array(this._numParticles * 4);
+    for (var i = 0; i < particleState.length; i++) {
+        particleState[i] = Math.floor(Math.random() * 256); // randomize the initial particle positions
+
+    }
+    // textures to hold the particle state for the current and the next frame
+    this.particleStateTexture0 = this.glb.createTexture(gl.NEAREST, particleState, particleRes, particleRes);
+    this.particleStateTexture1 = this.glb.createTexture(gl.NEAREST, particleState, particleRes, particleRes);
+
+    var particleIndices = new Float32Array(this._numParticles);
+    for (var i$1 = 0; i$1 < this._numParticles; i$1++) { particleIndices[i$1] = i$1; }
+    this.particleIndexBuffer = this.glb.createBuffer(particleIndices);
+};
+prototypeAccessors.numParticles.get = function () {
+    return this._numParticles;
+};
+
+Object.defineProperties( WebGLVectorTile2.prototype, prototypeAccessors );
 
 // Update and draw tiles
 WebGLVectorTile2.update = function(tiles, transform, options) {
@@ -4708,4 +5016,155 @@ WebGLVectorTile2.basicSquareFragmentShader =
   'void main() {\n' +
   '  gl_FragColor = vec4(unpackColor(v_color),1.0);\n' +
   '}\n';
+
+
+WebGLVectorTile2.WindVectorsShaders = {};
+
+
+WebGLVectorTile2.WindVectorsShaders.drawVertexShader = 
+"precision mediump float;\n\n" +
+"attribute float a_index;\n\n" +
+"uniform sampler2D u_particles;\n" +
+"uniform float u_particles_res;\n\n" +
+"//uniform vec2 u_scale;\n\n" + 
+"//uniform vec2 u_translate;\n\n" + 
+"uniform mat4 u_transform;\n\n" + 
+"varying vec2 v_particle_pos;\n\n" +
+"void main() {\n" +
+"    vec4 color = texture2D(u_particles, vec2(fract(a_index / u_particles_res), floor(a_index / u_particles_res) / u_particles_res));\n\n" +
+"    // decode current particle position from the pixel's RGBA value\n" +
+"    v_particle_pos = vec2(color.r / 255.0 + color.b, color.g / 255.0 + color.a);\n\n" +
+"    gl_PointSize = 1.;\n" +
+"    //vec2 pos = vec2(u_scale.x*(v_particle_pos.x + u_translate.x), u_scale.y*(v_particle_pos.y + u_translate.y));\n" +
+"    gl_Position = u_transform * vec4(v_particle_pos.x, v_particle_pos.y, 0., 1.);\n" +
+"    //gl_Position = vec4(2.0 * pos.x - 1.0, 1.0 - 2.0 * pos.y, 0, 1);\n" +
+"    //gl_Position = vec4(2.0 * v_particle_pos.x - 1.0,\n"+ 
+"    //                   1.0 - 2.0 * v_particle_pos.y,\n"+
+"    //                   0, 1);\n" +
+"}\n";
+
+WebGLVectorTile2.WindVectorsShaders.drawFragmentShader = 
+"precision mediump float;\n\n" +
+"uniform sampler2D u_wind;\n" +
+"uniform vec2 u_wind_min;\n" +
+"uniform vec2 u_wind_max;\n" +
+"uniform sampler2D u_color_ramp;\n\n" +
+"varying vec2 v_particle_pos;\n\n" +
+"void main() {\n" +
+"    vec2 velocity = mix(u_wind_min, u_wind_max, texture2D(u_wind, v_particle_pos).rg);\n" +
+"    float speed_t = length(velocity) / length(u_wind_max);\n\n" +
+"    // color ramp is encoded in a 16x16 texture\n" +
+"    vec2 ramp_pos = vec2(\n" +
+"                        fract(16.0 * speed_t),\n" +
+"                        floor(16.0 * speed_t) / 16.0);\n\n" +
+"    gl_FragColor = texture2D(u_color_ramp, ramp_pos);\n" +
+"}\n";
+
+WebGLVectorTile2.WindVectorsShaders.quadVertexShader = 
+"precision mediump float;\n\n" +
+"attribute vec2 a_pos;\n\n" +
+"varying vec2 v_tex_pos;\n\n" +
+"//uniform vec2 u_scale;\n\n" + 
+"//uniform vec2 u_translate;\n\n" + 
+"void main() {\n" +
+"    v_tex_pos = a_pos;\n" +
+"    gl_Position = vec4(1.0 - 2.0 * a_pos, 0, 1);\n" +
+"    }\n";
+
+
+WebGLVectorTile2.WindVectorsShaders.screenFragmentShader = 
+"precision mediump float;\n\n" +
+"uniform sampler2D u_screen;\n" +
+"uniform float u_opacity;\n\n" +
+"varying vec2 v_tex_pos;\n\n" +
+"void main() {\n" +
+"    vec4 color = texture2D(u_screen, 1.0 - v_tex_pos);\n" +
+"    // a hack to guarantee opacity fade out even with a value close to 1.0\n" +
+"    gl_FragColor = vec4(floor(255.0 * color * u_opacity) / 255.0);\n" +
+"    vec4 rgba = vec4(floor(255.0 * color * u_opacity) / 255.0);\n" +
+"    gl_FragColor = vec4(rgba);\n" +
+"    gl_FragColor = vec4(192./256.,192./256.,192./256.,rgba.a);\n" +
+"}\n";
+
+WebGLVectorTile2.WindVectorsShaders.updateFragmentShader = 
+"precision highp float;\n\n\n" +
+"uniform sampler2D u_particles;\n\n" +
+"uniform sampler2D u_wind;\n\n" +
+"uniform vec2 u_wind_res;\n\n" +
+"uniform vec2 u_wind_min;\n\n" +
+"uniform vec2 u_wind_max;\n\n" +
+"uniform vec2 u_topLeftBound;\n\n" +
+"uniform vec2 u_bottomRightBound;\n\n" +
+"uniform float u_rand_seed;\n\n" +
+"uniform float u_speed_factor;\n\n" +
+"uniform float u_drop_rate;\n\n" +
+"uniform float u_drop_rate_bump;\n\n\n" +
+"varying vec2 v_tex_pos;\n\n\n" +
+"// pseudo-random generator\n\n" +
+"const vec3 rand_constants = vec3(12.9898, 78.233, 4375.85453);\n\n" +
+"float rand(const vec2 co) {\n\n" +
+"    float t = dot(rand_constants.xy, co);\n\n" +
+"        return fract(sin(t) * (rand_constants.z + t));\n\n" +
+"    }\n\n\n" +
+"    // wind speed lookup; use manual bilinear filtering based on 4 adjacent pixels for smooth interpolation\n\n" +
+"    vec2 lookup_wind(const vec2 uv) {\n\n" +
+"        // return texture2D(u_wind, uv).rg; // lower-res hardware filtering\n" +
+"        vec2 px = 1.0 / u_wind_res;\n" +
+"        vec2 vc = (floor(uv * u_wind_res)) * px;\n" +
+"        vec2 f = fract(uv * u_wind_res);\n" +
+"        vec2 tl = texture2D(u_wind, vc).rg;\n" +
+"        vec2 tr = texture2D(u_wind, vc + vec2(px.x, 0)).rg;\n" +
+"        vec2 bl = texture2D(u_wind, vc + vec2(0, px.y)).rg;\n" +
+"        vec2 br = texture2D(u_wind, vc + px).rg;\n" +
+"        return mix(mix(tl, tr, f.x), mix(bl, br, f.x), f.y);\n" +
+"    }\n\n" +
+"    void main() {\n" +
+"        vec4 color = texture2D(u_particles, v_tex_pos);\n" +
+"        vec2 pos = vec2(color.r / 255.0 + color.b, color.g / 255.0 + color.a); // decode particle position from pixel RGBA\n\n" +
+"        vec2 velocity = mix(u_wind_min, u_wind_max, lookup_wind(pos));\n" +
+"        float speed_t = length(velocity) / length(u_wind_max);\n\n" +
+"        // take EPSG:4236 distortion into account for calculating where the particle moved\n" +
+"        float distortion = cos(radians(pos.y * 180.0 - 90.0));\n" +
+"        distortion = 1.0;\n" +
+"        vec2 offset = vec2(velocity.x / distortion, -velocity.y) * 0.0001 * u_speed_factor;\n\n" +
+"        // update particle position, wrapping around the date line\n" +
+"        pos = fract(1.0 + pos + offset);\n\n" +
+"        // a random seed to use for the particle drop\n" +
+"        vec2 seed = (pos + v_tex_pos) * u_rand_seed;\n\n" +
+"        // drop rate is a chance a particle will restart at random position, to avoid degeneration\n" +
+"        float drop_rate = u_drop_rate + speed_t * u_drop_rate_bump;\n" +
+"        //vec2 u_topLeftBound = vec2(0.1, 0.2); vec2 u_bottomRightBound = vec2(0.2, 0.4);\n" +
+"        vec2 in_bounds2 = step(u_topLeftBound, pos) * step(pos, u_bottomRightBound);\n" +
+// out_of_bounds is 0 or 1
+"        float out_of_bounds = 1.0 - in_bounds2.x * in_bounds2.y;\n" +
+// drop if 1.0 - drop_rate < rand(seed), or if out_of_bounds
+"        float drop = step(1.0 - drop_rate, rand(seed) + out_of_bounds);\n\n" +
+"        vec2 random_pos = mix(u_topLeftBound, u_bottomRightBound, vec2(rand(seed + 1.3), rand(seed + 2.1)));\n" +
+"        pos = mix(pos, random_pos, drop);\n" +
+"        // encode the new particle position back into RGBA\n" +
+"        gl_FragColor = vec4(fract(pos * 255.0), floor(pos * 255.0) / 255.0);" +
+"    }\n";
+
+WebGLVectorTile2.WindVectorsShaders.mapVertexShader = '' + 
+  'attribute vec2 a_pos;\n' +
+  "uniform mat4 u_transform;\n\n" + 
+  'varying vec2 v_tex_pos;\n' +
+
+  'void main(void) {\n' +
+  '  v_tex_pos = vec2(a_pos.x, a_pos.y);\n' +
+//  '  gl_Position = vec4(2.0 * pos.x - 1.0, 1.0 - 2.0 * pos.y, 0, 1);\n' +
+"    gl_Position = u_transform * vec4(a_pos.x, a_pos.y, 0., 1.);\n" +
+  '}\n';
+
+
+WebGLVectorTile2.WindVectorsShaders.mapFragmentShader = '' + 
+  'precision mediump float;\n' +
+  'varying vec2 v_tex_pos;\n' +
+  'uniform sampler2D u_wind;\n' +
+  'void main(void) {\n' +
+  '  vec4 textureColor = texture2D(u_wind, vec2(v_tex_pos.s, v_tex_pos.t));\n' +
+  '  gl_FragColor = vec4(textureColor.rgb, 1.0);\n' +
+  '}\n';
+
+
 

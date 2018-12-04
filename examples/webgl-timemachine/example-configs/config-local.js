@@ -64,5 +64,6 @@ var EARTH_TIMELAPSE_CONFIG = {
   "showEcco2": false,
   "showGdpPpp": false,
   "showTintedLandsat": false,
-  "showGfsTimemachine"
+  "showGfsTimemachine": false,
+  "showWindVectors": false
 };

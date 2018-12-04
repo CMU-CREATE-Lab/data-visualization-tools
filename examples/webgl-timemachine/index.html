@@ -239,7 +239,7 @@
     var showGdpPpp = !!EARTH_TIMELAPSE_CONFIG.showGdpPpp;
     var showTintedLandsat = !!EARTH_TIMELAPSE_CONFIG.showTintedLandsat;
     var showGfsTimemachine = !!EARTH_TIMELAPSE_CONFIG.showGfsTimemachine;
-
+    var showWindVectors = !!EARTH_TIMELAPSE_CONFIG.showWindVectors;
 
     var googleMapsAPIKey = parseConfigOption({optionName: "googleMapsAPIKey", optionDefaultValue: "", exposeOptionToUrlHash: false});
     var showExtrasMenu = parseConfigOption({optionName: "showExtrasMenu", optionDefaultValue: true, exposeOptionToUrlHash: false});
@@ -442,6 +442,8 @@
     var tintedLandsatLayer;
 
     var gfsTimemachineLayer;
+
+    var windVectorsLayer;
 
 /*    var spCrudeLayerWAF;
     setTimeLine('sp-crude-times', 2013, 2018, 1);
@@ -955,6 +957,8 @@
     var gdpPppUrl = rootTilePath + "/economics/gdp_ppp.timemachine/crf26-10fps-1424x800";
 
     var gfsTimemachineUrl = rootTilePath + "/gfs-timemachine.timemachine/crf24-12fps-1424x800";
+
+    var windVectorsUrl = "https://localhost/data/wind/test.json";
 
     /*
     var spCrudeUrlWAF = rootTilePath + "/sp-crude/0-crude-flows_WAF.bin"
@@ -3487,6 +3491,30 @@
         }
       }).prop('checked', showGfsTimemachineLayer);
 
+
+      $("#show-wind-vectors").on("click", function() {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          windVectorsLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
+          showWindVectorsLayer = true;
+          setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
+          requestNewTimeline("wind-vectors-times.json", timelineType);
+          $("#wind-vectors-legend").show();
+          if (visibleBaseMapLayer != "dark") {
+            $("#dark-base").click();
+          }
+        } else {
+          showWindVectorsLayer = false;
+          cacheLastUsedLayer(windVectorsLayer);
+          setActiveLayersWithTimeline(-1);
+          doSwitchToLandsat();
+          if (!$("#show-wind-vectors").prop('checked')) {
+            $("#wind-vectors-legend").hide();
+          }
+        }
+      }).prop('checked', showWindVectorsLayer);
+
 /*
       $("#show-sp-crude_WAF").on("click", function() {
         if ($(this).prop('checked')) {
@@ -4358,6 +4386,7 @@
     var showEcco2Layer = false;
     var showGdpPppLayer = false;
     var showGfsTimemachineLayer = false;
+    var showWindVectorsLayer = false;
 
     /*
     var showSpCrudeLayerWAF = false;
@@ -4916,6 +4945,7 @@
       var show_ecco2 = '<td class="ecco2-select"><label for="show-ecco2" name="ecco2"><input type="checkbox" id="show-ecco2" />ECCO2</label></td>';
       var show_gpd_ppp = '<td class="gdpPpp-select"><label for="show-gdpPpp" name="gdpPpp"><input type="checkbox" id="show-gdpPpp" />GDP pc PPP</label></td>';
       var show_gfs_timemachine = '<td class="gfs-timemachine-select"><label for="show-gfs-timemachine" name="gfs-timemachine"><input type="checkbox" id="show-gfs-timemachine" />GFS</label></td>';
+      var show_wind_vectors = '<td class="wind-vectors-select"><label for="show-wind-vectors" name="wind-vectors"><input type="checkbox" id="show-wind-vectors" />Wind Vectors</label></td>';
 
 /*
       var show_sp_crude_WAF = '<td class="sp-crude-select_WAF"><label for="show-sp-crude_WAF" name="sp-crude_WAF"><input type="checkbox" id="show-sp-crude_WAF" />WAF Crude Oil flows</label></td>';
@@ -4989,6 +5019,11 @@
       if (showGfsTimemachine) {
         layer_html += '   <tr>';
         layer_html += show_gfs_timemachine;
+        layer_html += '   </tr>';
+      }
+      if (showWindVectors) {
+        layer_html += '   <tr>';
+        layer_html += show_wind_vectors;
         layer_html += '   </tr>';
       }
       layer_html += '  </table>';
@@ -6476,6 +6511,19 @@
 
       };
       gfsTimemachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, gfsTimemachineUrl, gfsTimemachineOptions);
+
+      var windVectorsLayerOptions = {
+        tileWidth: 256,
+        tileHeight: 256,
+        nLevels: 0,
+        drawFunction: WebGLVectorTile2.prototype._drawWindVectors,
+        loadDataFunction: WebGLVectorTile2.prototype._loadWindVectorsData,        
+        setDataFunction: WebGLVectorTile2.prototype._setWindVectorsData,
+        fragmentShader: WebGLVectorTile2.vectorPointTileFragmentShader,
+        vertexShader: WebGLVectorTile2.vectorPointTileVertexShader,
+        numAttributes: 3
+      };
+      windVectorsLayer = new WebglVectorLayer2(glb, canvasLayer, windVectorsUrl, windVectorsLayerOptions);
 
       // Layer Toggle UI
       initLayerToggleUI();
@@ -8821,6 +8869,29 @@
           var view = getLayerView(gfsTimemachineLayer, landsatBaseMapLayer);
           gfsTimemachineLayer.draw(view, tileViewVisibility);
         }
+
+        if (showWindVectorsLayer) {
+          var view = getLayerView(windVectorsLayer, landsatBaseMapLayer);
+          var options = {};
+          options.zoom = timelapse.getCurrentZoom();
+          var currentTime = timelapse.getCurrentTime();
+          var currentTimes = getCurrentTimes(timelapse);
+          var dates = getDates(timelapse);
+          var delta = getCurrentTimesDelta(currentTime, currentTimes);
+          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
+          options.currentTime = currentDate;
+          options.color = [0.0, 0.0, 1.0, 1.0];
+          options.pointSize = 5.0;          
+
+          var bbox = timelapse.pixelBoundingBoxToLatLngBoundingBoxView(timelapse.getBoundingBoxForCurrentView()).bbox;
+          var ne = bbox.ne; // tr
+          var sw = bbox.sw; // bl
+          var tl = {'lat':ne.lat, 'lng': ne.lng};
+          var br = {'lat':sw.lat, 'lng': sw.lng};
+          options['bbox'] = {'tl': tl, 'br': br};
+          windVectorsLayer.draw(view, options);
+        }
+        
 
 	function isPairCandidate(layer) {
 	  return layer.visible && layer.paired;
