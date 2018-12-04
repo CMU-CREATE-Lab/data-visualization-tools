@@ -10,8 +10,7 @@ function Glb(gl) {
 // If same type and source has already been compiled, return
 //
 // type should be gl.VERTEX_SHADER or gl.FRAGMENT_SHADER
-Glb.prototype.
-_shaderFromSource = function(type, source) {
+Glb.prototype._shaderFromSource = function(type, source) {
   var cache = this._shaderCache[source];
   if (!cache) {
     cache = this._shaderCache[source] = {};
@@ -30,8 +29,7 @@ _shaderFromSource = function(type, source) {
 
 // Return compiled and linked program for vertex and fragment shader sources.
 // If identical program has already been compiled and linked, return it.
-Glb.prototype.
-programFromSources = function(vertexSource, fragmentSource) {
+Glb.prototype.programFromSources = function(vertexSource, fragmentSource) {
   var cache = this._programCache[vertexSource];
   if (!cache) {
     cache = this._programCache[vertexSource] = {};
@@ -54,8 +52,7 @@ programFromSources = function(vertexSource, fragmentSource) {
   return program;
 }
 
-Glb.prototype.
-_addAttribsAndUniformsToProgram = function(program) {
+Glb.prototype._addAttribsAndUniformsToProgram = function(program) {
   if (this.gl.getProgramParameter(program, this.gl.ACTIVE_ATTRIBUTES) == 0) {
     throw new Error('Program has no active attributes');
   }
@@ -74,8 +71,47 @@ _addAttribsAndUniformsToProgram = function(program) {
   }
 }
 
-Glb.prototype.
-createBuffer = function(array) {
+Glb.prototype.createTexture = function(filter, data, width, height) {
+    var gl = this.gl;
+    var texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
+    if (data instanceof Uint8Array) {
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
+    } else {
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, data);
+    }
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    return texture;
+}
+
+Glb.prototype.bindTexture = function(texture, unit) {
+    var gl = this.gl;
+    gl.activeTexture(gl.TEXTURE0 + unit);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+}
+
+Glb.prototype.bindFramebuffer = function(framebuffer, texture) {
+  var gl = this.gl;
+    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+    if (texture) {
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+    }
+}
+
+
+Glb.prototype.bindAttribute = function(buffer, attribute, numComponents) {
+  var gl = this.gl;
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.enableVertexAttribArray(attribute);
+    gl.vertexAttribPointer(attribute, numComponents, gl.FLOAT, false, 0, 0);
+}
+
+
+Glb.prototype.createBuffer = function(array) {
   var buffer = this.gl.createBuffer();
   this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer);
   this.gl.bufferData(this.gl.ARRAY_BUFFER, array, this.gl.STATIC_DRAW);
