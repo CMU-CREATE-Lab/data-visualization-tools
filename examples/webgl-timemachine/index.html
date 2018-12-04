@@ -958,7 +958,7 @@
 
     var gfsTimemachineUrl = rootTilePath + "/gfs-timemachine.timemachine/crf24-12fps-1424x800";
 
-    var windVectorsUrl = "https://localhost/data/wind/test.json";
+    var windVectorsUrl = rootTilePath + "/wind/test.json";
 
     /*
     var spCrudeUrlWAF = rootTilePath + "/sp-crude/0-crude-flows_WAF.bin"
@@ -8891,7 +8891,7 @@
           options['bbox'] = {'tl': tl, 'br': br};
           windVectorsLayer.draw(view, options);
         }
-        
+
 
 	function isPairCandidate(layer) {
 	  return layer.visible && layer.paired;
