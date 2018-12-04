@@ -4420,7 +4420,6 @@
 
     // Pass columnDefs for a static layer, or animationLayers for animation
     function addDotmapLayer(nickname, name, credit, category, date, columnDefs, animationLayers) {
-
       var useLocalTiles = false;
 
       if (EARTH_TIMELAPSE_CONFIG.localDotmaps) {
@@ -4433,30 +4432,27 @@
       }
 
       var tileUrl;
-
       if (useLocalTiles) {
         tileUrl = rootTilePath + '/dotmaptiles/' + nickname;
       } else {
         tileUrl = 'https://dotmaptiles.createlab.org/tilesv1/';
-	if (columnDefs) {
+        if (columnDefs) {
           var layerTokens = [];
           for (var i = 0; i < columnDefs.length; i++) {
             layerTokens.push(encodeURIComponent(columnDefs[i].color) + ';' +
-                             encodeURIComponent(columnDefs[i].expression.replace(/\s/g, '').replace('/',' DIV ')));
+            encodeURIComponent(columnDefs[i].expression.replace(/\s/g, '').replace('/',' DIV ')));
           }
-	  var expressionUrl = layerTokens.join(';;');
+          var expressionUrl = layerTokens.join(';;');
           tileUrl += expressionUrl + '/{z}/{x}/{y}.box';
-	} else {
-	  // TODO fix this
+        } else {
+          // TODO fix this
           var layerTokens = [];
-	  for (var i = 0; i < animationLayers.length; i++) {
-	    layerTokens.push(dotmapLayerByName[animationLayers[i]].expressionUrl);
-	  }
-	  tileUrl += layerTokens.join(';;;');
-	  tileUrl += '/512x512';
-
-	  console.log(tileUrl);
-	}
+          for (var i = 0; i < animationLayers.length; i++) {
+            layerTokens.push(dotmapLayerByName[animationLayers[i]].expressionUrl);
+          }
+          tileUrl += layerTokens.join(';;;');
+          tileUrl += '/512x512';
+        }
       }
 
       var layerOptions = {
@@ -4466,7 +4462,7 @@
       };
 
       if (columnDefs) {
-	layerOptions.tileWidth = layerOptions.tileHeight = 256;
+        layerOptions.tileWidth = layerOptions.tileHeight = 256;
         layerOptions.date = date;
         layerOptions.expressionUrl = expressionUrl;
 
@@ -4475,17 +4471,16 @@
         layerOptions.fragmentShader = WebGLVectorTile2.colorDotmapFragmentShader;
         layerOptions.vertexShader = WebGLVectorTile2.colorDotmapVertexShader;
         layerOptions.dotmapColors = [];
-	for (var i = 0; i < columnDefs.length; i++) {
+        for (var i = 0; i < columnDefs.length; i++) {
           layerOptions.dotmapColors.push(parse_and_encode_webgl_color(columnDefs[i].color));
-	}
-	var layer = new WebglVectorLayer2(glb, canvasLayer, tileUrl, layerOptions);
+        }
+        var layer = new WebglVectorLayer2(glb, canvasLayer, tileUrl, layerOptions);
       } else {
-	layerOptions.mediaType = '.mp4';
+        layerOptions.mediaType = '.mp4';
         layerOptions.numFrames = animationLayers.length;
         layerOptions.fps = 10;
         layerOptions.video_width = layerOptions.video_height = 512;
-	var layer = new WebglTimeMachineLayer(glb, canvasLayer, tileUrl, layerOptions);
-	console.log('added WebglTimeMachineLayer ' + nickname);
+        var layer = new WebglTimeMachineLayer(glb, canvasLayer, tileUrl, layerOptions);
       }
 
       dotmapLayers.push(layer);
@@ -4512,16 +4507,16 @@
       legend += '</div>';
 
       if (animationLayers) {
-	// Use colors from first layer
-	legend += $('#' + animationLayers[0] + '-legend #colors').html();
+        // Use colors from first layer
+        legend += $('#' + animationLayers[0] + '-legend #colors').html();
       } else {
-	legend += '<div id="colors" style="float: left; padding-right:8px">';
-	for (var i = 0; i < columnDefs.length; i++) {
+        legend += '<div id="colors" style="float: left; padding-right:8px">';
+        for (var i = 0; i < columnDefs.length; i++) {
           legend += '<div style="float: left; padding-right:8px">';
           legend += '<div style="background-color:' + columnDefs[i].color + '; width: 12px; height: 12px; float: left; margin-top: 2px; margin-left: 8px;"></div>';
           legend += '&nbsp;' + columnDefs[i].name + '</div>';
-	}
-	legend += '</div>';
+        }
+        legend += '</div>';
       }
       legend += '</tr>';
 
@@ -4543,9 +4538,7 @@
           }
           // Turn on layer
           layer.visible = true;
-	  if (animationLayers) {
-	    console.log('setting annual-global timeline');
-
+          if (animationLayers) {
             setActiveLayersWithTimeline(1);
             visibleBaseMapLayer = "annual-pm25"; //?
             timelineType = "defaultUI";
@@ -4556,9 +4549,9 @@
             WebglVideoTile.useGreenScreen = false;
             timelapse.setMasterPlaybackRate(1.0);
             $("#baseLayerCreditContainer").hide();
-	  } else {
+          } else {
             timelineType = "none";
-	  }
+          }
           $("#" + nickname + "-legend").show();
         } else {
           // Turn off layer
@@ -6520,7 +6513,7 @@
         tileHeight: 256,
         nLevels: 0,
         drawFunction: WebGLVectorTile2.prototype._drawWindVectors,
-        loadDataFunction: WebGLVectorTile2.prototype._loadWindVectorsData,        
+        loadDataFunction: WebGLVectorTile2.prototype._loadWindVectorsData,
         setDataFunction: WebGLVectorTile2.prototype._setWindVectorsData,
         fragmentShader: WebGLVectorTile2.vectorPointTileFragmentShader,
         vertexShader: WebGLVectorTile2.vectorPointTileVertexShader,
@@ -8884,7 +8877,7 @@
           var currentDate = getCurrentDate(currentTime, currentTimes, dates);
           options.currentTime = currentDate;
           options.color = [0.0, 0.0, 1.0, 1.0];
-          options.pointSize = 5.0;          
+          options.pointSize = 5.0;
 
           var bbox = timelapse.pixelBoundingBoxToLatLngBoundingBoxView(timelapse.getBoundingBoxForCurrentView()).bbox;
           var ne = bbox.ne; // tr
