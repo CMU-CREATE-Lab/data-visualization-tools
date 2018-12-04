@@ -4464,7 +4464,7 @@
         // extra level of detail, and the additional resolution looks nicer, at least on a retina display...
         nLevels: 14,
       };
-      
+
       if (columnDefs) {
 	layerOptions.tileWidth = layerOptions.tileHeight = 256;
         layerOptions.date = date;
@@ -5454,66 +5454,67 @@
       layer_html += '</div>';
 
       // Extras menu
-      if (showExtrasMenu) {
-        layer_html += '<div class="extras-selector-div">';
-        layer_html += ' <select name="extras-selector" id="extras-selector">';
-        layer_html += '   <option id="default-extras-select" selected="selected" value="select">Select extra content...</option>';
-        layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="AirVisualEarth.mp4" data-name="e-AirVisualEarth">AirVisual Earth</option>';
-        layer_html += '   <option data-playback-rate="2" data-type="video" data-file-path="pumphandle_2014.mp4" data-name="e-pumphandle">Measured CO2 Over Time</option>';
-        layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="Carbon Dioxide 2006 GEOS-5 model.mp4" data-name="e-geos5model">CO2 2006 GEOS-5 Model</option>';
-        layer_html += '   <option data-playback-rate="2" data-type="video" data-file-path="Land + Ocean Average Temperature Annual Anomaly.mp4" data-name="e-tempanomaly">Temperature Anomaly 1850-2013</option>';
-        layer_html += '   <option data-playback-rate="0.5" data-type="video" data-file-path="berkeley-earth.mp4" data-name="e-tempanomaly2">Temperature Anomaly 1850-2015</option>';
-        layer_html += '   <option data-playback-rate="2" data-type="video" data-file-path="Arctic ice age, 1987-2014.mp4" data-name="e-icethinning">Ice Thinning 1987-2014</option>';
-        layer_html += '   <option data-playback-rate="2" data-type="video" data-file-path="Larsen-B-Collapse.mp4" data-name="e-larsenb">Larsen-B Collapse</option>';
-        layer_html += '   <option data-playback-rate="4" data-type="video" data-file-path="Orbiting Carbon Observatory.mp4" data-name="e-oco">Orbiting Carbon Observatory</option>';
-        layer_html += '   <option data-playback-rate="2" data-type="video" data-file-path="Arctic Sea Ice, September 1979 to September 2014.mp4" data-name="e-seaice">Sea Ice Concentration 1979-2014</option>';
-        layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="coral-reef-watch-daily-7day-max.mp4" data-name="e-crw">Coral Reef Watch 2013-2015</option>';
-        layer_html += '   <option data-playback-rate="0.5" data-type="video" data-file-path="merra-spi.mp4" data-name="e-spi">Standardized Precipitation Index 1980-2015</option>';
-        layer_html += '   <option data-type="iframe" data-file-path="http://choices.climatecentral.org/widget.html?utm_source=Davos&utm_medium=embed&utm_campaign=SSMC-Map#11/31.2301/121.4736?compare=temperatures&carbon-end-yr=2100&scenario-a=warming-4&scenario-b=warming-2&presentation=1" data-name="e-shanghaisealevel">Shanghai Sea Level</option>';
-        layer_html += '   <option data-type="img" data-file-path="land-and-ocean-temps.png" data-name="e-hottestyear2015">2015: Hottest Year on Record</option>';
-        /*layer_html += '   <option data-type="img" data-file-path="co2_emissions_over_time.png">CO2 Emissions Over Time</option>';
-        layer_html += '   <option data-type="img" data-file-path="global_decarbonisation_staircase.png">Global Decarbonisation Staircase</option>';*/
-        layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="refugee_camps.mp4" data-name="e-refugeesmosul">Refugee Camps Outside Mosul</option>';
-        layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="iraq_smoke.mp4" data-name="e-oilmosul">Qayyarah Oil Field South of Mosul</option>';
-        layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="sugarcane_plantations.mp4" data-name="e-sugarcane">Sugarcane Plantation in Bolivia</option>';
-        layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="cepi.mp4" data-name="e-cepi">Coalition for Epidemic Prepardness Innovations</option>';
-        layer_html += '   <option data-playback-rate="1.5" data-type="video" data-file-path="temp-anomaly.mp4" data-name="e-tempanomaly3">Temperature Anomaly 1970-2016</option>';
-        layer_html += '   <option data-type="img" data-file-path="water-synergies-p1.png" data-name="e-watersynergies">Water Synergies Pt1</option>';
-        layer_html += '   <option data-type="img" data-file-path="water-synergies-p2.png" data-name="e-watersynergies2">Water Synergies Pt2</option>';
-        layer_html += '   <option data-type="img" data-file-path="altered-river-flow.png" data-name="e-riverflow">Altered River Flow</option>';
-        layer_html += '   <option data-type="img" data-file-path="solar-with-legend.png" data-name="e-globalatlas">Global Atlas for Renewable Energy</option>';
-        layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="smog_tower_pm_animation.mp4" data-name="e-smogtoweranim">Smog Tower PM10 Animation</option>';
-        layer_html += '   <option data-type="img" data-file-path="smog_tower_pm_reduction.png" data-name="e-smogtowerpm10">Smog Tower PM10 Reduction</option>';
-        layer_html += '   <option data-type="img" data-file-path="smog_free_tower_tianjin.jpg" data-name="e-smogtowertianjin">Smog Free Tower Tianjin</option>';
-        layer_html += '   <option data-type="img" data-file-path="smog_free_tower_dalian.jpeg" data-name="e-smogtowerdalian">Smog Free Tower Dalian</option>';
-        layer_html += '   <option data-type="img" data-file-path="Outbound FDI by Sector Geo.jpg" data-name="e-fdi">Outbound FDI by Sector Geo</option>';
-        layer_html += '   <option data-type="img" data-file-path="BRI-mapping.jpg" data-name="e-bri">BRI Mapping</option>';
-        layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="global_and_european_fisheries_map.mp4" data-name="e-globalfishmap">Global and European Fisheries Map</option>';
-        layer_html += '   <option data-type="img" data-file-path="nation-states.jpg" data-name="e-nationstates">Nation States</option>';
-        layer_html += '   <option data-type="img" data-file-path="Doughnut-classic.png" data-name="e-doughnut_classic">Doughnut Classic</option>';
-        layer_html += '   <option data-type="img" data-file-path="Doughnut-transgressing.png" data-name="e-doughnut_transgressing">Doughnut Transgressing</option>';
-        layer_html += '   <option data-type="img" data-file-path="Trade Openness.png" data-name="e-tradeopenness">Trade Openness</option>';
-        layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="Global Cyber Centre.mp4" data-name="e-globalcyber">Global Cyber Centre</option>';
-        if (showEVA)
-          layer_html += '   <option data-type="link" data-file-path="http://localhost:8080/?uid=history-1436384863961-Vyxt6PIO" data-name="e-eva">EVA - Explorable Visual Analytics</option>';
-        if (showGFW)
-          layer_html += '   <option data-type="iframe" data-file-path="http://localhost:8081/index.html?workspace=https://api-dot-skytruth-pleuston.appspot.com/v1/workspaces/udw-v1-4a79e843-9e84-4c02-a903-f49c4d0ebc0c" data-name="e-gfw">Global Fishing Watch</option>';
-        layer_html += '   <optgroup label="World Economic Forum - Davos 2016">';
-        layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="WEF/The Climate Crisis with Naomi Oreskes and Achim Steiner.mp4" data-name="e-davos16climate1">Climate Crisis with Naomi Oreskes and Achim Steiner</option>';
-        layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="WEF/The Climate Crisis with Naomi Oreskes and Nicholas Stern.mp4" data-name="e-davos16climate2">Climate Crisis with Naomi Oreskes and Nicholas Stern</option>';
-        layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="WEF/The Future of Forests with Matthew Hansen and Andrew Steer.mp4" data-name="e-davos16forests1">Future of Forests with Matthew Hansen and Andrew Steer</option>';
-        layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="WEF/The Industrialization Impasse with Ricardo Hausmann and Illah Nourbakhsh.mp4 data-name="e-davos16industrial1"">Industrialization Impasse with Ricardo Hausmann and Illah Nourbakhsh</option>';
-        layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="WEF/The Race for Resources with Ellen MacArthur and Randy Sargent.mp4" data-name="e-davos16resources1">Race for Resources with Ellen MacArthur and Randy Sargent</option>';
-        layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="WEF/The Race for Resources with William McDonough and Randy Sargent.mp4" data-name="e-davos16resources2">Race for Resources with William McDonough and Randy Sargent</option>';
-        layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="WEF/The War on Water with Johan Rockstrom and Randy Sargent.mp4" data-name="e-davos16water1">War on Water with Johan Rockstrom and Randy Sargent</option>';
-        layer_html += '   </optgroup>';
-        layer_html += ' </select>';
-        layer_html += '</div>';
-      }
+      layer_html += '<div class="extras-selector-div">';
+      layer_html += ' <select name="extras-selector" id="extras-selector">';
+      layer_html += '   <option id="default-extras-select" selected="selected" value="select">Select extra content...</option>';
+      layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="AirVisualEarth.mp4" data-name="e-AirVisualEarth">AirVisual Earth</option>';
+      layer_html += '   <option data-playback-rate="2" data-type="video" data-file-path="pumphandle_2014.mp4" data-name="e-pumphandle">Measured CO2 Over Time</option>';
+      layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="Carbon Dioxide 2006 GEOS-5 model.mp4" data-name="e-geos5model">CO2 2006 GEOS-5 Model</option>';
+      layer_html += '   <option data-playback-rate="2" data-type="video" data-file-path="Land + Ocean Average Temperature Annual Anomaly.mp4" data-name="e-tempanomaly">Temperature Anomaly 1850-2013</option>';
+      layer_html += '   <option data-playback-rate="0.5" data-type="video" data-file-path="berkeley-earth.mp4" data-name="e-tempanomaly2">Temperature Anomaly 1850-2015</option>';
+      layer_html += '   <option data-playback-rate="2" data-type="video" data-file-path="Arctic ice age, 1987-2014.mp4" data-name="e-icethinning">Ice Thinning 1987-2014</option>';
+      layer_html += '   <option data-playback-rate="2" data-type="video" data-file-path="Larsen-B-Collapse.mp4" data-name="e-larsenb">Larsen-B Collapse</option>';
+      layer_html += '   <option data-playback-rate="4" data-type="video" data-file-path="Orbiting Carbon Observatory.mp4" data-name="e-oco">Orbiting Carbon Observatory</option>';
+      layer_html += '   <option data-playback-rate="2" data-type="video" data-file-path="Arctic Sea Ice, September 1979 to September 2014.mp4" data-name="e-seaice">Sea Ice Concentration 1979-2014</option>';
+      layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="coral-reef-watch-daily-7day-max.mp4" data-name="e-crw">Coral Reef Watch 2013-2015</option>';
+      layer_html += '   <option data-playback-rate="0.5" data-type="video" data-file-path="merra-spi.mp4" data-name="e-spi">Standardized Precipitation Index 1980-2015</option>';
+      layer_html += '   <option data-type="iframe" data-file-path="http://choices.climatecentral.org/widget.html?utm_source=Davos&utm_medium=embed&utm_campaign=SSMC-Map#11/31.2301/121.4736?compare=temperatures&carbon-end-yr=2100&scenario-a=warming-4&scenario-b=warming-2&presentation=1" data-name="e-shanghaisealevel">Shanghai Sea Level</option>';
+      layer_html += '   <option data-type="img" data-file-path="land-and-ocean-temps.png" data-name="e-hottestyear2015">2015: Hottest Year on Record</option>';
+      /*layer_html += '   <option data-type="img" data-file-path="co2_emissions_over_time.png">CO2 Emissions Over Time</option>';
+      layer_html += '   <option data-type="img" data-file-path="global_decarbonisation_staircase.png">Global Decarbonisation Staircase</option>';*/
+      layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="refugee_camps.mp4" data-name="e-refugeesmosul">Refugee Camps Outside Mosul</option>';
+      layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="iraq_smoke.mp4" data-name="e-oilmosul">Qayyarah Oil Field South of Mosul</option>';
+      layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="sugarcane_plantations.mp4" data-name="e-sugarcane">Sugarcane Plantation in Bolivia</option>';
+      layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="cepi.mp4" data-name="e-cepi">Coalition for Epidemic Prepardness Innovations</option>';
+      layer_html += '   <option data-playback-rate="1.5" data-type="video" data-file-path="temp-anomaly.mp4" data-name="e-tempanomaly3">Temperature Anomaly 1970-2016</option>';
+      layer_html += '   <option data-type="img" data-file-path="water-synergies-p1.png" data-name="e-watersynergies">Water Synergies Pt1</option>';
+      layer_html += '   <option data-type="img" data-file-path="water-synergies-p2.png" data-name="e-watersynergies2">Water Synergies Pt2</option>';
+      layer_html += '   <option data-type="img" data-file-path="altered-river-flow.png" data-name="e-riverflow">Altered River Flow</option>';
+      layer_html += '   <option data-type="img" data-file-path="solar-with-legend.png" data-name="e-globalatlas">Global Atlas for Renewable Energy</option>';
+      layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="smog_tower_pm_animation.mp4" data-name="e-smogtoweranim">Smog Tower PM10 Animation</option>';
+      layer_html += '   <option data-type="img" data-file-path="smog_tower_pm_reduction.png" data-name="e-smogtowerpm10">Smog Tower PM10 Reduction</option>';
+      layer_html += '   <option data-type="img" data-file-path="smog_free_tower_tianjin.jpg" data-name="e-smogtowertianjin">Smog Free Tower Tianjin</option>';
+      layer_html += '   <option data-type="img" data-file-path="smog_free_tower_dalian.jpeg" data-name="e-smogtowerdalian">Smog Free Tower Dalian</option>';
+      layer_html += '   <option data-type="img" data-file-path="Outbound FDI by Sector Geo.jpg" data-name="e-fdi">Outbound FDI by Sector Geo</option>';
+      layer_html += '   <option data-type="img" data-file-path="BRI-mapping.jpg" data-name="e-bri">BRI Mapping</option>';
+      layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="global_and_european_fisheries_map.mp4" data-name="e-globalfishmap">Global and European Fisheries Map</option>';
+      layer_html += '   <option data-type="img" data-file-path="nation-states.jpg" data-name="e-nationstates">Nation States</option>';
+      layer_html += '   <option data-type="img" data-file-path="Doughnut-classic.png" data-name="e-doughnut_classic">Doughnut Classic</option>';
+      layer_html += '   <option data-type="img" data-file-path="Doughnut-transgressing.png" data-name="e-doughnut_transgressing">Doughnut Transgressing</option>';
+      layer_html += '   <option data-type="img" data-file-path="Trade Openness.png" data-name="e-tradeopenness">Trade Openness</option>';
+      layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="Global Cyber Centre.mp4" data-name="e-globalcyber">Global Cyber Centre</option>';
+      if (showEVA)
+        layer_html += '   <option data-type="link" data-file-path="http://localhost:8080/?uid=history-1436384863961-Vyxt6PIO" data-name="e-eva">EVA - Explorable Visual Analytics</option>';
+      if (showGFW)
+        layer_html += '   <option data-type="iframe" data-file-path="http://localhost:8081/index.html?workspace=https://api-dot-skytruth-pleuston.appspot.com/v1/workspaces/udw-v1-4a79e843-9e84-4c02-a903-f49c4d0ebc0c" data-name="e-gfw">Global Fishing Watch</option>';
+      layer_html += '   <optgroup label="World Economic Forum - Davos 2016">';
+      layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="WEF/The Climate Crisis with Naomi Oreskes and Achim Steiner.mp4" data-name="e-davos16climate1">Climate Crisis with Naomi Oreskes and Achim Steiner</option>';
+      layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="WEF/The Climate Crisis with Naomi Oreskes and Nicholas Stern.mp4" data-name="e-davos16climate2">Climate Crisis with Naomi Oreskes and Nicholas Stern</option>';
+      layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="WEF/The Future of Forests with Matthew Hansen and Andrew Steer.mp4" data-name="e-davos16forests1">Future of Forests with Matthew Hansen and Andrew Steer</option>';
+      layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="WEF/The Industrialization Impasse with Ricardo Hausmann and Illah Nourbakhsh.mp4 data-name="e-davos16industrial1"">Industrialization Impasse with Ricardo Hausmann and Illah Nourbakhsh</option>';
+      layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="WEF/The Race for Resources with Ellen MacArthur and Randy Sargent.mp4" data-name="e-davos16resources1">Race for Resources with Ellen MacArthur and Randy Sargent</option>';
+      layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="WEF/The Race for Resources with William McDonough and Randy Sargent.mp4" data-name="e-davos16resources2">Race for Resources with William McDonough and Randy Sargent</option>';
+      layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="WEF/The War on Water with Johan Rockstrom and Randy Sargent.mp4" data-name="e-davos16water1">War on Water with Johan Rockstrom and Randy Sargent</option>';
+      layer_html += '   </optgroup>';
+      layer_html += ' </select>';
+      layer_html += '</div>';
+
+      // Create clear selected layer(s) button
       layer_html += '</div>';
       layer_html += '<div class="clearLayers"></div>';
       layer_html += '</ul>';
 
+      // Legend content
       var legend_html = '<div id="layers-legend">';
       legend_html += '<div id="legend-content">';
       legend_html += '<table cellpadding=5>';
@@ -5578,11 +5579,9 @@
       legend_html += '<tr id="be-pm25-legend" style="display:none"><td><div style="font-size: 14px">PM2.5<span class="credit"> (Berkeley Earth)</span></div><svg class="svg-legend" width="320" height="50"><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="15" x="0">0.0</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="15" x="40">12.0</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="15" x="92">35.5</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="15" x="142">55.5</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="15" x="192">150.5</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="15" x="242">250.5</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="15" x="287">500.0</text><rect fill="rgb(12, 231, 0)"  y="20" x="0" height="10" width="50.0"></rect><rect fill="rgb(255, 255, 0)" y="20" x="50" height="10" width="50.0"></rect><rect fill="rgb(255, 105, 0)" y="20" x="100" height="10" width="50.0"></rect><rect fill="rgb(255, 0, 0)"   y="20" x="150" height="10" width="50.0"></rect><rect fill="rgb(135, 0, 59)"  y="20" x="200" height="10" width="50.0"></rect><rect fill="rgb(107, 0, 25)"  y="20" x="250" height="10" width="50.0"></rect><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="40" x="10">Good</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="40" x="55">Moderate</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="40" x="105">Unhealthy</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="40" x="150">+Unhealthy</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="40" x="200">++Unhealthy</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="40" x="255">Hazardous</text></svg></td></tr>';
       legend_html += '<tr id="expanding-cities-legend" style="display: none"><td><div style="background-color:silver; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -16px; font-size: 17px">Expanding Cities <span class="credit"> (Igarapé)</span></div></div></td></tr>';
       legend_html += '<tr id="irena-legend" style="display: none"><td><div style="font-size: 15px">Electric Capacity per Country<span class="credit"> (IRENA)</span></div><svg class="svg-legend" width="240" height="170"><circle class="gain" r="10" cx="15" cy="10" style="fill: blue; stroke: #fff;"></circle> <text x="30" y="15" style="font-size: 12px; fill: #fff">Wind power (GWh)</text> <circle class="gain" r="10" cx="15" cy="35" style="fill: purple; stroke: #fff;"></circle><text x="30" y="40" style="font-size: 12px; fill: #fff">Solar power (GWh)</text> <circle r="25.0" cx="120.0" cy="122.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle><circle r="40.0" cx="120.0" cy="107.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle><circle r="50.0" cx="120.0" cy="97.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle><text text-anchor="middle" x="120.0" y="112.0" dy="13" style="font-size: 10px; fill: #fff">25K</text><text text-anchor="middle" x="120.0" y="77.0" dy="13" style="font-size: 10px; fill: #fff">64K</text><text text-anchor="middle" x="120.0" y="52.0" dy="13" style="font-size: 10px; fill: #fff">100K</text></svg></td></tr>';
-
       var tsipStr = '<div style="font-size: 15px">Toxic Sites Identification Program<span class="credit"> (PureEarth)</span></div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: brown; stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">Sites (size relative to Blacksmith Index)</text><!--<circle r="10.0" cx="120.0" cy="50" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle><text text-anchor="middle" x="120.0" y="45" dy="10" style="font-size: 10px; fill: #fff">5</text><circle r="20.0" cx="120.0" cy="40" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle><text text-anchor="middle" x="120.0" y="25" dy="10" style="font-size: 10px; fill: #fff">10</text>--></svg>';
       var tsipLegend = new BubbleMapLegend({"id" : "tsip", "str": tsipStr});
       legend_html += tsipLegend.toString();
-
       legend_html += '<tr id="sp-crude-legend" style="display: none"><td><div style="font-size: 15px">Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="220"><circle class="gain" r="10" cx="15" cy="10" style="fill: red; stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">Middle East</text><circle class="gain" r="10" cx="15" cy="35" style="fill: blue; stroke: #fff;"></circle><text x="30" y="40" style="font-size: 12px; fill: #fff">North Africa</text><circle class="gain" r="10" cx="15" cy="60" style="fill: green; stroke: #fff;"></circle><text x="30" y="65" style="font-size: 12px; fill: #fff">North Sea</text><circle class="gain" r="10" cx="15" cy="85" style="fill: yellow; stroke: #fff;"></circle><text x="30" y="90" style="font-size: 12px; fill: #fff">Urals</text><circle class="gain" r="10" cx="15" cy="110" style="fill: purple; stroke: #fff;"></circle><text x="30" y="115" style="font-size: 12px; fill: #fff">US Golf Coast</text><circle class="gain" r="10" cx="15" cy="135" style="fill: orange; stroke: #fff;"></circle><text x="30" y="140" style="font-size: 12px; fill: #fff">West Africa</text></svg></td></tr>';
       legend_html += '<tr id="sp-crude-legend_AG" style="display: none"><td><div style="font-size: 15px">Arab Gulf Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: rgb(228, 26, 28); stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">Arab Gulf</text></svg></td></tr>';
       legend_html += '<tr id="sp-crude-legend_WAF" style="display: none"><td><div style="font-size: 15px">West Africa Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: rgb(255, 127, 0); stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">West Africa</text></svg></td></tr>';
@@ -5603,6 +5602,10 @@
 
       $(layer_html).appendTo($("#layers-menu"));
       $(legend_html).appendTo($("#timeMachine .player"));
+
+      if (showExtrasMenu) {
+        $(".extras-selector-div").show();
+      }
 
       if (enableLetterboxMode) {
         $(".presentationSlider, .current-location-text-container, .annotations-resume-exit-container, .annotation-nav, .player, #csvChartContainer").addClass("letterbox");

@@ -170,6 +170,9 @@ html, body {
 .customHelpLabel {
   display: none !important;
 }
+.extras-selector-div {
+  display: none;
+}
 .extras-content-video {
   position: absolute !important;
   top: 0px !important;
