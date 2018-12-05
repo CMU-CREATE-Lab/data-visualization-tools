@@ -3709,41 +3709,52 @@
       // Use click event rather than selectmenu 'change' since that event is not registered on the touch screen.
       $(".ui-selectmenu-menu").on("click", "li", function(e) {
         $lastSelectedExtra = $(e.currentTarget);
+
         // Reset automode timer, since clicking a waypoint now closes the extras pop-up.
         if (snaplapseViewerForPresentationSlider) {
           snaplapseViewerForPresentationSlider.startAutoModeIdleTimeout();
         }
+
         var relativePath = "../../../extras/";
-        var filePath = relativePath + $(e.currentTarget).data("filepath");
-        var fileType = $(e.currentTarget).data("type");
-        var playbackRate = $(e.currentTarget).data("playbackrate");
-        $("#extras-content").dialog('option', 'title', $(e.currentTarget).text());
+        var filePath = relativePath + $lastSelectedExtra.data("filepath");
+        var fileType = $lastSelectedExtra.data("type");
+        var playbackRate = $lastSelectedExtra.data("playbackrate");
+        var extrasName = $lastSelectedExtra.data("name");
+
+        if (extrasName.indexOf("_storyFriendlyDialog_") > 0 && $(".presentationSlider").is(":visible")) {
+          $(".extras-content-dialog .ui-dialog-titlebar").hide();
+          $("#extras-content-container, .extras-content-dialog").addClass("storyFriendlyDialog");
+        } else {
+          $("#extras-content-container, .extras-content-dialog").removeClass("storyFriendlyDialog");
+          $("#extras-content-container").dialog('option', 'title', $lastSelectedExtra.text());
+        }
+
         var $extrasHtml = "";
         if (fileType == "image") {
           $extrasHtml = '<img id="extras-image" src="' + filePath + '">';
-          $("#extras-content").html($extrasHtml).dialog("open");
+          $("#extras-content-container").html($extrasHtml).dialog("open");
         } else if (fileType == "video") {
           $extrasHtml = '<video id="extras-video" src="' + filePath + '" controls autoplay></video>';
-          $("#extras-content").html($extrasHtml).dialog("open");
+          $("#extras-content-container").html($extrasHtml).dialog("open");
           $("#extras-video")[0].playbackRate = playbackRate;
           $("#extras-video").gVideo({
             childtheme: 'smalldark'
           });
         } else if (fileType == "iframe") {
           $extrasHtml = '<iframe id="extras-iframe" src="' + filePath + '"></iframe>';
-          $("#extras-content").html($extrasHtml).dialog("open");
+          $("#extras-content-container").html($extrasHtml).dialog("open");
         } else if (fileType == "link") {
           window.location.href = filePath;
         }
       });
 
-      $("#extras-content").dialog({
+      $("#extras-content-container").dialog({
         appendTo: "#timeMachine",
         modal: false,
         autoOpen: false,
         draggable: false,
         resizable: false,
-        dialogClass: "extras-content-video",
+        dialogClass: "extras-content-dialog",
         open: function(event, ui) {
           $("#timeMachine").removeClass("presentationSliderSelection presentationSliderSelectionOverflow");
         },
@@ -6782,7 +6793,7 @@
             timelapse.addParabolicMotionStoppedListener(parabolicMotionStoppedListener);
 
             // Close the extra content pop-up if a waypoint is clicked.
-            $('#extras-content').dialog('close');
+            $('#extras-content-container').dialog('close');
           }
         });
         // End snaplapseViewerForPresentationSlider check
@@ -9732,7 +9743,7 @@
       </div>
       <div class="next-annotation-location annotation-nav" title="Next slide"></div>
     </div>
-    <div id="extras-content" title=""></div>
+    <div id="extras-content-container" title=""></div>
     <div id="logosContainer" class="unselectable">
       <div id="productLogo">EarthTime</div>
       <div id="contributors">CMU CREATE Lab</div>

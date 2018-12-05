@@ -173,7 +173,7 @@ html, body {
 .extras-selector-div {
   display: none;
 }
-.extras-content-video {
+.extras-content-dialog {
   position: absolute !important;
   top: 0px !important;
   left: 0px !important;
@@ -182,8 +182,9 @@ html, body {
   height: auto !important;
   width: auto !important;
   background: black !important;
+  border: 0px !important;
 }
-#extras-content {
+#extras-content-container {
   display: none;
   z-index: 1000;
   padding: 0;
@@ -201,6 +202,12 @@ html, body {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+}
+#extras-content-container.storyFriendlyDialog {
+  top: 0px !important;
+}
+.extras-content-dialog.storyFriendlyDialog {
+  height: calc(100% - 98px) !important;
 }
 .ghinda-video-player {
   width: 100% !important;
@@ -623,7 +630,7 @@ html, body {
   position: absolute;
   bottom: 88px;
   right: calc(50% - 220px);
-  z-index: 99;
+  z-index: 101;
   pointer-events: none;
 }
 
