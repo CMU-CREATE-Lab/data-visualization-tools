@@ -8016,6 +8016,11 @@
       }
 
       canvasLayer.resize_();
+
+      if (typeof windVectorsLayer != "undefined" && typeof windVectorsLayer._tileView != "undefined" && typeof windVectorsLayer._tileView._tiles["000000000000000"] != "undefined"
+        ) {
+        windVectorsLayer._tileView._tiles["000000000000000"].resizeWindVectors()
+      }
     }
 
     function resizeLayersMenu() {

@@ -222,9 +222,13 @@ WebGLVectorTile2.prototype._setWindVectorsData = function(data) {
   this.windData.image = windImage;
   windImage.src = this._url.replace("json", "png");
 
+  /*
   var emptyPixels = new Uint8Array(gl.canvas.width * gl.canvas.height * 4);
   this.backgroundTexture = glb.createTexture(gl.NEAREST, emptyPixels, gl.canvas.width, gl.canvas.height);
   this.screenTexture = glb.createTexture(gl.NEAREST, emptyPixels, gl.canvas.width, gl.canvas.height);
+  */
+
+  this.resizeWindVectors();
 
   windImage.onload = function () {
     that.windTexture = that.glb.createTexture(that.gl.LINEAR, that.windData.image);
@@ -237,6 +241,14 @@ WebGLVectorTile2.prototype._setWindVectorsData = function(data) {
 
 }
 
+WebGLVectorTile2.prototype.resizeWindVectors = function() {
+  var gl = this.gl;
+
+  var emptyPixels = new Uint8Array(gl.canvas.width * gl.canvas.height * 4);
+  this.backgroundTexture = glb.createTexture(gl.NEAREST, emptyPixels, gl.canvas.width, gl.canvas.height);
+  this.screenTexture = glb.createTexture(gl.NEAREST, emptyPixels, gl.canvas.width, gl.canvas.height);
+
+}
 
 function getColorRamp(colors) {
     var canvas = document.createElement('canvas');
