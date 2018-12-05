@@ -1755,6 +1755,8 @@
           WebglVideoTile.useGreenScreen = false;
           timelapse.setMasterPlaybackRate(1.0);
           $("#baseLayerCreditContainer").hide();
+          $("#annual-pm25-legend").show();
+
         } else {
           showAnnualGlobalPm25TimeMachineLayer = false;
           cacheLastUsedLayer(annualGlobalPm25TimeMachineLayer);
@@ -1765,6 +1767,7 @@
           v.setFps(10);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
           $("#baseLayerCreditContainer").show();
+          $("#annual-pm25-legend").hide();
         }
       }).prop('checked', showAnnualGlobalPm25TimeMachineLayer);
 
@@ -5585,6 +5588,8 @@
       legend_html += '<tr id="sp-crude-legend_Oceania" style="display: none"><td><div style="font-size: 15px">Oceania Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: rgb(166, 86, 40); stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">Oceania</text></svg></td></tr>';
       legend_html += '<tr id="sp-crude-legend_Urals" style="display: none"><td><div style="font-size: 15px">Urals Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: rgb(255, 255, 51); stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">Urals</text></svg></td></tr>';
       legend_html += '<tr id="gdpPpp" style="display: none"><td><div style="font-size: 15px">GDP pc PPP<span> (Kummu et al.)</div><div><img src="https://tiles.earthtime.org/colormaps/black-no-value-darkblue-cyan-green-lightyellow-orange-deeppink-darkred.png" style="border:1px solid grey; width:200px; height:10px; margin-top:2px; position:relative; top:3px; background-color:black"></div><div style="width: 200px; font-size: 9px"><span>0</span><span style="padding-left: 30px">25x10<sup>6</sup><span style="padding-left: 20px">50x10<sup>6</sup><span style="padding-left: 20px">75x10<sup>6</sup></span><span style="padding-left: 20px">100x10<sup>6</sup></span></div></td></tr>';
+
+      legend_html += '<tr id="annual-pm25-legend" style="display: none"><td><div style="font-size: 15px">Annual PM2.5<span> (NASA)</div><div><img src="https://tiles.earthtime.org/colormaps/pm25-who-annual.png" style="border:1px solid grey; width:200px; height:10px; margin-top:2px; position:relative; top:3px; background-color:black"></div><div style="width: 200px; font-size: 9px"><span>0</span><span style="padding-left: 35px">10<span style="padding-left: 20px">20<span style="padding-left: 20px">50</span><span style="padding-left: 20px">100</span><span style="padding-left: 20px">>100</span></div><div style="width: 200px; font-size: 9px">micrograms per cubic meter</div></td></tr>';
 
       // ## 5b ##
       //// Add to layer legend ////
