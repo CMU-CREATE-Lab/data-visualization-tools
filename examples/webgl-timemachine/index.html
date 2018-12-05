@@ -7258,7 +7258,7 @@
         // Move annotation to top left
         $(".current-location-text-container, .annotation-nav").addClass("letterbox");
         // Remove top nav, side control panel, search box, and timelines
-        $("#top-nav, #controlsContainer, .location_search_div, .customControl, .controls").remove();
+        $("#controlsContainer, .location_search_div, .customControl, .controls").remove();
         disableTopNav = true;
         // Hide presentation slider so that it's still usable via keyboard/clicker but not shown on screen
         handleStoryToggle(false);
@@ -7267,7 +7267,7 @@
         $(".captureTime").insertBefore(".controls");
         $(".captureTime, .scaleBarContainer, #logosContainer, #baseLayerCreditContainer").addClass("minimalUIMode");
         // Remove top-nav, side control panel, search box, timelines, scalebar, logos and legend
-        $("#top-nav, #controlsContainer, .location_search_div, .customControl, .controls, .scaleBarContainer, #baseLayerCreditContainer, #logosContainer, #layers-legend").remove();
+        $("#controlsContainer, .location_search_div, .customControl, .controls, .scaleBarContainer, #baseLayerCreditContainer, #logosContainer, #layers-legend").remove();
         disableTopNav = true;
       }
 
@@ -7276,13 +7276,14 @@
       }
 
       if (presentationMode) {
-        $("#top-nav, .current-location-text-container, .annotation-nav, .annotations-resume-exit-container").remove();
+        $(".current-location-text-container, .annotation-nav, .annotations-resume-exit-container").remove();
         $("#controlsContainer, #layers-legend").css("top", "20px");
+        disableTopNav = true;
       }
 
       if (disableUI) {
         // Remove top nav, side control panel, search box, timelines, scalebar, logos and legend
-        $("#top-nav, #controlsContainer, .location_search_div, .customControl, .controls, .scaleBarContainer, .captureTime, #baseLayerCreditContainer, #logosContainer, #layers-legend").remove();
+        $("#controlsContainer, .location_search_div, .customControl, .controls, .scaleBarContainer, .captureTime, #baseLayerCreditContainer, #logosContainer, #layers-legend").remove();
         disableTopNav = true;
       }
 
