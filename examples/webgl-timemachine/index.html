@@ -3721,10 +3721,16 @@
         var playbackRate = $lastSelectedExtra.data("playbackrate");
         var extrasName = $lastSelectedExtra.data("name");
 
-        if (extrasName.indexOf("_storyFriendlyDialog_") > 0 && $(".presentationSlider").is(":visible")) {
+        if (disableUI) {
+          // Fit to window, without title bar
+          $(".extras-content-dialog .ui-dialog-titlebar").hide();
+          $("#extras-content-container").addClass("storyFriendlyDialog");
+        } else if (extrasName.indexOf("_storyFriendlyDialog_") > 0 && $(".presentationSlider").is(":visible")) {
+          // Fit to window, without title bar and minus height of waypoint slider
           $(".extras-content-dialog .ui-dialog-titlebar").hide();
           $("#extras-content-container, .extras-content-dialog").addClass("storyFriendlyDialog");
         } else {
+          // Fit to window, keep title bar
           $("#extras-content-container, .extras-content-dialog").removeClass("storyFriendlyDialog");
           $("#extras-content-container").dialog('option', 'title', $lastSelectedExtra.text());
         }
