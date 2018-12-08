@@ -516,8 +516,8 @@ WebGLVectorTile2.prototype._loadBivalentBubbleMapDataFromCsv = function() {
       var has_lat_lon = (
         header[1].substr(0,3).toLowerCase() == 'lat' &&
         header[2].substr(0,3).toLowerCase() == 'lon');
-      var has_packedColor = (header[3].substr(0,11).toLowerCase() == 'packedcolor');
-      var first_data_col = has_packedColor ? 4 : (has_lat_lon ? 3 : 1);
+      var has_packedColor = (header[3] && header[3].substr(0,11).toLowerCase() == 'packedcolor');
+      var first_data_col = has_packedColor ? (has_lat_lon ? 4 : 2) : (has_lat_lon ? 3 : 1);
 
       var epochs = duplicateRow(0, getEpochs(first_data_col, header));
       var pointValues = [];
@@ -632,7 +632,7 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
         header[1].substr(0,3).toLowerCase() == 'lat' &&
         header[2].substr(0,3).toLowerCase() == 'lon');
       var has_packedColor = (header[3] && header[3].substr(0,11).toLowerCase() == 'packedcolor');
-      var first_data_col = has_packedColor ? 4 : (has_lat_lon ? 3 : 1);
+      var first_data_col = has_packedColor ? (has_lat_lon ? 4 : 2) : (has_lat_lon ? 3 : 1);
       var epochs = [];
       var points = [];
       var maxValue = 0;
@@ -850,7 +850,7 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
         header[1].substr(0,3).toLowerCase() == 'lat' &&
         header[2].substr(0,3).toLowerCase() == 'lon');
       var has_packedColor = (header[3] && header[3].substr(0,11).toLowerCase() == 'packedcolor');
-      var first_data_col = has_packedColor ? 4 : (has_lat_lon ? 3 : 1);
+      var first_data_col = has_packedColor ? (has_lat_lon ? 4 : 2) : (has_lat_lon ? 3 : 1);
 
       var epochs = [];
       var points = [];
@@ -1288,12 +1288,12 @@ WebGLVectorTile2.prototype._setColorDotmapDataFromBox = function(tileDataF32) {
   Workers.call('WebGLVectorTile2Worker.js', 'computeColorDotmapFromBox', requestArgs, function(response) {
     var tileData = new Uint8Array(tileDataF32.buffer);
     // Iterate through the raster, creating dots on the fly
-    
+
     var gl = tile.gl;
-    
+
     tile._pointCount = response.pointCount;
     tile._ready = true;
-    
+
     if (tile._pointCount > 0) {
       tile._data = response.data;
       tile._arrayBuffer = gl.createBuffer();
@@ -3096,7 +3096,7 @@ WebGLVectorTile2.prototype._drawPointSizeColorEpoch = function(transform, option
     }
 
     var epochRange = options.epochRange || 365*24*60*60;
-    
+
     var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
     gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
 
@@ -3379,7 +3379,7 @@ WebGLVectorTile2.prototype._drawWindVectors = function(transform, options) {
               this._bounds.max.x - this._bounds.min.x,
               this._bounds.max.y - this._bounds.min.y);
 
-    
+
     var tl = LngLatToPixelXY(options.bbox.tl.lng, options.bbox.tl.lat);
     var br = LngLatToPixelXY(options.bbox.br.lng, options.bbox.br.lat);
 
@@ -5033,14 +5033,14 @@ WebGLVectorTile2.basicSquareFragmentShader =
 WebGLVectorTile2.WindVectorsShaders = {};
 
 
-WebGLVectorTile2.WindVectorsShaders.drawVertexShader = 
+WebGLVectorTile2.WindVectorsShaders.drawVertexShader =
 "precision mediump float;\n\n" +
 "attribute float a_index;\n\n" +
 "uniform sampler2D u_particles;\n" +
 "uniform float u_particles_res;\n\n" +
-"//uniform vec2 u_scale;\n\n" + 
-"//uniform vec2 u_translate;\n\n" + 
-"uniform mat4 u_transform;\n\n" + 
+"//uniform vec2 u_scale;\n\n" +
+"//uniform vec2 u_translate;\n\n" +
+"uniform mat4 u_transform;\n\n" +
 "varying vec2 v_particle_pos;\n\n" +
 "void main() {\n" +
 "    vec4 color = texture2D(u_particles, vec2(fract(a_index / u_particles_res), floor(a_index / u_particles_res) / u_particles_res));\n\n" +
@@ -5050,12 +5050,12 @@ WebGLVectorTile2.WindVectorsShaders.drawVertexShader =
 "    //vec2 pos = vec2(u_scale.x*(v_particle_pos.x + u_translate.x), u_scale.y*(v_particle_pos.y + u_translate.y));\n" +
 "    gl_Position = u_transform * vec4(v_particle_pos.x, v_particle_pos.y, 0., 1.);\n" +
 "    //gl_Position = vec4(2.0 * pos.x - 1.0, 1.0 - 2.0 * pos.y, 0, 1);\n" +
-"    //gl_Position = vec4(2.0 * v_particle_pos.x - 1.0,\n"+ 
+"    //gl_Position = vec4(2.0 * v_particle_pos.x - 1.0,\n"+
 "    //                   1.0 - 2.0 * v_particle_pos.y,\n"+
 "    //                   0, 1);\n" +
 "}\n";
 
-WebGLVectorTile2.WindVectorsShaders.drawFragmentShader = 
+WebGLVectorTile2.WindVectorsShaders.drawFragmentShader =
 "precision mediump float;\n\n" +
 "uniform sampler2D u_wind;\n" +
 "uniform vec2 u_wind_min;\n" +
@@ -5072,19 +5072,19 @@ WebGLVectorTile2.WindVectorsShaders.drawFragmentShader =
 "    gl_FragColor = texture2D(u_color_ramp, ramp_pos);\n" +
 "}\n";
 
-WebGLVectorTile2.WindVectorsShaders.quadVertexShader = 
+WebGLVectorTile2.WindVectorsShaders.quadVertexShader =
 "precision mediump float;\n\n" +
 "attribute vec2 a_pos;\n\n" +
 "varying vec2 v_tex_pos;\n\n" +
-"//uniform vec2 u_scale;\n\n" + 
-"//uniform vec2 u_translate;\n\n" + 
+"//uniform vec2 u_scale;\n\n" +
+"//uniform vec2 u_translate;\n\n" +
 "void main() {\n" +
 "    v_tex_pos = a_pos;\n" +
 "    gl_Position = vec4(1.0 - 2.0 * a_pos, 0, 1);\n" +
 "    }\n";
 
 
-WebGLVectorTile2.WindVectorsShaders.screenFragmentShader = 
+WebGLVectorTile2.WindVectorsShaders.screenFragmentShader =
 "precision mediump float;\n\n" +
 "uniform sampler2D u_screen;\n" +
 "uniform float u_opacity;\n\n" +
@@ -5098,7 +5098,7 @@ WebGLVectorTile2.WindVectorsShaders.screenFragmentShader =
 "    gl_FragColor = vec4(192./256.,192./256.,192./256.,rgba.a);\n" +
 "}\n";
 
-WebGLVectorTile2.WindVectorsShaders.updateFragmentShader = 
+WebGLVectorTile2.WindVectorsShaders.updateFragmentShader =
 "precision highp float;\n\n\n" +
 "uniform sampler2D u_particles;\n\n" +
 "uniform sampler2D u_wind;\n\n" +
@@ -5157,9 +5157,9 @@ WebGLVectorTile2.WindVectorsShaders.updateFragmentShader =
 "        gl_FragColor = vec4(fract(pos * 255.0), floor(pos * 255.0) / 255.0);" +
 "    }\n";
 
-WebGLVectorTile2.WindVectorsShaders.mapVertexShader = '' + 
+WebGLVectorTile2.WindVectorsShaders.mapVertexShader = '' +
   'attribute vec2 a_pos;\n' +
-  "uniform mat4 u_transform;\n\n" + 
+  "uniform mat4 u_transform;\n\n" +
   'varying vec2 v_tex_pos;\n' +
 
   'void main(void) {\n' +
@@ -5169,7 +5169,7 @@ WebGLVectorTile2.WindVectorsShaders.mapVertexShader = '' +
   '}\n';
 
 
-WebGLVectorTile2.WindVectorsShaders.mapFragmentShader = '' + 
+WebGLVectorTile2.WindVectorsShaders.mapFragmentShader = '' +
   'precision mediump float;\n' +
   'varying vec2 v_tex_pos;\n' +
   'uniform sampler2D u_wind;\n' +
