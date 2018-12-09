@@ -16,7 +16,7 @@ self.addEventListener('message', function(e) {
 }, false);
 
 var getJson = function(rootUrl, code, year, exporters, importers, scale, callback) {
-    var url = rootUrl + '/sitc4r2/'+ code + '/' + year + '.json';
+    var url = rootUrl + '/'+ code + '/' + year + '.json';
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url);
     xhr.onload = function() {

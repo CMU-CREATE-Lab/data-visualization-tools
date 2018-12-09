@@ -345,7 +345,7 @@ WebGLVectorTile2.prototype._loadSitc4r2Data = function () {
       return params;
   };
 
-  var re=/([0-9]{1,})\/([0-9]{4}).json/g;
+  var re=/([a-z0-9]{1,})\/([0-9]{4}).json/g;
   var myArray = re.exec(this._url);
   //console.log(this._url);
   this._sitc4r2Code = myArray[1].toString();
@@ -3258,7 +3258,19 @@ WebGLVectorTile2.prototype._initSitc4rcBuffer = function(code, year) {
     "buffer":null,
     "ready": false
   }
-  this.worker.postMessage({'year': year, 'code': code, 'exporters': this._exporters, "importers": this._importers, "scale": this._scale, "rootUrl": window.rootTilePath});
+  console.log(this._url);
+  var rootUrl = window.rootTilePath;
+  if (this._url.indexOf("http://") == 0 || this._url.indexOf("https://") == 0) {
+    var re=/([a-z0-9]{1,})\/([0-9]{4}).json/g;
+    var m = re.exec(this._url);
+    rootUrl = this._url.replace(m[0],"").split("?")[0];
+  } else {
+    var re=/([a-z0-9]{1,})\/([0-9]{4}).json/g;
+    var m = re.exec(this._url);
+    rootUrl += this._url.replace(m[0],"").split("?")[0];    
+  }
+  console.log(rootUrl)
+  this.worker.postMessage({'year': year, 'code': code, 'exporters': this._exporters, "importers": this._importers, "scale": this._scale, "rootUrl": rootUrl});
 }
 
 WebGLVectorTile2.prototype._drawSitc4r2 = function(transform, options) {
