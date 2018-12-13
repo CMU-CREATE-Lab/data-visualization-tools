@@ -28,7 +28,7 @@ var getJson = function(rootUrl, code, year, exporters, importers, scale, callbac
 }
 
 var setData = function(code, year, exporters, importers, scale, data) {
-    var prng = new Math.seedrandom('sitc4r2.');
+    var prng = new Math.seedrandom('sitc4r2.' + code);
     function shuffle (array) {
         var i = 0
         , j = 0
