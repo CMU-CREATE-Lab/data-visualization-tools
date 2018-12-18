@@ -34,6 +34,7 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
   this._noValue = opt_options.noValue || 'xxx';
   this._uncertainValue = opt_options.uncertainValue || '. .';
   this._layerDomId = opt_options.layerDomId;
+  this._color = opt_options.color;
   this._loadingSpinnerTimer = null;
   this._wasPlayingBeforeDataLoad = false;
   this.dotmapColors = opt_options.dotmapColors;
@@ -1005,6 +1006,39 @@ WebGLVectorTile2.prototype._setSitc4r2Buffer = function(sitc4r2Code, year, data)
   }
 }
 
+WebGLVectorTile2.prototype._setPointData = function(data) {
+  // Assumes GeoJSON data
+  var points = [];
+
+  if (typeof data.features != "undefined") {
+    for (var f = 0; f < data.features.length ; f++) {
+      var feature = data.features[f];
+      var packedColor;
+      if (typeof feature.properties.packed_color != "undefined") {
+        packedColor = feature.properties.packed_color;
+      } else {
+        if (this._color) {
+          packedColor = this._color[0]*255+ this._color[1]*255 * 255.0 + this._color[2]*255 * 255.0 * 255.0          
+        } else {
+          packedColor = 255.0;
+        }
+      }
+      if (feature.geometry.type != "MultiPoint") {
+        var pixel = LngLatToPixelXY(feature.geometry.coordinates[0], feature.geometry.coordinates[1]);
+        points.push(pixel[0], pixel[1], packedColor);
+      } else {
+        for (var j = 0; j < feature.geometry.coordinates.length; j++) {
+          var coords = feature.geometry.coordinates[j];
+          var pixel = LngLatToPixelXY(coords[0], coords[1]);
+          points.push(pixel[0], pixel[1], packedColor);
+        }
+      }
+    }
+    this._setBufferData(new Float32Array(points));
+    this._dataLoaded(this.layerId);
+  }
+}
+
 WebGLVectorTile2.prototype._setPolygonData = function(data) {
   // Assumes GeoJSON data
   var verts = [];
@@ -1013,12 +1047,22 @@ WebGLVectorTile2.prototype._setPolygonData = function(data) {
   if (typeof data.features != "undefined") {
     for (var f = 0; f < data.features.length ; f++) {
       var feature = data.features[f];
-      var packedColor = feature.properties.packed_color;
+      var packedColor;
+      if (typeof feature.properties.packed_color != "undefined") {
+        packedColor = feature.properties.packed_color;
+
+      } else {
+        if (this._color) {
+          packedColor = this._color[0]*255+ this._color[1]*255 * 255.0 + this._color[2]*255 * 255.0 * 255.0          
+        } else {
+          packedColor = 255.0;
+        }
+      }
         if (feature.geometry.type != "MultiPolygon") {
           var mydata = earcut.flatten(feature.geometry.coordinates);
           var triangles = earcut(mydata.vertices, mydata.holes, mydata.dimensions);
           for (var i = 0; i < triangles.length; i++) {
-            var pixel = LngLatToPixelXY(mydata.vertices[triangles[i]*2], mydata.vertices[triangles[i]*2 + 1]);
+            var pixel = LngLatToPixelXY(mydata.vertices[triangles[i]*mydata.dimensions], mydata.vertices[triangles[i]*mydata.dimensions + 1]);
             verts.push(pixel[0], pixel[1], packedColor);
           }
         } else {
@@ -1026,7 +1070,7 @@ WebGLVectorTile2.prototype._setPolygonData = function(data) {
             var mydata = earcut.flatten(feature.geometry.coordinates[j]);
             var triangles = earcut(mydata.vertices, mydata.holes, mydata.dimensions);
             for (var i = 0; i < triangles.length; i++) {
-              var pixel = LngLatToPixelXY(mydata.vertices[triangles[i]*2], mydata.vertices[triangles[i]*2 + 1]);
+              var pixel = LngLatToPixelXY(mydata.vertices[triangles[i]*mydata.dimensions], mydata.vertices[triangles[i]*mydata.dimensions + 1]);
               verts.push(pixel[0], pixel[1], packedColor);
             }
           }
@@ -2901,6 +2945,40 @@ WebGLVectorTile2.prototype._drawTsip = function(transform, options) {
   }
 }
 
+WebGLVectorTile2.prototype._drawPoint = function(transform, options) {
+  var gl = this.gl;
+  if (this._ready) {
+    gl.useProgram(this.program);
+    gl.enable(gl.BLEND);
+    gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
+
+    var tileTransform = new Float32Array(transform);
+    var zoom = options.zoom;
+    var currentTime = options.currentTime/1000.;
+    var color = options.color || [1.0, 0.0, 0.0, 1.0];
+
+    scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
+    scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+
+    var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
+    gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_coord');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 12, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_color');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 12, 8); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+
+    gl.drawArrays(gl.POINTS, 0, this._pointCount);
+    //gl.drawElements(gl.TRIANGLES, 170840, gl.UNSIGNED_SHORT, 0);
+    perf_draw_points(this._pointCount);
+    gl.disable(gl.BLEND);
+  }
+}
+
 WebGLVectorTile2.prototype._drawPolygon = function(transform, options) {
   var gl = this.gl;
   if (this._ready) {
@@ -4748,6 +4826,42 @@ WebGLVectorTile2.pointFlowFragmentShader =
 '  }\n';
 
 
+WebGLVectorTile2.pointVertexShader =
+'attribute vec4 a_coord;\n' +
+'attribute float a_color;\n' +
+'uniform mat4 u_map_matrix;\n' +
+'varying float v_color;\n' +
+'void main() {\n' +
+'    vec4 position;\n' +
+'    position = u_map_matrix * a_coord;\n' +
+'    gl_Position = position;\n' +
+'    gl_PointSize = 8.0;\n' +
+'    v_color = a_color;\n' +
+'}\n';
+
+WebGLVectorTile2.pointFragmentShader =
+'#extension GL_OES_standard_derivatives : enable\n' +
+'  precision mediump float;\n' +
+'  varying float v_color;\n' +
+'  vec4 unpackColor(float f) {\n' +
+'      vec4 color;\n' +
+'      color.b = floor(f / 255.0 / 255.0);\n' +
+'      color.g = floor((f - color.b * 255.0 * 255.0) / 255.0);\n' +
+'      color.r = floor(f - color.b * 255.0 * 255.0 - color.g * 255.0);\n' +
+'      color.a = 255.;\n' +
+'      return color / 255.0;\n' +
+'    }\n' +
+'  void main() {\n' +
+'    //float dist = length(gl_PointCoord.xy - vec2(.5,.5));\n' + 
+'    //float alpha = (dist > .5) ? .0 : 1.;\n' + 
+'    float r = 0.0, delta = 0.0, alpha = 1.0;\n' + 
+'    vec2 cxy = 2.0 * gl_PointCoord - 1.0;\n' + 
+'    r = dot(cxy, cxy);\n' + 
+'    delta = fwidth(r);\n' + 
+'    alpha = 1.0 - smoothstep(1.0 - delta, 1.0 + delta, r);\n' + 
+'    gl_FragColor = unpackColor(v_color) * alpha;\n' +
+'  }\n';
+
 WebGLVectorTile2.polygonVertexShader =
 'attribute vec4 a_coord;\n' +
 'attribute float a_color;\n' +
@@ -4766,11 +4880,11 @@ WebGLVectorTile2.polygonFragmentShader =
 '  varying float v_color;\n' +
 '  vec4 unpackColor(float f) {\n' +
 '      vec4 color;\n' +
-'      color.b = floor(f / 256.0 / 256.0);\n' +
-'      color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);\n' +
-'      color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);\n' +
+'      color.b = floor(f / 255.0 / 255.0);\n' +
+'      color.g = floor((f - color.b * 255.0 * 255.0) / 255.0);\n' +
+'      color.r = floor(f - color.b * 255.0 * 255.0 - color.g * 255.0);\n' +
 '      color.a = 255.;\n' +
-'      return color / 256.0;\n' +
+'      return color / 255.0;\n' +
 '    }\n' +
 '  void main() {\n' +
 '    gl_FragColor = unpackColor(v_color);\n' +
