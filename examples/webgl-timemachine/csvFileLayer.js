@@ -219,7 +219,9 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
       if (visibleBaseMapLayer != "dark") {
         $("#layers-list #dark-base").click();
       }
-      if (layer.mapType != "raster") {
+      if (layer.mapType != "raster" &&
+          (layer.layerDef["Start date"] == "" && layer.layerDef["End date"] == "") ||
+          (layer.layerDef["Start date"] != "" && layer.layerDef["Start date"] != layer.layerDef["End date"])) {
         setActiveLayersWithTimeline(1);
         timelineType = "defaultUI";
         requestNewTimeline(layer.layerId + ".json", timelineType);
@@ -640,6 +642,7 @@ const LOAD_DATA_FUNCTION_LOOKUP_TABLE = {
 const SET_DATA_FUNCTION_LOOKUP_TABLE = {
   "WebGLVectorTile2.prototype._setSitc4r2Buffer": WebGLVectorTile2.prototype._setSitc4r2Buffer,
   "WebGLVectorTile2.prototype._setPolygonData": WebGLVectorTile2.prototype._setPolygonData,
+  "WebGLVectorTile2.prototype._setPointData": WebGLVectorTile2.prototype._setPointData,
   "WebGLVectorTile2.prototype._setLineStringData": WebGLVectorTile2.prototype._setLineStringData,
   "WebGLVectorTile2.prototype._setExpandedLineStringData": WebGLVectorTile2.prototype._setExpandedLineStringData,
   "WebGLVectorTile2.prototype._setIomIdpData": WebGLVectorTile2.prototype._setIomIdpData,
