@@ -1014,8 +1014,8 @@ WebGLVectorTile2.prototype._setPointData = function(data) {
     for (var f = 0; f < data.features.length ; f++) {
       var feature = data.features[f];
       var packedColor;
-      if (typeof feature.properties.packed_color != "undefined") {
-        packedColor = feature.properties.packed_color;
+      if (typeof feature.properties.PackedColor != "undefined") {
+        packedColor = feature.properties.PackedColor;
       } else {
         if (this._color) {
           packedColor = this._color[0]*255+ this._color[1]*255 * 255.0 + this._color[2]*255 * 255.0 * 255.0          
@@ -4835,7 +4835,7 @@ WebGLVectorTile2.pointVertexShader =
 '    vec4 position;\n' +
 '    position = u_map_matrix * a_coord;\n' +
 '    gl_Position = position;\n' +
-'    gl_PointSize = 8.0;\n' +
+'    gl_PointSize = 12.0;\n' +
 '    v_color = a_color;\n' +
 '}\n';
 
