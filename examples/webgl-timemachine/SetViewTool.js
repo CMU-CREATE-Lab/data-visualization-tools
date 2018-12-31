@@ -202,17 +202,24 @@
 
     // Parse the capture time string to the format for the thumbnail server
     function parseCaptureTime(capture_time, flag) {
-      var default_month = (flag == "end") ? 12 : 1;
-      var default_day = (flag == "end") ? 31 : 1;
-      var split = capture_time.replace("UTC", "").replace(/[ T:]/g, "-").replace(".00Z", "").split("-");
-      var Y = parseInt(split[0]);
-      var M = parseInt(split[1]) || default_month;
-      var D = parseInt(split[2]) || default_day;
-      var h = parseInt(split[3]) || 0;
-      var m = parseInt(split[4]) || 0;
-      var s = parseInt(split[5]) || 0;
-      var len = (h == 0 && m == 0 && s == 0) ? 10 : 19;
-      return new Date(Date.UTC(Y, (M - 1), D, h, m, s)).toISOString().substr(0, len).replace(/[-T:]/g, "");
+      var parsed_capture_time;
+      var isNumber = !isNaN(capture_time);
+      if (!(isNumber && capture_time - 0 < 1000)) {
+        var default_month = (flag == "end") ? 12 : 1;
+        var default_day = (flag == "end") ? 31 : 1;
+        var split = capture_time.replace("UTC", "").replace(/[ T:]/g, "-").replace(".00Z", "").split("-");
+        var Y = parseInt(split[0]);
+        var M = parseInt(split[1]) || default_month;
+        var D = parseInt(split[2]) || default_day;
+        var h = parseInt(split[3]) || 0;
+        var m = parseInt(split[4]) || 0;
+        var s = parseInt(split[5]) || 0;
+        var len = (h == 0 && m == 0 && s == 0) ? 10 : 19;
+        parsed_capture_time = new Date(Date.UTC(Y, (M - 1), D, h, m, s)).toISOString().substr(0, len).replace(/[-T:]/g, "");
+      } else {
+        parsed_capture_time = timelapse.frameNumberToTime(timelapse.getCaptureTimes().indexOf(capture_time));
+      }
+      return parsed_capture_time;
     }
 
     // Collect the parameters from the user interface
