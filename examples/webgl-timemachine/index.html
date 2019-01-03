@@ -3642,15 +3642,21 @@
         }
         if (visibleBaseMapLayer == "landsat" && previousVisibleBaseMapLayer != "landsat") {
           timelapse.setMaxScale(landsatMaxScale);
-          setActiveLayersWithTimeline(1);
+          // TODO: Need to rethink this
+          if (activeLayersWithTimeline < 1) {
+            setActiveLayersWithTimeline(1);
+          }
+          // TODO: This special case may be out of sync with the edge cases elsewhere in the code
           if (!showViirsLayer) {
             timelineType = "customUI";
           }
         } else if (visibleBaseMapLayer != "landsat") {
-          timelapse.setMaxScale(rasterMapTileMaxScale);
-          if (previousVisibleBaseMapLayer == "landsat")
+          if (previousVisibleBaseMapLayer == "dark" || previousVisibleBaseMapLayer == "light") {
+            timelapse.setMaxScale(rasterMapTileMaxScale);
+            timelineType = "none";
+          } else {
             setActiveLayersWithTimeline(-1);
-          timelineType = "none";
+          }
         }
       });
 
@@ -4560,6 +4566,7 @@
           layer.visible = true;
           if (animationLayers) {
             setActiveLayersWithTimeline(1);
+            // TODO: Set the correct layer info
             visibleBaseMapLayer = "annual-pm25"; //?
             timelineType = "defaultUI";
             requestNewTimeline("annual-global-pm25-times.json", timelineType);
@@ -4577,6 +4584,8 @@
           // Turn off layer
           layer.visible = false;
           cacheLastUsedLayer(layer);
+          // TODO: If a dot map layer had a timeline then we need to decrement the count
+          // Also setting directly to customUI may not be correct
           timelineType = "customUI";
           requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
           $("#" + nickname + "-legend").hide();
@@ -6601,7 +6610,9 @@
             var himawariWaypoint = (himawariWaypoints[currentWaypointTheme] && himawariWaypoints[currentWaypointTheme][currentWaypointStory]) ? himawariWaypoints[currentWaypointTheme][currentWaypointStory][waypointIndex] : null;
           }
           isAutoModeRunning = snaplapseViewerForPresentationSlider.isAutoModeRunning();
-          lastSelectedAnnotationBeforeHidden = $("#" + waypointTitle.replace(/\W+/g, "_") + " .snaplapse_keyframe_list_item_thumbnail_overlay_presentation");
+          if (waypointTitle) {
+            lastSelectedAnnotationBeforeHidden = $("#" + waypointTitle.replace(/\W+/g, "_") + " .snaplapse_keyframe_list_item_thumbnail_overlay_presentation");
+          }
 
           // We are still technically using Landsat (web mercator) projections for any dataset being drawn,
           // so the bounds that slide-change returns is not valid for our use. But we already

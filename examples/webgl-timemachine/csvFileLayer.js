@@ -216,6 +216,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
     if ($this.prop('checked')) {
       // Turn on layer
       layer.getTileView().handleTileLoading({layerDomId: $this[0].id});
+      // TODO: Should not force dark map for every csv layer
       if (visibleBaseMapLayer != "dark") {
         $("#layers-list #dark-base").click();
       }
