@@ -5,9 +5,9 @@ earthtime._DEFAULT_EARTHTIME_SPREADSHEET = "https://docs.google.com/spreadsheets
 earthtime._DEFAULT_SHARE_VIEW = "https://earthtime.org/#v=4.56342,0,0.183,latLng&t=2.20&ps=50&l=blsat&bt=19840101&et=20161231";
 earthtime._STORY_AUTHOR_PRECEDING_TEXT = "Story by: ";
 
-earthtime._storyRegistrations = [];
+earthtime._storyRegistrations = {};
 
-earthtime._verboseLogging = false;
+earthtime._verboseLogging = true;
 
 earthtime._scriptDependencies = [
   '/config-local.js',                   // Defines EARTH_TIMELAPSE_CONFIG
@@ -71,13 +71,48 @@ earthtime._printLogging = function(str) {
 };
 
 /**
- * Returns '<code>landscape</code>' if <code>window.orientation</code> is undefined or equal to 90 or -90; returns
- * '<code>portrait</code>' otherwise.
- *
- * @return {string} string describing the current window orientation, will be one of '<code>landscape</code>' or '<code>portrait</code>'
+ * Recompute orientation landscape vs. portrait.  If orientation has changed, modify img and video src to match.
  */
-earthtime._getOrientationName = function() {
-  return (typeof window.orientation === 'undefined' || Math.abs(window.orientation) === 90 ? 'landscape' : 'portrait');
+earthtime._updateOrientation = function() {
+  var newOrientation = window.innerWidth > window.innerHeight * 0.75 ? 'landscape' : 'portrait';
+  if (earthtime._currentOrientation != newOrientation) {
+    // After changing orientation, we might be in a different location and need to change which image/video
+    // is displaying
+    window.setTimeout(earthtime._updateScrollPos, 200);
+    earthtime._printLogging('Changing to ' + newOrientation + ' orientation');
+    earthtime._currentOrientation = newOrientation;
+
+    // Loop over each story, updating img and video src to match new orientation
+    for (var elementId in earthtime._storyRegistrations) {
+      if (earthtime._storyRegistrations.hasOwnProperty(elementId)) {
+	
+	// Change orientation for story
+	var story = earthtime._storyRegistrations[elementId];
+	var storyContainerElement = story.containerElement;
+	var storyframes = storyContainerElement.querySelectorAll('.earthtime-story-frame');
+	
+	var videos = storyContainerElement.querySelectorAll('video');
+	
+	// get an array of all orientable elements
+	var orientableElements = storyContainerElement.querySelectorAll('.earthtime-orientable');
+	for (var i = 0; i < orientableElements.length; i++) {
+	  var element = orientableElements[i];
+	  // Get the name of the attribute we're going to modify, if defined.  Here's the deal: for <img> and <source>,
+	  // we need to modify the "src" attribute, so we'll just assume that as the default unless this element has an
+	  // attribute named "data-orientable-attribute" defined.  If it does, get the value of that attribute, which
+	  // specifies the name of the attribute we want to set here.  This allows us to set the "poster" attribute of
+	  // the <video> element.
+	  var orientableAttributeName = element.hasAttribute('data-orientable-attribute') ? element.getAttribute('data-orientable-attribute') : "src";
+	  var newSrc = element.getAttribute('data-src-' + earthtime._currentOrientation);
+	  element.setAttribute(orientableAttributeName, newSrc);
+	  if (element.nodeName == 'VIDEO') {
+	    element.load(); // load() is required for browser to recognize changed video src
+	  }
+	  console.log(element);
+	}
+      }
+    }
+  }
 };
 
 /**
@@ -87,11 +122,12 @@ earthtime._getOrientationName = function() {
 earthtime._compileHandlebarsTemplates = function() {
   earthtime._printLogging("Compiling handlebars templates:");
   var templateIds = Object.keys(earthtime._handlebarsTemplates);
-  templateIds.forEach(function(templateId, index) {
+  for (var i = 0; i < templateIds.length; i++) {
+    var templateId = templateIds[i];
     // overwrite the template with the compiled version
     earthtime._handlebarsTemplates[templateId] = earthtime.Handlebars.compile(earthtime._handlebarsTemplates[templateId]);
-    earthtime._printLogging("   (" + (index + 1) + "/" + templateIds.length + "): " + templateId);
-  });
+    earthtime._printLogging("   (" + (i + 1) + "/" + templateIds.length + "): " + templateId);
+  }
 };
 
 /**
@@ -150,9 +186,13 @@ earthtime._unpackVars = function(str, keepNullOrUndefinedVars) {
   }
   // Delete keys with null/undefined values
   if (!keepNullOrUndefinedVars) {
-    Object.keys(vars).forEach(function (key) {
-      return (vars[key] == null || key == "") && delete vars[key];
-    });
+    var keys = Object.keys(vars);
+    for (var i = 0; i < keys.length; i++) {
+      var key = keys[i];
+      if (vars[key] == null || key == "") {
+	delete vars[key];
+      }
+    }
   }
   return vars;
 };
@@ -280,13 +320,13 @@ earthtime._loadStory = function(storyName, containerElement, waypointsIdentifier
           var storyFrameTemplate;
           if (thumbnail.isPicture()) {
             storyFrameTemplate = earthtime._handlebarsTemplates['picture-template'];
-            context['src'] = thumbnail.getPng(earthtime._getOrientationName());
+            context['src'] = thumbnail.getPng(earthtime._currentOrientation);
             context['src_portrait'] = thumbnail.getPng('portrait');
             context['src_landscape'] = thumbnail.getPng('landscape');
           }
           else {
             storyFrameTemplate = earthtime._handlebarsTemplates['video-template'];
-            var currentOrientation = earthtime._getOrientationName();
+            var currentOrientation = earthtime._currentOrientation;
             context['poster_src'] = thumbnail.getPng(currentOrientation);
             context['poster_src_portrait'] = thumbnail.getPng('portrait');
             context['poster_src_landscape'] = thumbnail.getPng('landscape');
@@ -315,12 +355,6 @@ earthtime._loadStory = function(storyName, containerElement, waypointsIdentifier
           }
         }
       }
-      
-      // set the videos playing
-      var videos = containerElement.querySelectorAll('video');
-      for (var i = 0; i < videos.length; i++) {
-        videos[i].play();
-      }
     }
   });
 };
@@ -329,66 +363,46 @@ earthtime._generateAuthorText = function(author) {
   return (author && author.toLowerCase().indexOf("story by:") != 0 ? earthtime._STORY_AUTHOR_PRECEDING_TEXT + author : author);
 };
 
-earthtime._createScrollHandler = function(storyContainerElement) {
-  // props go to Randy for this magic :-)
-  return function() {
-    var storyframes = storyContainerElement.querySelectorAll('.earthtime-story-frame');
-    var found = false;
-    for (var i = storyframes.length - 1; i >= 0; i--) {
-      var frame = storyframes[i];
-      var child = frame.children[0];
-      // Find the lowest frame that's started to scroll off the top of the screen and freeze it with position=fixed
-      // The first frame will scroll until it starts to go off the top and then is fixed
-      // The final is duplicated;  the final-final never is fixed and only scrolls
-      if (!found && frame.getBoundingClientRect().top < 0) {
-        if (i != storyframes.length - 1) {
-          child.style.position = 'fixed';
-          child.style.top = '0px';
-        }
-        found = true;
-      }
-      else {
-        child.style.position = 'relative';
-      }
-    }
-  };
-};
+earthtime._updateScrollPos = function(e) {
+  // Loop over each story
+  for (var elementId in earthtime._storyRegistrations) {
+    if (earthtime._storyRegistrations.hasOwnProperty(elementId)) {
+      // Handle scroll for story
+      var story = earthtime._storyRegistrations[elementId];
+      var storyContainerElement = story.containerElement;
+      var storyframes = storyContainerElement.querySelectorAll('.earthtime-story-frame');
+      var found = false;
+      for (var i = storyframes.length - 1; i >= 0; i--) {
+	var frame = storyframes[i];
+	var child = frame.children[0];
+	var video = child.children[0].nodeName == 'VIDEO' ? child.children[0] : null;
 
-/**
- * Creates and returns a function to handle window orientation changes for story in the given
- * <code>storyContainerElement</code>.
- *
- * @param storyContainerElement the DOM element containing the story
- * @return {Function} the event handler function
- */
-earthtime._createOrientationChangeHandler = function(storyContainerElement) {
-  return function() {
-    // get the new orientation name
-    var newOrientationName = earthtime._getOrientationName();
-    
-    // pause all the videos (not sure I need to do this, but whatever)
-    var videos = storyContainerElement.querySelectorAll('video');
-    for (var i = 0; i < videos.length; i++) {
-      videos[i].pause();
-    }
-    
-    // get an array of all orientable elements
-    var orientableElements = storyContainerElement.querySelectorAll('.earthtime-orientable');
-    orientableElements.forEach(function(element) {
-      // Get the name of the attribute we're going to modify, if defined.  Here's the deal: for <img> and <source>,
-      // we need to modify the "src" attribute, so we'll just assume that as the default unless this element has an
-      // attribute named "data-orientable-attribute" defined.  If it does, get the value of that attribute, which
-      // specifies the name of the attribute we want to set here.  This allows us to set the "poster" attribute of
-      // the <video> element.
-      var orientableAttributeName = element.hasAttribute('data-orientable-attribute') ? element.getAttribute('data-orientable-attribute') : "src";
-      var newSrc = element.getAttribute('data-src-' + newOrientationName);
-      element.setAttribute(orientableAttributeName, newSrc);
-    });
-    
-    // load and play all the videos
-    for (var i = 0; i < videos.length; i++) {
-      videos[i].load();
-      videos[i].play();
+	// Find the lowest frame that's started to scroll off the top of the screen and
+	// freeze it with position=fixed
+	// The first frame will scroll until it starts to go off the top and then is fixed
+	// The final is duplicated;  the final-final never is fixed and only scrolls
+	if (!found && frame.getBoundingClientRect().top < 0) {
+          if (i != storyframes.length - 1) {
+            child.style.position = 'fixed';
+            child.style.top = '0px';
+          }
+          found = true;
+	  // If currently shown is a video, make sure it's playing
+	  if (video && video.paused) {
+	    earthtime._printLogging('Playing ' + elementId + ':' + i); 
+	    video.play();
+	  }
+	}
+	else {
+          child.style.position = 'relative';
+	  // For videos playing but not currently shown, pause and seek to beginning
+	  if (video && !video.paused) {
+	    earthtime._printLogging('Pausing ' + elementId + ':' + i); 
+	    video.pause();
+	    video.currentTime = 0;
+	  }
+	}
+      }
     }
   };
 };
@@ -404,11 +418,11 @@ earthtime._createOrientationChangeHandler = function(storyContainerElement) {
 earthtime.registerStory = function(storyName, elementId) {
   storyName = storyName.replace(/_/g,' ');
   earthtime._printLogging("Registering story [" + storyName + "] into element [" + elementId + "]");
-  earthtime._storyRegistrations.push({
+  earthtime._storyRegistrations[elementId] = {
     name : storyName,
     containerElementId : elementId,
     containerElement : document.getElementById(elementId)
-  });
+  };
 }
 
 /**
@@ -432,20 +446,23 @@ earthtime.embedStories = function(config) {
     // if we're done loading all the script dependencies, then compile the templates then load the stories
     if (numScriptsLoaded === earthtime._scriptDependencies.length) {
       earthtime._compileHandlebarsTemplates();
+      earthtime._updateOrientation();
       
       // Precedence is story editor public link, config-local.js/config.js on ET server specified by earthtimeDomain, or lastly default spreadsheet
       var waypointsIdentifierUrl = config.earthtimeSpreadsheet || EARTH_TIMELAPSE_CONFIG.waypointSliderContentPath || earthtime._DEFAULT_EARTHTIME_SPREADSHEET;
       
+      // create scroll and orientation change handlers for the story
+      window.addEventListener('scroll', earthtime._updateScrollPos);
+      window.addEventListener('resize', earthtime._updateOrientation);
+
       earthtime._printLogging("Loading stories:");
-      earthtime._storyRegistrations.forEach(function(story, i) {
-        // create scroll and orientation change handlers for the story
-        window.addEventListener('scroll', earthtime._createScrollHandler(story.containerElement));
-        window.addEventListener('orientationchange', earthtime._createOrientationChangeHandler(story.containerElement));
-	
-        // load it
-        earthtime._loadStory('#' + story.name, story.containerElement, waypointsIdentifierUrl);
-        earthtime._printLogging("   (" + (i + 1) + "/" + earthtime._storyRegistrations.length + "): " + story.name);
-      });
+      for (var elementId in earthtime._storyRegistrations) {
+	if (earthtime._storyRegistrations.hasOwnProperty(elementId)) {
+	  var story = earthtime._storyRegistrations[elementId];
+          earthtime._loadStory('#' + story.name, story.containerElement, waypointsIdentifierUrl);
+          earthtime._printLogging("   " + elementId + ": " + story.name);
+	}
+      }
     }
   };
   
@@ -455,9 +472,10 @@ earthtime.embedStories = function(config) {
     earthtime._printLogging("   (1/1): " + url);
     
     earthtime._printLogging("Loading script dependencies:");
-    earthtime._scriptDependencies.forEach(function(scriptUrl) {
+    for (var i = 0; i < earthtime._scriptDependencies.length; i++) {
+      var scriptUrl = earthtime._scriptDependencies[i];
       earthtime._dynamicallyLoadScript(earthtimeDomain + scriptUrl, onScriptDependenciesLoaded);
-    });
+    }
   });
 }
 
