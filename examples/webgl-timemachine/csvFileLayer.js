@@ -638,6 +638,8 @@ const LOAD_DATA_FUNCTION_LOOKUP_TABLE = {
   "WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv": WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv,
   "WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv": WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv,
   "WebGLVectorTile2.prototype._loadBivalentBubbleMapDataFromCsv": WebGLVectorTile2.prototype._loadBivalentBubbleMapDataFromCsv,
+  "WebGLVectorTile2.prototype._loadBivalentBubbleMapDataFromCsv": WebGLVectorTile2.prototype._loadBivalentBubbleMapDataFromCsv,
+  "WebGLVectorTile2.prototype._loadWindVectorsData": WebGLVectorTile2.prototype._loadWindVectorsData
 };
 
 const SET_DATA_FUNCTION_LOOKUP_TABLE = {
@@ -651,5 +653,6 @@ const SET_DATA_FUNCTION_LOOKUP_TABLE = {
   "WebGLVectorTile2.prototype._setObesityData": WebGLVectorTile2.prototype._setObesityData,
   "WebGLVectorTile2.prototype._setVaccineConfidenceData": WebGLVectorTile2.prototype._setVaccineConfidenceData,
   "WebGLVectorTile2.prototype._setBufferData": WebGLVectorTile2.prototype._setBufferData,
-  "WebGLVectorTile2.prototype._setBuffers": WebGLVectorTile2.prototype._setBuffers
+  "WebGLVectorTile2.prototype._setBuffers": WebGLVectorTile2.prototype._setBuffers,
+  "WebGLVectorTile2.prototype._setWindVectorsData": WebGLVectorTile2.prototype._setWindVectorsData
 }
