@@ -3600,6 +3600,16 @@ WebGLVectorTile2.prototype._drawWindVectors = function(transform, options) {
               this._bounds.max.y - this._bounds.min.y);
 
 
+    // TODO: Is this the best way?
+    if (typeof options.bbox == "undefined") {
+          var bbox = timelapse.pixelBoundingBoxToLatLngBoundingBoxView(timelapse.getBoundingBoxForCurrentView()).bbox;
+          var ne = bbox.ne; // tr
+          var sw = bbox.sw; // bl
+          var tl = {'lat':ne.lat, 'lng': ne.lng};
+          var br = {'lat':sw.lat, 'lng': sw.lng};
+          options['bbox'] = {'tl': tl, 'br': br};      
+    }
+
     var tl = LngLatToPixelXY(options.bbox.tl.lng, options.bbox.tl.lat);
     var br = LngLatToPixelXY(options.bbox.br.lng, options.bbox.br.lat);
 
