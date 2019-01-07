@@ -303,8 +303,6 @@ WebGLVectorTile2.prototype._loadWindVectorsData = function() {
   this.numParticles = 8192;
 
 
-  this.colorRampTexture = glb.createTexture(this.gl.LINEAR, getColorRamp(defaultRampColors), 16, 16);
-
   var that = this;
   var data;
 
@@ -320,6 +318,11 @@ WebGLVectorTile2.prototype._loadWindVectorsData = function() {
       data = "";
     } else {
       data = JSON.parse(this.responseText);
+      console.log(data);
+      if (typeof data["defaultRampColors"] != "undefined") {
+        defaultRampColors = data["defaultRampColors"];
+      }
+      that.colorRampTexture = glb.createTexture(that.gl.LINEAR, getColorRamp(defaultRampColors), 16, 16);      
     }
     that._setData(data);
   }
@@ -5408,7 +5411,7 @@ WebGLVectorTile2.WindVectorsShaders.screenFragmentShader =
 "    gl_FragColor = vec4(floor(255.0 * color * u_opacity) / 255.0);\n" +
 "    vec4 rgba = vec4(floor(255.0 * color * u_opacity) / 255.0);\n" +
 "    gl_FragColor = vec4(rgba);\n" +
-"    gl_FragColor = vec4(192./256.,192./256.,192./256.,rgba.a);\n" +
+"    //gl_FragColor = vec4(192./256.,192./256.,192./256.,rgba.a);\n" +
 "}\n";
 
 WebGLVectorTile2.WindVectorsShaders.updateFragmentShader =
