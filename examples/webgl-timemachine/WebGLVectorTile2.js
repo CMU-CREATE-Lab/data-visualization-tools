@@ -318,11 +318,16 @@ WebGLVectorTile2.prototype._loadWindVectorsData = function() {
       data = "";
     } else {
       data = JSON.parse(this.responseText);
-      console.log(data);
       if (typeof data["defaultRampColors"] != "undefined") {
         defaultRampColors = data["defaultRampColors"];
       }
       that.colorRampTexture = glb.createTexture(that.gl.LINEAR, getColorRamp(defaultRampColors), 16, 16);      
+      if (typeof data["defaultRampColors"] != "undefined") {
+        defaultRampColors = data["defaultRampColors"];
+      }
+      if (typeof data["numParticles"] != "undefined") {
+        that.numParticles = data["numParticles"];
+      }
     }
     that._setData(data);
   }
