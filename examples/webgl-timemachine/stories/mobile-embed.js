@@ -277,7 +277,14 @@ earthtime._loadStory = function(storyName, containerElement, waypointsIdentifier
           }
         }
       }
-      
+
+      if (story.length >= 2 && story[1]['Waypoint Title'][0] == '#') {
+	// If the theme and story names are the same and we picked them both up,
+	// remove the theme waypoint
+	story.shift();
+      }
+      console.log('story', story);
+
       // now insert story elements into the DOM, starting with the logo
       containerElement.innerHTML = '<div class="earthtime-story">' +
         '   <div class="earthtime-logo">' +
