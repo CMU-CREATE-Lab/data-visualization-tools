@@ -216,9 +216,13 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
     if ($this.prop('checked')) {
       // Turn on layer
       layer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      // TODO: Should not force dark map for every csv layer
-      if (visibleBaseMapLayer != "dark") {
-        $("#layers-list #dark-base").click();
+      var baseLayerIdentifier = layer.layerDef['Base layer'];
+      // TODO: For now spreadsheets that don't have this column will default to old behavior of always forcing dark map
+      if (typeof(baseLayerIdentifier) === "undefined") {
+        baseLayerIdentifier = bdrk;
+      }
+      if (baseLayerIdentifier) {
+        $("#layers-list label[name='" + baseLayerIdentifier + "'] input").trigger("click");
       }
       if (layer.mapType != "raster" &&
           (layer.layerDef["Start date"] == "" && layer.layerDef["End date"] == "") ||
