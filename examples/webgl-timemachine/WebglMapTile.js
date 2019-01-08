@@ -197,6 +197,39 @@ WebglMapTile.prototype._drawSeaLevelRise = function(transform, options) {
   }
 };
 
+WebglMapTile.prototype._drawSeaLevelRiseV2 = function(transform, options) {
+  var gl = this.gl;
+  var tileTransform = new Float32Array(transform);
+  translateMatrix(tileTransform, this._bounds.min.x, this._bounds.min.y);
+  scaleMatrix(tileTransform,
+              this._bounds.max.x - this._bounds.min.x,
+              this._bounds.max.y - this._bounds.min.y);
+
+  if (this._ready /*&& this._tileidx.l > 3*/) { // TODO: Get tiles w level > 3 that arent empty
+    var color = options.color || [0., 0., 0., 1.0];
+
+    gl.useProgram(this._textureProgram);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    var cLoc = gl.getUniformLocation(this._textureProgram, 'u_C');
+    var seaLevelMeters = Math.round(new Date().getTime() / 500) % 11; // TODO: connect me to new slider
+    gl.uniform1f(cLoc, seaLevelMeters / 256.0);
+    var uColor =  color;
+    var colorLoc = gl.getUniformLocation(this._textureProgram, 'u_Color');
+    gl.uniform4fv(colorLoc, uColor);
+
+    gl.uniformMatrix4fv(this._textureProgram.uTransform, false, tileTransform);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._triangles);
+    gl.vertexAttribPointer(this._textureProgram.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.enableVertexAttribArray(this._textureProgram.aTextureCoord);
+    gl.bindTexture(gl.TEXTURE_2D, this._texture);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    gl.disable(gl.BLEND);
+  }
+};
+
 WebglMapTile.prototype._drawAnimatedTexture = function(transform, options) {
   var gl = this.gl;
   var tileTransform = new Float32Array(transform);
@@ -320,6 +353,23 @@ WebglMapTile.seaLevelRiseTextureFragmentShader =
   '  }\n' +
   '}\n';
 
+WebglMapTile.seaLevelRiseV2TextureFragmentShader = [
+  'precision mediump float;',
+  'varying vec2 vTextureCoord;',
+  'uniform sampler2D uSampler;',
+  'uniform float u_C;',
+  'uniform vec4 u_Color;',
+  'void main(void) {',
+  '  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));',
+  '  if (textureColor.r <= u_C) {',
+  '    gl_FragColor = vec4(u_Color.rgb, 1.);',
+  '  } else {',
+  '    gl_FragColor = vec4(0., 0., 0., 0.);',
+  '  }',
+  '}'
+].join("\n");
+
+// Temporary, for book
 WebglMapTile.seaLevelRiseTintedTextureFragmentShader =
   'precision mediump float;\n' +
   'varying vec2 vTextureCoord;\n' +

@@ -130,18 +130,50 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
   layerOptions.nLevels = layerDef["Number of Levels"] ? parseInt(layerDef["Number of Levels"]) : 0;
   layerOptions.imageSrc = layerDef["Colormap Src"] || null;
 
-  function overrideDrawingFns() {
-    if (layerDef["Draw Function"]) {
-      layerOptions.drawFunction = eval(layerDef["Draw Function"]);
+  function isValidDrawFunction(name) {
+    if (layerOptions.mapType == 'raster') {
+      return /^WebglMapTile\.prototype\._draw\w*$/.test(name);
     }
+    return true;
+  }
+
+  function isValidShader(name, type) {
+    if (layerOptions.mapType == 'raster') {
+      return /^WebglMapTile.\w+$/.test(name) && name.endsWith(type + 'Shader');
+    }
+    return true;
+  }
+
+  function overrideDrawingFns() {
+    var drawFunction = layerDef["Draw Function"];
+    if (drawFunction) {
+      if (isValidDrawFunction(drawFunction)) {
+	layerOptions.drawFunction = eval(drawFunction);
+      } else {
+	console.log(drawFunction + " is not a valid Draw Function for layer type " + layerOptions.mapType);
+      }
+    }
+
     if (layerDef["Number of Attributes"]) {
       layerOptions.numAttributes = parseInt(layerDef["Number of Attributes"]);
     }
-    if (layerDef["Vertex Shader"]) {
-      layerOptions.vertexShader = eval(layerDef["Vertex Shader"]);
+
+    var vertexShader = layerDef["Vertex Shader"];
+    if (vertexShader) {
+      if (isValidShader(vertexShader, "Vertex")) {
+	layerOptions.vertexShader = eval(vertexShader);
+      } else {
+	console.log(vertexShader + " is not a valid Vertex Shader for layer type " + layerOptions.mapType);
+      }
     }
-    if (layerDef["Fragment Shader"]) {
-      layerOptions.fragmentShader = eval(layerDef["Fragment Shader"]);
+
+    var fragmentShader = layerDef["Fragment Shader"];
+    if (fragmentShader) {
+      if (isValidShader(fragmentShader, "Fragment")) {
+	layerOptions.fragmentShader = eval(fragmentShader);
+      } else {
+	console.log(fragmentShader + " is not a valid Fragment Shader for layer type " + layerOptions.mapType);
+      }
     }
   }
 
@@ -153,10 +185,11 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
     layerOptions.z = 200;
     WebglLayer = WebglMapLayer;
     url = eval(url);
+    layerOptions.loadDataFunction = null;
+    layerOptions.drawFunction = null;
     layerOptions.fragmentShader = null;
     layerOptions.vertexShader = null;
-    layerOptions.drawFunction = null;
-    layerOptions.loadDataFunction = null;
+    overrideDrawingFns();
   } else if (layerOptions.mapType == "choropleth") {
     layerOptions.imageSrc = layerOptions.imageSrc || "obesity-color-map.png";
     layerOptions.z = 200;
