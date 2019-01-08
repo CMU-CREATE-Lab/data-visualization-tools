@@ -212,7 +212,7 @@ WebglMapTile.prototype._drawSeaLevelRiseV2 = function(transform, options) {
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     var cLoc = gl.getUniformLocation(this._textureProgram, 'u_C');
-    var seaLevelMeters = Math.round(new Date().getTime() / 500) % 11; // TODO: connect me to new slider
+    var seaLevelMeters = getCustomSliderCurrentTickValue();
     gl.uniform1f(cLoc, seaLevelMeters / 256.0);
     var uColor =  color;
     var colorLoc = gl.getUniformLocation(this._textureProgram, 'u_Color');
@@ -389,7 +389,7 @@ WebglMapTile.seaLevelRiseTintedTextureFragmentShader =
   '     //vec3 colorB = vec3(100.,149.,237.)/255.;\n' +
   '     vec3 colorA = vec3(65.,105.,225.)/255.;\n' +
   '     vec3 colorB = vec3(100.,149.,237.)/255.;\n' +
-  '     float pct = textureColor.b / (8.0 / 255.0);\n' + 
+  '     float pct = textureColor.b / (8.0 / 255.0);\n' +
   '     gl_FragColor = vec4(mix(colorA, colorB, pct), 1.0);\n'+
   '   }\n'+
   '   else {\n' +
