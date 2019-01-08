@@ -1149,6 +1149,14 @@
       }
     }
 
+    function getCustomSliderCurrentTickValue() {
+      var sliderTickVal = 0;
+      if (!$.isEmptyObject(layerCustomSliderInfo)) {
+        sliderTickVal = layerCustomSliderInfo[timelapse.getCurrentCaptureTime()] || 0;
+      }
+      return sliderTickVal;
+    }
+
     function setTimeLine(identifier, startDate, endDate, step) {
       var captureTimes = [];
 
@@ -6506,8 +6514,6 @@
         height: 1440
       };
       ecco2Layer = new WebglTimeMachineLayer(glb, canvasLayer, ecco2Url, ecco2Options);
-
-
 
       // GDP PPP
       csvFileLayers.setTimeLine("gdpPpp-times", "1990", "2015", 1);

@@ -86,6 +86,24 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
   layerOptions.layerId = layerDef["Share link identifier"].replace(/\W+/g, '_');
   layerOptions.category = layerDef["Category"];
 
+  layerOptions.customSliderInfo = {};
+  if (layerDef["Custom slider ticks"]) {
+    try {
+      var rawCustomSliderInfo = JSON.parse(layerDef["Custom slider ticks"].trim());
+      for (var i = 0; i < rawCustomSliderInfo.length; i++) {
+        layerOptions.customSliderInfo[rawCustomSliderInfo[i][0]] = rawCustomSliderInfo[i][1];
+      }
+    } catch(e) {
+      console.log("ERROR: Cannot parse 'Custom slider ticks'. Is valid json being used there?");
+    }
+  }
+
+  if (layerDef["Start date"] != "" && layerDef["Start date"] != layerDef["End date"] || !$.isEmptyObject(layerOptions.customSliderInfo)) {
+    layerOptions.hasTimeline = true;
+  } else {
+    layerOptions.hasTimeline = false;
+  }
+
   layerOptions.showGraph = layerDef["Show Graph"].toLowerCase() == 'true';
   layerOptions.mapType = layerDef["Map Type"] || "bubble";
   layerOptions.color = layerDef["Color"] ? JSON.parse(layerDef["Color"]) : null;
@@ -250,19 +268,27 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
       // Turn on layer
       layer.getTileView().handleTileLoading({layerDomId: $this[0].id});
       var baseLayerIdentifier = layer.layerDef['Base layer'];
-      // TODO: For now spreadsheets that don't have this column will default to old behavior of always forcing dark map
+      // TODO: Legacy. For spreadsheets that don't have this column, we default to old behavior of always forcing dark map
       if (typeof(baseLayerIdentifier) === "undefined") {
         baseLayerIdentifier = "bdrk";
       }
       if (baseLayerIdentifier) {
         $("#layers-list label[name='" + baseLayerIdentifier + "'] input").trigger("click");
       }
-      if (layer.mapType != "raster" &&
-          (layer.layerDef["Start date"] == "" && layer.layerDef["End date"] == "") ||
-          (layer.layerDef["Start date"] != "" && layer.layerDef["Start date"] != layer.layerDef["End date"])) {
+      if (layer.hasTimeline) {
         setActiveLayersWithTimeline(1);
-        timelineType = "defaultUI";
-        requestNewTimeline(layer.layerId + ".json", timelineType);
+        var cachedLayerTimelinePath = layer.layerId + ".json";
+        if (!$.isEmptyObject(layer.customSliderInfo)) {
+          // TODO: Allow spreadsheet to specify type of timeline. For now, assume same timeline type as Landsat (customUI)
+          timelineType = "customUI";
+          cached_ajax[cachedLayerTimelinePath] = {"capture-times":  Object.keys(layer.customSliderInfo)};
+        } else {
+          timelineType = "defaultUI";
+        }
+        layerCustomSliderInfo = layer.customSliderInfo;
+        requestNewTimeline(cachedLayerTimelinePath, timelineType);
+      } else {
+        timelineType = "none";
       }
       layer.visible = true;
       $("#" + layer.layerId + "-legend").show();
@@ -275,7 +301,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
       }
     } else {
       $("#" + layer.layerId + "-legend").hide();
-      if (layer.mapType != "raster") {
+      if (layer.hasTimeline) {
         setActiveLayersWithTimeline(-1);
         doSwitchToLandsat();
       }
@@ -283,6 +309,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
       layer.visible = false;
       // cacheLastUsedLayer is a global data struct from index.html
       cacheLastUsedLayer(layer);
+      layerCustomSliderInfo = null;
       if (layer.mapType == "choropleth") {
         showCountryLabelMapLayer = false;
       }
