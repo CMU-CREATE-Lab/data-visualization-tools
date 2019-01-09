@@ -293,8 +293,8 @@
     var enableStoryEditor = parseConfigOption({optionName: "enableStoryEditor", optionDefaultValue: false, exposeOptionToUrlHash: false});
     var pauseWhenInitialized = parseConfigOption({optionName: "pauseWhenInitialized", optionDefaultValue: false, exposeOptionToUrlHash: true});
     var landsatVersion = parseConfigOption({optionName: "landsatVersion", optionDefaultValue: "2015", exposeOptionToUrlHash: false});
-    var customDarkMapsUrl = parseConfigOption({optionName: "customDarkMapsUrl", optionDefaultValue: "", exposeOptionToUrlHash: false});
-    var customLightMapsUrl = parseConfigOption({optionName: "customLightMapsUrl", optionDefaultValue: "", exposeOptionToUrlHash: false});
+    var customDarkMapUrl = parseConfigOption({optionName: "customDarkMapsUrl", optionDefaultValue: "", exposeOptionToUrlHash: false});
+    var customLightMapUrl = parseConfigOption({optionName: "customLightMapsUrl", optionDefaultValue: "", exposeOptionToUrlHash: false});
 
     // TODO:
     // Until we decide to force everyone to latest landsat, pull the version corresponding to the config above.
@@ -851,7 +851,7 @@
     var googleMapsCityLabelUrl = 'https://maps.googleapis.com/maps/vt?pb=!1m5!1m4!1i{z}!2i{x}!3i{y}!4i256!2m3!1e0!2sm!3i397094607!3m14!2sen-US!3sUS!5e18!12m1!1e68!12m3!1e37!2m1!1ssmartmaps!12m4!1e26!2m2!1sstyles!2zcy50OjV8cC52Om9mZixzLnQ6MnxwLnY6b2ZmLHMudDozfHAudjpvZmYscy50OjN8cy5lOmx8cC52Om9mZixzLnQ6NHxwLnY6b2ZmLHMudDo2fHAudjpvZmY!4e0!5m1!5f2&token=118514';
 
     var lightMapUrl;
-    if (customLightMapsUrl) {
+    if (customLightMapUrl) {
       lightMapUrl = customLightMapsUrl;
     } else if (useGoogleMaps) {
       lightMapUrl = googleMapsDefaultRetinaUrl;
@@ -864,7 +864,7 @@
     }
 
     var darkMapUrl;
-    if (customDarkMapsUrl) {
+    if (customDarkMapUrl) {
       darkMapUrl = customDarkMapsUrl;
     } else if (useGoogleMaps) {
       darkMapUrl = googleMapsDarkStyleRetinaUrl;
