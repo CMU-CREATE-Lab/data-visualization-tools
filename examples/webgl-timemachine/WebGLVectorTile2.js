@@ -230,6 +230,7 @@ WebGLVectorTile2.prototype._setWindVectorsData = function(data) {
   */
 
   this.resizeWindVectors();
+  timelapse.addResizeListener(function() {that.resizeWindVectors()});
 
   windImage.onload = function () {
     that.windTexture = that.glb.createTexture(that.gl.LINEAR, that.windData.image);
