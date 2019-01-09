@@ -383,9 +383,17 @@ WebGLVectorTile2.prototype._loadSitc4r2Data = function () {
       if (typeof e.data["year"] != "undefined") {
         var year = e.data.year;
         var code = e.data.code;
-        var scale = e.data.scale;
-        var array = e.data["array"];
-        that._setSitc4r2Buffer(code, year, new Float32Array(array));
+	if (!e.data.error) {
+          var scale = e.data.scale;
+          var array = e.data["array"];
+          that._setSitc4r2Buffer(code, year, new Float32Array(array));
+	} else {
+          if (!that.buffers[code]) {
+	    that.buffers[code] = {};
+	  }
+	  that.buffers[code][year] = {};
+	}
+        that.buffers[code][year].ready = true;
       }
     };
   }
@@ -1009,8 +1017,6 @@ WebGLVectorTile2.prototype._setSitc4r2Buffer = function(sitc4r2Code, year, data)
     this.buffers[sitc4r2Code][year].buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers[sitc4r2Code][year].buffer);
     gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
-
-    this.buffers[sitc4r2Code][year].ready = true;
   }
 }
 
@@ -3282,6 +3288,7 @@ WebGLVectorTile2.prototype._drawPointColorStartEpochEndEpoch = function(transfor
 WebGLVectorTile2.prototype._drawSitc4rcBuffer = function (code, year, transform, options) {
   var gl = this.gl;
   var buffer = this.buffers[code][year];
+  if (!buffer.buffer) return;
   gl.useProgram(this.program);
   gl.enable(gl.BLEND);
   gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
@@ -3347,7 +3354,6 @@ WebGLVectorTile2.prototype._initSitc4rcBuffer = function(code, year) {
     "buffer":null,
     "ready": false
   }
-  console.log(this._url);
   var rootUrl = window.rootTilePath;
   if (this._url.indexOf("http://") == 0 || this._url.indexOf("https://") == 0) {
     var re=/([a-z0-9]{1,})\/([0-9]{4}).json/g;
@@ -3358,7 +3364,6 @@ WebGLVectorTile2.prototype._initSitc4rcBuffer = function(code, year) {
     var m = re.exec(this._url);
     rootUrl += this._url.replace(m[0],"").split("?")[0];    
   }
-  console.log(rootUrl)
   this.worker.postMessage({'year': year, 'code': code, 'exporters': this._exporters, "importers": this._importers, "scale": this._scale, "rootUrl": rootUrl});
 }
 

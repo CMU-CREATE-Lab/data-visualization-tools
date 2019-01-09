@@ -8,9 +8,13 @@ self.addEventListener('message', function(e) {
     var exporters = e.data["exporters"];
     var importers = e.data["importers"];
     var rootUrl = e.data['rootUrl'];
-    getJson(rootUrl, code, year, exporters, importers, scale, function(code, year, exporters, importers, scale, data) {
-        var float32Array = setData(code, year, exporters, importers, scale, data);
-        self.postMessage({'array': float32Array.buffer, 'year': year, 'code': code, 'scale': scale}, [float32Array.buffer]);
+    getJson(rootUrl, code, year, exporters, importers, scale, function(code, year, error, exporters, importers, scale, data) {
+        if (error) {
+            self.postMessage({error:true, year: year, code: code});
+        } else {
+            var float32Array = setData(code, year, exporters, importers, scale, data);
+            self.postMessage({error:false, array: float32Array.buffer, year: year, code: code, scale: scale}, [float32Array.buffer]);
+        }
     });
 
 }, false);
@@ -20,11 +24,18 @@ var getJson = function(rootUrl, code, year, exporters, importers, scale, callbac
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url);
     xhr.onload = function() {
-        var data = JSON.parse(this.responseText);
-        callback(code, year, exporters, importers, scale, data);
+        try {
+            var data = JSON.parse(this.responseText);
+            callback(code, year, false, exporters, importers, scale, data);
+	} catch(e) {
+            console.log('sitc4r2: Error parsing JSON from ' + url);
+            callback(code, year, true, null, null, null, null); 
+	}	  
+    }
+    xhr.error = function() {
+        callback(code, year, true, null, null, null, null); 
     }
     xhr.send();
-
 }
 
 var setData = function(code, year, exporters, importers, scale, data) {
