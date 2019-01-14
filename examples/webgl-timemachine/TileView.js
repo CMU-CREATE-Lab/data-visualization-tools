@@ -25,6 +25,7 @@ function TileView(settings) {
   this._panoHeight = settings.panoHeight;
   this.tileWidth = settings.tileWidth;
   this.tileHeight = settings.tileHeight;
+  console.assert(this.tileWidth && this.tileHeight && this._panoWidth && this._panoHeight);
   this._createTileCallback = settings.createTile;
   this._deleteTileCallback = settings.deleteTile;
   this._tiles = {};
@@ -44,8 +45,6 @@ function TileView(settings) {
 
   this._computeMaxLevel();
   this._readyList = [];
-
-  //console.log(this.toString());
 }
 
 TileView.prototype.
@@ -368,7 +367,6 @@ setView = function(view, viewportWidth, viewportHeight, scale) {
   }
   status = status.join(' ');
   if (!this._lastStatus || status.replace(/[\-\+]/g,'') != this._lastStatus.replace(/[\-\+]/g,'')) {
-    //console.log('setView: ' + status);
     this._lastStatus = status;
   }
 };

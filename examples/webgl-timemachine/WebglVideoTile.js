@@ -756,8 +756,8 @@ WebglVideoTile.update = function(tiles, transform) {
 
   // A layer may start at a different year than when Landsat starts. Tweak accordingly.
   var appliedOffset = false;
-  if (tiles[0].options.startYear) {
-    var layerStartYear = tiles[0].options.startYear;
+  if (tiles[0].layer.startYear) {
+    var layerStartYear = tiles[0].layer.startYear;
     var timelineStartDate = timelapse.getCaptureTimes()[0];
     // Assumes YYYY
     if (timelineStartDate.length == 4) {

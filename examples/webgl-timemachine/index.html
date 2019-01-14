@@ -1018,7 +1018,7 @@
         useTouchFriendlyUI: isHyperwall || isMobileDevice,
         datasetType: "landsat",
         playOnLoad: !pauseWhenInitialized,
-        mediaType: (landsatVersion == "2015") ? ".webm" : ".mp4",
+        mediaType: ".mp4",
         onTimeMachinePlayerReady: function(viewerDivId) {
           setupPostMessageHandlers();
         },
@@ -1027,6 +1027,7 @@
         },
         isGoogleAnalyticEventTrackingEnabled: true,
         startEditorFromPresentationMode: true
+       
       };
 
       if (enableLetterboxMode) {
@@ -4517,11 +4518,8 @@
         }
         var layer = new WebglVectorLayer2(glb, canvasLayer, tileUrl, layerOptions);
       } else {
-        layerOptions.mediaType = '.mp4';
-        layerOptions.numFrames = animationLayers.length;
-        layerOptions.fps = 10;
-        layerOptions.video_width = layerOptions.video_height = 512;
-        var layer = new WebglTimeMachineLayer(glb, canvasLayer, tileUrl, layerOptions);
+        console.log('Experimental mp4 dotmap unsupported');
+        return;
       }
 
       dotmapLayers.push(layer);
@@ -5783,183 +5781,167 @@
 
       // Landsat
       var landsatTimeMachineLayerOptions = {
-        mediaType: ".mp4",
         numFrames: cached_ajax[cachedLandsatTimeJsonPath]['capture-times'].length,
         fps: 10,
-        startYear: 1984
+        width: 2097152,
+        height: 1881298,
+        startYear: 1984,
+        tileRootUrl: landsatUrl
       };
-      landsatBaseMapLayer = new WebglTimeMachineLayer(glb, canvasLayer, landsatUrl, landsatTimeMachineLayerOptions);
+      landsatBaseMapLayer = new WebglTimeMachineLayer(glb, canvasLayer, landsatTimeMachineLayerOptions);
 
       var tintedLandsatLayerOptions = {
-        mediaType: ".mp4",
         numFrames: cached_ajax[cachedLandsatTimeJsonPath]['capture-times'].length,
         fps: 10,
+        width: 2097152,
+        height: 1881298,
         startYear: 1984,
         program: 'textureTintFaderProgram',
-        colormap: 'https://tiles.earthtime.org/colormaps/white_aliceblue_cornflowerblue_royalblue_blue.png'
+        colormap: 'https://tiles.earthtime.org/colormaps/white_aliceblue_cornflowerblue_royalblue_blue.png',
+        tileRootUrl: landsatUrl
       };
-      tintedLandsatLayer = new WebglTimeMachineLayer(glb, canvasLayer, landsatUrl, tintedLandsatLayerOptions);
+      tintedLandsatLayer = new WebglTimeMachineLayer(glb, canvasLayer, tintedLandsatLayerOptions);
 
       // NDVI Anomaly
       var ndviAnomalyTimeMachineLayerOptions = {
-        mediaType: ".mp4",
         numFrames: cached_ajax['ndvi-anomaly-times.json']['capture-times'].length,
         fps: 1,
-        video_width: 1424,
-        video_height: 800,
         width: 40076,
         height: 40076,
-        greenScreen: true
+        greenScreen: true,
+        tileRootUrl: ndviAnomalyTimeMachineUrl
       };
-      ndviAnomalyTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, ndviAnomalyTimeMachineUrl, ndviAnomalyTimeMachineLayerOptions);
+      ndviAnomalyTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, ndviAnomalyTimeMachineLayerOptions);
 
       // Coral Bleaching Alerts
       var crwTimemacineLayerOptions = {
-        mediaType: ".mp4",
         numFrames: cached_ajax['crw-times.json']['capture-times'].length,
         fps: 22,
-        video_width: 1424,
-        video_height: 800,
         width: 7200,
         height: 7200,
-        greenScreen: true
+        greenScreen: true,
+        tileRootUrl: crwTimeMachineUrl
       };
-      crwTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, crwTimeMachineUrl, crwTimemacineLayerOptions);
+      crwTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, crwTimemacineLayerOptions);
 
       // Himawari-8
       var himawariTimeMachineLayerOptions = {
-        mediaType: ".mp4",
         numFrames: cached_ajax['himawari-times.json']['capture-times'].length,
         fps: 12,
         nLevels: 4,
-        video_width: 1424,
-        video_height: 800,
         width: 11000,
-        height: 11000
+        height: 11000,
+        tileRootUrl: himawariTimeMachineUrl
       };
-      himawariTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, himawariTimeMachineUrl, himawariTimeMachineLayerOptions);
+      himawariTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, himawariTimeMachineLayerOptions);
 
       // GOES16
       var goes16TimeMachineLayerOptions = {
-        mediaType: ".mp4",
         numFrames: cached_ajax['goes16-times.json']['capture-times'].length,
         fps: 12,
         nLevels: 4,
-        video_width: 1424,
-        video_height: 800,
         width: 10848,
-        height: 10848
+        height: 10848,
+        tileRootUrl: goes16TimeMachineUrl
       };
-      goes16TimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, goes16TimeMachineUrl, goes16TimeMachineLayerOptions);
+      goes16TimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, goes16TimeMachineLayerOptions);
 
       // DSCOVR
       var dscovrTimeMachineLayerOptions = {
-        mediaType: ".mp4",
         numFrames: cached_ajax['dscovr-times.json']['capture-times'].length,
         fps: 6,
         nLevels: 3,
-        video_width: 1424,
-        video_height: 800,
         width: 2048,
-        height: 2048
+        height: 2048,
+        tileRootUrl: dscovrTimeMachineUrl
       };
-      dscovrTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, dscovrTimeMachineUrl, dscovrTimeMachineLayerOptions);
+      dscovrTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, dscovrTimeMachineLayerOptions);
 
       // Annual Global PM 2.5
       var annualGlobalPm25TimeMachineLayerOptions = {
-        mediaType: ".mp4",
         numFrames: cached_ajax['annual-global-pm25-times.json']['capture-times'].length,
         fps: 6,
         nLevels: 5,
-        video_width: 1424,
-        video_height: 800,
         width: 7200,
         height: 7200,
-        colormap: rootTilePath + '/colormaps/pm25-who-annual.png'
+        colormap: rootTilePath + '/colormaps/pm25-who-annual.png',
+        tileRootUrl: annualGlobalPm25TimeMachineUrl
       };
-      annualGlobalPm25TimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, annualGlobalPm25TimeMachineUrl, annualGlobalPm25TimeMachineLayerOptions);
+      var annualGlobalPm25TimeMachineLayerOptions = {
+        colormap: rootTilePath + '/colormaps/pm25-who-annual.png',
+        rootUrl: rootTilePath + '/annual-global-pm25/pm2_5v2.timemachine'
+      };
+      annualGlobalPm25TimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, annualGlobalPm25TimeMachineLayerOptions);
 
       // Forest Alerts
       var forestAlertsTimeMachineLayerOptions = {
-        mediaType: ".mp4",
         numFrames: cached_ajax['forest-alerts-times.json']['capture-times'].length,
         fps: 10,
         nLevels: 11,
-        video_width: 1424,
-        video_height: 800,
         width: 750836,
-        height: 156136
+        height: 156136,
+        tileRootUrl: forestAlertsTimeMachineUrl
       };
-      forestAlertsTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, forestAlertsTimeMachineUrl, forestAlertsTimeMachineLayerOptions);
+      forestAlertsTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, forestAlertsTimeMachineLayerOptions);
 
       // Forest Alerts No Overlay
       var forestAlertsNoOverlayTimeMachineLayerOptions = {
-        mediaType: ".mp4",
         numFrames: cached_ajax['forest-alerts-times.json']['capture-times'].length,
         fps: 10,
         nLevels: 11,
-        video_width: 1424,
-        video_height: 800,
         width: 750836,
-        height: 156136
+        height: 156136,
+        tileRootUrl: forestAlertsNoOverlayTimeMachineUrl
       };
-      forestAlertsNoOverlayTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, forestAlertsNoOverlayTimeMachineUrl, forestAlertsTimeMachineLayerOptions);
+      forestAlertsNoOverlayTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, forestAlertsTimeMachineLayerOptions);
 
       // Berkeley Earth Temperature Anomaly
       var berkeleyEarthTemperatureAnomalyTimeMachineLayerOptions = {
-        mediaType: ".mp4",
         numFrames: cached_ajax['berkeley-earth-temperature-anomaly-times.json']['capture-times'].length,
         fps: 12,
         nLevels: 2,
-        video_width: 1424,
-        video_height: 800,
         width: 1024,
-        height: 1024
+        height: 1024,
+        tileRootUrl: berkeleyEarthTemperatureAnomalyTimeMachineUrl
       };
-      berkeleyEarthTemperatureAnomalyTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, berkeleyEarthTemperatureAnomalyTimeMachineUrl, berkeleyEarthTemperatureAnomalyTimeMachineLayerOptions);
+      berkeleyEarthTemperatureAnomalyTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, berkeleyEarthTemperatureAnomalyTimeMachineLayerOptions);
 
       // OMI NO2
       var omiNo2LayerOptions = {
-        mediaType: ".mp4",
         numFrames: cached_ajax['omi-no2-times.json']['capture-times'].length,
         fps: 12,
         nlevels: 4,
-        video_width: 1424,
-        video_height: 800,
         width: 5760,
         height: 5760,
-        greenScreen: true
+        greenScreen: true,
+        tileRootUrl: omiNo2Url
       };
-      omiNo2Layer = new WebglTimeMachineLayer(glb, canvasLayer, omiNo2Url, omiNo2LayerOptions);
+      omiNo2Layer = new WebglTimeMachineLayer(glb, canvasLayer, omiNo2LayerOptions);
 
       // Berkeley Earth PM 2.5
       var bePm25LayerOptions = {
-        mediaType: ".mp4",
         numFrames: cached_ajax['be-pm25-times.json']['capture-times'].length,
         fps: 22,
         nlevels: 5,
-        video_width: 1424,
-        video_height: 800,
         width: 8192,
         height: 8192,
-        greenScreen: true
+        greenScreen: true,
+        tileRootUrl: bePm25Url
       };
-      bePm25Layer = new WebglTimeMachineLayer(glb, canvasLayer, bePm25Url, bePm25LayerOptions);
+      bePm25Layer = new WebglTimeMachineLayer(glb, canvasLayer, bePm25LayerOptions);
 
       // Lights at Night Animated
       var lightsAtNightAnimOptions = {
-        mediaType: ".mp4",
         numFrames: cached_ajax['lights-at-night-anim-times.json']['capture-times'].length,
         fps: 4,
         nlevels: 7,
-        video_width: 1424,
-        video_height: 800,
         width: 30000,
         height: 30000,
         greenScreen: true,
-        colormap: 'https://tiles.earthtime.org/colormaps/lights-at-night.png'
+        colormap: 'https://tiles.earthtime.org/colormaps/lights-at-night.png',
+        tileRootUrl: lightsAtNightAnimUrl
       };
-      lightsAtNightAnimLayer = new WebglTimeMachineLayer(glb, canvasLayer, lightsAtNightAnimUrl, lightsAtNightAnimOptions);
+      lightsAtNightAnimLayer = new WebglTimeMachineLayer(glb, canvasLayer, lightsAtNightAnimOptions);
 
       // For any raster map
       var defaultMapLayerOptions = {
@@ -6511,46 +6493,38 @@
       // ECCO2
       csvFileLayers.setTimeLine("ecco2-times", "19920102", "20000317", 3);
       var ecco2Options = {
-        mediaType: ".mp4",
         numFrames: 1000,
         fps: 16,
         nLevels: 1,
-        video_width: 1424,
-        video_height: 800,
         width: 1440,
-        height: 1440
+        height: 1440,
+        tileRootUrl: ecco2Url
       };
-      ecco2Layer = new WebglTimeMachineLayer(glb, canvasLayer, ecco2Url, ecco2Options);
+      ecco2Layer = new WebglTimeMachineLayer(glb, canvasLayer, ecco2Options);
 
       // GDP PPP
       csvFileLayers.setTimeLine("gdpPpp-times", "1990", "2015", 1);
       var gdpPppOptions = {
-        mediaType: ".mp4",
         numFrames: 26,
         fps: 10,
         nLevels: 2,
-        video_width: 1424,
-        video_height: 800,
         width: 2880,
         height: 2880,
-        colormap: 'https://tiles.earthtime.org/colormaps/black-no-value-darkblue-cyan-green-lightyellow-orange-deeppink-darkred.png'
-
+        colormap: 'https://tiles.earthtime.org/colormaps/black-no-value-darkblue-cyan-green-lightyellow-orange-deeppink-darkred.png',
+        tileRootUrl: gdpPppUrl
       };
-      gdpPppLayer = new WebglTimeMachineLayer(glb, canvasLayer, gdpPppUrl, gdpPppOptions);
+      gdpPppLayer = new WebglTimeMachineLayer(glb, canvasLayer, gdpPppOptions);
 
       var gfsTimemachineOptions = {
-        mediaType: ".mp4",
         numFrames: 36,
         fps: 12,
         nLevels: 3,
-        video_width: 1424,
-        video_height: 800,
         width: 2880,
-        height: 2880
+        height: 2880,
         //colormap: 'https://tiles.earthtime.org/colormaps/black-no-value-darkblue-cyan-green-lightyellow-orange-deeppink-darkred.png'
-
+        tileRootUrl: gfsTimemachineUrl
       };
-      gfsTimemachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, gfsTimemachineUrl, gfsTimemachineOptions);
+      gfsTimemachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, gfsTimemachineOptions);
 
       var windVectorsLayerOptions = {
         tileWidth: 256,
