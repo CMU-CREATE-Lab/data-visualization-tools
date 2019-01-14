@@ -212,7 +212,7 @@ WebglMapTile.prototype._drawSeaLevelRiseV2 = function(transform, options) {
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     var cLoc = gl.getUniformLocation(this._textureProgram, 'u_C');
-    var seaLevelMeters = getCustomSliderCurrentTickValue();
+    var seaLevelMeters = getCustomSliderCurrentTickValue() + 0.01;
     gl.uniform1f(cLoc, seaLevelMeters / 256.0);
     var uColor =  color;
     var colorLoc = gl.getUniformLocation(this._textureProgram, 'u_Color');
