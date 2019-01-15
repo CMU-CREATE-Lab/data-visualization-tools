@@ -476,6 +476,7 @@ CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate,
   var yyyymmddhhmm_re = /(\d{4})(\d{2})(\d{2})?(\d{2})?(\d{2})?$/;
   var sm = startDate.match(yyyymmddhhmm_re);
   var em = endDate.match(yyyymmddhhmm_re);
+  var stepSize = parseInt(step) || 1;
   if (sm && em) { // both dates parsed
     var startYear = sm[1];
     var startMonth = sm[2];
@@ -520,11 +521,11 @@ CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate,
           }
           captureTimes.push(captureTimeStr);
           if (typeof startMinute != "undefined") {
-            tomorrow.setUTCMinutes(tomorrow.getUTCMinutes() + parseInt(step));
+            tomorrow.setUTCMinutes(tomorrow.getUTCMinutes() + stepSize);
           } else if (typeof startHour != "undefined") {
-            tomorrow.setUTCHours(tomorrow.getUTCHours() + parseInt(step));
+            tomorrow.setUTCHours(tomorrow.getUTCHours() + stepSize);
           } else {
-            tomorrow.setUTCDate(tomorrow.getUTCDate() + parseInt(step));
+            tomorrow.setUTCDate(tomorrow.getUTCDate() + stepSize);
           }
         }
       } else { // generate yyyy-mm
@@ -546,14 +547,14 @@ CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate,
         }
       }
     }
-  } else  { // geenrate yyyy
+  } else  { // generate yyyy
     startDate = parseInt(startDate,10);
     endDate = parseInt(endDate,10);
-    step = parseInt(step,10);
-    if (isNaN(startDate) || isNaN(endDate) || isNaN(step) ) {
+    var stepSize = parseInt(step,10) || 1;
+    if (isNaN(startDate) || isNaN(endDate) || isNaN(stepSize) ) {
       captureTimes = cached_ajax['landsat-times.json']['capture-times'];
     } else {
-      for (var i = startDate; i < endDate + 1; i+=step) {
+      for (var i = startDate; i < endDate + 1; i+=stepSize) {
         captureTimes.push(i.toString());
       }
     }
