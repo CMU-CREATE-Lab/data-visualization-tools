@@ -1027,7 +1027,7 @@
         },
         isGoogleAnalyticEventTrackingEnabled: true,
         startEditorFromPresentationMode: true
-       
+
       };
 
       if (enableLetterboxMode) {
@@ -1762,8 +1762,9 @@
           annualGlobalPm25TimeMachineLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showAnnualGlobalPm25TimeMachineLayer = true;
           setActiveLayersWithTimeline(1);
-          visibleBaseMapLayer = "annual-pm25";
           timelineType = "defaultUI";
+          previousVisibleBaseMapLayer = visibleBaseMapLayer;
+          visibleBaseMapLayer = "annual-pm25";
           requestNewTimeline("annual-global-pm25-times.json", timelineType);
           var v = timelapse.getVideoset();
           v.setFps(6);
@@ -1778,7 +1779,6 @@
           cacheLastUsedLayer(annualGlobalPm25TimeMachineLayer);
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
-          visibleBaseMapLayer = previousVisibleBaseMapLayer;
           var v = timelapse.getVideoset();
           v.setFps(10);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
@@ -3428,8 +3428,9 @@
           ecco2Layer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showEcco2Layer = true;
           setActiveLayersWithTimeline(1);
-          visibleBaseMapLayer = "ecco2";
           timelineType = "defaultUI";
+          previousVisibleBaseMapLayer = visibleBaseMapLayer;
+          visibleBaseMapLayer = "gdpp";
           requestNewTimeline("ecco2-times.json", timelineType);
           var v = timelapse.getVideoset();
           v.setFps(16);
@@ -3442,7 +3443,6 @@
           cacheLastUsedLayer(ecco2Layer);
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
-          visibleBaseMapLayer = previousVisibleBaseMapLayer;
           var v = timelapse.getVideoset();
           v.setFps(10);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
@@ -3457,8 +3457,9 @@
           gdpPppLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showGdpPppLayer = true;
           setActiveLayersWithTimeline(1);
-          visibleBaseMapLayer = "gdpPpp";
           timelineType = "defaultUI";
+          previousVisibleBaseMapLayer = visibleBaseMapLayer;
+          visibleBaseMapLayer = "gdpp";
           requestNewTimeline("gdpPpp-times.json", timelineType);
           var v = timelapse.getVideoset();
           v.setFps(10);
@@ -3472,7 +3473,6 @@
           cacheLastUsedLayer(gdpPppLayer);
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
-          visibleBaseMapLayer = previousVisibleBaseMapLayer;
           var v = timelapse.getVideoset();
           v.setFps(10);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
@@ -3488,8 +3488,9 @@
           gfsTimemachineLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           showGfsTimemachineLayer = true;
           setActiveLayersWithTimeline(1);
-          //visibleBaseMapLayer = "ecco2";
           timelineType = "defaultUI";
+          previousVisibleBaseMapLayer = visibleBaseMapLayer;
+          visibleBaseMapLayer = "gfs";
           requestNewTimeline("gfs-timemachine-times.json", timelineType);
           var v = timelapse.getVideoset();
           v.setFps(12);
@@ -3502,7 +3503,6 @@
           cacheLastUsedLayer(gfsTimemachineLayer);
           setActiveLayersWithTimeline(-1);
           doSwitchToLandsat();
-          visibleBaseMapLayer = previousVisibleBaseMapLayer;
           var v = timelapse.getVideoset();
           v.setFps(10);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
