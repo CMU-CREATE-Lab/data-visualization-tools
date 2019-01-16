@@ -4763,7 +4763,7 @@
           for (var storyId in stories) {
             if (story_count == 0) {
               theme_html += "<h3 data-enabled='" + waypointJSONList[themeId].enabled + "'>" + themeTitle + "</h3>";
-              theme_html += "<table id=theme_" + themeId + ">";
+              theme_html += "<table data-enabled='" + waypointJSONList[themeId].enabled + "' id=theme_" + themeId + ">";
               theme_html += "<tr id='theme_description'><td colspan='3'><p style='padding-right: 10px; text-transform: none !important;'>" + waypointJSONList[themeId].mainThemeDescription + "</p></td></tr>";
             }
             var storyTitle = stories[storyId].storyTitle;
@@ -4796,7 +4796,7 @@
         }
 
         $(".themes-div").accordion("refresh");
-        $(".themes-div").find('[data-enabled="false"]').hide();
+        $(".themes-div").find('[data-enabled="false"]').addClass("force-hidden");
 
         var storyAndTheme = getStoryAndThemeFromUrl();
         var $selectedStoryElement;

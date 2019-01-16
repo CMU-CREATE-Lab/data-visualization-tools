@@ -2379,3 +2379,7 @@ a:focus { outline:0; }
 .pac-container {
   z-index: 99999;
 }
+
+.force-hidden {
+  display: none !important;
+}
