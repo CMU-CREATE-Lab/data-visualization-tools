@@ -380,7 +380,7 @@
     var forestAlertsTimeMachineLayer, forestAlertsNoOverlayTimeMachineLayer, landsatBaseMapLayer, darkBaseMapLayer, lightBaseMapLayer, mcrmVectorLayer, countryLabelMapLayer, cityLabelMapLayer;
     var hansenMapLayer, hansenMapLayer2, lightsAtNightMapLayer, lightsAtNight2012MapLayer, lightsAtNight2016MapLayer, crwTimeMachineLayer, animatedHansenLayer, himawariTimeMachineLayer, ndviAnomalyTimeMachineLayer;
     var waterOccurrenceLayer, waterChangeLayer, usgsWindTurbineLayer, solarInstallsLayer, drillingLayer;
-    var goes16TimeMachineLayer, dscovrTimeMachineLayer, annualGlobalPm25TimeMachineLayer;
+    var goes16TimeMachineLayer, goes16Aug2018TimeMachineLayer, goes16Nov2018TimeMachineLayer, dscovrTimeMachineLayer, annualGlobalPm25TimeMachineLayer;
     var globalWindPowerLayer;
     setTimeLine('global-wind-power-times', 1984, 2018, 1);
     var annualRefugeesLayer;
@@ -822,6 +822,8 @@
     var ndviAnomalyTimeMachineUrl = rootTilePath + "/ndvi_anomaly_1000v01/1068x600";
     var himawariTimeMachineUrl = rootTilePath + "/himawari8/himawari8-nov-2015.timemachine/crf26-12fps-1424x800";
     var goes16TimeMachineUrl = rootTilePath + "/goes16/2017-09-01.timemachine/crf26-12fps-1424x800";
+    var goes16Aug2018TimeMachineUrl = rootTilePath + "/goes16/2018-08-01.timemachine/crf26-12fps-1424x800";
+    var goes16Nov2018TimeMachineUrl = rootTilePath + "/goes16/2018-11-01.timemachine/crf26-12fps-1424x800";
     var dscovrTimeMachineUrl = rootTilePath + "/dscovr/dscovr.timemachine/crf26-6fps-1424x800";
     var annualGlobalPm25TimeMachineUrl = rootTilePath + "/annual-global-pm25/pm2_5v2.timemachine/crf26-6fps-1424x800";
     var forestAlertsTimeMachineUrl = rootTilePath + "/global-forest-alerts/ForestAlarms2016v2/1068x600";
@@ -1614,7 +1616,7 @@
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
           $("#layers-legend").hide();
           // Handle Landsat 2016 bounds.
-          if (!$("#show-goes16").prop('checked') && !$("#show-dscovr").prop('checked')) {
+          if (!$(".timemachine").prop('checked')) {
             if (landsatVersion == "2016") {
               $.getScript(landsatAjaxIncludesPath)
                 .done(function(script, status) {
@@ -1678,7 +1680,7 @@
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
           $("#layers-legend").hide();
           // Handle Landsat 2016 bounds.
-          if (!$("#show-himawari").prop('checked') && !$("#show-dscovr").prop('checked')) {
+          if (!$(".timemachine").prop('checked')) {
             if (landsatVersion == "2016") {
               $.getScript(landsatAjaxIncludesPath)
                 .done(function(script, status) {
@@ -1691,6 +1693,128 @@
         }
         timelapse.warpTo(timelapse.getHomeView());
       }).prop('checked', showGoes16TimeMachineLayer);
+
+      $("#show-goes16-aug-2018").on("click", function() {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          goes16Aug2018TimeMachineLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
+          // Clear out non-goes16 layers if they were already active.
+          var $activeLayersNotIncludingClickedLayer = $(".map-layer-div").find("input:checked").not($(this));
+          if ($activeLayersNotIncludingClickedLayer.length > 1) {
+            $activeLayersNotIncludingClickedLayer.trigger("click");
+          }
+          showGoes16Aug2018TimeMachineLayer = true;
+          activeLayersWithTimeline = 1;
+          previousActiveLayersWithTimeline = activeLayersWithTimeline;
+          timelineType = "defaultUI";
+          previousVisibleBaseMapLayer = visibleBaseMapLayer;
+          visibleBaseMapLayer = "goes16-aug-2018";
+          requestNewTimeline("goes16-aug-2018-times.json", timelineType);
+          var v = timelapse.getVideoset();
+          v.setFps(12);
+          timelapse.setMaxScale(goes16MaxScale);
+          timelapse.setDoDwell(false);
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(1);
+          $("#layers-legend").hide();
+          // Handle Landsat 2016 bounds.
+          if (landsatVersion == "2016") {
+            $.getScript("himawari_landsat_ajax_includes.js")
+              .done(function(script, status) {
+                eval(script);
+                landsatBaseMapLayer.resetDimensions(cached_ajax["./1068x600/r.json"]);
+              }
+            );
+          }
+          $("#baselayerCreditText").html("&copy; NOOA");
+        } else {
+          showGoes16Aug2018TimeMachineLayer = false;
+          cacheLastUsedLayer(goes16Aug2018TimeMachineLayer);
+          setActiveLayersWithTimeline(-1);
+          doSwitchToLandsat();
+          var v = timelapse.getVideoset();
+          v.setFps(10);
+          timelapse.seek(0);
+          timelapse.setMaxScale(landsatMaxScale);
+          timelapse.setDoDwell(true);
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          $("#layers-legend").hide();
+          // Handle Landsat 2016 bounds.
+          if (!$(".timemachine-layer").prop('checked')) {
+            if (landsatVersion == "2016") {
+              $.getScript(landsatAjaxIncludesPath)
+                .done(function(script, status) {
+                  eval(script);
+                  landsatBaseMapLayer.resetDimensions(cached_ajax["./1068x600/r.json"]);
+                }
+              );
+            }
+          }
+        }
+        timelapse.warpTo(timelapse.getHomeView());
+      }).prop('checked', showGoes16Aug2018TimeMachineLayer);
+
+      $("#show-goes16-nov-2018").on("click", function() {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          goes16Nov2018TimeMachineLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
+          // Clear out non-goes16 layers if they were already active.
+          var $activeLayersNotIncludingClickedLayer = $(".map-layer-div").find("input:checked").not($(this));
+          if ($activeLayersNotIncludingClickedLayer.length > 1) {
+            $activeLayersNotIncludingClickedLayer.trigger("click");
+          }
+          showGoes16Nov2018TimeMachineLayer = true;
+          activeLayersWithTimeline = 1;
+          previousActiveLayersWithTimeline = activeLayersWithTimeline;
+          timelineType = "defaultUI";
+          previousVisibleBaseMapLayer = visibleBaseMapLayer;
+          visibleBaseMapLayer = "goes16-nov-2018";
+          requestNewTimeline("goes16-nov-2018-times.json", timelineType);
+          var v = timelapse.getVideoset();
+          v.setFps(12);
+          timelapse.setMaxScale(goes16MaxScale);
+          timelapse.setDoDwell(false);
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(1);
+          $("#layers-legend").hide();
+          // Handle Landsat 2016 bounds.
+          if (landsatVersion == "2016") {
+            $.getScript("himawari_landsat_ajax_includes.js")
+              .done(function(script, status) {
+                eval(script);
+                landsatBaseMapLayer.resetDimensions(cached_ajax["./1068x600/r.json"]);
+              }
+            );
+          }
+          $("#baselayerCreditText").html("&copy; NOOA");
+        } else {
+          showGoes16Nov2018TimeMachineLayer = false;
+          cacheLastUsedLayer(goes16Nov2018TimeMachineLayer);
+          setActiveLayersWithTimeline(-1);
+          doSwitchToLandsat();
+          var v = timelapse.getVideoset();
+          v.setFps(10);
+          timelapse.seek(0);
+          timelapse.setMaxScale(landsatMaxScale);
+          timelapse.setDoDwell(true);
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          $("#layers-legend").hide();
+          // Handle Landsat 2016 bounds.
+          if (!$(".timemachine-layer").prop('checked')) {
+            if (landsatVersion == "2016") {
+              $.getScript(landsatAjaxIncludesPath)
+                .done(function(script, status) {
+                  eval(script);
+                  landsatBaseMapLayer.resetDimensions(cached_ajax["./1068x600/r.json"]);
+                }
+              );
+            }
+          }
+        }
+        timelapse.warpTo(timelapse.getHomeView());
+      }).prop('checked', showGoes16Nov2018TimeMachineLayer);
 
       $("#show-dscovr").on("click", function() {
         //$(".current-location-text-container").hide();
@@ -3972,7 +4096,7 @@
         if (enableLetterboxMode) {
           updateLetterboxSelections($(this));
         }
-        var selectedLayers = $('.map-layer-checkbox').find("input:checked").not("#show-forest-alerts, show-forest-alerts-no-overlay, #show-himawari, #show-goes16, #show-dscovr");
+        var selectedLayers = $('.map-layer-checkbox').find("input:checked").not("#show-forest-alerts, show-forest-alerts-no-overlay, #show-himawari, #show-goes16, #show-goes16-aug-2018, #show-goes16-nov-2018, #show-dscovr");
         // Subtract one, since base layers are included in this count but they don't use the legend.
         var numLayersOn = selectedLayers.size() - 1;
 
@@ -4024,11 +4148,15 @@
 
         // Toggle off Himawari/GOES16/DSCOVR if any other layer is selected when it is up. These layers are a special mode.
         // Base layer is part of the checkbox total, hence the > 1 check.
-        if ((showHimawariTimeMachineLayer || showGoes16TimeMachineLayer || showDscovrTimeMachineLayer) && $('.map-layer-checkbox').find("input:checked").not("#show-himawari, #show-goes16, #show-dscovr").length > 1) {
+        if ((showHimawariTimeMachineLayer || showGoes16TimeMachineLayer || goes16Aug2018TimeMachineLayer || goes16Nov2018TimeMachineLayer || showDscovrTimeMachineLayer) && $('.map-layer-checkbox').find("input:checked").not("#show-himawari, #show-goes16, #show-goes16-aug-2018, #show-goes16-nov-2018, #show-dscovr").length > 1) {
           if ($("#show-himawari").prop('checked')) {
             $("#show-himawari").click();
           } else if ($("#show-goes16").prop('checked')) {
             $("#show-goes16").click();
+          } else if ($("#show-goes16-aug-2018").prop('checked')) {
+            $("#show-goes16-aug-2018").click();
+          } else if ($("#show-goes16-nov-2018").prop('checked')) {
+            $("#show-goes16-nov-2018").click();
           } else if ($("#show-dscovr").prop('checked')) {
             $("#show-dscovr").click();
           }
@@ -4371,6 +4499,8 @@
     var showAnimatedHansenLayer = false;
     var showHimawariTimeMachineLayer = false;
     var showGoes16TimeMachineLayer = false;
+    var showGoes16Aug2018TimeMachineLayer = false;
+    var showGoes16Nov2018TimeMachineLayer = false;
     var showDscovrTimeMachineLayer = false;
     var showAnnualGlobalPm25TimeMachineLayer = false;
     var showForestAlertsTimeMachineLayer = false;
@@ -4915,7 +5045,7 @@
       var show_global_wind_power = '<td class="wind-select"><label for="show-global-wind-power" name="gwp"><input type="checkbox" id="show-global-wind-power" />Wind Power (Global)</label></td>';
       var show_solar_installs = '<td class="solar-select"> <label for="show-solar-installs" name="sp"><input type="checkbox" id="show-solar-installs" />Solar PV (USA)</label></td>';
       var show_drilling = '<td class="drilling-select"><label for="show-drilling" name="drl"><input type="checkbox" id="show-drilling" />Oil/Gas Drilling (USA)</label></td>';
-      var show_himawari = '<td class="himawari-select"><label for="show-himawari" name="h8_16"><input type="checkbox" id="show-himawari" />Himawari-8</label></td>';
+      var show_himawari = '<td class="timemachine himawari-select"><label for="show-himawari" name="h8_16"><input type="checkbox" id="show-himawari" />Himawari-8</label></td>';
       var show_water_occurrence = '<td class="water-occurrence-select"><label for="show-water-occurrence" name="wo"><input type="checkbox" id="show-water-occurrence" />Water Occurrence</label></td>';
       var show_water_change = '<td class="water-change-select"><label for="show-water-change" name="wc"><input type="checkbox" id="show-water-change" />Water Change</label></td>';
       var show_monthly_refugees = '<td class="monthly-refugees-select"><label for="show-monthly-refugees" name="mmr"><input type="checkbox" id="show-monthly-refugees" />Mediterranean Refugees</label></td>';
@@ -4978,8 +5108,10 @@
       var show_sp_crude_USGC = '<td class="sp-crude-select_USGC"><label for="show-sp-crude_USGC" name="sp-crude_USGC"><input type="checkbox" id="show-sp-crude_USGC" />USGC Crude Oil flows</label></td>';
       var show_sp_crude_LatAM = '<td class="sp-crude-select_LatAM"><label for="show-sp-crude_LatAM" name="sp-crude_LatAM"><input type="checkbox" id="show-sp-crude_LatAM" />LatAM Crude Oil flows</label></td>';
       var show_sp_crude_NS = '<td class="sp-crude-select_NS"><label for="show-sp-crude_NS" name="sp-crude_NS"><input type="checkbox" id="show-sp-crude_NS" />NS Crude Oil flows</label></td>';
-      var show_goes16 = '<td class="goes16-select"><label for="show-goes16" name="goes16"><input type="checkbox" id="show-goes16" />GOES16</label></td>';
-      var show_dscovr = '<td class="dscovr-select"><label for="show-dscovr" name="dscovr"><input type="checkbox" id="show-dscovr" />DSCOVR</label></td>';
+      var show_goes16 = '<td class="timemachine goes16-select"><label for="show-goes16" name="goes16"><input type="checkbox" id="show-goes16" />GOES16</label></td>';
+      var show_goes16_aug2018 = '<td class="timemachine goes16-aug-2018-select"><label for="show-goes16-aug-2018" name="goes16-aug-2018"><input type="checkbox" id="show-goes16-aug-2018" />GOES16 August 2018</label></td>';
+      var show_goes16_nov2018 = '<td class="timemachine goes16-nov-2018-select"><label for="show-goes16-nov-2018" name="goes16-nov-2018"><input type="checkbox" id="show-goes16-nov-2018" />GOES16 November 2018</label></td>';
+      var show_dscovr = '<td class="timemachine dscovr-select"><label for="show-dscovr" name="dscovr"><input type="checkbox" id="show-dscovr" />DSCOVR</label></td>';
       var show_annual_global_pm25 = '<td class="annual-pm25-select"><label for="show-annual-pm25" name="annual-pm25"><input type="checkbox" id="show-annual-pm25" />Annual Global PM 2.5</label></td>';
       var show_ecco2 = '<td class="ecco2-select"><label for="show-ecco2" name="ecco2"><input type="checkbox" id="show-ecco2" />ECCO2</label></td>';
       var show_gpd_ppp = '<td class="gdpPpp-select"><label for="show-gdpPpp" name="gdpPpp"><input type="checkbox" id="show-gdpPpp" />GDP pc PPP</label></td>';
@@ -5472,6 +5604,12 @@
         layer_html += '    <tr>';
         layer_html += show_goes16;
         layer_html += '    </tr>';
+        layer_html += '    <tr>';
+        layer_html += show_goes16_aug2018;
+        layer_html += '    </tr>';
+        layer_html += '    <tr>';
+        layer_html += show_goes16_nov2018;
+        layer_html += '    </tr>';
       }
       if (showDscovr) {
         layer_html += '    <tr>';
@@ -5849,6 +5987,29 @@
         tileRootUrl: goes16TimeMachineUrl
       };
       goes16TimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, goes16TimeMachineLayerOptions);
+
+      // GOES16-Aug2018
+      var goes16Aug2018TimeMachineLayerOptions = {
+        numFrames: cached_ajax['goes16-aug-2018-times.json']['capture-times'].length,
+        fps: 12,
+        nLevels: 4,
+        width: 10848,
+        height: 10848,
+        tileRootUrl: goes16Aug2018TimeMachineUrl
+      };
+      goes16Aug2018TimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, goes16Aug2018TimeMachineLayerOptions);
+
+      // GOES16-Nov2018
+      var goes16Nov2018TimeMachineLayerOptions = {
+        numFrames: cached_ajax['goes16-nov-2018-times.json']['capture-times'].length,
+        fps: 12,
+        nLevels: 4,
+        width: 10848,
+        height: 10848,
+        tileRootUrl: goes16Nov2018TimeMachineUrl
+      };
+      goes16Nov2018TimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, goes16Nov2018TimeMachineLayerOptions);
+
 
       // DSCOVR
       var dscovrTimeMachineLayerOptions = {
@@ -8134,6 +8295,12 @@
       } else if (showGoes16TimeMachineLayer) {
         var goes16View = getLayerView(goes16TimeMachineLayer, landsatBaseMapLayer);
         goes16TimeMachineLayer.draw(goes16View, tileViewVisibility);
+      } else if (showGoes16Aug2018TimeMachineLayer) {
+        var goes16Aug2018View = getLayerView(goes16Aug2018TimeMachineLayer, landsatBaseMapLayer);
+        goes16Aug2018TimeMachineLayer.draw(goes16Aug2018View, tileViewVisibility);
+      } else if (showGoes16Nov2018TimeMachineLayer) {
+        var goes16Nov2018View = getLayerView(goes16Nov2018TimeMachineLayer, landsatBaseMapLayer);
+        goes16Nov2018TimeMachineLayer.draw(goes16Nov2018View, tileViewVisibility);
       } else if (showDscovrTimeMachineLayer) {
         var dscovrView = getLayerView(dscovrTimeMachineLayer, landsatBaseMapLayer);
         dscovrTimeMachineLayer.draw(dscovrView, tileViewVisibility);
