@@ -3656,7 +3656,7 @@
             $("#baselayerCreditText").html("&copy; OpenMapTiles, &copy; OpenStreetMap");
           }
         }
-        if (visibleBaseMapLayer == "landsat" && previousVisibleBaseMapLayer != "landsat") {
+        if (visibleBaseMapLayer == "landsat") {
           timelapse.setMaxScale(landsatMaxScale);
           // TODO: Need to rethink this
           if (activeLayersWithTimeline < 1) {
@@ -3666,7 +3666,7 @@
           if (!showViirsLayer) {
             timelineType = "customUI";
           }
-        } else if (visibleBaseMapLayer != "landsat") {
+        } else {
           if (previousVisibleBaseMapLayer == "dark" || previousVisibleBaseMapLayer == "light") {
             timelapse.setMaxScale(rasterMapTileMaxScale);
             timelineType = "none";
@@ -4317,6 +4317,7 @@
       if (timelineType == "defaultUI" && (showViirsLayer || showMonthlyRefugeesLayer || showCrwTimeMachineLayer)) {
         return false;
       } else {
+        previousVisibleBaseMapLayer = visibleBaseMapLayer;
         timelineType = "customUI";
         $("#layers-list #landsat-base").click();
         if (activeLayersWithTimeline <= 0) {
