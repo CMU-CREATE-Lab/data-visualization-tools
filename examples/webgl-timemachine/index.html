@@ -4756,18 +4756,18 @@
           var numStories = Object.keys(stories).length;
           // Handle legacy case where we treat theme as a story
           if (numStories == 1 && stories['default']) {
-            theme_html += "<li class='theme-selection-heading-no-accordion' id='story_" + themeId + "'>" + themeTitle + "</li>";
+            theme_html += "<li data-enabled='" + waypointJSONList[themeId].enabled + "' class='theme-selection-heading-no-accordion' id='story_" + themeId + "'>" + themeTitle + "</li>";
             continue;
           }
           story_count = 0;
           for (var storyId in stories) {
             if (story_count == 0) {
-              theme_html += "<h3>" + themeTitle + "</h3>";
+              theme_html += "<h3 data-enabled='" + waypointJSONList[themeId].enabled + "'>" + themeTitle + "</h3>";
               theme_html += "<table id=theme_" + themeId + ">";
               theme_html += "<tr id='theme_description'><td colspan='3'><p style='padding-right: 10px; text-transform: none !important;'>" + waypointJSONList[themeId].mainThemeDescription + "</p></td></tr>";
             }
             var storyTitle = stories[storyId].storyTitle;
-            theme_html += "<tr id='story_" + storyId + "'>";
+            theme_html += "<tr data-enabled='" + stories[storyId].enabled + "' id='story_" + storyId + "'>";
             var thumbnailURL = timelapse.getThumbnailOfView(stories[storyId].mainShareView, 128, 74) || "http://placehold.it/128x74";
             theme_html += "<td width='50%'><div style='width: 128px; height: 74px; overflow:hidden; border: 1px solid #232323'><img src='" + thumbnailURL + "'/></div></td>";
             theme_html += "<td width='10%'><input type='radio'></td>";
@@ -4778,6 +4778,8 @@
           theme_html += "</table>";
         }
         $(".themes-div").append(theme_html);
+
+        // TODO: Why do we loop through again and not do this above?
         for (var themeId in waypointJSONList) {
           var stories = waypointJSONList[themeId].stories
           for (var storyId in stories) {
@@ -4794,6 +4796,7 @@
         }
 
         $(".themes-div").accordion("refresh");
+        $(".themes-div").find('[data-enabled="false"]').hide();
 
         var storyAndTheme = getStoryAndThemeFromUrl();
         var $selectedStoryElement;
