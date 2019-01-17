@@ -55,7 +55,7 @@ _createTile = function(ti, bounds) {
   for (var i = 0; i < this._tileUrls.length; i++) {
     urls[i] =   this._tileUrls[i].replace("{z}", ti.l).replace("{x}", ti.c).replace("{y}", ti.r);
   }
-  return new WebglMapTile2(glb, ti, bounds, urls, this._defaultUrl);
+  return new WebglMapTile2(glb, ti, bounds, urls, this.defaultUrl);
 }
 
 WebglMapLayer2.prototype.
