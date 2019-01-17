@@ -8466,15 +8466,11 @@
         // Draw Animated Hansen Layer
         if (showAnimatedHansenLayer) {
           var animatedHansenLayerView = getLayerView(animatedHansenLayer, landsatBaseMapLayer);
-          var ratio = 0;
-          var captureTimes = timelapse.getCaptureTimes();
-          var offset = captureTimes.indexOf("2000");
-          var fps = timelapse.getFps();
-          if (offset > -1) {
-            var currentTime = Math.max(0, timelapse.getCurrentTime() - offset / fps);
-            ratio = currentTime / ((captureTimes.length - offset - 1) / fps);
-            ratio = Math.min(1, currentTime);
-          }
+          var beginDate = Number(timelapse.getCaptureTimes()[0]);
+          var endDate = Number(timelapse.getCaptureTimes()[timelapse.getCaptureTimes().length - 1]);
+          var currentDate = Number(timelapse.getCaptureTimeByTime(timelapse.getCurrentTime()));
+          var ratio = (currentDate - beginDate) / (endDate - beginDate);
+          console.log('animatedHansenLayerView alpha', ratio);
           animatedHansenLayerView.alpha = ratio;
           animatedHansenLayer.draw(animatedHansenLayerView);
         }
