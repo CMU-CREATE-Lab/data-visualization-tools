@@ -1615,7 +1615,6 @@
           v.setFps(10);
           timelapse.seek(0);
           timelapse.setMaxScale(landsatMaxScale);
-          timelapse.setDoDwell(true);
           timelapse.setMasterPlaybackRate(1);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
           $("#layers-legend").hide();
@@ -1679,7 +1678,6 @@
           v.setFps(10);
           timelapse.seek(0);
           timelapse.setMaxScale(landsatMaxScale);
-          timelapse.setDoDwell(true);
           timelapse.setMasterPlaybackRate(1);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
           $("#layers-legend").hide();
@@ -1740,7 +1738,6 @@
           v.setFps(10);
           timelapse.seek(0);
           timelapse.setMaxScale(landsatMaxScale);
-          timelapse.setDoDwell(true);
           timelapse.setMasterPlaybackRate(1);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
           $("#layers-legend").hide();
@@ -1801,7 +1798,6 @@
           v.setFps(10);
           timelapse.seek(0);
           timelapse.setMaxScale(landsatMaxScale);
-          timelapse.setDoDwell(true);
           timelapse.setMasterPlaybackRate(1);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
           $("#layers-legend").hide();
@@ -1865,7 +1861,6 @@
           var v = timelapse.getVideoset();
           v.setFps(10);
           timelapse.setMaxScale(landsatMaxScale);
-          timelapse.setDoDwell(true);
           timelapse.setMasterPlaybackRate(1);
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
           $("#layers-legend").hide();
@@ -1953,7 +1948,8 @@
           requestNewTimeline("berkeley-earth-temperature-anomaly-v2-yearly-times.json", timelineType);
           var v = timelapse.getVideoset();
           v.setFps(12);
-          timelapse.setDoDwell(false);
+          timelapse.setDwellTimes(0, 5);
+          timelapse.setDoDwell(true);
           WebglVideoTile.useGreenScreen = false;
           timelapse.setMasterPlaybackRate(1.0);
           $("#berkeley-earth-temperature-anomaly-v2-yearly-legend").show();
@@ -1981,7 +1977,8 @@
           requestNewTimeline("berkeley-earth-temperature-anomaly-v2-mo-window-times.json", timelineType);
           var v = timelapse.getVideoset();
           v.setFps(12);
-          timelapse.setDoDwell(false);
+          timelapse.setDwellTimes(0, 5);
+          timelapse.setDoDwell(true);
           WebglVideoTile.useGreenScreen = false;
           timelapse.setMasterPlaybackRate(1.0);
           $("#berkeley-earth-temperature-anomaly-v2-mo-window-legend").show();
@@ -4514,6 +4511,7 @@
         requestNewTimeline(cachedLandsatTimeJsonPath, "customUI");
         timelapse.setMasterPlaybackRate(1);
         timelapse.setPlaybackRate(defaultPlaybackSpeed);
+        timelapse.setDwellTimes(1.5, 1.5);
         timelapse.setDoDwell(true);
         WebglVideoTile.useGreenScreen = false;
         var v = timelapse.getVideoset();
