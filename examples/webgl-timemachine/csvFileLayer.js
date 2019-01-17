@@ -275,9 +275,9 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
       if (baseLayerIdentifier) {
         $("#layers-list label[name='" + baseLayerIdentifier + "'] input").trigger("click");
       }
+      var cachedLayerTimelinePath = layer.layerId + ".json";
       if (layer.hasTimeline) {
         setActiveLayersWithTimeline(1);
-        var cachedLayerTimelinePath = layer.layerId + ".json";
         if (!$.isEmptyObject(layer.customSliderInfo)) {
           // TODO: Allow spreadsheet to specify type of timeline. For now, assume same timeline type as Landsat (customUI)
           timelineType = "customUI";
@@ -286,10 +286,11 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
           timelineType = "defaultUI";
         }
         layerCustomSliderInfo = layer.customSliderInfo;
-        requestNewTimeline(cachedLayerTimelinePath, timelineType);
       } else {
         timelineType = "none";
       }
+      // A timeline type of none will still set internal capture times (if applicable) but will not render any timeline UI
+      requestNewTimeline(cachedLayerTimelinePath, timelineType);
       layer.visible = true;
       $("#" + layer.layerId + "-legend").show();
       if (layer.mapType == "choropleth") {
