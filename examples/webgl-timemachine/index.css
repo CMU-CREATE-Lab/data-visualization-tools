@@ -925,6 +925,11 @@ html, body {
   cursor: pointer;
 }
 
+.location_search_div.letterbox > #location_search_icon {
+  right: -44px;
+  top: 44px;
+}
+
 #top-nav.menu-active {
   background-color: rgb(31, 31, 31, 1) !important;
 }
@@ -953,7 +958,7 @@ html, body {
   position: relative;
   top: 32px;
   left: 23px !important;
-  width: 177px;
+  width: 188px;
   margin: 0;
   padding-bottom: 7px;
   padding-top: 7px;
