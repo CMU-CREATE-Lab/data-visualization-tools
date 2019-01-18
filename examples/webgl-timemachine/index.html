@@ -6841,6 +6841,7 @@
             waypointId = $(".snaplapse_keyframe_list").children().first().children()[0].id;
           }
           $("#" + waypointId).click();
+          document.activeElement.blur();
         });
 
         snaplapseViewerForPresentationSlider.addEventListener('automode-start', function() {
