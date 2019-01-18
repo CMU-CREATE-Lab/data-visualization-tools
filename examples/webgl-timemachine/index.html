@@ -3924,6 +3924,9 @@
         var playbackRate = $lastSelectedExtra.data("playbackrate");
         var extrasName = $lastSelectedExtra.data("name");
 
+        if (enableLetterboxMode) {
+          $(".extras-content-dialog").addClass("letterbox");
+        }
         if (disableUI) {
           // Fit to window, without title bar
           $(".extras-content-dialog .ui-dialog-titlebar").hide();

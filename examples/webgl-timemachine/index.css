@@ -209,6 +209,11 @@ html, body {
 .extras-content-dialog.storyFriendlyDialog {
   height: calc(100% - 98px) !important;
 }
+
+.extras-content-dialog.letterbox.storyFriendlyDialog {
+  height: calc(100% - 5px) !important;
+}
+
 .ghinda-video-player {
   width: 100% !important;
   height: 100% !important;
