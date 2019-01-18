@@ -6833,9 +6833,9 @@
           var vals = UTIL.getUnsafeHashVars();
           var waypointId;
           if (vals.waypointIdx) {
-            waypointId = $("#timeMachine .snaplapse_keyframe_list").children().eq(vals.waypointIdx).children()[0].id;
+            waypointId = $(".snaplapse_keyframe_list").children().eq(vals.waypointIdx).children()[0].id;
           } else {
-            waypointId = $("#timeMachine .snaplapse_keyframe_list").children().first().children()[0].id;
+            waypointId = $(".snaplapse_keyframe_list").children().first().children()[0].id;
           }
           $("#" + waypointId).click();
         });
@@ -7782,9 +7782,22 @@
 
       if (sectionChoice == "themes") {
         // Create letterbox theme table
+
+        // First do legacy handling where theme was a story
         var layerThemes = $(".themes-div").find("li").map(function() {
           return $(this);
         }).get();
+
+        // Now handle stories that fall under a theme
+        var themes = $(".themes-div").find("table[id^='theme']");
+        themes.each(function() {
+          var $stories = $(this).find("tr[id^='story']");
+          $stories.each(function() {
+            var $story = $(this).clone();
+            $story.text($(this).parents().prev(".ui-accordion-header").text() + " - " + $(this).text());
+            layerThemes.push($story);
+          });
+        });
 
         var numThemesPerRow = Math.ceil(layerThemes.length / numRows);
 
@@ -7897,6 +7910,8 @@
             }
 
             var labelName = $(categoryLayers[i]).find("label").attr('name');
+            // Ignore the layer info bubble element (or any other non-layer toggle label element)
+            if (!labelName) continue;
             var inputId = $(categoryLayers[i]).find("input")[0].id;
 
             html += "<td><label class='pointer' name='letterbox-" + labelName + "'><input type='checkbox' class='pointer' id='letterbox-" + inputId + "' data-layer-id='" + inputId + "'/>" + $(categoryLayers[i]).text() + "</label></td>";
