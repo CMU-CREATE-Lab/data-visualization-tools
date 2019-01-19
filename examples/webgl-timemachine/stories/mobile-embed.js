@@ -43,18 +43,18 @@ earthtime._handlebarsTemplates = {
     '      {{#if credit}}' +
     '         <div class="earthtime-credit">{{credit}}</div>' +
     '      {{/if}}' +
-    '   </div>' +
     '</div>',
+    '   </div>' +
   'caption-template' : '<div class="earthtime-caption">' +
     '   {{#if title}}' +
     '      <div class="earthtime-caption-title">{{title}}</div>' +
     '   {{/if}}' +
-    '   <div class="earthtime-caption-text">{{caption}}</div>' +
+    '   <div class="earthtime-caption-text">{{{caption}}}</div>' +
     '</div>',
   'title-caption-template' : '<div class="earthtime-title">' +
     '   <div class="earthtime-title-headline"><h1>{{title}}</h1></div>' +
     '   <div class="earthtime-title-rule"></div>' +
-    '   <div class="earthtime-title-caption">{{caption}}</div>' +
+    '   <div class="earthtime-title-caption">{{{caption}}}</div>' +
     '   {{#if author}}' +
     '      <div class="earthtime-title-author">{{{author}}}</div>' +
     '   {{/if}}' +
@@ -85,14 +85,14 @@ earthtime._updateOrientation = function() {
     // Loop over each story, updating img and video src to match new orientation
     for (var elementId in earthtime._storyRegistrations) {
       if (earthtime._storyRegistrations.hasOwnProperty(elementId)) {
-	
+
 	// Change orientation for story
 	var story = earthtime._storyRegistrations[elementId];
 	var storyContainerElement = story.containerElement;
 	var storyframes = storyContainerElement.querySelectorAll('.earthtime-story-frame');
-	
+
 	var videos = storyContainerElement.querySelectorAll('video');
-	
+
 	// get an array of all orientable elements
 	var orientableElements = storyContainerElement.querySelectorAll('.earthtime-orientable');
 	for (var i = 0; i < orientableElements.length; i++) {
@@ -142,13 +142,13 @@ earthtime._compileHandlebarsTemplates = function() {
 earthtime._dynamicallyLoadScript = function(url, onloadCallback) {
   var script = document.createElement('script');
   script.src = url;
-  
+
   if (typeof onloadCallback === 'function') {
     script.onload = function() {
       onloadCallback(url);
     };
   }
-  
+
   document.head.appendChild(script);
 };
 
@@ -165,13 +165,13 @@ earthtime._dynamicallyLoadStylesheet = function(url, onloadCallback) {
   var element = document.createElement('link');
   element.setAttribute('href', url);
   element.setAttribute('rel', 'stylesheet');
-  
+
   if (typeof onloadCallback === 'function') {
     element.onload = function() {
       onloadCallback(url);
     };
   }
-  
+
   document.head.appendChild(element);
 };
 
@@ -215,7 +215,7 @@ earthtime._loadStory = function(storyName, containerElement, waypointsIdentifier
   }
   var matchesArray = rawUrl.match(regexp);
   var url = earthtime._handlebarsTemplates['url-src']({ 'id' : matchesArray[1], 'gid' : matchesArray[2] });
-  
+
   earthtime.Papa.parse(url, {
     download : true,
     header : true,
@@ -229,10 +229,10 @@ earthtime._loadStory = function(storyName, containerElement, waypointsIdentifier
       var story = [];
       var data = results["data"];
       var append = false;
-      
+
       for (var i = 0; i < data.length; i++) {
         var title = data[i]['Waypoint Title'];
-	
+
         if (title[0] === '#') {
           var sharelink = data[i]["Share View"].trim() === '' ? earthtime._DEFAULT_SHARE_VIEW : data[i]["Share View"];
           var item = {
@@ -241,7 +241,7 @@ earthtime._loadStory = function(storyName, containerElement, waypointsIdentifier
             'author' : earthtime._generateAuthorText(data[i]["Author"]),
             'filename' : new Thumbnailer(sharelink).getPng()
           };
-	  
+
           if (title[1] == '#') {
             themes[themeIdx]['stories'].push(item);
             storyIdx = themes[themeIdx]['stories'].length - 1;
@@ -253,12 +253,12 @@ earthtime._loadStory = function(storyName, containerElement, waypointsIdentifier
             storyIdx = null;
           }
         }
-	
+
         // Stop appending?
         if (append && title[0] == '#' && (storyMode || title[1] != '#')) {
           append = false;
         }
-	
+
         // Start appending?
         if (title.toLowerCase() == storyName.toLowerCase()) {
           append = true;
@@ -270,7 +270,7 @@ earthtime._loadStory = function(storyName, containerElement, waypointsIdentifier
           currentThemeIdx = themeIdx;
           currentStoryIdx = storyIdx;
         }
-	
+
         if (append) {
           if (title !== '') {
             story.push(data[i]);
@@ -291,16 +291,16 @@ earthtime._loadStory = function(storyName, containerElement, waypointsIdentifier
         '      <a href="https://earthtime.org">Earth<br/>Time</a>' +
         '   </div>' +
         '</div>';
-      
+
       var storyElement = containerElement.querySelector('.earthtime-story');
-      
+
       for (var i = 0; i < story.length; i++) {
         var isTitleItem = (i === 0);
         var shareView = story[i]["Share View"].trim();
         if (isTitleItem && shareView === '') {
           shareView = earthtime._DEFAULT_SHARE_VIEW;
         }
-	
+
         if (shareView.trim() !== '') {
           // create the appropriate caption element and go ahead and generate its HTML
           var captionContext = {
@@ -317,7 +317,7 @@ earthtime._loadStory = function(storyName, containerElement, waypointsIdentifier
             captionTemplate = earthtime._handlebarsTemplates['caption-template']
           }
           var captionHtml = captionTemplate(captionContext);
-	  
+
           // create the story frame (i.e. image/video) element
           var thumbnail = new Thumbnailer(shareView);
           var context = {
@@ -341,20 +341,20 @@ earthtime._loadStory = function(storyName, containerElement, waypointsIdentifier
             context['video_src_portrait'] = thumbnail.getMp4('portrait');
             context['video_src_landscape'] = thumbnail.getMp4('landscape');
           }
-	  
+
           // insert the caption block if it's the story title
           if (isTitleItem) {
             storyElement.insertAdjacentHTML('beforeend', captionHtml);
           }
-	  
+
           // insert the story frame
           storyElement.insertAdjacentHTML('beforeend', storyFrameTemplate(context));
-	  
+
           // don't include a separate caption element if this is the title, since it's already been included above
           if (!isTitleItem) {
             storyElement.insertAdjacentHTML('beforeend', captionHtml);
           }
-	  
+
           // if we're at the end, then duplicate the last frame
           if (i === story.length - 1) {
             context.idx++;
@@ -396,7 +396,7 @@ earthtime._updateScrollPos = function(e) {
           found = true;
 	  // If currently shown is a video, make sure it's playing
 	  if (video && video.paused) {
-	    earthtime._printLogging('Playing ' + elementId + ':' + i); 
+	    earthtime._printLogging('Playing ' + elementId + ':' + i);
 	    video.play();
 	  }
 	}
@@ -404,7 +404,7 @@ earthtime._updateScrollPos = function(e) {
           child.style.position = 'relative';
 	  // For videos playing but not currently shown, pause and seek to beginning
 	  if (video && !video.paused) {
-	    earthtime._printLogging('Pausing ' + elementId + ':' + i); 
+	    earthtime._printLogging('Pausing ' + elementId + ':' + i);
 	    video.pause();
 	    video.currentTime = 0;
 	  }
@@ -445,19 +445,19 @@ earthtime.embedStories = function(config) {
   }
   var numScriptsLoaded = 0;
   var earthtimeDomain = config.earthtimeDomain || earthtime._EARTHTIME_DOMAIN;
-  
+
   var onScriptDependenciesLoaded = function(url) {
     numScriptsLoaded++;
     earthtime._printLogging("   (" + numScriptsLoaded + "/" + earthtime._scriptDependencies.length + "): " + url);
-    
+
     // if we're done loading all the script dependencies, then compile the templates then load the stories
     if (numScriptsLoaded === earthtime._scriptDependencies.length) {
       earthtime._compileHandlebarsTemplates();
       earthtime._updateOrientation();
-      
+
       // Precedence is story editor public link, config-local.js/config.js on ET server specified by earthtimeDomain, or lastly default spreadsheet
       var waypointsIdentifierUrl = config.earthtimeSpreadsheet || EARTH_TIMELAPSE_CONFIG.waypointSliderContentPath || earthtime._DEFAULT_EARTHTIME_SPREADSHEET;
-      
+
       // create scroll and orientation change handlers for the story
       window.addEventListener('scroll', earthtime._updateScrollPos);
       window.addEventListener('resize', earthtime._updateOrientation);
@@ -472,12 +472,12 @@ earthtime.embedStories = function(config) {
       }
     }
   };
-  
+
   // load the stylesheet first, then script dependencies
   earthtime._printLogging("Loading stylesheets:");
   earthtime._dynamicallyLoadStylesheet(earthtimeDomain + '/m/stories/mobile-embed.css', function(url) {
     earthtime._printLogging("   (1/1): " + url);
-    
+
     earthtime._printLogging("Loading script dependencies:");
     for (var i = 0; i < earthtime._scriptDependencies.length; i++) {
       var scriptUrl = earthtime._scriptDependencies[i];
