@@ -3921,7 +3921,7 @@
         var relativePath = "../../../extras/";
         var filePath = relativePath + $lastSelectedExtra.data("filepath");
         var fileType = $lastSelectedExtra.data("type");
-        var playbackRate = $lastSelectedExtra.data("playbackrate");
+        var playbackRate = parseFloat($lastSelectedExtra.data("playbackrate")) || 1;
         var extrasName = $lastSelectedExtra.data("name");
 
         if (enableLetterboxMode) {
