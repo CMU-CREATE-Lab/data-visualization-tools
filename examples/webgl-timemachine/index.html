@@ -4325,11 +4325,10 @@
         }
       });
 
-      // Make right layers panel vertically touch scrollable.
+      // Add vertical/horizontal scroll support to specific parts of the UI (e.g. layers/themes panels)
       try {
         if (UTIL.isTouchDevice()) {
           UTIL.verticalTouchScroll($(".layers-scroll-vertical"));
-          UTIL.verticalTouchScroll($(".featured-layers-scroll-vertical"));
           UTIL.verticalTouchScroll($(".themes-scroll-vertical"));
           UTIL.verticalTouchScroll($("#csvChartLegend"));
           UTIL.verticalTouchScroll($("#theme-list"));
@@ -4337,7 +4336,7 @@
           UTIL.touchHorizontalScroll($("#letterbox-bottom-picker-results-content"));
         }
       } catch (e) {
-        // Error creating touch event
+        console.log('Error creating scroll events for UI: ', e);
       }
 
       // Set the starting base layer
@@ -4363,6 +4362,8 @@
     // END of initLayerToggleUI()
 
     function createFeaturedLayersSection() {
+      if (enableLetterboxMode) return;
+
       $("#featured-layers-title, #layers-list-featured").remove();
 
       $("<div id='featured-layers-title'>Featured Data for: <br>" + featuredTheme + "</div><div id='layers-list-featured'><div class='featured-layers-scroll-vertical'><div id='featured-layers'></div></div><div id='show-more-layers'>Show More</div>").insertBefore($("#layers-list"));
@@ -4468,6 +4469,14 @@
             return false;
           }
         });
+      }
+      // Add vertical scroll to featured layers
+      try {
+        if (UTIL.isTouchDevice()) {
+          UTIL.verticalTouchScroll($(".featured-layers-scroll-vertical"));
+        }
+      } catch (e) {
+        console.log('Error creating scroll events for featured layers UI: ', e);
       }
     }
 
