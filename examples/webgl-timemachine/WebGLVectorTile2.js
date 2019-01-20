@@ -3384,7 +3384,7 @@ WebGLVectorTile2.prototype._drawSitc4r2 = function(transform, options) {
     if (typeof this.buffers[code][currentYear.toString()] == "undefined") {
       this._initSitc4rcBuffer(code, currentYear.toString());
     }
-    if (typeof this.buffers[code][(currentYear+1).toString()] == "undefined" && currentYear >= 2000) {
+    if (typeof this.buffers[code][(currentYear+1).toString()] == "undefined") {
       this._initSitc4rcBuffer(code, (currentYear+1).toString());
     }
     /* Draw buffers */
