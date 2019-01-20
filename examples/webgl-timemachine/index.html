@@ -296,8 +296,12 @@
     var enableStoryEditor = parseConfigOption({optionName: "enableStoryEditor", optionDefaultValue: false, exposeOptionToUrlHash: false});
     var pauseWhenInitialized = parseConfigOption({optionName: "pauseWhenInitialized", optionDefaultValue: false, exposeOptionToUrlHash: true});
     var landsatVersion = parseConfigOption({optionName: "landsatVersion", optionDefaultValue: "2015", exposeOptionToUrlHash: false});
+    // Deprecated
     var customDarkMapUrl = parseConfigOption({optionName: "customDarkMapUrl", optionDefaultValue: "", exposeOptionToUrlHash: false});
+    var customDarkMapUrlOrId = parseConfigOption({optionName: "customDarkMapUrlOrId", optionDefaultValue: "", exposeOptionToUrlHash: true}) || customDarkMapUrl;
+    // Deprecated
     var customLightMapUrl = parseConfigOption({optionName: "customLightMapUrl", optionDefaultValue: "", exposeOptionToUrlHash: false});
+    var customLightMapUrlOrId = parseConfigOption({optionName: "customLightMapUrlOrId", optionDefaultValue: "", exposeOptionToUrlHash: true}) || customLightMapUrl;
 
     // TODO:
     // Until we decide to force everyone to latest landsat, pull the version corresponding to the config above.
@@ -845,12 +849,10 @@
     var omtLightRetinaNoLabelsUrl = rootTilePath + "/openmaptiles/light-map-retina-no-labels/{default}/{z}/{x}/{y}.png";
     var gfcTransUrl = rootTilePath + "/global-forest-change/loss_year_transparent/{default}/{z}/{x}/{y}.png";
     var gfcLossGainUrl = rootTilePath + "/global-forest-change/loss_tree_gain/{default}/{z}/{x}/{y}.png";
-    //var googleMapsDefaultUrl = "https://mts0.googleapis.com/vt?pb=!1m5!1m4!1i{z}!2i{x}!3i{y}!4i256!2m3!1e0!2sm!3i323305239!3m9!2sen-US!3sUS!5e18!12m1!1e47!12m3!1e37!2m1!1ssmartmaps!4e0";
     var googleMapsDefaultUrl = "https://maps.googleapis.com/maps/vt?pb=!1m5!1m4!1i{z}!2i{x}!3i{y}!4i256!2m3!1e0!2sm!3i386081408!3m14!2sen-US!3sUS!5e18!12m1!1e47!12m3!1e37!2m1!1ssmartmaps!12m4!1e26!2m2!1sstyles!2zcy5lOmd8cC5jOiNmZjAwMDAwMCxzLmU6bHxwLnY6b2ZmLHMuZTpsLml8cC52Om9mZixzLmU6bC50LmZ8cC5jOiNmZjc1NzU3NSxzLmU6bC50LnN8cC5jOiNmZjIxMjEyMSxzLnQ6MXxzLmU6Z3xwLmM6I2ZmNzU3NTc1fHAudjpvZmYscy50OjE3fHAudjpvbixzLnQ6MTd8cy5lOmwudC5mfHAuYzojZmZjY2NjY2Mscy50OjE3fHMuZTpsLnQuc3xwLmM6I2ZmMDAwMDAwLHMudDoyMXxwLnY6b2ZmLHMudDoxOXxzLmU6bC50LmZ8cC5jOiNmZmJkYmRiZCxzLnQ6MjB8cC52Om9mZixzLnQ6MTh8cC52Om9uLHMudDoxOHxzLmU6bC50LmZ8cC5jOiNmZjdmN2Y3ZixzLnQ6MTh8cy5lOmwudC5zfHAuYzojZmYwMDAwMDAscy50OjJ8cC52Om9mZixzLnQ6MnxzLmU6bC50LmZ8cC5jOiNmZjc1NzU3NSxzLnQ6NDB8cy5lOmd8cC5jOiNmZjE4MTgxOCxzLnQ6NDB8cy5lOmwudC5mfHAuYzojZmY2MTYxNjEscy50OjQwfHMuZTpsLnQuc3xwLmM6I2ZmMWIxYjFiLHMudDozfHAudjpvZmYscy50OjN8cy5lOmcuZnxwLmM6I2ZmMmMyYzJjLHMudDozfHMuZTpsLml8cC52Om9mZixzLnQ6M3xzLmU6bC50LmZ8cC5jOiNmZjhhOGE4YSxzLnQ6NTB8cy5lOmd8cC5jOiNmZjM3MzczNyxzLnQ6NDl8cy5lOmd8cC5jOiNmZjNjM2MzYyxzLnQ6Nzg1fHMuZTpnfHAuYzojZmY0ZTRlNGUscy50OjUxfHMuZTpsLnQuZnxwLmM6I2ZmNjE2MTYxLHMudDo0fHAudjpvZmYscy50OjR8cy5lOmwudC5mfHAuYzojZmY3NTc1NzUscy50OjZ8cC5jOiNmZjRjNGM0YyxzLnQ6NnxzLmU6Z3xwLmM6I2ZmMzMzMzMzLHMudDo2fHMuZTpsLnQuZnxwLmM6I2ZmM2QzZDNk!4e0";
     var googleMapsDarkStyleUrl = "https://mts0.googleapis.com/vt?pb=!1m4!1m3!1i{z}!2i{x}!3i{y}!2m3!1e0!2sm!3i323305239!3m14!2sen-US!3sUS!5e18!12m1!1e47!12m3!1e37!2m1!1ssmartmaps!12m4!1e26!2m2!1sstyles!2zcC5oOiMwMDAwYjB8cC5pbDp0cnVlfHAuczotMzAscy50OjJ8cC52Om9mZg!4e0";
     var googleMapsDefaultRetinaUrl = "https://mts1.googleapis.com/vt?pb=!1m5!1m4!1i{z}!2i{x}!3i{y}!4i256!2m3!1e0!2sm!3i323305239!3m9!2sen-US!3sUS!5e18!12m1!1e47!12m3!1e37!2m1!1ssmartmaps!4e0!5m1!5f2";
 
-    //var googleMapsDarkStyleRetinaUrl = "https://mts0.googleapis.com/vt?pb=!1m4!1m3!1i{z}!2i{x}!3i{y}!2m3!1e0!2sm!3i323305239!3m14!2sen-US!3sUS!5e18!12m1!1e47!12m3!1e37!2m1!1ssmartmaps!12m4!1e26!2m2!1sstyles!2zcC5oOiMwMDAwYjB8cC5pbDp0cnVlfHAuczotMzAscy50OjJ8cC52Om9mZg!4e0!5m1!5f2";
     var googleMapsDarkStyleRetinaUrl = "https://maps.googleapis.com/maps/vt?pb=!1m5!1m4!1i{z}!2i{x}!3i{y}!4i256!2m3!1e0!2sm!3i386081408!3m14!2sen-US!3sUS!5e18!12m1!1e47!12m3!1e37!2m1!1ssmartmaps!12m4!1e26!2m2!1sstyles!2zcy5lOmd8cC5jOiNmZjAwMDAwMCxzLmU6bHxwLnY6b2ZmLHMuZTpsLml8cC52Om9mZixzLmU6bC50LmZ8cC5jOiNmZjc1NzU3NSxzLmU6bC50LnN8cC5jOiNmZjIxMjEyMSxzLnQ6MXxzLmU6Z3xwLmM6I2ZmNzU3NTc1fHAudjpvZmYscy50OjE3fHAudjpvbixzLnQ6MTd8cy5lOmwudC5mfHAuYzojZmZjY2NjY2Mscy50OjE3fHMuZTpsLnQuc3xwLmM6I2ZmMDAwMDAwLHMudDoyMXxwLnY6b2ZmLHMudDoxOXxzLmU6bC50LmZ8cC5jOiNmZmJkYmRiZCxzLnQ6MjB8cC52Om9mZixzLnQ6MTh8cC52Om9uLHMudDoxOHxzLmU6bC50LmZ8cC5jOiNmZjdmN2Y3ZixzLnQ6MTh8cy5lOmwudC5zfHAuYzojZmYwMDAwMDAscy50OjJ8cC52Om9mZixzLnQ6MnxzLmU6bC50LmZ8cC5jOiNmZjc1NzU3NSxzLnQ6NDB8cy5lOmd8cC5jOiNmZjE4MTgxOCxzLnQ6NDB8cy5lOmwudC5mfHAuYzojZmY2MTYxNjEscy50OjQwfHMuZTpsLnQuc3xwLmM6I2ZmMWIxYjFiLHMudDozfHAudjpvZmYscy50OjN8cy5lOmcuZnxwLmM6I2ZmMmMyYzJjLHMudDozfHMuZTpsLml8cC52Om9mZixzLnQ6M3xzLmU6bC50LmZ8cC5jOiNmZjhhOGE4YSxzLnQ6NTB8cy5lOmd8cC5jOiNmZjM3MzczNyxzLnQ6NDl8cy5lOmd8cC5jOiNmZjNjM2MzYyxzLnQ6Nzg1fHMuZTpnfHAuYzojZmY0ZTRlNGUscy50OjUxfHMuZTpsLnQuZnxwLmM6I2ZmNjE2MTYxLHMudDo0fHAudjpvZmYscy50OjR8cy5lOmwudC5mfHAuYzojZmY3NTc1NzUscy50OjZ8cC5jOiNmZjRjNGM0YyxzLnQ6NnxzLmU6Z3xwLmM6I2ZmMzMzMzMzLHMudDo2fHMuZTpsLnQuZnxwLmM6I2ZmM2QzZDNk!4e0!5m1!5f2";
         googleMapsDarkStyleRetinaUrl = 'https://maps.googleapis.com/maps/vt?pb=!1m5!1m4!1i{z}!2i{x}!3i{y}!4i256!2m3!1e0!2sm!3i408105841!3m14!2sen-US!3sUS!5e18!12m1!1e68!12m3!1e37!2m1!1ssmartmaps!12m4!1e26!2m2!1sstyles!2zcy5lOmd8cC5jOiNmZjIxMjEyMSxzLmU6bC5pfHAudjpvZmYscy5lOmwudC5mfHAuYzojZmY3NTc1NzUscy5lOmwudC5zfHAuYzojZmYyMTIxMjEscy50OjF8cy5lOmd8cC5jOiNmZjc1NzU3NSxzLnQ6MTd8cy5lOmcuc3xwLnY6b2ZmLHMudDoxN3xzLmU6bC50LmZ8cC5jOiNmZjllOWU5ZSxzLnQ6MjF8cC52Om9mZixzLnQ6MTl8cy5lOmcuc3xwLnY6b2ZmLHMudDoxOXxzLmU6bC50LmZ8cC5jOiNmZmJkYmRiZCxzLnQ6MTh8cy5lOmcuc3xwLnY6b2ZmLHMudDoxMzEzfHAuYzojZmYwMDAwMDAscy50OjJ8cy5lOmwudC5mfHAuYzojZmY3NTc1NzUscy50OjQwfHMuZTpnfHAuYzojZmYxODE4MTgscy50OjQwfHMuZTpsLnQuZnxwLmM6I2ZmNjE2MTYxLHMudDo0MHxzLmU6bC50LnN8cC5jOiNmZjFiMWIxYixzLnQ6M3xzLmU6Zy5mfHAuYzojZmYyYzJjMmMscy50OjN8cy5lOmwudC5mfHAuYzojZmY4YThhOGEscy50OjUwfHMuZTpnfHAuYzojZmYzNzM3Mzcscy50OjQ5fHMuZTpnfHAuYzojZmYzYzNjM2Mscy50Ojc4NXxzLmU6Z3xwLmM6I2ZmNGU0ZTRlLHMudDo1MXxzLmU6bC50LmZ8cC5jOiNmZjYxNjE2MSxzLnQ6NHxzLmU6bC50LmZ8cC5jOiNmZjc1NzU3NSxzLnQ6NnxzLmU6Z3xwLmM6I2ZmMDAwMDAwLHMudDo2fHMuZTpnLmZ8cC5jOiNmZjMyMzIzMixzLnQ6NnxzLmU6bC50LmZ8cC5jOiNmZjNkM2QzZA!4e0!5m1!5f2';
 
@@ -860,7 +862,7 @@
     var googleMapsCityLabelUrl = 'https://maps.googleapis.com/maps/vt?pb=!1m5!1m4!1i{z}!2i{x}!3i{y}!4i256!2m3!1e0!2sm!3i397094607!3m14!2sen-US!3sUS!5e18!12m1!1e68!12m3!1e37!2m1!1ssmartmaps!12m4!1e26!2m2!1sstyles!2zcy50OjV8cC52Om9mZixzLnQ6MnxwLnY6b2ZmLHMudDozfHAudjpvZmYscy50OjN8cy5lOmx8cC52Om9mZixzLnQ6NHxwLnY6b2ZmLHMudDo2fHAudjpvZmY!4e0!5m1!5f2&token=118514';
 
     var lightMapUrl;
-    if (customLightMapUrl) {
+    if (customLightMapUrlOrId.indexOf("http") == 0) {
       lightMapUrl = customLightMapUrl;
     } else if (useGoogleMaps) {
       lightMapUrl = googleMapsDefaultRetinaUrl;
@@ -873,7 +875,7 @@
     }
 
     var darkMapUrl;
-    if (customDarkMapUrl) {
+    if (customDarkMapUrlOrId.indexOf("http") == 0) {
       darkMapUrl = customDarkMapUrl;
     } else if (useGoogleMaps) {
       darkMapUrl = googleMapsDarkStyleRetinaUrl;
@@ -3825,14 +3827,18 @@
         if (visibleBaseMapLayer == "landsat") {
           $("#baselayerCreditText").html("&copy; Google");
         } else if (visibleBaseMapLayer == "light") {
-          if (useGoogleMaps) {
+          if (customLightMapUrlOrId && customLightMapUrlOrId.indexOf("http") != 0) {
+            $("#baselayerCreditText").html("&copy; " + csvFileLayers.layerById[customLightMapUrlOrId].credit);
+          } else if (useGoogleMaps) {
             $("#baselayerCreditText").html("&copy; Google");
             //$("#baselayerCreditText").html("&copy; Google (Dashed gray line indicates disputed borders)");
           } else {
             $("#baselayerCreditText").html("&copy; OpenMapTiles, &copy; OpenStreetMap");
           }
         } else if (visibleBaseMapLayer == "dark") {
-          if (useGoogleMaps) {
+          if (customDarkMapUrlOrId && customDarkMapUrlOrId.indexOf("http") != 0) {
+            $("#baselayerCreditText").html("&copy; " + csvFileLayers.layerById[customDarkMapUrlOrId].credit);
+          } else if (useGoogleMaps) {
             $("#baselayerCreditText").html("&copy; Google");
             //$("#baselayerCreditText").html("&copy; Google (Dashed gray line indicates disputed borders)");
           } else {
@@ -7280,6 +7286,17 @@
 
       // Callback when a CSV file has been loaded and layers added to the DOM.
       csvFileLayers.addLayersLoadedListener(function() {
+        // Override base dark map from a csv layer
+        if (customDarkMapUrlOrId && customDarkMapUrlOrId.indexOf("http") != 0) {
+          darkBaseMapLayer._tileUrl = csvFileLayers.layerById[customDarkMapUrlOrId]._tileUrl;
+        }
+
+        // Override base light map from a csv layer
+        if (customLightMapUrlOrId && customLightMapUrlOrId.indexOf("http") != 0) {
+          lightBaseMapLayer._tileUrl = csvFileLayers.layerById[customLightMapUrlOrId]._tileUrl;
+        }
+
+        // If csv layers load before waypoints, keep checking for waypoint ready status
         waypointJSONListReadyInterval = setInterval(function() {
           if (waypointJSONList) {
             window.clearInterval(waypointJSONListReadyInterval);
