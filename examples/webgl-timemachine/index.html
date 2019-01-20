@@ -253,10 +253,13 @@
     var timestampOnlyUI = parseConfigOption({optionName: "timestampOnlyUI", optionDefaultValue: false, exposeOptionToUrlHash: true});
     // Only show visualization
     var disableUI = parseConfigOption({optionName: "disableUI", optionDefaultValue: false, exposeOptionToUrlHash: true});
+    // Hide annotation box
+    var disableAnnotations = parseConfigOption({optionName: "disableAnnotations", optionDefaultValue: false, exposeOptionToUrlHash: true});
+    // Prevent presentation slider from being initialized
+    var disablePresentationSlider = parseConfigOption({optionName: "disablePresentationSlider", optionDefaultValue: false, exposeOptionToUrlHash: true});
     // Hide waypoint/bookmark slider
-    var disablePresentationSlider = disableUI ? true : parseConfigOption({optionName: "disablePresentationSlider", optionDefaultValue: false, exposeOptionToUrlHash: true});
-    var presentationMode = parseConfigOption({optionName: "presentationMode", optionDefaultValue: false, exposeOptionToUrlHash: true});
-    var initiallyShowPresentationSlider = parseConfigOption({optionName: "initiallyShowPresentationSlider", optionDefaultValue: false, exposeOptionToUrlHash: true});
+    var hidePresentationSlider = parseConfigOption({optionName: "hidePresentationSlider", optionDefaultValue: false, exposeOptionToUrlHash: true});
+    var initiallyShowPresentationSlider = hidePresentationSlider ? true : parseConfigOption({optionName: "initiallyShowPresentationSlider", optionDefaultValue: false, exposeOptionToUrlHash: true});
     var extraContributors = parseConfigOption({optionName: "extraContributors", optionDefaultValue: "", exposeOptionToUrlHash: false});
     if (extraContributors) {
       extraContributors = extraContributors.replace(",", " |");
@@ -1033,7 +1036,6 @@
         },
         isGoogleAnalyticEventTrackingEnabled: true,
         startEditorFromPresentationMode: true
-
       };
 
       if (enableLetterboxMode) {
@@ -4481,6 +4483,7 @@
     }
 
     function showAnnotationResumeExit() {
+      if (disableAnnotations) return;
       $(".current-location-text-container").hide();
       if (!disableResumeExitAnnotationPrompt) {
         $(".annotations-resume-exit-container").show();
@@ -6918,23 +6921,14 @@
           var lastAvailableWaypointIdx = $(".snaplapse_keyframe_list").children().last().index();
           var selectedWaypointIdx = $(".snaplapse_keyframe_list .thumbnail_highlight").closest(".snaplapse_keyframe_list_item").index();
 
-          if ($previousAnnotationLocationButton) {
+          if ($previousAnnotationLocationButton && $previousAnnotationLocationButton.button("instance") && $nextAnnotationLocationButton && $nextAnnotationLocationButton.button("instance")) {
             $previousAnnotationLocationButton.button("enable").removeClass("annotation-story-start-button");
-          }
-          if ($nextAnnotationLocationButton) {
             $nextAnnotationLocationButton.button("enable").removeClass("annotation-story-end-button");
-          }
-
-          if (selectedWaypointIdx == 0 && $previousAnnotationLocationButton) {
-            //var story = waypointJSONList[currentWaypointTheme].stories[currentWaypointStory];
-            //if (story && !story.storyDescription) {
+            if (selectedWaypointIdx == 0) {
               $previousAnnotationLocationButton.button("disable");
-            //} else {
-            //  $previousAnnotationLocationButton.addClass("annotation-story-start-button");
-            //}
-          } else if (selectedWaypointIdx == lastAvailableWaypointIdx && $nextAnnotationLocationButton) {
-            //$nextAnnotationLocationButton.button("disable");
-            $nextAnnotationLocationButton.addClass("annotation-story-end-button");
+            } else if (selectedWaypointIdx == lastAvailableWaypointIdx) {
+              $nextAnnotationLocationButton.addClass("annotation-story-end-button");
+            }
           }
 
           // Remove himawari since we do special cases further below
@@ -7435,8 +7429,6 @@
         // Add active class to currently selected story
         $selectedStoryElement.addClass('activeStory');
 
-        handleStoryToggle(true);
-
         $("#theme-menu .active-story-in-theme").remove();
         var $storyGroup = $selectedStoryElement.parents("table");
         var $themeHeading;
@@ -7475,6 +7467,7 @@
         if ($('#main-hamburger-menu').hasClass("is-active")) {
           $("#stories-menu-choice").click();
         }
+        handleStoryToggle(!hidePresentationSlider);
       });
 
       $("body").on("click", "#annotation-choose-another-story", function() {
@@ -7523,7 +7516,7 @@
         $(".captureTime").insertBefore(".controls");
         $(".captureTime, .scaleBarContainer, #logosContainer, #baseLayerCreditContainer").addClass("minimalUIMode");
         // Move annotation to top left
-        $(".current-location-text-container, .annotation-nav").addClass("letterbox");
+        $(".current-location-text-container, .annotation-nav, .annotations-resume-exit-container").addClass("letterbox");
         // Remove top nav, side control panel, search box, and timelines
         $("#controlsContainer, .location_search_div, .customControl, .controls").remove();
         disableTopNav = true;
@@ -7542,16 +7535,11 @@
         $("#logosContainer").remove();
       }
 
-      if (presentationMode) {
-        $(".current-location-text-container, .annotation-nav, .annotations-resume-exit-container").remove();
-        $("#controlsContainer, #layers-legend").css("top", "20px");
-        disableTopNav = true;
-      }
-
       if (disableUI) {
         // Remove top nav, side control panel, search box, timelines, scalebar, logos and legend
         $("#controlsContainer, .location_search_div, .customControl, .controls, .scaleBarContainer, .captureTime, #baseLayerCreditContainer, #logosContainer, #layers-legend").remove();
         disableTopNav = true;
+        disableAnnotations = true;
       }
 
       $(".annotations-resume-button").on("click", function() {
@@ -7587,6 +7575,10 @@
       if (disableTopNav) {
         $("#top-nav").remove();
         $("#viewerContainer").addClass("topNavDisabled");
+      }
+
+      if (disableAnnotations) {
+        $(".current-location-text-container, .annotation-nav, .annotations-resume-exit-container").remove();
       }
 
       handleStoryToggle(initiallyShowPresentationSlider);
