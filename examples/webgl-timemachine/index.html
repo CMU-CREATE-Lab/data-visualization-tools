@@ -4481,7 +4481,7 @@
       }
       // Add vertical scroll to featured layers
       try {
-        if (UTIL.isTouchDevice()) {
+        if (featuredTheme && UTIL.isTouchDevice()) {
           UTIL.verticalTouchScroll($(".featured-layers-scroll-vertical"));
         }
       } catch (e) {
