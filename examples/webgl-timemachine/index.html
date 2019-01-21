@@ -260,6 +260,7 @@
     // Hide waypoint/bookmark slider
     var hidePresentationSlider = parseConfigOption({optionName: "hidePresentationSlider", optionDefaultValue: false, exposeOptionToUrlHash: true});
     var initiallyShowPresentationSlider = hidePresentationSlider ? true : parseConfigOption({optionName: "initiallyShowPresentationSlider", optionDefaultValue: false, exposeOptionToUrlHash: true});
+    var forceLegend = parseConfigOption({optionName: "forceLegend", optionDefaultValue: false, exposeOptionToUrlHash: true});
     var extraContributors = parseConfigOption({optionName: "extraContributors", optionDefaultValue: "", exposeOptionToUrlHash: false});
     if (extraContributors) {
       extraContributors = extraContributors.replace(",", " |");
@@ -7552,8 +7553,11 @@
         // Move capture time outside of the timeline controls
         $(".captureTime").insertBefore(".controls");
         $(".captureTime, .scaleBarContainer, #logosContainer, #baseLayerCreditContainer").addClass("minimalUIMode");
-        // Remove top-nav, side control panel, search box, timelines, scalebar, logos and legend
-        $("#controlsContainer, .location_search_div, .customControl, .controls, .scaleBarContainer, #baseLayerCreditContainer, #logosContainer, #layers-legend").remove();
+        // Remove top-nav, side control panel, search box, timelines, scalebar, logos and legend (if not being forced on)
+        $("#controlsContainer, .location_search_div, .customControl, .controls, .scaleBarContainer, #baseLayerCreditContainer, #logosContainer").remove();
+        if (!forceLegend) {
+          $("#layers-legend").remove();
+        }
         disableTopNav = true;
       }
 
@@ -7562,8 +7566,11 @@
       }
 
       if (disableUI) {
-        // Remove top nav, side control panel, search box, timelines, scalebar, logos and legend
-        $("#controlsContainer, .location_search_div, .customControl, .controls, .scaleBarContainer, .captureTime, #baseLayerCreditContainer, #logosContainer, #layers-legend").remove();
+        // Remove top nav, side control panel, search box, timelines, scalebar, logos and legend (if not being forced on)
+        $("#controlsContainer, .location_search_div, .customControl, .controls, .scaleBarContainer, .captureTime, #baseLayerCreditContainer, #logosContainer").remove();
+        if (!forceLegend) {
+          $("#layers-legend").remove();
+        }
         disableTopNav = true;
         disableAnnotations = true;
       }
