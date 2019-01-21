@@ -1241,6 +1241,11 @@
           if (!$layerToggle.prop('checked')) $layerToggle.trigger("click");
         }
       });
+      // Hack
+      // TODO: Revist toggling of CSV layers that did not have a timeline
+      if (layers.length == 1 & visibleBaseMapLayer == "landsat" && timelapse.getDuration() < 3) {
+        doSwitchToLandsat();
+      }
     }
 
     function initLayerToggleUI() {
