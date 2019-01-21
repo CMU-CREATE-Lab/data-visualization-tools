@@ -6913,11 +6913,14 @@
                 break;
               }
             }
-            var nextWaypointCollection = $($availableStories.get(nextWaypointCollectionIdx));
-            if (nextWaypointCollection.length == 0) {
-              nextWaypointCollection = $availableStories.first();
+            var $nextWaypointCollection = $($availableStories.get(nextWaypointCollectionIdx));
+            if ($nextWaypointCollection.length == 0) {
+              $nextWaypointCollection = $availableStories.first();
             }
-            nextWaypointCollection.trigger("click");
+            $nextWaypointCollection.trigger("click");
+            if (enableLetterboxMode) {
+              $("#letterbox-" + $nextWaypointCollection[0].id).prop("checked", true);
+            }
           }
           if (isAutoModeRunning) {
             lastAutomodeWaypointIndex = waypointIndex;
