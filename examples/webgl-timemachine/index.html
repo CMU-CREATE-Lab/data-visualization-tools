@@ -4339,8 +4339,10 @@
           UTIL.verticalTouchScroll($(".themes-scroll-vertical"));
           UTIL.verticalTouchScroll($("#csvChartLegend"));
           UTIL.verticalTouchScroll($("#theme-list"));
-          UTIL.touchHorizontalScroll($("#letterbox-bottom-picker-content"));
-          UTIL.touchHorizontalScroll($("#letterbox-bottom-picker-results-content"));
+          if (enableLetterboxMode) {
+            UTIL.touchHorizontalScroll($("#letterbox-bottom-picker-content"));
+            UTIL.touchHorizontalScroll($("#letterbox-bottom-picker-results-content"));
+          }
         }
       } catch (e) {
         console.log('Error creating scroll events for UI: ', e);
