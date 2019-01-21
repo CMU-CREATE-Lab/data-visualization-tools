@@ -863,11 +863,11 @@ html, body {
 
 .ndviAnomalyLegendGradient {
   height: 10px;
-  background-image: -webkit-linear-gradient(left, #ffffff 0%, #ff4c0c 100%);
-  background-image: -o-linear-gradient(left, #ffffff 0%, #ff4c0c 100%);
-  background-image: -webkit-gradient(linear, left top, right top, from(#ffffff), to(#ff4c0c));
-  background-image: -ms-linear-gradient(left, #ffffff 0%, #ff4c0c 100%);
-  background-image: linear-gradient(left, #ffffff 0%, #ff4c0c 100%);
+  background-image: -webkit-linear-gradient(left, #009069 0%, #ff4c0c 100%);
+  background-image: -o-linear-gradient(left, #009069 0%, #ff4c0c 100%);
+  background-image: -webkit-gradient(linear, left top, right top, from(#009069), to(#ff4c0c));
+  background-image: -ms-linear-gradient(left, #009069 0%, #ff4c0c 100%);
+  background-image: linear-gradient(left, #009069 0%, #ff4c0c 100%);
 }
 
 #presentation-slider-selection {
