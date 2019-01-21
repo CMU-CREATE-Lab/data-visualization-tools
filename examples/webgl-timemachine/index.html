@@ -7818,9 +7818,9 @@
         }).get();
 
         // Now handle stories that fall under a theme
-        var themes = $(".themes-div").find("table[id^='theme']");
+        var themes = $(".themes-div").find("table[id^='theme'][data-enabled='true']");
         themes.each(function() {
-          var $stories = $(this).find("tr[id^='story']");
+          var $stories = $(this).find("tr[id^='story'][data-enabled='true']");
           $stories.each(function() {
             var $story = $(this).clone();
             $story.text($(this).parents().prev(".ui-accordion-header").text() + " - " + $(this).text());
