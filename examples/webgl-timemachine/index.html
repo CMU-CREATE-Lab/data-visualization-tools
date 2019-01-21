@@ -4078,6 +4078,7 @@
           }
           $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight").removeClass("thumbnail_highlight");
           $("#category-base-layers").find("input:checked").click();
+          timelapse.clearShareViewTimeLoop();
         }
         // 'h' key
         // Quick way to toggle the layer panel
@@ -4515,6 +4516,7 @@
       if (lastSelectedAnnotationBeforeHidden) {
         lastSelectedAnnotationBeforeHidden.removeClass("thumbnail_highlight");
       }
+      timelapse.clearShareViewTimeLoop();
       setExploreModeUrl();
     }
 
