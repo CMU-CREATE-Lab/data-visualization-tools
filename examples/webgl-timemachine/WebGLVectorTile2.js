@@ -5183,9 +5183,9 @@ WebGLVectorTile2.lineTrackVertexShader =
 '        position = u_map_matrix * a_coord_1;\n' +
 '        v_alpha = 0.0;\n' +
 '    } else if (a_epoch_1 < u_epoch) {\n' +
-'        //position = u_map_matrix * a_coord_0;\n' +
+'        position = u_map_matrix * a_coord_0;\n' +
 '        position = u_map_matrix * a_coord_1;\n' +
-'        v_alpha = 0.0;\n' +
+'        v_alpha = 1.0;\n' +
 '    } else {\n' +
 '        //TODO: WHY DOES INTERPOLATIMNG THE END POINT NOT WORK\n' +
 '        //float t = (u_epoch - a_epoch_0)/(a_epoch_1 - a_epoch_0);\n' +
