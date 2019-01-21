@@ -5175,13 +5175,17 @@ WebGLVectorTile2.lineTrackVertexShader =
 'uniform float u_epoch;\n' +
 'uniform float u_size;\n' +
 'varying float v_color;\n' +
+'varying float v_alpha;\n' +
 'void main() {\n' +
 '    vec4 position;\n' +
 '    if (a_epoch_0 > u_epoch) {\n' +
 '        position = u_map_matrix * vec4(-1.,-1.,-1.,-1.);\n' +
-'    } else if (a_epoch_1 < u_epoch) {\n' +
-'        position = u_map_matrix * a_coord_0;\n' +
 '        position = u_map_matrix * a_coord_1;\n' +
+'        v_alpha = 0.0;\n' +
+'    } else if (a_epoch_1 < u_epoch) {\n' +
+'        //position = u_map_matrix * a_coord_0;\n' +
+'        position = u_map_matrix * a_coord_1;\n' +
+'        v_alpha = 0.0;\n' +
 '    } else {\n' +
 '        //TODO: WHY DOES INTERPOLATIMNG THE END POINT NOT WORK\n' +
 '        //float t = (u_epoch - a_epoch_0)/(a_epoch_1 - a_epoch_0);\n' +
@@ -5195,6 +5199,7 @@ WebGLVectorTile2.lineTrackVertexShader =
 WebGLVectorTile2.lineTrackFragmentShader =
 '  precision mediump float;\n' +
 '  varying float v_color;\n' +
+'  varying float v_alpha;\n' + 
 '  vec4 unpackColor(float f) {\n' +
 '      vec4 color;\n' +
 '      color.b = floor(f / 255.0 / 255.0);\n' +
@@ -5204,7 +5209,7 @@ WebGLVectorTile2.lineTrackFragmentShader =
 '      return color / 255.0;\n' +
 '    }\n' +
 '  void main() {\n' +
-'    gl_FragColor = unpackColor(v_color);\n' +
+'    gl_FragColor = vec4(unpackColor(v_color).rgb, v_alpha);\n' +
 '  }\n';
 
 WebGLVectorTile2.sitc4r2VertexShader = '' +
