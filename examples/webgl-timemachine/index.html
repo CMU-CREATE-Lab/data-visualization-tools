@@ -286,7 +286,8 @@
     var defaultPlaybackSpeed = parseConfigOption({optionName: "defaultPlaybackSpeed", optionDefaultValue: 0.5, exposeOptionToUrlHash: false});
     var useFaderShader = parseConfigOption({optionName: "useFaderShader", optionDefaultValue: true, exposeOptionToUrlHash: false});
     var enableWaypointText = parseConfigOption({optionName: "enableWaypointText", optionDefaultValue: true, exposeOptionToUrlHash: false});
-    var trackingId = parseConfigOption({optionName: "trackingId", optionDefaultValue: "UA-10682694-21", exposeOptionToUrlHash: false});
+    var defaultTrackingId = document.location.hostname === "earthtime.org" ? "UA-10682694-21" : "";
+    var trackingId = parseConfigOption({optionName: "trackingId", optionDefaultValue: defaultTrackingId, exposeOptionToUrlHash: false});
     var rootTilePath = parseConfigOption({optionName: "rootTilePath", optionDefaultValue: "../../../data/", exposeOptionToUrlHash: false});
     var autoModeFullThemeCycle = parseConfigOption({optionName: "autoModeFullThemeCycle", optionDefaultValue: true, exposeOptionToUrlHash: false});
     var baseMapsNoLabels = parseConfigOption({optionName: "baseMapsNoLabels", optionDefaultValue: false, exposeOptionToUrlHash: true});
