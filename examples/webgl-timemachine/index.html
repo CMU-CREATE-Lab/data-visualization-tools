@@ -1230,6 +1230,7 @@
     function handleLayers(layers) {
       // Clear out all layers that were checked
       $(".map-layer-div").find("input:checked").trigger("click");
+      timelapse.hideSpinner("timeMachine");
       layers.forEach(function(layer) {
         if (layer.indexOf("extras_") == 0 || layer.indexOf("e-") == 0) {
           // Need to delay some amount of time for the selectmenu to refresh after being populated.
@@ -4065,7 +4066,7 @@
         // 'c' key and share view dialog is not visible
         // Quick way to clear all layers
         if (e.keyCode === 67) {
-          $(".map-layer-div").find("input:checked").trigger("click");
+          handleLayers([]);
           var openCategories = $("h3.ui-accordion-header.ui-state-active");
           var availableCategories = $(".map-layer-div").children("h3");
           $.each(openCategories, function(index, value) {
@@ -4077,7 +4078,6 @@
             showAnnotationResumeExit();
           }
           $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight").removeClass("thumbnail_highlight");
-          $("#category-base-layers").find("input:checked").click();
           timelapse.clearShareViewTimeLoop();
         }
         // 'h' key
