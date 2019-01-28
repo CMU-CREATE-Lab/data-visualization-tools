@@ -43,8 +43,8 @@ earthtime._handlebarsTemplates = {
     '      {{#if credit}}' +
     '         <div class="earthtime-credit">{{credit}}</div>' +
     '      {{/if}}' +
-    '</div>',
     '   </div>' +
+    '</div>',
   'caption-template' : '<div class="earthtime-caption">' +
     '   {{#if title}}' +
     '      <div class="earthtime-caption-title">{{title}}</div>' +
