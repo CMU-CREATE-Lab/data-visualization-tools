@@ -51,7 +51,7 @@ if %LAUNCH_MODE% == kiosk (
 )
 
 if %USE_FROZEN_CHROME% == true (
-  set CHROME_LAUNCH_PATH="%cd%\app\libs\GoogleChromePortable57\GoogleChromePortable.exe"
+  set CHROME_LAUNCH_PATH="%cd%\app\libs\GoogleChromePortable\GoogleChromePortable.exe"
 ) else (
   set CHROME_LAUNCH_PATH=chrome
 )
