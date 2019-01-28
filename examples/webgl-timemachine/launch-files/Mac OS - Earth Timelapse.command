@@ -6,10 +6,10 @@ if [ $ROOT_PATH = '.' ]
 then
   ROOT_PATH=$(pwd)
 fi
-BROWSER_SCALE_FACTOR=`sed -n 's/"browserScaleFactor" : //p' $ROOT_PATH/config.js | sed "s/,.*//"`
+BROWSER_SCALE_FACTOR=`sed -n 's/"browserScaleFactor" : //p' "$ROOT_PATH/config.js" | sed "s/,.*//"`
 BROWSER_SCALE_FACTOR=$((BROWSER_SCALE_FACTOR+0))
 
-LAUNCH_MODE=`sed -n 's/"launchMode" : //p' $ROOT_PATH/config.js | sed "s/,.*//"`
+LAUNCH_MODE=`sed -n 's/"launchMode" : //p' "$ROOT_PATH/config.js" | sed "s/,.*//"`
 if [ $LAUNCH_MODE == "kiosk" ]
 then
   EXTENSION_ARGS=--load-extension=%cd%/app/libs/virtual-keyboard/1.12.8_1,%cd%/app/libs/ohnoyoudidnt/1.0.3
@@ -25,7 +25,7 @@ ARGS="--video-threads=$NUMBER_OF_PROCESSORS --allow-file-access-from-files $LAUN
 if [ -d "/Applications/Google Chrome.app/" ]
 then
   echo Launching user installed Chrome.
-  open -a "Google Chrome" -n --args --app=$LAUNCH_PATH $ARGS
+  open -a "Google Chrome" -n --args "--app=$LAUNCH_PATH" $ARGS
 else
   echo Error. User does not have Chrome.
   osascript -e 'tell app "System Events" to display dialog "Chrome is not installed. Go to www.google.com/chrome to download it. Once installed, run this file again."'
