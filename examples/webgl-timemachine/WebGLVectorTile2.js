@@ -2569,6 +2569,10 @@ WebGLVectorTile2.prototype._drawViirs = function(transform, options) {
       pointSize = 1.0;
     }
 
+    if (gl.canvas.width >= 4000 || gl.canvas.height >= 4000) {
+      pointSize += 2.0;
+    }
+
     var matrixLoc = gl.getUniformLocation(this.program, 'mapMatrix');
     gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
 
