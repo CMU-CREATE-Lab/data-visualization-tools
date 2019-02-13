@@ -491,28 +491,12 @@ WebGLVectorTile2.prototype._loadBivalentBubbleMapDataFromCsv = function() {
     var ret = [];
     for (var i = offset; i < arr.length; i++) {
       var date = arr[i];
-      // Date can be YYYY or YYYYMM or YYYYMMDD or YYYYMMDDHHMM or YYYYMMDDHHMMSS
-      var yyyymmddhhmmss_re = /(\d{4})(\d{2})?(\d{2})?(\d{2})?(\d{2})?(\d{2})?$/;
-      var m = date.match(yyyymmddhhmmss_re);
-      if (!m) {
-        console.log('Cannot parse date ' + date);
+
+      var epoch = parseDateStr(date);        
+      if (isNaN(epoch)) {
         break;
       }
-      var to_parse = m[1]; // YYYY
-      if (m[2] !== undefined) {
-        to_parse += '-' + m[2]; // MM
-        if (m[3] != undefined) {
-          to_parse += '-' + m[3]; // DD
-          if (m[4] != undefined && m[5] != undefined) {
-            to_parse += ' ' + m[4] + ':' + m[5]; // HH:MM
-            if (m[6] != undefined) {
-              to_parse += ':' + m[6]; // SS
-            }
-          }
-        }
-      }
-      to_parse += ' GMT'
-      ret.push(new Date(to_parse).getTime()/1000);
+      ret.push(epoch);
     }
     ret.push(ret[ret.length - 1] + ret[ret.length - 1] - ret[ret.length - 2]);
     return ret;
@@ -677,28 +661,12 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
 
       for (var i = first_data_col; i < header.length; i++) {
         var date = header[i];
-	      // Date can be YYYY or YYYYMM or YYYYMMDD or YYYYMMDDHHMM or YYYYMMDDHHMMSS
-        var yyyymmddhhmmss_re = /(\d{4})(\d{2})?(\d{2})?(\d{2})?(\d{2})?(\d{2})?$/;
-	      var m = date.match(yyyymmddhhmmss_re);
-	      if (!m) {
-	        console.log('Cannot parse date ' + date);
-	        break;
-	      }
-	      var to_parse = m[1]; // YYYY
-	      if (m[2] !== undefined) {
-	        to_parse += '-' + m[2]; // MM
-	        if (m[3] != undefined) {
-	          to_parse += '-' + m[3]; // DD
-	          if (m[4] != undefined && m[5] != undefined) {
-	            to_parse += ' ' + m[4] + ':' + m[5]; // HH:MM
-	            if (m[6] != undefined) {
-		            to_parse += ':' + m[6]; // SS
-	            }
-	          }
-	        }
-	      }
-	      to_parse += ' GMT'
-	      epochs[i] = new Date(to_parse).getTime()/1000;
+
+        var epoch = parseDateStr(date);        
+        if (isNaN(epoch)) {
+          break;
+        }
+        epochs[i] = epoch;
       }
 
       for (var i = 1; i < that.jsondata.data.length; i++) {
@@ -880,28 +848,12 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
       var totalSearchTime = 0;
       for (var i = first_data_col; i < header.length; i++) {
         var date = header[i];
-        // Date can be YYYY or YYYYMM or YYYYMMDD or YYYYMMDDHHMM or YYYYMMDDHHMMSS
-        var yyyymmddhhmmss_re = /(\d{4})(\d{2})?(\d{2})?(\d{2})?(\d{2})?(\d{2})?$/;
-        var m = date.match(yyyymmddhhmmss_re);
-        if (!m) {
-          console.log('Cannot parse date ' + date);
+
+        var epoch = parseDateStr(date);        
+        if (isNaN(epoch)) {
           break;
         }
-        var to_parse = m[1]; // YYYY
-        if (m[2] !== undefined) {
-          to_parse += '-' + m[2]; // MM
-          if (m[3] != undefined) {
-            to_parse += '-' + m[3]; // DD
-            if (m[4] != undefined && m[5] != undefined) {
-              to_parse += ' ' + m[4] + ':' + m[5]; // HH:MM
-              if (m[6] != undefined) {
-                to_parse += ':' + m[6]; // SS
-              }
-            }
-          }
-        }
-        to_parse += ' GMT'
-        epochs[i] = new Date(to_parse).getTime()/1000;
+        epochs[i] = epoch;
       }
       for (var ii = 1; ii < that.jsondata.data.length; ii++) {
         var country = that.jsondata.data[ii];

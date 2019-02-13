@@ -560,3 +560,37 @@ function capitalize_each_word_in_string(str) {
   return str.join(" ");
 }
 
+
+function parseDateStr(date) {
+  // Target format: 2000-01-01T00:00:00.000Z
+  // Date can be YYYY or YYYYMM or YYYYMMDD or YYYYMMDDHHMM or YYYYMMDDHHMMSS
+  var yyyymmddhhmmss_re = /(\d{4})(\d{2})?(\d{2})?(\d{2})?(\d{2})?(\d{2})?$/;
+  var m = date.match(yyyymmddhhmmss_re);
+  if (!m) {
+    console.log('Cannot parse date ' + date);
+    return NaN;
+  }
+  var to_parse = m[1]; // YYYY
+  if (m[2] !== undefined) {
+    to_parse += '-' + m[2]; // MM
+    if (m[3] != undefined) {
+      to_parse += '-' + m[3]; // DD
+      if (m[4] != undefined && m[5] != undefined) {
+        to_parse += 'T' + m[4] + ':' + m[5]; // HH:MM
+        if (m[6] != undefined) {
+          to_parse += ':' + m[6]; // SS
+        } else {
+          to_parse += ':00';          s
+        }
+      } else {
+        to_parse += 'T00:00:00';
+      }
+    } else {
+      to_parse += '-01T00:00:00';
+    }
+  } else {
+    to_parse += '-01-01T00:00:00';
+  }
+  to_parse += '.000Z'
+  return new Date(to_parse).getTime()/1000;  
+}
