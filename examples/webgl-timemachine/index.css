@@ -367,26 +367,6 @@ html, body {
   width: 100%;
 }
 
-#location_search {
-  position: absolute;
-  top: 9px;
-  right: 9px;
-  width: 200px;
-  height: 28px;
-  padding-left: 15px;
-  padding-right: 40px;
-  background: rgba(255,255,255,1);
-  margin-left: -140px;
-  border: 1px solid #656565;
-  font-size: 15px;
-  outline: none;
-  border-radius: 3px;
-  -webkit-box-shadow: 2px 2px 3px rgba(0,0,0,0.3);
-          box-shadow: 2px 2px 3px rgba(0,0,0,0.3);
-  z-index: 90000;
-  display: inline-block;
-}
-
 #layers-list {
   z-index: 99;
   text-align: left;
@@ -588,7 +568,7 @@ html, body {
   bottom: 120px !important;
 }
 
-.scaleBarContainer.noTimeline {
+.scaleBarContainer.noTimeline, .scaleBarContainer.noTimelineForced {
   bottom: 20px !important;
 }
 
@@ -612,7 +592,7 @@ html, body {
   bottom: 200px !important;
 }
 
-#logosContainer.noTimeline, #logosContainer.minimalUIMode {
+#logosContainer.noTimeline, #logosContainer.noTimelineForced, #logosContainer.minimalUIMode {
   bottom: 20px !important;
 }
 
@@ -916,23 +896,58 @@ html, body {
   z-index: 100;
 }
 
+.location_search_div {
+  position: absolute;
+  z-index: 90000;
+  top: 10px;
+  right: 20px;
+}
+
+#location_search {
+  width: 200px;
+  height: 28px;
+  padding-left: 15px;
+  padding-right: 40px;
+  background: rgba(255,255,255,1);
+  border: 1px solid #656565;
+  font-size: 15px;
+  outline: none;
+  border-radius: 3px;
+  -webkit-box-shadow: 2px 2px 3px rgba(0,0,0,0.3);
+          box-shadow: 2px 2px 3px rgba(0,0,0,0.3);
+  display: inline-block;
+}
+
 #location_search_icon {
   background: url('../../images/search-2.png') CENTER CENTER NO-REPEAT;
   background-size: contain;
-  content:url('../../images/transparent.png'); /* 21x21 transparent pixels */
+  content: url('../../images/transparent.png'); /* 21x21 transparent pixels */
   image-rendering: -webkit-optimize-contrast;
-  width:20px;
-  height:20px;
-  z-index: 90001;
+  width: 20px;
+  height: 20px;
   position: absolute;
-  right: 19px;
-  top: 15px;
+  right: 7px;
+  top: 6px;
   cursor: pointer;
+}
+
+.location_search_div.topNavDisabled {
+  top: 20px;
+}
+
+.location_search_div.letterbox {
+  width: 177px;
+  height: 74px;
+  top: 15px;
+  left: 7px;
 }
 
 .location_search_div.letterbox > #location_search_icon {
   right: -44px;
-  top: 44px;
+}
+
+.location_search_div.letterbox > #location_search {
+  width: 177px;
 }
 
 #top-nav.menu-active {
@@ -941,36 +956,6 @@ html, body {
 
 #top-nav.right-panel-active {
   width: calc(100% - 418px) !important;
-}
-
-#location_search.right-panel-active {
-  right: 9px !important;
-}
-
-#location_search_icon.right-panel-active {
-  right: 19px !important;
-}
-
-.location_search_div.letterbox {
-  width: 177px;
-  position: absolute;
-  bottom: auto;
-  top: -21px;
-  height: 74px;
-  left: -13px;
-}
-#location_search.letterbox {
-  position: relative;
-  top: 32px;
-  left: 23px !important;
-  width: 188px;
-  margin: 0;
-  padding-bottom: 7px;
-  padding-top: 7px;
-  padding-left: 10px;
-  padding-right: 10px;
-  -webkit-box-shadow: 0px 0px 0px rgba(0,0,0,0);
-          box-shadow: 0px 0px 0px rgba(0,0,0,0);
 }
 
 .letterbox-bottom-picker-table, .letterbox-bottom-picker-results-table, .letterbox-base-layers-table {
@@ -1381,18 +1366,6 @@ a:focus { outline:0; }
   border-top-right-radius: 4px !important;
   border-top-left-radius: 4px !important;
 }
-
-.ui-icon.ui-icon-home, .ui-button .ui-icon.ui-icon-custom-home {
-  background: url(../../images/globe4.png) !important;
-  width: 30px;
-  height: 30px;
-  opacity: 0.7;
-  -webkit-background-size: contain !important;
-          background-size: contain !important;
-  margin-left: -15px;
-  margin-top: -15px;
-}
-
 
 .ui-button.ui-state-hover .toggleLayerPanelBtnIcon {
   opacity: 1;
@@ -1841,7 +1814,7 @@ a:focus { outline:0; }
   user-select: none;
   text-transform:capitalize;
   height: 100%;
-  z-index: 9000;
+  z-index: 99999;
 }
 
 /*.themes-div > h3:first-child {
@@ -2040,7 +2013,7 @@ a:focus { outline:0; }
   pointer-events: none;
 }
 
-#layers-legend.noTimeline {
+#layers-legend.noTimeline, #layers-legend.noTimelineForced {
   -webkit-transition: bottom 0.40s;
   -ms-transition: bottom 0.40s;
   -o-transition: bottom 0.40s;
@@ -2064,7 +2037,7 @@ a:focus { outline:0; }
   bottom: 260px;
 }
 
-#layers-legend.letterbox.noTimeline {
+#layers-legend.letterbox.noTimeline, #layers-legend.letterbox.noTimelineForced {
   bottom: 80px;
 }
 
@@ -2249,7 +2222,7 @@ a:focus { outline:0; }
   text-shadow: none;
 }
 
-.captureTime.noTimeline {
+.captureTime.noTimeline, .captureTime.noTimelineForced {
   display: none !important;
 }
 
