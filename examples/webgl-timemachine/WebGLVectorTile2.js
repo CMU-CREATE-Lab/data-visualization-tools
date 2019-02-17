@@ -4832,6 +4832,37 @@ WebGLVectorTile2.tsipFragmentShader =
 '  gl_FragColor =  unpackColor(v_color) * dist;\n' +
 '}';
 
+WebGLVectorTile2.pointFlowAccelVertexShader = [
+  'attribute vec4 a_p0;',
+  'attribute vec4 a_p1;',
+  'attribute vec4 a_p2;',
+  'attribute float a_epoch0;',
+  'attribute float a_epoch1;',
+  'uniform float u_epoch;',
+  'uniform float u_size;',
+  'uniform mat4 u_map_matrix;',
+  'varying float v_t;',
+
+  'vec4 bezier(float t, vec4 p0, vec4 p1, vec4 p2) {',
+  '  return (1.0-t)*(1.0-t)*p0 + 2.0*(1.0-t)*t*p1 + t*t*p2;',
+  '}',
+
+  'void main() {',
+  '  vec4 position;',
+  '  if (a_epoch0 > u_epoch || a_epoch1 < u_epoch) {',
+  '    position = vec4(-1,-1,-1,-1);',
+  '  } else {',
+  '    float t = 1.0 - (a_epoch1 - u_epoch)/(a_epoch1 - a_epoch0);',
+  '    // s-curve -- constant acceleration for first half then constant deceleration',
+  '    t = 2.0 * (t < 0.5 ? t * t : 0.5 - (1.0-t)*(1.0-t));',
+  '    v_t = t;',
+  '    position = u_map_matrix * bezier(t, a_p0, a_p1, a_p2);',
+  '  }',
+  '  gl_Position = position;',
+  '  gl_PointSize = u_size;',
+  '}'
+].join('\n');
+
 WebGLVectorTile2.pointFlowVertexShader =
 '      //WebGLVectorTile2.pointFlowVertexShader\n' +
 '      attribute vec4 a_p0;\n' +
