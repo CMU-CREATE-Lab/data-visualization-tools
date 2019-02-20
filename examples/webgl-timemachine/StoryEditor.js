@@ -877,8 +877,14 @@
         draggable: false,
         width: 285,
         modal: true,
-        position: {my: "center", at: "center", of: $this},
-        classes: {"ui-dialog": "custom-dialog"}, // this is for jquery 1.12 and after
+        position: {
+          my: "center",
+          at: "center",
+          of: $this
+        },
+        classes: {
+          "ui-dialog": "custom-dialog"
+        }, // this is for jquery 1.12 and after
         dialogClass: "custom-dialog", // this is for before jquery 1.12
         buttons: buttons
       });

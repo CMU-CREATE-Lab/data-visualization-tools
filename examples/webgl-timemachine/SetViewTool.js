@@ -37,7 +37,10 @@
     var start_frame_number, end_frame_number;
     var DEFAULT_PREVIEW_WIDTH = 320;
     var DEFAULT_PREVIEW_HEIGHT = 180;
-    var DEFAULT_ASPECT_RATIO = {width: 16, height: 9};
+    var DEFAULT_ASPECT_RATIO = {
+      width: 16,
+      height: 9
+    };
     var bound = {};
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -133,10 +136,14 @@
       // Save current bound and load new ones (need to use the previous state of the value)
       if ($(this).val() == "portrait") {
         bound["landscape"] = thumbnail_tool.cropBoxToViewBox();
-        if (typeof bound["portrait"] !== "undefined") timelapse.setNewView({bbox: bound["portrait"]}, true, false);
+        if (typeof bound["portrait"] !== "undefined") timelapse.setNewView({
+          bbox: bound["portrait"]
+        }, true, false);
       } else {
         bound["portrait"] = thumbnail_tool.cropBoxToViewBox();
-        if (typeof bound["landscape"] !== "undefined") timelapse.setNewView({bbox: bound["landscape"]}, true, false);
+        if (typeof bound["landscape"] !== "undefined") timelapse.setNewView({
+          bbox: bound["landscape"]
+        }, true, false);
       }
       // Swap width and height
       thumbnail_tool.swapBoxWidthHeight();
@@ -381,7 +388,7 @@
       var args_landscape = urls["landscape"]["render"]["args"];
       var args_portrait = urls["portrait"]["render"]["args"];
 
-      var set_view_and_ui = function() {
+      var set_view_and_ui = function () {
         // Set the view
         var share_view = (getViewDirection() == "landscape") ? share_view_landscape : share_view_portrait;
         timelapse.loadSharedViewFromUnsafeURL(share_view);
