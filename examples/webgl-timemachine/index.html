@@ -7438,7 +7438,7 @@
         }
       });
 
-      $("#viewerContainer").on("click", "#layers-menu-choice", function() {
+      $("#viewerContainer, #top-nav-wrapper").on("click", "#layers-menu-choice", function() {
         if (!$("#theme-menu").is(":visible")) {
           $('#main-hamburger-menu').toggle("slide", { direction: "left" }, 150);
           $('#main-hamburger-menu').toggleClass("is-active");
@@ -8310,7 +8310,7 @@
       gl.viewport(0, 0, width, height);
 
       if (!disableTopNav) {
-        var $el1 = $("#location_search");
+        var $el1 = $(".location_search_div");
         var $el2 = $("#top-nav-wrapper");
         if (!$el2.hasClass("shrink-nav")) {
           initialTopNavWrapperElm.outerWidth = $el2.outerWidth();
