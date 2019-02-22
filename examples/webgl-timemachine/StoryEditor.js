@@ -31,7 +31,7 @@
     var on_hide_callback = settings["on_hide_callback"];
     var $this;
     var $intro;
-    var $save, $save_to_google_button, $save_to_google_replace_container;
+    var $save, $save_to_google_button, $save_to_google_replace_container, $save_file_name_textbox;
     var $current_thumbnail_preview;
     var set_view_tool;
     var enable_testing = false;
@@ -119,13 +119,7 @@
     // The introduction page
     function createIntroductionUI() {
       $intro = $this.find(".story-editor-intro");
-      $intro.find(".story-editor-create-button").on("click", function () {
-        mode = "create";
-        transition($intro, $theme);
-        if (enable_testing) testCreateStory(); // for testing the function of creating a story
-      });
       $intro.find(".story-editor-edit-button").on("click", function () {
-        mode = "edit";
         transition($intro, $load);
       });
     }
@@ -143,7 +137,7 @@
       $back_confirm_dialog = createConfirmDialog({
         selector: "#" + container_id + " .story-editor-theme .back-confirm-dialog",
         action_callback: function () {
-          transition($theme, $intro);
+          transition($theme, $load);
           reset();
         }
       });
@@ -173,6 +167,7 @@
       });
       $waypoint.find(".next-button").on("click", function () {
         transition($waypoint, $save);
+        whenGoToSaveUI();
       });
       $waypoint.find(".story-editor-add-button").on("click", function () {
         waypoint_accordion.addEmptyTab();
@@ -194,7 +189,14 @@
       var $load_from_google_drive_message = $load.find(".load-from-google-drive-message");
       var $load_from_direct_link_radio = $load.find("#load-from-direct-link-radio");
       $load_from_google_drive_radio = $load.find("#load-from-google-drive-radio");
+      var $load_collection_container = $load.find("#load-collection-container");
+      var $create_collection_container = $load.find("#create-collection-container");
+      var $load_collection_radio = $load.find("#load-collection-radio");
+      var $create_collection_radio = $load.find("#create-collection-radio");
       var sheet_url_textbox = $load.find(".sheet-url-textbox");
+      var $method_confirm_dialog = createConfirmDialog({
+        selector: "#" + container_id + " .story-editor-load .method-confirm-dialog"
+      });
       var $url_confirm_dialog = createConfirmDialog({
         selector: "#" + container_id + " .story-editor-load .url-confirm-dialog"
       });
@@ -211,48 +213,59 @@
         transition($load, $intro);
       });
       $load.find(".next-button").on("click", function () {
-        // Set sheet url
-        var sheet_url;
-        if ($load_from_google_drive_radio.is(":checked")) {
-          current_sheet_id = $stories_on_drive_dropdown.data("sheet_id");
-          current_sheet_name = $stories_on_drive_dropdown.data("sheet_name");
-          if (typeof current_sheet_id !== "undefined") sheet_url = getSheetUrlById(current_sheet_id);
-        } else {
-          var unsafe_sheet_url = sheet_url_textbox.val();
-          var res = unsafe_sheet_url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
-          if (res != null) sheet_url = unsafe_sheet_url;
-        }
-        // Load data or not
-        var $ui = $(this);
-        if (typeof sheet_url === "undefined") {
-          $url_confirm_dialog.dialog("open");
-        } else {
-          $ui.prop("disabled", true);
-          // This util function name is misleading, it converts spreadsheet into csv, not json
-          UTIL.gdocToJSON(sheet_url, function (tsv) {
-            $ui.prop("disabled", false);
-            tsvToData({
-              tsv: tsv,
-              error: function () {
-                $format_confirm_dialog.dialog("open");
-              },
-              success: function (data) {
-                setAccordionUI(edit_theme_accordion, data);
-                transition($load, $edit_theme);
-                if (enable_testing) testEditStory(); // for testing editing stories
+        if ($load_collection_radio.is(":checked")) {
+          // This means that we want to load the Google sheet
+          mode = "edit";
+          // Set sheet url
+          var sheet_url;
+          if ($load_from_google_drive_radio.is(":checked")) {
+            current_sheet_id = $stories_on_drive_dropdown.data("sheet_id");
+            current_sheet_name = $stories_on_drive_dropdown.data("sheet_name");
+            if (typeof current_sheet_id !== "undefined") sheet_url = getSheetUrlById(current_sheet_id);
+          } else {
+            var unsafe_sheet_url = sheet_url_textbox.val();
+            var res = unsafe_sheet_url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+            if (res != null) sheet_url = unsafe_sheet_url;
+          }
+          // Load data or not
+          var $ui = $(this);
+          if (typeof sheet_url === "undefined") {
+            $url_confirm_dialog.dialog("open");
+          } else {
+            $ui.prop("disabled", true);
+            // This util function name is misleading, it converts spreadsheet into csv, not json
+            UTIL.gdocToJSON(sheet_url, function (tsv) {
+              $ui.prop("disabled", false);
+              tsvToData({
+                tsv: tsv,
+                error: function () {
+                  $format_confirm_dialog.dialog("open");
+                },
+                success: function (data) {
+                  setAccordionUI(edit_theme_accordion, data);
+                  transition($load, $edit_theme);
+                  if (enable_testing) testEditStory(); // for testing editing stories
+                }
+              });
+            }, function (xhr) {
+              $ui.prop("disabled", false);
+              var s = xhr.status;
+              if (s == 0) {
+                $permission_confirm_dialog.dialog("open");
+              } else if (s == 404 || s == 400) {
+                $url_confirm_dialog.dialog("open");
+              } else {
+                $server_confirm_dialog.dialog("open");
               }
             });
-          }, function (xhr) {
-            $ui.prop("disabled", false);
-            var s = xhr.status;
-            if (s == 0) {
-              $permission_confirm_dialog.dialog("open");
-            } else if (s == 404 || s == 400) {
-              $url_confirm_dialog.dialog("open");
-            } else {
-              $server_confirm_dialog.dialog("open");
-            }
-          });
+          }
+        } else if ($create_collection_radio.is(":checked")) {
+          // This means that we want to create the Google sheet
+          mode = "create";
+          transition($load, $theme);
+          if (enable_testing) testCreateStory(); // for testing the function of creating a story
+        } else {
+          $method_confirm_dialog.dialog("open");
         }
       });
       $load.find(".google-authenticate-button").on("click", function () {
@@ -300,6 +313,15 @@
       $load_from_direct_link_radio.on("click", function () {
         $load_from_google_drive.hide();
         $load_from_direct_link.show();
+      });
+      $("input[type=radio][name=create-or-load-input]").on("change", function () {
+        if (this.value == "create") {
+          $load_collection_container.hide();
+          $create_collection_container.show();
+        } else if (this.value == "load") {
+          $load_collection_container.show();
+          $create_collection_container.hide();
+        }
       });
     }
 
@@ -403,6 +425,7 @@
       });
       $edit_waypoint.find(".next-button").on("click", function () {
         transition($edit_waypoint, $save);
+        whenGoToSaveUI();
       });
       $edit_waypoint.find(".story-editor-add-button").on("click", function () {
         edit_waypoint_accordion.addEmptyTab();
@@ -413,19 +436,26 @@
       });
     }
 
+    // Handle the save UI when going to it
+    function whenGoToSaveUI() {
+      if ($save_file_name_textbox.val() == "") {
+        $save_file_name_textbox.val(current_sheet_name);
+      }
+      if (mode == "edit" && $load_from_google_drive_radio.is(":checked")) {
+        $save_to_google_replace_container.show();
+      }
+    }
+
     // For saving stories
     function createSaveUI() {
       $save = $this.find(".story-editor-save");
-      var $save_to_google = $save.find(".story-editor-save-to-google");
       $save_to_google_button = $save.find(".story-editor-save-to-google-button");
       $save_to_google_replace_container = $save.find(".story-editor-save-to-google-replace-container");
       var $save_to_google_replace_checkbox = $save.find(".story-editor-save-to-google-replace-checkbox");
       var $save_to_google_message = $save.find(".story-editor-save-to-google-message");
-      var $save_to_local = $save.find(".story-editor-save-to-local");
       var $save_to_local_button = $save.find(".story-editor-save-to-local-button");
       var $save_to_local_message = $save.find(".story-editor-save-to-local-message");
-      var $save_file_name = $save.find(".story-editor-save-file-name");
-      var $save_file_name_textbox = $save.find(".story-editor-save-file-name-textbox");
+      $save_file_name_textbox = $save.find(".story-editor-save-file-name-textbox");
       var $next_confirm_dialog = createConfirmDialog({
         selector: "#" + container_id + " .story-editor-save .next-confirm-dialog",
         action_callback: function () {
@@ -513,22 +543,6 @@
           }
         });
       });
-      $save.find("input:radio[name='story-editor-save-options']").on("change", function () {
-        $save_file_name.show();
-        if ($(this).val() == "google") {
-          if ($save_file_name_textbox.val() == "") {
-            $save_file_name_textbox.val(current_sheet_name)
-          }
-          $save_to_local.hide();
-          $save_to_google.show();
-          if (mode == "edit" && $load_from_google_drive_radio.is(":checked")) {
-            $save_to_google_replace_container.show();
-          }
-        } else {
-          $save_to_google.hide();
-          $save_to_local.show();
-        }
-      });
       $save_to_google_replace_checkbox.on("change", function () {
         $save_to_google_button.prop("disabled", false);
       });
@@ -585,15 +599,10 @@
 
     // Reset the save UI
     function resetSaveUI() {
-      $this.find(".story-editor-save-to-local-message").empty();
       $save_to_google_button.prop("disabled", false);
       $this.find(".story-editor-save-to-google-message").empty();
       $this.find(".story-editor-save-file-name-textbox").val("");
-      $this.find("input:radio[name='story-editor-save-options']").prop("checked", false);
       $save_to_google_replace_container.hide();
-      $this.find(".story-editor-save-file-name").hide();
-      $this.find(".story-editor-save-to-local").hide();
-      $this.find(".story-editor-save-to-google").hide();
       $this.find(".story-editor-save-to-google-replace").prop("checked", true);
     }
 
