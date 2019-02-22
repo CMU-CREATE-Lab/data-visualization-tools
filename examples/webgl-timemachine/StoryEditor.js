@@ -646,6 +646,9 @@
       if (typeof d["author"] !== "undefined") {
         $ui.find(".story-editor-author-textbox").val(d["author"]);
       }
+      if (typeof d["data_source"] !== "undefined") {
+        $ui.find(".story-editor-data-source-textbox").val(d["data_source"]);
+      }
       if (typeof d["view_landscape"] !== "undefined" && d["view_portrait"] !== "undefined") {
         var urls = set_view_tool.extractThumbnailUrls(d["view_landscape"], d["view_portrait"]);
         setThumbnailPreviewUI($ui.find(".story-editor-thumbnail-preview"), urls);
@@ -663,6 +666,7 @@
       $ui.find(".story-editor-long-title-textbox").val("");
       $ui.find(".story-editor-description-textbox").val("");
       $ui.find(".story-editor-author-textbox").val("");
+      $ui.find(".story-editor-data-source-textbox").val("");
       $ui.removeData("data");
       resetThumbnailPreviewUI($ui.find(".story-editor-thumbnail-preview"));
     }
@@ -717,6 +721,10 @@
       var $author = $ui.find(".story-editor-author-textbox");
       if ($author.length > 0) {
         d["author"] = safeGet($author.val().trim());
+      }
+      var $data_source = $ui.find(".story-editor-data-source-textbox");
+      if ($data_source.length > 0) {
+        d["data_source"] = safeGet($data_source.val().trim());
       }
       var $view_landscape = $ui.find(".story-editor-thumbnail-preview-landscape");
       var $view_portrait = $ui.find(".story-editor-thumbnail-preview-portrait");
@@ -979,7 +987,12 @@
         tsv += "#" + theme.title + "\t" + theme.title + "\t" + theme.description + "\n";
         for (var j = 0; j < theme["data"].length; j++) {
           var story = theme["data"][j];
-          tsv += "##" + story.title + "\t" + story.title + "\t" + story.description + "\t" + story.view_landscape + "\t" + story.author + "\t" + story.view_landscape + "\t" + story.view_portrait + "\n";
+          // Merge story author and data source to the Author column
+          var author = story.author;
+          if (typeof story.data_source !== "undefined" && story.data_source !== "") {
+            author += "<br>" + story.data_source;
+          }
+          tsv += "##" + story.title + "\t" + story.title + "\t" + story.description + "\t" + story.view_landscape + "\t" + author + "\t" + story.view_landscape + "\t" + story.view_portrait + "\n";
           for (var k = 0; k < story["data"].length; k++) {
             var waypoint = story["data"][k];
             tsv += waypoint.title + "\t" + waypoint.long_title + "\t" + waypoint.description + "\t" + waypoint.view_landscape + "\t\t" + waypoint.view_landscape + "\t" + waypoint.view_portrait + "\n";
@@ -1032,7 +1045,10 @@
         var description = row["Annotation Text"];
         var view_landscape = row["Mobile Share View Landscape"];
         var view_portrait = row["Mobile Share View Portrait"];
-        var author = row["Author"];
+        // Because author and data source are all stored in the Author column, we need to separate them by <br>
+        var author_column_split = row["Author"].split("<br>");
+        var author = author_column_split[0];
+        var data_source = author_column_split[1];
         if (title.charAt(0) == "#" && title.charAt(1) != "#") {
           theme = {
             title: long_title,
@@ -1045,6 +1061,7 @@
             title: long_title,
             description: description,
             author: author,
+            data_source: data_source,
             view_landscape: view_landscape,
             view_portrait: view_portrait,
             data: [] // for storing waypoint
@@ -1202,6 +1219,7 @@
         title: "Las Vegas",
         description: "Las Vegas, officially the City of Las Vegas and often known simply as Vegas, is the 28th-most populated city in the United States, the most populated city in the state of Nevada, and the county seat of Clark County.",
         author: "Harry Potter and Ginny Weasley",
+        data_source: "Hogwarts School of Witchcraft and Wizardry",
         view_landscape: "https://headless.earthtime.org/#v=376423,740061,380719,742478,pts&t=1.7&ps=0&l=blsat&bt=20010101&et=20010101&startDwell=0&endDwell=0&fps=30",
         view_portrait: "https://headless.earthtime.org/#v=376537,738962,379195,743683,pts&t=1.7&ps=0&l=blsat&bt=20010101&et=20010101&startDwell=0&endDwell=0&fps=30"
       });
@@ -1314,6 +1332,7 @@
         title: "Himawari",
         description: "The Himawari geostationary satellites, operated by the Japan Meteorological Agency (JMA), support weather forecasting, tropical cyclone tracking, and meteorology research.",
         author: "Albus Dumbledore",
+        data_source: "Hogwarts School of Witchcraft and Wizardry",
         view_landscape: "https://headless.earthtime.org/#v=-988195,-148041,2788731,1976479,pts&t=1.3333333333333333&ps=0&l=bdrk,h8_16&bt=1.3333333333333333&et=1.3333333333333333&startDwell=0&endDwell=0&fps=30",
         view_portrait: "https://headless.earthtime.org/#v=-161992,-974244,1962528,2802682,pts&t=1.3333333333333333&ps=0&l=bdrk,h8_16&bt=1.3333333333333333&et=1.3333333333333333&startDwell=0&endDwell=0&fps=30"
       }]);

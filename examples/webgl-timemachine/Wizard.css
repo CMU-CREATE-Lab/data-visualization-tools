@@ -232,12 +232,18 @@ This is the main template of the wizard (step by step guides)
 }
 
 .noselect {
-  -webkit-touch-callout: none; /* iOS Safari */
-  -webkit-user-select: none; /* Chrome/Safari/Opera */
-  -khtml-user-select: none; /* Konqueror */
-  -moz-user-select: none; /* Firefox */
-  -ms-user-select: none; /* Internet Explorer/Edge */
-  user-select: none; /* Non-prefixed version, currently not supported by any browser */
+  -webkit-touch-callout: none;
+  /* iOS Safari */
+  -webkit-user-select: none;
+  /* Chrome/Safari/Opera */
+  -khtml-user-select: none;
+  /* Konqueror */
+  -moz-user-select: none;
+  /* Firefox */
+  -ms-user-select: none;
+  /* Internet Explorer/Edge */
+  user-select: none;
+  /* Non-prefixed version, currently not supported by any browser */
 }
 
 .highlight-text {
@@ -273,7 +279,7 @@ This is the main template of the wizard (step by step guides)
   cursor: pointer;
 }
 
-.custom-dropdown > a {
+.custom-dropdown>a {
   padding: 5px 26px 5px 8px;
   outline: none;
   border-radius: 2px;
@@ -290,7 +296,7 @@ This is the main template of the wizard (step by step guides)
   cursor: pointer;
 }
 
-.custom-dropdown > a > span {
+.custom-dropdown>a>span {
   text-align: left;
   font-size: 14px !important;
   line-height: 16px;
@@ -300,7 +306,7 @@ This is the main template of the wizard (step by step guides)
   text-overflow: ellipsis;
 }
 
-.custom-dropdown > a:after {
+.custom-dropdown>a:after {
   position: absolute;
   content: "";
   top: 13px;
@@ -311,7 +317,7 @@ This is the main template of the wizard (step by step guides)
   border-top-color: black;
 }
 
-.custom-dropdown > div {
+.custom-dropdown>div {
   display: none;
   position: absolute;
   margin-top: -1px;
@@ -324,19 +330,19 @@ This is the main template of the wizard (step by step guides)
   min-width: 100%;
 }
 
-.custom-dropdown > a:focus {
+.custom-dropdown>a:focus {
   pointer-events: none;
 }
 
-.custom-dropdown > a:focus + div {
+.custom-dropdown>a:focus+div {
   display: block;
 }
 
-.custom-dropdown > div:hover {
+.custom-dropdown>div:hover {
   display: block;
 }
 
-.custom-dropdown > div > a {
+.custom-dropdown>div>a {
   color: black;
   padding: 5px 8px;
   text-decoration: none;
@@ -353,7 +359,7 @@ This is the main template of the wizard (step by step guides)
   box-sizing: border-box;
 }
 
-.custom-dropdown > div > a:hover {
+.custom-dropdown>div>a:hover {
   background-color: #e1e1e1;
   color: black;
 }
@@ -408,6 +414,14 @@ This is the main template of the wizard (step by step guides)
 textarea.custom-textbox {
   min-height: 60px !important;
   max-height: 200px !important;
+}
+
+textarea.custom-textbox::placeholder {
+  color: #838383;
+}
+
+input.custom-textbox::placeholder {
+  color: #838383;
 }
 
 input[readonly].custom-textbox {
@@ -547,23 +561,23 @@ input[readonly].custom-textbox {
   margin-left: -1px;
 }
 
-.custom-radio.custom-radio-left [type="radio"] + label {
+.custom-radio.custom-radio-left [type="radio"]+label {
   border-top-right-radius: 0 !important;
   border-bottom-right-radius: 0 !important;
   border-right: 0 !important;
 }
 
-.custom-radio.custom-radio-right [type="radio"] + label {
+.custom-radio.custom-radio-right [type="radio"]+label {
   border-top-left-radius: 0 !important;
   border-bottom-left-radius: 0 !important;
 }
 
-.custom-radio.custom-radio-middle [type="radio"] + label {
+.custom-radio.custom-radio-middle [type="radio"]+label {
   border-radius: 0 !important;
   border-right: 0 !important;
 }
 
-.custom-radio [type="radio"] + label {
+.custom-radio [type="radio"]+label {
   position: relative;
   padding: 7px 13px 6px 32px;
   cursor: pointer;
@@ -580,13 +594,13 @@ input[readonly].custom-textbox {
   left: -9999px;
 }
 
-.custom-radio [type="radio"]:checked + label {
+.custom-radio [type="radio"]:checked+label {
   color: white;
   background-color: #007bff;
   border-color: #007bff;
 }
 
-.custom-radio [type="radio"] + label:before {
+.custom-radio [type="radio"]+label:before {
   content: '';
   position: absolute;
   left: 11px;
@@ -598,7 +612,7 @@ input[readonly].custom-textbox {
   background: #fff;
 }
 
-.custom-radio [type="radio"] + label:after {
+.custom-radio [type="radio"]+label:after {
   content: '';
   width: 8px;
   height: 8px;
@@ -611,13 +625,13 @@ input[readonly].custom-textbox {
   transition: all 0.1s;
 }
 
-.custom-radio [type="radio"]:not(:checked) + label:after {
+.custom-radio [type="radio"]:not(:checked)+label:after {
   opacity: 0;
   -webkit-transform: scale(0);
   transform: scale(0);
 }
 
-.custom-radio [type="radio"]:checked + label:after {
+.custom-radio [type="radio"]:checked+label:after {
   opacity: 1;
   -webkit-transform: scale(1);
   transform: scale(1);
@@ -712,7 +726,9 @@ input[readonly].custom-textbox {
   cursor: pointer;
 }
 
-.custom-text-info, .custom-text-info p, .custom-text-info a {
+.custom-text-info,
+.custom-text-info p,
+.custom-text-info a {
   color: #17a2b8;
 }
 
@@ -720,7 +736,9 @@ input[readonly].custom-textbox {
   color: #007082;
 }
 
-.custom-text-primary, .custom-text-primary p, .custom-text-primary a {
+.custom-text-primary,
+.custom-text-primary p,
+.custom-text-primary a {
   color: #007bff;
 }
 
@@ -728,7 +746,9 @@ input[readonly].custom-textbox {
   color: #005cbf;
 }
 
-.custom-text-danger, .custom-text-danger p, .custom-text-danger a {
+.custom-text-danger,
+.custom-text-danger p,
+.custom-text-danger a {
   color: #dc3545;
 }
 
