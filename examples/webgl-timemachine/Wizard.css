@@ -199,6 +199,10 @@ This is the main template of the wizard (step by step guides)
   width: 47% !important;
 }
 
+.one-third-width-button {
+  width: 30% !important;
+}
+
 .add-top-margin {
   margin-top: 20px !important;
 }

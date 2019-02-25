@@ -42,6 +42,7 @@
     var want_to_refresh_story_from_drive = true;
     var UTIL;
     var GOOGLE_API;
+    var $save_success_dialog, $save_error_dialog;
 
     // For creating new stories
     var $theme;
@@ -82,6 +83,7 @@
       });
       createSetViewTool();
       createIntroductionUI();
+      createGeneralSaveUI();
       createNewThemeUI();
       createNewStoryUI();
       createNewWaypointUI();
@@ -141,6 +143,40 @@
             $load_from_google_drive_message.empty().append($("<p>" + msg + "</p>"));
           });
         }
+      });
+    }
+
+    // For creating the UI for all save buttons at the bottom
+    function createGeneralSaveUI() {
+      $save_success_dialog = createConfirmDialog({
+        selector: "#" + container_id + " .save-success-dialog"
+      });
+      $save_error_dialog = createConfirmDialog({
+        selector: "#" + container_id + " .save-error-dialog"
+      });
+      $(".save-button").on("click", function () {
+        var $ui = $(this);
+        var $back = $ui.siblings(".back-button");
+        var $next = $ui.siblings(".next-button");
+        $back.prop("disabled", true);
+        $next.prop("disabled", true);
+        $ui.prop("disabled", true);
+        saveStoryCollection({
+          desired_sheet_id: current_sheet_id,
+          desired_sheet_name: current_sheet_name,
+          success: function () {
+            $back.prop("disabled", false);
+            $next.prop("disabled", false);
+            $ui.prop("disabled", false);
+            $save_success_dialog.dialog("open");
+          },
+          error: function () {
+            $back.prop("disabled", false);
+            $next.prop("disabled", false);
+            $ui.prop("disabled", false);
+            $save_error_dialog.dialog("open");
+          }
+        });
       });
     }
 
@@ -231,7 +267,7 @@
       var $format_confirm_dialog = createConfirmDialog({
         selector: "#" + container_id + " .story-editor-load .format-confirm-dialog"
       });
-      $load.find(".back-button").on("click", function () {
+      var $back = $load.find(".back-button").on("click", function () {
         transition($load, $intro);
       });
       $load.find(".next-button").on("click", function () {
@@ -255,9 +291,11 @@
             $url_confirm_dialog.dialog("open");
           } else {
             $ui.prop("disabled", true);
+            $back.prop("disabled", true);
             // This util function name is misleading, it converts spreadsheet into csv, not json
             UTIL.gdocToJSON(sheet_url, function (tsv) {
               $ui.prop("disabled", false);
+              $back.prop("disabled", false);
               tsvToData({
                 tsv: tsv,
                 error: function () {
@@ -271,6 +309,7 @@
               });
             }, function (xhr) {
               $ui.prop("disabled", false);
+              $back.prop("disabled", false);
               var s = xhr.status;
               if (s == 0) {
                 $permission_confirm_dialog.dialog("open");
@@ -285,17 +324,20 @@
           // This means that we want to create the Google sheet
           mode = "create";
           $ui.prop("disabled", true);
+          $back.prop("disabled", true);
           $create_to_google_message.text("Currently creating story...");
           saveStoryCollection({
             desired_sheet_name: $create_file_name_textbox.val(),
             success: function () {
               $ui.prop("disabled", false);
+              $back.prop("disabled", false);
               transition($load, $theme);
               $create_to_google_message.text("");
               if (enable_testing) testCreateStory(); // for testing the function of creating a story
             },
             error: function () {
               $ui.prop("disabled", false);
+              $back.prop("disabled", false);
               $create_to_google_message.text("An error is encountered when saving the story to Google Drive. Please try again later.");
             }
           });
