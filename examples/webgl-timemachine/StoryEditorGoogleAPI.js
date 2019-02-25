@@ -47,7 +47,7 @@
       }
       return isAuthenticated;
     };
-    this.isAuthenticatedWithGoogle = isAuthenticatedWithGoogle;
+    this.isAuthenticatedWithGoogle = isAuthenticatedWithGoogle
 
     var addGoogleSignedInStateChangeListener = function (listener) {
       if (typeof (gapi) !== "undefined" && gapi.auth2 && gapi.auth2.getAuthInstance()) {
@@ -62,7 +62,9 @@
      *  Sign in the user upon button click.
      */
     var handleAuthClick = function (event) {
-      return gapi.auth2.getAuthInstance().signIn().then(function (response) {
+      return gapi.auth2.getAuthInstance().signIn({
+        prompt: "select_account"
+      }).then(function (response) {
         return {
           userId: response.getId()
         };
@@ -78,7 +80,7 @@
     /**
      *  Sign out the user upon button click.
      */
-    var handleSignoutClick = function (event) {
+    var handleSignoutClick = function () {
       gapi.auth2.getAuthInstance().signOut();
     };
     this.handleSignoutClick = handleSignoutClick;

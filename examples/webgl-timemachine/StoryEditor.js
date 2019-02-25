@@ -30,7 +30,7 @@
     var on_show_callback = settings["on_show_callback"];
     var on_hide_callback = settings["on_hide_callback"];
     var $this;
-    var $intro;
+    var $intro, $logout;
     var $create_file_name_textbox;
     var $save, $save_to_google_button, $save_file_name_textbox, $save_to_google_message, $save_to_google_replace_checkbox;
     var $current_thumbnail_preview;
@@ -123,7 +123,8 @@
     function createIntroductionUI() {
       $intro = $this.find(".story-editor-intro");
       var $load_from_google_drive_message = $intro.find(".load-from-google-drive-message");
-      $intro.find(".story-editor-edit-button").on("click", function () {
+      $logout = $intro.find(".story-editor-logout-button");
+      $intro.find(".story-editor-start-button").on("click", function () {
         if (GOOGLE_API.isAuthenticatedWithGoogle()) {
           $load_from_google_drive_message.empty();
           transition($intro, $load);
@@ -143,6 +144,10 @@
             $load_from_google_drive_message.empty().append($("<p>" + msg + "</p>"));
           });
         }
+      });
+      // IMPORTANT: there is no way to test logout on localhost
+      $logout.on("click", function () {
+        GOOGLE_API.handleSignoutClick();
       });
     }
 
@@ -667,14 +672,21 @@
     // For initializing the Google Drive API
     function initGoogleDriveAPI() {
       GOOGLE_API.addGoogleSignedInStateChangeListener(function (isSignedIn) {
+        console.log(isSignedIn);
         if (isSignedIn) {
           if ($load_from_google_drive_radio.is(":checked")) {
             $load_from_google_drive_radio.trigger("click");
           } else if ($save_to_google_button.is(":checked")) {
             $save_to_google_button.trigger("click");
           }
+          if ($logout.hasClass("force-hide")) {
+            $logout.removeClass("force-hide");
+          }
         } else {
           console.log('not logged in...');
+          if (!$logout.hasClass("force-hide")) {
+            $logout.addClass("force-hide");
+          }
         }
       });
     }
