@@ -35,7 +35,7 @@
     var $save, $save_to_google_button, $save_file_name_textbox, $save_to_google_message, $save_to_google_replace_checkbox;
     var $current_thumbnail_preview;
     var set_view_tool;
-    var enable_testing = true;
+    var enable_testing = false;
     var mode;
     var current_sheet_id;
     var current_sheet_name;
