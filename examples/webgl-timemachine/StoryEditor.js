@@ -30,7 +30,7 @@
     var on_show_callback = settings["on_show_callback"];
     var on_hide_callback = settings["on_hide_callback"];
     var $this;
-    var $intro, $logout, $login_message;
+    var $intro, $start, $logout, $login_message;
     var $create_file_name_textbox;
     var $save, $save_to_google_button, $save_file_name_textbox, $save_to_google_message, $save_to_google_replace_checkbox;
     var $current_thumbnail_preview;
@@ -64,10 +64,12 @@
       GOOGLE_API = new StoryEditorGoogleAPI({
         on_ready: function (isSignedIn) {
           var $logout_btn = $("#" + container_id + " .story-editor .story-editor-intro .story-editor-logout-button");
+          var $start_btn = $("#" + container_id + " .story-editor .story-editor-intro .story-editor-start-button");
           var $login_message_txt = $("#" + container_id + " .story-editor .story-editor-intro .login-message");
           if (isSignedIn && $logout_btn.hasClass("force-hide")) {
             $logout_btn.removeClass("force-hide");
-            $login_message_txt.text("Hi there. Thank you for logging in with Google.");
+            $login_message_txt.text("");
+            $start_btn.text("Begin");
           }
         }
       });
@@ -133,15 +135,18 @@
       $intro = $this.find(".story-editor-intro");
       $login_message = $intro.find(".login-message");
       $logout = $intro.find(".story-editor-logout-button");
-      $intro.find(".story-editor-start-button").on("click", function () {
+      $start = $intro.find(".story-editor-start-button");
+      $start.on("click", function () {
         if (GOOGLE_API.isAuthenticatedWithGoogle()) {
           $login_message.text("");
+          $start.text("Begin");
           transition($intro, $load);
         } else {
           var promise = GOOGLE_API.handleAuthClick();
           promise.then(function (response) {
             // A user id is returned, ignore for now
             $login_message.text("");
+            $start.text("Begin");
             transition($intro, $load);
           }).catch(function (response) {
             var msg = "An error is encountered when logging in to the Google Drive.";
@@ -689,13 +694,15 @@
           }
           if ($logout.hasClass("force-hide")) {
             $logout.removeClass("force-hide");
-            $login_message.text("Hi there. Thank you for logging in with Google.");
+            $login_message.text("");
+            $start.text("Begin");
           }
         } else {
           console.log('not logged in...');
           if (!$logout.hasClass("force-hide")) {
             $logout.addClass("force-hide");
             $login_message.text("You have been successfully signed out.");
+            $start.text("Login and Begin");
           }
         }
       });
