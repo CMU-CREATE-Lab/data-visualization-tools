@@ -149,6 +149,9 @@
       $logout.on("click", function () {
         GOOGLE_API.handleSignoutClick();
       });
+      if (GOOGLE_API.isAuthenticatedWithGoogle() && $logout.hasClass("force-hide")) {
+        $logout.removeClass("force-hide");
+      }
     }
 
     // For creating the UI for all save buttons at the bottom
