@@ -5,7 +5,8 @@
   //
   // Create the class
   //
-  var StoryEditorGoogleAPI = function () {
+  var StoryEditorGoogleAPI = function (settings) {
+    settings = typeof settings === "undefined" ? {} : settings;
     // Client ID and API key from the Developer Console
     var CLIENT_ID = '469566611033-9qaggmqhgangl8tcddkijk2tuvhufv0q.apps.googleusercontent.com';
     // Array of API discovery doc URLs for APIs used by the quickstart
@@ -14,6 +15,7 @@
     var SCOPES = "https://www.googleapis.com/auth/drive.file";
 
     var tmpListeners = [];
+    var on_ready = settings["on_ready"]
 
     /**
      *  Initializes the API client library and sets up sign-in state
@@ -29,6 +31,7 @@
           gapi.auth2.getAuthInstance().isSignedIn.listen(tmpListeners[i]);
         }
         tmpListeners = [];
+        on_ready(gapi.auth2.getAuthInstance().isSignedIn.get());
       });
     }
 

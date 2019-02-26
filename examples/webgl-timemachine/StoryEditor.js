@@ -61,7 +61,14 @@
     //
     function init() {
       UTIL = timelapse.getUtil();
-      GOOGLE_API = new StoryEditorGoogleAPI();
+      GOOGLE_API = new StoryEditorGoogleAPI({
+        on_ready: function (isSignedIn) {
+          var $logout_btn = $("#" + container_id + " .story-editor .story-editor-intro .story-editor-logout-button");
+          if (isSignedIn && $logout_btn.hasClass("force-hide")) {
+            $logout_btn.removeClass("force-hide");
+          }
+        }
+      });
       var absolute_path_to_html = document.querySelector('script[src*="StoryEditor.js"]').src.replace(".js", ".html");
       $.ajax({
         dataType: "html",
@@ -149,9 +156,6 @@
       $logout.on("click", function () {
         GOOGLE_API.handleSignoutClick();
       });
-      if (GOOGLE_API.isAuthenticatedWithGoogle() && $logout.hasClass("force-hide")) {
-        $logout.removeClass("force-hide");
-      }
     }
 
     // For creating the UI for all save buttons at the bottom
@@ -675,7 +679,6 @@
     // For initializing the Google Drive API
     function initGoogleDriveAPI() {
       GOOGLE_API.addGoogleSignedInStateChangeListener(function (isSignedIn) {
-        console.log(isSignedIn);
         if (isSignedIn) {
           if ($load_from_google_drive_radio.is(":checked")) {
             $load_from_google_drive_radio.trigger("click");
