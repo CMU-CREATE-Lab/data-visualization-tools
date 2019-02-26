@@ -15,7 +15,7 @@
     var SCOPES = "https://www.googleapis.com/auth/drive.file";
 
     var tmpListeners = [];
-    var on_ready = settings["on_ready"]
+    var on_ready = settings["on_ready"];
 
     /**
      *  Initializes the API client library and sets up sign-in state
