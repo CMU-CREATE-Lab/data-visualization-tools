@@ -378,7 +378,7 @@
       ymin: 1218442.2616483232
     };
     var storyEditor;
-
+    var activeEarthTimeLayers = [];
 
 
     // ## 1 ##
@@ -1232,6 +1232,9 @@
       // Clear out all layers that were checked
       $(".map-layer-div").find("input:checked").trigger("click");
       timelapse.hideSpinner("timeMachine");
+      if (!layers) {
+        activeEarthTimeLayers = [];
+      }
       layers.forEach(function(layer) {
         if (layer.indexOf("extras_") == 0 || layer.indexOf("e-") == 0) {
           // Need to delay some amount of time for the selectmenu to refresh after being populated.
@@ -4194,6 +4197,28 @@
       });
 
       var timelineUIHandler = function(e) {
+        var toggledLayer = $(e.target);
+        var toggledLayerId = toggledLayer.parent("label").attr("name");
+
+        if (toggledLayer.attr('type') == 'radio') {
+          var toggledLayerGroup = $('input[name=' + toggledLayer.attr("name") + ']');
+          toggledLayerGroup.each(function(idx, element) {
+            var tmp = $(element).parent("label").attr("name");
+            var activeLayerIdx = activeEarthTimeLayers.indexOf(tmp);
+            if (activeLayerIdx >= 0) {
+              activeEarthTimeLayers.splice(activeLayerIdx, 1);
+            }
+          });
+          activeEarthTimeLayers.push(toggledLayerId);
+        } else if (toggledLayer.prop("checked")) {
+          activeEarthTimeLayers.push(toggledLayerId);
+        } else {
+          var activeLayerIdx = activeEarthTimeLayers.indexOf(toggledLayerId);
+          if (activeLayerIdx >= 0) {
+            activeEarthTimeLayers.splice(activeLayerIdx, 1);
+          }
+        }
+
         var $layerContainer = $(e.target).parents("table");
         var $layerContainerHeader = $layerContainer.prev();
         var layerCategory = $layerContainerHeader.attr("aria-controls")
