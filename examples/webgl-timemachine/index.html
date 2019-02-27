@@ -7487,7 +7487,11 @@
         // Note that a story can also be a theme (old way)
         var $selectedStoryElement = $(e.currentTarget);
 
-        if ($('#theme-title').attr('data-theme-id') == $selectedStoryElement[0].id) return;
+        // If what's clicked is already loaded, go to the first waypoint
+        if ($('#theme-title').attr('data-theme-id') == $selectedStoryElement[0].id) {
+          $(".snaplapse_keyframe_list").children().eq(0).children().first().trigger("click");
+          return;
+        }
 
         // Uncheck any selected stories
         $("#theme-menu").find("input").prop("checked", false);
