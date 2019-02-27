@@ -100,7 +100,7 @@
       createNewWaypointUI();
       createLoadUI();
       createEditThemeUI();
-      creatEditStoryUI();
+      createEditStoryUI();
       createEditWaypointUI();
       createSaveUI();
       initGoogleDriveAPI();
@@ -207,25 +207,33 @@
         $back_confirm_dialog.dialog("open");
       });
       $theme.find(".next-button").on("click", function () {
-        transition($theme, $story);
+        syncActiveTab(edit_theme_accordion, $theme, "backward");
+        transition($theme, $edit_theme);
       });
       $back_confirm_dialog = createConfirmDialog({
         selector: "#" + container_id + " .story-editor-theme .back-confirm-dialog",
         action_callback: function () {
-          transition($theme, $load);
-          reset();
+          transition($theme, $edit_theme);
         }
       });
     }
 
     // For creating a new story
     function createNewStoryUI() {
+      var $back_confirm_dialog;
       $story = $this.find(".story-editor-story");
       $story.find(".back-button").on("click", function () {
-        transition($story, $theme);
+        $back_confirm_dialog.dialog("open");
       });
       $story.find(".next-button").on("click", function () {
-        transition($story, $waypoint);
+        syncActiveTab(edit_story_accordion, $story, "backward");
+        transition($story, $edit_story);
+      });
+      $back_confirm_dialog = createConfirmDialog({
+        selector: "#" + container_id + " .story-editor-story .back-confirm-dialog",
+        action_callback: function () {
+          transition($story, $edit_story);
+        }
       });
       $story.find(".story-editor-set-cover-view-button").on("click", function () {
         $current_thumbnail_preview = $story.find(".story-editor-thumbnail-preview");
@@ -468,6 +476,10 @@
       $edit_theme.find(".story-editor-add-button").on("click", function () {
         edit_theme_accordion.addEmptyTab();
       });
+      $edit_theme.find(".story-editor-edit-button").on("click", function () {
+        syncActiveTab(edit_theme_accordion, $theme, "forward");
+        transition($edit_theme, $theme);
+      });
       edit_theme_accordion = createAccordion({
         accordion: "#" + container_id + " .story-editor-edit-theme .custom-accordion",
         delete_confirm_dialog: "#" + container_id + " .story-editor-edit-theme .delete-confirm-dialog"
@@ -485,7 +497,7 @@
     }
 
     // For editing a story in a selected theme
-    function creatEditStoryUI() {
+    function createEditStoryUI() {
       var $next_confirm_dialog = createConfirmDialog({
         selector: "#" + container_id + " .story-editor-edit-story .next-confirm-dialog"
       });
@@ -505,6 +517,10 @@
       });
       $edit_story.find(".story-editor-add-button").on("click", function () {
         edit_story_accordion.addEmptyTab();
+      });
+      $edit_story.find(".story-editor-edit-button").on("click", function () {
+        syncActiveTab(edit_story_accordion, $story, "forward");
+        transition($edit_story, $story);
       });
       edit_story_accordion = createAccordion({
         accordion: "#" + container_id + " .story-editor-edit-story .custom-accordion",
@@ -735,19 +751,19 @@
       if (typeof $ui === "undefined" || typeof d === "undefined") return;
       if (typeof d["title"] !== "undefined") {
         $ui.find(".story-editor-title-text").text(d["title"]);
-        $ui.find(".story-editor-title-textbox").val(d["title"]);
+        $ui.find(".story-editor-title-textbox").text(d["title"]);
       }
       if (typeof d["long_title"] !== "undefined") {
-        $ui.find(".story-editor-long-title-textbox").val(d["long_title"]);
+        $ui.find(".story-editor-long-title-textbox").text(d["long_title"]);
       }
       if (typeof d["description"] !== "undefined") {
-        $ui.find(".story-editor-description-textbox").val(d["description"]);
+        $ui.find(".story-editor-description-textbox").text(d["description"]);
       }
       if (typeof d["author"] !== "undefined") {
-        $ui.find(".story-editor-author-textbox").val(d["author"]);
+        $ui.find(".story-editor-author-textbox").text(d["author"]);
       }
       if (typeof d["data_source"] !== "undefined") {
-        $ui.find(".story-editor-data-source-textbox").val(d["data_source"]);
+        $ui.find(".story-editor-data-source-textbox").text(d["data_source"]);
       }
       if (typeof d["view_landscape"] !== "undefined" && d["view_portrait"] !== "undefined") {
         var urls = set_view_tool.extractThumbnailUrls(d["view_landscape"], d["view_portrait"]);
@@ -762,11 +778,11 @@
     function resetTabUI($ui) {
       if (typeof $ui === "undefined") return;
       $ui.find(".story-editor-title-text").text("");
-      $ui.find(".story-editor-title-textbox").val("");
-      $ui.find(".story-editor-long-title-textbox").val("");
-      $ui.find(".story-editor-description-textbox").val("");
-      $ui.find(".story-editor-author-textbox").val("");
-      $ui.find(".story-editor-data-source-textbox").val("");
+      $ui.find(".story-editor-title-textbox").text("");
+      $ui.find(".story-editor-long-title-textbox").text("");
+      $ui.find(".story-editor-description-textbox").text("");
+      $ui.find(".story-editor-author-textbox").text("");
+      $ui.find(".story-editor-data-source-textbox").text("");
       $ui.removeData("data");
       resetThumbnailPreviewUI($ui.find(".story-editor-thumbnail-preview"));
     }
@@ -783,6 +799,46 @@
           setTabUI(accordion.addEmptyTab(), data[i]);
         }
       }
+    }
+
+    // Sync the content of the tab and the user editing panel
+    // The tab is on the accordion
+    // The panel is the UI that shows up when users click the "Edit" button on the tab
+    function syncActiveTab(accordion, $panel, direction) {
+      var selectors = [
+        ".story-editor-title-textbox",
+        ".story-editor-description-textbox",
+        ".story-editor-author-textbox",
+        ".story-editor-data-source-textbox"
+      ];
+      var $active_tab = accordion.getActiveTab();
+      for (var i = 0; i < selectors.length; i++) {
+        var s = selectors[i];
+        if (direction == "forward") {
+          $panel.find(s).val($active_tab.find(s).text());
+        } else if (direction == "backward") {
+          $active_tab.find(s).text($panel.find(s).val());
+        }
+      }
+      if (direction == "forward") {
+        syncActiveTabView($active_tab, $panel, true);
+      } else if (direction == "backward") {
+        syncActiveTabView($panel, $active_tab);
+        accordion.setActiveTabHeaderText($panel.find(".story-editor-title-textbox").val());
+      }
+    }
+
+    // Sync the thumbnail preview
+    function syncActiveTabView($from_tab, $to_tab, reset_to_tab) {
+      var $from_tab_thumbnail_preview = $from_tab.find(".story-editor-thumbnail-preview");
+      var $l = $from_tab_thumbnail_preview.find(".story-editor-thumbnail-preview-landscape");
+      var $p = $from_tab_thumbnail_preview.find(".story-editor-thumbnail-preview-portrait");
+      var urls = set_view_tool.extractThumbnailUrls($l.data("view"), $p.data("view"));
+      var $to_tab_thumbnail_preview = $to_tab.find(".story-editor-thumbnail-preview");
+      if (typeof reset_to_tab !== "undefined" && reset_to_tab) {
+        resetThumbnailPreviewUI($to_tab_thumbnail_preview);
+      }
+      setThumbnailPreviewUI($to_tab_thumbnail_preview, urls);
     }
 
     // Propagate data forward from an accordion to another accordion
@@ -808,23 +864,23 @@
       var d = {};
       var $title = $ui.find(".story-editor-title-textbox");
       if ($title.length > 0) {
-        d["title"] = safeGet($title.val().trim());
+        d["title"] = safeGet($title.text().trim());
       }
       var $long_title = $ui.find(".story-editor-long-title-textbox");
       if ($long_title.length > 0) {
-        d["long_title"] = safeGet($long_title.val().trim());
+        d["long_title"] = safeGet($long_title.text().trim());
       }
       var $description = $ui.find(".story-editor-description-textbox");
       if ($description.length > 0) {
-        d["description"] = safeGet($description.val().trim());
+        d["description"] = safeGet($description.text().trim());
       }
       var $author = $ui.find(".story-editor-author-textbox");
       if ($author.length > 0) {
-        d["author"] = safeGet($author.val().trim());
+        d["author"] = safeGet($author.text().trim());
       }
       var $data_source = $ui.find(".story-editor-data-source-textbox");
       if ($data_source.length > 0) {
-        d["data_source"] = safeGet($data_source.val().trim());
+        d["data_source"] = safeGet($data_source.text().trim());
       }
       var $view_landscape = $ui.find(".story-editor-thumbnail-preview-landscape");
       var $view_portrait = $ui.find(".story-editor-thumbnail-preview-portrait");
@@ -902,7 +958,8 @@
       if (typeof $ui === "undefined") return;
       $ui.find("a").prop("href", "javascript:void(0)");
       $ui.find("img").prop("src", "");
-      $ui.removeData("view");
+      $ui.find(".story-editor-thumbnail-preview-landscape").removeData("view");
+      $ui.find(".story-editor-thumbnail-preview-portrait").removeData("view");
       $ui.hide();
     }
 
@@ -1041,9 +1098,6 @@
           });
           $tab_template.find(".story-editor-delete-button").on("click", function () {
             $delete_confirm_dialog.dialog("open");
-          });
-          $tab_template.find(".story-editor-title-textbox").on("input", function () {
-            accordion.setActiveTabHeaderText($(this).val());
           });
         }
       });
@@ -1241,7 +1295,7 @@
     // Get all values of the found dom elements and return an array
     function getValues($elements) {
       return $elements.map(function () {
-        return $(this).val();
+        return $(this).text();
       }).get();
     }
 

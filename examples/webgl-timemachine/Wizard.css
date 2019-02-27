@@ -109,6 +109,11 @@ This is the main template of the wizard (step by step guides)
   margin-bottom: 7px;
 }
 
+.wizard-body b {
+  font-family: "Exo2-Bold", sans-serif !important;
+  color: black;
+}
+
 .wizard-body span {
   font-size: 14px;
 }
@@ -124,6 +129,11 @@ This is the main template of the wizard (step by step guides)
 
 .wizard-body li {
   font-size: 14px;
+}
+
+.wizard-body .custom-dropdown {
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 .wizard-body-top {
@@ -215,6 +225,10 @@ This is the main template of the wizard (step by step guides)
   margin-top: 5px !important;
 }
 
+.no-top-margin {
+  margin-top: 0px !important;
+}
+
 .add-bottom-margin {
   margin-bottom: 20px !important;
 }
@@ -225,6 +239,10 @@ This is the main template of the wizard (step by step guides)
 
 .add-bottom-margin-small {
   margin-bottom: 5px !important;
+}
+
+.no-bottom-margin {
+  margin-bottom: 0px !important;
 }
 
 .add-left-margin-medium {
@@ -416,7 +434,7 @@ This is the main template of the wizard (step by step guides)
 }
 
 textarea.custom-textbox {
-  min-height: 60px !important;
+  min-height: 100px !important;
   max-height: 200px !important;
 }
 
