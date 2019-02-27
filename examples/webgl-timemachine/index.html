@@ -3974,6 +3974,11 @@
         } else if (fileType == "link") {
           window.location.href = filePath;
         }
+
+        if (extrasName.indexOf("_letterBoxFit_") > 0) {
+          $("#extras-image, #extras-video").css("object-fit", "contain");
+        }
+
       });
 
       $("#extras-content-container").dialog({
