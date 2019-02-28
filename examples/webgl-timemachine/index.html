@@ -4027,7 +4027,7 @@
               selectedIdx = 0;
             }
           }
-          $(".snaplapse_keyframe_list").children().eq(selectedIdx).children().first().trigger("click");
+          $(".snaplapse_keyframe_list").children().eq(selectedIdx).children().first().trigger("click", {fromKeyboard: true});
         }
 
         // 'page down' key
@@ -4039,11 +4039,12 @@
           if ($selectedWaypoint.length) {
             selectedIdx = $selectedWaypoint.parents(".snaplapse_keyframe_list_item").index();
             selectedIdx--;
+
             if (selectedIdx < 0) {
               selectedIdx = lastWaypointIdx;
             }
           }
-          $(".snaplapse_keyframe_list").children().eq(selectedIdx).children().first().trigger("click");
+          $(".snaplapse_keyframe_list").children().eq(selectedIdx).children().first().trigger("click", {fromKeyboard: true});
         }
 
         // 'tab' or 'enter' key
