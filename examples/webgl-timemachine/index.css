@@ -335,13 +335,20 @@ html, body {
     display: block;
     width: 0;
 }
-.right .ui-tooltip-content::after {
+.show-more-layers-tooltip .ui-tooltip-content::after {
     top: 18px;
     left: -10px;
     border-color: transparent #666;
     border-width: 10px 10px 10px 0;
 }
 
+.show-more-layers-tooltip {
+  z-index: 100000000;
+}
+
+#show-more-layers.active {
+  margin-top: 10px;
+}
 
 #show-more-layers {
   background-color: #6f6f6f;
@@ -406,7 +413,7 @@ html, body {
 }
 
 #layers-list-featured.shrink {
-  height: calc(50% - 110px) !important;
+  border-bottom: 1px solid #a5a5a5;
 }
 
 .featured-layers-scroll-vertical {
@@ -1474,7 +1481,6 @@ a:focus { outline:0; }
 
 #featured-layers {
   text-align:left;
-  border-bottom: 1px solid #a9a9a9;
 }
 
 #featured-layers-title {

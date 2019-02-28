@@ -148,7 +148,7 @@
     //
 
     var EARTH_TIMELAPSE_CONFIG = EARTH_TIMELAPSE_CONFIG || {};
-    var featuredTheme = EARTH_TIMELAPSE_CONFIG.featuredTheme || "";
+    var featuredTheme = "";
     var enableMuseumMode = !!EARTH_TIMELAPSE_CONFIG.enableMuseumMode;
     // Deprecated. Was json output of snaplapse editor. Instead use waypointSliderContentPath, which points to an online or exported spreadsheet.
     var waypointCollection = EARTH_TIMELAPSE_CONFIG.waypointCollection;
@@ -343,7 +343,7 @@
     var hideWaypointListener;
     var snaplapseForPresentationSlider;
     var parabolicMotionStoppedListener;
-    var currentWaypointTheme = featuredTheme.replace(/ /g, '_').toLowerCase();
+    var currentWaypointTheme = "";
     var currentWaypointStory;
     var himawariWaypoints = {};
     var annotationPicturePaths = {};
@@ -4401,6 +4401,14 @@
     }
     // END of initLayerToggleUI()
 
+    function removeFeaturedTheme() {
+      $("#featured-layers-title, #layers-list-featured").remove();
+      $(".map-layer-div").show();
+      $("#layers-list").removeClass("featured");
+      featuredTheme = "";
+      currentWaypointTheme = "";
+    };
+
     function createFeaturedLayersSection() {
       if (enableLetterboxMode) return;
 
@@ -4439,23 +4447,20 @@
 
       // If we don't find any layers that match the selected theme or we just have base layers, remove the featured section and show all layers
       if (featuredLayerCount == 0 || $("#featured-layers").find("h3").length == 1) {
-        $("#featured-layers-title, #layers-list-featured").remove();
-        $(".map-layer-div").show();
-        $("#layers-list").removeClass("featured");
-        featuredTheme = "";
+        removeFeaturedTheme();
       } else {
         $("#layers-list").addClass("featured");
 
         $("#show-more-layers").on("click", function() {
           if ($(this).hasClass("active")) {
-            $("#layers-list-featured, #layers-list").removeClass("shrink");
-            $(".map-layer-div, #all-data-layers-title").hide();
+            $("#featured-layers-title, .featured-layers-scroll-vertical").show();
+            $("#layers-list-featured").removeClass("shrink");
+            $(".map-layer-div").hide();
             $(this).text("Show More");
           } else {
-            if ($("#featured-layers").height() >= Math.floor($("#layers-menu").height() / 2)) {
-              $("#layers-list-featured, #layers-list").addClass("shrink");
-            }
-            $(".map-layer-div, #all-data-layers-title").show();
+            $("#featured-layers-title, .featured-layers-scroll-vertical").hide();
+            $("#layers-list-featured").addClass("shrink");
+            $(".map-layer-div").show();
             $(this).html("Show Less");
           }
           resizeLayersMenu();
@@ -7632,6 +7637,7 @@
         $("#theme-menu .activeStory").removeClass('activeStory');
         $("#theme-menu .active-story-in-theme").remove();
         handleStoryToggle(false);
+        removeFeaturedTheme();
         $('#theme-title').attr('data-theme-id', '');
       });
 
@@ -8302,7 +8308,7 @@
     $(document).tooltip({
       items: "#show-more-layers",
       position: { my: 'left top', at: 'right+15 top-18', collision: "custom" },
-      tooltipClass: "right",
+      tooltipClass: "show-more-layers-tooltip",
       content: function() {
         var $element = $(this);
         if ($element.attr("id") == "show-more-layers") {
@@ -8375,13 +8381,17 @@
     }
 
     function resizeLayersMenu() {
-      if (!$("#show-more-layers").is(":visible")) return;
+      if ($("#show-more-layers").length == 0) return;
       // Make sure the layers height never exceeds the space that would push out the 'Show More' button
       if ($("#layers-menu").is(":visible") && $("#layers-list-featured").is(":visible")) {
         $(".featured-layers-scroll-vertical").css("max-height", ($("#layers-list").height() - $("#layers-list-featured").offset().top) + "px");
       }
-      // 8px because of borders, paddings, etc
-      $(".layers-scroll-vertical").css("height", "calc(100% - " + ($("#layers-list").offset().top - 8) + "px)");
+      var heightDiff = 0;
+      if (featuredTheme) {
+        // 1px extra because of borders
+        heightDiff = $("#layers-list").offset().top - $('#layers-list-featured').height() - 1;
+      }
+      $(".layers-scroll-vertical").css("height", "calc(100% - " + heightDiff + "px)");
    }
 
     // Draws to canvas.
