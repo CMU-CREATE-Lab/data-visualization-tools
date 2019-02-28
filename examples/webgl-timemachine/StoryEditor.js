@@ -750,6 +750,9 @@
       $create_file_name_textbox.val("");
       current_sheet_id = undefined;
       current_sheet_name = undefined;
+      setAccordionUI(edit_theme_accordion, []);
+      setAccordionUI(edit_story_accordion, []);
+      setAccordionUI(edit_waypoint_accordion, []);
       $save_to_google_button.prop("disabled", false);
       $save_to_google_message.empty();
       $save_file_name_textbox.val("");
