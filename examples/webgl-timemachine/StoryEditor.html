@@ -58,7 +58,7 @@
         <p><span class="highlight-text">4.</span>&nbsp;&nbsp; Enter the <span class="highlight-text">data sources</span>:</p>
         <input type="text" class="custom-textbox add-bottom-margin story-editor-data-source-textbox" maxlength="300" placeholder="data sources (max 300 characters)">
         <p><span class="highlight-text">5.</span>&nbsp;&nbsp; Set a <span class="highlight-text">view</span> for the story introduction:</p>
-        <button class="custom-button full-width-button custom-button-primary story-editor-set-cover-view-button">Set View</button>
+        <button class="custom-button full-width-button custom-button-primary story-editor-set-view-button">Set View</button>
         <div class="add-top-margin story-editor-thumbnail-preview">
           <span class="story-editor-thumbnail-preview-text"><span class="highlight-text">6.</span>&nbsp;&nbsp; Landscape and portrait views:</span>
           <div class="even-space-content-align-bottom">
@@ -81,44 +81,29 @@
     <div class="hide story-editor-waypoint">
       <div class="wizard-body-top">
         <h3>Waypoint</h3>
-        <p>Add waypoints to your story.</p>
-        <button class="custom-button custom-button-primary full-width-button add-bottom-margin story-editor-add-button" title="Add a new waypoint">Add a New Waypoint</button>
-        <p>Click on the tabs to edit waypoints. To reorder them, drag and drop the tabs.</p>
-        <div class="custom-accordion">
-          <div class="custom-accordion-tab">
-            <h3><span class="custom-accordion-tab-header-text story-editor-title-text"></span></h3>
-            <div>
-              <span>Waypoint title:</span>
-              <input type="text" class="custom-textbox add-bottom-margin-small story-editor-title-textbox" maxlength="20" placeholder="(max 20 characters)">
-              <span>Annotation title:</span>
-              <input type="text" class="custom-textbox add-bottom-margin-small story-editor-long-title-textbox" maxlength="40" placeholder="(max 40 characters)">
-              <span>Annotation text:</span>
-              <textarea class="custom-textbox add-bottom-margin-medium story-editor-description-textbox" maxlength="300" placeholder="(max 300 characters)"></textarea>
-              <div class="even-space-content">
-                <button class="custom-button story-editor-copy-button" title="Copy this waypoint">Copy</button>
-                <button class="custom-button custom-button-danger story-editor-delete-button" title="Delete this waypoint">Delete</button>
-                <button class="custom-button custom-button-primary story-editor-set-view-button">Set View</button>
-              </div>
-              <div class="add-top-margin-medium story-editor-thumbnail-preview">
-                <span class="story-editor-thumbnail-preview-text"><b>Landscape and portrait views:</b></span>
-                <div class="even-space-content-align-bottom">
-                  <a href="javascript:void(0)" target="_blank" class="image story-editor-thumbnail-preview-landscape"><img src=""></a>
-                  <a href="javascript:void(0)" target="_blank" class="image story-editor-thumbnail-preview-portrait"><img src=""></a>
-                </div>
-              </div>
-            </div>
+        <p class="add-bottom-margin">Specify the metadata for the waypoint.</p>
+        <p><span class="highlight-text">1.</span>&nbsp;&nbsp; Enter the <span class="highlight-text">waypoint title</span>:</p>
+        <input type="text" class="custom-textbox add-bottom-margin story-editor-title-textbox" maxlength="20" placeholder="story title (max 20 characters)">
+        <p><span class="highlight-text">2.</span>&nbsp;&nbsp; Enter the <span class="highlight-text">waypoint description</span>:</p>
+        <textarea class="custom-textbox add-bottom-margin story-editor-description-textbox" maxlength="300" placeholder="story description (max 300 characters)"></textarea>
+        <p><span class="highlight-text">3.</span>&nbsp;&nbsp; Set a <span class="highlight-text">view</span> for the waypoint:</p>
+        <button class="custom-button full-width-button custom-button-primary story-editor-set-view-button">Set View</button>
+        <div class="add-top-margin story-editor-thumbnail-preview">
+          <span class="story-editor-thumbnail-preview-text"><span class="highlight-text">4.</span>&nbsp;&nbsp; Landscape and portrait views:</span>
+          <div class="even-space-content-align-bottom">
+            <a href="javascript:void(0)" target="_blank" class="image story-editor-thumbnail-preview-landscape"><img src=""></a>
+            <a href="javascript:void(0)" target="_blank" class="image story-editor-thumbnail-preview-portrait"><img src=""></a>
           </div>
         </div>
       </div>
-      <div class="custom-dialog hide delete-confirm-dialog" title="Delete waypoint?">
-        <p><span class="ui-icon ui-icon-alert"></span>This waypoint will be deleted.</p>
+      <div class="custom-dialog hide back-confirm-dialog" title="Cancel?">
+        <p><span class="ui-icon ui-icon-alert"></span>Cancel editing and return to the previous page?</p>
       </div>
       <div class="wizard-body-bottom">
-        <p>Click the "Next" button to save or download this story.</p>
+        <p>Click the "Set Waypoint" button to set the metadata of this waypoint.</p>
         <div class="even-space-content">
-          <button class="custom-button one-third-width-button back-button">Back</button>
-          <button class="custom-button one-third-width-button save-button">Save</button>
-          <button class="custom-button custom-button-primary one-third-width-button next-button">Next</button>
+          <button class="custom-button custom-button-danger half-width-button back-button">Cancel</button>
+          <button class="custom-button custom-button-primary half-width-button next-button">Set Waypoint</button>
         </div>
       </div>
     </div>
@@ -330,9 +315,9 @@
             <h3><span class="custom-accordion-tab-header-text story-editor-title-text"></span></h3>
             <div>
               <div class="even-space-content add-bottom-margin-medium">
-                <button class="custom-button story-editor-copy-button" title="Copy this waypoint">Copy</button>
-                <button class="custom-button custom-button-danger story-editor-delete-button" title="Delete this waypoint">Delete</button>
-                <button class="custom-button custom-button-primary story-editor-set-view-button">Set View</button>
+                <button class="custom-button custom-button-primary one-third-width-button story-editor-edit-button" title="Edit this waypoint">Edit</button>
+                <button class="custom-button one-third-width-button story-editor-copy-button" title="Create a copy of this waypoint">Copy</button>
+                <button class="custom-button custom-button-danger one-third-width-button story-editor-delete-button" title="Delete this waypoint">Delete</button>
               </div>
               <span><b>Waypoint title:</b></span>
               <p class="story-editor-title-textbox"></p>

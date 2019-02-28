@@ -9,6 +9,7 @@
 // - Papa Parse [https://www.papaparse.com/]
 // - time machine [https://github.com/CMU-CREATE-Lab/timemachine-viewer]
 // - the wizard template [wizard.css]
+// TODO: add a feature for importing the view from other waypoints (or shared view link)
 // TODO: add the the function to move a waypoint to another story
 // TODO: add buttons for moving tabs up and down in the accordion
 // TODO: hide and show stories (publish and unpublish)
@@ -36,7 +37,6 @@
     var $current_thumbnail_preview;
     var set_view_tool;
     var enable_testing = false;
-    var mode;
     var current_sheet_id;
     var current_sheet_name;
     var want_to_refresh_story_from_drive = true;
@@ -44,10 +44,10 @@
     var GOOGLE_API;
     var $save_success_dialog, $save_error_dialog;
 
-    // For creating new stories
+    // For detail editing
     var $theme;
     var $story;
-    var $waypoint, waypoint_accordion;
+    var $waypoint;
 
     // For editing stories
     var $load, $load_from_google_drive_radio;
@@ -235,7 +235,7 @@
           transition($story, $edit_story);
         }
       });
-      $story.find(".story-editor-set-cover-view-button").on("click", function () {
+      $story.find(".story-editor-set-view-button").on("click", function () {
         $current_thumbnail_preview = $story.find(".story-editor-thumbnail-preview");
         set_view_tool.show();
         $this.hide();
@@ -244,20 +244,25 @@
 
     // For creating new waypoint
     function createNewWaypointUI() {
+      var $back_confirm_dialog;
       $waypoint = $this.find(".story-editor-waypoint");
       $waypoint.find(".back-button").on("click", function () {
-        transition($waypoint, $story);
+        $back_confirm_dialog.dialog("open");
       });
       $waypoint.find(".next-button").on("click", function () {
-        transition($waypoint, $save);
-        whenGoToSaveUI();
+        syncActiveTab(edit_waypoint_accordion, $waypoint, "backward");
+        transition($waypoint, $edit_waypoint);
       });
-      $waypoint.find(".story-editor-add-button").on("click", function () {
-        waypoint_accordion.addEmptyTab();
+      $back_confirm_dialog = createConfirmDialog({
+        selector: "#" + container_id + " .story-editor-waypoint .back-confirm-dialog",
+        action_callback: function () {
+          transition($waypoint, $edit_waypoint);
+        }
       });
-      waypoint_accordion = createAccordion({
-        accordion: "#" + container_id + " .story-editor-waypoint .custom-accordion",
-        delete_confirm_dialog: "#" + container_id + " .story-editor-waypoint .delete-confirm-dialog"
+      $waypoint.find(".story-editor-set-view-button").on("click", function () {
+        $current_thumbnail_preview = $waypoint.find(".story-editor-thumbnail-preview");
+        set_view_tool.show();
+        $this.hide();
       });
     }
 
@@ -297,11 +302,30 @@
       var $back = $load.find(".back-button").on("click", function () {
         transition($load, $intro);
       });
-      $load.find(".next-button").on("click", function () {
-        var $ui = $(this);
+      var $next = $load.find(".next-button");
+      var disableUI = function () {
+        $next.prop("disabled", true);
+        $back.prop("disabled", true);
+        $create_file_name_textbox.prop("disabled", true);
+        $sheet_url_textbox.prop("disabled", true);
+        $load_from_direct_link_radio.prop("disabled", true);
+        $load_from_google_drive_radio.prop("disabled", true);
+        $load_collection_radio.prop("disabled", true);
+        $create_collection_radio.prop("disabled", true);
+      };
+      var enableUI = function () {
+        $next.prop("disabled", false);
+        $back.prop("disabled", false);
+        $create_file_name_textbox.prop("disabled", false);
+        $sheet_url_textbox.prop("disabled", false);
+        $load_from_direct_link_radio.prop("disabled", false);
+        $load_from_google_drive_radio.prop("disabled", false);
+        $load_collection_radio.prop("disabled", false);
+        $create_collection_radio.prop("disabled", false);
+      };
+      $next.on("click", function () {
         if ($load_collection_radio.is(":checked")) {
           // This means that we want to load the Google sheet
-          mode = "edit";
           // Set sheet url
           var sheet_url;
           if ($load_from_google_drive_radio.is(":checked")) {
@@ -317,12 +341,10 @@
           if (typeof sheet_url === "undefined") {
             $url_confirm_dialog.dialog("open");
           } else {
-            $ui.prop("disabled", true);
-            $back.prop("disabled", true);
+            disableUI();
             // This util function name is misleading, it converts spreadsheet into csv, not json
             UTIL.gdocToJSON(sheet_url, function (tsv) {
-              $ui.prop("disabled", false);
-              $back.prop("disabled", false);
+              enableUI();
               tsvToData({
                 tsv: tsv,
                 error: function () {
@@ -335,8 +357,7 @@
                 }
               });
             }, function (xhr) {
-              $ui.prop("disabled", false);
-              $back.prop("disabled", false);
+              enableUI();
               var s = xhr.status;
               if (s == 0) {
                 $permission_confirm_dialog.dialog("open");
@@ -349,22 +370,18 @@
           }
         } else if ($create_collection_radio.is(":checked")) {
           // This means that we want to create the Google sheet
-          mode = "create";
-          $ui.prop("disabled", true);
-          $back.prop("disabled", true);
+          disableUI();
           $create_to_google_message.text("Currently creating story...");
           saveStoryCollection({
             desired_sheet_name: $create_file_name_textbox.val(),
             success: function () {
-              $ui.prop("disabled", false);
-              $back.prop("disabled", false);
-              transition($load, $theme);
+              enableUI();
+              transition($load, $edit_theme);
               $create_to_google_message.text("");
               if (enable_testing) testCreateStory(); // for testing the function of creating a story
             },
             error: function () {
-              $ui.prop("disabled", false);
-              $back.prop("disabled", false);
+              enableUI();
               $create_to_google_message.text("An error is encountered when saving the story to Google Drive. Please try again later.");
             }
           });
@@ -542,6 +559,10 @@
       $edit_waypoint.find(".story-editor-add-button").on("click", function () {
         edit_waypoint_accordion.addEmptyTab();
       });
+      $edit_waypoint.find(".story-editor-edit-button").on("click", function () {
+        syncActiveTab(edit_waypoint_accordion, $waypoint, "forward");
+        transition($edit_waypoint, $waypoint);
+      });
       edit_waypoint_accordion = createAccordion({
         accordion: "#" + container_id + " .story-editor-edit-waypoint .custom-accordion",
         delete_confirm_dialog: "#" + container_id + " .story-editor-edit-waypoint .delete-confirm-dialog"
@@ -570,7 +591,7 @@
         }
       });
       $save.find(".back-button").on("click", function () {
-        transition($save, mode == "create" ? $waypoint : $edit_waypoint);
+        transition($save, $edit_waypoint);
         $save_to_google_button.prop("disabled", false);
       });
       $save.find(".next-button").on("click", function () {
@@ -726,14 +747,7 @@
 
     // Reset the story editor
     function reset() {
-      if (mode == "create") {
-        resetTabUI($theme);
-        resetTabUI($story);
-        waypoint_accordion.removeAllTabs();
-        waypoint_accordion.addEmptyTab();
-        $create_file_name_textbox.val("");
-      }
-      mode = undefined;
+      $create_file_name_textbox.val("");
       current_sheet_id = undefined;
       current_sheet_name = undefined;
       $save_to_google_button.prop("disabled", false);
@@ -916,25 +930,11 @@
 
     // Collect data from the user interface
     function collectStoryData() {
-      if (mode == "create") {
-        // Collect newly created story data from the user interface
-        var waypoint = collectAccordionData(waypoint_accordion);
-        var story = collectTabData($story);
-        var theme = collectTabData($theme);
-        if (hasContent(waypoint) || hasContent(story) || hasContent(theme)) {
-          story["data"] = waypoint;
-          theme["data"] = [story];
-          return [theme];
-        } else {
-          return [];
-        }
-      } else {
-        // Collect edited story data from the user interface
-        // Propagate data backward three times
-        backward(edit_waypoint_accordion, edit_story_accordion);
-        backward(edit_story_accordion, edit_theme_accordion);
-        return backward(edit_theme_accordion);
-      }
+      // Collect edited story data from the user interface
+      // Propagate data backward three times
+      backward(edit_waypoint_accordion, edit_story_accordion);
+      backward(edit_story_accordion, edit_theme_accordion);
+      return backward(edit_theme_accordion);
     }
 
     // Set thumbnail preview images (also put the video or image url inside href)
@@ -1364,21 +1364,21 @@
 
     // For testing the function of creating a story
     function testCreateStory() {
-      setTabUI($theme, {
+      setTabUI(edit_theme_accordion.getActiveTab(), {
         title: "City",
         description: "A city is a large human settlement. Cities generally have extensive systems for housing, transportation, sanitation, utilities, land use, and communication."
       });
-      $this.find(".story-editor-theme .next-button").click();
-      setTabUI($story, {
+      $this.find(".story-editor-edit-theme .next-button").click();
+      setAccordionUI(edit_story_accordion, [{
         title: "Las Vegas",
         description: "Las Vegas, officially the City of Las Vegas and often known simply as Vegas, is the 28th-most populated city in the United States, the most populated city in the state of Nevada, and the county seat of Clark County.",
         author: "Harry Potter and Ginny Weasley",
         data_source: "Hogwarts School of Witchcraft and Wizardry",
         view_landscape: "https://headless.earthtime.org/#v=376423,740061,380719,742478,pts&t=1.7&ps=0&l=blsat&bt=20010101&et=20010101&startDwell=0&endDwell=0&fps=30",
         view_portrait: "https://headless.earthtime.org/#v=376537,738962,379195,743683,pts&t=1.7&ps=0&l=blsat&bt=20010101&et=20010101&startDwell=0&endDwell=0&fps=30"
-      });
-      $this.find(".story-editor-story .next-button").click();
-      setAccordionUI(waypoint_accordion, [{
+      }]);
+      $this.find(".story-editor-edit-story .next-button").click();
+      setAccordionUI(edit_waypoint_accordion, [{
         title: "1984",
         long_title: "Las Vegas 1984",
         description: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis",
@@ -1403,10 +1403,10 @@
         view_landscape: "https://headless.earthtime.org/#v=375567,739964,379848,742375,pts&t=0.7&ps=100&l=blsat&bt=19910101&et=20091231&startDwell=1&endDwell=2&fps=30",
         view_portrait: "https://headless.earthtime.org/#v=376502,739029,378913,743310,pts&t=0.7&ps=100&l=blsat&bt=19910101&et=20091231&startDwell=1&endDwell=2&fps=30"
       }]);
-      $this.find(".story-editor-waypoint .next-button").click();
+      $this.find(".story-editor-edit-waypoint .next-button").click();
       $this.find(".story-editor-save .back-button").click();
-      $this.find(".story-editor-waypoint .back-button").click();
-      $this.find(".story-editor-story .back-button").click();
+      $this.find(".story-editor-edit-waypoint .back-button").click();
+      $this.find(".story-editor-edit-story .back-button").click();
     }
 
     // For testing the function of editing stories
