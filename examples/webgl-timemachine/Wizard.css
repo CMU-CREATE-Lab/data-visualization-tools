@@ -606,8 +606,8 @@ input[readonly].custom-textbox {
   font-size: 14px;
   line-height: 14px;
   display: table-cell;
-  color: #666666;
-  border: 1px solid #bbbbbb;
+  color: #494949;
+  border: 1px solid #7d7d7d;
   border-radius: 2px;
 }
 
@@ -726,18 +726,18 @@ input[readonly].custom-textbox {
 }
 
 .custom-button-info {
-  background-color: #17a2b8;
-  border-color: #17a2b8;
+  background-color: #17b89a;
+  border-color: #17b89a;
 }
 
 .custom-button-info:not(:disabled):hover {
-  background-color: #007082;
-  border-color: #007082;
+  background-color: #0d8b74;
+  border-color: #0d8b74;
 }
 
 .custom-button-info:not(:disabled):active {
-  background-color: #007082;
-  border-color: #007082;
+  background-color: #0d8b74;
+  border-color: #0d8b74;
 }
 
 .custom-checkbox {
