@@ -180,9 +180,19 @@
         $back.prop("disabled", true);
         $next.prop("disabled", true);
         $ui.prop("disabled", true);
+        var $parent = $ui.parent().parent().parent();
+        var from;
+        if ($parent.hasClass("story-editor-edit-waypoint")) {
+          from = "waypoint";
+        } else if ($parent.hasClass("story-editor-edit-story")) {
+          from = "story";
+        } else if ($parent.hasClass("story-editor-edit-theme")) {
+          from = "theme";
+        }
         saveStoryCollection({
           desired_sheet_id: current_sheet_id,
           desired_sheet_name: current_sheet_name,
+          from: from,
           success: function () {
             $back.prop("disabled", false);
             $next.prop("disabled", false);
@@ -647,28 +657,33 @@
       options = safeGet(options, {});
       var desired_sheet_id = options["desired_sheet_id"];
       var desired_sheet_name = safeGet(options["desired_sheet_name"], ""); // prevent unnecessary API calls
-      var story_data = collectStoryData();
+      var story_data = collectStoryData(options["from"]);
       var success = options["success"];
       var error = options["error"];
-      saveDataAsTsv({
-        data: story_data,
-        sheet_id: desired_sheet_id,
-        file_name: desired_sheet_name,
-        success: function (response) {
-          current_sheet_id = response["spreadsheetId"];
-          if (typeof response["spreadsheetTitle"] !== "undefined") {
-            current_sheet_name = response["spreadsheetTitle"];
-          } else {
-            if (typeof desired_sheet_name !== "undefined" && desired_sheet_name !== "") {
-              current_sheet_name = desired_sheet_name;
+      try {
+        saveDataAsTsv({
+          data: story_data,
+          sheet_id: desired_sheet_id,
+          file_name: desired_sheet_name,
+          success: function (response) {
+            current_sheet_id = response["spreadsheetId"];
+            if (typeof response["spreadsheetTitle"] !== "undefined") {
+              current_sheet_name = response["spreadsheetTitle"];
+            } else {
+              if (typeof desired_sheet_name !== "undefined" && desired_sheet_name !== "") {
+                current_sheet_name = desired_sheet_name;
+              }
             }
-          }
-          if (typeof success === "function") success(story_data);
-        },
-        error: function () {
-          if (typeof error === "function") error();
-        },
-      });
+            if (typeof success === "function") success(story_data);
+          },
+          error: function () {
+            if (typeof error === "function") error();
+          },
+        });
+      } catch (err) {
+        console.error(err.message);
+        if (typeof error === "function") error();
+      }
     }
 
     // Get the desktop share link of each story of the EarthTime viewer
@@ -932,11 +947,16 @@
     }
 
     // Collect data from the user interface
-    function collectStoryData() {
+    function collectStoryData(from) {
+      from = safeGet(from, "waypoint");
       // Collect edited story data from the user interface
-      // Propagate data backward three times
-      backward(edit_waypoint_accordion, edit_story_accordion);
-      backward(edit_story_accordion, edit_theme_accordion);
+      // Propagate data backward based on the current user interface that user in on
+      if (from == "waypoint") {
+        backward(edit_waypoint_accordion, edit_story_accordion);
+      }
+      if (from == "waypoint" || from == "story") {
+        backward(edit_story_accordion, edit_theme_accordion);
+      }
       return backward(edit_theme_accordion);
     }
 
@@ -1142,16 +1162,18 @@
       for (var i = 0; i < data.length; i++) {
         var theme = data[i];
         tsv += "#" + theme.title + "\t" + theme.title + "\t" + theme.description + "\n";
-        for (var j = 0; j < theme["data"].length; j++) {
-          var story = theme["data"][j];
+        var theme_data = safeGet(theme["data"], []);
+        for (var j = 0; j < theme_data.length; j++) {
+          var story = theme_data[j];
           // Merge story author and data source to the Author column
           var author = story.author;
           if (typeof story.data_source !== "undefined" && story.data_source !== "") {
             author += "<br>" + story.data_source;
           }
           tsv += "##" + story.title + "\t" + story.title + "\t" + story.description + "\t" + story.view_landscape + "\t" + author + "\t" + story.view_landscape + "\t" + story.view_portrait + "\n";
-          for (var k = 0; k < story["data"].length; k++) {
-            var waypoint = story["data"][k];
+          var story_data = safeGet(story["data"], []);
+          for (var k = 0; k < story_data.length; k++) {
+            var waypoint = story_data[k];
             tsv += waypoint.title + "\t" + waypoint.long_title + "\t" + waypoint.description + "\t" + waypoint.view_landscape + "\t\t" + waypoint.view_landscape + "\t" + waypoint.view_portrait + "\n";
           }
         }
@@ -1203,7 +1225,7 @@
         var view_landscape = row["Mobile Share View Landscape"];
         var view_portrait = row["Mobile Share View Portrait"];
         // Because author and data source are all stored in the Author column, we need to separate them by <br>
-        var author_column_split = row["Author"].split("<br>");
+        var author_column_split = safeGet(row["Author"], "").split("<br>");
         var author = author_column_split[0];
         var data_source = author_column_split[1];
         if (title.charAt(0) == "#" && title.charAt(1) != "#") {
