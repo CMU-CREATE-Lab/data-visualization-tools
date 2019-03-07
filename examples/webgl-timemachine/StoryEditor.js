@@ -501,7 +501,7 @@
         }
       });
       $edit_theme.find(".story-editor-add-button").on("click", function () {
-        edit_theme_accordion.addEmptyTab();
+        setTabUI(edit_theme_accordion.addEmptyTab(), generateEmptyData());
       });
       $edit_theme.find(".story-editor-edit-button").on("click", function () {
         syncActiveTab(edit_theme_accordion, $theme, "forward");
@@ -543,7 +543,7 @@
         }
       });
       $edit_story.find(".story-editor-add-button").on("click", function () {
-        edit_story_accordion.addEmptyTab();
+        setTabUI(edit_story_accordion.addEmptyTab(), generateEmptyData());
       });
       $edit_story.find(".story-editor-edit-button").on("click", function () {
         syncActiveTab(edit_story_accordion, $story, "forward");
@@ -567,7 +567,7 @@
         whenGoToSaveUI();
       });
       $edit_waypoint.find(".story-editor-add-button").on("click", function () {
-        edit_waypoint_accordion.addEmptyTab();
+        setTabUI(edit_waypoint_accordion.addEmptyTab(), generateEmptyData());
       });
       $edit_waypoint.find(".story-editor-edit-button").on("click", function () {
         syncActiveTab(edit_waypoint_accordion, $waypoint, "forward");
@@ -825,7 +825,7 @@
       accordion.removeAllTabs();
       data = safeGet(data, []);
       if (data.length == 0) {
-        accordion.addEmptyTab();
+        setTabUI(accordion.addEmptyTab(), generateEmptyData());
       } else {
         for (var i = 0; i < data.length; i++) {
           setTabUI(accordion.addEmptyTab(), data[i]);
@@ -1134,6 +1134,22 @@
         }
       });
       return accordion;
+    }
+
+    // Generate empty data
+    function generateEmptyData() {
+      return {};
+      /*
+      return {
+        title: "(empty)",
+        long_title: "(empty)",
+        description: "(empty)",
+        author: "(empty)",
+        data_source: "(empty)",
+        view_landscape: "https://headless.earthtime.org/#v=-578347,38087,2667882,1864091,pts&t=0&ps=0&l=blsat&bt=0&et=0&startDwell=0&endDwell=0&fps=30",
+        view_portrait: "https://headless.earthtime.org/#v=524363,25926,1565172,1876252,pts&t=0&ps=0&l=blsat&bt=0&et=0&startDwell=0&endDwell=0&fps=30"
+      };
+      */
     }
 
     // Set the theme list dropdown for a story tab
