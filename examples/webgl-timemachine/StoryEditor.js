@@ -839,6 +839,7 @@
     function syncActiveTab(accordion, $panel, direction) {
       var selectors = [
         ".story-editor-title-textbox",
+        ".story-editor-long-title-textbox",
         ".story-editor-description-textbox",
         ".story-editor-author-textbox",
         ".story-editor-data-source-textbox"
