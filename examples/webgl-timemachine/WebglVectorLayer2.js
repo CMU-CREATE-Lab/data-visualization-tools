@@ -96,6 +96,10 @@ WebglVectorLayer2.prototype._createTile = function(ti, bounds) {
   if (this.color) {
     opt_options.color = this.color;    
   }  
+  if (this.drawOptions) {
+    opt_options.drawOptions = this.drawOptions;    
+  }  
+
   opt_options.dotmapColors = this.dotmapColors;
   return new WebGLVectorTile2(glb, ti, bounds, url, opt_options);
 };

@@ -9290,34 +9290,34 @@
 	}
 	if (pairCount != 2) pairCount = 0;
 
-        function drawCsvLayer(layer, options) {
-          var view = getLayerView(layer, landsatBaseMapLayer);
+  function drawCsvLayer(layer, options) {
+    var view = getLayerView(layer, landsatBaseMapLayer);
 	  if (options) {
 	    options = $.extend({}, options); // shallow-copy options
 	  } else {
 	    options = {};
 	  }
-          options.zoom = timelapse.getCurrentZoom();
-          var currentTime = timelapse.getCurrentTime();
-          var currentTimes = getCurrentTimes(timelapse);
-          var dates = getDates(timelapse);
-          var delta = getCurrentTimesDelta(currentTime, currentTimes);
-          var currentDate = getCurrentDate(currentTime, currentTimes, dates);
-          options.currentTime = currentDate;
-          options.pointSize = 2.0;
+    options.zoom = timelapse.getCurrentZoom();
+    var currentTime = timelapse.getCurrentTime();
+    var currentTimes = getCurrentTimes(timelapse);
+    var dates = getDates(timelapse);
+    var delta = getCurrentTimesDelta(currentTime, currentTimes);
+    var currentDate = getCurrentDate(currentTime, currentTimes, dates);
+    options.currentTime = currentDate;
+    options.pointSize = 2.0;
 	  if (pairCount && isPairCandidate(layer)) {
 	    options.mode = pairCount + 1; // 2 or 3 for left or right
 	    pairCount--;
 	  }
-          if (layer.options) {
-            $.extend(options, layer.options);
-          }
-          layer.draw(view, options);
-        }
+    if (layer.options) {
+      $.extend(options, layer.options);
+    }
+    layer.draw(view, options);
+  }
 
-        // Draw CSV z=200 (typically raster+choropleths)
-        for (var i = 0; i < csvFileLayers.layers.length; i++) {
-          var layer = csvFileLayers.layers[i];
+  // Draw CSV z=200 (typically raster+choropleths)
+  for (var i = 0; i < csvFileLayers.layers.length; i++) {
+    var layer = csvFileLayers.layers[i];
 	  if (layer.visible && layer.z == 200) {
 	    drawCsvLayer(layer);
 	  }

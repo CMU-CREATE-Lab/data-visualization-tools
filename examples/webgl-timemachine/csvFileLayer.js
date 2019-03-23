@@ -111,6 +111,10 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
   layerOptions.legendContent = layerDef["Legend Content"];
   layerOptions.legendKey = layerDef["Legend Key"];
 
+  if (typeof layerDef["Draw Options"] != "undefined" && layerDef["Draw Options"] != "") {
+    layerOptions.drawOptions = JSON.parse(layerDef["Draw Options"]);
+  }
+
   var url;
   var useLocalData = false;
   var relativeLocalDataPath;
@@ -233,6 +237,21 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
   if (layerOptions.color) {
     layer.options.color = layerOptions.color;
   }
+  if (layerOptions.drawOptions) {
+    var obj = layerOptions.drawOptions;
+    for (const key in obj) {
+      let value = obj[key];  
+      layer.options[key] = value;
+      //optional check for properties from prototype chain
+      if (obj.hasOwnProperty(key)) {
+        //no a property from prototype chain     
+      }else{
+        //property from protytpe chain
+      }
+    }       
+    layer.options.drawOptions = layerOptions.drawOptions;    
+  }
+
   // Comparison-mode, left and right half-circles
   var re = /_paired/;
   var m = layerOptions.layerId.match(re)

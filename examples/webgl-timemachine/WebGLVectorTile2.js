@@ -384,16 +384,16 @@ WebGLVectorTile2.prototype._loadSitc4r2Data = function () {
       if (typeof e.data["year"] != "undefined") {
         var year = e.data.year;
         var code = e.data.code;
-	if (!e.data.error) {
+        if (!e.data.error) {
           var scale = e.data.scale;
           var array = e.data["array"];
           that._setSitc4r2Buffer(code, year, new Float32Array(array));
-	} else {
+	       } else {
           if (!that.buffers[code]) {
-	    that.buffers[code] = {};
-	  }
-	  that.buffers[code][year] = {};
-	}
+	          that.buffers[code] = {};
+	        }
+	        that.buffers[code][year] = {};
+	      }
         that.buffers[code][year].ready = true;
       }
     };
@@ -869,7 +869,7 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
           console.log("undefined feature");
         }
         else if (!feature.hasOwnProperty("geometry")) {
-          //console.log('ERROR: Could not find ' + country[0]);
+          console.log('ERROR: Could not find ' + country[0]);
         } else {
           var idx = [];
           for (var j = first_data_col; j < country.length; j++) {
@@ -971,6 +971,23 @@ WebGLVectorTile2.prototype._setSitc4r2Buffer = function(sitc4r2Code, year, data)
     gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers[sitc4r2Code][year].buffer);
     gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
   }
+
+      if (typeof this._image !== "undefined") {
+        this._texture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, this._texture);
+
+        // Set the parameters so we can render any size image.
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+        // Upload the image into the texture.
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._image);
+
+        gl.bindTexture(gl.TEXTURE_2D, null);
+      }
+
 }
 
 WebGLVectorTile2.prototype._setPointData = function(data) {
@@ -3251,8 +3268,6 @@ WebGLVectorTile2.prototype._drawSitc4rcBuffer = function (code, year, transform,
   var buffer = this.buffers[code][year];
   if (!buffer.buffer) return;
   gl.useProgram(this.program);
-  gl.enable(gl.BLEND);
-  gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
 
   var tileTransform = new Float32Array(transform);
   var zoom = options.zoom;
@@ -3267,6 +3282,17 @@ WebGLVectorTile2.prototype._drawSitc4rcBuffer = function (code, year, transform,
   if (isNaN(pointSize)) {
     pointSize = 1.0;
   }
+
+  var setDataFnc = options.setDataFnc || 'setData';
+
+
+  gl.enable(gl.BLEND);
+  if (setDataFnc == "setData2") {
+    gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+  } else {
+    gl.blendFunc( gl.SRC_ALPHA, gl.ONE);
+  }
+
 
   var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
   gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
@@ -3302,13 +3328,26 @@ WebGLVectorTile2.prototype._drawSitc4rcBuffer = function (code, year, transform,
   gl.enableVertexAttribArray(attributeLoc);
   gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, buffer.numAttributes * 4, 28);
 
+
+  if (setDataFnc == "setData2") {
+  var attributeLoc = gl.getAttribLocation(this.program, 'a_alpha');
+  gl.enableVertexAttribArray(attributeLoc);
+  gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, buffer.numAttributes * 4, 32);
+  }
+
+  if (this._texture) {
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, this._texture);
+      gl.uniform1i(gl.getUniformLocation(this.program, "u_Image"), 0);
+  }
+
   gl.drawArrays(gl.POINTS, 0, buffer.pointCount);
 
   gl.disable(gl.BLEND);
 
 }
 
-WebGLVectorTile2.prototype._initSitc4rcBuffer = function(code, year) {
+WebGLVectorTile2.prototype._initSitc4rcBuffer = function(code, year, setDataFnc) {
   this.buffers[code][year] = {
     "numAttributes": this.numAttributes,
     "pointCount": 8,
@@ -3325,7 +3364,14 @@ WebGLVectorTile2.prototype._initSitc4rcBuffer = function(code, year) {
     var m = re.exec(this._url);
     rootUrl += this._url.replace(m[0],"").split("?")[0];    
   }
-  this.worker.postMessage({'year': year, 'code': code, 'exporters': this._exporters, "importers": this._importers, "scale": this._scale, "rootUrl": rootUrl});
+  this.worker.postMessage({'year': year, 
+                           'code': code, 
+                           'exporters': this._exporters, 
+                           'importers': this._importers, 
+                           'scale': this._scale, 
+                           'rootUrl': rootUrl,
+                           'setDataFnc': setDataFnc
+                         });
 }
 
 WebGLVectorTile2.prototype._drawSitc4r2 = function(transform, options) {
@@ -3337,15 +3383,18 @@ WebGLVectorTile2.prototype._drawSitc4r2 = function(transform, options) {
     var start = new Date(currentYear + '-01-01');
     var end = new Date(currentYear + '-12-31');
     var t = 1.0 - (end.getTime() - currentTime) / (end.getTime() - start.getTime());
+    if (typeof options == "undefined") {
+      options = {'setDataFnc': 'setData'}
+    }
     if (typeof this.buffers[code] == "undefined") {
       this.buffers[code] = {}
     }
     /* Init Buffers */
     if (typeof this.buffers[code][currentYear.toString()] == "undefined") {
-      this._initSitc4rcBuffer(code, currentYear.toString());
+      this._initSitc4rcBuffer(code, currentYear.toString(), options['setDataFnc']);
     }
     if (typeof this.buffers[code][(currentYear+1).toString()] == "undefined") {
-      this._initSitc4rcBuffer(code, (currentYear+1).toString());
+      this._initSitc4rcBuffer(code, (currentYear+1).toString(), options['setDataFnc']);
     }
     /* Draw buffers */
     if (this.buffers[code][currentYear.toString()] && this.buffers[code][currentYear.toString()].ready ) {
@@ -5235,6 +5284,47 @@ WebGLVectorTile2.sitc4r2FragmentShader = '' +
 '    vec4 colorStart = vec4(.94,.76,.61,1.0);\n' +
 '    vec4 colorEnd = vec4(u_end_color,1.0);\n' +
 '    gl_FragColor = mix(colorStart, colorEnd, v_t);\n' +
+'  }\n';
+
+WebGLVectorTile2.sitc4r2WithAlphaAndColorMapVertexShader = '' +
+'  attribute vec4 a_p0;\n' +
+'  attribute vec4 a_p2;\n' +
+'  attribute vec4 a_p1;\n' +
+'  attribute float a_epoch0;\n' +
+'  attribute float a_epoch1;\n' +
+'  attribute float a_alpha;\n' +
+'  uniform float u_epoch;\n' +
+'  uniform mat4 u_map_matrix;\n' +
+'  varying float v_t;\n' +
+'  varying float v_alpha;\n' +
+'  vec2 bezier(float t, vec2 p0, vec2 p1, vec2 p2) {\n' +
+'    return (1.0-t)*(1.0-t)*p0 + 2.0*(1.0-t)*t*p1 + t*t*p2;\n' +
+'  }\n' +
+'  void main() {\n' +
+'    vec4 position = vec4(-1,-1,-1,-1);\n' +
+'    if (a_epoch0 <= u_epoch && u_epoch <= a_epoch1) {\n' +
+'      float t = (u_epoch - a_epoch0)/(a_epoch1 - a_epoch0);\n' +
+'      vec2 pos = bezier(t, a_p0.xy, a_p1.xy, a_p2.xy);\n' +
+'      position = u_map_matrix * vec4(pos.x, pos.y, 0.0, 1.0);\n' +
+'      v_t = t;\n' +
+'    }\n' +
+'    gl_Position = position;\n' +
+'    gl_PointSize = 1.0;\n' +
+'    v_alpha = a_alpha;\n' + 
+'  }\n';
+
+WebGLVectorTile2.sitc4r2WithAlphaAndColorMapFragmentShader = '' +
+'  precision mediump float;\n' +
+'  varying float v_t;\n' +
+'  varying float v_alpha;\n' +
+'  uniform vec3 u_end_color;\n' +
+'  uniform sampler2D u_Image;\n' +
+'  void main() {\n' +
+'    vec4 colorStart = vec4(.94,.76,.61,v_alpha);\n' +
+'    vec4 colorEnd = vec4(u_end_color,v_alpha);\n' +
+'    vec4 color = texture2D(u_Image, vec2(v_t,0.));\n' +
+'    gl_FragColor = mix(colorStart, colorEnd, v_t);\n' +
+'    gl_FragColor = vec4(color.rgb, v_alpha);\n' +
 '  }\n';
 
 //////////////////////
