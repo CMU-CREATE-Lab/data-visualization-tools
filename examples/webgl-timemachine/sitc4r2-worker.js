@@ -95,10 +95,10 @@ var setData = function(code, year, exporters, importers, scale, data) {
     }
     function doSomething(year, scale, data) {
         var points = [];
-        var startDateMin = new Date((year - 1).toString() + '-1-1').getTime()/1000.;
+        var startDateMin = new Date((year - 1).toString() + '-01-01').getTime()/1000.;
         //var startDateMin = new Date(year.toString() + '-1-1').getTime()/1000.;
-        var startDateMax = new Date(year.toString() + '-11-1').getTime()/1000.;
-        var endDateMin = new Date(year.toString() + '-1-31').getTime()/1000.;
+        var startDateMax = new Date(year.toString() + '-11-01').getTime()/1000.;
+        var endDateMin = new Date(year.toString() + '-01-31').getTime()/1000.;
         var endDateMax = new Date(year.toString() + '-12-31').getTime()/1000.;
 
         for (var i = 0; i < data.length; i++) {
