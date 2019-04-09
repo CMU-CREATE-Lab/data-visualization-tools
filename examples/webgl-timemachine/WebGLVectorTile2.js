@@ -855,8 +855,12 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
         }
         epochs[i] = epoch;
       }
+      var csv_feature_missing_in_geojson = 0;
+      var csv_feature_missing_example;
+      var csv_feature_found_in_geojson = 0;
       for (var ii = 1; ii < that.jsondata.data.length; ii++) {
         var country = that.jsondata.data[ii];
+        if (country == '') continue;
         if (that.geojsonData == null) {
           that.geojsonData = COUNTRY_POLYGONS;
         }
@@ -865,12 +869,14 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
         var t4 = performance.now();
         totalSearchTime += (t4 - t3);
         if (typeof feature == "undefined") {
-          //
-          console.log("undefined feature");
+          csv_feature_missing_example = country[0];
+          csv_feature_missing_in_geojson++;
         }
         else if (!feature.hasOwnProperty("geometry")) {
-          console.log('Could not find ' + country[0]);
+          csv_feature_missing_example = country[0];
+          csv_feature_missing_in_geojson++;
         } else {
+          csv_feature_found_in_geojson++;
           var idx = [];
           for (var j = first_data_col; j < country.length; j++) {
             country[j] = country[j].replace(/,/g , "");
@@ -926,6 +932,19 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
           }
         }
       }
+      console.log('choropleth: joining CSV with geojson found', csv_feature_found_in_geojson, 'of', csv_feature_found_in_geojson+csv_feature_missing_in_geojson, 'CSV records in geojson');
+      if (csv_feature_missing_in_geojson) {
+	console.log('choropleth: example CSV record not found in geojson: name="'+ csv_feature_missing_example + '"');
+	if (that.nameKey) {
+	  console.log('choropleth: using custom layer key "' + that.nameKey + '"');
+	  var hasKey = 0;
+	  for (var i = 0; i < that.geojsonData.features.length; i++) {
+	    if (that.nameKey in that.geojsonData.features[i].properties) hasKey++;
+	  }
+	  console.log('choropleth: ' + hasKey + ' of ' + that.geojsonData.features.length + ' has expected key');
+	}
+      }
+
       console.log("Total time searching is " + totalSearchTime + "ms");
       var t1 = performance.now();
       console.log("Generated vertices data in " + (t1 - t0) + "ms");
