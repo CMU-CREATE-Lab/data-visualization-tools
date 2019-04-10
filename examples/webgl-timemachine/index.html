@@ -89,6 +89,7 @@
   <script src="StoryEditorGoogleAPI.js"></script>
   <script src="StoryEditor.js"></script>
   <script src="SetViewTool.js"></script>
+  <script src="ContentSearch.js"></script>
 
   <script type="text/javascript">
     "use strict";
@@ -7455,15 +7456,36 @@
         window.location.href = window.location.protocol + "//" + window.location.host + getUrlPathName();
       });
 
+      window.toggleHamburgerPanel = function($panel) {
+        if ($panel.is(":visible")) {
+	  // If selected panel is visible, hide hamburger
+          $('#main-hamburger-menu').hide("slide", { direction: "left" }, 150);
+          $('#main-hamburger-menu').removeClass("is-active");
+	  return false;
+	}
+
+        $('#main-hamburger-menu').show("slide", { direction: "left" }, 150);
+        $('#main-hamburger-menu').addClass("is-active");
+        $panel.show();
+        $panel.siblings().hide();
+	return true;
+      }
+
+      window.toggleSearchContent = function() {
+	if (toggleHamburgerPanel($('#search-content'))) {
+          UTIL.addGoogleAnalyticEvent('button', 'click', 'viewer-search-content-panel');
+	  contentSearch.reset();
+        }
+      }
+
+      $('#library_search').click(window.toggleSearchContent);
+				
+      window.contentSearch = new ContentSearch($('#search-content input'), $('#search-content div'));
+
       $("#stories-menu-choice").on("click", function() {
-        if (!$("#layers-menu").is(":visible")) {
-          $('#main-hamburger-menu').toggle("slide", { direction: "left" }, 150);
-          $('#main-hamburger-menu').toggleClass("is-active");
-          $("#top-nav").toggleClass("menu-active");
+	if (toggleHamburgerPanel($('#theme-menu'))) {
           UTIL.addGoogleAnalyticEvent('button', 'click', 'viewer-show-story-panel');
         }
-        $("#theme-menu").show();
-        $("#layers-menu").hide();
 
         var $activeStoryMenu = $("#theme-menu").find("h3").children(".ui-icon-bullet");
         if ($activeStoryMenu.length) {
@@ -7474,14 +7496,10 @@
       });
 
       $("#viewerContainer, #top-nav-wrapper").on("click", "#layers-menu-choice", function() {
-        if (!$("#theme-menu").is(":visible")) {
-          $('#main-hamburger-menu').toggle("slide", { direction: "left" }, 150);
-          $('#main-hamburger-menu').toggleClass("is-active");
-          $("#top-nav").toggleClass("menu-active");
+	if (toggleHamburgerPanel($('#layers-menu'))) {
           UTIL.addGoogleAnalyticEvent('button', 'click', 'viewer-show-layer-panel');
         }
-        $("#layers-menu").show();
-        $("#theme-menu").hide();
+
         if ($("#show-more-layers").length && !$("#show-more-layers").hasClass("active")) {
           $(".map-layer-div, #all-data-layers-title").hide();
         }
@@ -10166,7 +10184,14 @@
           <ul id="theme-list"><div class="themes-scroll-vertical"><div class="themes-div"></div></div></ul>
         </li>
         <li id="layers-menu" class="has-children">
-          <label for="layer-selection" class="menu-selection-heading">Data Library</label>
+          <label for="layer-selection" class="menu-selection-heading">Data Library
+	    <div style="display:inline-block; position:relative; top:4px; left:60px; background:url(../../images/search-3.png) CENTER CENTER NO-REPEAT; background-size: contain; content: url(../../images/transparent.png); width:20px; height:20px; cursor:pointer" id="library_search"></div>
+	    </label>
+        </li>
+        <li style="height:100%" id="search-content" class="has-children">
+          <label for="search-content-selection" class="menu-selection-heading">Search Data Library
+          <input type="text" style="width:250px"></input></label>
+          <div class="layers-scroll-vertical"></div>
         </li>
       </ul>
     </div>
