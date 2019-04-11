@@ -15,15 +15,15 @@
             }
         </style>
         <script type="text/javascript" src="../../config-local.js"></script>
-        <script type="text/javascript" src="../../../../js/papaparse.min.js"></script>  
+        <script type="text/javascript" src="../../../../js/papaparse.min.js"></script>
         <script type="text/javascript" src="../../../../js/d3.min.js"></script>
-        <script type="text/javascript" src="../../../../js/handlebars-v4.0.11.js"></script>
+        <script type="text/javascript" src="../../../../js/handlebars.min.js"></script>
         <script type="text/javascript" src="../../../../js/blazy.min.js"></script>
         <script type="text/javascript" src="../../../../js/noframework.waypoints.min.js"></script>
     </head>
     <body>
         <div id="out">
-        </div>        
+        </div>
 
         <script type="text/javascript" src="../Thumbnailer.js"></script>
         <script type="text/javascript" src="../mobile-story.js"></script>
@@ -31,14 +31,14 @@
           <div class="story" id="{{id}}">
             <h1><a href="./{{url}}">{{title}}</a></h1>
           </div>
-        </script>        
+        </script>
         <script id="portrait-video-template" type="text/x-handlebars-template">
           <div class="video">
             <video preload="none" autoplay="" loop="" muted="" playsinline="" class="" width="270" height="360" onclick="this.paused?this.play():this.pause();">
                 <source type="video/mp4" src="{{src}}">
             </video>
           </div>
-        </script>        
+        </script>
 
         <script id="landscape-video-template" type="text/x-handlebars-template">
           <div class="video">
@@ -46,7 +46,7 @@
                 <source type="video/mp4" src="{{src}}">
             </video>
           </div>
-        </script>        
+        </script>
 
         <script id="portrait-picture-template" type="text/x-handlebars-template">
           <div class="image">
@@ -54,7 +54,7 @@
                 <img src="{{src}}">
             </picture>
           </div>
-        </script>        
+        </script>
 
         <script id="landscape-picture-template" type="text/x-handlebars-template">
          <div class="image">
@@ -62,7 +62,7 @@
                 <img src="{{src}}">
             </picture>
           </div>
-         </script>        
+         </script>
 
         <script type="text/javascript">
 
@@ -94,7 +94,7 @@
             var url = urlTemplate({'id': matchesArray[1], 'gid': matchesArray[2]});
 
             if (mylocation) {
-                url =urlTemplate({'id': mylocation.split('.')[0], 'gid': mylocation.split('.')[1]});      
+                url =urlTemplate({'id': mylocation.split('.')[0], 'gid': mylocation.split('.')[1]});
             }
 
             var storyTitles = [];
@@ -115,24 +115,24 @@
                 complete: function(results, file) {
                     data = results["data"];
                     var append = false;
-                    for (var i = 0; i < data.length; i++) {                        
+                    for (var i = 0; i < data.length; i++) {
                         if (storyMode && data[i]['Waypoint Title'][1] == "#" && append) {
-                            append = false;            
+                            append = false;
                         } else if (!storyMode && data[i]['Waypoint Title'][0] == "#" && append) {
                             append = false;
                         }
-                       
+
                         if ((storyMode && data[i]['Waypoint Title'][1] == "#") || (!storyMode && data[i]['Waypoint Title'][0] == "#")) {
                             storyTitles.push(data[i][0]);
                             var context = {
-                                title: data[i]['Waypoint Title'].replace(/#/g,"").replace(/ /g, "_"), 
+                                title: data[i]['Waypoint Title'].replace(/#/g,"").replace(/ /g, "_"),
                                 id: data[i]['Waypoint Title'].replace(/#/g,"").replace(/ /g, "_").toLowerCase(),
-                                url: data[i]['Waypoint Title'].replace(/#/g,"").replace(/ /g, "_").toLowerCase()                       
+                                url: data[i]['Waypoint Title'].replace(/#/g,"").replace(/ /g, "_").toLowerCase()
                             };
-                            var html = storyTemplate(context);                            
+                            var html = storyTemplate(context);
                             var el = document.getElementById("out");
                             el.insertAdjacentHTML('beforeend', html);
-                        } 
+                        }
                         if (data[i]['Waypoint Title'].toLowerCase() == storyName.toLowerCase() || data[i]['Waypoint Title'].toLowerCase() == '#' + storyName.toLowerCase()) {
                             if (data[i]['Waypoint Title'][1] == "#") {
                                 storyMode = true;
@@ -155,19 +155,19 @@
                                 var t = new Thumbnailer(story[i]['Share View']);
                                 if (t.isPicture()) {
                                     var context = {src: t.getPng("portrait")};
-                                    var html = portraitPictureTemplate(context);                            
+                                    var html = portraitPictureTemplate(context);
                                     el.insertAdjacentHTML('beforeend', html);
 
                                     var context = {src: t.getPng("landscape")};
-                                    var html = landscapePictureTemplate(context);                            
-                                    el.insertAdjacentHTML('beforeend', html);    
+                                    var html = landscapePictureTemplate(context);
+                                    el.insertAdjacentHTML('beforeend', html);
                                 } else {
                                     var context = {poster: t.getPng("portrait"), src: t.getMp4("portrait")};
-                                    var html = portraitVideoTemplate(context);                            
+                                    var html = portraitVideoTemplate(context);
                                     el.insertAdjacentHTML('beforeend', html);
 
                                     var context = {poster: t.getPng("landscape"), src: t.getMp4("landscape")};
-                                    var html = landscapeVideoTemplate(context);                            
+                                    var html = landscapeVideoTemplate(context);
                                     el.insertAdjacentHTML('beforeend', html);
                                 }
                             }
@@ -176,6 +176,6 @@
                 }
             });
 
-    </script>        
+    </script>
     </body>
 </html>
