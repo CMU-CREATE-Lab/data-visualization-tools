@@ -98,6 +98,7 @@
     var UTIL = org.gigapan.Util;
 
     var isOffline = false;
+    var isStaging = window.location.hostname.indexOf("staging.") == 0;
     var isMobileDevice = UTIL.isMobileDevice();
     var isBrowserSupported = UTIL.browserSupported();
     var isIE = UTIL.isIE();
@@ -5011,22 +5012,24 @@
         waypointJSONList = snaplapseForPresentationSlider.CSVToJSONList(waypointdefs);
         for (var themeId in waypointJSONList) {
           var themeTitle = waypointJSONList[themeId].themeTitle;
+          var themeEnabled = isStaging ? "true" : waypointJSONList[themeId].enabled;
           var stories = waypointJSONList[themeId].stories;
           var numStories = Object.keys(stories).length;
           // Handle legacy case where we treat theme as a story
           if (numStories == 1 && stories['default']) {
-            theme_html += "<li data-enabled='" + waypointJSONList[themeId].enabled + "' class='theme-selection-heading-no-accordion' id='story_" + themeId + "'>" + themeTitle + "</li>";
+            theme_html += "<li data-enabled='" + themeEnabled + "' class='theme-selection-heading-no-accordion' id='story_" + themeId + "'>" + themeTitle + "</li>";
             continue;
           }
           story_count = 0;
           for (var storyId in stories) {
             if (story_count == 0) {
-              theme_html += "<h3 data-enabled='" + waypointJSONList[themeId].enabled + "'>" + themeTitle + "</h3>";
-              theme_html += "<table data-enabled='" + waypointJSONList[themeId].enabled + "' id=theme_" + themeId + ">";
+              theme_html += "<h3 data-enabled='" + themeEnabled + "'>" + themeTitle + "</h3>";
+              theme_html += "<table data-enabled='" + themeEnabled + "' id=theme_" + themeId + ">";
               theme_html += "<tr id='theme_description'><td colspan='3'><p style='padding-right: 10px; text-transform: none !important;'>" + waypointJSONList[themeId].mainThemeDescription + "</p></td></tr>";
             }
             var storyTitle = stories[storyId].storyTitle;
-            theme_html += "<tr data-enabled='" + stories[storyId].enabled + "' id='story_" + storyId + "'>";
+            var storyEnabled = isStaging ? "true" : stories[storyId].enabled;
+            theme_html += "<tr data-enabled='" + storyEnabled + "' id='story_" + storyId + "'>";
             var thumbnailURL = timelapse.getThumbnailOfView(stories[storyId].mainShareView, 128, 74) || "http://placehold.it/128x74";
             theme_html += "<td width='50%'><div style='width: 128px; height: 74px; overflow:hidden; border: 1px solid #232323'><img src='" + thumbnailURL + "'/></div></td>";
             theme_html += "<td width='10%'><input type='radio'></td>";
@@ -5054,8 +5057,8 @@
           }
         }
 
+        $(".themes-div").find('[data-enabled="false"]').remove();
         $(".themes-div").accordion("refresh");
-        $(".themes-div").find('[data-enabled="false"]').addClass("force-hidden");
 
         var storyAndTheme = getStoryAndThemeFromUrl();
         var $selectedStoryElement;
@@ -7479,7 +7482,7 @@
       }
 
       $('#library_search').click(window.toggleSearchContent);
-				
+
       window.contentSearch = new ContentSearch($('#search-content input'), $('#search-content div'));
 
       $("#stories-menu-choice").on("click", function() {
