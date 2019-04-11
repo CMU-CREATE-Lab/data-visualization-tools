@@ -5058,7 +5058,7 @@
           }
         }
 
-        $(".themes-div").find('[data-enabled="false"]').hidden();
+        $(".themes-div").find('[data-enabled="false"]').addClass("force-hidden");
         $(".themes-div").accordion("refresh");
 
         var storyAndTheme = getStoryAndThemeFromUrl();
@@ -8374,7 +8374,7 @@
       if (!disableTopNav) {
         var $el1 = $(".location_search_div");
         var $el2 = $("#top-nav-wrapper");
-        if (!$el2.hasClass("shrink-nav")) {
+        if (!$el2.hasClass("shrink-nav") && initialTopNavWrapperElm) {
           initialTopNavWrapperElm.outerWidth = $el2.outerWidth();
         }
 
