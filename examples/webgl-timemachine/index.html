@@ -5058,7 +5058,7 @@
           }
         }
 
-        $(".themes-div").find('[data-enabled="false"]').remove();
+        $(".themes-div").find('[data-enabled="false"]').hidden();
         $(".themes-div").accordion("refresh");
 
         var storyAndTheme = getStoryAndThemeFromUrl();
