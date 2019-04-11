@@ -99,6 +99,7 @@
 
     var isOffline = false;
     var isStaging = window.location.hostname.indexOf("staging.") == 0;
+    var usingCustomWaypoints = window.location.href.indexOf("explore#waypoints=") >= 0;
     var isMobileDevice = UTIL.isMobileDevice();
     var isBrowserSupported = UTIL.browserSupported();
     var isIE = UTIL.isIE();
@@ -107,7 +108,7 @@
 
     if (ETNotSupported && window.location.href.indexOf("/stories/") >= 0) {
       window.location.href = window.location.href.replace("/stories/", "/m/stories/");
-    } else if (ETNotSupported && window.location.href.indexOf("explore#waypoints=") >= 0) {
+    } else if (ETNotSupported && usingCustomWaypoints) {
       var urlParams = UTIL.getUnsafeHashVars();
       var storyName = urlParams.story == "default" ? urlParams.theme : urlParams.story;
       window.location.href = window.location.href.replace("explore", "m/stories/" + storyName);
@@ -5012,7 +5013,7 @@
         waypointJSONList = snaplapseForPresentationSlider.CSVToJSONList(waypointdefs);
         for (var themeId in waypointJSONList) {
           var themeTitle = waypointJSONList[themeId].themeTitle;
-          var themeEnabled = isStaging ? "true" : waypointJSONList[themeId].enabled;
+          var themeEnabled = isStaging || usingCustomWaypoints ? "true" : waypointJSONList[themeId].enabled;
           var stories = waypointJSONList[themeId].stories;
           var numStories = Object.keys(stories).length;
           // Handle legacy case where we treat theme as a story
@@ -5028,7 +5029,7 @@
               theme_html += "<tr id='theme_description'><td colspan='3'><p style='padding-right: 10px; text-transform: none !important;'>" + waypointJSONList[themeId].mainThemeDescription + "</p></td></tr>";
             }
             var storyTitle = stories[storyId].storyTitle;
-            var storyEnabled = isStaging ? "true" : stories[storyId].enabled;
+            var storyEnabled = isStaging || usingCustomWaypoints ? "true" : stories[storyId].enabled;
             theme_html += "<tr data-enabled='" + storyEnabled + "' id='story_" + storyId + "'>";
             var thumbnailURL = timelapse.getThumbnailOfView(stories[storyId].mainShareView, 128, 74) || "http://placehold.it/128x74";
             theme_html += "<td width='50%'><div style='width: 128px; height: 74px; overflow:hidden; border: 1px solid #232323'><img src='" + thumbnailURL + "'/></div></td>";
