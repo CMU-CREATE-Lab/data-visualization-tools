@@ -4394,9 +4394,9 @@
 
       timelapse.addResizeListener(function() {
         if ($(".player").hasClass("right-panel-active")) {
-          $("#top-nav, .location_search_div, #csvChartContainer, #timeMachine .presentationSlider").addClass("right-panel-active");
+          $("#top-nav, #csvChartContainer, #timeMachine .presentationSlider").addClass("right-panel-active");
         } else {
-          $("#top-nav, .location_search_div, #csvChartContainer, #timeMachine .presentationSlider").removeClass("right-panel-active");
+          $("#top-nav, #csvChartContainer, #timeMachine .presentationSlider").removeClass("right-panel-active");
         }
         resize();
       });
