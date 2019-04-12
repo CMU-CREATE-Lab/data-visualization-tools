@@ -400,7 +400,8 @@
               storyCollection[storyCollection.length - 1]['stories'].push(row);
             } else {
               var themeEnabled = row['Enabled'].toLowerCase().trim() === "true";
-              storyCollection.push({'theme' : row['Annotation Title'], 'stories' : [], 'enabled' : themeEnabled});
+              var themeTitle = row['Annotation Title'] || waypointTitle;
+              storyCollection.push({'theme' : themeTitle, 'stories' : [], 'enabled' : themeEnabled});
             }
           }
         }
