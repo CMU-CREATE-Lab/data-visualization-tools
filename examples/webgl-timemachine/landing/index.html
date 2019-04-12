@@ -400,14 +400,14 @@
               storyCollection[storyCollection.length - 1]['stories'].push(row);
             } else {
               var themeEnabled = row['Enabled'].toLowerCase().trim() === "true";
-              storyCollection.push({'theme' : waypointTitle, 'stories' : [], 'enabled' : themeEnabled});
+              storyCollection.push({'theme' : row['Annotation Title'], 'stories' : [], 'enabled' : themeEnabled});
             }
           }
         }
         for (var i = storyCollection.length - 1; i >= 0; i--) {
           var stories = [];
           var theme = storyCollection[i]
-          var themeTitle = theme['theme'].substring(1);
+          var themeTitle = theme['theme'];
           if (!theme.enabled && !isStaging) continue;
           for (var j = 0; j < theme['stories'].length; j++) {
             var story = theme['stories'][j];
