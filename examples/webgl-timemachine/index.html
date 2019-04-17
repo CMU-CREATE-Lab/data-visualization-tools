@@ -4328,6 +4328,7 @@
 
         timelineHidden = $(".noTimeline").length != 0;
       };
+      window.timelineUIHandler = timelineUIHandler;
 
       $('#layers-menu').on('click', 'input', timelineUIHandler);
 
@@ -4713,6 +4714,16 @@
     var csvlayersLoadedPath;
     var waypointJSONListReadyInterval;
 
+    function getLayer(id) {
+      if (id in csvFileLayers.layerById) {
+	return csvFileLayers.layerById[id];
+      }
+      if (id in dotmapLayerByName) {
+	return dotmapLayerByName[id];
+      }
+      return null;
+    }
+
     function parse_and_encode_webgl_color(colorspec) {
       console.assert(colorspec.length == 7);
       var r = parseInt(colorspec.substr(1,2),16);
@@ -4762,6 +4773,7 @@
         // In reality the tiles are served as 512x512, but by claiming 256x256 we load an
         // extra level of detail, and the additional resolution looks nicer, at least on a retina display...
         nLevels: 14,
+	credit: credit
       };
 
       if (columnDefs) {
