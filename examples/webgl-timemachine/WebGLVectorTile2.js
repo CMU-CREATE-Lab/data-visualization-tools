@@ -972,6 +972,8 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
   this.xhr.send();
 }
 
+
+
 WebGLVectorTile2.prototype._setSitc4r2Buffer = function(sitc4r2Code, year, data) {
   if (typeof this.buffers[sitc4r2Code] == "undefined") {
     this.buffers[sitc4r2Code] = {};
@@ -1549,6 +1551,32 @@ WebGLVectorTile2.prototype._setVaccineConfidenceData = function(data) {
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._image);
     }
   }
+}
+
+WebGLVectorTile2.prototype._setTrajectoriesData = function(data) {
+  console.log("_setTrajectoriesData");
+  console.log(data);
+  var points = [];  
+  for (var i = 0; i < data.length; i++) {
+    var entry = data[i];
+    var color = 255.0;
+    for (var j = 0; j < entry["trajectory"].length - 1; j++) {
+      var t0 = entry["trajectory"][j+1];
+      var t1 = entry["trajectory"][j];
+      var p0 = LatLongToPixelXY(t0[2], t0[3]);
+      var e0 = t0[1];
+      var p1 = LatLongToPixelXY(t1[2], t1[3]);
+      var e1 = t1[1];
+      points.push(p0['x']);
+      points.push(p0['y']);
+      points.push(e0);
+      points.push(p1['x']);
+      points.push(p1['y']);
+      points.push(e1);
+      points.push(color);
+    }
+  }
+  this._setBufferData(new Float32Array(points));
 }
 
 WebGLVectorTile2.prototype._setBufferData  = function(data) {
