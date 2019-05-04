@@ -24,7 +24,7 @@ set UPDATER_PATH=%~dp0
 set ARIA2_PATH=%UPDATER_PATH%..\app\libs\aria2\aria2c.exe
 set DATA_PATH=%UPDATER_PATH%..\app\data
 set LANDSAT_TILE_LIST=landsat-tiles-list.txt
-set LANDSAT_TILE_LIST_LOC="https://www.googleapis.com/drive/v3/files/1m00QXyJ0l868LmQh8-rjID79arDe-BuK/?key=AIzaSyCFnTxNmt2egFurFdnZETJU9JIZrEHyYLI&alt=media"
+set LANDSAT_TILE_LIST_LOC="https://www.googleapis.com/drive/v3/files/1f9XWcBisnc0yMpc82wmmKSBcyt7eCjSn/?key=AIzaSyCFnTxNmt2egFurFdnZETJU9JIZrEHyYLI&alt=media"
 
 echo This will download the lastest Landsat tiles for Timelapse.
 echo A fast Internet connection (wired preferred) is required to proceed.
