@@ -2052,9 +2052,15 @@ WebGLVectorTile2.prototype._drawChoroplethMap = function(transform, options) {
   var gl = this.gl;
 
   if (this._ready) {
+    var dfactor = options.dfactor || gl.ONE;
+    if (dfactor == "ONE_MINUS_SRC_ALPHA") {
+      dfactor = gl.ONE_MINUS_SRC_ALPHA;
+    }
+
+
     gl.useProgram(this.program);
     gl.enable(gl.BLEND);
-    gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
+    gl.blendFunc( gl.SRC_ALPHA, dfactor);
 
     var tileTransform = new Float32Array(transform);
     var zoom = options.zoom;
@@ -3055,9 +3061,14 @@ WebGLVectorTile2.prototype._drawPolygon = function(transform, options) {
 WebGLVectorTile2.prototype._drawLineString = function(transform, options) {
   var gl = this.gl;
   if (this._ready) {
+    var dfactor = options.dfactor || gl.ONE;
+    if (dfactor == "ONE_MINUS_SRC_ALPHA") {
+      dfactor = gl.ONE_MINUS_SRC_ALPHA;
+    }
+
     gl.useProgram(this.program);
     gl.enable(gl.BLEND);
-    gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
+    gl.blendFunc( gl.SRC_ALPHA, dfactor );
 
     var tileTransform = new Float32Array(transform);
     var zoom = options.zoom;
