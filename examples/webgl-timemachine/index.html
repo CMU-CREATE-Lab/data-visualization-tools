@@ -104,9 +104,9 @@
     var isBrowserSupported = UTIL.browserSupported();
     var isIE = UTIL.isIE();
     var isIEButNotEdge = isIE && !UTIL.isIEEdge();
-    var ETNotSupported = !UTIL.isWebGLSupported() || isMobileDevice;
+    var ETNotSupported = !UTIL.isWebGLSupported();
 
-    if (ETNotSupported && window.location.href.indexOf("/stories/") >= 0) {
+    if ((ETNotSupported || isMobileDevice) && window.location.href.indexOf("/stories/") >= 0) {
       window.location.href = window.location.href.replace("/stories/", "/m/stories/");
     } else if (ETNotSupported && usingCustomWaypoints) {
       var urlParams = UTIL.getUnsafeHashVars();

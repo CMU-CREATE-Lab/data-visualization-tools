@@ -743,6 +743,7 @@ draw = function(transform) {
 
 // Update and draw tiles
 WebglVideoTile.update = function(tiles, transform) {
+  if (org.gigapan.Util.isMobileDevice()) return;
   if (si || tiles.length == 0) return;
   //WebglTimeMachinePerf.instance.startFrame();
 
