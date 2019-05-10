@@ -2374,3 +2374,7 @@ a:focus { outline:0; }
 .force-hidden {
   display: none !important;
 }
+
+.materialNowViewingContainer, .materialTimelineContainerMain {
+  display: none !important;
+}
