@@ -199,12 +199,16 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
     }
   }
 
-  // By default, most CSV layers draw at z=400.  Raster and choropleths by default will draw at z=200.
+  // By default, most CSV layers draw at z=400.  Raster and choropleths by default will draw at z=200.  New raster base maps will draw at z=100.
   layerOptions.z = 400;
   var WebglLayer = WebglVectorLayer2;
 
   if (layerOptions.mapType == 'raster') {
-    layerOptions.z = 200;
+    if (layerOptions.category == "Base Maps") {
+      layerOptions.z = 100;
+    } else {
+      layerOptions.z = 200;
+    }
     WebglLayer = WebglMapLayer;
     url = eval(url);
     layerOptions.loadDataFunction = null;
@@ -240,16 +244,16 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
   if (layerOptions.drawOptions) {
     var obj = layerOptions.drawOptions;
     for (const key in obj) {
-      let value = obj[key];  
+      let value = obj[key];
       layer.options[key] = value;
       //optional check for properties from prototype chain
       if (obj.hasOwnProperty(key)) {
-        //no a property from prototype chain     
+        //no a property from prototype chain
       }else{
         //property from protytpe chain
       }
-    }       
-    layer.options.drawOptions = layerOptions.drawOptions;    
+    }
+    layer.options.drawOptions = layerOptions.drawOptions;
   }
 
   // Comparison-mode, left and right half-circles

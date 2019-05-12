@@ -8523,7 +8523,43 @@
         return date;
       }
 
-      // Draw Himawari8. This is a special case that does not play with any of the other layers.
+      function isPairCandidate(layer) {
+        return layer.visible && layer.paired;
+      }
+
+      // Set up to draw half-circles if we have exactly two visible paired layers
+      var pairCount = 0;
+      for (var i = 0; i < csvFileLayers.layers.length; i++) {
+        if (isPairCandidate(csvFileLayers.layers[i])) pairCount++;
+      }
+      if (pairCount != 2) pairCount = 0;
+
+      function drawCsvLayer(layer, options) {
+        var view = getLayerView(layer, landsatBaseMapLayer);
+        if (options) {
+          options = $.extend({}, options); // shallow-copy options
+        } else {
+          options = {};
+        }
+        options.zoom = timelapse.getCurrentZoom();
+        var currentTime = timelapse.getCurrentTime();
+        var currentTimes = getCurrentTimes(timelapse);
+        var dates = getDates(timelapse);
+        var delta = getCurrentTimesDelta(currentTime, currentTimes);
+        var currentDate = getCurrentDate(currentTime, currentTimes, dates);
+        options.currentTime = currentDate;
+        options.pointSize = 2.0;
+        if (pairCount && isPairCandidate(layer)) {
+          options.mode = pairCount + 1; // 2 or 3 for left or right
+          pairCount--;
+        }
+        if (layer.options) {
+          $.extend(options, layer.options);
+        }
+        layer.draw(view, options);
+      }
+
+      // These are special case layers that do not play with any of the other layers.
       if (showHimawariTimeMachineLayer) {
         var himawariView = getLayerView(himawariTimeMachineLayer, landsatBaseMapLayer);
         himawariTimeMachineLayer.draw(himawariView, tileViewVisibility);
@@ -8566,7 +8602,16 @@
           darkBaseMapLayer.draw(darkBaseMapView, options);
         }
 
-        // Layers to draw above the base layer (or planet-wide static layers)
+        // Draw CSV z=100 (typically raster base maps)
+        for (var i = 0; i < csvFileLayers.layers.length; i++) {
+          var layer = csvFileLayers.layers[i];
+          if (layer.visible && layer.z == 100) {
+            drawCsvLayer(layer);
+          }
+        }
+
+        //// Layers to draw above the base layer (or planet-wide static layers)
+
 
         // Draw Coral Reef Watch
         if (showCrwTimeMachineLayer) {
@@ -9316,41 +9361,6 @@
         }
 
 
-	function isPairCandidate(layer) {
-	  return layer.visible && layer.paired;
-	}
-
-	// Set up to draw half-circles if we have exactly two visible paired layers
-	var pairCount = 0;
-        for (var i = 0; i < csvFileLayers.layers.length; i++) {
-          if (isPairCandidate(csvFileLayers.layers[i])) pairCount++;
-	}
-	if (pairCount != 2) pairCount = 0;
-
-  function drawCsvLayer(layer, options) {
-    var view = getLayerView(layer, landsatBaseMapLayer);
-	  if (options) {
-	    options = $.extend({}, options); // shallow-copy options
-	  } else {
-	    options = {};
-	  }
-    options.zoom = timelapse.getCurrentZoom();
-    var currentTime = timelapse.getCurrentTime();
-    var currentTimes = getCurrentTimes(timelapse);
-    var dates = getDates(timelapse);
-    var delta = getCurrentTimesDelta(currentTime, currentTimes);
-    var currentDate = getCurrentDate(currentTime, currentTimes, dates);
-    options.currentTime = currentDate;
-    options.pointSize = 2.0;
-	  if (pairCount && isPairCandidate(layer)) {
-	    options.mode = pairCount + 1; // 2 or 3 for left or right
-	    pairCount--;
-	  }
-    if (layer.options) {
-      $.extend(options, layer.options);
-    }
-    layer.draw(view, options);
-  }
 
   // Draw CSV z=200 (typically raster+choropleths)
   for (var i = 0; i < csvFileLayers.layers.length; i++) {
