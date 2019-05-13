@@ -1129,7 +1129,7 @@ html, body {
 }
 
 .share {
-  display: none;
+  display: none !important;
 }
 
 .featured-layers-scroll-vertical::-webkit-scrollbar, .layers-scroll-vertical::-webkit-scrollbar, #csvChartLegend::-webkit-scrollbar, .themes-scroll-vertical::-webkit-scrollbar {
