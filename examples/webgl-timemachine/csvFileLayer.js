@@ -215,6 +215,9 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
     layerOptions.drawFunction = null;
     layerOptions.fragmentShader = null;
     layerOptions.vertexShader = null;
+    if (layerOptions.imageSrc) {
+      layerOptions.colormap = layerOptions.imageSrc;
+    }
     overrideDrawingFns();
   } else if (layerOptions.mapType == "choropleth") {
     layerOptions.imageSrc = layerOptions.imageSrc || "obesity-color-map.png";

@@ -13,6 +13,8 @@ function WebglMapTile(glb, tileidx, bounds, url, defaultUrl, opt_options) {
   this.vertexShader = opt_options.vertexShader || WebglMapTile.textureVertexShader;
   this.draw = opt_options.drawFunction || this._draw;
   this._layerDomId = opt_options.layerDomId;
+  this.colormap = opt_options.colormap || null;
+
   this._loadingSpinnerTimer = null;
 
   this._textureProgram = glb.programFromSources(this.vertexShader,
@@ -159,6 +161,13 @@ WebglMapTile.prototype._draw = function(transform, opts) {
     gl.enableVertexAttribArray(this._textureProgram.aTextureCoord);
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, this._texture);
+      if (this.colormap) {
+        gl.uniform1i(gl.getUniformLocation(this._textureProgram, "uColormap"), 2); // texture unit 2
+        gl.activeTexture(gl.TEXTURE2);
+        gl.bindTexture(gl.TEXTURE_2D, this.colormap);
+      }
+
+
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     gl.bindTexture(gl.TEXTURE_2D, null);
     gl.disable(gl.BLEND);
@@ -327,6 +336,23 @@ WebglMapTile.textureFragmentShader =
   '  } else {\n' +
   '    gl_FragColor = vec4(textureColor.rgb, 0.);\n' +
   '  }\n' +
+  '}\n';
+
+
+WebglMapTile.textureColormapFragmentShader =
+  'precision mediump float;\n' +
+  'varying vec2 vTextureCoord;\n' +
+  'uniform sampler2D uSampler;\n' +
+  'uniform sampler2D uColormap;\n' +
+  'uniform bool uShowTile;\n' +
+  'void main(void) {\n' +
+  '  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));\n' +
+  '  vec4 colormap = texture2D(uColormap, vec2(textureColor.r,textureColor.r));\n' + 
+  '  //if (uShowTile) {\n' +
+  '    //gl_FragColor = vec4(textureColor.rgb, textureColor.a);\n' +
+  '  //} else {\n' +
+  '    gl_FragColor = vec4(colormap.rgb, textureColor.a);\n' +
+  '  //}\n' +
   '}\n';
 
 WebglMapTile.seaLevelRiseTextureFragmentShader =

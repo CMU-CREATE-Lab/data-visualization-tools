@@ -28,6 +28,20 @@ function WebglMapLayer(glb, canvasLayer, tileUrl, opt_options) {
     timelapse: this._canvasLayer.timelapse
   });
 
+  this.ready = true;
+
+  if (opt_options.colormap) {
+    this.ready = false;
+    this.colormap = this.createTexture();
+    this.image = new Image();
+    this.image.crossOrigin = "anonymous";
+    this.image.onload = this.handleLoadedColormap.bind(this);
+    this.image.addEventListener('error', function(event) { console.log('ERROR:  cannot load colormap ' + that.image.src); });
+    this.image.src = opt_options.colormap;
+  } else {
+    this.colormap = null;
+  }
+
   // TODO: experiment with this
   this._tileView.levelThreshold = opt_options.levelThreshold || 0;
 };
@@ -37,8 +51,7 @@ getWidth = function() {
     return this._tileView.getWidth();
 };
 
-WebglMapLayer.prototype.
-getHeight = function() {
+WebglMapLayer.prototype.getHeight = function() {
     return this._tileView.getHeight();
 };
 
@@ -59,16 +72,19 @@ WebglMapLayer.prototype._createTile = function(ti, bounds) {
   if (this._tileView) {
     opt_options.layerDomId = this._tileView._layerDomId;
   }
+  if (this.colormap) {
+    opt_options.colormap = this.colormap;
+  }
   return new WebglMapTile(glb, ti, bounds, url, this.defaultUrl, opt_options);
 };
 
-WebglMapLayer.prototype.
-destroy = function() {
+WebglMapLayer.prototype.destroy = function() {
   this._tileView._destroy();
 };
 
 // viewBounds:  xmin, xmax, ymin, ymax all in coords 0-256
 WebglMapLayer.prototype.draw = function(view, opt_options) {
+  if (this.ready) {
   var width = this._canvasLayer.canvas.width / this._canvasLayer.resolutionScale_;
   var height = this._canvasLayer.canvas.height / this._canvasLayer.resolutionScale_;
   var options = {};
@@ -86,6 +102,7 @@ WebglMapLayer.prototype.draw = function(view, opt_options) {
   // TODO: Refactor how tile views are initialized and drawn
   this._tileView.setView(view, width, height, this._canvasLayer.resolutionScale_);
   this._tileView.update(transform, options);
+  }
 };
 
 WebglMapLayer.prototype.getTileView = function() {
@@ -99,3 +116,24 @@ WebglMapLayer.prototype.getTiles = function() {
 WebglMapLayer.prototype.abortLoading = function() {
   this._tileView._abort();
 };
+
+WebglMapLayer.prototype.createTexture = function() {
+  var gl = this.gl;
+  var texture = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.bindTexture(gl.TEXTURE_2D, null);
+  return texture;
+};
+
+WebglMapLayer.prototype.handleLoadedColormap = function() {
+  var gl = this.gl;
+  gl.bindTexture(gl.TEXTURE_2D, this.colormap);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this.image);
+  gl.bindTexture(gl.TEXTURE_2D, null);
+  this.ready = true;
+};
+
