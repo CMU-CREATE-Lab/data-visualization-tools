@@ -156,16 +156,14 @@ WebGLVectorTile2.prototype._loadData = function() {
   this.xhr.onload = function() {
     that._removeLoadingSpinner();
 
-    if (this.status == 404) {
-      float32Array = new Float32Array([]);
-    } else if (this.status == 400) {
-      var msg = String.fromCharCode.apply(null, new Uint8Array(this.response));
-      msg = msg.replace(/<h.*?>.*?<\/h.*?>/, '');  // Remove first header, which is status code
-      that._showErrorOnce(msg);
+    if (this.status >= 400) {
+      //var msg = String.fromCharCode.apply(null, new Uint8Array(this.response));
+      //msg = msg.replace(/<h.*?>.*?<\/h.*?>/, '');  // Remove first header, which is status code
+      //console.log(msg);
       float32Array = new Float32Array([]);
     } else {
       float32Array = new Float32Array(this.response);
-      perf_receive(float32Array.length * 4, new Date().getTime() - that.startTime);
+      //perf_receive(float32Array.length * 4, new Date().getTime() - that.startTime);
     }
     that._setData(float32Array);
     if (that.layerId) {
@@ -196,7 +194,7 @@ WebGLVectorTile2.prototype._loadGeojsonData = function() {
   this.xhr.onload = function() {
     that._removeLoadingSpinner();
 
-    if (this.status == 404) {
+    if (this.status >= 400) {
       data = "";
     } else {
       data = JSON.parse(this.responseText);
@@ -315,14 +313,14 @@ WebGLVectorTile2.prototype._loadWindVectorsData = function() {
   this.xhr.onload = function() {
     that._removeLoadingSpinner();
 
-    if (this.status == 404) {
+    if (this.status >= 400) {
       data = "";
     } else {
       data = JSON.parse(this.responseText);
       if (typeof data["defaultRampColors"] != "undefined") {
         defaultRampColors = data["defaultRampColors"];
       }
-      that.colorRampTexture = glb.createTexture(that.gl.LINEAR, getColorRamp(defaultRampColors), 16, 16);      
+      that.colorRampTexture = glb.createTexture(that.gl.LINEAR, getColorRamp(defaultRampColors), 16, 16);
       if (typeof data["defaultRampColors"] != "undefined") {
         defaultRampColors = data["defaultRampColors"];
       }
@@ -492,7 +490,7 @@ WebGLVectorTile2.prototype._loadBivalentBubbleMapDataFromCsv = function() {
     for (var i = offset; i < arr.length; i++) {
       var date = arr[i];
 
-      var epoch = parseDateStr(date);        
+      var epoch = parseDateStr(date);
       if (isNaN(epoch)) {
         break;
       }
@@ -509,7 +507,7 @@ WebGLVectorTile2.prototype._loadBivalentBubbleMapDataFromCsv = function() {
   this.xhr.onload = function() {
     that._removeLoadingSpinner();
 
-    if (this.status == 404) {
+    if (this.status >= 400) {
       data = "";
     } else {
       var csvdata = this.responseText;
@@ -624,7 +622,7 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
   this.xhr.onload = function() {
     that._removeLoadingSpinner();
 
-    if (this.status == 404) {
+    if (this.status >= 400) {
       data = "";
     } else {
       var csvdata = this.responseText;
@@ -662,7 +660,7 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
       for (var i = first_data_col; i < header.length; i++) {
         var date = header[i];
 
-        var epoch = parseDateStr(date);        
+        var epoch = parseDateStr(date);
         if (isNaN(epoch)) {
           break;
         }
@@ -818,7 +816,7 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
   this.xhr.onload = function() {
     that._removeLoadingSpinner();
 
-    if (this.status == 404) {
+    if (this.status >= 400) {
       data = "";
     } else {
       var csvdata = this.responseText;
@@ -849,7 +847,7 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
       for (var i = first_data_col; i < header.length; i++) {
         var date = header[i];
 
-        var epoch = parseDateStr(date);        
+        var epoch = parseDateStr(date);
         if (isNaN(epoch)) {
           break;
         }
@@ -934,17 +932,16 @@ WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
       }
       console.log('choropleth: joining CSV with geojson found', csv_feature_found_in_geojson, 'of', csv_feature_found_in_geojson+csv_feature_missing_in_geojson, 'CSV records in geojson');
       if (csv_feature_missing_in_geojson) {
-	console.log('choropleth: example CSV record not found in geojson: name="'+ csv_feature_missing_example + '"');
-	if (that.nameKey) {
-	  console.log('choropleth: using custom layer key "' + that.nameKey + '"');
-	  var hasKey = 0;
-	  for (var i = 0; i < that.geojsonData.features.length; i++) {
-	    if (that.nameKey in that.geojsonData.features[i].properties) hasKey++;
-	  }
-	  console.log('choropleth: ' + hasKey + ' of ' + that.geojsonData.features.length + ' has expected key');
-	}
+        console.log('choropleth: example CSV record not found in geojson: name="'+ csv_feature_missing_example + '"');
+        if (that.nameKey) {
+          console.log('choropleth: using custom layer key "' + that.nameKey + '"');
+          var hasKey = 0;
+          for (var i = 0; i < that.geojsonData.features.length; i++) {
+            if (that.nameKey in that.geojsonData.features[i].properties) hasKey++;
+          }
+          console.log('choropleth: ' + hasKey + ' of ' + that.geojsonData.features.length + ' has expected key');
+        }
       }
-
       console.log("Total time searching is " + totalSearchTime + "ms");
       var t1 = performance.now();
       console.log("Generated vertices data in " + (t1 - t0) + "ms");
@@ -1023,7 +1020,7 @@ WebGLVectorTile2.prototype._setPointData = function(data) {
         packedColor = feature.properties.PackedColor;
       } else {
         if (this._color) {
-          packedColor = this._color[0]*255+ this._color[1]*255 * 255.0 + this._color[2]*255 * 255.0 * 255.0          
+          packedColor = this._color[0]*255+ this._color[1]*255 * 255.0 + this._color[2]*255 * 255.0 * 255.0
         } else {
           packedColor = 255.0;
         }
@@ -1058,7 +1055,7 @@ WebGLVectorTile2.prototype._setPolygonData = function(data) {
 
       } else {
         if (this._color) {
-          packedColor = this._color[0]*255.0 + this._color[1]*255.0 * 256.0 + this._color[2]*255.0 * 256.0 * 256.0          
+          packedColor = this._color[0]*255.0 + this._color[1]*255.0 * 256.0 + this._color[2]*255.0 * 256.0 * 256.0
         } else {
           packedColor = 255.0;
         }
@@ -1556,7 +1553,7 @@ WebGLVectorTile2.prototype._setVaccineConfidenceData = function(data) {
 WebGLVectorTile2.prototype._setTrajectoriesData = function(data) {
   console.log("_setTrajectoriesData");
   console.log(data);
-  var points = [];  
+  var points = [];
   for (var i = 0; i < data.length; i++) {
     var entry = data[i];
     var color = 255.0;
@@ -3478,13 +3475,13 @@ WebGLVectorTile2.prototype._initSitc4rcBuffer = function(code, year, setDataFnc)
   } else {
     var re=/([a-z0-9]{1,})\/([0-9]{4}).json/g;
     var m = re.exec(this._url);
-    rootUrl += this._url.replace(m[0],"").split("?")[0];    
+    rootUrl += this._url.replace(m[0],"").split("?")[0];
   }
-  this.worker.postMessage({'year': year, 
-                           'code': code, 
-                           'exporters': this._exporters, 
-                           'importers': this._importers, 
-                           'scale': this._scale, 
+  this.worker.postMessage({'year': year,
+                           'code': code,
+                           'exporters': this._exporters,
+                           'importers': this._importers,
+                           'scale': this._scale,
                            'rootUrl': rootUrl,
                            'setDataFnc': setDataFnc
                          });
@@ -3746,7 +3743,7 @@ WebGLVectorTile2.prototype._drawWindVectors = function(transform, options) {
           var sw = bbox.sw; // bl
           var tl = {'lat':ne.lat, 'lng': ne.lng};
           var br = {'lat':sw.lat, 'lng': sw.lng};
-          options['bbox'] = {'tl': tl, 'br': br};      
+          options['bbox'] = {'tl': tl, 'br': br};
     }
 
     var tl = LngLatToPixelXY(options.bbox.tl.lng, options.bbox.tl.lat);
@@ -5098,13 +5095,13 @@ WebGLVectorTile2.pointFragmentShader =
 '      return color / 256.0;\n' +
 '    }\n' +
 '  void main() {\n' +
-'    //float dist = length(gl_PointCoord.xy - vec2(.5,.5));\n' + 
-'    //float alpha = (dist > .5) ? .0 : 1.;\n' + 
-'    float r = 0.0, delta = 0.0, alpha = 1.0;\n' + 
-'    vec2 cxy = 2.0 * gl_PointCoord - 1.0;\n' + 
-'    r = dot(cxy, cxy);\n' + 
-'    delta = fwidth(r);\n' + 
-'    alpha = 1.0 - smoothstep(1.0 - delta, 1.0 + delta, r);\n' + 
+'    //float dist = length(gl_PointCoord.xy - vec2(.5,.5));\n' +
+'    //float alpha = (dist > .5) ? .0 : 1.;\n' +
+'    float r = 0.0, delta = 0.0, alpha = 1.0;\n' +
+'    vec2 cxy = 2.0 * gl_PointCoord - 1.0;\n' +
+'    r = dot(cxy, cxy);\n' +
+'    delta = fwidth(r);\n' +
+'    alpha = 1.0 - smoothstep(1.0 - delta, 1.0 + delta, r);\n' +
 '    gl_FragColor = unpackColor(v_color) * alpha;\n' +
 '  }\n';
 
@@ -5396,7 +5393,7 @@ WebGLVectorTile2.lineTrackVertexShader =
 WebGLVectorTile2.lineTrackFragmentShader =
 '  precision mediump float;\n' +
 '  varying float v_color;\n' +
-'  varying float v_alpha;\n' + 
+'  varying float v_alpha;\n' +
 '  vec4 unpackColor(float f) {\n' +
 '      vec4 color;\n' +
 '      color.b = floor(f / 255.0 / 255.0);\n' +
@@ -5467,7 +5464,7 @@ WebGLVectorTile2.sitc4r2WithAlphaAndColorMapVertexShader = '' +
 '    }\n' +
 '    gl_Position = position;\n' +
 '    gl_PointSize = 1.0;\n' +
-'    v_alpha = a_alpha;\n' + 
+'    v_alpha = a_alpha;\n' +
 '  }\n';
 
 WebGLVectorTile2.sitc4r2WithAlphaAndColorMapFragmentShader = '' +
