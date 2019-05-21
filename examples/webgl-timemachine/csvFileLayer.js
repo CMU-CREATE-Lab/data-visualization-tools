@@ -330,6 +330,8 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
       $("#" + layer.layerId + "-legend").hide();
       if (layer.hasTimeline) {
         setActiveLayersWithTimeline(-1);
+      }
+      if (activeEarthTimeLayers.length == 1 && activeEarthTimeLayers.indexOf("blsat") == 0) {
         doSwitchToLandsat();
       }
       // Turn off layer
