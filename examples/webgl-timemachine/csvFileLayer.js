@@ -600,7 +600,10 @@ CsvFileLayer.prototype.setLegend = function setLegend(id) {
     }
   }
   if (typeof layer != 'undefined') {
-    if (layer.mapType == 'bubble') {
+    if (layer.legendContent.toLowerCase() == 'none') {
+      console.log('None');
+    }
+    else if (layer.mapType == 'bubble') {
       if (layer.legendContent == 'auto') {
         var radius = layer['_tileView']['_tiles']['000000000000000']['_radius'];
         var opts = {
