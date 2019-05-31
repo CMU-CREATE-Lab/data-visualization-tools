@@ -253,7 +253,10 @@
     // Show timestamp, legend, logos
     var minimalUI = parseConfigOption({optionName: "minimalUI", optionDefaultValue: false, exposeOptionToUrlHash: true});
     // Show only timestamp
+    // This version of the param has a special case on the thumbnail server. It centers the timestamp at the bottom.
     var timestampOnlyUI = parseConfigOption({optionName: "timestampOnlyUI", optionDefaultValue: false, exposeOptionToUrlHash: true});
+    // This version of the param will place the timestamp at the bottom left.
+    var timestampOnlyUILeft = parseConfigOption({optionName: "timestampOnlyUILeft", optionDefaultValue: false, exposeOptionToUrlHash: true});
     // Only show visualization
     var disableUI = parseConfigOption({optionName: "disableUI", optionDefaultValue: false, exposeOptionToUrlHash: true});
     // Hide annotation box
@@ -7645,7 +7648,7 @@
         disableTopNav = true;
         // Hide presentation slider so that it's still usable via keyboard/clicker but not shown on screen
         handleStoryToggle(false);
-      } else if (timestampOnlyUI) {
+      } else if (timestampOnlyUI || timestampOnlyUILeft) {
         // Move capture time outside of the timeline controls
         $(".captureTime").insertBefore(".controls");
         $(".captureTime, .scaleBarContainer, #logosContainer, #baseLayerCreditContainer").addClass("minimalUIMode");
