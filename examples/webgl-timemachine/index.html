@@ -4049,7 +4049,6 @@
           if ($selectedWaypoint.length) {
             selectedIdx = $selectedWaypoint.parents(".snaplapse_keyframe_list_item").index();
             selectedIdx--;
-
             if (selectedIdx < 0) {
               selectedIdx = lastWaypointIdx;
             }
@@ -4549,7 +4548,7 @@
       $(".annotations-resume-exit-container").hide();
       $(".current-location-text-container").show();
       if (lastSelectedAnnotationBeforeHidden && fromResume) {
-        lastSelectedAnnotationBeforeHidden.trigger("click");
+        lastSelectedAnnotationBeforeHidden.trigger("click", {fromKeyboard: true});
       }
     }
 
@@ -6924,11 +6923,14 @@
           var vals = UTIL.getUnsafeHashVars();
           var waypointId;
           if (vals.waypointIdx) {
-            waypointId = $(".snaplapse_keyframe_list").children().eq(vals.waypointIdx).children()[0].id;
+            var potentialWaypoint = $(".snaplapse_keyframe_list").children().eq(vals.waypointIdx).children()[0];
+            if (potentialWaypoint) {
+              waypointId = potentialWaypoint.id;
+            }
           } else {
             waypointId = $(".snaplapse_keyframe_list").children().first().children()[0].id;
           }
-          $("#" + waypointId).click();
+          $("#" + waypointId).trigger("click", {fromKeyboard: true});
           document.activeElement.blur();
         });
 
@@ -7282,19 +7284,17 @@
             timelapse.removeTimelineUIChangeListener(onloadView);
           }, 500);
         }
-        // TODO(Earth Day 2018): Unclear legacy handling of story links
-        if (vals.theme) {
-          $("#" + vals.theme).click();
-        } else if (storyTheme.story) {
-          $("#story_" + storyTheme.story).click();
-        }
 
         if (timelapse.isPresentationSliderEnabled()) {
-          var waypointsPath;
-          if (vals.waypoints) {
-            waypointsPath = docTabToGoogleSheetUrl(vals.waypoints);
+          if ($("#timeMachine .presentationSlider").hasClass("offscreen")) {
+            // First check for legacy case
+            if (vals.theme) {
+              $("#" + vals.theme).click();
+            } else if (storyTheme.story) {
+              $("#story_" + storyTheme.story).click();
+            }
           }
-          waypointsPath = waypointsPath || waypointSliderContentPath;
+          var waypointsPath = vals.waypoints ? docTabToGoogleSheetUrl(vals.waypoints) : waypointSliderContentPath;
           // If for some reason the waypoints cannot load, the controls need to be manually
           // pushed up by changing the player to where it would be had the waypoints loaded.
           $("#timeMachine .player").css("bottom", "93px");
@@ -7542,7 +7542,7 @@
 
         // If what's clicked is already loaded, go to the first waypoint
         if ($('#theme-title').attr('data-theme-id') == $selectedStoryElement[0].id) {
-          $(".snaplapse_keyframe_list").children().eq(0).children().first().trigger("click");
+          $(".snaplapse_keyframe_list").children().eq(0).children().first().trigger("click", {fromKeyboard: true});
           return;
         }
 
@@ -7583,8 +7583,10 @@
         $themeHeading.append("<span class='ui-icon ui-icon-bullet active-story-in-theme' style='float:right;'>");
 
         if (!enableMuseumMode) {
-          setNewStoryAndThemeUrl(currentWaypointTheme, currentWaypointStory);
+          var removeWaypointIdx = e.detail && location.hash.indexOf("waypointIdx") >= 0;
+          setNewStoryAndThemeUrl(currentWaypointTheme, currentWaypointStory, removeWaypointIdx);
         }
+
         $("#theme-title").attr("data-theme-id", $selectedStoryElement[0].id).text($selectedStoryElement.text());
         var waypointSliderContent = "#presentation=" + $selectedStoryElement.data("waypoint-url");
         timelapse.loadSharedDataFromUnsafeURL(waypointSliderContent);
@@ -8225,13 +8227,20 @@
       return pathName;
     }
 
-    function setNewStoryAndThemeUrl(newTheme, newStory) {
+    function setNewStoryAndThemeUrl(newTheme, newStory, removeWaypointIdx) {
       var hashVars = UTIL.getUnsafeHashVars();
       if (hashVars.theme || window.location.protocol.indexOf("file:") != -1 || window.location.host.indexOf("localhost") != -1 || newStory == "default") {
-        changeHash({theme: newTheme, story: newStory});
+        var newParams = {theme: newTheme, story: newStory};
+        if (removeWaypointIdx) {
+          newParams.waypointIdx = "";
+        }
+        changeHash(newParams);
       } else {
         // TODO(Earth Day 2018): We are not including a theme here until after Earth Day
         var hashParamsToInclude = location.hash; //typeof(hashVars.waypointIdx) === "undefined" ? "" : "#waypointIdx=" + hashVars.waypointIdx;
+        if (removeWaypointIdx) {
+          hashParamsToInclude = hashParamsToInclude.replace(/(&?waypointIdx=).*?(&|$)/, '');
+        }
         window.history.replaceState('themeStory', 'Title', window.location.protocol + "//" + window.location.host + getUrlPathName() + "stories/" + newStory + hashParamsToInclude);
       }
       $("#timeMachine .player .presentation-mode-share-input").show();
@@ -8242,6 +8251,7 @@
       var unsafeHashVars = UTIL.getUnsafeHashVars()
       delete unsafeHashVars.theme;
       delete unsafeHashVars.story;
+      delete unsafeHashVars.waypointIdx;
       var hashParamsToInclude = generateHashString(unsafeHashVars);
 
       if (window.location.protocol.indexOf("file:") != -1 || window.location.host.indexOf("localhost") != -1) {
