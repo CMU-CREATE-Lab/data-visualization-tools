@@ -358,7 +358,7 @@
     var activeLayersWithTimeline = 0;
     var timelineHidden = false;
     var previousActiveLayersWithTimeline = 0;
-    var lastAutomodeWaypointIndex = 0;
+    var lastSelectedWaypointIndex = -1;
     var keysDown = [];
     var $lastSelectedExtra;
     var loadedInitialCsvLayers = false;
@@ -6971,7 +6971,12 @@
             timelapse.setMaxScale(rasterMapTileMaxScale);
           }
 
-          if (enableThemeHamburgerButton && isAutoModeRunning && autoModeFullThemeCycle && lastAutomodeWaypointIndex > waypointIndex) {
+          var unsafeHashVars = UTIL.getUnsafeHashVars();
+          if (lastSelectedWaypointIndex != -1 && typeof(unsafeHashVars.waypointIdx) !== "undefined") {
+            setNewStoryAndThemeUrl(currentWaypointTheme, currentWaypointStory, -1);
+          }
+
+          if (enableThemeHamburgerButton && isAutoModeRunning && autoModeFullThemeCycle && lastSelectedWaypointIndex > waypointIndex) {
             var $availableStories = $("#theme-list [id^=story_]");
             var nextWaypointCollectionIdx;
             var availableStoriesArray = $availableStories.toArray();
@@ -6990,9 +6995,8 @@
               $("#letterbox-" + $nextWaypointCollection[0].id).prop("checked", true);
             }
           }
-          if (isAutoModeRunning) {
-            lastAutomodeWaypointIndex = waypointIndex;
-          }
+
+          lastSelectedWaypointIndex = waypointIndex;
 
           timelapse.removeParabolicMotionStoppedListener(parabolicMotionStoppedListener);
         });
@@ -7003,10 +7007,6 @@
           var waypointBounds = waypoint.bounds;
           var waypointLayers = waypoint.layers || [];
           var waypointPlaybackSpeed = waypoint.speed;
-
-          if (window.location.href.indexOf("/stories") == -1 && window.location.href.indexOf("story=") == -1) {
-            setNewStoryAndThemeUrl(currentWaypointTheme, currentWaypointStory);
-          }
 
           // TODO: Do we still need this for himawari now that we have real thumbnails?
           if (Object.keys(himawariWaypoints).length) {
@@ -7583,8 +7583,7 @@
         $themeHeading.append("<span class='ui-icon ui-icon-bullet active-story-in-theme' style='float:right;'>");
 
         if (!enableMuseumMode) {
-          var removeWaypointIdx = e.detail && location.hash.indexOf("waypointIdx") >= 0;
-          setNewStoryAndThemeUrl(currentWaypointTheme, currentWaypointStory, removeWaypointIdx);
+          setNewStoryAndThemeUrl(currentWaypointTheme, currentWaypointStory);
         }
 
         $("#theme-title").attr("data-theme-id", $selectedStoryElement[0].id).text($selectedStoryElement.text());
@@ -8227,22 +8226,29 @@
       return pathName;
     }
 
-    function setNewStoryAndThemeUrl(newTheme, newStory, removeWaypointIdx) {
-      var hashVars = UTIL.getUnsafeHashVars();
-      if (hashVars.theme || window.location.protocol.indexOf("file:") != -1 || window.location.host.indexOf("localhost") != -1 || newStory == "default") {
-        var newParams = {theme: newTheme, story: newStory};
-        if (removeWaypointIdx) {
-          newParams.waypointIdx = "";
-        }
-        changeHash(newParams);
-      } else {
-        // TODO(Earth Day 2018): We are not including a theme here until after Earth Day
-        var hashParamsToInclude = location.hash; //typeof(hashVars.waypointIdx) === "undefined" ? "" : "#waypointIdx=" + hashVars.waypointIdx;
-        if (removeWaypointIdx) {
-          hashParamsToInclude = hashParamsToInclude.replace(/(&?waypointIdx=).*?(&|$)/, '');
-        }
-        window.history.replaceState('themeStory', 'Title', window.location.protocol + "//" + window.location.host + getUrlPathName() + "stories/" + newStory + hashParamsToInclude);
+    function setNewStoryAndThemeUrl(newTheme, newStory, newWaypointIndex) {
+      var unsafeHashVars = UTIL.getUnsafeHashVars();
+      var hashParamsToInclude;
+      var replaceStateUrl;
+
+      if (newWaypointIndex == -1) {
+        unsafeHashVars.waypointIdx = "";
+      } else if (newWaypointIndex >= 0) {
+        unsafeHashVars.waypointIdx = newWaypointIndex;
       }
+
+      if (unsafeHashVars.theme || window.location.protocol.indexOf("file:") != -1 || window.location.host.indexOf("localhost") != -1 || newStory == "default") {
+        unsafeHashVars.theme = newTheme;
+        unsafeHashVars.story = newStory;
+        hashParamsToInclude = generateHashString(unsafeHashVars);
+        replaceStateUrl = window.location.protocol + "//" + window.location.host + getUrlPathName() + hashParamsToInclude;
+      } else {
+        hashParamsToInclude = generateHashString(unsafeHashVars);
+        replaceStateUrl = window.location.protocol + "//" + window.location.host + getUrlPathName() + "stories/" + newStory + hashParamsToInclude;
+      }
+
+      window.history.replaceState('themeStory', 'Title', replaceStateUrl);
+
       $("#timeMachine .player .presentation-mode-share-input").show();
       $("#timeMachine .player .shareView .ui-dialog-title").text("Share a Story");
     }
@@ -8253,12 +8259,16 @@
       delete unsafeHashVars.story;
       delete unsafeHashVars.waypointIdx;
       var hashParamsToInclude = generateHashString(unsafeHashVars);
+      var replaceStateUrl;
 
       if (window.location.protocol.indexOf("file:") != -1 || window.location.host.indexOf("localhost") != -1) {
-        window.history.replaceState('explore', 'Title', window.location.protocol + "//" + window.location.host + getUrlPathName() + hashParamsToInclude);
+        replaceStateUrl = window.location.protocol + "//" + window.location.host + getUrlPathName() + hashParamsToInclude;
       } else {
-        window.history.replaceState('explore', 'Title', window.location.protocol + "//" + window.location.host + getUrlPathName() + "explore" + hashParamsToInclude);
+        replaceStateUrl = window.location.protocol + "//" + window.location.host + getUrlPathName() + "explore" + hashParamsToInclude;
       }
+
+      window.history.replaceState('explore', 'Title', replaceStateUrl);
+
       $("#timeMachine .player .presentation-mode-share-input").hide();
       $("#timeMachine .player .shareView .ui-dialog-title").text("Share a View");
     }
