@@ -1060,6 +1060,7 @@ WebGLVectorTile2.prototype._setPolygonData = function(data) {
           packedColor = 255.0;
         }
       }
+      if (typeof feature.geometry != "undefined" && typeof feature.geometry.coordinates != "undefined") {
         if (feature.geometry.type != "MultiPolygon") {
           var mydata = earcut.flatten(feature.geometry.coordinates);
           var triangles = earcut(mydata.vertices, mydata.holes, mydata.dimensions);
@@ -1077,7 +1078,7 @@ WebGLVectorTile2.prototype._setPolygonData = function(data) {
             }
           }
         }
-
+}
     }
     this._setBufferData(new Float32Array(verts));
     this._dataLoaded(this.layerId);
