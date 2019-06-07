@@ -1,7 +1,7 @@
 function ContentSearch($searchInput, $searchResults) {
   this.$searchInput = $searchInput;
   this.$searchResults = $searchResults;
-  this.$clearButton = $searchInput.siblings(".layer-search-box-clear-icon");
+  this.$clearButton = $searchInput.siblings("#layer-search-clear-icon");
   this.$layerSearchResults = $("#layers-menu #layer-search-results");
   this.$layerSearchResultsEmptyMsg = $("#layers-menu #layer-search-results-empty-msg");
   this.$searchInput.on("input", this.updateSearch.bind(this));

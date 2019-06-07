@@ -915,9 +915,9 @@ html, body {
 }
 
 #location_search {
-  width: 200px;
+  width: 175px;
   height: 28px;
-  padding-left: 15px;
+  padding-left: 35px;
   padding-right: 40px;
   background: rgba(255,255,255,1);
   border: 1px solid #656565;
@@ -937,9 +937,26 @@ html, body {
   width: 20px;
   height: 20px;
   position: absolute;
-  right: 7px;
+  left: 7px;
   top: 6px;
-  cursor: pointer;
+  opacity: 0.70;
+}
+
+#location_search_clear_icon {
+  right: 10px;
+  margin-top: 9px;
+}
+
+#location_search::placeholder {
+  opacity: 0.75;
+}
+
+#location_search:-ms-input-placeholder {
+  opacity: 0.75;
+}
+
+#location_search::-ms-input-placeholder {
+  opacity: 0.75;
 }
 
 .location_search_div.topNavDisabled {
@@ -2385,7 +2402,7 @@ a:focus { outline:0; }
 }
 
 #layer-search-results {
-  height: 100%;
+  height: calc(100% - 122px);
   padding-left: 10px;
   padding-top: 10px;
   display: none;
@@ -2428,7 +2445,12 @@ a:focus { outline:0; }
   margin-top: 8px;
 }
 
-.layer-search-box-clear-icon {
+#layer-search-clear-icon {
+  right: 24px;
+  margin-top: 10px;
+}
+
+.clear-search-icon {
   background: url(../../images/close-dark.png) center center no-repeat;
   background-size: contain;
   width: 14px;
@@ -2441,7 +2463,7 @@ a:focus { outline:0; }
   display: none;
 }
 
-.layer-search-box-clear-icon:after {
+.clear-search-icon:after {
   content: '';
   position: absolute;
   top: -10px;
@@ -2450,7 +2472,7 @@ a:focus { outline:0; }
   right: -5px;
 }
 
-.layer-search-box-clear-icon:hover {
+.clear-search-icon:hover {
   opacity: 0.9;
 }
 

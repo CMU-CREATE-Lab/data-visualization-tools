@@ -1085,6 +1085,14 @@
           $('.pac-container').hide();
         });
 
+        $("#location_search").on("input", function(e) {
+          if ($(this).val() == "") {
+            $("#location_search_clear_icon").hide();
+          } else {
+            $("#location_search_clear_icon").show();
+          }
+        });
+
         $("#location_search").on("keydown", function(e) {
           if (e.keyCode == 13) {
             google.maps.event.trigger(e.target, 'focus', {});
@@ -7162,7 +7170,7 @@
 
       // Location search box, with autocomplete.
       if (showSearchBox) {
-        var $locationSearchDiv = $('<div class="location_search_div"><span id="location_search_icon" title="Submit search"></span><input id="location_search" type="text" placeholder="Search for a location...">');
+        var $locationSearchDiv = $('<div class="location_search_div"><span id="location_search_icon"></span><span id="location_search_clear_icon" class="clear-search-icon" title="Clear location search"></span><input id="location_search" type="text" placeholder="Search for a location...">');
         if (enableLetterboxMode) {
           $locationSearchDiv.addClass("top-panel letterbox").appendTo($("#letterbox-bottom-controls"));
           $(".location_search_div").addClass("letterbox");
@@ -7470,11 +7478,9 @@
         }
       });
 
-      $("#location_search_icon").on("click", function() {
-          var e = jQuery.Event("keydown");
-          e.which = 13;
-          e.keyCode = 13;
-          $("#location_search").trigger(e);
+      $("#location_search_clear_icon").on("click", function() {
+          $("#location_search").val("");
+          $(this).hide();
       });
 
       $("#logosContainer, #baseLayerCreditContainer").appendTo("#timeMachine .player");
@@ -10243,7 +10249,7 @@
           <label for="layer-selection" class="menu-selection-heading">Data Library</label>
           <div id="search-content">
             <span class="layer-search-box-icon"></span>
-            <span class="layer-search-box-clear-icon" title="Clear search"></span>
+            <span id="layer-search-clear-icon" class="clear-search-icon" title="Clear layer search"></span>
             <input type="text" placeholder="Search for a layer..." id="layer-search-box"></input>
           </div>
           <p id="layer-search-results-empty-msg">No layers found with that search criteria.</p>
