@@ -380,7 +380,7 @@ html, body {
 #layers-list {
   z-index: 99;
   text-align: left;
-  height: calc(100% - 58px);
+  height: calc(100% - 112px);
   margin-top: 0px;
 }
 
@@ -406,6 +406,7 @@ html, body {
   overflow-y: auto;
   height: 100%;
   overflow-x: hidden;
+  border-top: 1px solid #d3d3d3;
 }
 
 #layers-list-featured {
@@ -2377,4 +2378,85 @@ a:focus { outline:0; }
 
 .materialNowViewingContainer, .materialTimelineContainerMain {
   display: none !important;
+}
+
+#search-content {
+  padding: 10px;
+}
+
+#layer-search-results {
+  height: 100%;
+  padding-left: 10px;
+  padding-top: 10px;
+  display: none;
+}
+
+#layer-search-box {
+  width: calc(100% - 78px);
+  padding-left: 33px;
+  padding-right: 33px;
+  background: rgba(255,255,255,1);
+  border: 1px solid #a7a7a7;
+  font-size: 15px;
+  outline: none;
+  border-radius: 3px;
+  display: inline-block;
+  height: 30px;
+}
+
+#layer-search-box::placeholder {
+  opacity: 0.75;
+}
+
+#layer-search-box:-ms-input-placeholder {
+  opacity: 0.75;
+}
+
+#layer-search-box::-ms-input-placeholder {
+  opacity: 0.75;
+}
+
+.layer-search-box-icon {
+  background: url(../../images/search-2.png) center center no-repeat;
+  background-size: contain;
+  width: 18px;
+  height: 18px;
+  position: absolute;
+  cursor: default;
+  opacity: 0.60;
+  left: 22px;
+  margin-top: 8px;
+}
+
+.layer-search-box-clear-icon {
+  background: url(../../images/close-dark.png) center center no-repeat;
+  background-size: contain;
+  width: 14px;
+  height: 14px;
+  position: absolute;
+  right: 24px;
+  margin-top: 10px;
+  cursor: pointer;
+  opacity: 0.60;
+  display: none;
+}
+
+.layer-search-box-clear-icon:after {
+  content: '';
+  position: absolute;
+  top: -10px;
+  bottom: -8px;
+  left: -10px;
+  right: -5px;
+}
+
+.layer-search-box-clear-icon:hover {
+  opacity: 0.9;
+}
+
+#layer-search-results-empty-msg {
+  position: absolute;
+  display: none;
+  padding: 20px;
+  text-transform: none;
 }

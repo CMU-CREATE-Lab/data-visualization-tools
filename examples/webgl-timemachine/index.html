@@ -7426,6 +7426,7 @@
             }
           }
         }, 50);
+        window.prepareSearchContent();
       });
 
       if (isOffline) {
@@ -7488,32 +7489,27 @@
 
       window.toggleHamburgerPanel = function($panel) {
         if ($panel.is(":visible")) {
-	  // If selected panel is visible, hide hamburger
+          // If selected panel is visible, hide hamburger
           $('#main-hamburger-menu').hide("slide", { direction: "left" }, 150);
           $('#main-hamburger-menu').removeClass("is-active");
-	  return false;
-	}
+          return false;
+        }
 
         $('#main-hamburger-menu').show("slide", { direction: "left" }, 150);
         $('#main-hamburger-menu').addClass("is-active");
         $panel.show();
         $panel.siblings().hide();
-	return true;
+        return true;
       }
 
-      window.toggleSearchContent = function() {
-	if (toggleHamburgerPanel($('#search-content'))) {
-          UTIL.addGoogleAnalyticEvent('button', 'click', 'viewer-search-content-panel');
-	  contentSearch.reset();
-        }
+      window.prepareSearchContent = function() {
+        contentSearch.reset(true);
       }
 
-      $('#library_search').click(window.toggleSearchContent);
-
-      window.contentSearch = new ContentSearch($('#search-content input'), $('#search-content div'));
+      window.contentSearch = new ContentSearch($('#search-content input'), $('#layer-search-results'));
 
       $("#stories-menu-choice").on("click", function() {
-	if (toggleHamburgerPanel($('#theme-menu'))) {
+        if (toggleHamburgerPanel($('#theme-menu'))) {
           UTIL.addGoogleAnalyticEvent('button', 'click', 'viewer-show-story-panel');
         }
 
@@ -7526,7 +7522,7 @@
       });
 
       $("#viewerContainer, #top-nav-wrapper").on("click", "#layers-menu-choice", function() {
-	if (toggleHamburgerPanel($('#layers-menu'))) {
+        if (toggleHamburgerPanel($('#layers-menu'))) {
           UTIL.addGoogleAnalyticEvent('button', 'click', 'viewer-show-layer-panel');
         }
 
@@ -10244,14 +10240,14 @@
           <ul id="theme-list"><div class="themes-scroll-vertical"><div class="themes-div"></div></div></ul>
         </li>
         <li id="layers-menu" class="has-children">
-          <label for="layer-selection" class="menu-selection-heading">Data Library
-	    <div style="display:inline-block; position:relative; top:4px; left:60px; background:url(../../images/search-3.png) CENTER CENTER NO-REPEAT; background-size: contain; content: url(../../images/transparent.png); width:20px; height:20px; cursor:pointer" id="library_search"></div>
-	    </label>
-        </li>
-        <li style="height:100%" id="search-content" class="has-children">
-          <label for="search-content-selection" class="menu-selection-heading">Search Data Library
-          <input type="text" style="width:250px"></input></label>
-          <div class="layers-scroll-vertical"></div>
+          <label for="layer-selection" class="menu-selection-heading">Data Library</label>
+          <div id="search-content">
+            <span class="layer-search-box-icon"></span>
+            <span class="layer-search-box-clear-icon" title="Clear search"></span>
+            <input type="text" placeholder="Search for a layer..." id="layer-search-box"></input>
+          </div>
+          <p id="layer-search-results-empty-msg">No layers found with that search criteria.</p>
+          <div id="layer-search-results" class="layers-scroll-vertical"></div>
         </li>
       </ul>
     </div>
