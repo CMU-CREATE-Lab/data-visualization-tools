@@ -2399,6 +2399,9 @@ a:focus { outline:0; }
 
 #search-content {
   padding: 10px;
+  background: #e0e0e0;
+  z-index: 9001;
+  position: relative;
 }
 
 #layer-search-results {

@@ -4177,7 +4177,7 @@
         keysDown.length = 0;
       });
 
-      $('#layers-menu').on("click", "input", function(e) {
+      $('#layers-menu').on("click", "input[type=checkbox], input[type=radio]", function(e) {
         var selectedLayerName = $(this).parent().attr("name");
         $('#layers-menu label[name=' + selectedLayerName + ']').find("input").prop("checked", $(this).prop("checked"));
         var fromRealKeydown = e.originalEvent && e.pageX != 0 && e.pageY != 0;
@@ -7536,6 +7536,7 @@
           $(".map-layer-div, #all-data-layers-title").hide();
         }
         resizeLayersMenu();
+        $("#layer-search-box").focus();
       });
 
       $("#theme-menu").on("click", "[id^=story_]", function(e) {
@@ -8461,7 +8462,7 @@
         // 1px extra because of borders
         heightDiff = $("#layers-list").offset().top - $('#layers-list-featured').height() - 1;
       }
-      $(".layers-scroll-vertical").css("height", "calc(100% - " + heightDiff + "px)");
+      $("#layers-list .layers-scroll-vertical").css("height", "calc(100% - " + heightDiff + "px)");
    }
 
     // Draws to canvas.
