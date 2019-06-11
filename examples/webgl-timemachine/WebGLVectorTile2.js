@@ -3292,13 +3292,14 @@ WebGLVectorTile2.prototype._drawPointColorStartEpochEndEpoch = function(transfor
     gl.useProgram(this.program);
     gl.enable(gl.BLEND);
     
+    //add function for interpreting functions?
     var dfactor = options.dfactor || gl.ONE;
     if (dfactor == "ONE_MINUS_SRC_ALPHA") {
       dfactor = gl.ONE_MINUS_SRC_ALPHA;
     }else if (dfactor == "SRC_ALPHA") {
       dfactor = gl.DST_ALPHA;
     }
-    else{// if wrong input in spreadsheet
+    else{// if options exist but not covered here
       dfactor = gl.ONE;
     }
     gl.blendFunc( gl.SRC_ALPHA, dfactor);
@@ -5367,9 +5368,8 @@ WebGLVectorTile2.PointColorStartEpochEndEpochFragmentShader =
 '    gl_FragColor = unpackColor(v_color) * dist;\n' +
 '  }\n';
 
-//SMELL PGH
-// makes colors "dim" once time has passed end epoch
-WebGLVectorTile2.PointColorStartEpochEndEpochVertexShader2 =
+// makes decreases alpha once time has passed epoch1
+WebGLVectorTile2.FadePointColorStartEpochEndEpochVertexShader =
 'attribute vec4 a_coord;\n' +
 'attribute float a_color;\n' +
 'attribute float a_epoch0;\n' +
@@ -5386,7 +5386,7 @@ WebGLVectorTile2.PointColorStartEpochEndEpochVertexShader2 =
 '        v_dim = 0.0;\n' +
 '    } else if(a_epoch1 < u_epoch){\n'+
 '       position = u_map_matrix * a_coord;\n'+
-'   	v_dim = 0.6;\n'+
+'   	v_dim = 0.3;\n'+
 '    } else {\n' +
 '        position = u_map_matrix * a_coord;\n' +
 '        v_dim = 1.0;\n' +
@@ -5396,7 +5396,8 @@ WebGLVectorTile2.PointColorStartEpochEndEpochVertexShader2 =
 '    v_color = a_color;\n' +
 '}\n';
 
-WebGLVectorTile2.PointColorStartEpochEndEpochFragmentShader2 =
+//unpackColor func alters alpha according to vertex shader
+WebGLVectorTile2.FadePointColorStartEpochEndEpochFragmentShader =
 '#extension GL_OES_standard_derivatives : enable\n' +
 '  precision mediump float;\n' +
 '  varying float v_color;\n' +
@@ -5406,8 +5407,8 @@ WebGLVectorTile2.PointColorStartEpochEndEpochFragmentShader2 =
 '      color.b = floor(f / 256.0 / 256.0);\n' +
 '      color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);\n' +
 '      color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);\n' +
-'      color = dim * (color / 256.0);\n' +
-'      color.a = 1.0;\n' +
+'      color = color / 256.0;\n' +
+'      color.a = dim;\n' +
 '      return color;\n' +
 '    }\n' +
 '  void main() {\n' +
