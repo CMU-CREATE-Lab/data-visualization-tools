@@ -4385,10 +4385,10 @@
       // Add vertical/horizontal scroll support to specific parts of the UI (e.g. layers/themes panels)
       try {
         if (UTIL.isTouchDevice()) {
-          UTIL.verticalTouchScroll($(".layers-scroll-vertical"));
-          UTIL.verticalTouchScroll($(".themes-scroll-vertical"));
+          UTIL.verticalTouchScroll($("#layers-list .layers-scroll-vertical"));
+          UTIL.verticalTouchScroll($("#layer-search-results.layers-scroll-vertical"));
+          UTIL.verticalTouchScroll($("#theme-list .themes-scroll-vertical"));
           UTIL.verticalTouchScroll($("#csvChartLegend"));
-          UTIL.verticalTouchScroll($("#theme-list"));
           if (enableLetterboxMode) {
             UTIL.touchHorizontalScroll($("#letterbox-bottom-picker-content"));
             UTIL.touchHorizontalScroll($("#letterbox-bottom-picker-results-content"));
