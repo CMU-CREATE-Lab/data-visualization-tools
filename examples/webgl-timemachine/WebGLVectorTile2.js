@@ -196,6 +196,7 @@ WebGLVectorTile2.prototype._loadGeojsonData = function() {
 
     if (this.status >= 400) {
       data = "";
+      alert(":0");
     } else {
       data = JSON.parse(this.responseText);
     }
@@ -1575,6 +1576,28 @@ WebGLVectorTile2.prototype._setTrajectoriesData = function(data) {
     }
   }
   this._setBufferData(new Float32Array(points));
+}
+
+// copied from setPointData
+// smell pgh test 2
+WebGLVectorTile2.prototype._setAnimatedPointsData = function(data) {
+  // Assumes GeoJSON data
+  var points = [];
+
+  if (typeof data.features != "undefined") {
+    for (var f = 0; f < data.features.length ; f++) {
+      var feature = data.features[f];
+      var packedColor = feature.properties.PackedColor;
+      var pixel = LngLatToPixelXY(feature.geometry.coordinates[0], feature.geometry.coordinates[1]);
+      var e0 = feature.properties.StartEpochTime;
+      var e1 = feature.properties.EndEpochTime;
+      
+      points.push(pixel[0], pixel[1], packedColor, e0, e1);
+    }
+    //console.log(points);
+    this._setBufferData(new Float32Array(points));
+    this._dataLoaded(this.layerId);
+  }
 }
 
 WebGLVectorTile2.prototype._setBufferData  = function(data) {
@@ -3268,8 +3291,18 @@ WebGLVectorTile2.prototype._drawPointColorStartEpochEndEpoch = function(transfor
   if (this._ready) {
     gl.useProgram(this.program);
     gl.enable(gl.BLEND);
-    gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
-
+    
+    var dfactor = options.dfactor || gl.ONE;
+    if (dfactor == "ONE_MINUS_SRC_ALPHA") {
+      dfactor = gl.ONE_MINUS_SRC_ALPHA;
+    }else if (dfactor == "SRC_ALPHA") {
+      dfactor = gl.DST_ALPHA;
+    }
+    else{// if wrong input in spreadsheet
+      dfactor = gl.ONE;
+    }
+    gl.blendFunc( gl.SRC_ALPHA, dfactor);
+    
     var tileTransform = new Float32Array(transform);
     var zoom = options.zoom;
     var currentTime = options.currentTime/1000.;
@@ -3604,7 +3637,7 @@ WebGLVectorTile2.prototype._drawVesselTracks = function(transform, options) {
     var zoom = options.zoom;
     var currentTime = options.currentTime/1000.;
     var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-    var color = options.color || [.1, .1, .5, 1.0];
+    var color = options.color || [.1, .1, .5, 1.0]; // not used?
 
     scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
     scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
@@ -3640,11 +3673,72 @@ WebGLVectorTile2.prototype._drawVesselTracks = function(transform, options) {
     var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch_1');
     gl.enableVertexAttribArray(attributeLoc);
     gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 7 * 4, 20);
-
+    
     var attributeLoc = gl.getAttribLocation(this.program, 'a_color');
     gl.enableVertexAttribArray(attributeLoc);
     gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 7 * 4, 24);
 
+    gl.drawArrays(gl.POINTS, 0, this._pointCount);
+
+    //perf_draw_points(this._pointCount);
+    gl.disable(gl.BLEND);
+  }
+}
+
+WebGLVectorTile2.prototype._drawAnimPoints = function(transform, options) {
+  var gl = this.gl;
+
+  if (this._ready && this._pointCount > 0) {
+    gl.useProgram(this.program);
+    gl.enable(gl.BLEND);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+    gl.enable(gl.BLEND);
+    gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
+
+    var tileTransform = new Float32Array(transform);
+    var zoom = options.zoom;
+    var currentTime = options.currentTime/1000.;
+    var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
+    var color = options.color || [.1, .1, .5, 1.0]; // not used?
+
+    scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
+    scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+
+    pointSize *= Math.floor((zoom + 1.0) / (23.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+    // Passing a NaN value to the shader with a large number of points is very bad
+    if (isNaN(pointSize)) {
+      pointSize = 1.0;
+    }
+
+
+    var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
+    gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+
+    var sliderTime = gl.getUniformLocation(this.program, 'u_epoch');
+    gl.uniform1f(sliderTime, currentTime);
+
+    var uniformLoc = gl.getUniformLocation(this.program, 'u_size');
+    gl.uniform1f(uniformLoc, pointSize);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_coord_0');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 7 * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch_0');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 7 * 4, 8);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_coord_1');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 7 * 4, 12); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch_1');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 7 * 4, 20);
+    
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_color');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 7 * 4, 24);
 
     gl.drawArrays(gl.POINTS, 0, this._pointCount);
 
@@ -5069,7 +5163,6 @@ WebGLVectorTile2.pointFlowFragmentShader =
 '    gl_FragColor = mix(colorStart, colorEnd, v_t) * dist;\n' +
 '  }\n';
 
-
 WebGLVectorTile2.pointVertexShader =
 'attribute vec4 a_coord;\n' +
 'attribute float a_color;\n' +
@@ -5215,7 +5308,6 @@ WebGLVectorTile2.PointSizeColorVertexShader =
 '    v_color = a_color;\n' +
 '}\n';
 
-
 WebGLVectorTile2.PointColorFragmentShader =
 '#extension GL_OES_standard_derivatives : enable\n' +
 '  precision mediump float;\n' +
@@ -5275,6 +5367,57 @@ WebGLVectorTile2.PointColorStartEpochEndEpochFragmentShader =
 '    gl_FragColor = unpackColor(v_color) * dist;\n' +
 '  }\n';
 
+//SMELL PGH
+// makes colors "dim" once time has passed end epoch
+WebGLVectorTile2.PointColorStartEpochEndEpochVertexShader2 =
+'attribute vec4 a_coord;\n' +
+'attribute float a_color;\n' +
+'attribute float a_epoch0;\n' +
+'attribute float a_epoch1;\n' +
+'uniform mat4 u_map_matrix;\n' +
+'uniform float u_epoch;\n' +
+'uniform float u_size;\n' +
+'varying float v_color;\n' +
+'varying float v_dim;\n' +
+'void main() {\n' +
+'    vec4 position;\n' +
+'    if (u_epoch < a_epoch0) {\n' +
+'        position = vec4(-1.,-1.,-1.,-1.);\n' +
+'        v_dim = 0.0;\n' +
+'    } else if(a_epoch1 < u_epoch){\n'+
+'       position = u_map_matrix * a_coord;\n'+
+'   	v_dim = 0.6;\n'+
+'    } else {\n' +
+'        position = u_map_matrix * a_coord;\n' +
+'        v_dim = 1.0;\n' +
+'    }\n' +
+'    gl_Position = position;\n' +
+'    gl_PointSize = u_size*2.0;\n' +
+'    v_color = a_color;\n' +
+'}\n';
+
+WebGLVectorTile2.PointColorStartEpochEndEpochFragmentShader2 =
+'#extension GL_OES_standard_derivatives : enable\n' +
+'  precision mediump float;\n' +
+'  varying float v_color;\n' +
+'  varying float v_dim;\n' +
+'  vec4 unpackColor(float f, float dim) {\n' +
+'      vec4 color;\n' +
+'      color.b = floor(f / 256.0 / 256.0);\n' +
+'      color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);\n' +
+'      color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);\n' +
+'      color = dim * (color / 256.0);\n' +
+'      color.a = 1.0;\n' +
+'      return color;\n' +
+'    }\n' +
+'  void main() {\n' +
+'    float r = 0.0, delta = 0.0, alpha = 1.0;\n' +
+'    vec2 cxy = 2.0 * gl_PointCoord - 1.0;\n' +
+'    r = dot(cxy, cxy);\n' +
+'    delta = fwidth(r);\n' +
+'    alpha = 1.0 - smoothstep(1.0 - delta, 1.0 + delta, r);\n' +
+'    gl_FragColor = unpackColor(v_color, v_dim) * alpha;\n' +
+'  }\n';
 
 WebGLVectorTile2.PointSizeColorStartEpochEndEpochVertexShader =
 'attribute vec4 a_coord;\n' +
@@ -5316,6 +5459,31 @@ WebGLVectorTile2.PointSizeColorStartEpochEndEpochFragmentShader =
 '    dist = max(0., dist);\n' +
 '    gl_FragColor = unpackColor(v_color) * dist;\n' +
 '  }\n';
+
+//borrowed from spCrudeVertexShader
+WebGLVectorTile2.AnimPointsVertexShader =
+'attribute vec4 a_coord_0;\n' +
+'attribute float a_epoch_0;\n' +
+'attribute vec4 a_coord_1;\n' +
+'attribute float a_epoch_1;\n' +
+'attribute float a_color;\n' +
+'uniform mat4 u_map_matrix;\n' +
+'uniform float u_epoch;\n' +
+'uniform float u_size;\n' +
+'varying float v_color;\n' +
+'void main() {\n' +
+'    vec4 position;\n' +
+'    if (a_epoch_0 > u_epoch || a_epoch_1 < u_epoch) {\n' +
+'        position = vec4(-1.,-1.,-1.,-1.);\n' +
+'    } else {\n' +
+'          float t = (u_epoch - a_epoch_0)/(a_epoch_1 - a_epoch_0);\n' +
+'          position = u_map_matrix * ((a_coord_1 - a_coord_0) * t + a_coord_0);\n' +
+'    }\n' +
+'    gl_Position = position;\n' +
+'    gl_PointSize = u_size*8.;\n' +
+'    v_color = a_color;\n' +
+'}\n';
+
 
 WebGLVectorTile2.spCrudeVertexShader =
 'attribute vec4 a_coord_0;\n' +

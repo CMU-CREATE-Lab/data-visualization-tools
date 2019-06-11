@@ -752,5 +752,6 @@ const SET_DATA_FUNCTION_LOOKUP_TABLE = {
   "WebGLVectorTile2.prototype._setBufferData": WebGLVectorTile2.prototype._setBufferData,
   "WebGLVectorTile2.prototype._setBuffers": WebGLVectorTile2.prototype._setBuffers,
   "WebGLVectorTile2.prototype._setWindVectorsData": WebGLVectorTile2.prototype._setWindVectorsData,
-  "WebGLVectorTile2.prototype._setTrajectoriesData": WebGLVectorTile2.prototype._setTrajectoriesData
+  "WebGLVectorTile2.prototype._setTrajectoriesData": WebGLVectorTile2.prototype._setTrajectoriesData,
+  "WebGLVectorTile2.prototype._setAnimatedPointsData": WebGLVectorTile2.prototype._setAnimatedPointsData
 }
