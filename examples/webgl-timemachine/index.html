@@ -4179,7 +4179,12 @@
 
       $('#layers-menu').on("click", "input[type=checkbox], input[type=radio]", function(e) {
         var selectedLayerName = $(this).parent().attr("name");
-        $('#layers-menu label[name=' + selectedLayerName + ']').find("input").prop("checked", $(this).prop("checked"));
+        var $selection = $(this);
+        var isSelectionChecked = $selection.prop("checked");
+        if (typeof(contentSearch) != "undefined" && contentSearch.initialized && selectedLayerName && isSelectionChecked) {
+          contentSearch.updateLayerSelectionsFromMaster();
+        }
+        $('#layers-menu label[name=' + selectedLayerName + ']').find("input").prop("checked", isSelectionChecked);
         var fromRealKeydown = e.originalEvent && e.pageX != 0 && e.pageY != 0;
         if (fromRealKeydown && $(".current-location-text-container").is(':visible')) {
           showAnnotationResumeExit();
@@ -4192,6 +4197,7 @@
           }
         }
         timelapse.updateShareViewTextbox();
+
       });
 
       $('#layers-menu').on("change", "input", function(e) {
@@ -4218,22 +4224,24 @@
         var toggledLayer = $(e.target);
         var toggledLayerId = toggledLayer.parent("label").attr("name");
 
-        if (toggledLayer.attr('type') == 'radio') {
-          var toggledLayerGroup = $('input[name=' + toggledLayer.attr("name") + ']');
-          toggledLayerGroup.each(function(idx, element) {
-            var tmp = $(element).parent("label").attr("name");
-            var activeLayerIdx = activeEarthTimeLayers.indexOf(tmp);
+        if (toggledLayerId) {
+          if (toggledLayer.attr('type') == 'radio') {
+            var toggledLayerGroup = $('input[name=' + toggledLayer.attr("name") + ']');
+            toggledLayerGroup.each(function(idx, element) {
+              var tmp = $(element).parent("label").attr("name");
+              var activeLayerIdx = activeEarthTimeLayers.indexOf(tmp);
+              if (activeLayerIdx >= 0) {
+                activeEarthTimeLayers.splice(activeLayerIdx, 1);
+              }
+            });
+            activeEarthTimeLayers.push(toggledLayerId);
+          } else if (toggledLayer.prop("checked")) {
+            activeEarthTimeLayers.push(toggledLayerId);
+          } else {
+            var activeLayerIdx = activeEarthTimeLayers.indexOf(toggledLayerId);
             if (activeLayerIdx >= 0) {
               activeEarthTimeLayers.splice(activeLayerIdx, 1);
             }
-          });
-          activeEarthTimeLayers.push(toggledLayerId);
-        } else if (toggledLayer.prop("checked")) {
-          activeEarthTimeLayers.push(toggledLayerId);
-        } else {
-          var activeLayerIdx = activeEarthTimeLayers.indexOf(toggledLayerId);
-          if (activeLayerIdx >= 0) {
-            activeEarthTimeLayers.splice(activeLayerIdx, 1);
           }
         }
 
@@ -4344,7 +4352,7 @@
       };
       window.timelineUIHandler = timelineUIHandler;
 
-      $('#layers-menu').on('click', 'input', timelineUIHandler);
+      $('#layers-menu').on('click', "input[type=checkbox], input[type=radio]", timelineUIHandler);
 
       $("body").on("click", "#layers-list .ui-accordion-header", function() {
         // 8px because of borders, paddings, etc
