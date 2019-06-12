@@ -83,7 +83,6 @@ ContentSearch.prototype.copyLayerChecked = function(layer) {
 }
 
 ContentSearch.prototype.updateLayerSelectionsFromMaster = function() {
-  var before = new Date().getTime();
   var masterChecked = $('input:checked', $('#layers-list')).parent();
   var searchChecked = $('input:checked', this.$searchResults).parent();
   var layersToCheck = new Set();
@@ -99,7 +98,6 @@ ContentSearch.prototype.updateLayerSelectionsFromMaster = function() {
 ContentSearch.prototype.reset = function(forceReset) {
   if (this.initialized && !forceReset) return;
 
-  var before = new Date().getTime();
   var layersAndCategories = $('h3, label', $('#layers-list'));
   this.layerInfos = [];
   this.categories = [];
