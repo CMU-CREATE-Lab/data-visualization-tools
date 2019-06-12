@@ -5368,7 +5368,7 @@ WebGLVectorTile2.PointColorStartEpochEndEpochFragmentShader =
 '    gl_FragColor = unpackColor(v_color) * dist;\n' +
 '  }\n';
 
-// makes decreases alpha once time has passed epoch1
+// gradually decreases alpha once time has passed epoch1
 WebGLVectorTile2.FadePointColorStartEpochEndEpochVertexShader =
 'attribute vec4 a_coord;\n' +
 'attribute float a_color;\n' +
@@ -5381,12 +5381,15 @@ WebGLVectorTile2.FadePointColorStartEpochEndEpochVertexShader =
 'varying float v_dim;\n' +
 'void main() {\n' +
 '    vec4 position;\n' +
+'    float fade_duration = 3600.0; //1hr\n' +
+'    float min_alpha = 0.3;\n' +
 '    if (u_epoch < a_epoch0) {\n' +
 '        position = vec4(-1.,-1.,-1.,-1.);\n' +
 '        v_dim = 0.0;\n' +
 '    } else if(a_epoch1 < u_epoch){\n'+
 '       position = u_map_matrix * a_coord;\n'+
-'   	v_dim = 0.3;\n'+
+'   	//v_dim = min_alpha;\n'+
+'   	v_dim = max(min_alpha, 1.0 - ((u_epoch - a_epoch1)/fade_duration));\n'+
 '    } else {\n' +
 '        position = u_map_matrix * a_coord;\n' +
 '        v_dim = 1.0;\n' +
