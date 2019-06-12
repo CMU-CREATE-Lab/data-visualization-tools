@@ -196,7 +196,6 @@ WebGLVectorTile2.prototype._loadGeojsonData = function() {
 
     if (this.status >= 400) {
       data = "";
-      alert(":0");
     } else {
       data = JSON.parse(this.responseText);
     }
@@ -1591,7 +1590,7 @@ WebGLVectorTile2.prototype._setAnimatedPointsData = function(data) {
       var pixel = LngLatToPixelXY(feature.geometry.coordinates[0], feature.geometry.coordinates[1]);
       var e0 = feature.properties.StartEpochTime;
       var e1 = feature.properties.EndEpochTime;
-      
+
       points.push(pixel[0], pixel[1], packedColor, e0, e1);
     }
     //console.log(points);
@@ -2077,7 +2076,6 @@ WebGLVectorTile2.prototype._drawChoroplethMap = function(transform, options) {
     if (dfactor == "ONE_MINUS_SRC_ALPHA") {
       dfactor = gl.ONE_MINUS_SRC_ALPHA;
     }
-
 
     gl.useProgram(this.program);
     gl.enable(gl.BLEND);
@@ -3291,19 +3289,16 @@ WebGLVectorTile2.prototype._drawPointColorStartEpochEndEpoch = function(transfor
   if (this._ready) {
     gl.useProgram(this.program);
     gl.enable(gl.BLEND);
-    
+
     //add function for interpreting functions?
     var dfactor = options.dfactor || gl.ONE;
     if (dfactor == "ONE_MINUS_SRC_ALPHA") {
       dfactor = gl.ONE_MINUS_SRC_ALPHA;
-    }else if (dfactor == "SRC_ALPHA") {
-      dfactor = gl.DST_ALPHA;
-    }
-    else{// if options exist but not covered here
+    } else { // if options exist but not covered here
       dfactor = gl.ONE;
     }
-    gl.blendFunc( gl.SRC_ALPHA, dfactor);
-    
+    gl.blendFunc(gl.SRC_ALPHA, dfactor);
+
     var tileTransform = new Float32Array(transform);
     var zoom = options.zoom;
     var currentTime = options.currentTime/1000.;
@@ -3674,7 +3669,7 @@ WebGLVectorTile2.prototype._drawVesselTracks = function(transform, options) {
     var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch_1');
     gl.enableVertexAttribArray(attributeLoc);
     gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 7 * 4, 20);
-    
+
     var attributeLoc = gl.getAttribLocation(this.program, 'a_color');
     gl.enableVertexAttribArray(attributeLoc);
     gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 7 * 4, 24);
@@ -3736,7 +3731,7 @@ WebGLVectorTile2.prototype._drawAnimPoints = function(transform, options) {
     var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch_1');
     gl.enableVertexAttribArray(attributeLoc);
     gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 7 * 4, 20);
-    
+
     var attributeLoc = gl.getAttribLocation(this.program, 'a_color');
     gl.enableVertexAttribArray(attributeLoc);
     gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 7 * 4, 24);
