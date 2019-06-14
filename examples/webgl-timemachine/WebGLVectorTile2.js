@@ -38,11 +38,11 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
   this._loadingSpinnerTimer = null;
   this._wasPlayingBeforeDataLoad = false;
   this.dotmapColors = opt_options.dotmapColors;
+  this._setDataOptions = opt_options.setDataOptions;
 
   this.gl.getExtension("OES_standard_derivatives");
 
   this.program = glb.programFromSources(this.vertexShader, this.fragmentShader);
-
 
   if (opt_options.imageSrc) {
     this._image = new Image();
@@ -199,7 +199,7 @@ WebGLVectorTile2.prototype._loadGeojsonData = function() {
     } else {
       data = JSON.parse(this.responseText);
     }
-    that._setData(data);
+    that._setData(data, that._setDataOptions);
   }
   this.xhr.onerror = function() {
     that._removeLoadingSpinner();
@@ -338,7 +338,6 @@ WebGLVectorTile2.prototype._loadWindVectorsData = function() {
   this.xhr.send();
 
 }
-
 
 WebGLVectorTile2.prototype._loadSitc4r2Data = function () {
   var parseQueryString = function( queryString ) {
@@ -1008,7 +1007,7 @@ WebGLVectorTile2.prototype._setSitc4r2Buffer = function(sitc4r2Code, year, data)
 
 }
 
-WebGLVectorTile2.prototype._setPointData = function(data) {
+WebGLVectorTile2.prototype._setPointData = function(data, options) {
   // Assumes GeoJSON data
   var points = [];
 
@@ -1041,7 +1040,116 @@ WebGLVectorTile2.prototype._setPointData = function(data) {
   }
 }
 
-WebGLVectorTile2.prototype._setPolygonData = function(data) {
+// not animated, only one glyph possible
+WebGLVectorTile2.prototype._setGlyphData = function(data, options) {
+  // Assumes GeoJSON data
+  var points = [];
+
+  if (typeof data.features != "undefined") {
+    for (var f = 0; f < data.features.length ; f++) {
+      var feature = data.features[f];
+      // assumes not multi point
+      var pixel = LngLatToPixelXY(feature.geometry.coordinates[0], feature.geometry.coordinates[1]);
+      points.push(pixel[0], pixel[1]);
+    }
+    
+    var glyphPath = options.glyphPath || undefined;
+    if (glyphPath){
+      // asychronously load img
+      var image = new Image();
+      var that = this;
+      image.addEventListener('load', function() {
+        that._image = image;    
+        that._setBufferData(new Float32Array(points));
+      });   
+      image.crossOrigin = "anonymous";
+      image.src = glyphPath;
+      this._dataLoaded(this.layerId);
+    } else{ 
+      console.log("No glyph path");
+      this._setBufferData(new Float32Array(points));
+      this._dataLoaded(this.layerId);
+    }
+  }
+}
+
+// GeoJSON requires StartEpochTime, EndEpochTime, GlyphIndex fields
+// can use different sections of one glyph texture based on GlyphIndex
+WebGLVectorTile2.prototype._setAnimatedGlyphData = function(data, options) {
+  // Assumes GeoJSON data
+  var points = [];
+  
+  if (typeof data.features != "undefined") {
+    for (var f = 0; f < data.features.length ; f++) {
+      var feature = data.features[f];
+      // assumes not multi point
+      var pixel = LngLatToPixelXY(feature.geometry.coordinates[0], feature.geometry.coordinates[1]);
+      var e0 = feature.properties.StartEpochTime;
+      var e1 = feature.properties.EndEpochTime;
+      var offset = feature.properties.GlyphIndex;
+      points.push(pixel[0], pixel[1], e0, e1, offset);
+    }
+
+    var glyphPath = options.glyphPath || undefined;
+    if (glyphPath){
+      // asychronously load img
+      var image = new Image();
+      var that = this;
+      image.addEventListener('load', function() {
+        that._image = image;    
+        that._setBufferData(new Float32Array(points));
+      });   
+      image.crossOrigin = "anonymous";
+      image.src = glyphPath;
+      this._dataLoaded(this.layerId);
+    } else{ 
+      console.log("No glyph path");
+      this._setBufferData(new Float32Array(points));
+      this._dataLoaded(this.layerId);
+    }
+  }
+}
+
+//triangles will be fixed size
+WebGLVectorTile2.prototype._setTriangleData = function(data, options) {
+  // Assumes GeoJSON data
+  var points = [];
+
+  if (typeof data.features != "undefined") {
+    for (var f = 0; f < data.features.length ; f++) {
+      var feature = data.features[f];
+      var packedColor;
+      if (typeof feature.properties.PackedColor != "undefined") {
+        packedColor = feature.properties.PackedColor;
+      } else {
+        if (this._color) {
+          packedColor = this._color[0]*255+ this._color[1]*255 * 255.0 + this._color[2]*255 * 255.0 * 255.0
+        } else {
+          packedColor = 255.0;
+        }
+      }
+      if (feature.geometry.type != "MultiPoint") {
+        var p = LngLatToPixelXY(feature.geometry.coordinates[0], feature.geometry.coordinates[1]);
+        var r = 0.01;
+        var a = [p[0]-r/2, p[1]+(r/2*Math.sqrt(3))];
+        var b = [p[0]+r/2, p[1]+(r/2*Math.sqrt(3))];
+        points.push(p[0], p[1], packedColor);
+        points.push(a[0], a[1], packedColor);
+        points.push(b[0], b[1], packedColor);
+      } else {
+        for (var j = 0; j < feature.geometry.coordinates.length; j++) {
+          var coords = feature.geometry.coordinates[j];
+          var pixel = LngLatToPixelXY(coords[0], coords[1]);
+          points.push(pixel[0], pixel[1], packedColor);
+        }
+      }
+    }
+    this._setBufferData(new Float32Array(points));
+    this._dataLoaded(this.layerId);
+  }
+}
+
+WebGLVectorTile2.prototype._setPolygonData = function(data, options) {
   // Assumes GeoJSON data
   var verts = [];
   var rawVerts = [];
@@ -1085,7 +1193,7 @@ WebGLVectorTile2.prototype._setPolygonData = function(data) {
   }
 }
 
-WebGLVectorTile2.prototype._setLineStringData = function(data) {
+WebGLVectorTile2.prototype._setLineStringData = function(data, options) {
   // Assumes GeoJSON data
   function processLineString(lineString) {
     var out =[];
@@ -1129,7 +1237,7 @@ WebGLVectorTile2.prototype._setLineStringData = function(data) {
 
 }
 
-WebGLVectorTile2.prototype._setExpandedLineStringData = function(data) {
+WebGLVectorTile2.prototype._setExpandedLineStringData = function(data, options) {
   // Assumes GeoJSON data
   function processLineString(lineString) {
     var out =[];
@@ -1577,9 +1685,7 @@ WebGLVectorTile2.prototype._setTrajectoriesData = function(data) {
   this._setBufferData(new Float32Array(points));
 }
 
-// copied from setPointData
-// smell pgh test 2
-WebGLVectorTile2.prototype._setAnimatedPointsData = function(data) {
+WebGLVectorTile2.prototype._setAnimatedPointsData = function(data, options) {
   // Assumes GeoJSON data
   var points = [];
 
@@ -1593,7 +1699,6 @@ WebGLVectorTile2.prototype._setAnimatedPointsData = function(data) {
 
       points.push(pixel[0], pixel[1], packedColor, e0, e1);
     }
-    //console.log(points);
     this._setBufferData(new Float32Array(points));
     this._dataLoaded(this.layerId);
   }
@@ -2060,7 +2165,6 @@ WebGLVectorTile2.prototype._drawBivalentBubbleMap = function(transform, options)
       gl.bindTexture(gl.TEXTURE_2D, this._texture);
       gl.uniform1i(gl.getUniformLocation(this.program, "u_Image"), 0);
     }
-
 
     gl.drawArrays(gl.POINTS, 0, this._pointCount);
     perf_draw_points(this._pointCount);
@@ -3035,13 +3139,122 @@ WebGLVectorTile2.prototype._drawPoint = function(transform, options) {
     var attributeLoc = gl.getAttribLocation(this.program, 'a_color');
     gl.enableVertexAttribArray(attributeLoc);
     gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 12, 8); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-
+    
     gl.drawArrays(gl.POINTS, 0, this._pointCount);
-    //gl.drawElements(gl.TRIANGLES, 170840, gl.UNSIGNED_SHORT, 0);
     perf_draw_points(this._pointCount);
     gl.disable(gl.BLEND);
   }
 }
+
+// no animation
+WebGLVectorTile2.prototype._drawGlyph = function(transform, options) {
+  var gl = this.gl;
+  if (this._ready) {
+    // set up glsl program
+    gl.useProgram(this.program);
+    
+    // blending
+    gl.enable(gl.BLEND);
+    gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+    var tileTransform = new Float32Array(transform);
+    var zoom = options.zoom;
+    var currentTime = options.currentTime/1000.;
+
+    scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
+    scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+    
+    var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
+    gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+        
+    // attributes
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_coord');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each
+    
+    //texture
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, this._texture);
+    gl.uniform1i(gl.getUniformLocation(this.program, "u_texture"), 0);
+    // make sure we can render it even if it's not a power of 2
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+    // draw
+    gl.drawArrays(gl.POINTS, 0, this._pointCount);
+    perf_draw_points(this._pointCount);
+    gl.disable(gl.BLEND);
+  }
+}
+
+// animated
+WebGLVectorTile2.prototype._drawGlyphStartEpochEndEpoch = function(transform, options) {
+  var gl = this.gl;
+  if (this._ready) {
+    // set up glsl program
+    gl.useProgram(this.program);
+    
+    var numGlyphs = options.numGlyphs || 1.0;
+    
+    // blending
+    gl.enable(gl.BLEND);
+    gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+    var tileTransform = new Float32Array(transform);
+    var zoom = options.zoom;
+    var currentTime = options.currentTime/1000.;
+
+    scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
+    scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+    
+    // uniforms
+    var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
+    gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+    
+    var sliderTime = gl.getUniformLocation(this.program, 'u_epoch');
+    gl.uniform1f(sliderTime, currentTime);
+    
+    var pointSize = gl.getUniformLocation(this.program, 'u_size');
+    gl.uniform1f(pointSize, 30.0);
+    
+    var numGlyphsLoc = gl.getUniformLocation(this.program, 'u_num_glyphs');
+    gl.uniform1f(numGlyphsLoc, numGlyphs);
+    
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, this._texture);
+    gl.uniform1i(gl.getUniformLocation(this.program, "u_texture"), 0);
+    // make sure we can render it even if it's not a power of 2
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        
+    // attributes = 5
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_coord');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each
+    
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch0');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this.numAttributes * 4, 8);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch1');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this.numAttributes * 4, 12);
+  
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_offset');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this.numAttributes * 4, 16);
+
+    // draw
+    gl.drawArrays(gl.POINTS, 0, this._pointCount);
+    perf_draw_points(this._pointCount);
+    gl.disable(gl.BLEND);
+  }
+}
+
 
 WebGLVectorTile2.prototype._drawPolygon = function(transform, options) {
   var gl = this.gl;
@@ -5193,6 +5406,60 @@ WebGLVectorTile2.pointFragmentShader =
 '    delta = fwidth(r);\n' +
 '    alpha = 1.0 - smoothstep(1.0 - delta, 1.0 + delta, r);\n' +
 '    gl_FragColor = unpackColor(v_color) * alpha;\n' +
+'  }\n';
+
+//SMELL PGH
+WebGLVectorTile2.glyphVertexShader =
+'attribute vec4 a_coord;\n' +
+'uniform mat4 u_map_matrix;\n' +
+'void main() {\n' +
+'    vec4 position;\n' +
+'    position = u_map_matrix * a_coord;\n' +
+'    gl_Position = position;\n' +
+'    gl_PointSize = 40.0;\n' +
+'}\n';
+
+WebGLVectorTile2.glyphFragmentShader =
+'#extension GL_OES_standard_derivatives : enable\n' +
+'  precision mediump float;\n' +
+'  uniform sampler2D u_texture;\n' +
+'  void main() {\n' +
+'    gl_FragColor = texture2D(u_texture, vec2(gl_PointCoord.x, gl_PointCoord.y));\n' +
+'  }\n';
+
+WebGLVectorTile2.glyphStartEpochEndEpochVertexShader =
+'attribute vec4 a_coord;\n' +
+'attribute float a_epoch0;\n' +
+'attribute float a_epoch1;\n' +
+'attribute float a_offset;\n' +
+'uniform mat4 u_map_matrix;\n' +
+'uniform float u_size;\n' +
+'uniform float u_epoch;\n' +
+'varying float v_show;\n' +
+'varying float v_offset;\n' +
+'void main() {\n' +
+'    vec4 position;\n' +
+'    if (u_epoch < a_epoch0) {\n' +
+'        position = vec4(-1.,-1.,-1.,-1.);\n' +
+'        v_show = 0.0;\n' +
+'    } else if(a_epoch1 < u_epoch){\n'+
+'       position = u_map_matrix * a_coord;\n'+
+'       v_show = 1.0;\n'+
+'    }\n' +
+'    gl_Position = position;\n' +
+'    gl_PointSize = u_size;\n' +
+'    v_offset = a_offset;\n' +
+'}\n';
+
+WebGLVectorTile2.glyphStartEpochEndEpochFragmentShader =
+'#extension GL_OES_standard_derivatives : enable\n' +
+'  precision mediump float;\n' +
+'  uniform sampler2D u_texture;\n' +
+'  uniform float u_num_glyphs;\n' +
+'  varying float v_offset;\n' +
+'  void main() {\n' +
+'    vec2 texcoords = vec2((gl_PointCoord.x + v_offset) / u_num_glyphs, gl_PointCoord.y);\n'+
+'    gl_FragColor = texture2D(u_texture, texcoords);\n' +
 '  }\n';
 
 WebGLVectorTile2.polygonVertexShader =

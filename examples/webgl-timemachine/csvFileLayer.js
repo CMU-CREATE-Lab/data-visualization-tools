@@ -114,6 +114,11 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
   if (typeof layerDef["Draw Options"] != "undefined" && layerDef["Draw Options"] != "") {
     layerOptions.drawOptions = JSON.parse(layerDef["Draw Options"]);
   }
+  
+  if (typeof layerDef["Set Data Options"] != "undefined" && layerDef["Set Data Options"] != "") {
+    layerOptions.setDataOptions = JSON.parse(layerDef["Set Data Options"]);
+  }
+
 
   var url;
   var useLocalData = false;
@@ -257,6 +262,21 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
       }
     }
     layer.options.drawOptions = layerOptions.drawOptions;
+  }
+  
+  if (layerOptions.setDataOptions) {
+    var obj = layerOptions.setDataOptions;
+    for (const key in obj) {
+      let value = obj[key];
+      layer.options[key] = value;
+      //optional check for properties from prototype chain
+      if (obj.hasOwnProperty(key)) {
+        //no a property from prototype chain
+      }else{
+        //property from protytpe chain
+      }
+    }
+    layer.options.setDataOptions = layerOptions.setDataOptions;
   }
 
   // Comparison-mode, left and right half-circles
@@ -601,9 +621,9 @@ CsvFileLayer.prototype.setLegend = function setLegend(id) {
   }
   if (typeof layer != 'undefined') {
     if (layer.legendContent.toLowerCase() == 'none') {
-      console.log('None');
+      return;
     }
-    else if (layer.mapType == 'bubble') {
+    if (layer.mapType == 'bubble') {
       if (layer.legendContent == 'auto') {
         var radius = layer['_tileView']['_tiles']['000000000000000']['_radius'];
         var opts = {
@@ -753,5 +773,8 @@ const SET_DATA_FUNCTION_LOOKUP_TABLE = {
   "WebGLVectorTile2.prototype._setBuffers": WebGLVectorTile2.prototype._setBuffers,
   "WebGLVectorTile2.prototype._setWindVectorsData": WebGLVectorTile2.prototype._setWindVectorsData,
   "WebGLVectorTile2.prototype._setTrajectoriesData": WebGLVectorTile2.prototype._setTrajectoriesData,
-  "WebGLVectorTile2.prototype._setAnimatedPointsData": WebGLVectorTile2.prototype._setAnimatedPointsData
+  "WebGLVectorTile2.prototype._setAnimatedPointsData": WebGLVectorTile2.prototype._setAnimatedPointsData,
+  "WebGLVectorTile2.prototype._setTriangleData": WebGLVectorTile2.prototype._setTriangleData,
+  "WebGLVectorTile2.prototype._setGlyphData": WebGLVectorTile2.prototype._setGlyphData,
+  "WebGLVectorTile2.prototype._setAnimatedGlyphData": WebGLVectorTile2.prototype._setAnimatedGlyphData
 }
