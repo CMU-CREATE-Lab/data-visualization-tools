@@ -3197,6 +3197,7 @@ WebGLVectorTile2.prototype._drawGlyphStartEpochEndEpoch = function(transform, op
     gl.useProgram(this.program);
     
     var numGlyphs = options.numGlyphs || 1.0;
+    var fadeDuration = options.fadeDuration || 36000.0;
     
     // blending
     gl.enable(gl.BLEND);
@@ -3212,6 +3213,9 @@ WebGLVectorTile2.prototype._drawGlyphStartEpochEndEpoch = function(transform, op
     // uniforms
     var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
     gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+    
+    var fadeDurLoc = gl.getUniformLocation(this.program, 'u_fade_duration');
+    gl.uniform1f(fadeDurLoc, fadeDuration); //10 hr
     
     var sliderTime = gl.getUniformLocation(this.program, 'u_epoch');
     gl.uniform1f(sliderTime, currentTime);
@@ -5467,19 +5471,20 @@ WebGLVectorTile2.FadeGlyphStartEpochEndEpochVertexShader =
 'attribute float a_epoch1;\n' +
 'attribute float a_offset;\n' +
 'uniform mat4 u_map_matrix;\n' +
+'uniform float u_fade_duration;\n' +
 'uniform float u_size;\n' +
 'uniform float u_epoch;\n' +
 'varying float v_offset;\n' +
 'varying float v_dim;\n' +
 'void main() {\n' +
 '    vec4 position;\n' +
-'    float fade_duration = 3600.0; //1hr\n' +
-'    float min_alpha = 0.3;\n' +
+'    //float fade_duration = 36000.0; //10hr\n' +
+'    float min_alpha = 0.0;\n' +
 '    if (u_epoch < a_epoch0) {\n' +
 '        position = vec4(-1.,-1.,-1.,-1.);\n' +
 '    } else if(a_epoch1 < u_epoch){\n'+
 '       position = u_map_matrix * a_coord;\n'+
-'   	v_dim = max(min_alpha, 1.0 - ((u_epoch - a_epoch1)/fade_duration));\n'+
+'   	v_dim = max(min_alpha, 1.0 - ((u_epoch - a_epoch1)/u_fade_duration));\n'+
 '    } else{\n'+
 '       position = u_map_matrix * a_coord;\n'+
 '       v_dim = 1.0;\n' +
