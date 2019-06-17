@@ -5435,16 +5435,15 @@ WebGLVectorTile2.glyphStartEpochEndEpochVertexShader =
 'uniform mat4 u_map_matrix;\n' +
 'uniform float u_size;\n' +
 'uniform float u_epoch;\n' +
-'varying float v_show;\n' +
 'varying float v_offset;\n' +
 'void main() {\n' +
 '    vec4 position;\n' +
 '    if (u_epoch < a_epoch0) {\n' +
 '        position = vec4(-1.,-1.,-1.,-1.);\n' +
-'        v_show = 0.0;\n' +
 '    } else if(a_epoch1 < u_epoch){\n'+
 '       position = u_map_matrix * a_coord;\n'+
-'       v_show = 1.0;\n'+
+'    } else{\n'+
+'       position = u_map_matrix * a_coord;\n'+
 '    }\n' +
 '    gl_Position = position;\n' +
 '    gl_PointSize = u_size;\n' +
@@ -5460,6 +5459,47 @@ WebGLVectorTile2.glyphStartEpochEndEpochFragmentShader =
 '  void main() {\n' +
 '    vec2 texcoords = vec2((gl_PointCoord.x + v_offset) / u_num_glyphs, gl_PointCoord.y);\n'+
 '    gl_FragColor = texture2D(u_texture, texcoords);\n' +
+'  }\n';
+
+WebGLVectorTile2.FadeGlyphStartEpochEndEpochVertexShader =
+'attribute vec4 a_coord;\n' +
+'attribute float a_epoch0;\n' +
+'attribute float a_epoch1;\n' +
+'attribute float a_offset;\n' +
+'uniform mat4 u_map_matrix;\n' +
+'uniform float u_size;\n' +
+'uniform float u_epoch;\n' +
+'varying float v_offset;\n' +
+'varying float v_dim;\n' +
+'void main() {\n' +
+'    vec4 position;\n' +
+'    float fade_duration = 3600.0; //1hr\n' +
+'    float min_alpha = 0.3;\n' +
+'    if (u_epoch < a_epoch0) {\n' +
+'        position = vec4(-1.,-1.,-1.,-1.);\n' +
+'    } else if(a_epoch1 < u_epoch){\n'+
+'       position = u_map_matrix * a_coord;\n'+
+'   	v_dim = max(min_alpha, 1.0 - ((u_epoch - a_epoch1)/fade_duration));\n'+
+'    } else{\n'+
+'       position = u_map_matrix * a_coord;\n'+
+'       v_dim = 1.0;\n' +
+'    }\n' +
+'    gl_Position = position;\n' +
+'    gl_PointSize = u_size;\n' +
+'    v_offset = a_offset;\n' +
+'}\n';
+
+WebGLVectorTile2.FadeGlyphStartEpochEndEpochFragmentShader =
+'#extension GL_OES_standard_derivatives : enable\n' +
+'  precision mediump float;\n' +
+'  uniform sampler2D u_texture;\n' +
+'  uniform float u_num_glyphs;\n' +
+'  varying float v_offset;\n' +
+'  varying float v_dim;\n' +
+'  void main() {\n' +
+'    vec2 texcoords = vec2((gl_PointCoord.x + v_offset) / u_num_glyphs, gl_PointCoord.y);\n'+
+'    vec4 tex = texture2D(u_texture, texcoords);\n' +
+'    gl_FragColor = vec4(tex.rgb, v_dim * tex.a);\n' +
 '  }\n';
 
 WebGLVectorTile2.polygonVertexShader =
