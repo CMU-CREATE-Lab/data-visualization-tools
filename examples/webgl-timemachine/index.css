@@ -2393,7 +2393,7 @@ a:focus { outline:0; }
   display: none !important;
 }
 
-.materialNowViewingContainer, .materialTimelineContainerMain {
+.materialNowViewingContainer, .materialTimelineContainerMain, .waypointDrawerContainer {
   display: none !important;
 }
 
