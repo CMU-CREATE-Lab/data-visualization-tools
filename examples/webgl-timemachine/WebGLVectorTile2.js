@@ -5088,6 +5088,22 @@ WebGLVectorTile2.bivalentBubbleMapWithColorMapFragmentShader =
 '          gl_FragColor = vec4( mix(outlineColor.rgb, circleColor.rgb, stroke), alpha*.75 );\n' +
 '      }';
 
+WebGLVectorTile2.bivalentBubbleMapWithColorMapFragmentShaderNoBorder =
+'      #extension GL_OES_standard_derivatives : enable\n' +
+'      precision mediump float;\n' +
+'      varying float v_PointVal;\n' +
+'      varying float v_ColorVal;\n' +
+'      uniform sampler2D u_Image;\n' +
+'      void main() {\n' +
+'          float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
+'          dist = 1. - (dist * 2.);\n' +
+'          dist = max(0., dist);\n' +
+'          float delta = fwidth(dist);\n' +
+'          float alpha = smoothstep(0.5-delta, 0.5, dist);\n' +
+'          vec4 circleColor = texture2D(u_Image, vec2(v_ColorVal,v_ColorVal));\n' +
+'          gl_FragColor = vec4( circleColor.rgb, alpha*.75 );\n' +
+'      }';
+
 WebGLVectorTile2.iomIdpVertexShader = "" +
 "attribute vec4 a_coord;\n" +
 "attribute float a_country;\n" +
