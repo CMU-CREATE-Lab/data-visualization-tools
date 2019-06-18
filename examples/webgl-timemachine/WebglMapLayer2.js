@@ -32,7 +32,8 @@ function WebglMapLayer2(glb, canvasLayer, tileUrls, opt_options) {
     createTile: function(ti, bounds) { return that._createTile(ti, bounds); },
     deleteTile: function(tile) {},
     updateTile: WebglMapTile2.update,
-    timelapse: this._canvasLayer.timelapse
+    timelapse: this._canvasLayer.timelapse,
+    maxLevelOverride: this.maxLevelOverride
   });
 
   // TODO: experiment with this

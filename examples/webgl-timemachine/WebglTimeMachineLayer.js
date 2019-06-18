@@ -66,7 +66,7 @@ WebglTimeMachineLayer.prototype.loadTm = function(tm) {
     dataType: 'json',
     success: this.loadR.bind(this)
   });
-}
+};
 
 // Load metadata from r.json
 WebglTimeMachineLayer.prototype.loadR = function(r) {
@@ -78,7 +78,7 @@ WebglTimeMachineLayer.prototype.loadR = function(r) {
   this.width = r.width;
   this.height = r.height;
   this.loadMetadata();
-}
+};
 
 WebglTimeMachineLayer.prototype.loadMetadata = function() {
   this.mediaType = this.mediaType || '.mp4';
@@ -94,15 +94,16 @@ WebglTimeMachineLayer.prototype.loadMetadata = function() {
   }
 
   this._tileView = new TileView({
-      panoWidth: this.width,
-      panoHeight: this.height,
-      tileWidth: this.video_width,
-      tileHeight: this.video_height,
-      createTile: createTile,
-      deleteTile: function(tile) {},
-      updateTile: WebglVideoTile.update,
-      timelapse: this._canvasLayer.timelapse,
-      projection: this.projection
+    panoWidth: this.width,
+    panoHeight: this.height,
+    tileWidth: this.video_width,
+    tileHeight: this.video_height,
+    createTile: createTile,
+    deleteTile: function(tile) {},
+    updateTile: WebglVideoTile.update,
+    timelapse: this._canvasLayer.timelapse,
+    projection: this.projection,
+    maxLevelOverride: this.maxLevelOverride
   });
 
   this.destroy = function() {
@@ -134,7 +135,7 @@ WebglTimeMachineLayer.prototype._handleLoadedColormap = function() {
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this.image);
   gl.bindTexture(gl.TEXTURE_2D, null);
   this._waitingForColormap = false;
-  
+
   this._updateReady();
 };
 
@@ -143,15 +144,15 @@ WebglTimeMachineLayer.prototype._updateReady = function() {
 };
 
 WebglTimeMachineLayer.prototype.resetDimensions = function(json) {
-    this._tileView.resetDimensions(json);
+  this._tileView.resetDimensions(json);
 };
 
 WebglTimeMachineLayer.prototype.getWidth = function() {
-    return this._tileView.getWidth();
+  return this._tileView.getWidth();
 };
 
 WebglTimeMachineLayer.prototype.getHeight = function() {
-    return this._tileView.getHeight();
+  return this._tileView.getHeight();
 };
 
 WebglTimeMachineLayer.prototype.draw = function(view, tileViewVisibility) {

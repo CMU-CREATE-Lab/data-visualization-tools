@@ -4,9 +4,11 @@
 
 // A tile has a level, row, and column
 // Level 0 has 1x1=1 tiles; level 1 has 2x2=4 tiles; level 2 has 4x4=16 tiles
-// 
+//
 // key is a string that encodes [level, row, column] with leading zeros to allow
 // lexicographic sorting to match sorting by [level, row, column]
+
+"use strict";
 
 function TileIdx(l, c, r) {
   this.l = l;
@@ -25,4 +27,4 @@ TileIdx.prototype.parent = function() {
 
 TileIdx.prototype.toString = function() {
   return this.l + ',' + this.c + ',' + this.r;
-}
+};

@@ -25,7 +25,8 @@ function WebglMapLayer(glb, canvasLayer, tileUrl, opt_options) {
     createTile: function(ti, bounds) { return that._createTile(ti, bounds); },
     deleteTile: function(tile) {},
     updateTile: WebglMapTile.update,
-    timelapse: this._canvasLayer.timelapse
+    timelapse: this._canvasLayer.timelapse,
+    maxLevelOverride: this.maxLevelOverride
   });
 
   this.ready = true;

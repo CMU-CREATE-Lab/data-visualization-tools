@@ -29,7 +29,8 @@ function WebglVectorLayer2(glb, canvasLayer, tileUrl, opt_options) {
       deleteTile: function(tile) {},
       updateTile: WebGLVectorTile2.update,
       zoomlock: 11,
-      timelapse: this._canvasLayer.timelapse
+      timelapse: this._canvasLayer.timelapse,
+      maxLevelOverride: this.maxLevelOverride
   });
 
   // TODO: experiment with this
@@ -94,14 +95,14 @@ WebglVectorLayer2.prototype._createTile = function(ti, bounds) {
     opt_options.layerDomId = this._tileView._layerDomId;
   }
   if (this.color) {
-    opt_options.color = this.color;    
-  }  
+    opt_options.color = this.color;
+  }
   if (this.drawOptions) {
-    opt_options.drawOptions = this.drawOptions;    
-  }  
+    opt_options.drawOptions = this.drawOptions;
+  }
   if (this.setDataOptions) {
-    opt_options.setDataOptions = this.setDataOptions;    
-  }  
+    opt_options.setDataOptions = this.setDataOptions;
+  }
 
   opt_options.dotmapColors = this.dotmapColors;
   return new WebGLVectorTile2(glb, ti, bounds, url, opt_options);
