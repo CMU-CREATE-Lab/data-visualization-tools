@@ -816,7 +816,7 @@ WebglVideoTile.computeFrameOffsets = function(phases, subbits) {
       WebglVideoTile._frameOffsets.push(0.5 + 0.5 * (p + sfrac / subphases) / phases);
     }
   }
-  WebglVideoTile._frameOffsetUsed = []
+  WebglVideoTile._frameOffsetUsed = [];
   for (var i = 0; i < WebglVideoTile._frameOffsets; i++) {
     WebglVideoTile._frameOffsetUsed.push(false);
   }
