@@ -56,14 +56,24 @@ CsvFileLayer.prototype.addExtrasContent = function addExtrasContent(layerDef) {
   var dataFilePath = layerDef["URL"];
   var shareLinkIdentifier = layerDef["Share link identifier"].replace(/\W+/g, '_');
   var dataName = layerDef["Name"];
+  var extrasOptions = {};
+  if (typeof layerDef["Extras Options"] != "undefined" && layerDef["Extras Options"] != "") {
+    extrasOptions = JSON.parse(layerDef["Extras Options"]);
+  }
+
   var str = '<option data-playback-rate="' + playbackRate + '"';
   str += ' data-type="' + dataType + '"';
   str += ' data-file-path="' + dataFilePath +'"';
   str += ' data-name="' + shareLinkIdentifier + '"';
+  if (extrasOptions.loop) {
+    str += ' data-loop="' + extrasOptions.loop + '"';
+  }
+  if (extrasOptions.muted) {
+    str += ' data-muted="' + extrasOptions.mute + '"';
+  }
   str += '>' + dataName + '</option>';
 
   $('#extras-selector').append(str);
-
 }
 
 
@@ -114,7 +124,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
   if (typeof layerDef["Draw Options"] != "undefined" && layerDef["Draw Options"] != "") {
     layerOptions.drawOptions = JSON.parse(layerDef["Draw Options"]);
   }
-  
+
   if (typeof layerDef["Set Data Options"] != "undefined" && layerDef["Set Data Options"] != "") {
     layerOptions.setDataOptions = JSON.parse(layerDef["Set Data Options"]);
   }
@@ -263,7 +273,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
     }
     layer.options.drawOptions = layerOptions.drawOptions;
   }
-  
+
   if (layerOptions.setDataOptions) {
     var obj = layerOptions.setDataOptions;
     for (const key in obj) {
