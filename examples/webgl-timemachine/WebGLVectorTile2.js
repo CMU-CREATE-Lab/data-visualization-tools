@@ -3722,7 +3722,7 @@ WebGLVectorTile2.prototype._initSitc4rcBuffer = function(code, year, setDataFnc)
   } else {
     var re=/([a-z0-9]{1,})\/([0-9]{4}).json/g;
     var m = re.exec(this._url);
-    rootUrl += this._url.replace(m[0],"").split("?")[0];
+    rootUrl = this._url.replace(m[0],"").split("?")[0];
   }
   this.worker.postMessage({'year': year,
                            'code': code,
