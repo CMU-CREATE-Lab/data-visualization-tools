@@ -133,6 +133,8 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
   var url;
   var useLocalData = false;
   var relativeLocalDataPath;
+
+  // TODO: Maybe deprecate this?
   if (EARTH_TIMELAPSE_CONFIG.localCsvLayers) {
     for (var i = 0; i < EARTH_TIMELAPSE_CONFIG.localCsvLayers.length; i++) {
       relativeLocalDataPath = EARTH_TIMELAPSE_CONFIG.localCsvLayers[i];
@@ -147,8 +149,19 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
     }
   }
 
+  if (EARTH_TIMELAPSE_CONFIG.useCsvLayersLocally) {
+    // TODO: Right now we only handle local storage of data that was stored at tiles.earthtime.org
+    if (layerDef["URL"].indexOf("tiles.earthtime.org") > 0) {
+      relativeLocalDataPath = layerDef["URL"].replace(/https*:\/\/tiles.earthtime.org/, '').replace('("', '');
+      useLocalData = true;
+    }
+  }
+
   if (useLocalData) {
     url = tileUrl = getRootTilePath() + relativeLocalDataPath;
+    if (layerDef["Map Type"] == "raster") {
+      url = tileUrl = '("' + url;
+    }
   } else {
     url = layerDef["URL"].replace("http://", "https://");
   }
