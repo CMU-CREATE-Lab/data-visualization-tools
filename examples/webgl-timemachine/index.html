@@ -3962,6 +3962,7 @@
         var extrasName = $lastSelectedExtra.data("name");
         var loopVideoPlayback = $lastSelectedExtra.data("loop");
         var muteVideoAudio = $lastSelectedExtra.data("muted");
+        var objectFit = $lastSelectedExtra.data("objectfit");
 
         if (enableLetterboxMode) {
           $(".extras-content-dialog").addClass("letterbox");
@@ -4004,6 +4005,11 @@
           window.location.href = filePath;
         }
 
+        if (objectFit == "contain") {
+          $("#extras-image, #extras-video").css("object-fit", "contain");
+        }
+
+        // TODO: Remove this now that we pass this in via the spreadsheet metadata
         if (extrasName.indexOf("_letterBoxFit_") > 0) {
           $("#extras-image, #extras-video").css("object-fit", "contain");
         }

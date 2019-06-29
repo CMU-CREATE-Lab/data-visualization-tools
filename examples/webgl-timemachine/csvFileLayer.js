@@ -71,7 +71,11 @@ CsvFileLayer.prototype.addExtrasContent = function addExtrasContent(layerDef) {
   if (extrasOptions.muted) {
     str += ' data-muted="' + extrasOptions.mute + '"';
   }
+  if (extrasOptions['object-fit']) {
+    str += ' data-objectfit="' + extrasOptions['object-fit'] + '"';
+  }
   str += '>' + dataName + '</option>';
+
 
   $('#extras-selector').append(str);
 }
