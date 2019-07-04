@@ -7135,7 +7135,7 @@
                   var story = waypointJSONList[currentWaypointTheme].stories[currentWaypointStory];
                   if (story && story.storyDescription && story.storyAuthor) {
                     var storyAuthorText = story.storyAuthor;
-                    if (storyAuthorText.toLowerCase().indexOf("story by:") != 0) {
+                    if (storyAuthorText.trim().toLowerCase().indexOf("story ") != 0) {
                       storyAuthorText = "Story by: " + storyAuthorText;
                     }
                     waypointBoxText += "<div class='story-author-text'>" + storyAuthorText + "</div>";

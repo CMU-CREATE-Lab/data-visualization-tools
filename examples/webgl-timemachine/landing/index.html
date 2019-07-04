@@ -414,9 +414,9 @@
             var story = theme['stories'][j];
             var storyEnabled = story['Enabled'].toLowerCase().trim() === "true";
             if (!storyEnabled && !isStaging) continue;
-            var storyId = story['Waypoint Title'].substring(2).replace(/ /g,'_').toLowerCase();
+            var storyId = story['Waypoint Title'].substring(2).replace(/ /g, '_').toLowerCase();
             var storyTitle = story['Annotation Title'];
-            var authors = story['Author'].split("<br")[0].trim();
+            var authors = story['Author'].split("<br")[0].trim().replace(/Story by/i, 'By');
             var storyDescription = story['Front Page Caption'] || story['Annotation Text'];
             var thumbnailLink = story['Front Page Share View'];
             if (!thumbnailLink || thumbnailLink.indexOf("fromScreenshot") == -1) {
