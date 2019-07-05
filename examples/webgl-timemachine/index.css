@@ -9,6 +9,11 @@
 }
 
 @font-face {
+  font-family: 'Exo2-Regular-Typeface';
+  src: url('../../css/fonts/Exo2-Regular-Typeface.woff') format('woff');
+}
+
+@font-face {
   font-family: 'Exo2-Bold';
   src: url('../../css/fonts/Exo2-Bold.woff') format('woff');
 }
@@ -2240,7 +2245,7 @@ a:focus { outline:0; }
   text-align: left;
   width: auto;
   min-width: 80px;
-  font-size: 25pt;
+  font-size: 24pt;
   display: block !important;
   z-index: 100;
   bottom: 20px;
@@ -2253,8 +2258,9 @@ a:focus { outline:0; }
   display: none !important;
 }
 
-.captureTime.minimalUIMode .currentCaptureTime, .captureTime.minimalUIMode .captureTimeMain, {
+.captureTime.minimalUIMode .currentCaptureTime, .captureTime.minimalUIMode .captureTimeMain {
   display: block;
+  font-family: 'Exo2-Regular-Typeface' !important;
 }
 
 .controls-touchFriendly .toggleSpeed.ui-button {
