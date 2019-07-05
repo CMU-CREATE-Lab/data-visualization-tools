@@ -2261,6 +2261,7 @@ a:focus { outline:0; }
 .captureTime.minimalUIMode .currentCaptureTime, .captureTime.minimalUIMode .captureTimeMain {
   display: block;
   font-family: 'Exo2-Regular-Typeface' !important;
+  font-variant-numeric: tabular-nums;
 }
 
 .controls-touchFriendly .toggleSpeed.ui-button {
