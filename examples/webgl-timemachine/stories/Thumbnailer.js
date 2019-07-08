@@ -41,7 +41,7 @@ Thumbnailer.prototype.isPicture = function() {
             return false;
         }
     } else if (typeof format !== "undefined") {
-        if (format == "png") {
+        if (format == "png" || format == "jpg") {
             return true;
         } else {
             return false;
@@ -72,14 +72,6 @@ Thumbnailer.prototype.getMp4 = function(orientation) {
     var height = 720;
     var url = this.thumbnailServerUrl;
 
-    /*
-    var root = "root=https://headless.earthtime.org/";
-    if (!('bt' in this.args)) {
-        this._setBt();
-        this.hash += "&bt=" + this.args['bt'];
-    }
-    root += encodeURIComponent('#' + this.hash);
-    */
     var root = "root=";
     if (typeof this.args["root"] == "undefined") {
         root += "https://headless.earthtime.org/";
@@ -92,7 +84,6 @@ Thumbnailer.prototype.getMp4 = function(orientation) {
         root += this.args["root"];
     }
 
-    //var boundsNWSE = "boundsNWSE=" + this.getNWSE(orientation).join(",");
     var width = "width=" + width;
     var height = "height=" + height;
     var format = "format=" + "mp4";
@@ -132,7 +123,7 @@ Thumbnailer.prototype.getMp4 = function(orientation) {
     return url + [root,width,height,format,fps,tileFormat,startDwell,endDwell,fromScreenshot, UI].join("&");
 }
 
-Thumbnailer.prototype.getPng = function(orientation) {
+Thumbnailer.prototype.getImage = function(orientation) {
     var orientation = orientation || "portrait";
     var width = orientation == "portrait" ? 540 : 1280;
     var height = 720;
@@ -148,17 +139,15 @@ Thumbnailer.prototype.getPng = function(orientation) {
     } else {
         root += this.args["root"];
     }
-    //var boundsNWSE = "boundsNWSE=" + this.getNWSE(orientation).join(",");
     var width = "width=" + width;
     var height = "height=" + height;
 
     var format = "format="
     if (typeof this.args["format"] == "undefined") {
-        format += "png";
+        format += "jpg";
     } else {
         format += this.args["format"];
     }
-    //var format = "format=" + "png";
     var fps = "fps=" + "30";
     var tileFormat = "tileFormat=" + "mp4";
     var fromScreenshot = "fromScreenshot";

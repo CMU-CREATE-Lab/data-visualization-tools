@@ -3,11 +3,60 @@
    src: url("https://earthtime.org/css/fonts/Exo2-Regular.woff") format("woff");
 }
 
+body {
+  /* Removes the annoying bounce effect at the top/bottom when scrolling on phones/tablets */
+  overscroll-behavior: none;
+}
+
 .earthtime-story {
    position: relative;
    height: auto;
    min-height: 100px;
    font-family: 'EarthTime', sans-serif !important;
+   overflow-x: hidden;
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently
+                        supported by Chrome and Opera */
+}
+
+.earthtime-story.iframe {
+  height: calc(100vh + 1px);
+}
+
+.earthtime-about {
+  font-family: 'EarthTime', sans-serif !important;
+  overflow-x: hidden;
+  color: white;
+  background-color: #333;
+  padding: 20px;
+  text-align: justify;
+}
+
+.earthtime-about-heading {
+  font-size: 20px;
+  text-transform: uppercase;
+  font-weight: normal !important;
+  text-align: center;
+}
+
+.earthtime-about p {
+  font-size: 14px;
+  line-height: 1.2rem;
+}
+
+.earthtime-about-logos img {
+  background: white;
+  margin: 5px;
+  padding: 5px;
+}
+
+.earthtime-about-logos {
+  text-align: center;
+ -webkit-tap-highlight-color:  rgba(255, 255, 255, 0);
 }
 
 .earthtime-logo {
@@ -24,36 +73,56 @@
    background-color: #333;
    transition: all .4s ease;
    text-align: center;
+  -webkit-tap-highlight-color:  rgba(255, 255, 255, 0);
+   outline: none;
+}
+
+.earthtime-story-title-overlay {
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top: 0px;
+}
+
+.earthtime-story-title-overlay.enabled {
+  background: rgba(0, 0, 0, 0.3);
 }
 
 .earthtime-title {
    position: absolute;
-   top: 40vh;
    left: 0;
    right: 0;
    z-index: 2;
    color: white;
-   margin: 0 30px;
+   margin: 0 20px;
+   top: 50vh;
+   transform: translateY(-50%);
    text-align: center;
 }
 
+.earthtime-title-headline {
+  font-size: 22px;
+  line-height: 1.1;
+}
+
 .earthtime-title-rule {
-   width: 7rem;
+   width: 11rem;
    margin: .8rem auto 1rem;
    border-top: 2px solid #d87f16;
 }
 
 .earthtime-title-caption {
-   font-size: .95rem;
+   font-size: 20px;
    line-height: 1.35;
    margin-top: 1rem;
+   padding: 0 10vw;
    text-align: center;
 }
 
 .earthtime-title-author {
    margin-top: 1.5rem;
    margin-bottom: .5rem;
-   font-size: .75rem;
+   font-size: 15px;
    line-height: 1.45;
 }
 
@@ -72,13 +141,14 @@
 
 .earthtime-story-frame-content-container {
    position: relative;
+   background: rgba(34, 34, 34, 1);
    width: 100vw;
    height: 100vh;
    overflow: hidden;
 }
 
 .earthtime-story-frame-content {
-   height: 100vh;
+   height: 100%;
    margin-left: 50%;
    transform: translateX(-50%);
 }
@@ -91,4 +161,31 @@
    padding: 0.3rem 0.2rem 0.3rem 0.5rem;
    font-size: 0.9rem;
    border-radius: .4rem;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizelegibility;
+}
+
+.earthtime-caption-title {
+  font-weight: bolder;
+}
+
+.overflow-scrolling {
+  -webkit-overflow-scrolling: touch;
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
+
+.earthtime-media {
+  position: inherit;
+}
+
+.earthtime-nostory-frame {
+  text-align: center;
+  font-size: 28px;
+  color: white;
+  padding: 80px;
+  padding-bottom: 20px;
+  background: #333;
 }
