@@ -246,7 +246,7 @@
         fps: 30,
         l: layers,
         embedTime: false,
-        format: "png",
+        format: "jpg",
         width: desired_width,
         height: desired_height,
         bound: desired_bound
@@ -395,7 +395,7 @@
         // Set the user interface of the set view tool
         var start_playback_time = timelapse.playbackTimeFromShareDate(args_landscape["bt"]);
         var end_playback_time = timelapse.playbackTimeFromShareDate(args_landscape["et"]);
-        setViewType(args_landscape["format"] == "png" ? "image" : "video");
+        setViewType(args_landscape["format"] == "mp4" ? "video" : "image");
         setPlaybackSpeed(parseFloat(args_landscape["ps"]) / 100);
         $start_time.val(timelapse.getCaptureTimeByTime(start_playback_time));
         $end_time.val(timelapse.getCaptureTimeByTime(end_playback_time));
@@ -427,7 +427,7 @@
           shareView: share_view_landscape,
           width: DEFAULT_PREVIEW_WIDTH,
           height: DEFAULT_PREVIEW_HEIGHT,
-          format: "png"
+          format: "jpg"
         }),
         render: thumbnail_tool.getUrlFromShareView({
           shareView: share_view_landscape,
@@ -440,7 +440,7 @@
           shareView: share_view_portrait,
           width: DEFAULT_PREVIEW_HEIGHT,
           height: DEFAULT_PREVIEW_WIDTH,
-          format: "png"
+          format: "jpg"
         }),
         render: thumbnail_tool.getUrlFromShareView({
           shareView: share_view_portrait,

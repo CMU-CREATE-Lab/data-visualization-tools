@@ -872,6 +872,7 @@
         resetThumbnailPreviewUI($to_tab_thumbnail_preview);
       }
       setThumbnailPreviewUI($to_tab_thumbnail_preview, urls);
+      // TODO: If urls isn't undefined, trigger an ajax call to start creating the full mobile render for these thumbnails
     }
 
     // Propagate data forward from an accordion to another accordion
@@ -965,14 +966,20 @@
     function setThumbnailPreviewUI($ui, urls) {
       if (typeof $ui === "undefined" || typeof urls === "undefined") return;
       $ui.show();
+      // If the thumbnail is for the story intro, don't show date UI
+      var $storyEditPage = $ui.closest(".story-editor-edit-story");
+      var extraParams = "";
+      if ($storyEditPage.length) {
+        extraParams += "&disableUI=true";
+      }
       var $l = $ui.find(".story-editor-thumbnail-preview-landscape");
       var $p = $ui.find(".story-editor-thumbnail-preview-portrait");
       $l.prop("href", urls["landscape"]["render"]["url"]);
-      $l.data("view", urls["landscape"]["render"]["args"]["root"]);
+      $l.data("view", urls["landscape"]["render"]["args"]["root"] + extraParams);
       $l.find("img").prop("src", ""); // make the loading gif appear
       $l.find("img").prop("src", urls["landscape"]["preview"]["url"]);
       $p.prop("href", urls["portrait"]["render"]["url"]);
-      $p.data("view", urls["portrait"]["render"]["args"]["root"]);
+      $p.data("view", urls["portrait"]["render"]["args"]["root"] + extraParams);
       $p.find("img").prop("src", ""); // make the loading gif appear
       $p.find("img").prop("src", urls["portrait"]["preview"]["url"]);
     }
