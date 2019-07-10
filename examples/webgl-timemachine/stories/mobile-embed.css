@@ -149,6 +149,9 @@ body {
 
 .earthtime-story-frame-content {
    height: 100%;
+   width: auto;
+   max-height: none;
+   max-width: none;
    margin-left: 50%;
    transform: translateX(-50%);
 }

@@ -122,6 +122,25 @@ earthtime._updateOrientation = function() {
 };
 
 /**
+ * Recompute story container offsets on the page to ensure a full screen experience
+ */
+earthtime._updateFullscreenOffsets = function() {
+  // Loop over each story, updating img and video src to match new orientation
+  for (var elementId in earthtime._storyRegistrations) {
+    if (earthtime._storyRegistrations.hasOwnProperty(elementId)) {
+      var story = earthtime._storyRegistrations[elementId];
+      var storyContainerElement = story.containerElement;
+
+      var storyLeftOffset = parseInt(storyContainerElement.style.marginLeft, 10) || 0;
+      storyLeftOffset -= Math.round(storyContainerElement.getBoundingClientRect().left);
+
+      storyContainerElement.style.marginLeft = storyLeftOffset + "px";
+      storyContainerElement.style.width = "calc(100% + " + Math.abs(storyLeftOffset * 2) + "px)";
+    }
+  }
+};
+
+/**
  * Compiles the Handlebars templates defined in <code>earthtime._handlebarsTemplates</code>.  This simply overwrites the string
  * value of each template with the compiled version.
  */
@@ -207,11 +226,11 @@ earthtime._unpackVars = function(str, keepNullOrUndefinedVars) {
  *
  * @param {string} storyName the story name
  * @param containerElement the DOM element into which the story will be inserted
- * @param {string} [waypointsIdentifierUrl] a link that contains information for a unique google spreadsheet
+ * @param {object} storyOptions a hash containing various options like the waypoint URL, whether to show the About section, etc
  */
-earthtime._loadStory = function(storyName, containerElement, waypointsIdentifierUrl, showAboutSection) {
+earthtime._loadStory = function(storyName, containerElement, storyOptions) {
   var regexp;
-  var rawUrl = waypointsIdentifierUrl;
+  var rawUrl = storyOptions.waypointsIdentifierUrl;
   var urlParams = earthtime._unpackVars(rawUrl);
   if (urlParams.waypoints) {
     regexp = /waypoints=(.*)\.(.*)/;
@@ -282,6 +301,8 @@ earthtime._loadStory = function(storyName, containerElement, waypointsIdentifier
 
       for (var i = 0; i < story.length; i++) {
         var isTitleItem = (i === 0);
+        if (isTitleItem && storyOptions.hideIntroSlide) continue;
+
         // If no mobile landscape view is defined, use the standard share view
         var landscapeShareView = (story[i]['Mobile Share View Landscape'] || story[i]["Share View"]).trim();
         if (isTitleItem && landscapeShareView === '') {
@@ -364,7 +385,7 @@ earthtime._loadStory = function(storyName, containerElement, waypointsIdentifier
       }
 
       // Show an about section if specified. By default we use this for our full screen embeds
-      if (showAboutSection) {
+      if (storyOptions.showAboutSection) {
         var aboutSectionContent = '<div class="earthtime-about">' +
           '<h3 class="earthtime-about-heading">About</h3>' +
           '<div class="earthtime-about-logos">' +
@@ -433,7 +454,9 @@ earthtime._updateScrollPos = function(e) {
         var child = frame.children[0];
         var video = child.children[0].nodeName == 'VIDEO' ? child.children[0] : null;
 
-        titlePageOverlay.classList.add("enabled");
+        if (titlePageOverlay) {
+          titlePageOverlay.classList.add("enabled");
+        }
 
         // Find the lowest frame that's started to scroll off the top of the screen and
         // freeze it with position=fixed
@@ -446,10 +469,12 @@ earthtime._updateScrollPos = function(e) {
           }
           found = true;
 
-          if (i == 0) {
-            titlePageOverlay.classList.add("enabled");
-          } else {
-            titlePageOverlay.classList.remove("enabled");
+          if (titlePageOverlay) {
+            if (i == 0) {
+              titlePageOverlay.classList.add("enabled");
+            } else {
+              titlePageOverlay.classList.remove("enabled");
+            }
           }
 
           // If currently shown is a video, make sure it's playing
@@ -519,22 +544,30 @@ earthtime.embedStories = function(config) {
     if (numScriptsLoaded === earthtime._scriptDependencies.length) {
       earthtime._compileHandlebarsTemplates();
       earthtime._updateOrientation();
+      earthtime._updateFullscreenOffsets();
 
       window.EARTH_TIMELAPSE_CONFIG = window.EARTH_TIMELAPSE_CONFIG || {};
       // Precedence is story editor public link, config-local.js/config.js located where this file is hosted from, or lastly a hardcoded default spreadsheet URL
       var waypointsIdentifierUrl = config.earthtimeSpreadsheet || EARTH_TIMELAPSE_CONFIG.waypointSliderContentPath || earthtime._DEFAULT_EARTHTIME_SPREADSHEET;
 
       var showAboutSection = config.showEarthtimeAbout || false;
+      var hideIntroSlide = config.hideIntroSlide || false;
 
-      // create scroll and orientation change handlers for the story
+      // create handlers for the story
       window.addEventListener('scroll', earthtime._updateScrollPos);
       window.addEventListener('resize', earthtime._updateOrientation);
+      window.addEventListener('resize', earthtime._updateFullscreenOffsets);
 
       earthtime._printLogging("Loading stories:");
       for (var elementId in earthtime._storyRegistrations) {
         if (earthtime._storyRegistrations.hasOwnProperty(elementId)) {
           var story = earthtime._storyRegistrations[elementId];
-          earthtime._loadStory(story.name, story.containerElement, waypointsIdentifierUrl, showAboutSection);
+          var storyOptions = {
+            waypointsIdentifierUrl: waypointsIdentifierUrl,
+            showAboutSection: showAboutSection,
+            hideIntroSlide: hideIntroSlide
+          }
+          earthtime._loadStory(story.name, story.containerElement, storyOptions);
           earthtime._printLogging("   " + elementId + ": " + story.name);
         }
       }
