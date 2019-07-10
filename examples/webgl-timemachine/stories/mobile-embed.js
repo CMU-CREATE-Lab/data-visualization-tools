@@ -301,13 +301,13 @@ earthtime._loadStory = function(storyName, containerElement, storyOptions) {
 
       for (var i = 0; i < story.length; i++) {
         var isTitleItem = (i === 0);
-        if (isTitleItem && storyOptions.hideIntroSlide) continue;
 
-        // If no mobile landscape view is defined, use the standard share view
+        // If no mobile landscape view is defined, use the standard share view column
         var landscapeShareView = (story[i]['Mobile Share View Landscape'] || story[i]["Share View"]).trim();
-        if (isTitleItem && landscapeShareView === '') {
-          landscapeShareView = earthtime._DEFAULT_SHARE_VIEW;
-        }
+        // If we are the title screen and no view is set, skip showing it. We do this because:
+        // 1) It is the same behavior as a waypoint that does not include a view
+        // 2) It gives us a way to not have a title screen if we are embedding and only want to show waypoint content
+        if (isTitleItem && landscapeShareView === '') continue;
         // If no mobile portrait share view is defined, use the landscape view
         var portraitShareView = (story[i]['Mobile Share View Portrait'] || landscapeShareView).trim();
 
@@ -551,7 +551,6 @@ earthtime.embedStories = function(config) {
       var waypointsIdentifierUrl = config.earthtimeSpreadsheet || EARTH_TIMELAPSE_CONFIG.waypointSliderContentPath || earthtime._DEFAULT_EARTHTIME_SPREADSHEET;
 
       var showAboutSection = config.showEarthtimeAbout || false;
-      var hideIntroSlide = config.hideIntroSlide || false;
 
       // create handlers for the story
       window.addEventListener('scroll', earthtime._updateScrollPos);
@@ -564,8 +563,7 @@ earthtime.embedStories = function(config) {
           var story = earthtime._storyRegistrations[elementId];
           var storyOptions = {
             waypointsIdentifierUrl: waypointsIdentifierUrl,
-            showAboutSection: showAboutSection,
-            hideIntroSlide: hideIntroSlide
+            showAboutSection: showAboutSection
           }
           earthtime._loadStory(story.name, story.containerElement, storyOptions);
           earthtime._printLogging("   " + elementId + ": " + story.name);
