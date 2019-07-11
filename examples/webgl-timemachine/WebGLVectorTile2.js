@@ -5682,7 +5682,7 @@ WebGLVectorTile2.PointColorStartEpochEndEpochFragmentShader =
 '      color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);\n' +
 '      color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);\n' +
 '      color.a = 255.;\n' +
-'      return color / 256.0;\n' +
+'      return color / 255.0;\n' +
 '    }\n' +
 '  void main() {\n' +
 '    float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
