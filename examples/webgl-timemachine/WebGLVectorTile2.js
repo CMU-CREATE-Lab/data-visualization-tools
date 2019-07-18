@@ -3161,7 +3161,7 @@ WebGLVectorTile2.prototype._drawGlyph = function(transform, options) {
     // set up glsl program
     gl.useProgram(this.program);
     
-    var glyphSize = options.glyphSize || 30.0;
+    var pointSize = options.pointSize || 30.0;
 
     // blending
     gl.enable(gl.BLEND);
@@ -3177,8 +3177,8 @@ WebGLVectorTile2.prototype._drawGlyph = function(transform, options) {
     var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
     gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
     
-    var pointSize = gl.getUniformLocation(this.program, 'u_size');
-    gl.uniform1f(pointSize, glyphSize);
+    var pointSizeLoc = gl.getUniformLocation(this.program, 'u_size');
+    gl.uniform1f(pointSizeLoc, pointSize);
 
     // attributes
     gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
@@ -3211,7 +3211,7 @@ WebGLVectorTile2.prototype._drawGlyphStartEpochEndEpoch = function(transform, op
 
     var numGlyphs = options.numGlyphs || 1.0;
     var fadeDuration = options.fadeDuration || 36000.0;
-    var glyphSize = options.glyphSize || 30.0;
+    var pointSize = options.pointSize || 30.0;
     
     // blending
     gl.enable(gl.BLEND);
@@ -3234,8 +3234,8 @@ WebGLVectorTile2.prototype._drawGlyphStartEpochEndEpoch = function(transform, op
     var sliderTime = gl.getUniformLocation(this.program, 'u_epoch');
     gl.uniform1f(sliderTime, currentTime);
 
-    var pointSize = gl.getUniformLocation(this.program, 'u_size');
-    gl.uniform1f(pointSize, glyphSize);
+    var pointSizeLoc = gl.getUniformLocation(this.program, 'u_size');
+    gl.uniform1f(pointSizeLoc, pointSize);
     
     var numGlyphsLoc = gl.getUniformLocation(this.program, 'u_num_glyphs');
     gl.uniform1f(numGlyphsLoc, numGlyphs);
