@@ -3126,15 +3126,46 @@ WebGLVectorTile2.prototype._drawPoint = function(transform, options) {
   if (this._ready) {
     gl.useProgram(this.program);
     gl.enable(gl.BLEND);
-    gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
+
+    var sfactor = gl.SRC_ALPHA;
+    var dfactor = gl.ONE_MINUS_SRC_ALPHA;
+    if (options.dfactor) {
+      dfactor = gl[options.dfactor];
+    }
+    if (options.sfactor) {
+      sfactor = gl[options.sfactor];
+    }
+    gl.blendFunc(sfactor, dfactor);
 
     var tileTransform = new Float32Array(transform);
     var zoom = options.zoom;
     var currentTime = options.currentTime/1000.;
-    var color = options.color || [1.0, 0.0, 0.0, 1.0];
 
     scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
     scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+
+    var zoomLevel = 0;
+    if (options.zoomLevel) {
+      zoomLevel = options.zoomLevel;      
+    }
+
+
+    var pointSize = 1.0;
+    if (options.pointSize) {
+      pointSize = options.pointSize;      
+    }
+    if (options.pointSizeFnc) {
+      var pointSizeFnc = new Function('return ' + options.pointSizeFnc)();
+      pointSize *= pointSizeFnc(zoomLevel);
+    } 
+
+    // Passing a NaN value to the shader with a large number of points is very bad
+    if (isNaN(pointSize)) {
+      pointSize = 1.0;
+    }
+
+    var uniformLoc = gl.getUniformLocation(this.program, 'u_size');
+    gl.uniform1f(uniformLoc, pointSize);
 
     var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
     gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
@@ -5503,12 +5534,13 @@ WebGLVectorTile2.pointVertexShader =
 'attribute vec4 a_coord;\n' +
 'attribute float a_color;\n' +
 'uniform mat4 u_map_matrix;\n' +
+'uniform float u_size;\n' +
 'varying float v_color;\n' +
 'void main() {\n' +
 '    vec4 position;\n' +
 '    position = u_map_matrix * a_coord;\n' +
 '    gl_Position = position;\n' +
-'    gl_PointSize = 12.0;\n' +
+'    gl_PointSize = u_size;\n' +
 '    v_color = a_color;\n' +
 '}\n';
 
