@@ -8598,6 +8598,15 @@
         } else {
           options = {};
         }
+
+        var lightBaseMapView = timelapse.getView();
+        var timelapse2map = lightBaseMapLayer.getWidth() / landsatBaseMapLayer.getWidth();
+        lightBaseMapView.x *= timelapse2map;
+        lightBaseMapView.y *= timelapse2map;
+        lightBaseMapView.scale /= timelapse2map;
+        var mapLevel = lightBaseMapLayer._tileView._scale2level(lightBaseMapView.scale);
+        options.zoomLevel = mapLevel;
+
         options.zoom = timelapse.getCurrentZoom();
         var currentTime = timelapse.getCurrentTime();
         var currentTimes = getCurrentTimes(timelapse);
