@@ -546,16 +546,18 @@ earthtime._updateScrollPos = function(e) {
           document.getElementsByClassName("earthtime-logo")[0].style.position = 'absolute';
         }
       }
-
-      if (!earthtime._wasFixedPosition && earthtime._isFixedPosition) {
-        // Entering a story
-        earthtime._updateFullscreenOffsets();
-      } else if (earthtime._wasFixedPosition && !earthtime._isFixedPosition) {
-        // Leaving a story
-        earthtime._resetFullscreenOffsets();
-      }
-
     }
+    if (earthtime._isFixedPosition) {
+      break;
+    }
+  }
+
+  if (!earthtime._wasFixedPosition && earthtime._isFixedPosition) {
+    // Entering a story
+    earthtime._updateFullscreenOffsets();
+  } else if (earthtime._wasFixedPosition && !earthtime._isFixedPosition) {
+    // Leaving a story
+    earthtime._resetFullscreenOffsets();
   }
 };
 
