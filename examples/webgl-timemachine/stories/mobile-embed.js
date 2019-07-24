@@ -541,9 +541,9 @@ earthtime._updateScrollPos = function(e) {
       }
       if (storyframes.length) {
         if (earthtime._isFixedPosition) {
-          document.getElementsByClassName("earthtime-logo")[0].style.position = 'fixed';
+          storyContainerElement.getElementsByClassName("earthtime-logo")[0].style.position = 'fixed';
         } else {
-          document.getElementsByClassName("earthtime-logo")[0].style.position = 'absolute';
+          storyContainerElement.getElementsByClassName("earthtime-logo")[0].style.position = 'absolute';
         }
       }
     }
