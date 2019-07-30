@@ -137,17 +137,34 @@ earthtime._updateFullscreenOffsets = function() {
     if (earthtime._storyRegistrations.hasOwnProperty(elementId)) {
       var story = earthtime._storyRegistrations[elementId];
       var storyContainerElement = story.containerElement;
+      if (!earthtime._disableAutoFullscreen) {
+        var storyLeftOffset = parseFloat(storyContainerElement.style.marginLeft, 10) || 0;
+        storyLeftOffset -= storyContainerElement.getBoundingClientRect().left;
 
-      var storyLeftOffset = parseFloat(storyContainerElement.style.marginLeft, 10) || 0;
-      storyLeftOffset -= storyContainerElement.getBoundingClientRect().left;
+        var newWidth = document.documentElement.clientWidth || document.body.clientWidth;
 
-      var newWidth = document.documentElement.clientWidth || document.body.clientWidth;
-
-      storyContainerElement.style.marginLeft = Math.round(storyLeftOffset - 0.001) + "px";
-      storyContainerElement.style.width = newWidth + "px";
-      // Force a redraw for the element currently in fixed position. This is a hack for Safari, because it doesn't consistently
-      // draw the element in fixed position after modifying the container margins/width above.
-      document.getElementsByClassName("earthtime-story-frame")[earthtime._fixedStoryFrameIdx].children[0].style.top = "-1px";
+        storyContainerElement.style.marginLeft = Math.round(storyLeftOffset - 0.001) + "px";
+        storyContainerElement.style.width = newWidth + "px";
+        // Force a redraw for the element currently in fixed position. This is a hack for Safari, because it doesn't consistently
+        // draw the element in fixed position after modifying the container margins/width above.
+        document.getElementsByClassName("earthtime-story-frame")[earthtime._fixedStoryFrameIdx].children[0].style.top = "-1px";
+      } else {
+        var widthOfStoryContainerParent = storyContainerElement.parentElement.getBoundingClientRect().width;
+        var storyframeContentContainers = storyContainerElement.querySelectorAll('.earthtime-story-frame-content-container');
+        for (var i = 0; i < storyframeContentContainers.length; i++) {
+          storyframeContentContainers[i].style.width = widthOfStoryContainerParent + "px";
+        }
+        var storyMedia = storyContainerElement.getElementsByClassName('earthtime-story-frame-content');
+        for (var i = 0; i < storyMedia.length; i++) {
+          storyMedia[i].classList.add("noFullscreen");
+          // Videos seem to extend out 1px when in fixed position?
+          if (storyMedia[i].nodeName == 'VIDEO') {
+            storyMedia[i].style.width = (widthOfStoryContainerParent - 1) + "px";
+          } else {
+            storyMedia[i].style.width = widthOfStoryContainerParent + "px";
+          }
+        }
+      }
     }
   }
 };
@@ -621,15 +638,16 @@ earthtime.embedStories = function(config) {
 
     // if we're done loading all the script dependencies, then compile the templates then load the stories
     if (numScriptsLoaded === earthtime._scriptDependencies.length) {
-      earthtime._compileHandlebarsTemplates();
-      earthtime._updateOrientation();
-      earthtime._updateFullscreenOffsets();
-
+      // Set config options
       window.EARTH_TIMELAPSE_CONFIG = window.EARTH_TIMELAPSE_CONFIG || {};
       // Precedence is story editor public link, config-local.js/config.js located where this file is hosted from, or lastly a hardcoded default spreadsheet URL
       var waypointsIdentifierUrl = config.earthtimeSpreadsheet || EARTH_TIMELAPSE_CONFIG.waypointSliderContentPath || earthtime._DEFAULT_EARTHTIME_SPREADSHEET;
-
       var showAboutSection = config.showEarthtimeAbout || false;
+      earthtime._disableAutoFullscreen = config.disableAutoFullscreen || false;
+
+      earthtime._compileHandlebarsTemplates();
+      earthtime._updateOrientation();
+      earthtime._updateFullscreenOffsets();
 
       // create handlers for the story
       window.addEventListener('scroll', earthtime._updateScrollPos);
