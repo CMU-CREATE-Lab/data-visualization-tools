@@ -483,24 +483,24 @@ function GetNormals(points) {
 function GetDirection (a, b) {
   //get unit dir of two lines
   var out = [];
-  vec2.subtract(out, a, b);
-  vec2.normalize(out, out);
+  glMatrix.vec2.subtract(out, a, b);
+  glMatrix.vec2.normalize(out, out);
   return out;
 }
 
 function ComputeMiter(tangent, miter, lineA, lineB, halfThick) {
   var tmp = [0,0];
-  vec2.add(tangent, lineA, lineB);
-  vec2.normalize(tangent, tangent);
-  vec2.set(miter, -tangent[1], tangent[0]);
-  vec2.set(tmp, -lineA[1], lineA[0]);
-  return halfThick / vec2.dot(miter, tmp);
+  glMatrix.vec2.add(tangent, lineA, lineB);
+  glMatrix.vec2.normalize(tangent, tangent);
+  glMatrix.vec2.set(miter, -tangent[1], tangent[0]);
+  glMatrix.vec2.set(tmp, -lineA[1], lineA[0]);
+  return halfThick / glMatrix.vec2.dot(miter, tmp);
 
 }
 
 function GetNormal(a) {
   var out = [];
-  vec2.set(out, -a[1], a[0]);
+  glMatrix.vec2.set(out, -a[1], a[0]);
   return out;
 }
 
