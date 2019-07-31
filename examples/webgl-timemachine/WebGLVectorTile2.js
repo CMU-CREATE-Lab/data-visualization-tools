@@ -1433,14 +1433,17 @@ WebGLVectorTile2.prototype._setExpandedLineStringData = function(data, options) 
   }
   var paths = [];
   for (var i = 0; i < data["features"].length; i++) {
-    var path = [];
     var feature = data["features"][i];
     if (feature["geometry"]["type"] == "MultiLineString") {
       for (var j = 0; j < feature["geometry"]["coordinates"].length; j++) {
+        var path = [];
         path = path.concat(processLineString(feature["geometry"]["coordinates"][j]));
+        paths.push(path);
       }
     } else {
+      var path = [];
       path = path.concat(processLineString(feature["geometry"]["coordinates"]));
+      paths.push(path);
     }
     paths.push(path);
   }
@@ -1448,6 +1451,8 @@ WebGLVectorTile2.prototype._setExpandedLineStringData = function(data, options) 
   var miterCollection = [];
   var vertexCollection = [];
   var indexCollection = [];
+  var textureCollection = [];
+
 
   var offset = 0;
   for (var i = 0; i < paths.length; i++) {
@@ -1459,15 +1464,20 @@ WebGLVectorTile2.prototype._setExpandedLineStringData = function(data, options) 
     var miters = tags.map(function(x) {
       return x[1];
     });
-    var count = (points.length - 1) * 6;
+    //var count = (points.length - 1) * 6;
     normals = Duplicate(normals);
     miters = Duplicate(miters, true);
+    var textureLocs = [];
+    for (var j = 0; j < miters.length; j++) {
+      textureLocs.push(j/(miters.length-1));
+    }
     var positions = Duplicate(points);
     var indices = CreateIndices(points.length-1, offset);
     normalCollection = normalCollection.concat(PackArray(normals));
     miterCollection = miterCollection.concat(PackArray(miters));
     vertexCollection = vertexCollection.concat(PackArray(positions));
     indexCollection = indexCollection.concat(indices);
+    textureCollection = textureCollection.concat(textureLocs);
     offset += positions.length;
   }
   var idx = 0;
@@ -1479,9 +1489,28 @@ WebGLVectorTile2.prototype._setExpandedLineStringData = function(data, options) 
     }
   }
 
+
+      if (typeof this._image !== "undefined") {
+        this._texture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, this._texture);
+
+        // Set the parameters so we can render any size image.
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+        // Upload the image into the texture.
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._image);
+
+        gl.bindTexture(gl.TEXTURE_2D, null);
+      }
+
+
   this._setBuffers([new Float32Array(vertexCollection),
                     new Float32Array(normalCollection),
-                    new Float32Array(miterCollection)],
+                    new Float32Array(miterCollection),
+                    new Float32Array(textureCollection)],
                     new Uint16Array(indexBuffer));
 
 }
@@ -3614,7 +3643,7 @@ WebGLVectorTile2.prototype._drawExpandedLineString = function(transform, options
   if (this._ready) {
     gl.useProgram(this.program);
     gl.enable(gl.BLEND);
-    gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
+    gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
 
     var tileTransform = new Float32Array(transform);
     var zoom = options.zoom;
@@ -3655,7 +3684,22 @@ WebGLVectorTile2.prototype._drawExpandedLineString = function(transform, options
     gl.enableVertexAttribArray(attributeLoc);
     gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
 
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffers[3]);
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_texture_loc');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer);
+
+
+    //texture
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, this._texture);
+    gl.uniform1i(gl.getUniformLocation(this.program, "u_texture"), 0);
+    // make sure we can render it even if it's not a power of 2
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
     gl.drawElements(gl.TRIANGLES, this._pointCount, gl.UNSIGNED_SHORT, 0);
     //gl.drawElements(gl.TRIANGLES, 170840, gl.UNSIGNED_SHORT, 0);
@@ -5970,14 +6014,16 @@ WebGLVectorTile2.expandedLineStringVertexShader =
 'attribute vec2 a_coord;\n' +
 'attribute vec2 a_normal;\n' +
 'attribute float a_miter;\n' +
+'attribute float a_texture_loc;\n' +
 'uniform mat4 u_map_matrix;\n' +
 'uniform float u_thickness;\n' +
 'varying float v_edge;\n' +
+'varying float v_texture_loc;\n' +
 'void main() {\n' +
 '    v_edge = sign(a_miter);\n' +
 '    vec2 position = a_coord + vec2(a_normal * u_thickness/2.0 * a_miter);\n' +
+'    v_texture_loc = a_texture_loc;\n' + 
 '    gl_Position = u_map_matrix * vec4(position, 0., 1.);\n' +
-'    gl_PointSize = 25.0;\n' +
 '}\n';
 
 
@@ -5986,10 +6032,14 @@ WebGLVectorTile2.expandedLineStringFragmentShader =
 '  uniform vec3 u_color;\n' +
 '  uniform float u_inner;\n' +
 '  varying float v_edge;\n' +
+'  varying float v_texture_loc;\n' +
+'  uniform sampler2D u_texture;\n' +
 '  void main() {\n' +
 '    float v = 1.0 - abs(v_edge);\n' +
 '    v = smoothstep(0.65, 0.7, v*u_inner); \n' +
-'    gl_FragColor = mix(vec4(u_color, 1.0), vec4(0.0), v);\n' +
+'    vec4 c = texture2D(u_texture, vec2(v_texture_loc, 0));\n' +
+'    gl_FragColor = mix(c, vec4(0.0), v);\n' +
+'    //gl_FragColor = texture2D(u_texture, vec2(v_texture_loc, 0));\n' +
 '  }\n';
 
 
