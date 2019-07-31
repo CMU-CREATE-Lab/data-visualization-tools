@@ -149,19 +149,24 @@ earthtime._updateFullscreenOffsets = function() {
         // draw the element in fixed position after modifying the container margins/width above.
         document.getElementsByClassName("earthtime-story-frame")[earthtime._fixedStoryFrameIdx].children[0].style.top = "-1px";
       } else {
-        var widthOfStoryContainerParent = storyContainerElement.parentElement.getBoundingClientRect().width;
+        var widthOfStoryContainerParent = storyContainerElement.getBoundingClientRect().width;
         var storyframeContentContainers = storyContainerElement.querySelectorAll('.earthtime-story-frame-content-container');
         for (var i = 0; i < storyframeContentContainers.length; i++) {
           storyframeContentContainers[i].style.width = widthOfStoryContainerParent + "px";
+          if (earthtime._mediaFitStyle == "cover") {
+            storyframeContentContainers[i].classList.add("cover");
+          }
         }
-        var storyMedia = storyContainerElement.getElementsByClassName('earthtime-story-frame-content');
-        for (var i = 0; i < storyMedia.length; i++) {
-          storyMedia[i].classList.add("noFullscreen");
-          // Videos seem to extend out 1px when in fixed position?
-          if (storyMedia[i].nodeName == 'VIDEO') {
-            storyMedia[i].style.width = (widthOfStoryContainerParent - 1) + "px";
-          } else {
-            storyMedia[i].style.width = widthOfStoryContainerParent + "px";
+        if (earthtime._mediaFitStyle == "contain") {
+          var storyMedia = storyContainerElement.getElementsByClassName('earthtime-story-frame-content');
+          for (var i = 0; i < storyMedia.length; i++) {
+            storyMedia[i].classList.add("contain");
+            // Videos seem to extend out 1px when in fixed position?
+            if (storyMedia[i].nodeName == 'VIDEO') {
+              storyMedia[i].style.width = (widthOfStoryContainerParent - 1) + "px";
+            } else {
+              storyMedia[i].style.width = widthOfStoryContainerParent + "px";
+            }
           }
         }
       }
@@ -644,6 +649,7 @@ earthtime.embedStories = function(config) {
       var waypointsIdentifierUrl = config.earthtimeSpreadsheet || EARTH_TIMELAPSE_CONFIG.waypointSliderContentPath || earthtime._DEFAULT_EARTHTIME_SPREADSHEET;
       var showAboutSection = config.showEarthtimeAbout || false;
       earthtime._disableAutoFullscreen = config.disableAutoFullscreen || false;
+      earthtime._mediaFitStyle = config.mediaFitStyle || "cover";
 
       earthtime._compileHandlebarsTemplates();
       earthtime._updateOrientation();

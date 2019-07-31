@@ -161,6 +161,11 @@ body {
   overflow: hidden;
 }
 
+.earthtime-story-frame-content-container.cover {
+  -webkit-transform: translate3d(0,0,0);
+  transform: translate3d(0,0,0);
+}
+
 .earthtime-story-frame-content {
   height: 100%;
   width: auto;
@@ -172,7 +177,7 @@ body {
   transform: translateX(-50%);
 }
 
-.earthtime-story-frame-content.noFullscreen {
+.earthtime-story-frame-content.contain {
   margin-left: 0%;
   -webkit-transform: translateX(0%);
   -ms-transform: translateX(0%);
