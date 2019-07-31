@@ -281,7 +281,7 @@ earthtime._loadStory = function(storyName, containerElement, storyOptions) {
   var rawUrl = storyOptions.waypointsIdentifierUrl;
   var urlParams = earthtime._unpackVars(rawUrl);
   if (urlParams.waypoints) {
-    regexp = /waypoints=(.*)\.(.*)/;
+    regexp = /waypoints=(.*?)\.(.*?)(?=&|$)/;
   } else {
     regexp = /d\/(.*)\/edit\#gid=(.*)/;
   }
