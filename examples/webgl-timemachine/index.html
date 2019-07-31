@@ -257,8 +257,10 @@
     // Show timestamp, legend, logos
     var minimalUI = parseConfigOption({optionName: "minimalUI", optionDefaultValue: false, exposeOptionToUrlHash: true});
     // Show only timestamp
-    // This version of the param has a special case on the thumbnail server. It centers the timestamp at the bottom.
+    // Legacy (TODO: remove) - This version of the param has a special case on the thumbnail server. It centers the timestamp at the bottom.
     var timestampOnlyUI = parseConfigOption({optionName: "timestampOnlyUI", optionDefaultValue: false, exposeOptionToUrlHash: true});
+    // This version of the param will place the timestamp at the bottom center.
+    var timestampOnlyUICentered = parseConfigOption({optionName: "timestampOnlyUICentered", optionDefaultValue: false, exposeOptionToUrlHash: true});
     // This version of the param will place the timestamp at the bottom left.
     var timestampOnlyUILeft = parseConfigOption({optionName: "timestampOnlyUILeft", optionDefaultValue: false, exposeOptionToUrlHash: true});
     // Only show visualization
@@ -271,6 +273,7 @@
     var hidePresentationSlider = parseConfigOption({optionName: "hidePresentationSlider", optionDefaultValue: false, exposeOptionToUrlHash: true});
     var initiallyShowPresentationSlider = hidePresentationSlider ? true : parseConfigOption({optionName: "initiallyShowPresentationSlider", optionDefaultValue: false, exposeOptionToUrlHash: true});
     var forceLegend = parseConfigOption({optionName: "forceLegend", optionDefaultValue: false, exposeOptionToUrlHash: true});
+    var centerLegend = parseConfigOption({optionName: "centerLegend", optionDefaultValue: false, exposeOptionToUrlHash: true});
     var extraContributors = parseConfigOption({optionName: "extraContributors", optionDefaultValue: "", exposeOptionToUrlHash: false});
     if (extraContributors) {
       extraContributors = extraContributors.replace(",", " |");
@@ -7680,7 +7683,7 @@
         disableTopNav = true;
         // Hide presentation slider so that it's still usable via keyboard/clicker but not shown on screen
         handleStoryToggle(false);
-      } else if (timestampOnlyUI || timestampOnlyUILeft) {
+      } else if (timestampOnlyUI || timestampOnlyUILeft || timestampOnlyUICentered) {
         // Move capture time outside of the timeline controls
         $(".captureTime").insertBefore(".controls");
         $(".captureTime, .scaleBarContainer, #logosContainer, #baseLayerCreditContainer").addClass("minimalUIMode");
@@ -7690,6 +7693,9 @@
           $("#layers-legend").remove();
         }
         disableTopNav = true;
+        if (timestampOnlyUICentered) {
+          $(".captureTime").addClass("centered");
+        }
       }
 
       if (!showCredits) {
@@ -7704,6 +7710,10 @@
         }
         disableTopNav = true;
         disableAnnotations = true;
+      }
+
+      if (centerLegend) {
+        $("#layers-legend").addClass("centered");
       }
 
       $(".annotations-resume-button").on("click", function() {
