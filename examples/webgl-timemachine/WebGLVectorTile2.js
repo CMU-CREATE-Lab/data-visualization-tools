@@ -1512,6 +1512,7 @@ WebGLVectorTile2.prototype._setExpandedLineStringData = function(data, options) 
                     new Float32Array(miterCollection),
                     new Float32Array(textureCollection)],
                     new Uint16Array(indexBuffer));
+  this._dataLoaded(this.layerId);
 
 }
 
