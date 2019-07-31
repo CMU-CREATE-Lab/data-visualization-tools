@@ -57,8 +57,7 @@ WebglMapLayer.prototype.getHeight = function() {
 };
 
 WebglMapLayer.prototype._createTile = function(ti, bounds) {
-  var url = this._tileUrl.replace("{z}", ti.l).replace("{x}", ti.c).replace("{y}", ti.r);
-  url = url.replace("{yflip}", Math.pow(2,ti.l)-1-ti.r);
+  var url = ti.expandUrl(this._tileUrl);
 
   var opt_options = {};
   if (this.drawFunction) {
@@ -80,7 +79,7 @@ WebglMapLayer.prototype._createTile = function(ti, bounds) {
 };
 
 WebglMapLayer.prototype.destroy = function() {
-  this._tileView._destroy();
+  this._tileView._discardTilesAndResources();
 };
 
 // viewBounds:  xmin, xmax, ymin, ymax all in coords 0-256

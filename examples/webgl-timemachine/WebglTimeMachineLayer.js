@@ -107,7 +107,7 @@ WebglTimeMachineLayer.prototype.loadMetadata = function() {
   });
 
   this.destroy = function() {
-    this._tileView._destroy();
+    this._tileView._discardTilesAndResources();
   };
 
   this._waitingForMetadata = false;

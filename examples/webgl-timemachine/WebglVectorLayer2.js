@@ -30,7 +30,8 @@ function WebglVectorLayer2(glb, canvasLayer, tileUrl, opt_options) {
       updateTile: WebGLVectorTile2.update,
       zoomlock: 11,
       timelapse: this._canvasLayer.timelapse,
-      maxLevelOverride: this.maxLevelOverride
+      maxLevelOverride: this.maxLevelOverride,
+      avoidShowingChildAndParent: this.avoidShowingChildAndParent
   });
 
   // TODO: experiment with this
@@ -46,8 +47,7 @@ WebglVectorLayer2.prototype.getHeight = function() {
 };
 
 WebglVectorLayer2.prototype._createTile = function(ti, bounds) {
-  var url = this._tileUrl.replace("{z}", ti.l).replace("{x}", ti.c).replace("{y}", ti.r);
-  url = url.replace("{yflip}", Math.pow(2,ti.l)-1-ti.r);
+  var url = ti.expandUrl(this._tileUrl);
 
   // Consider not copying these layer-scope settings to individual tiles and instead
   // accessing from the layer?
@@ -105,11 +105,11 @@ WebglVectorLayer2.prototype._createTile = function(ti, bounds) {
   }
 
   opt_options.dotmapColors = this.dotmapColors;
-  return new WebGLVectorTile2(glb, ti, bounds, url, opt_options);
+  return new WebGLVectorTile2(this, this._tileView, glb, ti, bounds, url, opt_options);
 };
 
 WebglVectorLayer2.prototype.destroy = function() {
-  this._tileView._destroy();
+  this._tileView._discardTilesAndResources();
 };
 
 // viewBounds:  xmin, xmax, ymin, ymax all in coords 0-256

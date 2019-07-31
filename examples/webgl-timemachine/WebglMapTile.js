@@ -26,7 +26,7 @@ function WebglMapTile(glb, tileidx, bounds, url, defaultUrl, opt_options) {
                                                        0, 1,
                                                        1, 1]));
 
-  this._handleLoading();
+  this._setupLoadingSpinner();
 
   this._image = new Image();
   this._image.crossOrigin = "anonymous";
@@ -290,7 +290,7 @@ WebglMapTile.update = function(tiles, transform, options) {
   //WebglTimeMachinePerf.instance.endFrame();
 }
 
-WebglMapTile.prototype._handleLoading = function() {
+WebglMapTile.prototype._setupLoadingSpinner = function() {
   var that = this;
   clearTimeout(this._loadingSpinnerTimer);
   this._spinnerNeeded = true;

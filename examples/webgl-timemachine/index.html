@@ -70,6 +70,7 @@
 
   <script src="timestamps_ajax_includes.js" type="text/javascript"></script>
 
+  <script src="Resource.js"></script>
   <script src="TileIdx.js"></script>
   <script src="WebglVideoTile.js"></script>
   <script src="TileView.js"></script>
@@ -78,6 +79,8 @@
   <script src="WebglTimeMachineLayer.js"></script>
   <script src="WebglMapLayer.js"></script>
   <script src="WebglVectorLayer2.js"></script>
+  <script src="Tile.js"></script>
+  <script src="EarthTimeCsvTable.js"></script>
   <script src="WebGLVectorTile2.js"></script>
   <script src="WebglMapTile.js"></script>
   <script src="WebglMapTile2.js"></script>
@@ -90,6 +93,7 @@
   <script src="StoryEditor.js"></script>
   <script src="SetViewTool.js"></script>
   <script src="ContentSearch.js"></script>
+  <script src="DisplayMetadata.js"></script>
 
   <script type="text/javascript">
     "use strict";
@@ -1039,6 +1043,7 @@
         playOnLoad: !pauseWhenInitialized,
         mediaType: ".mp4",
         onTimeMachinePlayerReady: function(viewerDivId) {
+          new DisplayMetadata(timelapse);
           setupPostMessageHandlers();
         },
         scaleBarOptions: {

@@ -34,6 +34,8 @@ function TileView(settings) {
   this._timelapse = settings.timelapse;
   this._projection = settings.projection;
   this._maxLevelOverride = settings.maxLevelOverride;
+  this._avoidShowingChildAndParent = settings.avoidShowingChildAndParent;
+  this.resources = {};
 
   // levelThreshold sets the quality of display by deciding what level of tile to show for a given level of zoom:
   //
@@ -54,7 +56,7 @@ resetDimensions = function (json) {
   this._panoHeight = json.height;
   this.tileWidth = json.video_width;
   this.tileHeight = json.video_height;
-  this._destroy();
+  this._discardTilesAndResources();
   this._tiles = {};
   this._computeMaxLevel();
 };
@@ -208,8 +210,9 @@ _deleteTile = function(tile) {
   }
 };
 
+// Discard tiles and layer resources
 TileView.prototype.
-_destroy = function() {
+_discardTilesAndResources = function() {
   var keys = Object.keys(this._tiles);
   for (var i = 0; i < keys.length; i++) {
     var key = keys[i];
@@ -242,7 +245,7 @@ tileInfo = function() {
   return 'tileInfo: ' + ret.join(' ');
 };
 
-// Find first ancestor of tileidx that's ready, and mark it as required, for now
+// Find first ancestor of tileidx that's ready
 TileView.prototype.
 _findReadyAncestor = function(tileidx) {
   while (true) {
@@ -268,6 +271,25 @@ _findFirstAncestorIn = function(tileidx, map) {
       return tileidx;
     }
   }
+};
+
+TileView.prototype.
+highestResolutionTileAt = function(xy) {
+  console.log('ZZZ highestResTileAt', xy);
+  var tileKeys = Object.keys(this._tiles).sort();
+  var maxLevel = this._tiles[tileKeys[tileKeys.length - 1]]._tileidx.l;
+  console.log('ZZZ maxlevel is ', maxLevel);
+  for (var level = maxLevel; level >= 0; level--) {
+    var ti = this._tileidxAt(level, xy.x, xy.y);
+    var tile = this._tiles[ti.key];
+    if (tile && tile.isReady()) {
+      console.log('ZZZ', ti, 'is ready');
+      return tile;
+    }
+    console.log('ZZZ', ti, 'not present or not ready');
+  }
+  console.log('ZZZ could not find a tile');
+  return null;
 };
 
 // Record drawable videos
@@ -318,7 +340,6 @@ setView = function(view, viewportWidth, viewportHeight, scale) {
     }
   }
 
-
   // Hold onto higher-resolution tiles that are visible, and don't overlap ready tiles
 
   // Sort ready, higher-level tiles according to level
@@ -368,6 +389,7 @@ setView = function(view, viewportWidth, viewportHeight, scale) {
   status = status.join(' ');
   if (!this._lastStatus || status.replace(/[\-\+]/g,'') != this._lastStatus.replace(/[\-\+]/g,'')) {
     this._lastStatus = status;
+    //console.log(this._layerDomID, this._lastStatus, this);
   }
 };
 
@@ -379,7 +401,11 @@ update = function(transform, options) {
   var keys = Object.keys(this._tiles).sort();
   var tiles = [];
   for (var i = 0; i < keys.length; i++) {
-    tiles.push(this._tiles[keys[i]]);
+    var tile = this._tiles[keys[i]];
+    // if avoidShowingChildAndParent is set, only collect a tile for drawing if parent isn't being drawn
+    if (!(this._avoidShowingChildAndParent && this._findReadyAncestor(tile.index))) {
+      tiles.push(tile);
+    }
   }
   this._updateTileCallback(tiles, transform, options);
 };

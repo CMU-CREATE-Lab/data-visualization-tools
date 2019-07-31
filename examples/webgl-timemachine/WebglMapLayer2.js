@@ -54,14 +54,14 @@ WebglMapLayer2.prototype.
 _createTile = function(ti, bounds) {
   var urls = [];
   for (var i = 0; i < this._tileUrls.length; i++) {
-    urls[i] =   this._tileUrls[i].replace("{z}", ti.l).replace("{x}", ti.c).replace("{y}", ti.r);
+    urls[i] = ti.expandUrl(this._tileUrls[i]);
   }
   return new WebglMapTile2(glb, ti, bounds, urls, this.defaultUrl);
 }
 
 WebglMapLayer2.prototype.
 destroy = function() {
-  this._tileView._destroy();
+  this._tileView._discardTilesAndResources();
 }
 
 // viewBounds:  xmin, xmax, ymin, ymax all in coords 0-256

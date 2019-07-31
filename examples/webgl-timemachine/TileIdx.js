@@ -28,3 +28,12 @@ TileIdx.prototype.parent = function() {
 TileIdx.prototype.toString = function() {
   return this.l + ',' + this.c + ',' + this.r;
 };
+
+// Expands {x} (column), {y} (row), {yflip} (mirrored row), and {z} (level) in an URL
+TileIdx.prototype.expandUrl = function(url) {
+  return url
+    .replace("{z}", this.l)
+    .replace("{x}", this.c)
+    .replace("{y}", this.r)
+    .replace("{yflip}", Math.pow(2,this.l)-1-this.r);
+};

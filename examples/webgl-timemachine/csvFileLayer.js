@@ -252,6 +252,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
     }
     overrideDrawingFns();
   } else if (layerOptions.mapType == "choropleth") {
+    layerOptions.avoidShowingChildAndParent = true;
     layerOptions.imageSrc = layerOptions.imageSrc || "obesity-color-map.png";
     layerOptions.z = 200;
     layerOptions.loadDataFunction = WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv;
@@ -638,6 +639,18 @@ CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate,
   cached_ajax[identifier + '.json'] = {"capture-times":  captureTimes};
 };
 
+// Find first tile with _radius and return _radius
+CsvFileLayer.prototype.getRadius = function(layer) {
+  var tiles = layer._tileView._tiles;
+  
+  for (var key in tiles) {
+    if ('_radius' in tiles[key]) {
+      return tiles[key]._radius;
+    }
+  }
+  return null;
+}
+
 CsvFileLayer.prototype.setLegend = function setLegend(id) {
   var layer;
   for (var i = 0; i < this.layers.length; i++) {
@@ -652,7 +665,7 @@ CsvFileLayer.prototype.setLegend = function setLegend(id) {
     }
     if (layer.mapType == 'bubble') {
       if (layer.legendContent == 'auto') {
-        var radius = layer['_tileView']['_tiles']['000000000000000']['_radius'];
+        var radius = this.getRadius(layer);
         var opts = {
           'id' : id,
           'title': layer.name,
@@ -684,7 +697,7 @@ CsvFileLayer.prototype.setLegend = function setLegend(id) {
 
     } else if (layer.mapType == 'choropleth') { // Assume choropleth
       if (layer.legendContent == 'auto') {
-        var radius = this.layers[i]['_tileView']['_tiles']['000000000000000']['_radius'];
+        var radius = this.getRadius(layer);
         var opts = {
             'id': id,
             'title': layer.name,
@@ -735,14 +748,18 @@ CsvFileLayer.prototype.setLegend = function setLegend(id) {
   }
 }
 
-var COUNTRY_POLYGONS = null;
-var xhr = new XMLHttpRequest();
-xhr.open('GET', "country_polygons.geojson");
-xhr.onload = function() {
-    COUNTRY_POLYGONS = JSON.parse(this.responseText);
-}
-xhr.send();
+// TODO: don't load country polygons until first use, by switching everything to use
+// COUNTRY_POLYGONS_RESOURCE, and removing the receiveData clause below
 
+var COUNTRY_POLYGONS;
+var COUNTRY_POLYGONS_RESOURCE =
+    new Resource("country_polygons.geojson",
+		 {
+		   transform: parseAndIndexGeojson.bind(null, 'names'),
+		   receiveData: function(data) {
+		     COUNTRY_POLYGONS = data;
+		   }
+		 });
 
 function searchCountryList(feature_collection, name, name_key) {
   if (typeof feature_collection["hash"] !== "undefined") {

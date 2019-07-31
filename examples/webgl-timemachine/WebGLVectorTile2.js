@@ -1,23 +1,7 @@
 "use strict";
 
-//
-// Want to quadruple-buffer
-// From time 1 to 1.999, display 1
-//                       already have 2 in the hopper, nominally
-//                       be capturing 3
-//                       have a fourth fallow buffer to let pipelined chrome keep drawing
-
-// Be capturing 3 means that at t=1, the first video just crossed 3.1,
-//                   and that at t=1.999, the last video just crossed 3.1
-// So we're aiming to run the videos at current display time plus 1.1 to 2.1
-// Or maybe compress the range and go with say 1.6 to 2.1?  That lets us better use
-// the flexibility of being able to capture the video across a range of times
-
-function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
-  this.glb = glb;
-  this.gl = glb.gl;
-  this._tileidx = tileidx;
-  this._bounds = bounds;
+function WebGLVectorTile2(layer, tileview, glb, tileidx, bounds, url, opt_options) {
+  Tile.call(this, layer, tileview, glb, tileidx, bounds);
   this._url = url;
   this._ready = false;
 
@@ -38,10 +22,20 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
   this._loadingSpinnerTimer = null;
   this._wasPlayingBeforeDataLoad = false;
   this.dotmapColors = opt_options.dotmapColors;
+  this._drawOptions = opt_options.drawOptions;
   this._setDataOptions = opt_options.setDataOptions;
 
   this.gl.getExtension("OES_standard_derivatives");
 
+  // Hack to rewrite vertexShader for .bin choropleth tiles
+  // TODO: make this less hacky
+  if (this.vertexShader == WebGLVectorTile2.choroplethMapVertexShader &&
+      this.externalGeojson &&
+      this.externalGeojson.endsWith('.bin')) {
+    this.vertexShader = WebGLVectorTile2.choroplethMapVertexShaderV2;
+    this.fragmentShader = WebGLVectorTile2.choroplethMapFragmentShaderV2;
+  }
+  
   this.program = glb.programFromSources(this.vertexShader, this.fragmentShader);
 
   if (opt_options.imageSrc) {
@@ -50,32 +44,43 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
     this._image.src = opt_options.imageSrc;
     var that = this;
     this._image.onload = function() {
-      if (typeof(that.externalGeojson) != "undefined" && that.externalGeojson != "") {
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', that.externalGeojson);
-        xhr.onload = function() {
-          var t0 = performance.now();
-          that.geojsonData = JSON.parse(this.responseText);
-          if (typeof that.nameKey != "undefined") {
-
-          var t1 = performance.now();
-          console.log("Parsing GeoJSON took " + (t1 - t0) + "ms");
-          var hash = {};
-          var t0 = performance.now();
-          for (var i = 0; i < that.geojsonData["features"].length; i++) {
-            hash[that.geojsonData["features"][i]["properties"][that.nameKey]] = i;
-          }
-          var t1 = performance.now();
-          console.log("Indexing GeoJSON took " + (t1 - t0) + "ms");
-          that.geojsonData["hash"] = hash;
-          }
-          that._load();
-        };
-        xhr.send();
-      } else {
-        that.geojsonData = null;
+      //if (typeof(that.externalGeojson) != "undefined" && that.externalGeojson != "") {
+      //
+      //  var xhr = new XMLHttpRequest();
+      //	var url = that._tileidx.expandedUrl(that.externalGeojson);
+      //	$.ajax({
+      //	  url: url,
+      //	  success: function(json) {
+      //      that.geojsonData = json;
+      //      if (typeof that.nameKey != "undefined") {
+      //        var t1 = performance.now();
+      //        var hash = {};
+      //        var t0 = performance.now();
+      //        for (var i = 0; i < that.geojsonData["features"].length; i++) {
+     //		hash[that.geojsonData["features"][i]["properties"][that.nameKey]] = i;
+      //        }
+      //        var t1 = performance.now();
+      //        console.log("Indexing GeoJSON took " + (t1 - t0) + "ms");
+      //        that.geojsonData["hash"] = hash;
+      //      }
+      //      that._load();
+      //    },
+      //	  error: function(e) {
+      //	    // Error loading tile.  Might be 404 or 403, missing tile, which is normal for an empty tile.
+      //	    // Label the tile as empty, and that it's finished loading
+      //	    that._setupLoadingSpinner(that.layerId);
+      //	    that._removeLoadingSpinner();
+      //	    that._ready = true;
+      //	    if (e.status != 403 && e.status != 404) {
+      //	      // If not missing tile, flag the error
+      //	      console.log('Status', e.status, 'from url', url);
+      //	    }
+      //	  }
+      //	});
+      //} else {
+      //  that.geojsonData = null;
         that._load();
-      }
+      //}
     }
   } else if (typeof(this.externalGeojson) != "undefined" && this.externalGeojson != "") {
     var that = this;
@@ -83,7 +88,6 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
     xhr.open('GET', that.externalGeojson);
     xhr.onload = function() {
       that.geojsonData = JSON.parse(this.responseText);
-      //console.log(that.geojsonData);
       that._load();
     };
     xhr.send();
@@ -108,6 +112,9 @@ function WebGLVectorTile2(glb, tileidx, bounds, url, opt_options) {
   }
 }
 
+// Inherit from Tile
+WebGLVectorTile2.prototype = Object.create(Tile.prototype);
+
 WebGLVectorTile2.errorsAlreadyShown = {};
 WebGLVectorTile2.errorDialog = null;
 
@@ -115,9 +122,6 @@ WebGLVectorTile2.prototype._showErrorOnce = function(msg) {
   var tileUrl = this._url;
   if (!WebGLVectorTile2.errorsAlreadyShown[msg]) {
     WebGLVectorTile2.errorsAlreadyShown[msg] = true;
-
-    //console.log(tileUrl);
-    //console.log(msg);
 
     if (!WebGLVectorTile2.errorDialog) {
       WebGLVectorTile2.errorDialog = $(document.createElement('div'));
@@ -147,7 +151,7 @@ WebGLVectorTile2.prototype._loadData = function() {
 
   this.startTime = new Date().getTime();
 
-  this._handleLoading();
+  this._setupLoadingSpinner();
 
   this.xhr = new XMLHttpRequest();
   this.xhr.open('GET', that._url);
@@ -186,7 +190,7 @@ WebGLVectorTile2.prototype._loadGeojsonData = function() {
   var that = this;
   var data;
 
-  this._handleLoading();
+  this._setupLoadingSpinner();
 
   this.xhr = new XMLHttpRequest();
   this.xhr.open('GET', that._url);
@@ -305,7 +309,7 @@ WebGLVectorTile2.prototype._loadWindVectorsData = function() {
   var that = this;
   var data;
 
-  this._handleLoading();
+  this._setupLoadingSpinner();
 
   this.xhr = new XMLHttpRequest();
   this.xhr.open('GET', that._url);
@@ -499,7 +503,7 @@ WebGLVectorTile2.prototype._loadBivalentBubbleMapDataFromCsv = function() {
     return ret;
   };
 
-  this._handleLoading();
+  this._setupLoadingSpinner();
 
   this.xhr = new XMLHttpRequest();
   this.xhr.open('GET', that._url);
@@ -602,7 +606,6 @@ WebGLVectorTile2.prototype._loadBivalentBubbleMapDataFromCsv = function() {
   this.xhr.send();
 }
 
-
 WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
   var that = this;
 
@@ -614,7 +617,7 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
   var noValue = this._noValue;
   var uncertainValue = this._uncertainValue;
 
-  this._handleLoading();
+  this._setupLoadingSpinner();
 
   this.xhr = new XMLHttpRequest();
   this.xhr.open('GET', that._url);
@@ -800,183 +803,356 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
   this.xhr.send();
 }
 
-WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
-  var that = this;
+// Creates index and stores in 'hash' field, toplevel
+WebGLVectorTile2.prototype.findResource = function(fieldName, urlPattern, options) {
+  var url = this._tileidx.expandUrl(urlPattern);
+  // If urlPattern contains {x} ... {z}, Resource is tile-specific and held in tile
+  // Otherwise Resource is layer-specific and held and shared from TileView
+  
+  var tileSpecific = (url != urlPattern); // Is urlPattern different for different tiles?
+  var container = tileSpecific ? this : this._tileview;
 
-  function LatLongToPixelXY(latitude, longitude) {
-    var pi_180 = Math.PI / 180.0;
-    var pi_4 = Math.PI * 4;
-    var sinLatitude = Math.sin(latitude * pi_180);
-    var pixelY = (0.5 - Math.log((1 + sinLatitude) / (1 - sinLatitude)) / (pi_4)) * 256;
-    var pixelX = ((longitude + 180) / 360) * 256;
-    var pixel = { x: pixelX, y: pixelY };
-    return pixel;
+  if (!container[fieldName]) {
+    // Consumer of resource data will make hold a (possibly further transformed) version.
+    // If Resource is tile-specific, discard after sending to consumer by setting singleUse.
+    // Copy options and plug in new value for singleUse.
+    options = $.extend({}, options, {singleUse: tileSpecific});
+    container[fieldName] = new Resource(url, options);
+  }
+  return container[fieldName];
+}
+
+/**
+ * Request geometry and data, then call _buildChoroplethTile
+ */
+WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv = function() {
+  var resources = [];
+
+  // Pre-bind nameKey to create transform(data, callback)
+  var parseGeojson = parseAndIndexGeojson.bind(null, this.nameKey);
+
+  if (!this.externalGeojson) {
+    resources[0] = COUNTRY_POLYGONS_RESOURCE;
+  } else if (this.externalGeojson.endsWith('.bin')) {
+    resources[0] = this.findResource('btiResource', this.externalGeojson, {format:'uint32'});
+  } else {
+    resources[0] = this.findResource('geojsonResource', this.externalGeojson, {transform: parseGeojson});
   }
 
-  this._handleLoading();
+  function parseCsv(data, done) {
+    done(new EarthTimeCsvTable(data));
+  }
+    
+  resources[1] = this.findResource('dataResource', this._url, {transform: parseCsv});
+  
+  Resource.receiveDataListFromResourceList(resources, this._buildChoroplethTile.bind(this));
+}
 
-  this.xhr = new XMLHttpRequest();
-  this.xhr.open('GET', that._url);
+function arrayBufferToString(ab) {
+  var chunks = [];
+  var chunkLength = 100;
+  for (var i = 0; i < ab.byteLength; i += chunkLength) {
+    chunks.push(String.fromCharCode.apply(null,
+					  new Uint8Array(ab.slice(i, i + chunkLength))));
+  }
+  var ret = chunks.join('');
+  return ret;
+}
 
-  var data;
-  this.xhr.onload = function() {
-    that._removeLoadingSpinner();
+// Build choropleth tile using binary geometry (bti format)
+// This happens after _loadChoroplethMapDataFromCsv
+WebGLVectorTile2.prototype._buildChoroplethTileBti = function (data) {
+  // Assumes data is of the following format
+  // header row Country,      year_0, ..., year_N
+  // data row   country_name, value_0,..., value_N
+  // ...
+  var timeVariableRegions = this._setDataOptions && this._setDataOptions.timeVariableRegions;
+  this._timeVariableRegions = timeVariableRegions;
 
-    if (this.status >= 400) {
-      data = "";
+  var bti = data[0];
+  var csv = data[1];
+
+  if (bti && (!(bti instanceof Uint32Array) || bti[0] != 812217442)) { // magic 'BTI0'
+    console.log('bti tile looks corrupt');
+    bti = null
+  }
+
+  if (!csv || !bti) {
+    // Empty CSV or geojson, e.g. 404.  Leave tile blank.
+    this._ready = true;
+    return;
+  }
+  
+  var beginTime = new Date().getTime();
+
+  // Extract vertices
+  var offset = 1;
+  var len = bti[offset++] / 4;
+  var vertices = new Float32Array(bti.buffer.slice(4 * offset, 4 * (offset + len)))
+  offset += len;
+
+  // Extract triangleCountPerRegion
+  len = bti[offset++] / 4;
+  var triangleCountPerRegion = new Uint32Array(bti.buffer.slice(4 * offset, 4 * (offset + len)));
+  offset += len;
+  var triangleOffsetPerRegion = new Uint32Array(len);
+  {
+    var triangleOffset = 0;
+    for (var i = 0; i < len; i++) {
+      triangleOffsetPerRegion[i] = triangleOffset;
+      triangleOffset += triangleCountPerRegion[i];
+    }
+  }
+  
+  // Extract triangles
+  len = bti[offset++] / 4;
+  var triangles = new Uint32Array(bti.buffer.slice(4 * offset, 4 * (offset + len)));
+  offset += len;
+
+  // Extract json for region names
+  var lenInBytes = bti[offset++];
+  var regionNamesAscii = arrayBufferToString(bti.buffer.slice(4 * offset, lenInBytes + 4 * offset));
+  var regionNames = JSON.parse(regionNamesAscii);
+
+  len = Math.ceil(lenInBytes / 4); // round up to skip padding
+  offset += len;
+
+  if (offset != bti.length) {
+    console.log('Unexpected bti length');
+  }
+
+  // Copy all triangles
+  var minValue, maxValue;
+  this.epochs = csv.epochs;
+
+  var drawVertices = new Float32Array(65536 * 3); // x y idx
+  var drawVerticesIdx = 0;
+
+  var drawTriangles = new Uint16Array(65536 * 3); // a b c
+  var drawTrianglesIdx = 0;
+
+  this._triangleLists = [];
+
+  function writeTriangles() {
+    if (!drawVerticesIdx) return; // empty
+    
+    // This region won't fit in drawVertices.  Create WebGL buffer and start on next
+    var triangleList = {};
+    var indexBuffer = this.gl.createBuffer();
+    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+    this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, drawTriangles.slice(0, drawTrianglesIdx), this.gl.STATIC_DRAW);
+    
+    var arrayBuffer = this.gl.createBuffer();
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, arrayBuffer);
+    this.gl.bufferData(this.gl.ARRAY_BUFFER, drawVertices.slice(0, drawVerticesIdx), gl.STATIC_DRAW);
+    
+    //console.log(this._tileidx.toString(), 'writing', drawTrianglesIdx / 3, 'triangles with', drawVerticesIdx / 3, 'vertices to list #' + this._triangleLists.length);
+    this._triangleLists.push({arrayBuffer: arrayBuffer, indexBuffer: indexBuffer, count: drawTrianglesIdx});
+
+    drawTrianglesIdx = 0;
+    drawVerticesIdx = 0;
+  }
+  writeTriangles = writeTriangles.bind(this);
+
+  for (var i = 0; i < regionNames.length; i++) {
+    // Scan through triangle vertex indices to find index range
+    var startVertexIdx = 1e30;
+    var endVertexIdx = 0;
+    for (var j = 3 * triangleOffsetPerRegion[i];
+	 j < 3 * (triangleOffsetPerRegion[i] + triangleCountPerRegion[i]);
+	 j++) {
+      startVertexIdx = Math.min(startVertexIdx, triangles[j]);
+      endVertexIdx = Math.max(endVertexIdx, triangles[j]);
+    }
+    endVertexIdx++; // exclusive
+    var vertexCount = endVertexIdx - startVertexIdx;
+    console.assert(vertexCount < 65536);
+
+    // Add region to drawVertices/drawTriangles
+
+    if (drawVerticesIdx + vertexCount > 65535) {
+      writeTriangles();
+    }
+
+    // Add triangles to drawTriangles
+    for (var j = 3 * triangleOffsetPerRegion[i];
+	 j < 3 * (triangleOffsetPerRegion[i] + triangleCountPerRegion[i]);
+	 j++) {
+      // Convert tile vertexIndex to local 16-bit vertexIndex
+      drawTriangles[drawTrianglesIdx++] = triangles[j] + drawVerticesIdx / 3 - startVertexIdx;
+    }
+
+    // Add region's vertices to drawVertices, adding regionIdx to each
+    for (var j = startVertexIdx; j < endVertexIdx; j++) {
+      drawVertices[drawVerticesIdx++] = vertices[j * 2];
+      drawVertices[drawVerticesIdx++] = vertices[j * 2 + 1];
+      drawVertices[drawVerticesIdx++] = i; // regionIdx
+    }
+  }
+  writeTriangles();
+
+  // Build texture from values
+  // texture is 8-bit value (Y) and 8-bit alpha
+  // When alpha is 0, nothing will be drawn
+  // When alpha is 255, Y becomes index into colormap -- 0 is the min value, and 255 is the max
+  
+  // Gaps in data will be intepolated here, with interpolations plugged into texture
+
+  // Ideally we'd make the texture regionNames.length x epochs.length
+  // But a) each dimension needs to be a power of 2 and (b) maximum dimension is 4096 (2048 is 0.1% more compatible)
+
+  // Tracts ~75K regions, ~10 timeslices.  750K < 4M (2K^2)
+
+  this.valuesWidth = Math.min(2048, Math.pow(2, Math.ceil(Math.log2(regionNames.length * this.epochs.length))));
+  this.nRegionsPerRow = Math.floor(this.valuesWidth / this.epochs.length);
+  this.valuesHeight = Math.max(1, Math.pow(2, Math.ceil(Math.log2(regionNames.length / this.nRegionsPerRow))));
+
+  //console.log(this._tileidx.toString(), 'Texture ' + this.valuesWidth + 'x' + this.valuesHeight + ' (efficiency ' +
+  //	      Math.round(100 * regionNames.length * this.epochs.length / this.valuesWidth / this.valuesHeight) + '%)');
+
+  //console.log(this._tileidx.toString(), regionNames.length, 'regions');
+  
+  var texture = new Uint8Array(this.valuesWidth * this.valuesHeight * 2); // greyscale plus alpha
+
+  {
+    var minValue = csv.minValue;
+    var maxValue = csv.maxValue;
+    var radius = eval(this.scalingFunction);
+    this._radius = radius;
+  }
+
+  var transferRegionData = function(regionName, firstCol, lastCol) {
+    var csvRowNum = csv.region_name_to_row[regionName];
+    if (!csvRowNum) {
+      console.log('Choropleth tile', this._tileidx.toString(), 'missing csv row for', regionName);
+      return;
+    }
+    var csvRow = csv.getInterpolatedRow(csvRowNum);
+    
+    for (var j = firstCol; j < lastCol; j++) {
+      var val = csvRow[j + csv.first_data_col];
+      if (!isNaN(val)) {
+	texture[(texRow * this.valuesWidth + texCol + j) * 2 + 0] = Math.max(0, Math.min(255, Math.floor(radius(val) * 256)));
+	texture[(texRow * this.valuesWidth + texCol + j) * 2 + 1] = 255; // alpha
+      }
+    }
+  }.bind(this);
+
+  // Loop through regions in BTI
+  for (var i = 0; i < regionNames.length; i++) {
+    // timeVariableRegions==false
+    
+    var texRow = Math.floor(i / this.nRegionsPerRow);
+    var texCol = (i % this.nRegionsPerRow) * this.epochs.length;
+    
+    if (timeVariableRegions) {
+      // regionNames[i] is in form ID_YYYY1|ID_YYYY2|ID_YYYY3, e.g. G010_1840|G010_1850|G010_1860
+      var regions = regionNames[i].split('|');
+      for (var j = 0; j < regions.length; j++) {
+      	var region = regions[j];
+      	var split = region.split('_');
+      	var regionName = split[0];
+
+	var col = csv.epoch2col[parseDateStr(split[1])];
+	if (!col) {
+	  console.log('In tile', this._tileidx.toString(), 'could not find time for', split[1]);
+	  continue;
+	}
+	transferRegionData(regionName, col - csv.first_data_col, col - csv.first_data_col + 1);
+      }
     } else {
-      var csvdata = this.responseText;
-      // Assumes data is of the following format
-      // header row Country,      year_0, ..., year_N
-      // data row   country_name, value_0,..., value_N
-      // ...
-      var t0 = performance.now();
-      that.jsondata = Papa.parse(csvdata, {header: false});
-      var t1 = performance.now();
-      console.log("Parsed csv data in " + (t1 - t0) + "ms");
+      transferRegionData(regionNames[i], 0, this.epochs.length);
+    }
+  }
+  
+  // Create and initialize texture
+  this._valuesTexture = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, this._valuesTexture);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
-      var header = that.jsondata.data[0];
-      var has_lat_lon = (
-        header[1].substr(0,3).toLowerCase() == 'lat' &&
-        header[2].substr(0,3).toLowerCase() == 'lon');
-      var potential_packedColor_col = has_lat_lon ? 3 : 1;
-      var has_packedColor =(header[potential_packedColor_col] && header[potential_packedColor_col].substr(0,11).toLowerCase() == 'packedcolor');
-      var first_data_col = has_packedColor ? (has_lat_lon ? 4 : 2) : (has_lat_lon ? 3 : 1);
+  // It's much easier to not try to interpolate over time when regions vary over time
+  var timeInterpolationFilter = timeVariableRegions ? gl.NEAREST : gl.LINEAR;
+  
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, timeInterpolationFilter);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, timeInterpolationFilter);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE_ALPHA, this.valuesWidth, this.valuesHeight, 0, gl.LUMINANCE_ALPHA, gl.UNSIGNED_BYTE, texture);
+  
+  this._ready = true;
+  this._loadTexture(); // load the colormap.  TODO: why do we load this separately for every single tile?
 
-      var epochs = [];
-      var points = [];
-      var maxValue = 0;
-      var minValue = 1e6; //TODO Is this an ok value?
-      var verts = [];
-      var rawVerts = [];
-      var t0 = performance.now();
-      var totalSearchTime = 0;
-      for (var i = first_data_col; i < header.length; i++) {
-        var date = header[i];
+  var totalTime = new Date().getTime() - beginTime;
+  WebGLVectorTile2._totalBtiTime += totalTime;
+  WebGLVectorTile2._totalBtiCount++;
 
-        var epoch = parseDateStr(date);
-        if (isNaN(epoch)) {
-          break;
-        }
-        epochs[i] = epoch;
-      }
-      var csv_feature_missing_in_geojson = 0;
-      var csv_feature_missing_example;
-      var csv_feature_found_in_geojson = 0;
-      for (var ii = 1; ii < that.jsondata.data.length; ii++) {
-        var country = that.jsondata.data[ii];
-        if (country == '') continue;
-        if (that.geojsonData == null) {
-          that.geojsonData = COUNTRY_POLYGONS;
-        }
-        var t3 = performance.now();
-        var feature = searchCountryList(that.geojsonData,country[0], that.nameKey);
-        var t4 = performance.now();
-        totalSearchTime += (t4 - t3);
-        if (typeof feature == "undefined") {
-          csv_feature_missing_example = country[0];
-          csv_feature_missing_in_geojson++;
-        }
-        else if (!feature.hasOwnProperty("geometry")) {
-          csv_feature_missing_example = country[0];
-          csv_feature_missing_in_geojson++;
-        } else {
-          csv_feature_found_in_geojson++;
-          var idx = [];
-          for (var j = first_data_col; j < country.length; j++) {
-            country[j] = country[j].replace(/,/g , "");
-            if (country[j] != "") {
-              idx.push(j);
-            }
-          }
-          for (var j = 0; j < idx.length; j++) {
-            var id_current = idx[j];
-            var id_next = idx[j+1];
-            if (j == idx.length - 1) {
-              id_next = id_current;
-            }
+  // TODO: should we only call this once after first tile loaded?
+  this._dataLoaded(this.layerId);
+  
+  console.log('BTI tile ' + this._tileidx.toString() + ' loaded in ' + totalTime + 'ms (avg ' + Math.round(WebGLVectorTile2._totalBtiTime / WebGLVectorTile2._totalBtiCount) + 'ms over ' + WebGLVectorTile2._totalBtiCount + ' tiles)');
 
-            var epoch_1 = epochs[id_current];
-            var val_1 = parseFloat(country[id_current]);
-            if (val_1 > maxValue) {
-              maxValue = val_1;
-            }
-            if (val_1 < minValue) {
-              minValue = val_1;
-            }
-            var epoch_2 = epochs[id_next];
-            if (j == idx.length - 1) {
-              epoch_2 = epochs[id_current] + (epochs[id_current] - epochs[id_current - 1]);
-            }
+}
 
-            var val_2 = parseFloat(country[id_next]);
-            if (val_2 > maxValue) {
-              maxValue = val_2;
-            }
-            if (val_2 < minValue) {
-              minValue = val_2;
-            }
+WebGLVectorTile2._totalBtiTime = 0;
+WebGLVectorTile2._totalBtiCount = 0;
 
-            if (feature.geometry.type != "MultiPolygon") {
-              var mydata = earcut.flatten(feature.geometry.coordinates);
-              var triangles = earcut(mydata.vertices, mydata.holes, mydata.dimensions);
-              for (var i = 0; i < triangles.length; i++) {
-                var pixel = LatLongToPixelXY(mydata.vertices[triangles[i]*2 + 1],mydata.vertices[triangles[i]*2]);
-                verts.push(pixel.x, pixel.y, epoch_1, val_1, epoch_2, val_2);
-              }
-            } else {
-              for ( var jj = 0; jj < feature.geometry.coordinates.length; jj++) {
-                var mydata = earcut.flatten(feature.geometry.coordinates[jj]);
-                var triangles = earcut(mydata.vertices, mydata.holes, mydata.dimensions);
-                for (var i = 0; i < triangles.length; i++) {
-                  var pixel = LatLongToPixelXY(mydata.vertices[triangles[i]*2 + 1],mydata.vertices[triangles[i]*2]);
-                  verts.push(pixel.x, pixel.y, epoch_1, val_1, epoch_2, val_2);
-                }
-              }
-            }
-          }
-        }
-      }
-      console.log('choropleth: joining CSV with geojson found', csv_feature_found_in_geojson, 'of', csv_feature_found_in_geojson+csv_feature_missing_in_geojson, 'CSV records in geojson');
-      if (csv_feature_missing_in_geojson) {
-        console.log('choropleth: example CSV record not found in geojson: name="'+ csv_feature_missing_example + '"');
-        if (that.nameKey) {
-          console.log('choropleth: using custom layer key "' + that.nameKey + '"');
-          var hasKey = 0;
-          for (var i = 0; i < that.geojsonData.features.length; i++) {
-            if (that.nameKey in that.geojsonData.features[i].properties) hasKey++;
-          }
-          console.log('choropleth: ' + hasKey + ' of ' + that.geojsonData.features.length + ' has expected key');
-        }
-      }
-      console.log("Total time searching is " + totalSearchTime + "ms");
-      var t1 = performance.now();
-      console.log("Generated vertices data in " + (t1 - t0) + "ms");
-      var t0 = performance.now();
-      that._maxValue = maxValue;
-      that._minValue = minValue;
-      var radius = eval(that.scalingFunction);
-      that._radius = radius;
+// This happens after _loadChoroplethMapDataFromCsv
+WebGLVectorTile2.prototype._buildChoroplethTile = function (data) {
+  if (data[0] instanceof Uint32Array) {
+    console.log('building choropleth tile from binary');
+    return this._buildChoroplethTileBti(data);
+  }
+  console.log('building choropleth tile from geojson');
+  
+  // Assumes data is of the following format
+  // header row Country,      year_0, ..., year_N
+  // data row   country_name, value_0,..., value_N
+  // ...
+  var geojson = data[0];
+  var csv = data[1];
+
+  if (!csv || !geojson) {
+    // Empty CSV or geojson, e.g. 404.  Leave tile blank.
+    this._ready = true;
+    return;
+  }
+    
+  var points = [];
+  var rawVerts = [];
+  var t0 = performance.now();
+
+  console.assert(geojson.hash); // geojson needs to be indexed
+  
+  Workers.call(
+    'WebGLVectorTile2Worker.js',
+    'triangularizeAndJoin',
+    {
+      csv: csv,
+      geojson: geojson,
+      nameKey: this.nameKey
+    },
+    function(t) {
+      var verts = t.verts;
+      var minValue = t.minValue;
+      var maxValue = t.maxValue;
+      this._maxValue = maxValue;
+      this._minValue = minValue;
+      var radius = eval(this.scalingFunction);
+      this._radius = radius;
+      // radius must be evaluated before downcasting to Float32 because
+      // there are scaling functions that depend on 64-bit precision
       for (var i = 0; i < verts.length; i+=6) {
         verts[i+3] = radius(verts[i+3]);
         verts[i+5] = radius(verts[i+5]);
       }
-      var t1 = performance.now();
-      console.log("Scale data in " + (t1 - t0) + "ms");
 
-      that._setData(new Float32Array(verts));
-      that._dataLoaded(that.layerId);
-    }
-  }
-  this.xhr.onerror = function() {
-    that._removeLoadingSpinner();
+      verts = Float32Array.from(verts);
 
-    that._setData('');
-  }
-  this.xhr.send();
+      this.numAttributes = 6;
+      this._setData(verts);
+      this._dataLoaded(this.layerId);
+      this._ready = true;
+    }.bind(this));
 }
-
-
 
 WebGLVectorTile2.prototype._setSitc4r2Buffer = function(sitc4r2Code, year, data) {
   if (typeof this.buffers[sitc4r2Code] == "undefined") {
@@ -1712,34 +1888,37 @@ WebGLVectorTile2.prototype._setAnimatedPointsData = function(data, options) {
   }
 }
 
+WebGLVectorTile2.prototype._loadTexture = function() {
+  // Bind option image to texture
+  if (typeof this._image !== "undefined") {
+    this._texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, this._texture);
+    
+    // Set the parameters so we can render any size image.
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    
+    // Upload the image into the texture.
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._image);
+    
+    gl.bindTexture(gl.TEXTURE_2D, null);
+  }
+};
+
 WebGLVectorTile2.prototype._setBufferData  = function(data) {
-    var gl = this.gl;
-    this._pointCount = data.length / this.numAttributes;
-    this._ready = true;
-    if (this._pointCount > 0) {
-      this._data = data;
-      this._arrayBuffer = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
-      gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);
-
-      // Bind option image to texture
-      if (typeof this._image !== "undefined") {
-        this._texture = gl.createTexture();
-        gl.bindTexture(gl.TEXTURE_2D, this._texture);
-
-        // Set the parameters so we can render any size image.
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-
-        // Upload the image into the texture.
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._image);
-
-        gl.bindTexture(gl.TEXTURE_2D, null);
-      }
-    }
-}
+  var gl = this.gl;
+  this._pointCount = data.length / this.numAttributes;
+  this._ready = true;
+  if (this._pointCount > 0) {
+    this._data = data;
+    this._arrayBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);
+    this._loadTexture();
+  }
+};
 
 WebGLVectorTile2.prototype._setBuffers  = function(buffers, indices) {
   var gl = this.gl;
@@ -1764,6 +1943,8 @@ WebGLVectorTile2.prototype.isReady = function() {
 }
 
 WebGLVectorTile2.prototype.delete = function() {
+  this.unloadResources();
+  this._deleted = true;
   if (!this.isReady()) {
     if (this.xhr != null) {
       this.xhr.abort();
@@ -2180,10 +2361,25 @@ WebGLVectorTile2.prototype._drawBivalentBubbleMap = function(transform, options)
   }
 }
 
+// This could implement binary search
+
+WebGLVectorTile2.prototype.epochToInterpolatedFrameNum = function(epoch, frameEpochs) {
+  for (var i = 0; i < this.epochs.length; i++) {
+    if (epoch <= frameEpochs[i]) {
+      if (i == 0) return 0; // at or before first frameEpoch
+      var frac = (epoch - frameEpochs[i - 1]) / (frameEpochs[i] - frameEpochs[i - 1]);
+      return i - 1 + frac;
+    }
+  }
+  // after last frameEpoch
+  return frameEpochs.length - 1;
+};
+
 WebGLVectorTile2.prototype._drawChoroplethMap = function(transform, options) {
   var gl = this.gl;
 
-  if (this._ready) {
+  if (this._ready && this._texture) {
+    // Only draw if we're ready and not an empty tile
     var dfactor = options.dfactor || gl.ONE;
     if (dfactor == "ONE_MINUS_SRC_ALPHA") {
       dfactor = gl.ONE_MINUS_SRC_ALPHA;
@@ -2208,46 +2404,78 @@ WebGLVectorTile2.prototype._drawChoroplethMap = function(transform, options) {
       pointSize = 1.0;
     }
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
-
-    var attributeLoc = gl.getAttribLocation(this.program, 'a_Centroid');
-    gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 24, 0);
-
-    var timeLocation = gl.getAttribLocation(this.program, "a_Epoch1");
-    gl.enableVertexAttribArray(timeLocation);
-    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 24, 8);
-
-    var timeLocation = gl.getAttribLocation(this.program, "a_Val1");
-    gl.enableVertexAttribArray(timeLocation);
-    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 24, 12);
-
-    var timeLocation = gl.getAttribLocation(this.program, "a_Epoch2");
-    gl.enableVertexAttribArray(timeLocation);
-    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 24, 16);
-
-    var timeLocation = gl.getAttribLocation(this.program, "a_Val2");
-    gl.enableVertexAttribArray(timeLocation);
-    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 24, 20);
-
-    var colorLoc = gl.getUniformLocation(this.program, 'u_Color');
-    gl.uniform4fv(colorLoc, color);
-
     var matrixLoc = gl.getUniformLocation(this.program, 'u_MapMatrix');
     gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
 
-    var sliderTime = gl.getUniformLocation(this.program, 'u_Epoch');
-    gl.uniform1f(sliderTime, currentTime);
+    if (this._triangleLists) {
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, this._texture);
+      gl.uniform1i(gl.getUniformLocation(this.program, "u_Colormap"), 0); // TEXTURE0
+      
+      gl.activeTexture(gl.TEXTURE1);
+      gl.bindTexture(gl.TEXTURE_2D, this._valuesTexture);
+      gl.uniform1i(gl.getUniformLocation(this.program, "u_Values"), 1); // TEXTURE1
+      
+      gl.uniform1f(gl.getUniformLocation(this.program, 'u_NumRegionsPerRow'), this.nRegionsPerRow);
+      gl.uniform1f(gl.getUniformLocation(this.program, 'u_NumEpochs'), this.epochs.length);
+      gl.uniform1f(gl.getUniformLocation(this.program, 'u_ValuesWidth'), this.valuesWidth);
+      gl.uniform1f(gl.getUniformLocation(this.program, 'u_ValuesHeight'), this.valuesHeight);
+      
+      var frameNo = this.epochToInterpolatedFrameNum(currentTime, this.epochs);
+      if (this._timeVariableRegions) {
+	// timeVariableRegions don't fade;  switch right at beginning of next frame, instead of fading between frames
+	frameNo = Math.floor(frameNo + 0.01);
+      }
+      gl.uniform1f(gl.getUniformLocation(this.program, 'u_TimeIndex'), frameNo);
 
-    var sliderTime = gl.getUniformLocation(this.program, 'u_Size');
-    gl.uniform1f(sliderTime, 2.0);
+      // drawElements uses indices to avoid duplicating vertices within regions
+      for (var i = 0; i < this._triangleLists.length; i++) {
+	gl.bindBuffer(gl.ARRAY_BUFFER, this._triangleLists[i].arrayBuffer);
 
+	var attributeLoc = gl.getAttribLocation(this.program, 'a_Centroid');
+	gl.enableVertexAttribArray(attributeLoc);
+	gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 12, 0);
+	
+	var loc = gl.getAttribLocation(this.program, "a_RegionIdx");
+	gl.enableVertexAttribArray(loc);
+	gl.vertexAttribPointer(loc, 1, gl.FLOAT, false, 12, 8);
+	
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._triangleLists[i].indexBuffer);
+	gl.drawElements(gl.TRIANGLES, this._triangleLists[i].count, gl.UNSIGNED_SHORT, 0);
+      }
+    } else {
+      var sliderTime = gl.getUniformLocation(this.program, 'u_Epoch');
+      gl.uniform1f(sliderTime, currentTime);
 
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, this._texture);
-    gl.uniform1i(gl.getUniformLocation(this.program, "u_Image"), 0);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, this._texture);
+      gl.uniform1i(gl.getUniformLocation(this.program, "u_Image"), 0);
 
-    gl.drawArrays(gl.TRIANGLES, 0, this._pointCount);
+      gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+
+      var attributeLoc = gl.getAttribLocation(this.program, 'a_Centroid');
+      gl.enableVertexAttribArray(attributeLoc);
+      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 24, 0);
+      
+      var timeLocation = gl.getAttribLocation(this.program, "a_Epoch1");
+      gl.enableVertexAttribArray(timeLocation);
+      gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 24, 8);
+      
+      var timeLocation = gl.getAttribLocation(this.program, "a_Val1");
+      gl.enableVertexAttribArray(timeLocation);
+      gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 24, 12);
+      
+      var timeLocation = gl.getAttribLocation(this.program, "a_Epoch2");
+      gl.enableVertexAttribArray(timeLocation);
+      gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 24, 16);
+      
+      var timeLocation = gl.getAttribLocation(this.program, "a_Val2");
+      gl.enableVertexAttribArray(timeLocation);
+      gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 24, 20);
+      
+      gl.drawArrays(gl.TRIANGLES, 0, this._pointCount);
+    }
+    
     perf_draw_triangles(this._pointCount);
     gl.bindTexture(gl.TEXTURE_2D, null);
     gl.disable(gl.BLEND);
@@ -4379,7 +4607,9 @@ WebGLVectorTile2.update = function(tiles, transform, options) {
   }
 }
 
-WebGLVectorTile2.prototype._handleLoading = function() {
+// Tile loading has started.  Start timer to show spinner if tile loading
+// doesn't complete within reasonable time
+WebGLVectorTile2.prototype._setupLoadingSpinner = function() {
   var that = this;
   clearTimeout(this._loadingSpinnerTimer);
   this._spinnerNeeded = true;
@@ -4399,6 +4629,7 @@ WebGLVectorTile2.prototype._handleLoading = function() {
   }, 300);
 }
 
+// Tile loading has finished.  Clear spinner.
 WebGLVectorTile2.prototype._removeLoadingSpinner = function() {
   this._spinnerNeeded = false;
   clearTimeout(this._loadingSpinnerTimer);
@@ -5341,38 +5572,66 @@ WebGLVectorTile2.iomIdpFragmentShader = "" +
 
 "}";
 
-WebGLVectorTile2.choroplethMapVertexShader =
-'      attribute vec4 a_Centroid;\n' +
-'      attribute float a_Epoch1;\n' +
-'      attribute float a_Val1;\n' +
-'      attribute float a_Epoch2;\n' +
-'      attribute float a_Val2;\n' +
-'      uniform float u_Epoch;\n' +
-'      uniform mat4 u_MapMatrix;\n' +
-'      varying float v_Val;\n' +
-'      void main() {\n' +
-'        vec4 position;\n' +
-'        if (a_Epoch1 > u_Epoch || a_Epoch2 <= u_Epoch) {\n' +
-'          position = vec4(-1,-1,-1,-1);\n' +
-'        } else {\n' +
-'          position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);\n' +
-'        }\n' +
-'        gl_Position = position;\n' +
-'        float delta = (u_Epoch - a_Epoch1)/(a_Epoch2 - a_Epoch1);\n' +
-'        v_Val = (a_Val2 - a_Val1) * delta + a_Val1;\n' +
-'      }\n';
+WebGLVectorTile2.choroplethMapVertexShader = [
+  'attribute vec4 a_Centroid;',
+  'attribute float a_Epoch1;',
+  'attribute float a_Val1;',
+  'attribute float a_Epoch2;',
+  'attribute float a_Val2;',
+  'uniform float u_Epoch;',
+  'uniform mat4 u_MapMatrix;',
+  'varying float v_Val;',
+  'void main() {',
+  '  vec4 position;',
+  '  if (a_Epoch1 > u_Epoch || a_Epoch2 <= u_Epoch) {',
+  '    position = vec4(-1,-1,-1,-1);',
+  '  } else {',
+  '    position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);',
+  '  }',
+  '  gl_Position = position;',
+  '  float delta = (u_Epoch - a_Epoch1)/(a_Epoch2 - a_Epoch1);',
+  '  v_Val = (a_Val2 - a_Val1) * delta + a_Val1;',
+  '}'].join('\n');
 
-WebGLVectorTile2.choroplethMapFragmentShader =
-'      #extension GL_OES_standard_derivatives : enable\n' +
-'      precision mediump float;\n' +
-'      uniform sampler2D u_Image;\n' +
-'      varying float v_Val;\n' +
-'      void main() {\n' +
-'        vec4 color = texture2D(u_Image, vec2(v_Val,0.));\n' +
-'        gl_FragColor = vec4(color.r, color.g, color.b, 1.);\n' +
-'        //gl_FragColor = vec4(1.0, 0.0, 0.0, 1.);\n' +
-'      }\n';
+WebGLVectorTile2.choroplethMapFragmentShader = [
+  '#extension GL_OES_standard_derivatives : enable',
+  'precision mediump float;',
+  'uniform sampler2D u_Image;',
+  'varying float v_Val;',
+  'void main() {',
+  '  vec4 color = texture2D(u_Image, vec2(v_Val,0.));',
+  '  gl_FragColor = vec4(color.r, color.g, color.b, 1.);',
+  '}'].join('\n');
 
+WebGLVectorTile2.choroplethMapVertexShaderV2 = [
+  'attribute vec2 a_Centroid;',
+  'attribute float a_RegionIdx;',
+  'uniform float u_NumRegionsPerRow;',
+  'uniform float u_NumEpochs;',
+  'uniform float u_ValuesWidth;',
+  'uniform float u_ValuesHeight;',
+  'uniform float u_TimeIndex;',
+  'uniform mat4 u_MapMatrix;',
+  'varying vec2 v_ValCoord;',
+  'void main() {',
+  '  vec4 position;',
+  '  position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);',
+  '  gl_Position = position;',
+  '  v_ValCoord = vec2((mod(a_RegionIdx, u_NumRegionsPerRow) * u_NumEpochs + u_TimeIndex + 0.5) / u_ValuesWidth,',
+  '                    (floor(a_RegionIdx / u_NumRegionsPerRow) + 0.5) / u_ValuesHeight);',
+  '}'].join('\n');
+
+WebGLVectorTile2.choroplethMapFragmentShaderV2 = [
+  '#extension GL_OES_standard_derivatives : enable',
+  'precision mediump float;',
+  'uniform sampler2D u_Colormap;',
+  'uniform sampler2D u_Values;',
+  'varying vec2 v_ValCoord;',
+  'void main() {',
+  '  vec4 val = texture2D(u_Values, v_ValCoord);', // luminance and alpha
+  '  vec4 color = texture2D(u_Colormap, vec2(val.r, 0.));',
+  '  gl_FragColor = vec4(color.r, color.g, color.b, color.a * val.a);', // transparent when colormap is, or val undefined
+  '}'].join('\n');
 
 WebGLVectorTile2.timeSeriesPointDataVertexShader =
 '      //WebGLVectorTile2.timeSeriesPointDataVertexShader\n' +
