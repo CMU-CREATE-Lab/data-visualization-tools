@@ -26,6 +26,11 @@
     //    but a different one can be passed in. The format of this can either be a docs.google.com link or a 'publicly viewable link' produced from
     //    the EarthTime Story Editor. The example here uses a link from the Story Editor.
     // showEarthtimeAbout -> Defaults to false. Shows an About section at the end, briefly describing EarthTime.
+    // disableAutoFullscreen -> Defaults to false. When true, the story content will only fill the width of the content div (story_container1 in this case).
+    //    Otherwise, if set to false, the story content will fill the entire screen when scrolled into view.
+    // mediaFitStyle -> Defaults to "cover". If set to "cover", the content is sized to maintain its aspect ratio, while filling the entire content area.
+    //    The content may be clipped to fit. If set to "contain", the content is scaled to maintain its aspect ratio, while fitting within the element's
+    //    content box, which could mean letterboxing.
     var settings = {
       "earthtimeSpreadsheet" : "https://earthtime.org/explore#waypoints=1Ua4MpiPs2A79p9SdFRBiXmiOcMVG6Oze6tMU_ReEs8k.0",
       "showEarthtimeAbout" : true
