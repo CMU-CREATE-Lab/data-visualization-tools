@@ -1432,20 +1432,40 @@ WebGLVectorTile2.prototype._setExpandedLineStringData = function(data, options) 
     return out;
   }
   var paths = [];
+  var deltas = [];
   for (var i = 0; i < data["features"].length; i++) {
     var feature = data["features"][i];
     if (feature["geometry"]["type"] == "MultiLineString") {
+      var old_idx = paths.length;
       for (var j = 0; j < feature["geometry"]["coordinates"].length; j++) {
         var path = [];
         path = path.concat(processLineString(feature["geometry"]["coordinates"][j]));
         paths.push(path);
       }
+      var new_idx = paths.length;
+      var total_points_length = 0;
+      for (var ii = old_idx; ii < new_idx; ii++) {
+        total_points_length += paths[ii].length;
+      }
+      var count = 0;
+      for (var ii = old_idx; ii < new_idx; ii++) {
+        var delta = []
+        for (var jj = 0; jj < paths[ii].length; jj++) {
+          delta.push(count/(total_points_length - 1));
+          count += 1;
+        }
+        deltas.push(delta);
+      }
     } else {
-      var path = [];
+      var path = [];      
       path = path.concat(processLineString(feature["geometry"]["coordinates"]));
       paths.push(path);
+      var delta = [];
+      for (var jj = 0; jj < path.length; jj++) {
+        delta.push(jj/(path.length-1));
+      }
+      deltas.push(delta);
     }
-    paths.push(path);
   }
   var normalCollection = [];
   var miterCollection = [];
@@ -1467,10 +1487,12 @@ WebGLVectorTile2.prototype._setExpandedLineStringData = function(data, options) 
     //var count = (points.length - 1) * 6;
     normals = Duplicate(normals);
     miters = Duplicate(miters, true);
+    var deltas_ = Duplicate(deltas[i]);
     var textureLocs = [];
-    for (var j = 0; j < miters.length; j++) {
-      textureLocs.push(j/(miters.length-1));
+    for (var j = 0; j < deltas_.length; j++) {
+      textureLocs.push(deltas_[j]);
     }
+
     var positions = Duplicate(points);
     var indices = CreateIndices(points.length-1, offset);
     normalCollection = normalCollection.concat(PackArray(normals));
