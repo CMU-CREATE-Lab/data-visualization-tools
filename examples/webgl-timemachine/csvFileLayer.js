@@ -178,7 +178,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
 
   layerOptions.externalGeojson = layerDef["External GeoJSON"];
   layerOptions.nameKey = layerDef["Name Key"]; // Optional GeoJSON property name with which to join features with first column of data
-  var category_id = layerOptions.category ? "category-" + layerOptions.category.replace(/ /g,"-").toLowerCase() : "csvlayers_table";
+  var category_id = layerOptions.category ? "category-" + layerOptions.category.trim().replace(/ /g,"-").replace(/^[^a-zA-Z]+|[^\w-]+/g, "_").toLowerCase() : "csvlayers_table";
   layerOptions.playbackRate = layerDef["Playback Rate"] || null;
   layerOptions.masterPlaybackRate = layerDef["Master Playback Rate"] || null;
   layerOptions.nLevels = layerDef["Number of Levels"] ? parseInt(layerDef["Number of Levels"]) : 0;
@@ -642,7 +642,7 @@ CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate,
 // Find first tile with _radius and return _radius
 CsvFileLayer.prototype.getRadius = function(layer) {
   var tiles = layer._tileView._tiles;
-  
+
   for (var key in tiles) {
     if ('_radius' in tiles[key]) {
       return tiles[key]._radius;

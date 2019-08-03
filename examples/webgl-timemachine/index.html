@@ -4844,7 +4844,7 @@
       dotmapLayerByName[nickname] = layer;
 
       var id = 'show-dotmap-' + nickname;
-      var category_id = category ? "category-" + category.trim().replace(/ /g,"-").toLowerCase() : "category-us-demographics";
+      var category_id = category ? "category-" + category.trim().replace(/ /g,"-").replace(/^[^a-zA-Z]+|[^\w-]+/g, "_").toLowerCase() : "category-us-demographics";
 
       var row = '<tr><td><label name="' + nickname + '">';
       row += '<input type="checkbox" id="' + id + '">';
