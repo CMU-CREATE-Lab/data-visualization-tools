@@ -14,6 +14,7 @@ ContentSearch.prototype.clearSearch = function() {
   this.$searchInput.val('');
   this.$layerSearchResults.hide();
   this.$clearButton.hide();
+  this.$layerSearchResultsEmptyMsg.hide();
   resizeLayersMenu();
 }
 

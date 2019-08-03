@@ -323,28 +323,29 @@ html, body {
 }
 
 .ui-tooltip {
-    background: #666;
-    color: white;
-    border: none;
-    padding: 0;
-    opacity: 1;
-}
+  background: #666;
+  color: white;
+  border: none;
+  padding: 0;
+  opacity: 1;
+  z-index: 100000;
+  }
 .ui-tooltip-content {
-    position: relative;
-    padding: 1em;
+  position: relative;
+  padding: 1em;
 }
 .ui-tooltip-content::after {
-    content: '';
-    position: absolute;
-    border-style: solid;
-    display: block;
-    width: 0;
+  content: '';
+  position: absolute;
+  border-style: solid;
+  display: block;
+  width: 0;
 }
-.show-more-layers-tooltip .ui-tooltip-content::after {
-    top: 18px;
-    left: -10px;
-    border-color: transparent #666;
-    border-width: 10px 10px 10px 0;
+.show-more-layers-tooltip .ui-tooltip-content::after, .right .ui-tooltip-content::after {
+  top: 18px;
+  left: -10px;
+  border-color: transparent #666;
+  border-width: 10px 10px 10px 0;
 }
 
 .show-more-layers-tooltip {
