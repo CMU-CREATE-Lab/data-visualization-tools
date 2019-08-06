@@ -117,7 +117,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
   } else {
     layerOptions.hasTimeline = false;
   }
-
+  
   layerOptions.showGraph = layerDef["Show Graph"].toLowerCase() == 'true';
   layerOptions.mapType = layerDef["Map Type"] || "bubble";
   layerOptions.color = layerDef["Color"] ? JSON.parse(layerDef["Color"]) : null;
@@ -167,7 +167,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
       url = tileUrl = '("' + url;
     }
   } else {
-    url = layerDef["URL"].replace("http://", "https://");
+    url = layerDef["URL"]//.replace("http://", "https://");
   }
 
   layerOptions.name = layerDef["Name"];
@@ -271,6 +271,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
     }
     overrideDrawingFns();
   }
+  
 
   var layer = new WebglLayer(glb, canvasLayer, url, layerOptions);
   layer.options = layer.options || {};
@@ -306,6 +307,14 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
     }
     layer.options.setDataOptions = layerOptions.setDataOptions;
   }
+
+  if(layer.options.setDataOptions && layer.options.setDataOptions.hasDataFilter)
+  {
+    layer.options.dataFilter = layer.options.setDataOptions.defaultDataFilter
+    console.log(layerOptions)
+    console.log("Special Bike")
+  }
+  
 
   // Comparison-mode, left and right half-circles
   var re = /_paired/;
@@ -650,6 +659,22 @@ CsvFileLayer.prototype.getRadius = function(layer) {
   }
   return null;
 }
+
+
+CsvFileLayer.prototype.updateLayerData = function updateLayerData(layerId, dataFilter) {
+ var layer = this.layerById[layerId];
+ //  layer._tileUrl = newUrl;
+//  requestNewData = (requestNewData == undefined) ? true : requestNewData;
+   layer.options.dataFilter = dataFilter;
+
+   layer._tileView._discardTilesAndResources(); //update tiles to use new data
+ 
+ //this.setTimeLine(layerId, newStartDate, newEndDate, newStep);
+ //var cachedLayerTimelinePath = layer.layerId + ".json";
+ //TODO determine timeline styling
+ //requestNewTimeline(cachedLayerTimelinePath, "defaultUI"); //update timeline to match new date range
+}
+
 
 CsvFileLayer.prototype.setLegend = function setLegend(id) {
   var layer;

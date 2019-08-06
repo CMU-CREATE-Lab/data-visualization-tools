@@ -30,10 +30,17 @@ TileIdx.prototype.toString = function() {
 };
 
 // Expands {x} (column), {y} (row), {yflip} (mirrored row), and {z} (level) in an URL
-TileIdx.prototype.expandUrl = function(url) {
+TileIdx.prototype.expandUrl = function(url, layerObject) {
+  console.log("Super Special BIIIIIIIIIIKE ", layerObject)
+  if(layerObject)
+  {
+    var dataFilter = layerObject.options.dataFilter
+  }
+    
   return url
     .replace("{z}", this.l)
     .replace("{x}", this.c)
     .replace("{y}", this.r)
-    .replace("{yflip}", Math.pow(2,this.l)-1-this.r);
+    .replace("{yflip}", Math.pow(2,this.l)-1-this.r)
+    .replace("{dataFilter}", dataFilter);
 };

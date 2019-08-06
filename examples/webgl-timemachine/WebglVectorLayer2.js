@@ -15,6 +15,7 @@ function WebglVectorLayer2(glb, canvasLayer, tileUrl, opt_options) {
 
   if (opt_options) {
     $.extend(this, opt_options);
+    console.log("BIKE Options ", opt_options)
   }
 
   var r = canvasLayer.timelapse.getMetadata();
@@ -47,7 +48,7 @@ WebglVectorLayer2.prototype.getHeight = function() {
 };
 
 WebglVectorLayer2.prototype._createTile = function(ti, bounds) {
-  var url = ti.expandUrl(this._tileUrl);
+  var url = ti.expandUrl(this._tileUrl, this);
 
   // Consider not copying these layer-scope settings to individual tiles and instead
   // accessing from the layer?
@@ -102,6 +103,13 @@ WebglVectorLayer2.prototype._createTile = function(ti, bounds) {
   }
   if (this.setDataOptions) {
     opt_options.setDataOptions = this.setDataOptions;
+  }
+  
+  console.log("Biiiike ", this)
+  if(this.dataFilter)
+  {
+    console.log("Capital BIIIIKE")
+    opt_options.dataFilter = this.dataFilter;
   }
 
   opt_options.dotmapColors = this.dotmapColors;

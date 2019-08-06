@@ -6067,6 +6067,40 @@
         }
 
         $controlsContainer.appendTo($("#timeMachine .player"));
+        
+        $("#compositeLayerSelector").appendTo($("#timeMachine .player"));
+        
+        $.ajax({
+        	url:"http://localhost:5000/",
+        	dataType:"json",
+        	success: function(criteriaJson) {
+        		var html = ""
+        		for(var i = 0; i < criteriaJson.criteria.length; i++)
+        		{
+        			var criteria = criteriaJson.criteria[i]
+        			html += '<input type="checkbox" name="'+ criteria + '" value="' + criteria + '">' + criteria.replace("_", " ") + '<br>'
+        		}
+        		$(html).appendTo($("#layerCompositeCriteria"));
+        	}
+        })
+        
+        $("#layerCompositeButton").on("click", function() {
+        
+        	var userSelection = $("#layerCompositeCriteria").find("input:checked")
+        	var selected = ""
+        	for(var i = 0; i < userSelection.length; i++)
+        	{
+        		selected += $(userSelection[i]).prop("name") + ','
+        	}
+        	
+        	selected = selected.slice(0, -1)
+        	
+        	
+        	csvFileLayers.updateLayerData("safety_composite_for_us", selected)
+        	
+
+         })
+
 
         if (showFullScreenButton) {
           $("#timeMachine .fullScreen").appendTo($navigationControls);
@@ -10334,6 +10368,16 @@
     </ul>
   </div>
   <div id="sidePanel"></div>
+  
+  <div id="compositeLayerSelector">
+  	<p>Choose criteria</p>
+  	<div id="layerCompositeCriteria">
+  		
+  	</div>
+	
+	<button id ="layerCompositeButton" type="button">Create Layer!</button>
+  </div>
+  
 </body>
 
 </html>

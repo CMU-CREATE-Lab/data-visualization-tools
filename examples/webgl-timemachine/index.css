@@ -2506,3 +2506,12 @@ a:focus { outline:0; }
   padding: 20px;
   text-transform: none;
 }
+
+#compositeLayerSelector {
+	top: 100px; 
+	right: 20px;
+	position: absolute;
+    z-index: 10;
+    color: wheat;
+}
+#

@@ -110,7 +110,15 @@ function WebGLVectorTile2(layer, tileview, glb, tileidx, bounds, url, opt_option
   if (opt_options.layerId) {
     this.layerId = opt_options.layerId;
   }
+  
+  if(opt_options.dataFilter)
+  {
+  	this.dataFiler = opt_options.dataFilter
+  }
+  
 }
+
+
 
 // Inherit from Tile
 WebGLVectorTile2.prototype = Object.create(Tile.prototype);
