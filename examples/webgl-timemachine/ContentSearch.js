@@ -11,6 +11,7 @@ function ContentSearch($searchInput, $searchResults) {
 }
 
 ContentSearch.prototype.clearSearch = function() {
+  clearTimeout(this.noLayersFoundMsgTimer);
   this.$searchInput.val('');
   this.$layerSearchResults.hide();
   this.$clearButton.hide();
@@ -26,6 +27,7 @@ ContentSearch.prototype.updateSearch = function() {
   this.$layerSearchResultsEmptyMsg.hide();
   if (trimmed.length == 0) {
     this.clearSearch();
+    return;
   } else {
     this.$layerSearchResults.show();
     this.$clearButton.show();
