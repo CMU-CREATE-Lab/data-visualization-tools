@@ -39,15 +39,16 @@ function WebglVectorLayer2(glb, canvasLayer, tileUrl, opt_options) {
 }
 
 WebglVectorLayer2.prototype.getWidth = function() {
-    return this._tileView.getWidth();
+  return this._tileView.getWidth();
 };
 
 WebglVectorLayer2.prototype.getHeight = function() {
-    return this._tileView.getHeight();
+  return this._tileView.getHeight();
 };
 
 WebglVectorLayer2.prototype._createTile = function(ti, bounds) {
-  var url = ti.expandUrl(this._tileUrl);
+  // console.log("create tile", this)
+  var url = ti.expandUrl(this._tileUrl, this);
 
   // Consider not copying these layer-scope settings to individual tiles and instead
   // accessing from the layer?

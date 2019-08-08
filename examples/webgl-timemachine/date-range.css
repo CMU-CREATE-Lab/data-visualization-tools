@@ -1,0 +1,86 @@
+.dp-highlight .ui-state-default {
+  background: #484;
+  color: #FFF;
+}
+
+.ui-button .ui-icon.custom-calendar-icon {
+  background-image: url('custom-calendar-icon.svg');
+  background-size: 30px;
+  width: 30px;
+  height: 30px;
+}
+
+.ui-button .ui-icon.custom-close-icon {
+  background-image: url('custom-close-icon.svg');
+  background-size: 30px;
+  width: 30px;
+  height: 30px;
+}
+
+#datepicker-ui{
+  display: inline-block;
+  position: absolute;
+  right: 20px;
+  bottom: 130px;
+  z-index: 99;
+}
+
+#datepicker-menu {
+  position: relative;
+  display: none;
+  vertical-align: middle;
+  padding: 10px;
+  background-color: white;
+  float:right;
+  border-radius: 5px;
+  border-width: thin;
+  border-style: solid;
+  height: 270px;
+  width: 250px;
+}
+
+#date-range-inputs {
+  text-align:right;
+  float: left;
+  margin-bottom: 0px;
+  margin-top: 5px;
+  margin-right: 5px;
+
+}
+
+#input1, #input2{
+  margin-bottom: 5px;
+  width: 120px;
+}
+
+#calendar{
+  float:right;
+  margin-right: 10px;
+  margin-top: 5px;
+}
+
+#calendar-button {
+  display: none;
+  position: relative;
+  float: right;
+  vertical-align: middle;
+  border-radius: 3px;
+  background: white;
+}
+
+#update-date-button{
+  float:right;
+  text-align: center;
+  font-size: 14px;
+  right: 5px;
+  padding: 7px;
+  margin-top: 3px;
+  margin-bottom: 3px;
+  border-style: solid;
+  border-width: thin;
+  border-color: darkgrey;
+  border-radius: 2px;
+  background-color: #e6e6e6;
+}
+
+
