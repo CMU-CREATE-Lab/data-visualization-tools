@@ -2512,6 +2512,8 @@ a:focus { outline:0; }
 	right: 20px;
 	position: absolute;
     z-index: 10;
-    color: wheat;
+    color: white;
+    background-color: black;
+    padding: 0px 15px 15px 15px;
 }
 #
