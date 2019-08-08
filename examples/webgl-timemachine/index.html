@@ -6069,7 +6069,7 @@
         $controlsContainer.appendTo($("#timeMachine .player"));
         
         $("#compositeLayerSelector").appendTo($("#timeMachine .player"));
-        
+                
         $.ajax({
         	url:"http://localhost:5000/",
         	dataType:"json",
@@ -6081,6 +6081,34 @@
         			html += '<input type="checkbox" name="'+ criteria + '" value="' + criteria + '">' + criteria.replace("_", " ") + '<br>'
         		}
         		$(html).appendTo($("#layerCompositeCriteria"));
+        	}
+        })
+        
+        $.ajax({
+        	url:"http://localhost:5000/rate",
+        	dataType:"json",
+        	success: function(criteriaJson) {
+        		var html = ""
+        		for(var i = 0; i < criteriaJson.criteria.length; i++)
+        		{
+        			var criteria = criteriaJson.criteria[i]
+        			html += '<input type="checkbox" name="'+ criteria + '" value="' + criteria + '">' + criteria.replace("_", " ") + '<br>'
+        		}
+        		$(html).appendTo($("#percentLayerCompositeCriteria"));
+        	}
+        })
+        
+        $.ajax({
+        	url:"http://localhost:5000/num",
+        	dataType:"json",
+        	success: function(criteriaJson) {
+        		var html = ""
+        		for(var i = 0; i < criteriaJson.criteria.length; i++)
+        		{
+        			var criteria = criteriaJson.criteria[i]
+        			html += '<input type="checkbox" name="'+ criteria + '" value="' + criteria + '">' + criteria.replace("_", " ") + '<br>'
+        		}
+        		$(html).appendTo($("#numberLayerCompositeCriteria"));
         	}
         })
         
@@ -6100,6 +6128,75 @@
         	
 
          })
+         
+         $("#averageCompositeButton").on("click", function() {
+        
+        	var userSelection = $("#layerCompositeCriteria").find("input:checked")
+        	var selected = ""
+        	for(var i = 0; i < userSelection.length; i++)
+        	{
+        		selected += $(userSelection[i]).prop("name") + ','
+        	}
+        	
+        	selected = selected.slice(0, -1)
+        	
+        	
+        	csvFileLayers.updateLayerData("safety_composite_for_us_average", selected)
+        	
+
+         })
+         
+         $("#percentAverageCompositeButton").on("click", function() {
+        
+        	var userSelection = $("#percentLayerCompositeCriteria").find("input:checked")
+        	var selected = ""
+        	for(var i = 0; i < userSelection.length; i++)
+        	{
+        		selected += $(userSelection[i]).prop("name") + ','
+        	}
+        	
+        	selected = selected.slice(0, -1)
+        	
+        	
+        	csvFileLayers.updateLayerData("safety_composite_percent", selected)
+        	
+
+         })
+         
+         $("#numberLayerCompositeButton").on("click", function() {
+        
+        	var userSelection = $("#numberLayerCompositeCriteria").find("input:checked")
+        	var selected = ""
+        	for(var i = 0; i < userSelection.length; i++)
+        	{
+        		selected += $(userSelection[i]).prop("name") + ','
+        	}
+        	
+        	selected = selected.slice(0, -1)
+        	
+        	
+        	csvFileLayers.updateLayerData("safety_composite_combined_num", selected)
+        	
+
+         })
+         
+         $("#numberLayerCompositeButton").on("click", function() {
+        
+        	var userSelection = $("#numberLayerCompositeCriteria").find("input:checked")
+        	var selected = ""
+        	for(var i = 0; i < userSelection.length; i++)
+        	{
+        		selected += $(userSelection[i]).prop("name") + ','
+        	}
+        	
+        	selected = selected.slice(0, -1)
+        	
+        	
+        	csvFileLayers.updateLayerData("safety_composite_averaged_num", selected)
+        	
+
+         })
+         
 
 
         if (showFullScreenButton) {
@@ -10370,15 +10467,44 @@
   <div id="sidePanel"></div>
   
   <div id="compositeLayerSelector">
-  	<p>Choose criteria</p>
-  	<div id="layerCompositeCriteria">
+    <p>Create your own map! Layers of different scales cannot be combined.</p>
+  	<div id="perIndividualDropDown">
+  		<p>Choose criteria 
+  		<br>(per ten thousand individuals)</p>
+  		<div id="perContent">
+  			<div id="layerCompositeCriteria">
   		
-  	</div>
+  			</div>
 	
-	<button id ="layerCompositeButton" type="button">Add Layers!</button>
-  	or
-	<button id ="averageCompositeButton" type="button">Average Layers!</button>
-  </div>
+			<button id ="layerCompositeButton" type="button">Add Layers!</button>
+  			or
+			<button id ="averageCompositeButton" type="button">Average Layers!</button>
+		</div>
+	</div>
+	<div id = "percentDropDown">
+		<p>Choose criteria <br>(percent)</p>
+		<div id="percentContent">
+  			<div id="percentLayerCompositeCriteria">
+  		
+  			</div>
+	
+			<button id ="percentAverageCompositeButton" type="button">Average Layers!</button>
+		</div>
+	</div>
+	<div id = "numDropDown">
+		<p>Choose criteria <br>(number of instances)</p>
+		<div id="numContent">
+  			<div id="numberLayerCompositeCriteria">
+  		
+  			</div>
+	
+			<button id ="numberLayerCompositeButton" type="button">Add Layers!</button>
+  			or
+			<button id ="numberAverageCompositeButton" type="button">Average Layers!</button>
+		</div>
+	</div>
+ </div>
+  
   
 </body>
 

@@ -2507,13 +2507,38 @@ a:focus { outline:0; }
   text-transform: none;
 }
 
-#compositeLayerSelector {
-	top: 100px; 
-	right: 20px;
-	position: absolute;
-    z-index: 10;
-    color: white;
-    background-color: black;
-    padding: 0px 15px 15px 15px;
+#perContent {
+	display: none;
 }
-#
+
+#perIndividualDropDown:hover #perContent {
+	display: block;
+}
+
+#compositeLayerSelector {
+  width: 200px;
+  display: inline-block;
+  top: 50px; 
+  right: 50px;
+  position: absolute;
+  z-index: 10;
+  color: white;
+  background-color: black;
+  padding: 0px 15px 15px 15px;
+}
+
+#percentContent {
+	display: none;
+}
+
+#percentDropDown:hover #percentContent {
+	display: block;
+}
+
+#numContent {
+	display: none;
+}
+
+#numDropDown:hover #numContent {
+	display: block;
+}
