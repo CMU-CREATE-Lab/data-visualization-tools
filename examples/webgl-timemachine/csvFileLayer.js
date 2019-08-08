@@ -9,27 +9,27 @@ var CsvFileLayer = function CsvFileLayer() {
     var absValue = Math.abs(value);
     var suffix = '';
     if (absValue < 1000) {
-        value = value;
+      value = value;
     }
     else if (absValue < 1000000) {
-        value = value / 1000;
-        suffix = "K";
+      value = value / 1000;
+      suffix = "K";
     }
     else if (absValue < 1000000000 && (absValue / 1000000) != 1000) {
-        value = value / 1000000;
-        suffix = "M";
+      value = value / 1000000;
+      suffix = "M";
     }
     else if (absValue < 1000000000000 && (absValue / 1000000000) != 1000) {
-        value = value / 1000000000;
-        suffix = "G";
+      value = value / 1000000000;
+      suffix = "G";
     }
     else if (absValue < 1000000000000000 && (absValue / 1000000000000) != 1000) {
-        value = value / 1000000000000;
-        suffix = "T";
+      value = value / 1000000000000;
+      suffix = "T";
     }
     else {
-        value = value / 1000000000000000;
-        suffix = "P";
+      value = value / 1000000000000000;
+      suffix = "P";
     }
 
     var valueStr = value.toFixed(2);
@@ -117,6 +117,8 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
   } else {
     layerOptions.hasTimeline = false;
   }
+  layerOptions.startDate = layerDef["Start date"];
+  layerOptions.endDate = layerDef["End date"];
 
   layerOptions.showGraph = layerDef["Show Graph"].toLowerCase() == 'true';
   layerOptions.mapType = layerDef["Map Type"] || "bubble";
@@ -132,7 +134,6 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
   if (typeof layerDef["Set Data Options"] != "undefined" && layerDef["Set Data Options"] != "") {
     layerOptions.setDataOptions = JSON.parse(layerDef["Set Data Options"]);
   }
-
 
   var url;
   var useLocalData = false;
@@ -202,9 +203,9 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
     var drawFunction = layerDef["Draw Function"];
     if (drawFunction) {
       if (isValidDrawFunction(drawFunction)) {
-	layerOptions.drawFunction = eval(drawFunction);
+        layerOptions.drawFunction = eval(drawFunction);
       } else {
-	console.log(drawFunction + " is not a valid Draw Function for layer type " + layerOptions.mapType);
+        console.log(drawFunction + " is not a valid Draw Function for layer type " + layerOptions.mapType);
       }
     }
 
@@ -215,18 +216,18 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
     var vertexShader = layerDef["Vertex Shader"];
     if (vertexShader) {
       if (isValidShader(vertexShader, "Vertex")) {
-	layerOptions.vertexShader = eval(vertexShader);
+        layerOptions.vertexShader = eval(vertexShader);
       } else {
-	console.log(vertexShader + " is not a valid Vertex Shader for layer type " + layerOptions.mapType);
+        console.log(vertexShader + " is not a valid Vertex Shader for layer type " + layerOptions.mapType);
       }
     }
 
     var fragmentShader = layerDef["Fragment Shader"];
     if (fragmentShader) {
       if (isValidShader(fragmentShader, "Fragment")) {
-	layerOptions.fragmentShader = eval(fragmentShader);
+        layerOptions.fragmentShader = eval(fragmentShader);
       } else {
-	console.log(fragmentShader + " is not a valid Fragment Shader for layer type " + layerOptions.mapType);
+        console.log(fragmentShader + " is not a valid Fragment Shader for layer type " + layerOptions.mapType);
       }
     }
   }
@@ -401,13 +402,39 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
   return layer;
 }
 
+CsvFileLayer.prototype.updateLayerData = function updateLayerData(layerId, newStartDate, newEndDate, newStep, refreshData, refreshTimeline) {
+  var layer = this.layerById[layerId];
+  console.log("update layer",layer.layerId, layer.startDate, layer.endDate, "with", newStartDate, newEndDate, refreshTimeline ? "new timeline" : "", refreshData ? "refresh data" : "");
+
+  newStartDate = newStartDate || layer.layerDef["Start date"]
+  newEndDate = newEndDate || layer.layerDef["End date"]
+  newStep = newStep || layer.layerDef["Step"]
+
+  if (refreshData){
+    layer.startDate = newStartDate;
+    layer.endDate = newEndDate;
+
+    layer._tileView._discardTilesAndResources(); //update tiles to use new data
+  }
+
+  if(refreshTimeline){
+    //force timeline to start 8 hours earlier
+      newStartDate = DateRangePicker.prototype.fixForLocalTimeline(newStartDate);
+      newEndDate = DateRangePicker.prototype.fixForLocalTimeline(newEndDate);
+
+    //setTimeline assumes its input dates are in local time, will add timezone offset timeline times(+4 for pgh)
+    this.setTimeLine(layerId, newStartDate, newEndDate, newStep);
+    var cachedLayerTimelinePath = layer.layerId + ".json";
+    //TODO determine timeline styling
+    requestNewTimeline(cachedLayerTimelinePath, "defaultUI"); //update timeline to match new date range
+  }
+}
 
 CsvFileLayer.prototype.addDataLoadedListener = function addDataLoadedListener(listener) {
   if (typeof(listener) === "function") {
     this.dataLoadedListeners.push(listener);
   }
 };
-
 
 CsvFileLayer.prototype.removeDataLoadedListener = function removeDataLoadedListener(listener) {
   for (var i = 0; i < this.dataLoadedListeners.length; i++) {
@@ -463,9 +490,9 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
         this.setLegend(layer.layerId);
       }
       this.setTimeLine(layer.layerId,
-           layerDef["Start date"],
-           layerDef["End date"],
-           layerDef["Step"]);
+                       layerDef["Start date"],
+                       layerDef["End date"],
+                       layerDef["Step"]);
 
     }
   }
@@ -699,13 +726,13 @@ CsvFileLayer.prototype.setLegend = function setLegend(id) {
       if (layer.legendContent == 'auto') {
         var radius = this.getRadius(layer);
         var opts = {
-            'id': id,
-            'title': layer.name,
-            'credit': layer.credit,
-            'keys': [],
-            'colors': ["#ffffff", "#fff18e", "#ffdc5b", "#ffc539", "#ffad21", "#ff920c", "#ff7500", "#ff5000", "#ff0000"],
-            'values': [this.formatValue(radius.invert(0)), this.formatValue(radius.invert(0.5)), this.formatValue(radius.invert(1))],
-            'colorMap': layer.imageSrc
+          'id': id,
+          'title': layer.name,
+          'credit': layer.credit,
+          'keys': [],
+          'colors': ["#ffffff", "#fff18e", "#ffdc5b", "#ffc539", "#ffad21", "#ff920c", "#ff7500", "#ff5000", "#ff0000"],
+          'values': [this.formatValue(radius.invert(0)), this.formatValue(radius.invert(0.5)), this.formatValue(radius.invert(1))],
+          'colorMap': layer.imageSrc
         }
         if (layer.legendKey) {
           opts.keys.push({'str': layer.legendKey});
@@ -727,23 +754,23 @@ CsvFileLayer.prototype.setLegend = function setLegend(id) {
 
       }
     } else {
-        var str = '';
-        if (layer.legendContent == '') {
-          var div = '<div style="font-size: 15px">' + layer.name + '<span class="credit"> ('+ layer.credit +')</span></div>';
-          str = div;
-        } else {
-          var div = '<div style="font-size: 15px">' + layer.name + '<span class="credit"> ('+ layer.credit +')</span></div>';
-          str = div + layer.legendContent;
-        }
-        var opts = {
-          'id' : id,
-          'str': str
-        }
-        var legend = new Legend(id, str);
-        $('#legend-content table tr:last').after(legend.toString());
-        if (layer.mapType != 'raster') {
-          $("#" + id + "-legend").show();
-        }
+      var str = '';
+      if (layer.legendContent == '') {
+        var div = '<div style="font-size: 15px">' + layer.name + '<span class="credit"> ('+ layer.credit +')</span></div>';
+        str = div;
+      } else {
+        var div = '<div style="font-size: 15px">' + layer.name + '<span class="credit"> ('+ layer.credit +')</span></div>';
+        str = div + layer.legendContent;
+      }
+      var opts = {
+        'id' : id,
+        'str': str
+      }
+      var legend = new Legend(id, str);
+      $('#legend-content table tr:last').after(legend.toString());
+      if (layer.mapType != 'raster') {
+        $("#" + id + "-legend").show();
+      }
     }
   }
 }
@@ -754,12 +781,12 @@ CsvFileLayer.prototype.setLegend = function setLegend(id) {
 var COUNTRY_POLYGONS;
 var COUNTRY_POLYGONS_RESOURCE =
     new Resource("country_polygons.geojson",
-		 {
-		   transform: parseAndIndexGeojson.bind(null, 'names'),
-		   receiveData: function(data) {
-		     COUNTRY_POLYGONS = data;
-		   }
-		 });
+     {
+       transform: parseAndIndexGeojson.bind(null, 'names'),
+       receiveData: function(data) {
+         COUNTRY_POLYGONS = data;
+       }
+     });
 
 function searchCountryList(feature_collection, name, name_key) {
   if (typeof feature_collection["hash"] !== "undefined") {
@@ -768,9 +795,9 @@ function searchCountryList(feature_collection, name, name_key) {
   for (var i = 0; i < feature_collection['features'].length; i++) {
     var feature = feature_collection['features'][i];
     if (typeof name_key != "undefined") {
-        if (name == feature["properties"][name_key]) {
-          return feature;
-        }
+      if (name == feature["properties"][name_key]) {
+        return feature;
+      }
     } else {
       var names = feature['properties']['names'];
       if (typeof names == "undefined") {

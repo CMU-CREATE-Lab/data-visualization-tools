@@ -24,6 +24,7 @@ function WebGLVectorTile2(layer, tileview, glb, tileidx, bounds, url, opt_option
   this.dotmapColors = opt_options.dotmapColors;
   this._drawOptions = opt_options.drawOptions;
   this._setDataOptions = opt_options.setDataOptions;
+  this._layer = layer;
 
   this.gl.getExtension("OES_standard_derivatives");
 
@@ -805,7 +806,7 @@ WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv = function() {
 
 // Creates index and stores in 'hash' field, toplevel
 WebGLVectorTile2.prototype.findResource = function(fieldName, urlPattern, options) {
-  var url = this._tileidx.expandUrl(urlPattern);
+  var url = this._tileidx.expandUrl(urlPattern, this._layer);
   // If urlPattern contains {x} ... {z}, Resource is tile-specific and held in tile
   // Otherwise Resource is layer-specific and held and shared from TileView
   

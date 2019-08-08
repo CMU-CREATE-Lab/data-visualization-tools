@@ -30,7 +30,14 @@ TileIdx.prototype.toString = function() {
 };
 
 // Expands {x} (column), {y} (row), {yflip} (mirrored row), and {z} (level) in an URL
-TileIdx.prototype.expandUrl = function(url) {
+TileIdx.prototype.expandUrl = function(url, layer) {
+  if (layer && layer.startDate && layer.endDate){
+    var startEpochTime = parseDateStr(layer.startDate);
+    var endEpochTime = parseDateStr(layer.endDate);
+
+    url = url.replace("{startEpochTime}", startEpochTime).replace("{endEpochTime}", endEpochTime);
+  }
+
   return url
     .replace("{z}", this.l)
     .replace("{x}", this.c)

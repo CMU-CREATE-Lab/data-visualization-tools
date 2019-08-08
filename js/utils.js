@@ -580,7 +580,7 @@ function parseDateStr(date) {
         if (m[6] != undefined) {
           to_parse += ':' + m[6]; // SS
         } else {
-          to_parse += ':00';          s
+          to_parse += ':00';
         }
       } else {
         to_parse += 'T00:00:00';
