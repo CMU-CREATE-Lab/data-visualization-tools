@@ -15,7 +15,6 @@ function WebglVectorLayer2(glb, canvasLayer, tileUrl, opt_options) {
 
   if (opt_options) {
     $.extend(this, opt_options);
-    console.log("BIKE Options ", opt_options)
   }
 
   var r = canvasLayer.timelapse.getMetadata();

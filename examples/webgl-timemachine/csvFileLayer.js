@@ -117,7 +117,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
   } else {
     layerOptions.hasTimeline = false;
   }
-  
+
   layerOptions.showGraph = layerDef["Show Graph"].toLowerCase() == 'true';
   layerOptions.mapType = layerDef["Map Type"] || "bubble";
   layerOptions.color = layerDef["Color"] ? JSON.parse(layerDef["Color"]) : null;
@@ -271,7 +271,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
     }
     overrideDrawingFns();
   }
-  
+
 
   var layer = new WebglLayer(glb, canvasLayer, url, layerOptions);
   layer.options = layer.options || {};
@@ -308,13 +308,9 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
     layer.options.setDataOptions = layerOptions.setDataOptions;
   }
 
-  if(layer.options.setDataOptions && layer.options.setDataOptions.hasDataFilter)
-  {
+  if(layer.options.setDataOptions && layer.options.setDataOptions.hasDataFilter) {
     layer.options.dataFilter = layer.options.setDataOptions.defaultDataFilter
-    console.log(layerOptions)
-    console.log("Special Bike")
   }
-  
 
   // Comparison-mode, left and right half-circles
   var re = /_paired/;
@@ -651,7 +647,7 @@ CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate,
 // Find first tile with _radius and return _radius
 CsvFileLayer.prototype.getRadius = function(layer) {
   var tiles = layer._tileView._tiles;
-  
+
   for (var key in tiles) {
     if ('_radius' in tiles[key]) {
       return tiles[key]._radius;
@@ -668,7 +664,7 @@ CsvFileLayer.prototype.updateLayerData = function updateLayerData(layerId, dataF
    layer.options.dataFilter = dataFilter;
 
    layer._tileView._discardTilesAndResources(); //update tiles to use new data
- 
+
  //this.setTimeLine(layerId, newStartDate, newEndDate, newStep);
  //var cachedLayerTimelinePath = layer.layerId + ".json";
  //TODO determine timeline styling
