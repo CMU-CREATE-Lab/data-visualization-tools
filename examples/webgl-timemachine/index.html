@@ -6180,7 +6180,7 @@
 
          })
          
-         $("#numberLayerCompositeButton").on("click", function() {
+         $("#numberAverageCompositeButton").on("click", function() {
         
         	var userSelection = $("#numberLayerCompositeCriteria").find("input:checked")
         	var selected = ""
@@ -10467,42 +10467,42 @@
   <div id="sidePanel"></div>
   
   <div id="compositeLayerSelector">
-    <p>Create your own map! Layers of different scales cannot be combined.</p>
+    <p>Create your own map:</p>
   	<div id="perIndividualDropDown">
-  		<p>Choose criteria 
-  		<br>(per ten thousand individuals)</p>
+  		<p>+Per Ten Thousand Composite</p>
   		<div id="perContent">
   			<div id="layerCompositeCriteria">
   		
   			</div>
 	
-			<button id ="layerCompositeButton" type="button">Add Layers!</button>
+			<button id ="layerCompositeButton" type="button">Combined!</button>
   			or
-			<button id ="averageCompositeButton" type="button">Average Layers!</button>
+			<button id ="averageCompositeButton" type="button">Averaged!</button>
 		</div>
 	</div>
 	<div id = "percentDropDown">
-		<p>Choose criteria <br>(percent)</p>
+		<p>+Percent Composite</p>
 		<div id="percentContent">
   			<div id="percentLayerCompositeCriteria">
   		
   			</div>
 	
-			<button id ="percentAverageCompositeButton" type="button">Average Layers!</button>
+			<button id ="percentAverageCompositeButton" type="button">Averaged!</button>
 		</div>
 	</div>
 	<div id = "numDropDown">
-		<p>Choose criteria <br>(number of instances)</p>
+		<p>+Number of Instances Composite</p>
 		<div id="numContent">
   			<div id="numberLayerCompositeCriteria">
   		
   			</div>
 	
-			<button id ="numberLayerCompositeButton" type="button">Add Layers!</button>
+			<button id ="numberLayerCompositeButton" type="button">Combined!</button>
   			or
-			<button id ="numberAverageCompositeButton" type="button">Average Layers!</button>
+			<button id ="numberAverageCompositeButton" type="button">Averaged!</button>
 		</div>
 	</div>
+	<p>(Layers of different scales cannot be combined.)<p>
  </div>
   
   
