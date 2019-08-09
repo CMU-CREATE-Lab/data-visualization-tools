@@ -6071,7 +6071,7 @@
         $("#compositeLayerSelector").appendTo($("#timeMachine .player"));
                 
         $.ajax({
-        	url:"http://localhost:5000/",
+        	url:"https://layercomposite.createlab.org/",
         	dataType:"json",
         	success: function(criteriaJson) {
         		var html = ""
@@ -6085,7 +6085,7 @@
         })
         
         $.ajax({
-        	url:"http://localhost:5000/rate",
+        	url:"https://layercomposite.createlab.org/rate",
         	dataType:"json",
         	success: function(criteriaJson) {
         		var html = ""
@@ -6099,7 +6099,7 @@
         })
         
         $.ajax({
-        	url:"http://localhost:5000/num",
+        	url:"https://layercomposite.createlab.org/num",
         	dataType:"json",
         	success: function(criteriaJson) {
         		var html = ""
