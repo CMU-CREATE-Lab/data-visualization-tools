@@ -104,13 +104,6 @@ WebglVectorLayer2.prototype._createTile = function(ti, bounds) {
   if (this.setDataOptions) {
     opt_options.setDataOptions = this.setDataOptions;
   }
-  
-  console.log("Biiiike ", this)
-  if(this.dataFilter)
-  {
-    console.log("Capital BIIIIKE")
-    opt_options.dataFilter = this.dataFilter;
-  }
 
   opt_options.dotmapColors = this.dotmapColors;
   return new WebGLVectorTile2(this, this._tileView, glb, ti, bounds, url, opt_options);
