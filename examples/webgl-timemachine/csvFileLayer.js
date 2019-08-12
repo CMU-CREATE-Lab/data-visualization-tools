@@ -404,8 +404,6 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
 
 CsvFileLayer.prototype.updateLayerData = function updateLayerData(layerId, newStartDate, newEndDate, newStep, refreshData, refreshTimeline) {
   var layer = this.layerById[layerId];
-  console.log("update layer",layer.layerId, layer.startDate, layer.endDate, "with", newStartDate, newEndDate, refreshTimeline ? "new timeline" : "", refreshData ? "refresh data" : "");
-
   newStartDate = newStartDate || layer.layerDef["Start date"]
   newEndDate = newEndDate || layer.layerDef["End date"]
   newStep = newStep || layer.layerDef["Step"]
@@ -414,15 +412,14 @@ CsvFileLayer.prototype.updateLayerData = function updateLayerData(layerId, newSt
     layer.startDate = newStartDate;
     layer.endDate = newEndDate;
 
-    layer._tileView._discardTilesAndResources(); //update tiles to use new data
+    layer.destroy(); //update tiles to use new data
   }
 
   if(refreshTimeline){
-    //force timeline to start 8 hours earlier
-      newStartDate = DateRangePicker.prototype.fixForLocalTimeline(newStartDate);
-      newEndDate = DateRangePicker.prototype.fixForLocalTimeline(newEndDate);
+    //assume input dates are in GMT, force timeline to display "local" time
+    newStartDate = DateRangePicker.prototype.fixForLocalTimeline(newStartDate);
+    newEndDate = DateRangePicker.prototype.fixForLocalTimeline(newEndDate);
 
-    //setTimeline assumes its input dates are in local time, will add timezone offset timeline times(+4 for pgh)
     this.setTimeLine(layerId, newStartDate, newEndDate, newStep);
     var cachedLayerTimelinePath = layer.layerId + ".json";
     //TODO determine timeline styling
