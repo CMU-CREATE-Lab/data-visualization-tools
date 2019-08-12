@@ -47,7 +47,6 @@ WebglVectorLayer2.prototype.getHeight = function() {
 };
 
 WebglVectorLayer2.prototype._createTile = function(ti, bounds) {
-  // console.log("create tile", this)
   var url = ti.expandUrl(this._tileUrl, this);
 
   // Consider not copying these layer-scope settings to individual tiles and instead

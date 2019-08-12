@@ -219,6 +219,15 @@ _discardTilesAndResources = function() {
     this._deleteTile(this._tiles[key]);
     delete this._tiles[key];
   }
+
+  if (this.dataResource){
+    keys = Object.keys(this.dataResource);
+    for (var i = 0; i < keys.length; i++) {
+      var key = keys[i];
+      delete this.dataResource[key];
+    }
+    delete this.dataResource;
+  }
 };
 
 TileView.prototype.
