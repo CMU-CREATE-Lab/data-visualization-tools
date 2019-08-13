@@ -1033,7 +1033,8 @@ WebGLVectorTile2.prototype._buildChoroplethTileBti = function (data) {
     for (var j = firstCol; j < lastCol; j++) {
       var val = csvRow[j + csv.first_data_col];
       if (!isNaN(val)) {
-	texture[(texRow * this.valuesWidth + texCol + j) * 2 + 0] = Math.max(0, Math.min(255, Math.floor(radius(val) * 256)));
+	var texVal = Math.max(0, Math.min(255, Math.floor(radius(val) * 256)));
+	texture[(texRow * this.valuesWidth + texCol + j) * 2 + 0] = texVal;
 	texture[(texRow * this.valuesWidth + texCol + j) * 2 + 1] = 255; // alpha
       }
     }
@@ -5685,8 +5686,10 @@ WebGLVectorTile2.choroplethMapVertexShaderV2 = [
   '  vec4 position;',
   '  position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);',
   '  gl_Position = position;',
-  '  v_ValCoord = vec2((mod(a_RegionIdx, u_NumRegionsPerRow) * u_NumEpochs + u_TimeIndex + 0.5) / u_ValuesWidth,',
-  '                    (floor(a_RegionIdx / u_NumRegionsPerRow) + 0.5) / u_ValuesHeight);',
+  '  float row = floor((a_RegionIdx + 0.5) / u_NumRegionsPerRow);',
+  '  float col = a_RegionIdx - row * u_NumRegionsPerRow;',
+  '  v_ValCoord = vec2((col * u_NumEpochs + u_TimeIndex + 0.5) / u_ValuesWidth,',
+  '                    (row + 0.5) / u_ValuesHeight);',
   '}'].join('\n');
 
 WebGLVectorTile2.choroplethMapFragmentShaderV2 = [
