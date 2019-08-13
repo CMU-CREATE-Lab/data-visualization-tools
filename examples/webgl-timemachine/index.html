@@ -6069,6 +6069,14 @@
         $controlsContainer.appendTo($("#timeMachine .player"));
         
         $("#compositeLayerSelector").appendTo($("#timeMachine .player"));
+        
+        csvFileLayers.addDataLoadedListener(function(layerId) {
+	 		var layer = getLayer(layerId)
+		    if (!layer.setDataOptions || !layer.setDataOptions.hasDataFilter) return;
+ 			var newDates = layer._tileView.dataResource.data.header.slice(1);
+ 			csvFileLayers.setTimeLine(layerId, newDates[0], newDates[newDates.length - 1], 1);
+ 			requestNewTimeline(layerId + ".json", "defaultUI");
+		});
                 
         $.ajax({
         	url:"https://layercomposite.createlab.org/",
@@ -10503,6 +10511,7 @@
 		</div>
 	</div>
 	<p>(Layers of different scales cannot be combined.)<p>
+	<div id="compositeError">Error: those layers do not have compatible date ranges.</div>
  </div>
   
   

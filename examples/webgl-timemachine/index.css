@@ -2542,3 +2542,8 @@ a:focus { outline:0; }
 #numDropDown:hover #numContent {
 	display: block;
 }
+
+#compositeError {
+	display: none;
+	color: firebrick;
+}
