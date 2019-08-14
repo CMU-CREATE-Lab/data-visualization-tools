@@ -3592,7 +3592,16 @@ WebGLVectorTile2.prototype._drawPolygon = function(transform, options) {
   if (this._ready) {
     gl.useProgram(this.program);
     gl.enable(gl.BLEND);
-    gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
+
+    var sfactor = gl.SRC_ALPHA;
+    var dfactor = gl.ONE;
+    if (options.dfactor) {
+      dfactor = gl[options.dfactor];
+    }
+    if (options.sfactor) {
+      sfactor = gl[options.sfactor];
+    }
+    gl.blendFunc(sfactor, dfactor);
 
     var tileTransform = new Float32Array(transform);
     var zoom = options.zoom;
