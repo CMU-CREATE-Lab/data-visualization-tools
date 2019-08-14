@@ -535,7 +535,7 @@ CsvFileLayer.prototype.loadLayers = function loadLayers(path) {
 };
 
 
-CsvFileLayer.prototype.setDateStr = function setDateStr(yearStr, monthStr, dayStr, hourStr, minuteStr) {
+CsvFileLayer.prototype.setDateStr = function setDateStr(yearStr, monthStr, dayStr, hourStr, minuteStr, secondStr) {
   var out = '';
   if (typeof yearStr !== "undefined") {
     out += yearStr;
@@ -563,6 +563,13 @@ CsvFileLayer.prototype.setDateStr = function setDateStr(yearStr, monthStr, daySt
 
   if (typeof minuteStr !== "undefined") {
     out += ':' + minuteStr;
+  } else {
+    out += ':00';
+    return out;
+  }
+
+  if (typeof secondStr !== "undefined") {
+    out += ':' + secondStr;
     return out;
   } else {
     out += ':00';
@@ -574,7 +581,7 @@ CsvFileLayer.prototype.setDateStr = function setDateStr(yearStr, monthStr, daySt
 CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate, endDate, step) {
   var captureTimes = [];
 
-  var yyyymmddhhmm_re = /(\d{4})(\d{2})(\d{2})?(\d{2})?(\d{2})?$/;
+  var yyyymmddhhmm_re = /(\d{4})(\d{2})(\d{2})?(\d{2})?(\d{2})?(\d{2})?/;
   var sm = startDate.match(yyyymmddhhmm_re);
   var em = endDate.match(yyyymmddhhmm_re);
   var stepSize = parseInt(step) || 1;
@@ -584,11 +591,15 @@ CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate,
     var startDay = sm[3];
     var startHour = sm[4];
     var startMinute = sm[5];
+    var startSecond = sm[6];
+
     var endYear = em[1];
     var endMonth = em[2];
     var endDay = em[3];
     var endHour = em[4];
     var endMinute = em[5];
+    var endSecond = em[6];
+
     startYear = parseInt(startYear, 10);
     startMonth = parseInt(startMonth, 10);
     endYear = parseInt(endYear, 10);
@@ -603,8 +614,8 @@ CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate,
           return (n < 10) ? ("0" + n) : n;
         }
 
-        var mDateStr = this.setDateStr(startYear, startMonth, startDay, startHour, startMinute);
-        var nDateStr = this.setDateStr(endYear, endMonth, endDay, endHour, endMinute);
+        var mDateStr = this.setDateStr(startYear, startMonth, startDay, startHour, startMinute, startSecond);
+        var nDateStr = this.setDateStr(endYear, endMonth, endDay, endHour, endMinute, endSecond);
 
         var m = new Date(mDateStr);
         var n = new Date(nDateStr);
@@ -616,12 +627,17 @@ CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate,
             captureTimeStr += ' ' + pad(tomorrow.getUTCHours());
             if (typeof startMinute != "undefined") {
               captureTimeStr += ':' + pad(tomorrow.getUTCMinutes());
+              if (typeof startSecond != "undefined") {
+                captureTimeStr += ':' + pad(tomorrow.getUTCSeconds());
+              }
             } else {
               captureTimeStr += ':' + '00';
             }
           }
           captureTimes.push(captureTimeStr);
-          if (typeof startMinute != "undefined") {
+          if (typeof startSecond != "undefined") {
+            tomorrow.setUTCSeconds(tomorrow.getUTCSeconds() + stepSize);
+          } else if (typeof startMinute != "undefined") {
             tomorrow.setUTCMinutes(tomorrow.getUTCMinutes() + stepSize);
           } else if (typeof startHour != "undefined") {
             tomorrow.setUTCHours(tomorrow.getUTCHours() + stepSize);
