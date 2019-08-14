@@ -2545,5 +2545,7 @@ a:focus { outline:0; }
 
 #compositeError {
 	display: none;
-	color: firebrick;
+	color: white;
+	background-color: darkred;
+	padding: 15px;
 }

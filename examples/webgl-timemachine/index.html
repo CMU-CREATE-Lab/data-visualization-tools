@@ -6131,6 +6131,22 @@
         	
         	selected = selected.slice(0, -1)
         	
+        	const Http = new XMLHttpRequest();
+			const url='https://layercomposite.createlab.org/getdates?files=' + selected;
+			Http.open("GET", url);
+			Http.send();
+			
+			Http.onreadystatechange = (e) => {
+				var JSONObject = JSON.parse(Http.responseText);
+  				if(JSONObject["message"] == "Malformed Request, bad date range")
+  				{
+  					document.getElementById("compositeError").style.display = "block"
+  				}
+  				else
+  				{
+  					document.getElementById("compositeError").style.display = "none"
+  				}
+			}
         	
         	csvFileLayers.updateLayerData("safety_composite_for_us", selected)
         	
@@ -6148,6 +6164,22 @@
         	
         	selected = selected.slice(0, -1)
         	
+        	const Http = new XMLHttpRequest();
+			const url='https://layercomposite.createlab.org/getdates?files=' + selected;
+			Http.open("GET", url);
+			Http.send();
+			
+			Http.onreadystatechange = (e) => {
+				var JSONObject = JSON.parse(Http.responseText);
+  				if(JSONObject["message"] == "Malformed Request, bad date range")
+  				{
+  					document.getElementById("compositeError").style.display = "block"
+  				}
+  				else
+  				{
+  					document.getElementById("compositeError").style.display = "none"
+  				}
+			}
         	
         	csvFileLayers.updateLayerData("safety_composite_for_us_average", selected)
         	
@@ -6164,6 +6196,23 @@
         	}
         	
         	selected = selected.slice(0, -1)
+        	
+        	const Http = new XMLHttpRequest();
+			const url='https://layercomposite.createlab.org/getdates?files=' + selected;
+			Http.open("GET", url);
+			Http.send();
+			
+			Http.onreadystatechange = (e) => {
+				var JSONObject = JSON.parse(Http.responseText);
+  				if(JSONObject["message"] == "Malformed Request, bad date range")
+  				{
+  					document.getElementById("compositeError").style.display = "block"
+  				}
+  				else
+  				{
+  					document.getElementById("compositeError").style.display = "none"
+  				}
+			}
         	
         	
         	csvFileLayers.updateLayerData("safety_composite_percent", selected)
@@ -6182,6 +6231,23 @@
         	
         	selected = selected.slice(0, -1)
         	
+        	const Http = new XMLHttpRequest();
+			const url='https://layercomposite.createlab.org/getdates?files=' + selected;
+			Http.open("GET", url);
+			Http.send();
+			
+			Http.onreadystatechange = (e) => {
+				var JSONObject = JSON.parse(Http.responseText);
+  				if(JSONObject["message"] == "Malformed Request, bad date range")
+  				{
+  					document.getElementById("compositeError").style.display = "block"
+  				}
+  				else
+  				{
+  					document.getElementById("compositeError").style.display = "none"
+  				}
+			}
+        	
         	
         	csvFileLayers.updateLayerData("safety_composite_combined_num", selected)
         	
@@ -6198,6 +6264,23 @@
         	}
         	
         	selected = selected.slice(0, -1)
+        	
+        	const Http = new XMLHttpRequest();
+			const url='https://layercomposite.createlab.org/getdates?files=' + selected;
+			Http.open("GET", url);
+			Http.send();
+			
+			Http.onreadystatechange = (e) => {
+				var JSONObject = JSON.parse(Http.responseText);
+  				if(JSONObject["message"] == "Malformed Request, bad date range")
+  				{
+  					document.getElementById("compositeError").style.display = "block"
+  				}
+  				else
+  				{
+  					document.getElementById("compositeError").style.display = "none"
+  				}
+			}
         	
         	
         	csvFileLayers.updateLayerData("safety_composite_averaged_num", selected)
