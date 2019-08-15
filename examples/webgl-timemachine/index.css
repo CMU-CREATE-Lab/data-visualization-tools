@@ -2549,3 +2549,20 @@ a:focus { outline:0; }
 	background-color: darkred;
 	padding: 15px;
 }
+
+#instructionsComposite:link {
+	color: white;
+	text-decoration: none;
+}
+
+#instructionsComposite:visited {
+	color: white;
+	text-decoration: none;
+}
+
+#instructionsComposite:hover {
+	color: red;
+	text-decoration: none;
+}
+
+
