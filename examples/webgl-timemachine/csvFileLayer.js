@@ -417,8 +417,8 @@ CsvFileLayer.prototype.updateLayerData = function updateLayerData(layerId, newSt
 
   if(refreshTimeline){
     //assume input dates are in GMT, force timeline to display "local" time
-    newStartDate = DateRangePicker.prototype.fixForLocalTimeline(newStartDate);
-    newEndDate = DateRangePicker.prototype.fixForLocalTimeline(newEndDate);
+    // newStartDate = DateRangePicker.prototype.fixForLocalTimeline(newStartDate);
+    // newEndDate = DateRangePicker.prototype.fixForLocalTimeline(newEndDate);
 
     this.setTimeLine(layerId, newStartDate, newEndDate, newStep);
     var cachedLayerTimelinePath = layer.layerId + ".json";
@@ -534,7 +534,7 @@ CsvFileLayer.prototype.loadLayers = function loadLayers(path) {
   });
 };
 
-
+// Takes in UTC time, returns ISO string date format
 CsvFileLayer.prototype.setDateStr = function setDateStr(yearStr, monthStr, dayStr, hourStr, minuteStr, secondStr) {
   var out = '';
   if (typeof yearStr !== "undefined") {
@@ -556,16 +556,16 @@ CsvFileLayer.prototype.setDateStr = function setDateStr(yearStr, monthStr, daySt
   }
 
   if (typeof hourStr !== "undefined") {
-    out += ' ' + hourStr;
+    out += 'T' + hourStr;
   } else {
-    return out;
+    return out + 'Z';
   }
 
   if (typeof minuteStr !== "undefined") {
     out += ':' + minuteStr;
   } else {
     out += ':00';
-    return out;
+    return out + 'Z';
   }
 
   if (typeof secondStr !== "undefined") {
@@ -573,9 +573,8 @@ CsvFileLayer.prototype.setDateStr = function setDateStr(yearStr, monthStr, daySt
     return out;
   } else {
     out += ':00';
-    return out;
+    return out + 'Z';
   }
-
 }
 
 CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate, endDate, step) {
@@ -600,62 +599,66 @@ CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate,
     var endMinute = em[5];
     var endSecond = em[6];
 
-    startYear = parseInt(startYear, 10);
-    startMonth = parseInt(startMonth, 10);
-    endYear = parseInt(endYear, 10);
-    endMonth = parseInt(endMonth, 10);
+    function pad(n) {
+      return (n < 10) ? ("0" + n) : n;
+    }
 
-    if (isNaN(startYear) || isNaN(endYear) || isNaN(startMonth) || isNaN(endMonth) ) {
+    var startYearInt = parseInt(startYear, 10);
+    var startMonthInt = parseInt(startMonth, 10);
+    var endYearInt = parseInt(endYear, 10);
+    var endMonthInt = parseInt(endMonth, 10);
+
+    if (isNaN(startYearInt) || isNaN(startMonthInt) || isNaN(endYearInt) || isNaN(endMonthInt) ) {
+    // if (isNaN(startYear) || isNaN(endYear) || isNaN(startMonth) || isNaN(endMonth) ) {
       console.log('ERROR: CsvFileLayer.prototype.setTimeLine unable to parse startDate or endDate');
       captureTimes = cached_ajax['landsat-times.json']['capture-times'];
     } else {
       if (typeof startDay != "undefined" && typeof endDay != "undefined") {
-        function pad(n) {
-          return (n < 10) ? ("0" + n) : n;
-        }
-
+        // console.log(startYear, startMonth, startDay, startHour, startMinute, startSecond);
         var mDateStr = this.setDateStr(startYear, startMonth, startDay, startHour, startMinute, startSecond);
         var nDateStr = this.setDateStr(endYear, endMonth, endDay, endHour, endMinute, endSecond);
-
         var m = new Date(mDateStr);
         var n = new Date(nDateStr);
         var tomorrow = m;
         //tomorrow.setDate(tomorrow.getDate() + 1);
         while (tomorrow.getTime() <= n.getTime()) {
-          var captureTimeStr = tomorrow.getUTCFullYear() + '-' + pad((tomorrow.getUTCMonth() + 1).toString()) + '-' + pad(tomorrow.getUTCDate().toString());
+          var captureTimeStr = tomorrow.getFullYear() + '-' + pad((tomorrow.getMonth() + 1).toString()) + '-' + pad(tomorrow.getDate().toString());
           if (typeof startHour != "undefined") {
-            captureTimeStr += ' ' + pad(tomorrow.getUTCHours());
+            captureTimeStr += ' ' + pad(tomorrow.getHours());
             if (typeof startMinute != "undefined") {
-              captureTimeStr += ':' + pad(tomorrow.getUTCMinutes());
+              captureTimeStr += ':' + pad(tomorrow.getMinutes());
               if (typeof startSecond != "undefined") {
-                captureTimeStr += ':' + pad(tomorrow.getUTCSeconds());
+                captureTimeStr += ':' + pad(tomorrow.getSeconds());
               }
             } else {
               captureTimeStr += ':' + '00';
             }
           }
+          //TODO add timezone to timeline display w/o affecting share link
+          if (typeof(Intl) != "undefined") {
+            // var timezoneStr = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            // captureTimeStr += timezoneStr ? (" " + timezoneStr.replace("_"," ")) : "";
+          }
+
           captureTimes.push(captureTimeStr);
           if (typeof startSecond != "undefined") {
-            tomorrow.setUTCSeconds(tomorrow.getUTCSeconds() + stepSize);
+            tomorrow.setSeconds(tomorrow.getSeconds() + stepSize);
           } else if (typeof startMinute != "undefined") {
-            tomorrow.setUTCMinutes(tomorrow.getUTCMinutes() + stepSize);
+            tomorrow.setMinutes(tomorrow.getMinutes() + stepSize);
           } else if (typeof startHour != "undefined") {
-            tomorrow.setUTCHours(tomorrow.getUTCHours() + stepSize);
+            tomorrow.setHours(tomorrow.getHours() + stepSize);
           } else {
-            tomorrow.setUTCDate(tomorrow.getUTCDate() + stepSize);
+            tomorrow.setDate(tomorrow.getDate() + stepSize);
           }
         }
       } else { // generate yyyy-mm
-        function pad(n) {
-          return (n < 10) ? ("0" + n) : n;
-        }
-        for (var i = startYear; i <= endYear; i++) {
+        for (var i = startYearInt; i <= endYearInt; i++) {
           var beginMonth = 1;
           var stopMonth = 12;
-          if (i == startYear) {
+          if (i == startYearInt) {
             beginMonth = startMonth;
           }
-          if (i == endYear) {
+          if (i == endYearInt) {
             stopMonth = endMonth;
           }
           for (var j = beginMonth; j <= stopMonth; j++) {
@@ -665,13 +668,11 @@ CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate,
       }
     }
   } else  { // generate yyyy
-    startDate = parseInt(startDate,10);
-    endDate = parseInt(endDate,10);
     var stepSize = parseInt(step,10) || 1;
-    if (isNaN(startDate) || isNaN(endDate) || isNaN(stepSize) ) {
+    if (isNaN(startYearInt) || isNaN(endYearInt) || isNaN(stepSize) ) {
       captureTimes = cached_ajax['landsat-times.json']['capture-times'];
     } else {
-      for (var i = startDate; i < endDate + 1; i+=stepSize) {
+      for (var i = startYearInt; i < endYearInt + 1; i+=stepSize) {
         captureTimes.push(i.toString());
       }
     }
