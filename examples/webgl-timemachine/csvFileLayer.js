@@ -636,8 +636,8 @@ CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate,
           }
           //TODO add timezone to timeline display w/o affecting share link
           if (typeof(Intl) != "undefined") {
-            // var timezoneStr = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            // captureTimeStr += timezoneStr ? (" " + timezoneStr.replace("_"," ")) : "";
+            var timezoneStr = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            captureTimeStr += timezoneStr ? (" " + timezoneStr.replace("_"," ")) : "";
           }
 
           captureTimes.push(captureTimeStr);

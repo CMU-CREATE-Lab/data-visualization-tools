@@ -89,7 +89,6 @@ var DateRangePicker = function DateRangePicker(){
         $("#input2").val($("#input1").val());
       }
       $('.datepicker').datepicker("setDate",date1)
-      //console.log("change date1",date1);
     });
     $("#input2").change(function(){
       var date1 = that.getDate1();
@@ -98,7 +97,6 @@ var DateRangePicker = function DateRangePicker(){
         $("#input1").val($("#input2").val());
       }
       $('.datepicker').datepicker("setDate",date2)
-      //console.log("change date2",date2);
     });
   }
 };
@@ -186,8 +184,7 @@ DateRangePicker.prototype.updateCalendarLayers = function updateCalendarLayers(o
       if (lastCalLayer.layerId != lastActiveId){
         // if last selected layer is not a calendar layer
         var lastActive = getLayer(lastActiveId);
-        console.log("last active layer not calendar",activeEarthTimeLayers,lastActive)
-        if (lastActive && lastActive.layerDef["Start date"] && lastActive.layerDef["End date"]){
+        if (lastActive && lastActive.layerDef && lastActive.layerDef["Start date"] && lastActive.layerDef["End date"]){
           // if last active layer is not bkgd layer, use its start and end date
           newStartDate = lastActive.layerDef["Start date"];
           newEndDate = lastActive.layerDef["End date"];
@@ -224,7 +221,6 @@ DateRangePicker.prototype.updateCalendarLayers = function updateCalendarLayers(o
       // convert calendar dates to GMT
       newStartDate = this.toGMTEarthtimeDate(date1);
       newEndDate = this.toGMTEarthtimeDate(date2);
-      //console.log("(local)", date1, date2, "(utc)", newStartDate, newEndDate);
 
       updateHighlightedRange(newStartDate, newEndDate);
       updateCalendarLayersData(newStartDate, newEndDate, this);
@@ -234,7 +230,7 @@ DateRangePicker.prototype.updateCalendarLayers = function updateCalendarLayers(o
   // Call function to update layers' data
   // dpr = DateRangePicker object
   function updateCalendarLayersData(newStartDate, newEndDate, drp){
-    console.log("update layer data", newStartDate, newEndDate)
+    // console.log("update layer data", newStartDate, newEndDate)
     for(var i=0; i<drp.calendarLayersList.length; i++){
       var layer = drp.calendarLayersList[i];
       var refreshData = parseDateStr(layer.startDate) > parseDateStr(newStartDate) || 
@@ -252,8 +248,6 @@ DateRangePicker.prototype.updateCalendarLayers = function updateCalendarLayers(o
     // assume start/end in GMT, want startDate/endDate in local
     var startDate = new Date(parseDateStr(start) * 1000);
     var endDate = new Date(parseDateStr(end) * 1000);
-
-    //console.log("update highlighted range (utc)", start, end, "(local)", startDate.toLocaleString(), endDate.toLocaleString());
 
     $("#input1").val($.datepicker.formatDate("mm/dd/yy", startDate));
     $("#input2").val($.datepicker.formatDate("mm/dd/yy", endDate));
