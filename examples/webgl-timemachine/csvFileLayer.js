@@ -609,12 +609,10 @@ CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate,
     var endMonthInt = parseInt(endMonth, 10);
 
     if (isNaN(startYearInt) || isNaN(startMonthInt) || isNaN(endYearInt) || isNaN(endMonthInt) ) {
-    // if (isNaN(startYear) || isNaN(endYear) || isNaN(startMonth) || isNaN(endMonth) ) {
       console.log('ERROR: CsvFileLayer.prototype.setTimeLine unable to parse startDate or endDate');
       captureTimes = cached_ajax['landsat-times.json']['capture-times'];
     } else {
       if (typeof startDay != "undefined" && typeof endDay != "undefined") {
-        // console.log(startYear, startMonth, startDay, startHour, startMinute, startSecond);
         var mDateStr = this.setDateStr(startYear, startMonth, startDay, startHour, startMinute, startSecond);
         var nDateStr = this.setDateStr(endYear, endMonth, endDay, endHour, endMinute, endSecond);
         var m = new Date(mDateStr);
