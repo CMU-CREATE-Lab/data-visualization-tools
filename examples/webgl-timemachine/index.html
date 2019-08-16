@@ -8527,7 +8527,7 @@
       function getDates(timelapse) {
         var dates = [];
         for (var i = 0; i < timelapse.getNumFrames(); i++) {
-          dates.push(new Date(timelapse.getCaptureTimes()[i]));
+          dates.push(timelapse.getFrameEpochTime(i));
         }
         return dates;
       }
@@ -8571,7 +8571,7 @@
         var currentDate = dates[currentIndex];
         var previousDate = dates[previousIndex];
         var range = currentDate - previousDate;
-        var date = new Date(previousDate.getTime() + range*delta);
+        var date = new Date(previousDate + range*delta);
         // Ensure we don't go beyond the last date of the timeline.
         // An example of where this is needed is when we are playing at fast speed and the current time
         // might go slightly beyond (small epsilon) the desired end time. You can see this when playing
