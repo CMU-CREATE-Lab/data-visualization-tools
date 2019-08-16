@@ -31,7 +31,6 @@ TileIdx.prototype.toString = function() {
 
 // Expands {x} (column), {y} (row), {yflip} (mirrored row), and {z} (level) in an URL
 TileIdx.prototype.expandUrl = function(url, layerObject) {
-  console.log("Super Special BIIIIIIIIIIKE ", layerObject)
   if(layerObject)
   {
     var dataFilter = layerObject.options.dataFilter

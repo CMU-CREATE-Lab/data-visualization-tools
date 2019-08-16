@@ -2553,16 +2553,19 @@ a:focus { outline:0; }
 #instructionsComposite:link {
 	color: white;
 	text-decoration: none;
+	font-size: 0.95em;
 }
 
 #instructionsComposite:visited {
 	color: white;
 	text-decoration: none;
+	font-size: 0.95em;
 }
 
 #instructionsComposite:hover {
 	color: red;
 	text-decoration: none;
+	font-size: 0.95em;
 }
 
 
