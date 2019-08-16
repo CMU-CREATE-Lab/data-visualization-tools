@@ -3,6 +3,7 @@
 * Lauren Zhang (laurenz@andrew.cmu.edu)
 * Treat date in spreadsheet as GMT time, display calendar and timeline in local time
 * Print statements left commented out in case date conventions change(GMT vs local)
+* TODO: sometimes other layers time ranges fall outside of default calendar time range(minDate)
 */
 
 "use strict";
@@ -161,11 +162,9 @@ DateRangePicker.prototype.updateCalendarLayers = function updateCalendarLayers(o
     // do not reset ignoreDefaults unless all share link layers have been turned on
     for (var i=0; i< this.shareLinkLayerIds.length; i++){
       if (!activeEarthTimeLayers.includes(this.shareLinkLayerIds[i])){
-        //console.log("not all share link layers on", activeEarthTimeLayers, this.shareLinkLayerIds)
         return;
       }
     }
-    //console.log("all share link layers on")
     this.ignoreDefaults = false;
     this.updateCalendarLayers("fromShareLink"); //fix timeline if noncalendar layer loaded last
   }
@@ -181,7 +180,6 @@ DateRangePicker.prototype.updateCalendarLayers = function updateCalendarLayers(o
       updateCalendarLayersData(newStartDate, newEndDate, this);
     }
     else if (origin=="fromDataLibrary"){ // date range from last selected layer
-      // if date range lock checked, treat as if clicking refresh calendar button
       var lastCalLayer = this.calendarLayersList[this.calendarLayersList.length-1];
       var lastActiveId = activeEarthTimeLayers[activeEarthTimeLayers.length -1];
 
@@ -189,35 +187,29 @@ DateRangePicker.prototype.updateCalendarLayers = function updateCalendarLayers(o
         // if last selected layer is not a calendar layer
         var lastActive = getLayer(lastActiveId);
         console.log("last active layer not calendar",activeEarthTimeLayers,lastActive)
-
-        // last active layer is bkgd layer
-        if (!lastActive){
-          return;
+        if (lastActive && lastActive.layerDef["Start date"] && lastActive.layerDef["End date"]){
+          // if last active layer is not bkgd layer, use its start and end date
+          newStartDate = lastActive.layerDef["Start date"];
+          newEndDate = lastActive.layerDef["End date"];
+          updateHighlightedRange(newStartDate, newEndDate);
+          updateCalendarLayersData(newStartDate, newEndDate, this);
         }
-
-        // last layer has no start/end dates
-        if (!lastActive.layerDef["Start date"] || !lastActive.layerDef["End date"]){
-          return;
-        }
-
-        newStartDate = lastActive.layerDef["Start date"];
-        newEndDate = lastActive.layerDef["End date"];
       }
       else{
         // last layer is calendar layer
         if ($("#lock-daterange-checkbox").prop('checked')){
+          // treat as if clicking refresh calendar button
           this.updateCalendarLayersList();
           if (this.calendarLayersList.length > 0){
             this.updateCalendarLayers("fromCalendar");
           }
-          return;
         }
         else{
           newStartDate = lastCalLayer.layerDef["Start date"];
           newEndDate = lastCalLayer.layerDef["End date"];
+          updateHighlightedRange(newStartDate, newEndDate);
+          updateCalendarLayersData(newStartDate, newEndDate, this);
         }
-        updateHighlightedRange(newStartDate, newEndDate);
-        updateCalendarLayersData(newStartDate, newEndDate, this);
       }
     }
     else{ // "fromCalendar"
@@ -242,6 +234,7 @@ DateRangePicker.prototype.updateCalendarLayers = function updateCalendarLayers(o
   // Call function to update layers' data
   // dpr = DateRangePicker object
   function updateCalendarLayersData(newStartDate, newEndDate, drp){
+    console.log("update layer data", newStartDate, newEndDate)
     for(var i=0; i<drp.calendarLayersList.length; i++){
       var layer = drp.calendarLayersList[i];
       var refreshData = parseDateStr(layer.startDate) > parseDateStr(newStartDate) || 
