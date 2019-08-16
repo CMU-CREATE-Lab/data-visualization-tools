@@ -2232,6 +2232,10 @@ a:focus { outline:0; }
   top: 60px !important;
 }
 
+.captureTime .captureTimeMain {
+  font-family: 'Exo2-Regular-Typeface' !important;
+}
+
 .captureTime-touchFriendly {
   bottom: 32px;
 }
