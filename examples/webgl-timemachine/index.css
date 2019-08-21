@@ -2518,7 +2518,7 @@ a:focus { outline:0; }
 #compositeLayerSelector {
   width: 200px;
   display: inline-block;
-  top: 50px; 
+  top: 100px; 
   right: 50px;
   position: absolute;
   z-index: 10;
@@ -2566,6 +2566,34 @@ a:focus { outline:0; }
 	color: red;
 	text-decoration: none;
 	font-size: 0.95em;
+}
+
+#usSafetyExplanation {
+  width: 210px;
+  text-align: center;
+  display: inline-block;
+  top: 70px; 
+  right: 50px;
+  position: absolute;
+  z-index: 10;
+  color: white;
+  background-color: dimgrey;
+  padding: 0px 10px;
+}
+
+#usExplanationSafety:link {
+	color: white;
+	text-decoration: none;
+}
+
+#usExplanationSafety:visited {
+	color: white;
+	text-decoration: none;
+}
+
+#usExplanationSafety:hover {
+	color: red;
+	text-decoration: none;
 }
 
 
