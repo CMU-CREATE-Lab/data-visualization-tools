@@ -390,6 +390,7 @@
     };
     var storyEditor;
     var activeEarthTimeLayers = [];
+    var timeZone = "";
 
 
     // ## 1 ##
@@ -1178,6 +1179,14 @@
           lastActiveLayers.push(layer);
         }
       }
+    }
+
+    function getTimeZone() {
+      if (typeof(Intl) != "undefined" && !timeZone) {
+        timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        timeZone = timeZone ? (" " + timeZone.replace("_"," ")) : "";
+      }
+      return timeZone;
     }
 
     function getCustomSliderCurrentTickValue() {
@@ -7834,7 +7843,7 @@
 
       // Keep this last
       $(window).on('hashchange', hashChange).trigger('hashchange');
-      $("#datepicker-ui").appendTo($("#timeMachine .player")); 
+      $("#datepicker-ui").appendTo($("#timeMachine .player"));
 
       // End of onTimeMachinePlayerReady
     }

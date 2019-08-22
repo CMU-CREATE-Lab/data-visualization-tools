@@ -620,6 +620,7 @@ CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate,
     var m = new Date(mDateStr);
     var n = new Date(nDateStr);
     var tomorrow = m;
+    var timeZone = getTimeZone();
     while (tomorrow.getTime() <= n.getTime()) {
       var captureTimeStr = tomorrow.getFullYear() + '-' + pad((tomorrow.getMonth() + 1).toString()) + '-' + pad(tomorrow.getDate().toString());
       if (typeof startHour != "undefined") {
@@ -633,10 +634,7 @@ CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate,
           captureTimeStr += ':' + '00';
         }
       }
-      if (typeof(Intl) != "undefined") {
-        var timezoneStr = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        captureTimeStr += timezoneStr ? (" " + timezoneStr.replace("_"," ")) : "";
-      }
+      captureTimeStr += timeZone;
       captureTimes.push(captureTimeStr);
       if (typeof startSecond != "undefined") {
         tomorrow.setSeconds(tomorrow.getSeconds() + stepSize);
