@@ -4005,6 +4005,12 @@
             childtheme: 'smalldark'
           });
         } else if (fileType == "iframe") {
+          // If the extra is an iframe, then the URL can be absolute
+          var re = new RegExp("^(http|https)://", "i");
+          var match = re.test($lastSelectedExtra.data("filepath"));
+          if (match) {
+            filePath = $lastSelectedExtra.data("filepath");
+          }
           $extrasHtml = '<iframe id="extras-iframe" src="' + filePath + '"></iframe>';
           $("#extras-content-container").html($extrasHtml).dialog("open");
         } else if (fileType == "link") {
