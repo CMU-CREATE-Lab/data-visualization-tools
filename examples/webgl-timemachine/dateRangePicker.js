@@ -17,7 +17,7 @@ var DateRangePicker = function DateRangePicker(){
 
   // on document load
   var that = this;
-  $(function(){ 
+  $(function(){
     that.datepickerObj = $(".datepicker");
     that.input1 = $("#input1");
     that.input2 = $("#input2");
@@ -110,7 +110,7 @@ DateRangePicker.prototype.handleCalendarLayers = function handleCalendarLayers(f
       this.ignoreDefaults = true; //initially turning on layers won't override date range from link
       this.shareLinkLayerIds = layers; //need all layers to load before calling updateCalendarLayers
       // doesn't update layers until updateCalendarLayers called elsewhere for the first time
-    } 
+    }
   }
   else{
     updateCalendarOptions(this); // hide/show calendar
@@ -216,7 +216,7 @@ DateRangePicker.prototype.updateCalendarLayers = function updateCalendarLayers(o
         console.log("Invalid date range. No layers updated.");
         alert("Invalid date range. No layers updated.");
         return;
-      } 
+      }
       date2.setHours(date2.getHours() + 23, date2.getMinutes() + 59);
       // convert calendar dates to GMT
       newStartDate = this.toGMTEarthtimeDate(date1);
@@ -233,10 +233,12 @@ DateRangePicker.prototype.updateCalendarLayers = function updateCalendarLayers(o
     // console.log("update layer data", newStartDate, newEndDate)
     for(var i=0; i<drp.calendarLayersList.length; i++){
       var layer = drp.calendarLayersList[i];
-      var refreshData = parseDateStr(layer.startDate) > parseDateStr(newStartDate) || 
+      var refreshData = parseDateStr(layer.startDate) > parseDateStr(newStartDate) ||
           parseDateStr(layer.endDate) < parseDateStr(newEndDate);
       var isLast = (i == (drp.calendarLayersList.length - 1));
-      csvFileLayers.updateLayerData(layer.layerId, newStartDate, newEndDate, undefined, refreshData, isLast);
+
+      var newDataProperties = {startDate: newStartDate, endDate: newEndDate};
+      csvFileLayers.updateLayerData(layer.layerId, newDataProperties, refreshData, isLast);
     }
   }
 
@@ -272,7 +274,7 @@ DateRangePicker.prototype.updateCalendarLayersList = function updateCalendarLaye
 // Converts date to GMT first, then pulls out year, month, etc.
 DateRangePicker.prototype.toGMTEarthtimeDate = function(d){
   var pad = function(n){ return (n < 10 ? '0' : '') + n.toString(); }
-  return d.getFullYear() + pad(parseInt(d.getUTCMonth()) + 1) + 
+  return d.getFullYear() + pad(parseInt(d.getUTCMonth()) + 1) +
     pad(d.getUTCDate()) + pad(d.getUTCHours()) + pad(d.getUTCMinutes());
 }
 
@@ -280,7 +282,7 @@ DateRangePicker.prototype.toGMTEarthtimeDate = function(d){
 // Pulls out year, month, etc.
 DateRangePicker.prototype.toEarthtimeDate = function(d){
   var pad = function(n){ return (n < 10 ? '0' : '') + n.toString(); }
-  return d.getFullYear() + pad(parseInt(d.getMonth()) + 1) + 
+  return d.getFullYear() + pad(parseInt(d.getMonth()) + 1) +
     pad(d.getDate()) + pad(d.getHours()) + pad(d.getMinutes());
 }
 

@@ -119,6 +119,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
   }
   layerOptions.startDate = layerDef["Start date"];
   layerOptions.endDate = layerDef["End date"];
+  layerOptions.step = layerDef["Step"] || 1;
 
   layerOptions.showGraph = layerDef["Show Graph"].toLowerCase() == 'true';
   layerOptions.mapType = layerDef["Map Type"] || "bubble";
@@ -402,25 +403,19 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
   return layer;
 }
 
-CsvFileLayer.prototype.updateLayerData = function updateLayerData(layerId, newStartDate, newEndDate, newStep, refreshData, refreshTimeline) {
+CsvFileLayer.prototype.updateLayerData = function updateLayerData(layerId, newDataProperties, refreshData, refreshTimeline) {
   var layer = this.layerById[layerId];
-  newStartDate = newStartDate || layer.layerDef["Start date"]
-  newEndDate = newEndDate || layer.layerDef["End date"]
-  newStep = newStep || layer.layerDef["Step"]
+
+  if (newDataProperties) {
+    $.extend(true, layer, newDataProperties);
+  }
 
   if (refreshData){
-    layer.startDate = newStartDate;
-    layer.endDate = newEndDate;
-
     layer.destroy(); //update tiles to use new data
   }
 
-  if(refreshTimeline){
-    //assume input dates are in GMT, force timeline to display "local" time
-    // newStartDate = DateRangePicker.prototype.fixForLocalTimeline(newStartDate);
-    // newEndDate = DateRangePicker.prototype.fixForLocalTimeline(newEndDate);
-
-    this.setTimeLine(layerId, newStartDate, newEndDate, newStep);
+  if (refreshTimeline){
+    this.setTimeLine(layerId, layer.startDate, layer.endDate, layer.step);
     var cachedLayerTimelinePath = layer.layerId + ".json";
     //TODO determine timeline styling
     requestNewTimeline(cachedLayerTimelinePath, "defaultUI"); //update timeline to match new date range
