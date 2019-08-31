@@ -11,6 +11,8 @@ var EARTH_TIMELAPSE_CONFIG = {
   "showShareButton": true,
   "showSettingsButton": false,
   "showThumbnailTool" : true,
+  "thumbnailServerHost": undefined,
+  "headlessClientHost": undefined,
   "showExtrasMenu": false,
   "enableStoryEditor": true,
   "isHyperwall": false,

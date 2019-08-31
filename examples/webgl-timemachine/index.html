@@ -250,6 +250,8 @@
     var showExtrasMenu = parseConfigOption({optionName: "showExtrasMenu", optionDefaultValue: true, exposeOptionToUrlHash: false});
     var showFullScreenButton = parseConfigOption({optionName: "showFullScreenButton", optionDefaultValue: false, exposeOptionToUrlHash: true});
     var showThumbnailTool = parseConfigOption({optionName: "showThumbnailTool", optionDefaultValue: true, exposeOptionToUrlHash: false});
+    var thumbnailServerHost = parseConfigOption({optionName: "thumbnailServerHost", optionDefaultValue: undefined, exposeOptionToUrlHash: false});
+    var headlessClientHost = parseConfigOption({optionName: "headlessClientHost", optionDefaultValue: undefined, exposeOptionToUrlHash: false});
     var usePresentationClicker = parseConfigOption({optionName: "usePresentationClicker", optionDefaultValue: false, exposeOptionToUrlHash: false});
     var enableThemeHamburgerButton = parseConfigOption({optionName: "enableThemeHamburgerButton", optionDefaultValue: false, exposeOptionToUrlHash: false});
     // Show timestamp, legend, logos
@@ -1021,6 +1023,8 @@
         showFullScreenBtn: showFullScreenButton,
         showThumbnailTool: showThumbnailTool,
         showShareBtn: showShareButton,
+        thumbnailServerHost: thumbnailServerHost,
+        headlessClientHost: headlessClientHost,
         presentationSliderSettings: {
           onLoadAnimation: "none",
           playAfterAnimation: false,
