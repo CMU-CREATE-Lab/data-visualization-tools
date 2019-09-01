@@ -190,6 +190,7 @@
     var showEVA = !!EARTH_TIMELAPSE_CONFIG.showEVA;
     var showGFW = !!EARTH_TIMELAPSE_CONFIG.showGFW;
     var showLodes = !!EARTH_TIMELAPSE_CONFIG.showLodes;
+    var showStories = typeof(EARTH_TIMELAPSE_CONFIG.showStories) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showStories;
     var showCustomDotmaps = typeof(EARTH_TIMELAPSE_CONFIG.showCustomDotmaps) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showCustomDotmaps;
     var showCsvLayers = !!EARTH_TIMELAPSE_CONFIG.showCsvLayers;
     var showForestAlerts = !!EARTH_TIMELAPSE_CONFIG.showForestAlerts;
@@ -282,7 +283,7 @@
     var showShareButton = parseConfigOption({optionName: "showShareButton", optionDefaultValue: true, exposeOptionToUrlHash: true});
     var showSettingsButton = isMobileDevice ? false : parseConfigOption({optionName: "showSettingsButton", optionDefaultValue: true, exposeOptionToUrlHash: false});
     var showZoomControls = parseConfigOption({optionName: "showZoomControls", optionDefaultValue: true, exposeOptionToUrlHash: false});
-    var showStoriesButton = parseConfigOption({optionName: "showStoriesButton", optionDefaultValue: true, exposeOptionToUrlHash: false});
+    var showStoriesButton = !showStories ? false : parseConfigOption({optionName: "showStoriesButton", optionDefaultValue: true, exposeOptionToUrlHash: false});
     var showLayersButton = parseConfigOption({optionName: "showLayersButton", optionDefaultValue: true, exposeOptionToUrlHash: false});
     var showHomeLogo = parseConfigOption({optionName: "showHomeLogo", optionDefaultValue: true, exposeOptionToUrlHash: false});
     var showSearchBox = parseConfigOption({optionName: "showSearchBox", optionDefaultValue: true, exposeOptionToUrlHash: true});
@@ -308,7 +309,7 @@
     var useRetinaLightNoLabelsBaseMap = baseMapsNoLabels ? true : parseConfigOption({optionName: "useRetinaLightNoLabelsBaseMap", optionDefaultValue: false, exposeOptionToUrlHash: false});
     var useRetinaDarkBaseMap = parseConfigOption({optionName: "useRetinaDarkBaseMap", optionDefaultValue: false, exposeOptionToUrlHash: false});
     var useRetinaDarkNoLabelsBaseMap = baseMapsNoLabels ? true : parseConfigOption({optionName: "useRetinaDarkNoLabelsBaseMap", optionDefaultValue: false, exposeOptionToUrlHash: false});
-    var enableStoryEditor = parseConfigOption({optionName: "enableStoryEditor", optionDefaultValue: false, exposeOptionToUrlHash: false});
+    var enableStoryEditor = !showStories ? false : parseConfigOption({optionName: "enableStoryEditor", optionDefaultValue: false, exposeOptionToUrlHash: false});
     var pauseWhenInitialized = parseConfigOption({optionName: "pauseWhenInitialized", optionDefaultValue: false, exposeOptionToUrlHash: true});
     var landsatVersion = parseConfigOption({optionName: "landsatVersion", optionDefaultValue: "2015", exposeOptionToUrlHash: false});
     // Deprecated
@@ -7341,11 +7342,13 @@
               $("#story_" + storyTheme.story).click();
             }
           }
-          var waypointsPath = vals.waypoints ? docTabToGoogleSheetUrl(vals.waypoints) : waypointSliderContentPath;
-          // If for some reason the waypoints cannot load, the controls need to be manually
-          // pushed up by changing the player to where it would be had the waypoints loaded.
-          $("#timeMachine .player").css("bottom", "93px");
-          loadWaypoints(waypointsPath);
+          if (showStories) {
+            var waypointsPath = vals.waypoints ? docTabToGoogleSheetUrl(vals.waypoints) : waypointSliderContentPath;
+            // If for some reason the waypoints cannot load, the controls need to be manually
+            // pushed up by changing the player to where it would be had the waypoints loaded.
+            $("#timeMachine .player").css("bottom", "93px");
+            loadWaypoints(waypointsPath);
+          }
         }
 
         if (showCustomDotmaps) {
