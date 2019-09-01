@@ -47,8 +47,8 @@
         </div>
         <br><br>
         <div class="intro-banner-wrapper noselect">
-          <video disableRemotePlayback loop autoplay muted playsinline preload="auto" id="video-loop">
-            <source src="https://thumbnails-earthtime.cmucreatelab.org/thumbnail?root=https://headless.earthtime.org/%23theme%3Dbig_picture_on_nature%26v%3D3309.246719995048%2C506003.5537152563%2C1995164.5116581267%2C1394039.0260001733%2Cpts%26t%3D35.75%26ps%3D100%26bt%3D20151102140000%26et%3D20151103140000%26l%3Dblsat%2Ch8_16&boundsLTRB=3309.246719995048,506003.5537152563,1995164.5116581267,1394039.0260001733&width=1280&height=720&startFrame=225&format=mp4&fps=60&tileFormat=mp4&startDwell=0&endDwell=0&fromScreenshot&nframes=10" type="video/mp4">
+          <video disableRemotePlayback loop autoplay muted playsinline preload="auto" id="landing-video-looper">
+            <source src="" type="video/mp4">
           </video>
           <div class="video-overlay-left">
             <p>Experts and journalists from all over the world use EarthTime to create interactive, data-driven stories.</p>
@@ -371,7 +371,12 @@
   <!-- END HANDLEBARS TEMPLATES -->
 
   <script>
+    var thumbnailServerHost = typeof(EARTH_TIMELAPSE_CONFIG.thumbnailServerHost) === "undefined" ? "https://thumbnails-earthtime.cmucreatelab.org/thumbnail" : EARTH_TIMELAPSE_CONFIG.thumbnailServerHost;
+    var headlessClientHost = typeof(EARTH_TIMELAPSE_CONFIG.headlessClientHost) === "undefined" ? "https://headless.earthtime.org/" : EARTH_TIMELAPSE_CONFIG.headlessClientHost;
+
     $(document).ready(function() {
+      // Landing page looping globe video
+      document.getElementById('landing-video-looper').src = thumbnailServerHost + "?root=" + headlessClientHost + "%23v%3D3309.246719995048%2C506003.5537152563%2C1995164.5116581267%2C1394039.0260001733%2Cpts%26t%3D35.75%26ps%3D100%26bt%3D20151102140000%26et%3D20151103140000%26l%3Dblsat%2Ch8_16&boundsLTRB=3309.246719995048,506003.5537152563,1995164.5116581267,1394039.0260001733&width=1280&height=720&startFrame=225&format=mp4&fps=60&tileFormat=mp4&startDwell=0&endDwell=0&fromScreenshot&nframes=10";
 
       var UTIL = org.gigapan.Util;
       var doMobileExperience = !UTIL.isWebGLSupported() || org.gigapan.Util.isMobileDevice();
@@ -418,17 +423,14 @@
             var storyTitle = story['Annotation Title'];
             var authors = story['Author'].split("<br")[0].trim().replace(/Story by/i, 'By');
             var storyDescription = story['Front Page Caption'] || story['Annotation Text'];
-            var thumbnailLink = story['Front Page Share View'];
-            if (!thumbnailLink || thumbnailLink.indexOf("fromScreenshot") == -1) {
-              var rootThumbnailUrl = "https://thumbnails-earthtime.cmucreatelab.org/thumbnail?root=";
-              // TODO: Maybe make it only 1.5x the display size so that when the hover zoom happens, it isn't blurry
-              var extraParams = "&width=278&height=204&format=png&fps=30&tileFormat=mp4&startDwell=0&endDwell=0&fromScreenshot";
-              if (thumbnailLink) {
-                thumbnailLink = rootThumbnailUrl + encodeURIComponent(thumbnailLink) + extraParams;
-              } else {
-                thumbnailLink = rootThumbnailUrl + encodeURIComponent(story['Share View']) + extraParams;
-              }
-            }
+            var thumbnailLink = story['Front Page Share View'] || story['Share View'] || "#";
+            var shareParams = thumbnailLink.split("#")[1];
+            var rootThumbnailUrl = thumbnailServerHost + "?root=" + encodeURIComponent(headlessClientHost);
+
+            // TODO: Maybe make it only 1.5x the display size so that when the hover zoom happens, it isn't blurry
+            var extraParams = "&width=278&height=204&format=png&fps=30&tileFormat=mp4&startDwell=0&endDwell=0&fromScreenshot";
+            thumbnailLink = rootThumbnailUrl + encodeURIComponent("#" + shareParams) + extraParams;
+
             stories.push({
               'story-id': storyId,
               'story-thumbnail': thumbnailLink,
