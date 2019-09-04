@@ -698,9 +698,13 @@ CsvFileLayer.prototype.setLegend = function setLegend(id) {
           'circles': [{'value': this.formatValue(radius.invert(50.0)), 'radius': '25.0'},{'value': this.formatValue(radius.invert(80.0)), 'radius': '40.0'},{'value': this.formatValue(radius.invert(100.0)), 'radius': '50.0'}]
         };
         if (layer.legendKey) {
-          var rgba = layer.color.map(function(x) {
-            return Math.floor(x * 255.);
-          });
+          if (layer.color) {
+            var rgba = layer.color.map(function(x) {
+              return Math.floor(x * 255.);
+            });
+          } else {
+            var rgba = [15,15,15];
+          }
           opts.keys.push({'color': 'rgb('+ rgba[0] +',' + rgba[1] +',' + rgba[2] + ')', 'str': layer.legendKey});
         }
         var legend = new BubbleMapLegend(opts);
