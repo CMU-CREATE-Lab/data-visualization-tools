@@ -69,11 +69,15 @@ operations['triangularizeAndJoin'] = function(request) {
 
   var verts = [];
   var t1 = performance.now();
+  var total_triangulation = 0;
+  var total_adding_attrs = 0;
 
   for (var ii = 1; ii < data.length; ii++) {
     var regionRow = data[ii];
     var name = regionRow[0];
     var feature = geojson.features[geojson.hash[name]];
+
+
 
     if (typeof feature == "undefined") {
       csv_feature_missing_example = name;
@@ -84,6 +88,32 @@ operations['triangularizeAndJoin'] = function(request) {
       csv_feature_missing_in_geojson++;
     } else {
       csv_feature_found_in_geojson++;
+
+      // Compute pixel locations 
+      var t1_ = performance.now();      
+      var pixels = [];
+      if (feature.geometry.type != "MultiPolygon") {
+        var mydata = earcut.flatten(feature.geometry.coordinates);
+        var triangles = earcut(mydata.vertices, mydata.holes, mydata.dimensions);
+        for (var i = 0; i < triangles.length; i++) {
+          var pixel = LatLongToPixelXY(mydata.vertices[triangles[i]*2 + 1],mydata.vertices[triangles[i]*2]);
+          pixels.push(pixel);
+        }
+      } else {
+        for ( var jj = 0; jj < feature.geometry.coordinates.length; jj++) {
+          var mydata = earcut.flatten(feature.geometry.coordinates[jj]);
+          var triangles = earcut(mydata.vertices, mydata.holes, mydata.dimensions);
+          for (var i = 0; i < triangles.length; i++) {
+            var pixel = LatLongToPixelXY(mydata.vertices[triangles[i]*2 + 1],mydata.vertices[triangles[i]*2]);
+            pixels.push(pixel);
+          }
+        }
+      }
+      var t2_ = performance.now();
+      total_triangulation += (t2_ - t1_);
+      //console.log("choroplethworker: Total time to compute pixels for  " + name + ": " + (t2_ - t1_) + "ms");
+
+
       var idx = [];
       for (var j = first_data_col; j < regionRow.length; j++) {
         if (!isNaN(regionRow[j])) {
@@ -118,25 +148,15 @@ operations['triangularizeAndJoin'] = function(request) {
           minValue = val_2;
         }
 
-	if (epoch_1 === undefined || epoch_2 === undefined) continue;
+	      if (epoch_1 === undefined || epoch_2 === undefined) continue;
 	
-        if (feature.geometry.type != "MultiPolygon") {
-          var mydata = earcut.flatten(feature.geometry.coordinates);
-          var triangles = earcut(mydata.vertices, mydata.holes, mydata.dimensions);
-          for (var i = 0; i < triangles.length; i++) {
-            var pixel = LatLongToPixelXY(mydata.vertices[triangles[i]*2 + 1],mydata.vertices[triangles[i]*2]);
-            verts.push(pixel.x, pixel.y, epoch_1, val_1, epoch_2, val_2);
-          }
-        } else {
-          for ( var jj = 0; jj < feature.geometry.coordinates.length; jj++) {
-            var mydata = earcut.flatten(feature.geometry.coordinates[jj]);
-            var triangles = earcut(mydata.vertices, mydata.holes, mydata.dimensions);
-            for (var i = 0; i < triangles.length; i++) {
-              var pixel = LatLongToPixelXY(mydata.vertices[triangles[i]*2 + 1],mydata.vertices[triangles[i]*2]);
-              verts.push(pixel.x, pixel.y, epoch_1, val_1, epoch_2, val_2);
-            }
-          }
+        var t1__ = performance.now();
+        for (var i = 0; i <pixels.length; i++) {
+          var pixel = pixels[i]; 
+          verts.push(pixel.x, pixel.y, epoch_1, val_1, epoch_2, val_2);
         }
+        var t2__ = performance.now();
+        total_adding_attrs += (t2__ - t1__);
       }
     }
   }
@@ -161,6 +181,8 @@ operations['triangularizeAndJoin'] = function(request) {
   }
   var t2 = performance.now();
   console.log("choroplethworker: Total time in worker: " + (t2 - t1) + "ms");
+  console.log("choroplethworker: Total time making triangles: " + total_triangulation + "ms");
+  console.log("choroplethworker: Total time adding attrs to triangles: " + total_adding_attrs + "ms");
 
   return {
     verts: new Float64Array(verts),
