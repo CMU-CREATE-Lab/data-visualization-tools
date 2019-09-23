@@ -1,6 +1,6 @@
 "use strict";
 var AltitudeSlider = function AltitudeSlider() {
-	this.initialValue = 250;
+	this.initialValue = 260;
 	this.handle =  null;
 	this.altitudeLayer = null;
 	
@@ -10,24 +10,25 @@ var AltitudeSlider = function AltitudeSlider() {
 		that.sliderObject = $( "#altitude-slider" );
 		that.altitudeDisplay = $("#altitude-slider > div");
 		
-		var updateSliderValue = function (event, ui) {
+		var updateSliderValue = function (event, logVal) {
 			that.handle = that.handle || $(".ui-slider-handle", that.sliderObject);
-			that.altitudeDisplay.text((ui.value || that.initialValue) + "m")
+			that.altitudeDisplay.text((parseInt(logVal) || that.initialValue) + "m")
 				.css(that.handle.position());
 		};
 
 		that.sliderObject.slider({
 			orientation: "vertical",
 			value: that.initialValue,
-			min: 10,
-			max: 250,
+			min: 33,
+			max: 114,
 			step: 1,
 			animate: "fast",
 			create: updateSliderValue,
 			slide: function( event, ui ) {
-				var dataLayer = activeEarthTimeLayers[activeEarthTimeLayers.length-1]; //works when its activeEarthTimeLayers - 1, this is not working TODO
-				csvFileLayers.updateLayerData(dataLayer, {options: {"maxElevation" : ui.value}}, false, false)
-				updateSliderValue(event,ui);
+				var dataLayer = activeEarthTimeLayers[activeEarthTimeLayers.length-1]; //TODO: debug this line with use of this.altitudeLayer
+				var logVal = Math.round(Math.pow(1.05,ui.value));
+				csvFileLayers.updateLayerData(dataLayer, {options: {"maxElevation" : logVal}}, false, false)
+				updateSliderValue(event,logVal);
 			}
 		});
 	});
