@@ -20,6 +20,7 @@
   <link href="StoryEditor.css" rel="stylesheet" type="text/css" />
   <link href="SetViewTool.css" rel="stylesheet" type="text/css" />
   <link href="date-range.css" rel="stylesheet" type="text/css" />
+  <link href="altitude-slider.css" rel="stylesheet" type="text/css" />
 
   <script src="../../timemachine/js/polyfills/touchpolyfill.min.js" type="text/javascript"></script>
 
@@ -92,6 +93,7 @@
   <script src="ContentSearch.js"></script>
   <script src="DisplayMetadata.js"></script>
   <script src="dateRangePicker.js"></script>
+  <script src="altitudeSlider.js"></script>
 
   <script type="text/javascript">
     "use strict";
@@ -4335,6 +4337,7 @@
         }
 
         dateRangePicker.handleCalendarLayers(false);
+		altitudeSlider.handleAltitudeLayers();
 
         var $layerContainer = $(e.target).parents("table");
         var $layerContainerHeader = $layerContainer.prev();
@@ -4823,6 +4826,7 @@
     var csvFileLayers = new CsvFileLayer();
     var csvDataGrapher = new CsvDataGrapher();
     var dateRangePicker = new DateRangePicker();
+	var altitudeSlider = new AltitudeSlider();
     var dotmapLayers = [];
     var dotmapLayerByName = {};
     var dotlayersLoadedPath;
@@ -7412,6 +7416,7 @@
           var layers = vals.l.split(",");
           if (loadedInitialCsvLayers){
             dateRangePicker.handleCalendarLayers(true, layers);
+			altitudeSlider.handleAltitudeLayers();
           }
           handleLayers(layers);
           // The time in a share link may correspond to a layer that has a different timeline than the default one.
@@ -10379,6 +10384,9 @@
       </div>
     </div>
     <div id="timeMachine"></div>
+	<div id="altitude-slider">
+		<div></div>
+	</div>
     <div id="datepicker-ui">
       <div id="datepicker-menu">
         <p id="date-range-inputs">
