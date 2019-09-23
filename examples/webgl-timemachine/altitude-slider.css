@@ -1,0 +1,17 @@
+#altitude-slider{
+  height: 200px;
+  display: inline-block;
+  position: absolute;
+  right: 20px;
+  bottom: 300px;
+  z-index: 99;
+  display: none;
+}
+
+#altitude-slider > div {
+    margin-left:-50px;
+	font-size: 18px;
+    position: relative;
+	color: white;
+}
+
