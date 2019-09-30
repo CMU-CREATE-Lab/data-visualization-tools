@@ -8,7 +8,7 @@ operations['computeColorDotmapFromBox'] = function(request) {
   // Iterate through the raster, creating dots on the fly
 
   var ret = {};
-  ret.pointCount = tileData.reduce(function(a,b) { return a+b;})
+  ret.pointCount = tileData.reduce(function(a,b) { return a+b;});
 
   if (ret.pointCount > 0) {
     ret.data = new Float32Array(ret.pointCount * 3);
@@ -50,6 +50,107 @@ operations['computeColorDotmapFromBox'] = function(request) {
     }
   }
 
+  return ret;
+}
+
+operations['computeColorDotmapFromTbox'] = function(request) {
+  var tileData = new Uint8Array(request.tileDataF32.buffer);
+  var epochs = request.epochs;
+  // Iterate through the raster, creating dots on the fly
+  
+  var ret = {};
+  var totalPop = tileData.reduce(function(a,b) { return a+b;});
+
+  var nAttribs = 5;
+  // Allocate enough space for everyone from all epochs.  This is conservative, since many dots will span multiple epochs.
+  ret.data = new Float32Array(totalPop * nAttribs);
+  var output_idx = 0;
+  var numColors = request.dotmapColors.length;
+  var tileDim = 256;
+  console.assert(tileData.length == numColors * tileDim * tileDim * epochs.length);
+  
+  // Find location of tile
+  var projectedTileSize = 256 / 2 ** request.tileidx.l; // 256 for level 0, 128 for level 1 ...
+  var projectedXMin = projectedTileSize * request.tileidx.c;
+  var projectedYMin = projectedTileSize * request.tileidx.r;
+  
+  // Loop through the rasters, creating points within each box
+  // TODO: interpolate epochs
+
+  function getPopulation(t, c, x, y) {
+    return tileData[x + tileDim * (y + tileDim * (c + numColors * t))];
+  }
+
+  var liveDotStack;
+
+  // Add a new everlasting dot to the output, but hold onto the location of endEpoch in case we need to endDot it
+  function startDot(startEpoch, c, x, y) {
+    ret.data[output_idx++] = projectedXMin + (x + Math.random()) * projectedTileSize / 256;
+    console.assert(0 <= ret.data[output_idx - 1] && ret.data[output_idx - 1] <= 256);
+    ret.data[output_idx++] = projectedYMin + (y + Math.random()) * projectedTileSize / 256;
+    console.assert(0 <= ret.data[output_idx - 1] && ret.data[output_idx - 1] <= 256);
+    ret.data[output_idx++] = request.dotmapColors[c];
+    ret.data[output_idx++] = startEpoch;
+
+    // Record endEpoch
+    ret.data[output_idx] = 1e30;      // for now, set endEpoch to be everlasting
+    liveDotStack.push(output_idx++);  // hold onto the endEpoch index so we can optionally end this dot 
+  }
+
+  function endDot(endEpoch) {
+    // Overwrite endEpoch in the previously started dot
+    ret.data[liveDotStack.pop()] = endEpoch;
+  }
+
+  for (var c = 0; c < numColors; c++) {
+    for (var y = 0; y < tileDim; y++) {
+      for (var x = 0; x < tileDim; x++) {
+        // Create initial population
+        liveDotStack = [];
+        var pop = getPopulation(0, c, x, y)
+        var epoch = epochs[0];
+        for (var p = 0; p < pop; p++) {
+          startDot(-1e30, c, x, y);
+        }
+
+        for (var t = 1; t < epochs.length; t++) {
+          var oEpoch = epoch;
+          epoch = epochs[t];
+
+          var oPop = pop;
+          pop = getPopulation(t, c, x, y);
+
+          var dt = (epoch - oEpoch);
+          if (pop > oPop) {
+            var increase = pop - oPop;
+            for (var p = 0; p < increase; p++) {
+              startDot(oEpoch + Math.random() * dt, c, x, y);
+            }
+          }
+          else if (pop < oPop) {
+            var decrease = oPop - pop;
+            for (var p = 0; p < decrease; p++) {
+              endDot(oEpoch + Math.random() * dt);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  ret.data = ret.data.slice(0, output_idx); // trim to the actual number of point records
+  ret.pointCount = output_idx / nAttribs;
+    
+  // Randomly permute the order of points
+  for (var i = ret.pointCount - 1; i >= 1; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    for (var k = 0; k < nAttribs; k++) {
+      var tmp = ret.data[i * nAttribs + k];
+      ret.data[i * nAttribs + k] = ret.data[j * nAttribs + k];
+      ret.data[j * nAttribs + k] = tmp;
+    }
+  }
+  
   return ret;
 }
 

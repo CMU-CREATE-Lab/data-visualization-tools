@@ -1920,6 +1920,7 @@
       }).prop('checked', showDscovrTimeMachineLayer);
 
       $("#show-annual-pm25").on("click", function() {
+        console.log('TODO(RS): show-annual-pm25');
         var $this = $(this);
         if ($this.prop('checked')) {
           annualGlobalPm25TimeMachineLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
@@ -4806,23 +4807,11 @@
       if (useLocalTiles) {
         tileUrl = rootTilePath + '/dotmaptiles/' + nickname;
       } else {
-        tileUrl = 'https://dotmaptiles.createlab.org/tilesv1/';
+        tileUrl = 'https://dotmaptiles.createlab.org/tilesv2/' + nickname + '/{z}/{x}/{y}';
         if (columnDefs) {
-          var layerTokens = [];
-          for (var i = 0; i < columnDefs.length; i++) {
-            layerTokens.push(encodeURIComponent(columnDefs[i].color) + ';' +
-            encodeURIComponent(columnDefs[i].expression.replace(/\s/g, '').replace('/',' DIV ')));
-          }
-          var expressionUrl = layerTokens.join(';;');
-          tileUrl += expressionUrl + '/{z}/{x}/{y}.box';
+	  tileUrl += '.box';
         } else {
-          // TODO fix this
-          var layerTokens = [];
-          for (var i = 0; i < animationLayers.length; i++) {
-            layerTokens.push(dotmapLayerByName[animationLayers[i]].expressionUrl);
-          }
-          tileUrl += layerTokens.join(';;;');
-          tileUrl += '/512x512';
+          tileUrl += '.tbox';
         }
       }
 
@@ -4836,7 +4825,6 @@
       if (columnDefs) {
         layerOptions.tileWidth = layerOptions.tileHeight = 256;
         layerOptions.date = date;
-        layerOptions.expressionUrl = expressionUrl;
 
         layerOptions.setDataFunction = WebGLVectorTile2.prototype._setColorDotmapDataFromBox;
         layerOptions.drawFunction = WebGLVectorTile2.prototype._drawColorDotmap;
@@ -4848,8 +4836,37 @@
         }
         var layer = new WebglVectorLayer2(glb, canvasLayer, tileUrl, layerOptions);
       } else {
-        console.log('Experimental mp4 dotmap unsupported');
-        return;
+        // Animated dotmap, composed of multiple layers
+        console.assert(animationLayers);
+
+        // Confirm all layers have the same colors in the same order
+        // Collect epoch times for each layer
+        var epochs = [];
+        var firstLayer = dotmapLayerByName[animationLayers[0]];
+        for (var i = 0; i < animationLayers.length; i++) {
+          var checkLayer = dotmapLayerByName[animationLayers[i]];
+          var epoch = parseDateStr(checkLayer.date);
+          if (isNaN(epoch)) {
+            console.log('While building', nickname, 'component layer', checkLayer.nickname, 'is missing parsable Date');
+          }
+          epochs.push(epoch);
+          if (JSON.stringify(checkLayer.dotmapColors) != JSON.stringify(firstLayer.dotmapColors)) {
+            console.log('ERROR in layer ' + nickname + ': component layers do not have identical color lists');
+            return;
+          }
+        }
+        layerOptions.epochs = epochs;
+
+        layerOptions.tileWidth = layerOptions.tileHeight = 256;
+        layerOptions.date = date;
+
+        layerOptions.setDataFunction = WebGLVectorTile2.prototype._setColorDotmapDataFromTbox;
+        layerOptions.drawFunction = WebGLVectorTile2.prototype._drawColorDotmapTbox;
+        layerOptions.fragmentShader = WebGLVectorTile2.colorDotmapFragmentShader;
+        layerOptions.vertexShader = WebGLVectorTile2.colorDotmapVertexShaderTbox;
+        // TODO: make sure the colors from component layers are identical and in identical order?
+        layerOptions.dotmapColors = firstLayer.dotmapColors;
+        var layer = new WebglVectorLayer2(glb, canvasLayer, tileUrl, layerOptions);
       }
 
       dotmapLayers.push(layer);
@@ -4909,16 +4926,8 @@
           layer.visible = true;
           if (animationLayers) {
             setActiveLayersWithTimeline(1);
-            // TODO: Set the correct layer info
-            visibleBaseMapLayer = "annual-pm25"; //?
             timelineType = "defaultUI";
-            requestNewTimeline("annual-global-pm25-times.json", timelineType);
-            var v = timelapse.getVideoset();
-            v.setFps(6);
-            timelapse.setDoDwell(true);
-            WebglVideoTile.useGreenScreen = false;
-            timelapse.setMasterPlaybackRate(1.0);
-            $("#baseLayerCreditContainer").hide();
+            //requestNewTimeline("annual-global-pm25-times.json", timelineType);
           } else {
             timelineType = "none";
           }
@@ -4961,7 +4970,7 @@
             var expression = layerdef['Definition' + c];
             columnDefs.push({name: name, color: color, expression: expression});
           }
-	  date = layerdef['date'];
+  	  date = layerdef['Date'];
 	}
         addDotmapLayer(layerIdentifier, // identifier
                        layerdef['Name'], // name
@@ -9781,6 +9790,14 @@
             drawFraction = Math.min(maxPoints/info.pointCount, 1.0);
 
             options.throttle = drawFraction;
+
+            var currentTime = timelapse.getCurrentTime();
+            var currentTimes = getCurrentTimes(timelapse);
+            var dates = getDates(timelapse);
+            var delta = getCurrentTimesDelta(currentTime, currentTimes);
+            var currentDate = getCurrentDate(currentTime, currentTimes, dates);
+            options.currentTime = currentDate;
+
             layer.draw(view, options);
           }
         }

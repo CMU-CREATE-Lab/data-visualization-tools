@@ -36,7 +36,7 @@ function WebGLVectorTile2(layer, tileview, glb, tileidx, bounds, url, opt_option
     this.vertexShader = WebGLVectorTile2.choroplethMapVertexShaderV2;
     this.fragmentShader = WebGLVectorTile2.choroplethMapFragmentShaderV2;
   }
-  
+
   this.program = glb.programFromSources(this.vertexShader, this.fragmentShader);
 
   if (opt_options.imageSrc) {
@@ -1666,8 +1666,7 @@ WebGLVectorTile2.prototype._setColorDotmapData = function(arrayBuffer) {
 
 var gtileData;
 
-// Color Dotmap (not animated)  aWorldCoord[2]  aColor
-WebGLVectorTile2.prototype._setColorDotmapDataFromBox = function(tileDataF32) {
+WebGLVectorTile2.prototype._setColorDotmapDataFromBoxWithFormat = function(tileDataF32, format) {
   // Create uint8 view on data.  Unfortunately we're called with Float32Array, which isn't correct for
   // this particular function
   var tile = this;
@@ -1675,10 +1674,21 @@ WebGLVectorTile2.prototype._setColorDotmapDataFromBox = function(tileDataF32) {
   var requestArgs = {
     tileDataF32: tileDataF32,
     dotmapColors: tile.dotmapColors,
-    tileidx: tile._tileidx
+    tileidx: tile._tileidx,
+    format: format
   };
 
-  Workers.call('WebGLVectorTile2Worker.js', 'computeColorDotmapFromBox', requestArgs, function(response) {
+  var workerName;
+  if (format == 'box') {
+    workerName = 'computeColorDotmapFromBox';
+  } else if (format == 'tbox') {
+    workerName = 'computeColorDotmapFromTbox';
+    requestArgs.epochs = this._layer.epochs;
+  } else {
+    throw new Error('Unknown dotmap format ' + format);
+  }
+  
+  Workers.call('WebGLVectorTile2Worker.js', workerName, requestArgs, function(response) {
     var tileData = new Uint8Array(tileDataF32.buffer);
     // Iterate through the raster, creating dots on the fly
 
@@ -1694,6 +1704,15 @@ WebGLVectorTile2.prototype._setColorDotmapDataFromBox = function(tileDataF32) {
       gl.bufferData(gl.ARRAY_BUFFER, tile._data, gl.STATIC_DRAW);
     }
   });
+}
+
+// Color Dotmap (not animated)  aWorldCoord[2]  aColor
+WebGLVectorTile2.prototype._setColorDotmapDataFromBox = function(tileDataF32) {
+  this._setColorDotmapDataFromBoxWithFormat(tileDataF32, 'box');
+}
+
+WebGLVectorTile2.prototype._setColorDotmapDataFromTbox = function(tileDataF32) {
+  this._setColorDotmapDataFromBoxWithFormat(tileDataF32, 'tbox');
 }
 
 WebGLVectorTile2.prototype._setObesityData = function(data) {
@@ -2640,10 +2659,6 @@ WebGLVectorTile2.prototype._drawLodes = function(transform, options) {
   }
 }
 
-
-
-
-
 WebGLVectorTile2.prototype._drawColorDotmap = function(transform, options) {
   var gl = this.gl;
   if (this._ready) {
@@ -2686,6 +2701,67 @@ WebGLVectorTile2.prototype._drawColorDotmap = function(transform, options) {
 
     gl.enableVertexAttribArray(this.program.aColor);
     gl.vertexAttribPointer(this.program.aColor, 1, gl.FLOAT, false, 12, 8);
+
+    var npoints = Math.floor(this._pointCount*throttle);
+    gl.drawArrays(gl.POINTS, 0, npoints);
+    perf_draw_points(npoints);
+    gl.disable(gl.BLEND);
+  }
+}
+
+WebGLVectorTile2.prototype._drawColorDotmapTbox = function(transform, options) {
+  var gl = this.gl;
+  if (this._ready) {
+    gl.useProgram(this.program);
+    gl.enable( gl.BLEND );
+    gl.blendEquationSeparate( gl.FUNC_ADD, gl.FUNC_ADD );
+    gl.blendFuncSeparate( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA );
+
+    var pixelScale = - transform[5];
+    var zoom = options.zoom || (2.0 * window.devicePixelRatio);
+    // Start scaling pixels extra for tiles beyond level 10
+    if (this._tileidx.l > 10) {
+      pixelScale *= 2 ** (this._tileidx.l - 10);
+    }
+
+    // transform maps 0-256 input coords to the tile's pixel space on the screen.
+    // But color dotmaps treat 0-256 input coords to map to the entire planet, not the current tile's extents.
+    // Scale tileTransform so that it would map 0-256 input coords to the entire planet.
+    var tileTransform = new Float32Array(transform);
+    scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
+    scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+
+    var throttle = 1.0;
+    if (typeof options.throttle != "undefined") {
+        throttle = options.throttle
+    }
+
+    // Beyond a certain zoom level, increase dot size
+    var pointSize = Math.max(0.5, pixelScale * 38);
+    gl.uniform1f(this.program.uSize, pointSize);
+
+    gl.uniform1f(this.program.uZoom, zoom);
+
+    // Set epoch
+    var epoch = options.currentTime/1000;
+    gl.uniform1f(this.program.uEpoch, epoch);
+
+    gl.uniformMatrix4fv(this.program.mapMatrix, false, tileTransform);
+
+    var stride = 5 * 4;
+    gl.enableVertexAttribArray(this.program.aWorldCoord);
+    gl.vertexAttribPointer(this.program.aWorldCoord, 2, gl.FLOAT, false, stride, 0);
+
+    gl.enableVertexAttribArray(this.program.aColor);
+    gl.vertexAttribPointer(this.program.aColor, 1, gl.FLOAT, false, stride, 8);
+
+    gl.enableVertexAttribArray(this.program.aStartEpoch);
+    gl.vertexAttribPointer(this.program.aStartEpoch, 1, gl.FLOAT, false, stride, 12);
+
+    gl.enableVertexAttribArray(this.program.aEndEpoch);
+    gl.vertexAttribPointer(this.program.aEndEpoch, 1, gl.FLOAT, false, stride, 16);
 
     var npoints = Math.floor(this._pointCount*throttle);
     gl.drawArrays(gl.POINTS, 0, npoints);
@@ -4837,6 +4913,27 @@ WebGLVectorTile2.colorDotmapVertexShader =
   '  //gl_PointSize = 0.5;\n' +
   '  vColor = aColor;\n' +
   '}\n';
+
+WebGLVectorTile2.colorDotmapVertexShaderTbox = [
+  'attribute vec2 aWorldCoord;',
+  'attribute float aColor;',
+  'attribute float aStartEpoch;',
+  'attribute float aEndEpoch;',
+  'uniform float uZoom;',
+  'uniform float uSize;',
+  'uniform mat4 mapMatrix;',
+  'uniform float uEpoch;',
+  'varying float vColor;',
+  'void main() {',
+  '  if (aStartEpoch <= uEpoch && uEpoch < aEndEpoch) {',
+  '    /*gl_Position = vec4(aWorldCoord.x * mapMatrix[0][0] + mapMatrix[3][0], aWorldCoord.y * mapMatrix[1][1] + mapMatrix[3][1],0,1);*/',
+  '    gl_Position = vec4((aWorldCoord.x) * mapMatrix[0][0] + mapMatrix[3][0], (aWorldCoord.y) * mapMatrix[1][1] + mapMatrix[3][1],0,1);',
+  '    gl_PointSize = uSize;',
+  '    vColor = aColor;',
+  '  } else {',
+  '    gl_Position = vec4(-1,-1,-1,-1);',
+  '  }',
+  '}'].join('\n');
 
 WebGLVectorTile2.colorDotmapFragmentShader =
   'precision lowp float;\n' +
