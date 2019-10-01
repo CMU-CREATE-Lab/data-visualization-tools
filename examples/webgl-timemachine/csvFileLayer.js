@@ -496,7 +496,6 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
 CsvFileLayer.prototype.loadLayers = function loadLayers(path) {
   if (path == csvlayersLoadedPath) return;
   csvlayersLoadedPath = path;
-  var url = path;
 
   var that = this;
 
@@ -506,8 +505,7 @@ CsvFileLayer.prototype.loadLayers = function loadLayers(path) {
   $("#csvlayers_table").empty();
   that.layers = [];
 
-  if (path.indexOf(".tsv") != -1) {
-    // Load local version of the csv .tsv file
+  if (path.endsWith(".tsv")) {
     $.ajax({
       url: path,
       dataType: "text",
@@ -515,18 +513,17 @@ CsvFileLayer.prototype.loadLayers = function loadLayers(path) {
         that.loadLayersFromTsv(tsvdata);
       }
     });
-    return;
-  } else if (path.indexOf("http") != 0) {
-    var docId = path.split('.')[0];
-    var tabId = path.split('.')[1];
-    url = 'https://docs.google.com/spreadsheets/d/' + docId + '/edit';
-    if (tabId) {
-      url += '#gid=' + tabId;
+  } else {
+    // If necessary, expand docTab share path
+    if (path.indexOf("http") != 0) {
+      path = docTabToGoogleSheetUrl(path);
     }
+    // Load csv layers from Google Sheets style URL
+    org.gigapan.Util.gdocToJSON(path, function(tsvdata) {
+      that.loadLayersFromTsv(tsvdata);
+    });
   }
-  org.gigapan.Util.gdocToJSON(url, function(tsvdata) {
-    that.loadLayersFromTsv(tsvdata);
-  });
+
 };
 
 // Takes in UTC time, returns ISO string date format

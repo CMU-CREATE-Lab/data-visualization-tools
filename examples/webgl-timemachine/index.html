@@ -253,6 +253,7 @@
     var showFullScreenButton = parseConfigOption({optionName: "showFullScreenButton", optionDefaultValue: false, exposeOptionToUrlHash: true});
     var showThumbnailTool = parseConfigOption({optionName: "showThumbnailTool", optionDefaultValue: true, exposeOptionToUrlHash: false});
     var thumbnailServerHost = parseConfigOption({optionName: "thumbnailServerHost", optionDefaultValue: undefined, exposeOptionToUrlHash: false});
+    var dotmapsServerHost = parseConfigOption({optionName: "dotmapsServerHost", optionDefaultValue: "https://dotmaptiles.createlab.org/", exposeOptionToUrlHash: false});
     var headlessClientHost = parseConfigOption({optionName: "headlessClientHost", optionDefaultValue: undefined, exposeOptionToUrlHash: false});
     var usePresentationClicker = parseConfigOption({optionName: "usePresentationClicker", optionDefaultValue: false, exposeOptionToUrlHash: false});
     var enableThemeHamburgerButton = parseConfigOption({optionName: "enableThemeHamburgerButton", optionDefaultValue: false, exposeOptionToUrlHash: false});
@@ -312,6 +313,7 @@
     var useRetinaDarkNoLabelsBaseMap = baseMapsNoLabels ? true : parseConfigOption({optionName: "useRetinaDarkNoLabelsBaseMap", optionDefaultValue: false, exposeOptionToUrlHash: false});
     var enableStoryEditor = !showStories ? false : parseConfigOption({optionName: "enableStoryEditor", optionDefaultValue: false, exposeOptionToUrlHash: false});
     var pauseWhenInitialized = parseConfigOption({optionName: "pauseWhenInitialized", optionDefaultValue: false, exposeOptionToUrlHash: true});
+    var disableAnimation = parseConfigOption({optionName: "disableAnimation", optionDefaultValue: false, exposeOptionToUrlHash: true});
     var landsatVersion = parseConfigOption({optionName: "landsatVersion", optionDefaultValue: "2015", exposeOptionToUrlHash: false});
     // Deprecated
     var customDarkMapUrl = parseConfigOption({optionName: "customDarkMapUrl", optionDefaultValue: "", exposeOptionToUrlHash: false});
@@ -371,6 +373,10 @@
     var keysDown = [];
     var $lastSelectedExtra;
     var loadedInitialCsvLayers = false;
+    var dotmapLayersInitialized = false;
+    var csvFileLayersInitialized = false;
+    var storiesInitialized = false;
+    var timeMachinePlayerInitialized = false;
     var timeInMsSinceLastWaypointLoop = 0;
     var $nextAnnotationLocationButton;
     var $previousAnnotationLocationButton;
@@ -1005,6 +1011,19 @@
     var spCrudeUrlME = rootTilePath + "/sp-crude/0-crude-flows_ME.bin"
     var spCrudeUrlUS = rootTilePath + "/sp-crude/0-crude-flows_US.bin"
     */
+
+    function isEarthTimeLoaded() {
+      if (showCustomDotmaps && !dotmapLayersInitialized) {
+        return false;
+      } else if (showCsvLayers && !csvFileLayersInitialized) {
+        return false;
+      } else if (showStories && !storiesInitialized) {
+        return false;
+      } else if (!timeMachinePlayerInitialized) {
+        return false;
+      }
+      return true;
+    }
 
     function init() {
       if (ETNotSupported) {
@@ -4843,9 +4862,9 @@
       if (useLocalTiles) {
         tileUrl = rootTilePath + '/dotmaptiles/' + nickname;
       } else {
-        tileUrl = 'https://dotmaptiles.createlab.org/tilesv2/' + nickname + '/{z}/{x}/{y}';
+        tileUrl = dotmapsServerHost + '/tilesv2/' + nickname + '/{z}/{x}/{y}';
         if (columnDefs) {
-	  tileUrl += '.box';
+          tileUrl += '.box';
         } else {
           tileUrl += '.tbox';
         }
@@ -4855,7 +4874,7 @@
         // In reality the tiles are served as 512x512, but by claiming 256x256 we load an
         // extra level of detail, and the additional resolution looks nicer, at least on a retina display...
         nLevels: 14,
-	credit: credit
+        credit: credit
       };
 
       if (columnDefs) {
@@ -4987,34 +5006,43 @@
         var header = 'Enabled\tShare link identifier\tName\tCredits\tPopName1\tColor1\tDefinition1\tPopName2\tColor2\tDefinition2\tPopName3\tColor3\tDefinition3\tPopName4\tColor4\tDefinition4\tPopName5\tColor5\tDefinition5\tPopName6\tColor6\tDefinition6\tPopName7\tColor7\tDefinition7\tPopName8\tColor8\tDefinition8\tPopName9\tColor9\tDefinition9';
         tsvLayerDefinitions = [header].concat(tsvLayerDefinitions.split('\n').slice(2)).join('\n');
       }
-      var parsed = Papa.parse(tsvLayerDefinitions, {delimiter: '\t', header: true});
+      var parsed = Papa.parse(tsvLayerDefinitions, {
+        delimiter: '\t',
+        header: true
+      });
       var layerdefs = parsed['data'];
       for (var i = 0; i < layerdefs.length; i++) {
         var layerdef = layerdefs[i];
         if (layerdef['Enabled'].toLowerCase() == 'false') continue;
         var layerIdentifier = layerdef['Share link identifier'].replace(/\W+/g, '_'); // sanitize non-word chars
 
-	var date=null, columnDefs=null, animationLayers=null;
-	if (layerdef['AnimationLayers']) {
-	  animationLayers = layerdef['AnimationLayers'].replace(/\s/g, '').split('|');
-	} else {
+        var date = null,
+          columnDefs = null,
+          animationLayers = null;
+        if (layerdef['AnimationLayers']) {
+          animationLayers = layerdef['AnimationLayers'].replace(/\s/g, '').split('|');
+        } else {
           columnDefs = [];
           for (var c = 1; 1; c++) {
             var name = layerdef['PopName' + c];
             if (!name) break;
             var color = layerdef['Color' + c];
             var expression = layerdef['Definition' + c];
-            columnDefs.push({name: name, color: color, expression: expression});
+            columnDefs.push({
+              name: name,
+              color: color,
+              expression: expression
+            });
           }
-  	  date = layerdef['Date'];
-	}
+          date = layerdef['Date'];
+        }
         addDotmapLayer(layerIdentifier, // identifier
-                       layerdef['Name'], // name
-                       layerdef['Credits'], // credit
-                       layerdef['Category'], // layer category
-		       date,
-                       columnDefs,
-		       animationLayers);
+          layerdef['Name'], // name
+          layerdef['Credits'], // credit
+          layerdef['Category'], // layer category
+          date,
+          columnDefs,
+          animationLayers);
       }
       // New layers have been added, so refresh the layer panel
       $(".map-layer-div").accordion("refresh");
@@ -5022,20 +5050,19 @@
       if (enableLetterboxMode) {
         updateLetterboxContent();
       }
+      dotmapLayersInitialized = true;
     }
 
     function loadDotmapLayers(path) {
       if (path == dotlayersLoadedPath) return;
       dotlayersLoadedPath = path;
-      var url = path;
 
       // Clear out any dot map layers that have already been loaded
       $("#dotmaps_table, .dotmap").find("input:checked").trigger("click");
       $(".dotmap").remove();
       $('#custom_dotmaps_table').empty();
 
-      if (path.indexOf(".tsv") != -1) {
-        // Load local version of the dotmaps .tsv file
+      if (path.endsWith(".tsv")) {
         $.ajax({
           url: path,
           dataType: "text",
@@ -5043,21 +5070,16 @@
             loadDotmapLayersFromTsv(csvdata);
           }
         });
-        return;
-      } else if (path.indexOf("http") != 0) {
-        // docTabId DOCID.TABID, e.g. 1hFpDXOyjvjTpad7HpB0K-3thuYqSOlDJ4oExCTcscUk.358696896,
-        // which would translate into https://docs.google.com/spreadsheets/d/1hFpDXOyjvjTpad7HpB0K-3thuYqSOlDJ4oExCTcscUk/edit#gid=358696896
-        var docId = path.split('.')[0];
-        var tabId = path.split('.')[1];
-        url = 'https://docs.google.com/spreadsheets/d/' + docId + '/edit';
-        if (tabId) {
-          url += '#gid=' + tabId;
+      } else {
+        // If necessary, expand docTab shared path
+        if (path.indexOf("http") != 0) {
+          path = docTabToGoogleSheetUrl(path);
         }
+        // Load dotmaps from Google Sheets style URL
+        UTIL.gdocToJSON(path, function(tsvdata) {
+          loadDotmapLayersFromTsv(tsvdata);
+        });
       }
-      // Load dotmaps from Google Docs
-      UTIL.gdocToJSON(url, function(tsvdata) {
-        loadDotmapLayersFromTsv(tsvdata);
-      });
     }
 
     function modifyWaypointSliderContent(keyframes, theme, story) {
@@ -5210,6 +5232,7 @@
       if (enableLetterboxMode) {
         updateLetterboxContent();
       }
+      storiesInitialized = true;
     }
 
     function loadWaypoints(path) {
@@ -5222,19 +5245,23 @@
       // Legacy waypoint format (output of snaplapse editor)
       if (waypointCollection) {
         timelapse.loadSharedDataFromUnsafeURL(waypointCollection);
-      } else if (path.indexOf("http") >= 0) {
-        // Load waypoints from Google Docs
-        UTIL.gdocToJSON(path, function(csvdata) {
-          loadWaypointSliderContentFromCSV(csvdata);
-        });
-      } else {
-        // Load local version of the waypoints .tsv file
+        storiesInitialized = true;
+      } else if (path.endsWith(".tsv")) {
         $.ajax({
           url: path,
           dataType: "text",
           success: function(csvdata) {
             loadWaypointSliderContentFromCSV(csvdata);
           }
+        });
+      } else {
+        // If necessary, expand docTab shared path
+        if (path.indexOf("http") != 0) {
+          path = docTabToGoogleSheetUrl(path);
+        }
+        // Load waypoints from Google Sheets style URL
+        UTIL.gdocToJSON(path, function(csvdata) {
+          loadWaypointSliderContentFromCSV(csvdata);
         });
       }
     }
@@ -7502,47 +7529,47 @@
 
         // If csv layers load before waypoints, keep checking for waypoint ready status
         waypointJSONListReadyInterval = setInterval(function() {
-          if (waypointJSONList) {
-            window.clearInterval(waypointJSONListReadyInterval);
-            var storyTheme = getStoryAndThemeFromUrl();
-            featuredTheme = currentWaypointTheme || featuredTheme || storyTheme.theme;
-            featuredTheme = capitalize_each_word_in_string(featuredTheme.replace(/_/g, " "));
+          if (!waypointJSONList) return;
+          window.clearInterval(waypointJSONListReadyInterval);
+          var storyTheme = getStoryAndThemeFromUrl();
+          featuredTheme = currentWaypointTheme || featuredTheme || storyTheme.theme;
+          featuredTheme = capitalize_each_word_in_string(featuredTheme.replace(/_/g, " "));
 
-            if (!loadedInitialCsvLayers) {
-              loadedInitialCsvLayers = true;
-              // CSV layers are loaded asynchronously, so trigger another hash change if we just loaded the page
-              $(window).trigger('hashchange');
-            }
+          if (!loadedInitialCsvLayers) {
+            loadedInitialCsvLayers = true;
+            // CSV layers are loaded asynchronously, so trigger another hash change if we just loaded the page
+            $(window).trigger('hashchange');
+          }
 
-            var layerDefs = csvFileLayers.layersData.data;
-            for (var i = 0; i < layerDefs.length; i++) {
-              var layerDef = layerDefs[i];
-              var shareLinkIdentifier = layerDef['Share link identifier'];
-              var $layer = $("#layers-list label[name='" + shareLinkIdentifier + "']");
-              // Add layer description buttons
-              if (layerDef['Layer Description']) {
-                var $layerDescriptionElm = $("<td colspan='3'><div class='layer-description'></div></td>");
-                $layer.closest("tr").append($layerDescriptionElm);
-                $layerDescriptionElm.find(".layer-description").attr("data-layer-description", layerDef['Layer Description']);
-              }
+          var layerDefs = csvFileLayers.layersData.data;
+          for (var i = 0; i < layerDefs.length; i++) {
+            var layerDef = layerDefs[i];
+            var shareLinkIdentifier = layerDef['Share link identifier'];
+            var $layer = $("#layers-list label[name='" + shareLinkIdentifier + "']");
+            // Add layer description buttons
+            if (layerDef['Layer Description']) {
+              var $layerDescriptionElm = $("<td colspan='3'><div class='layer-description'></div></td>");
+              $layer.closest("tr").append($layerDescriptionElm);
+              $layerDescriptionElm.find(".layer-description").attr("data-layer-description", layerDef['Layer Description']);
             }
+          }
 
-            if (featuredTheme) {
-              createFeaturedLayersSection();
-            } else {
-              $(".map-layer-div").show();
-            }
-            $(".map-layer-div").accordion("refresh");
-            $("#extras-selector").selectmenu("refresh");
-            // Sort all the newly added layers
-            sortLayerCategories();
-            resizeLayersMenu();
-            if (enableLetterboxMode) {
-              updateLetterboxContent();
-            }
+          if (featuredTheme) {
+            createFeaturedLayersSection();
+          } else {
+            $(".map-layer-div").show();
+          }
+          $(".map-layer-div").accordion("refresh");
+          $("#extras-selector").selectmenu("refresh");
+          // Sort all the newly added layers
+          sortLayerCategories();
+          resizeLayersMenu();
+          if (enableLetterboxMode) {
+            updateLetterboxContent();
           }
         }, 50);
         window.prepareSearchContent();
+        csvFileLayersInitialized = true;
       });
 
       if (isOffline) {
@@ -7920,9 +7947,11 @@
         });
       }
 
+      $("#datepicker-ui").appendTo($("#timeMachine .player"));
+
       // Keep this last
       $(window).on('hashchange', hashChange).trigger('hashchange');
-      $("#datepicker-ui").appendTo($("#timeMachine .player"));
+      timeMachinePlayerInitialized = true;
 
       // End of onTimeMachinePlayerReady
     }
@@ -8582,6 +8611,10 @@
     // Draws to canvas.
     // Called by TimeMachineCanavasLayer during animation and/or view changes
     function update() {
+      if (disableAnimation) {
+        canvasLayer.setAnimate(false);
+        disableAnimation = false;
+      }
       timelapse.frameno = (timelapse.frameno || 0) + 1;
       perf_drawframe();
       gl.clear(gl.COLOR_BUFFER_BIT);
