@@ -4337,7 +4337,7 @@
         }
 
         dateRangePicker.handleCalendarLayers(false);
-		altitudeSlider.handleAltitudeLayers();
+        altitudeSlider.handleAltitudeLayers();
 
         var $layerContainer = $(e.target).parents("table");
         var $layerContainerHeader = $layerContainer.prev();
@@ -4826,7 +4826,7 @@
     var csvFileLayers = new CsvFileLayer();
     var csvDataGrapher = new CsvDataGrapher();
     var dateRangePicker = new DateRangePicker();
-	var altitudeSlider = new AltitudeSlider();
+    var altitudeSlider = new AltitudeSlider();
     var dotmapLayers = [];
     var dotmapLayerByName = {};
     var dotlayersLoadedPath;
@@ -7416,7 +7416,7 @@
           var layers = vals.l.split(",");
           if (loadedInitialCsvLayers){
             dateRangePicker.handleCalendarLayers(true, layers);
-			altitudeSlider.handleAltitudeLayers();
+            altitudeSlider.handleAltitudeLayers();
           }
           handleLayers(layers);
           // The time in a share link may correspond to a layer that has a different timeline than the default one.

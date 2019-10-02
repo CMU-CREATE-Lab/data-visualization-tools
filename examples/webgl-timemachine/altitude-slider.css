@@ -6,12 +6,16 @@
   bottom: 300px;
   z-index: 99;
   display: none;
+  cursor: pointer;
 }
 
 #altitude-slider > div {
-    margin-left:-50px;
-	font-size: 18px;
-    position: relative;
-	color: white;
+  margin-left:-50px;
+  font-size: 18px;
+  position: relative;
+  color: white;
 }
 
+#altitude-slider .ui-slider-handle {
+  cursor: pointer;
+}
