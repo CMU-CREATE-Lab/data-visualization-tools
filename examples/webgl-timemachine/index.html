@@ -96,6 +96,8 @@
   <script type="text/javascript">
     "use strict";
 
+      console.log('ZZZ index dot map');
+
     jQuery.support.cors = true;
     var UTIL = org.gigapan.Util;
 
@@ -4869,6 +4871,7 @@
           tileUrl += '.tbox';
         }
       }
+      console.log('ZZZ index dot map tiles url', tileUrl);
 
       var layerOptions = {
         // In reality the tiles are served as 512x512, but by claiming 256x256 we load an

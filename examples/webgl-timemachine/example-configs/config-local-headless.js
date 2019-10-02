@@ -8,6 +8,7 @@ var EARTH_TIMELAPSE_CONFIG = {
   "csvLayersContentPath": undefined,
   "showCsvLayers": true,
   "dotmapsContentPath": undefined,
+  "dotmapsServerHost": undefined,
   "showCustomDotmaps": true,
   "showShareButton": false,
   "showSettingsButton": false,
