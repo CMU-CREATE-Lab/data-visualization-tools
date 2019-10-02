@@ -391,8 +391,9 @@
       var themeTemplate = Handlebars.compile(themeTemplateSource);
       Handlebars.registerPartial("story", storyPartialTemplateSource);
       var html = "";
+      var path = EARTH_TIMELAPSE_CONFIG.waypointSliderContentPath;
 
-      UTIL.gdocToJSON(EARTH_TIMELAPSE_CONFIG.waypointSliderContentPath, function(tsvdata) {
+      var storiesLoadedHandler = function(tsvdata) {
         var parsed = Papa.parse(tsvdata, {delimiter: '\t', header: true});
         var waypointdefs = parsed['data'];
         var storyCollection = [];
@@ -442,7 +443,9 @@
           html += themeTemplate({'theme': themeTitle, 'stories': stories});
         }
         $("#stories-list").html(html);
-      });
+      };
+
+      UTIL.loadTsvData(path, storiesLoadedHandler, this);
 
       $("#stories").on("click", ".story", function() {
         var storyName = $(this).attr("data-story-name");

@@ -505,25 +505,7 @@ CsvFileLayer.prototype.loadLayers = function loadLayers(path) {
   $("#csvlayers_table").empty();
   that.layers = [];
 
-  if (path.endsWith(".tsv")) {
-    $.ajax({
-      url: path,
-      dataType: "text",
-      success: function(tsvdata) {
-        that.loadLayersFromTsv(tsvdata);
-      }
-    });
-  } else {
-    // If necessary, expand docTab share path
-    if (path.indexOf("http") != 0) {
-      path = docTabToGoogleSheetUrl(path);
-    }
-    // Load csv layers from Google Sheets style URL
-    org.gigapan.Util.gdocToJSON(path, function(tsvdata) {
-      that.loadLayersFromTsv(tsvdata);
-    });
-  }
-
+  org.gigapan.Util.loadTsvData(path, that.loadLayersFromTsv, that);
 };
 
 // Takes in UTC time, returns ISO string date format

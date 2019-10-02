@@ -98,8 +98,6 @@
   <script type="text/javascript">
     "use strict";
 
-      console.log('ZZZ index dot map');
-
     jQuery.support.cors = true;
     var UTIL = org.gigapan.Util;
 
@@ -1947,7 +1945,6 @@
       }).prop('checked', showDscovrTimeMachineLayer);
 
       $("#show-annual-pm25").on("click", function() {
-        console.log('TODO(RS): show-annual-pm25');
         var $this = $(this);
         if ($this.prop('checked')) {
           annualGlobalPm25TimeMachineLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
@@ -4875,7 +4872,6 @@
           tileUrl += '.tbox';
         }
       }
-      console.log('ZZZ index dot map tiles url', tileUrl);
 
       var layerOptions = {
         // In reality the tiles are served as 512x512, but by claiming 256x256 we load an
@@ -5069,24 +5065,7 @@
       $(".dotmap").remove();
       $('#custom_dotmaps_table').empty();
 
-      if (path.endsWith(".tsv")) {
-        $.ajax({
-          url: path,
-          dataType: "text",
-          success: function(csvdata) {
-            loadDotmapLayersFromTsv(csvdata);
-          }
-        });
-      } else {
-        // If necessary, expand docTab shared path
-        if (path.indexOf("http") != 0) {
-          path = docTabToGoogleSheetUrl(path);
-        }
-        // Load dotmaps from Google Sheets style URL
-        UTIL.gdocToJSON(path, function(tsvdata) {
-          loadDotmapLayersFromTsv(tsvdata);
-        });
-      }
+      UTIL.loadTsvData(path, loadDotmapLayersFromTsv, this);
     }
 
     function modifyWaypointSliderContent(keyframes, theme, story) {
@@ -5253,23 +5232,8 @@
       if (waypointCollection) {
         timelapse.loadSharedDataFromUnsafeURL(waypointCollection);
         storiesInitialized = true;
-      } else if (path.endsWith(".tsv")) {
-        $.ajax({
-          url: path,
-          dataType: "text",
-          success: function(csvdata) {
-            loadWaypointSliderContentFromCSV(csvdata);
-          }
-        });
       } else {
-        // If necessary, expand docTab shared path
-        if (path.indexOf("http") != 0) {
-          path = docTabToGoogleSheetUrl(path);
-        }
-        // Load waypoints from Google Sheets style URL
-        UTIL.gdocToJSON(path, function(csvdata) {
-          loadWaypointSliderContentFromCSV(csvdata);
-        });
+        UTIL.loadTsvData(path, loadWaypointSliderContentFromCSV, this);
       }
     }
 
