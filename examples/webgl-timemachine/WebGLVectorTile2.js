@@ -2934,6 +2934,34 @@ WebGLVectorTile2.prototype._drawPointFlow = function(transform, options) {
     if (isNaN(pointSize)) {
       pointSize = 1.0;
     }
+
+    var start_color = [.94,.94,.94,1.];
+    var end_color = [.71,0.09,0.05,1.0];
+    //'    vec4 colorStart = vec4(.94,.94,.94,1.0);\n' +
+    //'    vec4 colorEnd = vec4(.71,0.09,0.05,1.0);\n' +
+
+    if (Array.isArray(options["start_color"]) ) {
+      if (options["start_color"].length == 3) {
+        start_color = options["start_color"];
+        start_color.push(1.0);
+      } else if (options["start_color"].length == 4) {
+        start_color = options["start_color"];
+      } else {
+        console.log("ERROR: unknown start_color array")
+      }
+    }
+
+    if (Array.isArray(options["end_color"]) ) {
+      if (options["end_color"].length == 3) {
+        end_color = options["end_color"];
+        end_color.push(1.0);
+      } else if (options["end_color"].length == 4) {
+        end_color = options["end_color"];
+      } else {
+        console.log("ERROR: unknown end_color array")
+      }
+    }
+
     var sizeLoc = gl.getUniformLocation(this.program, 'u_size');
     gl.uniform1f(sizeLoc, pointSize);
 
@@ -2946,6 +2974,13 @@ WebGLVectorTile2.prototype._drawPointFlow = function(transform, options) {
     var currentTime = options.currentTime;
     var epochLoc = gl.getUniformLocation(this.program, 'u_epoch');
     gl.uniform1f(epochLoc, currentTime/1000.);
+
+
+    var loc = gl.getUniformLocation(this.program, 'u_start_color');
+    gl.uniform4fv(loc, start_color);
+
+    var loc = gl.getUniformLocation(this.program, 'u_end_color');
+    gl.uniform4fv(loc, end_color);
 
     var attributeLoc = gl.getAttribLocation(this.program, 'a_p0');
     gl.enableVertexAttribArray(attributeLoc);
@@ -5957,12 +5992,16 @@ WebGLVectorTile2.pointFlowVertexShader =
 WebGLVectorTile2.pointFlowFragmentShader =
   'precision mediump float;\n' +
 '  varying float v_t;\n' +
+'  uniform vec4 u_start_color;\n' +
+'  uniform vec4 u_end_color;\n' +
 '  void main() {\n' +
 '    float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
 '    dist = 1. - (dist * 2.);\n' +
 '    dist = max(0., dist);\n' +
-'    vec4 colorStart = vec4(.94,.94,.94,1.0);\n' +
-'    vec4 colorEnd = vec4(.71,0.09,0.05,1.0);\n' +
+'    //vec4 colorStart = vec4(.94,.94,.94,1.0);\n' +
+'    //vec4 colorEnd = vec4(.71,0.09,0.05,1.0);\n' +
+'    vec4 colorStart = u_start_color;\n' +
+'    vec4 colorEnd = u_end_color;\n' +
 '    gl_FragColor = mix(colorStart, colorEnd, v_t) * dist;\n' +
 '  }\n';
 
