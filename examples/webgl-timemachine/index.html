@@ -4901,8 +4901,16 @@
         // Collect epoch times for each layer
         var epochs = [];
         var firstLayer = dotmapLayerByName[animationLayers[0]];
+        if (!firstLayer) {
+          console.log("ERROR: Animated dotmap layer requested, but no dotmap layer found that matches '" + animationLayers[0] + "'. Skipping the full set:[" + animationLayers + "]");
+          return;
+        }
         for (var i = 0; i < animationLayers.length; i++) {
           var checkLayer = dotmapLayerByName[animationLayers[i]];
+          if (!checkLayer) {
+            console.log("ERROR: Animated dotmap layer requested, but no dotmap layer found that matches '" + animationLayers[i] + "'. Skipping it.");
+            continue;
+          }
           var epoch = parseDateStr(checkLayer.date);
           if (isNaN(epoch)) {
             console.log('While building', nickname, 'component layer', checkLayer.nickname, 'is missing parsable Date');
