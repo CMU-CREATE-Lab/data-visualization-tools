@@ -573,6 +573,7 @@ CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate,
   var endSecond = em[6];
 
   function pad(n) {
+    n = parseInt(n); // Ensure that n is an int and not a string
     return (n < 10) ? ("0" + n) : n;
   }
 
@@ -625,12 +626,12 @@ CsvFileLayer.prototype.setTimeLine = function setTimeLine(identifier, startDate,
       var beginMonth = 1;
       var stopMonth = 12;
       if (i == startYearInt) {
-        beginMonth = startMonth;
+        beginMonth = parseInt(startMonth); // Ensure beginMonth is an int and not a string
       }
       if (i == endYearInt) {
-        stopMonth = endMonth;
+        stopMonth = parseInt(endMonth); // Ensure stopMonth is an int and not a string
       }
-      for (var j = beginMonth; j <= stopMonth; j++) {
+      for (var j = beginMonth; j <= stopMonth; j+=stepSize) { // Increment based on supplied stepSize
         captureTimes.push(pad(i.toString()) + "-" + pad(j.toString()));
       }
     }
