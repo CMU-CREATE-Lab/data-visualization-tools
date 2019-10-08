@@ -68,6 +68,7 @@
 
   <script src="timestamps_ajax_includes.js" type="text/javascript"></script>
 
+  <script src="timelines.js"></script>
   <script src="Resource.js"></script>
   <script src="TileIdx.js"></script>
   <script src="WebglVideoTile.js"></script>
@@ -415,7 +416,7 @@
     var waterOccurrenceLayer, waterChangeLayer, usgsWindTurbineLayer, solarInstallsLayer, drillingLayer;
     var goes16TimeMachineLayer, goes16Aug2018TimeMachineLayer, goes16Nov2018TimeMachineLayer, dscovrTimeMachineLayer, annualGlobalPm25TimeMachineLayer;
     var globalWindPowerLayer;
-    setTimeLine('global-wind-power-times', 1984, 2018, 1);
+    timelines.setTimeLine('global-wind-power-times', '1984', '2018', 1);
     var annualRefugeesLayer;
     var annualReturnsLayer;
     var vsiLayer;
@@ -446,22 +447,22 @@
     var chinaAviationLayer;
     var chinaPowerPlantsLayer;
     var chinaReservoirsLayer;
-    setTimeLine('china-reservoirs-times', 1950, 2012, 1);
+    timelines.setTimeLine('china-reservoirs-times', '1950', '2012', 1);
     var chinaWasteTreatmentPlantsLayer;
     var bePm25Layer;
     var lightsAtNightAnimLayer;
     var expandingCitiesLayer;
-    setTimeLine('expanding-cities-times', 1955, 2030, 5);
+    timelines.setTimeLine('expanding-cities-times', '1955', '2030', 5);
     var irenaSolarLayer;
-    setTimeLine('irena-solar-times', 2000, 2016, 1);
+    timelines.setTimeLine('irena-solar-times', '2000', '2016', 1);
     var irenaWindLayer;
-    setTimeLine('irena-wind-times', 2000, 2016, 1);
+    timelines.setTimeLine('irena-wind-times', '2000', '2016', 1);
     var tsipLayer;
-    setTimeLine('tsip-times', 2000, 2017, 1);
+    timelines.setTimeLine('tsip-times', '2000', '2017', 1);
 
     // S&P Shipping
     var spCrudeLayer;
-    setTimeLine('sp-crude-times', 2013, 2018, 1);
+    timelines.setTimeLine('sp-crude-times', '2013', '2018', 1);
 
     var spCrudeLayerOceania;
     var spCrudeLayerAG;
@@ -484,14 +485,14 @@
     var windVectorsLayer;
 
 /*    var spCrudeLayerWAF;
-    setTimeLine('sp-crude-times', 2013, 2018, 1);
+    timelines.setTimeLine('sp-crude-times', '2013', '2018', 1);
 
     var spCrudeLayerNAF;
-    setTimeLine('sp-crude-times', 2013, 2018, 1);
+    timelines.setTimeLine('sp-crude-times', '2013', '2018', 1);
     var spCrudeLayerME;
-    setTimeLine('sp-crude-times', 2013, 2018, 1);
+    timelines.setTimeLine('sp-crude-times', '2013', '2018', 1);
     var spCrudeLayerUS;
-    setTimeLine('sp-crude-us-times', 2016, 2018, 1);
+    timelines.setTimeLine('sp-crude-us-times', '2016', '2018', 1);
 */
     var shipsWorker = new Worker('ships-worker.js');
     shipsWorker.onmessage = function(e) {
@@ -1224,57 +1225,6 @@
         sliderTickVal = layerCustomSliderInfo[timelapse.getCurrentCaptureTime()] || 0;
       }
       return sliderTickVal;
-    }
-
-    function setTimeLine(identifier, startDate, endDate, step) {
-      var captureTimes = [];
-
-      var yyyymm_re = /(\d{4})(\d{2})$/;
-      var sm = String(startDate).match(yyyymm_re);
-      var em = String(endDate).match(yyyymm_re);
-      if (sm && em) {
-        var startYear = sm[1];
-        var startMonth = sm[2];
-        var endYear = em[1];
-        var endMonth = em[2];
-        startYear = parseInt(startYear, 10);
-        startMonth = parseInt(startMonth, 10);
-        endYear = parseInt(endYear, 10);
-        endMonth = parseInt(endMonth, 10);
-
-        if (isNaN(startYear) || isNaN(endYear) || isNaN(startMonth) || isNaN(endMonth) ) {
-          captureTimes = cached_ajax['landsat-times.json']['capture-times'];
-        } else {
-          function pad(n) {
-            return (n < 10) ? ("0" + n) : n;
-          }
-          for (var i = startYear; i <= endYear; i++) {
-            var beginMonth = 1;
-            var stopMonth = 12;
-            if (i == startYear) {
-              beginMonth = startMonth;
-            }
-            if (i == endYear) {
-              stopMonth = endMonth;
-            }
-            for (var j = beginMonth; j <= stopMonth; j++) {
-              captureTimes.push(pad(i.toString()) + "-" + pad(j.toString()));
-            }
-          }
-        }
-      } else  {
-        startDate = parseInt(startDate,10);
-        endDate = parseInt(endDate,10);
-        step = parseInt(step,10);
-        if (isNaN(startDate) || isNaN(endDate) || isNaN(step) ) {
-          captureTimes = cached_ajax['landsat-times.json']['capture-times'];
-        } else {
-          for (var i = startDate; i < endDate + 1; i+=step) {
-            captureTimes.push(i.toString());
-          }
-        }
-      }
-      cached_ajax[identifier + '.json'] = {"capture-times":  captureTimes};
     }
 
     function handleLayers(layers) {
@@ -4874,6 +4824,10 @@
           console.log("ERROR: Animated dotmap layer requested, but no dotmap layer found that matches '" + animationLayers[0] + "'. Skipping the full set:[" + animationLayers + "]");
           return;
         }
+        var beginDate = dotmapLayerByName[animationLayers[0]].date;
+        var endDate = dotmapLayerByName[animationLayers[animationLayers.length - 1]].date;
+        timelines.setTimeLine(nickname, String(beginDate), String(endDate), 1);
+
         for (var i = 0; i < animationLayers.length; i++) {
           var checkLayer = dotmapLayerByName[animationLayers[i]];
           if (!checkLayer) {
@@ -4962,7 +4916,7 @@
           if (animationLayers) {
             setActiveLayersWithTimeline(1);
             timelineType = "defaultUI";
-            //requestNewTimeline("annual-global-pm25-times.json", timelineType);
+            requestNewTimeline(nickname + ".json", timelineType);
           } else {
             timelineType = "none";
           }
@@ -6900,7 +6854,7 @@
 
 
       // ECCO2
-      csvFileLayers.setTimeLine("ecco2-times", "19920102", "20000317", 3);
+      timelines.setTimeLine("ecco2-times", "19920102", "20000317", 3);
       var ecco2Options = {
         numFrames: 1000,
         fps: 16,
@@ -6912,7 +6866,7 @@
       ecco2Layer = new WebglTimeMachineLayer(glb, canvasLayer, ecco2Options);
 
       // GDP PPP
-      csvFileLayers.setTimeLine("gdpPpp-times", "1990", "2015", 1);
+      timelines.setTimeLine("gdpPpp-times", "1990", "2015", 1);
       var gdpPppOptions = {
         numFrames: 26,
         fps: 10,
@@ -6935,7 +6889,7 @@
       };
       gfsTimemachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, gfsTimemachineOptions);
 
-      csvFileLayers.setTimeLine("chlorophyllConcentration-timemachine-times", "200301", "201812", 1);
+      timelines.setTimeLine("chlorophyllConcentration-timemachine-times", "200301", "201812", 1);
       var chlorophyllConcentrationTimemachineOptions = {
         numFrames: 192,
         fps: 12,
