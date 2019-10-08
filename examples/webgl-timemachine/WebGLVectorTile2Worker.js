@@ -2,8 +2,10 @@
 // Use with Workers.js
 
 self.importScripts('../../js/earcut.min.js');
+importScripts("../../js/seedrandom.min.js");
 
 operations['computeColorDotmapFromBox'] = function(request) {
+  var prng = new Math.seedrandom(request.tileidx.l + ',' + request.tileidx.c + ',' + request.tileidx.r);
   var tileData = new Uint8Array(request.tileDataF32.buffer);
   // Iterate through the raster, creating dots on the fly
 
@@ -28,8 +30,8 @@ operations['computeColorDotmapFromBox'] = function(request) {
       for (var y = 0; y < tileDim; y++) {
 	for (var x = 0; x < tileDim; x++) {
 	  for (var p = 0; p < tileData[input_idx]; p++) {
-	    ret.data[output_idx * 3 + 0] = projectedXMin + (x + Math.random()) * projectedTileSize / 256;
-	    ret.data[output_idx * 3 + 1] = projectedYMin + (y + Math.random()) * projectedTileSize / 256;
+	    ret.data[output_idx * 3 + 0] = projectedXMin + (x + prng.quick()) * projectedTileSize / 256;
+	    ret.data[output_idx * 3 + 1] = projectedYMin + (y + prng.quick()) * projectedTileSize / 256;
 	    ret.data[output_idx * 3 + 2] = request.dotmapColors[c];
 	    output_idx++;
 	  }
@@ -42,7 +44,7 @@ operations['computeColorDotmapFromBox'] = function(request) {
     
     // Randomly permute the order of points
     for (var i = ret.pointCount - 1; i >= 1; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
+      var j = Math.floor(prng.quick() * (i + 1));
       var tmp;
       tmp = ret.data[i * 3 + 0]; ret.data[i * 3 + 0] = ret.data[j * 3 + 0]; ret.data[j * 3 + 0] = tmp;
       tmp = ret.data[i * 3 + 1]; ret.data[i * 3 + 1] = ret.data[j * 3 + 1]; ret.data[j * 3 + 1] = tmp;
@@ -54,6 +56,7 @@ operations['computeColorDotmapFromBox'] = function(request) {
 }
 
 operations['computeColorDotmapFromTbox'] = function(request) {
+  var prng = new Math.seedrandom(request.tileidx.l + ',' + request.tileidx.c + ',' + request.tileidx.r);
   var tileData = new Uint8Array(request.tileDataF32.buffer);
   var epochs = request.epochs;
   // Iterate through the raster, creating dots on the fly
@@ -85,9 +88,9 @@ operations['computeColorDotmapFromTbox'] = function(request) {
 
   // Add a new everlasting dot to the output, but hold onto the location of endEpoch in case we need to endDot it
   function startDot(startEpoch, c, x, y) {
-    ret.data[output_idx++] = projectedXMin + (x + Math.random()) * projectedTileSize / 256;
+    ret.data[output_idx++] = projectedXMin + (x + prng.quick()) * projectedTileSize / 256;
     console.assert(0 <= ret.data[output_idx - 1] && ret.data[output_idx - 1] <= 256);
-    ret.data[output_idx++] = projectedYMin + (y + Math.random()) * projectedTileSize / 256;
+    ret.data[output_idx++] = projectedYMin + (y + prng.quick()) * projectedTileSize / 256;
     console.assert(0 <= ret.data[output_idx - 1] && ret.data[output_idx - 1] <= 256);
     ret.data[output_idx++] = request.dotmapColors[c];
     ret.data[output_idx++] = startEpoch;
@@ -124,13 +127,13 @@ operations['computeColorDotmapFromTbox'] = function(request) {
           if (pop > oPop) {
             var increase = pop - oPop;
             for (var p = 0; p < increase; p++) {
-              startDot(oEpoch + Math.random() * dt, c, x, y);
+              startDot(oEpoch + prng.quick() * dt, c, x, y);
             }
           }
           else if (pop < oPop) {
             var decrease = oPop - pop;
             for (var p = 0; p < decrease; p++) {
-              endDot(oEpoch + Math.random() * dt);
+              endDot(oEpoch + prng.quick() * dt);
             }
           }
         }
@@ -143,7 +146,7 @@ operations['computeColorDotmapFromTbox'] = function(request) {
     
   // Randomly permute the order of points
   for (var i = ret.pointCount - 1; i >= 1; i--) {
-    var j = Math.floor(Math.random() * (i + 1));
+    var j = Math.floor(prng.quick() * (i + 1));
     for (var k = 0; k < nAttribs; k++) {
       var tmp = ret.data[i * nAttribs + k];
       ret.data[i * nAttribs + k] = ret.data[j * nAttribs + k];
