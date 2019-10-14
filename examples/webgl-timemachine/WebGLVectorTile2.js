@@ -119,6 +119,9 @@ WebGLVectorTile2.prototype = Object.create(Tile.prototype);
 WebGLVectorTile2.errorsAlreadyShown = {};
 WebGLVectorTile2.errorDialog = null;
 
+// Tweak dot sizes
+WebGLVectorTile2.dotScale = 1;
+
 WebGLVectorTile2.prototype._showErrorOnce = function(msg) {
   var tileUrl = this._url;
   if (!WebGLVectorTile2.errorsAlreadyShown[msg]) {
@@ -2659,6 +2662,18 @@ WebGLVectorTile2.prototype._drawLodes = function(transform, options) {
   }
 }
 
+WebGLVectorTile2.prototype.computeDotSize = function(transform, options) {
+  var pixelScale = - transform[5];
+
+  // Start scaling pixels extra for tiles beyond level 10
+  if (this._tileidx.l > 10) {
+    pixelScale *= 2 ** (this._tileidx.l - 10);
+  }
+
+  var dotSize = Math.max(0.5, pixelScale * 38) * WebGLVectorTile2.dotScale;
+  return dotSize;
+};
+
 WebGLVectorTile2.prototype._drawColorDotmap = function(transform, options) {
   var gl = this.gl;
   if (this._ready) {
@@ -2666,13 +2681,6 @@ WebGLVectorTile2.prototype._drawColorDotmap = function(transform, options) {
     gl.enable( gl.BLEND );
     gl.blendEquationSeparate( gl.FUNC_ADD, gl.FUNC_ADD );
     gl.blendFuncSeparate( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA );
-
-    var pixelScale = - transform[5];
-    var zoom = options.zoom || (2.0 * window.devicePixelRatio);
-    // Start scaling pixels extra for tiles beyond level 10
-    if (this._tileidx.l > 10) {
-      pixelScale *= 2 ** (this._tileidx.l - 10);
-    }
 
     // transform maps 0-256 input coords to the tile's pixel space on the screen.
     // But color dotmaps treat 0-256 input coords to map to the entire planet, not the current tile's extents.
@@ -2688,10 +2696,9 @@ WebGLVectorTile2.prototype._drawColorDotmap = function(transform, options) {
         throttle = options.throttle
     }
 
-    // Beyond a certain zoom level, increase dot size
-    var pointSize = Math.max(0.5, pixelScale * 38);
-    gl.uniform1f(this.program.uSize, pointSize);
+    gl.uniform1f(this.program.uSize, this.computeDotSize(transform, options));
 
+    var zoom = options.zoom || (2.0 * window.devicePixelRatio);
     gl.uniform1f(this.program.uZoom, zoom);
 
     gl.uniformMatrix4fv(this.program.mapMatrix, false, tileTransform);
@@ -2717,13 +2724,6 @@ WebGLVectorTile2.prototype._drawColorDotmapTbox = function(transform, options) {
     gl.blendEquationSeparate( gl.FUNC_ADD, gl.FUNC_ADD );
     gl.blendFuncSeparate( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA );
 
-    var pixelScale = - transform[5];
-    var zoom = options.zoom || (2.0 * window.devicePixelRatio);
-    // Start scaling pixels extra for tiles beyond level 10
-    if (this._tileidx.l > 10) {
-      pixelScale *= 2 ** (this._tileidx.l - 10);
-    }
-
     // transform maps 0-256 input coords to the tile's pixel space on the screen.
     // But color dotmaps treat 0-256 input coords to map to the entire planet, not the current tile's extents.
     // Scale tileTransform so that it would map 0-256 input coords to the entire planet.
@@ -2738,10 +2738,9 @@ WebGLVectorTile2.prototype._drawColorDotmapTbox = function(transform, options) {
         throttle = options.throttle
     }
 
-    // Beyond a certain zoom level, increase dot size
-    var pointSize = Math.max(0.5, pixelScale * 38);
-    gl.uniform1f(this.program.uSize, pointSize);
+    gl.uniform1f(this.program.uSize, this.computeDotSize(transform, options));
 
+    var zoom = options.zoom || (2.0 * window.devicePixelRatio);
     gl.uniform1f(this.program.uZoom, zoom);
 
     // Set epoch
@@ -6663,17 +6662,18 @@ WebGLVectorTile2.basicDrawPoints = function(instance_options) {
     if (this.program.u_size != undefined) {
       var pointSize = 1; // default
       if (typeof instance_options.pointSize == 'number') {
-	pointSize = instance_options.pointSize;
+	      pointSize = instance_options.pointSize;
       } else if (typeof instance_options.pointSize == 'object') {
-	var zoomScale = Math.log2(-transform[5]);
-	var countryLevelZoomScale = -3;
-	var blockLevelZoomScale = 9;
-	var countryPointSizePixels = instance_options.pointSize[0];
-	var blockPointSizePixels = instance_options.pointSize[1];
+    	  var zoomScale = Math.log2(-transform[5]);
+	      var countryLevelZoomScale = -3;
+	      var blockLevelZoomScale = 9;
+	      var countryPointSizePixels = instance_options.pointSize[0];
+	      var blockPointSizePixels = instance_options.pointSize[1];
 
-	pointSize = countryPointSizePixels * Math.pow(blockPointSizePixels / countryPointSizePixels, (zoomScale - countryLevelZoomScale) / (blockLevelZoomScale - countryLevelZoomScale));
-	gl.uniform1f(this.program.u_size, pointSize);
+	      pointSize = countryPointSizePixels * Math.pow(blockPointSizePixels / countryPointSizePixels, (zoomScale - countryLevelZoomScale) / (blockLevelZoomScale - countryLevelZoomScale));
       }
+      pointSize *= WebGLVectorTile2.dotScale;
+      gl.uniform1f(this.program.u_size, pointSize);
     }
 
     // Set u_epoch, if present
