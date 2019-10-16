@@ -5,11 +5,11 @@ function parseAndIndexGeojson(nameKey, geojsonTxt, done) {
   var geojson = JSON.parse(geojsonTxt);
   geojson.hash = {};
   nameKey = nameKey || 'names';
-  
+
   for (var i = 0; i < geojson.features.length; i++) {
     var names = geojson.features[i].properties[nameKey];
     if (!Array.isArray(names)) names = [names];
-    
+
     for (var j = 0; j < names.length; j++) {
       geojson.hash[names[j]] = i;
     }
@@ -62,20 +62,20 @@ Resource.prototype.receiveData = function(receive) {
     var arrayConstructor = {
       uint32 : Uint32Array
     }[this.format];
-    
+
     if (arrayConstructor) {
       this.xhr.responseType = 'arraybuffer';
     }
 
     this.xhr.onload = function() {
       var response;
-      
-      if (this.status != 200) {
-	response = null;
-      }	else if (arrayConstructor) {
-	response = new arrayConstructor(this.response);
+
+      if (!this.responseText || this.status >= 400) {
+        response = null;
+      } else if (arrayConstructor) {
+        response = new arrayConstructor(this.response);
       } else {
-	response = this.responseText
+        response = this.responseText;
       }
       resource._receiveFetch(response);
     }
@@ -100,21 +100,21 @@ Resource.prototype.unload = function() {
 }
 
 /*
- * Calls receiveData from each resource in resourceList, and when all are complete, 
+ * Calls receiveData from each resource in resourceList, and when all are complete,
  * call receive with a list of data received.
  */
 
 Resource.receiveDataListFromResourceList = function(resourceList, receive) {
   var received = [];
   var neededCount = resourceList.length;
-  
+
   function receiveData(i, data) {
     received[i] = data;
     if (--neededCount == 0) {
       receive(received);
     }
   }
-      
+
   for (var i = 0; i < resourceList.length; i++) {
     if (!resourceList[i]) debugger;
     resourceList[i].receiveData(receiveData.bind(null, i)); // create single-arg callback by binding i
@@ -139,7 +139,7 @@ Resource.prototype._receiveFetch = function(data) {
     this._receiveTransform(data);
   }
 }
-  
+
 Resource.prototype._receiveTransform = function(data) {
   if (this.unloaded) return;
   if (!this.singleUse) {
