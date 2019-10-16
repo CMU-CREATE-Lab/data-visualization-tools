@@ -7250,7 +7250,7 @@
           locationList.push(tmpLocationString);
           return $("<li style='z-index:9999'>").append("<a>" + (item.properties.name || "") + ", " + (item.properties.state || "") + "<br>" + item.properties.country + "</a>").appendTo(ul);
         };
-      } else if (typeof(google) === "undefined" && !useGoogleMaps) {
+      } else {
         UTIL.loadGoogleAPIs(googleMapsLoadedCallback, timelapse.getSettings().apiKeys);
       }
 
