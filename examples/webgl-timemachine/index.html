@@ -4776,7 +4776,7 @@
     }
 
     // Pass columnDefs for a static layer, or animationLayers for animation
-    function addDotmapLayer(nickname, name, credit, category, date, columnDefs, animationLayers) {
+    function addDotmapLayer(nickname, name, credit, category, date, columnDefs, animationLayers, drawOptions) {
       var useLocalTiles = false;
 
       if (EARTH_TIMELAPSE_CONFIG.localDotmaps) {
@@ -4804,7 +4804,8 @@
         // In reality the tiles are served as 512x512, but by claiming 256x256 we load an
         // extra level of detail, and the additional resolution looks nicer, at least on a retina display...
         nLevels: 14,
-        credit: credit
+        credit: credit,
+        drawOptions: drawOptions
       };
 
       if (columnDefs) {
@@ -4978,13 +4979,22 @@
           }
           date = layerdef['Date'];
         }
+        var drawOptions = null;
+        if (layerdef['Draw Options']) {
+          try {
+            drawOptions = JSON.parse(layerdef['Draw Options']);
+          } catch (e) {
+            console.log('Cannot parse Draw Options from dotmap layer ' + layerIdentifier)
+          }
+        }
         addDotmapLayer(layerIdentifier, // identifier
           layerdef['Name'], // name
           layerdef['Credits'], // credit
           layerdef['Category'], // layer category
           date,
           columnDefs,
-          animationLayers);
+          animationLayers,
+          drawOptions);
       }
       // New layers have been added, so refresh the layer panel
       $(".map-layer-div").accordion("refresh");
@@ -8517,6 +8527,10 @@
       // this to false upon draw below
       timelapse.lastFrameCompletelyDrawn = true;
 
+      // Compute standard Google Maps zoom level -- 0 means world fits inside 256 pixels across, 1 means 512, 2: 1024 etc
+      // Assumes timelapse.getPanoWidth() represents 360 degrees of longitude
+      var gmapsZoomLevel = Math.log2(timelapse.getPanoWidth() * timelapse.getView().scale / 256);
+
       //
       //// Draw layers ////
       //
@@ -8624,6 +8638,7 @@
         lightBaseMapView.scale /= timelapse2map;
         var mapLevel = lightBaseMapLayer._tileView._scale2level(lightBaseMapView.scale);
         options.zoomLevel = mapLevel;
+        options.gmapsZoomLevel = gmapsZoomLevel;
 
         options.zoom = timelapse.getCurrentZoom();
         var currentTime = timelapse.getCurrentTime();
@@ -9774,7 +9789,7 @@
             var delta = getCurrentTimesDelta(currentTime, currentTimes);
             var currentDate = getCurrentDate(currentTime, currentTimes, dates);
             options.currentTime = currentDate;
-
+            options.gmapsZoomLevel = gmapsZoomLevel;
             layer.draw(view, options);
           }
         }
