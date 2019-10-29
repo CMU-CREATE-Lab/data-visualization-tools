@@ -2266,7 +2266,14 @@ WebGLVectorTile2.prototype._drawUppsalaConflict = function(transform, options) {
 }
 
 WebGLVectorTile2.prototype._drawBubbleMap = function(transform, options) {
+  var bubbleScale = 1;
+  var drawOptions = this._layer.drawOptions;
+  if (drawOptions && drawOptions.bubbleScaleRange) {
+    bubbleScale = this.computeFromGmapsZoomLevel(options.gmapsZoomLevel, drawOptions.bubbleScaleRange);
+  }
+  this._layer.drawOptions
   var gl = this.gl;
+  var glb = this.glb;
   if (this._ready) {
     gl.useProgram(this.program);
     gl.enable(gl.BLEND);
@@ -2275,81 +2282,41 @@ WebGLVectorTile2.prototype._drawBubbleMap = function(transform, options) {
     var tileTransform = new Float32Array(transform);
     var zoom = options.zoom;
     var currentTime = options.currentTime.getTime()/1000.;
-    var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
     var color = options.color || [.1, .1, .5, 1.0];
     if (color.length == 3) {
       color.push(1.0);
     }
     var mode = options.mode || 1.0; // 1.0 == full circle, 2.0 == left half, 3.0 == right half
 
-    //console.log(currentTime);
-
     scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
     scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-    pointSize *= Math.floor((zoom + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
-    // Passing a NaN value to the shader with a large number of points is very bad
-    if (isNaN(pointSize)) {
-      pointSize = 1.0;
-    }
-
     gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
-    var attributeLoc = gl.getAttribLocation(this.program, 'a_Centroid');
-    gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this.numAttributes * 4, 0);
-
-    var timeLocation = gl.getAttribLocation(this.program, "a_Epoch1");
-    gl.enableVertexAttribArray(timeLocation);
-    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, this.numAttributes * 4, 8);
-
-    var timeLocation = gl.getAttribLocation(this.program, "a_Val1");
-    gl.enableVertexAttribArray(timeLocation);
-    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, this.numAttributes * 4, 12);
-
-    var timeLocation = gl.getAttribLocation(this.program, "a_Epoch2");
-    gl.enableVertexAttribArray(timeLocation);
-    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, this.numAttributes * 4, 16);
-
-    var timeLocation = gl.getAttribLocation(this.program, "a_Val2");
-    gl.enableVertexAttribArray(timeLocation);
-    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, this.numAttributes * 4, 20);
+    this.program.enableAttribArray.a_Centroid(2, gl.FLOAT, false, this.numAttributes * 4, 0);
+    this.program.enableAttribArray.a_Epoch1  (1, gl.FLOAT, false, this.numAttributes * 4, 8);
+    this.program.enableAttribArray.a_Val1    (1, gl.FLOAT, false, this.numAttributes * 4, 12);
+    this.program.enableAttribArray.a_Epoch2  (1, gl.FLOAT, false, this.numAttributes * 4, 16);
+    this.program.enableAttribArray.a_Val2    (1, gl.FLOAT, false, this.numAttributes * 4, 20);
 
     if (this.numAttributes == 7) {
-      var timeLocation = gl.getAttribLocation(this.program, "a_color");
-      gl.enableVertexAttribArray(timeLocation);
-      gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, this.numAttributes * 4, 24);
+      this.program.enableAttribArray.a_color(1, gl.FLOAT, false, this.numAttributes * 4, 24);
     }
 
-    var colorLoc = gl.getUniformLocation(this.program, 'u_Color');
-    gl.uniform4fv(colorLoc, color);
-
-    var matrixLoc = gl.getUniformLocation(this.program, 'u_MapMatrix');
-    gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
-
-    var sliderTime = gl.getUniformLocation(this.program, 'u_Epoch');
-    gl.uniform1f(sliderTime, currentTime);
-
-    var sliderTime = gl.getUniformLocation(this.program, 'u_Size');
-    gl.uniform1f(sliderTime, 2.0 * window.devicePixelRatio);
-
-    var sliderTime = gl.getUniformLocation(this.program, 'u_Mode');
-    gl.uniform1f(sliderTime, mode);
+    gl.uniform4fv(this.program.u_Color, color);
+    gl.uniformMatrix4fv(this.program.u_MapMatrix, false, tileTransform);
+    gl.uniform1f(this.program.u_Epoch, currentTime);
+    gl.uniform1f(this.program.u_Size, 2.0 * window.devicePixelRatio * bubbleScale);
+    console.log(2.0 * window.devicePixelRatio * bubbleScale);
+    gl.uniform1f(this.program.u_Mode, mode);
 
     if (this._texture) {
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, this._texture);
-      gl.uniform1i(gl.getUniformLocation(this.program, "u_Image"), 0);
-
-      var colorLoc = gl.getUniformLocation(this.program, 'u_Min');
-      gl.uniform1f(colorLoc, this._radius(this._minValue));
-
-      var colorLoc = gl.getUniformLocation(this.program, 'u_Max');
-      gl.uniform1f(colorLoc, this._radius(this._maxValue));
-
-
+      gl.uniform1i(this.program.u_Image, 0);
+      gl.uniform1f(this.program.u_Min, this._radius(this._minValue));
+      gl.uniform1f(this.program.u_Max, this._radius(this._maxValue));
     }
-
 
     gl.drawArrays(gl.POINTS, 0, this._pointCount);
     perf_draw_points(this._pointCount);
@@ -2662,16 +2629,32 @@ WebGLVectorTile2.prototype._drawLodes = function(transform, options) {
   }
 }
 
+// range[0] for country (zoomLevel = 5)
+// range[1] for block-level (zoomLevel = 17)
+WebGLVectorTile2.prototype.computeFromGmapsZoomLevel = function(gmapsZoomLevel, range) {
+  var countryGmapsZoomLevel = 5;
+  var blockGmapsZoomLevel = 17;
+  var countryVal = range[0];
+  var blockVal = range[1];
+
+  return countryVal * Math.pow(blockVal / countryVal, (gmapsZoomLevel - countryGmapsZoomLevel) / (blockGmapsZoomLevel - countryGmapsZoomLevel));
+};
+
 WebGLVectorTile2.prototype.computeDotSize = function(transform, options) {
-  var pixelScale = - transform[5];
+  var drawOptions = this._layer.drawOptions;
 
-  // Start scaling pixels extra for tiles beyond level 10
-  if (this._tileidx.l > 10) {
-    pixelScale *= 2 ** (this._tileidx.l - 10);
+  if (drawOptions && drawOptions.dotSizeRange && drawOptions.dotSizeRange.length == 2) {
+    var dotSize = this.computeFromGmapsZoomLevel(options.gmapsZoomLevel, drawOptions.dotSizeRange);
+    return dotSize * WebGLVectorTile2.dotScale;
+  } else {
+    var pixelScale = - transform[5];
+
+    // Start scaling pixels extra for tiles beyond level 10
+    if (this._tileidx.l > 10) {
+      pixelScale *= 2 ** (this._tileidx.l - 10);
+    }
+    return Math.max(0.5, pixelScale * 38) * WebGLVectorTile2.dotScale;
   }
-
-  var dotSize = Math.max(0.5, pixelScale * 38) * WebGLVectorTile2.dotScale;
-  return dotSize;
 };
 
 WebGLVectorTile2.prototype._drawColorDotmap = function(transform, options) {
@@ -2743,24 +2726,15 @@ WebGLVectorTile2.prototype._drawColorDotmapTbox = function(transform, options) {
     var zoom = options.zoom || (2.0 * window.devicePixelRatio);
     gl.uniform1f(this.program.uZoom, zoom);
 
-    // Set epoch
     var epoch = options.currentTime/1000;
     gl.uniform1f(this.program.uEpoch, epoch);
-
     gl.uniformMatrix4fv(this.program.mapMatrix, false, tileTransform);
 
     var stride = 5 * 4;
-    gl.enableVertexAttribArray(this.program.aWorldCoord);
-    gl.vertexAttribPointer(this.program.aWorldCoord, 2, gl.FLOAT, false, stride, 0);
-
-    gl.enableVertexAttribArray(this.program.aColor);
-    gl.vertexAttribPointer(this.program.aColor, 1, gl.FLOAT, false, stride, 8);
-
-    gl.enableVertexAttribArray(this.program.aStartEpoch);
-    gl.vertexAttribPointer(this.program.aStartEpoch, 1, gl.FLOAT, false, stride, 12);
-
-    gl.enableVertexAttribArray(this.program.aEndEpoch);
-    gl.vertexAttribPointer(this.program.aEndEpoch, 1, gl.FLOAT, false, stride, 16);
+    this.program.enableAttribArray.aWorldCoord(2, gl.FLOAT, false, stride, 0);
+    this.program.enableAttribArray.aColor     (1, gl.FLOAT, false, stride, 8);
+    this.program.enableAttribArray.aStartEpoch(1, gl.FLOAT, false, stride, 12);
+    this.program.enableAttribArray.aEndEpoch  (1, gl.FLOAT, false, stride, 16);
 
     var npoints = Math.floor(this._pointCount*throttle);
     gl.drawArrays(gl.POINTS, 0, npoints);
@@ -6670,7 +6644,7 @@ WebGLVectorTile2.basicDrawPoints = function(instance_options) {
 	      var countryPointSizePixels = instance_options.pointSize[0];
 	      var blockPointSizePixels = instance_options.pointSize[1];
 
-	      pointSize = countryPointSizePixels * Math.pow(blockPointSizePixels / countryPointSizePixels, (zoomScale - countryLevelZoomScale) / (blockLevelZoomScale - countryLevelZoomScale));
+        pointSize = countryPointSizePixels * Math.pow(blockPointSizePixels / countryPointSizePixels, (zoomScale - countryLevelZoomScale) / (blockLevelZoomScale - countryLevelZoomScale));
       }
       pointSize *= WebGLVectorTile2.dotScale;
       gl.uniform1f(this.program.u_size, pointSize);

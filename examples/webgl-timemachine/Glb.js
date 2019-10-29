@@ -52,15 +52,26 @@ Glb.prototype.programFromSources = function(vertexSource, fragmentSource) {
   return program;
 }
 
+
 Glb.prototype._addAttribsAndUniformsToProgram = function(program) {
+  var gl = this.gl;
+
+  function enableAttribArray(size, type, normalized, stride, offset) {
+    gl.enableVertexAttribArray(this);
+    gl.vertexAttribPointer(this, size, type, normalized, stride, offset);
+  }
+
   if (this.gl.getProgramParameter(program, this.gl.ACTIVE_ATTRIBUTES) == 0) {
     throw new Error('Program has no active attributes');
   }
+  program.enableAttribArray = {};
   for (var i = this.gl.getProgramParameter(program, this.gl.ACTIVE_ATTRIBUTES) - 1;
        i >= 0;
        i--) {
     var name = this.gl.getActiveAttrib(program, i).name;
-    program[name] = this.gl.getAttribLocation(program, name);
+    var loc = this.gl.getAttribLocation(program, name);
+    program[name] = loc;
+    program.enableAttribArray[name] = enableAttribArray.bind(loc);
   }
 
   for (var i = this.gl.getProgramParameter(program, this.gl.ACTIVE_UNIFORMS) - 1;
