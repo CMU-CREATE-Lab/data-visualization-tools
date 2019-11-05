@@ -6259,6 +6259,27 @@ WebGLVectorTile2.PointColorStartEpochEndEpochFragmentShader =
 '    gl_FragColor = unpackColor(v_color) * dist;\n' +
 '  }\n';
 
+WebGLVectorTile2.PointSolidColorStartEpochEndEpochFragmentShader =
+'#extension GL_OES_standard_derivatives : enable\n' +
+'  precision mediump float;\n' +
+'  varying float v_color;\n' +
+'  vec4 unpackColor(float f) {\n' +
+'      vec4 color;\n' +
+'      color.b = floor(f / 256.0 / 256.0);\n' +
+'      color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);\n' +
+'      color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);\n' +
+'      color.a = 255.;\n' +
+'      return color / 255.0;\n' +
+'    }\n' +
+'  void main() {\n' +
+'    float r = 0.0, delta = 0.0, alpha = 1.0;\n' +
+'    vec2 cxy = 2.0 * gl_PointCoord - 1.0;\n' +
+'    r = dot(cxy, cxy);\n' +
+'    delta = fwidth(r);\n' +
+'    alpha = 1.0 - smoothstep(1.0 - delta, 1.0 + delta, r);\n' +
+'    gl_FragColor = unpackColor(v_color) * alpha;\n' +
+'  }\n';
+
 // gradually decreases alpha once time has passed epoch1
 WebGLVectorTile2.FadePointColorStartEpochEndEpochVertexShader =
 'attribute vec4 a_coord;\n' +
