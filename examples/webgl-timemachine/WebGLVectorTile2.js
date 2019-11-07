@@ -4426,6 +4426,90 @@ WebGLVectorTile2.prototype._drawParticles = function(transform, options) {
   }
 }
 
+WebGLVectorTile2.prototype._drawParticlesWithSize = function(transform, options) {
+  var gl = this.gl;
+
+  if (this._ready && this._pointCount > 0) {
+    gl.useProgram(this.program);
+    gl.enable(gl.BLEND);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+    gl.enable(gl.BLEND);
+
+    var sfactor = gl.SRC_ALPHA;
+    var dfactor = gl.ONE;
+    if (options.dfactor) {
+      dfactor = gl[options.dfactor];
+    }
+    if (options.sfactor) {
+      sfactor = gl[options.sfactor];
+    }
+    gl.blendFunc(sfactor, dfactor);
+
+    var tileTransform = new Float32Array(transform);
+    var zoom = options.zoom;
+    var currentTime = options.currentTime/1000.;
+
+    scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
+    scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+	
+	var pointSize = Math.pow(2,options.gmapsZoomLevel);
+
+    var maxElevation = 10000; // Bogus default value
+    if (options.maxElevation) {
+      maxElevation = options.maxElevation;
+    }    
+
+    var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
+    gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+
+    var sliderTime = gl.getUniformLocation(this.program, 'u_epoch');
+    gl.uniform1f(sliderTime, currentTime);
+
+    var uniformLoc = gl.getUniformLocation(this.program, 'u_size');
+    gl.uniform1f(uniformLoc, pointSize);
+
+    var uniformLoc = gl.getUniformLocation(this.program, 'u_max_elev');
+    gl.uniform1f(uniformLoc, maxElevation);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_coord_0');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 10 * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_elev_0');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 10 * 4, 8); 
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch_0');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 10 * 4, 12);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_coord_1');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 10 * 4, 16); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_elev_1');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 10 * 4, 24); 
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch_1');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 10 * 4, 28);
+
+    var attributeLoc = gl.getAttribLocation(this.program, 'a_color');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 10 * 4, 32);
+	
+	var attributeLoc = gl.getAttribLocation(this.program, 'a_size');
+    gl.enableVertexAttribArray(attributeLoc);
+    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 10 * 4, 36);
+
+    gl.drawArrays(gl.POINTS, 0, this._pointCount);
+
+    //perf_draw_points(this._pointCount);
+    gl.disable(gl.BLEND);
+  }
+}
+
 WebGLVectorTile2.prototype._drawAnimPoints = function(transform, options) {
   var gl = this.gl;
 
@@ -6477,6 +6561,38 @@ WebGLVectorTile2.particleVertexShader =
 '    }\n' +
 '    gl_Position = position;\n' +
 '    gl_PointSize = u_size;\n' +
+'    v_color = a_color;\n' +
+'}\n';
+
+WebGLVectorTile2.particleWithSizeVertexShader =
+'attribute vec4 a_coord_0;\n' +
+'attribute float a_elev_0;\n' +
+'attribute float a_epoch_0;\n' +
+'attribute vec4 a_coord_1;\n' +
+'attribute float a_elev_1;\n' +
+'attribute float a_epoch_1;\n' +
+'attribute float a_color;\n' +
+'attribute float a_size;\n' +
+'uniform mat4 u_map_matrix;\n' +
+'uniform float u_epoch;\n' +
+'uniform float u_size;\n' +
+'uniform float u_max_elev;\n' +
+'varying float v_color;\n' +
+'void main() {\n' +
+'    vec4 position;\n' +
+'    if (a_epoch_0 > u_epoch || a_epoch_1 < u_epoch) {\n' +
+'        position = vec4(-1.,-1.,-1.,-1.);\n' +
+'    } else {\n' +
+'        float t = (u_epoch - a_epoch_0)/(a_epoch_1 - a_epoch_0);\n' +
+'        float current_elev = (a_elev_1 - a_elev_0) * t + a_elev_0;\n' +
+'        if (current_elev > u_max_elev) {\n' +
+'            position = vec4(-1.,-1.,-1.,-1.);\n' +
+'        } else {\n' +
+'            position = u_map_matrix * ((a_coord_1 - a_coord_0) * t + a_coord_0);\n' +
+'        }\n' + 
+'    }\n' +
+'    gl_Position = position;\n' +
+'    gl_PointSize = max(1.0, u_size * a_size);\n' +
 '    v_color = a_color;\n' +
 '}\n';
 
