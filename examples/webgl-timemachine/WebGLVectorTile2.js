@@ -2266,6 +2266,7 @@ WebGLVectorTile2.prototype._drawUppsalaConflict = function(transform, options) {
 }
 
 WebGLVectorTile2.prototype._drawBubbleMap = function(transform, options) {
+  console.log('TODO(RS) drawBubbleMap');
   var bubbleScale = 1;
   var drawOptions = this._layer.drawOptions;
   if (drawOptions && drawOptions.bubbleScaleRange) {
@@ -2307,7 +2308,6 @@ WebGLVectorTile2.prototype._drawBubbleMap = function(transform, options) {
     gl.uniformMatrix4fv(this.program.u_MapMatrix, false, tileTransform);
     gl.uniform1f(this.program.u_Epoch, currentTime);
     gl.uniform1f(this.program.u_Size, 2.0 * window.devicePixelRatio * bubbleScale);
-    console.log(2.0 * window.devicePixelRatio * bubbleScale);
     gl.uniform1f(this.program.u_Mode, mode);
 
     if (this._texture) {
@@ -2319,12 +2319,19 @@ WebGLVectorTile2.prototype._drawBubbleMap = function(transform, options) {
     }
 
     gl.drawArrays(gl.POINTS, 0, this._pointCount);
+    console.log('drawing', this._pointCount, 'points');
     perf_draw_points(this._pointCount);
     gl.disable(gl.BLEND);
   }
 }
 
 WebGLVectorTile2.prototype._drawBivalentBubbleMap = function(transform, options) {
+  console.log('TODO(RS) drawBivalentBubbleMap');
+  var bubbleScale = 1;
+  var drawOptions = this._layer.drawOptions;
+  if (drawOptions && drawOptions.bubbleScaleRange) {
+    bubbleScale = this.computeFromGmapsZoomLevel(options.gmapsZoomLevel, drawOptions.bubbleScaleRange);
+  }
   var gl = this.gl;
   if (this._ready) {
     gl.useProgram(this.program);
@@ -2334,7 +2341,6 @@ WebGLVectorTile2.prototype._drawBivalentBubbleMap = function(transform, options)
     var tileTransform = new Float32Array(transform);
     var zoom = options.zoom;
     var currentTime = options.currentTime.getTime()/1000.;
-    var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
     var color = options.color || [.1, .1, .5, 1.0];
     if (color.length == 3) {
       color.push(1.0);
@@ -2346,56 +2352,24 @@ WebGLVectorTile2.prototype._drawBivalentBubbleMap = function(transform, options)
     scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
     scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-    pointSize *= Math.floor((zoom + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
-    // Passing a NaN value to the shader with a large number of points is very bad
-    if (isNaN(pointSize)) {
-      pointSize = 1.0;
-    }
-
     gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
-    var attributeLoc = gl.getAttribLocation(this.program, 'a_Centroid');
-    gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this.numAttributes * 4, 0);
+    this.program.enableAttribArray.a_Centroid (2, gl.FLOAT, false, this.numAttributes * 4, 0);
+    this.program.enableAttribArray.a_Epoch1   (1, gl.FLOAT, false, this.numAttributes * 4, 8);
+    this.program.enableAttribArray.a_PointVal1(1, gl.FLOAT, false, this.numAttributes * 4, 12);
+    this.program.enableAttribArray.a_ColorVal1(1, gl.FLOAT, false, this.numAttributes * 4, 16);
+    this.program.enableAttribArray.a_Epoch2   (1, gl.FLOAT, false, this.numAttributes * 4, 20);
+    this.program.enableAttribArray.a_PointVal2(1, gl.FLOAT, false, this.numAttributes * 4, 24);
+    this.program.enableAttribArray.a_ColorVal2(1, gl.FLOAT, false, this.numAttributes * 4, 28);
 
-    var timeLocation = gl.getAttribLocation(this.program, "a_Epoch1");
-    gl.enableVertexAttribArray(timeLocation);
-    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, this.numAttributes * 4, 8);
-
-    var timeLocation = gl.getAttribLocation(this.program, "a_PointVal1");
-    gl.enableVertexAttribArray(timeLocation);
-    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, this.numAttributes * 4, 12);
-
-    var timeLocation = gl.getAttribLocation(this.program, "a_ColorVal1");
-    gl.enableVertexAttribArray(timeLocation);
-    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, this.numAttributes * 4, 16);
-
-    var timeLocation = gl.getAttribLocation(this.program, "a_Epoch2");
-    gl.enableVertexAttribArray(timeLocation);
-    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, this.numAttributes * 4, 20);
-
-    var timeLocation = gl.getAttribLocation(this.program, "a_PointVal2");
-    gl.enableVertexAttribArray(timeLocation);
-    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, this.numAttributes * 4, 24);
-
-    var timeLocation = gl.getAttribLocation(this.program, "a_ColorVal2");
-    gl.enableVertexAttribArray(timeLocation);
-    gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, this.numAttributes * 4, 28);
-
-
-    var matrixLoc = gl.getUniformLocation(this.program, 'u_MapMatrix');
-    gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
-
-    var sliderTime = gl.getUniformLocation(this.program, 'u_Epoch');
-    gl.uniform1f(sliderTime, currentTime);
-
-    var sliderTime = gl.getUniformLocation(this.program, 'u_Size');
-    gl.uniform1f(sliderTime, 2.0 * window.devicePixelRatio);
+    gl.uniformMatrix4fv(this.program.u_MapMatrix, false, tileTransform);
+    gl.uniform1f(this.program.u_Epoch, currentTime);
+    gl.uniform1f(this.program.u_Size, 2.0 * window.devicePixelRatio * bubbleScale);
 
     if (this._texture) {
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, this._texture);
-      gl.uniform1i(gl.getUniformLocation(this.program, "u_Image"), 0);
+      gl.uniform1i(this.program.u_Image, 0);
     }
 
     gl.drawArrays(gl.POINTS, 0, this._pointCount);
