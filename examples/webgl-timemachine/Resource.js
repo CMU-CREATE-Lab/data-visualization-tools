@@ -68,14 +68,14 @@ Resource.prototype.receiveData = function(receive) {
     }
 
     this.xhr.onload = function() {
-      var response;
+      var response = null;
 
-      if (!this.responseText || this.status >= 400) {
-        response = null;
-      } else if (arrayConstructor) {
-        response = new arrayConstructor(this.response);
-      } else {
-        response = this.responseText;
+      if (this.status < 400) {
+        if (arrayConstructor && this.response) {
+          response = new arrayConstructor(this.response);
+        } else if (!arrayConstructor && this.responseText) {
+          response = this.responseText;
+        }
       }
       resource._receiveFetch(response);
     }
