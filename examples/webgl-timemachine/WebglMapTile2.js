@@ -246,7 +246,7 @@ WebglMapTile2.textureFragmentFaderShader =
   '  vec4 textureColor1 = texture2D(uSampler0, vec2(vTextureCoord.s, vTextureCoord.t)); \n' +
   '  vec4 textureColor2 = texture2D(uSampler1, vec2(vTextureCoord.s, vTextureCoord.t));\n' +
   '  vec4 textureColor = textureColor1 * (1.0 - uAlpha) + textureColor2 * uAlpha;\n' +
-  '  gl_FragColor = textureColor * (1.0 - uAlpha) + textureColor2 * uAlpha;\n' +
+  '  vec4 colormap = texture2D(uColormap, vec2(textureColor.r,textureColor.r));\n' + 
   '   gl_FragColor = vec4(colormap.rgb, textureColor.a);\n' +
   '}\n';
 
