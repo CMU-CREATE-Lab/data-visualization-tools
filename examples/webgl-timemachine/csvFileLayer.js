@@ -253,6 +253,17 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
       layerOptions.colormap = layerOptions.imageSrc;
     }
     overrideDrawingFns();
+  } else if (layerOptions.mapType == 'raster2') {
+    WebglLayer = WebglMapLayer2;
+    url = eval(url);
+    layerOptions.loadDataFunction = null;
+    layerOptions.drawFunction = null;
+    layerOptions.fragmentShader = null;
+    layerOptions.vertexShader = null;
+    if (layerOptions.imageSrc) {
+      layerOptions.colormap = layerOptions.imageSrc;
+    }
+    overrideDrawingFns();
   } else if (layerOptions.mapType == "choropleth") {
     layerOptions.avoidShowingChildAndParent = true;
     layerOptions.imageSrc = layerOptions.imageSrc || "obesity-color-map.png";

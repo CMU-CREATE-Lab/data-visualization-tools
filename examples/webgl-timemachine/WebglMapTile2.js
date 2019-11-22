@@ -1,14 +1,23 @@
 "use strict";
 
-function WebglMapTile2(glb, tileidx, bounds, urls, defaultUrl) {
+function WebglMapTile2(glb, tileidx, bounds, urls, defaultUrl, opt_options) {
   if (!WebglMapTile2._initted) {
     WebglMapTile2._init();
   }
   this._tileidx = tileidx;
   this.glb = glb;
   this.gl = glb.gl;
-  this._textureProgram = glb.programFromSources(WebglMapTile2.textureVertexShader,
-                                                WebglMapTile2.textureFragmentShader);
+
+  var opt_options = opt_options || {};
+  this.fragmentShader = opt_options.fragmentShader || WebglMapTile2.textureFragmentShader;
+  this.vertexShader = opt_options.vertexShader || WebglMapTile2.textureVertexShader;
+
+  this._textureProgram = glb.programFromSources(this.vertexShader,
+                                                this.fragmentShader);
+
+
+  this.colormap = opt_options.colormap || null;
+
   this._texture0 = this._createTexture();
   this._texture1 = this._createTexture();
 
@@ -122,6 +131,7 @@ WebglMapTile2.prototype.isReady = function() {
 };
 
 WebglMapTile2.prototype.draw = function(transform, options) {
+  //console.log(options);
   var gl = this.gl;
   var tileTransform = new Float32Array(transform);
   translateMatrix(tileTransform, this._bounds.min.x, this._bounds.min.y);
@@ -135,6 +145,12 @@ WebglMapTile2.prototype.draw = function(transform, options) {
     gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
 
     var uAlpha = options.alpha || 0.;
+
+    if (options.alphaFnc) {
+      var alphaFnc = new Function('return ' + options.alphaFnc)();
+      uAlpha = alphaFnc(options.currentTime);
+    } 
+
 
     var alphaLocation = gl.getUniformLocation(this._textureProgram, "uAlpha");
     gl.uniform1f(alphaLocation, uAlpha);
@@ -158,6 +174,13 @@ WebglMapTile2.prototype.draw = function(transform, options) {
 
     gl.activeTexture(gl.TEXTURE1);
     gl.bindTexture(gl.TEXTURE_2D, this._texture1);
+
+    if (this.colormap) {
+      gl.uniform1i(gl.getUniformLocation(this._textureProgram, "uColormap"), 2); // texture unit 2
+      gl.activeTexture(gl.TEXTURE2);
+      gl.bindTexture(gl.TEXTURE_2D, this.colormap);
+    }
+
 
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     gl.bindTexture(gl.TEXTURE_2D, null);
@@ -210,6 +233,21 @@ WebglMapTile2.textureFragmentShader =
   '    color1 = vec4(0., 0., textureColor1.b * uAlpha, uAlpha);\n' +
   '  }\n' +
   '  gl_FragColor = color0 + color1;\n' +
+  '}\n';
+
+WebglMapTile2.textureFragmentFaderShader =
+  'precision mediump float;\n' +
+  'varying vec2 vTextureCoord;\n' +
+  'uniform sampler2D uSampler0;\n' +
+  'uniform sampler2D uSampler1;\n' +
+  'uniform sampler2D uColormap;\n' +
+  'uniform float uAlpha;\n' +
+  'void main(void) {\n' +
+  '  vec4 textureColor1 = texture2D(uSampler0, vec2(vTextureCoord.s, vTextureCoord.t)); \n' +
+  '  vec4 textureColor2 = texture2D(uSampler1, vec2(vTextureCoord.s, vTextureCoord.t));\n' +
+  '  vec4 textureColor = textureColor1 * (1.0 - uAlpha) + textureColor2 * uAlpha;\n' +
+  '  gl_FragColor = textureColor * (1.0 - uAlpha) + textureColor2 * uAlpha;\n' +
+  '   gl_FragColor = vec4(colormap.rgb, textureColor.a);\n' +
   '}\n';
 
 // stopit:  set to true to disable update()
