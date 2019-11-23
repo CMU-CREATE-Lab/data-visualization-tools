@@ -38,7 +38,7 @@ Workers._handleResponse = function(e) {
 Workers._createIfNeeded = function() {
   if (!Workers._workers) {
     Workers._workers = [];
-    var numWorkers = 2;
+    var numWorkers = 12;
     for (var i = 0; i < numWorkers; i++) {
       var worker = new Worker('WorkersWorker.js');
       worker.onmessage = Workers._handleResponse;

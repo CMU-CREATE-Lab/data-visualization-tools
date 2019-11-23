@@ -161,6 +161,13 @@ WebGLVectorTile2.prototype._loadData = function() {
   this.xhr.open('GET', that._url);
   this.xhr.responseType = 'arraybuffer';
 
+  this.timings = [new Date().getTime()];
+
+  this.xhr.onreadystatechange = function(ev) {
+    var readyState = that.xhr.readyState;
+    if (readyState) that.timings[readyState] = new Date().getTime();
+  };
+
   this.xhr.onload = function() {
     that._removeLoadingSpinner();
 
@@ -1673,6 +1680,7 @@ WebGLVectorTile2.prototype._setColorDotmapDataFromBoxWithFormat = function(tileD
   // Create uint8 view on data.  Unfortunately we're called with Float32Array, which isn't correct for
   // this particular function
   var tile = this;
+  this.timings[5] = new Date().getTime();
 
   var requestArgs = {
     tileDataF32: tileDataF32,
@@ -1706,13 +1714,29 @@ WebGLVectorTile2.prototype._setColorDotmapDataFromBoxWithFormat = function(tileD
       gl.bindBuffer(gl.ARRAY_BUFFER, tile._arrayBuffer);
       gl.bufferData(gl.ARRAY_BUFFER, tile._data, gl.STATIC_DRAW);
     }
+    tile.timings[6] = new Date().getTime();
+    tile.displayTimings(format);
   });
 }
+
+WebGLVectorTile2.prototype.displayTimings = function(type) {
+  var msg = this._url.split('/').slice(-4).join('/');
+
+  msg += ' ' + (this.timings[this.timings.length - 1] - this.timings[0]) + ' |';
+
+  for (var i = 1; i < this.timings.length; i++) {
+    if (!this.timings[i]) this.timings[i] = this.timings[i - 1];
+    var timing = this.timings[i] - this.timings[i-1];
+    msg += ' ' + (isNaN(timing) ? '-' : timing);
+
+  }
+  console.log("ZZZ", msg);
+};
 
 // Color Dotmap (not animated)  aWorldCoord[2]  aColor
 WebGLVectorTile2.prototype._setColorDotmapDataFromBox = function(tileDataF32) {
   this._setColorDotmapDataFromBoxWithFormat(tileDataF32, 'box');
-}
+};
 
 WebGLVectorTile2.prototype._setColorDotmapDataFromTbox = function(tileDataF32) {
   this._setColorDotmapDataFromBoxWithFormat(tileDataF32, 'tbox');
@@ -2266,7 +2290,6 @@ WebGLVectorTile2.prototype._drawUppsalaConflict = function(transform, options) {
 }
 
 WebGLVectorTile2.prototype._drawBubbleMap = function(transform, options) {
-  console.log('TODO(RS) drawBubbleMap');
   var bubbleScale = 1;
   var drawOptions = this._layer.drawOptions;
   if (drawOptions && drawOptions.bubbleScaleRange) {
@@ -2326,7 +2349,6 @@ WebGLVectorTile2.prototype._drawBubbleMap = function(transform, options) {
 }
 
 WebGLVectorTile2.prototype._drawBivalentBubbleMap = function(transform, options) {
-  console.log('TODO(RS) drawBivalentBubbleMap');
   var bubbleScale = 1;
   var drawOptions = this._layer.drawOptions;
   if (drawOptions && drawOptions.bubbleScaleRange) {
