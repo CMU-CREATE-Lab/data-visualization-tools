@@ -25,6 +25,7 @@ function WebGLVectorTile2(layer, tileview, glb, tileidx, bounds, url, opt_option
   this._drawOptions = opt_options.drawOptions;
   this._setDataOptions = opt_options.setDataOptions;
   this._layer = layer;
+  this._defaultColor = [0.1, 0.1, 0.5, 1.0];
 
   this.gl.getExtension("OES_standard_derivatives");
 
@@ -1730,7 +1731,6 @@ WebGLVectorTile2.prototype.displayTimings = function(type) {
     msg += ' ' + (isNaN(timing) ? '-' : timing);
 
   }
-  console.log("ZZZ", msg);
 };
 
 // Color Dotmap (not animated)  aWorldCoord[2]  aColor
@@ -1740,7 +1740,7 @@ WebGLVectorTile2.prototype._setColorDotmapDataFromBox = function(tileDataF32) {
 
 WebGLVectorTile2.prototype._setColorDotmapDataFromTbox = function(tileDataF32) {
   this._setColorDotmapDataFromBoxWithFormat(tileDataF32, 'tbox');
-}
+};
 
 WebGLVectorTile2.prototype._setObesityData = function(data) {
   function LatLongToPixelXY(latitude, longitude) {
@@ -2126,7 +2126,7 @@ WebGLVectorTile2.prototype._drawPoints = function(transform, options) {
     var zoom = options.zoom;
     var maxTime = options.currentTime/1000.;
     var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-    var color = options.color || [.1, .1, .5, 1.0];
+    var color = options.color || this._defaultColor;
 
     scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
     scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
@@ -2181,7 +2181,7 @@ WebGLVectorTile2.prototype._drawGtd = function(transform, options) {
     var zoom = options.zoom;
     var currentTime = options.currentTime/1000.;
     var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-    var color = options.color || [.1, .1, .5, 1.0];
+    var color = options.color || this._defaultColor;
 
     scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
     scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
@@ -2237,7 +2237,7 @@ WebGLVectorTile2.prototype._drawUppsalaConflict = function(transform, options) {
     var zoom = options.zoom;
     var currentTime = options.currentTime/1000.;
     var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-    var color = options.color || [.1, .1, .5, 1.0];
+    var color = options.color || this._defaultColor;
 
     scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
     scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
@@ -2306,7 +2306,7 @@ WebGLVectorTile2.prototype._drawBubbleMap = function(transform, options) {
     var tileTransform = new Float32Array(transform);
     var zoom = options.zoom;
     var currentTime = options.currentTime.getTime()/1000.;
-    var color = options.color || [.1, .1, .5, 1.0];
+    var color = options.color || this._defaultColor;
     if (color.length == 3) {
       color.push(1.0);
     }
@@ -2342,7 +2342,6 @@ WebGLVectorTile2.prototype._drawBubbleMap = function(transform, options) {
     }
 
     gl.drawArrays(gl.POINTS, 0, this._pointCount);
-    console.log('drawing', this._pointCount, 'points');
     perf_draw_points(this._pointCount);
     gl.disable(gl.BLEND);
   }
@@ -2363,13 +2362,11 @@ WebGLVectorTile2.prototype._drawBivalentBubbleMap = function(transform, options)
     var tileTransform = new Float32Array(transform);
     var zoom = options.zoom;
     var currentTime = options.currentTime.getTime()/1000.;
-    var color = options.color || [.1, .1, .5, 1.0];
+    var color = options.color || this._defaultColor;
     if (color.length == 3) {
       color.push(1.0);
     }
     var mode = options.mode || 1.0; // 1.0 == full circle, 2.0 == left half, 3.0 == right half
-
-    //console.log(currentTime);
 
     scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
     scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
@@ -2432,7 +2429,13 @@ WebGLVectorTile2.prototype._drawChoroplethMap = function(transform, options) {
     var zoom = options.zoom;
     var currentTime = options.currentTime.getTime()/1000.;
     var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-    var color = options.color || [.1, .1, .5, 1.0];
+    var color = this._defaultColor; // default color not used
+    if (options.color) {
+      color = options.color;
+      gl.uniform1i(gl.getUniformLocation(this.program, 'u_useColorMap'), 0);
+    } else {
+      gl.uniform1i(gl.getUniformLocation(this.program, 'u_useColorMap'), 1);
+    }
 
     scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
     scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
@@ -2445,6 +2448,9 @@ WebGLVectorTile2.prototype._drawChoroplethMap = function(transform, options) {
 
     var matrixLoc = gl.getUniformLocation(this.program, 'u_MapMatrix');
     gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+
+    var colorLoc = gl.getUniformLocation(this.program, 'u_color');
+    gl.uniform4fv(colorLoc, color);
 
     if (this._triangleLists) {
       gl.activeTexture(gl.TEXTURE0);
@@ -3439,7 +3445,7 @@ WebGLVectorTile2.prototype._drawTsip = function(transform, options) {
     var zoom = options.zoom;
     var currentTime = options.currentTime/1000.;
     var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-    var color = options.color || [.1, .1, .5, 1.0];
+    var color = options.color || this._defaultColor;
 
     scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
     scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
@@ -3763,7 +3769,7 @@ WebGLVectorTile2.prototype._drawExpandedLineString = function(transform, options
     var zoom = options.zoom;
     var currentTime = options.currentTime/1000.;
     var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-    var color = options.color || [.1, .1, .5, 1.0];
+    var color = options.color || this._defaultColor;
 
     scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
     scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
@@ -3834,7 +3840,7 @@ WebGLVectorTile2.prototype._drawPointSizeColor = function(transform, options) {
     var zoom = options.zoom;
     var currentTime = options.currentTime/1000.;
     var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-    var color = options.color || [.1, .1, .5, 1.0];
+    var color = options.color || this._defaultColor;
 
     scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
     scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
@@ -3882,7 +3888,7 @@ WebGLVectorTile2.prototype._drawPointSizeColorEpoch = function(transform, option
     var zoom = options.zoom;
     var currentTime = options.currentTime/1000.;
     var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-    var color = options.color || [.1, .1, .5, 1.0];
+    var color = options.color || this._defaultColor;
 
     scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
     scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
@@ -3951,7 +3957,7 @@ WebGLVectorTile2.prototype._drawPointColorStartEpochEndEpoch = function(transfor
     var zoom = options.zoom;
     var currentTime = options.currentTime/1000.;
     var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-    var color = options.color || [.1, .1, .5, 1.0];
+    var color = options.color || this._defaultColor;
 
     scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
     scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
@@ -4006,7 +4012,7 @@ WebGLVectorTile2.prototype._drawPointSizeColorStartEpochEndEpoch = function(tran
     var zoom = options.zoom;
     var currentTime = options.currentTime/1000.;
     var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-    var color = options.color || [.1, .1, .5, 1.0];
+    var color = options.color || this._defaultColor;
 
     scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
     scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
@@ -4216,7 +4222,7 @@ WebGLVectorTile2.prototype._drawSpCrude = function(transform, options) {
     var zoom = options.zoom;
     var currentTime = options.currentTime/1000.;
     var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-    var color = options.color || [.1, .1, .5, 1.0];
+    var color = options.color || this._defaultColor;
 
     scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
     scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
@@ -4281,7 +4287,7 @@ WebGLVectorTile2.prototype._drawVesselTracks = function(transform, options) {
     var zoom = options.zoom;
     var currentTime = options.currentTime/1000.;
     var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-    var color = options.color || [.1, .1, .5, 1.0]; // not used?
+    var color = options.color || this._defaultColor; // not used?
 
     scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
     scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
@@ -4436,7 +4442,7 @@ WebGLVectorTile2.prototype._drawAnimPoints = function(transform, options) {
     var zoom = options.zoom;
     var currentTime = options.currentTime/1000.;
     var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-    var color = options.color || [.1, .1, .5, 1.0]; // not used?
+    var color = options.color || this._defaultColor; // not used?
 
     scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
     scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
@@ -4498,7 +4504,7 @@ WebGLVectorTile2.prototype._drawVesselTrackLines = function(transform, options) 
     var zoom = options.zoom;
     var currentTime = options.currentTime/1000.;
     var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-    var color = options.color || [.1, .1, .5, 1.0];
+    var color = options.color || this._defaultColor;
 
     scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
     scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
@@ -5777,8 +5783,15 @@ WebGLVectorTile2.choroplethMapFragmentShader = [
   'precision mediump float;',
   'uniform sampler2D u_Image;',
   'varying float v_Val;',
+  'uniform vec4 u_color;',
+  'uniform int u_useColorMap;',
   'void main() {',
-  '  vec4 color = texture2D(u_Image, vec2(v_Val,0.));',
+  '  vec4 color;',
+  '  if (u_useColorMap == 1) {',
+  '    color = texture2D(u_Image, vec2(v_Val,0.));',
+  '  } else {',
+  '    color = color = u_color;',
+  '  }',
   '  gl_FragColor = vec4(color.r, color.g, color.b, 1.);',
   '}'].join('\n');
 
