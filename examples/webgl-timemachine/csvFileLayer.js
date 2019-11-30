@@ -136,40 +136,26 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
     layerOptions.setDataOptions = JSON.parse(layerDef["Set Data Options"]);
   }
 
-  var url;
+  var url = layerDef["URL"].replace("http://", "https://");
   var useLocalData = false;
-  var relativeLocalDataPath;
 
-  // TODO: Maybe deprecate this?
+  // Change a *subset* of layer URLs to be local
+  // Assumes the layer ID is being passed in to the localCsvLayers array
   if (EARTH_TIMELAPSE_CONFIG.localCsvLayers) {
     for (var i = 0; i < EARTH_TIMELAPSE_CONFIG.localCsvLayers.length; i++) {
-      relativeLocalDataPath = EARTH_TIMELAPSE_CONFIG.localCsvLayers[i];
-      var tmp = relativeLocalDataPath.split("/");
-      // Remove file extension if present
-      // Remove the z/x/y path if present
-      var idFromRelativePath = tmp[tmp.length - 1].replace(/\.[^/.]+$/, "").replace(/\/{z}|\/{x}|\/{y}/g,"");
-      if (layerOptions.layerId == idFromRelativePath) {
+      if (layerOptions.layerId == EARTH_TIMELAPSE_CONFIG.localCsvLayers[i]) {
         useLocalData = true;
         break;
       }
     }
+  // Change *all* layer URLs (if they match a domain) to be local
+  } else if (EARTH_TIMELAPSE_CONFIG.useCsvLayersLocally) {
+    useLocalData = true;
   }
 
-  if (EARTH_TIMELAPSE_CONFIG.useCsvLayersLocally) {
-    // TODO: Right now we only handle local storage of data that was stored at tiles.earthtime.org
-    if (layerDef["URL"].indexOf("tiles.earthtime.org") > 0) {
-      relativeLocalDataPath = layerDef["URL"].replace(/https*:\/\/tiles.earthtime.org/, '').replace('("', '');
-      useLocalData = true;
-    }
-  }
-
-  if (useLocalData) {
-    url = tileUrl = getRootTilePath() + relativeLocalDataPath;
-    if (layerDef["Map Type"] == "raster") {
-      url = tileUrl = '("' + url;
-    }
-  } else {
-    url = layerDef["URL"].replace("http://", "https://");
+  // TODO: Right now we only handle local storage of data that was stored at tiles.earthtime.org
+  if (useLocalData && layerDef["URL"].indexOf("tiles.earthtime.org") > 0) {
+    url = layerDef["URL"].replace(/https*:\/\/tiles.earthtime.org/, getRootTilePath());
   }
 
   layerOptions.name = layerDef["Name"];
