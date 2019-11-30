@@ -16,7 +16,8 @@ function WebglMapLayer2(glb, canvasLayer, tileUrls, opt_options) {
   }
 
   this.fileExtension = this.fileExtension || "png";
-  this.defaultUrl = this.defaultUrl || tileUrls[0].split("{default}")[0] + "default." + this.fileExtension;
+  var splitToken = tileUrls[0].indexOf("{default}") > 0 ? "{default}" : "{z}";
+  this.defaultUrl = this.defaultUrl || tileUrls[0].split(splitToken)[0] + "default." + this.fileExtension;
   this._tileUrls = [];
   for (var i = 0; i < tileUrls.length; i++) {
     this._tileUrls[i] = tileUrls[i].replace("{default}/", "");

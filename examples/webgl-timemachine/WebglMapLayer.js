@@ -13,7 +13,8 @@ function WebglMapLayer(glb, canvasLayer, tileUrl, opt_options) {
     $.extend(this, opt_options);
   }
   this.fileExtension = this.fileExtension || "png";
-  this.defaultUrl = relUrlToAbsUrl(this.defaultUrl || tileUrl.split("{default}")[0] + "default." + this.fileExtension);
+  var splitToken = tileUrl.indexOf("{default}") > 0 ? "{default}" : "{z}";
+  this.defaultUrl = relUrlToAbsUrl(this.defaultUrl || tileUrl.split(splitToken)[0] + "default." + this.fileExtension);
 
   var that = this;
 
