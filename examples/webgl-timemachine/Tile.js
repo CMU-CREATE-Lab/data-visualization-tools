@@ -14,7 +14,7 @@ function Tile(layer, tileview, glb, tileidx, bounds) {
 // Handle fetching of resource that might be one-per-tile or one-per-layer
 // E.g. data for choropleth
 
-Tile.prototype._fetchData = function(url, parse, ) {
+Tile.prototype._fetchData = function(url, parse) {
 }
 
 Tile.prototype.unloadResources = function() {

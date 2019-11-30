@@ -30,3 +30,15 @@
     };
   }
 })();
+
+// For IE Math.log2 support
+Math.log2 = Math.log2 || function(x){return Math.log(x)*Math.LOG2E;};
+
+if (!String.prototype.endsWith) {
+  String.prototype.endsWith = function(search, this_len) {
+    if (this_len === undefined || this_len > this.length) {
+      this_len = this.length;
+    }
+    return this.substring(this_len - search.length, this_len) === search;
+  };
+}

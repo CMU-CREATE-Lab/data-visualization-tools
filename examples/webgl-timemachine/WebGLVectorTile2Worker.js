@@ -19,12 +19,12 @@ operations['computeColorDotmapFromBox'] = function(request) {
     var numColors = request.dotmapColors.length;
     var tileDim = 256;
     console.assert(numColors == tileData.length / (tileDim * tileDim));
-      
+
     // Find location of tile
-    var projectedTileSize = 256 / 2 ** request.tileidx.l; // 256 for level 0, 128 for level 1 ...
+    var projectedTileSize = 256 / Math.pow(2, request.tileidx.l); // 256 for level 0, 128 for level 1 ...
     var projectedXMin = projectedTileSize * request.tileidx.c;
     var projectedYMin = projectedTileSize * request.tileidx.r;
-    
+
     // Loop through the rasters, creating points within each box
     for (var c = 0; c < numColors; c++) {
       for (var y = 0; y < tileDim; y++) {
@@ -41,7 +41,7 @@ operations['computeColorDotmapFromBox'] = function(request) {
     }
     console.assert(input_idx == tileData.length);
     console.assert(output_idx == ret.data.length / 3);
-    
+
     // Randomly permute the order of points
     for (var i = ret.pointCount - 1; i >= 1; i--) {
       var j = Math.floor(prng.quick() * (i + 1));
@@ -60,7 +60,7 @@ operations['computeColorDotmapFromTbox'] = function(request) {
   var tileData = new Uint8Array(request.tileDataF32.buffer);
   var epochs = request.epochs;
   // Iterate through the raster, creating dots on the fly
-  
+
   var ret = {};
   var totalPop = tileData.reduce(function(a,b) { return a+b;});
 
@@ -71,12 +71,12 @@ operations['computeColorDotmapFromTbox'] = function(request) {
   var numColors = request.dotmapColors.length;
   var tileDim = 256;
   console.assert(tileData.length == numColors * tileDim * tileDim * epochs.length);
-  
+
   // Find location of tile
-  var projectedTileSize = 256 / 2 ** request.tileidx.l; // 256 for level 0, 128 for level 1 ...
+  var projectedTileSize = 256 / Math.pow(2, request.tileidx.l); // 256 for level 0, 128 for level 1 ...
   var projectedXMin = projectedTileSize * request.tileidx.c;
   var projectedYMin = projectedTileSize * request.tileidx.r;
-  
+
   // Loop through the rasters, creating points within each box
   // TODO: interpolate epochs
 
@@ -97,7 +97,7 @@ operations['computeColorDotmapFromTbox'] = function(request) {
 
     // Record endEpoch
     ret.data[output_idx] = 1e30;      // for now, set endEpoch to be everlasting
-    liveDotStack.push(output_idx++);  // hold onto the endEpoch index so we can optionally end this dot 
+    liveDotStack.push(output_idx++);  // hold onto the endEpoch index so we can optionally end this dot
   }
 
   function endDot(endEpoch) {
@@ -143,7 +143,7 @@ operations['computeColorDotmapFromTbox'] = function(request) {
 
   ret.data = ret.data.slice(0, output_idx); // trim to the actual number of point records
   ret.pointCount = output_idx / nAttribs;
-    
+
   // Randomly permute the order of points
   for (var i = ret.pointCount - 1; i >= 1; i--) {
     var j = Math.floor(prng.quick() * (i + 1));
@@ -153,7 +153,7 @@ operations['computeColorDotmapFromTbox'] = function(request) {
       ret.data[j * nAttribs + k] = tmp;
     }
   }
-  
+
   return ret;
 }
 
@@ -164,7 +164,7 @@ operations['triangularizeAndJoin'] = function(request) {
   var nameKey = request.nameKey;
   var first_data_col = csv.first_data_col;
   var epochs = csv.epochs;
-  
+
   var csv_feature_missing_in_geojson = 0;
   var csv_feature_missing_example;
   var csv_feature_found_in_geojson = 0;
@@ -193,8 +193,8 @@ operations['triangularizeAndJoin'] = function(request) {
     } else {
       csv_feature_found_in_geojson++;
 
-      // Compute pixel locations 
-      var t1_ = performance.now();      
+      // Compute pixel locations
+      var t1_ = performance.now();
       var pixels = [];
       if (feature.geometry.type != "MultiPolygon") {
         var mydata = earcut.flatten(feature.geometry.coordinates);
@@ -230,7 +230,7 @@ operations['triangularizeAndJoin'] = function(request) {
         if (j == idx.length - 1) {
           id_next = id_current;
         }
-	
+
         var epoch_1 = epochs[id_current - first_data_col];
         var val_1 = regionRow[id_current];
         if (val_1 > maxValue) {
@@ -243,7 +243,7 @@ operations['triangularizeAndJoin'] = function(request) {
         if (j == idx.length - 1) {
           epoch_2 = epochs[id_current - first_data_col] + (epochs[id_current - first_data_col] - epochs[id_current - 1 - first_data_col]);
         }
-	
+
         var val_2 = regionRow[id_next];
         if (val_2 > maxValue) {
           maxValue = val_2;
@@ -253,10 +253,10 @@ operations['triangularizeAndJoin'] = function(request) {
         }
 
 	      if (epoch_1 === undefined || epoch_2 === undefined) continue;
-	
+
         var t1__ = performance.now();
         for (var i = 0; i <pixels.length; i++) {
-          var pixel = pixels[i]; 
+          var pixel = pixels[i];
           verts.push(pixel.x, pixel.y, epoch_1, val_1, epoch_2, val_2);
         }
         var t2__ = performance.now();

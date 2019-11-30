@@ -278,7 +278,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
   }
   if (layerOptions.drawOptions) {
     var obj = layerOptions.drawOptions;
-    for (const key in obj) {
+    for (let key in obj) {
       let value = obj[key];
       layer.options[key] = value;
       //optional check for properties from prototype chain
@@ -293,7 +293,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
 
   if (layerOptions.setDataOptions) {
     var obj = layerOptions.setDataOptions;
-    for (const key in obj) {
+    for (let key in obj) {
       let value = obj[key];
       layer.options[key] = value;
       //optional check for properties from prototype chain

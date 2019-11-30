@@ -2653,7 +2653,7 @@ WebGLVectorTile2.prototype.computeDotSize = function(transform, options) {
 
     // Start scaling pixels extra for tiles beyond level 10
     if (this._tileidx.l > 10) {
-      pixelScale *= 2 ** (this._tileidx.l - 10);
+      pixelScale *= Math.pow(2, (this._tileidx.l - 10));
     }
     return Math.max(0.5, pixelScale * 38) * WebGLVectorTile2.dotScale;
   }
