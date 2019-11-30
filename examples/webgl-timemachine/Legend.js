@@ -49,7 +49,7 @@ BubbleMapLegend.prototype.setStr = function setStr(opts) {
 
     this.height += opts["keys"] ? opts["keys"].length * 25.0 : 0.0;
     var div = '<div style="font-size: 15px">' + opts["title"] + '<span class="credit"> ('+ opts["credit"] +')</span></div>';
-    var svg = '<svg class="svg-legend" width="240" height="'+ this.height + '">';
+    var svg = '<svg class="svg-legend" width="100%" height="'+ this.height + '">';
     var keys = '';
     if (opts["keys"]) {
         for (var i = 0; i < opts["keys"].length; i++) {
