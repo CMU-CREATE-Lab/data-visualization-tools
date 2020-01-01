@@ -1,56 +1,12 @@
 var timelines = {}
 
-// Takes in UTC time, returns ISO string date format
-timelines.createISODateString = function(yearStr, monthStr, dayStr, hourStr, minuteStr, secondStr) {
-  var out = '';
-  if (typeof yearStr !== "undefined") {
-    out += yearStr;
-  } else {
-    return null;
-  }
-
-  if (typeof monthStr !== "undefined") {
-    out += '-' + monthStr;
-  } else {
-    return out;
-  }
-
-  if (typeof dayStr !== "undefined") {
-    out += '-' + dayStr;
-  } else {
-    return out;
-  }
-
-  if (typeof hourStr !== "undefined") {
-    out += 'T' + hourStr;
-  } else {
-    return out + 'Z';
-  }
-
-  if (typeof minuteStr !== "undefined") {
-    out += ':' + minuteStr;
-  } else {
-    out += ':00';
-    return out + 'Z';
-  }
-
-  if (typeof secondStr !== "undefined") {
-    out += ':' + secondStr;
-    return out;
-  } else {
-    out += ':00';
-    return out + 'Z';
-  }
-}
-
 // layerId should be the share ID -- unique between layers
 timelines.setTimeLine = function(layerId, startDate, endDate, step) {
   var captureTimes = [];
 
-  var yyyymmddhhmm_re = /(\d{4})(\d{2})?(\d{2})?(\d{2})?(\d{2})?(\d{2})?/;
-  var sm = startDate.match(yyyymmddhhmm_re) || [];
-  var em = endDate.match(yyyymmddhhmm_re) || [];
-  var stepSize = parseInt(step, 10) || 1;
+  var sm = getDateRegexMatches(startDate) || [];
+  var em = getDateRegexMatches(endDate) || [];
+
   var startYear = sm[1];
   var startMonth = sm[2];
   var startDay = sm[3];
@@ -61,17 +17,10 @@ timelines.setTimeLine = function(layerId, startDate, endDate, step) {
   var endYear = em[1];
   var endMonth = em[2];
   var endDay = em[3];
-  var endHour = em[4];
-  var endMinute = em[5];
-  var endSecond = em[6];
-
-  function pad(n) {
-    n = parseInt(n); // Ensure that n is an int and not a string
-    return (n < 10) ? ("0" + n) : n;
-  }
 
   var startYearInt = parseInt(startYear, 10);
   var endYearInt = parseInt(endYear, 10);
+  var stepSize = parseInt(step, 10) || 1;
 
   // No valid years are given. Default to Landsat capture time range.
   // TODO: We really should give a warning when this happen to force users to include some start/end date for their data. Even if it's a geojson, at least
@@ -82,27 +31,27 @@ timelines.setTimeLine = function(layerId, startDate, endDate, step) {
     return;
   }
 
-  if (typeof(startMonth) != "undefined" && typeof(startDay) != "undefined" && typeof(endMonth) != "undefined" && typeof(endDay) != "undefined") {
-    var mDateStr = timelines.createISODateString(startYear, startMonth, startDay, startHour, startMinute, startSecond);
-    var nDateStr = timelines.createISODateString(endYear, endMonth, endDay, endHour, endMinute, endSecond);
+  if (typeof(startMonth) != "undefined" && typeof(startDay) != "undefined" && typeof(endMonth) != "undefined" && typeof(endDay) != "undefined") { // generate yyyy-mm-dd (HH::MM:SS)
+    var mDateStr = parseDateStrToISODateStr(startDate);
+    var nDateStr = parseDateStrToISODateStr(endDate);
     var m = new Date(mDateStr);
     var n = new Date(nDateStr);
     var tomorrow = m;
     var timeZone = getTimeZone();
     while (tomorrow.getTime() <= n.getTime()) {
-      var captureTimeStr = tomorrow.getFullYear() + '-' + pad((tomorrow.getMonth() + 1).toString()) + '-' + pad(tomorrow.getDate().toString());
+      var captureTimeStr = tomorrow.getFullYear() + '-' + padLeft((tomorrow.getMonth() + 1).toString(), 2) + '-' + padLeft(tomorrow.getDate().toString(), 2);
       if (typeof startHour != "undefined") {
-        captureTimeStr += ' ' + pad(tomorrow.getHours());
+        captureTimeStr += ' ' + padLeft(tomorrow.getHours(), 2);
         if (typeof startMinute != "undefined") {
-          captureTimeStr += ':' + pad(tomorrow.getMinutes());
+          captureTimeStr += ':' + padLeft(tomorrow.getMinutes(), 2);
           if (typeof startSecond != "undefined") {
-            captureTimeStr += ':' + pad(tomorrow.getSeconds());
+            captureTimeStr += ':' + padLeft(tomorrow.getSeconds(), 2);
           }
         } else {
           captureTimeStr += ':' + '00';
         }
+        captureTimeStr += timeZone;
       }
-      captureTimeStr += timeZone;
       captureTimes.push(captureTimeStr);
       if (typeof startSecond != "undefined") {
         tomorrow.setSeconds(tomorrow.getSeconds() + stepSize);
@@ -125,7 +74,7 @@ timelines.setTimeLine = function(layerId, startDate, endDate, step) {
         stopMonth = parseInt(endMonth); // Ensure stopMonth is an int and not a string
       }
       for (var j = beginMonth; j <= stopMonth; j+=stepSize) { // Increment based on supplied stepSize
-        captureTimes.push(pad(i.toString()) + "-" + pad(j.toString()));
+        captureTimes.push(padLeft(i.toString(), 2) + "-" + padLeft(j.toString(), 2));
       }
     }
   } else  { // generate yyyy

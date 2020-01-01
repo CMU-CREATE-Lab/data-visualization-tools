@@ -549,7 +549,7 @@ function PackArray(arr) {
 
 function capitalize_each_word_in_string(str) {
   if (str == "") {
-    return "";    
+    return "";
   }
   str = str.split(" ");
 
@@ -560,37 +560,64 @@ function capitalize_each_word_in_string(str) {
   return str.join(" ");
 }
 
+function padLeft(str, width) {
+  while (str.length < width) {
+    str = '0' + str;
+  }
+  return str;
+}
 
-function parseDateStr(date) {
-  // Target format: 2000-01-01T00:00:00.000Z
-  // Date can be YYYY or YYYYMM or YYYYMMDD or YYYYMMDDHHMM or YYYYMMDDHHMMSS
-  var yyyymmddhhmmss_re = /(\d{4})(\d{2})?(\d{2})?(\d{2})?(\d{2})?(\d{2})?$/;
-  var m = date.match(yyyymmddhhmmss_re);
+function getDateRegexMatches(date) {
+  var regex = /^(\d{4})(\d{2})?(\d{2})?(\d{2})?(\d{2})?(\d{2})?$/;
+  // ISO 6801 extended dates (years < 0 (preceeded with negative sign) OR > 9999(preceeded with positive sign))
+  if (date.match(/^[-+]/)) {
+    regex = /^([-+]\d{6})(\d{2})?(\d{2})?(\d{2})?(\d{2})?(\d{2})?$/;
+  }
+  return date.match(regex);
+}
+
+function parseDateStrToISODateStr(date) {
+  return parseDateStr(date, true);
+}
+
+function parseDateStr(date, returnAsISODateStr) {
+  // Input date can be YYYY or YYYYMM or YYYYMMDD or YYYYMMDDHHMM or YYYYMMDDHHMMSS
+  // Target format: 2000-01-01T00:00:00Z (ISO 8601)
+  var ISODateStr = "";
+  var m = getDateRegexMatches(date);
   if (!m) {
     console.log('Cannot parse date ' + date);
     return NaN;
   }
-  var to_parse = m[1]; // YYYY
+  ISODateStr += m[1]; // (YY)YYYY
   if (m[2] !== undefined) {
-    to_parse += '-' + m[2]; // MM
+    ISODateStr += '-' + m[2]; // MM
     if (m[3] != undefined) {
-      to_parse += '-' + m[3]; // DD
-      if (m[4] != undefined && m[5] != undefined) {
-        to_parse += 'T' + m[4] + ':' + m[5]; // HH:MM
-        if (m[6] != undefined) {
-          to_parse += ':' + m[6]; // SS
+      ISODateStr += '-' + m[3]; // DD
+      if (m[4] != undefined) {
+        ISODateStr += 'T' + m[4]; // HH
+        if (m[5] != undefined) {
+          ISODateStr += ':' + m[5]; // MM
+          if (m[6] != undefined) {
+            ISODateStr += ':' + m[6]; // SS
+          } else {
+            ISODateStr += ':00';
+          }
         } else {
-          to_parse += ':00';
+          ISODateStr += ':00:00';
         }
       } else {
-        to_parse += 'T00:00:00';
+        ISODateStr += 'T00:00:00';
       }
     } else {
-      to_parse += '-01T00:00:00';
+      ISODateStr += '-01T00:00:00';
     }
   } else {
-    to_parse += '-01-01T00:00:00';
+    ISODateStr += '-01-01T00:00:00';
   }
-  to_parse += '.000Z'
-  return new Date(to_parse).getTime()/1000;  
+  ISODateStr += 'Z';
+  if (returnAsISODateStr) {
+    return ISODateStr;
+  }
+  return new Date(ISODateStr).getTime()/1000;
 }
