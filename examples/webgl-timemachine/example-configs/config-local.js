@@ -24,6 +24,10 @@ var EARTH_TIMELAPSE_CONFIG = {
   "browserScaleFactor": 1,
   "defaultPlaybackSpeed": 0.5,
   "enableAutoMode": false,
+  "autoModeCriteria" : {
+    "cycleThroughStoriesAndThemes": false,
+    "cycleThroughStories": false
+  },
   "screenTimeoutInMilliseconds": 4 * 60 * 1000,
   "waypointDelayInMilliseconds": 1 * 20 * 1000,
   "enableLetterboxMode": false,

@@ -300,6 +300,7 @@
     var useGoogleMaps = parseConfigOption({optionName: "useGoogleMaps", optionDefaultValue: false, exposeOptionToUrlHash: false});
     var useGoogleSearch = parseConfigOption({optionName: "useGoogleSearch", optionDefaultValue: true, exposeOptionToUrlHash: false});
     var enableAutoMode = parseConfigOption({optionName: "enableAutoMode", optionDefaultValue: false, exposeOptionToUrlHash: false});
+    var autoModeCriteria = parseConfigOption({optionName: "autoModeCriteria", optionDefaultValue: {}, exposeOptionToUrlHash: false});
     var screenTimeoutInMilliseconds = parseConfigOption({optionName: "screenTimeoutInMilliseconds", optionDefaultValue: (8 * 60 * 1000), exposeOptionToUrlHash: false});
     var waypointDelayInMilliseconds = parseConfigOption({optionName: "waypointDelayInMilliseconds", optionDefaultValue: (1 * 15 * 1000), exposeOptionToUrlHash: false});
     var defaultPlaybackSpeed = parseConfigOption({optionName: "defaultPlaybackSpeed", optionDefaultValue: 0.5, exposeOptionToUrlHash: false});
@@ -308,7 +309,6 @@
     var defaultTrackingId = document.location.hostname === "earthtime.org" ? "UA-10682694-21" : "";
     var trackingId = parseConfigOption({optionName: "trackingId", optionDefaultValue: defaultTrackingId, exposeOptionToUrlHash: false});
     var rootTilePath = parseConfigOption({optionName: "rootTilePath", optionDefaultValue: "../../../data/", exposeOptionToUrlHash: false});
-    var autoModeFullThemeCycle = parseConfigOption({optionName: "autoModeFullThemeCycle", optionDefaultValue: true, exposeOptionToUrlHash: false});
     var baseMapsNoLabels = parseConfigOption({optionName: "baseMapsNoLabels", optionDefaultValue: false, exposeOptionToUrlHash: true});
     var useRetinaLightBaseMap = parseConfigOption({optionName: "useRetinaLightBaseMap", optionDefaultValue: false, exposeOptionToUrlHash: false});
     var useRetinaLightNoLabelsBaseMap = baseMapsNoLabels ? true : parseConfigOption({optionName: "useRetinaLightNoLabelsBaseMap", optionDefaultValue: false, exposeOptionToUrlHash: false});
@@ -7023,19 +7023,31 @@
             setNewStoryAndThemeUrl(currentWaypointTheme, currentWaypointStory, -1);
           }
 
-          if (enableThemeHamburgerButton && isAutoModeRunning && autoModeFullThemeCycle && lastSelectedWaypointIndex > waypointIndex) {
+          if (enableThemeHamburgerButton && isAutoModeRunning && (autoModeCriteria.cycleThroughStoriesAndThemes || autoModeCriteria.cycleThroughStories) && lastSelectedWaypointIndex > waypointIndex) {
             var $availableStories = $("#theme-list [id^=story_]");
             var nextWaypointCollectionIdx;
             var availableStoriesArray = $availableStories.toArray();
+            var $currentWaypointCollection;
             for (var i = 0; i < availableStoriesArray.length; i++) {
               if ($(availableStoriesArray[i]).hasClass("activeStory")) {
+                $currentWaypointCollection = $(availableStoriesArray[i]);
                 nextWaypointCollectionIdx = i + 1;
                 break;
               }
             }
             var $nextWaypointCollection = $($availableStories.get(nextWaypointCollectionIdx));
+            // If no more stories are next (i.e. we are the last story of the last theme), then for now use the first story of the first theme.
             if ($nextWaypointCollection.length == 0) {
               $nextWaypointCollection = $availableStories.first();
+            }
+            if (autoModeCriteria.cycleThroughStories && !autoModeCriteria.cycleThroughStoriesAndThemes) {
+              var $currentWaypointCollectionTheme = $currentWaypointCollection.parents("table").first();
+              var $nextWaypointCollectionTheme = $nextWaypointCollection.parents("table").first();
+              // If we are looping through stories of a single theme and the theme of the next collection does not match
+              // the current theme, then we have hit the last story of the current theme and it is time to start over.
+              if ($currentWaypointCollectionTheme[0].id != $nextWaypointCollectionTheme[0].id) {
+                $nextWaypointCollection = $currentWaypointCollectionTheme.find("[id^=story_]").first();
+              }
             }
             $nextWaypointCollection.trigger("click");
             if (enableLetterboxMode) {
