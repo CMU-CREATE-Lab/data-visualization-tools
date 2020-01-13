@@ -1247,7 +1247,7 @@
       });
       // Hack
       // TODO: Revist toggling of CSV layers that did not have a timeline
-      if (layers.length == 1 & visibleBaseMapLayer == "landsat" && timelapse.getDuration() < 3) {
+      if ((layers.length == 1 || activeLayersWithTimeline == 1) & visibleBaseMapLayer == "landsat" && timelapse.getDuration() < 3) {
         doSwitchToLandsat();
       }
     }
