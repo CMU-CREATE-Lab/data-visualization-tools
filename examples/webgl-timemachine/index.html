@@ -729,13 +729,18 @@
       // Ensure this function is run only once
       timelapse.removeParabolicMotionStoppedListener(autoModeExtrasViewChangeHandler);
       if (snaplapseViewerForPresentationSlider && snaplapseViewerForPresentationSlider.isAutoModeRunning()) {
-        if ($("#extras-video").length > 0) {
+        var $videoExtra = $("#extras-video");
+        if ($videoExtra.length > 0) {
           snaplapseViewerForPresentationSlider.setAutoModeEnableState(false);
           snaplapseViewerForPresentationSlider.clearAutoModeTimeout();
-          $("#extras-video")[0].loop = false;
-          $("#extras-video")[0].addEventListener('ended', function(event) {
-            snaplapseViewerForPresentationSlider.setAutoModeEnableState(true);
-            snaplapseViewerForPresentationSlider.initializeAndRunAutoMode();
+          $videoExtra[0].originalLoop = $videoExtra[0].loop;
+          $videoExtra[0].loop = false;
+          $videoExtra[0].addEventListener('ended', function(event) {
+            setTimeout(function() {
+              $videoExtra[0].loop = $videoExtra[0].originalLoop;
+              snaplapseViewerForPresentationSlider.setAutoModeEnableState(true);
+              snaplapseViewerForPresentationSlider.initializeAndRunAutoMode();
+            }, 1000);
           });
         }
       }
@@ -7045,8 +7050,11 @@
             var nextWaypointCollectionIdx;
             var availableStoriesArray = $availableStories.toArray();
             var $currentWaypointCollection;
+            var $currentStory;
             for (var i = 0; i < availableStoriesArray.length; i++) {
-              if ($(availableStoriesArray[i]).hasClass("activeStory")) {
+              var $story = $(availableStoriesArray[i]);
+              if ($story.hasClass("activeStory")) {
+                $currentStory = $story;
                 $currentWaypointCollection = $(availableStoriesArray[i]);
                 nextWaypointCollectionIdx = i + 1;
                 break;
@@ -7058,10 +7066,16 @@
               $nextWaypointCollection = $availableStories.first();
             }
             if (autoModeCriteria.cycleThroughStories && !autoModeCriteria.cycleThroughStoriesAndThemes) {
+              // If the theme contains only a single story, no need to trigger the story again. Just wrap back to the first waypoint,
+              // which is the default behavior of auto mode. So, we just exit early here then.
+              if ($currentStory.siblings("[id^=story_]").length == 0) {
+                return;
+              }
+              // Find the theme of the current story and the theme of the next story.
               var $currentWaypointCollectionTheme = $currentWaypointCollection.parents("table").first();
               var $nextWaypointCollectionTheme = $nextWaypointCollection.parents("table").first();
-              // If we are looping through stories of a single theme and the theme of the next collection does not match
-              // the current theme, then we have hit the last story of the current theme and it is time to start over.
+              // If we are looping through stories of a theme and the theme of the next story does not match the
+              // current theme, then we have hit the last story of the current theme and it is time to start over.
               if ($currentWaypointCollectionTheme[0].id != $nextWaypointCollectionTheme[0].id) {
                 $nextWaypointCollection = $currentWaypointCollectionTheme.find("[id^=story_]").first();
               }
