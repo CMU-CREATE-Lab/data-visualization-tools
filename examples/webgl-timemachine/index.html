@@ -725,6 +725,22 @@
       return returnVal;
     }
 
+    var autoModeExtrasViewChangeHandler = function() {
+      // Ensure this function is run only once
+      timelapse.removeParabolicMotionStoppedListener(autoModeExtrasViewChangeHandler);
+      if (snaplapseViewerForPresentationSlider && snaplapseViewerForPresentationSlider.isAutoModeRunning()) {
+        if ($("#extras-video").length > 0) {
+          snaplapseViewerForPresentationSlider.setAutoModeEnableState(false);
+          snaplapseViewerForPresentationSlider.clearAutoModeTimeout();
+          $("#extras-video")[0].loop = false;
+          $("#extras-video")[0].addEventListener('ended', function(event) {
+            snaplapseViewerForPresentationSlider.setAutoModeEnableState(true);
+            snaplapseViewerForPresentationSlider.initializeAndRunAutoMode();
+          });
+        }
+      }
+    };
+
     function getLayerInfo(layer) {
       var readyTileCount = 0;
       var waitingTileCount = 0;
@@ -3937,10 +3953,7 @@
       $(".ui-selectmenu-menu").on("click", "li", function(e) {
         $lastSelectedExtra = $(e.currentTarget);
 
-        // Reset automode timer, since clicking a waypoint now closes the extras pop-up.
-        if (snaplapseViewerForPresentationSlider) {
-          snaplapseViewerForPresentationSlider.startAutoModeIdleTimeout();
-        }
+        timelapse.addParabolicMotionStoppedListener(autoModeExtrasViewChangeHandler);
 
         var relativePath = "../../../extras/";
         var filePath = relativePath + $lastSelectedExtra.data("filepath");
@@ -4021,6 +4034,7 @@
         },
         close: function(event, ui) {
           $lastSelectedExtra = null;
+          timelapse.removeParabolicMotionStoppedListener(autoModeExtrasViewChangeHandler);
         },
         beforeClose: function(event, ui) {
           var $extrasVideo = $("#extras-video");
@@ -4126,8 +4140,11 @@
           if (typeof(EarthlapseUI) !== "undefined" && enableMuseumMode) {
             EarthlapseUI.Modes.revertToDefault();
           } else {
-            var snaplapseForPresentationSlider = timelapse.getSnaplapseForPresentationSlider();
-            snaplapseForPresentationSlider.getSnaplapseViewer().initializeAndRunAutoMode();
+            var currentSelectedWaypoint = snaplapseViewerForPresentationSlider.getCurrentWaypointIndex();
+            if (currentSelectedWaypoint >= 0) {
+              snaplapseViewerForPresentationSlider.setCurrentAutoModeWaypointIdx(currentSelectedWaypoint);
+            }
+            snaplapseViewerForPresentationSlider.initializeAndRunAutoMode();
           }
         }
         // up arrow
@@ -6977,7 +6994,7 @@
           } else {
             waypointId = $(".snaplapse_keyframe_list").children().first().children()[0].id;
           }
-          $("#" + waypointId).trigger("click", {fromKeyboard: true});
+          $("#" + waypointId).trigger("click", {fromKeyboard: isAutoModeRunning});
           document.activeElement.blur();
         });
 
@@ -7072,7 +7089,7 @@
             var himawariWaypoint = (himawariWaypoints[currentWaypointTheme] && himawariWaypoints[currentWaypointTheme][currentWaypointStory]) ? himawariWaypoints[currentWaypointTheme][currentWaypointStory][waypointIndex] : null;
           }
           var lastAvailableWaypointIdx = $(".snaplapse_keyframe_list").children().last().index();
-          var selectedWaypointIdx = $(".snaplapse_keyframe_list .thumbnail_highlight").closest(".snaplapse_keyframe_list_item").index();
+          var selectedWaypointIdx = snaplapseViewerForPresentationSlider.getCurrentWaypointIndex();
 
           if ($previousAnnotationLocationButton && $previousAnnotationLocationButton.button("instance") && $nextAnnotationLocationButton && $nextAnnotationLocationButton.button("instance")) {
             $previousAnnotationLocationButton.button("enable").removeClass("annotation-story-start-button");
@@ -7306,7 +7323,7 @@
         var activeWaypoint = $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight");
         if (activeWaypoint.length) {
           var waypointLayersSelectors = "";
-          var waypointIdx = activeWaypoint.closest(".snaplapse_keyframe_list_item").index();
+          var waypointIdx = snaplapseViewerForPresentationSlider.getCurrentWaypointIndex();
           if (snaplapseForPresentationSlider) {
             var waypointLayerIds = snaplapseForPresentationSlider.getKeyframes()[waypointIdx].layers;
             for (var i = 0; i < waypointLayerIds.length; i++) {
@@ -7594,9 +7611,15 @@
         // Note that a story can also be a theme (old way)
         var $selectedStoryElement = $(e.currentTarget);
 
+        var isAutoModeRunning = snaplapseViewerForPresentationSlider.isAutoModeRunning();
+
         // If what's clicked is already loaded, go to the first waypoint
         if ($('#theme-title').attr('data-theme-id') == $selectedStoryElement[0].id) {
-          $(".snaplapse_keyframe_list").children().eq(0).children().first().trigger("click", {fromKeyboard: true});
+          if (isAutoModeRunning) {
+            snaplapseViewerForPresentationSlider.initializeAndRunAutoMode();
+          } else {
+            $(".snaplapse_keyframe_list").children().eq(0).children().first().trigger("click", {fromKeyboard: true});
+          }
           return;
         }
 
