@@ -330,6 +330,9 @@
     if (landsatVersion == "2015"){
       var cachedLandsatTimeJsonPath = "landsat-times.json";
       var landsatAjaxIncludesPath = "landsat_ajax_includes.js";
+    } else if (landsatVersion == "2019"){
+      var cachedLandsatTimeJsonPath = "landsat-times-2019.json";
+      var landsatAjaxIncludesPath = "landsat_ajax_includes_2019.js";
     } else {
       var cachedLandsatTimeJsonPath = "landsat-times-2016.json";
       var landsatAjaxIncludesPath = "landsat_ajax_includes_2016.js";
@@ -345,7 +348,7 @@
 
     WebglVideoTile.useFaderShader = useFaderShader;
     var showTile = true;
-    var NORTH = 85.05113006405742; // Latitude for Northern most extent
+    var stdWebMercatorNorth = 85.05113006405742; // Northern most latitude for standard Web Mercator
     var landsatMaxScale = (landsatVersion == "2015") ? 1.25 : 0.45;
     landsatMaxScale -= (window.devicePixelRatio > 1) * 0.21;
     var rasterMapTileMaxScale = 80 * landsatMaxScale;
@@ -6154,20 +6157,20 @@
       // Landsat
       var landsatTimeMachineLayerOptions = {
         numFrames: cached_ajax[cachedLandsatTimeJsonPath]['capture-times'].length,
-        fps: 10,
-        width: 2097152,
-        height: 1881298,
-        startYear: 1984,
+        fps: cached_ajax['./1068x600/r.json'].fps,
+        width: cached_ajax['./1068x600/r.json'].width,
+        height: cached_ajax['./1068x600/r.json'].height,
+        startYear: parseInt(cached_ajax[cachedLandsatTimeJsonPath]['capture-times'][0]),
         tileRootUrl: landsatUrl
       };
       landsatBaseMapLayer = new WebglTimeMachineLayer(glb, canvasLayer, landsatTimeMachineLayerOptions);
 
       var tintedLandsatLayerOptions = {
         numFrames: cached_ajax[cachedLandsatTimeJsonPath]['capture-times'].length,
-        fps: 10,
-        width: 2097152,
-        height: 1881298,
-        startYear: 1984,
+        fps: cached_ajax['./1068x600/r.json'].fps,
+        width: cached_ajax['./1068x600/r.json'].width,
+        height: cached_ajax['./1068x600/r.json'].height,
+        startYear: parseInt(cached_ajax[cachedLandsatTimeJsonPath]['capture-times'][0]),
         program: 'textureTintFaderProgram',
         colormap: 'https://tiles.earthtime.org/colormaps/white_aliceblue_cornflowerblue_royalblue_blue.png',
         tileRootUrl: landsatUrl
@@ -8585,10 +8588,13 @@
       //
 
       var getLayerView = function(dataLayer, baseLayer) {
-        // New Landsat basemap no longer starts at standard Web Mercator north of 85.xxx
-        // Compute offset in units of timelapse.getView() pixels
+        // The timelapse projection uses bounds from landsatBasemapLayer, which might not
+        // share the standard Web Mercator north bound.
+
+        // Compute offset, if any, in units of timelapse.getView() pixels,
+        // between standard Web Mercator and landsatBasemapLayer.
         var yOffset = timelapse.getProjection().latlngToPoint({
-          lat: NORTH,
+          lat: stdWebMercatorNorth,
           lng: 0
         }).y;
         var view = timelapse.getView();
