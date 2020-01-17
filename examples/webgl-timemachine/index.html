@@ -407,6 +407,7 @@
     var storyEditor;
     var activeEarthTimeLayers = [];
     var timeZone = "";
+    var storyLoadedFromRealKeyDown = false;
 
 
     // ## 1 ##
@@ -729,7 +730,6 @@
     }
 
     var autoModeExtrasViewChangeHandler = function() {
-      // Ensure this function is run only once
       timelapse.removeParabolicMotionStoppedListener(autoModeExtrasViewChangeHandler);
       if (snaplapseViewerForPresentationSlider && snaplapseViewerForPresentationSlider.isAutoModeRunning()) {
         var $videoExtra = $("#extras-video");
@@ -872,11 +872,13 @@
     //// Layer tile paths
     //
 
-    var landsatUrl = (landsatVersion == "2015") ? rootTilePath + "/earthtime-annual-2015-v2/1068x600" : rootTilePath + "/earthtime-annual-2016-v14/1068x600";
-    if (isMobileDevice || isIEButNotEdge) {
-      landsatUrl = "https://earthengine.google.com/timelapse/data/20161025/";
-    } else if (EARTH_TIMELAPSE_CONFIG.landsatUrl) {
-      landsatUrl = EARTH_TIMELAPSE_CONFIG.landsatUrl;
+    var landsatUrl = rootTilePath;
+    if (landsatVersion == "2015") {
+      landsatUrl += "/earthtime-annual-2015-v2/1068x600";
+    } else if (landsatVersion == "2016") {
+      landsatUrl += "/earthtime-annual-2016-v14/1068x600";
+    } else if (landsatVersion == "2019") {
+      landsatUrl += "/earthtime-annual-2019-v1/1068x600";
     }
     var crwTimeMachineUrl = rootTilePath + "/coral/coralreefwatch-3.timemachine/crf20-22fps-1424x800";
     var ndviAnomalyTimeMachineUrl = rootTilePath + "/ndvi_anomaly_1000v01/1068x600";
@@ -1258,17 +1260,23 @@
       if (!layers) {
         activeEarthTimeLayers = [];
       }
-      layers.forEach(function(layer) {
-        if (layer.indexOf("extras_") == 0 || layer.indexOf("e-") == 0) {
-          // Need to delay some amount of time for the selectmenu to refresh after being populated.
-          setTimeout(function() {
-            $('#extras-selector-menu li[data-name="' + layer + '"]').click();
-          }, 100);
-        } else {
-          var $layerToggle = $("#layers-list label[name='" + layer + "'] input");
-          if (!$layerToggle.prop('checked')) $layerToggle.trigger("click");
-        }
+
+      var layerExtraId = layers.find(function(layer) {
+        return (layer.indexOf("extras_") == 0 || layer.indexOf("e-") == 0);
       });
+
+      if (layerExtraId) {
+        setTimeout(function() {
+          $('#extras-selector-menu li[data-name="' + layerExtraId + '"]').click();
+        }, 100);
+        return;
+      }
+
+      layers.forEach(function(layer) {
+        var $layerToggle = $("#layers-list label[name='" + layer + "'] input");
+        if (!$layerToggle.prop('checked')) $layerToggle.trigger("click");
+      });
+
       // Hack
       // TODO: Revist toggling of CSV layers that did not have a timeline
       if ((layers.length == 1 || activeLayersWithTimeline == 1) & visibleBaseMapLayer == "landsat") {
@@ -3994,7 +4002,7 @@
           $extrasHtml = '<img id="extras-image" src="' + filePath + '">';
           $("#extras-content-container").html($extrasHtml).dialog("open");
         } else if (fileType == "video") {
-          $extrasHtml = '<video id="extras-video" src="' + filePath + '" controls autoplay></video>';
+          $extrasHtml = '<video id="extras-video" controls autoplay></video>';
           $("#extras-content-container").html($extrasHtml).dialog("open");
           $("#extras-video")[0].playbackRate = playbackRate;
           if (loopVideoPlayback) {
@@ -4006,6 +4014,10 @@
           $("#extras-video").gVideo({
             childtheme: 'smalldark'
           });
+          if (!timelapse.isMovingToWaypoint()) {
+            $("#extras-video").one("loadstart", autoModeExtrasViewChangeHandler);
+          }
+          $("#extras-video")[0].src = filePath;
         } else if (fileType == "iframe") {
           // If the extra is an iframe, then the URL can be absolute
           var re = new RegExp("^(http|https)://", "i");
@@ -4049,6 +4061,7 @@
           if ($extrasVideo && $extrasVideo[0]) {
             $extrasVideo[0].pause();
             $extrasVideo[0].src = "";
+            $extrasVideo[0].removeEventListener("loadstart", autoModeExtrasViewChangeHandler);
           }
           $("#extras-selector").val("select").selectmenu('refresh');
         }
@@ -4134,6 +4147,7 @@
             showAnnotationResumeExit();
           }
           $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight").removeClass("thumbnail_highlight");
+          $("#extras-content-container").dialog("close");
           timelapse.clearShareViewTimeLoop();
           contentSearch.updateLayerSelectionsFromMaster();
         }
@@ -7002,7 +7016,7 @@
           } else {
             waypointId = $(".snaplapse_keyframe_list").children().first().children()[0].id;
           }
-          $("#" + waypointId).trigger("click", {fromKeyboard: isAutoModeRunning});
+          $("#" + waypointId).trigger("click", {fromKeyboard: storyLoadedFromRealKeyDown});
           document.activeElement.blur();
         });
 
@@ -7246,8 +7260,13 @@
             };
             timelapse.addParabolicMotionStoppedListener(parabolicMotionStoppedListener);
 
-            // Close the extra content pop-up if a waypoint is clicked.
-            $('#extras-content-container').dialog('close');
+            // Close the extra content pop-up if a waypoint is clicked, but only if the new waypoint is not also an extra.
+            var layerExtraId = waypoint.layers.find(function(layer) {
+              return (layer.indexOf("extras_") == 0 || layer.indexOf("e-") == 0);
+            });
+            if (!layerExtraId) {
+              $('#extras-content-container').dialog('close');
+            }
           }
         });
         // End snaplapseViewerForPresentationSlider check
@@ -7627,15 +7646,16 @@
       $("#theme-menu").on("click", "[id^=story_]", function(e) {
         // Note that a story can also be a theme (old way)
         var $selectedStoryElement = $(e.currentTarget);
+        storyLoadedFromRealKeyDown = e.originalEvent && e.pageX != 0 && e.pageY != 0;
 
         var isAutoModeRunning = snaplapseViewerForPresentationSlider.isAutoModeRunning();
 
-        // If what's clicked is already loaded, go to the first waypoint
+        // If what's clicked is already loaded, don't load again and go to the first waypoint
         if ($('#theme-title').attr('data-theme-id') == $selectedStoryElement[0].id) {
           if (isAutoModeRunning) {
             snaplapseViewerForPresentationSlider.initializeAndRunAutoMode();
           } else {
-            $(".snaplapse_keyframe_list").children().eq(0).children().first().trigger("click", {fromKeyboard: true});
+            $(".snaplapse_keyframe_list").children().eq(0).children().first().trigger("click", {fromKeyboard: storyLoadedFromRealKeyDown});
           }
           return;
         }
