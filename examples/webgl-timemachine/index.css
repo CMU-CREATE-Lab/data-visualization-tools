@@ -977,18 +977,13 @@ html, body {
 }
 
 .location_search_div.letterbox {
-  width: 177px;
-  height: 74px;
+  width: 251px;
   top: 15px;
   left: 7px;
 }
 
 .location_search_div.letterbox > #location_search_icon {
   right: -44px;
-}
-
-.location_search_div.letterbox > #location_search {
-  width: 177px;
 }
 
 #top-nav.menu-active {
