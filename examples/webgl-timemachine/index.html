@@ -4013,6 +4013,7 @@
         var extrasName = $lastSelectedExtra.data("name");
         var loopVideoPlayback = $lastSelectedExtra.data("loop");
         var muteVideoAudio = $lastSelectedExtra.data("muted");
+        var enableVideoPlaybackControls = $lastSelectedExtra.data("controls");
         var objectFit = $lastSelectedExtra.data("objectfit");
 
         if (enableLetterboxMode) {
@@ -4037,22 +4038,26 @@
           $extrasHtml = '<img id="extras-image" src="' + filePath + '">';
           $("#extras-content-container").html($extrasHtml).dialog("open");
         } else if (fileType == "video") {
-          $extrasHtml = '<video id="extras-video" controls autoplay></video>';
+          $extrasHtml = '<video id="extras-video" autoplay></video>';
           $("#extras-content-container").html($extrasHtml).dialog("open");
-          $("#extras-video")[0].playbackRate = playbackRate;
+          var $video = $("#extras-video");
+          $video[0].playbackRate = playbackRate;
           if (loopVideoPlayback) {
-            $("#extras-video")[0].loop = true;
+            $video[0].loop = true;
           }
           if (muteVideoAudio) {
-            $("#extras-video")[0].muted = true;
+            $video[0].muted = true;
           }
-          $("#extras-video").gVideo({
+          $video.gVideo({
             childtheme: 'smalldark'
           });
-          if (!timelapse.isMovingToWaypoint()) {
-            $("#extras-video").one("loadstart", autoModeExtrasViewChangeHandler);
+          if (!enableVideoPlaybackControls) {
+            $(".ghinda-video-controls").remove();
           }
-          $("#extras-video")[0].src = filePath;
+          if (!timelapse.isMovingToWaypoint()) {
+            $video.one("loadstart", autoModeExtrasViewChangeHandler);
+          }
+          $video[0].src = filePath;
         } else if (fileType == "iframe") {
           // If the extra is an iframe, then the URL can be absolute
           var re = new RegExp("^(http|https)://", "i");

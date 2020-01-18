@@ -69,7 +69,10 @@ CsvFileLayer.prototype.addExtrasContent = function addExtrasContent(layerDef) {
     str += ' data-loop="' + extrasOptions.loop + '"';
   }
   if (extrasOptions.muted) {
-    str += ' data-muted="' + extrasOptions.mute + '"';
+    str += ' data-muted="' + extrasOptions.muted + '"';
+  }
+  if (extrasOptions.controls) {
+    str += ' data-controls="' + extrasOptions.controls + '"';
   }
   if (extrasOptions['object-fit']) {
     str += ' data-objectfit="' + extrasOptions['object-fit'] + '"';
