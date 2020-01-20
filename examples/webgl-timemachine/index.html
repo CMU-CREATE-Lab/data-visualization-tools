@@ -4041,7 +4041,6 @@
           $extrasHtml = '<video id="extras-video" autoplay></video>';
           $("#extras-content-container").html($extrasHtml).dialog("open");
           var $video = $("#extras-video");
-          $video[0].playbackRate = playbackRate;
           if (loopVideoPlayback) {
             $video[0].loop = true;
           }
@@ -4058,6 +4057,8 @@
             $video.one("loadstart", autoModeExtrasViewChangeHandler);
           }
           $video[0].src = filePath;
+          // Must set playbackRate *after* setting the file path
+          $video[0].playbackRate = playbackRate;
         } else if (fileType == "iframe") {
           // If the extra is an iframe, then the URL can be absolute
           var re = new RegExp("^(http|https)://", "i");
