@@ -41,11 +41,11 @@ timelines.setTimeLine = function(layerId, startDate, endDate, step) {
     while (tomorrow.getTime() <= n.getTime()) {
       var captureTimeStr = tomorrow.getFullYear() + '-' + padLeft((tomorrow.getMonth() + 1).toString(), 2) + '-' + padLeft(tomorrow.getDate().toString(), 2);
       if (typeof startHour != "undefined") {
-        captureTimeStr += ' ' + padLeft(tomorrow.getHours(), 2);
+        captureTimeStr += ' ' + padLeft(tomorrow.getHours().toString(), 2);
         if (typeof startMinute != "undefined") {
-          captureTimeStr += ':' + padLeft(tomorrow.getMinutes(), 2);
+          captureTimeStr += ':' + padLeft(tomorrow.getMinutes().toString(), 2);
           if (typeof startSecond != "undefined") {
-            captureTimeStr += ':' + padLeft(tomorrow.getSeconds(), 2);
+            captureTimeStr += ':' + padLeft(tomorrow.getSeconds().toString(), 2);
           }
         } else {
           captureTimeStr += ':' + '00';
