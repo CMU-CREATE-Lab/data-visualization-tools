@@ -875,7 +875,9 @@
     //
 
     var landsatUrl = rootTilePath;
-    if (landsatVersion == "2015") {
+    if (EARTH_TIMELAPSE_CONFIG.landsatUrl) {
+      landsatUrl = EARTH_TIMELAPSE_CONFIG.landsatUrl;
+    } else if (landsatVersion == "2015") {
       landsatUrl += "/earthtime-annual-2015-v2/1068x600";
     } else if (landsatVersion == "2016") {
       landsatUrl += "/earthtime-annual-2016-v14/1068x600";
