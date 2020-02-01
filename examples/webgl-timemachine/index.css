@@ -1187,42 +1187,11 @@ html, body {
   background-color: #999;
 }
 
-.ui-multiselect-menu ul{
-  width: auto !important;
-  margin-top: -3px !important;
-  overflow:hidden !important;
-  padding-left: 6px;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
-
-.ui-multiselect-menu li{
-  font-size: 17px;
-  line-height:1.5em !important;
-  border-bottom:1px solid #ccc !important;
-  float:left !important;
-  display:inline !important;
-}
-.ui-multiselect {
-  font-size: 15px;
-}
-
 .single li  { width:100% !important;}
 .double li  { width:50% !important;}
 .triple li  { width:33.333% !important;}
 .quad li    { width:25% !important; }
 .six li     { width:16.666% !important; }
-
-.ui-multiselect-menu .credit {
-  color: #555555;
-  font-size: 11px;
-  position: relative;
-  top: -2px;
-  right: -4px;
-}
 
 button:focus {outline:0;}
 
@@ -2506,3 +2475,4 @@ a:focus { outline:0; }
   padding: 20px;
   text-transform: none;
 }
+

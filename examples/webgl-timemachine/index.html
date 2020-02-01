@@ -7,14 +7,13 @@
   <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
   <meta name="viewport" content="width=device-width, user-scalable=no" />
 
+  <link href="../../css/jquery-ui/smoothness/jquery-ui.custom.css" rel="stylesheet" type="text/css" />
   <link href="../../timemachine/css/snaplapse.css" rel="stylesheet" type="text/css" />
-  <link href="../../timemachine/css/jquery-ui/smoothness/jquery-ui.custom.css" rel="stylesheet" type="text/css" />
   <link href="../../timemachine/css/defaultUI.css" rel="stylesheet" type="text/css" />
   <link href="../../timemachine/css/scaleBar.css" rel="stylesheet" type="text/css" />
   <link href="../../timemachine/css/customUI.css" rel="stylesheet" type="text/css" />
   <link href="../../timemachine/libs/change-detect/css/change.css" media="screen" rel="stylesheet" type="text/css" />
   <link href="../../js/customVideoTagControls/customVideoTagControls.css" rel="stylesheet" type="text/css" />
-  <link href="../../css/jquery.multiselect.css" rel="stylesheet" type="text/css" />
   <link href="index.css" rel="stylesheet" type="text/css" />
   <link href="Wizard.css" rel="stylesheet" type="text/css" />
   <link href="StoryEditor.css" rel="stylesheet" type="text/css" />
@@ -24,8 +23,9 @@
 
   <script src="../../timemachine/js/polyfills/touchpolyfill.min.js" type="text/javascript"></script>
 
-  <script src="../../timemachine/js/jquery/jquery.min.js" type="text/javascript"></script>
-  <script src="../../timemachine/js/jquery/jquery-ui.custom.min.js" type="text/javascript"></script>
+  <script src="../../js/jquery/jquery.min.js" type="text/javascript"></script>
+  <script src="../../js/jquery/jquery-migrate.min.js" type="text/javascript"></script>
+  <script src="../../js/jquery/jquery-ui.custom.min.js" type="text/javascript"></script>
   <script src="../../timemachine/js/jquery/plugins/mouse/jquery.mousewheel.min.js" type="text/javascript"></script>
   <script src="../../timemachine/js/jquery/plugins/dialogExtend/jquery.dialogextend.min.js" type="text/javascript"></script>
 
@@ -55,7 +55,6 @@
   <script src="../../timemachine/js/org/gigapan/timelapse/crossdomain_api.js" type="text/javascript"></script>
 
   <script src="../../js/customVideoTagControls/customVideoTagControls.js" type="text/javascript"></script>
-  <script src="../../js/jquery.multiselect.js" type="text/javascript"></script>
   <script src="../../js/earcut.min.js" type="text/javascript"></script>
   <script src="../../js/dat.gui.min.js"></script>
   <script src="../../js/papaparse.min.js"></script>
@@ -3960,11 +3959,13 @@
       // Copy over data attributes to selectmenu
       $.widget("ui.selectmenu", $.ui.selectmenu, {
         _renderItem: function(ul, item) {
-          var elementdata = item.element.context.dataset;
+          var elementdata = item.element[0].dataset;
           var attributesObj = {};
           Object.keys(elementdata).forEach(function(x) {
             attributesObj["data-" + x] = elementdata[x];
           });
+          // TODO: If we want to support jQueryUI > 1.11.x then we need to
+          // append a div to the <li>, like so: .append("<div>")
           return $('<li>')
             .attr(attributesObj)
             .append(item.label)
@@ -4106,7 +4107,7 @@
             $extrasVideo[0].src = "";
             $extrasVideo[0].removeEventListener("loadstart", autoModeExtrasViewChangeHandler);
           }
-          $("#extras-selector").val("select").selectmenu('refresh');
+          $("#extras-selector").val("select").selectmenu("refresh");
         }
       }).css({
         'z-index': '2000',
