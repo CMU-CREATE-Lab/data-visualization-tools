@@ -207,7 +207,7 @@
     var subsampleAnnualReturns = !!EARTH_TIMELAPSE_CONFIG.subsampleAnnualReturns;
     var showAnnualReturns = !!EARTH_TIMELAPSE_CONFIG.showAnnualReturns;
     var showGlobalWindPower = !!EARTH_TIMELAPSE_CONFIG.showGlobalWindPower;
-    var showVsi = !!EARTH_TIMELAPSE_CONFIG.showVsi;
+    // var showVsi = !!EARTH_TIMELAPSE_CONFIG.showVsi;
     var showHealthImpact = !!EARTH_TIMELAPSE_CONFIG.showHealthImpact;
     var showZika = !!EARTH_TIMELAPSE_CONFIG.showZika;
     var showDengue = !!EARTH_TIMELAPSE_CONFIG.showDengue;
@@ -423,7 +423,7 @@
     timelines.setTimeLine('global-wind-power-times', '1984', '2018', 1);
     var annualRefugeesLayer;
     var annualReturnsLayer;
-    var vsiLayer;
+    // var vsiLayer;
     var healthImpactLayer;
     var zikaLayer, dengueLayer, chikuLayer;
     var viirsLayer;
@@ -978,7 +978,7 @@
       annualReturnsUrl = rootTilePath + "/annual-returns/refugee-returns-subsampled.bin";
     }
 
-    var vsiUrl = rootTilePath + "/vsi/tiles/{default}/{z}/{x}/{y}.png";
+    // var vsiUrl = rootTilePath + "/vsi/tiles/{default}/{z}/{x}/{y}.png";
     var healthImpactUrl = rootTilePath + "/health-impact/{z}/{x}/{y}.bin";
     var zikaUrl = rootTilePath + "/pandemics/zika/{z}/{x}/{y}.bin";
     var dengueUrl = rootTilePath + "/pandemics/dengue/{z}/{x}/{y}.bin";
@@ -2294,20 +2294,20 @@
         }
       }).prop('checked', showAnnualReturnsLayer);
 
-      $("#show-vsi").on("click", function() {
-        var $this = $(this);
-        if ($this.prop('checked')) {
-          vsiLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-          showVsiLayer = true;
-          timelineType = "none";
-          $("#vsi-legend").show();
-        } else {
-          showVsiLayer = false;
-          cacheLastUsedLayer(vsiLayer);
-          timelineType = "customUI";
-          $("#vsi-legend").hide();
-        }
-      }).prop('checked', showVsiLayer);
+      // $("#show-vsi").on("click", function() {
+      //   var $this = $(this);
+      //   if ($this.prop('checked')) {
+      //     vsiLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
+      //     showVsiLayer = true;
+      //     timelineType = "none";
+      //     $("#vsi-legend").show();
+      //   } else {
+      //     showVsiLayer = false;
+      //     cacheLastUsedLayer(vsiLayer);
+      //     timelineType = "customUI";
+      //     $("#vsi-legend").hide();
+      //   }
+      // }).prop('checked', showVsiLayer);
 
       $("#show-health-impact-rcp2p6").on("click", function() {
         var $this = $(this);
@@ -4291,7 +4291,7 @@
           showAnnotationResumeExit();
         }
         if (isMobileDevice || isIEButNotEdge) {
-          if (visibleBaseMapLayer != "landsat" || showLightsAtNightLayer ||  showHansenLayer2 || showVsiLayer) {
+          if (visibleBaseMapLayer != "landsat" || showLightsAtNightLayer ||  showHansenLayer2) {
             UTIL.setDrawState(false);
           } else {
             UTIL.setDrawState(true);
@@ -4399,7 +4399,7 @@
         }
 
         // Hide any timelines that are visible if we have no layers up that require a timeline or we are a static layer that fully covers the entire globe
-        if (activeLayersWithTimeline <= 0 || (visibleBaseMapLayer == "landsat" && activeLayersWithTimeline == 1 && (showLightsAtNightLayer || showHansenLayer2 || showVsiLayer))) {
+        if (activeLayersWithTimeline <= 0 || (visibleBaseMapLayer == "landsat" && activeLayersWithTimeline == 1 && (showLightsAtNightLayer || showHansenLayer2))) {
           $(".controls, .customControl").hide();
           $(".customControl").hide();
         } else if (activeLayersWithTimeline > 0) {
@@ -4426,7 +4426,7 @@
         }
 
         if ((activeLayersWithTimeline >= 1 && visibleBaseMapLayer != "landsat") ||
-            (activeLayersWithTimeline == 1 && visibleBaseMapLayer == "landsat" && !(showLightsAtNightLayer || showHansenLayer2 || showVsiLayer))) {
+            (activeLayersWithTimeline == 1 && visibleBaseMapLayer == "landsat" && !(showLightsAtNightLayer || showHansenLayer2))) {
           if (timelineType == "customUI") {
             $(".customControl").show().children().show();
           } else if (timelineType == "defaultUI") {
@@ -4770,7 +4770,7 @@
     var showMonthlyRefugeesLayer = false;
     var showAnnualRefugeesLayer = false;
     var showAnnualReturnsLayer = false;
-    var showVsiLayer = false;
+    // var showVsiLayer = false;
     var showHealthImpactLayer = false;
     var showHealthImpactRcp = [false, false, false, false]; // 2.6, 4.5, 6.0, 8.5
     var showZikaLayer = false;
@@ -5331,7 +5331,7 @@
       var show_monthly_refugees = '<td class="monthly-refugees-select"><label for="show-monthly-refugees" name="mmr"><input type="checkbox" id="show-monthly-refugees" />Mediterranean Refugees</label></td>';
       var show_annual_refugees = '<td class="annual-refugees-select"><label for="show-annual-refugees" name="ar"><input type="checkbox" id="show-annual-refugees" />Global Refugees</label></td>';
       var show_annual_returns = '<td class="annual-returns-select"><label for="show-annual-returns" name="arr"><input type="checkbox" id="show-annual-returns" />Global Returnees</label></td>';
-      var show_vsi = '<td class="vsi-select"><label for="show-vsi" name="vsi"><input type="checkbox" id="show-vsi" />Vegetation Sensitivity Index</label></td>';
+      // var show_vsi = '<td class="vsi-select"><label for="show-vsi" name="vsi"><input type="checkbox" id="show-vsi" />Vegetation Sensitivity Index</label></td>';
       var show_health_impact_rcp2p6 = '<td class="health-impact-rcp2p6-select"><label for="show-health-impact-rcp2p6" name="hi-rcp2p6"><input type="checkbox" id="show-health-impact-rcp2p6" />Nutritional Deficiency RCP2.6</label></td>';
       var show_health_impact_rcp4p5 = '<td class="health-impact-rcp4p5-select"><label for="show-health-impact-rcp4p5" name="hi-rcp4p5"><input type="checkbox" id="show-health-impact-rcp4p5" />Nutritional Deficiency RCP4.5</label></td>';
       var show_health_impact_rcp6p0 = '<td class="health-impact-rcp6p0-select"><label for="show-health-impact-rcp6p0" name="hi-rcp6p0"><input type="checkbox" id="show-health-impact-rcp6p0" />Nutritional Deficiency RCP6.0</label></td>';
@@ -5547,11 +5547,11 @@
         layer_html += show_ndvi_anomaly;
         layer_html += '    </tr>';
       }
-      if (showVsi) {
-        layer_html += '   <tr>';
-        layer_html += show_vsi;
-        layer_html += '   </tr>';
-      }
+      // if (showVsi) {
+      //   layer_html += '   <tr>';
+      //   layer_html += show_vsi;
+      //   layer_html += '   </tr>';
+      // }
       if (showBerkeleyEarthTemperatureAnomaly) {
         layer_html += '    <tr>';
         layer_html += show_berkeley_earth_temperature_anomaly;
@@ -6017,7 +6017,7 @@
         legend_html += '<tr id="annual-returns-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(right, lightyellow 25%, navy 100%);background: -webkit-linear-gradient(left, lightyellow 25%,navy 100%); background: linear-gradient(to right, lightyellow 25%,navy 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Global Refugee Return Flow: 2000 - 2015 <span class="credit"> (UNHCR) <br> 1 dot = ~17 refugees </span></div></td></tr>';
       else
         legend_html += '<tr id="annual-returns-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(right, lightyellow 25%, navy 100%);background: -webkit-linear-gradient(left, lightyellow 25%,navy 100%); background: linear-gradient(to right, lightyellow 25%,navy 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Global Refugee Return Flow: 2000 - 2015 <span class="credit"> (UNHCR) <br> 1 dot = 1 refugee </span></div></td></tr>';
-      legend_html += '<tr id="vsi-legend" style="display: none"><td><div style="font-size: 17px">Vegetation Sensitivity Index 2000-2013 <span class="credit"> (USGS)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">0</div><div style="margin-top: 4px; float: left; background-image: -webkit-linear-gradient(left, rgb(0, 139, 0), rgb(92, 182, 69) 17%, rgb(163, 221, 99) 33%, rgb(255, 255, 0) 50%, rgb(255, 205, 0) 67%, rgb(255, 144, 0) 83%, rgb(255, 4, 0) 100%);background-image: linear-gradient(left, rgb(0, 139, 0), rgb(92, 182, 69) 17%, rgb(163, 221, 99) 33%, rgb(255, 255, 0) 50%, rgb(255, 205, 0) 67%, rgb(255, 144, 0) 83%, rgb(255, 4, 0) 100%); width: 86%; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">100</div></td></tr>';
+      // legend_html += '<tr id="vsi-legend" style="display: none"><td><div style="font-size: 17px">Vegetation Sensitivity Index 2000-2013 <span class="credit"> (USGS)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">0</div><div style="margin-top: 4px; float: left; background-image: -webkit-linear-gradient(left, rgb(0, 139, 0), rgb(92, 182, 69) 17%, rgb(163, 221, 99) 33%, rgb(255, 255, 0) 50%, rgb(255, 205, 0) 67%, rgb(255, 144, 0) 83%, rgb(255, 4, 0) 100%);background-image: linear-gradient(left, rgb(0, 139, 0), rgb(92, 182, 69) 17%, rgb(163, 221, 99) 33%, rgb(255, 255, 0) 50%, rgb(255, 205, 0) 67%, rgb(255, 144, 0) 83%, rgb(255, 4, 0) 100%); width: 86%; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">100</div></td></tr>';
       legend_html += '<tr id="health-impact-legend" style="display: none"><td><div style="font-size: 17px">Nutritional Deficiencies<span class="credit"> (Oxford Martin)</span></div><svg class="svg-legend" width="242" height="180"><rect width="240" height="160" fill="white" opacity="0"></rect> <g transform="translate(2,10)"> <circle class="gain" r="5" cx="5" cy="10" style="fill: #8b0000; stroke: #fff;"></circle> <circle class="loss" r="5" cx="5" cy="30" style="fill: #00008b; stroke: #fff;"></circle> <text x="15" y="13" style="font-size: 12px; fill: #fff">Mean deaths per capita</text> <text x="15" y="33" style="font-size: 12px; fill: #fff">Mean lives per capita</text> <circle r="10.0" cx="160.0" cy="160.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="152.0" dy="13" style="font-size: 10px; fill: #fff">5K</text><circle r="30.0" cx="160.0" cy="140.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="130.0" dy="13" style="font-size: 10px; fill: #fff">15K</text><circle r="60.0" cx="160.0" cy="110.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="80.0" dy="13" style="font-size: 10px; fill: #fff">30K</text></g> </svg></td></tr>';
       legend_html += '<tr id="sea-level-rise-legend" style="display: none"><td><div style="font-size: 17px">Global Temperature Rise <span id="slr-degree"></span> &#x2103;<span class="credit"> (Climate Central)</span></div><div style="font-size: 15px">Multi-century Sea Level Increase:<span id="slr-feet" style="width:25px;"></span>&nbsp;<span id="slr-meters" style="width:25px; color: red;"></span></div></td></tr>';
       legend_html += '<tr id="tibnted-sea-level-rise-legend" style="display: none"><td><div style="font-size: 17px">Global Temperature Rise <span id="slr-degree"></span> &#x2103;<span class="credit"> (Climate Central)</span></div><div style="font-size: 15px">Multi-century Sea Level Increase:<span id="slr-feet" style="width:25px;"></span>&nbsp;<span id="slr-meters" style="width:25px; color: red;"></span></div></td></tr>';
@@ -6466,7 +6466,7 @@
       cityLabelMapLayer = new WebglMapLayer(glb, canvasLayer, cityLabelMapUrl, defaultBaseMapLayerOptions);
 
       // Vegetation Sensitivity Index
-      vsiLayer = new WebglMapLayer(glb, canvasLayer, vsiUrl, defaultMapLayerOptions);
+      // vsiLayer = new WebglMapLayer(glb, canvasLayer, vsiUrl, defaultMapLayerOptions);
 
       // Coral Reefs (in pink)
       var mcrmVectorLayerOptions = {
@@ -8884,10 +8884,10 @@
         }
 
         // Draw Vegetation Sensitivity Index
-        if (showVsiLayer) {
-          var vsiLayerView = getLayerView(vsiLayer, landsatBaseMapLayer);
-          vsiLayer.draw(vsiLayerView);
-        }
+        // if (showVsiLayer) {
+        //   var vsiLayerView = getLayerView(vsiLayer, landsatBaseMapLayer);
+        //   vsiLayer.draw(vsiLayerView);
+        // }
 
         // Draw Water Occurrence
         if (showWaterOccurrenceLayer) {
