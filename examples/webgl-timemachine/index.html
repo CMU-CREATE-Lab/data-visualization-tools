@@ -228,13 +228,13 @@
     var showIomIdp = !!EARTH_TIMELAPSE_CONFIG.showIomIdp;
     var showBerkeleyEarthTemperatureAnomaly = !!EARTH_TIMELAPSE_CONFIG.showBerkeleyEarthTemperatureAnomaly;
     var showUppsalaConflict = !!EARTH_TIMELAPSE_CONFIG.showUppsalaConflict;
-    var showLightsAtNight = typeof(EARTH_TIMELAPSE_CONFIG.showLightsAtNight) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showLightsAtNight;
+    // var showLightsAtNight = typeof(EARTH_TIMELAPSE_CONFIG.showLightsAtNight) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showLightsAtNight;
     // var showLightsAtNight2012 = !!EARTH_TIMELAPSE_CONFIG.showLightsAtNight2012;
     //var showLightsAtNight2016 = !!EARTH_TIMELAPSE_CONFIG.showLightsAtNight2016;
     var showOmiNo2 = !!EARTH_TIMELAPSE_CONFIG.showOmiNo2;
     var showChinaInfrastructure = !!EARTH_TIMELAPSE_CONFIG.showChinaInfrastructure;
     var showBePm25 = !!EARTH_TIMELAPSE_CONFIG.showBePm25;
-    var showLightsAtNightAnim = !!EARTH_TIMELAPSE_CONFIG.showLightsAtNightAnim;
+    // var showLightsAtNightAnim = !!EARTH_TIMELAPSE_CONFIG.showLightsAtNightAnim;
     var showExpandingCities = !!EARTH_TIMELAPSE_CONFIG.showExpandingCities;
     var showIrena = !!EARTH_TIMELAPSE_CONFIG.showIrena;
     var showCityLabelMap = !!EARTH_TIMELAPSE_CONFIG.showCityLabelMap;
@@ -416,7 +416,7 @@
     //
 
     var forestAlertsTimeMachineLayer, forestAlertsNoOverlayTimeMachineLayer, landsatBaseMapLayer, darkBaseMapLayer, lightBaseMapLayer, mcrmVectorLayer, countryLabelMapLayer, cityLabelMapLayer;
-    var hansenMapLayer, hansenMapLayer2, lightsAtNightMapLayer, crwTimeMachineLayer, animatedHansenLayer, himawariTimeMachineLayer, ndviAnomalyTimeMachineLayer;
+    var hansenMapLayer, hansenMapLayer2, crwTimeMachineLayer, animatedHansenLayer, himawariTimeMachineLayer, ndviAnomalyTimeMachineLayer;
     var waterOccurrenceLayer, waterChangeLayer, usgsWindTurbineLayer, solarInstallsLayer, drillingLayer;
     var goes16TimeMachineLayer, goes16Aug2018TimeMachineLayer, goes16Nov2018TimeMachineLayer, dscovrTimeMachineLayer, annualGlobalPm25TimeMachineLayer;
     var globalWindPowerLayer;
@@ -454,7 +454,7 @@
     timelines.setTimeLine('china-reservoirs-times', '1950', '2012', 1);
     var chinaWasteTreatmentPlantsLayer;
     var bePm25Layer;
-    var lightsAtNightAnimLayer;
+    // var lightsAtNightAnimLayer;
     var expandingCitiesLayer;
     timelines.setTimeLine('expanding-cities-times', '1955', '2030', 5);
     var irenaSolarLayer;
@@ -947,9 +947,9 @@
     var countryLabelMapUrl = useGoogleMaps ? googleMapsCountryLabelUrl : omtCountryLabelUrl;
     var cityLabelMapUrl = useGoogleMaps ? googleMapsCityLabelUrl : googleMapsCityLabelUrl;
 
-    var lightsAtNightUrl = rootTilePath + "/lights-at-night/{default}/{z}/{x}/{y}.png";
+    // var lightsAtNightUrl = rootTilePath + "/lights-at-night/{default}/{z}/{x}/{y}.png";
     // TODO: Change to rootTilePath once it is uploaded to Google Storage
-    var lightsAtNightAnimUrl = "https://tiles.earthtime.org/lan-anim.timemachine/crf18-4fps-1424x800";
+    // var lightsAtNightAnimUrl = "https://tiles.earthtime.org/lan-anim.timemachine/crf18-4fps-1424x800";
     // Note that x/y are swapped for these two lights at night data sets
     // var lightsAtNight2012Url = rootTilePath + "/lights-at-night-2012/{default}/{z}/{y}/{x}.jpg";
     //var lightsAtNight2016Url = rootTilePath + "/lights-at-night-2016/{default}/{z}/{y}/{x}.jpg";
@@ -2123,26 +2123,26 @@
         }
       }).prop('checked', showDrillingLayer);
 
-      $("#show-lights-at-night").on("click", function() {
-        var $this = $(this);
-        if ($this.prop('checked')) {
-          lightsAtNightMapLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-          if ($("#show-lights-at-night-2016").prop('checked')) {
-            $("#show-lights-at-night-2016").click();
-          }
-          if ($("#show-lights-at-night-2012").prop('checked')) {
-            $("#show-lights-at-night-2012").click();
-          }
-          showLightsAtNightLayer = true;
-          timelineType = "none";
-          $("#lights-at-night-legend").show();
-        } else {
-          showLightsAtNightLayer = false;
-          cacheLastUsedLayer(lightsAtNightMapLayer);
-          timelineType = "customUI";
-          $("#lights-at-night-legend").hide();
-        }
-      }).prop('checked', showLightsAtNightLayer);
+      // $("#show-lights-at-night").on("click", function() {
+      //   var $this = $(this);
+      //   if ($this.prop('checked')) {
+      //     lightsAtNightMapLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
+      //     if ($("#show-lights-at-night-2016").prop('checked')) {
+      //       $("#show-lights-at-night-2016").click();
+      //     }
+      //     if ($("#show-lights-at-night-2012").prop('checked')) {
+      //       $("#show-lights-at-night-2012").click();
+      //     }
+      //     showLightsAtNightLayer = true;
+      //     timelineType = "none";
+      //     $("#lights-at-night-legend").show();
+      //   } else {
+      //     showLightsAtNightLayer = false;
+      //     cacheLastUsedLayer(lightsAtNightMapLayer);
+      //     timelineType = "customUI";
+      //     $("#lights-at-night-legend").hide();
+      //   }
+      // }).prop('checked', showLightsAtNightLayer);
 
       // $("#show-lights-at-night-2012").on("click", function() {
       //   var $this = $(this);
@@ -2167,28 +2167,28 @@
       //   }
       // }).prop('checked', showLightsAtNight2012Layer);
 
-      $("#show-lights-at-night-anim").on("click", function() {
-        var $this = $(this);
-        if ($this.prop('checked')) {
-          lightsAtNightAnimLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-          showLightsAtNightAnimLayer = true;
-          setActiveLayersWithTimeline(1);
-          timelineType = "customUI";
-          requestNewTimeline("lights-at-night-anim-times.json", timelineType);
-          var v = timelapse.getVideoset();
-          v.setFps(4);
-          $("#lights-at-night-anim").show();
-        } else {
-          showLightsAtNightAnimLayer = false;
-          cacheLastUsedLayer(lightsAtNightAnimLayer);
-          setActiveLayersWithTimeline(-1);
-          timelineType = "customUI";
-          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-          var v = timelapse.getVideoset();
-          v.setFps(10);
-          $("#lights-at-night-anim").hide();
-        }
-      }).prop('checked', showLightsAtNightAnimLayer);
+      // $("#show-lights-at-night-anim").on("click", function() {
+      //   var $this = $(this);
+      //   if ($this.prop('checked')) {
+      //     lightsAtNightAnimLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
+      //     showLightsAtNightAnimLayer = true;
+      //     setActiveLayersWithTimeline(1);
+      //     timelineType = "customUI";
+      //     requestNewTimeline("lights-at-night-anim-times.json", timelineType);
+      //     var v = timelapse.getVideoset();
+      //     v.setFps(4);
+      //     $("#lights-at-night-anim").show();
+      //   } else {
+      //     showLightsAtNightAnimLayer = false;
+      //     cacheLastUsedLayer(lightsAtNightAnimLayer);
+      //     setActiveLayersWithTimeline(-1);
+      //     timelineType = "customUI";
+      //     requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+      //     var v = timelapse.getVideoset();
+      //     v.setFps(10);
+      //     $("#lights-at-night-anim").hide();
+      //   }
+      // }).prop('checked', showLightsAtNightAnimLayer);
 
       /*
       $("#show-lights-at-night-2016").on("click", function() {
@@ -4291,7 +4291,7 @@
           showAnnotationResumeExit();
         }
         if (isMobileDevice || isIEButNotEdge) {
-          if (visibleBaseMapLayer != "landsat" || showLightsAtNightLayer ||  showHansenLayer2) {
+          if (visibleBaseMapLayer != "landsat" || showHansenLayer2) {
             UTIL.setDrawState(false);
           } else {
             UTIL.setDrawState(true);
@@ -4399,7 +4399,7 @@
         }
 
         // Hide any timelines that are visible if we have no layers up that require a timeline or we are a static layer that fully covers the entire globe
-        if (activeLayersWithTimeline <= 0 || (visibleBaseMapLayer == "landsat" && activeLayersWithTimeline == 1 && (showLightsAtNightLayer || showHansenLayer2))) {
+        if (activeLayersWithTimeline <= 0 || (visibleBaseMapLayer == "landsat" && activeLayersWithTimeline == 1 && (showHansenLayer2))) {
           $(".controls, .customControl").hide();
           $(".customControl").hide();
         } else if (activeLayersWithTimeline > 0) {
@@ -4426,7 +4426,7 @@
         }
 
         if ((activeLayersWithTimeline >= 1 && visibleBaseMapLayer != "landsat") ||
-            (activeLayersWithTimeline == 1 && visibleBaseMapLayer == "landsat" && !(showLightsAtNightLayer || showHansenLayer2))) {
+            (activeLayersWithTimeline == 1 && visibleBaseMapLayer == "landsat" && !(showHansenLayer2))) {
           if (timelineType == "customUI") {
             $(".customControl").show().children().show();
           } else if (timelineType == "defaultUI") {
@@ -4746,7 +4746,7 @@
     var showHansenLayer2 = false;
     var showViirsLayer = false;
     var showCoralBleachingLayer = false;
-    var showLightsAtNightLayer = false;
+    // var showLightsAtNightLayer = false;
     // var showLightsAtNight2012Layer = false;
     //var showLightsAtNight2016Layer = false;
     var showFishingPprTimeMachineLayer = false;
@@ -4798,7 +4798,7 @@
     var showChinaReservoirsLayer = false;
     var showChinaWasteTreatmentPlantsLayer = false;
     var showBePm25Layer = false;
-    var showLightsAtNightAnimLayer = false;
+    // var showLightsAtNightAnimLayer = false;
     var showCountryLabelMapLayer = false;
     var showExpandingCitiesLayer = false;
     var showIrenaSolarLayer = false;
@@ -5314,8 +5314,8 @@
       var show_viirs = '<td class="viirs-select"><label for="show-viirs" name="viirs"><input type="checkbox" id="show-viirs" />Fires at Night</label></td>';
       var show_forest_alerts = '<td class="forest-alerts-select"><label for="show-forest-alerts" name="fla"><input type="checkbox" id="show-forest-alerts" />Forest Loss Alerts</label></td>';
       var show_forest_alert_no_overlay = '<td class="forest-alerts-no-overlay-select"><label for="show-forest-alerts-no-overlay" name="flano"><input type="checkbox" id="show-forest-alerts-no-overlay" />Forest Loss Alerts <span style="font-size: 14px">(No Overlay)</span></label></td>';
-      var show_lights_at_night = '<td class="lights-at-night-select"><label for="show-lights-at-night" name="lan"><input type="checkbox" id="show-lights-at-night" />Lights at Night (25 years)</label></td>';
-      var show_lights_at_night_anim = '<td class="lights-at-night-anim-select"><label for="show-lights-at-night-anim" name="lan-anim"><input type="checkbox" id="show-lights-at-night-anim" />Lights at Night (Animated)</label></td>';
+      // var show_lights_at_night = '<td class="lights-at-night-select"><label for="show-lights-at-night" name="lan"><input type="checkbox" id="show-lights-at-night" />Lights at Night (25 years)</label></td>';
+      // var show_lights_at_night_anim = '<td class="lights-at-night-anim-select"><label for="show-lights-at-night-anim" name="lan-anim"><input type="checkbox" id="show-lights-at-night-anim" />Lights at Night (Animated)</label></td>';
       // var show_lights_at_night_2012 = '<td class="lights-at-night-2012-select"><label for="show-lights-at-night-2012" name="lan12"><input type="checkbox" id="show-lights-at-night-2012" />Lights at Night 2012</label></td>';
       /*var show_lights_at_night_2016 = '<td class="lights-at-night-2016-select"><label for="show-lights-at-night-2016" name="lan16"><input type="checkbox" id="show-lights-at-night-2016" />Lights at Night 2016</label></td>';
       */
@@ -5809,16 +5809,16 @@
       /* URBANIZATION CATEGORY */
       layer_html += '  <h3>Urbanization</h3>';
       layer_html += '  <table id="category-urbanization">';
-      if (showLightsAtNight) {
-        layer_html += '    <tr>';
-        layer_html += show_lights_at_night;
-        layer_html += '    </tr>';
-      }
-      if (showLightsAtNightAnim) {
-        layer_html += '   <tr>';
-        layer_html += show_lights_at_night_anim;
-        layer_html += '   </tr>';
-      }
+      // if (showLightsAtNight) {
+      //   layer_html += '    <tr>';
+      //   layer_html += show_lights_at_night;
+      //   layer_html += '    </tr>';
+      // }
+      // if (showLightsAtNightAnim) {
+      //   layer_html += '   <tr>';
+      //   layer_html += show_lights_at_night_anim;
+      //   layer_html += '   </tr>';
+      // }
       // if (showLightsAtNight2012) {
       //   layer_html += '    <tr>';
       //   layer_html += show_lights_at_night_2012;
@@ -5996,8 +5996,8 @@
       legend_html += '<tr id="forest-loss-year-legend" style="display: none"><td><div style="font-size: 17px">Forest Loss By Year <span class="credit"> (Hansen et al)</span></div><div style="float:left; padding-right:3px; margin-left: 6px; font-size: 14px;">2000</div><div style="margin-top: 3px; float: left; background-image: -webkit-linear-gradient(left, yellow, orange 65%, red 100%);background-image: linear-gradient(left, yellow, orange 65%, red 100%); width: 68%; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">2018</div></div></td></tr>';
       legend_html += '<tr id="forest-loss-gain-legend" style="display: none; font-size: 14px;"><td><div style="font-size: 17px">Forest Loss/Gain 2000-2018 <span class="credit"> (Hansen et al)</span></div><div style="float: left; padding-right:8px"><div style="background-color:#00e000; width: 12px; height: 12px; float: left; margin-top: 2px; margin-left: 8px;"></div>&nbsp;Extent</div><div style="float: left; padding-right:8px"><div style="background-color:#ff0000; width: 12px; height: 12px; float: left; margin-top: 2px"></div>&nbsp;Loss</div><div style="float: left; padding-right:8px"><div style="background-color:#0000ff; width: 12px; height: 12px; float: left; margin-top: 2px"></div>&nbsp;Gain</div><div><div style="background-color:#ff00ff; width: 12px; height: 12px; float: left; margin-top: 2px"></div>&nbsp;Both</div></td></tr>';
       legend_html += '<tr id="fires-at-night-legend" style="display: none"><td><div style="background-color:#eda46a; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Fires At Night <span class="credit"> (NOAA)</span></div></td></tr>';
-      legend_html += '<tr id="lights-at-night-legend" style="display: none"><td><div style="font-size: 17px">Lights at Night over 25 Years <span class="credit"> (NOAA, Google)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">Decrease</div><div style="margin-top: 4px; float: left; background-image: -webkit-linear-gradient(left, #4848FD, green 50%, red 100%);background-image: linear-gradient(left, #4848FD, green 50%, red 100%); width: 59%; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">Increase</div></td></tr>';
-      legend_html += '<tr id="lights-at-night-anim" style="display:none"><td><div style="font-size: 14px">Lights at Night<span class="credit"> (NOAA)</span></div></td></tr>';
+      // legend_html += '<tr id="lights-at-night-legend" style="display: none"><td><div style="font-size: 17px">Lights at Night over 25 Years <span class="credit"> (NOAA, Google)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">Decrease</div><div style="margin-top: 4px; float: left; background-image: -webkit-linear-gradient(left, #4848FD, green 50%, red 100%);background-image: linear-gradient(left, #4848FD, green 50%, red 100%); width: 59%; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">Increase</div></td></tr>';
+      // legend_html += '<tr id="lights-at-night-anim" style="display:none"><td><div style="font-size: 14px">Lights at Night<span class="credit"> (NOAA)</span></div></td></tr>';
       // legend_html += '<tr id="lights-at-night-2012-legend" style="display: none"><td><div style="font-size: 17px">Lights at Night 2012 <span class="credit"> (NASA)</span></div></td></tr>';
       //legend_html += '<tr id="lights-at-night-2016-legend" style="display: none"><td><div style="font-size: 17px">Lights at Night 2016 <span class="credit"> (NASA)</span></div></td></tr>';
       legend_html += '<tr id="coral-bleaching-legend" style="display: none"><td><div style="float:left; background-color:#fa13ab; width:17px; height: 5px;"></div><div style="margin-left: 29px; margin-top: -5px; font-size: 17px">Coral Reefs <span class="credit"> (NOAA, UNEP-WCMC)</span></div></td></tr>';
@@ -6419,17 +6419,17 @@
       bePm25Layer = new WebglTimeMachineLayer(glb, canvasLayer, bePm25LayerOptions);
 
       // Lights at Night Animated
-      var lightsAtNightAnimOptions = {
-        numFrames: cached_ajax['lights-at-night-anim-times.json']['capture-times'].length,
-        fps: 4,
-        nlevels: 7,
-        width: 30000,
-        height: 30000,
-        greenScreen: true,
-        colormap: 'https://tiles.earthtime.org/colormaps/lights-at-night.png',
-        tileRootUrl: lightsAtNightAnimUrl
-      };
-      lightsAtNightAnimLayer = new WebglTimeMachineLayer(glb, canvasLayer, lightsAtNightAnimOptions);
+      // var lightsAtNightAnimOptions = {
+      //   numFrames: cached_ajax['lights-at-night-anim-times.json']['capture-times'].length,
+      //   fps: 4,
+      //   nlevels: 7,
+      //   width: 30000,
+      //   height: 30000,
+      //   greenScreen: true,
+      //   colormap: 'https://tiles.earthtime.org/colormaps/lights-at-night.png',
+      //   tileRootUrl: lightsAtNightAnimUrl
+      // };
+      // lightsAtNightAnimLayer = new WebglTimeMachineLayer(glb, canvasLayer, lightsAtNightAnimOptions);
 
       // For any raster map
       var defaultMapLayerOptions = {
@@ -6489,12 +6489,12 @@
       };
       coralBleachingLayer = new WebglVectorLayer2(glb, canvasLayer, coralBleachingUrl, coralBleachingLayerOptions);
 
-      var lightsAtNightMapLayerOptions = {
-        nLevels: 8,
-        tileWidth: 256,
-        tileHeight: 256
-      };
-      lightsAtNightMapLayer = new WebglMapLayer(glb, canvasLayer, lightsAtNightUrl, lightsAtNightMapLayerOptions);
+      // var lightsAtNightMapLayerOptions = {
+      //   nLevels: 8,
+      //   tileWidth: 256,
+      //   tileHeight: 256
+      // };
+      // lightsAtNightMapLayer = new WebglMapLayer(glb, canvasLayer, lightsAtNightUrl, lightsAtNightMapLayerOptions);
 
       // var lightsAtNight2012MapLayerOptions = {
       //   nLevels: 9,
@@ -8821,10 +8821,10 @@
         dscovrTimeMachineLayer.draw(dscovrView, tileViewVisibility);
       } else {
         // Static layers that cover the entire planet should be placed before the base layers in this manner.
-        if (showLightsAtNightLayer) { // Draw lightsAtNightMapLayer
-          var lightsAtNightLayerView = getLayerView(lightsAtNightMapLayer, landsatBaseMapLayer);
-          lightsAtNightMapLayer.draw(lightsAtNightLayerView);
-        }
+        // if (showLightsAtNightLayer) { // Draw lightsAtNightMapLayer
+        //   var lightsAtNightLayerView = getLayerView(lightsAtNightMapLayer, landsatBaseMapLayer);
+        //   lightsAtNightMapLayer.draw(lightsAtNightLayerView);
+        // }
         //  else if (showLightsAtNight2012Layer) { // Draw lightsAtNight2012MapLayer
         //   var lightsAtNight2012LayerView = getLayerView(lightsAtNight2012MapLayer, landsatBaseMapLayer);
         //   lightsAtNight2012MapLayer.draw(lightsAtNight2012LayerView);
@@ -8833,7 +8833,7 @@
           var lightsAtNight2016LayerView = getLayerView(lightsAtNight2016MapLayer, landsatBaseMapLayer);
           lightsAtNight2016MapLayer.draw(lightsAtNight2016LayerView);
         }*/ 
-        else if (showHansenLayer2) { // Draw Forest Loss/Gain
+        if (showHansenLayer2) { // Draw Forest Loss/Gain
           var hansenMapLayerView2 = getLayerView(hansenMapLayer2, landsatBaseMapLayer);
           hansenMapLayer2.draw(hansenMapLayerView2);
         } else if (visibleBaseMapLayer == "landsat") { // Draw Landsat
@@ -9303,9 +9303,10 @@
             options.color = [0.4921875, 0.7421875, 0.91015625, 1.0];
           } else if (visibleBaseMapLayer == "dark") {
             options.color = [0.203125, 0.203125, 0.203125, 1.0];
-          } else if (showLightsAtNightLayer) {
-            options.color = [0.0, 0.0, 0.0, 1.0];
-          }
+          } 
+          // else if (showLightsAtNightLayer) {
+          //   options.color = [0.0, 0.0, 0.0, 1.0];
+          // }
           var currentIndex = 0;
           for (var i = 0; i < times.length; i++) {
             if (timelapse.getCurrentCaptureTime() == times[i]) {
@@ -9351,9 +9352,10 @@
             options.color = [0.4921875, 0.7421875, 0.91015625, 1.0];
           } else if (visibleBaseMapLayer == "dark") {
             options.color = [0.203125, 0.203125, 0.203125, 1.0];
-          } else if (showLightsAtNightLayer) {
-            options.color = [0.0, 0.0, 0.0, 1.0];
-          }
+          } 
+          // else if (showLightsAtNightLayer) {
+          //   options.color = [0.0, 0.0, 0.0, 1.0];
+          // }
           var currentIndex = 0;
           for (var i = 0; i < times.length; i++) {
             if (timelapse.getCurrentCaptureTime() == times[i]) {
@@ -9707,10 +9709,10 @@
           bePm25Layer.draw(view, tileViewVisibility);
         }
 
-        if (showLightsAtNightAnimLayer) {
-          var view = getLayerView(lightsAtNightAnimLayer, landsatBaseMapLayer);
-          lightsAtNightAnimLayer.draw(view, tileViewVisibility);
-        }
+        // if (showLightsAtNightAnimLayer) {
+        //   var view = getLayerView(lightsAtNightAnimLayer, landsatBaseMapLayer);
+        //   lightsAtNightAnimLayer.draw(view, tileViewVisibility);
+        // }
 
         if (showChinaAviationLayer) {
           var chinaAviationLayerView = getLayerView(chinaAviationLayer, landsatBaseMapLayer);
