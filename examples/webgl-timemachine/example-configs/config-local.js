@@ -62,7 +62,6 @@ var EARTH_TIMELAPSE_CONFIG = {
   "showIomIdp": true,
   "showBerkeleyEarthTemperatureAnomaly": true,
   "showUppsalaConflict": true,
-  "showLightsAtNight2012": false,
   "showOmiNo2": true,
   "showChinaInfrastructure": false,
   "showBePm25": true,
