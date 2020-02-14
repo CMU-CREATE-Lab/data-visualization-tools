@@ -221,8 +221,8 @@
     var showVaccineConfidence = !!EARTH_TIMELAPSE_CONFIG.showVaccineConfidence;
     var showNdviAnomaly = !!EARTH_TIMELAPSE_CONFIG.showNdviAnomaly;
     var showEbola = !!EARTH_TIMELAPSE_CONFIG.showEbola;
-    var showWaterOccurrence = !!EARTH_TIMELAPSE_CONFIG.showWaterOccurrence;
-    var showWaterChange = !!EARTH_TIMELAPSE_CONFIG.showWaterChange;
+    // var showWaterOccurrence = !!EARTH_TIMELAPSE_CONFIG.showWaterOccurrence;
+    // var showWaterChange = !!EARTH_TIMELAPSE_CONFIG.showWaterChange;
     var showSeaLevelRise = !!EARTH_TIMELAPSE_CONFIG.showSeaLevelRise;
     var showCumulativeActiveMining = !!EARTH_TIMELAPSE_CONFIG.showCumulativeActiveMining;
     var showIomIdp = !!EARTH_TIMELAPSE_CONFIG.showIomIdp;
@@ -417,7 +417,8 @@
 
     var forestAlertsTimeMachineLayer, forestAlertsNoOverlayTimeMachineLayer, landsatBaseMapLayer, darkBaseMapLayer, lightBaseMapLayer, mcrmVectorLayer, countryLabelMapLayer, cityLabelMapLayer;
     var hansenMapLayer, hansenMapLayer2, crwTimeMachineLayer, animatedHansenLayer, himawariTimeMachineLayer, ndviAnomalyTimeMachineLayer;
-    var waterOccurrenceLayer, waterChangeLayer, usgsWindTurbineLayer, solarInstallsLayer, drillingLayer;
+    // var waterOccurrenceLayer, waterChangeLayer;
+    var usgsWindTurbineLayer, solarInstallsLayer, drillingLayer;
     var goes16TimeMachineLayer, goes16Aug2018TimeMachineLayer, goes16Nov2018TimeMachineLayer, dscovrTimeMachineLayer, annualGlobalPm25TimeMachineLayer;
     var globalWindPowerLayer;
     timelines.setTimeLine('global-wind-power-times', '1984', '2018', 1);
@@ -953,8 +954,8 @@
     // Note that x/y are swapped for these two lights at night data sets
     // var lightsAtNight2012Url = rootTilePath + "/lights-at-night-2012/{default}/{z}/{y}/{x}.jpg";
     //var lightsAtNight2016Url = rootTilePath + "/lights-at-night-2016/{default}/{z}/{y}/{x}.jpg";
-    var waterOccurrenceUrl = rootTilePath + "/water/occurrence_2018/{default}/{z}/{x}/{y}.png";
-    var waterChangeUrl = rootTilePath + "/water/change_2018/{default}/{z}/{x}/{y}.png";
+    // var waterOccurrenceUrl = rootTilePath + "/water/occurrence_2018/{default}/{z}/{x}/{y}.png";
+    // var waterChangeUrl = rootTilePath + "/water/change_2018/{default}/{z}/{x}/{y}.png";
 
     var wdpaUrl = rootTilePath + "/wdpaline-year/{z}/{x}/{y}.bin";
     var mcrmUrl = rootTilePath + "/coral/mcrm-lines-wrapdateline/{z}/{x}/{y}.bin";
@@ -1293,37 +1294,37 @@
       //// Layer toggle event handlers ////
       //
 
-      $("#show-water-occurrence").on("click", function() {
-        var $this = $(this);
-        if ($this.prop('checked')) {
-          waterOccurrenceLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-          if ($("#show-water-change").prop('checked')) {
-            $("#show-water-change").click();
-          }
-          showWaterOccurrenceLayer = true;
-          $("#water-occurrence-legend").show();
-        } else {
-          showWaterOccurrenceLayer = false;
-          cacheLastUsedLayer(waterOccurrenceLayer);
-          $("#water-occurrence-legend").hide();
-        }
-      }).prop('checked', showWaterOccurrenceLayer);
+      // $("#show-water-occurrence").on("click", function() {
+      //   var $this = $(this);
+      //   if ($this.prop('checked')) {
+      //     waterOccurrenceLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
+      //     if ($("#show-water-change").prop('checked')) {
+      //       $("#show-water-change").click();
+      //     }
+      //     showWaterOccurrenceLayer = true;
+      //     $("#water-occurrence-legend").show();
+      //   } else {
+      //     showWaterOccurrenceLayer = false;
+      //     cacheLastUsedLayer(waterOccurrenceLayer);
+      //     $("#water-occurrence-legend").hide();
+      //   }
+      // }).prop('checked', showWaterOccurrenceLayer);
 
-      $("#show-water-change").on("click", function() {
-        var $this = $(this);
-        if ($this.prop('checked')) {
-          waterChangeLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-          if ($("#show-water-occurrence").prop('checked')) {
-            $("#show-water-occurrence").click();
-          }
-          showWaterChangeLayer = true;
-          $("#water-change-legend").show();
-        } else {
-          showWaterChangeLayer = false;
-          cacheLastUsedLayer(waterChangeLayer);
-          $("#water-change-legend").hide();
-        }
-      }).prop('checked', showWaterChangeLayer);
+      // $("#show-water-change").on("click", function() {
+      //   var $this = $(this);
+      //   if ($this.prop('checked')) {
+      //     waterChangeLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
+      //     if ($("#show-water-occurrence").prop('checked')) {
+      //       $("#show-water-occurrence").click();
+      //     }
+      //     showWaterChangeLayer = true;
+      //     $("#water-change-legend").show();
+      //   } else {
+      //     showWaterChangeLayer = false;
+      //     cacheLastUsedLayer(waterChangeLayer);
+      //     $("#water-change-legend").hide();
+      //   }
+      // }).prop('checked', showWaterChangeLayer);
 
       $("#show-wdpa").on("click", function() {
         var $this = $(this);
@@ -4761,8 +4762,8 @@
     var showAnnualGlobalPm25TimeMachineLayer = false;
     var showForestAlertsTimeMachineLayer = false;
     var showForestAlertsNoOverlayTimeMachineLayer = false;
-    var showWaterOccurrenceLayer = false;
-    var showWaterChangeLayer = false;
+    // var showWaterOccurrenceLayer = false;
+    // var showWaterChangeLayer = false;
     var showUsgsWindTurbineLayer = false;
     var showGlobalWindPowerLayer = false;
     var showSolarInstallsLayer = false;
@@ -5326,8 +5327,8 @@
       var show_solar_installs = '<td class="solar-select"> <label for="show-solar-installs" name="sp"><input type="checkbox" id="show-solar-installs" />Solar PV (USA)</label></td>';
       var show_drilling = '<td class="drilling-select"><label for="show-drilling" name="drl"><input type="checkbox" id="show-drilling" />Oil/Gas Drilling (USA)</label></td>';
       var show_himawari = '<td class="timemachine himawari-select"><label for="show-himawari" name="h8_16"><input type="checkbox" id="show-himawari" />Himawari-8</label></td>';
-      var show_water_occurrence = '<td class="water-occurrence-select"><label for="show-water-occurrence" name="wo"><input type="checkbox" id="show-water-occurrence" />Water Occurrence</label></td>';
-      var show_water_change = '<td class="water-change-select"><label for="show-water-change" name="wc"><input type="checkbox" id="show-water-change" />Water Change</label></td>';
+      // var show_water_occurrence = '<td class="water-occurrence-select"><label for="show-water-occurrence" name="wo"><input type="checkbox" id="show-water-occurrence" />Water Occurrence</label></td>';
+      // var show_water_change = '<td class="water-change-select"><label for="show-water-change" name="wc"><input type="checkbox" id="show-water-change" />Water Change</label></td>';
       var show_monthly_refugees = '<td class="monthly-refugees-select"><label for="show-monthly-refugees" name="mmr"><input type="checkbox" id="show-monthly-refugees" />Mediterranean Refugees</label></td>';
       var show_annual_refugees = '<td class="annual-refugees-select"><label for="show-annual-refugees" name="ar"><input type="checkbox" id="show-annual-refugees" />Global Refugees</label></td>';
       var show_annual_returns = '<td class="annual-returns-select"><label for="show-annual-returns" name="arr"><input type="checkbox" id="show-annual-returns" />Global Returnees</label></td>';
@@ -5507,16 +5508,16 @@
       /* WATER CATEGORY */
       layer_html += '  <h3>Water</h3>';
       layer_html += '  <table id="category-water">';
-      if (showWaterOccurrence) {
-        layer_html += '   <tr>';
-        layer_html += show_water_occurrence;
-        layer_html += '   </tr>';
-      }
-      if (showWaterChange) {
-        layer_html += '   <tr>';
-        layer_html += show_water_change;
-        layer_html += '   </tr>';
-      }
+      // if (showWaterOccurrence) {
+      //   layer_html += '   <tr>';
+      //   layer_html += show_water_occurrence;
+      //   layer_html += '   </tr>';
+      // }
+      // if (showWaterChange) {
+      //   layer_html += '   <tr>';
+      //   layer_html += show_water_change;
+      //   layer_html += '   </tr>';
+      // }
       layer_html += '  </table>';
       /* END WATER CATEGORY */
 
@@ -6006,8 +6007,8 @@
       legend_html += '<tr id="global-wind-power-legend" style="display: none"><td><div style="background-color:#a0fe8f; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -16px; font-size: 17px">Global Wind Power <span class="credit"> (TheWindPower.net)</span></div></div></td></tr>';
       legend_html += '<tr id="solar-installs-legend" style="display: none"><td><div style="background-color:#7376b2; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -16px; font-size: 17px">US Solar Photovoltaic <span class="credit"> (NREL)</span></div></td></tr>';
       legend_html += '<tr id="drilling-legend" style="display: none"><td><div style="background-color:#eda46a; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">US Oil/Gas Drilling <span class="credit"> (Mark Egge, CREATE Lab, FracTracker)</span></div></td></tr>';
-      legend_html += '<tr id="water-occurrence-legend" style="display: none"><td><div style="font-size: 17px">Water Occurrence 1984-2018 <span class="credit"> (JRC)</span></div><div style="margin-left: 8px"><div style="font-size: 13px; float: left">100%</div><div style="font-size: 13px; float: right;">0%</div><div class="waterLegendGradient" style="clear: both;"></div><div style="font-size: 13px; float: left">Always water</div><div style="font-size: 13px; float: right">Never water</div></div></td></tr>';
-      legend_html += '<tr id="water-change-legend" style="display: none"><td><div style="font-size: 17px">Water Change 1984-1999 to 2000-2018 <span class="credit"> (JRC)</span></div><div style="margin-left: 8px"><div class="waterChangeLegendGradient" style="clear: both;"></div><div style="font-size: 13px; float: left">Water Decrease</div><div style="font-size: 13px; float: right">Water Increase</div></div></td></tr>';
+      // legend_html += '<tr id="water-occurrence-legend" style="display: none"><td><div style="font-size: 17px">Water Occurrence 1984-2018 <span class="credit"> (JRC)</span></div><div style="margin-left: 8px"><div style="font-size: 13px; float: left">100%</div><div style="font-size: 13px; float: right;">0%</div><div class="waterLegendGradient" style="clear: both;"></div><div style="font-size: 13px; float: left">Always water</div><div style="font-size: 13px; float: right">Never water</div></div></td></tr>';
+      // legend_html += '<tr id="water-change-legend" style="display: none"><td><div style="font-size: 17px">Water Change 1984-1999 to 2000-2018 <span class="credit"> (JRC)</span></div><div style="margin-left: 8px"><div class="waterChangeLegendGradient" style="clear: both;"></div><div style="font-size: 13px; float: left">Water Decrease</div><div style="font-size: 13px; float: right">Water Increase</div></div></td></tr>';
       legend_html += '<tr id="monthly-refugees-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(right, #ff0000 0%, #ffffff 100%);background: -webkit-linear-gradient(left, #ff0000 0%,#ffffff 100%); background: linear-gradient(to right, #ff0000 0%,#ffffff 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Refugees Crossing the Mediterranean: Jan 2014 - Jun 2016 <span class="credit"> (UNHCR)</span></div></td></tr>';
       if (subsampleAnnualRefugees)
         legend_html += '<tr id="annual-refugees-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(right, #da7300 25%, red 100%);background: -webkit-linear-gradient(left, #da7300 25%,red 100%); background: linear-gradient(to right, #da7300 25%,red 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Global Refugee Flow: 2000 - 2015 <span class="credit"> (UNHCR) <br> 1 dot = ~17 refugees</span></div></td></tr>';
@@ -6458,8 +6459,8 @@
       darkBaseMapLayer = new WebglMapLayer(glb, canvasLayer, darkMapUrl, defaultBaseMapLayerOptions);
       hansenMapLayer = new WebglMapLayer(glb, canvasLayer, gfcTransUrl, defaultMapLayerOptions);
       hansenMapLayer2 = new WebglMapLayer(glb, canvasLayer, gfcLossGainUrl, defaultMapLayerOptions);
-      waterOccurrenceLayer = new WebglMapLayer(glb, canvasLayer, waterOccurrenceUrl, defaultBaseMapLayerOptions);
-      waterChangeLayer = new WebglMapLayer(glb, canvasLayer, waterChangeUrl, defaultBaseMapLayerOptions);
+      // waterOccurrenceLayer = new WebglMapLayer(glb, canvasLayer, waterOccurrenceUrl, defaultBaseMapLayerOptions);
+      // waterChangeLayer = new WebglMapLayer(glb, canvasLayer, waterChangeUrl, defaultBaseMapLayerOptions);
 
       landBorderLayer = new WebglMapLayer(glb, canvasLayer, landBorderUrl, defaultBaseMapLayerOptions);
       countryLabelMapLayer = new WebglMapLayer(glb, canvasLayer, countryLabelMapUrl, defaultBaseMapLayerOptions);
@@ -8889,17 +8890,17 @@
         //   vsiLayer.draw(vsiLayerView);
         // }
 
-        // Draw Water Occurrence
-        if (showWaterOccurrenceLayer) {
-          var waterOccurrenceView = getLayerView(waterOccurrenceLayer, landsatBaseMapLayer);
-          waterOccurrenceLayer.draw(waterOccurrenceView);
-        }
+        // // Draw Water Occurrence
+        // if (showWaterOccurrenceLayer) {
+        //   var waterOccurrenceView = getLayerView(waterOccurrenceLayer, landsatBaseMapLayer);
+        //   waterOccurrenceLayer.draw(waterOccurrenceView);
+        // }
 
-        // Draw Water Change
-        if (showWaterChangeLayer) {
-          var waterChangeView = getLayerView(waterChangeLayer, landsatBaseMapLayer);
-          waterChangeLayer.draw(waterChangeView);
-        }
+        // // Draw Water Change
+        // if (showWaterChangeLayer) {
+        //   var waterChangeView = getLayerView(waterChangeLayer, landsatBaseMapLayer);
+        //   waterChangeLayer.draw(waterChangeView);
+        // }
 
         // Draw Animated Hansen Layer
         if (showAnimatedHansenLayer) {

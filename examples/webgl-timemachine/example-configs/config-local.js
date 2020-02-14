@@ -55,8 +55,6 @@ var EARTH_TIMELAPSE_CONFIG = {
   "showVaccineConfidence": true,
   "showNdviAnomaly": true,
   "showEbola": true,
-  "showWaterOccurrence" : true,
-  "showWaterChange" : true,
   "showCumulativeActiveMining": false,
   "showIomIdp": true,
   "showBerkeleyEarthTemperatureAnomaly": true,
