@@ -207,7 +207,7 @@
     var subsampleAnnualReturns = !!EARTH_TIMELAPSE_CONFIG.subsampleAnnualReturns;
     var showAnnualReturns = !!EARTH_TIMELAPSE_CONFIG.showAnnualReturns;
     var showGlobalWindPower = !!EARTH_TIMELAPSE_CONFIG.showGlobalWindPower;
-    // var showVsi = !!EARTH_TIMELAPSE_CONFIG.showVsi;
+    var showVsi = !!EARTH_TIMELAPSE_CONFIG.showVsi;
     var showHealthImpact = !!EARTH_TIMELAPSE_CONFIG.showHealthImpact;
     var showZika = !!EARTH_TIMELAPSE_CONFIG.showZika;
     var showDengue = !!EARTH_TIMELAPSE_CONFIG.showDengue;
@@ -221,20 +221,20 @@
     var showVaccineConfidence = !!EARTH_TIMELAPSE_CONFIG.showVaccineConfidence;
     var showNdviAnomaly = !!EARTH_TIMELAPSE_CONFIG.showNdviAnomaly;
     var showEbola = !!EARTH_TIMELAPSE_CONFIG.showEbola;
-    // var showWaterOccurrence = !!EARTH_TIMELAPSE_CONFIG.showWaterOccurrence;
-    // var showWaterChange = !!EARTH_TIMELAPSE_CONFIG.showWaterChange;
+    var showWaterOccurrence = !!EARTH_TIMELAPSE_CONFIG.showWaterOccurrence;
+    var showWaterChange = !!EARTH_TIMELAPSE_CONFIG.showWaterChange;
     var showSeaLevelRise = !!EARTH_TIMELAPSE_CONFIG.showSeaLevelRise;
     var showCumulativeActiveMining = !!EARTH_TIMELAPSE_CONFIG.showCumulativeActiveMining;
     var showIomIdp = !!EARTH_TIMELAPSE_CONFIG.showIomIdp;
     var showBerkeleyEarthTemperatureAnomaly = !!EARTH_TIMELAPSE_CONFIG.showBerkeleyEarthTemperatureAnomaly;
     var showUppsalaConflict = !!EARTH_TIMELAPSE_CONFIG.showUppsalaConflict;
-    // var showLightsAtNight = typeof(EARTH_TIMELAPSE_CONFIG.showLightsAtNight) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showLightsAtNight;
-    // var showLightsAtNight2012 = !!EARTH_TIMELAPSE_CONFIG.showLightsAtNight2012;
-    //var showLightsAtNight2016 = !!EARTH_TIMELAPSE_CONFIG.showLightsAtNight2016;
+    var showLightsAtNight = typeof(EARTH_TIMELAPSE_CONFIG.showLightsAtNight) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showLightsAtNight;
+    var showLightsAtNight2012 = !!EARTH_TIMELAPSE_CONFIG.showLightsAtNight2012;
+    var showLightsAtNight2016 = !!EARTH_TIMELAPSE_CONFIG.showLightsAtNight2016;
     var showOmiNo2 = !!EARTH_TIMELAPSE_CONFIG.showOmiNo2;
     var showChinaInfrastructure = !!EARTH_TIMELAPSE_CONFIG.showChinaInfrastructure;
     var showBePm25 = !!EARTH_TIMELAPSE_CONFIG.showBePm25;
-    // var showLightsAtNightAnim = !!EARTH_TIMELAPSE_CONFIG.showLightsAtNightAnim;
+    var showLightsAtNightAnim = !!EARTH_TIMELAPSE_CONFIG.showLightsAtNightAnim;
     var showExpandingCities = !!EARTH_TIMELAPSE_CONFIG.showExpandingCities;
     var showIrena = !!EARTH_TIMELAPSE_CONFIG.showIrena;
     var showCityLabelMap = !!EARTH_TIMELAPSE_CONFIG.showCityLabelMap;
@@ -416,15 +416,14 @@
     //
 
     var forestAlertsTimeMachineLayer, forestAlertsNoOverlayTimeMachineLayer, landsatBaseMapLayer, darkBaseMapLayer, lightBaseMapLayer, mcrmVectorLayer, countryLabelMapLayer, cityLabelMapLayer;
-    var hansenMapLayer, hansenMapLayer2, crwTimeMachineLayer, animatedHansenLayer, himawariTimeMachineLayer, ndviAnomalyTimeMachineLayer;
-    // var waterOccurrenceLayer, waterChangeLayer;
-    var usgsWindTurbineLayer, solarInstallsLayer, drillingLayer;
+    var hansenMapLayer, hansenMapLayer2, lightsAtNightMapLayer, lightsAtNight2012MapLayer, lightsAtNight2016MapLayer, crwTimeMachineLayer, animatedHansenLayer, himawariTimeMachineLayer, ndviAnomalyTimeMachineLayer;
+    var waterOccurrenceLayer, waterChangeLayer, usgsWindTurbineLayer, solarInstallsLayer, drillingLayer;
     var goes16TimeMachineLayer, goes16Aug2018TimeMachineLayer, goes16Nov2018TimeMachineLayer, dscovrTimeMachineLayer, annualGlobalPm25TimeMachineLayer;
     var globalWindPowerLayer;
     timelines.setTimeLine('global-wind-power-times', '1984', '2018', 1);
     var annualRefugeesLayer;
     var annualReturnsLayer;
-    // var vsiLayer;
+    var vsiLayer;
     var healthImpactLayer;
     var zikaLayer, dengueLayer, chikuLayer;
     var viirsLayer;
@@ -455,7 +454,7 @@
     timelines.setTimeLine('china-reservoirs-times', '1950', '2012', 1);
     var chinaWasteTreatmentPlantsLayer;
     var bePm25Layer;
-    // var lightsAtNightAnimLayer;
+    var lightsAtNightAnimLayer;
     var expandingCitiesLayer;
     timelines.setTimeLine('expanding-cities-times', '1955', '2030', 5);
     var irenaSolarLayer;
@@ -948,14 +947,14 @@
     var countryLabelMapUrl = useGoogleMaps ? googleMapsCountryLabelUrl : omtCountryLabelUrl;
     var cityLabelMapUrl = useGoogleMaps ? googleMapsCityLabelUrl : googleMapsCityLabelUrl;
 
-    // var lightsAtNightUrl = rootTilePath + "/lights-at-night/{default}/{z}/{x}/{y}.png";
+    var lightsAtNightUrl = rootTilePath + "/lights-at-night/{default}/{z}/{x}/{y}.png";
     // TODO: Change to rootTilePath once it is uploaded to Google Storage
-    // var lightsAtNightAnimUrl = "https://tiles.earthtime.org/lan-anim.timemachine/crf18-4fps-1424x800";
+    var lightsAtNightAnimUrl = "https://tiles.earthtime.org/lan-anim.timemachine/crf18-4fps-1424x800";
     // Note that x/y are swapped for these two lights at night data sets
-    // var lightsAtNight2012Url = rootTilePath + "/lights-at-night-2012/{default}/{z}/{y}/{x}.jpg";
-    //var lightsAtNight2016Url = rootTilePath + "/lights-at-night-2016/{default}/{z}/{y}/{x}.jpg";
-    // var waterOccurrenceUrl = rootTilePath + "/water/occurrence_2018/{default}/{z}/{x}/{y}.png";
-    // var waterChangeUrl = rootTilePath + "/water/change_2018/{default}/{z}/{x}/{y}.png";
+    var lightsAtNight2012Url = rootTilePath + "/lights-at-night-2012/{default}/{z}/{y}/{x}.jpg";
+    var lightsAtNight2016Url = rootTilePath + "/lights-at-night-2016/{default}/{z}/{y}/{x}.jpg";
+    var waterOccurrenceUrl = rootTilePath + "/water/occurrence_2018/{default}/{z}/{x}/{y}.png";
+    var waterChangeUrl = rootTilePath + "/water/change_2018/{default}/{z}/{x}/{y}.png";
 
     var wdpaUrl = rootTilePath + "/wdpaline-year/{z}/{x}/{y}.bin";
     var mcrmUrl = rootTilePath + "/coral/mcrm-lines-wrapdateline/{z}/{x}/{y}.bin";
@@ -979,7 +978,7 @@
       annualReturnsUrl = rootTilePath + "/annual-returns/refugee-returns-subsampled.bin";
     }
 
-    // var vsiUrl = rootTilePath + "/vsi/tiles/{default}/{z}/{x}/{y}.png";
+    var vsiUrl = rootTilePath + "/vsi/tiles/{default}/{z}/{x}/{y}.png";
     var healthImpactUrl = rootTilePath + "/health-impact/{z}/{x}/{y}.bin";
     var zikaUrl = rootTilePath + "/pandemics/zika/{z}/{x}/{y}.bin";
     var dengueUrl = rootTilePath + "/pandemics/dengue/{z}/{x}/{y}.bin";
@@ -1294,37 +1293,37 @@
       //// Layer toggle event handlers ////
       //
 
-      // $("#show-water-occurrence").on("click", function() {
-      //   var $this = $(this);
-      //   if ($this.prop('checked')) {
-      //     waterOccurrenceLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      //     if ($("#show-water-change").prop('checked')) {
-      //       $("#show-water-change").click();
-      //     }
-      //     showWaterOccurrenceLayer = true;
-      //     $("#water-occurrence-legend").show();
-      //   } else {
-      //     showWaterOccurrenceLayer = false;
-      //     cacheLastUsedLayer(waterOccurrenceLayer);
-      //     $("#water-occurrence-legend").hide();
-      //   }
-      // }).prop('checked', showWaterOccurrenceLayer);
+      $("#show-water-occurrence").on("click", function() {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          waterOccurrenceLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
+          if ($("#show-water-change").prop('checked')) {
+            $("#show-water-change").click();
+          }
+          showWaterOccurrenceLayer = true;
+          $("#water-occurrence-legend").show();
+        } else {
+          showWaterOccurrenceLayer = false;
+          cacheLastUsedLayer(waterOccurrenceLayer);
+          $("#water-occurrence-legend").hide();
+        }
+      }).prop('checked', showWaterOccurrenceLayer);
 
-      // $("#show-water-change").on("click", function() {
-      //   var $this = $(this);
-      //   if ($this.prop('checked')) {
-      //     waterChangeLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      //     if ($("#show-water-occurrence").prop('checked')) {
-      //       $("#show-water-occurrence").click();
-      //     }
-      //     showWaterChangeLayer = true;
-      //     $("#water-change-legend").show();
-      //   } else {
-      //     showWaterChangeLayer = false;
-      //     cacheLastUsedLayer(waterChangeLayer);
-      //     $("#water-change-legend").hide();
-      //   }
-      // }).prop('checked', showWaterChangeLayer);
+      $("#show-water-change").on("click", function() {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          waterChangeLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
+          if ($("#show-water-occurrence").prop('checked')) {
+            $("#show-water-occurrence").click();
+          }
+          showWaterChangeLayer = true;
+          $("#water-change-legend").show();
+        } else {
+          showWaterChangeLayer = false;
+          cacheLastUsedLayer(waterChangeLayer);
+          $("#water-change-legend").hide();
+        }
+      }).prop('checked', showWaterChangeLayer);
 
       $("#show-wdpa").on("click", function() {
         var $this = $(this);
@@ -2124,74 +2123,73 @@
         }
       }).prop('checked', showDrillingLayer);
 
-      // $("#show-lights-at-night").on("click", function() {
-      //   var $this = $(this);
-      //   if ($this.prop('checked')) {
-      //     lightsAtNightMapLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      //     if ($("#show-lights-at-night-2016").prop('checked')) {
-      //       $("#show-lights-at-night-2016").click();
-      //     }
-      //     if ($("#show-lights-at-night-2012").prop('checked')) {
-      //       $("#show-lights-at-night-2012").click();
-      //     }
-      //     showLightsAtNightLayer = true;
-      //     timelineType = "none";
-      //     $("#lights-at-night-legend").show();
-      //   } else {
-      //     showLightsAtNightLayer = false;
-      //     cacheLastUsedLayer(lightsAtNightMapLayer);
-      //     timelineType = "customUI";
-      //     $("#lights-at-night-legend").hide();
-      //   }
-      // }).prop('checked', showLightsAtNightLayer);
+      $("#show-lights-at-night").on("click", function() {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          lightsAtNightMapLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
+          if ($("#show-lights-at-night-2016").prop('checked')) {
+            $("#show-lights-at-night-2016").click();
+          }
+          if ($("#show-lights-at-night-2012").prop('checked')) {
+            $("#show-lights-at-night-2012").click();
+          }
+          showLightsAtNightLayer = true;
+          timelineType = "none";
+          $("#lights-at-night-legend").show();
+        } else {
+          showLightsAtNightLayer = false;
+          cacheLastUsedLayer(lightsAtNightMapLayer);
+          timelineType = "customUI";
+          $("#lights-at-night-legend").hide();
+        }
+      }).prop('checked', showLightsAtNightLayer);
 
-      // $("#show-lights-at-night-2012").on("click", function() {
-      //   var $this = $(this);
-      //   if ($this.prop('checked')) {
-      //     lightsAtNight2012MapLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      //     if ($("#show-lights-at-night").prop('checked')) {
-      //       $("#show-lights-at-night").click();
-      //     }
-      //     if ($("#show-lights-at-night-2016").prop('checked')) {
-      //       $("#show-lights-at-night-2016").click();
-      //     }
-      //     showLightsAtNight2012Layer = true;
-      //     timelineType = "none";
-      //     $("#lights-at-night-2012-legend").show();
-      //     $("#baseLayerCreditContainer").hide();
-      //   } else {
-      //     showLightsAtNight2012Layer = false;
-      //     cacheLastUsedLayer(lightsAtNight2012MapLayer);
-      //     timelineType = "customUI";
-      //     $("#lights-at-night-2012-legend").hide();
-      //     $("#baseLayerCreditContainer").show();
-      //   }
-      // }).prop('checked', showLightsAtNight2012Layer);
+      $("#show-lights-at-night-2012").on("click", function() {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          lightsAtNight2012MapLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
+          if ($("#show-lights-at-night").prop('checked')) {
+            $("#show-lights-at-night").click();
+          }
+          if ($("#show-lights-at-night-2016").prop('checked')) {
+            $("#show-lights-at-night-2016").click();
+          }
+          showLightsAtNight2012Layer = true;
+          timelineType = "none";
+          $("#lights-at-night-2012-legend").show();
+          $("#baseLayerCreditContainer").hide();
+        } else {
+          showLightsAtNight2012Layer = false;
+          cacheLastUsedLayer(lightsAtNight2012MapLayer);
+          timelineType = "customUI";
+          $("#lights-at-night-2012-legend").hide();
+          $("#baseLayerCreditContainer").show();
+        }
+      }).prop('checked', showLightsAtNight2012Layer);
 
-      // $("#show-lights-at-night-anim").on("click", function() {
-      //   var $this = $(this);
-      //   if ($this.prop('checked')) {
-      //     lightsAtNightAnimLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      //     showLightsAtNightAnimLayer = true;
-      //     setActiveLayersWithTimeline(1);
-      //     timelineType = "customUI";
-      //     requestNewTimeline("lights-at-night-anim-times.json", timelineType);
-      //     var v = timelapse.getVideoset();
-      //     v.setFps(4);
-      //     $("#lights-at-night-anim").show();
-      //   } else {
-      //     showLightsAtNightAnimLayer = false;
-      //     cacheLastUsedLayer(lightsAtNightAnimLayer);
-      //     setActiveLayersWithTimeline(-1);
-      //     timelineType = "customUI";
-      //     requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-      //     var v = timelapse.getVideoset();
-      //     v.setFps(10);
-      //     $("#lights-at-night-anim").hide();
-      //   }
-      // }).prop('checked', showLightsAtNightAnimLayer);
+      $("#show-lights-at-night-anim").on("click", function() {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          lightsAtNightAnimLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
+          showLightsAtNightAnimLayer = true;
+          setActiveLayersWithTimeline(1);
+          timelineType = "customUI";
+          requestNewTimeline("lights-at-night-anim-times.json", timelineType);
+          var v = timelapse.getVideoset();
+          v.setFps(4);
+          $("#lights-at-night-anim").show();
+        } else {
+          showLightsAtNightAnimLayer = false;
+          cacheLastUsedLayer(lightsAtNightAnimLayer);
+          setActiveLayersWithTimeline(-1);
+          timelineType = "customUI";
+          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+          var v = timelapse.getVideoset();
+          v.setFps(10);
+          $("#lights-at-night-anim").hide();
+        }
+      }).prop('checked', showLightsAtNightAnimLayer);
 
-      /*
       $("#show-lights-at-night-2016").on("click", function() {
         var $this = $(this);
         if ($this.prop('checked')) {
@@ -2214,7 +2212,6 @@
           $("#baseLayerCreditContainer").show();
         }
       }).prop('checked', showLightsAtNight2016Layer);
-      */
 
       $("#show-monthly-refugees").on("click", function() {
         var $this = $(this);
@@ -2295,20 +2292,20 @@
         }
       }).prop('checked', showAnnualReturnsLayer);
 
-      // $("#show-vsi").on("click", function() {
-      //   var $this = $(this);
-      //   if ($this.prop('checked')) {
-      //     vsiLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      //     showVsiLayer = true;
-      //     timelineType = "none";
-      //     $("#vsi-legend").show();
-      //   } else {
-      //     showVsiLayer = false;
-      //     cacheLastUsedLayer(vsiLayer);
-      //     timelineType = "customUI";
-      //     $("#vsi-legend").hide();
-      //   }
-      // }).prop('checked', showVsiLayer);
+      $("#show-vsi").on("click", function() {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          vsiLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
+          showVsiLayer = true;
+          timelineType = "none";
+          $("#vsi-legend").show();
+        } else {
+          showVsiLayer = false;
+          cacheLastUsedLayer(vsiLayer);
+          timelineType = "customUI";
+          $("#vsi-legend").hide();
+        }
+      }).prop('checked', showVsiLayer);
 
       $("#show-health-impact-rcp2p6").on("click", function() {
         var $this = $(this);
@@ -4292,7 +4289,7 @@
           showAnnotationResumeExit();
         }
         if (isMobileDevice || isIEButNotEdge) {
-          if (visibleBaseMapLayer != "landsat" || showHansenLayer2) {
+          if (visibleBaseMapLayer != "landsat" || showLightsAtNightLayer || showLightsAtNight2012Layer || showLightsAtNight2016Layer || showHansenLayer2 || showVsiLayer) {
             UTIL.setDrawState(false);
           } else {
             UTIL.setDrawState(true);
@@ -4400,7 +4397,7 @@
         }
 
         // Hide any timelines that are visible if we have no layers up that require a timeline or we are a static layer that fully covers the entire globe
-        if (activeLayersWithTimeline <= 0 || (visibleBaseMapLayer == "landsat" && activeLayersWithTimeline == 1 && (showHansenLayer2))) {
+        if (activeLayersWithTimeline <= 0 || (visibleBaseMapLayer == "landsat" && activeLayersWithTimeline == 1 && (showLightsAtNightLayer || showLightsAtNight2012Layer || showLightsAtNight2016Layer || showHansenLayer2 || showVsiLayer))) {
           $(".controls, .customControl").hide();
           $(".customControl").hide();
         } else if (activeLayersWithTimeline > 0) {
@@ -4427,7 +4424,7 @@
         }
 
         if ((activeLayersWithTimeline >= 1 && visibleBaseMapLayer != "landsat") ||
-            (activeLayersWithTimeline == 1 && visibleBaseMapLayer == "landsat" && !(showHansenLayer2))) {
+            (activeLayersWithTimeline == 1 && visibleBaseMapLayer == "landsat" && !(showLightsAtNightLayer || showLightsAtNight2012Layer || showLightsAtNight2016Layer || showHansenLayer2 || showVsiLayer))) {
           if (timelineType == "customUI") {
             $(".customControl").show().children().show();
           } else if (timelineType == "defaultUI") {
@@ -4747,9 +4744,9 @@
     var showHansenLayer2 = false;
     var showViirsLayer = false;
     var showCoralBleachingLayer = false;
-    // var showLightsAtNightLayer = false;
-    // var showLightsAtNight2012Layer = false;
-    //var showLightsAtNight2016Layer = false;
+    var showLightsAtNightLayer = false;
+    var showLightsAtNight2012Layer = false;
+    var showLightsAtNight2016Layer = false;
     var showFishingPprTimeMachineLayer = false;
     var showCrwTimeMachineLayer = false;
     var showNdviAnomalyTimeMachineLayer = false;
@@ -4762,8 +4759,8 @@
     var showAnnualGlobalPm25TimeMachineLayer = false;
     var showForestAlertsTimeMachineLayer = false;
     var showForestAlertsNoOverlayTimeMachineLayer = false;
-    // var showWaterOccurrenceLayer = false;
-    // var showWaterChangeLayer = false;
+    var showWaterOccurrenceLayer = false;
+    var showWaterChangeLayer = false;
     var showUsgsWindTurbineLayer = false;
     var showGlobalWindPowerLayer = false;
     var showSolarInstallsLayer = false;
@@ -4771,7 +4768,7 @@
     var showMonthlyRefugeesLayer = false;
     var showAnnualRefugeesLayer = false;
     var showAnnualReturnsLayer = false;
-    // var showVsiLayer = false;
+    var showVsiLayer = false;
     var showHealthImpactLayer = false;
     var showHealthImpactRcp = [false, false, false, false]; // 2.6, 4.5, 6.0, 8.5
     var showZikaLayer = false;
@@ -4799,7 +4796,7 @@
     var showChinaReservoirsLayer = false;
     var showChinaWasteTreatmentPlantsLayer = false;
     var showBePm25Layer = false;
-    // var showLightsAtNightAnimLayer = false;
+    var showLightsAtNightAnimLayer = false;
     var showCountryLabelMapLayer = false;
     var showExpandingCitiesLayer = false;
     var showIrenaSolarLayer = false;
@@ -5315,11 +5312,10 @@
       var show_viirs = '<td class="viirs-select"><label for="show-viirs" name="viirs"><input type="checkbox" id="show-viirs" />Fires at Night</label></td>';
       var show_forest_alerts = '<td class="forest-alerts-select"><label for="show-forest-alerts" name="fla"><input type="checkbox" id="show-forest-alerts" />Forest Loss Alerts</label></td>';
       var show_forest_alert_no_overlay = '<td class="forest-alerts-no-overlay-select"><label for="show-forest-alerts-no-overlay" name="flano"><input type="checkbox" id="show-forest-alerts-no-overlay" />Forest Loss Alerts <span style="font-size: 14px">(No Overlay)</span></label></td>';
-      // var show_lights_at_night = '<td class="lights-at-night-select"><label for="show-lights-at-night" name="lan"><input type="checkbox" id="show-lights-at-night" />Lights at Night (25 years)</label></td>';
-      // var show_lights_at_night_anim = '<td class="lights-at-night-anim-select"><label for="show-lights-at-night-anim" name="lan-anim"><input type="checkbox" id="show-lights-at-night-anim" />Lights at Night (Animated)</label></td>';
-      // var show_lights_at_night_2012 = '<td class="lights-at-night-2012-select"><label for="show-lights-at-night-2012" name="lan12"><input type="checkbox" id="show-lights-at-night-2012" />Lights at Night 2012</label></td>';
-      /*var show_lights_at_night_2016 = '<td class="lights-at-night-2016-select"><label for="show-lights-at-night-2016" name="lan16"><input type="checkbox" id="show-lights-at-night-2016" />Lights at Night 2016</label></td>';
-      */
+      var show_lights_at_night = '<td class="lights-at-night-select"><label for="show-lights-at-night" name="lan"><input type="checkbox" id="show-lights-at-night" />Lights at Night (25 years)</label></td>';
+      var show_lights_at_night_anim = '<td class="lights-at-night-anim-select"><label for="show-lights-at-night-anim" name="lan-anim"><input type="checkbox" id="show-lights-at-night-anim" />Lights at Night (Animated)</label></td>';
+      var show_lights_at_night_2012 = '<td class="lights-at-night-2012-select"><label for="show-lights-at-night-2012" name="lan12"><input type="checkbox" id="show-lights-at-night-2012" />Lights at Night 2012</label></td>';
+      var show_lights_at_night_2016 = '<td class="lights-at-night-2016-select"><label for="show-lights-at-night-2016" name="lan16"><input type="checkbox" id="show-lights-at-night-2016" />Lights at Night 2016</label></td>';
       var show_coral = '<td class="coral-select"><label for="show-coral" name="cb"><input type="checkbox" id="show-coral"/>Coral Bleaching</label></td>';
       var show_coral_bleaching_alerts = '<td class="coral-bleaching-select"><label for="show-coral-bleaching-alerts" name="crw"><input type="checkbox" id="show-coral-bleaching-alerts" />Coral Reef Watch</label></td>';
       var show_usgs_windturbine = '<td class="wind-select"><label for="show-usgs-windturbine" name="wp"><input type="checkbox" id="show-usgs-windturbine" />Wind Power (USA)</span></label></td>';
@@ -5327,12 +5323,12 @@
       var show_solar_installs = '<td class="solar-select"> <label for="show-solar-installs" name="sp"><input type="checkbox" id="show-solar-installs" />Solar PV (USA)</label></td>';
       var show_drilling = '<td class="drilling-select"><label for="show-drilling" name="drl"><input type="checkbox" id="show-drilling" />Oil/Gas Drilling (USA)</label></td>';
       var show_himawari = '<td class="timemachine himawari-select"><label for="show-himawari" name="h8_16"><input type="checkbox" id="show-himawari" />Himawari-8</label></td>';
-      // var show_water_occurrence = '<td class="water-occurrence-select"><label for="show-water-occurrence" name="wo"><input type="checkbox" id="show-water-occurrence" />Water Occurrence</label></td>';
-      // var show_water_change = '<td class="water-change-select"><label for="show-water-change" name="wc"><input type="checkbox" id="show-water-change" />Water Change</label></td>';
+      var show_water_occurrence = '<td class="water-occurrence-select"><label for="show-water-occurrence" name="wo"><input type="checkbox" id="show-water-occurrence" />Water Occurrence</label></td>';
+      var show_water_change = '<td class="water-change-select"><label for="show-water-change" name="wc"><input type="checkbox" id="show-water-change" />Water Change</label></td>';
       var show_monthly_refugees = '<td class="monthly-refugees-select"><label for="show-monthly-refugees" name="mmr"><input type="checkbox" id="show-monthly-refugees" />Mediterranean Refugees</label></td>';
       var show_annual_refugees = '<td class="annual-refugees-select"><label for="show-annual-refugees" name="ar"><input type="checkbox" id="show-annual-refugees" />Global Refugees</label></td>';
       var show_annual_returns = '<td class="annual-returns-select"><label for="show-annual-returns" name="arr"><input type="checkbox" id="show-annual-returns" />Global Returnees</label></td>';
-      // var show_vsi = '<td class="vsi-select"><label for="show-vsi" name="vsi"><input type="checkbox" id="show-vsi" />Vegetation Sensitivity Index</label></td>';
+      var show_vsi = '<td class="vsi-select"><label for="show-vsi" name="vsi"><input type="checkbox" id="show-vsi" />Vegetation Sensitivity Index</label></td>';
       var show_health_impact_rcp2p6 = '<td class="health-impact-rcp2p6-select"><label for="show-health-impact-rcp2p6" name="hi-rcp2p6"><input type="checkbox" id="show-health-impact-rcp2p6" />Nutritional Deficiency RCP2.6</label></td>';
       var show_health_impact_rcp4p5 = '<td class="health-impact-rcp4p5-select"><label for="show-health-impact-rcp4p5" name="hi-rcp4p5"><input type="checkbox" id="show-health-impact-rcp4p5" />Nutritional Deficiency RCP4.5</label></td>';
       var show_health_impact_rcp6p0 = '<td class="health-impact-rcp6p0-select"><label for="show-health-impact-rcp6p0" name="hi-rcp6p0"><input type="checkbox" id="show-health-impact-rcp6p0" />Nutritional Deficiency RCP6.0</label></td>';
@@ -5508,16 +5504,16 @@
       /* WATER CATEGORY */
       layer_html += '  <h3>Water</h3>';
       layer_html += '  <table id="category-water">';
-      // if (showWaterOccurrence) {
-      //   layer_html += '   <tr>';
-      //   layer_html += show_water_occurrence;
-      //   layer_html += '   </tr>';
-      // }
-      // if (showWaterChange) {
-      //   layer_html += '   <tr>';
-      //   layer_html += show_water_change;
-      //   layer_html += '   </tr>';
-      // }
+      if (showWaterOccurrence) {
+        layer_html += '   <tr>';
+        layer_html += show_water_occurrence;
+        layer_html += '   </tr>';
+      }
+      if (showWaterChange) {
+        layer_html += '   <tr>';
+        layer_html += show_water_change;
+        layer_html += '   </tr>';
+      }
       layer_html += '  </table>';
       /* END WATER CATEGORY */
 
@@ -5548,11 +5544,11 @@
         layer_html += show_ndvi_anomaly;
         layer_html += '    </tr>';
       }
-      // if (showVsi) {
-      //   layer_html += '   <tr>';
-      //   layer_html += show_vsi;
-      //   layer_html += '   </tr>';
-      // }
+      if (showVsi) {
+        layer_html += '   <tr>';
+        layer_html += show_vsi;
+        layer_html += '   </tr>';
+      }
       if (showBerkeleyEarthTemperatureAnomaly) {
         layer_html += '    <tr>';
         layer_html += show_berkeley_earth_temperature_anomaly;
@@ -5810,27 +5806,26 @@
       /* URBANIZATION CATEGORY */
       layer_html += '  <h3>Urbanization</h3>';
       layer_html += '  <table id="category-urbanization">';
-      // if (showLightsAtNight) {
-      //   layer_html += '    <tr>';
-      //   layer_html += show_lights_at_night;
-      //   layer_html += '    </tr>';
-      // }
-      // if (showLightsAtNightAnim) {
-      //   layer_html += '   <tr>';
-      //   layer_html += show_lights_at_night_anim;
-      //   layer_html += '   </tr>';
-      // }
-      // if (showLightsAtNight2012) {
-      //   layer_html += '    <tr>';
-      //   layer_html += show_lights_at_night_2012;
-      //   layer_html += '    </tr>';
-      // }
-/*      if (showLightsAtNight2016) {
+      if (showLightsAtNight) {
+        layer_html += '    <tr>';
+        layer_html += show_lights_at_night;
+        layer_html += '    </tr>';
+      }
+      if (showLightsAtNightAnim) {
+        layer_html += '   <tr>';
+        layer_html += show_lights_at_night_anim;
+        layer_html += '   </tr>';
+      }
+      if (showLightsAtNight2012) {
+        layer_html += '    <tr>';
+        layer_html += show_lights_at_night_2012;
+        layer_html += '    </tr>';
+      }
+      if (showLightsAtNight2016) {
         layer_html += '    <tr>';
         layer_html += show_lights_at_night_2016;
         layer_html += '    </tr>';
       }
-      */
       if (showUrbanFragility) {
         layer_html += '    <tr>';
         layer_html += show_urban_fragility;
@@ -5997,18 +5992,18 @@
       legend_html += '<tr id="forest-loss-year-legend" style="display: none"><td><div style="font-size: 17px">Forest Loss By Year <span class="credit"> (Hansen et al)</span></div><div style="float:left; padding-right:3px; margin-left: 6px; font-size: 14px;">2000</div><div style="margin-top: 3px; float: left; background-image: -webkit-linear-gradient(left, yellow, orange 65%, red 100%);background-image: linear-gradient(left, yellow, orange 65%, red 100%); width: 68%; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">2018</div></div></td></tr>';
       legend_html += '<tr id="forest-loss-gain-legend" style="display: none; font-size: 14px;"><td><div style="font-size: 17px">Forest Loss/Gain 2000-2018 <span class="credit"> (Hansen et al)</span></div><div style="float: left; padding-right:8px"><div style="background-color:#00e000; width: 12px; height: 12px; float: left; margin-top: 2px; margin-left: 8px;"></div>&nbsp;Extent</div><div style="float: left; padding-right:8px"><div style="background-color:#ff0000; width: 12px; height: 12px; float: left; margin-top: 2px"></div>&nbsp;Loss</div><div style="float: left; padding-right:8px"><div style="background-color:#0000ff; width: 12px; height: 12px; float: left; margin-top: 2px"></div>&nbsp;Gain</div><div><div style="background-color:#ff00ff; width: 12px; height: 12px; float: left; margin-top: 2px"></div>&nbsp;Both</div></td></tr>';
       legend_html += '<tr id="fires-at-night-legend" style="display: none"><td><div style="background-color:#eda46a; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Fires At Night <span class="credit"> (NOAA)</span></div></td></tr>';
-      // legend_html += '<tr id="lights-at-night-legend" style="display: none"><td><div style="font-size: 17px">Lights at Night over 25 Years <span class="credit"> (NOAA, Google)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">Decrease</div><div style="margin-top: 4px; float: left; background-image: -webkit-linear-gradient(left, #4848FD, green 50%, red 100%);background-image: linear-gradient(left, #4848FD, green 50%, red 100%); width: 59%; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">Increase</div></td></tr>';
-      // legend_html += '<tr id="lights-at-night-anim" style="display:none"><td><div style="font-size: 14px">Lights at Night<span class="credit"> (NOAA)</span></div></td></tr>';
-      // legend_html += '<tr id="lights-at-night-2012-legend" style="display: none"><td><div style="font-size: 17px">Lights at Night 2012 <span class="credit"> (NASA)</span></div></td></tr>';
-      //legend_html += '<tr id="lights-at-night-2016-legend" style="display: none"><td><div style="font-size: 17px">Lights at Night 2016 <span class="credit"> (NASA)</span></div></td></tr>';
+      legend_html += '<tr id="lights-at-night-legend" style="display: none"><td><div style="font-size: 17px">Lights at Night over 25 Years <span class="credit"> (NOAA, Google)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">Decrease</div><div style="margin-top: 4px; float: left; background-image: -webkit-linear-gradient(left, #4848FD, green 50%, red 100%);background-image: linear-gradient(left, #4848FD, green 50%, red 100%); width: 59%; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">Increase</div></td></tr>';
+      legend_html += '<tr id="lights-at-night-anim" style="display:none"><td><div style="font-size: 14px">Lights at Night<span class="credit"> (NOAA)</span></div></td></tr>';
+      legend_html += '<tr id="lights-at-night-2012-legend" style="display: none"><td><div style="font-size: 17px">Lights at Night 2012 <span class="credit"> (NASA)</span></div></td></tr>';
+      legend_html += '<tr id="lights-at-night-2016-legend" style="display: none"><td><div style="font-size: 17px">Lights at Night 2016 <span class="credit"> (NASA)</span></div></td></tr>';
       legend_html += '<tr id="coral-bleaching-legend" style="display: none"><td><div style="float:left; background-color:#fa13ab; width:17px; height: 5px;"></div><div style="margin-left: 29px; margin-top: -5px; font-size: 17px">Coral Reefs <span class="credit"> (NOAA, UNEP-WCMC)</span></div></td></tr>';
       legend_html += '<tr id="coral-bleaching-alerts-legend" style="display: none"><td><div style="font-size: 17px">Coral Reef Watch <span class="credit"> (NOAA, UNEP-WCMC)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">Watch</div><div style="margin-top: 4px; float: left; background-image: -webkit-linear-gradient(left, #ffff00, #fbb404 65%, #a00200 100%);background-image: linear-gradient(left, #ffff00, #fbb404 65%, #a00200 100%); width: 68%; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">Alert</div></td></tr>';
       legend_html += '<tr id="wind-installs-legend" style="display: none"><td><div style="background-color:#a0fe8f; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -16px; font-size: 17px">US Wind Power <span class="credit"> (USGS)</span></div></div></td></tr>';
       legend_html += '<tr id="global-wind-power-legend" style="display: none"><td><div style="background-color:#a0fe8f; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -16px; font-size: 17px">Global Wind Power <span class="credit"> (TheWindPower.net)</span></div></div></td></tr>';
       legend_html += '<tr id="solar-installs-legend" style="display: none"><td><div style="background-color:#7376b2; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -16px; font-size: 17px">US Solar Photovoltaic <span class="credit"> (NREL)</span></div></td></tr>';
       legend_html += '<tr id="drilling-legend" style="display: none"><td><div style="background-color:#eda46a; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">US Oil/Gas Drilling <span class="credit"> (Mark Egge, CREATE Lab, FracTracker)</span></div></td></tr>';
-      // legend_html += '<tr id="water-occurrence-legend" style="display: none"><td><div style="font-size: 17px">Water Occurrence 1984-2018 <span class="credit"> (JRC)</span></div><div style="margin-left: 8px"><div style="font-size: 13px; float: left">100%</div><div style="font-size: 13px; float: right;">0%</div><div class="waterLegendGradient" style="clear: both;"></div><div style="font-size: 13px; float: left">Always water</div><div style="font-size: 13px; float: right">Never water</div></div></td></tr>';
-      // legend_html += '<tr id="water-change-legend" style="display: none"><td><div style="font-size: 17px">Water Change 1984-1999 to 2000-2018 <span class="credit"> (JRC)</span></div><div style="margin-left: 8px"><div class="waterChangeLegendGradient" style="clear: both;"></div><div style="font-size: 13px; float: left">Water Decrease</div><div style="font-size: 13px; float: right">Water Increase</div></div></td></tr>';
+      legend_html += '<tr id="water-occurrence-legend" style="display: none"><td><div style="font-size: 17px">Water Occurrence 1984-2018 <span class="credit"> (JRC)</span></div><div style="margin-left: 8px"><div style="font-size: 13px; float: left">100%</div><div style="font-size: 13px; float: right;">0%</div><div class="waterLegendGradient" style="clear: both;"></div><div style="font-size: 13px; float: left">Always water</div><div style="font-size: 13px; float: right">Never water</div></div></td></tr>';
+      legend_html += '<tr id="water-change-legend" style="display: none"><td><div style="font-size: 17px">Water Change 1984-1999 to 2000-2018 <span class="credit"> (JRC)</span></div><div style="margin-left: 8px"><div class="waterChangeLegendGradient" style="clear: both;"></div><div style="font-size: 13px; float: left">Water Decrease</div><div style="font-size: 13px; float: right">Water Increase</div></div></td></tr>';
       legend_html += '<tr id="monthly-refugees-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(right, #ff0000 0%, #ffffff 100%);background: -webkit-linear-gradient(left, #ff0000 0%,#ffffff 100%); background: linear-gradient(to right, #ff0000 0%,#ffffff 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Refugees Crossing the Mediterranean: Jan 2014 - Jun 2016 <span class="credit"> (UNHCR)</span></div></td></tr>';
       if (subsampleAnnualRefugees)
         legend_html += '<tr id="annual-refugees-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(right, #da7300 25%, red 100%);background: -webkit-linear-gradient(left, #da7300 25%,red 100%); background: linear-gradient(to right, #da7300 25%,red 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Global Refugee Flow: 2000 - 2015 <span class="credit"> (UNHCR) <br> 1 dot = ~17 refugees</span></div></td></tr>';
@@ -6018,7 +6013,7 @@
         legend_html += '<tr id="annual-returns-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(right, lightyellow 25%, navy 100%);background: -webkit-linear-gradient(left, lightyellow 25%,navy 100%); background: linear-gradient(to right, lightyellow 25%,navy 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Global Refugee Return Flow: 2000 - 2015 <span class="credit"> (UNHCR) <br> 1 dot = ~17 refugees </span></div></td></tr>';
       else
         legend_html += '<tr id="annual-returns-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(right, lightyellow 25%, navy 100%);background: -webkit-linear-gradient(left, lightyellow 25%,navy 100%); background: linear-gradient(to right, lightyellow 25%,navy 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Global Refugee Return Flow: 2000 - 2015 <span class="credit"> (UNHCR) <br> 1 dot = 1 refugee </span></div></td></tr>';
-      // legend_html += '<tr id="vsi-legend" style="display: none"><td><div style="font-size: 17px">Vegetation Sensitivity Index 2000-2013 <span class="credit"> (USGS)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">0</div><div style="margin-top: 4px; float: left; background-image: -webkit-linear-gradient(left, rgb(0, 139, 0), rgb(92, 182, 69) 17%, rgb(163, 221, 99) 33%, rgb(255, 255, 0) 50%, rgb(255, 205, 0) 67%, rgb(255, 144, 0) 83%, rgb(255, 4, 0) 100%);background-image: linear-gradient(left, rgb(0, 139, 0), rgb(92, 182, 69) 17%, rgb(163, 221, 99) 33%, rgb(255, 255, 0) 50%, rgb(255, 205, 0) 67%, rgb(255, 144, 0) 83%, rgb(255, 4, 0) 100%); width: 86%; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">100</div></td></tr>';
+      legend_html += '<tr id="vsi-legend" style="display: none"><td><div style="font-size: 17px">Vegetation Sensitivity Index 2000-2013 <span class="credit"> (USGS)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">0</div><div style="margin-top: 4px; float: left; background-image: -webkit-linear-gradient(left, rgb(0, 139, 0), rgb(92, 182, 69) 17%, rgb(163, 221, 99) 33%, rgb(255, 255, 0) 50%, rgb(255, 205, 0) 67%, rgb(255, 144, 0) 83%, rgb(255, 4, 0) 100%);background-image: linear-gradient(left, rgb(0, 139, 0), rgb(92, 182, 69) 17%, rgb(163, 221, 99) 33%, rgb(255, 255, 0) 50%, rgb(255, 205, 0) 67%, rgb(255, 144, 0) 83%, rgb(255, 4, 0) 100%); width: 86%; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">100</div></td></tr>';
       legend_html += '<tr id="health-impact-legend" style="display: none"><td><div style="font-size: 17px">Nutritional Deficiencies<span class="credit"> (Oxford Martin)</span></div><svg class="svg-legend" width="242" height="180"><rect width="240" height="160" fill="white" opacity="0"></rect> <g transform="translate(2,10)"> <circle class="gain" r="5" cx="5" cy="10" style="fill: #8b0000; stroke: #fff;"></circle> <circle class="loss" r="5" cx="5" cy="30" style="fill: #00008b; stroke: #fff;"></circle> <text x="15" y="13" style="font-size: 12px; fill: #fff">Mean deaths per capita</text> <text x="15" y="33" style="font-size: 12px; fill: #fff">Mean lives per capita</text> <circle r="10.0" cx="160.0" cy="160.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="152.0" dy="13" style="font-size: 10px; fill: #fff">5K</text><circle r="30.0" cx="160.0" cy="140.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="130.0" dy="13" style="font-size: 10px; fill: #fff">15K</text><circle r="60.0" cx="160.0" cy="110.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="80.0" dy="13" style="font-size: 10px; fill: #fff">30K</text></g> </svg></td></tr>';
       legend_html += '<tr id="sea-level-rise-legend" style="display: none"><td><div style="font-size: 17px">Global Temperature Rise <span id="slr-degree"></span> &#x2103;<span class="credit"> (Climate Central)</span></div><div style="font-size: 15px">Multi-century Sea Level Increase:<span id="slr-feet" style="width:25px;"></span>&nbsp;<span id="slr-meters" style="width:25px; color: red;"></span></div></td></tr>';
       legend_html += '<tr id="tibnted-sea-level-rise-legend" style="display: none"><td><div style="font-size: 17px">Global Temperature Rise <span id="slr-degree"></span> &#x2103;<span class="credit"> (Climate Central)</span></div><div style="font-size: 15px">Multi-century Sea Level Increase:<span id="slr-feet" style="width:25px;"></span>&nbsp;<span id="slr-meters" style="width:25px; color: red;"></span></div></td></tr>';
@@ -6420,17 +6415,17 @@
       bePm25Layer = new WebglTimeMachineLayer(glb, canvasLayer, bePm25LayerOptions);
 
       // Lights at Night Animated
-      // var lightsAtNightAnimOptions = {
-      //   numFrames: cached_ajax['lights-at-night-anim-times.json']['capture-times'].length,
-      //   fps: 4,
-      //   nlevels: 7,
-      //   width: 30000,
-      //   height: 30000,
-      //   greenScreen: true,
-      //   colormap: 'https://tiles.earthtime.org/colormaps/lights-at-night.png',
-      //   tileRootUrl: lightsAtNightAnimUrl
-      // };
-      // lightsAtNightAnimLayer = new WebglTimeMachineLayer(glb, canvasLayer, lightsAtNightAnimOptions);
+      var lightsAtNightAnimOptions = {
+        numFrames: cached_ajax['lights-at-night-anim-times.json']['capture-times'].length,
+        fps: 4,
+        nlevels: 7,
+        width: 30000,
+        height: 30000,
+        greenScreen: true,
+        colormap: 'https://tiles.earthtime.org/colormaps/lights-at-night.png',
+        tileRootUrl: lightsAtNightAnimUrl
+      };
+      lightsAtNightAnimLayer = new WebglTimeMachineLayer(glb, canvasLayer, lightsAtNightAnimOptions);
 
       // For any raster map
       var defaultMapLayerOptions = {
@@ -6459,15 +6454,15 @@
       darkBaseMapLayer = new WebglMapLayer(glb, canvasLayer, darkMapUrl, defaultBaseMapLayerOptions);
       hansenMapLayer = new WebglMapLayer(glb, canvasLayer, gfcTransUrl, defaultMapLayerOptions);
       hansenMapLayer2 = new WebglMapLayer(glb, canvasLayer, gfcLossGainUrl, defaultMapLayerOptions);
-      // waterOccurrenceLayer = new WebglMapLayer(glb, canvasLayer, waterOccurrenceUrl, defaultBaseMapLayerOptions);
-      // waterChangeLayer = new WebglMapLayer(glb, canvasLayer, waterChangeUrl, defaultBaseMapLayerOptions);
+      waterOccurrenceLayer = new WebglMapLayer(glb, canvasLayer, waterOccurrenceUrl, defaultBaseMapLayerOptions);
+      waterChangeLayer = new WebglMapLayer(glb, canvasLayer, waterChangeUrl, defaultBaseMapLayerOptions);
 
       landBorderLayer = new WebglMapLayer(glb, canvasLayer, landBorderUrl, defaultBaseMapLayerOptions);
       countryLabelMapLayer = new WebglMapLayer(glb, canvasLayer, countryLabelMapUrl, defaultBaseMapLayerOptions);
       cityLabelMapLayer = new WebglMapLayer(glb, canvasLayer, cityLabelMapUrl, defaultBaseMapLayerOptions);
 
       // Vegetation Sensitivity Index
-      // vsiLayer = new WebglMapLayer(glb, canvasLayer, vsiUrl, defaultMapLayerOptions);
+      vsiLayer = new WebglMapLayer(glb, canvasLayer, vsiUrl, defaultMapLayerOptions);
 
       // Coral Reefs (in pink)
       var mcrmVectorLayerOptions = {
@@ -6490,28 +6485,26 @@
       };
       coralBleachingLayer = new WebglVectorLayer2(glb, canvasLayer, coralBleachingUrl, coralBleachingLayerOptions);
 
-      // var lightsAtNightMapLayerOptions = {
-      //   nLevels: 8,
-      //   tileWidth: 256,
-      //   tileHeight: 256
-      // };
-      // lightsAtNightMapLayer = new WebglMapLayer(glb, canvasLayer, lightsAtNightUrl, lightsAtNightMapLayerOptions);
+      var lightsAtNightMapLayerOptions = {
+        nLevels: 8,
+        tileWidth: 256,
+        tileHeight: 256
+      };
+      lightsAtNightMapLayer = new WebglMapLayer(glb, canvasLayer, lightsAtNightUrl, lightsAtNightMapLayerOptions);
 
-      // var lightsAtNight2012MapLayerOptions = {
-      //   nLevels: 9,
-      //   tileWidth: 256,
-      //   tileHeight: 256
-      // };
-      // lightsAtNight2012MapLayer = new WebglMapLayer(glb, canvasLayer, lightsAtNight2012Url, lightsAtNight2012MapLayerOptions);
+      var lightsAtNight2012MapLayerOptions = {
+        nLevels: 9,
+        tileWidth: 256,
+        tileHeight: 256
+      };
+      lightsAtNight2012MapLayer = new WebglMapLayer(glb, canvasLayer, lightsAtNight2012Url, lightsAtNight2012MapLayerOptions);
 
-      /*
       var lightsAtNight2016MapLayerOptions = {
         nLevels: 9,
         tileWidth: 256,
         tileHeight: 256
       };
       lightsAtNight2016MapLayer = new WebglMapLayer(glb, canvasLayer, lightsAtNight2016Url, lightsAtNight2016MapLayerOptions);
-      */
 
       var animatedHansenLayerOptions = {
         nLevels: 12,
@@ -8822,19 +8815,16 @@
         dscovrTimeMachineLayer.draw(dscovrView, tileViewVisibility);
       } else {
         // Static layers that cover the entire planet should be placed before the base layers in this manner.
-        // if (showLightsAtNightLayer) { // Draw lightsAtNightMapLayer
-        //   var lightsAtNightLayerView = getLayerView(lightsAtNightMapLayer, landsatBaseMapLayer);
-        //   lightsAtNightMapLayer.draw(lightsAtNightLayerView);
-        // }
-        //  else if (showLightsAtNight2012Layer) { // Draw lightsAtNight2012MapLayer
-        //   var lightsAtNight2012LayerView = getLayerView(lightsAtNight2012MapLayer, landsatBaseMapLayer);
-        //   lightsAtNight2012MapLayer.draw(lightsAtNight2012LayerView);
-        // } 
-        /*else if (showLightsAtNight2016Layer) { // Draw lightsAtNight2016MapLayer
+        if (showLightsAtNightLayer) { // Draw lightsAtNightMapLayer
+          var lightsAtNightLayerView = getLayerView(lightsAtNightMapLayer, landsatBaseMapLayer);
+          lightsAtNightMapLayer.draw(lightsAtNightLayerView);
+        } else if (showLightsAtNight2012Layer) { // Draw lightsAtNight2012MapLayer
+          var lightsAtNight2012LayerView = getLayerView(lightsAtNight2012MapLayer, landsatBaseMapLayer);
+          lightsAtNight2012MapLayer.draw(lightsAtNight2012LayerView);
+        } else if (showLightsAtNight2016Layer) { // Draw lightsAtNight2016MapLayer
           var lightsAtNight2016LayerView = getLayerView(lightsAtNight2016MapLayer, landsatBaseMapLayer);
           lightsAtNight2016MapLayer.draw(lightsAtNight2016LayerView);
-        }*/ 
-        if (showHansenLayer2) { // Draw Forest Loss/Gain
+        } else if (showHansenLayer2) { // Draw Forest Loss/Gain
           var hansenMapLayerView2 = getLayerView(hansenMapLayer2, landsatBaseMapLayer);
           hansenMapLayer2.draw(hansenMapLayerView2);
         } else if (visibleBaseMapLayer == "landsat") { // Draw Landsat
@@ -8885,22 +8875,22 @@
         }
 
         // Draw Vegetation Sensitivity Index
-        // if (showVsiLayer) {
-        //   var vsiLayerView = getLayerView(vsiLayer, landsatBaseMapLayer);
-        //   vsiLayer.draw(vsiLayerView);
-        // }
+        if (showVsiLayer) {
+          var vsiLayerView = getLayerView(vsiLayer, landsatBaseMapLayer);
+          vsiLayer.draw(vsiLayerView);
+        }
 
-        // // Draw Water Occurrence
-        // if (showWaterOccurrenceLayer) {
-        //   var waterOccurrenceView = getLayerView(waterOccurrenceLayer, landsatBaseMapLayer);
-        //   waterOccurrenceLayer.draw(waterOccurrenceView);
-        // }
+        // Draw Water Occurrence
+        if (showWaterOccurrenceLayer) {
+          var waterOccurrenceView = getLayerView(waterOccurrenceLayer, landsatBaseMapLayer);
+          waterOccurrenceLayer.draw(waterOccurrenceView);
+        }
 
-        // // Draw Water Change
-        // if (showWaterChangeLayer) {
-        //   var waterChangeView = getLayerView(waterChangeLayer, landsatBaseMapLayer);
-        //   waterChangeLayer.draw(waterChangeView);
-        // }
+        // Draw Water Change
+        if (showWaterChangeLayer) {
+          var waterChangeView = getLayerView(waterChangeLayer, landsatBaseMapLayer);
+          waterChangeLayer.draw(waterChangeView);
+        }
 
         // Draw Animated Hansen Layer
         if (showAnimatedHansenLayer) {
@@ -9304,10 +9294,9 @@
             options.color = [0.4921875, 0.7421875, 0.91015625, 1.0];
           } else if (visibleBaseMapLayer == "dark") {
             options.color = [0.203125, 0.203125, 0.203125, 1.0];
-          } 
-          // else if (showLightsAtNightLayer) {
-          //   options.color = [0.0, 0.0, 0.0, 1.0];
-          // }
+          } else if (showLightsAtNightLayer || showLightsAtNight2012Layer || showLightsAtNight2016Layer) {
+            options.color = [0.0, 0.0, 0.0, 1.0];
+          }
           var currentIndex = 0;
           for (var i = 0; i < times.length; i++) {
             if (timelapse.getCurrentCaptureTime() == times[i]) {
@@ -9353,10 +9342,9 @@
             options.color = [0.4921875, 0.7421875, 0.91015625, 1.0];
           } else if (visibleBaseMapLayer == "dark") {
             options.color = [0.203125, 0.203125, 0.203125, 1.0];
-          } 
-          // else if (showLightsAtNightLayer) {
-          //   options.color = [0.0, 0.0, 0.0, 1.0];
-          // }
+          } else if (showLightsAtNightLayer || showLightsAtNight2012Layer || showLightsAtNight2016Layer) {
+            options.color = [0.0, 0.0, 0.0, 1.0];
+          }
           var currentIndex = 0;
           for (var i = 0; i < times.length; i++) {
             if (timelapse.getCurrentCaptureTime() == times[i]) {
@@ -9710,10 +9698,10 @@
           bePm25Layer.draw(view, tileViewVisibility);
         }
 
-        // if (showLightsAtNightAnimLayer) {
-        //   var view = getLayerView(lightsAtNightAnimLayer, landsatBaseMapLayer);
-        //   lightsAtNightAnimLayer.draw(view, tileViewVisibility);
-        // }
+        if (showLightsAtNightAnimLayer) {
+          var view = getLayerView(lightsAtNightAnimLayer, landsatBaseMapLayer);
+          lightsAtNightAnimLayer.draw(view, tileViewVisibility);
+        }
 
         if (showChinaAviationLayer) {
           var chinaAviationLayerView = getLayerView(chinaAviationLayer, landsatBaseMapLayer);
