@@ -206,7 +206,7 @@
     var subsampleAnnualRefugees = !!EARTH_TIMELAPSE_CONFIG.subsampleAnnualRefugees;
     var subsampleAnnualReturns = !!EARTH_TIMELAPSE_CONFIG.subsampleAnnualReturns;
     var showAnnualReturns = !!EARTH_TIMELAPSE_CONFIG.showAnnualReturns;
-    var showGlobalWindPower = !!EARTH_TIMELAPSE_CONFIG.showGlobalWindPower;
+    //var showGlobalWindPower = !!EARTH_TIMELAPSE_CONFIG.showGlobalWindPower;
     // var showVsi = !!EARTH_TIMELAPSE_CONFIG.showVsi;
     var showHealthImpact = !!EARTH_TIMELAPSE_CONFIG.showHealthImpact;
     var showZika = !!EARTH_TIMELAPSE_CONFIG.showZika;
@@ -420,8 +420,8 @@
     // var waterOccurrenceLayer, waterChangeLayer;
     var usgsWindTurbineLayer, solarInstallsLayer, drillingLayer;
     var goes16TimeMachineLayer, goes16Aug2018TimeMachineLayer, goes16Nov2018TimeMachineLayer, dscovrTimeMachineLayer, annualGlobalPm25TimeMachineLayer;
-    var globalWindPowerLayer;
-    timelines.setTimeLine('global-wind-power-times', '1984', '2018', 1);
+    //var globalWindPowerLayer;
+    //timelines.setTimeLine('global-wind-power-times', '1984', '2018', 1);
     var annualRefugeesLayer;
     var annualReturnsLayer;
     // var vsiLayer;
@@ -965,7 +965,7 @@
     var coralBleachingUrl = rootTilePath + "/coral/{z}/{x}/{y}.bin";
     //var usgsWindTurbineUrl = rootTilePath + "/energy/wind-installs-usgs/{z}/{x}/{y}.bin";
     //var solarInstallsUrl = rootTilePath + "/energy/solar-installs/{z}/{x}/{y}.bin";
-    var globalWindPowerUrl = rootTilePath + "/energy/global-wind-power/windfarms-world_20180330.bin";
+    //var globalWindPowerUrl = rootTilePath + "/energy/global-wind-power/windfarms-world_20180330.bin";
     var drillingUrl = rootTilePath + "/energy/drilling/{z}/{x}/{y}.bin";
     var animatedHansenUrls = [gfcTransUrl, gfcLossGainUrl];
     var monthlyRefugeesUrl = rootTilePath + '/monthly-mediterranean-refugees/{z}/{x}/{y}.bin';
@@ -2070,6 +2070,7 @@
       }).prop('checked', showUsgsWindTurbineLayer);
       */
 
+      /*
       $("#show-global-wind-power").on("click", function() {
         var $this = $(this);
         if ($this.prop('checked')) {
@@ -2088,6 +2089,7 @@
           $("#global-wind-power-legend").hide();
         }
       }).prop('checked', showGlobalWindPowerLayer);
+      */
 
       /*
       $("#show-solar-installs").on("click", function() {
@@ -4769,7 +4771,7 @@
     // var showWaterOccurrenceLayer = false;
     // var showWaterChangeLayer = false;
     //var showUsgsWindTurbineLayer = false;
-    var showGlobalWindPowerLayer = false;
+    //var showGlobalWindPowerLayer = false;
     //var showSolarInstallsLayer = false;
     var showDrillingLayer = false;
     var showMonthlyRefugeesLayer = false;
@@ -5327,7 +5329,7 @@
       var show_coral = '<td class="coral-select"><label for="show-coral" name="cb"><input type="checkbox" id="show-coral"/>Coral Bleaching</label></td>';
       var show_coral_bleaching_alerts = '<td class="coral-bleaching-select"><label for="show-coral-bleaching-alerts" name="crw"><input type="checkbox" id="show-coral-bleaching-alerts" />Coral Reef Watch</label></td>';
       //var show_usgs_windturbine = '<td class="wind-select"><label for="show-usgs-windturbine" name="wp"><input type="checkbox" id="show-usgs-windturbine" />Wind Power (USA)</span></label></td>';
-      var show_global_wind_power = '<td class="wind-select"><label for="show-global-wind-power" name="gwp"><input type="checkbox" id="show-global-wind-power" />Wind Power (Global)</label></td>';
+      //var show_global_wind_power = '<td class="wind-select"><label for="show-global-wind-power" name="gwp"><input type="checkbox" id="show-global-wind-power" />Wind Power (Global)</label></td>';
       //var show_solar_installs = '<td class="solar-select"> <label for="show-solar-installs" name="sp"><input type="checkbox" id="show-solar-installs" />Solar PV (USA)</label></td>';
       var show_drilling = '<td class="drilling-select"><label for="show-drilling" name="drl"><input type="checkbox" id="show-drilling" />Oil/Gas Drilling (USA)</label></td>';
       var show_himawari = '<td class="timemachine himawari-select"><label for="show-himawari" name="h8_16"><input type="checkbox" id="show-himawari" />Himawari-8</label></td>';
@@ -5623,11 +5625,13 @@
       layer_html += show_usgs_windturbine;
       layer_html += '    </tr>';
 */
+/*
       if (showGlobalWindPower) {
         layer_html += '    <tr>';
         layer_html += show_global_wind_power;
         layer_html += '    </tr>';
       }
+*/
       if (showUSDrilling) {
         layer_html += '    <tr>';
         layer_html += show_drilling;
@@ -6012,7 +6016,7 @@
       legend_html += '<tr id="coral-bleaching-legend" style="display: none"><td><div style="float:left; background-color:#fa13ab; width:17px; height: 5px;"></div><div style="margin-left: 29px; margin-top: -5px; font-size: 17px">Coral Reefs <span class="credit"> (NOAA, UNEP-WCMC)</span></div></td></tr>';
       legend_html += '<tr id="coral-bleaching-alerts-legend" style="display: none"><td><div style="font-size: 17px">Coral Reef Watch <span class="credit"> (NOAA, UNEP-WCMC)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">Watch</div><div style="margin-top: 4px; float: left; background-image: -webkit-linear-gradient(left, #ffff00, #fbb404 65%, #a00200 100%);background-image: linear-gradient(left, #ffff00, #fbb404 65%, #a00200 100%); width: 68%; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">Alert</div></td></tr>';
       //legend_html += '<tr id="wind-installs-legend" style="display: none"><td><div style="background-color:#a0fe8f; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -16px; font-size: 17px">US Wind Power <span class="credit"> (USGS)</span></div></div></td></tr>';
-      legend_html += '<tr id="global-wind-power-legend" style="display: none"><td><div style="background-color:#a0fe8f; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -16px; font-size: 17px">Global Wind Power <span class="credit"> (TheWindPower.net)</span></div></div></td></tr>';
+      //legend_html += '<tr id="global-wind-power-legend" style="display: none"><td><div style="background-color:#a0fe8f; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -16px; font-size: 17px">Global Wind Power <span class="credit"> (TheWindPower.net)</span></div></div></td></tr>';
       //legend_html += '<tr id="solar-installs-legend" style="display: none"><td><div style="background-color:#7376b2; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -16px; font-size: 17px">US Solar Photovoltaic <span class="credit"> (NREL)</span></div></td></tr>';
       legend_html += '<tr id="drilling-legend" style="display: none"><td><div style="background-color:#eda46a; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">US Oil/Gas Drilling <span class="credit"> (Mark Egge, CREATE Lab, FracTracker)</span></div></td></tr>';
       // legend_html += '<tr id="water-occurrence-legend" style="display: none"><td><div style="font-size: 17px">Water Occurrence 1984-2018 <span class="credit"> (JRC)</span></div><div style="margin-left: 8px"><div style="font-size: 13px; float: left">100%</div><div style="font-size: 13px; float: right;">0%</div><div class="waterLegendGradient" style="clear: both;"></div><div style="font-size: 13px; float: left">Always water</div><div style="font-size: 13px; float: right">Never water</div></div></td></tr>';
@@ -6562,7 +6566,7 @@
       };
       usgsWindTurbineLayer = new WebglVectorLayer2(glb, canvasLayer, usgsWindTurbineUrl, usgsWindturbineLayerOptions);
       */
-
+      /*
       var globalWindPowerLayerOptions = {
         tileWidth: 256,
         tileHeight: 256,
@@ -6573,7 +6577,7 @@
         numAttributes: 3
       };
       globalWindPowerLayer = new WebglVectorLayer2(glb, canvasLayer, globalWindPowerUrl, globalWindPowerLayerOptions);
-
+      */
       /*
       var solarInstallsLayerOptions = {
         tileWidth: 256,
@@ -9035,6 +9039,7 @@
         }
 */
         // Draw Global Wind Layer
+/*
         if (showGlobalWindPowerLayer) {
           var globalWindPowerLayerView = getLayerView(globalWindPowerLayer, landsatBaseMapLayer);
           var options = {};
@@ -9049,6 +9054,7 @@
           options.color = [0.1, 0.5, 0.1, 1.0];
           globalWindPowerLayer.draw(globalWindPowerLayerView, options);
         }
+*/
 
         // Draw Solar Layer
         /*
