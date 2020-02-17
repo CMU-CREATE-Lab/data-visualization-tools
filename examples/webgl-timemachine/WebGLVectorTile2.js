@@ -3080,6 +3080,63 @@ WebGLVectorTile2.prototype._drawViirs = function(transform, options) {
     minTime = maxTime - 28*24*60*60*1000;
   }
 
+  var viirsIndex = {
+          '201408': {'count': 115909, 'first': 0},
+          '201409': {'count': 213165, 'first': 115909},
+          '201410': {'count': 232833, 'first': 329074},
+          '201411': {'count': 146622, 'first': 561907},
+          '201412': {'count': 151926, 'first': 708529},
+          '201501': {'count': 192835, 'first': 860455},
+          '201502': {'count': 150901, 'first': 1053290},
+          '201503': {'count': 189347, 'first': 1204191},
+          '201504': {'count': 175398, 'first': 1393538},
+          '201505': {'count': 133021, 'first': 1568936},
+          '201506': {'count': 116314, 'first': 1701957},
+          '201507': {'count': 192662, 'first': 1818271},
+          '201508': {'count': 289941, 'first': 2010933},
+          '201509': {'count': 282792, 'first': 2300874},
+          '201510': {'count': 286486, 'first': 2583666},
+          '201511': {'count': 187366, 'first': 2870152},
+          '201512': {'count': 183570, 'first': 3057518},
+          '201601': {'count': 208576, 'first': 3241088},
+          '201602': {'count': 179606, 'first': 3449664},
+          '201603': {'count': 184595, 'first': 3629270},
+          '201604': {'count': 185076, 'first': 3813865},
+          '201605': {'count': 144875, 'first': 3998941},
+          '201606': {'count': 126776, 'first': 4143816},
+          '201607': {'count': 175568, 'first': 4270592},
+          '201608': {'count': 236754, 'first': 4446160},
+          '201609': {'count': 254754, 'first': 4682914},
+          '201610': {'count': 174679, 'first': 4937668},
+          '201611': {'count': 167121, 'first': 5112347},
+          '201612': {'count': 183016, 'first': 5279468},
+          '201701': {'count': 181133, 'first': 5462484},
+          '201702': {'count': 158187, 'first': 5643617},
+          '201703': {'count': 156410, 'first': 5801804},
+          '201704': {'count': 170735, 'first': 5958214},
+          '201705': {'count': 101733, 'first': 6128949},
+          '201706': {'count': 132268, 'first': 6230682},
+          '201707': {'count': 171562, 'first': 6362950},
+          '201708': {'count': 299079, 'first': 6534512},
+          '201709': {'count': 298956, 'first': 6833591},
+          '201710': {'count': 53789, 'first': 7132547}
+  };
+
+  var currentDate = options.currentTime;
+  var currentMonth = currentDate.getUTCMonth();
+  var currentYear = currentDate.getUTCFullYear();
+  var prevYear = currentYear;
+  var prevMonth = currentMonth - 1;
+  if (prevMonth < 0) {
+    prevMonth = 11;
+    prevYear--;
+  }
+
+  var currentIdx = currentYear + ('0' + (currentMonth+1)).slice(-2);
+  var prevIdx = prevYear + ('0' + (prevMonth+1)).slice(-2);
+  first = prevIdx in viirsIndex ? viirsIndex[prevIdx]['first'] : 0 ;
+  count = prevIdx in viirsIndex && currentIdx in viirsIndex ? viirsIndex[currentIdx]['count'] + viirsIndex[prevIdx]['count'] : 100;
+
   if (this._ready) {
     gl.useProgram(this.program);
     gl.enable(gl.BLEND);

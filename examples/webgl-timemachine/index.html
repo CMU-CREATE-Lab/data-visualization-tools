@@ -200,7 +200,7 @@
     var showCoralBleaching = typeof(EARTH_TIMELAPSE_CONFIG.showCoralBleaching) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showCoralBleaching;
     var showHimawari8 = typeof(EARTH_TIMELAPSE_CONFIG.showHimawari8) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showHimawari8;
     //var showUSDrilling = typeof(EARTH_TIMELAPSE_CONFIG.showUSDrilling) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showUSDrilling;
-    var showViirs = typeof(EARTH_TIMELAPSE_CONFIG.showViirs) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showViirs;
+    //var showViirs = typeof(EARTH_TIMELAPSE_CONFIG.showViirs) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showViirs;
     var showMonthlyRefugees = !!EARTH_TIMELAPSE_CONFIG.showMonthlyRefugees;
     var showAnnualRefugees = !!EARTH_TIMELAPSE_CONFIG.showAnnualRefugees;
     var subsampleAnnualRefugees = !!EARTH_TIMELAPSE_CONFIG.subsampleAnnualRefugees;
@@ -427,7 +427,7 @@
     // var vsiLayer;
     var healthImpactLayer;
     var zikaLayer, dengueLayer, chikuLayer;
-    var viirsLayer;
+    //var viirsLayer;
     var wdpaLayer;
     var seaLevelRiseLayer;
     var tintedSeaLevelRiseLayer;
@@ -960,7 +960,7 @@
     var wdpaUrl = rootTilePath + "/wdpaline-year/{z}/{x}/{y}.bin";
     var mcrmUrl = rootTilePath + "/coral/mcrm-lines-wrapdateline/{z}/{x}/{y}.bin";
 
-    var viirsUrl = rootTilePath + "/viirs/viirs_20140817-20170917.bin";
+    //var viirsUrl = rootTilePath + "/viirs/viirs_20140817-20170917.bin";
 
     var coralBleachingUrl = rootTilePath + "/coral/{z}/{x}/{y}.bin";
     //var usgsWindTurbineUrl = rootTilePath + "/energy/wind-installs-usgs/{z}/{x}/{y}.bin";
@@ -1411,10 +1411,12 @@
           }
           showAnimatedHansenLayer = true;
           setActiveLayersWithTimeline(1);
+          /*
           if (!showViirsLayer) {
             timelineType = "customUI";
             requestNewTimeline("animated-forest-loss-gain-times.json", timelineType);
           }
+          */
           $("#forest-loss-gain-legend").show();
         } else {
           showAnimatedHansenLayer = false;
@@ -1517,6 +1519,7 @@
         }
       }).prop('checked', showForestAlertsNoOverlayTimeMachineLayer);
 
+/*
       $("#show-viirs").on("click", function() {
         var $this = $(this);
         if ($this.prop('checked')) {
@@ -1537,7 +1540,7 @@
           $("#fires-at-night-legend").hide();
         }
       }).prop('checked', showViirsLayer);
-
+*/
 
       $("#show-fishingppr-timemachine").on("click", function() {
         var $this = $(this);
@@ -3943,9 +3946,11 @@
             setActiveLayersWithTimeline(1);
           }
           // TODO: This special case may be out of sync with the edge cases elsewhere in the code
+          /*
           if (!showViirsLayer) {
             timelineType = "customUI";
           }
+          */
         } else {
           if (previousVisibleBaseMapLayer == "dark" || previousVisibleBaseMapLayer == "light") {
             timelineType = "none";
@@ -4385,7 +4390,7 @@
 
         var isFromUser = true;
 
-        if (showViirsLayer || $(".csvlayer").find("input:checked").length > 0) {
+        if ($(".csvlayer").find("input:checked").length > 0) {
           timelineType = "defaultUI";
         }
 
@@ -4703,7 +4708,7 @@
 
     function doSwitchToLandsat() {
       // Special case for layers with defaultUI timeline.
-      if (timelineType == "defaultUI" && (showViirsLayer || showMonthlyRefugeesLayer || showCrwTimeMachineLayer)) {
+      if (timelineType == "defaultUI" && (showMonthlyRefugeesLayer || showCrwTimeMachineLayer)) {
         return false;
       } else {
         previousVisibleBaseMapLayer = visibleBaseMapLayer;
@@ -4751,7 +4756,7 @@
     var showMcrmLayer = false;
     var showHansenLayer = false;
     var showHansenLayer2 = false;
-    var showViirsLayer = false;
+    //var showViirsLayer = false;
     var showCoralBleachingLayer = false;
     // var showLightsAtNightLayer = false;
     // var showLightsAtNight2012Layer = false;
@@ -5318,7 +5323,7 @@
       var show_forest_change = '<td class="forest-change-select"><label for="show-forest-change" name="fly"><input type="checkbox" id="show-forest-change" />Forest Loss by Year</label></td>';
       var show_forest_loss_gain = '<td class="forest-loss-gain-select"><label for="show-forest-loss-gain" name="flg"><input type="checkbox" id="show-forest-loss-gain" />Forest Loss/Gain</label></td>';
       var show_animated_forest_loss_gain = '<td class="animated-forest-loss-select"><label for="show-animated-forest-loss-gain" name="aflg"><input type="checkbox" id="show-animated-forest-loss-gain" />Forest Loss/Gain (Animated)</label></td>';
-      var show_viirs = '<td class="viirs-select"><label for="show-viirs" name="viirs"><input type="checkbox" id="show-viirs" />Fires at Night</label></td>';
+      //var show_viirs = '<td class="viirs-select"><label for="show-viirs" name="viirs"><input type="checkbox" id="show-viirs" />Fires at Night</label></td>';
       var show_forest_alerts = '<td class="forest-alerts-select"><label for="show-forest-alerts" name="fla"><input type="checkbox" id="show-forest-alerts" />Forest Loss Alerts</label></td>';
       var show_forest_alert_no_overlay = '<td class="forest-alerts-no-overlay-select"><label for="show-forest-alerts-no-overlay" name="flano"><input type="checkbox" id="show-forest-alerts-no-overlay" />Forest Loss Alerts <span style="font-size: 14px">(No Overlay)</span></label></td>';
       // var show_lights_at_night = '<td class="lights-at-night-select"><label for="show-lights-at-night" name="lan"><input type="checkbox" id="show-lights-at-night" />Lights at Night (25 years)</label></td>';
@@ -5639,11 +5644,13 @@
         layer_html += '    </tr>';
       }
 */
+/*
       if (showViirs) {
         layer_html += '    <tr>';
         layer_html += show_viirs;
         layer_html += '    </tr>';
       }
+*/
       if (showIrena) {
         layer_html += '    <tr>';
         layer_html += show_irena_solar;
@@ -6534,6 +6541,7 @@
       };
       animatedHansenLayer = new WebglMapLayer2(glb, canvasLayer, animatedHansenUrls, animatedHansenLayerOptions);
 
+      /*
       var viirsLayerOptions = {
         tileWidth: 256,
         tileHeight: 256,
@@ -6544,7 +6552,7 @@
         numAttributes: 3
       };
       viirsLayer = new WebglVectorLayer2(glb, canvasLayer, viirsUrl, viirsLayerOptions);
-
+      */
       var wdpaLayerOptions = {
         tileWidth: 256,
         tileHeight: 256,
@@ -8938,6 +8946,7 @@
         }
 
         // Draw Fires at Night (VIIRS)
+        /*
         var viirsIndex = {
           '201408': {'count': 115909, 'first': 0},
           '201409': {'count': 213165, 'first': 115909},
@@ -9006,6 +9015,7 @@
 
           viirsLayer.draw(viirsLayerView, options);
         }
+        */
 
         // Draw Coral Bleaching
         if (showCoralBleachingLayer) {
