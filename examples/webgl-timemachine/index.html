@@ -199,7 +199,7 @@
     var showCoral = typeof(EARTH_TIMELAPSE_CONFIG.showCoral) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showCoral;
     var showCoralBleaching = typeof(EARTH_TIMELAPSE_CONFIG.showCoralBleaching) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showCoralBleaching;
     var showHimawari8 = typeof(EARTH_TIMELAPSE_CONFIG.showHimawari8) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showHimawari8;
-    var showUSDrilling = typeof(EARTH_TIMELAPSE_CONFIG.showUSDrilling) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showUSDrilling;
+    //var showUSDrilling = typeof(EARTH_TIMELAPSE_CONFIG.showUSDrilling) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showUSDrilling;
     var showViirs = typeof(EARTH_TIMELAPSE_CONFIG.showViirs) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showViirs;
     var showMonthlyRefugees = !!EARTH_TIMELAPSE_CONFIG.showMonthlyRefugees;
     var showAnnualRefugees = !!EARTH_TIMELAPSE_CONFIG.showAnnualRefugees;
@@ -418,7 +418,7 @@
     var forestAlertsTimeMachineLayer, forestAlertsNoOverlayTimeMachineLayer, landsatBaseMapLayer, darkBaseMapLayer, lightBaseMapLayer, mcrmVectorLayer, countryLabelMapLayer, cityLabelMapLayer;
     var hansenMapLayer, hansenMapLayer2, crwTimeMachineLayer, animatedHansenLayer, himawariTimeMachineLayer, ndviAnomalyTimeMachineLayer;
     // var waterOccurrenceLayer, waterChangeLayer;
-    var usgsWindTurbineLayer, solarInstallsLayer, drillingLayer;
+    //var usgsWindTurbineLayer, solarInstallsLayer, drillingLayer;
     var goes16TimeMachineLayer, goes16Aug2018TimeMachineLayer, goes16Nov2018TimeMachineLayer, dscovrTimeMachineLayer, annualGlobalPm25TimeMachineLayer;
     //var globalWindPowerLayer;
     //timelines.setTimeLine('global-wind-power-times', '1984', '2018', 1);
@@ -966,7 +966,7 @@
     //var usgsWindTurbineUrl = rootTilePath + "/energy/wind-installs-usgs/{z}/{x}/{y}.bin";
     //var solarInstallsUrl = rootTilePath + "/energy/solar-installs/{z}/{x}/{y}.bin";
     //var globalWindPowerUrl = rootTilePath + "/energy/global-wind-power/windfarms-world_20180330.bin";
-    var drillingUrl = rootTilePath + "/energy/drilling/{z}/{x}/{y}.bin";
+    //var drillingUrl = rootTilePath + "/energy/drilling/{z}/{x}/{y}.bin";
     var animatedHansenUrls = [gfcTransUrl, gfcLossGainUrl];
     var monthlyRefugeesUrl = rootTilePath + '/monthly-mediterranean-refugees/{z}/{x}/{y}.bin';
 
@@ -2110,7 +2110,7 @@
         }
       }).prop('checked', showSolarInstallsLayer);
       */
-
+      /*
       $("#show-drilling").on("click", function() {
         var $this = $(this);
         if ($this.prop('checked')) {
@@ -2129,7 +2129,7 @@
           $("#drilling-legend").hide();
         }
       }).prop('checked', showDrillingLayer);
-
+      */
       // $("#show-lights-at-night").on("click", function() {
       //   var $this = $(this);
       //   if ($this.prop('checked')) {
@@ -4385,7 +4385,7 @@
 
         var isFromUser = true;
 
-        if (showViirsLayer || showDrillingLayer || $(".csvlayer").find("input:checked").length > 0) {
+        if (showViirsLayer || $(".csvlayer").find("input:checked").length > 0) {
           timelineType = "defaultUI";
         }
 
@@ -4773,7 +4773,7 @@
     //var showUsgsWindTurbineLayer = false;
     //var showGlobalWindPowerLayer = false;
     //var showSolarInstallsLayer = false;
-    var showDrillingLayer = false;
+    //var showDrillingLayer = false;
     var showMonthlyRefugeesLayer = false;
     var showAnnualRefugeesLayer = false;
     var showAnnualReturnsLayer = false;
@@ -5331,7 +5331,7 @@
       //var show_usgs_windturbine = '<td class="wind-select"><label for="show-usgs-windturbine" name="wp"><input type="checkbox" id="show-usgs-windturbine" />Wind Power (USA)</span></label></td>';
       //var show_global_wind_power = '<td class="wind-select"><label for="show-global-wind-power" name="gwp"><input type="checkbox" id="show-global-wind-power" />Wind Power (Global)</label></td>';
       //var show_solar_installs = '<td class="solar-select"> <label for="show-solar-installs" name="sp"><input type="checkbox" id="show-solar-installs" />Solar PV (USA)</label></td>';
-      var show_drilling = '<td class="drilling-select"><label for="show-drilling" name="drl"><input type="checkbox" id="show-drilling" />Oil/Gas Drilling (USA)</label></td>';
+      //var show_drilling = '<td class="drilling-select"><label for="show-drilling" name="drl"><input type="checkbox" id="show-drilling" />Oil/Gas Drilling (USA)</label></td>';
       var show_himawari = '<td class="timemachine himawari-select"><label for="show-himawari" name="h8_16"><input type="checkbox" id="show-himawari" />Himawari-8</label></td>';
       // var show_water_occurrence = '<td class="water-occurrence-select"><label for="show-water-occurrence" name="wo"><input type="checkbox" id="show-water-occurrence" />Water Occurrence</label></td>';
       // var show_water_change = '<td class="water-change-select"><label for="show-water-change" name="wc"><input type="checkbox" id="show-water-change" />Water Change</label></td>';
@@ -5632,11 +5632,13 @@
         layer_html += '    </tr>';
       }
 */
+/*
       if (showUSDrilling) {
         layer_html += '    <tr>';
         layer_html += show_drilling;
         layer_html += '    </tr>';
       }
+*/
       if (showViirs) {
         layer_html += '    <tr>';
         layer_html += show_viirs;
@@ -6018,7 +6020,7 @@
       //legend_html += '<tr id="wind-installs-legend" style="display: none"><td><div style="background-color:#a0fe8f; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -16px; font-size: 17px">US Wind Power <span class="credit"> (USGS)</span></div></div></td></tr>';
       //legend_html += '<tr id="global-wind-power-legend" style="display: none"><td><div style="background-color:#a0fe8f; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -16px; font-size: 17px">Global Wind Power <span class="credit"> (TheWindPower.net)</span></div></div></td></tr>';
       //legend_html += '<tr id="solar-installs-legend" style="display: none"><td><div style="background-color:#7376b2; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -16px; font-size: 17px">US Solar Photovoltaic <span class="credit"> (NREL)</span></div></td></tr>';
-      legend_html += '<tr id="drilling-legend" style="display: none"><td><div style="background-color:#eda46a; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">US Oil/Gas Drilling <span class="credit"> (Mark Egge, CREATE Lab, FracTracker)</span></div></td></tr>';
+      //legend_html += '<tr id="drilling-legend" style="display: none"><td><div style="background-color:#eda46a; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">US Oil/Gas Drilling <span class="credit"> (Mark Egge, CREATE Lab, FracTracker)</span></div></td></tr>';
       // legend_html += '<tr id="water-occurrence-legend" style="display: none"><td><div style="font-size: 17px">Water Occurrence 1984-2018 <span class="credit"> (JRC)</span></div><div style="margin-left: 8px"><div style="font-size: 13px; float: left">100%</div><div style="font-size: 13px; float: right;">0%</div><div class="waterLegendGradient" style="clear: both;"></div><div style="font-size: 13px; float: left">Always water</div><div style="font-size: 13px; float: right">Never water</div></div></td></tr>';
       // legend_html += '<tr id="water-change-legend" style="display: none"><td><div style="font-size: 17px">Water Change 1984-1999 to 2000-2018 <span class="credit"> (JRC)</span></div><div style="margin-left: 8px"><div class="waterChangeLegendGradient" style="clear: both;"></div><div style="font-size: 13px; float: left">Water Decrease</div><div style="font-size: 13px; float: right">Water Increase</div></div></td></tr>';
       legend_html += '<tr id="monthly-refugees-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(right, #ff0000 0%, #ffffff 100%);background: -webkit-linear-gradient(left, #ff0000 0%,#ffffff 100%); background: linear-gradient(to right, #ff0000 0%,#ffffff 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Refugees Crossing the Mediterranean: Jan 2014 - Jun 2016 <span class="credit"> (UNHCR)</span></div></td></tr>';
@@ -6590,7 +6592,7 @@
       };
       solarInstallsLayer = new WebglVectorLayer2(glb, canvasLayer, solarInstallsUrl, solarInstallsLayerOptions);
       */
-
+      /*
       var drillingLayerOptions = {
         tileWidth: 256,
         tileHeight: 256,
@@ -6601,7 +6603,7 @@
         numAttributes: 3
       };
       drillingLayer = new WebglVectorLayer2(glb, canvasLayer, drillingUrl, drillingLayerOptions);
-
+      */
       var monthlyRefugeesLayerOptions = {
         tileWidth: 256,
         tileHeight: 256,
@@ -9074,6 +9076,7 @@
         */
 
         // Draw Oil/Gas Drilling Layer
+        /*
         if (showDrillingLayer) {
           var drillingLayerView = getLayerView(drillingLayer, landsatBaseMapLayer);
           var options = {};
@@ -9087,7 +9090,7 @@
           options.color = [0.82, 0.22, 0.07, 1.0];
           drillingLayer.draw(drillingLayerView, options);
         }
-
+        */
         // Draw Forest Alerts (No Overlay)
         if (showForestAlertsNoOverlayTimeMachineLayer) {
           var forestAlertsNoOverlayView = timelapse.getView();
