@@ -62,7 +62,6 @@ var EARTH_TIMELAPSE_CONFIG = {
   "showOmiNo2": true,
   "showChinaInfrastructure": false,
   "showBePm25": true,
-  "showIrena": true,
   "showCityLabelMap": false,
   "showTsip": true,
   "showEcco2": true,
