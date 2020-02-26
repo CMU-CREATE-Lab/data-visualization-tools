@@ -428,7 +428,7 @@
     var healthImpactLayer;
     var zikaLayer, dengueLayer, chikuLayer;
     //var viirsLayer;
-    var wdpaLayer;
+    //var wdpaLayer;
     var seaLevelRiseLayer;
     var tintedSeaLevelRiseLayer;
     var urbanFragilityLayer;
@@ -957,7 +957,7 @@
     // var waterOccurrenceUrl = rootTilePath + "/water/occurrence_2018/{default}/{z}/{x}/{y}.png";
     // var waterChangeUrl = rootTilePath + "/water/change_2018/{default}/{z}/{x}/{y}.png";
 
-    var wdpaUrl = rootTilePath + "/wdpaline-year/{z}/{x}/{y}.bin";
+    //var wdpaUrl = rootTilePath + "/wdpaline-year/{z}/{x}/{y}.bin";
     var mcrmUrl = rootTilePath + "/coral/mcrm-lines-wrapdateline/{z}/{x}/{y}.bin";
 
     //var viirsUrl = rootTilePath + "/viirs/viirs_20140817-20170917.bin";
@@ -1326,6 +1326,7 @@
       //   }
       // }).prop('checked', showWaterChangeLayer);
 
+      /*
       $("#show-wdpa").on("click", function() {
         var $this = $(this);
         if ($this.prop('checked')) {
@@ -1338,6 +1339,7 @@
           $("#wdpa-legend").hide();
         }
       }).prop('checked', showWdpaLayer);
+      */
 
       $("#show-forest-change").on("click", function() {
         var $this = $(this);
@@ -4754,7 +4756,7 @@
     //// Layer visibility ////
     //
 
-    var showWdpaLayer = false;
+    //var showWdpaLayer = false;
     var showMcrmLayer = false;
     var showHansenLayer = false;
     var showHansenLayer2 = false;
@@ -5321,7 +5323,7 @@
       // with one that already exists, then it is up to you to come up with something. Perhaps the initials of the name you would
       // give it when describing the layer to someone. Keep it as short as possible though.
       // NOTE NOTE NOTE
-      var show_wdpa = '<td class="wdpa-select"><label for="show-wdpa" name="wdpa"><input type="checkbox" id="show-wdpa" />Protected Areas</label></td>';
+      //var show_wdpa = '<td class="wdpa-select"><label for="show-wdpa" name="wdpa"><input type="checkbox" id="show-wdpa" />Protected Areas</label></td>';
       var show_forest_change = '<td class="forest-change-select"><label for="show-forest-change" name="fly"><input type="checkbox" id="show-forest-change" />Forest Loss by Year</label></td>';
       var show_forest_loss_gain = '<td class="forest-loss-gain-select"><label for="show-forest-loss-gain" name="flg"><input type="checkbox" id="show-forest-loss-gain" />Forest Loss/Gain</label></td>';
       var show_animated_forest_loss_gain = '<td class="animated-forest-loss-select"><label for="show-animated-forest-loss-gain" name="aflg"><input type="checkbox" id="show-animated-forest-loss-gain" />Forest Loss/Gain (Animated)</label></td>';
@@ -5447,9 +5449,11 @@
       /* FOREST CATEGORY */
       layer_html += '  <h3>Forests</h3>';
       layer_html += '  <table id="category-forests">';
+      /*
       layer_html += '    <tr>';
       layer_html += show_wdpa;
       layer_html += '    </tr>';
+      */
       layer_html += '    <tr>';
       layer_html += show_forest_change;
       layer_html += '    </tr>';
@@ -6018,7 +6022,7 @@
       var legend_html = '<div id="layers-legend">';
       legend_html += '<div id="legend-content">';
       legend_html += '<table cellpadding=5>';
-      legend_html += '<tr id="wdpa-legend" style="display: none"><td><div style="background-color:#33da4f; width:17px; height: 5px;"></div><div style="margin-left: 29px; margin-top: -11px; font-size: 17px">Protected Areas<span class="credit"> (UNEP-WCMC)</span></div></td></tr>';
+      //legend_html += '<tr id="wdpa-legend" style="display: none"><td><div style="background-color:#33da4f; width:17px; height: 5px;"></div><div style="margin-left: 29px; margin-top: -11px; font-size: 17px">Protected Areas<span class="credit"> (UNEP-WCMC)</span></div></td></tr>';
       legend_html += '<tr id="forest-loss-year-legend" style="display: none"><td><div style="font-size: 17px">Forest Loss By Year <span class="credit"> (Hansen et al)</span></div><div style="float:left; padding-right:3px; margin-left: 6px; font-size: 14px;">2000</div><div style="margin-top: 3px; float: left; background-image: -webkit-linear-gradient(left, yellow, orange 65%, red 100%);background-image: linear-gradient(left, yellow, orange 65%, red 100%); width: 68%; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">2018</div></div></td></tr>';
       legend_html += '<tr id="forest-loss-gain-legend" style="display: none; font-size: 14px;"><td><div style="font-size: 17px">Forest Loss/Gain 2000-2018 <span class="credit"> (Hansen et al)</span></div><div style="float: left; padding-right:8px"><div style="background-color:#00e000; width: 12px; height: 12px; float: left; margin-top: 2px; margin-left: 8px;"></div>&nbsp;Extent</div><div style="float: left; padding-right:8px"><div style="background-color:#ff0000; width: 12px; height: 12px; float: left; margin-top: 2px"></div>&nbsp;Loss</div><div style="float: left; padding-right:8px"><div style="background-color:#0000ff; width: 12px; height: 12px; float: left; margin-top: 2px"></div>&nbsp;Gain</div><div><div style="background-color:#ff00ff; width: 12px; height: 12px; float: left; margin-top: 2px"></div>&nbsp;Both</div></td></tr>';
       legend_html += '<tr id="fires-at-night-legend" style="display: none"><td><div style="background-color:#eda46a; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Fires At Night <span class="credit"> (NOAA)</span></div></td></tr>';
@@ -6557,6 +6561,8 @@
       };
       viirsLayer = new WebglVectorLayer2(glb, canvasLayer, viirsUrl, viirsLayerOptions);
       */
+
+      /*
       var wdpaLayerOptions = {
         tileWidth: 256,
         tileHeight: 256,
@@ -6567,6 +6573,7 @@
         numAttributes: 3
       };
       wdpaLayer = new WebglVectorLayer2(glb, canvasLayer, wdpaUrl, wdpaLayerOptions);
+      */
 
       /*
       var usgsWindturbineLayerOptions = {
@@ -9140,12 +9147,14 @@
         }
 
         // Draw Protected Areas (WDPA)
+        /*
         if (showWdpaLayer) {
           var options = {};
           var wdpaLayerView = getLayerView(wdpaLayer, landsatBaseMapLayer);
           wdpaLayer.draw(wdpaLayerView, options);
         }
-
+        */
+        
         // Draw Mediterranean Monthly Refugees
         if (showMonthlyRefugeesLayer) {
           var monthlyRefugeesLayerView = getLayerView(monthlyRefugeesLayer, landsatBaseMapLayer);
