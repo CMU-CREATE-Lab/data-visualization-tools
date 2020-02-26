@@ -215,7 +215,7 @@
     var showSeaLevelRise = !!EARTH_TIMELAPSE_CONFIG.showSeaLevelRise;
     var showTintedSeaLevelRise = !!EARTH_TIMELAPSE_CONFIG.showTintedSeaLevelRise;
     var showUrbanFragility = !!EARTH_TIMELAPSE_CONFIG.showUrbanFragility;
-    var showGtd = !!EARTH_TIMELAPSE_CONFIG.showGtd;
+    //var showGtd = !!EARTH_TIMELAPSE_CONFIG.showGtd;
     var showHiv = !!EARTH_TIMELAPSE_CONFIG.showHiv;
     var showObesity = !!EARTH_TIMELAPSE_CONFIG.showObesity;
     var showVaccineConfidence = !!EARTH_TIMELAPSE_CONFIG.showVaccineConfidence;
@@ -434,7 +434,7 @@
     var urbanFragilityLayer;
     var coralBleachingLayer;
     var monthlyRefugeesLayer;
-    var gtdLayer;
+    //var gtdLayer;
     var hivLayer;
     var obesityLayer;
     var vaccineConfidenceLayer;
@@ -987,7 +987,7 @@
 
     var seaLevelRiseUrl = rootTilePath + "/sea-level-rise/201704_lockin_animated_land/{z}/{x}/{y}.png"; //"http://a.ss2tiles.climatecentral.org/lockin_animated_land/{z}/{x}/{y}.png";
     var urbanFragilityUrl = rootTilePath + "/urban-fragility/{z}/{x}/{y}.bin";
-    var gtdUrl = rootTilePath + "/gtd/{z}/{x}/{y}.bin";
+    //var gtdUrl = rootTilePath + "/gtd/{z}/{x}/{y}.bin";
     var hivUrl = rootTilePath + "/hiv/{z}/{x}/{y}.bin";
     var obesityUrl = rootTilePath + "/obesity/{z}/{x}/{y}.geojson";
     var vaccineConfidenceUrl = rootTilePath + "/vaccine-confidence/{z}/{x}/{y}.geojson";
@@ -2667,7 +2667,7 @@
           $("#urban-fragility-legend").hide();
         }
       }).prop('checked', showUrbanFragilityLayer);
-
+      /*
       $("#show-gtd").on("click", function() {
         var $this = $(this);
         if ($this.prop('checked')) {
@@ -2683,7 +2683,7 @@
           $("#gtd-legend").hide();
         }
       }).prop('checked', showGtdLayer);
-
+      */
       $("#show-uppsala-conflict").on("click", function() {
         var $this = $(this);
         if ($this.prop('checked')) {
@@ -4795,7 +4795,7 @@
     var showSeaLevelRiseLayer = false;
     var showTintedSeaLevelRiseLayer = false;
     var showUrbanFragilityLayer = false;
-    var showGtdLayer = false;
+    //var showGtdLayer = false;
     var showUppsalaConflictLayer = false;
     var showHivLayer = false;
     var showObesityLayer = false;
@@ -5362,7 +5362,7 @@
       var show_tinted_sea_level_rise_4p0 = '<td class="tinted-sea-level-rise-4p0-select"><label for="show-tinted-sea-level-rise-4p0" name="tinted_slr4"><input type="checkbox" id="show-tinted-sea-level-rise-4p0" />Tinted Sea Level Rise Due to 4.0&deg;C Increase</label></td>';
 
       var show_urban_fragility = '<td class="urban-fragility-select"><label for="show-urban-fragility" name="uf"><input type="checkbox" id="show-urban-fragility" />Urban Fragility</label></td>';
-      var show_gtd = '<td class="gtd-select"><label for="show-gtd" name="gtd"><input type="checkbox" id="show-gtd" />Global Terrorism Database</label></td>';
+      //var show_gtd = '<td class="gtd-select"><label for="show-gtd" name="gtd"><input type="checkbox" id="show-gtd" />Global Terrorism Database</label></td>';
       var show_uppsala_conflict = '<td class="uppsala-conflict-select"><label for="show-uppsala-conflict" name="uppsala-conflict"><input type="checkbox" id="show-uppsala-conflict" />Organized Violence Fatalities</label></td>';
       var show_hiv = '<td class="hiv-select"><label for="show-hiv" name="hiv"><input type="checkbox" id="show-hiv" />HIV Infections</label></td>';
       var show_obesity = '<td class="obesity-select"><label for="show-obesity" name="obesity"><input type="checkbox" id="show-obesity" />Obesity</label></td>';
@@ -5907,11 +5907,13 @@
       /* MISC CATEGORY */
       layer_html += '  <h3>Other</h3>';
       layer_html += '  <table id="category-other">';
+      /*
       if (showGtd) {
         layer_html += '    <tr>';
         layer_html += show_gtd;
         layer_html += '    </tr>';
       }
+      */
       if (showUppsalaConflict) {
         layer_html += '    <tr>';
         layer_html += show_uppsala_conflict;
@@ -6055,7 +6057,7 @@
       legend_html += '<tr id="zika-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Zika Virus <span class="credit"> (LSHTM)</span></div></td></tr>';
       legend_html += '<tr id="chiku-legend" style="display: none"><td><div style="background-color:#6070ff; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Chikungunya Virus <span class="credit"> (LSHTM)</span></div></td></tr>';
       legend_html += '<tr id="dengue-legend" style="display: none"><td><div style="background-color:#a1ef5f; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Dengue Virus <span class="credit"> (LSHTM)</span></div></td></tr>';
-      legend_html += '<tr id="gtd-legend" style="display: none"><td><div style="float:left; background-color:red; width:17px; height: 5px;"></div><div style="margin-left: 29px; margin-top: -5px; font-size: 17px">Global Terrorism Database Events <span class="credit"> (UMD)</span></div></td></tr>';
+      //legend_html += '<tr id="gtd-legend" style="display: none"><td><div style="float:left; background-color:red; width:17px; height: 5px;"></div><div style="margin-left: 29px; margin-top: -5px; font-size: 17px">Global Terrorism Database Events <span class="credit"> (UMD)</span></div></td></tr>';
       legend_html += '<tr id="uppsala-conflict-legend" style="display: none"><td><div style="float:left; background-color:red; width:17px; height: 5px;"></div><div style="margin-left: 29px; margin-top: -5px; font-size: 17px">Organized Violence Fatalities<span class="credit"> (UCDP)</span></div></td></tr>';
       legend_html += '<tr id="hiv-legend" style="display: none"><td><div style="font-size: 17px">Annual new HIV infections <span class="credit"> (LSHTM)</span></div></div><svg class="svg-legend" width="200" height="29"><rect fill="#ffffff" x="0" height="9" width="20.0"></rect><rect fill="#ffd8e7" x="20." height="9" width="20.0"></rect><rect fill="#feb1d1" x="40." height="9" width="20.0"></rect><rect fill="#f18bbd" x="60." height="9" width="20.0"></rect><rect fill="#dd68ac" x="80." height="9" width="20.0"></rect><rect fill="#c4479e" x="100." height="9" width="20.0"></rect><rect fill="#a52792" x="120." height="9" width="20.0"></rect><rect fill="#7d0989" x="140." height="9" width="20.0"></rect><rect fill="#4b0082" x="160." height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">1K</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="35">10K</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="80">100K</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="155">850K</text></svg></td></tr>';
       legend_html += '<tr id="obesity-legend" style="display: none"><td><div style="font-size: 17px">Obesity prevalence among adults <span class="credit"> (LSHTM)</span></div><svg class="svg-legend" width="200" height="29"> <rect fill="#ffffff" x="0" height="9" width="20"></rect><rect fill="#fff18e" x="20" height="9" width="20"></rect><rect fill="#ffdc5b" x="40" height="9" width="20"></rect><rect fill="#ffc539" x="60" height="9" width="20"></rect><rect fill="#ffad21" x="80" height="9" width="20"></rect><rect fill="#ff920c" x="100" height="9" width="20"></rect><rect fill="#ff7500" x="120" height="9" width="20"></rect><rect fill="#ff5000" x="140" height="9" width="20"></rect><rect fill="#ff0000" x="160" height="9" width="20"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">0%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="80">15%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="160">>30%</text></svg></td></tr>';
@@ -6732,6 +6734,7 @@
       };
       urbanFragilityLayer = new WebglVectorLayer2(glb, canvasLayer, urbanFragilityUrl, urbanFragilityLayerOptions);
 
+      /*
       var gtdLayerOptions = {
         tileWidth: 256,
         tileHeight: 256,
@@ -6742,6 +6745,7 @@
         numAttributes: 4
       };
       gtdLayer = new WebglVectorLayer2(glb, canvasLayer, gtdUrl, gtdLayerOptions);
+      */
 
       var uppsalaConflictLayerOptions = {
         tileWidth: 256,
@@ -9154,7 +9158,7 @@
           wdpaLayer.draw(wdpaLayerView, options);
         }
         */
-        
+
         // Draw Mediterranean Monthly Refugees
         if (showMonthlyRefugeesLayer) {
           var monthlyRefugeesLayerView = getLayerView(monthlyRefugeesLayer, landsatBaseMapLayer);
@@ -9438,6 +9442,7 @@
 
         }
 
+        /*
         if (showGtdLayer) {
           var gtdLayerView = getLayerView(gtdLayer, landsatBaseMapLayer);
           var options = {};
@@ -9451,6 +9456,7 @@
           options.color = [1.0, 0.0, 0.0, 1.0];
           gtdLayer.draw(gtdLayerView, options);
         }
+        */
 
         if (showUppsalaConflictLayer) {
           var uppsalaConflictLayerView = getLayerView(uppsalaConflictLayer, landsatBaseMapLayer);
