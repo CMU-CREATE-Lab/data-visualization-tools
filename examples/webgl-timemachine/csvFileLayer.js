@@ -141,6 +141,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
 
   var url = layerDef["URL"].replace("http://", "https://");
   var useLocalData = false;
+  var remoteDataHosts = EARTH_TIMELAPSE_CONFIG.remoteDataHosts || ["tiles.earthtime.org"];
 
   // Change a *subset* of layer URLs to be local
   // Assumes the layer ID is being passed in to the localCsvLayers array
@@ -156,9 +157,12 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
     useLocalData = true;
   }
 
-  // TODO: Right now we only handle local storage of data that was stored at tiles.earthtime.org
-  if (useLocalData && layerDef["URL"].indexOf("tiles.earthtime.org") > 0) {
-    url = layerDef["URL"].replace(/https*:\/\/tiles.earthtime.org/, getRootTilePath());
+  if (useLocalData) {
+    for (var i = 0; i < remoteDataHosts.length; i++) {
+      if (layerDef["URL"].indexOf(remoteDataHosts[i]) > 0) {
+        url = layerDef["URL"].replace(/https*:\/\/tiles.earthtime.org/g, getRootTilePath());
+      }
+    }
   }
 
   layerOptions.name = layerDef["Name"];
