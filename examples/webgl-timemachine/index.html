@@ -211,7 +211,7 @@
     var showHealthImpact = !!EARTH_TIMELAPSE_CONFIG.showHealthImpact;
     //var showZika = !!EARTH_TIMELAPSE_CONFIG.showZika;
     //var showDengue = !!EARTH_TIMELAPSE_CONFIG.showDengue;
-    var showChiku = !!EARTH_TIMELAPSE_CONFIG.showChiku;
+    //var showChiku = !!EARTH_TIMELAPSE_CONFIG.showChiku;
     var showSeaLevelRise = !!EARTH_TIMELAPSE_CONFIG.showSeaLevelRise;
     var showTintedSeaLevelRise = !!EARTH_TIMELAPSE_CONFIG.showTintedSeaLevelRise;
     var showUrbanFragility = !!EARTH_TIMELAPSE_CONFIG.showUrbanFragility;
@@ -427,7 +427,6 @@
     // var vsiLayer;
     var healthImpactLayer;
     //var zikaLayer, dengueLayer, chikuLayer;
-    var chikuLayer;
     //var viirsLayer;
     //var wdpaLayer;
     var seaLevelRiseLayer;
@@ -984,7 +983,7 @@
     var healthImpactUrl = rootTilePath + "/health-impact/{z}/{x}/{y}.bin";
     //var zikaUrl = rootTilePath + "/pandemics/zika/{z}/{x}/{y}.bin";
     //var dengueUrl = rootTilePath + "/pandemics/dengue/{z}/{x}/{y}.bin";
-    var chikuUrl = rootTilePath + "/pandemics/chiku/{z}/{x}/{y}.bin";
+    //var chikuUrl = rootTilePath + "/pandemics/chiku/{z}/{x}/{y}.bin";
 
     var seaLevelRiseUrl = rootTilePath + "/sea-level-rise/201704_lockin_animated_land/{z}/{x}/{y}.png"; //"http://a.ss2tiles.climatecentral.org/lockin_animated_land/{z}/{x}/{y}.png";
     var urbanFragilityUrl = rootTilePath + "/urban-fragility/{z}/{x}/{y}.bin";
@@ -2497,6 +2496,7 @@
         }
       }).prop('checked', showDengueLayer);
       */
+      /*
       $("#show-chiku").on("click", function() {
         var $this = $(this);
         if ($this.prop('checked')) {
@@ -2515,6 +2515,7 @@
           $("#chiku-legend").hide();
         }
       }).prop('checked', showChikuLayer);
+      */
 
       $("#show-sea-level-rise-1p0").on("click", function() {
         var $this = $(this);
@@ -4796,7 +4797,7 @@
     var showHealthImpactRcp = [false, false, false, false]; // 2.6, 4.5, 6.0, 8.5
     //var showZikaLayer = false;
     //var showDengueLayer = false;
-    var showChikuLayer = false;
+    //var showChikuLayer = false;
     var showSeaLevelRiseLayer = false;
     var showTintedSeaLevelRiseLayer = false;
     var showUrbanFragilityLayer = false;
@@ -5359,7 +5360,7 @@
       var show_health_impact_rcp8p5 = '<td class="health-impact-rcp8p5-select"><label for="show-health-impact-rcp8p5" name="hi-rcp8p5"><input type="checkbox" id="show-health-impact-rcp8p5" />Nutritional Deficiency RCP8.5</label></td>';
       //var show_zika = '<td class="zika-select"> <label for="show-zika" name="zv"><input type="checkbox" id="show-zika" />Zika</label></td>';
       //var show_dengue = '<td class="dengue-select"> <label for="show-dengue" name="dv"><input type="checkbox" id="show-dengue" />Dengue</label></td>';
-      var show_chiku = '<td class="chiku-select"> <label for="show-chiku" name="cv"><input type="checkbox" id="show-chiku" />Chikungunya</label></td>';
+      //var show_chiku = '<td class="chiku-select"> <label for="show-chiku" name="cv"><input type="checkbox" id="show-chiku" />Chikungunya</label></td>';
       var show_sea_level_rise_1p0 = '<td class="sea-level-rise-1p0-select"><label for="show-sea-level-rise-1p0" name="slr10"><input type="checkbox" id="show-sea-level-rise-1p0" />Sea Level Rise Due to 1.0&deg;C Increase</label></td>';
       var show_sea_level_rise_1p5 = '<td class="sea-level-rise-1p5-select"><label for="show-sea-level-rise-1p5" name="slr15"><input type="checkbox" id="show-sea-level-rise-1p5" />Sea Level Rise Due to 1.5&deg;C Increase</label></td>';
       var show_sea_level_rise_2p0 = '<td class="sea-level-rise-2p0-select"><label for="show-sea-level-rise-2p0" name="slr2"><input type="checkbox" id="show-sea-level-rise-2p0" />Sea Level Rise Due to 2.0&deg;C Increase</label></td>';
@@ -5802,11 +5803,13 @@
         layer_html += '    </tr>';
       }
       */
+      /*
       if (showChiku) {
         layer_html += '    <tr>';
         layer_html += show_chiku;
         layer_html += '    </tr>';
       }
+      */
       if (showEbola) {
         layer_html += '    <tr>';
         layer_html += show_ebola_deaths;
@@ -6066,7 +6069,7 @@
       legend_html += '<tr id="tibnted-sea-level-rise-legend" style="display: none"><td><div style="font-size: 17px">Global Temperature Rise <span id="slr-degree"></span> &#x2103;<span class="credit"> (Climate Central)</span></div><div style="font-size: 15px">Multi-century Sea Level Increase:<span id="slr-feet" style="width:25px;"></span>&nbsp;<span id="slr-meters" style="width:25px; color: red;"></span></div></td></tr>';
       legend_html += '<tr id="urban-fragility-legend" style="display: none"><td><div style="font-size: 17px">Fragile Score <span class="credit"> (Igarape Institute)</span></div></div><svg class="svg-legend" width="200" height="30"> <rect fill="#313695" x="0" height="9" width="20"></rect><rect fill="#4575b4" x="20" height="9" width="20"></rect><rect fill="#74add1" x="40" height="9" width="20"></rect><rect fill="#abd9e9" x="60" height="9" width="20"></rect><rect fill="#e0f3f8" x="80" height="9" width="20"></rect><rect fill="#ffffbf" x="100" height="9" width="20"></rect><rect fill="#fee090" x="120" height="9" width="20"></rect><rect fill="#fdae61" x="140" height="9" width="20"></rect><rect fill="#f46d43" x="160" height="9" width="20"></rect><rect fill="#d73027" x="180" height="9" width="20"></rect><rect fill="#a50026" x="200" height="9" width="20"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">1.0</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="100">2.25</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="185">3.5</text></svg></td></tr>';
       //legend_html += '<tr id="zika-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Zika Virus <span class="credit"> (LSHTM)</span></div></td></tr>';
-      legend_html += '<tr id="chiku-legend" style="display: none"><td><div style="background-color:#6070ff; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Chikungunya Virus <span class="credit"> (LSHTM)</span></div></td></tr>';
+      //legend_html += '<tr id="chiku-legend" style="display: none"><td><div style="background-color:#6070ff; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Chikungunya Virus <span class="credit"> (LSHTM)</span></div></td></tr>';
       //legend_html += '<tr id="dengue-legend" style="display: none"><td><div style="background-color:#a1ef5f; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Dengue Virus <span class="credit"> (LSHTM)</span></div></td></tr>';
       //legend_html += '<tr id="gtd-legend" style="display: none"><td><div style="float:left; background-color:red; width:17px; height: 5px;"></div><div style="margin-left: 29px; margin-top: -5px; font-size: 17px">Global Terrorism Database Events <span class="credit"> (UMD)</span></div></td></tr>';
       //legend_html += '<tr id="uppsala-conflict-legend" style="display: none"><td><div style="float:left; background-color:red; width:17px; height: 5px;"></div><div style="margin-left: 29px; margin-top: -5px; font-size: 17px">Organized Violence Fatalities<span class="credit"> (UCDP)</span></div></td></tr>';
@@ -6705,6 +6708,7 @@
       };
       dengueLayer = new WebglVectorLayer2(glb, canvasLayer, dengueUrl, dengueLayerOptions);
       */
+      /*
       var chikuLayerOptions = {
         tileWidth: 256,
         tileHeight: 256,
@@ -6715,7 +6719,7 @@
         numAttributes: 3
       };
       chikuLayer = new WebglVectorLayer2(glb, canvasLayer, chikuUrl, chikuLayerOptions);
-
+      */
       var seaLevelRiseLayerOptions = {
         nLevels: 9,
         tileWidth: 256,
@@ -9325,6 +9329,7 @@
         }
         */
         // Draw Chiku Layer
+        /*
         if (showChikuLayer) {
           var chikuLayerView = getLayerView(chikuLayer, landsatBaseMapLayer);
           var options = {};
@@ -9340,7 +9345,7 @@
           options.pointSize = 10.0;
           chikuLayer.draw(chikuLayerView, options);
         }
-
+        */
         // Draw Sea Level Rise Layer
         if (showSeaLevelRiseLayer) {
           var sea_level_heights = [
