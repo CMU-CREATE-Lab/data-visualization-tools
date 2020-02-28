@@ -220,7 +220,7 @@
     var showObesity = !!EARTH_TIMELAPSE_CONFIG.showObesity;
     var showVaccineConfidence = !!EARTH_TIMELAPSE_CONFIG.showVaccineConfidence;
     var showNdviAnomaly = !!EARTH_TIMELAPSE_CONFIG.showNdviAnomaly;
-    var showEbola = !!EARTH_TIMELAPSE_CONFIG.showEbola;
+    //var showEbola = !!EARTH_TIMELAPSE_CONFIG.showEbola;
     // var showWaterOccurrence = !!EARTH_TIMELAPSE_CONFIG.showWaterOccurrence;
     // var showWaterChange = !!EARTH_TIMELAPSE_CONFIG.showWaterChange;
     var showSeaLevelRise = !!EARTH_TIMELAPSE_CONFIG.showSeaLevelRise;
@@ -440,7 +440,7 @@
     var vaccineConfidenceLayer;
     //var ebolaDeathsLayer;
     //var ebolaCasesLayer;
-    var ebolaNewCasesLayer;
+    //var ebolaNewCasesLayer;
     var lodesLayer;
     var cumulativeActiveMiningLayer;
     var iomIdpLayer;
@@ -993,7 +993,7 @@
     var vaccineConfidenceUrl = rootTilePath + "/vaccine-confidence/{z}/{x}/{y}.geojson";
     //var ebolaDeathsUrl = rootTilePath + "/ebola/deaths/{z}/{x}/{y}.bin";
     //var ebolaCasesUrl = rootTilePath + "/ebola/cases/{z}/{x}/{y}.bin";
-    var ebolaNewCasesUrl = rootTilePath + "/ebola/new-cases/{z}/{x}/{y}.bin";
+    //var ebolaNewCasesUrl = rootTilePath + "/ebola/new-cases/{z}/{x}/{y}.bin";
 
     var lodesUrl = rootTilePath + "/lodes/lodes-10/{z}/{x}/{y}.bin";
 
@@ -2927,7 +2927,7 @@
         }
       }).prop('checked', showEbolaCasesLayer);
       */
-
+      /*
       $("#show-ebola-new-cases").on("click", function() {
         var $this = $(this);
         if ($this.prop('checked')) {
@@ -2950,7 +2950,7 @@
           $("#ebola-new-cases-legend").hide();
         }
       }).prop('checked', showEbolaNewCasesLayer);
-
+      */
       $("#show-lodes").on("click", function() {
         initLodesGui();
         var dg = document.getElementsByClassName("dg ac")[0];
@@ -4812,7 +4812,7 @@
     var showVaccineConfidenceLayer = false;
     //var showEbolaDeathsLayer = false;
     //var showEbolaCasesLayer = false;
-    var showEbolaNewCasesLayer = false;
+    //var showEbolaNewCasesLayer = false;
     var showLodesLayer = false;
     var showCumulativeActiveMiningLayer = false;
     var showIomIdpLayer = false;
@@ -5383,7 +5383,7 @@
       var show_ndvi_anomaly = '<td class="ndvi-anomaly-select"><label for="show-ndvi-anomaly" name="ndvia"><input type="checkbox" id="show-ndvi-anomaly" />Vegetation Index Reduction</label></td>';
       //var show_ebola_deaths = '<td class="ebola-deaths-select"><label for="show-ebola-deaths" name="ed"><input type="checkbox" id="show-ebola-deaths" />Ebola Deaths</label></td>';
       //var show_ebola_cases = '<td class="ebola-cases-select"><label for="show-ebola-cases" name="ec"><input type="checkbox" id="show-ebola-cases" />Ebola Cases</label></td>';
-      var show_ebola_new_cases = '<td class="ebola-new-cases-select"><label for="show-ebola-new-cases" name="enc"><input type="checkbox" id="show-ebola-new-cases" />Ebola New Cases</label></td>';
+      //var show_ebola_new_cases = '<td class="ebola-new-cases-select"><label for="show-ebola-new-cases" name="enc"><input type="checkbox" id="show-ebola-new-cases" />Ebola New Cases</label></td>';
       var show_lodes = '<td class="lodes-select"><label for="show-lodes" name="lodes"><input type="checkbox" id="show-lodes" />LODES</label></td>';
       var show_cumulative_active_mining_layer = '<td class="cumulative-active-mining-select"><label for="show-cumulative-active-mining" name="cumulative-active-mining"><input type="checkbox" id="show-cumulative-active-mining" />Active Mining</label></td>';
       var show_iraq_iom_idp = '<td class="iraq-iom-idp-select"><label for="show-iraq-iom-idp" name="iraq-iom-idp"><input type="checkbox" id="show-iraq-iom-idp" />Iraq IDPs</label></td>';
@@ -5814,7 +5814,7 @@
         layer_html += '    </tr>';
       }
       */
-      if (showEbola) {
+      //if (showEbola) {
         /*
         layer_html += '    <tr>';
         layer_html += show_ebola_deaths;
@@ -5825,10 +5825,12 @@
         layer_html += show_ebola_cases;
         layer_html += '    </tr>';
         */
+        /*
         layer_html += '    <tr>';
         layer_html += show_ebola_new_cases;
         layer_html += '    </tr>';
-      }
+        */
+      //}
       if (showHiv) {
         layer_html += '    <tr>';
         layer_html += show_hiv;
@@ -6089,8 +6091,8 @@
       legend_html += '<tr id="vaccine-confidence-q4-legend" style="display: none"><td><div style="font-size: 13px">Disagree that vaccines are compatible with my religious beliefs <span class="credit"> (LSHTM)</span></div><svg class="svg-legend" width="200" height="29"><rect fill="#ffffe0" x="0" height="9" width="20.0"></rect><rect fill="#ffe3af" x="20" height="9" width="20.0"></rect><rect fill="#ffc58a" x="40" height="9" width="20.0"></rect><rect fill="#ffa474" x="60" height="9" width="20.0"></rect><rect fill="#fa8266" x="80" height="9" width="20.0"></rect><rect fill="#ed645c" x="100" height="9" width="20.0"></rect><rect fill="#db4551" x="120" height="9" width="20.0"></rect><rect fill="#c52940" x="140" height="9" width="20.0"></rect><rect fill="#aa0e27" x="160" height="9" width="20.0"></rect><rect fill="#8b0000" x="180" height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">0%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="90">23%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="180">47%</text></svg></td></tr>';
       legend_html += '<tr id="ndvi-anomaly-legend" style="display: none"><td><div style="font-size: 17px">Vegetation Reduction <span class="credit"> (USGS)</span></div><div style="margin-left: 8px"><div class="ndviAnomalyLegendGradient" style="clear: both;"></div><div style="font-size: 13px; float: left">Gain</div><div style="font-size: 13px; float: right">Loss</div></div></td></tr>';
       //legend_html += '<tr id="ebola-deaths-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Ebola Deaths <span class="credit"> (LSHTM)</span></div></td></tr>';
-      legend_html += '<tr id="ebola-cases-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Ebola Cases <span class="credit"> (LSHTM)</span></div></td></tr>';
-      legend_html += '<tr id="ebola-new-cases-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Ebola New Cases <span class="credit"> (LSHTM)</span></div></td></tr>';
+      //legend_html += '<tr id="ebola-cases-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Ebola Cases <span class="credit"> (LSHTM)</span></div></td></tr>';
+      //legend_html += '<tr id="ebola-new-cases-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Ebola New Cases <span class="credit"> (LSHTM)</span></div></td></tr>';
       legend_html += '<tr id="lodes-legend" style="display: none"><td><div>LODES<span class="credit"> (US Census)</span></div></td></tr>';
       legend_html += '<tr id="cumulative-active-mining-legend" style="display: none"><td><div>Active Mining<span class="credit"> (SkyTruth)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">1984</div><div style="margin-top: 3px; float: left; background-image: -webkit-linear-gradient( to right, rgb(255,255,255),rgb(128,0,0));background-image: linear-gradient(to right, rgb(255,255,255),rgb(128,0,0)); width: 50%; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">2016</div></td></tr>';
       legend_html += '<tr id="iraq-iom-idp-legend" style="display: none"><td><div>IRAQ IDPS<span class="credit"> (IOM)</span></div></td></tr>';
@@ -6821,6 +6823,7 @@
       };
       vaccineConfidenceLayer = new WebglVectorLayer2(glb, canvasLayer, vaccineConfidenceUrl, vaccineConfidenceLayerOptions);
 
+      /*
       var ebolaLayerOptions = {
         tileWidth: 256,
         tileHeight: 256,
@@ -6830,9 +6833,10 @@
         vertexShader: WebGLVectorTile2.bubbleMapVertexShader,
         numAttributes: 6
       };
+      */
       //ebolaDeathsLayer = new WebglVectorLayer2(glb, canvasLayer, ebolaDeathsUrl, ebolaLayerOptions);
       //ebolaCasesLayer = new WebglVectorLayer2(glb, canvasLayer, ebolaCasesUrl, ebolaLayerOptions);
-      ebolaNewCasesLayer = new WebglVectorLayer2(glb, canvasLayer, ebolaNewCasesUrl, ebolaLayerOptions);
+      //ebolaNewCasesLayer = new WebglVectorLayer2(glb, canvasLayer, ebolaNewCasesUrl, ebolaLayerOptions);
 
       var lodesLayerOptions = {
         tileWidth: 256,
@@ -9582,6 +9586,7 @@
           ebolaCasesLayer.draw(ebolaLayerView, options);
         }
         */
+        /*
         if (showEbolaNewCasesLayer) {
           var ebolaLayerView = getLayerView(ebolaNewCasesLayer, landsatBaseMapLayer);
           var options = {};
@@ -9596,7 +9601,7 @@
           options.pointSize = 5.0;
           ebolaNewCasesLayer.draw(ebolaLayerView, options);
         }
-
+        */
         if (showCumulativeActiveMiningLayer) {
           var cumulativeActiveMiningLayerView = getLayerView(cumulativeActiveMiningLayer, landsatBaseMapLayer);
           var options = {};
