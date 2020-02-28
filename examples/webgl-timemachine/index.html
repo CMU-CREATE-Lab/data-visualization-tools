@@ -439,7 +439,7 @@
     var obesityLayer;
     var vaccineConfidenceLayer;
     //var ebolaDeathsLayer;
-    var ebolaCasesLayer;
+    //var ebolaCasesLayer;
     var ebolaNewCasesLayer;
     var lodesLayer;
     var cumulativeActiveMiningLayer;
@@ -992,7 +992,7 @@
     var obesityUrl = rootTilePath + "/obesity/{z}/{x}/{y}.geojson";
     var vaccineConfidenceUrl = rootTilePath + "/vaccine-confidence/{z}/{x}/{y}.geojson";
     //var ebolaDeathsUrl = rootTilePath + "/ebola/deaths/{z}/{x}/{y}.bin";
-    var ebolaCasesUrl = rootTilePath + "/ebola/cases/{z}/{x}/{y}.bin";
+    //var ebolaCasesUrl = rootTilePath + "/ebola/cases/{z}/{x}/{y}.bin";
     var ebolaNewCasesUrl = rootTilePath + "/ebola/new-cases/{z}/{x}/{y}.bin";
 
     var lodesUrl = rootTilePath + "/lodes/lodes-10/{z}/{x}/{y}.bin";
@@ -2903,6 +2903,7 @@
       }).prop('checked', showEbolaDeathsLayer);
       */
 
+      /*
       $("#show-ebola-cases").on("click", function() {
         var $this = $(this);
         if ($this.prop('checked')) {
@@ -2925,6 +2926,7 @@
           $("#ebola-cases-legend").hide();
         }
       }).prop('checked', showEbolaCasesLayer);
+      */
 
       $("#show-ebola-new-cases").on("click", function() {
         var $this = $(this);
@@ -4809,7 +4811,7 @@
     var showObesityLayer = false;
     var showVaccineConfidenceLayer = false;
     //var showEbolaDeathsLayer = false;
-    var showEbolaCasesLayer = false;
+    //var showEbolaCasesLayer = false;
     var showEbolaNewCasesLayer = false;
     var showLodesLayer = false;
     var showCumulativeActiveMiningLayer = false;
@@ -5380,7 +5382,7 @@
       var show_vaccine_confidence_q4 = '<td class="vaccine-confidence-q4-select"><label for="show-vaccine-confidence-q4" name="vc4"><input type="checkbox" id="show-vaccine-confidence-q4" />Vaccines & Religion</label></td>';
       var show_ndvi_anomaly = '<td class="ndvi-anomaly-select"><label for="show-ndvi-anomaly" name="ndvia"><input type="checkbox" id="show-ndvi-anomaly" />Vegetation Index Reduction</label></td>';
       //var show_ebola_deaths = '<td class="ebola-deaths-select"><label for="show-ebola-deaths" name="ed"><input type="checkbox" id="show-ebola-deaths" />Ebola Deaths</label></td>';
-      var show_ebola_cases = '<td class="ebola-cases-select"><label for="show-ebola-cases" name="ec"><input type="checkbox" id="show-ebola-cases" />Ebola Cases</label></td>';
+      //var show_ebola_cases = '<td class="ebola-cases-select"><label for="show-ebola-cases" name="ec"><input type="checkbox" id="show-ebola-cases" />Ebola Cases</label></td>';
       var show_ebola_new_cases = '<td class="ebola-new-cases-select"><label for="show-ebola-new-cases" name="enc"><input type="checkbox" id="show-ebola-new-cases" />Ebola New Cases</label></td>';
       var show_lodes = '<td class="lodes-select"><label for="show-lodes" name="lodes"><input type="checkbox" id="show-lodes" />LODES</label></td>';
       var show_cumulative_active_mining_layer = '<td class="cumulative-active-mining-select"><label for="show-cumulative-active-mining" name="cumulative-active-mining"><input type="checkbox" id="show-cumulative-active-mining" />Active Mining</label></td>';
@@ -5818,9 +5820,11 @@
         layer_html += show_ebola_deaths;
         layer_html += '    </tr>';
         */
+        /*
         layer_html += '    <tr>';
         layer_html += show_ebola_cases;
         layer_html += '    </tr>';
+        */
         layer_html += '    <tr>';
         layer_html += show_ebola_new_cases;
         layer_html += '    </tr>';
@@ -6827,7 +6831,7 @@
         numAttributes: 6
       };
       //ebolaDeathsLayer = new WebglVectorLayer2(glb, canvasLayer, ebolaDeathsUrl, ebolaLayerOptions);
-      ebolaCasesLayer = new WebglVectorLayer2(glb, canvasLayer, ebolaCasesUrl, ebolaLayerOptions);
+      //ebolaCasesLayer = new WebglVectorLayer2(glb, canvasLayer, ebolaCasesUrl, ebolaLayerOptions);
       ebolaNewCasesLayer = new WebglVectorLayer2(glb, canvasLayer, ebolaNewCasesUrl, ebolaLayerOptions);
 
       var lodesLayerOptions = {
@@ -9562,6 +9566,7 @@
           ebolaDeathsLayer.draw(ebolaLayerView, options);
         }
         */
+        /*
         if (showEbolaCasesLayer) {
           var ebolaLayerView = getLayerView(ebolaCasesLayer, landsatBaseMapLayer);
           var options = {};
@@ -9576,7 +9581,7 @@
           options.pointSize = 2.5;
           ebolaCasesLayer.draw(ebolaLayerView, options);
         }
-
+        */
         if (showEbolaNewCasesLayer) {
           var ebolaLayerView = getLayerView(ebolaNewCasesLayer, landsatBaseMapLayer);
           var options = {};
