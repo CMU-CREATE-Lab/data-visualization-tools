@@ -3208,7 +3208,8 @@ WebGLVectorTile2.prototype._drawUrbanFragility = function(transform, options) {
     var matrixLoc = gl.getUniformLocation(this.program, 'u_MapMatrix');
     gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
 
-    var year = options.year;
+
+    var year = options.year || options.currentTime.getUTCFullYear();
     var delta = options.delta;
 
     var deltaLoc = gl.getUniformLocation(this.program, 'u_Delta');
