@@ -1828,6 +1828,9 @@ WebGLVectorTile2.prototype._setObesityData = function(data) {
 
       // Upload the image into the texture.
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._image);
+
+      this._dataLoaded(this.layerId);
+
     }
   }
 }
@@ -3261,7 +3264,7 @@ WebGLVectorTile2.prototype._drawObesity = function(transform, options) {
     scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
     scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-    var year = options.year;
+    var year = options.year || options.currentTime.getUTCFullYear();
     var delta = options.delta;
 
     var matrixLoc = gl.getUniformLocation(this.program, 'u_MapMatrix');
