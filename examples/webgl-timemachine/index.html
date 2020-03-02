@@ -189,13 +189,13 @@
       }
     }
 
-    var showEVA = !!EARTH_TIMELAPSE_CONFIG.showEVA;
+    ////var showEVA = !!EARTH_TIMELAPSE_CONFIG.showEVA;
     var showGFW = !!EARTH_TIMELAPSE_CONFIG.showGFW;
     var showLodes = !!EARTH_TIMELAPSE_CONFIG.showLodes;
     var showStories = typeof(EARTH_TIMELAPSE_CONFIG.showStories) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showStories;
     var showCustomDotmaps = typeof(EARTH_TIMELAPSE_CONFIG.showCustomDotmaps) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showCustomDotmaps;
     var showCsvLayers = !!EARTH_TIMELAPSE_CONFIG.showCsvLayers;
-    var showForestAlerts = !!EARTH_TIMELAPSE_CONFIG.showForestAlerts;
+    ////var showForestAlerts = !!EARTH_TIMELAPSE_CONFIG.showForestAlerts;
     var showCoral = typeof(EARTH_TIMELAPSE_CONFIG.showCoral) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showCoral;
     var showCoralBleaching = typeof(EARTH_TIMELAPSE_CONFIG.showCoralBleaching) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showCoralBleaching;
     var showHimawari8 = typeof(EARTH_TIMELAPSE_CONFIG.showHimawari8) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showHimawari8;
@@ -213,7 +213,7 @@
     //var showDengue = !!EARTH_TIMELAPSE_CONFIG.showDengue;
     //var showChiku = !!EARTH_TIMELAPSE_CONFIG.showChiku;
     var showSeaLevelRise = !!EARTH_TIMELAPSE_CONFIG.showSeaLevelRise;
-    var showTintedSeaLevelRise = !!EARTH_TIMELAPSE_CONFIG.showTintedSeaLevelRise;
+    ////var showTintedSeaLevelRise = !!EARTH_TIMELAPSE_CONFIG.showTintedSeaLevelRise;
     var showUrbanFragility = !!EARTH_TIMELAPSE_CONFIG.showUrbanFragility;
     //var showGtd = !!EARTH_TIMELAPSE_CONFIG.showGtd;
     //var showHiv = !!EARTH_TIMELAPSE_CONFIG.showHiv;
@@ -243,9 +243,9 @@
     var showGoes16 = !!EARTH_TIMELAPSE_CONFIG.showGoes16;
     var showDscovr = !!EARTH_TIMELAPSE_CONFIG.showDscovr;
     var showAnnualGlobalPm25 = !!EARTH_TIMELAPSE_CONFIG.showAnnualGlobalPm25;
-    var showEcco2 = !!EARTH_TIMELAPSE_CONFIG.showEcco2;
+    //var showEcco2 = !!EARTH_TIMELAPSE_CONFIG.showEcco2;
     var showGdpPpp = !!EARTH_TIMELAPSE_CONFIG.showGdpPpp;
-    var showTintedLandsat = !!EARTH_TIMELAPSE_CONFIG.showTintedLandsat;
+    ////var showTintedLandsat = !!EARTH_TIMELAPSE_CONFIG.showTintedLandsat;
     var showGfsTimemachine = !!EARTH_TIMELAPSE_CONFIG.showGfsTimemachine;
     var showChlorophyllConcentrationTimemachine = !!EARTH_TIMELAPSE_CONFIG.showChlorophyllConcentrationTimemachine;
     var showFishingPprTimemachine = !!EARTH_TIMELAPSE_CONFIG.showFishingPprTimemachine;
@@ -415,7 +415,7 @@
     //// Layer variables ////
     //
 
-    var forestAlertsTimeMachineLayer, forestAlertsNoOverlayTimeMachineLayer, landsatBaseMapLayer, darkBaseMapLayer, lightBaseMapLayer, mcrmVectorLayer, countryLabelMapLayer, cityLabelMapLayer;
+    var /*forestAlertsTimeMachineLayer, forestAlertsNoOverlayTimeMachineLayer,*/ landsatBaseMapLayer, darkBaseMapLayer, lightBaseMapLayer, mcrmVectorLayer, countryLabelMapLayer, cityLabelMapLayer;
     var hansenMapLayer, hansenMapLayer2, crwTimeMachineLayer, animatedHansenLayer, himawariTimeMachineLayer, ndviAnomalyTimeMachineLayer;
     // var waterOccurrenceLayer, waterChangeLayer;
     //var usgsWindTurbineLayer, solarInstallsLayer, drillingLayer;
@@ -430,7 +430,7 @@
     //var viirsLayer;
     //var wdpaLayer;
     var seaLevelRiseLayer;
-    var tintedSeaLevelRiseLayer;
+    ////var tintedSeaLevelRiseLayer;
     var urbanFragilityLayer;
     var coralBleachingLayer;
     var monthlyRefugeesLayer;
@@ -478,11 +478,11 @@
     var spCrudeLayerLatAM;
     var spCrudeLayerNS;
 
-    var ecco2Layer;
+    //var ecco2Layer;
 
     var gdpPppLayer;
 
-    var tintedLandsatLayer;
+    ////var tintedLandsatLayer;
 
     var gfsTimemachineLayer;
     var chlorophyllConcentrationTimemachineLayer;
@@ -893,8 +893,8 @@
     var goes16Nov2018TimeMachineUrl = rootTilePath + "/goes16/2018-11-01.timemachine/crf26-12fps-1424x800";
     var dscovrTimeMachineUrl = rootTilePath + "/dscovr/dscovr.timemachine/crf26-6fps-1424x800";
     var annualGlobalPm25TimeMachineUrl = rootTilePath + "/annual-global-pm25/pm2_5v2.timemachine/crf26-6fps-1424x800";
-    var forestAlertsTimeMachineUrl = rootTilePath + "/global-forest-alerts/ForestAlarms2016v2/1068x600";
-    var forestAlertsNoOverlayTimeMachineUrl = rootTilePath + "/global-forest-alerts/ForestAlarmsNoOverlay2016v1/1068x600";
+    ////var forestAlertsTimeMachineUrl = rootTilePath + "/global-forest-alerts/ForestAlarms2016v2/1068x600";
+    ////var forestAlertsNoOverlayTimeMachineUrl = rootTilePath + "/global-forest-alerts/ForestAlarmsNoOverlay2016v1/1068x600";
     var berkeleyEarthTemperatureAnomalyTimeMachineUrl = rootTilePath + "/berkeley-earth/berkeley-earth.timemachine/crf24-12fps-1424x800";
     var berkeleyEarthTemperatureAnomalyV2YearlyTimeMachineUrl = rootTilePath + "/berkeley-earth/temp-anomaly/yearly.timemachine/crf24-12fps-1424x800";
     var berkeleyEarthTemperatureAnomalyV2MoWindowTimeMachineUrl = rootTilePath + "/berkeley-earth/temp-anomaly/window_12mo.timemachine/crf24-12fps-1424x800";
@@ -1029,7 +1029,7 @@
     var spCrudeUrlUSGC = rootTilePath + "/sp-crude/USGC/0-crude-flows_USGC.bin";
     var spCrudeUrlLatAM = rootTilePath + "/sp-crude/LatAM/0-crude-flows_LatAM.bin";
     var spCrudeUrlNS = rootTilePath + "/sp-crude/NS/0-crude-flows_NS.bin";
-    var ecco2Url = rootTilePath + "/oceans/ecco2.timemachine/crf26-16fps-1424x800";
+    //var ecco2Url = rootTilePath + "/oceans/ecco2.timemachine/crf26-16fps-1424x800";
     var gdpPppUrl = rootTilePath + "/economics/gdp_ppp.timemachine/crf26-10fps-1424x800";
 
     var gfsTimemachineUrl = rootTilePath + "/gfs-timemachine.timemachine/crf24-12fps-1424x800";
@@ -1429,7 +1429,7 @@
         }
       }).prop('checked', showAnimatedHansenLayer);
 
-      $("#show-forest-alerts").on("click", function() {
+      /*$("#show-forest-alerts").on("click", function() {
         var $this = $(this);
         if ($this.prop('checked')) {
           forestAlertsTimeMachineLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
@@ -1519,7 +1519,7 @@
             timelapse.setPlaybackRate(defaultPlaybackSpeed);
           }
         }
-      }).prop('checked', showForestAlertsNoOverlayTimeMachineLayer);
+      }).prop('checked', showForestAlertsNoOverlayTimeMachineLayer);*/
 
 /*
       $("#show-viirs").on("click", function() {
@@ -2325,7 +2325,7 @@
         var $this = $(this);
         if ($this.prop('checked')) {
           healthImpactLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-          if (visibleBaseMapLayer != "dark") {
+          if (visibleBaseMapLayer != "bdrk") {
             $("#dark-base").click();
           }
           showHealthImpactLayer = true;
@@ -2358,7 +2358,7 @@
         var $this = $(this);
         if ($this.prop('checked')) {
           healthImpactLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-          if (visibleBaseMapLayer != "dark") {
+          if (visibleBaseMapLayer != "bdrk") {
             $("#dark-base").click();
           }
           showHealthImpactLayer = true;
@@ -2391,7 +2391,7 @@
         var $this = $(this);
         if ($this.prop('checked')) {
           healthImpactLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-          if (visibleBaseMapLayer != "dark") {
+          if (visibleBaseMapLayer != "bdrk") {
             $("#dark-base").click();
           }
           showHealthImpactLayer = true;
@@ -2424,7 +2424,7 @@
         var $this = $(this);
         if ($this.prop('checked')) {
           healthImpactLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-          if (visibleBaseMapLayer != "dark") {
+          if (visibleBaseMapLayer != "bdrk") {
             $("#dark-base").click();
           }
           showHealthImpactLayer = true;
@@ -2637,7 +2637,7 @@
         }
       }).prop('checked', showSeaLevelRiseLayer);
 
-      $("#show-tinted-sea-level-rise-4p0").on("click", function() {
+      /*$("#show-tinted-sea-level-rise-4p0").on("click", function() {
         var $this = $(this);
         if ($this.prop('checked')) {
           tintedSeaLevelRiseLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
@@ -2653,7 +2653,7 @@
           doSwitchToLandsat();
           $("#tinted-sea-level-rise-legend").hide();
         }
-      }).prop('checked', showTintedSeaLevelRiseLayer);
+      }).prop('checked', showTintedSeaLevelRiseLayer);*/
 
       $("#show-urban-fragility").on("click", function() {
         var $this = $(this);
@@ -2737,7 +2737,7 @@
         var $this = $(this);
         if ($this.prop('checked')) {
           obesityLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-          if (visibleBaseMapLayer != "dark") {
+          if (visibleBaseMapLayer != "bdrk") {
             $("#dark-base").click();
           }
           showObesityLayer = true;
@@ -2775,7 +2775,7 @@
             $("#show-vaccine-confidence-q4").prop('checked', false);
             $("#vaccine-confidence-q4-legend").hide();
           }
-          if (visibleBaseMapLayer != "dark") {
+          if (visibleBaseMapLayer != "bdrk") {
             $("#dark-base").click();
           }
           showVaccineConfidenceLayer = true;
@@ -2805,7 +2805,7 @@
             $("#show-vaccine-confidence-q4").prop('checked', false);
             $("#vaccine-confidence-q4-legend").hide();
           }
-          if (visibleBaseMapLayer != "dark") {
+          if (visibleBaseMapLayer != "bdrk") {
             $("#dark-base").click();
           }
           showVaccineConfidenceLayer = true;
@@ -2835,7 +2835,7 @@
             $("#show-vaccine-confidence-q4").prop('checked', false);
             $("#vaccine-confidence-q4-legend").hide();
           }
-          if (visibleBaseMapLayer != "dark") {
+          if (visibleBaseMapLayer != "bdrk") {
             $("#dark-base").click();
           }
           showVaccineConfidenceLayer = true;
@@ -2865,7 +2865,7 @@
             $("#show-vaccine-confidence-q2").prop('checked', false);
             $("#vaccine-confidence-q2-legend").hide();
           }
-          if (visibleBaseMapLayer != "dark") {
+          if (visibleBaseMapLayer != "bdrk") {
             $("#dark-base").click();
           }
           showVaccineConfidenceLayer = true;
@@ -2958,7 +2958,7 @@
         var $this = $(this);
         if ($this.prop('checked')) {
           lodesLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-          if (visibleBaseMapLayer != "light") {
+          if (visibleBaseMapLayer != "blte") {
             $("#light-base").click();
           }
           dg["style"]["display"] = "block";
@@ -3352,7 +3352,7 @@
           timelineType = "customUI";
           requestNewTimeline("expanding-cities-times.json", timelineType);
           $("#expanding-cities-legend").show();
-          if (visibleBaseMapLayer != "dark") {
+          if (visibleBaseMapLayer != "bdrk") {
             $("#dark-base").click();
           }
           showTile = false;
@@ -3425,7 +3425,7 @@
           timelineType = "customUI";
           requestNewTimeline("tsip-times.json", timelineType);
           $("#tsip-legend").show();
-          if (visibleBaseMapLayer != "dark") {
+          if (visibleBaseMapLayer != "bdrk") {
             $("#dark-base").click();
           }
         } else {
@@ -3450,7 +3450,7 @@
           timelapse.setMasterPlaybackRate(0.005);
           timelapse.setPlaybackRate(0.00225);
           $("#sp-crude-legend").show();
-          if (visibleBaseMapLayer != "dark") {
+          if (visibleBaseMapLayer != "bdrk") {
             $("#dark-base").click();
           }
         } else {
@@ -3477,7 +3477,7 @@
           timelapse.setMasterPlaybackRate(0.005);
           timelapse.setPlaybackRate(0.00225);
           $("#sp-crude-legend_Oceania").show();
-          if (visibleBaseMapLayer != "dark") {
+          if (visibleBaseMapLayer != "bdrk") {
             $("#dark-base").click();
           }
         } else {
@@ -3504,7 +3504,7 @@
           timelapse.setMasterPlaybackRate(0.005);
           timelapse.setPlaybackRate(0.00225);
           $("#sp-crude-legend_AG").show();
-          if (visibleBaseMapLayer != "dark") {
+          if (visibleBaseMapLayer != "bdrk") {
             $("#dark-base").click();
           }
         } else {
@@ -3531,7 +3531,7 @@
           timelapse.setMasterPlaybackRate(0.005);
           timelapse.setPlaybackRate(0.00225);
           $("#sp-crude-legend_WAF").show();
-          if (visibleBaseMapLayer != "dark") {
+          if (visibleBaseMapLayer != "bdrk") {
             $("#dark-base").click();
           }
         } else {
@@ -3558,7 +3558,7 @@
           timelapse.setMasterPlaybackRate(0.005);
           timelapse.setPlaybackRate(0.00225);
           $("#sp-crude-legend_MedNAF").show();
-          if (visibleBaseMapLayer != "dark") {
+          if (visibleBaseMapLayer != "bdrk") {
             $("#dark-base").click();
           }
         } else {
@@ -3585,7 +3585,7 @@
           timelapse.setMasterPlaybackRate(0.005);
           timelapse.setPlaybackRate(0.00225);
           $("#sp-crude-legend_Urals").show();
-          if (visibleBaseMapLayer != "dark") {
+          if (visibleBaseMapLayer != "bdrk") {
             $("#dark-base").click();
           }
         } else {
@@ -3612,7 +3612,7 @@
           timelapse.setMasterPlaybackRate(0.005);
           timelapse.setPlaybackRate(0.00225);
           $("#sp-crude-legend_USGC").show();
-          if (visibleBaseMapLayer != "dark") {
+          if (visibleBaseMapLayer != "bdrk") {
             $("#dark-base").click();
           }
         } else {
@@ -3639,7 +3639,7 @@
           timelapse.setMasterPlaybackRate(0.005);
           timelapse.setPlaybackRate(0.00225);
           $("#sp-crude-legend_LatAM").show();
-          if (visibleBaseMapLayer != "dark") {
+          if (visibleBaseMapLayer != "bdrk") {
             $("#dark-base").click();
           }
         } else {
@@ -3666,7 +3666,7 @@
           timelapse.setMasterPlaybackRate(0.005);
           timelapse.setPlaybackRate(0.00225);
           $("#sp-crude-legend_NS").show();
-          if (visibleBaseMapLayer != "dark") {
+          if (visibleBaseMapLayer != "bdrk") {
             $("#dark-base").click();
           }
         } else {
@@ -3683,7 +3683,7 @@
       }).prop('checked', showSpCrudeLayerNS);
 
 
-      $("#show-ecco2").on("click", function() {
+      /*$("#show-ecco2").on("click", function() {
         var $this = $(this);
         if ($this.prop('checked')) {
           ecco2Layer.getTileView().handleTileLoading({layerDomId: $this[0].id});
@@ -3711,7 +3711,7 @@
           $("#ecco2-legend").hide();
           $("#baseLayerCreditContainer").show();
         }
-      }).prop('checked', showEcco2Layer);
+      }).prop('checked', showEcco2Layer);*/
 
 
       $("#show-gdpPpp").on("click", function() {
@@ -3814,7 +3814,7 @@
           timelineType = "customUI";
           requestNewTimeline("wind-vectors-times.json", timelineType);
           $("#wind-vectors-legend").show();
-          if (visibleBaseMapLayer != "dark") {
+          if (visibleBaseMapLayer != "bdrk") {
             $("#dark-base").click();
           }
         } else {
@@ -3935,7 +3935,7 @@
         visibleBaseMapLayer = $(this).val();
         if (visibleBaseMapLayer == "landsat") {
           $("#baselayerCreditText").html("&copy; Google");
-        } else if (visibleBaseMapLayer == "light") {
+        } else if (visibleBaseMapLayer == "blte") {
           if (customLightMapUrlOrId && customLightMapUrlOrId.indexOf("http") != 0) {
             $("#baselayerCreditText").html("&copy; " + csvFileLayers.layerById[customLightMapUrlOrId].credit);
           } else if (useGoogleMaps) {
@@ -3944,7 +3944,7 @@
           } else {
             $("#baselayerCreditText").html("&copy; OpenMapTiles, &copy; OpenStreetMap");
           }
-        } else if (visibleBaseMapLayer == "dark") {
+        } else if (visibleBaseMapLayer == "bdrk") {
           if (customDarkMapUrlOrId && customDarkMapUrlOrId.indexOf("http") != 0) {
             $("#baselayerCreditText").html("&copy; " + csvFileLayers.layerById[customDarkMapUrlOrId].credit);
           } else if (useGoogleMaps) {
@@ -3967,7 +3967,7 @@
           }
           */
         } else {
-          if (previousVisibleBaseMapLayer == "dark" || previousVisibleBaseMapLayer == "light") {
+          if (previousVisibleBaseMapLayer == "bdrk" || previousVisibleBaseMapLayer == "blte") {
             timelineType = "none";
           } else {
             setActiveLayersWithTimeline(-1);
@@ -4369,6 +4369,9 @@
             var activeLayerIdx = activeEarthTimeLayers.indexOf(toggledLayerId);
             if (activeLayerIdx >= 0) {
               activeEarthTimeLayers.splice(activeLayerIdx, 1);
+            }
+            if (activeEarthTimeLayers.length == 1 && activeEarthTimeLayers.indexOf("blsat") == 0) {
+              doSwitchToLandsat();
             }
           }
         }
@@ -4786,8 +4789,8 @@
     var showGoes16Nov2018TimeMachineLayer = false;
     var showDscovrTimeMachineLayer = false;
     var showAnnualGlobalPm25TimeMachineLayer = false;
-    var showForestAlertsTimeMachineLayer = false;
-    var showForestAlertsNoOverlayTimeMachineLayer = false;
+    ////var showForestAlertsTimeMachineLayer = false;
+    ////var showForestAlertsNoOverlayTimeMachineLayer = false;
     // var showWaterOccurrenceLayer = false;
     // var showWaterChangeLayer = false;
     //var showUsgsWindTurbineLayer = false;
@@ -4804,7 +4807,7 @@
     //var showDengueLayer = false;
     //var showChikuLayer = false;
     var showSeaLevelRiseLayer = false;
-    var showTintedSeaLevelRiseLayer = false;
+    ////var showTintedSeaLevelRiseLayer = false;
     var showUrbanFragilityLayer = false;
     //var showGtdLayer = false;
     //var showUppsalaConflictLayer = false;
@@ -4840,7 +4843,7 @@
     var showSpCrudeLayerUSGC = false;
     var showSpCrudeLayerLatAM = false;
     var showSpCrudeLayerNS = false;
-    var showEcco2Layer = false;
+    //var showEcco2Layer = false;
     var showGdpPppLayer = false;
     var showGfsTimemachineLayer = false;
     var showChlorophyllConcentrationTimemachineLayer = false;
@@ -5030,7 +5033,7 @@
             $("#layers-list input[id^='show-dotmap']:checked").not(this).click();
           }
           // Use dark basemap
-          if (visibleBaseMapLayer != "dark") {
+          if (visibleBaseMapLayer != "bdrk") {
             $("#dark-base").click();
           }
           // Turn on layer
@@ -5324,9 +5327,9 @@
 
       var landsat_base_str = '<label class="landsat-select" for="landsat-base" name="blsat"><input type="radio" id="landsat-base" name="base-layers" value="landsat"/>Google Earth Engine Timelapse</label>';
       var landsat_base = '<td colspan="2">' + landsat_base_str + '</td>';
-      var tinted_landsat = '<td colspan="2"><label class="tinted_landsat-select" for="tinted_landsat" name="tinted_landsat"><input type="radio" id="tinted_landsat" name="base-layers" value="tinted_landsat"/>Google Earth Engine Timelapse (tinted)</label></td>'
-      var light_base = '<td><label for="light-base" name="blte"><input type="radio" id="light-base" name="base-layers" value="light"/><span>Light Map</span></label></td>';
-      var dark_base = '<td><label for="dark-base" name="bdrk"><input type="radio" id="dark-base" name="base-layers" value="dark"/><span>Dark Map</span></label></td>';
+      ////var tinted_landsat = '<td colspan="2"><label class="tinted_landsat-select" for="tinted_landsat" name="tinted_landsat"><input type="radio" id="tinted_landsat" name="base-layers" value="tinted_landsat"/>Google Earth Engine Timelapse (tinted)</label></td>'
+      var light_base = '<td><label for="light-base" name="blte"><input type="radio" id="light-base" name="base-layers" value="blte"/><span>Light Map</span></label></td>';
+      var dark_base = '<td><label for="dark-base" name="bdrk"><input type="radio" id="dark-base" name="base-layers" value="bdrk"/><span>Dark Map</span></label></td>';
 
       // NOTE NOTE NOTE
       // What is set for the name in the label must never be changed and is forever connected to share links
@@ -5370,7 +5373,7 @@
       var show_sea_level_rise_1p5 = '<td class="sea-level-rise-1p5-select"><label for="show-sea-level-rise-1p5" name="slr15"><input type="checkbox" id="show-sea-level-rise-1p5" />Sea Level Rise Due to 1.5&deg;C Increase</label></td>';
       var show_sea_level_rise_2p0 = '<td class="sea-level-rise-2p0-select"><label for="show-sea-level-rise-2p0" name="slr2"><input type="checkbox" id="show-sea-level-rise-2p0" />Sea Level Rise Due to 2.0&deg;C Increase</label></td>';
       var show_sea_level_rise_4p0 = '<td class="sea-level-rise-4p0-select"><label for="show-sea-level-rise-4p0" name="slr4"><input type="checkbox" id="show-sea-level-rise-4p0" />Sea Level Rise Due to 4.0&deg;C Increase</label></td>';
-      var show_tinted_sea_level_rise_4p0 = '<td class="tinted-sea-level-rise-4p0-select"><label for="show-tinted-sea-level-rise-4p0" name="tinted_slr4"><input type="checkbox" id="show-tinted-sea-level-rise-4p0" />Tinted Sea Level Rise Due to 4.0&deg;C Increase</label></td>';
+      ////var show_tinted_sea_level_rise_4p0 = '<td class="tinted-sea-level-rise-4p0-select"><label for="show-tinted-sea-level-rise-4p0" name="tinted_slr4"><input type="checkbox" id="show-tinted-sea-level-rise-4p0" />Tinted Sea Level Rise Due to 4.0&deg;C Increase</label></td>';
 
       var show_urban_fragility = '<td class="urban-fragility-select"><label for="show-urban-fragility" name="uf"><input type="checkbox" id="show-urban-fragility" />Urban Fragility</label></td>';
       //var show_gtd = '<td class="gtd-select"><label for="show-gtd" name="gtd"><input type="checkbox" id="show-gtd" />Global Terrorism Database</label></td>';
@@ -5421,7 +5424,7 @@
       var show_goes16_nov2018 = '<td class="timemachine goes16-nov-2018-select"><label for="show-goes16-nov-2018" name="goes16-nov-2018"><input type="checkbox" id="show-goes16-nov-2018" />GOES16 November 2018</label></td>';
       var show_dscovr = '<td class="timemachine dscovr-select"><label for="show-dscovr" name="dscovr"><input type="checkbox" id="show-dscovr" />DSCOVR</label></td>';
       var show_annual_global_pm25 = '<td class="annual-pm25-select"><label for="show-annual-pm25" name="annual-pm25"><input type="checkbox" id="show-annual-pm25" />Annual Global PM 2.5</label></td>';
-      var show_ecco2 = '<td class="ecco2-select"><label for="show-ecco2" name="ecco2"><input type="checkbox" id="show-ecco2" />ECCO2</label></td>';
+      //var show_ecco2 = '<td class="ecco2-select"><label for="show-ecco2" name="ecco2"><input type="checkbox" id="show-ecco2" />ECCO2</label></td>';
       var show_gpd_ppp = '<td class="gdpPpp-select"><label for="show-gdpPpp" name="gdpPpp"><input type="checkbox" id="show-gdpPpp" />GDP PPP</label></td>';
       var show_gfs_timemachine = '<td class="gfs-timemachine-select"><label for="show-gfs-timemachine" name="gfs-timemachine"><input type="checkbox" id="show-gfs-timemachine" />GFS</label></td>';
       var show_chlorophyllConcentration_timemachine = '<td class="chlorophyllConcentration-timemachine-select"><label for="show-chlorophyllConcentration-timemachine" name="chlorophyllConcentration-timemachine"><input type="checkbox" id="show-chlorophyllConcentration-timemachine" />Chlorophyll concentration</label></td>';
@@ -5445,11 +5448,11 @@
       layer_html += '    <tr>';
       layer_html += landsat_base;
       layer_html += '    </tr>';
-      layer_html += '    <tr>';
-      if (showTintedLandsat) {
+      /*if (showTintedLandsat) {
+        layer_html += '    <tr>';
         layer_html += tinted_landsat;
-      }
-      layer_html += '    </tr>';
+        layer_html += '    </tr>';
+      }*/
       layer_html += '    <tr>';
       layer_html += light_base;
       layer_html += dark_base;
@@ -5474,25 +5477,25 @@
       layer_html += '    <tr>';
       layer_html += show_animated_forest_loss_gain;
       layer_html += '    </tr>';
-      if (showForestAlerts) {
+      /*if (showForestAlerts) {
         layer_html += '    <tr>';
         layer_html += show_forest_alerts;
         layer_html += '    </tr>';
         layer_html += '    <tr>';
         layer_html += show_forest_alert_no_overlay;
         layer_html += '    </tr>';
-      }
+      }*/
       layer_html += '  </table>';
       /* END FOREST CATEGORY */
 
       /* OCEANS CATEGORY */
       layer_html += '  <h3>Oceans</h3>';
       layer_html += '  <table id="category-oceans">';
-      if (showEcco2) {
+      /*if (showEcco2) {
         layer_html += '   <tr>';
         layer_html += show_ecco2;
         layer_html += '   </tr>';
-      }
+      }*/
       if (showChlorophyllConcentrationTimemachine) {
         layer_html += '   <tr>';
         layer_html += show_chlorophyllConcentration_timemachine;
@@ -5566,11 +5569,11 @@
         layer_html += show_sea_level_rise_4p0;
         layer_html += '    </tr>';
       }
-      if (showTintedSeaLevelRise) {
+      /*if (showTintedSeaLevelRise) {
         layer_html += '    <tr>';
         layer_html += show_tinted_sea_level_rise_4p0;
         layer_html += '    </tr>';
-      }
+      }*/
       if (showNdviAnomaly) {
         layer_html += '    <tr>';
         layer_html += show_ndvi_anomaly;
@@ -6026,8 +6029,8 @@
       layer_html += '   <option data-type="img" data-file-path="Doughnut-transgressing.png" data-name="e-doughnut_transgressing">Doughnut Transgressing</option>';
       layer_html += '   <option data-type="img" data-file-path="Trade Openness.png" data-name="e-tradeopenness">Trade Openness</option>';
       layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="Global Cyber Centre.mp4" data-name="e-globalcyber">Global Cyber Centre</option>';
-      if (showEVA)
-        layer_html += '   <option data-type="link" data-file-path="http://localhost:8080/?uid=history-1436384863961-Vyxt6PIO" data-name="e-eva">EVA - Explorable Visual Analytics</option>';
+      ////if (showEVA)
+      ////  layer_html += '   <option data-type="link" data-file-path="http://localhost:8080/?uid=history-1436384863961-Vyxt6PIO" data-name="e-eva">EVA - Explorable Visual Analytics</option>';
       if (showGFW)
         layer_html += '   <option data-type="iframe" data-file-path="http://localhost:8081/index.html?workspace=https://api-dot-skytruth-pleuston.appspot.com/v1/workspaces/udw-v1-4a79e843-9e84-4c02-a903-f49c4d0ebc0c" data-name="e-gfw">Global Fishing Watch</option>';
       layer_html += '   <optgroup label="World Economic Forum - Davos 2016">';
@@ -6128,7 +6131,7 @@
       legend_html += '<tr id="gdpPpp" style="display: none"><td><div style="font-size: 15px">GDP PPP<span> (Kummu et al.)</div><div><img src="https://tiles.earthtime.org/colormaps/black-no-value-darkblue-cyan-green-lightyellow-orange-deeppink-darkred.png" style="border:1px solid grey; width:200px; height:10px; margin-top:2px; position:relative; top:3px; background-color:black"></div><div style="width: 200px; font-size: 9px"><span>0</span><span style="padding-left: 30px">25x10<sup>6</sup><span style="padding-left: 20px">50x10<sup>6</sup><span style="padding-left: 20px">75x10<sup>6</sup></span><span style="padding-left: 20px">100x10<sup>6</sup></span></div></td></tr>';
 
       legend_html += '<tr id="annual-pm25-legend" style="display: none"><td><div style="font-size: 15px">Annual PM2.5<span> (NASA)</div><div><img src="https://tiles.earthtime.org/colormaps/pm25-who-annual.png" style="border:1px solid grey; width:200px; height:10px; margin-top:2px; position:relative; top:3px; background-color:black"></div><div style="width: 200px; font-size: 9px"><span>0</span><span style="padding-left: 35px">10<span style="padding-left: 20px">20<span style="padding-left: 20px">50</span><span style="padding-left: 20px">100</span><span style="padding-left: 20px">>100</span></div><div style="width: 200px; font-size: 9px">micrograms per cubic meter</div></td></tr>';
-      legend_html += '<tr id="ecco2-legend" style="display: none"><td><div style="font-size: 15px">ECCO2 - Estimating the Circulation and Climate of the Ocean, Phase II<span> (NASA)</div></td></tr>';
+      //legend_html += '<tr id="ecco2-legend" style="display: none"><td><div style="font-size: 15px">ECCO2 - Estimating the Circulation and Climate of the Ocean, Phase II<span> (NASA)</div></td></tr>';
       legend_html += '<tr id="chlorophyllConcentration-legend" style="display: none"><td><div style="font-size: 15px">Chlorophyll concentration<span> (NASA Earth Observations)</div>';
       legend_html += '<svg width="256" height="45"><defs><linearGradient id="myGradient"><stop offset="5%"  stop-color="rgb(8,29,88)" /><stop offset="25%" stop-color="rgb(34,96,169)" /><stop offset="50%" stop-color="rgb(67,183,196)" /><stop offset="75%" stop-color="rgb(200,233,180)" /><stop offset="95%" stop-color="rgb(254,255,216)" /></linearGradient></defs><text fill="rgba(255, 255, 255, 0.8)" text-anchor="end" font-size="12px" y="8" x="256">(mg/m3)</text><rect x="0" y="12" height="20" width="256" fill="url(\'#myGradient\')" /><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="0">.01</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="32">.03</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="64">.1</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="96">.3</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="128">1</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="160">3</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="192">10</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="218">30</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="240">60</text></svg></td></tr>';
       legend_html += '<tr id="fishingPpr-timemachine-legend" style="display: none"><td><div style="font-size: 15px">Fishing PPR<span> (Seas Around Us)</div></td></tr>';
@@ -6294,7 +6297,7 @@
       };
       landsatBaseMapLayer = new WebglTimeMachineLayer(glb, canvasLayer, landsatTimeMachineLayerOptions);
 
-      var tintedLandsatLayerOptions = {
+      /*var tintedLandsatLayerOptions = {
         numFrames: cached_ajax[cachedLandsatTimeJsonPath]['capture-times'].length,
         fps: cached_ajax['./1068x600/r.json'].fps,
         width: cached_ajax['./1068x600/r.json'].width,
@@ -6304,7 +6307,7 @@
         colormap: 'https://tiles.earthtime.org/colormaps/white_aliceblue_cornflowerblue_royalblue_blue.png',
         tileRootUrl: landsatUrl
       };
-      tintedLandsatLayer = new WebglTimeMachineLayer(glb, canvasLayer, tintedLandsatLayerOptions);
+      tintedLandsatLayer = new WebglTimeMachineLayer(glb, canvasLayer, tintedLandsatLayerOptions);*/
 
       // NDVI Anomaly
       var ndviAnomalyTimeMachineLayerOptions = {
@@ -6409,7 +6412,7 @@
       annualGlobalPm25TimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, annualGlobalPm25TimeMachineLayerOptions);
 
       // Forest Alerts
-      var forestAlertsTimeMachineLayerOptions = {
+      /*var forestAlertsTimeMachineLayerOptions = {
         numFrames: cached_ajax['forest-alerts-times.json']['capture-times'].length,
         fps: 10,
         nLevels: 11,
@@ -6428,7 +6431,7 @@
         height: 156136,
         tileRootUrl: forestAlertsNoOverlayTimeMachineUrl
       };
-      forestAlertsNoOverlayTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, forestAlertsTimeMachineLayerOptions);
+      forestAlertsNoOverlayTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, forestAlertsTimeMachineLayerOptions);*/
 
       // Berkeley Earth Temperature Anomaly
       var berkeleyEarthTemperatureAnomalyTimeMachineLayerOptions = {
@@ -6742,14 +6745,14 @@
       };
       seaLevelRiseLayer = new WebglMapLayer(glb, canvasLayer, seaLevelRiseUrl, seaLevelRiseLayerOptions);
 
-      var seaLevelRiseLayerOptions = {
+      /*var seaLevelRiseLayerOptions = {
         nLevels: 9,
         tileWidth: 256,
         tileHeight: 256,
         fragmentShader: WebglMapTile.seaLevelRiseTintedTextureFragmentShader,
         drawFunction: WebglMapTile.prototype._drawSeaLevelRise
       };
-      tintedSeaLevelRiseLayer = new WebglMapLayer(glb, canvasLayer, seaLevelRiseUrl, seaLevelRiseLayerOptions);
+      tintedSeaLevelRiseLayer = new WebglMapLayer(glb, canvasLayer, seaLevelRiseUrl, seaLevelRiseLayerOptions);*/
 
       var urbanFragilityLayerOptions = {
         tileWidth: 256,
@@ -7057,7 +7060,7 @@
 
 
       // ECCO2
-      timelines.setTimeLine("ecco2-times", "19920102", "20000317", 3);
+      /*timelines.setTimeLine("ecco2-times", "19920102", "20000317", 3);
       var ecco2Options = {
         numFrames: 1000,
         fps: 16,
@@ -7066,7 +7069,7 @@
         height: 1440,
         tileRootUrl: ecco2Url
       };
-      ecco2Layer = new WebglTimeMachineLayer(glb, canvasLayer, ecco2Options);
+      ecco2Layer = new WebglTimeMachineLayer(glb, canvasLayer, ecco2Options);*/
 
       // GDP PPP
       timelines.setTimeLine("gdpPpp-times", "1990", "2015", 1);
@@ -8905,22 +8908,22 @@
         //  else if (showLightsAtNight2012Layer) { // Draw lightsAtNight2012MapLayer
         //   var lightsAtNight2012LayerView = getLayerView(lightsAtNight2012MapLayer, landsatBaseMapLayer);
         //   lightsAtNight2012MapLayer.draw(lightsAtNight2012LayerView);
-        // } 
+        // }
         /*else if (showLightsAtNight2016Layer) { // Draw lightsAtNight2016MapLayer
           var lightsAtNight2016LayerView = getLayerView(lightsAtNight2016MapLayer, landsatBaseMapLayer);
           lightsAtNight2016MapLayer.draw(lightsAtNight2016LayerView);
-        }*/ 
+        }*/
         if (showHansenLayer2) { // Draw Forest Loss/Gain
           var hansenMapLayerView2 = getLayerView(hansenMapLayer2, landsatBaseMapLayer);
           hansenMapLayer2.draw(hansenMapLayerView2);
         } else if (visibleBaseMapLayer == "landsat") { // Draw Landsat
           landsatBaseMapLayer.draw(timelapse.getView(), tileViewVisibility);
-        } else if (visibleBaseMapLayer == "tinted_landsat") { // Draw Landsat
-          tintedLandsatLayer.draw(timelapse.getView(), tileViewVisibility);
-        } else if (visibleBaseMapLayer == "light") { // Draw Light Map
+        ////} else if (visibleBaseMapLayer == "tinted_landsat") { // Draw Landsat
+        ////  tintedLandsatLayer.draw(timelapse.getView(), tileViewVisibility);
+        } else if (visibleBaseMapLayer == "blte") { // Draw Light Map
           var lightBaseMapView = getLayerView(lightBaseMapLayer, landsatBaseMapLayer);
           lightBaseMapLayer.draw(lightBaseMapView);
-        } else if (visibleBaseMapLayer == "dark") { // Draw Dark Map
+        } else if (visibleBaseMapLayer == "bdrk") { // Draw Dark Map
           var darkBaseMapView = getLayerView(darkBaseMapLayer, landsatBaseMapLayer);
           var options = {showTile: showTile};
           darkBaseMapLayer.draw(darkBaseMapView, options);
@@ -9084,7 +9087,7 @@
         }
 
         // Draw Wind Layer
-/*        
+/*
         if (showUsgsWindTurbineLayer) {
           var usgsWindTurbineLayerView = getLayerView(usgsWindTurbineLayer, landsatBaseMapLayer);
           var options = {};
@@ -9152,7 +9155,7 @@
         }
         */
         // Draw Forest Alerts (No Overlay)
-        if (showForestAlertsNoOverlayTimeMachineLayer) {
+        /*if (showForestAlertsNoOverlayTimeMachineLayer) {
           var forestAlertsNoOverlayView = timelapse.getView();
           var timelapse2map = forestAlertsNoOverlayTimeMachineLayer.getWidth() / landsatBaseMapLayer.getWidth();
 
@@ -9181,7 +9184,7 @@
           forestAlertsView.x -= offest.x;
           forestAlertsView.y -= offest.y;
           forestAlertsTimeMachineLayer.draw(forestAlertsView, tileViewVisibility);
-        }
+        }*/
 
         // Draw Protected Areas (WDPA)
         /*
@@ -9389,11 +9392,11 @@
           options.currentC = Math.min(current, times[times.length - 1]);
           if (visibleBaseMapLayer == "landsat") {
             options.color = [0.1, 0.1, 0.1, 1.0];
-          } else if (visibleBaseMapLayer == "light") {
+          } else if (visibleBaseMapLayer == "blte") {
             options.color = [0.4921875, 0.7421875, 0.91015625, 1.0];
-          } else if (visibleBaseMapLayer == "dark") {
+          } else if (visibleBaseMapLayer == "bdrk") {
             options.color = [0.203125, 0.203125, 0.203125, 1.0];
-          } 
+          }
           // else if (showLightsAtNightLayer) {
           //   options.color = [0.0, 0.0, 0.0, 1.0];
           // }
@@ -9412,7 +9415,7 @@
           $(".timeText, .captureTimeMain").html(timelapse.getCurrentCaptureTime() + "&degC");
         }
 
-        if (showTintedSeaLevelRiseLayer) {
+        /*if (showTintedSeaLevelRiseLayer) {
           var sea_level_heights = [
             [0.0, 0.0],
             [2.4, 0.7],
@@ -9442,7 +9445,7 @@
             options.color = [0.4921875, 0.7421875, 0.91015625, 1.0];
           } else if (visibleBaseMapLayer == "dark") {
             options.color = [0.203125, 0.203125, 0.203125, 1.0];
-          } 
+          }
           // else if (showLightsAtNightLayer) {
           //   options.color = [0.0, 0.0, 0.0, 1.0];
           // }
@@ -9459,7 +9462,7 @@
           $(degree).html((currentIndex / 2).toFixed(1));
           tintedSeaLevelRiseLayer.draw(seaLevelRiseLayerView, options);
           $(".timeText, .captureTimeMain").html(timelapse.getCurrentCaptureTime() + "&degC");
-        }
+        }*/
 
         if (showUrbanFragilityLayer) {
           var urbanFragilityLayerView = getLayerView(urbanFragilityLayer, landsatBaseMapLayer);
@@ -9669,10 +9672,10 @@
         }
 
         // Draw ECCO2
-        if (showEcco2Layer) {
+        /*if (showEcco2Layer) {
           var view = getLayerView(ecco2Layer, landsatBaseMapLayer);
           ecco2Layer.draw(view, tileViewVisibility);
-        }
+        }*/
 
         // Draw GDP PPP
         if (showGdpPppLayer) {

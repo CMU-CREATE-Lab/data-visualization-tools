@@ -21,8 +21,10 @@ function WebglVideoTile(glb, tileidx, bounds, url, defaultUrl, numFrames, fps, g
   this._tileidx = tileidx;
   this.glb = glb;
   this.gl = glb.gl;
-  this._lineProgram = glb.programFromSources(Glb.fixedSizePointVertexShader,
-                                             Glb.solidColorFragmentShader);
+
+  // TODO: Only compile the necessary shader for the layer that was loaded.
+  // Note: The shaders are cached once loaded, so calling what is below for each tile should not
+  // be as horrible a performance hit as it may seem.
   this._textureProgram = glb.programFromSources(WebglVideoTile.textureVertexShader,
                                                 WebglVideoTile.textureFragmentShader);
 
@@ -41,10 +43,6 @@ function WebglVideoTile(glb, tileidx, bounds, url, defaultUrl, numFrames, fps, g
   this._textureGreenScreenFaderProgram = glb.programFromSources(WebglVideoTile.textureVertexShader,
                                                 WebglVideoTile.textureGreenScreenFragmentFaderShader);
 
-  this._insetRectangle = glb.createBuffer(new Float32Array([0.01, 0.01,
-                                                            0.99, 0.01,
-                                                            0.99, 0.99,
-                                                            0.01, 0.99]));
   this._triangles = glb.createBuffer(new Float32Array([0, 0,
                                                        1, 0,
                                                        0, 1,
@@ -88,9 +86,6 @@ function WebglVideoTile(glb, tileidx, bounds, url, defaultUrl, numFrames, fps, g
     });
   }
   this._ready = false;
-  // TODO: Are these hardcoded dimensions still being used?
-  this._width = 1424;
-  this._height = 800;
   this._bounds = bounds;
   // This min/max playback rate is specified by Chrome/FireFox and clamping to it has
   // become a requirement with latest browser updates or we suffer video playback glitches.
@@ -622,18 +617,6 @@ draw = function(transform) {
   scaleMatrix(tileTransform,
               this._bounds.max.x - this._bounds.min.x,
               this._bounds.max.y - this._bounds.min.y);
-
-  var drawRectangle = false;
-
-  if (drawRectangle) {
-    // Draw rectangle
-    gl.useProgram(this._lineProgram);
-    gl.uniformMatrix4fv(this._lineProgram.uTransform, false, tileTransform);
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._insetRectangle);
-    gl.vertexAttribPointer(this._lineProgram.aWorldCoord, 2, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(this._lineProgram.aWorldCoord);
-    gl.drawArrays(gl.LINE_LOOP, 0, 4);
-  }
 
   // Draw video
   if (this._ready) {

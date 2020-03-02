@@ -1,17 +1,22 @@
 "use strict";
 
-// rootUrl is the root of the video tiles
-// tmRootUrl is the root of the time machine, one level above rootUrl
+// tileRootUrl is the root of the video tiles (e.g. directory with a name like crf20-22fps-1424x800)
+// rootUrl is the root of the time machine (where tm.json is located), one level above tileRootUrl
 
 // Pass EITHER
-// 1. options.tileRootUrl: Root URL of directory for tiles
+// 1. options.rootUrl
 // OR
-// 2.  options.rootUrl: URL of directory containing tm.json (parent of tileRootUrl)
-//     and various metadata (numFrames, fps, nLevels, video_width, video_height, width, height, optionally colormap, etc;  see index.html for examples)
+// 2. options.tileRootUrl and various metadata (numFrames, fps, nLevels, video_width, video_height, width, height, optionally colormap, etc;  see index.html for examples)
 //
 // In option 1, metadata will be loaded from options.tileRootUrl/tm.json
 
-function WebglTimeMachineLayer(glb, canvasLayer, options) {
+function WebglTimeMachineLayer(glb, canvasLayer, url, options) {
+  // Everything has consequences
+  // TODO: Until all timemachine layers are pulled out of index.html, we have some hackery to do.
+  if (typeof(url) === "object") {
+    options = url;
+  }
+
   var that = this;
   this.glb = glb;
   this.gl = glb.gl;
@@ -29,6 +34,12 @@ function WebglTimeMachineLayer(glb, canvasLayer, options) {
     this.image.addEventListener('error', function(event) { console.log('ERROR:  cannot load colormap ' + that.image.src); });
     this.image.src = this.colormap;
   }
+
+  if (options.useTmJsonTimeTicks) {
+    this.useTmJsonTimeTicks = true;
+  }
+
+  this.layerId = options.layerId;
 
   if (this.rootUrl && !this.tileRootUrl) {
     this._waitingForMetadata = true;
@@ -59,6 +70,11 @@ WebglTimeMachineLayer.prototype.loadTm = function(tm) {
     }
   }
   if (!dataset) dataset = datasets[0];
+
+  if (this.useTmJsonTimeTicks) {
+    cached_ajax[this.layerId + '.json'] = {"capture-times":  tm['capture-times']};
+  }
+
   this.tileRootUrl = this.rootUrl + '/' + dataset.id;
   var rPath = this.tileRootUrl + '/r.json';
   $.ajax({
@@ -155,7 +171,7 @@ WebglTimeMachineLayer.prototype.getHeight = function() {
   return this._tileView.getHeight();
 };
 
-WebglTimeMachineLayer.prototype.draw = function(view, tileViewVisibility) {
+WebglTimeMachineLayer.prototype.draw = function(view) {
   if (!this._ready) return;
   var timelapse = this._canvasLayer.timelapse;
   var width = this._canvasLayer.canvas.width / this._canvasLayer.resolutionScale_;
@@ -167,22 +183,19 @@ WebglTimeMachineLayer.prototype.draw = function(view, tileViewVisibility) {
   scaleMatrix(transform, view.scale, view.scale);
   translateMatrix(transform, -view.x, -view.y);
 
-  // TODO: Refactor how tile views are initialized and drawn
-  if (tileViewVisibility.videoTile) {
-    // TODO: this needs further tweaking...
-    if (timelapse.isMovingToWaypoint()) {
-      // Moving to waypoint;  reduce level of detail
-      this._tileView.levelThreshold = -1.5;
-    } else {
-      // Not moving to waypoint;  increase level of detail
-      this._tileView.levelThreshold = 0;
-    }
-    if (EARTH_TIMELAPSE_CONFIG.videoLevelThresholdModifier) {
-      this._tileView.levelThreshold += EARTH_TIMELAPSE_CONFIG.videoLevelThresholdModifier;
-    }
-    this._tileView.setView(view, width, height, this._canvasLayer.resolutionScale_);
-    this._tileView.update(transform);
+  // TODO: this needs further tweaking...
+  if (timelapse.isMovingToWaypoint()) {
+    // Moving to waypoint;  reduce level of detail
+    this._tileView.levelThreshold = -1.5;
+  } else {
+    // Not moving to waypoint;  increase level of detail
+    this._tileView.levelThreshold = 0;
   }
+  if (EARTH_TIMELAPSE_CONFIG.videoLevelThresholdModifier) {
+    this._tileView.levelThreshold += EARTH_TIMELAPSE_CONFIG.videoLevelThresholdModifier;
+  }
+  this._tileView.setView(view, width, height, this._canvasLayer.resolutionScale_);
+  this._tileView.update(transform);
 };
 
 WebglTimeMachineLayer.prototype.getTileView = function() {

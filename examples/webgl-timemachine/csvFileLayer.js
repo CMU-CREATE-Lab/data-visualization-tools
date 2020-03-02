@@ -264,6 +264,21 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
   } else if (layerOptions.mapType == "point-flow") {
     layerOptions.loadDataFunction = WebGLVectorTile2.prototype._loadData;
     overrideDrawingFns();
+  } else if (layerOptions.mapType == "timemachine") {
+    layerOptions.rootUrl = url;
+    if (layerOptions.setDataOptions) {
+      layerOptions.greenScreen = layerOptions.setDataOptions.useGreenScreen;
+      layerOptions.useTmJsonTimeTicks = layerOptions.setDataOptions.useTmJsonTimeTicks;
+    }
+    layerOptions.loadDataFunction = null;
+    layerOptions.drawFunction = null;
+    layerOptions.fragmentShader = null;
+    layerOptions.vertexShader = null;
+    if (layerOptions.imageSrc) {
+      layerOptions.colormap = layerOptions.imageSrc;
+    }
+    overrideDrawingFns();
+    WebglLayer = WebglTimeMachineLayer;
   } else {
     if (layerDef["Load Data Function"]) {
       layerOptions.loadDataFunction = this.lookupFunctionFromTable(layerDef["Load Data Function"], LOAD_DATA_FUNCTION_LOOKUP_TABLE);
@@ -281,30 +296,18 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
   }
   if (layerOptions.drawOptions) {
     var obj = layerOptions.drawOptions;
-    for (let key in obj) {
+    for (const key in obj) {
       let value = obj[key];
       layer.options[key] = value;
-      //optional check for properties from prototype chain
-      if (obj.hasOwnProperty(key)) {
-        //no a property from prototype chain
-      }else{
-        //property from protytpe chain
-      }
     }
     layer.options.drawOptions = layerOptions.drawOptions;
   }
 
   if (layerOptions.setDataOptions) {
     var obj = layerOptions.setDataOptions;
-    for (let key in obj) {
+    for (const key in obj) {
       let value = obj[key];
       layer.options[key] = value;
-      //optional check for properties from prototype chain
-      if (obj.hasOwnProperty(key)) {
-        //no a property from prototype chain
-      }else{
-        //property from protytpe chain
-      }
     }
     layer.options.setDataOptions = layerOptions.setDataOptions;
   }
@@ -342,26 +345,33 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
     var $this = $(this);
     if ($this.prop('checked')) {
       // Turn on layer
-      layer.getTileView().handleTileLoading({layerDomId: $this[0].id});
+      if (layer.mapType != "timemachine") {
+        layer.getTileView().handleTileLoading({layerDomId: $this[0].id});
+      }
       var baseLayerIdentifier = layer.layerDef['Base layer'];
       // TODO: Legacy. For spreadsheets that don't have this column, we default to old behavior of always forcing dark map
-      if (typeof(baseLayerIdentifier) === "undefined") {
+      if (typeof(baseLayerIdentifier) === "undefined" || baseLayerIdentifier == "") {
         baseLayerIdentifier = "bdrk";
       }
       if (baseLayerIdentifier) {
-        $("#layers-list label[name='" + baseLayerIdentifier + "'] input").trigger("click");
+        if (baseLayerIdentifier != layer.layerId) {
+          $("#layers-list label[name='" + baseLayerIdentifier + "'] input").trigger("click");
+        }
+        // Globals in index.html
+        previousVisibleBaseMapLayer = visibleBaseMapLayer;
+        visibleBaseMapLayer = baseLayerIdentifier;
       }
       var cachedLayerTimelinePath = layer.layerId + ".json";
       if (layer.hasTimeline) {
         setActiveLayersWithTimeline(1);
-        if (!$.isEmptyObject(layer.customSliderInfo)) {
-          // TODO: Allow spreadsheet to specify type of timeline. For now, assume same timeline type as Landsat (customUI)
-          timelineType = "customUI";
-          cached_ajax[cachedLayerTimelinePath] = {"capture-times":  Object.keys(layer.customSliderInfo)};
+        if (layer.options.timelineType) {
+          timelineType = layer.options.timelineType;
         } else {
           timelineType = "defaultUI";
         }
-        layerCustomSliderInfo = layer.customSliderInfo;
+        if (!$.isEmptyObject(layer.customSliderInfo)) {
+          cached_ajax[cachedLayerTimelinePath] = {"capture-times":  Object.keys(layer.customSliderInfo)};
+        }
       } else {
         timelineType = "none";
       }
@@ -371,6 +381,24 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
       $("#" + layer.layerId + "-legend").show();
       if (layer.mapType == "choropleth") {
         showCountryLabelMapLayer = false;
+      } else if (layer.mapType == "timemachine") {
+        // TODO:(pdille)
+        if (layer.fps) {
+          var v = timelapse.getVideoset();
+          v.setFps(layer.fps);
+        }
+      }
+      // TODO:(pdille)
+      if (typeof(layer.options.doDwell) !== "undefined") {
+        timelapse.setDoDwell(layer.options.doDwell);
+      }
+      // TODO:(pdille)
+      if (layer.options.dwellTimes && typeof(layer.options.dwellTimes.startDwell) !== "undefined" && typeof(layer.options.dwellTimes.endDwell) !== "undefined") {
+        timelapse.setDwellTimes(layer.options.dwellTimes.startDwell, layer.options.dwellTimes.endDwell);
+      }
+      // TODO:(pdille)
+      if (typeof(layer.options.maxScale) !== "undefined") {
+        timelapse.setMaxScale(layer.options.maxScale);
       }
       if (layer.masterPlaybackRate && layer.playbackRate) {
         timelapse.setMasterPlaybackRate(layer.masterPlaybackRate);
@@ -381,21 +409,33 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
       if (layer.hasTimeline) {
         setActiveLayersWithTimeline(-1);
       }
-      if (activeEarthTimeLayers.length == 1 && activeEarthTimeLayers.indexOf("blsat") == 0) {
-        doSwitchToLandsat();
-      }
+      visibleBaseMapLayer = previousVisibleBaseMapLayer;
       // Turn off layer
       layer.visible = false;
       // cacheLastUsedLayer is a global data struct from index.html
       cacheLastUsedLayer(layer);
-      layerCustomSliderInfo = null;
       if (layer.mapType == "choropleth") {
         showCountryLabelMapLayer = false;
+      } else if (layer.mapType == "timemachine") {
+        // TODO:(pdille)
+        var v = timelapse.getVideoset();
+        v.setFps(10);
+      }
+      // TODO:(pdille)
+      if (typeof(layer.options.doDwell) !== "undefined") {
+        timelapse.setDoDwell(true);
+      }
+      // TODO:(pdille)
+      if (layer.options.dwellTimes && typeof(layer.options.dwellTimes.startDwell) !== "undefined" && typeof(layer.options.dwellTimes.endDwell) !== "undefined") {
+        timelapse.setDwellTimes(1.5, 1.5);
+      }
+      // TODO:(pdille)
+      if (typeof(layer.options.maxScale) !== "undefined") {
+        timelapse.setMaxScale(landsatMaxScale);
       }
       if (layer.masterPlaybackRate && layer.playbackRate) {
         timelapse.setMasterPlaybackRate(1);
         timelapse.setPlaybackRate(defaultPlaybackSpeed);
-        //timelapse.setMaxScale(landsatMaxScale);
       }
     }
   }).prop('checked', layer.visible);
