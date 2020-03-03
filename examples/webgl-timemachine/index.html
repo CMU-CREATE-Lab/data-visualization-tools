@@ -214,7 +214,7 @@
     //var showChiku = !!EARTH_TIMELAPSE_CONFIG.showChiku;
     var showSeaLevelRise = !!EARTH_TIMELAPSE_CONFIG.showSeaLevelRise;
     ////var showTintedSeaLevelRise = !!EARTH_TIMELAPSE_CONFIG.showTintedSeaLevelRise;
-    var showUrbanFragility = !!EARTH_TIMELAPSE_CONFIG.showUrbanFragility;
+    //var showUrbanFragility = !!EARTH_TIMELAPSE_CONFIG.showUrbanFragility;
     //var showGtd = !!EARTH_TIMELAPSE_CONFIG.showGtd;
     //var showHiv = !!EARTH_TIMELAPSE_CONFIG.showHiv;
     //var showObesity = !!EARTH_TIMELAPSE_CONFIG.showObesity;
@@ -431,7 +431,7 @@
     //var wdpaLayer;
     var seaLevelRiseLayer;
     ////var tintedSeaLevelRiseLayer;
-    var urbanFragilityLayer;
+    //var urbanFragilityLayer;
     var coralBleachingLayer;
     var monthlyRefugeesLayer;
     //var gtdLayer;
@@ -986,7 +986,7 @@
     //var chikuUrl = rootTilePath + "/pandemics/chiku/{z}/{x}/{y}.bin";
 
     var seaLevelRiseUrl = rootTilePath + "/sea-level-rise/201704_lockin_animated_land/{z}/{x}/{y}.png"; //"http://a.ss2tiles.climatecentral.org/lockin_animated_land/{z}/{x}/{y}.png";
-    var urbanFragilityUrl = rootTilePath + "/urban-fragility/{z}/{x}/{y}.bin";
+    //var urbanFragilityUrl = rootTilePath + "/urban-fragility/{z}/{x}/{y}.bin";
     //var gtdUrl = rootTilePath + "/gtd/{z}/{x}/{y}.bin";
     //var hivUrl = rootTilePath + "/hiv/{z}/{x}/{y}.bin";
     //var obesityUrl = rootTilePath + "/obesity/{z}/{x}/{y}.geojson";
@@ -2655,6 +2655,7 @@
         }
       }).prop('checked', showTintedSeaLevelRiseLayer);*/
 
+      /*
       $("#show-urban-fragility").on("click", function() {
         var $this = $(this);
         if ($this.prop('checked')) {
@@ -2672,6 +2673,8 @@
           $("#urban-fragility-legend").hide();
         }
       }).prop('checked', showUrbanFragilityLayer);
+      */
+
       /*
       $("#show-gtd").on("click", function() {
         var $this = $(this);
@@ -4812,7 +4815,7 @@
     //var showChikuLayer = false;
     var showSeaLevelRiseLayer = false;
     ////var showTintedSeaLevelRiseLayer = false;
-    var showUrbanFragilityLayer = false;
+    //var showUrbanFragilityLayer = false;
     //var showGtdLayer = false;
     //var showUppsalaConflictLayer = false;
     //var showHivLayer = false;
@@ -5379,7 +5382,7 @@
       var show_sea_level_rise_4p0 = '<td class="sea-level-rise-4p0-select"><label for="show-sea-level-rise-4p0" name="slr4"><input type="checkbox" id="show-sea-level-rise-4p0" />Sea Level Rise Due to 4.0&deg;C Increase</label></td>';
       ////var show_tinted_sea_level_rise_4p0 = '<td class="tinted-sea-level-rise-4p0-select"><label for="show-tinted-sea-level-rise-4p0" name="tinted_slr4"><input type="checkbox" id="show-tinted-sea-level-rise-4p0" />Tinted Sea Level Rise Due to 4.0&deg;C Increase</label></td>';
 
-      var show_urban_fragility = '<td class="urban-fragility-select"><label for="show-urban-fragility" name="uf"><input type="checkbox" id="show-urban-fragility" />Urban Fragility</label></td>';
+      //var show_urban_fragility = '<td class="urban-fragility-select"><label for="show-urban-fragility" name="uf"><input type="checkbox" id="show-urban-fragility" />Urban Fragility</label></td>';
       //var show_gtd = '<td class="gtd-select"><label for="show-gtd" name="gtd"><input type="checkbox" id="show-gtd" />Global Terrorism Database</label></td>';
       //var show_uppsala_conflict = '<td class="uppsala-conflict-select"><label for="show-uppsala-conflict" name="uppsala-conflict"><input type="checkbox" id="show-uppsala-conflict" />Organized Violence Fatalities</label></td>';
       //var show_hiv = '<td class="hiv-select"><label for="show-hiv" name="hiv"><input type="checkbox" id="show-hiv" />HIV Infections</label></td>';
@@ -5896,11 +5899,13 @@
         layer_html += '    </tr>';
       }
       */
+      /*
       if (showUrbanFragility) {
         layer_html += '    <tr>';
         layer_html += show_urban_fragility;
         layer_html += '    </tr>';
       }
+      */
       if (showExpandingCities) {
         layer_html += '    <tr>';
         layer_html += show_expanding_cities;
@@ -6091,7 +6096,7 @@
       legend_html += '<tr id="health-impact-legend" style="display: none"><td><div style="font-size: 17px">Nutritional Deficiencies<span class="credit"> (Oxford Martin)</span></div><svg class="svg-legend" width="242" height="180"><rect width="240" height="160" fill="white" opacity="0"></rect> <g transform="translate(2,10)"> <circle class="gain" r="5" cx="5" cy="10" style="fill: #8b0000; stroke: #fff;"></circle> <circle class="loss" r="5" cx="5" cy="30" style="fill: #00008b; stroke: #fff;"></circle> <text x="15" y="13" style="font-size: 12px; fill: #fff">Mean deaths per capita</text> <text x="15" y="33" style="font-size: 12px; fill: #fff">Mean lives per capita</text> <circle r="10.0" cx="160.0" cy="160.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="152.0" dy="13" style="font-size: 10px; fill: #fff">5K</text><circle r="30.0" cx="160.0" cy="140.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="130.0" dy="13" style="font-size: 10px; fill: #fff">15K</text><circle r="60.0" cx="160.0" cy="110.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="80.0" dy="13" style="font-size: 10px; fill: #fff">30K</text></g> </svg></td></tr>';
       legend_html += '<tr id="sea-level-rise-legend" style="display: none"><td><div style="font-size: 17px">Global Temperature Rise <span id="slr-degree"></span> &#x2103;<span class="credit"> (Climate Central)</span></div><div style="font-size: 15px">Multi-century Sea Level Increase:<span id="slr-feet" style="width:25px;"></span>&nbsp;<span id="slr-meters" style="width:25px; color: red;"></span></div></td></tr>';
       legend_html += '<tr id="tibnted-sea-level-rise-legend" style="display: none"><td><div style="font-size: 17px">Global Temperature Rise <span id="slr-degree"></span> &#x2103;<span class="credit"> (Climate Central)</span></div><div style="font-size: 15px">Multi-century Sea Level Increase:<span id="slr-feet" style="width:25px;"></span>&nbsp;<span id="slr-meters" style="width:25px; color: red;"></span></div></td></tr>';
-      legend_html += '<tr id="urban-fragility-legend" style="display: none"><td><div style="font-size: 17px">Fragile Score <span class="credit"> (Igarape Institute)</span></div></div><svg class="svg-legend" width="200" height="30"> <rect fill="#313695" x="0" height="9" width="20"></rect><rect fill="#4575b4" x="20" height="9" width="20"></rect><rect fill="#74add1" x="40" height="9" width="20"></rect><rect fill="#abd9e9" x="60" height="9" width="20"></rect><rect fill="#e0f3f8" x="80" height="9" width="20"></rect><rect fill="#ffffbf" x="100" height="9" width="20"></rect><rect fill="#fee090" x="120" height="9" width="20"></rect><rect fill="#fdae61" x="140" height="9" width="20"></rect><rect fill="#f46d43" x="160" height="9" width="20"></rect><rect fill="#d73027" x="180" height="9" width="20"></rect><rect fill="#a50026" x="200" height="9" width="20"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">1.0</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="100">2.25</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="185">3.5</text></svg></td></tr>';
+      //legend_html += '<tr id="urban-fragility-legend" style="display: none"><td><div style="font-size: 17px">Fragile Score <span class="credit"> (Igarape Institute)</span></div></div><svg class="svg-legend" width="200" height="30"> <rect fill="#313695" x="0" height="9" width="20"></rect><rect fill="#4575b4" x="20" height="9" width="20"></rect><rect fill="#74add1" x="40" height="9" width="20"></rect><rect fill="#abd9e9" x="60" height="9" width="20"></rect><rect fill="#e0f3f8" x="80" height="9" width="20"></rect><rect fill="#ffffbf" x="100" height="9" width="20"></rect><rect fill="#fee090" x="120" height="9" width="20"></rect><rect fill="#fdae61" x="140" height="9" width="20"></rect><rect fill="#f46d43" x="160" height="9" width="20"></rect><rect fill="#d73027" x="180" height="9" width="20"></rect><rect fill="#a50026" x="200" height="9" width="20"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">1.0</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="100">2.25</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="185">3.5</text></svg></td></tr>';
       //legend_html += '<tr id="zika-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Zika Virus <span class="credit"> (LSHTM)</span></div></td></tr>';
       //legend_html += '<tr id="chiku-legend" style="display: none"><td><div style="background-color:#6070ff; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Chikungunya Virus <span class="credit"> (LSHTM)</span></div></td></tr>';
       //legend_html += '<tr id="dengue-legend" style="display: none"><td><div style="background-color:#a1ef5f; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Dengue Virus <span class="credit"> (LSHTM)</span></div></td></tr>';
@@ -6761,7 +6766,7 @@
         drawFunction: WebglMapTile.prototype._drawSeaLevelRise
       };
       tintedSeaLevelRiseLayer = new WebglMapLayer(glb, canvasLayer, seaLevelRiseUrl, seaLevelRiseLayerOptions);*/
-
+      /*
       var urbanFragilityLayerOptions = {
         tileWidth: 256,
         tileHeight: 256,
@@ -6773,7 +6778,7 @@
         numAttributes: 5
       };
       urbanFragilityLayer = new WebglVectorLayer2(glb, canvasLayer, urbanFragilityUrl, urbanFragilityLayerOptions);
-
+      */
       /*
       var gtdLayerOptions = {
         tileWidth: 256,
@@ -9474,6 +9479,7 @@
           $(".timeText, .captureTimeMain").html(timelapse.getCurrentCaptureTime() + "&degC");
         }*/
 
+        /*
         if (showUrbanFragilityLayer) {
           var urbanFragilityLayerView = getLayerView(urbanFragilityLayer, landsatBaseMapLayer);
           var options = {};
@@ -9490,6 +9496,7 @@
           urbanFragilityLayer.draw(urbanFragilityLayerView, options);
 
         }
+        */
 
         /*
         if (showGtdLayer) {
