@@ -344,6 +344,34 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
   $('#' + id).on("click", function() {
     var $this = $(this);
     if ($this.prop('checked')) {
+
+      //// TODO(pdille): These handle special cases with our hardcoded layers, that have now moved to the CSV sheet. Some or none of this may remain in the future.
+      if (typeof(layer.options.layersPairedWith) !== "undefined") {
+        var layerIds = layer.options.layersPairedWith;
+        for (var i = 0; i < layerIds.length; i++) {
+          var $pairdLayer = $("#layers-list label[name='" + layerIds[i] + "'] input");
+          if (!$pairdLayer.prop("checked")) {
+            $pairdLayer.trigger("click");
+          }
+        }
+      }
+
+      if (typeof(layer.options.layersMutuallyExclusiveWith) !== "undefined") {
+        var layerIds = layer.options.layersMutuallyExclusiveWith;
+        for (var i = 0; i < layerIds.length; i++) {
+          var $mutuallyExclusiveLayer = $("#layers-list label[name='" + layerIds[i] + "'] input");
+          if ($mutuallyExclusiveLayer.prop("checked")) {
+            $mutuallyExclusiveLayer.trigger("click");
+          }
+        }
+      }
+
+      if (layer.options.isSoloLayer) {
+        var $activeLayersNotIncludingClickedLayer = $("#layers-list").find("input[type=checkbox]:checked").not($(this));
+        $activeLayersNotIncludingClickedLayer.trigger("click");
+      }
+      ////
+
       // Turn on layer
       if (layer.mapType != "timemachine") {
         layer.getTileView().handleTileLoading({layerDomId: $this[0].id});
@@ -432,6 +460,16 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
       // TODO:(pdille)
       if (typeof(layer.options.maxScale) !== "undefined") {
         timelapse.setMaxScale(landsatMaxScale);
+      }
+      // TODO:(pdille)
+      if (typeof(layer.options.layersPairedWith) !== "undefined") {
+        var layerIds = layer.options.layersPairedWith;
+        for (var i = 0; i < layerIds.length; i++) {
+          $pairdLayer = $("#layers-list label[name='" + layerIds[i] + "'] input");
+          if ($pairdLayer.prop("checked")) {
+            $pairdLayer.trigger("click");
+          }
+        }
       }
       if (layer.masterPlaybackRate && layer.playbackRate) {
         timelapse.setMasterPlaybackRate(1);
