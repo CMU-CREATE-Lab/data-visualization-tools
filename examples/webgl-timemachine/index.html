@@ -238,7 +238,7 @@
     var showExpandingCities = !!EARTH_TIMELAPSE_CONFIG.showExpandingCities;
     //var showIrena = !!EARTH_TIMELAPSE_CONFIG.showIrena;
     var showCityLabelMap = !!EARTH_TIMELAPSE_CONFIG.showCityLabelMap;
-    var showTsip = !!EARTH_TIMELAPSE_CONFIG.showTsip;
+    //var showTsip = !!EARTH_TIMELAPSE_CONFIG.showTsip;
     var showSpCrude = !!EARTH_TIMELAPSE_CONFIG.showSpCrude;
     var showGoes16 = !!EARTH_TIMELAPSE_CONFIG.showGoes16;
     var showDscovr = !!EARTH_TIMELAPSE_CONFIG.showDscovr;
@@ -462,8 +462,8 @@
     //timelines.setTimeLine('irena-solar-times', '2000', '2016', 1);
     //var irenaWindLayer;
     //timelines.setTimeLine('irena-wind-times', '2000', '2016', 1);
-    var tsipLayer;
-    timelines.setTimeLine('tsip-times', '2000', '2017', 1);
+    //var tsipLayer;
+    //timelines.setTimeLine('tsip-times', '2000', '2017', 1);
 
     // S&P Shipping
     var spCrudeLayer;
@@ -1018,7 +1018,7 @@
     //var irenaSolarUrl = 'https://data.cmucreatelab.org/earthtime/IRENA/Solar.Electricity_capacity_MW.csv';
     //var irenaWindUrl = 'https://data.cmucreatelab.org/earthtime/IRENA/Wind.Electricity_capacity_MW.csv';
 
-    var tsipUrl = rootTilePath + "/tsip/tsip.bin";
+    //var tsipUrl = rootTilePath + "/tsip/tsip.bin";
 
     var spCrudeUrl = rootTilePath + "/sp-crude/0-crude-flows.bin";
     var spCrudeUrlOceania = rootTilePath + "/sp-crude/Oceania/0-crude-flows_Oceania.bin";
@@ -3418,6 +3418,7 @@
       }).prop('checked', showIrenaWindLayer);
 */
 
+      /*
       $("#show-tsip").on("click", function() {
         var $this = $(this);
         if ($this.prop('checked')) {
@@ -3440,6 +3441,7 @@
           }
         }
       }).prop('checked', showTsipLayer);
+      */
 
       $("#show-sp-crude").on("click", function() {
         var $this = $(this);
@@ -4835,7 +4837,7 @@
     var showExpandingCitiesLayer = false;
     //var showIrenaSolarLayer = false;
     //var showIrenaWindLayer = false;
-    var showTsipLayer = false;
+    //var showTsipLayer = false;
     var showSpCrudeLayer = false;
     var showSpCrudeLayerOceania = false;
     var showSpCrudeLayerAG = false;
@@ -5411,7 +5413,7 @@
       var show_expanding_cities = '<td class="expanding-cities-select"><label for="show-expanding-cities" name="expanding-cities"><input type="checkbox" id="show-expanding-cities" />Expanding Cities</label></td>';
       //var show_irena_solar = '<td class="irena-solar-select"><label for="show-irena-solar" name="IRENA_Solar"><input type="checkbox" id="show-irena-solar" />Solar electric capacity per country</label></td>';
       //var show_irena_wind = '<td class="irena-wind-select"><label for="show-irena-wind" name="IRENA_Wind"><input type="checkbox" id="show-irena-wind" />Wind electric capacity per country</label></td>';
-      var show_tsip = '<td class="tsip-select"><label for="show-tsip" name="tsip"><input type="checkbox" id="show-tsip" />Toxic Sites</label></td>';
+      //var show_tsip = '<td class="tsip-select"><label for="show-tsip" name="tsip"><input type="checkbox" id="show-tsip" />Toxic Sites</label></td>';
       var show_sp_crude = '<td class="sp-crude-select"><label for="show-sp-crude" name="sp-crude"><input type="checkbox" id="show-sp-crude" />Crude Oil flows</label></td>';
       var show_sp_crude_Oceania = '<td class="sp-crude-select_Oceania"><label for="show-sp-crude_Oceania" name="sp-crude_Oceania"><input type="checkbox" id="show-sp-crude_Oceania" />Oceania Crude Oil flows</label></td>';
       var show_sp_crude_AG = '<td class="sp-crude-select_AG"><label for="show-sp-crude_AG" name="sp-crude_AG"><input type="checkbox" id="show-sp-crude_AG" />AG Crude Oil flows</label></td>';
@@ -5610,11 +5612,13 @@
         layer_html += show_be_pm25;
         layer_html += '   </tr>';
       }
+      /*
       if (showTsip) {
         layer_html += '    <tr>';
         layer_html += show_tsip;
         layer_html += '    </tr>';
       }
+      */
       if (showAnnualGlobalPm25) {
         layer_html += '    <tr>';
         layer_html += show_annual_global_pm25;
@@ -6120,9 +6124,9 @@
       legend_html += '<tr id="be-pm25-legend" style="display:none"><td><div style="font-size: 14px">PM2.5<span class="credit"> (Berkeley Earth)</span></div><svg class="svg-legend" width="320" height="50"><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="15" x="0">0.0</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="15" x="40">12.0</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="15" x="92">35.5</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="15" x="142">55.5</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="15" x="192">150.5</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="15" x="242">250.5</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="15" x="287">500.0</text><rect fill="rgb(12, 231, 0)"  y="20" x="0" height="10" width="50.0"></rect><rect fill="rgb(255, 255, 0)" y="20" x="50" height="10" width="50.0"></rect><rect fill="rgb(255, 105, 0)" y="20" x="100" height="10" width="50.0"></rect><rect fill="rgb(255, 0, 0)"   y="20" x="150" height="10" width="50.0"></rect><rect fill="rgb(135, 0, 59)"  y="20" x="200" height="10" width="50.0"></rect><rect fill="rgb(107, 0, 25)"  y="20" x="250" height="10" width="50.0"></rect><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="40" x="10">Good</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="40" x="55">Moderate</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="40" x="105">Unhealthy</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="40" x="150">+Unhealthy</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="40" x="200">++Unhealthy</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="40" x="255">Hazardous</text></svg></td></tr>';
       legend_html += '<tr id="expanding-cities-legend" style="display: none"><td><div style="background-color:silver; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -16px; font-size: 17px">Expanding Cities <span class="credit"> (Igarapé)</span></div></div></td></tr>';
 //      legend_html += '<tr id="irena-legend" style="display: none"><td><div style="font-size: 15px">Electric Capacity per Country<span class="credit"> (IRENA)</span></div><svg class="svg-legend" width="240" height="170"><circle class="gain" r="10" cx="15" cy="10" style="fill: blue; stroke: #fff;"></circle> <text x="30" y="15" style="font-size: 12px; fill: #fff">Wind power (GWh)</text> <circle class="gain" r="10" cx="15" cy="35" style="fill: purple; stroke: #fff;"></circle><text x="30" y="40" style="font-size: 12px; fill: #fff">Solar power (GWh)</text> <circle r="25.0" cx="120.0" cy="122.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle><circle r="40.0" cx="120.0" cy="107.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle><circle r="50.0" cx="120.0" cy="97.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle><text text-anchor="middle" x="120.0" y="112.0" dy="13" style="font-size: 10px; fill: #fff">25K</text><text text-anchor="middle" x="120.0" y="77.0" dy="13" style="font-size: 10px; fill: #fff">64K</text><text text-anchor="middle" x="120.0" y="52.0" dy="13" style="font-size: 10px; fill: #fff">100K</text></svg></td></tr>';
-      var tsipStr = '<div style="font-size: 15px">Toxic Sites Identification Program<span class="credit"> (Pure Earth)</span></div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: brown; stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">Sites (size relative to Blacksmith Index)</text><!--<circle r="10.0" cx="120.0" cy="50" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle><text text-anchor="middle" x="120.0" y="45" dy="10" style="font-size: 10px; fill: #fff">5</text><circle r="20.0" cx="120.0" cy="40" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle><text text-anchor="middle" x="120.0" y="25" dy="10" style="font-size: 10px; fill: #fff">10</text>--></svg>';
-      var tsipLegend = new BubbleMapLegend({"id" : "tsip", "str": tsipStr});
-      legend_html += tsipLegend.toString();
+      //var tsipStr = '<div style="font-size: 15px">Toxic Sites Identification Program<span class="credit"> (Pure Earth)</span></div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: brown; stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">Sites (size relative to Blacksmith Index)</text><!--<circle r="10.0" cx="120.0" cy="50" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle><text text-anchor="middle" x="120.0" y="45" dy="10" style="font-size: 10px; fill: #fff">5</text><circle r="20.0" cx="120.0" cy="40" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle><text text-anchor="middle" x="120.0" y="25" dy="10" style="font-size: 10px; fill: #fff">10</text>--></svg>';
+      //var tsipLegend = new BubbleMapLegend({"id" : "tsip", "str": tsipStr});
+      //legend_html += tsipLegend.toString();
       legend_html += '<tr id="sp-crude-legend" style="display: none"><td><div style="font-size: 15px">Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="220"><circle class="gain" r="10" cx="15" cy="10" style="fill: red; stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">Middle East</text><circle class="gain" r="10" cx="15" cy="35" style="fill: blue; stroke: #fff;"></circle><text x="30" y="40" style="font-size: 12px; fill: #fff">North Africa</text><circle class="gain" r="10" cx="15" cy="60" style="fill: green; stroke: #fff;"></circle><text x="30" y="65" style="font-size: 12px; fill: #fff">North Sea</text><circle class="gain" r="10" cx="15" cy="85" style="fill: yellow; stroke: #fff;"></circle><text x="30" y="90" style="font-size: 12px; fill: #fff">Urals</text><circle class="gain" r="10" cx="15" cy="110" style="fill: purple; stroke: #fff;"></circle><text x="30" y="115" style="font-size: 12px; fill: #fff">US Golf Coast</text><circle class="gain" r="10" cx="15" cy="135" style="fill: orange; stroke: #fff;"></circle><text x="30" y="140" style="font-size: 12px; fill: #fff">West Africa</text></svg></td></tr>';
       legend_html += '<tr id="sp-crude-legend_AG" style="display: none"><td><div style="font-size: 15px">Arab Gulf Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: rgb(228, 26, 28); stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">Arab Gulf</text></svg></td></tr>';
       legend_html += '<tr id="sp-crude-legend_WAF" style="display: none"><td><div style="font-size: 15px">West Africa Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: rgb(255, 127, 0); stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">West Africa</text></svg></td></tr>';
@@ -6944,7 +6948,7 @@
       };
       irenaWindLayer = new WebglVectorLayer2(glb, canvasLayer, irenaWindUrl, irenaWindLayerOptions);
 */
-
+      /*
       var layerOptions = {
         tileWidth: 256,
         tileHeight: 256,
@@ -6955,7 +6959,7 @@
         numAttributes: 5
       };
       tsipLayer = new WebglVectorLayer2(glb, canvasLayer, tsipUrl, layerOptions);
-
+      */
       var layerOptions = {
         tileWidth: 256,
         tileHeight: 256,
@@ -9933,6 +9937,7 @@
           layer.draw(view, options);
         }
 */
+        /*
         if (showTsipLayer) {
           var layer = tsipLayer;
           var view = getLayerView(layer, landsatBaseMapLayer);
@@ -9948,7 +9953,8 @@
           options.color = [0.5,0.05,0.5,1.0];
           layer.draw(view, options);
         }
-
+        */
+        
         if (showLodesLayer) {
           var lodesLayerView = getLayerView(lodesLayer, landsatBaseMapLayer);
           var options = {};
