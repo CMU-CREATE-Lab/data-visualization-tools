@@ -2341,6 +2341,16 @@ WebGLVectorTile2.prototype._drawBubbleMap = function(transform, options) {
       gl.uniform1f(this.program.u_Max, this._radius(this._maxValue));
     }
 
+    if (options.color) {
+      gl.uniform4fv(this.program.u_Color, options.color);
+    }
+    if (options.edgeSize) {
+      gl.uniform1f(this.program.u_EdgeSize, options.edgeSize);
+    }
+    if (options.edgeColor) {
+      gl.uniform4fv(this.program.u_EdgeColor, options.edgeColor);
+    }
+
     gl.drawArrays(gl.POINTS, 0, this._pointCount);
     perf_draw_points(this._pointCount);
     gl.disable(gl.BLEND);
@@ -5450,6 +5460,7 @@ WebGLVectorTile2.bubbleMapVertexShader =
 '      uniform float u_Size;\n' +
 '      uniform mat4 u_MapMatrix;\n' +
 '      varying float v_Val;\n' +
+'      varying float v_Size;\n' +
 '      void main() {\n' +
 '        vec4 position;\n' +
 '        if (a_Epoch1 > u_Epoch || a_Epoch2 <= u_Epoch) {\n' +
@@ -5461,6 +5472,7 @@ WebGLVectorTile2.bubbleMapVertexShader =
 '        float delta = (u_Epoch - a_Epoch1)/(a_Epoch2 - a_Epoch1);\n' +
 '        float size = (a_Val2 - a_Val1) * delta + a_Val1;\n' +
 '        v_Val = size;\n' +
+'        v_Size = abs(size);\n' +
 '        gl_PointSize = abs(u_Size * size);\n' +
 '      }\n';
 
@@ -5492,6 +5504,40 @@ WebGLVectorTile2.bubbleMapFragmentShader =
 '          float outerEdgeCenter = 0.5 - .01;\n' +
 '          float stroke = smoothstep(outerEdgeCenter - delta, outerEdgeCenter + delta, dist);\n' +
 '          gl_FragColor = vec4( mix(outlineColor.rgb, circleColor.rgb, stroke), alpha*.75 );\n' +
+'      }';
+
+WebGLVectorTile2.bubbleMapFragmentShaderV2 =
+'      #extension GL_OES_standard_derivatives : enable\n' +
+'      precision mediump float;\n' +
+'      varying float v_Val;\n' +
+'      varying float v_Size;\n' +
+'      uniform float u_EdgeSize;\n' +
+'      uniform vec4 u_Color;\n' +
+'      uniform vec4 u_EdgeColor;\n' +
+'      uniform float u_Mode;\n' +
+'      void main() {\n' +
+'        float distance = length(2.0 * gl_PointCoord - 1.0) * 2.0;\n' +
+'        if (distance > 1.0) {\n' +
+'          discard;\n' +
+'        }\n' +
+'        float sEdge = smoothstep(\n' +
+'          v_Size - u_EdgeSize - 2.0,\n' +
+'          v_Size - u_EdgeSize,\n' +
+'          distance * (v_Size + u_EdgeSize)\n' +
+'        );\n' +
+'        gl_FragColor = u_Color;\n' +
+'        gl_FragColor = (u_EdgeColor * sEdge) + ((1.0 - sEdge) * gl_FragColor);\n' +
+'        gl_FragColor.a = gl_FragColor.a * (1.0 - smoothstep(v_Size - 2.0, v_Size, distance * v_Size));' +
+'          if (u_Mode == 2.0) {\n' +
+'            if (gl_PointCoord.x > 0.5) {\n' +
+'              gl_FragColor.a = 0.0;\n' +
+'            }\n' +
+'          }\n' +
+'          if (u_Mode == 3.0) {\n' +
+'            if (gl_PointCoord.x < 0.5) {\n' +
+'              gl_FragColor.a = 0.0;\n' +
+'            }\n' +
+'          }\n' +
 '      }';
 
 
