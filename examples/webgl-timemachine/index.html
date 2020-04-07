@@ -7724,7 +7724,7 @@
         var dataLoaded = $target.data("has-graph") ? true : false;
         var layer = csvFileLayers.layerById[layerId];
 
-        if (layer) {
+        if (layer && layer._tileView) {
           var tiles = layer._tileView._tiles;
           var key = Object.keys(tiles)[0];
           // Checking point count is a special case when we are only displaying a chart and nothing on the main map
@@ -10101,10 +10101,10 @@
         // Draw CSV z=400 (most CSV layers, by default)
         for (var i = 0; i < csvFileLayers.layers.length; i++) {
           var layer = csvFileLayers.layers[i];
-	  if (layer.visible && layer.z == 400) {
-	    drawCsvLayer(layer);
-	  }
-	}
+	         if (layer.visible && layer.z == 400) {
+	           drawCsvLayer(layer);
+	         }
+        }
 
         if (showSpCrudeLayer) {
           var layer = spCrudeLayer;
