@@ -489,6 +489,8 @@
 
     var windVectorsLayer;
 
+    var omiNo215DayAvgLayer;
+
 /*    var spCrudeLayerWAF;
     timelines.setTimeLine('sp-crude-times', '2013', '2018', 1);
 
@@ -1036,6 +1038,9 @@
     var windVectorsUrl = rootTilePath + "/wind/test.json";
 
     var chlorophyllConcentrationTimemachineUrl = rootTilePath + "/chlorophyll_concentration.timemachine/crf24-12fps-1424x800";
+
+
+    var omiNo215DayAvgUrl = rootTilePath + "/omi_no2/omi_no2.timemachine/crf24-12fps-1424x800";
 
     /*
     var spCrudeUrlWAF = rootTilePath + "/sp-crude/0-crude-flows_WAF.bin"
@@ -3216,6 +3221,36 @@
         }
       }).prop('checked', showOmiNo2Layer);
 
+      $("#show-omi-no2-15-day-avg").on("click", function() {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          omiNo215DayAvgLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
+          showOmiNo215DayAvgLayer = true;
+          setActiveLayersWithTimeline(1);
+          timelineType = "defaultUI";
+          previousVisibleBaseMapLayer = visibleBaseMapLayer;
+          visibleBaseMapLayer = "dark";
+          requestNewTimeline("omi-no2-15-day-avg-times.json", timelineType);
+          var v = timelapse.getVideoset();
+          v.setFps(12);
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          $("#omi-no2-15-day-avg-legend").show();
+        } else {
+          showOmiNo215DayAvgLayer = false;
+          cacheLastUsedLayer(omiNo215DayAvgLayer);
+          setActiveLayersWithTimeline(-1);
+          timelineType = "customUI";
+          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+          var v = timelapse.getVideoset();
+          v.setFps(10);
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          $("#omi-no2-15-day-avg-legend").hide();
+        }
+      }).prop('checked', showOmiNo215DayAvgLayer);
+
+
       $("#show-be-pm25").on("click", function() {
         var $this = $(this);
         if ($this.prop('checked')) {
@@ -4791,6 +4826,7 @@
     var showBerkeleyEarthTemperatureAnomalyTimeMachineLayer = false;
     var showBerkeleyEarthTemperatureAnomalyV2YearlyTimeMachineLayer = false;
     var showOmiNo2Layer = false;
+    var showOmiNo215DayAvgLayer = false;
     var showChinaAviationLayer = false;
     var showChinaPowerPlantsLayer = false;
     var showChinaReservoirsLayer = false;
@@ -5368,6 +5404,7 @@
       var show_berkeley_earth_temperature_anomaly = '<td class="berkeley-earth-temperature-anomaly-select"><label for="show-berkeley-earth-temperature-anomaly" name="berkeley-earth-temperature-anomaly"><input type="checkbox" id="show-berkeley-earth-temperature-anomaly" />Temperature Anomaly</label></td>';
       var show_berkeley_earth_temperature_anomaly_v2_yearly = '<td class="berkeley-earth-temperature-anomaly-v2-yearly-select"><label for="show-berkeley-earth-temperature-anomaly-v2-yearly" name="berkeley-earth-temperature-anomaly-v2-yearly"><input type="checkbox" id="show-berkeley-earth-temperature-anomaly-v2-yearly" />Temperature Anomaly V2 Yearly</label></td>';
       var show_omi_no2 = '<td class="omi-no2-select"><label for="show-omi-no2" name="omi-no2"><input type="checkbox" id="show-omi-no2" />OMI NO2</label></td>';
+      var show_omi_no2_15_day_avg = '<td class="omi-no2-15-day-avg-select"><label for="show-omi-no2-15-day-avg" name="omi-no2-15-day-avg"><input type="checkbox" id="show-omi-no2-15-day-avg" />OMI NO2 15 day avg</label></td>';
       var show_be_pm25 = '<td class="be-pm25-select"><label for="show-be-pm25" name="be-pm25"><input type="checkbox" id="show-be-pm25" />Berkeley Earth -- PM2.5</label></td>';
       var show_china_aviation = '<td class="china-aviation-select"><label for="show-china-aviation" name="china-aviation"><input type="checkbox" id="show-china-aviation" />China Aviation</label></td>';
       var show_china_power_plants = '<td class="china-power-plants-select"><label for="show-china-power-plants" name="china-power-plants"><input type="checkbox" id="show-china-power-plants" />China Power Plants</label></td>';
@@ -5568,6 +5605,9 @@
         layer_html += show_omi_no2;
         layer_html += '   </tr>';
       }
+      layer_html += '   <tr>';
+      layer_html += show_omi_no2_15_day_avg;
+      layer_html += '   </tr>';
       if (showBePm25) {
         layer_html += '   <tr>';
         layer_html += show_be_pm25;
@@ -6046,7 +6086,8 @@
       legend_html += '<tr id="china-power-plants-legend" style="display: none"><td><div style="background-color:green; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">China Power Plants <span class="credit"> (Oxford & Harvard)</span></div></td></tr>';
       legend_html += '<tr id="china-reservoirs-legend" style="display: none"><td><div style="background-color:blue; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">China Reservoirs <span class="credit"> (Oxford & Harvard)</span></div></td></tr>';
       legend_html += '<tr id="china-waste-treatment-plants-legend" style="display: none"><td><div style="background-color:orange; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">China Waste Treatment Plants <span class="credit"> (Oxford & Harvard)</span></div></td></tr>';
-      legend_html += '<tr id="omi-no2-legend" style="display:none"><td><div style="font-size: 13px">OMI NO2 2005-2016<span class="credit"> (NOAA)</span></div><svg class="svg-legend" width="220" height="40"><rect fill="rgb(68, 160, 216)" y="20" x="0" height="10" width="40.0"></rect><rect fill="rgb(171, 215, 176)" y="20" x="40" height="10" width="40.0"></rect><rect fill="rgb(253, 230, 132)" y="20" x="80" height="10" width="40.0"></rect><rect fill="rgb(252, 136, 80)" y="20" x="120" height="10" width="40.0"></rect><rect fill="rgb(232, 0, 28)" y="20" x="160" height="10" width="40.0"></rect><text font-size="12px" fill="rgba(0, 0, 0, 0.8)" y="40" x="5">LOW</text><text font-size="12px" fill="rgba(0, 0, 0, 0.8)" y="40" x="165">HIGH</text></svg></td></tr>';
+      legend_html += '<tr id="omi-no2-legend" style="display:none"><td><div style="font-size: 13px">OMI NO2 2005-2016<span class="credit"> (NOAA)</span></div><svg class="svg-legend" width="220" height="40"><rect fill="rgb(68, 160, 216)" y="20" x="0" height="10" width="40.0"></rect><rect fill="rgb(171, 215, 176)" y="20" x="40" height="10" width="40.0"></rect><rect fill="rgb(253, 230, 132)" y="20" x="80" height="10" width="40.0"></rect><rect fill="rgb(252, 136, 80)" y="20" x="120" height="10" width="40.0"></rect><rect fill="rgb(232, 0, 28)" y="20" x="160" height="10" width="40.0"></rect><text font-size="12px" fill="rgba(255, 255, 255, 0.8)" y="40" x="5">LOW</text><text font-size="12px" fill="rgba(255, 255, 255, 0.8)" y="40" x="165">HIGH</text></svg></td></tr>';
+      legend_html += '<tr id="omi-no2-15-day-avg-legend" style="display:none"><td><div style="font-size: 13px">OMI NO2 2005-2016<span class="credit"> (NOAA)</span></div><svg class="svg-legend" width="220" height="40"><rect fill="rgb(68, 160, 216)" y="20" x="0" height="10" width="40.0"></rect><rect fill="rgb(171, 215, 176)" y="20" x="40" height="10" width="40.0"></rect><rect fill="rgb(253, 230, 132)" y="20" x="80" height="10" width="40.0"></rect><rect fill="rgb(252, 136, 80)" y="20" x="120" height="10" width="40.0"></rect><rect fill="rgb(232, 0, 28)" y="20" x="160" height="10" width="40.0"></rect><text font-size="12px" fill="rgba(255, 255, 255, 0.8)" y="40" x="5">LOW</text><text font-size="12px" fill="rgba(255, 255, 255, 0.8)" y="40" x="165">HIGH</text></svg></td></tr>';
       legend_html += '<tr id="be-pm25-legend" style="display:none"><td><div style="font-size: 14px">PM2.5<span class="credit"> (Berkeley Earth)</span></div><svg class="svg-legend" width="320" height="50"><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="15" x="0">0.0</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="15" x="40">12.0</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="15" x="92">35.5</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="15" x="142">55.5</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="15" x="192">150.5</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="15" x="242">250.5</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="15" x="287">500.0</text><rect fill="rgb(12, 231, 0)"  y="20" x="0" height="10" width="50.0"></rect><rect fill="rgb(255, 255, 0)" y="20" x="50" height="10" width="50.0"></rect><rect fill="rgb(255, 105, 0)" y="20" x="100" height="10" width="50.0"></rect><rect fill="rgb(255, 0, 0)"   y="20" x="150" height="10" width="50.0"></rect><rect fill="rgb(135, 0, 59)"  y="20" x="200" height="10" width="50.0"></rect><rect fill="rgb(107, 0, 25)"  y="20" x="250" height="10" width="50.0"></rect><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="40" x="10">Good</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="40" x="55">Moderate</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="40" x="105">Unhealthy</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="40" x="150">+Unhealthy</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="40" x="200">++Unhealthy</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="40" x="255">Hazardous</text></svg></td></tr>';
       legend_html += '<tr id="expanding-cities-legend" style="display: none"><td><div style="background-color:silver; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -16px; font-size: 17px">Expanding Cities <span class="credit"> (Igarapé)</span></div></div></td></tr>';
       legend_html += '<tr id="irena-legend" style="display: none"><td><div style="font-size: 15px">Electric Capacity per Country<span class="credit"> (IRENA)</span></div><svg class="svg-legend" width="240" height="170"><circle class="gain" r="10" cx="15" cy="10" style="fill: blue; stroke: #fff;"></circle> <text x="30" y="15" style="font-size: 12px; fill: #fff">Wind power (GWh)</text> <circle class="gain" r="10" cx="15" cy="35" style="fill: purple; stroke: #fff;"></circle><text x="30" y="40" style="font-size: 12px; fill: #fff">Solar power (GWh)</text> <circle r="25.0" cx="120.0" cy="122.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle><circle r="40.0" cx="120.0" cy="107.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle><circle r="50.0" cx="120.0" cy="97.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle><text text-anchor="middle" x="120.0" y="112.0" dy="13" style="font-size: 10px; fill: #fff">25K</text><text text-anchor="middle" x="120.0" y="77.0" dy="13" style="font-size: 10px; fill: #fff">64K</text><text text-anchor="middle" x="120.0" y="52.0" dy="13" style="font-size: 10px; fill: #fff">100K</text></svg></td></tr>';
@@ -6401,6 +6442,20 @@
         tileRootUrl: omiNo2Url
       };
       omiNo2Layer = new WebglTimeMachineLayer(glb, canvasLayer, omiNo2LayerOptions);
+
+      // OMI NO2
+      timelines.setTimeLine("omi-no2-15-day-avg-times", "20180101", "20200406", 1);
+      var omiNo215DayAvgLayerOptions = {
+        numFrames: cached_ajax['omi-no2-15-day-avg-times.json']['capture-times'].length,
+        fps: 12,
+        nlevels: 6,
+        width: 16384,
+        height: 16384,
+        greenScreen: false,
+        tileRootUrl: omiNo215DayAvgUrl,
+        colormap: 'https://tiles.earthtime.org/colormaps/matplotlib/OrRd.png'
+      };
+      omiNo215DayAvgLayer = new WebglTimeMachineLayer(glb, canvasLayer, omiNo215DayAvgLayerOptions);
 
       // Berkeley Earth PM 2.5
       var bePm25LayerOptions = {
@@ -9691,6 +9746,15 @@
 
           var landBorderView = getLayerView(landBorderLayer, landsatBaseMapLayer);
           landBorderLayer.draw(landBorderView);
+        }
+
+
+        if (showOmiNo215DayAvgLayer) {
+          var view = getLayerView(omiNo215DayAvgLayer, landsatBaseMapLayer);
+          omiNo215DayAvgLayer.draw(view, tileViewVisibility);
+
+          //var landBorderView = getLayerView(landBorderLayer, landsatBaseMapLayer);
+          //landBorderLayer.draw(landBorderView);
         }
 
         if (showBePm25Layer) {
