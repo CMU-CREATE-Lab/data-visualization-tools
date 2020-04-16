@@ -250,6 +250,7 @@
     var showChlorophyllConcentrationTimemachine = !!EARTH_TIMELAPSE_CONFIG.showChlorophyllConcentrationTimemachine;
     var showFishingPprTimemachine = !!EARTH_TIMELAPSE_CONFIG.showFishingPprTimemachine;
     var showWindVectors = !!EARTH_TIMELAPSE_CONFIG.showWindVectors;
+    var showLowerHill = true;
 
     var googleMapsAPIKey = parseConfigOption({optionName: "googleMapsAPIKey", optionDefaultValue: "AIzaSyAGTDshdDRmq8zdw26ZmwJOswh6VseIrYY", exposeOptionToUrlHash: false});
     var showExtrasMenu = parseConfigOption({optionName: "showExtrasMenu", optionDefaultValue: true, exposeOptionToUrlHash: false});
@@ -490,6 +491,9 @@
     var windVectorsLayer;
 
     var omiNo215DayAvgLayer;
+
+    var lowerHillTimemachineLayer;
+
 
 /*    var spCrudeLayerWAF;
     timelines.setTimeLine('sp-crude-times', '2013', '2018', 1);
@@ -1041,6 +1045,9 @@
 
 
     var omiNo215DayAvgUrl = rootTilePath + "/omi_no2/omi_no2.timemachine/crf24-12fps-1424x800";
+
+    var lowerHillTimemachineUrl = rootTilePath + "/lower-hill.timemachine/crf22-4fps-1424x800";
+
 
     /*
     var spCrudeUrlWAF = rootTilePath + "/sp-crude/0-crude-flows_WAF.bin"
@@ -3836,6 +3843,38 @@
         }
       }).prop('checked', showWindVectorsLayer);
 
+
+      $("#show-lower-hill").on("click", function() {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+          lowerHillTimemachineLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
+          showLowerHillTimemachineLayer = true;
+          setActiveLayersWithTimeline(1);
+          timelineType = "defaultUI";
+          previousVisibleBaseMapLayer = visibleBaseMapLayer;
+          visibleBaseMapLayer = "lower-hill-timemachine";
+          requestNewTimeline("lower-hill-times.json", timelineType);
+          var v = timelapse.getVideoset();
+          v.setFps(4);
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(0.25);
+          WebglVideoTile.useFaderShader = false;
+        } else {
+          showLowerHillTimemachineLayer = false;
+          cacheLastUsedLayer(lowerHillTimemachineLayer);
+          setActiveLayersWithTimeline(-1);
+          timelineType = "customUI";
+          visibleBaseMapLayer = previousVisibleBaseMapLayer;
+          requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
+          var v = timelapse.getVideoset();
+          v.setFps(10);
+          timelapse.setMasterPlaybackRate(1);
+          timelapse.setPlaybackRate(defaultPlaybackSpeed);
+          WebglVideoTile.useFaderShader = true;
+        }
+      }).prop('checked', showLowerHillTimemachineLayer);
+
+
 /*
       $("#show-sp-crude_WAF").on("click", function() {
         if ($(this).prop('checked')) {
@@ -4852,6 +4891,7 @@
     var showGfsTimemachineLayer = false;
     var showChlorophyllConcentrationTimemachineLayer = false;
     var showWindVectorsLayer = false;
+    var showLowerHillTimemachineLayer = false;
 
     /*
     var showSpCrudeLayerWAF = false;
@@ -5434,6 +5474,8 @@
       var show_chlorophyllConcentration_timemachine = '<td class="chlorophyllConcentration-timemachine-select"><label for="show-chlorophyllConcentration-timemachine" name="chlorophyllConcentration-timemachine"><input type="checkbox" id="show-chlorophyllConcentration-timemachine" />Chlorophyll concentration</label></td>';
       var show_fishingppr_timemachine = '<td class="fishingppr-timemachine-select"><label for="show-fishingppr-timemachine" name="fishingppr-timemachine"><input type="checkbox" id="show-fishingppr-timemachine" />Fishing PPR</label></td>';
       var show_wind_vectors = '<td class="wind-vectors-select"><label for="show-wind-vectors" name="wind-vectors"><input type="checkbox" id="show-wind-vectors" />Wind Vectors</label></td>';
+      var show_lower_hill = '<td class="lower-hill-select"><label for="show-lower-hill" name="lower-hill"><input type="checkbox" id="show-lower-hill" />Lower Hill District</label></td>';
+
 
 /*
       var show_sp_crude_WAF = '<td class="sp-crude-select_WAF"><label for="show-sp-crude_WAF" name="sp-crude_WAF"><input type="checkbox" id="show-sp-crude_WAF" />WAF Crude Oil flows</label></td>';
@@ -5953,6 +5995,11 @@
         // Custom CSV Layers
         layer_html += '  <tbody id="csvlayers_table">';
         layer_html += '  </tbody>';
+      }
+      if (showLowerHill) {
+        layer_html += '   <tr>';
+        layer_html += show_lower_hill;
+        layer_html += '   </tr>';
       }
       layer_html += '  </table>';
       /* END MISC CATEGORY */
@@ -7089,6 +7136,20 @@
         numAttributes: 3
       };
       windVectorsLayer = new WebglVectorLayer2(glb, canvasLayer, windVectorsUrl, windVectorsLayerOptions);
+
+
+      // Lower Hill
+      var lowerHillLayerOptions = {
+        numFrames: cached_ajax['lower-hill-times.json']['capture-times'].length,
+        fps: 4,
+        nlevels: 5,
+        width: 11340,
+        height: 7917,
+        greenScreen: false,
+        tileRootUrl: lowerHillTimemachineUrl,
+      };
+      lowerHillTimemachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, lowerHillLayerOptions);
+
 
       // Layer Toggle UI
       initLayerToggleUI();
@@ -10410,6 +10471,11 @@
           }
         }
         /** END NS LAYER */
+
+        if (showLowerHillTimemachineLayer) {
+          var view = getLayerView(lowerHillTimemachineLayer, landsatBaseMapLayer);
+          lowerHillTimemachineLayer.draw(view, tileViewVisibility);
+        }
 
         // END LAYER DRAWS
       }
