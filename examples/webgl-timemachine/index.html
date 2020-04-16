@@ -3851,8 +3851,8 @@
           showLowerHillTimemachineLayer = true;
           setActiveLayersWithTimeline(1);
           timelineType = "defaultUI";
-          previousVisibleBaseMapLayer = visibleBaseMapLayer;
-          visibleBaseMapLayer = "lower-hill-timemachine";
+          //previousVisibleBaseMapLayer = visibleBaseMapLayer;
+          //visibleBaseMapLayer = "lower-hill-timemachine";
           requestNewTimeline("lower-hill-times.json", timelineType);
           var v = timelapse.getVideoset();
           v.setFps(4);
@@ -10473,7 +10473,22 @@
         /** END NS LAYER */
 
         if (showLowerHillTimemachineLayer) {
-          var view = getLayerView(lowerHillTimemachineLayer, landsatBaseMapLayer);
+          var view = timelapse.getView();
+
+          var p = timelapse.getProjection();
+          var offset = p.latlngToPoint({
+            "lat": 40.44945971297983,
+            "lng": -80.00253546388332
+          });
+
+          var longEast = -79.97771966607753;
+          var longWest = -80.00253546388332;
+          var timelapse2map = (lowerHillTimemachineLayer.getWidth()/(longEast-longWest)) / (landsatBaseMapLayer.getWidth()/360);
+          view.scale /= timelapse2map;
+
+          view.x = timelapse2map * (view.x - offset.x);
+          view.y = timelapse2map * (view.y - offset.y);
+
           lowerHillTimemachineLayer.draw(view, tileViewVisibility);
         }
 
