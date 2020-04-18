@@ -1158,6 +1158,65 @@ html, body {
   display: none !important;
 }
 
+.shareView.customDialog .ui-dialog-title {
+  left: 0px;
+  position: relative;
+}
+
+.shareView.customDialog .ui-dialog-titlebar {
+  position: fixed;
+  width: 418px;
+  text-align: center;
+  background-color: #555960;
+  padding-left: 0px;
+}
+
+.shareView.customDialog .ui-dialog-titlebar-close {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  right: 5px;
+  top: 0;
+  box-sizing: border-box;
+  cursor: pointer;
+  border-radius: 25px;
+  width: 34px !important;
+  height: 34px !important;
+  color: white;
+  background-color: inherit !important;
+  top: 22px !important;
+}
+
+.shareView .ui-button-icon-only .ui-icon {
+  display: none;
+}
+
+.shareView.customDialog .ui-dialog-titlebar-close:after {
+  position: absolute;
+  top: 10px;
+  bottom: 0;
+  left: 0px;
+  right: 0;
+  font-size: 10px;
+  color: #FFF;
+  text-align: center;
+  content: "\274c";
+}
+
+.shareView .ui-dialog-title {
+  font-weight: normal !important;
+}
+
+.shareView.customDialog .ui-dialog-titlebar-close:hover {
+  background-color: #666970 !important;
+}
+
+
+.shareView.customDialog .ui-dialog-titlebar-close .ui-state-default .ui-icon {
+  background-image: none;
+}
+
 .featured-layers-scroll-vertical::-webkit-scrollbar, .layers-scroll-vertical::-webkit-scrollbar, #csvChartLegend::-webkit-scrollbar, .themes-scroll-vertical::-webkit-scrollbar {
   -webkit-appearance: none;
   background: transparent;
