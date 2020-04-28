@@ -83,7 +83,7 @@ ul {
 
 .section {
   /*border-bottom: 5px solid #ccc;*/
-  min-height: 45vh;
+  min-height: 36vh;
   padding: 30px 20px;
   text-align: center;
 }
@@ -710,4 +710,8 @@ select option {
 
 .slick-slide img {
   object-fit: contain !important;
+}
+
+#media {
+  height: 1460px;
 }
