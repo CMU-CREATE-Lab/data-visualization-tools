@@ -466,12 +466,15 @@
 
           if ((bottom_of_screen > top_of_element) && (top_of_screen < bottom_of_element)) {
             var menuId = $elm[0].id;
-            $(".menu-option").removeClass("current");
-            $("#menu-" + menuId).addClass("current");
-            if (menuId == "intro") {
-              history.replaceState(null, null, "#");
-            } else {
-              history.replaceState(null, null, "#" + menuId);
+            var $elmToHighlight = $("#menu-" + menuId);
+            if (!$elmToHighlight.hasClass("current")) {
+              $("#nav .menu-option").removeClass("current");
+              $elmToHighlight.addClass("current");
+              if (menuId == "intro") {
+                history.replaceState(null, null, "#");
+              } else {
+                history.replaceState(null, null, "#" + menuId);
+              }
             }
             break;
           }
