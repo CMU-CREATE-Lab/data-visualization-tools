@@ -85,5 +85,7 @@ var EARTH_TIMELAPSE_CONFIG = {
   "useRetinaNoLabelsLightBaseMap": false,
   "showForestAlerts": false,
   "showLodes": true,
-  "showGlobalWindPower": true
+  "showGlobalWindPower": true,
+  "extraContributors" : "",
+  "extraContributorsLogoPath" : ""
 };

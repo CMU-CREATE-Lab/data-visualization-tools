@@ -285,6 +285,7 @@
     if (extraContributors) {
       extraContributors = extraContributors.replace(",", " |");
     }
+    var extraContributorsLogoPath = parseConfigOption({optionName: "extraContributorsLogoPath", optionDefaultValue: "", exposeOptionToUrlHash: false});
     var showCredits = parseConfigOption({optionName: "showCredits", optionDefaultValue: true, exposeOptionToUrlHash: false});
     var showShareButton = parseConfigOption({optionName: "showShareButton", optionDefaultValue: true, exposeOptionToUrlHash: true});
     var showSettingsButton = isMobileDevice ? false : parseConfigOption({optionName: "showSettingsButton", optionDefaultValue: true, exposeOptionToUrlHash: false});
@@ -7920,7 +7921,9 @@
         $("#contributors").html("Carnegie Mellon University | CREATE Lab");
       }
 
-      if (extraContributors) {
+      if (extraContributorsLogoPath) {
+        $("<div id='contributorsLogo' style='background: url(" + extraContributorsLogoPath + ");'></div>").appendTo($("#contributors"));
+      } else if (extraContributors) {
         if (extraContributors == "Igarape Institute") {
           var idx = extraContributors.indexOf('e');
           extraContributors = extraContributors.substr(0, idx) + '&eacute;' + extraContributors.substr(idx + 1);

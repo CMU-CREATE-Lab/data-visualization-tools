@@ -112,6 +112,15 @@ html, body {
 #contributors {
   font-size: 13px;
 }
+#contributorsLogo {
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  width: 100px;
+  height: 100px;
+  margin-top: 5px;
+  margin-left: 10px;
+}
 #baseLayerCreditContainer {
   color: white;
   font-size: 12px;
