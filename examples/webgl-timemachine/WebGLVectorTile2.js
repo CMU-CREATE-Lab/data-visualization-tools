@@ -3536,6 +3536,14 @@ WebGLVectorTile2.prototype._drawPoint = function(transform, options) {
       var pointSizeFnc = new Function('return ' + options.pointSizeFnc)();
       pointSize *= pointSizeFnc(zoomLevel);
     }
+    var overridePackedColor = false;
+    var color = options.color;
+    if (color) {
+      overridePackedColor = true;
+      if (color.length == 3) {
+        color.push(1.0);
+      }
+    }
 
     // Passing a NaN value to the shader with a large number of points is very bad
     if (isNaN(pointSize)) {
@@ -3553,9 +3561,17 @@ WebGLVectorTile2.prototype._drawPoint = function(transform, options) {
     gl.enableVertexAttribArray(attributeLoc);
     gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 12, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
 
-    var attributeLoc = gl.getAttribLocation(this.program, 'a_color');
-    gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 12, 8); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+    var overridePackedColorLoc = gl.getUniformLocation(this.program, 'override_packed_color');
+    gl.uniform1i(overridePackedColorLoc, overridePackedColor);
+
+    if (overridePackedColor) {
+      var colorLoc = gl.getUniformLocation(this.program, 'u_color');
+      gl.uniform4fv(colorLoc, color);
+    } else {
+      var attributeLoc = gl.getAttribLocation(this.program, 'a_color');
+      gl.enableVertexAttribArray(attributeLoc);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 12, 8); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+    }
 
     gl.drawArrays(gl.POINTS, 0, this._pointCount);
     perf_draw_points(this._pointCount);
@@ -6051,6 +6067,8 @@ WebGLVectorTile2.pointFragmentShader =
 '#extension GL_OES_standard_derivatives : enable\n' +
 '  precision mediump float;\n' +
 '  varying float v_color;\n' +
+'  uniform vec4 u_color;\n' +
+'  uniform bool override_packed_color;\n' +
 '  vec4 unpackColor(float f) {\n' +
 '      vec4 color;\n' +
 '      color.b = floor(f / 256.0 / 256.0);\n' +
@@ -6067,7 +6085,12 @@ WebGLVectorTile2.pointFragmentShader =
 '    r = dot(cxy, cxy);\n' +
 '    delta = fwidth(r);\n' +
 '    alpha = 1.0 - smoothstep(1.0 - delta, 1.0 + delta, r);\n' +
-'    gl_FragColor = unpackColor(v_color) * alpha;\n' +
+'    if (override_packed_color) {\n' +
+'      gl_FragColor = u_color;\n' +
+'    } else { \n' +
+'      gl_FragColor = unpackColor(v_color);\n' +
+'    }\n' +
+'    gl_FragColor = gl_FragColor * alpha;\n' +
 '  }\n';
 
 //SMELL PGH
