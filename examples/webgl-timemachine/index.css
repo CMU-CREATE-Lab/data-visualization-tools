@@ -112,6 +112,9 @@ html, body {
 #contributors {
   font-size: 13px;
 }
+#contributors.heading {
+  font-size: 24px;
+}
 #contributorsLogo {
   background-size: cover !important;
   background-repeat: no-repeat !important;
@@ -119,7 +122,13 @@ html, body {
   width: 100px;
   height: 100px;
   margin-top: 5px;
-  margin-left: 10px;
+  margin-left: calc(100% - 100px);
+}
+#poweredBy {
+  padding-bottom: 8px;
+  padding-top: 3px;
+  font-size: 12px;
+  margin-right: 1px;
 }
 #baseLayerCreditContainer {
   color: white;
@@ -2543,4 +2552,3 @@ a:focus { outline:0; }
   padding: 20px;
   text-transform: none;
 }
-

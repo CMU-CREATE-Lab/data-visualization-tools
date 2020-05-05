@@ -286,6 +286,7 @@
       extraContributors = extraContributors.replace(",", " |");
     }
     var extraContributorsLogoPath = parseConfigOption({optionName: "extraContributorsLogoPath", optionDefaultValue: "", exposeOptionToUrlHash: false});
+    var extraContributorTakesPrecedence = parseConfigOption({optionName: "extraContributorTakesPrecedence", optionDefaultValue: false, exposeOptionToUrlHash: false});
     var showCredits = parseConfigOption({optionName: "showCredits", optionDefaultValue: true, exposeOptionToUrlHash: false});
     var showShareButton = parseConfigOption({optionName: "showShareButton", optionDefaultValue: true, exposeOptionToUrlHash: true});
     var showSettingsButton = isMobileDevice ? false : parseConfigOption({optionName: "showSettingsButton", optionDefaultValue: true, exposeOptionToUrlHash: false});
@@ -7921,6 +7922,17 @@
         $("#contributors").html("Carnegie Mellon University | CREATE Lab");
       }
 
+      if ((extraContributors || extraContributorsLogoPath) && extraContributorTakesPrecedence) {
+        var $labAndCMULogoDiv = $("<div id='labAndCMULogo'></div>");
+        var $contributors = $("#contributors");
+        var $logosContainer = $("#logosContainer");
+        $logosContainer.append($labAndCMULogoDiv)
+        $labAndCMULogoDiv.html($contributors.html());
+        $contributors.html("").addClass("heading");
+        $logosContainer.prepend($("<div id='poweredBy'>Powered by</div>"));
+        $logosContainer.prepend($contributors);
+      }
+
       if (extraContributorsLogoPath) {
         $("<div id='contributorsLogo' style='background: url(" + extraContributorsLogoPath + ");'></div>").appendTo($("#contributors"));
       } else if (extraContributors) {
@@ -7932,7 +7944,8 @@
           $(".current-location-text p").css({"font-size" : "20px", "line-height" : "22px"});
           $(".current-location-text-title").css("font-size", "24px");
         }
-        $("#contributors").html($("#contributors").html() + " | " + extraContributors);
+        var separator = extraContributorTakesPrecedence ? "" : " | ";
+        $("#contributors").html($("#contributors").html() + separator + extraContributors);
       }
 
       if (minimalUI) {
