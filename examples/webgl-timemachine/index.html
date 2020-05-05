@@ -7934,7 +7934,8 @@
       }
 
       if (extraContributorsLogoPath) {
-        $("<div id='contributorsLogo' style='background: url(" + extraContributorsLogoPath + ");'></div>").appendTo($("#contributors"));
+        $("<div><img id='contributorsLogo'></div>").appendTo($("#contributors"));
+        $("#contributorsLogo").prop("src", extraContributorsLogoPath);
       } else if (extraContributors) {
         if (extraContributors == "Igarape Institute") {
           var idx = extraContributors.indexOf('e');

@@ -116,13 +116,10 @@ html, body {
   font-size: 24px;
 }
 #contributorsLogo {
-  background-size: cover !important;
-  background-repeat: no-repeat !important;
-  background-position: center !important;
-  width: 100px;
-  height: 100px;
-  margin-top: 5px;
-  margin-left: calc(100% - 100px);
+  max-height: 100px;
+  object-fit: cover;
+  max-width: 200px;
+  margin-top: 6px;
 }
 #poweredBy {
   padding-bottom: 8px;
