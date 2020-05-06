@@ -118,7 +118,7 @@ html, body {
 #contributorsLogo {
   max-height: 100px;
   object-fit: cover;
-  max-width: 200px;
+  max-width: 150px;
   margin-top: 6px;
 }
 #poweredBy {
