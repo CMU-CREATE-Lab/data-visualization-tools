@@ -236,7 +236,8 @@
       // Start Time in playback time
       var start_time_in_playback_time = timelapse.playbackTimeFromShareDate(start_time);
       // Layers
-      var layers = safeGet(timelapse.getUtil().unpackVars(timelapse.getShareView()).l, "");
+      // Need to pass in 'forThumbnail' to force a real share view (which includes location, time, layers, etc) and not a story share view (which is just the name of story from a theme)
+      var layers = safeGet(timelapse.getUtil().unpackVars(timelapse.getShareView(undefined, undefined, {"forThumbnail" : true})).l, "");
 
       // Collect the preview settings
       var preview = {
