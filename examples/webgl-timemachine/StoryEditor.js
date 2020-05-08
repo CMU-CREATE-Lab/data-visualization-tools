@@ -731,7 +731,7 @@
       if (host.indexOf("localhost") >= 0 || host.indexOf("file:") >= 0) {
         return base + window.location.pathname;
       } else {
-        return "https://earthtime.org";
+        return base;
       }
     }
 

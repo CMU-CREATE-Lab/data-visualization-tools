@@ -50,6 +50,7 @@
     function init() {
       // Create the thumbnail tool
       thumbnail_tool = new ThumbnailTool(timelapse, {
+        headlessClientHost: headlessClientHost,
         paneZindex: 15,
         id: "set-view-thumbnail-tool",
         defaultBoxPadding: {
