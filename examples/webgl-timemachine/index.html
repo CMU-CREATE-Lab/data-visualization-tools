@@ -231,7 +231,7 @@
     // var showLightsAtNight = typeof(EARTH_TIMELAPSE_CONFIG.showLightsAtNight) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showLightsAtNight;
     // var showLightsAtNight2012 = !!EARTH_TIMELAPSE_CONFIG.showLightsAtNight2012;
     //var showLightsAtNight2016 = !!EARTH_TIMELAPSE_CONFIG.showLightsAtNight2016;
-    var showOmiNo2 = !!EARTH_TIMELAPSE_CONFIG.showOmiNo2;
+    //var showOmiNo2 = !!EARTH_TIMELAPSE_CONFIG.showOmiNo2;
     var showChinaInfrastructure = !!EARTH_TIMELAPSE_CONFIG.showChinaInfrastructure;
     //var showBePm25 = !!EARTH_TIMELAPSE_CONFIG.showBePm25;
     // var showLightsAtNightAnim = !!EARTH_TIMELAPSE_CONFIG.showLightsAtNightAnim;
@@ -451,7 +451,7 @@
     var berkeleyEarthTemperatureAnomalyV2YearlyTimeMachineLayer;
     var landBorderLayer;
     //var uppsalaConflictLayer;
-    var omiNo2Layer;
+    //var omiNo2Layer;
     var chinaAviationLayer;
     var chinaPowerPlantsLayer;
     var chinaReservoirsLayer;
@@ -1008,7 +1008,7 @@
 
     //var uppsalaConflictUrl = rootTilePath + "/ucdp/uppsala-conflict.bin";
 
-    var omiNo2Url = rootTilePath + "/omi-no2/omi-no2.timemachine/crf24-12fps-1424x800";
+    //var omiNo2Url = rootTilePath + "/omi-no2/omi-no2.timemachine/crf24-12fps-1424x800";
 
     var chinaAviationUrl = rootTilePath + "/china-infrastructure/china-aviation.bin";
     var chinaPowerPlantsUrl = rootTilePath + "/china-infrastructure/china-power-plants.bin";
@@ -3223,7 +3223,7 @@
         }
       }).prop('checked', showIomIdpLayer);
 
-      $("#show-omi-no2").on("click", function() {
+      /*$("#show-omi-no2").on("click", function() {
         var $this = $(this);
         if ($this.prop('checked')) {
           omiNo2Layer.getTileView().handleTileLoading({layerDomId: $this[0].id});
@@ -3248,7 +3248,7 @@
           timelapse.setPlaybackRate(defaultPlaybackSpeed);
           $("#omi-no2-legend").hide();
         }
-      }).prop('checked', showOmiNo2Layer);
+      }).prop('checked', showOmiNo2Layer);*/
 
       /*$("#show-be-pm25").on("click", function() {
         var $this = $(this);
@@ -4833,7 +4833,7 @@
     var showIomIdpLayer = false;
     var showBerkeleyEarthTemperatureAnomalyTimeMachineLayer = false;
     var showBerkeleyEarthTemperatureAnomalyV2YearlyTimeMachineLayer = false;
-    var showOmiNo2Layer = false;
+    //var showOmiNo2Layer = false;
     var showChinaAviationLayer = false;
     var showChinaPowerPlantsLayer = false;
     var showChinaReservoirsLayer = false;
@@ -5411,7 +5411,7 @@
       var show_yemen_iom_return = '<td class="yemen-iom-return-select"><label for="show-yemen-iom-return" name="yemen-iom-return"><input type="checkbox" id="show-yemen-iom-return" />Yemen Returnees</label></td>';
       var show_berkeley_earth_temperature_anomaly = '<td class="berkeley-earth-temperature-anomaly-select"><label for="show-berkeley-earth-temperature-anomaly" name="berkeley-earth-temperature-anomaly"><input type="checkbox" id="show-berkeley-earth-temperature-anomaly" />Temperature Anomaly</label></td>';
       var show_berkeley_earth_temperature_anomaly_v2_yearly = '<td class="berkeley-earth-temperature-anomaly-v2-yearly-select"><label for="show-berkeley-earth-temperature-anomaly-v2-yearly" name="berkeley-earth-temperature-anomaly-v2-yearly"><input type="checkbox" id="show-berkeley-earth-temperature-anomaly-v2-yearly" />Temperature Anomaly V2 Yearly</label></td>';
-      var show_omi_no2 = '<td class="omi-no2-select"><label for="show-omi-no2" name="omi-no2"><input type="checkbox" id="show-omi-no2" />OMI NO2</label></td>';
+      //var show_omi_no2 = '<td class="omi-no2-select"><label for="show-omi-no2" name="omi-no2"><input type="checkbox" id="show-omi-no2" />OMI NO2</label></td>';
       //var show_be_pm25 = '<td class="be-pm25-select"><label for="show-be-pm25" name="be-pm25"><input type="checkbox" id="show-be-pm25" />Berkeley Earth -- PM2.5</label></td>';
       var show_china_aviation = '<td class="china-aviation-select"><label for="show-china-aviation" name="china-aviation"><input type="checkbox" id="show-china-aviation" />China Aviation</label></td>';
       var show_china_power_plants = '<td class="china-power-plants-select"><label for="show-china-power-plants" name="china-power-plants"><input type="checkbox" id="show-china-power-plants" />China Power Plants</label></td>';
@@ -5609,11 +5609,11 @@
       /* POLLUTION CATEGORY */
       layer_html += '  <h3>Pollution</h3>';
       layer_html += '  <table id="category-pollution">';
-      if (showOmiNo2) {
+      /*if (showOmiNo2) {
         layer_html += '   <tr>';
         layer_html += show_omi_no2;
         layer_html += '   </tr>';
-      }
+      }*/
       /*if (showBePm25) {
         layer_html += '   <tr>';
         layer_html += show_be_pm25;
@@ -6129,7 +6129,7 @@
       legend_html += '<tr id="china-power-plants-legend" style="display: none"><td><div style="background-color:green; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">China Power Plants <span class="credit"> (Oxford & Harvard)</span></div></td></tr>';
       legend_html += '<tr id="china-reservoirs-legend" style="display: none"><td><div style="background-color:blue; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">China Reservoirs <span class="credit"> (Oxford & Harvard)</span></div></td></tr>';
       legend_html += '<tr id="china-waste-treatment-plants-legend" style="display: none"><td><div style="background-color:orange; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">China Waste Treatment Plants <span class="credit"> (Oxford & Harvard)</span></div></td></tr>';
-      legend_html += '<tr id="omi-no2-legend" style="display:none"><td><div style="font-size: 13px">OMI NO2 2005-2016<span class="credit"> (NOAA)</span></div><svg class="svg-legend" width="220" height="40"><rect fill="rgb(68, 160, 216)" y="20" x="0" height="10" width="40.0"></rect><rect fill="rgb(171, 215, 176)" y="20" x="40" height="10" width="40.0"></rect><rect fill="rgb(253, 230, 132)" y="20" x="80" height="10" width="40.0"></rect><rect fill="rgb(252, 136, 80)" y="20" x="120" height="10" width="40.0"></rect><rect fill="rgb(232, 0, 28)" y="20" x="160" height="10" width="40.0"></rect><text font-size="12px" fill="rgba(0, 0, 0, 0.8)" y="40" x="5">LOW</text><text font-size="12px" fill="rgba(0, 0, 0, 0.8)" y="40" x="165">HIGH</text></svg></td></tr>';
+      //legend_html += '<tr id="omi-no2-legend" style="display:none"><td><div style="font-size: 13px">OMI NO2 2005-2016<span class="credit"> (NOAA)</span></div><svg class="svg-legend" width="220" height="40"><rect fill="rgb(68, 160, 216)" y="20" x="0" height="10" width="40.0"></rect><rect fill="rgb(171, 215, 176)" y="20" x="40" height="10" width="40.0"></rect><rect fill="rgb(253, 230, 132)" y="20" x="80" height="10" width="40.0"></rect><rect fill="rgb(252, 136, 80)" y="20" x="120" height="10" width="40.0"></rect><rect fill="rgb(232, 0, 28)" y="20" x="160" height="10" width="40.0"></rect><text font-size="12px" fill="rgba(0, 0, 0, 0.8)" y="40" x="5">LOW</text><text font-size="12px" fill="rgba(0, 0, 0, 0.8)" y="40" x="165">HIGH</text></svg></td></tr>';
       //legend_html += '<tr id="be-pm25-legend" style="display:none"><td><div style="font-size: 14px">PM2.5<span class="credit"> (Berkeley Earth)</span></div><svg class="svg-legend" width="320" height="50"><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="15" x="0">0.0</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="15" x="40">12.0</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="15" x="92">35.5</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="15" x="142">55.5</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="15" x="192">150.5</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="15" x="242">250.5</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="15" x="287">500.0</text><rect fill="rgb(12, 231, 0)"  y="20" x="0" height="10" width="50.0"></rect><rect fill="rgb(255, 255, 0)" y="20" x="50" height="10" width="50.0"></rect><rect fill="rgb(255, 105, 0)" y="20" x="100" height="10" width="50.0"></rect><rect fill="rgb(255, 0, 0)"   y="20" x="150" height="10" width="50.0"></rect><rect fill="rgb(135, 0, 59)"  y="20" x="200" height="10" width="50.0"></rect><rect fill="rgb(107, 0, 25)"  y="20" x="250" height="10" width="50.0"></rect><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="40" x="10">Good</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="40" x="55">Moderate</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="40" x="105">Unhealthy</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="40" x="150">+Unhealthy</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="40" x="200">++Unhealthy</text><text font-size="10px" fill="rgba(0, 0, 0, 0.8)" y="40" x="255">Hazardous</text></svg></td></tr>';
       legend_html += '<tr id="expanding-cities-legend" style="display: none"><td><div style="background-color:silver; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -16px; font-size: 17px">Expanding Cities <span class="credit"> (Igarapé)</span></div></div></td></tr>';
       //legend_html += '<tr id="irena-legend" style="display: none"><td><div style="font-size: 15px">Electric Capacity per Country<span class="credit"> (IRENA)</span></div><svg class="svg-legend" width="240" height="170"><circle class="gain" r="10" cx="15" cy="10" style="fill: blue; stroke: #fff;"></circle> <text x="30" y="15" style="font-size: 12px; fill: #fff">Wind power (GWh)</text> <circle class="gain" r="10" cx="15" cy="35" style="fill: purple; stroke: #fff;"></circle><text x="30" y="40" style="font-size: 12px; fill: #fff">Solar power (GWh)</text> <circle r="25.0" cx="120.0" cy="122.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle><circle r="40.0" cx="120.0" cy="107.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle><circle r="50.0" cx="120.0" cy="97.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle><text text-anchor="middle" x="120.0" y="112.0" dy="13" style="font-size: 10px; fill: #fff">25K</text><text text-anchor="middle" x="120.0" y="77.0" dy="13" style="font-size: 10px; fill: #fff">64K</text><text text-anchor="middle" x="120.0" y="52.0" dy="13" style="font-size: 10px; fill: #fff">100K</text></svg></td></tr>';
@@ -6474,7 +6474,7 @@
       berkeleyEarthTemperatureAnomalyV2YearlyTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, berkeleyEarthTemperatureAnomalyV2YearlyTimeMachineLayerOptions);
 
       // OMI NO2
-      var omiNo2LayerOptions = {
+      /*var omiNo2LayerOptions = {
         numFrames: cached_ajax['omi-no2-times.json']['capture-times'].length,
         fps: 12,
         nlevels: 4,
@@ -6483,7 +6483,7 @@
         greenScreen: true,
         tileRootUrl: omiNo2Url
       };
-      omiNo2Layer = new WebglTimeMachineLayer(glb, canvasLayer, omiNo2LayerOptions);
+      omiNo2Layer = new WebglTimeMachineLayer(glb, canvasLayer, omiNo2LayerOptions);*/
 
       // Berkeley Earth PM 2.5
       /*var bePm25LayerOptions = {
@@ -9819,13 +9819,13 @@
           }
         }
 
-        if (showOmiNo2Layer) {
+        /*if (showOmiNo2Layer) {
           var view = getLayerView(omiNo2Layer, landsatBaseMapLayer);
           omiNo2Layer.draw(view, tileViewVisibility);
 
           var landBorderView = getLayerView(landBorderLayer, landsatBaseMapLayer);
           landBorderLayer.draw(landBorderView);
-        }
+        }*/
 
         /*if (showBePm25Layer) {
           var view = getLayerView(bePm25Layer, landsatBaseMapLayer);
