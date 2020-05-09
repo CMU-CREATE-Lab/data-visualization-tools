@@ -94,6 +94,7 @@
   <script src="DisplayMetadata.js"></script>
   <script src="dateRangePicker.js"></script>
   <script src="altitudeSlider.js"></script>
+  <script src="ETLocationFollower.js"></script>
 
   <script type="text/javascript">
     "use strict";
@@ -1111,6 +1112,9 @@
         mediaType: ".mp4",
         onTimeMachinePlayerReady: function(viewerDivId) {
           new DisplayMetadata(timelapse);
+          console.log('onTimeMachinePlayerReady', timelapse);
+          window.etlf = new ETLocationFollower(timelapse);
+          window.etlf.start();
           setupPostMessageHandlers();
         },
         scaleBarOptions: {
