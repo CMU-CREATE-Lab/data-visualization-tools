@@ -219,7 +219,7 @@
     //var showHiv = !!EARTH_TIMELAPSE_CONFIG.showHiv;
     //var showObesity = !!EARTH_TIMELAPSE_CONFIG.showObesity;
     var showVaccineConfidence = !!EARTH_TIMELAPSE_CONFIG.showVaccineConfidence;
-    var showNdviAnomaly = !!EARTH_TIMELAPSE_CONFIG.showNdviAnomaly;
+    //var showNdviAnomaly = !!EARTH_TIMELAPSE_CONFIG.showNdviAnomaly;
     //var showEbola = !!EARTH_TIMELAPSE_CONFIG.showEbola;
     // var showWaterOccurrence = !!EARTH_TIMELAPSE_CONFIG.showWaterOccurrence;
     // var showWaterChange = !!EARTH_TIMELAPSE_CONFIG.showWaterChange;
@@ -356,7 +356,7 @@
     var goes16MaxScale = 0.017;
     var dscovrMaxScale = 0.004;
     var isAutoModeRunning = false;
-    var visibleBaseMapLayer = "landsat";
+    var visibleBaseMapLayer = "blsat";
     var previousVisibleBaseMapLayer = visibleBaseMapLayer;
     var timelapse;
     var thumbnailTool;
@@ -416,7 +416,8 @@
     //
 
     var /*forestAlertsTimeMachineLayer, forestAlertsNoOverlayTimeMachineLayer,*/ landsatBaseMapLayer, darkBaseMapLayer, lightBaseMapLayer, mcrmVectorLayer, countryLabelMapLayer, cityLabelMapLayer;
-    var hansenMapLayer, hansenMapLayer2, animatedHansenLayer, himawariTimeMachineLayer, ndviAnomalyTimeMachineLayer;
+    var hansenMapLayer, hansenMapLayer2, animatedHansenLayer, himawariTimeMachineLayer;
+    //var ndviAnomalyTimeMachineLayer;
     //var crwTimeMachineLayer
     // var waterOccurrenceLayer, waterChangeLayer;
     //var usgsWindTurbineLayer, solarInstallsLayer, drillingLayer;
@@ -888,7 +889,7 @@
     }
     var fishingPprTimeMachineUrl = rootTilePath + "/fishing-ppr.timemachine/crf19-8fps-1424x800";
     //var crwTimeMachineUrl = rootTilePath + "/coral/coralreefwatch-3.timemachine/crf20-22fps-1424x800";
-    var ndviAnomalyTimeMachineUrl = rootTilePath + "/ndvi_anomaly_1000v01/1068x600";
+    //var ndviAnomalyTimeMachineUrl = rootTilePath + "/ndvi_anomaly_1000v01/1068x600";
     var himawariTimeMachineUrl = rootTilePath + "/himawari8/himawari8-nov-2015.timemachine/crf26-12fps-1424x800";
     var goes16TimeMachineUrl = rootTilePath + "/goes16/2017-09-01.timemachine/crf26-12fps-1424x800";
     var goes16Aug2018TimeMachineUrl = rootTilePath + "/goes16/2018-08-01.timemachine/crf26-12fps-1424x800";
@@ -1286,7 +1287,7 @@
 
       // Hack
       // TODO: Revist toggling of CSV layers that did not have a timeline
-      if ((layers.length == 1 || activeLayersWithTimeline == 1) & visibleBaseMapLayer == "landsat") {
+      if ((layers.length == 1 || activeLayersWithTimeline == 1) & visibleBaseMapLayer == "blsat") {
         doSwitchToLandsat();
       }
     }
@@ -1638,7 +1639,7 @@
         }
       }).prop('checked', showCrwTimeMachineLayer);*/
 
-      $("#show-ndvi-anomaly").on("click", function() {
+      /*$("#show-ndvi-anomaly").on("click", function() {
         var $this = $(this);
         if ($this.prop('checked')) {
           ndviAnomalyTimeMachineLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
@@ -1658,7 +1659,7 @@
           doSwitchToLandsat();
           $("#ndvi-anomaly-legend").hide();
         }
-      }).prop('checked', showNdviAnomalyTimeMachineLayer);
+      }).prop('checked', showNdviAnomalyTimeMachineLayer);*/
 
       $("#show-himawari").on("click", function() {
         //$(".current-location-text-container").hide();
@@ -3942,7 +3943,7 @@
       $("input:radio[name=base-layers]").on("click", function() {
         previousVisibleBaseMapLayer = visibleBaseMapLayer;
         visibleBaseMapLayer = $(this).val();
-        if (visibleBaseMapLayer == "landsat") {
+        if (visibleBaseMapLayer == "blsat") {
           $("#baselayerCreditText").html("&copy; Google");
         } else if (visibleBaseMapLayer == "blte") {
           if (customLightMapUrlOrId && customLightMapUrlOrId.indexOf("http") != 0) {
@@ -3963,7 +3964,7 @@
             $("#baselayerCreditText").html("&copy; OpenMapTiles, &copy; OpenStreetMap");
           }
         }
-        if (visibleBaseMapLayer == "landsat") {
+        if (visibleBaseMapLayer == "blsat") {
           timelapse.setMaxScale(landsatMaxScale);
           // TODO: Need to rethink this
           if (activeLayersWithTimeline < 1) {
@@ -3989,7 +3990,7 @@
 
       // Initially set activeLayersWithTimeline to 1 if we first load with landsat enabled.
       // Also set the custom scale.
-      if (visibleBaseMapLayer == "landsat") {
+      if (visibleBaseMapLayer == "blsat") {
         activeLayersWithTimeline = 1;
         timelapse.setMaxScale(landsatMaxScale);
       }
@@ -4327,7 +4328,7 @@
           showAnnotationResumeExit();
         }
         if (isMobileDevice || isIEButNotEdge) {
-          if (visibleBaseMapLayer != "landsat" || showHansenLayer2) {
+          if (visibleBaseMapLayer != "blsat" || showHansenLayer2) {
             UTIL.setDrawState(false);
           } else {
             UTIL.setDrawState(true);
@@ -4438,7 +4439,7 @@
         }
 
         // Hide any timelines that are visible if we have no layers up that require a timeline or we are a static layer that fully covers the entire globe
-        if (activeLayersWithTimeline <= 0 || (visibleBaseMapLayer == "landsat" && activeLayersWithTimeline == 1 && (showHansenLayer2))) {
+        if (activeLayersWithTimeline <= 0 || (visibleBaseMapLayer == "blsat" && activeLayersWithTimeline == 1 && (showHansenLayer2))) {
           $(".controls, .customControl").hide();
           $(".customControl").hide();
         } else if (activeLayersWithTimeline > 0) {
@@ -4464,8 +4465,8 @@
             isFromUser = false;
         }
 
-        if ((activeLayersWithTimeline >= 1 && visibleBaseMapLayer != "landsat") ||
-            (activeLayersWithTimeline == 1 && visibleBaseMapLayer == "landsat" && !(showHansenLayer2))) {
+        if ((activeLayersWithTimeline >= 1 && visibleBaseMapLayer != "blsat") ||
+            (activeLayersWithTimeline == 1 && visibleBaseMapLayer == "blsat" && !(showHansenLayer2))) {
           if (timelineType == "customUI") {
             $(".customControl").show().children().show();
           } else if (timelineType == "defaultUI") {
@@ -4473,7 +4474,7 @@
           }
         }
 
-        if (isFromUser && visibleBaseMapLayer != "landsat" && activeLayersWithTimeline == 0) {
+        if (isFromUser && visibleBaseMapLayer != "blsat" && activeLayersWithTimeline == 0) {
           $(".customControl").hide();
         }
 
@@ -4487,7 +4488,7 @@
           $(".current-location-text-container, .annotations-resume-exit-container, .scaleBarContainer, #logosContainer, .current-location-text, #layers-legend").removeClass("noTimeline");
         }
 
-        if (timelineType == "defaultUI" && visibleBaseMapLayer == "landsat" && activeLayersWithTimeline == 1 && $(".csvlayer").find("input:checked").length == 0) {
+        if (timelineType == "defaultUI" && visibleBaseMapLayer == "blsat" && activeLayersWithTimeline == 1 && $(".csvlayer").find("input:checked").length == 0) {
           timelineType = "customUI";
         }
 
@@ -4553,7 +4554,7 @@
       $('input:radio[name=base-layers][id=' + visibleBaseMapLayer + '-base]').trigger("click");
 
       timelapse.addTimelineUIChangeListener(function() {
-        if (visibleBaseMapLayer != "landsat" && activeLayersWithTimeline == 0) {
+        if (visibleBaseMapLayer != "blsat" && activeLayersWithTimeline == 0) {
           $(".customControl").hide();
         }
       });
@@ -4790,7 +4791,7 @@
     //var showLightsAtNight2016Layer = false;
     var showFishingPprTimeMachineLayer = false;
     //var showCrwTimeMachineLayer = false;
-    var showNdviAnomalyTimeMachineLayer = false;
+    //var showNdviAnomalyTimeMachineLayer = false;
     var showAnimatedHansenLayer = false;
     var showHimawariTimeMachineLayer = false;
     var showGoes16TimeMachineLayer = false;
@@ -5334,7 +5335,7 @@
 
       layer_html += '<ul id="layers-list">';
 
-      var landsat_base_str = '<label class="landsat-select" for="landsat-base" name="blsat"><input type="radio" id="landsat-base" name="base-layers" value="landsat"/>Google Earth Engine Timelapse</label>';
+      var landsat_base_str = '<label class="landsat-select" for="landsat-base" name="blsat"><input type="radio" id="landsat-base" name="base-layers" value="blsat"/>Google Earth Engine Timelapse</label>';
       var landsat_base = '<td colspan="2">' + landsat_base_str + '</td>';
       ////var tinted_landsat = '<td colspan="2"><label class="tinted_landsat-select" for="tinted_landsat" name="tinted_landsat"><input type="radio" id="tinted_landsat" name="base-layers" value="tinted_landsat"/>Google Earth Engine Timelapse (tinted)</label></td>'
       var light_base = '<td><label for="light-base" name="blte"><input type="radio" id="light-base" name="base-layers" value="blte"/><span>Light Map</span></label></td>';
@@ -5393,7 +5394,7 @@
       var show_vaccine_confidence_q2 = '<td class="vaccine-confidence-q2-select"><label for="show-vaccine-confidence-q2" name="vc2"><input type="checkbox" id="show-vaccine-confidence-q2" />Vaccine Safety</label></td>';
       var show_vaccine_confidence_q3 = '<td class="vaccine-confidence-q3-select"><label for="show-vaccine-confidence-q3" name="vc3"><input type="checkbox" id="show-vaccine-confidence-q3" />Vaccine Effectiveness</label></td>';
       var show_vaccine_confidence_q4 = '<td class="vaccine-confidence-q4-select"><label for="show-vaccine-confidence-q4" name="vc4"><input type="checkbox" id="show-vaccine-confidence-q4" />Vaccines & Religion</label></td>';
-      var show_ndvi_anomaly = '<td class="ndvi-anomaly-select"><label for="show-ndvi-anomaly" name="ndvia"><input type="checkbox" id="show-ndvi-anomaly" />Vegetation Index Reduction</label></td>';
+      //var show_ndvi_anomaly = '<td class="ndvi-anomaly-select"><label for="show-ndvi-anomaly" name="ndvia"><input type="checkbox" id="show-ndvi-anomaly" />Vegetation Index Reduction</label></td>';
       //var show_ebola_deaths = '<td class="ebola-deaths-select"><label for="show-ebola-deaths" name="ed"><input type="checkbox" id="show-ebola-deaths" />Ebola Deaths</label></td>';
       //var show_ebola_cases = '<td class="ebola-cases-select"><label for="show-ebola-cases" name="ec"><input type="checkbox" id="show-ebola-cases" />Ebola Cases</label></td>';
       //var show_ebola_new_cases = '<td class="ebola-new-cases-select"><label for="show-ebola-new-cases" name="enc"><input type="checkbox" id="show-ebola-new-cases" />Ebola New Cases</label></td>';
@@ -5583,11 +5584,11 @@
         layer_html += show_tinted_sea_level_rise_4p0;
         layer_html += '    </tr>';
       }*/
-      if (showNdviAnomaly) {
+      /*if (showNdviAnomaly) {
         layer_html += '    <tr>';
         layer_html += show_ndvi_anomaly;
         layer_html += '    </tr>';
-      }
+      }*/
       // if (showVsi) {
       //   layer_html += '   <tr>';
       //   layer_html += show_vsi;
@@ -6110,7 +6111,7 @@
       legend_html += '<tr id="vaccine-confidence-q2-legend" style="display: none"><td><div style="font-size: 13px">Disagree that vaccines are safe <span class="credit"> (LSHTM)</span></div><svg class="svg-legend" width="200" height="29"><rect fill="#ffffe0" x="0" height="9" width="20.0"></rect><rect fill="#ffe3af" x="20" height="9" width="20.0"></rect><rect fill="#ffc58a" x="40" height="9" width="20.0"></rect><rect fill="#ffa474" x="60" height="9" width="20.0"></rect><rect fill="#fa8266" x="80" height="9" width="20.0"></rect><rect fill="#ed645c" x="100" height="9" width="20.0"></rect><rect fill="#db4551" x="120" height="9" width="20.0"></rect><rect fill="#c52940" x="140" height="9" width="20.0"></rect><rect fill="#aa0e27" x="160" height="9" width="20.0"></rect><rect fill="#8b0000" x="180" height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">0%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="90">20%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="180">41%</text></svg></td></tr>';
       legend_html += '<tr id="vaccine-confidence-q3-legend" style="display: none"><td><div style="font-size: 13px">Disagree that vaccines are effective <span class="credit"> (LSHTM)</span></div><svg class="svg-legend" width="200" height="29"><rect fill="#ffffe0" x="0" height="9" width="20.0"></rect><rect fill="#ffe3af" x="20" height="9" width="20.0"></rect><rect fill="#ffc58a" x="40" height="9" width="20.0"></rect><rect fill="#ffa474" x="60" height="9" width="20.0"></rect><rect fill="#fa8266" x="80" height="9" width="20.0"></rect><rect fill="#ed645c" x="100" height="9" width="20.0"></rect><rect fill="#db4551" x="120" height="9" width="20.0"></rect><rect fill="#c52940" x="140" height="9" width="20.0"></rect><rect fill="#aa0e27" x="160" height="9" width="20.0"></rect><rect fill="#8b0000" x="180" height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">0%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="90">13%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="180">26%</text></svg></td></tr>';
       legend_html += '<tr id="vaccine-confidence-q4-legend" style="display: none"><td><div style="font-size: 13px">Disagree that vaccines are compatible with my religious beliefs <span class="credit"> (LSHTM)</span></div><svg class="svg-legend" width="200" height="29"><rect fill="#ffffe0" x="0" height="9" width="20.0"></rect><rect fill="#ffe3af" x="20" height="9" width="20.0"></rect><rect fill="#ffc58a" x="40" height="9" width="20.0"></rect><rect fill="#ffa474" x="60" height="9" width="20.0"></rect><rect fill="#fa8266" x="80" height="9" width="20.0"></rect><rect fill="#ed645c" x="100" height="9" width="20.0"></rect><rect fill="#db4551" x="120" height="9" width="20.0"></rect><rect fill="#c52940" x="140" height="9" width="20.0"></rect><rect fill="#aa0e27" x="160" height="9" width="20.0"></rect><rect fill="#8b0000" x="180" height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">0%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="90">23%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="180">47%</text></svg></td></tr>';
-      legend_html += '<tr id="ndvi-anomaly-legend" style="display: none"><td><div style="font-size: 17px">Vegetation Reduction <span class="credit"> (USGS)</span></div><div style="margin-left: 8px"><div class="ndviAnomalyLegendGradient" style="clear: both;"></div><div style="font-size: 13px; float: left">Gain</div><div style="font-size: 13px; float: right">Loss</div></div></td></tr>';
+      //legend_html += '<tr id="ndvi-anomaly-legend" style="display: none"><td><div style="font-size: 17px">Vegetation Reduction <span class="credit"> (USGS)</span></div><div style="margin-left: 8px"><div class="ndviAnomalyLegendGradient" style="clear: both;"></div><div style="font-size: 13px; float: left">Gain</div><div style="font-size: 13px; float: right">Loss</div></div></td></tr>';
       //legend_html += '<tr id="ebola-deaths-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Ebola Deaths <span class="credit"> (LSHTM)</span></div></td></tr>';
       //legend_html += '<tr id="ebola-cases-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Ebola Cases <span class="credit"> (LSHTM)</span></div></td></tr>';
       //legend_html += '<tr id="ebola-new-cases-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Ebola New Cases <span class="credit"> (LSHTM)</span></div></td></tr>';
@@ -6148,7 +6149,7 @@
       legend_html += '<tr id="annual-pm25-legend" style="display: none"><td><div style="font-size: 15px">Annual PM2.5<span> (NASA)</div><div><img src="https://tiles.earthtime.org/colormaps/pm25-who-annual.png" style="border:1px solid grey; width:200px; height:10px; margin-top:2px; position:relative; top:3px; background-color:black"></div><div style="width: 200px; font-size: 9px"><span>0</span><span style="padding-left: 35px">10<span style="padding-left: 20px">20<span style="padding-left: 20px">50</span><span style="padding-left: 20px">100</span><span style="padding-left: 20px">>100</span></div><div style="width: 200px; font-size: 9px">micrograms per cubic meter</div></td></tr>';
       //legend_html += '<tr id="ecco2-legend" style="display: none"><td><div style="font-size: 15px">ECCO2 - Estimating the Circulation and Climate of the Ocean, Phase II<span> (NASA)</div></td></tr>';
       //legend_html += '<tr id="chlorophyllConcentration-legend" style="display: none"><td><div style="font-size: 15px">Chlorophyll concentration<span> (NASA Earth Observations)</div>';
-      legend_html += '<svg width="256" height="45"><defs><linearGradient id="myGradient"><stop offset="5%"  stop-color="rgb(8,29,88)" /><stop offset="25%" stop-color="rgb(34,96,169)" /><stop offset="50%" stop-color="rgb(67,183,196)" /><stop offset="75%" stop-color="rgb(200,233,180)" /><stop offset="95%" stop-color="rgb(254,255,216)" /></linearGradient></defs><text fill="rgba(255, 255, 255, 0.8)" text-anchor="end" font-size="12px" y="8" x="256">(mg/m3)</text><rect x="0" y="12" height="20" width="256" fill="url(\'#myGradient\')" /><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="0">.01</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="32">.03</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="64">.1</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="96">.3</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="128">1</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="160">3</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="192">10</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="218">30</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="240">60</text></svg></td></tr>';
+      //legend_html += '<svg width="256" height="45"><defs><linearGradient id="myGradient"><stop offset="5%"  stop-color="rgb(8,29,88)" /><stop offset="25%" stop-color="rgb(34,96,169)" /><stop offset="50%" stop-color="rgb(67,183,196)" /><stop offset="75%" stop-color="rgb(200,233,180)" /><stop offset="95%" stop-color="rgb(254,255,216)" /></linearGradient></defs><text fill="rgba(255, 255, 255, 0.8)" text-anchor="end" font-size="12px" y="8" x="256">(mg/m3)</text><rect x="0" y="12" height="20" width="256" fill="url(\'#myGradient\')" /><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="0">.01</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="32">.03</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="64">.1</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="96">.3</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="128">1</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="160">3</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="192">10</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="218">30</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="240">60</text></svg></td></tr>';
       legend_html += '<tr id="fishingPpr-timemachine-legend" style="display: none"><td><div style="font-size: 15px">Fishing PPR<span> (Seas Around Us)</div></td></tr>';
 
 
@@ -6325,7 +6326,7 @@
       tintedLandsatLayer = new WebglTimeMachineLayer(glb, canvasLayer, tintedLandsatLayerOptions);*/
 
       // NDVI Anomaly
-      var ndviAnomalyTimeMachineLayerOptions = {
+      /*var ndviAnomalyTimeMachineLayerOptions = {
         numFrames: cached_ajax['ndvi-anomaly-times.json']['capture-times'].length,
         fps: 1,
         width: 40076,
@@ -6333,7 +6334,7 @@
         greenScreen: true,
         tileRootUrl: ndviAnomalyTimeMachineUrl
       };
-      ndviAnomalyTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, ndviAnomalyTimeMachineLayerOptions);
+      ndviAnomalyTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, ndviAnomalyTimeMachineLayerOptions);*/
 
       // Fishing PPR
       timelines.setTimeLine("fishingPpr-timemachine-times", "1950", "2014", 1);
@@ -7645,6 +7646,7 @@
 
       // Callback when data for a specific CSV layer has loaded.
       csvFileLayers.addDataLoadedListener(function(layerId) {
+        console.log('set legend')
         csvDataGrapher.graphDataForLayer(layerId);
         showHideCsvGrapher(true, layerId, true);
         csvFileLayers.setLegend(layerId);
@@ -8935,7 +8937,7 @@
         if (showHansenLayer2) { // Draw Forest Loss/Gain
           var hansenMapLayerView2 = getLayerView(hansenMapLayer2, landsatBaseMapLayer);
           hansenMapLayer2.draw(hansenMapLayerView2);
-        } else if (visibleBaseMapLayer == "landsat") { // Draw Landsat
+        } else if (visibleBaseMapLayer == "blsat") { // Draw Landsat
           landsatBaseMapLayer.draw(timelapse.getView(), tileViewVisibility);
         ////} else if (visibleBaseMapLayer == "tinted_landsat") { // Draw Landsat
         ////  tintedLandsatLayer.draw(timelapse.getView(), tileViewVisibility);
@@ -8971,10 +8973,10 @@
         }*/
 
         // Draw NDVI Anomaly
-        if (showNdviAnomalyTimeMachineLayer) {
+        /*if (showNdviAnomalyTimeMachineLayer) {
           var ndviView = getLayerView(ndviAnomalyTimeMachineLayer, landsatBaseMapLayer);
           ndviAnomalyTimeMachineLayer.draw(ndviView, tileViewVisibility);
-        }
+        }*/
 
         // Draw Forest Loss by Year (Transparent)
         if (showHansenLayer) {
@@ -9409,7 +9411,7 @@
           var range = end - start;
           var current = ratio * range + start;
           options.currentC = Math.min(current, times[times.length - 1]);
-          if (visibleBaseMapLayer == "landsat") {
+          if (visibleBaseMapLayer == "blsat") {
             options.color = [0.1, 0.1, 0.1, 1.0];
           } else if (visibleBaseMapLayer == "blte") {
             options.color = [0.4921875, 0.7421875, 0.91015625, 1.0];
@@ -9458,7 +9460,7 @@
           var range = end - start;
           var current = ratio * range + start;
           options.currentC = Math.min(current, times[times.length - 1]);
-          if (visibleBaseMapLayer == "landsat") {
+          if (visibleBaseMapLayer == "blsat") {
             options.color = [0.1, 0.1, 0.1, 1.0];
           } else if (visibleBaseMapLayer == "light") {
             options.color = [0.4921875, 0.7421875, 0.91015625, 1.0];
