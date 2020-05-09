@@ -248,7 +248,7 @@
     ////var showTintedLandsat = !!EARTH_TIMELAPSE_CONFIG.showTintedLandsat;
     var showGfsTimemachine = !!EARTH_TIMELAPSE_CONFIG.showGfsTimemachine;
     //var showChlorophyllConcentrationTimemachine = !!EARTH_TIMELAPSE_CONFIG.showChlorophyllConcentrationTimemachine;
-    var showFishingPprTimemachine = !!EARTH_TIMELAPSE_CONFIG.showFishingPprTimemachine;
+    //var showFishingPprTimemachine = !!EARTH_TIMELAPSE_CONFIG.showFishingPprTimemachine;
     var showWindVectors = !!EARTH_TIMELAPSE_CONFIG.showWindVectors;
 
     var googleMapsAPIKey = parseConfigOption({optionName: "googleMapsAPIKey", optionDefaultValue: "AIzaSyAGTDshdDRmq8zdw26ZmwJOswh6VseIrYY", exposeOptionToUrlHash: false});
@@ -489,7 +489,7 @@
 
     var gfsTimemachineLayer;
     //var chlorophyllConcentrationTimemachineLayer;
-    var fishingPprTimeMachineLayer;
+    //var fishingPprTimeMachineLayer;
 
     var windVectorsLayer;
 
@@ -888,7 +888,7 @@
     } else if (landsatVersion == "2019") {
       landsatUrl += "/earthtime-annual-2019-v1/1068x600";
     }
-    var fishingPprTimeMachineUrl = rootTilePath + "/fishing-ppr.timemachine/crf19-8fps-1424x800";
+    //var fishingPprTimeMachineUrl = rootTilePath + "/fishing-ppr.timemachine/crf19-8fps-1424x800";
     //var crwTimeMachineUrl = rootTilePath + "/coral/coralreefwatch-3.timemachine/crf20-22fps-1424x800";
     //var ndviAnomalyTimeMachineUrl = rootTilePath + "/ndvi_anomaly_1000v01/1068x600";
     var himawariTimeMachineUrl = rootTilePath + "/himawari8/himawari8-nov-2015.timemachine/crf26-12fps-1424x800";
@@ -1548,7 +1548,7 @@
       }).prop('checked', showViirsLayer);
 */
 
-      $("#show-fishingppr-timemachine").on("click", function() {
+      /*$("#show-fishingppr-timemachine").on("click", function() {
         var $this = $(this);
         if ($this.prop('checked')) {
           fishingPprTimeMachineLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
@@ -1577,7 +1577,7 @@
           $("#baseLayerCreditContainer").show();
           $("#fishingPpr-timemachine-legend").hide();
         }
-      }).prop('checked', showFishingPprTimeMachineLayer);
+      }).prop('checked', showFishingPprTimeMachineLayer);*/
 
       $("#show-coral").on("click", function() {
         var $this = $(this);
@@ -4790,7 +4790,7 @@
     // var showLightsAtNightLayer = false;
     // var showLightsAtNight2012Layer = false;
     //var showLightsAtNight2016Layer = false;
-    var showFishingPprTimeMachineLayer = false;
+    //var showFishingPprTimeMachineLayer = false;
     //var showCrwTimeMachineLayer = false;
     //var showNdviAnomalyTimeMachineLayer = false;
     var showAnimatedHansenLayer = false;
@@ -5439,7 +5439,7 @@
       var show_gpd_ppp = '<td class="gdpPpp-select"><label for="show-gdpPpp" name="gdpPpp"><input type="checkbox" id="show-gdpPpp" />GDP PPP</label></td>';
       var show_gfs_timemachine = '<td class="gfs-timemachine-select"><label for="show-gfs-timemachine" name="gfs-timemachine"><input type="checkbox" id="show-gfs-timemachine" />GFS</label></td>';
       //var show_chlorophyllConcentration_timemachine = '<td class="chlorophyllConcentration-timemachine-select"><label for="show-chlorophyllConcentration-timemachine" name="chlorophyllConcentration-timemachine"><input type="checkbox" id="show-chlorophyllConcentration-timemachine" />Chlorophyll concentration</label></td>';
-      var show_fishingppr_timemachine = '<td class="fishingppr-timemachine-select"><label for="show-fishingppr-timemachine" name="fishingppr-timemachine"><input type="checkbox" id="show-fishingppr-timemachine" />Fishing PPR</label></td>';
+      //var show_fishingppr_timemachine = '<td class="fishingppr-timemachine-select"><label for="show-fishingppr-timemachine" name="fishingppr-timemachine"><input type="checkbox" id="show-fishingppr-timemachine" />Fishing PPR</label></td>';
       var show_wind_vectors = '<td class="wind-vectors-select"><label for="show-wind-vectors" name="wind-vectors"><input type="checkbox" id="show-wind-vectors" />Wind Vectors</label></td>';
 
 /*
@@ -5500,8 +5500,8 @@
       /* END FOREST CATEGORY */
 
       /* OCEANS CATEGORY */
-      layer_html += '  <h3>Oceans</h3>';
-      layer_html += '  <table id="category-oceans">';
+      //layer_html += '  <h3>Oceans</h3>';
+      //layer_html += '  <table id="category-oceans">';
       /*if (showEcco2) {
         layer_html += '   <tr>';
         layer_html += show_ecco2;
@@ -5512,12 +5512,12 @@
         layer_html += show_chlorophyllConcentration_timemachine;
         layer_html += '   </tr>';
       }*/
-      if (showFishingPprTimemachine) {
+      /*if (showFishingPprTimemachine) {
         layer_html += '   <tr>';
         layer_html += show_fishingppr_timemachine;
         layer_html += '   </tr>';
-      }
-      layer_html += '  </table>';
+      }*/
+      //layer_html += '  </table>';
       /* END OCEANS CATEGORY */
 
       /* WIND CATEGORY */
@@ -6151,7 +6151,7 @@
       //legend_html += '<tr id="ecco2-legend" style="display: none"><td><div style="font-size: 15px">ECCO2 - Estimating the Circulation and Climate of the Ocean, Phase II<span> (NASA)</div></td></tr>';
       //legend_html += '<tr id="chlorophyllConcentration-legend" style="display: none"><td><div style="font-size: 15px">Chlorophyll concentration<span> (NASA Earth Observations)</div>';
       //legend_html += '<svg width="256" height="45"><defs><linearGradient id="myGradient"><stop offset="5%"  stop-color="rgb(8,29,88)" /><stop offset="25%" stop-color="rgb(34,96,169)" /><stop offset="50%" stop-color="rgb(67,183,196)" /><stop offset="75%" stop-color="rgb(200,233,180)" /><stop offset="95%" stop-color="rgb(254,255,216)" /></linearGradient></defs><text fill="rgba(255, 255, 255, 0.8)" text-anchor="end" font-size="12px" y="8" x="256">(mg/m3)</text><rect x="0" y="12" height="20" width="256" fill="url(\'#myGradient\')" /><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="0">.01</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="32">.03</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="64">.1</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="96">.3</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="128">1</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="160">3</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="192">10</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="218">30</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="240">60</text></svg></td></tr>';
-      legend_html += '<tr id="fishingPpr-timemachine-legend" style="display: none"><td><div style="font-size: 15px">Fishing PPR<span> (Seas Around Us)</div></td></tr>';
+      //legend_html += '<tr id="fishingPpr-timemachine-legend" style="display: none"><td><div style="font-size: 15px">Fishing PPR<span> (Seas Around Us)</div></td></tr>';
 
 
       // ## 5b ##
@@ -6338,7 +6338,7 @@
       ndviAnomalyTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, ndviAnomalyTimeMachineLayerOptions);*/
 
       // Fishing PPR
-      timelines.setTimeLine("fishingPpr-timemachine-times", "1950", "2014", 1);
+      /*timelines.setTimeLine("fishingPpr-timemachine-times", "1950", "2014", 1);
       var fishingPprTimemachineLayerOptions = {
         numFrames: cached_ajax['fishingPpr-timemachine-times.json']['capture-times'].length,
         fps: 8,
@@ -6347,7 +6347,7 @@
         greenScreen: true,
         tileRootUrl: fishingPprTimeMachineUrl
       };
-      fishingPprTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, fishingPprTimemachineLayerOptions);
+      fishingPprTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, fishingPprTimemachineLayerOptions);*/
 
       // Coral Bleaching Alerts
       /*var crwTimemacineLayerOptions = {
@@ -8962,10 +8962,10 @@
         //// Layers to draw above the base layer (or planet-wide static layers)
 
         // Draw Fishing PPR
-        if (showFishingPprTimeMachineLayer) {
+        /*if (showFishingPprTimeMachineLayer) {
           var fishingPprView = getLayerView(fishingPprTimeMachineLayer, landsatBaseMapLayer);
           fishingPprTimeMachineLayer.draw(fishingPprView, tileViewVisibility);
-        }
+        }*/
 
         // Draw Coral Reef Watch
         /*if (showCrwTimeMachineLayer) {
