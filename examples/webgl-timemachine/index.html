@@ -242,7 +242,7 @@
     var showSpCrude = !!EARTH_TIMELAPSE_CONFIG.showSpCrude;
     var showGoes16 = !!EARTH_TIMELAPSE_CONFIG.showGoes16;
     var showDscovr = !!EARTH_TIMELAPSE_CONFIG.showDscovr;
-    var showAnnualGlobalPm25 = !!EARTH_TIMELAPSE_CONFIG.showAnnualGlobalPm25;
+    //var showAnnualGlobalPm25 = !!EARTH_TIMELAPSE_CONFIG.showAnnualGlobalPm25;
     //var showEcco2 = !!EARTH_TIMELAPSE_CONFIG.showEcco2;
     var showGdpPpp = !!EARTH_TIMELAPSE_CONFIG.showGdpPpp;
     ////var showTintedLandsat = !!EARTH_TIMELAPSE_CONFIG.showTintedLandsat;
@@ -421,7 +421,8 @@
     //var crwTimeMachineLayer
     // var waterOccurrenceLayer, waterChangeLayer;
     //var usgsWindTurbineLayer, solarInstallsLayer, drillingLayer;
-    var goes16TimeMachineLayer, goes16Aug2018TimeMachineLayer, goes16Nov2018TimeMachineLayer, dscovrTimeMachineLayer, annualGlobalPm25TimeMachineLayer;
+    var goes16TimeMachineLayer, goes16Aug2018TimeMachineLayer, goes16Nov2018TimeMachineLayer, dscovrTimeMachineLayer;
+    //var annualGlobalPm25TimeMachineLayer;
     //var globalWindPowerLayer;
     //timelines.setTimeLine('global-wind-power-times', '1984', '2018', 1);
     var annualRefugeesLayer;
@@ -895,7 +896,7 @@
     var goes16Aug2018TimeMachineUrl = rootTilePath + "/goes16/2018-08-01.timemachine/crf26-12fps-1424x800";
     var goes16Nov2018TimeMachineUrl = rootTilePath + "/goes16/2018-11-01.timemachine/crf26-12fps-1424x800";
     var dscovrTimeMachineUrl = rootTilePath + "/dscovr/dscovr.timemachine/crf26-6fps-1424x800";
-    var annualGlobalPm25TimeMachineUrl = rootTilePath + "/annual-global-pm25/pm2_5v2.timemachine/crf26-6fps-1424x800";
+    //var annualGlobalPm25TimeMachineUrl = rootTilePath + "/annual-global-pm25/pm2_5v2.timemachine/crf26-6fps-1424x800";
     ////var forestAlertsTimeMachineUrl = rootTilePath + "/global-forest-alerts/ForestAlarms2016v2/1068x600";
     ////var forestAlertsNoOverlayTimeMachineUrl = rootTilePath + "/global-forest-alerts/ForestAlarmsNoOverlay2016v1/1068x600";
     var berkeleyEarthTemperatureAnomalyTimeMachineUrl = rootTilePath + "/berkeley-earth/berkeley-earth.timemachine/crf24-12fps-1424x800";
@@ -1970,7 +1971,7 @@
         timelapse.warpTo(timelapse.getHomeView());
       }).prop('checked', showDscovrTimeMachineLayer);
 
-      $("#show-annual-pm25").on("click", function() {
+      /*$("#show-annual-pm25").on("click", function() {
         var $this = $(this);
         if ($this.prop('checked')) {
           annualGlobalPm25TimeMachineLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
@@ -1999,7 +2000,7 @@
           $("#baseLayerCreditContainer").show();
           $("#annual-pm25-legend").hide();
         }
-      }).prop('checked', showAnnualGlobalPm25TimeMachineLayer);
+      }).prop('checked', showAnnualGlobalPm25TimeMachineLayer);*/
 
       $("#show-berkeley-earth-temperature-anomaly").on("click", function() {
         var $this = $(this);
@@ -4798,7 +4799,7 @@
     var showGoes16Aug2018TimeMachineLayer = false;
     var showGoes16Nov2018TimeMachineLayer = false;
     var showDscovrTimeMachineLayer = false;
-    var showAnnualGlobalPm25TimeMachineLayer = false;
+    //var showAnnualGlobalPm25TimeMachineLayer = false;
     ////var showForestAlertsTimeMachineLayer = false;
     ////var showForestAlertsNoOverlayTimeMachineLayer = false;
     // var showWaterOccurrenceLayer = false;
@@ -5433,7 +5434,7 @@
       var show_goes16_aug2018 = '<td class="timemachine goes16-aug-2018-select"><label for="show-goes16-aug-2018" name="goes16-aug-2018"><input type="checkbox" id="show-goes16-aug-2018" />GOES16 August 2018</label></td>';
       var show_goes16_nov2018 = '<td class="timemachine goes16-nov-2018-select"><label for="show-goes16-nov-2018" name="goes16-nov-2018"><input type="checkbox" id="show-goes16-nov-2018" />GOES16 November 2018</label></td>';
       var show_dscovr = '<td class="timemachine dscovr-select"><label for="show-dscovr" name="dscovr"><input type="checkbox" id="show-dscovr" />DSCOVR</label></td>';
-      var show_annual_global_pm25 = '<td class="annual-pm25-select"><label for="show-annual-pm25" name="annual-pm25"><input type="checkbox" id="show-annual-pm25" />Annual Global PM 2.5</label></td>';
+      //var show_annual_global_pm25 = '<td class="annual-pm25-select"><label for="show-annual-pm25" name="annual-pm25"><input type="checkbox" id="show-annual-pm25" />Annual Global PM 2.5</label></td>';
       //var show_ecco2 = '<td class="ecco2-select"><label for="show-ecco2" name="ecco2"><input type="checkbox" id="show-ecco2" />ECCO2</label></td>';
       var show_gpd_ppp = '<td class="gdpPpp-select"><label for="show-gdpPpp" name="gdpPpp"><input type="checkbox" id="show-gdpPpp" />GDP PPP</label></td>';
       var show_gfs_timemachine = '<td class="gfs-timemachine-select"><label for="show-gfs-timemachine" name="gfs-timemachine"><input type="checkbox" id="show-gfs-timemachine" />GFS</label></td>';
@@ -5625,11 +5626,11 @@
         layer_html += '    </tr>';
       }
       */
-      if (showAnnualGlobalPm25) {
+      /*if (showAnnualGlobalPm25) {
         layer_html += '    <tr>';
         layer_html += show_annual_global_pm25;
         layer_html += '    </tr>';
-      }
+      }*/
       layer_html += '  </table>';
       /* END POLLUTION CATEGORY */
 
@@ -6146,7 +6147,7 @@
       legend_html += '<tr id="sp-crude-legend_Urals" style="display: none"><td><div style="font-size: 15px">Urals Crude Oil Flows<span> (S&P Global)</div><svg class="svg-legend" width="240" height="35"><circle class="gain" r="10" cx="15" cy="10" style="fill: rgb(255, 255, 51); stroke: #fff;"></circle><text x="30" y="15" style="font-size: 12px; fill: #fff">Urals</text></svg></td></tr>';
       legend_html += '<tr id="gdpPpp" style="display: none"><td><div style="font-size: 15px">GDP PPP<span> (Kummu et al.)</div><div><img src="https://tiles.earthtime.org/colormaps/black-no-value-darkblue-cyan-green-lightyellow-orange-deeppink-darkred.png" style="border:1px solid grey; width:200px; height:10px; margin-top:2px; position:relative; top:3px; background-color:black"></div><div style="width: 200px; font-size: 9px"><span>0</span><span style="padding-left: 30px">25x10<sup>6</sup><span style="padding-left: 20px">50x10<sup>6</sup><span style="padding-left: 20px">75x10<sup>6</sup></span><span style="padding-left: 20px">100x10<sup>6</sup></span></div></td></tr>';
 
-      legend_html += '<tr id="annual-pm25-legend" style="display: none"><td><div style="font-size: 15px">Annual PM2.5<span> (NASA)</div><div><img src="https://tiles.earthtime.org/colormaps/pm25-who-annual.png" style="border:1px solid grey; width:200px; height:10px; margin-top:2px; position:relative; top:3px; background-color:black"></div><div style="width: 200px; font-size: 9px"><span>0</span><span style="padding-left: 35px">10<span style="padding-left: 20px">20<span style="padding-left: 20px">50</span><span style="padding-left: 20px">100</span><span style="padding-left: 20px">>100</span></div><div style="width: 200px; font-size: 9px">micrograms per cubic meter</div></td></tr>';
+      //legend_html += '<tr id="annual-pm25-legend" style="display: none"><td><div style="font-size: 15px">Annual PM2.5<span> (NASA)</div><div><img src="https://tiles.earthtime.org/colormaps/pm25-who-annual.png" style="border:1px solid grey; width:200px; height:10px; margin-top:2px; position:relative; top:3px; background-color:black"></div><div style="width: 200px; font-size: 9px"><span>0</span><span style="padding-left: 35px">10<span style="padding-left: 20px">20<span style="padding-left: 20px">50</span><span style="padding-left: 20px">100</span><span style="padding-left: 20px">>100</span></div><div style="width: 200px; font-size: 9px">micrograms per cubic meter</div></td></tr>';
       //legend_html += '<tr id="ecco2-legend" style="display: none"><td><div style="font-size: 15px">ECCO2 - Estimating the Circulation and Climate of the Ocean, Phase II<span> (NASA)</div></td></tr>';
       //legend_html += '<tr id="chlorophyllConcentration-legend" style="display: none"><td><div style="font-size: 15px">Chlorophyll concentration<span> (NASA Earth Observations)</div>';
       //legend_html += '<svg width="256" height="45"><defs><linearGradient id="myGradient"><stop offset="5%"  stop-color="rgb(8,29,88)" /><stop offset="25%" stop-color="rgb(34,96,169)" /><stop offset="50%" stop-color="rgb(67,183,196)" /><stop offset="75%" stop-color="rgb(200,233,180)" /><stop offset="95%" stop-color="rgb(254,255,216)" /></linearGradient></defs><text fill="rgba(255, 255, 255, 0.8)" text-anchor="end" font-size="12px" y="8" x="256">(mg/m3)</text><rect x="0" y="12" height="20" width="256" fill="url(\'#myGradient\')" /><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="0">.01</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="32">.03</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="64">.1</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="96">.3</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="128">1</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="160">3</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="192">10</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="218">30</text><text fill="rgba(255, 255, 255, 0.8)" text-anchor="start" font-size="12px" y="42" x="240">60</text></svg></td></tr>';
@@ -6416,7 +6417,7 @@
       dscovrTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, dscovrTimeMachineLayerOptions);
 
       // Annual Global PM 2.5
-      var annualGlobalPm25TimeMachineLayerOptions = {
+      /*var annualGlobalPm25TimeMachineLayerOptions = {
         numFrames: cached_ajax['annual-global-pm25-times.json']['capture-times'].length,
         fps: 6,
         nLevels: 5,
@@ -6425,7 +6426,7 @@
         colormap: rootTilePath + '/colormaps/pm25-who-annual.png',
         tileRootUrl: annualGlobalPm25TimeMachineUrl
       };
-      annualGlobalPm25TimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, annualGlobalPm25TimeMachineLayerOptions);
+      annualGlobalPm25TimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, annualGlobalPm25TimeMachineLayerOptions);*/
 
       // Forest Alerts
       /*var forestAlertsTimeMachineLayerOptions = {
@@ -9690,10 +9691,10 @@
         }
 
         // Draw Annual Global PM 2.5
-        if (showAnnualGlobalPm25TimeMachineLayer) {
+        /*if (showAnnualGlobalPm25TimeMachineLayer) {
           var view = getLayerView(annualGlobalPm25TimeMachineLayer, landsatBaseMapLayer);
           annualGlobalPm25TimeMachineLayer.draw(view, tileViewVisibility);
-        }
+        }*/
 
         // Draw ECCO2
         /*if (showEcco2Layer) {
