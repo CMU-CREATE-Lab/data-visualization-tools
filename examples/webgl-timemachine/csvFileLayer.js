@@ -556,8 +556,10 @@ CsvFileLayer.prototype.loadLayersFromTsv = function loadLayersFromTsv(layerDefin
       this.addExtrasContent(layerDef);
     } else {
       var layer = this.addLayer(layerDef);
-      if (layer.mapType == 'raster') {
+      if (layer.mapType == 'raster' || layer.mapType == 'timemachine') {
+        //TODO: Raster and timemachine layers do not have the addDataLoadedListener callback
         this.setLegend(layer.layerId);
+        $("#" + layer.layerId + "-legend").hide();
       }
       timelines.setTimeLine(layer.layerId,
 			    layerDef["Start date"],
@@ -643,7 +645,6 @@ CsvFileLayer.prototype.setLegend = function setLegend(id) {
         var legend = new BubbleMapLegend(opts);
         $('#legend-content table tr:last').after(legend.toString());
         $("#" + id + "-legend").show();
-
       }
 
     } else if (layer.mapType == 'choropleth') { // Assume choropleth
@@ -675,7 +676,6 @@ CsvFileLayer.prototype.setLegend = function setLegend(id) {
         var legend = new ChoroplethLegend(opts);
         $('#legend-content table tr:last').after(legend.toString());
         $("#" + id + "-legend").show();
-
       }
     } else {
       var str = '';
@@ -692,9 +692,9 @@ CsvFileLayer.prototype.setLegend = function setLegend(id) {
       }
       var legend = new Legend(id, str);
       $('#legend-content table tr:last').after(legend.toString());
-      if (layer.mapType != 'raster') {
+      //if (layer.mapType != 'raster') {
         $("#" + id + "-legend").show();
-      }
+      //}
     }
   }
 }
