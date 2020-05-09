@@ -752,6 +752,7 @@
     };
 
     function getLayerInfo(layer) {
+      if (!layer || !layer._tileView) return null;
       var readyTileCount = 0;
       var waitingTileCount = 0;
 
@@ -8772,6 +8773,8 @@
       //
 
       var getLayerView = function(dataLayer, baseLayer) {
+        if (!dataLayer || !dataLayer._tileView) return null;
+
         // The timelapse projection uses bounds from landsatBasemapLayer, which might not
         // share the standard Web Mercator north bound.
 
