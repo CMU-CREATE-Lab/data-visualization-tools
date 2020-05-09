@@ -416,7 +416,8 @@
     //
 
     var /*forestAlertsTimeMachineLayer, forestAlertsNoOverlayTimeMachineLayer,*/ landsatBaseMapLayer, darkBaseMapLayer, lightBaseMapLayer, mcrmVectorLayer, countryLabelMapLayer, cityLabelMapLayer;
-    var hansenMapLayer, hansenMapLayer2, crwTimeMachineLayer, animatedHansenLayer, himawariTimeMachineLayer, ndviAnomalyTimeMachineLayer;
+    var hansenMapLayer, hansenMapLayer2, animatedHansenLayer, himawariTimeMachineLayer, ndviAnomalyTimeMachineLayer;
+    //var crwTimeMachineLayer
     // var waterOccurrenceLayer, waterChangeLayer;
     //var usgsWindTurbineLayer, solarInstallsLayer, drillingLayer;
     var goes16TimeMachineLayer, goes16Aug2018TimeMachineLayer, goes16Nov2018TimeMachineLayer, dscovrTimeMachineLayer, annualGlobalPm25TimeMachineLayer;
@@ -886,7 +887,7 @@
       landsatUrl += "/earthtime-annual-2019-v1/1068x600";
     }
     var fishingPprTimeMachineUrl = rootTilePath + "/fishing-ppr.timemachine/crf19-8fps-1424x800";
-    var crwTimeMachineUrl = rootTilePath + "/coral/coralreefwatch-3.timemachine/crf20-22fps-1424x800";
+    //var crwTimeMachineUrl = rootTilePath + "/coral/coralreefwatch-3.timemachine/crf20-22fps-1424x800";
     var ndviAnomalyTimeMachineUrl = rootTilePath + "/ndvi_anomaly_1000v01/1068x600";
     var himawariTimeMachineUrl = rootTilePath + "/himawari8/himawari8-nov-2015.timemachine/crf26-12fps-1424x800";
     var goes16TimeMachineUrl = rootTilePath + "/goes16/2017-09-01.timemachine/crf26-12fps-1424x800";
@@ -1604,7 +1605,7 @@
         }
       }).prop('checked', showCoralBleachingLayer);
 
-      $("#show-coral-bleaching-alerts").on("click", function() {
+      /*$("#show-coral-bleaching-alerts").on("click", function() {
         var $this = $(this);
         if ($this.prop('checked')) {
           crwTimeMachineLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
@@ -1635,7 +1636,7 @@
             $("#coral-bleaching-legend").hide();
           }
         }
-      }).prop('checked', showCrwTimeMachineLayer);
+      }).prop('checked', showCrwTimeMachineLayer);*/
 
       $("#show-ndvi-anomaly").on("click", function() {
         var $this = $(this);
@@ -4734,7 +4735,7 @@
 
     function doSwitchToLandsat() {
       // Special case for layers with defaultUI timeline.
-      if (timelineType == "defaultUI" && (showMonthlyRefugeesLayer || showCrwTimeMachineLayer)) {
+      if (timelineType == "defaultUI" && showMonthlyRefugeesLayer) {
         return false;
       } else {
         previousVisibleBaseMapLayer = visibleBaseMapLayer;
@@ -4788,7 +4789,7 @@
     // var showLightsAtNight2012Layer = false;
     //var showLightsAtNight2016Layer = false;
     var showFishingPprTimeMachineLayer = false;
-    var showCrwTimeMachineLayer = false;
+    //var showCrwTimeMachineLayer = false;
     var showNdviAnomalyTimeMachineLayer = false;
     var showAnimatedHansenLayer = false;
     var showHimawariTimeMachineLayer = false;
@@ -5358,7 +5359,7 @@
       /*var show_lights_at_night_2016 = '<td class="lights-at-night-2016-select"><label for="show-lights-at-night-2016" name="lan16"><input type="checkbox" id="show-lights-at-night-2016" />Lights at Night 2016</label></td>';
       */
       var show_coral = '<td class="coral-select"><label for="show-coral" name="cb"><input type="checkbox" id="show-coral"/>Coral Bleaching</label></td>';
-      var show_coral_bleaching_alerts = '<td class="coral-bleaching-select"><label for="show-coral-bleaching-alerts" name="crw"><input type="checkbox" id="show-coral-bleaching-alerts" />Coral Reef Watch</label></td>';
+      //var show_coral_bleaching_alerts = '<td class="coral-bleaching-select"><label for="show-coral-bleaching-alerts" name="crw"><input type="checkbox" id="show-coral-bleaching-alerts" />Coral Reef Watch</label></td>';
       //var show_usgs_windturbine = '<td class="wind-select"><label for="show-usgs-windturbine" name="wp"><input type="checkbox" id="show-usgs-windturbine" />Wind Power (USA)</span></label></td>';
       //var show_global_wind_power = '<td class="wind-select"><label for="show-global-wind-power" name="gwp"><input type="checkbox" id="show-global-wind-power" />Wind Power (Global)</label></td>';
       //var show_solar_installs = '<td class="solar-select"> <label for="show-solar-installs" name="sp"><input type="checkbox" id="show-solar-installs" />Solar PV (USA)</label></td>';
@@ -5639,11 +5640,11 @@
         layer_html += show_coral;
         layer_html += '    </tr>';
       }
-      if (showCoralBleaching) {
+      /*if (showCoralBleaching) {
         layer_html += '    <tr>';
         layer_html += show_coral_bleaching_alerts;
         layer_html += '    </tr>';
-      }
+      }*/
       layer_html += '  </table>';
       /* END CORAL CATEGORY */
 
@@ -6347,7 +6348,7 @@
       fishingPprTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, fishingPprTimemachineLayerOptions);
 
       // Coral Bleaching Alerts
-      var crwTimemacineLayerOptions = {
+      /*var crwTimemacineLayerOptions = {
         numFrames: cached_ajax['crw-times.json']['capture-times'].length,
         fps: 22,
         width: 7200,
@@ -6355,7 +6356,7 @@
         greenScreen: true,
         tileRootUrl: crwTimeMachineUrl
       };
-      crwTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, crwTimemacineLayerOptions);
+      crwTimeMachineLayer = new WebglTimeMachineLayer(glb, canvasLayer, crwTimemacineLayerOptions);*/
 
       // Himawari-8
       var himawariTimeMachineLayerOptions = {
@@ -8964,10 +8965,10 @@
         }
 
         // Draw Coral Reef Watch
-        if (showCrwTimeMachineLayer) {
+        /*if (showCrwTimeMachineLayer) {
           var crwView = getLayerView(crwTimeMachineLayer, landsatBaseMapLayer);
           crwTimeMachineLayer.draw(crwView, tileViewVisibility);
-        }
+        }*/
 
         // Draw NDVI Anomaly
         if (showNdviAnomalyTimeMachineLayer) {
