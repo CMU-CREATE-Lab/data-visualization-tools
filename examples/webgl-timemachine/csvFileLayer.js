@@ -382,6 +382,17 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
         baseLayerIdentifier = "bdrk";
       }
       if (baseLayerIdentifier) {
+        var $baseLayers = $("#category-base-layers");
+        if ($baseLayers.find("label[name='" + baseLayerIdentifier + "']").length == 0) {
+          var currentActiveBaseLayerId = $baseLayers.find(":checked").parent().attr("name")
+          if (currentActiveBaseLayerId == "blsat") {
+            setActiveLayersWithTimeline(-1);
+          }
+          activeEarthTimeLayers = activeEarthTimeLayers.filter(function (layerId) {
+            return layerId !== currentActiveBaseLayerId;
+          });
+          $baseLayers.find("input").prop("checked", false);
+        }
         if (baseLayerIdentifier != layer.layerId) {
           $("#layers-list label[name='" + baseLayerIdentifier + "'] input").trigger("click");
         }
@@ -437,7 +448,15 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
       if (layer.hasTimeline) {
         setActiveLayersWithTimeline(-1);
       }
+      var handleBaseLayerSwitch = false;
+      var potentialBaseLayerSwitchId = previousVisibleBaseMapLayer;
+      if (previousVisibleBaseMapLayer != visibleBaseMapLayer) {
+        handleBaseLayerSwitch = true;
+      }
       visibleBaseMapLayer = previousVisibleBaseMapLayer;
+      if (handleBaseLayerSwitch) {
+        $("#layers-list label[name='" + potentialBaseLayerSwitchId + "'] input").trigger("click");
+      }
       // Turn off layer
       layer.visible = false;
       // cacheLastUsedLayer is a global data struct from index.html

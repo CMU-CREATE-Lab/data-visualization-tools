@@ -1288,7 +1288,7 @@
 
       // Hack
       // TODO: Revist toggling of CSV layers that did not have a timeline
-      if ((layers.length == 1 || activeLayersWithTimeline == 1) & visibleBaseMapLayer == "blsat") {
+      if ((layers.length <= 1 || activeLayersWithTimeline <= 1) & visibleBaseMapLayer == "blsat") {
         doSwitchToLandsat();
       }
     }
@@ -2330,7 +2330,7 @@
         if ($this.prop('checked')) {
           healthImpactLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           if (visibleBaseMapLayer != "bdrk") {
-            $("#dark-base").click();
+            $("#bdrk-base").click();
           }
           showHealthImpactLayer = true;
           setActiveLayersWithTimeline(1);
@@ -2363,7 +2363,7 @@
         if ($this.prop('checked')) {
           healthImpactLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           if (visibleBaseMapLayer != "bdrk") {
-            $("#dark-base").click();
+            $("#bdrk-base").click();
           }
           showHealthImpactLayer = true;
           setActiveLayersWithTimeline(1);
@@ -2396,7 +2396,7 @@
         if ($this.prop('checked')) {
           healthImpactLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           if (visibleBaseMapLayer != "bdrk") {
-            $("#dark-base").click();
+            $("#bdrk-base").click();
           }
           showHealthImpactLayer = true;
           setActiveLayersWithTimeline(1);
@@ -2429,7 +2429,7 @@
         if ($this.prop('checked')) {
           healthImpactLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           if (visibleBaseMapLayer != "bdrk") {
-            $("#dark-base").click();
+            $("#bdrk-base").click();
           }
           showHealthImpactLayer = true;
           setActiveLayersWithTimeline(1);
@@ -2721,7 +2721,7 @@
         if ($this.prop('checked')) {
           hivLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           if (visibleBaseMapLayer != "dark") {
-            $("#dark-base").click();
+            $("#bdrk-base").click();
           }
           showHivLayer = true;
           setActiveLayersWithTimeline(1);
@@ -2746,7 +2746,7 @@
         if ($this.prop('checked')) {
           obesityLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           if (visibleBaseMapLayer != "bdrk") {
-            $("#dark-base").click();
+            $("#bdrk-base").click();
           }
           showObesityLayer = true;
           setActiveLayersWithTimeline(1);
@@ -2785,7 +2785,7 @@
             $("#vaccine-confidence-q4-legend").hide();
           }
           if (visibleBaseMapLayer != "bdrk") {
-            $("#dark-base").click();
+            $("#bdrk-base").click();
           }
           showVaccineConfidenceLayer = true;
           timelineType = "none";
@@ -2815,7 +2815,7 @@
             $("#vaccine-confidence-q4-legend").hide();
           }
           if (visibleBaseMapLayer != "bdrk") {
-            $("#dark-base").click();
+            $("#bdrk-base").click();
           }
           showVaccineConfidenceLayer = true;
           timelineType = "none";
@@ -2845,7 +2845,7 @@
             $("#vaccine-confidence-q4-legend").hide();
           }
           if (visibleBaseMapLayer != "bdrk") {
-            $("#dark-base").click();
+            $("#bdrk-base").click();
           }
           showVaccineConfidenceLayer = true;
           timelineType = "none";
@@ -2875,7 +2875,7 @@
             $("#vaccine-confidence-q2-legend").hide();
           }
           if (visibleBaseMapLayer != "bdrk") {
-            $("#dark-base").click();
+            $("#bdrk-base").click();
           }
           showVaccineConfidenceLayer = true;
           timelineType = "none";
@@ -2968,7 +2968,7 @@
         if ($this.prop('checked')) {
           lodesLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
           if (visibleBaseMapLayer != "blte") {
-            $("#light-base").click();
+            $("#blte-base").click();
           }
           dg["style"]["display"] = "block";
           showLodesLayer = true;
@@ -3362,7 +3362,7 @@
           requestNewTimeline("expanding-cities-times.json", timelineType);
           $("#expanding-cities-legend").show();
           if (visibleBaseMapLayer != "bdrk") {
-            $("#dark-base").click();
+            $("#bdrk-base").click();
           }
           showTile = false;
           $("#baseLayerCreditContainer").hide();
@@ -3388,7 +3388,7 @@
           requestNewTimeline("irena-solar-times.json", timelineType);
           $("#irena-legend").show();
           if (visibleBaseMapLayer != "dark") {
-            $("#dark-base").click();
+            $("#bdrk-base").click();
           }
         } else {
           showIrenaSolarLayer = false;
@@ -3411,7 +3411,7 @@
           requestNewTimeline("irena-wind-times.json", timelineType);
           $("#irena-legend").show();
           if (visibleBaseMapLayer != "dark") {
-            $("#dark-base").click();
+            $("#bdrk-base").click();
           }
         } else {
           showIrenaWindLayer = false;
@@ -3436,7 +3436,7 @@
           requestNewTimeline("tsip-times.json", timelineType);
           $("#tsip-legend").show();
           if (visibleBaseMapLayer != "bdrk") {
-            $("#dark-base").click();
+            $("#bdrk-base").click();
           }
         } else {
           showTsipLayer = false;
@@ -3462,7 +3462,7 @@
           timelapse.setPlaybackRate(0.00225);
           $("#sp-crude-legend").show();
           if (visibleBaseMapLayer != "bdrk") {
-            $("#dark-base").click();
+            $("#bdrk-base").click();
           }
         } else {
           showSpCrudeLayer = false;
@@ -3489,7 +3489,7 @@
           timelapse.setPlaybackRate(0.00225);
           $("#sp-crude-legend_Oceania").show();
           if (visibleBaseMapLayer != "bdrk") {
-            $("#dark-base").click();
+            $("#bdrk-base").click();
           }
         } else {
           showSpCrudeLayerOceania = false;
@@ -3516,7 +3516,7 @@
           timelapse.setPlaybackRate(0.00225);
           $("#sp-crude-legend_AG").show();
           if (visibleBaseMapLayer != "bdrk") {
-            $("#dark-base").click();
+            $("#bdrk-base").click();
           }
         } else {
           showSpCrudeLayerAG = false;
@@ -3543,7 +3543,7 @@
           timelapse.setPlaybackRate(0.00225);
           $("#sp-crude-legend_WAF").show();
           if (visibleBaseMapLayer != "bdrk") {
-            $("#dark-base").click();
+            $("#bdrk-base").click();
           }
         } else {
           showSpCrudeLayerWAF = false;
@@ -3570,7 +3570,7 @@
           timelapse.setPlaybackRate(0.00225);
           $("#sp-crude-legend_MedNAF").show();
           if (visibleBaseMapLayer != "bdrk") {
-            $("#dark-base").click();
+            $("#bdrk-base").click();
           }
         } else {
           showSpCrudeLayerMedNAF = false;
@@ -3597,7 +3597,7 @@
           timelapse.setPlaybackRate(0.00225);
           $("#sp-crude-legend_Urals").show();
           if (visibleBaseMapLayer != "bdrk") {
-            $("#dark-base").click();
+            $("#bdrk-base").click();
           }
         } else {
           showSpCrudeLayerUrals = false;
@@ -3624,7 +3624,7 @@
           timelapse.setPlaybackRate(0.00225);
           $("#sp-crude-legend_USGC").show();
           if (visibleBaseMapLayer != "bdrk") {
-            $("#dark-base").click();
+            $("#bdrk-base").click();
           }
         } else {
           showSpCrudeLayerUSGC = false;
@@ -3651,7 +3651,7 @@
           timelapse.setPlaybackRate(0.00225);
           $("#sp-crude-legend_LatAM").show();
           if (visibleBaseMapLayer != "bdrk") {
-            $("#dark-base").click();
+            $("#bdrk-base").click();
           }
         } else {
           showSpCrudeLayerLatAM = false;
@@ -3678,7 +3678,7 @@
           timelapse.setPlaybackRate(0.00225);
           $("#sp-crude-legend_NS").show();
           if (visibleBaseMapLayer != "bdrk") {
-            $("#dark-base").click();
+            $("#bdrk-base").click();
           }
         } else {
           showSpCrudeLayerNS = false;
@@ -3826,7 +3826,7 @@
           requestNewTimeline("wind-vectors-times.json", timelineType);
           $("#wind-vectors-legend").show();
           if (visibleBaseMapLayer != "bdrk") {
-            $("#dark-base").click();
+            $("#bdrk-base").click();
           }
         } else {
           showWindVectorsLayer = false;
@@ -3850,7 +3850,7 @@
           timelapse.setPlaybackRate(.00225);
           $("#sp-crude-legend_WAF").show();
           if (visibleBaseMapLayer != "dark") {
-            $("#dark-base").click();
+            $("#bdrk-base").click();
           }
         } else {
           showSpCrudeLayerWAF = false;
@@ -3875,7 +3875,7 @@
           timelapse.setPlaybackRate(.00225);
           $("#sp-crude-legend_NAF").show();
           if (visibleBaseMapLayer != "dark") {
-            $("#dark-base").click();
+            $("#bdrk-base").click();
           }
         } else {
           showSpCrudeLayerNAF = false;
@@ -3900,7 +3900,7 @@
           timelapse.setPlaybackRate(.00225);
           $("#sp-crude-legend_ME").show();
           if (visibleBaseMapLayer != "dark") {
-            $("#dark-base").click();
+            $("#bdrk-base").click();
           }
         } else {
           showSpCrudeLayerME = false;
@@ -3925,7 +3925,7 @@
           timelapse.setPlaybackRate(.00225);
           $("#sp-crude-legend_US").show();
           if (visibleBaseMapLayer != "dark") {
-            $("#dark-base").click();
+            $("#bdrk-base").click();
           }
         } else {
           showSpCrudeLayerUS = false;
@@ -4381,7 +4381,9 @@
             if (activeLayerIdx >= 0) {
               activeEarthTimeLayers.splice(activeLayerIdx, 1);
             }
-            if (activeEarthTimeLayers.length == 1 && activeEarthTimeLayers.indexOf("blsat") == 0) {
+            if (activeEarthTimeLayers.length == 0) {
+              doSwitchToLandsat();
+            } else if (activeEarthTimeLayers.length == 1 && activeEarthTimeLayers.indexOf("blsat") == 0) {
               doSwitchToLandsat();
             }
           }
@@ -4730,6 +4732,7 @@
     }
 
     function setActiveLayersWithTimeline(modifier) {
+      console.log(modifier)
       previousActiveLayersWithTimeline = activeLayersWithTimeline;
       activeLayersWithTimeline += modifier;
       if (activeLayersWithTimeline < 0) activeLayersWithTimeline = 0;
@@ -4742,7 +4745,7 @@
       } else {
         previousVisibleBaseMapLayer = visibleBaseMapLayer;
         timelineType = "customUI";
-        $("#layers-list #landsat-base").click();
+        $("#layers-list #lsat-base").click();
         if (activeLayersWithTimeline <= 0) {
           setActiveLayersWithTimeline(1);
         }
@@ -5045,7 +5048,7 @@
           }
           // Use dark basemap
           if (visibleBaseMapLayer != "bdrk") {
-            $("#dark-base").click();
+            $("#bdrk-base").click();
           }
           // Turn on layer
           layer.visible = true;
@@ -5336,11 +5339,11 @@
 
       layer_html += '<ul id="layers-list">';
 
-      var landsat_base_str = '<label class="landsat-select" for="landsat-base" name="blsat"><input type="radio" id="landsat-base" name="base-layers" value="blsat"/>Google Earth Engine Timelapse</label>';
+      var landsat_base_str = '<label class="blsat-select" for="blsat-base" name="blsat"><input type="radio" id="blsat-base" name="base-layers" value="blsat"/>Google Earth Engine Timelapse</label>';
       var landsat_base = '<td colspan="2">' + landsat_base_str + '</td>';
       ////var tinted_landsat = '<td colspan="2"><label class="tinted_landsat-select" for="tinted_landsat" name="tinted_landsat"><input type="radio" id="tinted_landsat" name="base-layers" value="tinted_landsat"/>Google Earth Engine Timelapse (tinted)</label></td>'
-      var light_base = '<td><label for="light-base" name="blte"><input type="radio" id="light-base" name="base-layers" value="blte"/><span>Light Map</span></label></td>';
-      var dark_base = '<td><label for="dark-base" name="bdrk"><input type="radio" id="dark-base" name="base-layers" value="bdrk"/><span>Dark Map</span></label></td>';
+      var light_base = '<td><label for="blte-base" name="blte"><input type="radio" id="blte-base" name="base-layers" value="blte"/><span>Light Map</span></label></td>';
+      var dark_base = '<td><label for="bdrk-base" name="bdrk"><input type="radio" id="bdrk-base" name="base-layers" value="bdrk"/><span>Dark Map</span></label></td>';
 
       // NOTE NOTE NOTE
       // What is set for the name in the label must never be changed and is forever connected to share links
