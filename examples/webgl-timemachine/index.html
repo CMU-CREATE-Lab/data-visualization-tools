@@ -4732,7 +4732,6 @@
     }
 
     function setActiveLayersWithTimeline(modifier) {
-      console.log(modifier)
       previousActiveLayersWithTimeline = activeLayersWithTimeline;
       activeLayersWithTimeline += modifier;
       if (activeLayersWithTimeline < 0) activeLayersWithTimeline = 0;
@@ -7650,7 +7649,6 @@
 
       // Callback when data for a specific CSV layer has loaded.
       csvFileLayers.addDataLoadedListener(function(layerId) {
-        console.log('set legend')
         csvDataGrapher.graphDataForLayer(layerId);
         showHideCsvGrapher(true, layerId, true);
         csvFileLayers.setLegend(layerId);
