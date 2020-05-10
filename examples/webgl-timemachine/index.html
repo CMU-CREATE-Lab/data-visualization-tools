@@ -4345,7 +4345,7 @@
         }
         var selectedLayers = $('.map-layer-checkbox').find("input:checked").not("#show-himawari, #show-goes16, #show-goes16-aug-2018, #show-goes16-nov-2018, #show-dscovr");
         // Subtract one, since base layers are included in this count but they don't use the legend.
-        var numLayersOn = selectedLayers.size() - 1;
+        var numLayersOn = selectedLayers.size() - $("#category-base-layers").find(":checked").length;
 
         // Legend container toggling
         if (numLayersOn <= 0) {
