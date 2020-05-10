@@ -1,0 +1,95 @@
+#legend {
+  font-size: 30px;
+  margin-left: 6px;
+  border-bottom: 1px solid #656565;
+  padding-bottom: 6px;
+}
+
+.legendColor {
+  width: 22px;
+  height: 22px;
+  margin-bottom: 4px;
+}
+
+.legendTitle {
+  margin-left: 7px;
+  margin-bottom: 4px;
+  color: #656565;
+}
+
+#layers-legend {
+  z-index: 90;
+  display: none;
+  position: absolute;
+  right: 19px;
+  top: 20px;
+  width: auto;
+  padding-left: 4px;
+  padding-right: 8px;
+  padding-top: 4px;
+  background: white;
+  color: #222222;
+  border-radius: 2px;
+  border: 1px solid #656565;
+  -webkit-box-shadow: 2px 2px 3px rgba(0,0,0,0.3);
+          box-shadow: 2px 2px 3px rgba(0,0,0,0.3);
+  outline: none;
+  font-size: 15px;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  white-space: nowrap;
+  -webkit-transform-origin: 0% 0%;
+  -ms-transform-origin: 0% 0%;
+  transform-origin: 0% 0%;
+  pointer-events: none;
+  border: 1px solid #6f6f6f;
+  color: #e6e6e6;
+  background: rgba(0, 0, 0, 0.65);
+}
+
+#layers-legend.centered {
+  -webkit-transform: translateX(-50%);
+  -ms-transform: translateX(-50%);
+  transform: translateX(-50%);
+  left: 50%;
+  right: unset;
+}
+
+.legend-entry-title {
+  font-size: 17px;
+}
+
+.waterLegendGradient {
+  height: 10px;
+  background-image: -webkit-linear-gradient(left, blue, #bf7fbf 50%, #ffffff 100%);
+  background-image: -o-linear-gradient(left, blue, #bf7fbf 50%, #ffffff 100%);
+  background-image: -webkit-gradient(linear, left top, right top, from(blue), color-stop(50%, #bf7fbf), to(#ffffff));
+  background-image: -ms-linear-gradient(left, blue, #bf7fbf 50%, #ffffff 100%);
+  background-image: linear-gradient(left, blue, #bf7fbf 50%, #ffffff 100%);
+}
+
+.waterChangeLegendGradient {
+  height: 10px;
+  background-image: -webkit-linear-gradient(left, #ff0000 0%, #000000 50%, #00ff00 100%);
+  background-image: -o-linear-gradient(left, #ff0000 0%, #000000 50%, #00ff00 100%);
+  background-image: -webkit-gradient(linear, left top, right top, from(#ff0000), color-stop(50%, #000000), to(#00ff00));
+  background-image: -ms-linear-gradient(left, #ff0000 0%, #000000 50%, #00ff00 100%);
+  background-image: linear-gradient(left, #ff0000 0%, #000000 50%, #00ff00 100%);
+}
+
+.ndviAnomalyLegendGradient {
+  height: 10px;
+  background-image: -webkit-linear-gradient(left, #009069 0%, #ff4c0c 100%);
+  background-image: -o-linear-gradient(left, #009069 0%, #ff4c0c 100%);
+  background-image: -webkit-gradient(linear, left top, right top, from(#009069), to(#ff4c0c));
+  background-image: -ms-linear-gradient(left, #009069 0%, #ff4c0c 100%);
+  background-image: linear-gradient(left, #009069 0%, #ff4c0c 100%);
+}
+
+.svg-legend {
+  padding-top: 5px;
+}
+

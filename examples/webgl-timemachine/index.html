@@ -15,6 +15,7 @@
   <link href="../../timemachine/libs/change-detect/css/change.css" media="screen" rel="stylesheet" type="text/css" />
   <link href="../../js/customVideoTagControls/customVideoTagControls.css" rel="stylesheet" type="text/css" />
   <link href="index.css" rel="stylesheet" type="text/css" />
+  <link href="legend.css" rel="stylesheet" type="text/css" />
   <link href="Wizard.css" rel="stylesheet" type="text/css" />
   <link href="StoryEditor.css" rel="stylesheet" type="text/css" />
   <link href="SetViewTool.css" rel="stylesheet" type="text/css" />
@@ -10616,6 +10617,14 @@
 
     function getRootTilePath() {
       return rootTilePath;
+    }
+
+    function getLegendHTML() {
+      var legend = $('#layers-legend');
+      $('table tr:hidden', legend).attr('data-hidden', 'true');
+      var clone = legend[0].cloneNode(true);
+      $(clone).find('*[data-hidden="true"]').remove();
+      return clone.outerHTML;
     }
   </script>
 
