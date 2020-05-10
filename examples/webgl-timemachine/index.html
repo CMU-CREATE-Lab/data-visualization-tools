@@ -10620,10 +10620,11 @@
     }
 
     function getLegendHTML() {
-      var legend = $('#layers-legend');
-      $('table tr:hidden', legend).attr('data-hidden', 'true');
-      var clone = legend[0].cloneNode(true);
-      $(clone).find('*[data-hidden="true"]').remove();
+      var $legend = $("#layers-legend");
+      var clone = $legend[0].cloneNode(true);
+      $(clone).find("*").filter(function() {
+        return this.style.display == "none"
+      }).remove();
       return clone.outerHTML;
     }
   </script>
