@@ -7288,6 +7288,23 @@
           lastSelectedWaypointIndex = waypointIndex;
 
           timelapse.removeParabolicMotionStoppedListener(parabolicMotionStoppedListener);
+
+          var waypointTimelineUIChangeListener = function() {
+            // If we are moving, then this means the timeline UI changed before we made it to the final view.
+            // The callback of timelapse.setNewView will handle setting the correct time for us, so no need to do anything.
+            // The need for this code is just if the waypoint is in place before the correct timeline is up.
+            if (!timelapse.isMovingToWaypoint()) {
+              var currentWaypoint = snaplapseForPresentationSlider.getKeyframes()[lastSelectedWaypointIndex];
+              var seekTime = timelapse.playbackTimeFromShareDate(currentWaypoint.beginTime);
+              timelapse.seek(seekTime);
+            }
+            timelapse.removeTimelineUIChangeListener(waypointTimelineUIChangeListener);
+          };
+          timelapse.addTimelineUIChangeListener(waypointTimelineUIChangeListener);
+          // In the event a sharelink layer does not have a timeline change, be sure the above listener is removed.
+          setTimeout(function() {
+            timelapse.removeTimelineUIChangeListener(waypointTimelineUIChangeListener);
+          }, 500);
         });
 
         snaplapseViewerForPresentationSlider.addEventListener('slide-changed', function(waypoint) {
