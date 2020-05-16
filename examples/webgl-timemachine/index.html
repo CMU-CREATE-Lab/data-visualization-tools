@@ -7623,8 +7623,11 @@
           // Note that this may be unncessary because of the callback for CSV layers, but it's possible not to have CSV layers
           // and CSV layers are async (and could be loaded very fast) so we keep this in.
           var onloadView = function() {
-            timelapse.loadSharedViewFromUnsafeURL(UTIL.getUnsafeHashString());
             timelapse.removeTimelineUIChangeListener(onloadView);
+            timelapse.loadSharedViewFromUnsafeURL(UTIL.getUnsafeHashString());
+            var shareDate = vals.bt || vals.t;
+            var timeToSeek = timelapse.playbackTimeFromShareDate(shareDate);
+            timelapse.seekToFrame(timelapse.timeToFrameNumber(timeToSeek));
           };
           timelapse.addTimelineUIChangeListener(onloadView);
           // In the event a sharelink layer does not have a timeline change, be sure the above listener is removed.
