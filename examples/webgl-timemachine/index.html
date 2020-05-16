@@ -359,7 +359,7 @@
     var goes16MaxScale = 0.017;
     var dscovrMaxScale = 0.004;
     var isAutoModeRunning = false;
-    var visibleBaseMapLayer = "landsat";
+    var visibleBaseMapLayer = "blsat";
     var previousVisibleBaseMapLayer = visibleBaseMapLayer;
     var timelapse;
     var thumbnailTool;
@@ -759,6 +759,8 @@
     };
 
     function getLayerInfo(layer) {
+      if (!layer || !layer._tileView) return null;
+
       var readyTileCount = 0;
       var waitingTileCount = 0;
 
@@ -1295,9 +1297,26 @@
         if (!$layerToggle.prop('checked')) $layerToggle.trigger("click");
       });
 
+      // If a layer set does not include a base map and the layer in question is not
+      // also a base layer, add it to layer list.
+      if (layers.length == 1) {
+        var baseLayerIds = $("#category-base-layers").find("label").map(function() {
+          return $(this).attr("name");
+        });
+        if ($.inArray(visibleBaseMapLayer, baseLayerIds) >= 0) {
+          var selectedBaseLayerId = $("#category-base-layers").find(":checked").parent().attr("name");
+          if (layers.indexOf(selectedBaseLayerId) == -1) {
+            layers.unshift(selectedBaseLayerId);
+            if (activeEarthTimeLayers.indexOf(selectedBaseLayerId) == -1) {
+              activeEarthTimeLayers.unshift(selectedBaseLayerId);
+            }
+          }
+        }
+      }
+
       // Hack
       // TODO: Revist toggling of CSV layers that did not have a timeline
-      if ((layers.length == 1 || activeLayersWithTimeline == 1) & visibleBaseMapLayer == "landsat") {
+      if ((layers.length <= 1 || activeLayersWithTimeline <= 1) & visibleBaseMapLayer == "blsat") {
         doSwitchToLandsat();
       }
     }
@@ -2325,8 +2344,8 @@
         var $this = $(this);
         if ($this.prop('checked')) {
           healthImpactLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-          if (visibleBaseMapLayer != "dark") {
-            $("#dark-base").click();
+          if (visibleBaseMapLayer != "bdrk") {
+            $("#bdrk-base").click();
           }
           showHealthImpactLayer = true;
           setActiveLayersWithTimeline(1);
@@ -2358,8 +2377,8 @@
         var $this = $(this);
         if ($this.prop('checked')) {
           healthImpactLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-          if (visibleBaseMapLayer != "dark") {
-            $("#dark-base").click();
+          if (visibleBaseMapLayer != "bdrk") {
+            $("#bdrk-base").click();
           }
           showHealthImpactLayer = true;
           setActiveLayersWithTimeline(1);
@@ -2391,8 +2410,8 @@
         var $this = $(this);
         if ($this.prop('checked')) {
           healthImpactLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-          if (visibleBaseMapLayer != "dark") {
-            $("#dark-base").click();
+          if (visibleBaseMapLayer != "bdrk") {
+            $("#bdrk-base").click();
           }
           showHealthImpactLayer = true;
           setActiveLayersWithTimeline(1);
@@ -2424,8 +2443,8 @@
         var $this = $(this);
         if ($this.prop('checked')) {
           healthImpactLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-          if (visibleBaseMapLayer != "dark") {
-            $("#dark-base").click();
+          if (visibleBaseMapLayer != "bdrk") {
+            $("#bdrk-base").click();
           }
           showHealthImpactLayer = true;
           setActiveLayersWithTimeline(1);
@@ -2706,8 +2725,8 @@
         var $this = $(this);
         if ($this.prop('checked')) {
           hivLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-          if (visibleBaseMapLayer != "dark") {
-            $("#dark-base").click();
+          if (visibleBaseMapLayer != "bdrk") {
+            $("#bdrk-base").click();
           }
           showHivLayer = true;
           setActiveLayersWithTimeline(1);
@@ -2730,8 +2749,8 @@
         var $this = $(this);
         if ($this.prop('checked')) {
           obesityLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-          if (visibleBaseMapLayer != "dark") {
-            $("#dark-base").click();
+          if (visibleBaseMapLayer != "bdrk") {
+            $("#bdrk-base").click();
           }
           showObesityLayer = true;
           setActiveLayersWithTimeline(1);
@@ -2768,8 +2787,8 @@
             $("#show-vaccine-confidence-q4").prop('checked', false);
             $("#vaccine-confidence-q4-legend").hide();
           }
-          if (visibleBaseMapLayer != "dark") {
-            $("#dark-base").click();
+          if (visibleBaseMapLayer != "bdrk") {
+            $("#bdrk-base").click();
           }
           showVaccineConfidenceLayer = true;
           timelineType = "none";
@@ -2798,8 +2817,8 @@
             $("#show-vaccine-confidence-q4").prop('checked', false);
             $("#vaccine-confidence-q4-legend").hide();
           }
-          if (visibleBaseMapLayer != "dark") {
-            $("#dark-base").click();
+          if (visibleBaseMapLayer != "bdrk") {
+            $("#bdrk-base").click();
           }
           showVaccineConfidenceLayer = true;
           timelineType = "none";
@@ -2828,8 +2847,8 @@
             $("#show-vaccine-confidence-q4").prop('checked', false);
             $("#vaccine-confidence-q4-legend").hide();
           }
-          if (visibleBaseMapLayer != "dark") {
-            $("#dark-base").click();
+          if (visibleBaseMapLayer != "bdrk") {
+            $("#bdrk-base").click();
           }
           showVaccineConfidenceLayer = true;
           timelineType = "none";
@@ -2858,8 +2877,8 @@
             $("#show-vaccine-confidence-q2").prop('checked', false);
             $("#vaccine-confidence-q2-legend").hide();
           }
-          if (visibleBaseMapLayer != "dark") {
-            $("#dark-base").click();
+          if (visibleBaseMapLayer != "bdrk") {
+            $("#bdrk-base").click();
           }
           showVaccineConfidenceLayer = true;
           timelineType = "none";
@@ -2947,8 +2966,8 @@
         var $this = $(this);
         if ($this.prop('checked')) {
           lodesLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-          if (visibleBaseMapLayer != "light") {
-            $("#light-base").click();
+          if (visibleBaseMapLayer != "blte") {
+            $("#blte-base").click();
           }
           dg["style"]["display"] = "block";
           showLodesLayer = true;
@@ -3238,7 +3257,7 @@
           setActiveLayersWithTimeline(1);
           timelineType = "defaultUI";
           previousVisibleBaseMapLayer = visibleBaseMapLayer;
-          visibleBaseMapLayer = "dark";
+          visibleBaseMapLayer = "bdrk";
           requestNewTimeline("omi-no2-15-day-avg-times.json", timelineType);
           var v = timelapse.getVideoset();
           v.setFps(12);
@@ -3371,8 +3390,8 @@
           timelineType = "customUI";
           requestNewTimeline("expanding-cities-times.json", timelineType);
           $("#expanding-cities-legend").show();
-          if (visibleBaseMapLayer != "dark") {
-            $("#dark-base").click();
+          if (visibleBaseMapLayer != "bdrk") {
+            $("#bdrk-base").click();
           }
           showTile = false;
           $("#baseLayerCreditContainer").hide();
@@ -3396,8 +3415,8 @@
           timelineType = "customUI";
           requestNewTimeline("irena-solar-times.json", timelineType);
           $("#irena-legend").show();
-          if (visibleBaseMapLayer != "dark") {
-            $("#dark-base").click();
+          if (visibleBaseMapLayer != "bdrk") {
+            $("#bdrk-base").click();
           }
         } else {
           showIrenaSolarLayer = false;
@@ -3419,8 +3438,8 @@
           timelineType = "customUI";
           requestNewTimeline("irena-wind-times.json", timelineType);
           $("#irena-legend").show();
-          if (visibleBaseMapLayer != "dark") {
-            $("#dark-base").click();
+          if (visibleBaseMapLayer != "bdrk") {
+            $("#bdrk-base").click();
           }
         } else {
           showIrenaWindLayer = false;
@@ -3442,8 +3461,8 @@
           timelineType = "customUI";
           requestNewTimeline("tsip-times.json", timelineType);
           $("#tsip-legend").show();
-          if (visibleBaseMapLayer != "dark") {
-            $("#dark-base").click();
+          if (visibleBaseMapLayer != "bdrk") {
+            $("#bdrk-base").click();
           }
         } else {
           showTsipLayer = false;
@@ -3467,8 +3486,8 @@
           timelapse.setMasterPlaybackRate(0.005);
           timelapse.setPlaybackRate(0.00225);
           $("#sp-crude-legend").show();
-          if (visibleBaseMapLayer != "dark") {
-            $("#dark-base").click();
+          if (visibleBaseMapLayer != "bdrk") {
+            $("#bdrk-base").click();
           }
         } else {
           showSpCrudeLayer = false;
@@ -3494,8 +3513,8 @@
           timelapse.setMasterPlaybackRate(0.005);
           timelapse.setPlaybackRate(0.00225);
           $("#sp-crude-legend_Oceania").show();
-          if (visibleBaseMapLayer != "dark") {
-            $("#dark-base").click();
+          if (visibleBaseMapLayer != "bdrk") {
+            $("#bdrk-base").click();
           }
         } else {
           showSpCrudeLayerOceania = false;
@@ -3521,8 +3540,8 @@
           timelapse.setMasterPlaybackRate(0.005);
           timelapse.setPlaybackRate(0.00225);
           $("#sp-crude-legend_AG").show();
-          if (visibleBaseMapLayer != "dark") {
-            $("#dark-base").click();
+          if (visibleBaseMapLayer != "bdrk") {
+            $("#bdrk-base").click();
           }
         } else {
           showSpCrudeLayerAG = false;
@@ -3548,8 +3567,8 @@
           timelapse.setMasterPlaybackRate(0.005);
           timelapse.setPlaybackRate(0.00225);
           $("#sp-crude-legend_WAF").show();
-          if (visibleBaseMapLayer != "dark") {
-            $("#dark-base").click();
+          if (visibleBaseMapLayer != "bdrk") {
+            $("#bdrk-base").click();
           }
         } else {
           showSpCrudeLayerWAF = false;
@@ -3575,8 +3594,8 @@
           timelapse.setMasterPlaybackRate(0.005);
           timelapse.setPlaybackRate(0.00225);
           $("#sp-crude-legend_MedNAF").show();
-          if (visibleBaseMapLayer != "dark") {
-            $("#dark-base").click();
+          if (visibleBaseMapLayer != "bdrk") {
+            $("#bdrk-base").click();
           }
         } else {
           showSpCrudeLayerMedNAF = false;
@@ -3602,8 +3621,8 @@
           timelapse.setMasterPlaybackRate(0.005);
           timelapse.setPlaybackRate(0.00225);
           $("#sp-crude-legend_Urals").show();
-          if (visibleBaseMapLayer != "dark") {
-            $("#dark-base").click();
+          if (visibleBaseMapLayer != "bdrk") {
+            $("#bdrk-base").click();
           }
         } else {
           showSpCrudeLayerUrals = false;
@@ -3629,8 +3648,8 @@
           timelapse.setMasterPlaybackRate(0.005);
           timelapse.setPlaybackRate(0.00225);
           $("#sp-crude-legend_USGC").show();
-          if (visibleBaseMapLayer != "dark") {
-            $("#dark-base").click();
+          if (visibleBaseMapLayer != "bdrk") {
+            $("#bdrk-base").click();
           }
         } else {
           showSpCrudeLayerUSGC = false;
@@ -3656,8 +3675,8 @@
           timelapse.setMasterPlaybackRate(0.005);
           timelapse.setPlaybackRate(0.00225);
           $("#sp-crude-legend_LatAM").show();
-          if (visibleBaseMapLayer != "dark") {
-            $("#dark-base").click();
+          if (visibleBaseMapLayer != "bdrk") {
+            $("#bdrk-base").click();
           }
         } else {
           showSpCrudeLayerLatAM = false;
@@ -3683,8 +3702,8 @@
           timelapse.setMasterPlaybackRate(0.005);
           timelapse.setPlaybackRate(0.00225);
           $("#sp-crude-legend_NS").show();
-          if (visibleBaseMapLayer != "dark") {
-            $("#dark-base").click();
+          if (visibleBaseMapLayer != "bdrk") {
+            $("#bdrk-base").click();
           }
         } else {
           showSpCrudeLayerNS = false;
@@ -3831,8 +3850,8 @@
           timelineType = "customUI";
           requestNewTimeline("wind-vectors-times.json", timelineType);
           $("#wind-vectors-legend").show();
-          if (visibleBaseMapLayer != "dark") {
-            $("#dark-base").click();
+          if (visibleBaseMapLayer != "bdrk") {
+            $("#bdrk-base").click();
           }
         } else {
           showWindVectorsLayer = false;
@@ -3887,8 +3906,8 @@
           timelapse.setMasterPlaybackRate(.005);
           timelapse.setPlaybackRate(.00225);
           $("#sp-crude-legend_WAF").show();
-          if (visibleBaseMapLayer != "dark") {
-            $("#dark-base").click();
+          if (visibleBaseMapLayer != "bdrk") {
+            $("#bdrk-base").click();
           }
         } else {
           showSpCrudeLayerWAF = false;
@@ -3912,8 +3931,8 @@
           timelapse.setMasterPlaybackRate(.005);
           timelapse.setPlaybackRate(.00225);
           $("#sp-crude-legend_NAF").show();
-          if (visibleBaseMapLayer != "dark") {
-            $("#dark-base").click();
+          if (visibleBaseMapLayer != "bdrk") {
+            $("#bdrk-base").click();
           }
         } else {
           showSpCrudeLayerNAF = false;
@@ -3937,8 +3956,8 @@
           timelapse.setMasterPlaybackRate(.005);
           timelapse.setPlaybackRate(.00225);
           $("#sp-crude-legend_ME").show();
-          if (visibleBaseMapLayer != "dark") {
-            $("#dark-base").click();
+          if (visibleBaseMapLayer != "bdrk") {
+            $("#bdrk-base").click();
           }
         } else {
           showSpCrudeLayerME = false;
@@ -3962,8 +3981,8 @@
           timelapse.setMasterPlaybackRate(.005);
           timelapse.setPlaybackRate(.00225);
           $("#sp-crude-legend_US").show();
-          if (visibleBaseMapLayer != "dark") {
-            $("#dark-base").click();
+          if (visibleBaseMapLayer != "bdrk") {
+            $("#bdrk-base").click();
           }
         } else {
           showSpCrudeLayerUS = false;
@@ -3982,9 +4001,9 @@
       $("input:radio[name=base-layers]").on("click", function() {
         previousVisibleBaseMapLayer = visibleBaseMapLayer;
         visibleBaseMapLayer = $(this).val();
-        if (visibleBaseMapLayer == "landsat") {
+        if (visibleBaseMapLayer == "blsat") {
           $("#baselayerCreditText").html("&copy; Google");
-        } else if (visibleBaseMapLayer == "light") {
+        } else if (visibleBaseMapLayer == "blte") {
           if (customLightMapUrlOrId && customLightMapUrlOrId.indexOf("http") != 0) {
             $("#baselayerCreditText").html("&copy; " + csvFileLayers.layerById[customLightMapUrlOrId].credit);
           } else if (useGoogleMaps) {
@@ -3993,7 +4012,7 @@
           } else {
             $("#baselayerCreditText").html("&copy; OpenMapTiles, &copy; OpenStreetMap");
           }
-        } else if (visibleBaseMapLayer == "dark") {
+        } else if (visibleBaseMapLayer == "bdrk") {
           if (customDarkMapUrlOrId && customDarkMapUrlOrId.indexOf("http") != 0) {
             $("#baselayerCreditText").html("&copy; " + csvFileLayers.layerById[customDarkMapUrlOrId].credit);
           } else if (useGoogleMaps) {
@@ -4003,7 +4022,7 @@
             $("#baselayerCreditText").html("&copy; OpenMapTiles, &copy; OpenStreetMap");
           }
         }
-        if (visibleBaseMapLayer == "landsat") {
+        if (visibleBaseMapLayer == "blsat") {
           timelapse.setMaxScale(landsatMaxScale);
           // TODO: Need to rethink this
           if (activeLayersWithTimeline < 1) {
@@ -4014,7 +4033,7 @@
             timelineType = "customUI";
           }
         } else {
-          if (previousVisibleBaseMapLayer == "dark" || previousVisibleBaseMapLayer == "light") {
+          if (previousVisibleBaseMapLayer == "bdrk" || previousVisibleBaseMapLayer == "blte") {
             timelineType = "none";
           } else {
             setActiveLayersWithTimeline(-1);
@@ -4027,7 +4046,7 @@
 
       // Initially set activeLayersWithTimeline to 1 if we first load with landsat enabled.
       // Also set the custom scale.
-      if (visibleBaseMapLayer == "landsat") {
+      if (visibleBaseMapLayer == "blsat") {
         activeLayersWithTimeline = 1;
         timelapse.setMaxScale(landsatMaxScale);
       }
@@ -4365,7 +4384,7 @@
           showAnnotationResumeExit();
         }
         if (isMobileDevice || isIEButNotEdge) {
-          if (visibleBaseMapLayer != "landsat" || showLightsAtNightLayer || showLightsAtNight2012Layer || showLightsAtNight2016Layer || showHansenLayer2 || showVsiLayer) {
+          if (visibleBaseMapLayer != "blsat" || showLightsAtNightLayer || showLightsAtNight2012Layer || showLightsAtNight2016Layer || showHansenLayer2 || showVsiLayer) {
             UTIL.setDrawState(false);
           } else {
             UTIL.setDrawState(true);
@@ -4381,7 +4400,7 @@
         }
         var selectedLayers = $('.map-layer-checkbox').find("input:checked").not("#show-forest-alerts, show-forest-alerts-no-overlay, #show-himawari, #show-goes16, #show-goes16-aug-2018, #show-goes16-nov-2018, #show-dscovr");
         // Subtract one, since base layers are included in this count but they don't use the legend.
-        var numLayersOn = selectedLayers.size() - 1;
+        var numLayersOn = selectedLayers.size() - $("#category-base-layers").find(":checked").length;
 
         // Legend container toggling
         if (numLayersOn <= 0) {
@@ -4416,6 +4435,11 @@
             var activeLayerIdx = activeEarthTimeLayers.indexOf(toggledLayerId);
             if (activeLayerIdx >= 0) {
               activeEarthTimeLayers.splice(activeLayerIdx, 1);
+            }
+            if (activeEarthTimeLayers.length == 0) {
+              doSwitchToLandsat();
+            } else if (activeEarthTimeLayers.length == 1 && activeEarthTimeLayers.indexOf("blsat") == 0) {
+              doSwitchToLandsat();
             }
           }
         }
@@ -4473,7 +4497,7 @@
         }
 
         // Hide any timelines that are visible if we have no layers up that require a timeline or we are a static layer that fully covers the entire globe
-        if (activeLayersWithTimeline <= 0 || (visibleBaseMapLayer == "landsat" && activeLayersWithTimeline == 1 && (showLightsAtNightLayer || showLightsAtNight2012Layer || showLightsAtNight2016Layer || showHansenLayer2 || showVsiLayer))) {
+        if (activeLayersWithTimeline <= 0 || (visibleBaseMapLayer == "blsat" && activeLayersWithTimeline == 1 && (showLightsAtNightLayer || showLightsAtNight2012Layer || showLightsAtNight2016Layer || showHansenLayer2 || showVsiLayer))) {
           $(".controls, .customControl").hide();
           $(".customControl").hide();
         } else if (activeLayersWithTimeline > 0) {
@@ -4499,8 +4523,8 @@
             isFromUser = false;
         }
 
-        if ((activeLayersWithTimeline >= 1 && visibleBaseMapLayer != "landsat") ||
-            (activeLayersWithTimeline == 1 && visibleBaseMapLayer == "landsat" && !(showLightsAtNightLayer || showLightsAtNight2012Layer || showLightsAtNight2016Layer || showHansenLayer2 || showVsiLayer))) {
+        if ((activeLayersWithTimeline >= 1 && visibleBaseMapLayer != "blsat") ||
+            (activeLayersWithTimeline == 1 && visibleBaseMapLayer == "blsat" && !(showLightsAtNightLayer || showLightsAtNight2012Layer || showLightsAtNight2016Layer || showHansenLayer2 || showVsiLayer))) {
           if (timelineType == "customUI") {
             $(".customControl").show().children().show();
           } else if (timelineType == "defaultUI") {
@@ -4508,7 +4532,7 @@
           }
         }
 
-        if (isFromUser && visibleBaseMapLayer != "landsat" && activeLayersWithTimeline == 0) {
+        if (isFromUser && visibleBaseMapLayer != "blsat" && activeLayersWithTimeline == 0) {
           $(".customControl").hide();
         }
 
@@ -4522,7 +4546,7 @@
           $(".current-location-text-container, .annotations-resume-exit-container, .scaleBarContainer, #logosContainer, .current-location-text, #layers-legend").removeClass("noTimeline");
         }
 
-        if (timelineType == "defaultUI" && visibleBaseMapLayer == "landsat" && activeLayersWithTimeline == 1 && $(".csvlayer").find("input:checked").length == 0) {
+        if (timelineType == "defaultUI" && visibleBaseMapLayer == "blsat" && activeLayersWithTimeline == 1 && $(".csvlayer").find("input:checked").length == 0) {
           timelineType = "customUI";
         }
 
@@ -4588,7 +4612,7 @@
       $('input:radio[name=base-layers][id=' + visibleBaseMapLayer + '-base]').trigger("click");
 
       timelapse.addTimelineUIChangeListener(function() {
-        if (visibleBaseMapLayer != "landsat" && activeLayersWithTimeline == 0) {
+        if (visibleBaseMapLayer != "blsat" && activeLayersWithTimeline == 0) {
           $(".customControl").hide();
         }
       });
@@ -4775,7 +4799,7 @@
       } else {
         previousVisibleBaseMapLayer = visibleBaseMapLayer;
         timelineType = "customUI";
-        $("#layers-list #landsat-base").click();
+        $("#layers-list #blsat-base").click();
         if (activeLayersWithTimeline <= 0) {
           setActiveLayersWithTimeline(1);
         }
@@ -5080,8 +5104,8 @@
             $("#layers-list input[id^='show-dotmap']:checked").not(this).click();
           }
           // Use dark basemap
-          if (visibleBaseMapLayer != "dark") {
-            $("#dark-base").click();
+          if (visibleBaseMapLayer != "bdrk") {
+            $("#bdrk-base").click();
           }
           // Turn on layer
           layer.visible = true;
@@ -5372,11 +5396,11 @@
 
       layer_html += '<ul id="layers-list">';
 
-      var landsat_base_str = '<label class="landsat-select" for="landsat-base" name="blsat"><input type="radio" id="landsat-base" name="base-layers" value="landsat"/>Google Earth Engine Timelapse</label>';
+      var landsat_base_str = '<label class="blsat-select" for="blsat-base" name="blsat"><input type="radio" id="blsat-base" name="base-layers" value="blsat"/>Google Earth Engine Timelapse</label>';
       var landsat_base = '<td colspan="2">' + landsat_base_str + '</td>';
       var tinted_landsat = '<td colspan="2"><label class="tinted_landsat-select" for="tinted_landsat" name="tinted_landsat"><input type="radio" id="tinted_landsat" name="base-layers" value="tinted_landsat"/>Google Earth Engine Timelapse (tinted)</label></td>'
-      var light_base = '<td><label for="light-base" name="blte"><input type="radio" id="light-base" name="base-layers" value="light"/><span>Light Map</span></label></td>';
-      var dark_base = '<td><label for="dark-base" name="bdrk"><input type="radio" id="dark-base" name="base-layers" value="dark"/><span>Dark Map</span></label></td>';
+      var light_base = '<td><label for="blte-base" name="blte"><input type="radio" id="blte-base" name="base-layers" value="blte"/><span>Light Map</span></label></td>';
+      var dark_base = '<td><label for="bdrk-base" name="bdrk"><input type="radio" id="bdrk-base" name="base-layers" value="bdrk"/><span>Dark Map</span></label></td>';
 
       // NOTE NOTE NOTE
       // What is set for the name in the label must never be changed and is forever connected to share links
@@ -7774,7 +7798,7 @@
         var dataLoaded = $target.data("has-graph") ? true : false;
         var layer = csvFileLayers.layerById[layerId];
 
-        if (layer) {
+        if (layer && layer._tileView) {
           var tiles = layer._tileView._tiles;
           var key = Object.keys(tiles)[0];
           // Checking point count is a special case when we are only displaying a chart and nothing on the main map
@@ -8837,6 +8861,8 @@
       //
 
       var getLayerView = function(dataLayer, baseLayer) {
+        if (!dataLayer || !dataLayer._tileView) return null;
+
         // The timelapse projection uses bounds from landsatBasemapLayer, which might not
         // share the standard Web Mercator north bound.
 
@@ -8992,14 +9018,14 @@
         } else if (showHansenLayer2) { // Draw Forest Loss/Gain
           var hansenMapLayerView2 = getLayerView(hansenMapLayer2, landsatBaseMapLayer);
           hansenMapLayer2.draw(hansenMapLayerView2);
-        } else if (visibleBaseMapLayer == "landsat") { // Draw Landsat
+        } else if (visibleBaseMapLayer == "blsat") { // Draw Landsat
           landsatBaseMapLayer.draw(timelapse.getView(), tileViewVisibility);
         } else if (visibleBaseMapLayer == "tinted_landsat") { // Draw Landsat
           tintedLandsatLayer.draw(timelapse.getView(), tileViewVisibility);
-        } else if (visibleBaseMapLayer == "light") { // Draw Light Map
+        } else if (visibleBaseMapLayer == "blte") { // Draw Light Map
           var lightBaseMapView = getLayerView(lightBaseMapLayer, landsatBaseMapLayer);
           lightBaseMapLayer.draw(lightBaseMapView);
-        } else if (visibleBaseMapLayer == "dark") { // Draw Dark Map
+        } else if (visibleBaseMapLayer == "bdrk") { // Draw Dark Map
           var darkBaseMapView = getLayerView(darkBaseMapLayer, landsatBaseMapLayer);
           var options = {showTile: showTile};
           darkBaseMapLayer.draw(darkBaseMapView, options);
@@ -9453,11 +9479,11 @@
           var range = end - start;
           var current = ratio * range + start;
           options.currentC = Math.min(current, times[times.length - 1]);
-          if (visibleBaseMapLayer == "landsat") {
+          if (visibleBaseMapLayer == "blsat") {
             options.color = [0.1, 0.1, 0.1, 1.0];
-          } else if (visibleBaseMapLayer == "light") {
+          } else if (visibleBaseMapLayer == "blte") {
             options.color = [0.4921875, 0.7421875, 0.91015625, 1.0];
-          } else if (visibleBaseMapLayer == "dark") {
+          } else if (visibleBaseMapLayer == "bdrk") {
             options.color = [0.203125, 0.203125, 0.203125, 1.0];
           } else if (showLightsAtNightLayer || showLightsAtNight2012Layer || showLightsAtNight2016Layer) {
             options.color = [0.0, 0.0, 0.0, 1.0];
@@ -9501,11 +9527,11 @@
           var range = end - start;
           var current = ratio * range + start;
           options.currentC = Math.min(current, times[times.length - 1]);
-          if (visibleBaseMapLayer == "landsat") {
+          if (visibleBaseMapLayer == "blsat") {
             options.color = [0.1, 0.1, 0.1, 1.0];
-          } else if (visibleBaseMapLayer == "light") {
+          } else if (visibleBaseMapLayer == "blte") {
             options.color = [0.4921875, 0.7421875, 0.91015625, 1.0];
-          } else if (visibleBaseMapLayer == "dark") {
+          } else if (visibleBaseMapLayer == "bdrk") {
             options.color = [0.203125, 0.203125, 0.203125, 1.0];
           } else if (showLightsAtNightLayer || showLightsAtNight2012Layer || showLightsAtNight2016Layer) {
             options.color = [0.0, 0.0, 0.0, 1.0];
