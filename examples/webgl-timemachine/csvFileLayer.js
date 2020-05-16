@@ -557,8 +557,6 @@ CsvFileLayer.prototype.setLegend = function setLegend(id) {
           opts.keys.push({'color': 'rgb('+ rgba[0] +',' + rgba[1] +',' + rgba[2] + ')', 'str': layer.legendKey});
         }
         var legend = new BubbleMapLegend(opts);
-        $('#legend-content table tr:last').after(legend.toString());
-        $("#" + id + "-legend").show();
       } else {
         var div = '<div style="font-size: 15px">' + layer.name + '<span class="credit"> ('+ layer.credit +')</span></div>';
         var str = div + layer.legendContent;
@@ -567,11 +565,7 @@ CsvFileLayer.prototype.setLegend = function setLegend(id) {
           'str': str
         }
         var legend = new BubbleMapLegend(opts);
-        $('#legend-content table tr:last').after(legend.toString());
-        $("#" + id + "-legend").show();
-
       }
-
     } else if (layer.mapType == 'choropleth') { // Assume choropleth
       if (layer.legendContent == 'auto') {
         var radius = this.getRadius(layer);
@@ -587,10 +581,7 @@ CsvFileLayer.prototype.setLegend = function setLegend(id) {
         if (layer.legendKey) {
           opts.keys.push({'str': layer.legendKey});
         }
-
         var legend = new ChoroplethLegend(opts)
-        $('#legend-content table tr:last').after(legend.toString());
-        $("#" + id + "-legend").show();
       } else {
         var div = '<div style="font-size: 15px">' + layer.name + '<span class="credit"> ('+ layer.credit +')</span></div>';
         var str = div + layer.legendContent;
@@ -599,9 +590,6 @@ CsvFileLayer.prototype.setLegend = function setLegend(id) {
           'str': str
         }
         var legend = new ChoroplethLegend(opts);
-        $('#legend-content table tr:last').after(legend.toString());
-        $("#" + id + "-legend").show();
-
       }
     } else {
       var str = '';
@@ -617,10 +605,11 @@ CsvFileLayer.prototype.setLegend = function setLegend(id) {
         'str': str
       }
       var legend = new Legend(id, str);
-      $('#legend-content table tr:last').after(legend.toString());
-      if (layer.mapType != 'raster') {
-        $("#" + id + "-legend").show();
-      }
+    }
+    $('#legend-content table tr:last').after(legend.toString());
+    // activeEarthTimeLayers is a global data struct from index.html
+    if (layer.mapType != 'raster' && activeEarthTimeLayers.indexOf(id) >= 0) {
+      $("#" + id + "-legend").show();
     }
   }
 }
