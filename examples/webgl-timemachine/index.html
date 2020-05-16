@@ -2720,7 +2720,7 @@
         var $this = $(this);
         if ($this.prop('checked')) {
           hivLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-          if (visibleBaseMapLayer != "dark") {
+          if (visibleBaseMapLayer != "bdrk") {
             $("#bdrk-base").click();
           }
           showHivLayer = true;
@@ -3387,7 +3387,7 @@
           timelineType = "customUI";
           requestNewTimeline("irena-solar-times.json", timelineType);
           $("#irena-legend").show();
-          if (visibleBaseMapLayer != "dark") {
+          if (visibleBaseMapLayer != "bdrk") {
             $("#bdrk-base").click();
           }
         } else {
@@ -3410,7 +3410,7 @@
           timelineType = "customUI";
           requestNewTimeline("irena-wind-times.json", timelineType);
           $("#irena-legend").show();
-          if (visibleBaseMapLayer != "dark") {
+          if (visibleBaseMapLayer != "bdrk") {
             $("#bdrk-base").click();
           }
         } else {
@@ -3849,7 +3849,7 @@
           timelapse.setMasterPlaybackRate(.005);
           timelapse.setPlaybackRate(.00225);
           $("#sp-crude-legend_WAF").show();
-          if (visibleBaseMapLayer != "dark") {
+          if (visibleBaseMapLayer != "bdrk") {
             $("#bdrk-base").click();
           }
         } else {
@@ -3874,7 +3874,7 @@
           timelapse.setMasterPlaybackRate(.005);
           timelapse.setPlaybackRate(.00225);
           $("#sp-crude-legend_NAF").show();
-          if (visibleBaseMapLayer != "dark") {
+          if (visibleBaseMapLayer != "bdrk") {
             $("#bdrk-base").click();
           }
         } else {
@@ -3899,7 +3899,7 @@
           timelapse.setMasterPlaybackRate(.005);
           timelapse.setPlaybackRate(.00225);
           $("#sp-crude-legend_ME").show();
-          if (visibleBaseMapLayer != "dark") {
+          if (visibleBaseMapLayer != "bdrk") {
             $("#bdrk-base").click();
           }
         } else {
@@ -3924,7 +3924,7 @@
           timelapse.setMasterPlaybackRate(.005);
           timelapse.setPlaybackRate(.00225);
           $("#sp-crude-legend_US").show();
-          if (visibleBaseMapLayer != "dark") {
+          if (visibleBaseMapLayer != "bdrk") {
             $("#bdrk-base").click();
           }
         } else {
@@ -4744,7 +4744,7 @@
       } else {
         previousVisibleBaseMapLayer = visibleBaseMapLayer;
         timelineType = "customUI";
-        $("#layers-list #lsat-base").click();
+        $("#layers-list #blsat-base").click();
         if (activeLayersWithTimeline <= 0) {
           setActiveLayersWithTimeline(1);
         }
@@ -9464,9 +9464,9 @@
           options.currentC = Math.min(current, times[times.length - 1]);
           if (visibleBaseMapLayer == "blsat") {
             options.color = [0.1, 0.1, 0.1, 1.0];
-          } else if (visibleBaseMapLayer == "light") {
+          } else if (visibleBaseMapLayer == "blte") {
             options.color = [0.4921875, 0.7421875, 0.91015625, 1.0];
-          } else if (visibleBaseMapLayer == "dark") {
+          } else if (visibleBaseMapLayer == "bdrk") {
             options.color = [0.203125, 0.203125, 0.203125, 1.0];
           }
           // else if (showLightsAtNightLayer) {
