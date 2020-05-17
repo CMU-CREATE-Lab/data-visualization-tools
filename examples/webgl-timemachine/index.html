@@ -4570,21 +4570,20 @@
 
       $('#layers-menu').on('click', "input[type=checkbox], input[type=radio]", timelineUIHandler);
 
-      $("body").on("click", "#layers-list .ui-accordion-header", function() {
-        // 8px because of borders, paddings, etc
-        lastLayerMenuScrollPos = $(this)[0].offsetTop - $("#layers-list").offset().top + 8;
-        $('.layers-scroll-vertical').animate({
+      $("body").on("click", "#layers-list .ui-accordion-header, #layers-list-featured .ui-accordion-header", function() {
+        var $this = $(this);
+        if (!$this.hasClass("ui-state-active")) {
+          lastLayerMenuScrollPos = 0;
+          return;
+        }
+        var $topParentContainer = $this.parents("ul");
+        // -5px of borders, paddings, etc
+        lastLayerMenuScrollPos = this.offsetTop - $topParentContainer.offset().top + $("#layers-menu #search-content").outerHeight() - 5;
+        var $scrollContainer = $topParentContainer.children(".layers-scroll-vertical, .featured-layers-scroll-vertical");
+        $scrollContainer.animate({
           scrollTop: lastLayerMenuScrollPos
         });
-        $lastActiveLayerTopic = $(this).next();
-      });
-
-      $("body").on("click", "#layers-list-featured .ui-accordion-header", function() {
-        lastFeaturedLayerMenuScrollPos = $(this)[0].offsetTop - $("#layers-list-featured").position().top;
-        $('.featured-layers-scroll-vertical').animate({
-          scrollTop: lastFeaturedLayerMenuScrollPos
-        });
-        $lastActiveFeaturedLayerTopic = $(this).next();
+        $lastActiveLayerTopic = $this.next();
       });
 
       $(document).on("click touchmove", function(e) {
@@ -4592,7 +4591,14 @@
           $activeLayerDescriptionTooltip.tooltip("disable");
           $activeLayerDescriptionTooltip = null;
         }
-        if ((e.target).id == "menu-icon") return;
+        if ((e.target).id == "menu-icon" || $(e.target).hasClass("shrink-nav")) return;
+
+        if ($("#menu-icon").is(":visible")) {
+          $("#top-nav li.menu-option").hide();
+        }
+      });
+
+      $("#top-nav .menu-option").on("click", function() {
         if ($("#menu-icon").is(":visible")) {
           $("#top-nav li.menu-option").hide();
         }
@@ -4656,7 +4662,7 @@
 
       $("#featured-layers-title, #layers-list-featured").remove();
 
-      $("<div id='featured-layers-title'>Featured Data for: <br>" + featuredTheme + "</div><div id='layers-list-featured'><div class='featured-layers-scroll-vertical'><div id='featured-layers'></div></div><div id='show-more-layers'>Show More</div>").insertBefore($("#layers-list"));
+      $("<div id='featured-layers-title'>Featured Data for: <br>" + featuredTheme + "</div><ul id='layers-list-featured'><div class='featured-layers-scroll-vertical'><div id='featured-layers'></div></div><div id='show-more-layers'>Show More</div></ul>").insertBefore($("#layers-list"));
 
       var layerDefs = csvFileLayers.layersData.data;
       if (!layerDefs) return;
@@ -4707,6 +4713,7 @@
           }
           resizeLayersMenu();
           $(this).toggleClass("active");
+          lastLayerMenuScrollPos = 0;
         });
 
         $("#featured-layers").accordion({
@@ -7909,6 +7916,12 @@
         }
         resizeLayersMenu();
         $("#layer-search-box").focus();
+
+        var $scrollContainer = $("#layers-menu").find("ul > .layers-scroll-vertical, ul > .featured-layers-scroll-vertical");
+        $scrollContainer.animate({
+          scrollTop: lastLayerMenuScrollPos
+        }, 250);
+
       });
 
       $("#theme-menu").on("click", "[id^=story_]", function(e) {
