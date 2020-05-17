@@ -738,6 +738,20 @@
       return returnVal;
     }
 
+    var clearTimelineUIChangeListeners = function() {
+      for (var i = timelineUIChangeListeners.length - 1; i >= 0; i--) {
+        var entry = timelineUIChangeListeners[i];
+        if (entry.type == "interval") {
+          clearInterval(entry.fn);
+        } else if (entry.type == "timeout") {
+          clearTimeout(entry.fn);
+        } else if (entry.type == "uiChangeListener") {
+          timelapse.removeTimelineUIChangeListener(entry.fn);
+        }
+        timelineUIChangeListeners.splice(i, 1);
+      }
+    };
+
     var autoModeExtrasViewChangeHandler = function() {
       timelapse.removeParabolicMotionStoppedListener(autoModeExtrasViewChangeHandler);
       if (snaplapseViewerForPresentationSlider && snaplapseViewerForPresentationSlider.isAutoModeRunning()) {
@@ -4943,6 +4957,7 @@
     var csvlayersLoadedPath;
     var waypointJSONListReadyInterval;
     var waitToLoadWaypointLayersOnPageReadyInterval;
+    var timelineUIChangeListeners = [];
 
     function getLayer(id) {
       if (id in csvFileLayers.layerById) {
@@ -5289,7 +5304,7 @@
             var storyTitle = stories[storyId].storyTitle;
             var storyEnabled = isStaging || usingCustomWaypoints ? "true" : stories[storyId].enabled;
             theme_html += "<tr data-enabled='" + storyEnabled + "' id='story_" + storyId + "'>";
-            var thumbnailURL = timelapse.getThumbnailOfView(stories[storyId].mainShareView, 128, 74) || "http://placehold.it/128x74";
+            var thumbnailURL = timelapse.getThumbnailOfView(stories[storyId].mainShareView, 128, 74, false) || "http://placehold.it/128x74";
             theme_html += "<td width='50%'><div style='width: 128px; height: 74px; overflow:hidden; border: 1px solid #232323'><img src='" + thumbnailURL + "'/></div></td>";
             theme_html += "<td width='10%'><input type='radio'></td>";
             theme_html += "<td width='40%' style='word-break: break-word;padding-right: 10px;'>" + storyTitle + "</td>";
@@ -7317,22 +7332,30 @@
 
           timelapse.removeParabolicMotionStoppedListener(parabolicMotionStoppedListener);
 
-          var waypointTimelineUIChangeListener = function() {
-            // If we are moving, then this means the timeline UI changed before we made it to the final view.
+          var waypointTimelineUIChangeListener = function(info) {
+            clearTimelineUIChangeListeners();
+            // If we are moving and reach this point, then this means the timeline UI changed before we made it to the final view.
             // The callback of timelapse.setNewView will handle setting the correct time for us, so no need to do anything.
-            // The need for this code is just if the waypoint is in place before the correct timeline is up.
-            if (!timelapse.isMovingToWaypoint()) {
+            // However, if we reach this point and we are not moving, this means that the UI changed after the final view,
+            // so we need to set the correct time.
+            // If we are holding SHIFT or "pinning the butterfly" then use the previous time we came from and not the waypoint's time.
+            if (keysDown.indexOf(16) >= 0 || timelapse.getCurrentTouchCount()) {
+              var seekTime = timelapse.playbackTimeFromShareDate(info.captureTimeBeforeTimelineChange);
+              timelapse.seek(seekTime);
+            } else if (!timelapse.isMovingToWaypoint()) {
               var currentWaypoint = snaplapseForPresentationSlider.getKeyframes()[lastSelectedWaypointIndex];
               var seekTime = timelapse.playbackTimeFromShareDate(currentWaypoint.beginTime);
               timelapse.seek(seekTime);
             }
-            timelapse.removeTimelineUIChangeListener(waypointTimelineUIChangeListener);
           };
+          clearTimelineUIChangeListeners();
           timelapse.addTimelineUIChangeListener(waypointTimelineUIChangeListener);
           // In the event a sharelink layer does not have a timeline change, be sure the above listener is removed.
-          setTimeout(function() {
+          var waypointTimelineUIChangeListenerWatchDog = setTimeout(function() {
             timelapse.removeTimelineUIChangeListener(waypointTimelineUIChangeListener);
-          }, 500);
+          }, 1000);
+          timelineUIChangeListeners.push({"type" : "timeout", "fn" : waypointTimelineUIChangeListenerWatchDog});
+          timelineUIChangeListeners.push({"type" : "uiChangeListener", "fn" : waypointTimelineUIChangeListener});
         });
 
         snaplapseViewerForPresentationSlider.addEventListener('slide-changed', function(waypoint) {
@@ -7623,17 +7646,21 @@
           // Note that this may be unncessary because of the callback for CSV layers, but it's possible not to have CSV layers
           // and CSV layers are async (and could be loaded very fast) so we keep this in.
           var onloadView = function() {
+            clearTimelineUIChangeListeners();
             timelapse.removeTimelineUIChangeListener(onloadView);
             timelapse.loadSharedViewFromUnsafeURL(UTIL.getUnsafeHashString());
             var shareDate = vals.bt || vals.t;
             var timeToSeek = timelapse.playbackTimeFromShareDate(shareDate);
             timelapse.seekToFrame(timelapse.timeToFrameNumber(timeToSeek));
           };
+          clearTimelineUIChangeListeners();
           timelapse.addTimelineUIChangeListener(onloadView);
           // In the event a sharelink layer does not have a timeline change, be sure the above listener is removed.
-          setTimeout(function() {
+          var onloadViewWatchDog = setTimeout(function() {
             timelapse.removeTimelineUIChangeListener(onloadView);
-          }, 500);
+          }, 1000);
+          timelineUIChangeListeners.push({"type" : "timeout", "fn" : onloadViewWatchDog});
+          timelineUIChangeListeners.push({"type" : "uiChangeListener", "fn" : onloadView});
         }
 
         if (timelapse.isPresentationSliderEnabled()) {
