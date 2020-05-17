@@ -186,6 +186,7 @@
       var ct = timelapse.getCaptureTimeByFrameNumber(n);
       start_frame_number = n;
       $start_time.val(ct);
+      $start_time.data("frameNumber", n);
 
       // Sanity check, start_frame_number should <= end_frame_number
       if (typeof end_frame_number !== "undefined" && n > end_frame_number) {
@@ -200,6 +201,7 @@
       var ct = timelapse.getCaptureTimeByFrameNumber(n);
       end_frame_number = n;
       $end_time.val(ct);
+      $end_time.data("frameNumber", n);
 
       // Sanity check, end_frame_number should >= start_frame_number
       if (typeof start_frame_number !== "undefined" && n < start_frame_number) {
@@ -209,31 +211,15 @@
     }
 
     // Parse the capture time string to the format for the thumbnail server
-    function parseCaptureTime(capture_time, flag) {
-      var parsed_capture_time;
-      var isNumber = !isNaN(capture_time);
-      if (!(isNumber && capture_time - 0 < 1000)) {
-        var default_month = (flag == "end") ? 12 : 1;
-        var default_day = (flag == "end") ? 31 : 1;
-        var split = capture_time.replace("UTC", "").replace(/[ T:]/g, "-").replace(".00Z", "").split("-");
-        var Y = parseInt(split[0]);
-        var M = parseInt(split[1]) || default_month;
-        var D = parseInt(split[2]) || default_day;
-        var h = parseInt(split[3]) || 0;
-        var m = parseInt(split[4]) || 0;
-        var s = parseInt(split[5]) || 0;
-        var len = (h == 0 && m == 0 && s == 0) ? 10 : 19;
-        parsed_capture_time = new Date(Date.UTC(Y, (M - 1), D, h, m, s)).toISOString().substr(0, len).replace(/[-T:]/g, "");
-      } else {
-        parsed_capture_time = timelapse.frameNumberToTime(timelapse.getCaptureTimes().indexOf(capture_time));
-      }
-      return parsed_capture_time;
+    function parseCaptureTime(frameNumber, flag) {
+      var isStart = flag == "start";
+      return timelapse.shareDateFromFrame(frameNumber, isStart);
     }
 
     // Collect the parameters from the user interface
     function collectParameters(desired_bound, desired_width, desired_height) {
       // Start time
-      var start_time = parseCaptureTime($start_time.val(), "start");
+      var start_time = parseCaptureTime($start_time.data("frameNumber"), "start");
       // Start Time in playback time
       var start_time_in_playback_time = timelapse.playbackTimeFromShareDate(start_time);
       // Layers
@@ -263,8 +249,7 @@
       }
 
       // End time
-      var end_time = parseCaptureTime($end_time.val(), "end");
-
+      var end_time = parseCaptureTime($end_time.data("frameNumber"), "end");
       // Playback speed
       var speed = $this.find("input:radio[name='set-view-tool-speed-input']:checked").val();
       var speed = parseFloat(speed) * 100;
@@ -400,7 +385,9 @@
         setViewType(args_landscape["format"] == "mp4" ? "video" : "image");
         setPlaybackSpeed(parseFloat(args_landscape["ps"]) / 100);
         $start_time.val(timelapse.getCaptureTimeByTime(start_playback_time));
+        $start_time.data("frameNumber", timelapse.timeToFrameNumber(start_playback_time));
         $end_time.val(timelapse.getCaptureTimeByTime(end_playback_time));
+        $end_time.data("frameNumber", timelapse.timeToFrameNumber(end_playback_time));
         $delay_start.val(args_landscape["startDwell"]);
         $delay_end.val(args_landscape["endDwell"]);
         if (!$.isEmptyObject(args_landscape["bound"])) bound["landscape"] = args_landscape["bound"];
