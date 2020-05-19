@@ -218,7 +218,7 @@
     //var showGtd = !!EARTH_TIMELAPSE_CONFIG.showGtd;
     //var showHiv = !!EARTH_TIMELAPSE_CONFIG.showHiv;
     //var showObesity = !!EARTH_TIMELAPSE_CONFIG.showObesity;
-    var showVaccineConfidence = !!EARTH_TIMELAPSE_CONFIG.showVaccineConfidence;
+    //var showVaccineConfidence = !!EARTH_TIMELAPSE_CONFIG.showVaccineConfidence;
     //var showNdviAnomaly = !!EARTH_TIMELAPSE_CONFIG.showNdviAnomaly;
     //var showEbola = !!EARTH_TIMELAPSE_CONFIG.showEbola;
     // var showWaterOccurrence = !!EARTH_TIMELAPSE_CONFIG.showWaterOccurrence;
@@ -440,7 +440,7 @@
     //var gtdLayer;
     //var hivLayer;
     //var obesityLayer;
-    var vaccineConfidenceLayer;
+    //var vaccineConfidenceLayer;
     //var ebolaDeathsLayer;
     //var ebolaCasesLayer;
     //var ebolaNewCasesLayer;
@@ -994,7 +994,7 @@
     //var gtdUrl = rootTilePath + "/gtd/{z}/{x}/{y}.bin";
     //var hivUrl = rootTilePath + "/hiv/{z}/{x}/{y}.bin";
     //var obesityUrl = rootTilePath + "/obesity/{z}/{x}/{y}.geojson";
-    var vaccineConfidenceUrl = rootTilePath + "/vaccine-confidence/{z}/{x}/{y}.geojson";
+    //var vaccineConfidenceUrl = rootTilePath + "/vaccine-confidence/{z}/{x}/{y}.geojson";
     //var ebolaDeathsUrl = rootTilePath + "/ebola/deaths/{z}/{x}/{y}.bin";
     //var ebolaCasesUrl = rootTilePath + "/ebola/cases/{z}/{x}/{y}.bin";
     //var ebolaNewCasesUrl = rootTilePath + "/ebola/new-cases/{z}/{x}/{y}.bin";
@@ -2768,6 +2768,7 @@
       }).prop('checked', showObesityLayer);
       */
 
+      /*
       $("#show-vaccine-confidence-q1").on("click", function() {
         var $this = $(this);
         if ($this.prop('checked')) {
@@ -2887,7 +2888,7 @@
           $("#vaccine-confidence-q4-legend").hide();
         }
       }).prop('checked', showVaccineConfidenceLayer);
-
+      */
       /*
       $("#show-ebola-deaths").on("click", function() {
         var $this = $(this);
@@ -4826,7 +4827,7 @@
     //var showUppsalaConflictLayer = false;
     //var showHivLayer = false;
     //var showObesityLayer = false;
-    var showVaccineConfidenceLayer = false;
+    //var showVaccineConfidenceLayer = false;
     //var showEbolaDeathsLayer = false;
     //var showEbolaCasesLayer = false;
     //var showEbolaNewCasesLayer = false;
@@ -5393,10 +5394,12 @@
       //var show_uppsala_conflict = '<td class="uppsala-conflict-select"><label for="show-uppsala-conflict" name="uppsala-conflict"><input type="checkbox" id="show-uppsala-conflict" />Organized Violence Fatalities</label></td>';
       //var show_hiv = '<td class="hiv-select"><label for="show-hiv" name="hiv"><input type="checkbox" id="show-hiv" />HIV Infections</label></td>';
       //var show_obesity = '<td class="obesity-select"><label for="show-obesity" name="obesity"><input type="checkbox" id="show-obesity" />Obesity</label></td>';
+      /*
       var show_vaccine_confidence_q1 = '<td class="vaccine-confidence-q1-select"><label for="show-vaccine-confidence-q1" name="vc1"><input type="checkbox" id="show-vaccine-confidence-q1" />Vaccines & Children</label></td>';
       var show_vaccine_confidence_q2 = '<td class="vaccine-confidence-q2-select"><label for="show-vaccine-confidence-q2" name="vc2"><input type="checkbox" id="show-vaccine-confidence-q2" />Vaccine Safety</label></td>';
       var show_vaccine_confidence_q3 = '<td class="vaccine-confidence-q3-select"><label for="show-vaccine-confidence-q3" name="vc3"><input type="checkbox" id="show-vaccine-confidence-q3" />Vaccine Effectiveness</label></td>';
       var show_vaccine_confidence_q4 = '<td class="vaccine-confidence-q4-select"><label for="show-vaccine-confidence-q4" name="vc4"><input type="checkbox" id="show-vaccine-confidence-q4" />Vaccines & Religion</label></td>';
+      */
       //var show_ndvi_anomaly = '<td class="ndvi-anomaly-select"><label for="show-ndvi-anomaly" name="ndvia"><input type="checkbox" id="show-ndvi-anomaly" />Vegetation Index Reduction</label></td>';
       //var show_ebola_deaths = '<td class="ebola-deaths-select"><label for="show-ebola-deaths" name="ed"><input type="checkbox" id="show-ebola-deaths" />Ebola Deaths</label></td>';
       //var show_ebola_cases = '<td class="ebola-cases-select"><label for="show-ebola-cases" name="ec"><input type="checkbox" id="show-ebola-cases" />Ebola Cases</label></td>';
@@ -5810,8 +5813,8 @@
       /* END REFUGEE CATEGORY */
 
       /* PANDEMICS CATEGORY */
-      layer_html += '  <h3>Pandemics</h3>';
-      layer_html += '  <table id="category-pandemics">';
+      //layer_html += '  <h3>Pandemics</h3>';
+      //layer_html += '  <table id="category-pandemics">';
       /*
       if (showZika) {
         layer_html += '    <tr>';
@@ -5864,6 +5867,7 @@
         layer_html += '    </tr>';
       }
       */
+      /*
       if (showVaccineConfidence) {
         layer_html += '    <tr>';
         layer_html += show_vaccine_confidence_q1;
@@ -5878,7 +5882,8 @@
         layer_html += show_vaccine_confidence_q4;
         layer_html += '    </tr>';
       }
-      layer_html += '  </table>';
+      */
+      //layer_html += '  </table>';
       /* END PANDEMICS CATEGORY */
 
       /* URBANIZATION CATEGORY */
@@ -6110,10 +6115,10 @@
       //legend_html += '<tr id="uppsala-conflict-legend" style="display: none"><td><div style="float:left; background-color:red; width:17px; height: 5px;"></div><div style="margin-left: 29px; margin-top: -5px; font-size: 17px">Organized Violence Fatalities<span class="credit"> (UCDP)</span></div></td></tr>';
       //legend_html += '<tr id="hiv-legend" style="display: none"><td><div style="font-size: 17px">Annual new HIV infections <span class="credit"> (LSHTM)</span></div></div><svg class="svg-legend" width="200" height="29"><rect fill="#ffffff" x="0" height="9" width="20.0"></rect><rect fill="#ffd8e7" x="20." height="9" width="20.0"></rect><rect fill="#feb1d1" x="40." height="9" width="20.0"></rect><rect fill="#f18bbd" x="60." height="9" width="20.0"></rect><rect fill="#dd68ac" x="80." height="9" width="20.0"></rect><rect fill="#c4479e" x="100." height="9" width="20.0"></rect><rect fill="#a52792" x="120." height="9" width="20.0"></rect><rect fill="#7d0989" x="140." height="9" width="20.0"></rect><rect fill="#4b0082" x="160." height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">1K</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="35">10K</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="80">100K</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="155">850K</text></svg></td></tr>';
       //legend_html += '<tr id="obesity-legend" style="display: none"><td><div style="font-size: 17px">Obesity prevalence among adults <span class="credit"> (LSHTM)</span></div><svg class="svg-legend" width="200" height="29"> <rect fill="#ffffff" x="0" height="9" width="20"></rect><rect fill="#fff18e" x="20" height="9" width="20"></rect><rect fill="#ffdc5b" x="40" height="9" width="20"></rect><rect fill="#ffc539" x="60" height="9" width="20"></rect><rect fill="#ffad21" x="80" height="9" width="20"></rect><rect fill="#ff920c" x="100" height="9" width="20"></rect><rect fill="#ff7500" x="120" height="9" width="20"></rect><rect fill="#ff5000" x="140" height="9" width="20"></rect><rect fill="#ff0000" x="160" height="9" width="20"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">0%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="80">15%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="160">>30%</text></svg></td></tr>';
-      legend_html += '<tr id="vaccine-confidence-q1-legend" style="display: none"><td><div style="font-size: 13px">Disagree that vaccines are important for children to have <span class="credit"> (LSHTM)</span></div><svg class="svg-legend" width="200" height="29"><rect fill="#ffffe0" x="0" height="9" width="20.0"></rect><rect fill="#ffe3af" x="20" height="9" width="20.0"></rect><rect fill="#ffc58a" x="40" height="9" width="20.0"></rect><rect fill="#ffa474" x="60" height="9" width="20.0"></rect><rect fill="#fa8266" x="80" height="9" width="20.0"></rect><rect fill="#ed645c" x="100" height="9" width="20.0"></rect><rect fill="#db4551" x="120" height="9" width="20.0"></rect><rect fill="#c52940" x="140" height="9" width="20.0"></rect><rect fill="#aa0e27" x="160" height="9" width="20.0"></rect><rect fill="#8b0000" x="180" height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">0%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="90">8%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="180">16%</text></svg></td></tr>';
-      legend_html += '<tr id="vaccine-confidence-q2-legend" style="display: none"><td><div style="font-size: 13px">Disagree that vaccines are safe <span class="credit"> (LSHTM)</span></div><svg class="svg-legend" width="200" height="29"><rect fill="#ffffe0" x="0" height="9" width="20.0"></rect><rect fill="#ffe3af" x="20" height="9" width="20.0"></rect><rect fill="#ffc58a" x="40" height="9" width="20.0"></rect><rect fill="#ffa474" x="60" height="9" width="20.0"></rect><rect fill="#fa8266" x="80" height="9" width="20.0"></rect><rect fill="#ed645c" x="100" height="9" width="20.0"></rect><rect fill="#db4551" x="120" height="9" width="20.0"></rect><rect fill="#c52940" x="140" height="9" width="20.0"></rect><rect fill="#aa0e27" x="160" height="9" width="20.0"></rect><rect fill="#8b0000" x="180" height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">0%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="90">20%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="180">41%</text></svg></td></tr>';
-      legend_html += '<tr id="vaccine-confidence-q3-legend" style="display: none"><td><div style="font-size: 13px">Disagree that vaccines are effective <span class="credit"> (LSHTM)</span></div><svg class="svg-legend" width="200" height="29"><rect fill="#ffffe0" x="0" height="9" width="20.0"></rect><rect fill="#ffe3af" x="20" height="9" width="20.0"></rect><rect fill="#ffc58a" x="40" height="9" width="20.0"></rect><rect fill="#ffa474" x="60" height="9" width="20.0"></rect><rect fill="#fa8266" x="80" height="9" width="20.0"></rect><rect fill="#ed645c" x="100" height="9" width="20.0"></rect><rect fill="#db4551" x="120" height="9" width="20.0"></rect><rect fill="#c52940" x="140" height="9" width="20.0"></rect><rect fill="#aa0e27" x="160" height="9" width="20.0"></rect><rect fill="#8b0000" x="180" height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">0%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="90">13%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="180">26%</text></svg></td></tr>';
-      legend_html += '<tr id="vaccine-confidence-q4-legend" style="display: none"><td><div style="font-size: 13px">Disagree that vaccines are compatible with my religious beliefs <span class="credit"> (LSHTM)</span></div><svg class="svg-legend" width="200" height="29"><rect fill="#ffffe0" x="0" height="9" width="20.0"></rect><rect fill="#ffe3af" x="20" height="9" width="20.0"></rect><rect fill="#ffc58a" x="40" height="9" width="20.0"></rect><rect fill="#ffa474" x="60" height="9" width="20.0"></rect><rect fill="#fa8266" x="80" height="9" width="20.0"></rect><rect fill="#ed645c" x="100" height="9" width="20.0"></rect><rect fill="#db4551" x="120" height="9" width="20.0"></rect><rect fill="#c52940" x="140" height="9" width="20.0"></rect><rect fill="#aa0e27" x="160" height="9" width="20.0"></rect><rect fill="#8b0000" x="180" height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">0%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="90">23%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="180">47%</text></svg></td></tr>';
+      //legend_html += '<tr id="vaccine-confidence-q1-legend" style="display: none"><td><div style="font-size: 13px">Disagree that vaccines are important for children to have <span class="credit"> (LSHTM)</span></div><svg class="svg-legend" width="200" height="29"><rect fill="#ffffe0" x="0" height="9" width="20.0"></rect><rect fill="#ffe3af" x="20" height="9" width="20.0"></rect><rect fill="#ffc58a" x="40" height="9" width="20.0"></rect><rect fill="#ffa474" x="60" height="9" width="20.0"></rect><rect fill="#fa8266" x="80" height="9" width="20.0"></rect><rect fill="#ed645c" x="100" height="9" width="20.0"></rect><rect fill="#db4551" x="120" height="9" width="20.0"></rect><rect fill="#c52940" x="140" height="9" width="20.0"></rect><rect fill="#aa0e27" x="160" height="9" width="20.0"></rect><rect fill="#8b0000" x="180" height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">0%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="90">8%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="180">16%</text></svg></td></tr>';
+      //legend_html += '<tr id="vaccine-confidence-q2-legend" style="display: none"><td><div style="font-size: 13px">Disagree that vaccines are safe <span class="credit"> (LSHTM)</span></div><svg class="svg-legend" width="200" height="29"><rect fill="#ffffe0" x="0" height="9" width="20.0"></rect><rect fill="#ffe3af" x="20" height="9" width="20.0"></rect><rect fill="#ffc58a" x="40" height="9" width="20.0"></rect><rect fill="#ffa474" x="60" height="9" width="20.0"></rect><rect fill="#fa8266" x="80" height="9" width="20.0"></rect><rect fill="#ed645c" x="100" height="9" width="20.0"></rect><rect fill="#db4551" x="120" height="9" width="20.0"></rect><rect fill="#c52940" x="140" height="9" width="20.0"></rect><rect fill="#aa0e27" x="160" height="9" width="20.0"></rect><rect fill="#8b0000" x="180" height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">0%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="90">20%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="180">41%</text></svg></td></tr>';
+      //legend_html += '<tr id="vaccine-confidence-q3-legend" style="display: none"><td><div style="font-size: 13px">Disagree that vaccines are effective <span class="credit"> (LSHTM)</span></div><svg class="svg-legend" width="200" height="29"><rect fill="#ffffe0" x="0" height="9" width="20.0"></rect><rect fill="#ffe3af" x="20" height="9" width="20.0"></rect><rect fill="#ffc58a" x="40" height="9" width="20.0"></rect><rect fill="#ffa474" x="60" height="9" width="20.0"></rect><rect fill="#fa8266" x="80" height="9" width="20.0"></rect><rect fill="#ed645c" x="100" height="9" width="20.0"></rect><rect fill="#db4551" x="120" height="9" width="20.0"></rect><rect fill="#c52940" x="140" height="9" width="20.0"></rect><rect fill="#aa0e27" x="160" height="9" width="20.0"></rect><rect fill="#8b0000" x="180" height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">0%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="90">13%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="180">26%</text></svg></td></tr>';
+      //legend_html += '<tr id="vaccine-confidence-q4-legend" style="display: none"><td><div style="font-size: 13px">Disagree that vaccines are compatible with my religious beliefs <span class="credit"> (LSHTM)</span></div><svg class="svg-legend" width="200" height="29"><rect fill="#ffffe0" x="0" height="9" width="20.0"></rect><rect fill="#ffe3af" x="20" height="9" width="20.0"></rect><rect fill="#ffc58a" x="40" height="9" width="20.0"></rect><rect fill="#ffa474" x="60" height="9" width="20.0"></rect><rect fill="#fa8266" x="80" height="9" width="20.0"></rect><rect fill="#ed645c" x="100" height="9" width="20.0"></rect><rect fill="#db4551" x="120" height="9" width="20.0"></rect><rect fill="#c52940" x="140" height="9" width="20.0"></rect><rect fill="#aa0e27" x="160" height="9" width="20.0"></rect><rect fill="#8b0000" x="180" height="9" width="20.0"></rect><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="0">0%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="90">23%</text><text font-size="10.5px" fill="rgba(0, 0, 0, 0.8)" y="29" x="180">47%</text></svg></td></tr>';
       //legend_html += '<tr id="ndvi-anomaly-legend" style="display: none"><td><div style="font-size: 17px">Vegetation Reduction <span class="credit"> (USGS)</span></div><div style="margin-left: 8px"><div class="ndviAnomalyLegendGradient" style="clear: both;"></div><div style="font-size: 13px; float: left">Gain</div><div style="font-size: 13px; float: right">Loss</div></div></td></tr>';
       //legend_html += '<tr id="ebola-deaths-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Ebola Deaths <span class="credit"> (LSHTM)</span></div></td></tr>';
       //legend_html += '<tr id="ebola-cases-legend" style="display: none"><td><div style="background-color:#ff8d74; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Ebola Cases <span class="credit"> (LSHTM)</span></div></td></tr>';
@@ -6837,6 +6842,7 @@
       obesityLayer = new WebglVectorLayer2(glb, canvasLayer, obesityUrl, obesityLayerOptions);
       */
 
+      /*
       var vaccineConfidenceLayerOptions = {
         tileWidth: 256,
         tileHeight: 256,
@@ -6849,6 +6855,7 @@
         imageSrc: "vaccine-confidence-color-map.png"
       };
       vaccineConfidenceLayer = new WebglVectorLayer2(glb, canvasLayer, vaccineConfidenceUrl, vaccineConfidenceLayerOptions);
+      */
 
       /*
       var ebolaLayerOptions = {
@@ -9570,6 +9577,7 @@
           obesityLayer.draw(obesityLayerView, options);
         }
         */
+        /*
         if (showVaccineConfidenceLayer) {
           var vaccineConfidenceLayerView = getLayerView(vaccineConfidenceLayer, landsatBaseMapLayer);
           var options = {};
@@ -9588,6 +9596,7 @@
           vaccineConfidenceLayer.draw(vaccineConfidenceLayerView, options);
 
         }
+        */
         /*
         if (showEbolaDeathsLayer) {
           var ebolaLayerView = getLayerView(ebolaDeathsLayer, landsatBaseMapLayer);
