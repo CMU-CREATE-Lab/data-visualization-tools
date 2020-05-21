@@ -3783,6 +3783,172 @@ WebGLVectorTile2.prototype._drawLineString = function(transform, options) {
   }
 }
 
+WebGLVectorTile2.prototype._drawLineStringEpoch = function(transform, options) {
+  var gl = this.gl;
+  if (typeof this.buffers == "undefined") {
+    this.buffers = {};
+  }
+
+  var that = this;  
+  if (typeof this.worker == "undefined") {
+    this.worker = new Worker('data-worker.js');
+    this.worker.onmessage = function(e) {
+      var key = e.data['key'];
+      var array = new Float32Array(e.data['array']);
+      that.buffers[key] = {
+        "numAttributes": that.numAttributes,
+        "pointCount": array.length/that.numAttributes,
+        "buffer": gl.createBuffer(),
+        "ready": false       
+      };
+      gl.bindBuffer(gl.ARRAY_BUFFER, that.buffers[key]["buffer"]);
+      gl.bufferData(gl.ARRAY_BUFFER, array, gl.STATIC_DRAW);
+      that.buffers[key]["ready"] = true;
+    }
+  }
+
+
+  // TODO: Set via options
+  var minkey = '20200101';
+  var maxkey = '20200430';
+
+  var yesterday = new Date(options.currentTime);
+  yesterday.setDate(yesterday.getDate() - 1);  
+
+  var tomorrow = new Date(options.currentTime);
+  tomorrow.setDate(tomorrow.getDate() + 1);  
+
+  var tomorrows = [];
+  for (var i = 2; i < 8; i++) {
+    var tomorrow = new Date(options.currentTime);
+    tomorrow.setDate(tomorrow.getDate() + i);
+    tomorrows.push(tomorrow);
+  }
+  // TODO: Pass this in via draw options
+  var keyFn = function(currentTime) {
+    var yyyy = currentTime.getUTCFullYear();
+    var month = currentTime.getUTCMonth() + 1;
+    var mm = month.toString();
+    if (month < 10) {
+      mm = '0' + mm;
+    }
+    var date = currentTime.getUTCDate();
+    var dd = date.toString();
+    if (date < 10) {
+      dd = '0' + dd;
+    }
+    return yyyy + mm + dd;
+  }
+
+  var keys = [];
+  var todayKey = keyFn(options.currentTime);
+  var yesterdayKey = keyFn(yesterday)  
+  var tomorrowKey = keyFn(tomorrow);
+  if (todayKey >= minkey && todayKey <= maxkey) {
+    keys.push(todayKey);
+  }
+  if (yesterdayKey >= minkey && yesterdayKey <= maxkey) {
+    keys.push(yesterdayKey);
+  }
+  if (tomorrowKey >= minkey && tomorrowKey <= maxkey) {
+    keys.push(tomorrowKey);
+  }
+  // TODO: Set via draw options 
+  let regexp = 'yyyymmdd';
+  let url_tmpl = 'https://tiles.earthtime.org/opensky_network_org/yyyymmdd.bin';
+
+  for (var i = 0; i < keys.length; i++) {
+    var key = keys[i];
+    if (typeof this.buffers[key] == "undefined") {
+      this.buffers[key] = {
+        "numAttributes": this.numAttributes,
+        "pointCount": 8,
+        "buffer":null,
+        "ready": false        
+      };
+
+      var message = {
+        'regexp': regexp,
+        'url_tmpl': url_tmpl,
+        'key': key
+      }
+      this.worker.postMessage(message);
+    }
+  }
+
+
+  for (var i = 0; i < tomorrows.length; i++) {
+    var key = keyFn(tomorrows[i]);
+    if (typeof this.buffers[key] == "undefined") {
+      this.buffers[key] = {
+        "numAttributes": this.numAttributes,
+        "pointCount": 8,
+        "buffer":null,
+        "ready": false        
+      };
+
+      var message = {
+        'regexp': regexp,
+        'url_tmpl': url_tmpl,
+        'key': key
+      }
+      this.worker.postMessage(message);
+    }
+  }
+
+  //console.log(this.buffers);
+  for (var i = 0; i < keys.length; i++) {
+    var key = keys[i];
+    if (this.buffers[key]["ready"]) {
+      var dfactor = options.dfactor || gl.ONE;
+      if (dfactor == "ONE_MINUS_SRC_ALPHA") {
+        dfactor = gl.ONE_MINUS_SRC_ALPHA;
+      }
+
+      gl.useProgram(this.program);
+      gl.enable(gl.BLEND);
+      gl.blendFunc( gl.SRC_ALPHA, dfactor );
+
+      var tileTransform = new Float32Array(transform);
+      var zoom = options.zoom;
+      var currentTime = options.currentTime/1000.;
+      var color = options.color || [1.0, 0.0, 0.0, 1.0];
+      if (color.length == 3) {
+        color.push(1.0);
+      }
+
+      scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
+      scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+
+      var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
+      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+
+      var colorLoc = gl.getUniformLocation(this.program, 'u_color');
+      gl.uniform4fv(colorLoc, color);
+
+      var colorLoc = gl.getUniformLocation(this.program, 'u_epoch');
+      gl.uniform1f(colorLoc, currentTime);
+
+      var foo = gl.getUniformLocation(this.program, 'u_span');
+      var span = 60*60*24*1;
+      gl.uniform1f(foo, span);
+
+      //gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers[key]["buffer"])
+      var attributeLoc = gl.getAttribLocation(this.program, 'a_coord');
+      gl.enableVertexAttribArray(attributeLoc);
+      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 12, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+
+      var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch');
+      gl.enableVertexAttribArray(attributeLoc);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 12, 8); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+
+      gl.drawArrays(gl.LINES, 0, this.buffers[key]["pointCount"]);
+      perf_draw_points(this._pointCount);
+      gl.disable(gl.BLEND);
+    }
+  }
+}
 
 WebGLVectorTile2.prototype._drawExpandedLineString = function(transform, options) {
   var gl = this.gl;
@@ -6232,6 +6398,39 @@ WebGLVectorTile2.lineStringFragmentShader =
 'void main() {\n' +
 '  gl_FragColor = u_color;\n' +
 '}\n';
+
+WebGLVectorTile2.lineStringEpochVertexShader =
+'attribute vec2 a_coord;\n' +
+'attribute float a_epoch;\n' +
+'uniform float u_epoch;\n' +
+'uniform float u_span;\n' +
+'uniform mat4 u_map_matrix;\n' +
+'varying float v_t;\n' + 
+'float linearEasing(float t) {\n' +
+'    //return t;\n' + 
+'    return 1.0;\n' + 
+'}\n' +
+'void main() {\n' +
+'    vec4 position;\n' +
+'    if (a_epoch + u_span <= u_epoch || a_epoch > u_epoch) {\n' +
+'        position = vec4(-1.,-1.,-1.,-1.);\n' +
+'    } else {\n' +
+'        position = u_map_matrix * vec4(a_coord, 0.0, 1.0);\n' +
+'        float t = (u_epoch - a_epoch)/((a_epoch + u_span) - a_epoch);\n' +
+'        v_t = linearEasing(t);\n' +
+'    }\n' +
+'    gl_Position = position;\n' +
+
+'}';
+
+WebGLVectorTile2.lineStringEpochFragmentShader =
+'precision mediump float;\n' +
+'uniform vec4 u_color;\n' +
+'varying float v_t;\n' + 
+'void main() {\n' +
+'  gl_FragColor = vec4(u_color.rgb, u_color.a * v_t);\n' +
+'}\n';
+
 
 WebGLVectorTile2.expandedLineStringVertexShader =
 'attribute vec2 a_coord;\n' +
