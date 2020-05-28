@@ -100,7 +100,8 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
     layerDef: layerDef
   };
 
-  layerOptions.layerId = layerDef["Share link identifier"].replace(/\W+/g, '_');
+  layerOptions.layerId = layerDef["Share link identifier"].replace(/([^\w-])+/g, '_');
+
   layerOptions.category = layerDef["Category"];
 
   layerOptions.customSliderInfo = {};
