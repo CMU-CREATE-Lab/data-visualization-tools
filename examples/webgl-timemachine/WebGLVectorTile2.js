@@ -3322,7 +3322,8 @@ WebGLVectorTile2.prototype._drawTimeSeriesPointData = function(transform, option
     scaleMatrix(tileTransform, Math.pow(2,this._tileidx.l)/256., Math.pow(2,this._tileidx.l)/256.);
     scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-    var year = options.year;
+    var currentTime = options.currentTime;
+    var year = currentTime.getUTCFullYear();
     var maxValue = options.maxValue || 100.0;
 
     var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
