@@ -3010,10 +3010,37 @@ WebGLVectorTile2.prototype._drawHealthImpact = function(transform, options) {
     var matrixLoc = gl.getUniformLocation(this.program, 'u_MapMatrix');
     gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
 
-    var year = options.year;
-    var delta = options.delta;
+    var year = options.currentTime.getUTCFullYear();
     var showRcp = options.showRcp;
 
+    // compute delta;
+    var years = options.years;
+    if (year > years[years.length - 1]) {
+      year = years[years.length - 1];
+    }
+
+    if (year < years[0]) {
+      year = years[0];
+    }
+
+    var delta = 1.0;
+    var minYear;
+    var maxYear;
+    for (var i = 0; i < years.length; i++) {
+      if (year >= years[i]) {
+        minYear = years[i];
+        if (i == years.length - 1) {
+          maxYear = years[i];
+        } else {
+          maxYear = years[i+1];
+        }
+      }
+    }
+    if (maxYear != minYear) {
+      delta = (year - minYear) / (maxYear - minYear);
+    }
+    var year = minYear;
+    
     var deltaLoc = gl.getUniformLocation(this.program, 'u_Delta');
     gl.uniform1f(deltaLoc, delta);
 
