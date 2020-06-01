@@ -116,6 +116,8 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
     }
   }
 
+  layerOptions.timelineType = layerDef["Timeline Type"]
+
   if (layerDef["Start date"] != "" && layerDef["Start date"] != layerDef["End date"] || !$.isEmptyObject(layerOptions.customSliderInfo)) {
     layerOptions.hasTimeline = true;
   } else {
@@ -404,13 +406,14 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
       var cachedLayerTimelinePath = layer.layerId + ".json";
       if (layer.hasTimeline) {
         setActiveLayersWithTimeline(1);
-        if (layer.options.timelineType) {
-          timelineType = layer.options.timelineType;
+        if (layer.timelineType) {
+          timelineType = layer.timelineType;
         } else {
           timelineType = "defaultUI";
         }
         if (!$.isEmptyObject(layer.customSliderInfo)) {
           cached_ajax[cachedLayerTimelinePath] = {"capture-times":  Object.keys(layer.customSliderInfo)};
+          layerCustomSliderInfo = layer.customSliderInfo;
         }
       } else {
         timelineType = "none";
