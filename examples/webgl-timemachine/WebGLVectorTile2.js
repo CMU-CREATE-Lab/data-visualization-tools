@@ -3946,6 +3946,8 @@ WebGLVectorTile2.prototype._drawLineStringEpoch = function(transform, options) {
       gl.drawArrays(gl.LINES, 0, this.buffers[key]["pointCount"]);
       perf_draw_points(this._pointCount);
       gl.disable(gl.BLEND);
+    } else {
+      timelapse.lastFrameCompletelyDrawn = false;
     }
   }
 }
