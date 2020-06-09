@@ -3810,7 +3810,7 @@ WebGLVectorTile2.prototype._drawLineStringEpoch = function(transform, options) {
 
   // TODO: Set via options
   var minkey = '20200101';
-  var maxkey = '20200430';
+  var maxkey = '20200531';
 
   var yesterday = new Date(options.currentTime);
   yesterday.setDate(yesterday.getDate() - 1);  
