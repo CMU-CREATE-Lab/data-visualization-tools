@@ -1,6 +1,9 @@
-import { Thumbnailer } from './Thumbnailer.js';
-import { GSheet } from './GSheet.js';
-import { resolve } from 'path';
+//import { Thumbnailer } from './Thumbnailer.js';
+//import { GSheet } from './GSheet.js';
+//import { resolve } from 'path';
+
+/// <reference path="../GSheet.ts"/>
+/// <reference path="Thumbnailer.ts"/>
 
 interface EmbedConfig {
   disableAutoFullscreen?: boolean,
@@ -9,7 +12,7 @@ interface EmbedConfig {
 };
 
 function esc(unsafe: string) {
-  return unsafe
+  return String(unsafe)
        .replace(/&/g, "&amp;")
        .replace(/</g, "&lt;")
        .replace(/>/g, "&gt;")
@@ -17,24 +20,31 @@ function esc(unsafe: string) {
        .replace(/'/g, "&#039;");
 }
 
-function noscript(unsafe: string) {
-  return unsafe
-       .replace(/<\s*script/ig, '')
-}
-
-export class earthtime {
+class earthtime {
   static _DEFAULT_EARTHTIME_SPREADSHEET = "https://docs.google.com/spreadsheets/d/1rCiksJv4aXi1usI0_9zdl4v5vuOfiHgMRidiDPt1WfE/edit#gid=1596808134";
   static _DEFAULT_SHARE_VIEW = "https://earthtime.org/#v=4.56342,0,0.183,latLng&t=2.20&ps=50&l=blsat&bt=19840101&et=20161231";
   static _STORY_AUTHOR_PRECEDING_TEXT = "Story by: ";
   static _DATA_CREDIT_PRECEDING_TEXT = "Data from: ";
   
+  // This version works with ES6 module loading
+  //
+  // static _ROOT_SRC_URL = (function() {
+  //   // @ts-ignore
+  //   var pathOfCurrentScript = import.meta.url;
+  //   var tmp = pathOfCurrentScript.substr(0, pathOfCurrentScript.indexOf('mobile-embed.js'));
+  //   var rootUrl = tmp.substr(0, tmp.lastIndexOf('/') + 1);
+  //   return rootUrl;
+  // })();
+
+  // This version works when using <script> tag to load mobile-embed.js
   static _ROOT_SRC_URL = (function() {
     // @ts-ignore
-    var pathOfCurrentScript = import.meta.url;
+    var pathOfCurrentScript = document.currentScript ? document.currentScript.src : document.querySelector('script[src*="mobile-embed.js"]').src;
     var tmp = pathOfCurrentScript.substr(0, pathOfCurrentScript.indexOf('mobile-embed.js'));
     var rootUrl = tmp.substr(0, tmp.lastIndexOf('/') + 1);
     return rootUrl;
   })();
+  
   
   static _storyRegistrations = {};
   static _verboseLogging = false;
@@ -47,9 +57,7 @@ export class earthtime {
 
   static _scriptDependencies = [
     earthtime._ROOT_SRC_URL + '../config-local.js', // Defines EARTH_TIMELAPSE_CONFIG
-    earthtime._ROOT_SRC_URL + 'Thumbnailer.js'      // Defines Thumbnailer
   ];
-
 
   static download_csv_url(id: string, gid: string) {
     return `https://docs-proxy.cmucreatelab.org/spreadsheets/d/${id}/export?format=csv&id=${id}&gid=${gid}`
@@ -96,6 +104,12 @@ export class earthtime {
   }
 
   static title_caption_template(a) {
+    function noscript(unsafe: string) {
+      return unsafe
+           .replace(/<\s*script/ig, '')
+    }
+
+
     return (
       `<div class="earthtime-title">
           <div class="earthtime-title-headline"><h1>${esc(a.title)}</h1></div>
@@ -276,6 +290,7 @@ export class earthtime {
       }
     }
   };
+  
     
   /**
   * Dynamically load the script from the given <code>url</code>, and called the given <code>onloadCallback</code>
