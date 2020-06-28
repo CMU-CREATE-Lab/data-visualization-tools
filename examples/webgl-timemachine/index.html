@@ -5143,6 +5143,9 @@
         } else {
           // Turn off layer
           layer.visible = false;
+          if (animationLayers) {
+            setActiveLayersWithTimeline(-1);
+          }
           cacheLastUsedLayer(layer);
           // TODO: If a dot map layer had a timeline then we need to decrement the count
           // Also setting directly to customUI may not be correct
