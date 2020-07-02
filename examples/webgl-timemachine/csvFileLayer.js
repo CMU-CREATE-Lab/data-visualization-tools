@@ -259,7 +259,7 @@ CsvFileLayer.prototype.addLayer = function addLayer(layerDef) {
     overrideDrawingFns();
   } else if (layerOptions.mapType == "choropleth") {
     layerOptions.avoidShowingChildAndParent = true;
-    layerOptions.imageSrc = layerOptions.imageSrc || "obesity-color-map.png";
+    layerOptions.imageSrc = layerOptions.imageSrc || "https://tiles.earthtime.org/colormaps/obesity-color-map.png";
     layerOptions.z = 200;
     layerOptions.loadDataFunction = WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv;
     layerOptions.drawFunction = WebGLVectorTile2.prototype._drawChoroplethMap;
