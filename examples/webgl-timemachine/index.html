@@ -10625,6 +10625,9 @@
 
     function getLegendHTML() {
       var $legend = $("#layers-legend");
+      if (!$legend.length) {
+        return "";
+      }
       var clone = $legend[0].cloneNode(true);
       $(clone).find("*").filter(function() {
         return this.style.display == "none"
