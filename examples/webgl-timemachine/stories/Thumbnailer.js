@@ -1,12 +1,14 @@
 function Thumbnailer(sharelink) {
     this.thumbnailServerUrl = "https://thumbnails-v2.createlab.org/thumbnail?";
-    this.sharelink = sharelink;
-    var hash = sharelink.split("#")[1];
+    // We no longer want to pass forceLegend to the thumbnail server, but it needs to
+    // still be part of share links so that the mobile client knows to render a legend.
+    this.sharelink = sharelink.replace(/&(forceLegend=true|forceLegend)/g,"");
+    var hash = this.sharelink.split("#")[1];
     if (typeof hash !== "undefined") { // we passed a sharelink
         this.hash = hash;
         this.setArgs(this.hash);
     } else { // we passed a thumbnail server link
-        var qsa = sharelink.split("?")[1];
+        var qsa = this.sharelink.split("?")[1];
         this.setArgs(qsa);
     }
 }
@@ -24,7 +26,7 @@ Thumbnailer.prototype.setArgs = function(hash) {
             this.args[kv[0]] = kv[0];
         }
     }
-}
+};
 
 Thumbnailer.prototype.isPicture = function() {
     var ps = this.args['ps'];
@@ -49,7 +51,7 @@ Thumbnailer.prototype.isPicture = function() {
     } else {
         return false;
     }
-}
+};
 
 Thumbnailer.prototype._setBt = function() {
     // Old sharelinks ommitted bt & et
@@ -64,7 +66,7 @@ Thumbnailer.prototype._setBt = function() {
             this.args["bt"] = t;
         }
     }
-}
+};
 
 Thumbnailer.prototype.getMp4 = function(orientation) {
     var orientation = orientation || "portrait";
@@ -121,13 +123,14 @@ Thumbnailer.prototype.getMp4 = function(orientation) {
         }
     }
     return url + [root,width,height,format,fps,tileFormat,startDwell,endDwell,fromScreenshot, UI].join("&");
-}
+};
 
 Thumbnailer.prototype.getImage = function(orientation) {
     var orientation = orientation || "portrait";
     var width = orientation == "portrait" ? 540 : 1280;
     var height = 720;
     var url = this.thumbnailServerUrl;
+
     var root = "root=";
     if (typeof this.args["root"] == "undefined") {
         root += "https://headless.earthtime.org/";
@@ -139,6 +142,7 @@ Thumbnailer.prototype.getImage = function(orientation) {
     } else {
         root += this.args["root"];
     }
+
     var width = "width=" + width;
     var height = "height=" + height;
 
@@ -163,13 +167,40 @@ Thumbnailer.prototype.getImage = function(orientation) {
         }
     }
     return url + [root,width,height,format,fps,tileFormat,fromScreenshot,UI].join("&");
-}
+};
+
+Thumbnailer.prototype.getLegend = function() {
+    var url = this.thumbnailServerUrl;
+
+    var root = "";
+    if (typeof this.args["root"] == "undefined") {
+        root += "https://headless.earthtime.org/";
+        if (!('bt' in this.args)) {
+            this._setBt();
+            this.hash += "&bt=" + this.args['bt'];
+        }
+        root += encodeURIComponent('#' + this.hash);
+    } else {
+        root += this.args["root"];
+    }
+    // We need to remove disableUI from the request, so that a legend is part of the DOM
+    // when the Thumbnail Server goes to scrape.
+    // We have to decode the root, since it was previously encoded by one of the prior
+    // calls of getImage or getMp4. And then we have to re-encode it back again.
+    root = "root=" + encodeURIComponent(decodeURIComponent(root).replace(/&(disableUI=true|disableUI)/g,""));
+    var width = "width=" + 1280;
+    var height = "height=" + 720;
+    var legendHTML = "legendHTML=true";
+    var fromScreenshot = "fromScreenshot";
+    UI = "minimalUI";
+    return url + [root,width,height,legendHTML,fromScreenshot,UI].join("&");
+};
 
 Thumbnailer.prototype._latLonToWebMercator = function(latitude, longitude) {
   var x = (longitude + 180) * 256 / 360;
   var y = 128 - Math.log(Math.tan((latitude + 90) * Math.PI / 360)) * 128 / Math.PI;
   return [x, y];
-}
+};
 
 Thumbnailer.prototype._webMercatorToLatLon = function(xy) {
   var lat = Math.atan(Math.exp((128 - xy[1]) * Math.PI / 128)) * 360 / Math.PI - 90;
@@ -180,10 +211,10 @@ Thumbnailer.prototype._webMercatorToLatLon = function(xy) {
 Thumbnailer.prototype._webMercatorToPixel = function(xy, zoom) {
     var scale = 1 << zoom;
     return [Math.floor(xy[0] * scale), Math.floor(xy[1] * scale)]
-}
+};
 
 
 Thumbnailer.prototype._pixelToWebMercator = function(xy, zoom) {
     var scale = 1 << zoom;
     return [xy[0] / scale, xy[1] / scale];
-}
+};
