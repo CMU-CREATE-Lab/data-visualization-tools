@@ -149,7 +149,10 @@ earthtime._updateOrientation = function() {
     }
     if (!earthtime._loadingMonitorInterval) {
       earthtime._loadingMonitorInterval = setInterval(earthtime._updateLoadingStatus, 500);
-      story.containerElement.getElementsByClassName('earthtime-loading')[0].style.display = "block";
+      var loadingElm = story.containerElement.getElementsByClassName('earthtime-loading');
+      if (loadingElm && loadingElm.length) {
+        loadingElm[0].style.display = "block";
+      }
     }
   }
 };
