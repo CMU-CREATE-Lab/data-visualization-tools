@@ -33,6 +33,9 @@ TileIdx.prototype.toString = function() {
 TileIdx.prototype.expandUrl = function(url, layer) {
   if (layer && layer.startDate && layer.endDate){
     var startEpochTime = parseDateStr(layer.startDate);
+    if (layer.setDataOptions && layer.setDataOptions.startDateMargin) {
+      startEpochTime -= layer.setDataOptions.startDateMargin;
+    }
     var endEpochTime = parseDateStr(layer.endDate);
 
     url = url.replace("{startEpochTime}", startEpochTime).replace("{endEpochTime}", endEpochTime);
