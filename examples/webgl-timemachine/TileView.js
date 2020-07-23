@@ -334,6 +334,7 @@ setView = function(view, viewportWidth, viewportHeight, scale) {
     for (var c = visibleRange.min.c; c <= visibleRange.max.c; c++) {
       var ti = new TileIdx(level, c, r);
       if (!(ti.key in this._tiles)) {
+        console.log('tileView adding', ti);
         this._tiles[ti.key] = this._addTileidx(ti);
         added[ti.key] = true;
       }

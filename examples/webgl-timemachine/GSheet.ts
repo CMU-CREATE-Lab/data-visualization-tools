@@ -1,9 +1,9 @@
-/// <reference path="../../js/papaparse.d.ts"/>
+declare var Papa:any;
+/// <reference path="../../js/papaparse.min.js"/>
 
-class GSheet {
+export class GSheet {
   file_id: string;
   gid: string;
-
   
   constructor(file_id: string, gid: string = null) {
     this.file_id = file_id;

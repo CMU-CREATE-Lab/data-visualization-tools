@@ -5,28 +5,21 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch Edge",
-            "request": "launch",
-            "type": "pwa-msedge",
-            "url": "https://rsargent.earthtime.org/explore",
-            "webRoot": "${workspaceFolder}"
-        },
-        {
+            "name": "Chrome earthtime.org/explore",
             "type": "chrome",
             "request": "launch",
-            "name": "Launch Chrome",
-            "url": "https://rsargent.earthtime.org/explore",
-            "webRoot": "${workspaceFolder}",
-            "runtimeArgs": ["--disable-web-security"]
-        },
-        {
-            "type":"firefox",
-            "request": "launch",
-            "reAttach": true,
-            "name": "Launch FireFox",
             "url": "https://rsargent.earthtime.org/explore",
             "webRoot": "${workspaceFolder}"
-
+        },
+        {
+            "name": "Edge earthtime.org/explore",
+            "type": "edge",
+            "request": "launch",
+            "url": "https://rsargent.earthtime.org/explore",
+            "webRoot": "${workspaceFolder}",
+            "pathMapping": {
+                "/explore": "${workspaceFolder}/index.html",
+            }
         }
     ]
 }

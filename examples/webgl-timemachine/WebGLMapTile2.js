@@ -1,16 +1,16 @@
 "use strict";
 
-function WebglMapTile2(glb, tileidx, bounds, urls, defaultUrl, opt_options) {
-  if (!WebglMapTile2._initted) {
-    WebglMapTile2._init();
+function WebGLMapTile2(glb, tileidx, bounds, urls, defaultUrl, opt_options) {
+  if (!WebGLMapTile2._initted) {
+    WebGLMapTile2._init();
   }
   this._tileidx = tileidx;
   this.glb = glb;
   this.gl = glb.gl;
 
   var opt_options = opt_options || {};
-  this.fragmentShader = opt_options.fragmentShader || WebglMapTile2.textureFragmentShader;
-  this.vertexShader = opt_options.vertexShader || WebglMapTile2.textureVertexShader;
+  this.fragmentShader = opt_options.fragmentShader || WebGLMapTile2.textureFragmentShader;
+  this.vertexShader = opt_options.vertexShader || WebGLMapTile2.textureVertexShader;
 
   this._textureProgram = glb.programFromSources(this.vertexShader,
                                                 this.fragmentShader);
@@ -65,22 +65,22 @@ function WebglMapTile2(glb, tileidx, bounds, urls, defaultUrl, opt_options) {
   this._width = 256;
   this._height = 256;
   this._bounds = bounds;
-  WebglMapTile2.activeTileCount++;
+  WebGLMapTile2.activeTileCount++;
 }
 
-WebglMapTile2._init = function() {
-  WebglMapTile2._initted = true;
+WebGLMapTile2._init = function() {
+  WebGLMapTile2._initted = true;
 
   $(document).keypress(function(e) {
       // ctrl-b toggles verbosity
       if (e.keyCode == 2) {
-        WebglMapTile2.verbose = !WebglMapTile2.verbose;
-        //console.log('WebglMapTile2 verbose: ' + WebglMapTile2.verbose);
+        WebGLMapTile2.verbose = !WebGLMapTile2.verbose;
+        //console.log('WebGLMapTile2 verbose: ' + WebGLMapTile2.verbose);
       }
     });
 }
 
-WebglMapTile2.prototype._createTexture = function() {
+WebGLMapTile2.prototype._createTexture = function() {
   var gl = this.gl;
   var texture = gl.createTexture();
   gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -92,7 +92,7 @@ WebglMapTile2.prototype._createTexture = function() {
   return texture;
 }
 
-WebglMapTile2.prototype._handleLoadedTexture = function(image, texture, index) {
+WebGLMapTile2.prototype._handleLoadedTexture = function(image, texture, index) {
     var before = performance.now();
 
     gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -102,35 +102,35 @@ WebglMapTile2.prototype._handleLoadedTexture = function(image, texture, index) {
     this._ready[index] = true;
 }
 
-WebglMapTile2.videoId = 0;
-WebglMapTile2.verbose = false;
-WebglMapTile2.activeTileCount = 0;
-WebglMapTile2._initted = false;
+WebGLMapTile2.videoId = 0;
+WebGLMapTile2.verbose = false;
+WebGLMapTile2.activeTileCount = 0;
+WebGLMapTile2._initted = false;
 
-WebglMapTile2.stats = function() {
-  return ('WebglMapTile2 stats. Active tiles: ' + WebglMapTile2.activeTileCount);
+WebGLMapTile2.stats = function() {
+  return ('WebGLMapTile2 stats. Active tiles: ' + WebGLMapTile2.activeTileCount);
 }
 
-WebglMapTile2.prototype.delete = function() {
+WebGLMapTile2.prototype.delete = function() {
   // TODO: recycle texture
   this._image0.src = '';
   this._image0 = null;
   this._image1.src = '';
   this._image1 = null;
 
-  WebglMapTile2.activeTileCount--;
+  WebGLMapTile2.activeTileCount--;
 }
 
-WebglMapTile2.prototype.toString = function() {
+WebGLMapTile2.prototype.toString = function() {
   return 'Tile ' + this._tileidx.toString() +
          ', ready: ' + this.isReady();
 };
 
-WebglMapTile2.prototype.isReady = function() {
+WebGLMapTile2.prototype.isReady = function() {
   return this._ready[0] && this._ready[1];
 };
 
-WebglMapTile2.prototype.draw = function(transform, options) {
+WebGLMapTile2.prototype.draw = function(transform, options) {
   //console.log(options);
   var gl = this.gl;
   var tileTransform = new Float32Array(transform);
@@ -190,9 +190,9 @@ WebglMapTile2.prototype.draw = function(transform, options) {
 
 // Update and draw tiles
 // Assumes tiles is sorted low res to high res (by TileView)
-WebglMapTile2.update = function(tiles, transform, options) {
+WebGLMapTile2.update = function(tiles, transform, options) {
   if (si) return;
-  //WebglTimeMachinePerf.instance.startFrame();
+  //WebGLTimeMachinePerf.instance.startFrame();
 
   var canvas = document.getElementById('webgl');
 
@@ -200,11 +200,11 @@ WebglMapTile2.update = function(tiles, transform, options) {
     tiles[i].draw(transform, options);
   }
 
-  //WebglTimeMachinePerf.instance.endFrame();
+  //WebGLTimeMachinePerf.instance.endFrame();
 }
 
 
-WebglMapTile2.textureVertexShader =
+WebGLMapTile2.textureVertexShader =
   'attribute vec2 aTextureCoord;\n' +
   'uniform mat4 uTransform;\n' +
   'varying vec2 vTextureCoord;\n' +
@@ -215,7 +215,7 @@ WebglMapTile2.textureVertexShader =
   '}\n';
 
 
-WebglMapTile2.textureFragmentShader =
+WebGLMapTile2.textureFragmentShader =
   'precision mediump float;\n' +
   'varying vec2 vTextureCoord;\n' +
   'uniform sampler2D uSampler0;\n' +
@@ -235,7 +235,7 @@ WebglMapTile2.textureFragmentShader =
   '  gl_FragColor = color0 + color1;\n' +
   '}\n';
 
-WebglMapTile2.textureFragmentFaderShader =
+WebGLMapTile2.textureFragmentFaderShader =
   'precision mediump float;\n' +
   'varying vec2 vTextureCoord;\n' +
   'uniform sampler2D uSampler0;\n' +

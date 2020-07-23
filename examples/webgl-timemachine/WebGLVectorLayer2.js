@@ -4,7 +4,7 @@
 
 // nLevels=0 means levels [0].  nLevels=1 means levels [0, 1]
 
-function WebglVectorLayer2(glb, canvasLayer, tileUrl, opt_options) {
+function WebGLVectorLayer2(glb, canvasLayer, tileUrl, opt_options) {
   this.glb = glb;
   this.gl = glb.gl;
   this._canvasLayer = canvasLayer;
@@ -38,15 +38,15 @@ function WebglVectorLayer2(glb, canvasLayer, tileUrl, opt_options) {
   this._tileView.levelThreshold = 0;
 }
 
-WebglVectorLayer2.prototype.getWidth = function() {
+WebGLVectorLayer2.prototype.getWidth = function() {
   return this._tileView.getWidth();
 };
 
-WebglVectorLayer2.prototype.getHeight = function() {
+WebGLVectorLayer2.prototype.getHeight = function() {
   return this._tileView.getHeight();
 };
 
-WebglVectorLayer2.prototype._createTile = function(ti, bounds) {
+WebGLVectorLayer2.prototype._createTile = function(ti, bounds) {
   var url = ti.expandUrl(this._tileUrl, this);
 
   // Consider not copying these layer-scope settings to individual tiles and instead
@@ -57,9 +57,6 @@ WebglVectorLayer2.prototype._createTile = function(ti, bounds) {
   }
   if (this.loadDataFunction) {
     opt_options.loadDataFunction = this.loadDataFunction;
-  }
-  if (this.dataLoadedFunction) {
-    opt_options.dataLoadedFunction = this.dataLoadedFunction;
   }
   if (this.drawFunction) {
     opt_options.drawFunction = this.drawFunction;
@@ -108,13 +105,13 @@ WebglVectorLayer2.prototype._createTile = function(ti, bounds) {
   return new WebGLVectorTile2(this, this._tileView, glb, ti, bounds, url, opt_options);
 };
 
-WebglVectorLayer2.prototype.destroy = function() {
+WebGLVectorLayer2.prototype.destroy = function() {
   this._tileView._discardTilesAndResources();
 };
 
 // viewBounds:  xmin, xmax, ymin, ymax all in coords 0-256
 // TODO: Fix this for 900913 coords
-WebglVectorLayer2.prototype.draw = function(view, opt_options) {
+WebGLVectorLayer2.prototype.draw = function(view, opt_options) {
   var timelapse = this._canvasLayer.timelapse;
   var width = this._canvasLayer.canvas.width / this._canvasLayer.resolutionScale_;
   var height = this._canvasLayer.canvas.height / this._canvasLayer.resolutionScale_;
@@ -133,14 +130,14 @@ WebglVectorLayer2.prototype.draw = function(view, opt_options) {
   this._tileView.update(transform, options);
 };
 
-WebglVectorLayer2.prototype.getTileView = function() {
+WebGLVectorLayer2.prototype.getTileView = function() {
   return this._tileView;
 };
 
-WebglVectorLayer2.prototype.getTiles = function() {
+WebGLVectorLayer2.prototype.getTiles = function() {
   return this._tileView._tiles;
 };
 
-WebglVectorLayer2.prototype.abortLoading = function() {
+WebGLVectorLayer2.prototype.abortLoading = function() {
   this._tileView._abort();
 };

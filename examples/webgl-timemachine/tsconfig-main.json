@@ -1,6 +1,12 @@
 {
     "compilerOptions": {
         "target":"ES2019",
-        "sourceMap":true
-    }
+        "sourceMap":true,
+        "outDir": "compiled",
+        "allowJs": true,
+        "module": "System"
+    },
+    "include": [
+        "./index.ts"
+    ]
 }

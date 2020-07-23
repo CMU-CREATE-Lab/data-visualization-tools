@@ -10,7 +10,7 @@
 //
 // In option 1, metadata will be loaded from options.tileRootUrl/tm.json
 
-function WebglTimeMachineLayer(glb, canvasLayer, url, options) {
+function WebGLTimeMachineLayer(glb, canvasLayer, url, options=null) {
   // Everything has consequences
   // TODO: Until all timemachine layers are pulled out of index.html, we have some hackery to do.
   if (typeof(url) === "object") {
@@ -60,7 +60,7 @@ function WebglTimeMachineLayer(glb, canvasLayer, url, options) {
 }
 
 // Load metadata from tm.json
-WebglTimeMachineLayer.prototype.loadTm = function(tm) {
+WebGLTimeMachineLayer.prototype.loadTm = function(tm) {
   var datasets = tm.datasets;
   var dataset;
   for (var i = 0; i < datasets.length; i++) {
@@ -85,7 +85,7 @@ WebglTimeMachineLayer.prototype.loadTm = function(tm) {
 };
 
 // Load metadata from r.json
-WebglTimeMachineLayer.prototype.loadR = function(r) {
+WebGLTimeMachineLayer.prototype.loadR = function(r) {
   this.nlevels = r.nlevels;
   this.numFrames = r.frames;
   this.fps = r.fps;
@@ -96,7 +96,7 @@ WebglTimeMachineLayer.prototype.loadR = function(r) {
   this.loadMetadata();
 };
 
-WebglTimeMachineLayer.prototype.loadMetadata = function() {
+WebGLTimeMachineLayer.prototype.loadMetadata = function() {
   this.mediaType = this.mediaType || '.mp4';
   this.defaultUrl = this.defaultUrl || relUrlToAbsUrl(this.tileRootUrl + '/default' + this.mediaType);
   this.fps = this.fps || 10;
@@ -105,7 +105,7 @@ WebglTimeMachineLayer.prototype.loadMetadata = function() {
 
   function createTile(ti, bounds) {
     var url = that.tileRootUrl + '/' + ti.l + '/' + (ti.r * 4) + '/' + (ti.c * 4) + that.mediaType;
-    var tile = new WebglVideoTile(that.glb, ti, bounds, url, that.defaultUrl, that.numFrames, that.fps, that.greenScreen, that);
+    var tile = new WebGLVideoTile(that.glb, ti, bounds, url, that.defaultUrl, that.numFrames, that.fps, that.greenScreen, that);
     return tile;
   }
 
@@ -116,7 +116,7 @@ WebglTimeMachineLayer.prototype.loadMetadata = function() {
     tileHeight: this.video_height,
     createTile: createTile,
     deleteTile: function(tile) {},
-    updateTile: WebglVideoTile.update,
+    updateTile: WebGLVideoTile.update,
     timelapse: this._canvasLayer.timelapse,
     projection: this.projection,
     maxLevelOverride: this.maxLevelOverride
@@ -133,7 +133,7 @@ WebglTimeMachineLayer.prototype.loadMetadata = function() {
   this._updateReady();
 };
 
-WebglTimeMachineLayer.prototype._createTexture = function() {
+WebGLTimeMachineLayer.prototype._createTexture = function() {
   var gl = this.gl;
   var texture = gl.createTexture();
   gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -145,7 +145,7 @@ WebglTimeMachineLayer.prototype._createTexture = function() {
   return texture;
 };
 
-WebglTimeMachineLayer.prototype._handleLoadedColormap = function() {
+WebGLTimeMachineLayer.prototype._handleLoadedColormap = function() {
   var gl = this.gl;
   gl.bindTexture(gl.TEXTURE_2D, this._colormap);
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this.image);
@@ -155,23 +155,23 @@ WebglTimeMachineLayer.prototype._handleLoadedColormap = function() {
   this._updateReady();
 };
 
-WebglTimeMachineLayer.prototype._updateReady = function() {
+WebGLTimeMachineLayer.prototype._updateReady = function() {
   this._ready = !(this._waitingForColormap || this._waitingForMetadata);
 };
 
-WebglTimeMachineLayer.prototype.resetDimensions = function(json) {
+WebGLTimeMachineLayer.prototype.resetDimensions = function(json) {
   this._tileView.resetDimensions(json);
 };
 
-WebglTimeMachineLayer.prototype.getWidth = function() {
+WebGLTimeMachineLayer.prototype.getWidth = function() {
   return this._tileView.getWidth();
 };
 
-WebglTimeMachineLayer.prototype.getHeight = function() {
+WebGLTimeMachineLayer.prototype.getHeight = function() {
   return this._tileView.getHeight();
 };
 
-WebglTimeMachineLayer.prototype.draw = function(view) {
+WebGLTimeMachineLayer.prototype.draw = function(view) {
   if (!this._ready) return;
   var timelapse = this._canvasLayer.timelapse;
   var width = this._canvasLayer.canvas.width / this._canvasLayer.resolutionScale_;
@@ -198,14 +198,14 @@ WebglTimeMachineLayer.prototype.draw = function(view) {
   this._tileView.update(transform);
 };
 
-WebglTimeMachineLayer.prototype.getTileView = function() {
+WebGLTimeMachineLayer.prototype.getTileView = function() {
   return this._tileView;
 };
 
-WebglTimeMachineLayer.prototype.getTiles = function() {
+WebGLTimeMachineLayer.prototype.getTiles = function() {
   return this._tileView._tiles;
 };
 
-WebglTimeMachineLayer.prototype.abortLoading = function() {
+WebGLTimeMachineLayer.prototype.abortLoading = function() {
   this._tileView._abort();
 };

@@ -3,9 +3,9 @@
 <script src="../../timemachine/js/jquery/jquery.min.js" type="text/javascript"></script>
 <script src="TileIdx.js"></script>
 <script src="Glb.js"></script>
-<script src="WebglVideoTile.js"></script>
+<script src="WebGLVideoTile.js"></script>
 <script src="matrix.js"></script>
-<script src="WebglTimeMachinePerf.js"></script>
+<script src="WebGLTimeMachinePerf.js"></script>
 <script>
 
 var tiles = [];
@@ -25,15 +25,15 @@ function init() {
 
   var ntiles = 12;
   for (var i = 0; i < ntiles; i++) {
-    tiles.push(new WebglVideoTile(
+    tiles.push(new WebGLVideoTile(
                       glb,
                       new TileIdx(0,i,0),
                       {min:{x:i,y:0}, max:{x:i+0.99,y:1}},
                       '1068x600/11/2620/' + (832 + i * 4) + '.mp4'));
   }
   $('#status').text(ntiles + ' tiles');
-  perf = new WebglTimeMachinePerf(document.getElementById('stats'), timelapse);
-  WebglVideoTile.verbose = true;
+  perf = new WebGLTimeMachinePerf(document.getElementById('stats'), timelapse);
+  WebGLVideoTile.verbose = true;
   update();
 }
 
@@ -45,7 +45,7 @@ function update() {
   translateMatrix(transform, -1, -1);
   scaleMatrix(transform, 0.15, 2);
 
-  WebglVideoTile.update(tiles, transform);
+  WebGLVideoTile.update(tiles, transform);
 }
 
 /////////////////////

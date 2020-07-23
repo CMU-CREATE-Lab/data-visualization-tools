@@ -1,4 +1,4 @@
-function WebglTimeMachinePerf(canvas, timelapse) {
+function WebGLTimeMachinePerf(canvas, timelapse) {
   this._canvas = canvas;
   this._context = this._canvas.getContext('2d');
   this._context.font = '10px Arial';
@@ -15,12 +15,12 @@ function WebglTimeMachinePerf(canvas, timelapse) {
   this._trace = this._traceCount - 1;
   this._lastFrameStartTime = 1e10;
   this._traceHeight = Math.floor((this._canvas.height - 3) / this._traceCount);
-  WebglTimeMachinePerf.instance = this;
+  WebGLTimeMachinePerf.instance = this;
   this._context.fillStyle = '#ffffff';
   this._context.fillRect(0, 0, this._canvas.width, this._canvas.height);
 };
 
-WebglTimeMachinePerf.prototype.
+WebGLTimeMachinePerf.prototype.
 startFrame = function() {
   this._frameStartTime = this._timelapse.getVideoset().getCurrentTime();
   if (this._frameStartTime < this._lastFrameStartTime) {
@@ -32,7 +32,7 @@ startFrame = function() {
   this._frameStartPerf = performance.now();
 }
 
-WebglTimeMachinePerf.prototype.
+WebGLTimeMachinePerf.prototype.
 endFrame = function() {
   var duration = performance.now() - this._frameStartPerf;
   this._context.beginPath();
@@ -62,7 +62,7 @@ endFrame = function() {
   this._lastX = x;
 }
 
-WebglTimeMachinePerf.prototype.
+WebGLTimeMachinePerf.prototype.
 recordVideoFrameCapture = function(duration) {
   this._videoFrameCaptureDurations[this._videoFrameCaptureDurations.length - 1]
     .push(duration);
@@ -72,12 +72,12 @@ recordVideoFrameCapture = function(duration) {
   this._captureDurationHist[bucket] = 1 + (this._captureDurationHist[bucket] || 0);
 }
 
-WebglTimeMachinePerf.prototype.
+WebGLTimeMachinePerf.prototype.
 recordMissedFrames = function(count) {
   this._missedFrameCount += count;
 }
 
-WebglTimeMachinePerf.prototype.
+WebGLTimeMachinePerf.prototype.
 _startTrace = function() {
   this._traceStartPerf = performance.now();
   this._trace = (this._trace + 1) % this._traceCount;
@@ -91,7 +91,7 @@ _startTrace = function() {
   this._captureDurationHist = [];
 }
 
-WebglTimeMachinePerf.prototype.
+WebGLTimeMachinePerf.prototype.
 _endTrace = function() {
   function r2(x) {
     return Math.round(x * 100) / 100;

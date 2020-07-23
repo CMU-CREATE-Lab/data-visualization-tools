@@ -38,11 +38,11 @@ console.log('---');
 
     <script type="text/javascript" src="../../js/stats.min.js"></script>
     <script src="TileIdx.js"></script>
-    <script src="WebglVideoTile.js"></script>
+    <script src="WebGLVideoTile.js"></script>
     <script src="TileView.js"></script>
     <script src="Glb.js"></script>
-    <script src="WebglTimeMachineLayer.js"></script>
-    <script src="WebglTimeMachinePerf.js"></script>
+    <script src="WebGLTimeMachineLayer.js"></script>
+    <script src="WebGLTimeMachinePerf.js"></script>
 
     <script type="text/javascript">
       org.gigapan.timelapse.Timelapse.prototype.getDiv = function() {
@@ -136,7 +136,7 @@ console.log('---');
         tdl.io.loadArrayBuffer(dateDataURL, loadDateData);
 
         glb = new Glb(gl);
-        tmlayer = new WebglTimeMachineLayer(glb, canvasLayer);
+        tmlayer = new WebGLTimeMachineLayer(glb, canvasLayer);
       }
 
 var perf;
@@ -194,10 +194,10 @@ var perf;
 
         $(document).keypress(function(e) {
           if (e.keyCode == 118) {
-            WebglVideoTile.verbose = !WebglVideoTile.verbose;
+            WebGLVideoTile.verbose = !WebGLVideoTile.verbose;
           }
         });
-        perf = new WebglTimeMachinePerf(document.getElementById('stats'), timelapse);
+        perf = new WebGLTimeMachinePerf(document.getElementById('stats'), timelapse);
         console.log(perf);
       }
 
@@ -336,7 +336,7 @@ var perf;
         lastFrameTime = frameTime;
         stats.begin();
         if (pointDataLoaded && dateDataLoaded) {
-          if (WebglVideoTile.verbose) {
+          if (WebGLVideoTile.verbose) {
             function r2(x) {
               return Math.round(x * 100) / 100;
             }
@@ -349,11 +349,11 @@ var perf;
             timelapse.play();
           }
           //if (performance.now() - firstDrawTime < 1 * 5000) {
-          //  WebglVideoTile.verbose = true;
+          //  WebGLVideoTile.verbose = true;
           //} else {
-          //  if (WebglVideoTile.verbose) {                              
-          //    WebglVideoTile.verbose = false;
-          //    console.log(WebglVideoTile.stats());
+          //  if (WebGLVideoTile.verbose) {                              
+          //    WebGLVideoTile.verbose = false;
+          //    console.log(WebGLVideoTile.stats());
           //  }
           //}
                               
