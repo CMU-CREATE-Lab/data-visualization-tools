@@ -23,3 +23,6 @@ examples/webgl-timemachine/stories/scrolling-story.js
 examples/webgl-timemachine/stories/Thumbnailer.js
 package-lock.json
 examples/webgl-timemachine-backup-2020-07-15.tgz
+examples/webgl-timemachine/config.js
+node_modules
+zzz

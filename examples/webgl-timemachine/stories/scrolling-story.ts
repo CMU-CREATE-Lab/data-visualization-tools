@@ -1,7 +1,3 @@
-//import { Thumbnailer } from './Thumbnailer.js';
-//import { GSheet } from './GSheet.js';
-//import { resolve } from 'path';
-
 /// <reference path="../GSheet.ts"/>
 /// <reference path="Thumbnailer.ts"/>
 

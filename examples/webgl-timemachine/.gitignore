@@ -2,3 +2,7 @@ junkyard
 .nyc_output
 coverage
 node_modules
+compiled
+node_modules
+zzz
+test
