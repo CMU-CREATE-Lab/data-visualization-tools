@@ -10,202 +10,212 @@
 //
 // In option 1, metadata will be loaded from options.tileRootUrl/tm.json
 
-function WebGLTimeMachineLayer(glb, canvasLayer, url, options=null) {
-  // Everything has consequences
-  // TODO: Until all timemachine layers are pulled out of index.html, we have some hackery to do.
-  if (typeof(url) === "object") {
-    options = url;
+import { TileView } from './TileView'
+import { WebGLVideoTile } from './WebGLVideoTile'
+
+export class WebGLTimeMachineLayer {
+  constructor(glb, canvasLayer, url, options = null) {
+    // Everything has consequences
+    // TODO: Until all timemachine layers are pulled out of index.html, we have some hackery to do.
+    if (typeof (url) === "object") {
+      options = url;
+    }
+
+    var that = this;
+    this.glb = glb;
+    this.gl = glb.gl;
+    this._canvasLayer = canvasLayer;
+    $.extend(this, options);
+
+    this._ready = false;
+
+    if (options.colormap) {
+      this._waitingForColormap = true;
+      this._colormap = this._createTexture();
+      this.image = new Image();
+      this.image.crossOrigin = "anonymous";
+      this.image.onload = this._handleLoadedColormap.bind(this);
+      this.image.addEventListener('error', function (event) { console.log('ERROR:  cannot load colormap ' + that.image.src); });
+      this.image.src = this.colormap;
+    }
+
+    if (options.useTmJsonTimeTicks) {
+      this.useTmJsonTimeTicks = true;
+    }
+
+    this.layerId = options.layerId;
+
+    if (this.rootUrl && !this.tileRootUrl) {
+      this._waitingForMetadata = true;
+      // Request metadata asynchronously from tm.json
+      var tmPath = this.rootUrl + '/tm.json';
+      $.ajax({
+        url: tmPath,
+        dataType: 'json',
+        success: this.loadTm.bind(this)
+      });
+    }
+    else if (!this.rootUrl && this.tileRootUrl) {
+      // Assume we've been given all the metadata
+      this.video_width = this.video_width || 1424;
+      this.video_height = this.video_height || 800;
+      console.assert(this.width && this.height && this.numFrames);
+      this.loadMetadata();
+    }
   }
+  // Load metadata from tm.json
+  loadTm(tm) {
+    var datasets = tm.datasets;
+    var dataset;
+    for (var i = 0; i < datasets.length; i++) {
+      if (datasets[i].name == '600p') {
+        dataset = datasets[i];
+        break;
+      }
+    }
+    if (!dataset)
+      dataset = datasets[0];
 
-  var that = this;
-  this.glb = glb;
-  this.gl = glb.gl;
-  this._canvasLayer = canvasLayer;
-  $.extend(this, options);
+    if (this.useTmJsonTimeTicks) {
+      cached_ajax[this.layerId + '.json'] = { "capture-times": tm['capture-times'] };
+    }
 
-  this._ready = false;
-
-  if (options.colormap) {
-    this._waitingForColormap = true;
-    this._colormap = this._createTexture();
-    this.image = new Image();
-    this.image.crossOrigin = "anonymous";
-    this.image.onload = this._handleLoadedColormap.bind(this);
-    this.image.addEventListener('error', function(event) { console.log('ERROR:  cannot load colormap ' + that.image.src); });
-    this.image.src = this.colormap;
-  }
-
-  if (options.useTmJsonTimeTicks) {
-    this.useTmJsonTimeTicks = true;
-  }
-
-  this.layerId = options.layerId;
-
-  if (this.rootUrl && !this.tileRootUrl) {
-    this._waitingForMetadata = true;
-    // Request metadata asynchronously from tm.json
-    var tmPath = this.rootUrl + '/tm.json';
+    this.tileRootUrl = this.rootUrl + '/' + dataset.id;
+    var rPath = this.tileRootUrl + '/r.json';
     $.ajax({
-      url: tmPath,
+      url: rPath,
       dataType: 'json',
-      success: this.loadTm.bind(this)
+      success: this.loadR.bind(this)
     });
-  } else if (!this.rootUrl && this.tileRootUrl) {
-    // Assume we've been given all the metadata
-    this.video_width = this.video_width || 1424
-    this.video_height = this.video_height || 800;
-    console.assert(this.width && this.height && this.numFrames);
+  }
+  // Load metadata from r.json
+  loadR(r) {
+    this.nlevels = r.nlevels;
+    this.numFrames = r.frames;
+    this.fps = r.fps;
+    this.video_height = r.video_height;
+    this.video_width = r.video_width;
+    this.width = r.width;
+    this.height = r.height;
     this.loadMetadata();
+  }
+  loadMetadata() {
+    this.mediaType = this.mediaType || '.mp4';
+    this.defaultUrl = this.defaultUrl || relUrlToAbsUrl(this.tileRootUrl + '/default' + this.mediaType);
+    this.fps = this.fps || 10;
+
+    var that = this;
+
+    function createTile(ti, bounds) {
+      var url = that.tileRootUrl + '/' + ti.l + '/' + (ti.r * 4) + '/' + (ti.c * 4) + that.mediaType;
+      var tile = new WebGLVideoTile(that.glb, ti, bounds, url, that.defaultUrl, that.numFrames, that.fps, that.greenScreen, that);
+      return tile;
+    }
+
+    this._tileView = new TileView({
+      panoWidth: this.width,
+      panoHeight: this.height,
+      tileWidth: this.video_width,
+      tileHeight: this.video_height,
+      createTile: createTile,
+      deleteTile: function (tile) { },
+      updateTile: WebGLVideoTile.update,
+      timelapse: this._canvasLayer.timelapse,
+      projection: this.projection,
+      maxLevelOverride: this.maxLevelOverride
+    });
+
+    this.destroy = function () {
+      this._tileView._discardTilesAndResources();
+    };
+
+    this._waitingForMetadata = false;
+    if (this.metadataLoadedCallback) {
+      this.metadataLoadedCallback(this);
+    }
+    this._updateReady();
+  }
+  _createTexture() {
+    var gl = this.gl;
+    var texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    return texture;
+  }
+  _handleLoadedColormap() {
+    var gl = this.gl;
+    gl.bindTexture(gl.TEXTURE_2D, this._colormap);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this.image);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    this._waitingForColormap = false;
+
+    this._updateReady();
+  }
+  _updateReady() {
+    this._ready = !(this._waitingForColormap || this._waitingForMetadata);
+  }
+  resetDimensions(json) {
+    this._tileView.resetDimensions(json);
+  }
+  getWidth() {
+    return this._tileView.getWidth();
+  }
+  getHeight() {
+    return this._tileView.getHeight();
+  }
+  draw(view) {
+    if (!this._ready)
+      return;
+    var timelapse = this._canvasLayer.timelapse;
+    var width = this._canvasLayer.canvas.width / this._canvasLayer.resolutionScale_;
+    var height = this._canvasLayer.canvas.height / this._canvasLayer.resolutionScale_;
+
+    var transform = new Float32Array([2 / width, 0, 0, 0, 0, -2 / height, 0, 0, 0, 0, 0, 0, -1, 1, 0, 1]);
+
+    translateMatrix(transform, width * 0.5, height * 0.5);
+    scaleMatrix(transform, view.scale, view.scale);
+    translateMatrix(transform, -view.x, -view.y);
+
+    // TODO: this needs further tweaking...
+    if (timelapse.isMovingToWaypoint()) {
+      // Moving to waypoint;  reduce level of detail
+      this._tileView.levelThreshold = -1.5;
+    }
+    else {
+      // Not moving to waypoint;  increase level of detail
+      this._tileView.levelThreshold = 0;
+    }
+    if (EARTH_TIMELAPSE_CONFIG.videoLevelThresholdModifier) {
+      this._tileView.levelThreshold += EARTH_TIMELAPSE_CONFIG.videoLevelThresholdModifier;
+    }
+    this._tileView.setView(view, width, height, this._canvasLayer.resolutionScale_);
+    this._tileView.update(transform);
+  }
+  getTileView() {
+    return this._tileView;
+  }
+  getTiles() {
+    return this._tileView._tiles;
+  }
+  abortLoading() {
+    this._tileView._abort();
   }
 }
 
-// Load metadata from tm.json
-WebGLTimeMachineLayer.prototype.loadTm = function(tm) {
-  var datasets = tm.datasets;
-  var dataset;
-  for (var i = 0; i < datasets.length; i++) {
-    if (datasets[i].name == '600p') {
-      dataset = datasets[i];
-      break;
-    }
-  }
-  if (!dataset) dataset = datasets[0];
 
-  if (this.useTmJsonTimeTicks) {
-    cached_ajax[this.layerId + '.json'] = {"capture-times":  tm['capture-times']};
-  }
 
-  this.tileRootUrl = this.rootUrl + '/' + dataset.id;
-  var rPath = this.tileRootUrl + '/r.json';
-  $.ajax({
-    url: rPath,
-    dataType: 'json',
-    success: this.loadR.bind(this)
-  });
-};
 
-// Load metadata from r.json
-WebGLTimeMachineLayer.prototype.loadR = function(r) {
-  this.nlevels = r.nlevels;
-  this.numFrames = r.frames;
-  this.fps = r.fps;
-  this.video_height = r.video_height;
-  this.video_width = r.video_width;
-  this.width = r.width;
-  this.height = r.height;
-  this.loadMetadata();
-};
 
-WebGLTimeMachineLayer.prototype.loadMetadata = function() {
-  this.mediaType = this.mediaType || '.mp4';
-  this.defaultUrl = this.defaultUrl || relUrlToAbsUrl(this.tileRootUrl + '/default' + this.mediaType);
-  this.fps = this.fps || 10;
 
-  var that = this;
 
-  function createTile(ti, bounds) {
-    var url = that.tileRootUrl + '/' + ti.l + '/' + (ti.r * 4) + '/' + (ti.c * 4) + that.mediaType;
-    var tile = new WebGLVideoTile(that.glb, ti, bounds, url, that.defaultUrl, that.numFrames, that.fps, that.greenScreen, that);
-    return tile;
-  }
 
-  this._tileView = new TileView({
-    panoWidth: this.width,
-    panoHeight: this.height,
-    tileWidth: this.video_width,
-    tileHeight: this.video_height,
-    createTile: createTile,
-    deleteTile: function(tile) {},
-    updateTile: WebGLVideoTile.update,
-    timelapse: this._canvasLayer.timelapse,
-    projection: this.projection,
-    maxLevelOverride: this.maxLevelOverride
-  });
 
-  this.destroy = function() {
-    this._tileView._discardTilesAndResources();
-  };
 
-  this._waitingForMetadata = false;
-  if (this.metadataLoadedCallback) {
-    this.metadataLoadedCallback(this);
-  }
-  this._updateReady();
-};
 
-WebGLTimeMachineLayer.prototype._createTexture = function() {
-  var gl = this.gl;
-  var texture = gl.createTexture();
-  gl.bindTexture(gl.TEXTURE_2D, texture);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-  gl.bindTexture(gl.TEXTURE_2D, null);
-  return texture;
-};
 
-WebGLTimeMachineLayer.prototype._handleLoadedColormap = function() {
-  var gl = this.gl;
-  gl.bindTexture(gl.TEXTURE_2D, this._colormap);
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this.image);
-  gl.bindTexture(gl.TEXTURE_2D, null);
-  this._waitingForColormap = false;
 
-  this._updateReady();
-};
 
-WebGLTimeMachineLayer.prototype._updateReady = function() {
-  this._ready = !(this._waitingForColormap || this._waitingForMetadata);
-};
-
-WebGLTimeMachineLayer.prototype.resetDimensions = function(json) {
-  this._tileView.resetDimensions(json);
-};
-
-WebGLTimeMachineLayer.prototype.getWidth = function() {
-  return this._tileView.getWidth();
-};
-
-WebGLTimeMachineLayer.prototype.getHeight = function() {
-  return this._tileView.getHeight();
-};
-
-WebGLTimeMachineLayer.prototype.draw = function(view) {
-  if (!this._ready) return;
-  var timelapse = this._canvasLayer.timelapse;
-  var width = this._canvasLayer.canvas.width / this._canvasLayer.resolutionScale_;
-  var height = this._canvasLayer.canvas.height / this._canvasLayer.resolutionScale_;
-
-  var transform = new Float32Array([2/width,0,0,0, 0,-2/height,0,0, 0,0,0,0, -1,1,0,1]);
-
-  translateMatrix(transform, width*0.5, height*0.5);
-  scaleMatrix(transform, view.scale, view.scale);
-  translateMatrix(transform, -view.x, -view.y);
-
-  // TODO: this needs further tweaking...
-  if (timelapse.isMovingToWaypoint()) {
-    // Moving to waypoint;  reduce level of detail
-    this._tileView.levelThreshold = -1.5;
-  } else {
-    // Not moving to waypoint;  increase level of detail
-    this._tileView.levelThreshold = 0;
-  }
-  if (EARTH_TIMELAPSE_CONFIG.videoLevelThresholdModifier) {
-    this._tileView.levelThreshold += EARTH_TIMELAPSE_CONFIG.videoLevelThresholdModifier;
-  }
-  this._tileView.setView(view, width, height, this._canvasLayer.resolutionScale_);
-  this._tileView.update(transform);
-};
-
-WebGLTimeMachineLayer.prototype.getTileView = function() {
-  return this._tileView;
-};
-
-WebGLTimeMachineLayer.prototype.getTiles = function() {
-  return this._tileView._tiles;
-};
-
-WebGLTimeMachineLayer.prototype.abortLoading = function() {
-  this._tileView._abort();
-};

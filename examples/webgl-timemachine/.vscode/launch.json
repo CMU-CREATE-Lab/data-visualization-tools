@@ -16,8 +16,7 @@
             "request": "launch",
             "name": "Launch Chrome",
             "url": "https://rsargent.earthtime.org/explore",
-            "webRoot": "${workspaceFolder}",
-            "runtimeArgs": ["--disable-web-security"]
+            "webRoot": "${workspaceFolder}"
         },
         {
             "type":"firefox",
@@ -25,8 +24,9 @@
             "reAttach": true,
             "name": "Launch FireFox",
             "url": "https://rsargent.earthtime.org/explore",
-            "webRoot": "${workspaceFolder}"
-
+            "webRoot": "${workspaceFolder}",
+            "clearConsoleOnReload": true,
+            "suggestPathMappingWizard": true
         }
     ]
 }

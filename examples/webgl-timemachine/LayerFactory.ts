@@ -1,22 +1,34 @@
 declare var Papa:any;
 /// <reference path="../../js/papaparse.min.js"/>
-/// <reference path="./WebGLVectorLayer2.js"/>
-declare var WebGLVectorLayer2: any;
-/// <reference path="./WebGLMapLayer.js"/>
-declare var WebGLMapLayer: any;
-/// <reference path="./WebGLMapLayer2.js"/>
-declare var WebGLMapLayer2: any;
-/// <reference path="./WebGLTimeMachineLayer.js"/>
-declare var WebGLTimeMachineLayer: any;
 
 import { Resource, parseAndIndexGeojson } from './Resource'
 import { gEarthTime } from './EarthTime'
 import { BubbleMapLegend, ChoroplethLegend, Legend } from './Legend'
 
-// Loaded from config-local.js
-declare var EARTH_TIMELAPSE_CONFIG;
+import { WebGLMapLayer } from './WebGLMapLayer'
+import { WebGLMapLayer2 } from './WebGLMapLayer2'
+import { WebGLTimeMachineLayer } from './WebGLTimeMachineLayer'
+import { WebGLVectorLayer2 } from './WebGLVectorLayer2'
 
-var csvlayersLoadedPath;
+import { WebGLMapTile } from './WebGLMapTile'
+import { WebGLVectorTile2 } from './WebGLVectorTile2'
+
+
+import { Timelines } from './Timelines';
+import { Utils } from './Utils';
+import { LayerDef } from './LayerProxy';
+
+
+// Loaded from config-local.js
+declare var EARTH_TIMELAPSE_CONFIG: { localCsvLayers: string | any[]; useCsvLayersLocally: any; };
+
+var csvlayersLoadedPath: any;
+
+export class LayerDefinitionError extends Error {
+  constructor(msg: string) {
+    super(msg);
+  }
+}
 
 export class LayerFactory {
   layers: any[];
@@ -67,7 +79,7 @@ export class LayerFactory {
     }
   }
 
-  lookupFunctionFromTable(functionName, lookupTable) {
+  lookupFunctionFromTable(functionName: string, lookupTable: { [x: string]: any; }) {
     if (functionName.trim() in lookupTable) {
       return lookupTable[functionName.trim()];
     } else {
@@ -77,7 +89,7 @@ export class LayerFactory {
     }
   }
 
-  addExtrasContent(layerDef) {
+  addExtrasContent(layerDef: { [x: string]: string; }) {
     var playbackRate = layerDef["Playback Rate"].trim() == '' ? 1 : layerDef["Playback Rate"].trim();
     var dataType = layerDef["Map Type"].split("-")[1];
     var dataFilePath = layerDef["URL"];
@@ -111,7 +123,7 @@ export class LayerFactory {
   }
 
 
-  createLayer(layerDef) {
+  createLayer(layerDef: LayerDef) {
     // (someday) Use csv.createlab.org as translation gateway
     // url = 'http://csv.createlab.org/' + url.replace(/^https?:\/\//,'')
 
@@ -205,14 +217,14 @@ export class LayerFactory {
     layerOptions.nLevels = layerDef["Number of Levels"] ? parseInt(layerDef["Number of Levels"]) : 0;
     layerOptions.imageSrc = layerDef["Colormap Src"] || null;
 
-    function isValidDrawFunction(name) {
+    function isValidDrawFunction(name: string) {
       if (layerOptions.mapType == 'raster') {
         return /^WebglMapTile\.prototype\._draw\w*$/.test(name);
       }
       return true;
     }
 
-    function isValidShader(name, type) {
+    function isValidShader(name: string, type: string) {
       if (layerOptions.mapType == 'raster') {
         return /^WebglMapTile.\w+$/.test(name) && name.endsWith(type + 'Shader');
       }
@@ -519,7 +531,7 @@ export class LayerFactory {
     return layer;
   }
 
-  updateLayerData(layerId, newDataProperties, refreshData, refreshTimeline) {
+  updateLayerData(layerId: string, newDataProperties: any, refreshData: any, refreshTimeline: any) {
     var layer = this.layerById[layerId];
 
     if (newDataProperties) {
@@ -531,7 +543,7 @@ export class LayerFactory {
     }
 
     if (refreshTimeline){
-      timelines.setTimeLine(layerId, layer.startDate, layer.endDate, layer.step);
+      Timelines.setTimeLine(layerId, layer.startDate, layer.endDate, layer.step);
       var cachedLayerTimelinePath = layer.layerId + ".json";
       //TODO determine timeline styling
       // @ts-ignore
@@ -539,13 +551,13 @@ export class LayerFactory {
     }
   }
 
-  addDataLoadedListener(listener) {
+  addDataLoadedListener(listener: any) {
     if (typeof(listener) === "function") {
       this.dataLoadedListeners.push(listener);
     }
   }
 
-  removeDataLoadedListener(listener) {
+  removeDataLoadedListener(listener: any) {
     for (var i = 0; i < this.dataLoadedListeners.length; i++) {
       if (this.dataLoadedListeners[i] == listener) {
         this.dataLoadedListeners.splice(i, 1);
@@ -554,13 +566,13 @@ export class LayerFactory {
     }
   }
 
-  addLayersLoadedListener(listener) {
+  addLayersLoadedListener(listener: any) {
     if (typeof(listener) === "function") {
       this.layersLoadedListeners.push(listener);
     }
   }
 
-  removeLayersLoadedListener(listener) {
+  removeLayersLoadedListener(listener: any) {
     for (var i = 0; i < this.layersLoadedListeners.length; i++) {
       if (this.layersLoadedListeners[i] == listener) {
         this.layersLoadedListeners.splice(i, 1);
@@ -570,13 +582,13 @@ export class LayerFactory {
   }
 
 
-  dataLoadedFromCsv(layerId) {
+  dataLoadedFromCsv(layerId: any) {
     for (var i = 0; i < this.dataLoadedListeners.length; i++) {
       this.dataLoadedListeners[i](layerId);
     }
   }
 
-  loadLayersFromTsv(layerDefinitions) {
+  loadLayersFromTsv(layerDefinitions: any) {
     this.layersData = Papa.parse(layerDefinitions, {delimiter: "\t", header: true});
 
     for (var i =  0; i < this.layersData.data.length; i++) {
@@ -597,7 +609,7 @@ export class LayerFactory {
           this.setLegend(layer.layerId);
           $("#" + layer.layerId + "-legend").hide();
         }
-        timelines.setTimeLine(layer.layerId,
+        Timelines.setTimeLine(layer.layerId,
             layerDef["Start date"],
             layerDef["End date"],
             layerDef["Step"]);
@@ -610,7 +622,7 @@ export class LayerFactory {
   }
 
 
-  loadLayers(path) {
+  loadLayers(path: any) {
     if (path == csvlayersLoadedPath) return;
     csvlayersLoadedPath = path;
 
@@ -637,8 +649,8 @@ export class LayerFactory {
     return null;
   }
 
-  setLegend(id) {
-    var layer;
+  setLegend(id: string) {
+    var layer: { legendContent: string; mapType: string; name: string; credit: string; legendKey: any; color: any[]; imageSrc: any; };
     for (var i = 0; i < this.layers.length; i++) {
       if (this.layers[i].layerId == id) {
         layer = this.layers[i];
@@ -661,7 +673,7 @@ export class LayerFactory {
           };
           if (layer.legendKey) {
             if (layer.color) {
-              var rgba = layer.color.map(function(x) {
+              var rgba = layer.color.map(function(x: number) {
                 return Math.floor(x * 255.);
               });
             } else {
@@ -737,64 +749,83 @@ export class LayerFactory {
   }
 
   static getShader(mapType: string, name: string, type: string): string {
-    let valid: boolean;
     name = name.replace('Webgl', 'WebGL');
     if (mapType == 'raster') {
-      valid = /^WebGLMapTile\.\w+$/.test(name) && name.endsWith(type + 'Shader');
+      var prefix = 'WebGLMapTile.';
+      var parent: any = WebGLMapTile;
     } else {
-      valid = /^WebGLVectorTile2\.\w*Shader\w*$/.test(name);
+      var prefix = 'WebGLVectorTile2.';
+      parent = WebGLVectorTile2;
     }
-    if (valid) {
-      return eval(name);
+    if (!name.startsWith(prefix)) {
+      throw new LayerDefinitionError(`Shader for layer type ${mapType} must begin with ${prefix}`);
+    }
+
+    var suffix = name.slice(prefix.length);
+
+    if (mapType == 'raster') {
+      var valid = suffix.endsWith(type + 'Shader');
     } else {
-      console.log(`***** ${name} is not a valid ${type} shader for layer type ${mapType}`);
-      return null;
+      valid = suffix.includes('Shader');
     }
+    if (!valid) {
+      throw new LayerDefinitionError(`${suffix} is invalid name for ${type} shader`);
+    }
+
+    if (!parent[suffix]) {
+      throw new LayerDefinitionError(`Cannot find shader function "${name}"`);
+    }
+    return parent[suffix];
   }
 
-  static getFunction(mapType: string, funcType: string, name: string): () => boolean {
+  static getFunction(mapType: string, funcType: string, name: string): (...any) => any {
     let valid: boolean;
     name = name.replace('Webgl', 'WebGL').trim();
-    let re ='^';
     if (mapType == 'raster') {
-      re += 'WebGLMapTile';
+      var prefix = 'WebGLMapTile.prototype.';
+      var parent: any = WebGLMapTile.prototype;
     } else {
-      re += 'WebGLVectorTile2';
+      var prefix = 'WebGLVectorTile2.prototype.';
+      parent = WebGLVectorTile2.prototype;
     }
-    re += '\\.prototype\\.'
+    if (!name.startsWith(prefix)) {
+      throw new LayerDefinitionError(`Function for layer type ${mapType} must begin with ${prefix}`);
+    }
+    var suffix = name.slice(prefix.length);
+
     if (funcType == 'draw') {
-      re += '_draw\\w*';
+      var re = /^_draw\w*$/;
     } else if (funcType == 'setData') {
-      re += '_set\\w*Data\\w*';
+      var re = /^_set\w*Data\w*$/;
     } else if (funcType == 'loadData') {
-      re += '_load\\w*Data\\w*';
+      var re = /^_load\w*Data\w*$/;
     } else {
-      throw `unknown funcType ${funcType}`;
+      throw Error(`unknown funcType ${funcType}`);
     }
-    re += '$'
-    if (new RegExp(re).test(name)) {
-      return eval(name);
-    } else {
-      console.log(`***** ${name} is not a valid ${funcType} function for layer type ${mapType}`);
-      return null;
+    if (!re.test(suffix)) {
+      throw new LayerDefinitionError(`${suffix} is not a valid ${funcType} function name`);
     }
+    if (!parent[suffix]) {
+      throw new LayerDefinitionError(`Cannot find ${funcType} function "${name}"`);
+    }
+    return parent[suffix];
   }
 }
 
 // TODO: don't load country polygons until first use, by switching everything to use
 // COUNTRY_POLYGONS_RESOURCE, and removing the receiveData clause below
 
-var COUNTRY_POLYGONS;
+var COUNTRY_POLYGONS: any;
 var COUNTRY_POLYGONS_RESOURCE =
     new Resource("country_polygons.geojson",
      {
        transform: parseAndIndexGeojson.bind(null, 'names'),
-       receiveData: function(data) {
+       receiveData: function(data: any) {
          COUNTRY_POLYGONS = data;
        }
      });
 
-function searchCountryList(feature_collection, name, name_key) {
+function searchCountryList(feature_collection: { [x: string]: any[]; }, name: string | number, name_key: string | number) {
   if (typeof feature_collection["hash"] !== "undefined") {
     return feature_collection["features"][feature_collection["hash"][name]];
   }
@@ -828,7 +859,6 @@ const LOAD_DATA_FUNCTION_LOOKUP_TABLE = {
   "WebGLVectorTile2.prototype._loadGeojsonData": WebGLVectorTile2.prototype._loadGeojsonData,
   "WebGLVectorTile2.prototype._loadSitc4r2Data": WebGLVectorTile2.prototype._loadSitc4r2Data,
   "WebGLVectorTile.prototype._loadSitc4r2Data": WebGLVectorTile2.prototype._loadSitc4r2Data, // Supporting typos 4evah
-  "WebGLVectorTile2.prototype._loadCarbonPriceRiskDataFromCsv": WebGLVectorTile2.prototype._loadCarbonPriceRiskDataFromCsv,
   "WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv": WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv,
   "WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv": WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv,
   "WebGLVectorTile2.prototype._loadBivalentBubbleMapDataFromCsv": WebGLVectorTile2.prototype._loadBivalentBubbleMapDataFromCsv,

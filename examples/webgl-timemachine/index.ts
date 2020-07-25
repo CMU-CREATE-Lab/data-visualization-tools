@@ -2,14 +2,6 @@
 /// <reference path="DisplayMetadata.js"/>
 /// <reference path="perf.js"/>
 /// <reference path="StoryEditor.js"/>
-/// <reference path="WebGLMapLayer.js"/>
-/// <reference path="WebGLMapLayer2.js"/>
-/// <reference path="WebGLMapTile.js"/>
-/// <reference path="WebGLTimeMachineLayer.js"/>
-/// <reference path="WebGLVideoTile.js"/>
-/// <reference path="WebGLVectorTile2.js"/>
-/// <reference path="WebGLVectorLayer2.js"/>
-/// <reference path="timelines.js"/>
 /// <reference path="../../js/dat.gui.min.js"/>
 /// <reference path="../../js/utils.js"/>
 /// <reference path="../../timemachine/js/glutils/Glb.js"/>
@@ -19,7 +11,22 @@
 
 (window as any).dbg = {}
 
+import { WebGLMapLayer } from './WebGLMapLayer'
+import { WebGLMapLayer2 } from './WebGLMapLayer2'
+import { WebGLTimeMachineLayer } from './WebGLTimeMachineLayer'
+import { WebGLVectorLayer2 } from './WebGLVectorLayer2'
+
+import { WebGLMapTile } from './WebGLMapTile'
+import { WebGLVectorTile2 } from './WebGLVectorTile2'
+import { WebGLVideoTile } from './WebGLVideoTile'
+
+import { Tile } from './Tile';
+// Backwards-compatibility with js code
+// (window as any).Tile = Tile;
+
 import { Utils } from './Utils';
+import { Timelines } from './Timelines';
+
 (window as any).dbg.Utils = Utils;
 Utils.timelog('Loading index.ts')
 
@@ -423,7 +430,7 @@ var hansenMapLayer, hansenMapLayer2, animatedHansenLayer, himawariTimeMachineLay
 var goes16TimeMachineLayer, goes16Aug2018TimeMachineLayer, goes16Nov2018TimeMachineLayer, dscovrTimeMachineLayer;
 //var annualGlobalPm25TimeMachineLayer;
 //var globalWindPowerLayer;
-//timelines.setTimeLine('global-wind-power-times', '1984', '2018', 1);
+//Timelines.setTimeLine('global-wind-power-times', '1984', '2018', 1);
 var annualRefugeesLayer;
 var annualReturnsLayer;
 // var vsiLayer;
@@ -454,22 +461,22 @@ var landBorderLayer;
 var chinaAviationLayer;
 var chinaPowerPlantsLayer;
 var chinaReservoirsLayer;
-timelines.setTimeLine('china-reservoirs-times', '1950', '2012', 1);
+Timelines.setTimeLine('china-reservoirs-times', '1950', '2012', 1);
 var chinaWasteTreatmentPlantsLayer;
 //var bePm25Layer;
 // var lightsAtNightAnimLayer;
 //var expandingCitiesLayer;
-//timelines.setTimeLine('expanding-cities-times', '1955', '2030', 5);
+//Timelines.setTimeLine('expanding-cities-times', '1955', '2030', 5);
 //var irenaSolarLayer;
-//timelines.setTimeLine('irena-solar-times', '2000', '2016', 1);
+//Timelines.setTimeLine('irena-solar-times', '2000', '2016', 1);
 //var irenaWindLayer;
-//timelines.setTimeLine('irena-wind-times', '2000', '2016', 1);
+//Timelines.setTimeLine('irena-wind-times', '2000', '2016', 1);
 //var tsipLayer;
-//timelines.setTimeLine('tsip-times', '2000', '2017', 1);
+//Timelines.setTimeLine('tsip-times', '2000', '2017', 1);
 
 // S&P Shipping
 var spCrudeLayer;
-timelines.setTimeLine('sp-crude-times', '2013', '2018', 1);
+Timelines.setTimeLine('sp-crude-times', '2013', '2018', 1);
 
 var spCrudeLayerOceania;
 var spCrudeLayerAG;
@@ -493,14 +500,14 @@ var spCrudeLayerNS;
 var windVectorsLayer;
 
 /*    var spCrudeLayerWAF;
-timelines.setTimeLine('sp-crude-times', '2013', '2018', 1);
+Timelines.setTimeLine('sp-crude-times', '2013', '2018', 1);
 
 var spCrudeLayerNAF;
-timelines.setTimeLine('sp-crude-times', '2013', '2018', 1);
+Timelines.setTimeLine('sp-crude-times', '2013', '2018', 1);
 var spCrudeLayerME;
-timelines.setTimeLine('sp-crude-times', '2013', '2018', 1);
+Timelines.setTimeLine('sp-crude-times', '2013', '2018', 1);
 var spCrudeLayerUS;
-timelines.setTimeLine('sp-crude-us-times', '2016', '2018', 1);
+Timelines.setTimeLine('sp-crude-us-times', '2016', '2018', 1);
 */
 var shipsWorker = new Worker('ships-worker.js');
 shipsWorker.onmessage = function(e) {
@@ -1185,14 +1192,6 @@ function cacheLastUsedLayer(layer) {
       lastActiveLayers.push(layer);
     }
   }
-}
-
-function getTimeZone() {
-  if (typeof(Intl) != "undefined" && !timeZone) {
-    timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    timeZone = timeZone ? (" " + timeZone.replace("_"," ")) : "";
-  }
-  return timeZone;
 }
 
 function getCustomSliderCurrentTickValue() {

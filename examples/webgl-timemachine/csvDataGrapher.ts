@@ -6,9 +6,11 @@
     * timelapse.js
 **/
 
+
 /// <reference path="../../timemachine/js/canvasjs/canvasjs.min.js">
 
 import { EarthTime } from './EarthTime'
+//declare var $:any;
 
 export class CsvDataGrapher {
   activeLayer: {

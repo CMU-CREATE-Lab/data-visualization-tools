@@ -14,4 +14,13 @@ export class Utils {
   static timelog(arg1, ...args) {
     console.log(`[${Math.round(new Date().getTime() - window.performance.timeOrigin)} ms] ${arg1}`, ...args);
   }
+
+  static timeZone: string;
+  static getTimeZone(): string {
+    if (typeof(Intl) != "undefined" && !Utils.timeZone) {
+      Utils.timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      Utils.timeZone = Utils.timeZone ? (" " + Utils.timeZone.replace("_"," ")) : "";
+    }
+    return Utils.timeZone;
+  }
 }
