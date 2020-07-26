@@ -200,10 +200,10 @@ export class DateRangePicker {
 
         if (lastCalLayer != lastActive) {
           // if last selected layer is not a calendar layer
-          if (lastActive && lastActive.layerDef && lastActive.layerDef["Start date"] && lastActive.layerDef["End date"]) {
+          if (lastActive?.layer?.layerDef["Start date"] && lastActive?.layer?.layerDef["End date"]) {
             // if last active layer is not bkgd layer, use its start and end date
-            newStartDate = lastActive.layerDef["Start date"];
-            newEndDate = lastActive.layerDef["End date"];
+            newStartDate = lastActive.layer.layerDef["Start date"];
+            newEndDate = lastActive.layer.layerDef["End date"];
             updateHighlightedRange(newStartDate, newEndDate);
             updateCalendarLayersData(newStartDate, newEndDate, this);
           }
@@ -218,8 +218,8 @@ export class DateRangePicker {
             }
           }
           else {
-            newStartDate = lastCalLayer.layerDef["Start date"];
-            newEndDate = lastCalLayer.layerDef["End date"];
+            newStartDate = lastCalLayer.layer.layerDef["Start date"];
+            newEndDate = lastCalLayer.layer.layerDef["End date"];
             updateHighlightedRange(newStartDate, newEndDate);
             updateCalendarLayersData(newStartDate, newEndDate, this);
           }

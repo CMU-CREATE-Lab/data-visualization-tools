@@ -33,7 +33,9 @@ Utils.timelog('Loading index.ts')
 declare var Papa:any;
 /// <reference path="../../js/papaparse.min.js"/>
 
-import { LayerProxy, LayerOptions, DrawOptions } from './LayerProxy';
+import { Layer, LayerOptions, DrawOptions } from './Layer';
+
+import { LayerProxy } from './LayerProxy';
 (window as any).dbg.LayerProxy = LayerProxy;
 
 import { LayerDB } from './LayerDB';
@@ -165,6 +167,11 @@ class EarthTimeImpl implements EarthTime {
   async LayerDBLoaded() {
     if (!this.layerDB) await this.layerDBPromise;
   }
+  // Compute standard Google Maps zoom level -- 0 means world fits inside 256 pixels across, 1 means 512, 2: 1024 etc
+  // Assumes timelapse.getPanoWidth() represents 360 degrees of longitude
+  computeGmapsZoomLevel(): number {
+    return Math.log2(this.timelapse.getPanoWidth() * this.timelapse.getView().scale / 256);
+  }  
 };
 
 setGEarthTime(new EarthTimeImpl());
@@ -763,45 +770,6 @@ var autoModeExtrasViewChangeHandler = function() {
   }
 };
 
-function getLayerInfo(layer) {
-  if (!layer || !layer._tileView) return null;
-  var readyTileCount = 0;
-  var waitingTileCount = 0;
-
-  var pointCount = 0;
-  var keys = Object.keys(layer._tileView._tiles);
-  var zoomLevel = 0;
-  var layerView = gEarthTime.timelapse.getView();
-  var timelapse2map = layer.getWidth() / landsatBaseMapLayer.getWidth();
-  layerView.scale /= timelapse2map;
-
-  var zoomLevel : number = layer._tileView._scale2level(layerView.scale);
-
-  var lightBaseMapView = gEarthTime.timelapse.getView();
-  var timelapse2map = lightBaseMapLayer.getWidth() / landsatBaseMapLayer.getWidth();
-  lightBaseMapView.x *= timelapse2map;
-  lightBaseMapView.y *= timelapse2map;
-  lightBaseMapView.scale /= timelapse2map;
-  var mapLevel = lightBaseMapLayer._tileView._scale2level(lightBaseMapView.scale);
-
-  for (var i = 0; i < keys.length; i++) {
-    var tile = layer._tileView._tiles[keys[i]];
-    if (tile._ready) {
-      readyTileCount++;
-      pointCount += tile._pointCount;
-    } else {
-      waitingTileCount++;
-    }
-  }
-
-  return {
-    'readyTileCount': readyTileCount,
-    'waitingTileCount': waitingTileCount,
-    'pointCount': pointCount,
-    'zoomLevel': zoomLevel,
-    'mapLevel': mapLevel
-  };
-}
 
 function initLodesGui() {
   if (lodesOptions) return;
@@ -1192,18 +1160,6 @@ function cacheLastUsedLayer(layer) {
       lastActiveLayers.push(layer);
     }
   }
-}
-
-function getCustomSliderCurrentTickValue() {
-  var sliderTickVal = 0;
-  // @ts-ignore
-  // TODO(LayerDB)
-  if (!$.isEmptyObject(layerCustomSliderInfo)) {
-    // @ts-ignore
-    // TODO(LayerDB)
-    sliderTickVal = layerCustomSliderInfo[gEarthTime.timelapse.getCurrentCaptureTime()] || 0;
-  }
-  return sliderTickVal;
 }
 
 function handleLayers(layers) {
@@ -2477,7 +2433,7 @@ function initLayerToggleUI() {
       $("#baselayerCreditText").html("&copy; Google");
     } else if (visibleBaseMapLayer == "blte") {
       if (customLightMapUrlOrId && customLightMapUrlOrId.indexOf("http") != 0) {
-        $("#baselayerCreditText").html("&copy; " + gEarthTime.layerDB.getLayer(customDarkMapUrlOrId).credit);
+        $("#baselayerCreditText").html("&copy; " + gEarthTime.layerDB.getLayer(customDarkMapUrlOrId).layer?.credit);
       } else if (useGoogleMaps) {
         $("#baselayerCreditText").html("&copy; Google");
         //$("#baselayerCreditText").html("&copy; Google (Dashed gray line indicates disputed borders)");
@@ -2486,7 +2442,7 @@ function initLayerToggleUI() {
       }
     } else if (visibleBaseMapLayer == "bdrk") {
       if (customDarkMapUrlOrId && customDarkMapUrlOrId.indexOf("http") != 0) {
-        $("#baselayerCreditText").html("&copy; " + gEarthTime.layerDB.getLayer(customDarkMapUrlOrId).credit);
+        $("#baselayerCreditText").html("&copy; " + gEarthTime.layerDB.getLayer(customDarkMapUrlOrId).layer?.credit);
       } else if (useGoogleMaps) {
         $("#baselayerCreditText").html("&copy; Google");
         //$("#baselayerCreditText").html("&copy; Google (Dashed gray line indicates disputed borders)");
@@ -4129,353 +4085,353 @@ async function setupUIAndOldLayers() {
   // };
   //landsatBaseMapLayer = new WebGLTimeMachineLayer(glb, canvasLayer, landsatTimeMachineLayerOptions);
 
-  // Himawari-8
-  var himawariTimeMachineLayerOptions = {
-    // TODO(LayerDB)  numFrames hardcoded for now, until we remove this code altogether :-)
-    numFrames: 1000,
-    //numFrames: cached_ajax['himawari-times.json']['capture-times'].length,
-    fps: 12,
-    nLevels: 4,
-    width: 11000,
-    height: 11000,
-    tileRootUrl: himawariTimeMachineUrl
-  };
-  himawariTimeMachineLayer = new WebGLTimeMachineLayer(gEarthTime.glb, gEarthTime.canvasLayer, himawariTimeMachineLayerOptions);
-
-  // GOES16
-  var goes16TimeMachineLayerOptions = {
-    // TODO(LayerDB)  numFrames hardcoded for now, until we remove this code altogether :-)
-    numFrames: 1000,
-    //numFrames: cached_ajax['goes16-times.json']['capture-times'].length,
-    fps: 12,
-    nLevels: 4,
-    width: 10848,
-    height: 10848,
-    tileRootUrl: goes16TimeMachineUrl
-  };
-  goes16TimeMachineLayer = new WebGLTimeMachineLayer(gEarthTime.glb, gEarthTime.canvasLayer, goes16TimeMachineLayerOptions);
-
-  // GOES16-Aug2018
-  var goes16Aug2018TimeMachineLayerOptions = {
-    // TODO(LayerDB)  numFrames hardcoded for now, until we remove this code altogether :-)
-    numFrames: 1000,
-    //numFrames: cached_ajax['goes16-aug-2018-times.json']['capture-times'].length,
-    fps: 12,
-    nLevels: 4,
-    width: 10848,
-    height: 10848,
-    tileRootUrl: goes16Aug2018TimeMachineUrl
-  };
-  goes16Aug2018TimeMachineLayer = new WebGLTimeMachineLayer(gEarthTime.glb, gEarthTime.canvasLayer, goes16Aug2018TimeMachineLayerOptions);
-
-  // GOES16-Nov2018
-  var goes16Nov2018TimeMachineLayerOptions = {
-    // TODO(LayerDB)  numFrames hardcoded for now, until we remove this code altogether :-)
-    numFrames: 1000,
-    //numFrames: cached_ajax['goes16-nov-2018-times.json']['capture-times'].length,
-    fps: 12,
-    nLevels: 4,
-    width: 10848,
-    height: 10848,
-    tileRootUrl: goes16Nov2018TimeMachineUrl
-  };
-  goes16Nov2018TimeMachineLayer = new WebGLTimeMachineLayer(gEarthTime.glb, gEarthTime.canvasLayer, goes16Nov2018TimeMachineLayerOptions);
-
-
-  // DSCOVR
-  var dscovrTimeMachineLayerOptions = {
-    // TODO(LayerDB)  numFrames hardcoded for now, until we remove this code altogether :-)
-    numFrames: 1000,
-    //numFrames: cached_ajax['dscovr-times.json']['capture-times'].length,
-    fps: 6,
-    nLevels: 3,
-    width: 2048,
-    height: 2048,
-    tileRootUrl: dscovrTimeMachineUrl
-  };
-  dscovrTimeMachineLayer = new WebGLTimeMachineLayer(gEarthTime.glb, gEarthTime.canvasLayer, dscovrTimeMachineLayerOptions);
-
-  // For any raster map
-  var defaultMapLayerOptions = {
-    nLevels: 11,
-    tileWidth: 256,
-    tileHeight: 256
-  };
-
-  // For any retina raster map
-  var retinaMapLayerOptions = {
-    nLevels: useGoogleMaps ? 20 : 11,
-    tileWidth: 512,
-    tileHeight: 512
-  };
-
+/////////////  // Himawari-8
+/////////////  var himawariTimeMachineLayerOptions = {
+/////////////    // TODO(LayerDB)  numFrames hardcoded for now, until we remove this code altogether :-)
+/////////////    numFrames: 1000,
+/////////////    //numFrames: cached_ajax['himawari-times.json']['capture-times'].length,
+/////////////    fps: 12,
+/////////////    nLevels: 4,
+/////////////    width: 11000,
+/////////////    height: 11000,
+/////////////    tileRootUrl: himawariTimeMachineUrl
+/////////////  };
+/////////////  himawariTimeMachineLayer = new WebGLTimeMachineLayer(gEarthTime.glb, gEarthTime.canvasLayer, himawariTimeMachineLayerOptions);
+/////////////
+/////////////  // GOES16
+/////////////  var goes16TimeMachineLayerOptions = {
+/////////////    // TODO(LayerDB)  numFrames hardcoded for now, until we remove this code altogether :-)
+/////////////    numFrames: 1000,
+/////////////    //numFrames: cached_ajax['goes16-times.json']['capture-times'].length,
+/////////////    fps: 12,
+/////////////    nLevels: 4,
+/////////////    width: 10848,
+/////////////    height: 10848,
+/////////////    tileRootUrl: goes16TimeMachineUrl
+/////////////  };
+/////////////  goes16TimeMachineLayer = new WebGLTimeMachineLayer(gEarthTime.glb, gEarthTime.canvasLayer, goes16TimeMachineLayerOptions);
+/////////////
+/////////////  // GOES16-Aug2018
+/////////////  var goes16Aug2018TimeMachineLayerOptions = {
+/////////////    // TODO(LayerDB)  numFrames hardcoded for now, until we remove this code altogether :-)
+/////////////    numFrames: 1000,
+/////////////    //numFrames: cached_ajax['goes16-aug-2018-times.json']['capture-times'].length,
+/////////////    fps: 12,
+/////////////    nLevels: 4,
+/////////////    width: 10848,
+/////////////    height: 10848,
+/////////////    tileRootUrl: goes16Aug2018TimeMachineUrl
+/////////////  };
+/////////////  goes16Aug2018TimeMachineLayer = new WebGLTimeMachineLayer(gEarthTime.glb, gEarthTime.canvasLayer, goes16Aug2018TimeMachineLayerOptions);
+/////////////
+/////////////  // GOES16-Nov2018
+/////////////  var goes16Nov2018TimeMachineLayerOptions = {
+/////////////    // TODO(LayerDB)  numFrames hardcoded for now, until we remove this code altogether :-)
+/////////////    numFrames: 1000,
+/////////////    //numFrames: cached_ajax['goes16-nov-2018-times.json']['capture-times'].length,
+/////////////    fps: 12,
+/////////////    nLevels: 4,
+/////////////    width: 10848,
+/////////////    height: 10848,
+/////////////    tileRootUrl: goes16Nov2018TimeMachineUrl
+/////////////  };
+/////////////  goes16Nov2018TimeMachineLayer = new WebGLTimeMachineLayer(gEarthTime.glb, gEarthTime.canvasLayer, goes16Nov2018TimeMachineLayerOptions);
+/////////////
+/////////////
+/////////////  // DSCOVR
+/////////////  var dscovrTimeMachineLayerOptions = {
+/////////////    // TODO(LayerDB)  numFrames hardcoded for now, until we remove this code altogether :-)
+/////////////    numFrames: 1000,
+/////////////    //numFrames: cached_ajax['dscovr-times.json']['capture-times'].length,
+/////////////    fps: 6,
+/////////////    nLevels: 3,
+/////////////    width: 2048,
+/////////////    height: 2048,
+/////////////    tileRootUrl: dscovrTimeMachineUrl
+/////////////  };
+/////////////  dscovrTimeMachineLayer = new WebGLTimeMachineLayer(gEarthTime.glb, gEarthTime.canvasLayer, dscovrTimeMachineLayerOptions);
+/////////////
+/////////////  // For any raster map
+/////////////  var defaultMapLayerOptions = {
+/////////////    nLevels: 11,
+/////////////    tileWidth: 256,
+/////////////    tileHeight: 256
+/////////////  };
+/////////////
+/////////////  // For any retina raster map
+/////////////  var retinaMapLayerOptions = {
+/////////////    nLevels: useGoogleMaps ? 20 : 11,
+/////////////    tileWidth: 512,
+/////////////    tileHeight: 512
+/////////////  };
+/////////////
   // For the light/dark base layers
   var defaultBaseMapLayerOptions = {
     nLevels: useGoogleMaps ? 20 : 11,
     tileWidth: 256,
     tileHeight: 256
   };
-
-  var baseMapLayerOptions = isHyperwall ? retinaMapLayerOptions : defaultBaseMapLayerOptions;
-
-  lightBaseMapLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, lightMapUrl, defaultBaseMapLayerOptions);
-  darkBaseMapLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, darkMapUrl, defaultBaseMapLayerOptions);
-  hansenMapLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, gfcTransUrl, defaultMapLayerOptions);
-  hansenMapLayer2 = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, gfcLossGainUrl, defaultMapLayerOptions);
-
-  landBorderLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, landBorderUrl, defaultBaseMapLayerOptions);
-  countryLabelMapLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, countryLabelMapUrl, defaultBaseMapLayerOptions);
-  cityLabelMapLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, cityLabelMapUrl, defaultBaseMapLayerOptions);
-
-  // Coral Reefs (in pink)
-  var mcrmVectorLayerOptions = {
-    tileWidth: 256,
-    tileHeight: 256,
-    nLevels: 0,
-    numAttributes: 2
-  };
-  mcrmVectorLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, mcrmUrl, mcrmVectorLayerOptions);
-
-  // Coral Bleaching Events
-  var coralBleachingLayerOptions = {
-    tileWidth: 256,
-    tileHeight: 256,
-    nLevels: 0,
-    drawFunction: WebGLVectorTile2.prototype._drawPoints,
-    fragmentShader: WebGLVectorTile2.vectorPointTileFragmentShader,
-    vertexShader: WebGLVectorTile2.vectorPointTileVertexShader,
-    numAttributes: 3
-  };
-  coralBleachingLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, coralBleachingUrl, coralBleachingLayerOptions);
-
-  var animatedHansenLayerOptions = {
-    nLevels: 12,
-    tileWidth: 256,
-    tileHeight: 256
-  };
-  animatedHansenLayer = new WebGLMapLayer2(gEarthTime.glb, gEarthTime.canvasLayer, animatedHansenUrls, animatedHansenLayerOptions);
-
-  var monthlyRefugeesLayerOptions = {
-    tileWidth: 256,
-    tileHeight: 256,
-    nLevels: 0,
-    drawFunction: WebGLVectorTile2.prototype._drawMonthlyRefugees,
-    fragmentShader: WebGLVectorTile2.monthlyRefugeesFragmentShader,
-    vertexShader: WebGLVectorTile2.monthlyRefugeesVertexShader,
-    numAttributes: 10
-  };
-  monthlyRefugeesLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, monthlyRefugeesUrl, monthlyRefugeesLayerOptions);
-
-  var annualRefugeesLayerOptions = {
-    tileWidth: 256,
-    tileHeight: 256,
-    nLevels: 0,
-    drawFunction: WebGLVectorTile2.prototype._drawAnnualRefugees,
-    fragmentShader: WebGLVectorTile2.annualRefugeesFragmentShader,
-    vertexShader: WebGLVectorTile2.annualRefugeesVertexShader,
-    imageSrc: "annual-refugees-color-map.png",
-    numAttributes: 7
-  };
-  annualRefugeesLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, annualRefugeesUrl, annualRefugeesLayerOptions);
-
-  var annualReturnsLayerOptions = {
-    tileWidth: 256,
-    tileHeight: 256,
-    nLevels: 0,
-    drawFunction: WebGLVectorTile2.prototype._drawAnnualRefugees,
-    fragmentShader: WebGLVectorTile2.annualRefugeesFragmentShader,
-    vertexShader: WebGLVectorTile2.annualRefugeesVertexShader,
-    imageSrc: "annual-returns-color-map.png",
-    numAttributes: 7
-  };
-  annualReturnsLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, annualReturnsUrl, annualReturnsLayerOptions);
-
-  var seaLevelRiseLayerOptions = {
-    nLevels: 9,
-    tileWidth: 256,
-    tileHeight: 256,
-    fragmentShader: WebGLMapTile.seaLevelRiseTextureFragmentShader,
-    drawFunction: WebGLMapTile.prototype._drawSeaLevelRise
-  };
-  seaLevelRiseLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, seaLevelRiseUrl, seaLevelRiseLayerOptions);
-
-  var lodesLayerOptions = {
-    tileWidth: 256,
-    tileHeight: 256,
-    nLevels: 10,
-    drawFunction: WebGLVectorTile2.prototype._drawLodes,
-    fragmentShader: WebGLVectorTile2.lodesFragmentShader,
-    vertexShader: WebGLVectorTile2.lodesVertexShader,
-    numAttributes: 6
-  };
-  lodesLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, lodesUrl, lodesLayerOptions);
-
-  var cumulativeActiveMiningLayerOptions = {
-    nLevels: 12,
-    tileWidth: 256,
-    tileHeight: 256,
-    fragmentShader: WebGLMapTile.animatedTextureFragmentShader,
-    drawFunction: WebGLMapTile.prototype._drawAnimatedTexture
-  };
-  cumulativeActiveMiningLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, cumulativeActiveMiningUrl, cumulativeActiveMiningLayerOptions);
-
-  var iomIdpLayerOptions = {
-    tileWidth: 256,
-    tileHeight: 256,
-    nLevels: 0,
-    loadDataFunction: WebGLVectorTile2.prototype._loadGeojsonData,
-    setDataFunction: WebGLVectorTile2.prototype._setIomIdpData,
-    drawFunction: WebGLVectorTile2.prototype._drawIomIdp,
-    fragmentShader: WebGLVectorTile2.iomIdpFragmentShader,
-    vertexShader: WebGLVectorTile2.iomIdpVertexShader
-  };
-  iomIdpLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, iomIdpUrl, iomIdpLayerOptions);
-  iomIdpLayer.options = {
-    'showIrqIdps': false,
-    'showSyrIdps': false,
-    'showYemIdps': false,
-    'showLbyIdps': false,
-    'showIrqReturns': false,
-    'showSyrReturns': false,
-    'showYemReturns': false,
-    'showLbyReturns': false
-  };
-
-  var chinaLayerOptions = {
-    tileWidth: 256,
-    tileHeight: 256,
-    nLevels: 0,
-    drawFunction: WebGLVectorTile2.prototype._drawPoints,
-    fragmentShader: WebGLVectorTile2.vectorPointTileFragmentShader,
-    vertexShader: WebGLVectorTile2.vectorPointTileVertexShader,
-    numAttributes: 3
-  };
-  chinaAviationLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, chinaAviationUrl, chinaLayerOptions);
-  chinaPowerPlantsLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, chinaPowerPlantsUrl, chinaLayerOptions);
-  chinaReservoirsLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, chinaReservoirsUrl, chinaLayerOptions);
-  chinaWasteTreatmentPlantsLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, chinaWasteTreatmentPlantsUrl, chinaLayerOptions);
-
-  var layerOptions = {
-    tileWidth: 256,
-    tileHeight: 256,
-    nLevels: 0,
-    drawFunction: WebGLVectorTile2.prototype._drawSpCrude,
-    fragmentShader: WebGLVectorTile2.spCrudeFragmentShader,
-    vertexShader: WebGLVectorTile2.spCrudeVertexShader,
-    numAttributes: 7
-  };
-  spCrudeLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, spCrudeUrl, layerOptions);
-  spCrudeLayer.buffers = [];
-
-  var layerOptions = {
-    tileWidth: 256,
-    tileHeight: 256,
-    nLevels: 0,
-    drawFunction: WebGLVectorTile2.prototype._drawSpCrude,
-    fragmentShader: WebGLVectorTile2.spCrudeFragmentShader,
-    vertexShader: WebGLVectorTile2.spCrudeVertexShader,
-    numAttributes: 7
-  };
-  spCrudeLayerOceania = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, spCrudeUrlOceania, layerOptions);
-  spCrudeLayerOceania.buffers = [];
-
-  var layerOptions = {
-    tileWidth: 256,
-    tileHeight: 256,
-    nLevels: 0,
-    drawFunction: WebGLVectorTile2.prototype._drawSpCrude,
-    fragmentShader: WebGLVectorTile2.spCrudeFragmentShader,
-    vertexShader: WebGLVectorTile2.spCrudeVertexShader,
-    numAttributes: 7
-  };
-  spCrudeLayerAG = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, spCrudeUrlAG, layerOptions);
-  spCrudeLayerAG.buffers = [];
-
-  var layerOptions = {
-    tileWidth: 256,
-    tileHeight: 256,
-    nLevels: 0,
-    drawFunction: WebGLVectorTile2.prototype._drawSpCrude,
-    fragmentShader: WebGLVectorTile2.spCrudeFragmentShader,
-    vertexShader: WebGLVectorTile2.spCrudeVertexShader,
-    numAttributes: 7
-  };
-  spCrudeLayerWAF = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, spCrudeUrlWAF, layerOptions);
-  spCrudeLayerWAF.buffers = [];
-
-  var layerOptions = {
-    tileWidth: 256,
-    tileHeight: 256,
-    nLevels: 0,
-    drawFunction: WebGLVectorTile2.prototype._drawSpCrude,
-    fragmentShader: WebGLVectorTile2.spCrudeFragmentShader,
-    vertexShader: WebGLVectorTile2.spCrudeVertexShader,
-    numAttributes: 7
-  };
-  spCrudeLayerMedNAF = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, spCrudeUrlMedNAF, layerOptions);
-  spCrudeLayerMedNAF.buffers = [];
-
-  var layerOptions = {
-    tileWidth: 256,
-    tileHeight: 256,
-    nLevels: 0,
-    drawFunction: WebGLVectorTile2.prototype._drawSpCrude,
-    fragmentShader: WebGLVectorTile2.spCrudeFragmentShader,
-    vertexShader: WebGLVectorTile2.spCrudeVertexShader,
-    numAttributes: 7
-  };
-  spCrudeLayerUrals = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, spCrudeUrlUrals, layerOptions);
-  spCrudeLayerUrals.buffers = [];
-
-  var layerOptions = {
-    tileWidth: 256,
-    tileHeight: 256,
-    nLevels: 0,
-    drawFunction: WebGLVectorTile2.prototype._drawSpCrude,
-    fragmentShader: WebGLVectorTile2.spCrudeFragmentShader,
-    vertexShader: WebGLVectorTile2.spCrudeVertexShader,
-    numAttributes: 7
-  };
-  spCrudeLayerUSGC = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, spCrudeUrlUSGC, layerOptions);
-  spCrudeLayerUSGC.buffers = [];
-
-  var layerOptions = {
-    tileWidth: 256,
-    tileHeight: 256,
-    nLevels: 0,
-    drawFunction: WebGLVectorTile2.prototype._drawSpCrude,
-    fragmentShader: WebGLVectorTile2.spCrudeFragmentShader,
-    vertexShader: WebGLVectorTile2.spCrudeVertexShader,
-    numAttributes: 7
-  };
-  spCrudeLayerLatAM = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, spCrudeUrlLatAM, layerOptions);
-  spCrudeLayerLatAM.buffers = [];
-
-  var layerOptions = {
-    tileWidth: 256,
-    tileHeight: 256,
-    nLevels: 0,
-    drawFunction: WebGLVectorTile2.prototype._drawSpCrude,
-    fragmentShader: WebGLVectorTile2.spCrudeFragmentShader,
-    vertexShader: WebGLVectorTile2.spCrudeVertexShader,
-    numAttributes: 7
-  };
-  spCrudeLayerNS = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, spCrudeUrlNS, layerOptions);
-  spCrudeLayerNS.buffers = [];
-
-  var windVectorsLayerOptions = {
-    tileWidth: 256,
-    tileHeight: 256,
-    nLevels: 0,
-    drawFunction: WebGLVectorTile2.prototype._drawWindVectors,
-    loadDataFunction: WebGLVectorTile2.prototype._loadWindVectorsData,
-    setDataFunction: WebGLVectorTile2.prototype._setWindVectorsData,
-    fragmentShader: WebGLVectorTile2.vectorPointTileFragmentShader,
-    vertexShader: WebGLVectorTile2.vectorPointTileVertexShader,
-    numAttributes: 3
-  };
-  windVectorsLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, windVectorsUrl, windVectorsLayerOptions);
-
+/////////////
+/////////////  var baseMapLayerOptions = isHyperwall ? retinaMapLayerOptions : defaultBaseMapLayerOptions;
+////////////
+lightBaseMapLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, lightMapUrl, defaultBaseMapLayerOptions as LayerOptions);
+/////////////  darkBaseMapLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, darkMapUrl, defaultBaseMapLayerOptions);
+/////////////  hansenMapLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, gfcTransUrl, defaultMapLayerOptions);
+/////////////  hansenMapLayer2 = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, gfcLossGainUrl, defaultMapLayerOptions);
+/////////////
+/////////////  landBorderLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, landBorderUrl, defaultBaseMapLayerOptions);
+/////////////  countryLabelMapLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, countryLabelMapUrl, defaultBaseMapLayerOptions);
+/////////////  cityLabelMapLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, cityLabelMapUrl, defaultBaseMapLayerOptions);
+/////////////
+/////////////  // Coral Reefs (in pink)
+/////////////  var mcrmVectorLayerOptions = {
+/////////////    tileWidth: 256,
+/////////////    tileHeight: 256,
+/////////////    nLevels: 0,
+/////////////    numAttributes: 2
+/////////////  };
+/////////////  mcrmVectorLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, mcrmUrl, mcrmVectorLayerOptions);
+/////////////
+/////////////  // Coral Bleaching Events
+/////////////  var coralBleachingLayerOptions = {
+/////////////    tileWidth: 256,
+/////////////    tileHeight: 256,
+/////////////    nLevels: 0,
+/////////////    drawFunction: WebGLVectorTile2.prototype._drawPoints,
+/////////////    fragmentShader: WebGLVectorTile2.vectorPointTileFragmentShader,
+/////////////    vertexShader: WebGLVectorTile2.vectorPointTileVertexShader,
+/////////////    numAttributes: 3
+/////////////  };
+/////////////  coralBleachingLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, coralBleachingUrl, coralBleachingLayerOptions);
+/////////////
+/////////////  var animatedHansenLayerOptions = {
+/////////////    nLevels: 12,
+/////////////    tileWidth: 256,
+/////////////    tileHeight: 256
+/////////////  };
+/////////////  animatedHansenLayer = new WebGLMapLayer2(gEarthTime.glb, gEarthTime.canvasLayer, animatedHansenUrls, animatedHansenLayerOptions);
+/////////////
+/////////////  var monthlyRefugeesLayerOptions = {
+/////////////    tileWidth: 256,
+/////////////    tileHeight: 256,
+/////////////    nLevels: 0,
+/////////////    drawFunction: WebGLVectorTile2.prototype._drawMonthlyRefugees,
+/////////////    fragmentShader: WebGLVectorTile2.monthlyRefugeesFragmentShader,
+/////////////    vertexShader: WebGLVectorTile2.monthlyRefugeesVertexShader,
+/////////////    numAttributes: 10
+/////////////  };
+/////////////  monthlyRefugeesLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, monthlyRefugeesUrl, monthlyRefugeesLayerOptions);
+/////////////
+/////////////  var annualRefugeesLayerOptions = {
+/////////////    tileWidth: 256,
+/////////////    tileHeight: 256,
+/////////////    nLevels: 0,
+/////////////    drawFunction: WebGLVectorTile2.prototype._drawAnnualRefugees,
+/////////////    fragmentShader: WebGLVectorTile2.annualRefugeesFragmentShader,
+/////////////    vertexShader: WebGLVectorTile2.annualRefugeesVertexShader,
+/////////////    imageSrc: "annual-refugees-color-map.png",
+/////////////    numAttributes: 7
+/////////////  };
+/////////////  annualRefugeesLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, annualRefugeesUrl, annualRefugeesLayerOptions);
+/////////////
+/////////////  var annualReturnsLayerOptions = {
+/////////////    tileWidth: 256,
+/////////////    tileHeight: 256,
+/////////////    nLevels: 0,
+/////////////    drawFunction: WebGLVectorTile2.prototype._drawAnnualRefugees,
+/////////////    fragmentShader: WebGLVectorTile2.annualRefugeesFragmentShader,
+/////////////    vertexShader: WebGLVectorTile2.annualRefugeesVertexShader,
+/////////////    imageSrc: "annual-returns-color-map.png",
+/////////////    numAttributes: 7
+/////////////  };
+/////////////  annualReturnsLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, annualReturnsUrl, annualReturnsLayerOptions);
+/////////////
+/////////////  var seaLevelRiseLayerOptions = {
+/////////////    nLevels: 9,
+/////////////    tileWidth: 256,
+/////////////    tileHeight: 256,
+/////////////    fragmentShader: WebGLMapTile.seaLevelRiseTextureFragmentShader,
+/////////////    drawFunction: WebGLMapTile.prototype._drawSeaLevelRise
+/////////////  };
+/////////////  seaLevelRiseLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, seaLevelRiseUrl, seaLevelRiseLayerOptions);
+/////////////
+/////////////  var lodesLayerOptions = {
+/////////////    tileWidth: 256,
+/////////////    tileHeight: 256,
+/////////////    nLevels: 10,
+/////////////    drawFunction: WebGLVectorTile2.prototype._drawLodes,
+/////////////    fragmentShader: WebGLVectorTile2.lodesFragmentShader,
+/////////////    vertexShader: WebGLVectorTile2.lodesVertexShader,
+/////////////    numAttributes: 6
+/////////////  };
+/////////////  lodesLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, lodesUrl, lodesLayerOptions);
+/////////////
+/////////////  var cumulativeActiveMiningLayerOptions = {
+/////////////    nLevels: 12,
+/////////////    tileWidth: 256,
+/////////////    tileHeight: 256,
+/////////////    fragmentShader: WebGLMapTile.animatedTextureFragmentShader,
+/////////////    drawFunction: WebGLMapTile.prototype._drawAnimatedTexture
+/////////////  };
+/////////////  cumulativeActiveMiningLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, cumulativeActiveMiningUrl, cumulativeActiveMiningLayerOptions);
+/////////////
+/////////////  var iomIdpLayerOptions = {
+/////////////    tileWidth: 256,
+/////////////    tileHeight: 256,
+/////////////    nLevels: 0,
+/////////////    loadDataFunction: WebGLVectorTile2.prototype._loadGeojsonData,
+/////////////    setDataFunction: WebGLVectorTile2.prototype._setIomIdpData,
+/////////////    drawFunction: WebGLVectorTile2.prototype._drawIomIdp,
+/////////////    fragmentShader: WebGLVectorTile2.iomIdpFragmentShader,
+/////////////    vertexShader: WebGLVectorTile2.iomIdpVertexShader
+/////////////  };
+/////////////  iomIdpLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, iomIdpUrl, iomIdpLayerOptions);
+/////////////  iomIdpLayer.options = {
+/////////////    'showIrqIdps': false,
+/////////////    'showSyrIdps': false,
+/////////////    'showYemIdps': false,
+/////////////    'showLbyIdps': false,
+/////////////    'showIrqReturns': false,
+/////////////    'showSyrReturns': false,
+/////////////    'showYemReturns': false,
+/////////////    'showLbyReturns': false
+/////////////  };
+/////////////
+/////////////  var chinaLayerOptions = {
+/////////////    tileWidth: 256,
+/////////////    tileHeight: 256,
+/////////////    nLevels: 0,
+/////////////    drawFunction: WebGLVectorTile2.prototype._drawPoints,
+/////////////    fragmentShader: WebGLVectorTile2.vectorPointTileFragmentShader,
+/////////////    vertexShader: WebGLVectorTile2.vectorPointTileVertexShader,
+/////////////    numAttributes: 3
+/////////////  };
+/////////////  chinaAviationLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, chinaAviationUrl, chinaLayerOptions);
+/////////////  chinaPowerPlantsLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, chinaPowerPlantsUrl, chinaLayerOptions);
+/////////////  chinaReservoirsLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, chinaReservoirsUrl, chinaLayerOptions);
+/////////////  chinaWasteTreatmentPlantsLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, chinaWasteTreatmentPlantsUrl, chinaLayerOptions);
+/////////////
+/////////////  var layerOptions = {
+/////////////    tileWidth: 256,
+/////////////    tileHeight: 256,
+/////////////    nLevels: 0,
+/////////////    drawFunction: WebGLVectorTile2.prototype._drawSpCrude,
+/////////////    fragmentShader: WebGLVectorTile2.spCrudeFragmentShader,
+/////////////    vertexShader: WebGLVectorTile2.spCrudeVertexShader,
+/////////////    numAttributes: 7
+/////////////  };
+/////////////  spCrudeLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, spCrudeUrl, layerOptions);
+/////////////  spCrudeLayer.buffers = [];
+/////////////
+/////////////  var layerOptions = {
+/////////////    tileWidth: 256,
+/////////////    tileHeight: 256,
+/////////////    nLevels: 0,
+/////////////    drawFunction: WebGLVectorTile2.prototype._drawSpCrude,
+/////////////    fragmentShader: WebGLVectorTile2.spCrudeFragmentShader,
+/////////////    vertexShader: WebGLVectorTile2.spCrudeVertexShader,
+/////////////    numAttributes: 7
+/////////////  };
+/////////////  spCrudeLayerOceania = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, spCrudeUrlOceania, layerOptions);
+/////////////  spCrudeLayerOceania.buffers = [];
+/////////////
+/////////////  var layerOptions = {
+/////////////    tileWidth: 256,
+/////////////    tileHeight: 256,
+/////////////    nLevels: 0,
+/////////////    drawFunction: WebGLVectorTile2.prototype._drawSpCrude,
+/////////////    fragmentShader: WebGLVectorTile2.spCrudeFragmentShader,
+/////////////    vertexShader: WebGLVectorTile2.spCrudeVertexShader,
+/////////////    numAttributes: 7
+/////////////  };
+/////////////  spCrudeLayerAG = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, spCrudeUrlAG, layerOptions);
+/////////////  spCrudeLayerAG.buffers = [];
+/////////////
+/////////////  var layerOptions = {
+/////////////    tileWidth: 256,
+/////////////    tileHeight: 256,
+/////////////    nLevels: 0,
+/////////////    drawFunction: WebGLVectorTile2.prototype._drawSpCrude,
+/////////////    fragmentShader: WebGLVectorTile2.spCrudeFragmentShader,
+/////////////    vertexShader: WebGLVectorTile2.spCrudeVertexShader,
+/////////////    numAttributes: 7
+/////////////  };
+/////////////  spCrudeLayerWAF = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, spCrudeUrlWAF, layerOptions);
+/////////////  spCrudeLayerWAF.buffers = [];
+/////////////
+/////////////  var layerOptions = {
+/////////////    tileWidth: 256,
+/////////////    tileHeight: 256,
+/////////////    nLevels: 0,
+/////////////    drawFunction: WebGLVectorTile2.prototype._drawSpCrude,
+/////////////    fragmentShader: WebGLVectorTile2.spCrudeFragmentShader,
+/////////////    vertexShader: WebGLVectorTile2.spCrudeVertexShader,
+/////////////    numAttributes: 7
+/////////////  };
+/////////////  spCrudeLayerMedNAF = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, spCrudeUrlMedNAF, layerOptions);
+/////////////  spCrudeLayerMedNAF.buffers = [];
+/////////////
+/////////////  var layerOptions = {
+/////////////    tileWidth: 256,
+/////////////    tileHeight: 256,
+/////////////    nLevels: 0,
+/////////////    drawFunction: WebGLVectorTile2.prototype._drawSpCrude,
+/////////////    fragmentShader: WebGLVectorTile2.spCrudeFragmentShader,
+/////////////    vertexShader: WebGLVectorTile2.spCrudeVertexShader,
+/////////////    numAttributes: 7
+/////////////  };
+/////////////  spCrudeLayerUrals = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, spCrudeUrlUrals, layerOptions);
+/////////////  spCrudeLayerUrals.buffers = [];
+/////////////
+/////////////  var layerOptions = {
+/////////////    tileWidth: 256,
+/////////////    tileHeight: 256,
+/////////////    nLevels: 0,
+/////////////    drawFunction: WebGLVectorTile2.prototype._drawSpCrude,
+/////////////    fragmentShader: WebGLVectorTile2.spCrudeFragmentShader,
+/////////////    vertexShader: WebGLVectorTile2.spCrudeVertexShader,
+/////////////    numAttributes: 7
+/////////////  };
+/////////////  spCrudeLayerUSGC = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, spCrudeUrlUSGC, layerOptions);
+/////////////  spCrudeLayerUSGC.buffers = [];
+/////////////
+/////////////  var layerOptions = {
+/////////////    tileWidth: 256,
+/////////////    tileHeight: 256,
+/////////////    nLevels: 0,
+/////////////    drawFunction: WebGLVectorTile2.prototype._drawSpCrude,
+/////////////    fragmentShader: WebGLVectorTile2.spCrudeFragmentShader,
+/////////////    vertexShader: WebGLVectorTile2.spCrudeVertexShader,
+/////////////    numAttributes: 7
+/////////////  };
+/////////////  spCrudeLayerLatAM = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, spCrudeUrlLatAM, layerOptions);
+/////////////  spCrudeLayerLatAM.buffers = [];
+/////////////
+/////////////  var layerOptions = {
+/////////////    tileWidth: 256,
+/////////////    tileHeight: 256,
+/////////////    nLevels: 0,
+/////////////    drawFunction: WebGLVectorTile2.prototype._drawSpCrude,
+/////////////    fragmentShader: WebGLVectorTile2.spCrudeFragmentShader,
+/////////////    vertexShader: WebGLVectorTile2.spCrudeVertexShader,
+/////////////    numAttributes: 7
+/////////////  };
+/////////////  spCrudeLayerNS = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, spCrudeUrlNS, layerOptions);
+/////////////  spCrudeLayerNS.buffers = [];
+/////////////
+/////////////  var windVectorsLayerOptions = {
+/////////////    tileWidth: 256,
+/////////////    tileHeight: 256,
+/////////////    nLevels: 0,
+/////////////    drawFunction: WebGLVectorTile2.prototype._drawWindVectors,
+/////////////    loadDataFunction: WebGLVectorTile2.prototype._loadWindVectorsData,
+/////////////    setDataFunction: WebGLVectorTile2.prototype._setWindVectorsData,
+/////////////    fragmentShader: WebGLVectorTile2.vectorPointTileFragmentShader,
+/////////////    vertexShader: WebGLVectorTile2.vectorPointTileVertexShader,
+/////////////    numAttributes: 3
+/////////////  };
+/////////////  windVectorsLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, windVectorsUrl, windVectorsLayerOptions);
+/////////////
   // Layer Toggle UI
   initLayerToggleUI();
 
@@ -6103,10 +6059,6 @@ function update() {
   // this to false upon draw below
   gEarthTime.timelapse.lastFrameCompletelyDrawn = true;
 
-  // Compute standard Google Maps zoom level -- 0 means world fits inside 256 pixels across, 1 means 512, 2: 1024 etc
-  // Assumes timelapse.getPanoWidth() represents 360 degrees of longitude
-  var gmapsZoomLevel = Math.log2(gEarthTime.timelapse.getPanoWidth() * gEarthTime.timelapse.getView().scale / 256);
-
   //
   //// Draw layers ////
   //
@@ -6195,13 +6147,20 @@ function update() {
     return date;
   }
 
-  function drawCsvLayer(layer, options) {
-    var view = getLayerView(layer, null);
-    if (options) {
-      options = $.extend({}, options); // shallow-copy options
-    } else {
-      options = {};
+  function layerCountDrawnPoints(layer) {
+    var keys = Object.keys(layer._tileView._tiles);
+    var pointCount = 0;
+    for (var i = 0; i < keys.length; i++) {
+      var tile = layer._tileView._tiles[keys[i]];
+      if (tile._ready) {
+        pointCount += tile._pointCount;
+      }
     }
+    return pointCount;
+  }
+
+  function drawCsvLayer(layer: LayerProxy, options: any = {}) {
+    options = $.extend({}, options); // shallow-copy options
 
     var lightBaseMapView = gEarthTime.timelapse.getView();
     var standardWidth = 524288; // from bdrk
@@ -6211,9 +6170,14 @@ function update() {
     lightBaseMapView.scale /= timelapse2map;
     var mapLevel = lightBaseMapLayer._tileView._scale2level(lightBaseMapView.scale);
     options.zoomLevel = mapLevel;
-    options.gmapsZoomLevel = gmapsZoomLevel;
 
+    // Compute standard Google Maps zoom level -- 0 means world fits inside 256 pixels across, 1 means 512, 2: 1024 etc
+    // Assumes timelapse.getPanoWidth() represents 360 degrees of longitude
+    var gmapsZoomLevel = Math.log2(gEarthTime.timelapse.getPanoWidth() * gEarthTime.timelapse.getView().scale / 256);
+    options.gmapsZoomLevel = gmapsZoomLevel;
+    
     options.zoom = gEarthTime.timelapse.getCurrentZoom();
+    
     var currentTime = gEarthTime.timelapse.getCurrentTime();
     var currentTimes = getCurrentTimes(gEarthTime.timelapse);
     var dates = getDates(gEarthTime.timelapse);
@@ -6230,7 +6194,7 @@ function update() {
     if (layer.options) {
       $.extend(options, layer.options);
     }
-    return layer.draw(view, options);
+    return layer.draw(getLayerView(layer, null), options);
   }
 
   for (let layer of gEarthTime.layerDB.shownLayers) {
@@ -7446,10 +7410,10 @@ function update() {
 
       options.step = step;
 
-      var info = getLayerInfo(lodesLayer);
+      var zoom = gEarthTime.computeGmapsZoomLevel();
       var throttle = 1.0;
-      if (info.zoomLevel >= 5 && info.mapLevel >= 5 && info.mapLevel < 11) {
-        throttle = Math.min(1000000/info.pointCount, 1.0);
+      if (zoom >= 5 && zoom < 11) {
+        throttle = Math.min(1000000/layerCountDrawnPoints(layer), 1.0);
       }
 
       options.throttle = throttle;
@@ -7466,9 +7430,9 @@ function update() {
 
         // Throttle number of pixels if we're drawing "too many"
         var maxPoints = gEarthTime.canvasLayer.canvas.width * gEarthTime.canvasLayer.canvas.height;
-        var info = getLayerInfo(layer);
+        var pointCount = layerCountDrawnPoints(layer);
         var drawFraction = 0.125;
-        drawFraction = Math.min(maxPoints/info.pointCount, 1.0);
+        drawFraction = Math.min(maxPoints/pointCount, 1.0);
 
         options.throttle = drawFraction;
 
@@ -7478,7 +7442,7 @@ function update() {
         var delta = getCurrentTimesDelta(currentTime, currentTimes);
         let currentDate = getCurrentDate(currentTime, currentTimes, dates);
         options.currentTime = currentDate;
-        options.gmapsZoomLevel = gmapsZoomLevel;
+        options.gmapsZoomLevel = gEarthTime.computeGmapsZoomLevel();
         layer.draw(view, options);
       }
     }
@@ -7919,7 +7883,6 @@ async function init() {
 
   //var landsatUrl = EARTH_TIMELAPSE_CONFIG.landsatUrl || 'https://storage.googleapis.com/timelapse-test/tmp/herwig/export/cmu_20200106_resampled';
   var landsatUrl = '.';
-  console.log('landsatUrl', landsatUrl);
 
   var timemachineReadyResolver;
   var timelapseReadyPromise = new Promise((resolve, reject) => { timemachineReadyResolver = resolve});
@@ -7958,7 +7921,7 @@ async function init() {
     onTimeMachinePlayerReady: function(viewerDivId) {
       new DisplayMetadata(gEarthTime.timelapse);
       setupPostMessageHandlers();
-      console.log('onTimeMachinePlayerReady');
+      Utils.timelog('onTimeMachinePlayerReady');
       timemachineReadyResolver(null);
     },
     scaleBarOptions: {
@@ -7993,14 +7956,13 @@ async function init() {
   
   gEarthTime.timelapse = new org.gigapan.timelapse.Timelapse("timeMachine", settings);
   (window as any).timelapse = gEarthTime.timelapse;
-  // Wait for timelapse to be ready;
-  console.log('awating timelapseReadyPromise');
 
+  // Wait for timelapse to be ready;
+  Utils.timelog('awating timelapseReadyPromise');
   await timelapseReadyPromise;
-  console.log('awating setupUIAndOldLayers');
+  Utils.timelog('awating setupUIAndOldLayers');
   await setupUIAndOldLayers();
-  console.log('setting readyToDraw true');
-  console.log('gEarthTime.timelapse.getTmJSON()', gEarthTime.timelapse.getTmJSON());
+  Utils.timelog('setting readyToDraw true');
   gEarthTime.readyToDraw = true;
 
   // Show bdrk
@@ -8010,7 +7972,8 @@ async function init() {
   var layerDB = gEarthTime.layerDB;
   layerDB.setShownLayers([
     layerDB.getLayer('bdrk'),
-    layerDB.getLayer('coral_only')
+    layerDB.getLayer('coral_only'),
+    layerDB.getLayer('gsr_oceans_yearly_ppr_1950_2014_animated')
   ]);
 }
 

@@ -1,5 +1,3 @@
-"use strict";
-
 // Manage a zoomable pannable mosaic of level-of-detail tiles.
 
 // Usage:
@@ -20,9 +18,12 @@
 //
 // layer.getTilesToDraw();
 
-import { TileIdx } from './TileIdx'
+/// <reference path="../../timemachine/js/org/gigapan/timelapse/timelapse.js"/>
 
-class Bbox {
+import { TileIdx } from './TileIdx'
+import { gEarthTime } from './EarthTime'
+
+export class TileBbox {
   min: { x: number, y: number }
   max: { x: number, y: number }
 };
@@ -33,11 +34,9 @@ export class TileView {
   tileWidth: any;
   tileHeight: any;
   _createTileCallback: any;
-  _deleteTileCallback: any;
   _tiles: {};
-  _updateTileCallback: any;
+  _updateTileCallback;
   _zoomlock: any;
-  _timelapse: any;
   _projection: any;
   _maxLevelOverride: any;
   _avoidShowingChildAndParent: any;
@@ -51,22 +50,31 @@ export class TileView {
   _scale: any;
   _lastStatus: any;
   _layerDomId: any;
-  constructor(settings: { panoWidth: number; panoHeight: number; tileWidth: number; tileHeight: number; createTile: any; deleteTile: any; updateTile: any; zoomlock: any; timelapse: any; projection: any; maxLevelOverride: any; avoidShowingChildAndParent: any; }) {
+  constructor(settings: { 
+    panoWidth: number; panoHeight: number;
+    tileWidth: number; tileHeight: number;
+    createTile: any; updateTiles: any;
+    zoomlock?: any;
+    projection?: any;
+    maxLevelOverride: any;
+    avoidShowingChildAndParent?: boolean;
+    levelThreshold: number;
+  }) {
     this._panoWidth = settings.panoWidth;
     this._panoHeight = settings.panoHeight;
     this.tileWidth = settings.tileWidth;
     this.tileHeight = settings.tileHeight;
     console.assert(this.tileWidth && this.tileHeight && this._panoWidth && this._panoHeight);
     this._createTileCallback = settings.createTile;
-    this._deleteTileCallback = settings.deleteTile;
     this._tiles = {};
-    this._updateTileCallback = settings.updateTile;
+    this._updateTileCallback = settings.updateTiles;
+    console.assert(typeof this._updateTileCallback == 'function');
     this._zoomlock = settings.zoomlock;
-    this._timelapse = settings.timelapse;
     this._projection = settings.projection;
     this._maxLevelOverride = settings.maxLevelOverride;
     this._avoidShowingChildAndParent = settings.avoidShowingChildAndParent;
     this.resources = {};
+    this.levelThreshold = settings.levelThreshold;
 
     // levelThreshold sets the quality of display by deciding what level of tile to show for a given level of zoom:
     //
@@ -115,7 +123,7 @@ export class TileView {
     return msg;
   }
 
-  _tileGeometry(tileidx: TileIdx): Bbox {
+  _tileGeometry(tileidx: TileIdx): TileBbox {
     var levelScale = Math.pow(2, this._maxLevel - tileidx.l);
 
     var left = tileidx.c * this.tileWidth * levelScale;
@@ -127,7 +135,7 @@ export class TileView {
     var bbox = { min: { x: left, y: top }, max: { x: right, y: bottom } };
 
     if (this._projection) {
-      var timelapseProjection = this._timelapse.getProjection();
+      var timelapseProjection = gEarthTime.timelapse.getProjection();
       bbox.min = timelapseProjection.latlngToPoint(this._projection.pointToLatlng(bbox.min));
       bbox.max = timelapseProjection.latlngToPoint(this._projection.pointToLatlng(bbox.max));
     }
@@ -173,7 +181,7 @@ export class TileView {
     // if TileView has projection, calculate TileView pixel coords directly
     // from projection instead of requiring prescaling in draw
     if (this._projection) {
-      var timelapseProjection = this._timelapse.getProjection();
+      var timelapseProjection = gEarthTime.timelapse.getProjection();
       var nw = timelapseProjection.pointToLatlng({ x: bbox.xmin, y: bbox.ymin });
       var nwPixel = this._projection.latlngToPoint(nw);
       var se = timelapseProjection.pointToLatlng({ x: bbox.xmax, y: bbox.ymax });
@@ -325,7 +333,7 @@ export class TileView {
         required[ti.key] = true;
         // If tile isn't ready, hold onto its first ready ancestor
         if (!this._tiles[ti.key].isReady()) {
-          this._timelapse.lastFrameCompletelyDrawn = false;
+          gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
           var ancestor = this._findReadyAncestor(ti);
           if (ancestor != null) {
             required[ancestor.key] = true;

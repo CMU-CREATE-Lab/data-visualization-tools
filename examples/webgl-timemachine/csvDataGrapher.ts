@@ -178,7 +178,7 @@ export class CsvDataGrapher {
         if (typeof key == "undefined") return;
         if (!tiles[key].jsondata) return;
         var data = tiles[key].jsondata.data;
-        var layerProps = layer.layerDef;
+        var layerProps = layer?.layer.layerDef;
         that.activeLayer.title = layerProps['Graph Title'] || layerProps['Name'];
         that.chart.options.graphGroupName = that.activeLayer.title;
         that.chart.options.axisY.title = layerProps['Graph Y-Axis Label'] || "Value";

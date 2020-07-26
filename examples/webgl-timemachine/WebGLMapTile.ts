@@ -1,28 +1,33 @@
-"use strict";
+/// <reference path="matrix.js"/>
 
-export class WebGLMapTile {
-  constructor(glb, tileidx, bounds, url, defaultUrl, opt_options) {
-    if (!WebGLMapTile._initted) {
-      WebGLMapTile._init();
-    }
-    this._tileidx = tileidx;
-    this.glb = glb;
-    this.gl = glb.gl;
+import { Tile } from "./Tile";
+import { WebGLMapLayer } from "./WebGLMapLayer";
+import { TileIdx } from "./TileIdx";
 
-    var opt_options = opt_options || {};
-    this.fragmentShader = opt_options.fragmentShader || WebGLMapTile.textureFragmentShader;
-    this.vertexShader = opt_options.vertexShader || WebGLMapTile.textureVertexShader;
-    this.draw = opt_options.drawFunction || this._draw;
+export class WebGLMapTile extends Tile {
+  _layerDomId: any;
+  _loadingSpinnerTimer: any;
+  _texture: any;
+  _triangles: any;
+  _image: HTMLImageElement;
+  _ready: boolean;
+  _width: number;
+  _height: number;
+  static activeTileCount: any;
+  _spinnerNeeded: boolean;
+  static verbose: boolean;
+  static _frameOffsets: any;
+  static _frameOffsetUsed: any;
+  static videoId: number;
+  constructor(layer: WebGLMapLayer, tileidx: TileIdx, bounds, opt_options) {
+    super(layer, tileidx, bounds, opt_options);
     this._layerDomId = opt_options.layerDomId;
-    this.colormap = opt_options.colormap || null;
 
     this._loadingSpinnerTimer = null;
 
-    this._textureProgram = glb.programFromSources(this.vertexShader,
-      this.fragmentShader);
     this._texture = this._createTexture();
 
-    this._triangles = glb.createBuffer(new Float32Array([0, 0,
+    this._triangles = this.glb.createBuffer(new Float32Array([0, 0,
       1, 0,
       0, 1,
       1, 1]));
@@ -43,8 +48,8 @@ export class WebGLMapTile {
     this._image.addEventListener('error', function (event) {
       that._removeLoadingSpinner();
       if (that._image) {
-        if (that._image.src != defaultUrl) {
-          that._image.src = defaultUrl;
+        if (that._image.src != that._layer.defaultUrl) {
+          that._image.src = that._layer.defaultUrl;
         }
       }
     });
@@ -53,7 +58,7 @@ export class WebGLMapTile {
       that._removeLoadingSpinner();
     };
 
-    this._image.src = url;
+    this._image.src = tileidx.expandUrl(this._layer._tileUrl, this._layer);
     this._ready = false;
     this._width = 256;
     this._height = 256;
@@ -73,6 +78,7 @@ export class WebGLMapTile {
   }
   _handleLoadedTexture() {
     var before = performance.now();
+    var gl = this.gl;
 
     gl.bindTexture(gl.TEXTURE_2D, this._texture);
     //console.time("gl.texImage2D");
@@ -84,6 +90,7 @@ export class WebGLMapTile {
     this._ready = true;
   }
   delete() {
+    this.unloadResources();
     // TODO: recycle texture
     this._image.src = '';
     this._image = null;
@@ -110,20 +117,20 @@ export class WebGLMapTile {
       this._bounds.max.y - this._bounds.min.y);
 
     if (this._ready) {
-      gl.useProgram(this._textureProgram);
+      gl.useProgram(this.program);
       gl.enable(gl.BLEND);
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-      gl.uniformMatrix4fv(this._textureProgram.uTransform, false, tileTransform);
-      gl.uniform1f(this._textureProgram.uShowTile, showTile);
+      gl.uniformMatrix4fv(this.program.uTransform, false, tileTransform);
+      gl.uniform1f(this.program.uShowTile, showTile);
       gl.bindBuffer(gl.ARRAY_BUFFER, this._triangles);
-      gl.vertexAttribPointer(this._textureProgram.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
-      gl.enableVertexAttribArray(this._textureProgram.aTextureCoord);
+      gl.vertexAttribPointer(this.program.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
+      gl.enableVertexAttribArray(this.program.aTextureCoord);
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, this._texture);
-      if (this.colormap) {
-        gl.uniform1i(gl.getUniformLocation(this._textureProgram, "uColormap"), 2); // texture unit 2
+      if (this._layer.colormapTexture) {
+        gl.uniform1i(gl.getUniformLocation(this.program, "uColormap"), 2); // texture unit 2
         gl.activeTexture(gl.TEXTURE2);
-        gl.bindTexture(gl.TEXTURE_2D, this.colormap);
+        gl.bindTexture(gl.TEXTURE_2D, this._layer.colormapTexture);
       }
 
 
@@ -143,20 +150,20 @@ export class WebGLMapTile {
     if (this._ready /*&& this._tileidx.l > 3*/) { // TODO: Get tiles w level > 3 that arent empty
       var color = options.color || [0., 0., 0., 1.0];
 
-      gl.useProgram(this._textureProgram);
+      gl.useProgram(this.program);
       gl.enable(gl.BLEND);
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-      var cLoc = gl.getUniformLocation(this._textureProgram, 'u_C');
+      var cLoc = gl.getUniformLocation(this.program, 'u_C');
       gl.uniform1f(cLoc, options.currentC);
       var uColor = color;
-      var colorLoc = gl.getUniformLocation(this._textureProgram, 'u_Color');
+      var colorLoc = gl.getUniformLocation(this.program, 'u_Color');
       gl.uniform4fv(colorLoc, uColor);
 
-      gl.uniformMatrix4fv(this._textureProgram.uTransform, false, tileTransform);
+      gl.uniformMatrix4fv(this.program.uTransform, false, tileTransform);
       gl.bindBuffer(gl.ARRAY_BUFFER, this._triangles);
-      gl.vertexAttribPointer(this._textureProgram.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
+      gl.vertexAttribPointer(this.program.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
       gl.activeTexture(gl.TEXTURE0);
-      gl.enableVertexAttribArray(this._textureProgram.aTextureCoord);
+      gl.enableVertexAttribArray(this.program.aTextureCoord);
       gl.bindTexture(gl.TEXTURE_2D, this._texture);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       gl.bindTexture(gl.TEXTURE_2D, null);
@@ -174,21 +181,36 @@ export class WebGLMapTile {
     if (this._ready /*&& this._tileidx.l > 3*/) { // TODO: Get tiles w level > 3 that arent empty
       var color = options.color || [0., 0., 0., 1.0];
 
-      gl.useProgram(this._textureProgram);
+      gl.useProgram(this.program);
       gl.enable(gl.BLEND);
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-      var cLoc = gl.getUniformLocation(this._textureProgram, 'u_C');
-      var seaLevelMeters = getCustomSliderCurrentTickValue() + 0.01;
+      var cLoc = gl.getUniformLocation(this.program, 'u_C');
+      throw Error('TODO: Need to implement way to get sea level rise from slider');
+      var seaLevelMeters = 2;
+      //var seaLevelMeters = getCustomSliderCurrentTickValue() + 0.01;
+      // Was in index.html:
+      //// function getCustomSliderCurrentTickValue() {
+      ////   var sliderTickVal = 0;
+      ////   // @ts-ignore
+      ////   // TODO(LayerDB)
+      ////   if (!$.isEmptyObject(layerCustomSliderInfo)) {
+      ////     // @ts-ignore
+      ////     // TODO(LayerDB)
+      ////     sliderTickVal = layerCustomSliderInfo[gEarthTime.timelapse.getCurrentCaptureTime()] || 0;
+      ////   }
+      ////   return sliderTickVal;
+      //// }
+      
       gl.uniform1f(cLoc, seaLevelMeters / 256.0);
       var uColor = color;
-      var colorLoc = gl.getUniformLocation(this._textureProgram, 'u_Color');
+      var colorLoc = gl.getUniformLocation(this.program, 'u_Color');
       gl.uniform4fv(colorLoc, uColor);
 
-      gl.uniformMatrix4fv(this._textureProgram.uTransform, false, tileTransform);
+      gl.uniformMatrix4fv(this.program.uTransform, false, tileTransform);
       gl.bindBuffer(gl.ARRAY_BUFFER, this._triangles);
-      gl.vertexAttribPointer(this._textureProgram.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
+      gl.vertexAttribPointer(this.program.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
       gl.activeTexture(gl.TEXTURE0);
-      gl.enableVertexAttribArray(this._textureProgram.aTextureCoord);
+      gl.enableVertexAttribArray(this.program.aTextureCoord);
       gl.bindTexture(gl.TEXTURE_2D, this._texture);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       gl.bindTexture(gl.TEXTURE_2D, null);
@@ -208,22 +230,22 @@ export class WebGLMapTile {
 
       var currentAlpha = options.currentAlpha || 0.95;
       var currentBValue = options.currentBValue;
-      gl.useProgram(this._textureProgram);
+      gl.useProgram(this.program);
       gl.enable(gl.BLEND);
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
       //console.log(currentBValue);
-      var cLoc = gl.getUniformLocation(this._textureProgram, 'u_b');
+      var cLoc = gl.getUniformLocation(this.program, 'u_b');
       gl.uniform1f(cLoc, currentBValue);
 
-      var cLoc = gl.getUniformLocation(this._textureProgram, 'u_alpha');
+      var cLoc = gl.getUniformLocation(this.program, 'u_alpha');
       gl.uniform1f(cLoc, currentAlpha);
 
-      gl.uniformMatrix4fv(this._textureProgram.uTransform, false, tileTransform);
+      gl.uniformMatrix4fv(this.program.uTransform, false, tileTransform);
       gl.bindBuffer(gl.ARRAY_BUFFER, this._triangles);
-      gl.vertexAttribPointer(this._textureProgram.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
+      gl.vertexAttribPointer(this.program.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
       gl.activeTexture(gl.TEXTURE0);
-      gl.enableVertexAttribArray(this._textureProgram.aTextureCoord);
+      gl.enableVertexAttribArray(this.program.aTextureCoord);
       gl.bindTexture(gl.TEXTURE_2D, this._texture);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       gl.bindTexture(gl.TEXTURE_2D, null);
@@ -250,17 +272,6 @@ export class WebGLMapTile {
     var $loadingSpinner = $('.loading-layer-spinner-small[data-loading-layer="' + this._layerDomId + '"]');
     $loadingSpinner.remove();
   }
-  static _init() {
-    WebGLMapTile._initted = true;
-
-    $(document).keypress(function (e) {
-      // ctrl-b toggles verbosity
-      if (e.keyCode == 2) {
-        WebGLMapTile.verbose = !WebGLMapTile.verbose;
-        //console.log('WebGLMapTile verbose: ' + WebGLMapTile.verbose);
-      }
-    });
-  }
   static stats() {
     return ('WebGLMapTile stats. Active tiles: ' + WebGLMapTile.activeTileCount);
   }
@@ -279,8 +290,6 @@ export class WebGLMapTile {
   // Update and draw tiles
   // Assumes tiles is sorted low res to high res (by TileView)
   static update(tiles, transform, options) {
-    if (si)
-      return;
     //WebGLTimeMachinePerf.instance.startFrame();
     var canvas = document.getElementById('webgl');
 
@@ -292,30 +301,13 @@ export class WebGLMapTile {
   }
 }
 
-
-
-
 WebGLMapTile.videoId = 0;
 WebGLMapTile.verbose = false;
 WebGLMapTile.activeTileCount = 0;
-WebGLMapTile._initted = false;
 
+export var WebGLMapTileShaders: {[name: string]: string} = {};
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-WebGLMapTile.textureVertexShader =
+WebGLMapTileShaders.textureVertexShader =
   'attribute vec2 aTextureCoord;\n' +
   'uniform mat4 uTransform;\n' +
   'varying vec2 vTextureCoord;\n' +
@@ -326,7 +318,7 @@ WebGLMapTile.textureVertexShader =
   '}\n';
 
 
-WebGLMapTile.textureFragmentShader =
+WebGLMapTileShaders.textureFragmentShader =
   'precision mediump float;\n' +
   'varying vec2 vTextureCoord;\n' +
   'uniform sampler2D uSampler;\n' +
@@ -341,7 +333,7 @@ WebGLMapTile.textureFragmentShader =
   '}\n';
 
 
-WebGLMapTile.textureColormapFragmentShader =
+WebGLMapTileShaders.textureColormapFragmentShader =
   'precision mediump float;\n' +
   'varying vec2 vTextureCoord;\n' +
   'uniform sampler2D uSampler;\n' +
@@ -357,7 +349,7 @@ WebGLMapTile.textureColormapFragmentShader =
   '  //}\n' +
   '}\n';
 
-WebGLMapTile.seaLevelRiseTextureFragmentShader =
+WebGLMapTileShaders.seaLevelRiseTextureFragmentShader =
   'precision mediump float;\n' +
   'varying vec2 vTextureCoord;\n' +
   'uniform sampler2D uSampler;\n' +
@@ -381,7 +373,7 @@ WebGLMapTile.seaLevelRiseTextureFragmentShader =
   '  }\n' +
   '}\n';
 
-WebGLMapTile.seaLevelRiseV2TextureFragmentShader = [
+WebGLMapTileShaders.seaLevelRiseV2TextureFragmentShader = [
   'precision mediump float;',
   'varying vec2 vTextureCoord;',
   'uniform sampler2D uSampler;',
@@ -398,7 +390,7 @@ WebGLMapTile.seaLevelRiseV2TextureFragmentShader = [
 ].join("\n");
 
 // Temporary, for book
-WebGLMapTile.seaLevelRiseTintedTextureFragmentShader =
+WebGLMapTileShaders.seaLevelRiseTintedTextureFragmentShader =
   'precision mediump float;\n' +
   'varying vec2 vTextureCoord;\n' +
   'uniform sampler2D uSampler;\n' +
@@ -427,7 +419,7 @@ WebGLMapTile.seaLevelRiseTintedTextureFragmentShader =
   '  }\n' +
   '}\n';
 
-WebGLMapTile.animatedTextureFragmentShader =
+WebGLMapTileShaders.animatedTextureFragmentShader =
   'precision mediump float;\n' +
   'varying vec2 vTextureCoord;\n' +
   'uniform sampler2D u_sampler;\n' +
@@ -445,5 +437,3 @@ WebGLMapTile.animatedTextureFragmentShader =
   '  }\n' +
   '}\n';
 
-// stopit:  set to true to disable update()
-var si = false;

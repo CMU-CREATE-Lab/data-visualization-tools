@@ -2,6 +2,8 @@
 // Tile index
 //
 
+import { Layer } from "./Layer";
+
 // A tile has a level, row, and column
 // Level 0 has 1x1=1 tiles; level 1 has 2x2=4 tiles; level 2 has 4x4=16 tiles
 //
@@ -34,8 +36,8 @@ export class TileIdx {
     return this.l + ',' + this.c + ',' + this.r;
   }
   // Expands {x} (column), {y} (row), {yflip} (mirrored row), and {z} (level) in an URL
-  expandUrl(url, layer) {
-    if (layer && layer.startDate && layer.endDate) {
+  expandUrl(url, layer: Layer = null) {
+    if (layer?.startDate && layer?.endDate) {
       var startEpochTime = parseDateStr(layer.startDate);
       var endEpochTime = parseDateStr(layer.endDate);
 

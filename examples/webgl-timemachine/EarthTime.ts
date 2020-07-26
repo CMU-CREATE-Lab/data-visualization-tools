@@ -14,6 +14,7 @@ export interface EarthTime {
     LayerDBLoaded: ()=>Promise<void>;
     timelapse: any;
     rootTilePath: string;
+    computeGmapsZoomLevel(): number;
   };
 
 export var gEarthTime: EarthTime;

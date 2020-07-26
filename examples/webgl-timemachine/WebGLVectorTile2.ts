@@ -1,91 +1,113 @@
-"use strict";
+declare var Papa: any;
+/// <reference path="../../js/papaparse.min.js"/>
 
+declare var earcut: any;
+/// <reference path="../../js/earcut.min.js"/>
+
+declare var d3: any;
+
+import { gEarthTime } from './EarthTime'
 import { Tile } from './Tile'
+import { searchCountryList, COUNTRY_POLYGONS_RESOURCE } from './LayerFactory';
+import { Resource, parseAndIndexGeojson } from './Resource';
+import { EarthTimeCsvTable } from './EarthTimeCsvTable';
+import { Workers } from './Workers';
+import { TileIdx } from './TileIdx';
 
 export class WebGLVectorTile2 extends Tile {
-  constructor(layer, tileview, glb, tileidx, bounds, url, opt_options) {
-    super(layer, tileview, glb, tileidx, bounds);
-    this._url = url;
+  _url: any;
+  _ready: boolean;
+  draw: any;
+  externalGeojson: any;
+  _noValue: any;
+  _uncertainValue: any;
+  _loadingSpinnerTimer: any;
+  _wasPlayingBeforeDataLoad: boolean;
+  _drawOptions: any;
+  _defaultColor: number[];
+  _image: HTMLImageElement;
+  geojsonData: any;
+  scalingFunction: any;
+  colorScalingFunction: any;
+  static errorsAlreadyShown: any;
+  static errorDialog: any;
+  startTime: number;
+  xhr: XMLHttpRequest;
+  timings: number[];
+  windData: any;
+  windTexture: any;
+  currentWindTexture: any;
+  backgroundTexture: any;
+  screenTexture: any;
+  fadeOpacity: number;
+  speedFactor: number;
+  dropRate: number;
+  dropRateBump: number;
+  drawProgram: any;
+  screenProgram: any;
+  updateProgram: any;
+  mapProgram: any;
+  quadBuffer: any;
+  framebuffer: any;
+  numParticles: number;
+  colorRampTexture: any;
+  _sitc4r2Code: string;
+  _exporters: any[];
+  _importers: any[];
+  _scale: number;
+  buffers: {};
+  worker: any;
+  _maxPointValue: any;
+  _minPointValue: any;
+  _maxColorValue: any;
+  _minColorValue: any;
+  jsondata: any;
+  _radius: any;
+  _maxValue: number;
+  _minValue: number;
+  _timeVariableRegions: any;
+  epochs: any;
+  _triangleLists: any[];
+  valuesWidth: number;
+  nRegionsPerRow: number;
+  valuesHeight: number;
+  _valuesTexture: any;
+  static _totalBtiTime: number;
+  static _totalBtiCount: any;
+  _texture: any;
+  _pointCount: number;
+  _data: Float32Array;
+  _arrayBuffer: any;
+  _arrayBuffers: any[];
+  _indexBuffer: any;
+  _deleted: boolean;
+  static dotScale: number;
+  tl: Float32Array;
+  br: Float32Array;
+  _spinnerNeeded: boolean;
+  constructor(layer, tileidx: TileIdx, bounds, opt_options) {
+    super(layer, tileidx, bounds, opt_options);
+    this._url = tileidx.expandUrl(this._layer._tileUrl, this._layer);
     this._ready = false;
 
     var opt_options = opt_options || {};
-    this._setData = opt_options.setDataFunction || this._setBufferData;
-    this._load = opt_options.loadDataFunction || this._loadData;
-    this._dataLoaded = opt_options.dataLoadedFunction || this._defaultDataLoaded;
     this.draw = opt_options.drawFunction || this._drawLines;
-    this.fragmentShader = opt_options.fragmentShader || WebGLVectorTile2.vectorTileFragmentShader;
-    this.vertexShader = opt_options.vertexShader || WebGLVectorTile2.vectorTileVertexShader;
     this.externalGeojson = opt_options.externalGeojson;
-    this.nameKey = opt_options.nameKey;
-    this.numAttributes = opt_options.numAttributes;
     this._noValue = opt_options.noValue || 'xxx';
     this._uncertainValue = opt_options.uncertainValue || '. .';
-    this._layerDomId = opt_options.layerDomId;
-    this._color = opt_options.color;
     this._loadingSpinnerTimer = null;
     this._wasPlayingBeforeDataLoad = false;
-    this.dotmapColors = opt_options.dotmapColors;
-    this._drawOptions = opt_options.drawOptions;
-    this._setDataOptions = opt_options.setDataOptions;
-    this._layer = layer;
     this._defaultColor = [0.1, 0.1, 0.5, 1.0];
 
     this.gl.getExtension("OES_standard_derivatives");
 
-    // Hack to rewrite vertexShader for .bin choropleth tiles
-    // TODO: make this less hacky
-    if (this.vertexShader == WebGLVectorTile2.choroplethMapVertexShader &&
-      this.externalGeojson &&
-      this.externalGeojson.endsWith('.bin')) {
-      this.vertexShader = WebGLVectorTile2.choroplethMapVertexShaderV2;
-      this.fragmentShader = WebGLVectorTile2.choroplethMapFragmentShaderV2;
-    }
-
-    this.program = glb.programFromSources(this.vertexShader, this.fragmentShader);
-
-    if (opt_options.imageSrc) {
+    if (this._layer.imageSrc) {
       this._image = new Image();
       this._image.crossOrigin = "anonymous";
-      this._image.src = opt_options.imageSrc;
+      this._image.src = this._layer.imageSrc;
       var that = this;
       this._image.onload = function () {
-        //if (typeof(that.externalGeojson) != "undefined" && that.externalGeojson != "") {
-        //
-        //  var xhr = new XMLHttpRequest();
-        //	var url = that._tileidx.expandedUrl(that.externalGeojson);
-        //	$.ajax({
-        //	  url: url,
-        //	  success: function(json) {
-        //      that.geojsonData = json;
-        //      if (typeof that.nameKey != "undefined") {
-        //        var t1 = performance.now();
-        //        var hash = {};
-        //        var t0 = performance.now();
-        //        for (var i = 0; i < that.geojsonData["features"].length; i++) {
-        //		hash[that.geojsonData["features"][i]["properties"][that.nameKey]] = i;
-        //        }
-        //        var t1 = performance.now();
-        //        console.log("Indexing GeoJSON took " + (t1 - t0) + "ms");
-        //        that.geojsonData["hash"] = hash;
-        //      }
-        //      that._load();
-        //    },
-        //	  error: function(e) {
-        //	    // Error loading tile.  Might be 404 or 403, missing tile, which is normal for an empty tile.
-        //	    // Label the tile as empty, and that it's finished loading
-        //	    that._setupLoadingSpinner(that.layerId);
-        //	    that._removeLoadingSpinner();
-        //	    that._ready = true;
-        //	    if (e.status != 403 && e.status != 404) {
-        //	      // If not missing tile, flag the error
-        //	      console.log('Status', e.status, 'from url', url);
-        //	    }
-        //	  }
-        //	});
-        //} else {
-        //  that.geojsonData = null;
-        that._load();
-        //}
+        that.loadDataFunction();
       };
     }
     else if (typeof (this.externalGeojson) != "undefined" && this.externalGeojson != "") {
@@ -94,12 +116,12 @@ export class WebGLVectorTile2 extends Tile {
       xhr.open('GET', that.externalGeojson);
       xhr.onload = function () {
         that.geojsonData = JSON.parse(this.responseText);
-        that._load();
+        that.loadDataFunction();
       };
       xhr.send();
     }
     else {
-      this._load();
+      this.loadDataFunction();
     }
 
     if (opt_options.scalingFunction) {
@@ -110,11 +132,8 @@ export class WebGLVectorTile2 extends Tile {
       this.colorScalingFunction = opt_options.colorScalingFunction;
     }
 
-    //  if (opt_options.geojsonData) {
-    //    this.geojsonData = opt_options.geojsonData;
-    //  }
     if (opt_options.layerId) {
-      this.layerId = opt_options.layerId;
+      this._layer.layerId = opt_options.layerId;
     }
   }
   _showErrorOnce(msg) {
@@ -175,15 +194,15 @@ export class WebGLVectorTile2 extends Tile {
         float32Array = new Float32Array(this.response);
         //perf_receive(float32Array.length * 4, new Date().getTime() - that.startTime);
       }
-      that._setData(float32Array);
-      if (that.layerId) {
-        that._dataLoaded(that.layerId);
+      that.setDataFunction(float32Array);
+      if (that._layer.layerId) {
+        that.dataLoadedFunction(that._layer.layerId);
       }
     };
     this.xhr.onerror = function () {
       that._removeLoadingSpinner();
 
-      that._setData(new Float32Array([]));
+      that.setDataFunction(new Float32Array([]));
     };
 
     this.xhr.onabort = function () {
@@ -209,12 +228,12 @@ export class WebGLVectorTile2 extends Tile {
       else {
         data = JSON.parse(this.responseText);
       }
-      that._setData(data, that._setDataOptions);
+      that.setDataFunction(data, that._layer.setDataOptions);
     };
     this.xhr.onerror = function () {
       that._removeLoadingSpinner();
 
-      that._setData('');
+      that.setDataFunction('');
     };
     this.xhr.send();
   }
@@ -236,12 +255,12 @@ export class WebGLVectorTile2 extends Tile {
     this.screenTexture = glb.createTexture(gl.NEAREST, emptyPixels, gl.canvas.width, gl.canvas.height);
     */
     this.resizeWindVectors();
-    timelapse.addResizeListener(function () { that.resizeWindVectors(); });
+    gEarthTime.timelapse.addResizeListener(function () { that.resizeWindVectors(); });
 
     windImage.onload = function () {
       that.windTexture = that.glb.createTexture(that.gl.LINEAR, that.windData.image);
       that.currentWindTexture = that.glb.createTexture(that.gl.LINEAR, that.windData.image);
-      that._dataLoaded(that.layerId);
+      that.dataLoadedFunction(that._layer.layerId);
       that._ready = true;
 
     };
@@ -252,8 +271,8 @@ export class WebGLVectorTile2 extends Tile {
     var gl = this.gl;
 
     var emptyPixels = new Uint8Array(gl.canvas.width * gl.canvas.height * 4);
-    this.backgroundTexture = glb.createTexture(gl.NEAREST, emptyPixels, gl.canvas.width, gl.canvas.height);
-    this.screenTexture = glb.createTexture(gl.NEAREST, emptyPixels, gl.canvas.width, gl.canvas.height);
+    this.backgroundTexture = this.glb.createTexture(gl.NEAREST, emptyPixels, gl.canvas.width, gl.canvas.height);
+    this.screenTexture = this.glb.createTexture(gl.NEAREST, emptyPixels, gl.canvas.width, gl.canvas.height);
 
   }
   _loadWindVectorsData() {
@@ -263,17 +282,20 @@ export class WebGLVectorTile2 extends Tile {
     this.dropRate = 0.003; // how often the particles move to a random place
     this.dropRateBump = 0.01; // drop rate increase relative to individual particle speed
 
-
     var glb = this.glb;
 
-    this.drawProgram = glb.programFromSources(WebGLVectorTile2.WindVectorsShaders.drawVertexShader, WebGLVectorTile2.WindVectorsShaders.drawFragmentShader);
-    this.screenProgram = glb.programFromSources(WebGLVectorTile2.WindVectorsShaders.quadVertexShader, WebGLVectorTile2.WindVectorsShaders.screenFragmentShader);
-    this.updateProgram = glb.programFromSources(WebGLVectorTile2.WindVectorsShaders.quadVertexShader, WebGLVectorTile2.WindVectorsShaders.updateFragmentShader);
-    this.mapProgram = glb.programFromSources(WebGLVectorTile2.WindVectorsShaders.mapVertexShader, WebGLVectorTile2.WindVectorsShaders.mapFragmentShader);
+    this.drawProgram = glb.programFromSources(
+      WebGLVectorTile2Shaders.WindVectorsShaders_drawVertexShader, WebGLVectorTile2Shaders.WindVectorsShaders_drawFragmentShader);
+    this.screenProgram = glb.programFromSources(
+      WebGLVectorTile2Shaders.WindVectorsShaders_quadVertexShader, WebGLVectorTile2Shaders.WindVectorsShaders_screenFragmentShader);
+    this.updateProgram = glb.programFromSources(
+      WebGLVectorTile2Shaders.WindVectorsShaders_quadVertexShader, WebGLVectorTile2Shaders.WindVectorsShaders_updateFragmentShader);
+    this.mapProgram = glb.programFromSources(
+      WebGLVectorTile2Shaders.WindVectorsShaders_mapVertexShader, WebGLVectorTile2Shaders.WindVectorsShaders_mapFragmentShader);
 
     //this.quadBuffer = createBuffer(gl, new Float32Array([0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1]));
     this.quadBuffer = glb.createBuffer(new Float32Array([0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1]));
-    this.framebuffer = gl.createFramebuffer();
+    this.framebuffer = glb.gl.createFramebuffer();
 
     //this.numParticles = 16384;
     this.numParticles = 8192;
@@ -295,23 +317,23 @@ export class WebGLVectorTile2 extends Tile {
       }
       else {
         data = JSON.parse(this.responseText);
-        if (typeof data["defaultRampColors"] != "undefined") {
-          defaultRampColors = data["defaultRampColors"];
+        if (typeof data.defaultRampColors != "undefined") {
+          defaultRampColors = data.defaultRampColors;
         }
         that.colorRampTexture = glb.createTexture(that.gl.LINEAR, getColorRamp(defaultRampColors), 16, 16);
-        if (typeof data["defaultRampColors"] != "undefined") {
+        if (typeof data.defaultRampColors != "undefined") {
           defaultRampColors = data["defaultRampColors"];
         }
-        if (typeof data["numParticles"] != "undefined") {
+        if (typeof data.numParticles != "undefined") {
           that.numParticles = data["numParticles"];
         }
       }
-      that._setData(data);
+      that.setDataFunction(data);
     };
     this.xhr.onerror = function () {
       that._removeLoadingSpinner();
 
-      that._setData('');
+      that.setDataFunction('');
     };
     this.xhr.send();
 
@@ -342,9 +364,9 @@ export class WebGLVectorTile2 extends Tile {
     var parts = this._url.split("?");
     if (parts.length > 1) {
       queryString = parts[1];
-      var qsa = parseQueryString(queryString);
-      this._exporters = typeof qsa['exporters'] == "undefined" || qsa['exporters'] == "" ? [] : qsa['exporters'].split(",");
-      this._importers = typeof qsa['importers'] == "undefined" || qsa['importers'] == "" ? [] : qsa['importers'].split(",");
+      var qsa: any = parseQueryString(queryString);
+      this._exporters = typeof qsa.exporters == "undefined" || qsa.exporters == "" ? [] : qsa.exporters.split(",");
+      this._importers = typeof qsa.importers == "undefined" || qsa.importers == "" ? [] : qsa.importers.split(",");
       if (typeof qsa['scale'] != "undefined") {
         this._scale = parseFloat(qsa['scale']);
       }
@@ -374,9 +396,9 @@ export class WebGLVectorTile2 extends Tile {
       };
     }
     this._ready = true;
-    var layerId = this._layerDomId.split('-')[2];
-    this.layerId = layerId;
-    this._dataLoaded(layerId);
+    var layerId = this._layer._tileView._layerDomId.split('-')[2];
+    this._layer.layerId = layerId;
+    this.dataLoadedFunction(layerId);
 
   }
   _loadBivalentBubbleMapDataFromCsv() {
@@ -468,7 +490,7 @@ export class WebGLVectorTile2 extends Tile {
         var date = arr[i];
 
         var epoch = parseDateStr(date);
-        if (isNaN(epoch)) {
+        if (isNaN(epoch as number)) {
           break;
         }
         ret.push(epoch);
@@ -536,46 +558,46 @@ export class WebGLVectorTile2 extends Tile {
       var points = [];
       for (var i = 0; i < centroids.length; i++) {
         for (var j = 0; j < epochs.length; j += 2) {
-          var point = {};
-          point["centroid"] = centroids[i];
-          point["pointVal1"] = scaledPointValues[i][j];
-          point["pointVal2"] = scaledPointValues[i][j + 1];
-          point["colorVal1"] = scaledColorValues[i][j];
-          point["colorVal2"] = scaledColorValues[i][j + 1];
-          point["epoch1"] = epochs[j];
-          point["epoch2"] = epochs[j + 1];
+          var point: any = {};
+          point.centroid = centroids[i];
+          point.pointVal1 = scaledPointValues[i][j];
+          point.pointVal2 = scaledPointValues[i][j + 1];
+          point.colorVal1 = scaledColorValues[i][j];
+          point.colorVal2 = scaledColorValues[i][j + 1];
+          point.epoch1 = epochs[j];
+          point.epoch2 = epochs[j + 1];
           points.push(point);
         }
       }
 
       points.sort(function (a, b) {
-        return Math.abs(b["pointVal2"]) - Math.abs(a["pointVal2"]);
+        return Math.abs(b.pointVal2) - Math.abs(a.pointVal2);
       });
 
       var flatPoints = [];
       for (var i = 0; i < points.length; i++) {
-        flatPoints.push(points[i]["centroid"][0]);
-        flatPoints.push(points[i]["centroid"][1]);
-        flatPoints.push(points[i]["epoch1"]);
-        flatPoints.push(points[i]["pointVal1"]);
-        flatPoints.push(points[i]["colorVal1"]);
-        flatPoints.push(points[i]["epoch2"]);
-        flatPoints.push(points[i]["pointVal2"]);
-        flatPoints.push(points[i]["colorVal2"]);
+        flatPoints.push(points[i].centroid[0]);
+        flatPoints.push(points[i].centroid[1]);
+        flatPoints.push(points[i].epoch1);
+        flatPoints.push(points[i].pointVal1);
+        flatPoints.push(points[i].colorVal1);
+        flatPoints.push(points[i].epoch2);
+        flatPoints.push(points[i].pointVal2);
+        flatPoints.push(points[i].colorVal2);
         if (has_packedColor) {
           flatPoints.push(points[i]["packedColor"]);
         }
       }
 
-      that._setData(new Float32Array(flatPoints));
+      that.setDataFunction(new Float32Array(flatPoints));
       //that._setData([]);
-      that._dataLoaded(that.layerId);
+      that.dataLoadedFunction(that._layer.layerId);
     };
 
     this.xhr.onerror = function () {
       that._removeLoadingSpinner();
 
-      that._setData('');
+      that.setDataFunction('');
     };
 
     this.xhr.send();
@@ -642,7 +664,7 @@ export class WebGLVectorTile2 extends Tile {
           var date = header[i];
 
           var epoch = parseDateStr(date);
-          if (isNaN(epoch)) {
+          if (isNaN(epoch as number)) {
             break;
           }
           epochs[i] = epoch;
@@ -651,7 +673,8 @@ export class WebGLVectorTile2 extends Tile {
         for (var i = 1; i < that.jsondata.data.length; i++) {
           var country = that.jsondata.data[i];
           if (that.geojsonData == null) {
-            that.geojsonData = COUNTRY_CENTROIDS;
+            // @ts-ignore
+            that.geojsonData = COUNTRY_CENTROIDS; // TODO: load this as resource
           }
           var feature = searchCountryList(that.geojsonData, country[0]);
           var centroid = ["", ""];
@@ -669,8 +692,8 @@ export class WebGLVectorTile2 extends Tile {
             console.log('ERROR: Could not find ' + country[0]);
             continue;
           }
-          else if (!feature['properties'].hasOwnProperty('webmercator')) {
-            var latlng = { lat: feature['geometry']['coordinates'][1], lng: feature['geometry']['coordinates'][0] };
+          else if (!feature.properties.hasOwnProperty('webmercator')) {
+            var latlng = { lat: feature.geometry.coordinates[1], lng: feature.geometry.coordinates[0] };
             var xy = proj.latlngToPoint(latlng);
             centroid = [xy.x, xy.y];
             if (has_packedColor) {
@@ -698,29 +721,29 @@ export class WebGLVectorTile2 extends Tile {
               var val = country[k];
               val = getValue(val);
               setMinMaxValue(Math.abs(val));
-              var point = {
-                "centroid": centroid,
-                "epoch1": epochs[k],
-                "val1": val
+              var point: any = {
+                centroid: centroid,
+                epoch1: epochs[k],
+                val1: val
               };
               if (idx.length > 1) {
                 var k = idx[j + 1];
                 var val = country[k];
                 val = getValue(val);
                 setMinMaxValue(Math.abs(val));
-                point["epoch2"] = epochs[k];
-                point["val2"] = val;
+                point.epoch2 = epochs[k];
+                point.val2 = val;
               }
               else {
                 var k = idx[j];
                 var val = country[k];
                 val = getValue(val);
                 setMinMaxValue(Math.abs(val));
-                point["epoch2"] = epochs[k];
-                point["val2"] = val;
+                point.epoch2 = epochs[k];
+                point.val2 = val;
               }
               if (has_packedColor) {
-                point['packedColor'] = packedColor;
+                point.packedColor = packedColor;
               }
               points.push(point);
             }
@@ -730,15 +753,15 @@ export class WebGLVectorTile2 extends Tile {
               val = getValue(val);
               setMinMaxValue(Math.abs(val));
               var span = epochs[k] - epochs[k - 1];
-              var point = {
-                "centroid": centroid,
-                "epoch1": epochs[k],
-                "val1": val,
-                "epoch2": epochs[k] + span,
-                "val2": val
+              var point: any = {
+                centroid: centroid,
+                epoch1: epochs[k],
+                val1: val,
+                epoch2: epochs[k] + span,
+                val2: val
               };
               if (has_packedColor) {
-                point['packedColor'] = packedColor;
+                point.packedColor = packedColor;
               }
               points.push(point);
             }
@@ -749,35 +772,35 @@ export class WebGLVectorTile2 extends Tile {
         var radius = eval(that.scalingFunction);
         that._radius = radius;
         for (var i = 0; i < points.length; i++) {
-          points[i]["val1"] = radius(points[i]["val1"]);
-          points[i]["val2"] = radius(points[i]["val2"]);
+          points[i].val1 = radius(points[i].val1);
+          points[i].val2 = radius(points[i].val2);
         }
       }
 
       points.sort(function (a, b) {
-        return Math.abs(b["val2"]) - Math.abs(a["val2"]);
+        return Math.abs(b.val2) - Math.abs(a.val2);
       });
       var flatPoints = [];
       for (var i = 0; i < points.length; i++) {
-        flatPoints.push(points[i]["centroid"][0]);
-        flatPoints.push(points[i]["centroid"][1]);
-        flatPoints.push(points[i]["epoch1"]);
-        flatPoints.push(points[i]["val1"]);
-        flatPoints.push(points[i]["epoch2"]);
-        flatPoints.push(points[i]["val2"]);
+        flatPoints.push(points[i].centroid[0]);
+        flatPoints.push(points[i].centroid[1]);
+        flatPoints.push(points[i].epoch1);
+        flatPoints.push(points[i].val1);
+        flatPoints.push(points[i].epoch2);
+        flatPoints.push(points[i].val2);
         if (has_packedColor) {
-          flatPoints.push(points[i]["packedColor"]);
+          flatPoints.push(points[i].packedColor);
         }
       }
-      that._setData(new Float32Array(flatPoints));
+      that.setDataFunction(new Float32Array(flatPoints));
       //that._setData([]);
-      that._dataLoaded(that.layerId);
+      that.dataLoadedFunction(that._layer.layerId);
     };
 
     this.xhr.onerror = function () {
       that._removeLoadingSpinner();
 
-      that._setData('');
+      that.setDataFunction('');
     };
 
     this.xhr.send();
@@ -806,7 +829,7 @@ export class WebGLVectorTile2 extends Tile {
     var resources = [];
 
     // Pre-bind nameKey to create transform(data, callback)
-    var parseGeojson = parseAndIndexGeojson.bind(null, this.nameKey);
+    var parseGeojson = parseAndIndexGeojson.bind(null, this._layer.nameKey);
 
     if (!this.externalGeojson) {
       resources[0] = COUNTRY_POLYGONS_RESOURCE;
@@ -833,7 +856,7 @@ export class WebGLVectorTile2 extends Tile {
     // header row Country,      year_0, ..., year_N
     // data row   country_name, value_0,..., value_N
     // ...
-    var timeVariableRegions = this._setDataOptions && this._setDataOptions.timeVariableRegions;
+    var timeVariableRegions = this._layer.setDataOptions && this._layer.setDataOptions.timeVariableRegions;
     this._timeVariableRegions = timeVariableRegions;
 
     var bti = data[0];
@@ -900,7 +923,7 @@ export class WebGLVectorTile2 extends Tile {
 
     this._triangleLists = [];
 
-    function writeTriangles() {
+    function writeTrianglesFunc() {
       if (!drawVerticesIdx)
         return; // empty
 
@@ -913,7 +936,7 @@ export class WebGLVectorTile2 extends Tile {
 
       var arrayBuffer = this.gl.createBuffer();
       this.gl.bindBuffer(this.gl.ARRAY_BUFFER, arrayBuffer);
-      this.gl.bufferData(this.gl.ARRAY_BUFFER, drawVertices.slice(0, drawVerticesIdx), gl.STATIC_DRAW);
+      this.gl.bufferData(this.gl.ARRAY_BUFFER, drawVertices.slice(0, drawVerticesIdx), this.gl.STATIC_DRAW);
 
       //console.log(this._tileidx.toString(), 'writing', drawTrianglesIdx / 3, 'triangles with', drawVerticesIdx / 3, 'vertices to list #' + this._triangleLists.length);
       this._triangleLists.push({ arrayBuffer: arrayBuffer, indexBuffer: indexBuffer, count: drawTrianglesIdx });
@@ -921,7 +944,7 @@ export class WebGLVectorTile2 extends Tile {
       drawTrianglesIdx = 0;
       drawVerticesIdx = 0;
     }
-    writeTriangles = writeTriangles.bind(this);
+    var writeTriangles = writeTrianglesFunc.bind(this);
 
     for (var i = 0; i < regionNames.length; i++) {
       // Scan through triangle vertex indices to find index range
@@ -1025,6 +1048,7 @@ export class WebGLVectorTile2 extends Tile {
     }
 
     // Create and initialize texture
+    var gl = this.gl;
     this._valuesTexture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, this._valuesTexture);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -1045,7 +1069,7 @@ export class WebGLVectorTile2 extends Tile {
     WebGLVectorTile2._totalBtiCount++;
 
     // TODO: should we only call this once after first tile loaded?
-    this._dataLoaded(this.layerId);
+    this.dataLoadedFunction(this._layer.layerId);
 
     console.log('BTI tile ' + this._tileidx.toString() + ' loaded in ' + totalTime + 'ms (avg ' + Math.round(WebGLVectorTile2._totalBtiTime / WebGLVectorTile2._totalBtiCount) + 'ms over ' + WebGLVectorTile2._totalBtiCount + ' tiles)');
 
@@ -1083,9 +1107,9 @@ export class WebGLVectorTile2 extends Tile {
       {
         csv: csv,
         geojson: geojson,
-        nameKey: this.nameKey
+        nameKey: this._layer.nameKey
       },
-      function (t) {
+      function (this: WebGLVectorTile2, t) {
         var verts = t.verts;
         var minValue = t.minValue;
         var maxValue = t.maxValue;
@@ -1102,9 +1126,9 @@ export class WebGLVectorTile2 extends Tile {
 
         verts = Float32Array.from(verts);
 
-        this.numAttributes = 6;
-        this._setData(verts);
-        this._dataLoaded(this.layerId);
+        this._layer.numAttributes = 6;
+        this.setDataFunction(verts);
+        this.dataLoadedFunction(this._layer.layerId);
         this._ready = true;
       }.bind(this));
   }
@@ -1114,13 +1138,13 @@ export class WebGLVectorTile2 extends Tile {
     }
 
     this.buffers[sitc4r2Code][year] = {
-      "numAttributes": this.numAttributes,
+      "numAttributes": this._layer.numAttributes,
       "pointCount": 0,
       "buffer": null,
       "ready": false
     };
     var gl = this.gl;
-    this.buffers[sitc4r2Code][year].pointCount = data.length / this.numAttributes;
+    this.buffers[sitc4r2Code][year].pointCount = data.length / this._layer.numAttributes;
     if (this.buffers[sitc4r2Code][year].pointCount > 0) {
       this.buffers[sitc4r2Code][year].buffer = gl.createBuffer();
       gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers[sitc4r2Code][year].buffer);
@@ -1156,8 +1180,8 @@ export class WebGLVectorTile2 extends Tile {
           packedColor = feature.properties.PackedColor;
         }
         else {
-          if (this._color) {
-            packedColor = this._color[0] * 255 + this._color[1] * 255 * 255.0 + this._color[2] * 255 * 255.0 * 255.0;
+          if (this._layer.color) {
+            packedColor = this._layer.color[0] * 255 + this._layer.color[1] * 255 * 255.0 + this._layer.color[2] * 255 * 255.0 * 255.0;
           }
           else {
             packedColor = 255.0;
@@ -1176,7 +1200,7 @@ export class WebGLVectorTile2 extends Tile {
         }
       }
       this._setBufferData(new Float32Array(points));
-      this._dataLoaded(this.layerId);
+      this.dataLoadedFunction(this._layer.layerId);
     }
   }
   // not animated, only one glyph possible
@@ -1203,12 +1227,12 @@ export class WebGLVectorTile2 extends Tile {
         });
         image.crossOrigin = "anonymous";
         image.src = glyphPath;
-        this._dataLoaded(this.layerId);
+        this.dataLoadedFunction(this._layer.layerId);
       }
       else {
         console.log("No glyph path");
         this._setBufferData(new Float32Array(points));
-        this._dataLoaded(this.layerId);
+        this.dataLoadedFunction(this._layer.layerId);
       }
     }
   }
@@ -1240,12 +1264,12 @@ export class WebGLVectorTile2 extends Tile {
         });
         image.crossOrigin = "anonymous";
         image.src = glyphPath;
-        this._dataLoaded(this.layerId);
+        this.dataLoadedFunction(this._layer.layerId);
       }
       else {
         console.log("No glyph path");
         this._setBufferData(new Float32Array(points));
-        this._dataLoaded(this.layerId);
+        this.dataLoadedFunction(this._layer.layerId);
       }
     }
   }
@@ -1262,8 +1286,8 @@ export class WebGLVectorTile2 extends Tile {
           packedColor = feature.properties.PackedColor;
         }
         else {
-          if (this._color) {
-            packedColor = this._color[0] * 255 + this._color[1] * 255 * 255.0 + this._color[2] * 255 * 255.0 * 255.0;
+          if (this._layer.color) {
+            packedColor = this._layer.color[0] * 255 + this._layer.color[1] * 255 * 255.0 + this._layer.color[2] * 255 * 255.0 * 255.0;
           }
           else {
             packedColor = 255.0;
@@ -1287,7 +1311,7 @@ export class WebGLVectorTile2 extends Tile {
         }
       }
       this._setBufferData(new Float32Array(points));
-      this._dataLoaded(this.layerId);
+      this.dataLoadedFunction(this._layer.layerId);
     }
   }
   _setPolygonData(data, options) {
@@ -1304,8 +1328,8 @@ export class WebGLVectorTile2 extends Tile {
 
         }
         else {
-          if (this._color) {
-            packedColor = this._color[0] * 255.0 + this._color[1] * 255.0 * 256.0 + this._color[2] * 255.0 * 256.0 * 256.0;
+          if (this._layer.color) {
+            packedColor = this._layer.color[0] * 255.0 + this._layer.color[1] * 255.0 * 256.0 + this._layer.color[2] * 255.0 * 256.0 * 256.0;
           }
           else {
             packedColor = 255.0;
@@ -1333,7 +1357,7 @@ export class WebGLVectorTile2 extends Tile {
         }
       }
       this._setBufferData(new Float32Array(verts));
-      this._dataLoaded(this.layerId);
+      this.dataLoadedFunction(this._layer.layerId);
     }
   }
   _setLineStringData(data, options) {
@@ -1377,7 +1401,7 @@ export class WebGLVectorTile2 extends Tile {
       vertexCollection = vertexCollection.concat(PackArray(positions));
     }
     this._setBufferData(new Float32Array(vertexCollection));
-    this._dataLoaded(this.layerId);
+    this.dataLoadedFunction(this._layer.layerId);
 
   }
   _setExpandedLineStringData(data, options) {
@@ -1473,30 +1497,29 @@ export class WebGLVectorTile2 extends Tile {
 
 
     if (typeof this._image !== "undefined") {
-      this._texture = gl.createTexture();
-      gl.bindTexture(gl.TEXTURE_2D, this._texture);
+      this._texture = this.gl.createTexture();
+      this.gl.bindTexture(this.gl.TEXTURE_2D, this._texture);
 
       // Set the parameters so we can render any size image.
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+      this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+      this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
+      this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
 
       // Upload the image into the texture.
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._image);
+      this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this._image);
 
-      gl.bindTexture(gl.TEXTURE_2D, null);
+      this.gl.bindTexture(this.gl.TEXTURE_2D, null);
     }
-
 
     this._setBuffers([new Float32Array(vertexCollection),
     new Float32Array(normalCollection),
     new Float32Array(miterCollection),
     new Float32Array(textureCollection)],
       new Uint16Array(indexBuffer));
-    this._dataLoaded(this.layerId);
-
+    this.dataLoadedFunction(this._layer.layerId);
   }
+
   _setIomIdpData(data) {
     var maxValue = 905835.0;
     var radius = d3.scaleSqrt().domain([0, maxValue]).range([0, 60]);
@@ -1624,9 +1647,9 @@ export class WebGLVectorTile2 extends Tile {
     var tile = this;
     this.timings[5] = new Date().getTime();
 
-    var requestArgs = {
+    var requestArgs: any = {
       tileDataF32: tileDataF32,
-      dotmapColors: tile.dotmapColors,
+      dotmapColors: tile._layer.dotmapColors,
       tileidx: tile._tileidx,
       format: format
     };
@@ -1771,7 +1794,7 @@ export class WebGLVectorTile2 extends Tile {
         // Upload the image into the texture.
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._image);
 
-        this._dataLoaded(this.layerId);
+        this.dataLoadedFunction(this._layer.layerId);
 
       }
     }
@@ -1884,7 +1907,7 @@ export class WebGLVectorTile2 extends Tile {
 
         // Upload the image into the texture.
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._image);
-        this._dataLoaded(this.layerId);
+        this.dataLoadedFunction(this._layer.layerId);
 
       }
     }
@@ -1929,30 +1952,30 @@ export class WebGLVectorTile2 extends Tile {
         points.push(pixel[0], pixel[1], packedColor, e0, e1);
       }
       this._setBufferData(new Float32Array(points));
-      this._dataLoaded(this.layerId);
+      this.dataLoadedFunction(this._layer.layerId);
     }
   }
   _loadTexture() {
     // Bind option image to texture
     if (typeof this._image !== "undefined") {
-      this._texture = gl.createTexture();
-      gl.bindTexture(gl.TEXTURE_2D, this._texture);
+      this._texture = this.gl.createTexture();
+      this.gl.bindTexture(this.gl.TEXTURE_2D, this._texture);
 
       // Set the parameters so we can render any size image.
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+      this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+      this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
+      this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
 
       // Upload the image into the texture.
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._image);
+      this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this._image);
 
-      gl.bindTexture(gl.TEXTURE_2D, null);
+      this.gl.bindTexture(this.gl.TEXTURE_2D, null);
     }
   }
   _setBufferData(data) {
     var gl = this.gl;
-    this._pointCount = data.length / this.numAttributes;
+    this._pointCount = data.length / this._layer.numAttributes;
     this._ready = true;
     if (this._pointCount > 0) {
       this._data = data;
@@ -2250,14 +2273,14 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
-      this.program.enableAttribArray.a_Centroid(2, gl.FLOAT, false, this.numAttributes * 4, 0);
-      this.program.enableAttribArray.a_Epoch1(1, gl.FLOAT, false, this.numAttributes * 4, 8);
-      this.program.enableAttribArray.a_Val1(1, gl.FLOAT, false, this.numAttributes * 4, 12);
-      this.program.enableAttribArray.a_Epoch2(1, gl.FLOAT, false, this.numAttributes * 4, 16);
-      this.program.enableAttribArray.a_Val2(1, gl.FLOAT, false, this.numAttributes * 4, 20);
+      this.program.enableAttribArray.a_Centroid(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0);
+      this.program.enableAttribArray.a_Epoch1(1, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
+      this.program.enableAttribArray.a_Val1(1, gl.FLOAT, false, this._layer.numAttributes * 4, 12);
+      this.program.enableAttribArray.a_Epoch2(1, gl.FLOAT, false, this._layer.numAttributes * 4, 16);
+      this.program.enableAttribArray.a_Val2(1, gl.FLOAT, false, this._layer.numAttributes * 4, 20);
 
-      if (this.numAttributes == 7) {
-        this.program.enableAttribArray.a_color(1, gl.FLOAT, false, this.numAttributes * 4, 24);
+      if (this._layer.numAttributes == 7) {
+        this.program.enableAttribArray.a_color(1, gl.FLOAT, false, this._layer.numAttributes * 4, 24);
       }
 
       gl.uniform4fv(this.program.u_Color, color);
@@ -2305,13 +2328,13 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
-      this.program.enableAttribArray.a_Centroid(2, gl.FLOAT, false, this.numAttributes * 4, 0);
-      this.program.enableAttribArray.a_Epoch1(1, gl.FLOAT, false, this.numAttributes * 4, 8);
-      this.program.enableAttribArray.a_PointVal1(1, gl.FLOAT, false, this.numAttributes * 4, 12);
-      this.program.enableAttribArray.a_ColorVal1(1, gl.FLOAT, false, this.numAttributes * 4, 16);
-      this.program.enableAttribArray.a_Epoch2(1, gl.FLOAT, false, this.numAttributes * 4, 20);
-      this.program.enableAttribArray.a_PointVal2(1, gl.FLOAT, false, this.numAttributes * 4, 24);
-      this.program.enableAttribArray.a_ColorVal2(1, gl.FLOAT, false, this.numAttributes * 4, 28);
+      this.program.enableAttribArray.a_Centroid(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0);
+      this.program.enableAttribArray.a_Epoch1(1, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
+      this.program.enableAttribArray.a_PointVal1(1, gl.FLOAT, false, this._layer.numAttributes * 4, 12);
+      this.program.enableAttribArray.a_ColorVal1(1, gl.FLOAT, false, this._layer.numAttributes * 4, 16);
+      this.program.enableAttribArray.a_Epoch2(1, gl.FLOAT, false, this._layer.numAttributes * 4, 20);
+      this.program.enableAttribArray.a_PointVal2(1, gl.FLOAT, false, this._layer.numAttributes * 4, 24);
+      this.program.enableAttribArray.a_ColorVal2(1, gl.FLOAT, false, this._layer.numAttributes * 4, 28);
 
       gl.uniformMatrix4fv(this.program.u_MapMatrix, false, tileTransform);
       gl.uniform1f(this.program.u_Epoch, currentTime);
@@ -2678,11 +2701,11 @@ export class WebGLVectorTile2 extends Tile {
   _drawMonthlyRefugees(transform, options) {
     if (this._ready) {
 
-      gl.useProgram(this.program);
-      gl.enable(gl.BLEND);
-      gl.blendFunc(gl.DST_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+      this.gl.useProgram(this.program);
+      this.gl.enable(this.gl.BLEND);
+      this.gl.blendFunc(this.gl.DST_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
 
-      gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+      this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this._arrayBuffer);
 
       var zoom = options.zoom || (2.0 * window.devicePixelRatio);
       var pointSize = options.pointSize || (1.0 * window.devicePixelRatio);;
@@ -2692,54 +2715,54 @@ export class WebGLVectorTile2 extends Tile {
         pointSize = 1.0;
       }
 
-      var sizeLoc = gl.getUniformLocation(this.program, 'uSize');
-      gl.uniform1f(sizeLoc, pointSize);
+      var sizeLoc = this.gl.getUniformLocation(this.program, 'uSize');
+      this.gl.uniform1f(sizeLoc, pointSize);
 
-      var timeLoc = gl.getUniformLocation(this.program, 'uTotalTime');
-      gl.uniform1f(timeLoc, 1296000);
+      var timeLoc = this.gl.getUniformLocation(this.program, 'uTotalTime');
+      this.gl.uniform1f(timeLoc, 1296000);
 
       var tileTransform = new Float32Array(transform);
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
-      var matrixLoc = gl.getUniformLocation(this.program, 'uMapMatrix');
-      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+      var matrixLoc = this.gl.getUniformLocation(this.program, 'uMapMatrix');
+      this.gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
 
       var currentTime = options.currentTime;
-      var epochLoc = gl.getUniformLocation(this.program, 'uEpoch');
-      gl.uniform1f(epochLoc, currentTime / 1000.);
+      var epochLoc = this.gl.getUniformLocation(this.program, 'uEpoch');
+      this.gl.uniform1f(epochLoc, currentTime / 1000.);
 
-      var attributeLoc = gl.getAttribLocation(this.program, 'aStartPoint');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 40, 0);
+      var attributeLoc = this.gl.getAttribLocation(this.program, 'aStartPoint');
+      this.gl.enableVertexAttribArray(attributeLoc);
+      this.gl.vertexAttribPointer(attributeLoc, 2, this.gl.FLOAT, false, 40, 0);
 
-      var attributeLoc = gl.getAttribLocation(this.program, 'aEndPoint');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 40, 8);
+      var attributeLoc = this.gl.getAttribLocation(this.program, 'aEndPoint');
+      this.gl.enableVertexAttribArray(attributeLoc);
+      this.gl.vertexAttribPointer(attributeLoc, 2, this.gl.FLOAT, false, 40, 8);
 
-      var attributeLoc = gl.getAttribLocation(this.program, 'aMidPoint');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 40, 16);
+      var attributeLoc = this.gl.getAttribLocation(this.program, 'aMidPoint');
+      this.gl.enableVertexAttribArray(attributeLoc);
+      this.gl.vertexAttribPointer(attributeLoc, 2, this.gl.FLOAT, false, 40, 16);
 
-      var attributeLoc = gl.getAttribLocation(this.program, 'aEpoch');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 40, 24);
+      var attributeLoc = this.gl.getAttribLocation(this.program, 'aEpoch');
+      this.gl.enableVertexAttribArray(attributeLoc);
+      this.gl.vertexAttribPointer(attributeLoc, 1, this.gl.FLOAT, false, 40, 24);
 
-      var attributeLoc = gl.getAttribLocation(this.program, 'aEndTime');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 40, 28);
+      var attributeLoc = this.gl.getAttribLocation(this.program, 'aEndTime');
+      this.gl.enableVertexAttribArray(attributeLoc);
+      this.gl.vertexAttribPointer(attributeLoc, 1, this.gl.FLOAT, false, 40, 28);
 
-      var attributeLoc = gl.getAttribLocation(this.program, 'aSpan');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 40, 32);
+      var attributeLoc = this.gl.getAttribLocation(this.program, 'aSpan');
+      this.gl.enableVertexAttribArray(attributeLoc);
+      this.gl.vertexAttribPointer(attributeLoc, 1, this.gl.FLOAT, false, 40, 32);
 
-      var attributeLoc = gl.getAttribLocation(this.program, 'aTimeOffset');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 40, 36);
+      var attributeLoc = this.gl.getAttribLocation(this.program, 'aTimeOffset');
+      this.gl.enableVertexAttribArray(attributeLoc);
+      this.gl.vertexAttribPointer(attributeLoc, 1, this.gl.FLOAT, false, 40, 36);
 
-      gl.drawArrays(gl.POINTS, 0, this._pointCount);
+      this.gl.drawArrays(this.gl.POINTS, 0, this._pointCount);
       perf_draw_points(this._pointCount);
 
-      gl.disable(gl.BLEND);
+      this.gl.disable(this.gl.BLEND);
     }
 
   }
@@ -2892,23 +2915,23 @@ export class WebGLVectorTile2 extends Tile {
 
       var attributeLoc = gl.getAttribLocation(this.program, 'a_p0');
       gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this.numAttributes * 4, 0);
+      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this._layer.numAttributes * 4, 0);
 
       var attributeLoc = gl.getAttribLocation(this.program, 'a_p1');
       gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this.numAttributes * 4, 8);
+      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
 
       var attributeLoc = gl.getAttribLocation(this.program, 'a_p2');
       gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this.numAttributes * 4, 16);
+      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this._layer.numAttributes * 4, 16);
 
       var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch0');
       gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this.numAttributes * 4, 24);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 24);
 
       var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch1');
       gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this.numAttributes * 4, 28);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 28);
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
       gl.disable(gl.BLEND);
@@ -3287,23 +3310,23 @@ export class WebGLVectorTile2 extends Tile {
 
       var attributeLoc = gl.getAttribLocation(this.program, 'a_centroid');
       gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this.numAttributes * 4, 0);
+      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this._layer.numAttributes * 4, 0);
 
       var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch1');
       gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this.numAttributes * 4, 8);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
 
       var attributeLoc = gl.getAttribLocation(this.program, 'a_val1');
       gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this.numAttributes * 4, 12);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 12);
 
       var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch2');
       gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this.numAttributes * 4, 16);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 16);
 
       var attributeLoc = gl.getAttribLocation(this.program, 'a_val2');
       gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this.numAttributes * 4, 20);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 20);
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
       gl.disable(gl.BLEND);
@@ -3591,7 +3614,7 @@ export class WebGLVectorTile2 extends Tile {
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
       var attributeLoc = gl.getAttribLocation(this.program, 'a_coord');
       gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each
+      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each
 
 
       //texture
@@ -3659,19 +3682,19 @@ export class WebGLVectorTile2 extends Tile {
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
       var attributeLoc = gl.getAttribLocation(this.program, 'a_coord');
       gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each
+      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each
 
       var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch0');
       gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this.numAttributes * 4, 8);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
 
       var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch1');
       gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this.numAttributes * 4, 12);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 12);
 
       var attributeLoc = gl.getAttribLocation(this.program, 'a_offset');
       gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this.numAttributes * 4, 16);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 16);
 
       // draw
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
@@ -3861,15 +3884,15 @@ export class WebGLVectorTile2 extends Tile {
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
       var attributeLoc = gl.getAttribLocation(this.program, 'a_coord');
       gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
 
       var attributeLoc = gl.getAttribLocation(this.program, 'a_size');
       gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this.numAttributes * 4, 8);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
 
       var attributeLoc = gl.getAttribLocation(this.program, 'a_color');
       gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this.numAttributes * 4, 12);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 12);
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
 
@@ -3917,19 +3940,19 @@ export class WebGLVectorTile2 extends Tile {
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
       var attributeLoc = gl.getAttribLocation(this.program, 'a_coord');
       gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
 
       var attributeLoc = gl.getAttribLocation(this.program, 'a_size');
       gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this.numAttributes * 4, 8);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
 
       var attributeLoc = gl.getAttribLocation(this.program, 'a_color');
       gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this.numAttributes * 4, 12);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 12);
 
       var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch');
       gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this.numAttributes * 4, 16);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 16);
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
 
@@ -3980,19 +4003,19 @@ export class WebGLVectorTile2 extends Tile {
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
       var attributeLoc = gl.getAttribLocation(this.program, 'a_coord');
       gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
 
       var attributeLoc = gl.getAttribLocation(this.program, 'a_color');
       gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this.numAttributes * 4, 8);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
 
       var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch0');
       gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this.numAttributes * 4, 12);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 12);
 
       var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch1');
       gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this.numAttributes * 4, 16);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 16);
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
 
@@ -4034,23 +4057,23 @@ export class WebGLVectorTile2 extends Tile {
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
       var attributeLoc = gl.getAttribLocation(this.program, 'a_coord');
       gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
 
       var attributeLoc = gl.getAttribLocation(this.program, 'a_size');
       gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this.numAttributes * 4, 8);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
 
       var attributeLoc = gl.getAttribLocation(this.program, 'a_color');
       gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this.numAttributes * 4, 12);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 12);
 
       var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch0');
       gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this.numAttributes * 4, 16);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 16);
 
       var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch1');
       gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this.numAttributes * 4, 20);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 20);
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
 
@@ -4145,12 +4168,12 @@ export class WebGLVectorTile2 extends Tile {
   }
   _initSitc4rcBuffer(code, year, setDataFnc) {
     this.buffers[code][year] = {
-      "numAttributes": this.numAttributes,
+      "numAttributes": this._layer.numAttributes,
       "pointCount": 8,
       "buffer": null,
       "ready": false
     };
-    var rootUrl = window.rootTilePath;
+    var rootUrl = gEarthTime.rootTilePath;
     if (this._url.indexOf("http://") == 0 || this._url.indexOf("https://") == 0) {
       var re = /([a-z0-9]{1,})\/([0-9]{4}).json/g;
       var m = re.exec(this._url);
@@ -4198,13 +4221,13 @@ export class WebGLVectorTile2 extends Tile {
         this._drawSitc4rcBuffer(code, currentYear.toString(), transform, options);
       }
       else {
-        timelapse.lastFrameCompletelyDrawn = false;
+        gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
       }
       if (this.buffers[code][(currentYear + 1).toString()] && this.buffers[code][(currentYear + 1).toString()].ready) {
         this._drawSitc4rcBuffer(code, (currentYear + 1).toString(), transform, options);
       }
       else {
-        timelapse.lastFrameCompletelyDrawn = false;
+        gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
       }
     }
   }
@@ -4569,12 +4592,12 @@ export class WebGLVectorTile2 extends Tile {
 
       // TODO: Is this the best way?
       if (typeof options.bbox == "undefined") {
-        var bbox = timelapse.pixelBoundingBoxToLatLngBoundingBoxView(timelapse.getBoundingBoxForCurrentView()).bbox;
+        var bbox = gEarthTime.timelapse.pixelBoundingBoxToLatLngBoundingBoxView(gEarthTime.timelapse.getBoundingBoxForCurrentView()).bbox;
         var ne = bbox.ne; // tr
         var sw = bbox.sw; // bl
-        var tl = { 'lat': ne.lat, 'lng': ne.lng };
-        var br = { 'lat': sw.lat, 'lng': sw.lng };
-        options['bbox'] = { 'tl': tl, 'br': br };
+        let tl = { lat: ne.lat, lng: ne.lng };
+        let br = { lat: sw.lat, lng: sw.lng };
+        options.bbox = { tl: tl, br: br };
       }
 
       var tl = LngLatToPixelXY(options.bbox.tl.lng, options.bbox.tl.lat);
@@ -4583,12 +4606,14 @@ export class WebGLVectorTile2 extends Tile {
       this.tl = new Float32Array([tl[0] / 256., tl[1] / 256.]);
       this.br = new Float32Array([br[0] / 256., br[1] / 256.]);
 
-
       //this.drawWindVectorsMap(tileTransform);
       this.drawWindVectorsScreen(tileTransform);
       this.updateWindVectorsParticles(tileTransform);
 
     }
+  }
+  particleStateTexture0(particleStateTexture0: any, arg1: number) {
+    throw new Error("Method not implemented.");
   }
   drawWindVectorsScreen(transform) {
     var gl = this.gl;
@@ -4651,6 +4676,15 @@ export class WebGLVectorTile2 extends Tile {
     //console.log(transform.scale);
     gl.drawArrays(gl.POINTS, 0, this._numParticles);
   }
+  particleIndexBuffer(particleIndexBuffer: any, a_index: any, arg2: number) {
+    throw new Error("Method not implemented.");
+  }
+  particleStateResolution(u_particles_res: any, particleStateResolution: any) {
+    throw new Error("Method not implemented.");
+  }
+  _numParticles(POINTS: any, arg1: number, _numParticles: any) {
+    throw new Error("Method not implemented.");
+  }
   updateWindVectorsParticles(transform) {
     var gl = this.gl;
     this.glb.bindFramebuffer(this.framebuffer, this.particleStateTexture1);
@@ -4691,6 +4725,9 @@ export class WebGLVectorTile2 extends Tile {
     gl.viewport(0, 0, oldViewPort[2], oldViewPort[3]);
 
   }
+  particleStateTexture1(framebuffer: any, particleStateTexture1: any) {
+    throw new Error("Method not implemented.");
+  }
   drawWindVectorsMap(transform) {
     var gl = this.gl;
     // draw the screen into a temporary framebuffer to retain it as the background on the next frame
@@ -4723,13 +4760,13 @@ export class WebGLVectorTile2 extends Tile {
         return;
       }
       that._removeLoadingSpinner();
-      if (!timelapse.isPaused() || timelapse.isDoingLoopingDwell()) {
+      if (!gEarthTime.timelapse.isPaused() || gEarthTime.timelapse.isDoingLoopingDwell()) {
         that._wasPlayingBeforeDataLoad = true;
-        timelapse.handlePlayPause();
+        gEarthTime.timelapse.handlePlayPause();
       }
-      var $loadingSpinner = $("<td class='loading-layer-spinner-small' data-loading-layer='" + that._layerDomId + "'></td>");
-      $(".map-layer-div input#" + that._layerDomId).closest("td").after($loadingSpinner);
-      timelapse.showSpinner("timeMachine");
+      var $loadingSpinner = $("<td class='loading-layer-spinner-small' data-loading-layer='" + that._layer._tileView._layerDomId + "'></td>");
+      $(".map-layer-div input#" + that._layer._tileView._layerDomId).closest("td").after($loadingSpinner);
+      gEarthTime.timelapse.showSpinner("timeMachine");
     }, 300);
   }
   // Tile loading has finished.  Clear spinner.
@@ -4738,12 +4775,12 @@ export class WebGLVectorTile2 extends Tile {
     clearTimeout(this._loadingSpinnerTimer);
     if (this._wasPlayingBeforeDataLoad) {
       this._wasPlayingBeforeDataLoad = null;
-      timelapse.play();
+      gEarthTime.timelapse.play();
     }
-    var $loadingSpinner = $('.loading-layer-spinner-small[data-loading-layer="' + this._layerDomId + '"]');
+    var $loadingSpinner = $('.loading-layer-spinner-small[data-loading-layer="' + this._layer._tileView._layerDomId + '"]');
     $loadingSpinner.remove();
     if ($(".loading-layer-spinner-small").length == 0) {
-      timelapse.hideSpinner("timeMachine");
+      gEarthTime.timelapse.hideSpinner("timeMachine");
     }
   }
   // Update and draw tiles
@@ -4756,7 +4793,7 @@ export class WebGLVectorTile2 extends Tile {
   }
   //////////////////////
   static basicDrawPoints(instance_options) {
-    return function (transform, options) {
+    return function (this: WebGLVectorTile2, transform, options) {
       if (!this._ready)
         return;
       var gl = this.gl;
@@ -4798,7 +4835,7 @@ export class WebGLVectorTile2 extends Tile {
       gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
 
       var attrib_offset = 0;
-      var num_attributes = this.numAttributes - 0;
+      var num_attributes = this._layer.numAttributes - 0;
 
       var candidate_attribs = [
         { name: 'a_coord', size: 2 },
@@ -4878,7 +4915,7 @@ WebGLVectorTile2._totalBtiCount = 0;
 
 var gtileData;
 
-var prototypeAccessors = { numParticles: {} };
+var prototypeAccessors: any = { numParticles: {} };
 
 prototypeAccessors.numParticles.set = function (numParticles) {
     var gl = this.gl;
@@ -4906,7 +4943,9 @@ prototypeAccessors.numParticles.get = function () {
 
 Object.defineProperties( WebGLVectorTile2.prototype, prototypeAccessors );
 
-WebGLVectorTile2.vectorTileVertexShader =
+export var WebGLVectorTile2Shaders: {[name: string]: string} = {};
+
+WebGLVectorTile2Shaders.vectorTileVertexShader =
 'attribute vec4 worldCoord;\n' +
 
 'uniform mat4 mapMatrix;\n' +
@@ -4915,7 +4954,7 @@ WebGLVectorTile2.vectorTileVertexShader =
 '    gl_Position = mapMatrix * worldCoord;\n' +
 '}';
 
-WebGLVectorTile2.vectorPointTileVertexShader =
+WebGLVectorTile2Shaders.vectorPointTileVertexShader =
 'attribute vec4 worldCoord;\n' +
 'attribute float time;\n' +
 
@@ -4932,12 +4971,12 @@ WebGLVectorTile2.vectorPointTileVertexShader =
 '  gl_PointSize = uPointSize;\n' +
 '}';
 
-WebGLVectorTile2.vectorTileFragmentShader =
+WebGLVectorTile2Shaders.vectorTileFragmentShader =
 'void main() {\n' +
 '  gl_FragColor = vec4(1., .0, .65, 1.0);\n' +
 '}\n';
 
-WebGLVectorTile2.vectorPointTileFragmentShader =
+WebGLVectorTile2Shaders.vectorPointTileFragmentShader =
 'precision mediump float;\n' +
 'uniform vec4 uColor;\n' +
 'void main() {\n' +
@@ -4947,7 +4986,7 @@ WebGLVectorTile2.vectorPointTileFragmentShader =
 '  gl_FragColor = uColor * dist;\n' +
 '}\n';
 
-WebGLVectorTile2.lodesVertexShader =
+WebGLVectorTile2Shaders.lodesVertexShader =
   'attribute vec4 centroid;\n' +
   'attribute float aDist;\n' +
   'attribute float aColor;\n' +
@@ -4988,7 +5027,7 @@ WebGLVectorTile2.lodesVertexShader =
   '  vColor = aColor;\n' +
   '}\n';
 
-WebGLVectorTile2.lodesFragmentShader =
+WebGLVectorTile2Shaders.lodesFragmentShader =
   'precision lowp float;\n' +
   'varying float vColor;\n' +
   'vec4 setColor(vec4 color, float dist, float hardFraction) {\n' +
@@ -5005,7 +5044,7 @@ WebGLVectorTile2.lodesFragmentShader =
   '  gl_FragColor = vec4(unpackColor(vColor),.75);\n' +
   '}\n';
 
-WebGLVectorTile2.colorDotmapVertexShader =
+WebGLVectorTile2Shaders.colorDotmapVertexShader =
   'attribute vec2 aWorldCoord;\n' +
   'attribute float aColor;\n' +
   'uniform float uZoom;\n' +
@@ -5021,7 +5060,7 @@ WebGLVectorTile2.colorDotmapVertexShader =
   '  vColor = aColor;\n' +
   '}\n';
 
-WebGLVectorTile2.colorDotmapVertexShaderTbox = [
+WebGLVectorTile2Shaders.colorDotmapVertexShaderTbox = [
   'attribute vec2 aWorldCoord;',
   'attribute float aColor;',
   'attribute float aStartEpoch;',
@@ -5042,7 +5081,7 @@ WebGLVectorTile2.colorDotmapVertexShaderTbox = [
   '  }',
   '}'].join('\n');
 
-WebGLVectorTile2.colorDotmapFragmentShader =
+WebGLVectorTile2Shaders.colorDotmapFragmentShader =
   'precision lowp float;\n' +
   'varying float vColor;\n' +
   'vec3 unpackColor(float f) {\n' +
@@ -5057,7 +5096,7 @@ WebGLVectorTile2.colorDotmapFragmentShader =
   '  //gl_FragColor = vec4(0.0,1.0,0.0,1.0);\n' +
   '}\n';
 
-WebGLVectorTile2.annualRefugeesFragmentShader =
+WebGLVectorTile2Shaders.annualRefugeesFragmentShader =
 '      precision mediump float;\n' +
 '      uniform sampler2D u_Image;\n' +
 '      varying float v_Delta;\n' +
@@ -5070,7 +5109,7 @@ WebGLVectorTile2.annualRefugeesFragmentShader =
 '          gl_FragColor = vec4(color.r, color.g, color.b, 1.) * dist;\n' +
 '      }\n';
 
-WebGLVectorTile2.annualRefugeesVertexShader =
+WebGLVectorTile2Shaders.annualRefugeesVertexShader =
 '      attribute vec4 aStartPoint;\n' +
 '      attribute vec4 aEndPoint;\n' +
 '      attribute vec4 aMidPoint;\n' +
@@ -5100,7 +5139,7 @@ WebGLVectorTile2.annualRefugeesVertexShader =
 '        gl_PointSize = 4.0;\n' +
 '      }\n';
 
-WebGLVectorTile2.healthImpactVertexShader =
+WebGLVectorTile2Shaders.healthImpactVertexShader =
 '      attribute vec4 a_Centroid;\n' +
 '      attribute float a_Year;\n' +
 '      attribute float a_Val1;\n' +
@@ -5142,7 +5181,7 @@ WebGLVectorTile2.healthImpactVertexShader =
 '        gl_PointSize = 2.0 * abs(size);\n' +
 '      }\n';
 
-WebGLVectorTile2.healthImpactFragmentShader =
+WebGLVectorTile2Shaders.healthImpactFragmentShader =
 '      #extension GL_OES_standard_derivatives : enable\n' +
 '      precision mediump float;\n' +
 '      varying float v_Val;\n' +
@@ -5181,7 +5220,7 @@ WebGLVectorTile2.healthImpactFragmentShader =
 '          gl_FragColor = vec4( mix(outlineColor.rgb, circleColor.rgb, stroke), alpha*.75 );\n' +
 '      }';
 
-WebGLVectorTile2.viirsVertexShader =
+WebGLVectorTile2Shaders.viirsVertexShader =
   'attribute vec4 worldCoord;\n' +
   'attribute float time;\n' +
 
@@ -5199,7 +5238,7 @@ WebGLVectorTile2.viirsVertexShader =
   '  gl_PointSize = pointSize;\n' +
   '}';
 
-WebGLVectorTile2.viirsFragmentShader =
+WebGLVectorTile2Shaders.viirsFragmentShader =
   'precision mediump float;\n' +
   'void main() {\n' +
   '  vec3 color;\n' +
@@ -5212,7 +5251,7 @@ WebGLVectorTile2.viirsFragmentShader =
   '  gl_FragColor = vec4(color, 1.) * dist;\n' +
   '}';
 
-WebGLVectorTile2.wdpaVertexShader =
+WebGLVectorTile2Shaders.wdpaVertexShader =
 'attribute vec4 worldCoord;\n' +
 'attribute float time;\n' +
 
@@ -5228,12 +5267,12 @@ WebGLVectorTile2.wdpaVertexShader =
 '  }\n' +
 '}';
 
-WebGLVectorTile2.wdpaFragmentShader =
+WebGLVectorTile2Shaders.wdpaFragmentShader =
 'void main() {\n' +
 '  gl_FragColor = vec4(.0, 1., .15, 1.0);\n' +
 '}\n';
 
-WebGLVectorTile2.urbanFragilityVertexShader =
+WebGLVectorTile2Shaders.urbanFragilityVertexShader =
 'attribute vec4 a_Centroid;\n' +
 'attribute float a_Year;\n' +
 'attribute float a_Val1;\n' +
@@ -5257,7 +5296,7 @@ WebGLVectorTile2.urbanFragilityVertexShader =
 '  gl_PointSize = u_Size * exp(size);\n' +
 '}\n';
 
-WebGLVectorTile2.urbanFragilityFragmentShader =
+WebGLVectorTile2Shaders.urbanFragilityFragmentShader =
 'precision mediump float;\n' +
 'uniform sampler2D u_Image;\n' +
 'varying float v_Val;\n' +
@@ -5275,7 +5314,7 @@ WebGLVectorTile2.urbanFragilityFragmentShader =
 '  gl_FragColor = vec4(color.r, color.g, color.b, .75) * alpha;\n' +
 '}\n';
 
-WebGLVectorTile2.monthlyRefugeesVertexShader =
+WebGLVectorTile2Shaders.monthlyRefugeesVertexShader =
     "attribute vec4 aStartPoint;\n" +
     "attribute vec4 aEndPoint;\n" +
     "attribute vec4 aMidPoint;\n" +
@@ -5347,7 +5386,7 @@ WebGLVectorTile2.monthlyRefugeesVertexShader =
         "gl_PointSize = uSize;\n" +
     "}";
 
-WebGLVectorTile2.monthlyRefugeesFragmentShader =
+WebGLVectorTile2Shaders.monthlyRefugeesFragmentShader =
     "precision mediump float;\n" +
     "varying vec4 vColor;\n" +
 
@@ -5358,7 +5397,7 @@ WebGLVectorTile2.monthlyRefugeesFragmentShader =
         "gl_FragColor = vColor * dist;\n" +
     "}";
 
-WebGLVectorTile2.gtdVertexShader =
+WebGLVectorTile2Shaders.gtdVertexShader =
 "        attribute vec4 a_WorldCoord;\n" +
 "        attribute float a_Epoch;\n" +
 "        attribute float a_NCasualties;\n" +
@@ -5386,7 +5425,7 @@ WebGLVectorTile2.gtdVertexShader =
 '          gl_PointSize = max(10.0,300.0*smoothstep(5., 94., sqrt(pointSize)));\n' +
 "        }\n";
 
-WebGLVectorTile2.gtdFragmentShader =
+WebGLVectorTile2Shaders.gtdFragmentShader =
 "        precision mediump float;\n" +
 "        varying float v_Alpha;\n" +
 "        void main() {\n" +
@@ -5397,7 +5436,7 @@ WebGLVectorTile2.gtdFragmentShader =
 "          gl_FragColor =  vec4(r, .0, .0, .85) * dist;\n" +
 "        }\n";
 
-WebGLVectorTile2.uppsalaConflictVertexShader =
+WebGLVectorTile2Shaders.uppsalaConflictVertexShader =
 "        attribute vec4 a_centroid;\n" +
 "        attribute float a_start_epoch;\n" +
 "        attribute float a_end_epoch;\n" +
@@ -5421,7 +5460,7 @@ WebGLVectorTile2.uppsalaConflictVertexShader =
 "        }\n";
 
 
-WebGLVectorTile2.uppsalaConflictFragmentShader =
+WebGLVectorTile2Shaders.uppsalaConflictFragmentShader =
 "        precision mediump float;\n" +
 "        varying float v_alpha;\n" +
 "        void main() {\n" +
@@ -5432,7 +5471,7 @@ WebGLVectorTile2.uppsalaConflictFragmentShader =
 "          gl_FragColor =  vec4(r, .0, .0, .85) * dist;\n" +
 "        }\n";
 
-WebGLVectorTile2.hivVertexShader =
+WebGLVectorTile2Shaders.hivVertexShader =
 'attribute vec4 a_Centroid;\n' +
 'attribute float a_Year;\n' +
 'attribute float a_Val1;\n' +
@@ -5456,7 +5495,7 @@ WebGLVectorTile2.hivVertexShader =
 '  gl_PointSize = 100.0 * u_Size * abs(size);\n' +
 '}\n';
 
-WebGLVectorTile2.hivFragmentShader =
+WebGLVectorTile2Shaders.hivFragmentShader =
 'precision mediump float;\n' +
 'uniform sampler2D u_Image;\n' +
 'varying float v_Val;\n' +
@@ -5469,7 +5508,7 @@ WebGLVectorTile2.hivFragmentShader =
 '  gl_FragColor = vec4(color.r, color.g, color.b, .75) * alpha;\n' +
 '}\n';
 
-WebGLVectorTile2.obesityVertexShader =
+WebGLVectorTile2Shaders.obesityVertexShader =
 '      attribute vec4 a_Vertex;\n' +
 '      attribute float a_Year;\n' +
 '      attribute float a_Val1;\n' +
@@ -5490,7 +5529,7 @@ WebGLVectorTile2.obesityVertexShader =
 '        v_Val = (a_Val2 - a_Val1) * u_Delta + a_Val1;\n' +
 '      }\n';
 
-WebGLVectorTile2.obesityFragmentShader =
+WebGLVectorTile2Shaders.obesityFragmentShader =
 '      #extension GL_OES_standard_derivatives : enable\n' +
 '      precision mediump float;\n' +
 '      uniform sampler2D u_Image;\n' +
@@ -5500,7 +5539,7 @@ WebGLVectorTile2.obesityFragmentShader =
 '        gl_FragColor = vec4(color.r, color.g, color.b, 1.);\n' +
 '      }\n';
 
-WebGLVectorTile2.vaccineConfidenceVertexShader =
+WebGLVectorTile2Shaders.vaccineConfidenceVertexShader =
 '      attribute vec4 a_Vertex;\n' +
 '      attribute float a_Val1;\n' +
 '      attribute float a_Val2;\n' +
@@ -5527,7 +5566,7 @@ WebGLVectorTile2.vaccineConfidenceVertexShader =
 '        }\n' +
 '      }\n';
 
-WebGLVectorTile2.vaccineConfidenceFragmentShader =
+WebGLVectorTile2Shaders.vaccineConfidenceFragmentShader =
 '      #extension GL_OES_standard_derivatives : enable\n' +
 '      precision mediump float;\n' +
 '      uniform sampler2D u_Image;\n' +
@@ -5537,7 +5576,7 @@ WebGLVectorTile2.vaccineConfidenceFragmentShader =
 '        gl_FragColor = vec4(color.r, color.g, color.b, 1.);\n' +
 '      }\n';
 
-WebGLVectorTile2.bubbleMapVertexShader =
+WebGLVectorTile2Shaders.bubbleMapVertexShader =
 '      attribute vec4 a_Centroid;\n' +
 '      attribute float a_Epoch1;\n' +
 '      attribute float a_Val1;\n' +
@@ -5561,7 +5600,7 @@ WebGLVectorTile2.bubbleMapVertexShader =
 '        gl_PointSize = abs(u_Size * size);\n' +
 '      }\n';
 
-WebGLVectorTile2.bubbleMapFragmentShader =
+WebGLVectorTile2Shaders.bubbleMapFragmentShader =
 '      #extension GL_OES_standard_derivatives : enable\n' +
 '      precision mediump float;\n' +
 '      varying float v_Val;\n' +
@@ -5592,7 +5631,7 @@ WebGLVectorTile2.bubbleMapFragmentShader =
 '      }';
 
 
-WebGLVectorTile2.bubbleMapWithPackedColorVertexShader =
+WebGLVectorTile2Shaders.bubbleMapWithPackedColorVertexShader =
 '      attribute vec4 a_Centroid;\n' +
 '      attribute float a_Epoch1;\n' +
 '      attribute float a_Val1;\n' +
@@ -5619,7 +5658,7 @@ WebGLVectorTile2.bubbleMapWithPackedColorVertexShader =
 '        v_color = a_color;\n' +
 '      }\n';
 
-WebGLVectorTile2.bubbleMapWithPackedColorFragmentShader =
+WebGLVectorTile2Shaders.bubbleMapWithPackedColorFragmentShader =
 '      #extension GL_OES_standard_derivatives : enable\n' +
 '      precision mediump float;\n' +
 '      varying float v_Val;\n' +
@@ -5658,7 +5697,7 @@ WebGLVectorTile2.bubbleMapWithPackedColorFragmentShader =
 '          gl_FragColor = vec4( mix(outlineColor.rgb, circleColor.rgb, stroke), alpha*.75 );\n' +
 '      }';
 
-WebGLVectorTile2.bubbleMapWithColorMapFragmentShader =
+WebGLVectorTile2Shaders.bubbleMapWithColorMapFragmentShader =
 '      #extension GL_OES_standard_derivatives : enable\n' +
 '      precision mediump float;\n' +
 '      varying float v_Val;\n' +
@@ -5692,7 +5731,7 @@ WebGLVectorTile2.bubbleMapWithColorMapFragmentShader =
 '          gl_FragColor = vec4( mix(outlineColor.rgb, circleColor.rgb, stroke), alpha*.75 );\n' +
 '      }';
 
-WebGLVectorTile2.bivalentBubbleMapWithColorMapVertexShader =
+WebGLVectorTile2Shaders.bivalentBubbleMapWithColorMapVertexShader =
 '      attribute vec4 a_Centroid;\n' +
 '      attribute float a_Epoch1;\n' +
 '      attribute float a_PointVal1;\n' +
@@ -5720,7 +5759,7 @@ WebGLVectorTile2.bivalentBubbleMapWithColorMapVertexShader =
 '        gl_PointSize = abs(u_Size * size);\n' +
 '      }\n';
 
-WebGLVectorTile2.bivalentBubbleMapWithColorMapFragmentShader =
+WebGLVectorTile2Shaders.bivalentBubbleMapWithColorMapFragmentShader =
 '      #extension GL_OES_standard_derivatives : enable\n' +
 '      precision mediump float;\n' +
 '      varying float v_PointVal;\n' +
@@ -5739,7 +5778,7 @@ WebGLVectorTile2.bivalentBubbleMapWithColorMapFragmentShader =
 '          gl_FragColor = vec4( mix(outlineColor.rgb, circleColor.rgb, stroke), alpha*.75 );\n' +
 '      }';
 
-WebGLVectorTile2.bivalentBubbleMapWithColorMapFragmentShaderNoBorder =
+WebGLVectorTile2Shaders.bivalentBubbleMapWithColorMapFragmentShaderNoBorder =
 '      #extension GL_OES_standard_derivatives : enable\n' +
 '      precision mediump float;\n' +
 '      varying float v_PointVal;\n' +
@@ -5755,7 +5794,7 @@ WebGLVectorTile2.bivalentBubbleMapWithColorMapFragmentShaderNoBorder =
 '          gl_FragColor = vec4( circleColor.rgb, alpha*.75 );\n' +
 '      }';
 
-WebGLVectorTile2.iomIdpVertexShader = "" +
+WebGLVectorTile2Shaders.iomIdpVertexShader = "" +
 "attribute vec4 a_coord;\n" +
 "attribute float a_country;\n" +
 "attribute float a_type;\n" +
@@ -5827,7 +5866,7 @@ WebGLVectorTile2.iomIdpVertexShader = "" +
 "  v_type = a_type;\n" +
 "}";
 
-WebGLVectorTile2.iomIdpFragmentShader = "" +
+WebGLVectorTile2Shaders.iomIdpFragmentShader = "" +
 "#extension GL_OES_standard_derivatives : enable\n" +
 "precision mediump float;\n" +
 "varying float v_type;\n" +
@@ -5854,7 +5893,7 @@ WebGLVectorTile2.iomIdpFragmentShader = "" +
 
 "}";
 
-WebGLVectorTile2.choroplethMapVertexShader = [
+WebGLVectorTile2Shaders.choroplethMapVertexShader = [
   'attribute vec4 a_Centroid;',
   'attribute float a_Epoch1;',
   'attribute float a_Val1;',
@@ -5875,7 +5914,7 @@ WebGLVectorTile2.choroplethMapVertexShader = [
   '  v_Val = (a_Val2 - a_Val1) * delta + a_Val1;',
   '}'].join('\n');
 
-WebGLVectorTile2.choroplethMapFragmentShader = [
+WebGLVectorTile2Shaders.choroplethMapFragmentShader = [
   '#extension GL_OES_standard_derivatives : enable',
   'precision mediump float;',
   'uniform sampler2D u_Image;',
@@ -5892,7 +5931,7 @@ WebGLVectorTile2.choroplethMapFragmentShader = [
   '  gl_FragColor = vec4(color.r, color.g, color.b, 1.);',
   '}'].join('\n');
 
-WebGLVectorTile2.choroplethMapVertexShaderV2 = [
+WebGLVectorTile2Shaders.choroplethMapVertexShaderV2 = [
   'attribute vec2 a_Centroid;',
   'attribute float a_RegionIdx;',
   'uniform float u_NumRegionsPerRow;',
@@ -5912,7 +5951,7 @@ WebGLVectorTile2.choroplethMapVertexShaderV2 = [
   '                    (row + 0.5) / u_ValuesHeight);',
   '}'].join('\n');
 
-WebGLVectorTile2.choroplethMapFragmentShaderV2 = [
+WebGLVectorTile2Shaders.choroplethMapFragmentShaderV2 = [
   '#extension GL_OES_standard_derivatives : enable',
   'precision mediump float;',
   'uniform sampler2D u_Colormap;',
@@ -5924,7 +5963,7 @@ WebGLVectorTile2.choroplethMapFragmentShaderV2 = [
   '  gl_FragColor = vec4(color.r, color.g, color.b, color.a * val.a);', // transparent when colormap is, or val undefined
   '}'].join('\n');
 
-WebGLVectorTile2.timeSeriesPointDataVertexShader =
+WebGLVectorTile2Shaders.timeSeriesPointDataVertexShader =
 '      //WebGLVectorTile2.timeSeriesPointDataVertexShader\n' +
 '      attribute vec4 a_centroid;\n' +
 '      attribute float a_epoch1;\n' +
@@ -5954,7 +5993,7 @@ WebGLVectorTile2.timeSeriesPointDataVertexShader =
 '        }\n' +
 '      }\n';
 
-WebGLVectorTile2.timeSeriesPointDataFragmentShader =
+WebGLVectorTile2Shaders.timeSeriesPointDataFragmentShader =
 '      //WebGLVectorTile2.timeSeriesPointDataFragmentShader\n' +
   'precision mediump float;\n' +
   'varying float v_val;\n' +
@@ -5969,7 +6008,7 @@ WebGLVectorTile2.timeSeriesPointDataFragmentShader =
   '  gl_FragColor = vec4(color, 1.) * dist;\n' +
   '}';
 
-WebGLVectorTile2.tsipVertexShader =
+WebGLVectorTile2Shaders.tsipVertexShader =
   'attribute vec2 a_coord;\n' +
   'attribute float a_color;\n' +
   'attribute float a_epoch;\n' +
@@ -5991,7 +6030,7 @@ WebGLVectorTile2.tsipVertexShader =
   '    v_color = a_color;\n' +
   '}\n';
 
-WebGLVectorTile2.tsipFragmentShader =
+WebGLVectorTile2Shaders.tsipFragmentShader =
 '#extension GL_OES_standard_derivatives : enable\n' +
 'precision mediump float;\n' +
 'varying float v_color;\n' +
@@ -6010,7 +6049,7 @@ WebGLVectorTile2.tsipFragmentShader =
 '  gl_FragColor =  unpackColor(v_color) * dist;\n' +
 '}';
 
-WebGLVectorTile2.pointFlowAccelVertexShader = [
+WebGLVectorTile2Shaders.pointFlowAccelVertexShader = [
   'attribute vec4 a_p0;',
   'attribute vec4 a_p1;',
   'attribute vec4 a_p2;',
@@ -6041,7 +6080,7 @@ WebGLVectorTile2.pointFlowAccelVertexShader = [
   '}'
 ].join('\n');
 
-WebGLVectorTile2.pointFlowVertexShader =
+WebGLVectorTile2Shaders.pointFlowVertexShader =
 '      //WebGLVectorTile2.pointFlowVertexShader\n' +
 '      attribute vec4 a_p0;\n' +
 '      attribute vec4 a_p1;\n' +
@@ -6068,7 +6107,7 @@ WebGLVectorTile2.pointFlowVertexShader =
 '        gl_PointSize = u_size;\n' +
 '      }\n';
 
-WebGLVectorTile2.pointFlowFragmentShader =
+WebGLVectorTile2Shaders.pointFlowFragmentShader =
   'precision mediump float;\n' +
 '  varying float v_t;\n' +
 '  uniform vec4 u_start_color;\n' +
@@ -6084,7 +6123,7 @@ WebGLVectorTile2.pointFlowFragmentShader =
 '    gl_FragColor = mix(colorStart, colorEnd, v_t) * dist;\n' +
 '  }\n';
 
-WebGLVectorTile2.pointVertexShader =
+WebGLVectorTile2Shaders.pointVertexShader =
 'attribute vec4 a_coord;\n' +
 'attribute float a_color;\n' +
 'uniform mat4 u_map_matrix;\n' +
@@ -6098,7 +6137,7 @@ WebGLVectorTile2.pointVertexShader =
 '    v_color = a_color;\n' +
 '}\n';
 
-WebGLVectorTile2.pointFragmentShader =
+WebGLVectorTile2Shaders.pointFragmentShader =
 '#extension GL_OES_standard_derivatives : enable\n' +
 '  precision mediump float;\n' +
 '  varying float v_color;\n' +
@@ -6122,7 +6161,7 @@ WebGLVectorTile2.pointFragmentShader =
 '  }\n';
 
 //SMELL PGH
-WebGLVectorTile2.glyphVertexShader =
+WebGLVectorTile2Shaders.glyphVertexShader =
 'attribute vec4 a_coord;\n' +
 'uniform mat4 u_map_matrix;\n' +
 'uniform float u_size;\n' +
@@ -6133,7 +6172,7 @@ WebGLVectorTile2.glyphVertexShader =
 '    gl_PointSize = u_size;\n' +
 '}\n';
 
-WebGLVectorTile2.glyphFragmentShader =
+WebGLVectorTile2Shaders.glyphFragmentShader =
 '#extension GL_OES_standard_derivatives : enable\n' +
 '  precision mediump float;\n' +
 '  uniform sampler2D u_texture;\n' +
@@ -6141,7 +6180,7 @@ WebGLVectorTile2.glyphFragmentShader =
 '    gl_FragColor = texture2D(u_texture, vec2(gl_PointCoord.x, gl_PointCoord.y));\n' +
 '  }\n';
 
-WebGLVectorTile2.glyphStartEpochEndEpochVertexShader =
+WebGLVectorTile2Shaders.glyphStartEpochEndEpochVertexShader =
 'attribute vec4 a_coord;\n' +
 'attribute float a_epoch0;\n' +
 'attribute float a_epoch1;\n' +
@@ -6164,7 +6203,7 @@ WebGLVectorTile2.glyphStartEpochEndEpochVertexShader =
 '    v_offset = a_offset;\n' +
 '}\n';
 
-WebGLVectorTile2.glyphStartEpochEndEpochFragmentShader =
+WebGLVectorTile2Shaders.glyphStartEpochEndEpochFragmentShader =
 '#extension GL_OES_standard_derivatives : enable\n' +
 '  precision mediump float;\n' +
 '  uniform sampler2D u_texture;\n' +
@@ -6175,7 +6214,7 @@ WebGLVectorTile2.glyphStartEpochEndEpochFragmentShader =
 '    gl_FragColor = texture2D(u_texture, texcoords);\n' +
 '  }\n';
 
-WebGLVectorTile2.FadeGlyphStartEpochEndEpochVertexShader =
+WebGLVectorTile2Shaders.FadeGlyphStartEpochEndEpochVertexShader =
 'attribute vec4 a_coord;\n' +
 'attribute float a_epoch0;\n' +
 'attribute float a_epoch1;\n' +
@@ -6204,7 +6243,7 @@ WebGLVectorTile2.FadeGlyphStartEpochEndEpochVertexShader =
 '    v_offset = a_offset;\n' +
 '}\n';
 
-WebGLVectorTile2.FadeGlyphStartEpochEndEpochFragmentShader =
+WebGLVectorTile2Shaders.FadeGlyphStartEpochEndEpochFragmentShader =
 '#extension GL_OES_standard_derivatives : enable\n' +
 '  precision mediump float;\n' +
 '  uniform sampler2D u_texture;\n' +
@@ -6217,7 +6256,7 @@ WebGLVectorTile2.FadeGlyphStartEpochEndEpochFragmentShader =
 '    gl_FragColor = vec4(tex.rgb, v_dim * tex.a);\n' +
 '  }\n';
 
-WebGLVectorTile2.polygonVertexShader =
+WebGLVectorTile2Shaders.polygonVertexShader =
 'attribute vec4 a_coord;\n' +
 'attribute float a_color;\n' +
 'uniform mat4 u_map_matrix;\n' +
@@ -6229,7 +6268,7 @@ WebGLVectorTile2.polygonVertexShader =
 '    v_color = a_color;\n' +
 '}\n';
 
-WebGLVectorTile2.polygonFragmentShader =
+WebGLVectorTile2Shaders.polygonFragmentShader =
 '#extension GL_OES_standard_derivatives : enable\n' +
 '  precision mediump float;\n' +
 '  varying float v_color;\n' +
@@ -6246,7 +6285,7 @@ WebGLVectorTile2.polygonFragmentShader =
 '  }\n';
 
 
-WebGLVectorTile2.lineStringVertexShader =
+WebGLVectorTile2Shaders.lineStringVertexShader =
 'attribute vec2 a_coord;\n' +
 'uniform mat4 u_map_matrix;\n' +
 'void main() {\n' +
@@ -6254,14 +6293,14 @@ WebGLVectorTile2.lineStringVertexShader =
 '}';
 
 
-WebGLVectorTile2.lineStringFragmentShader =
+WebGLVectorTile2Shaders.lineStringFragmentShader =
 'precision mediump float;\n' +
 'uniform vec4 u_color;\n' +
 'void main() {\n' +
 '  gl_FragColor = u_color;\n' +
 '}\n';
 
-WebGLVectorTile2.expandedLineStringVertexShader =
+WebGLVectorTile2Shaders.expandedLineStringVertexShader =
 'attribute vec2 a_coord;\n' +
 'attribute vec2 a_normal;\n' +
 'attribute float a_miter;\n' +
@@ -6278,7 +6317,7 @@ WebGLVectorTile2.expandedLineStringVertexShader =
 '}\n';
 
 
-WebGLVectorTile2.expandedLineStringFragmentShader =
+WebGLVectorTile2Shaders.expandedLineStringFragmentShader =
 '  precision mediump float;\n' +
 '  uniform vec3 u_color;\n' +
 '  uniform float u_inner;\n' +
@@ -6295,7 +6334,7 @@ WebGLVectorTile2.expandedLineStringFragmentShader =
 
 
 /* x,y,size,color,epoch */
-WebGLVectorTile2.PointSizeColorEpochVertexShader =
+WebGLVectorTile2Shaders.PointSizeColorEpochVertexShader =
 'attribute vec4 a_coord;\n' +
 'attribute float a_size;\n' +
 'attribute float a_color;\n' +
@@ -6317,7 +6356,7 @@ WebGLVectorTile2.PointSizeColorEpochVertexShader =
 '    v_color = a_color;\n' +
 '}\n';
 
-WebGLVectorTile2.PointSizeColorVertexShader =
+WebGLVectorTile2Shaders.PointSizeColorVertexShader =
 'attribute vec4 a_coord;\n' +
 'attribute float a_size;\n' +
 'attribute float a_color;\n' +
@@ -6332,7 +6371,7 @@ WebGLVectorTile2.PointSizeColorVertexShader =
 '    v_color = a_color;\n' +
 '}\n';
 
-WebGLVectorTile2.PointColorFragmentShader =
+WebGLVectorTile2Shaders.PointColorFragmentShader =
 '#extension GL_OES_standard_derivatives : enable\n' +
 '  precision mediump float;\n' +
 '  varying float v_color;\n' +
@@ -6351,7 +6390,7 @@ WebGLVectorTile2.PointColorFragmentShader =
 '    gl_FragColor = unpackColor(v_color) * dist;\n' +
 '  }\n';
 
-WebGLVectorTile2.PointColorStartEpochEndEpochVertexShader =
+WebGLVectorTile2Shaders.PointColorStartEpochEndEpochVertexShader =
 'attribute vec4 a_coord;\n' +
 'attribute float a_color;\n' +
 'attribute float a_epoch0;\n' +
@@ -6372,7 +6411,7 @@ WebGLVectorTile2.PointColorStartEpochEndEpochVertexShader =
 '    v_color = a_color;\n' +
 '}\n';
 
-WebGLVectorTile2.PointColorStartEpochEndEpochFragmentShader =
+WebGLVectorTile2Shaders.PointColorStartEpochEndEpochFragmentShader =
 '#extension GL_OES_standard_derivatives : enable\n' +
 '  precision mediump float;\n' +
 '  varying float v_color;\n' +
@@ -6391,7 +6430,7 @@ WebGLVectorTile2.PointColorStartEpochEndEpochFragmentShader =
 '    gl_FragColor = unpackColor(v_color) * dist;\n' +
 '  }\n';
 
-WebGLVectorTile2.PointSolidColorStartEpochEndEpochFragmentShader =
+WebGLVectorTile2Shaders.PointSolidColorStartEpochEndEpochFragmentShader =
 '#extension GL_OES_standard_derivatives : enable\n' +
 '  precision mediump float;\n' +
 '  varying float v_color;\n' +
@@ -6413,7 +6452,7 @@ WebGLVectorTile2.PointSolidColorStartEpochEndEpochFragmentShader =
 '  }\n';
 
 // gradually decreases alpha once time has passed epoch1
-WebGLVectorTile2.FadePointColorStartEpochEndEpochVertexShader =
+WebGLVectorTile2Shaders.FadePointColorStartEpochEndEpochVertexShader =
 'attribute vec4 a_coord;\n' +
 'attribute float a_color;\n' +
 'attribute float a_epoch0;\n' +
@@ -6444,7 +6483,7 @@ WebGLVectorTile2.FadePointColorStartEpochEndEpochVertexShader =
 '}\n';
 
 //unpackColor func alters alpha according to vertex shader
-WebGLVectorTile2.FadePointColorStartEpochEndEpochFragmentShader =
+WebGLVectorTile2Shaders.FadePointColorStartEpochEndEpochFragmentShader =
 '#extension GL_OES_standard_derivatives : enable\n' +
 '  precision mediump float;\n' +
 '  varying float v_color;\n' +
@@ -6467,7 +6506,7 @@ WebGLVectorTile2.FadePointColorStartEpochEndEpochFragmentShader =
 '    gl_FragColor = unpackColor(v_color, v_dim) * alpha;\n' +
 '  }\n';
 
-WebGLVectorTile2.PointSizeColorStartEpochEndEpochVertexShader =
+WebGLVectorTile2Shaders.PointSizeColorStartEpochEndEpochVertexShader =
 'attribute vec4 a_coord;\n' +
 'attribute float a_size;\n' +
 'attribute float a_color;\n' +
@@ -6489,7 +6528,7 @@ WebGLVectorTile2.PointSizeColorStartEpochEndEpochVertexShader =
 '    v_color = a_color;\n' +
 '}\n';
 
-WebGLVectorTile2.PointSizeColorStartEpochEndEpochFragmentShader =
+WebGLVectorTile2Shaders.PointSizeColorStartEpochEndEpochFragmentShader =
 '#extension GL_OES_standard_derivatives : enable\n' +
 '  precision mediump float;\n' +
 '  varying float v_color;\n' +
@@ -6509,7 +6548,7 @@ WebGLVectorTile2.PointSizeColorStartEpochEndEpochFragmentShader =
 '  }\n';
 
 //borrowed from spCrudeVertexShader
-WebGLVectorTile2.AnimPointsVertexShader =
+WebGLVectorTile2Shaders.AnimPointsVertexShader =
 'attribute vec4 a_coord_0;\n' +
 'attribute float a_epoch_0;\n' +
 'attribute vec4 a_coord_1;\n' +
@@ -6533,7 +6572,7 @@ WebGLVectorTile2.AnimPointsVertexShader =
 '}\n';
 
 
-WebGLVectorTile2.spCrudeVertexShader =
+WebGLVectorTile2Shaders.spCrudeVertexShader =
 'attribute vec4 a_coord_0;\n' +
 'attribute float a_epoch_0;\n' +
 'attribute vec4 a_coord_1;\n' +
@@ -6556,7 +6595,7 @@ WebGLVectorTile2.spCrudeVertexShader =
 '    v_color = a_color;\n' +
 '}\n';
 
-WebGLVectorTile2.spCrudeFragmentShader =
+WebGLVectorTile2Shaders.spCrudeFragmentShader =
 '  precision mediump float;\n' +
 '  varying float v_color;\n' +
 '  vec4 unpackColor(float f) {\n' +
@@ -6576,7 +6615,7 @@ WebGLVectorTile2.spCrudeFragmentShader =
 '  }\n';
 
 
-WebGLVectorTile2.particleVertexShader =
+WebGLVectorTile2Shaders.particleVertexShader =
 'attribute vec4 a_coord_0;\n' +
 'attribute float a_elev_0;\n' +
 'attribute float a_epoch_0;\n' +
@@ -6607,7 +6646,7 @@ WebGLVectorTile2.particleVertexShader =
 '    v_color = a_color;\n' +
 '}\n';
 
-WebGLVectorTile2.particleFragmentShader =
+WebGLVectorTile2Shaders.particleFragmentShader =
 '  precision mediump float;\n' +
 '  varying float v_color;\n' +
 '  vec4 unpackColor(float f) {\n' +
@@ -6622,7 +6661,7 @@ WebGLVectorTile2.particleFragmentShader =
 '    gl_FragColor = unpackColor(v_color);\n' +
 '  }\n';
 
-WebGLVectorTile2.lineTrackVertexShader =
+WebGLVectorTile2Shaders.lineTrackVertexShader =
 'attribute vec4 a_coord_0;\n' +
 'attribute float a_epoch_0;\n' +
 'attribute vec4 a_coord_1;\n' +
@@ -6653,7 +6692,7 @@ WebGLVectorTile2.lineTrackVertexShader =
 '   v_color = a_color;\n' +
 '}\n';
 
-WebGLVectorTile2.lineTrackFragmentShader =
+WebGLVectorTile2Shaders.lineTrackFragmentShader =
 '  precision mediump float;\n' +
 '  varying float v_color;\n' +
 '  varying float v_alpha;\n' +
@@ -6669,7 +6708,7 @@ WebGLVectorTile2.lineTrackFragmentShader =
 '    gl_FragColor = vec4(unpackColor(v_color).rgb, v_alpha);\n' +
 '  }\n';
 
-WebGLVectorTile2.sitc4r2VertexShader = '' +
+WebGLVectorTile2Shaders.sitc4r2VertexShader = '' +
 '  attribute vec4 a_p0;\n' +
 '  attribute vec4 a_p2;\n' +
 '  attribute vec4 a_p1;\n' +
@@ -6693,7 +6732,7 @@ WebGLVectorTile2.sitc4r2VertexShader = '' +
 '    gl_PointSize = 1.0;\n' +
 '  }\n';
 
-WebGLVectorTile2.sitc4r2FragmentShader = '' +
+WebGLVectorTile2Shaders.sitc4r2FragmentShader = '' +
 '  precision mediump float;\n' +
 '  varying float v_t;\n' +
 '  uniform vec3 u_end_color;\n' +
@@ -6703,7 +6742,7 @@ WebGLVectorTile2.sitc4r2FragmentShader = '' +
 '    gl_FragColor = mix(colorStart, colorEnd, v_t);\n' +
 '  }\n';
 
-WebGLVectorTile2.sitc4r2WithAlphaAndColorMapVertexShader = '' +
+WebGLVectorTile2Shaders.sitc4r2WithAlphaAndColorMapVertexShader = '' +
 '  attribute vec4 a_p0;\n' +
 '  attribute vec4 a_p2;\n' +
 '  attribute vec4 a_p1;\n' +
@@ -6730,7 +6769,7 @@ WebGLVectorTile2.sitc4r2WithAlphaAndColorMapVertexShader = '' +
 '    v_alpha = a_alpha;\n' +
 '  }\n';
 
-WebGLVectorTile2.sitc4r2WithAlphaAndColorMapFragmentShader = '' +
+WebGLVectorTile2Shaders.sitc4r2WithAlphaAndColorMapFragmentShader = '' +
 '  precision mediump float;\n' +
 '  varying float v_t;\n' +
 '  varying float v_alpha;\n' +
@@ -6745,7 +6784,7 @@ WebGLVectorTile2.sitc4r2WithAlphaAndColorMapFragmentShader = '' +
 '  }\n';
 
 
-WebGLVectorTile2.basicVertexColorStartEpochEndEpochShader =
+WebGLVectorTile2Shaders.basicVertexColorStartEpochEndEpochShader =
   'attribute vec2 a_coord;\n' +
   'attribute float a_color;\n' +
   'attribute float a_start_epoch; /* inclusive */\n' +
@@ -6764,7 +6803,7 @@ WebGLVectorTile2.basicVertexColorStartEpochEndEpochShader =
   '  v_color = a_color;\n' +
   '}\n';
 
-WebGLVectorTile2.basicVertexColorShader =
+WebGLVectorTile2Shaders.basicVertexColorShader =
   'attribute vec2 a_coord;\n' +
   'attribute float a_color;\n' +
   'uniform float u_size;\n' +
@@ -6776,7 +6815,7 @@ WebGLVectorTile2.basicVertexColorShader =
   '  v_color = a_color;\n' +
   '}\n';
 
-WebGLVectorTile2.basicSquareFragmentShader =
+WebGLVectorTile2Shaders.basicSquareFragmentShader =
   'precision lowp float;\n' +
   'varying float v_color;\n' +
   'vec3 unpackColor(float f) {\n' +
@@ -6791,10 +6830,7 @@ WebGLVectorTile2.basicSquareFragmentShader =
   '}\n';
 
 
-WebGLVectorTile2.WindVectorsShaders = {};
-
-
-WebGLVectorTile2.WindVectorsShaders.drawVertexShader =
+WebGLVectorTile2Shaders.WindVectorsShaders_drawVertexShader =
 "precision mediump float;\n\n" +
 "attribute float a_index;\n\n" +
 "uniform sampler2D u_particles;\n" +
@@ -6816,7 +6852,7 @@ WebGLVectorTile2.WindVectorsShaders.drawVertexShader =
 "    //                   0, 1);\n" +
 "}\n";
 
-WebGLVectorTile2.WindVectorsShaders.drawFragmentShader =
+WebGLVectorTile2Shaders.WindVectorsShaders_drawFragmentShader =
 "precision mediump float;\n\n" +
 "uniform sampler2D u_wind;\n" +
 "uniform vec2 u_wind_min;\n" +
@@ -6833,7 +6869,7 @@ WebGLVectorTile2.WindVectorsShaders.drawFragmentShader =
 "    gl_FragColor = texture2D(u_color_ramp, ramp_pos);\n" +
 "}\n";
 
-WebGLVectorTile2.WindVectorsShaders.quadVertexShader =
+WebGLVectorTile2Shaders.WindVectorsShaders_quadVertexShader =
 "precision mediump float;\n\n" +
 "attribute vec2 a_pos;\n\n" +
 "varying vec2 v_tex_pos;\n\n" +
@@ -6845,7 +6881,7 @@ WebGLVectorTile2.WindVectorsShaders.quadVertexShader =
 "    }\n";
 
 
-WebGLVectorTile2.WindVectorsShaders.screenFragmentShader =
+WebGLVectorTile2Shaders.WindVectorsShaders_screenFragmentShader =
 "precision mediump float;\n\n" +
 "uniform sampler2D u_screen;\n" +
 "uniform float u_opacity;\n\n" +
@@ -6859,7 +6895,7 @@ WebGLVectorTile2.WindVectorsShaders.screenFragmentShader =
 "    //gl_FragColor = vec4(192./256.,192./256.,192./256.,rgba.a);\n" +
 "}\n";
 
-WebGLVectorTile2.WindVectorsShaders.updateFragmentShader =
+WebGLVectorTile2Shaders.WindVectorsShaders_updateFragmentShader =
 "precision highp float;\n\n\n" +
 "uniform sampler2D u_particles;\n\n" +
 "uniform sampler2D u_wind;\n\n" +
@@ -6918,7 +6954,7 @@ WebGLVectorTile2.WindVectorsShaders.updateFragmentShader =
 "        gl_FragColor = vec4(fract(pos * 255.0), floor(pos * 255.0) / 255.0);" +
 "    }\n";
 
-WebGLVectorTile2.WindVectorsShaders.mapVertexShader = '' +
+WebGLVectorTile2Shaders.WindVectorsShaders_mapVertexShader = '' +
   'attribute vec2 a_pos;\n' +
   "uniform mat4 u_transform;\n\n" +
   'varying vec2 v_tex_pos;\n' +
@@ -6930,7 +6966,7 @@ WebGLVectorTile2.WindVectorsShaders.mapVertexShader = '' +
   '}\n';
 
 
-WebGLVectorTile2.WindVectorsShaders.mapFragmentShader = '' +
+WebGLVectorTile2Shaders.WindVectorsShaders_mapFragmentShader = '' +
   'precision mediump float;\n' +
   'varying vec2 v_tex_pos;\n' +
   'uniform sampler2D u_wind;\n' +

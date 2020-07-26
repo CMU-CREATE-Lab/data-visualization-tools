@@ -5,6 +5,16 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "type":"firefox",
+            "request": "launch",
+            "reAttach": true,
+            "name": "Launch FireFox",
+            "url": "https://rsargent.earthtime.org/explore",
+            "webRoot": "${workspaceFolder}",
+            "clearConsoleOnReload": true,
+            "suggestPathMappingWizard": true
+        },
+        {
             "name": "Launch Edge",
             "request": "launch",
             "type": "pwa-msedge",
@@ -18,15 +28,5 @@
             "url": "https://rsargent.earthtime.org/explore",
             "webRoot": "${workspaceFolder}"
         },
-        {
-            "type":"firefox",
-            "request": "launch",
-            "reAttach": true,
-            "name": "Launch FireFox",
-            "url": "https://rsargent.earthtime.org/explore",
-            "webRoot": "${workspaceFolder}",
-            "clearConsoleOnReload": true,
-            "suggestPathMappingWizard": true
-        }
     ]
 }

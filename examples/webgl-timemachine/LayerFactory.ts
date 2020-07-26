@@ -10,13 +10,14 @@ import { WebGLMapLayer2 } from './WebGLMapLayer2'
 import { WebGLTimeMachineLayer } from './WebGLTimeMachineLayer'
 import { WebGLVectorLayer2 } from './WebGLVectorLayer2'
 
-import { WebGLMapTile } from './WebGLMapTile'
-import { WebGLVectorTile2 } from './WebGLVectorTile2'
-
+import { WebGLMapTile, WebGLMapTileShaders } from './WebGLMapTile'
+import { WebGLVectorTile2, WebGLVectorTile2Shaders } from './WebGLVectorTile2'
 
 import { Timelines } from './Timelines';
 import { Utils } from './Utils';
 import { LayerDef } from './LayerProxy';
+import { LayerOptions } from './Layer';
+import { WebGLMapTile2, WebGLMapTile2Shaders } from './WebGLMapTile2';
 
 
 // Loaded from config-local.js
@@ -122,26 +123,48 @@ export class LayerFactory {
     $('#extras-selector').append(str);
   }
 
-
   createLayer(layerDef: LayerDef) {
     // (someday) Use csv.createlab.org as translation gateway
     // url = 'http://csv.createlab.org/' + url.replace(/^https?:\/\//,'')
 
-    var layerOptions: any = {
+    var layerOptions: LayerOptions = {
       tileWidth: 256,
       tileHeight: 256,
       loadDataFunction: WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv,
       dataLoadedFunction: this.dataLoadedFromCsv.bind(this),
       drawFunction: WebGLVectorTile2.prototype._drawBubbleMap,
-      fragmentShader: WebGLVectorTile2.bubbleMapFragmentShader,
-      vertexShader: WebGLVectorTile2.bubbleMapVertexShader,
+      fragmentShader: WebGLVectorTile2Shaders.bubbleMapFragmentShader,
+      vertexShader: WebGLVectorTile2Shaders.bubbleMapVertexShader,
       numAttributes: 6,
-      layerDef: layerDef
+      layerDef: layerDef,
+      layerId: layerDef["Share link identifier"].replace(/([^\w-])+/g, '_'),
+      category: layerDef["Category"],
+      timelineType: layerDef["Timeline Type"],
+      startDate: layerDef["Start date"],
+      endDate: layerDef["End date"],
+      step: layerDef["Step"] || 1,
+      showGraph: (layerDef["Show Graph"] || '').toLowerCase() == 'true',
+      mapType: layerDef["Map Type"] || "bubble",
+      color: layerDef["Color"] ? JSON.parse(layerDef["Color"]) : null,
+      legendContent: layerDef["Legend Content"],
+      legendKey: layerDef["Legend Key"],
+      name: layerDef["Name"],
+      credit: layerDef["Credits"],
+      scalingFunction: layerDef["Scaling"] || 'd3.scaleSqrt().domain([minValue, maxValue]).range([0, 100])',
+      colorScalingFunction: layerDef["Color Scaling"] || 'd3.scaleLinear().domain([minColorValue, maxColorValue]).range([0, 1])',
+      externalGeojson: layerDef["External GeoJSON"],
+      nameKey: layerDef["Name Key"], // Optional GeoJSON property name with which to join features with first column of data
+      playbackRate: layerDef["Playback Rate"] || null,
+      masterPlaybackRate: layerDef["Master Playback Rate"] || null,
+      nLevels: layerDef["Number of Levels"] ? parseInt(layerDef["Number of Levels"]) : 0,
+      imageSrc: layerDef["Colormap Src"] || null,
+      // By default, most CSV layers draw at z=400.  Raster and choropleths by default will draw at z=200.  New raster base maps will draw at z=100.
+      z: 400,
+      avoidShowingChildAndParent: false,
+      useTmJsonTimeTicks: false,
+      maptype: null,
+      levelThreshold: 0
     };
-
-    layerOptions.layerId = layerDef["Share link identifier"].replace(/([^\w-])+/g, '_');
-
-    layerOptions.category = layerDef["Category"];
 
     layerOptions.customSliderInfo = {};
     if (layerDef["Custom slider ticks"]) {
@@ -155,23 +178,12 @@ export class LayerFactory {
       }
     }
 
-    layerOptions.timelineType = layerDef["Timeline Type"]
-
     if (layerDef["Start date"] != "" && layerDef["Start date"] != layerDef["End date"] || !$.isEmptyObject(layerOptions.customSliderInfo)) {
       layerOptions.hasTimeline = true;
     } else {
       layerOptions.hasTimeline = false;
     }
-    layerOptions.startDate = layerDef["Start date"];
-    layerOptions.endDate = layerDef["End date"];
-    layerOptions.step = layerDef["Step"] || 1;
 
-    layerOptions.showGraph = (layerDef["Show Graph"] || '').toLowerCase() == 'true';
-    layerOptions.mapType = layerDef["Map Type"] || "bubble";
-    layerOptions.color = layerDef["Color"] ? JSON.parse(layerDef["Color"]) : null;
-
-    layerOptions.legendContent = layerDef["Legend Content"];
-    layerOptions.legendKey = layerDef["Legend Key"];
 
     if (typeof layerDef["Draw Options"] != "undefined" && layerDef["Draw Options"] != "") {
       layerOptions.drawOptions = JSON.parse(layerDef["Draw Options"]);
@@ -203,33 +215,7 @@ export class LayerFactory {
       url = layerDef["URL"].replace(/https*:\/\/tiles.earthtime.org/, gEarthTime.rootTilePath);
     }
 
-    layerOptions.name = layerDef["Name"];
-    layerOptions.credit = layerDef["Credits"];
-
-    layerOptions.scalingFunction = layerDef["Scaling"] || 'd3.scaleSqrt().domain([minValue, maxValue]).range([0, 100])';
-    layerOptions.colorScalingFunction = layerDef["Color Scaling"] || 'd3.scaleLinear().domain([minColorValue, maxColorValue]).range([0, 1])';
-
-    layerOptions.externalGeojson = layerDef["External GeoJSON"];
-    layerOptions.nameKey = layerDef["Name Key"]; // Optional GeoJSON property name with which to join features with first column of data
     var category_id = layerOptions.category ? "category-" + layerOptions.category.trim().replace(/ /g,"-").replace(/^[^a-zA-Z]+|[^\w-]+/g, "_").toLowerCase() : "csvlayers_table";
-    layerOptions.playbackRate = layerDef["Playback Rate"] || null;
-    layerOptions.masterPlaybackRate = layerDef["Master Playback Rate"] || null;
-    layerOptions.nLevels = layerDef["Number of Levels"] ? parseInt(layerDef["Number of Levels"]) : 0;
-    layerOptions.imageSrc = layerDef["Colormap Src"] || null;
-
-    function isValidDrawFunction(name: string) {
-      if (layerOptions.mapType == 'raster') {
-        return /^WebglMapTile\.prototype\._draw\w*$/.test(name);
-      }
-      return true;
-    }
-
-    function isValidShader(name: string, type: string) {
-      if (layerOptions.mapType == 'raster') {
-        return /^WebglMapTile.\w+$/.test(name) && name.endsWith(type + 'Shader');
-      }
-      return true;
-    }
 
     function overrideDrawingFns() {
       var drawFunction = layerDef["Draw Function"];
@@ -252,8 +238,6 @@ export class LayerFactory {
       }
     }
 
-    // By default, most CSV layers draw at z=400.  Raster and choropleths by default will draw at z=200.  New raster base maps will draw at z=100.
-    layerOptions.z = 400;
     var WebGLLayer: any = WebGLVectorLayer2;
 
     if (layerOptions.mapType == 'raster') {
@@ -289,8 +273,8 @@ export class LayerFactory {
       layerOptions.z = 200;
       layerOptions.loadDataFunction = WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv;
       layerOptions.drawFunction = WebGLVectorTile2.prototype._drawChoroplethMap;
-      layerOptions.fragmentShader = WebGLVectorTile2.choroplethMapFragmentShader;
-      layerOptions.vertexShader = WebGLVectorTile2.choroplethMapVertexShader;
+      layerOptions.fragmentShader = WebGLVectorTile2Shaders.choroplethMapFragmentShader;
+      layerOptions.vertexShader = WebGLVectorTile2Shaders.choroplethMapVertexShader;
     } else if (layerOptions.mapType == "point-flow") {
       layerOptions.loadDataFunction = WebGLVectorTile2.prototype._loadData;
       overrideDrawingFns();
@@ -325,7 +309,7 @@ export class LayerFactory {
       layer.options.color = layerOptions.color;
     }
     if (layerOptions.drawOptions) {
-      var obj = layerOptions.drawOptions;
+      let obj = layerOptions.drawOptions;
       for (const key in obj) {
         let value = obj[key];
         layer.options[key] = value;
@@ -334,7 +318,7 @@ export class LayerFactory {
     }
 
     if (layerOptions.setDataOptions) {
-      var obj = layerOptions.setDataOptions;
+      let obj = layerOptions.setDataOptions;
       for (const key in obj) {
         let value = obj[key];
         layer.options[key] = value;
@@ -749,13 +733,17 @@ export class LayerFactory {
   }
 
   static getShader(mapType: string, name: string, type: string): string {
-    name = name.replace('Webgl', 'WebGL');
+    // Backwards compatibility
+    name = name.replace('Webgl', 'WebGL').replace('WindVectorsShaders.', 'WindVectorsShaders_')
     if (mapType == 'raster') {
       var prefix = 'WebGLMapTile.';
-      var parent: any = WebGLMapTile;
+      var parent: any = WebGLMapTileShaders;
+    } else if (mapType == 'raster2') {
+      var prefix = 'WebGLMapTile2.';
+      var parent: any = WebGLMapTile2Shaders;
     } else {
       var prefix = 'WebGLVectorTile2.';
-      parent = WebGLVectorTile2;
+      parent = WebGLVectorTile2Shaders;
     }
     if (!name.startsWith(prefix)) {
       throw new LayerDefinitionError(`Shader for layer type ${mapType} must begin with ${prefix}`);
@@ -784,6 +772,9 @@ export class LayerFactory {
     if (mapType == 'raster') {
       var prefix = 'WebGLMapTile.prototype.';
       var parent: any = WebGLMapTile.prototype;
+    } else if (mapType == 'raster2') {
+      var prefix = 'WebGLMapTile2.prototype.';
+      var parent: any = WebGLMapTile2.prototype;
     } else {
       var prefix = 'WebGLVectorTile2.prototype.';
       parent = WebGLVectorTile2.prototype;
@@ -816,7 +807,7 @@ export class LayerFactory {
 // COUNTRY_POLYGONS_RESOURCE, and removing the receiveData clause below
 
 var COUNTRY_POLYGONS: any;
-var COUNTRY_POLYGONS_RESOURCE =
+export var COUNTRY_POLYGONS_RESOURCE =
     new Resource("country_polygons.geojson",
      {
        transform: parseAndIndexGeojson.bind(null, 'names'),
@@ -825,7 +816,7 @@ var COUNTRY_POLYGONS_RESOURCE =
        }
      });
 
-function searchCountryList(feature_collection: { [x: string]: any[]; }, name: string | number, name_key: string | number) {
+export function searchCountryList(feature_collection: { [x: string]: any[]; }, name: string | number, name_key: string | number = undefined) {
   if (typeof feature_collection["hash"] !== "undefined") {
     return feature_collection["features"][feature_collection["hash"][name]];
   }
@@ -853,34 +844,3 @@ function searchCountryList(feature_collection: { [x: string]: any[]; }, name: st
   }
   return {};
 };
-
-const LOAD_DATA_FUNCTION_LOOKUP_TABLE = {
-  "WebGLVectorTile2.prototype._loadData": WebGLVectorTile2.prototype._loadData,
-  "WebGLVectorTile2.prototype._loadGeojsonData": WebGLVectorTile2.prototype._loadGeojsonData,
-  "WebGLVectorTile2.prototype._loadSitc4r2Data": WebGLVectorTile2.prototype._loadSitc4r2Data,
-  "WebGLVectorTile.prototype._loadSitc4r2Data": WebGLVectorTile2.prototype._loadSitc4r2Data, // Supporting typos 4evah
-  "WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv": WebGLVectorTile2.prototype._loadBubbleMapDataFromCsv,
-  "WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv": WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv,
-  "WebGLVectorTile2.prototype._loadBivalentBubbleMapDataFromCsv": WebGLVectorTile2.prototype._loadBivalentBubbleMapDataFromCsv,
-  "WebGLVectorTile2.prototype._loadWindVectorsData": WebGLVectorTile2.prototype._loadWindVectorsData
-};
-
-const SET_DATA_FUNCTION_LOOKUP_TABLE = {
-  "WebGLVectorTile2.prototype._setSitc4r2Buffer": WebGLVectorTile2.prototype._setSitc4r2Buffer,
-  "WebGLVectorTile2.prototype._setPolygonData": WebGLVectorTile2.prototype._setPolygonData,
-  "WebGLVectorTile2.prototype._setPointData": WebGLVectorTile2.prototype._setPointData,
-  "WebGLVectorTile2.prototype._setLineStringData": WebGLVectorTile2.prototype._setLineStringData,
-  "WebGLVectorTile2.prototype._setExpandedLineStringData": WebGLVectorTile2.prototype._setExpandedLineStringData,
-  "WebGLVectorTile2.prototype._setIomIdpData": WebGLVectorTile2.prototype._setIomIdpData,
-  "WebGLVectorTile2.prototype._setColorDotmapData": WebGLVectorTile2.prototype._setColorDotmapData,
-  "WebGLVectorTile2.prototype._setObesityData": WebGLVectorTile2.prototype._setObesityData,
-  "WebGLVectorTile2.prototype._setVaccineConfidenceData": WebGLVectorTile2.prototype._setVaccineConfidenceData,
-  "WebGLVectorTile2.prototype._setBufferData": WebGLVectorTile2.prototype._setBufferData,
-  "WebGLVectorTile2.prototype._setBuffers": WebGLVectorTile2.prototype._setBuffers,
-  "WebGLVectorTile2.prototype._setWindVectorsData": WebGLVectorTile2.prototype._setWindVectorsData,
-  "WebGLVectorTile2.prototype._setTrajectoriesData": WebGLVectorTile2.prototype._setTrajectoriesData,
-  "WebGLVectorTile2.prototype._setAnimatedPointsData": WebGLVectorTile2.prototype._setAnimatedPointsData,
-  "WebGLVectorTile2.prototype._setTriangleData": WebGLVectorTile2.prototype._setTriangleData,
-  "WebGLVectorTile2.prototype._setGlyphData": WebGLVectorTile2.prototype._setGlyphData,
-  "WebGLVectorTile2.prototype._setAnimatedGlyphData": WebGLVectorTile2.prototype._setAnimatedGlyphData
-}

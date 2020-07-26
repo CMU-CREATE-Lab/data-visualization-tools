@@ -1,28 +1,30 @@
-"use strict";
+/// <reference path="matrix.js"/>
 
-export class WebGLMapTile2 {
-  constructor(glb, tileidx, bounds, urls, defaultUrl, opt_options) {
-    if (!WebGLMapTile2._initted) {
-      WebGLMapTile2._init();
-    }
-    this._tileidx = tileidx;
-    this.glb = glb;
-    this.gl = glb.gl;
+import { Tile } from "./Tile";
+import { WebGLMapLayer2 } from './WebGLMapLayer2';
+import { TileIdx } from './TileIdx';
 
-    var opt_options = opt_options || {};
-    this.fragmentShader = opt_options.fragmentShader || WebGLMapTile2.textureFragmentShader;
-    this.vertexShader = opt_options.vertexShader || WebGLMapTile2.textureVertexShader;
+export class WebGLMapTile2 extends Tile {
+  static activeTileCount: number = 0;
+  static verbose: boolean = false;
+  static videoId: number = 0;
 
-    this._textureProgram = glb.programFromSources(this.vertexShader,
-      this.fragmentShader);
+  _texture0: any;
+  _texture1: any;
+  _triangles: any;
+  _image0: HTMLImageElement;
+  _image1: HTMLImageElement;
+  _ready: boolean[];
+  _width: number;
+  _height: number;
 
-
-    this.colormap = opt_options.colormap || null;
+  constructor(layer: WebGLMapLayer2, tileidx: TileIdx, bounds, opt_options) {
+    super(layer, tileidx, bounds, opt_options);
 
     this._texture0 = this._createTexture();
     this._texture1 = this._createTexture();
 
-    this._triangles = glb.createBuffer(new Float32Array([0, 0,
+    this._triangles = this.glb.createBuffer(new Float32Array([0, 0,
       1, 0,
       0, 1,
       1, 1]));
@@ -46,19 +48,24 @@ export class WebGLMapTile2 {
     // sea tiles and replace with a single default tile.
     this._image0.addEventListener('error', function (event) {
       if (that._image0) {
-        if (that._image0.src != defaultUrl) {
-          that._image0.src = defaultUrl;
+        if (that._image0.src != that._layer.defaultUrl) {
+          that._image0.src = that._layer.defaultUrl;
         }
       }
     });
 
     this._image1.addEventListener('error', function (event) {
       if (that._image1) {
-        if (that._image1.src != defaultUrl) {
-          that._image1.src = defaultUrl;
+        if (that._image1.src != that._layer.defaultUrl) {
+          that._image1.src = that._layer.defaultUrl;
         }
       }
     });
+
+    var urls = [];
+    for (var i = 0; i < layer._tileUrls.length; i++) {
+      urls[i] = tileidx.expandUrl(layer._tileUrls[i], layer);
+    }
 
     this._image0.src = urls[0];
     this._image1.src = urls[1];
@@ -81,6 +88,7 @@ export class WebGLMapTile2 {
   }
   _handleLoadedTexture(image, texture, index) {
     var before = performance.now();
+    var gl = this.gl;
 
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
@@ -89,6 +97,7 @@ export class WebGLMapTile2 {
     this._ready[index] = true;
   }
   delete() {
+    this.unloadResources();
     // TODO: recycle texture
     this._image0.src = '';
     this._image0 = null;
@@ -104,7 +113,7 @@ export class WebGLMapTile2 {
   isReady() {
     return this._ready[0] && this._ready[1];
   }
-  draw(transform, options) {
+  _draw(transform, options) {
     //console.log(options);
     var gl = this.gl;
     var tileTransform = new Float32Array(transform);
@@ -114,7 +123,7 @@ export class WebGLMapTile2 {
       this._bounds.max.y - this._bounds.min.y);
 
     if (this._ready[0] && this._ready[1]) {
-      gl.useProgram(this._textureProgram);
+      gl.useProgram(this.program);
       gl.enable(gl.BLEND);
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
@@ -126,19 +135,19 @@ export class WebGLMapTile2 {
       }
 
 
-      var alphaLocation = gl.getUniformLocation(this._textureProgram, "uAlpha");
+      var alphaLocation = gl.getUniformLocation(this.program, "uAlpha");
       gl.uniform1f(alphaLocation, uAlpha);
 
 
-      gl.uniformMatrix4fv(this._textureProgram.uTransform, false, tileTransform);
+      gl.uniformMatrix4fv(this.program.uTransform, false, tileTransform);
       gl.bindBuffer(gl.ARRAY_BUFFER, this._triangles);
-      gl.vertexAttribPointer(this._textureProgram.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
+      gl.vertexAttribPointer(this.program.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
 
       /*    gl.activeTexture(gl.TEXTURE0);
           gl.bindTexture(gl.TEXTURE_2D, this._texture);
       */
-      var imageLocation0 = gl.getUniformLocation(this._textureProgram, "uSampler0");
-      var imageLocation1 = gl.getUniformLocation(this._textureProgram, "uSampler1");
+      var imageLocation0 = gl.getUniformLocation(this.program, "uSampler0");
+      var imageLocation1 = gl.getUniformLocation(this.program, "uSampler1");
 
       gl.uniform1i(imageLocation0, 0); // texture unit 0
       gl.uniform1i(imageLocation1, 1); // texture unit 0
@@ -149,10 +158,10 @@ export class WebGLMapTile2 {
       gl.activeTexture(gl.TEXTURE1);
       gl.bindTexture(gl.TEXTURE_2D, this._texture1);
 
-      if (this.colormap) {
-        gl.uniform1i(gl.getUniformLocation(this._textureProgram, "uColormap"), 2); // texture unit 2
+      if (this._layer.colormapTexture) {
+        gl.uniform1i(gl.getUniformLocation(this.program, "uColormap"), 2); // texture unit 2
         gl.activeTexture(gl.TEXTURE2);
-        gl.bindTexture(gl.TEXTURE_2D, this.colormap);
+        gl.bindTexture(gl.TEXTURE_2D, this._layer.colormapTexture);
       }
 
 
@@ -161,25 +170,12 @@ export class WebGLMapTile2 {
       gl.disable(gl.BLEND);
     }
   }
-  static _init() {
-    WebGLMapTile2._initted = true;
-
-    $(document).keypress(function (e) {
-      // ctrl-b toggles verbosity
-      if (e.keyCode == 2) {
-        WebGLMapTile2.verbose = !WebGLMapTile2.verbose;
-        //console.log('WebGLMapTile2 verbose: ' + WebGLMapTile2.verbose);
-      }
-    });
-  }
   static stats() {
     return ('WebGLMapTile2 stats. Active tiles: ' + WebGLMapTile2.activeTileCount);
   }
   // Update and draw tiles
   // Assumes tiles is sorted low res to high res (by TileView)
   static update(tiles, transform, options) {
-    if (si)
-      return;
     //WebGLTimeMachinePerf.instance.startFrame();
     var canvas = document.getElementById('webgl');
 
@@ -191,22 +187,9 @@ export class WebGLMapTile2 {
   }
 }
 
+export var WebGLMapTile2Shaders: {[name: string]: string} = {};
 
-
-
-WebGLMapTile2.videoId = 0;
-WebGLMapTile2.verbose = false;
-WebGLMapTile2.activeTileCount = 0;
-WebGLMapTile2._initted = false;
-
-
-
-
-
-
-
-
-WebGLMapTile2.textureVertexShader =
+WebGLMapTile2Shaders.textureVertexShader =
   'attribute vec2 aTextureCoord;\n' +
   'uniform mat4 uTransform;\n' +
   'varying vec2 vTextureCoord;\n' +
@@ -217,7 +200,7 @@ WebGLMapTile2.textureVertexShader =
   '}\n';
 
 
-WebGLMapTile2.textureFragmentShader =
+WebGLMapTile2Shaders.textureFragmentShader =
   'precision mediump float;\n' +
   'varying vec2 vTextureCoord;\n' +
   'uniform sampler2D uSampler0;\n' +
@@ -237,7 +220,7 @@ WebGLMapTile2.textureFragmentShader =
   '  gl_FragColor = color0 + color1;\n' +
   '}\n';
 
-WebGLMapTile2.textureFragmentFaderShader =
+WebGLMapTile2Shaders.textureFragmentFaderShader =
   'precision mediump float;\n' +
   'varying vec2 vTextureCoord;\n' +
   'uniform sampler2D uSampler0;\n' +
@@ -251,6 +234,3 @@ WebGLMapTile2.textureFragmentFaderShader =
   '  vec4 colormap = texture2D(uColormap, vec2(textureColor.r,textureColor.r));\n' + 
   '   gl_FragColor = vec4(colormap.rgb, textureColor.a);\n' +
   '}\n';
-
-// stopit:  set to true to disable update()
-var si = false;

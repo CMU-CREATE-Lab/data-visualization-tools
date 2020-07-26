@@ -3,74 +3,10 @@
 import { LayerDB } from './LayerDB';
 import { Utils } from './Utils';
 import { gEarthTime } from './EarthTime';
+import { LayerOptions } from './Layer';
 
 declare var EARTH_TIMELAPSE_CONFIG;
 
-export class LayerOptions {
-  id: string
-  name: string
-  category: string
-  nLevels?: number
-  credit?: string
-  drawOptions?: object
-  tileWidth?: number
-  tileHeight?: number
-  date?: string
-  loadDataFunction?: () => any
-  setDataFunction?: () => any
-  drawFunction?: () => any
-  numAttributes?: number
-  fragmentShader?: string
-  layerDef: {[key: string]: string}
-  vertexShader?: string
-  dotmapColors?: number[]
-  epochs?: number[]
-  z?: number
-  colormap?: string
-  avoidShowingChildAndParent?: boolean
-  rootUrl?: string
-  greenScreen?: boolean
-  useTmJsonTimeTicks?: boolean
-
-  customSliderInfo?: {[key: string]: any}
-  timelineType?: string
-  hasTimeline?: boolean
-  startDate?: string
-  endDate?: string
-  step?: number
-
-  showGraph?: boolean
-  mapType?: string
-  color?: any
-  legendContent?: string
-  legendKey?: string
-  setDataOptions?: {[key: string]: any}
-  scalingFunction?: string
-  colorScalingFunction?: string
-  externalGeojson?: string
-  nameKey?: string
-  playbackRate?: string
-  masterPlaybackRate?: string
-  imageSrc?: string
-  paired?: boolean
-}
-
-export interface DrawOptions {
-  gmapsZoomLevel?: number;
-  throttle?: number;
-  epoch?: number;
-  pointSize?: number;
-  currentBValue?: number;
-  zoom?: number
-  currentTime?: Date
-  span?: number
-  subsampleAnnualRefugees?: boolean
-  pointIdx?: any
-  currentC?: number
-  color?: [number, number, number, number]
-  idx?: number
-  buffers?: any
-}
 
 interface Timelapse {
   [key: string]: any;
@@ -81,7 +17,8 @@ export interface LayerDef {
   'End date'?: string
 }
 
-export class LayerProxy extends LayerOptions {
+export class LayerProxy {
+  id: string;
   database: LayerDB;
   _visible: boolean;
   showGraph: boolean;
@@ -93,7 +30,6 @@ export class LayerProxy extends LayerOptions {
 
   constructor(id: string, database: LayerDB) {
     console.assert(LayerProxy.isValidId(id));
-    super();
     this.id = id;
     this.database = database;
   }
