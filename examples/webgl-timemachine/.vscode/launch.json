@@ -5,6 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Launch Edge",
+            "request": "launch",
+            "type": "pwa-msedge",
+            "url": "https://rsargent.earthtime.org/stories/covid19_the_pandemic_and_the_city",
+            "webRoot": "${workspaceFolder}"
+        },
+        {
             "type":"firefox",
             "request": "launch",
             "reAttach": true,
@@ -13,13 +20,6 @@
             "webRoot": "${workspaceFolder}",
             "clearConsoleOnReload": true,
             "suggestPathMappingWizard": true
-        },
-        {
-            "name": "Launch Edge",
-            "request": "launch",
-            "type": "pwa-msedge",
-            "url": "https://rsargent.earthtime.org/explore",
-            "webRoot": "${workspaceFolder}"
         },
         {
             "type": "chrome",

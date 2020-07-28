@@ -1163,34 +1163,45 @@ function cacheLastUsedLayer(layer) {
 }
 
 function handleLayers(layers) {
-  // Clear out all layers that were checked
-  $(".map-layer-div").find("input[type='checkbox']:checked").trigger("click");
-  gEarthTime.timelapse.hideSpinner("timeMachine");
-  if (!layers) {
-    activeEarthTimeLayers = [];
+  var layerProxies = [];
+  for (var layerId of layers) {
+    var layerProxy = gEarthTime.layerDB.getLayer(layerId);
+    if (layerProxy) {
+      layerProxies.push(layerProxy);
+    } else {
+      Utils.timelog(`handlelayers: Cannot find layer ${layerId}`);
+    }
   }
+  gEarthTime.layerDB.setShownLayers(layerProxies);
 
-  var layerExtraId = layers.find(function(layer) {
-    return (layer.indexOf("extras_") == 0 || layer.indexOf("e-") == 0);
-  });
+  // // Clear out all layers that were checked
+  // $(".map-layer-div").find("input[type='checkbox']:checked").trigger("click");
+  // gEarthTime.timelapse.hideSpinner("timeMachine");
+  // if (!layers) {
+  //   activeEarthTimeLayers = [];
+  // }
 
-  if (layerExtraId) {
-    setTimeout(function() {
-      $('#extras-selector-menu li[data-name="' + layerExtraId + '"]').click();
-    }, 100);
-    return;
-  }
+  // var layerExtraId = layers.find(function(layer) {
+  //   return (layer.indexOf("extras_") == 0 || layer.indexOf("e-") == 0);
+  // });
 
-  layers.forEach(function(layer) {
-    var $layerToggle = $("#layers-list label[name='" + layer + "'] input");
-    if (!$layerToggle.prop('checked')) $layerToggle.trigger("click");
-  });
+  // if (layerExtraId) {
+  //   setTimeout(function() {
+  //     $('#extras-selector-menu li[data-name="' + layerExtraId + '"]').click();
+  //   }, 100);
+  //   return;
+  // }
 
-  // Hack
-  // TODO: Revist toggling of CSV layers that did not have a timeline
-  if ((layers.length <= 1 || activeLayersWithTimeline <= 1) && visibleBaseMapLayer == "blsat") {
-    doSwitchToLandsat();
-  }
+  // layers.forEach(function(layer) {
+  //   var $layerToggle = $("#layers-list label[name='" + layer + "'] input");
+  //   if (!$layerToggle.prop('checked')) $layerToggle.trigger("click");
+  // });
+
+  // // Hack
+  // // TODO: Revist toggling of CSV layers that did not have a timeline
+  // if ((layers.length <= 1 || activeLayersWithTimeline <= 1) && visibleBaseMapLayer == "blsat") {
+  //   doSwitchToLandsat();
+  // }
 }
 
 function initLayerToggleUI() {
@@ -3374,8 +3385,7 @@ function loadWaypointSliderContentFromCSV(csvdata) {
   $("#timeMachine").removeClass("presentationSliderSelection");
   var currentWaypointSliderContentUrl;
 
-  // TODO(LayerDB).  I disabled this because snaplapseForPresentationSlider wasn't defined.  Need help from Paul
-  if (false && enableThemeHamburgerButton) {
+  if (enableThemeHamburgerButton) {
     // May just be a single item if there is only only one or zero themes designated
     waypointJSONList = snaplapseForPresentationSlider.CSVToJSONList(waypointdefs);
     for (var themeId in waypointJSONList) {
@@ -5900,9 +5910,8 @@ function showSettingsDialog() {
   var d = settingsDialog;
   d.html('<a target="_blank" href="' + getSpreadsheetDownloadPath(waypointsLoadedPath) + '" title="Click to view current waypoint spreadsheet">Current waypoints spreadsheet</a>' +
           '<button style="float: right; cursor: pointer;" title="Click to change waypoint list">Switch</button><br>' +
-          '<a target="_blank" href="' + getSpreadsheetDownloadPath(dotlayersLoadedPath) + '" title="Click to view current dotmap spreadsheet">Current dotmap layer spreadsheet</a>' +
-          '<button style="float: right; cursor: pointer;" title="Click to change dotmap layers">Switch</button><br>' +
-          '<a target="_blank" href="' + getSpreadsheetDownloadPath(csvlayersLoadedPath) + '" title="Click to view current csv spreadsheet">Current csv layer spreadsheet</a>' +
+          '<a target="_blank" href="https://docs.google.com/spreadsheets/d/1rCiksJv4aXi1usI0_9zdl4v5vuOfiHgMRidiDPt1WfE/edit#gid=358696896" title="Click to view current dotmap spreadsheet">Current dotmap layer spreadsheet</a><br>' +
+          '<a target="_blank" href="' + gEarthTime.layerDB.databaseId.url() + '" title="Click to view current csv spreadsheet">Current csv layer spreadsheet</a>' +
           '<button style="float: right; cursor: pointer;" title="Click to change csv layers">Switch</button><br><br>' +
           '<button style="float: right; cursor: pointer; font-size: 12px" title="Reset spreadsheets back to their defaults">Reset spreadsheets to default values</button><br>');
 
