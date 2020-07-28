@@ -41,6 +41,7 @@ export class CsvDataGrapher {
       zoomEnabled: true,
       zoomType: "xy",
       axisX: {
+        // @ts-ignore
         stripLines: [{
           value: null,
           color: "red"
