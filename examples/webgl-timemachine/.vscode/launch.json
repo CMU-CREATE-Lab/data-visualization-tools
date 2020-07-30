@@ -8,7 +8,7 @@
             "name": "Launch Edge",
             "request": "launch",
             "type": "pwa-msedge",
-            "url": "https://rsargent.earthtime.org/stories/covid19_the_pandemic_and_the_city",
+            "url": "https://rsargent.earthtime.org/explore",
             "webRoot": "${workspaceFolder}"
         },
         {

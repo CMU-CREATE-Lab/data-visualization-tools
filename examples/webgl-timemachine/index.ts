@@ -172,6 +172,16 @@ class EarthTimeImpl implements EarthTime {
   computeGmapsZoomLevel(): number {
     return Math.log2(this.timelapse.getPanoWidth() * this.timelapse.getView().scale / 256);
   }  
+
+  _maximumUpdateTime = 30; // milliseconds
+  _startOfRedraw: number;
+
+  startRedraw() {
+    this._startOfRedraw = performance.now();
+  }
+  redrawTakingTooLong() {
+    return performance.now() - this._startOfRedraw > this._maximumUpdateTime;
+  }
 };
 
 setGEarthTime(new EarthTimeImpl());
@@ -5954,12 +5964,6 @@ function showSettingsDialog() {
   });
 }
 
-var maximumUpdateTime = 20; // milliseconds
-var startOfRedraw;
-
-function redrawTakingTooLong() {
-  return performance.now() - startOfRedraw > maximumUpdateTime;
-}
 
 
 $(document).tooltip({
@@ -6054,6 +6058,7 @@ function resizeLayersMenu() {
 // Draws to canvas.
 // Called by TimeMachineCanavasLayer during animation and/or view changes
 function update() {
+  gEarthTime.startRedraw();
   if (!gEarthTime.readyToDraw) return;
   if (disableAnimation) {
     gEarthTime.canvasLayer.setAnimate(false);
@@ -7980,9 +7985,10 @@ async function init() {
   //}
   var layerDB = gEarthTime.layerDB;
   layerDB.setShownLayers([
-    layerDB.getLayer('bdrk'),
-    layerDB.getLayer('coral_only'),
-    layerDB.getLayer('gsr_oceans_yearly_ppr_1950_2014_animated')
+    layerDB.getLayer('mapbox_dark_map')
+    //layerDB.getLayer('crw')
+    //layerDB.getLayer('coral_only'),
+    //layerDB.getLayer('gsr_oceans_yearly_ppr_1950_2014_animated')
   ]);
 }
 

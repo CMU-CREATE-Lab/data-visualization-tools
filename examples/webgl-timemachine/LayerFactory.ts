@@ -193,7 +193,7 @@ export class LayerFactory {
       layerOptions.setDataOptions = JSON.parse(layerDef["Set Data Options"]);
     }
 
-    var url = layerDef["URL"].replace("http://", "https://");
+    var url = layerDef.URL ? layerDef.URL.replace("http://", "https://") : '';
     var useLocalData = false;
 
     // Change a *subset* of layer URLs to be local

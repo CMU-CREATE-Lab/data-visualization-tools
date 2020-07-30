@@ -14,7 +14,8 @@ interface Timelapse {
 
 export interface LayerDef {
   'Start date'?: string,
-  'End date'?: string
+  'End date'?: string,
+  URL?: string
 }
 
 export class LayerProxy {

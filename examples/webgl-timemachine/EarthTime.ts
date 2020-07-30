@@ -5,6 +5,7 @@ import { GSheet } from './GSheet'
 import { LayerDB } from './LayerDB'
 
 export interface EarthTime {
+    startRedraw();
     readyToDraw: boolean;
     canvasLayer: any;
     glb: Glb;

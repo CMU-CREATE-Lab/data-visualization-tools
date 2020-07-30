@@ -13,6 +13,8 @@
 // Or maybe compress the range and go with say 1.6 to 2.1?  That lets us better use
 // the flexibility of being able to capture the video across a range of times
 
+import { gEarthTime } from './EarthTime'
+
 export class WebGLVideoTile {
   constructor(glb, tileidx, bounds, url, defaultUrl, numFrames, fps, greenScreen, layer) {
     if (!WebGLVideoTile._initted) {
@@ -406,7 +408,7 @@ export class WebGLVideoTile {
     var actualVideoFrame = this._video.currentTime * this._fps;
     var actualVideoFrameDiscrete = Math.min(Math.floor(actualVideoFrame), this._nframes - 1);
 
-    if (readyState > 1 && !redrawTakingTooLong()) {
+    if (readyState > 1 && !gEarthTime.redrawTakingTooLong()) {
       this._tryCaptureFrame(displayFrameDiscrete, actualVideoFrame, actualVideoFrameDiscrete, isPaused);
     }
     this._checkForMissedFrame(displayFrameDiscrete);
