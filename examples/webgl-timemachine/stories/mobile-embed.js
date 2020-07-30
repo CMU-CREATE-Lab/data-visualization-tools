@@ -118,17 +118,8 @@ earthtime._updateOrientation = function() {
         // Change orientation for story
         var story = earthtime._storyRegistrations[elementId];
         var storyContainerElement = story.containerElement;
-        story.waitingFor = [].slice.call(storyContainerElement.querySelectorAll('.earthtime-story-frame-content'));
-        // Include legends
-        // Object.values() is not available in IE <= 11 (or Android 5), so we do it the long way.
-        var legends = earthtime._storyFrameLegends[elementId].legends;
-        var legendValues = Object.keys(legends).map(function(e) {
-          return legends[e];
-        })
-        story.waitingFor = story.waitingFor.concat(legendValues);
-        story.numElements = story.waitingFor.length;
 
-        // get an array of all orientable elements
+        // Get an array of all orientable elements
         var orientableElements = storyContainerElement.querySelectorAll('.earthtime-orientable');
         for (var i = 0; i < orientableElements.length; i++) {
           var element = orientableElements[i];
@@ -145,6 +136,27 @@ earthtime._updateOrientation = function() {
           }
           earthtime._printLogging(element);
         }
+
+        // Get an array of story frames
+        // We could use a selector that only gives us frames with the has-legend data attribute,
+        // however, we need the index of the frame in relation to all the other story frames.
+        var storyframes = storyContainerElement.querySelectorAll('.earthtime-story-frame');
+        for (var i = 0; i < storyframes.length; i++) {
+          var frame = storyframes[i];
+          if (frame.hasAttribute('data-has-legend')) {
+            earthtime._loadLegend(elementId, storyframes, i);
+          }
+        }
+
+        story.waitingFor = [].slice.call(storyContainerElement.querySelectorAll('.earthtime-story-frame-content'));
+        // Include legends
+        // Object.values() is not available in IE <= 11 (or Android 5), so we do it the long way.
+        var legends = earthtime._storyFrameLegends[elementId].legends;
+        var legendValues = Object.keys(legends).map(function(e) {
+          return legends[e];
+        })
+        story.waitingFor = story.waitingFor.concat(legendValues);
+        story.numElements = story.waitingFor.length;
       }
     }
     if (!earthtime._loadingMonitorInterval) {
@@ -598,6 +610,54 @@ earthtime._generateAuthorText = function(author) {
   return finalAuthorAndDataCreditString;
 };
 
+
+earthtime._loadLegend = function(storyElementId, storyframes, frameIndex) {
+  var frame = storyframes[frameIndex];
+  var storyLegendsDict = earthtime._storyFrameLegends[storyElementId];
+  var legendElm = storyLegendsDict.legendContainer
+  var activeLegend = storyLegendsDict.legends[frameIndex];
+  legendElm.style.visibility = "visible";
+  legendElm.innerHTML = "";
+  if (!activeLegend) {
+    activeLegend = {};
+    storyLegendsDict.legends[frameIndex] = activeLegend;
+    activeLegend.xhr = new XMLHttpRequest();
+    var childLandscapeSrc = frame.children[0].children[0].getAttribute("data-src-landscape");
+    var thumbnailer = new Thumbnailer(childLandscapeSrc);
+    var legendPath = thumbnailer.getLegend();
+    activeLegend.xhr.open('GET', legendPath);
+    activeLegend.xhr.onload = function() {
+      // Using .find() would be faster (compared to .filter()), but IE <= 11 does not support it.
+      // A polyfill that is faster could be used, but our array sizes are not large enough to notice a perf hit.
+      var legendFrameIdx = Object.keys(storyLegendsDict.legends).filter(function(key) {
+        return storyLegendsDict.legends[key] === activeLegend;
+      })[0];
+      if (activeLegend.xhr.status === 200) {
+        try {
+          var legendJSONResponse = JSON.parse(activeLegend.xhr.responseText);
+          activeLegend.responseTextParsed = legendJSONResponse.HTML;
+          if (storyframes[legendFrameIdx].children[0].style.position == "fixed") {
+            legendElm.innerHTML = activeLegend.responseTextParsed;
+            earthtime._updateLegendSize();
+          }
+        } catch(e) {
+          console.log("Error parsing legend request response for story frame: " + legendFrameIdx);
+          console.log(e);
+        }
+      } else {
+        console.log("Error requesting legend for story frame: " + legendFrameIdx);
+      }
+    };
+    activeLegend.xhr.send();
+  } else if (activeLegend.xhr.status === 200) {
+    if (legendElm.innerHTML != activeLegend.responseTextParsed) {
+      legendElm.innerHTML = activeLegend.responseTextParsed;
+      earthtime._updateLegendSize();
+    }
+  }
+};
+
+
 earthtime._updateScrollPos = function(e) {
   earthtime._wasFixedPosition = earthtime._isFixedPosition;
   earthtime._isFixedPosition = false;
@@ -609,6 +669,7 @@ earthtime._updateScrollPos = function(e) {
       var story = earthtime._storyRegistrations[elementId];
       var storyContainerElement = story.containerElement;
       var storyframes = storyContainerElement.querySelectorAll('.earthtime-story-frame');
+      var legendElm = earthtime._storyFrameLegends[elementId].legendContainer;
       var lastFrame = storyframes[storyframes.length - 1];
       var titlePageOverlay = document.getElementsByClassName("earthtime-story-title-overlay")[0];
       var legendElm = earthtime._storyFrameLegends[elementId].legendContainer;
@@ -638,46 +699,7 @@ earthtime._updateScrollPos = function(e) {
           found = true;
 
           if (frame.getAttribute("data-has-legend") === "true") {
-            var activeLegend = earthtime._storyFrameLegends[elementId].legends[i];
-            legendElm.style.visibility = "visible";
-            legendElm.innerHTML = "";
-            if (!activeLegend) {
-              activeLegend = {};
-              earthtime._storyFrameLegends[elementId].legends[i] = activeLegend;
-              activeLegend.xhr = new XMLHttpRequest();
-              var childLandscapeSrc = child.children[0].getAttribute("data-src-landscape");
-              var thumbnailer = new Thumbnailer(childLandscapeSrc);
-              var legendPath = thumbnailer.getLegend();
-              activeLegend.xhr.open('GET', legendPath);
-              activeLegend.xhr.onload = function() {
-                // Using .find() would be faster (compared to .filter()), but IE <= 11 does not support it.
-                // A polyfill that is faster could be used, but our array sizes are not large enough to notice a perf hit.
-                var legendFrameIdx = Object.keys(earthtime._storyFrameLegends[elementId].legends).filter(function(key) {
-                  return earthtime._storyFrameLegends[elementId].legends[key] === activeLegend;
-                })[0];
-                if (activeLegend.xhr.status === 200) {
-                  try {
-                    var legendJSONResponse = JSON.parse(activeLegend.xhr.responseText);
-                    activeLegend.responseTextParsed = legendJSONResponse.HTML;
-                    if (storyframes[legendFrameIdx].children[0].style.position == "fixed") {
-                      legendElm.innerHTML = activeLegend.responseTextParsed;
-                      earthtime._updateLegendSize();
-                    }
-                  } catch(e) {
-                    console.log("Error parsing legend request response for story frame: " + legendFrameIdx);
-                    console.log(e);
-                  }
-                } else {
-                  console.log("Error requesting legend for story frame: " + legendFrameIdx);
-                }
-              };
-              activeLegend.xhr.send();
-            } else if (activeLegend.xhr.status === 200) {
-              if (legendElm.innerHTML != activeLegend.responseTextParsed) {
-                legendElm.innerHTML = activeLegend.responseTextParsed;
-                earthtime._updateLegendSize();
-              }
-            }
+            earthtime._loadLegend(elementId, storyframes, i);
           } else {
             if (legendElm.style.visibility != "hidden") {
               legendElm.style.visibility = "hidden";
