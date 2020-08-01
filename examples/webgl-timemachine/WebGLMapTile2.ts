@@ -137,8 +137,7 @@ export class WebGLMapTile2 extends Tile {
       }
 
 
-      var alphaLocation = gl.getUniformLocation(this.program, "uAlpha");
-      gl.uniform1f(alphaLocation, uAlpha);
+      gl.uniform1f(this.program.uAlpha, uAlpha);
 
 
       gl.uniformMatrix4fv(this.program.uTransform, false, tileTransform);
@@ -148,8 +147,8 @@ export class WebGLMapTile2 extends Tile {
       /*    gl.activeTexture(gl.TEXTURE0);
           gl.bindTexture(gl.TEXTURE_2D, this._texture);
       */
-      var imageLocation0 = gl.getUniformLocation(this.program, "uSampler0");
-      var imageLocation1 = gl.getUniformLocation(this.program, "uSampler1");
+      var imageLocation0 = this.program.uSampler0;
+      var imageLocation1 = this.program.uSampler1;
 
       gl.uniform1i(imageLocation0, 0); // texture unit 0
       gl.uniform1i(imageLocation1, 1); // texture unit 0
@@ -161,7 +160,7 @@ export class WebGLMapTile2 extends Tile {
       gl.bindTexture(gl.TEXTURE_2D, this._texture1);
 
       if (this._layer.colormapTexture) {
-        gl.uniform1i(gl.getUniformLocation(this.program, "uColormap"), 2); // texture unit 2
+        gl.uniform1i(this.program.uColormap, 2); // texture unit 2
         gl.activeTexture(gl.TEXTURE2);
         gl.bindTexture(gl.TEXTURE_2D, this._layer.colormapTexture);
       }
@@ -191,48 +190,47 @@ export class WebGLMapTile2 extends Tile {
 
 export var WebGLMapTile2Shaders: {[name: string]: string} = {};
 
-WebGLMapTile2Shaders.textureVertexShader =
-  'attribute vec2 aTextureCoord;\n' +
-  'uniform mat4 uTransform;\n' +
-  'varying vec2 vTextureCoord;\n' +
+WebGLMapTile2Shaders.textureVertexShader = `
+attribute vec2 aTextureCoord;
+uniform mat4 uTransform;
+varying vec2 vTextureCoord;
+void main(void) {
+  vTextureCoord = vec2(aTextureCoord.x, aTextureCoord.y);
+  gl_Position = uTransform * vec4(aTextureCoord.x, aTextureCoord.y, 0., 1.);
+}`;
 
-  'void main(void) {\n' +
-  '  vTextureCoord = vec2(aTextureCoord.x, aTextureCoord.y);\n' +
-  '  gl_Position = uTransform * vec4(aTextureCoord.x, aTextureCoord.y, 0., 1.);\n' +
-  '}\n';
 
+WebGLMapTile2Shaders.textureFragmentShader = `
+precision mediump float;
+varying vec2 vTextureCoord;
+uniform sampler2D uSampler0;
+uniform sampler2D uSampler1;
+uniform float uAlpha;
+void main(void) {
+  vec4 textureColor0 = texture2D(uSampler0, vec2(vTextureCoord.s, vTextureCoord.t));
+  vec4 textureColor1 = texture2D(uSampler1, vec2(vTextureCoord.s, vTextureCoord.t));
+  vec4 color0 = vec4(0.,0.,0.,0);
+  vec4 color1 = vec4(0.,0.,0.,0);
+  if (textureColor0.g > 1. - uAlpha) {
+    color0 = vec4(textureColor0.a, 0., 0., textureColor0.a); 
+  }
+  if (textureColor1.b > 0.40) {
+    color1 = vec4(0., 0., textureColor1.b * uAlpha, uAlpha);
+  }
+  gl_FragColor = color0 + color1;
+}`;
 
-WebGLMapTile2Shaders.textureFragmentShader =
-  'precision mediump float;\n' +
-  'varying vec2 vTextureCoord;\n' +
-  'uniform sampler2D uSampler0;\n' +
-  'uniform sampler2D uSampler1;\n' +
-  'uniform float uAlpha;\n' +
-  'void main(void) {\n' +
-  '  vec4 textureColor0 = texture2D(uSampler0, vec2(vTextureCoord.s, vTextureCoord.t));\n' +
-  '  vec4 textureColor1 = texture2D(uSampler1, vec2(vTextureCoord.s, vTextureCoord.t));\n' +
-  '  vec4 color0 = vec4(0.,0.,0.,0);\n' +
-  '  vec4 color1 = vec4(0.,0.,0.,0);\n' +
-  '  if (textureColor0.g > 1. - uAlpha) {\n' +
-  '    color0 = vec4(textureColor0.a, 0., 0., textureColor0.a); \n' +
-  '  }\n' +
-  '  if (textureColor1.b > 0.40) {\n' +
-  '    color1 = vec4(0., 0., textureColor1.b * uAlpha, uAlpha);\n' +
-  '  }\n' +
-  '  gl_FragColor = color0 + color1;\n' +
-  '}\n';
-
-WebGLMapTile2Shaders.textureFragmentFaderShader =
-  'precision mediump float;\n' +
-  'varying vec2 vTextureCoord;\n' +
-  'uniform sampler2D uSampler0;\n' +
-  'uniform sampler2D uSampler1;\n' +
-  'uniform sampler2D uColormap;\n' +
-  'uniform float uAlpha;\n' +
-  'void main(void) {\n' +
-  '  vec4 textureColor1 = texture2D(uSampler0, vec2(vTextureCoord.s, vTextureCoord.t)); \n' +
-  '  vec4 textureColor2 = texture2D(uSampler1, vec2(vTextureCoord.s, vTextureCoord.t));\n' +
-  '  vec4 textureColor = textureColor1 * (1.0 - uAlpha) + textureColor2 * uAlpha;\n' +
-  '  vec4 colormap = texture2D(uColormap, vec2(textureColor.r,textureColor.r));\n' + 
-  '   gl_FragColor = vec4(colormap.rgb, textureColor.a);\n' +
-  '}\n';
+WebGLMapTile2Shaders.textureFragmentFaderShader = `
+precision mediump float;
+varying vec2 vTextureCoord;
+uniform sampler2D uSampler0;
+uniform sampler2D uSampler1;
+uniform sampler2D uColormap;
+uniform float uAlpha;
+void main(void) {
+  vec4 textureColor1 = texture2D(uSampler0, vec2(vTextureCoord.s, vTextureCoord.t)); 
+  vec4 textureColor2 = texture2D(uSampler1, vec2(vTextureCoord.s, vTextureCoord.t));
+  vec4 textureColor = textureColor1 * (1.0 - uAlpha) + textureColor2 * uAlpha;
+  vec4 colormap = texture2D(uColormap, vec2(textureColor.r,textureColor.r));
+   gl_FragColor = vec4(colormap.rgb, textureColor.a);
+}`;

@@ -34,6 +34,7 @@ export class MapboxLayer {
   }
   _receiveStyle(style) {
     console.log('receiveStyle', style);
+    console.log(JSON.stringify(style));
     this._mapboxStyle = style;
     if (!MapboxLayer.map) {
       MapboxLayer._instantiateMap(style.sources, style.layers, style.glyphs);

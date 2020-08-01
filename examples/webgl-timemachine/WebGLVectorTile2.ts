@@ -4,6 +4,8 @@ declare var Papa: any;
 declare var earcut: any;
 /// <reference path="../../js/earcut.min.js"/>
 
+/// <reference path="perf.js"/>
+
 declare var d3: any;
 
 import { gEarthTime } from './EarthTime'
@@ -23,7 +25,6 @@ export class WebGLVectorTile2 extends Tile {
   _uncertainValue: any;
   _loadingSpinnerTimer: any;
   _wasPlayingBeforeDataLoad: boolean;
-  _drawOptions: any;
   _defaultColor: number[];
   _image: HTMLImageElement;
   geojsonData: any;
@@ -86,6 +87,8 @@ export class WebGLVectorTile2 extends Tile {
   br: Float32Array;
   _spinnerNeeded: boolean;
   constructor(layer, tileidx: TileIdx, bounds, opt_options) {
+    gEarthTime.glb.gl.getExtension("OES_standard_derivatives");
+
     super(layer, tileidx, bounds, opt_options);
     this._url = tileidx.expandUrl(this._layer._tileUrl, this._layer);
     this._ready = false;
@@ -99,7 +102,6 @@ export class WebGLVectorTile2 extends Tile {
     this._wasPlayingBeforeDataLoad = false;
     this._defaultColor = [0.1, 0.1, 0.5, 1.0];
 
-    this.gl.getExtension("OES_standard_derivatives");
 
     if (this._layer.imageSrc) {
       this._image = new Image();
@@ -689,7 +691,7 @@ export class WebGLVectorTile2 extends Tile {
             }
           }
           else if (!feature.hasOwnProperty("geometry")) {
-            console.log('ERROR: Could not find ' + country[0]);
+            console.log(`${that._layer.layerId}: Could not find geometry "${country[0]}"`);
             continue;
           }
           else if (!feature.properties.hasOwnProperty('webmercator')) {
@@ -1600,33 +1602,13 @@ export class WebGLVectorTile2 extends Tile {
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
       gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);
 
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_country');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 32, 0);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_type');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 32, 4);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_coord');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 32, 8);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch1');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 32, 16);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_val1');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 32, 20);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch2');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 32, 24);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_val2');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 32, 28);
+      this.program.enableAttribArray.a_country(1, gl.FLOAT, false, 32, 0);
+      this.program.enableAttribArray.a_type(1, gl.FLOAT, false, 32, 4);
+      this.program.enableAttribArray.a_coord(2, gl.FLOAT, false, 32, 8);
+      this.program.enableAttribArray.a_epoch1(1, gl.FLOAT, false, 32, 16);
+      this.program.enableAttribArray.a_val1(1, gl.FLOAT, false, 32, 20);
+      this.program.enableAttribArray.a_epoch2(1, gl.FLOAT, false, 32, 24);
+      this.program.enableAttribArray.a_val2(1, gl.FLOAT, false, 32, 28);
     }
   }
   // Color Dotmap (not animated)  aWorldCoord[2]  aColor
@@ -1765,21 +1747,10 @@ export class WebGLVectorTile2 extends Tile {
         gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);
 
-        var attributeLoc = gl.getAttribLocation(this.program, 'a_Vertex');
-        gl.enableVertexAttribArray(attributeLoc);
-        gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 20, 0);
-
-        var attributeLoc = gl.getAttribLocation(this.program, 'a_Year');
-        gl.enableVertexAttribArray(attributeLoc);
-        gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 20, 8);
-
-        var attributeLoc = gl.getAttribLocation(this.program, 'a_Val1');
-        gl.enableVertexAttribArray(attributeLoc);
-        gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 20, 12);
-
-        var attributeLoc = gl.getAttribLocation(this.program, 'a_Val2');
-        gl.enableVertexAttribArray(attributeLoc);
-        gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 20, 16);
+        this.program.enableAttribArray.a_Vertex(2, gl.FLOAT, false, 20, 0);
+        this.program.enableAttribArray.a_Year(1, gl.FLOAT, false, 20, 8);
+        this.program.enableAttribArray.a_Val1(1, gl.FLOAT, false, 20, 12);
+        this.program.enableAttribArray.a_Val2(1, gl.FLOAT, false, 20, 16);
 
         this._texture = gl.createTexture();
 
@@ -1875,25 +1846,11 @@ export class WebGLVectorTile2 extends Tile {
         gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);
 
-        var attributeLoc = gl.getAttribLocation(this.program, 'a_Vertex');
-        gl.enableVertexAttribArray(attributeLoc);
-        gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 24, 0);
-
-        var attributeLoc = gl.getAttribLocation(this.program, 'a_Val1');
-        gl.enableVertexAttribArray(attributeLoc);
-        gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 8);
-
-        var attributeLoc = gl.getAttribLocation(this.program, 'a_Val2');
-        gl.enableVertexAttribArray(attributeLoc);
-        gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 12);
-
-        var attributeLoc = gl.getAttribLocation(this.program, 'a_Val3');
-        gl.enableVertexAttribArray(attributeLoc);
-        gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 16);
-
-        var attributeLoc = gl.getAttribLocation(this.program, 'a_Val4');
-        gl.enableVertexAttribArray(attributeLoc);
-        gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 20);
+        this.program.enableAttribArray.a_Vertex(2, gl.FLOAT, false, 24, 0);
+        this.program.enableAttribArray.a_Val1(1, gl.FLOAT, false, 24, 8);
+        this.program.enableAttribArray.a_Val2(1, gl.FLOAT, false, 24, 12);
+        this.program.enableAttribArray.a_Val3(1, gl.FLOAT, false, 24, 16);
+        this.program.enableAttribArray.a_Val4(1, gl.FLOAT, false, 24, 20);
 
         this._texture = gl.createTexture();
 
@@ -2026,24 +1983,16 @@ export class WebGLVectorTile2 extends Tile {
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      var matrixLoc = gl.getUniformLocation(this.program, 'mapMatrix');
-      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+      gl.uniformMatrix4fv(this.program.mapMatrix, false, tileTransform);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
-      var attributeLoc = gl.getAttribLocation(this.program, 'worldCoord');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 12, 0);
+      this.program.enableAttribArray.worldCoord(2, gl.FLOAT, false, 12, 0);
+      this.program.enableAttribArray.time(1, gl.FLOAT, false, 12, 8);
 
-      var attributeLoc = gl.getAttribLocation(this.program, 'time');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 12, 8);
+      gl.uniform1f(this.program.maxTime, maxTime);
 
-      var timeLoc = gl.getUniformLocation(this.program, 'maxTime');
-      gl.uniform1f(timeLoc, maxTime);
-
-      var timeLoc = gl.getUniformLocation(this.program, 'minTime');
-      gl.uniform1f(timeLoc, minTime);
+      gl.uniform1f(this.program.minTime, minTime);
 
       gl.drawArrays(gl.LINES, 0, this._pointCount);
       perf_draw_lines(this._pointCount);
@@ -2060,14 +2009,11 @@ export class WebGLVectorTile2 extends Tile {
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      var matrixLoc = gl.getUniformLocation(this.program, 'mapMatrix');
-      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+      gl.uniformMatrix4fv(this.program.mapMatrix, false, tileTransform);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
-      var attributeLoc = gl.getAttribLocation(this.program, 'worldCoord');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 8, 0);
+      this.program.enableAttribArray.worldCoord(2, gl.FLOAT, false, 8, 0);
 
       gl.drawArrays(gl.LINES, 0, this._pointCount);
       perf_draw_lines(this._pointCount);
@@ -2085,7 +2031,7 @@ export class WebGLVectorTile2 extends Tile {
       var zoom = options.zoom;
       var maxTime = options.currentTime / 1000.;
       var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-      var color = options.color || this._defaultColor;
+      var color = this._layer.drawOptions.color || this._defaultColor;
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
@@ -2096,38 +2042,28 @@ export class WebGLVectorTile2 extends Tile {
         pointSize = 1.0;
       }
 
+      // Hack for image export for very large image
       if (gl.canvas.width >= 4000 || gl.canvas.height >= 4000) {
         pointSize += 2.0;
       }
 
-      var matrixLoc = gl.getUniformLocation(this.program, 'mapMatrix');
-      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+      gl.uniformMatrix4fv(this.program.mapMatrix, false, tileTransform);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
-      var attributeLoc = gl.getAttribLocation(this.program, 'worldCoord');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 12, 0);
-      var pointSizeLoc = gl.getUniformLocation(this.program, 'uPointSize');
-      gl.uniform1f(pointSizeLoc, pointSize);
+      this.program.enableAttribArray.worldCoord(2, gl.FLOAT, false, 12, 0);
+      this.program.enableAttribArray.time(1, gl.FLOAT, false, 12, 8);
 
-      var timeLoc = gl.getAttribLocation(this.program, 'time');
-      gl.enableVertexAttribArray(timeLoc);
-      gl.vertexAttribPointer(timeLoc, 1, gl.FLOAT, false, 12, 8);
-
-      var timeLoc = gl.getUniformLocation(this.program, 'uMaxTime');
-      gl.uniform1f(timeLoc, maxTime * 1.);
-
-      var uColor = color;
-      var colorLoc = gl.getUniformLocation(this.program, 'uColor');
-      gl.uniform4fv(colorLoc, uColor);
-
+      gl.uniform1f(this.program.uPointSize, pointSize);
+      gl.uniform1f(this.program.uMaxTime, maxTime * 1.);
+      gl.uniform4fv(this.program.uColor, color);
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
       perf_draw_points(this._pointCount);
       gl.disable(gl.BLEND);
     }
   }
+
   _drawGtd(transform, options) {
     var gl = this.gl;
     if (this._ready) {
@@ -2139,7 +2075,7 @@ export class WebGLVectorTile2 extends Tile {
       var zoom = options.zoom;
       var currentTime = options.currentTime / 1000.;
       var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-      var color = options.color || this._defaultColor;
+      var color = this._layer.drawOptions.color || this._defaultColor;
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
@@ -2150,32 +2086,20 @@ export class WebGLVectorTile2 extends Tile {
         pointSize = 1.0;
       }
 
-      var matrixLoc = gl.getUniformLocation(this.program, 'mapMatrix');
-      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+      gl.uniformMatrix4fv(this.program.mapMatrix, false, tileTransform);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_WorldCoord');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 16, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.enableAttribArray.a_WorldCoord(2, gl.FLOAT, false, 16, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.enableAttribArray.a_Epoch(1, gl.FLOAT, false, 16, 8); // 8 byte offset
+      this.program.enableAttribArray.a_NCasualties(1, gl.FLOAT, false, 16, 12); // 8 byte offset
 
-      var timeLocation = gl.getAttribLocation(this.program, "a_Epoch");
-      gl.enableVertexAttribArray(timeLocation);
-      gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 16, 8); // 8 byte offset
+      gl.uniformMatrix4fv(this.program.u_MapMatrix, false, tileTransform);
 
-      var timeLocation = gl.getAttribLocation(this.program, "a_NCasualties");
-      gl.enableVertexAttribArray(timeLocation);
-      gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 16, 12); // 8 byte offset
-
-      var matrixLoc = gl.getUniformLocation(this.program, 'u_MapMatrix');
-      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
-
-      var sliderTime = gl.getUniformLocation(this.program, 'u_EpochTime');
-      gl.uniform1f(sliderTime, currentTime);
+      gl.uniform1f(this.program.u_EpochTime, currentTime);
 
       var spanEpoch = 2.0 * 365 * 24 * 68 * 60;
-      var span = gl.getUniformLocation(this.program, 'u_Span');
-      gl.uniform1f(span, spanEpoch);
+      gl.uniform1f(this.program.u_Span, spanEpoch);
 
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
@@ -2194,7 +2118,7 @@ export class WebGLVectorTile2 extends Tile {
       var zoom = options.zoom;
       var currentTime = options.currentTime / 1000.;
       var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-      var color = options.color || this._defaultColor;
+      var color = this._layer.drawOptions.color || this._defaultColor;
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
@@ -2205,39 +2129,23 @@ export class WebGLVectorTile2 extends Tile {
         pointSize = 1.0;
       }
 
-      var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
-      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+      gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_centroid');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 20, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.enableAttribArray.a_centroid(2, gl.FLOAT, false, 20, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.enableAttribArray.a_val(1, gl.FLOAT, false, 20, 8); // 8 byte offset
+      this.program.enableAttribArray.a_start_epoch(1, gl.FLOAT, false, 20, 12); // 8 byte offset
+      this.program.enableAttribArray.a_end_epoch(1, gl.FLOAT, false, 20, 16); // 8 byte offset
 
-      var timeLocation = gl.getAttribLocation(this.program, "a_val");
-      gl.enableVertexAttribArray(timeLocation);
-      gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 20, 8); // 8 byte offset
+      gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
 
-      var timeLocation = gl.getAttribLocation(this.program, "a_start_epoch");
-      gl.enableVertexAttribArray(timeLocation);
-      gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 20, 12); // 8 byte offset
+      gl.uniform1f(this.program.u_epoch, currentTime);
 
-      var timeLocation = gl.getAttribLocation(this.program, "a_end_epoch");
-      gl.enableVertexAttribArray(timeLocation);
-      gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 20, 16); // 8 byte offset
-
-      var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
-      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
-
-      var sliderTime = gl.getUniformLocation(this.program, 'u_epoch');
-      gl.uniform1f(sliderTime, currentTime);
-
-      var sliderTime = gl.getUniformLocation(this.program, 'u_size');
-      gl.uniform1f(sliderTime, pointSize);
+      gl.uniform1f(this.program.u_size, pointSize);
 
       var spanEpoch = 24.0 * 30 * 24 * 68 * 60;
-      var span = gl.getUniformLocation(this.program, 'u_span');
-      gl.uniform1f(span, spanEpoch);
+      gl.uniform1f(this.program.u_span, spanEpoch);
 
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
@@ -2262,7 +2170,7 @@ export class WebGLVectorTile2 extends Tile {
       var tileTransform = new Float32Array(transform);
       var zoom = options.zoom;
       var currentTime = options.currentTime.getTime() / 1000.;
-      var color = options.color || this._defaultColor;
+      var color = this._layer.drawOptions.color || this._defaultColor;
       if (color.length == 3) {
         color.push(1.0);
       }
@@ -2317,7 +2225,7 @@ export class WebGLVectorTile2 extends Tile {
       var tileTransform = new Float32Array(transform);
       var zoom = options.zoom;
       var currentTime = options.currentTime.getTime() / 1000.;
-      var color = options.color || this._defaultColor;
+      var color = this._layer.drawOptions.color || this._defaultColor;
       if (color.length == 3) {
         color.push(1.0);
       }
@@ -2383,12 +2291,12 @@ export class WebGLVectorTile2 extends Tile {
       var currentTime = options.currentTime.getTime() / 1000.;
       var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
       var color = this._defaultColor; // default color not used
-      if (options.color) {
-        color = options.color;
-        gl.uniform1i(gl.getUniformLocation(this.program, 'u_useColorMap'), 0);
+      if (this._layer.drawOptions.color) {
+        color = this._layer.drawOptions.color;
+        gl.uniform1i(this.program.u_useColorMap, 0);
       }
       else {
-        gl.uniform1i(gl.getUniformLocation(this.program, 'u_useColorMap'), 1);
+        gl.uniform1i(this.program.u_useColorMap, 1);
       }
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
@@ -2400,78 +2308,56 @@ export class WebGLVectorTile2 extends Tile {
         pointSize = 1.0;
       }
 
-      var matrixLoc = gl.getUniformLocation(this.program, 'u_MapMatrix');
-      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+      gl.uniformMatrix4fv(this.program.u_MapMatrix, false, tileTransform);
 
-      var colorLoc = gl.getUniformLocation(this.program, 'u_color');
-      gl.uniform4fv(colorLoc, color);
+      gl.uniform4fv(this.program.u_color, color);
 
       if (this._triangleLists) {
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, this._texture);
-        gl.uniform1i(gl.getUniformLocation(this.program, "u_Colormap"), 0); // TEXTURE0
+        gl.uniform1i(this.program.u_Colormap, 0); // TEXTURE0
 
         gl.activeTexture(gl.TEXTURE1);
         gl.bindTexture(gl.TEXTURE_2D, this._valuesTexture);
-        gl.uniform1i(gl.getUniformLocation(this.program, "u_Values"), 1); // TEXTURE1
+        gl.uniform1i(this.program.u_Values, 1); // TEXTURE1
 
-        gl.uniform1f(gl.getUniformLocation(this.program, 'u_NumRegionsPerRow'), this.nRegionsPerRow);
-        gl.uniform1f(gl.getUniformLocation(this.program, 'u_NumEpochs'), this.epochs.length);
-        gl.uniform1f(gl.getUniformLocation(this.program, 'u_ValuesWidth'), this.valuesWidth);
-        gl.uniform1f(gl.getUniformLocation(this.program, 'u_ValuesHeight'), this.valuesHeight);
+        gl.uniform1f(this.program.u_NumRegionsPerRow, this.nRegionsPerRow);
+        gl.uniform1f(this.program.u_NumEpochs, this.epochs.length);
+        gl.uniform1f(this.program.u_ValuesWidth, this.valuesWidth);
+        gl.uniform1f(this.program.u_ValuesHeight, this.valuesHeight);
 
         var frameNo = this.epochToInterpolatedFrameNum(currentTime, this.epochs);
         if (this._timeVariableRegions) {
           // timeVariableRegions don't fade;  switch right at beginning of next frame, instead of fading between frames
           frameNo = Math.floor(frameNo + 0.01);
         }
-        gl.uniform1f(gl.getUniformLocation(this.program, 'u_TimeIndex'), frameNo);
+        gl.uniform1f(this.program.u_TimeIndex, frameNo);
 
         // drawElements uses indices to avoid duplicating vertices within regions
         for (var i = 0; i < this._triangleLists.length; i++) {
           gl.bindBuffer(gl.ARRAY_BUFFER, this._triangleLists[i].arrayBuffer);
 
-          var attributeLoc = gl.getAttribLocation(this.program, 'a_Centroid');
-          gl.enableVertexAttribArray(attributeLoc);
-          gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 12, 0);
-
-          var loc = gl.getAttribLocation(this.program, "a_RegionIdx");
-          gl.enableVertexAttribArray(loc);
-          gl.vertexAttribPointer(loc, 1, gl.FLOAT, false, 12, 8);
+          this.program.enableAttribArray.a_Centroid(2, gl.FLOAT, false, 12, 0);
+          this.program.enableAttribArray.a_RegionIdx(1, gl.FLOAT, false, 12, 8);
 
           gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._triangleLists[i].indexBuffer);
           gl.drawElements(gl.TRIANGLES, this._triangleLists[i].count, gl.UNSIGNED_SHORT, 0);
         }
       }
       else {
-        var sliderTime = gl.getUniformLocation(this.program, 'u_Epoch');
-        gl.uniform1f(sliderTime, currentTime);
+        gl.uniform1f(this.program.u_Epoch, currentTime);
 
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, this._texture);
-        gl.uniform1i(gl.getUniformLocation(this.program, "u_Image"), 0);
+        gl.uniform1i(this.program.u_Image, 0);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
-        var attributeLoc = gl.getAttribLocation(this.program, 'a_Centroid');
-        gl.enableVertexAttribArray(attributeLoc);
-        gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 24, 0);
-
-        var timeLocation = gl.getAttribLocation(this.program, "a_Epoch1");
-        gl.enableVertexAttribArray(timeLocation);
-        gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 24, 8);
-
-        var timeLocation = gl.getAttribLocation(this.program, "a_Val1");
-        gl.enableVertexAttribArray(timeLocation);
-        gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 24, 12);
-
-        var timeLocation = gl.getAttribLocation(this.program, "a_Epoch2");
-        gl.enableVertexAttribArray(timeLocation);
-        gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 24, 16);
-
-        var timeLocation = gl.getAttribLocation(this.program, "a_Val2");
-        gl.enableVertexAttribArray(timeLocation);
-        gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 24, 20);
+        this.program.enableAttribArray.a_Centroid(2, gl.FLOAT, false, 24, 0);
+        this.program.enableAttribArray.a_Epoch1(1, gl.FLOAT, false, 24, 8);
+        this.program.enableAttribArray.a_Val1(1, gl.FLOAT, false, 24, 12);
+        this.program.enableAttribArray.a_Epoch2(1, gl.FLOAT, false, 24, 16);
+        this.program.enableAttribArray.a_Val2(1, gl.FLOAT, false, 24, 20);
 
         gl.drawArrays(gl.TRIANGLES, 0, this._pointCount);
       }
@@ -2543,44 +2429,27 @@ export class WebGLVectorTile2 extends Tile {
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
 
-      var uTime = gl.getUniformLocation(this.program, "uTime");
-      gl.uniform1f(uTime, step);
+      gl.uniform1f(this.program.uTime, step);
 
-      var sizeLoc = gl.getUniformLocation(this.program, 'uSize');
-      gl.uniform1f(sizeLoc, pointSize);
+      gl.uniform1f(this.program.uSize, pointSize);
 
-      var zoomLoc = gl.getUniformLocation(this.program, 'uZoom');
-      gl.uniform1f(zoomLoc, zoom);
+      gl.uniform1f(this.program.uZoom, zoom);
 
-      var filterDistLoc = gl.getUniformLocation(this.program, 'filterDist');
-      gl.uniform1i(filterDistLoc, filterDist);
+      gl.uniform1i(this.program.filterDist, filterDist);
 
-      var showSe01Loc = gl.getUniformLocation(this.program, 'showSe01');
-      gl.uniform1i(showSe01Loc, se01);
+      gl.uniform1i(this.program.showSe01, se01);
 
-      var showSe02Loc = gl.getUniformLocation(this.program, 'showSe02');
-      gl.uniform1i(showSe02Loc, se02);
+      gl.uniform1i(this.program.showSe02, se02);
 
-      var showSe03Loc = gl.getUniformLocation(this.program, 'showSe03');
-      gl.uniform1i(showSe03Loc, se03);
+      gl.uniform1i(this.program.showSe03, se03);
 
-      var matrixLoc = gl.getUniformLocation(this.program, 'mapMatrix');
-      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+      gl.uniformMatrix4fv(this.program.mapMatrix, false, tileTransform);
 
-      var uDistLoc = gl.getUniformLocation(this.program, 'uDist');
-      gl.uniform1f(uDistLoc, uDist * 1000);
+      gl.uniform1f(this.program.uDist, uDist * 1000);
 
-      var attributeLoc = gl.getAttribLocation(this.program, 'centroid');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 4, gl.FLOAT, false, 24, 0);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'aDist');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 16);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'aColor');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 20);
+      this.program.enableAttribArray.centroid(4, gl.FLOAT, false, 24, 0);
+      this.program.enableAttribArray.aDist(1, gl.FLOAT, false, 24, 16);
+      this.program.enableAttribArray.aColor(1, gl.FLOAT, false, 24, 20);
 
       gl.drawArrays(gl.POINTS, 0, Math.floor(this._pointCount * throttle));
       perf_draw_points(Math.floor(this._pointCount * throttle));
@@ -2715,49 +2584,25 @@ export class WebGLVectorTile2 extends Tile {
         pointSize = 1.0;
       }
 
-      var sizeLoc = this.gl.getUniformLocation(this.program, 'uSize');
-      this.gl.uniform1f(sizeLoc, pointSize);
+      this.gl.uniform1f(this.program.uSize, pointSize);
 
-      var timeLoc = this.gl.getUniformLocation(this.program, 'uTotalTime');
-      this.gl.uniform1f(timeLoc, 1296000);
+      this.gl.uniform1f(this.program.uTotalTime, 1296000);
 
       var tileTransform = new Float32Array(transform);
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
-      var matrixLoc = this.gl.getUniformLocation(this.program, 'uMapMatrix');
-      this.gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+      this.gl.uniformMatrix4fv(this.program.uMapMatrix, false, tileTransform);
 
       var currentTime = options.currentTime;
-      var epochLoc = this.gl.getUniformLocation(this.program, 'uEpoch');
-      this.gl.uniform1f(epochLoc, currentTime / 1000.);
+      this.gl.uniform1f(this.program.uEpoch, currentTime / 1000.);
 
-      var attributeLoc = this.gl.getAttribLocation(this.program, 'aStartPoint');
-      this.gl.enableVertexAttribArray(attributeLoc);
-      this.gl.vertexAttribPointer(attributeLoc, 2, this.gl.FLOAT, false, 40, 0);
-
-      var attributeLoc = this.gl.getAttribLocation(this.program, 'aEndPoint');
-      this.gl.enableVertexAttribArray(attributeLoc);
-      this.gl.vertexAttribPointer(attributeLoc, 2, this.gl.FLOAT, false, 40, 8);
-
-      var attributeLoc = this.gl.getAttribLocation(this.program, 'aMidPoint');
-      this.gl.enableVertexAttribArray(attributeLoc);
-      this.gl.vertexAttribPointer(attributeLoc, 2, this.gl.FLOAT, false, 40, 16);
-
-      var attributeLoc = this.gl.getAttribLocation(this.program, 'aEpoch');
-      this.gl.enableVertexAttribArray(attributeLoc);
-      this.gl.vertexAttribPointer(attributeLoc, 1, this.gl.FLOAT, false, 40, 24);
-
-      var attributeLoc = this.gl.getAttribLocation(this.program, 'aEndTime');
-      this.gl.enableVertexAttribArray(attributeLoc);
-      this.gl.vertexAttribPointer(attributeLoc, 1, this.gl.FLOAT, false, 40, 28);
-
-      var attributeLoc = this.gl.getAttribLocation(this.program, 'aSpan');
-      this.gl.enableVertexAttribArray(attributeLoc);
-      this.gl.vertexAttribPointer(attributeLoc, 1, this.gl.FLOAT, false, 40, 32);
-
-      var attributeLoc = this.gl.getAttribLocation(this.program, 'aTimeOffset');
-      this.gl.enableVertexAttribArray(attributeLoc);
-      this.gl.vertexAttribPointer(attributeLoc, 1, this.gl.FLOAT, false, 40, 36);
+      this.program.enableAttribArray.aStartPoint(2, this.gl.FLOAT, false, 40, 0);
+      this.program.enableAttribArray.aEndPoint(2, this.gl.FLOAT, false, 40, 8);
+      this.program.enableAttribArray.aMidPoint(2, this.gl.FLOAT, false, 40, 16);
+      this.program.enableAttribArray.aEpoch(1, this.gl.FLOAT, false, 40, 24);
+      this.program.enableAttribArray.aEndTime(1, this.gl.FLOAT, false, 40, 28);
+      this.program.enableAttribArray.aSpan(1, this.gl.FLOAT, false, 40, 32);
+      this.program.enableAttribArray.aTimeOffset(1, this.gl.FLOAT, false, 40, 36);
 
       this.gl.drawArrays(this.gl.POINTS, 0, this._pointCount);
       perf_draw_points(this._pointCount);
@@ -2785,43 +2630,28 @@ export class WebGLVectorTile2 extends Tile {
         pointSize = 1.0;
       }
       pointSize *= 2;
-      var sizeLoc = gl.getUniformLocation(this.program, 'uSize');
-      gl.uniform1f(sizeLoc, pointSize);
+      gl.uniform1f(this.program.uSize, pointSize);
 
       var tileTransform = new Float32Array(transform);
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
-      var matrixLoc = gl.getUniformLocation(this.program, 'uMapMatrix');
-      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+      gl.uniformMatrix4fv(this.program.uMapMatrix, false, tileTransform);
 
       var currentTime = options.currentTime;
-      var epochLoc = gl.getUniformLocation(this.program, 'uEpoch');
-      gl.uniform1f(epochLoc, currentTime / 1000.);
+      gl.uniform1f(this.program.uEpoch, currentTime / 1000.);
 
       var span = options.span;
-      var spanLoc = gl.getUniformLocation(this.program, 'uSpan');
-      gl.uniform1f(spanLoc, span / 1000.);
+      gl.uniform1f(this.program.uSpan, span / 1000.);
 
 
-      var attributeLoc = gl.getAttribLocation(this.program, 'aStartPoint');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 28, 0);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'aEndPoint');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 28, 8);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'aMidPoint');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 28, 16);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'aEpoch');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 28, 24);
+      this.program.enableAttribArray.aStartPoint(2, gl.FLOAT, false, 28, 0);
+      this.program.enableAttribArray.aEndPoint(2, gl.FLOAT, false, 28, 8);
+      this.program.enableAttribArray.aMidPoint(2, gl.FLOAT, false, 28, 16);
+      this.program.enableAttribArray.aEpoch(1, gl.FLOAT, false, 28, 24);
 
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, this._texture);
-      gl.uniform1i(gl.getUniformLocation(this.program, "u_Image"), 0);
+      gl.uniform1i(this.program.u_Image, 0);
 
       if (subsampleAnnualRefugees) {
         gl.drawArrays(gl.POINTS, 0, this._pointCount);
@@ -2893,45 +2723,26 @@ export class WebGLVectorTile2 extends Tile {
         }
       }
 
-      var sizeLoc = gl.getUniformLocation(this.program, 'u_size');
-      gl.uniform1f(sizeLoc, pointSize);
+      gl.uniform1f(this.program.u_size, pointSize);
 
       var tileTransform = new Float32Array(transform);
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
-      var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
-      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+      gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
 
       var currentTime = options.currentTime;
-      var epochLoc = gl.getUniformLocation(this.program, 'u_epoch');
-      gl.uniform1f(epochLoc, currentTime / 1000.);
+      gl.uniform1f(this.program.u_epoch, currentTime / 1000.);
 
 
-      var loc = gl.getUniformLocation(this.program, 'u_start_color');
-      gl.uniform4fv(loc, start_color);
+      gl.uniform4fv(this.program.u_start_color, start_color);
 
-      var loc = gl.getUniformLocation(this.program, 'u_end_color');
-      gl.uniform4fv(loc, end_color);
+      gl.uniform4fv(this.program.u_end_color, end_color);
 
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_p0');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this._layer.numAttributes * 4, 0);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_p1');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_p2');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this._layer.numAttributes * 4, 16);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch0');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 24);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch1');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 28);
+      this.program.enableAttribArray.a_p0(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0);
+      this.program.enableAttribArray.a_p1(2, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
+      this.program.enableAttribArray.a_p2(2, gl.FLOAT, false, this._layer.numAttributes * 4, 16);
+      this.program.enableAttribArray.a_epoch0(1, gl.FLOAT, false, this._layer.numAttributes * 4, 24);
+      this.program.enableAttribArray.a_epoch1(1, gl.FLOAT, false, this._layer.numAttributes * 4, 28);
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
       gl.disable(gl.BLEND);
@@ -2950,14 +2761,12 @@ export class WebGLVectorTile2 extends Tile {
       if (isNaN(pointSize)) {
         pointSize = 1.0;
       }
-      var sizeLoc = gl.getUniformLocation(this.program, 'uSize');
-      gl.uniform1f(sizeLoc, pointSize);
+      gl.uniform1f(this.program.uSize, pointSize);
 
       var tileTransform = new Float32Array(transform);
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
-      var matrixLoc = gl.getUniformLocation(this.program, 'u_MapMatrix');
-      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+      gl.uniformMatrix4fv(this.program.u_MapMatrix, false, tileTransform);
 
       var year = options.currentTime.getUTCFullYear();
       var showRcp = options.showRcp;
@@ -2991,43 +2800,23 @@ export class WebGLVectorTile2 extends Tile {
       }
       var year = minYear;
 
-      var deltaLoc = gl.getUniformLocation(this.program, 'u_Delta');
-      gl.uniform1f(deltaLoc, delta);
+      gl.uniform1f(this.program.u_Delta, delta);
 
-      var epochLoc = gl.getUniformLocation(this.program, 'u_Year');
-      gl.uniform1f(epochLoc, year);
+      gl.uniform1f(this.program.u_Year, year);
 
-      var rcpLoc = gl.getUniformLocation(this.program, 'u_ShowRcp2p6');
-      gl.uniform1f(rcpLoc, showRcp[0]);
+      gl.uniform1f(this.program.u_ShowRcp2p6, showRcp[0]);
 
-      var rcpLoc = gl.getUniformLocation(this.program, 'u_ShowRcp4p5');
-      gl.uniform1f(rcpLoc, showRcp[1]);
+      gl.uniform1f(this.program.u_ShowRcp4p5, showRcp[1]);
 
-      var rcpLoc = gl.getUniformLocation(this.program, 'u_ShowRcp6p0');
-      gl.uniform1f(rcpLoc, showRcp[2]);
+      gl.uniform1f(this.program.u_ShowRcp6p0, showRcp[2]);
 
-      var rcpLoc = gl.getUniformLocation(this.program, 'u_ShowRcp8p5');
-      gl.uniform1f(rcpLoc, showRcp[3]);
+      gl.uniform1f(this.program.u_ShowRcp8p5, showRcp[3]);
 
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_Centroid');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 24, 0);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_Year');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 8);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_Val1');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 12);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_Val2');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 16);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_Rcp');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 20);
+      this.program.enableAttribArray.a_Centroid(2, gl.FLOAT, false, 24, 0);
+      this.program.enableAttribArray.a_Year(1, gl.FLOAT, false, 24, 8);
+      this.program.enableAttribArray.a_Val1(1, gl.FLOAT, false, 24, 12);
+      this.program.enableAttribArray.a_Val2(1, gl.FLOAT, false, 24, 16);
+      this.program.enableAttribArray.a_Rcp(1, gl.FLOAT, false, 24, 20);
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
       perf_draw_points(this._pointCount);
@@ -3136,27 +2925,18 @@ export class WebGLVectorTile2 extends Tile {
         pointSize += 2.0;
       }
 
-      var matrixLoc = gl.getUniformLocation(this.program, 'mapMatrix');
-      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+      gl.uniformMatrix4fv(this.program.mapMatrix, false, tileTransform);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
-      var attributeLoc = gl.getAttribLocation(this.program, 'worldCoord');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 12, 0);
+      this.program.enableAttribArray.worldCoord(2, gl.FLOAT, false, 12, 0);
+      this.program.enableAttribArray.time(1, gl.FLOAT, false, 12, 8);
 
-      var timeLoc = gl.getAttribLocation(this.program, 'time');
-      gl.enableVertexAttribArray(timeLoc);
-      gl.vertexAttribPointer(timeLoc, 1, gl.FLOAT, false, 12, 8);
+      gl.uniform1f(this.program.maxTime, maxTime / 1000.);
 
-      var timeLoc = gl.getUniformLocation(this.program, 'maxTime');
-      gl.uniform1f(timeLoc, maxTime / 1000.);
+      gl.uniform1f(this.program.minTime, minTime / 1000.);
 
-      var timeLoc = gl.getUniformLocation(this.program, 'minTime');
-      gl.uniform1f(timeLoc, minTime / 1000.);
-
-      var pointSizeLoc = gl.getUniformLocation(this.program, 'pointSize');
-      gl.uniform1f(pointSizeLoc, pointSize);
+      gl.uniform1f(this.program.pointSize, pointSize);
 
       gl.drawArrays(gl.POINTS, first, count);
       perf_draw_points(count);
@@ -3179,44 +2959,29 @@ export class WebGLVectorTile2 extends Tile {
         pointSize = 1.0;
       }
 
-      var sizeLoc = gl.getUniformLocation(this.program, 'u_Size');
-      gl.uniform1f(sizeLoc, pointSize);
+      gl.uniform1f(this.program.u_Size, pointSize);
 
       var tileTransform = new Float32Array(transform);
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
-      var matrixLoc = gl.getUniformLocation(this.program, 'u_MapMatrix');
-      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+      gl.uniformMatrix4fv(this.program.u_MapMatrix, false, tileTransform);
 
 
       var year = options.year || options.currentTime.getUTCFullYear();
       var delta = options.delta;
 
-      var deltaLoc = gl.getUniformLocation(this.program, 'u_Delta');
-      gl.uniform1f(deltaLoc, delta);
+      gl.uniform1f(this.program.u_Delta, delta);
 
-      var epochLoc = gl.getUniformLocation(this.program, 'u_Year');
-      gl.uniform1f(epochLoc, year);
+      gl.uniform1f(this.program.u_Year, year);
 
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_Centroid');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 20, 0);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_Year');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 20, 8);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_Val1');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 20, 12);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_Val2');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 20, 16);
+      this.program.enableAttribArray.a_Centroid(2, gl.FLOAT, false, 20, 0);
+      this.program.enableAttribArray.a_Year(1, gl.FLOAT, false, 20, 8);
+      this.program.enableAttribArray.a_Val1(1, gl.FLOAT, false, 20, 12);
+      this.program.enableAttribArray.a_Val2(1, gl.FLOAT, false, 20, 16);
 
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, this._texture);
-      gl.uniform1i(gl.getUniformLocation(this.program, "u_Image"), 0);
+      gl.uniform1i(this.program.u_Image, 0);
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
       perf_draw_points(this._pointCount);
@@ -3243,35 +3008,21 @@ export class WebGLVectorTile2 extends Tile {
       var year = options.year || options.currentTime.getUTCFullYear();
       var delta = options.delta;
 
-      var matrixLoc = gl.getUniformLocation(this.program, 'u_MapMatrix');
-      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+      gl.uniformMatrix4fv(this.program.u_MapMatrix, false, tileTransform);
 
-      var deltaLoc = gl.getUniformLocation(this.program, 'u_Delta');
-      gl.uniform1f(deltaLoc, delta);
+      gl.uniform1f(this.program.u_Delta, delta);
 
-      var epochLoc = gl.getUniformLocation(this.program, 'u_Year');
-      gl.uniform1f(epochLoc, year);
+      gl.uniform1f(this.program.u_Year, year);
 
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_Vertex');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 20, 0);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_Year');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 20, 8);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_Val1');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 20, 12);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_Val2');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 20, 16);
+      this.program.enableAttribArray.a_Vertex(2, gl.FLOAT, false, 20, 0);
+      this.program.enableAttribArray.a_Year(1, gl.FLOAT, false, 20, 8);
+      this.program.enableAttribArray.a_Val1(1, gl.FLOAT, false, 20, 12);
+      this.program.enableAttribArray.a_Val2(1, gl.FLOAT, false, 20, 16);
 
 
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, this._texture);
-      gl.uniform1i(gl.getUniformLocation(this.program, "u_Image"), 0);
+      gl.uniform1i(this.program.u_Image, 0);
 
       gl.drawArrays(gl.TRIANGLES, 0, this._pointCount);
       perf_draw_triangles(this._pointCount);
@@ -3299,34 +3050,17 @@ export class WebGLVectorTile2 extends Tile {
       var year = currentTime.getUTCFullYear();
       var maxValue = options.maxValue || 100.0;
 
-      var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
-      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+      gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
 
-      var maxValueLoc = gl.getUniformLocation(this.program, 'u_max_value');
-      gl.uniform1f(maxValueLoc, maxValue);
+      gl.uniform1f(this.program.u_max_value, maxValue);
 
-      var epochLoc = gl.getUniformLocation(this.program, 'u_epoch');
-      gl.uniform1f(epochLoc, year);
+      gl.uniform1f(this.program.u_epoch, year);
 
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_centroid');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this._layer.numAttributes * 4, 0);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch1');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_val1');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 12);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch2');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 16);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_val2');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 20);
+      this.program.enableAttribArray.a_centroid(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0);
+      this.program.enableAttribArray.a_epoch1(1, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
+      this.program.enableAttribArray.a_val1(1, gl.FLOAT, false, this._layer.numAttributes * 4, 12);
+      this.program.enableAttribArray.a_epoch2(1, gl.FLOAT, false, this._layer.numAttributes * 4, 16);
+      this.program.enableAttribArray.a_val2(1, gl.FLOAT, false, this._layer.numAttributes * 4, 20);
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
       gl.disable(gl.BLEND);
@@ -3347,37 +3081,21 @@ export class WebGLVectorTile2 extends Tile {
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      var matrixLoc = gl.getUniformLocation(this.program, 'u_MapMatrix');
-      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+      gl.uniformMatrix4fv(this.program.u_MapMatrix, false, tileTransform);
 
       var val = options.question || 1.0;
 
-      var valLoc = gl.getUniformLocation(this.program, 'u_Val');
-      gl.uniform1f(valLoc, val);
+      gl.uniform1f(this.program.u_Val, val);
 
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_Vertex');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 24, 0);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_Val1');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 8);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_Val2');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 12);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_Val3');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 16);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_Val4');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 24, 20);
+      this.program.enableAttribArray.a_Vertex(2, gl.FLOAT, false, 24, 0);
+      this.program.enableAttribArray.a_Val1(1, gl.FLOAT, false, 24, 8);
+      this.program.enableAttribArray.a_Val2(1, gl.FLOAT, false, 24, 12);
+      this.program.enableAttribArray.a_Val3(1, gl.FLOAT, false, 24, 16);
+      this.program.enableAttribArray.a_Val4(1, gl.FLOAT, false, 24, 20);
 
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, this._texture);
-      gl.uniform1i(gl.getUniformLocation(this.program, "u_Image"), 0);
+      gl.uniform1i(this.program.u_Image, 0);
 
       gl.drawArrays(gl.TRIANGLES, 0, this._pointCount);
       perf_draw_triangles(this._pointCount);
@@ -3400,66 +3118,35 @@ export class WebGLVectorTile2 extends Tile {
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
-      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+      gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
 
-      var uniformLoc = gl.getUniformLocation(this.program, 'u_point_size');
-      gl.uniform1f(uniformLoc, options.pointSize);
+      gl.uniform1f(this.program.u_point_size, options.pointSize);
 
-      var uniformLoc = gl.getUniformLocation(this.program, 'u_epoch');
-      gl.uniform1f(uniformLoc, options.epoch);
+      gl.uniform1f(this.program.u_epoch, options.epoch);
 
-      var uniformLoc = gl.getUniformLocation(this.program, 'u_show_irq_idps');
-      gl.uniform1f(uniformLoc, options.showIrqIdps);
+      gl.uniform1f(this.program.u_show_irq_idps, options.showIrqIdps);
 
-      var uniformLoc = gl.getUniformLocation(this.program, 'u_show_syr_idps');
-      gl.uniform1f(uniformLoc, options.showSyrIdps);
+      gl.uniform1f(this.program.u_show_syr_idps, options.showSyrIdps);
 
-      var uniformLoc = gl.getUniformLocation(this.program, 'u_show_yem_idps');
-      gl.uniform1f(uniformLoc, options.showYemIdps);
+      gl.uniform1f(this.program.u_show_yem_idps, options.showYemIdps);
 
-      var uniformLoc = gl.getUniformLocation(this.program, 'u_show_lby_idps');
-      gl.uniform1f(uniformLoc, options.showLbyIdps);
+      gl.uniform1f(this.program.u_show_lby_idps, options.showLbyIdps);
 
-      var uniformLoc = gl.getUniformLocation(this.program, 'u_show_irq_returns');
-      gl.uniform1f(uniformLoc, options.showIrqReturns);
+      gl.uniform1f(this.program.u_show_irq_returns, options.showIrqReturns);
 
-      var uniformLoc = gl.getUniformLocation(this.program, 'u_show_syr_returns');
-      gl.uniform1f(uniformLoc, options.showSyrReturns);
+      gl.uniform1f(this.program.u_show_syr_returns, options.showSyrReturns);
 
-      var uniformLoc = gl.getUniformLocation(this.program, 'u_show_yem_returns');
-      gl.uniform1f(uniformLoc, options.showYemReturns);
+      gl.uniform1f(this.program.u_show_yem_returns, options.showYemReturns);
 
-      var uniformLoc = gl.getUniformLocation(this.program, 'u_show_lby_returns');
-      gl.uniform1f(uniformLoc, options.showLbyReturns);
+      gl.uniform1f(this.program.u_show_lby_returns, options.showLbyReturns);
 
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_country');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 32, 0);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_type');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 32, 4);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_coord');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 32, 8);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch1');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 32, 16);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_val1');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 32, 20);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch2');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 32, 24);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_val2');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 32, 28);
+      this.program.enableAttribArray.a_country(1, gl.FLOAT, false, 32, 0);
+      this.program.enableAttribArray.a_type(1, gl.FLOAT, false, 32, 4);
+      this.program.enableAttribArray.a_coord(2, gl.FLOAT, false, 32, 8);
+      this.program.enableAttribArray.a_epoch1(1, gl.FLOAT, false, 32, 16);
+      this.program.enableAttribArray.a_val1(1, gl.FLOAT, false, 32, 20);
+      this.program.enableAttribArray.a_epoch2(1, gl.FLOAT, false, 32, 24);
+      this.program.enableAttribArray.a_val2(1, gl.FLOAT, false, 32, 28);
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
       gl.disable(gl.BLEND);
@@ -3478,7 +3165,7 @@ export class WebGLVectorTile2 extends Tile {
       var zoom = options.zoom;
       var currentTime = options.currentTime / 1000.;
       var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-      var color = options.color || this._defaultColor;
+      var color = this._layer.drawOptions.color || this._defaultColor;
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
@@ -3489,32 +3176,18 @@ export class WebGLVectorTile2 extends Tile {
         pointSize = 1.0;
       }
 
-      var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
-      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+      gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_coord');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 20, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.enableAttribArray.a_coord(2, gl.FLOAT, false, 20, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.enableAttribArray.a_color(1, gl.FLOAT, false, 20, 8); // 8 byte offset
+      this.program.enableAttribArray.a_epoch(1, gl.FLOAT, false, 20, 12); // 8 byte offset
+      this.program.enableAttribArray.a_val(1, gl.FLOAT, false, 20, 16); // 8 byte offset
 
-      var timeLocation = gl.getAttribLocation(this.program, "a_color");
-      gl.enableVertexAttribArray(timeLocation);
-      gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 20, 8); // 8 byte offset
+      gl.uniform1f(this.program.u_epoch, currentTime);
 
-      var timeLocation = gl.getAttribLocation(this.program, "a_epoch");
-      gl.enableVertexAttribArray(timeLocation);
-      gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 20, 12); // 8 byte offset
-
-      var timeLocation = gl.getAttribLocation(this.program, "a_val");
-      gl.enableVertexAttribArray(timeLocation);
-      gl.vertexAttribPointer(timeLocation, 1, gl.FLOAT, false, 20, 16); // 8 byte offset
-
-      var sliderTime = gl.getUniformLocation(this.program, 'u_epoch');
-      gl.uniform1f(sliderTime, currentTime);
-
-      var sliderTime = gl.getUniformLocation(this.program, 'u_size');
-      gl.uniform1f(sliderTime, pointSize);
+      gl.uniform1f(this.program.u_size, pointSize);
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
       perf_draw_points(this._pointCount);
@@ -3564,20 +3237,13 @@ export class WebGLVectorTile2 extends Tile {
         pointSize = 1.0;
       }
 
-      var uniformLoc = gl.getUniformLocation(this.program, 'u_size');
-      gl.uniform1f(uniformLoc, pointSize);
+      gl.uniform1f(this.program.u_size, pointSize);
 
-      var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
-      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+      gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_coord');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 12, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_color');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 12, 8); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.enableAttribArray.a_coord(2, gl.FLOAT, false, 12, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.enableAttribArray.a_color(1, gl.FLOAT, false, 12, 8); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
       perf_draw_points(this._pointCount);
@@ -3604,23 +3270,19 @@ export class WebGLVectorTile2 extends Tile {
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
-      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+      gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
 
-      var pointSizeLoc = gl.getUniformLocation(this.program, 'u_size');
-      gl.uniform1f(pointSizeLoc, pointSize);
+      gl.uniform1f(this.program.u_size, pointSize);
 
       // attributes
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_coord');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each
+      this.program.enableAttribArray.a_coord(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each
 
 
       //texture
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, this._texture);
-      gl.uniform1i(gl.getUniformLocation(this.program, "u_texture"), 0);
+      gl.uniform1i(this.program.u_texture, 0);
       // make sure we can render it even if it's not a power of 2
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -3655,24 +3317,19 @@ export class WebGLVectorTile2 extends Tile {
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
       // uniforms
-      var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
-      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+      gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
 
-      var fadeDurLoc = gl.getUniformLocation(this.program, 'u_fade_duration');
-      gl.uniform1f(fadeDurLoc, fadeDuration); //10 hr
+      gl.uniform1f(this.program.u_fade_duration, fadeDuration); //10 hr
 
-      var sliderTime = gl.getUniformLocation(this.program, 'u_epoch');
-      gl.uniform1f(sliderTime, currentTime);
+      gl.uniform1f(this.program.u_epoch, currentTime);
 
-      var pointSizeLoc = gl.getUniformLocation(this.program, 'u_size');
-      gl.uniform1f(pointSizeLoc, pointSize);
+      gl.uniform1f(this.program.u_size, pointSize);
 
-      var numGlyphsLoc = gl.getUniformLocation(this.program, 'u_num_glyphs');
-      gl.uniform1f(numGlyphsLoc, numGlyphs);
+      gl.uniform1f(this.program.u_num_glyphs, numGlyphs);
 
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, this._texture);
-      gl.uniform1i(gl.getUniformLocation(this.program, "u_texture"), 0);
+      gl.uniform1i(this.program.u_texture, 0);
       // make sure we can render it even if it's not a power of 2
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -3680,21 +3337,10 @@ export class WebGLVectorTile2 extends Tile {
 
       // attributes = 5
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_coord');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch0');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch1');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 12);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_offset');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 16);
+      this.program.enableAttribArray.a_coord(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each
+      this.program.enableAttribArray.a_epoch0(1, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
+      this.program.enableAttribArray.a_epoch1(1, gl.FLOAT, false, this._layer.numAttributes * 4, 12);
+      this.program.enableAttribArray.a_offset(1, gl.FLOAT, false, this._layer.numAttributes * 4, 16);
 
       // draw
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
@@ -3721,22 +3367,16 @@ export class WebGLVectorTile2 extends Tile {
       var tileTransform = new Float32Array(transform);
       var zoom = options.zoom;
       var currentTime = options.currentTime / 1000.;
-      var color = options.color || [1.0, 0.0, 0.0, 1.0];
+      var color = this._layer.drawOptions.color || [1.0, 0.0, 0.0, 1.0];
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
-      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+      gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_coord');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 12, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_color');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 12, 8); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.enableAttribArray.a_coord(2, gl.FLOAT, false, 12, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.enableAttribArray.a_color(1, gl.FLOAT, false, 12, 8); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
 
       gl.drawArrays(gl.TRIANGLES, 0, this._pointCount);
       //gl.drawElements(gl.TRIANGLES, 170840, gl.UNSIGNED_SHORT, 0);
@@ -3759,7 +3399,7 @@ export class WebGLVectorTile2 extends Tile {
       var tileTransform = new Float32Array(transform);
       var zoom = options.zoom;
       var currentTime = options.currentTime / 1000.;
-      var color = options.color || [1.0, 0.0, 0.0, 1.0];
+      var color = this._layer.drawOptions.color || [1.0, 0.0, 0.0, 1.0];
       if (color.length == 3) {
         color.push(1.0);
       }
@@ -3767,16 +3407,12 @@ export class WebGLVectorTile2 extends Tile {
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
-      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+      gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
 
-      var colorLoc = gl.getUniformLocation(this.program, 'u_color');
-      gl.uniform4fv(colorLoc, color);
+      gl.uniform4fv(this.program.u_color, color);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_coord');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 8, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.enableAttribArray.a_coord(2, gl.FLOAT, false, 8, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
 
       gl.drawArrays(gl.LINES, 0, this._pointCount);
       //gl.drawElements(gl.TRIANGLES, 170840, gl.UNSIGNED_SHORT, 0);
@@ -3795,7 +3431,7 @@ export class WebGLVectorTile2 extends Tile {
       var zoom = options.zoom;
       var currentTime = options.currentTime / 1000.;
       var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-      var color = options.color || this._defaultColor;
+      var color = this._layer.drawOptions.color || this._defaultColor;
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
@@ -3806,34 +3442,22 @@ export class WebGLVectorTile2 extends Tile {
         pointSize = 1.0;
       }
 
-      var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
-      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
-      var colorLoc = gl.getUniformLocation(this.program, 'u_color');
-      gl.uniform3fv(colorLoc, [1., 0., 0.]);
-      var thicknessLoc = gl.getUniformLocation(this.program, 'u_thickness');
-      gl.uniform1f(thicknessLoc, .5);
-      var innerLoc = gl.getUniformLocation(this.program, 'u_inner');
-      gl.uniform1f(innerLoc, .0);
+      gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
+      gl.uniform3fv(this.program.u_color, [1., 0., 0.]);
+      gl.uniform1f(this.program.u_thickness, .5);
+      gl.uniform1f(this.program.u_inner, .0);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffers[0]);
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_coord');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 8, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.enableAttribArray.a_coord(2, gl.FLOAT, false, 8, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffers[1]);
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_normal');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 8, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.enableAttribArray.a_normal(2, gl.FLOAT, false, 8, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffers[2]);
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_miter');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.enableAttribArray.a_miter(1, gl.FLOAT, false, 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffers[3]);
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_texture_loc');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.enableAttribArray.a_texture_loc(1, gl.FLOAT, false, 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
 
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer);
 
@@ -3841,7 +3465,7 @@ export class WebGLVectorTile2 extends Tile {
       //texture
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, this._texture);
-      gl.uniform1i(gl.getUniformLocation(this.program, "u_texture"), 0);
+      gl.uniform1i(this.program.u_texture, 0);
       // make sure we can render it even if it's not a power of 2
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -3864,7 +3488,7 @@ export class WebGLVectorTile2 extends Tile {
       var zoom = options.zoom;
       var currentTime = options.currentTime / 1000.;
       var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-      var color = options.color || this._defaultColor;
+      var color = this._layer.drawOptions.color || this._defaultColor;
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
@@ -3875,24 +3499,14 @@ export class WebGLVectorTile2 extends Tile {
         pointSize = 1.0;
       }
 
-      var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
-      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+      gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
 
-      var uniformLoc = gl.getUniformLocation(this.program, 'u_size');
-      gl.uniform1f(uniformLoc, pointSize);
+      gl.uniform1f(this.program.u_size, pointSize);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_coord');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_size');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_color');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 12);
+      this.program.enableAttribArray.a_coord(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.enableAttribArray.a_size(1, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
+      this.program.enableAttribArray.a_color(1, gl.FLOAT, false, this._layer.numAttributes * 4, 12);
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
 
@@ -3911,7 +3525,7 @@ export class WebGLVectorTile2 extends Tile {
       var zoom = options.zoom;
       var currentTime = options.currentTime / 1000.;
       var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-      var color = options.color || this._defaultColor;
+      var color = this._layer.drawOptions.color || this._defaultColor;
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
@@ -3924,35 +3538,20 @@ export class WebGLVectorTile2 extends Tile {
 
       var epochRange = options.epochRange || 365 * 24 * 60 * 60;
 
-      var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
-      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+      gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
 
-      var uniformLoc = gl.getUniformLocation(this.program, 'u_size');
-      gl.uniform1f(uniformLoc, pointSize);
+      gl.uniform1f(this.program.u_size, pointSize);
 
-      var uniformLoc = gl.getUniformLocation(this.program, 'u_epoch');
-      gl.uniform1f(uniformLoc, currentTime);
+      gl.uniform1f(this.program.u_epoch, currentTime);
 
-      var uniformLoc = gl.getUniformLocation(this.program, 'u_epoch_range');
-      gl.uniform1f(uniformLoc, epochRange);
+      gl.uniform1f(this.program.u_epoch_range, epochRange);
 
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_coord');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_size');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_color');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 12);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 16);
+      this.program.enableAttribArray.a_coord(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.enableAttribArray.a_size(1, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
+      this.program.enableAttribArray.a_color(1, gl.FLOAT, false, this._layer.numAttributes * 4, 12);
+      this.program.enableAttribArray.a_epoch(1, gl.FLOAT, false, this._layer.numAttributes * 4, 16);
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
 
@@ -3980,7 +3579,7 @@ export class WebGLVectorTile2 extends Tile {
       var zoom = options.zoom;
       var currentTime = options.currentTime / 1000.;
       var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-      var color = options.color || this._defaultColor;
+      var color = this._layer.drawOptions.color || this._defaultColor;
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
@@ -3991,31 +3590,17 @@ export class WebGLVectorTile2 extends Tile {
         pointSize = 1.0;
       }
 
-      var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
-      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+      gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
 
-      var sliderTime = gl.getUniformLocation(this.program, 'u_epoch');
-      gl.uniform1f(sliderTime, currentTime);
+      gl.uniform1f(this.program.u_epoch, currentTime);
 
-      var uniformLoc = gl.getUniformLocation(this.program, 'u_size');
-      gl.uniform1f(uniformLoc, pointSize);
+      gl.uniform1f(this.program.u_size, pointSize);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_coord');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_color');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch0');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 12);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch1');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 16);
+      this.program.enableAttribArray.a_coord(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.enableAttribArray.a_color(1, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
+      this.program.enableAttribArray.a_epoch0(1, gl.FLOAT, false, this._layer.numAttributes * 4, 12);
+      this.program.enableAttribArray.a_epoch1(1, gl.FLOAT, false, this._layer.numAttributes * 4, 16);
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
 
@@ -4034,7 +3619,7 @@ export class WebGLVectorTile2 extends Tile {
       var zoom = options.zoom;
       var currentTime = options.currentTime / 1000.;
       var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-      var color = options.color || this._defaultColor;
+      var color = this._layer.drawOptions.color || this._defaultColor;
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
@@ -4045,35 +3630,18 @@ export class WebGLVectorTile2 extends Tile {
         pointSize = 1.0;
       }
 
-      var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
-      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+      gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
 
-      var sliderTime = gl.getUniformLocation(this.program, 'u_epoch');
-      gl.uniform1f(sliderTime, currentTime);
+      gl.uniform1f(this.program.u_epoch, currentTime);
 
-      var uniformLoc = gl.getUniformLocation(this.program, 'u_size');
-      gl.uniform1f(uniformLoc, pointSize);
+      gl.uniform1f(this.program.u_size, pointSize);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_coord');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_size');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_color');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 12);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch0');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 16);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch1');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, this._layer.numAttributes * 4, 20);
+      this.program.enableAttribArray.a_coord(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.enableAttribArray.a_size(1, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
+      this.program.enableAttribArray.a_color(1, gl.FLOAT, false, this._layer.numAttributes * 4, 12);
+      this.program.enableAttribArray.a_epoch0(1, gl.FLOAT, false, this._layer.numAttributes * 4, 16);
+      this.program.enableAttribArray.a_epoch1(1, gl.FLOAT, false, this._layer.numAttributes * 4, 20);
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
 
@@ -4092,7 +3660,7 @@ export class WebGLVectorTile2 extends Tile {
     var zoom = options.zoom;
     var currentTime = options.currentTime / 1000.;
     var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-    var color = options.color || [1.0, 0.0, 0.0];
+    var color = this._layer.drawOptions.color || [1.0, 0.0, 0.0];
 
     scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
     scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
@@ -4114,51 +3682,32 @@ export class WebGLVectorTile2 extends Tile {
     }
 
 
-    var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
-    gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+    gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
 
-    var sliderTime = gl.getUniformLocation(this.program, 'u_epoch');
-    gl.uniform1f(sliderTime, currentTime);
+    gl.uniform1f(this.program.u_epoch, currentTime);
 
-    var uniformLoc = gl.getUniformLocation(this.program, 'u_size');
-    gl.uniform1f(uniformLoc, pointSize);
+    gl.uniform1f(this.program.u_size, pointSize);
 
-    var uniformLoc = gl.getUniformLocation(this.program, 'u_end_color');
-    gl.uniform3fv(uniformLoc, color);
+    gl.uniform3fv(this.program.u_end_color, color);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer.buffer);
-    var attributeLoc = gl.getAttribLocation(this.program, 'a_p0');
-    gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, buffer.numAttributes * 4, 0);
+    this.program.enableAttribArray.a_p0(2, gl.FLOAT, false, buffer.numAttributes * 4, 0);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer.buffer);
-    var attributeLoc = gl.getAttribLocation(this.program, 'a_p2');
-    gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, buffer.numAttributes * 4, 8);
-
-    var attributeLoc = gl.getAttribLocation(this.program, 'a_p1');
-    gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, buffer.numAttributes * 4, 16);
-
-    var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch0');
-    gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, buffer.numAttributes * 4, 24);
-
-    var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch1');
-    gl.enableVertexAttribArray(attributeLoc);
-    gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, buffer.numAttributes * 4, 28);
+    this.program.enableAttribArray.a_p2(2, gl.FLOAT, false, buffer.numAttributes * 4, 8);
+    this.program.enableAttribArray.a_p1(2, gl.FLOAT, false, buffer.numAttributes * 4, 16);
+    this.program.enableAttribArray.a_epoch0(1, gl.FLOAT, false, buffer.numAttributes * 4, 24);
+    this.program.enableAttribArray.a_epoch1(1, gl.FLOAT, false, buffer.numAttributes * 4, 28);
 
 
     if (setDataFnc == "setData2") {
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_alpha');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, buffer.numAttributes * 4, 32);
+      this.program.enableAttribArray.a_alpha(1, gl.FLOAT, false, buffer.numAttributes * 4, 32);
     }
 
     if (this._texture) {
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, this._texture);
-      gl.uniform1i(gl.getUniformLocation(this.program, "u_Image"), 0);
+      gl.uniform1i(this.program.u_Image, 0);
     }
 
     gl.drawArrays(gl.POINTS, 0, buffer.pointCount);
@@ -4246,7 +3795,7 @@ export class WebGLVectorTile2 extends Tile {
       var zoom = options.zoom;
       var currentTime = options.currentTime / 1000.;
       var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-      var color = options.color || this._defaultColor;
+      var color = this._layer.drawOptions.color || this._defaultColor;
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
@@ -4258,35 +3807,18 @@ export class WebGLVectorTile2 extends Tile {
       }
 
 
-      var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
-      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+      gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
 
-      var sliderTime = gl.getUniformLocation(this.program, 'u_epoch');
-      gl.uniform1f(sliderTime, currentTime);
+      gl.uniform1f(this.program.u_epoch, currentTime);
 
-      var uniformLoc = gl.getUniformLocation(this.program, 'u_size');
-      gl.uniform1f(uniformLoc, pointSize);
+      gl.uniform1f(this.program.u_size, pointSize);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, buffer.buffer);
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_coord_0');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, buffer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch_0');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, buffer.numAttributes * 4, 8);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_coord_1');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, buffer.numAttributes * 4, 12); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch_1');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, buffer.numAttributes * 4, 20);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_color');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, buffer.numAttributes * 4, 24);
+      this.program.enableAttribArray.a_coord_0(2, gl.FLOAT, false, buffer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.enableAttribArray.a_epoch_0(1, gl.FLOAT, false, buffer.numAttributes * 4, 8);
+      this.program.enableAttribArray.a_coord_1(2, gl.FLOAT, false, buffer.numAttributes * 4, 12); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.enableAttribArray.a_epoch_1(1, gl.FLOAT, false, buffer.numAttributes * 4, 20);
+      this.program.enableAttribArray.a_color(1, gl.FLOAT, false, buffer.numAttributes * 4, 24);
 
 
       gl.drawArrays(gl.POINTS, 0, buffer.count);
@@ -4309,7 +3841,7 @@ export class WebGLVectorTile2 extends Tile {
       var zoom = options.zoom;
       var currentTime = options.currentTime / 1000.;
       var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-      var color = options.color || this._defaultColor; // not used?
+      var color = this._layer.drawOptions.color || this._defaultColor; // not used?
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
@@ -4321,34 +3853,17 @@ export class WebGLVectorTile2 extends Tile {
       }
 
 
-      var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
-      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+      gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
 
-      var sliderTime = gl.getUniformLocation(this.program, 'u_epoch');
-      gl.uniform1f(sliderTime, currentTime);
+      gl.uniform1f(this.program.u_epoch, currentTime);
 
-      var uniformLoc = gl.getUniformLocation(this.program, 'u_size');
-      gl.uniform1f(uniformLoc, pointSize);
+      gl.uniform1f(this.program.u_size, pointSize);
 
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_coord_0');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 7 * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch_0');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 7 * 4, 8);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_coord_1');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 7 * 4, 12); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch_1');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 7 * 4, 20);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_color');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 7 * 4, 24);
+      this.program.enableAttribArray.a_coord_0(2, gl.FLOAT, false, 7 * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.enableAttribArray.a_epoch_0(1, gl.FLOAT, false, 7 * 4, 8);
+      this.program.enableAttribArray.a_coord_1(2, gl.FLOAT, false, 7 * 4, 12); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.enableAttribArray.a_epoch_1(1, gl.FLOAT, false, 7 * 4, 20);
+      this.program.enableAttribArray.a_color(1, gl.FLOAT, false, 7 * 4, 24);
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
 
@@ -4402,45 +3917,21 @@ export class WebGLVectorTile2 extends Tile {
         maxElevation = options.maxElevation;
       }
 
-      var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
-      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+      gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
 
-      var sliderTime = gl.getUniformLocation(this.program, 'u_epoch');
-      gl.uniform1f(sliderTime, currentTime);
+      gl.uniform1f(this.program.u_epoch, currentTime);
 
-      var uniformLoc = gl.getUniformLocation(this.program, 'u_size');
-      gl.uniform1f(uniformLoc, pointSize);
+      gl.uniform1f(this.program.u_size, pointSize);
 
-      var uniformLoc = gl.getUniformLocation(this.program, 'u_max_elev');
-      gl.uniform1f(uniformLoc, maxElevation);
+      gl.uniform1f(this.program.u_max_elev, maxElevation);
 
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_coord_0');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 9 * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_elev_0');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 9 * 4, 8);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch_0');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 9 * 4, 12);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_coord_1');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 9 * 4, 16); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_elev_1');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 9 * 4, 24);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch_1');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 9 * 4, 28);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_color');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 9 * 4, 32);
+      this.program.enableAttribArray.a_coord_0(2, gl.FLOAT, false, 9 * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.enableAttribArray.a_elev_0(1, gl.FLOAT, false, 9 * 4, 8);
+      this.program.enableAttribArray.a_epoch_0(1, gl.FLOAT, false, 9 * 4, 12);
+      this.program.enableAttribArray.a_coord_1(2, gl.FLOAT, false, 9 * 4, 16); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.enableAttribArray.a_elev_1(1, gl.FLOAT, false, 9 * 4, 24);
+      this.program.enableAttribArray.a_epoch_1(1, gl.FLOAT, false, 9 * 4, 28);
+      this.program.enableAttribArray.a_color(1, gl.FLOAT, false, 9 * 4, 32);
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
 
@@ -4462,7 +3953,7 @@ export class WebGLVectorTile2 extends Tile {
       var zoom = options.zoom;
       var currentTime = options.currentTime / 1000.;
       var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-      var color = options.color || this._defaultColor; // not used?
+      var color = this._layer.drawOptions.color || this._defaultColor; // not used?
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
@@ -4474,34 +3965,17 @@ export class WebGLVectorTile2 extends Tile {
       }
 
 
-      var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
-      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+      gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
 
-      var sliderTime = gl.getUniformLocation(this.program, 'u_epoch');
-      gl.uniform1f(sliderTime, currentTime);
+      gl.uniform1f(this.program.u_epoch, currentTime);
 
-      var uniformLoc = gl.getUniformLocation(this.program, 'u_size');
-      gl.uniform1f(uniformLoc, pointSize);
+      gl.uniform1f(this.program.u_size, pointSize);
 
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_coord_0');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 7 * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch_0');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 7 * 4, 8);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_coord_1');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 7 * 4, 12); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch_1');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 7 * 4, 20);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_color');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 7 * 4, 24);
+      this.program.enableAttribArray.a_coord_0(2, gl.FLOAT, false, 7 * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.enableAttribArray.a_epoch_0(1, gl.FLOAT, false, 7 * 4, 8);
+      this.program.enableAttribArray.a_coord_1(2, gl.FLOAT, false, 7 * 4, 12); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.enableAttribArray.a_epoch_1(1, gl.FLOAT, false, 7 * 4, 20);
+      this.program.enableAttribArray.a_color(1, gl.FLOAT, false, 7 * 4, 24);
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
 
@@ -4523,7 +3997,7 @@ export class WebGLVectorTile2 extends Tile {
       var zoom = options.zoom;
       var currentTime = options.currentTime / 1000.;
       var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-      var color = options.color || this._defaultColor;
+      var color = this._layer.drawOptions.color || this._defaultColor;
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
@@ -4535,34 +4009,17 @@ export class WebGLVectorTile2 extends Tile {
       }
 
 
-      var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
-      gl.uniformMatrix4fv(matrixLoc, false, tileTransform);
+      gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
 
-      var sliderTime = gl.getUniformLocation(this.program, 'u_epoch');
-      gl.uniform1f(sliderTime, currentTime);
+      gl.uniform1f(this.program.u_epoch, currentTime);
 
-      var uniformLoc = gl.getUniformLocation(this.program, 'u_size');
-      gl.uniform1f(uniformLoc, pointSize);
+      gl.uniform1f(this.program.u_size, pointSize);
 
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_coord_0');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 7 * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch_0');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 7 * 4, 8);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_coord_1');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 7 * 4, 12); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_epoch_1');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 7 * 4, 20);
-
-      var attributeLoc = gl.getAttribLocation(this.program, 'a_color');
-      gl.enableVertexAttribArray(attributeLoc);
-      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 7 * 4, 24);
+      this.program.enableAttribArray.a_coord_0(2, gl.FLOAT, false, 7 * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.enableAttribArray.a_epoch_0(1, gl.FLOAT, false, 7 * 4, 8);
+      this.program.enableAttribArray.a_coord_1(2, gl.FLOAT, false, 7 * 4, 12); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.enableAttribArray.a_epoch_1(1, gl.FLOAT, false, 7 * 4, 20);
+      this.program.enableAttribArray.a_color(1, gl.FLOAT, false, 7 * 4, 24);
 
 
       gl.drawArrays(gl.LINES, 0, this._pointCount);
@@ -4648,7 +4105,7 @@ export class WebGLVectorTile2 extends Tile {
     //gl.uniform2f(program.u_scale, transform.scale[0], transform.scale[1]);
     //gl.uniform2f(program.u_scale, 0.1, 0.9);
     //gl.uniform2f(program.u_translate, transform.translate[0], transform.translate[1]);
-    //var matrixLoc = gl.getUniformLocation(this.program, 'u_map_matrix');
+    //var matrixLoc = this.program.u_map_matrix;
     //gl.uniformMatrix4fv(program.u_transform, false, transform);
     gl.uniformMatrix4fv(program.u_transform, false, transform);
 
@@ -4945,2035 +4402,2005 @@ Object.defineProperties( WebGLVectorTile2.prototype, prototypeAccessors );
 
 export var WebGLVectorTile2Shaders: {[name: string]: string} = {};
 
-WebGLVectorTile2Shaders.vectorTileVertexShader =
-'attribute vec4 worldCoord;\n' +
-
-'uniform mat4 mapMatrix;\n' +
-
-'void main() {\n' +
-'    gl_Position = mapMatrix * worldCoord;\n' +
-'}';
-
-WebGLVectorTile2Shaders.vectorPointTileVertexShader =
-'attribute vec4 worldCoord;\n' +
-'attribute float time;\n' +
-
-'uniform float uMaxTime;\n' +
-'uniform float uPointSize;\n' +
-'uniform mat4 mapMatrix;\n' +
-
-'void main() {\n' +
-'  if (time > uMaxTime) {\n' +
-'    gl_Position = vec4(-1,-1,-1,-1);\n' +
-'  } else {\n' +
-'    gl_Position = mapMatrix * worldCoord;\n' +
-'  };\n' +
-'  gl_PointSize = uPointSize;\n' +
-'}';
-
-WebGLVectorTile2Shaders.vectorTileFragmentShader =
-'void main() {\n' +
-'  gl_FragColor = vec4(1., .0, .65, 1.0);\n' +
-'}\n';
-
-WebGLVectorTile2Shaders.vectorPointTileFragmentShader =
-'precision mediump float;\n' +
-'uniform vec4 uColor;\n' +
-'void main() {\n' +
-'  float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
-'  dist = 1. - (dist * 2.);\n' +
-'  dist = max(0., dist);\n' +
-'  gl_FragColor = uColor * dist;\n' +
-'}\n';
-
-WebGLVectorTile2Shaders.lodesVertexShader =
-  'attribute vec4 centroid;\n' +
-  'attribute float aDist;\n' +
-  'attribute float aColor;\n' +
-  'uniform bool filterDist;\n' +
-  'uniform bool showSe01;\n' +
-  'uniform bool showSe02;\n' +
-  'uniform bool showSe03;\n' +
-  'uniform float uDist;\n' +
-  'uniform float uSize;\n' +
-  'uniform float uTime;\n' +
-  'uniform float uZoom;\n' +
-  'uniform mat4 mapMatrix;\n' +
-  'varying float vColor;\n' +
-  'float fX(float x, float deltaX, float t) {\n' +
-  '  return x + deltaX * t;\n' +
-  '}\n' +
-  'float fY(float y, float deltaY, float t) {\n' +
-  '  return y + deltaY * t;\n' +
-  '}\n' +
-  'void main() {\n' +
-  '  float fx = fX(centroid.z, centroid.x - centroid.z, uTime);\n' +
-  '  float fy = fY(centroid.w, centroid.y - centroid.w, uTime);\n' +
-  '  vec4 position = mapMatrix * vec4(fx, fy, 0, 1);\n' +
-  '  if (filterDist && aDist >= uDist) {\n' +
-  '    position = vec4(-1.,-1.,-1.,-1.);\n' +
-  '  }\n' +
-  '  if (!showSe01 && aColor == 16730905.) {\n' +
-  '    position = vec4(-1.,-1.,-1.,-1.);\n' +
-  '  }\n' +
-  '  if (!showSe02 && aColor == 625172.) {\n' +
-  '    position = vec4(-1.,-1.,-1.,-1.);\n' +
-  '  }\n' +
-  '  if (!showSe03 && aColor == 1973987.) {\n' +
-  '    position = vec4(-1.,-1.,-1.,-1.);\n' +
-  '  }\n' +
-  '  gl_Position = position;\n' +
-  '  gl_PointSize = uSize;\n' +
-  '  vColor = aColor;\n' +
-  '}\n';
-
-WebGLVectorTile2Shaders.lodesFragmentShader =
-  'precision lowp float;\n' +
-  'varying float vColor;\n' +
-  'vec4 setColor(vec4 color, float dist, float hardFraction) {\n' +
-  '  return color * clamp((0.5 - dist) / (0.5 - 0.5 * hardFraction), 0., 1.);\n' +
-  '}\n' +
-  'vec3 unpackColor(float f) {\n' +
-  '  vec3 color;\n' +
-  '  color.b = floor(f / 256.0 / 256.0);\n' +
-  '  color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);\n' +
-  '  color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);\n' +
-  '  return color / 256.0;\n' +
-  '}\n' +
-  'void main() {\n' +
-  '  gl_FragColor = vec4(unpackColor(vColor),.75);\n' +
-  '}\n';
-
-WebGLVectorTile2Shaders.colorDotmapVertexShader =
-  'attribute vec2 aWorldCoord;\n' +
-  'attribute float aColor;\n' +
-  'uniform float uZoom;\n' +
-  'uniform float uSize;\n' +
-  'uniform mat4 mapMatrix;\n' +
-  'varying float vColor;\n' +
-  'void main() {\n' +
-  '  //gl_Position = mapMatrix * vec4(aWorldCoord.x, aWorldCoord.y, 0, 1);\n' +
-  '  //gl_Position = vec4(300.0*(aWorldCoord.x+mapMatrix[3][0]), 300.0*(-aWorldCoord.y+mapMatrix[3][1]), 0.0, 300.0);\n' +
-  '  gl_Position = vec4(aWorldCoord.x * mapMatrix[0][0] + mapMatrix[3][0], aWorldCoord.y * mapMatrix[1][1] + mapMatrix[3][1],0,1);\n' +
-  '  gl_PointSize = uSize;\n' +
-  '  //gl_PointSize = 0.5;\n' +
-  '  vColor = aColor;\n' +
-  '}\n';
-
-WebGLVectorTile2Shaders.colorDotmapVertexShaderTbox = [
-  'attribute vec2 aWorldCoord;',
-  'attribute float aColor;',
-  'attribute float aStartEpoch;',
-  'attribute float aEndEpoch;',
-  'uniform float uZoom;',
-  'uniform float uSize;',
-  'uniform mat4 mapMatrix;',
-  'uniform float uEpoch;',
-  'varying float vColor;',
-  'void main() {',
-  '  if (aStartEpoch <= uEpoch && uEpoch < aEndEpoch) {',
-  '    /*gl_Position = vec4(aWorldCoord.x * mapMatrix[0][0] + mapMatrix[3][0], aWorldCoord.y * mapMatrix[1][1] + mapMatrix[3][1],0,1);*/',
-  '    gl_Position = vec4((aWorldCoord.x) * mapMatrix[0][0] + mapMatrix[3][0], (aWorldCoord.y) * mapMatrix[1][1] + mapMatrix[3][1],0,1);',
-  '    gl_PointSize = uSize;',
-  '    vColor = aColor;',
-  '  } else {',
-  '    gl_Position = vec4(-1,-1,-1,-1);',
-  '  }',
-  '}'].join('\n');
-
-WebGLVectorTile2Shaders.colorDotmapFragmentShader =
-  'precision lowp float;\n' +
-  'varying float vColor;\n' +
-  'vec3 unpackColor(float f) {\n' +
-  '  vec3 color;\n' +
-  '  color.b = floor(f / 256.0 / 256.0);\n' +
-  '  color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);\n' +
-  '  color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);\n' +
-  '  return color / 256.0;\n' +
-  '}\n' +
-  'void main() {\n' +
-  '  gl_FragColor = vec4(unpackColor(vColor),1.0);\n' +
-  '  //gl_FragColor = vec4(0.0,1.0,0.0,1.0);\n' +
-  '}\n';
-
-WebGLVectorTile2Shaders.annualRefugeesFragmentShader =
-'      precision mediump float;\n' +
-'      uniform sampler2D u_Image;\n' +
-'      varying float v_Delta;\n' +
-'      void main() {\n' +
-'          float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
-'          dist = 1. - (dist * 2.);\n' +
-'          dist = max(0., dist);\n' +
-'          gl_FragColor = vec4(1., 0., 0., 1.) * dist;\n' +
-'          vec4 color = texture2D(u_Image, vec2(v_Delta,v_Delta));\n' +
-'          gl_FragColor = vec4(color.r, color.g, color.b, 1.) * dist;\n' +
-'      }\n';
-
-WebGLVectorTile2Shaders.annualRefugeesVertexShader =
-'      attribute vec4 aStartPoint;\n' +
-'      attribute vec4 aEndPoint;\n' +
-'      attribute vec4 aMidPoint;\n' +
-'      attribute float aEpoch;\n' +
-'      uniform float uSize;\n' +
-'      uniform float uEpoch;\n' +
-'      uniform float uSpan;\n' +
-'      uniform mat4 uMapMatrix;\n' +
-'      varying float v_Delta;\n' +
-'      vec4 bezierCurve(float t, vec4 P0, vec4 P1, vec4 P2) {\n' +
-'        return (1.0-t)*(1.0-t)*P0 + 2.0*(1.0-t)*t*P1 + t*t*P2;\n' +
-'      }\n' +
-'      void main() {\n' +
-'        vec4 position;\n' +
-'        if (aEpoch < uEpoch) {\n' +
-'          position = vec4(-1,-1,-1,-1);\n' +
-'        } else if (aEpoch > uEpoch + uSpan) {\n' +
-'          position = vec4(-1,-1,-1,-1);\n' +
-'        } else {\n' +
-'          float t = (uEpoch - aEpoch)/uSpan;\n' +
-'          v_Delta = 1.0 - (aEpoch - uEpoch)/uSpan;\n' +
-'          vec4 pos = bezierCurve(1.0 + t, aStartPoint, aMidPoint, aEndPoint);\n' +
-'          position = uMapMatrix * vec4(pos.x, pos.y, 0, 1);\n' +
-'        }\n' +
-'        gl_Position = position;\n' +
-'        gl_PointSize = uSize * 4.0;\n' +
-'        gl_PointSize = 4.0;\n' +
-'      }\n';
-
-WebGLVectorTile2Shaders.healthImpactVertexShader =
-'      attribute vec4 a_Centroid;\n' +
-'      attribute float a_Year;\n' +
-'      attribute float a_Val1;\n' +
-'      attribute float a_Val2;\n' +
-'      attribute float a_Rcp;\n' +
-'      uniform bool u_ShowRcp2p6;\n' +
-'      uniform bool u_ShowRcp4p5;\n' +
-'      uniform bool u_ShowRcp6p0;\n' +
-'      uniform bool u_ShowRcp8p5;\n' +
-'      uniform float u_Delta;\n' +
-'      uniform float u_Size;\n' +
-'      uniform float u_Year;\n' +
-'      uniform mat4 u_MapMatrix;\n' +
-'      varying float v_Val;\n' +
-'      varying float v_Rcp;\n' +
-'      void main() {\n' +
-'        vec4 position;\n' +
-'        if (a_Year != u_Year) {\n' +
-'          position = vec4(-1,-1,-1,-1);\n' +
-'        } else {\n' +
-'          if (u_ShowRcp2p6 && a_Rcp == 0.0) {\n' +
-'            position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);\n' +
-'          } else if (u_ShowRcp4p5 && a_Rcp == 1.0) {\n' +
-'            position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);\n' +
-'          } else if (u_ShowRcp6p0 && a_Rcp == 2.0) {\n' +
-'            position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);\n' +
-'          }  else if (u_ShowRcp8p5 && a_Rcp == 3.0) {\n' +
-'            position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);\n' +
-'          }\n' +
-'          else {\n' +
-'            position = vec4(-1,-1,-1,-1);\n' +
-'          }\n' +
-'        }\n' +
-'        gl_Position = position;\n' +
-'        float size = (a_Val2 - a_Val1) * u_Delta + a_Val1;\n' +
-'        v_Val = size;\n' +
-'        v_Rcp = a_Rcp;\n' +
-'        gl_PointSize = u_Size * abs(size);\n' +
-'        gl_PointSize = 2.0 * abs(size);\n' +
-'      }\n';
-
-WebGLVectorTile2Shaders.healthImpactFragmentShader =
-'      #extension GL_OES_standard_derivatives : enable\n' +
-'      precision mediump float;\n' +
-'      varying float v_Val;\n' +
-'      varying float v_Rcp;\n' +
-'      void main() {\n' +
-'          float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
-'          dist = 1. - (dist * 2.);\n' +
-'          dist = max(0., dist);\n' +
-'          float delta = fwidth(dist);\n' +
-'          float alpha = smoothstep(0.45-delta, 0.45, dist);\n' +
-'          vec4 circleColor = vec4(1.0,0.0,0.0,1.0);\n' +
-'          vec4 outlineColor = vec4(1.0,1.0,1.0,1.0);\n' +
-'          float outerEdgeCenter = 0.5 - .01;\n' +
-'          float stroke = smoothstep(outerEdgeCenter - delta, outerEdgeCenter + delta, dist);\n' +
-'          if (v_Val > 0.0) {\n' +
-'            if (v_Rcp == 0.0) {\n' +
-'              circleColor = vec4(0.0, 0.0, 1.0, .65) * alpha;\n' +
-'            } else if (v_Rcp == 1.0){\n' +
-'              circleColor = vec4(0.0078, 0.0, 0.8392, .65) * alpha;\n' +
-'            } else if (v_Rcp == 2.0) {\n' +
-'              circleColor = vec4(0.0078, 0.0, 0.6941, .65) * alpha;\n' +
-'            } else {\n' +
-'              circleColor = vec4(0., 0., .5451, .65) * alpha;\n' +
-'            }\n' +
-'          } else {\n' +
-'            if (v_Rcp == 0.0) {\n' +
-'              circleColor = vec4(1.0, 0.0, 0.0, .65) * alpha;\n' +
-'            } else if (v_Rcp == 1.0){\n' +
-'              circleColor = vec4(0.8392, 0.0, 0.0078, .65) * alpha;\n' +
-'            } else if (v_Rcp == 2.0) {\n' +
-'              circleColor = vec4(0.6941, 0.0, 0.0078, .65) * alpha;\n' +
-'            } else {\n' +
-'              circleColor = vec4(.5451, 0., 0., .65) * alpha;\n' +
-'            }\n' +
-'          }\n' +
-'          gl_FragColor = vec4( mix(outlineColor.rgb, circleColor.rgb, stroke), alpha*.75 );\n' +
-'      }';
-
-WebGLVectorTile2Shaders.viirsVertexShader =
-  'attribute vec4 worldCoord;\n' +
-  'attribute float time;\n' +
-
-  'uniform mat4 mapMatrix;\n' +
-  'uniform float pointSize;\n' +
-  'uniform float maxTime;\n' +
-  'uniform float minTime;\n' +
-
-  'void main() {\n' +
-  '  if (time < minTime || time > maxTime) {\n' +
-  '    gl_Position = vec4(-1,-1,-1,-1);\n' +
-  '  } else {\n' +
-  '    gl_Position = mapMatrix * worldCoord;\n' +
-  '  };\n' +
-  '  gl_PointSize = pointSize;\n' +
-  '}';
-
-WebGLVectorTile2Shaders.viirsFragmentShader =
-  'precision mediump float;\n' +
-  'void main() {\n' +
-  '  vec3 color;\n' +
-  '  color = vec3(.82, .22, .07);\n' +
-
-  '  float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
-  '  dist = 1. - (dist * 2.);\n' +
-  '  dist = max(0., dist);\n' +
-
-  '  gl_FragColor = vec4(color, 1.) * dist;\n' +
-  '}';
-
-WebGLVectorTile2Shaders.wdpaVertexShader =
-'attribute vec4 worldCoord;\n' +
-'attribute float time;\n' +
-
-'uniform mat4 mapMatrix;\n' +
-'uniform float maxTime;\n' +
-'uniform float minTime;\n' +
-
-'void main() {\n' +
-'  if (time < minTime || time > maxTime) {\n' +
-'    gl_Position = vec4(-1,-1,-1,-1);\n' +
-'  } else {\n' +
-'    gl_Position = mapMatrix * worldCoord;\n' +
-'  }\n' +
-'}';
-
-WebGLVectorTile2Shaders.wdpaFragmentShader =
-'void main() {\n' +
-'  gl_FragColor = vec4(.0, 1., .15, 1.0);\n' +
-'}\n';
-
-WebGLVectorTile2Shaders.urbanFragilityVertexShader =
-'attribute vec4 a_Centroid;\n' +
-'attribute float a_Year;\n' +
-'attribute float a_Val1;\n' +
-'attribute float a_Val2;\n' +
-'uniform float u_Delta;\n' +
-'uniform float u_Size;\n' +
-'uniform float u_Year;\n' +
-'uniform mat4 u_MapMatrix;\n' +
-'varying float v_Val;\n' +
-'\n' +
-'void main() {\n' +
-'  vec4 position;\n' +
-'  if (a_Year != u_Year) {\n' +
-'    position = vec4(-1,-1,-1,-1);\n' +
-'  } else {\n' +
-'    position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);\n' +
-'  }\n' +
-'  gl_Position = position;\n' +
-'  float size = (a_Val2 - a_Val1) * u_Delta + a_Val1;\n' +
-'  v_Val = size;\n' +
-'  gl_PointSize = u_Size * exp(size);\n' +
-'}\n';
-
-WebGLVectorTile2Shaders.urbanFragilityFragmentShader =
-'precision mediump float;\n' +
-'uniform sampler2D u_Image;\n' +
-'varying float v_Val;\n' +
-'float scale(float val) {\n' +
-'  float min = 1.;\n' +
-'  float max = 3.5;\n' +
-'  return (val - min)/(max -min);\n' +
-'}\n' +
-'void main() {\n' +
-'  float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
-'  dist = 1. - (dist * 2.);\n' +
-'  dist = max(0., dist);\n' +
-'  float alpha = smoothstep(0.3-dist, 0.3, dist);\n' +
-'  vec4 color = texture2D(u_Image, vec2(scale(v_Val),scale(v_Val)));\n' +
-'  gl_FragColor = vec4(color.r, color.g, color.b, .75) * alpha;\n' +
-'}\n';
-
-WebGLVectorTile2Shaders.monthlyRefugeesVertexShader =
-    "attribute vec4 aStartPoint;\n" +
-    "attribute vec4 aEndPoint;\n" +
-    "attribute vec4 aMidPoint;\n" +
-    "attribute float aEpoch;\n" +
-    "attribute float aEndTime;\n" +
-    "attribute float aSpan;\n" +
-    "attribute float aTimeOffset;\n" +
-
-    "uniform float uSize;\n" +
-    "uniform float uEpoch;\n" +
-    "uniform mat4 uMapMatrix;\n" +
-    "uniform float uTotalTime;\n" +
-
-    "float Epsilon = 1e-10;\n" +
-    "varying vec4 vColor;\n" +
-
-    "vec4 bezierCurve(float t, vec4 P0, vec4 P1, vec4 P2) {\n" +
-        "return (1.0-t)*(1.0-t)*P0 + 2.0*(1.0-t)*t*P1 + t*t*P2;\n" +
-    "}\n" +
-
-    "vec3 HUEtoRGB(float H){\n" +
-        "float R = abs((H * 6.) - 3.) - 1.;\n" +
-        "float G = 2. - abs((H * 6.) - 2.);\n" +
-        "float B = 2. - abs((H * 6.) - 4.);\n" +
-        "return clamp(vec3(R,G,B), 0.0, 1.0);\n" +
-    "}\n" +
-
-    "vec3 HSLtoRGB(vec3 HSL){\n" +
-        "vec3 RGB = HUEtoRGB(HSL.x);\n" +
-        "float C = (1. - abs(2. * HSL.z - 1.)) * HSL.y;\n" +
-        "return (RGB - 0.5) * C + HSL.z;\n" +
-    "}\n" +
-
-    "vec3 RGBtoHCV(vec3 RGB){\n" +
-        "vec4 P = (RGB.g < RGB.b) ? vec4(RGB.bg, -1.0, 2.0/3.0) : vec4(RGB.gb, 0.0, -1.0/3.0);\n" +
-        "vec4 Q = (RGB.r < P.x) ? vec4(P.xyw, RGB.r) : vec4(RGB.r, P.yzx);\n" +
-        "float C = Q.x - min(Q.w, Q.y);\n" +
-        "float H = abs((Q.w - Q.y) / (6. * C + Epsilon) + Q.z);\n" +
-        "return vec3(H, C, Q.x);\n" +
-     "}\n" +
-
-     "vec3 RGBtoHSL(vec3 RGB){\n" +
-        "vec3 HCV = RGBtoHCV(RGB);\n" +
-        "float L = HCV.z - HCV.y * 0.5;\n" +
-        "float S = HCV.y / (1. - abs(L * 2. - 1.) + Epsilon);\n" +
-        "return vec3(HCV.x, S, L);\n" +
-     "}\n" +
-
-    "vec4 calcColor(float p, vec3 c){\n" +
-        "vec3 hsl = RGBtoHSL(c);\n" +
-        "return vec4(HSLtoRGB(vec3(hsl.x, hsl.y, p)), 1.);\n" +
-    "}\n" +
-
-    "void main() {\n" +
-        "vec4 position;\n" +
-        "if (uEpoch < aEpoch || (uEpoch > aEpoch + aSpan)) {\n" +
-            "position = vec4(-1,-1,-1,-1);\n" +
-        "}else {\n" +
-            "float t = (uEpoch - aEpoch)/aSpan + aTimeOffset;\n" +
-            "t = min(t, 1.);\n" +
-            "t = max(t,0.);\n" +
-            "vec4 pos = bezierCurve(t, aStartPoint, aMidPoint, aEndPoint);\n" +
-            "position = uMapMatrix * vec4(pos.x, pos.y, 0, 1);\n" +
-            "float luminance = clamp(1. - ((aEndTime - uEpoch)/uTotalTime), 0.45, 0.95);\n" +
-            "vColor = calcColor(luminance, vec3(1.,0.,0.));\n" +
-        "}\n" +
-
-        "gl_Position = position;\n" +
-        "gl_PointSize = uSize;\n" +
-    "}";
-
-WebGLVectorTile2Shaders.monthlyRefugeesFragmentShader =
-    "precision mediump float;\n" +
-    "varying vec4 vColor;\n" +
-
-    "void main() {\n" +
-        "float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n" +
-        "dist = 1. - (dist * 2.);\n" +
-        "dist = max(0., dist);\n" +
-        "gl_FragColor = vColor * dist;\n" +
-    "}";
-
-WebGLVectorTile2Shaders.gtdVertexShader =
-"        attribute vec4 a_WorldCoord;\n" +
-"        attribute float a_Epoch;\n" +
-"        attribute float a_NCasualties;\n" +
-"        uniform float u_EpochTime;\n" +
-"        uniform float u_Span;\n" +
-"        uniform mat4 u_MapMatrix;\n" +
-"        varying float v_Alpha;\n" +
-"        void main() {\n" +
-"          if ( a_Epoch > u_EpochTime) {\n" +
-"            gl_Position = vec4(-1,-1,-1,-1);\n" +
-"          } else if (u_EpochTime - a_Epoch > u_Span) {\n" +
-"            gl_Position = vec4(-1,-1,-1,-1);\n" +
-"          }\n" +
-"          else {\n" +
-"            gl_Position = u_MapMatrix * a_WorldCoord;\n" +
-"          }\n" +
-"          v_Alpha = (u_EpochTime - a_Epoch) / u_Span;\n" +
-"          //gl_PointSize = 1.0 * a_NCasualties;\n" +
-'          float pointSize = 5.0;\n' +
-'          if (a_NCasualties > 5.0) {\n' +
-'            pointSize = a_NCasualties;\n' +
-'          } else {\n' +
-'            pointSize = 5.0;\n' +
-'          }\n' +
-'          gl_PointSize = max(10.0,300.0*smoothstep(5., 94., sqrt(pointSize)));\n' +
-"        }\n";
-
-WebGLVectorTile2Shaders.gtdFragmentShader =
-"        precision mediump float;\n" +
-"        varying float v_Alpha;\n" +
-"        void main() {\n" +
-"          float r = 1.0 - v_Alpha;\n" +
-"          float dist = distance( vec2(0.5, 0.5), gl_PointCoord);\n" +
-"          dist = 1.0 - (dist * 2.0);\n" +
-"          dist = max(0.0, dist);\n" +
-"          gl_FragColor =  vec4(r, .0, .0, .85) * dist;\n" +
-"        }\n";
-
-WebGLVectorTile2Shaders.uppsalaConflictVertexShader =
-"        attribute vec4 a_centroid;\n" +
-"        attribute float a_start_epoch;\n" +
-"        attribute float a_end_epoch;\n" +
-"        attribute float a_val;\n" +
-"        uniform float u_epoch;\n" +
-"        uniform float u_span;\n" +
-"        uniform float u_size;\n" +
-"        uniform mat4 u_map_matrix;\n" +
-"        varying float v_alpha;\n" +
-"        void main() {\n" +
-"          if ( a_start_epoch > u_epoch) {\n" +
-"            gl_Position = vec4(-1,-1,-1,-1);\n" +
-"          } else if (u_epoch - a_end_epoch > u_span) {\n" +
-"            gl_Position = vec4(-1,-1,-1,-1);\n" +
-"          }\n" +
-"          else {\n" +
-"            gl_Position = u_map_matrix * a_centroid;\n" +
-"          }\n" +
-"          v_alpha = (u_epoch - a_end_epoch) / u_span;\n" +
-"          gl_PointSize = u_size * a_val;\n" +
-"        }\n";
-
-
-WebGLVectorTile2Shaders.uppsalaConflictFragmentShader =
-"        precision mediump float;\n" +
-"        varying float v_alpha;\n" +
-"        void main() {\n" +
-"          float r = 1.0 - v_alpha;\n" +
-"          float dist = distance( vec2(0.5, 0.5), gl_PointCoord);\n" +
-"          dist = 1.0 - (dist * 2.0);\n" +
-"          dist = max(0.0, dist);\n" +
-"          gl_FragColor =  vec4(r, .0, .0, .85) * dist;\n" +
-"        }\n";
-
-WebGLVectorTile2Shaders.hivVertexShader =
-'attribute vec4 a_Centroid;\n' +
-'attribute float a_Year;\n' +
-'attribute float a_Val1;\n' +
-'attribute float a_Val2;\n' +
-'uniform float u_Delta;\n' +
-'uniform float u_Size;\n' +
-'uniform float u_Year;\n' +
-'uniform mat4 u_MapMatrix;\n' +
-'varying float v_Val;\n' +
-'\n' +
-'void main() {\n' +
-'  vec4 position;\n' +
-'  if (a_Year != u_Year) {\n' +
-'    position = vec4(-1,-1,-1,-1);\n' +
-'  } else {\n' +
-'    position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);\n' +
-'  }\n' +
-'  gl_Position = position;\n' +
-'  float size = (a_Val2 - a_Val1) * u_Delta + a_Val1;\n' +
-'  v_Val = size;\n' +
-'  gl_PointSize = 100.0 * u_Size * abs(size);\n' +
-'}\n';
-
-WebGLVectorTile2Shaders.hivFragmentShader =
-'precision mediump float;\n' +
-'uniform sampler2D u_Image;\n' +
-'varying float v_Val;\n' +
-'void main() {\n' +
-'  float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
-'  dist = 1. - (dist * 2.);\n' +
-'  dist = max(0., dist);\n' +
-'  float alpha = smoothstep(0.3-dist, 0.3, dist);\n' +
-'  vec4 color = texture2D(u_Image, vec2(v_Val,v_Val));\n' +
-'  gl_FragColor = vec4(color.r, color.g, color.b, .75) * alpha;\n' +
-'}\n';
-
-WebGLVectorTile2Shaders.obesityVertexShader =
-'      attribute vec4 a_Vertex;\n' +
-'      attribute float a_Year;\n' +
-'      attribute float a_Val1;\n' +
-'      attribute float a_Val2;\n' +
-'      uniform float u_Delta;\n' +
-'      uniform float u_Size;\n' +
-'      uniform float u_Year;\n' +
-'      uniform mat4 u_MapMatrix;\n' +
-'      varying float v_Val;\n' +
-'      void main() {\n' +
-'        vec4 position;\n' +
-'        if (a_Year != u_Year) {\n' +
-'          position = vec4(-1,-1,-1,-1);\n' +
-'        } else {\n' +
-'          position = u_MapMatrix * vec4(a_Vertex.x, a_Vertex.y, 0, 1);\n' +
-'        }\n' +
-'        gl_Position = position;\n' +
-'        v_Val = (a_Val2 - a_Val1) * u_Delta + a_Val1;\n' +
-'      }\n';
-
-WebGLVectorTile2Shaders.obesityFragmentShader =
-'      #extension GL_OES_standard_derivatives : enable\n' +
-'      precision mediump float;\n' +
-'      uniform sampler2D u_Image;\n' +
-'      varying float v_Val;\n' +
-'      void main() {\n' +
-'        vec4 color = texture2D(u_Image, vec2(v_Val,v_Val));\n' +
-'        gl_FragColor = vec4(color.r, color.g, color.b, 1.);\n' +
-'      }\n';
-
-WebGLVectorTile2Shaders.vaccineConfidenceVertexShader =
-'      attribute vec4 a_Vertex;\n' +
-'      attribute float a_Val1;\n' +
-'      attribute float a_Val2;\n' +
-'      attribute float a_Val3;\n' +
-'      attribute float a_Val4;\n' +
-'      uniform float u_Val;\n' +
-'      uniform mat4 u_MapMatrix;\n' +
-'      varying float v_Val;\n' +
-'      void main() {\n' +
-'        vec4 position;\n' +
-'        position = u_MapMatrix * vec4(a_Vertex.x, a_Vertex.y, 0, 1);\n' +
-'        gl_Position = position;\n' +
-'        if (u_Val == 1.0) {\n' +
-'          v_Val = a_Val1;\n' +
-'        }\n' +
-'        if (u_Val == 2.0) {\n' +
-'          v_Val = a_Val2;\n' +
-'        }\n' +
-'        if (u_Val == 3.0) {\n' +
-'          v_Val = a_Val3;\n' +
-'        }\n' +
-'        if (u_Val == 4.0) {\n' +
-'          v_Val = a_Val4;\n' +
-'        }\n' +
-'      }\n';
-
-WebGLVectorTile2Shaders.vaccineConfidenceFragmentShader =
-'      #extension GL_OES_standard_derivatives : enable\n' +
-'      precision mediump float;\n' +
-'      uniform sampler2D u_Image;\n' +
-'      varying float v_Val;\n' +
-'      void main() {\n' +
-'        vec4 color = texture2D(u_Image, vec2(v_Val,v_Val));\n' +
-'        gl_FragColor = vec4(color.r, color.g, color.b, 1.);\n' +
-'      }\n';
-
-WebGLVectorTile2Shaders.bubbleMapVertexShader =
-'      attribute vec4 a_Centroid;\n' +
-'      attribute float a_Epoch1;\n' +
-'      attribute float a_Val1;\n' +
-'      attribute float a_Epoch2;\n' +
-'      attribute float a_Val2;\n' +
-'      uniform float u_Epoch;\n' +
-'      uniform float u_Size;\n' +
-'      uniform mat4 u_MapMatrix;\n' +
-'      varying float v_Val;\n' +
-'      void main() {\n' +
-'        vec4 position;\n' +
-'        if (a_Epoch1 > u_Epoch || a_Epoch2 <= u_Epoch) {\n' +
-'          position = vec4(-1,-1,-1,-1);\n' +
-'        } else {\n' +
-'          position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);\n' +
-'        }\n' +
-'        gl_Position = position;\n' +
-'        float delta = (u_Epoch - a_Epoch1)/(a_Epoch2 - a_Epoch1);\n' +
-'        float size = (a_Val2 - a_Val1) * delta + a_Val1;\n' +
-'        v_Val = size;\n' +
-'        gl_PointSize = abs(u_Size * size);\n' +
-'      }\n';
-
-WebGLVectorTile2Shaders.bubbleMapFragmentShader =
-'      #extension GL_OES_standard_derivatives : enable\n' +
-'      precision mediump float;\n' +
-'      varying float v_Val;\n' +
-'      uniform vec4 u_Color;\n' +
-'      uniform float u_Mode;\n' +
-'      void main() {\n' +
-'          float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
-'          dist = 1. - (dist * 2.);\n' +
-'          dist = max(0., dist);\n' +
-'          float delta = fwidth(dist);\n' +
-'          float alpha = smoothstep(0.45-delta, 0.45, dist);\n' +
-'          if (u_Mode == 2.0) {\n' +
-'            if (gl_PointCoord.x > 0.5) {\n' +
-'              alpha = 0.0;\n' +
-'            }\n' +
-'          }\n' +
-'          if (u_Mode == 3.0) {\n' +
-'            if (gl_PointCoord.x < 0.5) {\n' +
-'              alpha = 0.0;\n' +
-'            }\n' +
-'          }\n' +
-'          vec4 circleColor = u_Color;\n' +
-'          if (v_Val < 0.0) { circleColor[0] = 1.0; circleColor[1]=0.0; circleColor[2]=0.0; };\n' +
-'          vec4 outlineColor = vec4(1.0,1.0,1.0,1.0);\n' +
-'          float outerEdgeCenter = 0.5 - .01;\n' +
-'          float stroke = smoothstep(outerEdgeCenter - delta, outerEdgeCenter + delta, dist);\n' +
-'          gl_FragColor = vec4( mix(outlineColor.rgb, circleColor.rgb, stroke), alpha*.75 );\n' +
-'      }';
-
-
-WebGLVectorTile2Shaders.bubbleMapWithPackedColorVertexShader =
-'      attribute vec4 a_Centroid;\n' +
-'      attribute float a_Epoch1;\n' +
-'      attribute float a_Val1;\n' +
-'      attribute float a_Epoch2;\n' +
-'      attribute float a_Val2;\n' +
-'      attribute float a_color;\n' +
-'      uniform float u_Epoch;\n' +
-'      uniform float u_Size;\n' +
-'      uniform mat4 u_MapMatrix;\n' +
-'      varying float v_Val;\n' +
-'      varying float v_color;\n' +
-'      void main() {\n' +
-'        vec4 position;\n' +
-'        if (a_Epoch1 > u_Epoch || a_Epoch2 <= u_Epoch) {\n' +
-'          position = vec4(-1,-1,-1,-1);\n' +
-'        } else {\n' +
-'          position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);\n' +
-'        }\n' +
-'        gl_Position = position;\n' +
-'        float delta = (u_Epoch - a_Epoch1)/(a_Epoch2 - a_Epoch1);\n' +
-'        float size = (a_Val2 - a_Val1) * delta + a_Val1;\n' +
-'        v_Val = size;\n' +
-'        gl_PointSize = abs(u_Size * size);\n' +
-'        v_color = a_color;\n' +
-'      }\n';
-
-WebGLVectorTile2Shaders.bubbleMapWithPackedColorFragmentShader =
-'      #extension GL_OES_standard_derivatives : enable\n' +
-'      precision mediump float;\n' +
-'      varying float v_Val;\n' +
-'      varying float v_color;\n' +
-'      uniform vec4 u_Color;\n' +
-'      uniform float u_Mode;\n' +
-'  vec4 unpackColor(float f) {\n' +
-'      vec4 color;\n' +
-'      color.b = floor(f / 256.0 / 256.0);\n' +
-'      color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);\n' +
-'      color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);\n' +
-'      color.a = 255.;\n' +
-'      return color / 256.0;\n' +
-'    }\n' +
-'      void main() {\n' +
-'          float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
-'          dist = 1. - (dist * 2.);\n' +
-'          dist = max(0., dist);\n' +
-'          float delta = fwidth(dist);\n' +
-'          float alpha = smoothstep(0.45-delta, 0.45, dist);\n' +
-'          if (u_Mode == 2.0) {\n' +
-'            if (gl_PointCoord.x > 0.5) {\n' +
-'              alpha = 0.0;\n' +
-'            }\n' +
-'          }\n' +
-'          if (u_Mode == 3.0) {\n' +
-'            if (gl_PointCoord.x < 0.5) {\n' +
-'              alpha = 0.0;\n' +
-'            }\n' +
-'          }\n' +
-'          vec4 circleColor = unpackColor(v_color);\n' +
-'          if (v_Val < 0.0) { circleColor[0] = 1.0; circleColor[1]=0.0; circleColor[2]=0.0; };\n' +
-'          vec4 outlineColor = vec4(1.0,1.0,1.0,1.0);\n' +
-'          float outerEdgeCenter = 0.5 - .01;\n' +
-'          float stroke = smoothstep(outerEdgeCenter - delta, outerEdgeCenter + delta, dist);\n' +
-'          gl_FragColor = vec4( mix(outlineColor.rgb, circleColor.rgb, stroke), alpha*.75 );\n' +
-'      }';
-
-WebGLVectorTile2Shaders.bubbleMapWithColorMapFragmentShader =
-'      #extension GL_OES_standard_derivatives : enable\n' +
-'      precision mediump float;\n' +
-'      varying float v_Val;\n' +
-'      uniform sampler2D u_Image;\n' +
-'      uniform float u_Min;\n' +
-'      uniform float u_Max;\n' +
-'      uniform float u_Mode;\n' +
-'      float scale(float v, float min, float max) {\n' +
-'          return (v - min)/(max - min);\n' +
-'      }\n' +
-'      void main() {\n' +
-'          float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
-'          dist = 1. - (dist * 2.);\n' +
-'          dist = max(0., dist);\n' +
-'          float delta = fwidth(dist);\n' +
-'          float alpha = smoothstep(0.45-delta, 0.45, dist);\n' +
-'          if (u_Mode == 2.0) {\n' +
-'            if (gl_PointCoord.x > 0.5) {\n' +
-'              alpha = 0.0;\n' +
-'            }\n' +
-'          }\n' +
-'          if (u_Mode == 3.0) {\n' +
-'            if (gl_PointCoord.x < 0.5) {\n' +
-'              alpha = 0.0;\n' +
-'            }\n' +
-'          }\n' +
-'          vec4 circleColor = texture2D(u_Image, vec2(scale(v_Val, u_Min, u_Max),scale(v_Val, u_Min, u_Max)));\n' +
-'          vec4 outlineColor = vec4(1.0,1.0,1.0,1.0);\n' +
-'          float outerEdgeCenter = 0.5 - .01;\n' +
-'          float stroke = smoothstep(outerEdgeCenter - delta, outerEdgeCenter + delta, dist);\n' +
-'          gl_FragColor = vec4( mix(outlineColor.rgb, circleColor.rgb, stroke), alpha*.75 );\n' +
-'      }';
-
-WebGLVectorTile2Shaders.bivalentBubbleMapWithColorMapVertexShader =
-'      attribute vec4 a_Centroid;\n' +
-'      attribute float a_Epoch1;\n' +
-'      attribute float a_PointVal1;\n' +
-'      attribute float a_ColorVal1;\n' +
-'      attribute float a_Epoch2;\n' +
-'      attribute float a_PointVal2;\n' +
-'      attribute float a_ColorVal2;\n' +
-'      uniform float u_Epoch;\n' +
-'      uniform float u_Size;\n' +
-'      uniform mat4 u_MapMatrix;\n' +
-'      varying float v_PointVal;\n' +
-'      varying float v_ColorVal;\n' +
-'      void main() {\n' +
-'        vec4 position;\n' +
-'        if (a_Epoch1 > u_Epoch || a_Epoch2 <= u_Epoch) {\n' +
-'          position = vec4(-1,-1,-1,-1);\n' +
-'        } else {\n' +
-'          position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);\n' +
-'        }\n' +
-'        gl_Position = position;\n' +
-'        float delta = (u_Epoch - a_Epoch1)/(a_Epoch2 - a_Epoch1);\n' +
-'        float size = (a_PointVal2 - a_PointVal1) * delta + a_PointVal1;\n' +
-'        v_PointVal = size;\n' +
-'        v_ColorVal = (a_ColorVal2 - a_ColorVal1) * delta + a_ColorVal1;\n' +
-'        gl_PointSize = abs(u_Size * size);\n' +
-'      }\n';
-
-WebGLVectorTile2Shaders.bivalentBubbleMapWithColorMapFragmentShader =
-'      #extension GL_OES_standard_derivatives : enable\n' +
-'      precision mediump float;\n' +
-'      varying float v_PointVal;\n' +
-'      varying float v_ColorVal;\n' +
-'      uniform sampler2D u_Image;\n' +
-'      void main() {\n' +
-'          float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
-'          dist = 1. - (dist * 2.);\n' +
-'          dist = max(0., dist);\n' +
-'          float delta = fwidth(dist);\n' +
-'          float alpha = smoothstep(0.45-delta, 0.45, dist);\n' +
-'          vec4 circleColor = texture2D(u_Image, vec2(v_ColorVal,v_ColorVal));\n' +
-'          vec4 outlineColor = vec4(1.0,1.0,1.0,1.0);\n' +
-'          float outerEdgeCenter = 0.5 - .01;\n' +
-'          float stroke = smoothstep(outerEdgeCenter - delta, outerEdgeCenter + delta, dist);\n' +
-'          gl_FragColor = vec4( mix(outlineColor.rgb, circleColor.rgb, stroke), alpha*.75 );\n' +
-'      }';
-
-WebGLVectorTile2Shaders.bivalentBubbleMapWithColorMapFragmentShaderNoBorder =
-'      #extension GL_OES_standard_derivatives : enable\n' +
-'      precision mediump float;\n' +
-'      varying float v_PointVal;\n' +
-'      varying float v_ColorVal;\n' +
-'      uniform sampler2D u_Image;\n' +
-'      void main() {\n' +
-'          float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
-'          dist = 1. - (dist * 2.);\n' +
-'          dist = max(0., dist);\n' +
-'          float delta = fwidth(dist);\n' +
-'          float alpha = smoothstep(0.5-delta, 0.5, dist);\n' +
-'          vec4 circleColor = texture2D(u_Image, vec2(v_ColorVal,v_ColorVal));\n' +
-'          gl_FragColor = vec4( circleColor.rgb, alpha*.75 );\n' +
-'      }';
-
-WebGLVectorTile2Shaders.iomIdpVertexShader = "" +
-"attribute vec4 a_coord;\n" +
-"attribute float a_country;\n" +
-"attribute float a_type;\n" +
-"attribute float a_epoch1;\n" +
-"attribute float a_val1;\n" +
-"attribute float a_epoch2;\n" +
-"attribute float a_val2;\n" +
-"uniform mat4 u_map_matrix;\n" +
-"uniform float u_point_size;\n" +
-"uniform float u_epoch;\n" +
-"uniform bool u_show_irq_idps;\n" +
-"uniform bool u_show_syr_idps;\n" +
-"uniform bool u_show_yem_idps;\n" +
-"uniform bool u_show_lby_idps;\n" +
-"uniform bool u_show_irq_returns;\n" +
-"uniform bool u_show_syr_returns;\n" +
-"uniform bool u_show_yem_returns;\n" +
-"uniform bool u_show_lby_returns;\n" +
-"varying float v_type;\n" +
-"void main() {\n" +
-"  vec4 position;\n" +
-"        if (a_epoch1 > u_epoch || a_epoch2 <= u_epoch) {\n" +
-"          position = vec4(-1,-1,-1,-1);\n" +
-"        } else {\n" +
-"          position = u_map_matrix * vec4(a_coord.x, a_coord.y, 0, 1);\n" +
-"        }\n" +
-"        //if (a_type == 0.0 && !u_show_idp) {\n" +
-"        //  position = vec4(-1,-1,-1,-1);\n" +
-"        //}\n" +
-"        //if (a_type == 1.0 && !u_show_returns) {\n" +
-"        //  position = vec4(-1,-1,-1,-1);\n" +
-"        //}\n" +
-"        if (a_country == 368.0) { \n" + // Iraq
-"          if (a_type == 0.0 && !u_show_irq_idps) {\n" +
-"            position = vec4(-1,-1,-1,-1);\n" +
-"          }\n" +
-"          if (a_type == 1.0 && !u_show_irq_returns) {\n" +
-"            position = vec4(-1,-1,-1,-1);\n" +
-"          }\n" +
-"        }\n" +
-"        if (a_country == 760.0) {\n" +
-"          if (a_type == 0.0 && !u_show_syr_idps) {\n" +
-"            position = vec4(-1,-1,-1,-1);\n" +
-"          }\n" +
-"          if (a_type == 1.0 && !u_show_syr_returns) {\n" +
-"            position = vec4(-1,-1,-1,-1);\n" +
-"          }\n" +
-"        }\n" +
-"        if (a_country == 887.0) {\n" +
-"          if (a_type == 0.0 && !u_show_yem_idps) {\n" +
-"            position = vec4(-1,-1,-1,-1);\n" +
-"          }\n" +
-"          if (a_type == 1.0 && !u_show_yem_returns) {\n" +
-"            position = vec4(-1,-1,-1,-1);\n" +
-"          }\n" +
-"        }\n" +
-"        if (a_country == 434.0) {\n" +
-"          if (a_type == 0.0 && !u_show_lby_idps) {\n" +
-"            position = vec4(-1,-1,-1,-1);\n" +
-"          }\n" +
-"          if (a_type == 1.0 && !u_show_lby_returns) {\n" +
-"            position = vec4(-1,-1,-1,-1);\n" +
-"          }\n" +
-"        }\n" +
-"  gl_Position = position;\n" +
-"  float delta = (u_epoch - a_epoch1)/(a_epoch2 - a_epoch1);\n" +
-"  float size = (a_val2 - a_val1) * delta + a_val1;\n" +
-"  gl_PointSize = u_point_size * size;\n" +
-"  v_type = a_type;\n" +
-"}";
-
-WebGLVectorTile2Shaders.iomIdpFragmentShader = "" +
-"#extension GL_OES_standard_derivatives : enable\n" +
-"precision mediump float;\n" +
-"varying float v_type;\n" +
-"void main() {\n" +
-"  // set pixels in points to something that stands out\n" +
-"  //float dist = distance(gl_PointCoord.xy, vec2(0.5, 0.5));\n" +
-"  //float delta = fwidth(dist);\n" +
-"  //float alpha = smoothstep(0.45-delta, 0.45, dist);\n" +
-"  //gl_FragColor = vec4(.65, .07, .07, .75) * (1. - alpha);\n" +
-'  vec4 color = vec4(.65, .07, .07, .95);\n' +
-'  if (v_type == 1.0) {\n' +
-'    color = vec4(0.07, .07, .65, .95);\n' +
-'  }\n' +
-'          float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
-'          dist = 1. - (dist * 2.);\n' +
-'          dist = max(0., dist);\n' +
-'          float delta = fwidth(dist);\n' +
-'          float alpha = smoothstep(0.45-delta, 0.45, dist);\n' +
-'          vec4 circleColor = color; //vec4(.65, .07, .07, .95);\n' +
-'          vec4 outlineColor = vec4(1.0,1.0,1.0,1.0);\n' +
-'          float outerEdgeCenter = 0.5 - .01;\n' +
-'          float stroke = smoothstep(outerEdgeCenter - delta, outerEdgeCenter + delta, dist);\n' +
-'          gl_FragColor = vec4( mix(outlineColor.rgb, circleColor.rgb, stroke), alpha*.75 );\n' +
-
-"}";
-
-WebGLVectorTile2Shaders.choroplethMapVertexShader = [
-  'attribute vec4 a_Centroid;',
-  'attribute float a_Epoch1;',
-  'attribute float a_Val1;',
-  'attribute float a_Epoch2;',
-  'attribute float a_Val2;',
-  'uniform float u_Epoch;',
-  'uniform mat4 u_MapMatrix;',
-  'varying float v_Val;',
-  'void main() {',
-  '  vec4 position;',
-  '  if (a_Epoch1 > u_Epoch || a_Epoch2 <= u_Epoch) {',
-  '    position = vec4(-1,-1,-1,-1);',
-  '  } else {',
-  '    position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);',
-  '  }',
-  '  gl_Position = position;',
-  '  float delta = (u_Epoch - a_Epoch1)/(a_Epoch2 - a_Epoch1);',
-  '  v_Val = (a_Val2 - a_Val1) * delta + a_Val1;',
-  '}'].join('\n');
-
-WebGLVectorTile2Shaders.choroplethMapFragmentShader = [
-  '#extension GL_OES_standard_derivatives : enable',
-  'precision mediump float;',
-  'uniform sampler2D u_Image;',
-  'varying float v_Val;',
-  'uniform vec4 u_color;',
-  'uniform int u_useColorMap;',
-  'void main() {',
-  '  vec4 color;',
-  '  if (u_useColorMap == 1) {',
-  '    color = texture2D(u_Image, vec2(v_Val,0.));',
-  '  } else {',
-  '    color = color = u_color;',
-  '  }',
-  '  gl_FragColor = vec4(color.r, color.g, color.b, 1.);',
-  '}'].join('\n');
-
-WebGLVectorTile2Shaders.choroplethMapVertexShaderV2 = [
-  'attribute vec2 a_Centroid;',
-  'attribute float a_RegionIdx;',
-  'uniform float u_NumRegionsPerRow;',
-  'uniform float u_NumEpochs;',
-  'uniform float u_ValuesWidth;',
-  'uniform float u_ValuesHeight;',
-  'uniform float u_TimeIndex;',
-  'uniform mat4 u_MapMatrix;',
-  'varying vec2 v_ValCoord;',
-  'void main() {',
-  '  vec4 position;',
-  '  position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);',
-  '  gl_Position = position;',
-  '  float row = floor((a_RegionIdx + 0.5) / u_NumRegionsPerRow);',
-  '  float col = a_RegionIdx - row * u_NumRegionsPerRow;',
-  '  v_ValCoord = vec2((col * u_NumEpochs + u_TimeIndex + 0.5) / u_ValuesWidth,',
-  '                    (row + 0.5) / u_ValuesHeight);',
-  '}'].join('\n');
-
-WebGLVectorTile2Shaders.choroplethMapFragmentShaderV2 = [
-  '#extension GL_OES_standard_derivatives : enable',
-  'precision mediump float;',
-  'uniform sampler2D u_Colormap;',
-  'uniform sampler2D u_Values;',
-  'varying vec2 v_ValCoord;',
-  'void main() {',
-  '  vec4 val = texture2D(u_Values, v_ValCoord);', // luminance and alpha
-  '  vec4 color = texture2D(u_Colormap, vec2(val.r, 0.));',
-  '  gl_FragColor = vec4(color.r, color.g, color.b, color.a * val.a);', // transparent when colormap is, or val undefined
-  '}'].join('\n');
-
-WebGLVectorTile2Shaders.timeSeriesPointDataVertexShader =
-'      //WebGLVectorTile2.timeSeriesPointDataVertexShader\n' +
-'      attribute vec4 a_centroid;\n' +
-'      attribute float a_epoch1;\n' +
-'      attribute float a_val1;\n' +
-'      attribute float a_epoch2;\n' +
-'      attribute float a_val2;\n' +
-'      uniform float u_max_value;\n' +
-'      uniform float u_epoch;\n' +
-'      uniform mat4 u_map_matrix;\n' +
-'      varying float v_val;\n' +
-'      varying float v_val1;\n' +
-'      void main() {\n' +
-'        vec4 position;\n' +
-'        if (a_epoch1 > u_epoch || a_epoch2 <= u_epoch) {\n' +
-'          position = vec4(-1,-1,-1,-1);\n' +
-'        } else {\n' +
-'          position = u_map_matrix * vec4(a_centroid.x, a_centroid.y, 0, 1);\n' +
-'        }\n' +
-'        gl_Position = position;\n' +
-'        float delta = (u_epoch - a_epoch1)/(a_epoch2 - a_epoch1);\n' +
-'        v_val = (a_val2 - a_val1) * delta + a_val1;\n' +
-'        v_val1 = a_val1;\n' +
-'        if (a_val1 > 0.) {\n'+
-'          gl_PointSize = 140. * smoothstep(10.0, u_max_value, sqrt(v_val)) + 10.;\n' +
-'        } else {\n' +
-'          gl_PointSize = 100.;\n' +
-'        }\n' +
-'      }\n';
-
-WebGLVectorTile2Shaders.timeSeriesPointDataFragmentShader =
-'      //WebGLVectorTile2.timeSeriesPointDataFragmentShader\n' +
-  'precision mediump float;\n' +
-  'varying float v_val;\n' +
-  'varying float v_val1;\n' +
-  'void main() {\n' +
-  '  vec3 color;\n' +
-  '  color = vec3(212./255., 212./255., 212./255.);\n' +
-  '  float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
-  '  dist = 1. - (dist * 2.);\n' +
-  '  dist = max(0., dist);\n' +
-
-  '  gl_FragColor = vec4(color, 1.) * dist;\n' +
-  '}';
-
-WebGLVectorTile2Shaders.tsipVertexShader =
-  'attribute vec2 a_coord;\n' +
-  'attribute float a_color;\n' +
-  'attribute float a_epoch;\n' +
-  'attribute float a_val;\n' +
-  'uniform mat4 u_map_matrix;\n' +
-  'uniform float u_epoch;\n' +
-  'uniform float u_size;\n' +
-  'varying float v_color;\n' +
-  'void main() {\n' +
-  '    vec4 position;\n' +
-  '    if (a_epoch > u_epoch) {\n' +
-  '        position = vec4(-1,-1,-1,-1);\n' +
-  '        //position = u_map_matrix * vec4(a_coord, 0, 1);\n' +
-  '    } else {\n' +
-  '        position = u_map_matrix * vec4(a_coord, 0, 1);\n' +
-  '    }\n' +
-  '    gl_Position = position;\n' +
-  '    gl_PointSize = u_size * a_val;\n' +
-  '    v_color = a_color;\n' +
-  '}\n';
-
-WebGLVectorTile2Shaders.tsipFragmentShader =
-'#extension GL_OES_standard_derivatives : enable\n' +
-'precision mediump float;\n' +
-'varying float v_color;\n' +
-'  vec4 unpackColor(float f) {\n' +
-'      vec4 color;\n' +
-'      color.b = floor(f / 256.0 / 256.0);\n' +
-'      color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);\n' +
-'      color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);\n' +
-'      color.a = 255.;\n' +
-'      return color / 255.0;\n' +
-'    }\n' +
-'void main() {\n' +
-'  float dist = length(gl_PointCoord.xy - vec2(0.5, 0.5));\n' +
-'  dist = 1.0 - (dist * 2.);\n' +
-'  dist = max(0.0, dist);\n' +
-'  gl_FragColor =  unpackColor(v_color) * dist;\n' +
-'}';
-
-WebGLVectorTile2Shaders.pointFlowAccelVertexShader = [
-  'attribute vec4 a_p0;',
-  'attribute vec4 a_p1;',
-  'attribute vec4 a_p2;',
-  'attribute float a_epoch0;',
-  'attribute float a_epoch1;',
-  'uniform float u_epoch;',
-  'uniform float u_size;',
-  'uniform mat4 u_map_matrix;',
-  'varying float v_t;',
-
-  'vec4 bezier(float t, vec4 p0, vec4 p1, vec4 p2) {',
-  '  return (1.0-t)*(1.0-t)*p0 + 2.0*(1.0-t)*t*p1 + t*t*p2;',
-  '}',
-
-  'void main() {',
-  '  vec4 position;',
-  '  if (a_epoch0 > u_epoch || a_epoch1 < u_epoch) {',
-  '    position = vec4(-1,-1,-1,-1);',
-  '  } else {',
-  '    float t = 1.0 - (a_epoch1 - u_epoch)/(a_epoch1 - a_epoch0);',
-  '    // s-curve -- constant acceleration for first half then constant deceleration',
-  '    t = 2.0 * (t < 0.5 ? t * t : 0.5 - (1.0-t)*(1.0-t));',
-  '    v_t = t;',
-  '    position = u_map_matrix * bezier(t, a_p0, a_p1, a_p2);',
-  '  }',
-  '  gl_Position = position;',
-  '  gl_PointSize = u_size;',
-  '}'
-].join('\n');
-
-WebGLVectorTile2Shaders.pointFlowVertexShader =
-'      //WebGLVectorTile2.pointFlowVertexShader\n' +
-'      attribute vec4 a_p0;\n' +
-'      attribute vec4 a_p1;\n' +
-'      attribute vec4 a_p2;\n' +
-'      attribute float a_epoch0;\n' +
-'      attribute float a_epoch1;\n' +
-'      uniform float u_epoch;\n' +
-'      uniform float u_size;\n' +
-'      uniform mat4 u_map_matrix;\n' +
-'      varying float v_t\n;' +
-'      vec4 bezier(float t, vec4 p0, vec4 p1, vec4 p2) {\n' +
-'        return (1.0-t)*(1.0-t)*p0 + 2.0*(1.0-t)*t*p1 + t*t*p2;\n' +
-'      }\n' +
-'      void main() {\n' +
-'        vec4 position;\n' +
-'        if (a_epoch0 > u_epoch || a_epoch1 < u_epoch) {\n' +
-'          position = vec4(-1,-1,-1,-1);\n' +
-'        } else {\n' +
-'          float t = 1.0 - (a_epoch1 - u_epoch)/(a_epoch1 - a_epoch0);\n' +
-'        v_t = t;\n' +
-'          position = u_map_matrix * bezier(t, a_p0, a_p1, a_p2);\n' +
-'        }\n' +
-'        gl_Position = position;\n' +
-'        gl_PointSize = u_size;\n' +
-'      }\n';
-
-WebGLVectorTile2Shaders.pointFlowFragmentShader =
-  'precision mediump float;\n' +
-'  varying float v_t;\n' +
-'  uniform vec4 u_start_color;\n' +
-'  uniform vec4 u_end_color;\n' +
-'  void main() {\n' +
-'    float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
-'    dist = 1. - (dist * 2.);\n' +
-'    dist = max(0., dist);\n' +
-'    //vec4 colorStart = vec4(.94,.94,.94,1.0);\n' +
-'    //vec4 colorEnd = vec4(.71,0.09,0.05,1.0);\n' +
-'    vec4 colorStart = u_start_color;\n' +
-'    vec4 colorEnd = u_end_color;\n' +
-'    gl_FragColor = mix(colorStart, colorEnd, v_t) * dist;\n' +
-'  }\n';
-
-WebGLVectorTile2Shaders.pointVertexShader =
-'attribute vec4 a_coord;\n' +
-'attribute float a_color;\n' +
-'uniform mat4 u_map_matrix;\n' +
-'uniform float u_size;\n' +
-'varying float v_color;\n' +
-'void main() {\n' +
-'    vec4 position;\n' +
-'    position = u_map_matrix * a_coord;\n' +
-'    gl_Position = position;\n' +
-'    gl_PointSize = u_size;\n' +
-'    v_color = a_color;\n' +
-'}\n';
-
-WebGLVectorTile2Shaders.pointFragmentShader =
-'#extension GL_OES_standard_derivatives : enable\n' +
-'  precision mediump float;\n' +
-'  varying float v_color;\n' +
-'  vec4 unpackColor(float f) {\n' +
-'      vec4 color;\n' +
-'      color.b = floor(f / 256.0 / 256.0);\n' +
-'      color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);\n' +
-'      color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);\n' +
-'      color.a = 256.;\n' +
-'      return color / 256.0;\n' +
-'    }\n' +
-'  void main() {\n' +
-'    //float dist = length(gl_PointCoord.xy - vec2(.5,.5));\n' +
-'    //float alpha = (dist > .5) ? .0 : 1.;\n' +
-'    float r = 0.0, delta = 0.0, alpha = 1.0;\n' +
-'    vec2 cxy = 2.0 * gl_PointCoord - 1.0;\n' +
-'    r = dot(cxy, cxy);\n' +
-'    delta = fwidth(r);\n' +
-'    alpha = 1.0 - smoothstep(1.0 - delta, 1.0 + delta, r);\n' +
-'    gl_FragColor = unpackColor(v_color) * alpha;\n' +
-'  }\n';
+WebGLVectorTile2Shaders.vectorTileVertexShader = `
+attribute vec4 worldCoord;
+uniform mat4 mapMatrix;
+void main() {
+    gl_Position = mapMatrix * worldCoord;
+}`;
+
+WebGLVectorTile2Shaders.vectorPointTileVertexShader = `
+attribute vec4 worldCoord;
+attribute float time;
+uniform float uMaxTime;
+uniform float uPointSize;
+uniform mat4 mapMatrix;
+void main() {
+  if (time > uMaxTime) {
+    gl_Position = vec4(-1,-1,-1,-1);
+  } else {
+    gl_Position = mapMatrix * worldCoord;
+  };
+  gl_PointSize = uPointSize;
+}`;
+
+WebGLVectorTile2Shaders.vectorTileFragmentShader = `
+void main() {
+  gl_FragColor = vec4(1., .0, .65, 1.0);
+}`;
+
+WebGLVectorTile2Shaders.vectorPointTileFragmentShader = `
+precision mediump float;
+uniform vec4 uColor;
+void main() {
+  float dist = length(gl_PointCoord.xy - vec2(.5, .5));
+  dist = 1. - (dist * 2.);
+  dist = max(0., dist);
+  gl_FragColor = uColor * dist;
+}`;
+
+WebGLVectorTile2Shaders.lodesVertexShader = `
+attribute vec4 centroid;
+attribute float aDist;
+attribute float aColor;
+uniform bool filterDist;
+uniform bool showSe01;
+uniform bool showSe02;
+uniform bool showSe03;
+uniform float uDist;
+uniform float uSize;
+uniform float uTime;
+uniform float uZoom;
+uniform mat4 mapMatrix;
+varying float vColor;
+float fX(float x, float deltaX, float t) {
+  return x + deltaX * t;
+}
+float fY(float y, float deltaY, float t) {
+  return y + deltaY * t;
+}
+void main() {
+  float fx = fX(centroid.z, centroid.x - centroid.z, uTime);
+  float fy = fY(centroid.w, centroid.y - centroid.w, uTime);
+  vec4 position = mapMatrix * vec4(fx, fy, 0, 1);
+  if (filterDist && aDist >= uDist) {
+    position = vec4(-1.,-1.,-1.,-1.);
+  }
+  if (!showSe01 && aColor == 16730905.) {
+    position = vec4(-1.,-1.,-1.,-1.);
+  }
+  if (!showSe02 && aColor == 625172.) {
+    position = vec4(-1.,-1.,-1.,-1.);
+  }
+  if (!showSe03 && aColor == 1973987.) {
+    position = vec4(-1.,-1.,-1.,-1.);
+  }
+  gl_Position = position;
+  gl_PointSize = uSize;
+  vColor = aColor;
+}`;
+
+WebGLVectorTile2Shaders.lodesFragmentShader = `
+precision lowp float;
+varying float vColor;
+vec4 setColor(vec4 color, float dist, float hardFraction) {
+  return color * clamp((0.5 - dist) / (0.5 - 0.5 * hardFraction), 0., 1.);
+}
+vec3 unpackColor(float f) {
+  vec3 color;
+  color.b = floor(f / 256.0 / 256.0);
+  color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);
+  color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);
+  return color / 256.0;
+}
+void main() {
+  gl_FragColor = vec4(unpackColor(vColor),.75);
+}`;
+
+WebGLVectorTile2Shaders.colorDotmapVertexShader = `
+attribute vec2 aWorldCoord;
+attribute float aColor;
+uniform float uZoom;
+uniform float uSize;
+uniform mat4 mapMatrix;
+varying float vColor;
+void main() {
+  //gl_Position = mapMatrix * vec4(aWorldCoord.x, aWorldCoord.y, 0, 1);
+  //gl_Position = vec4(300.0*(aWorldCoord.x+mapMatrix[3][0]), 300.0*(-aWorldCoord.y+mapMatrix[3][1]), 0.0, 300.0);
+  gl_Position = vec4(aWorldCoord.x * mapMatrix[0][0] + mapMatrix[3][0], aWorldCoord.y * mapMatrix[1][1] + mapMatrix[3][1],0,1);
+  gl_PointSize = uSize;
+  //gl_PointSize = 0.5;
+  vColor = aColor;
+}`;
+
+WebGLVectorTile2Shaders.colorDotmapVertexShaderTbox = `
+  attribute vec2 aWorldCoord;
+  attribute float aColor;
+  attribute float aStartEpoch;
+  attribute float aEndEpoch;
+  uniform float uZoom;
+  uniform float uSize;
+  uniform mat4 mapMatrix;
+  uniform float uEpoch;
+  varying float vColor;
+  void main() {
+    if (aStartEpoch <= uEpoch && uEpoch < aEndEpoch) {
+      /*gl_Position = vec4(aWorldCoord.x * mapMatrix[0][0] + mapMatrix[3][0], aWorldCoord.y * mapMatrix[1][1] + mapMatrix[3][1],0,1);*/
+      gl_Position = vec4((aWorldCoord.x) * mapMatrix[0][0] + mapMatrix[3][0], (aWorldCoord.y) * mapMatrix[1][1] + mapMatrix[3][1],0,1);
+      gl_PointSize = uSize;
+      vColor = aColor;
+    } else {
+      gl_Position = vec4(-1,-1,-1,-1);
+    }
+  }`;
+
+WebGLVectorTile2Shaders.colorDotmapFragmentShader = `
+precision lowp float;
+varying float vColor;
+vec3 unpackColor(float f) {
+  vec3 color;
+  color.b = floor(f / 256.0 / 256.0);
+  color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);
+  color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);
+  return color / 256.0;
+}
+void main() {
+  gl_FragColor = vec4(unpackColor(vColor),1.0);
+  //gl_FragColor = vec4(0.0,1.0,0.0,1.0);
+}`;
+
+WebGLVectorTile2Shaders.annualRefugeesFragmentShader = `
+precision mediump float;
+uniform sampler2D u_Image;
+varying float v_Delta;
+void main() {
+    float dist = length(gl_PointCoord.xy - vec2(.5, .5));
+    dist = 1. - (dist * 2.);
+    dist = max(0., dist);
+    gl_FragColor = vec4(1., 0., 0., 1.) * dist;
+    vec4 color = texture2D(u_Image, vec2(v_Delta,v_Delta));
+    gl_FragColor = vec4(color.r, color.g, color.b, 1.) * dist;
+}`;
+
+WebGLVectorTile2Shaders.annualRefugeesVertexShader = `
+attribute vec4 aStartPoint;
+attribute vec4 aEndPoint;
+attribute vec4 aMidPoint;
+attribute float aEpoch;
+uniform float uSize;
+uniform float uEpoch;
+uniform float uSpan;
+uniform mat4 uMapMatrix;
+varying float v_Delta;
+vec4 bezierCurve(float t, vec4 P0, vec4 P1, vec4 P2) {
+  return (1.0-t)*(1.0-t)*P0 + 2.0*(1.0-t)*t*P1 + t*t*P2;
+}
+void main() {
+  vec4 position;
+  if (aEpoch < uEpoch) {
+    position = vec4(-1,-1,-1,-1);
+  } else if (aEpoch > uEpoch + uSpan) {
+    position = vec4(-1,-1,-1,-1);
+  } else {
+    float t = (uEpoch - aEpoch)/uSpan;
+    v_Delta = 1.0 - (aEpoch - uEpoch)/uSpan;
+    vec4 pos = bezierCurve(1.0 + t, aStartPoint, aMidPoint, aEndPoint);
+    position = uMapMatrix * vec4(pos.x, pos.y, 0, 1);
+  }
+  gl_Position = position;
+  gl_PointSize = uSize * 4.0;
+  gl_PointSize = 4.0;
+}`;
+
+WebGLVectorTile2Shaders.healthImpactVertexShader = `
+attribute vec4 a_Centroid;
+attribute float a_Year;
+attribute float a_Val1;
+attribute float a_Val2;
+attribute float a_Rcp;
+uniform bool u_ShowRcp2p6;
+uniform bool u_ShowRcp4p5;
+uniform bool u_ShowRcp6p0;
+uniform bool u_ShowRcp8p5;
+uniform float u_Delta;
+uniform float u_Size;
+uniform float u_Year;
+uniform mat4 u_MapMatrix;
+varying float v_Val;
+varying float v_Rcp;
+void main() {
+  vec4 position;
+  if (a_Year != u_Year) {
+    position = vec4(-1,-1,-1,-1);
+  } else {
+    if (u_ShowRcp2p6 && a_Rcp == 0.0) {
+      position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);
+    } else if (u_ShowRcp4p5 && a_Rcp == 1.0) {
+      position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);
+    } else if (u_ShowRcp6p0 && a_Rcp == 2.0) {
+      position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);
+    }  else if (u_ShowRcp8p5 && a_Rcp == 3.0) {
+      position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);
+    }
+    else {
+      position = vec4(-1,-1,-1,-1);
+    }
+  }
+  gl_Position = position;
+  float size = (a_Val2 - a_Val1) * u_Delta + a_Val1;
+  v_Val = size;
+  v_Rcp = a_Rcp;
+  gl_PointSize = u_Size * abs(size);
+  gl_PointSize = 2.0 * abs(size);
+}`;
+
+WebGLVectorTile2Shaders.healthImpactFragmentShader = `
+#extension GL_OES_standard_derivatives : enable
+precision mediump float;
+varying float v_Val;
+varying float v_Rcp;
+void main() {
+    float dist = length(gl_PointCoord.xy - vec2(.5, .5));
+    dist = 1. - (dist * 2.);
+    dist = max(0., dist);
+    float delta = fwidth(dist);
+    float alpha = smoothstep(0.45-delta, 0.45, dist);
+    vec4 circleColor = vec4(1.0,0.0,0.0,1.0);
+    vec4 outlineColor = vec4(1.0,1.0,1.0,1.0);
+    float outerEdgeCenter = 0.5 - .01;
+    float stroke = smoothstep(outerEdgeCenter - delta, outerEdgeCenter + delta, dist);
+    if (v_Val > 0.0) {
+      if (v_Rcp == 0.0) {
+        circleColor = vec4(0.0, 0.0, 1.0, .65) * alpha;
+      } else if (v_Rcp == 1.0){
+        circleColor = vec4(0.0078, 0.0, 0.8392, .65) * alpha;
+      } else if (v_Rcp == 2.0) {
+        circleColor = vec4(0.0078, 0.0, 0.6941, .65) * alpha;
+      } else {
+        circleColor = vec4(0., 0., .5451, .65) * alpha;
+      }
+    } else {
+      if (v_Rcp == 0.0) {
+        circleColor = vec4(1.0, 0.0, 0.0, .65) * alpha;
+      } else if (v_Rcp == 1.0){
+        circleColor = vec4(0.8392, 0.0, 0.0078, .65) * alpha;
+      } else if (v_Rcp == 2.0) {
+        circleColor = vec4(0.6941, 0.0, 0.0078, .65) * alpha;
+      } else {
+        circleColor = vec4(.5451, 0., 0., .65) * alpha;
+      }
+    }
+    gl_FragColor = vec4( mix(outlineColor.rgb, circleColor.rgb, stroke), alpha*.75 );
+}`;
+
+WebGLVectorTile2Shaders.viirsVertexShader = `
+attribute vec4 worldCoord;
+attribute float time;
+uniform mat4 mapMatrix;
+uniform float pointSize;
+uniform float maxTime;
+uniform float minTime;
+void main() {
+  if (time < minTime || time > maxTime) {
+    gl_Position = vec4(-1,-1,-1,-1);
+  } else {
+    gl_Position = mapMatrix * worldCoord;
+  };
+  gl_PointSize = pointSize;
+}`;
+
+WebGLVectorTile2Shaders.viirsFragmentShader = `
+precision mediump float;
+void main() {
+  vec3 color;
+  color = vec3(.82, .22, .07);
+  float dist = length(gl_PointCoord.xy - vec2(.5, .5));
+  dist = 1. - (dist * 2.);
+  dist = max(0., dist);
+  gl_FragColor = vec4(color, 1.) * dist;
+}`;
+
+WebGLVectorTile2Shaders.wdpaVertexShader = `
+attribute vec4 worldCoord;
+attribute float time;
+uniform mat4 mapMatrix;
+uniform float maxTime;
+uniform float minTime;
+void main() {
+  if (time < minTime || time > maxTime) {
+    gl_Position = vec4(-1,-1,-1,-1);
+  } else {
+    gl_Position = mapMatrix * worldCoord;
+  }
+}`;
+
+WebGLVectorTile2Shaders.wdpaFragmentShader = `
+void main() {
+  gl_FragColor = vec4(.0, 1., .15, 1.0);
+}`;
+
+WebGLVectorTile2Shaders.urbanFragilityVertexShader = `
+attribute vec4 a_Centroid;
+attribute float a_Year;
+attribute float a_Val1;
+attribute float a_Val2;
+uniform float u_Delta;
+uniform float u_Size;
+uniform float u_Year;
+uniform mat4 u_MapMatrix;
+varying float v_Val;
+
+void main() {
+  vec4 position;
+  if (a_Year != u_Year) {
+    position = vec4(-1,-1,-1,-1);
+  } else {
+    position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);
+  }
+  gl_Position = position;
+  float size = (a_Val2 - a_Val1) * u_Delta + a_Val1;
+  v_Val = size;
+  gl_PointSize = u_Size * exp(size);
+}`;
+
+WebGLVectorTile2Shaders.urbanFragilityFragmentShader = `
+precision mediump float;
+uniform sampler2D u_Image;
+varying float v_Val;
+float scale(float val) {
+  float min = 1.;
+  float max = 3.5;
+  return (val - min)/(max -min);
+}
+void main() {
+  float dist = length(gl_PointCoord.xy - vec2(.5, .5));
+  dist = 1. - (dist * 2.);
+  dist = max(0., dist);
+  float alpha = smoothstep(0.3-dist, 0.3, dist);
+  vec4 color = texture2D(u_Image, vec2(scale(v_Val),scale(v_Val)));
+  gl_FragColor = vec4(color.r, color.g, color.b, .75) * alpha;
+}`;
+
+WebGLVectorTile2Shaders.monthlyRefugeesVertexShader = `
+attribute vec4 aStartPoint;
+attribute vec4 aEndPoint;
+attribute vec4 aMidPoint;
+attribute float aEpoch;
+attribute float aEndTime;
+attribute float aSpan;
+attribute float aTimeOffset;
+uniform float uSize;
+uniform float uEpoch;
+uniform mat4 uMapMatrix;
+uniform float uTotalTime;
+float Epsilon = 1e-10;
+varying vec4 vColor;
+vec4 bezierCurve(float t, vec4 P0, vec4 P1, vec4 P2) {
+  return (1.0-t)*(1.0-t)*P0 + 2.0*(1.0-t)*t*P1 + t*t*P2;
+}
+vec3 HUEtoRGB(float H){
+  float R = abs((H * 6.) - 3.) - 1.;
+  float G = 2. - abs((H * 6.) - 2.);
+  float B = 2. - abs((H * 6.) - 4.);
+  return clamp(vec3(R,G,B), 0.0, 1.0);
+}
+vec3 HSLtoRGB(vec3 HSL){
+  vec3 RGB = HUEtoRGB(HSL.x);
+  float C = (1. - abs(2. * HSL.z - 1.)) * HSL.y;
+  return (RGB - 0.5) * C + HSL.z;
+}
+vec3 RGBtoHCV(vec3 RGB){
+  vec4 P = (RGB.g < RGB.b) ? vec4(RGB.bg, -1.0, 2.0/3.0) : vec4(RGB.gb, 0.0, -1.0/3.0);
+  vec4 Q = (RGB.r < P.x) ? vec4(P.xyw, RGB.r) : vec4(RGB.r, P.yzx);
+  float C = Q.x - min(Q.w, Q.y);
+  float H = abs((Q.w - Q.y) / (6. * C + Epsilon) + Q.z);
+  return vec3(H, C, Q.x);
+}
+vec3 RGBtoHSL(vec3 RGB){
+  vec3 HCV = RGBtoHCV(RGB);
+  float L = HCV.z - HCV.y * 0.5;
+  float S = HCV.y / (1. - abs(L * 2. - 1.) + Epsilon);
+  return vec3(HCV.x, S, L);
+}
+vec4 calcColor(float p, vec3 c){
+  vec3 hsl = RGBtoHSL(c);
+  return vec4(HSLtoRGB(vec3(hsl.x, hsl.y, p)), 1.);
+}
+void main() {
+  vec4 position;
+  if (uEpoch < aEpoch || (uEpoch > aEpoch + aSpan)) {
+    position = vec4(-1,-1,-1,-1);
+  } else {
+    float t = (uEpoch - aEpoch)/aSpan + aTimeOffset;
+    t = min(t, 1.);
+    t = max(t,0.);
+    vec4 pos = bezierCurve(t, aStartPoint, aMidPoint, aEndPoint);
+    position = uMapMatrix * vec4(pos.x, pos.y, 0, 1);
+    float luminance = clamp(1. - ((aEndTime - uEpoch)/uTotalTime), 0.45, 0.95);
+    vColor = calcColor(luminance, vec3(1.,0.,0.));
+  }
+  gl_Position = position;
+  gl_PointSize = uSize;
+}`;
+
+WebGLVectorTile2Shaders.monthlyRefugeesFragmentShader = `
+precision mediump float;
+varying vec4 vColor;
+void main() {
+  float dist = length(gl_PointCoord.xy - vec2(.5, .5));
+  dist = 1. - (dist * 2.);
+  dist = max(0., dist);
+  gl_FragColor = vColor * dist;
+}`;
+
+WebGLVectorTile2Shaders.gtdVertexShader = `
+attribute vec4 a_WorldCoord;
+attribute float a_Epoch;
+attribute float a_NCasualties;
+uniform float u_EpochTime;
+uniform float u_Span;
+uniform mat4 u_MapMatrix;
+varying float v_Alpha;
+void main() {
+  if ( a_Epoch > u_EpochTime) {
+    gl_Position = vec4(-1,-1,-1,-1);
+  } else if (u_EpochTime - a_Epoch > u_Span) {
+    gl_Position = vec4(-1,-1,-1,-1);
+  }
+  else {
+    gl_Position = u_MapMatrix * a_WorldCoord;
+  }
+  v_Alpha = (u_EpochTime - a_Epoch) / u_Span;
+  //gl_PointSize = 1.0 * a_NCasualties;
+  float pointSize = 5.0;
+  if (a_NCasualties > 5.0) {
+    pointSize = a_NCasualties;
+  } else {
+    pointSize = 5.0;
+  }
+  gl_PointSize = max(10.0,300.0*smoothstep(5., 94., sqrt(pointSize)));
+}`;
+
+WebGLVectorTile2Shaders.gtdFragmentShader = `
+precision mediump float;
+varying float v_Alpha;
+void main() {
+  float r = 1.0 - v_Alpha;
+  float dist = distance( vec2(0.5, 0.5), gl_PointCoord);
+  dist = 1.0 - (dist * 2.0);
+  dist = max(0.0, dist);
+  gl_FragColor =  vec4(r, .0, .0, .85) * dist;
+}`;
+
+WebGLVectorTile2Shaders.uppsalaConflictVertexShader = `
+attribute vec4 a_centroid;
+attribute float a_start_epoch;
+attribute float a_end_epoch;
+attribute float a_val;
+uniform float u_epoch;
+uniform float u_span;
+uniform float u_size;
+uniform mat4 u_map_matrix;
+varying float v_alpha;
+void main() {
+  if ( a_start_epoch > u_epoch) {
+    gl_Position = vec4(-1,-1,-1,-1);
+  } else if (u_epoch - a_end_epoch > u_span) {
+    gl_Position = vec4(-1,-1,-1,-1);
+  }
+  else {
+    gl_Position = u_map_matrix * a_centroid;
+  }
+  v_alpha = (u_epoch - a_end_epoch) / u_span;
+  gl_PointSize = u_size * a_val;
+}`;
+
+
+WebGLVectorTile2Shaders.uppsalaConflictFragmentShader = `
+precision mediump float;
+varying float v_alpha;
+void main() {
+  float r = 1.0 - v_alpha;
+  float dist = distance( vec2(0.5, 0.5), gl_PointCoord);
+  dist = 1.0 - (dist * 2.0);
+  dist = max(0.0, dist);
+  gl_FragColor =  vec4(r, .0, .0, .85) * dist;
+}`;
+
+WebGLVectorTile2Shaders.hivVertexShader = `
+attribute vec4 a_Centroid;
+attribute float a_Year;
+attribute float a_Val1;
+attribute float a_Val2;
+uniform float u_Delta;
+uniform float u_Size;
+uniform float u_Year;
+uniform mat4 u_MapMatrix;
+varying float v_Val;
+
+void main() {
+  vec4 position;
+  if (a_Year != u_Year) {
+    position = vec4(-1,-1,-1,-1);
+  } else {
+    position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);
+  }
+  gl_Position = position;
+  float size = (a_Val2 - a_Val1) * u_Delta + a_Val1;
+  v_Val = size;
+  gl_PointSize = 100.0 * u_Size * abs(size);
+}`;
+
+WebGLVectorTile2Shaders.hivFragmentShader = `
+precision mediump float;
+uniform sampler2D u_Image;
+varying float v_Val;
+void main() {
+  float dist = length(gl_PointCoord.xy - vec2(.5, .5));
+  dist = 1. - (dist * 2.);
+  dist = max(0., dist);
+  float alpha = smoothstep(0.3-dist, 0.3, dist);
+  vec4 color = texture2D(u_Image, vec2(v_Val,v_Val));
+  gl_FragColor = vec4(color.r, color.g, color.b, .75) * alpha;
+}`;
+
+WebGLVectorTile2Shaders.obesityVertexShader = `
+attribute vec4 a_Vertex;
+attribute float a_Year;
+attribute float a_Val1;
+attribute float a_Val2;
+uniform float u_Delta;
+uniform float u_Size;
+uniform float u_Year;
+uniform mat4 u_MapMatrix;
+varying float v_Val;
+void main() {
+  vec4 position;
+  if (a_Year != u_Year) {
+    position = vec4(-1,-1,-1,-1);
+  } else {
+    position = u_MapMatrix * vec4(a_Vertex.x, a_Vertex.y, 0, 1);
+  }
+  gl_Position = position;
+  v_Val = (a_Val2 - a_Val1) * u_Delta + a_Val1;
+}`;
+
+WebGLVectorTile2Shaders.obesityFragmentShader = `
+#extension GL_OES_standard_derivatives : enable
+precision mediump float;
+uniform sampler2D u_Image;
+varying float v_Val;
+void main() {
+  vec4 color = texture2D(u_Image, vec2(v_Val,v_Val));
+  gl_FragColor = vec4(color.r, color.g, color.b, 1.);
+}`;
+
+WebGLVectorTile2Shaders.vaccineConfidenceVertexShader = `
+attribute vec4 a_Vertex;
+attribute float a_Val1;
+attribute float a_Val2;
+attribute float a_Val3;
+attribute float a_Val4;
+uniform float u_Val;
+uniform mat4 u_MapMatrix;
+varying float v_Val;
+void main() {
+  vec4 position;
+  position = u_MapMatrix * vec4(a_Vertex.x, a_Vertex.y, 0, 1);
+  gl_Position = position;
+  if (u_Val == 1.0) {
+    v_Val = a_Val1;
+  }
+  if (u_Val == 2.0) {
+    v_Val = a_Val2;
+  }
+  if (u_Val == 3.0) {
+    v_Val = a_Val3;
+  }
+  if (u_Val == 4.0) {
+    v_Val = a_Val4;
+  }
+}`;
+
+WebGLVectorTile2Shaders.vaccineConfidenceFragmentShader = `
+#extension GL_OES_standard_derivatives : enable
+precision mediump float;
+uniform sampler2D u_Image;
+varying float v_Val;
+void main() {
+  vec4 color = texture2D(u_Image, vec2(v_Val,v_Val));
+  gl_FragColor = vec4(color.r, color.g, color.b, 1.);
+}`;
+
+WebGLVectorTile2Shaders.bubbleMapVertexShader = `
+attribute vec4 a_Centroid;
+attribute float a_Epoch1;
+attribute float a_Val1;
+attribute float a_Epoch2;
+attribute float a_Val2;
+uniform float u_Epoch;
+uniform float u_Size;
+uniform mat4 u_MapMatrix;
+varying float v_Val;
+void main() {
+  vec4 position;
+  if (a_Epoch1 > u_Epoch || a_Epoch2 <= u_Epoch) {
+    position = vec4(-1,-1,-1,-1);
+  } else {
+    position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);
+  }
+  gl_Position = position;
+  float delta = (u_Epoch - a_Epoch1)/(a_Epoch2 - a_Epoch1);
+  float size = (a_Val2 - a_Val1) * delta + a_Val1;
+  v_Val = size;
+  gl_PointSize = abs(u_Size * size);
+}`;
+
+WebGLVectorTile2Shaders.bubbleMapFragmentShader = `
+#extension GL_OES_standard_derivatives : enable
+precision mediump float;
+varying float v_Val;
+uniform vec4 u_Color;
+uniform float u_Mode;
+void main() {
+    float dist = length(gl_PointCoord.xy - vec2(.5, .5));
+    dist = 1. - (dist * 2.);
+    dist = max(0., dist);
+    float delta = fwidth(dist);
+    float alpha = smoothstep(0.45-delta, 0.45, dist);
+    if (u_Mode == 2.0) {
+      if (gl_PointCoord.x > 0.5) {
+        alpha = 0.0;
+      }
+    }
+    if (u_Mode == 3.0) {
+      if (gl_PointCoord.x < 0.5) {
+        alpha = 0.0;
+      }
+    }
+    vec4 circleColor = u_Color;
+    if (v_Val < 0.0) { circleColor[0] = 1.0; circleColor[1]=0.0; circleColor[2]=0.0; };
+    vec4 outlineColor = vec4(1.0,1.0,1.0,1.0);
+    float outerEdgeCenter = 0.5 - .01;
+    float stroke = smoothstep(outerEdgeCenter - delta, outerEdgeCenter + delta, dist);
+    gl_FragColor = vec4( mix(outlineColor.rgb, circleColor.rgb, stroke), alpha*.75 );
+}`;
+
+
+WebGLVectorTile2Shaders.bubbleMapWithPackedColorVertexShader = `
+attribute vec4 a_Centroid;
+attribute float a_Epoch1;
+attribute float a_Val1;
+attribute float a_Epoch2;
+attribute float a_Val2;
+attribute float a_color;
+uniform float u_Epoch;
+uniform float u_Size;
+uniform mat4 u_MapMatrix;
+varying float v_Val;
+varying float v_color;
+void main() {
+  vec4 position;
+  if (a_Epoch1 > u_Epoch || a_Epoch2 <= u_Epoch) {
+    position = vec4(-1,-1,-1,-1);
+  } else {
+    position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);
+  }
+  gl_Position = position;
+  float delta = (u_Epoch - a_Epoch1)/(a_Epoch2 - a_Epoch1);
+  float size = (a_Val2 - a_Val1) * delta + a_Val1;
+  v_Val = size;
+  gl_PointSize = abs(u_Size * size);
+  v_color = a_color;
+}`;
+
+WebGLVectorTile2Shaders.bubbleMapWithPackedColorFragmentShader = `
+#extension GL_OES_standard_derivatives : enable
+precision mediump float;
+varying float v_Val;
+varying float v_color;
+uniform vec4 u_Color;
+uniform float u_Mode;
+vec4 unpackColor(float f) {
+  vec4 color;
+  color.b = floor(f / 256.0 / 256.0);
+  color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);
+  color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);
+  color.a = 255.;
+  return color / 256.0;
+}
+void main() {
+  float dist = length(gl_PointCoord.xy - vec2(.5, .5));
+  dist = 1. - (dist * 2.);
+  dist = max(0., dist);
+  float delta = fwidth(dist);
+  float alpha = smoothstep(0.45-delta, 0.45, dist);
+  if (u_Mode == 2.0) {
+    if (gl_PointCoord.x > 0.5) {
+      alpha = 0.0;
+    }
+  }
+  if (u_Mode == 3.0) {
+    if (gl_PointCoord.x < 0.5) {
+      alpha = 0.0;
+    }
+  }
+  vec4 circleColor = unpackColor(v_color);
+  if (v_Val < 0.0) { circleColor[0] = 1.0; circleColor[1]=0.0; circleColor[2]=0.0; };
+  vec4 outlineColor = vec4(1.0,1.0,1.0,1.0);
+  float outerEdgeCenter = 0.5 - .01;
+  float stroke = smoothstep(outerEdgeCenter - delta, outerEdgeCenter + delta, dist);
+  gl_FragColor = vec4( mix(outlineColor.rgb, circleColor.rgb, stroke), alpha*.75 );
+}`;
+
+WebGLVectorTile2Shaders.bubbleMapWithColorMapFragmentShader = `
+#extension GL_OES_standard_derivatives : enable
+precision mediump float;
+varying float v_Val;
+uniform sampler2D u_Image;
+uniform float u_Min;
+uniform float u_Max;
+uniform float u_Mode;
+float scale(float v, float min, float max) {
+  return (v - min)/(max - min);
+}
+void main() {
+  float dist = length(gl_PointCoord.xy - vec2(.5, .5));
+  dist = 1. - (dist * 2.);
+  dist = max(0., dist);
+  float delta = fwidth(dist);
+  float alpha = smoothstep(0.45-delta, 0.45, dist);
+  if (u_Mode == 2.0) {
+    if (gl_PointCoord.x > 0.5) {
+      alpha = 0.0;
+    }
+  }
+  if (u_Mode == 3.0) {
+    if (gl_PointCoord.x < 0.5) {
+      alpha = 0.0;
+    }
+  }
+  vec4 circleColor = texture2D(u_Image, vec2(scale(v_Val, u_Min, u_Max),scale(v_Val, u_Min, u_Max)));
+  vec4 outlineColor = vec4(1.0,1.0,1.0,1.0);
+  float outerEdgeCenter = 0.5 - .01;
+  float stroke = smoothstep(outerEdgeCenter - delta, outerEdgeCenter + delta, dist);
+  gl_FragColor = vec4( mix(outlineColor.rgb, circleColor.rgb, stroke), alpha*.75 );
+}`;
+
+WebGLVectorTile2Shaders.bivalentBubbleMapWithColorMapVertexShader = `
+attribute vec4 a_Centroid;
+attribute float a_Epoch1;
+attribute float a_PointVal1;
+attribute float a_ColorVal1;
+attribute float a_Epoch2;
+attribute float a_PointVal2;
+attribute float a_ColorVal2;
+uniform float u_Epoch;
+uniform float u_Size;
+uniform mat4 u_MapMatrix;
+varying float v_PointVal;
+varying float v_ColorVal;
+void main() {
+  vec4 position;
+  if (a_Epoch1 > u_Epoch || a_Epoch2 <= u_Epoch) {
+    position = vec4(-1,-1,-1,-1);
+  } else {
+    position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);
+  }
+  gl_Position = position;
+  float delta = (u_Epoch - a_Epoch1)/(a_Epoch2 - a_Epoch1);
+  float size = (a_PointVal2 - a_PointVal1) * delta + a_PointVal1;
+  v_PointVal = size;
+  v_ColorVal = (a_ColorVal2 - a_ColorVal1) * delta + a_ColorVal1;
+  gl_PointSize = abs(u_Size * size);
+}`;
+
+WebGLVectorTile2Shaders.bivalentBubbleMapWithColorMapFragmentShader = `
+#extension GL_OES_standard_derivatives : enable
+precision mediump float;
+varying float v_PointVal;
+varying float v_ColorVal;
+uniform sampler2D u_Image;
+void main() {
+  float dist = length(gl_PointCoord.xy - vec2(.5, .5));
+  dist = 1. - (dist * 2.);
+  dist = max(0., dist);
+  float delta = fwidth(dist);
+  float alpha = smoothstep(0.45-delta, 0.45, dist);
+  vec4 circleColor = texture2D(u_Image, vec2(v_ColorVal,v_ColorVal));
+  vec4 outlineColor = vec4(1.0,1.0,1.0,1.0);
+  float outerEdgeCenter = 0.5 - .01;
+  float stroke = smoothstep(outerEdgeCenter - delta, outerEdgeCenter + delta, dist);
+  gl_FragColor = vec4( mix(outlineColor.rgb, circleColor.rgb, stroke), alpha*.75 );
+}`;
+
+WebGLVectorTile2Shaders.bivalentBubbleMapWithColorMapFragmentShaderNoBorder = `
+#extension GL_OES_standard_derivatives : enable
+precision mediump float;
+varying float v_PointVal;
+varying float v_ColorVal;
+uniform sampler2D u_Image;
+void main() {
+  float dist = length(gl_PointCoord.xy - vec2(.5, .5));
+  dist = 1. - (dist * 2.);
+  dist = max(0., dist);
+  float delta = fwidth(dist);
+  float alpha = smoothstep(0.5-delta, 0.5, dist);
+  vec4 circleColor = texture2D(u_Image, vec2(v_ColorVal,v_ColorVal));
+  gl_FragColor = vec4( circleColor.rgb, alpha*.75 );
+}`;
+
+WebGLVectorTile2Shaders.iomIdpVertexShader = `
+attribute vec4 a_coord;
+attribute float a_country;
+attribute float a_type;
+attribute float a_epoch1;
+attribute float a_val1;
+attribute float a_epoch2;
+attribute float a_val2;
+uniform mat4 u_map_matrix;
+uniform float u_point_size;
+uniform float u_epoch;
+uniform bool u_show_irq_idps;
+uniform bool u_show_syr_idps;
+uniform bool u_show_yem_idps;
+uniform bool u_show_lby_idps;
+uniform bool u_show_irq_returns;
+uniform bool u_show_syr_returns;
+uniform bool u_show_yem_returns;
+uniform bool u_show_lby_returns;
+varying float v_type;
+void main() {
+  vec4 position;
+  if (a_epoch1 > u_epoch || a_epoch2 <= u_epoch) {
+    position = vec4(-1,-1,-1,-1);
+  } else {
+    position = u_map_matrix * vec4(a_coord.x, a_coord.y, 0, 1);
+  }
+  //if (a_type == 0.0 && !u_show_idp) {
+  //  position = vec4(-1,-1,-1,-1);
+  //}
+  //if (a_type == 1.0 && !u_show_returns) {
+  //  position = vec4(-1,-1,-1,-1);
+  //}
+  if (a_country == 368.0) { /* Iraq */
+    if (a_type == 0.0 && !u_show_irq_idps) {
+      position = vec4(-1,-1,-1,-1);
+    }
+    if (a_type == 1.0 && !u_show_irq_returns) {
+      position = vec4(-1,-1,-1,-1);
+    }
+  }
+  if (a_country == 760.0) {
+    if (a_type == 0.0 && !u_show_syr_idps) {
+      position = vec4(-1,-1,-1,-1);
+    }
+    if (a_type == 1.0 && !u_show_syr_returns) {
+      position = vec4(-1,-1,-1,-1);
+    }
+  }
+  if (a_country == 887.0) {
+    if (a_type == 0.0 && !u_show_yem_idps) {
+      position = vec4(-1,-1,-1,-1);
+    }
+    if (a_type == 1.0 && !u_show_yem_returns) {
+      position = vec4(-1,-1,-1,-1);
+    }
+  }
+  if (a_country == 434.0) {
+    if (a_type == 0.0 && !u_show_lby_idps) {
+      position = vec4(-1,-1,-1,-1);
+    }
+    if (a_type == 1.0 && !u_show_lby_returns) {
+      position = vec4(-1,-1,-1,-1);
+    }
+  }
+  gl_Position = position;
+  float delta = (u_epoch - a_epoch1)/(a_epoch2 - a_epoch1);
+  float size = (a_val2 - a_val1) * delta + a_val1;
+  gl_PointSize = u_point_size * size;
+  v_type = a_type;
+}`;
+
+WebGLVectorTile2Shaders.iomIdpFragmentShader = `
+#extension GL_OES_standard_derivatives : enable
+precision mediump float;
+varying float v_type;
+void main() {
+  // set pixels in points to something that stands out
+  //float dist = distance(gl_PointCoord.xy, vec2(0.5, 0.5));
+  //float delta = fwidth(dist);
+  //float alpha = smoothstep(0.45-delta, 0.45, dist);
+  //gl_FragColor = vec4(.65, .07, .07, .75) * (1. - alpha);
+  vec4 color = vec4(.65, .07, .07, .95);
+  if (v_type == 1.0) {
+    color = vec4(0.07, .07, .65, .95);
+  }
+  float dist = length(gl_PointCoord.xy - vec2(.5, .5));
+  dist = 1. - (dist * 2.);
+  dist = max(0., dist);
+  float delta = fwidth(dist);
+  float alpha = smoothstep(0.45-delta, 0.45, dist);
+  vec4 circleColor = color; //vec4(.65, .07, .07, .95);
+  vec4 outlineColor = vec4(1.0,1.0,1.0,1.0);
+  float outerEdgeCenter = 0.5 - .01;
+  float stroke = smoothstep(outerEdgeCenter - delta, outerEdgeCenter + delta, dist);
+  gl_FragColor = vec4( mix(outlineColor.rgb, circleColor.rgb, stroke), alpha*.75 );
+}`;
+
+WebGLVectorTile2Shaders.choroplethMapVertexShader = `
+attribute vec4 a_Centroid;
+attribute float a_Epoch1;
+attribute float a_Val1;
+attribute float a_Epoch2;
+attribute float a_Val2;
+uniform float u_Epoch;
+uniform mat4 u_MapMatrix;
+varying float v_Val;
+void main() {
+  vec4 position;
+  if (a_Epoch1 > u_Epoch || a_Epoch2 <= u_Epoch) {
+    position = vec4(-1,-1,-1,-1);
+  } else {
+    position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);
+  }
+  gl_Position = position;
+  float delta = (u_Epoch - a_Epoch1)/(a_Epoch2 - a_Epoch1);
+  v_Val = (a_Val2 - a_Val1) * delta + a_Val1;
+}`;
+
+WebGLVectorTile2Shaders.choroplethMapFragmentShader = `
+#extension GL_OES_standard_derivatives : enable
+precision mediump float;
+uniform sampler2D u_Image;
+varying float v_Val;
+uniform vec4 u_color;
+uniform int u_useColorMap;
+void main() {
+  vec4 color;
+  if (u_useColorMap == 1) {
+    color = texture2D(u_Image, vec2(v_Val,0.));
+  } else {
+    color = color = u_color;
+  }
+  gl_FragColor = vec4(color.r, color.g, color.b, 1.);
+}`;
+
+WebGLVectorTile2Shaders.choroplethMapVertexShaderV2 = `
+attribute vec2 a_Centroid;
+attribute float a_RegionIdx;
+uniform float u_NumRegionsPerRow;
+uniform float u_NumEpochs;
+uniform float u_ValuesWidth;
+uniform float u_ValuesHeight;
+uniform float u_TimeIndex;
+uniform mat4 u_MapMatrix;
+varying vec2 v_ValCoord;
+void main() {
+  vec4 position;
+  position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);
+  gl_Position = position;
+  float row = floor((a_RegionIdx + 0.5) / u_NumRegionsPerRow);
+  float col = a_RegionIdx - row * u_NumRegionsPerRow;
+  v_ValCoord = vec2((col * u_NumEpochs + u_TimeIndex + 0.5) / u_ValuesWidth,
+                    (row + 0.5) / u_ValuesHeight);
+}`
+
+WebGLVectorTile2Shaders.choroplethMapFragmentShaderV2 = `
+#extension GL_OES_standard_derivatives : enable
+precision mediump float;
+uniform sampler2D u_Colormap;
+uniform sampler2D u_Values;
+varying vec2 v_ValCoord;
+void main() {
+  vec4 val = texture2D(u_Values, v_ValCoord); // luminance and alpha
+  vec4 color = texture2D(u_Colormap, vec2(val.r, 0.));
+  gl_FragColor = vec4(color.r, color.g, color.b, color.a * val.a); // transparent when colormap is, or val undefined
+}`;
+
+WebGLVectorTile2Shaders.timeSeriesPointDataVertexShader = `
+//WebGLVectorTile2.timeSeriesPointDataVertexShader
+attribute vec4 a_centroid;
+attribute float a_epoch1;
+attribute float a_val1;
+attribute float a_epoch2;
+attribute float a_val2;
+uniform float u_max_value;
+uniform float u_epoch;
+uniform mat4 u_map_matrix;
+varying float v_val;
+varying float v_val1;
+
+void main() {
+  vec4 position;
+  if (a_epoch1 > u_epoch || a_epoch2 <= u_epoch) {
+    position = vec4(-1,-1,-1,-1);
+  } else {
+    position = u_map_matrix * vec4(a_centroid.x, a_centroid.y, 0, 1);
+  }
+  gl_Position = position;
+  float delta = (u_epoch - a_epoch1)/(a_epoch2 - a_epoch1);
+  v_val = (a_val2 - a_val1) * delta + a_val1;
+  v_val1 = a_val1;
+  if (a_val1 > 0.) {
+    gl_PointSize = 140. * smoothstep(10.0, u_max_value, sqrt(v_val)) + 10.;
+  } else {
+    gl_PointSize = 100.;
+  }
+}`;
+
+WebGLVectorTile2Shaders.timeSeriesPointDataFragmentShader = `
+//WebGLVectorTile2.timeSeriesPointDataFragmentShader
+precision mediump float;
+varying float v_val;
+varying float v_val1;
+
+void main() {
+  vec3 color;
+  color = vec3(212./255., 212./255., 212./255.);
+  float dist = length(gl_PointCoord.xy - vec2(.5, .5));
+  dist = 1. - (dist * 2.);
+  dist = max(0., dist);
+  gl_FragColor = vec4(color, 1.) * dist;
+}`;
+
+WebGLVectorTile2Shaders.tsipVertexShader = `
+attribute vec2 a_coord;
+attribute float a_color;
+attribute float a_epoch;
+attribute float a_val;
+uniform mat4 u_map_matrix;
+uniform float u_epoch;
+uniform float u_size;
+varying float v_color;
+
+void main() {
+    vec4 position;
+    if (a_epoch > u_epoch) {
+        position = vec4(-1,-1,-1,-1);
+        //position = u_map_matrix * vec4(a_coord, 0, 1);
+    } else {
+        position = u_map_matrix * vec4(a_coord, 0, 1);
+    }
+    gl_Position = position;
+    gl_PointSize = u_size * a_val;
+    v_color = a_color;
+}`;
+
+WebGLVectorTile2Shaders.tsipFragmentShader = `
+#extension GL_OES_standard_derivatives : enable
+precision mediump float;
+varying float v_color;
+vec4 unpackColor(float f) {
+  vec4 color;
+  color.b = floor(f / 256.0 / 256.0);
+  color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);
+  color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);
+  color.a = 255.;
+  return color / 255.0;
+}
+void main() {
+  float dist = length(gl_PointCoord.xy - vec2(0.5, 0.5));
+  dist = 1.0 - (dist * 2.);
+  dist = max(0.0, dist);
+  gl_FragColor =  unpackColor(v_color) * dist;
+}`;
+
+WebGLVectorTile2Shaders.pointFlowAccelVertexShader = `
+attribute vec4 a_p0;
+attribute vec4 a_p1;
+attribute vec4 a_p2;
+attribute float a_epoch0;
+attribute float a_epoch1;
+uniform float u_epoch;
+uniform float u_size;
+uniform mat4 u_map_matrix;
+varying float v_t;
+
+vec4 bezier(float t, vec4 p0, vec4 p1, vec4 p2) {
+  return (1.0-t)*(1.0-t)*p0 + 2.0*(1.0-t)*t*p1 + t*t*p2;
+}
+
+void main() {
+  vec4 position;
+  if (a_epoch0 > u_epoch || a_epoch1 < u_epoch) {
+    position = vec4(-1,-1,-1,-1);
+  } else {
+    float t = 1.0 - (a_epoch1 - u_epoch)/(a_epoch1 - a_epoch0);
+    // s-curve -- constant acceleration for first half then constant deceleration
+    t = 2.0 * (t < 0.5 ? t * t : 0.5 - (1.0-t)*(1.0-t));
+    v_t = t;
+    position = u_map_matrix * bezier(t, a_p0, a_p1, a_p2);
+  }
+  gl_Position = position;
+  gl_PointSize = u_size;
+}`;
+
+WebGLVectorTile2Shaders.pointFlowVertexShader = `
+//WebGLVectorTile2.pointFlowVertexShader
+attribute vec4 a_p0;
+attribute vec4 a_p1;
+attribute vec4 a_p2;
+attribute float a_epoch0;
+attribute float a_epoch1;
+uniform float u_epoch;
+uniform float u_size;
+uniform mat4 u_map_matrix;
+varying float v_t;
+vec4 bezier(float t, vec4 p0, vec4 p1, vec4 p2) {
+  return (1.0-t)*(1.0-t)*p0 + 2.0*(1.0-t)*t*p1 + t*t*p2;
+}
+void main() {
+  vec4 position;
+  if (a_epoch0 > u_epoch || a_epoch1 < u_epoch) {
+    position = vec4(-1,-1,-1,-1);
+  } else {
+    float t = 1.0 - (a_epoch1 - u_epoch)/(a_epoch1 - a_epoch0);
+  v_t = t;
+    position = u_map_matrix * bezier(t, a_p0, a_p1, a_p2);
+  }
+  gl_Position = position;
+  gl_PointSize = u_size;
+}`;
+
+WebGLVectorTile2Shaders.pointFlowFragmentShader = `
+precision mediump float;
+varying float v_t;
+uniform vec4 u_start_color;
+uniform vec4 u_end_color;
+void main() {
+  float dist = length(gl_PointCoord.xy - vec2(.5, .5));
+  dist = 1. - (dist * 2.);
+  dist = max(0., dist);
+  //vec4 colorStart = vec4(.94,.94,.94,1.0);
+  //vec4 colorEnd = vec4(.71,0.09,0.05,1.0);
+  vec4 colorStart = u_start_color;
+  vec4 colorEnd = u_end_color;
+  gl_FragColor = mix(colorStart, colorEnd, v_t) * dist;
+}`;
+
+WebGLVectorTile2Shaders.pointVertexShader = `
+attribute vec4 a_coord;
+attribute float a_color;
+uniform mat4 u_map_matrix;
+uniform float u_size;
+varying float v_color;
+void main() {
+    vec4 position;
+    position = u_map_matrix * a_coord;
+    gl_Position = position;
+    gl_PointSize = u_size;
+    v_color = a_color;
+}`;
+
+WebGLVectorTile2Shaders.pointFragmentShader = `
+#extension GL_OES_standard_derivatives : enable
+precision mediump float;
+varying float v_color;
+vec4 unpackColor(float f) {
+    vec4 color;
+    color.b = floor(f / 256.0 / 256.0);
+    color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);
+    color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);
+    color.a = 256.;
+    return color / 256.0;
+  }
+void main() {
+  //float dist = length(gl_PointCoord.xy - vec2(.5,.5));
+  //float alpha = (dist > .5) ? .0 : 1.;
+  float r = 0.0, delta = 0.0, alpha = 1.0;
+  vec2 cxy = 2.0 * gl_PointCoord - 1.0;
+  r = dot(cxy, cxy);
+  delta = fwidth(r);
+  alpha = 1.0 - smoothstep(1.0 - delta, 1.0 + delta, r);
+  gl_FragColor = unpackColor(v_color) * alpha;
+}`;
 
 //SMELL PGH
-WebGLVectorTile2Shaders.glyphVertexShader =
-'attribute vec4 a_coord;\n' +
-'uniform mat4 u_map_matrix;\n' +
-'uniform float u_size;\n' +
-'void main() {\n' +
-'    vec4 position;\n' +
-'    position = u_map_matrix * a_coord;\n' +
-'    gl_Position = position;\n' +
-'    gl_PointSize = u_size;\n' +
-'}\n';
+WebGLVectorTile2Shaders.glyphVertexShader = `
+attribute vec4 a_coord;
+uniform mat4 u_map_matrix;
+uniform float u_size;
+void main() {
+  vec4 position;
+  position = u_map_matrix * a_coord;
+  gl_Position = position;
+  gl_PointSize = u_size;
+}`;
 
-WebGLVectorTile2Shaders.glyphFragmentShader =
-'#extension GL_OES_standard_derivatives : enable\n' +
-'  precision mediump float;\n' +
-'  uniform sampler2D u_texture;\n' +
-'  void main() {\n' +
-'    gl_FragColor = texture2D(u_texture, vec2(gl_PointCoord.x, gl_PointCoord.y));\n' +
-'  }\n';
+WebGLVectorTile2Shaders.glyphFragmentShader = `
+#extension GL_OES_standard_derivatives : enable
+precision mediump float;
+uniform sampler2D u_texture;
+void main() {
+  gl_FragColor = texture2D(u_texture, vec2(gl_PointCoord.x, gl_PointCoord.y));
+}`;
 
-WebGLVectorTile2Shaders.glyphStartEpochEndEpochVertexShader =
-'attribute vec4 a_coord;\n' +
-'attribute float a_epoch0;\n' +
-'attribute float a_epoch1;\n' +
-'attribute float a_offset;\n' +
-'uniform mat4 u_map_matrix;\n' +
-'uniform float u_size;\n' +
-'uniform float u_epoch;\n' +
-'varying float v_offset;\n' +
-'void main() {\n' +
-'    vec4 position;\n' +
-'    if (u_epoch < a_epoch0) {\n' +
-'        position = vec4(-1.,-1.,-1.,-1.);\n' +
-'    } else if(a_epoch1 < u_epoch){\n'+
-'       position = u_map_matrix * a_coord;\n'+
-'    } else{\n'+
-'       position = u_map_matrix * a_coord;\n'+
-'    }\n' +
-'    gl_Position = position;\n' +
-'    gl_PointSize = u_size;\n' +
-'    v_offset = a_offset;\n' +
-'}\n';
+WebGLVectorTile2Shaders.glyphStartEpochEndEpochVertexShader = `
+attribute vec4 a_coord;
+attribute float a_epoch0;
+attribute float a_epoch1;
+attribute float a_offset;
+uniform mat4 u_map_matrix;
+uniform float u_size;
+uniform float u_epoch;
+varying float v_offset;
+void main() {
+  vec4 position;
+  if (u_epoch < a_epoch0) {
+      position = vec4(-1.,-1.,-1.,-1.);
+  } else if(a_epoch1 < u_epoch){
+      position = u_map_matrix * a_coord;
+  } else{
+      position = u_map_matrix * a_coord;
+  }
+  gl_Position = position;
+  gl_PointSize = u_size;
+  v_offset = a_offset;
+}`;
 
-WebGLVectorTile2Shaders.glyphStartEpochEndEpochFragmentShader =
-'#extension GL_OES_standard_derivatives : enable\n' +
-'  precision mediump float;\n' +
-'  uniform sampler2D u_texture;\n' +
-'  uniform float u_num_glyphs;\n' +
-'  varying float v_offset;\n' +
-'  void main() {\n' +
-'    vec2 texcoords = vec2((gl_PointCoord.x + v_offset) / u_num_glyphs, gl_PointCoord.y);\n'+
-'    gl_FragColor = texture2D(u_texture, texcoords);\n' +
-'  }\n';
+WebGLVectorTile2Shaders.glyphStartEpochEndEpochFragmentShader = `
+#extension GL_OES_standard_derivatives : enable
+precision mediump float;
+uniform sampler2D u_texture;
+uniform float u_num_glyphs;
+varying float v_offset;
+void main() {
+  vec2 texcoords = vec2((gl_PointCoord.x + v_offset) / u_num_glyphs, gl_PointCoord.y);
+  gl_FragColor = texture2D(u_texture, texcoords);
+}`;
 
-WebGLVectorTile2Shaders.FadeGlyphStartEpochEndEpochVertexShader =
-'attribute vec4 a_coord;\n' +
-'attribute float a_epoch0;\n' +
-'attribute float a_epoch1;\n' +
-'attribute float a_offset;\n' +
-'uniform mat4 u_map_matrix;\n' +
-'uniform float u_fade_duration;\n' +
-'uniform float u_size;\n' +
-'uniform float u_epoch;\n' +
-'varying float v_offset;\n' +
-'varying float v_dim;\n' +
-'void main() {\n' +
-'    vec4 position;\n' +
-'    //float fade_duration = 36000.0; //10hr\n' +
-'    float min_alpha = 0.0;\n' +
-'    if (u_epoch < a_epoch0) {\n' +
-'        position = vec4(-1.,-1.,-1.,-1.);\n' +
-'    } else if(a_epoch1 < u_epoch){\n'+
-'       position = u_map_matrix * a_coord;\n'+
-'   	v_dim = max(min_alpha, 1.0 - ((u_epoch - a_epoch1)/u_fade_duration));\n'+
-'    } else{\n'+
-'       position = u_map_matrix * a_coord;\n'+
-'       v_dim = 1.0;\n' +
-'    }\n' +
-'    gl_Position = position;\n' +
-'    gl_PointSize = u_size;\n' +
-'    v_offset = a_offset;\n' +
-'}\n';
+WebGLVectorTile2Shaders.FadeGlyphStartEpochEndEpochVertexShader = `
+attribute vec4 a_coord;
+attribute float a_epoch0;
+attribute float a_epoch1;
+attribute float a_offset;
+uniform mat4 u_map_matrix;
+uniform float u_fade_duration;
+uniform float u_size;
+uniform float u_epoch;
+varying float v_offset;
+varying float v_dim;
+void main() {
+  vec4 position;
+  //float fade_duration = 36000.0; //10hr
+  float min_alpha = 0.0;
+  if (u_epoch < a_epoch0) {
+      position = vec4(-1.,-1.,-1.,-1.);
+  } else if(a_epoch1 < u_epoch){
+      position = u_map_matrix * a_coord;
+  v_dim = max(min_alpha, 1.0 - ((u_epoch - a_epoch1)/u_fade_duration));
+  } else{
+      position = u_map_matrix * a_coord;
+      v_dim = 1.0;
+  }
+  gl_Position = position;
+  gl_PointSize = u_size;
+  v_offset = a_offset;
+}`;
 
-WebGLVectorTile2Shaders.FadeGlyphStartEpochEndEpochFragmentShader =
-'#extension GL_OES_standard_derivatives : enable\n' +
-'  precision mediump float;\n' +
-'  uniform sampler2D u_texture;\n' +
-'  uniform float u_num_glyphs;\n' +
-'  varying float v_offset;\n' +
-'  varying float v_dim;\n' +
-'  void main() {\n' +
-'    vec2 texcoords = vec2((gl_PointCoord.x + v_offset) / u_num_glyphs, gl_PointCoord.y);\n'+
-'    vec4 tex = texture2D(u_texture, texcoords);\n' +
-'    gl_FragColor = vec4(tex.rgb, v_dim * tex.a);\n' +
-'  }\n';
+WebGLVectorTile2Shaders.FadeGlyphStartEpochEndEpochFragmentShader = `
+#extension GL_OES_standard_derivatives : enable
+precision mediump float;
+uniform sampler2D u_texture;
+uniform float u_num_glyphs;
+varying float v_offset;
+varying float v_dim;
+void main() {
+  vec2 texcoords = vec2((gl_PointCoord.x + v_offset) / u_num_glyphs, gl_PointCoord.y);
+  vec4 tex = texture2D(u_texture, texcoords);
+  gl_FragColor = vec4(tex.rgb, v_dim * tex.a);
+}`;
 
-WebGLVectorTile2Shaders.polygonVertexShader =
-'attribute vec4 a_coord;\n' +
-'attribute float a_color;\n' +
-'uniform mat4 u_map_matrix;\n' +
-'varying float v_color;\n' +
-'void main() {\n' +
-'    vec4 position;\n' +
-'    position = u_map_matrix * a_coord;\n' +
-'    gl_Position = position;\n' +
-'    v_color = a_color;\n' +
-'}\n';
+WebGLVectorTile2Shaders.polygonVertexShader = `
+attribute vec4 a_coord;
+attribute float a_color;
+uniform mat4 u_map_matrix;
+varying float v_color;
+void main() {
+    vec4 position;
+    position = u_map_matrix * a_coord;
+    gl_Position = position;
+    v_color = a_color;
+}`;
 
-WebGLVectorTile2Shaders.polygonFragmentShader =
-'#extension GL_OES_standard_derivatives : enable\n' +
-'  precision mediump float;\n' +
-'  varying float v_color;\n' +
-'  vec4 unpackColor(float f) {\n' +
-'      vec4 color;\n' +
-'      color.b = floor(f / 256.0 / 256.0);\n' +
-'      color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);\n' +
-'      color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);\n' +
-'      color.a = 256.;\n' +
-'      return color/256.;\n' +
-'    }\n' +
-'  void main() {\n' +
-'    gl_FragColor = unpackColor(v_color);\n' +
-'  }\n';
+WebGLVectorTile2Shaders.polygonFragmentShader = `
+#extension GL_OES_standard_derivatives : enable
+precision mediump float;
+varying float v_color;
+vec4 unpackColor(float f) {
+  vec4 color;
+  color.b = floor(f / 256.0 / 256.0);
+  color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);
+  color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);
+  color.a = 256.;
+  return color/256.;
+}
+void main() {
+  gl_FragColor = unpackColor(v_color);
+}`;
 
-
-WebGLVectorTile2Shaders.lineStringVertexShader =
-'attribute vec2 a_coord;\n' +
-'uniform mat4 u_map_matrix;\n' +
-'void main() {\n' +
-'    gl_Position = u_map_matrix * vec4(a_coord, 0., 1.);\n' +
-'}';
-
-
-WebGLVectorTile2Shaders.lineStringFragmentShader =
-'precision mediump float;\n' +
-'uniform vec4 u_color;\n' +
-'void main() {\n' +
-'  gl_FragColor = u_color;\n' +
-'}\n';
-
-WebGLVectorTile2Shaders.expandedLineStringVertexShader =
-'attribute vec2 a_coord;\n' +
-'attribute vec2 a_normal;\n' +
-'attribute float a_miter;\n' +
-'attribute float a_texture_loc;\n' +
-'uniform mat4 u_map_matrix;\n' +
-'uniform float u_thickness;\n' +
-'varying float v_edge;\n' +
-'varying float v_texture_loc;\n' +
-'void main() {\n' +
-'    v_edge = sign(a_miter);\n' +
-'    vec2 position = a_coord + vec2(a_normal * u_thickness/2.0 * a_miter);\n' +
-'    v_texture_loc = a_texture_loc;\n' +
-'    gl_Position = u_map_matrix * vec4(position, 0., 1.);\n' +
-'}\n';
+WebGLVectorTile2Shaders.lineStringVertexShader = `
+attribute vec2 a_coord;
+uniform mat4 u_map_matrix;
+void main() {
+  gl_Position = u_map_matrix * vec4(a_coord, 0., 1.);
+}`;
 
 
-WebGLVectorTile2Shaders.expandedLineStringFragmentShader =
-'  precision mediump float;\n' +
-'  uniform vec3 u_color;\n' +
-'  uniform float u_inner;\n' +
-'  varying float v_edge;\n' +
-'  varying float v_texture_loc;\n' +
-'  uniform sampler2D u_texture;\n' +
-'  void main() {\n' +
-'    float v = 1.0 - abs(v_edge);\n' +
-'    v = smoothstep(0.65, 0.7, v*u_inner); \n' +
-'    vec4 c = texture2D(u_texture, vec2(v_texture_loc, 0));\n' +
-'    gl_FragColor = mix(c, vec4(0.0), v);\n' +
-'    //gl_FragColor = texture2D(u_texture, vec2(v_texture_loc, 0));\n' +
-'  }\n';
+WebGLVectorTile2Shaders.lineStringFragmentShader = `
+precision mediump float;
+uniform vec4 u_color;
+void main() {
+  gl_FragColor = u_color;
+}`;
 
+WebGLVectorTile2Shaders.expandedLineStringVertexShader = `
+attribute vec2 a_coord;
+attribute vec2 a_normal;
+attribute float a_miter;
+attribute float a_texture_loc;
+uniform mat4 u_map_matrix;
+uniform float u_thickness;
+varying float v_edge;
+varying float v_texture_loc;
+void main() {
+  v_edge = sign(a_miter);
+  vec2 position = a_coord + vec2(a_normal * u_thickness/2.0 * a_miter);
+  v_texture_loc = a_texture_loc;
+  gl_Position = u_map_matrix * vec4(position, 0., 1.);
+}`;
+
+
+WebGLVectorTile2Shaders.expandedLineStringFragmentShader = `
+precision mediump float;
+uniform vec3 u_color;
+uniform float u_inner;
+varying float v_edge;
+varying float v_texture_loc;
+uniform sampler2D u_texture;
+void main() {
+  float v = 1.0 - abs(v_edge);
+  v = smoothstep(0.65, 0.7, v*u_inner); 
+  vec4 c = texture2D(u_texture, vec2(v_texture_loc, 0));
+  gl_FragColor = mix(c, vec4(0.0), v);
+  //gl_FragColor = texture2D(u_texture, vec2(v_texture_loc, 0));
+}`;
 
 /* x,y,size,color,epoch */
-WebGLVectorTile2Shaders.PointSizeColorEpochVertexShader =
-'attribute vec4 a_coord;\n' +
-'attribute float a_size;\n' +
-'attribute float a_color;\n' +
-'attribute float a_epoch;\n' +
-'uniform mat4 u_map_matrix;\n' +
-'uniform float u_size;\n' +
-'uniform float u_epoch;\n' +
-'uniform float u_epoch_range;\n' +
-'varying float v_color;\n' +
-'void main() {\n' +
-'    vec4 position;\n' +
-'    if (a_epoch > u_epoch + u_epoch_range || a_epoch < u_epoch) {\n' +
-'        position = vec4(-1.,-1.,-1.,-1.);\n' +
-'    } else {\n' +
-'        position = u_map_matrix * a_coord;\n' +
-'    }\n' +
-'    gl_Position = position;\n' +
-'    gl_PointSize = u_size*a_size;\n' +
-'    v_color = a_color;\n' +
-'}\n';
+WebGLVectorTile2Shaders.PointSizeColorEpochVertexShader = `
+attribute vec4 a_coord;
+attribute float a_size;
+attribute float a_color;
+attribute float a_epoch;
+uniform mat4 u_map_matrix;
+uniform float u_size;
+uniform float u_epoch;
+uniform float u_epoch_range;
+varying float v_color;
+void main() {
+  vec4 position;
+  if (a_epoch > u_epoch + u_epoch_range || a_epoch < u_epoch) {
+    position = vec4(-1.,-1.,-1.,-1.);
+  } else {
+    position = u_map_matrix * a_coord;
+  }
+  gl_Position = position;
+  gl_PointSize = u_size*a_size;
+  v_color = a_color;
+}`;
 
-WebGLVectorTile2Shaders.PointSizeColorVertexShader =
-'attribute vec4 a_coord;\n' +
-'attribute float a_size;\n' +
-'attribute float a_color;\n' +
-'uniform mat4 u_map_matrix;\n' +
-'uniform float u_size;\n' +
-'varying float v_color;\n' +
-'void main() {\n' +
-'    vec4 position;\n' +
-'    position = u_map_matrix * a_coord;\n' +
-'    gl_Position = position;\n' +
-'    gl_PointSize = u_size*a_size;\n' +
-'    v_color = a_color;\n' +
-'}\n';
+WebGLVectorTile2Shaders.PointSizeColorVertexShader = `
+attribute vec4 a_coord;
+attribute float a_size;
+attribute float a_color;
+uniform mat4 u_map_matrix;
+uniform float u_size;
+varying float v_color;
+void main() {
+  vec4 position;
+  position = u_map_matrix * a_coord;
+  gl_Position = position;
+  gl_PointSize = u_size*a_size;
+  v_color = a_color;
+}`;
 
-WebGLVectorTile2Shaders.PointColorFragmentShader =
-'#extension GL_OES_standard_derivatives : enable\n' +
-'  precision mediump float;\n' +
-'  varying float v_color;\n' +
-'  vec4 unpackColor(float f) {\n' +
-'      vec4 color;\n' +
-'      color.b = floor(f / 256.0 / 256.0);\n' +
-'      color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);\n' +
-'      color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);\n' +
-'      color.a = 255.;\n' +
-'      return color / 256.0;\n' +
-'    }\n' +
-'  void main() {\n' +
-'    float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
-'    dist = 1. - (dist * 2.);\n' +
-'    dist = max(0., dist);\n' +
-'    gl_FragColor = unpackColor(v_color) * dist;\n' +
-'  }\n';
+WebGLVectorTile2Shaders.PointColorFragmentShader = `
+#extension GL_OES_standard_derivatives : enable
+precision mediump float;
+varying float v_color;
+vec4 unpackColor(float f) {
+  vec4 color;
+  color.b = floor(f / 256.0 / 256.0);
+  color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);
+  color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);
+  color.a = 255.;
+  return color / 256.0;
+}
+void main() {
+  float dist = length(gl_PointCoord.xy - vec2(.5, .5));
+  dist = 1. - (dist * 2.);
+  dist = max(0., dist);
+  gl_FragColor = unpackColor(v_color) * dist;
+}`;
 
-WebGLVectorTile2Shaders.PointColorStartEpochEndEpochVertexShader =
-'attribute vec4 a_coord;\n' +
-'attribute float a_color;\n' +
-'attribute float a_epoch0;\n' +
-'attribute float a_epoch1;\n' +
-'uniform mat4 u_map_matrix;\n' +
-'uniform float u_epoch;\n' +
-'uniform float u_size;\n' +
-'varying float v_color;\n' +
-'void main() {\n' +
-'    vec4 position;\n' +
-'    if (a_epoch0 > u_epoch || a_epoch1 < u_epoch) {\n' +
-'        position = vec4(-1.,-1.,-1.,-1.);\n' +
-'    } else {\n' +
-'        position = u_map_matrix * a_coord;\n' +
-'    }\n' +
-'    gl_Position = position;\n' +
-'    gl_PointSize = u_size*2.0;\n' +
-'    v_color = a_color;\n' +
-'}\n';
+WebGLVectorTile2Shaders.PointColorStartEpochEndEpochVertexShader = `
+attribute vec4 a_coord;
+attribute float a_color;
+attribute float a_epoch0;
+attribute float a_epoch1;
+uniform mat4 u_map_matrix;
+uniform float u_epoch;
+uniform float u_size;
+varying float v_color;
+void main() {
+  vec4 position;
+  if (a_epoch0 > u_epoch || a_epoch1 < u_epoch) {
+    position = vec4(-1.,-1.,-1.,-1.);
+  } else {
+    position = u_map_matrix * a_coord;
+  }
+  gl_Position = position;
+  gl_PointSize = u_size*2.0;
+  v_color = a_color;
+}`;
 
-WebGLVectorTile2Shaders.PointColorStartEpochEndEpochFragmentShader =
-'#extension GL_OES_standard_derivatives : enable\n' +
-'  precision mediump float;\n' +
-'  varying float v_color;\n' +
-'  vec4 unpackColor(float f) {\n' +
-'      vec4 color;\n' +
-'      color.b = floor(f / 256.0 / 256.0);\n' +
-'      color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);\n' +
-'      color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);\n' +
-'      color.a = 255.;\n' +
-'      return color / 255.0;\n' +
-'    }\n' +
-'  void main() {\n' +
-'    float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
-'    dist = 1. - (dist * 2.);\n' +
-'    dist = max(0., dist);\n' +
-'    gl_FragColor = unpackColor(v_color) * dist;\n' +
-'  }\n';
+WebGLVectorTile2Shaders.PointColorStartEpochEndEpochFragmentShader = `
+#extension GL_OES_standard_derivatives : enable
+precision mediump float;
+varying float v_color;
+vec4 unpackColor(float f) {
+  vec4 color;
+  color.b = floor(f / 256.0 / 256.0);
+  color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);
+  color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);
+  color.a = 255.;
+  return color / 255.0;
+}
+void main() {
+  float dist = length(gl_PointCoord.xy - vec2(.5, .5));
+  dist = 1. - (dist * 2.);
+  dist = max(0., dist);
+  gl_FragColor = unpackColor(v_color) * dist;
+}`;
 
-WebGLVectorTile2Shaders.PointSolidColorStartEpochEndEpochFragmentShader =
-'#extension GL_OES_standard_derivatives : enable\n' +
-'  precision mediump float;\n' +
-'  varying float v_color;\n' +
-'  vec4 unpackColor(float f) {\n' +
-'      vec4 color;\n' +
-'      color.b = floor(f / 256.0 / 256.0);\n' +
-'      color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);\n' +
-'      color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);\n' +
-'      color.a = 255.;\n' +
-'      return color / 255.0;\n' +
-'    }\n' +
-'  void main() {\n' +
-'    float r = 0.0, delta = 0.0, alpha = 1.0;\n' +
-'    vec2 cxy = 2.0 * gl_PointCoord - 1.0;\n' +
-'    r = dot(cxy, cxy);\n' +
-'    delta = fwidth(r);\n' +
-'    alpha = 1.0 - smoothstep(1.0 - delta, 1.0 + delta, r);\n' +
-'    gl_FragColor = unpackColor(v_color) * alpha;\n' +
-'  }\n';
+WebGLVectorTile2Shaders.PointSolidColorStartEpochEndEpochFragmentShader = `
+#extension GL_OES_standard_derivatives : enable
+precision mediump float;
+varying float v_color;
+vec4 unpackColor(float f) {
+  vec4 color;
+  color.b = floor(f / 256.0 / 256.0);
+  color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);
+  color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);
+  color.a = 255.;
+  return color / 255.0;
+}
+void main() {
+  float r = 0.0, delta = 0.0, alpha = 1.0;
+  vec2 cxy = 2.0 * gl_PointCoord - 1.0;
+  r = dot(cxy, cxy);
+  delta = fwidth(r);
+  alpha = 1.0 - smoothstep(1.0 - delta, 1.0 + delta, r);
+  gl_FragColor = unpackColor(v_color) * alpha;
+}`;
 
 // gradually decreases alpha once time has passed epoch1
-WebGLVectorTile2Shaders.FadePointColorStartEpochEndEpochVertexShader =
-'attribute vec4 a_coord;\n' +
-'attribute float a_color;\n' +
-'attribute float a_epoch0;\n' +
-'attribute float a_epoch1;\n' +
-'uniform mat4 u_map_matrix;\n' +
-'uniform float u_epoch;\n' +
-'uniform float u_size;\n' +
-'varying float v_color;\n' +
-'varying float v_dim;\n' +
-'void main() {\n' +
-'    vec4 position;\n' +
-'    float fade_duration = 3600.0; //1hr\n' +
-'    float min_alpha = 0.3;\n' +
-'    if (u_epoch < a_epoch0) {\n' +
-'        position = vec4(-1.,-1.,-1.,-1.);\n' +
-'        v_dim = 0.0;\n' +
-'    } else if(a_epoch1 < u_epoch){\n'+
-'       position = u_map_matrix * a_coord;\n'+
-'   	//v_dim = min_alpha;\n'+
-'   	v_dim = max(min_alpha, 1.0 - ((u_epoch - a_epoch1)/fade_duration));\n'+
-'    } else {\n' +
-'        position = u_map_matrix * a_coord;\n' +
-'        v_dim = 1.0;\n' +
-'    }\n' +
-'    gl_Position = position;\n' +
-'    gl_PointSize = u_size*2.0;\n' +
-'    v_color = a_color;\n' +
-'}\n';
+WebGLVectorTile2Shaders.FadePointColorStartEpochEndEpochVertexShader = `
+attribute vec4 a_coord;
+attribute float a_color;
+attribute float a_epoch0;
+attribute float a_epoch1;
+uniform mat4 u_map_matrix;
+uniform float u_epoch;
+uniform float u_size;
+varying float v_color;
+varying float v_dim;
+void main() {
+    vec4 position;
+    float fade_duration = 3600.0; //1hr
+    float min_alpha = 0.3;
+    if (u_epoch < a_epoch0) {
+        position = vec4(-1.,-1.,-1.,-1.);
+        v_dim = 0.0;
+    } else if(a_epoch1 < u_epoch){
+       position = u_map_matrix * a_coord;
+   	//v_dim = min_alpha;
+   	v_dim = max(min_alpha, 1.0 - ((u_epoch - a_epoch1)/fade_duration));
+    } else {
+        position = u_map_matrix * a_coord;
+        v_dim = 1.0;
+    }
+    gl_Position = position;
+    gl_PointSize = u_size*2.0;
+    v_color = a_color;
+}`;
 
 //unpackColor func alters alpha according to vertex shader
-WebGLVectorTile2Shaders.FadePointColorStartEpochEndEpochFragmentShader =
-'#extension GL_OES_standard_derivatives : enable\n' +
-'  precision mediump float;\n' +
-'  varying float v_color;\n' +
-'  varying float v_dim;\n' +
-'  vec4 unpackColor(float f, float dim) {\n' +
-'      vec4 color;\n' +
-'      color.b = floor(f / 256.0 / 256.0);\n' +
-'      color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);\n' +
-'      color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);\n' +
-'      color = color / 256.0;\n' +
-'      color.a = dim;\n' +
-'      return color;\n' +
-'    }\n' +
-'  void main() {\n' +
-'    float r = 0.0, delta = 0.0, alpha = 1.0;\n' +
-'    vec2 cxy = 2.0 * gl_PointCoord - 1.0;\n' +
-'    r = dot(cxy, cxy);\n' +
-'    delta = fwidth(r);\n' +
-'    alpha = 1.0 - smoothstep(1.0 - delta, 1.0 + delta, r);\n' +
-'    gl_FragColor = unpackColor(v_color, v_dim) * alpha;\n' +
-'  }\n';
+WebGLVectorTile2Shaders.FadePointColorStartEpochEndEpochFragmentShader = `
+#extension GL_OES_standard_derivatives : enable
+precision mediump float;
+varying float v_color;
+varying float v_dim;
+vec4 unpackColor(float f, float dim) {
+  vec4 color;
+  color.b = floor(f / 256.0 / 256.0);
+  color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);
+  color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);
+  color = color / 256.0;
+  color.a = dim;
+  return color;
+}
+void main() {
+  float r = 0.0, delta = 0.0, alpha = 1.0;
+  vec2 cxy = 2.0 * gl_PointCoord - 1.0;
+  r = dot(cxy, cxy);
+  delta = fwidth(r);
+  alpha = 1.0 - smoothstep(1.0 - delta, 1.0 + delta, r);
+  gl_FragColor = unpackColor(v_color, v_dim) * alpha;
+}`;
 
-WebGLVectorTile2Shaders.PointSizeColorStartEpochEndEpochVertexShader =
-'attribute vec4 a_coord;\n' +
-'attribute float a_size;\n' +
-'attribute float a_color;\n' +
-'attribute float a_epoch0;\n' +
-'attribute float a_epoch1;\n' +
-'uniform mat4 u_map_matrix;\n' +
-'uniform float u_epoch;\n' +
-'uniform float u_size;\n' +
-'varying float v_color;\n' +
-'void main() {\n' +
-'    vec4 position;\n' +
-'    if (a_epoch0 > u_epoch || a_epoch1 < u_epoch) {\n' +
-'        position = vec4(-1.,-1.,-1.,-1.);\n' +
-'    } else {\n' +
-'        position = u_map_matrix * a_coord;\n' +
-'    }\n' +
-'    gl_Position = position;\n' +
-'    gl_PointSize = u_size*a_size;\n' +
-'    v_color = a_color;\n' +
-'}\n';
+WebGLVectorTile2Shaders.PointSizeColorStartEpochEndEpochVertexShader = `
+attribute vec4 a_coord;
+attribute float a_size;
+attribute float a_color;
+attribute float a_epoch0;
+attribute float a_epoch1;
+uniform mat4 u_map_matrix;
+uniform float u_epoch;
+uniform float u_size;
+varying float v_color;
+void main() {
+  vec4 position;
+  if (a_epoch0 > u_epoch || a_epoch1 < u_epoch) {
+    position = vec4(-1.,-1.,-1.,-1.);
+  } else {
+    position = u_map_matrix * a_coord;
+  }
+  gl_Position = position;
+  gl_PointSize = u_size*a_size;
+  v_color = a_color;
+}`;
 
-WebGLVectorTile2Shaders.PointSizeColorStartEpochEndEpochFragmentShader =
-'#extension GL_OES_standard_derivatives : enable\n' +
-'  precision mediump float;\n' +
-'  varying float v_color;\n' +
-'  vec4 unpackColor(float f) {\n' +
-'      vec4 color;\n' +
-'      color.b = floor(f / 256.0 / 256.0);\n' +
-'      color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);\n' +
-'      color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);\n' +
-'      color.a = 255.;\n' +
-'      return color / 256.0;\n' +
-'    }\n' +
-'  void main() {\n' +
-'    float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
-'    dist = 1. - (dist * 2.);\n' +
-'    dist = max(0., dist);\n' +
-'    gl_FragColor = unpackColor(v_color) * dist;\n' +
-'  }\n';
+WebGLVectorTile2Shaders.PointSizeColorStartEpochEndEpochFragmentShader = `
+#extension GL_OES_standard_derivatives : enable
+precision mediump float;
+varying float v_color;
+vec4 unpackColor(float f) {
+  vec4 color;
+  color.b = floor(f / 256.0 / 256.0);
+  color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);
+  color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);
+  color.a = 255.;
+  return color / 256.0;
+}
+void main() {
+  float dist = length(gl_PointCoord.xy - vec2(.5, .5));
+  dist = 1. - (dist * 2.);
+  dist = max(0., dist);
+  gl_FragColor = unpackColor(v_color) * dist;
+}`;
 
 //borrowed from spCrudeVertexShader
-WebGLVectorTile2Shaders.AnimPointsVertexShader =
-'attribute vec4 a_coord_0;\n' +
-'attribute float a_epoch_0;\n' +
-'attribute vec4 a_coord_1;\n' +
-'attribute float a_epoch_1;\n' +
-'attribute float a_color;\n' +
-'uniform mat4 u_map_matrix;\n' +
-'uniform float u_epoch;\n' +
-'uniform float u_size;\n' +
-'varying float v_color;\n' +
-'void main() {\n' +
-'    vec4 position;\n' +
-'    if (a_epoch_0 > u_epoch || a_epoch_1 < u_epoch) {\n' +
-'        position = vec4(-1.,-1.,-1.,-1.);\n' +
-'    } else {\n' +
-'          float t = (u_epoch - a_epoch_0)/(a_epoch_1 - a_epoch_0);\n' +
-'          position = u_map_matrix * ((a_coord_1 - a_coord_0) * t + a_coord_0);\n' +
-'    }\n' +
-'    gl_Position = position;\n' +
-'    gl_PointSize = u_size*8.;\n' +
-'    v_color = a_color;\n' +
-'}\n';
+WebGLVectorTile2Shaders.AnimPointsVertexShader = `
+attribute vec4 a_coord_0;
+attribute float a_epoch_0;
+attribute vec4 a_coord_1;
+attribute float a_epoch_1;
+attribute float a_color;
+uniform mat4 u_map_matrix;
+uniform float u_epoch;
+uniform float u_size;
+varying float v_color;
+void main() {
+  vec4 position;
+  if (a_epoch_0 > u_epoch || a_epoch_1 < u_epoch) {
+    position = vec4(-1.,-1.,-1.,-1.);
+  } else {
+    float t = (u_epoch - a_epoch_0)/(a_epoch_1 - a_epoch_0);
+    position = u_map_matrix * ((a_coord_1 - a_coord_0) * t + a_coord_0);
+  }
+  gl_Position = position;
+  gl_PointSize = u_size*8.;
+  v_color = a_color;
+}`;
 
 
-WebGLVectorTile2Shaders.spCrudeVertexShader =
-'attribute vec4 a_coord_0;\n' +
-'attribute float a_epoch_0;\n' +
-'attribute vec4 a_coord_1;\n' +
-'attribute float a_epoch_1;\n' +
-'attribute float a_color;\n' +
-'uniform mat4 u_map_matrix;\n' +
-'uniform float u_epoch;\n' +
-'uniform float u_size;\n' +
-'varying float v_color;\n' +
-'void main() {\n' +
-'    vec4 position;\n' +
-'    if (a_epoch_0 > u_epoch || a_epoch_1 < u_epoch) {\n' +
-'        position = vec4(-1.,-1.,-1.,-1.);\n' +
-'    } else {\n' +
-'          float t = (u_epoch - a_epoch_0)/(a_epoch_1 - a_epoch_0);\n' +
-'          position = u_map_matrix * ((a_coord_1 - a_coord_0) * t + a_coord_0);\n' +
-'    }\n' +
-'    gl_Position = position;\n' +
-'    gl_PointSize = u_size*8.;\n' +
-'    v_color = a_color;\n' +
-'}\n';
+WebGLVectorTile2Shaders.spCrudeVertexShader = `
+attribute vec4 a_coord_0;
+attribute float a_epoch_0;
+attribute vec4 a_coord_1;
+attribute float a_epoch_1;
+attribute float a_color;
+uniform mat4 u_map_matrix;
+uniform float u_epoch;
+uniform float u_size;
+varying float v_color;
+void main() {
+  vec4 position;
+  if (a_epoch_0 > u_epoch || a_epoch_1 < u_epoch) {
+    position = vec4(-1.,-1.,-1.,-1.);
+  } else {
+    float t = (u_epoch - a_epoch_0)/(a_epoch_1 - a_epoch_0);
+    position = u_map_matrix * ((a_coord_1 - a_coord_0) * t + a_coord_0);
+  }
+  gl_Position = position;
+  gl_PointSize = u_size*8.;
+  v_color = a_color;
+}`;
 
-WebGLVectorTile2Shaders.spCrudeFragmentShader =
-'  precision mediump float;\n' +
-'  varying float v_color;\n' +
-'  vec4 unpackColor(float f) {\n' +
-'      vec4 color;\n' +
-'      color.b = floor(f / 256.0 / 256.0);\n' +
-'      color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);\n' +
-'      color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);\n' +
-'      color.a = 255.;\n' +
-'      return color / 256.0;\n' +
-'    }\n' +
-'  void main() {\n' +
-'    //gl_FragColor = unpackColor(v_color);\n' +
-'    float dist = length(gl_PointCoord.xy - vec2(.5, .5));\n' +
-'    dist = 1. - (dist * 2.);\n' +
-'    dist = max(0., dist);\n' +
-'    gl_FragColor = unpackColor(v_color) * dist;\n' +
-'  }\n';
+WebGLVectorTile2Shaders.spCrudeFragmentShader = `
+precision mediump float;
+varying float v_color;
+vec4 unpackColor(float f) {
+  vec4 color;
+  color.b = floor(f / 256.0 / 256.0);
+  color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);
+  color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);
+  color.a = 255.;
+  return color / 256.0;
+}
+void main() {
+  //gl_FragColor = unpackColor(v_color);
+  float dist = length(gl_PointCoord.xy - vec2(.5, .5));
+  dist = 1. - (dist * 2.);
+  dist = max(0., dist);
+  gl_FragColor = unpackColor(v_color) * dist;
+}`;
 
+WebGLVectorTile2Shaders.particleVertexShader = `
+attribute vec4 a_coord_0;
+attribute float a_elev_0;
+attribute float a_epoch_0;
+attribute vec4 a_coord_1;
+attribute float a_elev_1;
+attribute float a_epoch_1;
+attribute float a_color;
+uniform mat4 u_map_matrix;
+uniform float u_epoch;
+uniform float u_size;
+uniform float u_max_elev;
+varying float v_color;
+void main() {
+  vec4 position;
+  if (a_epoch_0 > u_epoch || a_epoch_1 < u_epoch) {
+    position = vec4(-1.,-1.,-1.,-1.);
+  } else {
+    float t = (u_epoch - a_epoch_0)/(a_epoch_1 - a_epoch_0);
+    float current_elev = (a_elev_1 - a_elev_0) * t + a_elev_0;
+    if (current_elev > u_max_elev) {
+      position = vec4(-1.,-1.,-1.,-1.);
+    } else {
+      position = u_map_matrix * ((a_coord_1 - a_coord_0) * t + a_coord_0);
+    }
+  }
+  gl_Position = position;
+  gl_PointSize = u_size;
+  v_color = a_color;
+}`;
 
-WebGLVectorTile2Shaders.particleVertexShader =
-'attribute vec4 a_coord_0;\n' +
-'attribute float a_elev_0;\n' +
-'attribute float a_epoch_0;\n' +
-'attribute vec4 a_coord_1;\n' +
-'attribute float a_elev_1;\n' +
-'attribute float a_epoch_1;\n' +
-'attribute float a_color;\n' +
-'uniform mat4 u_map_matrix;\n' +
-'uniform float u_epoch;\n' +
-'uniform float u_size;\n' +
-'uniform float u_max_elev;\n' +
-'varying float v_color;\n' +
-'void main() {\n' +
-'    vec4 position;\n' +
-'    if (a_epoch_0 > u_epoch || a_epoch_1 < u_epoch) {\n' +
-'        position = vec4(-1.,-1.,-1.,-1.);\n' +
-'    } else {\n' +
-'        float t = (u_epoch - a_epoch_0)/(a_epoch_1 - a_epoch_0);\n' +
-'        float current_elev = (a_elev_1 - a_elev_0) * t + a_elev_0;\n' +
-'        if (current_elev > u_max_elev) {\n' +
-'            position = vec4(-1.,-1.,-1.,-1.);\n' +
-'        } else {\n' +
-'            position = u_map_matrix * ((a_coord_1 - a_coord_0) * t + a_coord_0);\n' +
-'        }\n' +
-'    }\n' +
-'    gl_Position = position;\n' +
-'    gl_PointSize = u_size;\n' +
-'    v_color = a_color;\n' +
-'}\n';
+WebGLVectorTile2Shaders.particleFragmentShader = `
+precision mediump float;
+varying float v_color;
+vec4 unpackColor(float f) {
+  vec4 color;
+  color.b = floor(f / 256.0 / 256.0);
+  color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);
+  color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);
+  color.a = 255.;
+  return color / 256.0;
+}
+void main() {
+  gl_FragColor = unpackColor(v_color);
+}`;
 
-WebGLVectorTile2Shaders.particleFragmentShader =
-'  precision mediump float;\n' +
-'  varying float v_color;\n' +
-'  vec4 unpackColor(float f) {\n' +
-'      vec4 color;\n' +
-'      color.b = floor(f / 256.0 / 256.0);\n' +
-'      color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);\n' +
-'      color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);\n' +
-'      color.a = 255.;\n' +
-'      return color / 256.0;\n' +
-'    }\n' +
-'  void main() {\n' +
-'    gl_FragColor = unpackColor(v_color);\n' +
-'  }\n';
+WebGLVectorTile2Shaders.lineTrackVertexShader = `
+attribute vec4 a_coord_0;
+attribute float a_epoch_0;
+attribute vec4 a_coord_1;
+attribute float a_epoch_1;
+attribute float a_color;
+uniform mat4 u_map_matrix;
+uniform float u_epoch;
+uniform float u_size;
+varying float v_color;
+varying float v_alpha;
+void main() {
+  vec4 position;
+  if (a_epoch_0 > u_epoch) {
+    position = u_map_matrix * vec4(-1.,-1.,-1.,-1.);
+    position = u_map_matrix * a_coord_1;
+    v_alpha = 0.0;
+  } else if (a_epoch_1 < u_epoch) {
+    position = u_map_matrix * a_coord_0;
+    position = u_map_matrix * a_coord_1;
+    v_alpha = 1.0;
+  } else {
+    //TODO: WHY DOES INTERPOLATIMNG THE END POINT NOT WORK
+    //float t = (u_epoch - a_epoch_0)/(a_epoch_1 - a_epoch_0);
+    //position = u_map_matrix * ((a_coord_1 - a_coord_0) * t + a_coord_0);
+  }
+  gl_Position = position;
+  gl_PointSize = u_size*3.;
+  v_color = a_color;
+}`;
 
-WebGLVectorTile2Shaders.lineTrackVertexShader =
-'attribute vec4 a_coord_0;\n' +
-'attribute float a_epoch_0;\n' +
-'attribute vec4 a_coord_1;\n' +
-'attribute float a_epoch_1;\n' +
-'attribute float a_color;\n' +
-'uniform mat4 u_map_matrix;\n' +
-'uniform float u_epoch;\n' +
-'uniform float u_size;\n' +
-'varying float v_color;\n' +
-'varying float v_alpha;\n' +
-'void main() {\n' +
-'    vec4 position;\n' +
-'    if (a_epoch_0 > u_epoch) {\n' +
-'        position = u_map_matrix * vec4(-1.,-1.,-1.,-1.);\n' +
-'        position = u_map_matrix * a_coord_1;\n' +
-'        v_alpha = 0.0;\n' +
-'    } else if (a_epoch_1 < u_epoch) {\n' +
-'        position = u_map_matrix * a_coord_0;\n' +
-'        position = u_map_matrix * a_coord_1;\n' +
-'        v_alpha = 1.0;\n' +
-'    } else {\n' +
-'        //TODO: WHY DOES INTERPOLATIMNG THE END POINT NOT WORK\n' +
-'        //float t = (u_epoch - a_epoch_0)/(a_epoch_1 - a_epoch_0);\n' +
-'        //position = u_map_matrix * ((a_coord_1 - a_coord_0) * t + a_coord_0);\n' +
-'    }\n' +
-'    gl_Position = position;\n' +
-'    gl_PointSize = u_size*3.;\n' +
-'   v_color = a_color;\n' +
-'}\n';
+WebGLVectorTile2Shaders.lineTrackFragmentShader = `
+precision mediump float;
+varying float v_color;
+varying float v_alpha;
+vec4 unpackColor(float f) {
+    vec4 color;
+    color.b = floor(f / 255.0 / 255.0);
+    color.g = floor((f - color.b * 255.0 * 255.0) / 255.0);
+    color.r = floor(f - color.b * 255.0 * 255.0 - color.g * 255.0);
+    color.a = 255.;
+    return color / 255.0;
+  }
+void main() {
+  gl_FragColor = vec4(unpackColor(v_color).rgb, v_alpha);
+}`;
 
-WebGLVectorTile2Shaders.lineTrackFragmentShader =
-'  precision mediump float;\n' +
-'  varying float v_color;\n' +
-'  varying float v_alpha;\n' +
-'  vec4 unpackColor(float f) {\n' +
-'      vec4 color;\n' +
-'      color.b = floor(f / 255.0 / 255.0);\n' +
-'      color.g = floor((f - color.b * 255.0 * 255.0) / 255.0);\n' +
-'      color.r = floor(f - color.b * 255.0 * 255.0 - color.g * 255.0);\n' +
-'      color.a = 255.;\n' +
-'      return color / 255.0;\n' +
-'    }\n' +
-'  void main() {\n' +
-'    gl_FragColor = vec4(unpackColor(v_color).rgb, v_alpha);\n' +
-'  }\n';
+WebGLVectorTile2Shaders.sitc4r2VertexShader = `
+attribute vec4 a_p0;
+attribute vec4 a_p2;
+attribute vec4 a_p1;
+attribute float a_epoch0;
+attribute float a_epoch1;
+uniform float u_epoch;
+uniform mat4 u_map_matrix;
+varying float v_t;
+vec2 bezier(float t, vec2 p0, vec2 p1, vec2 p2) {
+  return (1.0-t)*(1.0-t)*p0 + 2.0*(1.0-t)*t*p1 + t*t*p2;
+}
+void main() {
+  vec4 position = vec4(-1,-1,-1,-1);
+  if (a_epoch0 <= u_epoch && u_epoch <= a_epoch1) {
+    float t = (u_epoch - a_epoch0)/(a_epoch1 - a_epoch0);
+    vec2 pos = bezier(t, a_p0.xy, a_p1.xy, a_p2.xy);
+    position = u_map_matrix * vec4(pos.x, pos.y, 0.0, 1.0);
+    v_t = t;
+  }
+  gl_Position = position;
+  gl_PointSize = 1.0;
+}`;
 
-WebGLVectorTile2Shaders.sitc4r2VertexShader = '' +
-'  attribute vec4 a_p0;\n' +
-'  attribute vec4 a_p2;\n' +
-'  attribute vec4 a_p1;\n' +
-'  attribute float a_epoch0;\n' +
-'  attribute float a_epoch1;\n' +
-'  uniform float u_epoch;\n' +
-'  uniform mat4 u_map_matrix;\n' +
-'  varying float v_t;\n' +
-'  vec2 bezier(float t, vec2 p0, vec2 p1, vec2 p2) {\n' +
-'    return (1.0-t)*(1.0-t)*p0 + 2.0*(1.0-t)*t*p1 + t*t*p2;\n' +
-'  }\n' +
-'  void main() {\n' +
-'    vec4 position = vec4(-1,-1,-1,-1);\n' +
-'    if (a_epoch0 <= u_epoch && u_epoch <= a_epoch1) {\n' +
-'      float t = (u_epoch - a_epoch0)/(a_epoch1 - a_epoch0);\n' +
-'      vec2 pos = bezier(t, a_p0.xy, a_p1.xy, a_p2.xy);\n' +
-'      position = u_map_matrix * vec4(pos.x, pos.y, 0.0, 1.0);\n' +
-'      v_t = t;\n' +
-'    }\n' +
-'    gl_Position = position;\n' +
-'    gl_PointSize = 1.0;\n' +
-'  }\n';
+WebGLVectorTile2Shaders.sitc4r2FragmentShader = `
+precision mediump float;
+varying float v_t;
+uniform vec3 u_end_color;
+void main() {
+  vec4 colorStart = vec4(.94,.76,.61,1.0);
+  vec4 colorEnd = vec4(u_end_color,1.0);
+  gl_FragColor = mix(colorStart, colorEnd, v_t);
+}`;
 
-WebGLVectorTile2Shaders.sitc4r2FragmentShader = '' +
-'  precision mediump float;\n' +
-'  varying float v_t;\n' +
-'  uniform vec3 u_end_color;\n' +
-'  void main() {\n' +
-'    vec4 colorStart = vec4(.94,.76,.61,1.0);\n' +
-'    vec4 colorEnd = vec4(u_end_color,1.0);\n' +
-'    gl_FragColor = mix(colorStart, colorEnd, v_t);\n' +
-'  }\n';
+WebGLVectorTile2Shaders.sitc4r2WithAlphaAndColorMapVertexShader = `
+attribute vec4 a_p0;
+attribute vec4 a_p2;
+attribute vec4 a_p1;
+attribute float a_epoch0;
+attribute float a_epoch1;
+attribute float a_alpha;
+uniform float u_epoch;
+uniform mat4 u_map_matrix;
+varying float v_t;
+varying float v_alpha;
+vec2 bezier(float t, vec2 p0, vec2 p1, vec2 p2) {
+  return (1.0-t)*(1.0-t)*p0 + 2.0*(1.0-t)*t*p1 + t*t*p2;
+}
+void main() {
+  vec4 position = vec4(-1,-1,-1,-1);
+  if (a_epoch0 <= u_epoch && u_epoch <= a_epoch1) {
+    float t = (u_epoch - a_epoch0)/(a_epoch1 - a_epoch0);
+    vec2 pos = bezier(t, a_p0.xy, a_p1.xy, a_p2.xy);
+    position = u_map_matrix * vec4(pos.x, pos.y, 0.0, 1.0);
+    v_t = t;
+  }
+  gl_Position = position;
+  gl_PointSize = 1.0;
+  v_alpha = a_alpha;
+}`;
 
-WebGLVectorTile2Shaders.sitc4r2WithAlphaAndColorMapVertexShader = '' +
-'  attribute vec4 a_p0;\n' +
-'  attribute vec4 a_p2;\n' +
-'  attribute vec4 a_p1;\n' +
-'  attribute float a_epoch0;\n' +
-'  attribute float a_epoch1;\n' +
-'  attribute float a_alpha;\n' +
-'  uniform float u_epoch;\n' +
-'  uniform mat4 u_map_matrix;\n' +
-'  varying float v_t;\n' +
-'  varying float v_alpha;\n' +
-'  vec2 bezier(float t, vec2 p0, vec2 p1, vec2 p2) {\n' +
-'    return (1.0-t)*(1.0-t)*p0 + 2.0*(1.0-t)*t*p1 + t*t*p2;\n' +
-'  }\n' +
-'  void main() {\n' +
-'    vec4 position = vec4(-1,-1,-1,-1);\n' +
-'    if (a_epoch0 <= u_epoch && u_epoch <= a_epoch1) {\n' +
-'      float t = (u_epoch - a_epoch0)/(a_epoch1 - a_epoch0);\n' +
-'      vec2 pos = bezier(t, a_p0.xy, a_p1.xy, a_p2.xy);\n' +
-'      position = u_map_matrix * vec4(pos.x, pos.y, 0.0, 1.0);\n' +
-'      v_t = t;\n' +
-'    }\n' +
-'    gl_Position = position;\n' +
-'    gl_PointSize = 1.0;\n' +
-'    v_alpha = a_alpha;\n' +
-'  }\n';
+WebGLVectorTile2Shaders.sitc4r2WithAlphaAndColorMapFragmentShader = `
+precision mediump float;
+varying float v_t;
+varying float v_alpha;
+uniform vec3 u_end_color;
+uniform sampler2D u_Image;
+void main() {
+  vec4 colorStart = vec4(.94,.76,.61,v_alpha);
+  vec4 colorEnd = vec4(u_end_color,v_alpha);
+  vec4 color = texture2D(u_Image, vec2(v_t,0.));
+  gl_FragColor = mix(colorStart, colorEnd, v_t);
+  gl_FragColor = vec4(color.rgb, v_alpha);
+}`
 
-WebGLVectorTile2Shaders.sitc4r2WithAlphaAndColorMapFragmentShader = '' +
-'  precision mediump float;\n' +
-'  varying float v_t;\n' +
-'  varying float v_alpha;\n' +
-'  uniform vec3 u_end_color;\n' +
-'  uniform sampler2D u_Image;\n' +
-'  void main() {\n' +
-'    vec4 colorStart = vec4(.94,.76,.61,v_alpha);\n' +
-'    vec4 colorEnd = vec4(u_end_color,v_alpha);\n' +
-'    vec4 color = texture2D(u_Image, vec2(v_t,0.));\n' +
-'    gl_FragColor = mix(colorStart, colorEnd, v_t);\n' +
-'    gl_FragColor = vec4(color.rgb, v_alpha);\n' +
-'  }\n';
+WebGLVectorTile2Shaders.basicVertexColorStartEpochEndEpochShader = `
+attribute vec2 a_coord;
+attribute float a_color;
+attribute float a_start_epoch; /* inclusive */
+attribute float a_end_epoch; /* exclusive */
+uniform float u_size;
+uniform mat4 u_map_matrix;
+uniform float u_epoch;
+varying float v_color;
+void main() {
+  if (a_start_epoch <= u_epoch && u_epoch < a_end_epoch) {
+    gl_Position = vec4(a_coord.x * u_map_matrix[0][0] + u_map_matrix[3][0], a_coord.y * u_map_matrix[1][1] + u_map_matrix[3][1],0,1);
+  } else {
+    gl_Position = vec4(-1,-1,-1,-1);
+  }
+  gl_PointSize = u_size;
+  v_color = a_color;
+}`;
 
+WebGLVectorTile2Shaders.basicVertexColorShader = `
+attribute vec2 a_coord;
+attribute float a_color;
+uniform float u_size;
+uniform mat4 u_map_matrix;
+varying float v_color;
+void main() {
+  gl_Position = vec4(a_coord.x * u_map_matrix[0][0] + u_map_matrix[3][0], a_coord.y * u_map_matrix[1][1] + u_map_matrix[3][1],0,1);
+  gl_PointSize = u_size;
+  v_color = a_color;
+}`;
 
-WebGLVectorTile2Shaders.basicVertexColorStartEpochEndEpochShader =
-  'attribute vec2 a_coord;\n' +
-  'attribute float a_color;\n' +
-  'attribute float a_start_epoch; /* inclusive */\n' +
-  'attribute float a_end_epoch; /* exclusive */\n' +
-  'uniform float u_size;\n' +
-  'uniform mat4 u_map_matrix;\n' +
-  'uniform float u_epoch;\n' +
-  'varying float v_color;\n' +
-  'void main() {\n' +
-  '  if (a_start_epoch <= u_epoch && u_epoch < a_end_epoch) {\n' +
-  '    gl_Position = vec4(a_coord.x * u_map_matrix[0][0] + u_map_matrix[3][0], a_coord.y * u_map_matrix[1][1] + u_map_matrix[3][1],0,1);\n' +
-  '  } else {\n' +
-  '    gl_Position = vec4(-1,-1,-1,-1);\n' +
-  '  }\n' +
-  '  gl_PointSize = u_size;\n' +
-  '  v_color = a_color;\n' +
-  '}\n';
-
-WebGLVectorTile2Shaders.basicVertexColorShader =
-  'attribute vec2 a_coord;\n' +
-  'attribute float a_color;\n' +
-  'uniform float u_size;\n' +
-  'uniform mat4 u_map_matrix;\n' +
-  'varying float v_color;\n' +
-  'void main() {\n' +
-  '  gl_Position = vec4(a_coord.x * u_map_matrix[0][0] + u_map_matrix[3][0], a_coord.y * u_map_matrix[1][1] + u_map_matrix[3][1],0,1);\n' +
-  '  gl_PointSize = u_size;\n' +
-  '  v_color = a_color;\n' +
-  '}\n';
-
-WebGLVectorTile2Shaders.basicSquareFragmentShader =
-  'precision lowp float;\n' +
-  'varying float v_color;\n' +
-  'vec3 unpackColor(float f) {\n' +
-  '  vec3 color;\n' +
-  '  color.b = floor(f / 256.0 / 256.0);\n' +
-  '  color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);\n' +
-  '  color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);\n' +
-  '  return color / 256.0;\n' +
-  '}\n' +
-  'void main() {\n' +
-  '  gl_FragColor = vec4(unpackColor(v_color),1.0);\n' +
-  '}\n';
+WebGLVectorTile2Shaders.basicSquareFragmentShader = `
+precision lowp float;
+varying float v_color;
+vec3 unpackColor(float f) {
+  vec3 color;
+  color.b = floor(f / 256.0 / 256.0);
+  color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);
+  color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);
+  return color / 256.0;
+}
+void main() {
+  gl_FragColor = vec4(unpackColor(v_color),1.0);
+}`;
 
 
-WebGLVectorTile2Shaders.WindVectorsShaders_drawVertexShader =
-"precision mediump float;\n\n" +
-"attribute float a_index;\n\n" +
-"uniform sampler2D u_particles;\n" +
-"uniform float u_particles_res;\n\n" +
-"//uniform vec2 u_scale;\n\n" +
-"//uniform vec2 u_translate;\n\n" +
-"uniform mat4 u_transform;\n\n" +
-"varying vec2 v_particle_pos;\n\n" +
-"void main() {\n" +
-"    vec4 color = texture2D(u_particles, vec2(fract(a_index / u_particles_res), floor(a_index / u_particles_res) / u_particles_res));\n\n" +
-"    // decode current particle position from the pixel's RGBA value\n" +
-"    v_particle_pos = vec2(color.r / 255.0 + color.b, color.g / 255.0 + color.a);\n\n" +
-"    gl_PointSize = 1.;\n" +
-"    //vec2 pos = vec2(u_scale.x*(v_particle_pos.x + u_translate.x), u_scale.y*(v_particle_pos.y + u_translate.y));\n" +
-"    gl_Position = u_transform * vec4(v_particle_pos.x, v_particle_pos.y, 0., 1.);\n" +
-"    //gl_Position = vec4(2.0 * pos.x - 1.0, 1.0 - 2.0 * pos.y, 0, 1);\n" +
-"    //gl_Position = vec4(2.0 * v_particle_pos.x - 1.0,\n"+
-"    //                   1.0 - 2.0 * v_particle_pos.y,\n"+
-"    //                   0, 1);\n" +
-"}\n";
+WebGLVectorTile2Shaders.WindVectorsShaders_drawVertexShader = `
+precision mediump float;\n
+attribute float a_index;\n
+uniform sampler2D u_particles;
+uniform float u_particles_res;\n
+//uniform vec2 u_scale;\n
+//uniform vec2 u_translate;\n
+uniform mat4 u_transform;\n
+varying vec2 v_particle_pos;\n
+void main() {
+    vec4 color = texture2D(u_particles, vec2(fract(a_index / u_particles_res), floor(a_index / u_particles_res) / u_particles_res));\n
+    // decode current particle position from the pixel's RGBA value
+    v_particle_pos = vec2(color.r / 255.0 + color.b, color.g / 255.0 + color.a);
+    gl_PointSize = 1.;
+    //vec2 pos = vec2(u_scale.x*(v_particle_pos.x + u_translate.x), u_scale.y*(v_particle_pos.y + u_translate.y));
+    gl_Position = u_transform * vec4(v_particle_pos.x, v_particle_pos.y, 0., 1.);
+    //gl_Position = vec4(2.0 * pos.x - 1.0, 1.0 - 2.0 * pos.y, 0, 1);
+    //gl_Position = vec4(2.0 * v_particle_pos.x - 1.0,
+    //                   1.0 - 2.0 * v_particle_pos.y,
+    //                   0, 1);
+}`
 
-WebGLVectorTile2Shaders.WindVectorsShaders_drawFragmentShader =
-"precision mediump float;\n\n" +
-"uniform sampler2D u_wind;\n" +
-"uniform vec2 u_wind_min;\n" +
-"uniform vec2 u_wind_max;\n" +
-"uniform sampler2D u_color_ramp;\n\n" +
-"varying vec2 v_particle_pos;\n\n" +
-"void main() {\n" +
-"    vec2 velocity = mix(u_wind_min, u_wind_max, texture2D(u_wind, v_particle_pos).rg);\n" +
-"    float speed_t = length(velocity) / length(u_wind_max);\n\n" +
-"    // color ramp is encoded in a 16x16 texture\n" +
-"    vec2 ramp_pos = vec2(\n" +
-"                        fract(16.0 * speed_t),\n" +
-"                        floor(16.0 * speed_t) / 16.0);\n\n" +
-"    gl_FragColor = texture2D(u_color_ramp, ramp_pos);\n" +
-"}\n";
+WebGLVectorTile2Shaders.WindVectorsShaders_drawFragmentShader = `
+precision mediump float;\n
+uniform sampler2D u_wind;
+uniform vec2 u_wind_min;
+uniform vec2 u_wind_max;
+uniform sampler2D u_color_ramp;\n
+varying vec2 v_particle_pos;\n
+void main() {
+    vec2 velocity = mix(u_wind_min, u_wind_max, texture2D(u_wind, v_particle_pos).rg);
+    float speed_t = length(velocity) / length(u_wind_max);\n
+    // color ramp is encoded in a 16x16 texture
+    vec2 ramp_pos = vec2(
+                        fract(16.0 * speed_t),
+                        floor(16.0 * speed_t) / 16.0);\n
+    gl_FragColor = texture2D(u_color_ramp, ramp_pos);
+}`;
 
-WebGLVectorTile2Shaders.WindVectorsShaders_quadVertexShader =
-"precision mediump float;\n\n" +
-"attribute vec2 a_pos;\n\n" +
-"varying vec2 v_tex_pos;\n\n" +
-"//uniform vec2 u_scale;\n\n" +
-"//uniform vec2 u_translate;\n\n" +
-"void main() {\n" +
-"    v_tex_pos = a_pos;\n" +
-"    gl_Position = vec4(1.0 - 2.0 * a_pos, 0, 1);\n" +
-"    }\n";
+WebGLVectorTile2Shaders.WindVectorsShaders_quadVertexShader = `
+precision mediump float;\n
+attribute vec2 a_pos;\n
+varying vec2 v_tex_pos;\n
+//uniform vec2 u_scale;\n
+//uniform vec2 u_translate;\n
+void main() {
+  v_tex_pos = a_pos;
+  gl_Position = vec4(1.0 - 2.0 * a_pos, 0, 1);
+}`;
 
 
-WebGLVectorTile2Shaders.WindVectorsShaders_screenFragmentShader =
-"precision mediump float;\n\n" +
-"uniform sampler2D u_screen;\n" +
-"uniform float u_opacity;\n\n" +
-"varying vec2 v_tex_pos;\n\n" +
-"void main() {\n" +
-"    vec4 color = texture2D(u_screen, 1.0 - v_tex_pos);\n" +
-"    // a hack to guarantee opacity fade out even with a value close to 1.0\n" +
-"    gl_FragColor = vec4(floor(255.0 * color * u_opacity) / 255.0);\n" +
-"    vec4 rgba = vec4(floor(255.0 * color * u_opacity) / 255.0);\n" +
-"    gl_FragColor = vec4(rgba);\n" +
-"    //gl_FragColor = vec4(192./256.,192./256.,192./256.,rgba.a);\n" +
-"}\n";
+WebGLVectorTile2Shaders.WindVectorsShaders_screenFragmentShader = `
+precision mediump float;
+uniform sampler2D u_screen;
+uniform float u_opacity;
+varying vec2 v_tex_pos;
+void main() {
+    vec4 color = texture2D(u_screen, 1.0 - v_tex_pos);
+    // a hack to guarantee opacity fade out even with a value close to 1.0
+    gl_FragColor = vec4(floor(255.0 * color * u_opacity) / 255.0);
+    vec4 rgba = vec4(floor(255.0 * color * u_opacity) / 255.0);
+    gl_FragColor = vec4(rgba);
+    //gl_FragColor = vec4(192./256.,192./256.,192./256.,rgba.a);
+}`;
 
-WebGLVectorTile2Shaders.WindVectorsShaders_updateFragmentShader =
-"precision highp float;\n\n\n" +
-"uniform sampler2D u_particles;\n\n" +
-"uniform sampler2D u_wind;\n\n" +
-"uniform vec2 u_wind_res;\n\n" +
-"uniform vec2 u_wind_min;\n\n" +
-"uniform vec2 u_wind_max;\n\n" +
-"uniform vec2 u_topLeftBound;\n\n" +
-"uniform vec2 u_bottomRightBound;\n\n" +
-"uniform float u_rand_seed;\n\n" +
-"uniform float u_speed_factor;\n\n" +
-"uniform float u_drop_rate;\n\n" +
-"uniform float u_drop_rate_bump;\n\n\n" +
-"varying vec2 v_tex_pos;\n\n\n" +
-"// pseudo-random generator\n\n" +
-"const vec3 rand_constants = vec3(12.9898, 78.233, 4375.85453);\n\n" +
-"float rand(const vec2 co) {\n\n" +
-"    float t = dot(rand_constants.xy, co);\n\n" +
-"        return fract(sin(t) * (rand_constants.z + t));\n\n" +
-"    }\n\n\n" +
-"    // wind speed lookup; use manual bilinear filtering based on 4 adjacent pixels for smooth interpolation\n\n" +
-"    vec2 lookup_wind(const vec2 uv) {\n\n" +
-"        // return texture2D(u_wind, uv).rg; // lower-res hardware filtering\n" +
-"        vec2 px = 1.0 / u_wind_res;\n" +
-"        vec2 vc = (floor(uv * u_wind_res)) * px;\n" +
-"        vec2 f = fract(uv * u_wind_res);\n" +
-"        vec2 tl = texture2D(u_wind, vc).rg;\n" +
-"        vec2 tr = texture2D(u_wind, vc + vec2(px.x, 0)).rg;\n" +
-"        vec2 bl = texture2D(u_wind, vc + vec2(0, px.y)).rg;\n" +
-"        vec2 br = texture2D(u_wind, vc + px).rg;\n" +
-"        return mix(mix(tl, tr, f.x), mix(bl, br, f.x), f.y);\n" +
-"    }\n\n" +
-"    void main() {\n" +
-"        vec4 color = texture2D(u_particles, v_tex_pos);\n" +
-"        vec2 pos = vec2(color.r / 255.0 + color.b, color.g / 255.0 + color.a); // decode particle position from pixel RGBA\n\n" +
-"        vec2 velocity = mix(u_wind_min, u_wind_max, lookup_wind(pos));\n" +
-"        float speed_t = length(velocity) / length(u_wind_max);\n\n" +
-"        // take EPSG:4236 distortion into account for calculating where the particle moved\n" +
-"        float distortion = cos(radians(pos.y * 180.0 - 90.0));\n" +
-"        distortion = 1.0;\n" +
-"        vec2 offset = vec2(velocity.x / distortion, -velocity.y) * 0.0001 * u_speed_factor;\n\n" +
-"        // update particle position, wrapping around the date line\n" +
-"        pos = fract(1.0 + pos + offset);\n\n" +
-"        // a random seed to use for the particle drop\n" +
-"        vec2 seed = (pos + v_tex_pos) * u_rand_seed;\n\n" +
-"        // drop rate is a chance a particle will restart at random position, to avoid degeneration\n" +
-"        float drop_rate = u_drop_rate + speed_t * u_drop_rate_bump;\n" +
-"        //vec2 u_topLeftBound = vec2(0.1, 0.2); vec2 u_bottomRightBound = vec2(0.2, 0.4);\n" +
-"        vec2 in_bounds2 = step(u_topLeftBound, pos) * step(pos, u_bottomRightBound);\n" +
+WebGLVectorTile2Shaders.WindVectorsShaders_updateFragmentShader = `
+precision highp float;
+uniform sampler2D u_particles;
+uniform sampler2D u_wind;
+uniform vec2 u_wind_res;
+uniform vec2 u_wind_min;
+uniform vec2 u_wind_max;
+uniform vec2 u_topLeftBound;
+uniform vec2 u_bottomRightBound;
+uniform float u_rand_seed;
+uniform float u_speed_factor;
+uniform float u_drop_rate;
+uniform float u_drop_rate_bump;
+varying vec2 v_tex_pos;
+// pseudo-random generator
+const vec3 rand_constants = vec3(12.9898, 78.233, 4375.85453);
+float rand(const vec2 co) {
+    float t = dot(rand_constants.xy, co);
+        return fract(sin(t) * (rand_constants.z + t));
+    }
+    // wind speed lookup; use manual bilinear filtering based on 4 adjacent pixels for smooth interpolation
+    vec2 lookup_wind(const vec2 uv) {
+        // return texture2D(u_wind, uv).rg; // lower-res hardware filtering
+        vec2 px = 1.0 / u_wind_res;
+        vec2 vc = (floor(uv * u_wind_res)) * px;
+        vec2 f = fract(uv * u_wind_res);
+        vec2 tl = texture2D(u_wind, vc).rg;
+        vec2 tr = texture2D(u_wind, vc + vec2(px.x, 0)).rg;
+        vec2 bl = texture2D(u_wind, vc + vec2(0, px.y)).rg;
+        vec2 br = texture2D(u_wind, vc + px).rg;
+        return mix(mix(tl, tr, f.x), mix(bl, br, f.x), f.y);
+    }
+    void main() {
+        vec4 color = texture2D(u_particles, v_tex_pos);
+        vec2 pos = vec2(color.r / 255.0 + color.b, color.g / 255.0 + color.a); // decode particle position from pixel RGBA\n
+        vec2 velocity = mix(u_wind_min, u_wind_max, lookup_wind(pos));
+        float speed_t = length(velocity) / length(u_wind_max);\n
+        // take EPSG:4236 distortion into account for calculating where the particle moved
+        float distortion = cos(radians(pos.y * 180.0 - 90.0));
+        distortion = 1.0;
+        vec2 offset = vec2(velocity.x / distortion, -velocity.y) * 0.0001 * u_speed_factor;\n
+        // update particle position, wrapping around the date line
+        pos = fract(1.0 + pos + offset);\n
+        // a random seed to use for the particle drop
+        vec2 seed = (pos + v_tex_pos) * u_rand_seed;\n
+        // drop rate is a chance a particle will restart at random position, to avoid degeneration
+        float drop_rate = u_drop_rate + speed_t * u_drop_rate_bump;
+        //vec2 u_topLeftBound = vec2(0.1, 0.2); vec2 u_bottomRightBound = vec2(0.2, 0.4);
+        vec2 in_bounds2 = step(u_topLeftBound, pos) * step(pos, u_bottomRightBound);
 // out_of_bounds is 0 or 1
-"        float out_of_bounds = 1.0 - in_bounds2.x * in_bounds2.y;\n" +
+        float out_of_bounds = 1.0 - in_bounds2.x * in_bounds2.y;
 // drop if 1.0 - drop_rate < rand(seed), or if out_of_bounds
-"        float drop = step(1.0 - drop_rate, rand(seed) + out_of_bounds);\n\n" +
-"        vec2 random_pos = mix(u_topLeftBound, u_bottomRightBound, vec2(rand(seed + 1.3), rand(seed + 2.1)));\n" +
-"        pos = mix(pos, random_pos, drop);\n" +
-"        // encode the new particle position back into RGBA\n" +
-"        gl_FragColor = vec4(fract(pos * 255.0), floor(pos * 255.0) / 255.0);" +
-"    }\n";
+        float drop = step(1.0 - drop_rate, rand(seed) + out_of_bounds);
+        vec2 random_pos = mix(u_topLeftBound, u_bottomRightBound, vec2(rand(seed + 1.3), rand(seed + 2.1)));
+        pos = mix(pos, random_pos, drop);
+        // encode the new particle position back into RGBA
+        gl_FragColor = vec4(fract(pos * 255.0), floor(pos * 255.0) / 255.0);
+    }`
 
-WebGLVectorTile2Shaders.WindVectorsShaders_mapVertexShader = '' +
-  'attribute vec2 a_pos;\n' +
-  "uniform mat4 u_transform;\n\n" +
-  'varying vec2 v_tex_pos;\n' +
+WebGLVectorTile2Shaders.WindVectorsShaders_mapVertexShader = `
+attribute vec2 a_pos;
+uniform mat4 u_transform;\n
+varying vec2 v_tex_pos;
+void main(void) {
+  v_tex_pos = vec2(a_pos.x, a_pos.y);\n' +
+  //gl_Position = vec4(2.0 * pos.x - 1.0, 1.0 - 2.0 * pos.y, 0, 1);
+  gl_Position = u_transform * vec4(a_pos.x, a_pos.y, 0., 1.);
+}`;
 
-  'void main(void) {\n' +
-  '  v_tex_pos = vec2(a_pos.x, a_pos.y);\n' +
-//  '  gl_Position = vec4(2.0 * pos.x - 1.0, 1.0 - 2.0 * pos.y, 0, 1);\n' +
-"    gl_Position = u_transform * vec4(a_pos.x, a_pos.y, 0., 1.);\n" +
-  '}\n';
-
-
-WebGLVectorTile2Shaders.WindVectorsShaders_mapFragmentShader = '' +
-  'precision mediump float;\n' +
-  'varying vec2 v_tex_pos;\n' +
-  'uniform sampler2D u_wind;\n' +
-  'void main(void) {\n' +
-  '  vec4 textureColor = texture2D(u_wind, vec2(v_tex_pos.s, v_tex_pos.t));\n' +
-  '  gl_FragColor = vec4(textureColor.rgb, 1.0);\n' +
-  '}\n';
-
-
-
+WebGLVectorTile2Shaders.WindVectorsShaders_mapFragmentShader = `
+precision mediump float;
+varying vec2 v_tex_pos;
+uniform sampler2D u_wind;
+void main(void) {
+  vec4 textureColor = texture2D(u_wind, vec2(v_tex_pos.s, v_tex_pos.t));
+  gl_FragColor = vec4(textureColor.rgb, 1.0);
+}`;

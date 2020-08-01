@@ -4,7 +4,6 @@
 /// <reference path="StoryEditor.js"/>
 /// <reference path="../../js/dat.gui.min.js"/>
 /// <reference path="../../js/utils.js"/>
-/// <reference path="../../timemachine/js/glutils/Glb.js"/>
 /// <reference path="../../timemachine/js/org/gigapan/timelapse/timelapse.js"/>
 /// <reference path="../../timemachine/js/org/gigapan/timelapse/crossdomain_api.js"/>
 /// <reference path="../../timemachine/libs/change-detect/js/TimeMachineCanvasLayer.js"/>
@@ -12,15 +11,10 @@
 (window as any).dbg = {}
 
 import { WebGLMapLayer } from './WebGLMapLayer'
-import { WebGLMapLayer2 } from './WebGLMapLayer2'
-import { WebGLTimeMachineLayer } from './WebGLTimeMachineLayer'
-import { WebGLVectorLayer2 } from './WebGLVectorLayer2'
 
-import { WebGLMapTile } from './WebGLMapTile'
 import { WebGLVectorTile2 } from './WebGLVectorTile2'
 import { WebGLVideoTile } from './WebGLVideoTile'
 
-import { Tile } from './Tile';
 // Backwards-compatibility with js code
 // (window as any).Tile = Tile;
 
@@ -53,6 +47,8 @@ import { DateRangePicker } from './dateRangePicker';
 (window as any).dbg.DateRangePicker = DateRangePicker;
 
 import { GSheet } from './GSheet';
+import { MapboxLayer } from './MapboxLayer'
+import { Glb } from './Glb';
 (window as any).dbg.GSheet = GSheet;
 
 var contentSearch: ContentSearch;
@@ -3522,7 +3518,7 @@ async function setupUIAndOldLayers() {
   gEarthTime.canvasLayer = new TimeMachineCanvasLayer(timeMachineCanvasLayerOptions);
 
   // initialize WebGL
-  gl = gEarthTime.canvasLayer.canvas.getContext('experimental-webgl');
+  gl = gEarthTime.canvasLayer.canvas.getContext('experimental-webgl',  {antialias: false, alpha: true, stencil: true, depth: true, failIfMajorPerformanceCaveat: false});
   (window as any).gl = gl; // TODO(LayerDB): someday stop using this global
 
   gEarthTime.glb = new Glb(gl);
@@ -6068,6 +6064,7 @@ function update() {
 
   perf_drawframe();
   gl.clear(gl.COLOR_BUFFER_BIT);
+  //MapboxLayer.beginFrame();
 
   // Set this to true at the beginning of frame redraw;  any layer that decides it wasn't completely drawn will set
   // this to false upon draw below
@@ -6217,6 +6214,9 @@ function update() {
 
   ////////////////////////////////////////////////////////////////
   // LAYERDB
+
+  /** END NS LAYER */
+  //MapboxLayer.endFrame();
 
   return;
 
@@ -7985,8 +7985,9 @@ async function init() {
   //}
   var layerDB = gEarthTime.layerDB;
   layerDB.setShownLayers([
-    layerDB.getLayer('mapbox_dark_map')
-    //layerDB.getLayer('crw')
+    //layerDB.getLayer('mapbox_grocery_convenience_allegheny_county')
+    //layerDB.getLayer('mapbox_dark_map')
+    layerDB.getLayer('crw')
     //layerDB.getLayer('coral_only'),
     //layerDB.getLayer('gsr_oceans_yearly_ppr_1950_2014_animated')
   ]);

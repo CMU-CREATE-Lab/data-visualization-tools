@@ -128,7 +128,7 @@ export class WebGLMapTile extends Tile {
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, this._texture);
       if (this._layer.colormapTexture) {
-        gl.uniform1i(gl.getUniformLocation(this.program, "uColormap"), 2); // texture unit 2
+        gl.uniform1i(this.program.uColormap, 2); // texture unit 2
         gl.activeTexture(gl.TEXTURE2);
         gl.bindTexture(gl.TEXTURE_2D, this._layer.colormapTexture);
       }
@@ -153,11 +153,9 @@ export class WebGLMapTile extends Tile {
       gl.useProgram(this.program);
       gl.enable(gl.BLEND);
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-      var cLoc = gl.getUniformLocation(this.program, 'u_C');
-      gl.uniform1f(cLoc, options.currentC);
+      gl.uniform1f(this.program.u_C, options.currentC);
       var uColor = color;
-      var colorLoc = gl.getUniformLocation(this.program, 'u_Color');
-      gl.uniform4fv(colorLoc, uColor);
+      gl.uniform4fv(this.program.u_Color, uColor);
 
       gl.uniformMatrix4fv(this.program.uTransform, false, tileTransform);
       gl.bindBuffer(gl.ARRAY_BUFFER, this._triangles);
@@ -184,7 +182,7 @@ export class WebGLMapTile extends Tile {
       gl.useProgram(this.program);
       gl.enable(gl.BLEND);
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-      var cLoc = gl.getUniformLocation(this.program, 'u_C');
+      var cLoc = this.program.u_C;
       throw Error('TODO: Need to implement way to get sea level rise from slider');
       var seaLevelMeters = 2;
       //var seaLevelMeters = getCustomSliderCurrentTickValue() + 0.01;
@@ -203,8 +201,7 @@ export class WebGLMapTile extends Tile {
       
       gl.uniform1f(cLoc, seaLevelMeters / 256.0);
       var uColor = color;
-      var colorLoc = gl.getUniformLocation(this.program, 'u_Color');
-      gl.uniform4fv(colorLoc, uColor);
+      gl.uniform4fv(this.program.u_Color, uColor);
 
       gl.uniformMatrix4fv(this.program.uTransform, false, tileTransform);
       gl.bindBuffer(gl.ARRAY_BUFFER, this._triangles);
@@ -235,11 +232,9 @@ export class WebGLMapTile extends Tile {
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
       //console.log(currentBValue);
-      var cLoc = gl.getUniformLocation(this.program, 'u_b');
-      gl.uniform1f(cLoc, currentBValue);
+      gl.uniform1f(this.program.u_b, currentBValue);
 
-      var cLoc = gl.getUniformLocation(this.program, 'u_alpha');
-      gl.uniform1f(cLoc, currentAlpha);
+      gl.uniform1f(this.program.u_alpha, currentAlpha);
 
       gl.uniformMatrix4fv(this.program.uTransform, false, tileTransform);
       gl.bindBuffer(gl.ARRAY_BUFFER, this._triangles);
@@ -307,133 +302,128 @@ WebGLMapTile.activeTileCount = 0;
 
 export var WebGLMapTileShaders: {[name: string]: string} = {};
 
-WebGLMapTileShaders.textureVertexShader =
-  'attribute vec2 aTextureCoord;\n' +
-  'uniform mat4 uTransform;\n' +
-  'varying vec2 vTextureCoord;\n' +
+WebGLMapTileShaders.textureVertexShader = `
+attribute vec2 aTextureCoord;
+uniform mat4 uTransform;
+varying vec2 vTextureCoord;
+void main(void) {
+  vTextureCoord = vec2(aTextureCoord.x, aTextureCoord.y);
+  gl_Position = uTransform * vec4(aTextureCoord.x, aTextureCoord.y, 0., 1.);
+}`;
 
-  'void main(void) {\n' +
-  '  vTextureCoord = vec2(aTextureCoord.x, aTextureCoord.y);\n' +
-  '  gl_Position = uTransform * vec4(aTextureCoord.x, aTextureCoord.y, 0., 1.);\n' +
-  '}\n';
+WebGLMapTileShaders.textureFragmentShader = `
+precision mediump float;
+varying vec2 vTextureCoord;
+uniform sampler2D uSampler;
+uniform bool uShowTile;
+void main(void) {
+  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+  if (uShowTile) {
+    gl_FragColor = vec4(textureColor.rgb, textureColor.a);
+  } else {
+    gl_FragColor = vec4(textureColor.rgb, 0.);
+  }
+}`;
 
+WebGLMapTileShaders.textureColormapFragmentShader = `
+precision mediump float;
+varying vec2 vTextureCoord;
+uniform sampler2D uSampler;
+uniform sampler2D uColormap;
+uniform bool uShowTile;
+void main(void) {
+  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+  vec4 colormap = texture2D(uColormap, vec2(textureColor.r,textureColor.r));
+  //if (uShowTile) {
+    //gl_FragColor = vec4(textureColor.rgb, textureColor.a);
+  //} else {
+    gl_FragColor = vec4(colormap.rgb, textureColor.a);
+  //}
+}`;
 
-WebGLMapTileShaders.textureFragmentShader =
-  'precision mediump float;\n' +
-  'varying vec2 vTextureCoord;\n' +
-  'uniform sampler2D uSampler;\n' +
-  'uniform bool uShowTile;\n' +
-  'void main(void) {\n' +
-  '  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));\n' +
-  '  if (uShowTile) {\n' +
-  '    gl_FragColor = vec4(textureColor.rgb, textureColor.a);\n' +
-  '  } else {\n' +
-  '    gl_FragColor = vec4(textureColor.rgb, 0.);\n' +
-  '  }\n' +
-  '}\n';
+WebGLMapTileShaders.seaLevelRiseTextureFragmentShader = `
+precision mediump float;
+varying vec2 vTextureCoord;
+uniform sampler2D uSampler;
+uniform float u_C;
+uniform vec4 u_Color;
+void main(void) {
+  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+  if (textureColor.r == 0. && textureColor.g == 0. && textureColor.b == 0.) {
+    gl_FragColor = vec4(u_Color.rgb, 1.);
+  } else if (textureColor.r == textureColor.g && textureColor.b == textureColor.r) {
+    gl_FragColor = vec4(textureColor.rgb, 0.);
+  } else {
+   float currentC = u_C*2.0 / 255.0;
+   if (textureColor.b <= currentC) {
+      gl_FragColor = vec4(u_Color.rgb, textureColor.a);
+   }
+   else {
+      gl_FragColor = vec4(1.0,0.0,0.0, 0.0);
+   }
+  }
+}`;
 
+WebGLMapTileShaders.seaLevelRiseV2TextureFragmentShader = `
+precision mediump float;
+varying vec2 vTextureCoord;
+uniform sampler2D uSampler;
+uniform float u_C;
+uniform vec4 u_Color;
+void main(void) {
+  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+  if (textureColor.r <= u_C) {
+    gl_FragColor = vec4(u_Color.rgb, 1.);
+  } else {
+    gl_FragColor = vec4(0., 0., 0., 0.);
+  }
+}`;
 
-WebGLMapTileShaders.textureColormapFragmentShader =
-  'precision mediump float;\n' +
-  'varying vec2 vTextureCoord;\n' +
-  'uniform sampler2D uSampler;\n' +
-  'uniform sampler2D uColormap;\n' +
-  'uniform bool uShowTile;\n' +
-  'void main(void) {\n' +
-  '  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));\n' +
-  '  vec4 colormap = texture2D(uColormap, vec2(textureColor.r,textureColor.r));\n' + 
-  '  //if (uShowTile) {\n' +
-  '    //gl_FragColor = vec4(textureColor.rgb, textureColor.a);\n' +
-  '  //} else {\n' +
-  '    gl_FragColor = vec4(colormap.rgb, textureColor.a);\n' +
-  '  //}\n' +
-  '}\n';
-
-WebGLMapTileShaders.seaLevelRiseTextureFragmentShader =
-  'precision mediump float;\n' +
-  'varying vec2 vTextureCoord;\n' +
-  'uniform sampler2D uSampler;\n' +
-  'uniform float u_C;\n' +
-  'uniform vec4 u_Color;\n' +
-  'void main(void) {\n' +
-  '  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));\n' +
-  '  if (textureColor.r == 0. && textureColor.g == 0. && textureColor.b == 0.) {\n' +
-  '    gl_FragColor = vec4(u_Color.rgb, 1.);\n' +
-  '  } else if (textureColor.r == textureColor.g && textureColor.b == textureColor.r) {\n' +
-  '    gl_FragColor = vec4(textureColor.rgb, 0.);\n' +
-  '  } else {\n' +
-  '   float currentC = u_C*2.0 / 255.0;\n' +
-  '   if (textureColor.b <= currentC) {\n' +
-  '      gl_FragColor = vec4(u_Color.rgb, textureColor.a);\n'+
-  '   }\n'+
-  '   else {\n' +
-  '      gl_FragColor = vec4(1.0,0.0,0.0, 0.0);\n'+
-  '   }\n'+
-
-  '  }\n' +
-  '}\n';
-
-WebGLMapTileShaders.seaLevelRiseV2TextureFragmentShader = [
-  'precision mediump float;',
-  'varying vec2 vTextureCoord;',
-  'uniform sampler2D uSampler;',
-  'uniform float u_C;',
-  'uniform vec4 u_Color;',
-  'void main(void) {',
-  '  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));',
-  '  if (textureColor.r <= u_C) {',
-  '    gl_FragColor = vec4(u_Color.rgb, 1.);',
-  '  } else {',
-  '    gl_FragColor = vec4(0., 0., 0., 0.);',
-  '  }',
-  '}'
-].join("\n");
 
 // Temporary, for book
-WebGLMapTileShaders.seaLevelRiseTintedTextureFragmentShader =
-  'precision mediump float;\n' +
-  'varying vec2 vTextureCoord;\n' +
-  'uniform sampler2D uSampler;\n' +
-  'uniform float u_C;\n' +
-  'uniform vec4 u_Color;\n' +
-  'void main(void) {\n' +
-  '  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));\n' +
-  '  if (textureColor.r == 0. && textureColor.g == 0. && textureColor.b == 0.) {\n' +
-  '    gl_FragColor = vec4(u_Color.rgb, 0.);\n' +
-  '  } else if (textureColor.r == textureColor.g && textureColor.b == textureColor.r) {\n' +
-  '    gl_FragColor = vec4(textureColor.rgb, 0.);\n' +
-  '  } else {\n' +
-  '   float currentC = u_C*2.0 / 255.0;\n' +
-  '   if (textureColor.b <= currentC) {\n' +
-  '     //vec3 colorA = vec3(240.,248.,255.)/255.;\n' +
-  '     //vec3 colorB = vec3(100.,149.,237.)/255.;\n' +
-  '     vec3 colorA = vec3(65.,105.,225.)/255.;\n' +
-  '     vec3 colorB = vec3(100.,149.,237.)/255.;\n' +
-  '     float pct = textureColor.b / (8.0 / 255.0);\n' +
-  '     gl_FragColor = vec4(mix(colorA, colorB, pct), 1.0);\n'+
-  '   }\n'+
-  '   else {\n' +
-  '      gl_FragColor = vec4(textureColor.rgb, 0.0);\n'+
-  '   }\n'+
+WebGLMapTileShaders.seaLevelRiseTintedTextureFragmentShader = `
+precision mediump float;
+varying vec2 vTextureCoord;
+uniform sampler2D uSampler;
+uniform float u_C;
+uniform vec4 u_Color;
+void main(void) {
+  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+  if (textureColor.r == 0. && textureColor.g == 0. && textureColor.b == 0.) {
+    gl_FragColor = vec4(u_Color.rgb, 0.);
+  } else if (textureColor.r == textureColor.g && textureColor.b == textureColor.r) {
+    gl_FragColor = vec4(textureColor.rgb, 0.);
+  } else {
+   float currentC = u_C*2.0 / 255.0;
+   if (textureColor.b <= currentC) {
+     //vec3 colorA = vec3(240.,248.,255.)/255.;
+     //vec3 colorB = vec3(100.,149.,237.)/255.;
+     vec3 colorA = vec3(65.,105.,225.)/255.;
+     vec3 colorB = vec3(100.,149.,237.)/255.;
+     float pct = textureColor.b / (8.0 / 255.0);
+     gl_FragColor = vec4(mix(colorA, colorB, pct), 1.0);
+   }
+   else {
+      gl_FragColor = vec4(textureColor.rgb, 0.0);
+   }
+  }
+}`;
 
-  '  }\n' +
-  '}\n';
-
-WebGLMapTileShaders.animatedTextureFragmentShader =
-  'precision mediump float;\n' +
-  'varying vec2 vTextureCoord;\n' +
-  'uniform sampler2D u_sampler;\n' +
-  'uniform float u_b;\n' +
-  'uniform float u_alpha;\n' +
-  'void main(void) {\n' +
-  '  vec4 textureColor = texture2D(u_sampler, vec2(vTextureCoord.s, vTextureCoord.t));\n' +
-  '  if (textureColor.r == 0. && textureColor.g == 0. && textureColor.b == 0.) {\n' +
-  '    gl_FragColor = vec4(1.0, 0., 0.,.0);\n' +
-  '  }\n' +
-  '  else if (textureColor.b >= u_b) { \n' +
-  '    gl_FragColor = vec4(textureColor.rgb, 1.);\n' +
-  '  } else {\n' +
-  '    gl_FragColor = vec4(1.,0.,0.,0.);\n' +
-  '  }\n' +
-  '}\n';
+WebGLMapTileShaders.animatedTextureFragmentShader = `
+precision mediump float;
+varying vec2 vTextureCoord;
+uniform sampler2D u_sampler;
+uniform float u_b;
+uniform float u_alpha;
+void main(void) {
+  vec4 textureColor = texture2D(u_sampler, vec2(vTextureCoord.s, vTextureCoord.t));
+  if (textureColor.r == 0. && textureColor.g == 0. && textureColor.b == 0.) {
+    gl_FragColor = vec4(1.0, 0., 0.,.0);
+  }
+  else if (textureColor.b >= u_b) { 
+    gl_FragColor = vec4(textureColor.rgb, 1.);
+  } else {
+    gl_FragColor = vec4(1.,0.,0.,0.);
+  }
+}`;
 

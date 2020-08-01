@@ -3,6 +3,7 @@ import { TileIdx } from './TileIdx'
 import { TileView, TileBbox } from './TileView'
 import { Tile } from './Tile';
 import { WebGLVectorTile2 } from './WebGLVectorTile2';
+import { Glb } from './Glb';
 
 export interface DrawOptions {
   gmapsZoomLevel?: number;
@@ -43,7 +44,7 @@ export class LayerOptions {
     color: any;
     legendContent: any;
     legendKey: any;
-    drawOptions?: DrawOptions;
+    drawOptions?: DrawOptions = {};
     setDataOptions?: any;
     name: string;
     credit: string;
@@ -92,6 +93,10 @@ export class LayerOptions {
       this.gl = this.glb.gl;
       this.tileClass = tileClass;
       this._canvasLayer = gEarthTime.canvasLayer;
+      if (!this.drawOptions.color && this.color) {
+        // Deprcated declaration of color at toplevel; move to drawOptions
+        this.drawOptions.color = this.color;
+      }
   
       this._tileView = new TileView({
         panoWidth: this.tileWidth * Math.pow(2, this.nLevels),

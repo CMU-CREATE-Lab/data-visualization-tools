@@ -18,6 +18,7 @@ import { Utils } from './Utils';
 import { LayerDef } from './LayerProxy';
 import { LayerOptions } from './Layer';
 import { WebGLMapTile2, WebGLMapTile2Shaders } from './WebGLMapTile2';
+import { MapboxLayer } from './MapboxLayer';
 
 
 // Loaded from config-local.js
@@ -194,6 +195,7 @@ export class LayerFactory {
     }
 
     var url = layerDef.URL ? layerDef.URL.replace("http://", "https://") : '';
+
     var useLocalData = false;
 
     // Change a *subset* of layer URLs to be local
@@ -293,6 +295,8 @@ export class LayerFactory {
       }
       overrideDrawingFns();
       WebGLLayer = WebGLTimeMachineLayer;
+    } else if (layerOptions.mapType == "mapbox") {
+      WebGLLayer = MapboxLayer;
     } else {
       if (layerDef["Load Data Function"]) {
         layerOptions.loadDataFunction = LayerFactory.getFunction(layerOptions.maptype, 'loadData', layerDef["Load Data Function"]);

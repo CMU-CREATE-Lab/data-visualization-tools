@@ -3,6 +3,7 @@
 
 import { GSheet } from './GSheet'
 import { LayerDB } from './LayerDB'
+import { Glb } from './Glb'
 
 export interface EarthTime {
     startRedraw();
