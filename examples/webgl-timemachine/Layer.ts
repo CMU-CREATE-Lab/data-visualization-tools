@@ -2,17 +2,13 @@ import { gEarthTime } from './EarthTime'
 import { TileIdx } from './TileIdx'
 import { TileView, TileBbox } from './TileView'
 import { Tile } from './Tile';
-import { WebGLVectorTile2 } from './WebGLVectorTile2';
 import { Glb } from './Glb';
 
 export interface DrawOptions {
-  gmapsZoomLevel?: number;
   throttle?: number;
   epoch?: number;
   pointSize?: number;
   currentBValue?: number;
-  zoom?: number
-  currentTime?: Date
   span?: number
   subsampleAnnualRefugees?: boolean
   pointIdx?: any
@@ -20,6 +16,13 @@ export interface DrawOptions {
   color?: [number, number, number, number]
   idx?: number
   buffers?: any
+  minTime?: number
+  maxTime?: number
+  showTemp?: boolean
+  minTemp?: number
+  maxTemp?: number
+  first?: number
+  count?: number
 }
 
 export class LayerOptions {
@@ -105,7 +108,7 @@ export class LayerOptions {
         tileHeight: this.tileHeight,
         createTile: this._createTile.bind(this),
         maxLevelOverride: this.maxLevelOverride,
-        updateTiles: tileClass.update,
+        updateTiles: tileClass.updateTiles,
         levelThreshold: this.levelThreshold
       });
 
@@ -190,7 +193,6 @@ export class LayerOptions {
     // TODO: Fix this for 900913 coords
   _drawHelper(view, opt_options) {
     if (this.ready) {
-      var timelapse = this._canvasLayer.timelapse;
       var width = this._canvasLayer.canvas.width / this._canvasLayer.resolutionScale_;
       var height = this._canvasLayer.canvas.height / this._canvasLayer.resolutionScale_;
       var options = opt_options ?? {};

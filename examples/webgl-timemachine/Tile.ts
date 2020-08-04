@@ -4,8 +4,8 @@ import { gEarthTime } from './EarthTime'
 import { Resource } from './Resource'
 import { TileIdx } from './TileIdx'
 import { TileView } from './TileView'
-import { Layer } from './Layer';
-
+import { Layer, DrawOptions } from './Layer';
+import { GlbWebGLProgram } from './Glb';
 
 export class Tile {
   _layer: any;
@@ -14,12 +14,12 @@ export class Tile {
   gl: any;
   _tileidx: TileIdx;
   _bounds: any;
-  program: any;
+  program: GlbWebGLProgram;
   setDataFunction: (data:any, opts?:any) => void;
   loadDataFunction: any;
   dataLoadedFunction: any;
-  draw: (transform, options) => void;
-  static update(tiles, transform, options): void {
+  draw: (transform: Float32Array, options: DrawOptions) => void;
+  static updateTiles(tiles, transform: Float32Array, options: DrawOptions): void {
     throw Error("Must implement update in subclass");
   }
 

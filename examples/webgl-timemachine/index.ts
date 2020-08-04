@@ -27,7 +27,7 @@ Utils.timelog('Loading index.ts')
 declare var Papa:any;
 /// <reference path="../../js/papaparse.min.js"/>
 
-import { Layer, LayerOptions, DrawOptions } from './Layer';
+import { LayerOptions, DrawOptions } from './Layer';
 
 import { LayerProxy } from './LayerProxy';
 (window as any).dbg.LayerProxy = LayerProxy;
@@ -165,9 +165,12 @@ class EarthTimeImpl implements EarthTime {
   }
   // Compute standard Google Maps zoom level -- 0 means world fits inside 256 pixels across, 1 means 512, 2: 1024 etc
   // Assumes timelapse.getPanoWidth() represents 360 degrees of longitude
-  computeGmapsZoomLevel(): number {
+  gmapsZoomLevel(): number {
     return Math.log2(this.timelapse.getPanoWidth() * this.timelapse.getView().scale / 256);
-  }  
+  }
+  timelapseZoom(): number {
+    return this.timelapse.getCurrentZoom();
+  }
 
   _maximumUpdateTime = 30; // milliseconds
   _startOfRedraw: number;
@@ -177,6 +180,90 @@ class EarthTimeImpl implements EarthTime {
   }
   redrawTakingTooLong() {
     return performance.now() - this._startOfRedraw > this._maximumUpdateTime;
+  }
+
+  private getTimelapseEpochTimes(): number[] {
+    var ret = [];
+    for (var i = 0; i < this.timelapse.getNumFrames(); i++) {
+      ret.push(this.timelapse.getFrameEpochTime(i));
+    }
+    return ret;
+  }
+
+  private getTimelapseCurrentTimes(): number[] {
+    var currentTimes = [];
+    for (var i = 0; i < this.timelapse.getNumFrames(); i++) {
+      currentTimes.push(i/this.timelapse.getFps());
+    }
+    return currentTimes;
+  }
+
+  private computeCurrentTimeIndex(currentTime, currentTimes) {
+    for (var i = 0; i < currentTimes.length; i++) {
+      if (currentTime <= currentTimes[i])  {
+        return i;
+      }
+    }
+    return currentTimes.length - 1;
+  }
+
+  private computeCurrentTimesDelta(currentTime, currentTimes) {
+    var currentIndex = this.computeCurrentTimeIndex(currentTime, currentTimes);
+    var previousIndex = 0;
+    var range = 1;
+    if (currentIndex != 0) {
+      previousIndex = currentIndex - 1;
+      range = (currentTimes[currentIndex] - currentTimes[previousIndex]);
+    }
+    var delta = (currentTime - currentTimes[previousIndex]) / range;
+    return delta;
+  }
+
+  private computeCurrentDate(currentTime, currentTimes, dates): Date {
+    var delta = this.computeCurrentTimesDelta(currentTime, currentTimes);
+    var currentIndex = this.computeCurrentTimeIndex(currentTime, currentTimes);
+    var previousIndex = 0;
+    if (currentIndex != 0) {
+      previousIndex = currentIndex - 1;
+    }
+    var currentDate = dates[currentIndex];
+    var previousDate = dates[previousIndex];
+    var range = currentDate - previousDate;
+    var date = new Date(previousDate + range*delta);
+    // Ensure we don't go beyond the last date of the timeline.
+    // An example of where this is needed is when we are playing at fast speed and the current time
+    // might go slightly beyond (small epsilon) the desired end time. You can see this when playing
+    // the Obesity layer at fast speed.
+    var lastTimelineDate = new Date(gEarthTime.timelapse.getCaptureTimes()[gEarthTime.timelapse.getNumFrames() - 1]);
+    if (date > lastTimelineDate) {
+      date = lastTimelineDate;
+    }
+    return date;
+  }
+
+  private getTimelapseDates(): Date[] {
+    var dates = [];
+    for (var i = 0; i < this.timelapse.getNumFrames(); i++) {
+      dates.push(this.timelapse.getFrameEpochTime(i));
+    }
+    return dates;
+  }
+
+  timelapseCurrentTimeDelta(): number {
+    var delta = this.computeCurrentTimesDelta(
+      this.timelapse.getCurrentTime(), 
+      this.getTimelapseCurrentTimes())
+    return Math.min(delta, 1);
+  }
+
+  currentDate(): Date {
+    var currentTime = this.timelapse.getCurrentTime();
+    var currentTimes = this.getTimelapseCurrentTimes();
+    return this.computeCurrentDate(currentTime, currentTimes, this.getTimelapseDates());
+  }
+
+  currentEpochTime(): number {
+    return this.currentDate().getTime() / 1000;
   }
 };
 
@@ -4586,7 +4673,6 @@ lightBaseMapLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, li
     });
 
     snaplapseViewerForPresentationSlider.addEventListener('slide-changed', function(waypoint) {
-      var waypointTitle = waypoint.title;
       var waypointIndex = waypoint.index;
       var waypointBounds = waypoint.bounds;
       var waypointLayers = waypoint.layers || [];
@@ -4660,7 +4746,6 @@ lightBaseMapLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, li
         var waypointScale = gEarthTime.timelapse.pixelBoundingBoxToPixelCenter(waypointBounds).scale;
         var $current_location_text = $(".current-location-text");
         var $current_location_text_container = $(".current-location-text-container");
-        var currentView = gEarthTime.timelapse.getView();
 
         gEarthTime.timelapse.removeViewChangeListener(waypointViewChangeListener);
         gEarthTime.timelapse.removeViewChangeListener(hideWaypointListener);
@@ -5330,7 +5415,6 @@ lightBaseMapLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, li
   // @ts-ignore
   $.ui.position.custom = {
     left: function(position, data) {
-      var initPos = position.left;
       // @ts-ignore
       $.ui.position.flip.left(position, data);
     },
@@ -5481,7 +5565,6 @@ var updateLetterboxContent = function(newSectionChoice=null) {
     var html = "<table class='letterbox-base-layers-table'><caption>Base Layers:</caption>";
 
     for (var i = 0; i < baseLayers.length; i++) {
-      var labelName = $(baseLayers[i]).parent().attr('name');
       var inputId = $(baseLayers[i]).find("input")[0].id;
       var textName = baseLayers[i].text();
 
@@ -6097,66 +6180,6 @@ function update() {
     return view;
   };
 
-  // Extracting dates from timelapse
-  // TODO: Refactor and put in timemachine codebase?
-  function getDates(timelapse) {
-    var dates = [];
-    for (var i = 0; i < timelapse.getNumFrames(); i++) {
-      dates.push(timelapse.getFrameEpochTime(i));
-    }
-    return dates;
-  }
-
-  function getCurrentTimes(timelapse) {
-    var currentTimes = [];
-    for (var i = 0; i < timelapse.getNumFrames(); i++) {
-      currentTimes.push(i/timelapse.getFps());
-    }
-    return currentTimes;
-  }
-
-  function getCurrentTimeIndex(currentTime, currentTimes) {
-    for (var i = 0; i < currentTimes.length; i++) {
-      if (currentTime <= currentTimes[i])  {
-        return i;
-      }
-    }
-    return currentTimes.length - 1;
-  }
-
-  function getCurrentTimesDelta(currentTime, currentTimes) {
-    var currentIndex = getCurrentTimeIndex(currentTime, currentTimes);
-    var previousIndex = 0;
-    var range = 1;
-    if (currentIndex != 0) {
-      previousIndex = currentIndex - 1;
-      range = (currentTimes[currentIndex] - currentTimes[previousIndex]);
-    }
-    var delta = (currentTime - currentTimes[previousIndex]) / range;
-    return delta;
-  }
-
-  function getCurrentDate(currentTime, currentTimes, dates) {
-    var delta = getCurrentTimesDelta(currentTime, currentTimes);
-    var currentIndex = getCurrentTimeIndex(currentTime, currentTimes);
-    var previousIndex = 0;
-    if (currentIndex != 0) {
-      previousIndex = currentIndex - 1;
-    }
-    var currentDate = dates[currentIndex];
-    var previousDate = dates[previousIndex];
-    var range = currentDate - previousDate;
-    var date = new Date(previousDate + range*delta);
-    // Ensure we don't go beyond the last date of the timeline.
-    // An example of where this is needed is when we are playing at fast speed and the current time
-    // might go slightly beyond (small epsilon) the desired end time. You can see this when playing
-    // the Obesity layer at fast speed.
-    var lastTimelineDate = new Date(gEarthTime.timelapse.getCaptureTimes()[gEarthTime.timelapse.getNumFrames() - 1]);
-    if (date > lastTimelineDate) {
-      date = lastTimelineDate;
-    }
-    return date;
-  }
 
   function layerCountDrawnPoints(layer) {
     var keys = Object.keys(layer._tileView._tiles);
@@ -6173,29 +6196,6 @@ function update() {
   function drawCsvLayer(layer: LayerProxy, options: any = {}) {
     options = $.extend({}, options); // shallow-copy options
 
-    var lightBaseMapView = gEarthTime.timelapse.getView();
-    var standardWidth = 524288; // from bdrk
-    var timelapse2map = standardWidth / gEarthTime.timelapse.getDatasetJSON().width;
-    lightBaseMapView.x *= timelapse2map;
-    lightBaseMapView.y *= timelapse2map;
-    lightBaseMapView.scale /= timelapse2map;
-    var mapLevel = lightBaseMapLayer._tileView._scale2level(lightBaseMapView.scale);
-    options.zoomLevel = mapLevel;
-
-    // Compute standard Google Maps zoom level -- 0 means world fits inside 256 pixels across, 1 means 512, 2: 1024 etc
-    // Assumes timelapse.getPanoWidth() represents 360 degrees of longitude
-    var gmapsZoomLevel = Math.log2(gEarthTime.timelapse.getPanoWidth() * gEarthTime.timelapse.getView().scale / 256);
-    options.gmapsZoomLevel = gmapsZoomLevel;
-    
-    options.zoom = gEarthTime.timelapse.getCurrentZoom();
-    
-    var currentTime = gEarthTime.timelapse.getCurrentTime();
-    var currentTimes = getCurrentTimes(gEarthTime.timelapse);
-    var dates = getDates(gEarthTime.timelapse);
-    var delta = getCurrentTimesDelta(currentTime, currentTimes);
-    let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-    options.currentTime = currentDate;
-    options.delta = Math.min(delta, 1.0);
     options.pointSize = 2.0;
     // TODO LayerDB: uncomment and fix pairs
     // if (pairCount && isPairCandidate(layer)) {
@@ -6457,13 +6457,6 @@ function update() {
     if (showCoralBleachingLayer) {
       var coralBleachingLayerView = getLayerView(coralBleachingLayer, landsatBaseMapLayer);
       let options: any = {};
-      options.zoom = gEarthTime.timelapse.getCurrentZoom();
-      var currentTime = gEarthTime.timelapse.getCurrentTime();
-      var currentTimes = getCurrentTimes(gEarthTime.timelapse);
-      var dates = getDates(gEarthTime.timelapse);
-      var delta = getCurrentTimesDelta(currentTime, currentTimes);
-      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-      options.currentTime = currentDate;
       options.color = [0.82, 0.22, 0.07, 1.0];
       options.pointSize = 8.0;
       coralBleachingLayer.draw(coralBleachingLayerView, options);
@@ -6582,13 +6575,6 @@ function update() {
     if (showMonthlyRefugeesLayer) {
       var monthlyRefugeesLayerView = getLayerView(monthlyRefugeesLayer, landsatBaseMapLayer);
       let options: any = {};
-      options.zoom = gEarthTime.timelapse.getCurrentZoom();
-      var currentTime = gEarthTime.timelapse.getCurrentTime();
-      var currentTimes = getCurrentTimes(gEarthTime.timelapse);
-      var dates = getDates(gEarthTime.timelapse);
-      var delta = getCurrentTimesDelta(currentTime, currentTimes);
-      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-      options.currentTime = currentDate;
       monthlyRefugeesLayer.draw(monthlyRefugeesLayerView, options);
     }
 
@@ -6597,13 +6583,14 @@ function update() {
     if (showAnnualRefugeesLayer) {
       var annualRefugeesLayerView = getLayerView(annualRefugeesLayer, landsatBaseMapLayer);
       let options: DrawOptions = {};
-      options.zoom = gEarthTime.timelapse.getCurrentZoom();
       var ratio = gEarthTime.timelapse.getCurrentTime() / (gEarthTime.timelapse.getNumFrames() / gEarthTime.timelapse.getFps());
       var times = gEarthTime.timelapse.getCaptureTimes();
       var startDate = new Date(parseInt(times[0]), 0, 1);
       let endDate = new Date(parseInt(times[times.length - 1]) + 1, 0, 1);
       var range = endDate.getTime() - startDate.getTime();
       let currentDate = new Date(ratio * range + startDate.getTime());
+      // TODO(LayerDB): we need a currentDate() that is fully granular, like this one
+      // @ts-ignore
       options.currentTime = currentDate;
       options.span = 240 * 24 * 60 * 60 * 1000;
       options.subsampleAnnualRefugees = subsampleAnnualRefugees;
@@ -6631,13 +6618,13 @@ function update() {
     if (showAnnualReturnsLayer) {
       var annualReturnsLayerView = getLayerView(annualReturnsLayer, landsatBaseMapLayer);
       let options: DrawOptions = {};
-      options.zoom = gEarthTime.timelapse.getCurrentZoom();
       var ratio = gEarthTime.timelapse.getCurrentTime() / (gEarthTime.timelapse.getNumFrames() / gEarthTime.timelapse.getFps());
       var times = gEarthTime.timelapse.getCaptureTimes();
       var startDate = new Date(parseInt(times[0]), 0, 1);
       let endDate = new Date(parseInt(times[times.length - 1]) + 1, 0, 1);
       var range = endDate.getTime() - startDate.getTime();
       let currentDate = new Date(ratio * range + startDate.getTime());
+      // @ts-ignore
       options.currentTime = currentDate;
       options.span = 240 * 24 * 60 * 60 * 1000;
       options.subsampleAnnualRefugees = subsampleAnnualReturns;
@@ -6765,7 +6752,6 @@ function update() {
         [26, 7.9],
         [29, 8.9]
       ]; // [feet,meters]
-      var feet = document.getElementById("slr-feet");
       var meters = document.getElementById("slr-meters");
       var degree = document.getElementById("slr-degree");
       var seaLevelRiseLayerView = getLayerView(seaLevelRiseLayer, landsatBaseMapLayer);
@@ -7091,13 +7077,6 @@ function update() {
     if (showWindVectorsLayer) {
       var view = getLayerView(windVectorsLayer, landsatBaseMapLayer);
       let options: DrawOptions = {};
-      options.zoom = gEarthTime.timelapse.getCurrentZoom();
-      var currentTime = gEarthTime.timelapse.getCurrentTime();
-      var currentTimes = getCurrentTimes(gEarthTime.timelapse);
-      var dates = getDates(gEarthTime.timelapse);
-      var delta = getCurrentTimesDelta(currentTime, currentTimes);
-      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-      options.currentTime = currentDate;
       options.color = [0.0, 0.0, 1.0, 1.0];
       options.pointSize = 5.0;
 
@@ -7151,13 +7130,6 @@ function update() {
         showLbyReturns?: boolean
       }
       let options: IomIdpDrawOptions = {};
-      options.zoom = gEarthTime.timelapse.getCurrentZoom();
-      var currentTime = gEarthTime.timelapse.getCurrentTime();
-      var currentTimes = getCurrentTimes(gEarthTime.timelapse);
-      var dates = getDates(gEarthTime.timelapse);
-      var delta = getCurrentTimesDelta(currentTime, currentTimes);
-      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-      options.epoch = currentDate.getTime()/1000.;
       options.pointSize = 4.0;
       options.showIrqIdps = iomIdpLayer.options['showIrqIdps'];
       options.showSyrIdps = iomIdpLayer.options['showSyrIdps'];
@@ -7217,13 +7189,6 @@ function update() {
     if (showChinaAviationLayer) {
       var chinaAviationLayerView = getLayerView(chinaAviationLayer, landsatBaseMapLayer);
       let options: DrawOptions = {};
-      options.zoom = gEarthTime.timelapse.getCurrentZoom();
-      var currentTime = gEarthTime.timelapse.getCurrentTime();
-      var currentTimes = getCurrentTimes(gEarthTime.timelapse);
-      var dates = getDates(gEarthTime.timelapse);
-      var delta = getCurrentTimesDelta(currentTime, currentTimes);
-      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-      options.currentTime = currentDate;
       options.pointSize = 5 * window.devicePixelRatio;
       options.color = [1.0, 0.0, 0.0, 1.0];
       chinaAviationLayer.draw(chinaAviationLayerView, options);
@@ -7232,13 +7197,6 @@ function update() {
     if (showChinaPowerPlantsLayer) {
       var chinaPowerPlantsLayerView = getLayerView(chinaPowerPlantsLayer, landsatBaseMapLayer);
       let options: DrawOptions = {};
-      options.zoom = gEarthTime.timelapse.getCurrentZoom();
-      var currentTime = gEarthTime.timelapse.getCurrentTime();
-      var currentTimes = getCurrentTimes(gEarthTime.timelapse);
-      var dates = getDates(gEarthTime.timelapse);
-      var delta = getCurrentTimesDelta(currentTime, currentTimes);
-      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-      options.currentTime = currentDate;
       options.pointSize = 5 * window.devicePixelRatio;
       options.color = [0.0, 1.0, 0.0, 1.0];
       chinaPowerPlantsLayer.draw(chinaPowerPlantsLayerView, options);
@@ -7247,13 +7205,6 @@ function update() {
     if (showChinaReservoirsLayer) {
       var chinaReservoirsLayerView = getLayerView(chinaReservoirsLayer, landsatBaseMapLayer);
       let options: DrawOptions = {};
-      options.zoom = gEarthTime.timelapse.getCurrentZoom();
-      var currentTime = gEarthTime.timelapse.getCurrentTime();
-      var currentTimes = getCurrentTimes(gEarthTime.timelapse);
-      var dates = getDates(gEarthTime.timelapse);
-      var delta = getCurrentTimesDelta(currentTime, currentTimes);
-      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-      options.currentTime = currentDate;
       options.pointSize = 5 * window.devicePixelRatio;
       options.color = [0.0, 0.0, 1.0, 1.0];
       chinaReservoirsLayer.draw(chinaReservoirsLayerView, options);
@@ -7262,13 +7213,6 @@ function update() {
     if (showChinaWasteTreatmentPlantsLayer) {
       var chinaWasteTreatmentPlantsLayerView = getLayerView(chinaWasteTreatmentPlantsLayer, landsatBaseMapLayer);
       let options: DrawOptions = {};
-      options.zoom = gEarthTime.timelapse.getCurrentZoom();
-      var currentTime = gEarthTime.timelapse.getCurrentTime();
-      var currentTimes = getCurrentTimes(gEarthTime.timelapse);
-      var dates = getDates(gEarthTime.timelapse);
-      var delta = getCurrentTimesDelta(currentTime, currentTimes);
-      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-      options.currentTime = currentDate;
       options.pointSize = 5 * window.devicePixelRatio;
       options.color = [1.0, 0.5, 0.15, 1.0];
       chinaWasteTreatmentPlantsLayer.draw(chinaWasteTreatmentPlantsLayerView, options);
@@ -7359,7 +7303,6 @@ function update() {
         step?: number
       }
       let options: LodesDrawOptions = {};
-      options.zoom = gEarthTime.timelapse.getCurrentZoom();
       options.se01 = lodesOptions.se01;
       options.se02 = lodesOptions.se02;
       options.se03 = lodesOptions.se03;
@@ -7424,7 +7367,7 @@ function update() {
 
       options.step = step;
 
-      var zoom = gEarthTime.computeGmapsZoomLevel();
+      var zoom = gEarthTime.gmapsZoomLevel();
       var throttle = 1.0;
       if (zoom >= 5 && zoom < 11) {
         throttle = Math.min(1000000/layerCountDrawnPoints(layer), 1.0);
@@ -7440,7 +7383,6 @@ function update() {
       if (layer.visible) {
         var view = getLayerView(layer, landsatBaseMapLayer);
         let options: DrawOptions = {};
-        options.zoom = gEarthTime.timelapse.getCurrentZoom();
 
         // Throttle number of pixels if we're drawing "too many"
         var maxPoints = gEarthTime.canvasLayer.canvas.width * gEarthTime.canvasLayer.canvas.height;
@@ -7450,13 +7392,6 @@ function update() {
 
         options.throttle = drawFraction;
 
-        var currentTime = gEarthTime.timelapse.getCurrentTime();
-        var currentTimes = getCurrentTimes(gEarthTime.timelapse);
-        var dates = getDates(gEarthTime.timelapse);
-        var delta = getCurrentTimesDelta(currentTime, currentTimes);
-        let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-        options.currentTime = currentDate;
-        options.gmapsZoomLevel = gEarthTime.computeGmapsZoomLevel();
         layer.draw(view, options);
       }
     }
@@ -7505,16 +7440,9 @@ function update() {
       var layer = spCrudeLayer;
       var view = getLayerView(layer, landsatBaseMapLayer);
       let options: DrawOptions = {};
-      options.zoom = gEarthTime.timelapse.getCurrentZoom();
-      var currentTime = gEarthTime.timelapse.getCurrentTime();
-      var currentTimes = getCurrentTimes(gEarthTime.timelapse);
-      var dates = getDates(gEarthTime.timelapse);
-      var delta = getCurrentTimesDelta(currentTime, currentTimes);
-      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-      options.currentTime = currentDate;
       options.pointSize = 2.;
       options.color = [0.5,0.05,0.5,1.0];
-      var currentEpoch = currentDate.getTime()/1000.;
+      var currentEpoch = gEarthTime.currentEpochTime();
       for (var i = 0; i < crude_flows_index.length; i++) {
         if (showIndex(i, currentEpoch)) {
           if (typeof spCrudeLayer.buffers[i] == "undefined") {
@@ -7553,16 +7481,9 @@ function update() {
       var layer = spCrudeLayerOceania;
       var view = getLayerView(layer, landsatBaseMapLayer);
       let options: DrawOptions = {};
-      options.zoom = gEarthTime.timelapse.getCurrentZoom();
-      var currentTime = gEarthTime.timelapse.getCurrentTime();
-      var currentTimes = getCurrentTimes(gEarthTime.timelapse);
-      var dates = getDates(gEarthTime.timelapse);
-      var delta = getCurrentTimesDelta(currentTime, currentTimes);
-      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-      options.currentTime = currentDate;
       options.pointSize = 2.;
       options.color = [0.5,0.05,0.5,1.0];
-      var currentEpoch = currentDate.getTime()/1000.;
+      var currentEpoch = gEarthTime.currentEpochTime();
       for (var i = 0; i < crude_flows_index_Oceania.length; i++) {
         if (showIndexOceania(i, currentEpoch)) {
           if (typeof spCrudeLayerOceania.buffers[i] == "undefined") {
@@ -7594,16 +7515,9 @@ function update() {
       var layer = spCrudeLayerAG;
       var view = getLayerView(layer, landsatBaseMapLayer);
       let options: DrawOptions = {};
-      options.zoom = gEarthTime.timelapse.getCurrentZoom();
-      var currentTime = gEarthTime.timelapse.getCurrentTime();
-      var currentTimes = getCurrentTimes(gEarthTime.timelapse);
-      var dates = getDates(gEarthTime.timelapse);
-      var delta = getCurrentTimesDelta(currentTime, currentTimes);
-      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-      options.currentTime = currentDate;
       options.pointSize = 2.;
       options.color = [0.5,0.05,0.5,1.0];
-      var currentEpoch = currentDate.getTime()/1000.;
+      var currentEpoch = gEarthTime.currentEpochTime();
       for (var i = 0; i < crude_flows_index_AG.length; i++) {
         if (showIndexAG(i, currentEpoch)) {
           if (typeof spCrudeLayerAG.buffers[i] == "undefined") {
@@ -7635,16 +7549,9 @@ function update() {
       var layer = spCrudeLayerWAF;
       var view = getLayerView(layer, landsatBaseMapLayer);
       let options: DrawOptions = {};
-      options.zoom = gEarthTime.timelapse.getCurrentZoom();
-      var currentTime = gEarthTime.timelapse.getCurrentTime();
-      var currentTimes = getCurrentTimes(gEarthTime.timelapse);
-      var dates = getDates(gEarthTime.timelapse);
-      var delta = getCurrentTimesDelta(currentTime, currentTimes);
-      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-      options.currentTime = currentDate;
       options.pointSize = 2.;
       options.color = [0.5,0.05,0.5,1.0];
-      var currentEpoch = currentDate.getTime()/1000.;
+      var currentEpoch = gEarthTime.currentEpochTime();
       for (var i = 0; i < crude_flows_index_WAF.length; i++) {
         if (showIndexWAF(i, currentEpoch)) {
           if (typeof spCrudeLayerWAF.buffers[i] == "undefined") {
@@ -7676,16 +7583,9 @@ function update() {
       var layer = spCrudeLayerMedNAF;
       var view = getLayerView(layer, landsatBaseMapLayer);
       let options: DrawOptions = {};
-      options.zoom = gEarthTime.timelapse.getCurrentZoom();
-      var currentTime = gEarthTime.timelapse.getCurrentTime();
-      var currentTimes = getCurrentTimes(gEarthTime.timelapse);
-      var dates = getDates(gEarthTime.timelapse);
-      var delta = getCurrentTimesDelta(currentTime, currentTimes);
-      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-      options.currentTime = currentDate;
       options.pointSize = 2.;
       options.color = [0.5,0.05,0.5,1.0];
-      var currentEpoch = currentDate.getTime()/1000.;
+      var currentEpoch = gEarthTime.currentEpochTime();
       for (var i = 0; i < crude_flows_index_MedNAF.length; i++) {
         if (showIndexMedNAF(i, currentEpoch)) {
           if (typeof spCrudeLayerMedNAF.buffers[i] == "undefined") {
@@ -7717,16 +7617,9 @@ function update() {
       var layer = spCrudeLayerUrals;
       var view = getLayerView(layer, landsatBaseMapLayer);
       let options: DrawOptions = {};
-      options.zoom = gEarthTime.timelapse.getCurrentZoom();
-      var currentTime = gEarthTime.timelapse.getCurrentTime();
-      var currentTimes = getCurrentTimes(gEarthTime.timelapse);
-      var dates = getDates(gEarthTime.timelapse);
-      var delta = getCurrentTimesDelta(currentTime, currentTimes);
-      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-      options.currentTime = currentDate;
       options.pointSize = 2.;
       options.color = [0.5,0.05,0.5,1.0];
-      var currentEpoch = currentDate.getTime()/1000.;
+      var currentEpoch = gEarthTime.currentEpochTime();
       for (var i = 0; i < crude_flows_index_Urals.length; i++) {
         if (showIndexUrals(i, currentEpoch)) {
           if (typeof spCrudeLayerUrals.buffers[i] == "undefined") {
@@ -7758,16 +7651,9 @@ function update() {
       var layer = spCrudeLayerUSGC;
       var view = getLayerView(layer, landsatBaseMapLayer);
       let options: DrawOptions = {};
-      options.zoom = gEarthTime.timelapse.getCurrentZoom();
-      var currentTime = gEarthTime.timelapse.getCurrentTime();
-      var currentTimes = getCurrentTimes(gEarthTime.timelapse);
-      var dates = getDates(gEarthTime.timelapse);
-      var delta = getCurrentTimesDelta(currentTime, currentTimes);
-      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-      options.currentTime = currentDate;
       options.pointSize = 2.;
       options.color = [0.5,0.05,0.5,1.0];
-      var currentEpoch = currentDate.getTime()/1000.;
+      var currentEpoch = gEarthTime.currentEpochTime();
       for (var i = 0; i < crude_flows_index_USGC.length; i++) {
         if (showIndexUSGC(i, currentEpoch)) {
           if (typeof spCrudeLayerUSGC.buffers[i] == "undefined") {
@@ -7799,16 +7685,9 @@ function update() {
       var layer = spCrudeLayerLatAM;
       var view = getLayerView(layer, landsatBaseMapLayer);
       let options: DrawOptions = {};
-      options.zoom = gEarthTime.timelapse.getCurrentZoom();
-      var currentTime = gEarthTime.timelapse.getCurrentTime();
-      var currentTimes = getCurrentTimes(gEarthTime.timelapse);
-      var dates = getDates(gEarthTime.timelapse);
-      var delta = getCurrentTimesDelta(currentTime, currentTimes);
-      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-      options.currentTime = currentDate;
       options.pointSize = 2.;
       options.color = [0.5,0.05,0.5,1.0];
-      var currentEpoch = currentDate.getTime()/1000.;
+      var currentEpoch = gEarthTime.currentEpochTime();
       for (var i = 0; i < crude_flows_index_LatAM.length; i++) {
         if (showIndexLatAM(i, currentEpoch)) {
           if (typeof spCrudeLayerLatAM.buffers[i] == "undefined") {
@@ -7840,16 +7719,9 @@ function update() {
       var layer = spCrudeLayerNS;
       var view = getLayerView(layer, landsatBaseMapLayer);
       let options: DrawOptions = {};
-      options.zoom = gEarthTime.timelapse.getCurrentZoom();
-      var currentTime = gEarthTime.timelapse.getCurrentTime();
-      var currentTimes = getCurrentTimes(gEarthTime.timelapse);
-      var dates = getDates(gEarthTime.timelapse);
-      var delta = getCurrentTimesDelta(currentTime, currentTimes);
-      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-      options.currentTime = currentDate;
       options.pointSize = 2.;
       options.color = [0.5,0.05,0.5,1.0];
-      var currentEpoch = currentDate.getTime()/1000.;
+      var currentEpoch = gEarthTime.currentEpochTime();
       for (var i = 0; i < crude_flows_index_NS.length; i++) {
         if (showIndexNS(i, currentEpoch)) {
           if (typeof spCrudeLayerNS.buffers[i] == "undefined") {
@@ -7874,12 +7746,6 @@ function update() {
     // END LAYER DRAWS
   }
 }
-
-function getRootTilePath() {
-  return gEarthTime.rootTilePath;
-}
-
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

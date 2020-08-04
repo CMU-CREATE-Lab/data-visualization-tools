@@ -119,7 +119,7 @@ export class WebGLTimeMachineLayer {
       tileHeight: this.video_height,
       createTile: createTile,
       deleteTile: function (tile) { },
-      updateTiles: WebGLVideoTile.update,
+      updateTiles: WebGLVideoTile.updateTiles,
       timelapse: this._canvasLayer.timelapse,
       projection: this.projection,
       maxLevelOverride: this.maxLevelOverride

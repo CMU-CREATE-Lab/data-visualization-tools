@@ -29,13 +29,13 @@ export class TileBbox {
 };
 
 export class TileView {
-  _panoWidth: any;
-  _panoHeight: any;
-  tileWidth: any;
-  tileHeight: any;
+  _panoWidth: number;
+  _panoHeight: number;
+  tileWidth: number;
+  tileHeight: number;
   _createTileCallback: any;
   _tiles: {};
-  _updateTileCallback;
+  _updateTilesCallback;
   _zoomlock: any;
   _projection: any;
   _maxLevelOverride: any;
@@ -67,8 +67,8 @@ export class TileView {
     console.assert(this.tileWidth && this.tileHeight && this._panoWidth && this._panoHeight);
     this._createTileCallback = settings.createTile;
     this._tiles = {};
-    this._updateTileCallback = settings.updateTiles;
-    console.assert(typeof this._updateTileCallback == 'function');
+    this._updateTilesCallback = settings.updateTiles;
+    console.assert(typeof this._updateTilesCallback == 'function');
     this._zoomlock = settings.zoomlock;
     this._projection = settings.projection;
     this._maxLevelOverride = settings.maxLevelOverride;
@@ -399,7 +399,7 @@ export class TileView {
   }
   // Return ordered list of tiles to draw, from low-res to high res.  Draw in that order
   // so that high-res can cover low-res, for opaque tiles.
-  update(transform: any, options: any) {
+  update(transform: Float32Array, options: any) {
 
     var keys = Object.keys(this._tiles).sort();
     var tiles = [];
@@ -410,7 +410,7 @@ export class TileView {
         tiles.push(tile);
       }
     }
-    this._updateTileCallback(tiles, transform, options);
+    this._updateTilesCallback(tiles, transform, options);
   }
   handleTileLoading(options: { layerDomId: any; }) {
     this._layerDomId = options.layerDomId;

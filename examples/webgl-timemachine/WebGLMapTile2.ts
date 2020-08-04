@@ -176,15 +176,10 @@ export class WebGLMapTile2 extends Tile {
   }
   // Update and draw tiles
   // Assumes tiles is sorted low res to high res (by TileView)
-  static update(tiles, transform, options) {
-    //WebGLTimeMachinePerf.instance.startFrame();
-    var canvas = document.getElementById('webgl');
-
+  static updateTiles(tiles: WebGLMapTile2[], transform: Float32Array, options: {}) {
     for (var i = 0; i < tiles.length; i++) {
       tiles[i].draw(transform, options);
     }
-
-    //WebGLTimeMachinePerf.instance.endFrame();
   }
 }
 

@@ -28,15 +28,15 @@ operations['computeColorDotmapFromBox'] = function(request) {
     // Loop through the rasters, creating points within each box
     for (var c = 0; c < numColors; c++) {
       for (var y = 0; y < tileDim; y++) {
-	for (var x = 0; x < tileDim; x++) {
-	  for (var p = 0; p < tileData[input_idx]; p++) {
-	    ret.data[output_idx * 3 + 0] = projectedXMin + (x + prng.quick()) * projectedTileSize / 256;
-	    ret.data[output_idx * 3 + 1] = projectedYMin + (y + prng.quick()) * projectedTileSize / 256;
-	    ret.data[output_idx * 3 + 2] = request.dotmapColors[c];
-	    output_idx++;
-	  }
-	  input_idx++;
-	}
+        for (var x = 0; x < tileDim; x++) {
+          for (var p = 0; p < tileData[input_idx]; p++) {
+            ret.data[output_idx * 3 + 0] = projectedXMin + (x + prng.quick()) * projectedTileSize / 256;
+            ret.data[output_idx * 3 + 1] = projectedYMin + (y + prng.quick()) * projectedTileSize / 256;
+            ret.data[output_idx * 3 + 2] = request.dotmapColors[c];
+            output_idx++;
+          }
+          input_idx++;
+        }
       }
     }
     console.assert(input_idx == tileData.length);

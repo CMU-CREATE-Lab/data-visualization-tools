@@ -5,9 +5,6 @@
 // nLevels=0 means levels [0].  nLevels=1 means levels [0, 1]
 
 import { Layer, LayerOptions } from './Layer'
-import { Tile } from './Tile';
-import { TileIdx } from './TileIdx';
-import { TileView } from './TileView'
 import { WebGLVectorTile2, WebGLVectorTile2Shaders } from './WebGLVectorTile2'
 
 export class WebGLVectorLayer2 extends Layer {

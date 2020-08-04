@@ -680,7 +680,7 @@ export class WebGLVideoTile {
     return Math.round(x * 100) / 100;
   }
   // Update and draw tiles
-  static update(tiles, transform) {
+  static updateTiles(tiles, transform) {
     if (org.gigapan.Util.isMobileDevice())
       return;
     if (si || tiles.length == 0)

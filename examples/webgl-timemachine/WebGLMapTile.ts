@@ -77,16 +77,11 @@ export class WebGLMapTile extends Tile {
     return texture;
   }
   _handleLoadedTexture() {
-    var before = performance.now();
     var gl = this.gl;
 
     gl.bindTexture(gl.TEXTURE_2D, this._texture);
-    //console.time("gl.texImage2D");
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._image);
-    //console.timeEnd("gl.texImage2D");
     gl.bindTexture(gl.TEXTURE_2D, null);
-    var elapsed = performance.now() - before;
-    //console.log(this.toString() + ': copied the texture in ' + elapsed + ' ms');
     this._ready = true;
   }
   delete() {
@@ -223,8 +218,6 @@ export class WebGLMapTile extends Tile {
       this._bounds.max.y - this._bounds.min.y);
 
     if (this._ready /*&& this._tileidx.l > 3*/) { // TODO: Get tiles w level > 3 that arent empty
-      var color = options.color || [0., 0., 0., 1.0];
-
       var currentAlpha = options.currentAlpha || 0.95;
       var currentBValue = options.currentBValue;
       gl.useProgram(this.program);
@@ -284,15 +277,10 @@ export class WebGLMapTile extends Tile {
   }
   // Update and draw tiles
   // Assumes tiles is sorted low res to high res (by TileView)
-  static update(tiles, transform, options) {
-    //WebGLTimeMachinePerf.instance.startFrame();
-    var canvas = document.getElementById('webgl');
-
+  static updateTiles(tiles: WebGLMapTile[], transform: Float32Array, options: {}) {
     for (var i = 0; i < tiles.length; i++) {
       tiles[i].draw(transform, options);
     }
-
-    //WebGLTimeMachinePerf.instance.endFrame();
   }
 }
 

@@ -16,7 +16,12 @@ export interface EarthTime {
     LayerDBLoaded: ()=>Promise<void>;
     timelapse: any;
     rootTilePath: string;
-    computeGmapsZoomLevel(): number;
+    gmapsZoomLevel(): number;
+    timelapseZoom(): number;
+    currentEpochTime(): number;
+    currentDate(): Date;
+    currentEpochTime(): number;
+    timelapseCurrentTimeDelta(): number;
   };
 
 export var gEarthTime: EarthTime;

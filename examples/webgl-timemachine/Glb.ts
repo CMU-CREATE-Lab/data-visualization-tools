@@ -1,7 +1,10 @@
 // Thin layer of boilerplate and helpful utilities for WebGL
 
 export interface GlbWebGLProgram extends WebGLProgram {
-  enableAttribArray: {[name: string]: boolean};
+  setVertexAttrib: {
+    [name: string]: (size: number, type: number, normalized: boolean, stride: number, offset: number) => void
+  };
+  [attribOrUniform: string]: any;
 };
 
 export class Glb {
@@ -72,12 +75,12 @@ export class Glb {
     if (this.gl.getProgramParameter(program, this.gl.ACTIVE_ATTRIBUTES) == 0) {
       throw new Error('Program has no active attributes');
     }
-    program.enableAttribArray = {};
+    program.setVertexAttrib = {};
     for (var i = this.gl.getProgramParameter(program, this.gl.ACTIVE_ATTRIBUTES) - 1; i >= 0; i--) {
       var name = this.gl.getActiveAttrib(program, i).name;
       var loc = this.gl.getAttribLocation(program, name);
       program[name] = loc;
-      program.enableAttribArray[name] = enableAttribArray.bind(loc);
+      program.setVertexAttrib[name] = enableAttribArray.bind(loc);
     }
 
     for (var i = this.gl.getProgramParameter(program, this.gl.ACTIVE_UNIFORMS) - 1; i >= 0; i--) {

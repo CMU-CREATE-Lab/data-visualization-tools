@@ -15,11 +15,11 @@ import { Resource, parseAndIndexGeojson } from './Resource';
 import { EarthTimeCsvTable } from './EarthTimeCsvTable';
 import { Workers } from './Workers';
 import { TileIdx } from './TileIdx';
+import { Layer, DrawOptions } from './Layer';
 
 export class WebGLVectorTile2 extends Tile {
-  _url: any;
+  _url: string;
   _ready: boolean;
-  draw: any;
   externalGeojson: any;
   _noValue: any;
   _uncertainValue: any;
@@ -86,7 +86,7 @@ export class WebGLVectorTile2 extends Tile {
   tl: Float32Array;
   br: Float32Array;
   _spinnerNeeded: boolean;
-  constructor(layer, tileidx: TileIdx, bounds, opt_options) {
+  constructor(layer: Layer, tileidx: TileIdx, bounds: any, opt_options: { drawFunction?: any; externalGeojson?: any; noValue?: any; uncertainValue?: any; scalingFunction?: any; colorScalingFunction?: any; layerId?: any; }) {
     gEarthTime.glb.gl.getExtension("OES_standard_derivatives");
 
     super(layer, tileidx, bounds, opt_options);
@@ -138,7 +138,7 @@ export class WebGLVectorTile2 extends Tile {
       this._layer.layerId = opt_options.layerId;
     }
   }
-  _showErrorOnce(msg) {
+  _showErrorOnce(msg: string | number) {
     var tileUrl = this._url;
     if (!WebGLVectorTile2.errorsAlreadyShown[msg]) {
       WebGLVectorTile2.errorsAlreadyShown[msg] = true;
@@ -165,7 +165,7 @@ export class WebGLVectorTile2 extends Tile {
   }
   _loadData() {
     var that = this;
-    var float32Array;
+    var float32Array: Float32Array;
 
     this.startTime = new Date().getTime();
 
@@ -214,7 +214,7 @@ export class WebGLVectorTile2 extends Tile {
   }
   _loadGeojsonData() {
     var that = this;
-    var data;
+    var data: string;
 
     this._setupLoadingSpinner();
 
@@ -239,11 +239,9 @@ export class WebGLVectorTile2 extends Tile {
     };
     this.xhr.send();
   }
-  _setWindVectorsData(data) {
+  _setWindVectorsData(data: any) {
     console.log("_setWindVectorsData");
     var that = this;
-    var gl = this.gl;
-    var glb = this.glb;
     this.windData = data;
 
     var windImage = new Image();
@@ -304,7 +302,6 @@ export class WebGLVectorTile2 extends Tile {
 
 
     var that = this;
-    var data;
 
     this._setupLoadingSpinner();
 
@@ -315,22 +312,22 @@ export class WebGLVectorTile2 extends Tile {
       that._removeLoadingSpinner();
 
       if (this.status >= 400) {
-        data = "";
+        that.setDataFunction('');
       }
       else {
-        data = JSON.parse(this.responseText);
+        var data = JSON.parse(this.responseText);
         if (typeof data.defaultRampColors != "undefined") {
           defaultRampColors = data.defaultRampColors;
         }
         that.colorRampTexture = glb.createTexture(that.gl.LINEAR, getColorRamp(defaultRampColors), 16, 16);
         if (typeof data.defaultRampColors != "undefined") {
-          defaultRampColors = data["defaultRampColors"];
+          defaultRampColors = data.defaultRampColors;
         }
         if (typeof data.numParticles != "undefined") {
-          that.numParticles = data["numParticles"];
+          that.numParticles = data.numParticles;
         }
+        that.setDataFunction(data);
       }
-      that.setDataFunction(data);
     };
     this.xhr.onerror = function () {
       that._removeLoadingSpinner();
@@ -341,8 +338,8 @@ export class WebGLVectorTile2 extends Tile {
 
   }
   _loadSitc4r2Data() {
-    var parseQueryString = function (queryString) {
-      var params = {}, queries, temp, i, l;
+    var parseQueryString = function (queryString: string) {
+      var params = {}, queries: string | any[], temp: any[], i: number, l: number;
       // Split into key/value pairs
       queries = queryString.split("&");
       // Convert the array of strings into an object
@@ -378,7 +375,7 @@ export class WebGLVectorTile2 extends Tile {
     var that = this;
     if (typeof this.worker == "undefined") {
       this.worker = new Worker('sitc4r2-worker.js');
-      this.worker.onmessage = function (e) {
+      this.worker.onmessage = function (e: { data: { [x: string]: any; year: any; code: any; error: any; scale: any; }; }) {
         if (typeof e.data["year"] != "undefined") {
           var year = e.data.year;
           var code = e.data.code;
@@ -405,7 +402,7 @@ export class WebGLVectorTile2 extends Tile {
   }
   _loadBivalentBubbleMapDataFromCsv() {
     var that = this;
-    var data;
+    var data: string;
 
     this._maxPointValue = null;
     this._minPointValue = null;
@@ -418,11 +415,11 @@ export class WebGLVectorTile2 extends Tile {
       256, 256);
 
 
-    function scaleValues(fnc, arr) {
+    function scaleValues(fnc: (arg0: any) => any, arr: any[]) {
       var ret = [];
-      arr.forEach(function (x) {
+      arr.forEach(function (x: any[]) {
         var scaled = [];
-        x.forEach(function (y) {
+        x.forEach(function (y: any) {
           scaled.push(fnc(y));
         });
         ret.push(scaled);
@@ -430,8 +427,8 @@ export class WebGLVectorTile2 extends Tile {
       return ret;
     }
 
-    function setMinMaxPointValue(arr) {
-      arr.forEach(function (xx) {
+    function setMinMaxPointValue(arr: any[]) {
+      arr.forEach(function (xx: number) {
         var x = Math.abs(xx);
         if (that._maxPointValue == null || that._maxPointValue < x) {
           that._maxPointValue = x;
@@ -442,8 +439,8 @@ export class WebGLVectorTile2 extends Tile {
       });
     }
 
-    function setMinMaxColorValue(arr) {
-      arr.forEach(function (xx) {
+    function setMinMaxColorValue(arr: any[]) {
+      arr.forEach(function (xx: number) {
         var x = Math.abs(xx);
         if (that._maxColorValue == null || that._maxColorValue < x) {
           that._maxColorValue = x;
@@ -454,7 +451,7 @@ export class WebGLVectorTile2 extends Tile {
       });
     }
 
-    function setRow(arr) {
+    function setRow(arr: string | any[]) {
       var ret = [];
       var lastValue = 0.0;
       for (var i = 0; i < arr.length; i++) {
@@ -471,22 +468,22 @@ export class WebGLVectorTile2 extends Tile {
       return ret;
     }
 
-    function duplicateRow(offset, arr) {
+    function duplicateRow(offset: number, arr: any[]) {
       var dup = [];
-      arr.slice(offset).forEach(function (x) {
+      arr.slice(offset).forEach(function (x: any) {
         var x1 = x;
         dup.push(x1, x);
       });
       return dup.slice(1, -1);
     }
 
-    function getCentroidFromCsvData(row) {
+    function getCentroidFromCsvData(row: any[]) {
       var latlng = { lat: row[1], lng: row[2] };
       var xy = proj.latlngToPoint(latlng);
       return [xy.x, xy.y];
     }
 
-    function getEpochs(offset, arr) {
+    function getEpochs(offset: number, arr: string | any[]) {
       var ret = [];
       for (var i = offset; i < arr.length; i++) {
         var date = arr[i];
@@ -611,7 +608,7 @@ export class WebGLVectorTile2 extends Tile {
       -180, 85.05112877980659, 180, -85.05112877980659,
       256, 256);
 
-    var data;
+    var data: string;
     var noValue = this._noValue;
     var uncertainValue = this._uncertainValue;
 
@@ -642,7 +639,7 @@ export class WebGLVectorTile2 extends Tile {
         var maxValue = 0;
         var minValue = 1e6; //TODO Is this an ok value?
 
-        function getValue(rawVal) {
+        function getValue(rawVal: any) {
           var val = rawVal;
           if (val == noValue || val == uncertainValue) {
             val = 0.0;
@@ -653,7 +650,7 @@ export class WebGLVectorTile2 extends Tile {
           return val;
         }
 
-        function setMinMaxValue(val) {
+        function setMinMaxValue(val: number) {
           if (val > maxValue) {
             maxValue = val;
           }
@@ -808,7 +805,7 @@ export class WebGLVectorTile2 extends Tile {
     this.xhr.send();
   }
   // Creates index and stores in 'hash' field, toplevel
-  findResource(fieldName, urlPattern, options) {
+  findResource(fieldName: string, urlPattern: string, options: { format?: any; transform?: any; receiveData?: any; singleUse?: any; }) {
     var url = this._tileidx.expandUrl(urlPattern, this._layer);
     // If urlPattern contains {x} ... {z}, Resource is tile-specific and held in tile
     // Otherwise Resource is layer-specific and held and shared from TileView
@@ -843,7 +840,7 @@ export class WebGLVectorTile2 extends Tile {
       resources[0] = this.findResource('geojsonResource', this.externalGeojson, { transform: parseGeojson });
     }
 
-    function parseCsv(data, done) {
+    function parseCsv(data: any, done: (arg0: EarthTimeCsvTable) => void) {
       done(new EarthTimeCsvTable(data));
     }
 
@@ -853,7 +850,7 @@ export class WebGLVectorTile2 extends Tile {
   }
   // Build choropleth tile using binary geometry (bti format)
   // This happens after _loadChoroplethMapDataFromCsv
-  _buildChoroplethTileBti(data) {
+  _buildChoroplethTileBti(data: any[]) {
     // Assumes data is of the following format
     // header row Country,      year_0, ..., year_N
     // data row   country_name, value_0,..., value_N
@@ -914,7 +911,7 @@ export class WebGLVectorTile2 extends Tile {
     }
 
     // Copy all triangles
-    var minValue, maxValue;
+    var minValue: any, maxValue: any;
     this.epochs = csv.epochs;
 
     var drawVertices = new Float32Array(65536 * 3); // x y idx
@@ -1004,7 +1001,7 @@ export class WebGLVectorTile2 extends Tile {
       this._radius = radius;
     }
 
-    var transferRegionData = function (regionName, firstCol, lastCol) {
+    var transferRegionData = function (regionName: string | number, firstCol: any, lastCol: number) {
       var csvRowNum = csv.region_name_to_row[regionName];
       if (!csvRowNum) {
         console.log('Choropleth tile', this._tileidx.toString(), 'missing csv row for', regionName);
@@ -1077,7 +1074,7 @@ export class WebGLVectorTile2 extends Tile {
 
   }
   // This happens after _loadChoroplethMapDataFromCsv
-  _buildChoroplethTile(data) {
+  _buildChoroplethTile(data: any[]) {
     if (data[0] instanceof Uint32Array) {
       console.log('building choropleth tile from binary');
       return this._buildChoroplethTileBti(data);
@@ -1099,7 +1096,6 @@ export class WebGLVectorTile2 extends Tile {
 
     var points = [];
     var rawVerts = [];
-    var t0 = performance.now();
 
     console.assert(geojson.hash); // geojson needs to be indexed
 
@@ -1111,7 +1107,7 @@ export class WebGLVectorTile2 extends Tile {
         geojson: geojson,
         nameKey: this._layer.nameKey
       },
-      function (this: WebGLVectorTile2, t) {
+      function (this: WebGLVectorTile2, t: { verts: any; minValue: any; maxValue: any; }) {
         var verts = t.verts;
         var minValue = t.minValue;
         var maxValue = t.maxValue;
@@ -1134,7 +1130,7 @@ export class WebGLVectorTile2 extends Tile {
         this._ready = true;
       }.bind(this));
   }
-  _setSitc4r2Buffer(sitc4r2Code, year, data) {
+  _setSitc4r2Buffer(sitc4r2Code: string | number, year: string | number, data: string | any[] | Float32Array) {
     if (typeof this.buffers[sitc4r2Code] == "undefined") {
       this.buffers[sitc4r2Code] = {};
     }
@@ -1170,14 +1166,14 @@ export class WebGLVectorTile2 extends Tile {
     }
 
   }
-  _setPointData(data, options) {
+  _setPointData(data: { features: string | any[]; }, options: any) {
     // Assumes GeoJSON data
     var points = [];
 
     if (typeof data.features != "undefined") {
       for (var f = 0; f < data.features.length; f++) {
         var feature = data.features[f];
-        var packedColor;
+        var packedColor: number;
         if (typeof feature.properties.PackedColor != "undefined") {
           packedColor = feature.properties.PackedColor;
         }
@@ -1206,7 +1202,7 @@ export class WebGLVectorTile2 extends Tile {
     }
   }
   // not animated, only one glyph possible
-  _setGlyphData(data, options) {
+  _setGlyphData(data: { features: string | any[]; }, options: { glyphPath: any; }) {
     // Assumes GeoJSON data
     var points = [];
 
@@ -1240,7 +1236,7 @@ export class WebGLVectorTile2 extends Tile {
   }
   // GeoJSON requires StartEpochTime, EndEpochTime, GlyphIndex fields
   // can use different sections of one glyph texture based on GlyphIndex
-  _setAnimatedGlyphData(data, options) {
+  _setAnimatedGlyphData(data: { features: string | any[]; }, options: { glyphPath: any; }) {
     // Assumes GeoJSON data
     var points = [];
 
@@ -1276,14 +1272,14 @@ export class WebGLVectorTile2 extends Tile {
     }
   }
   //triangles will be fixed size
-  _setTriangleData(data, options) {
+  _setTriangleData(data: { features: string | any[]; }, options: any) {
     // Assumes GeoJSON data
     var points = [];
 
     if (typeof data.features != "undefined") {
       for (var f = 0; f < data.features.length; f++) {
         var feature = data.features[f];
-        var packedColor;
+        var packedColor: number;
         if (typeof feature.properties.PackedColor != "undefined") {
           packedColor = feature.properties.PackedColor;
         }
@@ -1316,7 +1312,7 @@ export class WebGLVectorTile2 extends Tile {
       this.dataLoadedFunction(this._layer.layerId);
     }
   }
-  _setPolygonData(data, options) {
+  _setPolygonData(data: { features: string | any[]; }, options: any) {
     // Assumes GeoJSON data
     var verts = [];
     var rawVerts = [];
@@ -1324,7 +1320,7 @@ export class WebGLVectorTile2 extends Tile {
     if (typeof data.features != "undefined") {
       for (var f = 0; f < data.features.length; f++) {
         var feature = data.features[f];
-        var packedColor;
+        var packedColor: number;
         if (typeof feature.properties.PackedColor != "undefined") {
           packedColor = feature.properties.PackedColor;
 
@@ -1362,9 +1358,9 @@ export class WebGLVectorTile2 extends Tile {
       this.dataLoadedFunction(this._layer.layerId);
     }
   }
-  _setLineStringData(data, options) {
+  _setLineStringData(data: { [x: string]: any[]; }, options: any) {
     // Assumes GeoJSON data
-    function processLineString(lineString) {
+    function processLineString(lineString: string | any[]) {
       var out = [];
       for (var i = 0; i < lineString.length; i++) {
         var p = LngLatToPixelXY(lineString[i][0], lineString[i][1]);
@@ -1406,9 +1402,9 @@ export class WebGLVectorTile2 extends Tile {
     this.dataLoadedFunction(this._layer.layerId);
 
   }
-  _setExpandedLineStringData(data, options) {
+  _setExpandedLineStringData(data: { [x: string]: any[]; }, options: any) {
     // Assumes GeoJSON data
-    function processLineString(lineString) {
+    function processLineString(lineString: string | any[]) {
       var out = [];
       for (var i = 0; i < lineString.length; i++) {
         var p = LngLatToPixelXY(lineString[i][0], lineString[i][1]);
@@ -1522,7 +1518,7 @@ export class WebGLVectorTile2 extends Tile {
     this.dataLoadedFunction(this._layer.layerId);
   }
 
-  _setIomIdpData(data) {
+  _setIomIdpData(data: { features: any; }) {
     var maxValue = 905835.0;
     var radius = d3.scaleSqrt().domain([0, maxValue]).range([0, 60]);
 
@@ -1530,7 +1526,7 @@ export class WebGLVectorTile2 extends Tile {
     var points = [];
 
     // Convert iso3 to numeric code
-    function alpha2num(alpha) {
+    function alpha2num(alpha: string) {
       if (alpha == 'IRQ')
         return 368;
       if (alpha == 'SYR')
@@ -1602,17 +1598,17 @@ export class WebGLVectorTile2 extends Tile {
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
       gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);
 
-      this.program.enableAttribArray.a_country(1, gl.FLOAT, false, 32, 0);
-      this.program.enableAttribArray.a_type(1, gl.FLOAT, false, 32, 4);
-      this.program.enableAttribArray.a_coord(2, gl.FLOAT, false, 32, 8);
-      this.program.enableAttribArray.a_epoch1(1, gl.FLOAT, false, 32, 16);
-      this.program.enableAttribArray.a_val1(1, gl.FLOAT, false, 32, 20);
-      this.program.enableAttribArray.a_epoch2(1, gl.FLOAT, false, 32, 24);
-      this.program.enableAttribArray.a_val2(1, gl.FLOAT, false, 32, 28);
+      this.program.setVertexAttrib.a_country(1, gl.FLOAT, false, 32, 0);
+      this.program.setVertexAttrib.a_type(   1, gl.FLOAT, false, 32, 4);
+      this.program.setVertexAttrib.a_coord(  2, gl.FLOAT, false, 32, 8);
+      this.program.setVertexAttrib.a_epoch1( 1, gl.FLOAT, false, 32, 16);
+      this.program.setVertexAttrib.a_val1(   1, gl.FLOAT, false, 32, 20);
+      this.program.setVertexAttrib.a_epoch2( 1, gl.FLOAT, false, 32, 24);
+      this.program.setVertexAttrib.a_val2(   1, gl.FLOAT, false, 32, 28);
     }
   }
   // Color Dotmap (not animated)  aWorldCoord[2]  aColor
-  _setColorDotmapData(arrayBuffer) {
+  _setColorDotmapData(arrayBuffer: Float32Array) {
     var gl = this.gl;
     this._pointCount = arrayBuffer.length / 3;
     this._ready = true;
@@ -1623,7 +1619,7 @@ export class WebGLVectorTile2 extends Tile {
       gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);
     }
   }
-  _setColorDotmapDataFromBoxWithFormat(tileDataF32, format) {
+  _setColorDotmapDataFromBoxWithFormat(tileDataF32: { buffer: Iterable<number>; }, format: string) {
     // Create uint8 view on data.  Unfortunately we're called with Float32Array, which isn't correct for
     // this particular function
     var tile = this;
@@ -1636,7 +1632,7 @@ export class WebGLVectorTile2 extends Tile {
       format: format
     };
 
-    var workerName;
+    var workerName: string;
     if (format == 'box') {
       workerName = 'computeColorDotmapFromBox';
     }
@@ -1649,7 +1645,6 @@ export class WebGLVectorTile2 extends Tile {
     }
 
     Workers.call('WebGLVectorTile2Worker.js', workerName, requestArgs, function (response) {
-      var tileData = new Uint8Array(tileDataF32.buffer);
       // Iterate through the raster, creating dots on the fly
       var gl = tile.gl;
 
@@ -1666,7 +1661,7 @@ export class WebGLVectorTile2 extends Tile {
       tile.displayTimings(format);
     });
   }
-  displayTimings(type) {
+  displayTimings(type: any) {
     var msg = this._url.split('/').slice(-4).join('/');
 
     msg += ' ' + (this.timings[this.timings.length - 1] - this.timings[0]) + ' |';
@@ -1680,14 +1675,14 @@ export class WebGLVectorTile2 extends Tile {
     }
   }
   // Color Dotmap (not animated)  aWorldCoord[2]  aColor
-  _setColorDotmapDataFromBox(tileDataF32) {
+  _setColorDotmapDataFromBox(tileDataF32: any) {
     this._setColorDotmapDataFromBoxWithFormat(tileDataF32, 'box');
   }
-  _setColorDotmapDataFromTbox(tileDataF32) {
+  _setColorDotmapDataFromTbox(tileDataF32: any) {
     this._setColorDotmapDataFromBoxWithFormat(tileDataF32, 'tbox');
   }
-  _setObesityData(data) {
-    function LatLongToPixelXY(latitude, longitude) {
+  _setObesityData(data: { features: string | any[]; }) {
+    function LatLongToPixelXY(latitude: number, longitude: number) {
       var pi_180 = Math.PI / 180.0;
       var pi_4 = Math.PI * 4;
       var sinLatitude = Math.sin(latitude * pi_180);
@@ -1747,10 +1742,10 @@ export class WebGLVectorTile2 extends Tile {
         gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);
 
-        this.program.enableAttribArray.a_Vertex(2, gl.FLOAT, false, 20, 0);
-        this.program.enableAttribArray.a_Year(1, gl.FLOAT, false, 20, 8);
-        this.program.enableAttribArray.a_Val1(1, gl.FLOAT, false, 20, 12);
-        this.program.enableAttribArray.a_Val2(1, gl.FLOAT, false, 20, 16);
+        this.program.setVertexAttrib.a_Vertex(2, gl.FLOAT, false, 20, 0);
+        this.program.setVertexAttrib.a_Year(1, gl.FLOAT, false, 20, 8);
+        this.program.setVertexAttrib.a_Val1(1, gl.FLOAT, false, 20, 12);
+        this.program.setVertexAttrib.a_Val2(1, gl.FLOAT, false, 20, 16);
 
         this._texture = gl.createTexture();
 
@@ -1770,8 +1765,8 @@ export class WebGLVectorTile2 extends Tile {
       }
     }
   }
-  _setVaccineConfidenceData(data) {
-    function LatLongToPixelXY(latitude, longitude) {
+  _setVaccineConfidenceData(data: { features: string | any[]; }) {
+    function LatLongToPixelXY(latitude: number, longitude: number) {
       var pi_180 = Math.PI / 180.0;
       var pi_4 = Math.PI * 4;
       var sinLatitude = Math.sin(latitude * pi_180);
@@ -1846,11 +1841,11 @@ export class WebGLVectorTile2 extends Tile {
         gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);
 
-        this.program.enableAttribArray.a_Vertex(2, gl.FLOAT, false, 24, 0);
-        this.program.enableAttribArray.a_Val1(1, gl.FLOAT, false, 24, 8);
-        this.program.enableAttribArray.a_Val2(1, gl.FLOAT, false, 24, 12);
-        this.program.enableAttribArray.a_Val3(1, gl.FLOAT, false, 24, 16);
-        this.program.enableAttribArray.a_Val4(1, gl.FLOAT, false, 24, 20);
+        this.program.setVertexAttrib.a_Vertex(2, gl.FLOAT, false, 24, 0);
+        this.program.setVertexAttrib.a_Val1(1, gl.FLOAT, false, 24, 8);
+        this.program.setVertexAttrib.a_Val2(1, gl.FLOAT, false, 24, 12);
+        this.program.setVertexAttrib.a_Val3(1, gl.FLOAT, false, 24, 16);
+        this.program.setVertexAttrib.a_Val4(1, gl.FLOAT, false, 24, 20);
 
         this._texture = gl.createTexture();
 
@@ -1869,7 +1864,7 @@ export class WebGLVectorTile2 extends Tile {
       }
     }
   }
-  _setTrajectoriesData(data) {
+  _setTrajectoriesData(data: string | any[]) {
     console.log("_setTrajectoriesData");
     console.log(data);
     var points = [];
@@ -1894,7 +1889,7 @@ export class WebGLVectorTile2 extends Tile {
     }
     this._setBufferData(new Float32Array(points));
   }
-  _setAnimatedPointsData(data, options) {
+  _setAnimatedPointsData(data: { features: string | any[]; }, options: any) {
     // Assumes GeoJSON data
     var points = [];
 
@@ -1930,7 +1925,7 @@ export class WebGLVectorTile2 extends Tile {
       this.gl.bindTexture(this.gl.TEXTURE_2D, null);
     }
   }
-  _setBufferData(data) {
+  _setBufferData(data: Float32Array) {
     var gl = this.gl;
     this._pointCount = data.length / this._layer.numAttributes;
     this._ready = true;
@@ -1942,7 +1937,7 @@ export class WebGLVectorTile2 extends Tile {
       this._loadTexture();
     }
   }
-  _setBuffers(buffers, indices) {
+  _setBuffers(buffers: string | any[], indices: string | any[] | Uint16Array) {
     var gl = this.gl;
     this._pointCount = indices.length;
     //console.log(this._pointCount);
@@ -1971,10 +1966,8 @@ export class WebGLVectorTile2 extends Tile {
       }
     }
   }
-  _drawWdpa(transform, options) {
+  _drawWdpa(transform: Float32Array, options: DrawOptions) {
     var gl = this.gl;
-    var minTime = options.minTime || new Date('1800').getTime();
-    var maxTime = options.maxTime || new Date('2015').getTime();
     if (this._ready) {
       gl.lineWidth(2);
       gl.useProgram(this.program);
@@ -1987,18 +1980,20 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
-      this.program.enableAttribArray.worldCoord(2, gl.FLOAT, false, 12, 0);
-      this.program.enableAttribArray.time(1, gl.FLOAT, false, 12, 8);
+      this.program.setVertexAttrib.worldCoord(2, gl.FLOAT, false, 12, 0);
+      this.program.setVertexAttrib.time(1, gl.FLOAT, false, 12, 8);
 
-      gl.uniform1f(this.program.maxTime, maxTime);
-
+      var minTime = new Date('1800').getTime();
       gl.uniform1f(this.program.minTime, minTime);
 
+      var maxTime = new Date('2100').getTime();
+      gl.uniform1f(this.program.maxTime, maxTime);
+
       gl.drawArrays(gl.LINES, 0, this._pointCount);
-      perf_draw_lines(this._pointCount);
+      //perf_draw_lines(this._pointCount);
     }
   }
-  _drawLines(transform) {
+  _drawLines(transform: Float32Array, options: DrawOptions) {
     var gl = this.gl;
     if (this._ready && this._pointCount > 0) {
       gl.lineWidth(2);
@@ -2013,14 +2008,14 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
-      this.program.enableAttribArray.worldCoord(2, gl.FLOAT, false, 8, 0);
+      this.program.setVertexAttrib.worldCoord(2, gl.FLOAT, false, 8, 0);
 
       gl.drawArrays(gl.LINES, 0, this._pointCount);
-      perf_draw_lines(this._pointCount);
+      //perf_draw_lines(this._pointCount);
     }
   }
   // Used by coral
-  _drawPoints(transform, options) {
+  _drawPoints(transform: Float32Array, options: { zoom: any; currentTime: number; pointSize: number; }) {
     var gl = this.gl;
     if (this._ready) {
       gl.useProgram(this.program);
@@ -2028,15 +2023,14 @@ export class WebGLVectorTile2 extends Tile {
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
 
       var tileTransform = new Float32Array(transform);
-      var zoom = options.zoom;
-      var maxTime = options.currentTime / 1000.;
+      var maxTime = gEarthTime.currentEpochTime();
       var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
       var color = this._layer.drawOptions.color || this._defaultColor;
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      pointSize *= Math.floor((zoom + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+      pointSize *= Math.floor((gEarthTime.gmapsZoomLevel() + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
       // Passing a NaN value to the shader with a large number of points is very bad
       if (isNaN(pointSize)) {
         pointSize = 1.0;
@@ -2051,20 +2045,20 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
-      this.program.enableAttribArray.worldCoord(2, gl.FLOAT, false, 12, 0);
-      this.program.enableAttribArray.time(1, gl.FLOAT, false, 12, 8);
+      this.program.setVertexAttrib.worldCoord(2, gl.FLOAT, false, 12, 0);
+      this.program.setVertexAttrib.time(1, gl.FLOAT, false, 12, 8);
 
       gl.uniform1f(this.program.uPointSize, pointSize);
       gl.uniform1f(this.program.uMaxTime, maxTime * 1.);
       gl.uniform4fv(this.program.uColor, color);
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
-      perf_draw_points(this._pointCount);
+     // //perf_draw_points(this._pointCount);
       gl.disable(gl.BLEND);
     }
   }
 
-  _drawGtd(transform, options) {
+  _drawGtd(transform: Float32Array, options: { zoom: any; currentTime: number; pointSize: number; }) {
     var gl = this.gl;
     if (this._ready) {
       gl.useProgram(this.program);
@@ -2072,15 +2066,13 @@ export class WebGLVectorTile2 extends Tile {
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
 
       var tileTransform = new Float32Array(transform);
-      var zoom = options.zoom;
-      var currentTime = options.currentTime / 1000.;
+      var currentTime = gEarthTime.currentEpochTime();
       var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-      var color = this._layer.drawOptions.color || this._defaultColor;
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      pointSize *= Math.floor((zoom + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+      pointSize *= Math.floor((gEarthTime.gmapsZoomLevel() + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
       // Passing a NaN value to the shader with a large number of points is very bad
       if (isNaN(pointSize)) {
         pointSize = 1.0;
@@ -2090,9 +2082,9 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
-      this.program.enableAttribArray.a_WorldCoord(2, gl.FLOAT, false, 16, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-      this.program.enableAttribArray.a_Epoch(1, gl.FLOAT, false, 16, 8); // 8 byte offset
-      this.program.enableAttribArray.a_NCasualties(1, gl.FLOAT, false, 16, 12); // 8 byte offset
+      this.program.setVertexAttrib.a_WorldCoord(2, gl.FLOAT, false, 16, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.setVertexAttrib.a_Epoch(1, gl.FLOAT, false, 16, 8); // 8 byte offset
+      this.program.setVertexAttrib.a_NCasualties(1, gl.FLOAT, false, 16, 12); // 8 byte offset
 
       gl.uniformMatrix4fv(this.program.u_MapMatrix, false, tileTransform);
 
@@ -2103,11 +2095,11 @@ export class WebGLVectorTile2 extends Tile {
 
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
-      perf_draw_points(this._pointCount);
+     // //perf_draw_points(this._pointCount);
       gl.disable(gl.BLEND);
     }
   }
-  _drawUppsalaConflict(transform, options) {
+  _drawUppsalaConflict(transform: Float32Array, options: { zoom: any; currentTime: number; pointSize: number; }) {
     var gl = this.gl;
     if (this._ready) {
       gl.useProgram(this.program);
@@ -2115,15 +2107,13 @@ export class WebGLVectorTile2 extends Tile {
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
 
       var tileTransform = new Float32Array(transform);
-      var zoom = options.zoom;
-      var currentTime = options.currentTime / 1000.;
+      var currentTime = gEarthTime.currentEpochTime();
       var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-      var color = this._layer.drawOptions.color || this._defaultColor;
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      pointSize *= Math.floor((zoom + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+      pointSize *= Math.floor((gEarthTime.gmapsZoomLevel() + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
       // Passing a NaN value to the shader with a large number of points is very bad
       if (isNaN(pointSize)) {
         pointSize = 1.0;
@@ -2133,10 +2123,10 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
-      this.program.enableAttribArray.a_centroid(2, gl.FLOAT, false, 20, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-      this.program.enableAttribArray.a_val(1, gl.FLOAT, false, 20, 8); // 8 byte offset
-      this.program.enableAttribArray.a_start_epoch(1, gl.FLOAT, false, 20, 12); // 8 byte offset
-      this.program.enableAttribArray.a_end_epoch(1, gl.FLOAT, false, 20, 16); // 8 byte offset
+      this.program.setVertexAttrib.a_centroid(2, gl.FLOAT, false, 20, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.setVertexAttrib.a_val(1, gl.FLOAT, false, 20, 8); // 8 byte offset
+      this.program.setVertexAttrib.a_start_epoch(1, gl.FLOAT, false, 20, 12); // 8 byte offset
+      this.program.setVertexAttrib.a_end_epoch(1, gl.FLOAT, false, 20, 16); // 8 byte offset
 
       gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
 
@@ -2149,28 +2139,26 @@ export class WebGLVectorTile2 extends Tile {
 
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
-      perf_draw_points(this._pointCount);
+     // //perf_draw_points(this._pointCount);
       gl.disable(gl.BLEND);
     }
   }
-  _drawBubbleMap(transform, options) {
+  _drawBubbleMap(transform: Float32Array, options: { zoom: any; currentTime: { getTime: () => number; }; mode: number; }) {
     var bubbleScale = 1;
     var drawOptions = this._layer.drawOptions;
     if (drawOptions && drawOptions.bubbleScaleRange) {
-      bubbleScale = this.computeFromGmapsZoomLevel(options.gmapsZoomLevel, drawOptions.bubbleScaleRange);
+      bubbleScale = this.computeFromGmapsZoomLevel(drawOptions.bubbleScaleRange);
     }
-    this._layer.drawOptions;
+
     var gl = this.gl;
-    var glb = this.glb;
     if (this._ready) {
       gl.useProgram(this.program);
       gl.enable(gl.BLEND);
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
       var tileTransform = new Float32Array(transform);
-      var zoom = options.zoom;
-      var currentTime = options.currentTime.getTime() / 1000.;
-      var color = this._layer.drawOptions.color || this._defaultColor;
+      var currentTime = gEarthTime.currentEpochTime();
+      var color = drawOptions.color || this._defaultColor;
       if (color.length == 3) {
         color.push(1.0);
       }
@@ -2181,14 +2169,14 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
-      this.program.enableAttribArray.a_Centroid(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0);
-      this.program.enableAttribArray.a_Epoch1(1, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
-      this.program.enableAttribArray.a_Val1(1, gl.FLOAT, false, this._layer.numAttributes * 4, 12);
-      this.program.enableAttribArray.a_Epoch2(1, gl.FLOAT, false, this._layer.numAttributes * 4, 16);
-      this.program.enableAttribArray.a_Val2(1, gl.FLOAT, false, this._layer.numAttributes * 4, 20);
+      this.program.setVertexAttrib.a_Centroid(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0);
+      this.program.setVertexAttrib.a_Epoch1(1, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
+      this.program.setVertexAttrib.a_Val1(1, gl.FLOAT, false, this._layer.numAttributes * 4, 12);
+      this.program.setVertexAttrib.a_Epoch2(1, gl.FLOAT, false, this._layer.numAttributes * 4, 16);
+      this.program.setVertexAttrib.a_Val2(1, gl.FLOAT, false, this._layer.numAttributes * 4, 20);
 
       if (this._layer.numAttributes == 7) {
-        this.program.enableAttribArray.a_color(1, gl.FLOAT, false, this._layer.numAttributes * 4, 24);
+        this.program.setVertexAttrib.a_color(1, gl.FLOAT, false, this._layer.numAttributes * 4, 24);
       }
 
       gl.uniform4fv(this.program.u_Color, color);
@@ -2206,15 +2194,15 @@ export class WebGLVectorTile2 extends Tile {
       }
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
-      perf_draw_points(this._pointCount);
+     // //perf_draw_points(this._pointCount);
       gl.disable(gl.BLEND);
     }
   }
-  _drawBivalentBubbleMap(transform, options) {
+  _drawBivalentBubbleMap(transform: Float32Array, options: { gmapsZoomLevel: any; zoom: any; currentTime: { getTime: () => number; }; mode: number; }) {
     var bubbleScale = 1;
     var drawOptions = this._layer.drawOptions;
     if (drawOptions && drawOptions.bubbleScaleRange) {
-      bubbleScale = this.computeFromGmapsZoomLevel(options.gmapsZoomLevel, drawOptions.bubbleScaleRange);
+      bubbleScale = this.computeFromGmapsZoomLevel(drawOptions.bubbleScaleRange);
     }
     var gl = this.gl;
     if (this._ready) {
@@ -2223,9 +2211,8 @@ export class WebGLVectorTile2 extends Tile {
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
       var tileTransform = new Float32Array(transform);
-      var zoom = options.zoom;
-      var currentTime = options.currentTime.getTime() / 1000.;
-      var color = this._layer.drawOptions.color || this._defaultColor;
+      var currentTime = gEarthTime.currentEpochTime();
+      var color = drawOptions.color || this._defaultColor;
       if (color.length == 3) {
         color.push(1.0);
       }
@@ -2236,13 +2223,13 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
-      this.program.enableAttribArray.a_Centroid(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0);
-      this.program.enableAttribArray.a_Epoch1(1, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
-      this.program.enableAttribArray.a_PointVal1(1, gl.FLOAT, false, this._layer.numAttributes * 4, 12);
-      this.program.enableAttribArray.a_ColorVal1(1, gl.FLOAT, false, this._layer.numAttributes * 4, 16);
-      this.program.enableAttribArray.a_Epoch2(1, gl.FLOAT, false, this._layer.numAttributes * 4, 20);
-      this.program.enableAttribArray.a_PointVal2(1, gl.FLOAT, false, this._layer.numAttributes * 4, 24);
-      this.program.enableAttribArray.a_ColorVal2(1, gl.FLOAT, false, this._layer.numAttributes * 4, 28);
+      this.program.setVertexAttrib.a_Centroid(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0);
+      this.program.setVertexAttrib.a_Epoch1(1, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
+      this.program.setVertexAttrib.a_PointVal1(1, gl.FLOAT, false, this._layer.numAttributes * 4, 12);
+      this.program.setVertexAttrib.a_ColorVal1(1, gl.FLOAT, false, this._layer.numAttributes * 4, 16);
+      this.program.setVertexAttrib.a_Epoch2(1, gl.FLOAT, false, this._layer.numAttributes * 4, 20);
+      this.program.setVertexAttrib.a_PointVal2(1, gl.FLOAT, false, this._layer.numAttributes * 4, 24);
+      this.program.setVertexAttrib.a_ColorVal2(1, gl.FLOAT, false, this._layer.numAttributes * 4, 28);
 
       gl.uniformMatrix4fv(this.program.u_MapMatrix, false, tileTransform);
       gl.uniform1f(this.program.u_Epoch, currentTime);
@@ -2255,12 +2242,12 @@ export class WebGLVectorTile2 extends Tile {
       }
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
-      perf_draw_points(this._pointCount);
+     // //perf_draw_points(this._pointCount);
       gl.disable(gl.BLEND);
     }
   }
   // This could implement binary search
-  epochToInterpolatedFrameNum(epoch, frameEpochs) {
+  epochToInterpolatedFrameNum(epoch: number, frameEpochs: string | any[]) {
     for (var i = 0; i < this.epochs.length; i++) {
       if (epoch <= frameEpochs[i]) {
         if (i == 0)
@@ -2272,7 +2259,7 @@ export class WebGLVectorTile2 extends Tile {
     // after last frameEpoch
     return frameEpochs.length - 1;
   }
-  _drawChoroplethMap(transform, options) {
+  _drawChoroplethMap(transform: Float32Array, options: { dfactor: any; zoom: any; currentTime: { getTime: () => number; }; pointSize: number; }) {
     var gl = this.gl;
 
     if (this._ready && this._texture) {
@@ -2287,8 +2274,7 @@ export class WebGLVectorTile2 extends Tile {
       gl.blendFunc(gl.SRC_ALPHA, dfactor);
 
       var tileTransform = new Float32Array(transform);
-      var zoom = options.zoom;
-      var currentTime = options.currentTime.getTime() / 1000.;
+      var currentTime = gEarthTime.currentEpochTime();
       var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
       var color = this._defaultColor; // default color not used
       if (this._layer.drawOptions.color) {
@@ -2302,7 +2288,7 @@ export class WebGLVectorTile2 extends Tile {
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      pointSize *= Math.floor((zoom + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+      pointSize *= Math.floor((gEarthTime.gmapsZoomLevel() + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
       // Passing a NaN value to the shader with a large number of points is very bad
       if (isNaN(pointSize)) {
         pointSize = 1.0;
@@ -2337,8 +2323,8 @@ export class WebGLVectorTile2 extends Tile {
         for (var i = 0; i < this._triangleLists.length; i++) {
           gl.bindBuffer(gl.ARRAY_BUFFER, this._triangleLists[i].arrayBuffer);
 
-          this.program.enableAttribArray.a_Centroid(2, gl.FLOAT, false, 12, 0);
-          this.program.enableAttribArray.a_RegionIdx(1, gl.FLOAT, false, 12, 8);
+          this.program.setVertexAttrib.a_Centroid(2, gl.FLOAT, false, 12, 0);
+          this.program.setVertexAttrib.a_RegionIdx(1, gl.FLOAT, false, 12, 8);
 
           gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._triangleLists[i].indexBuffer);
           gl.drawElements(gl.TRIANGLES, this._triangleLists[i].count, gl.UNSIGNED_SHORT, 0);
@@ -2353,22 +2339,22 @@ export class WebGLVectorTile2 extends Tile {
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
-        this.program.enableAttribArray.a_Centroid(2, gl.FLOAT, false, 24, 0);
-        this.program.enableAttribArray.a_Epoch1(1, gl.FLOAT, false, 24, 8);
-        this.program.enableAttribArray.a_Val1(1, gl.FLOAT, false, 24, 12);
-        this.program.enableAttribArray.a_Epoch2(1, gl.FLOAT, false, 24, 16);
-        this.program.enableAttribArray.a_Val2(1, gl.FLOAT, false, 24, 20);
+        this.program.setVertexAttrib.a_Centroid(2, gl.FLOAT, false, 24, 0);
+        this.program.setVertexAttrib.a_Epoch1(1, gl.FLOAT, false, 24, 8);
+        this.program.setVertexAttrib.a_Val1(1, gl.FLOAT, false, 24, 12);
+        this.program.setVertexAttrib.a_Epoch2(1, gl.FLOAT, false, 24, 16);
+        this.program.setVertexAttrib.a_Val2(1, gl.FLOAT, false, 24, 20);
 
         gl.drawArrays(gl.TRIANGLES, 0, this._pointCount);
       }
 
-      perf_draw_triangles(this._pointCount);
+     // //perf_draw_triangles(this._pointCount);
       gl.bindTexture(gl.TEXTURE_2D, null);
       gl.disable(gl.BLEND);
 
     }
   }
-  _drawLodes(transform, options) {
+  _drawLodes(transform: Float32Array, options: { zoom: number; currentTime: number; pointSize: number; filter: boolean; distance: number; step: number; throttle: number; se01: any; se02: any; se03: any; }) {
     var gl = this.gl;
     if (this._ready) {
       gl.useProgram(this.program);
@@ -2377,100 +2363,46 @@ export class WebGLVectorTile2 extends Tile {
       gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
       var tileTransform = new Float32Array(transform);
-      var zoom = options.zoom || (2.0 * window.devicePixelRatio);
-      var maxTime = options.currentTime / 1000.;
-      var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-      var filterDist = options.filter || false;
-      var se01;
-      var se02;
-      var se03;
       var uDist = options.distance || 50000.;
-      var step = 0.;
-      var throttle = 1.0;
-      if (typeof options.step != "undefined") {
-        step = options.step;
-      }
-
-      if (typeof options.throttle != "undefined") {
-        throttle = options.throttle;
-      }
-
-      if (typeof options.se01 != "undefined") {
-        se01 = options.se01;
-      }
-      else {
-        se01 = true;
-      }
-
-      if (typeof options.se02 != "undefined") {
-        se02 = options.se02;
-      }
-      else {
-        se02 = true;
-      }
-
-      if (typeof options.se03 != "undefined") {
-        se03 = options.se03;
-      }
-      else {
-        se03 = true;
-      }
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      //pointSize *= Math.floor((zoom + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
-      // Passing a NaN value to the shader with a large number of points is very bad
-      if (isNaN(pointSize)) {
-        pointSize = 1.0;
-      }
-
-      pointSize = 2.0;
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
-
-      gl.uniform1f(this.program.uTime, step);
-
-      gl.uniform1f(this.program.uSize, pointSize);
-
-      gl.uniform1f(this.program.uZoom, zoom);
-
-      gl.uniform1i(this.program.filterDist, filterDist);
-
-      gl.uniform1i(this.program.showSe01, se01);
-
-      gl.uniform1i(this.program.showSe02, se02);
-
-      gl.uniform1i(this.program.showSe03, se03);
+      gl.uniform1f(this.program.uTime, options.step ?? 0);
+      gl.uniform1f(this.program.uSize, 2.0); // pointSize
+      gl.uniform1f(this.program.uZoom, gEarthTime.gmapsZoomLevel());
+      gl.uniform1i(this.program.filterDist, options.filter ?? 0);
+      gl.uniform1i(this.program.showSe01, options.se01 ?? true);
+      gl.uniform1i(this.program.showSe02, options.se02 ?? true);
+      gl.uniform1i(this.program.showSe03, options.se03 ?? true);
 
       gl.uniformMatrix4fv(this.program.mapMatrix, false, tileTransform);
-
       gl.uniform1f(this.program.uDist, uDist * 1000);
 
-      this.program.enableAttribArray.centroid(4, gl.FLOAT, false, 24, 0);
-      this.program.enableAttribArray.aDist(1, gl.FLOAT, false, 24, 16);
-      this.program.enableAttribArray.aColor(1, gl.FLOAT, false, 24, 20);
+      this.program.setVertexAttrib.centroid(4, gl.FLOAT, false, 24, 0);
+      this.program.setVertexAttrib.aDist(1, gl.FLOAT, false, 24, 16);
+      this.program.setVertexAttrib.aColor(1, gl.FLOAT, false, 24, 20);
 
-      gl.drawArrays(gl.POINTS, 0, Math.floor(this._pointCount * throttle));
-      perf_draw_points(Math.floor(this._pointCount * throttle));
+      gl.drawArrays(gl.POINTS, 0, Math.floor(this._pointCount * (options.throttle ?? 1.0)));
       gl.disable(gl.BLEND);
     }
   }
   // range[0] for country (zoomLevel = 5)
   // range[1] for block-level (zoomLevel = 17)
-  computeFromGmapsZoomLevel(gmapsZoomLevel, range) {
+  computeFromGmapsZoomLevel([countryVal, blockVal]: [number, number]) {
+    var gmapsZoomLevel = gEarthTime.gmapsZoomLevel();
     var countryGmapsZoomLevel = 5;
     var blockGmapsZoomLevel = 17;
-    var countryVal = range[0];
-    var blockVal = range[1];
 
     return countryVal * Math.pow(blockVal / countryVal, (gmapsZoomLevel - countryGmapsZoomLevel) / (blockGmapsZoomLevel - countryGmapsZoomLevel));
   }
-  computeDotSize(transform, options) {
+  computeDotSize(transform: Float32Array) {
     var drawOptions = this._layer.drawOptions;
 
     if (drawOptions && drawOptions.dotSizeRange && drawOptions.dotSizeRange.length == 2) {
-      var dotSize = this.computeFromGmapsZoomLevel(options.gmapsZoomLevel, drawOptions.dotSizeRange);
+      var dotSize = this.computeFromGmapsZoomLevel(drawOptions.dotSizeRange);
       return dotSize * WebGLVectorTile2.dotScale;
     }
     else {
@@ -2483,7 +2415,7 @@ export class WebGLVectorTile2 extends Tile {
       return Math.max(0.5, pixelScale * 38) * WebGLVectorTile2.dotScale;
     }
   }
-  _drawColorDotmap(transform, options) {
+  _drawColorDotmap(transform: Float32Array, options: { throttle: number; zoom: number; }) {
     var gl = this.gl;
     if (this._ready) {
       gl.useProgram(this.program);
@@ -2505,11 +2437,8 @@ export class WebGLVectorTile2 extends Tile {
         throttle = options.throttle;
       }
 
-      gl.uniform1f(this.program.uSize, this.computeDotSize(transform, options));
-
-      var zoom = options.zoom || (2.0 * window.devicePixelRatio);
-      gl.uniform1f(this.program.uZoom, zoom);
-
+      gl.uniform1f(this.program.uSize, this.computeDotSize(transform));
+      gl.uniform1f(this.program.uZoom, gEarthTime.gmapsZoomLevel());
       gl.uniformMatrix4fv(this.program.mapMatrix, false, tileTransform);
 
       gl.enableVertexAttribArray(this.program.aWorldCoord);
@@ -2520,11 +2449,11 @@ export class WebGLVectorTile2 extends Tile {
 
       var npoints = Math.floor(this._pointCount * throttle);
       gl.drawArrays(gl.POINTS, 0, npoints);
-      perf_draw_points(npoints);
+     // //perf_draw_points(npoints);
       gl.disable(gl.BLEND);
     }
   }
-  _drawColorDotmapTbox(transform, options) {
+  _drawColorDotmapTbox(transform: Float32Array, options: { throttle: number; zoom: number; currentTime: number; }) {
     var gl = this.gl;
     if (this._ready) {
       gl.useProgram(this.program);
@@ -2541,33 +2470,29 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
-      var throttle = 1.0;
-      if (typeof options.throttle != "undefined") {
-        throttle = options.throttle;
-      }
+      var throttle = options.throttle ?? 1.0;
 
-      gl.uniform1f(this.program.uSize, this.computeDotSize(transform, options));
+      gl.uniform1f(this.program.uSize, this.computeDotSize(transform));
 
-      var zoom = options.zoom || (2.0 * window.devicePixelRatio);
-      gl.uniform1f(this.program.uZoom, zoom);
+      gl.uniform1f(this.program.uZoom, gEarthTime.gmapsZoomLevel());
 
-      var epoch = options.currentTime / 1000;
+      var epoch = gEarthTime.currentEpochTime();
       gl.uniform1f(this.program.uEpoch, epoch);
       gl.uniformMatrix4fv(this.program.mapMatrix, false, tileTransform);
 
       var stride = 5 * 4;
-      this.program.enableAttribArray.aWorldCoord(2, gl.FLOAT, false, stride, 0);
-      this.program.enableAttribArray.aColor(1, gl.FLOAT, false, stride, 8);
-      this.program.enableAttribArray.aStartEpoch(1, gl.FLOAT, false, stride, 12);
-      this.program.enableAttribArray.aEndEpoch(1, gl.FLOAT, false, stride, 16);
+      this.program.setVertexAttrib.aWorldCoord(2, gl.FLOAT, false, stride, 0);
+      this.program.setVertexAttrib.aColor(1, gl.FLOAT, false, stride, 8);
+      this.program.setVertexAttrib.aStartEpoch(1, gl.FLOAT, false, stride, 12);
+      this.program.setVertexAttrib.aEndEpoch(1, gl.FLOAT, false, stride, 16);
 
       var npoints = Math.floor(this._pointCount * throttle);
       gl.drawArrays(gl.POINTS, 0, npoints);
-      perf_draw_points(npoints);
+     // //perf_draw_points(npoints);
       gl.disable(gl.BLEND);
     }
   }
-  _drawMonthlyRefugees(transform, options) {
+  _drawMonthlyRefugees(transform: Float32Array, options: { zoom: number; pointSize: number; currentTime: any; }) {
     if (this._ready) {
 
       this.gl.useProgram(this.program);
@@ -2576,9 +2501,8 @@ export class WebGLVectorTile2 extends Tile {
 
       this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this._arrayBuffer);
 
-      var zoom = options.zoom || (2.0 * window.devicePixelRatio);
       var pointSize = options.pointSize || (1.0 * window.devicePixelRatio);;
-      pointSize *= 4.0 * Math.pow(20 / 4, (options.zoom - 3) / (10 - 3));
+      pointSize *= 4.0 * Math.pow(20 / 4, (gEarthTime.gmapsZoomLevel() - 3) / (10 - 3));
 
       if (isNaN(pointSize)) {
         pointSize = 1.0;
@@ -2593,25 +2517,24 @@ export class WebGLVectorTile2 extends Tile {
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
       this.gl.uniformMatrix4fv(this.program.uMapMatrix, false, tileTransform);
 
-      var currentTime = options.currentTime;
-      this.gl.uniform1f(this.program.uEpoch, currentTime / 1000.);
+      this.gl.uniform1f(this.program.uEpoch, gEarthTime.currentEpochTime());
 
-      this.program.enableAttribArray.aStartPoint(2, this.gl.FLOAT, false, 40, 0);
-      this.program.enableAttribArray.aEndPoint(2, this.gl.FLOAT, false, 40, 8);
-      this.program.enableAttribArray.aMidPoint(2, this.gl.FLOAT, false, 40, 16);
-      this.program.enableAttribArray.aEpoch(1, this.gl.FLOAT, false, 40, 24);
-      this.program.enableAttribArray.aEndTime(1, this.gl.FLOAT, false, 40, 28);
-      this.program.enableAttribArray.aSpan(1, this.gl.FLOAT, false, 40, 32);
-      this.program.enableAttribArray.aTimeOffset(1, this.gl.FLOAT, false, 40, 36);
+      this.program.setVertexAttrib.aStartPoint(2, this.gl.FLOAT, false, 40, 0);
+      this.program.setVertexAttrib.aEndPoint(2, this.gl.FLOAT, false, 40, 8);
+      this.program.setVertexAttrib.aMidPoint(2, this.gl.FLOAT, false, 40, 16);
+      this.program.setVertexAttrib.aEpoch(1, this.gl.FLOAT, false, 40, 24);
+      this.program.setVertexAttrib.aEndTime(1, this.gl.FLOAT, false, 40, 28);
+      this.program.setVertexAttrib.aSpan(1, this.gl.FLOAT, false, 40, 32);
+      this.program.setVertexAttrib.aTimeOffset(1, this.gl.FLOAT, false, 40, 36);
 
       this.gl.drawArrays(this.gl.POINTS, 0, this._pointCount);
-      perf_draw_points(this._pointCount);
+     // //perf_draw_points(this._pointCount);
 
       this.gl.disable(this.gl.BLEND);
     }
 
   }
-  _drawAnnualRefugees(transform, options) {
+  _drawAnnualRefugees(transform: Float32Array, options: { subsampleAnnualRefugees: any; pointIdx: {}; zoom: number; currentTime: any; span: any; }) {
     var gl = this.gl;
 
     if (this._ready) {
@@ -2624,8 +2547,7 @@ export class WebGLVectorTile2 extends Tile {
 
       var subsampleAnnualRefugees = options.subsampleAnnualRefugees;
       var pointIdx = options.pointIdx || {};
-      var zoom = options.zoom || (2.0 * window.devicePixelRatio);
-      var pointSize = Math.floor(((20 - 5) * (zoom - 0) / (21 - 0)) + 5);
+      var pointSize = Math.floor(((20 - 5) * (gEarthTime.gmapsZoomLevel() - 0) / (21 - 0)) + 5);
       if (isNaN(pointSize)) {
         pointSize = 1.0;
       }
@@ -2637,17 +2559,13 @@ export class WebGLVectorTile2 extends Tile {
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
       gl.uniformMatrix4fv(this.program.uMapMatrix, false, tileTransform);
 
-      var currentTime = options.currentTime;
-      gl.uniform1f(this.program.uEpoch, currentTime / 1000.);
+      gl.uniform1f(this.program.uEpoch, gEarthTime.currentEpochTime());
+      gl.uniform1f(this.program.uSpan, options.span / 1000.);
 
-      var span = options.span;
-      gl.uniform1f(this.program.uSpan, span / 1000.);
-
-
-      this.program.enableAttribArray.aStartPoint(2, gl.FLOAT, false, 28, 0);
-      this.program.enableAttribArray.aEndPoint(2, gl.FLOAT, false, 28, 8);
-      this.program.enableAttribArray.aMidPoint(2, gl.FLOAT, false, 28, 16);
-      this.program.enableAttribArray.aEpoch(1, gl.FLOAT, false, 28, 24);
+      this.program.setVertexAttrib.aStartPoint(2, gl.FLOAT, false, 28, 0);
+      this.program.setVertexAttrib.aEndPoint(2, gl.FLOAT, false, 28, 8);
+      this.program.setVertexAttrib.aMidPoint(2, gl.FLOAT, false, 28, 16);
+      this.program.setVertexAttrib.aEpoch(1, gl.FLOAT, false, 28, 24);
 
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, this._texture);
@@ -2655,12 +2573,12 @@ export class WebGLVectorTile2 extends Tile {
 
       if (subsampleAnnualRefugees) {
         gl.drawArrays(gl.POINTS, 0, this._pointCount);
-        perf_draw_points(this._pointCount);
+       // //perf_draw_points(this._pointCount);
       }
       else {
-        var year = currentTime.getUTCFullYear();
+        var year = gEarthTime.currentDate().getUTCFullYear();
         year = Math.min(year, 2015);
-        var count;
+        var count: any;
         if (year < 2001) {
           year = 2001;
         }
@@ -2671,13 +2589,12 @@ export class WebGLVectorTile2 extends Tile {
           count = pointIdx[year]['count'];
         }
         gl.drawArrays(gl.POINTS, pointIdx[year]['start'], count);
-        perf_draw_points(count);
       }
       gl.bindTexture(gl.TEXTURE_2D, null);
       gl.disable(gl.BLEND);
     }
   }
-  _drawPointFlow(transform, options) {
+  _drawPointFlow(transform: Float32Array, options: { [x: string]: number[]; }) {
     var gl = this.gl;
     if (this._ready) {
 
@@ -2687,68 +2604,58 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
-      var zoom = options.zoom || (2.0 * window.devicePixelRatio);
-      var pointSize = Math.floor(((20 - 5) * (zoom - 0) / (21 - 0)) + 5);
+      var pointSize = Math.floor(((20 - 5) * (gEarthTime.gmapsZoomLevel() - 0) / (21 - 0)) + 5);
       if (isNaN(pointSize)) {
         pointSize = 1.0;
       }
 
       var start_color = [.94, .94, .94, 1.];
       var end_color = [.71, 0.09, 0.05, 1.0];
-      //'    vec4 colorStart = vec4(.94,.94,.94,1.0);\n' +
-      //'    vec4 colorEnd = vec4(.71,0.09,0.05,1.0);\n' +
-      if (Array.isArray(options["start_color"])) {
-        if (options["start_color"].length == 3) {
-          start_color = options["start_color"];
+      if (Array.isArray(options.start_color)) {
+        if (options.start_color.length == 3) {
           start_color.push(1.0);
         }
-        else if (options["start_color"].length == 4) {
-          start_color = options["start_color"];
+        if (options.start_color.length == 4) {
+          start_color = options.start_color;
         }
         else {
           console.log("ERROR: unknown start_color array");
         }
       }
 
-      if (Array.isArray(options["end_color"])) {
-        if (options["end_color"].length == 3) {
-          end_color = options["end_color"];
+      if (Array.isArray(options.end_color)) {
+        if (options.end_color.length == 3) {
           end_color.push(1.0);
         }
-        else if (options["end_color"].length == 4) {
-          end_color = options["end_color"];
+        if (options.end_color.length == 4) {
+          end_color = options.end_color;
         }
         else {
           console.log("ERROR: unknown end_color array");
         }
       }
 
-      gl.uniform1f(this.program.u_size, pointSize);
-
       var tileTransform = new Float32Array(transform);
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+
       gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
-
-      var currentTime = options.currentTime;
-      gl.uniform1f(this.program.u_epoch, currentTime / 1000.);
-
-
+      gl.uniform1f(this.program.u_size, pointSize);
+      gl.uniform1f(this.program.u_epoch, gEarthTime.currentEpochTime());
       gl.uniform4fv(this.program.u_start_color, start_color);
-
       gl.uniform4fv(this.program.u_end_color, end_color);
 
-      this.program.enableAttribArray.a_p0(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0);
-      this.program.enableAttribArray.a_p1(2, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
-      this.program.enableAttribArray.a_p2(2, gl.FLOAT, false, this._layer.numAttributes * 4, 16);
-      this.program.enableAttribArray.a_epoch0(1, gl.FLOAT, false, this._layer.numAttributes * 4, 24);
-      this.program.enableAttribArray.a_epoch1(1, gl.FLOAT, false, this._layer.numAttributes * 4, 28);
+      this.program.setVertexAttrib.a_p0(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0);
+      this.program.setVertexAttrib.a_p1(2, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
+      this.program.setVertexAttrib.a_p2(2, gl.FLOAT, false, this._layer.numAttributes * 4, 16);
+      this.program.setVertexAttrib.a_epoch0(1, gl.FLOAT, false, this._layer.numAttributes * 4, 24);
+      this.program.setVertexAttrib.a_epoch1(1, gl.FLOAT, false, this._layer.numAttributes * 4, 28);
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
       gl.disable(gl.BLEND);
     }
   }
-  _drawHealthImpact(transform, options) {
+  _drawHealthImpact(transform: Float32Array, options: { zoom: number; currentTime: { getUTCFullYear: () => any; }; showRcp: any; years: any; }) {
     var gl = this.gl;
     if (this._ready) {
       gl.useProgram(this.program);
@@ -2756,8 +2663,7 @@ export class WebGLVectorTile2 extends Tile {
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
-      var zoom = options.zoom || (2.0 * window.devicePixelRatio);
-      var pointSize = Math.floor(((20 - 5) * (zoom - 0) / (21 - 0)) + 5);
+      var pointSize = Math.floor(((20 - 5) * (gEarthTime.gmapsZoomLevel() - 0) / (21 - 0)) + 5);
       if (isNaN(pointSize)) {
         pointSize = 1.0;
       }
@@ -2768,7 +2674,7 @@ export class WebGLVectorTile2 extends Tile {
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
       gl.uniformMatrix4fv(this.program.u_MapMatrix, false, tileTransform);
 
-      var year = options.currentTime.getUTCFullYear();
+      var year = gEarthTime.currentDate().getUTCFullYear();
       var showRcp = options.showRcp;
 
       // compute delta;
@@ -2782,8 +2688,8 @@ export class WebGLVectorTile2 extends Tile {
       }
 
       var delta = 1.0;
-      var minYear;
-      var maxYear;
+      var minYear: number;
+      var maxYear: number;
       for (var i = 0; i < years.length; i++) {
         if (year >= years[i]) {
           minYear = years[i];
@@ -2798,33 +2704,25 @@ export class WebGLVectorTile2 extends Tile {
       if (maxYear != minYear) {
         delta = (year - minYear) / (maxYear - minYear);
       }
-      var year = minYear;
 
       gl.uniform1f(this.program.u_Delta, delta);
-
-      gl.uniform1f(this.program.u_Year, year);
-
+      gl.uniform1f(this.program.u_Year, minYear);
       gl.uniform1f(this.program.u_ShowRcp2p6, showRcp[0]);
-
       gl.uniform1f(this.program.u_ShowRcp4p5, showRcp[1]);
-
       gl.uniform1f(this.program.u_ShowRcp6p0, showRcp[2]);
-
       gl.uniform1f(this.program.u_ShowRcp8p5, showRcp[3]);
 
-      this.program.enableAttribArray.a_Centroid(2, gl.FLOAT, false, 24, 0);
-      this.program.enableAttribArray.a_Year(1, gl.FLOAT, false, 24, 8);
-      this.program.enableAttribArray.a_Val1(1, gl.FLOAT, false, 24, 12);
-      this.program.enableAttribArray.a_Val2(1, gl.FLOAT, false, 24, 16);
-      this.program.enableAttribArray.a_Rcp(1, gl.FLOAT, false, 24, 20);
+      this.program.setVertexAttrib.a_Centroid(2, gl.FLOAT, false, 24, 0);
+      this.program.setVertexAttrib.a_Year(1, gl.FLOAT, false, 24, 8);
+      this.program.setVertexAttrib.a_Val1(1, gl.FLOAT, false, 24, 12);
+      this.program.setVertexAttrib.a_Val2(1, gl.FLOAT, false, 24, 16);
+      this.program.setVertexAttrib.a_Rcp(1, gl.FLOAT, false, 24, 20);
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
-      perf_draw_points(this._pointCount);
-
       gl.disable(gl.BLEND);
     }
   }
-  _drawViirs(transform, options) {
+  _drawViirs(transform: Float32Array, options: DrawOptions) {
     var gl = this.gl;
     var _minTime = new Date('2014-03-14').getTime();
     var _maxTime = new Date('2014-04-13').getTime();
@@ -2835,20 +2733,15 @@ export class WebGLVectorTile2 extends Tile {
     var _count = 100;
 
     var opts = options || {};
-    var minTime = opts.minTime || _minTime;
-    var maxTime = opts.maxTime || _maxTime;
     var showTemp = opts.showTemp || _showTemp;
     var minTemp = opts.minTemp || _minTemp;
     var maxTemp = opts.maxTemp || _maxTemp;
     var pointSize = opts.pointSize || (2.0 * window.devicePixelRatio);
-    var zoom = options.zoom;
     var first = opts.first || _first;
     var count = opts.count || _count;
 
-    if (options.currentTime) {
-      maxTime = options.currentTime;
-      minTime = maxTime - 28 * 24 * 60 * 60 * 1000;
-    }
+    var maxTime = gEarthTime.currentEpochTime();
+    var minTime = maxTime - 28 * 24 * 60 * 60;
 
     var viirsIndex = {
       '201408': { 'count': 115909, 'first': 0 },
@@ -2892,7 +2785,7 @@ export class WebGLVectorTile2 extends Tile {
       '201710': { 'count': 53789, 'first': 7132547 }
     };
 
-    var currentDate = options.currentTime;
+    var currentDate = gEarthTime.currentDate();
     var currentMonth = currentDate.getUTCMonth();
     var currentYear = currentDate.getUTCFullYear();
     var prevYear = currentYear;
@@ -2916,7 +2809,7 @@ export class WebGLVectorTile2 extends Tile {
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      pointSize *= Math.floor((zoom + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1);
+      pointSize *= Math.floor((gEarthTime.gmapsZoomLevel() + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1);
       if (isNaN(pointSize)) {
         pointSize = 1.0;
       }
@@ -2929,21 +2822,19 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
-      this.program.enableAttribArray.worldCoord(2, gl.FLOAT, false, 12, 0);
-      this.program.enableAttribArray.time(1, gl.FLOAT, false, 12, 8);
+      this.program.setVertexAttrib.worldCoord(2, gl.FLOAT, false, 12, 0);
+      this.program.setVertexAttrib.time(1, gl.FLOAT, false, 12, 8);
 
-      gl.uniform1f(this.program.maxTime, maxTime / 1000.);
-
-      gl.uniform1f(this.program.minTime, minTime / 1000.);
-
+      gl.uniform1f(this.program.maxTime, maxTime);
+      gl.uniform1f(this.program.minTime, minTime);
       gl.uniform1f(this.program.pointSize, pointSize);
 
       gl.drawArrays(gl.POINTS, first, count);
-      perf_draw_points(count);
+     // //perf_draw_points(count);
       gl.disable(gl.BLEND);
     }
   }
-  _drawUrbanFragility(transform, options) {
+  _drawUrbanFragility(transform: Float32Array, options: {}) {
     var gl = this.gl;
     if (this._ready) {
       gl.useProgram(this.program);
@@ -2951,10 +2842,7 @@ export class WebGLVectorTile2 extends Tile {
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
-      var zoom = options.zoom;
-
-      var pointSize;
-      pointSize = Math.floor((zoom + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1);
+      var pointSize = Math.floor((gEarthTime.gmapsZoomLevel() + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1);
       if (isNaN(pointSize)) {
         pointSize = 1.0;
       }
@@ -2964,32 +2852,26 @@ export class WebGLVectorTile2 extends Tile {
       var tileTransform = new Float32Array(transform);
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+
       gl.uniformMatrix4fv(this.program.u_MapMatrix, false, tileTransform);
+      gl.uniform1f(this.program.u_Delta, gEarthTime.timelapseCurrentTimeDelta());
+      gl.uniform1f(this.program.u_Year, gEarthTime.currentDate().getUTCFullYear());
 
-
-      var year = options.year || options.currentTime.getUTCFullYear();
-      var delta = options.delta;
-
-      gl.uniform1f(this.program.u_Delta, delta);
-
-      gl.uniform1f(this.program.u_Year, year);
-
-      this.program.enableAttribArray.a_Centroid(2, gl.FLOAT, false, 20, 0);
-      this.program.enableAttribArray.a_Year(1, gl.FLOAT, false, 20, 8);
-      this.program.enableAttribArray.a_Val1(1, gl.FLOAT, false, 20, 12);
-      this.program.enableAttribArray.a_Val2(1, gl.FLOAT, false, 20, 16);
+      this.program.setVertexAttrib.a_Centroid(2, gl.FLOAT, false, 20, 0);
+      this.program.setVertexAttrib.a_Year(1, gl.FLOAT, false, 20, 8);
+      this.program.setVertexAttrib.a_Val1(1, gl.FLOAT, false, 20, 12);
+      this.program.setVertexAttrib.a_Val2(1, gl.FLOAT, false, 20, 16);
 
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, this._texture);
       gl.uniform1i(this.program.u_Image, 0);
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
-      perf_draw_points(this._pointCount);
 
       gl.disable(gl.BLEND);
     }
   }
-  _drawObesity(transform, options) {
+  _drawObesity(transform: Float32Array, options: { year: any; currentTime: { getUTCFullYear: () => any; }; delta: any; }) {
     //console.log(options);
     //console.log(this._pointCount);
     var gl = this.gl;
@@ -3005,7 +2887,7 @@ export class WebGLVectorTile2 extends Tile {
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      var year = options.year || options.currentTime.getUTCFullYear();
+      var year = options.year || gEarthTime.currentDate().getUTCFullYear();
       var delta = options.delta;
 
       gl.uniformMatrix4fv(this.program.u_MapMatrix, false, tileTransform);
@@ -3014,10 +2896,10 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.uniform1f(this.program.u_Year, year);
 
-      this.program.enableAttribArray.a_Vertex(2, gl.FLOAT, false, 20, 0);
-      this.program.enableAttribArray.a_Year(1, gl.FLOAT, false, 20, 8);
-      this.program.enableAttribArray.a_Val1(1, gl.FLOAT, false, 20, 12);
-      this.program.enableAttribArray.a_Val2(1, gl.FLOAT, false, 20, 16);
+      this.program.setVertexAttrib.a_Vertex(2, gl.FLOAT, false, 20, 0);
+      this.program.setVertexAttrib.a_Year(1, gl.FLOAT, false, 20, 8);
+      this.program.setVertexAttrib.a_Val1(1, gl.FLOAT, false, 20, 12);
+      this.program.setVertexAttrib.a_Val2(1, gl.FLOAT, false, 20, 16);
 
 
       gl.activeTexture(gl.TEXTURE0);
@@ -3025,13 +2907,13 @@ export class WebGLVectorTile2 extends Tile {
       gl.uniform1i(this.program.u_Image, 0);
 
       gl.drawArrays(gl.TRIANGLES, 0, this._pointCount);
-      perf_draw_triangles(this._pointCount);
+     // //perf_draw_triangles(this._pointCount);
       gl.bindTexture(gl.TEXTURE_2D, null);
       gl.disable(gl.BLEND);
 
     }
   }
-  _drawTimeSeriesPointData(transform, options) {
+  _drawTimeSeriesPointData(transform: Float32Array, options: { currentTime: any; maxValue: number; }) {
     var gl = this.gl;
     if (this._ready && this._pointCount > 0) {
       gl.useProgram(this.program);
@@ -3046,8 +2928,8 @@ export class WebGLVectorTile2 extends Tile {
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      var currentTime = options.currentTime;
-      var year = currentTime.getUTCFullYear();
+      var currentDate = gEarthTime.currentDate();
+      var year = currentDate.getUTCFullYear();
       var maxValue = options.maxValue || 100.0;
 
       gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
@@ -3056,18 +2938,18 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.uniform1f(this.program.u_epoch, year);
 
-      this.program.enableAttribArray.a_centroid(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0);
-      this.program.enableAttribArray.a_epoch1(1, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
-      this.program.enableAttribArray.a_val1(1, gl.FLOAT, false, this._layer.numAttributes * 4, 12);
-      this.program.enableAttribArray.a_epoch2(1, gl.FLOAT, false, this._layer.numAttributes * 4, 16);
-      this.program.enableAttribArray.a_val2(1, gl.FLOAT, false, this._layer.numAttributes * 4, 20);
+      this.program.setVertexAttrib.a_centroid(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0);
+      this.program.setVertexAttrib.a_epoch1(1, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
+      this.program.setVertexAttrib.a_val1(1, gl.FLOAT, false, this._layer.numAttributes * 4, 12);
+      this.program.setVertexAttrib.a_epoch2(1, gl.FLOAT, false, this._layer.numAttributes * 4, 16);
+      this.program.setVertexAttrib.a_val2(1, gl.FLOAT, false, this._layer.numAttributes * 4, 20);
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
       gl.disable(gl.BLEND);
 
     }
   }
-  _drawVaccineConfidence(transform, options) {
+  _drawVaccineConfidence(transform: Float32Array, options: { question: number; }) {
     var gl = this.gl;
     if (this._ready && this._pointCount > 0) {
       gl.useProgram(this.program);
@@ -3087,24 +2969,24 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.uniform1f(this.program.u_Val, val);
 
-      this.program.enableAttribArray.a_Vertex(2, gl.FLOAT, false, 24, 0);
-      this.program.enableAttribArray.a_Val1(1, gl.FLOAT, false, 24, 8);
-      this.program.enableAttribArray.a_Val2(1, gl.FLOAT, false, 24, 12);
-      this.program.enableAttribArray.a_Val3(1, gl.FLOAT, false, 24, 16);
-      this.program.enableAttribArray.a_Val4(1, gl.FLOAT, false, 24, 20);
+      this.program.setVertexAttrib.a_Vertex(2, gl.FLOAT, false, 24, 0);
+      this.program.setVertexAttrib.a_Val1(1, gl.FLOAT, false, 24, 8);
+      this.program.setVertexAttrib.a_Val2(1, gl.FLOAT, false, 24, 12);
+      this.program.setVertexAttrib.a_Val3(1, gl.FLOAT, false, 24, 16);
+      this.program.setVertexAttrib.a_Val4(1, gl.FLOAT, false, 24, 20);
 
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, this._texture);
       gl.uniform1i(this.program.u_Image, 0);
 
       gl.drawArrays(gl.TRIANGLES, 0, this._pointCount);
-      perf_draw_triangles(this._pointCount);
+     // //perf_draw_triangles(this._pointCount);
       gl.bindTexture(gl.TEXTURE_2D, null);
       gl.disable(gl.BLEND);
 
     }
   }
-  _drawIomIdp(transform, options) {
+  _drawIomIdp(transform: Float32Array, options: { pointSize: any; epoch: any; showIrqIdps: any; showSyrIdps: any; showYemIdps: any; showLbyIdps: any; showIrqReturns: any; showSyrReturns: any; showYemReturns: any; showLbyReturns: any; }) {
     var gl = this.gl;
     if (this._ready && this._pointCount > 0) {
       gl.useProgram(this.program);
@@ -3122,7 +3004,7 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.uniform1f(this.program.u_point_size, options.pointSize);
 
-      gl.uniform1f(this.program.u_epoch, options.epoch);
+      gl.uniform1f(this.program.u_epoch, gEarthTime.currentEpochTime());
 
       gl.uniform1f(this.program.u_show_irq_idps, options.showIrqIdps);
 
@@ -3140,21 +3022,21 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.uniform1f(this.program.u_show_lby_returns, options.showLbyReturns);
 
-      this.program.enableAttribArray.a_country(1, gl.FLOAT, false, 32, 0);
-      this.program.enableAttribArray.a_type(1, gl.FLOAT, false, 32, 4);
-      this.program.enableAttribArray.a_coord(2, gl.FLOAT, false, 32, 8);
-      this.program.enableAttribArray.a_epoch1(1, gl.FLOAT, false, 32, 16);
-      this.program.enableAttribArray.a_val1(1, gl.FLOAT, false, 32, 20);
-      this.program.enableAttribArray.a_epoch2(1, gl.FLOAT, false, 32, 24);
-      this.program.enableAttribArray.a_val2(1, gl.FLOAT, false, 32, 28);
+      this.program.setVertexAttrib.a_country(1, gl.FLOAT, false, 32, 0);
+      this.program.setVertexAttrib.a_type(1, gl.FLOAT, false, 32, 4);
+      this.program.setVertexAttrib.a_coord(2, gl.FLOAT, false, 32, 8);
+      this.program.setVertexAttrib.a_epoch1(1, gl.FLOAT, false, 32, 16);
+      this.program.setVertexAttrib.a_val1(1, gl.FLOAT, false, 32, 20);
+      this.program.setVertexAttrib.a_epoch2(1, gl.FLOAT, false, 32, 24);
+      this.program.setVertexAttrib.a_val2(1, gl.FLOAT, false, 32, 28);
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
       gl.disable(gl.BLEND);
 
     }
-
   }
-  _drawTsip(transform, options) {
+  
+  _drawTsip(transform: Float32Array, options: { pointSize: number; }) {
     var gl = this.gl;
     if (this._ready) {
       gl.useProgram(this.program);
@@ -3162,15 +3044,12 @@ export class WebGLVectorTile2 extends Tile {
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
 
       var tileTransform = new Float32Array(transform);
-      var zoom = options.zoom;
-      var currentTime = options.currentTime / 1000.;
       var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-      var color = this._layer.drawOptions.color || this._defaultColor;
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      pointSize *= Math.floor((zoom + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+      pointSize *= Math.floor((gEarthTime.timelapseZoom() + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
       // Passing a NaN value to the shader with a large number of points is very bad
       if (isNaN(pointSize)) {
         pointSize = 1.0;
@@ -3180,21 +3059,20 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
-      this.program.enableAttribArray.a_coord(2, gl.FLOAT, false, 20, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-      this.program.enableAttribArray.a_color(1, gl.FLOAT, false, 20, 8); // 8 byte offset
-      this.program.enableAttribArray.a_epoch(1, gl.FLOAT, false, 20, 12); // 8 byte offset
-      this.program.enableAttribArray.a_val(1, gl.FLOAT, false, 20, 16); // 8 byte offset
+      this.program.setVertexAttrib.a_coord(2, gl.FLOAT, false, 20, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.setVertexAttrib.a_color(1, gl.FLOAT, false, 20, 8); // 8 byte offset
+      this.program.setVertexAttrib.a_epoch(1, gl.FLOAT, false, 20, 12); // 8 byte offset
+      this.program.setVertexAttrib.a_val(1, gl.FLOAT, false, 20, 16); // 8 byte offset
 
-      gl.uniform1f(this.program.u_epoch, currentTime);
-
+      gl.uniform1f(this.program.u_epoch, gEarthTime.currentEpochTime());
       gl.uniform1f(this.program.u_size, pointSize);
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
-      perf_draw_points(this._pointCount);
+     // //perf_draw_points(this._pointCount);
       gl.disable(gl.BLEND);
     }
   }
-  _drawPoint(transform, options) {
+  _drawPoint(transform: Float32Array, options: { dfactor: string | number; sfactor: string | number; pointSize: number; pointSizeFnc: string; }) {
     var gl = this.gl;
     if (this._ready) {
       gl.useProgram(this.program);
@@ -3211,17 +3089,9 @@ export class WebGLVectorTile2 extends Tile {
       gl.blendFunc(sfactor, dfactor);
 
       var tileTransform = new Float32Array(transform);
-      var zoom = options.zoom;
-      var currentTime = options.currentTime / 1000.;
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
-
-      var zoomLevel = 0;
-      if (options.zoomLevel) {
-        zoomLevel = options.zoomLevel;
-      }
-
 
       var pointSize = 1.0;
       if (options.pointSize) {
@@ -3229,7 +3099,7 @@ export class WebGLVectorTile2 extends Tile {
       }
       if (options.pointSizeFnc) {
         var pointSizeFnc = new Function('return ' + options.pointSizeFnc)();
-        pointSize *= pointSizeFnc(zoomLevel);
+        pointSize *= pointSizeFnc(gEarthTime.gmapsZoomLevel());
       }
 
       // Passing a NaN value to the shader with a large number of points is very bad
@@ -3242,16 +3112,16 @@ export class WebGLVectorTile2 extends Tile {
       gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
-      this.program.enableAttribArray.a_coord(2, gl.FLOAT, false, 12, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-      this.program.enableAttribArray.a_color(1, gl.FLOAT, false, 12, 8); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.setVertexAttrib.a_coord(2, gl.FLOAT, false, 12, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.setVertexAttrib.a_color(1, gl.FLOAT, false, 12, 8); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
-      perf_draw_points(this._pointCount);
+     // //perf_draw_points(this._pointCount);
       gl.disable(gl.BLEND);
     }
   }
   // no animation
-  _drawGlyph(transform, options) {
+  _drawGlyph(transform: Float32Array, options: { pointSize: number; }) {
     var gl = this.gl;
     if (this._ready) {
       // set up glsl program
@@ -3264,20 +3134,16 @@ export class WebGLVectorTile2 extends Tile {
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
       var tileTransform = new Float32Array(transform);
-      var zoom = options.zoom;
-      var currentTime = options.currentTime / 1000.;
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
       gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
-
       gl.uniform1f(this.program.u_size, pointSize);
 
       // attributes
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
-      this.program.enableAttribArray.a_coord(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each
-
+      this.program.setVertexAttrib.a_coord(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each
 
       //texture
       gl.activeTexture(gl.TEXTURE0);
@@ -3290,12 +3156,12 @@ export class WebGLVectorTile2 extends Tile {
 
       // draw
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
-      perf_draw_points(this._pointCount);
+     // //perf_draw_points(this._pointCount);
       gl.disable(gl.BLEND);
     }
   }
   // animated
-  _drawGlyphStartEpochEndEpoch(transform, options) {
+  _drawGlyphStartEpochEndEpoch(transform: Float32Array, options: { numGlyphs: number; fadeDuration: number; pointSize: number; zoom: any; currentTime: number; }) {
     var gl = this.gl;
     if (this._ready) {
       // set up glsl program
@@ -3310,21 +3176,16 @@ export class WebGLVectorTile2 extends Tile {
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
       var tileTransform = new Float32Array(transform);
-      var zoom = options.zoom;
-      var currentTime = options.currentTime / 1000.;
+      var currentTime = gEarthTime.currentEpochTime();
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
       // uniforms
       gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
-
       gl.uniform1f(this.program.u_fade_duration, fadeDuration); //10 hr
-
       gl.uniform1f(this.program.u_epoch, currentTime);
-
       gl.uniform1f(this.program.u_size, pointSize);
-
       gl.uniform1f(this.program.u_num_glyphs, numGlyphs);
 
       gl.activeTexture(gl.TEXTURE0);
@@ -3337,18 +3198,17 @@ export class WebGLVectorTile2 extends Tile {
 
       // attributes = 5
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
-      this.program.enableAttribArray.a_coord(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each
-      this.program.enableAttribArray.a_epoch0(1, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
-      this.program.enableAttribArray.a_epoch1(1, gl.FLOAT, false, this._layer.numAttributes * 4, 12);
-      this.program.enableAttribArray.a_offset(1, gl.FLOAT, false, this._layer.numAttributes * 4, 16);
+      this.program.setVertexAttrib.a_coord(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each
+      this.program.setVertexAttrib.a_epoch0(1, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
+      this.program.setVertexAttrib.a_epoch1(1, gl.FLOAT, false, this._layer.numAttributes * 4, 12);
+      this.program.setVertexAttrib.a_offset(1, gl.FLOAT, false, this._layer.numAttributes * 4, 16);
 
       // draw
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
-      perf_draw_points(this._pointCount);
       gl.disable(gl.BLEND);
     }
   }
-  _drawPolygon(transform, options) {
+  _drawPolygon(transform: Float32Array, options: { dfactor: string | number; sfactor: string | number; zoom: any; currentTime: number; }) {
     var gl = this.gl;
     if (this._ready) {
       gl.useProgram(this.program);
@@ -3365,9 +3225,6 @@ export class WebGLVectorTile2 extends Tile {
       gl.blendFunc(sfactor, dfactor);
 
       var tileTransform = new Float32Array(transform);
-      var zoom = options.zoom;
-      var currentTime = options.currentTime / 1000.;
-      var color = this._layer.drawOptions.color || [1.0, 0.0, 0.0, 1.0];
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
@@ -3375,16 +3232,16 @@ export class WebGLVectorTile2 extends Tile {
       gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
-      this.program.enableAttribArray.a_coord(2, gl.FLOAT, false, 12, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-      this.program.enableAttribArray.a_color(1, gl.FLOAT, false, 12, 8); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.setVertexAttrib.a_coord(2, gl.FLOAT, false, 12, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.setVertexAttrib.a_color(1, gl.FLOAT, false, 12, 8); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
 
       gl.drawArrays(gl.TRIANGLES, 0, this._pointCount);
       //gl.drawElements(gl.TRIANGLES, 170840, gl.UNSIGNED_SHORT, 0);
-      perf_draw_points(this._pointCount);
+     // //perf_draw_points(this._pointCount);
       gl.disable(gl.BLEND);
     }
   }
-  _drawLineString(transform, options) {
+  _drawLineString(transform: Float32Array, options: { dfactor: any; zoom: any; currentTime: number; }) {
     var gl = this.gl;
     if (this._ready) {
       var dfactor = options.dfactor || gl.ONE;
@@ -3397,8 +3254,6 @@ export class WebGLVectorTile2 extends Tile {
       gl.blendFunc(gl.SRC_ALPHA, dfactor);
 
       var tileTransform = new Float32Array(transform);
-      var zoom = options.zoom;
-      var currentTime = options.currentTime / 1000.;
       var color = this._layer.drawOptions.color || [1.0, 0.0, 0.0, 1.0];
       if (color.length == 3) {
         color.push(1.0);
@@ -3408,19 +3263,16 @@ export class WebGLVectorTile2 extends Tile {
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
       gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
-
       gl.uniform4fv(this.program.u_color, color);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
-      this.program.enableAttribArray.a_coord(2, gl.FLOAT, false, 8, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.setVertexAttrib.a_coord(2, gl.FLOAT, false, 8, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
 
       gl.drawArrays(gl.LINES, 0, this._pointCount);
-      //gl.drawElements(gl.TRIANGLES, 170840, gl.UNSIGNED_SHORT, 0);
-      perf_draw_points(this._pointCount);
       gl.disable(gl.BLEND);
     }
   }
-  _drawExpandedLineString(transform, options) {
+  _drawExpandedLineString(transform: Float32Array, options: { zoom: any; currentTime: number; pointSize: number; }) {
     var gl = this.gl;
     if (this._ready) {
       gl.useProgram(this.program);
@@ -3428,15 +3280,12 @@ export class WebGLVectorTile2 extends Tile {
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
       var tileTransform = new Float32Array(transform);
-      var zoom = options.zoom;
-      var currentTime = options.currentTime / 1000.;
       var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-      var color = this._layer.drawOptions.color || this._defaultColor;
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      pointSize *= Math.floor((zoom + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+      pointSize *= Math.floor((gEarthTime.gmapsZoomLevel() + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
       // Passing a NaN value to the shader with a large number of points is very bad
       if (isNaN(pointSize)) {
         pointSize = 1.0;
@@ -3448,16 +3297,16 @@ export class WebGLVectorTile2 extends Tile {
       gl.uniform1f(this.program.u_inner, .0);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffers[0]);
-      this.program.enableAttribArray.a_coord(2, gl.FLOAT, false, 8, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.setVertexAttrib.a_coord(2, gl.FLOAT, false, 8, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffers[1]);
-      this.program.enableAttribArray.a_normal(2, gl.FLOAT, false, 8, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.setVertexAttrib.a_normal(2, gl.FLOAT, false, 8, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffers[2]);
-      this.program.enableAttribArray.a_miter(1, gl.FLOAT, false, 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.setVertexAttrib.a_miter(1, gl.FLOAT, false, 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffers[3]);
-      this.program.enableAttribArray.a_texture_loc(1, gl.FLOAT, false, 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.setVertexAttrib.a_texture_loc(1, gl.FLOAT, false, 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
 
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer);
 
@@ -3473,11 +3322,11 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.drawElements(gl.TRIANGLES, this._pointCount, gl.UNSIGNED_SHORT, 0);
       //gl.drawElements(gl.TRIANGLES, 170840, gl.UNSIGNED_SHORT, 0);
-      perf_draw_points(this._pointCount);
+     // //perf_draw_points(this._pointCount);
       gl.disable(gl.BLEND);
     }
   }
-  _drawPointSizeColor(transform, options) {
+  _drawPointSizeColor(transform: Float32Array, options: { zoom: any; currentTime: number; pointSize: number; }) {
     var gl = this.gl;
     if (this._ready) {
       gl.useProgram(this.program);
@@ -3485,15 +3334,12 @@ export class WebGLVectorTile2 extends Tile {
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
 
       var tileTransform = new Float32Array(transform);
-      var zoom = options.zoom;
-      var currentTime = options.currentTime / 1000.;
       var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-      var color = this._layer.drawOptions.color || this._defaultColor;
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      pointSize *= Math.floor((zoom + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+      pointSize *= Math.floor((gEarthTime.gmapsZoomLevel() + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
       // Passing a NaN value to the shader with a large number of points is very bad
       if (isNaN(pointSize)) {
         pointSize = 1.0;
@@ -3504,17 +3350,17 @@ export class WebGLVectorTile2 extends Tile {
       gl.uniform1f(this.program.u_size, pointSize);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
-      this.program.enableAttribArray.a_coord(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-      this.program.enableAttribArray.a_size(1, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
-      this.program.enableAttribArray.a_color(1, gl.FLOAT, false, this._layer.numAttributes * 4, 12);
+      this.program.setVertexAttrib.a_coord(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.setVertexAttrib.a_size(1, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
+      this.program.setVertexAttrib.a_color(1, gl.FLOAT, false, this._layer.numAttributes * 4, 12);
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
 
-      perf_draw_points(this._pointCount);
+     // //perf_draw_points(this._pointCount);
       gl.disable(gl.BLEND);
     }
   }
-  _drawPointSizeColorEpoch(transform, options) {
+  _drawPointSizeColorEpoch(transform: Float32Array, options: { zoom: any; currentTime: number; pointSize: number; epochRange: number; }) {
     var gl = this.gl;
     if (this._ready) {
       gl.useProgram(this.program);
@@ -3522,44 +3368,35 @@ export class WebGLVectorTile2 extends Tile {
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
 
       var tileTransform = new Float32Array(transform);
-      var zoom = options.zoom;
-      var currentTime = options.currentTime / 1000.;
+      var currentTime = gEarthTime.currentEpochTime();
       var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-      var color = this._layer.drawOptions.color || this._defaultColor;
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      pointSize *= Math.floor((zoom + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+      pointSize *= Math.floor((gEarthTime.gmapsZoomLevel() + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
       // Passing a NaN value to the shader with a large number of points is very bad
       if (isNaN(pointSize)) {
         pointSize = 1.0;
       }
 
-      var epochRange = options.epochRange || 365 * 24 * 60 * 60;
-
       gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
-
       gl.uniform1f(this.program.u_size, pointSize);
-
       gl.uniform1f(this.program.u_epoch, currentTime);
-
-      gl.uniform1f(this.program.u_epoch_range, epochRange);
-
+      gl.uniform1f(this.program.u_epoch_range, options.epochRange ?? 365 * 24 * 60 * 60);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
-      this.program.enableAttribArray.a_coord(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-      this.program.enableAttribArray.a_size(1, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
-      this.program.enableAttribArray.a_color(1, gl.FLOAT, false, this._layer.numAttributes * 4, 12);
-      this.program.enableAttribArray.a_epoch(1, gl.FLOAT, false, this._layer.numAttributes * 4, 16);
+      this.program.setVertexAttrib.a_coord(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.setVertexAttrib.a_size(1, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
+      this.program.setVertexAttrib.a_color(1, gl.FLOAT, false, this._layer.numAttributes * 4, 12);
+      this.program.setVertexAttrib.a_epoch(1, gl.FLOAT, false, this._layer.numAttributes * 4, 16);
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
 
-      perf_draw_points(this._pointCount);
       gl.disable(gl.BLEND);
     }
   }
-  _drawPointColorStartEpochEndEpoch(transform, options) {
+  _drawPointColorStartEpochEndEpoch(transform: Float32Array, options: { dfactor: any; zoom: any; currentTime: number; pointSize: number; }) {
     var gl = this.gl;
     if (this._ready) {
       gl.useProgram(this.program);
@@ -3576,39 +3413,34 @@ export class WebGLVectorTile2 extends Tile {
       gl.blendFunc(gl.SRC_ALPHA, dfactor);
 
       var tileTransform = new Float32Array(transform);
-      var zoom = options.zoom;
-      var currentTime = options.currentTime / 1000.;
+      var currentTime = gEarthTime.currentEpochTime();
       var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-      var color = this._layer.drawOptions.color || this._defaultColor;
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      pointSize *= Math.floor((zoom + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+      pointSize *= Math.floor((gEarthTime.gmapsZoomLevel() + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
       // Passing a NaN value to the shader with a large number of points is very bad
       if (isNaN(pointSize)) {
         pointSize = 1.0;
       }
 
       gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
-
       gl.uniform1f(this.program.u_epoch, currentTime);
-
       gl.uniform1f(this.program.u_size, pointSize);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
-      this.program.enableAttribArray.a_coord(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-      this.program.enableAttribArray.a_color(1, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
-      this.program.enableAttribArray.a_epoch0(1, gl.FLOAT, false, this._layer.numAttributes * 4, 12);
-      this.program.enableAttribArray.a_epoch1(1, gl.FLOAT, false, this._layer.numAttributes * 4, 16);
+      this.program.setVertexAttrib.a_coord(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.setVertexAttrib.a_color(1, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
+      this.program.setVertexAttrib.a_epoch0(1, gl.FLOAT, false, this._layer.numAttributes * 4, 12);
+      this.program.setVertexAttrib.a_epoch1(1, gl.FLOAT, false, this._layer.numAttributes * 4, 16);
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
 
-      perf_draw_points(this._pointCount);
       gl.disable(gl.BLEND);
     }
   }
-  _drawPointSizeColorStartEpochEndEpoch(transform, options) {
+  _drawPointSizeColorStartEpochEndEpoch(transform: Float32Array, options: { zoom: any; currentTime: number; pointSize: number; }) {
     var gl = this.gl;
     if (this._ready) {
       gl.useProgram(this.program);
@@ -3616,15 +3448,13 @@ export class WebGLVectorTile2 extends Tile {
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
 
       var tileTransform = new Float32Array(transform);
-      var zoom = options.zoom;
-      var currentTime = options.currentTime / 1000.;
+      var currentTime = gEarthTime.currentEpochTime();
       var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-      var color = this._layer.drawOptions.color || this._defaultColor;
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      pointSize *= Math.floor((zoom + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+      pointSize *= Math.floor((gEarthTime.gmapsZoomLevel() + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
       // Passing a NaN value to the shader with a large number of points is very bad
       if (isNaN(pointSize)) {
         pointSize = 1.0;
@@ -3637,19 +3467,18 @@ export class WebGLVectorTile2 extends Tile {
       gl.uniform1f(this.program.u_size, pointSize);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
-      this.program.enableAttribArray.a_coord(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-      this.program.enableAttribArray.a_size(1, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
-      this.program.enableAttribArray.a_color(1, gl.FLOAT, false, this._layer.numAttributes * 4, 12);
-      this.program.enableAttribArray.a_epoch0(1, gl.FLOAT, false, this._layer.numAttributes * 4, 16);
-      this.program.enableAttribArray.a_epoch1(1, gl.FLOAT, false, this._layer.numAttributes * 4, 20);
+      this.program.setVertexAttrib.a_coord(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.setVertexAttrib.a_size(1, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
+      this.program.setVertexAttrib.a_color(1, gl.FLOAT, false, this._layer.numAttributes * 4, 12);
+      this.program.setVertexAttrib.a_epoch0(1, gl.FLOAT, false, this._layer.numAttributes * 4, 16);
+      this.program.setVertexAttrib.a_epoch1(1, gl.FLOAT, false, this._layer.numAttributes * 4, 20);
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
 
-      perf_draw_points(this._pointCount);
       gl.disable(gl.BLEND);
     }
   }
-  _drawSitc4rcBuffer(code, year, transform, options) {
+  _drawSitc4rcBuffer(code: string, year: string, transform: Iterable<number>, options: { setDataFnc: any; pointSize?: any; }) {
     var gl = this.gl;
     var buffer = this.buffers[code][year];
     if (!buffer.buffer)
@@ -3657,21 +3486,19 @@ export class WebGLVectorTile2 extends Tile {
     gl.useProgram(this.program);
 
     var tileTransform = new Float32Array(transform);
-    var zoom = options.zoom;
-    var currentTime = options.currentTime / 1000.;
+    var currentTime = gEarthTime.currentEpochTime();
     var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
     var color = this._layer.drawOptions.color || [1.0, 0.0, 0.0];
 
     scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
     scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-    pointSize *= Math.floor((zoom + 1.0) / (23.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+    pointSize *= Math.floor((gEarthTime.gmapsZoomLevel() + 1.0) / (23.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
     if (isNaN(pointSize)) {
       pointSize = 1.0;
     }
 
     var setDataFnc = options.setDataFnc || 'setData';
-
 
     gl.enable(gl.BLEND);
     if (setDataFnc == "setData2") {
@@ -3681,27 +3508,22 @@ export class WebGLVectorTile2 extends Tile {
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
     }
 
-
     gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
-
     gl.uniform1f(this.program.u_epoch, currentTime);
-
     gl.uniform1f(this.program.u_size, pointSize);
-
     gl.uniform3fv(this.program.u_end_color, color);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer.buffer);
-    this.program.enableAttribArray.a_p0(2, gl.FLOAT, false, buffer.numAttributes * 4, 0);
+    this.program.setVertexAttrib.a_p0(2, gl.FLOAT, false, buffer.numAttributes * 4, 0);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer.buffer);
-    this.program.enableAttribArray.a_p2(2, gl.FLOAT, false, buffer.numAttributes * 4, 8);
-    this.program.enableAttribArray.a_p1(2, gl.FLOAT, false, buffer.numAttributes * 4, 16);
-    this.program.enableAttribArray.a_epoch0(1, gl.FLOAT, false, buffer.numAttributes * 4, 24);
-    this.program.enableAttribArray.a_epoch1(1, gl.FLOAT, false, buffer.numAttributes * 4, 28);
-
+    this.program.setVertexAttrib.a_p2(2, gl.FLOAT, false, buffer.numAttributes * 4, 8);
+    this.program.setVertexAttrib.a_p1(2, gl.FLOAT, false, buffer.numAttributes * 4, 16);
+    this.program.setVertexAttrib.a_epoch0(1, gl.FLOAT, false, buffer.numAttributes * 4, 24);
+    this.program.setVertexAttrib.a_epoch1(1, gl.FLOAT, false, buffer.numAttributes * 4, 28);
 
     if (setDataFnc == "setData2") {
-      this.program.enableAttribArray.a_alpha(1, gl.FLOAT, false, buffer.numAttributes * 4, 32);
+      this.program.setVertexAttrib.a_alpha(1, gl.FLOAT, false, buffer.numAttributes * 4, 32);
     }
 
     if (this._texture) {
@@ -3713,9 +3535,9 @@ export class WebGLVectorTile2 extends Tile {
     gl.drawArrays(gl.POINTS, 0, buffer.pointCount);
 
     gl.disable(gl.BLEND);
-
   }
-  _initSitc4rcBuffer(code, year, setDataFnc) {
+
+  _initSitc4rcBuffer(code: string, year: string, setDataFnc: string) {
     this.buffers[code][year] = {
       "numAttributes": this._layer.numAttributes,
       "pointCount": 8,
@@ -3743,44 +3565,40 @@ export class WebGLVectorTile2 extends Tile {
       'setDataFnc': setDataFnc
     });
   }
-  _drawSitc4r2(transform, options) {
-    var gl = this.gl;
+  _drawSitc4r2(transform: Float32Array, options: { setDataFnc?: string; }) {
     if (this._ready) {
       var code = this._sitc4r2Code;
-      var currentTime = options.currentTime;
-      var currentYear = new Date(currentTime).getUTCFullYear();
-      var start = new Date(currentYear + '-01-01');
-      var end = new Date(currentYear + '-12-31');
-      var t = 1.0 - (end.getTime() - currentTime) / (end.getTime() - start.getTime());
-      if (typeof options == "undefined") {
-        options = { 'setDataFnc': 'setData' };
-      }
+      var currentDate = gEarthTime.currentDate();
+      var currentYear = new Date(currentDate).getUTCFullYear();
+
+      var setDataFnc = options.setDataFnc ?? 'setData';
+
       if (typeof this.buffers[code] == "undefined") {
         this.buffers[code] = {};
       }
       /* Init Buffers */
       if (typeof this.buffers[code][currentYear.toString()] == "undefined") {
-        this._initSitc4rcBuffer(code, currentYear.toString(), options['setDataFnc']);
+        this._initSitc4rcBuffer(code, currentYear.toString(), setDataFnc);
       }
       if (typeof this.buffers[code][(currentYear + 1).toString()] == "undefined") {
-        this._initSitc4rcBuffer(code, (currentYear + 1).toString(), options['setDataFnc']);
+        this._initSitc4rcBuffer(code, (currentYear + 1).toString(), setDataFnc);
       }
       /* Draw buffers */
       if (this.buffers[code][currentYear.toString()] && this.buffers[code][currentYear.toString()].ready) {
-        this._drawSitc4rcBuffer(code, currentYear.toString(), transform, options);
+        this._drawSitc4rcBuffer(code, currentYear.toString(), transform, {setDataFnc: setDataFnc});
       }
       else {
         gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
       }
       if (this.buffers[code][(currentYear + 1).toString()] && this.buffers[code][(currentYear + 1).toString()].ready) {
-        this._drawSitc4rcBuffer(code, (currentYear + 1).toString(), transform, options);
+        this._drawSitc4rcBuffer(code, (currentYear + 1).toString(), transform, {setDataFnc: setDataFnc});
       }
       else {
         gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
       }
     }
   }
-  _drawSpCrude(transform, options) {
+  _drawSpCrude(transform: Float32Array, options: { buffers: any; idx: any; zoom: any; currentTime: number; pointSize: number; }) {
     var gl = this.gl;
     var buffers = options.buffers;
     var idx = options.idx;
@@ -3792,15 +3610,13 @@ export class WebGLVectorTile2 extends Tile {
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
 
       var tileTransform = new Float32Array(transform);
-      var zoom = options.zoom;
-      var currentTime = options.currentTime / 1000.;
+      var currentTime = gEarthTime.currentEpochTime();
       var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-      var color = this._layer.drawOptions.color || this._defaultColor;
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      pointSize *= Math.floor((zoom + 1.0) / (23.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+      pointSize *= Math.floor((gEarthTime.gmapsZoomLevel() + 1.0) / (23.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
       // Passing a NaN value to the shader with a large number of points is very bad
       if (isNaN(pointSize)) {
         pointSize = 1.0;
@@ -3814,20 +3630,19 @@ export class WebGLVectorTile2 extends Tile {
       gl.uniform1f(this.program.u_size, pointSize);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, buffer.buffer);
-      this.program.enableAttribArray.a_coord_0(2, gl.FLOAT, false, buffer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-      this.program.enableAttribArray.a_epoch_0(1, gl.FLOAT, false, buffer.numAttributes * 4, 8);
-      this.program.enableAttribArray.a_coord_1(2, gl.FLOAT, false, buffer.numAttributes * 4, 12); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-      this.program.enableAttribArray.a_epoch_1(1, gl.FLOAT, false, buffer.numAttributes * 4, 20);
-      this.program.enableAttribArray.a_color(1, gl.FLOAT, false, buffer.numAttributes * 4, 24);
+      this.program.setVertexAttrib.a_coord_0(2, gl.FLOAT, false, buffer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.setVertexAttrib.a_epoch_0(1, gl.FLOAT, false, buffer.numAttributes * 4, 8);
+      this.program.setVertexAttrib.a_coord_1(2, gl.FLOAT, false, buffer.numAttributes * 4, 12); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.setVertexAttrib.a_epoch_1(1, gl.FLOAT, false, buffer.numAttributes * 4, 20);
+      this.program.setVertexAttrib.a_color(1, gl.FLOAT, false, buffer.numAttributes * 4, 24);
 
 
       gl.drawArrays(gl.POINTS, 0, buffer.count);
 
-      //perf_draw_points(this._pointCount);
       gl.disable(gl.BLEND);
     }
   }
-  _drawVesselTracks(transform, options) {
+  _drawVesselTracks(transform: Float32Array, options: { zoom: any; currentTime: number; pointSize: number; }) {
     var gl = this.gl;
 
     if (this._ready && this._pointCount > 0) {
@@ -3838,15 +3653,13 @@ export class WebGLVectorTile2 extends Tile {
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
 
       var tileTransform = new Float32Array(transform);
-      var zoom = options.zoom;
-      var currentTime = options.currentTime / 1000.;
+      var currentTime = gEarthTime.currentEpochTime();
       var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-      var color = this._layer.drawOptions.color || this._defaultColor; // not used?
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      pointSize *= Math.floor((zoom + 1.0) / (23.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+      pointSize *= Math.floor((gEarthTime.gmapsZoomLevel() + 1.0) / (23.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
       // Passing a NaN value to the shader with a large number of points is very bad
       if (isNaN(pointSize)) {
         pointSize = 1.0;
@@ -3859,19 +3672,18 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.uniform1f(this.program.u_size, pointSize);
 
-      this.program.enableAttribArray.a_coord_0(2, gl.FLOAT, false, 7 * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-      this.program.enableAttribArray.a_epoch_0(1, gl.FLOAT, false, 7 * 4, 8);
-      this.program.enableAttribArray.a_coord_1(2, gl.FLOAT, false, 7 * 4, 12); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-      this.program.enableAttribArray.a_epoch_1(1, gl.FLOAT, false, 7 * 4, 20);
-      this.program.enableAttribArray.a_color(1, gl.FLOAT, false, 7 * 4, 24);
+      this.program.setVertexAttrib.a_coord_0(2, gl.FLOAT, false, 7 * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.setVertexAttrib.a_epoch_0(1, gl.FLOAT, false, 7 * 4, 8);
+      this.program.setVertexAttrib.a_coord_1(2, gl.FLOAT, false, 7 * 4, 12); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.setVertexAttrib.a_epoch_1(1, gl.FLOAT, false, 7 * 4, 20);
+      this.program.setVertexAttrib.a_color(1, gl.FLOAT, false, 7 * 4, 24);
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
 
-      //perf_draw_points(this._pointCount);
       gl.disable(gl.BLEND);
     }
   }
-  _drawParticles(transform, options) {
+  _drawParticles(transform: Float32Array, options: { dfactor: string | number; sfactor: string | number; zoom: any; currentTime: number; pointSize: number; pointSizeFnc: string; maxElevation: number; }) {
     var gl = this.gl;
 
     if (this._ready && this._pointCount > 0) {
@@ -3891,8 +3703,7 @@ export class WebGLVectorTile2 extends Tile {
       gl.blendFunc(sfactor, dfactor);
 
       var tileTransform = new Float32Array(transform);
-      var zoom = options.zoom;
-      var currentTime = options.currentTime / 1000.;
+      var currentTime = gEarthTime.currentEpochTime();
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
@@ -3903,7 +3714,7 @@ export class WebGLVectorTile2 extends Tile {
       }
       if (options.pointSizeFnc) {
         var pointSizeFnc = new Function('return ' + options.pointSizeFnc)();
-        pointSize *= pointSizeFnc(zoom);
+        pointSize *= pointSizeFnc(gEarthTime.gmapsZoomLevel());
       }
 
       // Passing a NaN value to the shader with a large number of points is very bad
@@ -3925,21 +3736,20 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.uniform1f(this.program.u_max_elev, maxElevation);
 
-      this.program.enableAttribArray.a_coord_0(2, gl.FLOAT, false, 9 * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-      this.program.enableAttribArray.a_elev_0(1, gl.FLOAT, false, 9 * 4, 8);
-      this.program.enableAttribArray.a_epoch_0(1, gl.FLOAT, false, 9 * 4, 12);
-      this.program.enableAttribArray.a_coord_1(2, gl.FLOAT, false, 9 * 4, 16); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-      this.program.enableAttribArray.a_elev_1(1, gl.FLOAT, false, 9 * 4, 24);
-      this.program.enableAttribArray.a_epoch_1(1, gl.FLOAT, false, 9 * 4, 28);
-      this.program.enableAttribArray.a_color(1, gl.FLOAT, false, 9 * 4, 32);
+      this.program.setVertexAttrib.a_coord_0(2, gl.FLOAT, false, 9 * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.setVertexAttrib.a_elev_0(1, gl.FLOAT, false, 9 * 4, 8);
+      this.program.setVertexAttrib.a_epoch_0(1, gl.FLOAT, false, 9 * 4, 12);
+      this.program.setVertexAttrib.a_coord_1(2, gl.FLOAT, false, 9 * 4, 16); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.setVertexAttrib.a_elev_1(1, gl.FLOAT, false, 9 * 4, 24);
+      this.program.setVertexAttrib.a_epoch_1(1, gl.FLOAT, false, 9 * 4, 28);
+      this.program.setVertexAttrib.a_color(1, gl.FLOAT, false, 9 * 4, 32);
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
 
-      //perf_draw_points(this._pointCount);
       gl.disable(gl.BLEND);
     }
   }
-  _drawAnimPoints(transform, options) {
+  _drawAnimPoints(transform: Float32Array, options: { zoom: any; currentTime: number; pointSize: number; }) {
     var gl = this.gl;
 
     if (this._ready && this._pointCount > 0) {
@@ -3950,15 +3760,13 @@ export class WebGLVectorTile2 extends Tile {
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
 
       var tileTransform = new Float32Array(transform);
-      var zoom = options.zoom;
-      var currentTime = options.currentTime / 1000.;
+      var currentTime = gEarthTime.currentEpochTime();
       var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-      var color = this._layer.drawOptions.color || this._defaultColor; // not used?
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      pointSize *= Math.floor((zoom + 1.0) / (23.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+      pointSize *= Math.floor((gEarthTime.gmapsZoomLevel() + 1.0) / (23.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
       // Passing a NaN value to the shader with a large number of points is very bad
       if (isNaN(pointSize)) {
         pointSize = 1.0;
@@ -3971,19 +3779,18 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.uniform1f(this.program.u_size, pointSize);
 
-      this.program.enableAttribArray.a_coord_0(2, gl.FLOAT, false, 7 * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-      this.program.enableAttribArray.a_epoch_0(1, gl.FLOAT, false, 7 * 4, 8);
-      this.program.enableAttribArray.a_coord_1(2, gl.FLOAT, false, 7 * 4, 12); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-      this.program.enableAttribArray.a_epoch_1(1, gl.FLOAT, false, 7 * 4, 20);
-      this.program.enableAttribArray.a_color(1, gl.FLOAT, false, 7 * 4, 24);
+      this.program.setVertexAttrib.a_coord_0(2, gl.FLOAT, false, 7 * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.setVertexAttrib.a_epoch_0(1, gl.FLOAT, false, 7 * 4, 8);
+      this.program.setVertexAttrib.a_coord_1(2, gl.FLOAT, false, 7 * 4, 12); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.setVertexAttrib.a_epoch_1(1, gl.FLOAT, false, 7 * 4, 20);
+      this.program.setVertexAttrib.a_color(1, gl.FLOAT, false, 7 * 4, 24);
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
 
-      //perf_draw_points(this._pointCount);
       gl.disable(gl.BLEND);
     }
   }
-  _drawVesselTrackLines(transform, options) {
+  _drawVesselTrackLines(transform: Float32Array, options: { zoom: any; currentTime: number; pointSize: number; }) {
     var gl = this.gl;
 
     if (this._ready && this._pointCount > 0) {
@@ -3994,15 +3801,13 @@ export class WebGLVectorTile2 extends Tile {
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
 
       var tileTransform = new Float32Array(transform);
-      var zoom = options.zoom;
-      var currentTime = options.currentTime / 1000.;
+      var currentTime = gEarthTime.currentEpochTime();
       var pointSize = options.pointSize || (2.0 * window.devicePixelRatio);
-      var color = this._layer.drawOptions.color || this._defaultColor;
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      pointSize *= Math.floor((zoom + 1.0) / (23.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+      pointSize *= Math.floor((gEarthTime.gmapsZoomLevel() + 1.0) / (23.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
       // Passing a NaN value to the shader with a large number of points is very bad
       if (isNaN(pointSize)) {
         pointSize = 1.0;
@@ -4015,21 +3820,19 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.uniform1f(this.program.u_size, pointSize);
 
-      this.program.enableAttribArray.a_coord_0(2, gl.FLOAT, false, 7 * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-      this.program.enableAttribArray.a_epoch_0(1, gl.FLOAT, false, 7 * 4, 8);
-      this.program.enableAttribArray.a_coord_1(2, gl.FLOAT, false, 7 * 4, 12); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-      this.program.enableAttribArray.a_epoch_1(1, gl.FLOAT, false, 7 * 4, 20);
-      this.program.enableAttribArray.a_color(1, gl.FLOAT, false, 7 * 4, 24);
+      this.program.setVertexAttrib.a_coord_0(2, gl.FLOAT, false, 7 * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.setVertexAttrib.a_epoch_0(1, gl.FLOAT, false, 7 * 4, 8);
+      this.program.setVertexAttrib.a_coord_1(2, gl.FLOAT, false, 7 * 4, 12); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.setVertexAttrib.a_epoch_1(1, gl.FLOAT, false, 7 * 4, 20);
+      this.program.setVertexAttrib.a_color(1, gl.FLOAT, false, 7 * 4, 24);
 
 
       gl.drawArrays(gl.LINES, 0, this._pointCount);
 
-      //perf_draw_points(this._pointCount);
       gl.disable(gl.BLEND);
     }
   }
-  _drawWindVectors(transform, options) {
-    var gl = this.gl;
+  _drawWindVectors(transform: Float32Array, options: { bbox: { tl: any; br: any; }; }) {
     if (this._ready) {
       //gl.disable(gl.DEPTH_TEST);
       //gl.disable(gl.STENCIL_TEST);
@@ -4072,7 +3875,7 @@ export class WebGLVectorTile2 extends Tile {
   particleStateTexture0(particleStateTexture0: any, arg1: number) {
     throw new Error("Method not implemented.");
   }
-  drawWindVectorsScreen(transform) {
+  drawWindVectorsScreen(transform: Float32Array) {
     var gl = this.gl;
     // draw the screen into a temporary framebuffer to retain it as the background on the next frame
     this.glb.bindFramebuffer(this.framebuffer, this.screenTexture);
@@ -4092,7 +3895,7 @@ export class WebGLVectorTile2 extends Tile {
     this.backgroundTexture = this.screenTexture;
     this.screenTexture = temp;
   }
-  drawWindVectorsTexture(texture, opacity, transform) {
+  drawWindVectorsTexture(texture: any, opacity: number, transform: any) {
     var gl = this.gl;
     var program = this.screenProgram;
     //gl.useProgram(program.program);
@@ -4111,7 +3914,7 @@ export class WebGLVectorTile2 extends Tile {
 
     gl.drawArrays(gl.TRIANGLES, 0, 6);
   }
-  drawWindVectorsParticles(transform) {
+  drawWindVectorsParticles(transform: any) {
     var gl = this.gl;
     var program = this.drawProgram;
     gl.useProgram(program);
@@ -4142,7 +3945,7 @@ export class WebGLVectorTile2 extends Tile {
   _numParticles(POINTS: any, arg1: number, _numParticles: any) {
     throw new Error("Method not implemented.");
   }
-  updateWindVectorsParticles(transform) {
+  updateWindVectorsParticles(transform: Float32Array) {
     var gl = this.gl;
     this.glb.bindFramebuffer(this.framebuffer, this.particleStateTexture1);
     var oldViewPort = gl.getParameter(gl.VIEWPORT);
@@ -4185,7 +3988,7 @@ export class WebGLVectorTile2 extends Tile {
   particleStateTexture1(framebuffer: any, particleStateTexture1: any) {
     throw new Error("Method not implemented.");
   }
-  drawWindVectorsMap(transform) {
+  drawWindVectorsMap(transform: any) {
     var gl = this.gl;
     // draw the screen into a temporary framebuffer to retain it as the background on the next frame
     this.glb.bindFramebuffer(this.framebuffer, this.currentWindTexture);
@@ -4241,7 +4044,7 @@ export class WebGLVectorTile2 extends Tile {
     }
   }
   // Update and draw tiles
-  static update(tiles, transform, options) {
+  static updateTiles(tiles: WebGLVectorTile2[], transform: Float32Array, options: DrawOptions) {
     for (var i = 0; i < tiles.length; i++) {
       if (tiles[i]._ready && tiles[i]._pointCount != 0) {
         tiles[i].draw(transform, options);
@@ -4249,8 +4052,8 @@ export class WebGLVectorTile2 extends Tile {
     }
   }
   //////////////////////
-  static basicDrawPoints(instance_options) {
-    return function (this: WebGLVectorTile2, transform, options) {
+  static basicDrawPoints(instance_options: { pointSize: number | any[]; }) {
+    return function (this: WebGLVectorTile2, transform: Iterable<number>, options: { currentTime: number; }) {
       if (!this._ready)
         return;
       var gl = this.gl;
@@ -4284,7 +4087,7 @@ export class WebGLVectorTile2 extends Tile {
 
       // Set u_epoch, if present
       if (this.program.u_epoch != undefined) {
-        gl.uniform1f(this.program.u_epoch, options.currentTime / 1000.);
+        gl.uniform1f(this.program.u_epoch, gEarthTime.currentEpochTime());
       }
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
@@ -4315,7 +4118,7 @@ export class WebGLVectorTile2 extends Tile {
 
       var npoints = Math.floor(this._pointCount);
       gl.drawArrays(gl.POINTS, 0, npoints);
-      perf_draw_points(npoints);
+      //perf_draw_points(npoints);
       gl.disable(gl.BLEND);
     };
   }
@@ -4328,7 +4131,7 @@ WebGLVectorTile2.errorDialog = null;
 WebGLVectorTile2.dotScale = 1;
 
 
-function getColorRamp(colors) {
+function getColorRamp(colors: { [x: string]: string; 0?: string; 0.1?: string; 0.2?: string; 0.3?: string; 0.4?: string; 0.5?: string; 0.6?: string; 1?: string; }) {
     var canvas = document.createElement('canvas');
     var ctx = canvas.getContext('2d');
 
@@ -4356,7 +4159,7 @@ var defaultRampColors = {
     1.0: '#d53e4f'
 };
 
-function arrayBufferToString(ab) {
+function arrayBufferToString(ab: { byteLength: number; slice: (arg0: number, arg1: number) => Iterable<number>; }) {
   var chunks = [];
   var chunkLength = 100;
   for (var i = 0; i < ab.byteLength; i += chunkLength) {
@@ -4370,11 +4173,11 @@ function arrayBufferToString(ab) {
 WebGLVectorTile2._totalBtiTime = 0;
 WebGLVectorTile2._totalBtiCount = 0;
 
-var gtileData;
+var gtileData: any;
 
 var prototypeAccessors: any = { numParticles: {} };
 
-prototypeAccessors.numParticles.set = function (numParticles) {
+prototypeAccessors.numParticles.set = function (numParticles: number) {
     var gl = this.gl;
 
     // we create a square texture where each pixel will hold a particle position encoded as RGBA

@@ -14,7 +14,6 @@ import { WebGLMapTile, WebGLMapTileShaders } from './WebGLMapTile'
 import { WebGLVectorTile2, WebGLVectorTile2Shaders } from './WebGLVectorTile2'
 
 import { Timelines } from './Timelines';
-import { Utils } from './Utils';
 import { LayerDef } from './LayerProxy';
 import { LayerOptions } from './Layer';
 import { WebGLMapTile2, WebGLMapTile2Shaders } from './WebGLMapTile2';

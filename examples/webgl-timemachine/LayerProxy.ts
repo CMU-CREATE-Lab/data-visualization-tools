@@ -2,11 +2,6 @@
 
 import { LayerDB } from './LayerDB';
 import { Utils } from './Utils';
-import { gEarthTime } from './EarthTime';
-import { LayerOptions } from './Layer';
-
-declare var EARTH_TIMELAPSE_CONFIG;
-
 
 interface Timelapse {
   [key: string]: any;

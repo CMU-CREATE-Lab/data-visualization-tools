@@ -20,7 +20,7 @@ export function parseAndIndexGeojson(nameKey: string, geojsonTxt: string, done: 
 export class Resource {
   receiveDataCallbacks: any[];
   url: string;
-  transform: any;
+  transform?: any;
   singleUse: any;
   format: any;
   xhr?: any;
@@ -34,7 +34,7 @@ export class Resource {
    * @param {function, optional} options.receiveData(data)         Shortcut; registers data receiver using this.receiveData, and triggers fetch
    * @param {bool, optional} options.singleUse                 If true, discard data after calling receiveData callback(s). Defaults to False
    */
-  constructor(url: string, options: { transform: any; receiveData: any; singleUse?: any; format?: any; }) {
+  constructor(url: string, options: { transform?: any; receiveData?: any; singleUse?: any; format?: any; }) {
     this.receiveDataCallbacks = [];
     this.url = url;
     this.transform = options.transform;
