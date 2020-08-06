@@ -289,9 +289,13 @@ var showLodes = !!EARTH_TIMELAPSE_CONFIG.showLodes;
 var showStories = typeof(EARTH_TIMELAPSE_CONFIG.showStories) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showStories;
 var showCustomDotmaps = typeof(EARTH_TIMELAPSE_CONFIG.showCustomDotmaps) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showCustomDotmaps;
 var showCsvLayers = !!EARTH_TIMELAPSE_CONFIG.showCsvLayers;
+
+
+
 ////var showForestAlerts = !!EARTH_TIMELAPSE_CONFIG.showForestAlerts;
 var showCoral = typeof(EARTH_TIMELAPSE_CONFIG.showCoral) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showCoral;
-var showCoralBleaching = typeof(EARTH_TIMELAPSE_CONFIG.showCoralBleaching) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showCoralBleaching;
+////var showCoralBleaching = typeof(EARTH_TIMELAPSE_CONFIG.showCoralBleaching) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showCoralBleaching;
+// TODO(differently projected timemachine)
 var showHimawari8 = typeof(EARTH_TIMELAPSE_CONFIG.showHimawari8) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showHimawari8;
 //var showUSDrilling = typeof(EARTH_TIMELAPSE_CONFIG.showUSDrilling) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showUSDrilling;
 //var showViirs = typeof(EARTH_TIMELAPSE_CONFIG.showViirs) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showViirs;
@@ -334,7 +338,9 @@ var showChinaInfrastructure = !!EARTH_TIMELAPSE_CONFIG.showChinaInfrastructure;
 var showCityLabelMap = !!EARTH_TIMELAPSE_CONFIG.showCityLabelMap;
 //var showTsip = !!EARTH_TIMELAPSE_CONFIG.showTsip;
 var showSpCrude = !!EARTH_TIMELAPSE_CONFIG.showSpCrude;
+// TODO(differently projected timemachine)
 var showGoes16 = !!EARTH_TIMELAPSE_CONFIG.showGoes16;
+// TODO(differently projected timemachine)
 var showDscovr = !!EARTH_TIMELAPSE_CONFIG.showDscovr;
 //var showAnnualGlobalPm25 = !!EARTH_TIMELAPSE_CONFIG.showAnnualGlobalPm25;
 //var showEcco2 = !!EARTH_TIMELAPSE_CONFIG.showEcco2;
@@ -344,6 +350,8 @@ var showDscovr = !!EARTH_TIMELAPSE_CONFIG.showDscovr;
 //var showChlorophyllConcentrationTimemachine = !!EARTH_TIMELAPSE_CONFIG.showChlorophyllConcentrationTimemachine;
 //var showFishingPprTimemachine = !!EARTH_TIMELAPSE_CONFIG.showFishingPprTimemachine;
 var showWindVectors = !!EARTH_TIMELAPSE_CONFIG.showWindVectors;
+
+
 
 var googleMapsAPIKey = parseConfigOption({optionName: "googleMapsAPIKey", optionDefaultValue: "AIzaSyAGTDshdDRmq8zdw26ZmwJOswh6VseIrYY", exposeOptionToUrlHash: false});
 var showExtrasMenu = parseConfigOption({optionName: "showExtrasMenu", optionDefaultValue: true, exposeOptionToUrlHash: false});
@@ -541,7 +549,7 @@ var annualReturnsLayer;
 var seaLevelRiseLayer;
 ////var tintedSeaLevelRiseLayer;
 //var urbanFragilityLayer;
-var coralBleachingLayer;
+////var coralBleachingLayer;
 var monthlyRefugeesLayer;
 //var gtdLayer;
 //var hivLayer;
@@ -1032,7 +1040,7 @@ var mcrmUrl = gEarthTime.rootTilePath + "/coral/mcrm-lines-wrapdateline/{z}/{x}/
 
 //var viirsUrl = rootTilePath + "/viirs/viirs_20140817-20170917.bin";
 
-var coralBleachingUrl = gEarthTime.rootTilePath + "/coral/{z}/{x}/{y}.bin";
+///var coralBleachingUrl = gEarthTime.rootTilePath + "/coral/{z}/{x}/{y}.bin";
 //var usgsWindTurbineUrl = rootTilePath + "/energy/wind-installs-usgs/{z}/{x}/{y}.bin";
 //var solarInstallsUrl = rootTilePath + "/energy/solar-installs/{z}/{x}/{y}.bin";
 //var globalWindPowerUrl = rootTilePath + "/energy/global-wind-power/windfarms-world_20180330.bin";
@@ -1389,7 +1397,7 @@ function initLayerToggleUI() {
     }
   }).prop('checked', showAnimatedHansenLayer);
 
-  $("#show-coral").on("click", function() {
+  /*$("#show-coral").on("click", function() {
     var $this = $(this);
     if ($this.prop('checked')) {
       coralBleachingLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
@@ -1416,7 +1424,7 @@ function initLayerToggleUI() {
         $("#coral-bleaching-legend").hide();
       }
     }
-  }).prop('checked', showCoralBleachingLayer);
+  }).prop('checked', showCoralBleachingLayer);*/
 
   $("#show-himawari").on("click", function() {
     //$(".current-location-text-container").hide();
@@ -3370,7 +3378,7 @@ var gl;
 var showMcrmLayer = false;
 var showHansenLayer = false;
 var showHansenLayer2 = false;
-var showCoralBleachingLayer = false;
+//var showCoralBleachingLayer = false;
 var showAnimatedHansenLayer = false;
 var showHimawariTimeMachineLayer = false;
 var showGoes16TimeMachineLayer = false;
@@ -3990,7 +3998,7 @@ async function setupUIAndOldLayers() {
   legend_html += '<tr id="forest-loss-year-legend" style="display: none"><td><div style="font-size: 17px">Forest Loss By Year <span class="credit"> (Hansen et al)</span></div><div style="float:left; padding-right:3px; margin-left: 6px; font-size: 14px;">2000</div><div style="margin-top: 3px; float: left; background-image: -webkit-linear-gradient(left, yellow, orange 65%, red 100%);background-image: linear-gradient(left, yellow, orange 65%, red 100%); width: 68%; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">2018</div></div></td></tr>';
   legend_html += '<tr id="forest-loss-gain-legend" style="display: none; font-size: 14px;"><td><div style="font-size: 17px">Forest Loss/Gain 2000-2018 <span class="credit"> (Hansen et al)</span></div><div style="float: left; padding-right:8px"><div style="background-color:#00e000; width: 12px; height: 12px; float: left; margin-top: 2px; margin-left: 8px;"></div>&nbsp;Extent</div><div style="float: left; padding-right:8px"><div style="background-color:#ff0000; width: 12px; height: 12px; float: left; margin-top: 2px"></div>&nbsp;Loss</div><div style="float: left; padding-right:8px"><div style="background-color:#0000ff; width: 12px; height: 12px; float: left; margin-top: 2px"></div>&nbsp;Gain</div><div><div style="background-color:#ff00ff; width: 12px; height: 12px; float: left; margin-top: 2px"></div>&nbsp;Both</div></td></tr>';
   legend_html += '<tr id="fires-at-night-legend" style="display: none"><td><div style="background-color:#eda46a; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Fires At Night <span class="credit"> (NOAA)</span></div></td></tr>';
-  legend_html += '<tr id="coral-bleaching-legend" style="display: none"><td><div style="float:left; background-color:#fa13ab; width:17px; height: 5px;"></div><div style="margin-left: 29px; margin-top: -5px; font-size: 17px">Coral Reefs <span class="credit"> (NOAA, UNEP-WCMC)</span></div></td></tr>';
+  /////legend_html += '<tr id="coral-bleaching-legend" style="display: none"><td><div style="float:left; background-color:#fa13ab; width:17px; height: 5px;"></div><div style="margin-left: 29px; margin-top: -5px; font-size: 17px">Coral Reefs <span class="credit"> (NOAA, UNEP-WCMC)</span></div></td></tr>';
   legend_html += '<tr id="coral-bleaching-alerts-legend" style="display: none"><td><div style="font-size: 17px">Coral Reef Watch <span class="credit"> (NOAA, UNEP-WCMC)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">Watch</div><div style="margin-top: 4px; float: left; background-image: -webkit-linear-gradient(left, #ffff00, #fbb404 65%, #a00200 100%);background-image: linear-gradient(left, #ffff00, #fbb404 65%, #a00200 100%); width: 68%; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">Alert</div></td></tr>';
   legend_html += '<tr id="monthly-refugees-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(right, #ff0000 0%, #ffffff 100%);background: -webkit-linear-gradient(left, #ff0000 0%,#ffffff 100%); background: linear-gradient(to right, #ff0000 0%,#ffffff 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Refugees Crossing the Mediterranean: Jan 2014 - Jun 2016 <span class="credit"> (UNHCR)</span></div></td></tr>';
   if (subsampleAnnualRefugees)
@@ -6454,13 +6462,13 @@ function update() {
     */
 
     // Draw Coral Bleaching
-    if (showCoralBleachingLayer) {
+    /*if (showCoralBleachingLayer) {
       var coralBleachingLayerView = getLayerView(coralBleachingLayer, landsatBaseMapLayer);
       let options: any = {};
       options.color = [0.82, 0.22, 0.07, 1.0];
       options.pointSize = 8.0;
       coralBleachingLayer.draw(coralBleachingLayerView, options);
-    }
+    }*/
 
     // Draw Wind Layer
 /*
@@ -7852,8 +7860,8 @@ async function init() {
   var layerDB = gEarthTime.layerDB;
   layerDB.setShownLayers([
     //layerDB.getLayer('mapbox_grocery_convenience_allegheny_county')
-    //layerDB.getLayer('mapbox_dark_map')
-    layerDB.getLayer('crw')
+    layerDB.getLayer('bdrk'),
+    layerDB.getLayer('cb')
     //layerDB.getLayer('coral_only'),
     //layerDB.getLayer('gsr_oceans_yearly_ppr_1950_2014_animated')
   ]);
