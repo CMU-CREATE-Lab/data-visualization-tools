@@ -15,7 +15,7 @@ export class LayerDB {
   layerFactory: LayerFactory;
   apiUrl: string;
   layerById: {[layerId: string]: LayerProxy};
-  catalog: LayerCatalogEntry[];
+  orderedLayers: LayerProxy[] = [];
   shownLayers: LayerProxy[] = [];
   earthTime: EarthTime;
     
@@ -34,11 +34,13 @@ export class LayerDB {
     ret.layerById = {};
 
     // Read layer catalog
-    ret.catalog = await (await Utils.fetchWithRetry(`${ret.apiUrl}layer-catalogs/${databaseId.file_id_gid()}`)).json()
-    for(let entry of ret.catalog) {
-      ret.layerById[entry["Share link identifier"]] = new LayerProxy(entry["Share link identifier"], ret);
+    var catalog = await (await Utils.fetchWithRetry(`${ret.apiUrl}layer-catalogs/${databaseId.file_id_gid()}`)).json()
+    for(let entry of catalog) {
+      let layerProxy = new LayerProxy(entry["Share link identifier"], entry["Name"], entry["Category"], ret);
+      ret.layerById[layerProxy.id] = layerProxy;
+      ret.orderedLayers.push(layerProxy);
     }
-    Utils.timelog(`LayerDB constructed with ${ret.catalog.length} layers from ${databaseId.file_id_gid()}`)
+    Utils.timelog(`LayerDB constructed with ${catalog.length} layers from ${databaseId.file_id_gid()}`)
     return ret;
   }
 

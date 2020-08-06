@@ -8,7 +8,7 @@
 /// <reference path="../../timemachine/js/org/gigapan/timelapse/crossdomain_api.js"/>
 /// <reference path="../../timemachine/libs/change-detect/js/TimeMachineCanvasLayer.js"/>
 
-(window as any).dbg = {}
+(window as any).dbg = (window as any).dbg || {}
 
 import { WebGLMapLayer } from './WebGLMapLayer'
 
@@ -47,8 +47,14 @@ import { DateRangePicker } from './dateRangePicker';
 (window as any).dbg.DateRangePicker = DateRangePicker;
 
 import { GSheet } from './GSheet';
+(window as any).dbg.GSheet = GSheet;
+
 import { MapboxLayer } from './MapboxLayer'
+(window as any).dbg.MapboxLayer = MapboxLayer;
+
 import { Glb } from './Glb';
+(window as any).dbg.Glb = Glb;
+
 (window as any).dbg.GSheet = GSheet;
 
 var contentSearch: ContentSearch;
@@ -207,6 +213,7 @@ class EarthTimeImpl implements EarthTime {
     return currentTimes.length - 1;
   }
 
+  // What fraction have we advanced to the next time index? (0-1)
   private computeCurrentTimesDelta(currentTime, currentTimes) {
     var currentIndex = this.computeCurrentTimeIndex(currentTime, currentTimes);
     var previousIndex = 0;
@@ -249,6 +256,7 @@ class EarthTimeImpl implements EarthTime {
     return dates;
   }
 
+  // What fraction have we advanced to the next time index? (0-1)
   timelapseCurrentTimeDelta(): number {
     var delta = this.computeCurrentTimesDelta(
       this.timelapse.getCurrentTime(), 
@@ -6155,7 +6163,7 @@ function update() {
 
   perf_drawframe();
   gl.clear(gl.COLOR_BUFFER_BIT);
-  //MapboxLayer.beginFrame();
+  MapboxLayer.beginFrame();
 
   // Set this to true at the beginning of frame redraw;  any layer that decides it wasn't completely drawn will set
   // this to false upon draw below
@@ -6224,7 +6232,7 @@ function update() {
   // LAYERDB
 
   /** END NS LAYER */
-  //MapboxLayer.endFrame();
+  MapboxLayer.endFrame();
 
   return;
 
@@ -7776,6 +7784,7 @@ async function init() {
   var timelapseReadyPromise = new Promise((resolve, reject) => { timemachineReadyResolver = resolve});
 
   var settings = {
+    constrainVerticalCover: true, // constrain zoom-out and panning so that vertical span is always covered by the map (useful for mapbox)
     loopDwell: {
       startDwell: 1.5,
       endDwell: 1.5
@@ -7859,9 +7868,12 @@ async function init() {
   //}
   var layerDB = gEarthTime.layerDB;
   layerDB.setShownLayers([
-    //layerDB.getLayer('mapbox_grocery_convenience_allegheny_county')
     layerDB.getLayer('bdrk'),
-    layerDB.getLayer('cb')
+    //layerDB.getLayer('mapbox_grocery_convenience_allegheny_county')
+    //layerDB.getLayer('cb'),
+    //layerDB.getLayer('mapbox_dark_map'),
+    layerDB.getLayer('mapbox_cities')
+    //layerDB.getLayer('crw')
     //layerDB.getLayer('coral_only'),
     //layerDB.getLayer('gsr_oceans_yearly_ppr_1950_2014_animated')
   ]);

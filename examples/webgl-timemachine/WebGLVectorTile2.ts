@@ -2053,8 +2053,7 @@ export class WebGLVectorTile2 extends Tile {
       gl.uniform4fv(this.program.uColor, color);
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
-     // //perf_draw_points(this._pointCount);
-      gl.disable(gl.BLEND);
+        gl.disable(gl.BLEND);
     }
   }
 
@@ -2095,8 +2094,7 @@ export class WebGLVectorTile2 extends Tile {
 
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
-     // //perf_draw_points(this._pointCount);
-      gl.disable(gl.BLEND);
+        gl.disable(gl.BLEND);
     }
   }
   _drawUppsalaConflict(transform: Float32Array, options: { zoom: any; currentTime: number; pointSize: number; }) {
@@ -2139,8 +2137,7 @@ export class WebGLVectorTile2 extends Tile {
 
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
-     // //perf_draw_points(this._pointCount);
-      gl.disable(gl.BLEND);
+        gl.disable(gl.BLEND);
     }
   }
   _drawBubbleMap(transform: Float32Array, options: { zoom: any; currentTime: { getTime: () => number; }; mode: number; }) {
@@ -2194,8 +2191,7 @@ export class WebGLVectorTile2 extends Tile {
       }
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
-     // //perf_draw_points(this._pointCount);
-      gl.disable(gl.BLEND);
+        gl.disable(gl.BLEND);
     }
   }
   _drawBivalentBubbleMap(transform: Float32Array, options: { gmapsZoomLevel: any; zoom: any; currentTime: { getTime: () => number; }; mode: number; }) {
@@ -2242,8 +2238,7 @@ export class WebGLVectorTile2 extends Tile {
       }
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
-     // //perf_draw_points(this._pointCount);
-      gl.disable(gl.BLEND);
+        gl.disable(gl.BLEND);
     }
   }
   // This could implement binary search
@@ -2449,8 +2444,7 @@ export class WebGLVectorTile2 extends Tile {
 
       var npoints = Math.floor(this._pointCount * throttle);
       gl.drawArrays(gl.POINTS, 0, npoints);
-     // //perf_draw_points(npoints);
-      gl.disable(gl.BLEND);
+        gl.disable(gl.BLEND);
     }
   }
   _drawColorDotmapTbox(transform: Float32Array, options: { throttle: number; zoom: number; currentTime: number; }) {
@@ -2488,8 +2482,7 @@ export class WebGLVectorTile2 extends Tile {
 
       var npoints = Math.floor(this._pointCount * throttle);
       gl.drawArrays(gl.POINTS, 0, npoints);
-     // //perf_draw_points(npoints);
-      gl.disable(gl.BLEND);
+        gl.disable(gl.BLEND);
     }
   }
   _drawMonthlyRefugees(transform: Float32Array, options: { zoom: number; pointSize: number; currentTime: any; }) {
@@ -2528,8 +2521,7 @@ export class WebGLVectorTile2 extends Tile {
       this.program.setVertexAttrib.aTimeOffset(1, this.gl.FLOAT, false, 40, 36);
 
       this.gl.drawArrays(this.gl.POINTS, 0, this._pointCount);
-     // //perf_draw_points(this._pointCount);
-
+  
       this.gl.disable(this.gl.BLEND);
     }
 
@@ -2573,8 +2565,7 @@ export class WebGLVectorTile2 extends Tile {
 
       if (subsampleAnnualRefugees) {
         gl.drawArrays(gl.POINTS, 0, this._pointCount);
-       // //perf_draw_points(this._pointCount);
-      }
+        }
       else {
         var year = gEarthTime.currentDate().getUTCFullYear();
         year = Math.min(year, 2015);
@@ -2830,8 +2821,7 @@ export class WebGLVectorTile2 extends Tile {
       gl.uniform1f(this.program.pointSize, pointSize);
 
       gl.drawArrays(gl.POINTS, first, count);
-     // //perf_draw_points(count);
-      gl.disable(gl.BLEND);
+        gl.disable(gl.BLEND);
     }
   }
   _drawUrbanFragility(transform: Float32Array, options: {}) {
@@ -3068,8 +3058,7 @@ export class WebGLVectorTile2 extends Tile {
       gl.uniform1f(this.program.u_size, pointSize);
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
-     // //perf_draw_points(this._pointCount);
-      gl.disable(gl.BLEND);
+        gl.disable(gl.BLEND);
     }
   }
   _drawPoint(transform: Float32Array, options: { dfactor: string | number; sfactor: string | number; pointSize: number; pointSizeFnc: string; }) {
@@ -3116,8 +3105,7 @@ export class WebGLVectorTile2 extends Tile {
       this.program.setVertexAttrib.a_color(1, gl.FLOAT, false, 12, 8); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
-     // //perf_draw_points(this._pointCount);
-      gl.disable(gl.BLEND);
+        gl.disable(gl.BLEND);
     }
   }
   // no animation
@@ -3156,8 +3144,7 @@ export class WebGLVectorTile2 extends Tile {
 
       // draw
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
-     // //perf_draw_points(this._pointCount);
-      gl.disable(gl.BLEND);
+        gl.disable(gl.BLEND);
     }
   }
   // animated
@@ -3237,8 +3224,7 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.drawArrays(gl.TRIANGLES, 0, this._pointCount);
       //gl.drawElements(gl.TRIANGLES, 170840, gl.UNSIGNED_SHORT, 0);
-     // //perf_draw_points(this._pointCount);
-      gl.disable(gl.BLEND);
+        gl.disable(gl.BLEND);
     }
   }
   _drawLineString(transform: Float32Array, options: { dfactor: any; zoom: any; currentTime: number; }) {
@@ -3322,8 +3308,7 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.drawElements(gl.TRIANGLES, this._pointCount, gl.UNSIGNED_SHORT, 0);
       //gl.drawElements(gl.TRIANGLES, 170840, gl.UNSIGNED_SHORT, 0);
-     // //perf_draw_points(this._pointCount);
-      gl.disable(gl.BLEND);
+        gl.disable(gl.BLEND);
     }
   }
   _drawPointSizeColor(transform: Float32Array, options: { zoom: any; currentTime: number; pointSize: number; }) {
@@ -3356,8 +3341,7 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
 
-     // //perf_draw_points(this._pointCount);
-      gl.disable(gl.BLEND);
+        gl.disable(gl.BLEND);
     }
   }
   _drawPointSizeColorEpoch(transform: Float32Array, options: { zoom: any; currentTime: number; pointSize: number; epochRange: number; }) {
@@ -4118,8 +4102,7 @@ export class WebGLVectorTile2 extends Tile {
 
       var npoints = Math.floor(this._pointCount);
       gl.drawArrays(gl.POINTS, 0, npoints);
-      //perf_draw_points(npoints);
-      gl.disable(gl.BLEND);
+        gl.disable(gl.BLEND);
     };
   }
 }

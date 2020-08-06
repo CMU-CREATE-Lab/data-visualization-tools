@@ -16,6 +16,8 @@ export interface LayerDef {
 export class LayerProxy {
   id: string;
   database: LayerDB;
+  category: string;
+  name: string;
   _visible: boolean;
   showGraph: boolean;
   _tileView?: any; // TODO(LayerDB): add the _tileView
@@ -24,9 +26,11 @@ export class LayerProxy {
   options: any; // TODO: consider moving things out of options and using setDataOptions, drawOptions
   layer: any;
 
-  constructor(id: string, database: LayerDB) {
+  constructor(id: string, name: string, category: string, database: LayerDB) {
     console.assert(LayerProxy.isValidId(id));
     this.id = id;
+    this.name = name;
+    this.category = category;
     this.database = database;
   }
 
