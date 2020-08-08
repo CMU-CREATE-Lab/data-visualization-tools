@@ -19,6 +19,7 @@ export class WebGLMapTile extends Tile {
   static _frameOffsets: any;
   static _frameOffsetUsed: any;
   static videoId: number;
+  private _imageUrl: any;
   constructor(layer: WebGLMapLayer, tileidx: TileIdx, bounds, opt_options) {
     super(layer, tileidx, bounds, opt_options);
     this._layerDomId = opt_options.layerDomId;
@@ -58,7 +59,8 @@ export class WebGLMapTile extends Tile {
       that._removeLoadingSpinner();
     };
 
-    this._image.src = tileidx.expandUrl(this._layer._tileUrl, this._layer);
+    this._imageUrl = tileidx.expandUrl(this._layer._tileUrl, this._layer)
+    this._image.src = this._imageUrl;
     this._ready = false;
     this._width = 256;
     this._height = 256;
@@ -77,8 +79,10 @@ export class WebGLMapTile extends Tile {
     return texture;
   }
   _handleLoadedTexture() {
+    if (!this._image) {
+      return;
+    }
     var gl = this.gl;
-
     gl.bindTexture(gl.TEXTURE_2D, this._texture);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._image);
     gl.bindTexture(gl.TEXTURE_2D, null);
