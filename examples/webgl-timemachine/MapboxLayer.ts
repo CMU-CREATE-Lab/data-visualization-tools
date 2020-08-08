@@ -45,6 +45,11 @@ export class MapboxLayer {
     var renamedSources = {};
     for (let [key, value] of Object.entries(style.sources)) {
       renamedSources[this._prefix_layerId(key)] = value;
+      console.log('I want to change the mapbox:// into https://');
+      // from 
+      // to https://api.mapbox.com/v4/jjkoher.8km6ojde,jjkoher.9utfa50j,mapbox.mapbox-streets-v8.json?secure=&access_token=pk.eyJ1IjoicmFuZHlzYXJnZW50IiwiYSI6ImNrMDYzdGl3bDA3bTUzc3Fkb3o4cjc3YXgifQ.nn7FC9cpRl_THWpoAFnnow
+
+      console.log(value);
     }
 
     // Modify layers in-place
@@ -74,7 +79,11 @@ export class MapboxLayer {
     if (!this.styleIsLoaded) {
       console.log('_show this=', this);
       var url = 'https://api.mapbox.com/styles/v1/' + this.mapboxDef.style.replace('mapbox://styles/', '');
-      $.get(url, { access_token: MapboxLayer.accessToken })
+      var accessToken = MapboxLayer.accessToken;
+      if (this.layerId == 'drug_use') {
+        accessToken = 'pk.eyJ1Ijoiamprb2hlciIsImEiOiJjanhtM3JncHIwMjY4M3BtbXV0Z2dvZzg0In0._o4vt3R-MDgSonaoHMmk8w';
+      }
+      $.get(url, { access_token: accessToken })
         .done(this._receiveStyle.bind(this))
         .fail(function (e) { console.log('failed to fetch style in MapboxLayer'); });
     }
@@ -108,7 +117,7 @@ export class MapboxLayer {
       // When we do, we'll need to specify something to _render to select just the layers
       // from this particular MapboxLayer.
       // Perhaps each MapboxLayer has a Set of mapbox layers.
-      MapboxLayer.map._render(); // need to just render the layer here?
+      MapboxLayer.map._render(); // no args to _render means render all layers on map
     }
   }
   abortLoading() {
@@ -122,9 +131,15 @@ export class MapboxLayer {
     // @ts-ignore
     mapboxgl.accessToken = 'pk.eyJ1IjoicmFuZHlzYXJnZW50IiwiYSI6ImNrMDYzdGl3bDA3bTUzc3Fkb3o4cjc3YXgifQ.nn7FC9cpRl_THWpoAFnnow';
 
+    // Add map div with id #mapbox_map, with same size as EarthTime canvas, but offscreen
+    $("#timeMachine_timelapse_dataPanes").append("<div id='mapbox_map' style='width:100%; height:100%; left:-200vw'></div>");
+  
+
+
+
     // @ts-ignore
     MapboxLayer.map = new mapboxgl.Map({
-      container: 'map',
+      container: 'mapbox_map',
       style: {
         version: 8,
         sources: sources,

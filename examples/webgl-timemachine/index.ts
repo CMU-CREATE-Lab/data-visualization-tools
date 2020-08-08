@@ -7872,7 +7872,8 @@ async function init() {
     //layerDB.getLayer('mapbox_grocery_convenience_allegheny_county')
     //layerDB.getLayer('cb'),
     //layerDB.getLayer('mapbox_dark_map'),
-    layerDB.getLayer('mapbox_cities')
+    //layerDB.getLayer('drug_use'),
+    layerDB.getLayer('mapbox_cities'),
     //layerDB.getLayer('crw')
     //layerDB.getLayer('coral_only'),
     //layerDB.getLayer('gsr_oceans_yearly_ppr_1950_2014_animated')

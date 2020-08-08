@@ -51832,7 +51832,7 @@ Painter.prototype.opaquePassEnabledForLayer = function opaquePassEnabledForLayer
 };
 
 Painter.prototype.render = function render (style   , options            ) {
-    if (!options.phase || options.phase == 'beginframe') {
+    if (options.phase == 'beginframe') {
         this.style = style;
         this.options = options;
     
@@ -51951,7 +51951,7 @@ Painter.prototype.render = function render (style   , options            ) {
         }
     }
 
-    if (!options.phase || options.phase == 'endframe') {
+    if (options.phase == 'endframe') {
         if (this.options.showTileBoundaries) {
             for (var id$3 in this.sourceCaches) {
                 draw$1.debug(this, this.sourceCaches[id$3], this.coordsAscending[id$3]);
