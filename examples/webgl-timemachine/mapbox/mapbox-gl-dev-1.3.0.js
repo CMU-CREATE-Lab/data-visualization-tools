@@ -8707,112 +8707,6 @@ Step.prototype.serialize = function serialize () {
     return serialized;
 };
 
-/*
- * Copyright (C) 2008 Apple Inc. All Rights Reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY APPLE INC. ``AS IS'' AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE INC. OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
- * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * Ported from Webkit
- * http://svn.webkit.org/repository/webkit/trunk/Source/WebCore/platform/graphics/UnitBezier.h
- */
-
-var unitbezier$1 = UnitBezier$1;
-
-function UnitBezier$1(p1x, p1y, p2x, p2y) {
-    // Calculate the polynomial coefficients, implicit first and last control points are (0,0) and (1,1).
-    this.cx = 3.0 * p1x;
-    this.bx = 3.0 * (p2x - p1x) - this.cx;
-    this.ax = 1.0 - this.cx - this.bx;
-
-    this.cy = 3.0 * p1y;
-    this.by = 3.0 * (p2y - p1y) - this.cy;
-    this.ay = 1.0 - this.cy - this.by;
-
-    this.p1x = p1x;
-    this.p1y = p2y;
-    this.p2x = p2x;
-    this.p2y = p2y;
-}
-
-UnitBezier$1.prototype.sampleCurveX = function(t) {
-    // `ax t^3 + bx t^2 + cx t' expanded using Horner's rule.
-    return ((this.ax * t + this.bx) * t + this.cx) * t;
-};
-
-UnitBezier$1.prototype.sampleCurveY = function(t) {
-    return ((this.ay * t + this.by) * t + this.cy) * t;
-};
-
-UnitBezier$1.prototype.sampleCurveDerivativeX = function(t) {
-    return (3.0 * this.ax * t + 2.0 * this.bx) * t + this.cx;
-};
-
-UnitBezier$1.prototype.solveCurveX = function(x, epsilon) {
-    if (typeof epsilon === 'undefined') { epsilon = 1e-6; }
-
-    var t0, t1, t2, x2, i;
-
-    // First try a few iterations of Newton's method -- normally very fast.
-    for (t2 = x, i = 0; i < 8; i++) {
-
-        x2 = this.sampleCurveX(t2) - x;
-        if (Math.abs(x2) < epsilon) { return t2; }
-
-        var d2 = this.sampleCurveDerivativeX(t2);
-        if (Math.abs(d2) < 1e-6) { break; }
-
-        t2 = t2 - x2 / d2;
-    }
-
-    // Fall back to the bisection method for reliability.
-    t0 = 0.0;
-    t1 = 1.0;
-    t2 = x;
-
-    if (t2 < t0) { return t0; }
-    if (t2 > t1) { return t1; }
-
-    while (t0 < t1) {
-
-        x2 = this.sampleCurveX(t2);
-        if (Math.abs(x2 - x) < epsilon) { return t2; }
-
-        if (x > x2) {
-            t0 = t2;
-        } else {
-            t1 = t2;
-        }
-
-        t2 = (t1 - t0) * 0.5 + t0;
-    }
-
-    // Failure.
-    return t2;
-};
-
-UnitBezier$1.prototype.solve = function(x, epsilon) {
-    return this.sampleCurveY(this.solveCurveX(x, epsilon));
-};
-
 //      
 
 function number(a        , b        , t        ) {
@@ -9024,7 +8918,7 @@ Interpolate.interpolationFactor = function interpolationFactor (interpolation   
         t = exponentialInterpolation(input, 1, lower, upper);
     } else if (interpolation.name === 'cubic-bezier') {
         var c = interpolation.controlPoints;
-        var ub = new unitbezier$1(c[0], c[1], c[2], c[3]);
+        var ub = new unitbezier(c[0], c[1], c[2], c[3]);
         t = ub.solve(exponentialInterpolation(input, 1, lower, upper));
     }
     return t;
@@ -51828,196 +51722,123 @@ Painter.prototype.opaquePassEnabledForLayer = function opaquePassEnabledForLayer
 };
 
 Painter.prototype.render = function render (style   , options            ) {
-    // ETPATCH
-    if (options.phase == 'beginframe') {
-        this.style = style;
-        this.options = options;
-    
-        this.lineAtlas = style.lineAtlas;
-        this.imageManager = style.imageManager;
-        this.glyphManager = style.glyphManager;
-    
-        this.symbolFadeChange = style.placement.symbolFadeChange(symbol_layout.browser.now());
-    
-        this.imageManager.beginFrame();
+    this.style = style;
+    this.options = options;
 
-        // ETPATCH
-        //var layerIds = this.style._order;
-        //var sourceCaches = this.style.sourceCaches;
-        this.layerIds = this.style._order;
-        this.sourceCaches = this.style.sourceCaches; 
-    
-        // ETPATCH
-        //for (var id in sourceCaches) {
-            //var sourceCache = sourceCaches[id];
-        for (var id in this.sourceCaches) { 
-            var sourceCache = this.sourceCaches[id];
+    this.lineAtlas = style.lineAtlas;
+    this.imageManager = style.imageManager;
+    this.glyphManager = style.glyphManager;
 
-            if (sourceCache.used) {
-                sourceCache.prepare(this.context);
-            }
+    this.symbolFadeChange = style.placement.symbolFadeChange(symbol_layout.browser.now());
+
+    this.imageManager.beginFrame();
+
+    var layerIds = this.style._order;
+    var sourceCaches = this.style.sourceCaches;
+
+    for (var id in sourceCaches) {
+        var sourceCache = sourceCaches[id];
+        if (sourceCache.used) {
+            sourceCache.prepare(this.context);
         }
-    
-        // ETPATCH
-        //var coordsAscending                                  = {};
-        //var coordsDescending                                  = {};
-        //var coordsDescendingSymbol                                  = {};
-        this.coordsAscending                                  = {};
-        this.coordsDescending                                  = {};
-        this.coordsDescendingSymbol                                  = {};
-    
-        // ETPATCH
-        //for (var id$1 in sourceCaches) {
-        //    var sourceCache$1 = sourceCaches[id$1];
-        //    coordsAscending[id$1] = sourceCache$1.getVisibleCoordinates();
-        //    coordsDescending[id$1] = coordsAscending[id$1].slice().reverse();
-        //    coordsDescendingSymbol[id$1] = sourceCache$1.getVisibleCoordinates(true).reverse();
-        //}
-        for (var id$1 in this.sourceCaches) {
-            var sourceCache$1 = this.sourceCaches[id$1];
-            this.coordsAscending[id$1] = sourceCache$1.getVisibleCoordinates();
-            this.coordsDescending[id$1] = this.coordsAscending[id$1].slice().reverse();
-            this.coordsDescendingSymbol[id$1] = sourceCache$1.getVisibleCoordinates(true).reverse();
-        }
-    
-        // ETPATCH
-        //for (var id$2 in sourceCaches) {
-        //    var sourceCache$2 = sourceCaches[id$2];
-        for (var id$2 in this.sourceCaches) {
-            var sourceCache$2 = this.sourceCaches[id$2];
-
-            var source = sourceCache$2.getSource();
-            if (source.type !== 'raster' && source.type !== 'raster-dem') { continue; }
-            var visibleTiles = [];
-
-            // ETPATCH
-            //for (var i$1 = 0, list = coordsAscending[id$2]; i$1 < list.length; i$1 += 1) {
-            for (var i$1 = 0, list = this.coordsAscending[id$2]; i$1 < list.length; i$1 += 1) {
-                    var coord = list[i$1];
-    
-                    visibleTiles.push(sourceCache$2.getTile(coord));
-                }
-            updateTileMasks(visibleTiles, this.context);
-        }
-    
-        this.opaquePassCutoff = Infinity;
-
-        // ETPATCH
-        //for (var i = 0; i < layerIds.length; i++) {
-        //    var layerId = layerIds[i];
-        for (var i = 0; i < this.layerIds.length; i++) {
-            var layerId = this.layerIds[i];
-
-            if (this.style._layers[layerId].is3D()) {
-                this.opaquePassCutoff = i;
-                break;
-            }
-        }
-    
-        // Offscreen pass ===============================================
-        // We first do all rendering that requires rendering to a separate
-        // framebuffer, and then save those for rendering back to the map
-        // later: in doing this we avoid doing expensive framebuffer restores.
-        this.renderPass = 'offscreen';
-        this.depthRboNeedsClear = true;
-    
-        // ETPATCH
-        //for (var i$2 = 0, list$1 = layerIds; i$2 < list$1.length; i$2 += 1) {
-        for (var i$2 = 0, list$1 = this.layerIds; i$2 < list$1.length; i$2 += 1) {
-
-            var layerId$1 = list$1[i$2];
-    
-                var layer = this.style._layers[layerId$1];
-            if (!layer.hasOffscreenPass() || layer.isHidden(this.transform.zoom)) { continue; }
-    
-            // ETPATCH
-            //var coords = coordsDescending[layer.source];
-            var coords = this.coordsDescending[layer.source];
-
-            if (layer.type !== 'custom' && !coords.length) { continue; }
-    
-            // ETPATCH
-            //this.renderLayer(this, sourceCaches[layer.source], layer, coords);
-            this.renderLayer(this, this.sourceCaches[layer.source], layer, coords);
-        }
-    
-        // Rebind the main framebuffer now that all offscreen layers have been rendered:
-        this.context.bindFramebuffer.set(null);
-    
-        // Clear buffers in preparation for drawing to the main framebuffer
-        this.context.clear({ color: options.showOverdrawInspector ? symbol_layout.Color.black : symbol_layout.Color.transparent, depth: 1 });
-        this.clearStencil();
-    
-        this._showOverdrawInspector = options.showOverdrawInspector;
-        this.depthRangeFor3D = [0, 1 - ((style._order.length + 2) * this.numSublayers * this.depthEpsilon)];
-    // ETPATCH    
     }
+
+    var coordsAscending                                  = {};
+    var coordsDescending                                  = {};
+    var coordsDescendingSymbol                                  = {};
+
+    for (var id$1 in sourceCaches) {
+        var sourceCache$1 = sourceCaches[id$1];
+        coordsAscending[id$1] = sourceCache$1.getVisibleCoordinates();
+        coordsDescending[id$1] = coordsAscending[id$1].slice().reverse();
+        coordsDescendingSymbol[id$1] = sourceCache$1.getVisibleCoordinates(true).reverse();
+    }
+
+    for (var id$2 in sourceCaches) {
+        var sourceCache$2 = sourceCaches[id$2];
+        var source = sourceCache$2.getSource();
+        if (source.type !== 'raster' && source.type !== 'raster-dem') { continue; }
+        var visibleTiles = [];
+        for (var i$1 = 0, list = coordsAscending[id$2]; i$1 < list.length; i$1 += 1) {
+                var coord = list[i$1];
+
+                visibleTiles.push(sourceCache$2.getTile(coord));
+            }
+        updateTileMasks(visibleTiles, this.context);
+    }
+
+    this.opaquePassCutoff = Infinity;
+    for (var i = 0; i < layerIds.length; i++) {
+        var layerId = layerIds[i];
+        if (this.style._layers[layerId].is3D()) {
+            this.opaquePassCutoff = i;
+            break;
+        }
+    }
+
+    // Offscreen pass ===============================================
+    // We first do all rendering that requires rendering to a separate
+    // framebuffer, and then save those for rendering back to the map
+    // later: in doing this we avoid doing expensive framebuffer restores.
+    this.renderPass = 'offscreen';
+    this.depthRboNeedsClear = true;
+
+    for (var i$2 = 0, list$1 = layerIds; i$2 < list$1.length; i$2 += 1) {
+        var layerId$1 = list$1[i$2];
+
+            var layer = this.style._layers[layerId$1];
+        if (!layer.hasOffscreenPass() || layer.isHidden(this.transform.zoom)) { continue; }
+
+        var coords = coordsDescending[layer.source];
+        if (layer.type !== 'custom' && !coords.length) { continue; }
+
+        this.renderLayer(this, sourceCaches[layer.source], layer, coords);
+    }
+
+    // Rebind the main framebuffer now that all offscreen layers have been rendered:
+    this.context.bindFramebuffer.set(null);
+
+    // Clear buffers in preparation for drawing to the main framebuffer
+    this.context.clear({ color: options.showOverdrawInspector ? symbol_layout.Color.black : symbol_layout.Color.transparent, depth: 1 });
+    this.clearStencil();
+
+    this._showOverdrawInspector = options.showOverdrawInspector;
+    this.depthRangeFor3D = [0, 1 - ((style._order.length + 2) * this.numSublayers * this.depthEpsilon)];
 
     // Opaque pass ===============================================
     // Draw opaque layers top-to-bottom first.
     this.renderPass = 'opaque';
 
-    // ETPATCH
-    //for (this.currentLayer = layerIds.length - 1; this.currentLayer >= 0; this.currentLayer--) {
-    //    var layer$1 = this.style._layers[layerIds[this.currentLayer]];
-    //    var sourceCache$3 = sourceCaches[layer$1.source];
-    //    var coords$1 = coordsAscending[layer$1.source];
-    //    this._renderTileClippingMasks(layer$1, coords$1);
-    //    this.renderLayer(this, sourceCache$3, layer$1, coords$1);
-    //}
-    for (this.currentLayer = this.layerIds.length - 1; this.currentLayer >= 0; this.currentLayer--) {
-        var layer$1 = this.style._layers[this.layerIds[this.currentLayer]];
-        if (options.phase.hasOwnProperty(layer$1.id)) {
-            var sourceCache$3 = this.sourceCaches[layer$1.source];
-            var coords$1 = this.coordsAscending[layer$1.source];
-            this._renderTileClippingMasks(layer$1, coords$1);
-            this.renderLayer(this, sourceCache$3, layer$1, coords$1);
-        }
+    for (this.currentLayer = layerIds.length - 1; this.currentLayer >= 0; this.currentLayer--) {
+        var layer$1 = this.style._layers[layerIds[this.currentLayer]];
+        var sourceCache$3 = sourceCaches[layer$1.source];
+        var coords$1 = coordsAscending[layer$1.source];
+
+        this._renderTileClippingMasks(layer$1, coords$1);
+        this.renderLayer(this, sourceCache$3, layer$1, coords$1);
     }
 
     // Translucent pass ===============================================
     // Draw all other layers bottom-to-top.
     this.renderPass = 'translucent';
 
-    // ETPATCH
-    //for (this.currentLayer = 0; this.currentLayer < layerIds.length; this.currentLayer++) {
-    //    var layer$2 = this.style._layers[layerIds[this.currentLayer]];
-    //    var sourceCache$4 = sourceCaches[layer$2.source];
-    //    // For symbol layers in the translucent pass, we add extra tiles to the renderable set
-    //    // for cross-tile symbol fading. Symbol layers don't use tile clipping, so no need to render
-    //    // separate clipping masks
-    //    var coords$2 = (layer$2.type === 'symbol' ? coordsDescendingSymbol : coordsDescending)[layer$2.source];
-    //    this._renderTileClippingMasks(layer$2, coordsAscending[layer$2.source]);
-    //    this.renderLayer(this, sourceCache$4, layer$2, coords$2);
-    //}
-    for (this.currentLayer = 0; this.currentLayer < this.layerIds.length; this.currentLayer++) {
-        var layer$2 = this.style._layers[this.layerIds[this.currentLayer]];
-        if (options.phase.hasOwnProperty(layer$2.id)) {
-            var sourceCache$4 = this.sourceCaches[layer$2.source];
-    
-            // For symbol layers in the translucent pass, we add extra tiles to the renderable set
-            // for cross-tile symbol fading. Symbol layers don't use tile clipping, so no need to render
-            // separate clipping masks
-            var coords$2 = (layer$2.type === 'symbol' ? this.coordsDescendingSymbol : this.coordsDescending)[layer$2.source];
-    
-            this._renderTileClippingMasks(layer$2, this.coordsAscending[layer$2.source]);
-            this.renderLayer(this, sourceCache$4, layer$2, coords$2);
-        }
+    for (this.currentLayer = 0; this.currentLayer < layerIds.length; this.currentLayer++) {
+        var layer$2 = this.style._layers[layerIds[this.currentLayer]];
+        var sourceCache$4 = sourceCaches[layer$2.source];
+
+        // For symbol layers in the translucent pass, we add extra tiles to the renderable set
+        // for cross-tile symbol fading. Symbol layers don't use tile clipping, so no need to render
+        // separate clipping masks
+        var coords$2 = (layer$2.type === 'symbol' ? coordsDescendingSymbol : coordsDescending)[layer$2.source];
+
+        this._renderTileClippingMasks(layer$2, coordsAscending[layer$2.source]);
+        this.renderLayer(this, sourceCache$4, layer$2, coords$2);
     }
 
-    // ETPATCH
-    //if (this.options.showTileBoundaries) {
-    //    for (var id$3 in sourceCaches) {
-    //        draw$1.debug(this, sourceCaches[id$3], coordsAscending[id$3]);
-    //        break;
-    //    }
-    //}
-    if (options.phase == 'endframe') {
-        if (this.options.showTileBoundaries) {
-            for (var id$3 in this.sourceCaches) {
-                draw$1.debug(this, this.sourceCaches[id$3], this.coordsAscending[id$3]);
-                break;
-            }
+    if (this.options.showTileBoundaries) {
+        for (var id$3 in sourceCaches) {
+            draw$1.debug(this, sourceCaches[id$3], coordsAscending[id$3]);
+            break;
         }
     }
 
@@ -57890,11 +57711,9 @@ var Map = /*@__PURE__*/(function (Camera) {
             antialias: this._antialias || false
         });
 
-        // ETPATCH
-        //var gl = this._canvas.getContext('webgl', attributes) ||
-        //this._canvas.getContext('experimental-webgl', attributes);
-        var gl = gEarthTime.glb.gl;
-           
+        var gl = this._canvas.getContext('webgl', attributes) ||
+            this._canvas.getContext('experimental-webgl', attributes);
+
         if (!gl) {
             this.fire(new symbol_layout.ErrorEvent(new Error('Failed to initialize WebGL')));
             return;
@@ -57977,62 +57796,53 @@ var Map = /*@__PURE__*/(function (Camera) {
      * @returns {Map} this
      * @private
      */
-    // ETPATCH
-    //Map.prototype._render = function _render () {
-    Map.prototype._render = function _render (phase) { // phase: 'beginframe', 'endframe', or an object with keys of layer IDs to draw
-        if (phase == 'beginframe') {
+    Map.prototype._render = function _render () {
+        // A custom layer may have used the context asynchronously. Mark the state as dirty.
+        this.painter.context.setDirty();
+        this.painter.setBaseState();
 
-            // A custom layer may have used the context asynchronously. Mark the state as dirty.
-            this.painter.context.setDirty();
-            this.painter.setBaseState();
-      
-            this._renderTaskQueue.run();
-      
-            var crossFading = false;
-      
-            // If the style has changed, the map is being zoomed, or a transition or fade is in progress:
-            //  - Apply style changes (in a batch)
-            //  - Recalculate paint properties.
-            if (this.style && this._styleDirty) {
-                this._styleDirty = false;
-      
-                var zoom = this.transform.zoom;
-                var now = symbol_layout.browser.now();
-                this.style.zoomHistory.update(zoom, now);
-      
-                var parameters = new symbol_layout.EvaluationParameters(zoom, {
-                    now: now,
-                    fadeDuration: this._fadeDuration,
-                    zoomHistory: this.style.zoomHistory,
-                    transition: this.style.getTransition()
-                });
-      
-                var factor = parameters.crossFadingFactor();
-                if (factor !== 1 || factor !== this._crossFadingFactor) {
-                    crossFading = true;
-                    this._crossFadingFactor = factor;
-                }
-      
-                this.style.update(parameters);
+        this._renderTaskQueue.run();
+
+        var crossFading = false;
+
+        // If the style has changed, the map is being zoomed, or a transition or fade is in progress:
+        //  - Apply style changes (in a batch)
+        //  - Recalculate paint properties.
+        if (this.style && this._styleDirty) {
+            this._styleDirty = false;
+
+            var zoom = this.transform.zoom;
+            var now = symbol_layout.browser.now();
+            this.style.zoomHistory.update(zoom, now);
+
+            var parameters = new symbol_layout.EvaluationParameters(zoom, {
+                now: now,
+                fadeDuration: this._fadeDuration,
+                zoomHistory: this.style.zoomHistory,
+                transition: this.style.getTransition()
+            });
+
+            var factor = parameters.crossFadingFactor();
+            if (factor !== 1 || factor !== this._crossFadingFactor) {
+                crossFading = true;
+                this._crossFadingFactor = factor;
             }
-      
-            // If we are in _render for any reason other than an in-progress paint
-            // transition, update source caches to check for and load any tiles we
-            // need for the current transform
-            if (this.style && this._sourcesDirty) {
-                this._sourcesDirty = false;
-                this.style._updateSources(this.transform);
-            }
-      
-            this._placementDirty = this.style && this.style._updatePlacement(this.painter.transform, this.showCollisionBoxes, this._fadeDuration, this._crossSourceCollisions);
-        // ETPATCH
+
+            this.style.update(parameters);
         }
-      
+
+        // If we are in _render for any reason other than an in-progress paint
+        // transition, update source caches to check for and load any tiles we
+        // need for the current transform
+        if (this.style && this._sourcesDirty) {
+            this._sourcesDirty = false;
+            this.style._updateSources(this.transform);
+        }
+
+        this._placementDirty = this.style && this.style._updatePlacement(this.painter.transform, this.showCollisionBoxes, this._fadeDuration, this._crossSourceCollisions);
+
         // Actually draw
         this.painter.render(this.style, {
-            // ETPATCH
-            phase: phase,
-
             showTileBoundaries: this.showTileBoundaries,
             showOverdrawInspector: this._showOverdrawInspector,
             rotating: this.isRotating(),
@@ -58041,41 +57851,34 @@ var Map = /*@__PURE__*/(function (Camera) {
             fadeDuration: this._fadeDuration
         });
 
-        // ETPATCH
-        if (phase == 'endframe') {
+        this.fire(new symbol_layout.Event('render'));
 
-            this.fire(new symbol_layout.Event('render'));
-    
-            if (this.loaded() && !this._loaded) {
-                this._loaded = true;
-                this.fire(new symbol_layout.Event('load'));
-            }
-    
-            if (this.style && (this.style.hasTransitions() || crossFading)) {
-                this._styleDirty = true;
-            }
-    
-            if (this.style && !this._placementDirty) {
-                // Since no fade operations are in progress, we can release
-                // all tiles held for fading. If we didn't do this, the tiles
-                // would just sit in the SourceCaches until the next render
-                this.style._releaseSymbolFadeTiles();
-            }
-    
-            // Schedule another render frame if it's needed.
-            //
-            // Even though `_styleDirty` and `_sourcesDirty` are reset in this
-            // method, synchronous events fired during Style#update or
-            // Style#_updateSources could have caused them to be set again.
-            if (this._sourcesDirty || this._repaint || this._styleDirty || this._placementDirty) {
-                this.triggerRepaint();
-            } else if (!this.isMoving() && this.loaded()) {
-                this.fire(new symbol_layout.Event('idle'));
-            }
-
-        // ETPATCH
+        if (this.loaded() && !this._loaded) {
+            this._loaded = true;
+            this.fire(new symbol_layout.Event('load'));
         }
 
+        if (this.style && (this.style.hasTransitions() || crossFading)) {
+            this._styleDirty = true;
+        }
+
+        if (this.style && !this._placementDirty) {
+            // Since no fade operations are in progress, we can release
+            // all tiles held for fading. If we didn't do this, the tiles
+            // would just sit in the SourceCaches until the next render
+            this.style._releaseSymbolFadeTiles();
+        }
+
+        // Schedule another render frame if it's needed.
+        //
+        // Even though `_styleDirty` and `_sourcesDirty` are reset in this
+        // method, synchronous events fired during Style#update or
+        // Style#_updateSources could have caused them to be set again.
+        if (this._sourcesDirty || this._repaint || this._styleDirty || this._placementDirty) {
+            this.triggerRepaint();
+        } else if (!this.isMoving() && this.loaded()) {
+            this.fire(new symbol_layout.Event('idle'));
+        }
         return this;
     };
 
@@ -58124,9 +57927,6 @@ var Map = /*@__PURE__*/(function (Camera) {
      * next frame is rendered will still result in only a single frame being rendered.
      */
     Map.prototype.triggerRepaint = function triggerRepaint () {
-        // ETPATCH
-        return; // DISABLE triggerRepaint
-
         var this$1 = this;
 
         if (this.style && !this._frame) {
