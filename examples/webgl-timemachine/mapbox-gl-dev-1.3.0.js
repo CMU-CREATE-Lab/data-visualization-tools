@@ -51923,7 +51923,7 @@ Painter.prototype.render = function render (style   , options            ) {
 
     for (this.currentLayer = this.layerIds.length - 1; this.currentLayer >= 0; this.currentLayer--) {
         var layer$1 = this.style._layers[this.layerIds[this.currentLayer]];
-        if (!options.phase || options.phase == layer$1 || (layer$1.metadata && options.phase == layer$1.metadata['mapbox:group'])) {
+        if (options.phase.hasOwnProperty(layer$1.id)) {
             var sourceCache$3 = this.sourceCaches[layer$1.source];
             var coords$1 = this.coordsAscending[layer$1.source];
     
@@ -51938,7 +51938,7 @@ Painter.prototype.render = function render (style   , options            ) {
 
     for (this.currentLayer = 0; this.currentLayer < this.layerIds.length; this.currentLayer++) {
         var layer$2 = this.style._layers[this.layerIds[this.currentLayer]];
-        if (!options.phase || options.phase == layer$2 || (layer$2.metadata && options.phase == layer$2.metadata['mapbox:group'])) {
+        if (options.phase.hasOwnProperty(layer$2.id)) {
             var sourceCache$4 = this.sourceCaches[layer$2.source];
     
             // For symbol layers in the translucent pass, we add extra tiles to the renderable set
@@ -57922,7 +57922,7 @@ var Map = /*@__PURE__*/(function (Camera) {
      */
     // EarthTime:  phase is 'beginframe', 'endframe', a layer, or undefined
     Map.prototype._render = function _render (phase) {
-        if (!phase || phase == 'beginframe') {
+        if (phase == 'beginframe') {
             // A custom layer may have used the context asynchronously. Mark the state as dirty.
             this.painter.context.setDirty();
             this.painter.setBaseState();
@@ -57979,7 +57979,7 @@ var Map = /*@__PURE__*/(function (Camera) {
             fadeDuration: this._fadeDuration
         });
 
-        if (!phase || phase == 'endframe') {
+        if (phase == 'endframe') {
             this.fire(new symbol_layout.Event('render'));
     
             if (this.loaded() && !this._loaded) {

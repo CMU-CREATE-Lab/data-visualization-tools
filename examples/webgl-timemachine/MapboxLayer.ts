@@ -14,19 +14,22 @@ export class MapboxLayer {
   mapboxDef: any;
   layerDef: any;
   layerId: string;
-  static map: any;
+  static map: any = null;
   _shown: any;
-  static shownLayers: MapboxLayer[];
-  static accessToken: string;
+  static shownLayers: MapboxLayer[] = [];
+  static accessToken: string = 'pk.eyJ1IjoicmFuZHlzYXJnZW50IiwiYSI6ImNrMDYzdGl3bDA3bTUzc3Fkb3o4cjc3YXgifQ.nn7FC9cpRl_THWpoAFnnow';
   styleIsLoaded: boolean;
   static _createMapPromise: any;
   _loadingPromise: any;
+  _mapboxLayerIDs: {};
+  layerLoaded: boolean = false;
+  static mapLoaded: boolean = false;
   constructor(glb, canvasLayer, tileUrl, options) {
-    Utils.timelog(`MapboxLayer({$options.layerId}) constructing`);
     // Ignore tileUrl
     this.glb = glb;
     this.gl = glb.gl;
     $.extend(this, options);
+    console.log(`${this.logPrefix()} constructing`);
     try {
       this.mapboxDef = JSON.parse(this.layerDef.Mapbox);
     }
@@ -66,6 +69,12 @@ export class MapboxLayer {
     // Rename source and layer IDs to be unique
     this._remapStyle(style);
 
+    // Record layer IDs
+    this._mapboxLayerIDs = {};
+    for (let layer of style.layers) {
+      this._mapboxLayerIDs[layer.id] = true;
+    }
+
     if (!MapboxLayer._createMapPromise) {
       // Map constructor hasn't been called yet.  Create map it and add this MapboxLayer's layers/sources/glyphs
       MapboxLayer._createMapPromise = this._createMapFromLoad(style);
@@ -84,13 +93,14 @@ export class MapboxLayer {
       }
       console.log(`${this.logPrefix()} TO DO: add glyphs?`);
     }
+    this.layerLoaded = true; 
   }
 
   _remapStyle(style) {
     // Prefix source and layer IDs with the EarthTime layerId
     var sources = {};
     for (let [key, value] of Object.entries(style.sources)) {
-      sources[this._prefix_layerId(key)] = value;
+      sources[this._prefixLayerId(key)] = value;
       // someday consider going from mapbox:// to https://
       // eg https://api.mapbox.com/v4/jjkoher.8km6ojde,jjkoher.9utfa50j,mapbox.mapbox-streets-v8.json?secure=&access_token=pk.eyJ1IjoicmFuZHlzYXJnZW50IiwiYSI6ImNrMDYzdGl3bDA3bTUzc3Fkb3o4cjc3YXgifQ.nn7FC9cpRl_THWpoAFnnow
       // this might let us work with non-public sources, by using the owner's access_token
@@ -99,12 +109,12 @@ export class MapboxLayer {
 
     // Change layers to point to new sources
     for (var layer of style.layers) {
-      layer.id = this._prefix_layerId(layer.id);
-      layer.source = this._prefix_layerId(layer.source);
+      layer.id = this._prefixLayerId(layer.id);
+      layer.source = this._prefixLayerId(layer.source);
     }
   }
 
-  _prefix_layerId(id: string): string {
+  _prefixLayerId(id: string): string {
     return `${this.layerId}_${id}`
   }
 
@@ -130,13 +140,12 @@ export class MapboxLayer {
     });
 
     MapboxLayer.map.on('error', function (e) {
-      Utils.timelog('MapboxLayer: Mapbox error', e);
+      console.log(`${Utils.timelogPrefix()} MapboxLayer: Mapbox error`, e);
     });
 
     await new Promise<void>((resolve, reject) => { MapboxLayer.map.on('load', resolve); });
+    MapboxLayer.mapLoaded = true;
   }
-
-
 
   // Hide layer
   // Ideally there would be part of the layer API, but currently we're manually maintaining this within this file
@@ -162,81 +171,52 @@ export class MapboxLayer {
     if (!this._shown) {
       this._show();
     }
-    if (MapboxLayer.map) {
-      // TODO.  We need to be able to merge multiple styles
-      // When we do, we'll need to specify something to _render to select just the layers
-      // from this particular MapboxLayer.
-      // Perhaps each MapboxLayer has a Set of mapbox layers.
-      if (gEarthTime.timelapse.frameno % 300 == 0) {
-        console.log(`${this.logPrefix()} TO DO: draw only this layer's layers`);
-      }
-      MapboxLayer.map._render(); // no args to _render means render all layers on map
+    if (this.layerLoaded) {
+      MapboxLayer.map._render(this._mapboxLayerIDs); // no args to _render means render all layers on map
     }
   }
   abortLoading() {
   }
 
   static beginFrame() {
-    // Construct list of shown layers, according to layer proxy
-    var layerDBShownMapboxLayers = new Set<MapboxLayer>();
-    for (var layerProxy of gEarthTime.layerDB.shownLayers) {
-      if (layerProxy.layer instanceof MapboxLayer) {
-        layerDBShownMapboxLayers.add(layerProxy.layer);
+    if (MapboxLayer.mapLoaded) {
+      // Construct list of shown layers, according to layer proxy
+      var layerDBShownMapboxLayers = new Set<MapboxLayer>();
+      for (var layerProxy of gEarthTime.layerDB.shownLayers) {
+        if (layerProxy.layer instanceof MapboxLayer) {
+          layerDBShownMapboxLayers.add(layerProxy.layer);
+        }
       }
-    }
-    var toHide: MapboxLayer[] = [];
-    // Synchronize shown layers with layerDB
-    for (var layer of MapboxLayer.shownLayers) {
-      if (!layerDBShownMapboxLayers.has(layer)) {
-        toHide.push(layer);
+      var toHide: MapboxLayer[] = [];
+      // Synchronize shown layers with layerDB
+      for (var layer of MapboxLayer.shownLayers) {
+        if (!layerDBShownMapboxLayers.has(layer)) {
+          toHide.push(layer);
+        }
       }
+
+      for (var layer of toHide) {
+        layer._hide();
+      }
+
+      for (var layer of layerDBShownMapboxLayers) {
+        if (!layer._shown) layer._show();
+      }
+
+      if (!MapboxLayer.shownLayers.length) return;
     }
 
-    for (var layer of toHide) {
-      layer._hide();
+    if (MapboxLayer.map) {
+      var llView = gEarthTime.timelapse.pixelCenterToLatLngCenterView(gEarthTime.timelapse.getView());
+      var camera = { center: { lat: llView.center.lat, lon: llView.center.lng }, zoom: 12 + Math.log2(gEarthTime.timelapse.getView().scale) };
+      MapboxLayer.map.jumpTo(camera);
+      MapboxLayer.map._render('beginframe');
     }
-
-    for (var layer of layerDBShownMapboxLayers) {
-      if (!layer._shown) layer._show();
-    }
-
-    if (!MapboxLayer.shownLayers.length || !MapboxLayer.map)
-      return;
-    var llView = gEarthTime.timelapse.pixelCenterToLatLngCenterView(gEarthTime.timelapse.getView());
-    var camera = { center: { lat: llView.center.lat, lon: llView.center.lng }, zoom: 12 + Math.log2(gEarthTime.timelapse.getView().scale) };
-    MapboxLayer.map.jumpTo(camera);
-    MapboxLayer.map._render('beginframe');
   }
   static endFrame() {
-    if (!MapboxLayer.shownLayers.length || !MapboxLayer.map)
-      return;
-    MapboxLayer.map._render('endframe');
+    if (MapboxLayer.mapLoaded && !MapboxLayer.shownLayers.length) return;
+    if (MapboxLayer.map) {
+      MapboxLayer.map._render('endframe');
+    }
   }
 }
-
-MapboxLayer.map = null;
-MapboxLayer.shownLayers = [];
-MapboxLayer.accessToken = 'pk.eyJ1IjoicmFuZHlzYXJnZW50IiwiYSI6ImNrMDYzdGl3bDA3bTUzc3Fkb3o4cjc3YXgifQ.nn7FC9cpRl_THWpoAFnnow';
-
-//MapboxLayer.prototype.instantiateMap = function() {
-//  if (this.map) return;
-//
-//  console.log('&&&&& instantiating MapboxLayer Map', this.layerId);
-//
-//  mapboxgl.accessToken = 'pk.eyJ1IjoicmFuZHlzYXJnZW50IiwiYSI6ImNrMDYzdGl3bDA3bTUzc3Fkb3o4cjc3YXgifQ.nn7FC9cpRl_THWpoAFnnow';
-//  this.map = new mapboxgl.Map({
-//    container: 'map',
-//    style: 'mapbox://styles/randysargent/ck063v1340cpv1cpblztq7l9u',
-//    renderWorldCopies: false // don't show multiple earths when zooming out
-//  });  
-//
-//  console.log('&&&&& registering load');
-//
-//  this.map.on('load', function() {
-//    console.log('&&&&& it is loaded!');
-//  });
-//  this.map.on('error', function() {
-//    console.log('&&&&& error');
-//  });
-//}
-  
