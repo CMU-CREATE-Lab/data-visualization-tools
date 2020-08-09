@@ -74,13 +74,13 @@ export class MapboxLayer {
       // Map constructor has been called.  Block on _createMapPromise if the map isn't yet ready
       await MapboxLayer._createMapPromise;
       var map = MapboxLayer.map;
-      for (let [sourceName, sourceDef] of Object.entries(style.sources)) {
-        console.log(`${this.logPrefix()} Adding source ${sourceName}`);
-        map.style.addSource(sourceName, sourceDef);
+      for (let [sourceID, sourceDef] of Object.entries(style.sources)) {
+        console.log(`${this.logPrefix()} Adding source ${sourceID}`);
+        map.addSource(sourceID, sourceDef);
       }
       for (let layer of style.layers) {
         console.log(`${this.logPrefix()} Adding layer ${layer.id}`)
-        map.style.addLayer(layer);
+        map.addLayer(layer);
       }
       console.log(`${this.logPrefix()} TO DO: add glyphs?`);
     }
