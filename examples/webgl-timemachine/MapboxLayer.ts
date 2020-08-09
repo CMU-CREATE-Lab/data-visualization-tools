@@ -1,12 +1,20 @@
-/// <reference path="mapbox.js"/>
-// declare var mapboxgl: any;
-/// <reference path="mapbox-gl-dev-1.3.0.js"/>
+/////// declare var mapboxgl: any;
 /////// <reference types="./node_modules/mapbox" />
+
+/// <reference path="mapbox/mapbox-gl-dev-patched-1.3.0.js"/>
 /// <reference types="mapbox-gl" />
 
 import { gEarthTime } from './EarthTime'
 import { Utils } from './Utils';
+
+//import * as mapboxgl from "./mapbox-gl-dev-1.11.1";
+
 //import mapboxgl from './mapbox-gl-dev-1.3.0';
+
+import mapboxgl from './mapbox/mapbox-gl-dev-patched-1.3.0';
+
+// @ts-ignore
+// import mapboxgl from './mapbox-gl-dev-1.11.1b';
 
 export class MapboxLayer {
   glb: any;
