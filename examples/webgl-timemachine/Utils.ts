@@ -1,3 +1,5 @@
+(window as any).loadStartTime = (window as any).loadStartTime || new Date().getTime();
+
 export class Utils {
   // Retry fetch forever
   // TODO(rsargent): bring up a spinner or "network problems" dialog if failing for a while
@@ -11,11 +13,9 @@ export class Utils {
     }
     throw Error(`Unabled to fetch ${url} after ${maxRetries} tries`)
   }
-  static timelog(arg1, ...args) {
-    console.log(`[${Math.round(new Date().getTime() - window.performance.timeOrigin)} ms] ${arg1}`, ...args);
-  }
-  static timelogPrefix() {
-    return `[${Math.round(new Date().getTime() - window.performance.timeOrigin)} ms]`;
+  // Display time since load
+  static logPrefix() {
+    return `[${((new Date().getTime() - (window as any).loadStartTime) / 1000).toFixed(2)}]`;
   }
 
   static timeZone: string;

@@ -1,5 +1,4 @@
 /// <reference path="ContentSearch.js"/>
-/// <reference path="DisplayMetadata.js"/>
 /// <reference path="perf.js"/>
 /// <reference path="StoryEditor.js"/>
 /// <reference path="../../js/dat.gui.min.js"/>
@@ -22,7 +21,7 @@ import { Utils } from './Utils';
 import { Timelines } from './Timelines';
 
 (window as any).dbg.Utils = Utils;
-Utils.timelog('Loading index.ts')
+console.log(`${Utils.logPrefix()} Loading index.ts`)
 
 declare var Papa:any;
 /// <reference path="../../js/papaparse.min.js"/>
@@ -1278,7 +1277,7 @@ function handleLayers(layers) {
     if (layerProxy) {
       layerProxies.push(layerProxy);
     } else {
-      Utils.timelog(`handlelayers: Cannot find layer ${layerId}`);
+      console.log(`${Utils.logPrefix()} handlelayers: Cannot find layer ${layerId}`);
     }
   }
   gEarthTime.layerDB.setShownLayers(layerProxies);
@@ -7816,9 +7815,8 @@ async function init() {
     playOnLoad: !pauseWhenInitialized,
     mediaType: ".mp4",
     onTimeMachinePlayerReady: function(viewerDivId) {
-      new DisplayMetadata(gEarthTime.timelapse);
       setupPostMessageHandlers();
-      Utils.timelog('onTimeMachinePlayerReady');
+      console.log(`${Utils.logPrefix()} onTimeMachinePlayerReady`);
       timemachineReadyResolver(null);
     },
     scaleBarOptions: {
@@ -7854,12 +7852,12 @@ async function init() {
   gEarthTime.timelapse = new org.gigapan.timelapse.Timelapse("timeMachine", settings);
   (window as any).timelapse = gEarthTime.timelapse;
 
-  // Wait for timelapse to be ready;
-  Utils.timelog('awating timelapseReadyPromise');
+  // Wait for timelapse to be ready
+  //console.log(`${Utils.logPrefix()} awaiting timelapseReadyPromise`);
   await timelapseReadyPromise;
-  Utils.timelog('awating setupUIAndOldLayers');
+  //console.log(`${Utils.logPrefix()} awaiting setupUIAndOldLayers`);
   await setupUIAndOldLayers();
-  Utils.timelog('setting readyToDraw true');
+  //console.log(`${Utils.logPrefix()} setting readyToDraw true`);
   gEarthTime.readyToDraw = true;
 
   // Show bdrk

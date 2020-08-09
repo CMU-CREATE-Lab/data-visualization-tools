@@ -39,7 +39,10 @@ export class MapboxLayer {
   }
 
   logPrefix() {
-    return `${Utils.timelogPrefix()} MapboxLayer(${this.layerId})`;
+    return `${Utils.logPrefix()} MapboxLayer(${this.layerId})`;
+  }
+  static staticLogPrefix() {
+    return `${Utils.logPrefix()} MapboxLayer`;
   }
   // Show layer
   _show() {
@@ -118,15 +121,33 @@ export class MapboxLayer {
     return `${this.layerId}_${id}`
   }
 
+  static mousemove(e) {
+    var x = e.pageX - $(e.target).offset().left;
+    var y = e.pageY - $(e.target).offset().top;
+    if (MapboxLayer.mapLoaded) {
+      var features = MapboxLayer.map.queryRenderedFeatures([x,y]);
+      for (var feature of features) {
+        console.log(`${MapboxLayer.staticLogPrefix()} mousemove ${feature.layer.id} ${JSON.stringify(feature.properties)}`);
+      }
+    }
+  }
+
+  static mouseleave(e) {
+    console.log('mouseleave', e);
+  }
+
   // Don't use this directly; use _ensureLoaded instead
   async _createMapFromLoad(initialStyle) {
     console.log(`${this.logPrefix()} instantiating map with initialStyle`, initialStyle);
     // @ts-ignore
     mapboxgl.accessToken = 'pk.eyJ1IjoicmFuZHlzYXJnZW50IiwiYSI6ImNrMDYzdGl3bDA3bTUzc3Fkb3o4cjc3YXgifQ.nn7FC9cpRl_THWpoAFnnow';
 
+    var $earthTimeMapContainer = $("#timeMachine_timelapse_dataPanes")
     // Add map div with id #mapbox_map, with same size as EarthTime canvas, but offscreen
-    $("#timeMachine_timelapse_dataPanes").append("<div id='mapbox_map' style='width:100%; height:100%; left:-200vw'></div>");
-
+    $earthTimeMapContainer.append("<div id='mapbox_map' style='width:100%; height:100%; left:-200vw'></div>");
+    $earthTimeMapContainer.mousemove(MapboxLayer.mousemove);
+    $earthTimeMapContainer.mouseleave(MapboxLayer.mouseleave);
+    
     // @ts-ignore
     MapboxLayer.map = new mapboxgl.Map({
       container: 'mapbox_map',
@@ -140,7 +161,7 @@ export class MapboxLayer {
     });
 
     MapboxLayer.map.on('error', function (e) {
-      console.log(`${Utils.timelogPrefix()} MapboxLayer: Mapbox error`, e);
+      console.log(`${Utils.logPrefix()} MapboxLayer: Mapbox error`, e);
     });
 
     await new Promise<void>((resolve, reject) => { MapboxLayer.map.on('load', resolve); });

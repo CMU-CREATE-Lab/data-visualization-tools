@@ -1,11 +1,9 @@
 /// <reference path="matrix.js"/>
 
-console.log('loading WebGLMapTile2')
 import { Tile } from "./Tile";
 import { WebGLMapLayer2 } from './WebGLMapLayer2';
 import { TileIdx } from './TileIdx';
 
-console.log('defining WebGLMapTile2')
 export class WebGLMapTile2 extends Tile {
   static activeTileCount: number = 0;
   static verbose: boolean = false;

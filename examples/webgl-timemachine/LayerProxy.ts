@@ -38,8 +38,8 @@ export class LayerProxy {
     return this._visible;
   }
 
-  log(arg1, ...args) {
-    Utils.timelog(`Layer ${this.id}: ${arg1}`, ...args);
+  logPrefix() {
+    return `${Utils.logPrefix()} Layer(${this.id})`
   }
 
   requestLoad() {
@@ -49,12 +49,11 @@ export class LayerProxy {
   }
 
   async _load() {
-    //ret.catalog = 
     let url = `${this.database.apiUrl}layer-catalogs/${this.database.databaseId.file_id_gid()}/layers/${this.id}`
-    this.log(`Fetching ${url}`)
+    console.log(`${this.logPrefix()} Fetching ${url}`)
     let layerDef: LayerDef = await (await Utils.fetchWithRetry(url)).json();
     this.layer = this.database.layerFactory.createLayer(layerDef);
-    this.log(`Loaded, layer=`, this.layer);
+    console.log(`${this.logPrefix()} Loaded, layer=`, this.layer);
     this._loaded = true;
     //this.loadFromLayerDef(layerDef);
   }

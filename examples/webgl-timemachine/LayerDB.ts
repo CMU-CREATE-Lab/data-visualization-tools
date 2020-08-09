@@ -22,9 +22,13 @@ export class LayerDB {
   // Please call async LayerDB.create instead
   private constructor() {}
 
+  static logPrefix() {
+    return `${Utils.logPrefix()} LayerDB`;
+  }
+
   // async factory, since LayerDB isn't valid until the catalog is read
   static async create(databaseId: GSheet, opts: {apiUrl?:string, earthTime?:EarthTime}) {
-    Utils.timelog('LayerDB start fetch layer_catalog');
+    console.log(`${LayerDB.logPrefix()} start fetch layer_catalog`);
     var ret = new LayerDB();
     ret.layerFactory = new LayerFactory();
     ret.databaseId = databaseId;
@@ -40,7 +44,7 @@ export class LayerDB {
       ret.layerById[layerProxy.id] = layerProxy;
       ret.orderedLayers.push(layerProxy);
     }
-    Utils.timelog(`LayerDB constructed with ${catalog.length} layers from ${databaseId.file_id_gid()}`)
+    console.log(`${LayerDB.logPrefix()} constructed with ${catalog.length} layers from ${databaseId.file_id_gid()}`)
     return ret;
   }
 
