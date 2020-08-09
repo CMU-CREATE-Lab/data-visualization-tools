@@ -19,6 +19,8 @@ export class MapboxLayer {
   static shownLayers: MapboxLayer[];
   static accessToken: string;
   styleIsLoaded: boolean;
+  static _createMapPromise: any;
+  _loadingPromise: any;
   constructor(glb, canvasLayer, tileUrl, options) {
     Utils.timelog(`MapboxLayer({$options.layerId}) constructing`);
     // Ignore tileUrl
@@ -33,61 +35,109 @@ export class MapboxLayer {
     }
   }
 
-  _prefix_layerId(id: string): string {
-    return `${this.layerId}_${id}`
-  }
-
-  _receiveStyle(style) {
-    Utils.timelog(`MapboxLayer(${this.layerId}) receiveStyle ${style}`);
-    console.log(JSON.stringify(style));
-
-    // Prefix source and layer IDs with the EarthTime layerId
-    var renamedSources = {};
-    for (let [key, value] of Object.entries(style.sources)) {
-      renamedSources[this._prefix_layerId(key)] = value;
-      console.log('I want to change the mapbox:// into https://');
-      // from 
-      // to https://api.mapbox.com/v4/jjkoher.8km6ojde,jjkoher.9utfa50j,mapbox.mapbox-streets-v8.json?secure=&access_token=pk.eyJ1IjoicmFuZHlzYXJnZW50IiwiYSI6ImNrMDYzdGl3bDA3bTUzc3Fkb3o4cjc3YXgifQ.nn7FC9cpRl_THWpoAFnnow
-
-      console.log(value);
-    }
-
-    // Modify layers in-place
-    for (var layer of style.layers) {
-      layer.id = this._prefix_layerId(layer.id);
-      layer.source = this._prefix_layerId(layer.source);
-    }
-
-    if (!MapboxLayer.map) {
-      MapboxLayer._instantiateMap(renamedSources, style.layers, style.glyphs);
-    }
-    else {
-      Utils.timelog(`MapboxLayer(${this.layerId}) receiveStyle but map already exists.  If these are new layers and sources, need to add`);
-      console.log('need to add some layers and sources!');
-      debugger;
-    }
-    this.styleIsLoaded = true;
+  logPrefix() {
+    return `${Utils.timelogPrefix()} MapboxLayer(${this.layerId})`;
   }
   // Show layer
-  // Ideally there would be part of the layer API, but currently we're manually maintaining this within this file
   _show() {
     if (this._shown)
       return;
     this._shown = true;
     MapboxLayer.shownLayers.push(this);
+    this._ensureLoaded();
+  }
 
-    if (!this.styleIsLoaded) {
-      console.log('_show this=', this);
-      var url = 'https://api.mapbox.com/styles/v1/' + this.mapboxDef.style.replace('mapbox://styles/', '');
-      var accessToken = MapboxLayer.accessToken;
-      if (this.layerId == 'drug_use') {
-        accessToken = 'pk.eyJ1Ijoiamprb2hlciIsImEiOiJjanhtM3JncHIwMjY4M3BtbXV0Z2dvZzg0In0._o4vt3R-MDgSonaoHMmk8w';
+  // Ensure MapboxLayer.map exists and this layer is loaded
+  async _ensureLoaded() {
+    if (!this._loadingPromise) {
+      this._loadingPromise = this._loadFromEnsureLoaded();
+    }
+    await this._loadingPromise;
+    return;
+  }
+
+  // WARNING:  Use _ensureLoaded instead of _load, to make sure we don't load twice
+  async _loadFromEnsureLoaded() {
+    var url = this.mapboxDef.style.replace('mapbox://styles/', 'https://api.mapbox.com/styles/v1/');
+    var accessToken = MapboxLayer.accessToken;
+    let style = await (await Utils.fetchWithRetry(`${url}?access_token=${accessToken}`)).json();
+    console.log(`${this.logPrefix()} receive style`, style);
+
+    // Rename source and layer IDs to be unique
+    this._remapStyle(style);
+
+    if (!MapboxLayer._createMapPromise) {
+      // Map constructor hasn't been called yet.  Create map it and add this MapboxLayer's layers/sources/glyphs
+      MapboxLayer._createMapPromise = this._createMapFromLoad(style);
+      await MapboxLayer._createMapPromise;
+    } else {
+      // Map constructor has been called.  Block on _createMapPromise if the map isn't yet ready
+      await MapboxLayer._createMapPromise;
+      var map = MapboxLayer.map;
+      for (let [sourceName, sourceDef] of Object.entries(style.sources)) {
+        console.log(`${this.logPrefix()} Adding source ${sourceName}`);
+        map.style.addSource(sourceName, sourceDef);
       }
-      $.get(url, { access_token: accessToken })
-        .done(this._receiveStyle.bind(this))
-        .fail(function (e) { console.log('failed to fetch style in MapboxLayer'); });
+      for (let layer of style.layers) {
+        console.log(`${this.logPrefix()} Adding layer ${layer.id}`)
+        map.style.addLayer(layer);
+      }
+      console.log(`${this.logPrefix()} TO DO: add glyphs?`);
     }
   }
+
+  _remapStyle(style) {
+    // Prefix source and layer IDs with the EarthTime layerId
+    var sources = {};
+    for (let [key, value] of Object.entries(style.sources)) {
+      sources[this._prefix_layerId(key)] = value;
+      // someday consider going from mapbox:// to https://
+      // eg https://api.mapbox.com/v4/jjkoher.8km6ojde,jjkoher.9utfa50j,mapbox.mapbox-streets-v8.json?secure=&access_token=pk.eyJ1IjoicmFuZHlzYXJnZW50IiwiYSI6ImNrMDYzdGl3bDA3bTUzc3Fkb3o4cjc3YXgifQ.nn7FC9cpRl_THWpoAFnnow
+      // this might let us work with non-public sources, by using the owner's access_token
+    }
+    style.sources = sources;
+
+    // Change layers to point to new sources
+    for (var layer of style.layers) {
+      layer.id = this._prefix_layerId(layer.id);
+      layer.source = this._prefix_layerId(layer.source);
+    }
+  }
+
+  _prefix_layerId(id: string): string {
+    return `${this.layerId}_${id}`
+  }
+
+  // Don't use this directly; use _ensureLoaded instead
+  async _createMapFromLoad(initialStyle) {
+    console.log(`${this.logPrefix()} instantiating map with initialStyle`, initialStyle);
+    // @ts-ignore
+    mapboxgl.accessToken = 'pk.eyJ1IjoicmFuZHlzYXJnZW50IiwiYSI6ImNrMDYzdGl3bDA3bTUzc3Fkb3o4cjc3YXgifQ.nn7FC9cpRl_THWpoAFnnow';
+
+    // Add map div with id #mapbox_map, with same size as EarthTime canvas, but offscreen
+    $("#timeMachine_timelapse_dataPanes").append("<div id='mapbox_map' style='width:100%; height:100%; left:-200vw'></div>");
+
+    // @ts-ignore
+    MapboxLayer.map = new mapboxgl.Map({
+      container: 'mapbox_map',
+      style: {
+        version: 8,
+        sources: initialStyle.sources,
+        layers: initialStyle.layers,
+        glyphs: initialStyle.glyphs
+      },
+      renderWorldCopies: false // don't show multiple earths when zooming out
+    });
+
+    MapboxLayer.map.on('error', function (e) {
+      Utils.timelog('MapboxLayer: Mapbox error', e);
+    });
+
+    await new Promise<void>((resolve, reject) => { MapboxLayer.map.on('load', resolve); });
+  }
+
+
+
   // Hide layer
   // Ideally there would be part of the layer API, but currently we're manually maintaining this within this file
   _hide() {
@@ -112,48 +162,20 @@ export class MapboxLayer {
     if (!this._shown) {
       this._show();
     }
-    else if (MapboxLayer.map) {
+    if (MapboxLayer.map) {
       // TODO.  We need to be able to merge multiple styles
       // When we do, we'll need to specify something to _render to select just the layers
       // from this particular MapboxLayer.
       // Perhaps each MapboxLayer has a Set of mapbox layers.
+      if (gEarthTime.timelapse.frameno % 300 == 0) {
+        console.log(`${this.logPrefix()} TO DO: draw only this layer's layers`);
+      }
       MapboxLayer.map._render(); // no args to _render means render all layers on map
     }
   }
   abortLoading() {
   }
 
-  static _instantiateMap(sources, layers, glyphs) {
-    if (MapboxLayer.map)
-      return;
-
-    Utils.timelog(`MapboxLayer instantiating map with sources=${sources}, layers=${layers}, glyphs=${glyphs}`);
-    // @ts-ignore
-    mapboxgl.accessToken = 'pk.eyJ1IjoicmFuZHlzYXJnZW50IiwiYSI6ImNrMDYzdGl3bDA3bTUzc3Fkb3o4cjc3YXgifQ.nn7FC9cpRl_THWpoAFnnow';
-
-    // Add map div with id #mapbox_map, with same size as EarthTime canvas, but offscreen
-    $("#timeMachine_timelapse_dataPanes").append("<div id='mapbox_map' style='width:100%; height:100%; left:-200vw'></div>");
-  
-
-
-
-    // @ts-ignore
-    MapboxLayer.map = new mapboxgl.Map({
-      container: 'mapbox_map',
-      style: {
-        version: 8,
-        sources: sources,
-        layers: layers,
-        glyphs: glyphs
-      },
-      renderWorldCopies: false // don't show multiple earths when zooming out
-    });
-
-    MapboxLayer.map.on('error', function (e) {
-      console.log('&&&&& error', e);
-      debugger;
-    });
-  }
   static beginFrame() {
     // Construct list of shown layers, according to layer proxy
     var layerDBShownMapboxLayers = new Set<MapboxLayer>();

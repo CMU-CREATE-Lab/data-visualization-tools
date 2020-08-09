@@ -7868,11 +7868,11 @@ async function init() {
   //}
   var layerDB = gEarthTime.layerDB;
   layerDB.setShownLayers([
-    layerDB.getLayer('bdrk'),
+    //layerDB.getLayer('bdrk'),
     //layerDB.getLayer('mapbox_grocery_convenience_allegheny_county')
     //layerDB.getLayer('cb'),
     //layerDB.getLayer('mapbox_dark_map'),
-    //layerDB.getLayer('drug_use'),
+    layerDB.getLayer('drug_use'),
     layerDB.getLayer('mapbox_cities'),
     //layerDB.getLayer('crw')
     //layerDB.getLayer('coral_only'),

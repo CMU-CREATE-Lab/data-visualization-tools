@@ -14,6 +14,9 @@ export class Utils {
   static timelog(arg1, ...args) {
     console.log(`[${Math.round(new Date().getTime() - window.performance.timeOrigin)} ms] ${arg1}`, ...args);
   }
+  static timelogPrefix() {
+    return `[${Math.round(new Date().getTime() - window.performance.timeOrigin)} ms]`;
+  }
 
   static timeZone: string;
   static getTimeZone(): string {
