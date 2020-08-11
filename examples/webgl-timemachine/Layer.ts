@@ -2,6 +2,7 @@ import { gEarthTime } from './EarthTime'
 import { TileIdx } from './TileIdx'
 import { TileView, TileBbox } from './TileView'
 import { Tile } from './Tile';
+import { Timeline, TimelineType } from './Timeline';
 import { Glb } from './Glb';
 
 export interface DrawOptions {
@@ -37,11 +38,11 @@ export class LayerOptions {
     layerId: string;
     category: string;
     customSliderInfo?: {};
-    timelineType: any;
+    timelineType: TimelineType;
     hasTimeline?: boolean = false;
     startDate: string;
     endDate: string;
-    step: any;
+    step: number;
     showGraph: boolean;
     mapType: any;
     color: any;
@@ -89,6 +90,9 @@ export class LayerOptions {
     colormapTexture: any;
     ready: boolean;
     colormapImage: HTMLImageElement;
+    // null if layer has no timestamps associated with it
+    // null if we don't yet have enough information to create a Timeline
+    timeline: Timeline = null;
     
     constructor(layerOptions: LayerOptions, tileClass: typeof Tile) {
       super(layerOptions);
@@ -100,7 +104,13 @@ export class LayerOptions {
         // Deprcated declaration of color at toplevel; move to drawOptions
         this.drawOptions.color = this.color;
       }
-  
+
+      // TODO: for TimeMachine layer, set the timeline after we load tm.json
+      if (this.startDate && this.endDate) {
+        this.timeline = new Timeline(this.timelineType, 
+          this.startDate, this.endDate, this.step);
+      }
+
       this._tileView = new TileView({
         panoWidth: this.tileWidth * Math.pow(2, this.nLevels),
         panoHeight: this.tileHeight * Math.pow(2, this.nLevels),
@@ -129,7 +139,7 @@ export class LayerOptions {
         this.colormapTexture = null;
       }
     }
-  
+
     getWidth() {
       return this._tileView.getWidth();
     }

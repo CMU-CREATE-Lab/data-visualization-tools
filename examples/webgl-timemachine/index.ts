@@ -52,6 +52,7 @@ import { MapboxLayer } from './MapboxLayer'
 (window as any).dbg.MapboxLayer = MapboxLayer;
 
 import { Glb } from './Glb';
+import { Timeline } from './Timeline';
 (window as any).dbg.Glb = Glb;
 
 (window as any).dbg.GSheet = GSheet;
@@ -157,6 +158,7 @@ class EarthTimeImpl implements EarthTime {
   glb = null;
   canvasLayer = null;
   readyToDraw = false;
+  currentlyShownTimeline: any;
   async setDatabaseID(databaseID: GSheet) {
     async function internal(earthTime: EarthTimeImpl) {
       earthTime.layerDB = null;
@@ -271,6 +273,34 @@ class EarthTimeImpl implements EarthTime {
 
   currentEpochTime(): number {
     return this.currentDate().getTime() / 1000;
+  }
+
+  // Currently active timeline, computed as last non-empty timeline from shownLayers
+  timeline(): Timeline {
+    let shownLayers = this.layerDB.shownLayers;
+    for (let i = shownLayers.length - 1; i >= 0; i--) {
+      let timeline = shownLayers[i].layer && shownLayers[i].layer.timeline;
+      if (timeline && timeline.startDate != timeline.endDate) {
+        return timeline;
+      }
+    }
+    return null;
+  }
+
+  updateTimelineIfNeeded() {
+    let newTimeline = this.timeline();
+    if (newTimeline !== this.currentlyShownTimeline) {
+      this.currentlyShownTimeline = newTimeline;
+      $(".controls, .captureTime, .customControl").hide();
+      if (newTimeline) {
+        this.timelapse.loadNewTimelineFromObj(newTimeline.getCaptureTimes(), newTimeline.timelineType);
+        if (newTimeline.timelineType == "customUI") {
+          $(".customControl").show()
+        } else {
+          $(".controls, .captureTime").show();
+        }
+      }
+    }
   }
 };
 
@@ -6158,6 +6188,11 @@ function update() {
     gEarthTime.canvasLayer.setAnimate(false);
     disableAnimation = false;
   }
+
+  gEarthTime.updateTimelineIfNeeded();
+
+
+
   gEarthTime.timelapse.frameno = (gEarthTime.timelapse.frameno || 0) + 1;
 
   perf_drawframe();

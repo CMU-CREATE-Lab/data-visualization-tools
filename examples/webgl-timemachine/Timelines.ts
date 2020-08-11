@@ -4,7 +4,7 @@ import { Utils } from './Utils'
 
 export class Timelines {
 // layerId should be the share ID -- unique between layers
-  static setTimeLine = function(layerId: string, startDate, endDate, step) {
+  static setTimeLine(layerId: string, startDate, endDate, step) {
     var captureTimes = [];
 
     var sm = getDateRegexMatches(startDate) || [];

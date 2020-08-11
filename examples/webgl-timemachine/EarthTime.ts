@@ -4,6 +4,7 @@
 import { GSheet } from './GSheet'
 import { LayerDB } from './LayerDB'
 import { Glb } from './Glb'
+import { Timeline } from './Timeline';
 
 export interface EarthTime {
     startRedraw();
@@ -22,6 +23,8 @@ export interface EarthTime {
     currentDate(): Date;
     currentEpochTime(): number;
     timelapseCurrentTimeDelta(): number;
+    timeline(): Timeline;
+    updateTimelineIfNeeded(): void;
   };
 
 export var gEarthTime: EarthTime;
