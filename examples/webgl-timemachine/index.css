@@ -237,7 +237,7 @@ html, body {
 }
 #extras-iframe {
   border: 0px !important;
-  scrolling: no !important;
+  overflow: hidden;
   width: 100% !important;
   height: 100% !important;
 }
@@ -542,6 +542,7 @@ html, body {
   user-select: none;
   white-space: nowrap;;
   -webkit-perspective: 1000;
+  perspective: 1000;
   -webkit-font-smoothing: antialiased;
   z-index: 100;
 }
@@ -759,8 +760,10 @@ html, body {
   font-weight: 600;
   -webkit-font-smoothing: antialiased;
   -webkit-perspective: 1000;
+  perspective: 1000;
   margin-top: 0px;
   -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
   -ms-transform: translateZ(0); /* IE 9 */
   -webkit-transform: translateZ(0); /* Chrome, Safari, Opera */
   transform: translateZ(0);
@@ -787,7 +790,9 @@ html, body {
   line-height: 20px;
   -webkit-font-smoothing: antialiased;
   -webkit-perspective: 1000;
+  perspective: 1000;
   -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
   -ms-transform: translateZ(0); /* IE 9 */
   -webkit-transform: translateZ(0); /* Chrome, Safari, Opera */
   transform: translateZ(0);
@@ -1165,12 +1170,12 @@ html, body {
   width: 14px;
 }
 
-.featured-layers-scroll-vertical::-webkit-scrollbar:vertical, .layers-scroll-vertical::-webkit-scrollbar:vertical, #csvChartLegend::-webkit-scrollbar:vertical, , .themes-scroll-vertical::-webkit-scrollbar:vertical {
+.featured-layers-scroll-vertical::-webkit-scrollbar:vertical, .layers-scroll-vertical::-webkit-scrollbar:vertical, #csvChartLegend::-webkit-scrollbar:vertical, .themes-scroll-vertical::-webkit-scrollbar:vertical {
   border-width: 6px 4px;
   min-height: 40px;
 }
 
-.featured-layers-scroll-vertical::-webkit-scrollbar-track-piece, .layers-scroll-vertical::-webkit-scrollbar-track-piece, #csvChartLegend::-webkit-scrollbar-track-piece,, .themes-scroll-vertical::-webkit-scrollbar-track-piece {
+.featured-layers-scroll-vertical::-webkit-scrollbar-track-piece, .layers-scroll-vertical::-webkit-scrollbar-track-piece, #csvChartLegend::-webkit-scrollbar-track-piece, .themes-scroll-vertical::-webkit-scrollbar-track-piece {
   background-color: #f1f1f1;
 }
 
@@ -1181,6 +1186,7 @@ html, body {
 .featured-layers-scroll-vertical::-webkit-scrollbar-thumb, .layers-scroll-vertical::-webkit-scrollbar-thumb, #csvChartLegend::-webkit-scrollbar-thumb, .themes-scroll-vertical::-webkit-scrollbar-thumb {
   background-color: #ADADAD;
   -webkit-box-shadow: inset 1px 1px 0 rgba(0,0,0,0.10),inset 0 -1px 0 rgba(0,0,0,0.07);
+  box-shadow: inset 1px 1px 0 rgba(0,0,0,0.10),inset 0 -1px 0 rgba(0,0,0,0.07);
 }
 
 .featured-layers-scroll-vertical::-webkit-scrollbar-thumb:hover, .layers-scroll-vertical::-webkit-scrollbar-thumb:hover, #csvChartLegend::-webkit-scrollbar-thumb:hover, .themes-scroll-vertical::-webkit-scrollbar-thumb:hover {
@@ -1216,6 +1222,7 @@ a:focus { outline:0; }
 
 #current-location-text-picture {
   -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
   -ms-transform: translateZ(0); /* IE 9 */
   -webkit-transform: translateZ(0); /* Chrome, Safari, Opera */
   transform: translateZ(0);
@@ -1241,7 +1248,6 @@ a:focus { outline:0; }
   border: 1px solid #676767;
   -webkit-box-shadow: 0px -1px 4px rgba(85,89,96,0.3);
   box-shadow: 0px -1px 4px rgba(85,89,96,0.3);
-  vertical-align: middle;
   display: block;
   right: -123px;
   top: calc(50% - 13px);
@@ -1463,10 +1469,6 @@ a:focus { outline:0; }
 
 .ui-accordion-header, .theme-selection-heading-no-accordion {
   background: #e6e6e6 !important;
-}
-
-.map-layer-div {
-  display: none;
 }
 
 .map-layer-div > table {
@@ -2011,6 +2013,7 @@ a:focus { outline:0; }
   color: #e6e6e6;
   -webkit-font-smoothing: antialiased;
   -webkit-perspective: 1000;
+  perspective: 1000;
   text-shadow: -1px 0 #656565, 0 1px #656565, 1px 0 #656565, 0 -1px #656565;
   cursor: default;
   z-index: 99;

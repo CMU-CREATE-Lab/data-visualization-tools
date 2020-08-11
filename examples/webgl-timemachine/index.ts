@@ -307,6 +307,7 @@ class EarthTimeImpl implements EarthTime {
 setGEarthTime(new EarthTimeImpl());
 gEarthTime.setDatabaseID(GSheet.from_url(csvLayersContentPath));
 
+// TODO: Do we still want the ability to store spreadsheet link this way?
 // Local Storage
 if (typeof(Storage) !== "undefined") {
   if (localStorage.waypointSliderContentPath) {
@@ -2745,7 +2746,7 @@ function initLayerToggleUI() {
       if (match) {
         filePath = $lastSelectedExtra.data("filepath");
       }
-      $extrasHtml = '<iframe id="extras-iframe" src="' + filePath + '"></iframe>';
+      $extrasHtml = '<iframe id="extras-iframe" src="' + filePath + '" scrolling="no"></iframe>';
       $("#extras-content-container").html($extrasHtml).dialog("open");
     } else if (fileType == "link") {
       window.location.href = filePath;
@@ -2999,6 +3000,20 @@ function initLayerToggleUI() {
   });
 
   timelineUIHandler = function(e) {
+    var $toggledLayerElm = $(e.target);
+    var toggledLayerId = $toggledLayerElm.parent("label").attr("name");
+
+    let layersToBeDrawn = Array.from(gEarthTime.layerDB.shownLayers);
+    let clickedLayer = gEarthTime.layerDB.getLayer(toggledLayerId);
+    if ($toggledLayerElm.prop("checked")) {
+      layersToBeDrawn.push(clickedLayer);
+      gEarthTime.layerDB.setShownLayers(layersToBeDrawn);
+    } else {
+      layersToBeDrawn.splice(layersToBeDrawn.indexOf(clickedLayer), 1);
+      gEarthTime.layerDB.setShownLayers(layersToBeDrawn);
+    }
+
+    return;
     var toggledLayer = $(e.target);
     var toggledLayerId = toggledLayer.parent("label").attr("name");
 
@@ -3176,8 +3191,9 @@ function initLayerToggleUI() {
     }
   });
 
+  // TODO(pdille): Fix for new code
   // Add vertical/horizontal scroll support to specific parts of the UI (e.g. layers/themes panels)
-  try {
+  /*try {
     if (UTIL.isTouchDevice()) {
       UTIL.verticalTouchScroll($("#layers-list .layers-scroll-vertical"));
       UTIL.verticalTouchScroll($("#layer-search-results.layers-scroll-vertical"));
@@ -3190,7 +3206,7 @@ function initLayerToggleUI() {
     }
   } catch (e) {
     console.log('Error creating scroll events for UI: ', e);
-  }
+  }*/
 
   // Set the starting base layer
   $('input:radio[name=base-layers][id=' + visibleBaseMapLayer + '-base]').trigger("click");
@@ -3632,6 +3648,89 @@ function loadWaypoints(path) {
     UTIL.loadTsvData(path, loadWaypointSliderContentFromCSV, this);
   }
 }
+
+
+function populateLayerLibrary() {
+  let layer_html = "";
+  layer_html += '<ul id="layers-list">';
+  layer_html += '  <div id="all-data-layers-title">All Data</div>';
+  layer_html += '    <div class="layers-scroll-vertical">';
+  layer_html += '      <div class="map-layer-div map-layer-checkbox">';
+
+  let layersByCategory = {};
+  for (let layer of gEarthTime.layerDB.orderedLayers) {
+    if (!layersByCategory[layer.category]) {
+      layersByCategory[layer.category] = [];
+    }
+    layersByCategory[layer.category].push({id: layer.id, name: layer.name});
+  }
+
+  let categories = Object.keys(layersByCategory);
+  for (let category of categories) {
+    let categoryId = "category-" + category.trim().replace(/ /g,"-").replace(/^[^a-zA-Z]+|[^\w-]+/g, "_").toLowerCase();
+    let categoryLayers = layersByCategory[category];
+    layer_html += `<h3>${category}</h3>`;
+    layer_html += `<table id="${categoryId}">`;
+    categoryLayers.forEach(function(layer) {
+      layer_html += `<tr><td><label name="${layer.id}"><input type="checkbox" id="${layer.id}">${layer.name}</label></td></tr>`;
+    });
+    layer_html += "</table>";
+  }
+  layer_html += '      </div>';
+  layer_html += '    </div>';
+  layer_html += '  <div class="clearLayers"></div>';
+  layer_html += '</ul>';
+
+  $(layer_html).appendTo($("#layers-menu"));
+
+  // Turn layer categories into accordion selectables
+  $(".map-layer-div, .themes-div").accordion({
+    collapsible: true,
+    active: false,
+    animate: false,
+    heightStyle: 'content',
+    create: function() {
+      if (enableLetterboxMode) {
+        updateLetterboxContent();
+      }
+    },
+    beforeActivate: function(event, ui) {
+      if ($(this).hasClass('themes-div')) return;
+      // The accordion believes a panel is being opened
+      if (ui.newHeader[0]) {
+          var currHeader  = ui.newHeader;
+          var currContent = currHeader.next('.ui-accordion-content');
+      // The accordion believes a panel is being closed
+      } else {
+          var currHeader  = ui.oldHeader;
+          var currContent = currHeader.next('.ui-accordion-content');
+      }
+      // Since we've changed the default behavior, this detects the actual status
+      var isPanelSelected = currHeader.attr('aria-selected') == 'true';
+
+      // Toggle the panel's header
+      currHeader.toggleClass('ui-corner-all',isPanelSelected).toggleClass('accordion-header-active ui-state-active ui-corner-top', !isPanelSelected).attr('aria-selected', ((!isPanelSelected).toString()));
+
+      // Toggle the panel's icon
+      currHeader.children('.ui-icon').toggleClass('ui-icon-triangle-1-e', isPanelSelected).toggleClass('ui-icon-triangle-1-s', !isPanelSelected);
+
+      // Toggle the panel's content
+      currContent.toggleClass('accordion-content-active', !isPanelSelected);
+      if (isPanelSelected) {
+        currContent.slideUp(0);
+      } else {
+        currContent.slideDown(0);
+      }
+
+      // Cancel the default action
+      return false;
+    }
+  });
+
+  sortLayerCategories();
+
+}
+
 
 // Run after timelapse.onTimeMachinePlayerReady
 async function setupUIAndOldLayers() {
@@ -4078,7 +4177,7 @@ async function setupUIAndOldLayers() {
   legend_html += '</div>';
   legend_html += '</div>';
 
-  $(layer_html).appendTo($("#layers-menu"));
+  //$(layer_html).appendTo($("#layers-menu"));
   $(legend_html).appendTo($("#timeMachine .player"));
 
   if (showExtrasMenu) {
@@ -5019,10 +5118,12 @@ lightBaseMapLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, li
         $("#timeMachine .player").css("bottom", "93px");
         loadWaypoints(waypointsPath);
       }
+      // TODO
+      populateLayerLibrary();
     }
   };
 
-  $(".map-layer-div, .themes-div").accordion({
+  /*$(".map-layer-div, .themes-div").accordion({
     collapsible: true,
     active: false,
     animate: false,
@@ -5065,7 +5166,7 @@ lightBaseMapLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, li
     }
   });
 
-  sortLayerCategories();
+  sortLayerCategories();*/
 
   // TODO(LayerDB)
 
@@ -7905,8 +8006,8 @@ async function init() {
     //layerDB.getLayer('mapbox_grocery_convenience_allegheny_county')
     //layerDB.getLayer('cb'),
     //layerDB.getLayer('mapbox_dark_map'),
-    layerDB.getLayer('drug_use'),
-    layerDB.getLayer('mapbox_cities'),
+    //layerDB.getLayer('drug_use'),
+    //layerDB.getLayer('mapbox_cities'),
     //layerDB.getLayer('crw')
     //layerDB.getLayer('coral_only'),
     //layerDB.getLayer('gsr_oceans_yearly_ppr_1950_2014_animated')
