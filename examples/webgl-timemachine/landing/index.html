@@ -24,7 +24,7 @@
     <div id="menu-icon"></div>
     <li class="menu-option" id="menu-intro"><a href="#intro">INTRO</a></li>
     <li class="menu-option" id="menu-stories"><a href="#stories">STORIES</a></li>
-    <li class="menu-option" id="menu-about"><a href="#media">MEDIA</a></li>
+    <li class="menu-option" id="menu-media"><a href="#media">MEDIA</a></li>
     <li class="menu-option" id="menu-about"><a href="#about">ABOUT</a></li>
     <li class="menu-option" id="menu-faq"><a href="#faq">FAQ</a></li>
     <li class="menu-option" id="menu-contact"><a href="#contact">CONTACT</a></li>
@@ -338,7 +338,6 @@
   <script type="text/javascript" src="/landing/slick/slick.min.js"></script>
   <script src="/landing/video.min.js"></script>
   <script src="/landing/youtube.min.js"></script>
-  <script src="/landing/jquery.nav.js"></script>
   <script src="../../../timemachine/js/org/gigapan/util.js" type="text/javascript"></script>
 
   <script src="../../../js/papaparse.min.js" type="text/javascript"></script>
@@ -453,22 +452,42 @@
         window.location.href = window.location.protocol + "//" + window.location.host + storyPath;
       });
 
-      $('#nav').onePageNav({
-        changeHash: true,
-        begin: function() {
-          //Hack so you can click other menu items after the initial click
-          $('body').append('<div id="device-dummy" style="height: 1px;"></div>');
-        },
-        end: function() {
-          $('#device-dummy').remove();
-        },
-        scrollChange: function($currentListItem) {
-          if ($($currentListItem[0]).find("a").attr("href") == "#intro") {
-            history.replaceState(null,null,"#");
-          } else {
-            history.replaceState(null,null,$($currentListItem[0]).find("a").attr("href"));
+      var headerHeightAndThreshold = $("#nav").outerHeight() + 300;
+      $(window).scroll(function() {
+        var $elms = $("#container").children();
+        for (var i = 0; i < $elms.length; i++) {
+          $elm = $($elms[i]);
+          var elmTopOffset = $elm.offset().top;
+          var top_of_element = elmTopOffset;
+          var bottom_of_element = elmTopOffset + $elm.outerHeight();
+          var windowScrollTop = $(window).scrollTop();
+          var bottom_of_screen = windowScrollTop + $(window).innerHeight();
+          var top_of_screen = windowScrollTop + headerHeightAndThreshold;
+
+          if ((bottom_of_screen > top_of_element) && (top_of_screen < bottom_of_element)) {
+            var menuId = $elm[0].id;
+            var $elmToHighlight = $("#menu-" + menuId);
+            if (!$elmToHighlight.hasClass("current")) {
+              $("#nav .menu-option").removeClass("current");
+              $elmToHighlight.addClass("current");
+              if (menuId == "intro") {
+                history.replaceState(null, null, "#");
+              } else {
+                history.replaceState(null, null, "#" + menuId);
+              }
+            }
+            break;
           }
         }
+      });
+
+      $(".menu-option").on("click", function(e) {
+        var scrollElmId = $(this).find("a")[0].getAttribute("href").replace("#","");
+        $("html").animate({ scrollTop: $("#" + scrollElmId).offset().top}, 500);
+        //window.scrollTo(0, $("#" + scrollElmId).offset().top);
+        $(document).trigger("click");
+        e.preventDefault();
+        return false;
       });
 
       var tag = document.createElement('script');

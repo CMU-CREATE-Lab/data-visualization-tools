@@ -101,4 +101,3 @@ export class LayerProxy {
     return value.toFixed(2).replace(/\.?0+$/, '') + suffix;
   }
 }
-

@@ -260,7 +260,7 @@ class EarthTimeImpl implements EarthTime {
   // What fraction have we advanced to the next time index? (0-1)
   timelapseCurrentTimeDelta(): number {
     var delta = this.computeCurrentTimesDelta(
-      this.timelapse.getCurrentTime(), 
+      this.timelapse.getCurrentTime(),
       this.getTimelapseCurrentTimes())
     return Math.min(delta, 1);
   }
@@ -424,6 +424,8 @@ var extraContributors = parseConfigOption({optionName: "extraContributors", opti
 if (extraContributors) {
   extraContributors = extraContributors.replace(",", " |");
 }
+var extraContributorsLogoPath = parseConfigOption({optionName: "extraContributorsLogoPath", optionDefaultValue: "", exposeOptionToUrlHash: false});
+var extraContributorTakesPrecedence = parseConfigOption({optionName: "extraContributorTakesPrecedence", optionDefaultValue: false, exposeOptionToUrlHash: false});
 var showCredits = parseConfigOption({optionName: "showCredits", optionDefaultValue: true, exposeOptionToUrlHash: false});
 var showShareButton = parseConfigOption({optionName: "showShareButton", optionDefaultValue: true, exposeOptionToUrlHash: true});
 var showSettingsButton = isMobileDevice ? false : parseConfigOption({optionName: "showSettingsButton", optionDefaultValue: true, exposeOptionToUrlHash: false});
@@ -886,6 +888,20 @@ function parseConfigOption(settings) {
   return returnVal;
 }
 
+var clearTimelineUIChangeListeners = function() {
+  for (var i = timelineUIChangeListeners.length - 1; i >= 0; i--) {
+    var entry = timelineUIChangeListeners[i];
+    if (entry.type == "interval") {
+      clearInterval(entry.fn);
+    } else if (entry.type == "timeout") {
+      clearTimeout(entry.fn);
+    } else if (entry.type == "uiChangeListener") {
+      gEarthTime.timelapse.removeTimelineUIChangeListener(entry.fn);
+    }
+    timelineUIChangeListeners.splice(i, 1);
+  }
+};
+
 var autoModeExtrasViewChangeHandler = function() {
   gEarthTime.timelapse.removeParabolicMotionStoppedListener(autoModeExtrasViewChangeHandler);
   if (snaplapseViewerForPresentationSlider && snaplapseViewerForPresentationSlider.isAutoModeRunning()) {
@@ -1336,9 +1352,26 @@ function handleLayers(layers) {
   //   if (!$layerToggle.prop('checked')) $layerToggle.trigger("click");
   // });
 
+  // // If a layer set does not include a base map and the layer in question is not
+  // // also a base layer, add it to layer list.
+  // if (layers.length == 1) {
+  //   var baseLayerIds = $("#category-base-layers").find("label").map(function() {
+  //     return $(this).attr("name");
+  //   });
+  //   if ($.inArray(visibleBaseMapLayer, baseLayerIds) >= 0) {
+  //     var selectedBaseLayerId = $("#category-base-layers").find(":checked").parent().attr("name");
+  //     if (layers.indexOf(selectedBaseLayerId) == -1) {
+  //       layers.unshift(selectedBaseLayerId);
+  //       if (activeEarthTimeLayers.indexOf(selectedBaseLayerId) == -1) {
+  //         activeEarthTimeLayers.unshift(selectedBaseLayerId);
+  //       }
+  //     }
+  //   }
+  // }
+
   // // Hack
   // // TODO: Revist toggling of CSV layers that did not have a timeline
-  // if ((layers.length <= 1 || activeLayersWithTimeline <= 1) && visibleBaseMapLayer == "blsat") {
+  // if ((layers.length <= 1 || activeLayersWithTimeline <= 1) & visibleBaseMapLayer == "blsat") {
   //   doSwitchToLandsat();
   // }
 }
@@ -3154,21 +3187,20 @@ function initLayerToggleUI() {
 
   $('#layers-menu').on('click', "input[type=checkbox], input[type=radio]", timelineUIHandler);
 
-  $("body").on("click", "#layers-list .ui-accordion-header", function() {
-    // 8px because of borders, paddings, etc
-    lastLayerMenuScrollPos = $(this)[0].offsetTop - $("#layers-list").offset().top + 8;
-    $('.layers-scroll-vertical').animate({
+  $("body").on("click", "#layers-list .ui-accordion-header, #layers-list-featured .ui-accordion-header", function() {
+    var $this = $(this);
+    if (!$this.hasClass("ui-state-active")) {
+      lastLayerMenuScrollPos = 0;
+      return;
+    }
+    var $topParentContainer = $this.parents("ul");
+    // -5px of borders, paddings, etc
+    lastLayerMenuScrollPos = this.offsetTop - $topParentContainer.offset().top + $("#layers-menu #search-content").outerHeight() - 5;
+    var $scrollContainer = $topParentContainer.children(".layers-scroll-vertical, .featured-layers-scroll-vertical");
+    $scrollContainer.animate({
       scrollTop: lastLayerMenuScrollPos
     });
-    $lastActiveLayerTopic = $(this).next();
-  });
-
-  $("body").on("click", "#layers-list-featured .ui-accordion-header", function() {
-    lastFeaturedLayerMenuScrollPos = $(this)[0].offsetTop - $("#layers-list-featured").position().top;
-    $('.featured-layers-scroll-vertical').animate({
-      scrollTop: lastFeaturedLayerMenuScrollPos
-    });
-    $lastActiveFeaturedLayerTopic = $(this).next();
+    $lastActiveLayerTopic = $this.next();
   });
 
   $(document).on("click touchmove", function(e) {
@@ -3177,7 +3209,14 @@ function initLayerToggleUI() {
       $activeLayerDescriptionTooltip = null;
     }
     // @ts-ignore
-    if ((e.target).id == "menu-icon") return;
+    if ((e.target).id == "menu-icon" || $(e.target).hasClass("shrink-nav")) return;
+
+    if ($("#menu-icon").is(":visible")) {
+      $("#top-nav li.menu-option").hide();
+    }
+  });
+
+  $("#top-nav .menu-option").on("click", function() {
     if ($("#menu-icon").is(":visible")) {
       $("#top-nav li.menu-option").hide();
     }
@@ -3242,7 +3281,7 @@ function createFeaturedLayersSection() {
 
   $("#featured-layers-title, #layers-list-featured").remove();
 
-  $("<div id='featured-layers-title'>Featured Data for: <br>" + featuredTheme + "</div><div id='layers-list-featured'><div class='featured-layers-scroll-vertical'><div id='featured-layers'></div></div><div id='show-more-layers'>Show More</div>").insertBefore($("#layers-list"));
+  $("<div id='featured-layers-title'>Featured Data for: <br>" + featuredTheme + "</div><ul id='layers-list-featured'><div class='featured-layers-scroll-vertical'><div id='featured-layers'></div></div><div id='show-more-layers'>Show More</div></ul>").insertBefore($("#layers-list"));
 
   var featuredLayerCount = 0;
   // TODO(rsargent)  Work with pdille on a replacement for this
@@ -3294,6 +3333,7 @@ function createFeaturedLayersSection() {
       }
       resizeLayersMenu();
       $(this).toggleClass("active");
+      lastLayerMenuScrollPos = 0;
     });
 
     $("#featured-layers").accordion({
@@ -3476,6 +3516,8 @@ var dotmapLayerByName = {};
 var dotlayersLoadedPath;
 var csvlayersLoadedPath;
 var waypointJSONListReadyInterval;
+var waitToLoadWaypointLayersOnPageReadyInterval;
+var timelineUIChangeListeners = [];
 
 function modifyWaypointSliderContent(keyframes, theme, story) {
   if (!himawariWaypoints[theme]) {
@@ -3562,7 +3604,7 @@ function loadWaypointSliderContentFromCSV(csvdata) {
         var storyTitle = stories[storyId].storyTitle;
         var storyEnabled = isStaging || usingCustomWaypoints ? "true" : stories[storyId].enabled;
         theme_html += "<tr data-enabled='" + storyEnabled + "' id='story_" + storyId + "'>";
-        var thumbnailURL = gEarthTime.timelapse.getThumbnailOfView(stories[storyId].mainShareView, 128, 74) || "http://placehold.it/128x74";
+        var thumbnailURL = gEarthTime.timelapse.getThumbnailOfView(stories[storyId].mainShareView, 128, 74, false) || "https://placehold.it/128x74";
         theme_html += "<td width='50%'><div style='width: 128px; height: 74px; overflow:hidden; border: 1px solid #232323'><img src='" + thumbnailURL + "'/></div></td>";
         theme_html += "<td width='10%'><input type='radio'></td>";
         theme_html += "<td width='40%' style='word-break: break-word;padding-right: 10px;'>" + storyTitle + "</td>";
@@ -4476,7 +4518,7 @@ lightBaseMapLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, li
 /////////////    drawFunction: WebGLVectorTile2.prototype._drawAnnualRefugees,
 /////////////    fragmentShader: WebGLVectorTile2.annualRefugeesFragmentShader,
 /////////////    vertexShader: WebGLVectorTile2.annualRefugeesVertexShader,
-/////////////    imageSrc: "annual-refugees-color-map.png",
+/////////////    imageSrc: "https://tiles.earthtime.org/colormaps/annual-refugees-color-map.png",
 /////////////    numAttributes: 7
 /////////////  };
 /////////////  annualRefugeesLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, annualRefugeesUrl, annualRefugeesLayerOptions);
@@ -4488,7 +4530,7 @@ lightBaseMapLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, li
 /////////////    drawFunction: WebGLVectorTile2.prototype._drawAnnualRefugees,
 /////////////    fragmentShader: WebGLVectorTile2.annualRefugeesFragmentShader,
 /////////////    vertexShader: WebGLVectorTile2.annualRefugeesVertexShader,
-/////////////    imageSrc: "annual-returns-color-map.png",
+/////////////    imageSrc: "https://tiles.earthtime.org/colormaps/annual-returns-color-map.png",
 /////////////    numAttributes: 7
 /////////////  };
 /////////////  annualReturnsLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, annualReturnsUrl, annualReturnsLayerOptions);
@@ -4743,6 +4785,9 @@ lightBaseMapLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, li
       var waypointIndex = waypoint.index;
       var waypointStartTime = waypoint.time;
       var waypointBounds = waypoint.bounds;
+
+      clearInterval(waitToLoadWaypointLayersOnPageReadyInterval);
+
       // TODO: Do we still need this for himawari now that we have real thumbnails?
       if (Object.keys(himawariWaypoints).length) {
         var himawariWaypoint = (himawariWaypoints[currentWaypointTheme] && himawariWaypoints[currentWaypointTheme][currentWaypointStory]) ? himawariWaypoints[currentWaypointTheme][currentWaypointStory][waypointIndex] : null;
@@ -4814,6 +4859,31 @@ lightBaseMapLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, li
       lastSelectedWaypointIndex = waypointIndex;
 
       gEarthTime.timelapse.removeParabolicMotionStoppedListener(parabolicMotionStoppedListener);
+
+      var waypointTimelineUIChangeListener = function(info) {
+        clearTimelineUIChangeListeners();
+        // If we are moving and reach this point, then this means the timeline UI changed before we made it to the final view.
+        // The callback of timelapse.setNewView will handle setting the correct time for us, so no need to do anything.
+        // However, if we reach this point and we are not moving, this means that the UI changed after the final view,
+        // so we need to set the correct time.
+        // If we are holding SHIFT or "pinning the butterfly" then use the previous time we came from and not the waypoint's time.
+        if (keysDown.indexOf(16) >= 0 || gEarthTime.timelapse.getCurrentTouchCount()) {
+          var seekTime = gEarthTime.timelapse.playbackTimeFromShareDate(info.captureTimeBeforeTimelineChange);
+          gEarthTime.timelapse.seek(seekTime);
+        } else if (!gEarthTime.timelapse.isMovingToWaypoint()) {
+          var currentWaypoint = snaplapseForPresentationSlider.getKeyframes()[lastSelectedWaypointIndex];
+          var seekTime = gEarthTime.timelapse.playbackTimeFromShareDate(currentWaypoint.beginTime);
+          gEarthTime.timelapse.seek(seekTime);
+        }
+      };
+      clearTimelineUIChangeListeners();
+      gEarthTime.timelapse.addTimelineUIChangeListener(waypointTimelineUIChangeListener);
+      // In the event a sharelink layer does not have a timeline change, be sure the above listener is removed.
+      var waypointTimelineUIChangeListenerWatchDog = setTimeout(function() {
+        gEarthTime.timelapse.removeTimelineUIChangeListener(waypointTimelineUIChangeListener);
+      }, 1000);
+      timelineUIChangeListeners.push({"type" : "timeout", "fn" : waypointTimelineUIChangeListenerWatchDog});
+      timelineUIChangeListeners.push({"type" : "uiChangeListener", "fn" : waypointTimelineUIChangeListener});
     });
 
     snaplapseViewerForPresentationSlider.addEventListener('slide-changed', function(waypoint) {
@@ -4845,7 +4915,18 @@ lightBaseMapLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, li
       if (himawariIdx > -1) waypointLayers.splice(himawariIdx, 1);
 
       // Handle layers
-      handleLayers(waypointLayers);
+      // If we are coming from an initial page load, then a waypoint may have loaded before the layer list has been populated.
+      // Keep checking whether the layer list is ready and then finally apply the waypoint's layers.
+      if (!loadedInitialCsvLayers) {
+        waitToLoadWaypointLayersOnPageReadyInterval = setInterval(function() {
+          if (loadedInitialCsvLayers) {
+            handleLayers(waypointLayers);
+            clearInterval(waitToLoadWaypointLayersOnPageReadyInterval);
+          }
+        }, 250);
+      } else {
+        handleLayers(waypointLayers);
+      }
 
       if (waypoint.layers && waypoint.layers.indexOf("blsat") >= 0) {
         gEarthTime.timelapse.setMaxScale(landsatMaxScale);
@@ -5092,14 +5173,21 @@ lightBaseMapLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, li
       // Note that this may be unncessary because of the callback for CSV layers, but it's possible not to have CSV layers
       // and CSV layers are async (and could be loaded very fast) so we keep this in.
       var onloadView = function() {
-        gEarthTime.timelapse.loadSharedViewFromUnsafeURL(UTIL.getUnsafeHashString());
+        clearTimelineUIChangeListeners();
         gEarthTime.timelapse.removeTimelineUIChangeListener(onloadView);
+        gEarthTime.timelapse.loadSharedViewFromUnsafeURL(UTIL.getUnsafeHashString());
+        var shareDate = vals.bt || vals.t;
+        var timeToSeek = gEarthTime.timelapse.playbackTimeFromShareDate(shareDate);
+        gEarthTime.timelapse.seekToFrame(gEarthTime.timelapse.timeToFrameNumber(timeToSeek));
       };
+      clearTimelineUIChangeListeners();
       gEarthTime.timelapse.addTimelineUIChangeListener(onloadView);
       // In the event a sharelink layer does not have a timeline change, be sure the above listener is removed.
-      setTimeout(function() {
+      var onloadViewWatchDog = setTimeout(function() {
         gEarthTime.timelapse.removeTimelineUIChangeListener(onloadView);
-      }, 500);
+      }, 1000);
+      timelineUIChangeListeners.push({"type" : "timeout", "fn" : onloadViewWatchDog});
+      timelineUIChangeListeners.push({"type" : "uiChangeListener", "fn" : onloadView});
     }
 
     if (gEarthTime.timelapse.isPresentationSliderEnabled()) {
@@ -5339,6 +5427,11 @@ lightBaseMapLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, li
     }
     resizeLayersMenu();
     $("#layer-search-box").focus();
+
+    var $scrollContainer = $("#layers-menu").find("ul > .layers-scroll-vertical, ul > .featured-layers-scroll-vertical");
+    $scrollContainer.animate({
+      scrollTop: lastLayerMenuScrollPos
+    }, 250);
   });
 
   $("#theme-menu").on("click", "[id^=story_]", function(e) {
@@ -5438,7 +5531,21 @@ lightBaseMapLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, li
     $("#contributors").html("Carnegie Mellon University | CREATE Lab");
   }
 
-  if (extraContributors) {
+  if ((extraContributors || extraContributorsLogoPath) && extraContributorTakesPrecedence) {
+    var $labAndCMULogoDiv = $("<div id='labAndCMULogo'></div>");
+    var $contributors = $("#contributors");
+    var $logosContainer = $("#logosContainer");
+    $logosContainer.append($labAndCMULogoDiv)
+    $labAndCMULogoDiv.html($contributors.html());
+    $contributors.html("").addClass("heading");
+    $logosContainer.prepend($("<div id='poweredBy'>Powered by</div>"));
+    $logosContainer.prepend($contributors);
+  }
+
+  if (extraContributorsLogoPath) {
+    $("<div><img id='contributorsLogo'></div>").appendTo($("#contributors"));
+    $("#contributorsLogo").prop("src", extraContributorsLogoPath);
+  } else if (extraContributors) {
     if (extraContributors == "Igarape Institute") {
       var idx = extraContributors.indexOf('e');
       extraContributors = extraContributors.substr(0, idx) + '&eacute;' + extraContributors.substr(idx + 1);
@@ -5447,8 +5554,11 @@ lightBaseMapLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, li
       $(".current-location-text p").css({"font-size" : "20px", "line-height" : "22px"});
       $(".current-location-text-title").css("font-size", "24px");
     }
-    $("#contributors").html($("#contributors").html() + " | " + extraContributors);
+    var separator = extraContributorTakesPrecedence ? "" : " | ";
+    $("#contributors").html($("#contributors").html() + separator + extraContributors);
   }
+
+  $("#datepicker-ui").appendTo($("#timeMachine .player"));
 
   if (minimalUI) {
     // Move capture time outside of the timeline controls
@@ -5482,10 +5592,11 @@ lightBaseMapLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, li
 
   if (disableUI) {
     // Remove top nav, side control panel, search box, timelines, scalebar, logos and legend (if not being forced on)
-    $("#controlsContainer, .location_search_div, .customControl, .controls, .scaleBarContainer, .captureTime, #baseLayerCreditContainer, #logosContainer").remove();
+    $("#controlsContainer, .location_search_div, .customControl, .controls, .scaleBarContainer, .captureTime, #baseLayerCreditContainer, #logosContainer, #altitude-slider").remove();
     if (!forceLegend) {
       $("#layers-legend").remove();
     }
+    $("#datepicker-ui").hide();
     disableTopNav = true;
     disableAnnotations = true;
   }
@@ -5622,8 +5733,6 @@ lightBaseMapLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, li
       }
     });
   }
-
-  $("#datepicker-ui").appendTo($("#timeMachine .player"));
 
   // Keep this last
   $(window).on('hashchange', hashChange).trigger('hashchange');
@@ -6378,7 +6487,7 @@ function update() {
   // function isPairCandidate(layer) {
   //   return layer.visible && layer.paired;
   // }
-  
+
   // // Set up to draw half-circles if we have exactly two visible paired layers
   // var pairCount = 0;
   // for (var i = 0; i < csvFileLayers.layers.length; i++) {
@@ -7442,7 +7551,7 @@ function update() {
       layer.draw(view, options);
     }
     */
-        
+
     if (showLodesLayer) {
       var lodesLayerView = getLayerView(lodesLayer, landsatBaseMapLayer);
       interface LodesDrawOptions extends DrawOptions {
@@ -7896,6 +8005,20 @@ function update() {
 
     // END LAYER DRAWS
   }
+
+  function getLegendHTML() {
+    var $legend = $("#layers-legend");
+    if (!$legend.length) {
+      return "";
+    }
+    var clone = $legend[0].cloneNode(true);
+    $(clone).find("*").filter(function() {
+      return this.style.display == "none"
+    }).remove();
+    // @ts-ignore
+    return clone.outerHTML;
+  }
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -7984,7 +8107,7 @@ async function init() {
     "fps":10.0,"frames":33, "leader":0,"level_info":[{"cols":1,"rows":1},{"cols":1,"rows":5},{"cols":5,"rows":9},{"cols":9,"rows":17},{"cols":21,"rows":37},{"cols":45,"rows":73},{"cols":93,"rows":145},{"cols":185,"rows":293},{"cols":369,"rows":585},{"cols":737,"rows":1173},{"cols":1473,"rows":2349},{"cols":2945,"rows":4701},{"cols":5889,"rows":9405}],"level_scale":2.0,"nlevels":13,"tile_height":200,"tile_width":356,"video_height":800,"video_width":1424
   };
   cached_ajax['./tm.json']={"capture-times":["1984","1985","1986","1987","1988","1989","1990","1991","1992","1993","1994","1995","1996","1997","1998","1999","2000","2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012","2013","2014","2015","2016"],"datasets":[{"id":"1068x600","name":"1068x600"}],"projection-bounds":{"east":180.00000000000003,"north":83.68837076275285,"south":-82.60002600943437,"west":-180.00000000000003},"sizes":["1068x600"]};
-  
+
   gEarthTime.timelapse = new org.gigapan.timelapse.Timelapse("timeMachine", settings);
   (window as any).timelapse = gEarthTime.timelapse;
 

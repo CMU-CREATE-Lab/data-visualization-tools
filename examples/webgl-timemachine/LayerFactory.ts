@@ -21,7 +21,7 @@ import { MapboxLayer } from './MapboxLayer';
 
 
 // Loaded from config-local.js
-declare var EARTH_TIMELAPSE_CONFIG: { localCsvLayers: string | any[]; useCsvLayersLocally: any; };
+declare var EARTH_TIMELAPSE_CONFIG: { localCsvLayers: string[]; useCsvLayersLocally: any; remoteDataHosts: string[] };
 
 var csvlayersLoadedPath: any;
 
@@ -196,6 +196,7 @@ export class LayerFactory {
     var url = layerDef.URL ? layerDef.URL.replace("http://", "https://") : '';
 
     var useLocalData = false;
+    var remoteDataHosts = EARTH_TIMELAPSE_CONFIG.remoteDataHosts || ["tiles.earthtime.org"];
 
     // Change a *subset* of layer URLs to be local
     // Assumes the layer ID is being passed in to the localCsvLayers array
@@ -211,9 +212,12 @@ export class LayerFactory {
       useLocalData = true;
     }
 
-    // TODO: Right now we only handle local storage of data that was stored at tiles.earthtime.org
-    if (useLocalData && layerDef["URL"].indexOf("tiles.earthtime.org") > 0) {
-      url = layerDef["URL"].replace(/https*:\/\/tiles.earthtime.org/, gEarthTime.rootTilePath);
+    if (useLocalData) {
+      for (var i = 0; i < remoteDataHosts.length; i++) {
+        if (layerDef["URL"].indexOf(remoteDataHosts[i]) > 0) {
+          url = layerDef["URL"].replace(/https*:\/\/tiles.earthtime.org/g, gEarthTime.rootTilePath);
+        }
+      }
     }
 
     var category_id = layerOptions.category ? "category-" + layerOptions.category.trim().replace(/ /g,"-").replace(/^[^a-zA-Z]+|[^\w-]+/g, "_").toLowerCase() : "csvlayers_table";
@@ -232,7 +236,7 @@ export class LayerFactory {
       if (vertexShader) {
         layerOptions.vertexShader = LayerFactory.getShader(layerOptions.mapType, vertexShader, "Vertex");
       }
-      
+
       var fragmentShader = layerDef["Fragment Shader"];
       if (fragmentShader) {
         layerOptions.fragmentShader = LayerFactory.getShader(layerOptions.mapType, fragmentShader, "Fragment");
@@ -270,7 +274,7 @@ export class LayerFactory {
       overrideDrawingFns();
     } else if (layerOptions.mapType == "choropleth") {
       layerOptions.avoidShowingChildAndParent = true;
-      layerOptions.imageSrc = layerOptions.imageSrc || "obesity-color-map.png";
+      layerOptions.imageSrc = layerOptions.imageSrc || "https://tiles.earthtime.org/colormaps/obesity-color-map.png";
       layerOptions.z = 200;
       layerOptions.loadDataFunction = WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv;
       layerOptions.drawFunction = WebGLVectorTile2.prototype._drawChoroplethMap;
@@ -669,8 +673,6 @@ export class LayerFactory {
             opts.keys.push({'color': 'rgb('+ rgba[0] +',' + rgba[1] +',' + rgba[2] + ')', 'str': layer.legendKey});
           }
           var legend = new BubbleMapLegend(opts);
-          $('#legend-content table tr:last').after(legend.toString());
-          $("#" + id + "-legend").show();
         } else {
           var div = '<div style="font-size: 15px">' + layer.name + '<span class="credit"> ('+ layer.credit +')</span></div>';
           var str = div + layer.legendContent;
@@ -679,10 +681,7 @@ export class LayerFactory {
             'str': str
           }
           var legend = new BubbleMapLegend(opts);
-          $('#legend-content table tr:last').after(legend.toString());
-          $("#" + id + "-legend").show();
         }
-
       } else if (layer.mapType == 'choropleth') { // Assume choropleth
         if (layer.legendContent == 'auto') {
           var radius = this.getRadius(layer);
@@ -698,10 +697,7 @@ export class LayerFactory {
           if (layer.legendKey) {
             opts.keys.push({'str': layer.legendKey});
           }
-
-          let legend = new ChoroplethLegend(opts)
-          $('#legend-content table tr:last').after(legend.toString());
-          $("#" + id + "-legend").show();
+          let legend = new ChoroplethLegend(opts);
         } else {
           var div = '<div style="font-size: 15px">' + layer.name + '<span class="credit"> ('+ layer.credit +')</span></div>';
           var str = div + layer.legendContent;
@@ -710,8 +706,6 @@ export class LayerFactory {
             'str': str
           }
           let legend = new ChoroplethLegend(opts);
-          $('#legend-content table tr:last').after(legend.toString());
-          $("#" + id + "-legend").show();
         }
       } else {
         var str = '';
@@ -727,10 +721,11 @@ export class LayerFactory {
           'str': str
         }
         let legend = new Legend(id, str);
-        $('#legend-content table tr:last').after(legend.toString());
-        //if (layer.mapType != 'raster') {
-          $("#" + id + "-legend").show();
-        //}
+      }
+      $('#legend-content table tr:last').after(legend.toString());
+      let isLayerActive = (gEarthTime.layerDB.shownLayers.map(layer => layer.id)).indexOf(id) >= 0;
+      if (layer.mapType != 'raster' && isLayerActive) {
+        $("#" + id + "-legend").show();
       }
     }
   }
@@ -782,6 +777,7 @@ export class LayerFactory {
       var prefix = 'WebGLVectorTile2.prototype.';
       parent = WebGLVectorTile2.prototype;
     }
+
     if (!name.startsWith(prefix)) {
       throw new LayerDefinitionError(`Function for layer type ${mapType} must begin with ${prefix}`);
     }
@@ -796,6 +792,7 @@ export class LayerFactory {
     } else {
       throw Error(`unknown funcType ${funcType}`);
     }
+
     if (!re.test(suffix)) {
       throw new LayerDefinitionError(`${suffix} is not a valid ${funcType} function name`);
     }

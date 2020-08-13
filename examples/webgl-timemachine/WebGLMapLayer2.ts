@@ -5,7 +5,6 @@ import { Layer, LayerOptions } from './Layer'
 
 export class WebGLMapLayer2 extends Layer {
   fileExtension: any;
-  defaultUrl: any;
   _tileUrls: any[];
   constructor(glb: any, canvasLayer: any, tileUrls: string | any[], layerOptions: LayerOptions) {
     super(layerOptions, WebGLMapTile2);
@@ -27,14 +26,3 @@ export class WebGLMapLayer2 extends Layer {
     this._drawHelper(view, options);
   }
 }
-
-
-
-
-
-
-
-
-
-
-

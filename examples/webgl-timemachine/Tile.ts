@@ -8,7 +8,6 @@ import { Layer, DrawOptions } from './Layer';
 import { GlbWebGLProgram } from './Glb';
 
 export class Tile {
-  _layer: any;
   _tileview: TileView;
   glb: any;
   gl: any;
@@ -24,7 +23,6 @@ export class Tile {
   }
 
   constructor(layer: Layer, tileidx: TileIdx, bounds, opt_options) {
-    this._layer = layer;
     this._tileview = layer._tileView;
     this.glb = gEarthTime.glb;
     this.gl = gEarthTime.glb.gl;

@@ -6,13 +6,15 @@ class Thumbnailer {
 
     constructor(sharelink: string) {
         this.thumbnailServerUrl = "https://thumbnails-v2.createlab.org/thumbnail?";
-        this.sharelink = sharelink;
-        var hash = sharelink.split("#")[1];
+        // We no longer want to pass forceLegend to the thumbnail server, but it needs to
+        // still be part of share links so that the mobile client knows to render a legend.
+        this.sharelink = sharelink.replace(/&(forceLegend=true|forceLegend)/g,"");
+        var hash = this.sharelink.split("#")[1];
         if (typeof hash !== "undefined") { // we passed a sharelink
             this.hash = hash;
             this.setArgs(this.hash);
         } else { // we passed a thumbnail server link
-            var qsa = sharelink.split("?")[1];
+            var qsa = this.sharelink.split("?")[1];
             this.setArgs(qsa);
         }
     }
@@ -191,7 +193,7 @@ class Thumbnailer {
         var fps = "fps=" + "30";
         var tileFormat = "tileFormat=" + "mp4";
         var fromScreenshot = "fromScreenshot";
-        var UI = '';;
+        var UI = '';
         if (typeof this.hash != "undefined") {
             UI += "timestampOnlyUI=" + "true";
         } else {
@@ -205,6 +207,33 @@ class Thumbnailer {
         // OVERRIDE UI
         UI = "disableUI";
         return url + [root,width,height,format,fps,tileFormat,fromScreenshot,UI].join("&");
+    }
+
+    getLegend = function() {
+        var url = this.thumbnailServerUrl;
+
+        var root = "";
+        if (typeof this.args["root"] == "undefined") {
+            root += "https://headless.earthtime.org/";
+            if (!('bt' in this.args)) {
+                this._setBt();
+                this.hash += "&bt=" + this.args['bt'];
+            }
+            root += encodeURIComponent('#' + this.hash);
+        } else {
+            root += this.args["root"];
+        }
+        // We need to remove disableUI from the request, so that a legend is part of the DOM
+        // when the Thumbnail Server goes to scrape.
+        // We have to decode the root, since it was previously encoded by one of the prior
+        // calls of getImage or getMp4. And then we have to re-encode it back again.
+        root = "root=" + encodeURIComponent(decodeURIComponent(root).replace(/&(disableUI=true|disableUI)/g,""));
+        var width = "width=" + 1280;
+        var height = "height=" + 720;
+        var legendHTML = "legendHTML=true";
+        var fromScreenshot = "fromScreenshot";
+        var UI = "minimalUI";
+        return url + [root,width,height,legendHTML,fromScreenshot,UI].join("&");
     }
 
     static _latLonToWebMercator(latitude: number, longitude: number) {

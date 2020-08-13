@@ -74,7 +74,8 @@ body {
   -webkit-box-pack: center;
   -ms-flex-pack: center;
   justify-content: center;
-  top: 10px;
+  bottom: 10px;
+  right: 10px;
   margin-left: 10px;
   width: 55px;
   height: 55px;
@@ -236,4 +237,19 @@ body {
   padding: 80px;
   padding-bottom: 20px;
   background: #333;
+}
+
+.earthtime-legend {
+  position: fixed;
+  top: -9px;
+  right: -9px;
+  visibility: hidden;
+}
+
+.earthtime-legend > div {
+  transform-origin: top right !important;
+}
+
+.earthtime-legend.dimmed {
+  opacity: 0.65;
 }

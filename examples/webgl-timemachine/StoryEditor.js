@@ -346,6 +346,13 @@ var StoryEditor = function (timelapse, settings) {
           var unsafe_sheet_url = $sheet_url_textbox.val();
           var res = unsafe_sheet_url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
           if (res != null) sheet_url = unsafe_sheet_url;
+          current_sheet_id = UTIL.googleSheetUrlToDocTab(unsafe_sheet_url).split(".")[0];
+          var promise = GOOGLE_API.getSpreadsheetInfo(current_sheet_id);
+          promise.then(function (response) {
+            current_sheet_name = response.info.properties.title;
+          }).catch(function (errorResponse) {
+            console.error(errorResponse);
+          });
         }
         // Load data or not
         if (typeof sheet_url === "undefined") {
@@ -731,7 +738,7 @@ var StoryEditor = function (timelapse, settings) {
     if (host.indexOf("localhost") >= 0 || host.indexOf("file:") >= 0) {
       return base + window.location.pathname;
     } else {
-      return "https://earthtime.org";
+      return base;
     }
   }
 

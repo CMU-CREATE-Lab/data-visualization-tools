@@ -10,7 +10,7 @@
   <script>
   window.loadStartTime = new Date().getTime();
   </script>
-  
+
   <link href="../../css/jquery-ui/smoothness/jquery-ui.custom.css" rel="stylesheet" type="text/css" />
   <link href="../../timemachine/css/snaplapse.css" rel="stylesheet" type="text/css" />
   <link href="../../timemachine/css/defaultUI.css" rel="stylesheet" type="text/css" />
@@ -19,6 +19,7 @@
   <link href="../../timemachine/libs/change-detect/css/change.css" media="screen" rel="stylesheet" type="text/css" />
   <link href="../../js/customVideoTagControls/customVideoTagControls.css" rel="stylesheet" type="text/css" />
   <link href="index.css" rel="stylesheet" type="text/css" />
+  <link href="legend.css" rel="stylesheet" type="text/css" />
   <link href="Wizard.css" rel="stylesheet" type="text/css" />
   <link href="StoryEditor.css" rel="stylesheet" type="text/css" />
   <link href="SetViewTool.css" rel="stylesheet" type="text/css" />
@@ -143,12 +144,12 @@ System.import('./compiled/examples/webgl-timemachine/index');
         <table id="letterbox-bottom-controls-container">
           <tr>
             <td id="letterbox-bottom-controls" width="20%">
-            <div id="letterbox-base-layers"></div>
-            <div id="letterbox-control-buttons">
-              <button type="button" id="letterbox-list-themes-button">Themes</button><br/>
-              <button type="button" id="letterbox-list-layers-button">Layers</button><br/>
-              <button type="button" id="letterbox-clear-layers-button">Clear Layers</button>
-            </div>
+              <div id="letterbox-base-layers"></div>
+              <div id="letterbox-control-buttons">
+                <button type="button" id="letterbox-list-themes-button">Themes</button><br/>
+                <button type="button" id="letterbox-list-layers-button">Layers</button><br/>
+                <button type="button" id="letterbox-clear-layers-button">Clear Layers</button>
+              </div>
             </td>
             <td id="letterbox-bottom-picker" width="40%">
               <div id="letterbox-bottom-picker-content-wrapper">
@@ -167,9 +168,9 @@ System.import('./compiled/examples/webgl-timemachine/index');
       </div>
     </div>
     <div id="timeMachine"></div>
-	<div id="altitude-slider">
-		<div></div>
-	</div>
+    <div id="altitude-slider">
+      <div></div>
+    </div>
     <div id="datepicker-ui">
       <div id="datepicker-menu">
         <p id="date-range-inputs">
@@ -211,20 +212,24 @@ System.import('./compiled/examples/webgl-timemachine/index');
     </div>
     <div id="baseLayerCreditContainer" class="unselectable">
       <table>
-      <tr>
-        <td id="baselayerCreditHeader">Base Layer</td>
-        <td id="baselayerCreditText">&copy; Google</td>
-        <td id="baselayerCreditLogoContainer">
-          <div id="baselayerCreditLogo"></div>
-        </td>
-      </tr>
+        <tr>
+          <td id="baselayerCreditHeader">Base Layer</td>
+          <td id="baselayerCreditText">&copy; Google</td>
+          <td id="baselayerCreditLogoContainer">
+            <div id="baselayerCreditLogo"></div>
+          </td>
+        </tr>
       </table>
     </div>
     <div id="main-hamburger-menu" class="menu no-pinch">
       <ul>
         <li id="theme-menu" class="has-children">
           <label for="theme-selection" class="menu-selection-heading">Stories</label>
-          <ul id="theme-list"><div class="themes-scroll-vertical"><div class="themes-div"></div></div></ul>
+          <ul id="theme-list">
+            <div class="themes-scroll-vertical">
+              <div class="themes-div"></div>
+            </div>
+          </ul>
         </li>
         <li id="layers-menu" class="has-children">
           <label for="layer-selection" class="menu-selection-heading">Data Library</label>

@@ -412,6 +412,49 @@
     };
     this.updateSpreadsheetTitle = updateSpreadsheetTitle;
 
+    /**
+     * Get the metadata for a spreadsheet.
+     * Includes information like spreadsheet title, as well as individual sheet tab names, etc.
+     */
+    var getSpreadsheetInfo = function(spreadsheetId) {
+      return gapi.client.sheets.spreadsheets.get({
+        spreadsheetId: spreadsheetId,
+      }).then(function (response) {
+        var result = {
+          status: "success",
+          info: response.result
+        };
+        return result;
+      }, function (errorResponse) {
+        throw {
+          status: "error",
+          message: errorResponse
+        };
+      });
+    }
+    this.getSpreadsheetInfo = getSpreadsheetInfo;
+
+    /**
+     * Get the title of a Google Drive file
+     */
+    var getFileName = function(fileId) {
+      return gapi.client.drive.files.get({
+        fileId: fileId,
+      }).then(function (response) {
+        var result = {
+          status: "success",
+          fileName: response.result.name
+        };
+        return result;
+      }, function (errorResponse) {
+        throw {
+          status: "error",
+          message: errorResponse
+        };
+      });
+    }
+    this.getFileName = getFileName;
+
 
     // Constructor
     var script = document.createElement("script");

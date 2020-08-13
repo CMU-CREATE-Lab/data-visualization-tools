@@ -6,6 +6,36 @@ import { Timeline, TimelineType } from './Timeline';
 import { Glb } from './Glb';
 
 export interface DrawOptions {
+  bbox?: { tl: any; br: any; };
+  showLbyReturns?: any;
+  showYemReturns?: any;
+  showSyrReturns?: any;
+  showIrqReturns?: any;
+  showLbyIdps?: any;
+  showYemIdps?: any;
+  showSyrIdps?: any;
+  showIrqIdps?: any;
+  question?: number;
+  maxValue?: number;
+  delta?: any;
+  year?: number;
+  years?: any;
+  showRcp?: any;
+  distance?: number;
+  mode?: number;
+  maxElevation?: any;
+  setDataFnc?: string;
+  epochRange?: number;
+  numGlyphs?: number;
+  fadeDuration?: number;
+  pointSizeFnc?: any;
+  sfactor?: number;
+  dfactor?: number;
+  glyphPath?: string;
+  dotSizeRange?: [number, number];
+  edgeColor?: any;
+  edgeSize?: any;
+  bubbleScaleRange?: [number, number];
   throttle?: number;
   epoch?: number;
   pointSize?: number;
@@ -14,7 +44,7 @@ export interface DrawOptions {
   subsampleAnnualRefugees?: boolean
   pointIdx?: any
   currentC?: number
-  color?: [number, number, number, number]
+  color?: [number, number, number, number?]
   idx?: number
   buffers?: any
   minTime?: number
@@ -79,8 +109,8 @@ export class LayerOptions {
     levelThreshold: number;
     dotmapColors?: any;
   }
-  
-  
+
+
   export class Layer extends LayerOptions {
     glb: Glb;
     gl: any;
@@ -93,7 +123,8 @@ export class LayerOptions {
     // null if layer has no timestamps associated with it
     // null if we don't yet have enough information to create a Timeline
     timeline: Timeline = null;
-    
+    defaultUrl: string;
+
     constructor(layerOptions: LayerOptions, tileClass: typeof Tile) {
       super(layerOptions);
       this.glb = gEarthTime.glb;
@@ -107,8 +138,8 @@ export class LayerOptions {
 
       // TODO: for TimeMachine layer, set the timeline after we load tm.json
       if (this.startDate && this.endDate) {
-        this.timeline = new Timeline(this.timelineType, 
-          this.startDate, this.endDate, this.step);
+        this.timeline = new Timeline(this.timelineType,
+        this.startDate, this.endDate, this.step);
       }
 
       this._tileView = new TileView({
@@ -129,7 +160,7 @@ export class LayerOptions {
         this.colormapImage.crossOrigin = "anonymous";
         this.colormapImage.onload = this.handleLoadedColormap.bind(this);
         let that = this;
-        this.colormapImage.addEventListener('error', 
+        this.colormapImage.addEventListener('error',
           function (event) { console.log(`ERROR: cannot load colormap ${that.colormapImage.src}`) }
         );
         this.colormapImage.src = this.colormap;
@@ -176,7 +207,7 @@ export class LayerOptions {
       gl.bindTexture(gl.TEXTURE_2D, null);
       this.ready = true;
     }
-  
+
     _createTile(ti: TileIdx, bounds: TileBbox) {
       var opt_options: any = {};
       if (this.drawFunction) {
@@ -214,7 +245,7 @@ export class LayerOptions {
       // Modify transform to show view
       scaleMatrix(transform, view.scale, view.scale);
       translateMatrix(transform, -view.x, -view.y);
-      
+
       // TODO: Refactor how tile views are initialized and drawn
       this._tileView.setView(view, width, height, this._canvasLayer.resolutionScale_);
       this._tileView.update(transform, options);

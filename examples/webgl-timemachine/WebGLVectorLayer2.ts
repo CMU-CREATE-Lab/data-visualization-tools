@@ -9,6 +9,7 @@ import { WebGLVectorTile2, WebGLVectorTile2Shaders } from './WebGLVectorTile2'
 
 export class WebGLVectorLayer2 extends Layer {
   _tileUrl: string;
+  epochs: any;
   constructor(glb: any, canvasLayer: any, tileUrl: string, layerOptions: LayerOptions) {
     super(layerOptions, WebGLVectorTile2);
     this._tileUrl = tileUrl;

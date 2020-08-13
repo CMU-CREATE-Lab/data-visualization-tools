@@ -9,6 +9,7 @@ export class WebGLMapTile2 extends Tile {
   static verbose: boolean = false;
   static videoId: number = 0;
 
+  _layer: WebGLMapLayer2;
   _texture0: any;
   _texture1: any;
   _triangles: any;
@@ -20,6 +21,7 @@ export class WebGLMapTile2 extends Tile {
 
   constructor(layer: WebGLMapLayer2, tileidx: TileIdx, bounds, opt_options) {
     super(layer, tileidx, bounds, opt_options);
+    this._layer = layer;
 
     this._texture0 = this._createTexture();
     this._texture1 = this._createTexture();
@@ -205,7 +207,7 @@ void main(void) {
   vec4 color0 = vec4(0.,0.,0.,0);
   vec4 color1 = vec4(0.,0.,0.,0);
   if (textureColor0.g > 1. - uAlpha) {
-    color0 = vec4(textureColor0.a, 0., 0., textureColor0.a); 
+    color0 = vec4(textureColor0.a, 0., 0., textureColor0.a);
   }
   if (textureColor1.b > 0.40) {
     color1 = vec4(0., 0., textureColor1.b * uAlpha, uAlpha);
@@ -221,7 +223,7 @@ uniform sampler2D uSampler1;
 uniform sampler2D uColormap;
 uniform float uAlpha;
 void main(void) {
-  vec4 textureColor1 = texture2D(uSampler0, vec2(vTextureCoord.s, vTextureCoord.t)); 
+  vec4 textureColor1 = texture2D(uSampler0, vec2(vTextureCoord.s, vTextureCoord.t));
   vec4 textureColor2 = texture2D(uSampler1, vec2(vTextureCoord.s, vTextureCoord.t));
   vec4 textureColor = textureColor1 * (1.0 - uAlpha) + textureColor2 * uAlpha;
   vec4 colormap = texture2D(uColormap, vec2(textureColor.r,textureColor.r));

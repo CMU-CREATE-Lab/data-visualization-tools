@@ -6,7 +6,6 @@ import { Layer, LayerOptions } from './Layer';
 export class WebGLMapLayer extends Layer {
   _tileUrl: string;
   fileExtension: any;
-  defaultUrl: any;
   constructor(glb: any, canvasLayer: any, tileUrl: string, layerOptions: LayerOptions) {
     super(layerOptions, WebGLMapTile);
     this._tileUrl = tileUrl.replace("{default}/", "");
@@ -18,15 +17,3 @@ export class WebGLMapLayer extends Layer {
     this._drawHelper(view, opt_options);
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-

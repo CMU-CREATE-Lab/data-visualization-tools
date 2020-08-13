@@ -17,7 +17,7 @@ export class TileIdx {
   c: number;
   r: number;
   key: string;
-  
+
   constructor(l: number, c: number, r: number) {
     this.l = l;
     this.c = c;
@@ -38,7 +38,11 @@ export class TileIdx {
   // Expands {x} (column), {y} (row), {yflip} (mirrored row), and {z} (level) in an URL
   expandUrl(url, layer: Layer = null) {
     if (layer?.startDate && layer?.endDate) {
-      var startEpochTime = parseDateStr(layer.startDate);
+      let startEpochTime = parseDateStr(layer.startDate);
+      if (layer.setDataOptions && layer.setDataOptions.startDateMargin) {
+        // @ts-ignore
+        startEpochTime -= layer.setDataOptions.startDateMargin;
+      }
       var endEpochTime = parseDateStr(layer.endDate);
 
       url = url.replace("{startEpochTime}", startEpochTime).replace("{endEpochTime}", endEpochTime);

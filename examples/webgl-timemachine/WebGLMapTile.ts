@@ -5,6 +5,7 @@ import { WebGLMapLayer } from "./WebGLMapLayer";
 import { TileIdx } from "./TileIdx";
 
 export class WebGLMapTile extends Tile {
+  _layer: WebGLMapLayer;
   _layerDomId: any;
   _loadingSpinnerTimer: any;
   _texture: any;
@@ -22,6 +23,7 @@ export class WebGLMapTile extends Tile {
   private _imageUrl: any;
   constructor(layer: WebGLMapLayer, tileidx: TileIdx, bounds, opt_options) {
     super(layer, tileidx, bounds, opt_options);
+    this._layer = layer;
     this._layerDomId = opt_options.layerDomId;
 
     this._loadingSpinnerTimer = null;
@@ -197,7 +199,7 @@ export class WebGLMapTile extends Tile {
       ////   }
       ////   return sliderTickVal;
       //// }
-      
+
       gl.uniform1f(cLoc, seaLevelMeters / 256.0);
       var uColor = color;
       gl.uniform4fv(this.program.u_Color, uColor);
@@ -412,10 +414,9 @@ void main(void) {
   if (textureColor.r == 0. && textureColor.g == 0. && textureColor.b == 0.) {
     gl_FragColor = vec4(1.0, 0., 0.,.0);
   }
-  else if (textureColor.b >= u_b) { 
+  else if (textureColor.b >= u_b) {
     gl_FragColor = vec4(textureColor.rgb, 1.);
   } else {
     gl_FragColor = vec4(1.,0.,0.,0.);
   }
 }`;
-

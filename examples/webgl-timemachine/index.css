@@ -112,6 +112,21 @@ html, body {
 #contributors {
   font-size: 13px;
 }
+#contributors.heading {
+  font-size: 24px;
+}
+#contributorsLogo {
+  max-height: 100px;
+  object-fit: cover;
+  max-width: 150px;
+  margin-top: 6px;
+}
+#poweredBy {
+  padding-bottom: 8px;
+  padding-top: 3px;
+  font-size: 12px;
+  margin-right: 1px;
+}
 #baseLayerCreditContainer {
   color: white;
   font-size: 12px;
@@ -329,6 +344,7 @@ html, body {
   padding: 0;
   opacity: 1;
   z-index: 100000;
+  word-break: break-word;
   }
 .ui-tooltip-content {
   position: relative;
@@ -811,74 +827,6 @@ html, body {
   overflow: hidden;
 }
 
-#layers-legend {
-  z-index: 90;
-  display: none;
-  position: absolute;
-  right: 19px;
-  top: 20px;
-  width: auto;
-  padding-left: 4px;
-  padding-right: 8px;
-  padding-top: 4px;
-  background: white;
-  color: #222222;
-  border-radius: 2px;
-  border: 1px solid #656565;
-  -webkit-box-shadow: 2px 2px 3px rgba(0,0,0,0.3);
-          box-shadow: 2px 2px 3px rgba(0,0,0,0.3);
-  outline: none;
-  font-size: 15px;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-  white-space: nowrap;
-  -webkit-transform-origin: 0% 0%;
-  -ms-transform-origin: 0% 0%;
-  transform-origin: 0% 0%;
-  pointer-events: none;
-  border: 1px solid #6f6f6f;
-  color: #e6e6e6;
-  background: rgba(0, 0, 0, 0.65);
-}
-#layers-legend.centered {
-  -webkit-transform: translateX(-50%);
-  -ms-transform: translateX(-50%);
-  transform: translateX(-50%);
-  left: 50%;
-  right: unset;
-}
-.legend-entry-title {
-  font-size: 17px;
-}
-.waterLegendGradient {
-  height: 10px;
-  background-image: -webkit-linear-gradient(left, blue, #bf7fbf 50%, #ffffff 100%);
-  background-image: -o-linear-gradient(left, blue, #bf7fbf 50%, #ffffff 100%);
-  background-image: -webkit-gradient(linear, left top, right top, from(blue), color-stop(50%, #bf7fbf), to(#ffffff));
-  background-image: -ms-linear-gradient(left, blue, #bf7fbf 50%, #ffffff 100%);
-  background-image: linear-gradient(left, blue, #bf7fbf 50%, #ffffff 100%);
-}
-.waterChangeLegendGradient {
-  height: 10px;
-  background-image: -webkit-linear-gradient(left, #ff0000 0%, #000000 50%, #00ff00 100%);
-  background-image: -o-linear-gradient(left, #ff0000 0%, #000000 50%, #00ff00 100%);
-  background-image: -webkit-gradient(linear, left top, right top, from(#ff0000), color-stop(50%, #000000), to(#00ff00));
-  background-image: -ms-linear-gradient(left, #ff0000 0%, #000000 50%, #00ff00 100%);
-  background-image: linear-gradient(left, #ff0000 0%, #000000 50%, #00ff00 100%);
-}
-
-.ndviAnomalyLegendGradient {
-  height: 10px;
-  background-image: -webkit-linear-gradient(left, #009069 0%, #ff4c0c 100%);
-  background-image: -o-linear-gradient(left, #009069 0%, #ff4c0c 100%);
-  background-image: -webkit-gradient(linear, left top, right top, from(#009069), to(#ff4c0c));
-  background-image: -ms-linear-gradient(left, #009069 0%, #ff4c0c 100%);
-  background-image: linear-gradient(left, #009069 0%, #ff4c0c 100%);
-}
-
 #presentation-slider-selection {
   display: none;
   position: absolute;
@@ -1163,6 +1111,64 @@ html, body {
   display: none !important;
 }
 
+.shareView.customDialog .ui-dialog-title {
+  left: 0px;
+  position: relative;
+}
+
+.shareView.customDialog .ui-dialog-titlebar {
+  position: fixed;
+  width: 418px;
+  text-align: center;
+  background-color: #555960;
+  padding-left: 0px;
+}
+
+.shareView.customDialog .ui-dialog-titlebar-close {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  right: 5px;
+  top: 0;
+  box-sizing: border-box;
+  cursor: pointer;
+  border-radius: 25px;
+  width: 34px !important;
+  height: 34px !important;
+  color: white;
+  background-color: inherit !important;
+  top: 22px !important;
+}
+
+.shareView .ui-button-icon-only .ui-icon {
+  display: none;
+}
+
+.shareView.customDialog .ui-dialog-titlebar-close:after {
+  position: absolute;
+  top: 10px;
+  bottom: 0;
+  left: 0px;
+  right: 0;
+  font-size: 10px;
+  color: #FFF;
+  text-align: center;
+  content: "\274c";
+}
+
+.shareView .ui-dialog-title {
+  font-weight: normal !important;
+}
+
+.shareView.customDialog .ui-dialog-titlebar-close:hover {
+  background-color: #666970 !important;
+}
+
+.shareView.customDialog .ui-dialog-titlebar-close .ui-state-default .ui-icon {
+  background-image: none;
+}
+
 .featured-layers-scroll-vertical::-webkit-scrollbar, .layers-scroll-vertical::-webkit-scrollbar, #csvChartLegend::-webkit-scrollbar, .themes-scroll-vertical::-webkit-scrollbar {
   -webkit-appearance: none;
   background: transparent;
@@ -1214,10 +1220,6 @@ a:focus { outline:0; }
 
 .layer-in-theme-selected {
   font-weight: bold;
-}
-
-.svg-legend {
-  padding-top: 5px;
 }
 
 #current-location-text-picture {
