@@ -16,17 +16,17 @@
             "request": "launch",
             "reAttach": true,
             "name": "Launch FireFox",
-            "url": "https://rsargent.earthtime.org/stories/testrs",
+            "url": "https://hjhawkinsiv.earthtime.org/stories/testrs",
             "webRoot": "${workspaceFolder}",
             "clearConsoleOnReload": true,
             "suggestPathMappingWizard": true,
             "pathMappings": [
                 {
-                    "url": "https://rsargent.earthtime.org/stories/index.ts",
+                    "url": "https://hjhawkinsiv.earthtime.org/stories/index.ts",
                     "path": "${workspaceFolder}/index.ts"
                 },
                 {
-                    "url": "https://rsargent.earthtime.org/stories/index.ts",
+                    "url": "https://hjhawkinsiv.earthtime.org/stories/index.ts",
                     "path": "${workspaceFolder}/index.ts"
                 }
             ]
