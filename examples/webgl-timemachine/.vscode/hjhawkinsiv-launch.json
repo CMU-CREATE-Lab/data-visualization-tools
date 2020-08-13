@@ -8,7 +8,7 @@
             "name": "Launch Edge",
             "request": "launch",
             "type": "pwa-msedge",
-            "url": "https://rsargent.earthtime.org/stories/testrs",
+            "url": "https://hjhawkinsiv.earthtime.org/stories/covid19_the_pandemic_and_the_city",
             "webRoot": "${workspaceFolder}"
         },
         {
@@ -35,7 +35,7 @@
             "type": "chrome",
             "request": "launch",
             "name": "Launch Chrome",
-            "url": "https://rsargent.earthtime.org/stories/testrs",
+            "url": "https://hjhawkinsiv.earthtime.org/explore",
             "webRoot": "${workspaceFolder}"
         }
     ]
