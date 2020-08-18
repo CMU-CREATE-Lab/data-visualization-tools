@@ -2,12 +2,14 @@
 
 import { WebGLMapTile } from './WebGLMapTile'
 import { Layer, LayerOptions } from './Layer';
+import { LayerProxy } from './LayerProxy';
 
 export class WebGLMapLayer extends Layer {
   _tileUrl: string;
   fileExtension: any;
-  constructor(glb: any, canvasLayer: any, tileUrl: string, layerOptions: LayerOptions) {
-    super(layerOptions, WebGLMapTile);
+  defaultUrl: any;
+  constructor(layerProxy: LayerProxy, glb: any, canvasLayer: any, tileUrl: string, layerOptions: LayerOptions) {
+    super(layerProxy, layerOptions, WebGLMapTile);
     this._tileUrl = tileUrl.replace("{default}/", "");
     var splitToken = tileUrl.indexOf("{default}") > 0 ? "{default}" : "{z}";
     this.fileExtension = this.fileExtension || "png";

@@ -4,6 +4,7 @@ import { TileView, TileBbox } from './TileView'
 import { Tile } from './Tile';
 import { Timeline, TimelineType } from './Timeline';
 import { Glb } from './Glb';
+import { LayerProxy } from './LayerProxy';
 
 export interface DrawOptions {
   bbox?: { tl: any; br: any; };
@@ -111,7 +112,8 @@ export class LayerOptions {
   }
 
 
-  export class Layer extends LayerOptions {
+  export abstract class Layer extends LayerOptions {
+    layerProxy: LayerProxy;
     glb: Glb;
     gl: any;
     _canvasLayer: any;
@@ -124,9 +126,11 @@ export class LayerOptions {
     // null if we don't yet have enough information to create a Timeline
     timeline: Timeline = null;
     defaultUrl: string;
+    subLayers?: () => any[];
 
-    constructor(layerOptions: LayerOptions, tileClass: typeof Tile) {
+    constructor(layerProxy: LayerProxy, layerOptions: LayerOptions, tileClass: typeof Tile) {
       super(layerOptions);
+      this.layerProxy = layerProxy;
       this.glb = gEarthTime.glb;
       this.gl = this.glb.gl;
       this.tileClass = tileClass;
@@ -170,7 +174,12 @@ export class LayerOptions {
         this.colormapTexture = null;
       }
     }
+    abstract draw(view: any, options: any);
 
+    isVisible() {
+      return this.layerProxy.isVisible();
+    }
+    
     getWidth() {
       return this._tileView.getWidth();
     }

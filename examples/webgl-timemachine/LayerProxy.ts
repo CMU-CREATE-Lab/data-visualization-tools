@@ -2,6 +2,7 @@
 
 import { LayerDB } from './LayerDB';
 import { Utils } from './Utils';
+import { Layer } from './Layer';
 
 interface Timelapse {
   [key: string]: any;
@@ -24,7 +25,8 @@ export class LayerProxy {
   _loadingPromise: Promise<void>;
   _loaded: boolean
   options: any; // TODO: consider moving things out of options and using setDataOptions, drawOptions
-  layer: any;
+  layer: Layer = null;
+  _effectiveDrawOrder: any[];
 
   constructor(id: string, name: string, category: string, database: LayerDB) {
     console.assert(LayerProxy.isValidId(id));
@@ -52,10 +54,9 @@ export class LayerProxy {
     let url = `${this.database.apiUrl}layer-catalogs/${this.database.databaseId.file_id_gid()}/layers/${this.id}`
     console.log(`${this.logPrefix()} Fetching ${url}`)
     let layerDef: LayerDef = await (await Utils.fetchWithRetry(url)).json();
-    this.layer = this.database.layerFactory.createLayer(layerDef);
+    this.layer = this.database.layerFactory.createLayer(this, layerDef);
     console.log(`${this.logPrefix()} Loaded, layer=`, this.layer);
     this._loaded = true;
-    //this.loadFromLayerDef(layerDef);
   }
 
   // Signal layer didn't completely draw by returning false, or settings timelapse.lastFrameCompletelyDrawn false

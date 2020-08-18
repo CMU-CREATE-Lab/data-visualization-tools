@@ -1,22 +1,19 @@
-/////// declare var mapboxgl: any;
-/////// <reference types="./node_modules/mapbox" />
-
-/// <reference path="mapbox/mapbox-gl-dev-patched-1.3.0.js"/>
 /// <reference types="mapbox-gl" />
 
 import { gEarthTime } from './EarthTime'
 import { Utils } from './Utils';
 
-//import * as mapboxgl from "./mapbox-gl-dev-1.11.1";
+import mapboxgl from './mapbox/mapbox-gl-dev-patched-1.11.1';
+import { LayerProxy } from './LayerProxy';
 
-//import mapboxgl from './mapbox-gl-dev-1.3.0';
+export class ETMapboxSublayer {
+  layer: ETMBLayer;
+  id: string;
+};
 
-import mapboxgl from './mapbox/mapbox-gl-dev-patched-1.3.0';
-
-// @ts-ignore
-// import mapboxgl from './mapbox-gl-dev-1.11.1b';
-
-export class MapboxLayer {
+// EarthTime layer that contains a single Mapbox style
+// If there are multiple ETMBLayers visible, they will be composited into a single Mapbox map
+export class ETMBLayer {
   glb: any;
   gl: any;
   mapboxDef: any;
@@ -24,16 +21,20 @@ export class MapboxLayer {
   layerId: string;
   static map: any = null;
   _shown: any;
-  static shownLayers: MapboxLayer[] = [];
+  static visibleLayers: ETMBLayer[] = [];
   static accessToken: string = 'pk.eyJ1IjoicmFuZHlzYXJnZW50IiwiYSI6ImNrMDYzdGl3bDA3bTUzc3Fkb3o4cjc3YXgifQ.nn7FC9cpRl_THWpoAFnnow';
   styleIsLoaded: boolean;
   static _createMapPromise: any;
   _loadingPromise: any;
   _mapboxLayerIDs: {};
-  layerLoaded: boolean = false;
+  style: any;
+  // layerLoaded: boolean = false;
   static mapLoaded: boolean = false;
-  constructor(glb, canvasLayer, tileUrl, options) {
+  layerProxy: LayerProxy;
+  layerLoaded: boolean;
+  constructor(layerProxy: LayerProxy, glb, canvasLayer, tileUrl, options) {
     // Ignore tileUrl
+    this.layerProxy = layerProxy;
     this.glb = glb;
     this.gl = glb.gl;
     $.extend(this, options);
@@ -44,12 +45,19 @@ export class MapboxLayer {
     catch (err) {
       throw ('Cannot parse Mapbox definition for layer ' + this.layerId + ' is missing or invalid JSON');
     }
+    if (this.isVisible()) {
+      this._show();
+    }
+  }
+
+  isVisible(): boolean {
+    return this.layerProxy.isVisible();
   }
 
   logPrefix() {
     return `${Utils.logPrefix()} MapboxLayer(${this.layerId})`;
   }
-  static staticLogPrefix() {
+  static logPrefix() {
     return `${Utils.logPrefix()} MapboxLayer`;
   }
   // Show layer
@@ -57,28 +65,44 @@ export class MapboxLayer {
     if (this._shown)
       return;
     this._shown = true;
-    MapboxLayer.shownLayers.push(this);
+    ETMBLayer.visibleLayers.push(this);
     this._ensureLoaded();
   }
 
   // Ensure MapboxLayer.map exists and this layer is loaded
   async _ensureLoaded() {
     if (!this._loadingPromise) {
+      console.log(`${this.logPrefix()} starting map load`);
       this._loadingPromise = this._loadFromEnsureLoaded();
     }
     await this._loadingPromise;
     return;
   }
 
+  findGroups() {
+    let groups = new Set();
+    let orderedGroups = [];
+    for (let layer of this.style.layers) {
+      let group = layer.metadata['mapbox:group'];
+      if (!groups.has(group)) {
+        groups.add(group);
+        orderedGroups.push(group);
+      }
+    }
+    return orderedGroups;
+  }
+
   // WARNING:  Use _ensureLoaded instead of _load, to make sure we don't load twice
   async _loadFromEnsureLoaded() {
+    console.log(`${this.logPrefix()} entering _loadFromEnsureLoaded`);
     var url = this.mapboxDef.style.replace('mapbox://styles/', 'https://api.mapbox.com/styles/v1/');
-    var accessToken = MapboxLayer.accessToken;
+    var accessToken = ETMBLayer.accessToken;
     let style = await (await Utils.fetchWithRetry(`${url}?access_token=${accessToken}`)).json();
     console.log(`${this.logPrefix()} receive style`, style);
 
     // Rename source and layer IDs to be unique
     this._remapStyle(style);
+    this.style = style;
 
     // Record layer IDs
     this._mapboxLayerIDs = {};
@@ -86,14 +110,18 @@ export class MapboxLayer {
       this._mapboxLayerIDs[layer.id] = true;
     }
 
-    if (!MapboxLayer._createMapPromise) {
+    console.log(`${this.logPrefix()} checking createMapPromise`);
+    if (!ETMBLayer._createMapPromise) {
+        console.log(`${this.logPrefix()} calling _createMapFromLoad`);
       // Map constructor hasn't been called yet.  Create map it and add this MapboxLayer's layers/sources/glyphs
-      MapboxLayer._createMapPromise = this._createMapFromLoad(style);
-      await MapboxLayer._createMapPromise;
+      ETMBLayer._createMapPromise = this._createMapFromLoad(style);
+      console.log(`${this.logPrefix()} awaiting _createMapPromise`);
+      await ETMBLayer._createMapPromise;
+      console.log(`${this.logPrefix()} _createMapPromise complete!`);
     } else {
       // Map constructor has been called.  Block on _createMapPromise if the map isn't yet ready
-      await MapboxLayer._createMapPromise;
-      var map = MapboxLayer.map;
+      await ETMBLayer._createMapPromise;
+      var map = ETMBLayer.map;
       for (let [sourceID, sourceDef] of Object.entries(style.sources)) {
         console.log(`${this.logPrefix()} Adding source ${sourceID}`);
         map.addSource(sourceID, sourceDef);
@@ -132,10 +160,10 @@ export class MapboxLayer {
   static mousemove(e) {
     var x = e.pageX - $(e.target).offset().left;
     var y = e.pageY - $(e.target).offset().top;
-    if (MapboxLayer.mapLoaded) {
-      var features = MapboxLayer.map.queryRenderedFeatures([x,y]);
+    if (ETMBLayer.mapLoaded) {
+      var features = ETMBLayer.map.queryRenderedFeatures([x,y]);
       for (var feature of features) {
-        console.log(`${MapboxLayer.staticLogPrefix()} mousemove ${feature.layer.id} ${JSON.stringify(feature.properties)}`);
+        console.log(`${ETMBLayer.logPrefix()} mousemove ${feature.layer.id} ${JSON.stringify(feature.properties)}`);
       }
     }
   }
@@ -153,11 +181,12 @@ export class MapboxLayer {
     var $earthTimeMapContainer = $("#timeMachine_timelapse_dataPanes")
     // Add map div with id #mapbox_map, with same size as EarthTime canvas, but offscreen
     $earthTimeMapContainer.append("<div id='mapbox_map' style='width:100%; height:100%; left:-200vw'></div>");
-    $earthTimeMapContainer.mousemove(MapboxLayer.mousemove);
-    $earthTimeMapContainer.mouseleave(MapboxLayer.mouseleave);
+    $earthTimeMapContainer.mousemove(ETMBLayer.mousemove);
+    $earthTimeMapContainer.mouseleave(ETMBLayer.mouseleave);
     
+    console.log(`${this.logPrefix()} instantiating map with style ${initialStyle}`);
     // @ts-ignore
-    MapboxLayer.map = new mapboxgl.Map({
+    ETMBLayer.map = new mapboxgl.Map({
       container: 'mapbox_map',
       style: {
         version: 8,
@@ -168,12 +197,14 @@ export class MapboxLayer {
       renderWorldCopies: false // don't show multiple earths when zooming out
     });
 
-    MapboxLayer.map.on('error', function (e) {
+    ETMBLayer.map.on('error', function (e) {
       console.log(`${Utils.logPrefix()} MapboxLayer: Mapbox error`, e);
     });
 
-    await new Promise<void>((resolve, reject) => { MapboxLayer.map.on('load', resolve); });
-    MapboxLayer.mapLoaded = true;
+    console.log(`${this.logPrefix()} waiting for map to load`);
+    await new Promise<void>((resolve, reject) => { ETMBLayer.map.on('load', resolve); });
+    ETMBLayer.mapLoaded = true;
+    console.log(`${this.logPrefix()} map is loaded`);
   }
 
   // Hide layer
@@ -182,9 +213,9 @@ export class MapboxLayer {
     if (!this._shown)
       return;
     this._shown = false;
-    console.log('_hide this=', this, 'shownLayers before', MapboxLayer.shownLayers);
-    MapboxLayer.shownLayers = MapboxLayer.shownLayers.filter(function (layer) { return layer != this; }, this);
-    console.log('shownLayers after', MapboxLayer.shownLayers);
+    console.log('_hide this=', this, 'visibleLayers before', ETMBLayer.visibleLayers);
+    ETMBLayer.visibleLayers = ETMBLayer.visibleLayers.filter(function (layer) { return layer != this; }, this);
+    console.log('visibleLayers after', ETMBLayer.visibleLayers);
   }
   destroy() {
     console.log("TODO(RS): implement MapboxLayer.destroy");
@@ -197,28 +228,47 @@ export class MapboxLayer {
   }
   // viewBounds:  xmin, xmax, ymin, ymax all in coords 0-256
   draw(view, opt_options) {
+    console.assert(false);
     if (!this._shown) {
       this._show();
     }
     if (this.layerLoaded) {
-      MapboxLayer.map._render(this._mapboxLayerIDs); // no args to _render means render all layers on map
+      ETMBLayer.map._render(); // no args to _render means render all layers on map
     }
   }
+
+  static render() {
+    for (let layerProxy of gEarthTime.layerDB.visibleLayers) {
+      if (!layerProxy.layer) {
+        layerProxy.requestLoad();
+      }
+    }
+    this.syncLayers();
+    if (this.map) {
+      this.setView();
+      // Don't wait for 'load' event;  we need to call _render beforehand to help the loading process.
+      this.map._render(); // no args to _render means render all layers on map
+    } else {
+      //console.log(`${this.staticLogPrefix()} map not yet loaded`);
+    }
+  }
+
   abortLoading() {
   }
 
-  static beginFrame() {
-    if (MapboxLayer.mapLoaded) {
+  static syncLayers() {
+    if (this.mapLoaded) {
       // Construct list of shown layers, according to layer proxy
-      var layerDBShownMapboxLayers = new Set<MapboxLayer>();
-      for (var layerProxy of gEarthTime.layerDB.shownLayers) {
-        if (layerProxy.layer instanceof MapboxLayer) {
+      var layerDBShownMapboxLayers = new Set<ETMBLayer>();
+      for (var layerProxy of gEarthTime.layerDB.visibleLayers) {
+        if (layerProxy.layer instanceof ETMBLayer) {
+          layerProxy.layer._show();
           layerDBShownMapboxLayers.add(layerProxy.layer);
         }
       }
-      var toHide: MapboxLayer[] = [];
+      var toHide: ETMBLayer[] = [];
       // Synchronize shown layers with layerDB
-      for (var layer of MapboxLayer.shownLayers) {
+      for (var layer of ETMBLayer.visibleLayers) {
         if (!layerDBShownMapboxLayers.has(layer)) {
           toHide.push(layer);
         }
@@ -232,20 +282,30 @@ export class MapboxLayer {
         if (!layer._shown) layer._show();
       }
 
-      if (!MapboxLayer.shownLayers.length) return;
+      if (!this.visibleLayers.length) return;
     }
 
-    if (MapboxLayer.map) {
+  }
+
+  static setView() {
+    if (this.map) {
       var llView = gEarthTime.timelapse.pixelCenterToLatLngCenterView(gEarthTime.timelapse.getView());
       var camera = { center: { lat: llView.center.lat, lon: llView.center.lng }, zoom: 12 + Math.log2(gEarthTime.timelapse.getView().scale) };
-      MapboxLayer.map.jumpTo(camera);
-      MapboxLayer.map._render('beginframe');
+      this.map.jumpTo(camera);
+    }
+  }
+
+  static beginFrame() {
+    this.syncLayers();
+    if (this.map) {
+      this.setView();
+      this.map._render('beginframe');
     }
   }
   static endFrame() {
-    if (MapboxLayer.mapLoaded && !MapboxLayer.shownLayers.length) return;
-    if (MapboxLayer.map) {
-      MapboxLayer.map._render('endframe');
+    if (this.mapLoaded && !this.visibleLayers.length) return;
+    if (this.map) {
+      this.map._render('endframe');
     }
   }
 }

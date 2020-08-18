@@ -3,6 +3,8 @@ import { GSheet } from './GSheet'
 import { LayerFactory } from './LayerFactory'
 import { LayerProxy } from './LayerProxy'
 import { Utils } from './Utils'
+import { ETMBLayer } from './ETMBLayer'
+import { Layer } from './Layer'
 
 class LayerCatalogEntry {
   Category: string;
@@ -11,18 +13,23 @@ class LayerCatalogEntry {
 };
 
 export class LayerDB {
+
   databaseId: GSheet;
   layerFactory: LayerFactory;
   apiUrl: string;
   layerById: {[layerId: string]: LayerProxy};
   orderedLayers: LayerProxy[] = [];
-  shownLayers: LayerProxy[] = [];
+  visibleLayers: LayerProxy[] = [];
   earthTime: EarthTime;
     
   // Please call async LayerDB.create instead
   private constructor() {}
 
   static logPrefix() {
+    return `${Utils.logPrefix()} LayerDB`;
+  }
+
+  logPrefix() {
     return `${Utils.logPrefix()} LayerDB`;
   }
 
@@ -52,13 +59,80 @@ export class LayerDB {
     return this.layerById[layerId];
   }
   
-  setShownLayers(layers: LayerProxy[]) {
-    for (var layerProxy of this.shownLayers) {
-      layerProxy._visible = false;
+  setVisibleLayers(layerProxies: LayerProxy[]) {
+    console.log(`${this.logPrefix()} setVisibleLayers: [${layerProxies.map(l => l.id)}]`)
+    if (!Utils.arrayShallowEquals(layerProxies, this.visibleLayers)) {
+      for (let layerProxy of this.visibleLayers) {
+        layerProxy._visible = false;
+      }
+      this.visibleLayers = Array.from(layerProxies);
+      for (let [i, layerProxy] of this.visibleLayers.entries()) {
+        layerProxy._visible = true;
+      }
     }
-    this.shownLayers = Array.from(layers);
-    for (var layerProxy of this.shownLayers) {
-      layerProxy._visible = true;
+  }
+
+  private _cachedLoadedLayersInDrawOrder: LayerProxy[];
+  private _cachedUnloadedLayers: LayerProxy[];
+  private _prevVisibleLayers: LayerProxy[] = [];
+  private _prevLoadedLayers: {[key:string]: Layer} = {};
+
+  loadedLayersInDrawOrder(): LayerProxy[] {
+    if (!Utils.arrayShallowEquals(this._prevVisibleLayers, this.visibleLayers)) {
+      // Invalidate cache if visibleLayers has changed
+      this._cachedLoadedLayersInDrawOrder = null;
+    } else {
+      // Invalidate cache if visibleLayers load state has changed
+      for (let layerProxy of this._prevVisibleLayers) {
+        if (layerProxy.layer != this._prevLoadedLayers[layerProxy.id]) {
+          this._cachedLoadedLayersInDrawOrder = null;
+          break;
+        }
+      }
+    }
+
+    if (!this._cachedLoadedLayersInDrawOrder) {
+      this._prevVisibleLayers = Array.from(this.visibleLayers);
+      this._prevLoadedLayers = {};
+      this._cachedUnloadedLayers = [];
+      let drawables = [];
+      for (let [i, layerProxy] of this.visibleLayers.entries()) {
+        this._prevLoadedLayers[layerProxy.id] = layerProxy.layer;
+        let layer = layerProxy.layer;
+        if (layer) {
+          if (layer.subLayers) {
+            for (let [j, sublayer] of layer.subLayers().entries()) {
+              drawables.push([layer.z, i, j, sublayer]);
+            }
+          } else {
+            drawables.push([layer.z, i, layerProxy]);
+          }
+        } else {
+          this._cachedUnloadedLayers.push(layerProxy);
+        }
+      }
+      //console.log(`${this.logPrefix()} drawbles length ${drawables.length}`);
+      drawables.sort();
+      this._cachedLoadedLayersInDrawOrder = [];
+      for (let drawable of drawables) {
+        this._cachedLoadedLayersInDrawOrder.push(drawable[drawable.length - 1]);
+      }
+      console.log(`${this.logPrefix()} loadedLayersInDrawOrder:[${this._cachedLoadedLayersInDrawOrder.map(l => l.id)}] unloadedLayers: [${this._cachedUnloadedLayers.map(l => l.id)}]`);
+    }
+    return this._cachedLoadedLayersInDrawOrder;
+  }
+
+  unloadedLayers(): LayerProxy[] {
+    this.loadedLayersInDrawOrder(); // compute cache if needed
+    return this._cachedUnloadedLayers;
+  }
+
+  mapboxLayersAreVisible() {
+    for (let layerProxy of this.visibleLayers) {
+      if (layerProxy.layer && layerProxy.layer instanceof ETMBLayer) {
+        return true;
+      }
+      return false;
     }
   }
 

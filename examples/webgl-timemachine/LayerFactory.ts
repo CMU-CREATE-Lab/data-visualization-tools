@@ -14,10 +14,10 @@ import { WebGLMapTile, WebGLMapTileShaders } from './WebGLMapTile'
 import { WebGLVectorTile2, WebGLVectorTile2Shaders } from './WebGLVectorTile2'
 
 import { Timelines } from './Timelines';
-import { LayerDef } from './LayerProxy';
+import { LayerDef, LayerProxy } from './LayerProxy';
 import { LayerOptions } from './Layer';
 import { WebGLMapTile2, WebGLMapTile2Shaders } from './WebGLMapTile2';
-import { MapboxLayer } from './MapboxLayer';
+import { ETMBLayer } from './ETMBLayer';
 
 
 // Loaded from config-local.js
@@ -123,7 +123,7 @@ export class LayerFactory {
     $('#extras-selector').append(str);
   }
 
-  createLayer(layerDef: LayerDef) {
+  createLayer(layerProxy: LayerProxy, layerDef: LayerDef) {
     // (someday) Use csv.createlab.org as translation gateway
     // url = 'http://csv.createlab.org/' + url.replace(/^https?:\/\//,'')
 
@@ -299,7 +299,7 @@ export class LayerFactory {
       overrideDrawingFns();
       WebGLLayer = WebGLTimeMachineLayer;
     } else if (layerOptions.mapType == "mapbox") {
-      WebGLLayer = MapboxLayer;
+      WebGLLayer = ETMBLayer;
     } else {
       if (layerDef["Load Data Function"]) {
         layerOptions.loadDataFunction = LayerFactory.getFunction(layerOptions.maptype, 'loadData', layerDef["Load Data Function"]);
@@ -310,7 +310,7 @@ export class LayerFactory {
       overrideDrawingFns();
     }
 
-    var layer = new WebGLLayer(gEarthTime.glb, gEarthTime.canvasLayer, url, layerOptions);
+    var layer = new WebGLLayer(layerProxy, gEarthTime.glb, gEarthTime.canvasLayer, url, layerOptions);
     layer.options = layer.options || {};
     if (layerOptions.color) {
       layer.options.color = layerOptions.color;
@@ -594,7 +594,7 @@ export class LayerFactory {
       if (layerDef["Map Type"].split("-")[0] == "extras") {
         this.addExtrasContent(layerDef);
       } else {
-        var layer = this.createLayer(layerDef);
+        var layer = this.createLayer(null, layerDef);
         if (layer.mapType == 'raster' || layer.mapType == 'timemachine') {
           //TODO: Raster and timemachine layers do not have the addDataLoadedListener callback
           this.setLegend(layer.layerId);
@@ -723,7 +723,7 @@ export class LayerFactory {
         let legend = new Legend(id, str);
       }
       $('#legend-content table tr:last').after(legend.toString());
-      let isLayerActive = (gEarthTime.layerDB.shownLayers.map(layer => layer.id)).indexOf(id) >= 0;
+      let isLayerActive = (gEarthTime.layerDB.visibleLayers.map(layer => layer.id)).indexOf(id) >= 0;
       if (layer.mapType != 'raster' && isLayerActive) {
         $("#" + id + "-legend").show();
       }

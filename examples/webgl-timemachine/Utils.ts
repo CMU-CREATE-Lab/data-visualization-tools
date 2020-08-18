@@ -1,6 +1,10 @@
 (window as any).loadStartTime = (window as any).loadStartTime || new Date().getTime();
 
 export class Utils {
+  static arrayShallowEquals(a: any[], b: any[]): boolean {
+    return a.length == b.length && a.every((val, index) => val == b[index]);
+  }
+
   // Retry fetch forever
   // TODO(rsargent): bring up a spinner or "network problems" dialog if failing for a while
   static async fetchWithRetry(url: string) {

@@ -6,12 +6,14 @@
 
 import { Layer, LayerOptions } from './Layer'
 import { WebGLVectorTile2, WebGLVectorTile2Shaders } from './WebGLVectorTile2'
+import { LayerProxy } from './LayerProxy';
 
 export class WebGLVectorLayer2 extends Layer {
   _tileUrl: string;
   epochs: any;
-  constructor(glb: any, canvasLayer: any, tileUrl: string, layerOptions: LayerOptions) {
-    super(layerOptions, WebGLVectorTile2);
+
+  constructor(layerProxy: LayerProxy, glb: any, canvasLayer: any, tileUrl: string, layerOptions: LayerOptions) {
+    super(layerProxy, layerOptions, WebGLVectorTile2);
     this._tileUrl = tileUrl;
 
     // WebGLVectorLayer2 defaults

@@ -35,7 +35,7 @@ export class AltitudeSlider {
         animate: "fast",
         create: updateSliderValue,
         slide: function(event, ui) {
-          var dataLayer = this.earthTime.layerDB.shownLayers[this.earthTime.layerDB.shownLayers.length - 1]; //TODO: debug this line with use of this.altitudeLayer
+          var dataLayer = this.earthTime.layerDB.visibleLayers[this.earthTime.layerDB.visibleLayers.length - 1]; //TODO: debug this line with use of this.altitudeLayer
           var logVal = Math.round(Math.pow(1.05, ui.value));
           dataLayer.updateData({
             options: {
@@ -49,7 +49,7 @@ export class AltitudeSlider {
   }
   // Update altitude layer stored in AltitudeSlider object
   checkAltitudeLayer(layerList = null) {
-    layerList = layerList || this.earthTime.layerDB.shownLayers;
+    layerList = layerList || this.earthTime.layerDB.visibleLayers;
     this.altitudeLayer = null;
     for (let layer of layerList) {
       if (layer.setDataOptions && layer.setDataOptions.hasAltitude) {

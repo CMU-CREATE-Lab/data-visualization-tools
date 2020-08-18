@@ -48,8 +48,8 @@ import { DateRangePicker } from './dateRangePicker';
 import { GSheet } from './GSheet';
 (window as any).dbg.GSheet = GSheet;
 
-import { MapboxLayer } from './MapboxLayer'
-(window as any).dbg.MapboxLayer = MapboxLayer;
+import { ETMBLayer } from './ETMBLayer'
+(window as any).dbg.MapboxLayer = ETMBLayer;
 
 import { Glb } from './Glb';
 import { Timeline } from './Timeline';
@@ -151,7 +151,7 @@ if (typeof(EARTH_TIMELAPSE_CONFIG.csvLayersContentPath) === "undefined") {
 
 
 class EarthTimeImpl implements EarthTime {
-  layerDB = null;
+  layerDB: LayerDB = null;
   layerDBPromise = null;
   timelapse = null;
   rootTilePath = null;
@@ -275,11 +275,11 @@ class EarthTimeImpl implements EarthTime {
     return this.currentDate().getTime() / 1000;
   }
 
-  // Currently active timeline, computed as last non-empty timeline from shownLayers
+  // Currently active timeline, computed as last non-empty timeline from visibleLayers
   timeline(): Timeline {
-    let shownLayers = this.layerDB.shownLayers;
-    for (let i = shownLayers.length - 1; i >= 0; i--) {
-      let timeline = shownLayers[i].layer && shownLayers[i].layer.timeline;
+    let visibleLayers = this.layerDB.visibleLayers;
+    for (let i = visibleLayers.length - 1; i >= 0; i--) {
+      let timeline = visibleLayers[i].layer && visibleLayers[i].layer.timeline;
       if (timeline && timeline.startDate != timeline.endDate) {
         return timeline;
       }
@@ -1317,7 +1317,8 @@ function cacheLastUsedLayer(layer) {
   }
 }
 
-function handleLayers(layers) {
+async function handleLayers(layers: string[]) {
+  await gEarthTime.layerDBPromise;
   var layerProxies = [];
   for (var layerId of layers) {
     var layerProxy = gEarthTime.layerDB.getLayer(layerId);
@@ -1327,7 +1328,7 @@ function handleLayers(layers) {
       console.log(`${Utils.logPrefix()} handlelayers: Cannot find layer ${layerId}`);
     }
   }
-  gEarthTime.layerDB.setShownLayers(layerProxies);
+  gEarthTime.layerDB.setVisibleLayers(layerProxies);
 
   // // Clear out all layers that were checked
   // $(".map-layer-div").find("input[type='checkbox']:checked").trigger("click");
@@ -3036,14 +3037,14 @@ function initLayerToggleUI() {
     var $toggledLayerElm = $(e.target);
     var toggledLayerId = $toggledLayerElm.parent("label").attr("name");
 
-    let layersToBeDrawn = Array.from(gEarthTime.layerDB.shownLayers);
+    let layersToBeDrawn = Array.from(gEarthTime.layerDB.visibleLayers);
     let clickedLayer = gEarthTime.layerDB.getLayer(toggledLayerId);
     if ($toggledLayerElm.prop("checked")) {
       layersToBeDrawn.push(clickedLayer);
-      gEarthTime.layerDB.setShownLayers(layersToBeDrawn);
+      gEarthTime.layerDB.setVisibleLayers(layersToBeDrawn);
     } else {
       layersToBeDrawn.splice(layersToBeDrawn.indexOf(clickedLayer), 1);
-      gEarthTime.layerDB.setShownLayers(layersToBeDrawn);
+      gEarthTime.layerDB.setVisibleLayers(layersToBeDrawn);
     }
 
     return;
@@ -4463,7 +4464,7 @@ async function setupUIAndOldLayers() {
 /////////////
 /////////////  var baseMapLayerOptions = isHyperwall ? retinaMapLayerOptions : defaultBaseMapLayerOptions;
 ////////////
-lightBaseMapLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, lightMapUrl, defaultBaseMapLayerOptions as LayerOptions);
+lightBaseMapLayer = new WebGLMapLayer(null, gEarthTime.glb, gEarthTime.canvasLayer, lightMapUrl, defaultBaseMapLayerOptions as LayerOptions);
 /////////////  darkBaseMapLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, darkMapUrl, defaultBaseMapLayerOptions);
 /////////////  hansenMapLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, gfcTransUrl, defaultMapLayerOptions);
 /////////////  hansenMapLayer2 = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, gfcLossGainUrl, defaultMapLayerOptions);
@@ -4914,19 +4915,8 @@ lightBaseMapLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, li
       himawariIdx = himawariIdx > -1 ? himawariIdx : waypointLayers.indexOf("h8_16");
       if (himawariIdx > -1) waypointLayers.splice(himawariIdx, 1);
 
-      // Handle layers
-      // If we are coming from an initial page load, then a waypoint may have loaded before the layer list has been populated.
-      // Keep checking whether the layer list is ready and then finally apply the waypoint's layers.
-      if (!loadedInitialCsvLayers) {
-        waitToLoadWaypointLayersOnPageReadyInterval = setInterval(function() {
-          if (loadedInitialCsvLayers) {
-            handleLayers(waypointLayers);
-            clearInterval(waitToLoadWaypointLayersOnPageReadyInterval);
-          }
-        }, 250);
-      } else {
-        handleLayers(waypointLayers);
-      }
+      // Show layer ids
+      handleLayers(waypointLayers);
 
       if (waypoint.layers && waypoint.layers.indexOf("blsat") >= 0) {
         gEarthTime.timelapse.setMaxScale(landsatMaxScale);
@@ -6401,13 +6391,10 @@ function update() {
 
   gEarthTime.updateTimelineIfNeeded();
 
-
-
   gEarthTime.timelapse.frameno = (gEarthTime.timelapse.frameno || 0) + 1;
 
   perf_drawframe();
   gl.clear(gl.COLOR_BUFFER_BIT);
-  MapboxLayer.beginFrame();
 
   // Set this to true at the beginning of frame redraw;  any layer that decides it wasn't completely drawn will set
   // this to false upon draw below
@@ -6440,7 +6427,6 @@ function update() {
     return view;
   };
 
-
   function layerCountDrawnPoints(layer) {
     var keys = Object.keys(layer._tileView._tiles);
     var pointCount = 0;
@@ -6468,15 +6454,27 @@ function update() {
     return layer.draw(getLayerView(layer, null), options);
   }
 
-  for (let layer of gEarthTime.layerDB.shownLayers) {
-    drawCsvLayer(layer, {});
+  var mapboxRenders = false;
+  
+
+  if (gEarthTime.layerDB.mapboxLayersAreVisible()) {
+    console.log("YO!  let's reimplement mapbox layer display")
+    //ETMBLayer.render();
+  } else {
+    for (let layerProxy of gEarthTime.layerDB.loadedLayersInDrawOrder()) {
+      drawCsvLayer(layerProxy, {});
+    }
+  }
+  for (let layerProxy of gEarthTime.layerDB.unloadedLayers()) {
+    if (!layerProxy.layer) {
+      layerProxy.requestLoad();
+    }
   }
 
   ////////////////////////////////////////////////////////////////
   // LAYERDB
 
   /** END NS LAYER */
-  MapboxLayer.endFrame();
 
   return;
 
@@ -8124,8 +8122,8 @@ async function init() {
   //  gEarthTime.layerDB.layerById[id].show();
   //}
   var layerDB = gEarthTime.layerDB;
-  layerDB.setShownLayers([
-    //layerDB.getLayer('bdrk'),
+  layerDB.setVisibleLayers([
+    layerDB.getLayer('bdrk')
     //layerDB.getLayer('mapbox_grocery_convenience_allegheny_county')
     //layerDB.getLayer('cb'),
     //layerDB.getLayer('mapbox_dark_map'),

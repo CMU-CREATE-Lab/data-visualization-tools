@@ -2,12 +2,13 @@
 
 import { WebGLMapTile2 } from './WebGLMapTile2'
 import { Layer, LayerOptions } from './Layer'
+import { LayerProxy } from './LayerProxy';
 
 export class WebGLMapLayer2 extends Layer {
   fileExtension: any;
   _tileUrls: any[];
-  constructor(glb: any, canvasLayer: any, tileUrls: string | any[], layerOptions: LayerOptions) {
-    super(layerOptions, WebGLMapTile2);
+  constructor(layerProxy: LayerProxy, glb: any, canvasLayer: any, tileUrls: string | any[], layerOptions: LayerOptions) {
+    super(layerProxy, layerOptions, WebGLMapTile2);
     this._tileUrls = [];
     for (var i = 0; i < tileUrls.length; i++) {
       this._tileUrls[i] = tileUrls[i].replace("{default}/", "");

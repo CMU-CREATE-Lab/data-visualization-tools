@@ -1,0 +1,46 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Edge",
+            "request": "launch",
+            "type": "pwa-msedge",
+            "url": "https://rsargent.earthtime.org/stories/testrs",
+            "webRoot": "${workspaceFolder}"
+        },
+        {
+            "type": "firefox",
+            "request": "launch",
+            "reAttach": true,
+            "name": "Launch FireFox",
+            "url": "https://rsargent.earthtime.org/stories/testrs",
+            "webRoot": "${workspaceFolder}",
+            "clearConsoleOnReload": true,
+            "suggestPathMappingWizard": true,
+            "pathMappings": [
+                {
+                    "url": "https://rsargent.earthtime.org/timemachine/js/org/gigapan/util.js",
+                    "path": "rsargent.earthtime.org/timemachine/js/org/gigapan/util.js"
+                },
+                {
+                    "url": "https://rsargent.earthtime.org/stories/index.ts",
+                    "path": "${workspaceFolder}/index.ts"
+                },
+                {
+                    "url": "https://rsargent.earthtime.org/stories/index.ts",
+                    "path": "${workspaceFolder}/index.ts"
+                }
+            ]
+        },
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Launch Chrome",
+            "url": "https://rsargent.earthtime.org/stories/testrs",
+            "webRoot": "${workspaceFolder}"
+        }
+    ]
+}

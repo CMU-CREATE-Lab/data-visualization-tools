@@ -196,7 +196,7 @@ export class DateRangePicker {
       }
       else if (origin == "fromDataLibrary") { // date range from last selected layer
         var lastCalLayer = this.calendarLayersList[this.calendarLayersList.length - 1];
-        var lastActive = this.earthTime.layerDB.shownLayers[this.earthTime.layerDB.shownLayers.length - 1];
+        var lastActive = this.earthTime.layerDB.visibleLayers[this.earthTime.layerDB.visibleLayers.length - 1];
 
         if (lastCalLayer != lastActive) {
           // if last selected layer is not a calendar layer
@@ -276,7 +276,7 @@ export class DateRangePicker {
   }
   // Update list of calendar layers stored in DateRangePicker object
   updateCalendarLayersList(layerList=null) {
-    layerList = layerList || this.earthTime.layerDB.shownLayers;
+    layerList = layerList || this.earthTime.layerDB.visibleLayers;
     this.calendarLayersList = [];
     for (let layer of layerList) {
       if (layer.setDataOptions && layer.setDataOptions.hasExtendedData) {
