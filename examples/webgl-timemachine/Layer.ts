@@ -95,7 +95,7 @@ export class LayerOptions {
     numAttributes: number;
     vertexShader: string;
     fragmentShader: string;
-    z: number;
+    drawOrder: number;
     loadDataFunction: any; // TODO
     dataLoadedFunction: any; // TODO
     colormap?: any;
@@ -126,7 +126,8 @@ export class LayerOptions {
     // null if we don't yet have enough information to create a Timeline
     timeline: Timeline = null;
     defaultUrl: string;
-    subLayers?: () => any[];
+    getSubLayers?: () => any[];
+    isLoaded?: () => boolean;
 
     constructor(layerProxy: LayerProxy, layerOptions: LayerOptions, tileClass: typeof Tile) {
       super(layerOptions);

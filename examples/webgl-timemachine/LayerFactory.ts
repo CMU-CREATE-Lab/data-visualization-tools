@@ -159,7 +159,7 @@ export class LayerFactory {
       nLevels: layerDef["Number of Levels"] ? parseInt(layerDef["Number of Levels"]) : 0,
       imageSrc: layerDef["Colormap Src"] || null,
       // By default, most CSV layers draw at z=400.  Raster and choropleths by default will draw at z=200.  New raster base maps will draw at z=100.
-      z: 400,
+      drawOrder: 400,
       avoidShowingChildAndParent: false,
       useTmJsonTimeTicks: false,
       maptype: null,
@@ -247,9 +247,9 @@ export class LayerFactory {
 
     if (layerOptions.mapType == 'raster') {
       if (layerOptions.category == "Base Maps") {
-        layerOptions.z = 100;
+        layerOptions.drawOrder = 100;
       } else {
-        layerOptions.z = 200;
+        layerOptions.drawOrder = 200;
       }
       WebGLLayer = WebGLMapLayer;
       url = eval(url);
@@ -275,7 +275,7 @@ export class LayerFactory {
     } else if (layerOptions.mapType == "choropleth") {
       layerOptions.avoidShowingChildAndParent = true;
       layerOptions.imageSrc = layerOptions.imageSrc || "https://tiles.earthtime.org/colormaps/obesity-color-map.png";
-      layerOptions.z = 200;
+      layerOptions.drawOrder = 200;
       layerOptions.loadDataFunction = WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv;
       layerOptions.drawFunction = WebGLVectorTile2.prototype._drawChoroplethMap;
       layerOptions.fragmentShader = WebGLVectorTile2Shaders.choroplethMapFragmentShader;

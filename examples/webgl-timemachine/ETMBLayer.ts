@@ -5,39 +5,44 @@ import { Utils } from './Utils';
 
 import mapboxgl from './mapbox/mapbox-gl-dev-patched-1.11.1';
 import { LayerProxy } from './LayerProxy';
+import { Glb } from './Glb';
+import { LayerOptions } from './Layer';
 
 export class ETMapboxSublayer {
   layer: ETMBLayer;
   id: string;
+  drawOrder: number;
+  constructor(layer: ETMBLayer, id: string, drawOrder: number) {
+    this.layer = layer;
+    this.id = id;
+    this.drawOrder = drawOrder;
+  }
 };
 
 // EarthTime layer that contains a single Mapbox style
 // If there are multiple ETMBLayers visible, they will be composited into a single Mapbox map
-export class ETMBLayer {
-  glb: any;
-  gl: any;
+export class ETMBLayer extends LayerOptions {
   mapboxDef: any;
   layerDef: any;
   layerId: string;
   static map: any = null;
+  static mapLoaded: boolean = false;
   _shown: any;
   static visibleLayers: ETMBLayer[] = [];
   static accessToken: string = 'pk.eyJ1IjoicmFuZHlzYXJnZW50IiwiYSI6ImNrMDYzdGl3bDA3bTUzc3Fkb3o4cjc3YXgifQ.nn7FC9cpRl_THWpoAFnnow';
-  styleIsLoaded: boolean;
   static _createMapPromise: any;
+
   _loadingPromise: any;
+  _loaded: boolean = false;
+  
   _mapboxLayerIDs: {};
   style: any;
-  // layerLoaded: boolean = false;
-  static mapLoaded: boolean = false;
   layerProxy: LayerProxy;
-  layerLoaded: boolean;
-  constructor(layerProxy: LayerProxy, glb, canvasLayer, tileUrl, options) {
+  _subLayers: ETMapboxSublayer[];
+  constructor(layerProxy: LayerProxy, glb: Glb, canvasLayer, tileUrl: string, layerOptions: LayerOptions) {
+    super(layerOptions);
     // Ignore tileUrl
     this.layerProxy = layerProxy;
-    this.glb = glb;
-    this.gl = glb.gl;
-    $.extend(this, options);
     console.log(`${this.logPrefix()} constructing`);
     try {
       this.mapboxDef = JSON.parse(this.layerDef.Mapbox);
@@ -45,9 +50,17 @@ export class ETMBLayer {
     catch (err) {
       throw ('Cannot parse Mapbox definition for layer ' + this.layerId + ' is missing or invalid JSON');
     }
+    this._ensureLoaded();
     if (this.isVisible()) {
       this._show();
     }
+  }
+  getSubLayers(): ETMapboxSublayer[] {
+    return this._subLayers;
+  }
+
+  isLoaded(): boolean {
+    return this._loaded;
   }
 
   isVisible(): boolean {
@@ -76,6 +89,7 @@ export class ETMBLayer {
       this._loadingPromise = this._loadFromEnsureLoaded();
     }
     await this._loadingPromise;
+    this._loaded = true;
     return;
   }
 
@@ -108,31 +122,35 @@ export class ETMBLayer {
     this._mapboxLayerIDs = {};
     for (let layer of style.layers) {
       this._mapboxLayerIDs[layer.id] = true;
+      let drawOrder = 400;
+      this._subLayers.push(new ETMapboxSublayer(this, layer.id, drawOrder));
     }
 
-    console.log(`${this.logPrefix()} checking createMapPromise`);
-    if (!ETMBLayer._createMapPromise) {
-        console.log(`${this.logPrefix()} calling _createMapFromLoad`);
-      // Map constructor hasn't been called yet.  Create map it and add this MapboxLayer's layers/sources/glyphs
-      ETMBLayer._createMapPromise = this._createMapFromLoad(style);
-      console.log(`${this.logPrefix()} awaiting _createMapPromise`);
-      await ETMBLayer._createMapPromise;
-      console.log(`${this.logPrefix()} _createMapPromise complete!`);
-    } else {
-      // Map constructor has been called.  Block on _createMapPromise if the map isn't yet ready
-      await ETMBLayer._createMapPromise;
-      var map = ETMBLayer.map;
-      for (let [sourceID, sourceDef] of Object.entries(style.sources)) {
-        console.log(`${this.logPrefix()} Adding source ${sourceID}`);
-        map.addSource(sourceID, sourceDef);
-      }
-      for (let layer of style.layers) {
-        console.log(`${this.logPrefix()} Adding layer ${layer.id}`)
-        map.addLayer(layer);
-      }
-      console.log(`${this.logPrefix()} TO DO: add glyphs?`);
-    }
-    this.layerLoaded = true; 
+    // Create ET
+
+    // console.log(`${this.logPrefix()} checking createMapPromise`);
+    // if (!ETMBLayer._createMapPromise) {
+    //     console.log(`${this.logPrefix()} calling _createMapFromLoad`);
+    //   // Map constructor hasn't been called yet.  Create map it and add this MapboxLayer's layers/sources/glyphs
+    //   ETMBLayer._createMapPromise = this._createMapFromLoad(style);
+    //   console.log(`${this.logPrefix()} awaiting _createMapPromise`);
+    //   await ETMBLayer._createMapPromise;
+    //   console.log(`${this.logPrefix()} _createMapPromise complete!`);
+    // } else {
+    //   // Map constructor has been called.  Block on _createMapPromise if the map isn't yet ready
+    //   await ETMBLayer._createMapPromise;
+    //   var map = ETMBLayer.map;
+    //   for (let [sourceID, sourceDef] of Object.entries(style.sources)) {
+    //     console.log(`${this.logPrefix()} Adding source ${sourceID}`);
+    //     map.addSource(sourceID, sourceDef);
+    //   }
+    //   for (let layer of style.layers) {
+    //     console.log(`${this.logPrefix()} Adding layer ${layer.id}`)
+    //     map.addLayer(layer);
+    //   }
+    //   console.log(`${this.logPrefix()} TO DO: add glyphs?`);
+    // }
+    this._loaded = true; 
   }
 
   _remapStyle(style) {
@@ -232,7 +250,7 @@ export class ETMBLayer {
     if (!this._shown) {
       this._show();
     }
-    if (this.layerLoaded) {
+    if (this._loaded) {
       ETMBLayer.map._render(); // no args to _render means render all layers on map
     }
   }

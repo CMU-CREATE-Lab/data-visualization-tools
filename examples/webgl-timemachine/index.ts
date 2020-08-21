@@ -6465,11 +6465,6 @@ function update() {
       drawCsvLayer(layerProxy, {});
     }
   }
-  for (let layerProxy of gEarthTime.layerDB.unloadedLayers()) {
-    if (!layerProxy.layer) {
-      layerProxy.requestLoad();
-    }
-  }
 
   ////////////////////////////////////////////////////////////////
   // LAYERDB

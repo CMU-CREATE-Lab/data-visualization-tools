@@ -95,6 +95,7 @@ export class WebGLVectorTile2 extends Tile {
     this._layer = layer;
     this._url = tileidx.expandUrl(this._layer._tileUrl, this._layer);
     this._ready = false;
+    
 
     var opt_options = opt_options || {};
     this.draw = opt_options.drawFunction || this._drawLines;
@@ -2017,6 +2018,7 @@ export class WebGLVectorTile2 extends Tile {
       //perf_draw_lines(this._pointCount);
     }
   }
+
   // Used by coral
   _drawPoints(transform: Float32Array) {
     var gl = this.gl;
@@ -2148,6 +2150,7 @@ export class WebGLVectorTile2 extends Tile {
     }
   }
 
+  // Warning:  bubbleScaleRange will invalidate the standard numeric legend
   _drawBubbleMap(transform: Float32Array) {
     var bubbleScale = 1;
     var drawOptions = this._layer.drawOptions;
@@ -2569,9 +2572,7 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
-      var drawOptions = this._layer.drawOptions;
-      var subsampleAnnualRefugees = drawOptions.subsampleAnnualRefugees;
-      var pointIdx = drawOptions.pointIdx || {};
+      var drawOptions = this._layer.drawOptions as {span:number};
       var pointSize = Math.floor(((20 - 5) * (gEarthTime.gmapsZoomLevel() - 0) / (21 - 0)) + 5);
       if (isNaN(pointSize)) {
         pointSize = 1.0;
@@ -2585,7 +2586,8 @@ export class WebGLVectorTile2 extends Tile {
       gl.uniformMatrix4fv(this.program.uMapMatrix, false, tileTransform);
 
       gl.uniform1f(this.program.uEpoch, gEarthTime.currentEpochTime());
-      gl.uniform1f(this.program.uSpan, drawOptions.span / 1000.);
+
+      gl.uniform1f(this.program.uSpan, drawOptions.span ?? 240 * 24 * 60 * 60); // default to 240 days
 
       this.program.setVertexAttrib.aStartPoint(2, gl.FLOAT, false, 28, 0);
       this.program.setVertexAttrib.aEndPoint(2, gl.FLOAT, false, 28, 8);
@@ -2596,24 +2598,7 @@ export class WebGLVectorTile2 extends Tile {
       gl.bindTexture(gl.TEXTURE_2D, this._texture);
       gl.uniform1i(this.program.u_Image, 0);
 
-      if (subsampleAnnualRefugees) {
-        gl.drawArrays(gl.POINTS, 0, this._pointCount);
-      }
-      else {
-        var year = gEarthTime.currentDate().getUTCFullYear();
-        year = Math.min(year, 2015);
-        var count: any;
-        if (year < 2001) {
-          year = 2001;
-        }
-        if (year != 2015) {
-          count = pointIdx[year]['count'] + pointIdx[year + 1]['count'] * 0.75;
-        }
-        else {
-          count = pointIdx[year]['count'];
-        }
-        gl.drawArrays(gl.POINTS, pointIdx[year]['start'], count);
-      }
+      gl.drawArrays(gl.POINTS, 0, this._pointCount);
       gl.bindTexture(gl.TEXTURE_2D, null);
       gl.disable(gl.BLEND);
     }

@@ -13,7 +13,6 @@ class LayerCatalogEntry {
 };
 
 export class LayerDB {
-
   databaseId: GSheet;
   layerFactory: LayerFactory;
   apiUrl: string;
@@ -41,7 +40,6 @@ export class LayerDB {
     ret.databaseId = databaseId;
     ret.apiUrl = opts.apiUrl || 'https://api.earthtime.org/';
     console.assert(ret.apiUrl.substr(-1) == '/', 'apiUrl must end with "/"')
-    ret.earthTime = opts.earthTime;
     ret.layerById = {};
 
     // Read layer catalog
@@ -68,14 +66,14 @@ export class LayerDB {
       this.visibleLayers = Array.from(layerProxies);
       for (let [i, layerProxy] of this.visibleLayers.entries()) {
         layerProxy._visible = true;
+        layerProxy.requestLoad();
       }
     }
   }
 
   private _cachedLoadedLayersInDrawOrder: LayerProxy[];
-  private _cachedUnloadedLayers: LayerProxy[];
   private _prevVisibleLayers: LayerProxy[] = [];
-  private _prevLoadedLayers: {[key:string]: Layer} = {};
+  private _prevLoadStates: {[key:string]: boolean} = {};
 
   loadedLayersInDrawOrder(): LayerProxy[] {
     if (!Utils.arrayShallowEquals(this._prevVisibleLayers, this.visibleLayers)) {
@@ -84,7 +82,7 @@ export class LayerDB {
     } else {
       // Invalidate cache if visibleLayers load state has changed
       for (let layerProxy of this._prevVisibleLayers) {
-        if (layerProxy.layer != this._prevLoadedLayers[layerProxy.id]) {
+        if (layerProxy.isLoaded() !== this._prevLoadStates[layerProxy.id]) {
           this._cachedLoadedLayersInDrawOrder = null;
           break;
         }
@@ -93,22 +91,19 @@ export class LayerDB {
 
     if (!this._cachedLoadedLayersInDrawOrder) {
       this._prevVisibleLayers = Array.from(this.visibleLayers);
-      this._prevLoadedLayers = {};
-      this._cachedUnloadedLayers = [];
+      this._prevLoadStates = {};
       let drawables = [];
       for (let [i, layerProxy] of this.visibleLayers.entries()) {
-        this._prevLoadedLayers[layerProxy.id] = layerProxy.layer;
+        this._prevLoadStates[layerProxy.id] = layerProxy.isLoaded();
         let layer = layerProxy.layer;
         if (layer) {
-          if (layer.subLayers) {
-            for (let [j, sublayer] of layer.subLayers().entries()) {
-              drawables.push([layer.z, i, j, sublayer]);
+          if (layer.getSubLayers) {
+            for (let [j, sublayer] of layer.getSubLayers().entries()) {
+              drawables.push([layer.drawOrder, i, j, sublayer]);
             }
           } else {
-            drawables.push([layer.z, i, layerProxy]);
+            drawables.push([layer.drawOrder, i, layerProxy]);
           }
-        } else {
-          this._cachedUnloadedLayers.push(layerProxy);
         }
       }
       //console.log(`${this.logPrefix()} drawbles length ${drawables.length}`);
@@ -117,14 +112,9 @@ export class LayerDB {
       for (let drawable of drawables) {
         this._cachedLoadedLayersInDrawOrder.push(drawable[drawable.length - 1]);
       }
-      console.log(`${this.logPrefix()} loadedLayersInDrawOrder:[${this._cachedLoadedLayersInDrawOrder.map(l => l.id)}] unloadedLayers: [${this._cachedUnloadedLayers.map(l => l.id)}]`);
+      console.log(`${this.logPrefix()} loadedLayersInDrawOrder:[${this._cachedLoadedLayersInDrawOrder.map(l => l.id)}]`);
     }
     return this._cachedLoadedLayersInDrawOrder;
-  }
-
-  unloadedLayers(): LayerProxy[] {
-    this.loadedLayersInDrawOrder(); // compute cache if needed
-    return this._cachedUnloadedLayers;
   }
 
   mapboxLayersAreVisible() {

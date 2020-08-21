@@ -45,8 +45,18 @@ export class LayerProxy {
   }
 
   requestLoad() {
-    if (!this._loaded && !this._loadingPromise) {
+    if (!this.layer && !this._loadingPromise) {
       this._loadingPromise = this._load();
+    }
+  }
+
+  isLoaded(): boolean {
+    if (!this.layer) {
+      return false;
+    } else if (this.layer.isLoaded) {
+      return this.layer.isLoaded();
+    } else {
+      return true;
     }
   }
 
@@ -56,12 +66,11 @@ export class LayerProxy {
     let layerDef: LayerDef = await (await Utils.fetchWithRetry(url)).json();
     this.layer = this.database.layerFactory.createLayer(this, layerDef);
     console.log(`${this.logPrefix()} Loaded, layer=`, this.layer);
-    this._loaded = true;
   }
 
   // Signal layer didn't completely draw by returning false, or settings timelapse.lastFrameCompletelyDrawn false
   draw(view, options) {
-    if (this._loaded) {
+    if (this.isLoaded()) {
       this.layer.draw(view, options);
       return undefined;
     } else {
