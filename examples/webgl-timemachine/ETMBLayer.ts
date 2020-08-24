@@ -73,6 +73,7 @@ export class ETMBLayer extends LayerOptions {
   static logPrefix() {
     return `${Utils.logPrefix()} MapboxLayer`;
   }
+
   // Show layer
   _show() {
     if (this._shown)
@@ -82,7 +83,7 @@ export class ETMBLayer extends LayerOptions {
     this._ensureLoaded();
   }
 
-  // Ensure MapboxLayer.map exists and this layer is loaded
+  // Ensure layer is loaded
   async _ensureLoaded() {
     if (!this._loadingPromise) {
       console.log(`${this.logPrefix()} starting map load`);
@@ -106,6 +107,19 @@ export class ETMBLayer extends LayerOptions {
     return orderedGroups;
   }
 
+  static async _loadMap() {
+        // console.log(`${this.logPrefix()} checking createMapPromise`);
+    // if (!ETMBLayer._createMapPromise) {
+    //     console.log(`${this.logPrefix()} calling _createMapFromLoad`);
+    //   // Map constructor hasn't been called yet.  Create map it and add this MapboxLayer's layers/sources/glyphs
+    //   ETMBLayer._createMapPromise = this._createMapFromLoad(style);
+    //   console.log(`${this.logPrefix()} awaiting _createMapPromise`);
+    //   await ETMBLayer._createMapPromise;
+    //   console.log(`${this.logPrefix()} _createMapPromise complete!`);
+    // } else {
+
+  }
+
   // WARNING:  Use _ensureLoaded instead of _load, to make sure we don't load twice
   async _loadFromEnsureLoaded() {
     console.log(`${this.logPrefix()} entering _loadFromEnsureLoaded`);
@@ -120,6 +134,7 @@ export class ETMBLayer extends LayerOptions {
 
     // Record layer IDs
     this._mapboxLayerIDs = {};
+    this._subLayers = [];
     for (let layer of style.layers) {
       this._mapboxLayerIDs[layer.id] = true;
       let drawOrder = 400;
@@ -128,28 +143,14 @@ export class ETMBLayer extends LayerOptions {
 
     // Create ET
 
-    // console.log(`${this.logPrefix()} checking createMapPromise`);
-    // if (!ETMBLayer._createMapPromise) {
-    //     console.log(`${this.logPrefix()} calling _createMapFromLoad`);
-    //   // Map constructor hasn't been called yet.  Create map it and add this MapboxLayer's layers/sources/glyphs
-    //   ETMBLayer._createMapPromise = this._createMapFromLoad(style);
-    //   console.log(`${this.logPrefix()} awaiting _createMapPromise`);
-    //   await ETMBLayer._createMapPromise;
-    //   console.log(`${this.logPrefix()} _createMapPromise complete!`);
-    // } else {
-    //   // Map constructor has been called.  Block on _createMapPromise if the map isn't yet ready
-    //   await ETMBLayer._createMapPromise;
-    //   var map = ETMBLayer.map;
-    //   for (let [sourceID, sourceDef] of Object.entries(style.sources)) {
-    //     console.log(`${this.logPrefix()} Adding source ${sourceID}`);
-    //     map.addSource(sourceID, sourceDef);
-    //   }
-    //   for (let layer of style.layers) {
-    //     console.log(`${this.logPrefix()} Adding layer ${layer.id}`)
-    //     map.addLayer(layer);
-    //   }
-    //   console.log(`${this.logPrefix()} TO DO: add glyphs?`);
-    // }
+    if (!ETMBLayer._createMapPromise) {
+        console.log(`${this.logPrefix()} calling _createMapFromLoad`);
+      // Map constructor hasn't been called yet.  Create map it and add this MapboxLayer's layers/sources/glyphs
+      ETMBLayer._createMapPromise = this._createMapFromLoad(style);
+      console.log(`${this.logPrefix()} awaiting _createMapPromise`);
+      await ETMBLayer._createMapPromise;
+      console.log(`${this.logPrefix()} _createMapPromise complete!`);
+    }
     this._loaded = true; 
   }
 
@@ -181,13 +182,13 @@ export class ETMBLayer extends LayerOptions {
     if (ETMBLayer.mapLoaded) {
       var features = ETMBLayer.map.queryRenderedFeatures([x,y]);
       for (var feature of features) {
-        console.log(`${ETMBLayer.logPrefix()} mousemove ${feature.layer.id} ${JSON.stringify(feature.properties)}`);
+        //console.log(`${ETMBLayer.logPrefix()} mousemove ${feature.layer.id} ${JSON.stringify(feature.properties)}`);
       }
     }
   }
 
   static mouseleave(e) {
-    console.log('mouseleave', e);
+    //console.log('mouseleave', e);
   }
 
   // Don't use this directly; use _ensureLoaded instead
@@ -202,7 +203,6 @@ export class ETMBLayer extends LayerOptions {
     $earthTimeMapContainer.mousemove(ETMBLayer.mousemove);
     $earthTimeMapContainer.mouseleave(ETMBLayer.mouseleave);
     
-    console.log(`${this.logPrefix()} instantiating map with style ${initialStyle}`);
     // @ts-ignore
     ETMBLayer.map = new mapboxgl.Map({
       container: 'mapbox_map',
@@ -256,7 +256,7 @@ export class ETMBLayer extends LayerOptions {
   }
 
   static render() {
-    for (let layerProxy of gEarthTime.layerDB.visibleLayers) {
+    for (let layerProxy of gEarthTime.layerDB.loadedLayersInDrawOrder()) {
       if (!layerProxy.layer) {
         layerProxy.requestLoad();
       }

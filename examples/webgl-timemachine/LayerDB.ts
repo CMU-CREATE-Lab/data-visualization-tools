@@ -97,7 +97,7 @@ export class LayerDB {
         this._prevLoadStates[layerProxy.id] = layerProxy.isLoaded();
         let layer = layerProxy.layer;
         if (layer) {
-          if (layer.getSubLayers) {
+          if (layer.hasOwnProperty('getSubLayers')) {
             for (let [j, sublayer] of layer.getSubLayers().entries()) {
               drawables.push([layer.drawOrder, i, j, sublayer]);
             }

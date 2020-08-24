@@ -27,6 +27,7 @@ export class LayerProxy {
   options: any; // TODO: consider moving things out of options and using setDataOptions, drawOptions
   layer: Layer = null;
   _effectiveDrawOrder: any[];
+  layerDef: LayerDef;
 
   constructor(id: string, name: string, category: string, database: LayerDB) {
     console.assert(LayerProxy.isValidId(id));
@@ -63,7 +64,15 @@ export class LayerProxy {
   async _load() {
     let url = `${this.database.apiUrl}layer-catalogs/${this.database.databaseId.file_id_gid()}/layers/${this.id}`
     console.log(`${this.logPrefix()} Fetching ${url}`)
-    let layerDef: LayerDef = await (await Utils.fetchWithRetry(url)).json();
+    this._load_with_layerdef(await (await Utils.fetchWithRetry(url)).json());
+  }
+
+  _load_with_layerdef(layerDef: LayerDef) {
+    if (this.layer) {
+      this.layer.destroy();
+      this.layer = null;
+    }
+    this.layerDef = layerDef;
     this.layer = this.database.layerFactory.createLayer(this, layerDef);
     console.log(`${this.logPrefix()} Loaded, layer=`, this.layer);
   }

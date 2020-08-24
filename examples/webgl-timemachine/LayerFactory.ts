@@ -579,55 +579,6 @@ export class LayerFactory {
     }
   }
 
-  loadLayersFromTsv(layerDefinitions: any) {
-    this.layersData = Papa.parse(layerDefinitions, {delimiter: "\t", header: true});
-
-    for (var i =  0; i < this.layersData.data.length; i++) {
-      var layerDef = this.layersData.data[i];
-      // Trim whitespace for all fields
-      for (var key in layerDef) {
-        if (layerDef.hasOwnProperty(key)) layerDef[key] = layerDef[key].trim();
-      }
-
-      if (layerDef["Enabled"].toLowerCase() != "true") continue;
-
-      if (layerDef["Map Type"].split("-")[0] == "extras") {
-        this.addExtrasContent(layerDef);
-      } else {
-        var layer = this.createLayer(null, layerDef);
-        if (layer.mapType == 'raster' || layer.mapType == 'timemachine') {
-          //TODO: Raster and timemachine layers do not have the addDataLoadedListener callback
-          this.setLegend(layer.layerId);
-          $("#" + layer.layerId + "-legend").hide();
-        }
-        Timelines.setTimeLine(layer.layerId,
-            layerDef["Start date"],
-            layerDef["End date"],
-            layerDef["Step"]);
-
-      }
-    }
-    for (var i = 0; i < this.layersLoadedListeners.length; i++) {
-      this.layersLoadedListeners[i]();
-    }
-  }
-
-
-  loadLayers(path: any) {
-    if (path == csvlayersLoadedPath) return;
-    csvlayersLoadedPath = path;
-
-    var that = this;
-
-    // Clear out any csv layers that have already been loaded
-    $("#csvlayers_table, .csvlayer").find("input:checked").trigger("click");
-    $(".csvlayer").remove();
-    $("#csvlayers_table").empty();
-    that.layers = [];
-
-    org.gigapan.Util.loadTsvData(path, that.loadLayersFromTsv, that);
-  }
-
   // Find first tile with _radius and return _radius
   getRadius(layer) {
     var tiles = layer._tileView._tiles;

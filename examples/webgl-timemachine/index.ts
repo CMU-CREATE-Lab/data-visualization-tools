@@ -6456,10 +6456,8 @@ function update() {
 
   var mapboxRenders = false;
   
-
   if (gEarthTime.layerDB.mapboxLayersAreVisible()) {
-    console.log("YO!  let's reimplement mapbox layer display")
-    //ETMBLayer.render();
+    ETMBLayer.render();
   } else {
     for (let layerProxy of gEarthTime.layerDB.loadedLayersInDrawOrder()) {
       drawCsvLayer(layerProxy, {});
