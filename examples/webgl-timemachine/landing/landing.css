@@ -168,6 +168,34 @@ body, html {
   position: relative;
 }
 
+.banner-img {
+  width: 100%;
+}
+
+.buy-button {
+  font-family: 'Exo2-Bold';
+  cursor: pointer;
+  font-size: 17px;
+  z-index: 2147483646;
+  border: 1px solid white;
+  border-radius: 2px !important;
+  transform-origin: 100% 0%;
+  color: #e6e6e6;
+  text-align: center;
+  padding: 10px;
+  padding-left: 15px;
+  padding-right: 15px;
+  background: rgba(0, 0, 0, 0.75);
+}
+
+.buy-button:hover {
+  background: #119077;
+}
+
+.buy-button-link {
+  text-decoration: none;
+}
+
 .video-overlay-left {
   position: absolute;
   top: 45%;
