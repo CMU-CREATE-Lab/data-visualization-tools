@@ -4815,8 +4815,11 @@
     }
 
     function doSwitchToLandsat() {
+      // Hack for solo layers when they are the first waypoint
+      if (showHimawariTimeMachineLayer || showGoes16TimeMachineLayer || showGoes16Aug2018TimeMachineLayer || showGoes16Nov2018TimeMachineLayer || showDscovrTimeMachineLayer) {
+        return false;
       // Special case for layers with defaultUI timeline.
-      if (timelineType == "defaultUI" && (showViirsLayer || showMonthlyRefugeesLayer || showCrwTimeMachineLayer)) {
+      } else if (timelineType == "defaultUI" && (showViirsLayer || showMonthlyRefugeesLayer || showCrwTimeMachineLayer)) {
         return false;
       } else {
         previousVisibleBaseMapLayer = visibleBaseMapLayer;
