@@ -4815,11 +4815,8 @@
     }
 
     function doSwitchToLandsat() {
-      // Hack for solo layers when they are the first waypoint
-      if (showHimawariTimeMachineLayer || showGoes16TimeMachineLayer || showGoes16Aug2018TimeMachineLayer || showGoes16Nov2018TimeMachineLayer || showDscovrTimeMachineLayer) {
-        return false;
       // Special case for layers with defaultUI timeline.
-      } else if (timelineType == "defaultUI" && (showViirsLayer || showMonthlyRefugeesLayer || showCrwTimeMachineLayer)) {
+      if (timelineType == "defaultUI" && (showViirsLayer || showMonthlyRefugeesLayer || showCrwTimeMachineLayer)) {
         return false;
       } else {
         previousVisibleBaseMapLayer = visibleBaseMapLayer;
@@ -7404,7 +7401,7 @@
           // Handle layers
           // If we are coming from an initial page load, then a waypoint may have loaded before the layer list has been populated.
           // Keep checking whether the layer list is ready and then finally apply the waypoint's layers.
-          if (!loadedInitialCsvLayers) {
+          if (!loadedInitialCsvLayers && !himawariWaypoint) {
             waitToLoadWaypointLayersOnPageReadyInterval = setInterval(function() {
               if (loadedInitialCsvLayers) {
                 handleLayers(waypointLayers);
