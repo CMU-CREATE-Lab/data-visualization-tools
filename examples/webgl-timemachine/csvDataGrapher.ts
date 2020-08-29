@@ -169,7 +169,7 @@ export class CsvDataGrapher {
       }
       that.activeLayer.entries[layerId] = entry;
     } else {
-      var layer = this.earthTime.layerDB.getLayer(layerId);
+      var layer = this.earthTime.layerDB.getLayer(layerId)?.layer;
       if (layer) {
         if (!layer.showGraph) return;
         layerIdMatch = true;
@@ -179,7 +179,7 @@ export class CsvDataGrapher {
         if (typeof key == "undefined") return;
         if (!tiles[key].jsondata) return;
         var data = tiles[key].jsondata.data;
-        var layerProps = layer?.layer.layerDef;
+        var layerProps = layer.layerDef;
         that.activeLayer.title = layerProps['Graph Title'] || layerProps['Name'];
         that.chart.options.graphGroupName = that.activeLayer.title;
         that.chart.options.axisY.title = layerProps['Graph Y-Axis Label'] || "Value";

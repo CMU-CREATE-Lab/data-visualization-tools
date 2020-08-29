@@ -7,7 +7,7 @@
 /// <reference path="../../timemachine/js/org/gigapan/timelapse/crossdomain_api.js"/>
 /// <reference path="../../timemachine/libs/change-detect/js/TimeMachineCanvasLayer.js"/>
 
-(window as any).dbg = (window as any).dbg || {}
+import { dbg } from './dbg'
 
 import { WebGLMapLayer } from './WebGLMapLayer'
 
@@ -20,7 +20,7 @@ import { WebGLVideoTile } from './WebGLVideoTile'
 import { Utils } from './Utils';
 import { Timelines } from './Timelines';
 
-(window as any).dbg.Utils = Utils;
+dbg.Utils = Utils;
 console.log(`${Utils.logPrefix()} Loading index.ts`)
 
 declare var Papa:any;
@@ -29,33 +29,33 @@ declare var Papa:any;
 import { LayerOptions, DrawOptions } from './Layer';
 
 import { LayerProxy } from './LayerProxy';
-(window as any).dbg.LayerProxy = LayerProxy;
+dbg.LayerProxy = LayerProxy;
 
 import { LayerDB } from './LayerDB';
-(window as any).dbg.LayerDB = LayerDB;
+dbg.LayerDB = LayerDB;
 
 import { EarthTime, gEarthTime, setGEarthTime } from './EarthTime';
 
 import { AltitudeSlider } from './altitudeSlider';
-(window as any).dbg.AltitudeSlider = AltitudeSlider;
+dbg.AltitudeSlider = AltitudeSlider;
 
 import { CsvDataGrapher } from './csvDataGrapher';
-(window as any).dbg.CsvDataGrapher = CsvDataGrapher;
+dbg.CsvDataGrapher = CsvDataGrapher;
 
 import { DateRangePicker } from './dateRangePicker';
-(window as any).dbg.DateRangePicker = DateRangePicker;
+dbg.DateRangePicker = DateRangePicker;
 
 import { GSheet } from './GSheet';
-(window as any).dbg.GSheet = GSheet;
+dbg.GSheet = GSheet;
 
 import { ETMBLayer } from './ETMBLayer'
-(window as any).dbg.MapboxLayer = ETMBLayer;
+dbg.MapboxLayer = ETMBLayer;
 
 import { Glb } from './Glb';
 import { Timeline } from './Timeline';
-(window as any).dbg.Glb = Glb;
+dbg.Glb = Glb;
 
-(window as any).dbg.GSheet = GSheet;
+dbg.GSheet = GSheet;
 
 var contentSearch: ContentSearch;
 var EarthlapseUI;
@@ -162,7 +162,7 @@ class EarthTimeImpl implements EarthTime {
   async setDatabaseID(databaseID: GSheet) {
     async function internal(earthTime: EarthTimeImpl) {
       earthTime.layerDB = null;
-      earthTime.layerDB = await LayerDB.create(databaseID, {earthTime: earthTime});
+      earthTime.layerDB = dbg.layerDB = await LayerDB.create(databaseID, {earthTime: earthTime});
     }
     this.layerDBPromise = internal(this);
     await this.layerDBPromise;
@@ -3048,142 +3048,142 @@ function initLayerToggleUI() {
     }
 
     return;
-    var toggledLayer = $(e.target);
-    var toggledLayerId = toggledLayer.parent("label").attr("name");
+    // var toggledLayer = $(e.target);
+    // var toggledLayerId = toggledLayer.parent("label").attr("name");
 
-    if (toggledLayerId) {
-      if (toggledLayer.attr('type') == 'radio') {
-        var toggledLayerGroup = $('input[name=' + toggledLayer.attr("name") + ']');
-        toggledLayerGroup.each(function(idx, element) {
-          var tmp = $(element).parent("label").attr("name");
-          var activeLayerIdx = activeEarthTimeLayers.indexOf(tmp);
-          if (activeLayerIdx >= 0) {
-            activeEarthTimeLayers.splice(activeLayerIdx, 1);
-          }
-        });
-        activeEarthTimeLayers.push(toggledLayerId);
-      } else if (toggledLayer.prop("checked")) {
-        activeEarthTimeLayers.push(toggledLayerId);
-      } else {
-        var activeLayerIdx = activeEarthTimeLayers.indexOf(toggledLayerId);
-        if (activeLayerIdx >= 0) {
-          activeEarthTimeLayers.splice(activeLayerIdx, 1);
-        }
-        if (activeEarthTimeLayers.length == 0) {
-          doSwitchToLandsat();
-        } else if (activeEarthTimeLayers.length == 1 && activeEarthTimeLayers.indexOf("blsat") == 0) {
-          doSwitchToLandsat();
-        }
-      }
-    }
+    // if (toggledLayerId) {
+    //   if (toggledLayer.attr('type') == 'radio') {
+    //     var toggledLayerGroup = $('input[name=' + toggledLayer.attr("name") + ']');
+    //     toggledLayerGroup.each(function(idx, element) {
+    //       var tmp = $(element).parent("label").attr("name");
+    //       var activeLayerIdx = activeEarthTimeLayers.indexOf(tmp);
+    //       if (activeLayerIdx >= 0) {
+    //         activeEarthTimeLayers.splice(activeLayerIdx, 1);
+    //       }
+    //     });
+    //     activeEarthTimeLayers.push(toggledLayerId);
+    //   } else if (toggledLayer.prop("checked")) {
+    //     activeEarthTimeLayers.push(toggledLayerId);
+    //   } else {
+    //     var activeLayerIdx = activeEarthTimeLayers.indexOf(toggledLayerId);
+    //     if (activeLayerIdx >= 0) {
+    //       activeEarthTimeLayers.splice(activeLayerIdx, 1);
+    //     }
+    //     if (activeEarthTimeLayers.length == 0) {
+    //       doSwitchToLandsat();
+    //     } else if (activeEarthTimeLayers.length == 1 && activeEarthTimeLayers.indexOf("blsat") == 0) {
+    //       doSwitchToLandsat();
+    //     }
+    //   }
+    // }
 
-    dateRangePicker.handleCalendarLayers(false);
-    altitudeSlider.handleAltitudeLayers();
+    // dateRangePicker.handleCalendarLayers(false);
+    // altitudeSlider.handleAltitudeLayers();
 
-    var $layerContainer = $(e.target).parents("table");
-    var $layerContainerHeader = $layerContainer.prev();
-    var layerCategory = $layerContainerHeader.attr("aria-controls")
-    if (layerCategory) {
-      layerCategory = layerCategory.replace('-featured', '');
-    }
-    var ignoredLayerCategory = 'category-base-layers';
-    var numLayersActiveInCurrentContainer = $layerContainer.find("input:checked").length;
-    var layersListTopPos = featuredTheme ? $("#layers-list").position().top : 0;
-    // Note: >1 because we ignore Base layers
-    if ($('.map-layer-div').find("input:checked").length > 1) {
-      $(".clearLayers").show();
-    } else {
-      $(".clearLayers").hide();
-    }
+    // var $layerContainer = $(e.target).parents("table");
+    // var $layerContainerHeader = $layerContainer.prev();
+    // var layerCategory = $layerContainerHeader.attr("aria-controls")
+    // if (layerCategory) {
+    //   layerCategory = layerCategory.replace('-featured', '');
+    // }
+    // var ignoredLayerCategory = 'category-base-layers';
+    // var numLayersActiveInCurrentContainer = $layerContainer.find("input:checked").length;
+    // var layersListTopPos = featuredTheme ? $("#layers-list").position().top : 0;
+    // // Note: >1 because we ignore Base layers
+    // if ($('.map-layer-div').find("input:checked").length > 1) {
+    //   $(".clearLayers").show();
+    // } else {
+    //   $(".clearLayers").hide();
+    // }
 
-    // Add indicator that a layer is on in a category but ignore the first category (base layers)
-    if ($layerContainerHeader.length && layerCategory && layerCategory.indexOf(ignoredLayerCategory) == -1) {
-      // Note the plural because we have a featured section of layers that uses the same names
-      var $layerContainerHeaders = $("#layers-menu h3[aria-controls*='" + layerCategory + "']");
-      if (numLayersActiveInCurrentContainer > 0) {
-        $layerContainerHeaders.append("<span class='ui-icon ui-icon-bullet active-layers-in-category'>");
-      } else {
-        $layerContainerHeaders.find(".active-layers-in-category").remove();
-      }
-    }
+    // // Add indicator that a layer is on in a category but ignore the first category (base layers)
+    // if ($layerContainerHeader.length && layerCategory && layerCategory.indexOf(ignoredLayerCategory) == -1) {
+    //   // Note the plural because we have a featured section of layers that uses the same names
+    //   var $layerContainerHeaders = $("#layers-menu h3[aria-controls*='" + layerCategory + "']");
+    //   if (numLayersActiveInCurrentContainer > 0) {
+    //     $layerContainerHeaders.append("<span class='ui-icon ui-icon-bullet active-layers-in-category'>");
+    //   } else {
+    //     $layerContainerHeaders.find(".active-layers-in-category").remove();
+    //   }
+    // }
 
-    var isFromUser = true;
+    // var isFromUser = true;
 
-    if ($(".csvlayer").find("input:checked").length > 0) {
-      timelineType = "defaultUI";
-    }
+    // if ($(".csvlayer").find("input:checked").length > 0) {
+    //   timelineType = "defaultUI";
+    // }
 
-    // Toggle off Himawari/GOES16/DSCOVR if any other layer is selected when it is up. These layers are a special mode.
-    // Base layer is part of the checkbox total, hence the > 1 check.
-    if ((showHimawariTimeMachineLayer || showGoes16TimeMachineLayer || goes16Aug2018TimeMachineLayer || goes16Nov2018TimeMachineLayer || showDscovrTimeMachineLayer) && $('.map-layer-checkbox').find("input:checked").not("#show-himawari, #show-goes16, #show-goes16-aug-2018, #show-goes16-nov-2018, #show-dscovr").length > 1) {
-      if ($("#show-himawari").prop('checked')) {
-        $("#show-himawari").click();
-      } else if ($("#show-goes16").prop('checked')) {
-        $("#show-goes16").click();
-      } else if ($("#show-goes16-aug-2018").prop('checked')) {
-        $("#show-goes16-aug-2018").click();
-      } else if ($("#show-goes16-nov-2018").prop('checked')) {
-        $("#show-goes16-nov-2018").click();
-      } else if ($("#show-dscovr").prop('checked')) {
-        $("#show-dscovr").click();
-      }
-    }
+    // // Toggle off Himawari/GOES16/DSCOVR if any other layer is selected when it is up. These layers are a special mode.
+    // // Base layer is part of the checkbox total, hence the > 1 check.
+    // if ((showHimawariTimeMachineLayer || showGoes16TimeMachineLayer || goes16Aug2018TimeMachineLayer || goes16Nov2018TimeMachineLayer || showDscovrTimeMachineLayer) && $('.map-layer-checkbox').find("input:checked").not("#show-himawari, #show-goes16, #show-goes16-aug-2018, #show-goes16-nov-2018, #show-dscovr").length > 1) {
+    //   if ($("#show-himawari").prop('checked')) {
+    //     $("#show-himawari").click();
+    //   } else if ($("#show-goes16").prop('checked')) {
+    //     $("#show-goes16").click();
+    //   } else if ($("#show-goes16-aug-2018").prop('checked')) {
+    //     $("#show-goes16-aug-2018").click();
+    //   } else if ($("#show-goes16-nov-2018").prop('checked')) {
+    //     $("#show-goes16-nov-2018").click();
+    //   } else if ($("#show-dscovr").prop('checked')) {
+    //     $("#show-dscovr").click();
+    //   }
+    // }
 
-    // Hide any timelines that are visible if we have no layers up that require a timeline or we are a static layer that fully covers the entire globe
-    if (activeLayersWithTimeline <= 0 || (visibleBaseMapLayer == "blsat" && activeLayersWithTimeline == 1 && (showHansenLayer2))) {
-      $(".controls, .customControl").hide();
-      $(".customControl").hide();
-    } else if (activeLayersWithTimeline > 0) {
-      if (timelineType == "customUI") {
-        $(".controls, .captureTime").hide();
-        $(".customControl").show();
-      } else if (timelineType == "defaultUI") {
-        $(".customControl").hide();
-        $(".controls, .captureTime").show();
-      }
-    }
+    // // Hide any timelines that are visible if we have no layers up that require a timeline or we are a static layer that fully covers the entire globe
+    // if (activeLayersWithTimeline <= 0 || (visibleBaseMapLayer == "blsat" && activeLayersWithTimeline == 1 && (showHansenLayer2))) {
+    //   $(".controls, .customControl").hide();
+    //   $(".customControl").hide();
+    // } else if (activeLayersWithTimeline > 0) {
+    //   if (timelineType == "customUI") {
+    //     $(".controls, .captureTime").hide();
+    //     $(".customControl").show();
+    //   } else if (timelineType == "defaultUI") {
+    //     $(".customControl").hide();
+    //     $(".controls, .captureTime").show();
+    //   }
+    // }
 
-    if (e && e.originalEvent) {
-      var originalEvent = e.originalEvent;
-      // If true, event came from user interaction, otherwise it came from javascript
-      if (!originalEvent.isTrusted)
-        isFromUser = false;
-      // Browsers without isTrusted property
-      if (originalEvent.x == 0 && originalEvent.y == 0)
-        isFromUser = false;
-      // IE 11
-      if (originalEvent.isTrusted && (originalEvent.x == 0 && originalEvent.y == -55))
-        isFromUser = false;
-    }
+    // if (e && e.originalEvent) {
+    //   var originalEvent = e.originalEvent;
+    //   // If true, event came from user interaction, otherwise it came from javascript
+    //   if (!originalEvent.isTrusted)
+    //     isFromUser = false;
+    //   // Browsers without isTrusted property
+    //   if (originalEvent.x == 0 && originalEvent.y == 0)
+    //     isFromUser = false;
+    //   // IE 11
+    //   if (originalEvent.isTrusted && (originalEvent.x == 0 && originalEvent.y == -55))
+    //     isFromUser = false;
+    // }
 
-    if ((activeLayersWithTimeline >= 1 && visibleBaseMapLayer != "blsat") ||
-        (activeLayersWithTimeline == 1 && visibleBaseMapLayer == "blsat" && !(showHansenLayer2))) {
-      if (timelineType == "customUI") {
-        $(".customControl").show().children().show();
-      } else if (timelineType == "defaultUI") {
-        $(".controls, .captureTime").show();
-      }
-    }
+    // if ((activeLayersWithTimeline >= 1 && visibleBaseMapLayer != "blsat") ||
+    //     (activeLayersWithTimeline == 1 && visibleBaseMapLayer == "blsat" && !(showHansenLayer2))) {
+    //   if (timelineType == "customUI") {
+    //     $(".customControl").show().children().show();
+    //   } else if (timelineType == "defaultUI") {
+    //     $(".controls, .captureTime").show();
+    //   }
+    // }
 
-    if (isFromUser && visibleBaseMapLayer != "blsat" && activeLayersWithTimeline == 0) {
-      $(".customControl").hide();
-    }
+    // if (isFromUser && visibleBaseMapLayer != "blsat" && activeLayersWithTimeline == 0) {
+    //   $(".customControl").hide();
+    // }
 
-    if (timelineType != "none" && activeLayersWithTimeline == 0) {
-      timelineType = "none";
-    }
+    // if (timelineType != "none" && activeLayersWithTimeline == 0) {
+    //   timelineType = "none";
+    // }
 
-    if (activeLayersWithTimeline <= 1 && timelineType == "none") {
-      $(".current-location-text-container, .annotations-resume-exit-container, .scaleBarContainer, #logosContainer, .current-location-text, #layers-legend").addClass("noTimeline");
-    } else {
-      $(".current-location-text-container, .annotations-resume-exit-container, .scaleBarContainer, #logosContainer, .current-location-text, #layers-legend").removeClass("noTimeline");
-    }
+    // if (activeLayersWithTimeline <= 1 && timelineType == "none") {
+    //   $(".current-location-text-container, .annotations-resume-exit-container, .scaleBarContainer, #logosContainer, .current-location-text, #layers-legend").addClass("noTimeline");
+    // } else {
+    //   $(".current-location-text-container, .annotations-resume-exit-container, .scaleBarContainer, #logosContainer, .current-location-text, #layers-legend").removeClass("noTimeline");
+    // }
 
-    if (timelineType == "defaultUI" && visibleBaseMapLayer == "blsat" && activeLayersWithTimeline == 1 && $(".csvlayer").find("input:checked").length == 0) {
-      timelineType = "customUI";
-    }
+    // if (timelineType == "defaultUI" && visibleBaseMapLayer == "blsat" && activeLayersWithTimeline == 1 && $(".csvlayer").find("input:checked").length == 0) {
+    //   timelineType = "customUI";
+    // }
 
-    timelineHidden = $(".noTimeline").length != 0;
+    // timelineHidden = $(".noTimeline").length != 0;
   };
 
   $('#layers-menu').on('click', "input[type=checkbox], input[type=radio]", timelineUIHandler);
@@ -6438,6 +6438,7 @@ function update() {
     }
     return pointCount;
   }
+  
 
   function drawCsvLayer(layer: LayerProxy, options: any = {}) {
     options = $.extend({}, options); // shallow-copy options
@@ -6459,7 +6460,7 @@ function update() {
   if (gEarthTime.layerDB.mapboxLayersAreVisible()) {
     ETMBLayer.render();
   } else {
-    for (let layerProxy of gEarthTime.layerDB.loadedLayersInDrawOrder()) {
+    for (let layerProxy of gEarthTime.layerDB.loadedSublayersInDrawOrder()) {
       drawCsvLayer(layerProxy, {});
     }
   }
@@ -6468,10 +6469,6 @@ function update() {
   // LAYERDB
 
   /** END NS LAYER */
-
-  return;
-
-
 
   // TODO(LayerDB)
 
@@ -6523,1472 +6520,1474 @@ function update() {
   // }
 
   // These are special case layers that do not play with any of the other layers.
-  if (showHimawariTimeMachineLayer) {
-    var himawariView = getLayerView(himawariTimeMachineLayer, landsatBaseMapLayer);
-    himawariTimeMachineLayer.draw(himawariView, tileViewVisibility);
-  } else if (showGoes16TimeMachineLayer) {
-    var goes16View = getLayerView(goes16TimeMachineLayer, landsatBaseMapLayer);
-    goes16TimeMachineLayer.draw(goes16View, tileViewVisibility);
-  } else if (showGoes16Aug2018TimeMachineLayer) {
-    var goes16Aug2018View = getLayerView(goes16Aug2018TimeMachineLayer, landsatBaseMapLayer);
-    goes16Aug2018TimeMachineLayer.draw(goes16Aug2018View, tileViewVisibility);
-  } else if (showGoes16Nov2018TimeMachineLayer) {
-    var goes16Nov2018View = getLayerView(goes16Nov2018TimeMachineLayer, landsatBaseMapLayer);
-    goes16Nov2018TimeMachineLayer.draw(goes16Nov2018View, tileViewVisibility);
-  } else if (showDscovrTimeMachineLayer) {
-    var dscovrView = getLayerView(dscovrTimeMachineLayer, landsatBaseMapLayer);
-    dscovrTimeMachineLayer.draw(dscovrView, tileViewVisibility);
-  } else {
-    // Static layers that cover the entire planet should be placed before the base layers in this manner.
-    // if (showLightsAtNightLayer) { // Draw lightsAtNightMapLayer
-    //   var lightsAtNightLayerView = getLayerView(lightsAtNightMapLayer, landsatBaseMapLayer);
-    //   lightsAtNightMapLayer.draw(lightsAtNightLayerView);
-    // }
-    //  else if (showLightsAtNight2012Layer) { // Draw lightsAtNight2012MapLayer
-    //   var lightsAtNight2012LayerView = getLayerView(lightsAtNight2012MapLayer, landsatBaseMapLayer);
-    //   lightsAtNight2012MapLayer.draw(lightsAtNight2012LayerView);
-    // }
-    if (showHansenLayer2) { // Draw Forest Loss/Gain
-      var hansenMapLayerView2 = getLayerView(hansenMapLayer2, landsatBaseMapLayer);
-      hansenMapLayer2.draw(hansenMapLayerView2);
-    } else if (visibleBaseMapLayer == "blsat") { // Draw Landsat
-      landsatBaseMapLayer.draw(gEarthTime.timelapse.getView(), tileViewVisibility);
-    } else if (visibleBaseMapLayer == "blte") { // Draw Light Map
-      var lightBaseMapView = getLayerView(lightBaseMapLayer, landsatBaseMapLayer);
-      lightBaseMapLayer.draw(lightBaseMapView);
-    } else if (visibleBaseMapLayer == "bdrk") { // Draw Dark Map
-      var darkBaseMapView = getLayerView(darkBaseMapLayer, landsatBaseMapLayer);
-      var options = {showTile: showTile};
-      darkBaseMapLayer.draw(darkBaseMapView, options);
-    }
-
-    // TODO(LayerDB)
-    // Draw CSV z=100 (typically raster base maps)
-    // for (var i = 0; i < csvFileLayers.layers.length; i++) {
-    //   var layer = csvFileLayers.layers[i];
-    //   if (layer.visible && layer.z == 100) {
-    //     drawCsvLayer(layer);
-    //   }
-    // }
-
-    //// Layers to draw above the base layer (or planet-wide static layers)
-
-    // Draw Fishing PPR
-    /*if (showFishingPprTimeMachineLayer) {
-      var fishingPprView = getLayerView(fishingPprTimeMachineLayer, landsatBaseMapLayer);
-      fishingPprTimeMachineLayer.draw(fishingPprView, tileViewVisibility);
-    }*/
-
-    // Draw Coral Reef Watch
-    /*if (showCrwTimeMachineLayer) {
-      var crwView = getLayerView(crwTimeMachineLayer, landsatBaseMapLayer);
-      crwTimeMachineLayer.draw(crwView, tileViewVisibility);
-    }*/
-
-    // Draw NDVI Anomaly
-    /*if (showNdviAnomalyTimeMachineLayer) {
-      var ndviView = getLayerView(ndviAnomalyTimeMachineLayer, landsatBaseMapLayer);
-      ndviAnomalyTimeMachineLayer.draw(ndviView, tileViewVisibility);
-    }*/
-
-    // Draw Forest Loss by Year (Transparent)
-    if (showHansenLayer) {
-      var hansenMapLayerView = getLayerView(hansenMapLayer, landsatBaseMapLayer);
-      hansenMapLayer.draw(hansenMapLayerView);
-    }
-
-    // Draw Vegetation Sensitivity Index
-    // if (showVsiLayer) {
-    //   var vsiLayerView = getLayerView(vsiLayer, landsatBaseMapLayer);
-    //   vsiLayer.draw(vsiLayerView);
-    // }
-
-    // // Draw Water Occurrence
-    // if (showWaterOccurrenceLayer) {
-    //   var waterOccurrenceView = getLayerView(waterOccurrenceLayer, landsatBaseMapLayer);
-    //   waterOccurrenceLayer.draw(waterOccurrenceView);
-    // }
-
-    // // Draw Water Change
-    // if (showWaterChangeLayer) {
-    //   var waterChangeView = getLayerView(waterChangeLayer, landsatBaseMapLayer);
-    //   waterChangeLayer.draw(waterChangeView);
-    // }
-
-    // Draw Animated Hansen Layer
-    if (showAnimatedHansenLayer) {
-      var animatedHansenLayerView = getLayerView(animatedHansenLayer, landsatBaseMapLayer);
-      var beginDate = Number(gEarthTime.timelapse.getCaptureTimes()[0]);
-      var endDate = Number(gEarthTime.timelapse.getCaptureTimes()[gEarthTime.timelapse.getCaptureTimes().length - 1]);
-      var currentDate = Number(gEarthTime.timelapse.getCaptureTimeByTime(gEarthTime.timelapse.getCurrentTime()));
-      var ratio = (currentDate - beginDate) / (endDate - beginDate);
-      animatedHansenLayerView.alpha = ratio;
-      animatedHansenLayer.draw(animatedHansenLayerView);
-    }
-
-    // Draw Coral
-    if (showMcrmLayer) {
-      var mcrmLayerView = getLayerView(mcrmVectorLayer, landsatBaseMapLayer);
-      mcrmVectorLayer.draw(mcrmLayerView);
-    }
-
-    // Draw Fires at Night (VIIRS)
-    /*
-    var viirsIndex = {
-      '201408': {'count': 115909, 'first': 0},
-      '201409': {'count': 213165, 'first': 115909},
-      '201410': {'count': 232833, 'first': 329074},
-      '201411': {'count': 146622, 'first': 561907},
-      '201412': {'count': 151926, 'first': 708529},
-      '201501': {'count': 192835, 'first': 860455},
-      '201502': {'count': 150901, 'first': 1053290},
-      '201503': {'count': 189347, 'first': 1204191},
-      '201504': {'count': 175398, 'first': 1393538},
-      '201505': {'count': 133021, 'first': 1568936},
-      '201506': {'count': 116314, 'first': 1701957},
-      '201507': {'count': 192662, 'first': 1818271},
-      '201508': {'count': 289941, 'first': 2010933},
-      '201509': {'count': 282792, 'first': 2300874},
-      '201510': {'count': 286486, 'first': 2583666},
-      '201511': {'count': 187366, 'first': 2870152},
-      '201512': {'count': 183570, 'first': 3057518},
-      '201601': {'count': 208576, 'first': 3241088},
-      '201602': {'count': 179606, 'first': 3449664},
-      '201603': {'count': 184595, 'first': 3629270},
-      '201604': {'count': 185076, 'first': 3813865},
-      '201605': {'count': 144875, 'first': 3998941},
-      '201606': {'count': 126776, 'first': 4143816},
-      '201607': {'count': 175568, 'first': 4270592},
-      '201608': {'count': 236754, 'first': 4446160},
-      '201609': {'count': 254754, 'first': 4682914},
-      '201610': {'count': 174679, 'first': 4937668},
-      '201611': {'count': 167121, 'first': 5112347},
-      '201612': {'count': 183016, 'first': 5279468},
-      '201701': {'count': 181133, 'first': 5462484},
-      '201702': {'count': 158187, 'first': 5643617},
-      '201703': {'count': 156410, 'first': 5801804},
-      '201704': {'count': 170735, 'first': 5958214},
-      '201705': {'count': 101733, 'first': 6128949},
-      '201706': {'count': 132268, 'first': 6230682},
-      '201707': {'count': 171562, 'first': 6362950},
-      '201708': {'count': 299079, 'first': 6534512},
-      '201709': {'count': 298956, 'first': 6833591},
-      '201710': {'count': 53789, 'first': 7132547}
-    };
-    if (showViirsLayer) {
-      var viirsLayerView = getLayerView(viirsLayer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      options.zoom = timelapse.getCurrentZoom();
-      var currentTime = timelapse.getCurrentTime();
-      var currentTimes = getCurrentTimes(timelapse);
-      var dates = getDates(timelapse);
-      var delta = getCurrentTimesDelta(currentTime, currentTimes);
-      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-      options.currentTime = currentDate;
-
-      var currentMonth = currentDate.getUTCMonth();
-      var currentYear = currentDate.getUTCFullYear();
-      var prevYear = currentYear;
-      var prevMonth = currentMonth - 1;
-      if (prevMonth < 0) {
-        prevMonth = 11;
-        prevYear--;
-      }
-
-      var currentIdx = currentYear + ('0' + (currentMonth+1)).slice(-2);
-      var prevIdx = prevYear + ('0' + (prevMonth+1)).slice(-2);
-      options.first = prevIdx in viirsIndex ? viirsIndex[prevIdx]['first'] : 0 ;
-      options.count = prevIdx in viirsIndex && currentIdx in viirsIndex ? viirsIndex[currentIdx]['count'] + viirsIndex[prevIdx]['count'] : 100;
-
-      viirsLayer.draw(viirsLayerView, options);
-    }
-    */
-
-    // Draw Coral Bleaching
-    /*if (showCoralBleachingLayer) {
-      var coralBleachingLayerView = getLayerView(coralBleachingLayer, landsatBaseMapLayer);
-      let options: any = {};
-      options.color = [0.82, 0.22, 0.07, 1.0];
-      options.pointSize = 8.0;
-      coralBleachingLayer.draw(coralBleachingLayerView, options);
-    }*/
-
-    // Draw Wind Layer
-/*
-    if (showUsgsWindTurbineLayer) {
-      var usgsWindTurbineLayerView = getLayerView(usgsWindTurbineLayer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      options.zoom = timelapse.getCurrentZoom();
-      var currentTime = timelapse.getCurrentTime();
-      var currentTimes = getCurrentTimes(timelapse);
-      var dates = getDates(timelapse);
-      var delta = getCurrentTimesDelta(currentTime, currentTimes);
-      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-      options.currentTime = currentDate;
-      options.color = [0.1, 0.5, 0.1, 1.0];
-      options.pointSize = 3.0;
-      usgsWindTurbineLayer.draw(usgsWindTurbineLayerView, options);
-    }
-*/
-    // Draw Global Wind Layer
-/*
-    if (showGlobalWindPowerLayer) {
-      var globalWindPowerLayerView = getLayerView(globalWindPowerLayer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      options.zoom = timelapse.getCurrentZoom();
-      var currentTime = timelapse.getCurrentTime();
-      var currentTimes = getCurrentTimes(timelapse);
-      var dates = getDates(timelapse);
-      var delta = getCurrentTimesDelta(currentTime, currentTimes);
-      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-      options.currentTime = currentDate;
-      options.pointSize = 3;
-      options.color = [0.1, 0.5, 0.1, 1.0];
-      globalWindPowerLayer.draw(globalWindPowerLayerView, options);
-    }
-*/
-
-    // Draw Solar Layer
-    /*
-    if (showSolarInstallsLayer) {
-      var solarInstallsLayerView = getLayerView(solarInstallsLayer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      options.zoom = timelapse.getCurrentZoom();
-      var currentTime = timelapse.getCurrentTime();
-      var currentTimes = getCurrentTimes(timelapse);
-      var dates = getDates(timelapse);
-      var delta = getCurrentTimesDelta(currentTime, currentTimes);
-      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-      options.currentTime = currentDate;
-      options.pointSize = 3;
-      solarInstallsLayer.draw(solarInstallsLayerView, options);
-    }
-    */
-
-    // Draw Oil/Gas Drilling Layer
-    /*
-    if (showDrillingLayer) {
-      var drillingLayerView = getLayerView(drillingLayer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      options.zoom = timelapse.getCurrentZoom();
-      var currentTime = timelapse.getCurrentTime();
-      var currentTimes = getCurrentTimes(timelapse);
-      var dates = getDates(timelapse);
-      var delta = getCurrentTimesDelta(currentTime, currentTimes);
-      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-      options.currentTime = currentDate;
-      options.color = [0.82, 0.22, 0.07, 1.0];
-      drillingLayer.draw(drillingLayerView, options);
-    }
-    */
-    // Draw Forest Alerts (No Overlay)
-    /*if (showForestAlertsNoOverlayTimeMachineLayer) {
-      var forestAlertsNoOverlayView = timelapse.getView();
-      var timelapse2map = forestAlertsNoOverlayTimeMachineLayer.getWidth() / landsatBaseMapLayer.getWidth();
-
-      var p = timelapse.getProjection();
-      var offest = p.latlngToPoint({
-        "lat": 5.506709319555738,
-        "lng": -82.5513118548623
-      });
-
-      forestAlertsNoOverlayView.x -= offest.x;
-      forestAlertsNoOverlayView.y -= offest.y;
-      forestAlertsNoOverlayTimeMachineLayer.draw(forestAlertsNoOverlayView, tileViewVisibility);
-    }
-
-    // Draw Forest Alerts (With Overlay)
-    if (showForestAlertsTimeMachineLayer) {
-      var forestAlertsView = timelapse.getView();
-      var timelapse2map = forestAlertsTimeMachineLayer.getWidth() / landsatBaseMapLayer.getWidth();
-
-      var p = timelapse.getProjection();
-      var offest = p.latlngToPoint({
-        "lat": 5.506709319555738,
-        "lng": -82.5513118548623
-      });
-
-      forestAlertsView.x -= offest.x;
-      forestAlertsView.y -= offest.y;
-      forestAlertsTimeMachineLayer.draw(forestAlertsView, tileViewVisibility);
-    }*/
-
-    // Draw Protected Areas (WDPA)
-    /*
-    if (showWdpaLayer) {
-      let options: DrawOptions = {};
-      var wdpaLayerView = getLayerView(wdpaLayer, landsatBaseMapLayer);
-      wdpaLayer.draw(wdpaLayerView, options);
-    }
-    */
-
-    // Draw Mediterranean Monthly Refugees
-    if (showMonthlyRefugeesLayer) {
-      var monthlyRefugeesLayerView = getLayerView(monthlyRefugeesLayer, landsatBaseMapLayer);
-      let options: any = {};
-      monthlyRefugeesLayer.draw(monthlyRefugeesLayerView, options);
-    }
-
-
-    // Draw Annual Refugees
-    if (showAnnualRefugeesLayer) {
-      var annualRefugeesLayerView = getLayerView(annualRefugeesLayer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      var ratio = gEarthTime.timelapse.getCurrentTime() / (gEarthTime.timelapse.getNumFrames() / gEarthTime.timelapse.getFps());
-      var times = gEarthTime.timelapse.getCaptureTimes();
-      var startDate = new Date(parseInt(times[0]), 0, 1);
-      let endDate = new Date(parseInt(times[times.length - 1]) + 1, 0, 1);
-      var range = endDate.getTime() - startDate.getTime();
-      let currentDate = new Date(ratio * range + startDate.getTime());
-      // TODO(LayerDB): we need a currentDate() that is fully granular, like this one
-      // @ts-ignore
-      options.currentTime = currentDate;
-      options.span = 240 * 24 * 60 * 60 * 1000;
-      options.subsampleAnnualRefugees = subsampleAnnualRefugees;
-      options.pointIdx = {
-        2001: {'count': 798896, 'start': 0},
-        2002: {'count': 1377803, 'start': 798896},
-        2003: {'count': 402155, 'start': 2176699},
-        2004: {'count': 640155, 'start': 2578854},
-        2005: {'count': 375991, 'start': 3219009},
-        2006: {'count': 1666399, 'start': 3595000},
-        2007: {'count': 2881204, 'start': 5261399},
-        2008: {'count': 431865, 'start': 8142603},
-        2009: {'count': 900246, 'start': 8574468},
-        2010: {'count': 492341, 'start': 9474714},
-        2011: {'count': 742046, 'start': 9967055},
-        2012: {'count': 1356451, 'start': 10709101},
-        2013: {'count': 2260887, 'start': 12065552},
-        2014: {'count': 3107100, 'start': 14326439},
-        2015: {'count': 2331430, 'start': 17433539}
-      };
-      annualRefugeesLayer.draw(annualRefugeesLayerView, options);
-    }
-
-    // Draw Annual Returns
-    if (showAnnualReturnsLayer) {
-      var annualReturnsLayerView = getLayerView(annualReturnsLayer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      var ratio = gEarthTime.timelapse.getCurrentTime() / (gEarthTime.timelapse.getNumFrames() / gEarthTime.timelapse.getFps());
-      var times = gEarthTime.timelapse.getCaptureTimes();
-      var startDate = new Date(parseInt(times[0]), 0, 1);
-      let endDate = new Date(parseInt(times[times.length - 1]) + 1, 0, 1);
-      var range = endDate.getTime() - startDate.getTime();
-      let currentDate = new Date(ratio * range + startDate.getTime());
-      // @ts-ignore
-      options.currentTime = currentDate;
-      options.span = 240 * 24 * 60 * 60 * 1000;
-      options.subsampleAnnualRefugees = subsampleAnnualReturns;
-      options.pointIdx = {
-        2000: {'count': 763562, 'start': 0},
-        2001: {'count': 453831, 'start': 763562},
-        2002: {'count': 2411730, 'start': 1217393},
-        2003: {'count': 1093240, 'start': 3629123},
-        2004: {'count': 1431823, 'start': 4722363},
-        2005: {'count': 1105375, 'start': 6154186},
-        2006: {'count': 710542, 'start': 7259561},
-        2007: {'count': 728128, 'start': 7970103},
-        2008: {'count': 589392, 'start': 8698231},
-        2009: {'count': 247555, 'start': 9287623},
-        2010: {'count': 171179, 'start': 9535178},
-        2011: {'count': 530960, 'start': 9706357},
-        2012: {'count': 525154, 'start': 10237317},
-        2013: {'count': 413619, 'start': 10762471},
-        2014: {'count': 126877, 'start': 11176090},
-        2015: {'count': 201440, 'start': 11302967}
-      };
-      annualReturnsLayer.draw(annualReturnsLayerView, options);
-    }
-
-
-    // Draw Nutritional Deficiency Layers
-    /*
-    if (showHealthImpactLayer) {
-      var healthImpactLayerView = getLayerView(healthImpactLayer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      options.zoom = timelapse.getCurrentZoom();
-
-      var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
-      var times = timelapse.getCaptureTimes();
-      var endDate = new Date("2055");
-      var startDate = new Date("2015");
-      var range = endDate.getTime() - startDate.getTime();
-      var currentDate = new Date(ratio * range + startDate.getTime());
-      var year = currentDate.getUTCFullYear();
-
-      for (var i = 0; i < times.length - 1; i++) {
-        if (year == times[i] || year < times[i + 1] && year > times[i]) {
-          year = parseInt(times[i]);
-        }
-      }
-      var currentYear = new Date(year, 0, 1);
-      var nextYear = new Date(year + 5, 0, 1);
-      if (year >= 2050) {
-        nextYear = currentYear;
-      }
-      var delta = (currentDate.getTime() - currentYear) / (nextYear - currentYear);
-
-      options.year = year;
-      options.delta = delta;
-      options.showRcp = showHealthImpactRcp;
-
-      healthImpactLayer.draw(healthImpactLayerView, options);
-    }
-    */
-
-    // Draw Zika Layer
-    /*
-    if (showZikaLayer) {
-      var zikaLayerView = getLayerView(zikaLayer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      options.zoom = timelapse.getCurrentZoom();
-      var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
-      var times = timelapse.getCaptureTimes();
-      var startDate = new Date(parseInt(times[0]), 0, 1);
-      var endDate = new Date(parseInt(times[times.length - 1]) + 1, 0, 1);
-      var range = endDate.getTime() - startDate.getTime();
-      var currentDate = new Date(ratio * range + startDate.getTime());
-      options.currentTime = currentDate;
-      options.color = [1.0, 0.1, 0.1, 1.0];
-      options.pointSize = 10.0;
-      zikaLayer.draw(zikaLayerView, options);
-    }
-    */
-    // Draw Dengue Layer
-    /*
-    if (showDengueLayer) {
-      var dengueLayerView = getLayerView(dengueLayer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      options.zoom = timelapse.getCurrentZoom();
-      var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
-      var times = timelapse.getCaptureTimes();
-      var startDate = new Date(parseInt(times[0]), 0, 1);
-      var endDate = new Date(parseInt(times[times.length - 1]) + 1, 0, 1);
-      var range = endDate.getTime() - startDate.getTime();
-      var currentDate = new Date(ratio * range + startDate.getTime());
-      options.currentTime = currentDate;
-      options.color = [0.2, 1.0, 0.1, 1.0];
-      options.pointSize = 10.0;
-      dengueLayer.draw(dengueLayerView, options);
-    }
-    */
-    // Draw Chiku Layer
-    /*
-    if (showChikuLayer) {
-      var chikuLayerView = getLayerView(chikuLayer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      options.zoom = timelapse.getCurrentZoom();
-      var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
-      var times = timelapse.getCaptureTimes();
-      var startDate = new Date(parseInt(times[0]), 0, 1);
-      var endDate = new Date(parseInt(times[times.length - 1]) + 1, 0, 1);
-      var range = endDate.getTime() - startDate.getTime();
-      var currentDate = new Date(ratio * range + startDate.getTime());
-      options.currentTime = currentDate;
-      options.color = [0.1, 0.1, 1.0, 1.0];
-      options.pointSize = 10.0;
-      chikuLayer.draw(chikuLayerView, options);
-    }
-    */
-    // Draw Sea Level Rise Layer
-    if (showSeaLevelRiseLayer) {
-      var sea_level_heights = [
-        [0.0, 0.0],
-        [2.4, 0.7],
-        [7.0, 2.1],
-        [9.4, 2.9],
-        [15, 4.7],
-        [18, 5.6],
-        [21, 6.4],
-        [26, 7.9],
-        [29, 8.9]
-      ]; // [feet,meters]
-      var meters = document.getElementById("slr-meters");
-      var degree = document.getElementById("slr-degree");
-      var seaLevelRiseLayerView = getLayerView(seaLevelRiseLayer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      var ratio = gEarthTime.timelapse.getCurrentTime() / (gEarthTime.timelapse.getNumFrames() / gEarthTime.timelapse.getFps());
-      var times = gEarthTime.timelapse.getCaptureTimes();
-      var start = parseFloat(times[0]);
-      var end = parseFloat(times[times.length - 1]) + 0.5;
-      var range = end - start;
-      var current = ratio * range + start;
-      options.currentC = Math.min(current, times[times.length - 1]);
-      if (visibleBaseMapLayer == "blsat") {
-        options.color = [0.1, 0.1, 0.1, 1.0];
-      } else if (visibleBaseMapLayer == "blte") {
-        options.color = [0.4921875, 0.7421875, 0.91015625, 1.0];
-      } else if (visibleBaseMapLayer == "bdrk") {
-        options.color = [0.203125, 0.203125, 0.203125, 1.0];
-      }
-      // else if (showLightsAtNightLayer) {
-      //   options.color = [0.0, 0.0, 0.0, 1.0];
+  if (false) {
+    if (showHimawariTimeMachineLayer) {
+      var himawariView = getLayerView(himawariTimeMachineLayer, landsatBaseMapLayer);
+      himawariTimeMachineLayer.draw(himawariView, tileViewVisibility);
+    } else if (showGoes16TimeMachineLayer) {
+      var goes16View = getLayerView(goes16TimeMachineLayer, landsatBaseMapLayer);
+      goes16TimeMachineLayer.draw(goes16View, tileViewVisibility);
+    } else if (showGoes16Aug2018TimeMachineLayer) {
+      var goes16Aug2018View = getLayerView(goes16Aug2018TimeMachineLayer, landsatBaseMapLayer);
+      goes16Aug2018TimeMachineLayer.draw(goes16Aug2018View, tileViewVisibility);
+    } else if (showGoes16Nov2018TimeMachineLayer) {
+      var goes16Nov2018View = getLayerView(goes16Nov2018TimeMachineLayer, landsatBaseMapLayer);
+      goes16Nov2018TimeMachineLayer.draw(goes16Nov2018View, tileViewVisibility);
+    } else if (showDscovrTimeMachineLayer) {
+      var dscovrView = getLayerView(dscovrTimeMachineLayer, landsatBaseMapLayer);
+      dscovrTimeMachineLayer.draw(dscovrView, tileViewVisibility);
+    } else {
+      // Static layers that cover the entire planet should be placed before the base layers in this manner.
+      // if (showLightsAtNightLayer) { // Draw lightsAtNightMapLayer
+      //   var lightsAtNightLayerView = getLayerView(lightsAtNightMapLayer, landsatBaseMapLayer);
+      //   lightsAtNightMapLayer.draw(lightsAtNightLayerView);
       // }
-      var currentIndex = 0;
-      for (var i = 0; i < times.length; i++) {
-        if (gEarthTime.timelapse.getCurrentCaptureTime() == times[i]) {
-          currentIndex = i;
-        }
-      }
-      //feet.innerHTML = sea_level_heights[currentIndex][0] + "ft";
-      if (sea_level_heights[currentIndex]) {
-        $(meters).html("+" + sea_level_heights[currentIndex][1].toFixed(1) + "m");
-      }
-      $(degree).html((currentIndex / 2).toFixed(1));
-      seaLevelRiseLayer.draw(seaLevelRiseLayerView, options);
-      $(".timeText, .captureTimeMain").html(gEarthTime.timelapse.getCurrentCaptureTime() + "&degC");
-    }
-
-    /*if (showTintedSeaLevelRiseLayer) {
-      var sea_level_heights = [
-        [0.0, 0.0],
-        [2.4, 0.7],
-        [7.0, 2.1],
-        [9.4, 2.9],
-        [15, 4.7],
-        [18, 5.6],
-        [21, 6.4],
-        [26, 7.9],
-        [29, 8.9]
-      ]; // [feet,meters]
-      var feet = document.getElementById("slr-feet");
-      var meters = document.getElementById("slr-meters");
-      var degree = document.getElementById("slr-degree");
-      var seaLevelRiseLayerView = getLayerView(seaLevelRiseLayer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
-      var times = timelapse.getCaptureTimes();
-      var start = parseFloat(times[0]);
-      var end = parseFloat(times[times.length - 1]) + 0.5;
-      var range = end - start;
-      var current = ratio * range + start;
-      options.currentC = Math.min(current, times[times.length - 1]);
-      if (visibleBaseMapLayer == "blsat") {
-        options.color = [0.1, 0.1, 0.1, 1.0];
-      } else if (visibleBaseMapLayer == "blte") {
-        options.color = [0.4921875, 0.7421875, 0.91015625, 1.0];
-      } else if (visibleBaseMapLayer == "bdrk") {
-        options.color = [0.203125, 0.203125, 0.203125, 1.0];
-      }
-      // else if (showLightsAtNightLayer) {
-      //   options.color = [0.0, 0.0, 0.0, 1.0];
+      //  else if (showLightsAtNight2012Layer) { // Draw lightsAtNight2012MapLayer
+      //   var lightsAtNight2012LayerView = getLayerView(lightsAtNight2012MapLayer, landsatBaseMapLayer);
+      //   lightsAtNight2012MapLayer.draw(lightsAtNight2012LayerView);
       // }
-      var currentIndex = 0;
-      for (var i = 0; i < times.length; i++) {
-        if (timelapse.getCurrentCaptureTime() == times[i]) {
-          currentIndex = i;
+      if (showHansenLayer2) { // Draw Forest Loss/Gain
+        var hansenMapLayerView2 = getLayerView(hansenMapLayer2, landsatBaseMapLayer);
+        hansenMapLayer2.draw(hansenMapLayerView2);
+      } else if (visibleBaseMapLayer == "blsat") { // Draw Landsat
+        landsatBaseMapLayer.draw(gEarthTime.timelapse.getView(), tileViewVisibility);
+      } else if (visibleBaseMapLayer == "blte") { // Draw Light Map
+        var lightBaseMapView = getLayerView(lightBaseMapLayer, landsatBaseMapLayer);
+        lightBaseMapLayer.draw(lightBaseMapView);
+      } else if (visibleBaseMapLayer == "bdrk") { // Draw Dark Map
+        var darkBaseMapView = getLayerView(darkBaseMapLayer, landsatBaseMapLayer);
+        var options = {showTile: showTile};
+        darkBaseMapLayer.draw(darkBaseMapView, options);
+      }
+
+      // TODO(LayerDB)
+      // Draw CSV z=100 (typically raster base maps)
+      // for (var i = 0; i < csvFileLayers.layers.length; i++) {
+      //   var layer = csvFileLayers.layers[i];
+      //   if (layer.visible && layer.z == 100) {
+      //     drawCsvLayer(layer);
+      //   }
+      // }
+
+      //// Layers to draw above the base layer (or planet-wide static layers)
+
+      // Draw Fishing PPR
+      /*if (showFishingPprTimeMachineLayer) {
+        var fishingPprView = getLayerView(fishingPprTimeMachineLayer, landsatBaseMapLayer);
+        fishingPprTimeMachineLayer.draw(fishingPprView, tileViewVisibility);
+      }*/
+
+      // Draw Coral Reef Watch
+      /*if (showCrwTimeMachineLayer) {
+        var crwView = getLayerView(crwTimeMachineLayer, landsatBaseMapLayer);
+        crwTimeMachineLayer.draw(crwView, tileViewVisibility);
+      }*/
+
+      // Draw NDVI Anomaly
+      /*if (showNdviAnomalyTimeMachineLayer) {
+        var ndviView = getLayerView(ndviAnomalyTimeMachineLayer, landsatBaseMapLayer);
+        ndviAnomalyTimeMachineLayer.draw(ndviView, tileViewVisibility);
+      }*/
+
+      // Draw Forest Loss by Year (Transparent)
+      if (showHansenLayer) {
+        var hansenMapLayerView = getLayerView(hansenMapLayer, landsatBaseMapLayer);
+        hansenMapLayer.draw(hansenMapLayerView);
+      }
+
+      // Draw Vegetation Sensitivity Index
+      // if (showVsiLayer) {
+      //   var vsiLayerView = getLayerView(vsiLayer, landsatBaseMapLayer);
+      //   vsiLayer.draw(vsiLayerView);
+      // }
+
+      // // Draw Water Occurrence
+      // if (showWaterOccurrenceLayer) {
+      //   var waterOccurrenceView = getLayerView(waterOccurrenceLayer, landsatBaseMapLayer);
+      //   waterOccurrenceLayer.draw(waterOccurrenceView);
+      // }
+
+      // // Draw Water Change
+      // if (showWaterChangeLayer) {
+      //   var waterChangeView = getLayerView(waterChangeLayer, landsatBaseMapLayer);
+      //   waterChangeLayer.draw(waterChangeView);
+      // }
+
+      // Draw Animated Hansen Layer
+      if (showAnimatedHansenLayer) {
+        var animatedHansenLayerView = getLayerView(animatedHansenLayer, landsatBaseMapLayer);
+        var beginDate = Number(gEarthTime.timelapse.getCaptureTimes()[0]);
+        var endDate = Number(gEarthTime.timelapse.getCaptureTimes()[gEarthTime.timelapse.getCaptureTimes().length - 1]);
+        var currentDate = Number(gEarthTime.timelapse.getCaptureTimeByTime(gEarthTime.timelapse.getCurrentTime()));
+        var ratio = (currentDate - beginDate) / (endDate - beginDate);
+        animatedHansenLayerView.alpha = ratio;
+        animatedHansenLayer.draw(animatedHansenLayerView);
+      }
+
+      // Draw Coral
+      if (showMcrmLayer) {
+        var mcrmLayerView = getLayerView(mcrmVectorLayer, landsatBaseMapLayer);
+        mcrmVectorLayer.draw(mcrmLayerView);
+      }
+
+      // Draw Fires at Night (VIIRS)
+      /*
+      var viirsIndex = {
+        '201408': {'count': 115909, 'first': 0},
+        '201409': {'count': 213165, 'first': 115909},
+        '201410': {'count': 232833, 'first': 329074},
+        '201411': {'count': 146622, 'first': 561907},
+        '201412': {'count': 151926, 'first': 708529},
+        '201501': {'count': 192835, 'first': 860455},
+        '201502': {'count': 150901, 'first': 1053290},
+        '201503': {'count': 189347, 'first': 1204191},
+        '201504': {'count': 175398, 'first': 1393538},
+        '201505': {'count': 133021, 'first': 1568936},
+        '201506': {'count': 116314, 'first': 1701957},
+        '201507': {'count': 192662, 'first': 1818271},
+        '201508': {'count': 289941, 'first': 2010933},
+        '201509': {'count': 282792, 'first': 2300874},
+        '201510': {'count': 286486, 'first': 2583666},
+        '201511': {'count': 187366, 'first': 2870152},
+        '201512': {'count': 183570, 'first': 3057518},
+        '201601': {'count': 208576, 'first': 3241088},
+        '201602': {'count': 179606, 'first': 3449664},
+        '201603': {'count': 184595, 'first': 3629270},
+        '201604': {'count': 185076, 'first': 3813865},
+        '201605': {'count': 144875, 'first': 3998941},
+        '201606': {'count': 126776, 'first': 4143816},
+        '201607': {'count': 175568, 'first': 4270592},
+        '201608': {'count': 236754, 'first': 4446160},
+        '201609': {'count': 254754, 'first': 4682914},
+        '201610': {'count': 174679, 'first': 4937668},
+        '201611': {'count': 167121, 'first': 5112347},
+        '201612': {'count': 183016, 'first': 5279468},
+        '201701': {'count': 181133, 'first': 5462484},
+        '201702': {'count': 158187, 'first': 5643617},
+        '201703': {'count': 156410, 'first': 5801804},
+        '201704': {'count': 170735, 'first': 5958214},
+        '201705': {'count': 101733, 'first': 6128949},
+        '201706': {'count': 132268, 'first': 6230682},
+        '201707': {'count': 171562, 'first': 6362950},
+        '201708': {'count': 299079, 'first': 6534512},
+        '201709': {'count': 298956, 'first': 6833591},
+        '201710': {'count': 53789, 'first': 7132547}
+      };
+      if (showViirsLayer) {
+        var viirsLayerView = getLayerView(viirsLayer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        options.zoom = timelapse.getCurrentZoom();
+        var currentTime = timelapse.getCurrentTime();
+        var currentTimes = getCurrentTimes(timelapse);
+        var dates = getDates(timelapse);
+        var delta = getCurrentTimesDelta(currentTime, currentTimes);
+        let currentDate = getCurrentDate(currentTime, currentTimes, dates);
+        options.currentTime = currentDate;
+
+        var currentMonth = currentDate.getUTCMonth();
+        var currentYear = currentDate.getUTCFullYear();
+        var prevYear = currentYear;
+        var prevMonth = currentMonth - 1;
+        if (prevMonth < 0) {
+          prevMonth = 11;
+          prevYear--;
         }
+
+        var currentIdx = currentYear + ('0' + (currentMonth+1)).slice(-2);
+        var prevIdx = prevYear + ('0' + (prevMonth+1)).slice(-2);
+        options.first = prevIdx in viirsIndex ? viirsIndex[prevIdx]['first'] : 0 ;
+        options.count = prevIdx in viirsIndex && currentIdx in viirsIndex ? viirsIndex[currentIdx]['count'] + viirsIndex[prevIdx]['count'] : 100;
+
+        viirsLayer.draw(viirsLayerView, options);
       }
-      //feet.innerHTML = sea_level_heights[currentIndex][0] + "ft";
-      if (sea_level_heights[currentIndex]) {
-        $(meters).html("+" + sea_level_heights[currentIndex][1].toFixed(1) + "m");
+      */
+
+      // Draw Coral Bleaching
+      /*if (showCoralBleachingLayer) {
+        var coralBleachingLayerView = getLayerView(coralBleachingLayer, landsatBaseMapLayer);
+        let options: any = {};
+        options.color = [0.82, 0.22, 0.07, 1.0];
+        options.pointSize = 8.0;
+        coralBleachingLayer.draw(coralBleachingLayerView, options);
+      }*/
+
+      // Draw Wind Layer
+  /*
+      if (showUsgsWindTurbineLayer) {
+        var usgsWindTurbineLayerView = getLayerView(usgsWindTurbineLayer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        options.zoom = timelapse.getCurrentZoom();
+        var currentTime = timelapse.getCurrentTime();
+        var currentTimes = getCurrentTimes(timelapse);
+        var dates = getDates(timelapse);
+        var delta = getCurrentTimesDelta(currentTime, currentTimes);
+        let currentDate = getCurrentDate(currentTime, currentTimes, dates);
+        options.currentTime = currentDate;
+        options.color = [0.1, 0.5, 0.1, 1.0];
+        options.pointSize = 3.0;
+        usgsWindTurbineLayer.draw(usgsWindTurbineLayerView, options);
       }
-      $(degree).html((currentIndex / 2).toFixed(1));
-      tintedSeaLevelRiseLayer.draw(seaLevelRiseLayerView, options);
-      $(".timeText, .captureTimeMain").html(timelapse.getCurrentCaptureTime() + "&degC");
-    }*/
-
-    /*
-    if (showUrbanFragilityLayer) {
-      var urbanFragilityLayerView = getLayerView(urbanFragilityLayer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      options.zoom = timelapse.getCurrentZoom();
-
-      var currentTime = timelapse.getCurrentTime();
-      var currentTimes = getCurrentTimes(timelapse);
-      var dates = getDates(timelapse);
-      var delta = getCurrentTimesDelta(currentTime, currentTimes);
-      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-      var year = currentDate.getUTCFullYear();
-      options.year = year;
-      options.delta = Math.min(delta, 1);
-      urbanFragilityLayer.draw(urbanFragilityLayerView, options);
-
-    }
-    */
-
-    /*
-    if (showGtdLayer) {
-      var gtdLayerView = getLayerView(gtdLayer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      options.zoom = timelapse.getCurrentZoom();
-      var currentTime = timelapse.getCurrentTime();
-      var currentTimes = getCurrentTimes(timelapse);
-      var dates = getDates(timelapse);
-      var delta = getCurrentTimesDelta(currentTime, currentTimes);
-      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-      options.currentTime = currentDate;
-      options.color = [1.0, 0.0, 0.0, 1.0];
-      gtdLayer.draw(gtdLayerView, options);
-    }
-    */
-    /*
-    if (showUppsalaConflictLayer) {
-      var uppsalaConflictLayerView = getLayerView(uppsalaConflictLayer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      options.zoom = timelapse.getCurrentZoom();
-      var currentTime = timelapse.getCurrentTime();
-      var currentTimes = getCurrentTimes(timelapse);
-      var dates = getDates(timelapse);
-      var delta = getCurrentTimesDelta(currentTime, currentTimes);
-      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-      options.currentTime = currentDate;
-      options.color = [1.0, 0.0, 0.0, 1.0];
-      uppsalaConflictLayer.draw(uppsalaConflictLayerView, options);
-    }
-    */
-    /*
-    if (showHivLayer) {
-      var hivLayerView = getLayerView(hivLayer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      options.zoom = timelapse.getCurrentZoom();
-
-      var currentTime = timelapse.getCurrentTime();
-      var currentTimes = getCurrentTimes(timelapse);
-      var dates = getDates(timelapse);
-      var delta = getCurrentTimesDelta(currentTime, currentTimes);
-      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-      var year = currentDate.getUTCFullYear();
-      options.year = year;
-      options.delta = Math.min(delta, 1);
-      hivLayer.draw(hivLayerView, options);
-    }
-    */
-    /*
-    if (showObesityLayer) {
-      var obesityLayerView = getLayerView(obesityLayer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      options.zoom = timelapse.getCurrentZoom();
-
-      var currentTime = timelapse.getCurrentTime();
-      var currentTimes = getCurrentTimes(timelapse);
-      var dates = getDates(timelapse);
-      var delta = getCurrentTimesDelta(currentTime, currentTimes);
-      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-      var year = currentDate.getUTCFullYear();
-      options.year = year;
-      options.delta = Math.min(delta, 1);
-      obesityLayer.draw(obesityLayerView, options);
-    }
-    */
-    /*
-    if (showVaccineConfidenceLayer) {
-      var vaccineConfidenceLayerView = getLayerView(vaccineConfidenceLayer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-
-      var vaccineConfidenceQuestion = 1.0;
-      if ($("#show-vaccine-confidence-q2").prop('checked')) {
-        vaccineConfidenceQuestion = 2.0;
+  */
+      // Draw Global Wind Layer
+  /*
+      if (showGlobalWindPowerLayer) {
+        var globalWindPowerLayerView = getLayerView(globalWindPowerLayer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        options.zoom = timelapse.getCurrentZoom();
+        var currentTime = timelapse.getCurrentTime();
+        var currentTimes = getCurrentTimes(timelapse);
+        var dates = getDates(timelapse);
+        var delta = getCurrentTimesDelta(currentTime, currentTimes);
+        let currentDate = getCurrentDate(currentTime, currentTimes, dates);
+        options.currentTime = currentDate;
+        options.pointSize = 3;
+        options.color = [0.1, 0.5, 0.1, 1.0];
+        globalWindPowerLayer.draw(globalWindPowerLayerView, options);
       }
-      if ($("#show-vaccine-confidence-q3").prop('checked')) {
-        vaccineConfidenceQuestion = 3.0;
+  */
+
+      // Draw Solar Layer
+      /*
+      if (showSolarInstallsLayer) {
+        var solarInstallsLayerView = getLayerView(solarInstallsLayer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        options.zoom = timelapse.getCurrentZoom();
+        var currentTime = timelapse.getCurrentTime();
+        var currentTimes = getCurrentTimes(timelapse);
+        var dates = getDates(timelapse);
+        var delta = getCurrentTimesDelta(currentTime, currentTimes);
+        let currentDate = getCurrentDate(currentTime, currentTimes, dates);
+        options.currentTime = currentDate;
+        options.pointSize = 3;
+        solarInstallsLayer.draw(solarInstallsLayerView, options);
       }
-      if ($("#show-vaccine-confidence-q4").prop('checked')) {
-        vaccineConfidenceQuestion = 4.0;
+      */
+
+      // Draw Oil/Gas Drilling Layer
+      /*
+      if (showDrillingLayer) {
+        var drillingLayerView = getLayerView(drillingLayer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        options.zoom = timelapse.getCurrentZoom();
+        var currentTime = timelapse.getCurrentTime();
+        var currentTimes = getCurrentTimes(timelapse);
+        var dates = getDates(timelapse);
+        var delta = getCurrentTimesDelta(currentTime, currentTimes);
+        let currentDate = getCurrentDate(currentTime, currentTimes, dates);
+        options.currentTime = currentDate;
+        options.color = [0.82, 0.22, 0.07, 1.0];
+        drillingLayer.draw(drillingLayerView, options);
       }
-      options.question = vaccineConfidenceQuestion;
-      vaccineConfidenceLayer.draw(vaccineConfidenceLayerView, options);
+      */
+      // Draw Forest Alerts (No Overlay)
+      /*if (showForestAlertsNoOverlayTimeMachineLayer) {
+        var forestAlertsNoOverlayView = timelapse.getView();
+        var timelapse2map = forestAlertsNoOverlayTimeMachineLayer.getWidth() / landsatBaseMapLayer.getWidth();
 
-    }
-    */
-    /*
-    if (showEbolaDeathsLayer) {
-      var ebolaLayerView = getLayerView(ebolaDeathsLayer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      options.zoom = timelapse.getCurrentZoom();
-      var currentTime = timelapse.getCurrentTime();
-      var currentTimes = getCurrentTimes(timelapse);
-      var dates = getDates(timelapse);
-      var delta = getCurrentTimesDelta(currentTime, currentTimes);
-      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-      options.currentTime = currentDate;
-      options.color = [1.0, 0.0, 0.0, 1.0];
-      options.pointSize = 2.5;
-      ebolaDeathsLayer.draw(ebolaLayerView, options);
-    }
-    */
-    /*
-    if (showEbolaCasesLayer) {
-      var ebolaLayerView = getLayerView(ebolaCasesLayer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      options.zoom = timelapse.getCurrentZoom();
-      var currentTime = timelapse.getCurrentTime();
-      var currentTimes = getCurrentTimes(timelapse);
-      var dates = getDates(timelapse);
-      var delta = getCurrentTimesDelta(currentTime, currentTimes);
-      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-      options.currentTime = currentDate;
-      options.color = [0.0, 1.0, 0.0, 1.0];
-      options.pointSize = 2.5;
-      ebolaCasesLayer.draw(ebolaLayerView, options);
-    }
-    */
-    /*
-    if (showEbolaNewCasesLayer) {
-      var ebolaLayerView = getLayerView(ebolaNewCasesLayer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      options.zoom = timelapse.getCurrentZoom();
-      var currentTime = timelapse.getCurrentTime();
-      var currentTimes = getCurrentTimes(timelapse);
-      var dates = getDates(timelapse);
-      var delta = getCurrentTimesDelta(currentTime, currentTimes);
-      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-      options.currentTime = currentDate;
-      options.color = [0.0, 0.0, 1.0, 1.0];
-      options.pointSize = 5.0;
-      ebolaNewCasesLayer.draw(ebolaLayerView, options);
-    }
-    */
-    if (showCumulativeActiveMiningLayer) {
-      var cumulativeActiveMiningLayerView = getLayerView(cumulativeActiveMiningLayer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      var ratio = gEarthTime.timelapse.getCurrentTime() / (gEarthTime.timelapse.getNumFrames() / gEarthTime.timelapse.getFps());
-      var times = gEarthTime.timelapse.getCaptureTimes();
-      var start = parseFloat(times[0]);
-      var end = parseFloat(times[times.length - 1]) + 0.5;
-      var range = end - start;
-      var current = ratio * range + start;
-      var currentIndex = 0;
-      for (var i = 0; i < times.length; i++) {
-        if (gEarthTime.timelapse.getCurrentCaptureTime() == times[i]) {
-          currentIndex = i;
-        }
+        var p = timelapse.getProjection();
+        var offest = p.latlngToPoint({
+          "lat": 5.506709319555738,
+          "lng": -82.5513118548623
+        });
+
+        forestAlertsNoOverlayView.x -= offest.x;
+        forestAlertsNoOverlayView.y -= offest.y;
+        forestAlertsNoOverlayTimeMachineLayer.draw(forestAlertsNoOverlayView, tileViewVisibility);
       }
-      var colorRamp = {
-        "1984": [255,255,255],
-        "1985": [255,255,204],
-        "1986": [250,246,198],
-        "1987": [246,238,192],
-        "1988": [242,229,187],
-        "1989": [238,221,181],
-        "1990": [233,212,176],
-        "1991": [229,204,170],
-        "1992": [225,195,165],
-        "1993": [221,187,159],
-        "1994": [216,178,154],
-        "1995": [212,170,148],
-        "1996": [208,161,143],
-        "1997": [204,153,137],
-        "1998": [199,144,132],
-        "1999": [195,136,126],
-        "2000": [191,127,121],
-        "2001": [187,119,115],
-        "2002": [183,110,109],
-        "2003": [178,102,104],
-        "2004": [174,93,98],
-        "2005": [170,85,93],
-        "2006": [166,76,87],
-        "2007": [161,68,82],
-        "2008": [157,59,76],
-        "2009": [153,51,71],
-        "2010": [149,42,65],
-        "2011": [144,34,60],
-        "2012": [140,25,54],
-        "2013": [136,17,49],
-        "2014": [132,8,43],
-        "2015": [128,0,38],
-        "2016": [128,0,0]
+
+      // Draw Forest Alerts (With Overlay)
+      if (showForestAlertsTimeMachineLayer) {
+        var forestAlertsView = timelapse.getView();
+        var timelapse2map = forestAlertsTimeMachineLayer.getWidth() / landsatBaseMapLayer.getWidth();
+
+        var p = timelapse.getProjection();
+        var offest = p.latlngToPoint({
+          "lat": 5.506709319555738,
+          "lng": -82.5513118548623
+        });
+
+        forestAlertsView.x -= offest.x;
+        forestAlertsView.y -= offest.y;
+        forestAlertsTimeMachineLayer.draw(forestAlertsView, tileViewVisibility);
+      }*/
+
+      // Draw Protected Areas (WDPA)
+      /*
+      if (showWdpaLayer) {
+        let options: DrawOptions = {};
+        var wdpaLayerView = getLayerView(wdpaLayer, landsatBaseMapLayer);
+        wdpaLayer.draw(wdpaLayerView, options);
       }
-      var currentBValue = colorRamp[times[currentIndex]][2]/255;
-      options.currentBValue = currentBValue;
-      cumulativeActiveMiningLayer.draw(cumulativeActiveMiningLayerView, options);
-    }
+      */
 
-    // Draw Annual Global PM 2.5
-    /*if (showAnnualGlobalPm25TimeMachineLayer) {
-      var view = getLayerView(annualGlobalPm25TimeMachineLayer, landsatBaseMapLayer);
-      annualGlobalPm25TimeMachineLayer.draw(view, tileViewVisibility);
-    }*/
-
-    // Draw ECCO2
-    /*if (showEcco2Layer) {
-      var view = getLayerView(ecco2Layer, landsatBaseMapLayer);
-      ecco2Layer.draw(view, tileViewVisibility);
-    }*/
-
-    // Draw GDP PPP
-    /*if (showGdpPppLayer) {
-      var view = getLayerView(gdpPppLayer, landsatBaseMapLayer);
-      gdpPppLayer.draw(view, tileViewVisibility);
-    }*/
-
-
-    // Draw GFS
-    /*if (showGfsTimemachineLayer) {
-      var view = getLayerView(gfsTimemachineLayer, landsatBaseMapLayer);
-      gfsTimemachineLayer.draw(view, tileViewVisibility);
-    }*/
-
-    // Draw Chlorophyll Concentration
-    /*if (showChlorophyllConcentrationTimemachineLayer) {
-      var view = getLayerView(chlorophyllConcentrationTimemachineLayer, landsatBaseMapLayer);
-      chlorophyllConcentrationTimemachineLayer.draw(view, tileViewVisibility);
-    }*/
-
-    if (showWindVectorsLayer) {
-      var view = getLayerView(windVectorsLayer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      options.color = [0.0, 0.0, 1.0, 1.0];
-      options.pointSize = 5.0;
-
-      var bbox = gEarthTime.timelapse.pixelBoundingBoxToLatLngBoundingBoxView(gEarthTime.timelapse.getBoundingBoxForCurrentView()).bbox;
-      var ne = bbox.ne; // tr
-      var sw = bbox.sw; // bl
-      var tl = {'lat':ne.lat, 'lng': ne.lng};
-      var br = {'lat':sw.lat, 'lng': sw.lng};
-      options['bbox'] = {'tl': tl, 'br': br};
-      windVectorsLayer.draw(view, options);
-    }
-
-
-    // TODO(LayerDB)
-    // Draw CSV z=200 (typically raster+choropleths)
-    // for (var i = 0; i < csvFileLayers.layers.length; i++) {
-    //   var layer = csvFileLayers.layers[i];
-    //   if (layer.visible && layer.z == 200) {
-    //     drawCsvLayer(layer);
-    //   }
-    // }
-
-    // bubble-maps half-circle hack
-    // Create list of visible CSV Layers
-    //var visibleCsvLayers = [];
-    //for (var i = 0; i < csvFileLayers.layers.length; i++) {
-    //  var layer = csvFileLayers.layers[i];
-    //  if (layer.visible && layer.paired) {
-    //    visibleCsvLayers.push(i);
-    //  }
-    //}
-    //if (visibleCsvLayers.length >= 2) {
-    //  if (visibleCsvLayers[0] == i) {
-    //    options.mode = 2.0;
-    //  }
-    //  if (visibleCsvLayers[1] == i) {
-    //    options.mode = 3.0;
-    //  }
-    //}
-
-    if (showIomIdpLayer) {
-      var iomIdpLayerView = getLayerView(iomIdpLayer, landsatBaseMapLayer);
-      interface IomIdpDrawOptions extends DrawOptions {
-        showIrqIdps?:    boolean,
-        showSyrIdps?:    boolean,
-        showYemIdps?:    boolean,
-        showLbyIdps?:    boolean,
-        showIrqReturns?: boolean,
-        showSyrReturns?: boolean,
-        showYemReturns?: boolean,
-        showLbyReturns?: boolean
+      // Draw Mediterranean Monthly Refugees
+      if (showMonthlyRefugeesLayer) {
+        var monthlyRefugeesLayerView = getLayerView(monthlyRefugeesLayer, landsatBaseMapLayer);
+        let options: any = {};
+        monthlyRefugeesLayer.draw(monthlyRefugeesLayerView, options);
       }
-      let options: IomIdpDrawOptions = {};
-      options.pointSize = 4.0;
-      options.showIrqIdps = iomIdpLayer.options['showIrqIdps'];
-      options.showSyrIdps = iomIdpLayer.options['showSyrIdps'];
-      options.showYemIdps = iomIdpLayer.options['showYemIdps'];
-      options.showLbyIdps = iomIdpLayer.options['showLbyIdps'];
-      options.showIrqReturns = iomIdpLayer.options['showIrqReturns'];
-      options.showSyrReturns = iomIdpLayer.options['showSyrReturns'];
-      options.showYemReturns = iomIdpLayer.options['showYemReturns'];
-      options.showLbyReturns = iomIdpLayer.options['showLbyReturns'];
-      iomIdpLayer.draw(iomIdpLayerView, options);
-    }
 
-    /*if (showBerkeleyEarthTemperatureAnomalyTimeMachineLayer) {
-      var view = getLayerView(berkeleyEarthTemperatureAnomalyTimeMachineLayer, landsatBaseMapLayer);
-      berkeleyEarthTemperatureAnomalyTimeMachineLayer.draw(view, tileViewVisibility);
 
-      var landBorderView = getLayerView(landBorderLayer, landsatBaseMapLayer);
-      landBorderLayer.draw(landBorderView);
-
-      if (showCityLabelMap) {
-        var cityLabelView = getLayerView(cityLabelMapLayer, landsatBaseMapLayer);
-        cityLabelMapLayer.draw(cityLabelView);
+      // Draw Annual Refugees
+      if (showAnnualRefugeesLayer) {
+        var annualRefugeesLayerView = getLayerView(annualRefugeesLayer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        var ratio = gEarthTime.timelapse.getCurrentTime() / (gEarthTime.timelapse.getNumFrames() / gEarthTime.timelapse.getFps());
+        var times = gEarthTime.timelapse.getCaptureTimes();
+        var startDate = new Date(parseInt(times[0]), 0, 1);
+        let endDate = new Date(parseInt(times[times.length - 1]) + 1, 0, 1);
+        var range = endDate.getTime() - startDate.getTime();
+        let currentDate = new Date(ratio * range + startDate.getTime());
+        // TODO(LayerDB): we need a currentDate() that is fully granular, like this one
+        // @ts-ignore
+        options.currentTime = currentDate;
+        options.span = 240 * 24 * 60 * 60 * 1000;
+        options.subsampleAnnualRefugees = subsampleAnnualRefugees;
+        options.pointIdx = {
+          2001: {'count': 798896, 'start': 0},
+          2002: {'count': 1377803, 'start': 798896},
+          2003: {'count': 402155, 'start': 2176699},
+          2004: {'count': 640155, 'start': 2578854},
+          2005: {'count': 375991, 'start': 3219009},
+          2006: {'count': 1666399, 'start': 3595000},
+          2007: {'count': 2881204, 'start': 5261399},
+          2008: {'count': 431865, 'start': 8142603},
+          2009: {'count': 900246, 'start': 8574468},
+          2010: {'count': 492341, 'start': 9474714},
+          2011: {'count': 742046, 'start': 9967055},
+          2012: {'count': 1356451, 'start': 10709101},
+          2013: {'count': 2260887, 'start': 12065552},
+          2014: {'count': 3107100, 'start': 14326439},
+          2015: {'count': 2331430, 'start': 17433539}
+        };
+        annualRefugeesLayer.draw(annualRefugeesLayerView, options);
       }
-    }*/
 
-    /*if (showBerkeleyEarthTemperatureAnomalyV2YearlyTimeMachineLayer) {
-      var view = getLayerView(berkeleyEarthTemperatureAnomalyV2YearlyTimeMachineLayer, landsatBaseMapLayer);
-      berkeleyEarthTemperatureAnomalyV2YearlyTimeMachineLayer.draw(view, tileViewVisibility);
-
-      var landBorderView = getLayerView(landBorderLayer, landsatBaseMapLayer);
-      landBorderLayer.draw(landBorderView);
-
-      if (showCityLabelMap) {
-        var cityLabelView = getLayerView(cityLabelMapLayer, landsatBaseMapLayer);
-        cityLabelMapLayer.draw(cityLabelView);
+      // Draw Annual Returns
+      if (showAnnualReturnsLayer) {
+        var annualReturnsLayerView = getLayerView(annualReturnsLayer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        var ratio = gEarthTime.timelapse.getCurrentTime() / (gEarthTime.timelapse.getNumFrames() / gEarthTime.timelapse.getFps());
+        var times = gEarthTime.timelapse.getCaptureTimes();
+        var startDate = new Date(parseInt(times[0]), 0, 1);
+        let endDate = new Date(parseInt(times[times.length - 1]) + 1, 0, 1);
+        var range = endDate.getTime() - startDate.getTime();
+        let currentDate = new Date(ratio * range + startDate.getTime());
+        // @ts-ignore
+        options.currentTime = currentDate;
+        options.span = 240 * 24 * 60 * 60 * 1000;
+        options.subsampleAnnualRefugees = subsampleAnnualReturns;
+        options.pointIdx = {
+          2000: {'count': 763562, 'start': 0},
+          2001: {'count': 453831, 'start': 763562},
+          2002: {'count': 2411730, 'start': 1217393},
+          2003: {'count': 1093240, 'start': 3629123},
+          2004: {'count': 1431823, 'start': 4722363},
+          2005: {'count': 1105375, 'start': 6154186},
+          2006: {'count': 710542, 'start': 7259561},
+          2007: {'count': 728128, 'start': 7970103},
+          2008: {'count': 589392, 'start': 8698231},
+          2009: {'count': 247555, 'start': 9287623},
+          2010: {'count': 171179, 'start': 9535178},
+          2011: {'count': 530960, 'start': 9706357},
+          2012: {'count': 525154, 'start': 10237317},
+          2013: {'count': 413619, 'start': 10762471},
+          2014: {'count': 126877, 'start': 11176090},
+          2015: {'count': 201440, 'start': 11302967}
+        };
+        annualReturnsLayer.draw(annualReturnsLayerView, options);
       }
-    }*/
 
-    /*if (showOmiNo2Layer) {
-      var view = getLayerView(omiNo2Layer, landsatBaseMapLayer);
-      omiNo2Layer.draw(view, tileViewVisibility);
 
-      var landBorderView = getLayerView(landBorderLayer, landsatBaseMapLayer);
-      landBorderLayer.draw(landBorderView);
-    }*/
+      // Draw Nutritional Deficiency Layers
+      /*
+      if (showHealthImpactLayer) {
+        var healthImpactLayerView = getLayerView(healthImpactLayer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        options.zoom = timelapse.getCurrentZoom();
 
-    /*if (showBePm25Layer) {
-      var view = getLayerView(bePm25Layer, landsatBaseMapLayer);
-      bePm25Layer.draw(view, tileViewVisibility);
-    }*/
+        var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
+        var times = timelapse.getCaptureTimes();
+        var endDate = new Date("2055");
+        var startDate = new Date("2015");
+        var range = endDate.getTime() - startDate.getTime();
+        var currentDate = new Date(ratio * range + startDate.getTime());
+        var year = currentDate.getUTCFullYear();
 
-    // if (showLightsAtNightAnimLayer) {
-    //   var view = getLayerView(lightsAtNightAnimLayer, landsatBaseMapLayer);
-    //   lightsAtNightAnimLayer.draw(view, tileViewVisibility);
-    // }
-
-    if (showChinaAviationLayer) {
-      var chinaAviationLayerView = getLayerView(chinaAviationLayer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      options.pointSize = 5 * window.devicePixelRatio;
-      options.color = [1.0, 0.0, 0.0, 1.0];
-      chinaAviationLayer.draw(chinaAviationLayerView, options);
-    }
-
-    if (showChinaPowerPlantsLayer) {
-      var chinaPowerPlantsLayerView = getLayerView(chinaPowerPlantsLayer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      options.pointSize = 5 * window.devicePixelRatio;
-      options.color = [0.0, 1.0, 0.0, 1.0];
-      chinaPowerPlantsLayer.draw(chinaPowerPlantsLayerView, options);
-    }
-
-    if (showChinaReservoirsLayer) {
-      var chinaReservoirsLayerView = getLayerView(chinaReservoirsLayer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      options.pointSize = 5 * window.devicePixelRatio;
-      options.color = [0.0, 0.0, 1.0, 1.0];
-      chinaReservoirsLayer.draw(chinaReservoirsLayerView, options);
-    }
-
-    if (showChinaWasteTreatmentPlantsLayer) {
-      var chinaWasteTreatmentPlantsLayerView = getLayerView(chinaWasteTreatmentPlantsLayer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      options.pointSize = 5 * window.devicePixelRatio;
-      options.color = [1.0, 0.5, 0.15, 1.0];
-      chinaWasteTreatmentPlantsLayer.draw(chinaWasteTreatmentPlantsLayerView, options);
-    }
-
-    if (showCountryLabelMapLayer) {
-      var countryLabelMapView = getLayerView(countryLabelMapLayer, landsatBaseMapLayer);
-      countryLabelMapLayer.draw(countryLabelMapView);
-    }
-
-    /*
-    if (showExpandingCitiesLayer) {
-      var layerView = getLayerView(expandingCitiesLayer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      options.zoom = timelapse.getCurrentZoom();
-      var currentTime = timelapse.getCurrentTime();
-      var currentTimes = getCurrentTimes(timelapse);
-      var dates = getDates(timelapse);
-      var delta = getCurrentTimesDelta(currentTime, currentTimes);
-      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-      options.currentTime = currentDate;
-      options.pointSize = 5 * window.devicePixelRatio;
-      options.color = [1.0, 0.5, 0.15, 1.0];
-      var year = currentDate.getUTCFullYear();
-      options.year = year;
-      options.delta = Math.min(delta, 1);
-      options.maxValue = 195;
-      expandingCitiesLayer.draw(layerView, options);
-    }
-    */
-/*
-    if (showIrenaWindLayer) {
-      var layer  = irenaWindLayer;
-      var view = getLayerView(layer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      options.zoom = timelapse.getCurrentZoom();
-      var currentTime = timelapse.getCurrentTime();
-      var currentTimes = getCurrentTimes(timelapse);
-      var dates = getDates(timelapse);
-      var delta = getCurrentTimesDelta(currentTime, currentTimes);
-      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-      options.currentTime = currentDate;
-      options.pointSize = 500.;
-      layer.draw(view, options);
-    }
-    if (showIrenaSolarLayer) {
-      var layer = irenaSolarLayer;
-      var view = getLayerView(layer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      options.zoom = timelapse.getCurrentZoom();
-      var currentTime = timelapse.getCurrentTime();
-      var currentTimes = getCurrentTimes(timelapse);
-      var dates = getDates(timelapse);
-      var delta = getCurrentTimesDelta(currentTime, currentTimes);
-      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-      options.currentTime = currentDate;
-      options.pointSize = 500.;
-      options.color = [0.5,0.05,0.5,1.0];
-      layer.draw(view, options);
-    }
-*/
-    /*
-    if (showTsipLayer) {
-      var layer = tsipLayer;
-      var view = getLayerView(layer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      options.zoom = timelapse.getCurrentZoom();
-      var currentTime = timelapse.getCurrentTime();
-      var currentTimes = getCurrentTimes(timelapse);
-      var dates = getDates(timelapse);
-      var delta = getCurrentTimesDelta(currentTime, currentTimes);
-      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-      options.currentTime = currentDate;
-      options.pointSize = 2.;
-      options.color = [0.5,0.05,0.5,1.0];
-      layer.draw(view, options);
-    }
-    */
-
-    if (showLodesLayer) {
-      var lodesLayerView = getLayerView(lodesLayer, landsatBaseMapLayer);
-      interface LodesDrawOptions extends DrawOptions {
-        se01?: boolean,
-        se02?: boolean,
-        se03?: boolean,
-        filter?: boolean,
-        distance?: number,
-        step?: number
-      }
-      let options: LodesDrawOptions = {};
-      options.se01 = lodesOptions.se01;
-      options.se02 = lodesOptions.se02;
-      options.se03 = lodesOptions.se03;
-
-      options.filter = lodesOptions.filter;
-      options.distance = lodesOptions.distance;
-
-      if (lodesOptions.animate == 'animate') {
-        var now = new Date();
-        var deltaTime = now.getTime() - lodesAnimationState.then.getTime();
-        var step = deltaTime/(lodesOptions.totalTime*lodesOptions.speed);
-        if (lodesAnimationState.inMainLoop) {
-          if (lodesOptions.doPulse) {
-            if (lodesAnimationState.pulse) {
-              step = 1. - step;
-            }
-          } else if (lodesAnimationState.pulse) {
-            lodesAnimationState.pulse = false;
-          }
-
-          if (deltaTime >= lodesOptions.totalTime*lodesOptions.speed) {
-            lodesAnimationState.then = new Date();
-            lodesAnimationState.inMainLoop = false;
-            if (lodesOptions.doPulse && lodesAnimationState.pulse) {
-              lodesAnimationState.inStartDwell = true;
-            } else {
-              lodesAnimationState.inEndDwell = true;
-            }
+        for (var i = 0; i < times.length - 1; i++) {
+          if (year == times[i] || year < times[i + 1] && year > times[i]) {
+            year = parseInt(times[i]);
           }
         }
-        else if (lodesAnimationState.inStartDwell) {
-          step = 0.;
-          if (deltaTime >= lodesOptions.dwellTime) {
-            lodesAnimationState.inStartDwell = false;
-            lodesAnimationState.inMainLoop = true;
-            lodesAnimationState.then = new Date();
-            if (lodesOptions.doPulse) {
-              lodesAnimationState.pulse = false;
-            }
+        var currentYear = new Date(year, 0, 1);
+        var nextYear = new Date(year + 5, 0, 1);
+        if (year >= 2050) {
+          nextYear = currentYear;
+        }
+        var delta = (currentDate.getTime() - currentYear) / (nextYear - currentYear);
+
+        options.year = year;
+        options.delta = delta;
+        options.showRcp = showHealthImpactRcp;
+
+        healthImpactLayer.draw(healthImpactLayerView, options);
+      }
+      */
+
+      // Draw Zika Layer
+      /*
+      if (showZikaLayer) {
+        var zikaLayerView = getLayerView(zikaLayer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        options.zoom = timelapse.getCurrentZoom();
+        var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
+        var times = timelapse.getCaptureTimes();
+        var startDate = new Date(parseInt(times[0]), 0, 1);
+        var endDate = new Date(parseInt(times[times.length - 1]) + 1, 0, 1);
+        var range = endDate.getTime() - startDate.getTime();
+        var currentDate = new Date(ratio * range + startDate.getTime());
+        options.currentTime = currentDate;
+        options.color = [1.0, 0.1, 0.1, 1.0];
+        options.pointSize = 10.0;
+        zikaLayer.draw(zikaLayerView, options);
+      }
+      */
+      // Draw Dengue Layer
+      /*
+      if (showDengueLayer) {
+        var dengueLayerView = getLayerView(dengueLayer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        options.zoom = timelapse.getCurrentZoom();
+        var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
+        var times = timelapse.getCaptureTimes();
+        var startDate = new Date(parseInt(times[0]), 0, 1);
+        var endDate = new Date(parseInt(times[times.length - 1]) + 1, 0, 1);
+        var range = endDate.getTime() - startDate.getTime();
+        var currentDate = new Date(ratio * range + startDate.getTime());
+        options.currentTime = currentDate;
+        options.color = [0.2, 1.0, 0.1, 1.0];
+        options.pointSize = 10.0;
+        dengueLayer.draw(dengueLayerView, options);
+      }
+      */
+      // Draw Chiku Layer
+      /*
+      if (showChikuLayer) {
+        var chikuLayerView = getLayerView(chikuLayer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        options.zoom = timelapse.getCurrentZoom();
+        var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
+        var times = timelapse.getCaptureTimes();
+        var startDate = new Date(parseInt(times[0]), 0, 1);
+        var endDate = new Date(parseInt(times[times.length - 1]) + 1, 0, 1);
+        var range = endDate.getTime() - startDate.getTime();
+        var currentDate = new Date(ratio * range + startDate.getTime());
+        options.currentTime = currentDate;
+        options.color = [0.1, 0.1, 1.0, 1.0];
+        options.pointSize = 10.0;
+        chikuLayer.draw(chikuLayerView, options);
+      }
+      */
+      // Draw Sea Level Rise Layer
+      if (showSeaLevelRiseLayer) {
+        var sea_level_heights = [
+          [0.0, 0.0],
+          [2.4, 0.7],
+          [7.0, 2.1],
+          [9.4, 2.9],
+          [15, 4.7],
+          [18, 5.6],
+          [21, 6.4],
+          [26, 7.9],
+          [29, 8.9]
+        ]; // [feet,meters]
+        var meters = document.getElementById("slr-meters");
+        var degree = document.getElementById("slr-degree");
+        var seaLevelRiseLayerView = getLayerView(seaLevelRiseLayer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        var ratio = gEarthTime.timelapse.getCurrentTime() / (gEarthTime.timelapse.getNumFrames() / gEarthTime.timelapse.getFps());
+        var times = gEarthTime.timelapse.getCaptureTimes();
+        var start = parseFloat(times[0]);
+        var end = parseFloat(times[times.length - 1]) + 0.5;
+        var range = end - start;
+        var current = ratio * range + start;
+        options.currentC = Math.min(current, times[times.length - 1]);
+        if (visibleBaseMapLayer == "blsat") {
+          options.color = [0.1, 0.1, 0.1, 1.0];
+        } else if (visibleBaseMapLayer == "blte") {
+          options.color = [0.4921875, 0.7421875, 0.91015625, 1.0];
+        } else if (visibleBaseMapLayer == "bdrk") {
+          options.color = [0.203125, 0.203125, 0.203125, 1.0];
+        }
+        // else if (showLightsAtNightLayer) {
+        //   options.color = [0.0, 0.0, 0.0, 1.0];
+        // }
+        var currentIndex = 0;
+        for (var i = 0; i < times.length; i++) {
+          if (gEarthTime.timelapse.getCurrentCaptureTime() == times[i]) {
+            currentIndex = i;
           }
         }
-        else {
-          step = 1.;
-          if (deltaTime >= lodesOptions.dwellTime) {
-            lodesAnimationState.inEndDwell = false;
-            lodesAnimationState.then = new Date();
-            if (lodesOptions.doPulse) {
-              lodesAnimationState.inMainLoop = true;
-              lodesAnimationState.pulse = true;
-            } else {
-              lodesAnimationState.inStartDwell = true;
-            }
+        //feet.innerHTML = sea_level_heights[currentIndex][0] + "ft";
+        if (sea_level_heights[currentIndex]) {
+          $(meters).html("+" + sea_level_heights[currentIndex][1].toFixed(1) + "m");
+        }
+        $(degree).html((currentIndex / 2).toFixed(1));
+        seaLevelRiseLayer.draw(seaLevelRiseLayerView, options);
+        $(".timeText, .captureTimeMain").html(gEarthTime.timelapse.getCurrentCaptureTime() + "&degC");
+      }
+
+      /*if (showTintedSeaLevelRiseLayer) {
+        var sea_level_heights = [
+          [0.0, 0.0],
+          [2.4, 0.7],
+          [7.0, 2.1],
+          [9.4, 2.9],
+          [15, 4.7],
+          [18, 5.6],
+          [21, 6.4],
+          [26, 7.9],
+          [29, 8.9]
+        ]; // [feet,meters]
+        var feet = document.getElementById("slr-feet");
+        var meters = document.getElementById("slr-meters");
+        var degree = document.getElementById("slr-degree");
+        var seaLevelRiseLayerView = getLayerView(seaLevelRiseLayer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
+        var times = timelapse.getCaptureTimes();
+        var start = parseFloat(times[0]);
+        var end = parseFloat(times[times.length - 1]) + 0.5;
+        var range = end - start;
+        var current = ratio * range + start;
+        options.currentC = Math.min(current, times[times.length - 1]);
+        if (visibleBaseMapLayer == "blsat") {
+          options.color = [0.1, 0.1, 0.1, 1.0];
+        } else if (visibleBaseMapLayer == "blte") {
+          options.color = [0.4921875, 0.7421875, 0.91015625, 1.0];
+        } else if (visibleBaseMapLayer == "bdrk") {
+          options.color = [0.203125, 0.203125, 0.203125, 1.0];
+        }
+        // else if (showLightsAtNightLayer) {
+        //   options.color = [0.0, 0.0, 0.0, 1.0];
+        // }
+        var currentIndex = 0;
+        for (var i = 0; i < times.length; i++) {
+          if (timelapse.getCurrentCaptureTime() == times[i]) {
+            currentIndex = i;
           }
         }
-        step = Math.min(Math.max(step, 0.),1.);
+        //feet.innerHTML = sea_level_heights[currentIndex][0] + "ft";
+        if (sea_level_heights[currentIndex]) {
+          $(meters).html("+" + sea_level_heights[currentIndex][1].toFixed(1) + "m");
+        }
+        $(degree).html((currentIndex / 2).toFixed(1));
+        tintedSeaLevelRiseLayer.draw(seaLevelRiseLayerView, options);
+        $(".timeText, .captureTimeMain").html(timelapse.getCurrentCaptureTime() + "&degC");
+      }*/
 
-      } else if (lodesOptions.animate == 'home'){
-          step = 0.;
-      } else {
-        step = 1.;
+      /*
+      if (showUrbanFragilityLayer) {
+        var urbanFragilityLayerView = getLayerView(urbanFragilityLayer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        options.zoom = timelapse.getCurrentZoom();
+
+        var currentTime = timelapse.getCurrentTime();
+        var currentTimes = getCurrentTimes(timelapse);
+        var dates = getDates(timelapse);
+        var delta = getCurrentTimesDelta(currentTime, currentTimes);
+        let currentDate = getCurrentDate(currentTime, currentTimes, dates);
+        var year = currentDate.getUTCFullYear();
+        options.year = year;
+        options.delta = Math.min(delta, 1);
+        urbanFragilityLayer.draw(urbanFragilityLayerView, options);
+
       }
+      */
 
-      options.step = step;
-
-      var zoom = gEarthTime.gmapsZoomLevel();
-      var throttle = 1.0;
-      if (zoom >= 5 && zoom < 11) {
-        throttle = Math.min(1000000/layerCountDrawnPoints(layer), 1.0);
+      /*
+      if (showGtdLayer) {
+        var gtdLayerView = getLayerView(gtdLayer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        options.zoom = timelapse.getCurrentZoom();
+        var currentTime = timelapse.getCurrentTime();
+        var currentTimes = getCurrentTimes(timelapse);
+        var dates = getDates(timelapse);
+        var delta = getCurrentTimesDelta(currentTime, currentTimes);
+        let currentDate = getCurrentDate(currentTime, currentTimes, dates);
+        options.currentTime = currentDate;
+        options.color = [1.0, 0.0, 0.0, 1.0];
+        gtdLayer.draw(gtdLayerView, options);
       }
+      */
+      /*
+      if (showUppsalaConflictLayer) {
+        var uppsalaConflictLayerView = getLayerView(uppsalaConflictLayer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        options.zoom = timelapse.getCurrentZoom();
+        var currentTime = timelapse.getCurrentTime();
+        var currentTimes = getCurrentTimes(timelapse);
+        var dates = getDates(timelapse);
+        var delta = getCurrentTimesDelta(currentTime, currentTimes);
+        let currentDate = getCurrentDate(currentTime, currentTimes, dates);
+        options.currentTime = currentDate;
+        options.color = [1.0, 0.0, 0.0, 1.0];
+        uppsalaConflictLayer.draw(uppsalaConflictLayerView, options);
+      }
+      */
+      /*
+      if (showHivLayer) {
+        var hivLayerView = getLayerView(hivLayer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        options.zoom = timelapse.getCurrentZoom();
 
-      options.throttle = throttle;
-      lodesLayer.draw(lodesLayerView, options);
-    }
+        var currentTime = timelapse.getCurrentTime();
+        var currentTimes = getCurrentTimes(timelapse);
+        var dates = getDates(timelapse);
+        var delta = getCurrentTimesDelta(currentTime, currentTimes);
+        let currentDate = getCurrentDate(currentTime, currentTimes, dates);
+        var year = currentDate.getUTCFullYear();
+        options.year = year;
+        options.delta = Math.min(delta, 1);
+        hivLayer.draw(hivLayerView, options);
+      }
+      */
+      /*
+      if (showObesityLayer) {
+        var obesityLayerView = getLayerView(obesityLayer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        options.zoom = timelapse.getCurrentZoom();
 
-    // Show dotmaps loaded from spreadsheet
-    for (var i = 0; i < dotmapLayers.length; i++) {
-      var layer = dotmapLayers[i];
-      if (layer.visible) {
-        var view = getLayerView(layer, landsatBaseMapLayer);
+        var currentTime = timelapse.getCurrentTime();
+        var currentTimes = getCurrentTimes(timelapse);
+        var dates = getDates(timelapse);
+        var delta = getCurrentTimesDelta(currentTime, currentTimes);
+        let currentDate = getCurrentDate(currentTime, currentTimes, dates);
+        var year = currentDate.getUTCFullYear();
+        options.year = year;
+        options.delta = Math.min(delta, 1);
+        obesityLayer.draw(obesityLayerView, options);
+      }
+      */
+      /*
+      if (showVaccineConfidenceLayer) {
+        var vaccineConfidenceLayerView = getLayerView(vaccineConfidenceLayer, landsatBaseMapLayer);
         let options: DrawOptions = {};
 
-        // Throttle number of pixels if we're drawing "too many"
-        var maxPoints = gEarthTime.canvasLayer.canvas.width * gEarthTime.canvasLayer.canvas.height;
-        var pointCount = layerCountDrawnPoints(layer);
-        var drawFraction = 0.125;
-        drawFraction = Math.min(maxPoints/pointCount, 1.0);
+        var vaccineConfidenceQuestion = 1.0;
+        if ($("#show-vaccine-confidence-q2").prop('checked')) {
+          vaccineConfidenceQuestion = 2.0;
+        }
+        if ($("#show-vaccine-confidence-q3").prop('checked')) {
+          vaccineConfidenceQuestion = 3.0;
+        }
+        if ($("#show-vaccine-confidence-q4").prop('checked')) {
+          vaccineConfidenceQuestion = 4.0;
+        }
+        options.question = vaccineConfidenceQuestion;
+        vaccineConfidenceLayer.draw(vaccineConfidenceLayerView, options);
 
-        options.throttle = drawFraction;
+      }
+      */
+      /*
+      if (showEbolaDeathsLayer) {
+        var ebolaLayerView = getLayerView(ebolaDeathsLayer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        options.zoom = timelapse.getCurrentZoom();
+        var currentTime = timelapse.getCurrentTime();
+        var currentTimes = getCurrentTimes(timelapse);
+        var dates = getDates(timelapse);
+        var delta = getCurrentTimesDelta(currentTime, currentTimes);
+        let currentDate = getCurrentDate(currentTime, currentTimes, dates);
+        options.currentTime = currentDate;
+        options.color = [1.0, 0.0, 0.0, 1.0];
+        options.pointSize = 2.5;
+        ebolaDeathsLayer.draw(ebolaLayerView, options);
+      }
+      */
+      /*
+      if (showEbolaCasesLayer) {
+        var ebolaLayerView = getLayerView(ebolaCasesLayer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        options.zoom = timelapse.getCurrentZoom();
+        var currentTime = timelapse.getCurrentTime();
+        var currentTimes = getCurrentTimes(timelapse);
+        var dates = getDates(timelapse);
+        var delta = getCurrentTimesDelta(currentTime, currentTimes);
+        let currentDate = getCurrentDate(currentTime, currentTimes, dates);
+        options.currentTime = currentDate;
+        options.color = [0.0, 1.0, 0.0, 1.0];
+        options.pointSize = 2.5;
+        ebolaCasesLayer.draw(ebolaLayerView, options);
+      }
+      */
+      /*
+      if (showEbolaNewCasesLayer) {
+        var ebolaLayerView = getLayerView(ebolaNewCasesLayer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        options.zoom = timelapse.getCurrentZoom();
+        var currentTime = timelapse.getCurrentTime();
+        var currentTimes = getCurrentTimes(timelapse);
+        var dates = getDates(timelapse);
+        var delta = getCurrentTimesDelta(currentTime, currentTimes);
+        let currentDate = getCurrentDate(currentTime, currentTimes, dates);
+        options.currentTime = currentDate;
+        options.color = [0.0, 0.0, 1.0, 1.0];
+        options.pointSize = 5.0;
+        ebolaNewCasesLayer.draw(ebolaLayerView, options);
+      }
+      */
+      if (showCumulativeActiveMiningLayer) {
+        var cumulativeActiveMiningLayerView = getLayerView(cumulativeActiveMiningLayer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        var ratio = gEarthTime.timelapse.getCurrentTime() / (gEarthTime.timelapse.getNumFrames() / gEarthTime.timelapse.getFps());
+        var times = gEarthTime.timelapse.getCaptureTimes();
+        var start = parseFloat(times[0]);
+        var end = parseFloat(times[times.length - 1]) + 0.5;
+        var range = end - start;
+        var current = ratio * range + start;
+        var currentIndex = 0;
+        for (var i = 0; i < times.length; i++) {
+          if (gEarthTime.timelapse.getCurrentCaptureTime() == times[i]) {
+            currentIndex = i;
+          }
+        }
+        var colorRamp = {
+          "1984": [255,255,255],
+          "1985": [255,255,204],
+          "1986": [250,246,198],
+          "1987": [246,238,192],
+          "1988": [242,229,187],
+          "1989": [238,221,181],
+          "1990": [233,212,176],
+          "1991": [229,204,170],
+          "1992": [225,195,165],
+          "1993": [221,187,159],
+          "1994": [216,178,154],
+          "1995": [212,170,148],
+          "1996": [208,161,143],
+          "1997": [204,153,137],
+          "1998": [199,144,132],
+          "1999": [195,136,126],
+          "2000": [191,127,121],
+          "2001": [187,119,115],
+          "2002": [183,110,109],
+          "2003": [178,102,104],
+          "2004": [174,93,98],
+          "2005": [170,85,93],
+          "2006": [166,76,87],
+          "2007": [161,68,82],
+          "2008": [157,59,76],
+          "2009": [153,51,71],
+          "2010": [149,42,65],
+          "2011": [144,34,60],
+          "2012": [140,25,54],
+          "2013": [136,17,49],
+          "2014": [132,8,43],
+          "2015": [128,0,38],
+          "2016": [128,0,0]
+        }
+        var currentBValue = colorRamp[times[currentIndex]][2]/255;
+        options.currentBValue = currentBValue;
+        cumulativeActiveMiningLayer.draw(cumulativeActiveMiningLayerView, options);
+      }
 
+      // Draw Annual Global PM 2.5
+      /*if (showAnnualGlobalPm25TimeMachineLayer) {
+        var view = getLayerView(annualGlobalPm25TimeMachineLayer, landsatBaseMapLayer);
+        annualGlobalPm25TimeMachineLayer.draw(view, tileViewVisibility);
+      }*/
+
+      // Draw ECCO2
+      /*if (showEcco2Layer) {
+        var view = getLayerView(ecco2Layer, landsatBaseMapLayer);
+        ecco2Layer.draw(view, tileViewVisibility);
+      }*/
+
+      // Draw GDP PPP
+      /*if (showGdpPppLayer) {
+        var view = getLayerView(gdpPppLayer, landsatBaseMapLayer);
+        gdpPppLayer.draw(view, tileViewVisibility);
+      }*/
+
+
+      // Draw GFS
+      /*if (showGfsTimemachineLayer) {
+        var view = getLayerView(gfsTimemachineLayer, landsatBaseMapLayer);
+        gfsTimemachineLayer.draw(view, tileViewVisibility);
+      }*/
+
+      // Draw Chlorophyll Concentration
+      /*if (showChlorophyllConcentrationTimemachineLayer) {
+        var view = getLayerView(chlorophyllConcentrationTimemachineLayer, landsatBaseMapLayer);
+        chlorophyllConcentrationTimemachineLayer.draw(view, tileViewVisibility);
+      }*/
+
+      if (showWindVectorsLayer) {
+        var view = getLayerView(windVectorsLayer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        options.color = [0.0, 0.0, 1.0, 1.0];
+        options.pointSize = 5.0;
+
+        var bbox = gEarthTime.timelapse.pixelBoundingBoxToLatLngBoundingBoxView(gEarthTime.timelapse.getBoundingBoxForCurrentView()).bbox;
+        var ne = bbox.ne; // tr
+        var sw = bbox.sw; // bl
+        var tl = {'lat':ne.lat, 'lng': ne.lng};
+        var br = {'lat':sw.lat, 'lng': sw.lng};
+        options['bbox'] = {'tl': tl, 'br': br};
+        windVectorsLayer.draw(view, options);
+      }
+
+
+      // TODO(LayerDB)
+      // Draw CSV z=200 (typically raster+choropleths)
+      // for (var i = 0; i < csvFileLayers.layers.length; i++) {
+      //   var layer = csvFileLayers.layers[i];
+      //   if (layer.visible && layer.z == 200) {
+      //     drawCsvLayer(layer);
+      //   }
+      // }
+
+      // bubble-maps half-circle hack
+      // Create list of visible CSV Layers
+      //var visibleCsvLayers = [];
+      //for (var i = 0; i < csvFileLayers.layers.length; i++) {
+      //  var layer = csvFileLayers.layers[i];
+      //  if (layer.visible && layer.paired) {
+      //    visibleCsvLayers.push(i);
+      //  }
+      //}
+      //if (visibleCsvLayers.length >= 2) {
+      //  if (visibleCsvLayers[0] == i) {
+      //    options.mode = 2.0;
+      //  }
+      //  if (visibleCsvLayers[1] == i) {
+      //    options.mode = 3.0;
+      //  }
+      //}
+
+      if (showIomIdpLayer) {
+        var iomIdpLayerView = getLayerView(iomIdpLayer, landsatBaseMapLayer);
+        interface IomIdpDrawOptions extends DrawOptions {
+          showIrqIdps?:    boolean,
+          showSyrIdps?:    boolean,
+          showYemIdps?:    boolean,
+          showLbyIdps?:    boolean,
+          showIrqReturns?: boolean,
+          showSyrReturns?: boolean,
+          showYemReturns?: boolean,
+          showLbyReturns?: boolean
+        }
+        let options: IomIdpDrawOptions = {};
+        options.pointSize = 4.0;
+        options.showIrqIdps = iomIdpLayer.options['showIrqIdps'];
+        options.showSyrIdps = iomIdpLayer.options['showSyrIdps'];
+        options.showYemIdps = iomIdpLayer.options['showYemIdps'];
+        options.showLbyIdps = iomIdpLayer.options['showLbyIdps'];
+        options.showIrqReturns = iomIdpLayer.options['showIrqReturns'];
+        options.showSyrReturns = iomIdpLayer.options['showSyrReturns'];
+        options.showYemReturns = iomIdpLayer.options['showYemReturns'];
+        options.showLbyReturns = iomIdpLayer.options['showLbyReturns'];
+        iomIdpLayer.draw(iomIdpLayerView, options);
+      }
+
+      /*if (showBerkeleyEarthTemperatureAnomalyTimeMachineLayer) {
+        var view = getLayerView(berkeleyEarthTemperatureAnomalyTimeMachineLayer, landsatBaseMapLayer);
+        berkeleyEarthTemperatureAnomalyTimeMachineLayer.draw(view, tileViewVisibility);
+
+        var landBorderView = getLayerView(landBorderLayer, landsatBaseMapLayer);
+        landBorderLayer.draw(landBorderView);
+
+        if (showCityLabelMap) {
+          var cityLabelView = getLayerView(cityLabelMapLayer, landsatBaseMapLayer);
+          cityLabelMapLayer.draw(cityLabelView);
+        }
+      }*/
+
+      /*if (showBerkeleyEarthTemperatureAnomalyV2YearlyTimeMachineLayer) {
+        var view = getLayerView(berkeleyEarthTemperatureAnomalyV2YearlyTimeMachineLayer, landsatBaseMapLayer);
+        berkeleyEarthTemperatureAnomalyV2YearlyTimeMachineLayer.draw(view, tileViewVisibility);
+
+        var landBorderView = getLayerView(landBorderLayer, landsatBaseMapLayer);
+        landBorderLayer.draw(landBorderView);
+
+        if (showCityLabelMap) {
+          var cityLabelView = getLayerView(cityLabelMapLayer, landsatBaseMapLayer);
+          cityLabelMapLayer.draw(cityLabelView);
+        }
+      }*/
+
+      /*if (showOmiNo2Layer) {
+        var view = getLayerView(omiNo2Layer, landsatBaseMapLayer);
+        omiNo2Layer.draw(view, tileViewVisibility);
+
+        var landBorderView = getLayerView(landBorderLayer, landsatBaseMapLayer);
+        landBorderLayer.draw(landBorderView);
+      }*/
+
+      /*if (showBePm25Layer) {
+        var view = getLayerView(bePm25Layer, landsatBaseMapLayer);
+        bePm25Layer.draw(view, tileViewVisibility);
+      }*/
+
+      // if (showLightsAtNightAnimLayer) {
+      //   var view = getLayerView(lightsAtNightAnimLayer, landsatBaseMapLayer);
+      //   lightsAtNightAnimLayer.draw(view, tileViewVisibility);
+      // }
+
+      if (showChinaAviationLayer) {
+        var chinaAviationLayerView = getLayerView(chinaAviationLayer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        options.pointSize = 5 * window.devicePixelRatio;
+        options.color = [1.0, 0.0, 0.0, 1.0];
+        chinaAviationLayer.draw(chinaAviationLayerView, options);
+      }
+
+      if (showChinaPowerPlantsLayer) {
+        var chinaPowerPlantsLayerView = getLayerView(chinaPowerPlantsLayer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        options.pointSize = 5 * window.devicePixelRatio;
+        options.color = [0.0, 1.0, 0.0, 1.0];
+        chinaPowerPlantsLayer.draw(chinaPowerPlantsLayerView, options);
+      }
+
+      if (showChinaReservoirsLayer) {
+        var chinaReservoirsLayerView = getLayerView(chinaReservoirsLayer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        options.pointSize = 5 * window.devicePixelRatio;
+        options.color = [0.0, 0.0, 1.0, 1.0];
+        chinaReservoirsLayer.draw(chinaReservoirsLayerView, options);
+      }
+
+      if (showChinaWasteTreatmentPlantsLayer) {
+        var chinaWasteTreatmentPlantsLayerView = getLayerView(chinaWasteTreatmentPlantsLayer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        options.pointSize = 5 * window.devicePixelRatio;
+        options.color = [1.0, 0.5, 0.15, 1.0];
+        chinaWasteTreatmentPlantsLayer.draw(chinaWasteTreatmentPlantsLayerView, options);
+      }
+
+      if (showCountryLabelMapLayer) {
+        var countryLabelMapView = getLayerView(countryLabelMapLayer, landsatBaseMapLayer);
+        countryLabelMapLayer.draw(countryLabelMapView);
+      }
+
+      /*
+      if (showExpandingCitiesLayer) {
+        var layerView = getLayerView(expandingCitiesLayer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        options.zoom = timelapse.getCurrentZoom();
+        var currentTime = timelapse.getCurrentTime();
+        var currentTimes = getCurrentTimes(timelapse);
+        var dates = getDates(timelapse);
+        var delta = getCurrentTimesDelta(currentTime, currentTimes);
+        let currentDate = getCurrentDate(currentTime, currentTimes, dates);
+        options.currentTime = currentDate;
+        options.pointSize = 5 * window.devicePixelRatio;
+        options.color = [1.0, 0.5, 0.15, 1.0];
+        var year = currentDate.getUTCFullYear();
+        options.year = year;
+        options.delta = Math.min(delta, 1);
+        options.maxValue = 195;
+        expandingCitiesLayer.draw(layerView, options);
+      }
+      */
+  /*
+      if (showIrenaWindLayer) {
+        var layer  = irenaWindLayer;
+        var view = getLayerView(layer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        options.zoom = timelapse.getCurrentZoom();
+        var currentTime = timelapse.getCurrentTime();
+        var currentTimes = getCurrentTimes(timelapse);
+        var dates = getDates(timelapse);
+        var delta = getCurrentTimesDelta(currentTime, currentTimes);
+        let currentDate = getCurrentDate(currentTime, currentTimes, dates);
+        options.currentTime = currentDate;
+        options.pointSize = 500.;
         layer.draw(view, options);
       }
-    }
+      if (showIrenaSolarLayer) {
+        var layer = irenaSolarLayer;
+        var view = getLayerView(layer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        options.zoom = timelapse.getCurrentZoom();
+        var currentTime = timelapse.getCurrentTime();
+        var currentTimes = getCurrentTimes(timelapse);
+        var dates = getDates(timelapse);
+        var delta = getCurrentTimesDelta(currentTime, currentTimes);
+        let currentDate = getCurrentDate(currentTime, currentTimes, dates);
+        options.currentTime = currentDate;
+        options.pointSize = 500.;
+        options.color = [0.5,0.05,0.5,1.0];
+        layer.draw(view, options);
+      }
+  */
+      /*
+      if (showTsipLayer) {
+        var layer = tsipLayer;
+        var view = getLayerView(layer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        options.zoom = timelapse.getCurrentZoom();
+        var currentTime = timelapse.getCurrentTime();
+        var currentTimes = getCurrentTimes(timelapse);
+        var dates = getDates(timelapse);
+        var delta = getCurrentTimesDelta(currentTime, currentTimes);
+        let currentDate = getCurrentDate(currentTime, currentTimes, dates);
+        options.currentTime = currentDate;
+        options.pointSize = 2.;
+        options.color = [0.5,0.05,0.5,1.0];
+        layer.draw(view, options);
+      }
+      */
 
-    var crude_flows_index = [
-      {'filename': '0-crude-flows.bin', 'max_epoch': 1362803764.439162, 'min_epoch': 1344196740.0},
-      {'filename': '1-crude-flows.bin', 'max_epoch': 1368630850.6254642, 'min_epoch': 1356352440.0},
-      {'filename': '2-crude-flows.bin', 'max_epoch': 1375477977.755611, 'min_epoch': 1363526454.6067417},
-      {'filename': '3-crude-flows.bin', 'max_epoch': 1382008440.0, 'min_epoch': 1365473760.0},
-      {'filename': '4-crude-flows.bin', 'max_epoch': 1392493649.7164462, 'min_epoch': 1371392040.0},
-      {'filename': '5-crude-flows.bin', 'max_epoch': 1393598774.858223, 'min_epoch': 1382677171.011236},
-      {'filename': '6-crude-flows.bin', 'max_epoch': 1399832731.587473, 'min_epoch': 1385223928.5822306},
-      {'filename': '7-crude-flows.bin', 'max_epoch': 1406034129.6090713, 'min_epoch': 1392063240.0},
-      {'filename': '8-crude-flows.bin', 'max_epoch': 1413160440.0, 'min_epoch': 1400939343.3707864},
-      {'filename': '9-crude-flows.bin', 'max_epoch': 1418089195.8662152, 'min_epoch': 1404994380.0},
-      {'filename': '10-crude-flows.bin', 'max_epoch': 1424125799.774436, 'min_epoch': 1413165780.0},
-      {'filename': '11-crude-flows.bin', 'max_epoch': 1442046780.0, 'min_epoch': 1417092012.1348314},
-      {'filename': '12-crude-flows.bin', 'max_epoch': 1437058019.1022444, 'min_epoch': 1421189963.6363637},
-      {'filename': '13-crude-flows.bin', 'max_epoch': 1443465644.3032672, 'min_epoch': 1425812640.0},
-      {'filename': '14-crude-flows.bin', 'max_epoch': 1448988823.6228287, 'min_epoch': 1436904887.2727273},
-      {'filename': '15-crude-flows.bin', 'max_epoch': 1455260843.3774915, 'min_epoch': 1445261237.9165041},
-      {'filename': '16-crude-flows.bin', 'max_epoch': 1463993410.909091, 'min_epoch': 1450881160.140802},
-      {'filename': '17-crude-flows.bin', 'max_epoch': 1467755612.9371564, 'min_epoch': 1457289194.0186915},
-      {'filename': '18-crude-flows.bin', 'max_epoch': 1474374616.3636363, 'min_epoch': 1463748721.8181818},
-      {'filename': '19-crude-flows.bin', 'max_epoch': 1481250173.6283185, 'min_epoch': 1469280227.0160873},
-      {'filename': '20-crude-flows.bin', 'max_epoch': 1487025440.549273, 'min_epoch': 1474853520.0},
-      {'filename': '21-crude-flows.bin', 'max_epoch': 1492642858.041543, 'min_epoch': 1483774740.0},
-      {'filename': '22-crude-flows.bin', 'max_epoch': 1503923820.0, 'min_epoch': 1482323820.0},
-      {'filename': '23-crude-flows.bin', 'max_epoch': 1508006340.0, 'min_epoch': 1492941696.4485981},
-      {'filename': '24-crude-flows.bin', 'max_epoch': 1509999715.9048486, 'min_epoch': 1497947778.504673}
-      ];
-    function showIndex(idx, epoch) {
-      return crude_flows_index[idx]['min_epoch'] < epoch && crude_flows_index[idx]['max_epoch'] > epoch;
-    }
+      if (showLodesLayer) {
+        var lodesLayerView = getLayerView(lodesLayer, landsatBaseMapLayer);
+        interface LodesDrawOptions extends DrawOptions {
+          se01?: boolean,
+          se02?: boolean,
+          se03?: boolean,
+          filter?: boolean,
+          distance?: number,
+          step?: number
+        }
+        let options: LodesDrawOptions = {};
+        options.se01 = lodesOptions.se01;
+        options.se02 = lodesOptions.se02;
+        options.se03 = lodesOptions.se03;
 
-    // TODO(LayerDB)
-    // Draw CSV z=400 (most CSV layers, by default)
-    // for (var i = 0; i < csvFileLayers.layers.length; i++) {
-    //   var layer = csvFileLayers.layers[i];
-    //    if (layer.visible && layer.z == 400) {
-    //      drawCsvLayer(layer);
-    //    }
-    // }
+        options.filter = lodesOptions.filter;
+        options.distance = lodesOptions.distance;
 
-    if (showSpCrudeLayer) {
-      var layer = spCrudeLayer;
-      var view = getLayerView(layer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      options.pointSize = 2.;
-      options.color = [0.5,0.05,0.5,1.0];
-      var currentEpoch = gEarthTime.currentEpochTime();
-      for (var i = 0; i < crude_flows_index.length; i++) {
-        if (showIndex(i, currentEpoch)) {
-          if (typeof spCrudeLayer.buffers[i] == "undefined") {
-            spCrudeLayer.buffers[i] = {
-              "numAttributes": 7,
-              "count": 0,
-              "buffer": null,
-              "ready": false
-            };
+        if (lodesOptions.animate == 'animate') {
+          var now = new Date();
+          var deltaTime = now.getTime() - lodesAnimationState.then.getTime();
+          var step = deltaTime/(lodesOptions.totalTime*lodesOptions.speed);
+          if (lodesAnimationState.inMainLoop) {
+            if (lodesOptions.doPulse) {
+              if (lodesAnimationState.pulse) {
+                step = 1. - step;
+              }
+            } else if (lodesAnimationState.pulse) {
+              lodesAnimationState.pulse = false;
+            }
 
-            var dataUrl = gEarthTime.rootTilePath + '/sp-crude/' + crude_flows_index[i]["filename"];
-            shipsWorker.postMessage({'idx': i, 'url': dataUrl});
+            if (deltaTime >= lodesOptions.totalTime*lodesOptions.speed) {
+              lodesAnimationState.then = new Date();
+              lodesAnimationState.inMainLoop = false;
+              if (lodesOptions.doPulse && lodesAnimationState.pulse) {
+                lodesAnimationState.inStartDwell = true;
+              } else {
+                lodesAnimationState.inEndDwell = true;
+              }
+            }
           }
-          options.idx = i;
-          options.buffers = spCrudeLayer.buffers;
+          else if (lodesAnimationState.inStartDwell) {
+            step = 0.;
+            if (deltaTime >= lodesOptions.dwellTime) {
+              lodesAnimationState.inStartDwell = false;
+              lodesAnimationState.inMainLoop = true;
+              lodesAnimationState.then = new Date();
+              if (lodesOptions.doPulse) {
+                lodesAnimationState.pulse = false;
+              }
+            }
+          }
+          else {
+            step = 1.;
+            if (deltaTime >= lodesOptions.dwellTime) {
+              lodesAnimationState.inEndDwell = false;
+              lodesAnimationState.then = new Date();
+              if (lodesOptions.doPulse) {
+                lodesAnimationState.inMainLoop = true;
+                lodesAnimationState.pulse = true;
+              } else {
+                lodesAnimationState.inStartDwell = true;
+              }
+            }
+          }
+          step = Math.min(Math.max(step, 0.),1.);
+
+        } else if (lodesOptions.animate == 'home'){
+            step = 0.;
+        } else {
+          step = 1.;
+        }
+
+        options.step = step;
+
+        var zoom = gEarthTime.gmapsZoomLevel();
+        var throttle = 1.0;
+        if (zoom >= 5 && zoom < 11) {
+          throttle = Math.min(1000000/layerCountDrawnPoints(layer), 1.0);
+        }
+
+        options.throttle = throttle;
+        lodesLayer.draw(lodesLayerView, options);
+      }
+
+      // Show dotmaps loaded from spreadsheet
+      for (var i = 0; i < dotmapLayers.length; i++) {
+        var layer = dotmapLayers[i];
+        if (layer.visible) {
+          var view = getLayerView(layer, landsatBaseMapLayer);
+          let options: DrawOptions = {};
+
+          // Throttle number of pixels if we're drawing "too many"
+          var maxPoints = gEarthTime.canvasLayer.canvas.width * gEarthTime.canvasLayer.canvas.height;
+          var pointCount = layerCountDrawnPoints(layer);
+          var drawFraction = 0.125;
+          drawFraction = Math.min(maxPoints/pointCount, 1.0);
+
+          options.throttle = drawFraction;
+
           layer.draw(view, options);
         }
       }
-    }
 
-    var crude_flows_index_Oceania = [{'max_epoch': 1.5083176e+09, 'filename': 'Oceania/0-crude-flows_Oceania.bin', 'min_epoch': 1.3435715e+09}];
-    var crude_flows_index_AG = [{'max_epoch': 1.3617048e+09, 'filename': 'AG/0-crude-flows_AG.bin', 'min_epoch': 1.3441967e+09}, {'max_epoch': 1.3771071e+09, 'filename': 'AG/1-crude-flows_AG.bin', 'min_epoch': 1.3594772e+09}, {'max_epoch': 1.3706697e+09, 'filename': 'AG/2-crude-flows_AG.bin', 'min_epoch': 1.3597724e+09}, {'max_epoch': 1.3761761e+09, 'filename': 'AG/3-crude-flows_AG.bin', 'min_epoch': 1.3693578e+09}, {'max_epoch': 1.3799291e+09, 'filename': 'AG/4-crude-flows_AG.bin', 'min_epoch': 1.3730234e+09}, {'max_epoch': 1.3835629e+09, 'filename': 'AG/5-crude-flows_AG.bin', 'min_epoch': 1.376452e+09}, {'max_epoch': 1.3884915e+09, 'filename': 'AG/6-crude-flows_AG.bin', 'min_epoch': 1.3797737e+09}, {'max_epoch': 1.3922216e+09, 'filename': 'AG/7-crude-flows_AG.bin', 'min_epoch': 1.3842066e+09}, {'max_epoch': 1.3967419e+09, 'filename': 'AG/8-crude-flows_AG.bin', 'min_epoch': 1.3880942e+09}, {'max_epoch': 1.4022243e+09, 'filename': 'AG/9-crude-flows_AG.bin', 'min_epoch': 1.3932987e+09}, {'max_epoch': 1.4059923e+09, 'filename': 'AG/10-crude-flows_AG.bin', 'min_epoch': 1.398294e+09}, {'max_epoch': 1.4106575e+09, 'filename': 'AG/11-crude-flows_AG.bin', 'min_epoch': 1.4030985e+09}, {'max_epoch': 1.4146995e+09, 'filename': 'AG/12-crude-flows_AG.bin', 'min_epoch': 1.408361e+09}, {'max_epoch': 1.4204237e+09, 'filename': 'AG/13-crude-flows_AG.bin', 'min_epoch': 1.4105153e+09}, {'max_epoch': 1.4244887e+09, 'filename': 'AG/14-crude-flows_AG.bin', 'min_epoch': 1.416967e+09}, {'max_epoch': 1.4297343e+09, 'filename': 'AG/15-crude-flows_AG.bin', 'min_epoch': 1.4202262e+09}, {'max_epoch': 1.4338424e+09, 'filename': 'AG/16-crude-flows_AG.bin', 'min_epoch': 1.4269531e+09}, {'max_epoch': 1.438222e+09, 'filename': 'AG/17-crude-flows_AG.bin', 'min_epoch': 1.4312159e+09}, {'max_epoch': 1.4429395e+09, 'filename': 'AG/18-crude-flows_AG.bin', 'min_epoch': 1.4354159e+09}, {'max_epoch': 1.4478618e+09, 'filename': 'AG/19-crude-flows_AG.bin', 'min_epoch': 1.4417828e+09}, {'max_epoch': 1.4529947e+09, 'filename': 'AG/20-crude-flows_AG.bin', 'min_epoch': 1.4457651e+09}, {'max_epoch': 1.458193e+09, 'filename': 'AG/21-crude-flows_AG.bin', 'min_epoch': 1.4514196e+09}, {'max_epoch': 1.4634623e+09, 'filename': 'AG/22-crude-flows_AG.bin', 'min_epoch': 1.4557041e+09}, {'max_epoch': 1.4669064e+09, 'filename': 'AG/23-crude-flows_AG.bin', 'min_epoch': 1.4613379e+09}, {'max_epoch': 1.4730853e+09, 'filename': 'AG/24-crude-flows_AG.bin', 'min_epoch': 1.4639675e+09}, {'max_epoch': 1.4782132e+09, 'filename': 'AG/25-crude-flows_AG.bin', 'min_epoch': 1.4703533e+09}, {'max_epoch': 1.480319e+09, 'filename': 'AG/26-crude-flows_AG.bin', 'min_epoch': 1.4711836e+09}, {'max_epoch': 1.4862049e+09, 'filename': 'AG/27-crude-flows_AG.bin', 'min_epoch': 1.47741e+09}, {'max_epoch': 1.4903073e+09, 'filename': 'AG/28-crude-flows_AG.bin', 'min_epoch': 1.4828404e+09}, {'max_epoch': 1.4943535e+09, 'filename': 'AG/29-crude-flows_AG.bin', 'min_epoch': 1.4861729e+09}, {'max_epoch': 1.4983288e+09, 'filename': 'AG/30-crude-flows_AG.bin', 'min_epoch': 1.4919392e+09}, {'max_epoch': 1.5031058e+09, 'filename': 'AG/31-crude-flows_AG.bin', 'min_epoch': 1.4967662e+09}, {'max_epoch': 1.5120396e+09, 'filename': 'AG/32-crude-flows_AG.bin', 'min_epoch': 1.5002131e+09}];
-    var crude_flows_index_WAF = [{'max_epoch': 1.3656445e+09, 'filename': 'WAF/0-crude-flows_WAF.bin', 'min_epoch': 1.3473725e+09}, {'max_epoch': 1.3747565e+09, 'filename': 'WAF/1-crude-flows_WAF.bin', 'min_epoch': 1.3650022e+09}, {'max_epoch': 1.3842788e+09, 'filename': 'WAF/2-crude-flows_WAF.bin', 'min_epoch': 1.3740604e+09}, {'max_epoch': 1.3929523e+09, 'filename': 'WAF/3-crude-flows_WAF.bin', 'min_epoch': 1.3833535e+09}, {'max_epoch': 1.4025202e+09, 'filename': 'WAF/4-crude-flows_WAF.bin', 'min_epoch': 1.3921147e+09}, {'max_epoch': 1.411857e+09, 'filename': 'WAF/5-crude-flows_WAF.bin', 'min_epoch': 1.4018527e+09}, {'max_epoch': 1.4214098e+09, 'filename': 'WAF/6-crude-flows_WAF.bin', 'min_epoch': 1.4116553e+09}, {'max_epoch': 1.4311532e+09, 'filename': 'WAF/7-crude-flows_WAF.bin', 'min_epoch': 1.4210131e+09}, {'max_epoch': 1.4404055e+09, 'filename': 'WAF/8-crude-flows_WAF.bin', 'min_epoch': 1.4305885e+09}, {'max_epoch': 1.4499501e+09, 'filename': 'WAF/9-crude-flows_WAF.bin', 'min_epoch': 1.4388869e+09}, {'max_epoch': 1.458926e+09, 'filename': 'WAF/10-crude-flows_WAF.bin', 'min_epoch': 1.4490766e+09}, {'max_epoch': 1.468358e+09, 'filename': 'WAF/11-crude-flows_WAF.bin', 'min_epoch': 1.458066e+09}, {'max_epoch': 1.4786161e+09, 'filename': 'WAF/12-crude-flows_WAF.bin', 'min_epoch': 1.4664877e+09}, {'max_epoch': 1.4881251e+09, 'filename': 'WAF/13-crude-flows_WAF.bin', 'min_epoch': 1.4772301e+09}, {'max_epoch': 1.4974886e+09, 'filename': 'WAF/14-crude-flows_WAF.bin', 'min_epoch': 1.4877286e+09}, {'max_epoch': 1.507764e+09, 'filename': 'WAF/15-crude-flows_WAF.bin', 'min_epoch': 1.496261e+09}, {'max_epoch': 1.511334e+09, 'filename': 'WAF/16-crude-flows_WAF.bin', 'min_epoch': 1.5044224e+09}];
-    var crude_flows_index_MedNAF = [{'max_epoch': 1.3762028e+09, 'filename': 'MedNAF/0-crude-flows_MedNAF.bin', 'min_epoch': 1.3501318e+09}, {'max_epoch': 1.4003267e+09, 'filename': 'MedNAF/1-crude-flows_MedNAF.bin', 'min_epoch': 1.3754286e+09}, {'max_epoch': 1.4250889e+09, 'filename': 'MedNAF/2-crude-flows_MedNAF.bin', 'min_epoch': 1.3960728e+09}, {'max_epoch': 1.4498509e+09, 'filename': 'MedNAF/3-crude-flows_MedNAF.bin', 'min_epoch': 1.4244504e+09}, {'max_epoch': 1.4743622e+09, 'filename': 'MedNAF/4-crude-flows_MedNAF.bin', 'min_epoch': 1.4464378e+09}, {'max_epoch': 1.4972628e+09, 'filename': 'MedNAF/5-crude-flows_MedNAF.bin', 'min_epoch': 1.4736177e+09}, {'max_epoch': 1.5095916e+09, 'filename': 'MedNAF/6-crude-flows_MedNAF.bin', 'min_epoch': 1.4953752e+09}];
-    var crude_flows_index_Urals = [{'max_epoch': 1.3944883e+09, 'filename': 'Urals/0-crude-flows_Urals.bin', 'min_epoch': 1.3512047e+09}, {'max_epoch': 1.435146e+09, 'filename': 'Urals/1-crude-flows_Urals.bin', 'min_epoch': 1.3944666e+09}, {'max_epoch': 1.47633e+09, 'filename': 'Urals/2-crude-flows_Urals.bin', 'min_epoch': 1.4350828e+09}, {'max_epoch': 1.5092532e+09, 'filename': 'Urals/3-crude-flows_Urals.bin', 'min_epoch': 1.4763123e+09}];
-    var crude_flows_index_USGC = [{'max_epoch': 1.5122628e+09, 'filename': 'USGC/0-crude-flows_USGC.bin', 'min_epoch': 1.3621992e+09}];
-    var crude_flows_index_LatAM = [{'max_epoch': 1.3680512e+09, 'filename': 'LatAM/0-crude-flows_LatAM.bin', 'min_epoch': 1.3474893e+09}, {'max_epoch': 1.3785563e+09, 'filename': 'LatAM/1-crude-flows_LatAM.bin', 'min_epoch': 1.3666175e+09}, {'max_epoch': 1.3898134e+09, 'filename': 'LatAM/2-crude-flows_LatAM.bin', 'min_epoch': 1.3767935e+09}, {'max_epoch': 1.4000607e+09, 'filename': 'LatAM/3-crude-flows_LatAM.bin', 'min_epoch': 1.3878431e+09}, {'max_epoch': 1.4103395e+09, 'filename': 'LatAM/4-crude-flows_LatAM.bin', 'min_epoch': 1.3986446e+09}, {'max_epoch': 1.4202254e+09, 'filename': 'LatAM/5-crude-flows_LatAM.bin', 'min_epoch': 1.408922e+09}, {'max_epoch': 1.43073e+09, 'filename': 'LatAM/6-crude-flows_LatAM.bin', 'min_epoch': 1.4186223e+09}, {'max_epoch': 1.4399827e+09, 'filename': 'LatAM/7-crude-flows_LatAM.bin', 'min_epoch': 1.4289676e+09}, {'max_epoch': 1.4490721e+09, 'filename': 'LatAM/8-crude-flows_LatAM.bin', 'min_epoch': 1.4386007e+09}, {'max_epoch': 1.4587574e+09, 'filename': 'LatAM/9-crude-flows_LatAM.bin', 'min_epoch': 1.4481128e+09}, {'max_epoch': 1.4689476e+09, 'filename': 'LatAM/10-crude-flows_LatAM.bin', 'min_epoch': 1.4563868e+09}, {'max_epoch': 1.4796142e+09, 'filename': 'LatAM/11-crude-flows_LatAM.bin', 'min_epoch': 1.4676618e+09}, {'max_epoch': 1.4914527e+09, 'filename': 'LatAM/12-crude-flows_LatAM.bin', 'min_epoch': 1.4776771e+09}, {'max_epoch': 1.5010688e+09, 'filename': 'LatAM/13-crude-flows_LatAM.bin', 'min_epoch': 1.4883502e+09}, {'max_epoch': 1.511766e+09, 'filename': 'LatAM/14-crude-flows_LatAM.bin', 'min_epoch': 1.498359e+09}];
-    var crude_flows_index_NS = [{'max_epoch': 1.4191127e+09, 'filename': 'NS/0-crude-flows_NS.bin', 'min_epoch': 1.3472122e+09}, {'max_epoch': 1.4766056e+09, 'filename': 'NS/1-crude-flows_NS.bin', 'min_epoch': 1.4182052e+09}, {'max_epoch': 1.5126084e+09, 'filename': 'NS/2-crude-flows_NS.bin', 'min_epoch': 1.4763096e+09}];
+      var crude_flows_index = [
+        {'filename': '0-crude-flows.bin', 'max_epoch': 1362803764.439162, 'min_epoch': 1344196740.0},
+        {'filename': '1-crude-flows.bin', 'max_epoch': 1368630850.6254642, 'min_epoch': 1356352440.0},
+        {'filename': '2-crude-flows.bin', 'max_epoch': 1375477977.755611, 'min_epoch': 1363526454.6067417},
+        {'filename': '3-crude-flows.bin', 'max_epoch': 1382008440.0, 'min_epoch': 1365473760.0},
+        {'filename': '4-crude-flows.bin', 'max_epoch': 1392493649.7164462, 'min_epoch': 1371392040.0},
+        {'filename': '5-crude-flows.bin', 'max_epoch': 1393598774.858223, 'min_epoch': 1382677171.011236},
+        {'filename': '6-crude-flows.bin', 'max_epoch': 1399832731.587473, 'min_epoch': 1385223928.5822306},
+        {'filename': '7-crude-flows.bin', 'max_epoch': 1406034129.6090713, 'min_epoch': 1392063240.0},
+        {'filename': '8-crude-flows.bin', 'max_epoch': 1413160440.0, 'min_epoch': 1400939343.3707864},
+        {'filename': '9-crude-flows.bin', 'max_epoch': 1418089195.8662152, 'min_epoch': 1404994380.0},
+        {'filename': '10-crude-flows.bin', 'max_epoch': 1424125799.774436, 'min_epoch': 1413165780.0},
+        {'filename': '11-crude-flows.bin', 'max_epoch': 1442046780.0, 'min_epoch': 1417092012.1348314},
+        {'filename': '12-crude-flows.bin', 'max_epoch': 1437058019.1022444, 'min_epoch': 1421189963.6363637},
+        {'filename': '13-crude-flows.bin', 'max_epoch': 1443465644.3032672, 'min_epoch': 1425812640.0},
+        {'filename': '14-crude-flows.bin', 'max_epoch': 1448988823.6228287, 'min_epoch': 1436904887.2727273},
+        {'filename': '15-crude-flows.bin', 'max_epoch': 1455260843.3774915, 'min_epoch': 1445261237.9165041},
+        {'filename': '16-crude-flows.bin', 'max_epoch': 1463993410.909091, 'min_epoch': 1450881160.140802},
+        {'filename': '17-crude-flows.bin', 'max_epoch': 1467755612.9371564, 'min_epoch': 1457289194.0186915},
+        {'filename': '18-crude-flows.bin', 'max_epoch': 1474374616.3636363, 'min_epoch': 1463748721.8181818},
+        {'filename': '19-crude-flows.bin', 'max_epoch': 1481250173.6283185, 'min_epoch': 1469280227.0160873},
+        {'filename': '20-crude-flows.bin', 'max_epoch': 1487025440.549273, 'min_epoch': 1474853520.0},
+        {'filename': '21-crude-flows.bin', 'max_epoch': 1492642858.041543, 'min_epoch': 1483774740.0},
+        {'filename': '22-crude-flows.bin', 'max_epoch': 1503923820.0, 'min_epoch': 1482323820.0},
+        {'filename': '23-crude-flows.bin', 'max_epoch': 1508006340.0, 'min_epoch': 1492941696.4485981},
+        {'filename': '24-crude-flows.bin', 'max_epoch': 1509999715.9048486, 'min_epoch': 1497947778.504673}
+        ];
+      function showIndex(idx, epoch) {
+        return crude_flows_index[idx]['min_epoch'] < epoch && crude_flows_index[idx]['max_epoch'] > epoch;
+      }
 
-    /** START Oceania LAYER */
-    function showIndexOceania(idx, epoch) {
-      return crude_flows_index_Oceania[idx]['min_epoch'] < epoch && crude_flows_index_Oceania[idx]['max_epoch'] > epoch;
-    }
+      // TODO(LayerDB)
+      // Draw CSV z=400 (most CSV layers, by default)
+      // for (var i = 0; i < csvFileLayers.layers.length; i++) {
+      //   var layer = csvFileLayers.layers[i];
+      //    if (layer.visible && layer.z == 400) {
+      //      drawCsvLayer(layer);
+      //    }
+      // }
 
-    if (showSpCrudeLayerOceania) {
-      var layer = spCrudeLayerOceania;
-      var view = getLayerView(layer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      options.pointSize = 2.;
-      options.color = [0.5,0.05,0.5,1.0];
-      var currentEpoch = gEarthTime.currentEpochTime();
-      for (var i = 0; i < crude_flows_index_Oceania.length; i++) {
-        if (showIndexOceania(i, currentEpoch)) {
-          if (typeof spCrudeLayerOceania.buffers[i] == "undefined") {
-            spCrudeLayerOceania.buffers[i] = {
-              "numAttributes": 7,
-              "count": 0,
-              "buffer": null,
-              "ready": false
-            };
+      if (showSpCrudeLayer) {
+        var layer = spCrudeLayer;
+        var view = getLayerView(layer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        options.pointSize = 2.;
+        options.color = [0.5,0.05,0.5,1.0];
+        var currentEpoch = gEarthTime.currentEpochTime();
+        for (var i = 0; i < crude_flows_index.length; i++) {
+          if (showIndex(i, currentEpoch)) {
+            if (typeof spCrudeLayer.buffers[i] == "undefined") {
+              spCrudeLayer.buffers[i] = {
+                "numAttributes": 7,
+                "count": 0,
+                "buffer": null,
+                "ready": false
+              };
 
-            var dataUrl = gEarthTime.rootTilePath + '/sp-crude/' + crude_flows_index_Oceania[i]["filename"];
-            shipsWorkerOceania.postMessage({'idx': i, 'url': dataUrl});
+              var dataUrl = gEarthTime.rootTilePath + '/sp-crude/' + crude_flows_index[i]["filename"];
+              shipsWorker.postMessage({'idx': i, 'url': dataUrl});
+            }
+            options.idx = i;
+            options.buffers = spCrudeLayer.buffers;
+            layer.draw(view, options);
           }
-          options.idx = i;
-          options.buffers = spCrudeLayerOceania.buffers;
-          layer.draw(view, options);
         }
       }
-    }
-    /** END Oceania LAYER */
 
+      var crude_flows_index_Oceania = [{'max_epoch': 1.5083176e+09, 'filename': 'Oceania/0-crude-flows_Oceania.bin', 'min_epoch': 1.3435715e+09}];
+      var crude_flows_index_AG = [{'max_epoch': 1.3617048e+09, 'filename': 'AG/0-crude-flows_AG.bin', 'min_epoch': 1.3441967e+09}, {'max_epoch': 1.3771071e+09, 'filename': 'AG/1-crude-flows_AG.bin', 'min_epoch': 1.3594772e+09}, {'max_epoch': 1.3706697e+09, 'filename': 'AG/2-crude-flows_AG.bin', 'min_epoch': 1.3597724e+09}, {'max_epoch': 1.3761761e+09, 'filename': 'AG/3-crude-flows_AG.bin', 'min_epoch': 1.3693578e+09}, {'max_epoch': 1.3799291e+09, 'filename': 'AG/4-crude-flows_AG.bin', 'min_epoch': 1.3730234e+09}, {'max_epoch': 1.3835629e+09, 'filename': 'AG/5-crude-flows_AG.bin', 'min_epoch': 1.376452e+09}, {'max_epoch': 1.3884915e+09, 'filename': 'AG/6-crude-flows_AG.bin', 'min_epoch': 1.3797737e+09}, {'max_epoch': 1.3922216e+09, 'filename': 'AG/7-crude-flows_AG.bin', 'min_epoch': 1.3842066e+09}, {'max_epoch': 1.3967419e+09, 'filename': 'AG/8-crude-flows_AG.bin', 'min_epoch': 1.3880942e+09}, {'max_epoch': 1.4022243e+09, 'filename': 'AG/9-crude-flows_AG.bin', 'min_epoch': 1.3932987e+09}, {'max_epoch': 1.4059923e+09, 'filename': 'AG/10-crude-flows_AG.bin', 'min_epoch': 1.398294e+09}, {'max_epoch': 1.4106575e+09, 'filename': 'AG/11-crude-flows_AG.bin', 'min_epoch': 1.4030985e+09}, {'max_epoch': 1.4146995e+09, 'filename': 'AG/12-crude-flows_AG.bin', 'min_epoch': 1.408361e+09}, {'max_epoch': 1.4204237e+09, 'filename': 'AG/13-crude-flows_AG.bin', 'min_epoch': 1.4105153e+09}, {'max_epoch': 1.4244887e+09, 'filename': 'AG/14-crude-flows_AG.bin', 'min_epoch': 1.416967e+09}, {'max_epoch': 1.4297343e+09, 'filename': 'AG/15-crude-flows_AG.bin', 'min_epoch': 1.4202262e+09}, {'max_epoch': 1.4338424e+09, 'filename': 'AG/16-crude-flows_AG.bin', 'min_epoch': 1.4269531e+09}, {'max_epoch': 1.438222e+09, 'filename': 'AG/17-crude-flows_AG.bin', 'min_epoch': 1.4312159e+09}, {'max_epoch': 1.4429395e+09, 'filename': 'AG/18-crude-flows_AG.bin', 'min_epoch': 1.4354159e+09}, {'max_epoch': 1.4478618e+09, 'filename': 'AG/19-crude-flows_AG.bin', 'min_epoch': 1.4417828e+09}, {'max_epoch': 1.4529947e+09, 'filename': 'AG/20-crude-flows_AG.bin', 'min_epoch': 1.4457651e+09}, {'max_epoch': 1.458193e+09, 'filename': 'AG/21-crude-flows_AG.bin', 'min_epoch': 1.4514196e+09}, {'max_epoch': 1.4634623e+09, 'filename': 'AG/22-crude-flows_AG.bin', 'min_epoch': 1.4557041e+09}, {'max_epoch': 1.4669064e+09, 'filename': 'AG/23-crude-flows_AG.bin', 'min_epoch': 1.4613379e+09}, {'max_epoch': 1.4730853e+09, 'filename': 'AG/24-crude-flows_AG.bin', 'min_epoch': 1.4639675e+09}, {'max_epoch': 1.4782132e+09, 'filename': 'AG/25-crude-flows_AG.bin', 'min_epoch': 1.4703533e+09}, {'max_epoch': 1.480319e+09, 'filename': 'AG/26-crude-flows_AG.bin', 'min_epoch': 1.4711836e+09}, {'max_epoch': 1.4862049e+09, 'filename': 'AG/27-crude-flows_AG.bin', 'min_epoch': 1.47741e+09}, {'max_epoch': 1.4903073e+09, 'filename': 'AG/28-crude-flows_AG.bin', 'min_epoch': 1.4828404e+09}, {'max_epoch': 1.4943535e+09, 'filename': 'AG/29-crude-flows_AG.bin', 'min_epoch': 1.4861729e+09}, {'max_epoch': 1.4983288e+09, 'filename': 'AG/30-crude-flows_AG.bin', 'min_epoch': 1.4919392e+09}, {'max_epoch': 1.5031058e+09, 'filename': 'AG/31-crude-flows_AG.bin', 'min_epoch': 1.4967662e+09}, {'max_epoch': 1.5120396e+09, 'filename': 'AG/32-crude-flows_AG.bin', 'min_epoch': 1.5002131e+09}];
+      var crude_flows_index_WAF = [{'max_epoch': 1.3656445e+09, 'filename': 'WAF/0-crude-flows_WAF.bin', 'min_epoch': 1.3473725e+09}, {'max_epoch': 1.3747565e+09, 'filename': 'WAF/1-crude-flows_WAF.bin', 'min_epoch': 1.3650022e+09}, {'max_epoch': 1.3842788e+09, 'filename': 'WAF/2-crude-flows_WAF.bin', 'min_epoch': 1.3740604e+09}, {'max_epoch': 1.3929523e+09, 'filename': 'WAF/3-crude-flows_WAF.bin', 'min_epoch': 1.3833535e+09}, {'max_epoch': 1.4025202e+09, 'filename': 'WAF/4-crude-flows_WAF.bin', 'min_epoch': 1.3921147e+09}, {'max_epoch': 1.411857e+09, 'filename': 'WAF/5-crude-flows_WAF.bin', 'min_epoch': 1.4018527e+09}, {'max_epoch': 1.4214098e+09, 'filename': 'WAF/6-crude-flows_WAF.bin', 'min_epoch': 1.4116553e+09}, {'max_epoch': 1.4311532e+09, 'filename': 'WAF/7-crude-flows_WAF.bin', 'min_epoch': 1.4210131e+09}, {'max_epoch': 1.4404055e+09, 'filename': 'WAF/8-crude-flows_WAF.bin', 'min_epoch': 1.4305885e+09}, {'max_epoch': 1.4499501e+09, 'filename': 'WAF/9-crude-flows_WAF.bin', 'min_epoch': 1.4388869e+09}, {'max_epoch': 1.458926e+09, 'filename': 'WAF/10-crude-flows_WAF.bin', 'min_epoch': 1.4490766e+09}, {'max_epoch': 1.468358e+09, 'filename': 'WAF/11-crude-flows_WAF.bin', 'min_epoch': 1.458066e+09}, {'max_epoch': 1.4786161e+09, 'filename': 'WAF/12-crude-flows_WAF.bin', 'min_epoch': 1.4664877e+09}, {'max_epoch': 1.4881251e+09, 'filename': 'WAF/13-crude-flows_WAF.bin', 'min_epoch': 1.4772301e+09}, {'max_epoch': 1.4974886e+09, 'filename': 'WAF/14-crude-flows_WAF.bin', 'min_epoch': 1.4877286e+09}, {'max_epoch': 1.507764e+09, 'filename': 'WAF/15-crude-flows_WAF.bin', 'min_epoch': 1.496261e+09}, {'max_epoch': 1.511334e+09, 'filename': 'WAF/16-crude-flows_WAF.bin', 'min_epoch': 1.5044224e+09}];
+      var crude_flows_index_MedNAF = [{'max_epoch': 1.3762028e+09, 'filename': 'MedNAF/0-crude-flows_MedNAF.bin', 'min_epoch': 1.3501318e+09}, {'max_epoch': 1.4003267e+09, 'filename': 'MedNAF/1-crude-flows_MedNAF.bin', 'min_epoch': 1.3754286e+09}, {'max_epoch': 1.4250889e+09, 'filename': 'MedNAF/2-crude-flows_MedNAF.bin', 'min_epoch': 1.3960728e+09}, {'max_epoch': 1.4498509e+09, 'filename': 'MedNAF/3-crude-flows_MedNAF.bin', 'min_epoch': 1.4244504e+09}, {'max_epoch': 1.4743622e+09, 'filename': 'MedNAF/4-crude-flows_MedNAF.bin', 'min_epoch': 1.4464378e+09}, {'max_epoch': 1.4972628e+09, 'filename': 'MedNAF/5-crude-flows_MedNAF.bin', 'min_epoch': 1.4736177e+09}, {'max_epoch': 1.5095916e+09, 'filename': 'MedNAF/6-crude-flows_MedNAF.bin', 'min_epoch': 1.4953752e+09}];
+      var crude_flows_index_Urals = [{'max_epoch': 1.3944883e+09, 'filename': 'Urals/0-crude-flows_Urals.bin', 'min_epoch': 1.3512047e+09}, {'max_epoch': 1.435146e+09, 'filename': 'Urals/1-crude-flows_Urals.bin', 'min_epoch': 1.3944666e+09}, {'max_epoch': 1.47633e+09, 'filename': 'Urals/2-crude-flows_Urals.bin', 'min_epoch': 1.4350828e+09}, {'max_epoch': 1.5092532e+09, 'filename': 'Urals/3-crude-flows_Urals.bin', 'min_epoch': 1.4763123e+09}];
+      var crude_flows_index_USGC = [{'max_epoch': 1.5122628e+09, 'filename': 'USGC/0-crude-flows_USGC.bin', 'min_epoch': 1.3621992e+09}];
+      var crude_flows_index_LatAM = [{'max_epoch': 1.3680512e+09, 'filename': 'LatAM/0-crude-flows_LatAM.bin', 'min_epoch': 1.3474893e+09}, {'max_epoch': 1.3785563e+09, 'filename': 'LatAM/1-crude-flows_LatAM.bin', 'min_epoch': 1.3666175e+09}, {'max_epoch': 1.3898134e+09, 'filename': 'LatAM/2-crude-flows_LatAM.bin', 'min_epoch': 1.3767935e+09}, {'max_epoch': 1.4000607e+09, 'filename': 'LatAM/3-crude-flows_LatAM.bin', 'min_epoch': 1.3878431e+09}, {'max_epoch': 1.4103395e+09, 'filename': 'LatAM/4-crude-flows_LatAM.bin', 'min_epoch': 1.3986446e+09}, {'max_epoch': 1.4202254e+09, 'filename': 'LatAM/5-crude-flows_LatAM.bin', 'min_epoch': 1.408922e+09}, {'max_epoch': 1.43073e+09, 'filename': 'LatAM/6-crude-flows_LatAM.bin', 'min_epoch': 1.4186223e+09}, {'max_epoch': 1.4399827e+09, 'filename': 'LatAM/7-crude-flows_LatAM.bin', 'min_epoch': 1.4289676e+09}, {'max_epoch': 1.4490721e+09, 'filename': 'LatAM/8-crude-flows_LatAM.bin', 'min_epoch': 1.4386007e+09}, {'max_epoch': 1.4587574e+09, 'filename': 'LatAM/9-crude-flows_LatAM.bin', 'min_epoch': 1.4481128e+09}, {'max_epoch': 1.4689476e+09, 'filename': 'LatAM/10-crude-flows_LatAM.bin', 'min_epoch': 1.4563868e+09}, {'max_epoch': 1.4796142e+09, 'filename': 'LatAM/11-crude-flows_LatAM.bin', 'min_epoch': 1.4676618e+09}, {'max_epoch': 1.4914527e+09, 'filename': 'LatAM/12-crude-flows_LatAM.bin', 'min_epoch': 1.4776771e+09}, {'max_epoch': 1.5010688e+09, 'filename': 'LatAM/13-crude-flows_LatAM.bin', 'min_epoch': 1.4883502e+09}, {'max_epoch': 1.511766e+09, 'filename': 'LatAM/14-crude-flows_LatAM.bin', 'min_epoch': 1.498359e+09}];
+      var crude_flows_index_NS = [{'max_epoch': 1.4191127e+09, 'filename': 'NS/0-crude-flows_NS.bin', 'min_epoch': 1.3472122e+09}, {'max_epoch': 1.4766056e+09, 'filename': 'NS/1-crude-flows_NS.bin', 'min_epoch': 1.4182052e+09}, {'max_epoch': 1.5126084e+09, 'filename': 'NS/2-crude-flows_NS.bin', 'min_epoch': 1.4763096e+09}];
 
-    /** START AG LAYER */
-    function showIndexAG(idx, epoch) {
-      return crude_flows_index_AG[idx]['min_epoch'] < epoch && crude_flows_index_AG[idx]['max_epoch'] > epoch;
-    }
+      /** START Oceania LAYER */
+      function showIndexOceania(idx, epoch) {
+        return crude_flows_index_Oceania[idx]['min_epoch'] < epoch && crude_flows_index_Oceania[idx]['max_epoch'] > epoch;
+      }
 
-    if (showSpCrudeLayerAG) {
-      var layer = spCrudeLayerAG;
-      var view = getLayerView(layer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      options.pointSize = 2.;
-      options.color = [0.5,0.05,0.5,1.0];
-      var currentEpoch = gEarthTime.currentEpochTime();
-      for (var i = 0; i < crude_flows_index_AG.length; i++) {
-        if (showIndexAG(i, currentEpoch)) {
-          if (typeof spCrudeLayerAG.buffers[i] == "undefined") {
-            spCrudeLayerAG.buffers[i] = {
-              "numAttributes": 7,
-              "count": 0,
-              "buffer": null,
-              "ready": false
-            };
+      if (showSpCrudeLayerOceania) {
+        var layer = spCrudeLayerOceania;
+        var view = getLayerView(layer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        options.pointSize = 2.;
+        options.color = [0.5,0.05,0.5,1.0];
+        var currentEpoch = gEarthTime.currentEpochTime();
+        for (var i = 0; i < crude_flows_index_Oceania.length; i++) {
+          if (showIndexOceania(i, currentEpoch)) {
+            if (typeof spCrudeLayerOceania.buffers[i] == "undefined") {
+              spCrudeLayerOceania.buffers[i] = {
+                "numAttributes": 7,
+                "count": 0,
+                "buffer": null,
+                "ready": false
+              };
 
-            var dataUrl = gEarthTime.rootTilePath + '/sp-crude/' + crude_flows_index_AG[i]["filename"];
-            shipsWorkerAG.postMessage({'idx': i, 'url': dataUrl});
+              var dataUrl = gEarthTime.rootTilePath + '/sp-crude/' + crude_flows_index_Oceania[i]["filename"];
+              shipsWorkerOceania.postMessage({'idx': i, 'url': dataUrl});
+            }
+            options.idx = i;
+            options.buffers = spCrudeLayerOceania.buffers;
+            layer.draw(view, options);
           }
-          options.idx = i;
-          options.buffers = spCrudeLayerAG.buffers;
-          layer.draw(view, options);
         }
       }
-    }
-    /** END AG LAYER */
+      /** END Oceania LAYER */
 
 
-    /** START WAF LAYER */
-    function showIndexWAF(idx, epoch) {
-      return crude_flows_index_WAF[idx]['min_epoch'] < epoch && crude_flows_index_WAF[idx]['max_epoch'] > epoch;
-    }
+      /** START AG LAYER */
+      function showIndexAG(idx, epoch) {
+        return crude_flows_index_AG[idx]['min_epoch'] < epoch && crude_flows_index_AG[idx]['max_epoch'] > epoch;
+      }
 
-    if (showSpCrudeLayerWAF) {
-      var layer = spCrudeLayerWAF;
-      var view = getLayerView(layer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      options.pointSize = 2.;
-      options.color = [0.5,0.05,0.5,1.0];
-      var currentEpoch = gEarthTime.currentEpochTime();
-      for (var i = 0; i < crude_flows_index_WAF.length; i++) {
-        if (showIndexWAF(i, currentEpoch)) {
-          if (typeof spCrudeLayerWAF.buffers[i] == "undefined") {
-            spCrudeLayerWAF.buffers[i] = {
-              "numAttributes": 7,
-              "count": 0,
-              "buffer": null,
-              "ready": false
-            };
+      if (showSpCrudeLayerAG) {
+        var layer = spCrudeLayerAG;
+        var view = getLayerView(layer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        options.pointSize = 2.;
+        options.color = [0.5,0.05,0.5,1.0];
+        var currentEpoch = gEarthTime.currentEpochTime();
+        for (var i = 0; i < crude_flows_index_AG.length; i++) {
+          if (showIndexAG(i, currentEpoch)) {
+            if (typeof spCrudeLayerAG.buffers[i] == "undefined") {
+              spCrudeLayerAG.buffers[i] = {
+                "numAttributes": 7,
+                "count": 0,
+                "buffer": null,
+                "ready": false
+              };
 
-            var dataUrl = gEarthTime.rootTilePath + '/sp-crude/' + crude_flows_index_WAF[i]["filename"];
-            shipsWorkerWAF.postMessage({'idx': i, 'url': dataUrl});
+              var dataUrl = gEarthTime.rootTilePath + '/sp-crude/' + crude_flows_index_AG[i]["filename"];
+              shipsWorkerAG.postMessage({'idx': i, 'url': dataUrl});
+            }
+            options.idx = i;
+            options.buffers = spCrudeLayerAG.buffers;
+            layer.draw(view, options);
           }
-          options.idx = i;
-          options.buffers = spCrudeLayerWAF.buffers;
-          layer.draw(view, options);
         }
       }
-    }
-    /** END WAF LAYER */
+      /** END AG LAYER */
 
 
-    /** START MedNAF LAYER */
-    function showIndexMedNAF(idx, epoch) {
-      return crude_flows_index_MedNAF[idx]['min_epoch'] < epoch && crude_flows_index_MedNAF[idx]['max_epoch'] > epoch;
-    }
+      /** START WAF LAYER */
+      function showIndexWAF(idx, epoch) {
+        return crude_flows_index_WAF[idx]['min_epoch'] < epoch && crude_flows_index_WAF[idx]['max_epoch'] > epoch;
+      }
 
-    if (showSpCrudeLayerMedNAF) {
-      var layer = spCrudeLayerMedNAF;
-      var view = getLayerView(layer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      options.pointSize = 2.;
-      options.color = [0.5,0.05,0.5,1.0];
-      var currentEpoch = gEarthTime.currentEpochTime();
-      for (var i = 0; i < crude_flows_index_MedNAF.length; i++) {
-        if (showIndexMedNAF(i, currentEpoch)) {
-          if (typeof spCrudeLayerMedNAF.buffers[i] == "undefined") {
-            spCrudeLayerMedNAF.buffers[i] = {
-              "numAttributes": 7,
-              "count": 0,
-              "buffer": null,
-              "ready": false
-            };
+      if (showSpCrudeLayerWAF) {
+        var layer = spCrudeLayerWAF;
+        var view = getLayerView(layer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        options.pointSize = 2.;
+        options.color = [0.5,0.05,0.5,1.0];
+        var currentEpoch = gEarthTime.currentEpochTime();
+        for (var i = 0; i < crude_flows_index_WAF.length; i++) {
+          if (showIndexWAF(i, currentEpoch)) {
+            if (typeof spCrudeLayerWAF.buffers[i] == "undefined") {
+              spCrudeLayerWAF.buffers[i] = {
+                "numAttributes": 7,
+                "count": 0,
+                "buffer": null,
+                "ready": false
+              };
 
-            var dataUrl = gEarthTime.rootTilePath + '/sp-crude/' + crude_flows_index_MedNAF[i]["filename"];
-            shipsWorkerMedNAF.postMessage({'idx': i, 'url': dataUrl});
+              var dataUrl = gEarthTime.rootTilePath + '/sp-crude/' + crude_flows_index_WAF[i]["filename"];
+              shipsWorkerWAF.postMessage({'idx': i, 'url': dataUrl});
+            }
+            options.idx = i;
+            options.buffers = spCrudeLayerWAF.buffers;
+            layer.draw(view, options);
           }
-          options.idx = i;
-          options.buffers = spCrudeLayerMedNAF.buffers;
-          layer.draw(view, options);
         }
       }
-    }
-    /** END MedNAF LAYER */
+      /** END WAF LAYER */
 
 
-    /** START Urals LAYER */
-    function showIndexUrals(idx, epoch) {
-      return crude_flows_index_Urals[idx]['min_epoch'] < epoch && crude_flows_index_Urals[idx]['max_epoch'] > epoch;
-    }
+      /** START MedNAF LAYER */
+      function showIndexMedNAF(idx, epoch) {
+        return crude_flows_index_MedNAF[idx]['min_epoch'] < epoch && crude_flows_index_MedNAF[idx]['max_epoch'] > epoch;
+      }
 
-    if (showSpCrudeLayerUrals) {
-      var layer = spCrudeLayerUrals;
-      var view = getLayerView(layer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      options.pointSize = 2.;
-      options.color = [0.5,0.05,0.5,1.0];
-      var currentEpoch = gEarthTime.currentEpochTime();
-      for (var i = 0; i < crude_flows_index_Urals.length; i++) {
-        if (showIndexUrals(i, currentEpoch)) {
-          if (typeof spCrudeLayerUrals.buffers[i] == "undefined") {
-            spCrudeLayerUrals.buffers[i] = {
-              "numAttributes": 7,
-              "count": 0,
-              "buffer": null,
-              "ready": false
-            };
+      if (showSpCrudeLayerMedNAF) {
+        var layer = spCrudeLayerMedNAF;
+        var view = getLayerView(layer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        options.pointSize = 2.;
+        options.color = [0.5,0.05,0.5,1.0];
+        var currentEpoch = gEarthTime.currentEpochTime();
+        for (var i = 0; i < crude_flows_index_MedNAF.length; i++) {
+          if (showIndexMedNAF(i, currentEpoch)) {
+            if (typeof spCrudeLayerMedNAF.buffers[i] == "undefined") {
+              spCrudeLayerMedNAF.buffers[i] = {
+                "numAttributes": 7,
+                "count": 0,
+                "buffer": null,
+                "ready": false
+              };
 
-            var dataUrl = gEarthTime.rootTilePath + '/sp-crude/' + crude_flows_index_Urals[i]["filename"];
-            shipsWorkerUrals.postMessage({'idx': i, 'url': dataUrl});
+              var dataUrl = gEarthTime.rootTilePath + '/sp-crude/' + crude_flows_index_MedNAF[i]["filename"];
+              shipsWorkerMedNAF.postMessage({'idx': i, 'url': dataUrl});
+            }
+            options.idx = i;
+            options.buffers = spCrudeLayerMedNAF.buffers;
+            layer.draw(view, options);
           }
-          options.idx = i;
-          options.buffers = spCrudeLayerUrals.buffers;
-          layer.draw(view, options);
         }
       }
-    }
-    /** END Urals LAYER */
+      /** END MedNAF LAYER */
 
 
-    /** START USGC LAYER */
-    function showIndexUSGC(idx, epoch) {
-      return crude_flows_index_USGC[idx]['min_epoch'] < epoch && crude_flows_index_USGC[idx]['max_epoch'] > epoch;
-    }
+      /** START Urals LAYER */
+      function showIndexUrals(idx, epoch) {
+        return crude_flows_index_Urals[idx]['min_epoch'] < epoch && crude_flows_index_Urals[idx]['max_epoch'] > epoch;
+      }
 
-    if (showSpCrudeLayerUSGC) {
-      var layer = spCrudeLayerUSGC;
-      var view = getLayerView(layer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      options.pointSize = 2.;
-      options.color = [0.5,0.05,0.5,1.0];
-      var currentEpoch = gEarthTime.currentEpochTime();
-      for (var i = 0; i < crude_flows_index_USGC.length; i++) {
-        if (showIndexUSGC(i, currentEpoch)) {
-          if (typeof spCrudeLayerUSGC.buffers[i] == "undefined") {
-            spCrudeLayerUSGC.buffers[i] = {
-              "numAttributes": 7,
-              "count": 0,
-              "buffer": null,
-              "ready": false
-            };
+      if (showSpCrudeLayerUrals) {
+        var layer = spCrudeLayerUrals;
+        var view = getLayerView(layer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        options.pointSize = 2.;
+        options.color = [0.5,0.05,0.5,1.0];
+        var currentEpoch = gEarthTime.currentEpochTime();
+        for (var i = 0; i < crude_flows_index_Urals.length; i++) {
+          if (showIndexUrals(i, currentEpoch)) {
+            if (typeof spCrudeLayerUrals.buffers[i] == "undefined") {
+              spCrudeLayerUrals.buffers[i] = {
+                "numAttributes": 7,
+                "count": 0,
+                "buffer": null,
+                "ready": false
+              };
 
-            var dataUrl = gEarthTime.rootTilePath + '/sp-crude/' + crude_flows_index_USGC[i]["filename"];
-            shipsWorkerUSGC.postMessage({'idx': i, 'url': dataUrl});
+              var dataUrl = gEarthTime.rootTilePath + '/sp-crude/' + crude_flows_index_Urals[i]["filename"];
+              shipsWorkerUrals.postMessage({'idx': i, 'url': dataUrl});
+            }
+            options.idx = i;
+            options.buffers = spCrudeLayerUrals.buffers;
+            layer.draw(view, options);
           }
-          options.idx = i;
-          options.buffers = spCrudeLayerUSGC.buffers;
-          layer.draw(view, options);
         }
       }
-    }
-    /** END USGC LAYER */
+      /** END Urals LAYER */
 
 
-    /** START LatAM LAYER */
-    function showIndexLatAM(idx, epoch) {
-      return crude_flows_index_LatAM[idx]['min_epoch'] < epoch && crude_flows_index_LatAM[idx]['max_epoch'] > epoch;
-    }
+      /** START USGC LAYER */
+      function showIndexUSGC(idx, epoch) {
+        return crude_flows_index_USGC[idx]['min_epoch'] < epoch && crude_flows_index_USGC[idx]['max_epoch'] > epoch;
+      }
 
-    if (showSpCrudeLayerLatAM) {
-      var layer = spCrudeLayerLatAM;
-      var view = getLayerView(layer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      options.pointSize = 2.;
-      options.color = [0.5,0.05,0.5,1.0];
-      var currentEpoch = gEarthTime.currentEpochTime();
-      for (var i = 0; i < crude_flows_index_LatAM.length; i++) {
-        if (showIndexLatAM(i, currentEpoch)) {
-          if (typeof spCrudeLayerLatAM.buffers[i] == "undefined") {
-            spCrudeLayerLatAM.buffers[i] = {
-              "numAttributes": 7,
-              "count": 0,
-              "buffer": null,
-              "ready": false
-            };
+      if (showSpCrudeLayerUSGC) {
+        var layer = spCrudeLayerUSGC;
+        var view = getLayerView(layer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        options.pointSize = 2.;
+        options.color = [0.5,0.05,0.5,1.0];
+        var currentEpoch = gEarthTime.currentEpochTime();
+        for (var i = 0; i < crude_flows_index_USGC.length; i++) {
+          if (showIndexUSGC(i, currentEpoch)) {
+            if (typeof spCrudeLayerUSGC.buffers[i] == "undefined") {
+              spCrudeLayerUSGC.buffers[i] = {
+                "numAttributes": 7,
+                "count": 0,
+                "buffer": null,
+                "ready": false
+              };
 
-            var dataUrl = gEarthTime.rootTilePath + '/sp-crude/' + crude_flows_index_LatAM[i]["filename"];
-            shipsWorkerLatAM.postMessage({'idx': i, 'url': dataUrl});
+              var dataUrl = gEarthTime.rootTilePath + '/sp-crude/' + crude_flows_index_USGC[i]["filename"];
+              shipsWorkerUSGC.postMessage({'idx': i, 'url': dataUrl});
+            }
+            options.idx = i;
+            options.buffers = spCrudeLayerUSGC.buffers;
+            layer.draw(view, options);
           }
-          options.idx = i;
-          options.buffers = spCrudeLayerLatAM.buffers;
-          layer.draw(view, options);
         }
       }
-    }
-    /** END LatAM LAYER */
+      /** END USGC LAYER */
 
 
-    /** START NS LAYER */
-    function showIndexNS(idx, epoch) {
-      return crude_flows_index_NS[idx]['min_epoch'] < epoch && crude_flows_index_NS[idx]['max_epoch'] > epoch;
-    }
+      /** START LatAM LAYER */
+      function showIndexLatAM(idx, epoch) {
+        return crude_flows_index_LatAM[idx]['min_epoch'] < epoch && crude_flows_index_LatAM[idx]['max_epoch'] > epoch;
+      }
 
-    if (showSpCrudeLayerNS) {
-      var layer = spCrudeLayerNS;
-      var view = getLayerView(layer, landsatBaseMapLayer);
-      let options: DrawOptions = {};
-      options.pointSize = 2.;
-      options.color = [0.5,0.05,0.5,1.0];
-      var currentEpoch = gEarthTime.currentEpochTime();
-      for (var i = 0; i < crude_flows_index_NS.length; i++) {
-        if (showIndexNS(i, currentEpoch)) {
-          if (typeof spCrudeLayerNS.buffers[i] == "undefined") {
-            spCrudeLayerNS.buffers[i] = {
-              "numAttributes": 7,
-              "count": 0,
-              "buffer": null,
-              "ready": false
-            };
+      if (showSpCrudeLayerLatAM) {
+        var layer = spCrudeLayerLatAM;
+        var view = getLayerView(layer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        options.pointSize = 2.;
+        options.color = [0.5,0.05,0.5,1.0];
+        var currentEpoch = gEarthTime.currentEpochTime();
+        for (var i = 0; i < crude_flows_index_LatAM.length; i++) {
+          if (showIndexLatAM(i, currentEpoch)) {
+            if (typeof spCrudeLayerLatAM.buffers[i] == "undefined") {
+              spCrudeLayerLatAM.buffers[i] = {
+                "numAttributes": 7,
+                "count": 0,
+                "buffer": null,
+                "ready": false
+              };
 
-            var dataUrl = gEarthTime.rootTilePath + '/sp-crude/' + crude_flows_index_NS[i]["filename"];
-            shipsWorkerNS.postMessage({'idx': i, 'url': dataUrl});
+              var dataUrl = gEarthTime.rootTilePath + '/sp-crude/' + crude_flows_index_LatAM[i]["filename"];
+              shipsWorkerLatAM.postMessage({'idx': i, 'url': dataUrl});
+            }
+            options.idx = i;
+            options.buffers = spCrudeLayerLatAM.buffers;
+            layer.draw(view, options);
           }
-          options.idx = i;
-          options.buffers = spCrudeLayerNS.buffers;
-          layer.draw(view, options);
+        }
+      }
+      /** END LatAM LAYER */
+
+
+      /** START NS LAYER */
+      function showIndexNS(idx, epoch) {
+        return crude_flows_index_NS[idx]['min_epoch'] < epoch && crude_flows_index_NS[idx]['max_epoch'] > epoch;
+      }
+
+      if (showSpCrudeLayerNS) {
+        var layer = spCrudeLayerNS;
+        var view = getLayerView(layer, landsatBaseMapLayer);
+        let options: DrawOptions = {};
+        options.pointSize = 2.;
+        options.color = [0.5,0.05,0.5,1.0];
+        var currentEpoch = gEarthTime.currentEpochTime();
+        for (var i = 0; i < crude_flows_index_NS.length; i++) {
+          if (showIndexNS(i, currentEpoch)) {
+            if (typeof spCrudeLayerNS.buffers[i] == "undefined") {
+              spCrudeLayerNS.buffers[i] = {
+                "numAttributes": 7,
+                "count": 0,
+                "buffer": null,
+                "ready": false
+              };
+
+              var dataUrl = gEarthTime.rootTilePath + '/sp-crude/' + crude_flows_index_NS[i]["filename"];
+              shipsWorkerNS.postMessage({'idx': i, 'url': dataUrl});
+            }
+            options.idx = i;
+            options.buffers = spCrudeLayerNS.buffers;
+            layer.draw(view, options);
+          }
         }
       }
     }

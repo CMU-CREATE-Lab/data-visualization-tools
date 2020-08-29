@@ -16,12 +16,11 @@ export interface LayerDef {
 
 export class LayerProxy {
   id: string;
-  database: LayerDB;
+  layerDb: LayerDB;
   category: string;
   name: string;
   _visible: boolean;
   showGraph: boolean;
-  _tileView?: any; // TODO(LayerDB): add the _tileView
   _loadingPromise: Promise<void>;
   _loaded: boolean
   options: any; // TODO: consider moving things out of options and using setDataOptions, drawOptions
@@ -29,12 +28,12 @@ export class LayerProxy {
   _effectiveDrawOrder: any[];
   layerDef: LayerDef;
 
-  constructor(id: string, name: string, category: string, database: LayerDB) {
+  constructor(id: string, name: string, category: string, layerDb: LayerDB) {
     console.assert(LayerProxy.isValidId(id));
     this.id = id;
     this.name = name;
     this.category = category;
-    this.database = database;
+    this.layerDb = layerDb;
   }
 
   isVisible(): boolean {
@@ -62,19 +61,20 @@ export class LayerProxy {
   }
 
   async _load() {
-    let url = `${this.database.apiUrl}layer-catalogs/${this.database.databaseId.file_id_gid()}/layers/${this.id}`
+    let url = `${this.layerDb.apiUrl}layer-catalogs/${this.layerDb.databaseId.file_id_gid()}/layers/${this.id}`
     console.log(`${this.logPrefix()} Fetching ${url}`)
-    this._load_with_layerdef(await (await Utils.fetchWithRetry(url)).json());
+    this._loadFromLayerdef(await (await Utils.fetchWithRetry(url)).json());
   }
 
-  _load_with_layerdef(layerDef: LayerDef) {
+  _loadFromLayerdef(layerDef: LayerDef) {
     if (this.layer) {
       this.layer.destroy();
       this.layer = null;
     }
     this.layerDef = layerDef;
-    this.layer = this.database.layerFactory.createLayer(this, layerDef);
-    console.log(`${this.logPrefix()} Loaded, layer=`, this.layer);
+    this.layer = this.layerDb.layerFactory.createLayer(this, layerDef);
+    this.layerDb.invalidateLoadedCache();
+    console.log(`${this.logPrefix()} layerFactory.createLayer completed`);
   }
 
   // Signal layer didn't completely draw by returning false, or settings timelapse.lastFrameCompletelyDrawn false

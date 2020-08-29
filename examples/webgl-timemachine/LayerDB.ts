@@ -71,50 +71,74 @@ export class LayerDB {
     }
   }
 
-  private _cachedLoadedLayersInDrawOrder: LayerProxy[];
-  private _prevVisibleLayers: LayerProxy[] = [];
-  private _prevLoadStates: {[key:string]: boolean} = {};
+  _loadedCache = {
+    valid: false,
+    loadedLayers: null as LayerProxy[],
+    loadedSublayersInDrawOrder: null as LayerProxy[],
+    prevVisibleLayers: [] as LayerProxy[],
+    prevLoadStates: {} as {[key:string]: boolean}
+  }
 
-  loadedLayersInDrawOrder(): LayerProxy[] {
-    if (!Utils.arrayShallowEquals(this._prevVisibleLayers, this.visibleLayers)) {
-      // Invalidate cache if visibleLayers has changed
-      this._cachedLoadedLayersInDrawOrder = null;
-    } else {
-      // Invalidate cache if visibleLayers load state has changed
-      for (let layerProxy of this._prevVisibleLayers) {
-        if (layerProxy.isLoaded() !== this._prevLoadStates[layerProxy.id]) {
-          this._cachedLoadedLayersInDrawOrder = null;
-          break;
-        }
-      }
-    }
+  invalidateLoadedCache() {
+    this._loadedCache.valid = false;
+  }
 
-    if (!this._cachedLoadedLayersInDrawOrder) {
-      this._prevVisibleLayers = Array.from(this.visibleLayers);
-      this._prevLoadStates = {};
-      let drawables = [];
-      for (let [i, layerProxy] of this.visibleLayers.entries()) {
-        this._prevLoadStates[layerProxy.id] = layerProxy.isLoaded();
-        let layer = layerProxy.layer;
-        if (layer) {
-          if (layer.hasOwnProperty('getSubLayers')) {
-            for (let [j, sublayer] of layer.getSubLayers().entries()) {
-              drawables.push([layer.drawOrder, i, j, sublayer]);
-            }
-          } else {
-            drawables.push([layer.drawOrder, i, layerProxy]);
+  _recomputeLoadCacheIfNeeded() {
+    var cache = this._loadedCache;
+    if (cache.valid) {
+      if (!Utils.arrayShallowEquals(cache.prevVisibleLayers, this.visibleLayers)) {
+        // Invalidate cache if visibleLayers has changed
+        cache.valid = false;
+      } else {
+        // Invalidate cache if visibleLayers load state has changed
+        for (let layerProxy of cache.prevVisibleLayers) {
+          if (layerProxy.isLoaded() !== cache.prevLoadStates[layerProxy.id]) {
+            cache.valid = false;
+            break;
           }
         }
       }
-      //console.log(`${this.logPrefix()} drawbles length ${drawables.length}`);
-      drawables.sort();
-      this._cachedLoadedLayersInDrawOrder = [];
-      for (let drawable of drawables) {
-        this._cachedLoadedLayersInDrawOrder.push(drawable[drawable.length - 1]);
-      }
-      console.log(`${this.logPrefix()} loadedLayersInDrawOrder:[${this._cachedLoadedLayersInDrawOrder.map(l => l.id)}]`);
     }
-    return this._cachedLoadedLayersInDrawOrder;
+
+    if (!cache.valid) {
+      ETMBLayer.requireResync();
+      cache.prevVisibleLayers = Array.from(this.visibleLayers);
+      cache.prevLoadStates = {};
+      let loadedSublayers = [];
+      cache.loadedLayers = [];
+      for (let [i, layerProxy] of this.visibleLayers.entries()) {
+        let isLoaded = layerProxy.isLoaded();
+        cache.prevLoadStates[layerProxy.id] = isLoaded;
+        if (isLoaded) {
+          cache.loadedLayers.push(layerProxy);
+          let layer = layerProxy.layer;
+          if ('getSublayers' in layer) {
+            for (let [j, sublayer] of layer.getSublayers().entries()) {
+              loadedSublayers.push([sublayer.drawOrder, i, j, sublayer]);
+            }
+          } else {
+            loadedSublayers.push([layer.drawOrder, i, layerProxy]);
+          }
+        }
+      }
+      loadedSublayers.sort();
+      cache.loadedSublayersInDrawOrder = [];
+      for (let drawable of loadedSublayers) {
+        cache.loadedSublayersInDrawOrder.push(drawable[drawable.length - 1]);
+      }
+      console.log(`${this.logPrefix()} loadedLayersInDrawOrder now [${cache.loadedSublayersInDrawOrder.map(l => l.id)}]`);
+    }
+    cache.valid = true;
+  }
+
+  loadedSublayersInDrawOrder(): LayerProxy[] {
+    this._recomputeLoadCacheIfNeeded();
+    return this._loadedCache.loadedSublayersInDrawOrder;
+  }
+
+  loadedLayers(): LayerProxy[] {
+    this._recomputeLoadCacheIfNeeded();
+    return this._loadedCache.loadedLayers;
   }
 
   mapboxLayersAreVisible() {
@@ -122,8 +146,8 @@ export class LayerDB {
       if (layerProxy.layer && layerProxy.layer instanceof ETMBLayer) {
         return true;
       }
-      return false;
     }
+    return false;
   }
 
   parse_and_encode_webgl_color(colorspec) {

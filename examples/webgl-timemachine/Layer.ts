@@ -126,7 +126,7 @@ export class LayerOptions {
     // null if we don't yet have enough information to create a Timeline
     timeline: Timeline = null;
     defaultUrl: string;
-    getSubLayers?: () => any[];
+    getSublayers?: () => any[];
     isLoaded?: () => boolean;
 
     constructor(layerProxy: LayerProxy, layerOptions: LayerOptions, tileClass: typeof Tile) {
