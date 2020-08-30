@@ -3,6 +3,7 @@
 import { LayerDB } from './LayerDB';
 import { Utils } from './Utils';
 import { Layer } from './Layer';
+import { gEarthTime, stdWebMercatorNorth } from './EarthTime';
 
 interface Timelapse {
   [key: string]: any;
@@ -78,14 +79,44 @@ export class LayerProxy {
   }
 
   // Signal layer didn't completely draw by returning false, or settings timelapse.lastFrameCompletelyDrawn false
-  draw(view, options) {
-    if (this.isLoaded()) {
-      this.layer.draw(view, options);
-      return undefined;
-    } else {
+  draw() {
+    let options = {};
+    // let options = {pointSize: 2};
+    // if (layer.options) {
+    //   $.extend(options, layer.options);
+    // }
+
+    // TODO LayerDB: uncomment and fix pairs
+    // if (pairCount && isPairCandidate(layer)) {
+    //   options.mode = pairCount + 1; // 2 or 3 for left or right
+    //   pairCount--;
+    // }
+
+    if (!this.isLoaded()) {
       this.requestLoad();
       return false;
     }
+
+    var layer = this.layer;
+
+    // The timelapse projection uses bounds from landsatBasemapLayer, which might not
+    // share the standard Web Mercator north bound.
+
+    // Compute offset, if any, in units of timelapse.getView() pixels,
+    // between standard Web Mercator and landsatBasemapLayer.
+    var yOffset = gEarthTime.timelapse.getProjection().latlngToPoint({
+      lat: stdWebMercatorNorth,
+      lng: 0
+    }).y;
+    var view = gEarthTime.timelapse.getView();
+    var timelapse2map = layer.getWidth() / gEarthTime.timelapse.getDatasetJSON().width;
+    view.y -= yOffset;
+    view.x *= timelapse2map;
+    view.y *= timelapse2map;
+    view.scale /= timelapse2map;
+
+    this.layer.draw(view, options);
+    return undefined;
   }
 
 

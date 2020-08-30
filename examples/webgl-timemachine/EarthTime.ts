@@ -7,25 +7,27 @@ import { Glb } from './Glb'
 import { Timeline } from './Timeline';
 
 export interface EarthTime {
-    startRedraw();
-    readyToDraw: boolean;
-    canvasLayer: any;
-    glb: Glb;
-    layerDB: LayerDB;
-    layerDBPromise: Promise<void>;
-    setDatabaseID: (databaseID: GSheet)=>Promise<void>;
-    LayerDBLoaded: ()=>Promise<void>;
-    timelapse: any;
-    rootTilePath: string;
-    gmapsZoomLevel(): number;
-    timelapseZoom(): number;
-    currentEpochTime(): number;
-    currentDate(): Date;
-    currentEpochTime(): number;
-    timelapseCurrentTimeDelta(): number;
-    timeline(): Timeline;
-    updateTimelineIfNeeded(): void;
-  };
+  startRedraw();
+  readyToDraw: boolean;
+  canvasLayer: any;
+  glb: Glb;
+  layerDB: LayerDB;
+  layerDBPromise: Promise<void>;
+  setDatabaseID: (databaseID: GSheet)=>Promise<void>;
+  LayerDBLoaded: ()=>Promise<void>;
+  timelapse: any;
+  rootTilePath: string;
+  gmapsZoomLevel(): number;
+  timelapseZoom(): number;
+  currentEpochTime(): number;
+  currentDate(): Date;
+  currentEpochTime(): number;
+  timelapseCurrentTimeDelta(): number;
+  timeline(): Timeline;
+  updateTimelineIfNeeded(): void;
+};
+
+export const stdWebMercatorNorth = 85.05113006405742; // Northern most latitude for standard Web Mercator
 
 export var gEarthTime: EarthTime;
 

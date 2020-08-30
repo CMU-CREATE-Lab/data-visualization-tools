@@ -34,7 +34,7 @@ dbg.LayerProxy = LayerProxy;
 import { LayerDB } from './LayerDB';
 dbg.LayerDB = LayerDB;
 
-import { EarthTime, gEarthTime, setGEarthTime } from './EarthTime';
+import { EarthTime, gEarthTime, setGEarthTime, stdWebMercatorNorth } from './EarthTime';
 
 import { AltitudeSlider } from './altitudeSlider';
 dbg.AltitudeSlider = AltitudeSlider;
@@ -490,7 +490,6 @@ if (landsatVersion == "2015"){
 
 WebGLVideoTile.useFaderShader = useFaderShader;
 var showTile = true;
-var stdWebMercatorNorth = 85.05113006405742; // Northern most latitude for standard Web Mercator
 var landsatMaxScale = (landsatVersion == "2015") ? 1.25 : 0.45;
 if (window.devicePixelRatio > 1) {
   landsatMaxScale -= 0.21;
@@ -6404,27 +6403,17 @@ function update() {
   //// Draw layers ////
   //
 
+  if (gEarthTime.layerDB.mapboxLayersAreVisible()) {
+    ETMBLayer.render();
+  } else {
+    for (let layerProxy of gEarthTime.layerDB.loadedSublayersInDrawOrder()) {
+      layerProxy.draw();
+    }
+  }
+
+  // TODO: remove getLayerView as soon as we've moved all layers from index.ts to the spreadsheet
   var getLayerView = function(layerProxy: LayerProxy, ignore) {
-    if (!layerProxy.layer) return null;
-    var dataLayer = layerProxy.layer;
-    if (!dataLayer || !dataLayer._tileView) return null;
-
-    // The timelapse projection uses bounds from landsatBasemapLayer, which might not
-    // share the standard Web Mercator north bound.
-
-    // Compute offset, if any, in units of timelapse.getView() pixels,
-    // between standard Web Mercator and landsatBasemapLayer.
-    var yOffset = gEarthTime.timelapse.getProjection().latlngToPoint({
-      lat: stdWebMercatorNorth,
-      lng: 0
-    }).y;
-    var view = gEarthTime.timelapse.getView();
-    var timelapse2map = dataLayer.getWidth() / gEarthTime.timelapse.getDatasetJSON().width;
-    view.y -= yOffset;
-    view.x *= timelapse2map;
-    view.y *= timelapse2map;
-    view.scale /= timelapse2map;
-    return view;
+    throw 'do not use getLayerView; instead move layers to database and use LayerProxy.draw'
   };
 
   function layerCountDrawnPoints(layer) {
@@ -6439,32 +6428,6 @@ function update() {
     return pointCount;
   }
   
-
-  function drawCsvLayer(layer: LayerProxy, options: any = {}) {
-    options = $.extend({}, options); // shallow-copy options
-
-    options.pointSize = 2.0;
-    // TODO LayerDB: uncomment and fix pairs
-    // if (pairCount && isPairCandidate(layer)) {
-    //   options.mode = pairCount + 1; // 2 or 3 for left or right
-    //   pairCount--;
-    // }
-    if (layer.options) {
-      $.extend(options, layer.options);
-    }
-    return layer.draw(getLayerView(layer, null), options);
-  }
-
-  var mapboxRenders = false;
-  
-  if (gEarthTime.layerDB.mapboxLayersAreVisible()) {
-    ETMBLayer.render();
-  } else {
-    for (let layerProxy of gEarthTime.layerDB.loadedSublayersInDrawOrder()) {
-      drawCsvLayer(layerProxy, {});
-    }
-  }
-
   ////////////////////////////////////////////////////////////////
   // LAYERDB
 
@@ -6620,6 +6583,8 @@ function update() {
         var endDate = Number(gEarthTime.timelapse.getCaptureTimes()[gEarthTime.timelapse.getCaptureTimes().length - 1]);
         var currentDate = Number(gEarthTime.timelapse.getCaptureTimeByTime(gEarthTime.timelapse.getCurrentTime()));
         var ratio = (currentDate - beginDate) / (endDate - beginDate);
+        // TODO: move this computation to the tile
+        // @ts-ignore
         animatedHansenLayerView.alpha = ratio;
         animatedHansenLayer.draw(animatedHansenLayerView);
       }

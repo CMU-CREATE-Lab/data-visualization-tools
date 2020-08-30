@@ -30,6 +30,7 @@ namespace MapboxTypes {
     source: string,
     metadata: {"mapbox:group"?: string},
   }
+  export type AnyLayer = Layer | MapboxEarthtimeProxyLayer;
   export type Style = { 
     layers: Layer[],
     sources: Source,
@@ -198,13 +199,10 @@ export class ETMBLayer extends LayerOptions {
     for (const [id, source] of Object.entries(initialStyle.sources)) {
       syncState.mapSources[id] = source;
     }
-    for (const layer of initialStyle.layers) {
-      syncState.mapLayers.push(layer);
-      syncState.mapLayersById[layer.id] = layer;
-    }
+    syncState.mapLayers = initialStyle.layers.slice(); // clone
 
     ETMBLayer.map.on('error', function (e) {
-      console.log(`${Utils.logPrefix()} MapboxLayer: Mapbox error`, e);
+      console.log(`${Utils.logPrefix()}: !!!!! Mapbox error: ${e.error}`);
     });
 
     await new Promise<void>((resolve, reject) => { ETMBLayer.map.on('load', resolve); });
@@ -294,8 +292,7 @@ export class ETMBLayer extends LayerOptions {
   static _syncState = {
     dirty: false,
     mapSources: {} as {[id: string]: MapboxTypes.Source},
-    mapLayers: [] as MapboxTypes.Layer[],
-    mapLayersById: {} as {[id: string]: MapboxTypes.Layer}
+    mapLayers: [] as MapboxTypes.AnyLayer[],
   }
 
   static requireResync() {
@@ -311,37 +308,44 @@ export class ETMBLayer extends LayerOptions {
     // For now, ignore ET layers
 
     // Compute needed layers, in draw order
-    let neededLayers = [] as MapboxTypes.Layer[];
+    let neededLayers = [] as MapboxTypes.AnyLayer[];
     for (let layerProxy of gEarthTime.layerDB.loadedSublayersInDrawOrder()) {
       if (layerProxy instanceof ETMapboxSublayer) {
         const sublayer = layerProxy as ETMapboxSublayer;
         for (const mapboxLayer of sublayer.mapboxLayers) {
           neededLayers.push(mapboxLayer);
         }
+      } else {
+        neededLayers.push(MapboxEarthtimeProxyLayer.findOrCreate(layerProxy));
       }
     }
 
     let syncState = this._syncState;
     // Add, move, or delete layers
-    for (let i = 0; true; i++) {
-      let neededLayer = neededLayers[i];
-      let mapLayer = syncState.mapLayers[i];
-      if (!neededLayer) {
-        if (!mapLayer) break; // done with both lists
-        console.log(`${this.logPrefix()} removeLayer(${mapLayer.id})`)
-        this.map.removeLayer(mapLayer.id);
-        delete syncState.mapLayersById[mapLayer.id];
-      }
-      else if (neededLayer != mapLayer) {
-        // if mapLayer is undefined, we'll add to the end instead of inserting
-        if (neededLayer.id in syncState.mapLayersById) {
-          this.map.moveLayer(neededLayer.id, mapLayer?.id);
+    let mapHasLayerID = {};
+    for (let mapLayer of syncState.mapLayers) {
+      mapHasLayerID[mapLayer.id] = true;
+    }
+
+    let mapIdx = 0;
+    for (const neededLayer of neededLayers) {
+      if (neededLayer != syncState.mapLayers[mapIdx]) {
+        if (neededLayer.id in mapHasLayerID) {
+          console.log(`${this.logPrefix()} moveLayer(${neededLayer.id})`)
+          this.map.moveLayer(neededLayer.id, syncState.mapLayers[mapIdx].id);
+          syncState.mapLayers = syncState.mapLayers.filter(l => l.id != neededLayer.id);
         } else {
           console.log(`${this.logPrefix()} addLayer(${neededLayer.id})`)
-          this.map.addLayer(neededLayer, mapLayer?.id);
-          syncState.mapLayersById[neededLayer.id] = neededLayer;
+          // if mapLayers[0] is undefined, we'll add to the end instead of inserting
+          this.map.addLayer(neededLayer, syncState.mapLayers[mapIdx]?.id);
         }
+      } else {
+        mapIdx++;
       }
+    }
+    for (; mapIdx < syncState.mapLayers.length; mapIdx++) {
+      console.log(`${this.logPrefix()} removeLayer(${syncState.mapLayers[mapIdx].id})`)
+      this.map.removeLayer(syncState.mapLayers[mapIdx].id);
     }
     syncState.mapLayers = neededLayers;
   }
@@ -385,3 +389,29 @@ export class ETMBLayer extends LayerOptions {
 }
 
 dbg.ETMBLayer = ETMBLayer;
+
+class MapboxEarthtimeProxyLayer {
+  id: string
+  type: string
+  renderingMode: string
+  layerProxy: LayerProxy;
+
+  render(gl, matrix) {
+    console.assert(gl === gEarthTime.glb.gl);
+    this.layerProxy.draw();
+  }
+
+  static _cache = {} as {[id: string]: MapboxEarthtimeProxyLayer};
+
+  static findOrCreate(layerProxy: LayerProxy): MapboxEarthtimeProxyLayer {
+    if (!(layerProxy.id in this._cache)) {
+      this._cache[layerProxy.id] = new this();
+      this._cache[layerProxy.id].layerProxy = layerProxy;
+      this._cache[layerProxy.id].id = layerProxy.id;
+      this._cache[layerProxy.id].type = 'custom';
+      this._cache[layerProxy.id].renderingMode = '2d';
+    }
+    return MapboxEarthtimeProxyLayer._cache[layerProxy.id];
+  }
+ 
+}
