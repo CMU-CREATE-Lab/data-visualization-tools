@@ -3,8 +3,9 @@
 import { dbg } from './dbg'
 import { gEarthTime } from './EarthTime'
 import { Utils } from './Utils';
+//import { Handlebars } from "./handlebars.runtime.min.js";
 
-import mapboxgl from './mapbox-gl-dev-patched-1.11.1/mapbox-gl';
+import mapboxgl, { featureFilter } from './mapbox-gl-dev-patched-1.11.1/mapbox-gl';
 
 import { LayerProxy } from './LayerProxy';
 import { Glb } from './Glb';
@@ -144,11 +145,12 @@ export class ETMBLayer extends LayerOptions {
 
     if (!ETMBLayer._createMapPromise) {
       // Map constructor hasn't been called yet.  Create map it and add this MapboxLayer's layers/sources/glyphs
-      ETMBLayer._createMapPromise = this._createMapFromLoad(style);
+      ETMBLayer._createMapPromise = ETMBLayer._createMapFromLoad(style);
       await ETMBLayer._createMapPromise;
     }
     this._loaded = true; 
   }
+
 
   _remapStyle(style: MapboxTypes.Style) {
     // Prefix source and layer IDs with the EarthTime layerId
@@ -173,18 +175,18 @@ export class ETMBLayer extends LayerOptions {
   }
 
   // Don't use this directly; use _ensureLoaded instead
-  async _createMapFromLoad(initialStyle: MapboxTypes.Style) {
+  static async _createMapFromLoad(initialStyle: MapboxTypes.Style) {
     // @ts-ignore
     mapboxgl.accessToken = 'pk.eyJ1IjoicmFuZHlzYXJnZW50IiwiYSI6ImNrMDYzdGl3bDA3bTUzc3Fkb3o4cjc3YXgifQ.nn7FC9cpRl_THWpoAFnnow';
 
     var $earthTimeMapContainer = $("#timeMachine_timelapse_dataPanes")
     // Add map div with id #mapbox_map, with same size as EarthTime canvas, but offscreen
     $earthTimeMapContainer.append("<div id='mapbox_map' style='width:100%; height:100%; left:-200vw'></div>");
-    $earthTimeMapContainer.mousemove(ETMBLayer.mousemove);
-    $earthTimeMapContainer.mouseleave(ETMBLayer.mouseleave);
+    $earthTimeMapContainer.mousemove(this.mousemove.bind(this));
+    $earthTimeMapContainer.mouseleave(this.mouseleave.bind(this));
     
     // @ts-ignore
-    dbg.map = ETMBLayer.map = new mapboxgl.Map({
+    dbg.map = this.map = new mapboxgl.Map({
       container: 'mapbox_map',
       style: {
         version: 8,
@@ -195,18 +197,18 @@ export class ETMBLayer extends LayerOptions {
       renderWorldCopies: false // don't show multiple earths when zooming out
     });
 
-    var syncState = ETMBLayer._syncState;
+    var syncState = this._syncState;
     for (const [id, source] of Object.entries(initialStyle.sources)) {
       syncState.mapSources[id] = source;
     }
     syncState.mapLayers = initialStyle.layers.slice(); // clone
 
-    ETMBLayer.map.on('error', function (e) {
+    this.map.on('error', function (e) {
       console.log(`${Utils.logPrefix()}: !!!!! Mapbox error: ${e.error}`);
     });
 
-    await new Promise<void>((resolve, reject) => { ETMBLayer.map.on('load', resolve); });
-    ETMBLayer.mapLoaded = true;
+    await new Promise<void>((resolve, reject) => { this.map.on('load', resolve); });
+    this.mapLoaded = true;
     console.log(`${this.logPrefix()} map load`);
   }
 
@@ -274,19 +276,35 @@ export class ETMBLayer extends LayerOptions {
     return `${Utils.logPrefix()} MapboxLayer`;
   }
 
-  static mousemove(e) {
-    var x = e.pageX - $(e.target).offset().left;
-    var y = e.pageY - $(e.target).offset().top;
-    if (ETMBLayer.mapLoaded) {
-      var features = ETMBLayer.map.queryRenderedFeatures([x,y]);
-      for (var feature of features) {
-        //console.log(`${ETMBLayer.logPrefix()} mousemove ${feature.layer.id} ${JSON.stringify(feature.properties)}`);
+  static _lastPropertiesById = {} as {[layerId: string]: {[key: string]: any}};
+
+  static mousemove(e: JQuery.MouseMoveEvent) {
+    let propertiesById = {} as {[layerId: string]: {[key: string]: any}};
+    if (ETMBLayer.mapLoaded  && gEarthTime.layerDB.mapboxLayersAreVisible()) {
+      const x = e.pageX - $(e.target).offset().left;
+      const y = e.pageY - $(e.target).offset().top;
+      let features = ETMBLayer.map.queryRenderedFeatures([x, y]);
+      // For now, just get the first item from each layer
+      // Eventually, would we want to be able to get more than one?
+      for (const feature of features) {
+        if (!(feature.layer.id in propertiesById)) {
+          propertiesById[feature.layer.id] = feature.properties;
+        }
       }
     }
+    this.updateProperties(propertiesById);
   }
 
-  static mouseleave(e) {
-    //console.log('mouseleave', e);
+  static mouseleave(e: JQuery.MouseLeaveEvent) {
+    this.updateProperties({});
+  }
+
+  static updateProperties(propertiesById: {[layerId: string]: {[key: string]: any}}) {
+    if (!Utils.deepEquals(propertiesById, this._lastPropertiesById)) {
+      this._lastPropertiesById = propertiesById;
+      // TODO: render caption, and only log if it changes
+      console.log(`${this.logPrefix()} mouse over`,propertiesById);
+    }
   }
 
   static _syncState = {

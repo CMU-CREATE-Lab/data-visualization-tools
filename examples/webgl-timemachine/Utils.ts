@@ -1,8 +1,24 @@
+import { dbg } from "./dbg";
+
 (window as any).loadStartTime = (window as any).loadStartTime || new Date().getTime();
 
 export class Utils {
   static arrayShallowEquals(a: any[], b: any[]): boolean {
     return a.length == b.length && a.every((val, index) => val == b[index]);
+  }
+
+  static deepEquals(a: any, b: any): boolean {
+    if (Array.isArray(a) && Array.isArray(b)) {
+      return a.length == b.length && a.every((val, index) => this.deepEquals(val, b[index]));
+    } else if (typeof a === 'object' && typeof b === 'object') {
+      for (const [key, val] of Object.entries(a)) {
+        if (!(key in b)) return false;
+        if (!this.deepEquals(val, b[key])) return false;
+      }
+      return Object.keys(a).length == Object.keys(b).length;
+    } else {
+      return a == b;
+    }
   }
 
   // Retry fetch forever
@@ -31,3 +47,6 @@ export class Utils {
     return Utils.timeZone;
   }
 }
+
+dbg.Utils = Utils;
+
