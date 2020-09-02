@@ -87,8 +87,8 @@ export class LayerOptions {
     colorScalingFunction: any;
     externalGeojson: any;
     nameKey: any;
-    playbackRate: any;
-    masterPlaybackRate: any;
+    playbackRate: number;
+    masterPlaybackRate: number;
     nLevels?: number = 21;
     imageSrc: any;
     drawFunction: (...any: any[]) => any;
@@ -144,7 +144,8 @@ export class LayerOptions {
       // TODO: for TimeMachine layer, set the timeline after we load tm.json
       if (this.startDate && this.endDate) {
         this.timeline = new Timeline(this.timelineType,
-        this.startDate, this.endDate, this.step);
+        this.startDate, this.endDate, this.step,
+        this.masterPlaybackRate, this.playbackRate);
       }
 
       this._tileView = new TileView({
@@ -180,7 +181,7 @@ export class LayerOptions {
     isVisible() {
       return this.layerProxy.isVisible();
     }
-    
+
     getWidth() {
       return this._tileView.getWidth();
     }

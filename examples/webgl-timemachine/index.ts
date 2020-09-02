@@ -294,6 +294,8 @@ class EarthTimeImpl implements EarthTime {
       $(".controls, .captureTime, .customControl").hide();
       if (newTimeline) {
         this.timelapse.loadNewTimelineFromObj(newTimeline.getCaptureTimes(), newTimeline.timelineType);
+        this.timelapse.setMasterPlaybackRate(newTimeline.masterPlaybackRate);
+        this.timelapse.setPlaybackRate(newTimeline.playbackRate);
         if (newTimeline.timelineType == "customUI") {
           $(".customControl").show()
         } else {
@@ -6427,7 +6429,7 @@ function update() {
     }
     return pointCount;
   }
-  
+
   ////////////////////////////////////////////////////////////////
   // LAYERDB
 

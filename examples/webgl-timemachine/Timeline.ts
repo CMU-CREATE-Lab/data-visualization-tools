@@ -25,14 +25,20 @@ export class Timeline {
     endDate: string;
     step: number;
     private cachedCaptureTimes: string[];
+    // The "Fast" playback rate value. TimeMachine will use this to figure out medium and slow speeds (e.g. 0.5x and 0.25x of this value)
+    masterPlaybackRate: number;
+    // The playback rate used on initial draw. Should be a slow/medium/fast value based on above.
+    playbackRate: number;
 
-    constructor(timelineType: TimelineType, startDate: string, endDate: string, step: number) {
+    constructor(timelineType: TimelineType, startDate: string, endDate: string, step: number, masterPlaybackRate: number, playbackRate: number) {
         this.timelineType = timelineType;
         this.startDate = startDate;
         this.endDate = endDate;
         this.step = step;
+        this.masterPlaybackRate = masterPlaybackRate;
+        this.playbackRate = playbackRate;
     }
-    
+
     getCaptureTimes(): {"capture-times": string[]} {
         if (!this.cachedCaptureTimes) {
             var captureTimes = [];
