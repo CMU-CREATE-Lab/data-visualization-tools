@@ -121,7 +121,21 @@ export class LayerDB {
           }
         }
       }
-      loadedSublayers.sort();
+
+      loadedSublayers.sort(function(layer1, layer2) {
+        var cmp = layer1[0] - layer2[0];
+        
+        if (cmp == 0){
+          cmp = layer1[1] - layer2[1];
+
+          if (cmp == 0){
+            cmp = layer1[2] - layer2[2];
+          }
+        }
+
+        return cmp;
+      });
+
       cache.loadedSublayersInDrawOrder = [];
       for (let drawable of loadedSublayers) {
         cache.loadedSublayersInDrawOrder.push(drawable[drawable.length - 1]);
