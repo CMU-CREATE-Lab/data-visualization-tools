@@ -53,7 +53,9 @@ dbg.MapboxLayer = ETMBLayer;
 
 import { Glb } from './Glb';
 import { Timeline } from './Timeline';
+import { LayerEditor } from './LayerEditor';
 dbg.Glb = Glb;
+
 
 dbg.GSheet = GSheet;
 
@@ -339,14 +341,14 @@ var showCoral = typeof(EARTH_TIMELAPSE_CONFIG.showCoral) === "undefined" ? true 
 var showHimawari8 = typeof(EARTH_TIMELAPSE_CONFIG.showHimawari8) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showHimawari8;
 //var showUSDrilling = typeof(EARTH_TIMELAPSE_CONFIG.showUSDrilling) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showUSDrilling;
 //var showViirs = typeof(EARTH_TIMELAPSE_CONFIG.showViirs) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showViirs;
-var showMonthlyRefugees = !!EARTH_TIMELAPSE_CONFIG.showMonthlyRefugees;
+//var showMonthlyRefugees = !!EARTH_TIMELAPSE_CONFIG.showMonthlyRefugees;
 var showAnnualRefugees = !!EARTH_TIMELAPSE_CONFIG.showAnnualRefugees;
 var subsampleAnnualRefugees = !!EARTH_TIMELAPSE_CONFIG.subsampleAnnualRefugees;
 var subsampleAnnualReturns = !!EARTH_TIMELAPSE_CONFIG.subsampleAnnualReturns;
 var showAnnualReturns = !!EARTH_TIMELAPSE_CONFIG.showAnnualReturns;
 //var showGlobalWindPower = !!EARTH_TIMELAPSE_CONFIG.showGlobalWindPower;
 // var showVsi = !!EARTH_TIMELAPSE_CONFIG.showVsi;
-var showHealthImpact = !!EARTH_TIMELAPSE_CONFIG.showHealthImpact;
+//var showHealthImpact = !!EARTH_TIMELAPSE_CONFIG.showHealthImpact;
 //var showZika = !!EARTH_TIMELAPSE_CONFIG.showZika;
 //var showDengue = !!EARTH_TIMELAPSE_CONFIG.showDengue;
 //var showChiku = !!EARTH_TIMELAPSE_CONFIG.showChiku;
@@ -461,6 +463,7 @@ var useRetinaDarkNoLabelsBaseMap = baseMapsNoLabels ? true : parseConfigOption({
 var enableStoryEditor = !showStories ? false : parseConfigOption({optionName: "enableStoryEditor", optionDefaultValue: false, exposeOptionToUrlHash: false});
 var pauseWhenInitialized = parseConfigOption({optionName: "pauseWhenInitialized", optionDefaultValue: false, exposeOptionToUrlHash: true});
 var disableAnimation = parseConfigOption({optionName: "disableAnimation", optionDefaultValue: false, exposeOptionToUrlHash: true});
+var preserveDrawingBuffer = parseConfigOption({optionName: "preserveDrawingBuffer", optionDefaultValue: false, exposeOptionToUrlHash: true});
 var landsatVersion = parseConfigOption({optionName: "landsatVersion", optionDefaultValue: "2015", exposeOptionToUrlHash: false});
 // Deprecated
 var customDarkMapUrl = parseConfigOption({optionName: "customDarkMapUrl", optionDefaultValue: "", exposeOptionToUrlHash: false});
@@ -591,7 +594,7 @@ var seaLevelRiseLayer;
 ////var tintedSeaLevelRiseLayer;
 //var urbanFragilityLayer;
 ////var coralBleachingLayer;
-var monthlyRefugeesLayer;
+//var monthlyRefugeesLayer;
 //var gtdLayer;
 //var hivLayer;
 //var obesityLayer;
@@ -1101,7 +1104,7 @@ var mcrmUrl = gEarthTime.rootTilePath + "/coral/mcrm-lines-wrapdateline/{z}/{x}/
 //var globalWindPowerUrl = rootTilePath + "/energy/global-wind-power/windfarms-world_20180330.bin";
 //var drillingUrl = rootTilePath + "/energy/drilling/{z}/{x}/{y}.bin";
 var animatedHansenUrls = [gfcTransUrl, gfcLossGainUrl];
-var monthlyRefugeesUrl = gEarthTime.rootTilePath + '/monthly-mediterranean-refugees/{z}/{x}/{y}.bin';
+//var monthlyRefugeesUrl = gEarthTime.rootTilePath + '/monthly-mediterranean-refugees/{z}/{x}/{y}.bin';
 
 var annualRefugeesUrl = gEarthTime.rootTilePath + "/annual-refugees/{z}/{x}/{y}.bin";
 if (subsampleAnnualRefugees) {
@@ -1808,29 +1811,29 @@ function initLayerToggleUI() {
     gEarthTime.timelapse.warpTo(gEarthTime.timelapse.getHomeView());
   }).prop('checked', showDscovrTimeMachineLayer);
 
-  $("#show-monthly-refugees").on("click", function() {
-    var $this = $(this);
-    if ($this.prop('checked')) {
-      monthlyRefugeesLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      if ($("#show-annual-refugees").prop('checked')) {
-        $("#show-annual-refugees").click();
-      }
-      showMonthlyRefugeesLayer = true;
-      setActiveLayersWithTimeline(1);
-      timelineType = "defaultUI";
-      requestNewTimeline("monthly-refugees-times.json", timelineType);
-      gEarthTime.timelapse.setMasterPlaybackRate(0.85);
-      gEarthTime.timelapse.setPlaybackRate(0.425);
-      gEarthTime.timelapse.setDoDwell(false);
-      $("#monthly-refugees-legend").show();
-    } else {
-      showMonthlyRefugeesLayer = false;
-      cacheLastUsedLayer(monthlyRefugeesLayer);
-      setActiveLayersWithTimeline(-1);
-      doSwitchToLandsat();
-      $("#monthly-refugees-legend").hide();
-    }
-  }).prop('checked', showMonthlyRefugeesLayer);
+  // $("#show-monthly-refugees").on("click", function() {
+  //   var $this = $(this);
+  //   if ($this.prop('checked')) {
+  //     monthlyRefugeesLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
+  //     if ($("#show-annual-refugees").prop('checked')) {
+  //       $("#show-annual-refugees").click();
+  //     }
+  //     showMonthlyRefugeesLayer = true;
+  //     setActiveLayersWithTimeline(1);
+  //     timelineType = "defaultUI";
+  //     requestNewTimeline("monthly-refugees-times.json", timelineType);
+  //     gEarthTime.timelapse.setMasterPlaybackRate(0.85);
+  //     gEarthTime.timelapse.setPlaybackRate(0.425);
+  //     gEarthTime.timelapse.setDoDwell(false);
+  //     $("#monthly-refugees-legend").show();
+  //   } else {
+  //     showMonthlyRefugeesLayer = false;
+  //     cacheLastUsedLayer(monthlyRefugeesLayer);
+  //     setActiveLayersWithTimeline(-1);
+  //     doSwitchToLandsat();
+  //     $("#monthly-refugees-legend").hide();
+  //   }
+  // }).prop('checked', showMonthlyRefugeesLayer);
 
 
   $("#show-annual-refugees").on("click", function() {
@@ -2927,6 +2930,22 @@ function initLayerToggleUI() {
         snaplapseViewerForPresentationSlider.initializeAndRunAutoMode();
       }
     }
+
+    //'k' key
+    if (e.keyCode === 75) {
+      if (!$('#layer-editor').length) {
+        $('#viewerContainer').append('<div id="layer-editor">Layers</div>');
+      }
+
+      $('#layer-editor').dialog({
+        height: 640,
+        maxHeight: 640,
+        maxWidth: 960,
+        width: 720        
+      });
+      var layerEditor = new LayerEditor('layer-editor');
+    }
+
     // up arrow
     // Quick way to toggle between the various items whether under the extras menu (if just selected) or a layer
     if (e.keyCode === 38) {
@@ -3437,26 +3456,26 @@ function setActiveLayersWithTimeline(modifier) {
 
 function doSwitchToLandsat() {
   // Special case for layers with defaultUI timeline.
-  if (timelineType == "defaultUI" && showMonthlyRefugeesLayer) {
-    return false;
-  } else {
-    previousVisibleBaseMapLayer = visibleBaseMapLayer;
-    timelineType = "customUI";
-    $("#layers-list #blsat-base").click();
-    if (activeLayersWithTimeline <= 0) {
-      setActiveLayersWithTimeline(1);
-    }
-    requestNewTimeline(cachedLandsatTimeJsonPath, "customUI");
-    gEarthTime.timelapse.setMasterPlaybackRate(1);
-    gEarthTime.timelapse.setPlaybackRate(defaultPlaybackSpeed);
-    gEarthTime.timelapse.setDwellTimes(1.5, 1.5);
-    gEarthTime.timelapse.setDoDwell(true);
-    // @ts-ignore
-    WebGLVideoTile.useGreenScreen = false;
-    var v = gEarthTime.timelapse.getVideoset();
-    v.setFps(10);
-    return true;
+  // if (timelineType == "defaultUI" && showMonthlyRefugeesLayer) {
+  //   return false;
+  // } else {
+  previousVisibleBaseMapLayer = visibleBaseMapLayer;
+  timelineType = "customUI";
+  $("#layers-list #blsat-base").click();
+  if (activeLayersWithTimeline <= 0) {
+    setActiveLayersWithTimeline(1);
   }
+  requestNewTimeline(cachedLandsatTimeJsonPath, "customUI");
+  gEarthTime.timelapse.setMasterPlaybackRate(1);
+  gEarthTime.timelapse.setPlaybackRate(defaultPlaybackSpeed);
+  gEarthTime.timelapse.setDwellTimes(1.5, 1.5);
+  gEarthTime.timelapse.setDoDwell(true);
+  // @ts-ignore
+  WebGLVideoTile.useGreenScreen = false;
+  var v = gEarthTime.timelapse.getVideoset();
+  v.setFps(10);
+  return true;
+  //}
 }
 
 
@@ -3480,7 +3499,7 @@ var showGoes16TimeMachineLayer = false;
 var showGoes16Aug2018TimeMachineLayer = false;
 var showGoes16Nov2018TimeMachineLayer = false;
 var showDscovrTimeMachineLayer = false;
-var showMonthlyRefugeesLayer = false;
+// var showMonthlyRefugeesLayer = false;
 var showAnnualRefugeesLayer = false;
 var showAnnualReturnsLayer = false;
 var showSeaLevelRiseLayer = false;
@@ -3793,7 +3812,7 @@ async function setupUIAndOldLayers() {
   gEarthTime.canvasLayer = new TimeMachineCanvasLayer(timeMachineCanvasLayerOptions);
 
   // initialize WebGL
-  gl = gEarthTime.canvasLayer.canvas.getContext('experimental-webgl',  {antialias: false, alpha: true, stencil: true, depth: true, failIfMajorPerformanceCaveat: false});
+  gl = gEarthTime.canvasLayer.canvas.getContext('experimental-webgl',  {antialias: false, alpha: true, stencil: true, depth: true, failIfMajorPerformanceCaveat: false, preserveDrawingBuffer: preserveDrawingBuffer});
   (window as any).gl = gl; // TODO(LayerDB): someday stop using this global
 
   gEarthTime.glb = new Glb(gl);
@@ -3982,11 +4001,11 @@ async function setupUIAndOldLayers() {
   /* REFUGEE CATEGORY */
   layer_html += '  <h3>Forced Displacement</h3>';
   layer_html += '  <table id="category-forced-displacement">';
-  if (showMonthlyRefugees) {
-    layer_html += '    <tr>';
-    layer_html += show_monthly_refugees;
-    layer_html += '    </tr>';
-  }
+  // if (showMonthlyRefugees) {
+  //   layer_html += '    <tr>';
+  //   layer_html += show_monthly_refugees;
+  //   layer_html += '    </tr>';
+  // }
   if (showAnnualRefugees) {
     layer_html += '    <tr>';
     layer_html += show_annual_refugees;
@@ -6788,11 +6807,11 @@ function update() {
       */
 
       // Draw Mediterranean Monthly Refugees
-      if (showMonthlyRefugeesLayer) {
-        var monthlyRefugeesLayerView = getLayerView(monthlyRefugeesLayer, landsatBaseMapLayer);
-        let options: any = {};
-        monthlyRefugeesLayer.draw(monthlyRefugeesLayerView, options);
-      }
+      // if (showMonthlyRefugeesLayer) {
+      //   var monthlyRefugeesLayerView = getLayerView(monthlyRefugeesLayer, landsatBaseMapLayer);
+      //   let options: any = {};
+      //   monthlyRefugeesLayer.draw(monthlyRefugeesLayerView, options);
+      // }
 
 
       // Draw Annual Refugees
