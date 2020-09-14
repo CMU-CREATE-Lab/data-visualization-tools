@@ -321,6 +321,7 @@
     var enableStoryEditor = !showStories ? false : parseConfigOption({optionName: "enableStoryEditor", optionDefaultValue: false, exposeOptionToUrlHash: false});
     var pauseWhenInitialized = parseConfigOption({optionName: "pauseWhenInitialized", optionDefaultValue: false, exposeOptionToUrlHash: true});
     var disableAnimation = parseConfigOption({optionName: "disableAnimation", optionDefaultValue: false, exposeOptionToUrlHash: true});
+    var preserveDrawingBuffer = parseConfigOption({optionName: "preserveDrawingBuffer", optionDefaultValue: false, exposeOptionToUrlHash: true});
     var landsatVersion = parseConfigOption({optionName: "landsatVersion", optionDefaultValue: "2015", exposeOptionToUrlHash: false});
     // Deprecated
     var customDarkMapUrl = parseConfigOption({optionName: "customDarkMapUrl", optionDefaultValue: "", exposeOptionToUrlHash: false});
@@ -5415,7 +5416,7 @@
       canvasLayer = new TimeMachineCanvasLayer(timeMachineCanvasLayerOptions);
 
       // initialize WebGL
-      gl = canvasLayer.canvas.getContext('experimental-webgl');
+      gl = canvasLayer.canvas.getContext('experimental-webgl', {preserveDrawingBuffer: preserveDrawingBuffer});
       glb = new Glb(gl);
 
       var layer_html = '';
