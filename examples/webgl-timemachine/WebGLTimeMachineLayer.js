@@ -14,12 +14,8 @@ import { TileView } from './TileView'
 import { WebGLVideoTile } from './WebGLVideoTile'
 
 export class WebGLTimeMachineLayer {
-  constructor(glb, canvasLayer, url, options = null) {
-    // Everything has consequences
-    // TODO: Until all timemachine layers are pulled out of index.html, we have some hackery to do.
-    if (typeof (url) === "object") {
-      options = url;
-    }
+  constructor(layerProxy, glb, canvasLayer, url, options) {
+    this.layerProxy = layerProxy;
 
     var that = this;
     this.glb = glb;
@@ -160,6 +156,9 @@ export class WebGLTimeMachineLayer {
   }
   resetDimensions(json) {
     this._tileView.resetDimensions(json);
+  }
+  isLoaded() {
+    return this._tileView ? true : false;
   }
   getWidth() {
     return this._tileView.getWidth();
