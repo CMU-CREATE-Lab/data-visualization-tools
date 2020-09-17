@@ -352,8 +352,6 @@ var showAnnualReturns = !!EARTH_TIMELAPSE_CONFIG.showAnnualReturns;
 //var showZika = !!EARTH_TIMELAPSE_CONFIG.showZika;
 //var showDengue = !!EARTH_TIMELAPSE_CONFIG.showDengue;
 //var showChiku = !!EARTH_TIMELAPSE_CONFIG.showChiku;
-var showSeaLevelRise = !!EARTH_TIMELAPSE_CONFIG.showSeaLevelRise;
-////var showTintedSeaLevelRise = !!EARTH_TIMELAPSE_CONFIG.showTintedSeaLevelRise;
 //var showUrbanFragility = !!EARTH_TIMELAPSE_CONFIG.showUrbanFragility;
 //var showGtd = !!EARTH_TIMELAPSE_CONFIG.showGtd;
 //var showHiv = !!EARTH_TIMELAPSE_CONFIG.showHiv;
@@ -363,7 +361,6 @@ var showSeaLevelRise = !!EARTH_TIMELAPSE_CONFIG.showSeaLevelRise;
 //var showEbola = !!EARTH_TIMELAPSE_CONFIG.showEbola;
 // var showWaterOccurrence = !!EARTH_TIMELAPSE_CONFIG.showWaterOccurrence;
 // var showWaterChange = !!EARTH_TIMELAPSE_CONFIG.showWaterChange;
-var showSeaLevelRise = !!EARTH_TIMELAPSE_CONFIG.showSeaLevelRise;
 var showCumulativeActiveMining = !!EARTH_TIMELAPSE_CONFIG.showCumulativeActiveMining;
 var showIomIdp = !!EARTH_TIMELAPSE_CONFIG.showIomIdp;
 //var showBerkeleyEarthTemperatureAnomaly = !!EARTH_TIMELAPSE_CONFIG.showBerkeleyEarthTemperatureAnomaly;
@@ -590,7 +587,6 @@ var annualReturnsLayer;
 //var zikaLayer, dengueLayer, chikuLayer;
 //var viirsLayer;
 //var wdpaLayer;
-var seaLevelRiseLayer;
 ////var tintedSeaLevelRiseLayer;
 //var urbanFragilityLayer;
 ////var coralBleachingLayer;
@@ -1121,7 +1117,6 @@ var healthImpactUrl = gEarthTime.rootTilePath + "/health-impact/{z}/{x}/{y}.bin"
 //var dengueUrl = rootTilePath + "/pandemics/dengue/{z}/{x}/{y}.bin";
 //var chikuUrl = rootTilePath + "/pandemics/chiku/{z}/{x}/{y}.bin";
 
-var seaLevelRiseUrl = gEarthTime.rootTilePath + "/sea-level-rise/201704_lockin_animated_land/{z}/{x}/{y}.png"; //"http://a.ss2tiles.climatecentral.org/lockin_animated_land/{z}/{x}/{y}.png";
 //var urbanFragilityUrl = rootTilePath + "/urban-fragility/{z}/{x}/{y}.bin";
 //var gtdUrl = rootTilePath + "/gtd/{z}/{x}/{y}.bin";
 //var hivUrl = rootTilePath + "/hiv/{z}/{x}/{y}.bin";
@@ -1889,126 +1884,6 @@ function initLayerToggleUI() {
       $("#annual-returns-legend").hide();
     }
   }).prop('checked', showAnnualReturnsLayer);
-
-  $("#show-sea-level-rise-1p0").on("click", function() {
-    var $this = $(this);
-    if ($this.prop('checked')) {
-      seaLevelRiseLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      if ($("#show-sea-level-rise-1p5").prop('checked')) {
-        $("#show-sea-level-rise-1p5").prop('checked', false);
-        setActiveLayersWithTimeline(-1);
-      }
-      if ($("#show-sea-level-rise-2p0").prop('checked')) {
-        $("#show-sea-level-rise-2p0").prop('checked', false);
-        setActiveLayersWithTimeline(-1);
-      }
-      if ($("#show-sea-level-rise-4p0").prop('checked')) {
-        $("#show-sea-level-rise-4p0").prop('checked', false);
-        setActiveLayersWithTimeline(-1);
-      }
-      showSeaLevelRiseLayer = true;
-      setActiveLayersWithTimeline(1);
-      timelineType = "customUI";
-      requestNewTimeline("sea-level-rise-1p0-times.json", timelineType);
-      $("#sea-level-rise-legend").show();
-    } else {
-      showSeaLevelRiseLayer = false;
-      cacheLastUsedLayer(seaLevelRiseLayer);
-      setActiveLayersWithTimeline(-1);
-      doSwitchToLandsat();
-      $("#sea-level-rise-legend").hide();
-    }
-  }).prop('checked', showSeaLevelRiseLayer);
-
-  $("#show-sea-level-rise-1p5").on("click", function() {
-    var $this = $(this);
-    if ($this.prop('checked')) {
-      seaLevelRiseLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      if ($("#show-sea-level-rise-1p0").prop('checked')) {
-        $("#show-sea-level-rise-1p0").prop('checked', false);
-        setActiveLayersWithTimeline(-1);
-      }
-      if ($("#show-sea-level-rise-2p0").prop('checked')) {
-        $("#show-sea-level-rise-2p0").prop('checked', false);
-        setActiveLayersWithTimeline(-1);
-      }
-      if ($("#show-sea-level-rise-4p0").prop('checked')) {
-        $("#show-sea-level-rise-4p0").prop('checked', false);
-        setActiveLayersWithTimeline(-1);
-      }
-      showSeaLevelRiseLayer = true;
-      setActiveLayersWithTimeline(1);
-      timelineType = "customUI";
-      requestNewTimeline("sea-level-rise-1p5-times.json", timelineType);
-      $("#sea-level-rise-legend").show();
-    } else {
-      showSeaLevelRiseLayer = false;
-      cacheLastUsedLayer(seaLevelRiseLayer);
-      setActiveLayersWithTimeline(-1);
-      doSwitchToLandsat();
-      $("#sea-level-rise-legend").hide();
-    }
-  }).prop('checked', showSeaLevelRiseLayer);
-
-  $("#show-sea-level-rise-2p0").on("click", function() {
-    var $this = $(this);
-    if ($this.prop('checked')) {
-      seaLevelRiseLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      if ($("#show-sea-level-rise-1p0").prop('checked')) {
-        $("#show-sea-level-rise-1p0").prop('checked', false);
-        setActiveLayersWithTimeline(-1);
-      }
-      if ($("#show-sea-level-rise-1p5").prop('checked')) {
-        $("#show-sea-level-rise-1p5").prop('checked', false);
-        setActiveLayersWithTimeline(-1);
-      }
-      if ($("#show-sea-level-rise-4p0").prop('checked')) {
-        $("#show-sea-level-rise-4p0").prop('checked', false);
-        setActiveLayersWithTimeline(-1);
-      }
-      showSeaLevelRiseLayer = true;
-      setActiveLayersWithTimeline(1);
-      timelineType = "customUI";
-      requestNewTimeline("sea-level-rise-2p0-times.json", timelineType);
-      $("#sea-level-rise-legend").show();
-    } else {
-      showSeaLevelRiseLayer = false;
-      cacheLastUsedLayer(seaLevelRiseLayer);
-      setActiveLayersWithTimeline(-1);
-      doSwitchToLandsat();
-      $("#sea-level-rise-legend").hide();
-    }
-  }).prop('checked', showSeaLevelRiseLayer);
-
-  $("#show-sea-level-rise-4p0").on("click", function() {
-    var $this = $(this);
-    if ($this.prop('checked')) {
-      seaLevelRiseLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      if ($("#show-sea-level-rise-1p0").prop('checked')) {
-        $("#show-sea-level-rise-1p0").prop('checked', false);
-        setActiveLayersWithTimeline(-1);
-      }
-      if ($("#show-sea-level-rise-2p0").prop('checked')) {
-        $("#show-sea-level-rise-2p0").prop('checked', false);
-        setActiveLayersWithTimeline(-1);
-      }
-      if ($("#show-sea-level-rise-1p5").prop('checked')) {
-        $("#show-sea-level-rise-1p5").prop('checked', false);
-        setActiveLayersWithTimeline(-1);
-      }
-      showSeaLevelRiseLayer = true;
-      setActiveLayersWithTimeline(1);
-      timelineType = "customUI";
-      requestNewTimeline("sea-level-rise-times.json", timelineType);
-      $("#sea-level-rise-legend").show();
-    } else {
-      showSeaLevelRiseLayer = false;
-      cacheLastUsedLayer(seaLevelRiseLayer);
-      setActiveLayersWithTimeline(-1);
-      doSwitchToLandsat();
-      $("#sea-level-rise-legend").hide();
-    }
-  }).prop('checked', showSeaLevelRiseLayer);
 
   $("#show-lodes").on("click", function() {
     initLodesGui();
@@ -3502,7 +3377,6 @@ var showDscovrTimeMachineLayer = false;
 // var showMonthlyRefugeesLayer = false;
 var showAnnualRefugeesLayer = false;
 var showAnnualReturnsLayer = false;
-var showSeaLevelRiseLayer = false;
 var showLodesLayer = false;
 var showCumulativeActiveMiningLayer = false;
 var showIomIdpLayer = false;
@@ -3928,20 +3802,6 @@ async function setupUIAndOldLayers() {
   /* CLIMATE CATEGORY */
   layer_html += '  <h3>Climate</h3>';
   layer_html += '  <table id="category-climate">';
-  if (showSeaLevelRise) {
-    layer_html += '    <tr>';
-    layer_html += show_sea_level_rise_1p0;
-    layer_html += '    </tr>';
-    layer_html += '    <tr>';
-    layer_html += show_sea_level_rise_1p5;
-    layer_html += '    </tr>';
-    layer_html += '    <tr>';
-    layer_html += show_sea_level_rise_2p0;
-    layer_html += '    </tr>';
-    layer_html += '    <tr>';
-    layer_html += show_sea_level_rise_4p0;
-    layer_html += '    </tr>';
-  }
   layer_html += '  </table>';
   /* END CLIMATE CATEGORY */
 
@@ -4556,14 +4416,6 @@ lightBaseMapLayer = new WebGLMapLayer(null, gEarthTime.glb, gEarthTime.canvasLay
 /////////////  };
 /////////////  annualReturnsLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, annualReturnsUrl, annualReturnsLayerOptions);
 /////////////
-/////////////  var seaLevelRiseLayerOptions = {
-/////////////    nLevels: 9,
-/////////////    tileWidth: 256,
-/////////////    tileHeight: 256,
-/////////////    fragmentShader: WebGLMapTile.seaLevelRiseTextureFragmentShader,
-/////////////    drawFunction: WebGLMapTile.prototype._drawSeaLevelRise
-/////////////  };
-/////////////  seaLevelRiseLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, seaLevelRiseUrl, seaLevelRiseLayerOptions);
 /////////////
 /////////////  var lodesLayerOptions = {
 /////////////    tileWidth: 256,
@@ -6974,54 +6826,6 @@ function update() {
         chikuLayer.draw(chikuLayerView, options);
       }
       */
-      // Draw Sea Level Rise Layer
-      if (showSeaLevelRiseLayer) {
-        var sea_level_heights = [
-          [0.0, 0.0],
-          [2.4, 0.7],
-          [7.0, 2.1],
-          [9.4, 2.9],
-          [15, 4.7],
-          [18, 5.6],
-          [21, 6.4],
-          [26, 7.9],
-          [29, 8.9]
-        ]; // [feet,meters]
-        var meters = document.getElementById("slr-meters");
-        var degree = document.getElementById("slr-degree");
-        var seaLevelRiseLayerView = getLayerView(seaLevelRiseLayer, landsatBaseMapLayer);
-        let options: DrawOptions = {};
-        var ratio = gEarthTime.timelapse.getCurrentTime() / (gEarthTime.timelapse.getNumFrames() / gEarthTime.timelapse.getFps());
-        var times = gEarthTime.timelapse.getCaptureTimes();
-        var start = parseFloat(times[0]);
-        var end = parseFloat(times[times.length - 1]) + 0.5;
-        var range = end - start;
-        var current = ratio * range + start;
-        options.currentC = Math.min(current, times[times.length - 1]);
-        if (visibleBaseMapLayer == "blsat") {
-          options.color = [0.1, 0.1, 0.1, 1.0];
-        } else if (visibleBaseMapLayer == "blte") {
-          options.color = [0.4921875, 0.7421875, 0.91015625, 1.0];
-        } else if (visibleBaseMapLayer == "bdrk") {
-          options.color = [0.203125, 0.203125, 0.203125, 1.0];
-        }
-        // else if (showLightsAtNightLayer) {
-        //   options.color = [0.0, 0.0, 0.0, 1.0];
-        // }
-        var currentIndex = 0;
-        for (var i = 0; i < times.length; i++) {
-          if (gEarthTime.timelapse.getCurrentCaptureTime() == times[i]) {
-            currentIndex = i;
-          }
-        }
-        //feet.innerHTML = sea_level_heights[currentIndex][0] + "ft";
-        if (sea_level_heights[currentIndex]) {
-          $(meters).html("+" + sea_level_heights[currentIndex][1].toFixed(1) + "m");
-        }
-        $(degree).html((currentIndex / 2).toFixed(1));
-        seaLevelRiseLayer.draw(seaLevelRiseLayerView, options);
-        $(".timeText, .captureTimeMain").html(gEarthTime.timelapse.getCurrentCaptureTime() + "&degC");
-      }
 
       /*if (showTintedSeaLevelRiseLayer) {
         var sea_level_heights = [
