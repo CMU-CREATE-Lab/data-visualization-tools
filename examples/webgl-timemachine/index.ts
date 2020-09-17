@@ -335,8 +335,6 @@ var showCsvLayers = !!EARTH_TIMELAPSE_CONFIG.showCsvLayers;
 
 
 ////var showForestAlerts = !!EARTH_TIMELAPSE_CONFIG.showForestAlerts;
-var showCoral = typeof(EARTH_TIMELAPSE_CONFIG.showCoral) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showCoral;
-////var showCoralBleaching = typeof(EARTH_TIMELAPSE_CONFIG.showCoralBleaching) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showCoralBleaching;
 // TODO(differently projected timemachine)
 var showHimawari8 = typeof(EARTH_TIMELAPSE_CONFIG.showHimawari8) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showHimawari8;
 //var showUSDrilling = typeof(EARTH_TIMELAPSE_CONFIG.showUSDrilling) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showUSDrilling;
@@ -589,7 +587,6 @@ var annualReturnsLayer;
 //var wdpaLayer;
 ////var tintedSeaLevelRiseLayer;
 //var urbanFragilityLayer;
-////var coralBleachingLayer;
 //var monthlyRefugeesLayer;
 //var gtdLayer;
 //var hivLayer;
@@ -1017,7 +1014,6 @@ function initLodesGui() {
 //
 
 //var fishingPprTimeMachineUrl = rootTilePath + "/fishing-ppr.timemachine/crf19-8fps-1424x800";
-//var crwTimeMachineUrl = rootTilePath + "/coral/coralreefwatch-3.timemachine/crf20-22fps-1424x800";
 //var ndviAnomalyTimeMachineUrl = rootTilePath + "/ndvi_anomaly_1000v01/1068x600";
 var himawariTimeMachineUrl = gEarthTime.rootTilePath + "/himawari8/himawari8-nov-2015.timemachine/crf26-12fps-1424x800";
 var goes16TimeMachineUrl = gEarthTime.rootTilePath + "/goes16/2017-09-01.timemachine/crf26-12fps-1424x800";
@@ -1090,11 +1086,8 @@ var cityLabelMapUrl = useGoogleMaps ? googleMapsCityLabelUrl : googleMapsCityLab
 // var waterChangeUrl = rootTilePath + "/water/change_2018/{default}/{z}/{x}/{y}.png";
 
 //var wdpaUrl = rootTilePath + "/wdpaline-year/{z}/{x}/{y}.bin";
-var mcrmUrl = gEarthTime.rootTilePath + "/coral/mcrm-lines-wrapdateline/{z}/{x}/{y}.bin";
-
 //var viirsUrl = rootTilePath + "/viirs/viirs_20140817-20170917.bin";
 
-///var coralBleachingUrl = gEarthTime.rootTilePath + "/coral/{z}/{x}/{y}.bin";
 //var usgsWindTurbineUrl = rootTilePath + "/energy/wind-installs-usgs/{z}/{x}/{y}.bin";
 //var solarInstallsUrl = rootTilePath + "/energy/solar-installs/{z}/{x}/{y}.bin";
 //var globalWindPowerUrl = rootTilePath + "/energy/global-wind-power/windfarms-world_20180330.bin";
@@ -1467,35 +1460,6 @@ function initLayerToggleUI() {
       $("#forest-loss-gain-legend").hide();
     }
   }).prop('checked', showAnimatedHansenLayer);
-
-  /*$("#show-coral").on("click", function() {
-    var $this = $(this);
-    if ($this.prop('checked')) {
-      coralBleachingLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      mcrmVectorLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      if ($("#show-coral-bleaching-alerts").prop('checked')) {
-        $("#show-coral-bleaching-alerts").click();
-      }
-      showCoralBleachingLayer = true;
-      setActiveLayersWithTimeline(1);
-      showMcrmLayer = true;
-      timelineType = "customUI";
-      $("#coral-bleaching-legend").show();
-    } else {
-      showCoralBleachingLayer = false;
-      cacheLastUsedLayer(coralBleachingLayer);
-      showMcrmLayer = false;
-      cacheLastUsedLayer(mcrmVectorLayer);
-      setActiveLayersWithTimeline(-1);
-      // @ts-ignore
-      if (!enableMuseumMode || EarthlapseUI.Modes.getCurrentMode() == "explore") {
-        doSwitchToLandsat();
-      }
-      if (!$("#show-coral-bleaching-alerts").prop('checked')) {
-        $("#coral-bleaching-legend").hide();
-      }
-    }
-  }).prop('checked', showCoralBleachingLayer);*/
 
   $("#show-himawari").on("click", function() {
     //$(".current-location-text-container").hide();
@@ -3367,7 +3331,6 @@ var gl;
 var showMcrmLayer = false;
 var showHansenLayer = false;
 var showHansenLayer2 = false;
-//var showCoralBleachingLayer = false;
 var showAnimatedHansenLayer = false;
 var showHimawariTimeMachineLayer = false;
 var showGoes16TimeMachineLayer = false;
@@ -3710,7 +3673,6 @@ async function setupUIAndOldLayers() {
   var show_forest_change = '<td class="forest-change-select"><label for="show-forest-change" name="fly"><input type="checkbox" id="show-forest-change" />Forest Loss by Year</label></td>';
   var show_forest_loss_gain = '<td class="forest-loss-gain-select"><label for="show-forest-loss-gain" name="flg"><input type="checkbox" id="show-forest-loss-gain" />Forest Loss/Gain</label></td>';
   var show_animated_forest_loss_gain = '<td class="animated-forest-loss-select"><label for="show-animated-forest-loss-gain" name="aflg"><input type="checkbox" id="show-animated-forest-loss-gain" />Forest Loss/Gain (Animated)</label></td>';
-  var show_coral = '<td class="coral-select"><label for="show-coral" name="cb"><input type="checkbox" id="show-coral"/>Coral Bleaching</label></td>';
   var show_himawari = '<td class="timemachine himawari-select"><label for="show-himawari" name="h8_16"><input type="checkbox" id="show-himawari" />Himawari-8</label></td>';
   var show_monthly_refugees = '<td class="monthly-refugees-select"><label for="show-monthly-refugees" name="mmr"><input type="checkbox" id="show-monthly-refugees" />Mediterranean Refugees</label></td>';
   var show_annual_refugees = '<td class="annual-refugees-select"><label for="show-annual-refugees" name="ar"><input type="checkbox" id="show-annual-refugees" />Global Refugees</label></td>';
@@ -3810,17 +3772,6 @@ async function setupUIAndOldLayers() {
   layer_html += '  <table id="category-pollution">';
   layer_html += '  </table>';
   /* END POLLUTION CATEGORY */
-
-  /* CORAL CATEGORY */
-  layer_html += '  <h3>Coral</h3>';
-  layer_html += '  <table id="category-coral">';
-  if (showCoral) {
-    layer_html += '    <tr>';
-    layer_html += show_coral;
-    layer_html += '    </tr>';
-  }
-  layer_html += '  </table>';
-  /* END CORAL CATEGORY */
 
   /* ENERGY CATEGORY */
   layer_html += '  <h3>Energy</h3>';
@@ -4057,8 +4008,6 @@ async function setupUIAndOldLayers() {
   legend_html += '<tr id="forest-loss-year-legend" style="display: none"><td><div style="font-size: 17px">Forest Loss By Year <span class="credit"> (Hansen et al)</span></div><div style="float:left; padding-right:3px; margin-left: 6px; font-size: 14px;">2000</div><div style="margin-top: 3px; float: left; background-image: -webkit-linear-gradient(left, yellow, orange 65%, red 100%);background-image: linear-gradient(left, yellow, orange 65%, red 100%); width: 68%; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">2018</div></div></td></tr>';
   legend_html += '<tr id="forest-loss-gain-legend" style="display: none; font-size: 14px;"><td><div style="font-size: 17px">Forest Loss/Gain 2000-2018 <span class="credit"> (Hansen et al)</span></div><div style="float: left; padding-right:8px"><div style="background-color:#00e000; width: 12px; height: 12px; float: left; margin-top: 2px; margin-left: 8px;"></div>&nbsp;Extent</div><div style="float: left; padding-right:8px"><div style="background-color:#ff0000; width: 12px; height: 12px; float: left; margin-top: 2px"></div>&nbsp;Loss</div><div style="float: left; padding-right:8px"><div style="background-color:#0000ff; width: 12px; height: 12px; float: left; margin-top: 2px"></div>&nbsp;Gain</div><div><div style="background-color:#ff00ff; width: 12px; height: 12px; float: left; margin-top: 2px"></div>&nbsp;Both</div></td></tr>';
   legend_html += '<tr id="fires-at-night-legend" style="display: none"><td><div style="background-color:#eda46a; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Fires At Night <span class="credit"> (NOAA)</span></div></td></tr>';
-  /////legend_html += '<tr id="coral-bleaching-legend" style="display: none"><td><div style="float:left; background-color:#fa13ab; width:17px; height: 5px;"></div><div style="margin-left: 29px; margin-top: -5px; font-size: 17px">Coral Reefs <span class="credit"> (NOAA, UNEP-WCMC)</span></div></td></tr>';
-  legend_html += '<tr id="coral-bleaching-alerts-legend" style="display: none"><td><div style="font-size: 17px">Coral Reef Watch <span class="credit"> (NOAA, UNEP-WCMC)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">Watch</div><div style="margin-top: 4px; float: left; background-image: -webkit-linear-gradient(left, #ffff00, #fbb404 65%, #a00200 100%);background-image: linear-gradient(left, #ffff00, #fbb404 65%, #a00200 100%); width: 68%; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">Alert</div></td></tr>';
   legend_html += '<tr id="monthly-refugees-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(right, #ff0000 0%, #ffffff 100%);background: -webkit-linear-gradient(left, #ff0000 0%,#ffffff 100%); background: linear-gradient(to right, #ff0000 0%,#ffffff 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Refugees Crossing the Mediterranean: Jan 2014 - Jun 2016 <span class="credit"> (UNHCR)</span></div></td></tr>';
   if (subsampleAnnualRefugees)
     legend_html += '<tr id="annual-refugees-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(right, #da7300 25%, red 100%);background: -webkit-linear-gradient(left, #da7300 25%,red 100%); background: linear-gradient(to right, #da7300 25%,red 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Global Refugee Flow: 2000 - 2015 <span class="credit"> (UNHCR) <br> 1 dot = ~17 refugees</span></div></td></tr>';
@@ -4353,27 +4302,7 @@ lightBaseMapLayer = new WebGLMapLayer(null, gEarthTime.glb, gEarthTime.canvasLay
 /////////////  countryLabelMapLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, countryLabelMapUrl, defaultBaseMapLayerOptions);
 /////////////  cityLabelMapLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, cityLabelMapUrl, defaultBaseMapLayerOptions);
 /////////////
-/////////////  // Coral Reefs (in pink)
-/////////////  var mcrmVectorLayerOptions = {
-/////////////    tileWidth: 256,
-/////////////    tileHeight: 256,
-/////////////    nLevels: 0,
-/////////////    numAttributes: 2
-/////////////  };
-/////////////  mcrmVectorLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, mcrmUrl, mcrmVectorLayerOptions);
-/////////////
-/////////////  // Coral Bleaching Events
-/////////////  var coralBleachingLayerOptions = {
-/////////////    tileWidth: 256,
-/////////////    tileHeight: 256,
-/////////////    nLevels: 0,
-/////////////    drawFunction: WebGLVectorTile2.prototype._drawPoints,
-/////////////    fragmentShader: WebGLVectorTile2.vectorPointTileFragmentShader,
-/////////////    vertexShader: WebGLVectorTile2.vectorPointTileVertexShader,
-/////////////    numAttributes: 3
-/////////////  };
-/////////////  coralBleachingLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, coralBleachingUrl, coralBleachingLayerOptions);
-/////////////
+//////////////////////////
 /////////////  var animatedHansenLayerOptions = {
 /////////////    nLevels: 12,
 /////////////    tileWidth: 256,
@@ -6413,12 +6342,6 @@ function update() {
         fishingPprTimeMachineLayer.draw(fishingPprView, tileViewVisibility);
       }*/
 
-      // Draw Coral Reef Watch
-      /*if (showCrwTimeMachineLayer) {
-        var crwView = getLayerView(crwTimeMachineLayer, landsatBaseMapLayer);
-        crwTimeMachineLayer.draw(crwView, tileViewVisibility);
-      }*/
-
       // Draw NDVI Anomaly
       /*if (showNdviAnomalyTimeMachineLayer) {
         var ndviView = getLayerView(ndviAnomalyTimeMachineLayer, landsatBaseMapLayer);
@@ -6462,11 +6385,6 @@ function update() {
         animatedHansenLayer.draw(animatedHansenLayerView);
       }
 
-      // Draw Coral
-      if (showMcrmLayer) {
-        var mcrmLayerView = getLayerView(mcrmVectorLayer, landsatBaseMapLayer);
-        mcrmVectorLayer.draw(mcrmLayerView);
-      }
 
       // Draw Fires at Night (VIIRS)
       /*
@@ -6539,15 +6457,6 @@ function update() {
         viirsLayer.draw(viirsLayerView, options);
       }
       */
-
-      // Draw Coral Bleaching
-      /*if (showCoralBleachingLayer) {
-        var coralBleachingLayerView = getLayerView(coralBleachingLayer, landsatBaseMapLayer);
-        let options: any = {};
-        options.color = [0.82, 0.22, 0.07, 1.0];
-        options.pointSize = 8.0;
-        coralBleachingLayer.draw(coralBleachingLayerView, options);
-      }*/
 
       // Draw Wind Layer
   /*
