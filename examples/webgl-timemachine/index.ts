@@ -381,8 +381,7 @@ var showGoes16 = !!EARTH_TIMELAPSE_CONFIG.showGoes16;
 var showDscovr = !!EARTH_TIMELAPSE_CONFIG.showDscovr;
 //var showAnnualGlobalPm25 = !!EARTH_TIMELAPSE_CONFIG.showAnnualGlobalPm25;
 //var showEcco2 = !!EARTH_TIMELAPSE_CONFIG.showEcco2;
-//var showGdpPpp = !!EARTH_TIMELAPSE_CONFIG.showGdpPpp;
-////var showTintedLandsat = !!EARTH_TIMELAPSE_CONFIG.showTintedLandsat;
+//var showTintedLandsat = !!EARTH_TIMELAPSE_CONFIG.showTintedLandsat;
 //var showGfsTimemachine = !!EARTH_TIMELAPSE_CONFIG.showGfsTimemachine;
 //var showChlorophyllConcentrationTimemachine = !!EARTH_TIMELAPSE_CONFIG.showChlorophyllConcentrationTimemachine;
 //var showFishingPprTimemachine = !!EARTH_TIMELAPSE_CONFIG.showFishingPprTimemachine;
@@ -633,8 +632,6 @@ var spCrudeLayerLatAM;
 var spCrudeLayerNS;
 
 //var ecco2Layer;
-
-//var gdpPppLayer;
 
 ////var tintedLandsatLayer;
 
@@ -1154,7 +1151,6 @@ var spCrudeUrlUSGC = gEarthTime.rootTilePath + "/sp-crude/USGC/0-crude-flows_USG
 var spCrudeUrlLatAM = gEarthTime.rootTilePath + "/sp-crude/LatAM/0-crude-flows_LatAM.bin";
 var spCrudeUrlNS = gEarthTime.rootTilePath + "/sp-crude/NS/0-crude-flows_NS.bin";
 //var ecco2Url = rootTilePath + "/oceans/ecco2.timemachine/crf26-16fps-1424x800";
-//var gdpPppUrl = rootTilePath + "/economics/gdp_ppp.timemachine/crf26-10fps-1424x800";
 
 //var gfsTimemachineUrl = rootTilePath + "/gfs-timemachine.timemachine/crf24-12fps-1424x800";
 
@@ -7002,13 +6998,6 @@ function update() {
         var view = getLayerView(ecco2Layer, landsatBaseMapLayer);
         ecco2Layer.draw(view, tileViewVisibility);
       }*/
-
-      // Draw GDP PPP
-      /*if (showGdpPppLayer) {
-        var view = getLayerView(gdpPppLayer, landsatBaseMapLayer);
-        gdpPppLayer.draw(view, tileViewVisibility);
-      }*/
-
 
       // Draw GFS
       /*if (showGfsTimemachineLayer) {
