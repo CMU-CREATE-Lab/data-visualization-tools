@@ -99,17 +99,30 @@ export class LayerProxy {
 
     var layer = this.layer;
 
-    // The timelapse projection uses bounds from landsatBasemapLayer, which might not
-    // share the standard Web Mercator north bound.
+    // The "timelapse" class maintains a coordinate system for zooming and panning.
+    // Originally this coordinate system was tied to the current Landsat basemap, which resulted in
+    // coordinate systems changing when we upgraded Landsat basemap.
+    // Today, we initialize the timelapse class with a "standard" coordinate system, from the 2016 Landsat
 
-    // Compute offset, if any, in units of timelapse.getView() pixels,
-    // between standard Web Mercator and landsatBasemapLayer.
+    // Find the translation and scaling changes between this layer and the underlying timelapse
+    // coordinate system
+
+    // What's the y=0 point of this layer?  Typically stdWebMercatorNorth (the standard Web Mercator northmost),
+    // but could be different for e.g. a WebGLTimeMachineLayer
+    let layerNorthmostLat = layer?.projectionBounds?.north ?? stdWebMercatorNorth;
+
+    // Project layer's northmost lat into the timelapse projection, to find the timelapse Y coord, which we'll use
+    // to offset our layer's coord system
     var yOffset = gEarthTime.timelapse.getProjection().latlngToPoint({
-      lat: stdWebMercatorNorth,
+      lat: layerNorthmostLat,
       lng: 0
     }).y;
+
     var view = gEarthTime.timelapse.getView();
+    // Compute scaling difference between our layer's pixels and the timelapse pixels
     var timelapse2map = layer.getWidth() / gEarthTime.timelapse.getDatasetJSON().width;
+
+    // Apply yOffset and timelpase2map scaling
     view.y -= yOffset;
     view.x *= timelapse2map;
     view.y *= timelapse2map;

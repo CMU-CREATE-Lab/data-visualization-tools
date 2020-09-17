@@ -75,7 +75,7 @@ export class WebGLTimeMachineLayer {
     if (this.useTmJsonTimeTicks) {
       cached_ajax[this.layerId + '.json'] = { "capture-times": tm['capture-times'] };
     }
-
+    this.projectionBounds = tm['projection-bounds'];
     this.tileRootUrl = this.rootUrl + '/' + dataset.id;
     var rPath = this.tileRootUrl + '/r.json';
     $.ajax({

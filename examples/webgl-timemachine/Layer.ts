@@ -126,6 +126,7 @@ export class LayerOptions {
     // null if we don't yet have enough information to create a Timeline
     timeline: Timeline = null;
     defaultUrl: string;
+    projectionBounds?: {north: number, south: number, east: number, west: number};
     getSublayers?: () => any[];
     isLoaded?: () => boolean;
 
