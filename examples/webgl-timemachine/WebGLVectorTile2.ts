@@ -88,6 +88,9 @@ export class WebGLVectorTile2 extends Tile {
   tl: Float32Array;
   br: Float32Array;
   _spinnerNeeded: boolean;
+
+  foo: any;
+
   constructor(layer: WebGLVectorLayer2, tileidx: TileIdx, bounds: any, opt_options: { drawFunction?: any; externalGeojson?: any; noValue?: any; uncertainValue?: any; scalingFunction?: any; colorScalingFunction?: any; layerId?: any; }) {
     gEarthTime.glb.gl.getExtension("OES_standard_derivatives");
 
@@ -3827,12 +3830,110 @@ export class WebGLVectorTile2 extends Tile {
   }
 
   _drawSpCrude(transform: Float32Array) {
+    var indices = {
+      "crude_flows_index": [
+        {'filename': '0-crude-flows.bin', 'max_epoch': 1362803764.439162, 'min_epoch': 1344196740.0},
+        {'filename': '1-crude-flows.bin', 'max_epoch': 1368630850.6254642, 'min_epoch': 1356352440.0},
+        {'filename': '2-crude-flows.bin', 'max_epoch': 1375477977.755611, 'min_epoch': 1363526454.6067417},
+        {'filename': '3-crude-flows.bin', 'max_epoch': 1382008440.0, 'min_epoch': 1365473760.0},
+        {'filename': '4-crude-flows.bin', 'max_epoch': 1392493649.7164462, 'min_epoch': 1371392040.0},
+        {'filename': '5-crude-flows.bin', 'max_epoch': 1393598774.858223, 'min_epoch': 1382677171.011236},
+        {'filename': '6-crude-flows.bin', 'max_epoch': 1399832731.587473, 'min_epoch': 1385223928.5822306},
+        {'filename': '7-crude-flows.bin', 'max_epoch': 1406034129.6090713, 'min_epoch': 1392063240.0},
+        {'filename': '8-crude-flows.bin', 'max_epoch': 1413160440.0, 'min_epoch': 1400939343.3707864},
+        {'filename': '9-crude-flows.bin', 'max_epoch': 1418089195.8662152, 'min_epoch': 1404994380.0},
+        {'filename': '10-crude-flows.bin', 'max_epoch': 1424125799.774436, 'min_epoch': 1413165780.0},
+        {'filename': '11-crude-flows.bin', 'max_epoch': 1442046780.0, 'min_epoch': 1417092012.1348314},
+        {'filename': '12-crude-flows.bin', 'max_epoch': 1437058019.1022444, 'min_epoch': 1421189963.6363637},
+        {'filename': '13-crude-flows.bin', 'max_epoch': 1443465644.3032672, 'min_epoch': 1425812640.0},
+        {'filename': '14-crude-flows.bin', 'max_epoch': 1448988823.6228287, 'min_epoch': 1436904887.2727273},
+        {'filename': '15-crude-flows.bin', 'max_epoch': 1455260843.3774915, 'min_epoch': 1445261237.9165041},
+        {'filename': '16-crude-flows.bin', 'max_epoch': 1463993410.909091, 'min_epoch': 1450881160.140802},
+        {'filename': '17-crude-flows.bin', 'max_epoch': 1467755612.9371564, 'min_epoch': 1457289194.0186915},
+        {'filename': '18-crude-flows.bin', 'max_epoch': 1474374616.3636363, 'min_epoch': 1463748721.8181818},
+        {'filename': '19-crude-flows.bin', 'max_epoch': 1481250173.6283185, 'min_epoch': 1469280227.0160873},
+        {'filename': '20-crude-flows.bin', 'max_epoch': 1487025440.549273, 'min_epoch': 1474853520.0},
+        {'filename': '21-crude-flows.bin', 'max_epoch': 1492642858.041543, 'min_epoch': 1483774740.0},
+        {'filename': '22-crude-flows.bin', 'max_epoch': 1503923820.0, 'min_epoch': 1482323820.0},
+        {'filename': '23-crude-flows.bin', 'max_epoch': 1508006340.0, 'min_epoch': 1492941696.4485981},
+        {'filename': '24-crude-flows.bin', 'max_epoch': 1509999715.9048486, 'min_epoch': 1497947778.504673}
+      ],
+      "crude_flows_index_Oceania": [
+        {'max_epoch': 1.5083176e+09, 'filename': 'Oceania/0-crude-flows_Oceania.bin', 'min_epoch': 1.3435715e+09}
+      ],
+      "crude_flows_index_AG": [
+        {'max_epoch': 1.3617048e+09, 'filename': 'AG/0-crude-flows_AG.bin', 'min_epoch': 1.3441967e+09}, {'max_epoch': 1.3771071e+09, 'filename': 'AG/1-crude-flows_AG.bin', 'min_epoch': 1.3594772e+09}, {'max_epoch': 1.3706697e+09, 'filename': 'AG/2-crude-flows_AG.bin', 'min_epoch': 1.3597724e+09}, {'max_epoch': 1.3761761e+09, 'filename': 'AG/3-crude-flows_AG.bin', 'min_epoch': 1.3693578e+09}, {'max_epoch': 1.3799291e+09, 'filename': 'AG/4-crude-flows_AG.bin', 'min_epoch': 1.3730234e+09}, {'max_epoch': 1.3835629e+09, 'filename': 'AG/5-crude-flows_AG.bin', 'min_epoch': 1.376452e+09}, {'max_epoch': 1.3884915e+09, 'filename': 'AG/6-crude-flows_AG.bin', 'min_epoch': 1.3797737e+09}, {'max_epoch': 1.3922216e+09, 'filename': 'AG/7-crude-flows_AG.bin', 'min_epoch': 1.3842066e+09}, {'max_epoch': 1.3967419e+09, 'filename': 'AG/8-crude-flows_AG.bin', 'min_epoch': 1.3880942e+09}, {'max_epoch': 1.4022243e+09, 'filename': 'AG/9-crude-flows_AG.bin', 'min_epoch': 1.3932987e+09}, {'max_epoch': 1.4059923e+09, 'filename': 'AG/10-crude-flows_AG.bin', 'min_epoch': 1.398294e+09}, {'max_epoch': 1.4106575e+09, 'filename': 'AG/11-crude-flows_AG.bin', 'min_epoch': 1.4030985e+09}, {'max_epoch': 1.4146995e+09, 'filename': 'AG/12-crude-flows_AG.bin', 'min_epoch': 1.408361e+09}, {'max_epoch': 1.4204237e+09, 'filename': 'AG/13-crude-flows_AG.bin', 'min_epoch': 1.4105153e+09}, {'max_epoch': 1.4244887e+09, 'filename': 'AG/14-crude-flows_AG.bin', 'min_epoch': 1.416967e+09}, {'max_epoch': 1.4297343e+09, 'filename': 'AG/15-crude-flows_AG.bin', 'min_epoch': 1.4202262e+09}, {'max_epoch': 1.4338424e+09, 'filename': 'AG/16-crude-flows_AG.bin', 'min_epoch': 1.4269531e+09}, {'max_epoch': 1.438222e+09, 'filename': 'AG/17-crude-flows_AG.bin', 'min_epoch': 1.4312159e+09}, {'max_epoch': 1.4429395e+09, 'filename': 'AG/18-crude-flows_AG.bin', 'min_epoch': 1.4354159e+09}, {'max_epoch': 1.4478618e+09, 'filename': 'AG/19-crude-flows_AG.bin', 'min_epoch': 1.4417828e+09}, {'max_epoch': 1.4529947e+09, 'filename': 'AG/20-crude-flows_AG.bin', 'min_epoch': 1.4457651e+09}, {'max_epoch': 1.458193e+09, 'filename': 'AG/21-crude-flows_AG.bin', 'min_epoch': 1.4514196e+09}, {'max_epoch': 1.4634623e+09, 'filename': 'AG/22-crude-flows_AG.bin', 'min_epoch': 1.4557041e+09}, {'max_epoch': 1.4669064e+09, 'filename': 'AG/23-crude-flows_AG.bin', 'min_epoch': 1.4613379e+09}, {'max_epoch': 1.4730853e+09, 'filename': 'AG/24-crude-flows_AG.bin', 'min_epoch': 1.4639675e+09}, {'max_epoch': 1.4782132e+09, 'filename': 'AG/25-crude-flows_AG.bin', 'min_epoch': 1.4703533e+09}, {'max_epoch': 1.480319e+09, 'filename': 'AG/26-crude-flows_AG.bin', 'min_epoch': 1.4711836e+09}, {'max_epoch': 1.4862049e+09, 'filename': 'AG/27-crude-flows_AG.bin', 'min_epoch': 1.47741e+09}, {'max_epoch': 1.4903073e+09, 'filename': 'AG/28-crude-flows_AG.bin', 'min_epoch': 1.4828404e+09}, {'max_epoch': 1.4943535e+09, 'filename': 'AG/29-crude-flows_AG.bin', 'min_epoch': 1.4861729e+09}, {'max_epoch': 1.4983288e+09, 'filename': 'AG/30-crude-flows_AG.bin', 'min_epoch': 1.4919392e+09}, {'max_epoch': 1.5031058e+09, 'filename': 'AG/31-crude-flows_AG.bin', 'min_epoch': 1.4967662e+09}, {'max_epoch': 1.5120396e+09, 'filename': 'AG/32-crude-flows_AG.bin', 'min_epoch': 1.5002131e+09}
+      ],
+      "crude_flows_index_WAF": [
+        {'max_epoch': 1.3656445e+09, 'filename': 'WAF/0-crude-flows_WAF.bin', 'min_epoch': 1.3473725e+09}, {'max_epoch': 1.3747565e+09, 'filename': 'WAF/1-crude-flows_WAF.bin', 'min_epoch': 1.3650022e+09}, {'max_epoch': 1.3842788e+09, 'filename': 'WAF/2-crude-flows_WAF.bin', 'min_epoch': 1.3740604e+09}, {'max_epoch': 1.3929523e+09, 'filename': 'WAF/3-crude-flows_WAF.bin', 'min_epoch': 1.3833535e+09}, {'max_epoch': 1.4025202e+09, 'filename': 'WAF/4-crude-flows_WAF.bin', 'min_epoch': 1.3921147e+09}, {'max_epoch': 1.411857e+09, 'filename': 'WAF/5-crude-flows_WAF.bin', 'min_epoch': 1.4018527e+09}, {'max_epoch': 1.4214098e+09, 'filename': 'WAF/6-crude-flows_WAF.bin', 'min_epoch': 1.4116553e+09}, {'max_epoch': 1.4311532e+09, 'filename': 'WAF/7-crude-flows_WAF.bin', 'min_epoch': 1.4210131e+09}, {'max_epoch': 1.4404055e+09, 'filename': 'WAF/8-crude-flows_WAF.bin', 'min_epoch': 1.4305885e+09}, {'max_epoch': 1.4499501e+09, 'filename': 'WAF/9-crude-flows_WAF.bin', 'min_epoch': 1.4388869e+09}, {'max_epoch': 1.458926e+09, 'filename': 'WAF/10-crude-flows_WAF.bin', 'min_epoch': 1.4490766e+09}, {'max_epoch': 1.468358e+09, 'filename': 'WAF/11-crude-flows_WAF.bin', 'min_epoch': 1.458066e+09}, {'max_epoch': 1.4786161e+09, 'filename': 'WAF/12-crude-flows_WAF.bin', 'min_epoch': 1.4664877e+09}, {'max_epoch': 1.4881251e+09, 'filename': 'WAF/13-crude-flows_WAF.bin', 'min_epoch': 1.4772301e+09}, {'max_epoch': 1.4974886e+09, 'filename': 'WAF/14-crude-flows_WAF.bin', 'min_epoch': 1.4877286e+09}, {'max_epoch': 1.507764e+09, 'filename': 'WAF/15-crude-flows_WAF.bin', 'min_epoch': 1.496261e+09}, {'max_epoch': 1.511334e+09, 'filename': 'WAF/16-crude-flows_WAF.bin', 'min_epoch': 1.5044224e+09}
+      ],
+      "crude_flows_index_MedNAF": [
+        {'max_epoch': 1.3762028e+09, 'filename': 'MedNAF/0-crude-flows_MedNAF.bin', 'min_epoch': 1.3501318e+09}, {'max_epoch': 1.4003267e+09, 'filename': 'MedNAF/1-crude-flows_MedNAF.bin', 'min_epoch': 1.3754286e+09}, {'max_epoch': 1.4250889e+09, 'filename': 'MedNAF/2-crude-flows_MedNAF.bin', 'min_epoch': 1.3960728e+09}, {'max_epoch': 1.4498509e+09, 'filename': 'MedNAF/3-crude-flows_MedNAF.bin', 'min_epoch': 1.4244504e+09}, {'max_epoch': 1.4743622e+09, 'filename': 'MedNAF/4-crude-flows_MedNAF.bin', 'min_epoch': 1.4464378e+09}, {'max_epoch': 1.4972628e+09, 'filename': 'MedNAF/5-crude-flows_MedNAF.bin', 'min_epoch': 1.4736177e+09}, {'max_epoch': 1.5095916e+09, 'filename': 'MedNAF/6-crude-flows_MedNAF.bin', 'min_epoch': 1.4953752e+09}
+      ],
+      "crude_flows_index_Urals": [
+        {'max_epoch': 1.3944883e+09, 'filename': 'Urals/0-crude-flows_Urals.bin', 'min_epoch': 1.3512047e+09}, {'max_epoch': 1.435146e+09, 'filename': 'Urals/1-crude-flows_Urals.bin', 'min_epoch': 1.3944666e+09}, {'max_epoch': 1.47633e+09, 'filename': 'Urals/2-crude-flows_Urals.bin', 'min_epoch': 1.4350828e+09}, {'max_epoch': 1.5092532e+09, 'filename': 'Urals/3-crude-flows_Urals.bin', 'min_epoch': 1.4763123e+09}
+      ],
+      "crude_flows_index_USGC": [
+        {'max_epoch': 1.5122628e+09, 'filename': 'USGC/0-crude-flows_USGC.bin', 'min_epoch': 1.3621992e+09}
+      ],
+      "crude_flows_index_LatAM": [
+        {'max_epoch': 1.3680512e+09, 'filename': 'LatAM/0-crude-flows_LatAM.bin', 'min_epoch': 1.3474893e+09}, {'max_epoch': 1.3785563e+09, 'filename': 'LatAM/1-crude-flows_LatAM.bin', 'min_epoch': 1.3666175e+09}, {'max_epoch': 1.3898134e+09, 'filename': 'LatAM/2-crude-flows_LatAM.bin', 'min_epoch': 1.3767935e+09}, {'max_epoch': 1.4000607e+09, 'filename': 'LatAM/3-crude-flows_LatAM.bin', 'min_epoch': 1.3878431e+09}, {'max_epoch': 1.4103395e+09, 'filename': 'LatAM/4-crude-flows_LatAM.bin', 'min_epoch': 1.3986446e+09}, {'max_epoch': 1.4202254e+09, 'filename': 'LatAM/5-crude-flows_LatAM.bin', 'min_epoch': 1.408922e+09}, {'max_epoch': 1.43073e+09, 'filename': 'LatAM/6-crude-flows_LatAM.bin', 'min_epoch': 1.4186223e+09}, {'max_epoch': 1.4399827e+09, 'filename': 'LatAM/7-crude-flows_LatAM.bin', 'min_epoch': 1.4289676e+09}, {'max_epoch': 1.4490721e+09, 'filename': 'LatAM/8-crude-flows_LatAM.bin', 'min_epoch': 1.4386007e+09}, {'max_epoch': 1.4587574e+09, 'filename': 'LatAM/9-crude-flows_LatAM.bin', 'min_epoch': 1.4481128e+09}, {'max_epoch': 1.4689476e+09, 'filename': 'LatAM/10-crude-flows_LatAM.bin', 'min_epoch': 1.4563868e+09}, {'max_epoch': 1.4796142e+09, 'filename': 'LatAM/11-crude-flows_LatAM.bin', 'min_epoch': 1.4676618e+09}, {'max_epoch': 1.4914527e+09, 'filename': 'LatAM/12-crude-flows_LatAM.bin', 'min_epoch': 1.4776771e+09}, {'max_epoch': 1.5010688e+09, 'filename': 'LatAM/13-crude-flows_LatAM.bin', 'min_epoch': 1.4883502e+09}, {'max_epoch': 1.511766e+09, 'filename': 'LatAM/14-crude-flows_LatAM.bin', 'min_epoch': 1.498359e+09}
+      ],
+      "crude_flows_index_NS": [
+        {'max_epoch': 1.4191127e+09, 'filename': 'NS/0-crude-flows_NS.bin', 'min_epoch': 1.3472122e+09}, {'max_epoch': 1.4766056e+09, 'filename': 'NS/1-crude-flows_NS.bin', 'min_epoch': 1.4182052e+09}, {'max_epoch': 1.5126084e+09, 'filename': 'NS/2-crude-flows_NS.bin', 'min_epoch': 1.4763096e+09}
+      ]
+    }
+
+    var getCurrentIndex  = function(indicesKey, idx, epoch) {
+      return indices[indicesKey][idx]['min_epoch'] < epoch && 
+             indices[indicesKey][idx]['max_epoch'] > epoch;
+    }
+
     var gl = this.gl;
     var drawOptions = this._layer.drawOptions;
-    var buffers = drawOptions.buffers;
-    var idx = drawOptions.idx;
-    var buffer = buffers[idx];
+    var idx;
+    var currentEpoch = gEarthTime.currentDate().getTime() / 1000.0;
+    var indicesKey = drawOptions["indicesKey"];
+    var that = this;
+    if (typeof(this.worker) == "undefined") {
+      this.worker = new Worker('ships-worker.js');
+      this.worker.onmessage = function(e) {
+        if (typeof e.data["idx"] != "undefined") {
+          var idx = e.data.idx;
+          var array = e.data["array"];
+          var data = new Float32Array(array);
+          that.buffers[idx].count = data.length / that.buffers[idx].numAttributes;
+          that.buffers[idx].buffer = that.gl.createBuffer();
+          that.gl.bindBuffer(that.gl.ARRAY_BUFFER, that.buffers[idx].buffer);
+          gl.bufferData(that.gl.ARRAY_BUFFER, data, that.gl.STATIC_DRAW);
+          that.buffers[idx].ready = true;
+        }
+      };  
+    }
 
+    if (typeof(this.buffers) == "undefined") {
+      this.buffers = {};
+    }
+    for (var i = 0; i < indices[indicesKey].length; i++) {
+      //console.log(i);
+      if (getCurrentIndex(indicesKey, i, currentEpoch)) {
+        if (typeof(this.buffers[i]) == "undefined") {
+          this.buffers[i] = {
+            "numAttributes": 7,
+            "count": 0,
+            "buffer": null,
+            "ready": false
+          };
+          var dataUrl = gEarthTime.rootTilePath + '/sp-crude/' + indices[indicesKey][i]["filename"];
+          this.worker.postMessage({'idx': i, 'url': dataUrl});
+        }
+        idx = i;
+      }
+    }
+
+
+
+    var buffer = this.buffers[idx];
     if (buffer && buffer.ready) {
       gl.useProgram(this.program);
       gl.enable(gl.BLEND);
