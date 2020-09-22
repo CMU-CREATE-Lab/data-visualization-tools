@@ -339,11 +339,6 @@ var showCsvLayers = !!EARTH_TIMELAPSE_CONFIG.showCsvLayers;
 var showHimawari8 = typeof(EARTH_TIMELAPSE_CONFIG.showHimawari8) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showHimawari8;
 //var showUSDrilling = typeof(EARTH_TIMELAPSE_CONFIG.showUSDrilling) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showUSDrilling;
 //var showViirs = typeof(EARTH_TIMELAPSE_CONFIG.showViirs) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showViirs;
-//var showMonthlyRefugees = !!EARTH_TIMELAPSE_CONFIG.showMonthlyRefugees;
-var showAnnualRefugees = !!EARTH_TIMELAPSE_CONFIG.showAnnualRefugees;
-var subsampleAnnualRefugees = !!EARTH_TIMELAPSE_CONFIG.subsampleAnnualRefugees;
-var subsampleAnnualReturns = !!EARTH_TIMELAPSE_CONFIG.subsampleAnnualReturns;
-var showAnnualReturns = !!EARTH_TIMELAPSE_CONFIG.showAnnualReturns;
 //var showGlobalWindPower = !!EARTH_TIMELAPSE_CONFIG.showGlobalWindPower;
 // var showVsi = !!EARTH_TIMELAPSE_CONFIG.showVsi;
 //var showHealthImpact = !!EARTH_TIMELAPSE_CONFIG.showHealthImpact;
@@ -576,8 +571,6 @@ var goes16TimeMachineLayer, goes16Aug2018TimeMachineLayer, goes16Nov2018TimeMach
 //var annualGlobalPm25TimeMachineLayer;
 //var globalWindPowerLayer;
 //Timelines.setTimeLine('global-wind-power-times', '1984', '2018', 1);
-var annualRefugeesLayer;
-var annualReturnsLayer;
 // var vsiLayer;
 //var healthImpactLayer;
 //var zikaLayer, dengueLayer, chikuLayer;
@@ -884,17 +877,6 @@ var cityLabelMapUrl = useGoogleMaps ? googleMapsCityLabelUrl : googleMapsCityLab
 //var globalWindPowerUrl = rootTilePath + "/energy/global-wind-power/windfarms-world_20180330.bin";
 //var drillingUrl = rootTilePath + "/energy/drilling/{z}/{x}/{y}.bin";
 var animatedHansenUrls = [gfcTransUrl, gfcLossGainUrl];
-//var monthlyRefugeesUrl = gEarthTime.rootTilePath + '/monthly-mediterranean-refugees/{z}/{x}/{y}.bin';
-
-var annualRefugeesUrl = gEarthTime.rootTilePath + "/annual-refugees/{z}/{x}/{y}.bin";
-if (subsampleAnnualRefugees) {
-  annualRefugeesUrl = gEarthTime.rootTilePath + "/annual-refugees/subsampled/{z}/{x}/{y}.bin";
-}
-var annualReturnsUrl =  gEarthTime.rootTilePath + "/annual-returns/refugee-returns.bin";
-if (subsampleAnnualReturns) {
-  annualReturnsUrl = gEarthTime.rootTilePath + "/annual-returns/refugee-returns-subsampled.bin";
-}
-
 // var vsiUrl = rootTilePath + "/vsi/tiles/{default}/{z}/{x}/{y}.png";
 var healthImpactUrl = gEarthTime.rootTilePath + "/health-impact/{z}/{x}/{y}.bin";
 //var zikaUrl = rootTilePath + "/pandemics/zika/{z}/{x}/{y}.bin";
@@ -1543,85 +1525,6 @@ function initLayerToggleUI() {
     }
     gEarthTime.timelapse.warpTo(gEarthTime.timelapse.getHomeView());
   }).prop('checked', showDscovrTimeMachineLayer);
-
-  // $("#show-monthly-refugees").on("click", function() {
-  //   var $this = $(this);
-  //   if ($this.prop('checked')) {
-  //     monthlyRefugeesLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-  //     if ($("#show-annual-refugees").prop('checked')) {
-  //       $("#show-annual-refugees").click();
-  //     }
-  //     showMonthlyRefugeesLayer = true;
-  //     setActiveLayersWithTimeline(1);
-  //     timelineType = "defaultUI";
-  //     requestNewTimeline("monthly-refugees-times.json", timelineType);
-  //     gEarthTime.timelapse.setMasterPlaybackRate(0.85);
-  //     gEarthTime.timelapse.setPlaybackRate(0.425);
-  //     gEarthTime.timelapse.setDoDwell(false);
-  //     $("#monthly-refugees-legend").show();
-  //   } else {
-  //     showMonthlyRefugeesLayer = false;
-  //     cacheLastUsedLayer(monthlyRefugeesLayer);
-  //     setActiveLayersWithTimeline(-1);
-  //     doSwitchToLandsat();
-  //     $("#monthly-refugees-legend").hide();
-  //   }
-  // }).prop('checked', showMonthlyRefugeesLayer);
-
-
-  $("#show-annual-refugees").on("click", function() {
-    var $this = $(this);
-    if ($this.prop('checked')) {
-      annualRefugeesLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      if ($("#show-monthly-refugees").prop('checked')) {
-        $("#show-monthly-refugees").click();
-      }
-      showAnnualRefugeesLayer = true;
-      setActiveLayersWithTimeline(1);
-      timelineType = "customUI";
-      requestNewTimeline("annual-refugees-times.json", timelineType);
-      gEarthTime.timelapse.setMasterPlaybackRate(0.045);
-      gEarthTime.timelapse.setPlaybackRate(0.0225);
-      $("#annual-refugees-legend").show();
-    } else {
-      showAnnualRefugeesLayer = false;
-      cacheLastUsedLayer(annualRefugeesLayer);
-      setActiveLayersWithTimeline(-1);
-      timelineType = "customUI";
-      requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-      gEarthTime.timelapse.setMasterPlaybackRate(1);
-      gEarthTime.timelapse.setPlaybackRate(defaultPlaybackSpeed);
-      gEarthTime.timelapse.setMaxScale(landsatMaxScale);
-      $("#annual-refugees-legend").hide();
-    }
-  }).prop('checked', showAnnualRefugeesLayer);
-
-  $("#show-annual-returns").on("click", function() {
-    var $this = $(this);
-    if ($this.prop('checked')) {
-      annualReturnsLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      if ($("#show-monthly-refugees").prop('checked')) {
-        $("#show-monthly-refugees").click();
-      }
-      showAnnualReturnsLayer = true;
-      setActiveLayersWithTimeline(1);
-      timelineType = "customUI";
-      requestNewTimeline("annual-refugees-times.json", timelineType);
-      gEarthTime.timelapse.setMasterPlaybackRate(0.045);
-      gEarthTime.timelapse.setPlaybackRate(0.0225);
-      $("#annual-returns-legend").show();
-    } else {
-      showAnnualReturnsLayer = false;
-      cacheLastUsedLayer(annualReturnsLayer);
-      setActiveLayersWithTimeline(-1);
-      timelineType = "customUI";
-      requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-      gEarthTime.timelapse.setMasterPlaybackRate(1);
-      gEarthTime.timelapse.setPlaybackRate(defaultPlaybackSpeed);
-      gEarthTime.timelapse.setMaxScale(landsatMaxScale);
-      $("#annual-returns-legend").hide();
-    }
-  }).prop('checked', showAnnualReturnsLayer);
 
   $("#show-lodes").on("click", function() {
     initLodesGui();
@@ -2868,9 +2771,6 @@ var showGoes16TimeMachineLayer = false;
 var showGoes16Aug2018TimeMachineLayer = false;
 var showGoes16Nov2018TimeMachineLayer = false;
 var showDscovrTimeMachineLayer = false;
-// var showMonthlyRefugeesLayer = false;
-var showAnnualRefugeesLayer = false;
-var showAnnualReturnsLayer = false;
 var showLodesLayer = false;
 var showCumulativeActiveMiningLayer = false;
 var showIomIdpLayer = false;
@@ -3196,9 +3096,6 @@ async function setupUIAndOldLayers() {
   var show_forest_loss_gain = '<td class="forest-loss-gain-select"><label for="show-forest-loss-gain" name="flg"><input type="checkbox" id="show-forest-loss-gain" />Forest Loss/Gain</label></td>';
   var show_animated_forest_loss_gain = '<td class="animated-forest-loss-select"><label for="show-animated-forest-loss-gain" name="aflg"><input type="checkbox" id="show-animated-forest-loss-gain" />Forest Loss/Gain (Animated)</label></td>';
   var show_himawari = '<td class="timemachine himawari-select"><label for="show-himawari" name="h8_16"><input type="checkbox" id="show-himawari" />Himawari-8</label></td>';
-  var show_monthly_refugees = '<td class="monthly-refugees-select"><label for="show-monthly-refugees" name="mmr"><input type="checkbox" id="show-monthly-refugees" />Mediterranean Refugees</label></td>';
-  var show_annual_refugees = '<td class="annual-refugees-select"><label for="show-annual-refugees" name="ar"><input type="checkbox" id="show-annual-refugees" />Global Refugees</label></td>';
-  var show_annual_returns = '<td class="annual-returns-select"><label for="show-annual-returns" name="arr"><input type="checkbox" id="show-annual-returns" />Global Returnees</label></td>';
   var show_sea_level_rise_1p0 = '<td class="sea-level-rise-1p0-select"><label for="show-sea-level-rise-1p0" name="slr10"><input type="checkbox" id="show-sea-level-rise-1p0" />Sea Level Rise Due to 1.0&deg;C Increase</label></td>';
   var show_sea_level_rise_1p5 = '<td class="sea-level-rise-1p5-select"><label for="show-sea-level-rise-1p5" name="slr15"><input type="checkbox" id="show-sea-level-rise-1p5" />Sea Level Rise Due to 1.5&deg;C Increase</label></td>';
   var show_sea_level_rise_2p0 = '<td class="sea-level-rise-2p0-select"><label for="show-sea-level-rise-2p0" name="slr2"><input type="checkbox" id="show-sea-level-rise-2p0" />Sea Level Rise Due to 2.0&deg;C Increase</label></td>';
@@ -3286,24 +3183,6 @@ async function setupUIAndOldLayers() {
   layer_html += '  </table>';
   /* END POLLUTION CATEGORY */
 
-  /* REFUGEE CATEGORY */
-  layer_html += '  <h3>Forced Displacement</h3>';
-  layer_html += '  <table id="category-forced-displacement">';
-  // if (showMonthlyRefugees) {
-  //   layer_html += '    <tr>';
-  //   layer_html += show_monthly_refugees;
-  //   layer_html += '    </tr>';
-  // }
-  if (showAnnualRefugees) {
-    layer_html += '    <tr>';
-    layer_html += show_annual_refugees;
-    layer_html += '    </tr>';
-  }
-  if (showAnnualReturns) {
-    layer_html += '    <tr>';
-    layer_html += show_annual_returns;
-    layer_html += '    </tr>';
-  }
   if (showIomIdp) {
     layer_html += '   <tr>';
     layer_html += show_iraq_iom_idp;
@@ -3485,15 +3364,6 @@ async function setupUIAndOldLayers() {
   legend_html += '<tr id="forest-loss-year-legend" style="display: none"><td><div style="font-size: 17px">Forest Loss By Year <span class="credit"> (Hansen et al)</span></div><div style="float:left; padding-right:3px; margin-left: 6px; font-size: 14px;">2000</div><div style="margin-top: 3px; float: left; background-image: -webkit-linear-gradient(left, yellow, orange 65%, red 100%);background-image: linear-gradient(left, yellow, orange 65%, red 100%); width: 68%; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">2018</div></div></td></tr>';
   legend_html += '<tr id="forest-loss-gain-legend" style="display: none; font-size: 14px;"><td><div style="font-size: 17px">Forest Loss/Gain 2000-2018 <span class="credit"> (Hansen et al)</span></div><div style="float: left; padding-right:8px"><div style="background-color:#00e000; width: 12px; height: 12px; float: left; margin-top: 2px; margin-left: 8px;"></div>&nbsp;Extent</div><div style="float: left; padding-right:8px"><div style="background-color:#ff0000; width: 12px; height: 12px; float: left; margin-top: 2px"></div>&nbsp;Loss</div><div style="float: left; padding-right:8px"><div style="background-color:#0000ff; width: 12px; height: 12px; float: left; margin-top: 2px"></div>&nbsp;Gain</div><div><div style="background-color:#ff00ff; width: 12px; height: 12px; float: left; margin-top: 2px"></div>&nbsp;Both</div></td></tr>';
   legend_html += '<tr id="fires-at-night-legend" style="display: none"><td><div style="background-color:#eda46a; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Fires At Night <span class="credit"> (NOAA)</span></div></td></tr>';
-  legend_html += '<tr id="monthly-refugees-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(right, #ff0000 0%, #ffffff 100%);background: -webkit-linear-gradient(left, #ff0000 0%,#ffffff 100%); background: linear-gradient(to right, #ff0000 0%,#ffffff 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Refugees Crossing the Mediterranean: Jan 2014 - Jun 2016 <span class="credit"> (UNHCR)</span></div></td></tr>';
-  if (subsampleAnnualRefugees)
-    legend_html += '<tr id="annual-refugees-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(right, #da7300 25%, red 100%);background: -webkit-linear-gradient(left, #da7300 25%,red 100%); background: linear-gradient(to right, #da7300 25%,red 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Global Refugee Flow: 2000 - 2015 <span class="credit"> (UNHCR) <br> 1 dot = ~17 refugees</span></div></td></tr>';
-  else
-    legend_html += '<tr id="annual-refugees-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(right, #da7300 25%, red 100%);background: -webkit-linear-gradient(left, #da7300 25%,red 100%); background: linear-gradient(to right, #da7300 25%,red 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Global Refugee Flow: 2000 - 2015 <span class="credit"> (UNHCR) <br> 1 dot = 1 refugee </span></div></td></tr>';
-  if (subsampleAnnualReturns)
-    legend_html += '<tr id="annual-returns-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(right, lightyellow 25%, navy 100%);background: -webkit-linear-gradient(left, lightyellow 25%,navy 100%); background: linear-gradient(to right, lightyellow 25%,navy 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Global Refugee Return Flow: 2000 - 2015 <span class="credit"> (UNHCR) <br> 1 dot = ~17 refugees </span></div></td></tr>';
-  else
-    legend_html += '<tr id="annual-returns-legend" style="display: none"><td><div style="background: #ff0000;background: -moz-linear-gradient(right, lightyellow 25%, navy 100%);background: -webkit-linear-gradient(left, lightyellow 25%,navy 100%); background: linear-gradient(to right, lightyellow 25%,navy 100%); width:12px; height: 12px; border-radius: 50%; border: 1px solid rgb(210,210,210);"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Global Refugee Return Flow: 2000 - 2015 <span class="credit"> (UNHCR) <br> 1 dot = 1 refugee </span></div></td></tr>';
   legend_html += '<tr id="sea-level-rise-legend" style="display: none"><td><div style="font-size: 17px">Global Temperature Rise <span id="slr-degree"></span> &#x2103;<span class="credit"> (Climate Central)</span></div><div style="font-size: 15px">Multi-century Sea Level Increase:<span id="slr-feet" style="width:25px;"></span>&nbsp;<span id="slr-meters" style="width:25px; color: red;"></span></div></td></tr>';
   legend_html += '<tr id="tibnted-sea-level-rise-legend" style="display: none"><td><div style="font-size: 17px">Global Temperature Rise <span id="slr-degree"></span> &#x2103;<span class="credit"> (Climate Central)</span></div><div style="font-size: 15px">Multi-century Sea Level Increase:<span id="slr-feet" style="width:25px;"></span>&nbsp;<span id="slr-meters" style="width:25px; color: red;"></span></div></td></tr>';
   legend_html += '<tr id="lodes-legend" style="display: none"><td><div>LODES<span class="credit"> (US Census)</span></div></td></tr>';
@@ -3777,42 +3647,6 @@ lightBaseMapLayer = new WebGLMapLayer(null, gEarthTime.glb, gEarthTime.canvasLay
 /////////////    tileHeight: 256
 /////////////  };
 /////////////  animatedHansenLayer = new WebGLMapLayer2(gEarthTime.glb, gEarthTime.canvasLayer, animatedHansenUrls, animatedHansenLayerOptions);
-/////////////
-/////////////  var monthlyRefugeesLayerOptions = {
-/////////////    tileWidth: 256,
-/////////////    tileHeight: 256,
-/////////////    nLevels: 0,
-/////////////    drawFunction: WebGLVectorTile2.prototype._drawMonthlyRefugees,
-/////////////    fragmentShader: WebGLVectorTile2.monthlyRefugeesFragmentShader,
-/////////////    vertexShader: WebGLVectorTile2.monthlyRefugeesVertexShader,
-/////////////    numAttributes: 10
-/////////////  };
-/////////////  monthlyRefugeesLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, monthlyRefugeesUrl, monthlyRefugeesLayerOptions);
-/////////////
-/////////////  var annualRefugeesLayerOptions = {
-/////////////    tileWidth: 256,
-/////////////    tileHeight: 256,
-/////////////    nLevels: 0,
-/////////////    drawFunction: WebGLVectorTile2.prototype._drawAnnualRefugees,
-/////////////    fragmentShader: WebGLVectorTile2.annualRefugeesFragmentShader,
-/////////////    vertexShader: WebGLVectorTile2.annualRefugeesVertexShader,
-/////////////    imageSrc: "https://tiles.earthtime.org/colormaps/annual-refugees-color-map.png",
-/////////////    numAttributes: 7
-/////////////  };
-/////////////  annualRefugeesLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, annualRefugeesUrl, annualRefugeesLayerOptions);
-/////////////
-/////////////  var annualReturnsLayerOptions = {
-/////////////    tileWidth: 256,
-/////////////    tileHeight: 256,
-/////////////    nLevels: 0,
-/////////////    drawFunction: WebGLVectorTile2.prototype._drawAnnualRefugees,
-/////////////    fragmentShader: WebGLVectorTile2.annualRefugeesFragmentShader,
-/////////////    vertexShader: WebGLVectorTile2.annualRefugeesVertexShader,
-/////////////    imageSrc: "https://tiles.earthtime.org/colormaps/annual-returns-color-map.png",
-/////////////    numAttributes: 7
-/////////////  };
-/////////////  annualReturnsLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, annualReturnsUrl, annualReturnsLayerOptions);
-/////////////
 /////////////
 /////////////  var lodesLayerOptions = {
 /////////////    tileWidth: 256,
@@ -5927,85 +5761,6 @@ function update() {
         wdpaLayer.draw(wdpaLayerView, options);
       }
       */
-
-      // Draw Mediterranean Monthly Refugees
-      // if (showMonthlyRefugeesLayer) {
-      //   var monthlyRefugeesLayerView = getLayerView(monthlyRefugeesLayer, landsatBaseMapLayer);
-      //   let options: any = {};
-      //   monthlyRefugeesLayer.draw(monthlyRefugeesLayerView, options);
-      // }
-
-
-      // Draw Annual Refugees
-      if (showAnnualRefugeesLayer) {
-        var annualRefugeesLayerView = getLayerView(annualRefugeesLayer, landsatBaseMapLayer);
-        let options: DrawOptions = {};
-        var ratio = gEarthTime.timelapse.getCurrentTime() / (gEarthTime.timelapse.getNumFrames() / gEarthTime.timelapse.getFps());
-        var times = gEarthTime.timelapse.getCaptureTimes();
-        var startDate = new Date(parseInt(times[0]), 0, 1);
-        let endDate = new Date(parseInt(times[times.length - 1]) + 1, 0, 1);
-        var range = endDate.getTime() - startDate.getTime();
-        let currentDate = new Date(ratio * range + startDate.getTime());
-        // TODO(LayerDB): we need a currentDate() that is fully granular, like this one
-        // @ts-ignore
-        options.currentTime = currentDate;
-        options.span = 240 * 24 * 60 * 60 * 1000;
-        options.subsampleAnnualRefugees = subsampleAnnualRefugees;
-        options.pointIdx = {
-          2001: {'count': 798896, 'start': 0},
-          2002: {'count': 1377803, 'start': 798896},
-          2003: {'count': 402155, 'start': 2176699},
-          2004: {'count': 640155, 'start': 2578854},
-          2005: {'count': 375991, 'start': 3219009},
-          2006: {'count': 1666399, 'start': 3595000},
-          2007: {'count': 2881204, 'start': 5261399},
-          2008: {'count': 431865, 'start': 8142603},
-          2009: {'count': 900246, 'start': 8574468},
-          2010: {'count': 492341, 'start': 9474714},
-          2011: {'count': 742046, 'start': 9967055},
-          2012: {'count': 1356451, 'start': 10709101},
-          2013: {'count': 2260887, 'start': 12065552},
-          2014: {'count': 3107100, 'start': 14326439},
-          2015: {'count': 2331430, 'start': 17433539}
-        };
-        annualRefugeesLayer.draw(annualRefugeesLayerView, options);
-      }
-
-      // Draw Annual Returns
-      if (showAnnualReturnsLayer) {
-        var annualReturnsLayerView = getLayerView(annualReturnsLayer, landsatBaseMapLayer);
-        let options: DrawOptions = {};
-        var ratio = gEarthTime.timelapse.getCurrentTime() / (gEarthTime.timelapse.getNumFrames() / gEarthTime.timelapse.getFps());
-        var times = gEarthTime.timelapse.getCaptureTimes();
-        var startDate = new Date(parseInt(times[0]), 0, 1);
-        let endDate = new Date(parseInt(times[times.length - 1]) + 1, 0, 1);
-        var range = endDate.getTime() - startDate.getTime();
-        let currentDate = new Date(ratio * range + startDate.getTime());
-        // @ts-ignore
-        options.currentTime = currentDate;
-        options.span = 240 * 24 * 60 * 60 * 1000;
-        options.subsampleAnnualRefugees = subsampleAnnualReturns;
-        options.pointIdx = {
-          2000: {'count': 763562, 'start': 0},
-          2001: {'count': 453831, 'start': 763562},
-          2002: {'count': 2411730, 'start': 1217393},
-          2003: {'count': 1093240, 'start': 3629123},
-          2004: {'count': 1431823, 'start': 4722363},
-          2005: {'count': 1105375, 'start': 6154186},
-          2006: {'count': 710542, 'start': 7259561},
-          2007: {'count': 728128, 'start': 7970103},
-          2008: {'count': 589392, 'start': 8698231},
-          2009: {'count': 247555, 'start': 9287623},
-          2010: {'count': 171179, 'start': 9535178},
-          2011: {'count': 530960, 'start': 9706357},
-          2012: {'count': 525154, 'start': 10237317},
-          2013: {'count': 413619, 'start': 10762471},
-          2014: {'count': 126877, 'start': 11176090},
-          2015: {'count': 201440, 'start': 11302967}
-        };
-        annualReturnsLayer.draw(annualReturnsLayerView, options);
-      }
-
 
       // Draw Nutritional Deficiency Layers
       /*
