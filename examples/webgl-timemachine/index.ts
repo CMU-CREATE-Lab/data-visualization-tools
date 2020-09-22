@@ -573,7 +573,6 @@ var goes16TimeMachineLayer, goes16Aug2018TimeMachineLayer, goes16Nov2018TimeMach
 //var healthImpactLayer;
 //var zikaLayer, dengueLayer, chikuLayer;
 //var viirsLayer;
-//var wdpaLayer;
 ////var tintedSeaLevelRiseLayer;
 //var urbanFragilityLayer;
 //var monthlyRefugeesLayer;
@@ -867,7 +866,6 @@ var cityLabelMapUrl = useGoogleMaps ? googleMapsCityLabelUrl : googleMapsCityLab
 // var waterOccurrenceUrl = rootTilePath + "/water/occurrence_2018/{default}/{z}/{x}/{y}.png";
 // var waterChangeUrl = rootTilePath + "/water/change_2018/{default}/{z}/{x}/{y}.png";
 
-//var wdpaUrl = rootTilePath + "/wdpaline-year/{z}/{x}/{y}.bin";
 //var viirsUrl = rootTilePath + "/viirs/viirs_20140817-20170917.bin";
 
 //var usgsWindTurbineUrl = rootTilePath + "/energy/wind-installs-usgs/{z}/{x}/{y}.bin";
@@ -5748,15 +5746,6 @@ function update() {
         forestAlertsView.y -= offest.y;
         forestAlertsTimeMachineLayer.draw(forestAlertsView, tileViewVisibility);
       }*/
-
-      // Draw Protected Areas (WDPA)
-      /*
-      if (showWdpaLayer) {
-        let options: DrawOptions = {};
-        var wdpaLayerView = getLayerView(wdpaLayer, landsatBaseMapLayer);
-        wdpaLayer.draw(wdpaLayerView, options);
-      }
-      */
 
       // Draw Nutritional Deficiency Layers
       /*
