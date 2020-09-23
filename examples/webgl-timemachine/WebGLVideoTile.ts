@@ -14,46 +14,90 @@
 // the flexibility of being able to capture the video across a range of times
 
 import { gEarthTime } from './EarthTime'
+import { Tile } from './Tile'
 
-export class WebGLVideoTile {
-  constructor(glb, tileidx, bounds, url, defaultUrl, numFrames, fps, greenScreen, layer) {
+export class WebGLVideoTile extends Tile {
+  static _initted: any;
+  layer: any;
+  _textureProgram: any;
+  _textureFaderProgram: any;
+  _textureTintFaderProgram: any;
+  _textureColormapFaderProgram: any;
+  _textureGreenScreenProgram: any;
+  _textureGreenScreenFaderProgram: any;
+  _triangles: any;
+  _video: HTMLVideoElement;
+  _useGreenScreen: any;
+  _pipeline: any[];
+  static PIPELINE_SIZE: number;
+  _ready: boolean;
+  _minPlaybackRate: number;
+  _maxPlaybackRate: number;
+  _frameOffsetIndex: number;
+  _frameOffset: any;
+  static _frameOffsets: any;
+  _fps: any;
+  _nframes: any;
+  _id: number;
+  static videoId: any;
+  _seekingFrameCount: number;
+  static activeTileCount: any;
+  _videoPlayPromise: any;
+  static _frameOffsetUsed: any;
+  static verbose: boolean;
+  _lastDisplayFrame: any;
+  _missedFrameCount: any;
+  _capturePriority: number;
+  _uAlpha: number;
+  static totalSeekingFrameCount: any;
+  static totalSeekCount: any;
+  frameCount: any;
+  static useFaderShader: any;
+  static missedFrameCount: number;
+  static textureFragmentGrayScaleFaderShader: string;
+  static frameCount: number;
+  //constructor(layer: Layer, tileidx: TileIdx, bounds, opt_options) {
+
+  constructor(layer, tileidx, bounds, {url, defaultUrl, numFrames, fps, greenScreen}) {
+    const NETWORK_NO_SOURCE = 3;
+    super(layer, tileidx, bounds, {});
     if (!WebGLVideoTile._initted) {
       WebGLVideoTile._init();
     }
     this.layer = layer;
     this._tileidx = tileidx;
-    this.glb = glb;
-    this.gl = glb.gl;
+    this.glb = gEarthTime.glb;
+    this.gl = this.glb.gl;
 
     // TODO: Only compile the necessary shader for the layer that was loaded.
     // Note: The shaders are cached once loaded, so calling what is below for each tile should not
     // be as horrible a performance hit as it may seem.
-    this._textureProgram = glb.programFromSources(WebGLVideoTile.textureVertexShader,
+    this._textureProgram = this.glb.programFromSources(WebGLVideoTile.textureVertexShader,
       WebGLVideoTile.textureFragmentShader);
 
-    this._textureFaderProgram = glb.programFromSources(WebGLVideoTile.textureVertexShader,
+    this._textureFaderProgram = this.glb.programFromSources(WebGLVideoTile.textureVertexShader,
       WebGLVideoTile.textureFragmentFaderShader);
 
-    this._textureTintFaderProgram = glb.programFromSources(WebGLVideoTile.textureVertexShader,
+    this._textureTintFaderProgram = this.glb.programFromSources(WebGLVideoTile.textureVertexShader,
       WebGLVideoTile.textureFragmentTintFaderShader);
 
-    this._textureColormapFaderProgram = glb.programFromSources(WebGLVideoTile.textureVertexShader,
+    this._textureColormapFaderProgram = this.glb.programFromSources(WebGLVideoTile.textureVertexShader,
       WebGLVideoTile.textureColormapFragmentFaderShader);
 
-    this._textureGreenScreenProgram = glb.programFromSources(WebGLVideoTile.textureVertexShader,
+    this._textureGreenScreenProgram = this.glb.programFromSources(WebGLVideoTile.textureVertexShader,
       WebGLVideoTile.textureGreenScreenFragmentShader);
 
-    this._textureGreenScreenFaderProgram = glb.programFromSources(WebGLVideoTile.textureVertexShader,
+    this._textureGreenScreenFaderProgram = this.glb.programFromSources(WebGLVideoTile.textureVertexShader,
       WebGLVideoTile.textureGreenScreenFragmentFaderShader);
 
-    this._triangles = glb.createBuffer(new Float32Array([0, 0,
+    this._triangles = this.glb.createBuffer(new Float32Array([0, 0,
       1, 0,
       0, 1,
       1, 1]));
 
     // Mobile uses TimeMachine canvas to render the videos
     if (org.gigapan.Util.isMobileDevice()) {
-      this._video = {};
+      this._video = {} as HTMLVideoElement;
     }
     else {
       this._video = document.createElement('video');
@@ -61,7 +105,7 @@ export class WebGLVideoTile {
       // sea tiles and replace with a single default tile.
       this._video.addEventListener('error', function (event) {
         if (self._video) {
-          if (self._video.networkState == HTMLVideoElement.NETWORK_NO_SOURCE &&
+          if (self._video.networkState == NETWORK_NO_SOURCE &&
             self._video.src != defaultUrl) {
             self._video.src = defaultUrl;
           }
@@ -69,12 +113,12 @@ export class WebGLVideoTile {
       });
     }
     this._video.crossOrigin = "anonymous";
-    this._video.disableRemotePlayback = true;
+    (this._video as any).disableRemotePlayback = true; // chromecast
     this._video.muted = true;
-    this._video.playsinline = true;
+    (this._video as any).playsinline = true; // mobile safari
     // The attribute should be all lowercase per the Apple docs, but apparently it needs to be camelcase.
     // Leaving both in just in case.
-    this._video.playsInline = true;
+    (this._video as any).playsInline = true;
     this._video.preload = 'auto';
 
     this._useGreenScreen = greenScreen;
@@ -103,6 +147,13 @@ export class WebGLVideoTile {
     this._seekingFrameCount = 0;
     WebGLVideoTile.activeTileCount++;
   }
+  static textureVertexShader: string;
+  static textureFragmentShader: string;
+  static textureFragmentFaderShader: string;
+  static textureFragmentTintFaderShader: string;
+  static textureColormapFragmentFaderShader: string;
+  static textureGreenScreenFragmentShader: string;
+  static textureGreenScreenFragmentFaderShader: string;
   _createTexture() {
     var gl = this.gl;
     var texture = gl.createTexture();
@@ -180,7 +231,7 @@ export class WebGLVideoTile {
     }
 
     if (changed && WebGLVideoTile.verbose) {
-      console.log(this._id + ': flushed frames, now ' + this._pipelineToString() + ' ' + this._computeNextCaptureFrame(displayFrameDiscrete, timelapse.isPaused()));
+      console.log(this._id + ': flushed frames, now ' + this._pipelineToString() + ' ' + this._computeNextCaptureFrame(displayFrameDiscrete, gEarthTime.timelapse.isPaused()));
     }
   }
   // Advance the pipeline if we're now display a frame that's at element 1
@@ -201,7 +252,7 @@ export class WebGLVideoTile {
       this._pipeline[WebGLVideoTile.PIPELINE_SIZE - 1] = tmp;
       this._ready = true;
       if (WebGLVideoTile.verbose) {
-        console.log(this._id + ': Advancing pipeline, now ' + this._pipelineToString() + ' ' + this._computeNextCaptureFrame(displayFrameDiscrete, timelapse.isPaused()));
+        console.log(this._id + ': Advancing pipeline, now ' + this._pipelineToString() + ' ' + this._computeNextCaptureFrame(displayFrameDiscrete, gEarthTime.timelapse.isPaused()));
       }
     }
   }
@@ -323,40 +374,32 @@ export class WebGLVideoTile {
     //    We're playing, but within the start dwell period (not end dwell period)
     //    (hack) we're showing some layers that make landsat playback especially slow
     //           TODO: we should measure the speed, instead of naming layers that cause playback to be slow
-    var isPaused = timelapse.isPaused() && !timelapse.isDuringEndDwell();
+    var isPaused = gEarthTime.timelapse.isPaused() && !gEarthTime.timelapse.isDuringEndDwell();
 
-    if (timelapse.isPaused()) {
-      timelapse.isDuringStartDwell();
+    if (gEarthTime.timelapse.isPaused()) {
+      gEarthTime.timelapse.isDuringStartDwell();
       if (WebGLVideoTile.verbose) {
-        console.log('isPaused', timelapse.isDuringStartDwell(), timelapse.isDuringEndDwell());
+        console.log('isPaused', gEarthTime.timelapse.isDuringStartDwell(), gEarthTime.timelapse.isDuringEndDwell());
       }
     }
 
 
     // TODO: Hack for frames with fixed year or range of Landsat years to be shown.
     // Any layer where we set a fixed frame (or range of frames) needs to set isPaused or no new tiles are brought in until you pause.
-    if (typeof showUrbanFragilityLayer != "undefined" && showUrbanFragilityLayer) {
-      isPaused = true;
-    }
-
-    if (typeof showAnnualRefugeesLayer != "undefined" && showAnnualRefugeesLayer) {
-      isPaused = true;
-    }
-
-    if (typeof showViirsLayer != "undefined" && showViirsLayer) {
-      isPaused = true;
-    }
-
-    if (typeof showDrillingLayer != "undefined" && showDrillingLayer) {
-      isPaused = true;
-    }
-
-    if (typeof showSeaLevelRiseLayer != "undefined" && showSeaLevelRiseLayer) {
+    let visibleLayerIds = new Set(gEarthTime.layerDB.visibleLayerIds());
+    if (visibleLayerIds.has('ar') ||
+        visibleLayerIds.has('viirs') ||
+        visibleLayerIds.has('drl') ||
+        visibleLayerIds.has('uf') ||
+        visibleLayerIds.has('slr10') ||
+        visibleLayerIds.has('slr15') ||
+        visibleLayerIds.has('slr2') ||
+        visibleLayerIds.has('slr4')) {
       isPaused = true;
     }
 
     if (readyState == 0) {
-      timelapse.lastFrameCompletelyDrawn = false;
+      gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
       return;
     }
 
@@ -365,7 +408,7 @@ export class WebGLVideoTile {
       if (WebGLVideoTile.verbose) {
         console.log(this._id + ': seeking for ' + this._seekingFrameCount + ' frames');
       }
-      timelapse.lastFrameCompletelyDrawn = false;
+      gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
       return;
     }
 
@@ -388,7 +431,7 @@ export class WebGLVideoTile {
       if (Math.abs(this._video.currentTime - videoTime) > epsilon) {
         //console.log('Wrong spot (' + this._video.currentTime + ' so seeking source to ' + videoTime);
         this._video.currentTime = videoTime;
-        timelapse.lastFrameCompletelyDrawn = false;
+        gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
       }
       else if (this._pipeline[0].frameno != displayFrameDiscrete ||
         Math.abs(this._pipeline[0].texture.before - videoTime) > epsilon ||
@@ -417,7 +460,7 @@ export class WebGLVideoTile {
 
     var webglFps = 60;
     // Imagine we're going to drop a frame.  Aim to be at the right place in 3 frames
-    var future = (timelapse.getPlaybackRate() * this._fps / webglFps) * 3;
+    var future = (gEarthTime.timelapse.getPlaybackRate() * this._fps / webglFps) * 3;
 
     // Desired video tile time leads display by frameOffset+1.3
     var targetVideoFrame = (displayFrame + this._frameOffset + 1.2) % this._nframes;
@@ -477,7 +520,7 @@ export class WebGLVideoTile {
       }
     }
     if (!this._ready) {
-      timelapse.lastFrameCompletelyDrawn = false;
+      gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
     }
   }
   _pipelineToString() {
@@ -531,7 +574,7 @@ export class WebGLVideoTile {
     //  }
     //}
   }
-  draw(transform) {
+  drawTile(transform) {
     var gl = this.gl;
     var tileTransform = new Float32Array(transform);
     translateMatrix(tileTransform, this._bounds.min.x, this._bounds.min.y);
@@ -585,25 +628,16 @@ export class WebGLVideoTile {
 
         gl.activeTexture(gl.TEXTURE1);
 
-        var isPaused = timelapse.isPaused();
-
-        if (typeof showUrbanFragilityLayer != "undefined" && showUrbanFragilityLayer) {
-          isPaused = true;
-        }
-
-        if (typeof showAnnualRefugeesLayer != "undefined" && showAnnualRefugeesLayer) {
-          isPaused = true;
-        }
-
-        if (typeof showViirsLayer != "undefined" && showViirsLayer) {
-          isPaused = true;
-        }
-
-        if (typeof showDrillingLayer != "undefined" && showDrillingLayer) {
-          isPaused = true;
-        }
-
-        if (typeof showSeaLevelRiseLayer != "undefined" && showSeaLevelRiseLayer) {
+        var isPaused = gEarthTime.timelapse.isPaused();
+        let visibleLayerIds = new Set(gEarthTime.layerDB.visibleLayerIds());
+        if (visibleLayerIds.has('ar') ||
+            visibleLayerIds.has('viirs') ||
+            visibleLayerIds.has('drl') ||
+            visibleLayerIds.has('uf') ||
+            visibleLayerIds.has('slr10') ||
+            visibleLayerIds.has('slr15') ||
+            visibleLayerIds.has('slr2') ||
+            visibleLayerIds.has('slr4')) {
           isPaused = true;
         }
 
@@ -690,7 +724,7 @@ export class WebGLVideoTile {
 
     var fps = tiles[0]._fps;
 
-    var displayFrame = timelapse.getVideoset().getCurrentTime() * fps;
+    var displayFrame = gEarthTime.timelapse.getVideoset().getCurrentTime() * fps;
 
     var numTimelapseFrames = tiles[0]._nframes;
 
@@ -698,7 +732,7 @@ export class WebGLVideoTile {
     var appliedOffset = false;
     if (tiles[0].layer.startYear) {
       var layerStartYear = tiles[0].layer.startYear;
-      var timelineStartDate = timelapse.getCaptureTimes()[0];
+      var timelineStartDate = gEarthTime.timelapse.getCaptureTimes()[0];
       // Assumes YYYY
       if (timelineStartDate.length == 4) {
         var timelineStartYear = parseInt(timelineStartDate);
@@ -710,7 +744,7 @@ export class WebGLVideoTile {
         // Assumes YYYY-MM-DD
       }
       else if (timelineStartDate.length == 10) {
-        var yearString = timelapse.getCurrentCaptureTime().substring(0, 4);
+        var yearString = gEarthTime.timelapse.getCurrentCaptureTime().substring(0, 4);
         var year = parseInt(yearString);
         if (year > 0) {
           displayFrame = Math.max(0, year - layerStartYear);
@@ -719,9 +753,13 @@ export class WebGLVideoTile {
       }
     }
 
+    let visibleLayerIds = new Set(gEarthTime.layerDB.visibleLayerIds());
     if (!appliedOffset) {
       // TODO: Hack for future facing layers that require the last year of Landsat
-      if (typeof showSeaLevelRiseLayer != "undefined" && showSeaLevelRiseLayer) {
+      if (visibleLayerIds.has('slr10') ||
+          visibleLayerIds.has('slr15') ||
+          visibleLayerIds.has('slr2') ||
+          visibleLayerIds.has('slr4')) {
         displayFrame = numTimelapseFrames - 1;
       }
     }
@@ -813,7 +851,7 @@ uniform sampler2D uSampler;
 uniform sampler2D uSampler2;
 uniform float uAlpha;
 void main(void) {
-  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t)); 
+  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
   vec4 textureColor2 = texture2D(uSampler2, vec2(vTextureCoord.s, vTextureCoord.t));
   gl_FragColor = textureColor * (1.0 - uAlpha) + textureColor2 * uAlpha;
 }`;
@@ -830,7 +868,7 @@ vec4 to_grayscale(vec4 color) {
   return vec4(avg, avg, avg, 1.0);
 }
 void main(void) {
-  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t)); 
+  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
   vec4 textureColor2 = texture2D(uSampler2, vec2(vTextureCoord.s, vTextureCoord.t));
   gl_FragColor = to_grayscale(textureColor * (1.0 - uAlpha) + textureColor2 * uAlpha);
 }`;
@@ -850,7 +888,7 @@ vec4 tint(vec4 grayscale, vec4 color) {
   return vec4(grayscale * color);
 }
 void main(void) {
-  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t)); 
+  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
   vec4 textureColor2 = texture2D(uSampler2, vec2(vTextureCoord.s, vTextureCoord.t));
   //vec4 color = vec4(0.0,0.0,0.8039, 1.0);
   vec4 color = vec4(0.,0.0,0.44, 1.);
@@ -867,7 +905,7 @@ uniform sampler2D uSampler2;
 uniform sampler2D uColormap;
 uniform float uAlpha;
 void main(void) {
-  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t)); 
+  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
   vec4 textureColor2 = texture2D(uSampler2, vec2(vTextureCoord.s, vTextureCoord.t));
   vec4 mixed = textureColor * (1.0 - uAlpha) + textureColor2 * uAlpha;
   gl_FragColor = texture2D(uColormap, vec2(mixed.g, 0.0));
@@ -879,9 +917,9 @@ varying vec2 vTextureCoord;
 uniform sampler2D uSampler;
 void main(void) {
   vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
-  if (textureColor.r < .5) { 
+  if (textureColor.r < .5) {
     gl_FragColor = vec4(textureColor.rgb, textureColor.r);
-  } else { 
+  } else {
     gl_FragColor = vec4(textureColor.rgb, 1.);
   }
 }`;
@@ -893,12 +931,12 @@ uniform sampler2D uSampler;
 uniform sampler2D uSampler2;
 uniform float uAlpha;
 void main(void) {
-  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t)); 
+  vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
   vec4 textureColor2 = texture2D(uSampler2, vec2(vTextureCoord.s, vTextureCoord.t));
   vec4 fragColor = textureColor * (1.0 - uAlpha) + textureColor2 * uAlpha;
-  if (fragColor.r + fragColor.g + fragColor.b < .5) { 
+  if (fragColor.r + fragColor.g + fragColor.b < .5) {
     gl_FragColor = vec4(fragColor.rgb, (fragColor.r + fragColor.g + fragColor.b)/.5);
-  } else { 
+  } else {
     gl_FragColor = fragColor;
   }
 }`;

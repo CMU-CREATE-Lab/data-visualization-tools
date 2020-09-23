@@ -50,15 +50,16 @@ export class TileView {
   _scale: any;
   _lastStatus: any;
   _layerDomId: any;
-  constructor(settings: { 
+  constructor(settings: {
     panoWidth: number; panoHeight: number;
     tileWidth: number; tileHeight: number;
     createTile: any; updateTiles: any;
+    deleteTile?: any;
     zoomlock?: any;
     projection?: any;
     maxLevelOverride: any;
     avoidShowingChildAndParent?: boolean;
-    levelThreshold: number;
+    levelThreshold?: number;
   }) {
     this._panoWidth = settings.panoWidth;
     this._panoHeight = settings.panoHeight;
@@ -69,12 +70,15 @@ export class TileView {
     this._tiles = {};
     this._updateTilesCallback = settings.updateTiles;
     console.assert(typeof this._updateTilesCallback == 'function');
+    if (settings.deleteTile) {
+      this._deleteTile = settings.deleteTile;
+    }
     this._zoomlock = settings.zoomlock;
     this._projection = settings.projection;
     this._maxLevelOverride = settings.maxLevelOverride;
     this._avoidShowingChildAndParent = settings.avoidShowingChildAndParent;
     this.resources = {};
-    this.levelThreshold = settings.levelThreshold;
+    this.levelThreshold = settings.levelThreshold ?? 0;
 
     // levelThreshold sets the quality of display by deciding what level of tile to show for a given level of zoom:
     //

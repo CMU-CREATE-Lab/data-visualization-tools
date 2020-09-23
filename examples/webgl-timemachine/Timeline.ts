@@ -35,8 +35,8 @@ export class Timeline {
         this.startDate = startDate;
         this.endDate = endDate;
         this.step = step;
-        this.masterPlaybackRate = masterPlaybackRate;
-        this.playbackRate = playbackRate;
+        this.masterPlaybackRate = masterPlaybackRate || 1.0;
+        this.playbackRate = playbackRate || 0.5;
     }
 
     getCaptureTimes(): {"capture-times": string[]} {

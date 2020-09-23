@@ -26,8 +26,8 @@ export class WebGLVectorLayer2 extends Layer {
     // Hack to rewrite vertexShader for .bin choropleth tiles
     // TODO: make this less hacky
     if (this.vertexShader == WebGLVectorTile2Shaders.choroplethMapVertexShader &&
-      this.externalGeojson &&
-      this.externalGeojson.endsWith('.bin')) {
+        this.externalGeojson &&
+        this.externalGeojson.endsWith('.bin')) {
       this.vertexShader = WebGLVectorTile2Shaders.choroplethMapVertexShaderV2;
       this.fragmentShader = WebGLVectorTile2Shaders.choroplethMapFragmentShaderV2;
     }

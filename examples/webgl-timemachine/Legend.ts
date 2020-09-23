@@ -18,7 +18,7 @@ export class Legend {
         this.str = str;
     }
     toString() {
-        var ret = '<tr id="' + this.id + '-legend" style="display: none"><td>' + this.str + '</td></tr>';
+        var ret = '<tr id="' + this.id + '-legend"><td>' + this.str + '</td></tr>';
         return ret;
     }
 }
@@ -46,7 +46,6 @@ export class BubbleMapLegend extends Legend {
         this.keyY = 10;
         this.keyOffset = 0.0;
         this.str = opts.str || this.setStr(opts);
-        Legend.call(this, this.id, this.str);
     }
     setStr(opts: BubbleMapLegendOptions) {
         var that = this;
@@ -108,7 +107,6 @@ export class ChoroplethLegend extends Legend {
         this.xValueOffset = 0;
         this.str = opts.str || this.setStr(opts);
         this.keys = opts.keys || [];
-        Legend.call(this, this.id, this.str);
     }
     safe(templateData: any[], ...argumnts: any[]) {
         var entityMap = {

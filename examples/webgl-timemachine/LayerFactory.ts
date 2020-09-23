@@ -13,9 +13,10 @@ import { WebGLVectorLayer2 } from './WebGLVectorLayer2'
 import { WebGLMapTile, WebGLMapTileShaders } from './WebGLMapTile'
 import { WebGLVectorTile2, WebGLVectorTile2Shaders } from './WebGLVectorTile2'
 
+import { TimelineType } from './Timeline';
 import { Timelines } from './Timelines';
 import { LayerDef, LayerProxy } from './LayerProxy';
-import { LayerOptions } from './Layer';
+import { Layer, LayerOptions } from './Layer';
 import { WebGLMapTile2, WebGLMapTile2Shaders } from './WebGLMapTile2';
 import { ETMBLayer } from './ETMBLayer';
 
@@ -39,7 +40,6 @@ export class LayerFactory {
   layersData: any;
   formatValue: (value: any) => any;
   constructor() {
-    this.layers = [];
     this.layerById = {};
     this.dataLoadedListeners = [];
     this.layersLoadedListeners = [];
@@ -119,8 +119,7 @@ export class LayerFactory {
     }
     str += '>' + dataName + '</option>';
 
-
-    $('#extras-selector').append(str);
+    $("#extras-selector").append(str);
   }
 
   createLayer(layerProxy: LayerProxy, layerDef: LayerDef) {
@@ -139,7 +138,7 @@ export class LayerFactory {
       layerDef: layerDef,
       layerId: layerDef["Share link identifier"].replace(/([^\w-])+/g, '_'),
       category: layerDef["Category"],
-      timelineType: layerDef["Timeline Type"] || 'defaultUI',
+      timelineType: (layerDef["Timeline Type"] as TimelineType) || 'defaultUI',
       startDate: layerDef["Start date"],
       endDate: layerDef["End date"],
       step: layerDef["Step"] ? parseInt(layerDef["Step"]) : 1,
@@ -154,8 +153,8 @@ export class LayerFactory {
       colorScalingFunction: layerDef["Color Scaling"] || 'd3.scaleLinear().domain([minColorValue, maxColorValue]).range([0, 1])',
       externalGeojson: layerDef["External GeoJSON"],
       nameKey: layerDef["Name Key"], // Optional GeoJSON property name with which to join features with first column of data
-      playbackRate: layerDef["Playback Rate"] || null,
-      masterPlaybackRate: layerDef["Master Playback Rate"] || null,
+      playbackRate: parseFloat(layerDef["Playback Rate"]) || null,
+      masterPlaybackRate: parseFloat(layerDef["Master Playback Rate"]) || null,
       nLevels: layerDef["Number of Levels"] ? parseInt(layerDef["Number of Levels"]) : 0,
       imageSrc: layerDef["Colormap Src"] || null,
       // By default, most CSV layers draw at z=400.  Raster and choropleths by default will draw at z=200.  New raster base maps will draw at z=100.
@@ -184,12 +183,17 @@ export class LayerFactory {
       layerOptions.hasTimeline = false;
     }
 
+    if (!layerDef["Legend Content"] || layerDef["Legend Content"] == "none") {
+      layerOptions.hasLegend = false;
+    } else {
+      layerOptions.hasLegend = true;
+    }
 
-    if (typeof layerDef["Draw Options"] != "undefined" && layerDef["Draw Options"] != "") {
+    if (layerDef["Draw Options"]) {
       layerOptions.drawOptions = JSON.parse(layerDef["Draw Options"]);
     }
 
-    if (typeof layerDef["Set Data Options"] != "undefined" && layerDef["Set Data Options"] != "") {
+    if (layerDef["Set Data Options"]) {
       layerOptions.setDataOptions = JSON.parse(layerDef["Set Data Options"]);
     }
 
@@ -310,6 +314,10 @@ export class LayerFactory {
       overrideDrawingFns();
     }
 
+    if (layerDef["Draw Order"]) {
+      layerOptions.drawOrder = parseInt(layerDef["Draw Order"]);
+    }
+
     var layer = new WebGLLayer(layerProxy, gEarthTime.glb, gEarthTime.canvasLayer, url, layerOptions);
     layer.options = layer.options || {};
     if (layerOptions.color) {
@@ -341,9 +349,6 @@ export class LayerFactory {
     } else {
       layer.paired = false;
     }
-
-    this.layers.push(layer);
-    this.layerById[layer.layerId] = layer;
 
     var id = 'show-csv-' + layerOptions.layerId;
     var row = '<tr class="csvlayer"><td><label name="' + layerOptions.layerId + '">';
@@ -591,16 +596,52 @@ export class LayerFactory {
     return null;
   }
 
+  clearNonVisibleLayerLegends() {
+    let visibleLayers = gEarthTime.layerDB.visibleLayers;
+    let layerProxyLegendsToHide = gEarthTime.layerDB._loadedCache.prevVisibleLayers.filter(layerProxy => !visibleLayers.includes(layerProxy));
+    layerProxyLegendsToHide.forEach(function(layerProxy) {
+      let layer = layerProxy.layer;
+      if (layer && layer.hasLegend) {
+        layer.legendVisible = false;
+      }
+    });
+    let layerIds = visibleLayers.map(layer => layer.id);
+    let layerIdsSelector = layerIds.map(function(id) { return `#${id}-legend`; }).join(', ');
+    $("#legend-content table tr").not(layerIdsSelector).remove();
+  }
+
+  handleLayerMenuUI() {
+    let $layerListContainer = $(".map-layer-div");
+    let newVisibleLayerIds = gEarthTime.layerDB.visibleLayerIds();
+    let previousVisibleLayerIds = gEarthTime.layerDB._loadedCache.prevVisibleLayers.map(layerProxy => layerProxy.id);
+    let layersIdsToTurnOff = previousVisibleLayerIds.filter(layerId => !newVisibleLayerIds.includes(layerId));
+    let layersIdsToTurnOn = newVisibleLayerIds.filter(layerId => !previousVisibleLayerIds.includes(layerId));
+    // Remove checkmarks from layers in Data Library that were active at the time of new layer(s) being set but not still active now.
+    if (layersIdsToTurnOff.length) {
+      let layerSelectors = '#' + layersIdsToTurnOff.join(', #');
+      $layerListContainer.find(layerSelectors).prop("checked", false);
+    }
+    // Add checkmarks to layers in Data Library corresponding to what layers are newly visible and not already previously checked.
+    if (layersIdsToTurnOn.length) {
+      let layerSelectors = '#' + layersIdsToTurnOn.join(', #');
+      $layerListContainer.find(layerSelectors).not(":checked").prop("checked", true);
+    }
+  }
+
   setLegend(id: string) {
-    var layer: { legendContent: string; mapType: string; name: string; credit: string; legendKey: any; color: any[]; imageSrc: any; };
-    for (var i = 0; i < this.layers.length; i++) {
-      if (this.layers[i].layerId == id) {
-        layer = this.layers[i];
+    let layer: Layer;
+    let legend;
+    let visibleLayers = gEarthTime.layerDB.visibleLayers;
+
+    for (var i = 0; i < visibleLayers.length; i++) {
+      if (visibleLayers[i].id == id) {
+        layer = visibleLayers[i].layer;
         break;
       }
     }
-    if (typeof layer != 'undefined') {
-      if (layer.legendContent.toLowerCase() == 'none') {
+
+    if (layer) {
+      if (!layer.legendContent || layer.legendContent.toLowerCase() == 'none') {
         return;
       }
       if (layer.mapType == 'bubble') {
@@ -623,7 +664,7 @@ export class LayerFactory {
             }
             opts.keys.push({'color': 'rgb('+ rgba[0] +',' + rgba[1] +',' + rgba[2] + ')', 'str': layer.legendKey});
           }
-          var legend = new BubbleMapLegend(opts);
+          legend = new BubbleMapLegend(opts);
         } else {
           var div = '<div style="font-size: 15px">' + layer.name + '<span class="credit"> ('+ layer.credit +')</span></div>';
           var str = div + layer.legendContent;
@@ -631,11 +672,14 @@ export class LayerFactory {
             'id' : id,
             'str': str
           }
-          var legend = new BubbleMapLegend(opts);
+          legend = new BubbleMapLegend(opts);
         }
       } else if (layer.mapType == 'choropleth') { // Assume choropleth
         if (layer.legendContent == 'auto') {
           var radius = this.getRadius(layer);
+          if (!radius) {
+            return;
+          }
           let opts = {
             'id': id,
             'title': layer.name,
@@ -648,7 +692,7 @@ export class LayerFactory {
           if (layer.legendKey) {
             opts.keys.push({'str': layer.legendKey});
           }
-          let legend = new ChoroplethLegend(opts);
+          legend = new ChoroplethLegend(opts);
         } else {
           var div = '<div style="font-size: 15px">' + layer.name + '<span class="credit"> ('+ layer.credit +')</span></div>';
           var str = div + layer.legendContent;
@@ -656,7 +700,7 @@ export class LayerFactory {
             'id' : id,
             'str': str
           }
-          let legend = new ChoroplethLegend(opts);
+          legend = new ChoroplethLegend(opts);
         }
       } else {
         var str = '';
@@ -667,16 +711,12 @@ export class LayerFactory {
           var div = '<div style="font-size: 15px">' + layer.name + '<span class="credit"> ('+ layer.credit +')</span></div>';
           str = div + layer.legendContent;
         }
-        let opts = {
-          'id' : id,
-          'str': str
-        }
-        let legend = new Legend(id, str);
+        legend = new Legend(id, str);
       }
-      $('#legend-content table tr:last').after(legend.toString());
-      let isLayerActive = (gEarthTime.layerDB.visibleLayers.map(layer => layer.id)).indexOf(id) >= 0;
-      if (layer.mapType != 'raster' && isLayerActive) {
-        $("#" + id + "-legend").show();
+      if (!layer.legendVisible) {
+        layer.legendVisible = true;
+        let $legendContainer = $("#layers-legend");
+        $legendContainer.show().find("table").first().append(legend.toString());
       }
     }
   }

@@ -20,7 +20,7 @@ export class LayerDB {
   orderedLayers: LayerProxy[] = [];
   visibleLayers: LayerProxy[] = [];
   earthTime: EarthTime;
-    
+
   // Please call async LayerDB.create instead
   private constructor() {}
 
@@ -56,7 +56,7 @@ export class LayerDB {
   getLayer(layerId: string) {
     return this.layerById[layerId];
   }
-  
+
   setVisibleLayers(layerProxies: LayerProxy[]) {
     console.log(`${this.logPrefix()} setVisibleLayers: [${layerProxies.map(l => l.id)}]`)
     if (!Utils.arrayShallowEquals(layerProxies, this.visibleLayers)) {
@@ -68,12 +68,23 @@ export class LayerDB {
         layerProxy._visible = true;
         layerProxy.requestLoad();
       }
+      // Clear out layer legends for layers no longer visible
+      this.layerFactory.clearNonVisibleLayerLegends();
+      // Handle the UI changes for a layer turning on and off (like input checkboxes)
+      this.layerFactory.handleLayerMenuUI();
+      // We need to trigger the change event (index.ts) on the inputs for the layer list container.
+      $(".map-layer-div").find("input:first").trigger("change");
     }
+  }
+
+  visibleLayerIds() {
+    return this.visibleLayers.map(layer => layer.id);
   }
 
   _loadedCache = {
     valid: false,
     loadedLayers: null as LayerProxy[],
+    loadedLayersInIdOrder: [] as LayerProxy[],
     loadedSublayersInDrawOrder: null as LayerProxy[],
     prevVisibleLayers: [] as LayerProxy[],
     prevLoadStates: {} as {[key:string]: boolean}
@@ -122,9 +133,20 @@ export class LayerDB {
         }
       }
 
+      cache.loadedLayersInIdOrder = cache.loadedLayers.slice();
+
+      cache.loadedLayersInIdOrder.sort(function(layer1, layer2) {
+        if (layer1.id < layer2.id) {
+          return -1;
+        } else {
+          // If layer is equal, technically return 0, but that should not happen so always return 1
+          return 1;
+        }
+      });
+
       loadedSublayers.sort(function(layer1, layer2) {
         var cmp = layer1[0] - layer2[0];
-        
+
         if (cmp == 0){
           cmp = layer1[1] - layer2[1];
 
@@ -153,6 +175,11 @@ export class LayerDB {
   loadedLayers(): LayerProxy[] {
     this._recomputeLoadCacheIfNeeded();
     return this._loadedCache.loadedLayers;
+  }
+
+  loadedLayersInIdOrder(): LayerProxy[] {
+    this._recomputeLoadCacheIfNeeded();
+    return this._loadedCache.loadedLayersInIdOrder;
   }
 
   mapboxLayersAreVisible() {
@@ -421,13 +448,13 @@ export class LayerDB {
 
 
 
-    // misc() {  
+    // misc() {
     //   this.layers = [];
     //   this.layerById = {};
     //   this.layersLoadedListeners = [];
     //   this.layersData = {};
     // }
-  
+
     // addLayersLoadedListener(listener) {
     //   if (typeof (listener) === "function") {
     //     this.layersLoadedListeners.push(listener);
@@ -482,4 +509,3 @@ export class LayerDB {
     //   org.gigapan.Util.loadTsvData(path, that.loadLayersFromTsv, that);
     // }
   }
-  

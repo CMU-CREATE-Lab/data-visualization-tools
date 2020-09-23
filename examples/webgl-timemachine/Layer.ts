@@ -71,6 +71,7 @@ export class LayerOptions {
     customSliderInfo?: {};
     timelineType: TimelineType;
     hasTimeline?: boolean = false;
+    hasLegend?: boolean = false;
     startDate: string;
     endDate: string;
     step: number;
@@ -87,8 +88,8 @@ export class LayerOptions {
     colorScalingFunction: any;
     externalGeojson: any;
     nameKey: any;
-    playbackRate: number;
-    masterPlaybackRate: number;
+    playbackRate: number = 0.5;
+    masterPlaybackRate: number = 1;
     nLevels?: number = 21;
     imageSrc: any;
     drawFunction: (...any: any[]) => any;
@@ -128,7 +129,8 @@ export class LayerOptions {
     defaultUrl: string;
     projectionBounds?: {north: number, south: number, east: number, west: number};
     getSublayers?: () => any[];
-    isLoaded?: () => boolean;
+    isLoaded(): boolean { return true; }; // Override this in subclass if needed
+    legendVisible: boolean;
 
     constructor(layerProxy: LayerProxy, layerOptions: LayerOptions, tileClass: typeof Tile) {
       super(layerOptions);
@@ -138,17 +140,19 @@ export class LayerOptions {
       this.tileClass = tileClass;
       this._canvasLayer = gEarthTime.canvasLayer;
       if (!this.drawOptions.color && this.color) {
-        // Deprcated declaration of color at toplevel; move to drawOptions
+        // Deprecated declaration of color at toplevel; move to drawOptions
         this.drawOptions.color = this.color;
       }
 
-      // TODO: for TimeMachine layer, set the timeline after we load tm.json
+      // TODO: It's possible a startDate and endDate are unknown from the initial definition
+      // and will be loaded later. e.g. a TimeMachine layer and its corresponding tm.json
       if (this.startDate && this.endDate) {
         this.timeline = new Timeline(this.timelineType,
         this.startDate, this.endDate, this.step,
         this.masterPlaybackRate, this.playbackRate);
       }
 
+      // Note: This is overriden for WebGLTimeMachineLayers
       this._tileView = new TileView({
         panoWidth: this.tileWidth * Math.pow(2, this.nLevels),
         panoHeight: this.tileHeight * Math.pow(2, this.nLevels),

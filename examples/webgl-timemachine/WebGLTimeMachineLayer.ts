@@ -12,20 +12,44 @@
 
 import { TileView } from './TileView'
 import { WebGLVideoTile } from './WebGLVideoTile'
+import { Layer, LayerOptions } from './Layer'
+import { Tile } from './Tile';
 
-export class WebGLTimeMachineLayer {
-  constructor(layerProxy, glb, canvasLayer, url, options) {
-    this.layerProxy = layerProxy;
+declare var EARTH_TIMELAPSE_CONFIG;
+declare var cached_ajax;
+
+export class WebGLTimeMachineLayer extends Layer {
+  _ready: boolean;
+  _waitingForColormap: boolean;
+  _colormap: any;
+  image: HTMLImageElement;
+  tileRootUrl: string;
+  _waitingForMetadata: boolean;
+  video_width: number;
+  video_height: number;
+  width: number;
+  height: number;
+  numFrames: number;
+  nlevels: number;
+  fps: number;
+  mediaType: string;
+  //projection: any;
+  metadataLoadedCallback: (layer: WebGLTimeMachineLayer)=>void;
+  metadataLoaded: boolean;
+  constructor(layerProxy, glb, canvasLayer, url, layerOptions) {
+    //this.layerProxy = layerProxy;
+    super(layerProxy, layerOptions, WebGLVideoTile); //
+    // We should never override drawTile for this layer
+    this.drawFunction = WebGLVideoTile.prototype.drawTile;
 
     var that = this;
     this.glb = glb;
     this.gl = glb.gl;
     this._canvasLayer = canvasLayer;
-    $.extend(this, options);
 
     this._ready = false;
 
-    if (options.colormap) {
+    if (layerOptions.colormap) {
       this._waitingForColormap = true;
       this._colormap = this._createTexture();
       this.image = new Image();
@@ -35,11 +59,11 @@ export class WebGLTimeMachineLayer {
       this.image.src = this.colormap;
     }
 
-    if (options.useTmJsonTimeTicks) {
+    if (layerOptions.useTmJsonTimeTicks) {
       this.useTmJsonTimeTicks = true;
     }
 
-    this.layerId = options.layerId;
+    this.layerId = layerOptions.layerId;
 
     if (this.rootUrl && !this.tileRootUrl) {
       this._waitingForMetadata = true;
@@ -95,6 +119,7 @@ export class WebGLTimeMachineLayer {
     this.height = r.height;
     this.loadMetadata();
   }
+  isLoaded(): boolean { return this.metadataLoaded; }
   loadMetadata() {
     this.mediaType = this.mediaType || '.mp4';
     this.defaultUrl = this.defaultUrl || relUrlToAbsUrl(this.tileRootUrl + '/default' + this.mediaType);
@@ -104,7 +129,13 @@ export class WebGLTimeMachineLayer {
 
     function createTile(ti, bounds) {
       var url = that.tileRootUrl + '/' + ti.l + '/' + (ti.r * 4) + '/' + (ti.c * 4) + that.mediaType;
-      var tile = new WebGLVideoTile(that.glb, ti, bounds, url, that.defaultUrl, that.numFrames, that.fps, that.greenScreen, that);
+      var tile = new WebGLVideoTile(that, ti, bounds, {
+        url:url,
+        defaultUrl:that.defaultUrl,
+        numFrames:that.numFrames,
+        fps:that.fps,
+        greenScreen:that.greenScreen
+      });
       return tile;
     }
 
@@ -114,10 +145,9 @@ export class WebGLTimeMachineLayer {
       tileWidth: this.video_width,
       tileHeight: this.video_height,
       createTile: createTile,
-      deleteTile: function (tile) { },
+      deleteTile: function (tile) { tile.delete() },
       updateTiles: WebGLVideoTile.updateTiles,
-      timelapse: this._canvasLayer.timelapse,
-      projection: this.projection,
+      //projection: this.projection,
       maxLevelOverride: this.maxLevelOverride
     });
 
@@ -129,6 +159,7 @@ export class WebGLTimeMachineLayer {
     if (this.metadataLoadedCallback) {
       this.metadataLoadedCallback(this);
     }
+    this.metadataLoaded = true;
     this._updateReady();
   }
   _createTexture() {
@@ -156,9 +187,6 @@ export class WebGLTimeMachineLayer {
   }
   resetDimensions(json) {
     this._tileView.resetDimensions(json);
-  }
-  isLoaded() {
-    return this._tileView ? true : false;
   }
   getWidth() {
     return this._tileView.getWidth();
@@ -192,7 +220,7 @@ export class WebGLTimeMachineLayer {
       this._tileView.levelThreshold += EARTH_TIMELAPSE_CONFIG.videoLevelThresholdModifier;
     }
     this._tileView.setView(view, width, height, this._canvasLayer.resolutionScale_);
-    this._tileView.update(transform);
+    this._tileView.update(transform, {});
   }
   getTileView() {
     return this._tileView;

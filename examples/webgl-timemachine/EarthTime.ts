@@ -7,6 +7,7 @@ import { Glb } from './Glb'
 import { Timeline } from './Timeline';
 
 export interface EarthTime {
+  redrawTakingTooLong();
   startRedraw();
   readyToDraw: boolean;
   canvasLayer: any;
@@ -25,6 +26,7 @@ export interface EarthTime {
   timelapseCurrentTimeDelta(): number;
   timeline(): Timeline;
   updateTimelineIfNeeded(): void;
+  showVisibleLayersLegends(): void;
 };
 
 export const stdWebMercatorNorth = 85.05113006405742; // Northern most latitude for standard Web Mercator
@@ -35,4 +37,3 @@ export function setGEarthTime(et: EarthTime) {
     (window as any).gEarthTime = gEarthTime = et;
 }
 
-  

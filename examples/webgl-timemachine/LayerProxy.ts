@@ -9,10 +9,11 @@ interface Timelapse {
   [key: string]: any;
 }
 
-export interface LayerDef {
-  'Start date'?: string,
-  'End date'?: string,
+export class LayerDef {
+  'Start date'?: string
+  'End date'?: string
   URL?: string
+  [key: string]: string
 }
 
 export class LayerProxy {
@@ -54,10 +55,8 @@ export class LayerProxy {
   isLoaded(): boolean {
     if (!this.layer) {
       return false;
-    } else if (this.layer.isLoaded) {
-      return this.layer.isLoaded();
     } else {
-      return true;
+      return this.layer.isLoaded();
     }
   }
 

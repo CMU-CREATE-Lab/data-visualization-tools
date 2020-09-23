@@ -98,7 +98,7 @@ export class WebGLVectorTile2 extends Tile {
     this._layer = layer;
     this._url = tileidx.expandUrl(this._layer._tileUrl, this._layer);
     this._ready = false;
-    
+
 
     var opt_options = opt_options || {};
     this.draw = opt_options.drawFunction || this._drawLines;

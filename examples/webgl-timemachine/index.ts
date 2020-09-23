@@ -289,6 +289,15 @@ class EarthTimeImpl implements EarthTime {
     return null;
   }
 
+  showVisibleLayersLegends() {
+    let loadedLayersInIdOrder = this.layerDB.loadedLayersInIdOrder();
+    for (let i = 0; i < loadedLayersInIdOrder.length; i++) {
+      if (loadedLayersInIdOrder[i].layer.hasLegend && !loadedLayersInIdOrder[i].layer.legendVisible) {
+        this.layerDB.layerFactory.setLegend(loadedLayersInIdOrder[i].id);
+      }
+    }
+  }
+
   updateTimelineIfNeeded() {
     let newTimeline = this.timeline();
     if (newTimeline !== this.currentlyShownTimeline) {
@@ -299,7 +308,7 @@ class EarthTimeImpl implements EarthTime {
         this.timelapse.setMasterPlaybackRate(newTimeline.masterPlaybackRate);
         this.timelapse.setPlaybackRate(newTimeline.playbackRate);
         if (newTimeline.timelineType == "customUI") {
-          $(".customControl").show()
+          $(".customControl").show().children().show();
         } else {
           $(".controls, .captureTime").show();
         }
@@ -2183,7 +2192,7 @@ function initLayerToggleUI() {
       $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight").removeClass("thumbnail_highlight");
       $("#extras-content-container").dialog("close");
       gEarthTime.timelapse.clearShareViewTimeLoop();
-      contentSearch.updateLayerSelectionsFromMaster();
+      ////contentSearch.updateLayerSelectionsFromMaster();
     }
     // 'h' key
     // Quick way to toggle the layer panel
@@ -2214,7 +2223,7 @@ function initLayerToggleUI() {
         height: 640,
         maxHeight: 640,
         maxWidth: 960,
-        width: 720        
+        width: 720
       });
       //var layerEditor = new LayerEditor('layer-editor');
     }
@@ -2309,16 +2318,13 @@ function initLayerToggleUI() {
     if (enableLetterboxMode) {
       updateLetterboxSelections($(this));
     }
-    var selectedLayers = $('.map-layer-checkbox').find("input:checked").not("#show-himawari, #show-goes16, #show-goes16-aug-2018, #show-goes16-nov-2018, #show-dscovr");
-    // Subtract one, since base layers are included in this count but they don't use the legend.
-    // @ts-ignore
-    var numLayersOn = selectedLayers.size() - $("#category-base-layers").find(":checked").length;
 
     // Legend container toggling
-    if (numLayersOn <= 0) {
-      $("#layers-legend").hide();
+    let $legendContainer = $("#layers-legend");
+    if ($legendContainer.find("tr").length > 0) {
+      $legendContainer.show();
     } else {
-      $("#layers-legend").show();
+      $legendContainer.hide();
     }
 
     if (e.originalEvent && e.pageX != 0 && e.pageY != 0 && $(this).prop('checked')) {
@@ -2800,6 +2806,7 @@ var waitToLoadWaypointLayersOnPageReadyInterval;
 var timelineUIChangeListeners = [];
 
 function modifyWaypointSliderContent(keyframes, theme, story) {
+  return;
   if (!himawariWaypoints[theme]) {
     himawariWaypoints[theme] = {};
   }
@@ -3907,9 +3914,9 @@ lightBaseMapLayer = new WebGLMapLayer(null, gEarthTime.glb, gEarthTime.canvasLay
       }
 
       // Remove himawari since we do special cases further below
-      var himawariIdx = waypointLayers.indexOf("h8");
-      himawariIdx = himawariIdx > -1 ? himawariIdx : waypointLayers.indexOf("h8_16");
-      if (himawariIdx > -1) waypointLayers.splice(himawariIdx, 1);
+      //var himawariIdx = waypointLayers.indexOf("h8");
+      //himawariIdx = himawariIdx > -1 ? himawariIdx : waypointLayers.indexOf("h8_16");
+      //if (himawariIdx > -1) waypointLayers.splice(himawariIdx, 1);
 
       // Show layer ids
       handleLayers(waypointLayers);
@@ -5387,6 +5394,8 @@ function update() {
 
   gEarthTime.updateTimelineIfNeeded();
 
+  gEarthTime.showVisibleLayersLegends();
+
   gEarthTime.timelapse.frameno = (gEarthTime.timelapse.frameno || 0) + 1;
 
   perf_drawframe();
@@ -6580,23 +6589,16 @@ async function init() {
   //console.log(`${Utils.logPrefix()} setting readyToDraw true`);
   gEarthTime.readyToDraw = true;
 
-  // Show bdrk
-  //for (const id of Object.keys(gEarthTime.layerDB.layerById).slice(0,1000)) {
-  //  gEarthTime.layerDB.layerById[id].show();
-  //}
-  var layerDB = gEarthTime.layerDB;
-  layerDB.setVisibleLayers([
-    layerDB.getLayer('bdrk')
-    //layerDB.getLayer('mapbox_grocery_convenience_allegheny_county')
-    //layerDB.getLayer('cb'),
-    //layerDB.getLayer('mapbox_dark_map'),
-    //layerDB.getLayer('drug_use'),
-    //layerDB.getLayer('mapbox_cities'),
-    //layerDB.getLayer('crw')
-    //layerDB.getLayer('coral_only'),
-    //layerDB.getLayer('gsr_oceans_yearly_ppr_1950_2014_animated')
-  ]);
+  // NOTE: Layers from a story or share link may already have been activated.
+  let layersToShow = gEarthTime.layerDB.visibleLayers;
+  if (layersToShow.length == 0) {
+    // Landsat is default initial layer for EarthTime
+    var layerDB = gEarthTime.layerDB;
+    layersToShow = [
+      layerDB.getLayer('blsat')
+    ];
+    layerDB.setVisibleLayers(layersToShow);
+  }
 }
 
 $(init);
-
