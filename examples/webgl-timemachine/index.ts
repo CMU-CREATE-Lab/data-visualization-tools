@@ -132,14 +132,6 @@ var enableMuseumMode = !!EARTH_TIMELAPSE_CONFIG.enableMuseumMode;
 // Deprecated. Was json output of snaplapse editor. Instead use waypointSliderContentPath, which points to an online or exported spreadsheet.
 var waypointCollection = EARTH_TIMELAPSE_CONFIG.waypointCollection;
 var waypointSliderContentPath = EARTH_TIMELAPSE_CONFIG.waypointSliderContentPath || "default-waypoints.tsv";
-var dotmapsContentPath;
-if (typeof(EARTH_TIMELAPSE_CONFIG.dotmapsContentPath) === "undefined") {
-  dotmapsContentPath = "1rCiksJv4aXi1usI0_9zdl4v5vuOfiHgMRidiDPt1WfE.358696896";
-} else if (EARTH_TIMELAPSE_CONFIG.dotmapsContentPath === "") {
-  dotmapsContentPath = "default-dotmaps.tsv";
-} else {
-  dotmapsContentPath =  EARTH_TIMELAPSE_CONFIG.dotmapsContentPath;
-}
 
 var csvLayersContentPath : string;
 if (typeof(EARTH_TIMELAPSE_CONFIG.csvLayersContentPath) === "undefined") {
@@ -156,6 +148,7 @@ class EarthTimeImpl implements EarthTime {
   layerDBPromise = null;
   timelapse = null;
   rootTilePath = null;
+  dotmapsServerHost = null;
   glb = null;
   canvasLayer = null;
   readyToDraw = false;
@@ -325,9 +318,6 @@ if (typeof(Storage) !== "undefined") {
   if (localStorage.waypointSliderContentPath) {
     waypointSliderContentPath = localStorage.waypointSliderContentPath;
   }
-  if (localStorage.dotmapsContentPath) {
-    dotmapsContentPath = localStorage.dotmapsContentPath;
-  }
   if (localStorage.csvLayersContentPath) {
     csvLayersContentPath = localStorage.csvLayersContentPath;
   }
@@ -396,7 +386,7 @@ var showExtrasMenu = parseConfigOption({optionName: "showExtrasMenu", optionDefa
 var showFullScreenButton = parseConfigOption({optionName: "showFullScreenButton", optionDefaultValue: false, exposeOptionToUrlHash: true});
 var showThumbnailTool = parseConfigOption({optionName: "showThumbnailTool", optionDefaultValue: true, exposeOptionToUrlHash: false});
 var thumbnailServerHost = parseConfigOption({optionName: "thumbnailServerHost", optionDefaultValue: undefined, exposeOptionToUrlHash: false});
-var dotmapsServerHost = parseConfigOption({optionName: "dotmapsServerHost", optionDefaultValue: "https://dotmaptiles.createlab.org/", exposeOptionToUrlHash: false});
+gEarthTime.dotmapsServerHost = parseConfigOption({optionName: "dotmapsServerHost", optionDefaultValue: "https://dotmaptiles.createlab.org/", exposeOptionToUrlHash: false});
 var headlessClientHost = parseConfigOption({optionName: "headlessClientHost", optionDefaultValue: undefined, exposeOptionToUrlHash: false});
 var usePresentationClicker = parseConfigOption({optionName: "usePresentationClicker", optionDefaultValue: false, exposeOptionToUrlHash: false});
 var enableThemeHamburgerButton = parseConfigOption({optionName: "enableThemeHamburgerButton", optionDefaultValue: false, exposeOptionToUrlHash: false});
@@ -5081,8 +5071,6 @@ function askForSpreadsheetUrl(type, callback) {
           if (makeDefault) {
             if (type == "waypoints") {
               localStorage.waypointSliderContentPath = url;
-            } else if (type == "dotmap layers") {
-              localStorage.dotmapsContentPath = url;
             } else if (type == "csv layers") {
               localStorage.csvLayersContentPath = url;
             }
@@ -5276,7 +5264,6 @@ function showSettingsDialog() {
 
   d.find('button:eq(3)').click(function () {
     localStorage.removeItem("waypointSliderContentPath");
-    localStorage.removeItem("dotmapsContentPath");
     localStorage.removeItem("csvLayersContentPath");
     parent.location.hash = '';
     alert("Spreadsheets successfully reset back to their default values. You may have to reload the page to see this change.");

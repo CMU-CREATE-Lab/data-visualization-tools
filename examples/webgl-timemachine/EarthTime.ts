@@ -7,6 +7,7 @@ import { Glb } from './Glb'
 import { Timeline } from './Timeline';
 
 export interface EarthTime {
+  dotmapsServerHost: any;
   redrawTakingTooLong();
   startRedraw();
   readyToDraw: boolean;

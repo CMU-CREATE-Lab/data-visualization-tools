@@ -74,6 +74,7 @@ export class LayerOptions {
     hasLegend?: boolean = false;
     startDate: string;
     endDate: string;
+    date?: string; // if layer represents single date, e.g. static dotmap
     step: number;
     showGraph: boolean;
     mapType: any;
@@ -111,7 +112,6 @@ export class LayerOptions {
     levelThreshold: number;
     dotmapColors?: any;
   }
-
 
   export abstract class Layer extends LayerOptions {
     layerProxy: LayerProxy;

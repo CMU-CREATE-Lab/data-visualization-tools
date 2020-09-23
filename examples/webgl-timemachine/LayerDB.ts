@@ -191,14 +191,6 @@ export class LayerDB {
     return false;
   }
 
-  parse_and_encode_webgl_color(colorspec) {
-    console.assert(colorspec.length == 7);
-    var r = parseInt(colorspec.substr(1,2),16);
-    var g = parseInt(colorspec.substr(3,2),16);
-    var b = parseInt(colorspec.substr(5,2),16);
-    return r + g * 256 + b * 65536;
-  }
-
   // TODO(LayerDB)
 
   // // Pass columnDefs for a static layer, or animationLayers for animation

@@ -9,9 +9,10 @@ interface Timelapse {
   [key: string]: any;
 }
 
-export class LayerDef {
-  'Start date'?: string
-  'End date'?: string
+export interface LayerDef {
+  type: string;
+  'Start date'?: string,
+  'End date'?: string,
   URL?: string
   [key: string]: string
 }
@@ -60,19 +61,28 @@ export class LayerProxy {
     }
   }
 
+  // Return Layer, loading first if not yet loaded
+  async getLayerAsync() {
+    if (!this.layer) {
+      this.requestLoad();
+      await this._loadingPromise;
+    }
+    return this.layer;
+  }
+
   async _load() {
     let url = `${this.layerDb.apiUrl}layer-catalogs/${this.layerDb.databaseId.file_id_gid()}/layers/${this.id}`
     console.log(`${this.logPrefix()} Fetching ${url}`)
-    this._loadFromLayerdef(await (await Utils.fetchWithRetry(url)).json());
+    await this._loadFromLayerdef(await (await Utils.fetchWithRetry(url)).json());
   }
 
-  _loadFromLayerdef(layerDef: LayerDef) {
+  async _loadFromLayerdef(layerDef: LayerDef) {
     if (this.layer) {
       this.layer.destroy();
       this.layer = null;
     }
     this.layerDef = layerDef;
-    this.layer = this.layerDb.layerFactory.createLayer(this, layerDef);
+    this.layer = await this.layerDb.layerFactory.createLayer(this, layerDef);
     this.layerDb.invalidateLoadedCache();
     console.log(`${this.logPrefix()} layerFactory.createLayer completed`);
   }

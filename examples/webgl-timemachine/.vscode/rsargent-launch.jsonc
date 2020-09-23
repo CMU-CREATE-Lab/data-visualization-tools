@@ -9,7 +9,7 @@
             "type": "firefox",
             "request": "launch",
             "reAttach": true,
-            "url": "https://rsargent.earthtime.org/stories/testrs",
+            "url": "https://rsargent.earthtime.org/stories/top_50#waypointIdx=4",
             "clearConsoleOnReload": true,
             "pathMappings": [
                 {

@@ -19,6 +19,7 @@ import { LayerDef, LayerProxy } from './LayerProxy';
 import { Layer, LayerOptions } from './Layer';
 import { WebGLMapTile2, WebGLMapTile2Shaders } from './WebGLMapTile2';
 import { ETMBLayer } from './ETMBLayer';
+import { Utils } from './Utils';
 
 
 // Loaded from config-local.js
@@ -80,6 +81,10 @@ export class LayerFactory {
     }
   }
 
+  logPrefix() {
+    return `${Utils.logPrefix()} LayerFactory`
+  }
+
   lookupFunctionFromTable(functionName: string, lookupTable: { [x: string]: any; }) {
     if (functionName.trim() in lookupTable) {
       return lookupTable[functionName.trim()];
@@ -122,10 +127,13 @@ export class LayerFactory {
     $("#extras-selector").append(str);
   }
 
-  createLayer(layerProxy: LayerProxy, layerDef: LayerDef) {
+  async createLayer(layerProxy: LayerProxy, layerDef: LayerDef) {
     // (someday) Use csv.createlab.org as translation gateway
     // url = 'http://csv.createlab.org/' + url.replace(/^https?:\/\//,'')
 
+    if (layerDef?.type == 'dotmap') {
+      return await this.createDotmapLayer(layerProxy, layerDef);
+    }
     var layerOptions: LayerOptions = {
       tileWidth: 256,
       tileHeight: 256,
@@ -525,6 +533,99 @@ export class LayerFactory {
     // }).prop('checked', layer.visible);
 
     return layer;
+  }
+
+  parse_and_encode_webgl_color(colorspec: string) {
+    console.assert(colorspec.length == 7);
+    var r = parseInt(colorspec.substr(1,2),16);
+    var g = parseInt(colorspec.substr(3,2),16);
+    var b = parseInt(colorspec.substr(5,2),16);
+    return r + g * 256 + b * 65536;
+  }
+
+  async createDotmapLayer(layerProxy: LayerProxy, layerDef: LayerDef) {
+    var layerOptions: any = {
+      // In reality the tiles are served as 512x512, but by claiming 256x256 we load an
+      // extra level of detail, and the additional resolution looks nicer, at least on a retina display...
+      layerId: layerProxy.id,
+      nLevels: 14,
+      credit: layerDef['Credits'],
+      tileWidth: 256,
+      tileHeight: 256
+    };
+
+    if (layerDef['Draw Options']) {
+      try {
+        layerOptions.drawOptions = JSON.parse(layerDef['Draw Options']);
+      } catch (e) {
+        console.log(`${this.logPrefix} Cannot parse Draw Options from dotmap layer ${layerProxy.id}`)
+      }
+    }
+
+    if (layerDef['AnimationLayers']) {
+      return await this.createAnimatedDotmapLayer(layerProxy, layerDef, layerOptions);
+    } else {
+      return this.createStaticDotmapLayer(layerProxy, layerDef, layerOptions);
+    }
+  }
+
+  createStaticDotmapLayer(layerProxy: LayerProxy, layerDef: LayerDef, layerOptions) {
+    var tileUrl = `${gEarthTime.dotmapsServerHost}/tilesv2/${layerProxy.id}/{z}/{x}/{y}.box`;
+    layerOptions.date = layerDef['Date'];
+
+    layerOptions.setDataFunction = WebGLVectorTile2.prototype._setColorDotmapDataFromBox;
+    layerOptions.drawFunction = WebGLVectorTile2.prototype._drawColorDotmap;
+    layerOptions.fragmentShader = WebGLVectorTile2Shaders.colorDotmapFragmentShader;
+    layerOptions.vertexShader = WebGLVectorTile2Shaders.colorDotmapVertexShader;
+    layerOptions.dotmapColors = [];
+
+    for (var c = 1; layerDef['PopName' + c]; c++) {
+      layerOptions.dotmapColors.push(this.parse_and_encode_webgl_color(layerDef['Color' + c]));
+    }
+    return new WebGLVectorLayer2(layerProxy, gEarthTime.glb, gEarthTime.canvasLayer, tileUrl, layerOptions);
+  }
+
+  // Animated dotmap, composed of multiple layers
+  async createAnimatedDotmapLayer(layerProxy: LayerProxy, layerDef: LayerDef, layerOptions) {
+    var tileUrl = `${gEarthTime.dotmapsServerHost}/tilesv2/${layerProxy.id}/{z}/{x}/{y}.tbox`;
+
+    // Fetch constituent static layers in parallel
+
+    var animationLayerIds = layerDef['AnimationLayers'].replace(/\s/g, '').split('|');
+    var animationLayerPromises = [] as Promise<Layer>[];
+    for (const id of animationLayerIds) {
+      animationLayerPromises.push(gEarthTime.layerDB.getLayer(id).getLayerAsync());
+    }
+    var animationLayers = await Promise.all(animationLayerPromises);
+
+    // Confirm all layers have the same colors in the same order
+    // Collect epoch times for each layer
+    var firstLayer = animationLayers[0];
+
+    layerOptions.timelineType = 'defaultUI'
+    layerOptions.startDate = animationLayers[0].date;
+    layerOptions.endDate = animationLayers[animationLayers.length - 1].date;
+    layerOptions.step = 1;
+
+    layerOptions.epochs = [];
+    for (const checkLayer of animationLayers) {
+      var epoch = parseDateStr(checkLayer.date) as number;
+      if (isNaN(epoch)) {
+        throw `While building ${layerProxy.id}, component ${checkLayer.layerId} is missing parsable Date`;
+      }
+      layerOptions.epochs.push(epoch);
+      if (JSON.stringify(checkLayer.dotmapColors) != JSON.stringify(firstLayer.dotmapColors)) {
+        throw `While building ${layerProxy.id}, component layers ${firstLayer.layerId} and ${checkLayer.layerId} must have matching color lists`;
+      }
+    }
+
+    layerOptions.setDataFunction = WebGLVectorTile2.prototype._setColorDotmapDataFromTbox;
+    layerOptions.drawFunction = WebGLVectorTile2.prototype._drawColorDotmapTbox;
+    layerOptions.fragmentShader = WebGLVectorTile2Shaders.colorDotmapFragmentShader;
+    layerOptions.vertexShader = WebGLVectorTile2Shaders.colorDotmapVertexShaderTbox;
+
+    layerOptions.dotmapColors = firstLayer.dotmapColors;
+    return new WebGLVectorLayer2(layerProxy, gEarthTime.glb, gEarthTime.canvasLayer, tileUrl, layerOptions);
   }
 
   updateLayerData(layerId: string, newDataProperties: any, refreshData: any, refreshTimeline: any) {
