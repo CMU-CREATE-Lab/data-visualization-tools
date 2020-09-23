@@ -110,7 +110,8 @@ export class LayerOptions {
     layerDef: any;
     maxLevelOverride?: number;
     levelThreshold: number;
-    dotmapColors?: any;
+    dotmapColors?: number[];
+    dotmapColumnDefs?: {name: string, color: string}[]
   }
 
   export abstract class Layer extends LayerOptions {

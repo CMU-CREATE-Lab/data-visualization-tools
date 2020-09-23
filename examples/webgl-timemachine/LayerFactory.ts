@@ -550,6 +550,7 @@ export class LayerFactory {
       layerId: layerProxy.id,
       nLevels: 14,
       credit: layerDef['Credits'],
+      name: layerDef['Name'],
       tileWidth: 256,
       tileHeight: 256
     };
@@ -569,6 +570,24 @@ export class LayerFactory {
     }
   }
 
+  createDotmapLegend(layer: Layer, columnDefs) {
+    var legend=`<tr id="${layer.layerId}-legend" style="display: none"><td>`;
+    legend += `<div style="font-size: 17px">${layer.name}`;
+    if (layer.credit) legend += `<span class="credit">(${layer.credit})</span>`;
+    legend += '</div>';
+
+    legend += '<div id="colors" style="float: left; padding-right:8px">';
+    for (let columnDef of columnDefs) {
+      legend += '<div style="float: left; padding-right:8px">';
+      legend += `<div style="background-color:${columnDef.color}; width: 12px; height: 12px; float: left; margin-top: 2px; margin-left: 8px;"></div>`;
+      legend += `&nbsp;${columnDef.name}</div>`;
+    }
+    legend += '</div>';
+    legend += '</tr>';
+    console.log(`${this.logPrefix()} createDotmapLegend "${legend}"`)
+    return legend;
+  }
+
   createStaticDotmapLayer(layerProxy: LayerProxy, layerDef: LayerDef, layerOptions) {
     var tileUrl = `${gEarthTime.dotmapsServerHost}/tilesv2/${layerProxy.id}/{z}/{x}/{y}.box`;
     layerOptions.date = layerDef['Date'];
@@ -578,11 +597,19 @@ export class LayerFactory {
     layerOptions.fragmentShader = WebGLVectorTile2Shaders.colorDotmapFragmentShader;
     layerOptions.vertexShader = WebGLVectorTile2Shaders.colorDotmapVertexShader;
     layerOptions.dotmapColors = [];
+    layerOptions.dotmapColumnDefs = [] as {name: string, color: string}[];
 
-    for (var c = 1; layerDef['PopName' + c]; c++) {
-      layerOptions.dotmapColors.push(this.parse_and_encode_webgl_color(layerDef['Color' + c]));
+    for (var c = 1; true; c++) {
+      let name = layerDef['PopName' + c];
+      if (!name) break;
+      let color = layerDef[`Color${c}`];
+      layerOptions.dotmapColors.push(this.parse_and_encode_webgl_color(color));
+      layerOptions.dotmapColumnDefs.push({name: name, color: color});
     }
-    return new WebGLVectorLayer2(layerProxy, gEarthTime.glb, gEarthTime.canvasLayer, tileUrl, layerOptions);
+
+    var layer = new WebGLVectorLayer2(layerProxy, gEarthTime.glb, gEarthTime.canvasLayer, tileUrl, layerOptions);
+    this.createDotmapLegend(layer, layer.dotmapColumnDefs);
+    return layer;
   }
 
   // Animated dotmap, composed of multiple layers
@@ -625,7 +652,9 @@ export class LayerFactory {
     layerOptions.vertexShader = WebGLVectorTile2Shaders.colorDotmapVertexShaderTbox;
 
     layerOptions.dotmapColors = firstLayer.dotmapColors;
-    return new WebGLVectorLayer2(layerProxy, gEarthTime.glb, gEarthTime.canvasLayer, tileUrl, layerOptions);
+    var layer = new WebGLVectorLayer2(layerProxy, gEarthTime.glb, gEarthTime.canvasLayer, tileUrl, layerOptions);
+    this.createDotmapLegend(layer, firstLayer.dotmapColumnDefs);
+    return layer;
   }
 
   updateLayerData(layerId: string, newDataProperties: any, refreshData: any, refreshTimeline: any) {
