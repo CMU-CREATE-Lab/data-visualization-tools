@@ -93,7 +93,6 @@ if (!navigator.onLine && navigator.connection && navigator.connection.rtt <= 0) 
   isOffline = true;
 }
 
-// TODO:
 // We start crashing phones with a ratio > 1 and in general retina is
 // quite taxing for our videos and layers, so force pixelRatio to 1.
 // And why not IE? Because errors are thrown if we try to modify this window value.
@@ -3076,6 +3075,7 @@ async function setupUIAndOldLayers() {
     resolutionScale: window.devicePixelRatio || 1
   };
   gEarthTime.canvasLayer = new TimeMachineCanvasLayer(timeMachineCanvasLayerOptions);
+
 
   // initialize WebGL
   gl = gEarthTime.canvasLayer.canvas.getContext('experimental-webgl',  {antialias: false, alpha: true, stencil: true, depth: true, failIfMajorPerformanceCaveat: false, preserveDrawingBuffer: preserveDrawingBuffer});
