@@ -69,6 +69,7 @@ export class LayerDB {
       // We need to trigger the change event (index.ts) on the inputs for the layer list container.
       $(".map-layer-div").find("input:first").trigger("change");
     }
+    this.layerFactory.handleLayerConstraints();
   }
 
   visibleLayerIds() {
