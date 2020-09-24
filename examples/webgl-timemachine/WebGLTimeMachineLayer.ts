@@ -34,6 +34,7 @@ export class WebGLTimeMachineLayer extends Layer {
   mediaType: string;
   metadataLoadedCallback: (layer: WebGLTimeMachineLayer)=>void;
   metadataLoaded: boolean;
+  captureTimes: string[];
   constructor(layerProxy, glb, canvasLayer, url, layerOptions) {
     super(layerProxy, layerOptions, WebGLVideoTile); //
     // We should never override drawTile for this layer
@@ -67,8 +68,7 @@ export class WebGLTimeMachineLayer extends Layer {
         dataType: 'json',
         success: this.loadTm.bind(this)
       });
-    }
-    else if (!this.rootUrl && this.tileRootUrl) {
+    } else if (!this.rootUrl && this.tileRootUrl) {
       // Assume we've been given all the metadata
       this.video_width = this.video_width || 1424;
       this.video_height = this.video_height || 800;
@@ -89,14 +89,7 @@ export class WebGLTimeMachineLayer extends Layer {
     if (!dataset) {
       dataset = datasets[0];
     }
-
-    if (!this.startDate) {
-        let captureTimes = tm['capture-times'];
-        this.timeline = new Timeline(this.timelineType,
-        { startDate: captureTimes[0], endDate: captureTimes[captureTimes.lenth - 1],
-         step: this.step, masterPlaybackRate: this.masterPlaybackRate,
-         playbackRate: this.playbackRate, cachedCaptureTimes: captureTimes });
-    }
+    this.captureTimes = tm['capture-times'];
     this.projectionBounds = tm['projection-bounds'];
     this.tileRootUrl = this.rootUrl + '/' + dataset.id;
     var rPath = this.tileRootUrl + '/r.json';
@@ -124,6 +117,14 @@ export class WebGLTimeMachineLayer extends Layer {
     this.fps = this.fps || 10;
 
     var that = this;
+
+    if (!this.startDate) {
+      this.timeline = new Timeline(this.timelineType,
+      { startDate: this.captureTimes[0], endDate: this.captureTimes[this.captureTimes.length - 1],
+       step: this.step, masterPlaybackRate: this.masterPlaybackRate,
+       playbackRate: this.playbackRate, cachedCaptureTimes: this.captureTimes,
+       fps: this.fps });
+    }
 
     function createTile(ti, bounds) {
       var url = that.tileRootUrl + '/' + ti.l + '/' + (ti.r * 4) + '/' + (ti.c * 4) + that.mediaType;

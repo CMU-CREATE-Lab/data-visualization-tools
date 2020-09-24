@@ -26,6 +26,7 @@ export class Timeline {
     masterPlaybackRate: number;
     // The playback rate used on initial draw. Should be a slow/medium/fast value based on above.
     playbackRate: number;
+    fps: number;
 
     constructor(timelineType: TimelineType, options: {[key:string]: any}) {
         this.timelineType = timelineType;
@@ -35,6 +36,7 @@ export class Timeline {
         this.masterPlaybackRate = options.masterPlaybackRate as number || 1.0;
         this.playbackRate = options.playbackRate as number || 0.5;
         this.cachedCaptureTimes = options.cachedCaptureTimes as string[];
+        this.fps = options.fps as number || 10;
     }
 
     getCaptureTimes(): {"capture-times": string[]} {

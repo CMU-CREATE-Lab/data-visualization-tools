@@ -296,6 +296,7 @@ class EarthTimeImpl implements EarthTime {
       this.currentlyShownTimeline = newTimeline;
       $(".controls, .captureTime, .customControl").hide();
       if (newTimeline) {
+        this.timelapse.getVideoset().setFps(newTimeline.fps);
         this.timelapse.loadNewTimelineFromObj(newTimeline.getCaptureTimes(), newTimeline.timelineType);
         this.timelapse.setMasterPlaybackRate(newTimeline.masterPlaybackRate);
         this.timelapse.setPlaybackRate(newTimeline.playbackRate);
