@@ -5,16 +5,13 @@ import { Utils } from './Utils';
 import { Layer } from './Layer';
 import { gEarthTime, stdWebMercatorNorth } from './EarthTime';
 
-interface Timelapse {
-  [key: string]: any;
-}
 
 export interface LayerDef {
   type: string;
   'Start date'?: string,
   'End date'?: string,
   URL?: string
-  [key: string]: string
+  [key: string]: any
 }
 
 export class LayerProxy {
@@ -37,6 +34,10 @@ export class LayerProxy {
     this.name = name;
     this.category = category;
     this.layerDb = layerDb;
+  }
+
+  getLayerConstraints() {
+    return this.layerDef && this.layerDef['Layer Constraints'] ? JSON.parse(this.layerDef['Layer Constraints']) : null;
   }
 
   isVisible(): boolean {
@@ -84,6 +85,7 @@ export class LayerProxy {
     this.layerDef = layerDef;
     this.layer = await this.layerDb.layerFactory.createLayer(this, layerDef);
     this.layerDb.invalidateLoadedCache();
+    this.layerDb.layerFactory.handleLayerConstraints();
     console.log(`${this.logPrefix()} layerFactory.createLayer completed`);
   }
 

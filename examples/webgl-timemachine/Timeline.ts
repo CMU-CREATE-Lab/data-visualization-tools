@@ -1,6 +1,3 @@
-
-
-
 // If startDate == endDate, you don't really need to display a timeline
 
 import { Utils } from "./Utils";
@@ -30,13 +27,14 @@ export class Timeline {
     // The playback rate used on initial draw. Should be a slow/medium/fast value based on above.
     playbackRate: number;
 
-    constructor(timelineType: TimelineType, startDate: string, endDate: string, step: number, masterPlaybackRate: number, playbackRate: number) {
+    constructor(timelineType: TimelineType, options: {[key:string]: any}) {
         this.timelineType = timelineType;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.step = step;
-        this.masterPlaybackRate = masterPlaybackRate || 1.0;
-        this.playbackRate = playbackRate || 0.5;
+        this.startDate = options.startDate as string;
+        this.endDate = options.endDate as string;
+        this.step = options.step as number;
+        this.masterPlaybackRate = options.masterPlaybackRate as number || 1.0;
+        this.playbackRate = options.playbackRate as number || 0.5;
+        this.cachedCaptureTimes = options.cachedCaptureTimes as string[];
     }
 
     getCaptureTimes(): {"capture-times": string[]} {

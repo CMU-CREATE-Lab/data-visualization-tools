@@ -5,6 +5,7 @@ import { Tile } from './Tile';
 import { Timeline, TimelineType } from './Timeline';
 import { Glb } from './Glb';
 import { LayerProxy } from './LayerProxy';
+import { Legend } from './Legend';
 
 export interface DrawOptions {
   bbox?: { tl: any; br: any; };
@@ -104,14 +105,14 @@ export class LayerOptions {
     avoidShowingChildAndParent: boolean;
     rootUrl?: any;
     greenScreen?: any;
-    useTmJsonTimeTicks: any;
     maptype: string;
     setDataFunction?: (...any: any[]) => any;
     layerDef: any;
     maxLevelOverride?: number;
     levelThreshold: number;
     dotmapColors?: number[];
-    dotmapColumnDefs?: {name: string, color: string}[]
+    dotmapColumnDefs?: {name: string, color: string}[];
+    layerConstraints?: {[key: string]: any};
   }
 
   export abstract class Layer extends LayerOptions {
@@ -130,6 +131,7 @@ export class LayerOptions {
     defaultUrl: string;
     projectionBounds?: {north: number, south: number, east: number, west: number};
     getSublayers?: () => any[];
+    legend?: Legend;
     isLoaded(): boolean { return true; }; // Override this in subclass if needed
     legendVisible: boolean;
 
@@ -149,8 +151,9 @@ export class LayerOptions {
       // and will be loaded later. e.g. a TimeMachine layer and its corresponding tm.json
       if (this.startDate && this.endDate) {
         this.timeline = new Timeline(this.timelineType,
-        this.startDate, this.endDate, this.step,
-        this.masterPlaybackRate, this.playbackRate);
+        {startDate: this.startDate, endDate: this.endDate,
+         step: this.step, masterPlaybackRate: this.masterPlaybackRate,
+         playbackRate: this.playbackRate, hasCachedCaptureTimes: false});
       }
 
       // Note: This is overriden for WebGLTimeMachineLayers

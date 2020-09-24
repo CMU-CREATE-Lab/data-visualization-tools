@@ -47,7 +47,7 @@ export class WebGLVideoTile extends Tile {
   static verbose: boolean;
   _lastDisplayFrame: any;
   _missedFrameCount: any;
-  _capturePriority: number;
+  //_capturePriority: number;
   _uAlpha: number;
   static totalSeekingFrameCount: any;
   static totalSeekCount: any;
@@ -56,7 +56,6 @@ export class WebGLVideoTile extends Tile {
   static missedFrameCount: number;
   static textureFragmentGrayScaleFaderShader: string;
   static frameCount: number;
-  //constructor(layer: Layer, tileidx: TileIdx, bounds, opt_options) {
 
   constructor(layer, tileidx, bounds, {url, defaultUrl, numFrames, fps, greenScreen}) {
     const NETWORK_NO_SOURCE = 3;
@@ -154,6 +153,7 @@ export class WebGLVideoTile extends Tile {
   static textureColormapFragmentFaderShader: string;
   static textureGreenScreenFragmentShader: string;
   static textureGreenScreenFragmentFaderShader: string;
+
   _createTexture() {
     var gl = this.gl;
     var texture = gl.createTexture();
@@ -165,6 +165,7 @@ export class WebGLVideoTile extends Tile {
     gl.bindTexture(gl.TEXTURE_2D, null);
     return texture;
   }
+
   delete() {
     // Mobile uses TimeMachine canvas to render the videos
     if (org.gigapan.Util.isMobileDevice())
@@ -196,19 +197,23 @@ export class WebGLVideoTile extends Tile {
     this._frameOffsetIndex = null;
     WebGLVideoTile.activeTileCount--;
   }
+
   toString() {
     return 'Tile ' + this._tileidx.toString() +
       ', ready: ' + this.isReady() +
       ', seq: ' + this._frameOffsetIndex + ' (' + this._frameOffset + ')';
   }
+
   isReady() {
     return this._ready;
   }
+
   // We need the current frame, plus the next two future frames
   _frameIsNeeded(frameno, displayFrameDiscrete) {
     var future = (frameno - displayFrameDiscrete + this._nframes) % this._nframes;
     return future <= 2;
   }
+
   // Flush any frames in the pipeline which aren't about to be used
   _flushUnneededFrames(displayFrameDiscrete) {
     var changed = false;
@@ -234,6 +239,7 @@ export class WebGLVideoTile extends Tile {
       console.log(this._id + ': flushed frames, now ' + this._pipelineToString() + ' ' + this._computeNextCaptureFrame(displayFrameDiscrete, gEarthTime.timelapse.isPaused()));
     }
   }
+
   // Advance the pipeline if we're now display a frame that's at element 1
   _tryAdvancePipeline(displayFrameDiscrete) {
     var advance = 0;
@@ -256,6 +262,7 @@ export class WebGLVideoTile extends Tile {
       }
     }
   }
+
   _frameIsInPipeline(frameno) {
     for (var i = 0; i < WebGLVideoTile.PIPELINE_SIZE - 1; i++) {
       if (this._pipeline[i].frameno == frameno) {
@@ -264,6 +271,7 @@ export class WebGLVideoTile extends Tile {
     }
     return false;
   }
+
   _tryCaptureFrame(displayFrameDiscrete, actualVideoFrame, actualVideoFrameDiscrete, isPaused) {
     // Only try to capture if it's needed, if we're not currently showing (too late),
     // and if in the safe range of times to capture
@@ -287,6 +295,7 @@ export class WebGLVideoTile extends Tile {
       }
     }
   }
+
   _checkForMissedFrame(displayFrameDiscrete) {
     if (this._ready &&
       displayFrameDiscrete != this._lastDisplayFrame &&
@@ -298,6 +307,7 @@ export class WebGLVideoTile extends Tile {
     }
     this._lastDisplayFrame = displayFrameDiscrete;
   }
+
   // This should always return one of
   // displayFrameDiscrete +1, +2, +3
   _computeNextCaptureFrame(displayFrameDiscrete, isPaused) {
@@ -323,15 +333,17 @@ export class WebGLVideoTile extends Tile {
     }
     return (displayFrameDiscrete + future) % this._nframes;
   }
-  _computeCapturePriority(displayFrameDiscrete, actualVideoFrame,
+
+  /*_computeCapturePriority(displayFrameDiscrete, actualVideoFrame,
     actualVideoFrameDiscrete) {
     return 1;
-  }
+  }*/
+
   // First phase of update
   // Cleans up and advances pipelines
   // Computes priority of capture
   updatePhase1(displayFrame) {
-    this._capturePriority = 0;
+    //this._capturePriority = 0;
     var displayFrameDiscrete = Math.min(Math.floor(displayFrame), this._nframes - 1);
 
     this._uAlpha = displayFrame - displayFrameDiscrete;
@@ -358,9 +370,9 @@ export class WebGLVideoTile extends Tile {
 
     this._flushUnneededFrames(displayFrameDiscrete);
     this._tryAdvancePipeline(displayFrameDiscrete);
-    if (readyState > 1) {
+    /*if (readyState > 1) {
       this._capturePriority = this._computeCapturePriority(displayFrameDiscrete, actualVideoFrame, actualVideoFrameDiscrete);
-    }
+    }*/
   }
   // Second phase of update
   // Captures frame, if desirable and time still left

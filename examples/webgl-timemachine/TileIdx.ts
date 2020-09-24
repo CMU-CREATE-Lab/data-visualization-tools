@@ -56,6 +56,3 @@ export class TileIdx {
   }
 }
 
-
-
-

@@ -4,13 +4,7 @@ import { LayerFactory } from './LayerFactory'
 import { LayerProxy } from './LayerProxy'
 import { Utils } from './Utils'
 import { ETMBLayer } from './ETMBLayer'
-import { Layer } from './Layer'
 
-class LayerCatalogEntry {
-  Category: string;
-  Name: string;
-  'Share link identifier': string;
-};
 
 export class LayerDB {
   databaseId: GSheet;
@@ -64,10 +58,10 @@ export class LayerDB {
         layerProxy._visible = false;
       }
       this.visibleLayers = Array.from(layerProxies);
-      for (let [i, layerProxy] of this.visibleLayers.entries()) {
+      this.visibleLayers.forEach(layerProxy => {
         layerProxy._visible = true;
         layerProxy.requestLoad();
-      }
+      });
       // Clear out layer legends for layers no longer visible
       this.layerFactory.clearNonVisibleLayerLegends();
       // Handle the UI changes for a layer turning on and off (like input checkboxes)

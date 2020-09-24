@@ -12,11 +12,10 @@
 
 import { TileView } from './TileView'
 import { WebGLVideoTile } from './WebGLVideoTile'
-import { Layer, LayerOptions } from './Layer'
-import { Tile } from './Tile';
+import { Layer } from './Layer'
+import { Timeline } from './Timeline';
 
 declare var EARTH_TIMELAPSE_CONFIG;
-declare var cached_ajax;
 
 export class WebGLTimeMachineLayer extends Layer {
   _ready: boolean;
@@ -33,11 +32,9 @@ export class WebGLTimeMachineLayer extends Layer {
   nlevels: number;
   fps: number;
   mediaType: string;
-  //projection: any;
   metadataLoadedCallback: (layer: WebGLTimeMachineLayer)=>void;
   metadataLoaded: boolean;
   constructor(layerProxy, glb, canvasLayer, url, layerOptions) {
-    //this.layerProxy = layerProxy;
     super(layerProxy, layerOptions, WebGLVideoTile); //
     // We should never override drawTile for this layer
     this.drawFunction = WebGLVideoTile.prototype.drawTile;
@@ -57,10 +54,6 @@ export class WebGLTimeMachineLayer extends Layer {
       this.image.onload = this._handleLoadedColormap.bind(this);
       this.image.addEventListener('error', function (event) { console.log('ERROR:  cannot load colormap ' + that.image.src); });
       this.image.src = this.colormap;
-    }
-
-    if (layerOptions.useTmJsonTimeTicks) {
-      this.useTmJsonTimeTicks = true;
     }
 
     this.layerId = layerOptions.layerId;
@@ -93,11 +86,16 @@ export class WebGLTimeMachineLayer extends Layer {
         break;
       }
     }
-    if (!dataset)
+    if (!dataset) {
       dataset = datasets[0];
+    }
 
-    if (this.useTmJsonTimeTicks) {
-      cached_ajax[this.layerId + '.json'] = { "capture-times": tm['capture-times'] };
+    if (!this.startDate) {
+        let captureTimes = tm['capture-times'];
+        this.timeline = new Timeline(this.timelineType,
+        { startDate: captureTimes[0], endDate: captureTimes[captureTimes.lenth - 1],
+         step: this.step, masterPlaybackRate: this.masterPlaybackRate,
+         playbackRate: this.playbackRate, cachedCaptureTimes: captureTimes });
     }
     this.projectionBounds = tm['projection-bounds'];
     this.tileRootUrl = this.rootUrl + '/' + dataset.id;
@@ -147,7 +145,6 @@ export class WebGLTimeMachineLayer extends Layer {
       createTile: createTile,
       deleteTile: function (tile) { tile.delete() },
       updateTiles: WebGLVideoTile.updateTiles,
-      //projection: this.projection,
       maxLevelOverride: this.maxLevelOverride
     });
 
@@ -232,17 +229,4 @@ export class WebGLTimeMachineLayer extends Layer {
     this._tileView._abort();
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 

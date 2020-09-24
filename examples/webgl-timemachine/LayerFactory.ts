@@ -25,7 +25,6 @@ import { Utils } from './Utils';
 // Loaded from config-local.js
 declare var EARTH_TIMELAPSE_CONFIG: { localCsvLayers: string[]; useCsvLayersLocally: any; remoteDataHosts: string[] };
 
-var csvlayersLoadedPath: any;
 
 export class LayerDefinitionError extends Error {
   constructor(msg: string) {
@@ -168,7 +167,6 @@ export class LayerFactory {
       // By default, most CSV layers draw at z=400.  Raster and choropleths by default will draw at z=200.  New raster base maps will draw at z=100.
       drawOrder: 400,
       avoidShowingChildAndParent: false,
-      useTmJsonTimeTicks: false,
       maptype: null,
       levelThreshold: 0
     };
@@ -195,6 +193,10 @@ export class LayerFactory {
       layerOptions.hasLegend = false;
     } else {
       layerOptions.hasLegend = true;
+    }
+
+    if (layerDef["Layer Constraints"]) {
+      layerOptions.layerConstraints = JSON.parse(layerDef["Layer Constraints"]);
     }
 
     if (layerDef["Draw Options"]) {
@@ -299,7 +301,6 @@ export class LayerFactory {
       layerOptions.rootUrl = url;
       if (layerOptions.setDataOptions) {
         layerOptions.greenScreen = layerOptions.setDataOptions.useGreenScreen;
-        layerOptions.useTmJsonTimeTicks = layerOptions.setDataOptions.useTmJsonTimeTicks;
       }
       layerOptions.loadDataFunction = null;
       layerOptions.drawFunction = null;
@@ -571,21 +572,21 @@ export class LayerFactory {
   }
 
   createDotmapLegend(layer: Layer, columnDefs) {
-    var legend=`<tr id="${layer.layerId}-legend" style="display: none"><td>`;
-    legend += `<div style="font-size: 17px">${layer.name}`;
-    if (layer.credit) legend += `<span class="credit">(${layer.credit})</span>`;
-    legend += '</div>';
+    var legendHTML = `<div style="font-size: 17px">${layer.name}`;
+    if (layer.credit) legendHTML += `<span class="credit">(${layer.credit})</span>`;
+    legendHTML += '</div>';
 
-    legend += '<div id="colors" style="float: left; padding-right:8px">';
+    legendHTML += '<div id="colors" style="float: left; padding-right:8px">';
     for (let columnDef of columnDefs) {
-      legend += '<div style="float: left; padding-right:8px">';
-      legend += `<div style="background-color:${columnDef.color}; width: 12px; height: 12px; float: left; margin-top: 2px; margin-left: 8px;"></div>`;
-      legend += `&nbsp;${columnDef.name}</div>`;
+      legendHTML += '<div style="float: left; padding-right:8px">';
+      legendHTML += `<div style="background-color:${columnDef.color}; width: 12px; height: 12px; float: left; margin-top: 2px; margin-left: 8px;"></div>`;
+      legendHTML += `&nbsp;${columnDef.name}</div>`;
     }
-    legend += '</div>';
-    legend += '</tr>';
-    console.log(`${this.logPrefix()} createDotmapLegend "${legend}"`)
-    return legend;
+    legendHTML += '</div>';
+    legendHTML += '</tr>';
+    console.log(`${this.logPrefix()} createDotmapLegend "${legendHTML}"`);
+    layer.legend = new Legend(layer.layerId, legendHTML);
+    layer.hasLegend = true;
   }
 
   createStaticDotmapLayer(layerProxy: LayerProxy, layerDef: LayerDef, layerOptions) {
@@ -726,6 +727,48 @@ export class LayerFactory {
     return null;
   }
 
+  handleLayerConstraints() {
+    let layerDb = gEarthTime.layerDB;
+    let visibleLayers = layerDb.visibleLayers;
+    let newLayersDict = {} as {[key:string]: LayerProxy};
+    let layerToTurnOffDict = {} as {[key:string]: LayerProxy};
+
+    for (let i = 0; i < visibleLayers.length; i++) {
+      let layerProxy = visibleLayers[i];
+      let layerConstraints = layerProxy.getLayerConstraints();
+      if (layerConstraints) {
+        if (layerConstraints.isSoloLayer) {
+          newLayersDict = {};
+          newLayersDict[layerProxy.id] = layerDb.getLayer(layerProxy.id);
+          break;
+        } else if (Array.isArray(layerConstraints.layersPairedWith)) {
+          layerConstraints.layersPairedWith.forEach(layerId => {
+            newLayersDict[layerId] = layerDb.getLayer(layerId);
+          });
+        } else if (Array.isArray(layerConstraints.layersMutuallyExclusiveWith)) {
+          layerConstraints.layersMutuallyExclusiveWith.forEach(layerId => {
+            layerToTurnOffDict[layerId] = layerDb.getLayer(layerId);
+          });
+        }
+      }
+      newLayersDict[layerProxy.id] = layerDb.getLayer(layerProxy.id);
+    };
+
+    let layersIdsToTurnOff = Object.keys(layerToTurnOffDict);
+    let newLayers = []
+    for (const [layerId, layerProxy] of Object.entries(newLayersDict)) {
+      // If this layer is not one of the layers to turn off, add to list.
+      if (layersIdsToTurnOff.indexOf(layerId) == -1) {
+        if (layerProxy) {
+          layerProxy._visible = true;
+          layerProxy.requestLoad();
+          newLayers.push(layerProxy);
+        }
+      }
+    }
+    gEarthTime.layerDB.visibleLayers = newLayers;
+  }
+
   clearNonVisibleLayerLegends() {
     let visibleLayers = gEarthTime.layerDB.visibleLayers;
     let layerProxyLegendsToHide = gEarthTime.layerDB._loadedCache.prevVisibleLayers.filter(layerProxy => !visibleLayers.includes(layerProxy));
@@ -771,10 +814,12 @@ export class LayerFactory {
     }
 
     if (layer) {
-      if (!layer.legendContent || layer.legendContent.toLowerCase() == 'none') {
+      if (!layer.legend && (!layer.legendContent || layer.legendContent.toLowerCase() == 'none')) {
         return;
       }
-      if (layer.mapType == 'bubble') {
+      if (layer.legend) {
+        legend = layer.legend;
+      } else if (layer.mapType == 'bubble') {
         if (layer.legendContent == 'auto') {
           var radius = this.getRadius(layer);
           var opts = {

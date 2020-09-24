@@ -38,11 +38,3 @@ export class WebGLVectorLayer2 extends Layer {
   }
 }
 
-
-
-
-
-
-
-
-
