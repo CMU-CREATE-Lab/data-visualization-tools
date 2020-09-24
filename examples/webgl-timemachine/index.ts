@@ -353,7 +353,6 @@ var showHimawari8 = typeof(EARTH_TIMELAPSE_CONFIG.showHimawari8) === "undefined"
 // var showWaterOccurrence = !!EARTH_TIMELAPSE_CONFIG.showWaterOccurrence;
 // var showWaterChange = !!EARTH_TIMELAPSE_CONFIG.showWaterChange;
 var showCumulativeActiveMining = !!EARTH_TIMELAPSE_CONFIG.showCumulativeActiveMining;
-var showIomIdp = !!EARTH_TIMELAPSE_CONFIG.showIomIdp;
 //var showBerkeleyEarthTemperatureAnomaly = !!EARTH_TIMELAPSE_CONFIG.showBerkeleyEarthTemperatureAnomaly;
 //var showUppsalaConflict = !!EARTH_TIMELAPSE_CONFIG.showUppsalaConflict;
 // var showLightsAtNight = typeof(EARTH_TIMELAPSE_CONFIG.showLightsAtNight) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showLightsAtNight;
@@ -585,7 +584,6 @@ var goes16TimeMachineLayer, goes16Aug2018TimeMachineLayer, goes16Nov2018TimeMach
 //var ebolaNewCasesLayer;
 var lodesLayer;
 var cumulativeActiveMiningLayer;
-var iomIdpLayer;
 //var berkeleyEarthTemperatureAnomalyTimeMachineLayer;
 //var berkeleyEarthTemperatureAnomalyV2YearlyTimeMachineLayer;
 var landBorderLayer;
@@ -892,7 +890,6 @@ var lodesUrl = gEarthTime.rootTilePath + "/lodes/lodes-10/{z}/{x}/{y}.bin";
 
 var cumulativeActiveMiningUrl = "https://storage.googleapis.com/skytruth-data/color_test_cumulativeActiveMining-FOOTPRINT/{z}/{x}/{y}.png";
 
-var iomIdpUrl = gEarthTime.rootTilePath + "/iom-idp/idp-returns.geojson";
 var landBorderUrl = gEarthTime.rootTilePath + "/land-borders2/{default}/{z}/{x}/{y}.png";
 
 //var uppsalaConflictUrl = rootTilePath + "/ucdp/uppsala-conflict.bin";
@@ -1559,230 +1556,6 @@ function initLayerToggleUI() {
       $("#cumulative-active-mining-legend").hide();
     }
   }).prop('checked', showCumulativeActiveMiningLayer);
-
-  $("#show-iraq-iom-idp").on("click", function() {
-    var $this = $(this);
-    if ($this.prop('checked')) {
-      iomIdpLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      showIomIdpLayer = true;
-      setActiveLayersWithTimeline(1);
-      timelineType = "defaultUI";
-      requestNewTimeline("iraq-iom-idp-times.json", timelineType);
-      $("#iom-idp-legend").show();
-      iomIdpLayer.options['showIrqIdps'] = true;
-      gEarthTime.timelapse.setMasterPlaybackRate(0.5);
-      gEarthTime.timelapse.setPlaybackRate(0.1);
-    } else {
-      showIomIdpLayer = false;
-      setActiveLayersWithTimeline(-1);
-      timelineType = "customUI";
-      requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-      if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked'))
-        $("#iom-idp-legend").hide();
-      gEarthTime.timelapse.setMasterPlaybackRate(1);
-      gEarthTime.timelapse.setPlaybackRate(defaultPlaybackSpeed);
-      iomIdpLayer.options['showIrqIdps'] = false;
-      if (Object.values(iomIdpLayer.options).indexOf(true) == -1) {
-        iomIdpLayer.destroy();
-      }
-    }
-  }).prop('checked', showIomIdpLayer);
-
-  $("#show-syria-iom-idp").on("click", function() {
-    var $this = $(this);
-    if ($this.prop('checked')) {
-      iomIdpLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      showIomIdpLayer = true;
-      setActiveLayersWithTimeline(1);
-      timelineType = "defaultUI";
-      requestNewTimeline("syria-iom-idp-times.json", timelineType);
-      $("#iom-idp-legend").show();
-      iomIdpLayer.options['showSyrIdps'] = true;
-      gEarthTime.timelapse.setMasterPlaybackRate(0.5);
-      gEarthTime.timelapse.setPlaybackRate(0.1);
-    } else {
-      showIomIdpLayer = false;
-      setActiveLayersWithTimeline(-1);
-      timelineType = "customUI";
-      requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-      if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked'))
-        $("#iom-idp-legend").hide();
-      gEarthTime.timelapse.setMasterPlaybackRate(1);
-      gEarthTime.timelapse.setPlaybackRate(defaultPlaybackSpeed);
-      iomIdpLayer.options['showSyrIdps'] = false;
-      if (Object.values(iomIdpLayer.options).indexOf(true) == -1) {
-        iomIdpLayer.destroy();
-      }
-    }
-  }).prop('checked', showIomIdpLayer);
-
-  $("#show-yemen-iom-idp").on("click", function() {
-    var $this = $(this);
-    if ($this.prop('checked')) {
-      iomIdpLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      showIomIdpLayer = true;
-      setActiveLayersWithTimeline(1);
-      timelineType = "defaultUI";
-      requestNewTimeline("yemen-iom-idp-times.json", timelineType);
-      $("#iom-idp-legend").show();
-      iomIdpLayer.options['showYemIdps'] = true;
-      gEarthTime.timelapse.setMasterPlaybackRate(0.5);
-      gEarthTime.timelapse.setPlaybackRate(0.1);
-    } else {
-      showIomIdpLayer = false;
-      setActiveLayersWithTimeline(-1);
-      timelineType = "customUI";
-      requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-      if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked'))
-        $("#iom-idp-legend").hide();
-      gEarthTime.timelapse.setMasterPlaybackRate(1);
-      gEarthTime.timelapse.setPlaybackRate(defaultPlaybackSpeed);
-      iomIdpLayer.options['showYemIdps'] = false;
-      if (Object.values(iomIdpLayer.options).indexOf(true) == -1) {
-        iomIdpLayer.destroy();
-      }
-    }
-  }).prop('checked', showIomIdpLayer);
-
-  $("#show-libya-iom-idp").on("click", function() {
-    var $this = $(this);
-    if ($this.prop('checked')) {
-      iomIdpLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      showIomIdpLayer = true;
-      setActiveLayersWithTimeline(1);
-      timelineType = "defaultUI";
-      requestNewTimeline("libya-iom-idp-times.json", timelineType);
-      $("#iom-idp-legend").show();
-      iomIdpLayer.options['showLbyIdps'] = true;
-      gEarthTime.timelapse.setMasterPlaybackRate(0.5);
-      gEarthTime.timelapse.setPlaybackRate(0.1);
-    } else {
-      showIomIdpLayer = false;
-      setActiveLayersWithTimeline(-1);
-      timelineType = "customUI";
-      requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-      if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked'))
-        $("#iom-idp-legend").hide();
-      gEarthTime.timelapse.setMasterPlaybackRate(1);
-      gEarthTime.timelapse.setPlaybackRate(defaultPlaybackSpeed);
-      iomIdpLayer.options['showLbyIdps'] = false;
-      if (Object.values(iomIdpLayer.options).indexOf(true) == -1) {
-        iomIdpLayer.destroy();
-      }
-    }
-  }).prop('checked', showIomIdpLayer);
-
-  $("#show-iraq-iom-return").on("click", function() {
-    var $this = $(this);
-    if ($this.prop('checked')) {
-      iomIdpLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      showIomIdpLayer = true;
-      setActiveLayersWithTimeline(1);
-      timelineType = "defaultUI";
-      requestNewTimeline("iraq-iom-idp-times.json", timelineType);
-      $("#iom-idp-legend").show();
-      iomIdpLayer.options['showIrqReturns'] = true;
-      gEarthTime.timelapse.setMasterPlaybackRate(0.5);
-      gEarthTime.timelapse.setPlaybackRate(0.1);
-    } else {
-      showIomIdpLayer = false;
-      setActiveLayersWithTimeline(-1);
-      timelineType = "customUI";
-      requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-      if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked'))
-        $("#iom-idp-legend").hide();
-      gEarthTime.timelapse.setMasterPlaybackRate(1);
-      gEarthTime.timelapse.setPlaybackRate(defaultPlaybackSpeed);
-      iomIdpLayer.options['showIrqReturns'] = false;
-      if (Object.values(iomIdpLayer.options).indexOf(true) == -1) {
-        iomIdpLayer.destroy();
-      }
-    }
-  }).prop('checked', showIomIdpLayer);
-
-  $("#show-syria-iom-return").on("click", function() {
-    var $this = $(this);
-    if ($this.prop('checked')) {
-      iomIdpLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      showIomIdpLayer = true;
-      setActiveLayersWithTimeline(1);
-      timelineType = "defaultUI";
-      requestNewTimeline("syria-iom-idp-times.json", timelineType);
-      $("#iom-idp-legend").show();
-      iomIdpLayer.options['showSyrReturns'] = true;
-      gEarthTime.timelapse.setMasterPlaybackRate(0.5);
-      gEarthTime.timelapse.setPlaybackRate(0.1);
-    } else {
-      showIomIdpLayer = false;
-      timelineType = "customUI";
-      setActiveLayersWithTimeline(-1);
-      requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-      if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked'))
-        $("#iom-idp-legend").hide();
-      gEarthTime.timelapse.setMasterPlaybackRate(1);
-      gEarthTime.timelapse.setPlaybackRate(defaultPlaybackSpeed);
-      iomIdpLayer.options['showSyrReturns'] = false;
-      if (Object.values(iomIdpLayer.options).indexOf(true) == -1) {
-        iomIdpLayer.destroy();
-      }
-    }
-  }).prop('checked', showIomIdpLayer);
-
-  $("#show-yemen-iom-return").on("click", function() {
-    var $this = $(this);
-    if ($this.prop('checked')) {
-      iomIdpLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      showIomIdpLayer = true;
-      setActiveLayersWithTimeline(1);
-      timelineType = "defaultUI";
-      requestNewTimeline("yemen-iom-idp-times.json", timelineType);
-      $("#iom-idp-legend").show();
-      iomIdpLayer.options['showYemReturns'] = true;
-      gEarthTime.timelapse.setMasterPlaybackRate(0.5);
-      gEarthTime.timelapse.setPlaybackRate(0.1);
-    } else {
-      showIomIdpLayer = false;
-      timelineType = "customUI";
-      setActiveLayersWithTimeline(-1);
-      requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-      if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked'))
-        $("#iom-idp-legend").hide();
-      gEarthTime.timelapse.setMasterPlaybackRate(1);
-      gEarthTime.timelapse.setPlaybackRate(defaultPlaybackSpeed);
-      iomIdpLayer.options['showYemReturns'] = false;
-      if (Object.values(iomIdpLayer.options).indexOf(true) == -1) {
-        iomIdpLayer.destroy();
-      }
-    }
-  }).prop('checked', showIomIdpLayer);
-
-  $("#show-libya-iom-return").on("click", function() {
-    var $this = $(this);
-    if ($this.prop('checked')) {
-      iomIdpLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      showIomIdpLayer = true;
-      setActiveLayersWithTimeline(1);
-      timelineType = "defaultUI";
-      requestNewTimeline("libya-iom-idp-times.json", timelineType);
-      $("#iom-idp-legend").show();
-      iomIdpLayer.options['showLbyReturns'] = true;
-      gEarthTime.timelapse.setMasterPlaybackRate(0.5);
-      gEarthTime.timelapse.setPlaybackRate(0.1);
-    } else {
-      showIomIdpLayer = false;
-      timelineType = "customUI";
-      setActiveLayersWithTimeline(-1);
-      requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-      if (!$("#show-iraq-iom-idp").prop('checked') && !$("#show-syria-iom-idp").prop('checked') && !$("#show-libya-iom-idp").prop('checked') && !$("#show-yemen-iom-idp").prop('checked') && !$("#show-iraq-iom-return").prop('checked') && !$("#show-syria-iom-return").prop('checked') && !$("#show-libya-iom-return").prop('checked') && !$("#show-yemen-iom-return").prop('checked'))
-        $("#iom-idp-legend").hide();
-      gEarthTime.timelapse.setMasterPlaybackRate(1);
-      gEarthTime.timelapse.setPlaybackRate(defaultPlaybackSpeed);
-      iomIdpLayer.options['showLbyReturns'] = false;
-      if (Object.values(iomIdpLayer.options).indexOf(true) == -1) {
-        iomIdpLayer.destroy();
-      }
-    }
-  }).prop('checked', showIomIdpLayer);
 
   $("#show-china-aviation").on("click", function() {
     var $this = $(this);
@@ -2766,7 +2539,6 @@ var showGoes16Nov2018TimeMachineLayer = false;
 var showDscovrTimeMachineLayer = false;
 var showLodesLayer = false;
 var showCumulativeActiveMiningLayer = false;
-var showIomIdpLayer = false;
 var showChinaAviationLayer = false;
 var showChinaPowerPlantsLayer = false;
 var showChinaReservoirsLayer = false;
@@ -3097,14 +2869,6 @@ async function setupUIAndOldLayers() {
   var show_sea_level_rise_4p0 = '<td class="sea-level-rise-4p0-select"><label for="show-sea-level-rise-4p0" name="slr4"><input type="checkbox" id="show-sea-level-rise-4p0" />Sea Level Rise Due to 4.0&deg;C Increase</label></td>';
   var show_lodes = '<td class="lodes-select"><label for="show-lodes" name="lodes"><input type="checkbox" id="show-lodes" />LODES</label></td>';
   var show_cumulative_active_mining_layer = '<td class="cumulative-active-mining-select"><label for="show-cumulative-active-mining" name="cumulative-active-mining"><input type="checkbox" id="show-cumulative-active-mining" />Active Mining</label></td>';
-  var show_iraq_iom_idp = '<td class="iraq-iom-idp-select"><label for="show-iraq-iom-idp" name="iraq-iom-idp"><input type="checkbox" id="show-iraq-iom-idp" />Iraq IDPs</label></td>';
-  var show_syria_iom_idp = '<td class="syria-iom-idp-select"><label for="show-syria-iom-idp" name="syria-iom-idp"><input type="checkbox" id="show-syria-iom-idp" />Syria IDPs</label></td>';
-  var show_libya_iom_idp = '<td class="libya-iom-idp-select"><label for="show-libya-iom-idp" name="libya-iom-idp"><input type="checkbox" id="show-libya-iom-idp" />Libya IDPs</label></td>';
-  var show_yemen_iom_idp = '<td class="yemen-iom-idp-select"><label for="show-yemen-iom-idp" name="yemen-iom-idp"><input type="checkbox" id="show-yemen-iom-idp" />Yemen IDPs</label></td>';
-  var show_iraq_iom_return = '<td class="iraq-iom-return-select"><label for="show-iraq-iom-return" name="iraq-iom-return"><input type="checkbox" id="show-iraq-iom-return" />Iraq Returnees</label></td>';
-  var show_syria_iom_return = '<td class="syria-iom-return-select"><label for="show-syria-iom-return" name="syria-iom-return"><input type="checkbox" id="show-syria-iom-return" />Syria Returnees</label></td>';
-  var show_libya_iom_return = '<td class="libya-iom-return-select"><label for="show-libya-iom-return" name="libya-iom-return"><input type="checkbox" id="show-libya-iom-return" />Libya Returnees</label></td>';
-  var show_yemen_iom_return = '<td class="yemen-iom-return-select"><label for="show-yemen-iom-return" name="yemen-iom-return"><input type="checkbox" id="show-yemen-iom-return" />Yemen Returnees</label></td>';
   var show_berkeley_earth_temperature_anomaly = '<td class="berkeley-earth-temperature-anomaly-select"><label for="show-berkeley-earth-temperature-anomaly" name="berkeley-earth-temperature-anomaly"><input type="checkbox" id="show-berkeley-earth-temperature-anomaly" />Temperature Anomaly</label></td>';
   var show_berkeley_earth_temperature_anomaly_v2_yearly = '<td class="berkeley-earth-temperature-anomaly-v2-yearly-select"><label for="show-berkeley-earth-temperature-anomaly-v2-yearly" name="berkeley-earth-temperature-anomaly-v2-yearly"><input type="checkbox" id="show-berkeley-earth-temperature-anomaly-v2-yearly" />Temperature Anomaly V2 Yearly</label></td>';
   var show_china_aviation = '<td class="china-aviation-select"><label for="show-china-aviation" name="china-aviation"><input type="checkbox" id="show-china-aviation" />China Aviation</label></td>';
@@ -3177,35 +2941,6 @@ async function setupUIAndOldLayers() {
   layer_html += '  <table id="category-pollution">';
   layer_html += '  </table>';
   /* END POLLUTION CATEGORY */
-
-  if (showIomIdp) {
-    layer_html += '   <tr>';
-    layer_html += show_iraq_iom_idp;
-    layer_html += '   </tr>';
-    layer_html += '   <tr>';
-    layer_html += show_syria_iom_idp;
-    layer_html += '   </tr>';
-    layer_html += '   <tr>';
-    layer_html += show_libya_iom_idp;
-    layer_html += '   </tr>';
-    layer_html += '   <tr>';
-    layer_html += show_yemen_iom_idp;
-    layer_html += '   </tr>';
-    layer_html += '   <tr>';
-    layer_html += show_iraq_iom_return;
-    layer_html += '   </tr>';
-    layer_html += '   <tr>';
-    layer_html += show_syria_iom_return;
-    layer_html += '   </tr>';
-    layer_html += '   <tr>';
-    layer_html += show_libya_iom_return;
-    layer_html += '   </tr>';
-    layer_html += '   <tr>';
-    layer_html += show_yemen_iom_return;
-    layer_html += '   </tr>';
-  }
-  layer_html += '  </table>';
-  /* END REFUGEE CATEGORY */
 
   /* CHINA INFRASTRUCTURE CATEGORY */
   if (showChinaInfrastructure) {
@@ -3363,11 +3098,6 @@ async function setupUIAndOldLayers() {
   legend_html += '<tr id="tibnted-sea-level-rise-legend" style="display: none"><td><div style="font-size: 17px">Global Temperature Rise <span id="slr-degree"></span> &#x2103;<span class="credit"> (Climate Central)</span></div><div style="font-size: 15px">Multi-century Sea Level Increase:<span id="slr-feet" style="width:25px;"></span>&nbsp;<span id="slr-meters" style="width:25px; color: red;"></span></div></td></tr>';
   legend_html += '<tr id="lodes-legend" style="display: none"><td><div>LODES<span class="credit"> (US Census)</span></div></td></tr>';
   legend_html += '<tr id="cumulative-active-mining-legend" style="display: none"><td><div>Active Mining<span class="credit"> (SkyTruth)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">1984</div><div style="margin-top: 3px; float: left; background-image: -webkit-linear-gradient( to right, rgb(255,255,255),rgb(128,0,0));background-image: linear-gradient(to right, rgb(255,255,255),rgb(128,0,0)); width: 50%; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">2016</div></td></tr>';
-  legend_html += '<tr id="iraq-iom-idp-legend" style="display: none"><td><div>IRAQ IDPS<span class="credit"> (IOM)</span></div></td></tr>';
-  legend_html += '<tr id="syria-iom-idp-legend" style="display: none"><td><div>Syria IDPS<span class="credit"> (IOM)</span></div></td></tr>';
-  legend_html += '<tr id="yemen-iom-idp-legend" style="display: none"><td><div>Yemen IDPS<span class="credit"> (IOM)</span></div></td></tr>';
-  legend_html += '<tr id="libya-iom-idp-legend" style="display: none"><td><div>Libya IDPS<span class="credit"> (IOM)</span></div></td></tr>';
-  legend_html += '<tr id="iom-idp-legend" style="display: none"><td><div style="font-size: 17px">Internally Displaced Persons (IDPs) <br/>and Returnees<span class="credit"> (IOM)</span></div><svg class="svg-legend" width="242" height="130"><rect width="240" height="110" fill="white" opacity="0"></rect> <g transform="translate(2,10)"> <circle class="gain" r="5" cx="5" cy="10" style="fill: #8b0000; stroke: #fff;"></circle> <circle class="loss" r="5" cx="5" cy="30" style="fill: #00008b; stroke: #fff;"></circle> <text x="15" y="13" style="font-size: 12px; fill: #fff">Individuals displaced</text> <text x="15" y="33" style="font-size: 12px; fill: #fff">Indivdual returnees</text> <circle r="10.0" cx="160.0" cy="110.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="102.0" dy="13" style="font-size: 10px; fill: #fff">18K</text><circle r="30.0" cx="160.0" cy="90.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="80.0" dy="13" style="font-size: 10px; fill: #fff">900K</text><!--<circle r="60.0" cx="160.0" cy="110.0" vector-effect="non-scaling-stroke" style="fill: none; stroke: #999"></circle> <text text-anchor="middle" x="160.0" y="80.0" dy="13" style="font-size: 10px; fill: #fff">900K</text>--></g> </svg></td></tr>';
   legend_html += '<tr id="berkeley-earth-temperature-anomaly-legend" style="display: none"><td><div style="font-size: 13px">Average Temperature Annual Anomaly 1850-2017<span class="credit"> (Berkeley Earth)</span></div><svg class="svg-legend" width="220" height="40"><text font-size="12px" fill="rgba(255, 255, 255, 1.0)" y="10" x="40">Temperature Anomaly (&#8451)</text><rect fill="#00008b" y="20" x="0" height="10" width="20.0"></rect><rect fill="#3031c9" y="20" x="20" height="10" width="20.0"></rect><rect fill="#5768e6" y="20" x="40" height="10" width="20.0"></rect><rect fill="#799ef6" y="20" x="60" height="10" width="20.0"></rect><rect fill="#a1d4fe" y="20" x="80" height="10" width="20.0"></rect><rect fill="#ffffff" y="20" x="100" height="10" width="20.0"></rect><rect fill="#ffd130" y="20" x="120" height="10" width="20.0"></rect><rect fill="#ff9500" y="20" x="140" height="10" width="20.0"></rect><rect fill="#ed5700" y="20" x="160" height="10" width="20.0"></rect><rect fill="#c42102" y="20" x="180" height="10" width="20.0"></rect><rect fill="#8b0000" y="20" x="200" height="10" width="20.0"></rect><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="0">-10</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="25">-8</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="45">-6</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="65">-4</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="85">-2</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="107">0</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="127">2</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="147">4</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="167">6</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="187">8</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="205">10</text></svg></td></tr>';
   legend_html += '<tr id="berkeley-earth-temperature-anomaly-v2-yearly-legend" style="display: none"><td><div style="font-size: 13px">Average Temperature Annual Anomaly 1850-2018<span class="credit"> (Berkeley Earth)</span></div><svg width="400" height="45"><text font-size="12px" fill="rgba(255, 255, 255, 1.0)" y="10" x="40">Temperature Anomaly Relative to 1951-1980 Average (&#8451)</text><rect y="20"fill="#2a0050ff" x="0" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="5"><=-6</text><rect y="20"fill="#13008cff" x="30" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="40">-5</text><rect y="20"fill="#0319c6ff" x="60" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="70">-4</text><rect y="20"fill="#0455edff" x="90" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="100">-3</text><rect y="20"fill="#04adf9ff" x="120" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="130">-2</text><rect y="20"fill="#5ce6feff" x="150" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="160">-1</text><rect y="20"fill="#fefcf4ff" x="180" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="190">0</text><rect y="20"fill="#fee44fff" x="210" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="220">1</text><rect y="20"fill="#f8a409ff" x="240" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="250">2</text><rect y="20"fill="#e95001ff" x="270" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="280">3</text><rect y="20"fill="#c21200ff" x="300" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="310">4</text><rect y="20"fill="#87010fff" x="330" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="340">5</text><rect y="20"fill="#56001eff" x="360" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="365">>=6</text></svg></td></tr>';
   legend_html += '<tr id="china-aviation-legend" style="display: none"><td><div style="background-color:red; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">China Aviation <span class="credit"> (Oxford & Harvard)</span></div></td></tr>';
@@ -3662,28 +3392,6 @@ lightBaseMapLayer = new WebGLMapLayer(null, gEarthTime.glb, gEarthTime.canvasLay
 /////////////    drawFunction: WebGLMapTile.prototype._drawAnimatedTexture
 /////////////  };
 /////////////  cumulativeActiveMiningLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, cumulativeActiveMiningUrl, cumulativeActiveMiningLayerOptions);
-/////////////
-/////////////  var iomIdpLayerOptions = {
-/////////////    tileWidth: 256,
-/////////////    tileHeight: 256,
-/////////////    nLevels: 0,
-/////////////    loadDataFunction: WebGLVectorTile2.prototype._loadGeojsonData,
-/////////////    setDataFunction: WebGLVectorTile2.prototype._setIomIdpData,
-/////////////    drawFunction: WebGLVectorTile2.prototype._drawIomIdp,
-/////////////    fragmentShader: WebGLVectorTile2.iomIdpFragmentShader,
-/////////////    vertexShader: WebGLVectorTile2.iomIdpVertexShader
-/////////////  };
-/////////////  iomIdpLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, iomIdpUrl, iomIdpLayerOptions);
-/////////////  iomIdpLayer.options = {
-/////////////    'showIrqIdps': false,
-/////////////    'showSyrIdps': false,
-/////////////    'showYemIdps': false,
-/////////////    'showLbyIdps': false,
-/////////////    'showIrqReturns': false,
-/////////////    'showSyrReturns': false,
-/////////////    'showYemReturns': false,
-/////////////    'showLbyReturns': false
-/////////////  };
 /////////////
 /////////////  var chinaLayerOptions = {
 /////////////    tileWidth: 256,
@@ -6158,31 +5866,6 @@ function update() {
       //    options.mode = 3.0;
       //  }
       //}
-
-      if (showIomIdpLayer) {
-        var iomIdpLayerView = getLayerView(iomIdpLayer, landsatBaseMapLayer);
-        interface IomIdpDrawOptions extends DrawOptions {
-          showIrqIdps?:    boolean,
-          showSyrIdps?:    boolean,
-          showYemIdps?:    boolean,
-          showLbyIdps?:    boolean,
-          showIrqReturns?: boolean,
-          showSyrReturns?: boolean,
-          showYemReturns?: boolean,
-          showLbyReturns?: boolean
-        }
-        let options: IomIdpDrawOptions = {};
-        options.pointSize = 4.0;
-        options.showIrqIdps = iomIdpLayer.options['showIrqIdps'];
-        options.showSyrIdps = iomIdpLayer.options['showSyrIdps'];
-        options.showYemIdps = iomIdpLayer.options['showYemIdps'];
-        options.showLbyIdps = iomIdpLayer.options['showLbyIdps'];
-        options.showIrqReturns = iomIdpLayer.options['showIrqReturns'];
-        options.showSyrReturns = iomIdpLayer.options['showSyrReturns'];
-        options.showYemReturns = iomIdpLayer.options['showYemReturns'];
-        options.showLbyReturns = iomIdpLayer.options['showLbyReturns'];
-        iomIdpLayer.draw(iomIdpLayerView, options);
-      }
 
       /*if (showBerkeleyEarthTemperatureAnomalyTimeMachineLayer) {
         var view = getLayerView(berkeleyEarthTemperatureAnomalyTimeMachineLayer, landsatBaseMapLayer);

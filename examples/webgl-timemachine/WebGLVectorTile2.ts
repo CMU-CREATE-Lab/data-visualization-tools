@@ -3017,6 +3017,15 @@ export class WebGLVectorTile2 extends Tile {
       var drawOptions = this._layer.drawOptions;
       var tileTransform = new Float32Array(transform);
 
+      var showIrqIdps = typeof(drawOptions.showIrqIdps) != "undefined" ? drawOptions.showIrqIdps : 0.0;
+      var showSyrIdps = typeof(drawOptions.showSyrIdps) != "undefined" ? drawOptions.showSyrIdps : 0.0;
+      var showYemIdps = typeof(drawOptions.showYemIdps) != "undefined" ? drawOptions.showYemIdps : 0.0;
+      var showLbyIdps = typeof(drawOptions.showLbyIdps) != "undefined" ? drawOptions.showLbyIdps : 0.0;
+      var showIrqReturns = typeof(drawOptions.showIrqReturns) != "undefined" ? drawOptions.showIrqReturns : 0.0;
+      var showSyrReturns = typeof(drawOptions.showSyrReturns) != "undefined" ? drawOptions.showSyrReturns : 0.0;
+      var showYemReturns = typeof(drawOptions.showYemReturns) != "undefined" ? drawOptions.showYemReturns : 0.0;
+      var showLbyReturns = typeof(drawOptions.showLbyReturns) != "undefined" ? drawOptions.showLbyReturns : 0.0;
+
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
@@ -3026,21 +3035,21 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.uniform1f(this.program.u_epoch, gEarthTime.currentEpochTime());
 
-      gl.uniform1f(this.program.u_show_irq_idps, drawOptions.showIrqIdps);
+      gl.uniform1f(this.program.u_show_irq_idps, showIrqIdps);
 
-      gl.uniform1f(this.program.u_show_syr_idps, drawOptions.showSyrIdps);
+      gl.uniform1f(this.program.u_show_syr_idps, showSyrIdps);
 
-      gl.uniform1f(this.program.u_show_yem_idps, drawOptions.showYemIdps);
+      gl.uniform1f(this.program.u_show_yem_idps, showYemIdps);
 
-      gl.uniform1f(this.program.u_show_lby_idps, drawOptions.showLbyIdps);
+      gl.uniform1f(this.program.u_show_lby_idps, showLbyIdps);
 
-      gl.uniform1f(this.program.u_show_irq_returns, drawOptions.showIrqReturns);
+      gl.uniform1f(this.program.u_show_irq_returns, showIrqReturns);
 
-      gl.uniform1f(this.program.u_show_syr_returns, drawOptions.showSyrReturns);
+      gl.uniform1f(this.program.u_show_syr_returns, showSyrReturns);
 
-      gl.uniform1f(this.program.u_show_yem_returns, drawOptions.showYemReturns);
+      gl.uniform1f(this.program.u_show_yem_returns, showYemReturns);
 
-      gl.uniform1f(this.program.u_show_lby_returns, drawOptions.showLbyReturns);
+      gl.uniform1f(this.program.u_show_lby_returns, showLbyReturns);
 
       this.program.setVertexAttrib.a_country(1, gl.FLOAT, false, 32, 0);
       this.program.setVertexAttrib.a_type(1, gl.FLOAT, false, 32, 4);
