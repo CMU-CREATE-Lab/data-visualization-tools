@@ -1,10 +1,16 @@
-/// <reference path="../GSheet.ts"/>
-/// <reference path="Thumbnailer.ts"/>
+import { GSheet } from '../GSheet';
+import { Thumbnailer } from './Thumbnailer';
+
+// papaparse.min.js creates the global Papa rather than importing as a module
+import './papaparse.min.js';
+declare var Papa: any;
+declare var EARTH_TIMELAPSE_CONFIG;
 
 interface EmbedConfig {
   disableAutoFullscreen?: boolean,
   mediaFitStyle?: string,
-  showEarthtimeAbout?:boolean
+  showEarthtimeAbout?: boolean,
+  earthtimeSpreadsheet?: string
 };
 
 function esc(unsafe: string) {
@@ -16,31 +22,22 @@ function esc(unsafe: string) {
        .replace(/'/g, "&#039;");
 }
 
-class earthtime {
+export class earthtime {
   static _DEFAULT_EARTHTIME_SPREADSHEET = "https://docs.google.com/spreadsheets/d/1rCiksJv4aXi1usI0_9zdl4v5vuOfiHgMRidiDPt1WfE/edit#gid=1596808134";
   static _DEFAULT_SHARE_VIEW = "https://earthtime.org/#v=4.56342,0,0.183,latLng&t=2.20&ps=50&l=blsat&bt=19840101&et=20161231";
   static _STORY_AUTHOR_PRECEDING_TEXT = "Story by: ";
   static _DATA_CREDIT_PRECEDING_TEXT = "Data from: ";
   
-  // This version works with ES6 module loading
-  //
-  // static _ROOT_SRC_URL = (function() {
-  //   // @ts-ignore
-  //   var pathOfCurrentScript = import.meta.url;
-  //   var tmp = pathOfCurrentScript.substr(0, pathOfCurrentScript.indexOf('mobile-embed.js'));
-  //   var rootUrl = tmp.substr(0, tmp.lastIndexOf('/') + 1);
-  //   return rootUrl;
-  // })();
-
-  // This version works when using <script> tag to load mobile-embed.js
   static _ROOT_SRC_URL = (function() {
-    // @ts-ignore
-    var pathOfCurrentScript = document.currentScript ? document.currentScript.src : document.querySelector('script[src*="mobile-embed.js"]').src;
+    // Search path for pathOfCurrentScript
+    var pathOfCurrentScript = import.meta.url; // ES6 module loading
+    pathOfCurrentScript ??= (document?.currentScript as HTMLScriptElement)?.src;
+    pathOfCurrentScript ??= (document.querySelector('script[src*="mobile-embed.js"]') as HTMLScriptElement).src;
+
     var tmp = pathOfCurrentScript.substr(0, pathOfCurrentScript.indexOf('mobile-embed.js'));
     var rootUrl = tmp.substr(0, tmp.lastIndexOf('/') + 1);
     return rootUrl;
   })();
-  
   
   static _storyRegistrations = {};
   static _verboseLogging = false;
@@ -125,7 +122,6 @@ class earthtime {
 
   static _disableAutoFullscreen: any;
   static _mediaFitStyle: string;
-  static Handlebars: any;
   
   /**
   * Wrapper to console.log to make logging easy to turn on/off
@@ -244,8 +240,8 @@ class earthtime {
           storyContainerElement.style.width = newWidth + "px";
           // Force a redraw for the element currently in fixed position. This is a hack for Safari, because it doesn't consistently
           // draw the element in fixed position after modifying the container margins/width above.
-          // @ts-ignore
-          document.getElementsByClassName("earthtime-story-frame")[earthtime._fixedStoryFrameIdx].children[0].style.top = "-1px";
+          var elt = document.getElementsByClassName("earthtime-story-frame")[earthtime._fixedStoryFrameIdx].children[0] as HTMLElement;
+          elt.style.top = "-1px";
         } else {
           var widthOfStoryContainerParent = storyContainerElement.getBoundingClientRect().width;
           var storyframeContentContainers = storyContainerElement.querySelectorAll('.earthtime-story-frame-content-container');
@@ -537,11 +533,9 @@ class earthtime {
       // if we're done loading all the script dependencies, then compile the templates then load the stories
       if (numScriptsLoaded === earthtime._scriptDependencies.length) {
         // Set config options 
-        // @ts-ignore
-        window.EARTH_TIMELAPSE_CONFIG = window.EARTH_TIMELAPSE_CONFIG || {};
+        EARTH_TIMELAPSE_CONFIG ??= {};
         // Precedence is story editor public link, config-local.js/config.js located where this file is hosted from, or lastly a hardcoded default spreadsheet URL
-        // @ts-ignore 
-        var waypointsIdentifierUrl = config.earthtimeSpreadsheet || window.EARTH_TIMELAPSE_CONFIG.waypointSliderContentPath || earthtime._DEFAULT_EARTHTIME_SPREADSHEET;
+        var waypointsIdentifierUrl = config?.earthtimeSpreadsheet ?? EARTH_TIMELAPSE_CONFIG.waypointSliderContentPath ?? this._DEFAULT_EARTHTIME_SPREADSHEET;
         var showAboutSection = config.showEarthtimeAbout || false;
         earthtime._disableAutoFullscreen = config.disableAutoFullscreen || false;
         earthtime._mediaFitStyle = config.mediaFitStyle || "cover";
@@ -590,7 +584,7 @@ class earthtime {
   * @param containerElement the DOM element into which the story will be inserted
   * @param {object} storyOptions a hash containing various options like the waypoint URL, whether to show the About section, etc
   */
-  static _loadStory(storyName, containerElement, storyOptions) {
+  static async _loadStory(storyName, containerElement, storyOptions) {
     var regexp;
     var rawUrl = storyOptions.waypointsIdentifierUrl;
     var urlParams: {waypoints?:string} = earthtime._unpackVars(rawUrl);
@@ -600,186 +594,184 @@ class earthtime {
       regexp = /d\/(.*)\/edit\#gid=(.*)/;
     }
     var matchesArray = rawUrl.match(regexp);
-    var url = new GSheet(matchesArray[1], matchesArray[2]).get_csv_export_url();
-    // TODO: call GSheet.read_csv
 
-    // @ts-ignore
-    Papa.parse(url, {
-      download: true,
-      header: true,
-      complete: function(results) {
-        var story = [];
-        var data = results["data"];
-        var append = false;
-        var isIframe = window && (window.self !== window.top);
-        var navigatorUserAgent = navigator.userAgent;
-        var isMSIEUserAgent = navigatorUserAgent.match(/MSIE|Trident|Edge/) != null;
-        
-        for (var i = 0; i < data.length; i++) {
-          var title = data[i]['Waypoint Title'];
-          if (title == "") continue;
-          // Found a new theme while appending for a story, exit
-          if (append && title[0] == "#" && title[1] != "#") break;
-          // Found a story, not a theme
-          if (title[0] == "#" && title[1] == "#") {
-            var cleanTitle = title.replace(/_/g, ' ').replace(/#/g, '').toLowerCase();
-            if (cleanTitle == storyName) {
-              append = true;
-            } else {
-              if (append) {
-                break;
-              } else {
-                continue;
-              }
-            }
-          }
-          if (append) {
-            story.push(data[i]);
-          }
-        }
-        
-        if (story.length >= 2 && story[1]['Waypoint Title'][0] == '#') {
-          // If the theme and story names are the same and we picked them both up,
-          // remove the theme waypoint
-          story.shift();
-        }
-        
-        // now insert story elements into the DOM, starting with the logo
-        containerElement.innerHTML = '<div class="earthtime-story">' +
-        '   <div class="earthtime-logo">' +
-        '      <a href="https://earthtime.org" target="_blank">Earth<br/>Time</a>' +
-        '   </div>' +
-        '</div>';
-        
-        var storyElement = containerElement.querySelector('.earthtime-story');
-        
-        if (isIframe) {
-          storyElement.classList.add("iframe");
-          document.documentElement.classList.add("overflow-hidden");
+    // TODO: call GSheet.read_csv
+    var url = new GSheet(matchesArray[1], matchesArray[2]).get_csv_export_url();
+
+    var results = await new Promise((resolve, reject) => { 
+      Papa.parse(url, { download: true, header: true, complete: resolve });
+    });
+
+    var story = [];
+    var data = results["data"];
+    var append = false;
+    var isIframe = window && (window.self !== window.top);
+    var navigatorUserAgent = navigator.userAgent;
+    var isMSIEUserAgent = navigatorUserAgent.match(/MSIE|Trident|Edge/) != null;
+    
+    for (var i = 0; i < data.length; i++) {
+      var title = data[i]['Waypoint Title'];
+      if (title == "") continue;
+      // Found a new theme while appending for a story, exit
+      if (append && title[0] == "#" && title[1] != "#") break;
+      // Found a story, not a theme
+      if (title[0] == "#" && title[1] == "#") {
+        var cleanTitle = title.replace(/_/g, ' ').replace(/#/g, '').toLowerCase();
+        if (cleanTitle == storyName) {
+          append = true;
         } else {
-          containerElement.classList.add("overflow-scrolling");
-        }
-        
-        for (var i = 0; i < story.length; i++) {
-          var isTitleItem = (i === 0);
-          
-          // If no mobile landscape view is defined, use the standard share view column
-          var landscapeShareView = (story[i]['Mobile Share View Landscape'] || story[i]["Share View"]).trim();
-          // If we are the title screen and no view is set, skip showing it. We do this because:
-          // 1) It is the same behavior as a waypoint that does not include a view
-          // 2) It gives us a way to not have a title screen if we are embedding and only want to show waypoint content
-          if (isTitleItem && landscapeShareView === '') continue;
-          // If no mobile portrait share view is defined, use the landscape view
-          var portraitShareView = (story[i]['Mobile Share View Portrait'] || landscapeShareView).trim();
-          
-          if (landscapeShareView !== '') {
-            // create the appropriate caption element and go ahead and generate its HTML
-            var captionContext = {
-              title: story[i]['Annotation Title'],
-              caption: story[i]['Annotation Text']
-            };
-            var captionTemplate;
-            if (isTitleItem) {
-              captionContext['author'] = earthtime._generateAuthorText(story[i]["Author"]);
-              captionTemplate = earthtime.title_caption_template;
-            } else {
-              captionTemplate = earthtime.caption_template;
-            }
-            var captionHtml = captionTemplate(captionContext);
-            
-            // create the story frame (i.e. image/video) element
-            var landscapeThumbnail = new Thumbnailer(landscapeShareView);
-            var portraitThumbnail = new Thumbnailer(portraitShareView);
-            var context = {
-              idx: i + 1,
-              credit: story[i]["Credits"]
-            };
-            var storyFrameTemplate;
-            var currentOrientation = earthtime._currentOrientation;
-            if (landscapeThumbnail.isPicture()) {
-              storyFrameTemplate = earthtime.picture_template;
-              context['src_portrait'] = portraitThumbnail.getImage('portrait');
-              context['src_landscape'] = landscapeThumbnail.getImage('landscape');
-              context['src'] = currentOrientation == 'portrait' ? context['src_portrait'] : context['src_landscape'];
-            } else {
-              storyFrameTemplate = earthtime.video_template;
-              context['poster_src_portrait'] = portraitThumbnail.getImage('portrait');
-              context['poster_src_landscape'] = landscapeThumbnail.getImage('landscape');
-              context['poster_src'] = currentOrientation == 'portrait' ? context['poster_src_portrait'] : context['poster_src_landscape'];
-              context['video_src_portrait'] = portraitThumbnail.getMp4('portrait');
-              context['video_src_landscape'] = landscapeThumbnail.getMp4('landscape');
-              context['video_src'] = currentOrientation == 'portrait' ? context['video_src_portrait'] : context['video_src_landscape'];
-            }
-            
-            // insert the caption block if it's the story title
-            if (isTitleItem) {
-              storyElement.insertAdjacentHTML('beforeend', captionHtml);
-            }
-            
-            // insert the story frame
-            storyElement.insertAdjacentHTML('beforeend', storyFrameTemplate(context));
-            
-            // insert overlay for title slide to darken it
-            if (i == 0) {
-              var storyTitlePageOverlay = "<div class='earthtime-story-title-overlay'></div>";
-              var firstEntry = containerElement.querySelector('.earthtime-story-frame-content-container');
-              firstEntry.insertAdjacentHTML('beforeend', storyTitlePageOverlay);
-            }
-            
-            // don't include a separate caption element if this is the title, since it's already been included above
-            if (!isTitleItem) {
-              storyElement.insertAdjacentHTML('beforeend', captionHtml);
-            }
-            
-            // if we're at the end, then duplicate the last frame
-            if (i === story.length - 1) {
-              context.idx++;
-              storyElement.insertAdjacentHTML('beforeend', storyFrameTemplate(context));
-            }
+          if (append) {
+            break;
+          } else {
+            continue;
           }
-        }
-        
-        // If no story was found by name passed in, inform the user
-        if (story.length == 0) {
-          storyElement.insertAdjacentHTML('beforeend', earthtime.no_story_template());
-        }
-        
-        // Show an about section if specified. By default we use this for our full screen embeds
-        if (storyOptions.showAboutSection) {
-          var aboutSectionContent = '<div class="earthtime-about">' +
-          '<h3 class="earthtime-about-heading">About</h3>' +
-          '<div class="earthtime-about-logos">' +
-          '<img height="150" width="210" src="' + earthtime._ROOT_SRC_URL + '../../../images/CMU-CREATELab.svg">' +
-          '<img height="150" width="150" src="' + earthtime._ROOT_SRC_URL + '../../../images/World_Economic_Forum_logo.svg">' +
-          '</div>' +
-          '<p>EarthTime is a partnership with Carnegie Mellon University\'s CREATE Lab and the World Economic Forum. The Forum draws on its expert network to provide data, author EarthTime stories, and present in its meetings.</p>' +
-          '<p>EarthTime is underpinned by CREATE Lab\'s vision to promote data literacy, inspire meaningful dialogue, and democratize access to data for everyone in an inclusive and transparent way.</p>' +
-          '</div>';
-          
-          storyElement.insertAdjacentHTML('beforeend', aboutSectionContent);
-        }
-        
-        // If an MS browser, remove our WebKit position workaround
-        if (isMSIEUserAgent) {
-          var divs = containerElement.querySelectorAll('.earthtime-story-frame-content');
-          for (var i = 0; i < divs.length; i++) {
-            divs[i].classList.remove('earthtime-media');
-          }
-        }
-        
-        // Trigger an initial scroll update, since full screen will show the first slide but not auto trigger playback, if the title screen is a video
-        earthtime._updateScrollPos();
-        
-        // Scroll event that is attached to the window has no effect when in an iframe and running Safari
-        if (isIframe) {
-          var elm = document.getElementsByClassName("earthtime-story")[0];
-          elm.addEventListener('scroll', earthtime._updateScrollPos);
         }
       }
-    });
+      if (append) {
+        story.push(data[i]);
+      }
+    }
+    
+    if (story.length >= 2 && story[1]['Waypoint Title'][0] == '#') {
+      // If the theme and story names are the same and we picked them both up,
+      // remove the theme waypoint
+      story.shift();
+    }
+    
+    // now insert story elements into the DOM, starting with the logo
+    containerElement.innerHTML = '<div class="earthtime-story">' +
+    '   <div class="earthtime-logo">' +
+    '      <a href="https://earthtime.org" target="_blank">Earth<br/>Time</a>' +
+    '   </div>' +
+    '</div>';
+    
+    var storyElement = containerElement.querySelector('.earthtime-story');
+    
+    if (isIframe) {
+      storyElement.classList.add("iframe");
+      document.documentElement.classList.add("overflow-hidden");
+    } else {
+      containerElement.classList.add("overflow-scrolling");
+    }
+    
+    for (var i = 0; i < story.length; i++) {
+      var isTitleItem = (i === 0);
+      
+      // If no mobile landscape view is defined, use the standard share view column
+      var landscapeShareView = (story[i]['Mobile Share View Landscape'] || story[i]["Share View"]).trim();
+      // If we are the title screen and no view is set, skip showing it. We do this because:
+      // 1) It is the same behavior as a waypoint that does not include a view
+      // 2) It gives us a way to not have a title screen if we are embedding and only want to show waypoint content
+      if (isTitleItem && landscapeShareView === '') continue;
+      // If no mobile portrait share view is defined, use the landscape view
+      var portraitShareView = (story[i]['Mobile Share View Portrait'] || landscapeShareView).trim();
+      
+      if (landscapeShareView !== '') {
+        // create the appropriate caption element and go ahead and generate its HTML
+        var captionContext = {
+          title: story[i]['Annotation Title'],
+          caption: story[i]['Annotation Text']
+        };
+        var captionTemplate;
+        if (isTitleItem) {
+          captionContext['author'] = earthtime._generateAuthorText(story[i]["Author"]);
+          captionTemplate = earthtime.title_caption_template;
+        } else {
+          captionTemplate = earthtime.caption_template;
+        }
+        var captionHtml = captionTemplate(captionContext);
+        
+        // create the story frame (i.e. image/video) element
+        var landscapeThumbnail = new Thumbnailer(landscapeShareView);
+        var portraitThumbnail = new Thumbnailer(portraitShareView);
+        var context = {
+          idx: i + 1,
+          credit: story[i]["Credits"]
+        };
+        var storyFrameTemplate;
+        var currentOrientation = earthtime._currentOrientation;
+        if (landscapeThumbnail.isPicture()) {
+          storyFrameTemplate = earthtime.picture_template;
+          context['src_portrait'] = portraitThumbnail.getImage('portrait');
+          context['src_landscape'] = landscapeThumbnail.getImage('landscape');
+          context['src'] = currentOrientation == 'portrait' ? context['src_portrait'] : context['src_landscape'];
+        } else {
+          storyFrameTemplate = earthtime.video_template;
+          context['poster_src_portrait'] = portraitThumbnail.getImage('portrait');
+          context['poster_src_landscape'] = landscapeThumbnail.getImage('landscape');
+          context['poster_src'] = currentOrientation == 'portrait' ? context['poster_src_portrait'] : context['poster_src_landscape'];
+          context['video_src_portrait'] = portraitThumbnail.getMp4('portrait');
+          context['video_src_landscape'] = landscapeThumbnail.getMp4('landscape');
+          context['video_src'] = currentOrientation == 'portrait' ? context['video_src_portrait'] : context['video_src_landscape'];
+        }
+        
+        // insert the caption block if it's the story title
+        if (isTitleItem) {
+          storyElement.insertAdjacentHTML('beforeend', captionHtml);
+        }
+        
+        // insert the story frame
+        storyElement.insertAdjacentHTML('beforeend', storyFrameTemplate(context));
+        
+        // insert overlay for title slide to darken it
+        if (i == 0) {
+          var storyTitlePageOverlay = "<div class='earthtime-story-title-overlay'></div>";
+          var firstEntry = containerElement.querySelector('.earthtime-story-frame-content-container');
+          firstEntry.insertAdjacentHTML('beforeend', storyTitlePageOverlay);
+        }
+        
+        // don't include a separate caption element if this is the title, since it's already been included above
+        if (!isTitleItem) {
+          storyElement.insertAdjacentHTML('beforeend', captionHtml);
+        }
+        
+        // if we're at the end, then duplicate the last frame
+        if (i === story.length - 1) {
+          context.idx++;
+          storyElement.insertAdjacentHTML('beforeend', storyFrameTemplate(context));
+        }
+      }
+    }
+    
+    // If no story was found by name passed in, inform the user
+    if (story.length == 0) {
+      storyElement.insertAdjacentHTML('beforeend', earthtime.no_story_template());
+    }
+    
+    // Show an about section if specified. By default we use this for our full screen embeds
+    if (storyOptions.showAboutSection) {
+      var aboutSectionContent = '<div class="earthtime-about">' +
+      '<h3 class="earthtime-about-heading">About</h3>' +
+      '<div class="earthtime-about-logos">' +
+      '<img height="150" width="210" src="' + earthtime._ROOT_SRC_URL + '../../../images/CMU-CREATELab.svg">' +
+      '<img height="150" width="150" src="' + earthtime._ROOT_SRC_URL + '../../../images/World_Economic_Forum_logo.svg">' +
+      '</div>' +
+      '<p>EarthTime is a partnership with Carnegie Mellon University\'s CREATE Lab and the World Economic Forum. The Forum draws on its expert network to provide data, author EarthTime stories, and present in its meetings.</p>' +
+      '<p>EarthTime is underpinned by CREATE Lab\'s vision to promote data literacy, inspire meaningful dialogue, and democratize access to data for everyone in an inclusive and transparent way.</p>' +
+      '</div>';
+      
+      storyElement.insertAdjacentHTML('beforeend', aboutSectionContent);
+    }
+    
+    // If an MS browser, remove our WebKit position workaround
+    if (isMSIEUserAgent) {
+      var divs = containerElement.querySelectorAll('.earthtime-story-frame-content');
+      for (var i = 0; i < divs.length; i++) {
+        divs[i].classList.remove('earthtime-media');
+      }
+    }
+    
+    // Trigger an initial scroll update, since full screen will show the first slide but not auto trigger playback, if the title screen is a video
+    earthtime._updateScrollPos();
+    
+    // Scroll event that is attached to the window has no effect when in an iframe and running Safari
+    if (isIframe) {
+      var elm = document.getElementsByClassName("earthtime-story")[0];
+      elm.addEventListener('scroll', earthtime._updateScrollPos);
+    }
   }
 
-  static findStory(csv, storyName: string) {
+  static findStory(csv: {[key: string]: string}[], storyName: string) {
     var story = [];
     var append = false;
     for (var rec of csv) {
@@ -827,7 +819,6 @@ class earthtime {
     var htmlElts = [];
 
     for (var rec of story) {
-      console.log(rec);
       // If no mobile landscape view is defined, use the standard share view column
       var landscapeShareView = (rec['Mobile Share View Landscape'] || rec["Share View"]).trim();
       // If we are the title screen and no view is set, skip showing it. We do this because:
@@ -849,3 +840,4 @@ class earthtime {
   }
 }
 
+(window as any).earthtime = earthtime;

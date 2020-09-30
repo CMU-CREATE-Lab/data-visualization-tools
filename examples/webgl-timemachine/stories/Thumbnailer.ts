@@ -1,4 +1,4 @@
-class Thumbnailer {
+export class Thumbnailer {
     thumbnailServerUrl: string;
     sharelink: string;
     hash: string;

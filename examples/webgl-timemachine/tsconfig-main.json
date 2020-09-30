@@ -8,6 +8,7 @@
         "noUnusedLocals": false
     },
     "include": [
-        "./index.ts"
+        "./index.ts",
+        "stories/scrolling-story.ts"
     ]
 }
