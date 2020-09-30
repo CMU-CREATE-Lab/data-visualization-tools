@@ -1,4 +1,4 @@
-export class Thumbnailer {
+export class Thumbnailer{
     thumbnailServerUrl: string;
     sharelink: string;
     hash: string;
@@ -74,7 +74,7 @@ export class Thumbnailer {
         }
     }
 
-    getMp4(orientation) {
+    getMp4(orientation: string) {
         var orientation = orientation || "portrait";
         var widthPx = orientation == "portrait" ? 540 : 1280;
         var heightPx = 720;
@@ -173,43 +173,7 @@ export class Thumbnailer {
         return url + [root,width,height,format,fps,tileFormat,fromScreenshot,UI].join("&");
     }
 
-    getImageWithSize(widthPx: number, heightPx: number) {
-        var url = this.thumbnailServerUrl;
-        var root = "root=";
-        if (typeof this.args["root"] == "undefined") {
-            root += "https://headless.earthtime.org/";
-            if (!('bt' in this.args)) {
-                this._setBt();
-                this.hash += "&bt=" + this.args['bt'];
-            }
-            root += encodeURIComponent('#' + this.hash);
-        } else {
-            root += this.args["root"];
-        }
-        var width = "width=" + widthPx;
-        var height = "height=" + heightPx;
-
-        var format = "format=png"
-        var fps = "fps=" + "30";
-        var tileFormat = "tileFormat=" + "mp4";
-        var fromScreenshot = "fromScreenshot";
-        var UI = '';
-        if (typeof this.hash != "undefined") {
-            UI += "timestampOnlyUI=" + "true";
-        } else {
-            if (typeof this.args['minimalUI'] != 'undefined') {
-                UI = "minimalUI";
-            }
-            if (typeof this.args['timestampOnlyUI'] != 'undefined') {
-                UI = "timestampOnlyUI=true";
-            }
-        }
-        // OVERRIDE UI
-        UI = "disableUI";
-        return url + [root,width,height,format,fps,tileFormat,fromScreenshot,UI].join("&");
-    }
-
-    getLegend = function() {
+    getLegend() {
         var url = this.thumbnailServerUrl;
 
         var root = "";
@@ -236,24 +200,25 @@ export class Thumbnailer {
         return url + [root,width,height,legendHTML,fromScreenshot,UI].join("&");
     }
 
-    static _latLonToWebMercator(latitude: number, longitude: number) {
+    _latLonToWebMercator(latitude: number, longitude: number) {
         var x = (longitude + 180) * 256 / 360;
         var y = 128 - Math.log(Math.tan((latitude + 90) * Math.PI / 360)) * 128 / Math.PI;
         return [x, y];
     }
 
-    static _webMercatorToLatLon(xy: [number, number]) {
+    _webMercatorToLatLon(xy: [number, number]) {
         var lat = Math.atan(Math.exp((128 - xy[1]) * Math.PI / 128)) * 360 / Math.PI - 90;
         var lng = xy[0] * 360 / 256 - 180;
         return [lat, lng];
-    };
+    }
 
-    static _webMercatorToPixel(xy: [number,number], zoom: number) {
+    _webMercatorToPixel(xy: [number, number], zoom: number) {
         var scale = 1 << zoom;
         return [Math.floor(xy[0] * scale), Math.floor(xy[1] * scale)]
     }
 
-    static _pixelToWebMercator(xy: [number, number], zoom: number) {
+
+    _pixelToWebMercator(xy: [number, number], zoom: number) {
         var scale = 1 << zoom;
         return [xy[0] / scale, xy[1] / scale];
     }

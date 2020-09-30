@@ -18,7 +18,6 @@ examples/webgl-timemachine/GSheet.js
 *.js.map
 examples/webgl-timemachine/package-lock.json
 examples/webgl-timemachine/config-local.json
-examples/webgl-timemachine/stories/mobile-embed.js
 examples/webgl-timemachine/stories/scrolling-story.js
 examples/webgl-timemachine/stories/Thumbnailer.js
 package-lock.json
