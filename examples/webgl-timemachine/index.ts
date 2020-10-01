@@ -360,7 +360,6 @@ var showCumulativeActiveMining = !!EARTH_TIMELAPSE_CONFIG.showCumulativeActiveMi
 // var showLightsAtNight2012 = !!EARTH_TIMELAPSE_CONFIG.showLightsAtNight2012;
 //var showLightsAtNight2016 = !!EARTH_TIMELAPSE_CONFIG.showLightsAtNight2016;
 //var showOmiNo2 = !!EARTH_TIMELAPSE_CONFIG.showOmiNo2;
-var showChinaInfrastructure = !!EARTH_TIMELAPSE_CONFIG.showChinaInfrastructure;
 //var showBePm25 = !!EARTH_TIMELAPSE_CONFIG.showBePm25;
 // var showLightsAtNightAnim = !!EARTH_TIMELAPSE_CONFIG.showLightsAtNightAnim;
 //var showExpandingCities = !!EARTH_TIMELAPSE_CONFIG.showExpandingCities;
@@ -590,11 +589,6 @@ var cumulativeActiveMiningLayer;
 var landBorderLayer;
 //var uppsalaConflictLayer;
 //var omiNo2Layer;
-var chinaAviationLayer;
-var chinaPowerPlantsLayer;
-var chinaReservoirsLayer;
-Timelines.setTimeLine('china-reservoirs-times', '1950', '2012', 1);
-var chinaWasteTreatmentPlantsLayer;
 //var bePm25Layer;
 // var lightsAtNightAnimLayer;
 //var expandingCitiesLayer;
@@ -896,11 +890,6 @@ var landBorderUrl = gEarthTime.rootTilePath + "/land-borders2/{default}/{z}/{x}/
 //var uppsalaConflictUrl = rootTilePath + "/ucdp/uppsala-conflict.bin";
 
 //var omiNo2Url = rootTilePath + "/omi-no2/omi-no2.timemachine/crf24-12fps-1424x800";
-
-var chinaAviationUrl = gEarthTime.rootTilePath + "/china-infrastructure/china-aviation.bin";
-var chinaPowerPlantsUrl = gEarthTime.rootTilePath + "/china-infrastructure/china-power-plants.bin";
-var chinaReservoirsUrl = gEarthTime.rootTilePath + "/china-infrastructure/china-reservoirs.bin";
-var chinaWasteTreatmentPlantsUrl = gEarthTime.rootTilePath + "/china-infrastructure/china-waste-treatment-plants.bin";
 
 //var bePm25Url = rootTilePath + "/be-pm25/be-pm25.timemachine/crf24-22fps-1424x800";
 
@@ -1558,80 +1547,6 @@ function initLayerToggleUI() {
     }
   }).prop('checked', showCumulativeActiveMiningLayer);
 
-  $("#show-china-aviation").on("click", function() {
-    var $this = $(this);
-    if ($this.prop('checked')) {
-      chinaAviationLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      showChinaAviationLayer = true;
-      $("#china-aviation-legend").show();
-      setActiveLayersWithTimeline(1);
-      timelineType = "customUI";
-      requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-    } else {
-      showChinaAviationLayer = false;
-      cacheLastUsedLayer(chinaAviationLayer);
-      $("#china-aviation-legend").hide();
-      setActiveLayersWithTimeline(-1);
-      requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-    }
-  }).prop('checked', showChinaAviationLayer);
-
-  $("#show-china-power-plants").on("click", function() {
-    var $this = $(this);
-    if ($this.prop('checked')) {
-      chinaPowerPlantsLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      showChinaPowerPlantsLayer = true;
-      setActiveLayersWithTimeline(1);
-      timelineType = "customUI";
-      //requestNewTimeline("china-power-plants-times.json", timelineType);
-      requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-      $("#china-power-plants-legend").show();
-    } else {
-      showChinaPowerPlantsLayer = false;
-      cacheLastUsedLayer(chinaPowerPlantsLayer);
-      setActiveLayersWithTimeline(-1);
-      requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-      $("#china-power-plants-legend").hide();
-    }
-  }).prop('checked', showChinaPowerPlantsLayer);
-
-  $("#show-china-reservoirs").on("click", function() {
-    var $this = $(this);
-    if ($this.prop('checked')) {
-      chinaReservoirsLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      showChinaReservoirsLayer = true;
-      setActiveLayersWithTimeline(1);
-      timelineType = "customUI";
-      requestNewTimeline("china-reservoirs-times.json", timelineType);
-      $("#china-reservoirs-legend").show();
-    } else {
-      showChinaReservoirsLayer = false;
-      cacheLastUsedLayer(chinaReservoirsLayer);
-      setActiveLayersWithTimeline(-1);
-      requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-      $("#china-reservoirs-legend").hide();
-    }
-  }).prop('checked', showChinaReservoirsLayer);
-
-  $("#show-china-waste-treatment-plants").on("click", function() {
-    var $this = $(this);
-    if ($this.prop('checked')) {
-      chinaWasteTreatmentPlantsLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      showChinaWasteTreatmentPlantsLayer = true;
-      setActiveLayersWithTimeline(1);
-      timelineType = "customUI";
-      //requestNewTimeline("china-waste-treatment-plants-times.json", timelineType);
-      requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-
-      $("#china-waste-treatment-plants-legend").show();
-    } else {
-      showChinaWasteTreatmentPlantsLayer = false;
-      cacheLastUsedLayer(chinaWasteTreatmentPlantsLayer);
-      setActiveLayersWithTimeline(-1);
-      requestNewTimeline(cachedLandsatTimeJsonPath, timelineType);
-      $("#china-waste-treatment-plants-legend").hide();
-    }
-  }).prop('checked', showChinaWasteTreatmentPlantsLayer);
 
   $("#show-wind-vectors").on("click", function() {
     var $this = $(this);
@@ -2540,10 +2455,6 @@ var showGoes16Nov2018TimeMachineLayer = false;
 var showDscovrTimeMachineLayer = false;
 var showLodesLayer = false;
 var showCumulativeActiveMiningLayer = false;
-var showChinaAviationLayer = false;
-var showChinaPowerPlantsLayer = false;
-var showChinaReservoirsLayer = false;
-var showChinaWasteTreatmentPlantsLayer = false;
 var showCountryLabelMapLayer = false;
 var showWindVectorsLayer = false;
 
@@ -2872,10 +2783,6 @@ async function setupUIAndOldLayers() {
   var show_cumulative_active_mining_layer = '<td class="cumulative-active-mining-select"><label for="show-cumulative-active-mining" name="cumulative-active-mining"><input type="checkbox" id="show-cumulative-active-mining" />Active Mining</label></td>';
   var show_berkeley_earth_temperature_anomaly = '<td class="berkeley-earth-temperature-anomaly-select"><label for="show-berkeley-earth-temperature-anomaly" name="berkeley-earth-temperature-anomaly"><input type="checkbox" id="show-berkeley-earth-temperature-anomaly" />Temperature Anomaly</label></td>';
   var show_berkeley_earth_temperature_anomaly_v2_yearly = '<td class="berkeley-earth-temperature-anomaly-v2-yearly-select"><label for="show-berkeley-earth-temperature-anomaly-v2-yearly" name="berkeley-earth-temperature-anomaly-v2-yearly"><input type="checkbox" id="show-berkeley-earth-temperature-anomaly-v2-yearly" />Temperature Anomaly V2 Yearly</label></td>';
-  var show_china_aviation = '<td class="china-aviation-select"><label for="show-china-aviation" name="china-aviation"><input type="checkbox" id="show-china-aviation" />China Aviation</label></td>';
-  var show_china_power_plants = '<td class="china-power-plants-select"><label for="show-china-power-plants" name="china-power-plants"><input type="checkbox" id="show-china-power-plants" />China Power Plants</label></td>';
-  var show_china_reservoirs = '<td class="china-reservoirs-select"><label for="show-china-reservoirs" name="china-reservoirs"><input type="checkbox" id="show-china-reservoirs" />China Reservoirs</label></td>';
-  var show_china_waste_treatment_plants = '<td class="china-waste-treatment-plants-select"><label for="show-china-waste-treatment-plants" name="china-waste-treatment-plants"><input type="checkbox" id="show-china-waste-treatment-plants" />China Waste Treatment Plants</label></td>';
   var show_goes16 = '<td class="timemachine goes16-select"><label for="show-goes16" name="goes16"><input type="checkbox" id="show-goes16" />GOES16</label></td>';
   var show_goes16_aug2018 = '<td class="timemachine goes16-aug-2018-select"><label for="show-goes16-aug-2018" name="goes16-aug-2018"><input type="checkbox" id="show-goes16-aug-2018" />GOES16 August 2018</label></td>';
   var show_goes16_nov2018 = '<td class="timemachine goes16-nov-2018-select"><label for="show-goes16-nov-2018" name="goes16-nov-2018"><input type="checkbox" id="show-goes16-nov-2018" />GOES16 November 2018</label></td>';
@@ -2942,26 +2849,6 @@ async function setupUIAndOldLayers() {
   layer_html += '  <table id="category-pollution">';
   layer_html += '  </table>';
   /* END POLLUTION CATEGORY */
-
-  /* CHINA INFRASTRUCTURE CATEGORY */
-  if (showChinaInfrastructure) {
-    layer_html += '  <h3 style="display: none">China Infrastructure</h3>';
-    layer_html += '  <table id="category-ci" style="display: none">';
-    layer_html += '    <tr>';
-    layer_html += show_china_aviation;
-    layer_html += '    </tr>';
-    layer_html += '    <tr>';
-    layer_html += show_china_power_plants;
-    layer_html += '    </tr>';
-    layer_html += '    <tr>';
-    layer_html += show_china_reservoirs;
-    layer_html += '    </tr>';
-    layer_html += '    <tr>';
-    layer_html += show_china_waste_treatment_plants;
-    layer_html += '    </tr>';
-    layer_html += '  </table>';
-  }
-  /* END CHINA INFRASTRUCTURE CATEGORY */
 
   /* US DEMOGRAPHICS CATEGORY */
   if (showLodes) {
@@ -3101,10 +2988,6 @@ async function setupUIAndOldLayers() {
   legend_html += '<tr id="cumulative-active-mining-legend" style="display: none"><td><div>Active Mining<span class="credit"> (SkyTruth)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">1984</div><div style="margin-top: 3px; float: left; background-image: -webkit-linear-gradient( to right, rgb(255,255,255),rgb(128,0,0));background-image: linear-gradient(to right, rgb(255,255,255),rgb(128,0,0)); width: 50%; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">2016</div></td></tr>';
   legend_html += '<tr id="berkeley-earth-temperature-anomaly-legend" style="display: none"><td><div style="font-size: 13px">Average Temperature Annual Anomaly 1850-2017<span class="credit"> (Berkeley Earth)</span></div><svg class="svg-legend" width="220" height="40"><text font-size="12px" fill="rgba(255, 255, 255, 1.0)" y="10" x="40">Temperature Anomaly (&#8451)</text><rect fill="#00008b" y="20" x="0" height="10" width="20.0"></rect><rect fill="#3031c9" y="20" x="20" height="10" width="20.0"></rect><rect fill="#5768e6" y="20" x="40" height="10" width="20.0"></rect><rect fill="#799ef6" y="20" x="60" height="10" width="20.0"></rect><rect fill="#a1d4fe" y="20" x="80" height="10" width="20.0"></rect><rect fill="#ffffff" y="20" x="100" height="10" width="20.0"></rect><rect fill="#ffd130" y="20" x="120" height="10" width="20.0"></rect><rect fill="#ff9500" y="20" x="140" height="10" width="20.0"></rect><rect fill="#ed5700" y="20" x="160" height="10" width="20.0"></rect><rect fill="#c42102" y="20" x="180" height="10" width="20.0"></rect><rect fill="#8b0000" y="20" x="200" height="10" width="20.0"></rect><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="0">-10</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="25">-8</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="45">-6</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="65">-4</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="85">-2</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="107">0</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="127">2</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="147">4</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="167">6</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="187">8</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="205">10</text></svg></td></tr>';
   legend_html += '<tr id="berkeley-earth-temperature-anomaly-v2-yearly-legend" style="display: none"><td><div style="font-size: 13px">Average Temperature Annual Anomaly 1850-2018<span class="credit"> (Berkeley Earth)</span></div><svg width="400" height="45"><text font-size="12px" fill="rgba(255, 255, 255, 1.0)" y="10" x="40">Temperature Anomaly Relative to 1951-1980 Average (&#8451)</text><rect y="20"fill="#2a0050ff" x="0" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="5"><=-6</text><rect y="20"fill="#13008cff" x="30" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="40">-5</text><rect y="20"fill="#0319c6ff" x="60" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="70">-4</text><rect y="20"fill="#0455edff" x="90" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="100">-3</text><rect y="20"fill="#04adf9ff" x="120" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="130">-2</text><rect y="20"fill="#5ce6feff" x="150" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="160">-1</text><rect y="20"fill="#fefcf4ff" x="180" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="190">0</text><rect y="20"fill="#fee44fff" x="210" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="220">1</text><rect y="20"fill="#f8a409ff" x="240" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="250">2</text><rect y="20"fill="#e95001ff" x="270" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="280">3</text><rect y="20"fill="#c21200ff" x="300" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="310">4</text><rect y="20"fill="#87010fff" x="330" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="340">5</text><rect y="20"fill="#56001eff" x="360" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="365">>=6</text></svg></td></tr>';
-  legend_html += '<tr id="china-aviation-legend" style="display: none"><td><div style="background-color:red; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">China Aviation <span class="credit"> (Oxford & Harvard)</span></div></td></tr>';
-  legend_html += '<tr id="china-power-plants-legend" style="display: none"><td><div style="background-color:green; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">China Power Plants <span class="credit"> (Oxford & Harvard)</span></div></td></tr>';
-  legend_html += '<tr id="china-reservoirs-legend" style="display: none"><td><div style="background-color:blue; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">China Reservoirs <span class="credit"> (Oxford & Harvard)</span></div></td></tr>';
-  legend_html += '<tr id="china-waste-treatment-plants-legend" style="display: none"><td><div style="background-color:orange; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">China Waste Treatment Plants <span class="credit"> (Oxford & Harvard)</span></div></td></tr>';
 
   // ## 5b ##
   //// Add to layer legend ////
@@ -3393,21 +3276,6 @@ lightBaseMapLayer = new WebGLMapLayer(null, gEarthTime.glb, gEarthTime.canvasLay
 /////////////    drawFunction: WebGLMapTile.prototype._drawAnimatedTexture
 /////////////  };
 /////////////  cumulativeActiveMiningLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, cumulativeActiveMiningUrl, cumulativeActiveMiningLayerOptions);
-/////////////
-/////////////  var chinaLayerOptions = {
-/////////////    tileWidth: 256,
-/////////////    tileHeight: 256,
-/////////////    nLevels: 0,
-/////////////    drawFunction: WebGLVectorTile2.prototype._drawPoints,
-/////////////    fragmentShader: WebGLVectorTile2.vectorPointTileFragmentShader,
-/////////////    vertexShader: WebGLVectorTile2.vectorPointTileVertexShader,
-/////////////    numAttributes: 3
-/////////////  };
-/////////////  chinaAviationLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, chinaAviationUrl, chinaLayerOptions);
-/////////////  chinaPowerPlantsLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, chinaPowerPlantsUrl, chinaLayerOptions);
-/////////////  chinaReservoirsLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, chinaReservoirsUrl, chinaLayerOptions);
-/////////////  chinaWasteTreatmentPlantsLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, chinaWasteTreatmentPlantsUrl, chinaLayerOptions);
-/////////////
 /////////////
 /////////////  var windVectorsLayerOptions = {
 /////////////    tileWidth: 256,
@@ -5911,38 +5779,6 @@ function update() {
       //   var view = getLayerView(lightsAtNightAnimLayer, landsatBaseMapLayer);
       //   lightsAtNightAnimLayer.draw(view, tileViewVisibility);
       // }
-
-      if (showChinaAviationLayer) {
-        var chinaAviationLayerView = getLayerView(chinaAviationLayer, landsatBaseMapLayer);
-        let options: DrawOptions = {};
-        options.pointSize = 5 * window.devicePixelRatio;
-        options.color = [1.0, 0.0, 0.0, 1.0];
-        chinaAviationLayer.draw(chinaAviationLayerView, options);
-      }
-
-      if (showChinaPowerPlantsLayer) {
-        var chinaPowerPlantsLayerView = getLayerView(chinaPowerPlantsLayer, landsatBaseMapLayer);
-        let options: DrawOptions = {};
-        options.pointSize = 5 * window.devicePixelRatio;
-        options.color = [0.0, 1.0, 0.0, 1.0];
-        chinaPowerPlantsLayer.draw(chinaPowerPlantsLayerView, options);
-      }
-
-      if (showChinaReservoirsLayer) {
-        var chinaReservoirsLayerView = getLayerView(chinaReservoirsLayer, landsatBaseMapLayer);
-        let options: DrawOptions = {};
-        options.pointSize = 5 * window.devicePixelRatio;
-        options.color = [0.0, 0.0, 1.0, 1.0];
-        chinaReservoirsLayer.draw(chinaReservoirsLayerView, options);
-      }
-
-      if (showChinaWasteTreatmentPlantsLayer) {
-        var chinaWasteTreatmentPlantsLayerView = getLayerView(chinaWasteTreatmentPlantsLayer, landsatBaseMapLayer);
-        let options: DrawOptions = {};
-        options.pointSize = 5 * window.devicePixelRatio;
-        options.color = [1.0, 0.5, 0.15, 1.0];
-        chinaWasteTreatmentPlantsLayer.draw(chinaWasteTreatmentPlantsLayerView, options);
-      }
 
       if (showCountryLabelMapLayer) {
         var countryLabelMapView = getLayerView(countryLabelMapLayer, landsatBaseMapLayer);
