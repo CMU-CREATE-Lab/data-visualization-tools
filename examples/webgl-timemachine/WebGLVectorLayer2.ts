@@ -4,9 +4,11 @@
 
 // nLevels=0 means levels [0].  nLevels=1 means levels [0, 1]
 
-import { Layer, LayerOptions } from './Layer'
+import { DrawOptions, Layer, LayerOptions } from './Layer'
 import { WebGLVectorTile2, WebGLVectorTile2Shaders } from './WebGLVectorTile2'
 import { LayerProxy } from './LayerProxy';
+import { gEarthTime } from './EarthTime';
+import { Utils } from './Utils';
 
 export class WebGLVectorLayer2 extends Layer {
   _tileUrl: string;
@@ -33,8 +35,21 @@ export class WebGLVectorLayer2 extends Layer {
     }
   }
 
+  logPrefix() {
+    return `${Utils.logPrefix()} WebGLVectorLayer2`
+  }
+
   draw(view, opt_options) {
     this._drawHelper(view, opt_options);
+  }
+
+  _drawLayerColorDotmap(drawOptions: DrawOptions): DrawOptions {
+    // If too many points to draw in proportion to canvas size, auto-throttle to reduce point draw count
+    let nPoints = this.countDrawnPoints();
+    let maxPoints = gEarthTime.canvasLayer.canvas.width * gEarthTime.canvasLayer.canvas.height;
+    let throttle = Math.min(maxPoints/nPoints, 1.0);
+    // Merge with original draw options
+    return Object.assign({throttle: throttle}, drawOptions);
   }
 }
 

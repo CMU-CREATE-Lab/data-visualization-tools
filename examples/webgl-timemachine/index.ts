@@ -4984,18 +4984,6 @@ function update() {
     throw 'do not use getLayerView; instead move layers to database and use LayerProxy.draw'
   };
 
-  function layerCountDrawnPoints(layer) {
-    var keys = Object.keys(layer._tileView._tiles);
-    var pointCount = 0;
-    for (var i = 0; i < keys.length; i++) {
-      var tile = layer._tileView._tiles[keys[i]];
-      if (tile._ready) {
-        pointCount += tile._pointCount;
-      }
-    }
-    return pointCount;
-  }
-
   ////////////////////////////////////////////////////////////////
   // LAYERDB
 
@@ -5932,42 +5920,12 @@ function update() {
         var zoom = gEarthTime.gmapsZoomLevel();
         var throttle = 1.0;
         if (zoom >= 5 && zoom < 11) {
-          throttle = Math.min(1000000/layerCountDrawnPoints(layer), 1.0);
+          throttle = Math.min(1000000/lodesLayer.countDrawnPoints(), 1.0);
         }
 
         options.throttle = throttle;
         lodesLayer.draw(lodesLayerView, options);
       }
-
-      // Show dotmaps loaded from spreadsheet
-      for (var i = 0; i < dotmapLayers.length; i++) {
-        var layer = dotmapLayers[i];
-        if (layer.visible) {
-          var view = getLayerView(layer, landsatBaseMapLayer);
-          let options: DrawOptions = {};
-
-          // Throttle number of pixels if we're drawing "too many"
-          var maxPoints = gEarthTime.canvasLayer.canvas.width * gEarthTime.canvasLayer.canvas.height;
-          var pointCount = layerCountDrawnPoints(layer);
-          var drawFraction = 0.125;
-          drawFraction = Math.min(maxPoints/pointCount, 1.0);
-
-          options.throttle = drawFraction;
-
-          layer.draw(view, options);
-        }
-      }
-
-
-
-      // TODO(LayerDB)
-      // Draw CSV z=400 (most CSV layers, by default)
-      // for (var i = 0; i < csvFileLayers.layers.length; i++) {
-      //   var layer = csvFileLayers.layers[i];
-      //    if (layer.visible && layer.z == 400) {
-      //      drawCsvLayer(layer);
-      //    }
-      // }
     }
     // END LAYER DRAWS
   }

@@ -589,12 +589,13 @@ export class LayerFactory {
     layer.hasLegend = true;
   }
 
-  createStaticDotmapLayer(layerProxy: LayerProxy, layerDef: LayerDef, layerOptions) {
+  createStaticDotmapLayer(layerProxy: LayerProxy, layerDef: LayerDef, layerOptions: LayerOptions) {
     var tileUrl = `${gEarthTime.dotmapsServerHost}/tilesv2/${layerProxy.id}/{z}/{x}/{y}.box`;
     layerOptions.date = layerDef['Date'];
 
     layerOptions.setDataFunction = WebGLVectorTile2.prototype._setColorDotmapDataFromBox;
     layerOptions.drawFunction = WebGLVectorTile2.prototype._drawColorDotmap;
+    layerOptions.drawLayerFunction = WebGLVectorLayer2.prototype._drawLayerColorDotmap;
     layerOptions.fragmentShader = WebGLVectorTile2Shaders.colorDotmapFragmentShader;
     layerOptions.vertexShader = WebGLVectorTile2Shaders.colorDotmapVertexShader;
     layerOptions.dotmapColors = [];

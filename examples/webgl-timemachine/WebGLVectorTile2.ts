@@ -17,6 +17,7 @@ import { Workers } from './Workers';
 import { TileIdx } from './TileIdx';
 import { DrawOptions } from './Layer';
 import { WebGLVectorLayer2 } from './WebGLVectorLayer2';
+import { Utils } from './Utils';
 
 export class WebGLVectorTile2 extends Tile {
   _layer: WebGLVectorLayer2;
@@ -145,6 +146,10 @@ export class WebGLVectorTile2 extends Tile {
       this._layer.layerId = opt_options.layerId;
     }
   }
+  logPrefix() {
+    return `${Utils.logPrefix()} WebGLVectorTile2`;
+  }
+
   _showErrorOnce(msg: string | number) {
     var tileUrl = this._url;
     if (!WebGLVectorTile2.errorsAlreadyShown[msg]) {
@@ -2442,7 +2447,7 @@ export class WebGLVectorTile2 extends Tile {
     }
   }
 
-  _drawColorDotmap(transform: Float32Array) {
+  _drawColorDotmap(transform: Float32Array, {throttle}: {throttle: number}) {
     var gl = this.gl;
     if (this._ready) {
       var drawOptions = this._layer.drawOptions;
@@ -2460,11 +2465,7 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
-      var throttle = 1.0;
-      if (typeof drawOptions.throttle != "undefined") {
-        throttle = drawOptions.throttle;
-      }
-
+      throttle ??= 1.0;
       gl.uniform1f(this.program.uSize, this.computeDotSize(transform));
       gl.uniform1f(this.program.uZoom, gEarthTime.gmapsZoomLevel());
       gl.uniformMatrix4fv(this.program.mapMatrix, false, tileTransform);

@@ -94,6 +94,7 @@ export class LayerOptions {
     masterPlaybackRate: number = 1;
     nLevels?: number = 21;
     imageSrc: any;
+    drawLayerFunction?: (DrawOptions) => DrawOptions;
     drawFunction: (...any: any[]) => any;
     numAttributes: number;
     vertexShader: string;
@@ -268,7 +269,20 @@ export class LayerOptions {
 
       // TODO: Refactor how tile views are initialized and drawn
       this._tileView.setView(view, width, height, this._canvasLayer.resolutionScale_);
+      if (this.drawLayerFunction) options = this.drawLayerFunction(options);
       this._tileView.update(transform, options);
     }
+  }
+
+  countDrawnPoints() {
+    var keys = Object.keys(this._tileView._tiles);
+    var pointCount = 0;
+    for (var i = 0; i < keys.length; i++) {
+      var tile = this._tileView._tiles[keys[i]];
+      if (tile._ready) {
+        pointCount += tile._pointCount;
+      }
+    }
+    return pointCount;
   }
 }

@@ -9,6 +9,6 @@
     },
     "include": [
         "./index.ts",
-        "stories/scrolling-story.ts"
+        "stories/Thumbnailer.ts"
     ]
 }
