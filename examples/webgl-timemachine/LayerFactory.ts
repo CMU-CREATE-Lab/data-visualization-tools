@@ -650,6 +650,7 @@ export class LayerFactory {
 
     layerOptions.setDataFunction = WebGLVectorTile2.prototype._setColorDotmapDataFromTbox;
     layerOptions.drawFunction = WebGLVectorTile2.prototype._drawColorDotmapTbox;
+    layerOptions.drawLayerFunction = WebGLVectorLayer2.prototype._drawLayerColorDotmap;
     layerOptions.fragmentShader = WebGLVectorTile2Shaders.colorDotmapFragmentShader;
     layerOptions.vertexShader = WebGLVectorTile2Shaders.colorDotmapVertexShaderTbox;
 

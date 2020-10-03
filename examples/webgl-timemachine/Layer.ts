@@ -285,4 +285,16 @@ export class LayerOptions {
     }
     return pointCount;
   }
+
+  countPopulation() {
+    var keys = Object.keys(this._tileView._tiles);
+    var population = 0;
+    for (var i = 0; i < keys.length; i++) {
+      var tile = this._tileView._tiles[keys[i]];
+      if (tile._ready) {
+        population += tile._population;
+      }
+    }
+    return population;
+  }
 }

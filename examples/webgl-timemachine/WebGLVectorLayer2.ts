@@ -45,9 +45,9 @@ export class WebGLVectorLayer2 extends Layer {
 
   _drawLayerColorDotmap(drawOptions: DrawOptions): DrawOptions {
     // If too many points to draw in proportion to canvas size, auto-throttle to reduce point draw count
-    let nPoints = this.countDrawnPoints();
-    let maxPoints = gEarthTime.canvasLayer.canvas.width * gEarthTime.canvasLayer.canvas.height;
-    let throttle = Math.min(maxPoints/nPoints, 1.0);
+    let population = this.countPopulation();
+    let maxPopulation= gEarthTime.canvasLayer.canvas.width * gEarthTime.canvasLayer.canvas.height;
+    let throttle = Math.min(maxPopulation/population, 1.0);
     // Merge with original draw options
     return Object.assign({throttle: throttle}, drawOptions);
   }

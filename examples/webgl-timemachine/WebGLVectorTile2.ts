@@ -89,8 +89,7 @@ export class WebGLVectorTile2 extends Tile {
   tl: Float32Array;
   br: Float32Array;
   _spinnerNeeded: boolean;
-
-  foo: any;
+  _population?: number;
 
   constructor(layer: WebGLVectorLayer2, tileidx: TileIdx, bounds: any, opt_options: { drawFunction?: any; externalGeojson?: any; noValue?: any; uncertainValue?: any; scalingFunction?: any; colorScalingFunction?: any; layerId?: any; }) {
     gEarthTime.glb.gl.getExtension("OES_standard_derivatives");
@@ -1661,6 +1660,7 @@ export class WebGLVectorTile2 extends Tile {
       var gl = tile.gl;
 
       tile._pointCount = response.pointCount;
+      tile._population = response.population;
       tile._ready = true;
 
       if (tile._pointCount > 0) {
@@ -2465,7 +2465,6 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
-      throttle ??= 1.0;
       gl.uniform1f(this.program.uSize, this.computeDotSize(transform));
       gl.uniform1f(this.program.uZoom, gEarthTime.gmapsZoomLevel());
       gl.uniformMatrix4fv(this.program.mapMatrix, false, tileTransform);
@@ -2476,13 +2475,13 @@ export class WebGLVectorTile2 extends Tile {
       gl.enableVertexAttribArray(this.program.aColor);
       gl.vertexAttribPointer(this.program.aColor, 1, gl.FLOAT, false, 12, 8);
 
-      var npoints = Math.floor(this._pointCount * throttle);
+      var npoints = Math.floor(this._pointCount * (throttle ?? 1.0));
       gl.drawArrays(gl.POINTS, 0, npoints);
       gl.disable(gl.BLEND);
     }
   }
 
-  _drawColorDotmapTbox(transform: Float32Array) {
+  _drawColorDotmapTbox(transform: Float32Array, {throttle}: {throttle: number}) {
     var gl = this.gl;
     if (this._ready) {
       var drawOptions = this._layer.drawOptions;
@@ -2500,8 +2499,6 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
-      var throttle = drawOptions.throttle ?? 1.0;
-
       gl.uniform1f(this.program.uSize, this.computeDotSize(transform));
 
       gl.uniform1f(this.program.uZoom, gEarthTime.gmapsZoomLevel());
@@ -2516,7 +2513,7 @@ export class WebGLVectorTile2 extends Tile {
       this.program.setVertexAttrib.aStartEpoch(1, gl.FLOAT, false, stride, 12);
       this.program.setVertexAttrib.aEndEpoch(1, gl.FLOAT, false, stride, 16);
 
-      var npoints = Math.floor(this._pointCount * throttle);
+      var npoints = Math.floor(this._pointCount * (throttle ?? 1.0));
       gl.drawArrays(gl.POINTS, 0, npoints);
       gl.disable(gl.BLEND);
     }

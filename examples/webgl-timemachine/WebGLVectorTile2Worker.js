@@ -10,7 +10,7 @@ operations['computeColorDotmapFromBox'] = function(request) {
   // Iterate through the raster, creating dots on the fly
 
   var ret = {};
-  ret.pointCount = tileData.reduce(function(a,b) { return a+b;});
+  ret.population = ret.pointCount = tileData.reduce(function(a,b) { return a+b;});
 
   if (ret.pointCount > 0) {
     ret.data = new Float32Array(ret.pointCount * 3);
@@ -105,12 +105,14 @@ operations['computeColorDotmapFromTbox'] = function(request) {
     ret.data[liveDotStack.pop()] = endEpoch;
   }
 
+  var totalPop = 0;
   for (var c = 0; c < numColors; c++) {
     for (var y = 0; y < tileDim; y++) {
       for (var x = 0; x < tileDim; x++) {
         // Create initial population
         liveDotStack = [];
-        var pop = getPopulation(0, c, x, y)
+        var pop = getPopulation(0, c, x, y);
+        totalPop += pop;
         var epoch = epochs[0];
         for (var p = 0; p < pop; p++) {
           startDot(-1e30, c, x, y);
@@ -122,6 +124,7 @@ operations['computeColorDotmapFromTbox'] = function(request) {
 
           var oPop = pop;
           pop = getPopulation(t, c, x, y);
+          totalPop += pop;
 
           var dt = (epoch - oEpoch);
           if (pop > oPop) {
@@ -143,6 +146,7 @@ operations['computeColorDotmapFromTbox'] = function(request) {
 
   ret.data = ret.data.slice(0, output_idx); // trim to the actual number of point records
   ret.pointCount = output_idx / nAttribs;
+  ret.population = totalPop / epochs.length; // average population
 
   // Randomly permute the order of points
   for (var i = ret.pointCount - 1; i >= 1; i--) {
