@@ -87,7 +87,6 @@ export class TileView {
     //  0.0: select a tile that's shown between 100% and 200% size (never subsample)
     // -0.5: select a tile that's shown between 141% and 242% size (always supersample)
     // -1.0: select a tile that's shown between 200% and 400% size (always supersample)
-    this.levelThreshold = -0.5;
 
     this._computeMaxLevel();
     this._readyList = [];
