@@ -34,7 +34,7 @@ dbg.LayerProxy = LayerProxy;
 import { LayerDB } from './LayerDB';
 dbg.LayerDB = LayerDB;
 
-import { EarthTime, gEarthTime, setGEarthTime, stdWebMercatorNorth } from './EarthTime';
+import { EarthTime, gEarthTime, setGEarthTime, stdWebMercatorNorth, stdWebMercatorSouth } from './EarthTime';
 
 import { AltitudeSlider } from './altitudeSlider';
 dbg.AltitudeSlider = AltitudeSlider;
@@ -6039,6 +6039,14 @@ async function init() {
   //console.log(`${Utils.logPrefix()} awaiting timelapseReadyPromise`);
   await timelapseReadyPromise;
   //console.log(`${Utils.logPrefix()} awaiting setupUIAndOldLayers`);
+  {
+    // Constrain viewing bounds to full mercator
+    let proj = gEarthTime.timelapse.getProjection();
+    let ymin = proj.latlngToPoint({lat: stdWebMercatorNorth, lng: 0}).y;
+    let ymax = proj.latlngToPoint({lat: stdWebMercatorSouth, lng: 0}).y;
+    gEarthTime.timelapse.setVerticalCoverConstraint(ymin, ymax);
+  }
+
   await setupUIAndOldLayers();
   //console.log(`${Utils.logPrefix()} setting readyToDraw true`);
   gEarthTime.readyToDraw = true;

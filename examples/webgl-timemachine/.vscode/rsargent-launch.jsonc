@@ -4,7 +4,6 @@
     // // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     // "version": "0.2.0",
     "configurations": [
-
         {
             "name": "FireFox scrolling",
             "type": "firefox",
@@ -23,7 +22,7 @@
                 },
                 {
                     "url": "https://rsargent.earthtime.org/stories",
-                    "path": "${workspaceFolder}/stories"
+                    "path": "${workspaceFolder}"
                 },
                 {
                     "url": "https://rsargent.earthtime.org/src",
@@ -36,15 +35,23 @@
             "type": "firefox",
             "request": "launch",
             "reAttach": true,
-            "url": "https://rsargent.earthtime.org/stories/top_50#waypointIdx=4",
+            "url": "https://rsargent.earthtime.org/explore#v=40.44845,-79.95432,10.254,latLng&t=1.31&ps=50&l=bdrk_detailed,acs2016_all_income&bt=19840101&et=20191231&startDwell=0&endDwell=0",
             "clearConsoleOnReload": true,
             "pathMappings": [
+                {
+                    "url": "https://rsargent.earthtime.org/timemachine",
+                    "path": "vscode-remote://ssh-remote%2Btm2/t/rsargent.earthtime.org/app/data-visualization-tools/timemachine"
+                },
                 {
                     "url": "https://rsargent.earthtime.org/stories",
                     "path": "${workspaceFolder}"
                 },
                 {
                     "url": "https://rsargent.earthtime.org/src",
+                    "path": "${workspaceFolder}"
+                },
+                {
+                    "url": "https://rsargent.earthtime.org",
                     "path": "${workspaceFolder}"
                 }
             ]

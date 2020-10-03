@@ -267,7 +267,7 @@ export class ETMBLayer extends LayerOptions {
   static copyEarthtimeViewToMapbox() {
     if (this.map) {
       var llView = gEarthTime.timelapse.pixelCenterToLatLngCenterView(gEarthTime.timelapse.getView());
-      var camera = { center: { lat: llView.center.lat, lon: llView.center.lng }, zoom: 12 + Math.log2(gEarthTime.timelapse.getView().scale) };
+      var camera = { center: { lat: llView.center.lat, lon: llView.center.lng }, zoom: gEarthTime.gmapsZoomLevel() - 1 };
       this.map.jumpTo(camera);
     }
   }

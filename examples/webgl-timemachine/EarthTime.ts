@@ -30,7 +30,8 @@ export interface EarthTime {
   showVisibleLayersLegends(): void;
 };
 
-export const stdWebMercatorNorth = 85.05113006405742; // Northern most latitude for standard Web Mercator
+export const stdWebMercatorNorth = 85.05113006405742; // Northernmost latitude for standard Web Mercator
+export const stdWebMercatorSouth = -85.05113006405742; // Southernmost latitude for standard Web Mercator
 
 export var gEarthTime: EarthTime;
 
