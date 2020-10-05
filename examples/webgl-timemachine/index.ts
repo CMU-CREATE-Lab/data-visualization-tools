@@ -326,7 +326,6 @@ if (typeof(Storage) !== "undefined") {
 
 ////var showEVA = !!EARTH_TIMELAPSE_CONFIG.showEVA;
 var showGFW = !!EARTH_TIMELAPSE_CONFIG.showGFW;
-var showLodes = !!EARTH_TIMELAPSE_CONFIG.showLodes;
 var showStories = typeof(EARTH_TIMELAPSE_CONFIG.showStories) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showStories;
 var showCustomDotmaps = typeof(EARTH_TIMELAPSE_CONFIG.showCustomDotmaps) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showCustomDotmaps;
 var showCsvLayers = !!EARTH_TIMELAPSE_CONFIG.showCsvLayers;
@@ -582,7 +581,6 @@ var goes16TimeMachineLayer, goes16Aug2018TimeMachineLayer, goes16Nov2018TimeMach
 //var ebolaDeathsLayer;
 //var ebolaCasesLayer;
 //var ebolaNewCasesLayer;
-var lodesLayer;
 var cumulativeActiveMiningLayer;
 //var berkeleyEarthTemperatureAnomalyTimeMachineLayer;
 //var berkeleyEarthTemperatureAnomalyV2YearlyTimeMachineLayer;
@@ -609,31 +607,6 @@ var landBorderLayer;
 //var fishingPprTimeMachineLayer;
 
 var windVectorsLayer;
-
-// LODES interface
-var lodesGui;
-var lodesOptions;
-
-var LodesOptions = function() {
-  this.doPulse = true;
-  this.totalTime = 1000;
-  this.dwellTime = 1000;
-  this.filter = true;
-  this.distance = 50.0;
-  this.animate = 'animate';
-  this.speed = 1;
-  this.se01 = true;
-  this.se02 = true;
-  this.se03 = true;
-};
-
-var lodesAnimationState = {
-  then: new Date(),
-  inMainLoop: false,
-  inStartDwell: true,
-  inEndDwell: false,
-  pulse: false
-};
 
 function parseConfigOption(settings) {
   var returnVal = (typeof(EARTH_TIMELAPSE_CONFIG[settings.optionName]) === "undefined" && typeof(settings.optionDefaultValue) !== "undefined") ? settings.optionDefaultValue : EARTH_TIMELAPSE_CONFIG[settings.optionName];
@@ -695,93 +668,6 @@ var autoModeExtrasViewChangeHandler = function() {
     }
   }
 };
-
-
-function initLodesGui() {
-  if (lodesOptions) return;
-  lodesOptions = new LodesOptions();
-  // @ts-ignore
-  var gui = new dat.GUI();
-  // @ts-ignore
-  var f1 = gui.addFolder('Animation');
-  f1.add(lodesOptions, 'animate', { animate: 'animate', home: 'home', work: 'work' } );
-  f1.add(lodesOptions, 'speed', { fast: 1, medium: 3, slow: 5});
-  f1.open();
-  // @ts-ignore
-  var f2 = gui.addFolder('Distance in KM');
-  f2.add(lodesOptions, 'filter');
-  f2.add(lodesOptions, 'distance',10,100);
-  f2.open();
-  // @ts-ignore
-  var f3 = gui.addFolder('Earnings per Month');
-  f3.add(lodesOptions, 'se01').name('< $1251');
-  f3.add(lodesOptions, 'se02').name('$1251 - $3333');
-  f3.add(lodesOptions, 'se03').name('> $3333');
-  f3.open();
-  f3.onResize = function() {
-      var el1 = document.getElementById("se01-color");
-      var el2 = document.getElementById("se02-color");
-      var el3 = document.getElementById("se03-color");
-
-      if (f3.closed) {
-          el1.style['display'] = 'none';
-          el2.style['display'] = 'none';
-          el3.style['display'] = 'none';
-      } else {
-          el1.style['display'] = 'block';
-          el2.style['display'] = 'block';
-          el3.style['display'] = 'block';
-      }
-  };
-  // @ts-ignore
-  gui.onResize = function() {
-      if (gui.closed) {
-          var el1 = document.getElementById("se01-color");
-          var el2 = document.getElementById("se02-color");
-          var el3 = document.getElementById("se03-color");
-
-          el1.style['display'] = 'none';
-          el2.style['display'] = 'none';
-          el3.style['display'] = 'none';
-
-      }
-  };
-  var dg = document.getElementsByClassName("dg ac")[0];
-  var el = document.createElement("div");
-  el["id"] = "se01-color";
-  el["style"]["position"] = "absolute";
-  el["style"]["width"] = "24px";
-  el["style"]["height"] = "12px";
-  el["style"]["top"] = "205px";
-  el["style"]["right"] = "112px";
-  el["style"]["backgroundColor"] = "#194BFF";
-  el["style"]["zIndex"] = "100";
-  dg.appendChild(el);
-
-  var el = document.createElement("div");
-  el["id"] = "se02-color";
-  el["style"]["position"] = "absolute";
-  el["style"]["width"] = "24px";
-  el["style"]["height"] = "12px";
-  el["style"]["top"] = "233px";
-  el["style"]["right"] = "112px";
-  el["style"]["backgroundColor"] = "#148A09";
-  el["style"]["zIndex"] = "100";
-  dg.appendChild(el);
-
-  var el = document.createElement("div");
-  el["id"] = "se03-color";
-  el["style"]["position"] = "absolute";
-  el["style"]["width"] = "24px";
-  el["style"]["height"] = "12px";
-  el["style"]["top"] = "261px";
-  el["style"]["right"] = "112px";
-  el["style"]["backgroundColor"] = "#E31E1E";
-  el["style"]["zIndex"] = "100";
-  dg.appendChild(el);
-  dg["style"]["display"] = "none";
-
-}
 
 // ## 2 ##
 //// Layer tile paths
@@ -880,8 +766,6 @@ var healthImpactUrl = gEarthTime.rootTilePath + "/health-impact/{z}/{x}/{y}.bin"
 //var ebolaDeathsUrl = rootTilePath + "/ebola/deaths/{z}/{x}/{y}.bin";
 //var ebolaCasesUrl = rootTilePath + "/ebola/cases/{z}/{x}/{y}.bin";
 //var ebolaNewCasesUrl = rootTilePath + "/ebola/new-cases/{z}/{x}/{y}.bin";
-
-var lodesUrl = gEarthTime.rootTilePath + "/lodes/lodes-10/{z}/{x}/{y}.bin";
 
 var cumulativeActiveMiningUrl = "https://storage.googleapis.com/skytruth-data/color_test_cumulativeActiveMining-FOOTPRINT/{z}/{x}/{y}.png";
 
@@ -1508,28 +1392,6 @@ function initLayerToggleUI() {
     }
     gEarthTime.timelapse.warpTo(gEarthTime.timelapse.getHomeView());
   }).prop('checked', showDscovrTimeMachineLayer);
-
-  $("#show-lodes").on("click", function() {
-    initLodesGui();
-    var dg = document.getElementsByClassName("dg ac")[0];
-    var $this = $(this);
-    if ($this.prop('checked')) {
-      lodesLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      if (visibleBaseMapLayer != "blte") {
-        $("#blte-base").click();
-      }
-      dg["style"]["display"] = "block";
-      showLodesLayer = true;
-      timelineType = "none";
-      $("#lodes-legend").show();
-    } else {
-      showLodesLayer = false;
-      cacheLastUsedLayer(lodesLayer);
-      dg["style"]["display"] = "none";
-      doSwitchToLandsat();
-      $("#lodes-legend").hide();
-    }
-  }).prop('checked', showLodesLayer);
 
   $("#show-cumulative-active-mining").on("click", function() {
     var $this = $(this);
@@ -2453,7 +2315,6 @@ var showGoes16TimeMachineLayer = false;
 var showGoes16Aug2018TimeMachineLayer = false;
 var showGoes16Nov2018TimeMachineLayer = false;
 var showDscovrTimeMachineLayer = false;
-var showLodesLayer = false;
 var showCumulativeActiveMiningLayer = false;
 var showCountryLabelMapLayer = false;
 var showWindVectorsLayer = false;
@@ -2779,7 +2640,6 @@ async function setupUIAndOldLayers() {
   var show_sea_level_rise_1p5 = '<td class="sea-level-rise-1p5-select"><label for="show-sea-level-rise-1p5" name="slr15"><input type="checkbox" id="show-sea-level-rise-1p5" />Sea Level Rise Due to 1.5&deg;C Increase</label></td>';
   var show_sea_level_rise_2p0 = '<td class="sea-level-rise-2p0-select"><label for="show-sea-level-rise-2p0" name="slr2"><input type="checkbox" id="show-sea-level-rise-2p0" />Sea Level Rise Due to 2.0&deg;C Increase</label></td>';
   var show_sea_level_rise_4p0 = '<td class="sea-level-rise-4p0-select"><label for="show-sea-level-rise-4p0" name="slr4"><input type="checkbox" id="show-sea-level-rise-4p0" />Sea Level Rise Due to 4.0&deg;C Increase</label></td>';
-  var show_lodes = '<td class="lodes-select"><label for="show-lodes" name="lodes"><input type="checkbox" id="show-lodes" />LODES</label></td>';
   var show_cumulative_active_mining_layer = '<td class="cumulative-active-mining-select"><label for="show-cumulative-active-mining" name="cumulative-active-mining"><input type="checkbox" id="show-cumulative-active-mining" />Active Mining</label></td>';
   var show_berkeley_earth_temperature_anomaly = '<td class="berkeley-earth-temperature-anomaly-select"><label for="show-berkeley-earth-temperature-anomaly" name="berkeley-earth-temperature-anomaly"><input type="checkbox" id="show-berkeley-earth-temperature-anomaly" />Temperature Anomaly</label></td>';
   var show_berkeley_earth_temperature_anomaly_v2_yearly = '<td class="berkeley-earth-temperature-anomaly-v2-yearly-select"><label for="show-berkeley-earth-temperature-anomaly-v2-yearly" name="berkeley-earth-temperature-anomaly-v2-yearly"><input type="checkbox" id="show-berkeley-earth-temperature-anomaly-v2-yearly" />Temperature Anomaly V2 Yearly</label></td>';
@@ -2849,17 +2709,6 @@ async function setupUIAndOldLayers() {
   layer_html += '  <table id="category-pollution">';
   layer_html += '  </table>';
   /* END POLLUTION CATEGORY */
-
-  /* US DEMOGRAPHICS CATEGORY */
-  if (showLodes) {
-    layer_html += '  <h3>US Demographics</h3>';
-    layer_html += '  <table id="category-us-demographics">';
-    layer_html += '    <tr>';
-    layer_html += show_lodes;
-    layer_html += '    </tr>';
-    layer_html += '  </table>';
-  }
-  /* END US DEMOGRAPHICS CATEGORY */
 
   /* MISC CATEGORY */
   layer_html += '  <h3>Other</h3>';
@@ -2984,7 +2833,6 @@ async function setupUIAndOldLayers() {
   legend_html += '<tr id="fires-at-night-legend" style="display: none"><td><div style="background-color:#eda46a; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Fires At Night <span class="credit"> (NOAA)</span></div></td></tr>';
   legend_html += '<tr id="sea-level-rise-legend" style="display: none"><td><div style="font-size: 17px">Global Temperature Rise <span id="slr-degree"></span> &#x2103;<span class="credit"> (Climate Central)</span></div><div style="font-size: 15px">Multi-century Sea Level Increase:<span id="slr-feet" style="width:25px;"></span>&nbsp;<span id="slr-meters" style="width:25px; color: red;"></span></div></td></tr>';
   legend_html += '<tr id="tibnted-sea-level-rise-legend" style="display: none"><td><div style="font-size: 17px">Global Temperature Rise <span id="slr-degree"></span> &#x2103;<span class="credit"> (Climate Central)</span></div><div style="font-size: 15px">Multi-century Sea Level Increase:<span id="slr-feet" style="width:25px;"></span>&nbsp;<span id="slr-meters" style="width:25px; color: red;"></span></div></td></tr>';
-  legend_html += '<tr id="lodes-legend" style="display: none"><td><div>LODES<span class="credit"> (US Census)</span></div></td></tr>';
   legend_html += '<tr id="cumulative-active-mining-legend" style="display: none"><td><div>Active Mining<span class="credit"> (SkyTruth)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">1984</div><div style="margin-top: 3px; float: left; background-image: -webkit-linear-gradient( to right, rgb(255,255,255),rgb(128,0,0));background-image: linear-gradient(to right, rgb(255,255,255),rgb(128,0,0)); width: 50%; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">2016</div></td></tr>';
   legend_html += '<tr id="berkeley-earth-temperature-anomaly-legend" style="display: none"><td><div style="font-size: 13px">Average Temperature Annual Anomaly 1850-2017<span class="credit"> (Berkeley Earth)</span></div><svg class="svg-legend" width="220" height="40"><text font-size="12px" fill="rgba(255, 255, 255, 1.0)" y="10" x="40">Temperature Anomaly (&#8451)</text><rect fill="#00008b" y="20" x="0" height="10" width="20.0"></rect><rect fill="#3031c9" y="20" x="20" height="10" width="20.0"></rect><rect fill="#5768e6" y="20" x="40" height="10" width="20.0"></rect><rect fill="#799ef6" y="20" x="60" height="10" width="20.0"></rect><rect fill="#a1d4fe" y="20" x="80" height="10" width="20.0"></rect><rect fill="#ffffff" y="20" x="100" height="10" width="20.0"></rect><rect fill="#ffd130" y="20" x="120" height="10" width="20.0"></rect><rect fill="#ff9500" y="20" x="140" height="10" width="20.0"></rect><rect fill="#ed5700" y="20" x="160" height="10" width="20.0"></rect><rect fill="#c42102" y="20" x="180" height="10" width="20.0"></rect><rect fill="#8b0000" y="20" x="200" height="10" width="20.0"></rect><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="0">-10</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="25">-8</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="45">-6</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="65">-4</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="85">-2</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="107">0</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="127">2</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="147">4</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="167">6</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="187">8</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="205">10</text></svg></td></tr>';
   legend_html += '<tr id="berkeley-earth-temperature-anomaly-v2-yearly-legend" style="display: none"><td><div style="font-size: 13px">Average Temperature Annual Anomaly 1850-2018<span class="credit"> (Berkeley Earth)</span></div><svg width="400" height="45"><text font-size="12px" fill="rgba(255, 255, 255, 1.0)" y="10" x="40">Temperature Anomaly Relative to 1951-1980 Average (&#8451)</text><rect y="20"fill="#2a0050ff" x="0" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="5"><=-6</text><rect y="20"fill="#13008cff" x="30" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="40">-5</text><rect y="20"fill="#0319c6ff" x="60" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="70">-4</text><rect y="20"fill="#0455edff" x="90" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="100">-3</text><rect y="20"fill="#04adf9ff" x="120" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="130">-2</text><rect y="20"fill="#5ce6feff" x="150" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="160">-1</text><rect y="20"fill="#fefcf4ff" x="180" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="190">0</text><rect y="20"fill="#fee44fff" x="210" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="220">1</text><rect y="20"fill="#f8a409ff" x="240" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="250">2</text><rect y="20"fill="#e95001ff" x="270" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="280">3</text><rect y="20"fill="#c21200ff" x="300" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="310">4</text><rect y="20"fill="#87010fff" x="330" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="340">5</text><rect y="20"fill="#56001eff" x="360" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="365">>=6</text></svg></td></tr>';
@@ -3256,17 +3104,6 @@ lightBaseMapLayer = new WebGLMapLayer(null, gEarthTime.glb, gEarthTime.canvasLay
 /////////////    tileHeight: 256
 /////////////  };
 /////////////  animatedHansenLayer = new WebGLMapLayer2(gEarthTime.glb, gEarthTime.canvasLayer, animatedHansenUrls, animatedHansenLayerOptions);
-/////////////
-/////////////  var lodesLayerOptions = {
-/////////////    tileWidth: 256,
-/////////////    tileHeight: 256,
-/////////////    nLevels: 10,
-/////////////    drawFunction: WebGLVectorTile2.prototype._drawLodes,
-/////////////    fragmentShader: WebGLVectorTile2.lodesFragmentShader,
-/////////////    vertexShader: WebGLVectorTile2.lodesVertexShader,
-/////////////    numAttributes: 6
-/////////////  };
-/////////////  lodesLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, lodesUrl, lodesLayerOptions);
 /////////////
 /////////////  var cumulativeActiveMiningLayerOptions = {
 /////////////    nLevels: 12,
@@ -5841,91 +5678,6 @@ function update() {
         layer.draw(view, options);
       }
       */
-
-      if (showLodesLayer) {
-        var lodesLayerView = getLayerView(lodesLayer, landsatBaseMapLayer);
-        interface LodesDrawOptions extends DrawOptions {
-          se01?: boolean,
-          se02?: boolean,
-          se03?: boolean,
-          filter?: boolean,
-          distance?: number,
-          step?: number
-        }
-        let options: LodesDrawOptions = {};
-        options.se01 = lodesOptions.se01;
-        options.se02 = lodesOptions.se02;
-        options.se03 = lodesOptions.se03;
-
-        options.filter = lodesOptions.filter;
-        options.distance = lodesOptions.distance;
-
-        if (lodesOptions.animate == 'animate') {
-          var now = new Date();
-          var deltaTime = now.getTime() - lodesAnimationState.then.getTime();
-          var step = deltaTime/(lodesOptions.totalTime*lodesOptions.speed);
-          if (lodesAnimationState.inMainLoop) {
-            if (lodesOptions.doPulse) {
-              if (lodesAnimationState.pulse) {
-                step = 1. - step;
-              }
-            } else if (lodesAnimationState.pulse) {
-              lodesAnimationState.pulse = false;
-            }
-
-            if (deltaTime >= lodesOptions.totalTime*lodesOptions.speed) {
-              lodesAnimationState.then = new Date();
-              lodesAnimationState.inMainLoop = false;
-              if (lodesOptions.doPulse && lodesAnimationState.pulse) {
-                lodesAnimationState.inStartDwell = true;
-              } else {
-                lodesAnimationState.inEndDwell = true;
-              }
-            }
-          }
-          else if (lodesAnimationState.inStartDwell) {
-            step = 0.;
-            if (deltaTime >= lodesOptions.dwellTime) {
-              lodesAnimationState.inStartDwell = false;
-              lodesAnimationState.inMainLoop = true;
-              lodesAnimationState.then = new Date();
-              if (lodesOptions.doPulse) {
-                lodesAnimationState.pulse = false;
-              }
-            }
-          }
-          else {
-            step = 1.;
-            if (deltaTime >= lodesOptions.dwellTime) {
-              lodesAnimationState.inEndDwell = false;
-              lodesAnimationState.then = new Date();
-              if (lodesOptions.doPulse) {
-                lodesAnimationState.inMainLoop = true;
-                lodesAnimationState.pulse = true;
-              } else {
-                lodesAnimationState.inStartDwell = true;
-              }
-            }
-          }
-          step = Math.min(Math.max(step, 0.),1.);
-
-        } else if (lodesOptions.animate == 'home'){
-            step = 0.;
-        } else {
-          step = 1.;
-        }
-
-        options.step = step;
-
-        var zoom = gEarthTime.gmapsZoomLevel();
-        var throttle = 1.0;
-        if (zoom >= 5 && zoom < 11) {
-          throttle = Math.min(1000000/lodesLayer.countDrawnPoints(), 1.0);
-        }
-
-        options.throttle = throttle;
-        lodesLayer.draw(lodesLayerView, options);
-      }
     }
     // END LAYER DRAWS
   }
