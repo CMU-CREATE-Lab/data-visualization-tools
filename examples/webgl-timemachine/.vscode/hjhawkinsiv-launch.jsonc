@@ -5,38 +5,42 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch Edge",
-            "request": "launch",
-            "type": "pwa-msedge",
-            "url": "https://hjhawkinsiv.earthtime.org/stories/covid19_the_pandemic_and_the_city",
-            "webRoot": "${workspaceFolder}"
-        },
-        {
+            "name": "Launch FireFox",
             "type": "firefox",
             "request": "launch",
             "reAttach": true,
-            "name": "Launch FireFox",
             "url": "https://hjhawkinsiv.earthtime.org/stories/testrs",
-            "webRoot": "${workspaceFolder}",
             "clearConsoleOnReload": true,
-            "suggestPathMappingWizard": true,
             "pathMappings": [
                 {
-                    "url": "https://hjhawkinsiv.earthtime.org/stories/index.ts",
-                    "path": "${workspaceFolder}/index.ts"
+                    "url": "https://hjhawkinsiv.earthtime.org/stories",
+                    "path": "${workspaceFolder}"
                 },
                 {
-                    "url": "https://hjhawkinsiv.earthtime.org/stories/index.ts",
-                    "path": "${workspaceFolder}/index.ts"
+                    "url": "https://hjhawkinsiv.earthtime.org/src",
+                    "path": "${workspaceFolder}"
                 }
             ]
         },
         {
+            "name": "Launch Edge",
+            "request": "launch",
+            "type": "pwa-msedge",
+            "url": "https://hjhawkinsiv.earthtime.org/stories/testrs",
+            "pathMapping": {
+                "/stories": "${workspaceFolder}",
+                "/": "${workspaceFolder}"
+            }
+        },
+        {
+            "name": "Launch Chrome",
             "type": "chrome",
             "request": "launch",
-            "name": "Launch Chrome",
-            "url": "https://hjhawkinsiv.earthtime.org/explore",
-            "webRoot": "${workspaceFolder}"
+            "url": "https://hjhawkinsiv.earthtime.org/stories/testrs",
+            "pathMapping": {
+                "/stories": "${workspaceFolder}",
+                "/": "${workspaceFolder}"
+            }
         }
     ]
 }

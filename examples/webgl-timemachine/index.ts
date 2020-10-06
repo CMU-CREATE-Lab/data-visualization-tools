@@ -53,7 +53,7 @@ dbg.MapboxLayer = ETMBLayer;
 
 import { Glb } from './Glb';
 import { Timeline } from './Timeline';
-//import { LayerEditor } from './LayerEditor';
+import { LayerEditor } from './LayerEditor';
 dbg.Glb = Glb;
 
 
@@ -1763,7 +1763,7 @@ function initLayerToggleUI() {
         maxWidth: 960,
         width: 720
       });
-      //var layerEditor = new LayerEditor('layer-editor');
+      var layerEditor = new LayerEditor('layer-editor');
     }
 
     // up arrow
