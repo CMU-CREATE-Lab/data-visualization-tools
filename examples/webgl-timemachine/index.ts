@@ -352,7 +352,6 @@ var showHimawari8 = typeof(EARTH_TIMELAPSE_CONFIG.showHimawari8) === "undefined"
 //var showEbola = !!EARTH_TIMELAPSE_CONFIG.showEbola;
 // var showWaterOccurrence = !!EARTH_TIMELAPSE_CONFIG.showWaterOccurrence;
 // var showWaterChange = !!EARTH_TIMELAPSE_CONFIG.showWaterChange;
-var showCumulativeActiveMining = !!EARTH_TIMELAPSE_CONFIG.showCumulativeActiveMining;
 //var showBerkeleyEarthTemperatureAnomaly = !!EARTH_TIMELAPSE_CONFIG.showBerkeleyEarthTemperatureAnomaly;
 //var showUppsalaConflict = !!EARTH_TIMELAPSE_CONFIG.showUppsalaConflict;
 // var showLightsAtNight = typeof(EARTH_TIMELAPSE_CONFIG.showLightsAtNight) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showLightsAtNight;
@@ -581,7 +580,6 @@ var goes16TimeMachineLayer, goes16Aug2018TimeMachineLayer, goes16Nov2018TimeMach
 //var ebolaDeathsLayer;
 //var ebolaCasesLayer;
 //var ebolaNewCasesLayer;
-var cumulativeActiveMiningLayer;
 //var berkeleyEarthTemperatureAnomalyTimeMachineLayer;
 //var berkeleyEarthTemperatureAnomalyV2YearlyTimeMachineLayer;
 var landBorderLayer;
@@ -766,8 +764,6 @@ var healthImpactUrl = gEarthTime.rootTilePath + "/health-impact/{z}/{x}/{y}.bin"
 //var ebolaDeathsUrl = rootTilePath + "/ebola/deaths/{z}/{x}/{y}.bin";
 //var ebolaCasesUrl = rootTilePath + "/ebola/cases/{z}/{x}/{y}.bin";
 //var ebolaNewCasesUrl = rootTilePath + "/ebola/new-cases/{z}/{x}/{y}.bin";
-
-var cumulativeActiveMiningUrl = "https://storage.googleapis.com/skytruth-data/color_test_cumulativeActiveMining-FOOTPRINT/{z}/{x}/{y}.png";
 
 var landBorderUrl = gEarthTime.rootTilePath + "/land-borders2/{default}/{z}/{x}/{y}.png";
 
@@ -1392,23 +1388,6 @@ function initLayerToggleUI() {
     }
     gEarthTime.timelapse.warpTo(gEarthTime.timelapse.getHomeView());
   }).prop('checked', showDscovrTimeMachineLayer);
-
-  $("#show-cumulative-active-mining").on("click", function() {
-    var $this = $(this);
-    if ($this.prop('checked')) {
-      cumulativeActiveMiningLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      showCumulativeActiveMiningLayer = true;
-      setActiveLayersWithTimeline(1);
-      timelineType = "customUI";
-      $("#cumulative-active-mining-legend").show();
-    } else {
-      showCumulativeActiveMiningLayer = false;
-      cacheLastUsedLayer(cumulativeActiveMiningLayer);
-      setActiveLayersWithTimeline(-1);
-      $("#cumulative-active-mining-legend").hide();
-    }
-  }).prop('checked', showCumulativeActiveMiningLayer);
-
 
   $("#show-wind-vectors").on("click", function() {
     var $this = $(this);
@@ -2315,7 +2294,6 @@ var showGoes16TimeMachineLayer = false;
 var showGoes16Aug2018TimeMachineLayer = false;
 var showGoes16Nov2018TimeMachineLayer = false;
 var showDscovrTimeMachineLayer = false;
-var showCumulativeActiveMiningLayer = false;
 var showCountryLabelMapLayer = false;
 var showWindVectorsLayer = false;
 
@@ -2640,7 +2618,6 @@ async function setupUIAndOldLayers() {
   var show_sea_level_rise_1p5 = '<td class="sea-level-rise-1p5-select"><label for="show-sea-level-rise-1p5" name="slr15"><input type="checkbox" id="show-sea-level-rise-1p5" />Sea Level Rise Due to 1.5&deg;C Increase</label></td>';
   var show_sea_level_rise_2p0 = '<td class="sea-level-rise-2p0-select"><label for="show-sea-level-rise-2p0" name="slr2"><input type="checkbox" id="show-sea-level-rise-2p0" />Sea Level Rise Due to 2.0&deg;C Increase</label></td>';
   var show_sea_level_rise_4p0 = '<td class="sea-level-rise-4p0-select"><label for="show-sea-level-rise-4p0" name="slr4"><input type="checkbox" id="show-sea-level-rise-4p0" />Sea Level Rise Due to 4.0&deg;C Increase</label></td>';
-  var show_cumulative_active_mining_layer = '<td class="cumulative-active-mining-select"><label for="show-cumulative-active-mining" name="cumulative-active-mining"><input type="checkbox" id="show-cumulative-active-mining" />Active Mining</label></td>';
   var show_berkeley_earth_temperature_anomaly = '<td class="berkeley-earth-temperature-anomaly-select"><label for="show-berkeley-earth-temperature-anomaly" name="berkeley-earth-temperature-anomaly"><input type="checkbox" id="show-berkeley-earth-temperature-anomaly" />Temperature Anomaly</label></td>';
   var show_berkeley_earth_temperature_anomaly_v2_yearly = '<td class="berkeley-earth-temperature-anomaly-v2-yearly-select"><label for="show-berkeley-earth-temperature-anomaly-v2-yearly" name="berkeley-earth-temperature-anomaly-v2-yearly"><input type="checkbox" id="show-berkeley-earth-temperature-anomaly-v2-yearly" />Temperature Anomaly V2 Yearly</label></td>';
   var show_goes16 = '<td class="timemachine goes16-select"><label for="show-goes16" name="goes16"><input type="checkbox" id="show-goes16" />GOES16</label></td>';
@@ -2727,11 +2704,6 @@ async function setupUIAndOldLayers() {
     layer_html += '    </tr>';
   }
   */
-  if (showCumulativeActiveMining) {
-    layer_html += '    <tr>';
-    layer_html += show_cumulative_active_mining_layer;
-    layer_html += '    </tr>';
-  }
   if (showHimawari8) {
     layer_html += '    <tr>';
     layer_html += show_himawari;
@@ -2833,7 +2805,6 @@ async function setupUIAndOldLayers() {
   legend_html += '<tr id="fires-at-night-legend" style="display: none"><td><div style="background-color:#eda46a; border-radius: 50%; width:13px; height: 13px;"></div><div style="margin-left: 29px; margin-top: -15px; font-size: 17px">Fires At Night <span class="credit"> (NOAA)</span></div></td></tr>';
   legend_html += '<tr id="sea-level-rise-legend" style="display: none"><td><div style="font-size: 17px">Global Temperature Rise <span id="slr-degree"></span> &#x2103;<span class="credit"> (Climate Central)</span></div><div style="font-size: 15px">Multi-century Sea Level Increase:<span id="slr-feet" style="width:25px;"></span>&nbsp;<span id="slr-meters" style="width:25px; color: red;"></span></div></td></tr>';
   legend_html += '<tr id="tibnted-sea-level-rise-legend" style="display: none"><td><div style="font-size: 17px">Global Temperature Rise <span id="slr-degree"></span> &#x2103;<span class="credit"> (Climate Central)</span></div><div style="font-size: 15px">Multi-century Sea Level Increase:<span id="slr-feet" style="width:25px;"></span>&nbsp;<span id="slr-meters" style="width:25px; color: red;"></span></div></td></tr>';
-  legend_html += '<tr id="cumulative-active-mining-legend" style="display: none"><td><div>Active Mining<span class="credit"> (SkyTruth)</span></div><div style="float:left; padding-right:3px; margin-left: 8px; font-size: 14px;">1984</div><div style="margin-top: 3px; float: left; background-image: -webkit-linear-gradient( to right, rgb(255,255,255),rgb(128,0,0));background-image: linear-gradient(to right, rgb(255,255,255),rgb(128,0,0)); width: 50%; height: 10px"></div><div style="float:left; padding-left: 3px; font-size: 14px;">2016</div></td></tr>';
   legend_html += '<tr id="berkeley-earth-temperature-anomaly-legend" style="display: none"><td><div style="font-size: 13px">Average Temperature Annual Anomaly 1850-2017<span class="credit"> (Berkeley Earth)</span></div><svg class="svg-legend" width="220" height="40"><text font-size="12px" fill="rgba(255, 255, 255, 1.0)" y="10" x="40">Temperature Anomaly (&#8451)</text><rect fill="#00008b" y="20" x="0" height="10" width="20.0"></rect><rect fill="#3031c9" y="20" x="20" height="10" width="20.0"></rect><rect fill="#5768e6" y="20" x="40" height="10" width="20.0"></rect><rect fill="#799ef6" y="20" x="60" height="10" width="20.0"></rect><rect fill="#a1d4fe" y="20" x="80" height="10" width="20.0"></rect><rect fill="#ffffff" y="20" x="100" height="10" width="20.0"></rect><rect fill="#ffd130" y="20" x="120" height="10" width="20.0"></rect><rect fill="#ff9500" y="20" x="140" height="10" width="20.0"></rect><rect fill="#ed5700" y="20" x="160" height="10" width="20.0"></rect><rect fill="#c42102" y="20" x="180" height="10" width="20.0"></rect><rect fill="#8b0000" y="20" x="200" height="10" width="20.0"></rect><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="0">-10</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="25">-8</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="45">-6</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="65">-4</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="85">-2</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="107">0</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="127">2</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="147">4</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="167">6</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="187">8</text><text font-size="10.5px" fill="rgba(255, 255, 255, 0.8)" y="40" x="205">10</text></svg></td></tr>';
   legend_html += '<tr id="berkeley-earth-temperature-anomaly-v2-yearly-legend" style="display: none"><td><div style="font-size: 13px">Average Temperature Annual Anomaly 1850-2018<span class="credit"> (Berkeley Earth)</span></div><svg width="400" height="45"><text font-size="12px" fill="rgba(255, 255, 255, 1.0)" y="10" x="40">Temperature Anomaly Relative to 1951-1980 Average (&#8451)</text><rect y="20"fill="#2a0050ff" x="0" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="5"><=-6</text><rect y="20"fill="#13008cff" x="30" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="40">-5</text><rect y="20"fill="#0319c6ff" x="60" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="70">-4</text><rect y="20"fill="#0455edff" x="90" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="100">-3</text><rect y="20"fill="#04adf9ff" x="120" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="130">-2</text><rect y="20"fill="#5ce6feff" x="150" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="160">-1</text><rect y="20"fill="#fefcf4ff" x="180" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="190">0</text><rect y="20"fill="#fee44fff" x="210" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="220">1</text><rect y="20"fill="#f8a409ff" x="240" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="250">2</text><rect y="20"fill="#e95001ff" x="270" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="280">3</text><rect y="20"fill="#c21200ff" x="300" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="310">4</text><rect y="20"fill="#87010fff" x="330" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="340">5</text><rect y="20"fill="#56001eff" x="360" height="10" width="30"></rect><text fill="rgba(255, 255, 255, 0.8)" font-size="10.5px" y="42" x="365">>=6</text></svg></td></tr>';
 
@@ -3104,15 +3075,6 @@ lightBaseMapLayer = new WebGLMapLayer(null, gEarthTime.glb, gEarthTime.canvasLay
 /////////////    tileHeight: 256
 /////////////  };
 /////////////  animatedHansenLayer = new WebGLMapLayer2(gEarthTime.glb, gEarthTime.canvasLayer, animatedHansenUrls, animatedHansenLayerOptions);
-/////////////
-/////////////  var cumulativeActiveMiningLayerOptions = {
-/////////////    nLevels: 12,
-/////////////    tileWidth: 256,
-/////////////    tileHeight: 256,
-/////////////    fragmentShader: WebGLMapTile.animatedTextureFragmentShader,
-/////////////    drawFunction: WebGLMapTile.prototype._drawAnimatedTexture
-/////////////  };
-/////////////  cumulativeActiveMiningLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, cumulativeActiveMiningUrl, cumulativeActiveMiningLayerOptions);
 /////////////
 /////////////  var windVectorsLayerOptions = {
 /////////////    tileWidth: 256,
@@ -5439,60 +5401,6 @@ function update() {
         ebolaNewCasesLayer.draw(ebolaLayerView, options);
       }
       */
-      if (showCumulativeActiveMiningLayer) {
-        var cumulativeActiveMiningLayerView = getLayerView(cumulativeActiveMiningLayer, landsatBaseMapLayer);
-        let options: DrawOptions = {};
-        var ratio = gEarthTime.timelapse.getCurrentTime() / (gEarthTime.timelapse.getNumFrames() / gEarthTime.timelapse.getFps());
-        var times = gEarthTime.timelapse.getCaptureTimes();
-        var start = parseFloat(times[0]);
-        var end = parseFloat(times[times.length - 1]) + 0.5;
-        var range = end - start;
-        var current = ratio * range + start;
-        var currentIndex = 0;
-        for (var i = 0; i < times.length; i++) {
-          if (gEarthTime.timelapse.getCurrentCaptureTime() == times[i]) {
-            currentIndex = i;
-          }
-        }
-        var colorRamp = {
-          "1984": [255,255,255],
-          "1985": [255,255,204],
-          "1986": [250,246,198],
-          "1987": [246,238,192],
-          "1988": [242,229,187],
-          "1989": [238,221,181],
-          "1990": [233,212,176],
-          "1991": [229,204,170],
-          "1992": [225,195,165],
-          "1993": [221,187,159],
-          "1994": [216,178,154],
-          "1995": [212,170,148],
-          "1996": [208,161,143],
-          "1997": [204,153,137],
-          "1998": [199,144,132],
-          "1999": [195,136,126],
-          "2000": [191,127,121],
-          "2001": [187,119,115],
-          "2002": [183,110,109],
-          "2003": [178,102,104],
-          "2004": [174,93,98],
-          "2005": [170,85,93],
-          "2006": [166,76,87],
-          "2007": [161,68,82],
-          "2008": [157,59,76],
-          "2009": [153,51,71],
-          "2010": [149,42,65],
-          "2011": [144,34,60],
-          "2012": [140,25,54],
-          "2013": [136,17,49],
-          "2014": [132,8,43],
-          "2015": [128,0,38],
-          "2016": [128,0,0]
-        }
-        var currentBValue = colorRamp[times[currentIndex]][2]/255;
-        options.currentBValue = currentBValue;
-        cumulativeActiveMiningLayer.draw(cumulativeActiveMiningLayerView, options);
-      }
 
       // Draw Annual Global PM 2.5
       /*if (showAnnualGlobalPm25TimeMachineLayer) {
