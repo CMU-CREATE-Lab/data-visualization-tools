@@ -374,9 +374,6 @@ var showDscovr = !!EARTH_TIMELAPSE_CONFIG.showDscovr;
 //var showGfsTimemachine = !!EARTH_TIMELAPSE_CONFIG.showGfsTimemachine;
 //var showChlorophyllConcentrationTimemachine = !!EARTH_TIMELAPSE_CONFIG.showChlorophyllConcentrationTimemachine;
 //var showFishingPprTimemachine = !!EARTH_TIMELAPSE_CONFIG.showFishingPprTimemachine;
-var showWindVectors = !!EARTH_TIMELAPSE_CONFIG.showWindVectors;
-
-
 
 var googleMapsAPIKey = parseConfigOption({optionName: "googleMapsAPIKey", optionDefaultValue: "AIzaSyAGTDshdDRmq8zdw26ZmwJOswh6VseIrYY", exposeOptionToUrlHash: false});
 var showExtrasMenu = parseConfigOption({optionName: "showExtrasMenu", optionDefaultValue: true, exposeOptionToUrlHash: false});
@@ -604,8 +601,6 @@ var landBorderLayer;
 //var chlorophyllConcentrationTimemachineLayer;
 //var fishingPprTimeMachineLayer;
 
-var windVectorsLayer;
-
 function parseConfigOption(settings) {
   var returnVal = (typeof(EARTH_TIMELAPSE_CONFIG[settings.optionName]) === "undefined" && typeof(settings.optionDefaultValue) !== "undefined") ? settings.optionDefaultValue : EARTH_TIMELAPSE_CONFIG[settings.optionName];
 
@@ -783,8 +778,6 @@ var landBorderUrl = gEarthTime.rootTilePath + "/land-borders2/{default}/{z}/{x}/
 //var ecco2Url = rootTilePath + "/oceans/ecco2.timemachine/crf26-16fps-1424x800";
 
 //var gfsTimemachineUrl = rootTilePath + "/gfs-timemachine.timemachine/crf24-12fps-1424x800";
-
-var windVectorsUrl = gEarthTime.rootTilePath + "/wind/test.json";
 
 //var chlorophyllConcentrationTimemachineUrl = rootTilePath + "/chlorophyll_concentration.timemachine/crf24-12fps-1424x800";
 
@@ -1388,29 +1381,6 @@ function initLayerToggleUI() {
     }
     gEarthTime.timelapse.warpTo(gEarthTime.timelapse.getHomeView());
   }).prop('checked', showDscovrTimeMachineLayer);
-
-  $("#show-wind-vectors").on("click", function() {
-    var $this = $(this);
-    if ($this.prop('checked')) {
-      windVectorsLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      showWindVectorsLayer = true;
-      setActiveLayersWithTimeline(1);
-      timelineType = "customUI";
-      requestNewTimeline("wind-vectors-times.json", timelineType);
-      $("#wind-vectors-legend").show();
-      if (visibleBaseMapLayer != "bdrk") {
-        $("#bdrk-base").click();
-      }
-    } else {
-      showWindVectorsLayer = false;
-      cacheLastUsedLayer(windVectorsLayer);
-      setActiveLayersWithTimeline(-1);
-      doSwitchToLandsat();
-      if (!$("#show-wind-vectors").prop('checked')) {
-        $("#wind-vectors-legend").hide();
-      }
-    }
-  }).prop('checked', showWindVectorsLayer);
 
   // Base layers
   $("input:radio[name=base-layers]").on("click", function() {
@@ -2295,7 +2265,6 @@ var showGoes16Aug2018TimeMachineLayer = false;
 var showGoes16Nov2018TimeMachineLayer = false;
 var showDscovrTimeMachineLayer = false;
 var showCountryLabelMapLayer = false;
-var showWindVectorsLayer = false;
 
 // Default Time Machine visibility
 var tileViewVisibility = {
@@ -2657,17 +2626,6 @@ async function setupUIAndOldLayers() {
   layer_html += '    </tr>';
   layer_html += '  </table>';
   /* END FOREST CATEGORY */
-
-  /* WIND CATEGORY */
-  layer_html += '  <h3>Wind</h3>';
-  layer_html += '  <table id="category-wind">';
-  if (showWindVectors) {
-    layer_html += '   <tr>';
-    layer_html += show_wind_vectors;
-    layer_html += '   </tr>';
-  }
-  layer_html += '  </table>';
-  /* END WIND CATEGORY */
 
   /* WATER CATEGORY */
   layer_html += '  <h3>Water</h3>';
@@ -3076,20 +3034,7 @@ lightBaseMapLayer = new WebGLMapLayer(null, gEarthTime.glb, gEarthTime.canvasLay
 /////////////  };
 /////////////  animatedHansenLayer = new WebGLMapLayer2(gEarthTime.glb, gEarthTime.canvasLayer, animatedHansenUrls, animatedHansenLayerOptions);
 /////////////
-/////////////  var windVectorsLayerOptions = {
-/////////////    tileWidth: 256,
-/////////////    tileHeight: 256,
-/////////////    nLevels: 0,
-/////////////    drawFunction: WebGLVectorTile2.prototype._drawWindVectors,
-/////////////    loadDataFunction: WebGLVectorTile2.prototype._loadWindVectorsData,
-/////////////    setDataFunction: WebGLVectorTile2.prototype._setWindVectorsData,
-/////////////    fragmentShader: WebGLVectorTile2.vectorPointTileFragmentShader,
-/////////////    vertexShader: WebGLVectorTile2.vectorPointTileVertexShader,
-/////////////    numAttributes: 3
-/////////////  };
-/////////////  windVectorsLayer = new WebGLVectorLayer2(gEarthTime.glb, gEarthTime.canvasLayer, windVectorsUrl, windVectorsLayerOptions);
-/////////////
-  // Layer Toggle UI
+// Layer Toggle UI
   initLayerToggleUI();
 
   // TODO: Why is this element of TimeMachine initially outside the controls container?
@@ -4723,10 +4668,6 @@ function resize() {
 
   gEarthTime.canvasLayer.resize_();
 
-  if (typeof windVectorsLayer != "undefined" && typeof windVectorsLayer._tileView != "undefined" && typeof windVectorsLayer._tileView._tiles["000000000000000"] != "undefined"
-    ) {
-    windVectorsLayer._tileView._tiles["000000000000000"].resizeWindVectors()
-  }
 }
 
 function resizeLayersMenu() {
@@ -5425,22 +5366,6 @@ function update() {
         var view = getLayerView(chlorophyllConcentrationTimemachineLayer, landsatBaseMapLayer);
         chlorophyllConcentrationTimemachineLayer.draw(view, tileViewVisibility);
       }*/
-
-      if (showWindVectorsLayer) {
-        var view = getLayerView(windVectorsLayer, landsatBaseMapLayer);
-        let options: DrawOptions = {};
-        options.color = [0.0, 0.0, 1.0, 1.0];
-        options.pointSize = 5.0;
-
-        var bbox = gEarthTime.timelapse.pixelBoundingBoxToLatLngBoundingBoxView(gEarthTime.timelapse.getBoundingBoxForCurrentView()).bbox;
-        var ne = bbox.ne; // tr
-        var sw = bbox.sw; // bl
-        var tl = {'lat':ne.lat, 'lng': ne.lng};
-        var br = {'lat':sw.lat, 'lng': sw.lng};
-        options['bbox'] = {'tl': tl, 'br': br};
-        windVectorsLayer.draw(view, options);
-      }
-
 
       // TODO(LayerDB)
       // Draw CSV z=200 (typically raster+choropleths)
