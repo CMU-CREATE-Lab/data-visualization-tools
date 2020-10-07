@@ -6625,10 +6625,10 @@ float rand(const vec2 co) {
 
 WebGLVectorTile2Shaders.WindVectorsShaders_mapVertexShader = `
 attribute vec2 a_pos;
-uniform mat4 u_transform;\n
+uniform mat4 u_transform;
 varying vec2 v_tex_pos;
 void main(void) {
-  v_tex_pos = vec2(a_pos.x, a_pos.y);\n' +
+  v_tex_pos = vec2(a_pos.x, a_pos.y);
   //gl_Position = vec4(2.0 * pos.x - 1.0, 1.0 - 2.0 * pos.y, 0, 1);
   gl_Position = u_transform * vec4(a_pos.x, a_pos.y, 0., 1.);
 }`;
