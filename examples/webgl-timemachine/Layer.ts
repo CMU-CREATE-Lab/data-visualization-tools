@@ -150,7 +150,7 @@ export class LayerOptions {
 
       // TODO: It's possible a startDate and endDate are unknown from the initial definition
       // and will be loaded later. e.g. a TimeMachine layer and its corresponding tm.json
-      if (this.startDate && this.endDate) {
+      if (this.startDate && this.endDate && this.mapType != "timemachine") {
         this.timeline = new Timeline(this.timelineType,
         {startDate: this.startDate, endDate: this.endDate,
          step: this.step, masterPlaybackRate: this.masterPlaybackRate,
@@ -158,16 +158,18 @@ export class LayerOptions {
       }
 
       // Note: This is overriden for WebGLTimeMachineLayers
-      this._tileView = new TileView({
-        panoWidth: this.tileWidth * Math.pow(2, this.nLevels),
-        panoHeight: this.tileHeight * Math.pow(2, this.nLevels),
-        tileWidth: this.tileWidth,
-        tileHeight: this.tileHeight,
-        createTile: this._createTile.bind(this),
-        maxLevelOverride: this.maxLevelOverride,
-        updateTiles: tileClass.updateTiles,
-        levelThreshold: this.levelThreshold
-      });
+      if (this.mapType != "timemachine") {
+        this._tileView = new TileView({
+          panoWidth: this.tileWidth * Math.pow(2, this.nLevels),
+          panoHeight: this.tileHeight * Math.pow(2, this.nLevels),
+          tileWidth: this.tileWidth,
+          tileHeight: this.tileHeight,
+          createTile: this._createTile.bind(this),
+          maxLevelOverride: this.maxLevelOverride,
+          updateTiles: tileClass.updateTiles,
+          levelThreshold: this.levelThreshold
+        });
+      }
 
       if (this.colormap) {
         this.ready = false;
@@ -296,5 +298,10 @@ export class LayerOptions {
       }
     }
     return population;
+  }
+
+  // Override this if defined for a layer
+  maxGmapsZoomLevel(): number | null {
+    return null;
   }
 }

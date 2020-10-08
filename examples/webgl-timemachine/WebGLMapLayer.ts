@@ -23,4 +23,9 @@ export class WebGLMapLayer extends Layer {
   draw(view, opt_options) {
     this._drawHelper(view, opt_options);
   }
+  maxGmapsZoomLevel() {
+    var maxTileLevel = this.nLevels; // nLevels is really the maximum tile level
+    // Allow 50% overzoom
+    return this.nLevels + 0.5;
+  }
 }

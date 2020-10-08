@@ -1,4 +1,4 @@
-import { EarthTime } from './EarthTime'
+import { EarthTime, gEarthTime } from './EarthTime'
 import { GSheet } from './GSheet'
 import { LayerFactory } from './LayerFactory'
 import { LayerProxy } from './LayerProxy'
@@ -29,22 +29,26 @@ export class LayerDB {
   // async factory, since LayerDB isn't valid until the catalog is read
   static async create(databaseId: GSheet, opts: {apiUrl?:string, earthTime?:EarthTime}) {
     console.log(`${LayerDB.logPrefix()} start fetch layer_catalog`);
-    var ret = new LayerDB();
-    ret.layerFactory = new LayerFactory();
-    ret.databaseId = databaseId;
-    ret.apiUrl = opts.apiUrl || 'https://api.earthtime.org/';
-    console.assert(ret.apiUrl.substr(-1) == '/', 'apiUrl must end with "/"')
-    ret.layerById = {};
+    var layerDB = new LayerDB();
+    layerDB.layerFactory = new LayerFactory();
+    layerDB.databaseId = databaseId;
+    layerDB.apiUrl = opts.apiUrl || 'https://api.earthtime.org/';
+    console.assert(layerDB.apiUrl.substr(-1) == '/', 'apiUrl must end with "/"')
+    layerDB.layerById = {};
 
     // Read layer catalog
-    var catalog = await (await Utils.fetchWithRetry(`${ret.apiUrl}layer-catalogs/${databaseId.file_id_gid()}`)).json()
+    var catalog = await (await Utils.fetchWithRetry(`${layerDB.apiUrl}layer-catalogs/${databaseId.file_id_gid()}`)).json()
     for(let entry of catalog) {
-      let layerProxy = new LayerProxy(entry["Share link identifier"], entry["Name"], entry["Category"], ret);
-      ret.layerById[layerProxy.id] = layerProxy;
-      ret.orderedLayers.push(layerProxy);
+      let layerProxy = new LayerProxy(entry["Share link identifier"],
+                                      layerDB,
+                                      {name: entry["Name"], category: entry["Category"], layerConstraints:
+                                       entry["Layer Constraints"], hasLayerDescription: entry["Has Layer Description"]}
+                                     );
+      layerDB.layerById[layerProxy.id] = layerProxy;
+      layerDB.orderedLayers.push(layerProxy);
     }
     console.log(`${LayerDB.logPrefix()} constructed with ${catalog.length} layers from ${databaseId.file_id_gid()}`)
-    return ret;
+    return layerDB;
   }
 
   getLayer(layerId: string) {
@@ -62,14 +66,17 @@ export class LayerDB {
         layerProxy._visible = true;
         layerProxy.requestLoad();
       });
-      // Clear out layer legends for layers no longer visible
-      this.layerFactory.clearNonVisibleLayerLegends();
-      // Handle the UI changes for a layer turning on and off (like input checkboxes)
-      this.layerFactory.handleLayerMenuUI();
-      // We need to trigger the change event (index.ts) on the inputs for the layer list container.
-      $(".map-layer-div").find("input:first").trigger("change");
+      this.layerFactory.handleLayerConstraints();
     }
-    this.layerFactory.handleLayerConstraints();
+  }
+
+  handleVisibleLayersStateChange() {
+    // Clear out layer legends for layers no longer visible
+    this.layerFactory.clearNonVisibleLayerLegends();
+    // Handle the UI changes for a layer turning on and off (like input checkboxes)
+    this.layerFactory.handleLayerMenuUI();
+    // We need to trigger the change event (index.ts) on the inputs for the layer list container.
+    $(".map-layer-div").find("input:first").trigger("change");
   }
 
   visibleLayerIds() {
@@ -112,6 +119,7 @@ export class LayerDB {
       cache.prevLoadStates = {};
       let loadedSublayers = [];
       cache.loadedLayers = [];
+      let fullyLoaded = true;
       for (let [i, layerProxy] of this.visibleLayers.entries()) {
         let isLoaded = layerProxy.isLoaded();
         cache.prevLoadStates[layerProxy.id] = isLoaded;
@@ -125,6 +133,8 @@ export class LayerDB {
           } else {
             loadedSublayers.push([layer.drawOrder, i, layerProxy]);
           }
+        } else {
+          fullyLoaded = false;
         }
       }
 
@@ -158,8 +168,32 @@ export class LayerDB {
         cache.loadedSublayersInDrawOrder.push(drawable[drawable.length - 1]);
       }
       console.log(`${this.logPrefix()} loadedLayersInDrawOrder now [${cache.loadedSublayersInDrawOrder.map(l => l.id)}]`);
+      cache.valid = true;
+      if (fullyLoaded) {
+        // Set timelapse max zoom based on all the layers
+        gEarthTime.timelapse.setGmapsMaxLevel(this.computeMaxGmapsZoomLevel());
+      }
     }
-    cache.valid = true;
+  }
+
+  // Return the maximum zoom level of all loaded layers
+  computeMaxGmapsZoomLevel() {
+    let maxZoom = null;
+    for (let layerProxy of this.loadedLayers()) {
+      let layerMaxZoom = layerProxy.layer.maxGmapsZoomLevel();
+      if (layerMaxZoom !== null) {
+        if (maxZoom !== null) {
+          maxZoom = Math.max(maxZoom, layerMaxZoom);
+        } else {
+          maxZoom = layerMaxZoom;
+        }
+      }
+    }
+    if (maxZoom === null) {
+      console.log('Warning, no layers with maxGmapsZoomLevel, choosing default');
+      maxZoom = 12; // arbitrary earthtime-scale default zoom
+    }
+    return maxZoom;
   }
 
   loadedSublayersInDrawOrder(): LayerProxy[] {

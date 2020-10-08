@@ -768,7 +768,9 @@ export class LayerFactory {
         }
       }
     }
-    gEarthTime.layerDB.visibleLayers = newLayers;
+    layerDb.visibleLayers = newLayers;
+    // Handle the UI changes for a layer turning on and off
+    this.handleVisibleLayersStateChange();
   }
 
   clearNonVisibleLayerLegends() {
@@ -801,6 +803,15 @@ export class LayerFactory {
       let layerSelectors = '#' + layersIdsToTurnOn.join(', #');
       $layerListContainer.find(layerSelectors).not(":checked").prop("checked", true);
     }
+  }
+
+  handleVisibleLayersStateChange() {
+    // Clear out layer legends for layers no longer visible
+    this.clearNonVisibleLayerLegends();
+    // Handle the UI changes for a layer turning on and off (like input checkboxes)
+    this.handleLayerMenuUI();
+    // We need to trigger the change event (index.ts) on the inputs for the layer list container.
+    $(".map-layer-div").find("input:first").trigger("change");
   }
 
   setLegend(id: string) {

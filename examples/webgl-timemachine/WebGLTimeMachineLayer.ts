@@ -110,6 +110,22 @@ export class WebGLTimeMachineLayer extends Layer {
     this.height = r.height;
     this.loadMetadata();
   }
+  maxGmapsZoomLevel() {
+    if (!this.width) {
+      return null;
+    }
+    let fullPixelWidth: number;
+    if (this.projectionBounds) {
+      let pixelsPerDegreeLng = this.width / (this.projectionBounds.east - this.projectionBounds.west);
+      fullPixelWidth = 360 * pixelsPerDegreeLng;
+    } else {
+      // Assumes a layer without projection is scaled to the full width of the timelapse.js view
+      fullPixelWidth = this.width;
+    }
+    // gmapsZoomLevelAtFullRes should be level 0 for 256, 1 for 512, 2 for 1024 ...
+    let gmapsZoomLevelAtFullRes = Math.log2(fullPixelWidth/256);
+    return gmapsZoomLevelAtFullRes + 0.5; // allow 50% overzoom
+  }
   isLoaded(): boolean { return this.metadataLoaded; }
   loadMetadata() {
     this.mediaType = this.mediaType || '.mp4';
@@ -118,13 +134,11 @@ export class WebGLTimeMachineLayer extends Layer {
 
     var that = this;
 
-    if (!this.startDate) {
-      this.timeline = new Timeline(this.timelineType,
-      { startDate: this.captureTimes[0], endDate: this.captureTimes[this.captureTimes.length - 1],
-       step: this.step, masterPlaybackRate: this.masterPlaybackRate,
-       playbackRate: this.playbackRate, cachedCaptureTimes: this.captureTimes,
-       fps: this.fps });
-    }
+    this.timeline = new Timeline(this.timelineType,
+    { startDate: this.captureTimes[0], endDate: this.captureTimes[this.captureTimes.length - 1],
+      step: this.step, masterPlaybackRate: this.masterPlaybackRate,
+      playbackRate: this.playbackRate, cachedCaptureTimes: this.captureTimes,
+      fps: this.fps });
 
     function createTile(ti, bounds) {
       var url = that.tileRootUrl + '/' + ti.l + '/' + (ti.r * 4) + '/' + (ti.c * 4) + that.mediaType;

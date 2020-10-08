@@ -19,6 +19,8 @@ export class LayerProxy {
   layerDb: LayerDB;
   category: string;
   name: string;
+  layerConstraints: {[key:string]: any};
+  hasLayerDescription: boolean;
   _visible: boolean;
   showGraph: boolean;
   _loadingPromise: Promise<void>;
@@ -28,16 +30,18 @@ export class LayerProxy {
   _effectiveDrawOrder: any[];
   layerDef: LayerDef;
 
-  constructor(id: string, name: string, category: string, layerDb: LayerDB) {
+  constructor(id: string, layerDb: LayerDB, options: {name: string, category: string, layerConstraints: {[key:string]: any}, hasLayerDescription: boolean}) {
     console.assert(LayerProxy.isValidId(id));
     this.id = id;
-    this.name = name;
-    this.category = category;
+    this.name = options.name;
+    this.category = options.category;
+    this.layerConstraints = options.layerConstraints;
+    this.hasLayerDescription = options.hasLayerDescription;
     this.layerDb = layerDb;
   }
 
   getLayerConstraints() {
-    return this.layerDef && this.layerDef['Layer Constraints'] ? JSON.parse(this.layerDef['Layer Constraints']) : null;
+    return Object.keys(this.layerConstraints).length == 0 ? null : this.layerConstraints;
   }
 
   isVisible(): boolean {
@@ -85,7 +89,6 @@ export class LayerProxy {
     this.layerDef = layerDef;
     this.layer = await this.layerDb.layerFactory.createLayer(this, layerDef);
     this.layerDb.invalidateLoadedCache();
-    this.layerDb.layerFactory.handleLayerConstraints();
     console.log(`${this.logPrefix()} layerFactory.createLayer completed`);
   }
 
