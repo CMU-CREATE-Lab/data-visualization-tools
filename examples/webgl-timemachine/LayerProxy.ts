@@ -36,6 +36,9 @@ export class LayerProxy {
     this.name = options.name;
     this.category = options.category;
     this.layerConstraints = options.layerConstraints;
+    if (this.layerConstraints && this.layerConstraints.legacyIds) {
+      layerDb._mapLegacyLayerIds(id, this.layerConstraints.legacyIds);
+    }
     this.hasLayerDescription = options.hasLayerDescription;
     this.layerDb = layerDb;
   }

@@ -14,6 +14,7 @@ export class LayerDB {
   orderedLayers: LayerProxy[] = [];
   visibleLayers: LayerProxy[] = [];
   earthTime: EarthTime;
+  legacyIdMappigs: {[key: string]: any} = {};
 
   // Please call async LayerDB.create instead
   private constructor() {}
@@ -52,7 +53,11 @@ export class LayerDB {
   }
 
   getLayer(layerId: string) {
-    return this.layerById[layerId];
+    let layer = this.layerById[layerId];
+    if (!layer) {
+      layer = this.layerById[this.legacyIdMappigs[layerId]];
+    }
+    return layer;
   }
 
   setVisibleLayers(layerProxies: LayerProxy[]) {
@@ -70,17 +75,16 @@ export class LayerDB {
     }
   }
 
-  handleVisibleLayersStateChange() {
-    // Clear out layer legends for layers no longer visible
-    this.layerFactory.clearNonVisibleLayerLegends();
-    // Handle the UI changes for a layer turning on and off (like input checkboxes)
-    this.layerFactory.handleLayerMenuUI();
-    // We need to trigger the change event (index.ts) on the inputs for the layer list container.
-    $(".map-layer-div").find("input:first").trigger("change");
-  }
-
   visibleLayerIds() {
     return this.visibleLayers.map(layer => layer.id);
+  }
+
+  _mapLegacyLayerIds(id: string, legacyIds: []) {
+    legacyIds.forEach(legacyId => {
+      if (!this.legacyIdMappigs[legacyId]) {
+        this.legacyIdMappigs[legacyId] = id;
+      }
+    })
   }
 
   _loadedCache = {
