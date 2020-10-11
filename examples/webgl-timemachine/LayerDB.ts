@@ -14,7 +14,7 @@ export class LayerDB {
   orderedLayers: LayerProxy[] = [];
   visibleLayers: LayerProxy[] = [];
   earthTime: EarthTime;
-  legacyIdMappigs: {[key: string]: any} = {};
+  legacyIdMappings: {[key: string]: string} = {};
 
   // Please call async LayerDB.create instead
   private constructor() {}
@@ -54,8 +54,9 @@ export class LayerDB {
 
   getLayer(layerId: string) {
     let layer = this.layerById[layerId];
+    // If an initial id lookup failed, check if the id in question is a known legacy id.
     if (!layer) {
-      layer = this.layerById[this.legacyIdMappigs[layerId]];
+      layer = this.layerById[this.legacyIdMappings[layerId]];
     }
     return layer;
   }
@@ -81,8 +82,8 @@ export class LayerDB {
 
   _mapLegacyLayerIds(id: string, legacyIds: []) {
     legacyIds.forEach(legacyId => {
-      if (!this.legacyIdMappigs[legacyId]) {
-        this.legacyIdMappigs[legacyId] = id;
+      if (!this.legacyIdMappings[legacyId]) {
+        this.legacyIdMappings[legacyId] = id;
       }
     })
   }
