@@ -3222,19 +3222,12 @@ lightBaseMapLayer = new WebGLMapLayer(null, gEarthTime.glb, gEarthTime.canvasLay
         }
       }
 
-      // Remove himawari since we do special cases further below
-      //var himawariIdx = waypointLayers.indexOf("h8");
-      //himawariIdx = himawariIdx > -1 ? himawariIdx : waypointLayers.indexOf("h8_16");
-      //if (himawariIdx > -1) waypointLayers.splice(himawariIdx, 1);
+      // Temporarily set a max scale, based on what the waypoint's shareview asks for. Note that this may be overriden by the max zoom of a layer
+      let maxWaypointScale = gEarthTime.timelapse.pixelBoundingBoxToPixelCenter(waypointBounds).scale;
+      gEarthTime.timelapse.setMaxScale(maxWaypointScale);
 
       // Show layer ids
       handleLayers(waypointLayers);
-
-      if (waypoint.layers && waypoint.layers.indexOf("blsat") >= 0) {
-        gEarthTime.timelapse.setMaxScale(landsatMaxScale);
-      } else if (waypoint.layers) {
-        gEarthTime.timelapse.setMaxScale(rasterMapTileMaxScale);
-      }
 
       // Handle Himawari
       // Note: Must be run after other layers
@@ -3469,6 +3462,11 @@ lightBaseMapLayer = new WebGLMapLayer(null, gEarthTime.glb, gEarthTime.canvasLay
         dateRangePicker.handleCalendarLayers(true, layers);
         altitudeSlider.handleAltitudeLayers();
       }
+
+      // Temporarily set a max scale, based on what the shareview asks for. Note that this may be overriden by the max zoom of a layer
+      let maxShareViewScale = gEarthTime.timelapse.zoomToScale(gEarthTime.timelapse.unsafeViewToView(vals.v).zoom);
+      gEarthTime.timelapse.setMaxScale(maxShareViewScale);
+
       handleLayers(layers);
       // The time in a share link may correspond to a layer that has a different timeline than the default one.
       // Re-run corresponding sharelink code once the timeline has changed.
