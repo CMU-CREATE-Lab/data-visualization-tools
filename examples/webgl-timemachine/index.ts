@@ -8,17 +8,10 @@
 /// <reference path="../../timemachine/libs/change-detect/js/TimeMachineCanvasLayer.js"/>
 
 import { dbg } from './dbg'
-
 import { WebGLMapLayer } from './WebGLMapLayer'
-
 import { WebGLVectorTile2 } from './WebGLVectorTile2'
 import { WebGLVideoTile } from './WebGLVideoTile'
-
-// Backwards-compatibility with js code
-// (window as any).Tile = Tile;
-
 import { Utils } from './Utils';
-import { Timelines } from './Timelines';
 
 dbg.Utils = Utils;
 console.log(`${Utils.logPrefix()} Loading index.ts`)
@@ -333,8 +326,6 @@ var showCsvLayers = !!EARTH_TIMELAPSE_CONFIG.showCsvLayers;
 
 
 ////var showForestAlerts = !!EARTH_TIMELAPSE_CONFIG.showForestAlerts;
-// TODO(differently projected timemachine)
-var showHimawari8 = typeof(EARTH_TIMELAPSE_CONFIG.showHimawari8) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showHimawari8;
 //var showUSDrilling = typeof(EARTH_TIMELAPSE_CONFIG.showUSDrilling) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showUSDrilling;
 //var showViirs = typeof(EARTH_TIMELAPSE_CONFIG.showViirs) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showViirs;
 //var showGlobalWindPower = !!EARTH_TIMELAPSE_CONFIG.showGlobalWindPower;
@@ -364,10 +355,6 @@ var showHimawari8 = typeof(EARTH_TIMELAPSE_CONFIG.showHimawari8) === "undefined"
 //var showIrena = !!EARTH_TIMELAPSE_CONFIG.showIrena;
 var showCityLabelMap = !!EARTH_TIMELAPSE_CONFIG.showCityLabelMap;
 //var showTsip = !!EARTH_TIMELAPSE_CONFIG.showTsip;
-// TODO(differently projected timemachine)
-var showGoes16 = !!EARTH_TIMELAPSE_CONFIG.showGoes16;
-// TODO(differently projected timemachine)
-var showDscovr = !!EARTH_TIMELAPSE_CONFIG.showDscovr;
 //var showAnnualGlobalPm25 = !!EARTH_TIMELAPSE_CONFIG.showAnnualGlobalPm25;
 //var showEcco2 = !!EARTH_TIMELAPSE_CONFIG.showEcco2;
 //var showTintedLandsat = !!EARTH_TIMELAPSE_CONFIG.showTintedLandsat;
@@ -480,9 +467,6 @@ if (window.devicePixelRatio > 1) {
   landsatMaxScale -= 0.21;
 }
 var rasterMapTileMaxScale = 80 * landsatMaxScale;
-var himawariMaxScale = 0.02;
-var goes16MaxScale = 0.017;
-var dscovrMaxScale = 0.004;
 var isAutoModeRunning = false;
 var visibleBaseMapLayer = "blsat";
 var previousVisibleBaseMapLayer = visibleBaseMapLayer;
@@ -506,7 +490,6 @@ var snaplapseForPresentationSlider;
 var parabolicMotionStoppedListener;
 var currentWaypointTheme = "";
 var currentWaypointStory;
-var himawariWaypoints = {};
 var annotationPicturePaths = {};
 var waypointJSONList = {};
 var timelineType = "customUI";
@@ -534,14 +517,6 @@ var maxCachedLayers = 8;
 var lastSelectedAnnotationBeforeHidden;
 var initialTopNavWrapperElm;
 var $activeLayerDescriptionTooltip;
-// This is necessary because waypoint thumbnails are generated from the Landsat set and thus the best we can show is just a solid black thumbnail
-// instead of some random location that a himawari bounds corresponds to in Landsat.
-var himawariWaypointThumbnailBounds = {
-  xmax: 1818264.731953845,
-  xmin: 1746298.8849333557,
-  ymax: 1253113.3077389232,
-  ymin: 1218442.2616483232
-};
 var storyEditor;
 var activeEarthTimeLayers = [];
 var timeZone = "";
@@ -554,12 +529,10 @@ var storyLoadedFromRealKeyDown = false;
 //
 
 var /*forestAlertsTimeMachineLayer, forestAlertsNoOverlayTimeMachineLayer,*/ landsatBaseMapLayer, darkBaseMapLayer, lightBaseMapLayer, mcrmVectorLayer, countryLabelMapLayer, cityLabelMapLayer;
-var hansenMapLayer, hansenMapLayer2, animatedHansenLayer, himawariTimeMachineLayer;
 //var ndviAnomalyTimeMachineLayer;
 //var crwTimeMachineLayer
 // var waterOccurrenceLayer, waterChangeLayer;
 //var usgsWindTurbineLayer, solarInstallsLayer, drillingLayer;
-var goes16TimeMachineLayer, goes16Aug2018TimeMachineLayer, goes16Nov2018TimeMachineLayer, dscovrTimeMachineLayer;
 //var annualGlobalPm25TimeMachineLayer;
 //var globalWindPowerLayer;
 //Timelines.setTimeLine('global-wind-power-times', '1984', '2018', 1);
@@ -668,11 +641,6 @@ var autoModeExtrasViewChangeHandler = function() {
 
 //var fishingPprTimeMachineUrl = rootTilePath + "/fishing-ppr.timemachine/crf19-8fps-1424x800";
 //var ndviAnomalyTimeMachineUrl = rootTilePath + "/ndvi_anomaly_1000v01/1068x600";
-var himawariTimeMachineUrl = gEarthTime.rootTilePath + "/himawari8/himawari8-nov-2015.timemachine/crf26-12fps-1424x800";
-var goes16TimeMachineUrl = gEarthTime.rootTilePath + "/goes16/2017-09-01.timemachine/crf26-12fps-1424x800";
-var goes16Aug2018TimeMachineUrl = gEarthTime.rootTilePath + "/goes16/2018-08-01.timemachine/crf26-12fps-1424x800";
-var goes16Nov2018TimeMachineUrl = gEarthTime.rootTilePath + "/goes16/2018-11-01.timemachine/crf26-12fps-1424x800";
-var dscovrTimeMachineUrl = gEarthTime.rootTilePath + "/dscovr/dscovr.timemachine/crf26-6fps-1424x800";
 //var annualGlobalPm25TimeMachineUrl = rootTilePath + "/annual-global-pm25/pm2_5v2.timemachine/crf26-6fps-1424x800";
 ////var forestAlertsTimeMachineUrl = rootTilePath + "/global-forest-alerts/ForestAlarms2016v2/1068x600";
 ////var forestAlertsNoOverlayTimeMachineUrl = rootTilePath + "/global-forest-alerts/ForestAlarmsNoOverlay2016v1/1068x600";
@@ -744,7 +712,6 @@ var cityLabelMapUrl = useGoogleMaps ? googleMapsCityLabelUrl : googleMapsCityLab
 //var solarInstallsUrl = rootTilePath + "/energy/solar-installs/{z}/{x}/{y}.bin";
 //var globalWindPowerUrl = rootTilePath + "/energy/global-wind-power/windfarms-world_20180330.bin";
 //var drillingUrl = rootTilePath + "/energy/drilling/{z}/{x}/{y}.bin";
-var animatedHansenUrls = [gfcTransUrl, gfcLossGainUrl];
 // var vsiUrl = rootTilePath + "/vsi/tiles/{default}/{z}/{x}/{y}.png";
 var healthImpactUrl = gEarthTime.rootTilePath + "/health-impact/{z}/{x}/{y}.bin";
 //var zikaUrl = rootTilePath + "/pandemics/zika/{z}/{x}/{y}.bin";
@@ -984,403 +951,6 @@ async function handleLayers(layers: string[]) {
 function initLayerToggleUI() {
   // ## 3 ##
   //// Layer toggle event handlers ////
-
-  $("#show-forest-change").on("click", function() {
-    var $this = $(this);
-    if ($this.prop('checked')) {
-      hansenMapLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      if ($("#show-forest-loss-gain").prop('checked')) {
-        $("#show-forest-loss-gain").click();
-      }
-      if ($("#show-animated-forest-loss-gain").prop('checked')) {
-        $("#show-animated-forest-loss-gain").click();
-      }
-      if ($("#show-forest-alerts").prop('checked')) {
-        $("#show-forest-alerts").click();
-      }
-      if ($("#show-forest-alerts-no-overlay").prop('checked')) {
-        $("#show-forest-alerts-no-overlay").click();
-      }
-      showHansenLayer = true;
-      $("#forest-loss-year-legend").show();
-    } else {
-      showHansenLayer = false;
-      cacheLastUsedLayer(hansenMapLayer);
-      $("#forest-loss-year-legend").hide();
-    }
-  }).prop('checked', showHansenLayer);
-
-  $("#show-forest-loss-gain").on("click", function() {
-    var $this = $(this);
-    if ($this.prop('checked')) {
-      hansenMapLayer2.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      if ($("#show-forest-change").prop('checked')) {
-        $("#show-forest-change").click();
-      }
-      if ($("#show-animated-forest-loss-gain").prop('checked')) {
-        $("#show-animated-forest-loss-gain").click();
-      }
-      if ($("#show-forest-alerts").prop('checked')) {
-        $("#show-forest-alerts").click();
-      }
-      if ($("#show-forest-alerts-no-overlay").prop('checked')) {
-        $("#show-forest-alerts-no-overlay").click();
-      }
-      showHansenLayer2 = true;
-      timelineType = "none";
-      $("#forest-loss-gain-legend").show();
-      $("#baseLayerCreditContainer").hide();
-    } else {
-      showHansenLayer2 = false;
-      cacheLastUsedLayer(hansenMapLayer2);
-      timelineType = "customUI";
-      $("#forest-loss-gain-legend").hide();
-      $("#baseLayerCreditContainer").show();
-    }
-  }).prop('checked', showHansenLayer2);
-
-  $("#show-animated-forest-loss-gain").on("click", function() {
-    var $this = $(this);
-    if ($this.prop('checked')) {
-      //animatedHansenLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      if ($("#show-forest-change").prop('checked')) {
-        $("#show-forest-change").click();
-      }
-      if ($("#show-forest-loss-gain").prop('checked')) {
-        $("#show-forest-loss-gain").click();
-      }
-      if ($("#show-forest-alerts").prop('checked')) {
-        $("#show-forest-alerts").click();
-      }
-      if ($("#show-forest-alerts-no-overlay").prop('checked')) {
-        $("#show-forest-alerts-no-overlay").click();
-      }
-      showAnimatedHansenLayer = true;
-      setActiveLayersWithTimeline(1);
-      /*
-      if (!showViirsLayer) {
-        timelineType = "customUI";
-        requestNewTimeline("animated-forest-loss-gain-times.json", timelineType);
-      }
-      */
-      $("#forest-loss-gain-legend").show();
-    } else {
-      showAnimatedHansenLayer = false;
-      cacheLastUsedLayer(animatedHansenLayer);
-      setActiveLayersWithTimeline(-1);
-      doSwitchToLandsat();
-      $("#forest-loss-gain-legend").hide();
-    }
-  }).prop('checked', showAnimatedHansenLayer);
-
-  $("#show-himawari").on("click", function() {
-    //$(".current-location-text-container").hide();
-    //$(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight").removeClass("thumbnail_highlight");
-
-    var $this = $(this);
-    if ($this.prop('checked')) {
-      himawariTimeMachineLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      // Clear out non-himawari8 layers if they were already active.
-      var $activeLayersNotIncludingClickedLayer = $(".map-layer-div").find("input:checked").not($(this));
-      if ($activeLayersNotIncludingClickedLayer.length > 1) {
-        $activeLayersNotIncludingClickedLayer.trigger("click");
-      }
-      showHimawariTimeMachineLayer = true;
-      activeLayersWithTimeline = 1;
-      previousActiveLayersWithTimeline = activeLayersWithTimeline;
-      timelineType = "defaultUI";
-      previousVisibleBaseMapLayer = visibleBaseMapLayer;
-      visibleBaseMapLayer = "himawari";
-      requestNewTimeline("himawari-times.json", timelineType);
-      var v = gEarthTime.timelapse.getVideoset();
-      v.setFps(12);
-      gEarthTime.timelapse.setMaxScale(himawariMaxScale);
-      gEarthTime.timelapse.setDoDwell(false);
-      gEarthTime.timelapse.setMasterPlaybackRate(1);
-      gEarthTime.timelapse.setPlaybackRate(1);
-      $("#layers-legend").hide();
-      // Handle Landsat 2016 bounds.
-      if (landsatVersion == "2016") {
-        $.getScript("himawari_landsat_ajax_includes.js")
-          .done(function(script, status) {
-            eval(script);
-            landsatBaseMapLayer.resetDimensions(cached_ajax["./1068x600/r.json"]);
-          }
-        );
-      }
-      $("#baselayerCreditText").html("&copy; JMA");
-    } else {
-      showHimawariTimeMachineLayer = false;
-      cacheLastUsedLayer(himawariTimeMachineLayer);
-      setActiveLayersWithTimeline(-1);
-      doSwitchToLandsat();
-      var v = gEarthTime.timelapse.getVideoset();
-      v.setFps(10);
-      gEarthTime.timelapse.seek(0);
-      gEarthTime.timelapse.setMaxScale(landsatMaxScale);
-      gEarthTime.timelapse.setMasterPlaybackRate(1);
-      gEarthTime.timelapse.setPlaybackRate(defaultPlaybackSpeed);
-      $("#layers-legend").hide();
-      // Handle Landsat 2016 bounds.
-      if (!$(".timemachine").prop('checked')) {
-        if (landsatVersion == "2016") {
-          $.getScript(landsatAjaxIncludesPath)
-            .done(function(script, status) {
-              eval(script);
-              landsatBaseMapLayer.resetDimensions(cached_ajax["./1068x600/r.json"]);
-            }
-          );
-        }
-      }
-    }
-    gEarthTime.timelapse.warpTo(gEarthTime.timelapse.getHomeView());
-  }).prop('checked', showHimawariTimeMachineLayer);
-
-  $("#show-goes16").on("click", function() {
-    //$(".current-location-text-container").hide();
-    //$(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight").removeClass("thumbnail_highlight");
-
-    var $this = $(this);
-    if ($this.prop('checked')) {
-      goes16TimeMachineLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      // Clear out non-goes16 layers if they were already active.
-      var $activeLayersNotIncludingClickedLayer = $(".map-layer-div").find("input:checked").not($(this));
-      if ($activeLayersNotIncludingClickedLayer.length > 1) {
-        $activeLayersNotIncludingClickedLayer.trigger("click");
-      }
-      showGoes16TimeMachineLayer = true;
-      activeLayersWithTimeline = 1;
-      previousActiveLayersWithTimeline = activeLayersWithTimeline;
-      timelineType = "defaultUI";
-      previousVisibleBaseMapLayer = visibleBaseMapLayer;
-      visibleBaseMapLayer = "goes16";
-      requestNewTimeline("goes16-times.json", timelineType);
-      var v = gEarthTime.timelapse.getVideoset();
-      v.setFps(12);
-      gEarthTime.timelapse.setMaxScale(goes16MaxScale);
-      gEarthTime.timelapse.setDoDwell(false);
-      gEarthTime.timelapse.setMasterPlaybackRate(1);
-      gEarthTime.timelapse.setPlaybackRate(1);
-      $("#layers-legend").hide();
-      // Handle Landsat 2016 bounds.
-      if (landsatVersion == "2016") {
-        $.getScript("himawari_landsat_ajax_includes.js")
-          .done(function(script, status) {
-            eval(script);
-            landsatBaseMapLayer.resetDimensions(cached_ajax["./1068x600/r.json"]);
-          }
-        );
-      }
-      $("#baselayerCreditText").html("&copy; NOAA");
-    } else {
-      showGoes16TimeMachineLayer = false;
-      cacheLastUsedLayer(goes16TimeMachineLayer);
-      setActiveLayersWithTimeline(-1);
-      doSwitchToLandsat();
-      var v = gEarthTime.timelapse.getVideoset();
-      v.setFps(10);
-      gEarthTime.timelapse.seek(0);
-      gEarthTime.timelapse.setMaxScale(landsatMaxScale);
-      gEarthTime.timelapse.setMasterPlaybackRate(1);
-      gEarthTime.timelapse.setPlaybackRate(defaultPlaybackSpeed);
-      $("#layers-legend").hide();
-      // Handle Landsat 2016 bounds.
-      if (!$(".timemachine").prop('checked')) {
-        if (landsatVersion == "2016") {
-          $.getScript(landsatAjaxIncludesPath)
-            .done(function(script, status) {
-              eval(script);
-              landsatBaseMapLayer.resetDimensions(cached_ajax["./1068x600/r.json"]);
-            }
-          );
-        }
-      }
-    }
-    gEarthTime.timelapse.warpTo(gEarthTime.timelapse.getHomeView());
-  }).prop('checked', showGoes16TimeMachineLayer);
-
-  $("#show-goes16-aug-2018").on("click", function() {
-    var $this = $(this);
-    if ($this.prop('checked')) {
-      goes16Aug2018TimeMachineLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      // Clear out non-goes16 layers if they were already active.
-      var $activeLayersNotIncludingClickedLayer = $(".map-layer-div").find("input:checked").not($(this));
-      if ($activeLayersNotIncludingClickedLayer.length > 1) {
-        $activeLayersNotIncludingClickedLayer.trigger("click");
-      }
-      showGoes16Aug2018TimeMachineLayer = true;
-      activeLayersWithTimeline = 1;
-      previousActiveLayersWithTimeline = activeLayersWithTimeline;
-      timelineType = "defaultUI";
-      previousVisibleBaseMapLayer = visibleBaseMapLayer;
-      visibleBaseMapLayer = "goes16-aug-2018";
-      requestNewTimeline("goes16-aug-2018-times.json", timelineType);
-      var v = gEarthTime.timelapse.getVideoset();
-      v.setFps(12);
-      gEarthTime.timelapse.setMaxScale(goes16MaxScale);
-      gEarthTime.timelapse.setDoDwell(false);
-      gEarthTime.timelapse.setMasterPlaybackRate(1);
-      gEarthTime.timelapse.setPlaybackRate(1);
-      $("#layers-legend").hide();
-      // Handle Landsat 2016 bounds.
-      if (landsatVersion == "2016") {
-        $.getScript("himawari_landsat_ajax_includes.js")
-          .done(function(script, status) {
-            eval(script);
-            landsatBaseMapLayer.resetDimensions(cached_ajax["./1068x600/r.json"]);
-          }
-        );
-      }
-      $("#baselayerCreditText").html("&copy; NOAA");
-    } else {
-      showGoes16Aug2018TimeMachineLayer = false;
-      cacheLastUsedLayer(goes16Aug2018TimeMachineLayer);
-      setActiveLayersWithTimeline(-1);
-      doSwitchToLandsat();
-      var v = gEarthTime.timelapse.getVideoset();
-      v.setFps(10);
-      gEarthTime.timelapse.seek(0);
-      gEarthTime.timelapse.setMaxScale(landsatMaxScale);
-      gEarthTime.timelapse.setMasterPlaybackRate(1);
-      gEarthTime.timelapse.setPlaybackRate(defaultPlaybackSpeed);
-      $("#layers-legend").hide();
-      // Handle Landsat 2016 bounds.
-      if (!$(".timemachine-layer").prop('checked')) {
-        if (landsatVersion == "2016") {
-          $.getScript(landsatAjaxIncludesPath)
-            .done(function(script, status) {
-              eval(script);
-              landsatBaseMapLayer.resetDimensions(cached_ajax["./1068x600/r.json"]);
-            }
-          );
-        }
-      }
-    }
-    gEarthTime.timelapse.warpTo(gEarthTime.timelapse.getHomeView());
-  }).prop('checked', showGoes16Aug2018TimeMachineLayer);
-
-  $("#show-goes16-nov-2018").on("click", function() {
-    var $this = $(this);
-    if ($this.prop('checked')) {
-      goes16Nov2018TimeMachineLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      // Clear out non-goes16 layers if they were already active.
-      var $activeLayersNotIncludingClickedLayer = $(".map-layer-div").find("input:checked").not($(this));
-      if ($activeLayersNotIncludingClickedLayer.length > 1) {
-        $activeLayersNotIncludingClickedLayer.trigger("click");
-      }
-      showGoes16Nov2018TimeMachineLayer = true;
-      activeLayersWithTimeline = 1;
-      previousActiveLayersWithTimeline = activeLayersWithTimeline;
-      timelineType = "defaultUI";
-      previousVisibleBaseMapLayer = visibleBaseMapLayer;
-      visibleBaseMapLayer = "goes16-nov-2018";
-      requestNewTimeline("goes16-nov-2018-times.json", timelineType);
-      var v = gEarthTime.timelapse.getVideoset();
-      v.setFps(12);
-      gEarthTime.timelapse.setMaxScale(goes16MaxScale);
-      gEarthTime.timelapse.setDoDwell(false);
-      gEarthTime.timelapse.setMasterPlaybackRate(1);
-      gEarthTime.timelapse.setPlaybackRate(1);
-      $("#layers-legend").hide();
-      // Handle Landsat 2016 bounds.
-      if (landsatVersion == "2016") {
-        $.getScript("himawari_landsat_ajax_includes.js")
-          .done(function(script, status) {
-            eval(script);
-            landsatBaseMapLayer.resetDimensions(cached_ajax["./1068x600/r.json"]);
-          }
-        );
-      }
-      $("#baselayerCreditText").html("&copy; NOAA");
-    } else {
-      showGoes16Nov2018TimeMachineLayer = false;
-      cacheLastUsedLayer(goes16Nov2018TimeMachineLayer);
-      setActiveLayersWithTimeline(-1);
-      doSwitchToLandsat();
-      var v = gEarthTime.timelapse.getVideoset();
-      v.setFps(10);
-      gEarthTime.timelapse.seek(0);
-      gEarthTime.timelapse.setMaxScale(landsatMaxScale);
-      gEarthTime.timelapse.setMasterPlaybackRate(1);
-      gEarthTime.timelapse.setPlaybackRate(defaultPlaybackSpeed);
-      $("#layers-legend").hide();
-      // Handle Landsat 2016 bounds.
-      if (!$(".timemachine-layer").prop('checked')) {
-        if (landsatVersion == "2016") {
-          $.getScript(landsatAjaxIncludesPath)
-            .done(function(script, status) {
-              eval(script);
-              landsatBaseMapLayer.resetDimensions(cached_ajax["./1068x600/r.json"]);
-            }
-          );
-        }
-      }
-    }
-    gEarthTime.timelapse.warpTo(gEarthTime.timelapse.getHomeView());
-  }).prop('checked', showGoes16Nov2018TimeMachineLayer);
-
-  $("#show-dscovr").on("click", function() {
-    //$(".current-location-text-container").hide();
-    //$(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight").removeClass("thumbnail_highlight");
-
-    var $this = $(this);
-    if ($this.prop('checked')) {
-      dscovrTimeMachineLayer.getTileView().handleTileLoading({layerDomId: $this[0].id});
-      // Clear out non-dscovr layers if they were already active.
-      var $activeLayersNotIncludingClickedLayer = $(".map-layer-div").find("input:checked").not($(this));
-      if ($activeLayersNotIncludingClickedLayer.length > 1) {
-        $activeLayersNotIncludingClickedLayer.trigger("click");
-      }
-      showDscovrTimeMachineLayer = true;
-      activeLayersWithTimeline = 1;
-      previousActiveLayersWithTimeline = activeLayersWithTimeline;
-      timelineType = "defaultUI";
-      previousVisibleBaseMapLayer = visibleBaseMapLayer;
-      visibleBaseMapLayer = "dscovr";
-      requestNewTimeline("dscovr-times.json", timelineType);
-      var v = gEarthTime.timelapse.getVideoset();
-      v.setFps(6);
-      gEarthTime.timelapse.seek(0);
-      gEarthTime.timelapse.setMaxScale(dscovrMaxScale);
-      gEarthTime.timelapse.setDoDwell(false);
-      gEarthTime.timelapse.setMasterPlaybackRate(1);
-      gEarthTime.timelapse.setPlaybackRate(1);
-      $("#layers-legend").hide();
-      // Handle Landsat 2016 bounds.
-      if (landsatVersion == "2016") {
-        $.getScript("himawari_landsat_ajax_includes.js")
-          .done(function(script, status) {
-            eval(script);
-            landsatBaseMapLayer.resetDimensions(cached_ajax["./1068x600/r.json"]);
-          }
-        );
-      }
-      $("#baselayerCreditText").html("&copy; NOAA");
-    } else {
-      showDscovrTimeMachineLayer = false;
-      cacheLastUsedLayer(dscovrTimeMachineLayer);
-      setActiveLayersWithTimeline(-1);
-      doSwitchToLandsat();
-      var v = gEarthTime.timelapse.getVideoset();
-      v.setFps(10);
-      gEarthTime.timelapse.setMaxScale(landsatMaxScale);
-      gEarthTime.timelapse.setMasterPlaybackRate(1);
-      gEarthTime.timelapse.setPlaybackRate(defaultPlaybackSpeed);
-      $("#layers-legend").hide();
-      // Handle Landsat 2016 bounds.
-      if (!$("#show-goes16").prop('checked') && !$("#show-himawari").prop('checked')) {
-        if (landsatVersion == "2016") {
-          $.getScript(landsatAjaxIncludesPath)
-            .done(function(script, status) {
-              eval(script);
-              landsatBaseMapLayer.resetDimensions(cached_ajax["./1068x600/r.json"]);
-            }
-          );
-        }
-      }
-    }
-    gEarthTime.timelapse.warpTo(gEarthTime.timelapse.getHomeView());
-  }).prop('checked', showDscovrTimeMachineLayer);
 
   // Base layers
   $("input:radio[name=base-layers]").on("click", function() {
@@ -1791,7 +1361,7 @@ function initLayerToggleUI() {
       showAnnotationResumeExit();
     }
     if (isMobileDevice || isIEButNotEdge) {
-      if (visibleBaseMapLayer != "blsat" || showHansenLayer2) {
+      if (visibleBaseMapLayer != "blsat") {
         UTIL.setDrawState(false);
       } else {
         UTIL.setDrawState(true);
@@ -1897,22 +1467,6 @@ function initLayerToggleUI() {
 
     // if ($(".csvlayer").find("input:checked").length > 0) {
     //   timelineType = "defaultUI";
-    // }
-
-    // // Toggle off Himawari/GOES16/DSCOVR if any other layer is selected when it is up. These layers are a special mode.
-    // // Base layer is part of the checkbox total, hence the > 1 check.
-    // if ((showHimawariTimeMachineLayer || showGoes16TimeMachineLayer || goes16Aug2018TimeMachineLayer || goes16Nov2018TimeMachineLayer || showDscovrTimeMachineLayer) && $('.map-layer-checkbox').find("input:checked").not("#show-himawari, #show-goes16, #show-goes16-aug-2018, #show-goes16-nov-2018, #show-dscovr").length > 1) {
-    //   if ($("#show-himawari").prop('checked')) {
-    //     $("#show-himawari").click();
-    //   } else if ($("#show-goes16").prop('checked')) {
-    //     $("#show-goes16").click();
-    //   } else if ($("#show-goes16-aug-2018").prop('checked')) {
-    //     $("#show-goes16-aug-2018").click();
-    //   } else if ($("#show-goes16-nov-2018").prop('checked')) {
-    //     $("#show-goes16-nov-2018").click();
-    //   } else if ($("#show-dscovr").prop('checked')) {
-    //     $("#show-dscovr").click();
-    //   }
     // }
 
     // // Hide any timelines that are visible if we have no layers up that require a timeline or we are a static layer that fully covers the entire globe
@@ -2255,15 +1809,6 @@ var gl;
 //// Layer visibility ////
 //
 
-var showMcrmLayer = false;
-var showHansenLayer = false;
-var showHansenLayer2 = false;
-var showAnimatedHansenLayer = false;
-var showHimawariTimeMachineLayer = false;
-var showGoes16TimeMachineLayer = false;
-var showGoes16Aug2018TimeMachineLayer = false;
-var showGoes16Nov2018TimeMachineLayer = false;
-var showDscovrTimeMachineLayer = false;
 var showCountryLabelMapLayer = false;
 
 // Default Time Machine visibility
@@ -2285,47 +1830,12 @@ var waitToLoadWaypointLayersOnPageReadyInterval;
 var timelineUIChangeListeners = [];
 
 function modifyWaypointSliderContent(keyframes, theme, story) {
-  return;
-  if (!himawariWaypoints[theme]) {
-    himawariWaypoints[theme] = {};
-  }
-  himawariWaypoints[theme][story] = {};
-  if (!annotationPicturePaths[theme]) {
-    annotationPicturePaths[theme] = {};
-  }
   annotationPicturePaths[theme][story] = {};
   for (var i = 0; i < keyframes.length; i++) {
     var keyframe = keyframes[i];
     // TODO: Force to only work with absolute image paths. One day we can figure out how to support paths from the internet without the wrath of trolls.
     var annotationPicturePath = keyframe.unsafe_string_annotationPicPath && keyframe.unsafe_string_annotationPicPath.indexOf("thumbnails/") == 0 ? keyframe.unsafe_string_annotationPicPath : undefined;
     annotationPicturePaths[theme][story][i] = { path : annotationPicturePath };
-    // Himawari is a special case.
-    // We need to store the bounds and times and then replace them with a default view.
-    // The default view allows for a black thumbnail to be used on the waypoint slider instead of some random position in Landsat
-    // Then when we actually click the Himawari waypoint, we load up the original bounds and time and use them.
-    for (var j = 0; j < keyframe.layers.length; j++) {
-      if (keyframe.layers[j] == "h8" || keyframe.layers[j] == "h8_16") {
-        // Himawari keyframes made with Landsat 2015 and viewed in Landsat 2016 with reset dimensions
-        // do not position correctly and need to be corrected below.
-        if (landsatVersion == "2016" && keyframe.layers[j] == "h8") {
-          keyframe.bounds.xmin -= 34645;
-          keyframe.bounds.xmax -= 30000;
-          keyframe.bounds.ymin -= 80931;
-          keyframe.bounds.ymax -= 15128;
-          var tmp = gEarthTime.timelapse.pixelBoundingBoxToPixelCenter(keyframe.bounds);
-          tmp.scale *= 2;
-          keyframe.bounds = gEarthTime.timelapse.pixelCenterToPixelBoundingBoxView(tmp).bbox;
-        }
-        himawariWaypoints[theme][story][i] = {
-          bounds: keyframe.bounds,
-          time: keyframe.time
-        };
-        // Fake bounds for thumbnail generating
-        keyframe.bounds = himawariWaypointThumbnailBounds;
-        break;
-      }
-    }
-
     // Sections in the spreadsheet to jump to are flagged by having the title start with a #
     if (keyframe.unsafe_string_frameTitle.indexOf("#") == 0) {
       keyframe.unsafe_string_frameTitle = keyframe.unsafe_string_frameTitle.slice(1);
@@ -2339,7 +1849,6 @@ function loadWaypointSliderContentFromCSV(csvdata) {
 
   // Clear out internal data stores and relevant dom elements
   annotationPicturePaths = {};
-  himawariWaypoints = {};
   waypointJSONList = {};
   var story_count;
   var theme_html = "";
@@ -2386,7 +1895,6 @@ function loadWaypointSliderContentFromCSV(csvdata) {
       var stories = waypointJSONList[themeId].stories
       for (var storyId in stories) {
         var waypointJSON = JSON.parse(stories[storyId].waypoints);
-        // TODO: Do we still need this for himawari now that we have real thumbnails?
         modifyWaypointSliderContent(waypointJSON.snaplapse.keyframes, themeId, storyId);
         currentWaypointSliderContentUrl = snaplapseForPresentationSlider.getAsUrlString(waypointJSON.snaplapse.keyframes);
         // Handle legacy case where we treat theme as a story
@@ -2573,28 +2081,6 @@ async function setupUIAndOldLayers() {
   var light_base = '<td><label for="blte-base" name="blte"><input type="radio" id="blte-base" name="base-layers" value="blte"/><span>Light Map</span></label></td>';
   var dark_base = '<td><label for="bdrk-base" name="bdrk"><input type="radio" id="bdrk-base" name="base-layers" value="bdrk"/><span>Dark Map</span></label></td>';
 
-  // NOTE NOTE NOTE
-  // What is set for the name in the label must never be changed and is forever connected to share links
-  // The schema for generating the label name is using the initials of the data product. If this ends up conflicting
-  // with one that already exists, then it is up to you to come up with something. Perhaps the initials of the name you would
-  // give it when describing the layer to someone. Keep it as short as possible though.
-  // NOTE NOTE NOTE
-  var show_forest_change = '<td class="forest-change-select"><label for="show-forest-change" name="fly"><input type="checkbox" id="show-forest-change" />Forest Loss by Year</label></td>';
-  var show_forest_loss_gain = '<td class="forest-loss-gain-select"><label for="show-forest-loss-gain" name="flg"><input type="checkbox" id="show-forest-loss-gain" />Forest Loss/Gain</label></td>';
-  var show_animated_forest_loss_gain = '<td class="animated-forest-loss-select"><label for="show-animated-forest-loss-gain" name="aflg"><input type="checkbox" id="show-animated-forest-loss-gain" />Forest Loss/Gain (Animated)</label></td>';
-  var show_himawari = '<td class="timemachine himawari-select"><label for="show-himawari" name="h8_16"><input type="checkbox" id="show-himawari" />Himawari-8</label></td>';
-  var show_sea_level_rise_1p0 = '<td class="sea-level-rise-1p0-select"><label for="show-sea-level-rise-1p0" name="slr10"><input type="checkbox" id="show-sea-level-rise-1p0" />Sea Level Rise Due to 1.0&deg;C Increase</label></td>';
-  var show_sea_level_rise_1p5 = '<td class="sea-level-rise-1p5-select"><label for="show-sea-level-rise-1p5" name="slr15"><input type="checkbox" id="show-sea-level-rise-1p5" />Sea Level Rise Due to 1.5&deg;C Increase</label></td>';
-  var show_sea_level_rise_2p0 = '<td class="sea-level-rise-2p0-select"><label for="show-sea-level-rise-2p0" name="slr2"><input type="checkbox" id="show-sea-level-rise-2p0" />Sea Level Rise Due to 2.0&deg;C Increase</label></td>';
-  var show_sea_level_rise_4p0 = '<td class="sea-level-rise-4p0-select"><label for="show-sea-level-rise-4p0" name="slr4"><input type="checkbox" id="show-sea-level-rise-4p0" />Sea Level Rise Due to 4.0&deg;C Increase</label></td>';
-  var show_berkeley_earth_temperature_anomaly = '<td class="berkeley-earth-temperature-anomaly-select"><label for="show-berkeley-earth-temperature-anomaly" name="berkeley-earth-temperature-anomaly"><input type="checkbox" id="show-berkeley-earth-temperature-anomaly" />Temperature Anomaly</label></td>';
-  var show_berkeley_earth_temperature_anomaly_v2_yearly = '<td class="berkeley-earth-temperature-anomaly-v2-yearly-select"><label for="show-berkeley-earth-temperature-anomaly-v2-yearly" name="berkeley-earth-temperature-anomaly-v2-yearly"><input type="checkbox" id="show-berkeley-earth-temperature-anomaly-v2-yearly" />Temperature Anomaly V2 Yearly</label></td>';
-  var show_goes16 = '<td class="timemachine goes16-select"><label for="show-goes16" name="goes16"><input type="checkbox" id="show-goes16" />GOES16</label></td>';
-  var show_goes16_aug2018 = '<td class="timemachine goes16-aug-2018-select"><label for="show-goes16-aug-2018" name="goes16-aug-2018"><input type="checkbox" id="show-goes16-aug-2018" />GOES16 August 2018</label></td>';
-  var show_goes16_nov2018 = '<td class="timemachine goes16-nov-2018-select"><label for="show-goes16-nov-2018" name="goes16-nov-2018"><input type="checkbox" id="show-goes16-nov-2018" />GOES16 November 2018</label></td>';
-  var show_dscovr = '<td class="timemachine dscovr-select"><label for="show-dscovr" name="dscovr"><input type="checkbox" id="show-dscovr" />DSCOVR</label></td>';
-  var show_wind_vectors = '<td class="wind-vectors-select"><label for="show-wind-vectors" name="wind-vectors"><input type="checkbox" id="show-wind-vectors" />Wind Vectors</label></td>';
-
   layer_html += '<div id="all-data-layers-title">All Data</div>';
   layer_html += '<div class="layers-scroll-vertical">';
   layer_html += '<div class="map-layer-div map-layer-checkbox">';
@@ -2611,21 +2097,6 @@ async function setupUIAndOldLayers() {
   layer_html += '    </tr>';
   layer_html += '  </table>';
   /* END BASE LAYERS */
-
-  /* FOREST CATEGORY */
-  layer_html += '  <h3>Forests</h3>';
-  layer_html += '  <table id="category-forests">';
-  layer_html += '    <tr>';
-  layer_html += show_forest_change;
-  layer_html += '    </tr>';
-  layer_html += '    <tr>';
-  layer_html += show_forest_loss_gain;
-  layer_html += '    </tr>';
-  layer_html += '    <tr>';
-  layer_html += show_animated_forest_loss_gain;
-  layer_html += '    </tr>';
-  layer_html += '  </table>';
-  /* END FOREST CATEGORY */
 
   /* WATER CATEGORY */
   layer_html += '  <h3>Water</h3>';
@@ -2662,27 +2133,7 @@ async function setupUIAndOldLayers() {
     layer_html += '    </tr>';
   }
   */
-  if (showHimawari8) {
-    layer_html += '    <tr>';
-    layer_html += show_himawari;
-    layer_html += '    </tr>';
-  }
-  if (showGoes16) {
-    layer_html += '    <tr>';
-    layer_html += show_goes16;
-    layer_html += '    </tr>';
-    layer_html += '    <tr>';
-    layer_html += show_goes16_aug2018;
-    layer_html += '    </tr>';
-    layer_html += '    <tr>';
-    layer_html += show_goes16_nov2018;
-    layer_html += '    </tr>';
-  }
-  if (showDscovr) {
-    layer_html += '    <tr>';
-    layer_html += show_dscovr;
-    layer_html += '    </tr>';
-  }
+
   if (showCsvLayers) {
     // Custom CSV Layers
     layer_html += '  <tbody id="csvlayers_table">';
@@ -2928,71 +2379,6 @@ async function setupUIAndOldLayers() {
   // };
   //landsatBaseMapLayer = new WebGLTimeMachineLayer(glb, canvasLayer, landsatTimeMachineLayerOptions);
 
-/////////////  // Himawari-8
-/////////////  var himawariTimeMachineLayerOptions = {
-/////////////    // TODO(LayerDB)  numFrames hardcoded for now, until we remove this code altogether :-)
-/////////////    numFrames: 1000,
-/////////////    //numFrames: cached_ajax['himawari-times.json']['capture-times'].length,
-/////////////    fps: 12,
-/////////////    nLevels: 4,
-/////////////    width: 11000,
-/////////////    height: 11000,
-/////////////    tileRootUrl: himawariTimeMachineUrl
-/////////////  };
-/////////////  himawariTimeMachineLayer = new WebGLTimeMachineLayer(gEarthTime.glb, gEarthTime.canvasLayer, himawariTimeMachineLayerOptions);
-/////////////
-/////////////  // GOES16
-/////////////  var goes16TimeMachineLayerOptions = {
-/////////////    // TODO(LayerDB)  numFrames hardcoded for now, until we remove this code altogether :-)
-/////////////    numFrames: 1000,
-/////////////    //numFrames: cached_ajax['goes16-times.json']['capture-times'].length,
-/////////////    fps: 12,
-/////////////    nLevels: 4,
-/////////////    width: 10848,
-/////////////    height: 10848,
-/////////////    tileRootUrl: goes16TimeMachineUrl
-/////////////  };
-/////////////  goes16TimeMachineLayer = new WebGLTimeMachineLayer(gEarthTime.glb, gEarthTime.canvasLayer, goes16TimeMachineLayerOptions);
-/////////////
-/////////////  // GOES16-Aug2018
-/////////////  var goes16Aug2018TimeMachineLayerOptions = {
-/////////////    // TODO(LayerDB)  numFrames hardcoded for now, until we remove this code altogether :-)
-/////////////    numFrames: 1000,
-/////////////    //numFrames: cached_ajax['goes16-aug-2018-times.json']['capture-times'].length,
-/////////////    fps: 12,
-/////////////    nLevels: 4,
-/////////////    width: 10848,
-/////////////    height: 10848,
-/////////////    tileRootUrl: goes16Aug2018TimeMachineUrl
-/////////////  };
-/////////////  goes16Aug2018TimeMachineLayer = new WebGLTimeMachineLayer(gEarthTime.glb, gEarthTime.canvasLayer, goes16Aug2018TimeMachineLayerOptions);
-/////////////
-/////////////  // GOES16-Nov2018
-/////////////  var goes16Nov2018TimeMachineLayerOptions = {
-/////////////    // TODO(LayerDB)  numFrames hardcoded for now, until we remove this code altogether :-)
-/////////////    numFrames: 1000,
-/////////////    //numFrames: cached_ajax['goes16-nov-2018-times.json']['capture-times'].length,
-/////////////    fps: 12,
-/////////////    nLevels: 4,
-/////////////    width: 10848,
-/////////////    height: 10848,
-/////////////    tileRootUrl: goes16Nov2018TimeMachineUrl
-/////////////  };
-/////////////  goes16Nov2018TimeMachineLayer = new WebGLTimeMachineLayer(gEarthTime.glb, gEarthTime.canvasLayer, goes16Nov2018TimeMachineLayerOptions);
-/////////////
-/////////////
-/////////////  // DSCOVR
-/////////////  var dscovrTimeMachineLayerOptions = {
-/////////////    // TODO(LayerDB)  numFrames hardcoded for now, until we remove this code altogether :-)
-/////////////    numFrames: 1000,
-/////////////    //numFrames: cached_ajax['dscovr-times.json']['capture-times'].length,
-/////////////    fps: 6,
-/////////////    nLevels: 3,
-/////////////    width: 2048,
-/////////////    height: 2048,
-/////////////    tileRootUrl: dscovrTimeMachineUrl
-/////////////  };
-/////////////  dscovrTimeMachineLayer = new WebGLTimeMachineLayer(gEarthTime.glb, gEarthTime.canvasLayer, dscovrTimeMachineLayerOptions);
 /////////////
 /////////////  // For any raster map
 /////////////  var defaultMapLayerOptions = {
@@ -3019,20 +2405,11 @@ async function setupUIAndOldLayers() {
 ////////////
 lightBaseMapLayer = new WebGLMapLayer(null, gEarthTime.glb, gEarthTime.canvasLayer, lightMapUrl, defaultBaseMapLayerOptions as LayerOptions);
 /////////////  darkBaseMapLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, darkMapUrl, defaultBaseMapLayerOptions);
-/////////////  hansenMapLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, gfcTransUrl, defaultMapLayerOptions);
-/////////////  hansenMapLayer2 = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, gfcLossGainUrl, defaultMapLayerOptions);
 /////////////
 /////////////  landBorderLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, landBorderUrl, defaultBaseMapLayerOptions);
 /////////////  countryLabelMapLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, countryLabelMapUrl, defaultBaseMapLayerOptions);
 /////////////  cityLabelMapLayer = new WebGLMapLayer(gEarthTime.glb, gEarthTime.canvasLayer, cityLabelMapUrl, defaultBaseMapLayerOptions);
 /////////////
-//////////////////////////
-/////////////  var animatedHansenLayerOptions = {
-/////////////    nLevels: 12,
-/////////////    tileWidth: 256,
-/////////////    tileHeight: 256
-/////////////  };
-/////////////  animatedHansenLayer = new WebGLMapLayer2(gEarthTime.glb, gEarthTime.canvasLayer, animatedHansenUrls, animatedHansenLayerOptions);
 /////////////
 // Layer Toggle UI
   initLayerToggleUI();
@@ -3101,26 +2478,9 @@ lightBaseMapLayer = new WebGLMapLayer(null, gEarthTime.glb, gEarthTime.canvasLay
 
       clearInterval(waitToLoadWaypointLayersOnPageReadyInterval);
 
-      // TODO: Do we still need this for himawari now that we have real thumbnails?
-      if (Object.keys(himawariWaypoints).length) {
-        var himawariWaypoint = (himawariWaypoints[currentWaypointTheme] && himawariWaypoints[currentWaypointTheme][currentWaypointStory]) ? himawariWaypoints[currentWaypointTheme][currentWaypointStory][waypointIndex] : null;
-      }
       isAutoModeRunning = snaplapseViewerForPresentationSlider.isAutoModeRunning();
       if (waypointTitle) {
         lastSelectedAnnotationBeforeHidden = $("#" + waypointTitle.replace(/\W+/g, "_") + " .snaplapse_keyframe_list_item_thumbnail_overlay_presentation");
-      }
-
-      // We are still technically using Landsat (web mercator) projections for any dataset being drawn,
-      // so the bounds that slide-change returns is not valid for our use. But we already
-      // know the bounds each himawari waypoints should be, so use that instead.
-      if (himawariWaypoint) {
-        waypointBounds = himawariWaypoint.bounds;
-        waypointStartTime = himawariWaypoint.time;
-        gEarthTime.timelapse.setMaxScale(himawariMaxScale);
-      } else if (waypoint.layers && waypoint.layers.indexOf("blsat") >= 0) {
-        gEarthTime.timelapse.setMaxScale(landsatMaxScale);
-      } else if (waypoint.layers) {
-        gEarthTime.timelapse.setMaxScale(rasterMapTileMaxScale);
       }
 
       var unsafeHashVars = UTIL.getUnsafeHashVars();
@@ -3205,10 +2565,6 @@ lightBaseMapLayer = new WebGLMapLayer(null, gEarthTime.glb, gEarthTime.canvasLay
       var waypointLayers = waypoint.layers || [];
       var waypointPlaybackSpeed = waypoint.speed;
 
-      // TODO: Do we still need this for himawari now that we have real thumbnails?
-      if (Object.keys(himawariWaypoints).length) {
-        var himawariWaypoint = (himawariWaypoints[currentWaypointTheme] && himawariWaypoints[currentWaypointTheme][currentWaypointStory]) ? himawariWaypoints[currentWaypointTheme][currentWaypointStory][waypointIndex] : null;
-      }
       var lastAvailableWaypointIdx = $(".snaplapse_keyframe_list").children().last().index();
       var selectedWaypointIdx = snaplapseViewerForPresentationSlider.getCurrentWaypointIndex();
 
@@ -3228,38 +2584,6 @@ lightBaseMapLayer = new WebGLMapLayer(null, gEarthTime.glb, gEarthTime.canvasLay
 
       // Show layer ids
       handleLayers(waypointLayers);
-
-      // Handle Himawari
-      // Note: Must be run after other layers
-      // Note: Needed because does not use mercator projection
-      if (himawariWaypoint) {
-        var initialHimawariViewChangeHack = function() {
-          if (isAutoModeRunning) {
-            snaplapseViewerForPresentationSlider.startAutoModeWaypointTimeout();
-          } else {
-            snaplapseViewerForPresentationSlider.startAutoModeIdleTimeout();
-          }
-          gEarthTime.timelapse.seek(himawariWaypoint.time);
-        };
-
-        var setHimawariView = function(himawariBoundingBox, himawariTime, himawariPlaybackSpeed) {
-          var himawariView = {
-            bbox: himawariBoundingBox
-          };
-          if (showHimawariTimeMachineLayer) {
-            gEarthTime.timelapse.setNewView(himawariView);
-          } else {
-            $("#show-himawari").click();
-            gEarthTime.timelapse.stopParabolicMotion({doCallback : false});
-            gEarthTime.timelapse.setNewView(himawariView, true, !!waypointPlaybackSpeed, initialHimawariViewChangeHack);
-          }
-          gEarthTime.timelapse.setMasterPlaybackRate(1);
-          gEarthTime.timelapse.setPlaybackRate(himawariPlaybackSpeed);
-        };
-
-        setHimawariView(himawariWaypoint.bounds, himawariWaypoint.time, 0.5);
-      }
-      // End Himawari
 
       // Display info box for the waypoints
       if (enableWaypointText) {
@@ -4778,739 +4102,700 @@ function update() {
 
   // These are special case layers that do not play with any of the other layers.
   if (false) {
-    if (showHimawariTimeMachineLayer) {
-      var himawariView = getLayerView(himawariTimeMachineLayer, landsatBaseMapLayer);
-      himawariTimeMachineLayer.draw(himawariView, tileViewVisibility);
-    } else if (showGoes16TimeMachineLayer) {
-      var goes16View = getLayerView(goes16TimeMachineLayer, landsatBaseMapLayer);
-      goes16TimeMachineLayer.draw(goes16View, tileViewVisibility);
-    } else if (showGoes16Aug2018TimeMachineLayer) {
-      var goes16Aug2018View = getLayerView(goes16Aug2018TimeMachineLayer, landsatBaseMapLayer);
-      goes16Aug2018TimeMachineLayer.draw(goes16Aug2018View, tileViewVisibility);
-    } else if (showGoes16Nov2018TimeMachineLayer) {
-      var goes16Nov2018View = getLayerView(goes16Nov2018TimeMachineLayer, landsatBaseMapLayer);
-      goes16Nov2018TimeMachineLayer.draw(goes16Nov2018View, tileViewVisibility);
-    } else if (showDscovrTimeMachineLayer) {
-      var dscovrView = getLayerView(dscovrTimeMachineLayer, landsatBaseMapLayer);
-      dscovrTimeMachineLayer.draw(dscovrView, tileViewVisibility);
-    } else {
-      // Static layers that cover the entire planet should be placed before the base layers in this manner.
-      // if (showLightsAtNightLayer) { // Draw lightsAtNightMapLayer
-      //   var lightsAtNightLayerView = getLayerView(lightsAtNightMapLayer, landsatBaseMapLayer);
-      //   lightsAtNightMapLayer.draw(lightsAtNightLayerView);
-      // }
-      //  else if (showLightsAtNight2012Layer) { // Draw lightsAtNight2012MapLayer
-      //   var lightsAtNight2012LayerView = getLayerView(lightsAtNight2012MapLayer, landsatBaseMapLayer);
-      //   lightsAtNight2012MapLayer.draw(lightsAtNight2012LayerView);
-      // }
-      if (showHansenLayer2) { // Draw Forest Loss/Gain
-        var hansenMapLayerView2 = getLayerView(hansenMapLayer2, landsatBaseMapLayer);
-        hansenMapLayer2.draw(hansenMapLayerView2);
-      } else if (visibleBaseMapLayer == "blsat") { // Draw Landsat
-        landsatBaseMapLayer.draw(gEarthTime.timelapse.getView(), tileViewVisibility);
-      } else if (visibleBaseMapLayer == "blte") { // Draw Light Map
-        var lightBaseMapView = getLayerView(lightBaseMapLayer, landsatBaseMapLayer);
-        lightBaseMapLayer.draw(lightBaseMapView);
-      } else if (visibleBaseMapLayer == "bdrk") { // Draw Dark Map
-        var darkBaseMapView = getLayerView(darkBaseMapLayer, landsatBaseMapLayer);
-        var options = {showTile: showTile};
-        darkBaseMapLayer.draw(darkBaseMapView, options);
-      }
-
-      // TODO(LayerDB)
-      // Draw CSV z=100 (typically raster base maps)
-      // for (var i = 0; i < csvFileLayers.layers.length; i++) {
-      //   var layer = csvFileLayers.layers[i];
-      //   if (layer.visible && layer.z == 100) {
-      //     drawCsvLayer(layer);
-      //   }
-      // }
-
-      //// Layers to draw above the base layer (or planet-wide static layers)
-
-      // Draw Fishing PPR
-      /*if (showFishingPprTimeMachineLayer) {
-        var fishingPprView = getLayerView(fishingPprTimeMachineLayer, landsatBaseMapLayer);
-        fishingPprTimeMachineLayer.draw(fishingPprView, tileViewVisibility);
-      }*/
-
-      // Draw NDVI Anomaly
-      /*if (showNdviAnomalyTimeMachineLayer) {
-        var ndviView = getLayerView(ndviAnomalyTimeMachineLayer, landsatBaseMapLayer);
-        ndviAnomalyTimeMachineLayer.draw(ndviView, tileViewVisibility);
-      }*/
-
-      // Draw Forest Loss by Year (Transparent)
-      if (showHansenLayer) {
-        var hansenMapLayerView = getLayerView(hansenMapLayer, landsatBaseMapLayer);
-        hansenMapLayer.draw(hansenMapLayerView);
-      }
-
-      // Draw Vegetation Sensitivity Index
-      // if (showVsiLayer) {
-      //   var vsiLayerView = getLayerView(vsiLayer, landsatBaseMapLayer);
-      //   vsiLayer.draw(vsiLayerView);
-      // }
-
-      // // Draw Water Occurrence
-      // if (showWaterOccurrenceLayer) {
-      //   var waterOccurrenceView = getLayerView(waterOccurrenceLayer, landsatBaseMapLayer);
-      //   waterOccurrenceLayer.draw(waterOccurrenceView);
-      // }
-
-      // // Draw Water Change
-      // if (showWaterChangeLayer) {
-      //   var waterChangeView = getLayerView(waterChangeLayer, landsatBaseMapLayer);
-      //   waterChangeLayer.draw(waterChangeView);
-      // }
-
-      // Draw Animated Hansen Layer
-      if (showAnimatedHansenLayer) {
-        var animatedHansenLayerView = getLayerView(animatedHansenLayer, landsatBaseMapLayer);
-        var beginDate = Number(gEarthTime.timelapse.getCaptureTimes()[0]);
-        var endDate = Number(gEarthTime.timelapse.getCaptureTimes()[gEarthTime.timelapse.getCaptureTimes().length - 1]);
-        var currentDate = Number(gEarthTime.timelapse.getCaptureTimeByTime(gEarthTime.timelapse.getCurrentTime()));
-        var ratio = (currentDate - beginDate) / (endDate - beginDate);
-        // TODO: move this computation to the tile
-        // @ts-ignore
-        animatedHansenLayerView.alpha = ratio;
-        animatedHansenLayer.draw(animatedHansenLayerView);
-      }
-
-
-      // Draw Fires at Night (VIIRS)
-      /*
-      var viirsIndex = {
-        '201408': {'count': 115909, 'first': 0},
-        '201409': {'count': 213165, 'first': 115909},
-        '201410': {'count': 232833, 'first': 329074},
-        '201411': {'count': 146622, 'first': 561907},
-        '201412': {'count': 151926, 'first': 708529},
-        '201501': {'count': 192835, 'first': 860455},
-        '201502': {'count': 150901, 'first': 1053290},
-        '201503': {'count': 189347, 'first': 1204191},
-        '201504': {'count': 175398, 'first': 1393538},
-        '201505': {'count': 133021, 'first': 1568936},
-        '201506': {'count': 116314, 'first': 1701957},
-        '201507': {'count': 192662, 'first': 1818271},
-        '201508': {'count': 289941, 'first': 2010933},
-        '201509': {'count': 282792, 'first': 2300874},
-        '201510': {'count': 286486, 'first': 2583666},
-        '201511': {'count': 187366, 'first': 2870152},
-        '201512': {'count': 183570, 'first': 3057518},
-        '201601': {'count': 208576, 'first': 3241088},
-        '201602': {'count': 179606, 'first': 3449664},
-        '201603': {'count': 184595, 'first': 3629270},
-        '201604': {'count': 185076, 'first': 3813865},
-        '201605': {'count': 144875, 'first': 3998941},
-        '201606': {'count': 126776, 'first': 4143816},
-        '201607': {'count': 175568, 'first': 4270592},
-        '201608': {'count': 236754, 'first': 4446160},
-        '201609': {'count': 254754, 'first': 4682914},
-        '201610': {'count': 174679, 'first': 4937668},
-        '201611': {'count': 167121, 'first': 5112347},
-        '201612': {'count': 183016, 'first': 5279468},
-        '201701': {'count': 181133, 'first': 5462484},
-        '201702': {'count': 158187, 'first': 5643617},
-        '201703': {'count': 156410, 'first': 5801804},
-        '201704': {'count': 170735, 'first': 5958214},
-        '201705': {'count': 101733, 'first': 6128949},
-        '201706': {'count': 132268, 'first': 6230682},
-        '201707': {'count': 171562, 'first': 6362950},
-        '201708': {'count': 299079, 'first': 6534512},
-        '201709': {'count': 298956, 'first': 6833591},
-        '201710': {'count': 53789, 'first': 7132547}
-      };
-      if (showViirsLayer) {
-        var viirsLayerView = getLayerView(viirsLayer, landsatBaseMapLayer);
-        let options: DrawOptions = {};
-        options.zoom = timelapse.getCurrentZoom();
-        var currentTime = timelapse.getCurrentTime();
-        var currentTimes = getCurrentTimes(timelapse);
-        var dates = getDates(timelapse);
-        var delta = getCurrentTimesDelta(currentTime, currentTimes);
-        let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-        options.currentTime = currentDate;
-
-        var currentMonth = currentDate.getUTCMonth();
-        var currentYear = currentDate.getUTCFullYear();
-        var prevYear = currentYear;
-        var prevMonth = currentMonth - 1;
-        if (prevMonth < 0) {
-          prevMonth = 11;
-          prevYear--;
-        }
-
-        var currentIdx = currentYear + ('0' + (currentMonth+1)).slice(-2);
-        var prevIdx = prevYear + ('0' + (prevMonth+1)).slice(-2);
-        options.first = prevIdx in viirsIndex ? viirsIndex[prevIdx]['first'] : 0 ;
-        options.count = prevIdx in viirsIndex && currentIdx in viirsIndex ? viirsIndex[currentIdx]['count'] + viirsIndex[prevIdx]['count'] : 100;
-
-        viirsLayer.draw(viirsLayerView, options);
-      }
-      */
-
-      // Draw Wind Layer
-  /*
-      if (showUsgsWindTurbineLayer) {
-        var usgsWindTurbineLayerView = getLayerView(usgsWindTurbineLayer, landsatBaseMapLayer);
-        let options: DrawOptions = {};
-        options.zoom = timelapse.getCurrentZoom();
-        var currentTime = timelapse.getCurrentTime();
-        var currentTimes = getCurrentTimes(timelapse);
-        var dates = getDates(timelapse);
-        var delta = getCurrentTimesDelta(currentTime, currentTimes);
-        let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-        options.currentTime = currentDate;
-        options.color = [0.1, 0.5, 0.1, 1.0];
-        options.pointSize = 3.0;
-        usgsWindTurbineLayer.draw(usgsWindTurbineLayerView, options);
-      }
-  */
-      // Draw Global Wind Layer
-  /*
-      if (showGlobalWindPowerLayer) {
-        var globalWindPowerLayerView = getLayerView(globalWindPowerLayer, landsatBaseMapLayer);
-        let options: DrawOptions = {};
-        options.zoom = timelapse.getCurrentZoom();
-        var currentTime = timelapse.getCurrentTime();
-        var currentTimes = getCurrentTimes(timelapse);
-        var dates = getDates(timelapse);
-        var delta = getCurrentTimesDelta(currentTime, currentTimes);
-        let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-        options.currentTime = currentDate;
-        options.pointSize = 3;
-        options.color = [0.1, 0.5, 0.1, 1.0];
-        globalWindPowerLayer.draw(globalWindPowerLayerView, options);
-      }
-  */
-
-      // Draw Solar Layer
-      /*
-      if (showSolarInstallsLayer) {
-        var solarInstallsLayerView = getLayerView(solarInstallsLayer, landsatBaseMapLayer);
-        let options: DrawOptions = {};
-        options.zoom = timelapse.getCurrentZoom();
-        var currentTime = timelapse.getCurrentTime();
-        var currentTimes = getCurrentTimes(timelapse);
-        var dates = getDates(timelapse);
-        var delta = getCurrentTimesDelta(currentTime, currentTimes);
-        let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-        options.currentTime = currentDate;
-        options.pointSize = 3;
-        solarInstallsLayer.draw(solarInstallsLayerView, options);
-      }
-      */
-
-      // Draw Oil/Gas Drilling Layer
-      /*
-      if (showDrillingLayer) {
-        var drillingLayerView = getLayerView(drillingLayer, landsatBaseMapLayer);
-        let options: DrawOptions = {};
-        options.zoom = timelapse.getCurrentZoom();
-        var currentTime = timelapse.getCurrentTime();
-        var currentTimes = getCurrentTimes(timelapse);
-        var dates = getDates(timelapse);
-        var delta = getCurrentTimesDelta(currentTime, currentTimes);
-        let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-        options.currentTime = currentDate;
-        options.color = [0.82, 0.22, 0.07, 1.0];
-        drillingLayer.draw(drillingLayerView, options);
-      }
-      */
-      // Draw Forest Alerts (No Overlay)
-      /*if (showForestAlertsNoOverlayTimeMachineLayer) {
-        var forestAlertsNoOverlayView = timelapse.getView();
-        var timelapse2map = forestAlertsNoOverlayTimeMachineLayer.getWidth() / landsatBaseMapLayer.getWidth();
-
-        var p = timelapse.getProjection();
-        var offest = p.latlngToPoint({
-          "lat": 5.506709319555738,
-          "lng": -82.5513118548623
-        });
-
-        forestAlertsNoOverlayView.x -= offest.x;
-        forestAlertsNoOverlayView.y -= offest.y;
-        forestAlertsNoOverlayTimeMachineLayer.draw(forestAlertsNoOverlayView, tileViewVisibility);
-      }
-
-      // Draw Forest Alerts (With Overlay)
-      if (showForestAlertsTimeMachineLayer) {
-        var forestAlertsView = timelapse.getView();
-        var timelapse2map = forestAlertsTimeMachineLayer.getWidth() / landsatBaseMapLayer.getWidth();
-
-        var p = timelapse.getProjection();
-        var offest = p.latlngToPoint({
-          "lat": 5.506709319555738,
-          "lng": -82.5513118548623
-        });
-
-        forestAlertsView.x -= offest.x;
-        forestAlertsView.y -= offest.y;
-        forestAlertsTimeMachineLayer.draw(forestAlertsView, tileViewVisibility);
-      }*/
-
-      // Draw Nutritional Deficiency Layers
-      /*
-      if (showHealthImpactLayer) {
-        var healthImpactLayerView = getLayerView(healthImpactLayer, landsatBaseMapLayer);
-        let options: DrawOptions = {};
-        options.zoom = timelapse.getCurrentZoom();
-
-        var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
-        var times = timelapse.getCaptureTimes();
-        var endDate = new Date("2055");
-        var startDate = new Date("2015");
-        var range = endDate.getTime() - startDate.getTime();
-        var currentDate = new Date(ratio * range + startDate.getTime());
-        var year = currentDate.getUTCFullYear();
-
-        for (var i = 0; i < times.length - 1; i++) {
-          if (year == times[i] || year < times[i + 1] && year > times[i]) {
-            year = parseInt(times[i]);
-          }
-        }
-        var currentYear = new Date(year, 0, 1);
-        var nextYear = new Date(year + 5, 0, 1);
-        if (year >= 2050) {
-          nextYear = currentYear;
-        }
-        var delta = (currentDate.getTime() - currentYear) / (nextYear - currentYear);
-
-        options.year = year;
-        options.delta = delta;
-        options.showRcp = showHealthImpactRcp;
-
-        healthImpactLayer.draw(healthImpactLayerView, options);
-      }
-      */
-
-      // Draw Zika Layer
-      /*
-      if (showZikaLayer) {
-        var zikaLayerView = getLayerView(zikaLayer, landsatBaseMapLayer);
-        let options: DrawOptions = {};
-        options.zoom = timelapse.getCurrentZoom();
-        var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
-        var times = timelapse.getCaptureTimes();
-        var startDate = new Date(parseInt(times[0]), 0, 1);
-        var endDate = new Date(parseInt(times[times.length - 1]) + 1, 0, 1);
-        var range = endDate.getTime() - startDate.getTime();
-        var currentDate = new Date(ratio * range + startDate.getTime());
-        options.currentTime = currentDate;
-        options.color = [1.0, 0.1, 0.1, 1.0];
-        options.pointSize = 10.0;
-        zikaLayer.draw(zikaLayerView, options);
-      }
-      */
-      // Draw Dengue Layer
-      /*
-      if (showDengueLayer) {
-        var dengueLayerView = getLayerView(dengueLayer, landsatBaseMapLayer);
-        let options: DrawOptions = {};
-        options.zoom = timelapse.getCurrentZoom();
-        var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
-        var times = timelapse.getCaptureTimes();
-        var startDate = new Date(parseInt(times[0]), 0, 1);
-        var endDate = new Date(parseInt(times[times.length - 1]) + 1, 0, 1);
-        var range = endDate.getTime() - startDate.getTime();
-        var currentDate = new Date(ratio * range + startDate.getTime());
-        options.currentTime = currentDate;
-        options.color = [0.2, 1.0, 0.1, 1.0];
-        options.pointSize = 10.0;
-        dengueLayer.draw(dengueLayerView, options);
-      }
-      */
-      // Draw Chiku Layer
-      /*
-      if (showChikuLayer) {
-        var chikuLayerView = getLayerView(chikuLayer, landsatBaseMapLayer);
-        let options: DrawOptions = {};
-        options.zoom = timelapse.getCurrentZoom();
-        var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
-        var times = timelapse.getCaptureTimes();
-        var startDate = new Date(parseInt(times[0]), 0, 1);
-        var endDate = new Date(parseInt(times[times.length - 1]) + 1, 0, 1);
-        var range = endDate.getTime() - startDate.getTime();
-        var currentDate = new Date(ratio * range + startDate.getTime());
-        options.currentTime = currentDate;
-        options.color = [0.1, 0.1, 1.0, 1.0];
-        options.pointSize = 10.0;
-        chikuLayer.draw(chikuLayerView, options);
-      }
-      */
-
-      /*if (showTintedSeaLevelRiseLayer) {
-        var sea_level_heights = [
-          [0.0, 0.0],
-          [2.4, 0.7],
-          [7.0, 2.1],
-          [9.4, 2.9],
-          [15, 4.7],
-          [18, 5.6],
-          [21, 6.4],
-          [26, 7.9],
-          [29, 8.9]
-        ]; // [feet,meters]
-        var feet = document.getElementById("slr-feet");
-        var meters = document.getElementById("slr-meters");
-        var degree = document.getElementById("slr-degree");
-        var seaLevelRiseLayerView = getLayerView(seaLevelRiseLayer, landsatBaseMapLayer);
-        let options: DrawOptions = {};
-        var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
-        var times = timelapse.getCaptureTimes();
-        var start = parseFloat(times[0]);
-        var end = parseFloat(times[times.length - 1]) + 0.5;
-        var range = end - start;
-        var current = ratio * range + start;
-        options.currentC = Math.min(current, times[times.length - 1]);
-        if (visibleBaseMapLayer == "blsat") {
-          options.color = [0.1, 0.1, 0.1, 1.0];
-        } else if (visibleBaseMapLayer == "blte") {
-          options.color = [0.4921875, 0.7421875, 0.91015625, 1.0];
-        } else if (visibleBaseMapLayer == "bdrk") {
-          options.color = [0.203125, 0.203125, 0.203125, 1.0];
-        }
-        // else if (showLightsAtNightLayer) {
-        //   options.color = [0.0, 0.0, 0.0, 1.0];
-        // }
-        var currentIndex = 0;
-        for (var i = 0; i < times.length; i++) {
-          if (timelapse.getCurrentCaptureTime() == times[i]) {
-            currentIndex = i;
-          }
-        }
-        //feet.innerHTML = sea_level_heights[currentIndex][0] + "ft";
-        if (sea_level_heights[currentIndex]) {
-          $(meters).html("+" + sea_level_heights[currentIndex][1].toFixed(1) + "m");
-        }
-        $(degree).html((currentIndex / 2).toFixed(1));
-        tintedSeaLevelRiseLayer.draw(seaLevelRiseLayerView, options);
-        $(".timeText, .captureTimeMain").html(timelapse.getCurrentCaptureTime() + "&degC");
-      }*/
-
-      /*
-      if (showUrbanFragilityLayer) {
-        var urbanFragilityLayerView = getLayerView(urbanFragilityLayer, landsatBaseMapLayer);
-        let options: DrawOptions = {};
-        options.zoom = timelapse.getCurrentZoom();
-
-        var currentTime = timelapse.getCurrentTime();
-        var currentTimes = getCurrentTimes(timelapse);
-        var dates = getDates(timelapse);
-        var delta = getCurrentTimesDelta(currentTime, currentTimes);
-        let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-        var year = currentDate.getUTCFullYear();
-        options.year = year;
-        options.delta = Math.min(delta, 1);
-        urbanFragilityLayer.draw(urbanFragilityLayerView, options);
-
-      }
-      */
-
-      /*
-      if (showGtdLayer) {
-        var gtdLayerView = getLayerView(gtdLayer, landsatBaseMapLayer);
-        let options: DrawOptions = {};
-        options.zoom = timelapse.getCurrentZoom();
-        var currentTime = timelapse.getCurrentTime();
-        var currentTimes = getCurrentTimes(timelapse);
-        var dates = getDates(timelapse);
-        var delta = getCurrentTimesDelta(currentTime, currentTimes);
-        let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-        options.currentTime = currentDate;
-        options.color = [1.0, 0.0, 0.0, 1.0];
-        gtdLayer.draw(gtdLayerView, options);
-      }
-      */
-      /*
-      if (showUppsalaConflictLayer) {
-        var uppsalaConflictLayerView = getLayerView(uppsalaConflictLayer, landsatBaseMapLayer);
-        let options: DrawOptions = {};
-        options.zoom = timelapse.getCurrentZoom();
-        var currentTime = timelapse.getCurrentTime();
-        var currentTimes = getCurrentTimes(timelapse);
-        var dates = getDates(timelapse);
-        var delta = getCurrentTimesDelta(currentTime, currentTimes);
-        let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-        options.currentTime = currentDate;
-        options.color = [1.0, 0.0, 0.0, 1.0];
-        uppsalaConflictLayer.draw(uppsalaConflictLayerView, options);
-      }
-      */
-      /*
-      if (showHivLayer) {
-        var hivLayerView = getLayerView(hivLayer, landsatBaseMapLayer);
-        let options: DrawOptions = {};
-        options.zoom = timelapse.getCurrentZoom();
-
-        var currentTime = timelapse.getCurrentTime();
-        var currentTimes = getCurrentTimes(timelapse);
-        var dates = getDates(timelapse);
-        var delta = getCurrentTimesDelta(currentTime, currentTimes);
-        let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-        var year = currentDate.getUTCFullYear();
-        options.year = year;
-        options.delta = Math.min(delta, 1);
-        hivLayer.draw(hivLayerView, options);
-      }
-      */
-      /*
-      if (showObesityLayer) {
-        var obesityLayerView = getLayerView(obesityLayer, landsatBaseMapLayer);
-        let options: DrawOptions = {};
-        options.zoom = timelapse.getCurrentZoom();
-
-        var currentTime = timelapse.getCurrentTime();
-        var currentTimes = getCurrentTimes(timelapse);
-        var dates = getDates(timelapse);
-        var delta = getCurrentTimesDelta(currentTime, currentTimes);
-        let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-        var year = currentDate.getUTCFullYear();
-        options.year = year;
-        options.delta = Math.min(delta, 1);
-        obesityLayer.draw(obesityLayerView, options);
-      }
-      */
-      /*
-      if (showVaccineConfidenceLayer) {
-        var vaccineConfidenceLayerView = getLayerView(vaccineConfidenceLayer, landsatBaseMapLayer);
-        let options: DrawOptions = {};
-
-        var vaccineConfidenceQuestion = 1.0;
-        if ($("#show-vaccine-confidence-q2").prop('checked')) {
-          vaccineConfidenceQuestion = 2.0;
-        }
-        if ($("#show-vaccine-confidence-q3").prop('checked')) {
-          vaccineConfidenceQuestion = 3.0;
-        }
-        if ($("#show-vaccine-confidence-q4").prop('checked')) {
-          vaccineConfidenceQuestion = 4.0;
-        }
-        options.question = vaccineConfidenceQuestion;
-        vaccineConfidenceLayer.draw(vaccineConfidenceLayerView, options);
-
-      }
-      */
-      /*
-      if (showEbolaDeathsLayer) {
-        var ebolaLayerView = getLayerView(ebolaDeathsLayer, landsatBaseMapLayer);
-        let options: DrawOptions = {};
-        options.zoom = timelapse.getCurrentZoom();
-        var currentTime = timelapse.getCurrentTime();
-        var currentTimes = getCurrentTimes(timelapse);
-        var dates = getDates(timelapse);
-        var delta = getCurrentTimesDelta(currentTime, currentTimes);
-        let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-        options.currentTime = currentDate;
-        options.color = [1.0, 0.0, 0.0, 1.0];
-        options.pointSize = 2.5;
-        ebolaDeathsLayer.draw(ebolaLayerView, options);
-      }
-      */
-      /*
-      if (showEbolaCasesLayer) {
-        var ebolaLayerView = getLayerView(ebolaCasesLayer, landsatBaseMapLayer);
-        let options: DrawOptions = {};
-        options.zoom = timelapse.getCurrentZoom();
-        var currentTime = timelapse.getCurrentTime();
-        var currentTimes = getCurrentTimes(timelapse);
-        var dates = getDates(timelapse);
-        var delta = getCurrentTimesDelta(currentTime, currentTimes);
-        let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-        options.currentTime = currentDate;
-        options.color = [0.0, 1.0, 0.0, 1.0];
-        options.pointSize = 2.5;
-        ebolaCasesLayer.draw(ebolaLayerView, options);
-      }
-      */
-      /*
-      if (showEbolaNewCasesLayer) {
-        var ebolaLayerView = getLayerView(ebolaNewCasesLayer, landsatBaseMapLayer);
-        let options: DrawOptions = {};
-        options.zoom = timelapse.getCurrentZoom();
-        var currentTime = timelapse.getCurrentTime();
-        var currentTimes = getCurrentTimes(timelapse);
-        var dates = getDates(timelapse);
-        var delta = getCurrentTimesDelta(currentTime, currentTimes);
-        let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-        options.currentTime = currentDate;
-        options.color = [0.0, 0.0, 1.0, 1.0];
-        options.pointSize = 5.0;
-        ebolaNewCasesLayer.draw(ebolaLayerView, options);
-      }
-      */
-
-      // Draw Annual Global PM 2.5
-      /*if (showAnnualGlobalPm25TimeMachineLayer) {
-        var view = getLayerView(annualGlobalPm25TimeMachineLayer, landsatBaseMapLayer);
-        annualGlobalPm25TimeMachineLayer.draw(view, tileViewVisibility);
-      }*/
-
-      // Draw ECCO2
-      /*if (showEcco2Layer) {
-        var view = getLayerView(ecco2Layer, landsatBaseMapLayer);
-        ecco2Layer.draw(view, tileViewVisibility);
-      }*/
-
-      // Draw GFS
-      /*if (showGfsTimemachineLayer) {
-        var view = getLayerView(gfsTimemachineLayer, landsatBaseMapLayer);
-        gfsTimemachineLayer.draw(view, tileViewVisibility);
-      }*/
-
-      // Draw Chlorophyll Concentration
-      /*if (showChlorophyllConcentrationTimemachineLayer) {
-        var view = getLayerView(chlorophyllConcentrationTimemachineLayer, landsatBaseMapLayer);
-        chlorophyllConcentrationTimemachineLayer.draw(view, tileViewVisibility);
-      }*/
-
-      // TODO(LayerDB)
-      // Draw CSV z=200 (typically raster+choropleths)
-      // for (var i = 0; i < csvFileLayers.layers.length; i++) {
-      //   var layer = csvFileLayers.layers[i];
-      //   if (layer.visible && layer.z == 200) {
-      //     drawCsvLayer(layer);
-      //   }
-      // }
-
-      // bubble-maps half-circle hack
-      // Create list of visible CSV Layers
-      //var visibleCsvLayers = [];
-      //for (var i = 0; i < csvFileLayers.layers.length; i++) {
-      //  var layer = csvFileLayers.layers[i];
-      //  if (layer.visible && layer.paired) {
-      //    visibleCsvLayers.push(i);
-      //  }
-      //}
-      //if (visibleCsvLayers.length >= 2) {
-      //  if (visibleCsvLayers[0] == i) {
-      //    options.mode = 2.0;
-      //  }
-      //  if (visibleCsvLayers[1] == i) {
-      //    options.mode = 3.0;
-      //  }
-      //}
-
-      /*if (showBerkeleyEarthTemperatureAnomalyTimeMachineLayer) {
-        var view = getLayerView(berkeleyEarthTemperatureAnomalyTimeMachineLayer, landsatBaseMapLayer);
-        berkeleyEarthTemperatureAnomalyTimeMachineLayer.draw(view, tileViewVisibility);
-
-        var landBorderView = getLayerView(landBorderLayer, landsatBaseMapLayer);
-        landBorderLayer.draw(landBorderView);
-
-        if (showCityLabelMap) {
-          var cityLabelView = getLayerView(cityLabelMapLayer, landsatBaseMapLayer);
-          cityLabelMapLayer.draw(cityLabelView);
-        }
-      }*/
-
-      /*if (showBerkeleyEarthTemperatureAnomalyV2YearlyTimeMachineLayer) {
-        var view = getLayerView(berkeleyEarthTemperatureAnomalyV2YearlyTimeMachineLayer, landsatBaseMapLayer);
-        berkeleyEarthTemperatureAnomalyV2YearlyTimeMachineLayer.draw(view, tileViewVisibility);
-
-        var landBorderView = getLayerView(landBorderLayer, landsatBaseMapLayer);
-        landBorderLayer.draw(landBorderView);
-
-        if (showCityLabelMap) {
-          var cityLabelView = getLayerView(cityLabelMapLayer, landsatBaseMapLayer);
-          cityLabelMapLayer.draw(cityLabelView);
-        }
-      }*/
-
-      /*if (showOmiNo2Layer) {
-        var view = getLayerView(omiNo2Layer, landsatBaseMapLayer);
-        omiNo2Layer.draw(view, tileViewVisibility);
-
-        var landBorderView = getLayerView(landBorderLayer, landsatBaseMapLayer);
-        landBorderLayer.draw(landBorderView);
-      }*/
-
-      /*if (showBePm25Layer) {
-        var view = getLayerView(bePm25Layer, landsatBaseMapLayer);
-        bePm25Layer.draw(view, tileViewVisibility);
-      }*/
-
-      // if (showLightsAtNightAnimLayer) {
-      //   var view = getLayerView(lightsAtNightAnimLayer, landsatBaseMapLayer);
-      //   lightsAtNightAnimLayer.draw(view, tileViewVisibility);
-      // }
-
-      if (showCountryLabelMapLayer) {
-        var countryLabelMapView = getLayerView(countryLabelMapLayer, landsatBaseMapLayer);
-        countryLabelMapLayer.draw(countryLabelMapView);
-      }
-
-      /*
-      if (showExpandingCitiesLayer) {
-        var layerView = getLayerView(expandingCitiesLayer, landsatBaseMapLayer);
-        let options: DrawOptions = {};
-        options.zoom = timelapse.getCurrentZoom();
-        var currentTime = timelapse.getCurrentTime();
-        var currentTimes = getCurrentTimes(timelapse);
-        var dates = getDates(timelapse);
-        var delta = getCurrentTimesDelta(currentTime, currentTimes);
-        let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-        options.currentTime = currentDate;
-        options.pointSize = 5 * window.devicePixelRatio;
-        options.color = [1.0, 0.5, 0.15, 1.0];
-        var year = currentDate.getUTCFullYear();
-        options.year = year;
-        options.delta = Math.min(delta, 1);
-        options.maxValue = 195;
-        expandingCitiesLayer.draw(layerView, options);
-      }
-      */
-  /*
-      if (showIrenaWindLayer) {
-        var layer  = irenaWindLayer;
-        var view = getLayerView(layer, landsatBaseMapLayer);
-        let options: DrawOptions = {};
-        options.zoom = timelapse.getCurrentZoom();
-        var currentTime = timelapse.getCurrentTime();
-        var currentTimes = getCurrentTimes(timelapse);
-        var dates = getDates(timelapse);
-        var delta = getCurrentTimesDelta(currentTime, currentTimes);
-        let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-        options.currentTime = currentDate;
-        options.pointSize = 500.;
-        layer.draw(view, options);
-      }
-      if (showIrenaSolarLayer) {
-        var layer = irenaSolarLayer;
-        var view = getLayerView(layer, landsatBaseMapLayer);
-        let options: DrawOptions = {};
-        options.zoom = timelapse.getCurrentZoom();
-        var currentTime = timelapse.getCurrentTime();
-        var currentTimes = getCurrentTimes(timelapse);
-        var dates = getDates(timelapse);
-        var delta = getCurrentTimesDelta(currentTime, currentTimes);
-        let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-        options.currentTime = currentDate;
-        options.pointSize = 500.;
-        options.color = [0.5,0.05,0.5,1.0];
-        layer.draw(view, options);
-      }
-  */
-      /*
-      if (showTsipLayer) {
-        var layer = tsipLayer;
-        var view = getLayerView(layer, landsatBaseMapLayer);
-        let options: DrawOptions = {};
-        options.zoom = timelapse.getCurrentZoom();
-        var currentTime = timelapse.getCurrentTime();
-        var currentTimes = getCurrentTimes(timelapse);
-        var dates = getDates(timelapse);
-        var delta = getCurrentTimesDelta(currentTime, currentTimes);
-        let currentDate = getCurrentDate(currentTime, currentTimes, dates);
-        options.currentTime = currentDate;
-        options.pointSize = 2.;
-        options.color = [0.5,0.05,0.5,1.0];
-        layer.draw(view, options);
-      }
-      */
+    // Static layers that cover the entire planet should be placed before the base layers in this manner.
+    // if (showLightsAtNightLayer) { // Draw lightsAtNightMapLayer
+    //   var lightsAtNightLayerView = getLayerView(lightsAtNightMapLayer, landsatBaseMapLayer);
+    //   lightsAtNightMapLayer.draw(lightsAtNightLayerView);
+    // }
+    //  else if (showLightsAtNight2012Layer) { // Draw lightsAtNight2012MapLayer
+    //   var lightsAtNight2012LayerView = getLayerView(lightsAtNight2012MapLayer, landsatBaseMapLayer);
+    //   lightsAtNight2012MapLayer.draw(lightsAtNight2012LayerView);
+    // }
+    if (visibleBaseMapLayer == "blsat") { // Draw Landsat
+      landsatBaseMapLayer.draw(gEarthTime.timelapse.getView(), tileViewVisibility);
+    } else if (visibleBaseMapLayer == "blte") { // Draw Light Map
+      var lightBaseMapView = getLayerView(lightBaseMapLayer, landsatBaseMapLayer);
+      lightBaseMapLayer.draw(lightBaseMapView);
+    } else if (visibleBaseMapLayer == "bdrk") { // Draw Dark Map
+      var darkBaseMapView = getLayerView(darkBaseMapLayer, landsatBaseMapLayer);
+      var options = {showTile: showTile};
+      darkBaseMapLayer.draw(darkBaseMapView, options);
     }
-    // END LAYER DRAWS
+
+    // TODO(LayerDB)
+    // Draw CSV z=100 (typically raster base maps)
+    // for (var i = 0; i < csvFileLayers.layers.length; i++) {
+    //   var layer = csvFileLayers.layers[i];
+    //   if (layer.visible && layer.z == 100) {
+    //     drawCsvLayer(layer);
+    //   }
+    // }
+
+    //// Layers to draw above the base layer (or planet-wide static layers)
+
+    // Draw Fishing PPR
+    /*if (showFishingPprTimeMachineLayer) {
+      var fishingPprView = getLayerView(fishingPprTimeMachineLayer, landsatBaseMapLayer);
+      fishingPprTimeMachineLayer.draw(fishingPprView, tileViewVisibility);
+    }*/
+
+    // Draw NDVI Anomaly
+    /*if (showNdviAnomalyTimeMachineLayer) {
+      var ndviView = getLayerView(ndviAnomalyTimeMachineLayer, landsatBaseMapLayer);
+      ndviAnomalyTimeMachineLayer.draw(ndviView, tileViewVisibility);
+    }*/
+
+    // Draw Vegetation Sensitivity Index
+    // if (showVsiLayer) {
+    //   var vsiLayerView = getLayerView(vsiLayer, landsatBaseMapLayer);
+    //   vsiLayer.draw(vsiLayerView);
+    // }
+
+    // // Draw Water Occurrence
+    // if (showWaterOccurrenceLayer) {
+    //   var waterOccurrenceView = getLayerView(waterOccurrenceLayer, landsatBaseMapLayer);
+    //   waterOccurrenceLayer.draw(waterOccurrenceView);
+    // }
+
+    // // Draw Water Change
+    // if (showWaterChangeLayer) {
+    //   var waterChangeView = getLayerView(waterChangeLayer, landsatBaseMapLayer);
+    //   waterChangeLayer.draw(waterChangeView);
+    // }
+
+    // Draw Fires at Night (VIIRS)
+    /*
+    var viirsIndex = {
+      '201408': {'count': 115909, 'first': 0},
+      '201409': {'count': 213165, 'first': 115909},
+      '201410': {'count': 232833, 'first': 329074},
+      '201411': {'count': 146622, 'first': 561907},
+      '201412': {'count': 151926, 'first': 708529},
+      '201501': {'count': 192835, 'first': 860455},
+      '201502': {'count': 150901, 'first': 1053290},
+      '201503': {'count': 189347, 'first': 1204191},
+      '201504': {'count': 175398, 'first': 1393538},
+      '201505': {'count': 133021, 'first': 1568936},
+      '201506': {'count': 116314, 'first': 1701957},
+      '201507': {'count': 192662, 'first': 1818271},
+      '201508': {'count': 289941, 'first': 2010933},
+      '201509': {'count': 282792, 'first': 2300874},
+      '201510': {'count': 286486, 'first': 2583666},
+      '201511': {'count': 187366, 'first': 2870152},
+      '201512': {'count': 183570, 'first': 3057518},
+      '201601': {'count': 208576, 'first': 3241088},
+      '201602': {'count': 179606, 'first': 3449664},
+      '201603': {'count': 184595, 'first': 3629270},
+      '201604': {'count': 185076, 'first': 3813865},
+      '201605': {'count': 144875, 'first': 3998941},
+      '201606': {'count': 126776, 'first': 4143816},
+      '201607': {'count': 175568, 'first': 4270592},
+      '201608': {'count': 236754, 'first': 4446160},
+      '201609': {'count': 254754, 'first': 4682914},
+      '201610': {'count': 174679, 'first': 4937668},
+      '201611': {'count': 167121, 'first': 5112347},
+      '201612': {'count': 183016, 'first': 5279468},
+      '201701': {'count': 181133, 'first': 5462484},
+      '201702': {'count': 158187, 'first': 5643617},
+      '201703': {'count': 156410, 'first': 5801804},
+      '201704': {'count': 170735, 'first': 5958214},
+      '201705': {'count': 101733, 'first': 6128949},
+      '201706': {'count': 132268, 'first': 6230682},
+      '201707': {'count': 171562, 'first': 6362950},
+      '201708': {'count': 299079, 'first': 6534512},
+      '201709': {'count': 298956, 'first': 6833591},
+      '201710': {'count': 53789, 'first': 7132547}
+    };
+    if (showViirsLayer) {
+      var viirsLayerView = getLayerView(viirsLayer, landsatBaseMapLayer);
+      let options: DrawOptions = {};
+      options.zoom = timelapse.getCurrentZoom();
+      var currentTime = timelapse.getCurrentTime();
+      var currentTimes = getCurrentTimes(timelapse);
+      var dates = getDates(timelapse);
+      var delta = getCurrentTimesDelta(currentTime, currentTimes);
+      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
+      options.currentTime = currentDate;
+
+      var currentMonth = currentDate.getUTCMonth();
+      var currentYear = currentDate.getUTCFullYear();
+      var prevYear = currentYear;
+      var prevMonth = currentMonth - 1;
+      if (prevMonth < 0) {
+        prevMonth = 11;
+        prevYear--;
+      }
+
+      var currentIdx = currentYear + ('0' + (currentMonth+1)).slice(-2);
+      var prevIdx = prevYear + ('0' + (prevMonth+1)).slice(-2);
+      options.first = prevIdx in viirsIndex ? viirsIndex[prevIdx]['first'] : 0 ;
+      options.count = prevIdx in viirsIndex && currentIdx in viirsIndex ? viirsIndex[currentIdx]['count'] + viirsIndex[prevIdx]['count'] : 100;
+
+      viirsLayer.draw(viirsLayerView, options);
+    }
+    */
+
+    // Draw Wind Layer
+/*
+    if (showUsgsWindTurbineLayer) {
+      var usgsWindTurbineLayerView = getLayerView(usgsWindTurbineLayer, landsatBaseMapLayer);
+      let options: DrawOptions = {};
+      options.zoom = timelapse.getCurrentZoom();
+      var currentTime = timelapse.getCurrentTime();
+      var currentTimes = getCurrentTimes(timelapse);
+      var dates = getDates(timelapse);
+      var delta = getCurrentTimesDelta(currentTime, currentTimes);
+      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
+      options.currentTime = currentDate;
+      options.color = [0.1, 0.5, 0.1, 1.0];
+      options.pointSize = 3.0;
+      usgsWindTurbineLayer.draw(usgsWindTurbineLayerView, options);
+    }
+*/
+    // Draw Global Wind Layer
+/*
+    if (showGlobalWindPowerLayer) {
+      var globalWindPowerLayerView = getLayerView(globalWindPowerLayer, landsatBaseMapLayer);
+      let options: DrawOptions = {};
+      options.zoom = timelapse.getCurrentZoom();
+      var currentTime = timelapse.getCurrentTime();
+      var currentTimes = getCurrentTimes(timelapse);
+      var dates = getDates(timelapse);
+      var delta = getCurrentTimesDelta(currentTime, currentTimes);
+      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
+      options.currentTime = currentDate;
+      options.pointSize = 3;
+      options.color = [0.1, 0.5, 0.1, 1.0];
+      globalWindPowerLayer.draw(globalWindPowerLayerView, options);
+    }
+*/
+
+    // Draw Solar Layer
+    /*
+    if (showSolarInstallsLayer) {
+      var solarInstallsLayerView = getLayerView(solarInstallsLayer, landsatBaseMapLayer);
+      let options: DrawOptions = {};
+      options.zoom = timelapse.getCurrentZoom();
+      var currentTime = timelapse.getCurrentTime();
+      var currentTimes = getCurrentTimes(timelapse);
+      var dates = getDates(timelapse);
+      var delta = getCurrentTimesDelta(currentTime, currentTimes);
+      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
+      options.currentTime = currentDate;
+      options.pointSize = 3;
+      solarInstallsLayer.draw(solarInstallsLayerView, options);
+    }
+    */
+
+    // Draw Oil/Gas Drilling Layer
+    /*
+    if (showDrillingLayer) {
+      var drillingLayerView = getLayerView(drillingLayer, landsatBaseMapLayer);
+      let options: DrawOptions = {};
+      options.zoom = timelapse.getCurrentZoom();
+      var currentTime = timelapse.getCurrentTime();
+      var currentTimes = getCurrentTimes(timelapse);
+      var dates = getDates(timelapse);
+      var delta = getCurrentTimesDelta(currentTime, currentTimes);
+      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
+      options.currentTime = currentDate;
+      options.color = [0.82, 0.22, 0.07, 1.0];
+      drillingLayer.draw(drillingLayerView, options);
+    }
+    */
+    // Draw Forest Alerts (No Overlay)
+    /*if (showForestAlertsNoOverlayTimeMachineLayer) {
+      var forestAlertsNoOverlayView = timelapse.getView();
+      var timelapse2map = forestAlertsNoOverlayTimeMachineLayer.getWidth() / landsatBaseMapLayer.getWidth();
+
+      var p = timelapse.getProjection();
+      var offest = p.latlngToPoint({
+        "lat": 5.506709319555738,
+        "lng": -82.5513118548623
+      });
+
+      forestAlertsNoOverlayView.x -= offest.x;
+      forestAlertsNoOverlayView.y -= offest.y;
+      forestAlertsNoOverlayTimeMachineLayer.draw(forestAlertsNoOverlayView, tileViewVisibility);
+    }
+
+    // Draw Forest Alerts (With Overlay)
+    if (showForestAlertsTimeMachineLayer) {
+      var forestAlertsView = timelapse.getView();
+      var timelapse2map = forestAlertsTimeMachineLayer.getWidth() / landsatBaseMapLayer.getWidth();
+
+      var p = timelapse.getProjection();
+      var offest = p.latlngToPoint({
+        "lat": 5.506709319555738,
+        "lng": -82.5513118548623
+      });
+
+      forestAlertsView.x -= offest.x;
+      forestAlertsView.y -= offest.y;
+      forestAlertsTimeMachineLayer.draw(forestAlertsView, tileViewVisibility);
+    }*/
+
+    // Draw Nutritional Deficiency Layers
+    /*
+    if (showHealthImpactLayer) {
+      var healthImpactLayerView = getLayerView(healthImpactLayer, landsatBaseMapLayer);
+      let options: DrawOptions = {};
+      options.zoom = timelapse.getCurrentZoom();
+
+      var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
+      var times = timelapse.getCaptureTimes();
+      var endDate = new Date("2055");
+      var startDate = new Date("2015");
+      var range = endDate.getTime() - startDate.getTime();
+      var currentDate = new Date(ratio * range + startDate.getTime());
+      var year = currentDate.getUTCFullYear();
+
+      for (var i = 0; i < times.length - 1; i++) {
+        if (year == times[i] || year < times[i + 1] && year > times[i]) {
+          year = parseInt(times[i]);
+        }
+      }
+      var currentYear = new Date(year, 0, 1);
+      var nextYear = new Date(year + 5, 0, 1);
+      if (year >= 2050) {
+        nextYear = currentYear;
+      }
+      var delta = (currentDate.getTime() - currentYear) / (nextYear - currentYear);
+
+      options.year = year;
+      options.delta = delta;
+      options.showRcp = showHealthImpactRcp;
+
+      healthImpactLayer.draw(healthImpactLayerView, options);
+    }
+    */
+
+    // Draw Zika Layer
+    /*
+    if (showZikaLayer) {
+      var zikaLayerView = getLayerView(zikaLayer, landsatBaseMapLayer);
+      let options: DrawOptions = {};
+      options.zoom = timelapse.getCurrentZoom();
+      var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
+      var times = timelapse.getCaptureTimes();
+      var startDate = new Date(parseInt(times[0]), 0, 1);
+      var endDate = new Date(parseInt(times[times.length - 1]) + 1, 0, 1);
+      var range = endDate.getTime() - startDate.getTime();
+      var currentDate = new Date(ratio * range + startDate.getTime());
+      options.currentTime = currentDate;
+      options.color = [1.0, 0.1, 0.1, 1.0];
+      options.pointSize = 10.0;
+      zikaLayer.draw(zikaLayerView, options);
+    }
+    */
+    // Draw Dengue Layer
+    /*
+    if (showDengueLayer) {
+      var dengueLayerView = getLayerView(dengueLayer, landsatBaseMapLayer);
+      let options: DrawOptions = {};
+      options.zoom = timelapse.getCurrentZoom();
+      var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
+      var times = timelapse.getCaptureTimes();
+      var startDate = new Date(parseInt(times[0]), 0, 1);
+      var endDate = new Date(parseInt(times[times.length - 1]) + 1, 0, 1);
+      var range = endDate.getTime() - startDate.getTime();
+      var currentDate = new Date(ratio * range + startDate.getTime());
+      options.currentTime = currentDate;
+      options.color = [0.2, 1.0, 0.1, 1.0];
+      options.pointSize = 10.0;
+      dengueLayer.draw(dengueLayerView, options);
+    }
+    */
+    // Draw Chiku Layer
+    /*
+    if (showChikuLayer) {
+      var chikuLayerView = getLayerView(chikuLayer, landsatBaseMapLayer);
+      let options: DrawOptions = {};
+      options.zoom = timelapse.getCurrentZoom();
+      var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
+      var times = timelapse.getCaptureTimes();
+      var startDate = new Date(parseInt(times[0]), 0, 1);
+      var endDate = new Date(parseInt(times[times.length - 1]) + 1, 0, 1);
+      var range = endDate.getTime() - startDate.getTime();
+      var currentDate = new Date(ratio * range + startDate.getTime());
+      options.currentTime = currentDate;
+      options.color = [0.1, 0.1, 1.0, 1.0];
+      options.pointSize = 10.0;
+      chikuLayer.draw(chikuLayerView, options);
+    }
+    */
+
+    /*if (showTintedSeaLevelRiseLayer) {
+      var sea_level_heights = [
+        [0.0, 0.0],
+        [2.4, 0.7],
+        [7.0, 2.1],
+        [9.4, 2.9],
+        [15, 4.7],
+        [18, 5.6],
+        [21, 6.4],
+        [26, 7.9],
+        [29, 8.9]
+      ]; // [feet,meters]
+      var feet = document.getElementById("slr-feet");
+      var meters = document.getElementById("slr-meters");
+      var degree = document.getElementById("slr-degree");
+      var seaLevelRiseLayerView = getLayerView(seaLevelRiseLayer, landsatBaseMapLayer);
+      let options: DrawOptions = {};
+      var ratio = timelapse.getCurrentTime() / (timelapse.getNumFrames() / timelapse.getFps());
+      var times = timelapse.getCaptureTimes();
+      var start = parseFloat(times[0]);
+      var end = parseFloat(times[times.length - 1]) + 0.5;
+      var range = end - start;
+      var current = ratio * range + start;
+      options.currentC = Math.min(current, times[times.length - 1]);
+      if (visibleBaseMapLayer == "blsat") {
+        options.color = [0.1, 0.1, 0.1, 1.0];
+      } else if (visibleBaseMapLayer == "blte") {
+        options.color = [0.4921875, 0.7421875, 0.91015625, 1.0];
+      } else if (visibleBaseMapLayer == "bdrk") {
+        options.color = [0.203125, 0.203125, 0.203125, 1.0];
+      }
+      // else if (showLightsAtNightLayer) {
+      //   options.color = [0.0, 0.0, 0.0, 1.0];
+      // }
+      var currentIndex = 0;
+      for (var i = 0; i < times.length; i++) {
+        if (timelapse.getCurrentCaptureTime() == times[i]) {
+          currentIndex = i;
+        }
+      }
+      //feet.innerHTML = sea_level_heights[currentIndex][0] + "ft";
+      if (sea_level_heights[currentIndex]) {
+        $(meters).html("+" + sea_level_heights[currentIndex][1].toFixed(1) + "m");
+      }
+      $(degree).html((currentIndex / 2).toFixed(1));
+      tintedSeaLevelRiseLayer.draw(seaLevelRiseLayerView, options);
+      $(".timeText, .captureTimeMain").html(timelapse.getCurrentCaptureTime() + "&degC");
+    }*/
+
+    /*
+    if (showUrbanFragilityLayer) {
+      var urbanFragilityLayerView = getLayerView(urbanFragilityLayer, landsatBaseMapLayer);
+      let options: DrawOptions = {};
+      options.zoom = timelapse.getCurrentZoom();
+
+      var currentTime = timelapse.getCurrentTime();
+      var currentTimes = getCurrentTimes(timelapse);
+      var dates = getDates(timelapse);
+      var delta = getCurrentTimesDelta(currentTime, currentTimes);
+      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
+      var year = currentDate.getUTCFullYear();
+      options.year = year;
+      options.delta = Math.min(delta, 1);
+      urbanFragilityLayer.draw(urbanFragilityLayerView, options);
+
+    }
+    */
+
+    /*
+    if (showGtdLayer) {
+      var gtdLayerView = getLayerView(gtdLayer, landsatBaseMapLayer);
+      let options: DrawOptions = {};
+      options.zoom = timelapse.getCurrentZoom();
+      var currentTime = timelapse.getCurrentTime();
+      var currentTimes = getCurrentTimes(timelapse);
+      var dates = getDates(timelapse);
+      var delta = getCurrentTimesDelta(currentTime, currentTimes);
+      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
+      options.currentTime = currentDate;
+      options.color = [1.0, 0.0, 0.0, 1.0];
+      gtdLayer.draw(gtdLayerView, options);
+    }
+    */
+    /*
+    if (showUppsalaConflictLayer) {
+      var uppsalaConflictLayerView = getLayerView(uppsalaConflictLayer, landsatBaseMapLayer);
+      let options: DrawOptions = {};
+      options.zoom = timelapse.getCurrentZoom();
+      var currentTime = timelapse.getCurrentTime();
+      var currentTimes = getCurrentTimes(timelapse);
+      var dates = getDates(timelapse);
+      var delta = getCurrentTimesDelta(currentTime, currentTimes);
+      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
+      options.currentTime = currentDate;
+      options.color = [1.0, 0.0, 0.0, 1.0];
+      uppsalaConflictLayer.draw(uppsalaConflictLayerView, options);
+    }
+    */
+    /*
+    if (showHivLayer) {
+      var hivLayerView = getLayerView(hivLayer, landsatBaseMapLayer);
+      let options: DrawOptions = {};
+      options.zoom = timelapse.getCurrentZoom();
+
+      var currentTime = timelapse.getCurrentTime();
+      var currentTimes = getCurrentTimes(timelapse);
+      var dates = getDates(timelapse);
+      var delta = getCurrentTimesDelta(currentTime, currentTimes);
+      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
+      var year = currentDate.getUTCFullYear();
+      options.year = year;
+      options.delta = Math.min(delta, 1);
+      hivLayer.draw(hivLayerView, options);
+    }
+    */
+    /*
+    if (showObesityLayer) {
+      var obesityLayerView = getLayerView(obesityLayer, landsatBaseMapLayer);
+      let options: DrawOptions = {};
+      options.zoom = timelapse.getCurrentZoom();
+
+      var currentTime = timelapse.getCurrentTime();
+      var currentTimes = getCurrentTimes(timelapse);
+      var dates = getDates(timelapse);
+      var delta = getCurrentTimesDelta(currentTime, currentTimes);
+      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
+      var year = currentDate.getUTCFullYear();
+      options.year = year;
+      options.delta = Math.min(delta, 1);
+      obesityLayer.draw(obesityLayerView, options);
+    }
+    */
+    /*
+    if (showVaccineConfidenceLayer) {
+      var vaccineConfidenceLayerView = getLayerView(vaccineConfidenceLayer, landsatBaseMapLayer);
+      let options: DrawOptions = {};
+
+      var vaccineConfidenceQuestion = 1.0;
+      if ($("#show-vaccine-confidence-q2").prop('checked')) {
+        vaccineConfidenceQuestion = 2.0;
+      }
+      if ($("#show-vaccine-confidence-q3").prop('checked')) {
+        vaccineConfidenceQuestion = 3.0;
+      }
+      if ($("#show-vaccine-confidence-q4").prop('checked')) {
+        vaccineConfidenceQuestion = 4.0;
+      }
+      options.question = vaccineConfidenceQuestion;
+      vaccineConfidenceLayer.draw(vaccineConfidenceLayerView, options);
+
+    }
+    */
+    /*
+    if (showEbolaDeathsLayer) {
+      var ebolaLayerView = getLayerView(ebolaDeathsLayer, landsatBaseMapLayer);
+      let options: DrawOptions = {};
+      options.zoom = timelapse.getCurrentZoom();
+      var currentTime = timelapse.getCurrentTime();
+      var currentTimes = getCurrentTimes(timelapse);
+      var dates = getDates(timelapse);
+      var delta = getCurrentTimesDelta(currentTime, currentTimes);
+      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
+      options.currentTime = currentDate;
+      options.color = [1.0, 0.0, 0.0, 1.0];
+      options.pointSize = 2.5;
+      ebolaDeathsLayer.draw(ebolaLayerView, options);
+    }
+    */
+    /*
+    if (showEbolaCasesLayer) {
+      var ebolaLayerView = getLayerView(ebolaCasesLayer, landsatBaseMapLayer);
+      let options: DrawOptions = {};
+      options.zoom = timelapse.getCurrentZoom();
+      var currentTime = timelapse.getCurrentTime();
+      var currentTimes = getCurrentTimes(timelapse);
+      var dates = getDates(timelapse);
+      var delta = getCurrentTimesDelta(currentTime, currentTimes);
+      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
+      options.currentTime = currentDate;
+      options.color = [0.0, 1.0, 0.0, 1.0];
+      options.pointSize = 2.5;
+      ebolaCasesLayer.draw(ebolaLayerView, options);
+    }
+    */
+    /*
+    if (showEbolaNewCasesLayer) {
+      var ebolaLayerView = getLayerView(ebolaNewCasesLayer, landsatBaseMapLayer);
+      let options: DrawOptions = {};
+      options.zoom = timelapse.getCurrentZoom();
+      var currentTime = timelapse.getCurrentTime();
+      var currentTimes = getCurrentTimes(timelapse);
+      var dates = getDates(timelapse);
+      var delta = getCurrentTimesDelta(currentTime, currentTimes);
+      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
+      options.currentTime = currentDate;
+      options.color = [0.0, 0.0, 1.0, 1.0];
+      options.pointSize = 5.0;
+      ebolaNewCasesLayer.draw(ebolaLayerView, options);
+    }
+    */
+
+    // Draw Annual Global PM 2.5
+    /*if (showAnnualGlobalPm25TimeMachineLayer) {
+      var view = getLayerView(annualGlobalPm25TimeMachineLayer, landsatBaseMapLayer);
+      annualGlobalPm25TimeMachineLayer.draw(view, tileViewVisibility);
+    }*/
+
+    // Draw ECCO2
+    /*if (showEcco2Layer) {
+      var view = getLayerView(ecco2Layer, landsatBaseMapLayer);
+      ecco2Layer.draw(view, tileViewVisibility);
+    }*/
+
+    // Draw GFS
+    /*if (showGfsTimemachineLayer) {
+      var view = getLayerView(gfsTimemachineLayer, landsatBaseMapLayer);
+      gfsTimemachineLayer.draw(view, tileViewVisibility);
+    }*/
+
+    // Draw Chlorophyll Concentration
+    /*if (showChlorophyllConcentrationTimemachineLayer) {
+      var view = getLayerView(chlorophyllConcentrationTimemachineLayer, landsatBaseMapLayer);
+      chlorophyllConcentrationTimemachineLayer.draw(view, tileViewVisibility);
+    }*/
+
+    // TODO(LayerDB)
+    // Draw CSV z=200 (typically raster+choropleths)
+    // for (var i = 0; i < csvFileLayers.layers.length; i++) {
+    //   var layer = csvFileLayers.layers[i];
+    //   if (layer.visible && layer.z == 200) {
+    //     drawCsvLayer(layer);
+    //   }
+    // }
+
+    // bubble-maps half-circle hack
+    // Create list of visible CSV Layers
+    //var visibleCsvLayers = [];
+    //for (var i = 0; i < csvFileLayers.layers.length; i++) {
+    //  var layer = csvFileLayers.layers[i];
+    //  if (layer.visible && layer.paired) {
+    //    visibleCsvLayers.push(i);
+    //  }
+    //}
+    //if (visibleCsvLayers.length >= 2) {
+    //  if (visibleCsvLayers[0] == i) {
+    //    options.mode = 2.0;
+    //  }
+    //  if (visibleCsvLayers[1] == i) {
+    //    options.mode = 3.0;
+    //  }
+    //}
+
+    /*if (showBerkeleyEarthTemperatureAnomalyTimeMachineLayer) {
+      var view = getLayerView(berkeleyEarthTemperatureAnomalyTimeMachineLayer, landsatBaseMapLayer);
+      berkeleyEarthTemperatureAnomalyTimeMachineLayer.draw(view, tileViewVisibility);
+
+      var landBorderView = getLayerView(landBorderLayer, landsatBaseMapLayer);
+      landBorderLayer.draw(landBorderView);
+
+      if (showCityLabelMap) {
+        var cityLabelView = getLayerView(cityLabelMapLayer, landsatBaseMapLayer);
+        cityLabelMapLayer.draw(cityLabelView);
+      }
+    }*/
+
+    /*if (showBerkeleyEarthTemperatureAnomalyV2YearlyTimeMachineLayer) {
+      var view = getLayerView(berkeleyEarthTemperatureAnomalyV2YearlyTimeMachineLayer, landsatBaseMapLayer);
+      berkeleyEarthTemperatureAnomalyV2YearlyTimeMachineLayer.draw(view, tileViewVisibility);
+
+      var landBorderView = getLayerView(landBorderLayer, landsatBaseMapLayer);
+      landBorderLayer.draw(landBorderView);
+
+      if (showCityLabelMap) {
+        var cityLabelView = getLayerView(cityLabelMapLayer, landsatBaseMapLayer);
+        cityLabelMapLayer.draw(cityLabelView);
+      }
+    }*/
+
+    /*if (showOmiNo2Layer) {
+      var view = getLayerView(omiNo2Layer, landsatBaseMapLayer);
+      omiNo2Layer.draw(view, tileViewVisibility);
+
+      var landBorderView = getLayerView(landBorderLayer, landsatBaseMapLayer);
+      landBorderLayer.draw(landBorderView);
+    }*/
+
+    /*if (showBePm25Layer) {
+      var view = getLayerView(bePm25Layer, landsatBaseMapLayer);
+      bePm25Layer.draw(view, tileViewVisibility);
+    }*/
+
+    // if (showLightsAtNightAnimLayer) {
+    //   var view = getLayerView(lightsAtNightAnimLayer, landsatBaseMapLayer);
+    //   lightsAtNightAnimLayer.draw(view, tileViewVisibility);
+    // }
+
+    if (showCountryLabelMapLayer) {
+      var countryLabelMapView = getLayerView(countryLabelMapLayer, landsatBaseMapLayer);
+      countryLabelMapLayer.draw(countryLabelMapView);
+    }
+
+    /*
+    if (showExpandingCitiesLayer) {
+      var layerView = getLayerView(expandingCitiesLayer, landsatBaseMapLayer);
+      let options: DrawOptions = {};
+      options.zoom = timelapse.getCurrentZoom();
+      var currentTime = timelapse.getCurrentTime();
+      var currentTimes = getCurrentTimes(timelapse);
+      var dates = getDates(timelapse);
+      var delta = getCurrentTimesDelta(currentTime, currentTimes);
+      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
+      options.currentTime = currentDate;
+      options.pointSize = 5 * window.devicePixelRatio;
+      options.color = [1.0, 0.5, 0.15, 1.0];
+      var year = currentDate.getUTCFullYear();
+      options.year = year;
+      options.delta = Math.min(delta, 1);
+      options.maxValue = 195;
+      expandingCitiesLayer.draw(layerView, options);
+    }
+    */
+/*
+    if (showIrenaWindLayer) {
+      var layer  = irenaWindLayer;
+      var view = getLayerView(layer, landsatBaseMapLayer);
+      let options: DrawOptions = {};
+      options.zoom = timelapse.getCurrentZoom();
+      var currentTime = timelapse.getCurrentTime();
+      var currentTimes = getCurrentTimes(timelapse);
+      var dates = getDates(timelapse);
+      var delta = getCurrentTimesDelta(currentTime, currentTimes);
+      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
+      options.currentTime = currentDate;
+      options.pointSize = 500.;
+      layer.draw(view, options);
+    }
+    if (showIrenaSolarLayer) {
+      var layer = irenaSolarLayer;
+      var view = getLayerView(layer, landsatBaseMapLayer);
+      let options: DrawOptions = {};
+      options.zoom = timelapse.getCurrentZoom();
+      var currentTime = timelapse.getCurrentTime();
+      var currentTimes = getCurrentTimes(timelapse);
+      var dates = getDates(timelapse);
+      var delta = getCurrentTimesDelta(currentTime, currentTimes);
+      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
+      options.currentTime = currentDate;
+      options.pointSize = 500.;
+      options.color = [0.5,0.05,0.5,1.0];
+      layer.draw(view, options);
+    }
+*/
+    /*
+    if (showTsipLayer) {
+      var layer = tsipLayer;
+      var view = getLayerView(layer, landsatBaseMapLayer);
+      let options: DrawOptions = {};
+      options.zoom = timelapse.getCurrentZoom();
+      var currentTime = timelapse.getCurrentTime();
+      var currentTimes = getCurrentTimes(timelapse);
+      var dates = getDates(timelapse);
+      var delta = getCurrentTimesDelta(currentTime, currentTimes);
+      let currentDate = getCurrentDate(currentTime, currentTimes, dates);
+      options.currentTime = currentDate;
+      options.pointSize = 2.;
+      options.color = [0.5,0.05,0.5,1.0];
+      layer.draw(view, options);
+    }
+    */
+
+  // END LAYER DRAWS
   }
 
   function getLegendHTML() {
