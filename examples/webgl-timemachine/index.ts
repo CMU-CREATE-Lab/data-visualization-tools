@@ -4038,8 +4038,8 @@ function update() {
   if (gEarthTime.layerDB.mapboxLayersAreVisible()) {
     ETMBLayer.render();
   } else {
-    for (let layerProxy of gEarthTime.layerDB.loadedSublayersInDrawOrder()) {
-      layerProxy.draw();
+    for (let sublayer of gEarthTime.layerDB.drawnSublayersInDrawOrder()) {
+      sublayer.draw();
     }
   }
 

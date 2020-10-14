@@ -201,6 +201,19 @@ export class LayerDB {
     return maxZoom;
   }
 
+  // Returns loadedSublayersInDrawOrder, minus any layers below the last full-extent
+  // layer (if any)
+  drawnSublayersInDrawOrder(): LayerProxy[] {
+    let drawnSublayers = this.loadedSublayersInDrawOrder();
+    let startIndex = 0;
+    for (let i = 0; i < drawnSublayers.length; i++) {
+      if (drawnSublayers[i].layer?.layerConstraints?.isFullExtent) {
+        startIndex = i; // Start drawing at the last found layer with full extents, if any
+      }
+    }
+    return startIndex ? drawnSublayers.slice(startIndex) : drawnSublayers;
+  }
+
   loadedSublayersInDrawOrder(): LayerProxy[] {
     this._recomputeLoadCacheIfNeeded();
     return this._loadedCache.loadedSublayersInDrawOrder;
