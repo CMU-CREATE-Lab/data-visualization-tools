@@ -265,12 +265,19 @@ class EarthTimeImpl implements EarthTime {
   // Currently active timeline, computed as last non-empty timeline from visibleLayers
   timeline(): Timeline {
     let visibleLayers = this.layerDB.visibleLayers;
+    let $ui = $(".current-location-text-container, .annotations-resume-exit-container, .scaleBarContainer, #logosContainer, .current-location-text, #layers-legend");
     for (let i = visibleLayers.length - 1; i >= 0; i--) {
-      let timeline = visibleLayers[i].layer && visibleLayers[i].layer.timeline;
+      let timeline = visibleLayers[i].layer?.timeline;
+      // Check whether we have a layer that covers the world, but does not have a timeline associated with it (e.g. lights at night)
+      if (!timeline && visibleLayers[i].layer?.layerConstraints?.isFullExtent) {
+        break;
+      }
       if (timeline && timeline.startDate != timeline.endDate) {
+        $ui.removeClass("noTimeline");
         return timeline;
       }
     }
+    $ui.addClass("noTimeline");
     return null;
   }
 

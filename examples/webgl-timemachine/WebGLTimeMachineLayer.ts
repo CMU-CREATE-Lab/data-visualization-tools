@@ -134,8 +134,10 @@ export class WebGLTimeMachineLayer extends Layer {
 
     var that = this;
 
+    let startDate = this.startDate || this.captureTimes[0];
+    let endDate = this.endDate || this.captureTimes[this.captureTimes.length - 1];
     this.timeline = new Timeline(this.timelineType,
-    { startDate: this.captureTimes[0], endDate: this.captureTimes[this.captureTimes.length - 1],
+    { startDate: startDate, endDate: endDate,
       step: this.step, masterPlaybackRate: this.masterPlaybackRate,
       playbackRate: this.playbackRate, cachedCaptureTimes: this.captureTimes,
       fps: this.fps });

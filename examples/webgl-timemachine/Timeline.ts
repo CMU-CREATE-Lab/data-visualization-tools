@@ -40,7 +40,7 @@ export class Timeline {
     }
 
     getCaptureTimes(): {"capture-times": string[]} {
-        if (!this.cachedCaptureTimes) {
+        if (!this.cachedCaptureTimes || this.cachedCaptureTimes.length == 0) {
             var captureTimes = [];
 
             var sm = getDateRegexMatches(this.startDate) || [];
