@@ -898,61 +898,23 @@ function cacheLastUsedLayer(layer) {
 async function handleLayers(layers: string[]) {
   await gEarthTime.layerDBPromise;
   var layerProxies = [];
+
   for (var layerId of layers) {
+    if (layerId.indexOf("extras_") == 0 || layerId.indexOf("e-") == 0) {
+      console.log(layerId)
+      setTimeout(function() {
+        $('#extras-selector-menu li[data-name="' + layerId + '"]').trigger("click");
+      }, 100);
+    }
     var layerProxy = gEarthTime.layerDB.getLayer(layerId);
     if (layerProxy) {
       layerProxies.push(layerProxy);
     } else {
       console.log(`${Utils.logPrefix()} handlelayers: Cannot find layer ${layerId}`);
     }
+
   }
   gEarthTime.layerDB.setVisibleLayers(layerProxies);
-
-  // // Clear out all layers that were checked
-  // $(".map-layer-div").find("input[type='checkbox']:checked").trigger("click");
-  // gEarthTime.timelapse.hideSpinner("timeMachine");
-  // if (!layers) {
-  //   activeEarthTimeLayers = [];
-  // }
-
-  // var layerExtraId = layers.find(function(layer) {
-  //   return (layer.indexOf("extras_") == 0 || layer.indexOf("e-") == 0);
-  // });
-
-  // if (layerExtraId) {
-  //   setTimeout(function() {
-  //     $('#extras-selector-menu li[data-name="' + layerExtraId + '"]').click();
-  //   }, 100);
-  //   return;
-  // }
-
-  // layers.forEach(function(layer) {
-  //   var $layerToggle = $("#layers-list label[name='" + layer + "'] input");
-  //   if (!$layerToggle.prop('checked')) $layerToggle.trigger("click");
-  // });
-
-  // // If a layer set does not include a base map and the layer in question is not
-  // // also a base layer, add it to layer list.
-  // if (layers.length == 1) {
-  //   var baseLayerIds = $("#category-base-layers").find("label").map(function() {
-  //     return $(this).attr("name");
-  //   });
-  //   if ($.inArray(visibleBaseMapLayer, baseLayerIds) >= 0) {
-  //     var selectedBaseLayerId = $("#category-base-layers").find(":checked").parent().attr("name");
-  //     if (layers.indexOf(selectedBaseLayerId) == -1) {
-  //       layers.unshift(selectedBaseLayerId);
-  //       if (activeEarthTimeLayers.indexOf(selectedBaseLayerId) == -1) {
-  //         activeEarthTimeLayers.unshift(selectedBaseLayerId);
-  //       }
-  //     }
-  //   }
-  // }
-
-  // // Hack
-  // // TODO: Revist toggling of CSV layers that did not have a timeline
-  // if ((layers.length <= 1 || activeLayersWithTimeline <= 1) & visibleBaseMapLayer == "blsat") {
-  //   doSwitchToLandsat();
-  // }
 }
 
 function initLayerToggleUI() {
@@ -1052,10 +1014,11 @@ function initLayerToggleUI() {
           left: coords.left
         });
         var initialEntry = '<option id="default-extras-select" selected="selected" value="select">Select extra content...</option>';
-        if (feedback.vertical == "top")
+        if (feedback.vertical == "top") {
           $("#extras-selector").prepend(initialEntry);
-        else
+        } else {
           $("#extras-selector").append(initialEntry);
+        }
         $("#extras-selector").selectmenu("refresh");
       }
     },
@@ -2083,80 +2046,6 @@ async function setupUIAndOldLayers() {
 
   var layer_html = '';
 
-  layer_html += '<ul id="layers-list">';
-
-  var landsat_base_str = '<label class="blsat-select" for="blsat-base" name="blsat"><input type="radio" id="blsat-base" name="base-layers" value="blsat"/>Google Earth Engine Timelapse</label>';
-  var landsat_base = '<td colspan="2">' + landsat_base_str + '</td>';
-  var light_base = '<td><label for="blte-base" name="blte"><input type="radio" id="blte-base" name="base-layers" value="blte"/><span>Light Map</span></label></td>';
-  var dark_base = '<td><label for="bdrk-base" name="bdrk"><input type="radio" id="bdrk-base" name="base-layers" value="bdrk"/><span>Dark Map</span></label></td>';
-
-  layer_html += '<div id="all-data-layers-title">All Data</div>';
-  layer_html += '<div class="layers-scroll-vertical">';
-  layer_html += '<div class="map-layer-div map-layer-checkbox">';
-
-  /* BASE LAYERS */
-  layer_html += '  <h3>Base Layers</h3>';
-  layer_html += '  <table id="category-base-layers">';
-  layer_html += '    <tr>';
-  layer_html += landsat_base;
-  layer_html += '    </tr>';
-  layer_html += '    <tr>';
-  layer_html += light_base;
-  layer_html += dark_base;
-  layer_html += '    </tr>';
-  layer_html += '  </table>';
-  /* END BASE LAYERS */
-
-  /* WATER CATEGORY */
-  layer_html += '  <h3>Water</h3>';
-  layer_html += '  <table id="category-water">';
-  layer_html += '  </table>';
-  /* END WATER CATEGORY */
-
-  /* CLIMATE CATEGORY */
-  layer_html += '  <h3>Climate</h3>';
-  layer_html += '  <table id="category-climate">';
-  layer_html += '  </table>';
-  /* END CLIMATE CATEGORY */
-
-  /* POLLUTION CATEGORY */
-  layer_html += '  <h3>Pollution</h3>';
-  layer_html += '  <table id="category-pollution">';
-  layer_html += '  </table>';
-  /* END POLLUTION CATEGORY */
-
-  /* MISC CATEGORY */
-  layer_html += '  <h3>Other</h3>';
-  layer_html += '  <table id="category-other">';
-  /*
-  if (showGtd) {
-    layer_html += '    <tr>';
-    layer_html += show_gtd;
-    layer_html += '    </tr>';
-  }
-  */
-  /*
-  if (showUppsalaConflict) {
-    layer_html += '    <tr>';
-    layer_html += show_uppsala_conflict;
-    layer_html += '    </tr>';
-  }
-  */
-
-  if (showCsvLayers) {
-    // Custom CSV Layers
-    layer_html += '  <tbody id="csvlayers_table">';
-    layer_html += '  </tbody>';
-  }
-  layer_html += '  </table>';
-  /* END MISC CATEGORY */
-
-  // ## 5 ##
-  //// Add additional layers to side UI panel ////
-  //
-
-  layer_html += '</div>';
-
   // Extras menu
   layer_html += '<div class="extras-selector-div">';
   layer_html += ' <select name="extras-selector" id="extras-selector">';
@@ -2210,9 +2099,8 @@ async function setupUIAndOldLayers() {
   layer_html += '</div>';
 
   // Create clear selected layer(s) button
-  layer_html += '</div>';
-  layer_html += '<div class="clearLayers"></div>';
-  layer_html += '</ul>';
+  //layer_html += '<div class="clearLayers"></div>';
+
 
   // Legend content
   var legend_html = '<div id="layers-legend">';
@@ -2233,7 +2121,7 @@ async function setupUIAndOldLayers() {
   legend_html += '</div>';
   legend_html += '</div>';
 
-  //$(layer_html).appendTo($("#layers-menu"));
+  $(layer_html).appendTo($("#layers-menu"));
   $(legend_html).appendTo($("#timeMachine .player"));
 
   if (showExtrasMenu) {

@@ -95,7 +95,7 @@ export class LayerFactory {
   }
 
   addExtrasContent(layerDef: { [x: string]: string; }) {
-    var playbackRate = layerDef["Playback Rate"].trim() == '' ? 1 : layerDef["Playback Rate"].trim();
+    var playbackRate = layerDef["Playback Rate"] && layerDef["Playback Rate"].trim() != '' ? layerDef["Playback Rate"].trim() : 1;
     var dataType = layerDef["Map Type"].split("-")[1];
     var dataFilePath = layerDef["URL"];
     var shareLinkIdentifier = layerDef["Share link identifier"].replace(/\W+/g, '_');
@@ -122,8 +122,7 @@ export class LayerFactory {
       str += ' data-objectfit="' + extrasOptions['object-fit'] + '"';
     }
     str += '>' + dataName + '</option>';
-
-    $("#extras-selector").append(str);
+    $("#extras-selector").append(str).selectmenu("refresh");
   }
 
   async createLayer(layerProxy: LayerProxy, layerDef: LayerDef) {
@@ -313,6 +312,9 @@ export class LayerFactory {
       WebGLLayer = WebGLTimeMachineLayer;
     } else if (layerOptions.mapType == "mapbox") {
       WebGLLayer = ETMBLayer;
+    } else if (layerOptions.mapType.split("-")[0] == "extras") {
+      this.addExtrasContent(layerDef);
+      return;
     } else {
       if (layerDef["Load Data Function"]) {
         layerOptions.loadDataFunction = LayerFactory.getFunction(layerOptions.maptype, 'loadData', layerDef["Load Data Function"]);
@@ -835,7 +837,7 @@ export class LayerFactory {
       }
       if (layer.legend) {
         legend = layer.legend;
-      } else if (layer.mapType == 'bubble') {        
+      } else if (layer.mapType == 'bubble') {
         if (layer.legendContent == 'auto') {
           if (!layer.radius) { // if the CSV file for the bubble map hasn't been procssed, layer will be null
             return;
