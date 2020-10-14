@@ -561,6 +561,7 @@ export class WebGLVectorTile2 extends Tile {
       var radius = eval(that.scalingFunction);
       var colorScalingFunction = eval(that.colorScalingFunction);
       that._radius = radius;
+      that._layer.radius = radius; // set the radius for the layer
       that.colorScalingFunction = colorScalingFunction;
 
       var scaledPointValues = scaleValues(that._radius, pointValues);
@@ -781,6 +782,7 @@ export class WebGLVectorTile2 extends Tile {
         that._minValue = minValue;
         var radius = eval(that.scalingFunction);
         that._radius = radius;
+        that._layer.radius = radius; // Set the radius for the layer
         for (var i = 0; i < points.length; i++) {
           points[i].val1 = radius(points[i].val1);
           points[i].val2 = radius(points[i].val2);

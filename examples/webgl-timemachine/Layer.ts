@@ -79,6 +79,7 @@ export class LayerOptions {
     step: number;
     showGraph: boolean;
     mapType: any;
+    radius?:  any;
     color: any;
     legendContent: any;
     legendKey: any;

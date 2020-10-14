@@ -719,6 +719,9 @@ export class LayerFactory {
 
   // Find first tile with _radius and return _radius
   getRadius(layer) {
+    return layer.radius;
+    // Looks like _tiles are no longer accesible
+    /*
     var tiles = layer._tileView._tiles;
 
     for (var key in tiles) {
@@ -727,6 +730,7 @@ export class LayerFactory {
       }
     }
     return null;
+    */
   }
 
   handleLayerConstraints() {
@@ -818,7 +822,6 @@ export class LayerFactory {
     let layer: Layer;
     let legend;
     let visibleLayers = gEarthTime.layerDB.visibleLayers;
-
     for (var i = 0; i < visibleLayers.length; i++) {
       if (visibleLayers[i].id == id) {
         layer = visibleLayers[i].layer;
@@ -832,8 +835,11 @@ export class LayerFactory {
       }
       if (layer.legend) {
         legend = layer.legend;
-      } else if (layer.mapType == 'bubble') {
+      } else if (layer.mapType == 'bubble') {        
         if (layer.legendContent == 'auto') {
+          if (!layer.radius) { // if the CSV file for the bubble map hasn't been procssed, layer will be null
+            return;
+          }
           var radius = this.getRadius(layer);
           var opts = {
             'id' : id,
