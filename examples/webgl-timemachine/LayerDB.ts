@@ -176,7 +176,8 @@ export class LayerDB {
       cache.valid = true;
       if (fullyLoaded) {
         // Set timelapse max zoom based on all the layers
-        gEarthTime.timelapse.setGmapsMaxLevel(this.computeMaxGmapsZoomLevel());
+        let maxZoom = this.computeMaxGmapsZoomLevel();
+        gEarthTime.timelapse.setGmapsMaxLevel(maxZoom);
       }
     }
   }
@@ -199,6 +200,7 @@ export class LayerDB {
       maxZoom = 12; // arbitrary earthtime-scale default zoom
     }
     return maxZoom;
+
   }
 
   // Returns loadedSublayersInDrawOrder, minus any layers below the last full-extent

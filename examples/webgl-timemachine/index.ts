@@ -2480,6 +2480,10 @@ lightBaseMapLayer = new WebGLMapLayer(null, gEarthTime.glb, gEarthTime.canvasLay
 
       clearInterval(waitToLoadWaypointLayersOnPageReadyInterval);
 
+      // Temporarily set a max scale, based on what the waypoint's shareview asks for. Note that this may be overriden by the max zoom of a layer
+      let maxWaypointScale = gEarthTime.timelapse.pixelBoundingBoxToPixelCenter(waypointBounds).scale;
+      gEarthTime.timelapse.setMaxScale(maxWaypointScale);
+
       isAutoModeRunning = snaplapseViewerForPresentationSlider.isAutoModeRunning();
       if (waypointTitle) {
         lastSelectedAnnotationBeforeHidden = $("#" + waypointTitle.replace(/\W+/g, "_") + " .snaplapse_keyframe_list_item_thumbnail_overlay_presentation");
@@ -2579,10 +2583,6 @@ lightBaseMapLayer = new WebGLMapLayer(null, gEarthTime.glb, gEarthTime.canvasLay
           $nextAnnotationLocationButton.addClass("annotation-story-end-button");
         }
       }
-
-      // Temporarily set a max scale, based on what the waypoint's shareview asks for. Note that this may be overriden by the max zoom of a layer
-      let maxWaypointScale = gEarthTime.timelapse.pixelBoundingBoxToPixelCenter(waypointBounds).scale;
-      gEarthTime.timelapse.setMaxScale(maxWaypointScale);
 
       // Show layer ids
       handleLayers(waypointLayers);
