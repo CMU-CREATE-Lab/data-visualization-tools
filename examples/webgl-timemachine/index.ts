@@ -1830,6 +1830,8 @@ var waitToLoadWaypointLayersOnPageReadyInterval;
 var timelineUIChangeListeners = [];
 
 function modifyWaypointSliderContent(keyframes, theme, story) {
+  // TODO: Check state of this code
+  return;
   annotationPicturePaths[theme][story] = {};
   for (var i = 0; i < keyframes.length; i++) {
     var keyframe = keyframes[i];
