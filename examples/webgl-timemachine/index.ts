@@ -901,10 +901,10 @@ async function handleLayers(layers: string[]) {
 
   for (var layerId of layers) {
     if (layerId.indexOf("extras_") == 0 || layerId.indexOf("e-") == 0) {
-      console.log(layerId)
-      setTimeout(function() {
-        $('#extras-selector-menu li[data-name="' + layerId + '"]').trigger("click");
-      }, 100);
+      let $extra = $('#extras-selector-menu li[data-name="' + layerId + '"]');
+      if ($extra.length) {
+        $extra.trigger("click");
+      }
     }
     var layerProxy = gEarthTime.layerDB.getLayer(layerId);
     if (layerProxy) {

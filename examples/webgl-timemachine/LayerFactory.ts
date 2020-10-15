@@ -123,6 +123,7 @@ export class LayerFactory {
     }
     str += '>' + dataName + '</option>';
     $("#extras-selector").append(str).selectmenu("refresh");
+    $('#extras-selector-menu li[data-name="' + shareLinkIdentifier + '"]').trigger("click");
   }
 
   async createLayer(layerProxy: LayerProxy, layerDef: LayerDef) {
