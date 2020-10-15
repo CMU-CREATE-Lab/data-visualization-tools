@@ -2370,7 +2370,6 @@ lightBaseMapLayer = new WebGLMapLayer(null, gEarthTime.glb, gEarthTime.canvasLay
     snaplapseViewerForPresentationSlider.addEventListener('slide-before-changed', function(waypoint) {
       var waypointTitle = waypoint.title;
       var waypointIndex = waypoint.index;
-      var waypointStartTime = waypoint.time;
       var waypointBounds = waypoint.bounds;
 
       clearInterval(waitToLoadWaypointLayersOnPageReadyInterval);
@@ -2464,7 +2463,6 @@ lightBaseMapLayer = new WebGLMapLayer(null, gEarthTime.glb, gEarthTime.canvasLay
       var waypointIndex = waypoint.index;
       var waypointBounds = waypoint.bounds;
       var waypointLayers = waypoint.layers || [];
-      var waypointPlaybackSpeed = waypoint.speed;
 
       var lastAvailableWaypointIdx = $(".snaplapse_keyframe_list").children().last().index();
       var selectedWaypointIdx = snaplapseViewerForPresentationSlider.getCurrentWaypointIndex();
@@ -2693,27 +2691,24 @@ lightBaseMapLayer = new WebGLMapLayer(null, gEarthTime.glb, gEarthTime.canvasLay
       let maxShareViewScale = gEarthTime.timelapse.zoomToScale(gEarthTime.timelapse.unsafeViewToView(vals.v).zoom);
       gEarthTime.timelapse.setMaxScale(maxShareViewScale);
 
-      handleLayers(layers);
       // The time in a share link may correspond to a layer that has a different timeline than the default one.
       // Re-run corresponding sharelink code once the timeline has changed.
       // Note that this may be unncessary because of the callback for CSV layers, but it's possible not to have CSV layers
       // and CSV layers are async (and could be loaded very fast) so we keep this in.
+      let loopDwell = gEarthTime.timelapse.getLoopDwell();
+      gEarthTime.timelapse.setDoDwell(false)
       var onloadView = function() {
         clearTimelineUIChangeListeners();
         gEarthTime.timelapse.removeTimelineUIChangeListener(onloadView);
         gEarthTime.timelapse.loadSharedViewFromUnsafeURL(UTIL.getUnsafeHashString());
-        var shareDate = vals.bt || vals.t;
-        var timeToSeek = gEarthTime.timelapse.playbackTimeFromShareDate(shareDate);
-        gEarthTime.timelapse.seekToFrame(gEarthTime.timelapse.timeToFrameNumber(timeToSeek));
+        gEarthTime.timelapse.setDoDwell(loopDwell);
       };
       clearTimelineUIChangeListeners();
       gEarthTime.timelapse.addTimelineUIChangeListener(onloadView);
-      // In the event a sharelink layer does not have a timeline change, be sure the above listener is removed.
-      var onloadViewWatchDog = setTimeout(function() {
-        gEarthTime.timelapse.removeTimelineUIChangeListener(onloadView);
-      }, 1000);
-      timelineUIChangeListeners.push({"type" : "timeout", "fn" : onloadViewWatchDog});
       timelineUIChangeListeners.push({"type" : "uiChangeListener", "fn" : onloadView});
+
+      // Turn on layers encoded in the share link
+      handleLayers(layers);
     }
 
     if (gEarthTime.timelapse.isPresentationSliderEnabled()) {
