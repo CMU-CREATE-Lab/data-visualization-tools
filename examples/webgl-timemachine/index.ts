@@ -2479,6 +2479,11 @@ lightBaseMapLayer = new WebGLMapLayer(null, gEarthTime.glb, gEarthTime.canvasLay
         }
       }
 
+      // Don't zoom anywhere when an extra layer is to be shown
+      if (waypointLayers.find(layerId => layerId.includes("extras"))) {
+        gEarthTime.timelapse.stopParabolicMotion();
+      }
+
       // Show layer ids
       handleLayers(waypointLayers);
 
