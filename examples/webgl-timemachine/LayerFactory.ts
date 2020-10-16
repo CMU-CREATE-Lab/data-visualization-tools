@@ -736,31 +736,30 @@ export class LayerFactory {
     */
   }
 
-  handleLayerConstraints() {
-    let layerDb = gEarthTime.layerDB;
-    let visibleLayers = layerDb.visibleLayers;
+  handleLayerConstraints(layerProxies) {
+    let layerDB = gEarthTime.layerDB;
     let newLayersDict = {} as {[key:string]: LayerProxy};
     let layerToTurnOffDict = {} as {[key:string]: LayerProxy};
 
-    for (let i = 0; i < visibleLayers.length; i++) {
-      let layerProxy = visibleLayers[i];
+    for (let i = 0; i < layerProxies.length; i++) {
+      let layerProxy = layerProxies[i];
       let layerConstraints = layerProxy.getLayerConstraints();
       if (layerConstraints) {
         if (layerConstraints.isSoloLayer) {
           newLayersDict = {};
-          newLayersDict[layerProxy.id] = layerDb.getLayer(layerProxy.id);
+          newLayersDict[layerProxy.id] = layerDB.getLayer(layerProxy.id);
           break;
         } else if (Array.isArray(layerConstraints.layersPairedWith)) {
           layerConstraints.layersPairedWith.forEach(layerId => {
-            newLayersDict[layerId] = layerDb.getLayer(layerId);
+            newLayersDict[layerId] = layerDB.getLayer(layerId);
           });
         } else if (Array.isArray(layerConstraints.layersMutuallyExclusiveWith)) {
           layerConstraints.layersMutuallyExclusiveWith.forEach(layerId => {
-            layerToTurnOffDict[layerId] = layerDb.getLayer(layerId);
+            layerToTurnOffDict[layerId] = layerDB.getLayer(layerId);
           });
         }
       }
-      newLayersDict[layerProxy.id] = layerDb.getLayer(layerProxy.id);
+      newLayersDict[layerProxy.id] = layerDB.getLayer(layerProxy.id);
     };
 
     let layersIdsToTurnOff = Object.keys(layerToTurnOffDict);
@@ -769,20 +768,17 @@ export class LayerFactory {
       // If this layer is not one of the layers to turn off, add to list.
       if (layersIdsToTurnOff.indexOf(layerId) == -1) {
         if (layerProxy) {
-          layerProxy._visible = true;
-          layerProxy.requestLoad();
           newLayers.push(layerProxy);
         }
       }
     }
-    layerDb.visibleLayers = newLayers;
-    // Handle the UI changes for a layer turning on and off
-    this.handleVisibleLayersStateChange();
+    return newLayers;
   }
 
   clearNonVisibleLayerLegends() {
-    let visibleLayers = gEarthTime.layerDB.visibleLayers;
-    let layerProxyLegendsToHide = gEarthTime.layerDB._loadedCache.prevVisibleLayers.filter(layerProxy => !visibleLayers.includes(layerProxy));
+    let layerDB = gEarthTime.layerDB;
+    let visibleLayers = layerDB.visibleLayers;
+    let layerProxyLegendsToHide = layerDB._loadedCache.prevVisibleLayers.filter(layerProxy => !visibleLayers.includes(layerProxy));
     layerProxyLegendsToHide.forEach(function(layerProxy) {
       let layer = layerProxy.layer;
       if (layer && layer.hasLegend) {
@@ -795,9 +791,10 @@ export class LayerFactory {
   }
 
   handleLayerMenuUI() {
+    let layerDB = gEarthTime.layerDB;
     let $layerListContainer = $(".map-layer-div");
-    let newVisibleLayerIds = gEarthTime.layerDB.visibleLayerIds();
-    let previousVisibleLayerIds = gEarthTime.layerDB._loadedCache.prevVisibleLayers.map(layerProxy => layerProxy.id);
+    let newVisibleLayerIds = layerDB.visibleLayerIds();
+    let previousVisibleLayerIds = layerDB._loadedCache.prevVisibleLayers.map(layerProxy => layerProxy.id);
     let layersIdsToTurnOff = previousVisibleLayerIds.filter(layerId => !newVisibleLayerIds.includes(layerId));
     let layersIdsToTurnOn = newVisibleLayerIds.filter(layerId => !previousVisibleLayerIds.includes(layerId));
     // Remove checkmarks from layers in Data Library that were active at the time of new layer(s) being set but not still active now.

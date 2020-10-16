@@ -62,7 +62,9 @@ export class LayerDB {
   }
 
   setVisibleLayers(layerProxies: LayerProxy[]) {
-    console.log(`${this.logPrefix()} setVisibleLayers: [${layerProxies.map(l => l.id)}]`)
+    console.log(`${this.logPrefix()} setVisibleLayers: [${layerProxies.map(l => l.id)}]`);
+    // Modify layerProxies array based on the constraints defined for each requested layer.
+    layerProxies = this.layerFactory.handleLayerConstraints(layerProxies);
     if (!Utils.arrayShallowEquals(layerProxies, this.visibleLayers)) {
       for (let layerProxy of this.visibleLayers) {
         layerProxy._visible = false;
@@ -72,12 +74,21 @@ export class LayerDB {
         layerProxy._visible = true;
         layerProxy.requestLoad();
       });
-      this.layerFactory.handleLayerConstraints();
+      // Handle the UI changes for a layers turning on and off
+      this.layerFactory.handleVisibleLayersStateChange();
+    } else {
+      this._setGmapsMaxLevel();
     }
   }
 
   visibleLayerIds() {
     return this.visibleLayers.map(layer => layer.id);
+  }
+
+  _setGmapsMaxLevel(maxZoom?: Number) {
+    // Set timelapse max zoom based on all the layers
+    maxZoom ||= this.computeMaxGmapsZoomLevel();
+    gEarthTime.timelapse.setGmapsMaxLevel(maxZoom);
   }
 
   _mapLegacyLayerIds(id: string, legacyIds: []) {
@@ -176,8 +187,7 @@ export class LayerDB {
       cache.valid = true;
       if (fullyLoaded) {
         // Set timelapse max zoom based on all the layers
-        let maxZoom = this.computeMaxGmapsZoomLevel();
-        gEarthTime.timelapse.setGmapsMaxLevel(maxZoom);
+        this._setGmapsMaxLevel();
       }
     }
   }
