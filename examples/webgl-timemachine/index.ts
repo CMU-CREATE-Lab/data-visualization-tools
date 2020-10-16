@@ -946,36 +946,7 @@ function initLayerToggleUI() {
         $("#baselayerCreditText").html("&copy; OpenMapTiles, &copy; OpenStreetMap");
       }
     }
-    if (visibleBaseMapLayer == "blsat") {
-      gEarthTime.timelapse.setMaxScale(landsatMaxScale);
-      // TODO: Need to rethink this
-      if (activeLayersWithTimeline < 1) {
-        setActiveLayersWithTimeline(1);
-      }
-      // TODO: This special case may be out of sync with the edge cases elsewhere in the code
-      /*
-      if (!showViirsLayer) {
-        timelineType = "customUI";
-      }
-      */
-    } else {
-      if (previousVisibleBaseMapLayer == "bdrk" || previousVisibleBaseMapLayer == "blte") {
-        timelineType = "none";
-      } else {
-        setActiveLayersWithTimeline(-1);
-      }
-      // TODO: This is only accurate if we have base layers with levels > 12.
-      // It's a bit convoluted to use different scale when toggling layers on/off. Again, another reason to refactor all this...
-      gEarthTime.timelapse.setMaxScale(rasterMapTileMaxScale);
-    }
   });
-
-  // Initially set activeLayersWithTimeline to 1 if we first load with landsat enabled.
-  // Also set the custom scale.
-  if (visibleBaseMapLayer == "blsat") {
-    activeLayersWithTimeline = 1;
-    gEarthTime.timelapse.setMaxScale(landsatMaxScale);
-  }
 
   // Copy over data attributes to selectmenu
   $.widget("ui.selectmenu", $.ui.selectmenu, {
