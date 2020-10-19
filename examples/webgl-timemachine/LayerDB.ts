@@ -195,9 +195,12 @@ export class LayerDB {
   // Return the maximum zoom level of all loaded layers
   computeMaxGmapsZoomLevel() {
     let maxZoom = null;
+    // Allow 50% overzoom;
+    let defaultOverZoom = 0.5;
     for (let layerProxy of this.loadedLayers()) {
       let layerMaxZoom = layerProxy.layer.maxGmapsZoomLevel();
       if (layerMaxZoom !== null) {
+        layerMaxZoom += layerProxy?.layerConstraints?.overZoom ?? defaultOverZoom;
         if (maxZoom !== null) {
           maxZoom = Math.max(maxZoom, layerMaxZoom);
         } else {

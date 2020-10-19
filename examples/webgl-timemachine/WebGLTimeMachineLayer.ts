@@ -124,7 +124,7 @@ export class WebGLTimeMachineLayer extends Layer {
     }
     // gmapsZoomLevelAtFullRes should be level 0 for 256, 1 for 512, 2 for 1024 ...
     let gmapsZoomLevelAtFullRes = Math.log2(fullPixelWidth/256);
-    return gmapsZoomLevelAtFullRes + 0.5; // allow 50% overzoom
+    return gmapsZoomLevelAtFullRes;
   }
   isLoaded(): boolean { return this.metadataLoaded; }
   loadMetadata() {
