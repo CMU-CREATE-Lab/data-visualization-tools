@@ -342,6 +342,9 @@ export class LayerFactory {
         layer.options[key] = value;
       }
       layer.options.drawOptions = layerOptions.drawOptions;
+      if (layerOptions.drawOptions['drawLayerFunction']){
+        layer.drawLayerFunction = LayerFactory.getFunction(layerOptions.mapType, 'drawLayerFunction', layerOptions.drawOptions['drawLayerFunction']);
+      }
     }
 
     if (layerOptions.setDataOptions) {
@@ -958,6 +961,9 @@ export class LayerFactory {
     } else if (mapType == 'raster2') {
       var prefix = 'WebGLMapTile2.prototype.';
       var parent: any = WebGLMapTile2.prototype;
+    } else if (mapType == 'vector' && funcType == "drawLayerFunction") {
+      var prefix = 'WebGLVectorLayer2.prototype.';
+      var parent: any = WebGLVectorLayer2.prototype;
     } else {
       var prefix = 'WebGLVectorTile2.prototype.';
       parent = WebGLVectorTile2.prototype;
@@ -973,7 +979,9 @@ export class LayerFactory {
     } else if (funcType == 'setData') {
       var re = /^_set\w*Data\w*$/;
     } else if (funcType == 'loadData') {
-      var re = /^_load\w*Data\w*$/;
+      var re = /^_load\w*Data\w*$/;      
+    } else if (funcType == 'drawLayerFunction') {
+      var re = /^_drawLayer\w*$/;
     } else {
       throw Error(`unknown funcType ${funcType}`);
     }
