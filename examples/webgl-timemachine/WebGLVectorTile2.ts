@@ -1128,6 +1128,7 @@ export class WebGLVectorTile2 extends Tile {
         this._minValue = minValue;
         var radius = eval(this.scalingFunction);
         this._radius = radius;
+        this._layer.radius = radius;        
         // radius must be evaluated before downcasting to Float32 because
         // there are scaling functions that depend on 64-bit precision
         for (var i = 0; i < verts.length; i += 6) {
