@@ -953,8 +953,8 @@ export class LayerFactory {
   }
 
   static getFunction(mapType: string, funcType: string, name: string): (...any) => any {
-    let valid: boolean;
     name = name.replace('Webgl', 'WebGL').trim();
+    name = name.replace('WebGLVectorTile.', 'WebGLVectorTile2.');
     if (mapType == 'raster') {
       var prefix = 'WebGLMapTile.prototype.';
       var parent: any = WebGLMapTile.prototype;
@@ -966,11 +966,11 @@ export class LayerFactory {
       var parent: any = WebGLVectorLayer2.prototype;
     } else {
       var prefix = 'WebGLVectorTile2.prototype.';
-      parent = WebGLVectorTile2.prototype;
+      var parent: any = WebGLVectorTile2.prototype;
     }
 
     if (!name.startsWith(prefix)) {
-      throw new LayerDefinitionError(`Function for layer type ${mapType} must begin with ${prefix}`);
+      throw new LayerDefinitionError(`Function ${name} for layer type ${mapType} must begin with ${prefix}`);
     }
     var suffix = name.slice(prefix.length);
 
@@ -979,7 +979,7 @@ export class LayerFactory {
     } else if (funcType == 'setData') {
       var re = /^_set\w*Data\w*$/;
     } else if (funcType == 'loadData') {
-      var re = /^_load\w*Data\w*$/;      
+      var re = /^_load\w*Data\w*$/;
     } else if (funcType == 'drawLayerFunction') {
       var re = /^_drawLayer\w*$/;
     } else {
