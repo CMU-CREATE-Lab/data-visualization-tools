@@ -265,19 +265,16 @@ class EarthTimeImpl implements EarthTime {
   // Currently active timeline, computed as last non-empty timeline from visibleLayers
   timeline(): Timeline {
     let visibleLayers = this.layerDB.visibleLayers;
-    let $ui = $(".current-location-text-container, .annotations-resume-exit-container, .scaleBarContainer, #logosContainer, .current-location-text, #layers-legend");
     for (let i = visibleLayers.length - 1; i >= 0; i--) {
       let timeline = visibleLayers[i].layer?.timeline;
       // Check whether we have a layer that covers the world, but does not have a timeline associated with it (e.g. lights at night)
       if (!timeline && visibleLayers[i].layer?.layerConstraints?.isFullExtent) {
         break;
       }
-      if (timeline && timeline.startDate != timeline.endDate) {
-        $ui.removeClass("noTimeline");
+      if (timeline) {
         return timeline;
       }
     }
-    $ui.addClass("noTimeline");
     return null;
   }
 
@@ -295,11 +292,19 @@ class EarthTimeImpl implements EarthTime {
     if (newTimeline !== this.currentlyShownTimeline) {
       this.currentlyShownTimeline = newTimeline;
       $(".controls, .captureTime, .customControl").hide();
+      let $ui = $(".current-location-text-container, .annotations-resume-exit-container, .scaleBarContainer, #logosContainer, .current-location-text, #layers-legend");
+      $ui.addClass("noTimeline");
       if (newTimeline) {
         this.timelapse.getVideoset().setFps(newTimeline.fps);
         this.timelapse.loadNewTimelineFromObj(newTimeline.getCaptureTimes(), newTimeline.timelineType);
         this.timelapse.setMasterPlaybackRate(newTimeline.masterPlaybackRate);
         this.timelapse.setPlaybackRate(newTimeline.playbackRate);
+        // We need timelapse to update the time internally (above) but if we just have one date, we don't actually want to show the timeline UI.
+        if (newTimeline.startDate == newTimeline.endDate) {
+          return;
+        } else {
+          $ui.removeClass("noTimeline");
+        }
         if (newTimeline.timelineType == "customUI") {
           $(".customControl").show().children().show();
         } else {
