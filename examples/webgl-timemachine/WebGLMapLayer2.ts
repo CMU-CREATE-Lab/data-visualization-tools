@@ -29,7 +29,7 @@ export class WebGLMapLayer2 extends Layer {
     var options = opt_options ?? {};
 
     // Assumes all of these layer types have an alpha fade over time. Currently only Forest/Loss animated is used by this class.
-    if (typeof(view.alpa) === "undefined") {
+    if (typeof(view.alpha) === "undefined") {
       var beginDate = Number(gEarthTime.timelapse.getCaptureTimes()[0]);
       var endDate = Number(gEarthTime.timelapse.getCaptureTimes()[gEarthTime.timelapse.getCaptureTimes().length - 1]);
       var currentDate = Number(gEarthTime.timelapse.getCaptureTimeByTime(gEarthTime.timelapse.getCurrentTime()));

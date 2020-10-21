@@ -215,6 +215,8 @@ void main(void) {
   gl_FragColor = color0 + color1;
 }`;
 
+
+// TODO: Does not seem to work correctly.
 WebGLMapTile2Shaders.textureFragmentFaderShader = `
 precision mediump float;
 varying vec2 vTextureCoord;
