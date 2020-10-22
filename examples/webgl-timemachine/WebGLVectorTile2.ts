@@ -2047,7 +2047,7 @@ export class WebGLVectorTile2 extends Tile {
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      pointSize *= Math.floor((gEarthTime.gmapsZoomLevel() + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+      pointSize *= Math.floor((gEarthTime.timelapseZoom() + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
       // Passing a NaN value to the shader with a large number of points is very bad
       if (isNaN(pointSize)) {
         pointSize = 1.0;
@@ -2826,7 +2826,7 @@ export class WebGLVectorTile2 extends Tile {
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      pointSize *= Math.floor((gEarthTime.gmapsZoomLevel() + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1);
+      pointSize *= Math.floor((gEarthTime.timelapseZoom() + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1);
       if (isNaN(pointSize)) {
         pointSize = 1.0;
       }
@@ -3607,12 +3607,14 @@ export class WebGLVectorTile2 extends Tile {
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      pointSize *= Math.floor((gEarthTime.gmapsZoomLevel() + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+      pointSize *= Math.floor((gEarthTime.timelapseZoom() + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+
       // Passing a NaN value to the shader with a large number of points is very bad
       if (isNaN(pointSize)) {
         pointSize = 1.0;
       }
 
+      console.log(pointSize);
       gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
       gl.uniform1f(this.program.u_size, pointSize);
       gl.uniform1f(this.program.u_epoch, currentTime);
