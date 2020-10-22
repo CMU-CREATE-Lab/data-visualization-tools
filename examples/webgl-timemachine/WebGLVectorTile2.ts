@@ -3614,7 +3614,6 @@ export class WebGLVectorTile2 extends Tile {
         pointSize = 1.0;
       }
 
-      console.log(pointSize);
       gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
       gl.uniform1f(this.program.u_size, pointSize);
       gl.uniform1f(this.program.u_epoch, currentTime);
