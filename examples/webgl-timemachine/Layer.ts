@@ -149,13 +149,19 @@ export class LayerOptions {
         this.drawOptions.color = this.color;
       }
 
+      let cachedCaptureTimes = this.customSliderInfo ? Object.values(this.customSliderInfo) : [];
+      if (cachedCaptureTimes.length) {
+        this.startDate = String(cachedCaptureTimes[0]);
+        this.endDate = String(cachedCaptureTimes[cachedCaptureTimes.length - 1]);
+      }
+
       // TODO: It's possible a startDate and endDate are unknown from the initial definition
       // and will be loaded later. e.g. a TimeMachine layer and its corresponding tm.json
       if (this.startDate && this.endDate && this.mapType != "timemachine") {
         this.timeline = new Timeline(this.timelineType,
         {startDate: this.startDate, endDate: this.endDate,
          step: this.step, masterPlaybackRate: this.masterPlaybackRate,
-         playbackRate: this.playbackRate, hasCachedCaptureTimes: false});
+         playbackRate: this.playbackRate, cachedCaptureTimes: cachedCaptureTimes});
       }
 
       // Note: This is overriden for WebGLTimeMachineLayers
