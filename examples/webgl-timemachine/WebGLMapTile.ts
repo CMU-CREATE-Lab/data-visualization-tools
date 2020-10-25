@@ -154,7 +154,7 @@ export class WebGLMapTile extends Tile {
       gl.useProgram(this.program);
       gl.enable(gl.BLEND);
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-      gl.uniform1f(this.program.u_C, options.currentC);
+      gl.uniform1f(this.program.u_C, this._layer.getCustomSliderCurrentTickValue() + 0.01);
       var uColor = color;
       gl.uniform4fv(this.program.u_Color, uColor);
 
@@ -184,21 +184,8 @@ export class WebGLMapTile extends Tile {
       gl.enable(gl.BLEND);
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
       var cLoc = this.program.u_C;
-      throw Error('TODO: Need to implement way to get sea level rise from slider');
       var seaLevelMeters = 2;
-      //var seaLevelMeters = getCustomSliderCurrentTickValue() + 0.01;
-      // Was in index.html:
-      //// function getCustomSliderCurrentTickValue() {
-      ////   var sliderTickVal = 0;
-      ////   // @ts-ignore
-      ////   // TODO(LayerDB)
-      ////   if (!$.isEmptyObject(layerCustomSliderInfo)) {
-      ////     // @ts-ignore
-      ////     // TODO(LayerDB)
-      ////     sliderTickVal = layerCustomSliderInfo[gEarthTime.timelapse.getCurrentCaptureTime()] || 0;
-      ////   }
-      ////   return sliderTickVal;
-      //// }
+      var seaLevelMeters = this._layer.getCustomSliderCurrentTickValue() + 0.01;
 
       gl.uniform1f(cLoc, seaLevelMeters / 256.0);
       var uColor = color;

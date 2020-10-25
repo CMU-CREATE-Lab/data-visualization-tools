@@ -149,7 +149,7 @@ export class LayerOptions {
         this.drawOptions.color = this.color;
       }
 
-      let cachedCaptureTimes = this.customSliderInfo ? Object.values(this.customSliderInfo) : [];
+      let cachedCaptureTimes = this.customSliderInfo ? Object.keys(this.customSliderInfo) : [];
       if (cachedCaptureTimes.length) {
         this.startDate = String(cachedCaptureTimes[0]);
         this.endDate = String(cachedCaptureTimes[cachedCaptureTimes.length - 1]);
@@ -305,6 +305,14 @@ export class LayerOptions {
       }
     }
     return population;
+  }
+
+  getCustomSliderCurrentTickValue() {
+    var sliderTickVal = 0;
+    if (!$.isEmptyObject(this.customSliderInfo)) {
+      sliderTickVal = this.customSliderInfo[gEarthTime.timelapse.getCurrentCaptureTime()] || 0;
+    }
+    return sliderTickVal;
   }
 
   // Override this if defined for a layer
