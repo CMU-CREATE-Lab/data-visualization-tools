@@ -5,12 +5,9 @@ export class Lodes {
     lodesOptions: any;  
     lodesAnimationState: any;
 
-
     constructor() {
         this.lodesOptions = new LodesOptions();
         this.lodesGui = new LodesGui(this.lodesOptions);
-        const el = document.getElementById("lodes");
-        el.addEventListener("click", this.lodesGui.toggle, false);        
         this.lodesAnimationState = new LodesAnimationState();
     }
 
@@ -115,7 +112,7 @@ class LodesOptions {
 
 class LodesGui {
     gui: any;
-
+    
     constructor(lodesOptions: LodesOptions) {
         // @ts-ignore
         let gui = new dat.GUI();
@@ -196,17 +193,19 @@ class LodesGui {
         dg.appendChild(el);
         dg["style"]["display"] = "block";
         this.gui = gui;
-      
     }    
 
     toggle() {
-        let dg = document.getElementsByClassName("dg ac")[0];
-        if (dg["style"]["display"] == "none") {
-            dg["style"]["display"] = "block";
-        } else {
-            dg["style"]["display"] = "none";
-        }
-
+      let el = document.getElementById("lodes");
+      let dg = document.getElementsByClassName("dg ac")[0];
+      // @ts-ignore
+      if (el.checked && dg["style"]["display"] != "block") {
+        dg["style"]["display"] = "block";
+      } 
+      // @ts-ignore
+      else if (!el.checked && dg["style"]["display"] != "none") {
+        dg["style"]["display"] = "none";
+      }
     }
 }
 

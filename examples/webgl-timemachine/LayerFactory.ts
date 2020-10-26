@@ -804,11 +804,24 @@ export class LayerFactory {
     if (layersIdsToTurnOff.length) {
       let layerSelectors = '#' + layersIdsToTurnOff.join(', #');
       $layerListContainer.find(layerSelectors).prop("checked", false);
+      // Is LODES being turned off?
+      if (layersIdsToTurnOff.includes("lodes")) {
+        let lodesLayer = layerDB.getLayer("lodes");
+        // @ts-ignore
+        lodesLayer.layer.lodes.lodesGui.toggle();
+      }
     }
     // Add checkmarks to layers in Data Library corresponding to what layers are newly visible and not already previously checked.
     if (layersIdsToTurnOn.length) {
       let layerSelectors = '#' + layersIdsToTurnOn.join(', #');
       $layerListContainer.find(layerSelectors).not(":checked").prop("checked", true);
+      if (layersIdsToTurnOn.includes("lodes")) {
+        let lodesLayer = layerDB.getLayer("lodes");
+        if (lodesLayer.layer) {
+          // @ts-ignore
+          lodesLayer.layer.lodes.lodesGui.toggle();
+        }
+      }
     }
   }
 
