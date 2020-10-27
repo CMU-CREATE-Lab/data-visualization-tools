@@ -154,7 +154,10 @@ export class WebGLMapTile extends Tile {
       gl.useProgram(this.program);
       gl.enable(gl.BLEND);
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-      gl.uniform1f(this.program.u_C, this._layer.getCustomSliderCurrentTickValue() + 0.01);
+      var cLoc = this.program.u_C;
+      var seaLevelDegrees = this._layer.getCustomSliderCurrentTickValue() + 0.01;
+
+      gl.uniform1f(cLoc, seaLevelDegrees);
       var uColor = color;
       gl.uniform4fv(this.program.u_Color, uColor);
 
@@ -184,7 +187,6 @@ export class WebGLMapTile extends Tile {
       gl.enable(gl.BLEND);
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
       var cLoc = this.program.u_C;
-      var seaLevelMeters = 2;
       var seaLevelMeters = this._layer.getCustomSliderCurrentTickValue() + 0.01;
 
       gl.uniform1f(cLoc, seaLevelMeters / 256.0);

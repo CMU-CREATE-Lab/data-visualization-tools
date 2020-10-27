@@ -236,14 +236,5 @@ export class WebGLTimeMachineLayer extends Layer {
     this._tileView.setView(view, width, height, this._canvasLayer.resolutionScale_);
     this._tileView.update(transform, {});
   }
-  getTileView() {
-    return this._tileView;
-  }
-  getTiles() {
-    return this._tileView._tiles;
-  }
-  abortLoading() {
-    this._tileView._abort();
-  }
 }
 
