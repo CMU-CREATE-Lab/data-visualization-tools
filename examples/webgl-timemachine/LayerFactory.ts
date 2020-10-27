@@ -804,11 +804,13 @@ export class LayerFactory {
     if (layersIdsToTurnOff.length) {
       for (let layerId of layersIdsToTurnOff) {
         let layerProxy = layerDB.getLayer(layerId);
-        // TODO: Would be good to have a way to see if the layer is actually loading.
         // TODO: Should probably do this somewhere else.
+        // TODO: Would be good to have a way to see if the layer is actually loading.
         // Right now, isLoading() *always* returns true for all layers except timemachines.
         // That said, abortLoading() will only cancel if the xhr request is in progress, so we are not unecessarily aborting here.
-        layerProxy.layer.abortLoading();
+        if (layerProxy.layer) {
+          layerProxy.layer.abortLoading();
+        }
       }
       let layerSelectors = '#' + layersIdsToTurnOff.join(', #');
       $layerListContainer.find(layerSelectors).prop("checked", false);
