@@ -4,6 +4,7 @@ import { LayerFactory } from './LayerFactory'
 import { LayerProxy } from './LayerProxy'
 import { Utils } from './Utils'
 import { ETMBLayer } from './ETMBLayer'
+import { Layer } from './Layer'
 
 
 export class LayerDB {
@@ -15,6 +16,8 @@ export class LayerDB {
   visibleLayers: LayerProxy[] = [];
   earthTime: EarthTime;
   legacyIdMappings: {[key: string]: string} = {};
+  lruLayerCache: Layer[] = [];
+  maxLruCacheSize: number = 10;
 
   // Please call async LayerDB.create instead
   private constructor() {}
@@ -80,6 +83,26 @@ export class LayerDB {
       this._setGmapsMaxLevel();
     }
   }
+
+
+  handleLruLayerCaching() {
+    for (let layerProxy of this.visibleLayers) {
+      let layer: Layer = layerProxy.layer;
+      if (!layer) {
+        continue;
+      }
+      let cacheIdx = this.lruLayerCache.indexOf(layer);
+      if (cacheIdx >= 0) {
+        this.lruLayerCache.unshift(this.lruLayerCache.splice(cacheIdx, 1)[0]);
+      } else {
+        if (this.lruLayerCache.length == this.maxLruCacheSize) {
+          this.lruLayerCache.pop().destroy();
+        }
+        this.lruLayerCache.unshift(layer);
+      }
+    }
+  }
+
 
   visibleLayerIds() {
     return this.visibleLayers.map(layer => layer.id);
@@ -153,6 +176,8 @@ export class LayerDB {
           fullyLoaded = false;
         }
       }
+
+      this.handleLruLayerCaching();
 
       cache.loadedLayersInIdOrder = cache.loadedLayers.slice();
 

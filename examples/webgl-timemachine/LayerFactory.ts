@@ -802,26 +802,28 @@ export class LayerFactory {
     let layersIdsToTurnOn = newVisibleLayerIds.filter(layerId => !previousVisibleLayerIds.includes(layerId));
     // Remove checkmarks from layers in Data Library that were active at the time of new layer(s) being set but not still active now.
     if (layersIdsToTurnOff.length) {
+      for (let layerId of layersIdsToTurnOff) {
+        let layerProxy = layerDB.getLayer(layerId);
+        // TODO: Would be good to have a way to see if the layer is actually loading.
+        // TODO: Should probably do this somewhere else.
+        // Right now, isLoading() *always* returns true for all layers except timemachines.
+        // That said, abortLoading() will only cancel if the xhr request is in progress, so we are not unecessarily aborting here.
+        layerProxy.layer.abortLoading();
+      }
       let layerSelectors = '#' + layersIdsToTurnOff.join(', #');
       $layerListContainer.find(layerSelectors).prop("checked", false);
-      // Is LODES being turned off?
-      if (layersIdsToTurnOff.includes("lodes")) {
-        let lodesLayer = layerDB.getLayer("lodes");
-        // @ts-ignore
-        lodesLayer.layer.lodes.lodesGui.toggle();
-      }
     }
     // Add checkmarks to layers in Data Library corresponding to what layers are newly visible and not already previously checked.
     if (layersIdsToTurnOn.length) {
       let layerSelectors = '#' + layersIdsToTurnOn.join(', #');
       $layerListContainer.find(layerSelectors).not(":checked").prop("checked", true);
-      if (layersIdsToTurnOn.includes("lodes")) {
-        let lodesLayer = layerDB.getLayer("lodes");
-        if (lodesLayer.layer) {
-          // @ts-ignore
-          lodesLayer.layer.lodes.lodesGui.toggle();
-        }
-      }
+    }
+
+    // Is LODES being turned on/off?
+    if (layersIdsToTurnOn.includes("lodes") || layersIdsToTurnOff.includes("lodes")) {
+      let lodesLayer = layerDB.getLayer("lodes");
+      // @ts-ignore
+      lodesLayer.layer.lodes.lodesGui.toggle();
     }
   }
 

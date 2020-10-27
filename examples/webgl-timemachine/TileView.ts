@@ -225,7 +225,11 @@ export class TileView {
     var keys = Object.keys(this._tiles);
     for (var i = 0; i < keys.length; i++) {
       var key = keys[i];
-      this._deleteTile(this._tiles[key]);
+      var tile = this._tiles[key];
+      if (tile.xhr && tile.xhr.readyState < 4) {
+        tile.xhr.abort();
+      }
+      this._deleteTile(tile);
       delete this._tiles[key];
     }
 
@@ -245,7 +249,7 @@ export class TileView {
       var tile = this._tiles[key];
       if (tile.xhr && tile.xhr.readyState < 4) {
         tile.xhr.abort();
-        this._deleteTile(this._tiles[key]);
+        this._deleteTile(tile);
         delete this._tiles[key];
       }
     }
