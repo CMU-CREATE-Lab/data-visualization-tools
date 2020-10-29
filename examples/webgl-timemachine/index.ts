@@ -1,5 +1,5 @@
 /// <reference path="ContentSearch.js"/>
-/// <reference path="perf.js"/>
+///// <reference path="perf.js"/>
 /// <reference path="StoryEditor.js"/>
 /// <reference path="../../js/dat.gui.min.js"/>
 /// <reference path="../../js/utils.js"/>
@@ -3895,7 +3895,7 @@ function update() {
 
   gEarthTime.timelapse.frameno = (gEarthTime.timelapse.frameno || 0) + 1;
 
-  perf_drawframe();
+  //perf_drawframe();
   gl.clear(gl.COLOR_BUFFER_BIT);
 
   // Set this to true at the beginning of frame redraw;  any layer that decides it wasn't completely drawn will set
