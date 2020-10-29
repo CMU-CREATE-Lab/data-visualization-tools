@@ -1128,7 +1128,7 @@ export class WebGLVectorTile2 extends Tile {
         this._minValue = minValue;
         var radius = eval(this.scalingFunction);
         this._radius = radius;
-        this._layer.radius = radius;        
+        this._layer.radius = radius;
         // radius must be evaluated before downcasting to Float32 because
         // there are scaling functions that depend on 64-bit precision
         for (var i = 0; i < verts.length; i += 6) {
@@ -3495,7 +3495,6 @@ export class WebGLVectorTile2 extends Tile {
         gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 12, 8); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
 
         gl.drawArrays(gl.LINES, 0, this.buffers[key]["pointCount"]);
-        perf_draw_points(this._pointCount);
         gl.disable(gl.BLEND);
       } else {
         gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
@@ -3896,7 +3895,7 @@ export class WebGLVectorTile2 extends Tile {
     }
 
     var getCurrentIndex  = function(indicesKey, idx, epoch) {
-      return indices[indicesKey][idx]['min_epoch'] < epoch && 
+      return indices[indicesKey][idx]['min_epoch'] < epoch &&
              indices[indicesKey][idx]['max_epoch'] > epoch;
     }
 
@@ -3919,7 +3918,7 @@ export class WebGLVectorTile2 extends Tile {
           gl.bufferData(that.gl.ARRAY_BUFFER, data, that.gl.STATIC_DRAW);
           that.buffers[idx].ready = true;
         }
-      };  
+      };
     }
 
     if (typeof(this.buffers) == "undefined") {

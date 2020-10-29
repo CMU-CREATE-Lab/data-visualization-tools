@@ -208,16 +208,24 @@ export class LayerOptions {
       return this._tileView.getHeight();
     }
     destroy() {
-      this._tileView._discardTilesAndResources();
+      if (this._tileView) {
+        this._tileView._discardTilesAndResources();
+      }
     }
     getTileView() {
       return this._tileView;
     }
     getTiles() {
-      return this._tileView._tiles;
+      if (this._tileView) {
+        return this._tileView._tiles;
+      } else {
+        return null;
+      }
     }
     abortLoading() {
-      this._tileView._abort();
+      if (this._tileView) {
+        this._tileView._abort();
+      }
     }
     createTexture() {
       var gl = this.gl;
