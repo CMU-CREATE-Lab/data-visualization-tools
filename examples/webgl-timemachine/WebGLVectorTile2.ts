@@ -3894,14 +3894,8 @@ export class WebGLVectorTile2 extends Tile {
       ]
     }
 
-<<<<<<< HEAD
-    var getCurrentIndex  = function(indicesKey, idx, epoch) {
-      return indices[indicesKey][idx]['min_epoch'] < epoch &&
-             indices[indicesKey][idx]['max_epoch'] > epoch;
-=======
     var showIndex  = function(indicesKey, idx, epoch) {
       return indices[indicesKey][idx]['min_epoch'] < epoch && indices[indicesKey][idx]['max_epoch'] > epoch;
->>>>>>> Tweak drawing SP Crude flows
     }
 
     var gl = this.gl;
