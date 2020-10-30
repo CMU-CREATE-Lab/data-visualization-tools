@@ -189,7 +189,7 @@ export class LayerFactory {
       layerOptions.hasTimeline = false;
     }
 
-    if (!layerDef["Legend Content"] || layerDef["Legend Content"] == "none") {
+    if (layerDef["Legend Content"] == "none") {
       layerOptions.hasLegend = false;
     } else {
       layerOptions.hasLegend = true;
@@ -850,7 +850,7 @@ export class LayerFactory {
     }
 
     if (layer) {
-      if (!layer.legend && (!layer.legendContent || layer.legendContent.toLowerCase() == 'none')) {
+      if (layer.legendContent?.toLowerCase() == 'none') {
         return;
       }
       if (layer.legend) {
@@ -918,12 +918,12 @@ export class LayerFactory {
         }
       } else {
         var str = '';
-        if (layer.legendContent == '') {
-          var div = '<div style="font-size: 15px">' + layer.name + '<span class="credit"> ('+ layer.credit +')</span></div>';
-          str = div;
-        } else {
+        if (layer.legendContent) {
           var div = '<div style="font-size: 15px">' + layer.name + '<span class="credit"> ('+ layer.credit +')</span></div>';
           str = div + layer.legendContent;
+        } else {
+          var div = '<div style="font-size: 15px">' + layer.name + '<span class="credit"> ('+ layer.credit +')</span></div>';
+          str = div;
         }
         legend = new Legend(id, str);
       }
