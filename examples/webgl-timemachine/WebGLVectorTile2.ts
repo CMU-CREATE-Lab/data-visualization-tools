@@ -3894,9 +3894,14 @@ export class WebGLVectorTile2 extends Tile {
       ]
     }
 
+<<<<<<< HEAD
     var getCurrentIndex  = function(indicesKey, idx, epoch) {
       return indices[indicesKey][idx]['min_epoch'] < epoch &&
              indices[indicesKey][idx]['max_epoch'] > epoch;
+=======
+    var showIndex  = function(indicesKey, idx, epoch) {
+      return indices[indicesKey][idx]['min_epoch'] < epoch && indices[indicesKey][idx]['max_epoch'] > epoch;
+>>>>>>> Tweak drawing SP Crude flows
     }
 
     var gl = this.gl;
@@ -3925,8 +3930,7 @@ export class WebGLVectorTile2 extends Tile {
       this.buffers = {};
     }
     for (var i = 0; i < indices[indicesKey].length; i++) {
-      //console.log(i);
-      if (getCurrentIndex(indicesKey, i, currentEpoch)) {
+      if (showIndex(indicesKey, i, currentEpoch)) {
         if (typeof(this.buffers[i]) == "undefined") {
           this.buffers[i] = {
             "numAttributes": 7,
@@ -3938,50 +3942,36 @@ export class WebGLVectorTile2 extends Tile {
           this.worker.postMessage({'idx': i, 'url': dataUrl});
         }
         idx = i;
+        var buffer = this.buffers[idx];
+        if (buffer && buffer.ready) {
+          gl.useProgram(this.program);
+          gl.enable(gl.BLEND);
+          gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+          var tileTransform = new Float32Array(transform);
+          var currentTime = gEarthTime.currentEpochTime();
+          var pointSize = drawOptions.pointSize || (2.0 * window.devicePixelRatio);
+          scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
+          scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+          pointSize *= Math.floor((gEarthTime.timelapseZoom() + 1.0) / (23.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+          // Passing a NaN value to the shader with a large number of points is very bad
+          if (isNaN(pointSize)) {
+            pointSize = 1.0;
+          }
+        gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
+        gl.uniform1f(this.program.u_epoch, currentTime);
+        gl.uniform1f(this.program.u_size, pointSize);
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer.buffer);
+        this.program.setVertexAttrib.a_coord_0(2, gl.FLOAT, false, buffer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+        this.program.setVertexAttrib.a_epoch_0(1, gl.FLOAT, false, buffer.numAttributes * 4, 8);
+        this.program.setVertexAttrib.a_coord_1(2, gl.FLOAT, false, buffer.numAttributes * 4, 12); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+        this.program.setVertexAttrib.a_epoch_1(1, gl.FLOAT, false, buffer.numAttributes * 4, 20);
+        this.program.setVertexAttrib.a_color(1, gl.FLOAT, false, buffer.numAttributes * 4, 24);
+        gl.drawArrays(gl.POINTS, 0, buffer.count);
+        gl.disable(gl.BLEND);
       }
-    }
-
-
-
-    var buffer = this.buffers[idx];
-    if (buffer && buffer.ready) {
-      gl.useProgram(this.program);
-      gl.enable(gl.BLEND);
-      gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-
-      var tileTransform = new Float32Array(transform);
-      var currentTime = gEarthTime.currentEpochTime();
-      var pointSize = drawOptions.pointSize || (2.0 * window.devicePixelRatio);
-
-      scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
-      scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
-
-      pointSize *= Math.floor((gEarthTime.timelapseZoom() + 1.0) / (23.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
-      // Passing a NaN value to the shader with a large number of points is very bad
-      if (isNaN(pointSize)) {
-        pointSize = 1.0;
-      }
-
-
-      gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
-
-      gl.uniform1f(this.program.u_epoch, currentTime);
-
-      gl.uniform1f(this.program.u_size, pointSize);
-
-      gl.bindBuffer(gl.ARRAY_BUFFER, buffer.buffer);
-      this.program.setVertexAttrib.a_coord_0(2, gl.FLOAT, false, buffer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-      this.program.setVertexAttrib.a_epoch_0(1, gl.FLOAT, false, buffer.numAttributes * 4, 8);
-      this.program.setVertexAttrib.a_coord_1(2, gl.FLOAT, false, buffer.numAttributes * 4, 12); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-      this.program.setVertexAttrib.a_epoch_1(1, gl.FLOAT, false, buffer.numAttributes * 4, 20);
-      this.program.setVertexAttrib.a_color(1, gl.FLOAT, false, buffer.numAttributes * 4, 24);
-
-
-      gl.drawArrays(gl.POINTS, 0, buffer.count);
-
-      gl.disable(gl.BLEND);
     }
   }
+}
 
   _drawVesselTracks(transform: Float32Array) {
     var gl = this.gl;
