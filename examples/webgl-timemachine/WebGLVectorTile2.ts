@@ -3811,7 +3811,8 @@ export class WebGLVectorTile2 extends Tile {
       var currentDate = gEarthTime.currentDate();
       var currentYear = new Date(currentDate).getUTCFullYear();
 
-      var setDataFnc = options.setDataFnc ?? 'setData';
+      var drawOptions = this._layer.drawOptions;
+      var setDataFnc = drawOptions.setDataFnc ?? 'setData';
 
       if (typeof this.buffers[code] == "undefined") {
         this.buffers[code] = {};
