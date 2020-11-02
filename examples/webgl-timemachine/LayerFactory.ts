@@ -1007,7 +1007,7 @@ export class LayerFactory {
       throw new LayerDefinitionError(`${suffix} is not a valid ${funcType} function name`);
     }
     if (!parent[suffix]) {
-      if (funcType == 'setData') {
+      if (funcType == 'setData' && suffix == '_setSitc4r2Data') {
         suffix = '_setBufferData';
       } else {
         throw new LayerDefinitionError(`Cannot find ${funcType} function "${name}"`);
