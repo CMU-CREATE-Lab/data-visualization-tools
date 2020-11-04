@@ -15,6 +15,7 @@
 
 import { gEarthTime } from './EarthTime'
 import { Tile } from './Tile'
+import { WebGLTimeMachineLayer } from './WebGLTimeMachineLayer';
 
 export class WebGLVideoTile extends Tile {
   static _initted: any;
@@ -57,7 +58,7 @@ export class WebGLVideoTile extends Tile {
   static textureFragmentGrayScaleFaderShader: string;
   static frameCount: number;
 
-  constructor(layer, tileidx, bounds, {url, defaultUrl, numFrames, fps, greenScreen}) {
+  constructor(layer: WebGLTimeMachineLayer, tileidx, bounds: {min:{x:number, y:number}, max:{x:number, y:number}}, {url, defaultUrl, numFrames, fps, greenScreen}) {
     const NETWORK_NO_SOURCE = 3;
     super(layer, tileidx, bounds, {});
     if (!WebGLVideoTile._initted) {
@@ -89,10 +90,21 @@ export class WebGLVideoTile extends Tile {
     this._textureGreenScreenFaderProgram = this.glb.programFromSources(WebGLVideoTile.textureVertexShader,
       WebGLVideoTile.textureGreenScreenFragmentFaderShader);
 
-    this._triangles = this.glb.createBuffer(new Float32Array([0, 0,
-      1, 0,
-      0, 1,
-      1, 1]));
+    // Create triangle strip of two triangles to cover the tile
+    // If we're showing the entirety of a video frame, we'd go from 0 to 1 in X and Y both
+    // If our video extends beyond the edge of our layer domain, e.g. the topmost video in a layer
+    // that's not a perfect power of 2 times the video width, the time machine generator will generate
+    // videos that have a black margin on the right and/or bottom which we need to suppress.
+
+    // When tile bounds exceed layer bounds, reduce x/y extent from 1 proportionally.
+    let xExtent = (Math.min(bounds.max.x, layer.width) - bounds.min.x) / (bounds.max.x - bounds.min.x);
+    let yExtent = (Math.min(bounds.max.y, layer.height) - bounds.min.y) / (bounds.max.y - bounds.min.y);
+    this._triangles = this.glb.createBuffer(new Float32Array([
+      0, 0, // upper left first triangle
+      xExtent, 0, // upper right first and second triangle
+      0, yExtent, // lower left for first triangle and second triangle
+      xExtent, yExtent // lower right for second triangle
+    ]));
 
     // Mobile uses TimeMachine canvas to render the videos
     if (org.gigapan.Util.isMobileDevice()) {
