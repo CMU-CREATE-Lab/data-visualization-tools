@@ -202,12 +202,6 @@ export class WebGLTimeMachineLayer extends Layer {
   resetDimensions(json) {
     this._tileView.resetDimensions(json);
   }
-  getWidth() {
-    return this._tileView.getWidth();
-  }
-  getHeight() {
-    return this._tileView.getHeight();
-  }
   draw(view) {
     if (!this._ready)
       return;
