@@ -121,26 +121,37 @@ export class LayerProxy {
     // coordinate systems changing when we upgraded Landsat basemap.
     // Today, we initialize the timelapse class with a "standard" coordinate system, from the 2016 Landsat
 
-    // Find the translation and scaling changes between this layer and the underlying timelapse
-    // coordinate system
-
-    // What's the y=0 point of this layer?  Typically stdWebMercatorNorth (the standard Web Mercator northmost),
-    // but could be different for e.g. a WebGLTimeMachineLayer
-    let layerNorthmostLat = layer?.projectionBounds?.north ?? stdWebMercatorNorth;
-
-    // Project layer's northmost lat into the timelapse projection, to find the timelapse Y coord, which we'll use
-    // to offset our layer's coord system
-    var yOffset = gEarthTime.timelapse.getProjection().latlngToPoint({
-      lat: layerNorthmostLat,
-      lng: 0
-    }).y;
+    // Find upperLeft and lowerRight pixel coords that express the layer's bounding box
+    // in the coordinate system of the underlying timelapse projection pixel space.
+    if (layer?.projectionBounds) {
+      let projectionBounds = layer.projectionBounds;
+      var upperLeft = gEarthTime.timelapse.getProjection().latlngToPoint({
+        lat: projectionBounds.north,
+        lng: projectionBounds.west
+      });
+      var lowerRight = gEarthTime.timelapse.getProjection().latlngToPoint({
+        lat: projectionBounds.south,
+        lng: projectionBounds.east
+      });
+    } else {
+      var upperLeft = gEarthTime.timelapse.getProjection().latlngToPoint({
+        lat: stdWebMercatorNorth,
+        lng: -180
+      });
+      var lowerRight = gEarthTime.timelapse.getProjection().latlngToPoint({
+        lat: -stdWebMercatorNorth,
+        lng: 180
+      });
+    }
 
     var view = gEarthTime.timelapse.getView();
     // Compute scaling difference between our layer's pixels and the timelapse pixels
-    var timelapse2map = layer.getWidth() / gEarthTime.timelapse.getDatasetJSON().width;
+    var timelapse2map = layer.getWidth() / (lowerRight.x - upperLeft.x);
 
-    // Apply yOffset and timelpase2map scaling
-    view.y -= yOffset;
+    // Translate upperLeft to 0,0
+    view.y -= upperLeft.y
+    view.x -= upperLeft.x
+    // Apply timelpase2map scaling
     view.x *= timelapse2map;
     view.y *= timelapse2map;
     view.scale /= timelapse2map;
