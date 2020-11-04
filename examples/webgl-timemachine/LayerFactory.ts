@@ -152,7 +152,7 @@ export class LayerFactory {
       showGraph: (layerDef["Show Graph"] || '').toLowerCase() == 'true',
       mapType: layerDef["Map Type"] || "bubble",
       color: layerDef["Color"] ? JSON.parse(layerDef["Color"]) : null,
-      legendContent: layerDef["Legend Content"],
+      legendContent: layerDef["Legend Content"] || "",
       legendKey: layerDef["Legend Key"],
       name: layerDef["Name"],
       credit: layerDef["Credits"],
