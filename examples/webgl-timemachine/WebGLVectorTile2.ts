@@ -2089,7 +2089,7 @@ export class WebGLVectorTile2 extends Tile {
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      pointSize *= Math.floor((gEarthTime.gmapsZoomLevel() + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+      pointSize *= Math.floor((gEarthTime.timelapseZoom() + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
       // Passing a NaN value to the shader with a large number of points is very bad
       if (isNaN(pointSize)) {
         pointSize = 1.0;
@@ -2131,7 +2131,7 @@ export class WebGLVectorTile2 extends Tile {
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      pointSize *= Math.floor((gEarthTime.gmapsZoomLevel() + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+      pointSize *= Math.floor((gEarthTime.timelapseZoom() + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
       // Passing a NaN value to the shader with a large number of points is very bad
       if (isNaN(pointSize)) {
         pointSize = 1.0;
@@ -2318,11 +2318,12 @@ export class WebGLVectorTile2 extends Tile {
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      pointSize *= Math.floor((gEarthTime.gmapsZoomLevel() + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+      // There sshouldn't be a pointSize with a choropleth, right???
+      //pointSize *= Math.floor((gEarthTime.gmapsZoomLevel() + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
       // Passing a NaN value to the shader with a large number of points is very bad
-      if (isNaN(pointSize)) {
-        pointSize = 1.0;
-      }
+      //if (isNaN(pointSize)) {
+      //  pointSize = 1.0;
+      //}
 
       gl.uniformMatrix4fv(this.program.u_MapMatrix, false, tileTransform);
 
@@ -2404,7 +2405,7 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.uniform1f(this.program.uTime, options.step ?? 0);
       gl.uniform1f(this.program.uSize, 2.0); // pointSize
-      gl.uniform1f(this.program.uZoom, gEarthTime.gmapsZoomLevel());
+      gl.uniform1f(this.program.uZoom, gEarthTime.timelapseZoom());
       gl.uniform1i(this.program.filterDist, options.filter ?? 0);
       gl.uniform1i(this.program.showSe01, options.se01 ?? true);
       gl.uniform1i(this.program.showSe02, options.se02 ?? true);
@@ -2534,11 +2535,13 @@ export class WebGLVectorTile2 extends Tile {
       var drawOptions = this._layer.drawOptions;
 
       var pointSize = drawOptions.pointSize || (1.0 * window.devicePixelRatio);;
-      pointSize *= 4.0 * Math.pow(20 / 4, (gEarthTime.gmapsZoomLevel() - 3) / (10 - 3));
+      pointSize *= 4.0 * Math.pow(20 / 4, (gEarthTime.timelapseZoom() - 3) / (10 - 3));
 
       if (isNaN(pointSize)) {
         pointSize = 1.0;
       }
+
+
 
       this.gl.uniform1f(this.program.uSize, pointSize);
 
@@ -2577,7 +2580,7 @@ export class WebGLVectorTile2 extends Tile {
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
       var drawOptions = this._layer.drawOptions as {span:number};
-      var pointSize = Math.floor(((20 - 5) * (gEarthTime.gmapsZoomLevel() - 0) / (21 - 0)) + 5);
+      var pointSize = Math.floor(((20 - 5) * (gEarthTime.timelapseZoom() - 0) / (21 - 0)) + 5);
       if (isNaN(pointSize)) {
         pointSize = 1.0;
       }
@@ -2618,7 +2621,7 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
-      var pointSize = Math.floor(((20 - 5) * (gEarthTime.gmapsZoomLevel() - 0) / (21 - 0)) + 5);
+      var pointSize = Math.floor(((20 - 5) * (gEarthTime.timelapseZoom() - 0) / (21 - 0)) + 5);
       if (isNaN(pointSize)) {
         pointSize = 1.0;
       }
@@ -2679,7 +2682,7 @@ export class WebGLVectorTile2 extends Tile {
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
       var drawOptions = this._layer.drawOptions;
-      var pointSize = Math.floor(((20 - 5) * (gEarthTime.gmapsZoomLevel() - 0) / (21 - 0)) + 5);
+      var pointSize = Math.floor(((20 - 5) * (gEarthTime.timelapseZoom() - 0) / (21 - 0)) + 5);
       if (isNaN(pointSize)) {
         pointSize = 1.0;
       }
@@ -2859,7 +2862,7 @@ export class WebGLVectorTile2 extends Tile {
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
 
-      var pointSize = Math.floor((gEarthTime.gmapsZoomLevel() + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1);
+      var pointSize = Math.floor((gEarthTime.timelapseZoom() + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1);
       if (isNaN(pointSize)) {
         pointSize = 1.0;
       }
@@ -3516,11 +3519,12 @@ export class WebGLVectorTile2 extends Tile {
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      pointSize *= Math.floor((gEarthTime.gmapsZoomLevel() + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+      // We don't use pointSize for line strings, right???
+      //pointSize *= Math.floor((gEarthTime.gmapsZoomLevel() + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
       // Passing a NaN value to the shader with a large number of points is very bad
-      if (isNaN(pointSize)) {
-        pointSize = 1.0;
-      }
+      //if (isNaN(pointSize)) {
+      //  pointSize = 1.0;
+      //}
 
       gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
       gl.uniform3fv(this.program.u_color, [1., 0., 0.]);
@@ -3570,7 +3574,7 @@ export class WebGLVectorTile2 extends Tile {
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      pointSize *= Math.floor((gEarthTime.gmapsZoomLevel() + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+      pointSize *= Math.floor((gEarthTime.timelapseZoom() + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
       // Passing a NaN value to the shader with a large number of points is very bad
       if (isNaN(pointSize)) {
         pointSize = 1.0;
@@ -3654,7 +3658,7 @@ export class WebGLVectorTile2 extends Tile {
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      pointSize *= Math.floor((gEarthTime.gmapsZoomLevel() + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+      pointSize *= Math.floor((gEarthTime.timelapseZoom() + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
       // Passing a NaN value to the shader with a large number of points is very bad
       if (isNaN(pointSize)) {
         pointSize = 1.0;
@@ -3691,7 +3695,7 @@ export class WebGLVectorTile2 extends Tile {
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      pointSize *= Math.floor((gEarthTime.gmapsZoomLevel() + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+      pointSize *= Math.floor((gEarthTime.timelapseZoom() + 1.0) / (13.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
       // Passing a NaN value to the shader with a large number of points is very bad
       if (isNaN(pointSize)) {
         pointSize = 1.0;
@@ -3732,7 +3736,7 @@ export class WebGLVectorTile2 extends Tile {
     scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
     scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-    pointSize *= Math.floor((gEarthTime.gmapsZoomLevel() + 1.0) / (23.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+    pointSize *= Math.floor((gEarthTime.timelapseZoom() + 1.0) / (23.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
     if (isNaN(pointSize)) {
       pointSize = 1.0;
     }
@@ -3986,7 +3990,7 @@ export class WebGLVectorTile2 extends Tile {
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      pointSize *= Math.floor((gEarthTime.gmapsZoomLevel() + 1.0) / (23.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+      pointSize *= Math.floor((gEarthTime.timelapseZoom() + 1.0) / (23.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
       // Passing a NaN value to the shader with a large number of points is very bad
       if (isNaN(pointSize)) {
         pointSize = 1.0;
@@ -4043,7 +4047,7 @@ export class WebGLVectorTile2 extends Tile {
       }
       if (drawOptions.pointSizeFnc) {
         var pointSizeFnc = new Function('return ' + drawOptions.pointSizeFnc)();
-        pointSize *= pointSizeFnc(gEarthTime.gmapsZoomLevel());
+        pointSize *= pointSizeFnc(gEarthTime.timelapseZoom());
       }
 
       // Passing a NaN value to the shader with a large number of points is very bad
@@ -4097,7 +4101,7 @@ export class WebGLVectorTile2 extends Tile {
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      pointSize *= Math.floor((gEarthTime.gmapsZoomLevel() + 1.0) / (23.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
+      pointSize *= Math.floor((gEarthTime.timelapseZoom() + 1.0) / (23.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
       // Passing a NaN value to the shader with a large number of points is very bad
       if (isNaN(pointSize)) {
         pointSize = 1.0;
@@ -4140,18 +4144,9 @@ export class WebGLVectorTile2 extends Tile {
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      pointSize *= Math.floor((gEarthTime.gmapsZoomLevel() + 1.0) / (23.0 - 1.0) * (12.0 - 1) + 1) * 0.5;
-      // Passing a NaN value to the shader with a large number of points is very bad
-      if (isNaN(pointSize)) {
-        pointSize = 1.0;
-      }
-
-
       gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
 
       gl.uniform1f(this.program.u_epoch, currentTime);
-
-      gl.uniform1f(this.program.u_size, pointSize);
 
       this.program.setVertexAttrib.a_coord_0(2, gl.FLOAT, false, 7 * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
       this.program.setVertexAttrib.a_epoch_0(1, gl.FLOAT, false, 7 * 4, 8);
@@ -6327,7 +6322,6 @@ attribute float a_epoch_1;
 attribute float a_color;
 uniform mat4 u_map_matrix;
 uniform float u_epoch;
-uniform float u_size;
 varying float v_color;
 varying float v_alpha;
 void main() {
@@ -6346,7 +6340,6 @@ void main() {
     //position = u_map_matrix * ((a_coord_1 - a_coord_0) * t + a_coord_0);
   }
   gl_Position = position;
-  gl_PointSize = u_size*3.;
   v_color = a_color;
 }`;
 
