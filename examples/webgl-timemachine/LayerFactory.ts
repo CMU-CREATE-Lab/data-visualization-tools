@@ -101,7 +101,7 @@ export class LayerFactory {
     var shareLinkIdentifier = layerDef["Share link identifier"].replace(/\W+/g, '_');
     var dataName = layerDef["Name"];
     var extrasOptions: any = {};
-    if (typeof layerDef["Extras Options"] != "undefined" && layerDef["Extras Options"] != "") {
+    if (layerDef["Extras Options"]?.trim()) {
       extrasOptions = JSON.parse(layerDef["Extras Options"]);
     }
 
@@ -151,7 +151,7 @@ export class LayerFactory {
       step: layerDef["Step"] ? parseInt(layerDef["Step"]) : 1,
       showGraph: (layerDef["Show Graph"] || '').toLowerCase() == 'true',
       mapType: layerDef["Map Type"] || "bubble",
-      color: layerDef["Color"] ? JSON.parse(layerDef["Color"]) : null,
+      color: layerDef["Color"]?.trim() ? JSON.parse(layerDef["Color"]) : null,
       legendContent: layerDef["Legend Content"] || "",
       legendKey: layerDef["Legend Key"],
       name: layerDef["Name"],
@@ -195,15 +195,15 @@ export class LayerFactory {
       layerOptions.hasLegend = true;
     }
 
-    if (layerDef["Layer Constraints"]) {
+    if (layerDef["Layer Constraints"]?.trim()) {
       layerOptions.layerConstraints = JSON.parse(layerDef["Layer Constraints"]);
     }
 
-    if (layerDef["Draw Options"]) {
+    if (layerDef["Draw Options"]?.trim()) {
       layerOptions.drawOptions = JSON.parse(layerDef["Draw Options"]);
     }
 
-    if (layerDef["Set Data Options"]) {
+    if (layerDef["Set Data Options"]?.trim()) {
       layerOptions.setDataOptions = JSON.parse(layerDef["Set Data Options"]);
     }
 
@@ -562,7 +562,7 @@ export class LayerFactory {
       tileHeight: 256
     };
 
-    if (layerDef['Draw Options']) {
+    if (layerDef['Draw Options']?.trim()) {
       try {
         layerOptions.drawOptions = JSON.parse(layerDef['Draw Options']);
       } catch (e) {
