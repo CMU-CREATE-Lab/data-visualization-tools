@@ -1914,7 +1914,7 @@ a:focus { outline:0; }
 }
 
 #layers-menu .ui-selectmenu-button, #theme-list .ui-selectmenu-button {
-  display: block;
+  display: none;
 }
 
 #theme-title-container {

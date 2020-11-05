@@ -1,4 +1,3 @@
-/// <reference path="ContentSearch.js"/>
 ///// <reference path="perf.js"/>
 /// <reference path="StoryEditor.js"/>
 /// <reference path="../../js/dat.gui.min.js"/>
@@ -19,7 +18,7 @@ console.log(`${Utils.logPrefix()} Loading index.ts`)
 declare var Papa:any;
 /// <reference path="../../js/papaparse.min.js"/>
 
-import { LayerOptions, DrawOptions } from './Layer';
+import { LayerOptions } from './Layer';
 
 import { LayerProxy } from './LayerProxy';
 dbg.LayerProxy = LayerProxy;
@@ -41,6 +40,9 @@ dbg.DateRangePicker = DateRangePicker;
 import { GSheet } from './GSheet';
 dbg.GSheet = GSheet;
 
+import { ContentSearch} from './ContentSearch';
+dbg.ContentSearch = ContentSearch;
+
 import { ETMBLayer } from './ETMBLayer'
 dbg.MapboxLayer = ETMBLayer;
 
@@ -52,11 +54,9 @@ dbg.Glb = Glb;
 
 dbg.GSheet = GSheet;
 
-var contentSearch: ContentSearch;
 var EarthlapseUI;
 var timelineUIHandler;
 var toggleHamburgerPanel;
-var prepareSearchContent;
 
 declare var cached_ajax;
 
@@ -1195,7 +1195,6 @@ function initLayerToggleUI() {
       $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight").removeClass("thumbnail_highlight");
       $("#extras-content-container").dialog("close");
       gEarthTime.timelapse.clearShareViewTimeLoop();
-      ////contentSearch.updateLayerSelectionsFromMaster();
     }
     // 'h' key
     // Quick way to toggle the layer panel
@@ -1298,9 +1297,6 @@ function initLayerToggleUI() {
     var selectedLayerName = $(this).parent().attr("name");
     var $selection = $(this);
     var isSelectionChecked = $selection.prop("checked");
-    if (typeof(contentSearch) != "undefined" && contentSearch.initialized && selectedLayerName && isSelectionChecked) {
-      contentSearch.updateLayerSelectionsFromMaster();
-    }
     $('#layers-menu label[name=' + selectedLayerName + ']').find("input").prop("checked", isSelectionChecked);
     var fromRealKeydown = e.originalEvent && e.pageX != 0 && e.pageY != 0;
     if (fromRealKeydown && $(".current-location-text-container").is(':visible')) {
@@ -1474,7 +1470,9 @@ function initLayerToggleUI() {
 
   $('#layers-menu').on('click', "input[type=checkbox], input[type=radio]", timelineUIHandler);
 
-  $("body").on("click", "#layers-list .ui-accordion-header, #layers-list-featured .ui-accordion-header", function() {
+  $("body").on("click", "#layers-list .ui-accordion-header, #layers-list-featured .ui-accordion-header", function(e) {
+    // Don't scroll layer category into view if it was not initiated by an actual user interaction.
+    if (!e.originalEvent && !e.detail) return;
     var $this = $(this);
     if (!$this.hasClass("ui-state-active")) {
       lastLayerMenuScrollPos = 0;
@@ -1767,6 +1765,7 @@ var waypointsLoadedPath;
 var csvDataGrapher = new CsvDataGrapher(gEarthTime);
 var dateRangePicker = new DateRangePicker(gEarthTime);
 var altitudeSlider = new AltitudeSlider(gEarthTime);
+var contentSearch = new ContentSearch();
 var dotmapLayers = [];
 var dotmapLayerByName = {};
 var dotlayersLoadedPath;
@@ -2894,12 +2893,6 @@ lightBaseMapLayer = new WebGLMapLayer(null, gEarthTime.glb, gEarthTime.canvasLay
     $panel.siblings().hide();
     return true;
   }
-
-  prepareSearchContent = function() {
-    contentSearch.reset(true);
-  }
-
-  contentSearch = new ContentSearch($('#search-content input'), $('#layer-search-results'));
 
   $("#stories-menu-choice").on("click", function() {
     if (toggleHamburgerPanel($('#theme-menu'))) {
@@ -4802,6 +4795,8 @@ async function init() {
     ];
     layerDB.setVisibleLayers(layersToShow);
   }
+
+  contentSearch.initialize();
 }
 
 $(init);
