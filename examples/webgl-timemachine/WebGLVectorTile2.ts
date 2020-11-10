@@ -6481,16 +6481,16 @@ void main() {
 
 
 WebGLVectorTile2Shaders.WindVectorsShaders_drawVertexShader = `
-precision mediump float;\n
-attribute float a_index;\n
+precision mediump float;
+attribute float a_index;
 uniform sampler2D u_particles;
-uniform float u_particles_res;\n
-//uniform vec2 u_scale;\n
-//uniform vec2 u_translate;\n
-uniform mat4 u_transform;\n
-varying vec2 v_particle_pos;\n
+uniform float u_particles_res;
+//uniform vec2 u_scale;
+//uniform vec2 u_translate;
+uniform mat4 u_transform;
+varying vec2 v_particle_pos;
 void main() {
-    vec4 color = texture2D(u_particles, vec2(fract(a_index / u_particles_res), floor(a_index / u_particles_res) / u_particles_res));\n
+    vec4 color = texture2D(u_particles, vec2(fract(a_index / u_particles_res), floor(a_index / u_particles_res) / u_particles_res));
     // decode current particle position from the pixel's RGBA value
     v_particle_pos = vec2(color.r / 255.0 + color.b, color.g / 255.0 + color.a);
     gl_PointSize = 1.;
@@ -6503,28 +6503,28 @@ void main() {
 }`
 
 WebGLVectorTile2Shaders.WindVectorsShaders_drawFragmentShader = `
-precision mediump float;\n
+precision mediump float;
 uniform sampler2D u_wind;
 uniform vec2 u_wind_min;
 uniform vec2 u_wind_max;
-uniform sampler2D u_color_ramp;\n
-varying vec2 v_particle_pos;\n
+uniform sampler2D u_color_ramp;
+varying vec2 v_particle_pos;
 void main() {
     vec2 velocity = mix(u_wind_min, u_wind_max, texture2D(u_wind, v_particle_pos).rg);
-    float speed_t = length(velocity) / length(u_wind_max);\n
+    float speed_t = length(velocity) / length(u_wind_max);
     // color ramp is encoded in a 16x16 texture
     vec2 ramp_pos = vec2(
                         fract(16.0 * speed_t),
-                        floor(16.0 * speed_t) / 16.0);\n
+                        floor(16.0 * speed_t) / 16.0);
     gl_FragColor = texture2D(u_color_ramp, ramp_pos);
 }`;
 
 WebGLVectorTile2Shaders.WindVectorsShaders_quadVertexShader = `
-precision mediump float;\n
-attribute vec2 a_pos;\n
-varying vec2 v_tex_pos;\n
-//uniform vec2 u_scale;\n
-//uniform vec2 u_translate;\n
+precision mediump float;
+attribute vec2 a_pos;
+varying vec2 v_tex_pos;
+//uniform vec2 u_scale;
+//uniform vec2 u_translate;
 void main() {
   v_tex_pos = a_pos;
   gl_Position = vec4(1.0 - 2.0 * a_pos, 0, 1);
@@ -6581,15 +6581,15 @@ float rand(const vec2 co) {
         vec4 color = texture2D(u_particles, v_tex_pos);
         vec2 pos = vec2(color.r / 255.0 + color.b, color.g / 255.0 + color.a); // decode particle position from pixel RGBA\n
         vec2 velocity = mix(u_wind_min, u_wind_max, lookup_wind(pos));
-        float speed_t = length(velocity) / length(u_wind_max);\n
+        float speed_t = length(velocity) / length(u_wind_max);
         // take EPSG:4236 distortion into account for calculating where the particle moved
         float distortion = cos(radians(pos.y * 180.0 - 90.0));
         distortion = 1.0;
-        vec2 offset = vec2(velocity.x / distortion, -velocity.y) * 0.0001 * u_speed_factor;\n
+        vec2 offset = vec2(velocity.x / distortion, -velocity.y) * 0.0001 * u_speed_factor;
         // update particle position, wrapping around the date line
-        pos = fract(1.0 + pos + offset);\n
+        pos = fract(1.0 + pos + offset);
         // a random seed to use for the particle drop
-        vec2 seed = (pos + v_tex_pos) * u_rand_seed;\n
+        vec2 seed = (pos + v_tex_pos) * u_rand_seed;
         // drop rate is a chance a particle will restart at random position, to avoid degeneration
         float drop_rate = u_drop_rate + speed_t * u_drop_rate_bump;
         //vec2 u_topLeftBound = vec2(0.1, 0.2); vec2 u_bottomRightBound = vec2(0.2, 0.4);
