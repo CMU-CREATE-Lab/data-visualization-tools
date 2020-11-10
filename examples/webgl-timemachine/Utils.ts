@@ -35,7 +35,8 @@ export class Utils {
   }
   // Display time since load
   static logPrefix() {
-    return `[${((new Date().getTime() - (window as any).loadStartTime) / 1000).toFixed(2)}]`;
+    let date = new Date();
+    return `[${((date.getTime() - (window as any).loadStartTime) / 1000).toFixed(2)} ${date.toLocaleDateString()} ${date.toLocaleTimeString()}]`;
   }
 
   static timeZone: string;

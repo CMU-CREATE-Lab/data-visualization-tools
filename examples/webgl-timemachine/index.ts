@@ -919,6 +919,7 @@ async function handleLayers(layers: string[]) {
     }
 
   }
+  console.log(`${Utils.logPrefix()} handleLayers; calling setVisibleLayers`);
   gEarthTime.layerDB.setVisibleLayers(layerProxies);
 }
 
@@ -1339,8 +1340,10 @@ function initLayerToggleUI() {
     let clickedLayer = gEarthTime.layerDB.getLayer(toggledLayerId);
     if ($toggledLayerElm.prop("checked")) {
       layersToBeDrawn.push(clickedLayer);
+      console.log(`${Utils.logPrefix()} timelineUIHandler checked; calling setVisibleLayers`);
       gEarthTime.layerDB.setVisibleLayers(layersToBeDrawn);
     } else {
+      console.log(`${Utils.logPrefix()} timelineUIHandler not checked; calling setVisibleLayers`);
       layersToBeDrawn.splice(layersToBeDrawn.indexOf(clickedLayer), 1);
       gEarthTime.layerDB.setVisibleLayers(layersToBeDrawn);
     }
@@ -2633,6 +2636,7 @@ lightBaseMapLayer = new WebGLMapLayer(null, gEarthTime.glb, gEarthTime.canvasLay
 
   var hashChange = function() {
     var vals = UTIL.getUnsafeHashVars();
+    console.log(`${Utils.logPrefix()} index: hashChange: ${vals}`);
     var storyTheme = getStoryAndThemeFromUrl();
     //vals = $.extend({}, storyTheme, vals);
 
@@ -4793,6 +4797,7 @@ async function init() {
     layersToShow = [
       layerDB.getLayer('blsat')
     ];
+    console.log(`${Utils.logPrefix()} init; calling setVisibleLayers`);
     layerDB.setVisibleLayers(layersToShow);
   }
 
