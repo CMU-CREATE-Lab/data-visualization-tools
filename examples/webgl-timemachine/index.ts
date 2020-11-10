@@ -2016,7 +2016,7 @@ async function setupUIAndOldLayers() {
 
 
   // initialize WebGL
-  gl = gEarthTime.canvasLayer.canvas.getContext('experimental-webgl',  {antialias: false, alpha: true, stencil: true, depth: true, failIfMajorPerformanceCaveat: false, preserveDrawingBuffer: preserveDrawingBuffer});
+  gl = gEarthTime.canvasLayer.canvas.getContext('experimental-webgl',  {antialias: true, alpha: true, stencil: false, depth: true, failIfMajorPerformanceCaveat: false, preserveDrawingBuffer: preserveDrawingBuffer});
   (window as any).gl = gl; // TODO(LayerDB): someday stop using this global
 
   gEarthTime.glb = new Glb(gl);
