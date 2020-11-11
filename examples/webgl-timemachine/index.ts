@@ -1,10 +1,11 @@
-///// <reference path="perf.js"/>
 /// <reference path="StoryEditor.js"/>
 /// <reference path="../../js/dat.gui.min.js"/>
 /// <reference path="../../js/utils.js"/>
 /// <reference path="../../timemachine/js/org/gigapan/timelapse/timelapse.js"/>
 /// <reference path="../../timemachine/js/org/gigapan/timelapse/crossdomain_api.js"/>
 /// <reference path="../../timemachine/libs/change-detect/js/TimeMachineCanvasLayer.js"/>
+declare var Papa:any;
+/// <reference path="../../js/papaparse.min.js"/>
 
 import { dbg } from './dbg'
 import { WebGLMapLayer } from './WebGLMapLayer'
@@ -14,9 +15,6 @@ import { Utils } from './Utils';
 
 dbg.Utils = Utils;
 console.log(`${Utils.logPrefix()} Loading index.ts`)
-
-declare var Papa:any;
-/// <reference path="../../js/papaparse.min.js"/>
 
 import { LayerOptions } from './Layer';
 
@@ -51,8 +49,6 @@ import { Timeline } from './Timeline';
 import { LayerEditor } from './LayerEditor';
 dbg.Glb = Glb;
 
-
-dbg.GSheet = GSheet;
 
 var EarthlapseUI;
 var timelineUIHandler;
@@ -329,51 +325,9 @@ if (typeof(Storage) !== "undefined") {
   }
 }
 
-////var showEVA = !!EARTH_TIMELAPSE_CONFIG.showEVA;
-var showGFW = !!EARTH_TIMELAPSE_CONFIG.showGFW;
 var showStories = typeof(EARTH_TIMELAPSE_CONFIG.showStories) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showStories;
 var showCustomDotmaps = typeof(EARTH_TIMELAPSE_CONFIG.showCustomDotmaps) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showCustomDotmaps;
 var showCsvLayers = !!EARTH_TIMELAPSE_CONFIG.showCsvLayers;
-
-
-
-////var showForestAlerts = !!EARTH_TIMELAPSE_CONFIG.showForestAlerts;
-//var showUSDrilling = typeof(EARTH_TIMELAPSE_CONFIG.showUSDrilling) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showUSDrilling;
-//var showViirs = typeof(EARTH_TIMELAPSE_CONFIG.showViirs) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showViirs;
-//var showGlobalWindPower = !!EARTH_TIMELAPSE_CONFIG.showGlobalWindPower;
-// var showVsi = !!EARTH_TIMELAPSE_CONFIG.showVsi;
-//var showHealthImpact = !!EARTH_TIMELAPSE_CONFIG.showHealthImpact;
-//var showZika = !!EARTH_TIMELAPSE_CONFIG.showZika;
-//var showDengue = !!EARTH_TIMELAPSE_CONFIG.showDengue;
-//var showChiku = !!EARTH_TIMELAPSE_CONFIG.showChiku;
-//var showUrbanFragility = !!EARTH_TIMELAPSE_CONFIG.showUrbanFragility;
-//var showGtd = !!EARTH_TIMELAPSE_CONFIG.showGtd;
-//var showHiv = !!EARTH_TIMELAPSE_CONFIG.showHiv;
-//var showObesity = !!EARTH_TIMELAPSE_CONFIG.showObesity;
-//var showVaccineConfidence = !!EARTH_TIMELAPSE_CONFIG.showVaccineConfidence;
-//var showNdviAnomaly = !!EARTH_TIMELAPSE_CONFIG.showNdviAnomaly;
-//var showEbola = !!EARTH_TIMELAPSE_CONFIG.showEbola;
-// var showWaterOccurrence = !!EARTH_TIMELAPSE_CONFIG.showWaterOccurrence;
-// var showWaterChange = !!EARTH_TIMELAPSE_CONFIG.showWaterChange;
-//var showBerkeleyEarthTemperatureAnomaly = !!EARTH_TIMELAPSE_CONFIG.showBerkeleyEarthTemperatureAnomaly;
-//var showUppsalaConflict = !!EARTH_TIMELAPSE_CONFIG.showUppsalaConflict;
-// var showLightsAtNight = typeof(EARTH_TIMELAPSE_CONFIG.showLightsAtNight) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showLightsAtNight;
-// var showLightsAtNight2012 = !!EARTH_TIMELAPSE_CONFIG.showLightsAtNight2012;
-//var showLightsAtNight2016 = !!EARTH_TIMELAPSE_CONFIG.showLightsAtNight2016;
-//var showOmiNo2 = !!EARTH_TIMELAPSE_CONFIG.showOmiNo2;
-//var showBePm25 = !!EARTH_TIMELAPSE_CONFIG.showBePm25;
-// var showLightsAtNightAnim = !!EARTH_TIMELAPSE_CONFIG.showLightsAtNightAnim;
-//var showExpandingCities = !!EARTH_TIMELAPSE_CONFIG.showExpandingCities;
-//var showIrena = !!EARTH_TIMELAPSE_CONFIG.showIrena;
-var showCityLabelMap = !!EARTH_TIMELAPSE_CONFIG.showCityLabelMap;
-//var showTsip = !!EARTH_TIMELAPSE_CONFIG.showTsip;
-//var showAnnualGlobalPm25 = !!EARTH_TIMELAPSE_CONFIG.showAnnualGlobalPm25;
-//var showEcco2 = !!EARTH_TIMELAPSE_CONFIG.showEcco2;
-//var showTintedLandsat = !!EARTH_TIMELAPSE_CONFIG.showTintedLandsat;
-//var showGfsTimemachine = !!EARTH_TIMELAPSE_CONFIG.showGfsTimemachine;
-//var showChlorophyllConcentrationTimemachine = !!EARTH_TIMELAPSE_CONFIG.showChlorophyllConcentrationTimemachine;
-//var showFishingPprTimemachine = !!EARTH_TIMELAPSE_CONFIG.showFishingPprTimemachine;
-
 var googleMapsAPIKey = parseConfigOption({optionName: "googleMapsAPIKey", optionDefaultValue: "AIzaSyAGTDshdDRmq8zdw26ZmwJOswh6VseIrYY", exposeOptionToUrlHash: false});
 var showExtrasMenu = parseConfigOption({optionName: "showExtrasMenu", optionDefaultValue: true, exposeOptionToUrlHash: false});
 var showFullScreenButton = parseConfigOption({optionName: "showFullScreenButton", optionDefaultValue: false, exposeOptionToUrlHash: true});
@@ -474,11 +428,6 @@ if (landsatVersion == "2015"){
 
 WebGLVideoTile.useFaderShader = useFaderShader;
 var showTile = true;
-var landsatMaxScale = (landsatVersion == "2015") ? 1.25 : 0.45;
-if (window.devicePixelRatio > 1) {
-  landsatMaxScale -= 0.21;
-}
-var rasterMapTileMaxScale = 80 * landsatMaxScale;
 var isAutoModeRunning = false;
 var visibleBaseMapLayer = "blsat";
 var previousVisibleBaseMapLayer = visibleBaseMapLayer;
@@ -504,10 +453,7 @@ var currentWaypointTheme = "";
 var currentWaypointStory;
 var annotationPicturePaths = {};
 var waypointJSONList = {};
-var timelineType = "customUI";
 var activeLayersWithTimeline = 0;
-var timelineHidden = false;
-var previousActiveLayersWithTimeline = 0;
 var lastSelectedWaypointIndex = -1;
 var keysDown = [];
 var $lastSelectedExtra;
@@ -516,24 +462,16 @@ var dotmapLayersInitialized = false;
 var csvFileLayersInitialized = false;
 var storiesInitialized = false;
 var timeMachinePlayerInitialized = false;
-var timeInMsSinceLastWaypointLoop = 0;
 var $nextAnnotationLocationButton;
 var $previousAnnotationLocationButton;
 var lastLayerMenuScrollPos = 0;
-var lastFeaturedLayerMenuScrollPos = 0;
-var lastThemeMenuScrollPos = 0;
-var $lastActiveLayerTopic = $();
-var $lastActiveFeaturedLayerTopic = $();
-var lastActiveLayers = [];
-var maxCachedLayers = 8;
+var $lastActiveLayerTopic;
 var lastSelectedAnnotationBeforeHidden;
 var initialTopNavWrapperElm;
 var $activeLayerDescriptionTooltip;
 var storyEditor;
-var activeEarthTimeLayers = [];
-var timeZone = "";
 var storyLoadedFromRealKeyDown = false;
-
+var finalizeNewTimelineTimeout = null;
 
 // ## 1 ##
 //
@@ -773,17 +711,6 @@ function isEarthTimeLoaded() {
   return true;
 }
 
-
-// TODO(LayerDB).  Paul, I'm removing ajax includes on the guess we have or are planning to move this metadata out of the source code
-//     and either load from tm.json/r.json or the layer definition
-// (The callback to init is moved to the end of this file)
-// $.getScript(landsatAjaxIncludesPath)
-//   .done(function(script, status) {
-//     eval(script);
-//     $(init);
-//   }
-// );
-
 function googleMapsLoadedCallback() {
   if (useGoogleSearch && $("#location_search").length) {
     // @ts-ignore
@@ -863,10 +790,6 @@ function googleMapsLoadedCallback() {
   }
 }
 
-// Wait until currrent execution finishes so that we can skip loading the timeline in case it is not the last call.
-// We do this because the timeline loads asynchronously; otherwise, the next waypoint might use the wrong timeline.
-var finalizeNewTimelineTimeout = null;
-
 function requestNewTimeline(url, newTimelineStyle) {
   // The last timeline request takes precedence
   if (finalizeNewTimelineTimeout !== null) {
@@ -877,27 +800,6 @@ function requestNewTimeline(url, newTimelineStyle) {
     gEarthTime.timelapse.loadNewTimeline(url, newTimelineStyle);
     finalizeNewTimelineTimeout = null;
   }, 0);
-}
-
-function cacheLastUsedLayer(layer) {
-  var cacheIdx = lastActiveLayers.indexOf(layer);
-
-  if (cacheIdx >= 0) {
-    lastActiveLayers.push(lastActiveLayers.splice(cacheIdx, 1)[0]);
-  } else {
-    if (lastActiveLayers.length == maxCachedLayers) {
-      lastActiveLayers.shift().destroy();
-    }
-
-    // May not do anything if tiles have all loaded for this layer or have been deleted
-    layer.abortLoading();
-
-    var tiles = Object.keys(layer.getTiles());
-
-    if (tiles && tiles.length > 0) {
-      lastActiveLayers.push(layer);
-    }
-  }
 }
 
 async function handleLayers(layers: string[]) {
@@ -1117,7 +1019,7 @@ function initLayerToggleUI() {
     'top': '0px'
   });
 
-  $(document).keydown(function(e) {
+  $(document).on("keydown", function(e) {
     var fromRealKeydown = e.originalEvent && e.pageX != 0 && e.pageY != 0;
     // @ts-ignore
     if ((e.target.tagName == "INPUT" || e.target.tagName == "TEXTAREA") && !!fromRealKeydown) return;
@@ -1290,7 +1192,7 @@ function initLayerToggleUI() {
         showSettingsDialog();
       }
     }
-  }).keyup(function(e) {
+  }).on("keyup", function(e) {
     keysDown.length = 0;
   });
 
@@ -1715,11 +1617,6 @@ function showAnnotationResumeExit() {
   setExploreModeUrl();
 }
 
-function setActiveLayersWithTimeline(modifier) {
-  previousActiveLayersWithTimeline = activeLayersWithTimeline;
-  activeLayersWithTimeline += modifier;
-  if (activeLayersWithTimeline < 0) activeLayersWithTimeline = 0;
-}
 
 function doSwitchToLandsat() {
   // Special case for layers with defaultUI timeline.
@@ -1727,11 +1624,7 @@ function doSwitchToLandsat() {
   //   return false;
   // } else {
   previousVisibleBaseMapLayer = visibleBaseMapLayer;
-  timelineType = "customUI";
   $("#layers-list #blsat-base").click();
-  if (activeLayersWithTimeline <= 0) {
-    setActiveLayersWithTimeline(1);
-  }
   requestNewTimeline(cachedLandsatTimeJsonPath, "customUI");
   gEarthTime.timelapse.setMasterPlaybackRate(1);
   gEarthTime.timelapse.setPlaybackRate(defaultPlaybackSpeed);
@@ -2062,8 +1955,6 @@ async function setupUIAndOldLayers() {
   layer_html += '   <option data-type="img" data-file-path="Doughnut-transgressing.png" data-name="e-doughnut_transgressing">Doughnut Transgressing</option>';
   layer_html += '   <option data-type="img" data-file-path="Trade Openness.png" data-name="e-tradeopenness">Trade Openness</option>';
   layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="Global Cyber Centre.mp4" data-name="e-globalcyber">Global Cyber Centre</option>';
-  if (showGFW)
-    layer_html += '   <option data-type="iframe" data-file-path="http://localhost:8081/index.html?workspace=https://api-dot-skytruth-pleuston.appspot.com/v1/workspaces/udw-v1-4a79e843-9e84-4c02-a903-f49c4d0ebc0c" data-name="e-gfw">Global Fishing Watch</option>';
   layer_html += '   <optgroup label="World Economic Forum - Davos 2016">';
   layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="WEF/The Climate Crisis with Naomi Oreskes and Achim Steiner.mp4" data-name="e-davos16climate1">Climate Crisis with Naomi Oreskes and Achim Steiner</option>';
   layer_html += '   <option data-playback-rate="1" data-type="video" data-file-path="WEF/The Climate Crisis with Naomi Oreskes and Nicholas Stern.mp4" data-name="e-davos16climate2">Climate Crisis with Naomi Oreskes and Nicholas Stern</option>';
