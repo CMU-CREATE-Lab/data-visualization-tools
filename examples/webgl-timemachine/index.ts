@@ -2548,8 +2548,7 @@ lightBaseMapLayer = new WebGLMapLayer(null, gEarthTime.glb, gEarthTime.canvasLay
         }
       }
     }
-    // Turn off any layers that are active except ones related to current waypoint
-    $(".map-layer-div").find("input[type='checkbox']:checked").parent().not(waypointLayersSelectors).children().trigger("click");
+
     if (vals.l) {
       var layers = vals.l.split(",");
       if (loadedInitialCsvLayers){
