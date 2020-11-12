@@ -590,7 +590,6 @@ export class LayerFactory {
     }
     legendHTML += '</div>';
     legendHTML += '</tr>';
-    console.log(`${this.logPrefix()} createDotmapLegend "${legendHTML}"`);
     layer.legend = new Legend(layer.layerId, legendHTML);
     layer.hasLegend = true;
   }
