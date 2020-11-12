@@ -4,7 +4,7 @@ declare var Papa:any;
 export class GSheet {
   file_id: string;
   gid: string;
-  
+
   constructor(file_id: string, gid: string = null) {
     this.file_id = file_id;
     this.gid = gid;
@@ -18,7 +18,7 @@ export class GSheet {
   }
 
   static from_url(url: string) {
-    var regex = /https?:\/\/docs\.google\.com\/spreadsheets\/d\/(\w+)\/(.*gid=(\d+))?/;
+    var regex = /https?:\/\/docs\.google\.com\/spreadsheets\/d\/(.*?)\/(.*?[#&]gid=(\d+))?/;
     var match = url.match(regex);
     if (!match) {
       throw Error(`url ${url} does not match regex ${regex}, aborting`)
@@ -43,7 +43,7 @@ export class GSheet {
     if (this.gid) ret += `&gid=${this.gid}`;
     return ret;
   }
-    
+
   async read_csv(): Promise<[{}]> {
     return new Promise(resolve => Papa.parse(this.get_csv_export_url(), {
       download: true,
