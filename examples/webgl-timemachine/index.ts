@@ -90,7 +90,7 @@ if (!isIE) {
   window.devicePixelRatio = 1;
 }
 
-/* Set up markdown used for layer info bubbles */
+// Set up markdown used for layer info bubbles
 // @ts-ignore
 var md = window.markdownit({ breaks: true, html: true });
 // Remember old renderer, if overriden, or proxy to default renderer
@@ -119,9 +119,10 @@ declare var EARTH_TIMELAPSE_CONFIG;
 var featuredTheme = "";
 var enableMuseumMode = !!EARTH_TIMELAPSE_CONFIG.enableMuseumMode;
 // Deprecated. Was json output of snaplapse editor. Instead use waypointSliderContentPath, which points to an online or exported spreadsheet.
-var waypointCollection = EARTH_TIMELAPSE_CONFIG.waypointCollection;
-var waypointSliderContentPath = EARTH_TIMELAPSE_CONFIG.waypointSliderContentPath || "default-waypoints.tsv";
-
+var waypointCollection : string = EARTH_TIMELAPSE_CONFIG.waypointCollection;
+// TODO: tsv exports are no longer working with new codebase
+var waypointSliderContentPath : string = EARTH_TIMELAPSE_CONFIG.waypointSliderContentPath || "default-waypoints.tsv";
+// TODO: tsv exports are no longer working with new codebase
 var csvLayersContentPath : string;
 if (typeof(EARTH_TIMELAPSE_CONFIG.csvLayersContentPath) === "undefined") {
   csvLayersContentPath = "1rCiksJv4aXi1usI0_9zdl4v5vuOfiHgMRidiDPt1WfE.870361385";
@@ -143,9 +144,13 @@ class EarthTimeImpl implements EarthTime {
   readyToDraw = false;
   currentlyShownTimeline: any;
   async setDatabaseID(databaseID: GSheet) {
+    if (loadedLayersGSheet && databaseID.url() == loadedLayersGSheet.url()) return;
+    loadedLayersGSheet = databaseID;
+
     async function internal(earthTime: EarthTimeImpl) {
       earthTime.layerDB = null;
       earthTime.layerDB = dbg.layerDB = await LayerDB.create(databaseID, {earthTime: earthTime});
+      populateLayerLibrary();
     }
     this.layerDBPromise = internal(this);
     await this.layerDBPromise;
@@ -311,9 +316,6 @@ class EarthTimeImpl implements EarthTime {
   }
 };
 
-setGEarthTime(new EarthTimeImpl());
-gEarthTime.setDatabaseID(GSheet.from_url(csvLayersContentPath));
-
 // TODO: Do we still want the ability to store spreadsheet link this way?
 // Local Storage
 if (typeof(Storage) !== "undefined") {
@@ -324,6 +326,10 @@ if (typeof(Storage) !== "undefined") {
     csvLayersContentPath = localStorage.csvLayersContentPath;
   }
 }
+
+setGEarthTime(new EarthTimeImpl());
+gEarthTime.setDatabaseID(GSheet.from_url(csvLayersContentPath));
+
 
 var showStories = typeof(EARTH_TIMELAPSE_CONFIG.showStories) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showStories;
 var showCustomDotmaps = typeof(EARTH_TIMELAPSE_CONFIG.showCustomDotmaps) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showCustomDotmaps;
@@ -1085,7 +1091,7 @@ function initLayerToggleUI() {
     // Quick way to clear all layers
     if (e.keyCode === 67) {
       handleLayers([]);
-      var openCategories = $("h3.ui-accordion-header.ui-state-active");
+      var openCategories = $("#layers-menu h3.ui-accordion-header.ui-state-active");
       var availableCategories = $(".map-layer-div").children("h3");
       $.each(openCategories, function(index, value) {
         if (index == 0) return;
@@ -1657,15 +1663,14 @@ var tileViewVisibility = {
   vectorTile: false
 };
 
-var waypointsLoadedPath;
+var loadedWaypointsGSheet;
+var loadedLayersGSheet;
+
 var csvDataGrapher = new CsvDataGrapher(gEarthTime);
 var dateRangePicker = new DateRangePicker(gEarthTime);
 var altitudeSlider = new AltitudeSlider(gEarthTime);
 var contentSearch = new ContentSearch();
-var dotmapLayers = [];
-var dotmapLayerByName = {};
-var dotlayersLoadedPath;
-var csvlayersLoadedPath;
+
 var waypointJSONListReadyInterval;
 var waitToLoadWaypointLayersOnPageReadyInterval;
 var timelineUIChangeListeners = [];
@@ -1792,9 +1797,10 @@ function loadWaypointSliderContentFromCSV(csvdata) {
   storiesInitialized = true;
 }
 
-function loadWaypoints(path) {
-  if (path == waypointsLoadedPath) return;
-  waypointsLoadedPath = path;
+function loadWaypoints(path:GSheet) {
+  var waypointsUrl = path.url();
+  if (loadedWaypointsGSheet && waypointsUrl == loadedWaypointsGSheet.url()) return;
+  loadedWaypointsGSheet = path;
 
   // Keep track of spreadsheet path
   UTIL.addGoogleAnalyticEvent('javascript', 'load-waypoints', 'spreadsheet-path=' + path);
@@ -1804,17 +1810,16 @@ function loadWaypoints(path) {
     gEarthTime.timelapse.loadSharedDataFromUnsafeURL(waypointCollection);
     storiesInitialized = true;
   } else {
-    UTIL.loadTsvData(path, loadWaypointSliderContentFromCSV, this);
+    UTIL.loadTsvData(waypointsUrl, loadWaypointSliderContentFromCSV, this);
   }
 }
 
 
 function populateLayerLibrary() {
   let layer_html = "";
-  layer_html += '<ul id="layers-list">';
-  layer_html += '  <div id="all-data-layers-title">All Data</div>';
-  layer_html += '    <div class="layers-scroll-vertical">';
-  layer_html += '      <div class="map-layer-div map-layer-checkbox">';
+  layer_html += '<div id="all-data-layers-title">All Data</div>';
+  layer_html += '  <div class="layers-scroll-vertical">';
+  layer_html += '    <div class="map-layer-div map-layer-checkbox">';
 
   let layersByCategory = {};
   for (let layer of gEarthTime.layerDB.orderedLayers) {
@@ -1835,12 +1840,11 @@ function populateLayerLibrary() {
     });
     layer_html += "</table>";
   }
-  layer_html += '      </div>';
   layer_html += '    </div>';
-  layer_html += '  <div class="clearLayers"></div>';
-  layer_html += '</ul>';
+  layer_html += '  </div>';
+  layer_html += '<div class="clearLayers"></div>';
 
-  $(layer_html).appendTo($("#layers-menu"));
+  $("#layers-list").html(layer_html);
 
   // Turn layer categories into accordion selectables
   $(".map-layer-div, .themes-div").accordion({
@@ -1887,7 +1891,6 @@ function populateLayerLibrary() {
   });
 
   sortLayerCategories();
-
 }
 
 
@@ -2528,26 +2531,6 @@ lightBaseMapLayer = new WebGLMapLayer(null, gEarthTime.glb, gEarthTime.canvasLay
   var hashChange = function() {
     var vals = UTIL.getUnsafeHashVars();
     console.log(`${Utils.logPrefix()} index: hashChange: ${vals}`);
-    var storyTheme = getStoryAndThemeFromUrl();
-    //vals = $.extend({}, storyTheme, vals);
-
-    // Another hashChange call may happen later from csvFileLayers.addLayersLoadedListener() which will end up clearing out
-    // any layers a waypoint may have up. So if we are looking at a waypoint, we need to filter out its layers.
-    var activeWaypoint = $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight");
-    if (activeWaypoint.length) {
-      var waypointLayersSelectors = "";
-      var waypointIdx = snaplapseViewerForPresentationSlider.getCurrentWaypointIndex();
-      if (snaplapseForPresentationSlider) {
-        var waypointLayerIds = snaplapseForPresentationSlider.getKeyframes()[waypointIdx].layers;
-        for (var i = 0; i < waypointLayerIds.length; i++) {
-          waypointLayersSelectors += "label[name='" + waypointLayerIds[i] + "']";
-          // Need to comma separate each selector
-          if (i < waypointLayerIds.length - 1) {
-            waypointLayersSelectors += ",";
-          }
-        }
-      }
-    }
 
     if (vals.l) {
       var layers = vals.l.split(",");
@@ -2580,24 +2563,17 @@ lightBaseMapLayer = new WebGLMapLayer(null, gEarthTime.glb, gEarthTime.canvasLay
       handleLayers(layers);
     }
 
-    if (gEarthTime.timelapse.isPresentationSliderEnabled()) {
-      if ($("#timeMachine .presentationSlider").hasClass("offscreen")) {
-        // First check for legacy case
-        if (vals.theme) {
-          $("#" + vals.theme).click();
-        } else if (storyTheme.story) {
-          $("#story_" + storyTheme.story).click();
-        }
-      }
-      if (showStories) {
-        var waypointsPath = vals.waypoints ? docTabToGoogleSheetUrl(vals.waypoints) : waypointSliderContentPath;
-        // If for some reason the waypoints cannot load, the controls need to be manually
-        // pushed up by changing the player to where it would be had the waypoints loaded.
-        $("#timeMachine .player").css("bottom", "93px");
-        loadWaypoints(waypointsPath);
-      }
-      // TODO
-      populateLayerLibrary();
+    if (vals.csvlayers) {
+      let csvlayersPath = vals.csvlayers ? docTabToGoogleSheetUrl(vals.csvlayers) : csvLayersContentPath;
+      gEarthTime.setDatabaseID(GSheet.from_url(csvlayersPath));
+    }
+
+    if (gEarthTime.timelapse.isPresentationSliderEnabled() && showStories) {
+      let waypointsPath = vals.waypoints ? docTabToGoogleSheetUrl(vals.waypoints) : waypointSliderContentPath;
+      // If for some reason the waypoints cannot load, the controls need to be manually
+      // pushed up by changing the player to where it would be had the waypoints loaded.
+      $("#timeMachine .player").css("bottom", "93px");
+      loadWaypoints(GSheet.from_url(waypointsPath));
     }
   };
 
@@ -3634,10 +3610,10 @@ function showSettingsDialog() {
   }
 
   var d = settingsDialog;
-  d.html('<a target="_blank" href="' + getSpreadsheetDownloadPath(waypointsLoadedPath) + '" title="Click to view current waypoint spreadsheet">Current waypoints spreadsheet</a>' +
+  d.html('<a target="_blank" href="' + getSpreadsheetDownloadPath(loadedWaypointsGSheet.url()) + '" title="Click to view current waypoint spreadsheet">Current waypoints spreadsheet</a>' +
           '<button style="float: right; cursor: pointer;" title="Click to change waypoint list">Switch</button><br>' +
           '<a target="_blank" href="https://docs.google.com/spreadsheets/d/1rCiksJv4aXi1usI0_9zdl4v5vuOfiHgMRidiDPt1WfE/edit#gid=358696896" title="Click to view current dotmap spreadsheet">Current dotmap layer spreadsheet</a><br>' +
-          '<a target="_blank" href="' + gEarthTime.layerDB.databaseId.url() + '" title="Click to view current csv spreadsheet">Current csv layer spreadsheet</a>' +
+          '<a target="_blank" href="' + loadedLayersGSheet.url() + '" title="Click to view current csv spreadsheet">Current csv layer spreadsheet</a>' +
           '<button style="float: right; cursor: pointer;" title="Click to change csv layers">Switch</button><br><br>' +
           '<button style="float: right; cursor: pointer; font-size: 12px" title="Reset spreadsheets back to their defaults">Reset spreadsheets to default values</button><br>');
 
@@ -3770,7 +3746,7 @@ function resizeLayersMenu() {
 // Called by TimeMachineCanavasLayer during animation and/or view changes
 function update() {
   gEarthTime.startRedraw();
-  if (!gEarthTime.readyToDraw) return;
+  if (!gEarthTime.readyToDraw || !gEarthTime.layerDB) return;
   if (disableAnimation) {
     gEarthTime.canvasLayer.setAnimate(false);
     disableAnimation = false;
