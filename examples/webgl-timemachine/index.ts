@@ -3047,7 +3047,13 @@ lightBaseMapLayer = new WebGLMapLayer(null, gEarthTime.glb, gEarthTime.canvasLay
   }
 
   // Keep this last
-  $(window).on('hashchange', hashChange).trigger('hashchange');
+
+  // Note that hash change events are run in reverse order of them being added when handled
+  // by the Timelapse library. This is desirable here because we want EarthTime's hashchange event
+  // to run before the view handling done by Timelapse.
+  gEarthTime.timelapse.addHashChangeListener(hashChange);
+  $(window).trigger("hashchange");
+
   timeMachinePlayerInitialized = true;
 
   // End of onTimeMachinePlayerReady
