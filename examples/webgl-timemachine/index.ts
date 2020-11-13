@@ -411,22 +411,6 @@ var customDarkMapUrlOrId = parseConfigOption({optionName: "customDarkMapUrlOrId"
 var customLightMapUrl = parseConfigOption({optionName: "customLightMapUrl", optionDefaultValue: "", exposeOptionToUrlHash: false});
 var customLightMapUrlOrId = parseConfigOption({optionName: "customLightMapUrlOrId", optionDefaultValue: "", exposeOptionToUrlHash: true}) || customLightMapUrl;
 
-// TODO:
-// Until we decide to force everyone to latest landsat, pull the version corresponding to the config above.
-if (landsatVersion == "2015"){
-  var cachedLandsatTimeJsonPath = "landsat-times.json";
-  var landsatAjaxIncludesPath = "landsat_ajax_includes.js";
-} else if (landsatVersion == "2019"){
-  var cachedLandsatTimeJsonPath = "landsat-times-2019.json";
-  var landsatAjaxIncludesPath = "landsat_ajax_includes_2019.js";
-} else {
-  var cachedLandsatTimeJsonPath = "landsat-times-2016.json";
-  var landsatAjaxIncludesPath = "landsat_ajax_includes_2016.js";
-  if (isMobileDevice || isIEButNotEdge) {
-    landsatAjaxIncludesPath = "https://earthengine.google.com/timelapse/data/20161025/ajax_includes.js";
-  }
-}
-
 
 //
 //// App variables ////
@@ -477,7 +461,7 @@ var initialTopNavWrapperElm;
 var $activeLayerDescriptionTooltip;
 var storyEditor;
 var storyLoadedFromRealKeyDown = false;
-var finalizeNewTimelineTimeout = null;
+
 
 // ## 1 ##
 //
@@ -796,17 +780,6 @@ function googleMapsLoadedCallback() {
   }
 }
 
-function requestNewTimeline(url, newTimelineStyle) {
-  // The last timeline request takes precedence
-  if (finalizeNewTimelineTimeout !== null) {
-    clearTimeout(finalizeNewTimelineTimeout);
-    finalizeNewTimelineTimeout = null;
-  }
-  finalizeNewTimelineTimeout = setTimeout(function() {
-    gEarthTime.timelapse.loadNewTimeline(url, newTimelineStyle);
-    finalizeNewTimelineTimeout = null;
-  }, 0);
-}
 
 async function handleLayers(layers: string[]) {
   await gEarthTime.layerDBPromise;
@@ -1621,27 +1594,6 @@ function showAnnotationResumeExit() {
     $(".annotations-button-separator, .annotations-exit-button").hide();
   }
   setExploreModeUrl();
-}
-
-
-function doSwitchToLandsat() {
-  // Special case for layers with defaultUI timeline.
-  // if (timelineType == "defaultUI" && showMonthlyRefugeesLayer) {
-  //   return false;
-  // } else {
-  previousVisibleBaseMapLayer = visibleBaseMapLayer;
-  $("#layers-list #blsat-base").click();
-  requestNewTimeline(cachedLandsatTimeJsonPath, "customUI");
-  gEarthTime.timelapse.setMasterPlaybackRate(1);
-  gEarthTime.timelapse.setPlaybackRate(defaultPlaybackSpeed);
-  gEarthTime.timelapse.setDwellTimes(1.5, 1.5);
-  gEarthTime.timelapse.setDoDwell(true);
-  // @ts-ignore
-  WebGLVideoTile.useGreenScreen = false;
-  var v = gEarthTime.timelapse.getVideoset();
-  v.setFps(10);
-  return true;
-  //}
 }
 
 
