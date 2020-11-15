@@ -2492,7 +2492,8 @@ lightBaseMapLayer = new WebGLMapLayer(null, gEarthTime.glb, gEarthTime.canvasLay
       }
 
       // Temporarily set a max scale, based on what the shareview asks for. Note that this may be overriden by the max zoom of a layer
-      let maxShareViewScale = gEarthTime.timelapse.zoomToScale(gEarthTime.timelapse.unsafeViewToView(vals.v).zoom);
+      let view = gEarthTime.timelapse.pixelCenterToLatLngCenterView(gEarthTime.timelapse.normalizeView(gEarthTime.timelapse.unsafeViewToView(vals.v)));
+      let maxShareViewScale = gEarthTime.timelapse.zoomToScale(view.zoom);
       gEarthTime.timelapse.setMaxScale(maxShareViewScale);
 
       // The time in a share link may correspond to a layer that has a different timeline than the default one.
