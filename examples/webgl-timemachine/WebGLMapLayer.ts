@@ -3,11 +3,14 @@
 import { WebGLMapTile, WebGLMapTileShaders } from './WebGLMapTile'
 import { Layer, LayerOptions } from './Layer';
 import { LayerProxy } from './LayerProxy';
+import { SeaLevelRise } from './SeaLevelRise';
+import { gEarthTime } from './EarthTime';
 
 export class WebGLMapLayer extends Layer {
   _tileUrl: string;
   fileExtension: any;
   defaultUrl: any;
+  seaLevelRise: any;
   constructor(layerProxy: LayerProxy, glb: any, canvasLayer: any, tileUrl: string, layerOptions: LayerOptions) {
     super(layerProxy, layerOptions, WebGLMapTile);
     // Set default draw/shader/vertex function for raster map layers
@@ -27,4 +30,18 @@ export class WebGLMapLayer extends Layer {
     // nLevels is really the maximum tile level
     return this.nLevels;
   }
+
+  _drawLayerSlr(opt_options) {
+    if (!this.seaLevelRise) {
+      let idx = `${this.layerId}-legend`;
+      this.seaLevelRise = new SeaLevelRise(idx);      
+    }  else {
+      let currentKey = gEarthTime.timelapse.getCurrentCaptureTime();
+      this.seaLevelRise.setTemperatureAndHeight(currentKey);
+    }
+
+
+    return opt_options;
+  }
+
 }

@@ -974,6 +974,10 @@ export class LayerFactory {
     if (mapType == 'raster') {
       var prefix = 'WebGLMapTile.prototype.';
       var parent: any = WebGLMapTile.prototype;
+      if (funcType == "drawLayerFunction") {
+        prefix = "WebGLMapLayer.prototype.";
+        parent = WebGLMapLayer.prototype;
+      }
     } else if (mapType == 'raster2') {
       var prefix = 'WebGLMapTile2.prototype.';
       var parent: any = WebGLMapTile2.prototype;
