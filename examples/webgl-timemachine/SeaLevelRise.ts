@@ -5,20 +5,18 @@ export class SeaLevelRise {
     _html: any;
     _el:  any;
     _heights: any;
-    _currentKey: any;
-    _previousKey: any;
 
     constructor(legendId) {
         this._idx = legendId;
         this._el = document.getElementById(this._idx);
         this._html = `
                 <td><div style="font-size: 17px">Global Temperature Rise 
-                        <span id="slr-degree"></span> &#x2103;
+                        <span id="${this._idx}-slr-degree"></span> &#x2103;
                         <span class="credit"> (Climate Central)</span>
                     </div>
                     <div style="font-size: 15px">Multi-century Sea Level Increase:
-                        <span id="slr-feet" style="width:25px;"></span>
-                        <span id="slr-meters" style="width:25px; color: red;"></span>
+                        <span id="${this._idx}-slr-feet" style="width:25px;"></span>
+                        <span id="${this._idx}-slr-meters" style="width:25px; color: red;"></span>
                     </div>
                 </td>
             `;
@@ -34,26 +32,19 @@ export class SeaLevelRise {
             "3.5&deg;C": [26, 7.9],
             "4.0&deg;C": [29, 8.9]
         }; // [feet,meters]
-        this._currentKey = null;
-        this._previousKey = null;
     }
 
     setTemperatureAndHeight(key) {
-        this._currentKey = key;
-        if (this._currentKey == this._previousKey) {
-            return;
-        }
-        var degree = document.getElementById('slr-degree');
-        var meters = document.getElementById('slr-meters');
+        var degree = document.getElementById(`${this._idx}-slr-degree`);
+        var meters = document.getElementById(`${this._idx}-slr-meters`);
         if (!degree) { 
             this._el = document.getElementById(this._idx);
             this._el.innerHTML = this._html;
-            degree = document.getElementById('slr-degree');
-            meters = document.getElementById('slr-meters');
+            degree = document.getElementById(`${this._idx}-slr-degree`);
+            meters = document.getElementById(`${this._idx}-slr-meters`);
         }
         degree.innerHTML = Number.parseFloat(key.split('&')[0]).toFixed(1);
         meters.innerHTML = "+" + this._heights[key][1].toFixed(1) + "m";
-        this._previousKey = key;
     }
 
 }
