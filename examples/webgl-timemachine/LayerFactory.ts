@@ -742,8 +742,7 @@ export class LayerFactory {
     let layerDB = gEarthTime.layerDB;
     let newLayersDict = {} as {[key:string]: LayerProxy};
     let layerToTurnOffDict = {} as {[key:string]: LayerProxy};
-
-    for (let i = 0; i < layerProxies.length; i++) {
+    for (let i = layerProxies.length - 1; i >= 0; i--) {
       let layerProxy = layerProxies[i];
       let layerConstraints = layerProxy.getLayerConstraints();
       if (layerConstraints) {
@@ -759,6 +758,9 @@ export class LayerFactory {
           layerConstraints.layersMutuallyExclusiveWith.forEach(layerId => {
             layerToTurnOffDict[layerId] = layerDB.getLayer(layerId);
           });
+          // We are looping in reverse order. So once we find a layer that has constraints, we remove any others
+          // that it is mutually exclusive with (e.g. one that was previously on)
+          layerProxies = layerProxies.filter(lp => !layerConstraints.layersMutuallyExclusiveWith.includes(lp.id));
         }
       }
       newLayersDict[layerProxy.id] = layerDB.getLayer(layerProxy.id);
@@ -770,7 +772,9 @@ export class LayerFactory {
       // If this layer is not one of the layers to turn off, add to list.
       if (layersIdsToTurnOff.indexOf(layerId) == -1) {
         if (layerProxy) {
-          newLayers.push(layerProxy);
+          // Add to beginning, since we previously looped through the layerProxies in reverse order.
+          // This way we preserve the correct draw order.
+          newLayers.unshift(layerProxy);
         }
       }
     }
