@@ -327,4 +327,16 @@ export class LayerOptions {
   maxGmapsZoomLevel(): number | null {
     return null;
   }
+
+  // Override this if defined for a layer.
+  // It is run when a layer is turned on/off.
+  // Note that a layer may not be loaded if it was
+  // turned on for the first time.
+  handleVisibilityStateChange() {
+    if (this.isVisible()) {
+      // Default behavior if turned on
+    } else {
+      // Default behavior if turned off
+    }
+  }
 }

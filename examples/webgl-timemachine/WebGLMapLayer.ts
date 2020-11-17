@@ -34,7 +34,7 @@ export class WebGLMapLayer extends Layer {
   _drawLayerSlr(opt_options) {
     if (!this.seaLevelRise) {
       let idx = `${this.layerId}-legend`;
-      this.seaLevelRise = new SeaLevelRise(idx);      
+      this.seaLevelRise = new SeaLevelRise(idx);
     }  else {
       let currentKey = gEarthTime.timelapse.getCurrentCaptureTime();
       this.seaLevelRise.setTemperatureAndHeight(currentKey);
@@ -42,6 +42,13 @@ export class WebGLMapLayer extends Layer {
 
 
     return opt_options;
+  }
+
+  handleVisibilityStateChange() {
+    if (this.seaLevelRise) {
+      this.seaLevelRise._lastIdx = null;
+      this.seaLevelRise._lastKey = null;
+    }
   }
 
 }

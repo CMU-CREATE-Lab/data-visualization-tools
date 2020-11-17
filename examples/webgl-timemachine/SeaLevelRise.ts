@@ -1,16 +1,19 @@
 "use strict";
 
 export class SeaLevelRise {
-    _idx: any;
-    _html: any;
-    _el:  any;
-    _heights: any;
+    _idx: string;
+    _lastIdx: string;
+    _html: string;
+    _el:  HTMLElement;
+    _heights: {[key:string]: any};
+    _lastKey: string;
 
     constructor(legendId) {
         this._idx = legendId;
+        this._lastIdx;
         this._el = document.getElementById(this._idx);
         this._html = `
-                <td><div style="font-size: 17px">Global Temperature Rise 
+                <td><div style="font-size: 17px">Global Temperature Rise
                         <span id="${this._idx}-slr-degree"></span> &#x2103;
                         <span class="credit"> (Climate Central)</span>
                     </div>
@@ -35,9 +38,14 @@ export class SeaLevelRise {
     }
 
     setTemperatureAndHeight(key) {
+        if (this._idx == this._lastIdx && this._lastKey == key) {
+            return;
+        }
+        this._lastIdx = this._idx;
+        this._lastKey = key;
         var degree = document.getElementById(`${this._idx}-slr-degree`);
         var meters = document.getElementById(`${this._idx}-slr-meters`);
-        if (!degree) { 
+        if (!degree) {
             this._el = document.getElementById(this._idx);
             this._el.innerHTML = this._html;
             degree = document.getElementById(`${this._idx}-slr-degree`);

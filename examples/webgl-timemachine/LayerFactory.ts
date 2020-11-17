@@ -832,7 +832,7 @@ export class LayerFactory {
     }
   }
 
-  handleVisibleLayersStateChange() {
+  handleVisibleLayersUIStateChange() {
     // Clear out layer legends for layers no longer visible
     this.clearNonVisibleLayerLegends();
     // Handle the UI changes for a layer turning on and off (like input checkboxes)

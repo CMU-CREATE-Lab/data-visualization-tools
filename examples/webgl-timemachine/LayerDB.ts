@@ -72,13 +72,22 @@ export class LayerDB {
       for (let layerProxy of this.visibleLayers) {
         layerProxy._visible = false;
       }
+      let pastAndCurrentLayers = this.visibleLayers;
       this.visibleLayers = Array.from(layerProxies);
       this.visibleLayers.forEach(layerProxy => {
         layerProxy._visible = true;
         layerProxy.requestLoad();
       });
+      // Handle any cleanup or prep for a layer as it is turned on/off.
+      // Filter out unique layers before concating to list of previously seen layers.
+      pastAndCurrentLayers = pastAndCurrentLayers.concat(this.visibleLayers.filter((item) => pastAndCurrentLayers.indexOf(item) < 0));
+      pastAndCurrentLayers.forEach(layerProxy => {
+        if (layerProxy.layer) {
+          layerProxy.layer.handleVisibilityStateChange();
+        }
+      });
       // Handle the UI changes for a layers turning on and off
-      this.layerFactory.handleVisibleLayersStateChange();
+      this.layerFactory.handleVisibleLayersUIStateChange();
     } else {
       this._setGmapsMaxLevel();
     }
