@@ -17,7 +17,7 @@ export class SeaLevelRise {
                         <span class="credit"> (Climate Central)</span>
                     </div>
                     <div style="font-size: 15px">Multi-century Sea Level Increase:
-                        <span id="slr-feet" style="width:25px;"></span>&nbsp;
+                        <span id="slr-feet" style="width:25px;"></span>
                         <span id="slr-meters" style="width:25px; color: red;"></span>
                     </div>
                 </td>
