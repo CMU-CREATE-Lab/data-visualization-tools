@@ -5886,7 +5886,8 @@ varying float v_offset;
 void main() {
   vec4 position;
   if (u_epoch < a_epoch0) {
-c  } else if(a_epoch1 < u_epoch){
+    position = vec4(-1.,-1.,-1.,-1.);
+  } else if (a_epoch1 < u_epoch){
       position = u_map_matrix * a_coord;
   } else{
       position = u_map_matrix * a_coord;
