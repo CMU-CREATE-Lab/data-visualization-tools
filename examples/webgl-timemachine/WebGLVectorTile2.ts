@@ -4161,6 +4161,75 @@ export class WebGLVectorTile2 extends Tile {
     }
   }
 
+  _drawBasicPoints(transform: Float32Array) {
+    if (this._ready && this._pointCount > 0) {
+      var gl = this.gl;
+      gl.useProgram(this.program);
+      gl.enable(gl.BLEND);
+      gl.blendEquationSeparate(gl.FUNC_ADD, gl.FUNC_ADD);
+      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+
+      gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+
+      var tileTransform = new Float32Array(transform);
+      var drawOptions = this._layer.drawOptions;
+
+      // Set u_size, if present
+      if (this.program.u_size != undefined) {
+        var pointSize = 1; // default
+        if (typeof drawOptions.pointSize == 'number') {
+          pointSize = drawOptions.pointSize;
+        }
+        else if (typeof drawOptions.pointSize == 'object') {
+          var zoomScale = Math.log2(-transform[5]);
+          var countryLevelZoomScale = -3;
+          var blockLevelZoomScale = 9;
+          var countryPointSizePixels = drawOptions.pointSize[0];
+          var blockPointSizePixels = drawOptions.pointSize[1];
+
+          pointSize = countryPointSizePixels * Math.pow(blockPointSizePixels / countryPointSizePixels, (zoomScale - countryLevelZoomScale) / (blockLevelZoomScale - countryLevelZoomScale));
+        }
+        pointSize *= WebGLVectorTile2.dotScale;
+        gl.uniform1f(this.program.u_size, pointSize);
+      }
+
+      // Set u_epoch, if present
+      if (this.program.u_epoch != undefined) {
+        gl.uniform1f(this.program.u_epoch, gEarthTime.currentEpochTime());
+      }
+
+      scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
+      scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+      gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
+
+      var attrib_offset = 0;
+      var num_attributes = this._layer.numAttributes - 0;
+
+      var candidate_attribs = [
+        { name: 'a_coord', size: 2 },
+        { name: 'a_color', size: 1 },
+        { name: 'a_start_epoch', size: 1 },
+        { name: 'a_end_epoch', size: 1 }
+      ];
+
+      for (var i = 0; i < candidate_attribs.length; i++) {
+        var attrib_name = candidate_attribs[i].name;
+        var attrib_size = candidate_attribs[i].size;
+        if (this.program[attrib_name] != undefined) {
+          gl.enableVertexAttribArray(this.program[attrib_name]);
+          gl.vertexAttribPointer(this.program[attrib_name], attrib_size, gl.FLOAT, false, num_attributes * 4, attrib_offset);
+          attrib_offset += attrib_size * 4;
+        }
+      }
+
+      console.assert(num_attributes == attrib_offset / 4);
+
+      var npoints = Math.floor(this._pointCount);
+      gl.drawArrays(gl.POINTS, 0, npoints);
+      gl.disable(gl.BLEND);
+    };
+  }
+
   _drawWindVectors(transform: Float32Array) {
     if (this._ready) {
       //gl.disable(gl.DEPTH_TEST);
@@ -5817,8 +5886,7 @@ varying float v_offset;
 void main() {
   vec4 position;
   if (u_epoch < a_epoch0) {
-      position = vec4(-1.,-1.,-1.,-1.);
-  } else if(a_epoch1 < u_epoch){
+c  } else if(a_epoch1 < u_epoch){
       position = u_map_matrix * a_coord;
   } else{
       position = u_map_matrix * a_coord;

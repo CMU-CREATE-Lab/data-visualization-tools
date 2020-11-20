@@ -240,6 +240,14 @@ export class LayerFactory {
       var drawFunction = layerDef["Draw Function"];
       if (drawFunction) {
         layerOptions.drawFunction = LayerFactory.getFunction(layerOptions.mapType, 'draw', drawFunction);
+        // Support for WebGLVectorTile2.basicDrawPoints({'pointSize': ...})
+        if (layerOptions.drawFunction == WebGLVectorTile2.prototype._drawBasicPoints) {
+          const regex = /{pointSize:(.*)}/;
+          const found = regex.exec(drawFunction);
+          if (found && found.length == 2) {
+            layerOptions.drawOptions = {'pointSize': JSON.parse(found[1])};
+          }
+        }
       }
 
       if (layerDef["Number of Attributes"]) {
@@ -988,6 +996,10 @@ export class LayerFactory {
     } else if (mapType == 'vector' && funcType == "drawLayerFunction") {
       var prefix = 'WebGLVectorLayer2.prototype.';
       var parent: any = WebGLVectorLayer2.prototype;
+    } else if (mapType == 'point' && funcType == 'draw' && name.split('(')[0] == 'WebGLVectorTile2.basicDrawPoints') {
+      var prefix = 'WebGLVectorTile2.prototype.';
+      var parent: any = WebGLVectorTile2.prototype;
+      name = 'WebGLVectorTile2.prototype._drawBasicPoints';
     } else {
       var prefix = 'WebGLVectorTile2.prototype.';
       var parent: any = WebGLVectorTile2.prototype;
@@ -997,7 +1009,6 @@ export class LayerFactory {
       throw new LayerDefinitionError(`Function ${name} for layer type ${mapType} must begin with ${prefix}`);
     }
     var suffix = name.slice(prefix.length);
-
     if (funcType == 'draw') {
       var re = /^_draw\w*$/;
     } else if (funcType == 'setData') {
