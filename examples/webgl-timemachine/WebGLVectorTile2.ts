@@ -4418,6 +4418,72 @@ export class WebGLVectorTile2 extends Tile {
 
   }
 
+  _drawQuiverPolarCoords(transform: Float32Array) {
+    var gl = this.gl;
+
+    if (this._ready && this._pointCount > 0) {
+      gl.useProgram(this.program);
+      gl.enable(gl.BLEND);
+      gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+      gl.enable(gl.BLEND);
+
+      var drawOptions = this._layer.drawOptions;
+      var sfactor = gl.SRC_ALPHA;
+      var dfactor = gl.ONE;
+      if (drawOptions.dfactor) {
+        dfactor = gl[drawOptions.dfactor];
+      }
+      if (drawOptions.sfactor) {
+        sfactor = gl[drawOptions.sfactor];
+      }
+      gl.blendFunc(sfactor, dfactor);
+
+      var tileTransform = new Float32Array(transform);
+      var currentTime = gEarthTime.currentEpochTime();
+
+      scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
+      scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+
+      var pointSize = 128.0;
+      if (drawOptions.pointSize) {
+        pointSize = drawOptions.pointSize;
+      }
+      if (drawOptions.pointSizeFnc) {
+        var pointSizeFnc = new Function('return ' + drawOptions.pointSizeFnc)();
+        pointSize *= pointSizeFnc(gEarthTime.timelapseZoom());
+      }
+
+      // Passing a NaN value to the shader with a large number of points is very bad
+      if (isNaN(pointSize)) {
+        pointSize = 64.0;
+      }
+
+      //attribute vec4 a_position;
+      //attribute vec2 a_epochs;
+      //attribute vec2 a_rads;
+      //attribute vec2 a_speed;
+      //uniform float u_PointSize;
+      //varying float v_PointSize;
+      //varying float v_rad;
+      //uniform float u_epoch; 
+      //uniform mat4 u_transform;
+
+      gl.uniformMatrix4fv(this.program.u_transform, false, tileTransform);
+      gl.uniform1f(this.program.u_epoch, currentTime);
+      gl.uniform1f(this.program.u_PointSize, pointSize);
+
+
+      this.program.setVertexAttrib.a_position(2, gl.FLOAT, false, 8 * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.setVertexAttrib.a_epochs(2, gl.FLOAT, false, 8 * 4, 8);
+      this.program.setVertexAttrib.a_rads(2, gl.FLOAT, false, 8 * 4, 16);
+      this.program.setVertexAttrib.a_speed(2, gl.FLOAT, false, 8 * 4, 24); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+
+      gl.drawArrays(gl.POINTS, 0, this._pointCount);
+
+      gl.disable(gl.BLEND);
+    }
+  }
+
   // Tile loading has started.  Start timer to show spinner if tile loading
   // doesn't complete within reasonable time
   _setupLoadingSpinner() {
@@ -6691,3 +6757,118 @@ void main(void) {
   vec4 textureColor = texture2D(u_wind, vec2(v_tex_pos.s, v_tex_pos.t));
   gl_FragColor = vec4(textureColor.rgb, 1.0);
 }`;
+
+
+WebGLVectorTile2Shaders.QuiverPolarCoordsVertexShader = `
+attribute vec4 a_position;
+attribute vec2 a_epochs;
+attribute vec2 a_rads;
+attribute vec2 a_speed;
+uniform float u_PointSize;
+varying float v_PointSize;
+varying float v_rad;
+uniform float u_epoch; 
+uniform mat4 u_transform;
+void main() {
+    vec4 position;
+    float scale = 1.0;
+    if (u_epoch < a_epochs.x || u_epoch > a_epochs.y) {
+        position = vec4(-1.,-1.,-1.,-1.);
+    } else {
+        position = a_position;
+        float a = smoothstep(a_epochs.x, a_epochs.y, u_epoch);
+        vec2 u = a_speed[0] * vec2(cos(a_rads[0]), sin(a_rads[0]));
+        vec2 v = a_speed[1] * vec2(cos(a_rads[1]), sin(a_rads[1]));
+        vec2 uv = a * (v - u) + u;
+        v_rad = atan(uv.y/uv.x);
+        scale = sqrt(pow(uv.x,2.) + pow(uv.y,2.));
+        //v_rad = a*(a_rads.y - a_rads.x) + a_rads.x;
+        //scale = a*(a_speed.y - a_speed.x) + a_speed.x;
+    }
+    gl_Position = u_transform * position;
+    v_PointSize  =  u_PointSize * scale;
+    gl_PointSize = u_PointSize * scale;
+}
+`;
+
+WebGLVectorTile2Shaders.QuiverPolarCoordsFragmentShader = `
+precision mediump float;
+varying float v_PointSize;
+varying float v_rad;
+uniform float u_time;
+
+// 2D vector field visualization by Morgan McGuire, @morgan3d, http://casual-effects.com
+const float PI = 3.1415927;
+
+// How sharp should the arrow head be? Used
+const float ARROW_HEAD_ANGLE = 45.0 * PI / 180.0;
+
+// Used for ARROW_LINE_STYLE
+const float ARROW_SHAFT_THICKNESS = 6.0;
+
+float arrowHeadLength(float arrowTileSize) {
+    return arrowTileSize / 6.0;
+}
+// Computes the center pixel of the tile containing pixel pos
+vec2 arrowTileCenterCoord(vec2 pos, float arrowTileSize) {
+    return (floor(pos / arrowTileSize) + 0.5) * arrowTileSize;
+}
+
+// v = field sampled at tileCenterCoord(p), scaled by the length
+// desired in pixels for arrows
+// Returns 1.0 where there is an arrow pixel.
+float arrow(vec2 p, vec2 v, float arrowTileSize) {
+    // Make everything relative to the center, which may be fractional
+    p -= arrowTileCenterCoord(p, arrowTileSize);
+
+    float mag_v = length(v), mag_p = length(p);
+
+    if (mag_v > 0.0) {
+        // Non-zero velocity case
+        vec2 dir_p = p / mag_p, dir_v = v / mag_v;
+
+        // We can't draw arrows larger than the tile radius, so clamp magnitude.
+        // Enforce a minimum length to help see direction
+        mag_v = clamp(mag_v, 5.0, arrowTileSize / 2.0);
+
+        // Arrow tip location
+        v = dir_v * mag_v;
+
+        // Define a 2D implicit surface so that the arrow is antialiased.
+        // In each line, the left expression defines a shape and the right controls
+        // how quickly it fades in or out.
+
+        float dist;     
+        // Signed distance from a line segment based on https://www.shadertoy.com/view/ls2GWG by 
+        // Matthias Reitinger, @mreitinger
+
+        // Line arrow style
+        dist = 
+            max(
+                // Shaft
+                ARROW_SHAFT_THICKNESS / 4.0 - 
+                    max(abs(dot(p, vec2(dir_v.y, -dir_v.x))), // Width
+                        abs(dot(p, dir_v)) - mag_v + arrowHeadLength(arrowTileSize) / 2.0), // Length
+            
+                // Arrow head
+                min(0.0, dot(v - p, dir_v) - cos(ARROW_HEAD_ANGLE / 2.0) * length(v - p)) * 2.0 + // Front sides
+                min(0.0, dot(p, dir_v) + arrowHeadLength(arrowTileSize) - mag_v)); // Back
+
+        return clamp(1.0 + dist, 0.0, 1.0);
+    } else {
+        // Center of the pixel is always on the arrow
+        return max(0.0, 1.2 - mag_p);
+    }
+}
+
+void main() {
+    vec2 p = gl_PointCoord.xy;
+    p = v_PointSize*p;
+    float rad = v_rad - PI/2.0; 
+    float x = v_PointSize * cos(rad);
+    float y = v_PointSize * sin(rad);
+    float d = arrow(p, vec2(x, y), v_PointSize);
+    gl_FragColor = vec4(vec3(d),d);
+}
+`;
+
