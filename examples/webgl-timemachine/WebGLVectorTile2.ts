@@ -6767,6 +6767,7 @@ attribute vec2 a_speed;
 uniform float u_PointSize;
 varying float v_PointSize;
 varying float v_rad;
+varying float v_speed;
 uniform float u_epoch; 
 uniform mat4 u_transform;
 void main() {
@@ -6781,13 +6782,13 @@ void main() {
         vec2 v = a_speed[1] * vec2(cos(a_rads[1]), sin(a_rads[1]));
         vec2 uv = a * (v - u) + u;
         v_rad = atan(uv.y/uv.x);
-        scale = sqrt(pow(uv.x,2.) + pow(uv.y,2.));
+        v_speed = sqrt(pow(uv.x,2.) + pow(uv.y,2.));
         //v_rad = a*(a_rads.y - a_rads.x) + a_rads.x;
         //scale = a*(a_speed.y - a_speed.x) + a_speed.x;
     }
     gl_Position = u_transform * position;
-    v_PointSize  =  u_PointSize * scale;
-    gl_PointSize = u_PointSize * scale;
+    v_PointSize  =  u_PointSize;
+    gl_PointSize = u_PointSize;
 }
 `;
 
@@ -6795,6 +6796,7 @@ WebGLVectorTile2Shaders.QuiverPolarCoordsFragmentShader = `
 precision mediump float;
 varying float v_PointSize;
 varying float v_rad;
+varying float v_speed;
 uniform float u_time;
 
 // 2D vector field visualization by Morgan McGuire, @morgan3d, http://casual-effects.com
@@ -6865,8 +6867,8 @@ void main() {
     vec2 p = gl_PointCoord.xy;
     p = v_PointSize*p;
     float rad = v_rad - PI/2.0; 
-    float x = v_PointSize * cos(rad);
-    float y = v_PointSize * sin(rad);
+    float x = v_PointSize * cos(rad) * 0.5 * v_speed;
+    float y = v_PointSize * sin(rad) * 0.5 * v_speed;
     float d = arrow(p, vec2(x, y), v_PointSize);
     gl_FragColor = vec4(vec3(d),d);
 }
