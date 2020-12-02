@@ -4429,7 +4429,7 @@ export class WebGLVectorTile2 extends Tile {
 
       var drawOptions = this._layer.drawOptions;
       var sfactor = gl.SRC_ALPHA;
-      var dfactor = gl.ONE;
+      var dfactor = gl.ONE_MINUS_SRC_ALPHA;
       if (drawOptions.dfactor) {
         dfactor = gl[drawOptions.dfactor];
       }
@@ -4473,10 +4473,11 @@ export class WebGLVectorTile2 extends Tile {
       gl.uniform1f(this.program.u_PointSize, pointSize);
 
 
-      this.program.setVertexAttrib.a_position(2, gl.FLOAT, false, 8 * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-      this.program.setVertexAttrib.a_epochs(2, gl.FLOAT, false, 8 * 4, 8);
-      this.program.setVertexAttrib.a_rads(2, gl.FLOAT, false, 8 * 4, 16);
-      this.program.setVertexAttrib.a_speed(2, gl.FLOAT, false, 8 * 4, 24); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.setVertexAttrib.a_position(2, gl.FLOAT, false, 11 * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.setVertexAttrib.a_epochs(2, gl.FLOAT, false, 11 * 4, 8);
+      this.program.setVertexAttrib.a_rads(2, gl.FLOAT, false, 11 * 4, 16);
+      this.program.setVertexAttrib.a_speed(2, gl.FLOAT, false,11 * 4, 24); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.setVertexAttrib.a_rgb(3, gl.FLOAT, false, 11 * 4, 32); 
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
 
@@ -6764,10 +6765,12 @@ attribute vec4 a_position;
 attribute vec2 a_epochs;
 attribute vec2 a_rads;
 attribute vec2 a_speed;
+attribute vec3 a_rgb;
 uniform float u_PointSize;
 varying float v_PointSize;
 varying float v_rad;
 varying float v_speed;
+varying vec3 v_rgb;
 uniform float u_epoch; 
 uniform mat4 u_transform;
 void main() {
@@ -6781,10 +6784,9 @@ void main() {
         vec2 u = a_speed[0] * vec2(cos(a_rads[0]), sin(a_rads[0]));
         vec2 v = a_speed[1] * vec2(cos(a_rads[1]), sin(a_rads[1]));
         vec2 uv = a * (v - u) + u;
-        v_rad = atan(uv.y/uv.x);
+        v_rad = atan(uv.y,uv.x);
         v_speed = sqrt(pow(uv.x,2.) + pow(uv.y,2.));
-        //v_rad = a*(a_rads.y - a_rads.x) + a_rads.x;
-        //scale = a*(a_speed.y - a_speed.x) + a_speed.x;
+        v_rgb = a_rgb;
     }
     gl_Position = u_transform * position;
     v_PointSize  =  u_PointSize;
@@ -6798,7 +6800,7 @@ varying float v_PointSize;
 varying float v_rad;
 varying float v_speed;
 uniform float u_time;
-
+varying vec3  v_rgb;
 // 2D vector field visualization by Morgan McGuire, @morgan3d, http://casual-effects.com
 const float PI = 3.1415927;
 
@@ -6870,7 +6872,7 @@ void main() {
     float x = v_PointSize * cos(rad) * 0.5 * v_speed;
     float y = v_PointSize * sin(rad) * 0.5 * v_speed;
     float d = arrow(p, vec2(x, y), v_PointSize);
-    gl_FragColor = vec4(vec3(d),d);
+    gl_FragColor = vec4(vec3(d)*v_rgb,d);
 }
 `;
 
