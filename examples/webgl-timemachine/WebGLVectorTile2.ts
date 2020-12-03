@@ -1250,7 +1250,7 @@ export class WebGLVectorTile2 extends Tile {
   }
   // GeoJSON requires StartEpochTime, EndEpochTime, GlyphIndex fields
   // can use different sections of one glyph texture based on GlyphIndex
-  _setAnimatedGlyphData(data: { features: string | any[]; }) {
+  _setAnimatedGlyphData(data: { features: string | any[]; }, setDataOptions: any) {
     // Assumes GeoJSON data
     var points = [];
 
@@ -1265,7 +1265,7 @@ export class WebGLVectorTile2 extends Tile {
         points.push(pixel[0], pixel[1], e0, e1, offset);
       }
 
-      var glyphPath = this._layer.drawOptions.glyphPath || undefined;
+      var glyphPath = setDataOptions.glyphPath || undefined;
       if (glyphPath) {
         // asychronously load img
         var image = new Image();
