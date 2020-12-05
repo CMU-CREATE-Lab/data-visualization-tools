@@ -127,12 +127,26 @@ export class LayerFactory {
   }
 
   async createLayer(layerProxy: LayerProxy, layerDef: LayerDef) {
-    // (someday) Use csv.createlab.org as translation gateway
-    // url = 'http://csv.createlab.org/' + url.replace(/^https?:\/\//,'')
-
     if (layerDef?.type == 'dotmap') {
       return await this.createDotmapLayer(layerProxy, layerDef);
     }
+
+    var mapType = layerDef["Map Type"] || "bubble"
+
+    // Determine draw order for all layers other than type=='dotmap'
+    var drawOrder = 400; // default
+    if (layerDef["Draw Order"]) {
+      drawOrder = parseInt(layerDef["Draw Order"]);
+    } else if (layerDef["Category"] == 'Base Maps') {
+      drawOrder = 100;
+    } else if (mapType == 'raster' || mapType == 'raster2' || mapType == 'timemachine') {
+      drawOrder = 200;
+    } else if (mapType == 'choropleth') {
+      drawOrder = 400;
+    } else if (mapType == 'bubble' || mapType == 'bivalent bubble' || mapType == 'vector') {
+      drawOrder = 600;
+    }
+
     var layerOptions: LayerOptions = {
       tileWidth: 256,
       tileHeight: 256,
@@ -150,7 +164,7 @@ export class LayerFactory {
       endDate: layerDef["End date"],
       step: layerDef["Step"] ? parseInt(layerDef["Step"]) : 1,
       showGraph: (layerDef["Show Graph"] || '').toLowerCase() == 'true',
-      mapType: layerDef["Map Type"] || "bubble",
+      mapType: mapType,
       color: layerDef["Color"]?.trim() ? JSON.parse(layerDef["Color"]) : null,
       legendContent: layerDef["Legend Content"] || "",
       legendKey: layerDef["Legend Key"],
@@ -165,7 +179,7 @@ export class LayerFactory {
       nLevels: layerDef["Number of Levels"] ? parseInt(layerDef["Number of Levels"]) : 0,
       imageSrc: layerDef["Colormap Src"] || null,
       // By default, most CSV layers draw at z=400.  Raster and choropleths by default will draw at z=200.  New raster base maps will draw at z=100.
-      drawOrder: 400,
+      drawOrder: drawOrder,
       avoidShowingChildAndParent: false,
       maptype: null,
       levelThreshold: 0
@@ -268,11 +282,6 @@ export class LayerFactory {
     var WebGLLayer: any = WebGLVectorLayer2;
 
     if (layerOptions.mapType == 'raster') {
-      if (layerOptions.category == "Base Maps") {
-        layerOptions.drawOrder = 100;
-      } else {
-        layerOptions.drawOrder = 200;
-      }
       WebGLLayer = WebGLMapLayer;
       url = eval(url);
       layerOptions.loadDataFunction = null;
@@ -297,7 +306,6 @@ export class LayerFactory {
     } else if (layerOptions.mapType == "choropleth") {
       layerOptions.avoidShowingChildAndParent = true;
       layerOptions.imageSrc = layerOptions.imageSrc || "https://tiles.earthtime.org/colormaps/obesity-color-map.png";
-      layerOptions.drawOrder = 200;
       layerOptions.loadDataFunction = WebGLVectorTile2.prototype._loadChoroplethMapDataFromCsv;
       layerOptions.drawFunction = WebGLVectorTile2.prototype._drawChoroplethMap;
       layerOptions.fragmentShader = WebGLVectorTile2Shaders.choroplethMapFragmentShader;
@@ -332,10 +340,6 @@ export class LayerFactory {
         layerOptions.setDataFunction = LayerFactory.getFunction(layerOptions.mapType, 'setData', layerDef["Set Data Function"]);
       }
       overrideDrawingFns();
-    }
-
-    if (layerDef["Draw Order"]) {
-      layerOptions.drawOrder = parseInt(layerDef["Draw Order"]);
     }
 
     var layer = new WebGLLayer(layerProxy, gEarthTime.glb, gEarthTime.canvasLayer, url, layerOptions);
@@ -567,7 +571,8 @@ export class LayerFactory {
       credit: layerDef['Credits'],
       name: layerDef['Name'],
       tileWidth: 256,
-      tileHeight: 256
+      tileHeight: 256,
+      drawOrder: 550
     };
 
     if (layerDef['Draw Options']?.trim()) {
