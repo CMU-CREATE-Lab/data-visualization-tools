@@ -18,6 +18,7 @@ export class LayerDB {
   legacyIdMappings: {[key: string]: string} = {};
   lruLayerCache: Layer[] = [];
   maxLruCacheSize: number = 10;
+  pairedLayerModeById: {[key: string]: number} = {};
 
   // Please call async LayerDB.create instead
   private constructor() {}
@@ -144,6 +145,25 @@ export class LayerDB {
     this._loadedCache.valid = false;
   }
 
+  _matchPairedLayers() {
+    this.pairedLayerModeById = {};
+    let pairableLayerIds: string[] = [];
+    for (let layerProxy of this.visibleLayers) {
+      if (!layerProxy.layer) {
+        // Don't try to pair layers if any _paired layers are still loading
+        return;
+      }
+      if (layerProxy.layer.paired) {
+        pairableLayerIds.push(layerProxy.id);
+      }
+    }
+    // Pair layers.  If an odd number of paired layers, pair all but the last layer
+    for (let i = 0; i < Math.floor(pairableLayerIds.length / 2); i++) {
+      this.pairedLayerModeById[pairableLayerIds[i * 2 + 0]] = 3; // display right
+      this.pairedLayerModeById[pairableLayerIds[i * 2 + 1]] = 2; // display left
+    }
+  }
+
   _recomputeLoadCacheIfNeeded() {
     var cache = this._loadedCache;
     if (cache.valid) {
@@ -163,6 +183,7 @@ export class LayerDB {
 
     if (!cache.valid) {
       ETMBLayer.requireResync();
+      this._matchPairedLayers();
       cache.prevVisibleLayers = Array.from(this.visibleLayers);
       cache.prevLoadStates = {};
       let loadedSublayers = [];

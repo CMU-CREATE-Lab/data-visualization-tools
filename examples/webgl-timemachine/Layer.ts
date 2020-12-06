@@ -134,6 +134,7 @@ export class LayerOptions {
     projectionBounds?: {north: number, south: number, east: number, west: number};
     getSublayers?: () => any[];
     legend?: Legend;
+    paired: boolean;
     isLoaded(): boolean { return true; }; // Override this in subclass if needed
     legendVisible: boolean;
 

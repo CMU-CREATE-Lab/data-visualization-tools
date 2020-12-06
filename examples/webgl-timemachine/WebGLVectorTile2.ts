@@ -2181,7 +2181,8 @@ export class WebGLVectorTile2 extends Tile {
       if (color.length == 3) {
         color.push(1.0);
       }
-      var mode = drawOptions.mode || 1.0; // 1.0 == full circle, 2.0 == left half, 3.0 == right half
+      // 1.0 == full circle, 2.0 == left half, 3.0 == right half
+      var mode = gEarthTime.layerDB.pairedLayerModeById[this._layer.layerId] || drawOptions.mode || 1.0;
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
@@ -2244,7 +2245,8 @@ export class WebGLVectorTile2 extends Tile {
       if (color.length == 3) {
         color.push(1.0);
       }
-      var mode = drawOptions.mode || 1.0; // 1.0 == full circle, 2.0 == left half, 3.0 == right half
+      // 1.0 == full circle, 2.0 == left half, 3.0 == right half
+      var mode = gEarthTime.layerDB.pairedLayerModeById[this._layer.layerId] || drawOptions.mode || 1.0;
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
