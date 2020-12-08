@@ -4058,7 +4058,7 @@ export class WebGLVectorTile2 extends Tile {
       }
 
 
-      var maxElevation = 10000; // Bogus default value
+      var maxElevation = 90; // Default value
       if (drawOptions.maxElevation) {
         maxElevation = drawOptions.maxElevation;
       }
@@ -6878,3 +6878,48 @@ void main() {
 }
 `;
 
+WebGLVectorTile2Shaders.particleAltFadeVertexShader = `
+attribute vec4 a_coord_0;
+attribute float a_elev_0;
+attribute float a_epoch_0;
+attribute vec4 a_coord_1;
+attribute float a_elev_1;
+attribute float a_epoch_1;
+attribute float a_color;
+uniform mat4 u_map_matrix;
+uniform float u_epoch;
+uniform float u_size;
+uniform float u_max_elev;
+varying vec4 v_color;
+vec4 unpackColor(float f) {
+    vec4 color;
+    color.b = floor(f / 256.0 / 256.0);
+    color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);
+    color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);
+    color.a = 255.;
+    return color / 256.0;
+}
+void main() {
+    vec4 position;
+    v_color = unpackColor(a_color);
+    if (a_epoch_0 > u_epoch || a_epoch_1 < u_epoch) {
+        position = vec4(-1.,-1.,-1.,-1.);
+    } else {
+        float t = (u_epoch - a_epoch_0)/(a_epoch_1 - a_epoch_0);
+        float min_elev = u_max_elev * 0.4;
+        float current_elev = (a_elev_1 - a_elev_0) * t + a_elev_0;
+        position = u_map_matrix * ((a_coord_1 - a_coord_0) * t + a_coord_0);
+        v_color.a = min(max((u_max_elev-current_elev)/(u_max_elev-min_elev), 0.), 1.);
+    }
+    gl_Position = position;
+    gl_PointSize = u_size;
+}
+`;
+
+WebGLVectorTile2Shaders.particleAltFadeFragmentShader = `
+precision mediump float;
+varying vec4 v_color;
+void main() {
+  gl_FragColor = v_color;
+}
+`;
