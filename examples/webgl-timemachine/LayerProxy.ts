@@ -18,6 +18,8 @@ export class LayerProxy {
   id: string;
   layerDb: LayerDB;
   category: string;
+  credits: string;
+  baseLayer: string;
   name: string;
   layerConstraints: {[key:string]: any};
   hasLayerDescription: boolean;
@@ -30,11 +32,13 @@ export class LayerProxy {
   _effectiveDrawOrder: any[];
   layerDef: LayerDef;
 
-  constructor(id: string, layerDb: LayerDB, options: {name: string, category: string, layerConstraints: {[key:string]: any}, hasLayerDescription: boolean}) {
+  constructor(id: string, layerDb: LayerDB, options: {name: string, category: string, credits: string, baseLayer: string, layerConstraints: {[key:string]: any}, hasLayerDescription: boolean}) {
     console.assert(LayerProxy.isValidId(id));
     this.id = id;
     this.name = options.name;
     this.category = options.category;
+    this.credits = options.credits;
+    this.baseLayer = options.baseLayer;
     this.layerConstraints = options.layerConstraints;
     if (this.layerConstraints && this.layerConstraints.legacyIds) {
       layerDb._mapLegacyLayerIds(id, this.layerConstraints.legacyIds);

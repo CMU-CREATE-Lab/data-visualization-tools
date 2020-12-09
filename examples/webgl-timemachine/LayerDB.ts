@@ -46,8 +46,13 @@ export class LayerDB {
     for(let entry of catalog) {
       let layerProxy = new LayerProxy(entry["Share link identifier"],
                                       layerDB,
-                                      {name: entry["Name"], category: entry["Category"], layerConstraints:
-                                       entry["Layer Constraints"], hasLayerDescription: entry["Has Layer Description"]}
+                                      { name: entry["Name"],
+                                        category: entry["Category"],
+                                        layerConstraints: entry["Layer Constraints"],
+                                        hasLayerDescription: entry["Has Layer Description"],
+                                        credits: entry["Credits"],
+                                        baseLayer: entry["Base layer"]
+                                      }
                                      );
       layerDB.layerById[layerProxy.id] = layerProxy;
       layerDB.orderedLayers.push(layerProxy);

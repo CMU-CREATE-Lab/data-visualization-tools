@@ -751,7 +751,7 @@ export class LayerFactory {
     */
   }
 
-  handleLayerConstraints(layerProxies) {
+  handleLayerConstraints(layerProxies: LayerProxy[]) {
     let layerDB = gEarthTime.layerDB;
     let newLayersDict = {} as {[key:string]: LayerProxy};
     let layerToTurnOffDict = {} as {[key:string]: LayerProxy};
@@ -791,6 +791,17 @@ export class LayerFactory {
         }
       }
     }
+
+    // Set credits for base layers (bottom center of viewport)
+    $("#baselayerCreditText").text("");
+    for (let i = newLayers.length - 1; i >= 0; i--) {
+      let layerProxy:LayerProxy = newLayers[i];
+      if (layerProxy.category == "Base Layers" || layerProxy.layerConstraints.isSoloLayer) {
+        $("#baselayerCreditText").text(layerProxy.credits);
+        break;
+      }
+    }
+
     return newLayers;
   }
 
