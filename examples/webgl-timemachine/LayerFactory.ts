@@ -248,7 +248,7 @@ export class LayerFactory {
       }
     }
 
-    var category_id = layerOptions.category ? "category-" + layerOptions.category.trim().replace(/ /g,"-").replace(/^[^a-zA-Z]+|[^\w-]+/g, "_").toLowerCase() : "csvlayers_table";
+    //var category_id = layerOptions.category ? "category-" + layerOptions.category.trim().replace(/ /g,"-").replace(/^[^a-zA-Z]+|[^\w-]+/g, "_").toLowerCase() : "csvlayers_table";
 
     function overrideDrawingFns() {
       var drawFunction = layerDef["Draw Function"];
@@ -377,16 +377,16 @@ export class LayerFactory {
       layer.paired = false;
     }
 
-    var id = 'show-csv-' + layerOptions.layerId;
-    var row = '<tr class="csvlayer"><td><label name="' + layerOptions.layerId + '">';
-    row += '<input type="checkbox" id="' + id + '">';
-    row += layerOptions.name;
-    row += '</label></td></tr>';
+    // var id = 'show-csv-' + layerOptions.layerId;
+    // var row = '<tr class="csvlayer"><td><label name="' + layerOptions.layerId + '">';
+    // row += '<input type="checkbox" id="' + id + '">';
+    // row += layerOptions.name;
+    // row += '</label></td></tr>';
 
     // Default category
-    if (category_id == "category-other") {
-      category_id = "csvlayers_table";
-    }
+    // if (category_id == "category-other") {
+    //   category_id = "csvlayers_table";
+    // }
     // if ($('#' + category_id).length == 0) {
     //   $(".map-layer-div #category-other").prev("h3").before("<h3>" + layerOptions.category + "</h3><table id='" + category_id + "'></table>");
     // }
@@ -755,8 +755,21 @@ export class LayerFactory {
     let layerDB = gEarthTime.layerDB;
     let newLayersDict = {} as {[key:string]: LayerProxy};
     let layerToTurnOffDict = {} as {[key:string]: LayerProxy};
+    let foundBaseLayer = false;
+    let baseLayersCategoryName = "Base Layers";
+
     for (let i = layerProxies.length - 1; i >= 0; i--) {
       let layerProxy = layerProxies[i];
+
+      // Base Layers are radio buttons and thus only one can be up at a time.
+      if (layerProxy.category == baseLayersCategoryName) {
+        if (foundBaseLayer) {
+          continue;
+        } else {
+          foundBaseLayer = true;
+        }
+      }
+
       let layerConstraints = layerProxy.getLayerConstraints();
       if (layerConstraints) {
         if (layerConstraints.isSoloLayer) {
@@ -779,6 +792,24 @@ export class LayerFactory {
       newLayersDict[layerProxy.id] = layerDB.getLayer(layerProxy.id);
     };
 
+    // Ensure we always have a base layer up
+    if (!foundBaseLayer) {
+      let previousVisibleLayers = layerDB._loadedCache.prevVisibleLayers;
+      let foundPreviousBaseLayer = false;
+      for (let i = previousVisibleLayers.length - 1; i >= 0; i--) {
+        let layerProxy = previousVisibleLayers[i];
+        if (layerProxy.category == baseLayersCategoryName) {
+          newLayersDict[layerProxy.id] = layerDB.getLayer(layerProxy.id);
+          foundPreviousBaseLayer = true;
+          break;
+        }
+      }
+      // Not sure this case can ever true, but if so, default to Landsat.
+      if (!foundPreviousBaseLayer) {
+        newLayersDict['blsat'] = layerDB.getLayer('blsat');
+      }
+    }
+
     let layersIdsToTurnOff = Object.keys(layerToTurnOffDict);
     let newLayers = []
     for (const [layerId, layerProxy] of Object.entries(newLayersDict)) {
@@ -793,10 +824,15 @@ export class LayerFactory {
     }
 
     // Set credits for base layers (bottom center of viewport)
+    $("#baseLayerCreditContainer").show();
     $("#baselayerCreditText").text("");
     for (let i = newLayers.length - 1; i >= 0; i--) {
       let layerProxy:LayerProxy = newLayers[i];
-      if (layerProxy.category == "Base Layers" || layerProxy.layerConstraints.isSoloLayer) {
+      if (layerProxy.category != baseLayersCategoryName && layerProxy.layerConstraints.isFullExtent) {
+        $("#baseLayerCreditContainer").hide();
+        break;
+      }
+      if (layerProxy.category == baseLayersCategoryName || layerProxy.layerConstraints.isSoloLayer) {
         $("#baselayerCreditText").text(layerProxy.credits);
         break;
       }

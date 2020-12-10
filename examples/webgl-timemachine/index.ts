@@ -51,7 +51,7 @@ dbg.Glb = Glb;
 
 
 var EarthlapseUI;
-var timelineUIHandler;
+var layerClickHandler;
 var toggleHamburgerPanel;
 
 declare var cached_ajax;
@@ -1213,7 +1213,7 @@ function initLayerToggleUI() {
     }
   });
 
-  timelineUIHandler = function(e) {
+  layerClickHandler = function(e) {
     var $toggledLayerElm = $(e.target);
     var toggledLayerId = $toggledLayerElm.parent("label").attr("name");
 
@@ -1221,13 +1221,10 @@ function initLayerToggleUI() {
     let clickedLayer = gEarthTime.layerDB.getLayer(toggledLayerId);
     if ($toggledLayerElm.prop("checked")) {
       layersToBeDrawn.push(clickedLayer);
-      console.log(`${Utils.logPrefix()} timelineUIHandler checked; calling setVisibleLayers`);
-      gEarthTime.layerDB.setVisibleLayers(layersToBeDrawn);
     } else {
-      console.log(`${Utils.logPrefix()} timelineUIHandler not checked; calling setVisibleLayers`);
       layersToBeDrawn.splice(layersToBeDrawn.indexOf(clickedLayer), 1);
-      gEarthTime.layerDB.setVisibleLayers(layersToBeDrawn);
     }
+    gEarthTime.layerDB.setVisibleLayers(layersToBeDrawn, true);
 
     return;
     // var toggledLayer = $(e.target);
@@ -1352,7 +1349,7 @@ function initLayerToggleUI() {
     // timelineHidden = $(".noTimeline").length != 0;
   };
 
-  $('#layers-menu').on('click', "input[type=checkbox], input[type=radio]", timelineUIHandler);
+  $('#layers-menu').on('click', "input[type=checkbox], input[type=radio]", layerClickHandler);
 
   $("body").on("click", "#layers-list .ui-accordion-header, #layers-list-featured .ui-accordion-header", function(e) {
     // Don't scroll layer category into view if it was not initiated by an actual user interaction.
@@ -1775,20 +1772,33 @@ function populateLayerLibrary() {
 
   let layersByCategory = {};
   for (let layer of gEarthTime.layerDB.orderedLayers) {
+    // TODO: Legacy until we consolidate the base layer categories in the Default layer spreadsheet.
+    if (layer.category == "Base Maps") {
+      layer.category = "Base Layers";
+    }
     if (!layersByCategory[layer.category]) {
       layersByCategory[layer.category] = [];
     }
     layersByCategory[layer.category].push({id: layer.id, name: layer.name});
   }
-
   let categories = Object.keys(layersByCategory);
   for (let category of categories) {
+    let inputType = category == "Base Layers" ? "radio" : "checkbox";
     let categoryId = "category-" + category.trim().replace(/ /g,"-").replace(/^[^a-zA-Z]+|[^\w-]+/g, "_").toLowerCase();
     let categoryLayers = layersByCategory[category];
+    // Sort the layers alphabetically within a category
+    categoryLayers = categoryLayers.sort(function(layer1:LayerProxy, layer2:LayerProxy) {
+      if (layer1.name.toLowerCase() < layer2.name.toLowerCase()) {
+        return -1;
+      } else {
+        // If layer is equal, technically return 0, but that should not happen so always return 1
+        return 1;
+      }
+    });
     layer_html += `<h3>${category}</h3>`;
     layer_html += `<table id="${categoryId}">`;
     categoryLayers.forEach(function(layer) {
-      layer_html += `<tr><td><label name="${layer.id}"><input type="checkbox" id="${layer.id}">${layer.name}</label></td></tr>`;
+      layer_html += `<tr><td><label name="${layer.id}"><input type="${inputType}" id="${layer.id}" name="${categoryId}">${layer.name}</label></td></tr>`;
     });
     layer_html += "</table>";
   }

@@ -31,6 +31,7 @@ export class LayerProxy {
   layer: Layer = null;
   _effectiveDrawOrder: any[];
   layerDef: LayerDef;
+  _setByUser?: boolean;
 
   constructor(id: string, layerDb: LayerDB, options: {name: string, category: string, credits: string, baseLayer: string, layerConstraints: {[key:string]: any}, hasLayerDescription: boolean}) {
     console.assert(LayerProxy.isValidId(id));

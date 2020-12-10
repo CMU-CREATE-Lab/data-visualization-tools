@@ -70,18 +70,20 @@ export class LayerDB {
     return layer;
   }
 
-  setVisibleLayers(layerProxies: LayerProxy[]) {
+  setVisibleLayers(layerProxies: LayerProxy[], setByUser?: boolean) {
     console.log(`${this.logPrefix()} setVisibleLayers: [${layerProxies.map(l => l.id)}]`);
     // Modify layerProxies array based on the constraints defined for each requested layer.
     layerProxies = this.layerFactory.handleLayerConstraints(layerProxies);
     if (!Utils.arrayShallowEquals(layerProxies, this.visibleLayers)) {
       for (let layerProxy of this.visibleLayers) {
         layerProxy._visible = false;
+        layerProxy._setByUser = false;
       }
       let pastAndCurrentLayers = this.visibleLayers;
       this.visibleLayers = Array.from(layerProxies);
       this.visibleLayers.forEach(layerProxy => {
         layerProxy._visible = true;
+        layerProxy._setByUser = !!setByUser;
         layerProxy.requestLoad();
       });
       // Handle any cleanup or prep for a layer as it is turned on/off.
