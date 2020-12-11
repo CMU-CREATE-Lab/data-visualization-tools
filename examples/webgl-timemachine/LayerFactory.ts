@@ -757,6 +757,7 @@ export class LayerFactory {
     let layerToTurnOffDict = {} as {[key:string]: LayerProxy};
     let foundBaseLayer = false;
     let baseLayersCategoryName = "Base Layers";
+    let foundSoloLayer = false;
 
     for (let i = layerProxies.length - 1; i >= 0; i--) {
       let layerProxy = layerProxies[i];
@@ -775,6 +776,7 @@ export class LayerFactory {
         if (layerConstraints.isSoloLayer) {
           newLayersDict = {};
           newLayersDict[layerProxy.id] = layerDB.getLayer(layerProxy.id);
+          foundSoloLayer = true;
           break;
         } else if (Array.isArray(layerConstraints.layersPairedWith)) {
           layerConstraints.layersPairedWith.forEach(layerId => {
@@ -793,7 +795,7 @@ export class LayerFactory {
     };
 
     // Ensure we always have a base layer up
-    if (!foundBaseLayer) {
+    if (!foundBaseLayer && !foundSoloLayer) {
       let previousVisibleLayers = layerDB._loadedCache.prevVisibleLayers;
       let foundPreviousBaseLayer = false;
       for (let i = previousVisibleLayers.length - 1; i >= 0; i--) {
@@ -804,8 +806,8 @@ export class LayerFactory {
           break;
         }
       }
-      // Not sure this case can ever true, but if so, default to Landsat.
-      if (!foundPreviousBaseLayer) {
+      // If for some reason we never had a base layer up, default to Landsat
+      if (!foundPreviousBaseLayer && !foundSoloLayer) {
         newLayersDict['blsat'] = layerDB.getLayer('blsat');
       }
     }
