@@ -88,39 +88,34 @@
   <script type="text/javascript" src="../../js/io.js"></script>
   <script type="text/javascript" src="../../js/polyfills.js"></script>
 
-<script src="../../js/system.min.js"></script>
-<script>
+  <script src="../../js/system.min.js"></script>
 
-const origResolve = System.constructor.prototype.resolve
+  <script>
+    const origResolve = System.constructor.prototype.resolve
 
-System.constructor.prototype.resolve = function(moduleId, ...args) {
-  var name = moduleId.substring(moduleId.lastIndexOf('/') + 1);
-  var paths = {
-    papaparse: '../../../../js/papaparse.min.js'
-  };
-  var path = paths[name] || (moduleId + '.js');
-  //console.log('resolved ', moduleId, 'to', path);
-  return origResolve.call(this, path, ...args);
-}
-System.import('./compiled/examples/webgl-timemachine/index');
-</script>
+    System.constructor.prototype.resolve = function(moduleId, ...args) {
+      var name = moduleId.substring(moduleId.lastIndexOf('/') + 1);
+      var paths = {
+        papaparse: '../../../../js/papaparse.min.js'
+      };
+      var path = paths[name] || (moduleId + '.js');
+      //console.log('resolved ', moduleId, 'to', path);
+      return origResolve.call(this, path, ...args);
+    }
+    System.import('./compiled/examples/webgl-timemachine/index');
+  </script>
 
   <script>
     "use strict";
-    if (typeof trackingId === 'undefined') {
+
+    if (typeof(trackingId) === 'undefined') {
       console.log('No ID; skipping GA');
     } else {
-      (function(i, s, o, g, r, a, m) {
-        i['GoogleAnalyticsObject'] = r;
-        i[r] = i[r] || function() {
-          (i[r].q = i[r].q || []).push(arguments)
-        }, i[r].l = 1 * new Date();
-        a = s.createElement(o),
-          m = s.getElementsByTagName(o)[0];
-        a.async = 1;
-        a.src = g;
-        m.parentNode.insertBefore(a, m)
-      })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+      // Google Analytics
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
       // Write to local storage since cookies cannot be used on file://
       // allowLinker is for crossdomain (the tracking domain is different from where we are sending from)
       ga('create', trackingId, 'auto', {
@@ -133,6 +128,7 @@ System.import('./compiled/examples/webgl-timemachine/index');
       });
       ga('set', 'checkProtocolTask', null); // Disable file protocol checking.
       ga('send', 'pageview');
+      // End Google Analytics
     }
   </script>
 </head>
