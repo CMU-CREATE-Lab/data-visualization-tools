@@ -265,18 +265,29 @@ class EarthTimeImpl implements EarthTime {
 
   // Currently active timeline, computed as last non-empty timeline from visibleLayers
   timeline(): Timeline {
+    /* 
+     * Normally, the last selected layer (rightmost in the share link) controls the timeline. 
+     * But layers without timelines don't affect this.
+     * Base map timeline always has lower priority than other layer's timeline, 
+     *   even if the base map is later in the share link.
+     * Layers with single timestamp (begin time = end time) show a year without a timeline. 
+     * And enforce that animated base layers like landsat pause that at same time.
+     */
     let visibleLayers = this.layerDB.visibleLayers;
-    for (let i = visibleLayers.length - 1; i >= 0; i--) {
-      let timeline = visibleLayers[i].layer?.timeline;
-      // Check whether we have a layer that covers the world, but does not have a timeline associated with it (e.g. lights at night)
-      if (!timeline && visibleLayers[i].layer?.layerConstraints?.isFullExtent) {
-        break;
-      }
-      if (timeline) {
-        return timeline;
+    let baseLayerTimeline = null;
+    let dataLayerTimeline = null;
+    for (let i = 0; i < visibleLayers.length; i++) {
+      if (visibleLayers[i].layer?.category == 'Base Layers') {
+        baseLayerTimeline = visibleLayers[i].layer?.timeline;
+      } else if (visibleLayers[i].layer?.timeline != null) {
+        dataLayerTimeline = visibleLayers[i].layer?.timeline;
       }
     }
-    return null;
+    if (dataLayerTimeline == null) {
+      return baseLayerTimeline;
+    } else {
+      return dataLayerTimeline;
+    }
   }
 
   showVisibleLayersLegends() {
