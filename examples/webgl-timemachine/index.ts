@@ -1977,6 +1977,7 @@ async function setupUIAndOldLayers() {
         $nextAnnotationLocationButton.button("disable");
         $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight").removeClass("thumbnail_highlight");
         $('.current-location-text').children().empty().addClass("allow-pointer-events");
+        $(".current-location-text-toggle").hide();
         $('.current-location-text-title').show().html('<div id="annotation-choose-another-story">Choose another story?</div><div id="annotation-start-story-over">Restart from the beginning?</div>')
       } else {
         var e = jQuery.Event("keydown");
@@ -2347,6 +2348,7 @@ lightBaseMapLayer = new WebGLMapLayer(null, gEarthTime.glb, gEarthTime.canvasLay
           }
           if (waypoint.description) {
             var waypointBoxText = waypoint.description;
+            var $current_location_text_p = $(".current-location-text p");
             if (Object.keys(waypointJSONList).length && selectedWaypointIdx == 0 && $previousAnnotationLocationButton && waypointJSONList[currentWaypointTheme]) {
               var story = waypointJSONList[currentWaypointTheme].stories[currentWaypointStory];
               if (story && story.storyDescription && story.storyAuthor) {
@@ -2355,12 +2357,20 @@ lightBaseMapLayer = new WebGLMapLayer(null, gEarthTime.glb, gEarthTime.canvasLay
                   storyAuthorText = "Story by: " + storyAuthorText;
                 }
                 waypointBoxText += "<div class='story-author-text'>" + storyAuthorText + "</div>";
-                $(".current-location-text p").css("text-align", "center");
+                $current_location_text_p.css("text-align", "center");
               }
             }
             $current_location_text.find("p").show().html(waypointBoxText);
+            $current_location_text_p .removeClass("force-hide text-overflow-ellipsis");
+            var $slideTextToggle = $(".current-location-text-toggle");
+            if ($current_location_text.height() > 30) {
+              $slideTextToggle.removeClass("maximize-icon").addClass("minimize-icon").show();
+            } else {
+              $slideTextToggle.hide();
+            }
           } else {
             $current_location_text.find("p").empty().hide();
+            $slideTextToggle.hide();
           }
         } else {
           // No waypoint title or description given; really should never happen since to be useful every waypoint should have accompanying text.
@@ -2696,6 +2706,22 @@ lightBaseMapLayer = new WebGLMapLayer(null, gEarthTime.glb, gEarthTime.canvasLay
   //     csvDataGrapher.removeAllPlots();
   //   }
   // });
+
+  $(".current-location-text-toggle").on("click", function() {
+    var $this = $(this);
+    var $slideText = $(".current-location-text p");
+    if ($this.hasClass("minimize-icon")) {
+      $this.removeClass("minimize-icon").addClass("maximize-icon");
+      if ($(".current-location-text-title").is(":visible")) {
+        $slideText.addClass("force-hide");
+      } else {
+        $slideText.addClass("text-overflow-ellipsis");
+      }
+    } else {
+      $this.removeClass("maximize-icon").addClass("minimize-icon");
+      $slideText.removeClass("force-hide text-overflow-ellipsis");
+    }
+  });
 
   $("#location_search_clear_icon").on("click", function() {
       $("#location_search").val("");

@@ -2481,3 +2481,44 @@ a:focus { outline:0; }
   text-transform: none;
 }
 
+.text-overflow-ellipsis {
+  white-space: nowrap;
+  -o-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.current-location-text-toggle {
+  width: 25px;
+  height: 25px;
+  position: absolute;
+  right: 0px;
+  top: -25px;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid #909090;
+  border-bottom: 0px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 10px;
+  -webkit-filter: invert(100%);
+  filter: invert(100%);
+  cursor: pointer;
+  pointer-events: auto !important;
+  box-shadow: 2px 0px 3px rgba(255, 255, 255, 0.3);
+}
+
+.current-location-text-toggle:hover {
+  opacity: 0.85;
+}
+
+.current-location-text-toggle.maximize-icon {
+  background-image: url(../../images/plus.png);
+}
+
+.current-location-text-toggle.minimize-icon {
+  background-image: url(../../images/minus.png);
+}
+
+.force-hide {
+  display: none !important;
+}
