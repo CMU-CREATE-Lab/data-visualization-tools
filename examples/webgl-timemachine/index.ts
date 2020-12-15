@@ -2357,6 +2357,7 @@ lightBaseMapLayer = new WebGLMapLayer(null, gEarthTime.glb, gEarthTime.canvasLay
               $current_location_text_picture.empty().hide();
             }
           }
+          var $slideTextToggle = $(".current-location-text-toggle");
           if (waypoint.description) {
             var waypointBoxText = waypoint.description;
             var $current_location_text_p = $(".current-location-text p");
@@ -2373,7 +2374,6 @@ lightBaseMapLayer = new WebGLMapLayer(null, gEarthTime.glb, gEarthTime.canvasLay
             }
             $current_location_text.find("p").show().html(waypointBoxText);
             $current_location_text_p .removeClass("force-hide text-overflow-ellipsis");
-            var $slideTextToggle = $(".current-location-text-toggle");
             if ($current_location_text.height() > 30) {
               $slideTextToggle.removeClass("maximize-icon").addClass("minimize-icon").show();
             } else {
