@@ -143,6 +143,8 @@ export class LayerFactory {
       drawOrder = 200;
     } else if (mapType == 'choropleth') {
       drawOrder = 400;
+    } else if (mapType == 'point') {
+      drawOrder = 575;
     } else if (mapType == 'bubble' || mapType == 'bivalent bubble' || mapType == 'vector') {
       drawOrder = 600;
     }
