@@ -51,7 +51,8 @@ export class LayerDB {
                                         layerConstraints: entry["Layer Constraints"],
                                         hasLayerDescription: entry["Has Layer Description"],
                                         credits: entry["Credits"],
-                                        baseLayer: entry["Base layer"]
+                                        baseLayer: entry["Base layer"],
+                                        drawOrder: entry["Draw Order"]
                                       }
                                      );
       layerDB.layerById[layerProxy.id] = layerProxy;

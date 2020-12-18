@@ -20,6 +20,7 @@ export class LayerProxy {
   category: string;
   credits: string;
   baseLayer: string;
+  drawOrder: Number;
   name: string;
   layerConstraints: {[key:string]: any};
   hasLayerDescription: boolean;
@@ -33,7 +34,7 @@ export class LayerProxy {
   layerDef: LayerDef;
   _setByUser?: boolean;
 
-  constructor(id: string, layerDb: LayerDB, options: {name: string, category: string, credits: string, baseLayer: string, layerConstraints: {[key:string]: any}, hasLayerDescription: boolean}) {
+  constructor(id: string, layerDb: LayerDB, options: {name: string, category: string, credits: string, baseLayer: string, drawOrder: string, layerConstraints: {[key:string]: any}, hasLayerDescription: boolean}) {
     console.assert(LayerProxy.isValidId(id));
     this.id = id;
     this.name = options.name;
@@ -41,6 +42,7 @@ export class LayerProxy {
     this.credits = options.credits;
     this.baseLayer = options.baseLayer;
     this.layerConstraints = options.layerConstraints;
+    this.drawOrder = parseInt(options.drawOrder); // Note this can result in a drawOrder being NaN. This will be overriden when the layer is actually loaded.
     if (this.layerConstraints && this.layerConstraints.legacyIds) {
       layerDb._mapLegacyLayerIds(id, this.layerConstraints.legacyIds);
     }

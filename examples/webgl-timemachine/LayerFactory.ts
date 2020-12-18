@@ -757,19 +757,23 @@ export class LayerFactory {
     let layerDB = gEarthTime.layerDB;
     let newLayersDict = {} as {[key:string]: LayerProxy};
     let layerToTurnOffDict = {} as {[key:string]: LayerProxy};
-    let foundBaseLayer = false;
     let baseLayersCategoryName = "Base Layers";
     let foundSoloLayer = false;
+    let lastPrioritizedBaseLayer: LayerProxy;
 
     for (let i = layerProxies.length - 1; i >= 0; i--) {
       let layerProxy = layerProxies[i];
 
       // Base Layers are radio buttons and thus only one can be up at a time.
+      // For legacy purposes though, some base layers have higher precedence.
       if (layerProxy.category == baseLayersCategoryName) {
-        if (foundBaseLayer) {
+        if (lastPrioritizedBaseLayer && layerProxy.drawOrder <= lastPrioritizedBaseLayer.drawOrder) {
           continue;
+        } else if (lastPrioritizedBaseLayer && layerProxy.drawOrder > lastPrioritizedBaseLayer.drawOrder) {
+          layerToTurnOffDict[lastPrioritizedBaseLayer.id] = lastPrioritizedBaseLayer;
+          lastPrioritizedBaseLayer = layerProxy;
         } else {
-          foundBaseLayer = true;
+          lastPrioritizedBaseLayer = layerProxy;
         }
       }
 
@@ -797,7 +801,7 @@ export class LayerFactory {
     };
 
     // Ensure we always have a base layer up
-    if (!foundBaseLayer && !foundSoloLayer) {
+    if (!lastPrioritizedBaseLayer && !foundSoloLayer) {
       let previousVisibleLayers = layerDB._loadedCache.prevVisibleLayers;
       let foundPreviousBaseLayer = false;
       for (let i = previousVisibleLayers.length - 1; i >= 0; i--) {

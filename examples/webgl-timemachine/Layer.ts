@@ -140,6 +140,11 @@ export class LayerOptions {
 
     constructor(layerProxy: LayerProxy, layerOptions: LayerOptions, tileClass: typeof Tile) {
       super(layerOptions);
+      if (!layerProxy) {
+        console.log("Error creating layer. layerProxy is undefined.")
+        return null;
+      }
+      layerProxy.drawOrder = this.drawOrder;
       this.layerProxy = layerProxy;
       this.glb = gEarthTime.glb;
       this.gl = this.glb.gl;
