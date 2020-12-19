@@ -74,7 +74,7 @@ export class LayerDB {
   setVisibleLayers(layerProxies: LayerProxy[], setByUser?: boolean) {
     console.log(`${this.logPrefix()} setVisibleLayers: [${layerProxies.map(l => l.id)}]`);
     // Modify layerProxies array based on the constraints defined for each requested layer.
-    layerProxies = this.layerFactory.handleLayerConstraints(layerProxies);
+    layerProxies = this.layerFactory.handleLayerConstraints(layerProxies, setByUser);
     if (!Utils.arrayShallowEquals(layerProxies, this.visibleLayers)) {
       for (let layerProxy of this.visibleLayers) {
         layerProxy._visible = false;

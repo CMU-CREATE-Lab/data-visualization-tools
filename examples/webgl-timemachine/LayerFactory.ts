@@ -753,7 +753,7 @@ export class LayerFactory {
     */
   }
 
-  handleLayerConstraints(layerProxies: LayerProxy[]) {
+  handleLayerConstraints(layerProxies: LayerProxy[], setByUser: boolean) {
     let layerDB = gEarthTime.layerDB;
     let newLayersDict = {} as {[key:string]: LayerProxy};
     let layerToTurnOffDict = {} as {[key:string]: LayerProxy};
@@ -767,7 +767,7 @@ export class LayerFactory {
       // Base Layers are radio buttons and thus only one can be up at a time.
       // For legacy purposes though, some base layers have higher precedence.
       if (layerProxy.category == baseLayersCategoryName) {
-        if (lastPrioritizedBaseLayer && layerProxy.drawOrder <= lastPrioritizedBaseLayer.drawOrder) {
+        if (lastPrioritizedBaseLayer && (setByUser || layerProxy.drawOrder <= lastPrioritizedBaseLayer.drawOrder)) {
           continue;
         } else if (lastPrioritizedBaseLayer && layerProxy.drawOrder > lastPrioritizedBaseLayer.drawOrder) {
           layerToTurnOffDict[lastPrioritizedBaseLayer.id] = lastPrioritizedBaseLayer;
