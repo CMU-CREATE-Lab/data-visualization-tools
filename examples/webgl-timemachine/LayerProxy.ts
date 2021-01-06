@@ -20,7 +20,7 @@ export class LayerProxy {
   category: string;
   credits: string;
   baseLayer: string;
-  drawOrder: Number;
+  drawOrder: number;
   name: string;
   layerConstraints: {[key:string]: any};
   hasLayerDescription: boolean;

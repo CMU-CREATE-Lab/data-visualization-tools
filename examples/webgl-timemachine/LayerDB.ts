@@ -126,7 +126,7 @@ export class LayerDB {
     return this.visibleLayers.map(layer => layer.id);
   }
 
-  _setGmapsMaxLevel(maxZoom?: Number) {
+  _setGmapsMaxLevel(maxZoom?: number) {
     // Set timelapse max zoom based on all the layers
     maxZoom ||= this.computeMaxGmapsZoomLevel();
     gEarthTime.timelapse.setGmapsMaxLevel(maxZoom);
