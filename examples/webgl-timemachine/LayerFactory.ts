@@ -1028,7 +1028,6 @@ export class LayerFactory {
     if (mapType == 'raster') {
       var valid = suffix.endsWith(type + 'Shader');
     } else {
-      console.log('suffix: ', suffix); 
       valid = suffix.includes('Shader');
     }
     if (!valid) {
