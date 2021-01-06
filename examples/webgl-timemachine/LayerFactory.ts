@@ -1023,11 +1023,12 @@ export class LayerFactory {
       throw new LayerDefinitionError(`Shader for layer type ${mapType} must begin with ${prefix}`);
     }
 
-    var suffix = name.slice(prefix.length);
+    var suffix = name.slice(prefix.length).trim();
 
     if (mapType == 'raster') {
       var valid = suffix.endsWith(type + 'Shader');
     } else {
+      console.log('suffix: ', suffix); 
       valid = suffix.includes('Shader');
     }
     if (!valid) {
