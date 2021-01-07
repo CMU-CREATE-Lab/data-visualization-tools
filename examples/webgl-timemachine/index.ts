@@ -1165,6 +1165,7 @@ function initLayerToggleUI() {
       } else {
         var $newActiveTopic = $(document.activeElement).closest($(".ui-accordion-content")) as JQuery<HTMLElement>;
         $lastActiveLayerTopic = $newActiveTopic.length ? $newActiveTopic : $lastActiveLayerTopic;
+        if (!$lastActiveLayerTopic) return;
         var $layers = $lastActiveLayerTopic.find("input");
         for (var i = 0; i < $layers.length; i++) {
           if ($($layers[i]).prop('checked')) {
@@ -1184,6 +1185,7 @@ function initLayerToggleUI() {
       } else {
         var $newActiveTopic = $(document.activeElement).closest($(".ui-accordion-content")) as JQuery<HTMLElement>;
         $lastActiveLayerTopic = $newActiveTopic.length ? $newActiveTopic : $lastActiveLayerTopic;
+        if (!$lastActiveLayerTopic) return;
         var $layers = $lastActiveLayerTopic.find("input");
         for (var i = 0; i < $layers.length; i++) {
           if ($($layers[i]).prop('checked')) {
