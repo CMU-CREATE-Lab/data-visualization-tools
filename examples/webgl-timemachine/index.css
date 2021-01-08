@@ -2022,12 +2022,6 @@ a:focus { outline:0; }
   pointer-events: none;
 }
 
-#layers-legend {
-  width: -webkit-min-content;
-  width: -moz-min-content;
-  width: min-content;
-}
-
 #layers-legend.noTimeline, #layers-legend.noTimelineForced {
   -webkit-transition: bottom 0.40s;
   -ms-transition: bottom 0.40s;

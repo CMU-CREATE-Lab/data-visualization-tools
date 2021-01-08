@@ -24,6 +24,9 @@
   right: 19px;
   top: 20px;
   width: auto;
+  width: -webkit-min-content;
+  width: -moz-min-content;
+  width: min-content;
   padding-left: 4px;
   padding-right: 8px;
   padding-top: 4px;
