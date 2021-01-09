@@ -739,7 +739,7 @@ export class LayerFactory {
 
   // Find first tile with _radius and return _radius
   getRadius(layer) {
-    return layer.radius;
+    return layer?.radius;
     // Looks like _tiles are no longer accesible
     /*
     var tiles = layer._tileView._tiles;
@@ -928,10 +928,10 @@ export class LayerFactory {
         legend = layer.legend;
       } else if (layer.mapType == 'bubble') {
         if (layer.legendContent == 'auto') {
-          if (!layer.radius) { // if the CSV file for the bubble map hasn't been procssed, layer will be null
+          var radius = this.getRadius(layer);
+          if (!radius || !radius.hasOwnProperty('invert')) {
             return;
           }
-          var radius = this.getRadius(layer);
           var opts = {
             'id' : id,
             'title': layer.name,
@@ -941,11 +941,11 @@ export class LayerFactory {
           };
           if (layer.legendKey) {
             if (layer.color) {
-              var rgba = layer.color.map(function(x: number) {
+              var rgba:number[] = layer.color.map(function(x: number) {
                 return Math.floor(x * 255.);
               });
             } else {
-              let rgba = [15,15,15];
+              var rgba:number[] = [15,15,15];
             }
             opts.keys.push({'color': 'rgb('+ rgba[0] +',' + rgba[1] +',' + rgba[2] + ')', 'str': layer.legendKey});
           }
@@ -962,7 +962,7 @@ export class LayerFactory {
       } else if (layer.mapType == 'choropleth') { // Assume choropleth
         if (layer.legendContent == 'auto') {
           var radius = this.getRadius(layer);
-          if (!radius) {
+          if (!radius || !radius.hasOwnProperty('invert')) {
             return;
           }
           let opts = {
