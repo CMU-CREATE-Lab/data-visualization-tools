@@ -9,11 +9,12 @@
 
 /// <reference path="../../timemachine/js/canvasjs/canvasjs.min.js">
 
-import { EarthTime } from './EarthTime'
+import { EarthTime, gEarthTime } from './EarthTime'
 //declare var $:any;
 
 export class CsvDataGrapher {
   activeLayer: {
+    id: string,
     title?: string,
     entries?: {[key: string]: any[]}
   };
@@ -23,7 +24,7 @@ export class CsvDataGrapher {
 
   constructor (earthTime: EarthTime) {
     this.earthTime = earthTime;
-    this.activeLayer = {};
+    this.activeLayer = {id: null};
     this.chart = {};
 
     // 100 distinct colors
@@ -100,7 +101,7 @@ export class CsvDataGrapher {
     });
 
     var handleStripLines = function() {
-      var currentCaptureTime = this.earthTime.timelapse.getCurrentCaptureTime();
+      var currentCaptureTime = gEarthTime.timelapse.getCurrentCaptureTime();
       if (!currentCaptureTime) return;
       var captureTimeSplit = currentCaptureTime.split("-");
       if (that.chart.options.axisX.valueFormatString == "YYYY-MM") {
@@ -111,23 +112,23 @@ export class CsvDataGrapher {
       that.chart.render();
     };
 
-    this.earthTime.timelapse.addTimeChangeListener(function() {
+    gEarthTime.timelapse.addTimeChangeListener(function() {
       if ($("#csvChartContainer").css("display") == 'none') return;
       handleStripLines();
     });
 
-    this.earthTime.timelapse.addTimelineUIChangeListener(function() {
+    gEarthTime.timelapse.addTimelineUIChangeListener(function() {
       if ($("#csvChartContainer").css("display") == 'none') return;
       handleStripLines();
     });
 
   }
 
-  graphDataForLayer(layerId, opt) {
+  graphDataForLayer(layerId, opt?) {
     var that = this;
     var layerIdMatch = false;
     if (typeof(that.activeLayer) === "undefined") {
-      this.activeLayer = {};
+      this.activeLayer = {id: null};
     }
     if (opt) {
       // This is the non-csv layer case
@@ -145,7 +146,7 @@ export class CsvDataGrapher {
       var entry = [];
       if (opt.hasTimelineChange) {
         var timelineUIChangeListener = function() {
-          var dates = this.earthTime.timelapse.getCaptureTimes();
+          var dates = gEarthTime.timelapse.getCaptureTimes();
           for (var i = 0; i < dates.length; i++) {
             entry.push({
               x: new Date(dates[i], 0, 1),
@@ -161,30 +162,31 @@ export class CsvDataGrapher {
             }
           }
           if (deleteListener) {
-            this.earthTime.timelapse.removeTimelineUIChangeListener(timelineUIChangeListener);
+            gEarthTime.timelapse.removeTimelineUIChangeListener(timelineUIChangeListener);
           }
 
         }
-        this.earthTime.timelapse.addTimelineUIChangeListener(timelineUIChangeListener);
+        gEarthTime.timelapse.addTimelineUIChangeListener(timelineUIChangeListener);
       }
       that.activeLayer.entries[layerId] = entry;
     } else {
-      var layer = this.earthTime.layerDB.getLayer(layerId)?.layer;
+      var layer = gEarthTime.layerDB.getLayer(layerId)?.layer;
       if (layer) {
         if (!layer.showGraph) return;
         layerIdMatch = true;
-        
+
         var tiles = layer._tileView._tiles;
         var key = Object.keys(tiles)[0];
         if (typeof key == "undefined") return;
         if (!tiles[key].jsondata) return;
         var data = tiles[key].jsondata.data;
         var layerProps = layer.layerDef;
+        that.activeLayer.id = layerId;
         that.activeLayer.title = layerProps['Graph Title'] || layerProps['Name'];
         that.chart.options.graphGroupName = that.activeLayer.title;
         that.chart.options.axisY.title = layerProps['Graph Y-Axis Label'] || "Value";
         that.chart.options.axisX.title = layerProps['Graph X-Axis Label'] || "Time";
-        
+
         if (layerProps['Graph Y-Axis Min']) {
           that.chart.options.axisY.minimum = layerProps['Graph Y-Axis Min'];
         } else {
@@ -201,7 +203,7 @@ export class CsvDataGrapher {
         that.getDataForLayer(data, layerProps);
         layerIdMatch = true;
       }
-      
+
       if (!layerIdMatch) {
         console.log("Warning. Graphing unavailable for this layer: " + layerId + " Check layer name.");
         return;
@@ -245,7 +247,7 @@ export class CsvDataGrapher {
       that.chart.options.data.push({
         type: "line",
         click: function(e) {
-          this.earthTime.timelapse.seekToFrame(this.earthTime.timelapse.findExactOrClosestCaptureTime(String(e.dataPoint.x), "down"));
+          gEarthTime.timelapse.seekToFrame(gEarthTime.timelapse.findExactOrClosestCaptureTime(String(e.dataPoint.x), "down"));
         },
         showInLegend: true,
         toolTipContent: initialToolTipContent,
@@ -263,7 +265,6 @@ export class CsvDataGrapher {
       }
       idx++;
     }
-
     this.chart.options.title.text = visibleCount >= 1 ? that.chart.options.graphGroupName : this.activeLayer.title;
     this.chart.render();
   }

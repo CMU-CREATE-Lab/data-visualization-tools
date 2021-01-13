@@ -318,6 +318,31 @@ class EarthTimeImpl implements EarthTime {
     }
   }
 
+  handleGraphIfNeeded() {
+    // TODO: I would expect loadedLayers() to return only layers that have fully loaded,
+    // but the jsondata hash of a tile (see below) can still be undefined for these layers.
+    let visibleLayers = this.layerDB.visibleLayers;
+    let doShow = false;
+    for (let i = visibleLayers.length - 1; i >= 0; i--) {
+      let layerProxy = visibleLayers[i];
+      if (layerProxy.layer?.showGraph ) {
+        doShow = true;
+        if (layerProxy.id == csvDataGrapher.activeLayer.id) break;
+        var tiles = layerProxy.layer._tileView._tiles;
+        var key = Object.keys(tiles)[0];
+        if (typeof key == "undefined") break;
+        if (!tiles[key].jsondata) break;
+        csvDataGrapher.activeLayer.id = layerProxy.id;
+        csvDataGrapher.graphDataForLayer(layerProxy.id);
+        showHideCsvGrapher(doShow);
+        break;
+      }
+    }
+    if (!doShow && csvDataGrapher.activeLayer.id != null) {
+      showHideCsvGrapher(doShow);
+    }
+  }
+
   updateTimelineIfNeeded() {
     let newTimeline = this.timeline();
     if (newTimeline !== this.currentlyShownTimeline) {
@@ -358,7 +383,7 @@ class EarthTimeImpl implements EarthTime {
       }
     }
   }
-};
+}
 
 // TODO: Do we still want the ability to store spreadsheet link this way?
 // Local Storage
@@ -3419,30 +3444,16 @@ var updateLetterboxSelections = function(elemClicked?) {
 
 
 // CSV Data Grapher
-var showHideCsvGrapher = function(doShow, layerId, isCSV) {
-  if (doShow && layerId && isCSV) {
-    // @ts-ignore
-    // TODO(LayerDB)
-    if (!layerDB.getLayer(layerId).showGraph()) return;
-  }
+var showHideCsvGrapher = function(doShow) {
   if (doShow) {
     $("#csvChartLegend").show();
     $("#csvChartContainer").show();
-    if (!disablePresentationSlider) {
-      $("#layers-legend, .controls, .customControl, #baseLayerCreditContainer, .current-location-text-container, .annotations-resume-exit-container, .player, .scaleBarContainer, #logosContainer").addClass("layerGraphs");
-    }
     $("#timeMachine").addClass("layerGraphs");
   } else {
     $("#csvChartLegend").hide();
     $("#csvChartContainer").hide();
-    if (!disablePresentationSlider) {
-      $("#layers-legend, .controls, .customControl, #baseLayerCreditContainer, .current-location-text-container, .annotations-resume-exit-container, .player, .scaleBarContainer, #logosContainer").removeClass("layerGraphs");
-    }
     $("#timeMachine").removeClass("layerGraphs");
-  }
-  var snaplapse = gEarthTime.timelapse.getSnaplapseForPresentationSlider();
-  if (snaplapse) {
-    snaplapse.getSnaplapseViewer().showHideSnaplapseContainer(!doShow);
+    csvDataGrapher.activeLayer.id = null;
   }
   resize();
   csvDataGrapher.chart.render();
@@ -3796,6 +3807,8 @@ function update() {
   gEarthTime.updateTimelineIfNeeded();
 
   gEarthTime.showVisibleLayersLegends();
+
+  gEarthTime.handleGraphIfNeeded();
 
   gEarthTime.timelapse.frameno = (gEarthTime.timelapse.frameno || 0) + 1;
 

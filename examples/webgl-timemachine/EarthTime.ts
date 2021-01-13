@@ -29,6 +29,7 @@ export interface EarthTime {
   timelapseCurrentTimeDelta(): number;
   timeline(): Timeline;
   updateTimelineIfNeeded(): void;
+  handleGraphIfNeeded(): void;
   showVisibleLayersLegends(): void;
 };
 

@@ -572,7 +572,7 @@ html, body {
 }
 
 #timeMachine:not(.letterbox).layerGraphs {
-  height: calc(100% - 225px) !important;
+  height: calc(100% - 230px) !important;
 }
 
 #timeMachine.presentationSliderSelection {
