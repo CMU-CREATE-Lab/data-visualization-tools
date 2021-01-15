@@ -278,15 +278,22 @@ class EarthTimeImpl implements EarthTime {
     let visibleLayers = this.layerDB.visibleLayers;
     let baseLayerTimeline = null;
     let dataLayerTimeline = null;
+    let isFullExtent = false;
     for (let i = 0; i < visibleLayers.length; i++) {
       if (visibleLayers[i].layer?.category == 'Base Layers') {
         baseLayerTimeline = visibleLayers[i].layer?.timeline;
       } else if (visibleLayers[i].layer?.timeline != null) {
         dataLayerTimeline = visibleLayers[i].layer?.timeline;
+      } else if (visibleLayers[i].layer?.layerConstraints?.isFullExtent) {
+        isFullExtent = true;        
       }
     }
     if (dataLayerTimeline == null) {
-      return baseLayerTimeline;
+      if (isFullExtent)  {
+        return null;
+      } else {
+        return baseLayerTimeline;
+      }
     } else {
       return dataLayerTimeline;
     }
