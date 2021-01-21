@@ -285,7 +285,7 @@ class EarthTimeImpl implements EarthTime {
       } else if (visibleLayers[i].layer?.timeline != null) {
         dataLayerTimeline = visibleLayers[i].layer?.timeline;
       } else if (visibleLayers[i].layer?.layerConstraints?.isFullExtent) {
-        isFullExtent = true;        
+        isFullExtent = true;
       }
     }
     if (dataLayerTimeline == null) {
@@ -865,10 +865,14 @@ async function handleLayers(layerIds: string[], setByUser?: boolean) {
 
   for (var layerId of layerIds) {
     if (layerId.indexOf("extras_") == 0 || layerId.indexOf("e-") == 0) {
-      let $extra = $('#extras-selector-menu li[data-name="' + layerId + '"]');
-      if ($extra.length) {
+      let $extraSelection = $('#extras-selector-menu li[data-name="' + layerId + '"]');
+      let $extra = $('#layers-menu label[name=' + layerId + ']');
+      if ($extraSelection.length || $extra.length) {
         foundExtra = true;
-        $extra.trigger("click");
+        if ($extraSelection.length) {
+          $extraSelection.trigger("click");
+        }
+        $("#extras-content-container").data("layer-id", layerId);
       }
     }
     var layerProxy = gEarthTime.layerDB.getLayer(layerId);
@@ -1074,7 +1078,9 @@ function initLayerToggleUI() {
       gEarthTime.timelapse.removeParabolicMotionStoppedListener(autoModeExtrasViewChangeHandler);
     },
     beforeClose: function(event, ui) {
-      // close button needs to toggle off the corresponding extras layer
+      var $extrasContentContainer = $("#extras-content-container");
+      var layerId = $extrasContentContainer.data("layer-id");
+      $("#layers-menu label[name=" + layerId + "]").trigger("click");
       var extrasVideo = $("#extras-video")[0] as HTMLVideoElement;
       if (extrasVideo) {
         extrasVideo.pause();
@@ -1082,6 +1088,7 @@ function initLayerToggleUI() {
         extrasVideo.src = "";
       }
       $("#extras-selector").val("select").selectmenu("refresh");
+      $extrasContentContainer.data("layer-id", "");
     }
   }).css({
     'z-index': '2000',

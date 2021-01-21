@@ -1145,6 +1145,11 @@ html, body {
   display: none;
 }
 
+.extras-content-dialog .ui-button-icon-only .ui-icon {
+  margin-left: -8px;
+  margin-top: -8px;
+}
+
 .shareView.customDialog .ui-dialog-titlebar-close:after {
   position: absolute;
   top: 10px;
