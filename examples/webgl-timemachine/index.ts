@@ -858,14 +858,16 @@ function googleMapsLoadedCallback() {
 }
 
 
-async function handleLayers(layers: string[]) {
+async function handleLayers(layerIds: string[], setByUser?: boolean) {
   await gEarthTime.layerDBPromise;
   var layerProxies = [];
+  var foundExtra = false;
 
-  for (var layerId of layers) {
+  for (var layerId of layerIds) {
     if (layerId.indexOf("extras_") == 0 || layerId.indexOf("e-") == 0) {
       let $extra = $('#extras-selector-menu li[data-name="' + layerId + '"]');
       if ($extra.length) {
+        foundExtra = true;
         $extra.trigger("click");
       }
     }
@@ -875,10 +877,22 @@ async function handleLayers(layers: string[]) {
     } else {
       console.log(`${Utils.logPrefix()} handlelayers: Cannot find layer ${layerId}`);
     }
-
   }
+  var previousLayers = gEarthTime.layerDB._loadedCache.prevVisibleLayers;
+  var previousLayerIds = previousLayers.map(layerProxy => layerProxy.id);
+  if (!foundExtra && (previousLayerIds.indexOf("extras_") || previousLayerIds.indexOf("e-"))) {
+    $("#extras-content-container").dialog("close");
+  }
+
   console.log(`${Utils.logPrefix()} handleLayers; calling setVisibleLayers`);
-  gEarthTime.layerDB.setVisibleLayers(layerProxies);
+  gEarthTime.layerDB.setVisibleLayers(layerProxies, setByUser);
+
+  var newVisibleLayers = gEarthTime.layerDB.visibleLayers;
+  if (newVisibleLayers.length <= 1) {
+    $(".clearLayers").hide();
+  } else {
+    $(".clearLayers").show();
+  }
 }
 
 function initLayerToggleUI() {
@@ -1060,12 +1074,12 @@ function initLayerToggleUI() {
       gEarthTime.timelapse.removeParabolicMotionStoppedListener(autoModeExtrasViewChangeHandler);
     },
     beforeClose: function(event, ui) {
-      var $extrasVideo = $("#extras-video");
-      if ($extrasVideo && $extrasVideo[0]) {
-        var extrasVideo = $extrasVideo[0] as HTMLVideoElement;
+      // close button needs to toggle off the corresponding extras layer
+      var extrasVideo = $("#extras-video")[0] as HTMLVideoElement;
+      if (extrasVideo) {
         extrasVideo.pause();
-        extrasVideo.src = "";
         extrasVideo.removeEventListener("loadstart", autoModeExtrasViewChangeHandler);
+        extrasVideo.src = "";
       }
       $("#extras-selector").val("select").selectmenu("refresh");
     }
@@ -1152,7 +1166,6 @@ function initLayerToggleUI() {
         showAnnotationResumeExit();
       }
       $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight").removeClass("thumbnail_highlight");
-      $("#extras-content-container").dialog("close");
       gEarthTime.timelapse.clearShareViewTimeLoop();
     }
     // 'h' key
@@ -1296,136 +1309,13 @@ function initLayerToggleUI() {
     var $toggledLayerElm = $(e.target);
     var toggledLayerId = $toggledLayerElm.parent("label").attr("name");
 
-    let layersToBeDrawn = Array.from(gEarthTime.layerDB.visibleLayers);
-    let clickedLayer = gEarthTime.layerDB.getLayer(toggledLayerId);
+    let layerIdsToBeDrawn = gEarthTime.layerDB.visibleLayerIds();
     if ($toggledLayerElm.prop("checked")) {
-      layersToBeDrawn.push(clickedLayer);
+      layerIdsToBeDrawn.push(toggledLayerId);
     } else {
-      layersToBeDrawn.splice(layersToBeDrawn.indexOf(clickedLayer), 1);
+      layerIdsToBeDrawn.splice(layerIdsToBeDrawn.indexOf(toggledLayerId), 1);
     }
-    gEarthTime.layerDB.setVisibleLayers(layersToBeDrawn, true);
-
-    return;
-    // var toggledLayer = $(e.target);
-    // var toggledLayerId = toggledLayer.parent("label").attr("name");
-
-    // if (toggledLayerId) {
-    //   if (toggledLayer.attr('type') == 'radio') {
-    //     var toggledLayerGroup = $('input[name=' + toggledLayer.attr("name") + ']');
-    //     toggledLayerGroup.each(function(idx, element) {
-    //       var tmp = $(element).parent("label").attr("name");
-    //       var activeLayerIdx = activeEarthTimeLayers.indexOf(tmp);
-    //       if (activeLayerIdx >= 0) {
-    //         activeEarthTimeLayers.splice(activeLayerIdx, 1);
-    //       }
-    //     });
-    //     activeEarthTimeLayers.push(toggledLayerId);
-    //   } else if (toggledLayer.prop("checked")) {
-    //     activeEarthTimeLayers.push(toggledLayerId);
-    //   } else {
-    //     var activeLayerIdx = activeEarthTimeLayers.indexOf(toggledLayerId);
-    //     if (activeLayerIdx >= 0) {
-    //       activeEarthTimeLayers.splice(activeLayerIdx, 1);
-    //     }
-    //     if (activeEarthTimeLayers.length == 0) {
-    //       doSwitchToLandsat();
-    //     } else if (activeEarthTimeLayers.length == 1 && activeEarthTimeLayers.indexOf("blsat") == 0) {
-    //       doSwitchToLandsat();
-    //     }
-    //   }
-    // }
-
-    // dateRangePicker.handleCalendarLayers(false);
-    // altitudeSlider.handleAltitudeLayers();
-
-    // var $layerContainer = $(e.target).parents("table");
-    // var $layerContainerHeader = $layerContainer.prev();
-    // var layerCategory = $layerContainerHeader.attr("aria-controls")
-    // if (layerCategory) {
-    //   layerCategory = layerCategory.replace('-featured', '');
-    // }
-    // var ignoredLayerCategory = 'category-base-layers';
-    // var numLayersActiveInCurrentContainer = $layerContainer.find("input:checked").length;
-    // var layersListTopPos = featuredTheme ? $("#layers-list").position().top : 0;
-    // // Note: >1 because we ignore Base layers
-    // if ($('.map-layer-div').find("input:checked").length > 1) {
-    //   $(".clearLayers").show();
-    // } else {
-    //   $(".clearLayers").hide();
-    // }
-
-    // // Add indicator that a layer is on in a category but ignore the first category (base layers)
-    // if ($layerContainerHeader.length && layerCategory && layerCategory.indexOf(ignoredLayerCategory) == -1) {
-    //   // Note the plural because we have a featured section of layers that uses the same names
-    //   var $layerContainerHeaders = $("#layers-menu h3[aria-controls*='" + layerCategory + "']");
-    //   if (numLayersActiveInCurrentContainer > 0) {
-    //     $layerContainerHeaders.append("<span class='ui-icon ui-icon-bullet active-layers-in-category'>");
-    //   } else {
-    //     $layerContainerHeaders.find(".active-layers-in-category").remove();
-    //   }
-    // }
-
-    // var isFromUser = true;
-
-    // if ($(".csvlayer").find("input:checked").length > 0) {
-    //   timelineType = "defaultUI";
-    // }
-
-    // // Hide any timelines that are visible if we have no layers up that require a timeline or we are a static layer that fully covers the entire globe
-    // if (activeLayersWithTimeline <= 0 || (visibleBaseMapLayer == "blsat" && activeLayersWithTimeline == 1 && (showHansenLayer2))) {
-    //   $(".controls, .customControl").hide();
-    //   $(".customControl").hide();
-    // } else if (activeLayersWithTimeline > 0) {
-    //   if (timelineType == "customUI") {
-    //     $(".controls, .captureTime").hide();
-    //     $(".customControl").show();
-    //   } else if (timelineType == "defaultUI") {
-    //     $(".customControl").hide();
-    //     $(".controls, .captureTime").show();
-    //   }
-    // }
-
-    // if (e && e.originalEvent) {
-    //   var originalEvent = e.originalEvent;
-    //   // If true, event came from user interaction, otherwise it came from javascript
-    //   if (!originalEvent.isTrusted)
-    //     isFromUser = false;
-    //   // Browsers without isTrusted property
-    //   if (originalEvent.x == 0 && originalEvent.y == 0)
-    //     isFromUser = false;
-    //   // IE 11
-    //   if (originalEvent.isTrusted && (originalEvent.x == 0 && originalEvent.y == -55))
-    //     isFromUser = false;
-    // }
-
-    // if ((activeLayersWithTimeline >= 1 && visibleBaseMapLayer != "blsat") ||
-    //     (activeLayersWithTimeline == 1 && visibleBaseMapLayer == "blsat" && !(showHansenLayer2))) {
-    //   if (timelineType == "customUI") {
-    //     $(".customControl").show().children().show();
-    //   } else if (timelineType == "defaultUI") {
-    //     $(".controls, .captureTime").show();
-    //   }
-    // }
-
-    // if (isFromUser && visibleBaseMapLayer != "blsat" && activeLayersWithTimeline == 0) {
-    //   $(".customControl").hide();
-    // }
-
-    // if (timelineType != "none" && activeLayersWithTimeline == 0) {
-    //   timelineType = "none";
-    // }
-
-    // if (activeLayersWithTimeline <= 1 && timelineType == "none") {
-    //   $(".current-location-text-container, .annotations-resume-exit-container, .scaleBarContainer, #logosContainer, .current-location-text, #layers-legend").addClass("noTimeline");
-    // } else {
-    //   $(".current-location-text-container, .annotations-resume-exit-container, .scaleBarContainer, #logosContainer, .current-location-text, #layers-legend").removeClass("noTimeline");
-    // }
-
-    // if (timelineType == "defaultUI" && visibleBaseMapLayer == "blsat" && activeLayersWithTimeline == 1 && $(".csvlayer").find("input:checked").length == 0) {
-    //   timelineType = "customUI";
-    // }
-
-    // timelineHidden = $(".noTimeline").length != 0;
+    handleLayers(layerIdsToBeDrawn, true);
   };
 
   $('#layers-menu').on('click', "input[type=checkbox], input[type=radio]", layerClickHandler);
@@ -2487,14 +2377,6 @@ async function setupUIAndOldLayers() {
           }
         };
         gEarthTime.timelapse.addParabolicMotionStoppedListener(parabolicMotionStoppedListener);
-
-        // Close the extra content pop-up if a waypoint is clicked, but only if the new waypoint is not also an extra.
-        var layerExtraId = waypoint.layers.find(function(layer) {
-          return (layer.indexOf("extras_") == 0 || layer.indexOf("e-") == 0);
-        });
-        if (!layerExtraId) {
-          $('#extras-content-container').dialog('close');
-        }
       }
     });
     // End snaplapseViewerForPresentationSlider check

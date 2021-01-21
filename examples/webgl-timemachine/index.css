@@ -1240,6 +1240,7 @@ a:focus { outline:0; }
 }
 
 .clearLayers.ui-button {
+  display: none;
   position: absolute;
   width: 90px;
   height: 18px;
@@ -1250,7 +1251,6 @@ a:focus { outline:0; }
   border: 1px solid #676767;
   -webkit-box-shadow: 0px -1px 4px rgba(85,89,96,0.3);
   box-shadow: 0px -1px 4px rgba(85,89,96,0.3);
-  display: block;
   right: -123px;
   top: calc(50% - 13px);
   font-size: 14px;
