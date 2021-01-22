@@ -27,7 +27,7 @@ export class SeaLevelRise {
         this._heights = {
             "0&deg;C": [0.0, 0.0],
             "0.5&deg;C": [2.4, 0.7],
-            "1&deg;C": [7.0, 2.1],
+            "1.0&deg;C": [7.0, 2.1],
             "1.5&deg;C": [9.4, 2.9],
             "2.0&deg;C": [15, 4.7],
             "2.5&deg;C": [18, 5.6],
