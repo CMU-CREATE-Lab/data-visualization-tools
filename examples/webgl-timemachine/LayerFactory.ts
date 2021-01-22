@@ -867,12 +867,20 @@ export class LayerFactory {
   handleLayerMenuUI() {
     let layerDB = gEarthTime.layerDB;
     let $layerListContainer = $(".map-layer-div");
+    let $clearLayerBtn = $(".clearLayers");
     let newVisibleLayerIds = layerDB.visibleLayerIds();
     let previousVisibleLayerIds = layerDB._loadedCache.prevVisibleLayers.map(layerProxy => layerProxy.id);
     let layersIdsToTurnOff = previousVisibleLayerIds.filter(layerId => !newVisibleLayerIds.includes(layerId));
     let layersIdsToTurnOn = newVisibleLayerIds.filter(layerId => !previousVisibleLayerIds.includes(layerId));
+    let $layerElmsToTurnOff = $();
+    let $layerElmsToTurnOn = $();
+
     // Remove checkmarks from layers in Data Library that were active at the time of new layer(s) being set but not still active now.
     if (layersIdsToTurnOff.length) {
+      let layerSelectors = '#' + layersIdsToTurnOff.join(', #');
+      $layerElmsToTurnOff = $layerListContainer.find(layerSelectors);
+      $layerElmsToTurnOff.prop("checked", false);
+
       for (let layerId of layersIdsToTurnOff) {
         let layerProxy = layerDB.getLayer(layerId);
         // TODO: Should probably do this somewhere else.
@@ -883,13 +891,13 @@ export class LayerFactory {
           layerProxy.layer.abortLoading();
         }
       }
-      let layerSelectors = '#' + layersIdsToTurnOff.join(', #');
-      $layerListContainer.find(layerSelectors).prop("checked", false);
     }
+
     // Add checkmarks to layers in Data Library corresponding to what layers are newly visible and not already previously checked.
     if (layersIdsToTurnOn.length) {
       let layerSelectors = '#' + layersIdsToTurnOn.join(', #');
-      $layerListContainer.find(layerSelectors).not(":checked").prop("checked", true);
+      $layerElmsToTurnOn = $layerListContainer.find(layerSelectors);
+      $layerElmsToTurnOn.not(":checked").prop("checked", true);
     }
 
     // Is LODES being turned on/off?
@@ -898,6 +906,31 @@ export class LayerFactory {
       // @ts-ignore
       lodesLayer.layer.lodes.lodesGui.toggle();
     }
+
+    // Show/hide the clear active layers button.
+    // Don't show it if only a base layer is up.
+    if (newVisibleLayerIds.length <= 1) {
+      $clearLayerBtn.hide();
+    } else {
+      $clearLayerBtn.show();
+    }
+
+    // Show black dot indicator in a category with active layers, exlcuding the base layers category.
+    let layerElemCategoryIds =  $layerElmsToTurnOff.add($layerElmsToTurnOn).map((idx, layerElm) => $(layerElm).prop("name")).toArray()
+    layerElemCategoryIds = layerElemCategoryIds.filter((data, idx) => {
+      return layerElemCategoryIds.indexOf(data) === idx && data !== "category-base-layers";
+    })
+    layerElemCategoryIds.forEach(function(categoryId) {
+      let $layerCategory = $("#" + categoryId);
+      let numLayersActiveInCurrentCategory = $layerCategory.find("input:checked").length;
+      let $layerCategoryHeader = $layerCategory.prev();
+      if (numLayersActiveInCurrentCategory > 0) {
+        $layerCategoryHeader.append("<span class='ui-icon ui-icon-bullet active-layers-in-category'>");
+      } else {
+        $layerCategoryHeader.find(".active-layers-in-category").remove();
+      }
+    })
+
   }
 
   handleVisibleLayersUIStateChange() {

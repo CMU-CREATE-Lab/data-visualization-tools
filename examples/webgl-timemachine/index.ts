@@ -693,6 +693,9 @@ async function handleLayers(layerIds: string[], setByUser?: boolean) {
   var layerProxies = [];
   var foundExtra = false;
 
+  // Note that main UI logic should be done in LayerFactory.handleLayerMenuUI()
+  // This method should just do getLayer calls and then pass to LayerDB.setVisibleLayers
+
   for (var layerId of layerIds) {
     if (layerId.indexOf("extras_") == 0 || layerId.indexOf("e-") == 0) {
       let $extraSelection = $('#extras-selector-menu li[data-name="' + layerId + '"]');
@@ -712,22 +715,16 @@ async function handleLayers(layerIds: string[], setByUser?: boolean) {
       console.log(`${Utils.logPrefix()} handlelayers: Cannot find layer ${layerId}`);
     }
   }
-  var previousLayers = gEarthTime.layerDB._loadedCache.prevVisibleLayers;
-  var previousLayerIds = previousLayers.map(layerProxy => layerProxy.id);
+
+  var previousLayerIds = gEarthTime.layerDB._loadedCache.prevVisibleLayers.map(layerProxy => layerProxy.id);
   if (!foundExtra && (previousLayerIds.indexOf("extras_") || previousLayerIds.indexOf("e-"))) {
     $("#extras-content-container").dialog("close");
   }
 
   console.log(`${Utils.logPrefix()} handleLayers; calling setVisibleLayers`);
   gEarthTime.layerDB.setVisibleLayers(layerProxies, setByUser);
-
-  var newVisibleLayers = gEarthTime.layerDB.visibleLayers;
-  if (newVisibleLayers.length <= 1) {
-    $(".clearLayers").hide();
-  } else {
-    $(".clearLayers").show();
-  }
 }
+
 
 function initLayerToggleUI() {
   // Copy over data attributes to selectmenu
@@ -1204,6 +1201,7 @@ function initLayerToggleUI() {
   thumbnailTool = gEarthTime.timelapse.getThumbnailTool();
 }
 // END of initLayerToggleUI()
+
 
 function removeFeaturedTheme() {
   $("#featured-layers-title, #layers-list-featured").remove();
