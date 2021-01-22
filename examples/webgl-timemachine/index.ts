@@ -455,7 +455,6 @@ var enableLetterboxMode = parseConfigOption({optionName: "enableLetterboxMode", 
 var disableTopNav = enableLetterboxMode ? true : parseConfigOption({optionName: "disableTopNav", optionDefaultValue: false, exposeOptionToUrlHash: true});
 var disableResumeExitAnnotationPrompt = parseConfigOption({optionName: "disableResumeExitAnnotationPrompt", optionDefaultValue: false, exposeOptionToUrlHash: false});
 var isHyperwall = parseConfigOption({optionName: "isHyperwall", optionDefaultValue: false, exposeOptionToUrlHash: false});
-var useGoogleMaps = parseConfigOption({optionName: "useGoogleMaps", optionDefaultValue: false, exposeOptionToUrlHash: false});
 var useGoogleSearch = parseConfigOption({optionName: "useGoogleSearch", optionDefaultValue: true, exposeOptionToUrlHash: false});
 var enableAutoMode = parseConfigOption({optionName: "enableAutoMode", optionDefaultValue: false, exposeOptionToUrlHash: false});
 var autoModeCriteria = parseConfigOption({optionName: "autoModeCriteria", optionDefaultValue: {}, exposeOptionToUrlHash: false});
@@ -468,21 +467,10 @@ var enableWaypointText = parseConfigOption({optionName: "enableWaypointText", op
 var defaultTrackingId = document.location.hostname === "earthtime.org" ? "UA-10682694-21" : "";
 var trackingId = parseConfigOption({optionName: "trackingId", optionDefaultValue: defaultTrackingId, exposeOptionToUrlHash: false});
 gEarthTime.rootTilePath = parseConfigOption({optionName: "rootTilePath", optionDefaultValue: "../../../data/", exposeOptionToUrlHash: false});
-var baseMapsNoLabels = parseConfigOption({optionName: "baseMapsNoLabels", optionDefaultValue: false, exposeOptionToUrlHash: true});
-var useRetinaLightBaseMap = parseConfigOption({optionName: "useRetinaLightBaseMap", optionDefaultValue: false, exposeOptionToUrlHash: false});
-var useRetinaLightNoLabelsBaseMap = baseMapsNoLabels ? true : parseConfigOption({optionName: "useRetinaLightNoLabelsBaseMap", optionDefaultValue: false, exposeOptionToUrlHash: false});
-var useRetinaDarkBaseMap = parseConfigOption({optionName: "useRetinaDarkBaseMap", optionDefaultValue: false, exposeOptionToUrlHash: false});
-var useRetinaDarkNoLabelsBaseMap = baseMapsNoLabels ? true : parseConfigOption({optionName: "useRetinaDarkNoLabelsBaseMap", optionDefaultValue: false, exposeOptionToUrlHash: false});
 var enableStoryEditor = !showStories ? false : parseConfigOption({optionName: "enableStoryEditor", optionDefaultValue: false, exposeOptionToUrlHash: false});
 var pauseWhenInitialized = parseConfigOption({optionName: "pauseWhenInitialized", optionDefaultValue: false, exposeOptionToUrlHash: true});
 var disableAnimation = parseConfigOption({optionName: "disableAnimation", optionDefaultValue: false, exposeOptionToUrlHash: true});
 var preserveDrawingBuffer = parseConfigOption({optionName: "preserveDrawingBuffer", optionDefaultValue: false, exposeOptionToUrlHash: true});
-// Deprecated
-var customDarkMapUrl = parseConfigOption({optionName: "customDarkMapUrl", optionDefaultValue: "", exposeOptionToUrlHash: false});
-var customDarkMapUrlOrId = parseConfigOption({optionName: "customDarkMapUrlOrId", optionDefaultValue: "", exposeOptionToUrlHash: true}) || customDarkMapUrl;
-// Deprecated
-var customLightMapUrl = parseConfigOption({optionName: "customLightMapUrl", optionDefaultValue: "", exposeOptionToUrlHash: false});
-var customLightMapUrlOrId = parseConfigOption({optionName: "customLightMapUrlOrId", optionDefaultValue: "", exposeOptionToUrlHash: true}) || customLightMapUrl;
 
 
 //
@@ -490,7 +478,6 @@ var customLightMapUrlOrId = parseConfigOption({optionName: "customLightMapUrlOrI
 //
 
 WebGLVideoTile.useFaderShader = useFaderShader;
-var showTile = true;
 var isAutoModeRunning = false;
 var visibleBaseMapLayer = "blsat";
 var thumbnailTool;
@@ -1368,12 +1355,6 @@ function showAnnotationResumeExit() {
 // BEGIN WebGL vars
 var gl;
 
-// Default Time Machine visibility
-var tileViewVisibility = {
-  videoTile: true,
-  vectorTile: false
-};
-
 var loadedWaypointsGSheet;
 var loadedLayersGSheet;
 
@@ -1382,25 +1363,25 @@ var dateRangePicker = new DateRangePicker(gEarthTime);
 var altitudeSlider = new AltitudeSlider(gEarthTime);
 var contentSearch = new ContentSearch();
 
-var waypointJSONListReadyInterval;
 var waitToLoadWaypointLayersOnPageReadyInterval;
 var timelineUIChangeListeners = [];
 
+
 function modifyWaypointSliderContent(keyframes, theme, story) {
-  // TODO: Check state of this code
+  // TODO: Do we still want pictures within annotations?
   return;
+  if (!annotationPicturePaths[theme]) {
+    annotationPicturePaths[theme] = {};
+  }
   annotationPicturePaths[theme][story] = {};
   for (var i = 0; i < keyframes.length; i++) {
     var keyframe = keyframes[i];
     // TODO: Force to only work with absolute image paths. One day we can figure out how to support paths from the internet without the wrath of trolls.
     var annotationPicturePath = keyframe.unsafe_string_annotationPicPath && keyframe.unsafe_string_annotationPicPath.indexOf("thumbnails/") == 0 ? keyframe.unsafe_string_annotationPicPath : undefined;
     annotationPicturePaths[theme][story][i] = { path : annotationPicturePath };
-    // Sections in the spreadsheet to jump to are flagged by having the title start with a #
-    if (keyframe.unsafe_string_frameTitle.indexOf("#") == 0) {
-      keyframe.unsafe_string_frameTitle = keyframe.unsafe_string_frameTitle.slice(1);
-    }
   }
 }
+
 
 function loadWaypointSliderContentFromCSV(csvdata) {
   var parsed = Papa.parse(csvdata, {delimiter: '\t', header: true});
@@ -1540,7 +1521,7 @@ function populateLayerLibrary() {
     if (!layersByCategory[layer.category]) {
       layersByCategory[layer.category] = [];
     }
-    layersByCategory[layer.category].push({id: layer.id, name: layer.name});
+    layersByCategory[layer.category].push({id: layer.id, name: layer.name, hasDescription: layer.hasLayerDescription});
   }
   let categories = Object.keys(layersByCategory);
   for (let category of categories) {
@@ -1559,7 +1540,12 @@ function populateLayerLibrary() {
     layer_html += `<h3>${category}</h3>`;
     layer_html += `<table id="${categoryId}">`;
     categoryLayers.forEach(function(layer) {
-      layer_html += `<tr><td><label name="${layer.id}"><input type="${inputType}" id="${layer.id}" name="${categoryId}">${layer.name}</label></td></tr>`;
+      layer_html += `<tr><td><label name="${layer.id}"><input type="${inputType}" id="${layer.id}" name="${categoryId}">${layer.name}</label></td>`;
+      // Add layer description buttons
+      //if (layer.hasDescription) {
+      //  layer_html += "<td colspan='3'><div class='layer-description' data-layer-description='testing 123'></div></td>";
+      //}
+      layer_html += "</tr>";
     });
     layer_html += "</table>";
   }
