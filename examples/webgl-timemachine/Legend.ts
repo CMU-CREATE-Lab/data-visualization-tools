@@ -29,7 +29,7 @@ export interface BubbleMapLegendOptions {
     credit?: any;
     keys?: any[];
     circles?: { value: any; radius: string; }[];
-    str?: any;
+    str?: string;
 }
 
 export class BubbleMapLegend extends Legend {
@@ -38,7 +38,7 @@ export class BubbleMapLegend extends Legend {
     keyY: number;
     keyOffset: number;
     id: string;
-    str: BubbleMapLegendOptions;
+    str: string;
     constructor(opts: BubbleMapLegendOptions) {
         super(opts.id);
         this.width = 240;
@@ -62,13 +62,18 @@ export class BubbleMapLegend extends Legend {
         }
 
         this.height += opts["keys"] ? opts["keys"].length * 25.0 : 0.0;
-        var div = '<div style="font-size: 15px">' + opts["title"] + '<span class="credit"> (' + opts["credit"] + ')</span></div>';
-        var svg = '<svg class="svg-legend" width="100%" height="' + this.height + '">';
         var keys = '';
         if (opts["keys"]) {
             for (var i = 0; i < opts["keys"].length; i++) {
                 keys += getKey(opts["keys"][i]['color'], opts["keys"][i]['str']);
+                if (i == 0 && opts["keys"][i]['str'].length) {
+                    this.width = 0;
+                }
                 that.keyY += 25.0;
+                // TODO: This likely does not scale and certainly not with different fonts.
+                // A way to properly address this is 'setAttribute' the width and height
+                // based on the bbox of the svg once rendered on the page.
+                this.width += opts["keys"][i]['str'].length * 8;
             }
 
         }
@@ -76,6 +81,8 @@ export class BubbleMapLegend extends Legend {
         for (var i = 0; i < opts["circles"].length; i++) {
             circles += getCircle(opts["circles"][i]['value'], opts["circles"][i]['radius']);
         }
+        var div = '<div style="font-size: 15px">' + opts["title"] + '<span class="credit"> (' + opts["credit"] + ')</span></div>';
+        var svg = '<svg class="svg-legend" width="' + this.width  + '" height="' + this.height + '">';
         return div + svg + keys + circles + '</svg>';
     }
 }
