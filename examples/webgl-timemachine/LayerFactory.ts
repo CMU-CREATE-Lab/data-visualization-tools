@@ -764,6 +764,13 @@ export class LayerFactory {
     for (let i = layerProxies.length - 1; i >= 0; i--) {
       let layerProxy = layerProxies[i];
 
+      let hasPairedBaseLayer = !!layerProxy.baseLayer;
+      if (hasPairedBaseLayer) {
+        let newLayerProxy = layerDB.getLayer(layerProxy.baseLayer)
+        layerProxies.splice(i, 0, newLayerProxy);
+        i = i + 1;
+      }
+
       // Base Layers are radio buttons and thus only one can be up at a time.
       // For legacy purposes though, some base layers have higher precedence.
       if (layerProxy.category == baseLayersCategoryName) {
