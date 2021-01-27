@@ -764,8 +764,10 @@ export class LayerFactory {
     for (let i = layerProxies.length - 1; i >= 0; i--) {
       let layerProxy = layerProxies[i];
 
-      let hasPairedBaseLayer = !!layerProxy.baseLayer;
-      if (hasPairedBaseLayer) {
+      // A layer can have a base layer paired with it in the database. However,
+      // we don't want this paired layer to show when coming from a share link.
+      let hasPairedBaseLayerAndSetByUser = !!layerProxy.baseLayer && setByUser;
+      if (hasPairedBaseLayerAndSetByUser) {
         let newLayerProxy = layerDB.getLayer(layerProxy.baseLayer)
         layerProxies.splice(i, 0, newLayerProxy);
         i = i + 1;
