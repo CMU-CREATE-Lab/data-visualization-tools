@@ -760,6 +760,7 @@ export class LayerFactory {
     let baseLayersCategoryName = "Base Layers";
     let foundSoloLayer = false;
     let lastPrioritizedBaseLayer: LayerProxy;
+    let collectionHasLayerThatIsAlsoItsPairedBaseLayer: boolean;
 
     for (let i = layerProxies.length - 1; i >= 0; i--) {
       let layerProxy = layerProxies[i];
@@ -767,9 +768,13 @@ export class LayerFactory {
       // A layer can have a base layer paired with it in the database. However,
       // we don't want this paired layer to show when coming from a share link.
       let hasPairedBaseLayerAndSetByUser = !!layerProxy.baseLayer && setByUser;
-      if (hasPairedBaseLayerAndSetByUser) {
+      let hasPairedBaseLayerThatIsItself = layerProxy.baseLayer == layerProxy.id;
+      if (!collectionHasLayerThatIsAlsoItsPairedBaseLayer) {
+        collectionHasLayerThatIsAlsoItsPairedBaseLayer = hasPairedBaseLayerThatIsItself;
+      }
+      if (hasPairedBaseLayerAndSetByUser || collectionHasLayerThatIsAlsoItsPairedBaseLayer) {
         // If we want any layer to act as a base layer.
-        if (layerProxy.baseLayer == layerProxy.id) {
+        if (collectionHasLayerThatIsAlsoItsPairedBaseLayer) {
           lastPrioritizedBaseLayer = layerProxy;
         } else {
           let newLayerProxy = layerDB.getLayer(layerProxy.baseLayer);
@@ -783,6 +788,9 @@ export class LayerFactory {
       // Base Layers are radio buttons and thus only one can be up at a time.
       // For legacy purposes though, some base layers have higher precedence.
       if (layerProxy.category == baseLayersCategoryName) {
+        if (!hasPairedBaseLayerThatIsItself) {
+          layerToTurnOffDict[layerProxy.id] = layerProxy;
+        }
         if (lastPrioritizedBaseLayer && (setByUser || layerProxy.drawOrder <= lastPrioritizedBaseLayer.drawOrder)) {
           continue;
         } else if (lastPrioritizedBaseLayer && layerProxy.drawOrder > lastPrioritizedBaseLayer.drawOrder) {
