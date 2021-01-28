@@ -768,9 +768,16 @@ export class LayerFactory {
       // we don't want this paired layer to show when coming from a share link.
       let hasPairedBaseLayerAndSetByUser = !!layerProxy.baseLayer && setByUser;
       if (hasPairedBaseLayerAndSetByUser) {
-        let newLayerProxy = layerDB.getLayer(layerProxy.baseLayer)
-        layerProxies.splice(i, 0, newLayerProxy);
-        i = i + 1;
+        // If we want any layer to act as a base layer.
+        if (layerProxy.baseLayer == layerProxy.id) {
+          lastPrioritizedBaseLayer = layerProxy;
+        } else {
+          let newLayerProxy = layerDB.getLayer(layerProxy.baseLayer);
+          if (newLayerProxy) {
+            layerProxies.splice(i, 0, newLayerProxy);
+            i = i + 1;
+          }
+        }
       }
 
       // Base Layers are radio buttons and thus only one can be up at a time.
