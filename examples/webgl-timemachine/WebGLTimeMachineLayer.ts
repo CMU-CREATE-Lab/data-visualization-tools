@@ -136,10 +136,18 @@ export class WebGLTimeMachineLayer extends Layer {
 
     let startDate = this.startDate || this.captureTimes[0];
     let endDate = this.endDate || this.captureTimes[this.captureTimes.length - 1];
+    // A 'capture-times' array is supposed to be defined in a tm.json file. However,
+    // it may not be or it may be an array of "" or "NULL". If it is, use the start/end
+    // times and step size in the spreadsheet and create a time range from that.
+    let cachedCapatureTimes = this.captureTimes;
+    if (!cachedCapatureTimes || !this.captureTimes[0] || this.captureTimes[0] == "NULL") {
+      cachedCapatureTimes = null;
+    }
+
     this.timeline = new Timeline(this.timelineType,
     { startDate: startDate, endDate: endDate,
       step: this.step, masterPlaybackRate: this.masterPlaybackRate,
-      playbackRate: this.playbackRate, cachedCaptureTimes: this.captureTimes,
+      playbackRate: this.playbackRate, cachedCaptureTimes: cachedCapatureTimes,
       fps: this.fps });
 
     function createTile(ti, bounds) {
