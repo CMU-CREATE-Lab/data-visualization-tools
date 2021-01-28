@@ -756,11 +756,12 @@ export class LayerFactory {
   handleLayerConstraints(layerProxies: LayerProxy[], setByUser: boolean) {
     let layerDB = gEarthTime.layerDB;
     let newLayersDict = {} as {[key:string]: LayerProxy};
-    let layerToTurnOffDict = {} as {[key:string]: LayerProxy};
+    let layersToTurnOffDict = {} as {[key:string]: LayerProxy};
+    let baseLayersToTurnOffDict = {} as {[key:string]: LayerProxy};
     let baseLayersCategoryName = "Base Layers";
     let foundSoloLayer = false;
     let lastPrioritizedBaseLayer: LayerProxy;
-    let collectionHasLayerThatIsAlsoItsPairedBaseLayer: boolean;
+    let collectionHasLayerThatIsAlsoItsPairedBaseLayer = false;
 
     for (let i = layerProxies.length - 1; i >= 0; i--) {
       let layerProxy = layerProxies[i];
@@ -789,12 +790,12 @@ export class LayerFactory {
       // For legacy purposes though, some base layers have higher precedence.
       if (layerProxy.category == baseLayersCategoryName) {
         if (!hasPairedBaseLayerThatIsItself) {
-          layerToTurnOffDict[layerProxy.id] = layerProxy;
+          baseLayersToTurnOffDict[layerProxy.id] = layerProxy;
         }
         if (lastPrioritizedBaseLayer && (setByUser || layerProxy.drawOrder <= lastPrioritizedBaseLayer.drawOrder)) {
           continue;
         } else if (lastPrioritizedBaseLayer && layerProxy.drawOrder > lastPrioritizedBaseLayer.drawOrder) {
-          layerToTurnOffDict[lastPrioritizedBaseLayer.id] = lastPrioritizedBaseLayer;
+          layersToTurnOffDict[lastPrioritizedBaseLayer.id] = lastPrioritizedBaseLayer;
           lastPrioritizedBaseLayer = layerProxy;
         } else {
           lastPrioritizedBaseLayer = layerProxy;
@@ -814,7 +815,7 @@ export class LayerFactory {
           });
         } else if (Array.isArray(layerConstraints.layersMutuallyExclusiveWith)) {
           layerConstraints.layersMutuallyExclusiveWith.forEach(layerId => {
-            layerToTurnOffDict[layerId] = layerDB.getLayer(layerId);
+            layersToTurnOffDict[layerId] = layerDB.getLayer(layerId);
           });
           // We are looping in reverse order. So once we find a layer that has constraints, we remove any others
           // that it is mutually exclusive with (e.g. one that was previously on)
@@ -823,6 +824,10 @@ export class LayerFactory {
       }
       newLayersDict[layerProxy.id] = layerDB.getLayer(layerProxy.id);
     };
+
+    if (Object.keys(baseLayersToTurnOffDict).length && collectionHasLayerThatIsAlsoItsPairedBaseLayer) {
+      Object.assign(layersToTurnOffDict, baseLayersToTurnOffDict);
+    }
 
     // Ensure we always have a base layer up
     if (!lastPrioritizedBaseLayer && !foundSoloLayer) {
@@ -842,7 +847,7 @@ export class LayerFactory {
       }
     }
 
-    let layersIdsToTurnOff = Object.keys(layerToTurnOffDict);
+    let layersIdsToTurnOff = Object.keys(layersToTurnOffDict);
     let newLayers = []
     for (const [layerId, layerProxy] of Object.entries(newLayersDict)) {
       // If this layer is not one of the layers to turn off, add to list.
