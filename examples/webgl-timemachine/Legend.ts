@@ -75,8 +75,9 @@ export class BubbleMapLegend extends Legend {
                 // based on the bbox of the svg once rendered on the page.
                 this.width += opts["keys"][i]['str'].length * 8;
             }
-
         }
+        this.width = Math.max(this.width, 240);
+
         var circles = '';
         for (var i = 0; i < opts["circles"].length; i++) {
             circles += getCircle(opts["circles"][i]['value'], opts["circles"][i]['radius']);
