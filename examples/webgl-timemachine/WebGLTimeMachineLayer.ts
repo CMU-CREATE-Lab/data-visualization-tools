@@ -14,6 +14,8 @@ import { TileView } from './TileView'
 import { WebGLVideoTile } from './WebGLVideoTile'
 import { Layer } from './Layer'
 import { Timeline } from './Timeline';
+import { gEarthTime } from './EarthTime';
+import { Utils } from './Utils';
 
 declare var EARTH_TIMELAPSE_CONFIG;
 
@@ -35,6 +37,15 @@ export class WebGLTimeMachineLayer extends Layer {
   metadataLoadedCallback: (layer: WebGLTimeMachineLayer)=>void;
   metadataLoaded: boolean;
   captureTimes: string[];
+
+  // Mapping form frames to epoch time is contained in one of two forms:
+  // Option 1: 
+  //      epochTimes:  array of an epoch timestamp per frame.  Comes from json metadata
+  // Option 2:
+  //      startEpochTime and endEpochTime:  Comes from layer defintion, but only if json metadata is missing
+  epochTimes?: number[];
+  startEpochTime?: number;
+  endEpochTime?: number;
   constructor(layerProxy, glb, canvasLayer, url, layerOptions) {
     super(layerProxy, layerOptions, WebGLVideoTile); //
     // We should never override drawTile for this layer
@@ -139,16 +150,27 @@ export class WebGLTimeMachineLayer extends Layer {
     // A 'capture-times' array is supposed to be defined in a tm.json file. However,
     // it may not be or it may be an array of "" or "NULL". If it is, use the start/end
     // times and step size in the spreadsheet and create a time range from that.
-    let cachedCapatureTimes = this.captureTimes;
-    if (!cachedCapatureTimes || !this.captureTimes[0] || this.captureTimes[0] == "NULL") {
-      cachedCapatureTimes = null;
+    let cachedCaptureTimes = this.captureTimes;
+    if (!cachedCaptureTimes || !this.captureTimes[0] || this.captureTimes[0] == "NULL") {
+      cachedCaptureTimes = null;
     }
 
     this.timeline = new Timeline(this.timelineType,
-    { startDate: startDate, endDate: endDate,
-      step: this.step, masterPlaybackRate: this.masterPlaybackRate,
-      playbackRate: this.playbackRate, cachedCaptureTimes: cachedCapatureTimes,
-      fps: this.fps });
+      { startDate: startDate, endDate: endDate,
+        step: this.step, masterPlaybackRate: this.masterPlaybackRate,
+        playbackRate: this.playbackRate, cachedCaptureTimes: cachedCaptureTimes,
+        fps: this.fps });
+    console.log('cachedCaptureTimes', cachedCaptureTimes);
+    if (cachedCaptureTimes) {
+      this.epochTimes = [];
+      for (let captureTime of cachedCaptureTimes) {
+        this.epochTimes.push(gEarthTime.timelapse.sanitizedParseTimeEpoch(captureTime) / 1000);
+      }
+      console.log('epochTimes', this.epochTimes);
+    } else {
+      this.startEpochTime = parseDateStr(this.startDate, false) as number;
+      this.endEpochTime = parseDateStr(this.endDate, false) as number;
+    }
 
     function createTile(ti, bounds) {
       var url = that.tileRootUrl + '/' + ti.l + '/' + (ti.r * 4) + '/' + (ti.c * 4) + that.mediaType;
@@ -169,7 +191,7 @@ export class WebGLTimeMachineLayer extends Layer {
       tileHeight: this.video_height,
       createTile: createTile,
       deleteTile: function (tile) { tile.delete() },
-      updateTiles: WebGLVideoTile.updateTiles,
+      updateTiles: this.updateTiles.bind(this),
       maxLevelOverride: this.maxLevelOverride
     });
 
@@ -237,6 +259,46 @@ export class WebGLTimeMachineLayer extends Layer {
     }
     this._tileView.setView(view, width, height, this._canvasLayer.resolutionScale_);
     this._tileView.update(transform, {});
+  }
+
+
+  computeDisplayFrameAndRate(): {frame: number, fps: number} {
+    let {epochTime, rate} = gEarthTime.currentEpochTimeAndRate();
+    let ret = {frame: 0, fps: 0};
+
+    if (this.epochTimes) {
+      ret.frame = Utils.findInterpolatedIndexFromSortedArray(epochTime, this.epochTimes);
+      if (rate > 0 && ret.frame > 0 && ret.frame < this.epochTimes.length - 1) {
+        var frameDurationSeconds = this.epochTimes[Math.ceil(ret.frame)] - this.epochTimes[Math.floor(ret.frame)];
+        ret.fps = rate / frameDurationSeconds;
+      }
+    } else {
+      ret.frame = this.numFrames * (epochTime - this.startEpochTime) / (this.endEpochTime - this.startEpochTime);
+      ret.fps = this.numFrames * rate / (this.endEpochTime - this.startEpochTime);
+    }
+    return ret;
+  }
+  // Update and draw tiles
+  updateTiles(tiles: WebGLVideoTile[], transform) {
+    if (org.gigapan.Util.isMobileDevice())
+      return;
+    if (tiles.length == 0)
+      return;
+
+    //WebGLTimeMachinePerf.instance.startFrame();
+    let {frame, fps} = this.computeDisplayFrameAndRate();
+
+    for (var i = 0; i < tiles.length; i++) {
+      tiles[i].updatePhase1(frame, fps);
+    }
+
+    // TODO(rsargent): draw tiles low to high-res, or clip and don't draw the overlapping portions
+    // of the low-res tiles
+    for (var i = 0; i < tiles.length; i++) {
+      tiles[i].updatePhase2(frame, fps);
+      tiles[i].draw(transform, {});
+    }
+    //WebGLTimeMachinePerf.instance.endFrame();
   }
 }
 

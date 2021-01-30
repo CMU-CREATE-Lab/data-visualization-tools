@@ -172,7 +172,7 @@ class EarthTimeImpl implements EarthTime {
   startRedraw() {
     this._startOfRedraw = performance.now();
   }
-  redrawTakingTooLong() {
+  redrawTakingTooLong(): boolean {
     return performance.now() - this._startOfRedraw > this._maximumUpdateTime;
   }
 
@@ -214,29 +214,48 @@ class EarthTimeImpl implements EarthTime {
     return delta;
   }
 
-  private computeCurrentDate(currentTime, currentTimes, dates): Date {
+  currentEpochTime(): number {
+    return this.currentEpochTimeAndRate().epochTime;
+  }
+
+  // Return:
+  // epochTime: timeline's current epoch time, in seconds
+  // rate: timelapse animation speed in multiple of realtime, i.e. epoch seconds per playback second
+  currentEpochTimeAndRate(): {epochTime:number, rate:number} {
+    var currentTime = this.timelapse.getCurrentTime();
+    var currentTimes = this.getTimelapseCurrentTimes();
+    var epochTimesMs = this.getTimelapseDates();
+    if (epochTimesMs[0] == -1) {
+      // Timeline is not in units of epoch time.  Pause at beginning 2022
+      return {epochTime: 1640995200, rate: 0}
+    }
     var delta = this.computeCurrentTimesDelta(currentTime, currentTimes);
     var currentIndex = this.computeCurrentTimeIndex(currentTime, currentTimes);
     var previousIndex = 0;
     if (currentIndex != 0) {
       previousIndex = currentIndex - 1;
     }
-    var currentDate = dates[currentIndex];
-    var previousDate = dates[previousIndex];
-    var range = currentDate - previousDate;
-    var date = new Date(previousDate + range*delta);
-    // Ensure we don't go beyond the last date of the timeline.
-    // An example of where this is needed is when we are playing at fast speed and the current time
-    // might go slightly beyond (small epsilon) the desired end time. You can see this when playing
-    // the Obesity layer at fast speed.
-    var lastTimelineDate = new Date(gEarthTime.timelapse.getCaptureTimes()[gEarthTime.timelapse.getNumFrames() - 1]);
-    if (date > lastTimelineDate) {
-      date = lastTimelineDate;
+    var currentEpochTime = epochTimesMs[currentIndex] / 1000;
+    var previousEpochTime = epochTimesMs[previousIndex] / 1000;
+    var epochRange = currentEpochTime - previousEpochTime;
+    var effectivePlaybackRate = this.timelapse.isPaused() ? 0 : this.timelapse.getPlaybackRate();
+    var rate = effectivePlaybackRate * epochRange / (currentTimes[currentIndex] - currentTimes[previousIndex]); 
+    var epochTime = (previousEpochTime + epochRange*delta);
+
+    var firstEpochTime = epochTimesMs[0] / 1000;
+    if (epochTime <= firstEpochTime) {
+      epochTime = firstEpochTime;
+      rate = 0;
     }
-    return date;
+    var lastEpochTime = epochTimesMs[epochTimesMs.length - 1] / 1000;
+    if (epochTime >= lastEpochTime) {
+      epochTime = lastEpochTime;
+      rate = 0;
+    }
+    return {epochTime: epochTime, rate: rate};
   }
 
-  private getTimelapseDates(): Date[] {
+  private getTimelapseDates(): number[] {
     var dates = [];
     for (var i = 0; i < this.timelapse.getNumFrames(); i++) {
       dates.push(this.timelapse.getFrameEpochTime(i));
@@ -250,16 +269,6 @@ class EarthTimeImpl implements EarthTime {
       this.timelapse.getCurrentTime(),
       this.getTimelapseCurrentTimes())
     return Math.min(delta, 1);
-  }
-
-  currentDate(): Date {
-    var currentTime = this.timelapse.getCurrentTime();
-    var currentTimes = this.getTimelapseCurrentTimes();
-    return this.computeCurrentDate(currentTime, currentTimes, this.getTimelapseDates());
-  }
-
-  currentEpochTime(): number {
-    return this.currentDate().getTime() / 1000;
   }
 
   // Currently active timeline, computed as last non-empty timeline from visibleLayers
@@ -3257,6 +3266,7 @@ function resizeLayersMenu() {
 // Called by TimeMachineCanavasLayer during animation and/or view changes
 function update() {
   gEarthTime.startRedraw();
+  //console.log(JSON.stringify(gEarthTime.currentEpochTimeAndRate()));
   if (!gEarthTime.readyToDraw || !gEarthTime.layerDB) return;
   if (disableAnimation) {
     gEarthTime.canvasLayer.setAnimate(false);

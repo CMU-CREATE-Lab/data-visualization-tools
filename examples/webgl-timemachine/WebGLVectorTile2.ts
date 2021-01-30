@@ -2695,7 +2695,7 @@ export class WebGLVectorTile2 extends Tile {
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
       gl.uniformMatrix4fv(this.program.u_MapMatrix, false, tileTransform);
 
-      var year = gEarthTime.currentDate().getUTCFullYear();
+      var year = new Date(gEarthTime.currentEpochTime() * 1000).getUTCFullYear();
       var showRcp = drawOptions.showRcp;
 
       // compute delta;
@@ -2807,7 +2807,7 @@ export class WebGLVectorTile2 extends Tile {
       '201710': { 'count': 53789, 'first': 7132547 }
     };
 
-    var currentDate = gEarthTime.currentDate();
+    var currentDate = new Date(gEarthTime.currentEpochTime() * 1000);
     var currentMonth = currentDate.getUTCMonth();
     var currentYear = currentDate.getUTCFullYear();
     var prevYear = currentYear;
@@ -2877,7 +2877,7 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.uniformMatrix4fv(this.program.u_MapMatrix, false, tileTransform);
       gl.uniform1f(this.program.u_Delta, gEarthTime.timelapseCurrentTimeDelta());
-      gl.uniform1f(this.program.u_Year, gEarthTime.currentDate().getUTCFullYear());
+      gl.uniform1f(this.program.u_Year, new Date(gEarthTime.currentEpochTime() * 1000).getUTCFullYear());
 
       this.program.setVertexAttrib.a_Centroid(2, gl.FLOAT, false, 20, 0);
       this.program.setVertexAttrib.a_Year(1, gl.FLOAT, false, 20, 8);
@@ -2910,7 +2910,7 @@ export class WebGLVectorTile2 extends Tile {
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      var year = drawOptions.year || gEarthTime.currentDate().getUTCFullYear();
+      var year = drawOptions.year || new Date(gEarthTime.currentEpochTime() * 1000).getUTCFullYear();
       var delta = drawOptions.delta;
 
       gl.uniformMatrix4fv(this.program.u_MapMatrix, false, tileTransform);
@@ -2952,8 +2952,7 @@ export class WebGLVectorTile2 extends Tile {
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
-      var currentDate = gEarthTime.currentDate();
-      var year = currentDate.getUTCFullYear();
+      var year = new Date(gEarthTime.currentEpochTime() * 1000).getUTCFullYear();
       var maxValue = drawOptions.maxValue || 100.0;
 
       gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
@@ -3814,8 +3813,7 @@ export class WebGLVectorTile2 extends Tile {
   _drawSitc4r2(transform: Float32Array, options: { setDataFnc?: string; }) {
     if (this._ready) {
       var code = this._sitc4r2Code;
-      var currentDate = gEarthTime.currentDate();
-      var currentYear = new Date(currentDate).getUTCFullYear();
+      var currentYear = new Date(gEarthTime.currentEpochTime() * 1000).getUTCFullYear();
 
       var drawOptions = this._layer.drawOptions;
       var setDataFnc = drawOptions.setDataFnc ?? 'setData';
@@ -3908,7 +3906,7 @@ export class WebGLVectorTile2 extends Tile {
     var gl = this.gl;
     var drawOptions = this._layer.drawOptions;
     var idx;
-    var currentEpoch = gEarthTime.currentDate().getTime() / 1000.0;
+    var currentEpoch = gEarthTime.currentEpochTime();
     var indicesKey = drawOptions["indicesKey"];
     var that = this;
     if (typeof(this.worker) == "undefined") {

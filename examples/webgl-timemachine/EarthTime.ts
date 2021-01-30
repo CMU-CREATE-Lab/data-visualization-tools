@@ -10,8 +10,8 @@ export interface EarthTime {
   defaultMasterPlaybackRate: number;
   defaultPlaybackRate: number;
   dotmapsServerHost: any;
-  redrawTakingTooLong();
-  startRedraw();
+  redrawTakingTooLong(): boolean;
+  startRedraw(): void;
   readyToDraw: boolean;
   canvasLayer: any;
   glb: Glb;
@@ -24,8 +24,7 @@ export interface EarthTime {
   gmapsZoomLevel(): number;
   timelapseZoom(): number;
   currentEpochTime(): number;
-  currentDate(): Date;
-  currentEpochTime(): number;
+  currentEpochTimeAndRate(): {epochTime: number, rate: number};
   timelapseCurrentTimeDelta(): number;
   timeline(): Timeline;
   updateTimelineIfNeeded(): void;

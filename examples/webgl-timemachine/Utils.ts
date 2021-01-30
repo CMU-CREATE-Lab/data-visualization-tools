@@ -47,6 +47,21 @@ export class Utils {
     }
     return Utils.timeZone;
   }
+
+  // Return index i where array[i] == value
+  // array must be sorted in monotonically increasing order (no duplicates)
+  // If value is less than first element, return 0
+  // If value is greater than last element, return last index (array.length - 1)
+  // If value is in-between successive array elements, linearly interpolate to return fractional index.
+  static findInterpolatedIndexFromSortedArray(value: number, array: number[]) {
+    if (value <= array[0]) return 0;
+    if (value >= array[array.length - 1]) return array.length - 1;
+    for (let i = 1; i < array.length; i++) {
+      if (value <= array[i]) {
+        return (i - 1) + (value - array[i - 1]) / (array[i] - array[i - 1])
+      }
+    }
+  }
 }
 
 dbg.Utils = Utils;

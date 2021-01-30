@@ -57,6 +57,7 @@ export class WebGLVideoTile extends Tile {
   static missedFrameCount: number;
   static textureFragmentGrayScaleFaderShader: string;
   static frameCount: number;
+  isPaused: boolean;
 
   constructor(layer: WebGLTimeMachineLayer, tileidx, bounds: {min:{x:number, y:number}, max:{x:number, y:number}}, {url, defaultUrl, numFrames, fps, greenScreen}) {
     const NETWORK_NO_SOURCE = 3;
@@ -248,7 +249,7 @@ export class WebGLVideoTile extends Tile {
     }
 
     if (changed && WebGLVideoTile.verbose) {
-      console.log(this._id + ': flushed frames, now ' + this._pipelineToString() + ' ' + this._computeNextCaptureFrame(displayFrameDiscrete, gEarthTime.timelapse.isPaused()));
+      console.log(this._id + ': flushed frames, now ' + this._pipelineToString() + ' ' + this._computeNextCaptureFrame(displayFrameDiscrete));
     }
   }
 
@@ -270,7 +271,7 @@ export class WebGLVideoTile extends Tile {
       this._pipeline[WebGLVideoTile.PIPELINE_SIZE - 1] = tmp;
       this._ready = true;
       if (WebGLVideoTile.verbose) {
-        console.log(this._id + ': Advancing pipeline, now ' + this._pipelineToString() + ' ' + this._computeNextCaptureFrame(displayFrameDiscrete, gEarthTime.timelapse.isPaused()));
+        console.log(this._id + ': Advancing pipeline, now ' + this._pipelineToString() + ' ' + this._computeNextCaptureFrame(displayFrameDiscrete));
       }
     }
   }
@@ -284,10 +285,10 @@ export class WebGLVideoTile extends Tile {
     return false;
   }
 
-  _tryCaptureFrame(displayFrameDiscrete, actualVideoFrame, actualVideoFrameDiscrete, isPaused) {
+  _tryCaptureFrame(displayFrameDiscrete, actualVideoFrame, actualVideoFrameDiscrete) {
     // Only try to capture if it's needed, if we're not currently showing (too late),
     // and if in the safe range of times to capture
-    if ((isPaused || displayFrameDiscrete != actualVideoFrameDiscrete) &&
+    if ((this.isPaused || displayFrameDiscrete != actualVideoFrameDiscrete) &&
       this._frameIsNeeded(actualVideoFrameDiscrete, displayFrameDiscrete) &&
       !this._frameIsInPipeline(actualVideoFrameDiscrete) &&
       0.1 < (actualVideoFrame % 1.0) &&
@@ -322,9 +323,9 @@ export class WebGLVideoTile extends Tile {
 
   // This should always return one of
   // displayFrameDiscrete +1, +2, +3
-  _computeNextCaptureFrame(displayFrameDiscrete, isPaused) {
+  _computeNextCaptureFrame(displayFrameDiscrete) {
     // If paused and we don't have the current frame, that's the one we need
-    if (isPaused && this._pipeline[0].frameno != displayFrameDiscrete) {
+    if (this.isPaused && this._pipeline[0].frameno != displayFrameDiscrete) {
       return displayFrameDiscrete;
     }
     var lastFrame = null;
@@ -354,11 +355,14 @@ export class WebGLVideoTile extends Tile {
   // First phase of update
   // Cleans up and advances pipelines
   // Computes priority of capture
-  updatePhase1(displayFrame) {
+  updatePhase1(displayFrame: number, fps: number) {
     //this._capturePriority = 0;
     var displayFrameDiscrete = Math.min(Math.floor(displayFrame), this._nframes - 1);
 
     this._uAlpha = displayFrame - displayFrameDiscrete;
+
+    // If fps is zero, or below the minimum supportable animation speed, swith to "paused" mode, which pauses underlying video elements and instead issues seeks
+    this.isPaused = fps / this._fps < this._minPlaybackRate;
 
     // Output stats every 5 seconds
     /*if (!WebGLVideoTile.lastStatsTime) {
@@ -389,38 +393,10 @@ export class WebGLVideoTile extends Tile {
   // Second phase of update
   // Captures frame, if desirable and time still left
   // Adjusts time or requests seek to maintain video time sync
-  updatePhase2(displayFrame) {
+  updatePhase2(displayFrame: number, fps: number) {
     var r2 = WebGLVideoTile.r2;
     var displayFrameDiscrete = Math.min(Math.floor(displayFrame), this._nframes - 1);
     var readyState = this._video.readyState;
-    // Set isPaused true if:
-    //    Timelapse is actually paused (as in play/pause button)
-    //    We're playing, but within the start dwell period (not end dwell period)
-    //    (hack) we're showing some layers that make landsat playback especially slow
-    //           TODO: we should measure the speed, instead of naming layers that cause playback to be slow
-    var isPaused = gEarthTime.timelapse.isPaused() && !gEarthTime.timelapse.isDuringEndDwell();
-
-    if (gEarthTime.timelapse.isPaused()) {
-      gEarthTime.timelapse.isDuringStartDwell();
-      if (WebGLVideoTile.verbose) {
-        console.log('isPaused', gEarthTime.timelapse.isDuringStartDwell(), gEarthTime.timelapse.isDuringEndDwell());
-      }
-    }
-
-
-    // TODO: Hack for frames with fixed year or range of Landsat years to be shown.
-    // Any layer where we set a fixed frame (or range of frames) needs to set isPaused or no new tiles are brought in until you pause.
-    let visibleLayerIds = new Set(gEarthTime.layerDB.visibleLayerIds());
-    if (visibleLayerIds.has('ar') ||
-        visibleLayerIds.has('viirs') ||
-        visibleLayerIds.has('drl') ||
-        visibleLayerIds.has('uf') ||
-        visibleLayerIds.has('slr10') ||
-        visibleLayerIds.has('slr15') ||
-        visibleLayerIds.has('slr2') ||
-        visibleLayerIds.has('slr4')) {
-      isPaused = true;
-    }
 
     if (readyState == 0) {
       gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
@@ -444,7 +420,7 @@ export class WebGLVideoTile extends Tile {
 
     // If paused, carefully seek and advertise whether we successfully got the correct frame or not,
     // and return to caller
-    if (isPaused) {
+    if (this.isPaused) {
       //console.log('isPaused dude', timelapse.isDoingLoopingDwell());
       var videoTime = (displayFrameDiscrete + 0.25) / this._fps;
       var epsilon = .02 / this._fps; // 2% of a frame
@@ -476,15 +452,15 @@ export class WebGLVideoTile extends Tile {
     var actualVideoFrameDiscrete = Math.min(Math.floor(actualVideoFrame), this._nframes - 1);
 
     if (readyState > 1 && !gEarthTime.redrawTakingTooLong()) {
-      this._tryCaptureFrame(displayFrameDiscrete, actualVideoFrame, actualVideoFrameDiscrete, isPaused);
+      this._tryCaptureFrame(displayFrameDiscrete, actualVideoFrame, actualVideoFrameDiscrete);
     }
     this._checkForMissedFrame(displayFrameDiscrete);
 
-    var nextNeededFrame = this._computeNextCaptureFrame(displayFrameDiscrete, isPaused);
+    var nextNeededFrame = this._computeNextCaptureFrame(displayFrameDiscrete);
 
     var webglFps = 60;
     // Imagine we're going to drop a frame.  Aim to be at the right place in 3 frames
-    var future = (gEarthTime.timelapse.getPlaybackRate() * this._fps / webglFps) * 3;
+    var future = (fps / webglFps) * 3;
 
     // Desired video tile time leads display by frameOffset+1.3
     var targetVideoFrame = (displayFrame + this._frameOffset + 1.2) % this._nframes;
@@ -515,7 +491,7 @@ export class WebGLVideoTile extends Tile {
 
     if (futureFrameError < -5 ||
       futureFrameError > 5 ||
-      (isPaused && futureFrameError < -0.3)) {
+      (this.isPaused && futureFrameError < -0.3)) {
       // If we need to go back any or forward a lot, seek instead of changing speed
       var seekTime = nextNeededFrame + 0.5;
       this._video.currentTime = (nextNeededFrame + 0.5) / this._fps;
@@ -652,25 +628,12 @@ export class WebGLVideoTile extends Tile {
 
         gl.activeTexture(gl.TEXTURE1);
 
-        var isPaused = gEarthTime.timelapse.isPaused();
-        let visibleLayerIds = new Set(gEarthTime.layerDB.visibleLayerIds());
-        if (visibleLayerIds.has('ar') ||
-            visibleLayerIds.has('viirs') ||
-            visibleLayerIds.has('drl') ||
-            visibleLayerIds.has('uf') ||
-            visibleLayerIds.has('slr10') ||
-            visibleLayerIds.has('slr15') ||
-            visibleLayerIds.has('slr2') ||
-            visibleLayerIds.has('slr4')) {
-          isPaused = true;
-        }
-
         var numTimelapseFrames = this._nframes;
         // TODO -- why is there a texture still in pipeline[1] that isn't usable when the timelapse is paused?
         if (this._pipeline[1].texture &&
           this._pipeline[1].frameno < numTimelapseFrames &&
           this._pipeline[1].frameno > this._pipeline[0].frameno &&
-          !isPaused) {
+          !this.isPaused) {
           gl.bindTexture(gl.TEXTURE_2D, this._pipeline[1].texture);
         }
         else {
@@ -737,69 +700,7 @@ export class WebGLVideoTile extends Tile {
   static r2(x) {
     return Math.round(x * 100) / 100;
   }
-  // Update and draw tiles
-  static updateTiles(tiles, transform) {
-    if (org.gigapan.Util.isMobileDevice())
-      return;
-    if (si || tiles.length == 0)
-      return;
-    //WebGLTimeMachinePerf.instance.startFrame();
-    var canvas = document.getElementById('webgl');
 
-    var fps = tiles[0]._fps;
-
-    var displayFrame = gEarthTime.timelapse.getVideoset().getCurrentTime() * fps;
-
-    var numTimelapseFrames = tiles[0]._nframes;
-
-    // A layer may start at a different year than when Landsat starts. Tweak accordingly.
-    var appliedOffset = false;
-    if (tiles[0].layer.startYear) {
-      var layerStartYear = tiles[0].layer.startYear;
-      var timelineStartDate = gEarthTime.timelapse.getCaptureTimes()[0];
-      // Assumes YYYY
-      if (timelineStartDate.length == 4) {
-        var timelineStartYear = parseInt(timelineStartDate);
-        var yearOffset = timelineStartYear - layerStartYear;
-        if (yearOffset > 0) {
-          displayFrame = Math.min(numTimelapseFrames, displayFrame + yearOffset);
-          appliedOffset = true;
-        }
-        // Assumes YYYY-MM-DD
-      }
-      else if (timelineStartDate.length == 10) {
-        var yearString = gEarthTime.timelapse.getCurrentCaptureTime().substring(0, 4);
-        var year = parseInt(yearString);
-        if (year > 0) {
-          displayFrame = Math.max(0, year - layerStartYear);
-          appliedOffset = true;
-        }
-      }
-    }
-
-    let visibleLayerIds = new Set(gEarthTime.layerDB.visibleLayerIds());
-    if (!appliedOffset) {
-      // TODO: Hack for future facing layers that require the last year of Landsat
-      if (visibleLayerIds.has('slr10') ||
-          visibleLayerIds.has('slr15') ||
-          visibleLayerIds.has('slr2') ||
-          visibleLayerIds.has('slr4')) {
-        displayFrame = numTimelapseFrames - 1;
-      }
-    }
-
-    for (var i = 0; i < tiles.length; i++) {
-      tiles[i].updatePhase1(displayFrame); // Frame being displayed on screen
-    }
-
-    // TODO(rsargent): draw tiles low to high-res, or clip and don't draw the overlapping portions
-    // of the low-res tiles
-    for (var i = 0; i < tiles.length; i++) {
-      tiles[i].updatePhase2(displayFrame); // Frame being displayed on screen
-      tiles[i].draw(transform);
-    }
-    //WebGLTimeMachinePerf.instance.endFrame();
-  }
   // Phases = 60 / videoFPS
   // Subbits is log2 of the max number of videos per phase
   static computeFrameOffsets(phases, subbits) {
@@ -824,7 +725,6 @@ export class WebGLVideoTile extends Tile {
     }
   }
 }
-
 
 
 // Texture pipeline is 4 deep
@@ -966,5 +866,3 @@ void main(void) {
 }`;
 
 
-// stopit:  set to true to disable update()
-var si = false;
