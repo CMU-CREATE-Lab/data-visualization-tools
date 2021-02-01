@@ -39,7 +39,7 @@ export class WebGLTimeMachineLayer extends Layer {
   captureTimes: string[];
 
   // Mapping form frames to epoch time is contained in one of two forms:
-  // Option 1: 
+  // Option 1:
   //      epochTimes:  array of an epoch timestamp per frame.  Comes from json metadata
   // Option 2:
   //      startEpochTime and endEpochTime:  Comes from layer defintion, but only if json metadata is missing
@@ -145,14 +145,16 @@ export class WebGLTimeMachineLayer extends Layer {
 
     var that = this;
 
-    let startDate = this.startDate || this.captureTimes[0];
-    let endDate = this.endDate || this.captureTimes[this.captureTimes.length - 1];
-    // A 'capture-times' array is supposed to be defined in a tm.json file. However,
-    // it may not be or it may be an array of "" or "NULL". If it is, use the start/end
-    // times and step size in the spreadsheet and create a time range from that.
-    let cachedCaptureTimes = this.captureTimes;
-    if (!cachedCaptureTimes || !this.captureTimes[0] || this.captureTimes[0] == "NULL") {
-      cachedCaptureTimes = null;
+    // Pull time range from layer definition
+    let startDate = this.startDate;
+    let endDate = this.endDate;
+
+    let cachedCaptureTimes;
+    if (!startDate && !endDate) {
+      console.assert(this.captureTimes && this.captureTimes[0] && this.captureTimes[0] != "NULL", "No valid capture time range defined in tm.json or layer definition.");
+      cachedCaptureTimes = this.captureTimes;
+      startDate = this.captureTimes[0];
+      endDate = this.captureTimes[this.captureTimes.length - 1];
     }
 
     this.timeline = new Timeline(this.timelineType,
@@ -160,13 +162,12 @@ export class WebGLTimeMachineLayer extends Layer {
         step: this.step, masterPlaybackRate: this.masterPlaybackRate,
         playbackRate: this.playbackRate, cachedCaptureTimes: cachedCaptureTimes,
         fps: this.fps });
-    console.log('cachedCaptureTimes', cachedCaptureTimes);
+
     if (cachedCaptureTimes) {
       this.epochTimes = [];
       for (let captureTime of cachedCaptureTimes) {
         this.epochTimes.push(gEarthTime.timelapse.sanitizedParseTimeEpoch(captureTime) / 1000);
       }
-      console.log('epochTimes', this.epochTimes);
     } else {
       this.startEpochTime = parseDateStr(this.startDate, false) as number;
       this.endEpochTime = parseDateStr(this.endDate, false) as number;
