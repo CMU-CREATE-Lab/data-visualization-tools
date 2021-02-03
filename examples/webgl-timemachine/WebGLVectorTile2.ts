@@ -2630,24 +2630,24 @@ export class WebGLVectorTile2 extends Tile {
 
       var start_color = [.94, .94, .94, 1.];
       var end_color = [.71, 0.09, 0.05, 1.0];
-      if (Array.isArray(options.start_color)) {
-        if (options.start_color.length == 3) {
+      if (Array.isArray(this._layer.drawOptions['start_color'])) {
+        if (this._layer.drawOptions['start_color'].length == 3) {
           start_color.push(1.0);
         }
-        if (options.start_color.length == 4) {
-          start_color = options.start_color;
+        if (this._layer.drawOptions['start_color'].length == 4) {
+          start_color = this._layer.drawOptions['start_color'];
         }
         else {
           console.log("ERROR: unknown start_color array");
         }
       }
 
-      if (Array.isArray(options.end_color)) {
-        if (options.end_color.length == 3) {
+      if (Array.isArray(this._layer.drawOptions['end_color'])) {
+        if (this._layer.drawOptions['end_color'].length == 3) {
           end_color.push(1.0);
         }
-        if (options.end_color.length == 4) {
-          end_color = options.end_color;
+        if (this._layer.drawOptions['end_color'].length == 4) {
+          end_color = this._layer.drawOptions['end_color'];
         }
         else {
           console.log("ERROR: unknown end_color array");
