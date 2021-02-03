@@ -275,7 +275,15 @@ export class WebGLTimeMachineLayer extends Layer {
       }
     } else {
       ret.frame = this.numFrames * (epochTime - this.startEpochTime) / (this.endEpochTime - this.startEpochTime);
-      ret.fps = this.numFrames * rate / (this.endEpochTime - this.startEpochTime);
+      if (ret.frame <= 0) {
+        ret.fps = 0;
+        ret.frame = 0;
+      } else if (ret.frame >= this.numFrames - 1) {
+        ret.fps = 0;
+        ret.frame = this.numFrames - 1;
+      } else {
+        ret.fps = this.numFrames * rate / (this.endEpochTime - this.startEpochTime);
+      }
     }
     return ret;
   }
