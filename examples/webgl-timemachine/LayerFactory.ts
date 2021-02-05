@@ -760,16 +760,19 @@ export class LayerFactory {
     let baseLayersToTurnOffDict = {} as {[key:string]: LayerProxy};
     let baseLayersCategoryName = "Base Layers";
     let foundSoloLayer = false;
+    let foundExtrasLayer = false;
     let lastPrioritizedBaseLayer: LayerProxy;
     let collectionHasLayerThatIsAlsoItsPairedBaseLayer = false;
 
     for (let i = layerProxies.length - 1; i >= 0; i--) {
       let layerProxy = layerProxies[i];
+      let layerProxyId = layerProxy.id;
+      let layer = layerDB.getLayer(layerProxyId);
 
       // A layer can have a base layer paired with it in the database. However,
       // we don't want this paired layer to show when coming from a share link.
       let hasPairedBaseLayerAndSetByUser = !!layerProxy.baseLayer && setByUser;
-      let hasPairedBaseLayerThatIsItself = layerProxy.baseLayer == layerProxy.id;
+      let hasPairedBaseLayerThatIsItself = layerProxy.baseLayer == layerProxyId;
       if (!collectionHasLayerThatIsAlsoItsPairedBaseLayer) {
         collectionHasLayerThatIsAlsoItsPairedBaseLayer = hasPairedBaseLayerThatIsItself;
       }
@@ -790,7 +793,7 @@ export class LayerFactory {
       // For legacy purposes though, some base layers have higher precedence.
       if (layerProxy.category == baseLayersCategoryName) {
         if (!hasPairedBaseLayerThatIsItself) {
-          baseLayersToTurnOffDict[layerProxy.id] = layerProxy;
+          baseLayersToTurnOffDict[layerProxyId] = layerProxy;
         }
         if (lastPrioritizedBaseLayer && (setByUser || layerProxy.drawOrder <= lastPrioritizedBaseLayer.drawOrder)) {
           continue;
@@ -806,7 +809,7 @@ export class LayerFactory {
       if (layerConstraints) {
         if (layerConstraints.isSoloLayer) {
           newLayersDict = {};
-          newLayersDict[layerProxy.id] = layerDB.getLayer(layerProxy.id);
+          newLayersDict[layerProxyId] = layer;
           foundSoloLayer = true;
           break;
         } else if (Array.isArray(layerConstraints.layersPairedWith)) {
@@ -822,8 +825,18 @@ export class LayerFactory {
           layerProxies = layerProxies.filter(lp => !layerConstraints.layersMutuallyExclusiveWith.includes(lp.id));
         }
       }
-      newLayersDict[layerProxy.id] = layerDB.getLayer(layerProxy.id);
-    };
+
+      // Only one layer of type "extras" can be on at once
+      if (layerProxyId.indexOf("extras_") == 0 || layerProxyId.indexOf("e-") == 0) {
+        if (!foundExtrasLayer) {
+          foundExtrasLayer = true;
+        } else {
+          layersToTurnOffDict[layerProxyId] = layer;
+        }
+      }
+
+      newLayersDict[layerProxyId] = layer;
+    }
 
     if (Object.keys(baseLayersToTurnOffDict).length && collectionHasLayerThatIsAlsoItsPairedBaseLayer) {
       Object.assign(layersToTurnOffDict, baseLayersToTurnOffDict);

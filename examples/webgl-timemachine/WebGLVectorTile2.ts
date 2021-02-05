@@ -2630,24 +2630,25 @@ export class WebGLVectorTile2 extends Tile {
 
       var start_color = [.94, .94, .94, 1.];
       var end_color = [.71, 0.09, 0.05, 1.0];
-      if (Array.isArray(this._layer.drawOptions['start_color'])) {
-        if (this._layer.drawOptions['start_color'].length == 3) {
+      var drawOptions = this._layer.drawOptions;
+      if (Array.isArray(drawOptions['start_color'])) {
+        if (drawOptions['start_color'].length == 3) {
           start_color.push(1.0);
         }
-        if (this._layer.drawOptions['start_color'].length == 4) {
-          start_color = this._layer.drawOptions['start_color'];
+        if (drawOptions['start_color'].length == 4) {
+          start_color = drawOptions['start_color'];
         }
         else {
           console.log("ERROR: unknown start_color array");
         }
       }
 
-      if (Array.isArray(this._layer.drawOptions['end_color'])) {
-        if (this._layer.drawOptions['end_color'].length == 3) {
+      if (Array.isArray(drawOptions['end_color'])) {
+        if (drawOptions['end_color'].length == 3) {
           end_color.push(1.0);
         }
-        if (this._layer.drawOptions['end_color'].length == 4) {
-          end_color = this._layer.drawOptions['end_color'];
+        if (drawOptions['end_color'].length == 4) {
+          end_color = drawOptions['end_color'];
         }
         else {
           console.log("ERROR: unknown end_color array");
@@ -4465,7 +4466,7 @@ export class WebGLVectorTile2 extends Tile {
       //uniform float u_PointSize;
       //varying float v_PointSize;
       //varying float v_rad;
-      //uniform float u_epoch; 
+      //uniform float u_epoch;
       //uniform mat4 u_transform;
 
       gl.uniformMatrix4fv(this.program.u_transform, false, tileTransform);
@@ -4477,7 +4478,7 @@ export class WebGLVectorTile2 extends Tile {
       this.program.setVertexAttrib.a_epochs(2, gl.FLOAT, false, 11 * 4, 8);
       this.program.setVertexAttrib.a_rads(2, gl.FLOAT, false, 11 * 4, 16);
       this.program.setVertexAttrib.a_speed(2, gl.FLOAT, false,11 * 4, 24); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-      this.program.setVertexAttrib.a_rgb(3, gl.FLOAT, false, 11 * 4, 32); 
+      this.program.setVertexAttrib.a_rgb(3, gl.FLOAT, false, 11 * 4, 32);
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
 
@@ -6771,7 +6772,7 @@ varying float v_PointSize;
 varying float v_rad;
 varying float v_speed;
 varying vec3 v_rgb;
-uniform float u_epoch; 
+uniform float u_epoch;
 uniform mat4 u_transform;
 void main() {
     vec4 position;
@@ -6842,18 +6843,18 @@ float arrow(vec2 p, vec2 v, float arrowTileSize) {
         // In each line, the left expression defines a shape and the right controls
         // how quickly it fades in or out.
 
-        float dist;     
-        // Signed distance from a line segment based on https://www.shadertoy.com/view/ls2GWG by 
+        float dist;
+        // Signed distance from a line segment based on https://www.shadertoy.com/view/ls2GWG by
         // Matthias Reitinger, @mreitinger
 
         // Line arrow style
-        dist = 
+        dist =
             max(
                 // Shaft
-                ARROW_SHAFT_THICKNESS / 4.0 - 
+                ARROW_SHAFT_THICKNESS / 4.0 -
                     max(abs(dot(p, vec2(dir_v.y, -dir_v.x))), // Width
                         abs(dot(p, dir_v)) - mag_v + arrowHeadLength(arrowTileSize) / 2.0), // Length
-            
+
                 // Arrow head
                 min(0.0, dot(v - p, dir_v) - cos(ARROW_HEAD_ANGLE / 2.0) * length(v - p)) * 2.0 + // Front sides
                 min(0.0, dot(p, dir_v) + arrowHeadLength(arrowTileSize) - mag_v)); // Back
@@ -6868,7 +6869,7 @@ float arrow(vec2 p, vec2 v, float arrowTileSize) {
 void main() {
     vec2 p = gl_PointCoord.xy;
     p = v_PointSize*p;
-    float rad = v_rad - PI/2.0; 
+    float rad = v_rad - PI/2.0;
     float x = v_PointSize * cos(rad) * 0.5 * v_speed;
     float y = v_PointSize * sin(rad) * 0.5 * v_speed;
     float d = arrow(p, vec2(x, y), v_PointSize);

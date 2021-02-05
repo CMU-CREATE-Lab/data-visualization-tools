@@ -239,7 +239,7 @@ class EarthTimeImpl implements EarthTime {
     var previousEpochTime = epochTimesMs[previousIndex] / 1000;
     var epochRange = currentEpochTime - previousEpochTime;
     var effectivePlaybackRate = this.timelapse.isPaused() ? 0 : this.timelapse.getPlaybackRate();
-    var rate = effectivePlaybackRate * epochRange / (currentTimes[currentIndex] - currentTimes[previousIndex]); 
+    var rate = effectivePlaybackRate * epochRange / (currentTimes[currentIndex] - currentTimes[previousIndex]);
     var epochTime = (previousEpochTime + epochRange*delta);
 
     var firstEpochTime = epochTimesMs[0] / 1000;
@@ -787,6 +787,14 @@ function initLayerToggleUI() {
     var enableVideoPlaybackControls = $lastSelectedExtra.data("controls");
     var objectFit = $lastSelectedExtra.data("objectfit");
 
+    var extrasVideo = $("#extras-video")[0] as HTMLVideoElement;
+    if (extrasVideo) {
+      extrasVideo.pause();
+      extrasVideo.removeEventListener("loadstart", autoModeExtrasViewChangeHandler);
+      extrasVideo.src = "";
+    }
+    $("#extras-content-container").empty();
+
     if (enableLetterboxMode) {
       $(".extras-content-dialog").addClass("letterbox");
     }
@@ -804,13 +812,13 @@ function initLayerToggleUI() {
       $("#extras-content-container").dialog('option', 'title', $lastSelectedExtra.text());
     }
 
-    var $extrasHtml = "";
+    var extrasHtml = "";
     if (fileType == "image") {
-      $extrasHtml = '<img id="extras-image" src="' + filePath + '">';
-      $("#extras-content-container").html($extrasHtml).dialog("open");
+      extrasHtml = '<img id="extras-image" src="' + filePath + '">';
+      $("#extras-content-container").html(extrasHtml).dialog("open");
     } else if (fileType == "video") {
-      $extrasHtml = '<video id="extras-video" autoplay></video>';
-      $("#extras-content-container").html($extrasHtml).dialog("open");
+      extrasHtml = '<video id="extras-video" autoplay></video>';
+      $("#extras-content-container").html(extrasHtml).dialog("open");
       var $video = $("#extras-video");
       var video = $video[0] as HTMLVideoElement;
       if (loopVideoPlayback) {
@@ -839,8 +847,8 @@ function initLayerToggleUI() {
       if (match) {
         filePath = $lastSelectedExtra.data("filepath");
       }
-      $extrasHtml = '<iframe id="extras-iframe" src="' + filePath + '" scrolling="no"></iframe>';
-      $("#extras-content-container").html($extrasHtml).dialog("open");
+      extrasHtml = '<iframe id="extras-iframe" src="' + filePath + '" scrolling="no"></iframe>';
+      $("#extras-content-container").html(extrasHtml).dialog("open");
     } else if (fileType == "link") {
       window.location.href = filePath;
     }
@@ -2009,7 +2017,7 @@ async function setupUIAndOldLayers() {
       }
 
       // Don't zoom anywhere when an extra layer is to be shown
-      if (waypointLayers.find(layerId => layerId.includes("extras"))) {
+      if (waypointLayers.find(layerId => layerId.includes("extras") || layerId.includes("e-"))) {
         gEarthTime.timelapse.stopParabolicMotion();
       }
 
