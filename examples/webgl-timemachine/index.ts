@@ -1643,6 +1643,14 @@ async function setupUIAndOldLayers() {
   gEarthTime.glb = new Glb(gl);
   (window as any).glb = gEarthTime.glb; // TODO(LayerDB): someday stop using this global
 
+  // Extras menu
+  var extras_html = '';
+  extras_html += '<div class="extras-selector-div">';
+  extras_html += ' <select name="extras-selector" id="extras-selector">';
+  extras_html += ' </select>';
+  extras_html += '</div>';
+  $(extras_html).appendTo($("#layers-menu"));
+
   // Legend content
   var legend_html = '<div id="layers-legend">';
   legend_html += '  <div id="legend-content">';
