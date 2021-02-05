@@ -692,11 +692,13 @@ async function handleLayers(layerIds: string[], setByUser?: boolean) {
   // This method should just do getLayer calls and then pass to LayerDB.setVisibleLayers
 
   for (var layerId of layerIds) {
-    if (layerId.indexOf("extras_") == 0 || layerId.indexOf("e-") == 0) {
+    if (layerId.indexOf("extras_") == 0) {
       let $extraSelection = $('#extras-selector-menu li[data-name="' + layerId + '"]');
       let $extra = $('#layers-menu label[name=' + layerId + ']');
       if ($extraSelection.length || $extra.length) {
         foundExtra = true;
+        // If layer has been added, trigger click to bring it up, otherwise
+        // when the layer first loads the modal will be triggered then.
         if ($extraSelection.length) {
           $extraSelection.trigger("click");
         }
@@ -712,7 +714,7 @@ async function handleLayers(layerIds: string[], setByUser?: boolean) {
   }
 
   var previousLayerIds = gEarthTime.layerDB._loadedCache.prevVisibleLayers.map(layerProxy => layerProxy.id);
-  if (!foundExtra && (previousLayerIds.indexOf("extras_") || previousLayerIds.indexOf("e-"))) {
+  if (!foundExtra && (previousLayerIds.indexOf("extras_"))) {
     $("#extras-content-container").dialog("close");
   }
 
@@ -880,7 +882,7 @@ function initLayerToggleUI() {
     beforeClose: function(event, ui) {
       var $extrasContentContainer = $("#extras-content-container");
       var layerId = $extrasContentContainer.data("layer-id");
-      $("#layers-menu label[name=" + layerId + "]").trigger("click");
+      $("#layers-menu input#" + layerId).trigger("click");
       var extrasVideo = $("#extras-video")[0] as HTMLVideoElement;
       if (extrasVideo) {
         extrasVideo.pause();
@@ -1962,7 +1964,7 @@ async function setupUIAndOldLayers() {
       }
 
       // Don't zoom anywhere when an extra layer is to be shown
-      if (waypointLayers.find(layerId => layerId.includes("extras") || layerId.includes("e-"))) {
+      if (waypointLayers.find(layerId => layerId.includes("extras"))) {
         gEarthTime.timelapse.stopParabolicMotion();
       }
 

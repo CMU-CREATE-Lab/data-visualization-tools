@@ -827,7 +827,7 @@ export class LayerFactory {
       }
 
       // Only one layer of type "extras" can be on at once
-      if (layerProxyId.indexOf("extras_") == 0 || layerProxyId.indexOf("e-") == 0) {
+      if (layerProxyId.indexOf("extras_") == 0) {
         if (!foundExtrasLayer) {
           foundExtrasLayer = true;
         } else {
