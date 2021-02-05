@@ -1561,14 +1561,15 @@ function populateLayerLibrary() {
     });
     layer_html += `<h3>${category}</h3>`;
     layer_html += `<table id="${categoryId}">`;
-    categoryLayers.forEach(function(layer) {
+
+    for (const layer of categoryLayers) {
       layer_html += `<tr><td><label name="${layer.id}"><input type="${inputType}" id="${layer.id}" name="${categoryId}">${layer.name}</label></td>`;
       // Add layer description buttons
-      //if (layer.hasDescription) {
-      //  layer_html += "<td colspan='3'><div class='layer-description' data-layer-description='testing 123'></div></td>";
-      //}
+      if (layer.hasDescription) {
+        layer_html += `<td colspan='3'><div class='layer-description'></div></td>`;
+      }
       layer_html += "</tr>";
-    });
+    }
     layer_html += "</table>";
   }
   layer_html += '    </div>';
@@ -2534,7 +2535,14 @@ async function setupUIAndOldLayers() {
     }
   };
 
-  $("#layers-menu").on("click", ".layer-description", function (e) {
+  $("#layers-menu").on("click", ".layer-description", async function (e) {
+    let layerDescription = $(this).data("layer-description");
+    if (!layerDescription) {
+      let layerId = $(e.target).parent().prev().find("label").attr("name");
+      layerDescription = (await gEarthTime.layerDB.getLayerDescription(layerId))["Layer Description"];
+      $(this).data("layer-description", layerDescription);
+    }
+
     if ($(".ui-tooltip").length) {
       $activeLayerDescriptionTooltip.tooltip("disable");
       $activeLayerDescriptionTooltip = null;
@@ -2546,7 +2554,7 @@ async function setupUIAndOldLayers() {
       items: $(this),
       position: { my: 'left top', at: 'right+15 top-18', collision: "custom" },
       tooltipClass: "right",
-      content: md.render($(this).attr("data-layer-description"))
+      content: md.render(layerDescription)
     });
     $(this).tooltip("open");
     $(this).off("mouseleave");

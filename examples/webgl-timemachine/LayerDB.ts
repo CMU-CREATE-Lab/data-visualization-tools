@@ -62,6 +62,15 @@ export class LayerDB {
     return layerDB;
   }
 
+  async getLayerDescription(layerId:string) {
+    var layerDB = gEarthTime.layerDB;
+    if (!layerDB) {
+      console.log("ERROR: Could not get layer description because layerDB not initialized yet.")
+      return {};
+    }
+    return await (await Utils.fetchWithRetry(`${layerDB.apiUrl}layer-catalogs/${layerDB.databaseId.file_id_gid()}/layers/${layerId}/layer-description`)).json();
+  }
+
   getLayer(layerId: string) {
     let layer = this.layerById[layerId];
     // If an initial id lookup failed, check if the id in question is a known legacy id.
