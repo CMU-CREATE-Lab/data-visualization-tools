@@ -880,9 +880,13 @@ function initLayerToggleUI() {
       gEarthTime.timelapse.removeParabolicMotionStoppedListener(autoModeExtrasViewChangeHandler);
     },
     beforeClose: function(event, ui) {
-      var $extrasContentContainer = $("#extras-content-container");
+      var $extrasContentContainer = $(event.target);
       var layerId = $extrasContentContainer.data("layer-id");
-      $("#layers-menu input#" + layerId).trigger("click");
+      var $selectedLayer = $("#layers-menu input#" + layerId);
+      var selectedLayerChecked = $selectedLayer.parent("label").prop("checked");
+      if (selectedLayerChecked) {
+        $selectedLayer.trigger("click");
+      }
       var extrasVideo = $("#extras-video")[0] as HTMLVideoElement;
       if (extrasVideo) {
         extrasVideo.pause();
