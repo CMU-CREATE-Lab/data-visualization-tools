@@ -325,7 +325,7 @@ class EarthTimeImpl implements EarthTime {
   showVisibleLayersLegends() {
     let loadedLayersInIdOrder = this.layerDB.loadedLayersInIdOrder();
     for (let i = 0; i < loadedLayersInIdOrder.length; i++) {
-      if (loadedLayersInIdOrder[i].layer.hasLegend && loadedLayersInIdOrder[i].layer.allVisibleTilesLoaded() && !loadedLayersInIdOrder[i].layer.legendVisible) {
+      if (loadedLayersInIdOrder[i].layer.hasLegend && !loadedLayersInIdOrder[i].layer.legendVisible && loadedLayersInIdOrder[i].layer.allVisibleTilesLoaded()) {
         this.layerDB.layerFactory.setLegend(loadedLayersInIdOrder[i].id);
       }
     }
