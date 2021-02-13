@@ -1065,11 +1065,9 @@ export class LayerFactory {
               }
               // If discrete colors
               if (Array.isArray(colorList)) {
-                console.log("DISCRETE COLOR")
                 colorMap = null;
                 colors = drawOptions.colorMapColorsList;
               } else { // Is gradient, pull texture info
-                console.log('GRADIENT TIME')
                 // Default size of our colormaps
                 var width = 256;
                 var height = 1;
