@@ -46,15 +46,14 @@ export class WebGLVectorLayer2 extends Layer {
   }
 
   allVisibleTilesLoaded(): boolean {
-    if (!this._tileView) {
+    var tiles = this.getTiles();
+    if (!tiles || Object.keys(tiles).length == 0) {
       return false;
     }
-    var tiles = this._tileView._tiles;
     for (var tile in tiles) {
-      if (tiles[tile].length == 0 || !tiles[tile]._ready) {
+      if (!tiles[tile]._ready) {
         return false;
       }
-
     }
     return true;
   }
