@@ -984,6 +984,16 @@ export class LayerFactory {
     $(".map-layer-div").find("input:first").trigger("change");
   }
 
+  firstAvailableTileTexture(layer) {
+    var tiles = layer.getTiles();
+    for (var key in tiles) {
+      if ('_texture' in tiles[key]) {
+        return tiles[key]._texture;
+      }
+    }
+    return null;
+  }
+
   setLegend(id: string) {
     let layer: Layer;
     let legend;
@@ -1037,17 +1047,75 @@ export class LayerFactory {
       } else if (layer.mapType == 'choropleth') { // Assume choropleth
         if (layer.legendContent == 'auto') {
           var radius = this.getRadius(layer);
-          if (!radius || !radius.hasOwnProperty('invert')) {
-            return;
+          var gl = gEarthTime.glb.gl;
+          var drawOptions = layer.drawOptions;
+          var values = [];
+          var colors:any[];
+          var colorMap;
+          if (!radius || typeof(radius.invert) !== "function") {
+            var colorList = drawOptions.colorMapColorsList;
+            var colorMapLegendValues = drawOptions.colorMapLegendValues;
+            if (drawOptions && colorList && colorMapLegendValues) {
+              for (var i = 0; i < colorMapLegendValues.length; i++) {
+                var value = colorMapLegendValues[i];
+                if (typeof(value) == "number") {
+                  value = this.formatValue(value);
+                }
+                values.push(value);
+              }
+              // If discrete colors
+              if (Array.isArray(colorList)) {
+                console.log("DISCRETE COLOR")
+                colorMap = null;
+                colors = drawOptions.colorMapColorsList;
+              } else { // Is gradient, pull texture info
+                console.log('GRADIENT TIME')
+                // Default size of our colormaps
+                var width = 256;
+                var height = 1;
+
+                // Create a framebuffer backed by the texture
+                var framebuffer = gl.createFramebuffer();
+                gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+                gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.firstAvailableTileTexture(layer), 0);
+
+                // Read the contents of the framebuffer
+                var data = new Uint8Array(width * height * 4);
+                gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, data);
+
+                gl.deleteFramebuffer(framebuffer);
+
+                // Create a 2D canvas to store the result
+                var canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                var context = canvas.getContext('2d');
+
+                // Copy the pixels to a 2D canvas
+                var imageData = context.createImageData(width, height);
+                imageData.data.set(data);
+                context.putImageData(imageData, 0, 0);
+
+                colorMap = canvas.toDataURL();
+              }
+            } else {
+              return null;
+            }
+          } else {
+            values = [this.formatValue(radius.invert(0)), this.formatValue(radius.invert(0.5)), this.formatValue(radius.invert(1))];
+            // TODO: Do we need these default values? Do they correspond to default values used in the actual visual?
+            colors = ["#ffffff", "#fff18e", "#ffdc5b", "#ffc539", "#ffad21", "#ff920c", "#ff7500", "#ff5000", "#ff0000"];
+            colorMap = layer.imageSrc;
           }
+
           let opts = {
             'id': id,
             'title': layer.name,
             'credit': layer.credit,
             'keys': [],
-            'colors': ["#ffffff", "#fff18e", "#ffdc5b", "#ffc539", "#ffad21", "#ff920c", "#ff7500", "#ff5000", "#ff0000"],
-            'values': [this.formatValue(radius.invert(0)), this.formatValue(radius.invert(0.5)), this.formatValue(radius.invert(1))],
-            'colorMap': layer.imageSrc
+            'colors': colors,
+            'values': values,
+            'colorMap': colorMap
           }
           if (layer.legendKey) {
             opts.keys.push({'str': layer.legendKey});

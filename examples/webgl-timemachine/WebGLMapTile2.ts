@@ -89,8 +89,11 @@ export class WebGLMapTile2 extends Tile {
     return texture;
   }
   _handleLoadedTexture(image, texture, index) {
-    var before = performance.now();
     var gl = this.gl;
+
+    if (!image) {
+      return;
+    }
 
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);

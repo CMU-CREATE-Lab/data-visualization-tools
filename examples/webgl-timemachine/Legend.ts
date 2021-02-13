@@ -143,12 +143,18 @@ export class ChoroplethLegend extends Legend {
             return text;
         }
         function getColor(color: string) {
+            if (typeof(color) !== "string") {
+                color = rgbToHex(color);
+            }
             var rect = '<rect fill="' + color + '" y="20" x="' + that.xOffset + '" height="10" width="' + that.colorWidth + '"></rect>';
             return rect;
         }
         function getValue(value: string) {
             var text = '<text font-size="10px" fill="#e6e6e6" y="40" x="' + that.xOffset + '" text-anchor="middle">' + value + '</text>';
             return text;
+        }
+        function rgbToHex(rgb) {
+            return "#" + ((1 << 24) + (rgb[0] << 16) + (rgb[1] << 8) + rgb[2]).toString(16).slice(1);
         }
 
         if (opts["colorMap"]) {
@@ -164,8 +170,6 @@ export class ChoroplethLegend extends Legend {
             //legend += safe` ${layerJson.legendMax} ${layerJson.legendUnits}</div>`;
         }
         else {
-            var div = '<div style="font-size: 15px">' + opts["title"] + '<span class="credit"> (' + opts["credit"] + ')</span></div>';
-            var svg = '<svg class="svg-legend" width="280" height="60">';
             var keys = '';
             if (opts["keys"]) {
                 for (var i = 0; i < opts["keys"].length; i++) {
@@ -173,7 +177,9 @@ export class ChoroplethLegend extends Legend {
                 }
 
             }
-
+            var marginTop = keys ? 0 : -15;
+            var div = '<div style="font-size: 15px">' + opts["title"] + '<span class="credit"> ('+ opts["credit"] +')</span></div>';
+            var svg = '<svg class="svg-legend" width="280" height="50" style="margin-top:' + marginTop + 'px;">';
             var colors = '';
             this.colorWidth = this.width / opts["colors"].length;
             for (var i = 0; i < opts["colors"].length; i++) {
@@ -192,7 +198,6 @@ export class ChoroplethLegend extends Legend {
                 this.xOffset = this.width / 2;
                 values += getValue(opts["values"][1]);
                 this.xOffset = 0 + this.colorWidth * 0.5;
-
                 this.xOffset += this.colorWidth * (opts["colors"].length - 1.);
                 values += getValue(opts["values"][2]);
             }
@@ -202,7 +207,6 @@ export class ChoroplethLegend extends Legend {
                     values += getValue(opts["values"][i]);
                     this.xOffset += this.valueWidth;
                 }
-
             }
             return div + svg + keys + colors + values + '</svg>';
         }

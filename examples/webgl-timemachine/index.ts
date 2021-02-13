@@ -325,7 +325,7 @@ class EarthTimeImpl implements EarthTime {
   showVisibleLayersLegends() {
     let loadedLayersInIdOrder = this.layerDB.loadedLayersInIdOrder();
     for (let i = 0; i < loadedLayersInIdOrder.length; i++) {
-      if (loadedLayersInIdOrder[i].layer.hasLegend && !loadedLayersInIdOrder[i].layer.legendVisible) {
+      if (loadedLayersInIdOrder[i].layer.hasLegend && loadedLayersInIdOrder[i].layer.allVisibleTilesLoaded() && !loadedLayersInIdOrder[i].layer.legendVisible) {
         this.layerDB.layerFactory.setLegend(loadedLayersInIdOrder[i].id);
       }
     }
@@ -3233,31 +3233,19 @@ function resizeLayersMenu() {
 // Called by TimeMachineCanavasLayer during animation and/or view changes
 function update() {
   gEarthTime.startRedraw();
-  //console.log(JSON.stringify(gEarthTime.currentEpochTimeAndRate()));
   if (!gEarthTime.readyToDraw || !gEarthTime.layerDB) return;
   if (disableAnimation) {
     gEarthTime.canvasLayer.setAnimate(false);
     disableAnimation = false;
   }
 
-  gEarthTime.updateTimelineIfNeeded();
-
-  gEarthTime.showVisibleLayersLegends();
-
-  gEarthTime.handleGraphIfNeeded();
-
   gEarthTime.timelapse.frameno = (gEarthTime.timelapse.frameno || 0) + 1;
 
-  //perf_drawframe();
   gl.clear(gl.COLOR_BUFFER_BIT);
 
   // Set this to true at the beginning of frame redraw;  any layer that decides it wasn't completely drawn will set
   // this to false upon draw below
   gEarthTime.timelapse.lastFrameCompletelyDrawn = true;
-
-  //
-  //// Draw layers ////
-  //
 
   if (gEarthTime.layerDB.mapboxLayersAreVisible()) {
     ETMBLayer.render();
@@ -3267,26 +3255,24 @@ function update() {
     }
   }
 
-  // TODO: remove getLayerView as soon as we've moved all layers from index.ts to the spreadsheet
-  var getLayerView = function(layerProxy: LayerProxy, ignore) {
-    throw 'do not use getLayerView; instead move layers to database and use LayerProxy.draw'
-  };
+  gEarthTime.updateTimelineIfNeeded();
 
+  gEarthTime.showVisibleLayersLegends();
 
+  gEarthTime.handleGraphIfNeeded();
+}
 
-  function getLegendHTML() {
-    var $legend = $("#layers-legend");
-    if (!$legend.length) {
-      return "";
-    }
-    var clone = $legend[0].cloneNode(true);
-    $(clone).find("*").filter(function() {
-      return this.style.display == "none"
-    }).remove();
-    // @ts-ignore
-    return clone.outerHTML;
+function getLegendHTML() {
+  var $legend = $("#layers-legend");
+  if (!$legend.length) {
+    return "";
   }
-
+  var clone = $legend[0].cloneNode(true);
+  $(clone).find("*").filter(function() {
+    return this.style.display == "none"
+  }).remove();
+  // @ts-ignore
+  return clone.outerHTML;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

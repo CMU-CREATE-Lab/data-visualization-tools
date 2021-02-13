@@ -8,6 +8,8 @@ import { LayerProxy } from './LayerProxy';
 import { Legend } from './Legend';
 
 export interface DrawOptions {
+  colorMapLegendValues?: any[];
+  colorMapColorsList?: any[];
   bbox?: { tl: any; br: any; };
   showLbyReturns?: any;
   showYemReturns?: any;
@@ -136,6 +138,7 @@ export class LayerOptions {
     legend?: Legend;
     paired: boolean;
     isLoaded(): boolean { return true; }; // Override this in subclass if needed
+    allVisibleTilesLoaded(): boolean { return true; } // Override this in subclass if needed
     legendVisible: boolean;
 
     constructor(layerProxy: LayerProxy, layerOptions: LayerOptions, tileClass: typeof Tile) {

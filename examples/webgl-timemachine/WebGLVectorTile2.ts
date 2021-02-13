@@ -1074,7 +1074,6 @@ export class WebGLVectorTile2 extends Tile {
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE_ALPHA, this.valuesWidth, this.valuesHeight, 0, gl.LUMINANCE_ALPHA, gl.UNSIGNED_BYTE, texture);
 
     this._ready = true;
-    this._loadTexture(); // load the colormap.  TODO: why do we load this separately for every single tile?
 
     var totalTime = new Date().getTime() - beginTime;
     WebGLVectorTile2._totalBtiTime += totalTime;
@@ -1940,8 +1939,84 @@ export class WebGLVectorTile2 extends Tile {
       this.gl.bindTexture(this.gl.TEXTURE_2D, null);
     }
   }
+  _loadTextureFromColorList(colorList:any[], textureWidth?:number, textureHeight?:number) {
+    var gl = this.gl;
+    var width = textureWidth || 256;
+    var height = textureHeight || 1;
+
+    if (!colorList) {
+      return;
+    }
+
+    if (Array.isArray(colorList)) {
+      var colormap = [];
+
+      // TODO: Move to utility class
+      var hexToRgb = function(hex) {
+        // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+        var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+        hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+          return r + r + g + g + b + b;
+        });
+        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)] : null;
+      };
+
+      for (var i = 0; i < colorList.length; i++) {
+        if (typeof(colorList[i]) === "string" && colorList[i].trim().indexOf("#") == 0) {
+          // Assume hex and change to rgba
+          var rgb = hexToRgb(colorList[i]);
+          if (rgb) {
+            colormap.push(rgb.concat([255]));
+          } else {
+            console.log("ERROR: Failed to parsse hex color in color map array.");
+          }
+        } else if (colorList[i].length == 3) {
+          colormap.push(colorList[i].concat([255]));
+        } else if (colorList[i].length == 4) {
+          colormap.push(colorList[i]);
+        } else {
+          console.log("ERROR: Failed to parsse color map array. Invalid format detected.");
+        }
+      }
+
+      var dataArray = new Uint8Array(width * height * 4);
+      var offset = 0;
+
+      for (var y = 0; y < height; y++) {
+        for (var i = 0; i < colormap.length; i++){
+          for (var j = 0; j < width/colormap.length; j++) {
+            dataArray[(j+offset+(width*y))*4] = colormap[i][0];
+            dataArray[(j+offset+(width*y))*4+1] = colormap[i][1];
+            dataArray[(j+offset+(width*y))*4+2] = colormap[i][2];
+            dataArray[(j+offset+(width*y))*4+3] = colormap[i][3];
+          }
+          offset = j+offset;
+        }
+        offset = 0;
+      }
+    } else {
+      dataArray = getColorRamp(colorList);
+    }
+
+    this._texture = gl.createTexture();
+
+    gl.bindTexture(gl.TEXTURE_2D, this._texture);
+
+    // Set the parameters so we can render any size image.
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+    // Upload the image into the texture.
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, dataArray);
+
+    gl.bindTexture(gl.TEXTURE_2D, null);
+  }
   _setBufferData(data: Float32Array) {
     var gl = this.gl;
+    var drawOptions = this._layer.drawOptions;
     this._pointCount = data.length / this._layer.numAttributes;
     this._ready = true;
     if (this._pointCount > 0) {
@@ -1949,7 +2024,11 @@ export class WebGLVectorTile2 extends Tile {
       this._arrayBuffer = gl.createBuffer();
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
       gl.bufferData(gl.ARRAY_BUFFER, this._data, gl.STATIC_DRAW);
-      this._loadTexture();
+      if (drawOptions?.colorMapColorsList) {
+        this._loadTextureFromColorList(drawOptions.colorMapColorsList);
+      } else {
+        this._loadTexture();
+      }
     }
   }
   _setBuffers(buffers: string | any[], indices: string | any[] | Uint16Array) {
