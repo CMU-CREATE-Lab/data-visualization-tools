@@ -1054,10 +1054,10 @@ export class LayerFactory {
           var colorMap;
           if (!radius || typeof(radius.invert) !== "function") {
             var colorList = drawOptions.colorMapColorsList;
-            var colorMapLegendValues = drawOptions.colorMapLegendValues;
-            if (drawOptions && colorList && colorMapLegendValues) {
-              for (var i = 0; i < colorMapLegendValues.length; i++) {
-                var value = colorMapLegendValues[i];
+            var colorMapLegendLabels = drawOptions.colorMapLegendLabels;
+            if (drawOptions && colorList && colorMapLegendLabels) {
+              for (var i = 0; i < colorMapLegendLabels.length; i++) {
+                var value = colorMapLegendLabels[i];
                 if (typeof(value) == "number") {
                   value = this.formatValue(value);
                 }

@@ -8,7 +8,7 @@ import { LayerProxy } from './LayerProxy';
 import { Legend } from './Legend';
 
 export interface DrawOptions {
-  colorMapLegendValues?: any[];
+  colorMapLegendLabels?: any[];
   colorMapColorsList?: any[];
   bbox?: { tl: any; br: any; };
   showLbyReturns?: any;
