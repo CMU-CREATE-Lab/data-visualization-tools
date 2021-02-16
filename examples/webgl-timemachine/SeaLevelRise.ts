@@ -8,10 +8,10 @@ export class SeaLevelRise {
     _heights: {[key:string]: any};
     _lastKey: string;
 
-    constructor(legendId) {
+    constructor(legendId, legedElm) {
         this._idx = legendId;
         this._lastIdx;
-        this._el = document.getElementById(this._idx);
+        this._el = legedElm;
         this._html = `
                 <td><div style="font-size: 17px">Global Temperature Rise
                         <span id="${this._idx}-slr-degree"></span> &#x2103;

@@ -34,7 +34,10 @@ export class WebGLMapLayer extends Layer {
   _drawLayerSlr(opt_options) {
     if (!this.seaLevelRise) {
       let idx = `${this.layerId}-legend`;
-      this.seaLevelRise = new SeaLevelRise(idx);
+      let legendElm = document.getElementById(idx);
+      if (legendElm) {
+        this.seaLevelRise = new SeaLevelRise(idx, legendElm);
+      }
     }  else {
       let currentKey = gEarthTime.timelapse.getCurrentCaptureTime();
       this.seaLevelRise.setTemperatureAndHeight(currentKey);
