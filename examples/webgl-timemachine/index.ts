@@ -591,17 +591,9 @@ var autoModeExtrasViewChangeHandler = function() {
 };
 
 function isEarthTimeLoaded() {
-  if (showCustomDotmaps && !dotmapLayersInitialized) {
-    return false;
-  } else if (showCsvLayers && !csvFileLayersInitialized) {
-    return false;
-  } else if (showStories && !storiesInitialized) {
-    return false;
-  } else if (!timeMachinePlayerInitialized) {
-    return false;
-  }
-  return true;
+  return gEarthTime.readyToDraw;
 }
+(window as any).isEarthTimeLoaded = isEarthTimeLoaded;
 
 function googleMapsLoadedCallback() {
   if (useGoogleSearch && $("#location_search").length) {
@@ -1641,7 +1633,8 @@ async function setupUIAndOldLayers() {
     resolutionScale: window.devicePixelRatio || 1
   };
   gEarthTime.canvasLayer = new TimeMachineCanvasLayer(timeMachineCanvasLayerOptions);
-
+  // Expose globally for thumbnail de-facto api
+  (window as any).canvasLayer = gEarthTime.canvasLayer;
 
   // initialize WebGL
   gl = gEarthTime.canvasLayer.canvas.getContext('experimental-webgl',  {antialias: true, alpha: true, stencil: false, depth: true, failIfMajorPerformanceCaveat: false, preserveDrawingBuffer: preserveDrawingBuffer});
@@ -3274,6 +3267,7 @@ function getLegendHTML() {
   // @ts-ignore
   return clone.outerHTML;
 }
+(window as any).getLegendHTML = getLegendHTML;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
