@@ -1012,6 +1012,7 @@ export class WebGLVectorTile2 extends Tile {
       var maxValue = csv.maxValue;
       var radius = eval(this.scalingFunction);
       this._radius = radius;
+      this._layer.radius = radius; // Set the radius for the layer
     }
 
     var transferRegionData = function (regionName: string | number, firstCol: any, lastCol: number) {
