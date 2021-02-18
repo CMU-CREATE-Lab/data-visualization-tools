@@ -1074,6 +1074,7 @@ export class WebGLVectorTile2 extends Tile {
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE_ALPHA, this.valuesWidth, this.valuesHeight, 0, gl.LUMINANCE_ALPHA, gl.UNSIGNED_BYTE, texture);
 
     this._ready = true;
+    this._loadTexture(); // load the colormap.  TODO: why do we load this separately for every single tile?
 
     var totalTime = new Date().getTime() - beginTime;
     WebGLVectorTile2._totalBtiTime += totalTime;

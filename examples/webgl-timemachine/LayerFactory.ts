@@ -1052,58 +1052,58 @@ export class LayerFactory {
           var values = [];
           var colors:any[];
           var colorMap;
-          if (!radius || typeof(radius.invert) !== "function") {
-            var colorList = drawOptions.colorMapColorsList;
-            var colorMapLegendLabels = drawOptions.colorMapLegendLabels;
-            if (drawOptions && colorList && colorMapLegendLabels) {
-              for (var i = 0; i < colorMapLegendLabels.length; i++) {
-                var value = colorMapLegendLabels[i];
-                if (typeof(value) == "number") {
-                  value = this.formatValue(value);
-                }
-                values.push(value);
+
+          var colorList = drawOptions?.colorMapColorsList;
+          var colorMapLegendLabels = drawOptions?.colorMapLegendLabels;
+
+          if (colorList && colorMapLegendLabels) {
+            for (var i = 0; i < colorMapLegendLabels.length; i++) {
+              var value = colorMapLegendLabels[i];
+              if (typeof(value) == "number") {
+                value = this.formatValue(value);
               }
-              // If discrete colors
-              if (Array.isArray(colorList)) {
-                colorMap = null;
-                colors = drawOptions.colorMapColorsList;
-              } else { // Is gradient, pull texture info
-                // Default size of our colormaps
-                var width = 256;
-                var height = 1;
-
-                // Create a framebuffer backed by the texture
-                var framebuffer = gl.createFramebuffer();
-                gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-                gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.firstAvailableTileTexture(layer), 0);
-
-                // Read the contents of the framebuffer
-                var data = new Uint8Array(width * height * 4);
-                gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, data);
-
-                gl.deleteFramebuffer(framebuffer);
-
-                // Create a 2D canvas to store the result
-                var canvas = document.createElement('canvas');
-                canvas.width = width;
-                canvas.height = height;
-                var context = canvas.getContext('2d');
-
-                // Copy the pixels to a 2D canvas
-                var imageData = context.createImageData(width, height);
-                imageData.data.set(data);
-                context.putImageData(imageData, 0, 0);
-
-                colorMap = canvas.toDataURL();
-              }
-            } else {
-              return null;
+              values.push(value);
             }
-          } else {
+            // If discrete colors
+            if (Array.isArray(colorList)) {
+              colorMap = null;
+              colors = drawOptions.colorMapColorsList;
+            } else { // Is gradient, pull texture info
+              // Default size of our colormaps
+              var width = 256;
+              var height = 1;
+
+              // Create a framebuffer backed by the texture
+              var framebuffer = gl.createFramebuffer();
+              gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+              gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.firstAvailableTileTexture(layer), 0);
+
+              // Read the contents of the framebuffer
+              var data = new Uint8Array(width * height * 4);
+              gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, data);
+
+              gl.deleteFramebuffer(framebuffer);
+
+              // Create a 2D canvas to store the result
+              var canvas = document.createElement('canvas');
+              canvas.width = width;
+              canvas.height = height;
+              var context = canvas.getContext('2d');
+
+              // Copy the pixels to a 2D canvas
+              var imageData = context.createImageData(width, height);
+              imageData.data.set(data);
+              context.putImageData(imageData, 0, 0);
+
+              colorMap = canvas.toDataURL();
+            }
+          } else if (radius && typeof(radius.invert) == "function") {
             values = [this.formatValue(radius.invert(0)), this.formatValue(radius.invert(0.5)), this.formatValue(radius.invert(1))];
             // TODO: Do we need these default values? Do they correspond to default values used in the actual visual?
             colors = ["#ffffff", "#fff18e", "#ffdc5b", "#ffc539", "#ffad21", "#ff920c", "#ff7500", "#ff5000", "#ff0000"];
             colorMap = layer.imageSrc;
+          } else {
+            return;
           }
 
           let opts = {
