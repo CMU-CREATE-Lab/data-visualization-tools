@@ -2884,7 +2884,6 @@ var showHideCsvGrapher = function(doShow) {
     csvDataGrapher.activeLayer.id = null;
   }
   resize();
-  csvDataGrapher.chart.render();
 };
 
 // TODO: replace this with GSheet class
@@ -3206,6 +3205,9 @@ function resize() {
 
   gEarthTime.canvasLayer.resize_();
 
+  if (csvDataGrapher.activeLayer.id) {
+    csvDataGrapher.chart.render();
+  }
 }
 
 function resizeLayersMenu() {

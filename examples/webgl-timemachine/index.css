@@ -29,6 +29,7 @@ html, body {
   -ms-content-zooming: none;
   -ms-touch-action: none;
   touch-action: none;
+  background: #f3f3f3;
 }
 
 * {
@@ -943,7 +944,7 @@ html, body {
   background-color: rgb(31, 31, 31, 1) !important;
 }
 
-#top-nav.right-panel-active {
+#top-nav.right-panel-active, #csvChartContainer.right-panel-active {
   width: calc(100% - 418px) !important;
 }
 
