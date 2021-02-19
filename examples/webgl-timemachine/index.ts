@@ -960,13 +960,13 @@ function initLayerToggleUI() {
     // Quick way to clear all layers
     if (e.keyCode === 67) {
       handleLayers([]);
-      var openCategories = $("#layers-menu h3.ui-accordion-header.ui-state-active");
+      /*var openCategories = $("#layers-menu h3.ui-accordion-header.ui-state-active");
       var availableCategories = $(".map-layer-div").children("h3");
       $.each(openCategories, function(index, value) {
         if (index == 0) return;
         var openIndex = availableCategories.index(openCategories[index]);
         $(".map-layer-div").accordion("option", "active", openIndex);
-      });
+      });*/
       if ($(".current-location-text-container").is(":visible")) {
         showAnnotationResumeExit();
       }
