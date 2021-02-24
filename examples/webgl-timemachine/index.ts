@@ -3241,11 +3241,19 @@ function update() {
   // Set this to true at the beginning of frame redraw;  any layer that decides it wasn't completely drawn will set
   // this to false upon draw below
   gEarthTime.timelapse.lastFrameCompletelyDrawn = true;
+  // If any selected layers not yet loaded, set lastFrameCompletelyDrawn to false
+  for (let layer of gEarthTime.layerDB.visibleLayers) {
+    if (!layer.layer) gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
+  }
 
   if (gEarthTime.layerDB.mapboxLayersAreVisible()) {
+    // Ask ETMBLayer to render everything as Mapbox.  (EarthTime layers are inserted into Mapbox and drawn as custom layers)
     ETMBLayer.render();
   } else {
-    for (let sublayer of gEarthTime.layerDB.drawnSublayersInDrawOrder()) {
+    // Any layer missing tiles or not completely drawing will set lastFrameCompletelyDrawn to false
+    // Only mapbox layers have sublayers currently;  drawnSublayers in this case only ever returns
+    // the layers themselves.
+    for (let sublayer of gEarthTime.layerDB.drawnLayersOrSublayersInDrawOrder()) {
       sublayer.draw();
     }
   }

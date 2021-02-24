@@ -12,8 +12,8 @@ export class LayerDB {
   layerFactory: LayerFactory;
   apiUrl: string;
   layerById: {[layerId: string]: LayerProxy};
-  orderedLayers: LayerProxy[] = [];
-  visibleLayers: LayerProxy[] = [];
+  orderedLayers: LayerProxy[] = []; // every layer in catalog
+  visibleLayers: LayerProxy[] = []; // selected layers;  some might not yet be loaded
   earthTime: EarthTime;
   legacyIdMappings: {[key: string]: string} = {};
   lruLayerCache: Layer[] = [];
@@ -290,7 +290,7 @@ export class LayerDB {
 
   // Returns loadedSublayersInDrawOrder, minus any layers below the last full-extent
   // layer (if any)
-  drawnSublayersInDrawOrder(): LayerProxy[] {
+  drawnLayersOrSublayersInDrawOrder(): LayerProxy[] {
     let drawnSublayers = this.loadedSublayersInDrawOrder();
     let startIndex = 0;
     for (let i = 0; i < drawnSublayers.length; i++) {
