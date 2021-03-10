@@ -875,7 +875,7 @@ function initLayerToggleUI() {
       var $extrasContentContainer = $(event.target);
       var layerId = $extrasContentContainer.data("layer-id");
       var $selectedLayer = $("#layers-menu input#" + layerId);
-      var selectedLayerChecked = $selectedLayer.parent("label").prop("checked");
+      var selectedLayerChecked = $selectedLayer.prop("checked");
       if (selectedLayerChecked) {
         $selectedLayer.trigger("click");
       }
