@@ -875,8 +875,8 @@ function initLayerToggleUI() {
       var $extrasContentContainer = $(event.target);
       var layerId = $extrasContentContainer.data("layer-id");
       var $selectedLayer = $("#layers-menu input#" + layerId);
-      var selectedLayerChecked = $selectedLayer.prop("checked");
-      if (selectedLayerChecked) {
+      var fromCloseButton = $(event.currentTarget).hasClass('ui-dialog-titlebar-close');
+      if (fromCloseButton) {
         $selectedLayer.trigger("click");
       }
       var extrasVideo = $("#extras-video")[0] as HTMLVideoElement;
