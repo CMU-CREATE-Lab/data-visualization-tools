@@ -3105,20 +3105,13 @@ function showSettingsDialog() {
   });
 
   d.find('button:eq(1)').click(function () {
-    askForSpreadsheetUrl('dotmap layers', function (newUrl) {
-      changeHash({dotlayers: googleSheetUrlToDocTab(newUrl)});
-      d.dialog("close");
-    });
-  });
-
-  d.find('button:eq(2)').click(function () {
     askForSpreadsheetUrl('csv layers', function (newUrl) {
       changeHash({csvlayers: googleSheetUrlToDocTab(newUrl)});
       d.dialog("close");
     });
   });
 
-  d.find('button:eq(3)').click(function () {
+  d.find('button:eq(2)').click(function () {
     localStorage.removeItem("waypointSliderContentPath");
     localStorage.removeItem("csvLayersContentPath");
     parent.location.hash = '';
