@@ -409,8 +409,16 @@ if (typeof(Storage) !== "undefined") {
   }
 }
 
+// Check if we are overriding the layer spreadsheet in the share link
+var harshVars = UTIL.getUnsafeHashVars();
+var layerDBId = GSheet.from_url(csvLayersContentPath);;
+if (harshVars.csvlayers) {
+  var [fileId, gId] = harshVars.csvlayers.split(".");
+  layerDBId = new GSheet(fileId, gId);
+}
+
 setGEarthTime(new EarthTimeImpl());
-gEarthTime.setDatabaseID(GSheet.from_url(csvLayersContentPath));
+gEarthTime.setDatabaseID(layerDBId);
 
 
 var showStories = typeof(EARTH_TIMELAPSE_CONFIG.showStories) === "undefined" ? true : !!EARTH_TIMELAPSE_CONFIG.showStories;
@@ -2145,6 +2153,11 @@ async function setupUIAndOldLayers() {
     var vals = UTIL.getUnsafeHashVars();
     console.log(`${Utils.logPrefix()} index: hashChange: ${vals}`);
 
+    if (vals.csvlayers) {
+      let csvlayersPath = vals.csvlayers ? docTabToGoogleSheetUrl(vals.csvlayers) : csvLayersContentPath;
+      gEarthTime.setDatabaseID(GSheet.from_url(csvlayersPath));
+    }
+
     if (vals.l) {
       var layers = vals.l.split(",");
       if (loadedInitialCsvLayers){
@@ -2175,11 +2188,6 @@ async function setupUIAndOldLayers() {
 
       // Turn on layers encoded in the share link
       handleLayers(layers);
-    }
-
-    if (vals.csvlayers) {
-      let csvlayersPath = vals.csvlayers ? docTabToGoogleSheetUrl(vals.csvlayers) : csvLayersContentPath;
-      gEarthTime.setDatabaseID(GSheet.from_url(csvlayersPath));
     }
 
     if (gEarthTime.timelapse.isPresentationSliderEnabled() && showStories) {
