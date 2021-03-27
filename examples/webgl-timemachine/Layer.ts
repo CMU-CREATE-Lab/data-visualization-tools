@@ -348,4 +348,15 @@ export class LayerOptions {
       // Default behavior if turned off
     }
   }
+
+  info(): string {
+    let ret= [`${this.layerId}: Layer.isLoaded(): ${this.isLoaded()}`];
+
+    if (this._tileView) {
+      ret.push(`  ${this._tileView.tileInfo()}`);
+    } else {
+      ret.push(`  tileView: null`);
+    }
+    return ret.join('\n');
+  }
 }

@@ -62,6 +62,18 @@ export class Utils {
       }
     }
   }
+
+  static grablogElements: string[] = [];
+
+  static clearGrablog() {
+    this.grablogElements = [];
+  }
+  static grablog(msg: string) {
+    this.grablogElements.push(msg);
+  }
+  static getGrablog(): string[] {
+    return this.grablogElements;
+  }
 }
 
 dbg.Utils = Utils;

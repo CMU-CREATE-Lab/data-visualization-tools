@@ -378,6 +378,7 @@ export class WebGLVideoTile extends Tile {
       if (WebGLVideoTile.verbose) {
         console.log(this._id + ': loading');
       }
+      gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
       return;
     }
 

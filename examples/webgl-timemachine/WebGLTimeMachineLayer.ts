@@ -48,6 +48,7 @@ export class WebGLTimeMachineLayer extends Layer {
   endEpochTime?: number;
   constructor(layerProxy, glb, canvasLayer, url, layerOptions) {
     super(layerProxy, layerOptions, WebGLVideoTile); //
+    this.metadataLoaded = false;
     // We should never override drawTile for this layer
     this.drawFunction = WebGLVideoTile.prototype.drawTile;
 
@@ -218,6 +219,7 @@ export class WebGLTimeMachineLayer extends Layer {
     gl.bindTexture(gl.TEXTURE_2D, null);
     return texture;
   }
+
   _handleLoadedColormap() {
     var gl = this.gl;
     gl.bindTexture(gl.TEXTURE_2D, this._colormap);
@@ -227,15 +229,20 @@ export class WebGLTimeMachineLayer extends Layer {
 
     this._updateReady();
   }
+
   _updateReady() {
     this._ready = !(this._waitingForColormap || this._waitingForMetadata);
   }
+
   resetDimensions(json) {
     this._tileView.resetDimensions(json);
   }
+
   draw(view) {
-    if (!this._ready)
+    if (!this._ready) {
+      gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
       return;
+    }
     var timelapse = this._canvasLayer.timelapse;
     var width = this._canvasLayer.canvas.width / this._canvasLayer.resolutionScale_;
     var height = this._canvasLayer.canvas.height / this._canvasLayer.resolutionScale_;
@@ -261,7 +268,6 @@ export class WebGLTimeMachineLayer extends Layer {
     this._tileView.setView(view, width, height, this._canvasLayer.resolutionScale_);
     this._tileView.update(transform, {});
   }
-
 
   computeDisplayFrameAndRate(): {frame: number, fps: number} {
     let {epochTime, rate} = gEarthTime.currentEpochTimeAndRate();
@@ -308,6 +314,14 @@ export class WebGLTimeMachineLayer extends Layer {
       tiles[i].draw(transform, {});
     }
     //WebGLTimeMachinePerf.instance.endFrame();
+  }
+
+  info(): string {
+    let ret = [super.info()];
+    ret.push(`  _ready: ${this._ready}`);
+    ret.push(`  _waitingForMetadata: ${this._waitingForMetadata}`);
+    ret.push(`  _waitingForColormap: ${this._waitingForColormap}`);
+    return ret.join('\n');
   }
 }
 

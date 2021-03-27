@@ -198,4 +198,12 @@ export class LayerProxy {
     // Round to 2 digits, remove trailing zeros, and add suffix
     return value.toFixed(2).replace(/\.?0+$/, '') + suffix;
   }
+
+  info(): string {
+    if (this.layer) {
+      return this.layer.info();
+    } else {
+      return `${this.id}: proxy has not loaded layer`;
+    }
+  }
 }

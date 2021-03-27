@@ -598,6 +598,44 @@ var autoModeExtrasViewChangeHandler = function() {
   }
 };
 
+interface FrameGrabInterface {
+  isLoaded(): boolean;
+  captureFrame(state: {[key: string]: any}): {[key: string]: any};
+}
+
+let frameGrab: FrameGrabInterface = {
+  isLoaded: function(): boolean {
+    return gEarthTime.readyToDraw;
+  },
+  captureFrame: function(state: {bounds:any, seek_time:number}): {[key: string]: any} {
+    Utils.clearGrablog();
+    let before_frameno = gEarthTime.timelapse.frameno;
+    gEarthTime.timelapse.setNewView(state.bounds, true);
+    gEarthTime.timelapse.seek(state.seek_time);
+    gEarthTime.canvasLayer.update_();
+
+    let layerInfo = [];
+    for (let layerProxy of gEarthTime.layerDB.visibleLayers) {
+      layerInfo.push(layerProxy.info());
+    }
+
+    return {
+      complete: gEarthTime.timelapse.lastFrameCompletelyDrawn,
+      after_time: gEarthTime.timelapse.getCurrentTime(),
+      before_frameno: before_frameno,
+      frameno: gEarthTime.timelapse.frameno,
+      aux_info: {
+        layerdb_size: gEarthTime.layerDB.orderedLayers.length,
+        visible_layers: gEarthTime.layerDB.visibleLayerIds(),
+        layer_info: layerInfo.join('\n'),
+        log: Utils.getGrablog().join('\n')
+      }
+    }
+  }
+};
+
+(window as any).gFrameGrab = frameGrab;
+
 function isEarthTimeLoaded() {
   return gEarthTime.readyToDraw;
 }
@@ -3228,8 +3266,12 @@ function resizeLayersMenu() {
 // Draws to canvas.
 // Called by TimeMachineCanavasLayer during animation and/or view changes
 function update() {
+  gEarthTime.timelapse.lastFrameCompletelyDrawn = true;
   gEarthTime.startRedraw();
-  if (!gEarthTime.readyToDraw || !gEarthTime.layerDB) return;
+  if (!gEarthTime.readyToDraw || !gEarthTime.layerDB) {
+    gEarthTime.timelapse.lastFrameCompletelyDrawn = true;
+    return;
+  }
   if (disableAnimation) {
     gEarthTime.canvasLayer.setAnimate(false);
     disableAnimation = false;
@@ -3241,10 +3283,11 @@ function update() {
 
   // Set this to true at the beginning of frame redraw;  any layer that decides it wasn't completely drawn will set
   // this to false upon draw below
-  gEarthTime.timelapse.lastFrameCompletelyDrawn = true;
   // If any selected layers not yet loaded, set lastFrameCompletelyDrawn to false
   for (let layer of gEarthTime.layerDB.visibleLayers) {
-    if (!layer.layer) gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
+    if (!layer.isLoaded()) {
+      gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
+    }
   }
 
   if (gEarthTime.layerDB.mapboxLayersAreVisible()) {
