@@ -59,6 +59,12 @@ export class ETMBLayer extends LayerOptions {
   maxGmapsZoomLevel(): number | null {
     return 17;
   }
+
+  // NOTE: this always returns true since we can't tell whether individual
+  // layers have loaded all tiles
+  allVisibleTilesLoaded(): boolean {
+    return true;
+  }
   
   constructor(layerProxy: LayerProxy, glb: Glb, canvasLayer, tileUrl: string, layerOptions: LayerOptions) {
     super(layerOptions);
@@ -236,6 +242,11 @@ export class ETMBLayer extends LayerOptions {
     }
     if (this._loaded) {
       ETMBLayer.map._render(); // no args to _render means render all layers on map
+      if (!ETMBLayer.map.areTilesLoaded()) {
+        gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
+      }
+    } else {
+      gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
     }
   }
 
