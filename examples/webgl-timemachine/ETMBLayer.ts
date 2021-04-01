@@ -56,6 +56,10 @@ export class ETMBLayer extends LayerOptions {
   _loaded: boolean = false;
   _sublayers: Map<number, ETMapboxSublayer>; // Map enables numeric keys
 
+  maxGmapsZoomLevel(): number | null {
+    return 17;
+  }
+  
   constructor(layerProxy: LayerProxy, glb: Glb, canvasLayer, tileUrl: string, layerOptions: LayerOptions) {
     super(layerOptions);
     // Ignore tileUrl
