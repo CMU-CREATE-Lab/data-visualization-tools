@@ -9,7 +9,7 @@ import mapboxgl, { featureFilter } from './mapbox-gl-dev-patched-1.11.1/mapbox-g
 
 import { LayerProxy } from './LayerProxy';
 import { Glb } from './Glb';
-import { LayerOptions } from './Layer';
+import { LayerOptions, LayerInterface } from './Layer';
 
 export class ETMapboxSublayer {
   id: string;
@@ -41,7 +41,7 @@ namespace MapboxTypes {
 
 // EarthTime layer that contains a single Mapbox style
 // If there are multiple ETMBLayers visible, they will be composited into a single Mapbox map
-export class ETMBLayer extends LayerOptions {
+export class ETMBLayer extends LayerOptions implements LayerInterface {
   mapboxDef: {
     style: string,
     drawOrder?: { [drawOrderStr: string]: string[]}
@@ -251,6 +251,11 @@ export class ETMBLayer extends LayerOptions {
   }
 
   abortLoading() {
+  }
+
+  info(): string {
+    let ret= [`${this.layerId} (ETMBLayer): Layer.isLoaded(): ${this.isLoaded()}`];
+    return ret.join('\n');
   }
 
   ///////////////////////////////////////////////

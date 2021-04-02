@@ -119,7 +119,12 @@ export class LayerOptions {
     layerConstraints?: {[key: string]: any};
   }
 
-  export abstract class Layer extends LayerOptions {
+  export interface LayerInterface {
+    maxGmapsZoomLevel(): number | null;
+    info(): string;
+  }
+
+  export abstract class Layer extends LayerOptions implements LayerInterface {
     layerProxy: LayerProxy;
     glb: Glb;
     gl: any;
