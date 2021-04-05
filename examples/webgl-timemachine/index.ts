@@ -1479,7 +1479,7 @@ function loadWaypointSliderContentFromCSV(csvdata) {
         var storyTitle = stories[storyId].storyTitle;
         var storyEnabled = isStaging || usingCustomWaypoints ? "true" : stories[storyId].enabled;
         theme_html += "<tr data-enabled='" + storyEnabled + "' id='story_" + storyId + "'>";
-        var thumbnailURL = gEarthTime.timelapse.getThumbnailOfView(stories[storyId].mainShareView, 128, 74, false) || "https://placehold.it/128x74";
+        var thumbnailURL = gEarthTime.timelapse.getThumbnailOfView(stories[storyId].mainShareView, 128, 74, false) || "https://via.placeholder.com/128x74";
         theme_html += "<td width='50%'><div style='width: 128px; height: 74px; overflow:hidden; border: 1px solid #232323'><img src='" + thumbnailURL + "'/></div></td>";
         theme_html += "<td width='10%'><input type='radio'></td>";
         theme_html += "<td width='40%' style='word-break: break-word;padding-right: 10px;'>" + storyTitle + "</td>";
