@@ -27,12 +27,12 @@ export class ETMapboxSublayer {
 namespace MapboxTypes {
   export type Source = {[id: string]: {}}
   export type Layer = {
-    id: string, 
+    id: string,
     source: string,
     metadata: {"mapbox:group"?: string},
   }
   export type AnyLayer = Layer | MapboxEarthtimeProxyLayer;
-  export type Style = { 
+  export type Style = {
     layers: Layer[],
     sources: Source,
     glyphs: {}[]
@@ -60,12 +60,16 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
     return 17;
   }
 
+  handleVisibilityStateChange():void {
+    // Override this if defined for a layer.
+  }
+
   // NOTE: this always returns true since we can't tell whether individual
   // layers have loaded all tiles
   allVisibleTilesLoaded(): boolean {
     return true;
   }
-  
+
   constructor(layerProxy: LayerProxy, glb: Glb, canvasLayer, tileUrl: string, layerOptions: LayerOptions) {
     super(layerOptions);
     // Ignore tileUrl
@@ -138,7 +142,7 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
         this._sublayers.set(drawOrder, new ETMapboxSublayer(`${this.layerId}:${drawOrder}`, this, drawOrder));
       }
       this._sublayers.get(drawOrder).mapboxLayers.push(layer);
-    }    
+    }
   }
   // WARNING:  Use _ensureLoaded instead of _load, to make sure we don't load twice
   async _loadFromEnsureLoaded() {
@@ -158,7 +162,7 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
       ETMBLayer._createMapPromise = ETMBLayer._createMapFromLoad(style);
       await ETMBLayer._createMapPromise;
     }
-    this._loaded = true; 
+    this._loaded = true;
   }
 
 
@@ -194,7 +198,7 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
     $earthTimeMapContainer.append("<div id='mapbox_map' style='width:100%; height:100%; left:-200vw'></div>");
     $earthTimeMapContainer.mousemove(this.mousemove.bind(this));
     $earthTimeMapContainer.mouseleave(this.mouseleave.bind(this));
-    
+
     // @ts-ignore
     dbg.map = this.map = new mapboxgl.Map({
       container: 'mapbox_map',
@@ -451,5 +455,5 @@ class MapboxEarthtimeProxyLayer {
     }
     return MapboxEarthtimeProxyLayer._cache[layerProxy.id];
   }
- 
+
 }

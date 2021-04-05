@@ -122,6 +122,7 @@ export class LayerOptions {
   export interface LayerInterface {
     maxGmapsZoomLevel(): number | null;
     info(): string;
+    handleVisibilityStateChange(): void;
   }
 
   export abstract class Layer extends LayerOptions implements LayerInterface {
