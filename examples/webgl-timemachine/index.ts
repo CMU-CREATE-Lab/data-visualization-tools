@@ -853,8 +853,13 @@ function initLayerToggleUI() {
 
     var extrasHtml = "";
     if (fileType == "image") {
-      extrasHtml = '<img id="extras-image" src="' + filePath + '">';
+      extrasHtml = '<img id="extras-image">';
       $("#extras-content-container").html(extrasHtml).dialog("open");
+      var image = $("#extras-image")[0] as HTMLImageElement;
+      image.addEventListener('load', function() {
+        gEarthTime.timelapse.lastFrameCompletelyDrawn = true;
+      });
+      image.src = filePath;
     } else if (fileType == "video") {
       extrasHtml = '<video id="extras-video" autoplay></video>';
       $("#extras-content-container").html(extrasHtml).dialog("open");
@@ -876,6 +881,9 @@ function initLayerToggleUI() {
       if (!gEarthTime.timelapse.isMovingToWaypoint()) {
         $video.one("loadstart", autoModeExtrasViewChangeHandler);
       }
+      video.addEventListener('loadeddata', function() {
+        gEarthTime.timelapse.lastFrameCompletelyDrawn = true;
+      });
       video.src = filePath;
       // Must set playbackRate *after* setting the file path
       video.playbackRate = playbackRate;
@@ -900,7 +908,6 @@ function initLayerToggleUI() {
     if (extrasName.indexOf("_letterBoxFit_") > 0) {
       $("#extras-image, #extras-video").css("object-fit", "contain");
     }
-
   });
 
   $("#extras-content-container").dialog({
