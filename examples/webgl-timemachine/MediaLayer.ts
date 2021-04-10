@@ -59,7 +59,7 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
     if (this.layerProxy.isVisible()) {;
       this.handleEnable();
     } else {
-      $("#extras-content-container").dialog("close");
+      this.$extrasContentContainer.dialog("close");
       // Revert back CSS that may have been set for this layer
       this.$extrasContentContainerTitleBar.show();
       $(this.$extrasContentContainer).add(this.$extrasContentComponent).removeClass("storyFriendlyDialog");
@@ -169,8 +169,6 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
         that.ready = true;
       });
       iframe.src = filePath;
-    } else if (fileType == "link") {
-      window.location.href = filePath;
     }
 
     // TODO: _letterBoxFit_ is for legacy support, since we now do this via the "objectFit" metadata param
