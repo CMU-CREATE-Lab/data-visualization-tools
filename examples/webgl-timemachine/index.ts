@@ -443,6 +443,7 @@ var timestampOnlyUICentered = parseConfigOption({optionName: "timestampOnlyUICen
 var timestampOnlyUILeft = parseConfigOption({optionName: "timestampOnlyUILeft", optionDefaultValue: false, exposeOptionToUrlHash: true});
 // Only show visualization
 var disableUI = parseConfigOption({optionName: "disableUI", optionDefaultValue: false, exposeOptionToUrlHash: true});
+(window as any).disableUI = disableUI;
 // Hide annotation box
 var disableAnnotations = parseConfigOption({optionName: "disableAnnotations", optionDefaultValue: false, exposeOptionToUrlHash: true});
 // Prevent presentation slider from being initialized
@@ -520,7 +521,6 @@ var annotationPicturePaths = {};
 var waypointJSONList = {};
 var lastSelectedWaypointIndex = -1;
 var keysDown = [];
-var $lastSelectedExtra;
 var loadedInitialCsvLayers = false;
 var dotmapLayersInitialized = false;
 var csvFileLayersInitialized = false;
@@ -597,6 +597,7 @@ var autoModeExtrasViewChangeHandler = function() {
     }
   }
 };
+(window as any).autoModeExtrasViewChangeHandler = autoModeExtrasViewChangeHandler;
 
 interface FrameGrabInterface {
   isLoaded(): boolean;
@@ -724,25 +725,11 @@ function googleMapsLoadedCallback() {
 async function handleLayers(layerIds: string[], setByUser?: boolean) {
   await gEarthTime.layerDBPromise;
   var layerProxies = [];
-  var foundExtra = false;
 
   // Note that main UI logic should be done in LayerFactory.handleLayerMenuUI()
   // This method should just do getLayer calls and then pass to LayerDB.setVisibleLayers
 
   for (var layerId of layerIds) {
-    if (layerId.indexOf("extras_") == 0) {
-      let $extraSelection = $('#extras-selector-menu li[data-name="' + layerId + '"]');
-      let $extra = $('#layers-menu label[name=' + layerId + ']');
-      if ($extraSelection.length || $extra.length) {
-        foundExtra = true;
-        // If layer has been added, trigger click to bring it up, otherwise
-        // when the layer first loads the modal will be triggered then.
-        if ($extraSelection.length) {
-          $extraSelection.trigger("click");
-        }
-        $("#extras-content-container").data("layer-id", layerId);
-      }
-    }
     var layerProxy = gEarthTime.layerDB.getLayer(layerId);
     if (layerProxy) {
       layerProxies.push(layerProxy);
@@ -750,166 +737,12 @@ async function handleLayers(layerIds: string[], setByUser?: boolean) {
       console.log(`${Utils.logPrefix()} handlelayers: Cannot find layer ${layerId}`);
     }
   }
-
-  var previousLayerIds = gEarthTime.layerDB._loadedCache.prevVisibleLayers.map(layerProxy => layerProxy.id);
-  if (!foundExtra && (previousLayerIds.indexOf("extras_"))) {
-    $("#extras-content-container").dialog("close");
-  }
-
   console.log(`${Utils.logPrefix()} handleLayers; calling setVisibleLayers`);
   gEarthTime.layerDB.setVisibleLayers(layerProxies, setByUser);
 }
 
 
 function initLayerToggleUI() {
-  // Copy over data attributes to selectmenu
-  $.widget("ui.selectmenu", $.ui.selectmenu, {
-    _renderItem: function(ul, item) {
-      var elementdata = item.element[0].dataset;
-      var attributesObj = {};
-      Object.keys(elementdata).forEach(function(x) {
-        attributesObj["data-" + x] = elementdata[x];
-      });
-      // TODO: If we want to support jQueryUI > 1.11.x then we need to
-      // append a div to the <li>, like so: .append("<div>")
-      return $('<li>')
-        .attr(attributesObj)
-        .append(item.label)
-        .appendTo(ul);
-    }
-  });
-
-  var appendTarget = "#timeMachine";
-  if (enableLetterboxMode) {
-    appendTarget = "#letterbox-content";
-  }
-  $("#extras-selector").selectmenu({
-    close: function() {
-      $lastSelectedExtra = null;
-    },
-    position: {
-      at: "left top",
-      collision: 'flip',
-      using: function(coords, feedback) {
-        // Using 'flip' above, we ensure that the menu either draws up or down, depending upon how much space we have.
-        // Then we place the default select option at either the begining or end based on this direction.
-        $("#extras-selector option[id='default-extras-select']").remove();
-        $(this).css({
-          top: coords.top,
-          left: coords.left
-        });
-        var initialEntry = '<option id="default-extras-select" selected="selected" value="select">Select extra content...</option>';
-        if (feedback.vertical == "top") {
-          $("#extras-selector").prepend(initialEntry);
-        } else {
-          $("#extras-selector").append(initialEntry);
-        }
-        $("#extras-selector").selectmenu("refresh");
-      }
-    },
-    appendTo: appendTarget
-  });
-
-  // Use click event rather than selectmenu 'change' since that event is not registered on the touch screen.
-  $(".ui-selectmenu-menu").on("click", "li", function(e) {
-    $lastSelectedExtra = $(e.currentTarget);
-
-    gEarthTime.timelapse.addParabolicMotionStoppedListener(autoModeExtrasViewChangeHandler);
-
-    var relativePath = "../../../extras/";
-    var filePath = relativePath + $lastSelectedExtra.data("filepath");
-    var fileType = $lastSelectedExtra.data("type");
-    var playbackRate = parseFloat($lastSelectedExtra.data("playbackrate")) || 1;
-    var extrasName = $lastSelectedExtra.data("name");
-    var loopVideoPlayback = $lastSelectedExtra.data("loop");
-    var muteVideoAudio = $lastSelectedExtra.data("muted");
-    var enableVideoPlaybackControls = $lastSelectedExtra.data("controls");
-    var objectFit = $lastSelectedExtra.data("objectfit");
-
-    var extrasVideo = $("#extras-video")[0] as HTMLVideoElement;
-    if (extrasVideo) {
-      extrasVideo.pause();
-      extrasVideo.removeEventListener("loadstart", autoModeExtrasViewChangeHandler);
-      extrasVideo.src = "";
-    }
-    $("#extras-content-container").empty();
-
-    if (enableLetterboxMode) {
-      $(".extras-content-dialog").addClass("letterbox");
-    }
-    if (disableUI) {
-      // Fit to window, without title bar
-      $(".extras-content-dialog .ui-dialog-titlebar").hide();
-      $("#extras-content-container").addClass("storyFriendlyDialog");
-    } else if (extrasName.indexOf("_storyFriendlyDialog_") > 0 && $(".presentationSlider").is(":visible")) {
-      // Fit to window, without title bar and minus height of waypoint slider
-      $(".extras-content-dialog .ui-dialog-titlebar").hide();
-      $("#extras-content-container, .extras-content-dialog").addClass("storyFriendlyDialog");
-    } else {
-      // Fit to window, keep title bar
-      $("#extras-content-container, .extras-content-dialog").removeClass("storyFriendlyDialog");
-      $("#extras-content-container").dialog('option', 'title', $lastSelectedExtra.text());
-    }
-
-    var extrasHtml = "";
-    if (fileType == "image") {
-      extrasHtml = '<img id="extras-image">';
-      $("#extras-content-container").html(extrasHtml).dialog("open");
-      var image = $("#extras-image")[0] as HTMLImageElement;
-      image.addEventListener('load', function() {
-        gEarthTime.timelapse.lastFrameCompletelyDrawn = true;
-      });
-      image.src = filePath;
-    } else if (fileType == "video") {
-      extrasHtml = '<video id="extras-video" autoplay></video>';
-      $("#extras-content-container").html(extrasHtml).dialog("open");
-      var $video = $("#extras-video");
-      var video = $video[0] as HTMLVideoElement;
-      if (loopVideoPlayback) {
-        video.loop = true;
-      }
-      if (muteVideoAudio) {
-        video.muted = true;
-      }
-      // @ts-ignore
-      $video.gVideo({
-        childtheme: 'smalldark'
-      });
-      if (!enableVideoPlaybackControls) {
-        $(".ghinda-video-controls").remove();
-      }
-      if (!gEarthTime.timelapse.isMovingToWaypoint()) {
-        $video.one("loadstart", autoModeExtrasViewChangeHandler);
-      }
-      video.addEventListener('loadeddata', function() {
-        gEarthTime.timelapse.lastFrameCompletelyDrawn = true;
-      });
-      video.src = filePath;
-      // Must set playbackRate *after* setting the file path
-      video.playbackRate = playbackRate;
-    } else if (fileType == "iframe") {
-      // If the extra is an iframe, then the URL can be absolute
-      var re = new RegExp("^(http|https)://", "i");
-      var match = re.test($lastSelectedExtra.data("filepath"));
-      if (match) {
-        filePath = $lastSelectedExtra.data("filepath");
-      }
-      extrasHtml = '<iframe id="extras-iframe" src="' + filePath + '" scrolling="no"></iframe>';
-      $("#extras-content-container").html(extrasHtml).dialog("open");
-    } else if (fileType == "link") {
-      window.location.href = filePath;
-    }
-
-    if (objectFit == "contain") {
-      $("#extras-image, #extras-video").css("object-fit", "contain");
-    }
-
-    // TODO: Remove this now that we pass this in via the spreadsheet metadata
-    if (extrasName.indexOf("_letterBoxFit_") > 0) {
-      $("#extras-image, #extras-video").css("object-fit", "contain");
-    }
-  });
-
   $("#extras-content-container").dialog({
     appendTo: "#timeMachine",
     modal: false,
@@ -919,12 +752,12 @@ function initLayerToggleUI() {
     dialogClass: "extras-content-dialog",
     open: function(event, ui) {
       $("#timeMachine").removeClass("presentationSliderSelection presentationSliderSelectionOverflow");
+      if (enableLetterboxMode) {
+        $(".extras-content-dialog").addClass("letterbox");
+      }
     },
     close: function(event, ui) {
-      $lastSelectedExtra = null;
       gEarthTime.timelapse.removeParabolicMotionStoppedListener(autoModeExtrasViewChangeHandler);
-    },
-    beforeClose: function(event, ui) {
       var $extrasContentContainer = $(event.target);
       var layerId = $extrasContentContainer.data("layer-id");
       var $selectedLayer = $("#layers-menu input#" + layerId);
@@ -938,7 +771,6 @@ function initLayerToggleUI() {
         extrasVideo.removeEventListener("loadstart", autoModeExtrasViewChangeHandler);
         extrasVideo.src = "";
       }
-      $("#extras-selector").val("select").selectmenu("refresh");
       $extrasContentContainer.data("layer-id", "");
     }
   }).css({
@@ -1063,40 +895,32 @@ function initLayerToggleUI() {
     // up arrow
     // Quick way to toggle between the various items whether under the extras menu (if just selected) or a layer
     if (e.keyCode === 38) {
-      if ($lastSelectedExtra) {
-        $lastSelectedExtra.prev().click();
-      } else {
-        var $newActiveTopic = $(document.activeElement).closest($(".ui-accordion-content")) as JQuery<HTMLElement>;
-        $lastActiveLayerTopic = $newActiveTopic.length ? $newActiveTopic : $lastActiveLayerTopic;
-        if (!$lastActiveLayerTopic) return;
-        var $layers = $lastActiveLayerTopic.find("input");
-        for (var i = 0; i < $layers.length; i++) {
-          if ($($layers[i]).prop('checked')) {
-            $layers.filter(":checked").click();
-            $($layers[i-1]).trigger('click');
-            e.preventDefault();
-            break;
-          }
+      var $newActiveTopic = $(document.activeElement).closest($(".ui-accordion-content")) as JQuery<HTMLElement>;
+      $lastActiveLayerTopic = $newActiveTopic.length ? $newActiveTopic : $lastActiveLayerTopic;
+      if (!$lastActiveLayerTopic) return;
+      var $layers = $lastActiveLayerTopic.find("input");
+      for (var i = 0; i < $layers.length; i++) {
+        if ($($layers[i]).prop('checked')) {
+          $layers.filter(":checked").click();
+          $($layers[i-1]).trigger('click');
+          e.preventDefault();
+          break;
         }
       }
     }
     // down arrow
     // Quick way to toggle between the various items whether under the extras menu (if just selected) or a layer
     if (e.keyCode === 40) {
-      if ($lastSelectedExtra) {
-        $lastSelectedExtra.next().click();
-      } else {
-        var $newActiveTopic = $(document.activeElement).closest($(".ui-accordion-content")) as JQuery<HTMLElement>;
-        $lastActiveLayerTopic = $newActiveTopic.length ? $newActiveTopic : $lastActiveLayerTopic;
-        if (!$lastActiveLayerTopic) return;
-        var $layers = $lastActiveLayerTopic.find("input");
-        for (var i = 0; i < $layers.length; i++) {
-          if ($($layers[i]).prop('checked')) {
-            $layers.filter(":checked").click();
-            $($layers[i+1]).trigger('click');
-            e.preventDefault();
-            break;
-          }
+      var $newActiveTopic = $(document.activeElement).closest($(".ui-accordion-content")) as JQuery<HTMLElement>;
+      $lastActiveLayerTopic = $newActiveTopic.length ? $newActiveTopic : $lastActiveLayerTopic;
+      if (!$lastActiveLayerTopic) return;
+      var $layers = $lastActiveLayerTopic.find("input");
+      for (var i = 0; i < $layers.length; i++) {
+        if ($($layers[i]).prop('checked')) {
+          $layers.filter(":checked").click();
+          $($layers[i+1]).trigger('click');
+          e.preventDefault();
+          break;
         }
       }
     }
@@ -1695,14 +1519,6 @@ async function setupUIAndOldLayers() {
 
   gEarthTime.glb = new Glb(gl);
   (window as any).glb = gEarthTime.glb; // TODO(LayerDB): someday stop using this global
-
-  // Extras menu
-  var extras_html = '';
-  extras_html += '<div class="extras-selector-div">';
-  extras_html += ' <select name="extras-selector" id="extras-selector">';
-  extras_html += ' </select>';
-  extras_html += '</div>';
-  $(extras_html).appendTo($("#layers-menu"));
 
   // Legend content
   var legend_html = '<div id="layers-legend">';

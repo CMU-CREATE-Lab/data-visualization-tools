@@ -20,6 +20,7 @@ import { Layer, LayerOptions } from './Layer';
 import { WebGLMapTile2, WebGLMapTile2Shaders } from './WebGLMapTile2';
 import { ETMBLayer } from './ETMBLayer';
 import { Utils } from './Utils';
+import { MediaLayer } from './MediaLayer';
 
 
 // Loaded from config-local.js
@@ -92,38 +93,6 @@ export class LayerFactory {
       console.log("       " + functionName + " not in lookupTable");
       return undefined;
     }
-  }
-
-  addExtrasContent(layerDef: { [x: string]: string; }) {
-    var playbackRate = layerDef["Playback Rate"] && layerDef["Playback Rate"].trim() != '' ? layerDef["Playback Rate"].trim() : 1;
-    var dataType = layerDef["Map Type"].split("-")[1];
-    var dataFilePath = layerDef["URL"];
-    var shareLinkIdentifier = layerDef["Share link identifier"].replace(/\W+/g, '_');
-    var dataName = layerDef["Name"];
-    var extrasOptions: any = {};
-    if (layerDef["Extras Options"]?.trim()) {
-      extrasOptions = JSON.parse(layerDef["Extras Options"]);
-    }
-
-    var str = '<option data-playback-rate="' + playbackRate + '"';
-    str += ' data-type="' + dataType + '"';
-    str += ' data-file-path="' + dataFilePath +'"';
-    str += ' data-name="' + shareLinkIdentifier + '"';
-    if (extrasOptions.loop) {
-      str += ' data-loop="' + extrasOptions.loop + '"';
-    }
-    if (extrasOptions.muted) {
-      str += ' data-muted="' + extrasOptions.muted + '"';
-    }
-    if (extrasOptions.controls) {
-      str += ' data-controls="' + extrasOptions.controls + '"';
-    }
-    if (extrasOptions['object-fit']) {
-      str += ' data-objectfit="' + extrasOptions['object-fit'] + '"';
-    }
-    str += '>' + dataName + '</option>';
-    $("#extras-selector").append(str).selectmenu("refresh");
-    $('#extras-selector-menu li[data-name="' + shareLinkIdentifier + '"]').trigger("click");
   }
 
   async createLayer(layerProxy: LayerProxy, layerDef: LayerDef) {
@@ -332,8 +301,7 @@ export class LayerFactory {
     } else if (layerOptions.mapType == "mapbox") {
       WebGLLayer = ETMBLayer;
     } else if (layerOptions.mapType.split("-")[0] == "extras") {
-      this.addExtrasContent(layerDef);
-      return;
+      WebGLLayer = MediaLayer;
     } else {
       if (layerDef["Load Data Function"]) {
         layerOptions.loadDataFunction = LayerFactory.getFunction(layerOptions.maptype, 'loadData', layerDef["Load Data Function"]);
