@@ -11,6 +11,7 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
   playbackControls: boolean;
   objectFit: string;
   mediaType: string;
+  layerDef: {[key: string]: any};
   extrasOptions: {[key: string]: any};
   ready: boolean;
   id: string;
@@ -23,22 +24,21 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
   constructor(layerProxy: LayerProxy, glb: Glb, canvasLayer, tileUrl: string, layerOptions: LayerOptions) {
     super(layerOptions);
     this.layerProxy = layerProxy;
-    this.extrasOptions = layerOptions.layerDef;
+    this.layerDef = layerOptions.layerDef;
 
     this.ready = false;
-    this.playbackRate = this.extrasOptions["Playback Rate"] && this.extrasOptions["Playback Rate"].trim() != '' ? parseFloat(this.extrasOptions["Playback Rate"].trim()) : 1;
-    this.loop = this.extrasOptions.loop;
-    this.muted = this.extrasOptions.muted;
-    this.playbackControls = this.extrasOptions.controls;
-    this.objectFit = this.extrasOptions['object-fit'];
-    this.mediaType = this.extrasOptions["Map Type"].split("-")[1];
-    this.id = this.extrasOptions["Share link identifier"].replace(/\W+/g, '_');
-    this.mediaPath = this.extrasOptions["URL"];
-    this.title = this.extrasOptions["Name"];
-
-    if (this.extrasOptions["Extras Options"]?.trim()) {
-      this.extrasOptions = JSON.parse(this.extrasOptions["Extras Options"]);
+    this.playbackRate = this.layerDef["Playback Rate"] && this.layerDef["Playback Rate"].trim() != '' ? parseFloat(this.layerDef["Playback Rate"].trim()) : 1;
+    this.loop = this.layerDef.loop;
+    this.muted = this.layerDef.muted;
+    this.playbackControls = this.layerDef.controls;
+    this.mediaType = this.layerDef["Map Type"].split("-")[1];
+    this.id = this.layerDef["Share link identifier"].replace(/\W+/g, '_');
+    this.mediaPath = this.layerDef["URL"];
+    this.title = this.layerDef["Name"];
+    if (this.layerDef["Extras Options"]?.trim()) {
+      this.extrasOptions = JSON.parse(this.layerDef["Extras Options"]);
     }
+    this.objectFit = this.extrasOptions ? this.extrasOptions['object-fit'] : "";
 
     this.$extrasContentContainerTitleBar = $(".extras-content-dialog .ui-dialog-titlebar");
     this.$extrasContentContainer = $("#extras-content-container");
