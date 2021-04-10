@@ -10,7 +10,7 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
   muted: boolean;
   playbackControls: boolean;
   objectFit: string;
-  mediaType: any;
+  mediaType: string;
   extrasOptions: {[key: string]: any};
   ready: boolean;
   id: string;
@@ -122,7 +122,7 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
     if (fileType == "image") {
       extrasHtml = '<img id="extras-image">';
       this.$extrasContentContainer.html(extrasHtml).dialog("open");
-      var image = $("#extras-image")[0] as HTMLImageElement;
+      var image = document.getElementById("extras-image") as HTMLImageElement;
       image.addEventListener('load', function() {
         that.ready = true;
       });
@@ -162,8 +162,13 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
       if (match) {
         filePath = this.mediaPath;
       }
-      extrasHtml = '<iframe id="extras-iframe" src="' + filePath + '" scrolling="no"></iframe>';
+      extrasHtml = '<iframe id="extras-iframe" scrolling="yes"></iframe>';
       this.$extrasContentContainer.html(extrasHtml).dialog("open");
+      var iframe = document.getElementById("extras-iframe") as HTMLIFrameElement;
+      iframe.addEventListener('load', function() {
+        that.ready = true;
+      });
+      iframe.src = filePath;
     } else if (fileType == "link") {
       window.location.href = filePath;
     }
