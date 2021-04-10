@@ -152,7 +152,6 @@ export class LayerFactory {
       // By default, most CSV layers draw at z=400.  Raster and choropleths by default will draw at z=200.  New raster base maps will draw at z=100.
       drawOrder: drawOrder,
       avoidShowingChildAndParent: false,
-      maptype: null,
       levelThreshold: 0
     };
 
@@ -304,7 +303,7 @@ export class LayerFactory {
       WebGLLayer = MediaLayer;
     } else {
       if (layerDef["Load Data Function"]) {
-        layerOptions.loadDataFunction = LayerFactory.getFunction(layerOptions.maptype, 'loadData', layerDef["Load Data Function"]);
+        layerOptions.loadDataFunction = LayerFactory.getFunction(layerOptions.mapType, 'loadData', layerDef["Load Data Function"]);
       }
       if (layerDef["Set Data Function"]) {
         layerOptions.setDataFunction = LayerFactory.getFunction(layerOptions.mapType, 'setData', layerDef["Set Data Function"]);

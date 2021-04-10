@@ -322,12 +322,21 @@ class EarthTimeImpl implements EarthTime {
     return rates;
   }
 
-  showVisibleLayersLegends() {
+  showVisibleLayersLegendsAndCredits() {
     let loadedLayersInIdOrder = this.layerDB.loadedLayersInIdOrder();
+    let foundMapbox = false;
     for (let i = 0; i < loadedLayersInIdOrder.length; i++) {
+      if (loadedLayersInIdOrder[i].layer.mapType == "mapbox" && !foundMapbox) {
+        foundMapbox = true;
+      }
       if (loadedLayersInIdOrder[i].layer.hasLegend && !loadedLayersInIdOrder[i].layer.legendVisible && loadedLayersInIdOrder[i].layer.allVisibleTilesLoaded()) {
         this.layerDB.layerFactory.setLegend(loadedLayersInIdOrder[i].id);
       }
+    }
+    if (foundMapbox && !$mapboxLogoContainer.data("active")) {
+      $mapboxLogoContainer.data("active", true).show();
+    } else if (!foundMapbox && $mapboxLogoContainer.data("active")) {
+      $mapboxLogoContainer.data("active", false).hide();
     }
   }
 
@@ -535,6 +544,7 @@ var initialTopNavWrapperElm;
 var $activeLayerDescriptionTooltip;
 var storyEditor;
 var storyLoadedFromRealKeyDown = false;
+var $mapboxLogoContainer;
 
 
 function parseConfigOption(settings) {
@@ -2451,6 +2461,8 @@ async function setupUIAndOldLayers() {
     });
   }
 
+  $mapboxLogoContainer = $("#mapboxLogoContainer");
+
   // Keep this last
 
   // Note that hash change events are run in reverse order of them being added when handled
@@ -3127,7 +3139,7 @@ function update() {
 
   gEarthTime.updateTimelineIfNeeded();
 
-  gEarthTime.showVisibleLayersLegends();
+  gEarthTime.showVisibleLayersLegendsAndCredits();
 
   gEarthTime.handleGraphIfNeeded();
 }

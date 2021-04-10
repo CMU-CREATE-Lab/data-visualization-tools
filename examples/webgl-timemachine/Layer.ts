@@ -109,7 +109,6 @@ export class LayerOptions {
     avoidShowingChildAndParent: boolean;
     rootUrl?: any;
     greenScreen?: any;
-    maptype: string;
     setDataFunction?: (...any: any[]) => any;
     layerDef: any;
     maxLevelOverride?: number;

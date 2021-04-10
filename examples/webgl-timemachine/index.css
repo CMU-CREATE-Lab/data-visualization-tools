@@ -116,11 +116,14 @@ html, body {
 #contributors.heading {
   font-size: 24px;
 }
-#contributorsLogo {
+#contributorsLogo, #mapboxLogoContainer img {
   max-height: 100px;
   object-fit: cover;
   max-width: 150px;
   margin-top: 6px;
+}
+#mapboxLogoContainer {
+  display: none;
 }
 #poweredBy {
   padding-bottom: 8px;
