@@ -39,6 +39,15 @@ export class ContentSearch {
         let openCategories = $("#layers-menu h3.ui-accordion-header.ui-state-active");
         let found = false;
         let layerCategoriesToOpen = [];
+
+        var hideAccordion = function($accordion, accordion, openIndex) {
+          if (openIndex >= 0) {
+            $('.ui-accordion-header-icon', $accordion).removeClass('ui-icon-triangle-1-s').addClass('ui-icon-triangle-1-e');
+            $accordion.attr("aria-selected", "false").removeClass("accordion-header-active ui-state-active").next().hide().removeClass("accordion-content-active");
+          }
+          accordion.style.display = "none";
+        }
+
         for (const accordion of that.$accordions) {
           let $accordion = $(accordion);
           let $categoryLayers = $accordion.next().find("tr");
@@ -47,35 +56,38 @@ export class ContentSearch {
           var openIndex = openCategories.index(accordion);
           $categoryLayers.show();
           let searchTokens = searchText.split(/\s+/);
-          if (searchTokens.every(str => categoryName.indexOf(str) >= 0) || searchTokens.every(str => categoryLayerText.indexOf(str) >= 0)) {
+          var categoryMatch = searchTokens.every(str => categoryName.indexOf(str) >= 0);
+          if (categoryMatch || searchTokens.every(str => categoryLayerText.indexOf(str) >= 0)) {
             found = true;
             accordion.style.display = "block";
             let hiddenLayersCount = 0;
             for (const layerEntry of $categoryLayers) {
               let layerEntryText = layerEntry.innerText.toLowerCase();
-              if (searchTokens.every(str => layerEntryText.indexOf(str) == -1)) {
+              if (searchTokens.some(str => layerEntryText.indexOf(str) == -1)) {
                 layerEntry.style.display = "none";
                 hiddenLayersCount++;
               }
             }
-            // If we end up hiding every layer in a category, but the search criteria matches the category name itself,
-            // we unhide all the layers in it. We do this based on the assumption that someone was doing a very generic search
-            // and since we don't have tags and our layer names are terrible at best, perhaps something in that category is actually
-            // of interest.
-            if (hiddenLayersCount == $categoryLayers.length) {
-              $categoryLayers.show();
-            }
-            // If a category is not open and the search box contains a search query, open the category.
-            if (openIndex == -1 && searchText.length > 0) {
-              layerCategoriesToOpen.push(accordion);
+            if (!categoryMatch && hiddenLayersCount == $categoryLayers.length) {
+              // If a category was open and we need to hide it because of no relevant search results, we close it first.
+              hideAccordion($accordion, accordion, openIndex);
+            } else {
+              // If we end up hiding every layer in a category, but the search criteria matches the category name itself,
+              // we unhide all the layers in it. We do this based on the assumption that someone was doing a very generic search
+              // and since we don't have tags and our layer names are terrible at best, perhaps something in that category is actually
+              // of interest.
+              if (categoryMatch && hiddenLayersCount == $categoryLayers.length) {
+                $categoryLayers.show();
+              }
+              // Match was found within a category.
+              // If a category is not already open and the search box contains a search query, add to list of categories to open.
+              if (openIndex == -1 && searchText.length > 0) {
+                layerCategoriesToOpen.push(accordion);
+              }
             }
           } else {
             // If a category was open and we need to hide it because of no relevant search results, we close it first.
-            if (openIndex >= 0) {
-              $('.ui-accordion-header-icon', $accordion).removeClass('ui-icon-triangle-1-s').addClass('ui-icon-triangle-1-e');
-              $accordion.attr("aria-selected", "false").removeClass("accordion-header-active ui-state-active").next().hide().removeClass("accordion-content-active");
-            }
-            accordion.style.display = "none";
+            hideAccordion($accordion, accordion, openIndex);
           }
         }
         if (found) {
