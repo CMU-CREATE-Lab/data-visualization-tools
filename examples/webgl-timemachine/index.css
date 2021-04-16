@@ -120,7 +120,7 @@ html, body {
   max-height: 100px;
   object-fit: cover;
   max-width: 150px;
-  margin-top: 6px;
+  margin-top: 14px;
 }
 #mapboxLogoContainer {
   display: none;
@@ -2017,7 +2017,7 @@ a:focus { outline:0; }
 }
 
 #logosContainer {
-  bottom: 83px;
+  bottom: 76px;
   position: absolute;
   right: 20px;
   text-align: right;
