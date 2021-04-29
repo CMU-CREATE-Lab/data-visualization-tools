@@ -10,7 +10,9 @@ import mapboxgl, { featureFilter } from './mapbox-gl-dev-patched-1.11.1/mapbox-g
 
 import { LayerProxy } from './LayerProxy';
 import { Glb } from './Glb';
-import { LayerOptions, LayerInterface } from './Layer';
+import { LayerOptions, LayerInterface, Layer } from './Layer';
+
+import {MouseOverTemplate, LayerTemplate} from "./LayerTemplate";
 
 export class ETMapboxSublayer {
   id: string;
@@ -46,9 +48,15 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
   mapboxDef: {
     style: string,
     drawOrder?: { [drawOrderStr: string]: string[]},
-    templateDef? : {
-      options?: {}
-      template?: string
+    mouseOver? : {
+      template: string,
+      active?: boolean,
+      title?: string,
+      options?: {
+        alias?: {[key: string]: string},
+        exclude?: any,
+        include?: any,
+      }
     }
   }
 
@@ -191,7 +199,7 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
   }
 
   _prefixLayerId(id: string): string {
-    return `${this.layerId}_${id}`
+    return `${this.layerId}|${id}`
   }
 
   // Don't use this directly; use _ensureLoaded instead
@@ -219,8 +227,10 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
 
     var syncState = this._syncState;
     for (const [id, source] of Object.entries(initialStyle.sources)) {
+      console.log(`SOURCE ID: ${id}`)
       syncState.mapSources[id] = source;
     }
+    
     syncState.mapLayers = initialStyle.layers.slice(); // clone
 
     this.map.on('error', function (e) {
@@ -320,6 +330,7 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
       // Eventually, would we want to be able to get more than one?
       for (const feature of features) {
         if (!(feature.layer.id in propertiesById)) {
+          console.log(`feature.layer.id ${feature.layer.id}`)
           propertiesById[feature.layer.id] = feature.properties;
         }
       }
@@ -331,20 +342,85 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
     this.updateProperties({});
   }
 
-  static layerTemplate: LayerTemplate;
+  static _layerTmpls: MouseOverTemplate[];
+  static _tmpldiv: HTMLDivElement;
 
   static updateProperties(propertiesById: {[layerId: string]: {[key: string]: any}}) {
     if (!Utils.deepEquals(propertiesById, this._lastPropertiesById)) {
       this._lastPropertiesById = propertiesById;
       // TODO: render caption, and only log if it changes
 
-      if (!this.layerTemplate)
-        this.layerTemplate = new LayerTemplate(this.visibleLayers[0].mapboxDef.templateDef);
+      if (!this._tmpldiv) {
+        let tmp = document.createElement("div");
+  
+        tmp.setAttribute("class", "main-template-div");
+        tmp.style.display = "none";
+        tmp.style.position = "absolute";
+        tmp.style.padding = "13px";
+        tmp.style.zIndex = "10000";
+        tmp.style.width = "144px";
+        this._tmpldiv = tmp;
+        document.body.appendChild(this._tmpldiv);
+      }
 
-      let html = this.layerTemplate.render(propertiesById)
+      if (!this._layerTmpls) {
+        this._layerTmpls = [];
 
-      console.log(`${this.logPrefix()} mouse over`,propertiesById);
-      console.log(`${html}`);
+        this.visibleLayers.forEach(v => {
+          if (v.mapboxDef?.mouseOver) {
+            this._layerTmpls.push(new MouseOverTemplate(v.layerId, LayerTemplate.FromObject(v.mapboxDef.mouseOver)));
+          }
+        });
+      }
+
+      console.log(`${this.logPrefix()} # templates : ${this._layerTmpls.length}`)
+
+      if (this._layerTmpls.length > 0) {
+        let layerProps: {[key: string]: {[key: string]: any}} = {};
+
+
+        Object.keys(propertiesById).forEach(p => {
+          let lyrttl = p.split("|");
+          let lyr = lyrttl[0], ttl = lyrttl[1];
+
+          if (Object.keys(propertiesById[p]).length > 0) {
+            if (!(lyr in layerProps))
+              layerProps[lyr] = {};
+
+            layerProps[lyr][ttl] = propertiesById[p];
+          }
+          
+        });
+
+        console.log(`${this.logPrefix()} mouse over`,layerProps);
+
+        let divied = 0;
+
+        this._layerTmpls.forEach(tmpl => {
+            if (tmpl.active) {
+              let div = tmpl.divy(layerProps[tmpl.layerId]);
+
+              if (div)
+              {
+                this._tmpldiv.appendChild(div);
+                divied++;
+              }
+            }
+          });
+
+        if (divied > 0) {
+          this._tmpldiv.style.display = "block";
+          this._tmpldiv.style.left = "89px";
+          this._tmpldiv.style.top = "89px";
+          this._tmpldiv.style.backgroundColor = "#EEE";
+          this._tmpldiv.style.border = "1px solid";
+        } else {
+        this._tmpldiv.style.display = "none";
+        } 
+      } else {
+          this._tmpldiv.style.display = "none";
+      }
+      // console.log(`${this.logPrefix()} mouse over`,propertiesById);
     }
   }
 
@@ -475,139 +551,137 @@ class MapboxEarthtimeProxyLayer {
  
 }
 
-class LayerTemplate {
+// class LayerTemplate {
 
-  _def: {options: {
-    aliases: {[key: string]: string},
-    exceptions: Set<string>,
-  }, template: string}
-  _div: HTMLDivElement;
-  _tmpl: JsViews.Template;
+//   _def: {options: {
+//     aliases: {[key: string]: string},
+//     exceptions: Set<string>,
+//   }, template: string}
+//   _div: HTMLDivElement;
+//   _tmpl: JsViews.Template;
 
-  constructor(templateDef : {options?: {aliases?: {[key: string]: string}, exceptions?: string[]}, template?: string,}) {
-    if (!templateDef?.options)
-      var opts = {aliases: {}, exceptions: new Set<string>()}
-    else
-      opts = {
-        aliases: templateDef.options.aliases ? templateDef.options.aliases : {},
-        exceptions: templateDef.options.exceptions ? new Set<string>(templateDef.options.exceptions) : new Set<string>() 
-      }
+//   constructor(templateDef : {options?: {aliases?: {[key: string]: string}, exceptions?: string[]}, template?: string,}) {
+//     if (!templateDef?.options)
+//       var opts = {aliases: {}, exceptions: new Set<string>()}
+//     else
+//       opts = {
+//         aliases: templateDef.options.aliases ? templateDef.options.aliases : {},
+//         exceptions: templateDef.options.exceptions ? new Set<string>(templateDef.options.exceptions) : new Set<string>() 
+//       }
       
-    let tmpl = templateDef?.template ? templateDef.template : `
-    <div>
-    {{props ~root itemVar="~parent"}}
-      {{if ~isNotDict(~parent^prop)}}
-        <b>{{>~parent^key}}:</b> {{>~parent^prop}}<br>
-      {{else}}
-        <b>{{>~parent^key}}:</b>
-        <div style="padding-left:13px">
-          {{props ~parent^prop itemVar="~child"}}
-            {{if ~isNotDict(~child^prop)}}
-              <b>{{>~child^key}}:</b> {{>~child^prop}}<br>
-            {{else}}
-              <b>{{>~child^key}}:</b>
-              <div style="padding-left:13px">
-                {{props ~child^prop itemVar="~gchild"}}
-                  <b>{{~gchild^key}}:</b> {{>~gchild^prop}}<br>
-                {{/props}}
-              </div>
-              <br>
-            {{/if}}
-          {{/props}}
-        </div>
-        <br>
-      {{/if}}
-    {{/props}}
-    </div>
-      `;
+//     let tmpl = templateDef?.template ? templateDef.template : `
+//     <div>
+//     {{props ~root itemVar="~parent"}}
+//       {{if ~isNotDict(~parent^prop)}}
+//         <b>{{>~parent^key}}:</b> {{>~parent^prop}}<br>
+//       {{else}}
+//         <b>{{>~parent^key}}:</b>
+//         <div style="padding-left:13px">
+//           {{props ~parent^prop itemVar="~child"}}
+//             {{if ~isNotDict(~child^prop)}}
+//               <b>{{>~child^key}}:</b> {{>~child^prop}}<br>
+//             {{else}}
+//               <b>{{>~child^key}}:</b>
+//               <div style="padding-left:13px">
+//                 {{props ~child^prop itemVar="~gchild"}}
+//                   <b>{{~gchild^key}}:</b> {{>~gchild^prop}}<br>
+//                 {{/props}}
+//               </div>
+//               <br>
+//             {{/if}}
+//           {{/props}}
+//         </div>
+//         <br>
+//       {{/if}}
+//     {{/props}}
+//     </div>
+//       `;
 
-    this._def = {options: opts, template: tmpl};
-    this._tmpl = $.templates({markup: tmpl, helpers: {isNotDict: (prop => {return prop.constructor != Object})}});
-  }
+//     this._def = {options: opts, template: tmpl};
+//     this._tmpl = $.templates({markup: tmpl, helpers: {isNotDict: (prop => {return prop.constructor != Object})}});
+//   }
 
-  render(data: {[key: string]: {}}): string {
-    if (!this._div) {
-      let tempDiv = document.createElement("div");
-      tempDiv.style.display = "none";
-      tempDiv.style.position = "absolute";
-      tempDiv.style.backgroundColor = "#EEE";
-      tempDiv.style.padding = "13px";
-      tempDiv.style.zIndex = "10000";
-      tempDiv.style.fontSize = "0.67em";
-      tempDiv.style.borderRadius = "8px";
-      document.body.appendChild(tempDiv);
+//   render(data: {[key: string]: {}}){
+//     if (!this._div) {
+//       let tempDiv = document.createElement("div");
+//       tempDiv.style.display = "none";
+//       tempDiv.style.position = "absolute";
+//       tempDiv.style.backgroundColor = "#EEE";
+//       tempDiv.style.padding = "13px";
+//       tempDiv.style.zIndex = "10000";
+//       tempDiv.style.fontSize = "0.67em";
+//       tempDiv.style.borderRadius = "8px";
+//       document.body.appendChild(tempDiv);
 
-      this._div = tempDiv
-    }
+//       this._div = tempDiv
+//     }
 
-    if (this._def.options.exceptions.size > 0) {
-      data = this._except(data, this._def.options.exceptions);
+//     if (this._def.options.exceptions.size > 0) {
+//       data = this._except(data, this._def.options.exceptions);
       
-      if (this._def.options.aliases.keys)
-        this._aliasInPlace(data);
-    }
-    else if (this._def.options.aliases.keys) {
-      data = this._aliasCopy(data);
-    }
+//       if (this._def.options.aliases.keys)
+//         this._aliasInPlace(data);
+//     }
+//     else if (this._def.options.aliases.keys) {
+//       data = this._aliasCopy(data);
+//     }
 
-    try {
-      var html = this._tmpl(data);
-    } catch (err) {
-      html = "";
-    }
+//     try {
+//       var html = this._tmpl(data);
+//     } catch (err) {
+//       html = ""; 
+//     }
 
-    if (html) {
-      this._div.innerHTML = html;
-      this._div.style.display = "block";
-      this._div.style.left = "89px";
-      this._div.style.top = "89px";
-      this._div.style.border = "1px solid";
-    }
-    else {
-      this._div.style.display = "none";
-    }
+//     if (html) {
+//       this._div.innerHTML = html;
+//       this._div.style.display = "block";
+//       this._div.style.left = "89px";
+//       this._div.style.top = "89px";
+//       this._div.style.border = "1px solid";
+//     }
+//     else {
+//       this._div.style.display = "none";
+//     }
+//   }
 
-    return html;
-  }
+//   _except(dict: {[key: string]: any}, exceptions: Set<string>)
+//   {
+//     let copy = {}
 
-  _except(dict: {[key: string]: any}, exceptions: Set<string>)
-  {
-    let copy = {}
+//     for (const label in dict)
+//       if (!(label in exceptions))
+//         copy[label] = dict[label];
 
-    for (const label in dict)
-      if (!(label in exceptions))
-        copy[label] = dict[label];
+//     return copy;
+//   }
 
-    return copy;
-  }
+//   _aliasCopy(dict: {[key: string]: {}}) {
+//     var aliasDict = {}
 
-  _aliasCopy(dict: {[key: string]: {}}) {
-    var aliasDict = {}
+//     for(const label in Object.keys(dict)) {
+//       if (dict[label].constructor == Object)
+//         var val = this._aliasCopy(dict[label]);
+//       else
+//         val = dict[label];
 
-    for(const label in Object.keys(dict)) {
-      if (dict[label].constructor == Object)
-        var val = this._aliasCopy(dict[label]);
-      else
-        val = dict[label];
+//       let aliases = this._def.options.aliases;
+//       aliasDict[label in aliases ? aliases[label]: label] = val;
+//     }
 
-      let aliases = this._def.options.aliases;
-      aliasDict[label in aliases ? aliases[label]: label] = val;
-    }
+//     return dict;
+//   }
 
-    return dict;
-  }
+//   _aliasInPlace(dict: {[key: string]: {}}) {
+//     for(const label in Object.keys(dict)) {
+//       if (dict[label].constructor == Object)
+//         this._aliasInPlace(dict[label]);
 
-  _aliasInPlace(dict: {[key: string]: {}}) {
-    for(const label in Object.keys(dict)) {
-      if (dict[label].constructor == Object)
-        this._aliasInPlace(dict[label]);
+//       let aliases = this._def.options.aliases;
 
-      let aliases = this._def.options.aliases;
-
-      if (label in aliases) {
-        dict[aliases[label]] = dict[label];
-        delete dict[label];
-      }
-    }
-  }
-}
+//       if (label in aliases) {
+//         dict[aliases[label]] = dict[label];
+//         delete dict[label];
+//       }
+//     }
+//   }
+// }
