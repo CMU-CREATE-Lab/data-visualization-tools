@@ -762,6 +762,7 @@ function initLayerToggleUI() {
     dialogClass: "extras-content-dialog",
     open: function(event, ui) {
       $("#timeMachine").removeClass("presentationSliderSelection presentationSliderSelectionOverflow");
+      $("#navControls").children().not(".fullScreen").addClass("force-hidden");
       if (enableLetterboxMode) {
         $(".extras-content-dialog").addClass("letterbox");
       }
@@ -782,6 +783,7 @@ function initLayerToggleUI() {
         extrasVideo.src = "";
       }
       $extrasContentContainer.data("layer-id", "");
+      $("#navControls").children().removeClass("force-hidden");
     }
   }).css({
     'z-index': '2000',

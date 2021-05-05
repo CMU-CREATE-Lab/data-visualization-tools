@@ -462,7 +462,7 @@ html, body {
   height: 100px;
   pointer-events: none;
   position: relative;
-  z-index: 90;
+  z-index: 101;
   display: block;
   left: 20px;
   top: 20px;
@@ -1305,7 +1305,7 @@ a:focus { outline:0; }
   margin-top: -15px;
 }
 
-.ui-icon.ui-icon-plus, .ui-button .ui-icon.ui-icon-custom-plus {
+.zoomin .ui-icon.ui-icon-plus, .ui-button .ui-icon.ui-icon-custom-plus {
   background: url(../../images/plus.png) !important;
   width: 18px;
   height: 18px;
