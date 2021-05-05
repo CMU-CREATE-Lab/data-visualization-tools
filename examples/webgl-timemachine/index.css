@@ -1389,6 +1389,10 @@ a:focus { outline:0; }
   border-top-left-radius: 4px !important;
 }
 
+#navControls .ui-button[class*="force-hidden"] ~ .ui-button:not([class*="force-hidden"]) {
+  margin-top: 0px !important;
+}
+
 .ui-button.ui-state-hover .toggleLayerPanelBtnIcon {
   opacity: 1;
 }
