@@ -56,8 +56,7 @@ html, body {
   width: 38px;
   height: 38px;
   background: white;
-  border-bottom-right-radius: 2px !important;
-  border-top-right-radius: 2px !important;
+  border-radius: 4px !important;
   -webkit-box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
   box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
   position: relative;
@@ -1377,7 +1376,7 @@ a:focus { outline:0; }
   border-right: 1px solid #656565;
 }
 
-#appControls .controlButton:last-child, #navControls .controlButton:last-child {
+#appControls .controlButton:last-child, #navControls :last-of-type[class*='controlButton'] {
   border-bottom: 1px solid #656565;
   border-bottom-right-radius: 4px !important;
   border-bottom-left-radius: 4px !important;
