@@ -1526,7 +1526,8 @@ async function setupUIAndOldLayers() {
   (window as any).canvasLayer = gEarthTime.canvasLayer;
 
   // initialize WebGL
-  gl = gEarthTime.canvasLayer.canvas.getContext('experimental-webgl',  {antialias: true, alpha: true, stencil: false, depth: true, failIfMajorPerformanceCaveat: false, preserveDrawingBuffer: preserveDrawingBuffer});
+  // depth: true and stencil: true required for Mapbox
+  gl = gEarthTime.canvasLayer.canvas.getContext('experimental-webgl',  {antialias: true, alpha: true, stencil: true, depth: true, failIfMajorPerformanceCaveat: false, preserveDrawingBuffer: preserveDrawingBuffer});
   (window as any).gl = gl; // TODO(LayerDB): someday stop using this global
 
   gEarthTime.glb = new Glb(gl);

@@ -14,6 +14,7 @@ export class LayerEditor {
 			Start Date: {{:startDate}}<br>
 			End Date: {{:endDate}}<br>
 		{{/if}}
+		Max Gmaps Zoom Level: {{:layer.maxGmapsZoomLevel()}}<br>
 		{{if hasColor}}
 			Color: {{:color}}<br>
 		{{/if}}
@@ -109,6 +110,7 @@ export class LayerEditor {
 		var layer = gEarthTime.layerDB.getLayer(layerId).layer
 
 		var layerInfo = {
+			layer: layer,
 			name: layer.name,
 			category: layer.category,
 			id: layer.layerId,
