@@ -237,6 +237,9 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
       console.log(`${Utils.logPrefix()}: !!!!! Mapbox error: ${e.error}`);
     });
 
+    // Resize when timelapse canvas resizes
+    gEarthTime.timelapse.addResizeListener(function() { this.map.resize(); }.bind(this));
+
     await new Promise<void>((resolve, reject) => { this.map.on('load', resolve); });
     this.mapLoaded = true;
     console.log(`${this.logPrefix()} map load`);
