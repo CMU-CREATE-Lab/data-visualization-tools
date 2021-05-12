@@ -210,8 +210,8 @@
       }
     }
 
-    // Parse the capture time string to the format for the thumbnail server
-    function parseCaptureTime(capture_time, flag) {
+    // Get playback time from frame number
+    function getTimeFromFrame(frameNumber, flag) {
       var isStart = flag == "start";
       return timelapse.shareDateFromFrame(frameNumber, isStart);
     }
@@ -219,7 +219,7 @@
     // Collect the parameters from the user interface
     function collectParameters(desired_bound, desired_width, desired_height) {
       // Start time
-      var start_time = parseCaptureTime($start_time.data("frameNumber"), "start");
+      var start_time = getTimeFromFrame($start_time.data("frameNumber"), "start");
       // Start Time in playback time
       var start_time_in_playback_time = timelapse.playbackTimeFromShareDate(start_time);
       // Layers
@@ -249,7 +249,7 @@
       }
 
       // End time
-      var end_time = parseCaptureTime($end_time.data("frameNumber"), "end");
+      var end_time = getTimeFromFrame($end_time.data("frameNumber"), "end");
 
       // Playback speed
       var speed = $this.find("input:radio[name='set-view-tool-speed-input']:checked").val();

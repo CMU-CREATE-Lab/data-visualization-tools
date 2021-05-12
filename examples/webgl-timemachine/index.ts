@@ -750,7 +750,7 @@ async function handleLayers(layerIds: string[], setByUser?: boolean) {
   console.log(`${Utils.logPrefix()} handleLayers; calling setVisibleLayers`);
   gEarthTime.layerDB.setVisibleLayers(layerProxies, setByUser);
 }
-
+(window as any).handleLayers = handleLayers;
 
 function initLayerToggleUI() {
   $("#extras-content-container").dialog({
