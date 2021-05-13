@@ -510,7 +510,9 @@ var preserveDrawingBuffer = parseConfigOption({optionName: "preserveDrawingBuffe
 //// App variables ////
 //
 
-WebGLVideoTile.useFaderShader = useFaderShader;
+// TODO: Firefox seeking speed is not precise enough for the assumption made by the fader shader.
+// For now, disable fader shader for Firefox otherwise we get jumpback during playback.
+WebGLVideoTile.useFaderShader = UTIL.isFirefox() ? false : useFaderShader;
 var isAutoModeRunning = false;
 var visibleBaseMapLayer = "blsat";
 var thumbnailTool;
