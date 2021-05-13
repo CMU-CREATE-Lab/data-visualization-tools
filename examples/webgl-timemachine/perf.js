@@ -5,9 +5,6 @@ var perf_stats = {};
 
 function perf_drawframe() {
     var now = new Date().getTime();
-    if (perf_last_frame_time) {
-	perf_avg('FPS', 1000/(now - perf_last_frame_time));
-    }
     perf_frame_count += 1;
     perf_last_frame_time = now;
 }
@@ -62,15 +59,16 @@ function perf_get_div() {
 function perf_round(x) {
     return Math.round(x * 10) / 10;
 }
-    
+
 function perf_update() {
     $('#perf').empty();
+    $('#perf').append(perf_frame_count / 1.0 + ' FPS<br>');
     for (var property in perf_stats) {
 	if (perf_stats.hasOwnProperty(property)) {
 	    var stat = perf_stats[property];
 	    var line = property + ': ';
 	    if (stat[1] == 'second') {
-		line += perf_round(perf_stats[property][0] / 2.0) + '/sec';
+		line += perf_round(perf_stats[property][0] / 1.0) + '/sec';
 	    } else if (stat[1] == 'frame') {
 		line += perf_round(perf_stats[property][0] / perf_frame_count) + '/frame';
 	    } else {
@@ -79,20 +77,27 @@ function perf_update() {
             $('#perf').append(line + '<br>');
  	}
     }
-    
+
     perf_stats = {};
     perf_frame_count = 0;
-    setTimeout(perf_update, 2000);
-    
+    setTimeout(perf_update, 1000);
+
 }
 
 function perf_init() {
-    $('body').keypress(function(evt) {
+    $("body").on("keydown", function(evt) {
+        if (evt.ctrlKey && evt.key == 'f') {
+            perf_get_div().toggle();
+        }
+
+    });
+    /*$('body').keypress(function(evt) {
 	if (evt.which == 6) { // ctrl-f for FPS
+        console.log('perf keypress')
 	    perf_get_div().toggle();
 	}
-    });
-    setTimeout(perf_update, 2000);
+    });*/
+    setTimeout(perf_update, 1000);
 }
 
 console.log('perf.js:  Type ctrl-f to display FPS and other stats')
