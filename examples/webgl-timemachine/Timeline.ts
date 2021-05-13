@@ -12,10 +12,6 @@ import { Utils } from "./Utils";
 
 export type TimelineType = "customUI" | "defaultUI";
 
-// TODO: make this work right for Timemachine layer
-//           be able to pass in all timestamps
-//           is there a time where we have a Timemachine layer but not yet know its capture times, before tm.json loaded?
-
 export class Timeline {
     timelineType: TimelineType;
     startDate: string;

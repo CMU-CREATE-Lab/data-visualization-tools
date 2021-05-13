@@ -7,6 +7,10 @@ import { Glb } from './Glb'
 import { Timeline } from './Timeline';
 
 export interface EarthTime {
+  lastClientDimensions: { width: number, height: number };
+  lastView: {[key: string]: number},
+  lastDrawnLayers: any;
+  lastPlaybackTime: number;
   defaultMasterPlaybackRate: number;
   defaultPlaybackRate: number;
   dotmapsServerHost: any;

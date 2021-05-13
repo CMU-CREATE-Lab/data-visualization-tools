@@ -212,6 +212,7 @@ export class LayerDB {
         if (isLoaded) {
           cache.loadedLayers.push(layerProxy);
           let layer = layerProxy.layer;
+          layer.nextFrameNeedsRedraw = true;
           if ('getSublayers' in layer) {
             for (let [j, sublayer] of layer.getSublayers().entries()) {
               loadedSublayers.push([sublayer.drawOrder, i, j, sublayer]);

@@ -122,6 +122,7 @@ export class LayerOptions {
     maxGmapsZoomLevel(): number | null;
     info(): string;
     handleVisibilityStateChange(): void;
+    nextFrameNeedsRedraw: boolean;
   }
 
   export abstract class Layer extends LayerOptions implements LayerInterface {
@@ -145,6 +146,12 @@ export class LayerOptions {
     isLoaded(): boolean { return true; }; // Override this in subclass if needed
     allVisibleTilesLoaded(): boolean { return true; } // Override this in subclass if needed
     legendVisible: boolean;
+    // Does next frame update require a redraw of this layer?
+    // If a tile has been received or any other state change requires a redraw, set to true
+    // Doesn't need to be set solely because of a change of viewport or playback time;  that will cause
+    // all layers to redraw independently of this value.
+    // Should typically be set by subclass Layer.draw function to false at the beginning of redraw
+    nextFrameNeedsRedraw = true;
 
     constructor(layerProxy: LayerProxy, layerOptions: LayerOptions, tileClass: typeof Tile) {
       super(layerOptions);
@@ -285,6 +292,7 @@ export class LayerOptions {
     // viewBounds:  xmin, xmax, ymin, ymax all in coords 0-256
     // TODO: Fix this for 900913 coords
   _drawHelper(view, opt_options) {
+    this.nextFrameNeedsRedraw = false;
     if (this.ready) {
       var width = this._canvasLayer.canvas.width / this._canvasLayer.resolutionScale_;
       var height = this._canvasLayer.canvas.height / this._canvasLayer.resolutionScale_;

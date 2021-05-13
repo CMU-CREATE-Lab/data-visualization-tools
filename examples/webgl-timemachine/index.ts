@@ -142,6 +142,10 @@ class EarthTimeImpl implements EarthTime {
   canvasLayer = null;
   readyToDraw = false;
   currentlyShownTimeline: any;
+  lastPlaybackTime = -1;
+  lastView = {x : -1, y : -1, scale: -1};
+  lastClientDimensions = {width : -1, height : -1};
+  lastDrawnLayers = [];
   async setDatabaseID(databaseID: GSheet) {
     if (loadedLayersGSheet && databaseID.url() == loadedLayersGSheet.url()) return;
     loadedLayersGSheet = databaseID;
@@ -281,10 +285,12 @@ class EarthTimeImpl implements EarthTime {
      * Layers with single timestamp (begin time = end time) show a year without a timeline.
      * And enforce that animated base layers like landsat pause that at same time.
      */
+
     let visibleLayers = this.layerDB.visibleLayers;
     let baseLayerTimeline = null;
     let dataLayerTimeline = null;
     let isFullExtent = false;
+
     for (let i = 0; i < visibleLayers.length; i++) {
       if (visibleLayers[i].layer?.category == 'Base Layers') {
         baseLayerTimeline = visibleLayers[i].layer?.timeline;
@@ -294,15 +300,16 @@ class EarthTimeImpl implements EarthTime {
         isFullExtent = true;
       }
     }
-    if (dataLayerTimeline == null) {
-      if (isFullExtent)  {
+
+    if (!dataLayerTimeline) {
+      if (isFullExtent || !baseLayerTimeline)  {
         return null;
       } else {
         return baseLayerTimeline;
       }
-    } else {
-      return dataLayerTimeline;
     }
+    return dataLayerTimeline;
+
   }
 
   playbackRates() {
@@ -3104,10 +3111,57 @@ function resizeLayersMenu() {
 // Draws to canvas.
 // Called by TimeMachineCanavasLayer during animation and/or view changes
 function update() {
+  let currentTimelapseView = gEarthTime.timelapse.getView();
+  let currentViewportWidth = gEarthTime.timelapse.getViewportWidth();
+  let currentViewportHeight = gEarthTime.timelapse.getViewportHeight();
+  let currentPlaybackTime = gEarthTime.timelapse.getCurrentTime();
+  let currentDrawnLayers = gEarthTime.layerDB.drawnLayersOrSublayersInDrawOrder();
+
+  let needRedraw = false;
+  let verboseRedrawTest = false;
+
+  for (let layerProxy of gEarthTime.layerDB.visibleLayers) {
+    if (layerProxy.layer?.nextFrameNeedsRedraw) {
+      needRedraw = true;
+      if (verboseRedrawTest) console.log(`Layer ${layerProxy.id} requests redraw`);
+      break;
+    }
+  }
+
+  if (gEarthTime.lastPlaybackTime != currentPlaybackTime) {
+    needRedraw = true;
+    if (verboseRedrawTest) console.log('Playback time changed; need redraw');
+  } else if (gEarthTime.lastView.x != currentTimelapseView.x ||
+             gEarthTime.lastView.y != currentTimelapseView.y ||
+             gEarthTime.lastView.scale != currentTimelapseView.scale) {
+    needRedraw = true;
+    if (verboseRedrawTest) console.log('View changed; need redraw');
+  } else if (gEarthTime.lastClientDimensions.height != currentViewportHeight ||
+             gEarthTime.lastClientDimensions.width != currentViewportWidth) {
+    needRedraw = true;
+    if (verboseRedrawTest) console.log('Viewport changed; need redraw');
+  } else if (gEarthTime.lastDrawnLayers.length != currentDrawnLayers.length ||
+             !gEarthTime.lastDrawnLayers.map(layerProxy => layerProxy.id).every((id,i)=> (currentDrawnLayers[i] && id == currentDrawnLayers[i].id))) {
+    needRedraw = true;
+    if (verboseRedrawTest) console.log('Layers changed; need redraw');
+  }
+
+  if (!needRedraw) return;
+
+  (window as any).perf_drawframe();
+
+  gEarthTime.lastPlaybackTime = currentPlaybackTime;
+  gEarthTime.lastView = currentTimelapseView;
+  gEarthTime.lastClientDimensions = {width: currentViewportWidth, height: currentViewportHeight};
+  gEarthTime.lastDrawnLayers = currentDrawnLayers;
+
+
   gEarthTime.timelapse.lastFrameCompletelyDrawn = true;
+
   gEarthTime.startRedraw();
+
   if (!gEarthTime.readyToDraw || !gEarthTime.layerDB) {
-    gEarthTime.timelapse.lastFrameCompletelyDrawn = true;
+    gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
     return;
   }
   if (disableAnimation) {
@@ -3122,11 +3176,13 @@ function update() {
   // Set this to true at the beginning of frame redraw;  any layer that decides it wasn't completely drawn will set
   // this to false upon draw below
   // If any selected layers not yet loaded, set lastFrameCompletelyDrawn to false
-  for (let layer of gEarthTime.layerDB.visibleLayers) {
-    if (!layer.isLoaded()) {
+  for (let layerProxy of gEarthTime.layerDB.visibleLayers) {
+    if (!layerProxy.isLoaded()) {
       gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
     }
   }
+
+  gEarthTime.updateTimelineIfNeeded();
 
   if (gEarthTime.layerDB.mapboxLayersAreVisible()) {
     // Ask ETMBLayer to render everything as Mapbox.  (EarthTime layers are inserted into Mapbox and drawn as custom layers)
@@ -3139,8 +3195,6 @@ function update() {
       sublayer.draw();
     }
   }
-
-  gEarthTime.updateTimelineIfNeeded();
 
   gEarthTime.showVisibleLayersLegendsAndCredits();
 

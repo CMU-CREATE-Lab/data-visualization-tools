@@ -38,7 +38,7 @@ export class LayerTemplate
 	readonly options: {
 		alias: {[key: string]: any},
 		exclude: any,
-		include: any		
+		include: any
 	}
 
 	constructor(
@@ -83,15 +83,15 @@ export class LayerTemplate
 
 		return new LayerTemplate(
 			{
-				active: def.hasOwnProperty("active") ? def.active : true, 
-				title: def.title ? def.title : "", 
-				template: def.template.trim() != "default" ? def.template : BaseTemplate, 
+				active: def.hasOwnProperty("active") ? def.active : true,
+				title: def.title ? def.title : "",
+				template: def.template?.trim() != "default" ? def.template : BaseTemplate,
 				options: opts
 			});
 	}
 
 	static _normalizeOpt(opt)
-	{		
+	{
 		let normalize = subopt =>
 		{
 			if (Array.isArray(subopt)) {
@@ -121,7 +121,7 @@ export class MouseOverTemplate
 
 
 	_def: LayerTemplate;
-	
+
 	_tmpl: JsViews.Template;
 
 	constructor(id: string, def: LayerTemplate)
@@ -130,7 +130,7 @@ export class MouseOverTemplate
 		this.active = def.active;
 		this._def = def
 
-		if (def.template.trim())
+		if (def.template?.trim())
 		{
 			try {
 				this._tmpl = $.templates({
@@ -194,7 +194,7 @@ export class MouseOverTemplate
 			if (html) {
 				console.log(`Template HTML BEFORE: ${html}`)
 
-				if (Object.keys(this._def.options.alias).length > 0) 
+				if (Object.keys(this._def.options.alias).length > 0)
 					html = this._alias(html);
 
 				if (this._def.title.trim()) {
@@ -213,7 +213,7 @@ export class MouseOverTemplate
 			}
 
 			console.log(`Template HTML AFTER: ${html}`)
-			return this.div;	
+			return this.div;
 		}
 	}
 
@@ -272,7 +272,7 @@ export class MouseOverTemplate
 	// 		{
 	// 			if (!(label in exclude))
 	// 			{
-	// 				copy[label] = dict[label].constructor != Object ? dict[label] : innerExclude(dict[label]); 
+	// 				copy[label] = dict[label].constructor != Object ? dict[label] : innerExclude(dict[label]);
 	// 			}
 	// 		}
 
@@ -335,7 +335,7 @@ export class MouseOverTemplate
 	// 		{
 	// 			if ((label in include))
 	// 			{
-	// 				copy[label] = dict[label].constructor != Object ? dict[label] : innerInclude(dict[label]); 
+	// 				copy[label] = dict[label].constructor != Object ? dict[label] : innerInclude(dict[label]);
 	// 			}
 	// 		}
 

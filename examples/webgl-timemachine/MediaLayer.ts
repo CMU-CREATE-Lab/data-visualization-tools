@@ -20,6 +20,7 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
   $extrasContentContainerTitleBar: any;
   $extrasContentContainer: any;
   $extrasContentComponent: any;
+  nextFrameNeedsRedraw = true;
 
   constructor(layerProxy: LayerProxy, glb: Glb, canvasLayer, tileUrl: string, layerOptions: LayerOptions) {
     super(layerOptions);

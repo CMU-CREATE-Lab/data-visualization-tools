@@ -41,9 +41,12 @@ export class WebGLMapTile extends Tile {
     this._image.crossOrigin = "anonymous";
     var that = this;
 
+    that._layer.nextFrameNeedsRedraw = true;
+
     this._image.onload = function () {
       that._removeLoadingSpinner();
       that._handleLoadedTexture();
+      that._layer.nextFrameNeedsRedraw = true;
     };
 
     // If tile 404's, replace with defaultUrl.  This lets us remove e.g. all the

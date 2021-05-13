@@ -239,7 +239,9 @@ export class WebGLTimeMachineLayer extends Layer {
   }
 
   draw(view) {
+    this.nextFrameNeedsRedraw = false;
     if (!this._ready) {
+      this.nextFrameNeedsRedraw = true;
       gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
       return;
     }

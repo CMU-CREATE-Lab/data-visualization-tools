@@ -60,6 +60,7 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
     }
   }
 
+  nextFrameNeedsRedraw = true;
   layerDef: any;
   layerId: string;
   style: MapboxTypes.Style;
@@ -230,7 +231,7 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
       console.log(`SOURCE ID: ${id}`)
       syncState.mapSources[id] = source;
     }
-    
+
     syncState.mapLayers = initialStyle.layers.slice(); // clone
 
     this.map.on('error', function (e) {
@@ -258,20 +259,33 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
   }
 
   // viewBounds:  xmin, xmax, ymin, ymax all in coords 0-256
-  draw(view, opt_options) {
-    console.assert(false);
-    if (!this._shown) {
-      this._show();
-    }
-    if (this._loaded) {
-      ETMBLayer.map._render(); // no args to _render means render all layers on map
-      if (!ETMBLayer.map.areTilesLoaded()) {
-        gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
-      }
-    } else {
-      gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
-    }
-  }
+  // draw(view, opt_options) {
+  //   console.assert(false);
+  //   if (!this._shown) {
+  //     this._show();
+  //   }
+  //   if (this._loaded) {
+  //     ETMBLayer.map._render(); // no args to _render means render all layers on map
+  //     let nextFrameNeedsRedraw: boolean;
+  //     if (!ETMBLayer.map.areTilesLoaded()) {
+  //       gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
+  //       nextFrameNeedsRedraw = true;
+  //     } else {
+  //       nextFrameNeedsRedraw = false;
+  //     }
+  //     if (!(window as any).stopit) {
+  //       console.log(`ETMBLayer draw:  nextFrameNeedsRedraw is ${nextFrameNeedsRedraw}`);
+  //     }
+  //     for (let layerProxy of gEarthTime.layerDB.drawnLayersOrSublayersInDrawOrder()) {
+  //       let layer = layerProxy.layer;
+  //       if (layer instanceof ETMBLayer) {
+  //         layer.nextFrameNeedsRedraw = nextFrameNeedsRedraw;
+  //       }
+  //     }
+  //   } else {
+  //     gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
+  //   }
+  // }
 
   abortLoading() {
   }
@@ -302,10 +316,45 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
       this.copyEarthtimeViewToMapbox();
       // Don't wait for 'load' event;  we need to call _render beforehand to help the loading process.
       this.map._render(); // no args to _render means render all layers on map
+      let nextFrameNeedsRedraw: boolean;
+      if (ETMBLayer.map.loaded() && ETMBLayer.map.areTilesLoaded()) {
+        nextFrameNeedsRedraw = false;
+      } else {
+        gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
+        nextFrameNeedsRedraw = true;
+      }
+      for (let layerProxy of gEarthTime.layerDB.drawnLayersOrSublayersInDrawOrder()) {
+        let layer = layerProxy.layer;
+        if (layer instanceof ETMBLayer) {
+          layer.nextFrameNeedsRedraw = nextFrameNeedsRedraw;
+        }
+      }
     } else {
       //console.log(`${this.staticLogPrefix()} map not yet loaded`);
     }
   }
+
+  //   if (this._loaded) {
+  //     ETMBLayer.map._render(); // no args to _render means render all layers on map
+  //     let nextFrameNeedsRedraw: boolean;
+  //     if (!ETMBLayer.map.areTilesLoaded()) {
+  //       gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
+  //       nextFrameNeedsRedraw = true;
+  //     } else {
+  //       nextFrameNeedsRedraw = false;
+  //     }
+  //     if (!(window as any).stopit) {
+  //       console.log(`ETMBLayer draw:  nextFrameNeedsRedraw is ${nextFrameNeedsRedraw}`);
+  //     }
+  //     for (let layerProxy of gEarthTime.layerDB.drawnLayersOrSublayersInDrawOrder()) {
+  //       let layer = layerProxy.layer;
+  //       if (layer instanceof ETMBLayer) {
+  //         layer.nextFrameNeedsRedraw = nextFrameNeedsRedraw;
+  //       }
+  //     }
+  //   } else {
+  //     gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
+
 
   static copyEarthtimeViewToMapbox() {
     if (this.map) {
@@ -355,7 +404,7 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
 
       if (!this._tmpldiv) {
         let tmp = document.createElement("div");
-  
+
         tmp.setAttribute("class", "main-template-div");
         tmp.style.display = "none";
         tmp.style.position = "absolute";
@@ -392,7 +441,7 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
 
             layerProps[lyr][ttl] = propertiesById[p];
           }
-          
+
         });
 
         console.log(`${this.logPrefix()} mouse over`,layerProps);
@@ -419,7 +468,7 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
           this._tmpldiv.style.border = "1px solid";
         } else {
         this._tmpldiv.style.display = "none";
-        } 
+        }
       } else {
           this._tmpldiv.style.display = "none";
       }
@@ -551,7 +600,7 @@ class MapboxEarthtimeProxyLayer {
     }
     return MapboxEarthtimeProxyLayer._cache[layerProxy.id];
   }
- 
+
 }
 
 // class LayerTemplate {
@@ -569,9 +618,9 @@ class MapboxEarthtimeProxyLayer {
 //     else
 //       opts = {
 //         aliases: templateDef.options.aliases ? templateDef.options.aliases : {},
-//         exceptions: templateDef.options.exceptions ? new Set<string>(templateDef.options.exceptions) : new Set<string>() 
+//         exceptions: templateDef.options.exceptions ? new Set<string>(templateDef.options.exceptions) : new Set<string>()
 //       }
-      
+
 //     let tmpl = templateDef?.template ? templateDef.template : `
 //     <div>
 //     {{props ~root itemVar="~parent"}}
@@ -621,7 +670,7 @@ class MapboxEarthtimeProxyLayer {
 
 //     if (this._def.options.exceptions.size > 0) {
 //       data = this._except(data, this._def.options.exceptions);
-      
+
 //       if (this._def.options.aliases.keys)
 //         this._aliasInPlace(data);
 //     }
@@ -632,7 +681,7 @@ class MapboxEarthtimeProxyLayer {
 //     try {
 //       var html = this._tmpl(data);
 //     } catch (err) {
-//       html = ""; 
+//       html = "";
 //     }
 
 //     if (html) {

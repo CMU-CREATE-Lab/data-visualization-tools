@@ -352,6 +352,11 @@ export class WebGLVideoTile extends Tile {
     return 1;
   }*/
 
+  flagIncompletion() {
+    gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
+    this.layer.nextFrameNeedsRedraw = true;
+  }
+
   // First phase of update
   // Cleans up and advances pipelines
   // Computes priority of capture
@@ -378,7 +383,8 @@ export class WebGLVideoTile extends Tile {
       if (WebGLVideoTile.verbose) {
         console.log(this._id + ': loading');
       }
-      gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
+      this.flagIncompletion()
+
       return;
     }
 
@@ -400,7 +406,7 @@ export class WebGLVideoTile extends Tile {
     var readyState = this._video.readyState;
 
     if (readyState == 0) {
-      gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
+      this.flagIncompletion();
       return;
     }
 
@@ -409,7 +415,7 @@ export class WebGLVideoTile extends Tile {
       if (WebGLVideoTile.verbose) {
         console.log(this._id + ': seeking for ' + this._seekingFrameCount + ' frames');
       }
-      gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
+      this.flagIncompletion();
       return;
     }
 
@@ -432,7 +438,10 @@ export class WebGLVideoTile extends Tile {
       if (Math.abs(this._video.currentTime - videoTime) > epsilon) {
         //console.log('Wrong spot (' + this._video.currentTime + ' so seeking source to ' + videoTime);
         this._video.currentTime = videoTime;
-        gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
+        if (WebGLVideoTile.verbose) {
+          console.log(this._id + ': seeking to ' + videoTime);
+        }
+        this.flagIncompletion();
       }
       else if (this._pipeline[0].frameno != displayFrameDiscrete ||
         Math.abs(this._pipeline[0].texture.before - videoTime) > epsilon ||
@@ -461,11 +470,16 @@ export class WebGLVideoTile extends Tile {
 
     var webglFps = 60;
     // Imagine we're going to drop a frame.  Aim to be at the right place in 3 frames
+
+    // Compute future as the number of frames per webgl frame, times 3
+    // Example: Landsat @ 5fps yields (5/60)*3 = 0.25
     var future = (fps / webglFps) * 3;
 
     // Desired video tile time leads display by frameOffset+1.3
+    // Does this compute the current desired video frame?
     var targetVideoFrame = (displayFrame + this._frameOffset + 1.2) % this._nframes;
 
+    // Future target video frame -- quarter frame in the future (for the example above of 5fps video)
     var futureTargetVideoFrame = (targetVideoFrame + future) % this._nframes;
 
     // Slow down by up to half a frame to make sure to get the next requested frame
@@ -521,7 +535,7 @@ export class WebGLVideoTile extends Tile {
       }
     }
     if (!this._ready) {
-      gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
+      this.flagIncompletion();
     }
   }
   _pipelineToString() {
