@@ -1296,7 +1296,7 @@ function modifyWaypointSliderContent(keyframes, theme, story) {
 
 
 function loadWaypointSliderContentFromCSV(csvdata) {
-  var parsed = Papa.parse(csvdata, {delimiter: '\t', header: true});
+  var parsed = Papa.parse(csvdata, {delimiter: '\t', header: true, quoteChar:"\\"});
   var waypointdefs = parsed['data'];
 
   // Clear out internal data stores and relevant dom elements
