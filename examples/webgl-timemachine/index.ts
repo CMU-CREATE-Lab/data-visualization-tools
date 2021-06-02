@@ -3148,19 +3148,12 @@ function update() {
     if (verboseRedrawTest) console.log('Layers changed; need redraw');
   }
 
-  if (!needRedraw) return;
-
-  (window as any).perf_drawframe();
-
   gEarthTime.lastPlaybackTime = currentPlaybackTime;
   gEarthTime.lastView = currentTimelapseView;
   gEarthTime.lastClientDimensions = {width: currentViewportWidth, height: currentViewportHeight};
   gEarthTime.lastDrawnLayers = currentDrawnLayers;
 
-
   gEarthTime.timelapse.lastFrameCompletelyDrawn = true;
-
-  gEarthTime.startRedraw();
 
   if (!gEarthTime.readyToDraw || !gEarthTime.layerDB) {
     gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
@@ -3173,18 +3166,24 @@ function update() {
 
   gEarthTime.timelapse.frameno = (gEarthTime.timelapse.frameno || 0) + 1;
 
-  gl.clear(gl.COLOR_BUFFER_BIT);
-
   // Set this to true at the beginning of frame redraw;  any layer that decides it wasn't completely drawn will set
   // this to false upon draw below
   // If any selected layers not yet loaded, set lastFrameCompletelyDrawn to false
   for (let layerProxy of gEarthTime.layerDB.visibleLayers) {
-    if (!layerProxy.isLoaded()) {
+    if (!layerProxy.isLoaded() || !layerProxy.layer || !layerProxy.layer.allVisibleTilesLoaded()) {
       gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
     }
   }
 
+  if (!needRedraw) return;
+
   gEarthTime.updateTimelineIfNeeded();
+
+  gEarthTime.startRedraw();
+
+  gl.clear(gl.COLOR_BUFFER_BIT);
+
+  (window as any).perf_drawframe();
 
   if (gEarthTime.layerDB.mapboxLayersAreVisible()) {
     // Ask ETMBLayer to render everything as Mapbox.  (EarthTime layers are inserted into Mapbox and drawn as custom layers)
