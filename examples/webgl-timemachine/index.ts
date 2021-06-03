@@ -958,7 +958,7 @@ function initLayerToggleUI() {
       // SHIFT + S + V
       // Shortcut to bring up share view dialog
       if (keysDown[0] === 16 && keysDown[1] === 83 && keysDown[2] === 86) {
-        $(".share").trigger("click");
+        $(".sharePicker").trigger("click");
       }
       // SHIFT + J
       // Shortcut to bring up settings dialog
@@ -1599,7 +1599,7 @@ async function setupUIAndOldLayers() {
     if (showShareButton) {
       var $shareBtn = $("<li id='share-menu-choice' class='menu-option' title='Share a view'>Share</li>");
       $shareBtn.on("click", function() {
-        $(".share").trigger("click");
+        $(".sharePicker").trigger("click");
         UTIL.addGoogleAnalyticEvent('button', 'click', 'viewer-show-share-panel');
       });
       $shareBtn.appendTo($topNav);

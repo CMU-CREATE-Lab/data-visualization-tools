@@ -1618,7 +1618,7 @@ a:focus { outline:0; }
 }
 
 #share-menu-choice:before {
-    background: url('../../images/share-icon-white.png') CENTER CENTER NO-REPEAT;
+    background: url('../../images/content-sharing-icon-white.png') CENTER CENTER NO-REPEAT;
     background-size: contain;
     padding-right:15px;
     content:url('../../images/transparent.png'); /* 21x21 transparent pixels */
