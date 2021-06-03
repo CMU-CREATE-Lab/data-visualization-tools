@@ -336,7 +336,7 @@ class EarthTimeImpl implements EarthTime {
       if (loadedLayersInIdOrder[i].layer.mapType == "mapbox" && !foundMapbox) {
         foundMapbox = true;
       }
-      if (loadedLayersInIdOrder[i].layer.hasLegend && !loadedLayersInIdOrder[i].layer.legendVisible && loadedLayersInIdOrder[i].layer.allVisibleTilesLoaded()) {
+      if (loadedLayersInIdOrder[i].layer.hasLegend && !loadedLayersInIdOrder[i].layer.legendVisible && loadedLayersInIdOrder[i].layer.allTilesLoaded()) {
         this.layerDB.layerFactory.setLegend(loadedLayersInIdOrder[i].id);
       }
     }
@@ -3146,6 +3146,9 @@ function update() {
              !gEarthTime.lastDrawnLayers.map(layerProxy => layerProxy.id).every((id,i)=> (currentDrawnLayers[i] && id == currentDrawnLayers[i].id))) {
     needRedraw = true;
     if (verboseRedrawTest) console.log('Layers changed; need redraw');
+  } else if (!gEarthTime.timelapse.lastFrameCompletelyDrawn) {
+    if (verboseRedrawTest) console.log('lastFrameCompletelyDrawn was false; need redraw');
+    needRedraw = true;
   }
 
   gEarthTime.lastPlaybackTime = currentPlaybackTime;
@@ -3170,7 +3173,7 @@ function update() {
   // this to false upon draw below
   // If any selected layers not yet loaded, set lastFrameCompletelyDrawn to false
   for (let layerProxy of gEarthTime.layerDB.visibleLayers) {
-    if (!layerProxy.isLoaded() || !layerProxy.layer || !layerProxy.layer.allVisibleTilesLoaded()) {
+    if (!layerProxy.isLoaded()) {
       gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
     }
   }

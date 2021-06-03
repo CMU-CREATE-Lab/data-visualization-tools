@@ -45,7 +45,7 @@ export class WebGLVectorLayer2 extends Layer {
     this._drawHelper(view, opt_options);
   }
 
-  allVisibleTilesLoaded(): boolean {
+  allTilesLoaded(): boolean {
     var tiles = this.getTiles();
     if (!tiles || Object.keys(tiles).length == 0) {
       return false;

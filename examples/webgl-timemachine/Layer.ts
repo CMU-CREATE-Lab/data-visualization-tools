@@ -144,7 +144,7 @@ export class LayerOptions {
     legend?: Legend;
     paired: boolean;
     isLoaded(): boolean { return true; }; // Override this in subclass if needed
-    allVisibleTilesLoaded(): boolean { return true; } // Override this in subclass if needed
+    allTilesLoaded(): boolean { return true; } // Override this in subclass if needed
     legendVisible: boolean;
     // Does next frame update require a redraw of this layer?
     // If a tile has been received or any other state change requires a redraw, set to true
@@ -292,8 +292,8 @@ export class LayerOptions {
     // viewBounds:  xmin, xmax, ymin, ymax all in coords 0-256
     // TODO: Fix this for 900913 coords
   _drawHelper(view, opt_options) {
-    this.nextFrameNeedsRedraw = false;
     if (this.ready) {
+      this.nextFrameNeedsRedraw = false;
       var width = this._canvasLayer.canvas.width / this._canvasLayer.resolutionScale_;
       var height = this._canvasLayer.canvas.height / this._canvasLayer.resolutionScale_;
       var options = opt_options ?? {};
@@ -310,6 +310,8 @@ export class LayerOptions {
       this._tileView.setView(view, width, height, this._canvasLayer.resolutionScale_);
       if (this.drawLayerFunction) options = this.drawLayerFunction(options);
       this._tileView.update(transform, options);
+    } else {
+      this.nextFrameNeedsRedraw = true;
     }
   }
 

@@ -67,7 +67,7 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
     }
   }
 
-  allVisibleTilesLoaded(): boolean {
+  allTilesLoaded(): boolean {
     return true;
   }
 
@@ -126,6 +126,8 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
       var image = document.getElementById("extras-image") as HTMLImageElement;
       image.addEventListener('load', function() {
         that.ready = true;
+        gEarthTime.timelapse.lastFrameCompletelyDrawn = true;
+        that.nextFrameNeedsRedraw = false;
       });
       image.src = filePath;
     } else if (fileType == "video") {
@@ -152,6 +154,8 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
       }
       video.addEventListener('loadeddata', function() {
         that.ready = true;
+        gEarthTime.timelapse.lastFrameCompletelyDrawn = true;
+        that.nextFrameNeedsRedraw = false;
       });
       video.src = filePath;
       // Must set playbackRate *after* setting the file path
@@ -168,6 +172,8 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
       var iframe = document.getElementById("extras-iframe") as HTMLIFrameElement;
       iframe.addEventListener('load', function() {
         that.ready = true;
+        gEarthTime.timelapse.lastFrameCompletelyDrawn = true;
+        that.nextFrameNeedsRedraw = false;
       });
       iframe.src = filePath;
     }

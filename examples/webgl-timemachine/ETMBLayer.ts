@@ -81,7 +81,7 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
 
   // NOTE: this always returns true since we can't tell whether individual
   // layers have loaded all tiles
-  allVisibleTilesLoaded(): boolean {
+  allTilesLoaded(): boolean {
     return true;
   }
 
