@@ -625,6 +625,9 @@ interface FrameGrabInterface {
 
 let frameGrab: FrameGrabInterface = {
   isLoaded: function(): boolean {
+    // We also need timeline information loaded before we can properly handle the bt/et values of a sharelink, which we use to determine the number of frames to export and shard out.
+    // We determine this by first seeing that the number of layers requested matches the number of layers loaded (note the tiles may not have loaded, which is fine) and then checking
+    //   that we have a timeline "defined" (either real or set to null (i.e. no timeline for main layer))
     return gEarthTime.readyToDraw && gEarthTime.layerDB.visibleLayers.length > 0 && gEarthTime.layerDB.loadedLayers().length == gEarthTime.layerDB.visibleLayers.length && typeof(gEarthTime.currentlyShownTimeline) != "undefined";
   },
   captureFrame: function(state: {bounds:any, seek_time:number}): {[key: string]: any} {
