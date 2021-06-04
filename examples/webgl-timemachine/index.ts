@@ -625,10 +625,11 @@ interface FrameGrabInterface {
 
 let frameGrab: FrameGrabInterface = {
   isLoaded: function(): boolean {
-    // We also need timeline information loaded before we can properly handle the bt/et values of a sharelink, which we use to determine the number of frames to export and shard out.
-    // We determine this by first seeing that the number of layers requested matches the number of layers loaded (note the tiles may not have loaded, which is fine) and then checking
-    //   that we have a timeline "defined" (either real or set to null (i.e. no timeline for main layer))
-    return gEarthTime.readyToDraw && gEarthTime.layerDB.visibleLayers.length > 0 && gEarthTime.layerDB.loadedLayers().length == gEarthTime.layerDB.visibleLayers.length && typeof(gEarthTime.currentlyShownTimeline) != "undefined";
+    // In addition to readyToDraw being true, we also need timeline information loaded before we can properly handle the bt/et values of a sharelink,
+    //   which we use to determine the number of frames to export and shard out.
+    // We determine all this by seeing not only that gEarthTime is "ready" but also that the number of layers requested matches the number of layers loaded
+    //   (note the tiles may not have loaded, which is fine).
+    return isEarthTimeLoadedAndInitialLayerProxiesLoaded();
   },
   captureFrame: function(state: {bounds:any, seek_time:number}): {[key: string]: any} {
     Utils.clearGrablog();
@@ -663,6 +664,12 @@ function isEarthTimeLoaded() {
   return gEarthTime.readyToDraw;
 }
 (window as any).isEarthTimeLoaded = isEarthTimeLoaded;
+
+function isEarthTimeLoadedAndInitialLayerProxiesLoaded() {
+  return isEarthTimeLoaded() &&
+         gEarthTime.layerDB.visibleLayers.length > 0 &&
+         gEarthTime.layerDB.loadedLayers().length == gEarthTime.layerDB.visibleLayers.length;
+}
 
 function googleMapsLoadedCallback() {
   if (useGoogleSearch && $("#location_search").length) {
@@ -3165,7 +3172,7 @@ function update() {
     gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
     return;
   }
-  if (disableAnimation) {
+  if (disableAnimation && isEarthTimeLoadedAndInitialLayerProxiesLoaded()) {
     gEarthTime.canvasLayer.setAnimate(false);
     disableAnimation = false;
   }
