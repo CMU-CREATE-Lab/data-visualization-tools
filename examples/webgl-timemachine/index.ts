@@ -375,7 +375,6 @@ class EarthTimeImpl implements EarthTime {
   updateTimelineIfNeeded() {
     let newTimeline = this.timeline();
     if (newTimeline !== this.currentlyShownTimeline) {
-      this.currentlyShownTimeline = newTimeline;
       $(".controls, .captureTime, .customControl").hide();
       let $ui = $(".current-location-text-container, .annotations-resume-exit-container, .scaleBarContainer, #logosContainer, .current-location-text, #layers-legend");
       $ui.addClass("noTimeline");
@@ -410,6 +409,7 @@ class EarthTimeImpl implements EarthTime {
           $(".controls, .captureTime").show();
         }
       }
+      this.currentlyShownTimeline = newTimeline;
     }
   }
 }
@@ -625,7 +625,7 @@ interface FrameGrabInterface {
 
 let frameGrab: FrameGrabInterface = {
   isLoaded: function(): boolean {
-    return gEarthTime.readyToDraw;
+    return gEarthTime.readyToDraw && gEarthTime.layerDB.visibleLayers.length > 0 && gEarthTime.layerDB.loadedLayers().length == gEarthTime.layerDB.visibleLayers.length && typeof(gEarthTime.currentlyShownTimeline) != "undefined";
   },
   captureFrame: function(state: {bounds:any, seek_time:number}): {[key: string]: any} {
     Utils.clearGrablog();
@@ -3322,8 +3322,6 @@ async function init() {
   }
 
   await setupUIAndOldLayers();
-  //console.log(`${Utils.logPrefix()} setting readyToDraw true`);
-  gEarthTime.readyToDraw = true;
 
   // NOTE: Layers from a story or share link may already have been activated.
   let layersToShow = gEarthTime.layerDB.visibleLayers;
@@ -3336,6 +3334,9 @@ async function init() {
     console.log(`${Utils.logPrefix()} init; calling setVisibleLayers`);
     layerDB.setVisibleLayers(layersToShow);
   }
+
+  //console.log(`${Utils.logPrefix()} setting readyToDraw true`);
+  gEarthTime.readyToDraw = true;
 
   contentSearch.initialize();
 }
