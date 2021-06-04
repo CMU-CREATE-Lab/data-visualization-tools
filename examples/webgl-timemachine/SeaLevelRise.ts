@@ -38,21 +38,21 @@ export class SeaLevelRise {
     }
 
     setTemperatureAndHeight(key) {
-        if (this._idx == this._lastIdx && this._lastKey == key) {
-            return;
-        }
-        this._lastIdx = this._idx;
-        this._lastKey = key;
         var degree = document.getElementById(`${this._idx}-slr-degree`);
         var meters = document.getElementById(`${this._idx}-slr-meters`);
         if (!degree) {
             this._el = document.getElementById(this._idx);
+            if (!this._el) {
+                return;
+            }
             this._el.innerHTML = this._html;
             degree = document.getElementById(`${this._idx}-slr-degree`);
             meters = document.getElementById(`${this._idx}-slr-meters`);
         }
         degree.innerHTML = Number.parseFloat(key.split('&')[0]).toFixed(1);
         meters.innerHTML = "+" + this._heights[key][1].toFixed(1) + "m";
+        this._lastIdx = this._idx;
+        this._lastKey = key;
     }
 
 }
