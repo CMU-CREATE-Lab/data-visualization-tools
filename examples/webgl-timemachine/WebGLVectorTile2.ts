@@ -870,6 +870,7 @@ export class WebGLVectorTile2 extends Tile {
     // ...
     var timeVariableRegions = this._layer.setDataOptions && this._layer.setDataOptions.timeVariableRegions;
     this._timeVariableRegions = timeVariableRegions;
+    var drawOptions = this._layer.drawOptions;
 
     var bti = data[0];
     var csv = data[1];
@@ -1074,8 +1075,12 @@ export class WebGLVectorTile2 extends Tile {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, timeInterpolationFilter);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE_ALPHA, this.valuesWidth, this.valuesHeight, 0, gl.LUMINANCE_ALPHA, gl.UNSIGNED_BYTE, texture);
 
+    if (drawOptions?.colorMapColorsList) {
+      this._loadTextureFromColorList(drawOptions.colorMapColorsList);
+    } else {
+      this._loadTexture();
+    }
     this._ready = true;
-    this._loadTexture(); // load the colormap.  TODO: why do we load this separately for every single tile?
 
     var totalTime = new Date().getTime() - beginTime;
     WebGLVectorTile2._totalBtiTime += totalTime;
