@@ -13,6 +13,7 @@ import { Glb } from './Glb';
 import { LayerOptions, LayerInterface, Layer } from './Layer';
 
 import {MouseOverTemplate, LayerTemplate} from "./LayerTemplate";
+import { Timeline } from './Timeline';
 
 export class ETMapboxSublayer {
   id: string;
@@ -65,6 +66,7 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
   layerId: string;
   style: MapboxTypes.Style;
   layerProxy: LayerProxy;
+  timeline: Timeline = null;
 
   _shown: any;
   _loadingPromise: any;
@@ -89,6 +91,20 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
     super(layerOptions);
     // Ignore tileUrl
     this.layerProxy = layerProxy;
+
+    let cachedCaptureTimes = this.customSliderInfo ? Object.keys(this.customSliderInfo) : [];
+    if (cachedCaptureTimes.length) {
+      this.startDate = String(cachedCaptureTimes[0]);
+      this.endDate = String(cachedCaptureTimes[cachedCaptureTimes.length - 1]);
+    }
+
+    if (this.startDate && this.endDate) {
+      this.timeline = new Timeline(this.timelineType,
+      {startDate: this.startDate, endDate: this.endDate,
+       step: this.step, masterPlaybackRate: this.masterPlaybackRate,
+       playbackRate: this.playbackRate, cachedCaptureTimes: cachedCaptureTimes});
+    }
+
     try {
       this.mapboxDef = JSON.parse(this.layerDef.Mapbox);
     }
