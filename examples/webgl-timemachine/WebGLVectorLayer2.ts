@@ -45,19 +45,6 @@ export class WebGLVectorLayer2 extends Layer {
     this._drawHelper(view, opt_options);
   }
 
-  allTilesLoaded(): boolean {
-    var tiles = this.getTiles();
-    if (!tiles || Object.keys(tiles).length == 0) {
-      return false;
-    }
-    for (var tile in tiles) {
-      if (!tiles[tile]._ready) {
-        return false;
-      }
-    }
-    return true;
-  }
-
   _drawLayerColorDotmap(drawOptions: DrawOptions): DrawOptions {
     // If too many points to draw in proportion to canvas size, auto-throttle to reduce point draw count
     let population = this.countPopulation();

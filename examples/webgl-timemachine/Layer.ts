@@ -144,7 +144,6 @@ export class LayerOptions {
     legend?: Legend;
     paired: boolean;
     isLoaded(): boolean { return true; }; // Override this in subclass if needed
-    allTilesLoaded(): boolean { return true; } // Override this in subclass if needed
     legendVisible: boolean;
     // Does next frame update require a redraw of this layer?
     // If a tile has been received or any other state change requires a redraw, set to true
@@ -242,6 +241,30 @@ export class LayerOptions {
       } else {
         return null;
       }
+    }
+    allTilesLoaded(): boolean {
+      var tiles = this.getTiles();
+      if (!tiles || Object.keys(tiles).length == 0) {
+        return false;
+      }
+      for (var tile in tiles) {
+        if (!tiles[tile]._ready) {
+          return false;
+        }
+      }
+      return true;
+    }
+    anyTilesLoaded(): boolean {
+      var tiles = this.getTiles();
+      if (!tiles || Object.keys(tiles).length == 0) {
+        return false;
+      }
+      for (var tile in tiles) {
+        if (tiles[tile]._ready) {
+          return true;
+        }
+      }
+      return false;
     }
     abortLoading() {
       if (this._tileView) {

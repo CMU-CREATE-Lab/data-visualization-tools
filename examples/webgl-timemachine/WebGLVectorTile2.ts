@@ -180,8 +180,6 @@ export class WebGLVectorTile2 extends Tile {
 
     this.startTime = new Date().getTime();
 
-    this._setupLoadingSpinner();
-
     this.xhr = new XMLHttpRequest();
     this.xhr.open('GET', that._url);
     this.xhr.responseType = 'arraybuffer';
@@ -195,7 +193,6 @@ export class WebGLVectorTile2 extends Tile {
     };
 
     this.xhr.onload = function () {
-      that._removeLoadingSpinner();
 
       if (this.status >= 400) {
         //var msg = String.fromCharCode.apply(null, new Uint8Array(this.response));
@@ -213,13 +210,11 @@ export class WebGLVectorTile2 extends Tile {
       }
     };
     this.xhr.onerror = function () {
-      that._removeLoadingSpinner();
-
       that.setDataFunction(new Float32Array([]));
     };
 
     this.xhr.onabort = function () {
-      that._removeLoadingSpinner();
+      // Abort logic
     };
     this.xhr.send();
   }
@@ -227,14 +222,10 @@ export class WebGLVectorTile2 extends Tile {
     var that = this;
     var data: string;
 
-    this._setupLoadingSpinner();
-
     this.xhr = new XMLHttpRequest();
     this.xhr.open('GET', that._url);
 
     this.xhr.onload = function () {
-      that._removeLoadingSpinner();
-
       if (this.status >= 400) {
         data = "";
       }
@@ -244,8 +235,6 @@ export class WebGLVectorTile2 extends Tile {
       that.setDataFunction(data, that._layer.setDataOptions);
     };
     this.xhr.onerror = function () {
-      that._removeLoadingSpinner();
-
       that.setDataFunction('');
     };
     this.xhr.send();
@@ -314,14 +303,10 @@ export class WebGLVectorTile2 extends Tile {
 
     var that = this;
 
-    this._setupLoadingSpinner();
-
     this.xhr = new XMLHttpRequest();
     this.xhr.open('GET', that._url);
 
     this.xhr.onload = function () {
-      that._removeLoadingSpinner();
-
       if (this.status >= 400) {
         that.setDataFunction('');
       }
@@ -341,8 +326,6 @@ export class WebGLVectorTile2 extends Tile {
       }
     };
     this.xhr.onerror = function () {
-      that._removeLoadingSpinner();
-
       that.setDataFunction('');
     };
     this.xhr.send();
@@ -509,13 +492,9 @@ export class WebGLVectorTile2 extends Tile {
       return ret;
     };
 
-    this._setupLoadingSpinner();
-
     this.xhr = new XMLHttpRequest();
     this.xhr.open('GET', that._url);
     this.xhr.onload = function () {
-      that._removeLoadingSpinner();
-
       if (this.status >= 400) {
         data = "";
       }
@@ -606,8 +585,6 @@ export class WebGLVectorTile2 extends Tile {
     };
 
     this.xhr.onerror = function () {
-      that._removeLoadingSpinner();
-
       that.setDataFunction('');
     };
 
@@ -624,14 +601,10 @@ export class WebGLVectorTile2 extends Tile {
     var noValue = this._noValue;
     var uncertainValue = this._uncertainValue;
 
-    this._setupLoadingSpinner();
-
     this.xhr = new XMLHttpRequest();
     this.xhr.open('GET', that._url);
 
     this.xhr.onload = function () {
-      that._removeLoadingSpinner();
-
       if (this.status >= 400) {
         data = "";
       }
@@ -810,8 +783,6 @@ export class WebGLVectorTile2 extends Tile {
     };
 
     this.xhr.onerror = function () {
-      that._removeLoadingSpinner();
-
       that.setDataFunction('');
     };
 
@@ -4569,43 +4540,6 @@ export class WebGLVectorTile2 extends Tile {
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
 
       gl.disable(gl.BLEND);
-    }
-  }
-
-  // Tile loading has started.  Start timer to show spinner if tile loading
-  // doesn't complete within reasonable time
-  _setupLoadingSpinner() {
-    var that = this;
-    clearTimeout(this._loadingSpinnerTimer);
-    this._spinnerNeeded = true;
-    // Wait 300ms to prevent small datasets from flashing up a spinner.
-    this._loadingSpinnerTimer = setTimeout(function () {
-      if (!that._spinnerNeeded) {
-        return;
-      }
-      that._removeLoadingSpinner();
-      if (!gEarthTime.timelapse.isPaused() || gEarthTime.timelapse.isDoingLoopingDwell()) {
-        that._wasPlayingBeforeDataLoad = true;
-        gEarthTime.timelapse.handlePlayPause();
-      }
-      var $loadingSpinner = $("<td class='loading-layer-spinner-small' data-loading-layer='" + that._layer._tileView._layerDomId + "'></td>");
-      $(".map-layer-div input#" + that._layer._tileView._layerDomId).closest("td").after($loadingSpinner);
-      gEarthTime.timelapse.showSpinner("timeMachine");
-    }, 300);
-  }
-
-  // Tile loading has finished.  Clear spinner.
-  _removeLoadingSpinner() {
-    this._spinnerNeeded = false;
-    clearTimeout(this._loadingSpinnerTimer);
-    if (this._wasPlayingBeforeDataLoad) {
-      this._wasPlayingBeforeDataLoad = null;
-      gEarthTime.timelapse.play();
-    }
-    var $loadingSpinner = $('.loading-layer-spinner-small[data-loading-layer="' + this._layer._tileView._layerDomId + '"]');
-    $loadingSpinner.remove();
-    if ($(".loading-layer-spinner-small").length == 0) {
-      gEarthTime.timelapse.hideSpinner("timeMachine");
     }
   }
 

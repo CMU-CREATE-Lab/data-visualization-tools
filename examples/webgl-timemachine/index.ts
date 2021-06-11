@@ -131,6 +131,8 @@ if (typeof(EARTH_TIMELAPSE_CONFIG.csvLayersContentPath) === "undefined") {
 
 
 class EarthTimeImpl implements EarthTime {
+  waitFrames: number = 0;
+  lastTimeNotWaiting: number;
   defaultMasterPlaybackRate: number = 1.0;
   defaultPlaybackRate: number = 0.5;
   layerDB: LayerDB = null;
@@ -554,6 +556,8 @@ var $activeLayerDescriptionTooltip;
 var storyEditor;
 var storyLoadedFromRealKeyDown = false;
 var $mapboxLogoContainer;
+var verboseRedrawTest = false;
+var spinnerWaitTime = 1000; // milliseconds
 
 
 function parseConfigOption(settings) {
@@ -3130,7 +3134,6 @@ function update() {
   let currentDrawnLayers = gEarthTime.layerDB.drawnLayersOrSublayersInDrawOrder();
 
   let needRedraw = false;
-  let verboseRedrawTest = false;
 
   for (let layerProxy of gEarthTime.layerDB.visibleLayers) {
     if (layerProxy.layer?.nextFrameNeedsRedraw) {
@@ -3179,12 +3182,30 @@ function update() {
 
   gEarthTime.timelapse.frameno = (gEarthTime.timelapse.frameno || 0) + 1;
 
+  // We are "waiting" this frame if any layer isn't loaded, or any loaded non-mapbox layer doesn't yet have tiles
+  var waiting = false;
+
   // Set this to true at the beginning of frame redraw;  any layer that decides it wasn't completely drawn will set
   // this to false upon draw below
   // If any selected layers not yet loaded, set lastFrameCompletelyDrawn to false
   for (let layerProxy of gEarthTime.layerDB.visibleLayers) {
     if (!layerProxy.isLoaded()) {
       gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
+      waiting = true;
+    } else if (!(layerProxy.layer instanceof ETMBLayer) &&
+               layerProxy.layer.anyTilesLoaded() == false) {
+      waiting = true;
+    }
+  }
+
+  // If we have waited at least {spinnerWaitTime} seconds in a row, show the spinner
+  if (!waiting || !gEarthTime.lastTimeNotWaiting) {
+    gEarthTime.lastTimeNotWaiting = new Date().getTime();
+    gEarthTime.timelapse.hideSpinner("timeMachine");
+  } else {
+    let waiting = new Date().getTime() - gEarthTime.lastTimeNotWaiting;
+    if (waiting > spinnerWaitTime) {
+      gEarthTime.timelapse.showSpinner("timeMachine");
     }
   }
 

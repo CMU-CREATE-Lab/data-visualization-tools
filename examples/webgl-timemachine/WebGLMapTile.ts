@@ -35,8 +35,6 @@ export class WebGLMapTile extends Tile {
       0, 1,
       1, 1]));
 
-    this._setupLoadingSpinner();
-
     this._image = new Image();
     this._image.crossOrigin = "anonymous";
     var that = this;
@@ -44,7 +42,6 @@ export class WebGLMapTile extends Tile {
     that._layer.nextFrameNeedsRedraw = true;
 
     this._image.onload = function () {
-      that._removeLoadingSpinner();
       that._handleLoadedTexture();
       that._layer.nextFrameNeedsRedraw = true;
     };
@@ -52,7 +49,6 @@ export class WebGLMapTile extends Tile {
     // If tile 404's, replace with defaultUrl.  This lets us remove e.g. all the
     // sea tiles and replace with a single default tile.
     this._image.addEventListener('error', function (event) {
-      that._removeLoadingSpinner();
       if (that._image) {
         if (that._image.src != that._layer.defaultUrl) {
           that._image.src = that._layer.defaultUrl;
@@ -61,7 +57,7 @@ export class WebGLMapTile extends Tile {
     });
 
     this._image.onabort = function () {
-      that._removeLoadingSpinner();
+      // Abort logic
     };
 
     this._imageUrl = tileidx.expandUrl(this._layer._tileUrl, this._layer)
@@ -238,26 +234,7 @@ export class WebGLMapTile extends Tile {
       gl.disable(gl.BLEND);
     }
   }
-  _setupLoadingSpinner() {
-    var that = this;
-    clearTimeout(this._loadingSpinnerTimer);
-    this._spinnerNeeded = true;
-    // Wait 300ms to prevent small datasets from flashing up a spinner.
-    this._loadingSpinnerTimer = setTimeout(function () {
-      if (!that._spinnerNeeded) {
-        return;
-      }
-      that._removeLoadingSpinner();
-      var $loadingSpinner = $("<td class='loading-layer-spinner-small' data-loading-layer='" + that._layerDomId + "'></td>");
-      $(".map-layer-div input#" + that._layerDomId).closest("td").after($loadingSpinner);
-    }, 300);
-  }
-  _removeLoadingSpinner() {
-    this._spinnerNeeded = false;
-    clearTimeout(this._loadingSpinnerTimer);
-    var $loadingSpinner = $('.loading-layer-spinner-small[data-loading-layer="' + this._layerDomId + '"]');
-    $loadingSpinner.remove();
-  }
+
   static stats() {
     return ('WebGLMapTile stats. Active tiles: ' + WebGLMapTile.activeTileCount);
   }

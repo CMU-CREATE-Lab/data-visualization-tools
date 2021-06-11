@@ -7,6 +7,8 @@ import { Glb } from './Glb'
 import { Timeline } from './Timeline';
 
 export interface EarthTime {
+  waitFrames: any;
+  lastTimeNotWaiting: number;
   currentlyShownTimeline: any;
   lastClientDimensions: { width: number, height: number };
   lastView: {[key: string]: number},
