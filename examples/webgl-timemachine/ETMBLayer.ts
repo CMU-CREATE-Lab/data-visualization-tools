@@ -87,6 +87,10 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
     return true;
   }
 
+  anyTilesLoaded(): boolean {
+    return true;
+  }
+
   constructor(layerProxy: LayerProxy, glb: Glb, canvasLayer, tileUrl: string, layerOptions: LayerOptions) {
     super(layerOptions);
     // Ignore tileUrl

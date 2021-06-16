@@ -123,6 +123,8 @@ export class LayerOptions {
     info(): string;
     handleVisibilityStateChange(): void;
     nextFrameNeedsRedraw: boolean;
+    allTilesLoaded(): boolean;
+    anyTilesLoaded(): boolean;
   }
 
   export abstract class Layer extends LayerOptions implements LayerInterface {
