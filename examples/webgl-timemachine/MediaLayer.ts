@@ -71,6 +71,10 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
     return true;
   }
 
+  anyTilesLoaded(): boolean {
+    return true;
+  }
+
   draw(view: any, options: any) { }
 
   destroy() { }
