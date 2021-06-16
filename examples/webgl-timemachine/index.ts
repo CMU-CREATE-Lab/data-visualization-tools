@@ -3193,6 +3193,7 @@ function update() {
       gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
       waiting = true;
     } else if (!(layerProxy.layer instanceof ETMBLayer) &&
+               gEarthTime.layerDB.drawnLayersOrSublayersInDrawOrder().includes(layerProxy) &&
                layerProxy.layer.anyTilesLoaded() == false) {
       waiting = true;
     }
