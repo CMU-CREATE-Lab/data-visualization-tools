@@ -161,6 +161,8 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
   }
 
   _computeSublayers() {
+    var diagnostics = '';
+
     // Parse style
     var idToDrawOrder = {};
     for (const [drawOrderStr, ids] of Object.entries(this.mapboxDef.drawOrder ?? {})) {
@@ -171,13 +173,48 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
 
     // Record layer IDs
     this._sublayers = new Map();
+    let usedDrawOrders = new Set();
     for (const layer of this.style.layers) {
-      let drawOrder = idToDrawOrder[layer.id] ?? idToDrawOrder[layer?.metadata?.['mapbox:group']] ?? 400;
+      // Current behavior:  anything that's unspecified in Mapbox:drawOrder, use the layer's "Draw Order" column
+      // New proposed behavior:  if Mapbox:drawOrder is not empty, take things that aren't mentioned in Mapbox:drawOrder
+      //    and use drawOrder from the closest previous layer with specified drawOrder
+      //    For layers that occur before the first layer with specified Mapbox:drawOrder, use drawOrder from the first specified
+      //    ** Can we show an info dialog that helps show the difference between specified and unspecified drawOrder settings?
+      // https://studio.mapbox.com/styles/randysargent/ckod70iuy2rsu17pcm8m4rtz3/edit/#9/37.78/-122.4241
+      // https://docs.google.com/spreadsheets/d/1rCiksJv4aXi1usI0_9zdl4v5vuOfiHgMRidiDPt1WfE/edit#gid=870361385 row 10
+      let drawOrder = 0;
+      let layer_id = layer.id.split('|', 2)[1]; // Grab original mapbox style layer id from before we prepended EarthTime layer name
+      let group = layer?.metadata?.['mapbox:group'];
+
+      if (idToDrawOrder[layer_id]) {
+        // If JSON specifies layer name, this takes priority
+        drawOrder = idToDrawOrder[layer_id];
+        usedDrawOrders.add(layer_id);
+        diagnostics += `Sublayer ${layer_id} uses drawOrder ${drawOrder} from JSON\n`;
+      } else if (idToDrawOrder[group]) {
+        // Otherwise, if JSON specifies group name (or "Component" from Mapbox Studio), use that
+        drawOrder = idToDrawOrder[group];
+        usedDrawOrders.add(group);
+        diagnostics += `Sublayer ${layer_id} uses drawOrder ${drawOrder} from JSON, using group name ${group}\n`;
+      } else {
+        // If neither, use ETMBLayer-wide drawOrder from layer defintion CSV row
+        drawOrder = this.drawOrder;
+        diagnostics += `Neither sublayer id ${layer_id} nor group ${group} is listed in JSON, using drawOrder from CSV row ${drawOrder}\n`;
+      }
+      // Create one ETMapboxSublayer per drawOrder
       if (!this._sublayers.has(drawOrder)) {
         this._sublayers.set(drawOrder, new ETMapboxSublayer(`${this.layerId}:${drawOrder}`, this, drawOrder));
       }
+      // Add this mapbox layer to the correct ETMapboxSublayer
       this._sublayers.get(drawOrder).mapboxLayers.push(layer);
     }
+    for (const [id, drawOrder] of Object.entries(idToDrawOrder)) {
+      if (!usedDrawOrders.has(id)) {
+        diagnostics += `Warning: drawOrder JSON ${id}: ${drawOrder} did not match any layers or groups\n`;
+      }
+    }
+
+    console.log(diagnostics); // TODO: make a keystroke to bring this up
   }
   // WARNING:  Use _ensureLoaded instead of _load, to make sure we don't load twice
   async _loadFromEnsureLoaded() {
@@ -251,6 +288,9 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
       console.log(`SOURCE ID: ${id}`)
       syncState.mapSources[id] = source;
     }
+
+    // TODO for animated choropleths:
+    // https://docs.google.com/document/d/1VmoUFQUJDMEPQSgTB3CvpNRjNxkvd3jXHQCDP4fqL_M/edit
 
     syncState.mapLayers = initialStyle.layers.slice(); // clone
 
