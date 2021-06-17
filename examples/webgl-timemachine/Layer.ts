@@ -125,6 +125,7 @@ export class LayerOptions {
     nextFrameNeedsRedraw: boolean;
     allTilesLoaded(): boolean;
     anyTilesLoaded(): boolean;
+    diagnostics?: string;
   }
 
   export abstract class Layer extends LayerOptions implements LayerInterface {
@@ -147,6 +148,7 @@ export class LayerOptions {
     paired: boolean;
     isLoaded(): boolean { return true; }; // Override this in subclass if needed
     legendVisible: boolean;
+    diagnostics?: string;
     // Does next frame update require a redraw of this layer?
     // If a tile has been received or any other state change requires a redraw, set to true
     // Doesn't need to be set solely because of a change of viewport or playback time;  that will cause

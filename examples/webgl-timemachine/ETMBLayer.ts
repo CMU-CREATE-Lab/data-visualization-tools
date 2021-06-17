@@ -72,6 +72,7 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
   _loadingPromise: any;
   _loaded: boolean = false;
   _sublayers: Map<number, ETMapboxSublayer>; // Map enables numeric keys
+  diagnostics ?: string;
 
   maxGmapsZoomLevel(): number | null {
     return 17;
@@ -214,7 +215,7 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
       }
     }
 
-    console.log(diagnostics); // TODO: make a keystroke to bring this up
+    this.diagnostics = diagnostics; // Bring this up in layer editor
   }
   // WARNING:  Use _ensureLoaded instead of _load, to make sure we don't load twice
   async _loadFromEnsureLoaded() {

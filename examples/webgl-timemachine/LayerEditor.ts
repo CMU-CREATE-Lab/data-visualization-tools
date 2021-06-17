@@ -23,6 +23,9 @@ export class LayerEditor {
 			Draw Options:<br>
 				{{:drawOptions}}
 		{{/if}}
+		{{if diagnostics}}
+			Diagnostics:<pre>{{:diagnostics}}</pre>
+		{{/if}}
 	</p>
 	`);
 
@@ -121,7 +124,8 @@ export class LayerEditor {
 			color: layer.color,
 			drawOrder: layer.drawOrder,
 			hasDrawOptions: layer.drawOptions && Object.keys(layer.drawOptions).length > 0 ? true : false,
-			drawOptions: layer.drawOptions ? JSON.stringify(this._stringifyOptions(layer.drawOptions), null, 8) : {}
+			drawOptions: layer.drawOptions ? JSON.stringify(this._stringifyOptions(layer.drawOptions), null, 8) : {},
+			diagnostics: layer?.diagnostics
 		};
 
 		return [layerInfo, {layerId: layerId, layerDefJSON: JSON.stringify(layer.layerDef, null, 4)}];
