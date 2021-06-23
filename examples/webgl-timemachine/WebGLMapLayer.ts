@@ -32,20 +32,17 @@ export class WebGLMapLayer extends Layer {
   }
 
   _drawLayerSlr(opt_options) {
-    gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
     if (!this.seaLevelRise) {
       let idx = `${this.layerId}-legend`;
       let legendElm = document.getElementById(idx);
       if (legendElm) {
         this.seaLevelRise = new SeaLevelRise(idx, legendElm);
-        gEarthTime.timelapse.lastFrameCompletelyDrawn = true;
       }
     }  else {
       let currentKey = gEarthTime.timelapse.getCurrentCaptureTime();
       if (this.seaLevelRise._idx != this.seaLevelRise._lastIdx || this.seaLevelRise._lastKey != currentKey) {
         this.seaLevelRise.setTemperatureAndHeight(currentKey);
       }
-      gEarthTime.timelapse.lastFrameCompletelyDrawn = true;
     }
 
     return opt_options;

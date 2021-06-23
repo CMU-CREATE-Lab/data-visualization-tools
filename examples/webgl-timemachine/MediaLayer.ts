@@ -130,7 +130,6 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
       var image = document.getElementById("extras-image") as HTMLImageElement;
       image.addEventListener('load', function() {
         that.ready = true;
-        gEarthTime.timelapse.lastFrameCompletelyDrawn = true;
         that.nextFrameNeedsRedraw = false;
       });
       image.src = filePath;
@@ -158,7 +157,6 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
       }
       video.addEventListener('loadeddata', function() {
         that.ready = true;
-        gEarthTime.timelapse.lastFrameCompletelyDrawn = true;
         that.nextFrameNeedsRedraw = false;
       });
       video.src = filePath;
@@ -176,7 +174,6 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
       var iframe = document.getElementById("extras-iframe") as HTMLIFrameElement;
       iframe.addEventListener('load', function() {
         that.ready = true;
-        gEarthTime.timelapse.lastFrameCompletelyDrawn = true;
         that.nextFrameNeedsRedraw = false;
       });
       iframe.src = filePath;

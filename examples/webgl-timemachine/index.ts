@@ -3195,6 +3195,7 @@ function update() {
     } else if (!(layerProxy.layer instanceof ETMBLayer) &&
                gEarthTime.layerDB.drawnLayersOrSublayersInDrawOrder().includes(layerProxy) &&
                layerProxy.layer.anyTilesLoaded() == false) {
+      gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
       waiting = true;
     }
   }
