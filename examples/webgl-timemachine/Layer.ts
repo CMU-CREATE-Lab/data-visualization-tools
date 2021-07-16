@@ -58,6 +58,7 @@ export interface DrawOptions {
   maxTemp?: number
   first?: number
   count?: number
+  thickness?: any
 }
 
 export class LayerOptions {

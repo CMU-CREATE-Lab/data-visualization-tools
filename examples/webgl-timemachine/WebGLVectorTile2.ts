@@ -3585,9 +3585,15 @@ export class WebGLVectorTile2 extends Tile {
       //  pointSize = 1.0;
       //}
 
+      let u_thickness = 0.5;
+      if (drawOptions.thickness) {
+        let thickness = d3.scaleLinear().domain(drawOptions.thickness.domain).range(drawOptions.thickness.range);
+        u_thickness = thickness(gEarthTime.gmapsZoomLevel());
+      }
+
       gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
       gl.uniform3fv(this.program.u_color, [1., 0., 0.]);
-      gl.uniform1f(this.program.u_thickness, .5);
+      gl.uniform1f(this.program.u_thickness, u_thickness);
       gl.uniform1f(this.program.u_inner, .0);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffers[0]);
