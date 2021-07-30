@@ -153,7 +153,7 @@ earthtime._updateOrientation = function() {
         var storyframes = storyContainerElement.querySelectorAll('.earthtime-story-frame');
         for (var i = 0; i < storyframes.length; i++) {
           var frame = storyframes[i];
-          if (frame.hasAttribute('data-has-legend')) {
+          if (frame.hasAttribute('data-has-legend') && frame.children[0].style.position == "fixed") {
             earthtime._loadLegend(elementId, storyframes, i);
           }
         }
@@ -671,6 +671,7 @@ earthtime._loadLegend = function(storyElementId, storyframes, frameIndex) {
 earthtime._updateScrollPos = function(e) {
   earthtime._wasFixedPosition = earthtime._isFixedPosition;
   earthtime._isFixedPosition = false;
+  var activeStoryElementId;
 
   // Loop over each story
   for (var elementId in earthtime._storyRegistrations) {
@@ -682,7 +683,6 @@ earthtime._updateScrollPos = function(e) {
       var legendElm = earthtime._storyFrameLegends[elementId].legendContainer;
       var lastFrame = storyframes[storyframes.length - 1];
       var titlePageOverlay = document.getElementsByClassName("earthtime-story-title-overlay")[0];
-      var legendElm = earthtime._storyFrameLegends[elementId].legendContainer;
       var found = false;
       for (var i = storyframes.length - 1; i >= 0; i--) {
         var frame = storyframes[i];
@@ -695,7 +695,7 @@ earthtime._updateScrollPos = function(e) {
         // The final is duplicated;  the final-final never is fixed and only scrolls
         var previousCaption = earthtime._getElementSibling(frame, "previous", ".earthtime-caption");
         var captionHeight = previousCaption ? previousCaption.getBoundingClientRect().height : 0;
-        if (!found && (lastFrame.getBoundingClientRect().top <= 0 || frame.getBoundingClientRect().top + captionHeight <= 0)) {
+        if (!found && lastFrame.getBoundingClientRect().bottom > 0 && (lastFrame.getBoundingClientRect().top <= 0 || frame.getBoundingClientRect().top + captionHeight <= 0)) {
           if (i != storyframes.length - 1) {
             earthtime._isFixedPosition = true;
             child.style.position = 'fixed';
@@ -706,6 +706,7 @@ earthtime._updateScrollPos = function(e) {
               currentCaption.style.visibility = "visible";
             }
           }
+          activeStoryElementId = elementId;
           found = true;
 
           if (frame.getAttribute("data-has-legend") === "true") {
@@ -752,6 +753,10 @@ earthtime._updateScrollPos = function(e) {
           }
         }
       }
+      if (!found && legendElm && legendElm.style && legendElm.style.visibility != "hidden") {
+        legendElm.style.visibility = "hidden";
+        legendElm.innerHTML = "";
+      }
       if (storyframes.length) {
         if (earthtime._isFixedPosition) {
           storyContainerElement.getElementsByClassName("earthtime-logo")[0].style.position = 'fixed';
@@ -768,9 +773,17 @@ earthtime._updateScrollPos = function(e) {
   if (!earthtime._wasFixedPosition && earthtime._isFixedPosition) {
     // Entering a story
     earthtime._updateFullscreenOffsets();
+    if (activeStoryElementId) {
+      legendElm = earthtime._storyFrameLegends[activeStoryElementId].legendContainer;
+      legendElm.style.position = "fixed";
+    }
   } else if (earthtime._wasFixedPosition && !earthtime._isFixedPosition) {
     // Leaving a story
     earthtime._resetFullscreenOffsets();
+    if (activeStoryElementId) {
+      legendElm = earthtime._storyFrameLegends[activeStoryElementId].legendContainer;
+      legendElm.style.position = "relative";
+    }
   }
 };
 
