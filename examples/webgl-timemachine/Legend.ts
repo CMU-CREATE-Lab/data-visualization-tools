@@ -116,7 +116,7 @@ export class ChoroplethLegend extends Legend {
         this.str = opts.str || this.setStr(opts);
         this.keys = opts.keys || [];
     }
-    safe(templateData: any[], ...argumnts: any[]) {
+    safe(templateData: readonly any[], ...argumnts: any[]) {
         var entityMap = {
             '&': '&amp;',
             '<': '&lt;',
