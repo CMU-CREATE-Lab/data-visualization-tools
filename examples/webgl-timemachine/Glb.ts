@@ -7,6 +7,18 @@ export interface GlbWebGLProgram extends WebGLProgram {
   [attribOrUniform: string]: any;
 };
 
+// By default, fragment shader "float" for iOS is 16 bit, but we often need 32 bits.
+// Request fragment shader "float" be highp for platforms that support
+
+var gl_fragment_shader_source_prefix = `
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+  precision highp float;
+#else
+  precision mediump float;
+#endif
+`;
+
+
 export class Glb {
   gl: WebGLRenderingContext;
   _shaderCache: {[source: string]: WebGLShader} = {};
@@ -31,6 +43,10 @@ export class Glb {
     var shader = cache[type];
     if (!shader) {
       shader = cache[type] = this.gl.createShader(type);
+      if (type == this.gl.FRAGMENT_SHADER) {
+        source = gl_fragment_shader_source_prefix + source;
+        console.log('compiling ', source);
+      }
       this.gl.shaderSource(shader, source);
       this.gl.compileShader(shader);
       if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) {

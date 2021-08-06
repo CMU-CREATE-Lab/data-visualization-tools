@@ -4740,7 +4740,7 @@ void main() {
 }`;
 
 WebGLVectorTile2Shaders.vectorPointTileFragmentShader = `
-precision mediump float;
+/*precision mediump float;*/
 uniform vec4 uColor;
 void main() {
   float dist = length(gl_PointCoord.xy - vec2(.5, .5));
@@ -4791,7 +4791,7 @@ void main() {
 }`;
 
 WebGLVectorTile2Shaders.lodesFragmentShader = `
-precision lowp float;
+/*precision lowp float;*/
 varying float vColor;
 vec4 setColor(vec4 color, float dist, float hardFraction) {
   return color * clamp((0.5 - dist) / (0.5 - 0.5 * hardFraction), 0., 1.);
@@ -4845,7 +4845,7 @@ WebGLVectorTile2Shaders.colorDotmapVertexShaderTbox = `
   }`;
 
 WebGLVectorTile2Shaders.colorDotmapFragmentShader = `
-precision lowp float;
+/*precision lowp float;*/
 varying float vColor;
 vec3 unpackColor(float f) {
   vec3 color;
@@ -4860,7 +4860,7 @@ void main() {
 }`;
 
 WebGLVectorTile2Shaders.annualRefugeesFragmentShader = `
-precision mediump float;
+/*precision mediump float;*/
 uniform sampler2D u_Image;
 varying float v_Delta;
 void main() {
@@ -4946,7 +4946,7 @@ void main() {
 
 WebGLVectorTile2Shaders.healthImpactFragmentShader = `
 #extension GL_OES_standard_derivatives : enable
-precision mediump float;
+/*precision mediump float;*/
 varying float v_Val;
 varying float v_Rcp;
 void main() {
@@ -5000,7 +5000,7 @@ void main() {
 }`;
 
 WebGLVectorTile2Shaders.viirsFragmentShader = `
-precision mediump float;
+/*precision mediump float;*/
 void main() {
   vec3 color;
   color = vec3(.82, .22, .07);
@@ -5054,7 +5054,7 @@ void main() {
 }`;
 
 WebGLVectorTile2Shaders.urbanFragilityFragmentShader = `
-precision mediump float;
+/*precision mediump float;*/
 uniform sampler2D u_Image;
 varying float v_Val;
 float scale(float val) {
@@ -5134,7 +5134,7 @@ void main() {
 }`;
 
 WebGLVectorTile2Shaders.monthlyRefugeesFragmentShader = `
-precision mediump float;
+/*precision mediump float;*/
 varying vec4 vColor;
 void main() {
   float dist = length(gl_PointCoord.xy - vec2(.5, .5));
@@ -5172,7 +5172,7 @@ void main() {
 }`;
 
 WebGLVectorTile2Shaders.gtdFragmentShader = `
-precision mediump float;
+/*precision mediump float;*/
 varying float v_Alpha;
 void main() {
   float r = 1.0 - v_Alpha;
@@ -5207,7 +5207,7 @@ void main() {
 
 
 WebGLVectorTile2Shaders.uppsalaConflictFragmentShader = `
-precision mediump float;
+/*precision mediump float;*/
 varying float v_alpha;
 void main() {
   float r = 1.0 - v_alpha;
@@ -5242,7 +5242,7 @@ void main() {
 }`;
 
 WebGLVectorTile2Shaders.hivFragmentShader = `
-precision mediump float;
+/*precision mediump float;*/
 uniform sampler2D u_Image;
 varying float v_Val;
 void main() {
@@ -5277,7 +5277,7 @@ void main() {
 
 WebGLVectorTile2Shaders.obesityFragmentShader = `
 #extension GL_OES_standard_derivatives : enable
-precision mediump float;
+/*precision mediump float;*/
 uniform sampler2D u_Image;
 varying float v_Val;
 void main() {
@@ -5314,7 +5314,7 @@ void main() {
 
 WebGLVectorTile2Shaders.vaccineConfidenceFragmentShader = `
 #extension GL_OES_standard_derivatives : enable
-precision mediump float;
+/*precision mediump float;*/
 uniform sampler2D u_Image;
 varying float v_Val;
 void main() {
@@ -5350,7 +5350,7 @@ void main() {
 
 WebGLVectorTile2Shaders.bubbleMapFragmentShader = `
 #extension GL_OES_standard_derivatives : enable
-precision mediump float;
+/*precision mediump float;*/
 varying float v_Val;
 uniform vec4 u_Color;
 uniform float u_Mode;
@@ -5380,7 +5380,7 @@ void main() {
 
 WebGLVectorTile2Shaders.bubbleMapFragmentShaderV2 = `
 #extension GL_OES_standard_derivatives : enable
-precision mediump float;
+/*precision mediump float;*/
 varying float v_Val;
 varying float v_Size;
 uniform float u_EdgeSize;
@@ -5441,7 +5441,7 @@ void main() {
 
 WebGLVectorTile2Shaders.bubbleMapWithPackedColorFragmentShader = `
 #extension GL_OES_standard_derivatives : enable
-precision mediump float;
+/*precision mediump float;*/
 varying float v_Val;
 varying float v_color;
 uniform vec4 u_Color;
@@ -5480,7 +5480,7 @@ void main() {
 
 WebGLVectorTile2Shaders.bubbleMapWithColorMapFragmentShader = `
 #extension GL_OES_standard_derivatives : enable
-precision mediump float;
+/*precision mediump float;*/
 varying float v_Val;
 uniform sampler2D u_Image;
 uniform float u_Min;
@@ -5542,7 +5542,7 @@ void main() {
 
 WebGLVectorTile2Shaders.bivalentBubbleMapWithColorMapFragmentShader = `
 #extension GL_OES_standard_derivatives : enable
-precision mediump float;
+/*precision mediump float;*/
 varying float v_PointVal;
 varying float v_ColorVal;
 uniform sampler2D u_Image;
@@ -5561,7 +5561,7 @@ void main() {
 
 WebGLVectorTile2Shaders.bivalentBubbleMapWithColorMapFragmentShaderNoBorder = `
 #extension GL_OES_standard_derivatives : enable
-precision mediump float;
+/*precision mediump float;*/
 varying float v_PointVal;
 varying float v_ColorVal;
 uniform sampler2D u_Image;
@@ -5649,7 +5649,7 @@ void main() {
 
 WebGLVectorTile2Shaders.iomIdpFragmentShader = `
 #extension GL_OES_standard_derivatives : enable
-precision mediump float;
+/*precision mediump float;*/
 varying float v_type;
 void main() {
   // set pixels in points to something that stands out
@@ -5696,7 +5696,7 @@ void main() {
 
 WebGLVectorTile2Shaders.choroplethMapFragmentShader = `
 #extension GL_OES_standard_derivatives : enable
-precision mediump float;
+/*precision mediump float;*/
 uniform sampler2D u_Image;
 varying float v_Val;
 uniform vec4 u_color;
@@ -5733,7 +5733,7 @@ void main() {
 
 WebGLVectorTile2Shaders.choroplethMapFragmentShaderV2 = `
 #extension GL_OES_standard_derivatives : enable
-precision mediump float;
+/*precision mediump float;*/
 uniform sampler2D u_Colormap;
 uniform sampler2D u_Values;
 varying vec2 v_ValCoord;
@@ -5776,7 +5776,7 @@ void main() {
 
 WebGLVectorTile2Shaders.timeSeriesPointDataFragmentShader = `
 //WebGLVectorTile2.timeSeriesPointDataFragmentShader
-precision mediump float;
+/*precision mediump float;*/
 varying float v_val;
 varying float v_val1;
 
@@ -5814,7 +5814,7 @@ void main() {
 
 WebGLVectorTile2Shaders.tsipFragmentShader = `
 #extension GL_OES_standard_derivatives : enable
-precision mediump float;
+/*precision mediump float;*/
 varying float v_color;
 vec4 unpackColor(float f) {
   vec4 color;
@@ -5889,7 +5889,7 @@ void main() {
 }`;
 
 WebGLVectorTile2Shaders.pointFlowFragmentShader = `
-precision mediump float;
+/*precision mediump float;*/
 varying float v_t;
 uniform vec4 u_start_color;
 uniform vec4 u_end_color;
@@ -5920,7 +5920,7 @@ void main() {
 
 WebGLVectorTile2Shaders.pointFragmentShader = `
 #extension GL_OES_standard_derivatives : enable
-precision mediump float;
+/*precision mediump float;*/
 varying float v_color;
 uniform vec4 u_color;
 uniform bool override_packed_color;
@@ -5962,7 +5962,7 @@ void main() {
 
 WebGLVectorTile2Shaders.glyphFragmentShader = `
 #extension GL_OES_standard_derivatives : enable
-precision mediump float;
+/*precision mediump float;*/
 uniform sampler2D u_texture;
 void main() {
   gl_FragColor = texture2D(u_texture, vec2(gl_PointCoord.x, gl_PointCoord.y));
@@ -5993,7 +5993,7 @@ void main() {
 
 WebGLVectorTile2Shaders.glyphStartEpochEndEpochFragmentShader = `
 #extension GL_OES_standard_derivatives : enable
-precision mediump float;
+/*precision mediump float;*/
 uniform sampler2D u_texture;
 uniform float u_num_glyphs;
 varying float v_offset;
@@ -6033,7 +6033,7 @@ void main() {
 
 WebGLVectorTile2Shaders.FadeGlyphStartEpochEndEpochFragmentShader = `
 #extension GL_OES_standard_derivatives : enable
-precision mediump float;
+/*precision mediump float;*/
 uniform sampler2D u_texture;
 uniform float u_num_glyphs;
 varying float v_offset;
@@ -6058,7 +6058,7 @@ void main() {
 
 WebGLVectorTile2Shaders.polygonFragmentShader = `
 #extension GL_OES_standard_derivatives : enable
-precision mediump float;
+/*precision mediump float;*/
 varying float v_color;
 vec4 unpackColor(float f) {
   vec4 color;
@@ -6081,7 +6081,7 @@ void main() {
 
 
 WebGLVectorTile2Shaders.lineStringFragmentShader = `
-precision mediump float;
+/*precision mediump float;*/
 uniform vec4 u_color;
 void main() {
   gl_FragColor = u_color;
@@ -6111,7 +6111,7 @@ void main() {
 }`;
 
 WebGLVectorTile2Shaders.lineStringEpochFragmentShader = `
-precision mediump float;
+/*precision mediump float;*/
 uniform vec4 u_color;
 varying float v_t;
 void main() {
@@ -6136,7 +6136,7 @@ void main() {
 
 
 WebGLVectorTile2Shaders.expandedLineStringFragmentShader = `
-precision mediump float;
+/*precision mediump float;*/
 uniform vec3 u_color;
 uniform float u_inner;
 varying float v_edge;
@@ -6190,7 +6190,7 @@ void main() {
 
 WebGLVectorTile2Shaders.PointColorFragmentShader = `
 #extension GL_OES_standard_derivatives : enable
-precision mediump float;
+/*precision mediump float;*/
 varying float v_color;
 vec4 unpackColor(float f) {
   vec4 color;
@@ -6230,7 +6230,7 @@ void main() {
 
 WebGLVectorTile2Shaders.PointColorStartEpochEndEpochFragmentShader = `
 #extension GL_OES_standard_derivatives : enable
-precision mediump float;
+/*precision mediump float;*/
 varying float v_color;
 vec4 unpackColor(float f) {
   vec4 color;
@@ -6249,7 +6249,7 @@ void main() {
 
 WebGLVectorTile2Shaders.PointSolidColorStartEpochEndEpochFragmentShader = `
 #extension GL_OES_standard_derivatives : enable
-precision mediump float;
+/*precision mediump float;*/
 varying float v_color;
 vec4 unpackColor(float f) {
   vec4 color;
@@ -6302,7 +6302,7 @@ void main() {
 //unpackColor func alters alpha according to vertex shader
 WebGLVectorTile2Shaders.FadePointColorStartEpochEndEpochFragmentShader = `
 #extension GL_OES_standard_derivatives : enable
-precision mediump float;
+/*precision mediump float;*/
 varying float v_color;
 varying float v_dim;
 vec4 unpackColor(float f, float dim) {
@@ -6347,7 +6347,7 @@ void main() {
 
 WebGLVectorTile2Shaders.PointSizeColorStartEpochEndEpochFragmentShader = `
 #extension GL_OES_standard_derivatives : enable
-precision mediump float;
+/*precision mediump float;*/
 varying float v_color;
 vec4 unpackColor(float f) {
   vec4 color;
@@ -6413,7 +6413,7 @@ void main() {
 }`;
 
 WebGLVectorTile2Shaders.spCrudeFragmentShader = `
-precision mediump float;
+/*precision mediump float;*/
 varying float v_color;
 vec4 unpackColor(float f) {
   vec4 color;
@@ -6463,7 +6463,7 @@ void main() {
 }`;
 
 WebGLVectorTile2Shaders.particleFragmentShader = `
-precision mediump float;
+/*precision mediump float;*/
 varying float v_color;
 vec4 unpackColor(float f) {
   vec4 color;
@@ -6507,7 +6507,7 @@ void main() {
 }`;
 
 WebGLVectorTile2Shaders.lineTrackFragmentShader = `
-precision mediump float;
+/*precision mediump float;*/
 varying float v_color;
 varying float v_alpha;
 vec4 unpackColor(float f) {
@@ -6547,7 +6547,7 @@ void main() {
 }`;
 
 WebGLVectorTile2Shaders.sitc4r2FragmentShader = `
-precision mediump float;
+/*precision mediump float;*/
 varying float v_t;
 uniform vec3 u_end_color;
 void main() {
@@ -6584,7 +6584,7 @@ void main() {
 }`;
 
 WebGLVectorTile2Shaders.sitc4r2WithAlphaAndColorMapFragmentShader = `
-precision mediump float;
+/*precision mediump float;*/
 varying float v_t;
 varying float v_alpha;
 uniform vec3 u_end_color;
@@ -6629,7 +6629,7 @@ void main() {
 }`;
 
 WebGLVectorTile2Shaders.basicSquareFragmentShader = `
-precision lowp float;
+/*precision lowp float;*/
 varying float v_color;
 vec3 unpackColor(float f) {
   vec3 color;
@@ -6644,7 +6644,7 @@ void main() {
 
 
 WebGLVectorTile2Shaders.WindVectorsShaders_drawVertexShader = `
-precision mediump float;
+/*precision mediump float;*/
 attribute float a_index;
 uniform sampler2D u_particles;
 uniform float u_particles_res;
@@ -6666,7 +6666,7 @@ void main() {
 }`
 
 WebGLVectorTile2Shaders.WindVectorsShaders_drawFragmentShader = `
-precision mediump float;
+/*precision mediump float;*/
 uniform sampler2D u_wind;
 uniform vec2 u_wind_min;
 uniform vec2 u_wind_max;
@@ -6683,7 +6683,7 @@ void main() {
 }`;
 
 WebGLVectorTile2Shaders.WindVectorsShaders_quadVertexShader = `
-precision mediump float;
+/*precision mediump float;*/
 attribute vec2 a_pos;
 varying vec2 v_tex_pos;
 //uniform vec2 u_scale;
@@ -6695,7 +6695,7 @@ void main() {
 
 
 WebGLVectorTile2Shaders.WindVectorsShaders_screenFragmentShader = `
-precision mediump float;
+/*precision mediump float;*/
 uniform sampler2D u_screen;
 uniform float u_opacity;
 varying vec2 v_tex_pos;
@@ -6709,7 +6709,7 @@ void main() {
 }`;
 
 WebGLVectorTile2Shaders.WindVectorsShaders_updateFragmentShader = `
-precision highp float;
+/*precision highp float;*/
 uniform sampler2D u_particles;
 uniform sampler2D u_wind;
 uniform vec2 u_wind_res;
@@ -6778,7 +6778,7 @@ void main(void) {
 }`;
 
 WebGLVectorTile2Shaders.WindVectorsShaders_mapFragmentShader = `
-precision mediump float;
+/*precision mediump float;*/
 varying vec2 v_tex_pos;
 uniform sampler2D u_wind;
 void main(void) {
@@ -6822,7 +6822,7 @@ void main() {
 `;
 
 WebGLVectorTile2Shaders.QuiverPolarCoordsFragmentShader = `
-precision mediump float;
+/*precision mediump float;*/
 varying float v_PointSize;
 varying float v_rad;
 varying float v_speed;
@@ -6942,7 +6942,7 @@ void main() {
 `;
 
 WebGLVectorTile2Shaders.particleAltFadeFragmentShader = `
-precision mediump float;
+/*precision mediump float;*/
 varying vec4 v_color;
 void main() {
   gl_FragColor = v_color;
