@@ -2071,13 +2071,10 @@ async function setupUIAndOldLayers() {
       // Re-run corresponding sharelink code once the timeline has changed.
       // Note that this may be unncessary because of the callback for CSV layers, but it's possible not to have CSV layers
       // and CSV layers are async (and could be loaded very fast) so we keep this in.
-      let loopDwell = gEarthTime.timelapse.getLoopDwell();
-      gEarthTime.timelapse.setDoDwell(false)
       var onloadView = function() {
         clearTimelineUIChangeListeners();
         gEarthTime.timelapse.removeTimelineUIChangeListener(onloadView);
         gEarthTime.timelapse.loadSharedViewFromUnsafeURL(UTIL.getUnsafeHashString());
-        gEarthTime.timelapse.setDoDwell(loopDwell);
       };
       clearTimelineUIChangeListeners();
       gEarthTime.timelapse.addTimelineUIChangeListener(onloadView);
