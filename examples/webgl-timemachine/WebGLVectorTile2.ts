@@ -2333,6 +2333,37 @@ export class WebGLVectorTile2 extends Tile {
     }
   }
 
+  _drawStyledBubbleMap(transform: Float32Array) {
+    var gl = this.gl;
+    if (this._ready) {
+      gl.useProgram(this.program);
+      gl.enable(gl.BLEND);
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+      var tileTransform = new Float32Array(transform);
+      var currentTime = gEarthTime.currentEpochTime();
+
+      scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
+      scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+
+      gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+
+      this.program.setVertexAttrib.a_coords(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0);
+      this.program.setVertexAttrib.a_epoch1(1, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
+      this.program.setVertexAttrib.a_val1(1, gl.FLOAT, false, this._layer.numAttributes * 4, 12);
+      this.program.setVertexAttrib.a_epoch2(1, gl.FLOAT, false, this._layer.numAttributes * 4, 16);
+      this.program.setVertexAttrib.a_val2(1, gl.FLOAT, false, this._layer.numAttributes * 4, 20);
+      this.program.setVertexAttrib.a_fill_rgba(4, gl.FLOAT, false, this._layer.numAttributes * 4, 24);
+      this.program.setVertexAttrib.a_stroke_width(1, gl.FLOAT, false, this._layer.numAttributes * 4, 40);
+      this.program.setVertexAttrib.a_stroke_rgba(4, gl.FLOAT, false, this._layer.numAttributes * 4, 44);
+
+      gl.uniformMatrix4fv(this.program.u_matrix, false, tileTransform);
+      gl.uniform1f(this.program.u_epoch, currentTime);
+
+      gl.drawArrays(gl.POINTS, 0, this._pointCount);
+      gl.disable(gl.BLEND);
+    }
+  }  
   // This could implement binary search
   epochToInterpolatedFrameNum(epoch: number, frameEpochs: string | any[]) {
     for (var i = 0; i < this.epochs.length; i++) {
@@ -5575,6 +5606,69 @@ void main() {
   gl_FragColor = vec4( circleColor.rgb, alpha*.75 );
 }`;
 
+WebGLVectorTile2Shaders.styledBubbleMapVertexShader = `
+attribute vec4 a_coords;
+attribute float a_epoch1;
+attribute float a_val1;
+attribute float a_epoch2;
+attribute float a_val2;
+attribute vec4 a_fill_rgba;
+attribute float a_stroke_width;
+attribute vec4 a_stroke_rgba;
+
+uniform float u_epoch;
+uniform mat4 u_matrix;
+
+varying float v_radius;
+varying vec4 v_fill_rgba;
+varying float v_stroke_width;
+varying vec4 v_stroke_rgba;
+
+void main() {
+  vec4 position;
+  if (a_epoch1 >= u_epoch || a_epoch2 < u_epoch) {
+    position = vec4(-1,-1,-1,-1);
+  } else {
+    position =  u_matrix * a_coords;
+  }
+  gl_Position = position;
+  float a = smoothstep(a_epoch1, a_epoch2, u_epoch);
+  float value = mix(a_val1, a_val2, a);
+  gl_PointSize = value;
+  v_radius = value*0.5;
+  v_fill_rgba = a_fill_rgba;
+  v_stroke_width = a_stroke_width;
+  v_stroke_rgba = a_stroke_rgba;
+}
+`;
+
+WebGLVectorTile2Shaders.styledBubbleMapFragmentShader = `
+#extension GL_OES_standard_derivatives : enable
+/*precision mediump float;*/
+
+varying float v_radius;
+varying vec4 v_fill_rgba;
+varying float v_stroke_width;
+varying vec4 v_stroke_rgba;
+
+float circle(vec2 st, float radius) {
+  float dist = distance(st, vec2(0.50, 0.50));
+  float delta = fwidth(dist);
+  float alpha = smoothstep(radius-delta, radius+delta, dist);
+  return 1.0 - alpha;
+}
+
+void main() {
+  float stroke = v_stroke_width;
+  float radius = v_radius;
+  float alpha = circle(gl_PointCoord.xy, .49);
+  vec4 o = v_stroke_rgba * alpha;
+  alpha = circle(gl_PointCoord.xy, (radius-stroke)/radius * 0.49);
+  vec4 i = v_fill_rgba * alpha;
+  gl_FragColor = mix(o,i,alpha);
+}
+`;
+
 WebGLVectorTile2Shaders.iomIdpVertexShader = `
 attribute vec4 a_coord;
 attribute float a_country;
@@ -6927,7 +7021,7 @@ vec4 unpackColor(float f) {
 void main() {
     vec4 position;
     v_color = unpackColor(a_color);
-    if (a_epoch_0 > u_epoch || a_epoch_1 < u_epoch) {
+    if (a_epoch_0 >= u_epoch || a_epoch_1 < u_epoch) {
         position = vec4(-1.,-1.,-1.,-1.);
     } else {
         float t = (u_epoch - a_epoch_0)/(a_epoch_1 - a_epoch_0);
