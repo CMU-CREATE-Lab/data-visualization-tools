@@ -4131,7 +4131,6 @@ export class WebGLVectorTile2 extends Tile {
       gl.blendFunc(sfactor, dfactor);
 
       var tileTransform = new Float32Array(transform);
-      var currentTime = gEarthTime.currentEpochTime();
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
@@ -4158,7 +4157,16 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
 
-      gl.uniform1f(this.program.u_epoch, currentTime);
+      var currentTime = gEarthTime.currentEpochTime();
+      // epochOffset is in seconds since 1/1/1970.  Defaults to zero (no offset)
+      if (drawOptions.epochOffset) {
+        currentTime -= drawOptions.epochOffset;
+      }
+      // epochScale is in seconds.  1 (default) means units of seconds;  60 means units of minutes, etc
+      if (drawOptions.epochScale) {
+        currentTime /= drawOptions.epochScale;
+      }
+      gl.uniform1f(this.program.u_epoch, currentTime); // SCALED and OFFSET, if epochScale and/or epochOffset defined
 
       gl.uniform1f(this.program.u_size, pointSize);
 
