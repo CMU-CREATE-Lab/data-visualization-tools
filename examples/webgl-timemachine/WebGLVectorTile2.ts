@@ -4180,7 +4180,22 @@ export class WebGLVectorTile2 extends Tile {
       this.program.setVertexAttrib.a_epoch_1(1, gl.FLOAT, false, 9 * 4, 28);
       this.program.setVertexAttrib.a_color(1, gl.FLOAT, false, 9 * 4, 32);
 
-      gl.drawArrays(gl.POINTS, 0, this._pointCount);
+      if (drawOptions.pointIndex) {
+        var currentEpoch = gEarthTime.currentEpochTime();
+        var first = drawOptions.pointIndex[0].first;
+        var count = drawOptions.pointIndex[0].count;
+        for (var i = 0; i < drawOptions.pointIndex.length; i++) {
+          var pointIndex = drawOptions.pointIndex[i];
+          if (currentEpoch < pointIndex.epoch) {
+            first = pointIndex.first;
+            count = pointIndex.count;
+            break;
+          }         
+        }
+        gl.drawArrays(gl.POINTS, first, count);
+      } else {
+        gl.drawArrays(gl.POINTS, 0, this._pointCount);
+      }
 
       gl.disable(gl.BLEND);
     }

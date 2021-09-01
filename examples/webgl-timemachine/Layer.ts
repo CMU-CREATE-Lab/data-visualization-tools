@@ -8,6 +8,7 @@ import { LayerProxy } from './LayerProxy';
 import { Legend } from './Legend';
 
 export interface DrawOptions {
+  pointIndex?: any;
   epochScale?: number;
   epochOffset?: number;
   colorMapLegendLabels?: any[];
