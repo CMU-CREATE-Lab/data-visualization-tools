@@ -4158,6 +4158,7 @@ export class WebGLVectorTile2 extends Tile {
       gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
 
       var currentTime = gEarthTime.currentEpochTime();
+      var currentEpoch = currentTime;
       // epochOffset is in seconds since 1/1/1970.  Defaults to zero (no offset)
       if (drawOptions.epochOffset) {
         currentTime -= drawOptions.epochOffset;
@@ -4181,7 +4182,6 @@ export class WebGLVectorTile2 extends Tile {
       this.program.setVertexAttrib.a_color(1, gl.FLOAT, false, 9 * 4, 32);
 
       if (drawOptions.pointIndex) {
-        var currentEpoch = gEarthTime.currentEpochTime();
         var first = drawOptions.pointIndex[0].first;
         var count = drawOptions.pointIndex[0].count;
         for (var i = 0; i < drawOptions.pointIndex.length; i++) {
