@@ -131,6 +131,7 @@ if (typeof(EARTH_TIMELAPSE_CONFIG.csvLayersContentPath) === "undefined") {
 
 
 class EarthTimeImpl implements EarthTime {
+  mode = "explore";
   waitFrames: number = 0;
   lastTimeNotWaiting: number;
   defaultMasterPlaybackRate: number = 1.0;
@@ -381,34 +382,23 @@ class EarthTimeImpl implements EarthTime {
       let $ui = $(".current-location-text-container, .annotations-resume-exit-container, .scaleBarContainer, #logosContainer, .current-location-text, #layers-legend");
       $ui.addClass("noTimeline");
       if (newTimeline) {
-        let hashVars = UTIL.getUnsafeHashVars();
         this.timelapse.getVideoset().setFps(newTimeline.fps);
-        this.timelapse.loadNewTimelineFromObj(newTimeline.getCaptureTimes(), newTimeline.timelineType);
-        // Normally we would use the playback rates associated with the visible layer's timeline, but we are
+
+        // Normally we would use the playback rates associated with the timeline that is currently used, but we are
         // instead using the values from the last turned on layer that has non-default playback rates set.
         let playbackRates = this.playbackRates();
         this.timelapse.setMasterPlaybackRate(playbackRates.masterPlaybackRate);
-        // If we have a sharelink that has a PS value set, then let the timelapse library set it and don't do anything. Otherwise,
-        //   set the playback rate to the rate obtained above.
-        // If we have a sharelink that has a PS value set and the master playback rate for a layer is non-default, then set the
-        //   playback rate again to properly make it relative to the new master ("max") rate.
-        //
-        if (typeof(hashVars.ps) != "undefined" && playbackRates.masterPlaybackRate != this.defaultMasterPlaybackRate) {
-          let newPlaybackRate:number = (hashVars.ps / 100.0) * playbackRates.masterPlaybackRate;
-          this.timelapse.setPlaybackRate(newPlaybackRate);
-        } else if (typeof(hashVars.ps) == "undefined") {
-          this.timelapse.setPlaybackRate(playbackRates.playbackRate);
-        }
-        // We need timelapse to update the time internally (above) but if we just have one date, we don't actually want to show the timeline UI.
-        if (newTimeline.startDate == newTimeline.endDate) {
-          return;
-        } else {
+        this.timelapse.loadNewTimelineFromObj(newTimeline.getCaptureTimes(), newTimeline.timelineType);
+
+        // We need timelapse to update the time internally (above) but if we just have one date, we don't actually want to show the timeline UI,
+        // so only run this if start date and end date differ.
+        if (newTimeline.startDate != newTimeline.endDate) {
           $ui.removeClass("noTimeline");
-        }
-        if (newTimeline.timelineType == "customUI") {
-          $(".customControl").show().children().show();
-        } else {
-          $(".controls, .captureTime").show();
+          if (newTimeline.timelineType == "customUI") {
+            $(".customControl").show().children().show();
+          } else {
+            $(".controls, .captureTime").show();
+          }
         }
       }
       this.currentlyShownTimeline = newTimeline;
@@ -1274,7 +1264,6 @@ function showAnnotationResumeExit() {
   setExploreModeUrl();
 }
 
-
 //////////////////////////////////////////////////////////
 
 
@@ -1773,7 +1762,7 @@ async function setupUIAndOldLayers() {
       }
 
       var unsafeHashVars = UTIL.getUnsafeHashVars();
-      if (lastSelectedWaypointIndex != -1 && typeof(unsafeHashVars.waypointIdx) !== "undefined") {
+      if (gEarthTime.mode == "explore" || (lastSelectedWaypointIndex != -1 && typeof(unsafeHashVars.waypointIdx) !== "undefined")) {
         setNewStoryAndThemeUrl(currentWaypointTheme, currentWaypointStory, -1);
       }
 
@@ -1837,12 +1826,34 @@ async function setupUIAndOldLayers() {
           var seekTime = gEarthTime.timelapse.playbackTimeFromShareDate(currentWaypoint.beginTime);
           gEarthTime.timelapse.seek(seekTime);
         }
+
+        let hashVars = UTIL.getUnsafeHashVars();
+        let playbackRates = gEarthTime.playbackRates();
+        var shareViewWithSpeedVal = typeof(hashVars.ps) != "undefined";
+        var storyWaypointActive = $(".thumbnail_highlight").length;
+
+        // If we have a sharelink that has a PS value, set the playback rate to properly make it relative to the new master ("max") rate.
+        // If we don't have a sharelink that has a PS value, check if we are in a story and if we are, set the playback rate
+        //   to the rate defined in the waypoint, relative to the max rate. And if we aren't in a story, set the playback rate defined
+        //   for the layer that is currently controlling playback rates.
+
+        if (shareViewWithSpeedVal && playbackRates.masterPlaybackRate != this.defaultMasterPlaybackRate) {
+          let newPlaybackRate:number = (hashVars.ps / 100.0) * playbackRates.masterPlaybackRate;
+          gEarthTime.timelapse.setPlaybackRate(newPlaybackRate, true);
+        } else if (!shareViewWithSpeedVal) {
+          if (storyWaypointActive) {
+            let newPlaybackRate:number = gEarthTime.timelapse.getMaxPlaybackRate() * (waypoint.speed / 100.0);
+            gEarthTime.timelapse.setPlaybackRate(newPlaybackRate, true);
+          } else {
+            gEarthTime.timelapse.setPlaybackRate(playbackRates.playbackRate, true);
+          }
+        }
       };
       clearTimelineUIChangeListeners();
       gEarthTime.timelapse.addTimelineUIChangeListener(waypointTimelineUIChangeListener);
       // In the event a sharelink layer does not have a timeline change, be sure the above listener is removed.
       var waypointTimelineUIChangeListenerWatchDog = setTimeout(function() {
-        gEarthTime.timelapse.removeTimelineUIChangeListener(waypointTimelineUIChangeListener);
+        clearTimelineUIChangeListeners();
       }, 1000);
       timelineUIChangeListeners.push({"type" : "timeout", "fn" : waypointTimelineUIChangeListenerWatchDog});
       timelineUIChangeListeners.push({"type" : "uiChangeListener", "fn" : waypointTimelineUIChangeListener});
@@ -2073,7 +2084,6 @@ async function setupUIAndOldLayers() {
       // and CSV layers are async (and could be loaded very fast) so we keep this in.
       var onloadView = function() {
         clearTimelineUIChangeListeners();
-        gEarthTime.timelapse.removeTimelineUIChangeListener(onloadView);
         gEarthTime.timelapse.loadSharedViewFromUnsafeURL(UTIL.getUnsafeHashString());
       };
       clearTimelineUIChangeListeners();
@@ -2350,7 +2360,6 @@ async function setupUIAndOldLayers() {
 
   $(".annotations-resume-button").on("click", function() {
     showAnnotations(true);
-    setNewStoryAndThemeUrl(currentWaypointTheme, currentWaypointStory);
   });
 
   $(".annotations-exit-button").on("click", function() {
@@ -2926,6 +2935,8 @@ function setNewStoryAndThemeUrl(newTheme, newStory, newWaypointIndex=undefined) 
 
   $("#timeMachine .player .presentation-mode-share-input").show();
   $("#timeMachine .player .shareView .ui-dialog-title").text("Share a Story");
+
+  gEarthTime.mode = "story";
 }
 
 function setExploreModeUrl() {
@@ -2946,6 +2957,8 @@ function setExploreModeUrl() {
 
   $("#timeMachine .player .presentation-mode-share-input").hide();
   $("#timeMachine .player .shareView .ui-dialog-title").text("Share a View");
+
+  gEarthTime.mode = "explore";
 }
 
 function generateHashString(fields) {

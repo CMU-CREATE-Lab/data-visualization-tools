@@ -7,6 +7,8 @@ import { Glb } from './Glb'
 import { Timeline } from './Timeline';
 
 export interface EarthTime {
+  mode: string;
+  playbackRates(): {[key: string]: number},
   waitFrames: any;
   lastTimeNotWaiting: number;
   currentlyShownTimeline: any;
