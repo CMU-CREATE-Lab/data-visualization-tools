@@ -15,9 +15,13 @@ import { Resource, parseAndIndexGeojson } from './Resource';
 import { EarthTimeCsvTable } from './EarthTimeCsvTable';
 import { Workers } from './Workers';
 import { TileIdx } from './TileIdx';
-import { DrawOptions } from './Layer';
+import { DrawOptions, DrawFunction } from './Layer';
 import { WebGLVectorLayer2 } from './WebGLVectorLayer2';
 import { Utils } from './Utils';
+
+function drawsEveryFrame(func: DrawFunction) {
+  func.drawEveryFrame = true;
+}
 
 export class WebGLVectorTile2 extends Tile {
   _layer: WebGLVectorLayer2;
@@ -92,9 +96,9 @@ export class WebGLVectorTile2 extends Tile {
   _population?: number;
 
   constructor(layer: WebGLVectorLayer2, tileidx: TileIdx, bounds: any, opt_options: { drawFunction?: any; externalGeojson?: any; noValue?: any; uncertainValue?: any; scalingFunction?: any; colorScalingFunction?: any; layerId?: any; }) {
+    super(layer, tileidx, bounds, opt_options);
     gEarthTime.glb.gl.getExtension("OES_standard_derivatives");
 
-    super(layer, tileidx, bounds, opt_options);
     this._layer = layer;
     this._url = tileidx.expandUrl(this._layer._tileUrl, this._layer);
     this._ready = false;
@@ -2476,6 +2480,8 @@ export class WebGLVectorTile2 extends Tile {
     }
   }
 
+  // THIS FUNCTION MUST BE CALLED EVERY FRAME
+  // See drawsEveryFrame below
   _drawLodes(transform: Float32Array, options: { filter: boolean; distance: number; step: number; throttle: number; se01: any; se02: any; se03: any; }) {
     var gl = this.gl;
 
@@ -4051,21 +4057,21 @@ export class WebGLVectorTile2 extends Tile {
           if (isNaN(pointSize)) {
             pointSize = 1.0;
           }
-        gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
-        gl.uniform1f(this.program.u_epoch, currentTime);
-        gl.uniform1f(this.program.u_size, pointSize);
-        gl.bindBuffer(gl.ARRAY_BUFFER, buffer.buffer);
-        this.program.setVertexAttrib.a_coord_0(2, gl.FLOAT, false, buffer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-        this.program.setVertexAttrib.a_epoch_0(1, gl.FLOAT, false, buffer.numAttributes * 4, 8);
-        this.program.setVertexAttrib.a_coord_1(2, gl.FLOAT, false, buffer.numAttributes * 4, 12); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-        this.program.setVertexAttrib.a_epoch_1(1, gl.FLOAT, false, buffer.numAttributes * 4, 20);
-        this.program.setVertexAttrib.a_color(1, gl.FLOAT, false, buffer.numAttributes * 4, 24);
-        gl.drawArrays(gl.POINTS, 0, buffer.count);
-        gl.disable(gl.BLEND);
+          gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
+          gl.uniform1f(this.program.u_epoch, currentTime);
+          gl.uniform1f(this.program.u_size, pointSize);
+          gl.bindBuffer(gl.ARRAY_BUFFER, buffer.buffer);
+          this.program.setVertexAttrib.a_coord_0(2, gl.FLOAT, false, buffer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+          this.program.setVertexAttrib.a_epoch_0(1, gl.FLOAT, false, buffer.numAttributes * 4, 8);
+          this.program.setVertexAttrib.a_coord_1(2, gl.FLOAT, false, buffer.numAttributes * 4, 12); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+          this.program.setVertexAttrib.a_epoch_1(1, gl.FLOAT, false, buffer.numAttributes * 4, 20);
+          this.program.setVertexAttrib.a_color(1, gl.FLOAT, false, buffer.numAttributes * 4, 24);
+          gl.drawArrays(gl.POINTS, 0, buffer.count);
+          gl.disable(gl.BLEND);
+        }
       }
     }
   }
-}
 
   _drawVesselTracks(transform: Float32Array) {
     var gl = this.gl;
@@ -4348,6 +4354,8 @@ export class WebGLVectorTile2 extends Tile {
     };
   }
 
+  // THIS DRAW FUNCTION MUST BE CALLED EVERY FRAME
+  // See drawsEveryFrame below
   _drawWindVectors(transform: Float32Array) {
     if (this._ready) {
       //gl.disable(gl.DEPTH_TEST);
@@ -4763,6 +4771,10 @@ prototypeAccessors.numParticles.get = function () {
 };
 
 Object.defineProperties( WebGLVectorTile2.prototype, prototypeAccessors );
+
+// Declare drawing functions that must draw every frame
+drawsEveryFrame(WebGLVectorTile2.prototype._drawWindVectors);
+drawsEveryFrame(WebGLVectorTile2.prototype._drawLodes);
 
 export var WebGLVectorTile2Shaders: {[name: string]: string} = {};
 

@@ -3150,6 +3150,8 @@ function update() {
       needRedraw = true;
       if (verboseRedrawTest) console.log(`Layer ${layerProxy.id} requests redraw`);
       break;
+    } else if (layerProxy.layer?.drawFunction?.drawEveryFrame) {
+      needRedraw = true;
     }
   }
 

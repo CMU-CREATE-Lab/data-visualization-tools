@@ -45,7 +45,6 @@ export class Glb {
       shader = cache[type] = this.gl.createShader(type);
       if (type == this.gl.FRAGMENT_SHADER) {
         source = gl_fragment_shader_source_prefix + source;
-        console.log('compiling ', source);
       }
       this.gl.shaderSource(shader, source);
       this.gl.compileShader(shader);

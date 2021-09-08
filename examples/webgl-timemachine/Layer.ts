@@ -64,6 +64,11 @@ export interface DrawOptions {
   thickness?: any
 }
 
+export interface DrawFunction {
+  (...any: any[]): any;
+  drawEveryFrame?: boolean
+};
+
 export class LayerOptions {
     constructor(layerOptions: LayerOptions) {
       for (var attrib in layerOptions) {
@@ -102,7 +107,7 @@ export class LayerOptions {
     nLevels?: number = 21;
     imageSrc: any;
     drawLayerFunction?: (DrawOptions) => DrawOptions;
-    drawFunction: (...any: any[]) => any;
+    drawFunction: DrawFunction;
     numAttributes: number;
     vertexShader: string;
     fragmentShader: string;
