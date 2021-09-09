@@ -96,8 +96,11 @@ export class WebGLVectorTile2 extends Tile {
   _population?: number;
 
   constructor(layer: WebGLVectorLayer2, tileidx: TileIdx, bounds: any, opt_options: { drawFunction?: any; externalGeojson?: any; noValue?: any; uncertainValue?: any; scalingFunction?: any; colorScalingFunction?: any; layerId?: any; }) {
-    super(layer, tileidx, bounds, opt_options);
+    // This line must be first or bubble maps (and likely other things) break.
+    // This does go against the rule of super being the first call of a constructor.
     gEarthTime.glb.gl.getExtension("OES_standard_derivatives");
+
+    super(layer, tileidx, bounds, opt_options);
 
     this._layer = layer;
     this._url = tileidx.expandUrl(this._layer._tileUrl, this._layer);
@@ -2367,7 +2370,7 @@ export class WebGLVectorTile2 extends Tile {
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
       gl.disable(gl.BLEND);
     }
-  }  
+  }
   // This could implement binary search
   epochToInterpolatedFrameNum(epoch: number, frameEpochs: string | any[]) {
     for (var i = 0; i < this.epochs.length; i++) {
@@ -4196,7 +4199,7 @@ export class WebGLVectorTile2 extends Tile {
             first = pointIndex.first;
             count = pointIndex.count;
             break;
-          }         
+          }
         }
         gl.drawArrays(gl.POINTS, first, count);
       } else {
