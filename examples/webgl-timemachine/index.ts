@@ -388,6 +388,7 @@ class EarthTimeImpl implements EarthTime {
         // instead using the values from the last turned on layer that has non-default playback rates set.
         let playbackRates = this.playbackRates();
         this.timelapse.setMasterPlaybackRate(playbackRates.masterPlaybackRate);
+        this.timelapse.setPlaybackRate(playbackRates.playbackRate, true);
         this.timelapse.loadNewTimelineFromObj(newTimeline.getCaptureTimes(), newTimeline.timelineType);
 
         // We need timelapse to update the time internally (above) but if we just have one date, we don't actually want to show the timeline UI,
