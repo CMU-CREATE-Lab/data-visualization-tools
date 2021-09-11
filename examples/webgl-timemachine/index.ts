@@ -377,7 +377,7 @@ class EarthTimeImpl implements EarthTime {
 
   updateTimelineIfNeeded() {
     let newTimeline = this.timeline();
-    if (newTimeline !== this.currentlyShownTimeline) {
+    if (newTimeline !== this.currentlyShownTimeline && gEarthTime.layerDB.loadedLayers().length == gEarthTime.layerDB.visibleLayers.length) {
       $(".controls, .captureTime, .customControl").hide();
       let $ui = $(".current-location-text-container, .annotations-resume-exit-container, .scaleBarContainer, #logosContainer, .current-location-text, #layers-legend");
       $ui.addClass("noTimeline");
@@ -400,6 +400,9 @@ class EarthTimeImpl implements EarthTime {
           } else {
             $(".controls, .captureTime").show();
           }
+        } else {
+          // Ensure playback is paused for layers with no timeline.
+          gEarthTime.timelapse.pause();
         }
       }
       this.currentlyShownTimeline = newTimeline;
@@ -1848,6 +1851,40 @@ async function setupUIAndOldLayers() {
           } else {
             gEarthTime.timelapse.setPlaybackRate(playbackRates.playbackRate, true);
           }
+        }
+
+        var waypointPlayPause = function() {
+          if ($(".thumbnail_highlight").length == 0) return;
+
+          var currentWaypointIdx = snaplapseForPresentationSlider.getSnaplapseViewer().getCurrentWaypointIndex();
+          var currentWaypoint = snaplapseForPresentationSlider.getKeyframes()[currentWaypointIdx];
+          var currentWaypointCenterView = gEarthTime.timelapse.pixelBoundingBoxToLatLngCenterView(currentWaypoint.bounds);
+          var currentCenterView = gEarthTime.timelapse.pixelCenterToLatLngCenterView(gEarthTime.timelapse.getView());
+
+          if (Math.abs(currentWaypointCenterView.center.lat - currentCenterView.center.lat) > 0.001 ||
+              Math.abs(currentWaypointCenterView.center.lng - currentCenterView.center.lng) > 0.001 ||
+              Math.abs(currentWaypointCenterView.zoom - currentCenterView.zoom) > 0.001) {
+            return;
+          }
+
+          if (gEarthTime.timelapse.getNumFrames() > 1 && gEarthTime.timelapse.getPlaybackRate() > 0) {
+            if (gEarthTime.timelapse.isPaused() && !gEarthTime.timelapse.isDoingLoopingDwell()) {
+              gEarthTime.timelapse.handlePlayPause();
+            }
+          } else {
+            gEarthTime.timelapse.pause();
+          }
+        }
+
+        if (gEarthTime.timelapse.isMovingToWaypoint()) {
+          var waypointPlayPauseCallback = function() {
+            gEarthTime.timelapse.removeParabolicMotionStoppedListener(waypointPlayPauseCallback);
+            waypointPlayPause();
+          }
+          gEarthTime.timelapse.addParabolicMotionStoppedListener(waypointPlayPauseCallback);
+        } else {
+          // Need slight delay so this is run after the default timelapse library callback
+          setTimeout(waypointPlayPause, 25);
         }
       };
       clearTimelineUIChangeListeners();
