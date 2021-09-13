@@ -1861,21 +1861,27 @@ async function setupUIAndOldLayers() {
           var currentWaypointCenterView = gEarthTime.timelapse.pixelBoundingBoxToLatLngCenterView(currentWaypoint.bounds);
           var currentCenterView = gEarthTime.timelapse.pixelCenterToLatLngCenterView(gEarthTime.timelapse.getView());
 
+          // We don't want to run this if the user has canceled moving to the waypoint, so check whether we are actually
+          // at the waypoint location. Note that because of screen size, the zoom levels can differ, hency why the zoom
+          // difference chosen here is larger than desired.
           if (Math.abs(currentWaypointCenterView.center.lat - currentCenterView.center.lat) > 0.001 ||
               Math.abs(currentWaypointCenterView.center.lng - currentCenterView.center.lng) > 0.001 ||
-              Math.abs(currentWaypointCenterView.zoom - currentCenterView.zoom) > 0.001) {
+              Math.abs(currentWaypointCenterView.zoom - currentCenterView.zoom) > 0.5) {
             return;
           }
 
           if (gEarthTime.timelapse.getNumFrames() > 1 && gEarthTime.timelapse.getPlaybackRate() > 0) {
             if (gEarthTime.timelapse.isPaused() && !gEarthTime.timelapse.isDoingLoopingDwell()) {
-              gEarthTime.timelapse.handlePlayPause();
+              gEarthTime.timelapse.play();
             }
           } else {
             gEarthTime.timelapse.pause();
           }
         }
 
+        // Technically each waypoint will trigger a callback from the timelapse library when it reaches its desired view
+        // and will handle playback state at that point. However, layers may still be loading at this stage and we thus
+        // need re-run these playback checks now that the timeline has changed.
         if (gEarthTime.timelapse.isMovingToWaypoint()) {
           var waypointPlayPauseCallback = function() {
             gEarthTime.timelapse.removeParabolicMotionStoppedListener(waypointPlayPauseCallback);
@@ -1883,8 +1889,8 @@ async function setupUIAndOldLayers() {
           }
           gEarthTime.timelapse.addParabolicMotionStoppedListener(waypointPlayPauseCallback);
         } else {
-          // Need slight delay so this is run after the default timelapse library callback
-          setTimeout(waypointPlayPause, 25);
+          // Need a slight delay so that this is run after the default timelapse library callback
+          setTimeout(waypointPlayPause, 30);
         }
       };
       clearTimelineUIChangeListeners();
