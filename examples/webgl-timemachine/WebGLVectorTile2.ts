@@ -3263,11 +3263,12 @@ export class WebGLVectorTile2 extends Tile {
       if (overridePackedColor) {
         var colorLoc = gl.getUniformLocation(this.program, 'u_color');
         gl.uniform4fv(colorLoc, color);
-      } else {
-        var attributeLoc = gl.getAttribLocation(this.program, 'a_color');
-        gl.enableVertexAttribArray(attributeLoc);
-        gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 12, 8); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
       }
+
+      // Attributes defined in a shader must be enabled
+      var attributeLoc = gl.getAttribLocation(this.program, 'a_color');
+      gl.enableVertexAttribArray(attributeLoc);
+      gl.vertexAttribPointer(attributeLoc, 1, gl.FLOAT, false, 12, 8); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
       gl.disable(gl.BLEND);
