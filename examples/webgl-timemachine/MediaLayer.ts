@@ -33,13 +33,14 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
     this.id = this.layerDef["Share link identifier"].replace(/\W+/g, '_');
     this.mediaPath = this.layerDef["URL"];
     this.title = this.layerDef["Name"];
+    this.extrasOptions = {};
     if (this.layerDef["Extras Options"]?.trim()) {
       this.extrasOptions = JSON.parse(this.layerDef["Extras Options"]);
     }
-    this.objectFit = this.extrasOptions ? this.extrasOptions['object-fit'] : "";
-    this.loop = this.extrasOptions ? this.extrasOptions['loop'] : true;
-    this.muted = this.extrasOptions ? this.extrasOptions['muted'] : true;
-    this.playbackControls = this.extrasOptions ? this.extrasOptions['controls'] : false;
+    this.objectFit = this.extrasOptions['object-fit'] ?? "";
+    this.loop = this.extrasOptions['loop'] ?? true;
+    this.muted = this.extrasOptions['muted'] ?? true;
+    this.playbackControls = this.extrasOptions['controls'] ?? false;
 
     this.$extrasContentContainerTitleBar = $(".extras-content-dialog .ui-dialog-titlebar");
     this.$extrasContentContainer = $("#extras-content-container");
