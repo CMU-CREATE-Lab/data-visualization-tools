@@ -29,9 +29,6 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
 
     this.ready = false;
     this.playbackRate = this.layerDef["Playback Rate"] && this.layerDef["Playback Rate"].trim() != '' ? parseFloat(this.layerDef["Playback Rate"].trim()) : 1;
-    this.loop = this.layerDef.loop;
-    this.muted = this.layerDef.muted;
-    this.playbackControls = this.layerDef.controls;
     this.mediaType = this.layerDef["Map Type"].split("-")[1];
     this.id = this.layerDef["Share link identifier"].replace(/\W+/g, '_');
     this.mediaPath = this.layerDef["URL"];
@@ -40,6 +37,9 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
       this.extrasOptions = JSON.parse(this.layerDef["Extras Options"]);
     }
     this.objectFit = this.extrasOptions ? this.extrasOptions['object-fit'] : "";
+    this.loop = this.extrasOptions ? this.extrasOptions['loop'] : true;
+    this.muted = this.extrasOptions ? this.extrasOptions['muted'] : true;
+    this.playbackControls = this.extrasOptions ? this.extrasOptions['controls'] : false;
 
     this.$extrasContentContainerTitleBar = $(".extras-content-dialog .ui-dialog-titlebar");
     this.$extrasContentContainer = $("#extras-content-container");
