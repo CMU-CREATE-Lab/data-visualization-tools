@@ -702,59 +702,36 @@ export class WebGLVectorTile2 extends Tile {
             var idx = [];
             // Get indexes of non-blank values
             for (var j = first_data_col; j < country.length; j++) {
-              country[j] = country[j].replace(/,/g, "");
-              if (country[j] != "") {
-                idx.push(j);
-              }
-            }
-            for (var j = 0; j < idx.length - 1; j++) {
-              var k = idx[j];
-              var val = country[k];
-              val = getValue(val);
-              setMinMaxValue(Math.abs(val));
-              var point: any = {
-                centroid: centroid,
-                epoch1: epochs[k],
-                val1: val
-              };
-              if (idx.length > 1) {
-                var k = idx[j + 1];
-                var val = country[k];
+              var val = country[j].replace(/,/g, "");
+              if (val !== '') { 
                 val = getValue(val);
                 setMinMaxValue(Math.abs(val));
-                point.epoch2 = epochs[k];
-                point.val2 = val;
-              }
-              else {
-                var k = idx[j];
-                var val = country[k];
-                val = getValue(val);
-                setMinMaxValue(Math.abs(val));
-                point.epoch2 = epochs[k];
-                point.val2 = val;
-              }
-              if (has_packedColor) {
-                point.packedColor = packedColor;
-              }
-              points.push(point);
-            }
-            if (idx.length > 1) {
-              var k = idx[j];
-              var val = country[k];
-              val = getValue(val);
-              setMinMaxValue(Math.abs(val));
-              var span = epochs[k] - epochs[k - 1];
-              var point: any = {
-                centroid: centroid,
-                epoch1: epochs[k],
-                val1: val,
-                epoch2: epochs[k] + span,
-                val2: val
-              };
-              if (has_packedColor) {
-                point.packedColor = packedColor;
-              }
-              points.push(point);
+                var point: any = {
+                  centroid: centroid,
+                  epoch1: epochs[j],
+                  val1: val
+                };
+                if (j < country.length - 1) {
+                  var val2 = country[j+1].replace(/,/g, "");
+                  if (val2 !== '') {
+                    val2 = getValue(val2);
+                    setMinMaxValue(Math.abs(val2));
+                    point.epoch2 = epochs[j+1];
+                    point.val2 = val2;
+                  } else {
+                    point.val2 = val;
+                    point.epoch2 = epochs[j+1];
+                  }
+                } else {
+                  var span = epochs[j] - epochs[j-1]; 
+                  point.val2 = val;
+                  point.epoch2 = point.epoch1 + span;                 
+                }
+                if (has_packedColor) {
+                  point.packedColor = packedColor;
+                }
+                points.push(point);  
+              } 
             }
           }
         }
@@ -5405,10 +5382,10 @@ varying float v_Val;
 varying float v_Size;
 void main() {
   vec4 position;
-  if (a_Epoch1 > u_Epoch || a_Epoch2 <= u_Epoch) {
-    position = vec4(-1,-1,-1,-1);
-  } else {
+  if (u_Epoch >= a_Epoch1 && u_Epoch < a_Epoch2) {
     position = u_MapMatrix * vec4(a_Centroid.x, a_Centroid.y, 0, 1);
+  } else {
+    position = vec4(-1,-1,-1,-1);
   }
   gl_Position = position;
   float delta = (u_Epoch - a_Epoch1)/(a_Epoch2 - a_Epoch1);
