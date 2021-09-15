@@ -794,10 +794,13 @@ function initLayerToggleUI() {
         $selectedLayer.trigger("click");
       }
       var extrasVideo = $("#extras-video")[0] as HTMLVideoElement;
+      var extrasIframe = $("#extras-iframe")[0] as HTMLIFrameElement;
       if (extrasVideo) {
         extrasVideo.pause();
         extrasVideo.removeEventListener("loadstart", autoModeExtrasViewChangeHandler);
         extrasVideo.src = "";
+      } else if (extrasIframe) {
+        extrasIframe.src = "";
       }
       $extrasContentContainer.data("layer-id", "");
       $("#navControls").children().removeClass("force-hidden");
