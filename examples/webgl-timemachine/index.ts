@@ -401,9 +401,12 @@ class EarthTimeImpl implements EarthTime {
             $(".controls, .captureTime").show();
           }
         } else {
-          // Ensure playback is paused for layers with no timeline.
+          // Ensure playback is paused for layers with single year (hidden) timeline.
           gEarthTime.timelapse.pause();
         }
+      } else {
+        // Ensure playback is paused for layers with no timeline.
+        gEarthTime.timelapse.pause();
       }
       this.currentlyShownTimeline = newTimeline;
     }
