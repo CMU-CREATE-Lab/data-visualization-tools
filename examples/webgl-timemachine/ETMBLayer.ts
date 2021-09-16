@@ -378,7 +378,7 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
       // Don't wait for 'load' event;  we need to call _render beforehand to help the loading process.
       this.map._render(); // no args to _render means render all layers on map
       let nextFrameNeedsRedraw: boolean;
-      if (ETMBLayer.map.loaded() && ETMBLayer.map.areTilesLoaded()) {
+      if (ETMBLayer.map.loaded() && ETMBLayer.map.areTilesLoaded() && !ETMBLayer.map.needsRepaint) {
         nextFrameNeedsRedraw = false;
       } else {
         gEarthTime.timelapse.lastFrameCompletelyDrawn = false;

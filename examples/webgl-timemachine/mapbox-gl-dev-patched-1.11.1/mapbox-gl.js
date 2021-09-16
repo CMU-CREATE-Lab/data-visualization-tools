@@ -62747,8 +62747,12 @@ var Map = /*@__PURE__*/(function (Camera) {
         // Style#_updateSources could have caused them to be set again.
         var somethingDirty = this._sourcesDirty || this._styleDirty || this._placementDirty;
         if (somethingDirty || this._repaint) {
+            // ETPATCH
+            this.needsRepaint = true;
             this.triggerRepaint();
         } else if (!this.isMoving() && this.loaded()) {
+            // ETPATCH
+            this.needsRepaint = false;
             this.fire(new performance.Event('idle'));
         }
 
