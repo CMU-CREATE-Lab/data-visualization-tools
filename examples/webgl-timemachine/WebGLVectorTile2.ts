@@ -1072,14 +1072,15 @@ export class WebGLVectorTile2 extends Tile {
     var rawVerts = [];
 
     console.assert(geojson.hash); // geojson needs to be indexed
-
+    var honorDataGaps = this._layer.setDataOptions && this._layer.setDataOptions.honorDataGaps;
     Workers.call(
       'WebGLVectorTile2Worker.js',
       'triangularizeAndJoin',
       {
         csv: csv,
         geojson: geojson,
-        nameKey: this._layer.nameKey
+        nameKey: this._layer.nameKey,
+        honorDataGaps: honorDataGaps
       },
       function (this: WebGLVectorTile2, t: { verts: any; minValue: any; maxValue: any; }) {
         var verts = t.verts;

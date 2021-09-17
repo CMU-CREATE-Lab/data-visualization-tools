@@ -222,9 +222,14 @@ operations['triangularizeAndJoin'] = function(request) {
       //console.log("choroplethworker: Total time to compute pixels for  " + name + ": " + (t2_ - t1_) + "ms");
 
 
+      var honorDataGaps = request.honorDataGaps;
       var idx = [];
       for (var j = first_data_col; j < regionRow.length; j++) {
-        if (!isNaN(regionRow[j])) {
+        if (!honorDataGaps) {
+          if (!isNaN(regionRow[j])) {
+            idx.push(j);
+          } 
+        } else {
           idx.push(j);
         }
       }
@@ -237,6 +242,8 @@ operations['triangularizeAndJoin'] = function(request) {
 
         var epoch_1 = epochs[id_current - first_data_col];
         var val_1 = regionRow[id_current];
+        if (isNaN(val_1)) continue;
+
         if (val_1 > maxValue) {
           maxValue = val_1;
         }
@@ -249,6 +256,9 @@ operations['triangularizeAndJoin'] = function(request) {
         }
 
         var val_2 = regionRow[id_next];
+        if (isNaN(val_2)) {
+          val_2 = val_1;
+        }
         if (val_2 > maxValue) {
           maxValue = val_2;
         }
