@@ -43,6 +43,7 @@ export interface DrawOptions {
   edgeColor?: any;
   edgeSize?: any;
   bubbleScaleRange?: [number, number];
+  bubbleAlpha?: number;
   throttle?: number;
   epoch?: number;
   pointSize?: number;

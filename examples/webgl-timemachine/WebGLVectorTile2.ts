@@ -2206,9 +2206,13 @@ export class WebGLVectorTile2 extends Tile {
   // Warning:  bubbleScaleRange will invalidate the standard numeric legend
   _drawBubbleMap(transform: Float32Array) {
     var bubbleScale = 1;
+    var bubbleAlpha = 0.75;
     var drawOptions = this._layer.drawOptions;
     if (drawOptions && drawOptions.bubbleScaleRange) {
       bubbleScale = this.computeFromGmapsZoomLevel(drawOptions.bubbleScaleRange);
+    }
+    if (drawOptions && drawOptions.bubbleAlpha) {
+      bubbleAlpha = drawOptions.bubbleAlpha;
     }
 
     var gl = this.gl;
@@ -2246,6 +2250,7 @@ export class WebGLVectorTile2 extends Tile {
       gl.uniform1f(this.program.u_Epoch, currentTime);
       gl.uniform1f(this.program.u_Size, 2.0 * window.devicePixelRatio * bubbleScale);
       gl.uniform1f(this.program.u_Mode, mode);
+      gl.uniform1f(this.program.u_Alpha, bubbleAlpha);
 
       if (this._texture) {
         gl.activeTexture(gl.TEXTURE0);
@@ -5402,6 +5407,7 @@ WebGLVectorTile2Shaders.bubbleMapFragmentShader = `
 varying float v_Val;
 uniform vec4 u_Color;
 uniform float u_Mode;
+uniform float u_Alpha;
 void main() {
     float dist = length(gl_PointCoord.xy - vec2(.5, .5));
     dist = 1. - (dist * 2.);
@@ -5423,7 +5429,7 @@ void main() {
     vec4 outlineColor = vec4(1.0,1.0,1.0,1.0);
     float outerEdgeCenter = 0.5 - .01;
     float stroke = smoothstep(outerEdgeCenter - delta, outerEdgeCenter + delta, dist);
-    gl_FragColor = vec4( mix(outlineColor.rgb, circleColor.rgb, stroke), alpha*.75 );
+    gl_FragColor = vec4( mix(outlineColor.rgb, circleColor.rgb, stroke), alpha*u_Alpha );
 }`;
 
 WebGLVectorTile2Shaders.bubbleMapFragmentShaderV2 = `
