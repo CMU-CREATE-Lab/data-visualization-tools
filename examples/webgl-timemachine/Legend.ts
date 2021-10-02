@@ -139,7 +139,14 @@ export class ChoroplethLegend extends Legend {
         var that = this;
 
         function getKey(str: string) {
-            var text = '<text x="140" y="10" text-anchor="middle" style="font-size: 12px; fill: #dcdbdb">' + str + '</text>';
+            var textAnchor = "middle";
+            var xPos = 140;
+            // TODO: Depends upon font size and type
+            if (str.length > 42) {
+                textAnchor = "start";
+                xPos = 0;
+            }
+            var text = `<text x="${xPos}" y="10" text-anchor="${textAnchor}" style="font-size: 12px; fill: #dcdbdb">${str}</text>`;
             return text;
         }
         function getColor(color: string) {
@@ -174,12 +181,16 @@ export class ChoroplethLegend extends Legend {
             if (opts["keys"]) {
                 for (var i = 0; i < opts["keys"].length; i++) {
                     keys += getKey(opts["keys"][i]['str']);
+                    // TODO: This likely does not scale and certainly not with different fonts.
+                    // A way to properly address this is 'setAttribute' the width and height
+                    // based on the bbox of the svg once rendered on the page.
+                    this.width = Math.max(this.width, opts["keys"][i]['str'].length * 6);
                 }
 
             }
             var marginTop = keys ? 0 : -15;
             var div = '<div style="font-size: 15px">' + opts["title"] + '<span class="credit"> ('+ opts["credit"] +')</span></div>';
-            var svg = '<svg class="svg-legend" width="280" height="50" style="margin-top:' + marginTop + 'px;">';
+            var svg = `<svg class="svg-legend" width="${this.width}" height="50" style="margin-top:${marginTop}px;">`;
             var colors = '';
             this.colorWidth = this.width / opts["colors"].length;
             for (var i = 0; i < opts["colors"].length; i++) {
