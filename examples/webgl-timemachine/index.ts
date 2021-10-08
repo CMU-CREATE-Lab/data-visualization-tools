@@ -1928,7 +1928,9 @@ async function setupUIAndOldLayers() {
       }
 
       // Don't zoom anywhere when an extra layer is to be shown
-      if (waypointLayers.find(layerId => layerId.includes("extras"))) {
+      // TODO: Note that if a non-extras layer begins with "extras_" then this logic incorrectly flags it.
+      // The real answer is to test each layer to see if it is of type MediaLayer, but until the layer is loaded we don't know this.
+      if (waypointLayers.some(layerId => /^extras_/.test(layerId))) {
         gEarthTime.timelapse.stopParabolicMotion();
       }
 
