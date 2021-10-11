@@ -1114,10 +1114,16 @@ export class LayerFactory {
         if ((legend instanceof BubbleMapLegend || legend instanceof ChoroplethLegend) && legend.keys.length > 0) {
           let $svgContainer = $(`#legend-content #${legend.id}-legend .svg-legend`);
           let $svgTextElms = $svgContainer.find("text");
-          // Bubble maps will have a circle preceding the legend key text
-          let extraPadding = legend instanceof BubbleMapLegend ? 32 : 0;
-          let newWidth = Math.max(legend.width, Math.round($svgTextElms[0].getBBox().width + extraPadding));
-          $svgContainer[0].setAttribute("width", newWidth.toString());
+          // TODO: For some reason the thumbnail server ends up failing to render, with no text elements being found.
+          // They should exist though, so perhaps it is a race condition of adding content to the DOM and then querying
+          // for it right after? Adding this check fixes that error. There doesn't appear to be any problem with the API call
+          // for the legend HTML or viewing the layer normally in the browser.
+          if ($svgTextElms.length) {
+            // Bubble maps will have a circle preceding the legend key text
+            let extraPadding = legend instanceof BubbleMapLegend ? 32 : 0;
+            let newWidth = Math.max(legend.width, Math.round($svgTextElms[0].getBBox().width + extraPadding));
+            $svgContainer[0].setAttribute("width", newWidth.toString());
+          }
         }
       }
     }
