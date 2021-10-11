@@ -39,6 +39,7 @@ export class BubbleMapLegend extends Legend {
     keyOffset: number;
     id: string;
     str: string;
+    keys: any[];
     constructor(opts: BubbleMapLegendOptions) {
         super(opts.id);
         this.width = 240;
@@ -46,6 +47,7 @@ export class BubbleMapLegend extends Legend {
         this.keyY = 10;
         this.keyOffset = 0.0;
         this.str = opts.str || this.setStr(opts);
+        this.keys = opts.keys || [];
     }
     setStr(opts: BubbleMapLegendOptions) {
         var that = this;
@@ -66,17 +68,9 @@ export class BubbleMapLegend extends Legend {
         if (opts["keys"]) {
             for (var i = 0; i < opts["keys"].length; i++) {
                 keys += getKey(opts["keys"][i]['color'], opts["keys"][i]['str']);
-                if (i == 0 && opts["keys"][i]['str'].length) {
-                    this.width = 0;
-                }
                 that.keyY += 25.0;
-                // TODO: This likely does not scale and certainly not with different fonts.
-                // A way to properly address this is 'setAttribute' the width and height
-                // based on the bbox of the svg once rendered on the page.
-                this.width += opts["keys"][i]['str'].length * 8;
             }
         }
-        this.width = Math.max(this.width, 240);
 
         var circles = '';
         for (var i = 0; i < opts["circles"].length; i++) {
@@ -104,7 +98,7 @@ export class ChoroplethLegend extends Legend {
     xValueOffset: number;
     id: any;
     str: any;
-    keys: any;
+    keys: any[];
     colorWidth: number;
     valueWidth: number;
     constructor(opts: ChoroplethLegendOptions) {
@@ -181,12 +175,7 @@ export class ChoroplethLegend extends Legend {
             if (opts["keys"]) {
                 for (var i = 0; i < opts["keys"].length; i++) {
                     keys += getKey(opts["keys"][i]['str']);
-                    // TODO: This likely does not scale and certainly not with different fonts.
-                    // A way to properly address this is 'setAttribute' the width and height
-                    // based on the bbox of the svg once rendered on the page.
-                    this.width = Math.max(this.width, opts["keys"][i]['str'].length * 6);
                 }
-
             }
             var marginTop = keys ? 0 : -15;
             var div = '<div style="font-size: 15px">' + opts["title"] + '<span class="credit"> ('+ opts["credit"] +')</span></div>';
