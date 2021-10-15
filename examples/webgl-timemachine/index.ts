@@ -798,7 +798,11 @@ function initLayerToggleUI() {
       }
       var extrasVideo = $("#extras-video")[0] as HTMLVideoElement;
       var extrasIframe = $("#extras-iframe")[0] as HTMLIFrameElement;
-      if (extrasVideo) {
+      var extrasImage = $("#extras-image")[0] as HTMLImageElement;
+
+      if (extrasImage) {
+        extrasImage.src = "";
+      } else if (extrasVideo) {
         extrasVideo.pause();
         extrasVideo.removeEventListener("loadstart", autoModeExtrasViewChangeHandler);
         extrasVideo.src = "";

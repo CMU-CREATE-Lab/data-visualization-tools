@@ -5,6 +5,7 @@ import { LayerProxy } from './LayerProxy'
 import { Utils } from './Utils'
 import { ETMBLayer } from './ETMBLayer'
 import { Layer } from './Layer'
+import { MediaLayer } from './MediaLayer'
 
 
 export class LayerDB {
@@ -115,7 +116,7 @@ export class LayerDB {
   handleLruLayerCaching() {
     for (let layerProxy of this.visibleLayers) {
       let layer: Layer = layerProxy.layer;
-      if (!layer) {
+      if (!layer || layer instanceof MediaLayer) {
         continue;
       }
       let cacheIdx = this.lruLayerCache.indexOf(layer);
