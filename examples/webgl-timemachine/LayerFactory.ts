@@ -212,8 +212,14 @@ export class LayerFactory {
 
     if (useLocalData) {
       for (var i = 0; i < remoteDataHosts.length; i++) {
-        if (layerDef["URL"].indexOf(remoteDataHosts[i]) > 0) {
-          url = layerDef["URL"].replace(/https*:\/\/tiles.earthtime.org/g, gEarthTime.rootTilePath);
+        if (layerDef["URL"].indexOf(remoteDataHosts[i]) >= 0) {
+          var replace = "";
+          if (remoteDataHosts[i].indexOf("http") != 0) {
+            replace += "https*:\/\/";
+          }
+          replace += remoteDataHosts[i];
+          var re = new RegExp(replace, "g");
+          url = layerDef["URL"].replace(re, gEarthTime.rootTilePath);
         }
       }
     }
