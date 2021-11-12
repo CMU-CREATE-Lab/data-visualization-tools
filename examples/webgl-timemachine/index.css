@@ -48,7 +48,7 @@ html, body {
   padding-bottom: 12px;
 }
 
-.fullScreen {
+.fullScreen.ui-button {
   bottom: initial;
   right: initial;
   margin-top: 15px;
