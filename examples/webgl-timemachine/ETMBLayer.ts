@@ -8,7 +8,7 @@ import { Utils } from './Utils';
 
 import mapboxgl, { featureFilter } from './mapbox-gl-dev-patched-1.11.1/mapbox-gl';
 
-import { LayerProxy } from './LayerProxy';
+import { LayerProxy, LayerProxyOptions } from './LayerProxy';
 import { Glb } from './Glb';
 import { LayerOptions, LayerInterface, Layer } from './Layer';
 
@@ -46,7 +46,9 @@ namespace MapboxTypes {
 // EarthTime layer that contains a single Mapbox style
 // If there are multiple ETMBLayers visible, they will be composited into a single Mapbox map
 export class ETMBLayer extends LayerOptions implements LayerInterface {
-  mapboxDef: {
+  // ETMBLayer creates a mapbox style from either mapboxDef (from CSV layers "Mapbox" column) or styleDef (for a local layer defined in JS)
+  styleDef?: MapboxTypes.Style;
+  mapboxDef?: {
     style: string,
     drawOrder?: { [drawOrderStr: string]: string[]},
     mouseOver? : {
@@ -92,7 +94,7 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
     return true;
   }
 
-  constructor(layerProxy: LayerProxy, glb: Glb, canvasLayer, tileUrl: string, layerOptions: LayerOptions) {
+  constructor(layerProxy: LayerProxy, glb: Glb, canvasLayer, tileUrl: string, layerOptions: LayerOptions, style?: MapboxTypes.Style) {
     super(layerOptions);
     // Ignore tileUrl
     this.layerProxy = layerProxy;
@@ -110,11 +112,19 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
        playbackRate: this.playbackRate, cachedCaptureTimes: cachedCaptureTimes});
     }
 
-    try {
-      this.mapboxDef = JSON.parse(this.layerDef.Mapbox);
-    }
-    catch (err) {
-      throw (`Cannot parse Mapbox definition for layer ${this.layerId} is missing or invalid JSON`);
+    if (style) {
+      this.styleDef = style;
+    } else {
+      if (typeof this.layerDef.Mapbox === 'string') {
+        try {
+          this.mapboxDef = JSON.parse(this.layerDef.Mapbox);
+        }
+        catch (err) {
+          throw (`Cannot parse Mapbox definition for layer ${this.layerId} is missing or invalid JSON`);
+        }
+      } else {
+        this.mapboxDef = this.layerDef.Mapbox;
+      }
     }
     this._ensureLoaded();
     if (this.isVisible()) {
@@ -166,7 +176,7 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
 
     // Parse style
     var idToDrawOrder = {};
-    for (const [drawOrderStr, ids] of Object.entries(this.mapboxDef.drawOrder ?? {})) {
+    for (const [drawOrderStr, ids] of Object.entries(this.mapboxDef?.drawOrder ?? {})) {
       for (const id of ids) {
         idToDrawOrder[id] = parseFloat(drawOrderStr);
       }
@@ -219,9 +229,14 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
   }
   // WARNING:  Use _ensureLoaded instead of _load, to make sure we don't load twice
   async _loadFromEnsureLoaded() {
-    var url = this.mapboxDef.style.replace('mapbox://styles/', 'https://api.mapbox.com/styles/v1/');
-    var accessToken = ETMBLayer.accessToken;
-    let style = await (await Utils.fetchWithRetry(`${url}?access_token=${accessToken}`)).json();
+    let style;
+    if (this.styleDef) {
+      style = this.styleDef;
+    } else {
+      var url = this.mapboxDef.style.replace('mapbox://styles/', 'https://api.mapbox.com/styles/v1/');
+      var accessToken = ETMBLayer.accessToken;
+      style = await (await Utils.fetchWithRetry(`${url}?access_token=${accessToken}`)).json();
+    }
 
     // Rename source and layer IDs to be unique
     this._remapStyle(style);
@@ -242,6 +257,7 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
   _remapStyle(style: MapboxTypes.Style) {
     // Prefix source and layer IDs with the EarthTime layerId
     var sources = {};
+    console.log('style is', style);
     for (let [key, value] of Object.entries(style.sources)) {
       sources[this._prefixLayerId(key)] = value;
       // someday consider going from mapbox:// to https://
@@ -272,15 +288,18 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
     $earthTimeMapContainer.mousemove(this.mousemove.bind(this));
     $earthTimeMapContainer.mouseleave(this.mouseleave.bind(this));
 
+    let style: any = {
+      version: 8,
+      sources: initialStyle.sources,
+      layers: initialStyle.layers,
+    };
+    if (initialStyle.glyphs) {
+      style.glyphs = initialStyle.glyphs;
+    }
     // @ts-ignore
     dbg.map = this.map = new mapboxgl.Map({
       container: 'mapbox_map',
-      style: {
-        version: 8,
-        sources: initialStyle.sources,
-        layers: initialStyle.layers,
-        glyphs: initialStyle.glyphs
-      },
+      style: style,
       renderWorldCopies: false // don't show multiple earths when zooming out
     });
 
@@ -664,137 +683,98 @@ class MapboxEarthtimeProxyLayer {
 
 }
 
-// class LayerTemplate {
+import { LayerDB } from './LayerDB'
 
-//   _def: {options: {
-//     aliases: {[key: string]: string},
-//     exceptions: Set<string>,
-//   }, template: string}
-//   _div: HTMLDivElement;
-//   _tmpl: JsViews.Template;
+async function createMapboxLocalLayerExample(layerProxy: LayerProxy, layerOptions: LayerOptions): Promise<ETMBLayer> {
+  layerOptions.layerDef.Mapbox = {
+    style:"mapbox://styles/earthtime/cksj2ecj8a9sx18rmrxyu5z0m",  
+    mouseOver: {
+      active: true, 
+      title: "Service Location", 
+      template: "default",
+      options: {
+        include: {
+          "data-driven-circles": ["AGENCY NAME", "CATEGORY", "STREET ADDRESS", "CITY", "ZIPCODE"]
+        }
+      },
+      alias: {
+        "AGENCY NAME": "NAME",
+        "STREET ADDRESS": "ADDRESS",
+        "ZIPCODE": "ZIP"
+      }
+    }
+  };
+  return new ETMBLayer(layerProxy, gEarthTime.glb, gEarthTime.canvasLayer, "", layerOptions);
+}
 
-//   constructor(templateDef : {options?: {aliases?: {[key: string]: string}, exceptions?: string[]}, template?: string,}) {
-//     if (!templateDef?.options)
-//       var opts = {aliases: {}, exceptions: new Set<string>()}
-//     else
-//       opts = {
-//         aliases: templateDef.options.aliases ? templateDef.options.aliases : {},
-//         exceptions: templateDef.options.exceptions ? new Set<string>(templateDef.options.exceptions) : new Set<string>()
-//       }
+LayerDB.registerLocalLayer(
+  "mapboxLocalLayerExample",
+  createMapboxLocalLayerExample,
+  {
+    name: "Mapbox Local Layer Example",
+    credits: "CREATE Lab",
+    category: "Examples",
+    drawOrder: "400",
+    baseLayer: "",
+    layerConstraints: {},
+    hasLayerDescription: false
+  }
+);
 
-//     let tmpl = templateDef?.template ? templateDef.template : `
-//     <div>
-//     {{props ~root itemVar="~parent"}}
-//       {{if ~isNotDict(~parent^prop)}}
-//         <b>{{>~parent^key}}:</b> {{>~parent^prop}}<br>
-//       {{else}}
-//         <b>{{>~parent^key}}:</b>
-//         <div style="padding-left:13px">
-//           {{props ~parent^prop itemVar="~child"}}
-//             {{if ~isNotDict(~child^prop)}}
-//               <b>{{>~child^key}}:</b> {{>~child^prop}}<br>
-//             {{else}}
-//               <b>{{>~child^key}}:</b>
-//               <div style="padding-left:13px">
-//                 {{props ~child^prop itemVar="~gchild"}}
-//                   <b>{{~gchild^key}}:</b> {{>~gchild^prop}}<br>
-//                 {{/props}}
-//               </div>
-//               <br>
-//             {{/if}}
-//           {{/props}}
-//         </div>
-//         <br>
-//       {{/if}}
-//     {{/props}}
-//     </div>
-//       `;
+async function createWprdcPublicHousing(layerProxy: LayerProxy, layerOptions: LayerOptions): Promise<ETMBLayer> {
+  layerOptions.layerDef.Mapbox = {
+    mouseOver: {
+      active: true, 
+    }
+  };
 
-//     this._def = {options: opts, template: tmpl};
-//     this._tmpl = $.templates({markup: tmpl, helpers: {isNotDict: (prop => {return prop.constructor != Object})}});
-//   }
+  return new ETMBLayer(layerProxy, gEarthTime.glb, gEarthTime.canvasLayer, "", layerOptions, {
+    "sources": {
+      "all-public-housing-projects": {
+        "id": "all-public-housing-projects",
+        "type": "vector",
+        "url": "https://api.profiles.wprdc.org/tiles/maps.v_all_public_housing_projects.json"
+      }
+    },
+    "layers": [
+        {
+            "id": "all-public-housing-projects/marker",
+            "source": "all-public-housing-projects",
+            // @ts-ignore
+            "source-layer": "maps.v_all_public_housing_projects",
+            "type": "circle"
+        }
+    ],
+    //@ts-ignore
+    "glyphs": "mapbox://fonts/mapbox/{fontstack}/{range}.pbf",
+    "extras": {
+        "legendItems": [
+            {
+                "variant": "categorical",
+                "marker": "black",
+                "label": "Affordable Housing Projects"
+            }
+        ]
+      }
+    });
+}
 
-//   render(data: {[key: string]: {}}){
-//     if (!this._div) {
-//       let tempDiv = document.createElement("div");
-//       tempDiv.style.display = "none";
-//       tempDiv.style.position = "absolute";
-//       tempDiv.style.backgroundColor = "#EEE";
-//       tempDiv.style.padding = "13px";
-//       tempDiv.style.zIndex = "10000";
-//       tempDiv.style.fontSize = "0.67em";
-//       tempDiv.style.borderRadius = "8px";
-//       document.body.appendChild(tempDiv);
+LayerDB.registerLocalLayer(
+  "wprdcPublicHousing",
+  createWprdcPublicHousing,
+  {
+    name: "Public Housing",
+    credits: "Western Pennsylvania Regional Data Center",
+    category: "Examples",
+    drawOrder: "400",
+    baseLayer: "",
+    layerConstraints: {},
+    hasLayerDescription: false
+  }
+);
 
-//       this._div = tempDiv
-//     }
+/////////////// TODO
+// https://api.profiles.wprdc.org/public-housing/vector-map/
+// https://api.profiles.wprdc.org/tiles/maps.v_all_public_housing_projects.json
+// https://api.profiles.wprdc.org/tiles/index.json
 
-//     if (this._def.options.exceptions.size > 0) {
-//       data = this._except(data, this._def.options.exceptions);
-
-//       if (this._def.options.aliases.keys)
-//         this._aliasInPlace(data);
-//     }
-//     else if (this._def.options.aliases.keys) {
-//       data = this._aliasCopy(data);
-//     }
-
-//     try {
-//       var html = this._tmpl(data);
-//     } catch (err) {
-//       html = "";
-//     }
-
-//     if (html) {
-//       this._div.innerHTML = html;
-//       this._div.style.display = "block";
-//       this._div.style.left = "89px";
-//       this._div.style.top = "89px";
-//       this._div.style.border = "1px solid";
-//     }
-//     else {
-//       this._div.style.display = "none";
-//     }
-//   }
-
-//   _except(dict: {[key: string]: any}, exceptions: Set<string>)
-//   {
-//     let copy = {}
-
-//     for (const label in dict)
-//       if (!(label in exceptions))
-//         copy[label] = dict[label];
-
-//     return copy;
-//   }
-
-//   _aliasCopy(dict: {[key: string]: {}}) {
-//     var aliasDict = {}
-
-//     for(const label in Object.keys(dict)) {
-//       if (dict[label].constructor == Object)
-//         var val = this._aliasCopy(dict[label]);
-//       else
-//         val = dict[label];
-
-//       let aliases = this._def.options.aliases;
-//       aliasDict[label in aliases ? aliases[label]: label] = val;
-//     }
-
-//     return dict;
-//   }
-
-//   _aliasInPlace(dict: {[key: string]: {}}) {
-//     for(const label in Object.keys(dict)) {
-//       if (dict[label].constructor == Object)
-//         this._aliasInPlace(dict[label]);
-
-//       let aliases = this._def.options.aliases;
-
-//       if (label in aliases) {
-//         dict[aliases[label]] = dict[label];
-//         delete dict[label];
-//       }
-//     }
-//   }
-// }

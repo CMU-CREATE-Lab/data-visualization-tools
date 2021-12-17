@@ -2,7 +2,7 @@
 
 import { LayerDB } from './LayerDB';
 import { Utils } from './Utils';
-import { Layer } from './Layer';
+import { Layer, LayerInterface, LayerOptions } from './Layer';
 import { gEarthTime, stdWebMercatorNorth } from './EarthTime';
 
 
@@ -12,7 +12,19 @@ export interface LayerDef {
   'End date'?: string,
   URL?: string
   [key: string]: any
-}
+};
+
+export type LayerConstructor = (layerProxy: LayerProxy, layerOptions: LayerOptions) => Promise<LayerInterface>;
+
+export interface LayerProxyOptions {
+  name: string,
+  category: string,
+  credits: string,
+  baseLayer: string,
+  drawOrder: string,
+  layerConstraints: {[key:string]: any},
+  hasLayerDescription: boolean
+};
 
 export class LayerProxy {
   id: string;
@@ -33,8 +45,13 @@ export class LayerProxy {
   _effectiveDrawOrder: any[];
   layerDef: LayerDef;
   _setByUser?: boolean;
+  layerConstructor?: LayerConstructor;
 
-  constructor(id: string, layerDb: LayerDB, options: {name: string, category: string, credits: string, baseLayer: string, drawOrder: string, layerConstraints: {[key:string]: any}, hasLayerDescription: boolean}) {
+  constructor(
+    id: string, 
+    layerDb: LayerDB, 
+    options: LayerProxyOptions,
+    layerConstructor?: LayerConstructor) {
     console.assert(LayerProxy.isValidId(id));
     this.id = id;
     this.name = options.name;
@@ -47,6 +64,7 @@ export class LayerProxy {
       layerDb._mapLegacyLayerIds(id, this.layerConstraints.legacyIds);
     }
     this.hasLayerDescription = options.hasLayerDescription;
+    this.layerConstructor = layerConstructor;
     this.layerDb = layerDb;
   }
 
@@ -85,21 +103,63 @@ export class LayerProxy {
     return this.layer;
   }
 
+  _setLayer(layer: Layer) {
+    if (this.layer) {
+      this.layer.destroy();
+    }
+    this.layer = layer;
+    this.layerDb.invalidateLoadedCache();
+  }
+
   async _load() {
-    let url = `${this.layerDb.apiUrl}layer-catalogs/${this.layerDb.databaseId.file_id_gid()}/layers/${this.id}`
-    console.log(`${this.logPrefix()} Fetching ${url}`)
-    await this._loadFromLayerdef(await (await Utils.fetchWithRetry(url)).json());
+    if (this.layerConstructor) {
+      console.log('layerConstructor!');
+      let layerOptions: LayerOptions = {
+        layerId: this.id,
+        category: this.category,
+        timelineType: 'customUI',
+        startDate: '',
+        endDate: '',
+        step: 0,
+        showGraph: false,
+        mapType: undefined,
+        color: undefined,
+        legendContent: undefined,
+        legendKey: undefined,
+        name: this.name,
+        credit: this.credits,
+        scalingFunction: undefined,
+        colorScalingFunction: undefined,
+        externalGeojson: undefined,
+        nameKey: undefined,
+        playbackRate: 0,
+        masterPlaybackRate: 0,
+        imageSrc: undefined,
+        drawFunction: undefined,
+        numAttributes: 0,
+        vertexShader: '',
+        fragmentShader: '',
+        drawOrder: this.drawOrder,
+        loadDataFunction: undefined,
+        dataLoadedFunction: undefined,
+        avoidShowingChildAndParent: false,
+        layerDef: {},
+        levelThreshold: 0
+      };
+      console.log('layerConstructor setLayer');
+      this._setLayer(await this.layerConstructor(this, layerOptions) as Layer);
+      console.log('layerConstructor done');
+    } else {
+      console.log('not layerConstructor');
+      let url = `${this.layerDb.apiUrl}layer-catalogs/${this.layerDb.databaseId.file_id_gid()}/layers/${this.id}`
+      console.log(`${this.logPrefix()} Fetching ${url}`)
+      await this._loadFromLayerdef(await (await Utils.fetchWithRetry(url)).json());
+    }
+    console.log(`${this.logPrefix()} layerFactory.createLayer completed`);
   }
 
   async _loadFromLayerdef(layerDef: LayerDef) {
-    if (this.layer) {
-      this.layer.destroy();
-      this.layer = null;
-    }
-    this.layerDef = layerDef;
-    this.layer = await this.layerDb.layerFactory.createLayer(this, layerDef);
-    this.layerDb.invalidateLoadedCache();
-    console.log(`${this.logPrefix()} layerFactory.createLayer completed`);
+    this._setLayer(await this.layerDb.layerFactory.createLayer(this, layerDef));
   }
 
   // Signal layer didn't completely draw by returning false, or settings timelapse.lastFrameCompletelyDrawn false

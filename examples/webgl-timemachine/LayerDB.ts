@@ -1,10 +1,11 @@
 import { EarthTime, gEarthTime } from './EarthTime'
 import { GSheet } from './GSheet'
 import { LayerFactory } from './LayerFactory'
-import { LayerProxy } from './LayerProxy'
+import { LayerConstructor, LayerProxy, LayerProxyOptions } from './LayerProxy'
 import { Utils } from './Utils'
 import { ETMBLayer } from './ETMBLayer'
-import { Layer } from './Layer'
+import { Layer, LayerInterface, LayerOptions } from './Layer'
+import { stringify } from 'querystring'
 
 
 export class LayerDB {
@@ -55,6 +56,11 @@ export class LayerDB {
                                         drawOrder: entry["Draw Order"]
                                       }
                                      );
+      layerDB.layerById[layerProxy.id] = layerProxy;
+      layerDB.orderedLayers.push(layerProxy);
+    }
+    for (let localLayer of this.localLayers) {
+      let layerProxy = new LayerProxy(localLayer.id, layerDB, localLayer.layerProxyOptions, localLayer.constructor);
       layerDB.layerById[layerProxy.id] = layerProxy;
       layerDB.orderedLayers.push(layerProxy);
     }
@@ -325,6 +331,57 @@ export class LayerDB {
     }
     return false;
   }
+
+  static localLayers: {
+    id: string,
+    constructor: LayerConstructor,
+    layerProxyOptions: LayerProxyOptions
+  }[] = [];
+
+  static registerLocalLayer(id: string, constructor: LayerConstructor, layerProxyOptions: LayerProxyOptions) {
+    this.localLayers.push({
+      id: id,
+      constructor: constructor,
+      layerProxyOptions: layerProxyOptions
+    });
+  }
+  
+  // let layerOptions: LayerOptions = {
+  //   layerId: layerId,
+  //   timelineType: null,
+  //   startDate: null,
+  //   endDate: null,
+  //   step: null,
+  //   showGraph: false,
+  //   mapType: null,
+  //   color: null,
+  //   legendContent: null,
+  //   legendKey: null,
+  //   credit: layerProxyOptions.credits,
+  //   scalingFunction: null,
+  //   colorScalingFunction: null,
+  //   externalGeojson: null,
+  //   nameKey: null,
+  //   playbackRate: null,
+  //   masterPlaybackRate: null,
+  //   imageSrc: null,
+  //   drawFunction: null,
+  //   numAttributes: null,
+  //   vertexShader: null,
+  //   fragmentShader: null,
+  //   loadDataFunction: null,
+  //   dataLoadedFunction: null,
+  //   avoidShowingChildAndParent: null,
+  //   layerDef: null,
+  //   levelThreshold: null,
+  //   drawOrder: parseFloat(layerProxyOptions.drawOrder),
+  //   category: layerProxyOptions.category,
+  // };
+
+
+
+
+
 
   // TODO(LayerDB)
 
