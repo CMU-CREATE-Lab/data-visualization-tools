@@ -628,6 +628,7 @@ export class LayerFactory {
     layerOptions.startDate = animationLayers[0].date;
     layerOptions.endDate = animationLayers[animationLayers.length - 1].date;
     layerOptions.step = 1;
+    layerOptions.hasTimeline = true;
 
     layerOptions.epochs = [];
     for (const checkLayer of animationLayers) {
