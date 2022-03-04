@@ -966,10 +966,13 @@ function initLayerToggleUI() {
     // "<" and ">" tweak dot sizes.  "." resets dotScale to 1
     if (e.key == '<' && WebGLVectorTile2.dotScale > 0.4) {
       WebGLVectorTile2.dotScale /= 1.3;
+      gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
     } else if (e.key == '>' && WebGLVectorTile2.dotScale < 4) {
       WebGLVectorTile2.dotScale *= 1.3;
+      gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
     } else if (e.key == '.') {
       WebGLVectorTile2.dotScale = 1;
+      gEarthTime.timelapse.lastFrameCompletelyDrawn = false;
     }
     if (keysDown.indexOf(e.keyCode) < 0) {
       keysDown.push(e.keyCode);
