@@ -818,19 +818,35 @@ export class LayerFactory {
 
     // Ensure we always have a base layer up
     if (!lastPrioritizedBaseLayer && !foundSoloLayer) {
-      let previousVisibleLayers = layerDB._loadedCache.prevVisibleLayers;
       let foundPreviousBaseLayer = false;
-      for (let i = previousVisibleLayers.length - 1; i >= 0; i--) {
-        let layerProxy = previousVisibleLayers[i];
-        if (layerProxy.category == baseLayersCategoryName) {
-          newLayersDict[layerProxy.id] = layerDB.getLayer(layerProxy.id);
-          foundPreviousBaseLayer = true;
-          break;
+      // Look at previous layers that were up and use the base layer from there
+      let previousVisibleLayers = layerDB._loadedCache.prevVisibleLayers;
+      // If we only had one layer previously up, then this means we only had a base layer up.
+      // We need to look at the new set of layers to be turned on and their pre-paired base layers.
+      if (previousVisibleLayers.length == 1) {
+        for (let i = 0; i < layerProxies.length; i++) {
+          let baseLayerProxy = layerDB.getLayer(layerProxies[i].baseLayer);
+          if (!lastPrioritizedBaseLayer || baseLayerProxy.drawOrder > lastPrioritizedBaseLayer.drawOrder) {
+            lastPrioritizedBaseLayer = baseLayerProxy;
+            foundPreviousBaseLayer = true;
+          }
+        }
+      } else {
+        // More than one layer previously up, find which one was a base layer.
+        for (let i = previousVisibleLayers.length - 1; i >= 0; i--) {
+          let layerProxy = previousVisibleLayers[i];
+          if (layerProxy.category == baseLayersCategoryName) {
+            lastPrioritizedBaseLayer = layerProxy;
+            foundPreviousBaseLayer = true;
+            break;
+          }
         }
       }
       // If for some reason we never had a base layer up, default to Landsat
       if (!foundPreviousBaseLayer && !foundSoloLayer) {
         newLayersDict['blsat'] = layerDB.getLayer('blsat');
+      } else {
+        newLayersDict[lastPrioritizedBaseLayer.id] = lastPrioritizedBaseLayer;
       }
     }
 
