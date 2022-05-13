@@ -2215,6 +2215,14 @@ export class WebGLVectorTile2 extends Tile {
       bubbleAlpha = drawOptions.bubbleAlpha;
     }
 
+    var negativeColor = [1.0,0.0,0.0,1.0];
+    if (drawOptions && drawOptions.negativeColor) {
+      negativeColor = drawOptions.negativeColor;
+      if (negativeColor.length == 3) {
+        negativeColor.push(1.0);
+      }
+    }
+
     var gl = this.gl;
     if (this._ready) {
       gl.useProgram(this.program);
@@ -2251,6 +2259,7 @@ export class WebGLVectorTile2 extends Tile {
       gl.uniform1f(this.program.u_Size, 2.0 * window.devicePixelRatio * bubbleScale);
       gl.uniform1f(this.program.u_Mode, mode);
       gl.uniform1f(this.program.u_Alpha, bubbleAlpha);
+      gl.uniform4fv(this.program.u_NegativeColor, negativeColor);
 
       if (this._texture) {
         gl.activeTexture(gl.TEXTURE0);
@@ -5406,6 +5415,7 @@ WebGLVectorTile2Shaders.bubbleMapFragmentShader = `
 /*precision mediump float;*/
 varying float v_Val;
 uniform vec4 u_Color;
+uniform vec4 u_NegativeColor;
 uniform float u_Mode;
 uniform float u_Alpha;
 void main() {
@@ -5425,7 +5435,9 @@ void main() {
       }
     }
     vec4 circleColor = u_Color;
-    if (v_Val < 0.0) { circleColor[0] = 1.0; circleColor[1]=0.0; circleColor[2]=0.0; };
+    if (v_Val < 0.0) { 
+      circleColor = u_NegativeColor; 
+    };
     vec4 outlineColor = vec4(1.0,1.0,1.0,1.0);
     float outerEdgeCenter = 0.5 - .01;
     float stroke = smoothstep(outerEdgeCenter - delta, outerEdgeCenter + delta, dist);

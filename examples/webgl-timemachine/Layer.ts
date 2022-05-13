@@ -53,6 +53,7 @@ export interface DrawOptions {
   pointIdx?: any
   currentC?: number
   color?: [number, number, number, number?]
+  negativeColor?: [number, number, number, number?]
   idx?: number
   buffers?: any
   minTime?: number
