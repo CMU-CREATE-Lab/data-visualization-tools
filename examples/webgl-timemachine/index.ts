@@ -357,7 +357,7 @@ class EarthTimeImpl implements EarthTime {
     let doShow = false;
     for (let i = visibleLayers.length - 1; i >= 0; i--) {
       let layerProxy = visibleLayers[i];
-      if (layerProxy.layer?.showGraph ) {
+      if (layerProxy.layer?.showGraph) {
         doShow = true;
         if (layerProxy.id == csvDataGrapher.activeLayer.id) break;
         var tiles = layerProxy.layer._tileView._tiles;
@@ -2855,7 +2855,8 @@ var showHideCsvGrapher = function(doShow) {
     $("#timeMachine").removeClass("layerGraphs");
     csvDataGrapher.activeLayer.id = null;
   }
-  resize();
+  gEarthTime.timelapse.onresize();
+  $("body").trigger('resize');
 };
 
 // TODO: replace this with GSheet class
