@@ -16,6 +16,7 @@ earthtime._DEFAULT_EARTHTIME_SPREADSHEET = "https://docs.google.com/spreadsheets
 earthtime._DEFAULT_SHARE_VIEW = "https://earthtime.org/#v=4.56342,0,0.183,latLng&t=2.20&ps=50&l=blsat&bt=19840101&et=20161231";
 earthtime._STORY_AUTHOR_PRECEDING_TEXT = "Story by: ";
 earthtime._DATA_CREDIT_PRECEDING_TEXT = "Data from: ";
+earthtime._IS_LOCALHOST = window.location.hostname === "localhost" || !isNaN(parseInt(window.location.hostname.replace(/\./g,"")));
 
 earthtime._ROOT_SRC_URL = (function() {
   var pathOfCurrentScript = document.currentScript ? document.currentScript.src : document.querySelector('script[src*="mobile-embed.js"]').src;
@@ -36,7 +37,7 @@ earthtime._numStoriesPopulated = 0
 
 earthtime._scriptDependencies = [
   earthtime._ROOT_SRC_URL + '../config-local.js', // Defines EARTH_TIMELAPSE_CONFIG
-  earthtime._ROOT_SRC_URL + '../../compiled/examples/webgl-timemachine/stories/Thumbnailer.js'      // Defines Thumbnailer
+  earthtime._ROOT_SRC_URL + (earthtime._IS_LOCALHOST ? '' : '../') + '../compiled/examples/webgl-timemachine/stories/Thumbnailer.js'      // Defines Thumbnailer
 ];
 
 earthtime._styleSheetDependencies = [
