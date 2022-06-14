@@ -3,6 +3,7 @@ export class Thumbnailer{
     sharelink: string;
     hash: string;
     args: string[];
+    headlessClientHost: string;
 
     constructor(sharelink: string) {
         this.thumbnailServerUrl = "https://thumbnails-v2.createlab.org/thumbnail?";
@@ -16,6 +17,14 @@ export class Thumbnailer{
         } else { // we passed a thumbnail server link
             var qsa = this.sharelink.split("?")[1];
             this.setArgs(qsa);
+        }
+
+        // @ts-ignore
+        if (typeof window.EARTH_TIMELAPSE_CONFIG !== "undefined" && typeof window.EARTH_TIMELAPSE_CONFIG.headlessClientHost !== "undefined") {
+            // @ts-ignore
+            this.headlessClientHost = window.EARTH_TIMELAPSE_CONFIG.headlessClientHost;
+        } else {
+            this.headlessClientHost = "https://headless.earthtime.org/";
         }
     }
 
@@ -82,7 +91,7 @@ export class Thumbnailer{
 
         var root = "root=";
         if (typeof this.args["root"] == "undefined") {
-            root += "https://headless.earthtime.org/";
+            root += this.headlessClientHost;
             if (!('bt' in this.args)) {
                 this._setBt();
                 this.hash += "&bt=" + this.args['bt'];
@@ -136,9 +145,10 @@ export class Thumbnailer{
         var widthPx = orientation == "portrait" ? 540 : 1280;
         var heightPx = 720;
         var url = this.thumbnailServerUrl;
+
         var root = "root=";
         if (typeof this.args["root"] == "undefined") {
-            root += "https://headless.earthtime.org/";
+            root += this.headlessClientHost;
             if (!('bt' in this.args)) {
                 this._setBt();
                 this.hash += "&bt=" + this.args['bt'];
@@ -147,6 +157,7 @@ export class Thumbnailer{
         } else {
             root += this.args["root"];
         }
+
         var width = "width=" + widthPx;
         var height = "height=" + heightPx;
 
@@ -178,7 +189,7 @@ export class Thumbnailer{
 
         var root = "";
         if (typeof this.args["root"] == "undefined") {
-            root += "https://headless.earthtime.org/";
+            root += this.headlessClientHost;
             if (!('bt' in this.args)) {
                 this._setBt();
                 this.hash += "&bt=" + this.args['bt'];
