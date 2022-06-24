@@ -622,6 +622,9 @@ var autoModeExtrasViewChangeHandler = function() {
 interface FrameGrabInterface {
   isLoaded(): boolean;
   captureFrame(state: {[key: string]: any}): {[key: string]: any};
+  getPlaybackTimeFromStringDate(date: string);
+  getEndPlaybackTime(): number;
+  apiVersion: number;
 }
 
 let frameGrab: FrameGrabInterface = {
@@ -656,7 +659,16 @@ let frameGrab: FrameGrabInterface = {
         log: Utils.getGrablog().join('\n')
       }
     }
-  }
+  },
+  getPlaybackTimeFromStringDate: function(date: string) {
+    gEarthTime.updateTimelineIfNeeded();
+    return gEarthTime.timelapse.playbackTimeFromShareDate(date);
+  },
+  getEndPlaybackTime: function() {
+    gEarthTime.updateTimelineIfNeeded();
+    return gEarthTime.timelapse.getDuration();
+  },
+  apiVersion: 2,
 };
 
 (window as any).gFrameGrab = frameGrab;
