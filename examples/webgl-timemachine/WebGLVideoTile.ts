@@ -509,7 +509,7 @@ export class WebGLVideoTile extends Tile {
       (this.isPaused && futureFrameError < -0.3)) {
       // If we need to go back any or forward a lot, seek instead of changing speed
       var seekTime = nextNeededFrame + 0.5;
-      this._video.currentTime = (nextNeededFrame + 0.5) / this._fps;
+      this._video.currentTime = seekTime / this._fps;
       if (WebGLVideoTile.verbose) {
         console.log(this._id + ': onscreen=' + this._pipeline[0].frameno +
           ', display=' + r2(displayFrame) +
