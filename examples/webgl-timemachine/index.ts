@@ -317,13 +317,13 @@ class EarthTimeImpl implements EarthTime {
 
   playbackRates() {
     let visibleLayers = this.layerDB.visibleLayers;
-    let rates = { masterPlaybackRate : this.defaultMasterPlaybackRate,
-                  playbackRate : this.defaultPlaybackRate };
+    let rates = { masterPlaybackRate : defaultMasterPlaybackRate,
+                  playbackRate : defaultPlaybackRate };
     // Find the first layer that has non-default playback rates.
     for (let i = visibleLayers.length - 1; i >= 0; i--) {
       let layerMasterPlaybackRate = visibleLayers[i].layer?.masterPlaybackRate;
       let layerPlaybackRate = visibleLayers[i].layer?.playbackRate;
-      if ((layerMasterPlaybackRate && layerMasterPlaybackRate != this.defaultMasterPlaybackRate) || (layerPlaybackRate && layerPlaybackRate != this.defaultPlaybackRate)) {
+      if ((layerMasterPlaybackRate && layerMasterPlaybackRate != defaultMasterPlaybackRate) || (layerPlaybackRate && layerPlaybackRate != defaultPlaybackRate)) {
         rates = { masterPlaybackRate : visibleLayers[i].layer.masterPlaybackRate,
                   playbackRate : visibleLayers[i].layer.playbackRate };
         break;
@@ -492,8 +492,8 @@ var enableAutoMode = parseConfigOption({optionName: "enableAutoMode", optionDefa
 var autoModeCriteria = parseConfigOption({optionName: "autoModeCriteria", optionDefaultValue: {}, exposeOptionToUrlHash: false});
 var screenTimeoutInMilliseconds = parseConfigOption({optionName: "screenTimeoutInMilliseconds", optionDefaultValue: (8 * 60 * 1000), exposeOptionToUrlHash: false});
 var waypointDelayInMilliseconds = parseConfigOption({optionName: "waypointDelayInMilliseconds", optionDefaultValue: (1 * 15 * 1000), exposeOptionToUrlHash: false});
-// Note that while this does say speed, it is actually playback rate. (i.e. generally a value between 0-1)
-var defaultPlaybackSpeed = parseConfigOption({optionName: "defaultPlaybackSpeed", optionDefaultValue: gEarthTime.defaultPlaybackRate, exposeOptionToUrlHash: false});
+var defaultPlaybackRate = parseConfigOption({optionName: "defaultPlaybackRate", optionDefaultValue: gEarthTime.defaultPlaybackRate, exposeOptionToUrlHash: false});
+var defaultMasterPlaybackRate = parseConfigOption({optionName: "defaultMasterPlaybackRate", optionDefaultValue: gEarthTime.defaultMasterPlaybackRate, exposeOptionToUrlHash: false});
 var useFaderShader = parseConfigOption({optionName: "useFaderShader", optionDefaultValue: true, exposeOptionToUrlHash: false});
 var enableWaypointText = parseConfigOption({optionName: "enableWaypointText", optionDefaultValue: true, exposeOptionToUrlHash: false});
 var defaultTrackingId = document.location.hostname === "earthtime.org" ? "UA-10682694-21" : "";
@@ -1866,7 +1866,7 @@ async function setupUIAndOldLayers() {
         //   to the rate defined in the waypoint, relative to the max rate. And if we aren't in a story, set the playback rate defined
         //   for the layer that is currently controlling playback rates.
 
-        if (shareViewWithSpeedVal && playbackRates.masterPlaybackRate != this.defaultMasterPlaybackRate) {
+        if (shareViewWithSpeedVal && playbackRates.masterPlaybackRate != defaultMasterPlaybackRate) {
           let newPlaybackRate:number = (hashVars.ps / 100.0) * playbackRates.masterPlaybackRate;
           gEarthTime.timelapse.setPlaybackRate(newPlaybackRate, true);
         } else if (!shareViewWithSpeedVal) {
@@ -3361,7 +3361,7 @@ async function init() {
       startDwell: 1.5,
       endDwell: 1.5
     },
-    playbackSpeed: defaultPlaybackSpeed,
+    playbackSpeed: defaultPlaybackRate,
     viewerType: isMobileDevice || isIEButNotEdge ? undefined : "webgl",
     url: landsatUrl,
     apiKeys: googleMapsAPIKey ? {'googleMaps': googleMapsAPIKey} : undefined,
