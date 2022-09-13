@@ -113,6 +113,7 @@ md.renderer.rules.link_open = function (tokens, idx, options, env, self) {
 
 // Loaded from config-local.js before now
 declare var EARTH_TIMELAPSE_CONFIG;
+console.log("EARTH_TIMELAPSE_CONFIG", EARTH_TIMELAPSE_CONFIG);
 var featuredTheme = "";
 var enableMuseumMode = !!EARTH_TIMELAPSE_CONFIG.enableMuseumMode;
 // Deprecated. Was json output of snaplapse editor. Instead use waypointSliderContentPath, which points to an online or exported spreadsheet.
@@ -129,6 +130,10 @@ if (typeof(EARTH_TIMELAPSE_CONFIG.csvLayersContentPath) === "undefined") {
   csvLayersContentPath =  EARTH_TIMELAPSE_CONFIG.csvLayersContentPath;
 }
 
+var apiUrl : string;
+if (typeof(EARTH_TIMELAPSE_CONFIG.apiUrl) !== "undefined") {
+  apiUrl = EARTH_TIMELAPSE_CONFIG.apiUrl;
+}
 
 class EarthTimeImpl implements EarthTime {
   mode = "explore";
@@ -155,7 +160,7 @@ class EarthTimeImpl implements EarthTime {
 
     async function internal(earthTime: EarthTimeImpl) {
       earthTime.layerDB = null;
-      earthTime.layerDB = dbg.layerDB = await LayerDB.create(databaseID, {earthTime: earthTime});
+      earthTime.layerDB = dbg.layerDB = await LayerDB.create(databaseID, {apiUrl: apiUrl, earthTime: earthTime});
       populateLayerLibrary();
     }
     this.layerDBPromise = internal(this);
