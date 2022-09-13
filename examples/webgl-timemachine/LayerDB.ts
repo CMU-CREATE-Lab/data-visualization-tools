@@ -33,7 +33,7 @@ export class LayerDB {
   }
 
   // async factory, since LayerDB isn't valid until the catalog is read
-  static async create(databaseId: GSheet, opts: {apiUrl?:string, earthTime?:EarthTime}) {
+  static async create(databaseId: GSheet, opts: {apiUrl?:string, earthTime?:EarthTime, hideDotmaps?:boolean}) {
     console.log(`${LayerDB.logPrefix()} start fetch layer_catalog`);
     var layerDB = new LayerDB();
     layerDB.layerFactory = new LayerFactory();
@@ -43,7 +43,11 @@ export class LayerDB {
     layerDB.layerById = {};
 
     // Read layer catalog
-    var catalog = await (await Utils.fetchWithRetry(`${layerDB.apiUrl}layer-catalogs/${databaseId.file_id_gid()}`)).json()
+    var catalogUrl = `${layerDB.apiUrl}layer-catalogs/${databaseId.file_id_gid()}`;
+    if (opts.hideDotmaps) {
+      catalogUrl += '?show-dotmaps=False';
+    }
+    var catalog = await (await Utils.fetchWithRetry(catalogUrl)).json()
     for(let entry of catalog) {
       let layerProxy = new LayerProxy(entry["Share link identifier"],
                                       layerDB,
