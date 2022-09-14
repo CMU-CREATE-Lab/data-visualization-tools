@@ -4268,12 +4268,10 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.uniform1f(this.program.u_epoch, currentTime);
 
-      this.program.setVertexAttrib.a_coord_0(2, gl.FLOAT, false, 7 * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-      this.program.setVertexAttrib.a_epoch_0(1, gl.FLOAT, false, 7 * 4, 8);
-      this.program.setVertexAttrib.a_coord_1(2, gl.FLOAT, false, 7 * 4, 12); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-      this.program.setVertexAttrib.a_epoch_1(1, gl.FLOAT, false, 7 * 4, 20);
-      this.program.setVertexAttrib.a_color(1, gl.FLOAT, false, 7 * 4, 24);
-
+      this.program.setVertexAttrib.a_coord_0(2, gl.FLOAT, false, 5 * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.setVertexAttrib.a_epoch_0(1, gl.FLOAT, false, 5 * 4, 8);
+      this.program.setVertexAttrib.a_epoch_1(1, gl.FLOAT, false, 5 * 4, 12);
+      this.program.setVertexAttrib.a_color(1, gl.FLOAT, false, 5 * 4, 16);
 
       gl.drawArrays(gl.LINES, 0, this._pointCount);
 
@@ -6609,7 +6607,6 @@ void main() {
 WebGLVectorTile2Shaders.lineTrackVertexShader = `
 attribute vec4 a_coord_0;
 attribute float a_epoch_0;
-attribute vec4 a_coord_1;
 attribute float a_epoch_1;
 attribute float a_color;
 uniform mat4 u_map_matrix;
@@ -6617,21 +6614,8 @@ uniform float u_epoch;
 varying float v_color;
 varying float v_alpha;
 void main() {
-  vec4 position;
-  if (a_epoch_0 > u_epoch) {
-    position = u_map_matrix * vec4(-1.,-1.,-1.,-1.);
-    position = u_map_matrix * a_coord_1;
-    v_alpha = 0.0;
-  } else if (a_epoch_1 < u_epoch) {
-    position = u_map_matrix * a_coord_0;
-    position = u_map_matrix * a_coord_1;
-    v_alpha = 1.0;
-  } else {
-    //TODO: WHY DOES INTERPOLATIMNG THE END POINT NOT WORK
-    //float t = (u_epoch - a_epoch_0)/(a_epoch_1 - a_epoch_0);
-    //position = u_map_matrix * ((a_coord_1 - a_coord_0) * t + a_coord_0);
-  }
-  gl_Position = position;
+  gl_Position = u_map_matrix * a_coord_0;
+  v_alpha = smoothstep(a_epoch_0, a_epoch_1, u_epoch);
   v_color = a_color;
 }`;
 
