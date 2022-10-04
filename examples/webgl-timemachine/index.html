@@ -133,6 +133,15 @@
       // End Google Analytics
     }
   </script>
+  <script>
+    if (EARTH_TIMELAPSE_CONFIG && EARTH_TIMELAPSE_CONFIG["customCSSFile"]) {
+      var ss = document.createElement("link");
+      ss.rel = "stylesheet";
+      ss.type = "text/css";
+      ss.href = EARTH_TIMELAPSE_CONFIG["customCSSFile"];
+      document.head.appendChild(ss);
+    }
+</script>
 </head>
 
 <body>
