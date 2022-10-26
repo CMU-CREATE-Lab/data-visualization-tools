@@ -235,9 +235,9 @@ operations['triangularizeAndJoin'] = function(request) {
       }
       for (var j = 0; j < idx.length; j++) {
         var id_current = idx[j];
-        var id_next = idx[j+1];
-        if (j == idx.length - 1) {
-          id_next = id_current;
+        var id_next = id_current;
+        if (j != idx.length - 1) {
+          id_next = idx[j+1];
         }
 
         var epoch_1 = epochs[id_current - first_data_col];
@@ -252,8 +252,9 @@ operations['triangularizeAndJoin'] = function(request) {
         }
         var epoch_2 = epochs[id_next - first_data_col];
         if (j == idx.length - 1) {
-          epoch_2 = epochs[id_current - first_data_col] + (epochs[id_current - first_data_col] - epochs[id_current - 1 - first_data_col]);
+          epoch_2 = epochs[id_current - first_data_col] + (epochs[1] - epochs[0]);
         }
+
 
         var val_2 = regionRow[id_next];
         if (isNaN(val_2)) {
