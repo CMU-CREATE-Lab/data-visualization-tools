@@ -46,8 +46,6 @@ import { Timeline } from './Timeline';
 import { LayerEditor } from './LayerEditor';
 dbg.Glb = Glb;
 
-
-var EarthlapseUI;
 var layerClickHandler;
 var toggleHamburgerPanel;
 
@@ -114,7 +112,6 @@ md.renderer.rules.link_open = function (tokens, idx, options, env, self) {
 // Loaded from config-local.js before now
 declare var EARTH_TIMELAPSE_CONFIG;
 var featuredTheme = "";
-var enableMuseumMode = !!EARTH_TIMELAPSE_CONFIG.enableMuseumMode;
 // Deprecated. Was json output of snaplapse editor. Instead use waypointSliderContentPath, which points to an online or exported spreadsheet.
 var waypointCollection : string = EARTH_TIMELAPSE_CONFIG.waypointCollection;
 // TODO: tsv exports are no longer working with new codebase
@@ -148,7 +145,7 @@ class EarthTimeImpl implements EarthTime {
   layerDB: LayerDB = null;
   layerDBPromise = null;
   timelapse = null;
-  rootTilePath = null;
+  rootTilePath = "";
   dotmapsServerHost = null;
   glb = null;
   canvasLayer = null;
@@ -165,7 +162,7 @@ class EarthTimeImpl implements EarthTime {
     async function internal(earthTime: EarthTimeImpl) {
       earthTime.layerDB = null;
       earthTime.layerDB = dbg.layerDB = await LayerDB.create(databaseID, {
-        apiUrl: apiUrl, 
+        apiUrl: apiUrl,
         earthTime: earthTime,
         hideDotmaps: hideDotmaps
       });
@@ -184,6 +181,112 @@ class EarthTimeImpl implements EarthTime {
   }
   timelapseZoom(): number {
     return this.timelapse.getCurrentZoom();
+  }
+  getStories(): object {
+    return waypointJSONList;
+  }
+  handleStoryToggle(doShow: boolean): void {
+    if (doShow) {
+      $("#timeMachine .presentationSlider").removeClass("offscreen");
+      $("#timeMachine .player").removeClass("presentationSliderOffscreen");
+      $("#layers-list, #theme-list, .themes-scroll-vertical").addClass("waypoints");
+      $("#timeMachine .shareView").css("height", "calc(100% + " + $(".player").css("bottom") + ")");
+      $("#timeMachine .player .presentation-mode-share-input").show();
+      $("#timeMachine .player .shareView .ui-dialog-title").text("Share a Story");
+    } else {
+      $("#timeMachine .presentationSlider").addClass("offscreen");
+      $("#timeMachine .player").addClass("presentationSliderOffscreen");
+      $("#layers-list, #theme-list, .themes-scroll-vertical").removeClass("waypoints");
+      $("#timeMachine .shareView").css("height", "100%");
+      $("#timeMachine .player .presentation-mode-share-input").hide();
+      $("#timeMachine .player .shareView .ui-dialog-title").text("Share a View");
+    }
+    gEarthTime.timelapse.onresize();
+    gEarthTime.timelapse.clearShareViewTimeLoop();
+    gEarthTime.timelapse.updateShareViewTextbox();
+    $("body").trigger('resize');
+    if (thumbnailTool) {
+      thumbnailTool.resizeCanvas();
+    }
+    $("#timeMachine").hide().show(0);
+  }
+  waypointTimelineUIChangeListener(info: {[key: string]: any}): void {
+    clearTimelineUIChangeListeners();
+    // If we are moving and reach this point, then this means the timeline UI changed before we made it to the final view.
+    // The callback of timelapse.setNewView will handle setting the correct time for us, so no need to do anything.
+    // However, if we reach this point and we are not moving, this means that the UI changed after the final view,
+    // so we need to set the correct time.
+    // If we are holding SHIFT or "pinning the butterfly" then use the previous time we came from and not the waypoint's time.
+    if (keysDown.indexOf(16) >= 0 || gEarthTime.timelapse.getCurrentTouchCount()) {
+      var seekTime = gEarthTime.timelapse.playbackTimeFromShareDate(info.captureTimeBeforeTimelineChange);
+      gEarthTime.timelapse.seek(seekTime);
+    } else if (!gEarthTime.timelapse.isMovingToWaypoint()) {
+      var currentWaypoint = snaplapseForPresentationSlider.getKeyframes()[lastSelectedWaypointIndex];
+      var seekTime = gEarthTime.timelapse.playbackTimeFromShareDate(currentWaypoint.beginTime);
+      gEarthTime.timelapse.seek(seekTime);
+    }
+
+    let hashVars = UTIL.getUnsafeHashVars();
+    let playbackRates = gEarthTime.playbackRates();
+    var shareViewWithSpeedVal = typeof(hashVars.ps) != "undefined";
+    var storyWaypointActive = $(".thumbnail_highlight").length;
+
+    // If we have a sharelink that has a PS value, set the playback rate to properly make it relative to the new master ("max") rate.
+    // If we don't have a sharelink that has a PS value, check if we are in a story and if we are, set the playback rate
+    //   to the rate defined in the waypoint, relative to the max rate. And if we aren't in a story, set the playback rate defined
+    //   for the layer that is currently controlling playback rates.
+    if (shareViewWithSpeedVal && playbackRates.masterPlaybackRate != defaultMasterPlaybackRate) {
+      let newPlaybackRate:number = (hashVars.ps / 100.0) * playbackRates.masterPlaybackRate;
+      gEarthTime.timelapse.setPlaybackRate(newPlaybackRate, true);
+    } else if (!shareViewWithSpeedVal) {
+      // @ts-ignore
+      if (storyWaypointActive || EarthlapseUI) {
+        let newPlaybackRate:number = gEarthTime.timelapse.getMaxPlaybackRate() * (info.waypoint.speed / 100.0);
+        gEarthTime.timelapse.setPlaybackRate(newPlaybackRate, true);
+      } else {
+        gEarthTime.timelapse.setPlaybackRate(playbackRates.playbackRate, true);
+      }
+    }
+
+    var waypointPlayPause = function() {
+      if ($(".thumbnail_highlight").length == 0) return;
+
+      var currentWaypointIdx = snaplapseForPresentationSlider.getSnaplapseViewer().getCurrentWaypointIndex();
+      var currentWaypoint = snaplapseForPresentationSlider.getKeyframes()[currentWaypointIdx];
+      var currentWaypointCenterView = gEarthTime.timelapse.pixelBoundingBoxToLatLngCenterView(currentWaypoint.bounds);
+      var currentCenterView = gEarthTime.timelapse.pixelCenterToLatLngCenterView(gEarthTime.timelapse.getView());
+
+      // We don't want to run this if the user has canceled moving to the waypoint, so check whether we are actually
+      // at the waypoint location. Note that because of screen size, the zoom levels can differ, hency why the zoom
+      // difference chosen here is larger than desired.
+      if (Math.abs(currentWaypointCenterView.center.lat - currentCenterView.center.lat) > 0.001 ||
+          Math.abs(currentWaypointCenterView.center.lng - currentCenterView.center.lng) > 0.001 ||
+          Math.abs(currentWaypointCenterView.zoom - currentCenterView.zoom) > 0.5) {
+        return;
+      }
+
+      if (gEarthTime.timelapse.getNumFrames() > 1 && gEarthTime.timelapse.getPlaybackRate() > 0) {
+        if (gEarthTime.timelapse.isPaused() && !gEarthTime.timelapse.isDoingLoopingDwell()) {
+          gEarthTime.timelapse.play();
+        }
+      } else {
+        gEarthTime.timelapse.pause();
+      }
+    }
+
+    // Technically each waypoint will trigger a callback from the timelapse library when it reaches its desired view
+    // and will handle playback state at that point. However, layers may still be loading at this stage and we thus
+    // need re-run these playback checks now that the timeline has changed.
+    if (gEarthTime.timelapse.isMovingToWaypoint()) {
+      var waypointPlayPauseCallback = function() {
+        gEarthTime.timelapse.removeParabolicMotionStoppedListener(waypointPlayPauseCallback);
+        waypointPlayPause();
+      }
+      gEarthTime.timelapse.addParabolicMotionStoppedListener(waypointPlayPauseCallback);
+    } else {
+      // Need a slight delay so that this is run after the default timelapse library callback
+      setTimeout(waypointPlayPause, 30);
+    }
   }
 
   _maximumUpdateTime = 30; // milliseconds
@@ -501,7 +604,10 @@ var disableTopNav = enableLetterboxMode ? true : parseConfigOption({optionName: 
 var disableResumeExitAnnotationPrompt = parseConfigOption({optionName: "disableResumeExitAnnotationPrompt", optionDefaultValue: false, exposeOptionToUrlHash: false});
 var isHyperwall = parseConfigOption({optionName: "isHyperwall", optionDefaultValue: false, exposeOptionToUrlHash: false});
 var useGoogleSearch = parseConfigOption({optionName: "useGoogleSearch", optionDefaultValue: true, exposeOptionToUrlHash: false});
+var enableMuseumMode = parseConfigOption({optionName: "enableMuseumMode", optionDefaultValue: false, exposeOptionToUrlHash: false});
 var enableAutoMode = parseConfigOption({optionName: "enableAutoMode", optionDefaultValue: false, exposeOptionToUrlHash: false});
+// MuseumMode has its own way of doing automode
+enableAutoMode = enableMuseumMode ? false : enableAutoMode;
 var autoModeCriteria = parseConfigOption({optionName: "autoModeCriteria", optionDefaultValue: {}, exposeOptionToUrlHash: false});
 var screenTimeoutInMilliseconds = parseConfigOption({optionName: "screenTimeoutInMilliseconds", optionDefaultValue: (8 * 60 * 1000), exposeOptionToUrlHash: false});
 var waypointDelayInMilliseconds = parseConfigOption({optionName: "waypointDelayInMilliseconds", optionDefaultValue: (1 * 15 * 1000), exposeOptionToUrlHash: false});
@@ -550,7 +656,7 @@ var currentWaypointStory;
 var annotationPicturePaths = {};
 var waypointJSONList = {};
 var lastSelectedWaypointIndex = -1;
-var keysDown = [];
+var keysDown:number[] = [];
 var loadedInitialCsvLayers = false;
 var dotmapLayersInitialized = false;
 var csvFileLayersInitialized = false;
@@ -851,6 +957,7 @@ function initLayerToggleUI() {
     // 'page up' key
     // Quick way to step forward through waypoints
     if (!disablePresentationSlider && e.keyCode === 33) {
+      // TODO: simplify
       var selectedIdx = 0;
       var $selectedWaypoint = $(".snaplapse_keyframe_list .thumbnail_highlight");
       if ($selectedWaypoint.length > 0) {
@@ -866,6 +973,7 @@ function initLayerToggleUI() {
     // 'page down' key
     // Quick way to step backwards through waypoints
     if (!disablePresentationSlider && e.keyCode === 34) {
+      // TODO: simplify
       var lastWaypointIdx, selectedIdx: number;
       lastWaypointIdx = selectedIdx = $(".snaplapse_keyframe_list").children().last().index();
       var $selectedWaypoint = $(".snaplapse_keyframe_list .thumbnail_highlight");
@@ -930,7 +1038,9 @@ function initLayerToggleUI() {
     // 'l' key (lowercase L)
     // Quick way to turn on automode
     if (e.keyCode === 76) {
+      // @ts-ignore
       if (typeof(EarthlapseUI) !== "undefined" && enableMuseumMode) {
+        // @ts-ignore
         EarthlapseUI.Modes.revertToDefault();
       } else {
         var currentSelectedWaypoint = snaplapseViewerForPresentationSlider.getCurrentWaypointIndex();
@@ -1321,7 +1431,7 @@ var altitudeSlider = new AltitudeSlider(gEarthTime);
 var contentSearch = new ContentSearch();
 
 var waitToLoadWaypointLayersOnPageReadyInterval;
-var timelineUIChangeListeners = [];
+var timelineUIChangeListeners: any[] = [];
 
 
 function modifyWaypointSliderContent(keyframes, theme, story) {
@@ -1761,7 +1871,7 @@ async function setupUIAndOldLayers() {
       //  snaplapseForPresentationSlider.getSnaplapseViewer().initializeAndRunAutoMode();
       //}
       if (isAutoModeRunning && enableMuseumMode) {
-        handleStoryToggle(false);
+        gEarthTime.handleStoryToggle(false);
       }
       var vals = UTIL.getUnsafeHashVars();
       var waypointId;
@@ -1853,92 +1963,14 @@ async function setupUIAndOldLayers() {
 
       gEarthTime.timelapse.removeParabolicMotionStoppedListener(parabolicMotionStoppedListener);
 
-      var waypointTimelineUIChangeListener = function(info) {
-        clearTimelineUIChangeListeners();
-        // If we are moving and reach this point, then this means the timeline UI changed before we made it to the final view.
-        // The callback of timelapse.setNewView will handle setting the correct time for us, so no need to do anything.
-        // However, if we reach this point and we are not moving, this means that the UI changed after the final view,
-        // so we need to set the correct time.
-        // If we are holding SHIFT or "pinning the butterfly" then use the previous time we came from and not the waypoint's time.
-        if (keysDown.indexOf(16) >= 0 || gEarthTime.timelapse.getCurrentTouchCount()) {
-          var seekTime = gEarthTime.timelapse.playbackTimeFromShareDate(info.captureTimeBeforeTimelineChange);
-          gEarthTime.timelapse.seek(seekTime);
-        } else if (!gEarthTime.timelapse.isMovingToWaypoint()) {
-          var currentWaypoint = snaplapseForPresentationSlider.getKeyframes()[lastSelectedWaypointIndex];
-          var seekTime = gEarthTime.timelapse.playbackTimeFromShareDate(currentWaypoint.beginTime);
-          gEarthTime.timelapse.seek(seekTime);
-        }
-
-        let hashVars = UTIL.getUnsafeHashVars();
-        let playbackRates = gEarthTime.playbackRates();
-        var shareViewWithSpeedVal = typeof(hashVars.ps) != "undefined";
-        var storyWaypointActive = $(".thumbnail_highlight").length;
-
-        // If we have a sharelink that has a PS value, set the playback rate to properly make it relative to the new master ("max") rate.
-        // If we don't have a sharelink that has a PS value, check if we are in a story and if we are, set the playback rate
-        //   to the rate defined in the waypoint, relative to the max rate. And if we aren't in a story, set the playback rate defined
-        //   for the layer that is currently controlling playback rates.
-
-        if (shareViewWithSpeedVal && playbackRates.masterPlaybackRate != defaultMasterPlaybackRate) {
-          let newPlaybackRate:number = (hashVars.ps / 100.0) * playbackRates.masterPlaybackRate;
-          gEarthTime.timelapse.setPlaybackRate(newPlaybackRate, true);
-        } else if (!shareViewWithSpeedVal) {
-          if (storyWaypointActive) {
-            let newPlaybackRate:number = gEarthTime.timelapse.getMaxPlaybackRate() * (waypoint.speed / 100.0);
-            gEarthTime.timelapse.setPlaybackRate(newPlaybackRate, true);
-          } else {
-            gEarthTime.timelapse.setPlaybackRate(playbackRates.playbackRate, true);
-          }
-        }
-
-        var waypointPlayPause = function() {
-          if ($(".thumbnail_highlight").length == 0) return;
-
-          var currentWaypointIdx = snaplapseForPresentationSlider.getSnaplapseViewer().getCurrentWaypointIndex();
-          var currentWaypoint = snaplapseForPresentationSlider.getKeyframes()[currentWaypointIdx];
-          var currentWaypointCenterView = gEarthTime.timelapse.pixelBoundingBoxToLatLngCenterView(currentWaypoint.bounds);
-          var currentCenterView = gEarthTime.timelapse.pixelCenterToLatLngCenterView(gEarthTime.timelapse.getView());
-
-          // We don't want to run this if the user has canceled moving to the waypoint, so check whether we are actually
-          // at the waypoint location. Note that because of screen size, the zoom levels can differ, hency why the zoom
-          // difference chosen here is larger than desired.
-          if (Math.abs(currentWaypointCenterView.center.lat - currentCenterView.center.lat) > 0.001 ||
-              Math.abs(currentWaypointCenterView.center.lng - currentCenterView.center.lng) > 0.001 ||
-              Math.abs(currentWaypointCenterView.zoom - currentCenterView.zoom) > 0.5) {
-            return;
-          }
-
-          if (gEarthTime.timelapse.getNumFrames() > 1 && gEarthTime.timelapse.getPlaybackRate() > 0) {
-            if (gEarthTime.timelapse.isPaused() && !gEarthTime.timelapse.isDoingLoopingDwell()) {
-              gEarthTime.timelapse.play();
-            }
-          } else {
-            gEarthTime.timelapse.pause();
-          }
-        }
-
-        // Technically each waypoint will trigger a callback from the timelapse library when it reaches its desired view
-        // and will handle playback state at that point. However, layers may still be loading at this stage and we thus
-        // need re-run these playback checks now that the timeline has changed.
-        if (gEarthTime.timelapse.isMovingToWaypoint()) {
-          var waypointPlayPauseCallback = function() {
-            gEarthTime.timelapse.removeParabolicMotionStoppedListener(waypointPlayPauseCallback);
-            waypointPlayPause();
-          }
-          gEarthTime.timelapse.addParabolicMotionStoppedListener(waypointPlayPauseCallback);
-        } else {
-          // Need a slight delay so that this is run after the default timelapse library callback
-          setTimeout(waypointPlayPause, 30);
-        }
-      };
       clearTimelineUIChangeListeners();
-      gEarthTime.timelapse.addTimelineUIChangeListener(waypointTimelineUIChangeListener);
+      gEarthTime.timelapse.addTimelineUIChangeListener(gEarthTime.waypointTimelineUIChangeListener);
       // In the event a sharelink layer does not have a timeline change, be sure the above listener is removed.
       var waypointTimelineUIChangeListenerWatchDog = setTimeout(function() {
         clearTimelineUIChangeListeners();
       }, 1000);
       timelineUIChangeListeners.push({"type" : "timeout", "fn" : waypointTimelineUIChangeListenerWatchDog});
-      timelineUIChangeListeners.push({"type" : "uiChangeListener", "fn" : waypointTimelineUIChangeListener});
+      timelineUIChangeListeners.push({"type" : "uiChangeListener", "fn" : gEarthTime.waypointTimelineUIChangeListener});
     });
 
     snaplapseViewerForPresentationSlider.addEventListener('slide-changed', function(waypoint) {
@@ -2336,7 +2368,7 @@ async function setupUIAndOldLayers() {
     if ($('#main-hamburger-menu').hasClass("is-active")) {
       $("#stories-menu-choice").click();
     }
-    handleStoryToggle(!hidePresentationSlider);
+    gEarthTime.handleStoryToggle(!hidePresentationSlider);
   });
 
   $("body").on("click", "#annotation-choose-another-story", function() {
@@ -2407,7 +2439,7 @@ async function setupUIAndOldLayers() {
     $("#controlsContainer, .location_search_div, .customControl, .controls").remove();
     disableTopNav = true;
     // Hide presentation slider so that it's still usable via keyboard/clicker but not shown on screen
-    handleStoryToggle(false);
+    gEarthTime.handleStoryToggle(false);
   } else if (timestampOnlyUI || timestampOnlyUILeft || timestampOnlyUICentered) {
     // Move capture time outside of the timeline controls
     $(".captureTime").insertBefore(".controls");
@@ -2451,7 +2483,7 @@ async function setupUIAndOldLayers() {
     $("#theme-menu").find("input").prop("checked", false);
     $("#theme-menu .activeStory").removeClass('activeStory');
     $("#theme-menu .active-story-in-theme").remove();
-    handleStoryToggle(false);
+    gEarthTime.handleStoryToggle(false);
     removeFeaturedTheme();
     $('#theme-title').attr('data-theme-id', '');
   });
@@ -2485,7 +2517,7 @@ async function setupUIAndOldLayers() {
     $(selectorsToRemove.join(",")).remove();
   }
 
-  handleStoryToggle(initiallyShowPresentationSlider);
+  gEarthTime.handleStoryToggle(initiallyShowPresentationSlider);
 
   // Workaround for issue that came with Chrome 65. Rot in hell browsers.
   // Force redraw of the sticky positioned menus in bottom left.
@@ -2549,6 +2581,7 @@ async function setupUIAndOldLayers() {
   });
 
   if (enableMuseumMode) {
+    // @ts-ignore
     EarthlapseUI.init();
   }
 
@@ -3142,33 +3175,6 @@ $(document).tooltip({
     }
   }
 });
-
-
-function handleStoryToggle(doShow) {
-  if (doShow) {
-    $("#timeMachine .presentationSlider").removeClass("offscreen");
-    $("#timeMachine .player").removeClass("presentationSliderOffscreen");
-    $("#layers-list, #theme-list, .themes-scroll-vertical").addClass("waypoints");
-    $("#timeMachine .shareView").css("height", "calc(100% + " + $(".player").css("bottom") + ")");
-    $("#timeMachine .player .presentation-mode-share-input").show();
-    $("#timeMachine .player .shareView .ui-dialog-title").text("Share a Story");
-  } else {
-    $("#timeMachine .presentationSlider").addClass("offscreen");
-    $("#timeMachine .player").addClass("presentationSliderOffscreen");
-    $("#layers-list, #theme-list, .themes-scroll-vertical").removeClass("waypoints");
-    $("#timeMachine .shareView").css("height", "100%");
-    $("#timeMachine .player .presentation-mode-share-input").hide();
-    $("#timeMachine .player .shareView .ui-dialog-title").text("Share a View");
-  }
-  gEarthTime.timelapse.onresize();
-  gEarthTime.timelapse.clearShareViewTimeLoop();
-  gEarthTime.timelapse.updateShareViewTextbox();
-  $("body").trigger('resize');
-  if (thumbnailTool) {
-    thumbnailTool.resizeCanvas();
-  }
-  $("#timeMachine").hide().show(0);
-}
 
 function resize() {
   var width = gEarthTime.canvasLayer.canvas.width;

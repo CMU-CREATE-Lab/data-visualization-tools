@@ -23,8 +23,10 @@ export class Timeline {
     // The playback rate used on initial draw. Should be a slow/medium/fast value based on above.
     playbackRate: number;
     fps: number;
+    associatedLayerId: string;
 
     constructor(timelineType: TimelineType, options: {[key:string]: any}) {
+        this.associatedLayerId = options.associatedLayerId;
         this.timelineType = timelineType;
         this.startDate = options.startDate as string;
         this.endDate = options.endDate as string;

@@ -196,7 +196,7 @@ export class LayerOptions {
         this.timeline = new Timeline(this.timelineType,
         {startDate: this.startDate, endDate: this.endDate,
          step: this.step, masterPlaybackRate: this.masterPlaybackRate,
-         playbackRate: this.playbackRate, cachedCaptureTimes: cachedCaptureTimes});
+         playbackRate: this.playbackRate, cachedCaptureTimes: cachedCaptureTimes, associatedLayerId: this.layerId});
       }
 
       // Note: This is overriden for WebGLTimeMachineLayers
