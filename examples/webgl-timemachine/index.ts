@@ -622,7 +622,7 @@ var enableStoryEditor = !showStories ? false : parseConfigOption({optionName: "e
 var pauseWhenInitialized = parseConfigOption({optionName: "pauseWhenInitialized", optionDefaultValue: false, exposeOptionToUrlHash: true});
 var disableAnimation = parseConfigOption({optionName: "disableAnimation", optionDefaultValue: false, exposeOptionToUrlHash: true});
 var preserveDrawingBuffer = parseConfigOption({optionName: "preserveDrawingBuffer", optionDefaultValue: false, exposeOptionToUrlHash: true});
-
+var initialShareView = parseConfigOption({optionName: "initialShareView", optionDefaultValue: "", exposeOptionToUrlHash: false});
 
 //
 //// App variables ////
@@ -2175,6 +2175,13 @@ async function setupUIAndOldLayers() {
 
   var hashChange = function() {
     var vals = UTIL.getUnsafeHashVars();
+
+    if (initialShareView && Object.keys(vals).length == 0) {
+      var initialUrl = window.location.protocol + "//" + window.location.host + getUrlPathName() + initialShareView;
+      window.history.replaceState('onload', 'Title', initialUrl);
+      vals = UTIL.getUnsafeHashVars();
+    }
+
     console.log(`${Utils.logPrefix()} index: hashChange: ${vals}`);
 
     if (vals.csvlayers) {
