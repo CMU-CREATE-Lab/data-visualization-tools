@@ -179,6 +179,8 @@ operations['triangularizeAndJoin'] = function(request) {
   var t1 = performance.now();
   var total_triangulation = 0;
   var total_adding_attrs = 0;
+  var processed = [];
+  var duplicates = [];
 
   for (var ii = 1; ii < data.length; ii++) {
     var regionRow = data[ii];
@@ -196,7 +198,12 @@ operations['triangularizeAndJoin'] = function(request) {
       csv_feature_missing_in_geojson++;
     } else {
       csv_feature_found_in_geojson++;
-
+      if (!processed.includes(name)) {
+        processed.push(name);
+      } else {
+        duplicates.push(name);
+        continue;
+      }
       // Compute pixel locations
       var t1_ = performance.now();
       var pixels = [];
@@ -277,6 +284,12 @@ operations['triangularizeAndJoin'] = function(request) {
         var t2__ = performance.now();
         total_adding_attrs += (t2__ - t1__);
       }
+    }
+  }
+  if (duplicates.length > 0) {
+    console.log('Duplicate Name keys present in CSV dataset');
+    for (var i = 0; i < duplicates.length; i++) {
+      console.log('\t' + duplicates[i]);
     }
   }
 
