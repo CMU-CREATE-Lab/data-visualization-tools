@@ -154,7 +154,7 @@ earthtime._updateOrientation = function() {
         var storyframes = storyContainerElement.querySelectorAll('.earthtime-story-frame');
         for (var i = 0; i < storyframes.length; i++) {
           var frame = storyframes[i];
-          if (frame.hasAttribute('data-has-legend') && frame.children[0].style.position == "fixed") {
+          if (frame.getAttribute("data-has-legend") === "true" && frame.children[0].style.position == "fixed") {
             earthtime._loadLegend(elementId, storyframes, i);
           }
         }
