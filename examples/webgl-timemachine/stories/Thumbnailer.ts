@@ -4,6 +4,8 @@ export class Thumbnailer{
     hash: string;
     args: string[];
     headlessClientHost: string;
+    apiUrl: string;
+
 
     constructor(sharelink: string) {
         this.thumbnailServerUrl = "https://thumbnails-v2.createlab.org/thumbnail?";
@@ -26,6 +28,27 @@ export class Thumbnailer{
         } else {
             this.headlessClientHost = "https://headless.earthtime.org/";
         }
+        // @ts-ignore
+        if (typeof window.EARTH_TIMELAPSE_CONFIG !== "undefined" && typeof window.EARTH_TIMELAPSE_CONFIG.apiUrl !== "undefined") {
+            // @ts-ignore
+            this.apUrl = window.EARTH_TIMELAPSE_CONFIG.apiUrl;
+        } else {
+            this.apiUrl = "https://api.earthtime.org/";
+        }
+        let sheetUrl = 'https://docs.google.com/spreadsheets/d/1heLmeuPp7j4itr0cK8H4chugOpp7cU8p_VEB9CFfPlY/edit#gid=1292578249'
+        // @ts-ignore
+        if (typeof window.EARTH_TIMELAPSE_CONFIG !== "undefined" && typeof window.EARTH_TIMELAPSE_CONFIG.csvLayersContentPath !== "undefined") {
+            // @ts-ignore
+            sheetUrl = window.EARTH_TIMELAPSE_CONFIG.csvLayersContentPath;
+        }   
+        var regex = /https?:\/\/docs\.google\.com\/spreadsheets\/d\/(.*?)\/(.*?[#&]gid=(\d+))?/;
+        var match = sheetUrl.match(regex);
+        if (!match) {
+            throw Error(`url ${sheetUrl} does not match regex ${regex}, aborting`)
+        }
+        var gsheetId = match[1] + '.' + match[3];
+        
+        this.apiUrl += 'layer-catalogs/' + gsheetId;
     }
 
     setArgs(hash: string) {
@@ -43,6 +66,53 @@ export class Thumbnailer{
         }
     }
 
+    
+    async getLayerInfo(layerId) {
+        var apiUrl =  this.apiUrl + '/layers/' + layerId;
+            try {
+              const response = await fetch(apiUrl);
+              if (!response.ok) {
+                throw new Error(`HTTP error: ${response.status}`);
+              }
+              const data = await response.json();
+              return data;
+            }
+            catch (error) {
+              console.error(`Could not get layer info: ${error}`);
+            }
+          }
+          
+
+    
+    getContentType() {
+        let contentType = {
+            'type': 'video',
+            'layerString': ''
+        };
+
+        let extras = this.isExtras();
+        if (extras) {
+            contentType.type = 'extras';
+            contentType.layerString = String(extras);
+
+        } else if (this.isPicture()){
+            contentType.type = 'picture';
+        }
+        return contentType;
+
+    }
+
+    isExtras() {
+        var l = this.args['l'];
+        let layers = l.split(',');
+        var ret = false;
+        for (var i = 0; i < layers.length; i++) {
+            if (layers[i].includes('extras_')) {
+                ret = layers[i];
+            }
+        }
+        return ret;
+    }
     isPicture() {
         var ps = this.args['ps'];
         var format = this.args['format'];

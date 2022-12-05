@@ -253,3 +253,8 @@ body {
 .earthtime-legend.dimmed {
   opacity: 0.65;
 }
+
+.forcefit video {
+  object-fit: contain;
+  width: 100%; /* object fit requires element to have a width that is not 'auto' */
+}

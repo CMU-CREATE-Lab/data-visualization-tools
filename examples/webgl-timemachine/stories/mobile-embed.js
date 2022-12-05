@@ -48,7 +48,7 @@ earthtime._styleSheetDependencies = [
 
 earthtime._handlebarsTemplates = {
   'url-src': 'https://docs-proxy.cmucreatelab.org/spreadsheets/d/{{id}}/export?format=csv&id={{id}}&gid={{gid}}',
-  'video-template': '<div class="earthtime-story-frame" data-has-legend="{{has_legend}}">' +
+  'video-template': '<div class="earthtime-story-frame{{#if forcefit}} forcefit {{/if}}" data-has-legend="{{has_legend}}">' +
     '   <div class="earthtime-story-frame-content-container" style="z-index:-{{idx}}">' +
     '      <video class="earthtime-story-frame-content earthtime-orientable earthtime-media" loop muted playsinline ' +
     '             poster="{{poster_src}}"' +
@@ -416,7 +416,7 @@ earthtime._loadStory = function(storyName, containerElement, storyOptions) {
   earthtime.Papa.parse(url, {
     download: true,
     header: true,
-    complete: function(results) {
+    complete: async function(results) {
       var story = [];
       var data = results["data"];
       var append = false;
@@ -515,7 +515,26 @@ earthtime._loadStory = function(storyName, containerElement, storyOptions) {
           };
           var storyFrameTemplate;
           var currentOrientation = earthtime._currentOrientation;
-          if (landscapeThumbnail.isPicture()) {
+          const contentType = landscapeThumbnail.getContentType();
+
+          if (contentType.type == 'extras') {
+            storyFrameTemplate = earthtime._handlebarsTemplates['video-template'];
+
+            var layerInfo = await landscapeThumbnail.getLayerInfo(contentType.layerString);
+            if (layerInfo !== null) {
+              context['poster_src_portrait'] =  '/extras/' +layerInfo.URL;
+              context['poster_src_landscape'] =  '/extras/' +layerInfo.URL;
+              context['poster_src'] = currentOrientation == 'portrait' ? context['poster_src_portrait'] : context['poster_src_landscape'];
+
+              context['video_src_portrait'] =  '/extras/' +layerInfo.URL;
+              context['video_src_landscape'] =  '/extras/'+ layerInfo.URL;
+              context['video_src'] = currentOrientation == 'portrait' ? context['video_src_portrait'] : context['video_src_landscape'];
+              context['forcefit'] = true;
+            } else {
+              console.log('WARNING: api request returned null. Check extras id ' + contentType.layerString);
+            }
+          }
+          else if (contentType.type == 'picture') {
             storyFrameTemplate = earthtime._handlebarsTemplates['picture-template'];
             context['src_portrait'] = portraitThumbnail.getImage('portrait');
             context['src_landscape'] = landscapeThumbnail.getImage('landscape');
