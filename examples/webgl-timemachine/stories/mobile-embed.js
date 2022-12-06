@@ -426,7 +426,10 @@ earthtime._loadStory = function(storyName, containerElement, storyOptions) {
 
       for (var i = 0; i < data.length; i++) {
         var title = data[i]['Waypoint Title'];
-        if (title == "") continue;
+        // Previously required waypoints to have a defined title.
+        // Deprecated to allow text free waypoints.
+        // if (title == "") continue;
+
         // Found a new theme while appending for a story, exit
         if (append && title[0] == "#" && title[1] != "#") break;
         // Found a story, not a theme
