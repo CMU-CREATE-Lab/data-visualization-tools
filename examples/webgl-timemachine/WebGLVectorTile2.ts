@@ -1303,7 +1303,10 @@ export class WebGLVectorTile2 extends Tile {
         }
         else {
           if (this._layer.color) {
-            packedColor = this._layer.color[0] * 255.0 + this._layer.color[1] * 255.0 * 256.0 + this._layer.color[2] * 255.0 * 256.0 * 256.0;
+            let r = this._layer.color[0] <= 1.0 ? this._layer.color[0] * 255.0 : this._layer.color[0];
+            let g = this._layer.color[1] <= 1.0 ? this._layer.color[1] * 255.0 : this._layer.color[1];
+            let b = this._layer.color[2] <= 1.0 ? this._layer.color[2] * 255.0 : this._layer.color[2];
+            packedColor =  r + g * 256.0 + b * 256.0 * 256.0;
           }
           else {
             packedColor = 255.0;
@@ -3377,12 +3380,18 @@ export class WebGLVectorTile2 extends Tile {
       }
       gl.blendFunc(sfactor, dfactor);
 
+      let u_alpha = 1.0;
+      if (this._layer.color && this._layer.color.length == 4) {
+        u_alpha = this._layer.color[3];
+      }
+
       var tileTransform = new Float32Array(transform);
 
       scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
       scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
 
       gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
+      gl.uniform1f(this.program.u_alpha, u_alpha);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
       this.program.setVertexAttrib.a_coord(2, gl.FLOAT, false, 12, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
@@ -6187,16 +6196,16 @@ WebGLVectorTile2Shaders.polygonFragmentShader = `
 #extension GL_OES_standard_derivatives : enable
 /*precision mediump float;*/
 varying float v_color;
-vec4 unpackColor(float f) {
-  vec4 color;
+uniform float u_alpha;
+vec3 unpackColor(float f) {
+  vec3 color;
   color.b = floor(f / 256.0 / 256.0);
   color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);
   color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);
-  color.a = 256.;
-  return color/256.;
+  return color/255.;
 }
 void main() {
-  gl_FragColor = unpackColor(v_color);
+  gl_FragColor = vec4(unpackColor(v_color), u_alpha);
 }`;
 
 WebGLVectorTile2Shaders.lineStringVertexShader = `
