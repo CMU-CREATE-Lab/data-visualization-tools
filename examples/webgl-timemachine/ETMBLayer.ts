@@ -264,7 +264,8 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
   // Don't use this directly; use _ensureLoaded instead
   static async _createMapFromLoad(initialStyle: MapboxTypes.Style) {
     // @ts-ignore
-    mapboxgl.accessToken = 'pk.eyJ1IjoicmFuZHlzYXJnZW50IiwiYSI6ImNrMDYzdGl3bDA3bTUzc3Fkb3o4cjc3YXgifQ.nn7FC9cpRl_THWpoAFnnow';
+    //mapboxgl.accessToken = 'pk.eyJ1IjoicmFuZHlzYXJnZW50IiwiYSI6ImNrMDYzdGl3bDA3bTUzc3Fkb3o4cjc3YXgifQ.nn7FC9cpRl_THWpoAFnnow';
+    mapboxgl.accessToken = ETMBLayer.accessToken;
 
     var $earthTimeMapContainer = $("#timeMachine_timelapse_dataPanes")
     // Add map div with id #mapbox_map, with same size as EarthTime canvas, but offscreen
@@ -279,7 +280,8 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
         version: 8,
         sources: initialStyle.sources,
         layers: initialStyle.layers,
-        glyphs: initialStyle.glyphs
+        //glyphs: initialStyle.glyphs
+        glyphs: 'mapbox://fonts/earthtime/{fontstack}/{range}.pbf'        
       },
       renderWorldCopies: false // don't show multiple earths when zooming out
     });
@@ -363,7 +365,7 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
   static map: any = null;
   static mapLoaded: boolean = false;
   static visibleLayers: ETMBLayer[] = [];
-  static accessToken: string = 'pk.eyJ1IjoicmFuZHlzYXJnZW50IiwiYSI6ImNrMDYzdGl3bDA3bTUzc3Fkb3o4cjc3YXgifQ.nn7FC9cpRl_THWpoAFnnow';
+  static accessToken: string = 'pk.eyJ1IjoiZWFydGh0aW1lIiwiYSI6ImNrc2oxdmhyMDBsNngyd3BlMmIyMGhzOHQifQ.EOQnAhhtAgInQN8AdC8gww';
   static _createMapPromise: any;
 
   static render() {
