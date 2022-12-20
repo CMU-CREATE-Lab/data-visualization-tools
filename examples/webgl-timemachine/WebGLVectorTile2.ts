@@ -5703,9 +5703,9 @@ float circle(vec2 st, float radius) {
 void main() {
   float stroke = v_stroke_width;
   float radius = v_radius;
-  float alpha = circle(gl_PointCoord.xy, .49);
+  float alpha = circle(gl_PointCoord.xy, .5);
   vec4 o = v_stroke_rgba * alpha;
-  alpha = circle(gl_PointCoord.xy, (radius-stroke)/radius * 0.49);
+  alpha = circle(gl_PointCoord.xy, (radius-stroke)/radius * 0.5);
   vec4 i = v_fill_rgba * alpha;
   gl_FragColor = mix(o,i,alpha);
 }
