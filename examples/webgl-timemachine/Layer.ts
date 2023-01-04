@@ -64,6 +64,10 @@ export interface DrawOptions {
   first?: number
   count?: number
   thickness?: any
+  orientation?: number
+  linewidth?: number
+  antialias?: number
+
 }
 
 export interface DrawFunction {

@@ -1177,6 +1177,71 @@ export class WebGLVectorTile2 extends Tile {
       this.dataLoadedFunction(this._layer.layerId);
     }
   }
+
+  _setMarkerData(data: { features: string | any[]; }) { 
+    // Assumes GeoJSON data
+    var points = [];
+
+    let setDataOptions = this._layer.setDataOptions || {}; 
+    var key = setDataOptions.key || undefined;
+    var values = setDataOptions.values || undefined;
+    var fills = setDataOptions.fills || [[218,218,218,1]];
+    var strokes = setDataOptions.strokes || [[16,16,16,1]];
+    
+    
+    if (typeof data.features != "undefined") {      
+      for (var f = 0; f < data.features.length; f++) {
+
+        let feature = data.features[f];
+
+        let fill_rgba = fills[0];
+        let stroke_rgba = strokes[0];
+        if (key && feature.properties[key]) {
+          let idx = values.indexOf(feature.properties[key]);
+          fill_rgba = fills[idx];
+          stroke_rgba = strokes[idx];
+        }
+
+
+        if (feature.geometry.type != "MultiPoint") {
+          var pixel = LngLatToPixelXY(feature.geometry.coordinates[0], feature.geometry.coordinates[1]);
+          points.push(
+            pixel[0], 
+            pixel[1], 
+            fill_rgba[0],
+            fill_rgba[1],
+            fill_rgba[2],
+            fill_rgba[3],
+            stroke_rgba[0],
+            stroke_rgba[1],
+            stroke_rgba[2],
+            stroke_rgba[3]
+          );
+        }
+        else {
+          for (var j = 0; j < feature.geometry.coordinates.length; j++) {
+            var coords = feature.geometry.coordinates[j];
+            var pixel = LngLatToPixelXY(coords[0], coords[1]);
+            points.push(
+              pixel[0], 
+              pixel[1], 
+              fill_rgba[0]/255,
+              fill_rgba[1]/255,
+              fill_rgba[2]/255,
+              fill_rgba[3],
+              stroke_rgba[0]/255,
+              stroke_rgba[1]/255,
+              stroke_rgba[2]/255,
+              stroke_rgba[3]
+            );
+            }
+        }
+      }
+      this._setBufferData(new Float32Array(points));
+      this.dataLoadedFunction(this._layer.layerId);
+    }
+  }
+
   // not animated, only one glyph possible
   _setGlyphData(data: { features: string | any[]; }) {
     // Assumes GeoJSON data
@@ -4614,6 +4679,61 @@ export class WebGLVectorTile2 extends Tile {
     }
   }
 
+  _drawMarker(transform: Float32Array) {
+    var gl = this.gl;
+    var drawOptions = this._layer.drawOptions;
+    
+    if (this._ready) {
+  
+      gl.useProgram(this.program);
+      gl.enable(gl.BLEND);
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+      var tileTransform = new Float32Array(transform);
+      var currentTime = gEarthTime.currentEpochTime();
+
+      scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
+      scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+
+      gl.uniformMatrix4fv(this.program.ortho, false, tileTransform);
+
+      var pointSize = 16.0;
+      if (drawOptions.pointSize) {
+        pointSize = drawOptions.pointSize;
+      }
+      gl.uniform1f(this.program.size, pointSize);
+
+      var orientation = 0;
+      if (drawOptions.orientation) {
+        orientation = drawOptions.orientation;
+      }
+      gl.uniform1f(this.program.orientation, orientation);
+
+      var linewidth = 1.0;
+      if (drawOptions.linewidth) {
+        linewidth = drawOptions.linewidth;
+      }
+      gl.uniform1f(this.program.linewidth, linewidth);
+
+      var antialias = 1.0;
+      if (drawOptions.antialias) {
+        antialias = drawOptions.antialias;
+      }
+      gl.uniform1f(this.program.antialias, antialias);
+
+      gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+      this.program.setVertexAttrib.position(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.setVertexAttrib.fill(4, gl.FLOAT, false, this._layer.numAttributes * 4, 8); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.setVertexAttrib.stroke(4, gl.FLOAT, false, this._layer.numAttributes * 4, 24); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+//      this.program.setVertexAttrib.packedcolor(1, gl.FLOAT, false, this._layer.numAttributes * 4, 8); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+
+      gl.drawArrays(gl.POINTS, 0, this._pointCount);
+
+      gl.disable(gl.BLEND);
+    }
+  }
+
+
   // Update and draw tiles
   static updateTiles(tiles: WebGLVectorTile2[], transform: Float32Array, options: DrawOptions) {
     //console.log(options)
@@ -7068,5 +7188,103 @@ WebGLVectorTile2Shaders.particleAltFadeFragmentShader = `
 varying vec4 v_color;
 void main() {
   gl_FragColor = v_color;
+}
+`;
+
+WebGLVectorTile2Shaders.markerVertexShader = `
+const float SQRT_2 = 1.4142135623730951;
+uniform mat4 ortho;
+uniform float size, orientation, linewidth, antialias;
+attribute vec3 position;
+attribute vec4 fill;
+attribute vec4 stroke;
+varying vec2 rotation;
+varying float v_size;
+varying vec4 fg_color, bg_color;
+void main (void) {
+  rotation = vec2(cos(orientation), sin(orientation));
+  gl_Position = ortho * vec4(position, 1.0);
+  v_size = SQRT_2 * size + 2.0*(linewidth + 1.5*antialias);
+  gl_PointSize = v_size;
+  fg_color = vec4(stroke.xyz/255.,stroke.w);
+  bg_color = vec4(fill.xyz/255.,fill.w);
+}
+`;
+
+WebGLVectorTile2Shaders.markerFragmentShader = `
+const float PI = 3.14159265358979323846264;
+const float SQRT_2 = 1.4142135623730951;
+uniform float size, linewidth, antialias;
+varying vec4 fg_color, bg_color;
+varying vec2 rotation;
+varying float v_size;
+
+vec4 stroke(float distance, // Signed distance to line
+            float linewidth, // Stroke line width
+            float antialias, // Stroke antialiased area
+            vec4 stroke) // Stroke color
+{
+  float t = linewidth / 2.0 - antialias;
+  float signed_distance = distance;
+  float border_distance = abs(signed_distance) - t;
+  float alpha = border_distance / antialias;
+  alpha = exp(-alpha * alpha);
+  if( border_distance < 0.0 )
+    return stroke;
+  else
+    return vec4(stroke.rgb, stroke.a * alpha);
+}
+
+vec4 filled(float distance, // Signed distance to line
+            float linewidth, // Stroke line width
+            float antialias, // Stroke antialiased area
+            vec4 fill) // Fill color
+{
+  float t = linewidth / 2.0 - antialias;
+  float signed_distance = distance;
+  float border_distance = abs(signed_distance) - t;
+  float alpha = border_distance / antialias;
+  alpha = exp(-alpha * alpha);
+  if( border_distance < 0.0 )
+    return fill;
+  else if( signed_distance < 0.0 )
+    return fill;
+  else
+    return vec4(fill.rgb, alpha * fill.a);
+}
+
+vec4 outline(float distance, // Signed distance to line
+             float linewidth, // Stroke line width
+             float antialias, // Stroke antialiased area
+             vec4 stroke, // Stroke color
+             vec4 fill)   // Fill color 
+             {
+  float t = linewidth / 2.0 - antialias;
+  float signed_distance = distance;
+  float border_distance = abs(signed_distance) - t;
+  float alpha = border_distance / antialias;
+  alpha = exp(-alpha * alpha);
+  if( border_distance < 0.0 )
+    return stroke;
+  else if( signed_distance < 0.0 )
+    return mix(fill, stroke, sqrt(alpha));
+  else
+    return vec4(stroke.rgb, stroke.a * alpha);
+}
+
+float diamond(vec2 P, float size)
+{
+float x = SQRT_2/2.0 * (P.x - P.y);
+float y = SQRT_2/2.0 * (P.x + P.y);
+return max(abs(x), abs(y)) - size/(2.0*SQRT_2);
+}
+
+void main() {
+  vec2 P = gl_PointCoord.xy - vec2(0.5,0.5);
+  P = vec2(rotation.x*P.x - rotation.y*P.y,
+  rotation.y*P.x + rotation.x*P.y);
+//  float distance = marker(P*v_size, size);
+  float distance = diamond(P*v_size, size);
+  gl_FragColor = outline(distance, linewidth, antialias, fg_color, bg_color);
 }
 `;
