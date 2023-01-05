@@ -245,6 +245,28 @@ earthtime._updateLegendSize = function() {
   }
 };
 
+earthtime._handleKeydownEvent = function(event) {
+  if (event.keyCode !== 33 && event.keyCode !== 34) return;
+
+  event.preventDefault();
+
+  var captions = document.querySelectorAll("div.earthtime-title, div.earthtime-caption");
+  var i = 0;
+  var inView = false;
+  for (i; i < captions.length; i++) {
+    inView = earthtime._isElementInViewport(captions[i]);
+    if (inView) break;
+  }
+  if (event.keyCode === 33) {
+    // page up
+    i = Math.min(i + 1, captions.length - 1);
+  } else if (event.keyCode === 34) {
+    // page down
+    i = Math.max(i - 1, 0);
+  }
+  captions[i].scrollIntoView({behavior: "smooth", block: "center"});
+};
+
 /**
  * Recompute story container offsets on the page to ensure a full screen experience.
  */
@@ -429,6 +451,10 @@ earthtime._loadStory = function(storyName, containerElement, storyOptions) {
         // Previously required waypoints to have a defined title.
         // Deprecated to allow text free waypoints.
         // if (title == "") continue;
+        // We need to filter on something though. PapaParse leaves in blank lines, which we need to throw out.
+        // Filtering on share view makes sense anyway since there is truly nothing to show if it is missing and
+        // this is the same behavior we do on the interactive version.
+        if (data[i]['Share View'].trim() == "") continue;
 
         // Found a new theme while appending for a story, exit
         if (append && title[0] == "#" && title[1] != "#") break;
@@ -726,7 +752,18 @@ earthtime._updateScrollPos = function(e) {
             earthtime._fixedStoryFrameIdx = i;
             var currentCaption = earthtime._getElementSibling(frame, "next", ".earthtime-caption");
             if (currentCaption) {
-              currentCaption.style.visibility = "visible";
+              var currentCaptionContent = currentCaption.children;
+              var hasCaptionContent = false;
+              for (var j = 0; j < currentCaptionContent.length; j++) {
+                if (currentCaptionContent[j].textContent) {
+                  hasCaptionContent = true;
+                  break;
+                }
+              }
+              // Only show caption bubble if there is text to show
+              if (hasCaptionContent) {
+                currentCaption.style.visibility = "visible";
+              }
             }
           }
           activeStoryElementId = elementId;
@@ -831,6 +868,17 @@ earthtime._getElementSibling = function(elem, direction, selector) {
   }
 };
 
+earthtime._isElementInViewport = function(el) {
+  var rect = el.getBoundingClientRect();
+
+  return (
+      rect.top >= 0 &&
+      rect.left >= 0 &&
+      rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+      rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+  );
+};
+
 /**
  * Registers the story specified by the given <code>storyName</code> for insertion into the DOM element specified by the
  * given <code>elementId</code>.  This function merely takes note of the desire for the story to be loaded.  You must
@@ -888,6 +936,7 @@ earthtime.embedStories = function(config) {
       window.addEventListener('resize', earthtime._updateOrientation);
       window.addEventListener('resize', earthtime._updateFullscreenOffsets);
       window.addEventListener('resize', earthtime._updateLegendSize);
+      window.addEventListener('keydown', earthtime._handleKeydownEvent);
 
       // Disable pinch zooming (though does not seem to take effect when mid-scroll)
       // On Android devices, event.scale is not available so we can't use this there.
