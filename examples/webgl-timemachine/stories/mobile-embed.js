@@ -765,7 +765,7 @@ earthtime._updateScrollPos = function(e) {
               var currentCaptionContent = currentCaption.children;
               var hasCaptionContent = false;
               for (var j = 0; j < currentCaptionContent.length; j++) {
-                if (currentCaptionContent[j].textContent) {
+                if (currentCaptionContent[j].textContent && currentCaptionContent[j].textContent.trim() != "") {
                   hasCaptionContent = true;
                   break;
                 }
