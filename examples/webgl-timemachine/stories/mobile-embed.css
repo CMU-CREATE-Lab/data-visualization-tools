@@ -254,7 +254,7 @@ body {
   opacity: 0.65;
 }
 
-.forcefit video {
+.forcefit video, .forcefit img {
   object-fit: contain;
   width: 100%; /* object fit requires element to have a width that is not 'auto' */
 }

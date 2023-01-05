@@ -66,7 +66,7 @@ earthtime._handlebarsTemplates = {
     '      {{/if}}' +
     '   </div>' +
     '</div>',
-  'picture-template': '<div class="earthtime-story-frame" data-has-legend="{{has_legend}}">' +
+  'picture-template': '<div class="earthtime-story-frame{{#if forcefit}} forcefit {{/if}}" data-has-legend="{{has_legend}}">' +
     '   <div class="earthtime-story-frame-content-container" style="z-index:-{{idx}}">' +
     '      <img class="earthtime-story-frame-content earthtime-orientable earthtime-media" ' +
     '           src="{{src}}" ' +
@@ -547,17 +547,27 @@ earthtime._loadStory = function(storyName, containerElement, storyOptions) {
           const contentType = landscapeThumbnail.getContentType();
 
           if (contentType.type == 'extras') {
-            storyFrameTemplate = earthtime._handlebarsTemplates['video-template'];
-
             var layerInfo = await landscapeThumbnail.getLayerInfo(contentType.layerString);
-            if (layerInfo !== null) {
-              context['poster_src_portrait'] =  '/extras/' +layerInfo.URL;
-              context['poster_src_landscape'] =  '/extras/' +layerInfo.URL;
-              context['poster_src'] = currentOrientation == 'portrait' ? context['poster_src_portrait'] : context['poster_src_landscape'];
 
-              context['video_src_portrait'] =  '/extras/' +layerInfo.URL;
-              context['video_src_landscape'] =  '/extras/'+ layerInfo.URL;
-              context['video_src'] = currentOrientation == 'portrait' ? context['video_src_portrait'] : context['video_src_landscape'];
+            if (layerInfo) {
+              if (layerInfo['Map Type'] == 'extras-image') {
+                storyFrameTemplate = earthtime._handlebarsTemplates['picture-template'];
+
+                context['src_portrait'] = '/extras/' + layerInfo.URL;
+                context['src_landscape'] = '/extras/' + layerInfo.URL;
+                context['src'] = currentOrientation == 'portrait' ? context['src_portrait'] : context['src_landscape'];
+              } else if (layerInfo['Map Type'] == 'extras-video') {
+                storyFrameTemplate = earthtime._handlebarsTemplates['video-template'];
+
+                context['poster_src_portrait'] = '/extras/' + layerInfo.URL;
+                context['poster_src_landscape'] = '/extras/' + layerInfo.URL;
+                context['poster_src'] = currentOrientation == 'portrait' ? context['poster_src_portrait'] : context['poster_src_landscape'];
+
+                context['video_src_portrait'] = '/extras/' + layerInfo.URL;
+                context['video_src_landscape'] = '/extras/' + layerInfo.URL;
+                context['video_src'] = currentOrientation == 'portrait' ? context['video_src_portrait'] : context['video_src_landscape'];
+              }
+              // TODO: Does a force object-fit to 'contain'. We should instead use what is defined in layerInfo['Extras Options'].
               context['forcefit'] = true;
             } else {
               console.log('WARNING: api request returned null. Check extras id ' + contentType.layerString);
