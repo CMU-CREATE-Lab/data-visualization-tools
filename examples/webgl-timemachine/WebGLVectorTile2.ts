@@ -5813,21 +5813,97 @@ varying vec4 v_fill_rgba;
 varying float v_stroke_width;
 varying vec4 v_stroke_rgba;
 
-float circle(vec2 st, float radius) {
-  float dist = distance(st, vec2(0.50, 0.50));
-  float delta = fwidth(dist);
-  float alpha = smoothstep(radius-delta, radius+delta, dist);
-  return 1.0 - alpha;
+const float PI = 3.14159265358979323846264;
+const float SQRT_2 = 1.4142135623730951;
+//uniform float size, linewidth, antialias;
+varying vec2 rotation;
+varying float v_size;
+vec4 stroke(float distance, // Signed distance to line
+            float linewidth, // Stroke line width
+            float antialias, // Stroke antialiased area
+            vec4 stroke) // Stroke color
+{
+  float t = linewidth / 2.0 - antialias;
+  float signed_distance = distance;
+  float border_distance = abs(signed_distance) - t;
+  float alpha = border_distance / antialias;
+  alpha = exp(-alpha * alpha);
+  if( border_distance < 0.0 )
+    return stroke;
+  else
+    return vec4(stroke.rgb, stroke.a * alpha);
+}
+vec4 filled(float distance, // Signed distance to line
+            float linewidth, // Stroke line width
+            float antialias, // Stroke antialiased area
+            vec4 fill) // Fill color
+{
+  float t = linewidth / 2.0 - antialias;
+  float signed_distance = distance;
+  float border_distance = abs(signed_distance) - t;
+  float alpha = border_distance / antialias;
+  alpha = exp(-alpha * alpha);
+  if( border_distance < 0.0 )
+    return fill;
+  else if( signed_distance < 0.0 )
+    return fill;
+  else
+    return vec4(fill.rgb, alpha * fill.a);
+}
+vec4 outline(float distance, // Signed distance to line
+             float linewidth, // Stroke line width
+             float antialias, // Stroke antialiased area
+             vec4 stroke, // Stroke color
+             vec4 fill)   // Fill color 
+             {
+  float t = linewidth / 2.0 - antialias;
+  float signed_distance = distance;
+  float border_distance = abs(signed_distance) - t;
+  float alpha = border_distance / antialias;
+  alpha = exp(-alpha * alpha);
+  if( border_distance < 0.0 )
+    return stroke;
+  else if( signed_distance < 0.0 )
+    return mix(fill, stroke, sqrt(alpha));
+  else
+    return vec4(stroke.rgb, stroke.a * alpha);
+}
+// --- disc
+float disc(vec2 P, float size)
+{
+    return length(P) - size/2;
+}
+void main() {
+  //uniform float size, linewidth, antialias;
+  float linewidth = strokewidth;
+  float size = v_size;
+  float antialias = 1.0;
+  vec2 P = gl_PointCoord.xy - vec2(0.5,0.5);
+  P = vec2(rotation.x*P.x - rotation.y*P.y,
+  rotation.y*P.x + rotation.x*P.y);
+//  float distance = marker(P*v_size, size);
+  float distance = disc(P*v_size, size);
+  vec4 fg_color = v_fill_rgba;
+  vec4 bg_color = v_stroke_rgba;
+
+  gl_FragColor = outline(distance, linewidth, antialias, fg_color, bg_color);
 }
 
-void main() {
-  float stroke = v_stroke_width;
-  float radius = v_radius;
-  float alpha = circle(gl_PointCoord.xy, .5);
-  vec4 o = v_stroke_rgba * alpha;
-  alpha = circle(gl_PointCoord.xy, (radius-stroke)/radius * 0.5);
-  vec4 i = v_fill_rgba * alpha;
-  gl_FragColor = mix(o,i,alpha);
+//float circle(vec2 st, float radius) {
+//  float dist = distance(st, vec2(0.50, 0.50));
+//  float delta = fwidth(dist);
+//  float alpha = smoothstep(radius-delta, radius+delta, dist);
+//  return 1.0 - alpha;
+//}
+
+//void main() {
+//  float stroke = v_stroke_width;
+//  float radius = v_radius;
+//  float alpha = circle(gl_PointCoord.xy, .5);
+//  vec4 o = v_stroke_rgba * alpha;
+//  alpha = circle(gl_PointCoord.xy, (radius-stroke)/radius * 0.5);
+//  vec4 i = v_fill_rgba * alpha;
+//  gl_FragColor = mix(o,i,alpha);
 }
 `;
 
