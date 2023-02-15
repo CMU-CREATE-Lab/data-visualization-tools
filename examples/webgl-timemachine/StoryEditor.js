@@ -509,6 +509,8 @@ var StoryEditor = function (timelapse, settings) {
     });
     $edit_theme.find(".story-editor-add-button").on("click", function () {
       setTabUI(edit_theme_accordion.addEmptyTab(), generateEmptyData());
+      syncActiveTab(edit_theme_accordion, $theme, "forward");
+      transition($edit_theme, $theme);
     });
     $edit_theme.find(".story-editor-edit-button").on("click", function () {
       syncActiveTab(edit_theme_accordion, $theme, "forward");
@@ -551,6 +553,8 @@ var StoryEditor = function (timelapse, settings) {
     });
     $edit_story.find(".story-editor-add-button").on("click", function () {
       setTabUI(edit_story_accordion.addEmptyTab(), generateEmptyData());
+      syncActiveTab(edit_story_accordion, $story, "forward");
+      transition($edit_story, $story);
     });
     $edit_story.find(".story-editor-edit-button").on("click", function () {
       syncActiveTab(edit_story_accordion, $story, "forward");
@@ -575,6 +579,8 @@ var StoryEditor = function (timelapse, settings) {
     });
     $edit_waypoint.find(".story-editor-add-button").on("click", function () {
       setTabUI(edit_waypoint_accordion.addEmptyTab(), generateEmptyData());
+      syncActiveTab(edit_waypoint_accordion, $waypoint, "forward");
+      transition($edit_waypoint, $waypoint);
     });
     $edit_waypoint.find(".story-editor-edit-button").on("click", function () {
       syncActiveTab(edit_waypoint_accordion, $waypoint, "forward");
@@ -832,7 +838,7 @@ var StoryEditor = function (timelapse, settings) {
     accordion.removeAllTabs();
     data = safeGet(data, []);
     if (data.length == 0) {
-      setTabUI(accordion.addEmptyTab(), generateEmptyData());
+      //setTabUI(accordion.addEmptyTab(), generateEmptyData());
     } else {
       for (var i = 0; i < data.length; i++) {
         setTabUI(accordion.addEmptyTab(), data[i]);
