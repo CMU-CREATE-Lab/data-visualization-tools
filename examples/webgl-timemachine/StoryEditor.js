@@ -393,6 +393,8 @@ var StoryEditor = function (timelapse, settings) {
           desired_sheet_name: $create_file_name_textbox.val(),
           success: function () {
             enableUI();
+            setAccordionUI(edit_theme_accordion, {});
+
             transition($load, $edit_theme);
             $create_to_google_message.text("");
             if (enable_testing) testCreateStory(); // for testing the function of creating a story
