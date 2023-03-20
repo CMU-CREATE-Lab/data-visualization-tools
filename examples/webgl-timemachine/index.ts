@@ -591,6 +591,7 @@ if (extraContributors) {
 var extraContributorsLogoPath = parseConfigOption({optionName: "extraContributorsLogoPath", optionDefaultValue: "", exposeOptionToUrlHash: false});
 var extraContributorTakesPrecedence = parseConfigOption({optionName: "extraContributorTakesPrecedence", optionDefaultValue: false, exposeOptionToUrlHash: false});
 var showCredits = parseConfigOption({optionName: "showCredits", optionDefaultValue: true, exposeOptionToUrlHash: false});
+var creditsPosition = parseConfigOption({optionName: "creditsPosition", optionDefaultValue: "bottomRight", exposeOptionToUrlHash: false});
 var showShareButton = parseConfigOption({optionName: "showShareButton", optionDefaultValue: true, exposeOptionToUrlHash: true});
 var showSettingsButton = isMobileDevice ? false : parseConfigOption({optionName: "showSettingsButton", optionDefaultValue: true, exposeOptionToUrlHash: false});
 var showZoomControls = parseConfigOption({optionName: "showZoomControls", optionDefaultValue: true, exposeOptionToUrlHash: false});
@@ -2464,6 +2465,11 @@ async function setupUIAndOldLayers() {
 
   if (!showCredits) {
     $("#logosContainer").remove();
+  } else {
+    // Default is bottomRight
+    if (creditsPosition == "topLeft") {
+      $("#logosContainer").addClass("topLeft");
+    }
   }
 
   if (disableUI) {

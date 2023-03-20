@@ -121,6 +121,9 @@ html, body {
   max-width: 150px;
   margin-top: 14px;
 }
+.heading #contributorsLogo {
+  margin-top: 0px;
+}
 #mapboxLogoContainer {
   display: none;
 }
@@ -615,22 +618,6 @@ html, body {
 
 .scaleBarContainer.layerGraphs.minimalUIMode {
   bottom: 85px !important;
-}
-
-#logosContainer.hyperwall {
-  bottom: 110px;
-}
-
-#logosContainer.layerGraphs {
-  bottom: 175px !important;
-}
-
-#logosContainer.hyperwall.layerGraphs {
-  bottom: 200px !important;
-}
-
-#logosContainer.noTimeline, #logosContainer.noTimelineForced, #logosContainer.minimalUIMode {
-  bottom: 20px !important;
 }
 
 #letterbox-bottom {
@@ -2034,6 +2021,29 @@ a:focus { outline:0; }
   pointer-events: none;
 }
 
+#logosContainer.topLeft {
+  top: 20px;
+  left: 20px;
+  right: initial;
+  bottom: initial;
+}
+
+#logosContainer.hyperwall {
+  bottom: 110px;
+}
+
+#logosContainer.hyperwall.layerGraphs {
+  bottom: 200px !important;
+}
+
+#logosContainer.noTimeline, #logosContainer.noTimelineForced, #logosContainer.minimalUIMode {
+  bottom: 20px !important;
+}
+
+.logosContainer-touchFriendly {
+  bottom: 94px !important;
+}
+
 #layers-legend.noTimeline, #layers-legend.noTimelineForced {
   -webkit-transition: bottom 0.40s;
   -ms-transition: bottom 0.40s;
@@ -2300,10 +2310,6 @@ a:focus { outline:0; }
 
 .current-location-text-container-touchFriendly, .annotations-resume-exit-container-touchFriendly {
   bottom: 90px !important;
-}
-
-.logosContainer-touchFriendly {
-  bottom: 94px !important;
 }
 
 #menu-icon {
