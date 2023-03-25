@@ -522,18 +522,18 @@ input[readonly].custom-textbox {
 }
 
 .custom-dialog .ui-dialog-buttonpane .ui-button.ui-action-button {
-  background-color: #dc3545;
-  border: 1px solid #dc3545;
+  background-color: #5aa3af;
+  border: 1px solid #5aa3af;
 }
 
 .custom-dialog .ui-dialog-buttonpane .ui-button.ui-action-button:not(:disabled):hover {
-  background-color: #a71120;
-  border: 1px solid #a71120;
+  background-color: #407983;
+  border: 1px solid #407983;
 }
 
 .custom-dialog .ui-dialog-buttonpane .ui-button.ui-action-button:not(:disabled):active {
-  background-color: #a71120;
-  border: 1px solid #a71120;
+  background-color: #407983;
+  border: 1px solid #407983;
 }
 
 .custom-dialog .ui-dialog-content .ui-icon-alert {

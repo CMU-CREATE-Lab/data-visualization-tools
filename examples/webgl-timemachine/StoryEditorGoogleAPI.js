@@ -14,98 +14,218 @@
     // Authorization scopes required by the API; multiple scopes can be included, separated by spaces.
     var SCOPES = "https://www.googleapis.com/auth/drive.file";
 
-    var tmpListeners = [];
+    var googleSignInStateChangeListeners = [];
     var on_ready = settings["on_ready"];
+    var tokenClient;
+    var gUser = {};
 
-    /**
-     *  Initializes the API client library and sets up sign-in state
-     *  listeners.
-     */
-    function initClient() {
-      gapi.client.init({
-        clientId: CLIENT_ID,
-        discoveryDocs: DISCOVERY_DOCS,
-        scope: SCOPES
-      }).then(function () {
-        for (var i = 0; i < tmpListeners.length; i++) {
-          gapi.auth2.getAuthInstance().isSignedIn.listen(tmpListeners[i]);
-        }
-        tmpListeners = [];
-        on_ready(gapi.auth2.getAuthInstance().isSignedIn.get());
+
+    async function initializeGapiClient() {
+      await gapi.client.init({
+          discoveryDocs: DISCOVERY_DOCS
       });
+      initializeGoogleAccounts();
     }
+
+
+    async function initializeGoogleAccounts() {
+      var gUserStr = window.localStorage.getItem("et-story-editor-creds");
+      if (gUserStr) {
+        gUser = JSON.parse(gUserStr);
+      }
+      await google.accounts.id.initialize({
+        client_id: CLIENT_ID,
+        scope: SCOPES,
+        auto_select: gUser.hasOwnProperty('email') ? true : false,
+        cancel_on_tap_outside: false,
+        callback: function(response) {
+          if (response && response.credential) {
+            const rawdata = jwt_decode(response.credential);
+            gUser.email = rawdata.email;
+            // The intent was to also save the current access_token but apparently the toke is no longer
+            // valid when google.accounts.id.initialize is invoked again (i.e. on a new page load)
+            window.localStorage.setItem("et-story-editor-creds", JSON.stringify({"email" : gUser.email}));
+          }
+        }
+      });
+      initializeGapiAuthorization();
+    }
+
+
+    function initializeGapiAuthorization() {
+      tokenClient = google.accounts.oauth2.initTokenClient({
+          client_id: CLIENT_ID,
+          scope: SCOPES,
+          error_callback: '', // Defined at request time in handleAuthenticate
+          callback: '', // Defined at request time in handleAuthenticate
+      });
+      on_ready(isAuthenticatedWithGoogle());
+    }
+
 
     /**
      *  Load the auth2 library and API client library.
      */
     function handleGoogleAPILoad() {
-      gapi.load('client:auth2', initClient);
+      //gapi.load('client:auth2', initClient);
+      gapi.load('client', initializeGapiClient);
     }
 
+
+    var isAuthorizedWithGoogle = function() {
+      return gUser.hasOwnProperty('access_token_expiration') && gUser.access_token_expiration > Math.floor(Date.now() / 1000);
+    };
+    this.isAuthorizedWithGoogle = isAuthorizedWithGoogle;
+
+
     var isAuthenticatedWithGoogle = function () {
-      var authInstance = gapi.auth2.getAuthInstance();
-      var isAuthenticated = false;
-      if (authInstance) {
-        isAuthenticated = authInstance.isSignedIn.get();
-      }
-      return isAuthenticated;
+      return gUser.hasOwnProperty('email');
     };
     this.isAuthenticatedWithGoogle = isAuthenticatedWithGoogle
 
-    var addGoogleSignedInStateChangeListener = function (listener) {
-      if (typeof (gapi) !== "undefined" && gapi.auth2 && gapi.auth2.getAuthInstance()) {
-        gapi.auth2.getAuthInstance().isSignedIn.listen(listener);
-      } else {
-        tmpListeners.push(listener);
-      }
-    };
-    this.addGoogleSignedInStateChangeListener = addGoogleSignedInStateChangeListener;
 
-    /**
-     *  Sign in the user upon button click.
-     */
-    var handleAuthClick = function (event) {
-      return gapi.auth2.getAuthInstance().signIn({
-        prompt: "select_account"
-      }).then(function (response) {
-        return {
-          userId: response.getId()
-        };
-      }).catch(function (errorResponse) {
-        throw {
-          status: "error",
-          message: errorResponse
-        };
+    var addGoogleSignInStateChangeListener = function (listener) {
+      googleSignInStateChangeListeners.push(listener);
+    };
+    this.addGoogleSignInStateChangeListener = addGoogleSignInStateChangeListener;
+
+
+    var logUserIn = function() {
+      return new Promise((resolve, reject) => {
+        function _handle_prompt_events(event) {
+          if (event.isNotDisplayed()) {
+            // There are other reasons for this not being displayed.
+            if (event.getNotDisplayedReason() === "suppressed_by_user") {
+              // User had previously rejected one-tap pop-up and GIS is in its exponential cooldown phase...
+              // The user would initially be locked out for 2 hours and if it is done several times, the user
+              // could be locked out for 4+ weeks. Insane! So, we reset the relevant cookie and prompt again, because
+              // more likely than not, the user accidently/had reason to hit cancel but would still like to use the tool.
+              document.cookie =  "g_state=;path=/;expires=Thu, 01 Jan 1970 00:00:01 GMT";
+              google.accounts.id.prompt(_handle_prompt_events);
+            } else {
+              reject(event);
+            }
+          } else if (event.isSkippedMoment()) {
+            // Triggered when user does not accept the one-tap pop-up.
+            reject(event);
+          } else if (event.getDismissedReason() === "credential_returned") {
+            for (var i = 0; i < googleSignInStateChangeListeners.length; i++) {
+              googleSignInStateChangeListeners[i](true);
+            }
+            resolve(event);
+          }
+        }
+        // Google's one-tap login pop-up
+        google.accounts.id.prompt(_handle_prompt_events);
+     });
+    };
+    this.logUserIn = logUserIn;
+
+
+    var handleAuthorizeAndAuthenticate = function() {
+      return new Promise((resolve, reject) => {
+        try {
+          // Reject this promise in the error callback for requestAccessToken() if it fails for some reason
+          tokenClient.error_callback = async (resp) => {
+            reject(resp);
+          }
+
+          // Settle this promise in the response callback for requestAccessToken()
+          tokenClient.callback = async (resp) => {
+            if (resp.error !== undefined) {
+              reject(resp);
+            }
+
+            // The user chose an account by this point, now we need to log them in.
+            if (Object.keys(gUser).length === 0) {
+              try {
+                await logUserIn();
+              } catch(e) {
+                // Technically an e.isSkippedMoment() == 'user_cancel' is returned but
+                // StoryEditor.js is already checking for 'popup_closed' error type for
+                // Google's authorization step.
+                reject({"type": "popup_closed"});
+                return;
+              }
+            }
+
+            // GIS has automatically updated gapi.client with the newly issued access token.
+            var tokenInfo = gapi.client.getToken();
+
+            // First time the user has retrieved a token for this session.
+            if (!gUser.hasOwnProperty("access_token")) {
+              for (var i = 0; i < googleSignInStateChangeListeners.length; i++) {
+                googleSignInStateChangeListeners[i](true);
+              }
+            }
+
+            gUser.access_token = tokenInfo.access_token;
+            gUser.access_token_expiration = Math.floor(Date.now() / 1000) + tokenInfo.expires_in;
+            resolve(resp);
+
+            //return {token : gUser.access_token};
+          };
+          if (gUser.hasOwnProperty('email')) {
+            tokenClient.requestAccessToken({ prompt: '', hint: gUser.email});
+          } else {
+            tokenClient.requestAccessToken({ prompt: 'select_account' });
+          }
+        } catch (err) {
+          reject(err);
+        }
       });
     };
-    this.handleAuthClick = handleAuthClick;
+    this.handleAuthorizeAndAuthenticate = handleAuthorizeAndAuthenticate;
 
-    /**
-     *  Sign out the user upon button click.
-     */
-    var handleSignoutClick = function () {
-      gapi.auth2.getAuthInstance().signOut();
+
+    var handleSignoutClick = function() {
+      const token = gapi.client.getToken();
+      if (token !== null) {
+        // This makes you need to reapprove the app? I thought that's what
+        // calling google.accounts.id.revoke does...
+        //google.accounts.oauth2.revoke(token.access_token);
+        gapi.client.setToken('');
+      }
+      gUser = {};
+      window.localStorage.setItem("et-story-editor-creds", JSON.stringify(gUser));
+      for (var i = 0; i < googleSignInStateChangeListeners.length; i++) {
+        googleSignInStateChangeListeners[i](false);
+      }
+      initializeGoogleAccounts();
     };
     this.handleSignoutClick = handleSignoutClick;
+
 
     /**
      * List all the spreadsheets from Drive of an authenticated user
      */
-    var listSpreadsheets = function () {
+    var listSpreadsheets = async function () {
+
+      if (gUser.access_token_expiration < Math.floor(Date.now() / 1000)) {
+        await handleAuthenticate();
+      }
+
       return gapi.client.drive.files.list({
         'pageSize': 1000,
         'fields': "nextPageToken, files(id, name)",
         'q': "(mimeType='application/vnd.google-apps.spreadsheet') and trashed=false",
+        'Authorization': 'Bearer ' + gUser.access_token
       }).then(function (response) {
         return response.result.files;
-      });
+      })
     };
     this.listSpreadsheets = listSpreadsheets;
+
 
     /**
      * Make a file publicly viewable on Drive
      */
-    var makeFilePublicViewable = function (fileId) {
+    var makeFilePublicViewable = async function (fileId) {
+
+      if (gUser.access_token_expiration < Math.floor(Date.now() / 1000)) {
+        await handleAuthenticate();
+      }
+
       var filePermissionBody = {
         "role": "reader",
         "type": "anyone",
@@ -125,6 +245,7 @@
     };
     this.makeFilePublicViewable = makeFilePublicViewable;
 
+
     /**
      * Create a new empty spreadsheet and save it to the currently authenticated user
      *
@@ -136,7 +257,12 @@
      * It is possible that if we instead went the route of the Drive API we would be unable to set
      * such an id.
      */
-    var createEmptySpreadsheet = function (spreadsheetTitle) {
+    var createEmptySpreadsheet = async function (spreadsheetTitle) {
+
+      if (gUser.access_token_expiration < Math.floor(Date.now() / 1000)) {
+        await handleAuthenticate();
+      }
+
       spreadsheetTitle = spreadsheetTitle ? spreadsheetTitle : "EarthTime Stories - " + (new Date()).getTime();
       var spreadsheetBody = {
         properties: {
@@ -198,10 +324,16 @@
     };
     this.createEmptySpreadsheet = createEmptySpreadsheet;
 
+
     /**
      * Create a spreadsheet and write content to it
      */
-    var createNewSpreadsheetWithContent = function (spreadsheetTitle, content) {
+    var createNewSpreadsheetWithContent = async function (spreadsheetTitle, content) {
+
+      if (gUser.access_token_expiration < Math.floor(Date.now() / 1000)) {
+        await handleAuthenticate();
+      }
+
       return createEmptySpreadsheet(spreadsheetTitle).then(function (response) {
         response.content = content;
         return response;
@@ -220,11 +352,17 @@
     };
     this.createNewSpreadsheetWithContent = createNewSpreadsheetWithContent;
 
+
     /**
      * Change the formatting of the cells in a spreadsheet
      * In this case, make the top row fixed and its content bold and all cells to be left aligned and content clipped
      */
-    var formatCellsInSpreadsheet = function (spreadsheetId) {
+    var formatCellsInSpreadsheet = async function (spreadsheetId) {
+
+      if (gUser.access_token_expiration < Math.floor(Date.now() / 1000)) {
+        await handleAuthenticate();
+      }
+
       var updateBody = {
         "requests": [{
             "repeatCell": {
@@ -281,12 +419,20 @@
     };
     this.formatCellsInSpreadsheet = formatCellsInSpreadsheet;
 
+
     /**
      * Read the contents of a specific spreadsheet based on its ID
      * UNUSED: It is left here as an API call example but in the context
      * of the story editor, this specific function is not used and potentially bitrotted.
      */
-    var readSpreadsheet = function (spreadsheetId) {
+    var readSpreadsheet = async function (spreadsheetId) {
+
+      if (gUser.access_token_expiration < Math.floor(Date.now() / 1000)) {
+        await handleAuthenticate();
+      }
+
+      // Note: To edit a specific tab of the sheet, specify request like so. Single quotes required around the name of the Sheet tab.
+      // range: "'sheet1'!A:Z"
       return gapi.client.sheets.spreadsheets.values.get({
         spreadsheetId: spreadsheetId,
         range: 'A:Z',
@@ -295,7 +441,7 @@
         if (range.values.length > 0) {
           for (i = 0; i < range.values.length; i++) {
             var row = range.values[i];
-            // Print columns A through D, which correspond to indices 0 and 3.
+            // Print columns A through D, which correspond to indices 0 through 3.
             console.log(row[0] + ' | ' + row[1] + ' | ' + row[2] + ' | ' + row[3]);
           }
         } else {
@@ -307,11 +453,17 @@
     };
     this.readSpreadsheet = readSpreadsheet;
 
+
     /**
      * Update the contents of spreadsheet by first clearing out all the values and then writing new ones
      * If a new title is provided, update that as well.
      */
-    var updateSpreadsheet = function (spreadsheetId, content, newTitle) {
+    var updateSpreadsheet = async function (spreadsheetId, content, newTitle) {
+
+      if (gUser.access_token_expiration < Math.floor(Date.now() / 1000)) {
+        await handleAuthenticate();
+      }
+
       return clearSpreadsheet(spreadsheetId).then(function (response) {
         response.content = content;
         response.newTitle = newTitle;
@@ -341,18 +493,27 @@
     };
     this.updateSpreadsheet = updateSpreadsheet;
 
+
     /**
      * Write out content to a spreadsheet
      */
-    var writeContentToSpreadsheet = function (spreadsheetId, content) {
+    var writeContentToSpreadsheet = async function (spreadsheetId, content) {
+
+      if (gUser.access_token_expiration < Math.floor(Date.now() / 1000)) {
+        await handleAuthenticate();
+      }
+
       var updateBody = {
         "majorDimension": "ROWS",
         "values": content
       };
+
+      // Note: To edit a specific tab of the sheet, specify request like so. Single quotes required around the name of the Sheet tab.
+      // range: "'sheet1'!A:Z"
       return gapi.client.sheets.spreadsheets.values.update({
         spreadsheetId: spreadsheetId,
         valueInputOption: 'USER_ENTERED',
-        range: "A:Z"
+        range: 'A:Z'
       }, updateBody).then(function (response) {
         var result = {
           status: "success",
@@ -365,10 +526,18 @@
     };
     this.writeContentToSpreadsheet = writeContentToSpreadsheet;
 
+
     /**
      * Clear out the contents of a spreadsheet
      */
-    var clearSpreadsheet = function (spreadsheetId) {
+    var clearSpreadsheet = async function (spreadsheetId) {
+
+      if (gUser.access_token_expiration < Math.floor(Date.now() / 1000)) {
+        await handleAuthenticate();
+      }
+
+      // Note: To edit a specific tab of the sheet, specify request like so. Single quotes required around the name of the Sheet tab.
+      // range: "'sheet1'!A:Z"
       return gapi.client.sheets.spreadsheets.values.clear({
         spreadsheetId: spreadsheetId,
         range: 'A:Z',
@@ -384,10 +553,16 @@
     };
     this.clearSpreadsheet = clearSpreadsheet;
 
+
     /**
      * Change the title of a spreadsheet
      */
-    var updateSpreadsheetTitle = function (spreadsheetId, spreadsheetTitle) {
+    var updateSpreadsheetTitle = async function (spreadsheetId, spreadsheetTitle) {
+
+      if (gUser.access_token_expiration < Math.floor(Date.now() / 1000)) {
+        await handleAuthenticate();
+      }
+
       var updateBody = {
         "requests": [{
           "updateSpreadsheetProperties": {
@@ -412,11 +587,17 @@
     };
     this.updateSpreadsheetTitle = updateSpreadsheetTitle;
 
+
     /**
      * Get the metadata for a spreadsheet.
      * Includes information like spreadsheet title, as well as individual sheet tab names, etc.
      */
-    var getSpreadsheetInfo = function(spreadsheetId) {
+    var getSpreadsheetInfo = async function(spreadsheetId) {
+
+      if (gUser.access_token_expiration < Math.floor(Date.now() / 1000)) {
+        await handleAuthenticate();
+      }
+
       return gapi.client.sheets.spreadsheets.get({
         spreadsheetId: spreadsheetId,
       }).then(function (response) {
@@ -434,10 +615,16 @@
     }
     this.getSpreadsheetInfo = getSpreadsheetInfo;
 
+
     /**
      * Get the title of a Google Drive file
      */
-    var getFileName = function(fileId) {
+    var getFileName = async function(fileId) {
+
+      if (gUser.access_token_expiration < Math.floor(Date.now() / 1000)) {
+        await handleAuthenticate();
+      }
+
       return gapi.client.drive.files.get({
         fileId: fileId,
       }).then(function (response) {
@@ -457,13 +644,17 @@
 
 
     // Constructor
+
+    // Load Google API script
     var script = document.createElement("script");
     script.type = "text/javascript";
     script.src = "https://apis.google.com/js/api.js";
     script.onload = function () {
-      this.onload = function () {};
-      handleGoogleAPILoad();;
+      handleGoogleAPILoad();
     };
+
+    // Relevant for IE and pre-Chromium Opera. Both are defunct now.
+    // May be required for mobile Safari/Android?
     script.onreadystatechange = function () {
       if (this.readyState === 'complete') {
         this.onload();
@@ -472,6 +663,23 @@
     script.defer = true;
     script.async = true;
     document.head.appendChild(script);
+
+    // Load Google Identity Services (required as of 3/2023)
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src = "https://accounts.google.com/gsi/client";
+    script.defer = true;
+    script.async = true;
+    document.head.appendChild(script);
+
+    // Extacting user info from GIS requires parsing JWT responses
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src = "https://cdn.jsdelivr.net/npm/jwt-decode@3/build/jwt-decode.min.js";
+    script.defer = true;
+    script.async = true;
+    document.head.appendChild(script);
+
   };
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////

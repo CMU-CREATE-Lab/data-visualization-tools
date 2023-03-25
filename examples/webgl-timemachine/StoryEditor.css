@@ -45,3 +45,21 @@
   justify-content: center;
   align-items: center;
 }
+
+.small-italics {
+  font-size: 11px;
+  font-style: italic;
+}
+
+.story-editor-save-to-google-new-checkbox-label {
+  font-size: 12px !important;
+}
+
+.story-editor-save-to-google-new-checkbox {
+  width: 10px;
+  height: 10px;
+}
+
+.hide-dialog-close .ui-dialog-titlebar-close {
+  display: none !important;
+}

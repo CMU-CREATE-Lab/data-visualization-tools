@@ -55,7 +55,7 @@
         <textarea class="custom-textbox add-bottom-margin story-editor-description-textbox" maxlength="300" placeholder="story description (max 300 characters)"></textarea>
         <p><span class="highlight-text">3.</span>&nbsp;&nbsp; Enter the <span class="highlight-text">story authors</span>:</p>
         <input type="text" class="custom-textbox add-bottom-margin story-editor-author-textbox" maxlength="300" placeholder="authors (max 300 characters)">
-        <p><span class="highlight-text">4.</span>&nbsp;&nbsp; Enter the <span class="highlight-text">data sources</span>:</p>
+        <p><span class="highlight-text">4.</span>&nbsp;&nbsp; Enter the <span class="highlight-text">data sources</span><span class="small-italics"> (optional)</span>:</p>
         <input type="text" class="custom-textbox add-bottom-margin story-editor-data-source-textbox" maxlength="300" placeholder="data sources (max 300 characters)">
         <p><span class="highlight-text">5.</span>&nbsp;&nbsp; Set a <span class="highlight-text">view</span> for the story introduction:</p>
         <button class="custom-button full-width-button custom-button-primary story-editor-set-view-button">Set View</button>
@@ -115,14 +115,14 @@
         <p>Save the story to Google Drive.</p>
         <div class="story-editor-save-file-name">
           <p><span class="highlight-text">1.</span>&nbsp;&nbsp; Enter the file name:</p>
-          <input type="text" class="custom-textbox add-bottom-margin story-editor-save-file-name-textbox" maxlength="100" placeholder="(max 100 characters)">
+          <input type="text" class="custom-textbox story-editor-save-file-name-textbox" maxlength="100" placeholder="(max 100 characters)">
+          <div class="add-bottom-margin add-top-margin-small">
+            <label class="custom-checkbox story-editor-save-to-google-new-checkbox-label"><input type="checkbox" name="" value="" class="story-editor-save-to-google-new-checkbox" />Save to a new Google Sheet?</label>
+          </div>
         </div>
         <div class="story-editor-save-to-google">
           <p><span class="highlight-text">2.</span>&nbsp;&nbsp; Save the story as a publicly viewable Google Sheet.</p>
           <button class="custom-button full-width-button custom-button-primary add-bottom-margin-small story-editor-save-to-google-button">Save the Story to Google Drive</button>
-          <div>
-            <label class="custom-checkbox"><input type="checkbox" name="" value="" class="story-editor-save-to-google-replace-checkbox" checked />Replace the original file if possible</label>
-          </div>
           <div class="custom-text-primary add-top-margin story-editor-save-to-google-message"></div>
         </div>
       </div>
@@ -154,7 +154,6 @@
         <div id="create-collection-container" class="hide">
           <p><span class="highlight-text">2.</span>&nbsp;&nbsp; Enter the name of the collection to create and save on Google Drive.</p>
           <input type="text" class="custom-textbox add-bottom-margin story-editor-create-file-name-textbox" maxlength="100" placeholder="(max 100 characters)">
-          <p class="custom-text-primary story-editor-create-to-google-message"></p>
         </div>
         <div id="load-collection-container" class="hide">
           <p><span class="highlight-text">2.</span>&nbsp;&nbsp; Choose whether to load from Google Drive or a direct link.</p>
@@ -169,10 +168,6 @@
             </div>
           </div>
           <div class="hide add-bottom-margin load-from-google-drive">
-            <div class="hide google-authenticate-load-prompt">
-              <p>You need to first authenticate with Google to see your stories.</p>
-              <button class="custom-button custom-button-primary full-width-button google-authenticate-button">Authenticate Now</button>
-            </div>
             <div class="custom-text-primary load-from-google-drive-message"></div>
             <div class="hide stories-on-drive-container add-top-margin">
               <p><span class="highlight-text">3.</span>&nbsp;&nbsp; Choose a file stored on your Google Drive from the dropdown menu below.</p>
@@ -187,6 +182,7 @@
             <input type="text" class="custom-textbox sheet-url-textbox" placeholder="https//:">
           </div>
         </div>
+        <p class="custom-text-primary story-editor-create-to-google-message"></p>
       </div>
       <div class="custom-dialog hide method-confirm-dialog" title="Create or Load?">
         <p><span class="ui-icon ui-icon-alert"></span>Please choose whether to create or load a collection of stories.</p>
@@ -202,6 +198,10 @@
       </div>
       <div class="custom-dialog hide format-confirm-dialog" title="Invalid file format!">
         <p><span class="ui-icon ui-icon-alert"></span>The file format is invalid. Please load a spreadsheet that is created by the editor.</p>
+      </div>
+      <div class="custom-dialog hide sheet-clone-dialog" title="Cloning spreadsheet">
+        <p><span class="ui-icon ui-icon-alert"></span>The waypoint spreadsheet you loaded was not created by you through the Story Editor. The sheet will be cloned and saved now to your Google Drive. <br><br>Please enter a name for the sheet. If you leave this blank, a placeholder file name will be used.</p>
+        <input type="text" class="custom-textbox add-bottom-margin story-editor-clone-file-name-textbox" maxlength="100" placeholder="File name (max 100 characters)">
       </div>
       <div class="wizard-body-bottom">
         <p>Click the "Next" button to add or edit themes in the collection.</p>
@@ -355,6 +355,6 @@
 <div class="custom-dialog hide save-success-dialog" title="Saved successfully!">
   <p><span class="ui-icon ui-icon-check"></span>The stories were saved successfully.</p>
 </div>
-<div class="custom-dialog hide save-error-dialog" title="Saved successfully!">
-  <p><span class="ui-icon ui-icon-alert"></span>The stories were saved successfully.</p>
+<div class="custom-dialog hide save-error-dialog" title="Error saving!">
+  <p><span class="ui-icon ui-icon-alert"></span>There was an error saving. Please make sure you are logged in and try again.</p>
 </div>

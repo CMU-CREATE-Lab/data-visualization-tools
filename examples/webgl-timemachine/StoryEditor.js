@@ -10,7 +10,7 @@
 // - time machine [https://github.com/CMU-CREATE-Lab/timemachine-viewer]
 // - the wizard template [wizard.css]
 // TODO: add a feature for importing the view from other waypoints (or shared view link)
-// TODO: add the the function to move a waypoint to another story
+// TODO: add the ability to move a waypoint to another story
 // TODO: add buttons for moving tabs up and down in the accordion
 // TODO: hide and show stories (publish and unpublish)
 
@@ -33,7 +33,7 @@ var StoryEditor = function (timelapse, settings) {
   var $this;
   var $intro, $start, $logout, $login_message;
   var $create_file_name_textbox;
-  var $save, $save_to_google_button, $save_file_name_textbox, $save_to_google_message, $save_to_google_replace_checkbox;
+  var $save, $save_to_google_button, $save_file_name_textbox, $save_to_google_message, $save_to_google_new_checkbox;
   var $current_thumbnail_preview;
   var set_view_tool;
   var enable_testing = false;
@@ -137,20 +137,19 @@ var StoryEditor = function (timelapse, settings) {
     $logout = $intro.find(".story-editor-logout-button");
     $start = $intro.find(".story-editor-start-button");
     $start.on("click", function () {
-      if (GOOGLE_API.isAuthenticatedWithGoogle()) {
+      if (GOOGLE_API.isAuthorizedWithGoogle()) {
         $login_message.text("");
         $start.text("Begin");
         transition($intro, $load);
       } else {
-        var promise = GOOGLE_API.handleAuthClick();
-        promise.then(function (response) {
-          // A user id is returned, ignore for now
+        var promise = GOOGLE_API.handleAuthorizeAndAuthenticate();
+        promise.then(function () {
           $login_message.text("");
           $start.text("Begin");
           transition($intro, $load);
         }).catch(function (response) {
-          var msg = "An error is encountered when logging in to the Google Drive.";
-          if (response["message"]["error"] == "popup_closed_by_user") {
+          var msg = "An error was encountered when logging in to Google Drive.";
+          if (response["type"] == "popup_closed") {
             msg += " Please log in to proceed."
           } else {
             msg += " Please try again later."
@@ -162,6 +161,7 @@ var StoryEditor = function (timelapse, settings) {
     // IMPORTANT: there is no way to test logout on localhost
     $logout.on("click", function () {
       GOOGLE_API.handleSignoutClick();
+      want_to_refresh_story_from_drive = true;
     });
   }
 
@@ -309,6 +309,28 @@ var StoryEditor = function (timelapse, settings) {
     var $format_confirm_dialog = createConfirmDialog({
       selector: "#" + container_id + " .story-editor-load .format-confirm-dialog"
     });
+    var $sheet_clone_dialog = createConfirmDialog({
+      selector: "#" + container_id + " .story-editor-load .sheet-clone-dialog",
+      closeOnlyByConfirmation: true,
+      action_callback: function () {
+        var $clone_file_name_textbox = $(".sheet-clone-dialog .story-editor-clone-file-name-textbox");
+        disableUI();
+        $create_to_google_message.text("Cloning sheet to Google Drive...");
+        saveStoryCollection({
+          desired_sheet_name: $clone_file_name_textbox.val(),
+          from: "theme",
+          success: function () {
+            enableUI();
+            $create_to_google_message.text("");
+            transition($load, $edit_theme);
+          },
+          error: function () {
+            enableUI();
+            $create_to_google_message.text("An error was encountered when cloning the sheet to Google Drive. Please try again later.");
+          }
+        });
+      }
+    });
     var $back = $load.find(".back-button").on("click", function () {
       transition($load, $intro);
     });
@@ -341,21 +363,37 @@ var StoryEditor = function (timelapse, settings) {
         if ($load_from_google_drive_radio.is(":checked")) {
           current_sheet_id = $stories_on_drive_dropdown.data("sheet_id");
           current_sheet_name = $stories_on_drive_dropdown.data("sheet_name");
-          if (typeof current_sheet_id !== "undefined") sheet_url = getSheetUrlById(current_sheet_id);
+          if (typeof(current_sheet_id) !== "undefined") sheet_url = getSheetUrlById(current_sheet_id);
         } else {
           var unsafe_sheet_url = $sheet_url_textbox.val();
-          var res = unsafe_sheet_url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
-          if (res != null) sheet_url = unsafe_sheet_url;
-          current_sheet_id = UTIL.googleSheetUrlToDocTab(unsafe_sheet_url).split(".")[0];
-          var promise = GOOGLE_API.getSpreadsheetInfo(current_sheet_id);
-          promise.then(function (response) {
-            current_sheet_name = response.info.properties.title;
-          }).catch(function (errorResponse) {
-            console.error(errorResponse);
-          });
+          var res;
+          // Check if ET link
+          if (unsafe_sheet_url.includes("#waypoints=")) {
+            res = unsafe_sheet_url.match(/#waypoints=([a-zA-Z0-9-_]+.\d+)/);
+            if (res && res.length == 2) {
+              sheet_url = UTIL.docTabToGoogleSheetUrl(res[1]);
+              current_sheet_id = res[1].split(".")[0];
+            }
+          } else {
+            // If not ET link, check if Google link
+            res = unsafe_sheet_url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+            if (res && res.length == 2) {
+              sheet_url = unsafe_sheet_url;
+              current_sheet_id = UTIL.googleSheetUrlToDocTab(unsafe_sheet_url).split(".")[0];
+            }
+          }
+
+          if (typeof(current_sheet_id) !== "undefined") {
+            var promise = GOOGLE_API.getSpreadsheetInfo(current_sheet_id);
+            promise.then(function (response) {
+              current_sheet_name = response.info.properties.title;
+            }).catch(function (errorResponse) {
+              console.error(errorResponse);
+            });
+          }
         }
         // Load data or not
-        if (typeof sheet_url === "undefined") {
+        if (typeof(sheet_url) === "undefined") {
           $url_confirm_dialog.dialog("open");
         } else {
           disableUI();
@@ -369,8 +407,16 @@ var StoryEditor = function (timelapse, settings) {
               },
               success: function (data) {
                 setAccordionUI(edit_theme_accordion, data);
-                transition($load, $edit_theme);
-                if (enable_testing) testEditStory(); // for testing editing stories
+                if (current_sheet_name) {
+                  transition($load, $edit_theme);
+                  if (enable_testing) testEditStory(); // for testing editing stories
+                } else {
+                  // If we got to this point, it means the sheet exists and is readable, but it was not created by the story editor
+                  // under the account of the user in question. There is no good way to confirm existance and permissions from a
+                  // Google Sheet id, so if we reach this point and the sheet name could not be extracted then we will prompt the user
+                  // that a copy of this sheet will be created under their account.
+                  $sheet_clone_dialog.dialog("open");
+                }
               }
             });
           }, function (xhr) {
@@ -388,7 +434,7 @@ var StoryEditor = function (timelapse, settings) {
       } else if ($create_collection_radio.is(":checked")) {
         // This means that we want to create the Google sheet
         disableUI();
-        $create_to_google_message.text("Currently creating story...");
+        $create_to_google_message.text("Creating story...");
         saveStoryCollection({
           desired_sheet_name: $create_file_name_textbox.val(),
           success: function () {
@@ -401,26 +447,12 @@ var StoryEditor = function (timelapse, settings) {
           },
           error: function () {
             enableUI();
-            $create_to_google_message.text("An error is encountered when saving the story to Google Drive. Please try again later.");
+            $create_to_google_message.text("An error was encountered when saving the story to Google Drive. Please try again later.");
           }
         });
       } else {
         $method_confirm_dialog.dialog("open");
       }
-    });
-    $load.find(".google-authenticate-button").on("click", function () {
-      var promise = GOOGLE_API.handleAuthClick();
-      promise.then(function (response) {
-        // A user id is returned, ignore for now
-      }).catch(function (response) {
-        var msg = "An error is encountered when logging in to the Google Drive.";
-        if (response["message"]["error"] == "popup_closed_by_user") {
-          msg += " Please log in to proceed."
-        } else {
-          msg += " Please try again later."
-        }
-        $load_from_google_drive_message.empty().append($("<p>" + msg + "</p>"));
-      });
     });
     $load_from_google_drive_radio.on("click", function () {
       $load_from_direct_link.hide();
@@ -431,9 +463,6 @@ var StoryEditor = function (timelapse, settings) {
         authenticated: function () {
           $google_authenticate_load_prompt.hide();
           $load_from_google_drive_message.empty().append($("<p>Loading stories from Google Drive...</p>"));
-        },
-        not_authenticated: function () {
-          $google_authenticate_load_prompt.show();
         },
         success: function (files) {
           $load_from_google_drive_message.empty();
@@ -605,7 +634,7 @@ var StoryEditor = function (timelapse, settings) {
   function createSaveUI() {
     $save = $this.find(".story-editor-save");
     $save_to_google_button = $save.find(".story-editor-save-to-google-button");
-    $save_to_google_replace_checkbox = $save.find(".story-editor-save-to-google-replace-checkbox");
+    $save_to_google_new_checkbox = $save.find(".story-editor-save-to-google-new-checkbox");
     $save_to_google_message = $save.find(".story-editor-save-to-google-message");
     $save_file_name_textbox = $save.find(".story-editor-save-file-name-textbox");
     var $next_confirm_dialog = createConfirmDialog({
@@ -624,11 +653,12 @@ var StoryEditor = function (timelapse, settings) {
     });
     $save_to_google_button.on("click", function () {
       $save_to_google_button.prop("disabled", true);
-      $save_to_google_message.empty().append($("<p>Currently saving story...</p>"));
+      $save_to_google_message.empty().append($("<p>Saving story...</p>"));
       saveStoryCollection({
-        desired_sheet_id: $save_to_google_replace_checkbox.prop("checked") ? current_sheet_id : undefined,
+        desired_sheet_id: $save_to_google_new_checkbox.prop("checked") ? undefined : current_sheet_id,
         desired_sheet_name: $save_file_name_textbox.val(),
         success: function (story_data) {
+          $save_to_google_new_checkbox.prop("checked", false);
           $save_file_name_textbox.val(current_sheet_name);
           var story_links = getDesktopStoryLinks(current_sheet_id, story_data);
           var link_html = "<a target='_blank' href='" + getShareLink(current_sheet_id) + "'>publicly viewable link</a>";
@@ -655,12 +685,15 @@ var StoryEditor = function (timelapse, settings) {
           }
         },
         error: function () {
-          $save_to_google_message.empty().append($("<p>An error is encountered when saving the story to Google Drive. Please try again later.</p>"));
+          $save_to_google_message.empty().append($("<p>Error encountered when saving the story to Google Drive. Please try again later.</p>"));
           $save_to_google_button.prop("disabled", false);
         }
       });
     });
-    $save_to_google_replace_checkbox.on("change", function () {
+    // Save button is disabled after a successful save.
+    // If the user types a new name or changes the checkbox state
+    // for overwriting/saving as a new file, allow user to save again.
+    $save_to_google_new_checkbox.on("change", function () {
       $save_to_google_button.prop("disabled", false);
     });
     $save_file_name_textbox.on("change", function () {
@@ -752,20 +785,19 @@ var StoryEditor = function (timelapse, settings) {
 
   // For initializing the Google Drive API
   function initGoogleDriveAPI() {
-    GOOGLE_API.addGoogleSignedInStateChangeListener(function (isSignedIn) {
+    GOOGLE_API.addGoogleSignInStateChangeListener(function (isSignedIn) {
       if (isSignedIn) {
         if ($load_from_google_drive_radio.is(":checked")) {
           $load_from_google_drive_radio.trigger("click");
-        } else if ($save_to_google_button.is(":checked")) {
+        }/* else if ($save_to_google_button.is(":checked")) {
           $save_to_google_button.trigger("click");
-        }
+        }*/
         if ($logout.hasClass("force-hide")) {
           $logout.removeClass("force-hide");
           $login_message.text("");
           $start.text("Begin");
         }
       } else {
-        console.log('not logged in...');
         if (!$logout.hasClass("force-hide")) {
           $logout.addClass("force-hide");
           $login_message.text("You have been successfully signed out.");
@@ -786,7 +818,7 @@ var StoryEditor = function (timelapse, settings) {
     $save_to_google_button.prop("disabled", false);
     $save_to_google_message.empty();
     $save_file_name_textbox.val("");
-    $save_to_google_replace_checkbox.prop("checked", true);
+    $save_to_google_new_checkbox.prop("checked", false);
     if ($load_from_google_drive_radio.is(":checked")) {
       want_to_refresh_story_from_drive = true;
       $load_from_google_drive_radio.trigger("click");
@@ -1058,9 +1090,11 @@ var StoryEditor = function (timelapse, settings) {
   function createConfirmDialog(settings) {
     settings = safeGet(settings, {});
     var has_action = (typeof settings["action_callback"] === "function");
+    var has_onclose_action = (typeof settings["onclose_callback"] === "function");
     var action_text = safeGet(settings["action_text"], "Confirm");
     var cancel_text = has_action ? "Cancel" : "Ok";
     cancel_text = safeGet(settings["cancel_text"], cancel_text);
+    var closeOnlyByConfirmation = !!settings["closeOnlyByConfirmation"];
     var buttons = {
       "Cancel": {
         class: "ui-cancel-button",
@@ -1080,6 +1114,10 @@ var StoryEditor = function (timelapse, settings) {
         }
       }
     }
+    var dialog_classes = "custom-dialog";
+    if (closeOnlyByConfirmation) {
+      dialog_classes += " hide-dialog-close";
+    }
     var $dialog = $(settings["selector"]).dialog({
       appendTo: $this,
       autoOpen: false,
@@ -1088,16 +1126,22 @@ var StoryEditor = function (timelapse, settings) {
       draggable: false,
       width: 285,
       modal: true,
+      close: function() {
+        if (has_onclose_action) {
+          settings["onclose_callback"]();
+        }
+      },
       position: {
         my: "center",
         at: "center",
         of: $this
       },
       classes: {
-        "ui-dialog": "custom-dialog"
+        "ui-dialog": dialog_classes
       }, // this is for jquery 1.12 and after
-      dialogClass: "custom-dialog", // this is for before jquery 1.12
-      buttons: buttons
+      dialogClass: dialog_classes, // this is for before jquery 1.12
+      buttons: buttons,
+      closeOnEscape: !closeOnlyByConfirmation,
     });
     return $dialog;
   }
@@ -1372,7 +1416,7 @@ var StoryEditor = function (timelapse, settings) {
   }
 
   // Save the tsv to a Google Sheet
-  function saveDataAsTsv(settings) {
+  async function saveDataAsTsv(settings) {
     settings = safeGet(settings, {});
     var file_name = settings["file_name"];
     var data_array = tsvToSheetsDataArray(dataToTsv(settings["data"]));
@@ -1380,45 +1424,57 @@ var StoryEditor = function (timelapse, settings) {
     var success = settings["success"];
     var error = settings["error"];
     var authenticated = settings["authenticated"];
-    var not_authenticated = settings["not_authenticated"];
+    //var not_authenticated = settings["not_authenticated"];
     // Authentication
-    if (GOOGLE_API.isAuthenticatedWithGoogle()) {
-      if (typeof authenticated === "function") authenticated();
-      var promise;
-      if (typeof sheet_id !== "undefined") {
-        promise = GOOGLE_API.updateSpreadsheet(sheet_id, data_array, file_name);
-      } else {
-        promise = GOOGLE_API.createNewSpreadsheetWithContent(file_name, data_array);
+    if (!GOOGLE_API.isAuthorizedWithGoogle()) {
+      try {
+        await GOOGLE_API.handleAuthorizeAndAuthenticate();
+      } catch (e) {
+        if (typeof error === "function") error(e);
+        return;
       }
-      promise.then(function (response) {
-        if (typeof success === "function") success(response);
-      }).catch(function (response) {
-        if (typeof error === "function") error(response);
-      });
-    } else {
-      if (typeof not_authenticated === "function") not_authenticated();
     }
+
+    if (typeof authenticated === "function") authenticated();
+    var promise;
+    if (typeof sheet_id !== "undefined") {
+      promise = GOOGLE_API.updateSpreadsheet(sheet_id, data_array, file_name);
+    } else {
+      promise = GOOGLE_API.createNewSpreadsheetWithContent(file_name, data_array);
+    }
+    promise.then(function (response) {
+      if (typeof success === "function") success(response);
+    }).catch(function (response) {
+      if (typeof error === "function") error(response);
+    });
+
   }
 
   // Load available stories in the form of spreadsheets from a Google Drive
-  function loadStoryListFromGoogleDrive(settings) {
+  async function loadStoryListFromGoogleDrive(settings) {
     settings = safeGet(settings, {});
     var success = settings["success"];
     var error = settings["error"];
     var authenticated = settings["authenticated"];
-    var not_authenticated = settings["not_authenticated"];
+    //var not_authenticated = settings["not_authenticated"];
     // Authentication
-    if (GOOGLE_API.isAuthenticatedWithGoogle()) {
-      if (typeof authenticated === "function") authenticated();
-      var promise = GOOGLE_API.listSpreadsheets();
-      promise.then(function (files) {
-        if (typeof success === "function") success(files);
-      }).catch(function (errorResponse) {
-        if (typeof error === "function") error(errorResponse);
-      });
-    } else {
-      if (typeof not_authenticated === "function") not_authenticated();
+    if (!GOOGLE_API.isAuthorizedWithGoogle()) {
+      try {
+        await GOOGLE_API.handleAuthorizeAndAuthenticate();
+      } catch (e) {
+        if (typeof error === "function") error(e);
+        return;
+      }
     }
+
+    if (typeof authenticated === "function") authenticated();
+    var promise = GOOGLE_API.listSpreadsheets();
+    promise.then(function (files) {
+      if (typeof success === "function") success(files);
+    }).catch(function (errorResponse) {
+      if (typeof error === "function") error(errorResponse);
+    });
+
   }
 
   // Get google spreadsheet url by id
