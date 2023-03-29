@@ -724,7 +724,8 @@ var StoryEditor = function (timelapse, settings) {
           }
           if (typeof success === "function") success(story_data);
         },
-        error: function () {
+        error: function (error) {
+          console.log(error);
           if (typeof error === "function") error();
         },
       });

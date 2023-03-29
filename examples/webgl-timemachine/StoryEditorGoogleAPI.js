@@ -56,8 +56,8 @@
       tokenClient = google.accounts.oauth2.initTokenClient({
           client_id: CLIENT_ID,
           scope: SCOPES,
-          error_callback: '', // Defined at request time in handleAuthenticate
-          callback: '', // Defined at request time in handleAuthenticate
+          error_callback: '', // Defined at request time in handleAuthorizeAndAuthenticate
+          callback: '', // Defined at request time in handleAuthorizeAndAuthenticate
       });
       on_ready(isAuthenticatedWithGoogle());
     }
@@ -202,7 +202,7 @@
     var listSpreadsheets = async function () {
 
       if (gUser.access_token_expiration < Math.floor(Date.now() / 1000)) {
-        await handleAuthenticate();
+        await handleAuthorizeAndAuthenticate();
       }
 
       return gapi.client.drive.files.list({
@@ -223,7 +223,7 @@
     var makeFilePublicViewable = async function (fileId) {
 
       if (gUser.access_token_expiration < Math.floor(Date.now() / 1000)) {
-        await handleAuthenticate();
+        await handleAuthorizeAndAuthenticate();
       }
 
       var filePermissionBody = {
@@ -260,7 +260,7 @@
     var createEmptySpreadsheet = async function (spreadsheetTitle) {
 
       if (gUser.access_token_expiration < Math.floor(Date.now() / 1000)) {
-        await handleAuthenticate();
+        await handleAuthorizeAndAuthenticate();
       }
 
       spreadsheetTitle = spreadsheetTitle ? spreadsheetTitle : "EarthTime Stories - " + (new Date()).getTime();
@@ -331,7 +331,7 @@
     var createNewSpreadsheetWithContent = async function (spreadsheetTitle, content) {
 
       if (gUser.access_token_expiration < Math.floor(Date.now() / 1000)) {
-        await handleAuthenticate();
+        await handleAuthorizeAndAuthenticate();
       }
 
       return createEmptySpreadsheet(spreadsheetTitle).then(function (response) {
@@ -360,7 +360,7 @@
     var formatCellsInSpreadsheet = async function (spreadsheetId) {
 
       if (gUser.access_token_expiration < Math.floor(Date.now() / 1000)) {
-        await handleAuthenticate();
+        await handleAuthorizeAndAuthenticate();
       }
 
       var updateBody = {
@@ -428,7 +428,7 @@
     var readSpreadsheet = async function (spreadsheetId) {
 
       if (gUser.access_token_expiration < Math.floor(Date.now() / 1000)) {
-        await handleAuthenticate();
+        await handleAuthorizeAndAuthenticate();
       }
 
       // Note: To edit a specific tab of the sheet, specify request like so. Single quotes required around the name of the Sheet tab.
@@ -461,7 +461,7 @@
     var updateSpreadsheet = async function (spreadsheetId, content, newTitle) {
 
       if (gUser.access_token_expiration < Math.floor(Date.now() / 1000)) {
-        await handleAuthenticate();
+        await handleAuthorizeAndAuthenticate();
       }
 
       return clearSpreadsheet(spreadsheetId).then(function (response) {
@@ -500,7 +500,7 @@
     var writeContentToSpreadsheet = async function (spreadsheetId, content) {
 
       if (gUser.access_token_expiration < Math.floor(Date.now() / 1000)) {
-        await handleAuthenticate();
+        await handleAuthorizeAndAuthenticate();
       }
 
       var updateBody = {
@@ -533,7 +533,7 @@
     var clearSpreadsheet = async function (spreadsheetId) {
 
       if (gUser.access_token_expiration < Math.floor(Date.now() / 1000)) {
-        await handleAuthenticate();
+        await handleAuthorizeAndAuthenticate();
       }
 
       // Note: To edit a specific tab of the sheet, specify request like so. Single quotes required around the name of the Sheet tab.
@@ -560,7 +560,7 @@
     var updateSpreadsheetTitle = async function (spreadsheetId, spreadsheetTitle) {
 
       if (gUser.access_token_expiration < Math.floor(Date.now() / 1000)) {
-        await handleAuthenticate();
+        await handleAuthorizeAndAuthenticate();
       }
 
       var updateBody = {
@@ -595,7 +595,7 @@
     var getSpreadsheetInfo = async function(spreadsheetId) {
 
       if (gUser.access_token_expiration < Math.floor(Date.now() / 1000)) {
-        await handleAuthenticate();
+        await handleAuthorizeAndAuthenticate();
       }
 
       return gapi.client.sheets.spreadsheets.get({
@@ -622,7 +622,7 @@
     var getFileName = async function(fileId) {
 
       if (gUser.access_token_expiration < Math.floor(Date.now() / 1000)) {
-        await handleAuthenticate();
+        await handleAuthorizeAndAuthenticate();
       }
 
       return gapi.client.drive.files.get({
