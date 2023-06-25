@@ -212,7 +212,7 @@ export class LayerFactory {
 
     if (useLocalData) {
       for (var i = 0; i < remoteDataHosts.length; i++) {
-        if (layerDef["URL"].indexOf(remoteDataHosts[i]) >= 0) {
+        if (layerDef["URL"] && layerDef["URL"].indexOf(remoteDataHosts[i]) >= 0) {
           var replace = "";
           if (remoteDataHosts[i].indexOf("http") != 0) {
             replace += "https*:\/\/";
