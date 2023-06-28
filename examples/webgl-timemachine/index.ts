@@ -240,7 +240,7 @@ class EarthTimeImpl implements EarthTime {
       gEarthTime.timelapse.setPlaybackRate(newPlaybackRate, true);
     } else if (!shareViewWithSpeedVal) {
       // @ts-ignore
-      if (storyWaypointActive || EarthlapseUI) {
+      if (storyWaypointActive || typeof(EarthlapseUI) !== "undefined") {
         let newPlaybackRate:number = gEarthTime.timelapse.getMaxPlaybackRate() * (info.waypoint.speed / 100.0);
         gEarthTime.timelapse.setPlaybackRate(newPlaybackRate, true);
       } else {
@@ -610,6 +610,7 @@ var enableAutoMode = parseConfigOption({optionName: "enableAutoMode", optionDefa
 // MuseumMode has its own way of doing automode
 enableAutoMode = enableMuseumMode ? false : enableAutoMode;
 var autoModeCriteria = parseConfigOption({optionName: "autoModeCriteria", optionDefaultValue: {}, exposeOptionToUrlHash: false});
+var showDefaultAutoModeBanner = parseConfigOption({optionName: "showDefaultAutoModeBanner", optionDefaultValue: true, exposeOptionToUrlHash: false});
 var screenTimeoutInMilliseconds = parseConfigOption({optionName: "screenTimeoutInMilliseconds", optionDefaultValue: (8 * 60 * 1000), exposeOptionToUrlHash: false});
 var waypointDelayInMilliseconds = parseConfigOption({optionName: "waypointDelayInMilliseconds", optionDefaultValue: (1 * 15 * 1000), exposeOptionToUrlHash: false});
 var defaultPlaybackRate = parseConfigOption({optionName: "defaultPlaybackRate", optionDefaultValue: gEarthTime.defaultPlaybackRate, exposeOptionToUrlHash: false});
@@ -671,7 +672,7 @@ var lastSelectedAnnotationBeforeHidden;
 var initialTopNavWrapperElm;
 var $activeLayerDescriptionTooltip;
 var storyEditor;
-var storyLoadedFromRealKeyDown = false;
+var storyLoadedFromRealKeyDown:boolean = false;
 var $mapboxLogoContainer;
 var verboseRedrawTest = false;
 var spinnerWaitTime = 1000; // milliseconds
@@ -951,7 +952,7 @@ function initLayerToggleUI() {
   });
 
   $(document).on("keydown", function(e) {
-    var fromRealKeydown = e.originalEvent && e.pageX != 0 && e.pageY != 0;
+    var fromRealKeydown = typeof(e.originalEvent) != "undefined" && e.originalEvent.isTrusted;
     // @ts-ignore
     if ((e.target.tagName == "INPUT" || e.target.tagName == "TEXTAREA") && !!fromRealKeydown) return;
 
@@ -1132,7 +1133,7 @@ function initLayerToggleUI() {
     var $selection = $(this);
     var isSelectionChecked = $selection.prop("checked");
     $('#layers-menu label[name=' + selectedLayerName + ']').find("input").prop("checked", isSelectionChecked);
-    var fromRealKeydown = e.originalEvent && e.pageX != 0 && e.pageY != 0;
+    var fromRealKeydown = typeof(e.originalEvent) != "undefined" && e.originalEvent.isTrusted;
     if (fromRealKeydown && $(".current-location-text-container").is(':visible')) {
       showAnnotationResumeExit();
     }
@@ -1160,7 +1161,7 @@ function initLayerToggleUI() {
       $legendContainer.hide();
     }
 
-    if (e.originalEvent && e.pageX != 0 && e.pageY != 0 && $(this).prop('checked')) {
+    if (typeof(e.originalEvent) != "undefined" && e.originalEvent.isTrusted && $(this).prop('checked')) {
       UTIL.addGoogleAnalyticEvent('button', 'click', 'layer=' + $(this).prop("id"));
     }
   });
@@ -1182,7 +1183,7 @@ function initLayerToggleUI() {
 
   $("body").on("click", "#layers-list .ui-accordion-header, #layers-list-featured .ui-accordion-header", function(e) {
     // Don't scroll layer category into view if it was not initiated by an actual user interaction.
-    if (!e.originalEvent && !e.detail) return;
+    if (typeof(e.originalEvent) != "undefined" && !e.originalEvent.isTrusted) return;
     var $this = $(this);
     if (!$this.hasClass("ui-state-active")) {
       lastLayerMenuScrollPos = 0;
@@ -1806,6 +1807,10 @@ async function setupUIAndOldLayers() {
       $("#layers-menu-choice").remove();
     }
 
+    if (!showDefaultAutoModeBanner) {
+      $("#timeMachine .autoModePrompt").remove();
+    }
+
     $appControls.css("top", ($navigationControls.height() + 20) + "px");
 
     // Hide any tables that have all their children
@@ -2314,7 +2319,7 @@ async function setupUIAndOldLayers() {
   $("#theme-menu").on("click", "[id^=story_]", function(e) {
     // Note that a story can also be a theme (old way)
     var $selectedStoryElement = $(e.currentTarget);
-    storyLoadedFromRealKeyDown = e.originalEvent && e.pageX != 0 && e.pageY != 0;
+    storyLoadedFromRealKeyDown = typeof(e.originalEvent) != "undefined" && e.originalEvent.isTrusted;
 
     var isAutoModeRunning = snaplapseViewerForPresentationSlider.isAutoModeRunning();
 
@@ -2393,7 +2398,8 @@ async function setupUIAndOldLayers() {
   });
 
   $("body").on("click", function(e) {
-    if (!e.originalEvent && !e.detail) return;
+    // Ignore click event not initiated by user interaction.
+    if (typeof(e.originalEvent) != "undefined" && !e.originalEvent.isTrusted) return;
     var ignoreElemIds = ["stories-menu-choice", "layers-menu-choice", "main-hamburger-menu", "theme-title-container", "annotation-choose-another-story"];
     var $ignoredElms = $(e.target).closest("#stories-menu-choice, #layers-menu-choice, #main-hamburger-menu, #theme-title-container, #annotation-choose-another-story");
     if (ignoreElemIds.indexOf($ignoredElms.attr("id")) != -1 || !$('#main-hamburger-menu').hasClass("is-active") || $(e.target).closest("div").hasClass("ui-tooltip-content")) return;
@@ -2734,7 +2740,7 @@ var updateLetterboxContent = function(newSectionChoice=null) {
     // Handle letterbox base layer selection
     $('.letterbox-base-layers-table').on("click", "td", function(e) {
       // Clicking a span will cause this to run twice, so we ignore element a user did not physically click
-      if (!e.detail) return;
+      if (typeof(e.originalEvent) != "undefined" && !e.originalEvent.isTrusted) return;
       var $input = $(this).find("input");
       // Special case since this is a radio button
       $input.prop("checked", true);
@@ -2801,7 +2807,7 @@ var updateLetterboxContent = function(newSectionChoice=null) {
     // Handle letterbox theme selection
     $('.letterbox-bottom-picker-table').on("click", "td", function(e) {
       // Clicking a span will cause this to run twice, so we ignore element a user did not physically click
-      if (!e.detail) return;
+      if (typeof(e.originalEvent) != "undefined" && !e.originalEvent.isTrusted) return;
       var $input = $(this).find("input");
       // Special case since this is a radio button
       $input.prop("checked", true);
@@ -2855,7 +2861,7 @@ var updateLetterboxContent = function(newSectionChoice=null) {
     // Handle letterbox layer category selection
     $('.letterbox-bottom-picker-table').on("click", "td", function(e) {
       // Clicking a span will cause this to run twice, so we ignore element a user did not physically click
-      if (!e.detail) return;
+      if (typeof(e.originalEvent) != "undefined" && !e.originalEvent.isTrusted) return;
 
       var $input = $(this).find("input");
       // Special case since this is a radio button
