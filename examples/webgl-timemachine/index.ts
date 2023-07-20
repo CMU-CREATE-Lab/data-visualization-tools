@@ -774,6 +774,7 @@ let frameGrab: FrameGrabInterface = {
       before_frameno: before_frameno,
       frameno: gEarthTime.timelapse.frameno,
       aux_info: {
+        lat_lon_capture_bounds: gEarthTime.timelapse.getLatLngBoundingBoxForCurrentView(),
         layerdb_size: gEarthTime.layerDB.orderedLayers.length,
         visible_layers: gEarthTime.layerDB.visibleLayerIds(),
         layer_info: layerInfo.join('\n'),
