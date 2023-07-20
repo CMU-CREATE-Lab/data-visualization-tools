@@ -633,7 +633,6 @@ var initialShareView = parseConfigOption({optionName: "initialShareView", option
 // TODO: Firefox seeking speed is not precise enough for the assumption made by the fader shader.
 // For now, disable fader shader for Firefox otherwise we get jumpback during playback.
 WebGLVideoTile.useFaderShader = UTIL.isFirefox() ? false : useFaderShader;
-var isAutoModeRunning = false;
 var visibleBaseMapLayer = "blsat";
 var thumbnailTool;
 var snaplapseViewerForPresentationSlider;
@@ -676,6 +675,7 @@ var storyLoadedFromRealKeyDown:boolean = false;
 var $mapboxLogoContainer;
 var verboseRedrawTest = false;
 var spinnerWaitTime = 1000; // milliseconds
+var didAtLeastOneWaypointFromStoryInAutoMode = false;
 
 
 function parseConfigOption(settings) {
@@ -1869,15 +1869,13 @@ async function setupUIAndOldLayers() {
     if (enableLetterboxMode)
       $elements.addClass('letterbox');
 
-    snaplapseViewerForPresentationSlider.addEventListener('snaplapse-loaded', function() {
+    snaplapseViewerForPresentationSlider.addEventListener('snaplapse-loaded', function(keyframes, isAutoModeRunning) {
       $(".snaplapse_keyframe_container").scrollLeft(0);
-      isAutoModeRunning = snaplapseViewerForPresentationSlider.isAutoModeRunning();
-      //if (isAutoModeRunning) {
-      //  var snaplapseForPresentationSlider = timelapse.getSnaplapseForPresentationSlider();
-      //  snaplapseForPresentationSlider.getSnaplapseViewer().initializeAndRunAutoMode();
-      //}
-      if (isAutoModeRunning && enableMuseumMode) {
-        gEarthTime.handleStoryToggle(false);
+      if (isAutoModeRunning) {
+        storyLoadedFromRealKeyDown = false;
+        if (enableMuseumMode) {
+          gEarthTime.handleStoryToggle(false);
+        }
       }
       var vals = UTIL.getUnsafeHashVars();
       var waypointId;
@@ -1889,11 +1887,12 @@ async function setupUIAndOldLayers() {
       } else {
         waypointId = $(".snaplapse_keyframe_list").children().first().children()[0].id;
       }
-      $("#" + waypointId).trigger("click", {fromKeyboard: storyLoadedFromRealKeyDown});
+      $("#" + waypointId).trigger("click", {fromAutoMode: isAutoModeRunning, fromKeyboard: storyLoadedFromRealKeyDown});
       (document.activeElement as HTMLElement).blur();
     });
 
     snaplapseViewerForPresentationSlider.addEventListener('automode-start', function() {
+      lastSelectedWaypointIndex = -1;
       if (!currentWaypointStory) {
         var $availableStories = $("#theme-list [id^=story_]");
         $availableStories.first().click();
@@ -1907,6 +1906,9 @@ async function setupUIAndOldLayers() {
       var waypointTitle = waypoint.title;
       var waypointIndex = waypoint.index;
       var waypointBounds = waypoint.bounds;
+      lastSelectedWaypointIndex = lastSelectedWaypointIndex == -1 ? -1 : waypoint.previousIndex;
+
+      var isAutoModeRunning = snaplapseViewerForPresentationSlider.isAutoModeRunning();
 
       clearInterval(waitToLoadWaypointLayersOnPageReadyInterval);
 
@@ -1914,7 +1916,6 @@ async function setupUIAndOldLayers() {
       let maxWaypointScale = gEarthTime.timelapse.pixelBoundingBoxToPixelCenter(waypointBounds).scale;
       gEarthTime.timelapse.setMaxScale(maxWaypointScale);
 
-      isAutoModeRunning = snaplapseViewerForPresentationSlider.isAutoModeRunning();
       if (waypointTitle) {
         lastSelectedAnnotationBeforeHidden = $("#" + waypointTitle.replace(/\W+/g, "_") + " .snaplapse_keyframe_list_item_thumbnail_overlay_presentation");
       }
@@ -1924,12 +1925,18 @@ async function setupUIAndOldLayers() {
         setNewStoryAndThemeUrl(currentWaypointTheme, currentWaypointStory, -1);
       }
 
-      if (enableThemeHamburgerButton && isAutoModeRunning && (autoModeCriteria.cycleThroughStoriesAndThemes || autoModeCriteria.cycleThroughStories) && lastSelectedWaypointIndex > waypointIndex) {
-        var $availableStories = $("#theme-list [id^=story_]");
-        var nextWaypointCollectionIdx;
+      // If we are in automode, did at least one waypoint and the last waypoint index is at (in the case of a single waypoint story)
+      // or past the current waypoint (which means we looped), then decide what to do based on autoMode criteria.
+      if ((enableThemeHamburgerButton && isAutoModeRunning) &&
+          (autoModeCriteria.cycleThroughStoriesAndThemes || autoModeCriteria.cycleThroughStories) &&
+          (didAtLeastOneWaypointFromStoryInAutoMode && lastSelectedWaypointIndex >= waypointIndex)) {
+        lastSelectedWaypointIndex = -1;
+        didAtLeastOneWaypointFromStoryInAutoMode = false;
+        var $availableStories:JQuery = $("#theme-list [id^=story_]");
+        var nextWaypointCollectionIdx:number;
         var availableStoriesArray = $availableStories.toArray();
-        var $currentWaypointCollection;
-        var $currentStory;
+        var $currentWaypointCollection:JQuery;
+        var $currentStory:JQuery;
         for (var i = 0; i < availableStoriesArray.length; i++) {
           var $story = $(availableStoriesArray[i]);
           if ($story.hasClass("activeStory")) {
@@ -1939,7 +1946,7 @@ async function setupUIAndOldLayers() {
             break;
           }
         }
-        var $nextWaypointCollection = $($availableStories.get(nextWaypointCollectionIdx));
+        var $nextWaypointCollection:JQuery = $($availableStories.get(nextWaypointCollectionIdx));
         // If no more stories are next (i.e. we are the last story of the last theme), then for now use the first story of the first theme.
         if ($nextWaypointCollection.length == 0) {
           $nextWaypointCollection = $availableStories.first();
@@ -1963,9 +1970,14 @@ async function setupUIAndOldLayers() {
         if (enableLetterboxMode) {
           $("#letterbox-" + $nextWaypointCollection[0].id).prop("checked", true);
         }
+      } else {
+        if (isAutoModeRunning) {
+          didAtLeastOneWaypointFromStoryInAutoMode = true;
+          if (lastSelectedWaypointIndex == -1) {
+            lastSelectedWaypointIndex = 0;
+          }
+        }
       }
-
-      lastSelectedWaypointIndex = waypointIndex;
 
       gEarthTime.timelapse.removeParabolicMotionStoppedListener(parabolicMotionStoppedListener);
 
@@ -2503,6 +2515,7 @@ async function setupUIAndOldLayers() {
     $("#theme-menu .activeStory").removeClass('activeStory');
     $("#theme-menu .active-story-in-theme").remove();
     gEarthTime.handleStoryToggle(false);
+    currentWaypointStory = null;
     removeFeaturedTheme();
     $('#theme-title').attr('data-theme-id', '');
   });
